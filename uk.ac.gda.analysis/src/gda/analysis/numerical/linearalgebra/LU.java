@@ -118,11 +118,9 @@ public class LU {
 	}
 
 	/**
-	 * @param a
-	 * @param indx
-	 * @param b
+	 * @param a @param indX @param b
 	 */
-	public static void lubksb(double[][] a, int[] indx, double[] b) // b
+	public static void lubksb(double[][] a, int[] indX, double[] b) // b
 	// input
 	// and also
 	// output
@@ -131,7 +129,7 @@ public class LU {
 		int i, ii = 0, ip, j;
 		double sum;
 		for (i = 0; i < n; i++) {
-			ip = indx[i];
+			ip = indX[i];
 			sum = b[ip];
 			b[ip] = b[i];
 			if (ii != 0) {

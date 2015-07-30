@@ -19,10 +19,6 @@
 
 package gda.analysis.datastructure;
 
-import gda.analysis.datastructure.event.DataChangeEvent;
-import gda.analysis.datastructure.event.DataChangeObservable;
-import gda.analysis.datastructure.event.DataChangeObserver;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -35,6 +31,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import Jama.Matrix;
+import gda.analysis.datastructure.event.DataChangeEvent;
+import gda.analysis.datastructure.event.DataChangeObservable;
+import gda.analysis.datastructure.event.DataChangeObserver;
 
 /**
  * Data storage vector I originally created something more complex which overrode add methods to update the min max on
@@ -54,13 +53,13 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 
 	/**
 	 * Max length of the data set..... If you append a point to the data set and its greater than maxDataSetSize a point
-	 * is removed from the the start of the list...... This can be useful for continous monitoring of some data which
-	 * you don't neccesarily want to store.....
+	 * is removed from the the start of the list...... This can be useful for continuous monitoring of some data which
+	 * you don't necessarily want to store.....
 	 */
 	private int maxDataSetSize = Integer.MAX_VALUE;
 
 	/**
-	 * boolean determining if you can extend the the dataset above the size its initialized at
+	 * boolean determining if you can extend the the dataset above the size its initialised at
 	 */
 	private boolean fixedSize = false;
 
@@ -167,24 +166,18 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	}
 
 	/**
-	 * Create an empty data set to start with
-	 *
-	 * @param dimensions
-	 *            The size of the array to set to zero
+	 * Create an empty data set to start with @param dims The size of the array to set to zero
 	 */
-	public void createEmptyList(int... dimensions) {
-		int length = dimensions[0];
-		for (int i = 1; i < dimensions.length; i++)
-			length *= dimensions[i];
+	public void createEmptyList(int... dims) {
+		int length = dims[0];
+		for (int i = 1; i < dims.length; i++)
+			length *= dims[i];
 		for (int i = 0; i < length; i++)
 			this.add(0.0);
 	}
 
 	/**
-	 * Creates the datavector from a single dimentional array of doubles
-	 *
-	 * @param data
-	 *            the data to put in the 1D array
+	 * Creates the datavector from a single dimensional array of doubles @param data the data to put in the 1D array
 	 */
 	public void createListFromArray(double[] data) {
 		for (int i = 0; i < data.length; i++)
@@ -192,10 +185,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	}
 
 	/**
-	 * Creates the datavector from a two dimentional array of doubles
-	 *
-	 * @param data
-	 *            the 2D array which holds teh data to be put into the datavector;
+	 * Creates the datavector from a two dimensional array of doubles @param data the 2D array which holds the data to be put into the datavector;
 	 */
 	public void createListFromArray(double[][] data) {
 		for (int i = 0; i < data.length; i++)
@@ -255,10 +245,10 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	}
 
 	/**
-	 * Deregisters an object, so that it not longer receives notification whenever the series changes.
+	 * Unregisters an object, so that it not longer receives notification whenever the series changes.
 	 *
 	 * @param listener
-	 *            the listener to deregister.
+	 *            the listener to unregister.
 	 */
 	@Override
 	public synchronized void removeChangeListener(DataChangeObserver listener) {
@@ -514,7 +504,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 			direction[i] = (int) Math.signum(endIndices[i] - startIndices[i]);
 		}
 
-		// now preform the loop
+		// now perform the loop
 		int finished = 0;
 
 		while (finished == 0) {
@@ -676,10 +666,10 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 		try {
 			return new Matrix(this.doubleMatrix());
 		} catch (IllegalArgumentException e) {
-			logger.error("DataVector needs to be passed the a 2 dimentional Vector, you passed it a "
+			logger.error("DataVector needs to be passed the a 2 dimensional Vector, you passed it a "
 					+ this.dimensions.length + " size Vector");
 			throw new IllegalArgumentException(
-					"DataVector needs to be passed the a 2 dimentional Vector, you passed it a "
+					"DataVector needs to be passed the a 2 dimensional Vector, you passed it a "
 							+ this.dimensions.length + " size Vector");
 		}
 	}
@@ -703,10 +693,10 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 
 		// only return if its a 2D dataVector
 		if (this.dimensions.length != 2) {
-			logger.error("DataVector needs to be passed the a 2 dimentional Vector, you passed it a "
+			logger.error("DataVector needs to be passed the a 2 dimensional Vector, you passed it a "
 					+ this.dimensions.length + " size Vector");
 			throw new IllegalArgumentException(
-					"DataVector needs to be passed the a 2 dimentional Vector, you passed it a "
+					"DataVector needs to be passed the a 2 dimensional Vector, you passed it a "
 							+ this.dimensions.length + " size Vector");
 		}
 
@@ -733,7 +723,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	// Additions
 
 	/**
-	 * Overriding the '+' opporator, so that datavectors can be added together <br>
+	 * Overriding the '+' operator, so that datavectors can be added together <br>
 	 * using the following syntax<br>
 	 * <br>
 	 * <code>
@@ -744,7 +734,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	 *  <b>c = a+b</b><br>
 	 *  print c<br>
 	 *  </code><br>
-	 * this gives the responce<br>
+	 * this gives the response<br>
 	 * <br>
 	 * <code>
 	 *  [1.0, 2.0, 3.0, 4.0]<br>
@@ -754,14 +744,14 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	 *
 	 * @param other
 	 *            The Datavector after the '+' sign
-	 * @return DataVector1D containg the element by element summation of the this object with the object passed
+	 * @return DataVector1D containing the element by element summation of the this object with the object passed
 	 */
 	public Object __add__(DataVector other) {
 		return DataVectorMath.sum(this, other);
 	}
 
 	/**
-	 * Overriding the '+' opporator, so that all elements of a datavector can be <br>
+	 * Overriding the '+' operator, so that all elements of a datavector can be <br>
 	 * added to a single double value <br>
 	 * using the following syntax<br>
 	 * <br>
@@ -770,7 +760,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	 *  print a<br>
 	 *  <b>b = a+2.0</b><br>
 	 *  print b<br><br>
-	 *  </code> this gives the responce<br>
+	 *  </code> this gives the response<br>
 	 * <br>
 	 * <code>
 	 *  [1.0, 2.0, 3.0, 4.0]<br>
@@ -779,7 +769,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	 *
 	 * @param other
 	 *            The Double after the '+' sign
-	 * @return DataVector1D containg the element by element summation of the this object with the double passed
+	 * @return DataVector1D containing the element by element summation of the this object with the double passed
 	 */
 	public Object __add__(double other) {
 
@@ -788,7 +778,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	}
 
 	/**
-	 * Overriding the '+=' opporator, so that datavectors can be added together <br>
+	 * Overriding the '+=' operator, so that datavectors can be added together <br>
 	 * using the following syntax<br>
 	 * <br>
 	 * <code>
@@ -799,7 +789,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	 *  <b>a+=b</b><br>
 	 *  print a<br>
 	 *  </code><br>
-	 * this gives the responce<br>
+	 * this gives the response<br>
 	 * <br>
 	 * <code>
 	 *  [1.0, 2.0, 3.0, 4.0]<br>
@@ -809,7 +799,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	 *
 	 * @param other
 	 *            The Datavector1D after the '+=' sign
-	 * @return DataVector1D containg the element by element summation of the this object with the object passed
+	 * @return DataVector1D containing the element by element summation of the this object with the object passed
 	 */
 	public Object __iadd__(DataVector other) {
 
@@ -818,7 +808,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	}
 
 	/**
-	 * Overriding the '+=' opporator, so that a double value can be added to all<br>
+	 * Overriding the '+=' operator, so that a double value can be added to all<br>
 	 * elements of the original datavector, using the following syntax<br>
 	 * <br>
 	 * <code>
@@ -827,7 +817,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	 *  <b>a+=5.0</b><br>
 	 *  print a<br>
 	 *  </code><br>
-	 * this gives the responce<br>
+	 * this gives the response<br>
 	 * <br>
 	 * <code>
 	 *  [1.0, 2.0, 3.0, 4.0]<br>
@@ -836,7 +826,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	 *
 	 * @param other
 	 *            The Double value after the '+=' sign
-	 * @return DataVector1D containg the element by element summation of the this object with the double passed
+	 * @return DataVector1D containing the element by element summation of the this object with the double passed
 	 */
 	public Object __iadd__(double other) {
 
@@ -847,7 +837,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	// Subtractions
 
 	/**
-	 * Overriding the '-' opporator, so that datavectors can be subtracted <br>
+	 * Overriding the '-' operator, so that datavectors can be subtracted <br>
 	 * using the following syntax<br>
 	 * <br>
 	 * <code>
@@ -858,7 +848,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	 *  <b>c = a-b</b><br>
 	 *  print c<br>
 	 *  </code><br>
-	 * this gives the responce<br>
+	 * this gives the response<br>
 	 * <br>
 	 * <code>
 	 *  [1.0, 2.0, 3.0, 4.0]<br>
@@ -868,7 +858,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	 *
 	 * @param other
 	 *            The Datavector1D after the '-' sign
-	 * @return DataVector1D containg the element by element subtraction of the this object with the object passed
+	 * @return DataVector1D containing the element by element subtraction of the this object with the object passed
 	 */
 	public Object __sub__(DataVector other) {
 
@@ -877,7 +867,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	}
 
 	/**
-	 * Overriding the '-' opporator, so that all elements of a datavector can have <br>
+	 * Overriding the '-' operator, so that all elements of a datavector can have <br>
 	 * a single double value subtracted from them using the following syntax<br>
 	 * <br>
 	 * <code>
@@ -885,7 +875,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	 *  print a<br>
 	 *  <b>b = a-1.0</b><br>
 	 *  print b<br><br>
-	 *  </code> this gives the responce<br>
+	 *  </code> this gives the response<br>
 	 * <br>
 	 * <code>
 	 *  [1.0, 2.0, 3.0, 4.0]<br>
@@ -894,7 +884,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	 *
 	 * @param other
 	 *            The Double after the '-' sign
-	 * @return DataVector1D containg the element by element subtraction of the this object with the double passed
+	 * @return DataVector1D containing the element by element subtraction of the this object with the double passed
 	 */
 	public Object __sub__(double other) {
 
@@ -902,7 +892,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	}
 
 	/**
-	 * Overriding the '-=' opporator, so that datavectors can be subtracted<br>
+	 * Overriding the '-=' operator, so that datavectors can be subtracted<br>
 	 * using the following syntax<br>
 	 * <br>
 	 * <code>
@@ -913,7 +903,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	 *  <b>a-=b</b><br>
 	 *  print a<br>
 	 *  </code><br>
-	 * this gives the responce<br>
+	 * this gives the response<br>
 	 * <br>
 	 * <code>
 	 *  [1.0, 2.0, 3.0, 4.0]<br>
@@ -923,7 +913,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	 *
 	 * @param other
 	 *            The Datavector1D after the '-=' sign
-	 * @return DataVector1D containg the element by element subtraction of the this object with the object passed
+	 * @return DataVector1D containing the element by element subtraction of the this object with the object passed
 	 */
 	public Object __isub__(DataVector other) {
 
@@ -932,7 +922,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	}
 
 	/**
-	 * Overriding the '-=' opporator, so that a double value can be subtracted from all<br>
+	 * Overriding the '-=' operator, so that a double value can be subtracted from all<br>
 	 * elements of the original datavector, using the following syntax<br>
 	 * <br>
 	 * <code>
@@ -941,7 +931,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	 *  <b>a-=2.0</b><br>
 	 *  print a<br>
 	 *  </code><br>
-	 * this gives the responce<br>
+	 * this gives the response<br>
 	 * <br>
 	 * <code>
 	 *  [1.0, 2.0, 3.0, 4.0]<br>
@@ -950,7 +940,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	 *
 	 * @param other
 	 *            The Double value after the '-=' sign
-	 * @return DataVector1D containg the element by element subtraction of the this object with the double passed
+	 * @return DataVector1D containing the element by element subtraction of the this object with the double passed
 	 */
 	public Object __isub__(double other) {
 
@@ -960,8 +950,8 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	// Division
 
 	/**
-	 * Overriding the '/' opporator, so that one vector can be divided element by <br>
-	 * element by annother<br>
+	 * Overriding the '/' operator, so that one vector can be divided element by <br>
+	 * element by another<br>
 	 * <br>
 	 * <code>
 	 *  a = DataVector(1,4,[1,2,3,4])<br>
@@ -971,7 +961,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	 *  <b>c=a/b</b><br>
 	 *  print c<br>
 	 *  </code><br>
-	 * this gives the responce<br>
+	 * this gives the response<br>
 	 * <br>
 	 * <code>
 	 *  [1.0, 2.0, 3.0, 4.0]<br>
@@ -981,7 +971,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	 *
 	 * @param other
 	 *            The DataVector1D value after the '/' sign
-	 * @return DataVector1D containg the element by element division of the this object with the object passed
+	 * @return DataVector1D containing the element by element division of the this object with the object passed
 	 */
 	public Object __div__(DataVector other) {
 
@@ -989,7 +979,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	}
 
 	/**
-	 * Overriding the '/' opporator, so that one vector can be divided element by <br>
+	 * Overriding the '/' operator, so that one vector can be divided element by <br>
 	 * element by a Double<br>
 	 * <br>
 	 * <code>
@@ -998,7 +988,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	 *  <b>b=a/2.0</b><br>
 	 *  print b<br>
 	 *  </code><br>
-	 * this gives the responce<br>
+	 * this gives the response<br>
 	 * <br>
 	 * <code>
 	 *  [1.0, 2.0, 3.0, 4.0]<br>
@@ -1007,15 +997,15 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	 *
 	 * @param other
 	 *            The double value after the '/' sign
-	 * @return DataVector1D containg the element by element division of the this object with the Double passed
+	 * @return DataVector1D containing the element by element division of the this object with the Double passed
 	 */
 	public Object __div__(double other) {
 		return DataVectorMath.div(this, other);
 	}
 
 	/**
-	 * Overriding the '/=' opporator, so that one vector can be divided element by <br>
-	 * element by annother<br>
+	 * Overriding the '/=' operator, so that one vector can be divided element by <br>
+	 * element by another<br>
 	 * <br>
 	 * <code>
 	 *  a = DataVector(1,4,[1,2,3,4])<br>
@@ -1026,7 +1016,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	 *  a/=b</b><br>
 	 *  print a<br>
 	 *  </code><br>
-	 * this gives the responce<br>
+	 * this gives the response<br>
 	 * <br>
 	 * <code>
 	 *  [1.0, 2.0, 3.0, 4.0]<br>
@@ -1036,14 +1026,14 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	 *
 	 * @param other
 	 *            The DataVector1D value after the '/=' sign
-	 * @return DataVector1D containg the element by element division of the this object with the object passed
+	 * @return DataVector1D containing the element by element division of the this object with the object passed
 	 */
 	public Object __idiv__(DataVector other) {
 		return DataVectorMath.div(this, other);
 	}
 
 	/**
-	 * Overriding the '/=' opporator, so that one vector can be divided element by <br>
+	 * Overriding the '/=' operator, so that one vector can be divided element by <br>
 	 * element by a Double<br>
 	 * <br>
 	 * <code>
@@ -1052,7 +1042,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	 *  <b>a/=2.0</b><br>
 	 *  print a<br>
 	 *  </code><br>
-	 * this gives the responce<br>
+	 * this gives the response<br>
 	 * <br>
 	 * <code>
 	 *  [1.0, 2.0, 3.0, 4.0]<br>
@@ -1061,7 +1051,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	 *
 	 * @param other
 	 *            The double value after the '/=' sign
-	 * @return DataVector1D containg the element by element division of the this object with the Double passed
+	 * @return DataVector1D containing the element by element division of the this object with the Double passed
 	 */
 	public Object __idiv__(double other) {
 		return DataVectorMath.div(this, other);
@@ -1070,8 +1060,8 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	// multiplication (element by element)
 
 	/**
-	 * Overriding the '*' opporator, so that one vector can be multiplied element by <br>
-	 * element by annother<br>
+	 * Overriding the '*' operator, so that one vector can be multiplied element by <br>
+	 * element by another<br>
 	 * <br>
 	 * <code>
 	 *  a = DataVector(1,4,[1,2,3,4])<br>
@@ -1081,7 +1071,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	 *  <b>c=a*b</b><br>
 	 *  print c<br>
 	 *  </code><br>
-	 * this gives the responce<br>
+	 * this gives the response<br>
 	 * <br>
 	 * <code>
 	 *  [1.0, 2.0, 3.0, 4.0]<br>
@@ -1091,7 +1081,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	 *
 	 * @param other
 	 *            The DataVector1D value after the '*' sign
-	 * @return DataVector1D containg the element by element multiplication of the this object with the object passed
+	 * @return DataVector1D containing the element by element multiplication of the this object with the object passed
 	 */
 	public Object __mul__(DataVector other) {
 
@@ -1099,7 +1089,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	}
 
 	/**
-	 * Overriding the '*' opporator, so that one vector can be multiplied element by <br>
+	 * Overriding the '*' operator, so that one vector can be multiplied element by <br>
 	 * element by a Double<br>
 	 * <br>
 	 * <code>
@@ -1108,7 +1098,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	 *  <b>b=a*2.0</b><br>
 	 *  print b<br>
 	 *  </code><br>
-	 * this gives the responce<br>
+	 * this gives the response<br>
 	 * <br>
 	 * <code>
 	 *  [1.0, 2.0, 3.0, 4.0]<br>
@@ -1117,15 +1107,15 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	 *
 	 * @param other
 	 *            The double value after the '*' sign
-	 * @return DataVector1D containg the element by element multiplication of the this object with the Double passed
+	 * @return DataVector1D containing the element by element multiplication of the this object with the Double passed
 	 */
 	public Object __mul__(double other) {
 		return DataVectorMath.mul(this, other);
 	}
 
 	/**
-	 * Overriding the '*=' opporator, so that one vector can be multiplied element by <br>
-	 * element by annother<br>
+	 * Overriding the '*=' operator, so that one vector can be multiplied element by <br>
+	 * element by another<br>
 	 * <br>
 	 * <code>
 	 *  a = DataVector(1,4,[1,2,3,4])<br>
@@ -1136,7 +1126,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	 *  a*=b</b><br>
 	 *  print a<br>
 	 *  </code><br>
-	 * this gives the responce<br>
+	 * this gives the response<br>
 	 * <br>
 	 * <code>
 	 *  [1.0, 2.0, 3.0, 4.0]<br>
@@ -1146,7 +1136,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	 *
 	 * @param other
 	 *            The DataVector1D value after the '*=' sign
-	 * @return DataVector1D containg the element by element multiplication of the this object with the object passed
+	 * @return DataVector1D containing the element by element multiplication of the this object with the object passed
 	 */
 	public Object __imul__(DataVector other) {
 
@@ -1155,7 +1145,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	}
 
 	/**
-	 * Overriding the '/*=' opporator, so that one vector can be multiplied element by <br>
+	 * Overriding the '/*=' operator, so that one vector can be multiplied element by <br>
 	 * element by a Double<br>
 	 * <br>
 	 * <code>
@@ -1164,7 +1154,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	 *  <b>a*=2.0</b><br>
 	 *  print a<br>
 	 *  </code><br>
-	 * this gives the responce<br>
+	 * this gives the response<br>
 	 * <br>
 	 * <code>
 	 *  [1.0, 2.0, 3.0, 4.0]<br>
@@ -1173,22 +1163,22 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	 *
 	 * @param other
 	 *            The double value after the '*=' sign
-	 * @return DataVector1D containg the element by element multiplication of the this object with the Double passed
+	 * @return DataVector1D containing the element by element multiplication of the this object with the Double passed
 	 */
 	public Object __imul__(double other) {
 
 		return DataVectorMath.mul(this, other);
 	}
 
-	// Logical Opporators
+	// Logical Operators
 
 	/**
-	 * overriding the "==" opporator.<br>
+	 * overriding the "==" operator.<br>
 	 * <br>
 	 * This returns true if the magnitudes of the 2 vectors are identical <br>
 	 * <br>
-	 * <i><b>Warning!! as this is using floating point accurasy, two processed <br>
-	 * vecors are very unlikely to be equal, so be carefull using this!</b></i><br>
+	 * <i><b>Warning!! as this is using floating point accuracy, two processed <br>
+	 * vectors are very unlikely to be equal, so be careful using this!</b></i><br>
 	 *
 	 * @param other
 	 *            The DataVector1D value after the '==' sign
@@ -1214,12 +1204,12 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	}
 
 	/**
-	 * overriding the "!=" opporator.<br>
+	 * overriding the "!=" operator.<br>
 	 * <br>
 	 * This returns false if the magnitudes of the 2 vectors are identical <br>
 	 * <br>
-	 * <i><b>Warning!! as this is using floating point accurasy, two processed <br>
-	 * vecors are very unlikely to be equal, so be carefull using this!</b></i><br>
+	 * <i><b>Warning!! as this is using floating point accuracy, two processed <br>
+	 * vectors are very unlikely to be equal, so be careful using this!</b></i><br>
 	 *
 	 * @param other
 	 *            The DataVector1D value after the '!=' sign
@@ -1245,9 +1235,9 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	}
 
 	/**
-	 * overriding the ">" opporator.<br>
+	 * overriding the ">" operator.<br>
 	 * <br>
-	 * This returns true if the first vecotors is greater than the magnitude of the second vector<br>
+	 * This returns true if the first vectors is greater than the magnitude of the second vector<br>
 	 * <br>
 	 *
 	 * @param other
@@ -1274,9 +1264,9 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	}
 
 	/**
-	 * overriding the "<" opporator.<br>
+	 * overriding the "<" operator.<br>
 	 * <br>
-	 * This returns false if the first vecotors is greater than the magnitude of the second vector<br>
+	 * This returns false if the first vectors is greater than the magnitude of the second vector<br>
 	 * <br>
 	 *
 	 * @param other
@@ -1303,9 +1293,9 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	}
 
 	/**
-	 * overriding the ">=" opporator.<br>
+	 * overriding the ">=" operator.<br>
 	 * <br>
-	 * This returns true if the first vecotor is greater than or equal to the magnitude of the second vector<br>
+	 * This returns true if the first vector is greater than or equal to the magnitude of the second vector<br>
 	 * <br>
 	 *
 	 * @param other
@@ -1332,9 +1322,9 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	}
 
 	/**
-	 * overriding the "<=" opporator.<br>
+	 * overriding the "<=" operator.<br>
 	 * <br>
-	 * This returns true if the first vecotors is less than or equal to the magnitude of the second vector<br>
+	 * This returns true if the first vectors is less than or equal to the magnitude of the second vector<br>
 	 * <br>
 	 *
 	 * @param other
@@ -1363,21 +1353,21 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	@Override
 	public synchronized String toString() {
 
-		String Out = "";
+		String out = "";
 
 		int Dimentions[] = this.getDimensions();
 
-		Out = Out + "DataVector Dimentions are [" + Dimentions[0];
+		out = out + "DataVector Dimentions are [" + Dimentions[0];
 
 		for (int i = 1; i < Dimentions.length; i++) {
-			Out = Out + "," + Dimentions[i];
+			out = out + "," + Dimentions[i];
 		}
 
-		Out = Out + "]\n";
+		out = out + "]\n";
 
 		int outputDimentions[] = new int[Dimentions.length];
 
-		// if the datavectoer is too big, clip the size of the data so its
+		// if the datavector is too big, clip the size of the data so its
 		// possible to display it on the screen easily
 
 		int clipped = 0;
@@ -1392,19 +1382,19 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 		}
 
 		if (clipped == 1) {
-			Out = Out + "DataVector Output clipped in size\n";
+			out = out + "DataVector Output clipped in size\n";
 		}
 
-		// First get the dimentionality of the vector
+		// First get the dimensionality of the vector
 		if (outputDimentions.length == 1) {
 
-			Out += "[" + this.getIndex(0);
+			out += "[" + this.getIndex(0);
 
 			for (int i = 1; i < outputDimentions[0]; i++) {
-				Out += "," + this.getIndex(i);
+				out += "," + this.getIndex(i);
 			}
 
-			Out += "]\n";
+			out += "]\n";
 
 		}
 
@@ -1412,14 +1402,14 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 
 			for (int h = 0; h < outputDimentions[1]; h++) {
 
-				Out += "|\t" + this.getIndex(0, h);
+				out += "|\t" + this.getIndex(0, h);
 
 				for (int w = 1; w < outputDimentions[0]; w++) {
 
-					Out += ",\t" + this.getIndex(w, h);
+					out += ",\t" + this.getIndex(w, h);
 				}
 
-				Out += " |\n";
+				out += " |\n";
 			}
 
 		}
@@ -1428,29 +1418,29 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 
 			for (int w = 0; w < outputDimentions[0]; w++) {
 
-				Out += "\t---";
+				out += "\t---";
 			}
-			Out += " \n";
+			out += " \n";
 
 			for (int d = 0; d < outputDimentions[2]; d++) {
 
 				for (int h = 0; h < outputDimentions[1]; h++) {
 
-					Out += "|\t" + this.getIndex(0, h, d);
+					out += "|\t" + this.getIndex(0, h, d);
 
 					for (int w = 1; w < outputDimentions[0]; w++) {
 
-						Out += ",\t" + this.getIndex(w, h, d);
+						out += ",\t" + this.getIndex(w, h, d);
 					}
 
-					Out += " |\n";
+					out += " |\n";
 				}
 
 				for (int w = 0; w < outputDimentions[0]; w++) {
 
-					Out += "\t---";
+					out += "\t---";
 				}
-				Out += " \n";
+				out += " \n";
 
 			}
 
@@ -1458,25 +1448,25 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 
 		if (outputDimentions.length > 3) {
 
-			Out += "<" + outputDimentions[0];
+			out += "<" + outputDimentions[0];
 
 			for (int i = 1; i < outputDimentions.length; i++) {
-				Out += outputDimentions[i] + ",";
+				out += outputDimentions[i] + ",";
 			}
 
-			Out += ">\n";
+			out += ">\n";
 
-			Out += "[" + this.get(0);
+			out += "[" + this.get(0);
 
 			for (int i = 1; i < this.size(); i++) {
-				Out += "," + this.get(i);
+				out += "," + this.get(i);
 			}
 
-			Out += "]";
+			out += "]";
 
 		}
 
-		return Out;
+		return out;
 
 	}
 

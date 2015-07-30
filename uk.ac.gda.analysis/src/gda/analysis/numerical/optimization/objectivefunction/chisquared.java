@@ -19,12 +19,12 @@
 
 package gda.analysis.numerical.optimization.objectivefunction;
 
+import java.util.Vector;
+
 import gda.analysis.datastructure.DataVector;
 import gda.analysis.numerical.linefunction.AbstractCompositeFunction;
 import gda.analysis.numerical.linefunction.IParameter;
 import gda.analysis.numerical.linefunction.Parameter;
-
-import java.util.Vector;
 
 /**
  * A standard chi squared objective function for comparing an x and y data set to a composite function
@@ -46,20 +46,20 @@ public class chisquared extends AbstractLSQObjectiveFunction {
 		checkDatasets(dataSets);
 	}
 
-	private void checkDatasets(DataVector... dataSets) {
+	private void checkDatasets(DataVector... datasets) {
 		// First check that there are two data sets
-		if (dataSets.length != 2) {
+		if (datasets.length != 2) {
 			throw new IllegalArgumentException("Must contain an X and Y data set only");
 		}
 		// Now check that they're 1D
-		for (int i = 0; i < dataSets.length; i++) {
-			if (dataSets[i].getDimensions().length != 1) {
+		for (int i = 0; i < datasets.length; i++) {
+			if (datasets[i].getDimensions().length != 1) {
 				throw new IllegalArgumentException("One of these data sets is not 1D...."
 						+ "one of these data sets doesn't belong..");
 			}
 		}
 		// Now check they're the same length!
-		if (dataSets[0].size() != dataSets[1].size()) {
+		if (datasets[0].size() != datasets[1].size()) {
 			throw new IllegalArgumentException("The X and Y datasets aren't the same size");
 		}
 
@@ -72,8 +72,7 @@ public class chisquared extends AbstractLSQObjectiveFunction {
 		DataVector ydata = this.getDatasets()[1];
 
 		setParameters(parameters);
-		// Now with these new values calculate the
-		// chisqaured
+		// Now with these new values calculate the chisqaured
 		int noOfDataPoints = xdata.size();
 		double sum = 0.0;
 		for (int i = 0; i < noOfDataPoints; i++) {

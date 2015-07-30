@@ -19,8 +19,6 @@
 
 package gda.util;
 
-import gda.analysis.ScanFileHolder;
-
 import java.io.File;
 import java.io.IOException;
 
@@ -33,6 +31,7 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
+import gda.analysis.ScanFileHolder;
 import uk.ac.diamond.scisoft.analysis.io.SRSLoader;
 
 /**
@@ -55,6 +54,7 @@ public class SavePNGPlot {
 	public static void save(String imageFile,
 			String dataFile, int width, int height, String chartTitle) throws IOException {
 
+		// FIXME Use LoaderFactory and IDataHolder
 		ScanFileHolder scan = new ScanFileHolder();
 		try {
 			scan.load(new SRSLoader(dataFile));

@@ -19,16 +19,15 @@
 
 package uk.ac.diamond.scisoft.analysis.plotserver.corba.impl;
 
+import java.io.Serializable;
+
+import org.omg.CORBA.Any;
+
 import gda.device.DeviceException;
 import gda.device.corba.CorbaDeviceException;
 import gda.device.corba.impl.DeviceImpl;
 import gda.factory.FactoryException;
 import gda.factory.corba.CorbaFactoryException;
-
-import java.io.Serializable;
-
-import org.omg.CORBA.Any;
-
 import uk.ac.diamond.scisoft.analysis.PlotServer;
 import uk.ac.diamond.scisoft.analysis.PlotServerDevice;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
@@ -60,7 +59,7 @@ public class PlotserverImpl extends CorbaPlotServerPOA {
 	 * Create server side implementation to the CORBA package.
 	 *
 	 * @param plotServer
-	 *            The phantom object which has been passed by corba
+	 *            The phantom object which has been passed by CORBA
 	 * @param poa
 	 *            the portable object adapter
 	 */
@@ -81,11 +80,10 @@ public class PlotserverImpl extends CorbaPlotServerPOA {
 
 	/**
 	 * Set the implementation object.
-	 *
-	 * @param plotServer
+	 * @param plotserver
 	 */
-	public void _delegate(PlotServerDevice plotServer) {
-		this.plotServer = plotServer;
+	public void _delegate(PlotServerDevice plotserver) {
+		this.plotServer = plotserver;
 	}
 
 	@Override

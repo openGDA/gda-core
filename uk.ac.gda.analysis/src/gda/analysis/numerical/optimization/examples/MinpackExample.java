@@ -19,19 +19,19 @@
 
 package gda.analysis.numerical.optimization.examples;
 
-import gda.analysis.datastructure.DataVector;
-import gda.analysis.numerical.linefunction.AbstractCompositeFunction;
-import gda.analysis.numerical.linefunction.BGAsymmetricGaussian1D;
-import gda.analysis.numerical.linefunction.CompositeFunction;
-import gda.analysis.numerical.optimization.objectivefunction.chisquared;
-import gda.analysis.numerical.optimization.optimizers.leastsquares.minpackOptimizer;
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
+
+import gda.analysis.datastructure.DataVector;
+import gda.analysis.numerical.linefunction.AbstractCompositeFunction;
+import gda.analysis.numerical.linefunction.BGAsymmetricGaussian1D;
+import gda.analysis.numerical.linefunction.CompositeFunction;
+import gda.analysis.numerical.optimization.objectivefunction.chisquared;
+import gda.analysis.numerical.optimization.optimizers.leastsquares.minpackOptimizer;
 
 /**
  * MinpackExample Class
@@ -183,6 +183,7 @@ public class MinpackExample {
 				Scanner s = new Scanner(line);
 				xaxis.add(s.nextDouble());
 				yaxis.add(s.nextDouble());
+				s.close();
 				System.out.println("x y\t" + xaxis.get(xaxis.size() - 1) + "\t" + yaxis.get(yaxis.size() - 1));
 			}
 		} catch (FileNotFoundException e) {

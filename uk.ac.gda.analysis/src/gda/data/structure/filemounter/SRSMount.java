@@ -19,13 +19,13 @@
 
 package gda.data.structure.filemounter;
 
-import gda.data.structure.Folder;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 import java.util.Vector;
 import java.util.regex.MatchResult;
+
+import gda.data.structure.Folder;
 
 /**
  * Mounting Files
@@ -104,6 +104,7 @@ public class SRSMount extends Folder {
 					columnCount++;
 					columnNames.add(s.next());
 				}
+				s.close();
 			} else {
 				// read next line (data)
 				//
@@ -117,22 +118,25 @@ public class SRSMount extends Folder {
 						columnCount++;
 						columnNames.add(this.defaultColumn.substring((columnCount - 1), columnCount));
 					}
+					s.close();
 				} else {
 					throw new IllegalArgumentException("No data in this file");
 				}
 			}
-			sc.close();
 		} catch (IllegalStateException e) {
-
+			// Ignore?
 		} catch (FileNotFoundException e1) {
 			System.out.println("File not found :\t" + filename);
 			e1.printStackTrace();
+		} finally {
+			if (sc != null)
+				sc.close();
 		}
 	}
 
 	@Override
 	public Object getChild(String name) {
-		Vector<Object> data = new Vector<Object>();
+		Vector<Object> childData = new Vector<Object>();
 
 		if (columnNames.contains(name)) {
 			Scanner sc = null;
@@ -157,7 +161,7 @@ public class SRSMount extends Folder {
 						while (s.hasNext()) {
 							Object o = s.next();
 							if (columncounter == columnNames.indexOf(name)) {
-								data.add(o);
+								childData.add(o);
 							}
 							columncounter++;
 						}
@@ -172,7 +176,7 @@ public class SRSMount extends Folder {
 				e1.printStackTrace();
 			}
 
-			return data;
+			return childData;
 		}
 
 		return null;
@@ -180,7 +184,7 @@ public class SRSMount extends Folder {
 
 	@Override
 	public Object getChild(int index) {
-		Vector<Object> data = new Vector<Object>();
+		Vector<Object> childData = new Vector<Object>();
 
 		if (index > 0 && index < columnNames.size()) {
 			Scanner sc = null;
@@ -216,9 +220,10 @@ public class SRSMount extends Folder {
 						Object o = s.next();
 						if (columncounter == index) {
 							columncounter++;
-							data.add(o);
+							childData.add(o);
 						}
 					}
+					s.close();
 
 					dataColumns = sc.nextLine();
 
@@ -230,7 +235,7 @@ public class SRSMount extends Folder {
 				System.out.println("File not found :\t" + filename);
 				e1.printStackTrace();
 			}
-			return data;
+			return childData;
 		}
 
 		return null;

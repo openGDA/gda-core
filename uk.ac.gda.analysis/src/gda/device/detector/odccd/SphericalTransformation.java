@@ -67,6 +67,7 @@ public class SphericalTransformation {
 		if (width > 1024 || height > 1024)
 			size = 2048;
 
+		@SuppressWarnings("resource")
 		ModifyCrysalisHeader crysalisFile = new ModifyCrysalisHeader(image);
 
 		crysalisFile.editStringHeader("NX", Integer.toString(size));

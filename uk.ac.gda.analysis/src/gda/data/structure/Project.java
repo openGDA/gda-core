@@ -19,11 +19,6 @@
 
 package gda.data.structure;
 
-import gda.analysis.datastructure.ManagedDataObject;
-import gda.factory.Configurable;
-import gda.factory.FactoryException;
-import gda.factory.Findable;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -31,6 +26,11 @@ import java.util.Vector;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.analysis.datastructure.ManagedDataObject;
+import gda.factory.Configurable;
+import gda.factory.FactoryException;
+import gda.factory.Findable;
 
 /**
  * Code originally written by SLAC TEAM (AIDA) Modified at Diamond to make it more general A project which is an in
@@ -822,7 +822,7 @@ public class Project extends ManagedDataObject implements Configurable, Serializ
 		add(fullPath.toString(), name, child, true, false);
 	}
 
-	private void add(String path, String name, Object child, boolean overwrite, boolean createNewDirs) {
+	private void add(String path, String name, Object child, boolean addOverwrite, boolean createNewDirs) {
 		// Current path
 		Path folderPath = new Path(currentPath, path);
 		// Object path...i.e. new path name
@@ -835,7 +835,7 @@ public class Project extends ManagedDataObject implements Configurable, Serializ
 		// Get the folder the object is to go into
 		Object o = mo[mo.length - 1];
 		if (o != null) {
-			if (overwrite)
+			if (addOverwrite)
 				rm(objectPath.toString());
 			else
 				return;

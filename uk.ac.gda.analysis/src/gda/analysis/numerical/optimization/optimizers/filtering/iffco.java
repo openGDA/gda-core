@@ -2,10 +2,6 @@
 
 package gda.analysis.numerical.optimization.optimizers.filtering;
 
-import gda.analysis.numerical.linefunction.IParameter;
-import gda.analysis.numerical.optimization.objectivefunction.AbstractObjectiveFunction;
-import gda.analysis.numerical.optimization.optimizers.IOptimizer;
-
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -13,6 +9,9 @@ import java.io.PrintWriter;
 
 import Jama.Matrix;
 import Jama.SingularValueDecomposition;
+import gda.analysis.numerical.linefunction.IParameter;
+import gda.analysis.numerical.optimization.objectivefunction.AbstractObjectiveFunction;
+import gda.analysis.numerical.optimization.optimizers.IOptimizer;
 
 /**
  * ----------------------------------------------------------------- // IFFCO - Implicit Filtering For Constrained
@@ -470,6 +469,7 @@ public class iffco implements IOptimizer {
 				for (i = 0; i < option.length; i++) {
 					out.println(i + "\t" + option[i]);
 				}
+				out.close();
 			} else {
 				System.out.println("fscale\t" + fscale);
 				System.out.println("minh\t" + minh);
@@ -506,13 +506,13 @@ public class iffco implements IOptimizer {
 	// flag: > 0 failure.
 	//
 	// -----------------------------------------------------------------
-	private void initIF(double[] x, double[] u, double[] l, double[] x_orig)
+	private void initIF(double[] lx, double[] lu, double[] ll, double[] x_orig)
 
 	{
 		try {
 			PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(runOutputFilename, false)));
 
-			int n = x.length;
+			int n = lx.length;
 			int i, nerrs, writbase;
 
 			// Calculate writbase
@@ -530,14 +530,14 @@ public class iffco implements IOptimizer {
 
 			// Check consistency of upper bounds, lower bounds, and x.
 			for (i = 0; i < n; i++) {
-				if (u[i] <= l[i]) {
+				if (lu[i] <= ll[i]) {
 					if (writeLevel > 0) {
 						out.println("U\t" + i + "is less than L\t" + i);
 					}
 					System.out.println("U\t" + i + "is less than L\t" + i);
 					nerrs = nerrs + 1;
 				}
-				if (x[i] > u[i] || x[i] < l[i]) {
+				if (lx[i] > lu[i] || lx[i] < ll[i]) {
 					if (writeLevel > 0) {
 						out.println("X\t" + i + "is out of bounds");
 					}
@@ -678,12 +678,12 @@ public class iffco implements IOptimizer {
 			if (option[2] == 1) {
 				// Set x_orig to center of box.
 				for (i = 0; i < n; i++) {
-					x_orig[i] = (u[i] + l[i]) / 2.0;
+					x_orig[i] = (lu[i] + ll[i]) / 2.0;
 				}
 			} else {
 				// Copy x to x_orig
 				for (i = 0; i < n; i++) {
-					x_orig[i] = x[i];
+					x_orig[i] = lx[i];
 				}
 			}
 
@@ -900,11 +900,11 @@ public class iffco implements IOptimizer {
 	// Ouput variables:
 	// f - scaled objective function value at x.
 	// -----------------------------------------------------------------
-	private void funcIF(double[] x) {
+	private void funcIF(double[] lx) {
 
-		double[] x_unscal = new double[x.length];
+		double[] x_unscal = new double[lx.length];
 
-		unscaleIF(x, x_unscal);
+		unscaleIF(lx, x_unscal);
 
 		// Initialize flag to success.
 		functionflag = 0;
@@ -935,7 +935,7 @@ public class iffco implements IOptimizer {
 		nevalsIF = nevalsIF + 1;
 
 		maxIF();
-		pointsIF(x);
+		pointsIF(lx);
 		// System.out.println("f at end\t" + functionf);
 
 	}
@@ -950,12 +950,12 @@ public class iffco implements IOptimizer {
 	// Ouput variables
 	// g - gradient
 	// -----------------------------------------------------------------
-	private void ser_gradIF(double[] x, double f, double h, double[] g) {
+	private void ser_gradIF(double[] lx, double lf, double lh, double[] lg) {
 
 		// Arguments
 
 		// Local variables
-		int n = x.length;
+		int n = lx.length;
 		int[] fflagfor = new int[n];
 		int[] fflagback = new int[n];
 		int[] st = new int[n];
@@ -965,21 +965,21 @@ public class iffco implements IOptimizer {
 		double minf, maxf;
 
 		// Initialize variables
-		minf = f;
-		maxf = f;
+		minf = lf;
+		maxf = lf;
 		stencil = 0;
 		for (int i = 0; i < n; i++) {
-			x2[i] = x[i];
+			x2[i] = lx[i];
 		}
 
 		// See what type of difference gradient we can do for each direction.
 		for (int i = 0; i < n; i++) {
 			st[i] = 0;
-			if (x[i] - h >= 0.0) {
+			if (lx[i] - lh >= 0.0) {
 				// Able to do backward differences.
 				st[i] = st[i] + 1;
 			}
-			if (x[i] + h <= 1.0) {
+			if (lx[i] + lh <= 1.0) {
 				// Able to do forward differences.
 				st[i] = st[i] + 2;
 			}
@@ -989,7 +989,7 @@ public class iffco implements IOptimizer {
 		for (int i = 0; i < n; i++) {
 			// Backward differences
 			if (st[i] == 1 || st[i] == 3) {
-				x2[i] = x2[i] - h;
+				x2[i] = x2[i] - lh;
 				// System.out.println("gradient func back\t" + h);
 				// for (int p = 0; p < x2.length; p++)
 				// {
@@ -1001,7 +1001,7 @@ public class iffco implements IOptimizer {
 				fflagback[i] = functionflag;
 
 				// Reset x2[i]
-				x2[i] = x[i];
+				x2[i] = lx[i];
 
 				// Check for extremal f values
 				if (fback[i] < minf && fflagback[i] == 0) {
@@ -1014,7 +1014,7 @@ public class iffco implements IOptimizer {
 
 			// Forward differences
 			if (st[i] == 2 || st[i] == 3) {
-				x2[i] = x2[i] + h;
+				x2[i] = x2[i] + lh;
 				// System.out.println("gradient func forward\t" + h);
 				// for (int p = 0; p < x2.length; p++)
 				// {
@@ -1026,7 +1026,7 @@ public class iffco implements IOptimizer {
 				fflagfor[i] = functionflag;
 
 				// Reset x2[i]
-				x2[i] = x[i];
+				x2[i] = lx[i];
 
 				// Check for extremal f values
 				if (ffor[i] < minf && fflagfor[i] == 0) {
@@ -1057,16 +1057,16 @@ public class iffco implements IOptimizer {
 		// Calculate the gradient
 		for (int i = 0; i < n; i++) {
 			if (st[i] == 1) {
-				g[i] = (f - fback[i]) / h;
+				lg[i] = (lf - fback[i]) / lh;
 			} else if (st[i] == 2) {
-				g[i] = (ffor[i] - f) / h;
+				lg[i] = (ffor[i] - lf) / lh;
 			} else {
-				g[i] = (ffor[i] - fback[i]) / (2 * h);
+				lg[i] = (ffor[i] - fback[i]) / (2 * lh);
 			}
 		}
 
 		// Check for stencil failure.
-		if (f <= minf) {
+		if (lf <= minf) {
 			stencil = 1;
 		}
 		// System.out.println("gradient\t");
@@ -1092,12 +1092,12 @@ public class iffco implements IOptimizer {
 	// Output variables:
 	// flag
 	// -----------------------------------------------------------------
-	private void minIF(double[] x) {
+	private void minIF(double[] lx) {
 
 		if (functionf < fminIF) {
 			fminIF = functionf;
-			for (int i = 0; i < x.length; i++) {
-				xminIF[i] = x[i];
+			for (int i = 0; i < lx.length; i++) {
+				xminIF[i] = lx[i];
 			}
 		}
 
@@ -1127,10 +1127,10 @@ public class iffco implements IOptimizer {
 	// Output variables:
 	// x,g,f
 	// -----------------------------------------------------------------
-	private void updateIF(double[] xp, double[] gp, double[] x, double[] g) {
-		int n = x.length;
+	private void updateIF(double[] xp, double[] gp, double[] lx, double[] g) {
+		int n = lx.length;
 		for (int i = 0; i < n; i++) {
-			x[i] = xp[i];
+			lx[i] = xp[i];
 			g[i] = gp[i];
 		}
 		f = fp;
@@ -1148,27 +1148,27 @@ public class iffco implements IOptimizer {
 	// fp
 	// xp
 	// -----------------------------------------------------------------
-	private void ser_linesearchIF(double[] x, double[] g, double[] p, double[] xp) {
+	private void ser_linesearchIF(double[] lx, double[] g, double[] p, double[] xp) {
 
 		// Local Variables
-		int active, cubic, flag;
+		int active, cubic, locflag;
 		double alpha, oldalpha = 0, dfz, f2p = 0, nrm;
 		double suffdec, lp, l2p, sgma;
 		double a11, a21, a12, a22, v1, v2;
 		double a, b;
-		int n = x.length;
+		int n = lx.length;
 		double[] z = new double[n];
 		double[] lastx = new double[n];
 
 		ncuts = 0;
-		flag = 0;
+		locflag = 0;
 		cubic = 0;
 		sgma = 1.0E-4;
 		alpha = 1.0;
 
 		// Form new trial point: xp = P[x + alpha p]
 		for (int i = 0; i < n; i++) {
-			z[i] = x[i] + alpha * p[i];
+			z[i] = lx[i] + alpha * p[i];
 		}
 
 		// Form xp = P[z]. (Project z onto the unit box)
@@ -1200,7 +1200,7 @@ public class iffco implements IOptimizer {
 		suffdec = 0.0;
 		dfz = 0.0;
 		for (int i = 0; i < n; i++) {
-			suffdec = suffdec + g[i] * (xp[i] - x[i]);
+			suffdec = suffdec + g[i] * (xp[i] - lx[i]);
 			dfz = dfz + g[i] * p[i];
 		}
 		suffdec = suffdec * sgma;
@@ -1208,7 +1208,7 @@ public class iffco implements IOptimizer {
 		// Iterate until 1) fp is sufficiently smaller than f
 		// or 2) ncuts exceeds maxcuts
 		// or 3) flag = 1
-		while (fp > f + suffdec && ncuts < maxcuts && flag == 0) {
+		while (fp > f + suffdec && ncuts < maxcuts && locflag == 0) {
 
 			// Find any new active constraints of xp.
 			// active = 1 new active constraints
@@ -1216,8 +1216,8 @@ public class iffco implements IOptimizer {
 
 			active = 0;
 			for (int i = 0; i < n; i++) {
-				z[i] = x[i] + alpha * p[i];
-				if ((z[i] < 0.0 && x[i] > mepsIF) || (z[i] > 1.0 && x[i] < 1.0 - mepsIF)) {
+				z[i] = lx[i] + alpha * p[i];
+				if ((z[i] < 0.0 && lx[i] > mepsIF) || (z[i] > 1.0 && lx[i] < 1.0 - mepsIF)) {
 					active = 1;
 				}
 			}
@@ -1271,7 +1271,7 @@ public class iffco implements IOptimizer {
 
 			// Form new trial point: xp = P[x + alpha p]
 			for (int i = 0; i < n; i++) {
-				z[i] = x[i] + alpha * p[i];
+				z[i] = lx[i] + alpha * p[i];
 			}
 
 			// Form xp = P[z]. (Project z onto the unit box)
@@ -1296,7 +1296,7 @@ public class iffco implements IOptimizer {
 			nrm = Math.sqrt(nrm / (1.0 * n));
 
 			if (nrm < (1.0E-2) * minh) {
-				flag = 1;
+				locflag = 1;
 			} else {
 				// Check to see if line search came up w/ same point as last
 				// time
@@ -1322,7 +1322,7 @@ public class iffco implements IOptimizer {
 			// Form suffdec = sgma * g' * (xp - x)
 			suffdec = 0.0;
 			for (int i = 0; i < n; i++) {
-				suffdec = suffdec + g[i] * (xp[i] - x[i]);
+				suffdec = suffdec + g[i] * (xp[i] - lx[i]);
 			}
 			suffdec = suffdec * sgma;
 
@@ -1367,18 +1367,18 @@ public class iffco implements IOptimizer {
 	// Output variables:
 	// tol
 	// -----------------------------------------------------------------
-	private double evaltolIF(double[] x, double[] g) {
+	private double evaltolIF(double[] lx, double[] g) {
 
 		// Local variables
 
-		int n = x.length;
+		int n = lx.length;
 		double tol;
 		double[] diff = new double[n];
 		double[] proj = new double[n];
 
 		// Form P[x - \grad_h f(x)].
 		for (int i = 0; i < n; i++) {
-			diff[i] = x[i] - g[i];
+			diff[i] = lx[i] - g[i];
 
 			if (diff[i] <= 0.0) {
 				proj[i] = 0.0;
@@ -1392,7 +1392,7 @@ public class iffco implements IOptimizer {
 		// Compute \| x - P[x - \grad_h f(x)] \|
 		tol = 0.0;
 		for (int i = 0; i < n; i++) {
-			tol = tol + (x[i] - proj[i]) * (x[i] - proj[i]);
+			tol = tol + (lx[i] - proj[i]) * (lx[i] - proj[i]);
 		}
 
 		tol = Math.sqrt(tol / (1.0 * n));
@@ -1412,12 +1412,12 @@ public class iffco implements IOptimizer {
 	// Output variables:
 	// B
 	// -----------------------------------------------------------------
-	private void quasiIF(double[] x, double[] xp, double[] g, double[] gp, double[][] B) {
+	private void quasiIF(double[] lx, double[] xp, double[] g, double[] gp, double[][] B) {
 
 		// Local variables
-		int flag = 0;
+		int locflag = 0;
 		// parameter(mx = 24)
-		int n = x.length;
+		int n = lx.length;
 
 		int[] xp_act = new int[n];
 		int[] x_act = new int[n];
@@ -1442,7 +1442,7 @@ public class iffco implements IOptimizer {
 				xp_act[i] = 0;
 			}
 
-			if ((x[i] < mepsIF && g[i] > 0.0) || (x[i] > (1.0 - mepsIF) && g[i] < 0.0)) {
+			if ((lx[i] < mepsIF && g[i] > 0.0) || (lx[i] > (1.0 - mepsIF) && g[i] < 0.0)) {
 				x_act[i] = 1;
 			} else {
 				x_act[i] = 0;
@@ -1453,14 +1453,14 @@ public class iffco implements IOptimizer {
 		// Form y = gf(x_+) - gf(x) and s = x_+ - x
 		for (int i = 0; i < n; i++) {
 			y[i] = gp[i] - g[i];
-			s[i] = xp[i] - x[i];
+			s[i] = xp[i] - lx[i];
 		}
 
 		// Check to see if xp_act = x_act.
-		flag = 0;
+		locflag = 0;
 		for (int i = 0; i < n; i++) {
 			if (xp_act[i] != x_act[i]) {
-				flag = 1;
+				locflag = 1;
 			}
 		}
 
@@ -1476,7 +1476,7 @@ public class iffco implements IOptimizer {
 		}
 
 		// Set B = I
-		if (quasi == 0 || (flag == 1 && option[3] == 1)) {
+		if (quasi == 0 || (locflag == 1 && option[3] == 1)) {
 			eyeIF(B);
 
 			// SR1 update (B = approximate Hessian)
@@ -1632,9 +1632,9 @@ public class iffco implements IOptimizer {
 			// dchdc(B,n,n,work,jpvt,0,info);
 			Matrix MatB = new Matrix(B);
 			SingularValueDecomposition svd = new SingularValueDecomposition(MatB);
-			Matrix u = svd.getU();
-			Matrix s = svd.getS();
-			Matrix v = svd.getV();
+			Matrix svdu = svd.getU();
+			Matrix svds = svd.getS();
+			Matrix svdv = svd.getV();
 			// CholeskyDecomposition cd = new CholeskyDecomposition(MatB);
 			// B = cd.getL().getArray();
 			// if (MatB.chol().isSPD())
@@ -1670,7 +1670,7 @@ public class iffco implements IOptimizer {
 			// {
 			// Set p = -g and dposl (which will compute p = B^{-1} (-g) )
 			// Matrix pdq = MatB.chol().solve(new Matrix(p, p.length));
-			Matrix pdq = v.times(s).times(u.transpose()).times(new Matrix(p, p.length));
+			Matrix pdq = svdv.times(svds).times(svdu.transpose()).times(new Matrix(p, p.length));
 			p = pdq.getRowPackedCopy();
 			// B := //
 			for (int i = 0; i < n; i++) {
@@ -1783,22 +1783,19 @@ public class iffco implements IOptimizer {
 				// Reinitialize fmaxIF
 				fmaxIF = f;
 			}
+			out.close();
+
 		} catch (IOException e) {
 		}
 	}
 
 	/**
-	 * ----------------------------------------------------------------- takeminIF This routine replaces the current
-	 * point with the point stored in xminIF(n) if fminIF < f_unscaled(x). If so it records the minimim value in fhist.
-	 * -----------------------------------------------------------------
-	 *
-	 * @param x
-	 * @param f
-	 * @param fhist
-	 * @return f
+	 * ----------------------------------------------------------------- takeminIF This routine replaces the current point with the point stored in xminIF(n) if
+	 * fminIF < f_unscaled(x). If so it records the minimim value in fhist. ----------------------------------------------------------------- @param lx @param
+	 * lf @param fhist @return f
 	 */
-	private double takeminIF(double[] x, double f, Double[] fhist) {
-		double f_value = f;
+	private double takeminIF(double[] lx, double lf, Double[] fhist) {
+		double f_value = lf;
 		try {
 			PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(runOutputFilename, true)));
 
@@ -1808,33 +1805,33 @@ public class iffco implements IOptimizer {
 
 			// Local variables
 			int writbase;
-			double[] x_value = new double[x.length];
+			double[] x_value = new double[lx.length];
 
 			flag = 0;
 
 			// Check if min f is less than unscaled f.
-			if (fminIF < f * fscale) {
+			if (fminIF < lf * fscale) {
 
 				flag = 1;
 
 				// Update f,x w/ scaled values of fminIF and xminIF
-				f = fminIF / fscale;
-				scaleIF(xminIF, x);
+				lf = fminIF / fscale;
+				scaleIF(xminIF, lx);
 				if (writeLevel > 10) {
 					writbase = writeLevel - 10;
 				} else {
 					writbase = writeLevel;
 				}
 
-				f_value = f;
-				for (int i = 0; i < x.length; i++) {
-					x_value[i] = x[i];
+				f_value = lf;
+				for (int i = 0; i < lx.length; i++) {
+					x_value[i] = lx[i];
 				}
 
 				// Unscale the results.
 				if (writbase == 3 || writbase == 4) {
-					f_value = f * fscale;
-					unscaleIF(x, x_value);
+					f_value = lf * fscale;
+					unscaleIF(lx, x_value);
 				}
 
 				if (writbase >= 1) {
@@ -1865,7 +1862,7 @@ public class iffco implements IOptimizer {
 			}
 		} catch (IOException e) {
 		}
-		return f;
+		return lf;
 
 	}
 
@@ -1880,10 +1877,10 @@ public class iffco implements IOptimizer {
 	private void pointsIF(double[] x_orig) {
 		// Local variables
 		int n = x_orig.length;
-		double[] x = new double[n];
+		double[] lx = new double[n];
 
 		// unscale x_orig to x
-		unscaleIF(x_orig, x);
+		unscaleIF(x_orig, lx);
 		// Now append the data to the
 		try {
 			PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(pointsOutputFilename, true)));
@@ -1891,7 +1888,7 @@ public class iffco implements IOptimizer {
 			out.print("FUNCTION VALUE \t" + functionf * fscale + "\t");
 			out.print("PARAMETERS\t");
 			for (int i = 0; i < n; i++) {
-				out.print(x[i] + "\t");
+				out.print(lx[i] + "\t");
 			}
 			out.print("\n");
 			out.close();

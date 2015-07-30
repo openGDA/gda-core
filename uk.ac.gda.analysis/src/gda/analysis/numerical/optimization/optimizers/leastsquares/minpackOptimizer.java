@@ -239,14 +239,14 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 	 * and More.
 	 * <p>
 	 *
-	 * @param noOfParameters
+	 * @param noOfParams
 	 *            The length of the vector, x.
 	 * @param x
 	 *            The vector whose Euclidean norm is to be calculated.
 	 * @return calculates the Euclidean norm of a vector
 	 */
 
-	private double enorm(int noOfParameters, double x[]) {
+	private double enorm(int noOfParams, double x[]) {
 
 		int i;
 		double agiant, floatn, s1, s2, s3, xabs, x1max, x3max;
@@ -259,10 +259,10 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 		s3 = 0.0;
 		x1max = 0.0;
 		x3max = 0.0;
-		floatn = noOfParameters;
+		floatn = noOfParams;
 		agiant = rgiant / floatn;
 
-		for (i = 0; i < noOfParameters; i++) {
+		for (i = 0; i < noOfParams; i++) {
 			xabs = Math.abs(x[i]);
 			if (xabs <= rdwarf || xabs >= agiant) {
 				if (xabs > rdwarf) {
@@ -354,9 +354,9 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 	 * and More.
 	 * <p>
 	 *
-	 * @param noOfObservations
+	 * @param noOfObservationsLocal
 	 *            The number of rows of A.
-	 * @param noOfParameters
+	 * @param noOfParams
 	 *            The number of columns of A.
 	 * @param a
 	 *            A is an noOfObservations by noOfParameters array. On input A contains the matrix for which the QR
@@ -377,22 +377,22 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 	 *            workingArray is a work array of length noOfParameters.
 	 */
 
-	private void qrfac(int noOfObservations, int noOfParameters, double a[][], boolean pivot, int ipvt[],
+	private void qrfac(int noOfObservationsLocal, int noOfParams, double a[][], boolean pivot, int ipvt[],
 			double rdiag[], double acnorm[], double workingArray[]) {
 
 		int i, j, jp1, k, kmax, minmn;
 		double ajnorm, sum, temp;
 		double fac;
 
-		double tempvec[] = new double[noOfObservations + 1];
+		double tempvec[] = new double[noOfObservationsLocal + 1];
 
 		// Compute the initial column norms and initialize several arrays.
 
-		for (j = 0; j < noOfParameters; j++) {
-			for (i = 0; i < noOfObservations; i++) {
+		for (j = 0; j < noOfParams; j++) {
+			for (i = 0; i < noOfObservationsLocal; i++) {
 				tempvec[i] = a[i][j];
 			}
-			acnorm[j] = enorm(noOfObservations, tempvec);
+			acnorm[j] = enorm(noOfObservationsLocal, tempvec);
 			rdiag[j] = acnorm[j];
 			workingArray[j] = rdiag[j];
 			if (pivot)
@@ -400,18 +400,18 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 		}
 
 		// Reduce A to R with Householder transformations.
-		minmn = Math.min(noOfObservations, noOfParameters);
+		minmn = Math.min(noOfObservationsLocal, noOfParams);
 		for (j = 0; j < minmn; j++) {
 			if (pivot) {
 				// Bring the column of largest norm into the pivot position.
 				kmax = j;
-				for (k = j; k < noOfParameters; k++) {
+				for (k = j; k < noOfParams; k++) {
 					if (rdiag[k] > rdiag[kmax])
 						kmax = k;
 				}
 
 				if (kmax != j) {
-					for (i = 0; i < noOfObservations; i++) {
+					for (i = 0; i < noOfObservationsLocal; i++) {
 						temp = a[i][j];
 						a[i][j] = a[i][kmax];
 						a[i][kmax] = temp;
@@ -427,17 +427,17 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 			// Compute the Householder transformation to reduce the
 			// j-th column of A to a multiple of the j-th unit vector.
 
-			for (i = j; i < noOfObservations; i++)
+			for (i = j; i < noOfObservationsLocal; i++)
 				tempvec[i - j] = a[i][j];
 			// tempvec[i - j + 1] = a[i][j];
 
 			// PDQCOMEBACK
-			ajnorm = enorm(noOfObservations - j + 1, tempvec);
+			ajnorm = enorm(noOfObservationsLocal - j + 1, tempvec);
 
 			if (ajnorm != 0.0) {
 				if (a[j][j] < 0.0)
 					ajnorm = -ajnorm;
-				for (i = j; i < noOfObservations; i++)
+				for (i = j; i < noOfObservationsLocal; i++)
 					a[i][j] /= ajnorm;
 
 				a[j][j] += 1.0;
@@ -446,14 +446,14 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 				// and update the norms.
 
 				jp1 = j + 1;
-				if (noOfParameters >= jp1) {
-					for (k = jp1; k < noOfParameters; k++) {
+				if (noOfParams >= jp1) {
+					for (k = jp1; k < noOfParams; k++) {
 						sum = 0.0;
-						for (i = j; i < noOfObservations; i++)
+						for (i = j; i < noOfObservationsLocal; i++)
 							sum += a[i][j] * a[i][k];
 
 						temp = sum / a[j][j];
-						for (i = j; i < noOfObservations; i++)
+						for (i = j; i < noOfObservationsLocal; i++)
 							a[i][k] -= temp * a[i][j];
 
 						if (pivot && rdiag[k] != 0.0) {
@@ -462,9 +462,9 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 
 							fac = rdiag[k] / workingArray[k];
 							if (0.05 * fac * fac <= epsmch) {
-								for (i = jp1; i < noOfObservations; i++)
+								for (i = jp1; i < noOfObservationsLocal; i++)
 									tempvec[i - j] = a[i][k];
-								rdiag[k] = enorm(noOfObservations - j, tempvec);
+								rdiag[k] = enorm(noOfObservationsLocal - j, tempvec);
 								workingArray[k] = rdiag[k];
 							}
 						}
@@ -514,7 +514,7 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 	 * and More.
 	 * <p>
 	 *
-	 * @param noOfParameters
+	 * @param noOfParams
 	 *            The order of r.
 	 * @param r
 	 *            r is an noOfParameters by noOfParameters array. On input the full upper triangle must contain the full
@@ -539,7 +539,7 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 	 *            workingArray is a work array of length noOfParameters.
 	 */
 
-	private void qrsolv(int noOfParameters, double r[][], int ipvt[], double diag[], double qtb[], double x[],
+	private void qrsolv(int noOfParams, double r[][], int ipvt[], double diag[], double qtb[], double x[],
 			double sdiag[], double workingArray[]) {
 
 		int i, j, jp1, k, kp1, l, nsing;
@@ -548,8 +548,8 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 		// Copy R and (Q transpose)b to preserve input and initialize S.
 		// In particular, save the diagonal elements of R in x.
 
-		for (j = 0; j < noOfParameters; j++) {
-			for (i = j; i < noOfParameters; i++)
+		for (j = 0; j < noOfParams; j++) {
+			for (i = j; i < noOfParams; i++)
 				r[i][j] = r[j][i];
 
 			x[j] = r[j][j];
@@ -557,13 +557,13 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 		}
 
 		// Eliminate the diagonal matrix D using a Givens rotation.
-		for (j = 0; j < noOfParameters; j++) {
+		for (j = 0; j < noOfParams; j++) {
 			// Prepare the row of D to be eliminated, locating the
 			// diagonal element using P from the QR factorization.
 
 			l = ipvt[j];
 			if (diag[l] != 0.0) {
-				for (k = j; k < noOfParameters; k++)
+				for (k = j; k < noOfParams; k++)
 					sdiag[k] = 0.0;
 
 				sdiag[j] = diag[l];
@@ -575,7 +575,7 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 
 				qtbpj = 0.0;
 
-				for (k = j; k < noOfParameters; k++) {
+				for (k = j; k < noOfParams; k++) {
 
 					// Determine a Givens rotation which eliminates the
 					// appropriate element in the current row of D.
@@ -607,7 +607,7 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 						// Accumulate the tranformation in the row of S.
 						kp1 = k + 1;
 
-						for (i = kp1; i < noOfParameters; i++) {
+						for (i = kp1; i < noOfParams; i++) {
 							temp = cos * r[i][k] + sin * sdiag[i];
 							sdiag[i] = -sin * r[i][k] + cos * sdiag[i];
 							r[i][k] = temp;
@@ -625,11 +625,11 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 		// Solve the triangular system for z. if the system is
 		// singular, then obtain a least squares solution.
 
-		nsing = noOfParameters;
-		for (j = 0; j < noOfParameters; j++) {
-			if (sdiag[j] == 0.0 && nsing == noOfParameters)
+		nsing = noOfParams;
+		for (j = 0; j < noOfParams; j++) {
+			if (sdiag[j] == 0.0 && nsing == noOfParams)
 				nsing = j - 1;
-			if (nsing < noOfParameters)
+			if (nsing < noOfParams)
 				workingArray[j] = 0.0;
 
 		}
@@ -648,7 +648,7 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 
 		// Permute the components of z back to components of x.
 
-		for (j = 0; j < noOfParameters; j++) {
+		for (j = 0; j < noOfParams; j++) {
 			l = ipvt[j];
 			x[l] = workingArray[j];
 		}
@@ -699,7 +699,7 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 	 * and More.
 	 * <p>
 	 *
-	 * @param noOfParameters
+	 * @param noOfParams
 	 *            The order of r.
 	 * @param r
 	 *            r is an noOfParameters by noOfParameters array. On input the full upper triangle must contain the full
@@ -731,7 +731,7 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 	 *            wa2 is a work array of length noOfParameters.
 	 */
 
-	private void lmpar(int noOfParameters, double r[][], int ipvt[], double diag[], double qtb[], double delta,
+	private void lmpar(int noOfParams, double r[][], int ipvt[], double diag[], double qtb[], double delta,
 			double par[], double x[], double sdiag[], double wa1[], double wa2[]) {
 
 		int i, iter, j, jm1, jp1, k, l, nsing;
@@ -744,12 +744,12 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 		// Compute and store in x the Gauss-Newton direction. If the
 		// Jacobian is rank-deficient, obtain a least squares solution.
 
-		nsing = noOfParameters;
-		for (j = 0; j < noOfParameters; j++) {
+		nsing = noOfParams;
+		for (j = 0; j < noOfParams; j++) {
 			wa1[j] = qtb[j];
-			if (r[j][j] == 0.0 && nsing == noOfParameters)
+			if (r[j][j] == 0.0 && nsing == noOfParams)
 				nsing = j - 1;
-			if (nsing < noOfParameters)
+			if (nsing < noOfParams)
 				wa1[j] = 0.0;
 		}
 
@@ -767,7 +767,7 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 				wa1[i] -= r[i][j] * temp;
 		}
 
-		for (j = 0; j < noOfParameters; j++) {
+		for (j = 0; j < noOfParams; j++) {
 
 			l = ipvt[j];
 			x[l] = wa1[j];
@@ -780,13 +780,13 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 
 		iter = 0;
 
-		for (j = 0; j < noOfParameters; j++) {
+		for (j = 0; j < noOfParams; j++) {
 
 			wa2[j] = diag[j] * x[j];
 
 		}
 
-		dxnorm = enorm(noOfParameters, wa2);
+		dxnorm = enorm(noOfParams, wa2);
 
 		fp = dxnorm - delta;
 
@@ -803,16 +803,16 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 
 		parl = 0.0;
 
-		if (nsing >= noOfParameters) {
+		if (nsing >= noOfParams) {
 
-			for (j = 0; j < noOfParameters; j++) {
+			for (j = 0; j < noOfParams; j++) {
 
 				l = ipvt[j];
 				wa1[j] = diag[l] * (wa2[l] / dxnorm);
 
 			}
 
-			for (j = 0; j < noOfParameters; j++) {
+			for (j = 0; j < noOfParams; j++) {
 
 				sum = 0.0;
 				jm1 = j - 1;
@@ -832,14 +832,14 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 
 			}
 
-			temp = enorm(noOfParameters, wa1);
+			temp = enorm(noOfParams, wa1);
 			parl = ((fp / delta) / temp) / temp;
 
 		}
 
 		// Calculate an upper bound, paru, for the 0.0 of the function.
 
-		for (j = 0; j < noOfParameters; j++) {
+		for (j = 0; j < noOfParams; j++) {
 
 			sum = 0.0;
 
@@ -854,7 +854,7 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 
 		}
 
-		gnorm = enorm(noOfParameters, wa1);
+		gnorm = enorm(noOfParams, wa1);
 		paru = gnorm / delta;
 
 		if (paru == 0.0)
@@ -883,21 +883,21 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 				par[0] = Math.max(dwarf, 0.001 * paru);
 			temp = Math.sqrt(par[0]);
 
-			for (j = 0; j < noOfParameters; j++) {
+			for (j = 0; j < noOfParams; j++) {
 
 				wa1[j] = temp * diag[j];
 
 			}
 
-			qrsolv(noOfParameters, r, ipvt, wa1, qtb, x, sdiag, wa2);
+			qrsolv(noOfParams, r, ipvt, wa1, qtb, x, sdiag, wa2);
 
-			for (j = 0; j < noOfParameters; j++) {
+			for (j = 0; j < noOfParams; j++) {
 
 				wa2[j] = diag[j] * x[j];
 
 			}
 
-			dxnorm = enorm(noOfParameters, wa2);
+			dxnorm = enorm(noOfParams, wa2);
 			temp = fp;
 			fp = dxnorm - delta;
 
@@ -917,20 +917,20 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 
 			// Compute the Newton correction.
 
-			for (j = 0; j < noOfParameters; j++) {
+			for (j = 0; j < noOfParams; j++) {
 
 				l = ipvt[j];
 				wa1[j] = diag[l] * (wa2[l] / dxnorm);
 
 			}
 
-			for (j = 0; j < noOfParameters; j++) {
+			for (j = 0; j < noOfParams; j++) {
 
 				wa1[j] /= sdiag[j];
 				temp = wa1[j];
 				jp1 = j + 1;
 
-				for (i = jp1; i < noOfParameters; i++) {
+				for (i = jp1; i < noOfParams; i++) {
 
 					wa1[i] -= r[i][j] * temp;
 
@@ -938,7 +938,7 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 
 			}
 
-			temp = enorm(noOfParameters, wa1);
+			temp = enorm(noOfParams, wa1);
 			parc = ((fp / delta) / temp) / temp;
 
 			// Depending on the sign of the function, update parl or paru.
@@ -1011,9 +1011,9 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 	 * Modified by paul quinn to allow bound constraints
 	 * <p>
 	 *
-	 * @param noOfObservations
+	 * @param noOfObservationsLocal
 	 *            A positive integer set to the number of functions [number of observations]
-	 * @param noOfParameters
+	 * @param noOfParams
 	 *            A positive integer set to the number of variables [number of parameters]. noOfParameters must not
 	 *            exceed noOfObservations.
 	 * @param x
@@ -1023,23 +1023,23 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 	 * @param upperLimit
 	 * @param functionAtDataPoints
 	 *            An output vector that contains the noOfObservations functions [residuals] evaluated at x.
-	 * @param fTolerance
+	 * @param fToleranceLocal
 	 *            A nonnegative input variable. Termination occurs when both the actual and predicted relative
 	 *            reductions in the sum of squares are at most fTolerance. Therefore, fTolerance measures the relative
 	 *            error desired in the sum of squares.
-	 * @param xTolerance
+	 * @param xToleranceLocal
 	 *            A nonnegative input variable. Termination occurs when the relative error between two consecutive
 	 *            iterates is at most xTolerance. Therefore, xTolerance measures the relative error desired in the
 	 *            approximate solution.
-	 * @param gTolerance
+	 * @param gToleranceLocal
 	 *            A nonnegative input variable. Termination occurs when the cosine of the angle between
 	 *            functionAtDataPoints and any column of the Jacobian is at most gTolerance in absolute value.
 	 *            Therefore, gTolerance measures the orthogonality desired between the function vector and the columns
 	 *            of the Jacobian.
-	 * @param maxNoOfFunctionEvaluations
+	 * @param maxNoOfFunctionEvaluationsLocal
 	 *            A positive integer input variable. Termination occurs when the number of calls to fcn is at least
 	 *            maxNoOfFunctionEvaluations by the end of an iteration.
-	 * @param epsfcn
+	 * @param epsfcnLocal
 	 *            An input variable used in determining a suitable step length for the forward-difference approximation.
 	 *            This approximation assumes that the relative errors in the functions are of the order of epsfcn. If
 	 *            epsfcn is less than the machine precision, it is assumed that the relative errors in the functions are
@@ -1047,14 +1047,14 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 	 * @param diag
 	 *            An vector of length noOfParameters. If mode = 1 (see below), diag is internally set. If mode = 2, diag
 	 *            must contain positive entries that serve as multiplicative scale factors for the variables.
-	 * @param mode
+	 * @param modeLocal
 	 *            If mode = 1, the variables will be scaled internally. If mode = 2, the scaling is specified by the
 	 *            input diag. Other values of mode are equivalent to mode = 1.
-	 * @param factor
+	 * @param factorLocal
 	 *            A positive input variable used in determining the initial step bound. This bound is set to the product
 	 *            of factor and the euclidean norm of diag*x if non0.0, or else to factor itself. In most cases factor
 	 *            should lie in the interval (.1,100). 100 is a generally recommended value.
-	 * @param nprint
+	 * @param nprintLocal
 	 *            An integer input variable that enables controlled printing of iterates if it is positive. In this
 	 *            case, fcn is called with iflag[0] = 0 at the beginning of the first iteration and every nprint
 	 *            iterations thereafter and immediately prior to return, with x and functionAtDataPoints available for
@@ -1077,9 +1077,9 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 	 *            vector (Q transpose)functionAtDataPoints.
 	 */
 
-	private void lmdif(int noOfObservations, int noOfParameters, double[] x, double[] lowerLimit, double[] upperLimit,
-			double functionAtDataPoints[], double fTolerance, double xTolerance, double gTolerance,
-			int maxNoOfFunctionEvaluations, double epsfcn, double[] diag, int mode, double factor, int nprint,
+	private void lmdif(int noOfObservationsLocal, int noOfParams, double[] x, double[] lowerLimit, double[] upperLimit,
+			@SuppressWarnings("unused") double functionAtDataPointsLocal[], double fToleranceLocal, double xToleranceLocal, double gToleranceLocal,
+			int maxNoOfFunctionEvaluationsLocal, double epsfcnLocal, double[] diag, int modeLocal, double factorLocal, int nprintLocal,
 			int nfev[], double[][] fjac, int[] ipvt, double[] qtf) {
 
 		int i, iter, j, l;
@@ -1094,10 +1094,10 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 		boolean doneout, donein;
 
 		int[] iflag = new int[2];
-		double[] wa1 = new double[noOfParameters];
-		double[] wa2 = new double[noOfParameters];
-		double[] wa3 = new double[noOfParameters];
-		double[] wa4 = new double[noOfObservations];
+		double[] wa1 = new double[noOfParams];
+		double[] wa2 = new double[noOfParams];
+		double[] wa3 = new double[noOfParams];
+		double[] wa4 = new double[noOfObservationsLocal];
 
 		delta = 0.0;
 		xnorm = 0.0;
@@ -1107,12 +1107,12 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 		nfev[0] = 0;
 		// Check the input parameters for errors.
 
-		if (noOfParameters <= 0 || noOfObservations < noOfParameters || fTolerance < 0.0 || xTolerance < 0.0
-				|| gTolerance < 0.0 || maxNoOfFunctionEvaluations <= 0 || factor <= 0.0) {
+		if (noOfParams <= 0 || noOfObservationsLocal < noOfParams || fToleranceLocal < 0.0 || xToleranceLocal < 0.0
+				|| gToleranceLocal < 0.0 || maxNoOfFunctionEvaluationsLocal <= 0 || factorLocal <= 0.0) {
 
 			// Termination
 
-			if (nprint > 0) {
+			if (nprintLocal > 0) {
 
 				// nlls.fcn(noOfObservations, noOfParameters, x,
 				// functionAtDataPoints, iflag);
@@ -1123,15 +1123,15 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 
 		}
 
-		if (mode == 2) {
+		if (modeLocal == 2) {
 
-			for (j = 0; j < noOfParameters; j++) {
+			for (j = 0; j < noOfParams; j++) {
 
 				if (diag[j] <= 0.0) {
 
 					// Termination
 
-					if (nprint > 0) {
+					if (nprintLocal > 0) {
 
 						// nlls.fcn(noOfObservations, noOfParameters, x,
 						// functionAtDataPoints, iflag);
@@ -1163,7 +1163,7 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 			info[0] = iflag[0];
 			iflag[0] = 0;
 
-			if (nprint > 0) {
+			if (nprintLocal > 0) {
 
 				// nlls.fcn(noOfObservations, noOfParameters, x,
 				// functionAtDataPoints, iflag);
@@ -1173,7 +1173,7 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 
 		}
 
-		fnorm = enorm(noOfObservations, functionAtDataPoints);
+		fnorm = enorm(noOfObservationsLocal, functionAtDataPoints);
 		// Initialize Levenberg-Marquardt parameter and iteration counter.
 
 		par[0] = 0.0;
@@ -1188,9 +1188,9 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 			// Calculate the Jacobian matrix.
 
 			iflag[0] = 2;
-			fdjac2(noOfObservations, noOfParameters, x, functionAtDataPoints, fjac, iflag, epsfcn, wa4);
+			fdjac2(noOfObservationsLocal, noOfParams, x, functionAtDataPoints, fjac, iflag, epsfcnLocal, wa4);
 
-			nfev[0] += noOfParameters;
+			nfev[0] += noOfParams;
 
 			if (iflag[0] < 0) {
 
@@ -1199,7 +1199,7 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 				info[0] = iflag[0];
 				iflag[0] = 0;
 
-				if (nprint > 0) {
+				if (nprintLocal > 0) {
 
 					// nlls.fcn(noOfObservations, noOfParameters, x,
 					// functionAtDataPoints, iflag);
@@ -1212,11 +1212,11 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 
 			// If requested, call fcn to enable printing of iterates.
 
-			if (nprint > 0) {
+			if (nprintLocal > 0) {
 
 				iflag[0] = 0;
 
-				if ((iter - 1) % nprint == 0) {
+				if ((iter - 1) % nprintLocal == 0) {
 
 					// nlls.fcn(noOfObservations, noOfParameters, x,
 					// functionAtDataPoints, iflag);
@@ -1240,9 +1240,9 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 			}
 			// PDQADDED
 			// Determine if any of the parameters are pegged at the limits
-			int[] whLowerPeg = new int[noOfParameters];
-			int[] whUpperPeg = new int[noOfParameters];
-			for (i = 0; i < noOfParameters; i++) {
+			int[] whLowerPeg = new int[noOfParams];
+			int[] whUpperPeg = new int[noOfParams];
+			for (i = 0; i < noOfParams; i++) {
 				if (x[i] == lowerLimit[i])
 					whLowerPeg[i] = i;
 				else
@@ -1254,24 +1254,24 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 					whUpperPeg[i] = 0;
 
 			}
-			for (i = 0; i < noOfParameters; i++) {
+			for (i = 0; i < noOfParams; i++) {
 				double pdqsum = 0.0;
 				if (whLowerPeg[i] != 0) {
-					for (j = 0; j < noOfObservations; j++) {
+					for (j = 0; j < noOfObservationsLocal; j++) {
 						pdqsum += functionAtDataPoints[j] * fjac[j][i];
 					}
 					if (pdqsum > 0.0) {
-						for (j = 0; j < noOfObservations; j++) {
+						for (j = 0; j < noOfObservationsLocal; j++) {
 							fjac[j][i] = 0.0;
 						}
 					}
 				}
 				if (whUpperPeg[i] != 0) {
-					for (j = 0; j < noOfObservations; j++) {
+					for (j = 0; j < noOfObservationsLocal; j++) {
 						pdqsum += functionAtDataPoints[j] * fjac[j][i];
 					}
 					if (pdqsum < 0.0) {
-						for (j = 0; j < noOfObservations; j++) {
+						for (j = 0; j < noOfObservationsLocal; j++) {
 							fjac[j][i] = 0.0;
 						}
 					}
@@ -1281,16 +1281,16 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 
 			// Compute the qr factorization of the Jacobian.
 
-			qrfac(noOfObservations, noOfParameters, fjac, true, ipvt, wa1, wa2, wa3);
+			qrfac(noOfObservationsLocal, noOfParams, fjac, true, ipvt, wa1, wa2, wa3);
 
 			// On the first iteration and if mode is 1, scale according
 			// to the norms of the columns of the initial Jacobian.
 
 			if (iter == 1) {
 
-				if (mode != 2) {
+				if (modeLocal != 2) {
 
-					for (j = 0; j < noOfParameters; j++) {
+					for (j = 0; j < noOfParams; j++) {
 
 						diag[j] = wa2[j];
 
@@ -1304,18 +1304,18 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 				// On the first iteration, calculate the norm of the scaled x
 				// and initialize the step bound delta.
 
-				for (j = 0; j < noOfParameters; j++) {
+				for (j = 0; j < noOfParams; j++) {
 
 					wa3[j] = diag[j] * x[j];
 
 				}
 
-				xnorm = enorm(noOfParameters, wa3);
+				xnorm = enorm(noOfParams, wa3);
 
-				delta = factor * xnorm;
+				delta = factorLocal * xnorm;
 
 				if (delta == 0.0)
-					delta = factor;
+					delta = factorLocal;
 
 			}
 
@@ -1323,21 +1323,21 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 			// noOfParameters components in
 			// qtf.
 
-			for (i = 0; i < noOfObservations; i++)
+			for (i = 0; i < noOfObservationsLocal; i++)
 				wa4[i] = functionAtDataPoints[i];
 
-			for (j = 0; j < noOfParameters; j++) {
+			for (j = 0; j < noOfParams; j++) {
 
 				if (fjac[j][j] != 0.0) {
 
 					sum = 0.0;
 
-					for (i = j; i < noOfObservations; i++)
+					for (i = j; i < noOfObservationsLocal; i++)
 						sum += fjac[i][j] * wa4[i];
 
 					temp = -sum / fjac[j][j];
 
-					for (i = j; i < noOfObservations; i++)
+					for (i = j; i < noOfObservationsLocal; i++)
 						wa4[i] += fjac[i][j] * temp;
 
 				}
@@ -1351,7 +1351,7 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 
 			gnorm = 0.0;
 			if (fnorm != 0.0) {
-				for (j = 0; j < noOfParameters; j++) {
+				for (j = 0; j < noOfParams; j++) {
 					l = ipvt[j];
 
 					if (wa2[l] != 0.0) {
@@ -1370,7 +1370,7 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 
 			// Test for convergence of the gradient norm.
 
-			if (gnorm <= gTolerance)
+			if (gnorm <= gToleranceLocal)
 				info[0] = 4;
 
 			if (info[0] != 0) {
@@ -1381,7 +1381,7 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 					info[0] = iflag[0];
 				iflag[0] = 0;
 
-				if (nprint > 0) {
+				if (nprintLocal > 0) {
 
 					// nlls.fcn(noOfObservations, noOfParameters, x,
 					// functionAtDataPoints, iflag);
@@ -1393,9 +1393,9 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 
 			// Rescale if necessary.
 
-			if (mode != 2) {
+			if (modeLocal != 2) {
 
-				for (j = 0; j < noOfParameters; j++) {
+				for (j = 0; j < noOfParams; j++) {
 
 					diag[j] = Math.max(diag[j], wa2[j]);
 
@@ -1411,11 +1411,11 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 
 				// Determine the Levenberg-Marquardt parameter.
 
-				lmpar(noOfParameters, fjac, ipvt, diag, qtf, delta, par, wa1, wa2, wa3, wa4);
+				lmpar(noOfParams, fjac, ipvt, diag, qtf, delta, par, wa1, wa2, wa3, wa4);
 
 				// Store the direction p and x + p. Calculate the norm of p.
 
-				for (j = 0; j < noOfParameters; j++) {
+				for (j = 0; j < noOfParams; j++) {
 					wa1[j] = -wa1[j];
 					// wa2[j] = x[j] + wa1[j];
 					// wa3[j] = diag[j] * wa1[j];
@@ -1429,31 +1429,31 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 				double alpha = 1.0;
 				double maxWA1 = wa1[0];
 				double minWA1 = wa1[0];
-				for (i = 0; i < noOfParameters; i++) {
+				for (i = 0; i < noOfParams; i++) {
 					maxWA1 = Math.max(wa1[i], maxWA1);
 					minWA1 = Math.min(wa1[i], minWA1);
 				}
-				for (i = 0; i < noOfParameters; i++) {
+				for (i = 0; i < noOfParams; i++) {
 					if (whLowerPeg[i] != 0) {
 						wa1[i] = Math.min(wa1[i], maxWA1);
 						wa1[i] = Math.max(0.0, wa1[i]);
 					}
 				}
-				for (i = 0; i < noOfParameters; i++) {
+				for (i = 0; i < noOfParams; i++) {
 					if (whUpperPeg[i] != 0) {
 						wa1[i] = Math.max(wa1[i], minWA1);
 						wa1[i] = Math.min(0.0, wa1[i]);
 					}
 				}
-				double[] dwa1 = new double[noOfParameters];
-				for (i = 0; i < noOfParameters; i++) {
+				double[] dwa1 = new double[noOfParams];
+				for (i = 0; i < noOfParams; i++) {
 					if (wa1[i] > epsmch)
 						dwa1[i] = wa1[i];
 					else
 						dwa1[i] = 0.0;
 				}
 
-				for (i = 0; i < noOfParameters; i++) {
+				for (i = 0; i < noOfParams; i++) {
 					if (dwa1[i] != 0.0 && ((x[i] + wa1[i]) < lowerLimit[i])) {
 						double t = (lowerLimit[i] - x[i]) / wa1[i];
 						alpha = Math.min(alpha, t);
@@ -1466,7 +1466,7 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 				}
 
 				// Scale the resulting vector
-				for (j = 0; j < noOfParameters; j++) {
+				for (j = 0; j < noOfParams; j++) {
 					wa1[j] = wa1[j] * alpha;
 					wa2[j] = wa1[j] + x[j];
 				}
@@ -1474,7 +1474,7 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 				// Adjust the final output values. If the step put us
 				// exactly
 				// on a boundary, make sure it is exact.
-				for (i = 0; i < noOfParameters; i++) {
+				for (i = 0; i < noOfParams; i++) {
 					if (wa2[i] >= upperLimit[i] * (1 - epsmch)) {
 						wa2[i] = upperLimit[i];
 					}
@@ -1484,11 +1484,11 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 
 				}
 
-				for (j = 0; j < noOfParameters; j++) {
+				for (j = 0; j < noOfParams; j++) {
 					wa3[j] = diag[j] * wa1[j];
 				}
 
-				pnorm = enorm(noOfParameters, wa3);
+				pnorm = enorm(noOfParams, wa3);
 
 				// On the first iteration, adjust the initial step bound.
 
@@ -1510,7 +1510,7 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 					info[0] = iflag[0];
 					iflag[0] = 0;
 
-					if (nprint > 0) {
+					if (nprintLocal > 0) {
 
 						// nlls.fcn(noOfObservations, noOfParameters, x,
 						// functionAtDataPoints, iflag);
@@ -1520,7 +1520,7 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 
 				}
 
-				fnorm1 = enorm(noOfObservations, wa4);
+				fnorm1 = enorm(noOfObservationsLocal, wa4);
 
 				// Compute the scaled actual reduction.
 
@@ -1532,7 +1532,7 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 				// Compute the scaled predicted reduction and
 				// the scaled directional derivative.
 
-				for (j = 0; j < noOfParameters; j++) {
+				for (j = 0; j < noOfParams; j++) {
 
 					wa3[j] = 0.0;
 					l = ipvt[j];
@@ -1543,7 +1543,7 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 
 				}
 
-				temp1 = enorm(noOfParameters, wa3) / fnorm;
+				temp1 = enorm(noOfParams, wa3) / fnorm;
 				temp2 = (Math.sqrt(par[0]) * pnorm) / fnorm;
 
 				prered = temp1 * temp1 + temp2 * temp2 / 0.5;
@@ -1596,17 +1596,17 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 					// and
 					// their norms.
 
-					for (j = 0; j < noOfParameters; j++) {
+					for (j = 0; j < noOfParams; j++) {
 
 						x[j] = wa2[j];
 						wa2[j] = diag[j] * x[j];
 
 					}
 
-					for (i = 0; i < noOfObservations; i++)
+					for (i = 0; i < noOfObservationsLocal; i++)
 						functionAtDataPoints[i] = wa4[i];
 
-					xnorm = enorm(noOfParameters, wa2);
+					xnorm = enorm(noOfParams, wa2);
 
 					fnorm = fnorm1;
 
@@ -1616,13 +1616,13 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 
 				// Tests for convergence.
 
-				if (Math.abs(actred) <= fTolerance && prered <= fTolerance && 0.5 * ratio <= 1.0)
+				if (Math.abs(actred) <= fToleranceLocal && prered <= fToleranceLocal && 0.5 * ratio <= 1.0)
 					info[0] = 1;
 
-				if (delta <= xTolerance * xnorm)
+				if (delta <= xToleranceLocal * xnorm)
 					info[0] = 2;
 
-				if (Math.abs(actred) <= fTolerance && prered <= fTolerance && 0.5 * ratio <= 1.0 && info[0] == 2)
+				if (Math.abs(actred) <= fToleranceLocal && prered <= fToleranceLocal && 0.5 * ratio <= 1.0 && info[0] == 2)
 					info[0] = 3;
 
 				if (info[0] != 0) {
@@ -1633,7 +1633,7 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 						info[0] = iflag[0];
 					iflag[0] = 0;
 
-					if (nprint > 0) {
+					if (nprintLocal > 0) {
 
 						// nlls.fcn(noOfObservations, noOfParameters, x,
 						// functionAtDataPoints, iflag);
@@ -1646,7 +1646,7 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 
 				// Tests for termination and stringent tolerances.
 
-				if (nfev[0] >= maxNoOfFunctionEvaluations)
+				if (nfev[0] >= maxNoOfFunctionEvaluationsLocal)
 					info[0] = 5;
 
 				if (Math.abs(actred) <= epsmch && prered <= epsmch && 0.5 * ratio <= 1.0)
@@ -1666,7 +1666,7 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 						info[0] = iflag[0];
 					iflag[0] = 0;
 
-					if (nprint > 0) {
+					if (nprintLocal > 0) {
 
 						// nlls.fcn(noOfObservations, noOfParameters, x,
 						// functionAtDataPoints, iflag);
@@ -1695,14 +1695,14 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 	 * by Steve Verrill on November 24, 2000 from the FORTRAN MINPACK source produced by Garbow, Hillstrom, and More.
 	 * PDQ ADDED CENTRED DIFFERENCE DIFFERENTIATION...seems faster and more reliable with it...
 	 *
-	 * @param noOfObservations
+	 * @param noOfObservationsLocal
 	 *            A positive integer set to the number of functions [number of observations]
-	 * @param noOfParameters
+	 * @param noOfParams
 	 *            A positive integer set to the number of variables [number of parameters]. noOfParameters must not
 	 *            exceed noOfObservations.
 	 * @param x
 	 *            An input array.
-	 * @param functionAtDataPoints
+	 * @param functionAtDataPointsLocal
 	 *            An input array that contains the functions evaluated at x.
 	 * @param fjac
 	 *            An output noOfObservations by noOfParameters array that contains the approximation to the Jacobian
@@ -1710,7 +1710,7 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 	 * @param iflag
 	 *            An integer variable that can be used to terminate the execution of fdjac2. See the description of
 	 *            nlls.
-	 * @param epsfcn
+	 * @param epsfcnLocal
 	 *            An input variable used in determining a suitable step length for the forward-difference approximation.
 	 *            This approximation assumes that the relative errors in the functions are of the order of epsfcn. If
 	 *            epsfcn is less than the machine precision, it is assumed that the relative errors in the functions are
@@ -1718,16 +1718,16 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 	 * @param workingArray
 	 *            A work array.
 	 */
-	//TODO although not curently used, this suppressed warning should be looked into if the code is ever used
-	private void fdjac2(int noOfObservations, int noOfParameters, double x[], @SuppressWarnings("unused") double functionAtDataPoints[],
-			double fjac[][], int iflag[], double epsfcn, double workingArray[]) {
+	// TODO although not currently used, this suppressed warning should be looked into if the code is ever used
+	private void fdjac2(int noOfObservationsLocal, int noOfParams, double x[], @SuppressWarnings("unused") double functionAtDataPointsLocal[],
+			double fjac[][], int iflag[], double epsfcnLocal, double workingArray[]) {
 
 		int i, j;
 		double eps, h, temp;
-		double[] temp1 = new double[noOfObservations];
+		double[] temp1 = new double[noOfObservationsLocal];
 		// Loop over the parameters
-		eps = Math.sqrt(Math.max(epsfcn, epsmch));
-		for (j = 0; j < noOfParameters; j++) {
+		eps = Math.sqrt(Math.max(epsfcnLocal, epsmch));
+		for (j = 0; j < noOfParams; j++) {
 			temp = x[j];
 			// Determine a reasonable step size for differentiation.....
 			h = eps * Math.abs(temp);
@@ -1760,7 +1760,7 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 			x[j] = temp;
 
 			// Forward difference differentiation
-			for (i = 0; i < noOfObservations; i++) {
+			for (i = 0; i < noOfObservationsLocal; i++) {
 				fjac[i][j] = (workingArray[i] - temp1[i]) / (2.0 * h);
 			}
 		}
