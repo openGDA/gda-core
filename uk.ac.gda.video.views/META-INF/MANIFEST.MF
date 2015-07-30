@@ -19,7 +19,7 @@ Require-Bundle: org.eclipse.ui,
  org.dawnsci.plotting.services;bundle-version="1.0.0",
  org.dawnsci.common.widgets
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Eclipse-RegisterBuddy: uk.ac.gda.core
 Export-Package: uk.ac.gda.video.views;uses:="gda.images.camera,org.eclipse.ui.part,org.eclipse.swt.widgets"
 Bundle-Activator: uk.ac.gda.video.views.Activator

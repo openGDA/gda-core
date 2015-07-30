@@ -4,7 +4,7 @@ Bundle-Name: uk.ac.gda.video.examples
 Bundle-SymbolicName: uk.ac.gda.video.examples
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Diamond Light Source
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: uk.ac.gda.video;bundle-version="1.0.0",
  uk.ac.gda.video.mjpeg;bundle-version="1.0.0",
  uk.ac.gda.video.rtp;bundle-version="1.0.0",
