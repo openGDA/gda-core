@@ -36,7 +36,7 @@ public class TangoReaderWriter implements SerialReaderWriter, InitializingBean {
 
 	private TangoSerial tangoSerial = null;
 	private final String terminator = "\r";
-	
+
 	public TangoSerial getTangoSerial() {
 		return tangoSerial;
 	}
@@ -52,7 +52,7 @@ public class TangoReaderWriter implements SerialReaderWriter, InitializingBean {
 		}
 		tangoSerial.flush();
 	}
-	
+
 	@Override
 	public void close() {
 		try {
@@ -62,10 +62,10 @@ public class TangoReaderWriter implements SerialReaderWriter, InitializingBean {
 		}
 
 	}
-	
+
 	/**
 	 * Handles commands which do not need a reply.
-	 * 
+	 *
 	 * @param command
 	 *            the command to send
 	 */
@@ -79,32 +79,20 @@ public class TangoReaderWriter implements SerialReaderWriter, InitializingBean {
 		}
 	}
 
-
-	/**
-	 * Actually writes a string to the device.
-	 * 
-	 * @param command the command
-	 * @throws DeviceException
-	 */
-	private void sendCommand(String command) throws DeviceException {
-		logger.debug("TangoReaderWriter: writing {} to device", command);
-		tangoSerial.writeString(command+terminator);
-	}
-
 	/**
 	 * Sends a command to the hardware and reads back a data reply.
-	 * 
+	 *
 	 * @param command the command sent to the hardware
 	 * @return the reply
 	 * @throws DeviceException
 	 */
 	@Override
 	public String sendCommandAndGetReply(String command) throws DeviceException {
-//		System.out.println("TangoReaderWriter: writing " + command + " to device");
+//		logger.debug("TangoReaderWriter: writing " + command + " to device");
 		String reply = tangoSerial.writeReadString(command+terminator);
-//		System.out.println("TangoReaderWriter: reply is " + reply);
+//		logger.debug("TangoReaderWriter: reply is " + reply);
 //		if (reply.length() > 0)
-//			System.out.println("TangoReaderWriter: first char " + (int) reply.charAt(0));
+//			logger.debug("TangoReaderWriter: first char " + (int) reply.charAt(0));
 		return reply;
 	}
 }
