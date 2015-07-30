@@ -25,6 +25,7 @@ import gda.exafs.xes.XesUtils.XesMaterial;
 import gda.observable.IObserver;
 
 public class XESEnergyScannable extends ScannableMotionUnitsBase implements IObserver {
+
 	private XesSpectrometerScannable xes;
 	private Scannable cut1Scannable;
 	private Scannable cut2Scannable;
@@ -72,10 +73,10 @@ public class XESEnergyScannable extends ScannableMotionUnitsBase implements IObs
 		String stringPosition = position.toString();
 		double doublePosition = Double.parseDouble(stringPosition);
 		double bragg = XesUtils.getBragg(doublePosition, material, getCrystalCut());
-		if (bragg >= 60.0 && bragg <= 85.0)
+		if (bragg >= XesUtils.MIN_THETA && bragg <= XesUtils.MAX_THETA)
 			xes.asynchronousMoveTo(bragg);
 		else
-			throw new DeviceException("Move to " + bragg + "deg out of limits. Must be 60 to 85 deg.");
+			throw new DeviceException("Move to " + bragg + "deg out of limits. Must be " + XesUtils.MIN_THETA + " to " + XesUtils.MAX_THETA + " deg.");
 	}
 
 	@Override
