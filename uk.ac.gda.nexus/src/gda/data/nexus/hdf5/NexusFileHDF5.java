@@ -689,15 +689,14 @@ public class NexusFileHDF5 implements NexusFile {
 	public DataNode getData(String path) throws NexusException {
 		assertOpen();
 
+		path = NexusUtils.stripAugmentedPath(path);
 		//check if the data node itself is a symlink
-			//*
 		long fileAddr = getLinkTarget(path);
 		DataNode dataNode = (DataNode) nodeMap.get(fileAddr);
 		if (dataNode != null) {
 			return dataNode;
 		}
 
-		path = NexusUtils.stripAugmentedPath(path);
 		NodeLink link = tree.findNodeLink(path);
 		if (link != null) {
 			if (link.isDestinationData()) {

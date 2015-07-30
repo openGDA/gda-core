@@ -260,6 +260,22 @@ public class NexusFileTest {
 	}
 
 	@Test
+	public void testGetDataWithAugmentedPath() throws Exception {
+		GroupNode parentNode = nf.getGroup("/entry1/instrument/detector", true);
+		IDataset dataset = DatasetFactory.createRange(10.0, Dataset.FLOAT64).reshape(2, 5);
+		dataset.setName("data");
+		DataNode dataNode = nf.createData(parentNode, dataset);
+		nf.close();
+
+		nf = NexusUtils.openNexusFileReadOnly(FILE_NAME);
+		GroupNode readNode = nf.getGroup("/entry1:NXentry/instrument:NXinstrument/detector:NXdetector", false);
+		assertTrue(readNode.containsDataNode("data"));
+		DataNode readDataNode = nf.getData("/entry1:NXentry/instrument:NXinstrument/detector:NXdetector/data");
+		IDataset readData = readDataNode.getDataset().getSlice();
+		assertEquals(dataset, readData);
+	}
+
+	@Test
 	public void testAddAttributeNode() throws Exception {
 		Dataset attribDataset = DatasetFactory.createRange(10.0, Dataset.FLOAT64).reshape(2, 5);
 		attribDataset.setName("testAttribute");
