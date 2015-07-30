@@ -10,7 +10,7 @@ Require-Bundle: com.windowtester.swt.runtime,
  org.eclipse.swt,
  com.windowtester.swt.runtime.gef
 Fragment-Host: uk.ac.gda.client.tomo;bundle-version="1.0.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-SymbolicName: uk.ac.gda.client.tomo.test
 Manifest-Version: 1.0
 Bundle-Vendor: Diamond Light Source

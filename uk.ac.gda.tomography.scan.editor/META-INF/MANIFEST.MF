@@ -8,7 +8,7 @@ Bundle-ClassPath: .,
 Bundle-Activator: uk.ac.gda.tomography.scan.presentation.ScanEditorPlugin$Implementation
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: uk.ac.gda.tomography.scan.editor,
  uk.ac.gda.tomography.scan.presentation
 Require-Bundle: org.eclipse.core.runtime,
