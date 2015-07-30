@@ -336,7 +336,6 @@ public class NexusFileHDF5 implements NexusFile {
 				//we cannot handle hard links in external files
 				nodeMap.put(fileAddr, g);
 			}
-			//TODO copy Attributes from node in file to tree node (g)
 		} else {
 			g = (GroupNode)nodeMap.get(fileAddr);
 		}
@@ -435,10 +434,8 @@ public class NexusFileHDF5 implements NexusFile {
 							HDF5Constants.H5_ITER_INC, i, HDF5Constants.H5P_DEFAULT);
 					String childPath = path + linkName;
 					H5O_info_t objectInfo = H5.H5Oget_info_by_name(fileId, childPath, HDF5Constants.H5P_DEFAULT);
-					String nxClass = "";
-					//TODO getNxClass attribute
 					if (objectInfo.type == HDF5Constants.H5O_TYPE_GROUP) {
-						createGroupNode(childPath.hashCode(), group, path, linkName, nxClass);
+						createGroupNode(childPath.hashCode(), group, path, linkName, "");
 					} else if (objectInfo.type == HDF5Constants.H5O_TYPE_DATASET) {
 						group.addDataNode(childPath, linkName, getDataNodeFromFile(childPath, group, linkName));
 					} else {
@@ -566,7 +563,6 @@ public class NexusFileHDF5 implements NexusFile {
 	}
 
 	private int openGroup(String absolutePath, String nxClass, boolean create) throws NexusException {
-		//TODO: Add nxClass as attribute
 		NodeType type = getNodeType(absolutePath);
 		int groupId;
 
