@@ -28,8 +28,6 @@ import org.slf4j.LoggerFactory;
 import fr.esrf.Tango.DevFailed;
 import fr.esrf.TangoApi.DeviceData;
 import gda.device.DeviceException;
-import gda.device.TangoDeviceProxy;
-import gda.device.Timer;
 
 /**
  * A timer class for the VME time frame generator card implemented using DA.Server
@@ -38,22 +36,22 @@ public class TangoTfg2 extends TangoTfg1 {
 
 	private static final Logger logger = LoggerFactory.getLogger(TangoTfg2.class);
 	private static int MAXFRAMES = 32767;
-	private static final String version = "Version 2";
+//	private static final String version = "Version 2";
 	private ArrayList<Double> debounceValues;
 	private ArrayList<Double> thresholdValues;
 	private int drive = 0;
 	private int inversion = 0;
 	private int startMethod;
-	private enum group { 
+	private enum group {
 		help(1<<0), ext_start(1<<1), ext_inh(1<<2), cycles(1<<3), file(1<<4), no_min_20us(1<<5), silent(1<<6),
 		sequence(1<<7), auto_rearm(1<<8), ext_falling(1<<9);
-		
+
 		private int value;
-		
+
 		private group(int value) {
 			this.value = value;
 		}
-		
+
 		public int getValue() {
 			return value;
 		}
@@ -64,15 +62,15 @@ public class TangoTfg2 extends TangoTfg1 {
 		raw(1<<8), alternate(1<<9);
 
 		private int value;
-				
+
 		private trig(int value) {
 			this.value = value;
 		}
-		
+
 		public int getValue() {
 			return value;
 		}
-		
+
 		public int or(trig ... argin) {
 			int result = value;
 			for (int i=0; i<argin.length; i++) {
@@ -260,15 +258,15 @@ public class TangoTfg2 extends TangoTfg1 {
 	public void setMaximumFrames(int max) {
 		MAXFRAMES = max;
 	}
-	
+
 	/**
 	 * Set attribute values for "Ext-Start", "Ext-Inhibit", "VME-Start" and "Auto-Continue"
-	 * 
+	 *
 	 * @param attributeName
 	 *            the attribute name
 	 * @param value
 	 *            the attribute value
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
@@ -291,7 +289,7 @@ public class TangoTfg2 extends TangoTfg1 {
 		super.setAttribute(attributeName, value);
 	}
 
-	
+
 	@Override
 	public Object getAttribute(String attributeName) throws DeviceException {
 		if ("Debounce".equals(attributeName)) {
