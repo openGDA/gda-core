@@ -35,6 +35,7 @@ import org.eclipse.emf.ecore.EObject;
  *
  * <p>
  * The following features are supported:
+ * </p>
  * <ul>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Cell#getStage <em>Stage</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Cell#getSamples <em>Samples</em>}</li>
@@ -52,7 +53,6 @@ import org.eclipse.emf.ecore.EObject;
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Cell#getEnvSamplingInterval <em>Env Sampling Interval</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Cell#getEvnScannableNames <em>Evn Scannable Names</em>}</li>
  * </ul>
- * </p>
  *
  * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getCell()
  * @model

@@ -10,10 +10,10 @@ import org.eclipse.emf.ecore.EObject;
  *
  * <p>
  * The following features are supported:
+ * </p>
  * <ul>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.ExperimentDefinition#getExperiments <em>Experiments</em>}</li>
  * </ul>
- * </p>
  *
  * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getExperimentDefinition()
  * @model

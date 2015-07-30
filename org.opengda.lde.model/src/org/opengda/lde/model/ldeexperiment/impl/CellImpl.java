@@ -46,6 +46,7 @@ import org.opengda.lde.model.ldeexperiment.Stage;
  * <!-- end-user-doc -->
  * <p>
  * The following features are implemented:
+ * </p>
  * <ul>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.CellImpl#getStage <em>Stage</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.CellImpl#getSamples <em>Samples</em>}</li>
@@ -63,7 +64,6 @@ import org.opengda.lde.model.ldeexperiment.Stage;
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.CellImpl#getEnvSamplingInterval <em>Env Sampling Interval</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.CellImpl#getEvnScannableNames <em>Evn Scannable Names</em>}</li>
  * </ul>
- * </p>
  *
  * @generated
  */

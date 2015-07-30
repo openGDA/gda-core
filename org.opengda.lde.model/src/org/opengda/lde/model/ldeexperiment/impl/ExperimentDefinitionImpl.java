@@ -41,10 +41,10 @@ import org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage;
  * <!-- end-user-doc -->
  * <p>
  * The following features are implemented:
+ * </p>
  * <ul>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.ExperimentDefinitionImpl#getExperiments <em>Experiments</em>}</li>
  * </ul>
- * </p>
  *
  * @generated
  */

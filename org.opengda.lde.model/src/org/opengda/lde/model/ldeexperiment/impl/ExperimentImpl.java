@@ -43,12 +43,12 @@ import org.opengda.lde.model.ldeexperiment.Stage;
  * <!-- end-user-doc -->
  * <p>
  * The following features are implemented:
+ * </p>
  * <ul>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.ExperimentImpl#getName <em>Name</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.ExperimentImpl#getStages <em>Stages</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.ExperimentImpl#getFilename <em>Filename</em>}</li>
  * </ul>
- * </p>
  *
  * @generated
  */

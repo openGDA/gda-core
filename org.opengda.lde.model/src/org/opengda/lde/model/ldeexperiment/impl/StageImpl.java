@@ -45,6 +45,7 @@ import org.opengda.lde.model.ldeexperiment.Stage;
  * <!-- end-user-doc -->
  * <p>
  * The following features are implemented:
+ * </p>
  * <ul>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.StageImpl#getStageID <em>Stage ID</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.StageImpl#getExperiment <em>Experiment</em>}</li>
@@ -56,7 +57,6 @@ import org.opengda.lde.model.ldeexperiment.Stage;
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.StageImpl#getCamera_y <em>Camera y</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.StageImpl#getCamera_z <em>Camera z</em>}</li>
  * </ul>
- * </p>
  *
  * @generated
  */

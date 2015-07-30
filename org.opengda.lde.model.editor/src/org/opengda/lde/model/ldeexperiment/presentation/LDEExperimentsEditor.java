@@ -1,4 +1,22 @@
 /**
+ * Copyright ©2015 Diamond Light Source Ltd
+ * 
+ * This file is part of GDA.
+ *  
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ * 
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ * 
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * Contributors:
+ * 	Fajin Yuan
  */
 package org.opengda.lde.model.ldeexperiment.presentation;
 
@@ -949,6 +967,8 @@ public class LDEExperimentsEditor
 	 * @generated
 	 */
 	public void createModel() {
+		//TODO update EMF in target platfor from 2.9.0 to 2.11.0 required for this generated line
+//		URI resourceURI = EditUIUtil.getURI(getEditorInput(), editingDomain.getResourceSet().getURIConverter());
 		URI resourceURI = EditUIUtil.getURI(getEditorInput());
 		Exception exception = null;
 		Resource resource = null;
@@ -977,10 +997,11 @@ public class LDEExperimentsEditor
 	 * @generated
 	 */
 	public Diagnostic analyzeResourceProblems(Resource resource, Exception exception) {
-		if (!resource.getErrors().isEmpty() || !resource.getWarnings().isEmpty()) {
+		boolean hasErrors = !resource.getErrors().isEmpty();
+		if (hasErrors || !resource.getWarnings().isEmpty()) {
 			BasicDiagnostic basicDiagnostic =
 				new BasicDiagnostic
-					(Diagnostic.ERROR,
+					(hasErrors ? Diagnostic.ERROR : Diagnostic.WARNING,
 					 "org.opengda.lde.model.editor",
 					 0,
 					 getString("_UI_CreateModelError_message", resource.getURI()),

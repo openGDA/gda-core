@@ -33,6 +33,7 @@ import org.eclipse.emf.ecore.EObject;
  *
  * <p>
  * The following features are supported:
+ * </p>
  * <ul>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Stage#getStageID <em>Stage ID</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Stage#getExperiment <em>Experiment</em>}</li>
@@ -44,7 +45,6 @@ import org.eclipse.emf.ecore.EObject;
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Stage#getCamera_y <em>Camera y</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Stage#getCamera_z <em>Camera z</em>}</li>
  * </ul>
- * </p>
  *
  * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getStage()
  * @model
@@ -105,6 +105,9 @@ public interface Stage extends EObject {
 	 * there really should be more of a description here...
 	 * </p>
 	 * <!-- end-user-doc -->
+	 * <!-- begin-model-doc -->
+	 * 
+	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Detector x</em>' attribute.
 	 * @see #setDetector_x(double)
 	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getStage_Detector_x()
