@@ -307,8 +307,8 @@ public class LDEResourceUtil {
 		return Collections.unmodifiableMap(cells);
 	}
 	
-	public Collection<Sample>  getSamples() throws Exception {
+	public List<Sample>  getSamples() throws Exception {
 		// TODO Auto-generated method stub
-		return getSamples(getFileName()).values();
+		return Collections.unmodifiableList((List<Sample>) getSamples(getFileName()).values());
 	}
 }
