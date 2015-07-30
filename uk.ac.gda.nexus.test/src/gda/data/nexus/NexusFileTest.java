@@ -441,6 +441,20 @@ public class NexusFileTest {
 	}
 
 	@Test
+	public void testRelativeExternalLink() throws Exception {
+		IDataset externalData = DatasetFactory.createRange(10.0, Dataset.FLOAT64).reshape(2, 5);
+		externalData.setName("data");
+		try (NexusFile ef = NexusUtils.createNexusFile(FILE2_NAME)) {
+			ef.createData("/a/b/c", externalData, true);
+		}
+		nf.linkExternal(new URI("nxfile://" + FILE2_NAME.replaceFirst("/tmp/", "") + "#a/b/c/data"), "/x/y/", false);
+		DataNode dataNode = nf.getData("/x/y/data");
+		IDataset linkedData = dataNode.getDataset().getSlice();
+		assertNotNull(linkedData);
+		assertEquals(externalData, linkedData);
+	}
+
+	@Test
 	public void testIsPathValid() throws Exception {
 		nf.getGroup("/a/b/c", true);
 		assertTrue(nf.isPathValid("/a/b/c"));

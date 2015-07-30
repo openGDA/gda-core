@@ -1030,8 +1030,18 @@ public class NexusFileHDF5 implements NexusFile {
 		String linkName = destination;
 		//TODO: add class attribute
 		String linkClass;
-		String externalFileName = source.getPath();
+		String sourceString = source.toString();
+		//the URI is malformed if the specified path was relative, so we have to manually extract the path
+		String externalFileName;
+		if (sourceString.startsWith("#")) {
+			externalFileName = "";
+		} else {
+			externalFileName = sourceString.replaceFirst("nxfile://", "");
+		}
 		String externalNexusPath = source.getFragment();
+		if (externalFileName.contains("#")) {
+			externalFileName = externalFileName.substring(0, externalFileName.indexOf("#"));
+		}
 		if (externalFileName == null || externalFileName.isEmpty()) {
 			createSoftLink(externalNexusPath, destination);
 			return;
