@@ -492,13 +492,53 @@ public class NexusFileTest {
 		nf = NexusUtils.openNexusFileReadOnly(FILE_NAME);
 		DataNode d = nf.getData("/test/stringarray");
 		IDataset ds = d.getDataset().getSlice();
-		System.err.println(ds);
 		int[] shape = ds.getShape();
-		System.err.println(Arrays.toString(shape));
+		assertArrayEquals(new int[] {nPoints}, shape);
 		for (int i = 0; i < nPoints; i++) {
-			System.err.println(i + "/" + nPoints);
-			System.out.println(ds.getString(i));
+			assertEquals("file" + i, ds.getString(i));
 		}
+	}
+
+	@Test
+	public void testLazyWrite2DInt32Array() throws Exception {
+		GroupNode g = nf.getGroup("/test:NXnote", true);
+		ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset("intarray", Dataset.INT32,
+				new int[] {ILazyWriteableDataset.UNLIMITED, 10}, null, null);
+		nf.createData(g, lazy);
+		lazy.setSlice(null, DatasetFactory.createFromObject(new int[] {-1, -1, -1, -1}).reshape(2, 2), new int[] {0, 0}, new int[] {2, 2}, null);
+		nf.close();
+		nf = NexusUtils.openNexusFileReadOnly(FILE_NAME);
+		DataNode node = nf.getData("/test/intarray");
+		IDataset data = node.getDataset().getSlice(new int[] {0, 0}, new int[] {2, 2}, new int[] {1, 1});
+		assertArrayEquals(new int[] {-1, -1, -1, -1}, (int[])((Dataset) data).getBuffer());
+	}
+
+	@Test
+	public void testLazyWrite2DDoubleArray() throws Exception {
+		GroupNode g = nf.getGroup("/test:NXnote", true);
+		ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset("doublearray", Dataset.FLOAT64,
+				new int[] {ILazyWriteableDataset.UNLIMITED, 10}, null, null);
+		nf.createData(g, lazy);
+		lazy.setSlice(null, DatasetFactory.createFromObject(new double[] {1, 2, 3, 4}).reshape(2, 2), new int[] {0, 0}, new int[] {2, 2}, null);
+		nf.close();
+		nf = NexusUtils.openNexusFileReadOnly(FILE_NAME);
+		DataNode node = nf.getData("/test/doublearray");
+		IDataset data = node.getDataset().getSlice(new int[] {0, 0}, new int[] {2, 2}, new int[] {1, 1});
+		assertArrayEquals(new double[] {1, 2, 3, 4}, (double[])((Dataset) data).getBuffer(), 1e-12);
+	}
+
+	@Test
+	public void testLazyWrite2DStringArray() throws Exception {
+		GroupNode g = nf.getGroup("/test:NXnote", true);
+		ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset("stringarray", Dataset.STRING,
+				new int[] {2, 10}, new int[] {ILazyWriteableDataset.UNLIMITED, 10}, null);
+		nf.createData(g, lazy);
+		lazy.setSlice(null, DatasetFactory.createFromObject(new String[] {"Value1", "Value2"}).reshape(2, 1), new int[] {2, 0}, new int[] {4, 1}, null);
+		nf.close();
+		nf = NexusUtils.openNexusFileReadOnly(FILE_NAME);
+		DataNode node = nf.getData("/test/stringarray");
+		IDataset data = node.getDataset().getSlice();
+		assertEquals("Value1", data.getString(2, 0));
 	}
 
 	@Test

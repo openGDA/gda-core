@@ -156,14 +156,14 @@ public class NexusFileIntegrationTest {
 		assertTrue(b.elementClass().equals(Double.class));
 		assertArrayEquals(shape, b.getShape());
 		IDataset bs = b.getSlice();
-		assertEquals(0, bs.getDouble(0, 0), 1e-12);
-		assertEquals(0, bs.getDouble(0, 2), 1e-12);
-		assertEquals(0, bs.getDouble(0, 10), 1e-12);
-		assertEquals(0, bs.getDouble(1, 0), 1e-12);
-		assertEquals(0, bs.getDouble(1, 2), 1e-12);
-		assertEquals(0, bs.getDouble(1, 10), 1e-12);
-		assertEquals(0, bs.getDouble(2, 0), 1e-12);
-		assertEquals(0, bs.getDouble(2, 2), 1e-12);
+		assertEquals(Double.NaN, bs.getDouble(0, 0), 1e-12);
+		assertEquals(Double.NaN, bs.getDouble(0, 2), 1e-12);
+		assertEquals(Double.NaN, bs.getDouble(0, 10), 1e-12);
+		assertEquals(Double.NaN, bs.getDouble(1, 0), 1e-12);
+		assertEquals(Double.NaN, bs.getDouble(1, 2), 1e-12);
+		assertEquals(Double.NaN, bs.getDouble(1, 10), 1e-12);
+		assertEquals(Double.NaN, bs.getDouble(2, 0), 1e-12);
+		assertEquals(Double.NaN, bs.getDouble(2, 2), 1e-12);
 		assertEquals(-9, bs.getDouble(2, 10), 1e-12);
 	}
 
@@ -173,7 +173,7 @@ public class NexusFileIntegrationTest {
 		// NAPI is broken wrt strings so skip for time being
 		assertArrayEquals(shape, b.getShape());
 		IDataset bs = b.getSlice();
-		assertEquals("", bs.getString(0, 0));
+		assertEquals("null", bs.getString(0, 0));
 		assertEquals("Hello", bs.getString(2, 3));
 		assertEquals("World", bs.getString(3, 3));
 	}

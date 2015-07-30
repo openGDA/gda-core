@@ -620,7 +620,7 @@ public class NexusFileHDF5 implements NexusFile {
 		ILazyDataset lazyDataset = null;
 		int itemSize = 1;
 		boolean extendUnsigned = false;
-		byte fill = 0;
+		Object[] fill = getFillValue(datasetType);
 		if (writeable) {
 			lazyDataset = new LazyWriteableDataset(name, datasetType, iShape, null, null, 
 					new HDF5LazySaver(null, fileName, path, name, iShape, itemSize,
@@ -757,7 +757,7 @@ public class NexusFileHDF5 implements NexusFile {
 		int[] iShape = data.getShape();
 		int[] iMaxShape = data.getMaxShape();
 		int[] iChunks = data.getChunking();
-		byte[] fillValue = {0};
+		Object[] fillValue = getFillValue(data.elementClass());
 
 		long[] shape = intArrayToLongArray(iShape);
 		long[] maxShape = intArrayToLongArray(iMaxShape);
@@ -767,6 +767,7 @@ public class NexusFileHDF5 implements NexusFile {
 			chunks = new long[shape.length];
 			Arrays.fill(chunks, 1);
 		}
+		boolean stringDataset = data.elementClass().equals(String.class);
 		//TODO: compression
 		int hdfType = getHDF5Type(data);
 		try {
@@ -777,8 +778,14 @@ public class NexusFileHDF5 implements NexusFile {
 				final int hdfPropertiesId = hdfProperties.getResource();
 				final int hdfDatatypeId = hdfDatatype.getResource();
 				final int hdfDataspaceId = hdfDataspace.getResource();
-				if (chunks != null) {
+				if (stringDataset) {
+					H5.H5Tset_cset(hdfDatatypeId, HDF5Constants.H5T_CSET_UTF8);
+					H5.H5Tset_size(hdfDatatypeId, HDF5Constants.H5T_VARIABLE);
+				} else if (fillValue != null) {
+					//Strings must not have a fill value set
 					H5.H5Pset_fill_value(hdfPropertiesId, hdfDatatypeId, fillValue);
+				}
+				if (chunks != null) {
 					//these have to be set in this order
 					H5.H5Pset_layout(hdfPropertiesId, HDF5Constants.H5D_CHUNKED);
 					H5.H5Pset_chunk(hdfPropertiesId, chunks.length, chunks);
@@ -1169,5 +1176,47 @@ public class NexusFileHDF5 implements NexusFile {
 			intArray[i] = (int)value;
 		}
 		return intArray;
+	}
+
+	private static Object[] getFillValue(Class<?> clazz) {
+		if (clazz == Integer.class) {
+			return new Integer[] {0};
+		} else if (clazz == Long.class) {
+			return new Long[] {0L};
+		} else if (clazz == Double.class) {
+			return new Double[] {Double.NaN};
+		} else if (clazz == Float.class) {
+			return new Float[] {Float.NaN};
+		} else if (clazz == Short.class) {
+			return new Short[] {0};
+		} else if (clazz == Byte.class) {
+			return new Byte[] {0};
+		} else if (clazz == String.class) {
+			//TODO: change to "" when HDF supports strings as fill value
+			return null;
+		}
+		return null;
+	}
+
+	private static Object[] getFillValue(int datasetType) {
+		switch(datasetType) {
+		case Dataset.FLOAT64:
+			return new Double[] {Double.NaN};
+		case Dataset.FLOAT32:
+			return new Float[] {Float.NaN};
+		case Dataset.INT32:
+			return new Integer[] {0};
+		case Dataset.INT64:
+			return new Long[] {0L};
+		case Dataset.INT16:
+			return new Short[] {0};
+		case Dataset.INT8:
+			return new Byte[] {0};
+		case Dataset.STRING:
+			//TODO: support string fill when HDF5 library does
+			return null;
+		default:
+			return null;
+		}
 	}
 }
