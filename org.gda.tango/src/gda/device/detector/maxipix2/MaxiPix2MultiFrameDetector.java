@@ -50,40 +50,40 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /*
- * 
+ *
  * Can work in 2 modes.
- * 
+ *
  * A. 1 readout/getPositionCallable per acquisition - multiple frames. Used to taking multiple exposures
  *    with feedback to user after each acqusition. This is the default mode.
- *    
- *    
+ *
+ *
  * B. 1 readout/getPositionCallable per frame of an acquisition - with timing done by detector. Used to taking multiple exposures
  *    with feedback to user after each frame. This is configured by repscan
- *    
+ *
  *    det.setFrames(10)
  *    scan x - - - det 0.1
- *    
+ *
  *    This will results in 1 acquisition per value of x. Each acquisition takes 10 frames each 0.1 s apart. There will be
  *    1 scandatapoint per value of x
- *    
+ *
  *    repscan 10 det 0.1
- *    
+ *
  *    This will results in 1 acquisition consisting of 10 frames each 0.1 s apart. There will be 10 scandatapoints
 
 
- * 
+ *
  * In mode A:
  *  collectData - starts acquisition having set numberOfFrames in det
  *  getStatus - returns BUSY whilst acquisition continues
  *  getPositionCallable creates data for all frames
- *  
+ *
  *  In mode B:
  *   collectData - if first following atLineStart then initiate an acquisition  having set numberOfFrames in det
  *               - else fo nothing
  *   getStatus - returns IDLE
  *   getPositionCallable - returns a single frames worth of info. If last call of current acquisition then wait for
- *                         acqusition to end. 
- * 
+ *                         acqusition to end.
+ *
  */
 public class MaxiPix2MultiFrameDetector extends DetectorBase implements PositionCallableProvider<String>, HardwareTriggerableDetector  {
 	private static final Logger logger = LoggerFactory.getLogger(MaxiPix2MultiFrameDetector.class);
@@ -146,7 +146,7 @@ public class MaxiPix2MultiFrameDetector extends DetectorBase implements Position
 				if(!hardwareTriggering)
 					prepareForAcquire();
 				getLimaCCD().prepareAcq();
-				
+
 			}
 			if( firstFrameOfScan || startAcqPerFrame){
 				getLimaCCD().startAcq();
@@ -167,18 +167,18 @@ public class MaxiPix2MultiFrameDetector extends DetectorBase implements Position
 		getLimaCCD().setAcqExpoTime(getCollectionTime()-.005);
 		AcqTriggerMode acqTriggerMode = getLimaCCD().getAcqTriggerMode();
 		if( acqTriggerMode.equals(LimaCCD.AcqTriggerMode.EXTERNAL_TRIGGER_MULTI) ||
-				acqTriggerMode.equals(LimaCCD.AcqTriggerMode.EXTERNAL_GATE) ||	
-				acqTriggerMode.equals(LimaCCD.AcqTriggerMode.EXTERNAL_START_STOP) ||	
+				acqTriggerMode.equals(LimaCCD.AcqTriggerMode.EXTERNAL_GATE) ||
+				acqTriggerMode.equals(LimaCCD.AcqTriggerMode.EXTERNAL_START_STOP) ||
 				acqTriggerMode.equals(LimaCCD.AcqTriggerMode.EXTERNAL_TRIGGER )){
 			startAcqPerFrame= fastMode ? false : true;
-			
+
 			maxTimeToWaitForImage_ms=-1; //wait for ever or until the scan is interruped
 		} else {
 			if(fastMode)
 				getLimaCCD().setAcqTriggerMode(LimaCCD.AcqTriggerMode.INTERNAL_TRIGGER_MULTI);
 			else
 				getLimaCCD().setAcqTriggerMode(LimaCCD.AcqTriggerMode.INTERNAL_TRIGGER);
-				
+
 			maxTimeToWaitForImage_ms = Math.max(50,  (long)(1.5 * 1000. *	getCollectionTime()));
 			timeIntervalWhilstWaiting_ms = maxTimeToWaitForImage_ms/2;
 			startAcqPerFrame= true;
@@ -189,14 +189,14 @@ public class MaxiPix2MultiFrameDetector extends DetectorBase implements Position
 		if( (savingFramePerFile != 1) && (acqNbFrames != savingFramePerFile)){
 			throw new DeviceException("(savingFramePerFile != 1) && (acqNbFrames != savingFramePerFile)");
 		}
-		//if using external trigger then we do not know the collectionTime so wait 
-		savingNextNumberStartAcq = getLimaCCD().getSavingNextNumber(); 
+		//if using external trigger then we do not know the collectionTime so wait
+		savingNextNumberStartAcq = getLimaCCD().getSavingNextNumber();
 		lastImageNumberPositionInputStream = new LastImagedPositionInputStreamImpl(getLimaCCD(), savingNextNumberStartAcq, isHardwareTriggering() ? acqNbFrames : numberOfFrames,
 				maxTimeToWaitForImage_ms, timeIntervalWhilstWaiting_ms, getName());
 		lastImageNumberStreamIndexer = new PositionStreamIndexer<Integer>(lastImageNumberPositionInputStream);
 		fileTemplateForCurrentAcq = getFullSavingFileTemplate();
-	}	
-	
+	}
+
 	void checkNotInFault(String methodName) throws DeviceException {
 		if (getLimaStatus() == FAULT) {
 			String possibleReason = "Unknown";
@@ -312,21 +312,21 @@ public class MaxiPix2MultiFrameDetector extends DetectorBase implements Position
 			if( savingNextNumber < savingNextNumberStartAcq + fastModeFramesStarted){
 				throw new DeviceException("savingNextNumber < savingNextNumberStartAcq + fastModeFramesStarted");
 			}
-			return createFilePathNumberArray(fileTemplateForCurrentAcq, savingNextNumberStartAcq+fastModeFramesStarted-1,1 );		
-		} 
+			return createFilePathNumberArray(fileTemplateForCurrentAcq, savingNextNumberStartAcq+fastModeFramesStarted-1,1 );
+		}
 		if( isFastMode()){
 			if( savingNextNumber < savingNextNumberStartAcq + fastModeFramesStarted){
 				throw new DeviceException("savingNextNumber != savingNextNumberStartAcq + fastModeFramesStarted");
 			}
-			return createFilePathNumberArray(fileTemplateForCurrentAcq, savingNextNumberStartAcq+fastModeFramesStarted-1,1 );		
-		} 
+			return createFilePathNumberArray(fileTemplateForCurrentAcq, savingNextNumberStartAcq+fastModeFramesStarted-1,1 );
+		}
 		if( savingNextNumber != savingNextNumberStartAcq + (numberOfFrames/savingFramePerFile)){
 			//TODO we expect savingFramePerFile to be 1 or equal to numberOfFrames
 			throw new DeviceException("savingNextNumber != savingNextNumberStartAcq + numberOfFrames/savingFramePerFile");
 		}
-		return createFilePathNumberArray(fileTemplateForCurrentAcq, savingNextNumberStartAcq, numberOfFrames);		
+		return createFilePathNumberArray(fileTemplateForCurrentAcq, savingNextNumberStartAcq, numberOfFrames);
 	}
-	
+
 	private FilePathNumber[] createFilePathNumberArray(String template, int savingNextNumberStartAcq, int numberOfFrames) {
 		Vector<FilePathNumber> v = new Vector<FilePathNumber>();
 		for( int i=0; i<numberOfFrames;i++){
@@ -336,7 +336,7 @@ public class MaxiPix2MultiFrameDetector extends DetectorBase implements Position
 		FilePathNumber[] a = new FilePathNumber[]{};
 		return v.toArray(a);
 	}
-	
+
 	@Override
 	public Callable<String> getPositionCallable() throws DeviceException {
 		return new FilePathCallable(fileTemplateForCurrentAcq, getLastImageNumberCallable());
@@ -462,8 +462,9 @@ public class MaxiPix2MultiFrameDetector extends DetectorBase implements Position
 				return FAULT;
 			case RUNNING:
 				return BUSY;
+			default:
+				return FAULT;
 			}
-			return FAULT;
 		} catch (DevFailed e) {
 			throw new DeviceException(getName() + " getLimaStatus failed ", TangoUtils.createDeviceExceptionStack(e));
 		}
@@ -486,7 +487,7 @@ public class MaxiPix2MultiFrameDetector extends DetectorBase implements Position
 		int imageNumber = getLimaCCD().getSavingNextNumber() - 1;
 		return new FilePathNumber(getImagePath(imageNumber),imageNumber);
 	}
-	
+
 	@Override
 	public void atScanStart() throws DeviceException {
 		super.atScanStart();
@@ -500,14 +501,14 @@ public class MaxiPix2MultiFrameDetector extends DetectorBase implements Position
 			if (!f.exists()){
 				if(!f.mkdirs())
 					throw new DeviceException("Folder does not exist and cannot be made:" + dataDir);
-			}			
+			}
 			try {
 				limaCCD.setSavingDirectory(dataDir);
 				limaCCD.setSavingPrefix("");
 				int startNumber=0;
 				limaCCD.setSavingNextNumber(startNumber);
 				if( highestExistingFileMonitor != null){
-					HighestExitingFileMonitorSettings highestExitingFileMonitorSettings = 
+					HighestExitingFileMonitorSettings highestExitingFileMonitorSettings =
 							new HighestExitingFileMonitorSettings(getSavingDirectory(), getSavingFileTemplate(), startNumber);
 					highestExistingFileMonitor.setHighestExitingFileMonitorSettings(highestExitingFileMonitorSettings);
 				}
@@ -533,15 +534,15 @@ public class MaxiPix2MultiFrameDetector extends DetectorBase implements Position
 			}
 			if( fastModeFramesRequired <1)
 				throw new DeviceException("Error - scan dimensions are invalid");
-			
+
 			if( hardwareTriggering){
 				try {
 					//TODO reset on stop/failure
 //			        mpx_limaCCD.setAcqTriggerMode(LimaCCD.AcqTriggerMode.INTERNAL_TRIGGER)
 //			        mpx_limaCCD.setAcqMode( LimaCCD.AcqMode.ACCUMULATION)
-					
+
 					getLimaCCD().setAcqMode( LimaCCD.AcqMode.SINGLE);
-					getLimaCCD().setAcqNbFrames(1); 
+					getLimaCCD().setAcqNbFrames(1);
 					getLimaCCD().setAcqTriggerMode(LimaCCD.AcqTriggerMode.EXTERNAL_TRIGGER_MULTI);
 					prepareForAcquire();
 				} catch (DevFailed e) {
@@ -554,7 +555,7 @@ public class MaxiPix2MultiFrameDetector extends DetectorBase implements Position
 
 		}
 	}
-	
+
 
 	@Override
 	public HardwareTriggerProvider getHardwareTriggerProvider() {
@@ -568,7 +569,11 @@ public class MaxiPix2MultiFrameDetector extends DetectorBase implements Position
 	@Override
 	public void setNumberImagesToCollect(int numberImagesToCollect) {
 		this.numberImagesToCollect = numberImagesToCollect;
-		
+
+	}
+
+	public int getNumberImagesToCollect() {
+		return numberImagesToCollect;
 	}
 
 	@Override
@@ -585,7 +590,7 @@ public class MaxiPix2MultiFrameDetector extends DetectorBase implements Position
 	@Override
 	public boolean isHardwareTriggering() {
 		return hardwareTriggering;
-	}		
+	}
 }
 
 class Utils {
@@ -608,7 +613,7 @@ class LastImagedPositionInputStreamImpl implements PositionInputStream<Integer> 
 	private long timeIntervalWhilstWaiting_ms;
 
 	@SuppressWarnings("unused")
-	LastImagedPositionInputStreamImpl(LimaCCD limaCCD, int initialSavingNextNumber, int numberOfFrames, 
+	LastImagedPositionInputStreamImpl(LimaCCD limaCCD, int initialSavingNextNumber, int numberOfFrames,
 			long maxTimeToWaitForImage_ms, long timeIntervalWhilstWaiting_ms,
 			String name)
 			throws DevFailed {
@@ -663,7 +668,7 @@ class LastImagedPositionInputStreamImpl implements PositionInputStream<Integer> 
 			throw new DeviceException(" getSavingNextNumber failed ", TangoUtils.createDeviceExceptionStack(e1));
 		}
 	}
-	
+
 
 }
 
@@ -709,5 +714,5 @@ class FilePathNumber {
 		this.path = path;
 		this.imageNumber = imageNumber;
 	}
-	
+
 }
