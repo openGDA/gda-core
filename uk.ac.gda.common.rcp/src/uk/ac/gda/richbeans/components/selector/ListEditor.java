@@ -28,6 +28,7 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.StructuredViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.slf4j.Logger;
@@ -232,7 +233,9 @@ public abstract class ListEditor extends FieldBeanComposite {
 	protected void valueChanged(ValueEvent e) throws Exception {
 		try {
 			if (lastSelectionBean != null) {
-				if (e.getFieldName() != null)
+				boolean isButton = e.getSource() instanceof Button;
+				boolean isZero = e.getDoubleValue()==0.0;
+				if (e.getFieldName() != null && !(isButton && isZero))
 					BeanUI.uiToBean(editorUI, lastSelectionBean.getBean(), e.getFieldName());
 			}
 		} catch (NoSuchMethodException ne) {
