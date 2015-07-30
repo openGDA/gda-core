@@ -4,7 +4,7 @@ Bundle-Name: Tango Test
 Bundle-SymbolicName: org.gda.tango.test
 Bundle-Version: 1.0.0.qualifier
 Fragment-Host: org.gda.tango;bundle-version="1.0.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: org.junit;bundle-version="[4.10.0,5.0.0)"
 Bundle-ClassPath: .
 Bundle-Vendor: ESRF & Daresbury
