@@ -421,7 +421,21 @@ public class NexusFileTest {
 	}
 
 	@Test
-	public void testLinkExternalDataset() throws Exception {
+	public void testLinkExternalDatasetUseGivenName() throws Exception {
+		IDataset externalData = DatasetFactory.createRange(10.0, Dataset.FLOAT64).reshape(2, 5);
+		externalData.setName("data");
+		try (NexusFile ef = NexusUtils.createNexusFile(FILE2_NAME)) {
+			ef.createData("/a/b/c", externalData, true);
+		}
+		nf.linkExternal(new URI("nxfile://" + FILE2_NAME + "#a/b/c/data"), "/x/y/linkedData", false);
+		DataNode dataNode = nf.getData("/x/y/linkedData");
+		IDataset linkedData = dataNode.getDataset().getSlice();
+		assertNotNull(linkedData);
+		assertEquals(externalData, linkedData);
+	}
+
+	@Test
+	public void testLinkExternalDatasetUseSourceName() throws Exception {
 		IDataset externalData = DatasetFactory.createRange(10.0, Dataset.FLOAT64).reshape(2, 5);
 		externalData.setName("data");
 		try (NexusFile ef = NexusUtils.createNexusFile(FILE2_NAME)) {
