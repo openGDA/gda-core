@@ -261,16 +261,17 @@ public class NexusFileTest {
 
 	@Test
 	public void testGetDataWithAugmentedPath() throws Exception {
-		GroupNode parentNode = nf.getGroup("/entry1/instrument/detector", true);
+		GroupNode parentNode = nf.getGroup("/entry1:NXentry/instrument:NXinstrument/detector:NXdetector", true);
 		IDataset dataset = DatasetFactory.createRange(10.0, Dataset.FLOAT64).reshape(2, 5);
 		dataset.setName("data");
-		DataNode dataNode = nf.createData(parentNode, dataset);
+		nf.createData(parentNode, dataset);
 		nf.close();
 
 		nf = NexusUtils.openNexusFileReadOnly(FILE_NAME);
-		GroupNode readNode = nf.getGroup("/entry1:NXentry/instrument:NXinstrument/detector:NXdetector", false);
+		GroupNode readNode = nf.getGroup("/entry1/instrument/detector", false);
 		assertTrue(readNode.containsDataNode("data"));
 		DataNode readDataNode = nf.getData("/entry1:NXentry/instrument:NXinstrument/detector:NXdetector/data");
+		assertSame(readNode.getDataNode("data"), readDataNode);
 		IDataset readData = readDataNode.getDataset().getSlice();
 		assertEquals(dataset, readData);
 	}
