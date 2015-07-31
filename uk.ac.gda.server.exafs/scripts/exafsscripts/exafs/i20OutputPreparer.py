@@ -18,7 +18,7 @@ class I20OutputPreparer:
         self.datawriterconfig_xes = datawriterconfig_xes
         self.meta=Metadata(self.datawriterconfig)
         
-    def prepare(self, outputParameters, scanBean):
+    def prepare(self, outputParameters, scanBean, sampleParameters):
         self.redefineNexusMetadata(scanBean)
         self.jython_mapper.ionchambers.setOutputLogValues(True) 
         # Custom for I20, which is why it is here instead of the shared DetectorConfiguration.java classes.
@@ -118,3 +118,7 @@ class I20OutputPreparer:
                     sps.setUnlistedColumnBehaviour(2)
                     return sps
         return None
+    
+    def _resetAsciiStaticMetadataList(self):
+        pass
+    
