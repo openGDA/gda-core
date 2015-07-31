@@ -39,6 +39,7 @@ import org.opengda.lde.model.ldeexperiment.Cell;
 import org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage;
 import org.opengda.lde.model.ldeexperiment.Sample;
 import org.opengda.lde.model.ldeexperiment.Stage;
+import org.opengda.lde.model.ldeexperiment.exceptions.NotFoundException;
 
 /**
  * <!-- begin-user-doc -->
@@ -667,12 +668,16 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	public Sample getSampleById(String sampleId) {
-		// TODO: implement this method
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
+
+		for (Sample sample : getSamples()) {
+			if (sample.getSampleID().equals(sampleId)) {
+				return sample;
+			}
+		}
+		throw new NotFoundException("Sample with ID '"+sampleId+"' is not available.");
 	}
 
 	/**
@@ -719,12 +724,15 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	public Sample getSampleByName(String sampleName) {
-		// TODO: implement this method
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
+		for (Sample sample : getSamples()) {
+			if (sample.getName().equals(sampleName)) {
+				return sample;
+			}
+		}
+		throw new NotFoundException("Sample '" +sampleName+"' is not available.");
 	}
 
 	/**

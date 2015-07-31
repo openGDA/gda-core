@@ -34,6 +34,7 @@ import org.eclipse.emf.ecore.util.InternalEList;
 import org.opengda.lde.model.ldeexperiment.Experiment;
 import org.opengda.lde.model.ldeexperiment.ExperimentDefinition;
 import org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage;
+import org.opengda.lde.model.ldeexperiment.exceptions.NotFoundException;
 
 /**
  * <!-- begin-user-doc -->
@@ -91,13 +92,17 @@ public class ExperimentDefinitionImpl extends MinimalEObjectImpl.Container imple
 
 	/**
 	 * <!-- begin-user-doc -->
+	 * get the named instance of {@link Experiment}
 	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	public Experiment getExperiment(String name) {
-		// TODO: implement this method
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
+		for (Experiment experiment : getExperiments()) {
+			if (experiment.getName().equals(name)) {
+				return experiment;
+			}
+		}
+		throw new NotFoundException("Named experiment '" +name+"' is not available." );
 	}
 
 	/**

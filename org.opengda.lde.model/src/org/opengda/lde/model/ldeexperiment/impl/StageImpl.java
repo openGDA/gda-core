@@ -38,6 +38,7 @@ import org.opengda.lde.model.ldeexperiment.Cell;
 import org.opengda.lde.model.ldeexperiment.Experiment;
 import org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage;
 import org.opengda.lde.model.ldeexperiment.Stage;
+import org.opengda.lde.model.ldeexperiment.exceptions.NotFoundException;
 
 /**
  * <!-- begin-user-doc -->
@@ -392,12 +393,15 @@ public class StageImpl extends MinimalEObjectImpl.Container implements Stage {
 	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	public Cell getCellByID(String cellId) {
-		// TODO: implement this method
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
+		for (Cell cell : getCells()) {
+			if (cell.getCellID().equals(cellId)) {
+				return cell;
+			}
+		}
+		throw new NotFoundException("Cell '" + cellId+"' is not available.");
 	}
 
 	/**

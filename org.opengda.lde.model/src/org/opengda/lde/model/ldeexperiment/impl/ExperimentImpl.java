@@ -36,6 +36,7 @@ import org.eclipse.emf.ecore.util.InternalEList;
 import org.opengda.lde.model.ldeexperiment.Experiment;
 import org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage;
 import org.opengda.lde.model.ldeexperiment.Stage;
+import org.opengda.lde.model.ldeexperiment.exceptions.NotFoundException;
 
 /**
  * <!-- begin-user-doc -->
@@ -179,12 +180,15 @@ public class ExperimentImpl extends MinimalEObjectImpl.Container implements Expe
 	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	public Stage getStageByID(String stageId) {
-		// TODO: implement this method
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
+		for (Stage stage : getStages()) {
+			if (stage.getStageID().equals(stageId)) {
+				return stage;
+			}
+		}
+		throw new NotFoundException("Satge '"+stageId+"' is not available.");
 	}
 
 	/**
