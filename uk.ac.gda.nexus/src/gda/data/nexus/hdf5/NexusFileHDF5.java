@@ -20,12 +20,14 @@ package gda.data.nexus.hdf5;
 
 import gda.data.nexus.NexusUtils;
 
+import java.io.File;
 import java.io.Serializable;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -294,7 +296,9 @@ public class NexusFileHDF5 implements NexusFile {
 		if (link != null) {
 			if (link.isDestinationGroup()) {
 				GroupNode g = (GroupNode) link.getDestination();
-				if (!g.isPopulated()) {
+				if (!g.isPopulated() && getLinkTarget(augmentedPath) != NO_LINK) {
+					//"leaf" group nodes are never populated and paths that traverse napimounts cannot be populated
+					//via the simple path mechanism
 					if (!plainPath.endsWith(Node.SEPARATOR)) {
 						plainPath += Node.SEPARATOR;
 					}
@@ -331,7 +335,7 @@ public class NexusFileHDF5 implements NexusFile {
 				g.addAttribute(TreeFactory.createAttribute(NXCLASS, nxClass, false));
 			}
 			cacheAttributes(path + Node.SEPARATOR + name, g);
-			if (fileAddr != IS_EXTERNAL_LINK &&  !testForExternalLink(path)) {
+			if (fileAddr != IS_EXTERNAL_LINK && fileAddr != NO_LINK &&  !testForExternalLink(path)) {
 				//if our node is an external link we cannot cache its file location
 				//we cannot handle hard links in external files
 				nodeMap.put(fileAddr, g);
@@ -382,28 +386,38 @@ public class NexusFileHDF5 implements NexusFile {
 						if (datasetType == null) {
 							throw new NexusException("Unknown data type");
 						}
-						final int nDims = H5.H5Sget_simple_extent_ndims(spaceId);
-						shape = new long[nDims];
-						maxShape = new long[nDims];
-						H5.H5Sget_simple_extent_dims(spaceId, shape, maxShape);
+						if (H5.H5Sget_simple_extent_type(spaceId) == HDF5Constants.H5S_SCALAR) {
+							shape = new long[] {1};
+							maxShape = new long[] {1};
+						} else {
+							final int nDims = H5.H5Sget_simple_extent_ndims(spaceId);
+							shape = new long[nDims];
+							maxShape = new long[nDims];
+							H5.H5Sget_simple_extent_dims(spaceId, shape, maxShape);
+						}
 						final int[] iShape = longArrayToIntArray(shape);
+						int strCount = 1;
+						for (int d : iShape) {
+							strCount *= d;
+						}
 						if (dataclass == HDF5Constants.H5T_STRING) {
-							//TODO: support reading VL strings
-							int strCount = 1;
-							for (int d : iShape) {
-								strCount *= d;
+							if (H5.H5Tis_variable_str(nativeTypeId)) {
+								String[] buffer = new String[strCount];
+								H5.H5AreadVL(attrId, nativeTypeId, buffer);
+								dataset = DatasetFactory.createFromObject(buffer).reshape(iShape);
+							} else {
+								byte[] buffer = new byte[strCount * datatypeSize];
+								H5.H5Aread(attrId, nativeTypeId, buffer);
+								String[] strings = new String[strCount];
+								int strIndex = 0;
+								for (int j = 0; j < buffer.length; j += datatypeSize) {
+									int strLength = 0;
+									//Java doesn't strip null bytes during string construction
+									for (int k = j; k < j + datatypeSize && buffer[k] != '\0'; k++) strLength++;
+									strings[strIndex++] = new String(buffer, j, strLength, utf8);
+								}
+								dataset = DatasetFactory.createFromObject(strings).reshape(iShape);
 							}
-							byte[] buffer = new byte[strCount * datatypeSize];
-							H5.H5Aread(attrId, nativeTypeId, buffer);
-							String[] strings = new String[strCount];
-							int strIndex = 0;
-							for (int j = 0; j < buffer.length; j += datatypeSize) {
-								int strLength = 0;
-								//Java doesn't strip null bytes during string construction
-								for (int k = j; k < j + datatypeSize && buffer[k] != '\0'; k++) strLength++;
-								strings[strIndex++] = new String(buffer, j, strLength, utf8);
-							}
-							dataset = DatasetFactory.createFromObject(strings).reshape(iShape);
 						} else {
 							dataset = DatasetFactory.zeros(iShape, datasetType);
 							Serializable buffer = dataset.getBuffer();
@@ -447,6 +461,67 @@ public class NexusFileHDF5 implements NexusFile {
 			throw new NexusException("Could not process over child links", e);
 		}
 		return;
+	}
+
+	private static String determineExternalFilePath(String filePathFragment, String currentFile) throws NexusException {
+		//try filepath as relative location first, then absolute
+		String currentLocation = currentFile.substring(0, currentFile.lastIndexOf("/") + 1);
+		if (new File(currentLocation + filePathFragment).exists()) {
+			return currentLocation + filePathFragment;
+		} else if (new File(filePathFragment).exists()) {
+			return filePathFragment;
+		}
+		throw new NexusException("Could not find specified file");
+	}
+
+	private boolean isNapiMount(Node node) {
+		return node.containsAttribute("napimount");
+	}
+
+	private NodeData getNodeAfterNapiMount(String fileName,
+			String externalMountPoint,
+			String internalMountPoint,
+			String pathAfterMount,
+			GroupNode parentGroup) throws NexusException {
+
+		//We open a *new* NexusFile, have it process its own cache, then just add the bit
+		//we're interested in into our own cache
+		Node childNode;
+		try (NexusFileHDF5 extFile = new NexusFileHDF5(fileName)) {
+			String fullPathInExtFile = externalMountPoint + Node.SEPARATOR + pathAfterMount;
+			extFile.openToRead();
+			ParsedNode[] parsed = parseAugmentedPath(internalMountPoint);
+			String nodeName = parsed[parsed.length - 1].name;
+			switch(extFile.getNodeType(externalMountPoint)) {
+			case DATASET:
+				throw new NexusException("Invalid napimount - must not point to dataset");
+			case GROUP:
+				//we have to add the mounted node and process the new tree
+				childNode = extFile.getGroup(externalMountPoint, false);
+				String internalPath = internalMountPoint + pathAfterMount;
+
+				GroupNode newNode = TreeFactory.createGroupNode(internalPath.hashCode());
+				//we want a copy of the node in the other file since we do not want to
+				//adding attributes in the other file's cache
+				//this is a bit of a hack
+				GroupNode originalNode = (GroupNode) childNode;
+				cacheAttributes(internalMountPoint, newNode);
+				Iterator<? extends Attribute> attributes = originalNode.getAttributeIterator();
+				Iterator<String> names = originalNode.getNodeNameIterator();
+				while (attributes.hasNext()) {
+					Attribute attr = attributes.next();
+					newNode.addAttribute(attr);
+				}
+				while (names.hasNext()) {
+					String name = names.next();
+					NodeLink link = originalNode.getNodeLink(name);
+					newNode.addNode(internalMountPoint + Node.SEPARATOR + name, name, link.getDestination());
+				}
+				parentGroup.addGroupNode(internalMountPoint, nodeName, newNode);
+				return extFile.getNode(fullPathInExtFile, false);
+			}
+		}
+		return null;
 	}
 
 	private NodeData getGroupNode(String augmentedPath, boolean createPathIfNecessary) throws NexusException {
@@ -524,10 +599,26 @@ public class NexusFileHDF5 implements NexusFile {
 			if (!group.containsGroupNode(parsedNode.name)) {
 				createGroupNode(path.hashCode(), group, parentPath, parsedNode.name, parsedNode.nxClass);
 			}
+			GroupNode parentGroup = group;
 			group = group.getGroupNode(parsedNode.name);
 			if (!group.isPopulated()) {
 				//make sure cached node looks like node on files
 				populateGroupNode(path, group);
+			}
+			if (isNapiMount(group)) {
+				parentGroup.removeGroupNode(group);
+				IDataset mountData = group.getAttribute("napimount").getValue();
+				String mountString = mountData.getString(0);
+				mountString = mountString.replace("nxfile://", "");
+				String[] parts = mountString.split("#");
+				String extFileName = determineExternalFilePath(parts[0], this.fileName);
+				String extMountPoint = Node.SEPARATOR + parts[1];
+				StringBuilder pathAfterMount = new StringBuilder();
+				for (int j = i + 1; j < parsedNodes.length; j++) {
+					pathAfterMount.append(Node.SEPARATOR);
+					pathAfterMount.append(parsedNodes[j].name);
+				}
+				return getNodeAfterNapiMount(extFileName, extMountPoint, path, pathAfterMount.toString(), parentGroup);
 			}
 			node = group;
 		}
@@ -691,10 +782,13 @@ public class NexusFileHDF5 implements NexusFile {
 
 		path = NexusUtils.stripAugmentedPath(path);
 		//check if the data node itself is a symlink
+		DataNode dataNode;
 		long fileAddr = getLinkTarget(path);
-		DataNode dataNode = (DataNode) nodeMap.get(fileAddr);
-		if (dataNode != null) {
-			return dataNode;
+		if (fileAddr != IS_EXTERNAL_LINK && fileAddr != NO_LINK) {
+			dataNode = (DataNode) nodeMap.get(fileAddr);
+			if (dataNode != null) {
+				return dataNode;
+			}
 		}
 
 		NodeLink link = tree.findNodeLink(path);
@@ -714,9 +808,12 @@ public class NexusFileHDF5 implements NexusFile {
 		}
 
 		NodeType nodeType = getNodeType(path);
-		if (nodeType == null) {
-			throw new NexusException("Path does not point to any object");
-		} else if (nodeType != NodeType.DATASET) {
+		if (nodeType == null || nodeType != NodeType.DATASET) {
+			//inablity to find nodetype could indicate the path traverses a napimount
+			Node potentialDataNode = getNode(path, false).node;
+			if (potentialDataNode instanceof DataNode) {
+				return (DataNode) potentialDataNode;
+			}
 			throw new NexusException("Path points to non-dataset object");
 		}
 
@@ -903,6 +1000,8 @@ public class NexusFileHDF5 implements NexusFile {
 			if (attrName == null || attrName.isEmpty()) {
 				throw new IllegalArgumentException("Attribute must have a name");
 			}
+			Node node = getNode(path, false).node;
+			node.addAttribute(attr);
 			IDataset attrData = attr.getValue();
 			int baseHdf5Type = getHDF5Type(attrData);
 			final long[] shape = attrData.getRank() == 0 ? new long[] {1} : intArrayToLongArray(attrData.getShape());
@@ -952,8 +1051,6 @@ public class NexusFileHDF5 implements NexusFile {
 			} catch (HDF5Exception e) {
 				throw new NexusException("Could not create attribute", e);
 			}
-			Node node = getNode(path, false).node;
-			node.addAttribute(attr);
 		}
 	}
 
@@ -1106,6 +1203,7 @@ public class NexusFileHDF5 implements NexusFile {
 	}
 
 	private static long IS_EXTERNAL_LINK = -4370;
+	private static long NO_LINK = -3422;
 
 	private boolean testForExternalLink(String path) throws NexusException {
 		//TODO: might want to cache results
@@ -1125,6 +1223,9 @@ public class NexusFileHDF5 implements NexusFile {
 	}
 	private long getLinkTarget(String path) throws NexusException {
 		try {
+			if (!H5.H5Lexists(fileId, path, HDF5Constants.H5P_DEFAULT)) {
+				return NO_LINK;
+			}
 			H5L_info_t linkInfo = H5.H5Lget_info(fileId, path, HDF5Constants.H5P_DEFAULT);
 			if (linkInfo.type == HDF5Constants.H5L_TYPE_SOFT) {
 				String[] name = new String[2];

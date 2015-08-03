@@ -42,6 +42,7 @@ import org.eclipse.dawnsci.hdf5.nexus.NexusException;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class NexusFileTest {
@@ -630,5 +631,112 @@ public class NexusFileTest {
 		assertNotNull(eAttr);
 		assertArrayEquals(eAttr.getValue().getShape(), new int[] {1});
 		assertEquals(eAttr.getValue().getString(0), "NXentry");
+	}
+
+	@Test
+	public void testRelativeNapiMountToGroup() throws Exception {
+		GroupNode g = nf.getGroup("/e/g", true);
+		Dataset mountData = DatasetFactory.createFromObject(new String[] {"nxfile://" + FILE2_NAME.replaceFirst("/tmp/", "") + "#x/y"});
+		mountData.setName("napimount");
+		nf.addAttribute( g, nf.createAttribute(mountData) );
+		nf.close();
+		nf = NexusUtils.createNexusFile(FILE2_NAME);
+		nf.getGroup("/x/y/z", true);
+		nf.close();
+		nf = NexusUtils.openNexusFileReadOnly(FILE_NAME);
+		g = nf.getGroup("/e/g", false);
+		assertTrue(g.containsGroupNode("z"));
+		assertNotNull(nf.getGroup("/e/g/z/", false));
+		nf.close();
+	}
+
+	@Test
+	@Ignore("napi mount to dataset is invalid")
+	public void testRelativeNapiMountToDataset() throws Exception {
+		GroupNode g = nf.getGroup("/e/g", true);
+		Dataset mountData = DatasetFactory.createFromObject(new String[] {"nxfile://" + FILE2_NAME.replaceFirst("/tmp/", "") + "#x/y/z"});
+		mountData.setName("napimount");
+		nf.addAttribute( g, nf.createAttribute(mountData) );
+		nf.close();
+		Dataset dummyData = DatasetFactory.createFromObject(new int[] {0, 1, 2});
+		dummyData.setName("z");
+		try (NexusFile extFile = NexusUtils.createNexusFile(FILE2_NAME)) {
+			extFile.createData(extFile.getGroup("/x/y", true), dummyData);
+		}
+		try (NexusFile oFile = NexusUtils.openNexusFileReadOnly(FILE_NAME)) {
+			g = oFile.getGroup("/e", false);
+			assertTrue(g.containsDataNode("g"));
+			IDataset readData = oFile.getData("/e/g").getDataset().getSlice();
+			assertEquals(dummyData, readData);
+		}
+	}
+
+	@Test
+	public void testAbsoluteNapiMountToGroup() throws Exception {
+		try (NexusFile origin = NexusUtils.createNexusFile("/tmp/origin/test.nxs");
+				NexusFile linked = NexusUtils.createNexusFile("/tmp/linked/linked.nxs")) {
+			GroupNode g = origin.getGroup("/a/b", true);
+			linked.getGroup("/x/y/z", true);
+			Dataset mountData = DatasetFactory.createFromObject(new String[] {"nxfile:///tmp/linked/linked.nxs#x/y/"});
+			mountData.setName("napimount");
+			origin.addAttribute( g, nf.createAttribute(mountData) );
+		}
+		try (NexusFile origin = NexusUtils.openNexusFileReadOnly("/tmp/origin/test.nxs")) {
+			GroupNode g = origin.getGroup("/a/b", false);
+			GroupNode g2 = origin.getGroup("/a/b/z", false);
+			assertNotNull(g2);
+			assertNotNull(g);
+			assertTrue(g.containsGroupNode("z"));
+			assertSame(g.getGroupNode("z"), g2);
+		}
+	}
+
+	@Test
+	@Ignore("napi mount to dataset is invalid")
+	public void testAbsoluteNapiMountToDataset() throws Exception {
+		Dataset dummyData = DatasetFactory.createFromObject(new int[] {0, 1, 2});
+		dummyData.setName("z");
+		try (NexusFile origin = NexusUtils.createNexusFile("/tmp/origin/test.nxs");
+				NexusFile linked = NexusUtils.createNexusFile("/tmp/linked/linked.nxs")) {
+			GroupNode g = origin.getGroup("/a/b/d", true);
+			Dataset mountData = DatasetFactory.createFromObject(new String[] {"nxfile:///tmp/linked/linked.nxs#x/y/z"});
+			mountData.setName("napimount");
+			origin.addAttribute(g, origin.createAttribute(mountData));
+			GroupNode l = linked.getGroup("/x/y/", true);
+			linked.createData(l, dummyData);
+		}
+		try (NexusFile origin = NexusUtils.openNexusFileReadOnly("/tmp/origin/test.nxs")) {
+			DataNode dataNode = origin.getData("/a/b/d");
+			assertNotNull(dataNode);
+			IDataset readData = dataNode.getDataset().getSlice();
+			assertNotNull(readData);
+			assertEquals(dummyData, readData);
+		}
+	}
+
+	@Test
+	public void testNapiMountToGroupThenDataset() throws Exception {
+		Dataset dummyData = DatasetFactory.createFromObject(new int[] {0, 1, 2});
+		dummyData.setName("z");
+		try (NexusFile origin = NexusUtils.createNexusFile("/tmp/origin/test.nxs");
+				NexusFile linked = NexusUtils.createNexusFile("/tmp/linked/linked.nxs")) {
+			GroupNode g = origin.getGroup("/a/b/d", true);
+			Dataset mountData = DatasetFactory.createFromObject(new String[] {"nxfile:///tmp/linked/linked.nxs#x/y"});
+			mountData.setName("napimount");
+			origin.addAttribute(g, origin.createAttribute(mountData));
+			GroupNode l = linked.getGroup("/x/y/", true);
+			linked.createData(l, dummyData);
+		}
+		try (NexusFile origin = NexusUtils.openNexusFileReadOnly("/tmp/origin/test.nxs")) {
+			DataNode dataNode = origin.getData("/a/b/d/z");
+			assertNotNull(dataNode);
+			GroupNode groupNode = origin.getGroup("/a/b/d", false);
+			assertNotNull(groupNode);
+			assertTrue(groupNode.containsDataNode("z"));
+			assertSame(groupNode.getDataNode("z"), dataNode);
+			IDataset readData = dataNode.getDataset().getSlice();
+			assertNotNull(readData);
+			assertEquals(dummyData, readData);
+		}
 	}
 }
