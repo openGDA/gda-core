@@ -626,9 +626,9 @@ public class NexusFileHDF5 implements NexusFile {
 	}
 
 	private NodeType getNodeType(String absolutePath) throws NexusException {
-		//TODO: inspect cache first
+		//TODO: inspect cache first (checking for napimounts, as they seriously mess things up)
 		try {
-			if (!H5.H5Lexists(fileId, absolutePath, HDF5Constants.H5P_DEFAULT)) {
+			if (!testLinkExists(absolutePath)) {
 				return null;
 			}
 			H5O_info_t info = H5.H5Oget_info_by_name(fileId, absolutePath, HDF5Constants.H5P_DEFAULT);
@@ -1209,21 +1209,26 @@ public class NexusFileHDF5 implements NexusFile {
 		//TODO: might want to cache results
 		ParsedNode[] parsedNodes = parseAugmentedPath(path);
 		StringBuilder currentPath = new StringBuilder(Tree.ROOT);
-		for (ParsedNode node : parsedNodes) {
-			if (node.name.isEmpty()) {
-				continue;
+		try {
+			for (ParsedNode node : parsedNodes) {
+				if (node.name.isEmpty()) {
+					continue;
+				}
+				currentPath.append(Node.SEPARATOR);
+				currentPath.append(node.name);
+				H5L_info_t linkInfo = H5.H5Lget_info(fileId, currentPath.toString(), HDF5Constants.H5P_DEFAULT);
+				if (linkInfo.type == HDF5Constants.H5L_TYPE_EXTERNAL) {
+					return true;
+				}
 			}
-			currentPath.append(Node.SEPARATOR);
-			currentPath.append(node.name);
-			if (getLinkTarget(currentPath.toString()) == IS_EXTERNAL_LINK) {
-				return true;
-			}
+		} catch (HDF5LibraryException e) {
+			throw new NexusException("Error checking for external links", e);
 		}
 		return false;
 	}
 	private long getLinkTarget(String path) throws NexusException {
 		try {
-			if (!H5.H5Lexists(fileId, path, HDF5Constants.H5P_DEFAULT)) {
+			if (!testLinkExists(path)) {
 				return NO_LINK;
 			}
 			H5L_info_t linkInfo = H5.H5Lget_info(fileId, path, HDF5Constants.H5P_DEFAULT);
@@ -1240,6 +1245,26 @@ public class NexusFileHDF5 implements NexusFile {
 			throw new NexusException("Unhandled link type");
 		} catch (HDF5LibraryException e) {
 			throw new NexusException("Could not get link target", e);
+		}
+	}
+
+	private boolean testLinkExists(String path) throws NexusException {
+		ParsedNode[] parsedNodes = parseAugmentedPath(path);
+		StringBuilder currentPath = new StringBuilder(Tree.ROOT);
+		try {
+			for (ParsedNode parsedNode : parsedNodes) {
+				if (parsedNode.name == null || parsedNode.name.isEmpty()) {
+					continue;
+				}
+				currentPath.append(parsedNode.name);
+				if (!H5.H5Lexists(fileId, currentPath.toString(), HDF5Constants.H5P_DEFAULT)) {
+					return false;
+				}
+				currentPath.append(Node.SEPARATOR);
+			}
+			return true;
+		} catch (HDF5LibraryException e) {
+			throw new NexusException("Could not verify chain", e);
 		}
 	}
 

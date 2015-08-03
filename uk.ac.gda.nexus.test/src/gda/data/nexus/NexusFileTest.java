@@ -721,16 +721,16 @@ public class NexusFileTest {
 		try (NexusFile origin = NexusUtils.createNexusFile("/tmp/origin/test.nxs");
 				NexusFile linked = NexusUtils.createNexusFile("/tmp/linked/linked.nxs")) {
 			GroupNode g = origin.getGroup("/a/b/d", true);
-			Dataset mountData = DatasetFactory.createFromObject(new String[] {"nxfile:///tmp/linked/linked.nxs#x/y"});
+			Dataset mountData = DatasetFactory.createFromObject(new String[] {"nxfile:///tmp/linked/linked.nxs#w/x"});
 			mountData.setName("napimount");
 			origin.addAttribute(g, origin.createAttribute(mountData));
-			GroupNode l = linked.getGroup("/x/y/", true);
+			GroupNode l = linked.getGroup("/w/x/y/", true);
 			linked.createData(l, dummyData);
 		}
 		try (NexusFile origin = NexusUtils.openNexusFileReadOnly("/tmp/origin/test.nxs")) {
-			DataNode dataNode = origin.getData("/a/b/d/z");
+			DataNode dataNode = origin.getData("/a/b/d/y/z");
 			assertNotNull(dataNode);
-			GroupNode groupNode = origin.getGroup("/a/b/d", false);
+			GroupNode groupNode = origin.getGroup("/a/b/d/y", false);
 			assertNotNull(groupNode);
 			assertTrue(groupNode.containsDataNode("z"));
 			assertSame(groupNode.getDataNode("z"), dataNode);
