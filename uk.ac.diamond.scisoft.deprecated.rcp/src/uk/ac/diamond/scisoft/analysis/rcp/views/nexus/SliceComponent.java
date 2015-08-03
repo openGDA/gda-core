@@ -79,7 +79,10 @@ import uk.ac.gda.common.rcp.util.GridUtils;
  * Currently only 2D supported.
  * 
  * TODO Perhaps move this dialog to top level GUI, maybe through 
+ * 
+ * @deprecated Use ISliceSystem instead!
  */
+@Deprecated
 public class SliceComponent {
 	
 	private static final Logger logger = LoggerFactory.getLogger(SliceComponent.class);
