@@ -1,15 +1,5 @@
 package org.opengda.lde.ui.views;
 
-import gda.configuration.properties.LocalProperties;
-import gda.data.NumTracker;
-import gda.device.detector.pixium.events.ScanEndEvent;
-import gda.device.detector.pixium.events.ScanPointStartEvent;
-import gda.device.detector.pixium.events.ScanStartEvent;
-import gda.factory.Finder;
-import gda.jython.InterfaceProvider;
-import gda.jython.scriptcontroller.Scriptcontroller;
-import gda.observable.IObserver;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -47,6 +37,8 @@ import org.eclipse.emf.edit.domain.EditingDomain;
 import org.eclipse.emf.edit.ui.dnd.EditingDomainViewerDropAdapter;
 import org.eclipse.emf.edit.ui.dnd.LocalTransfer;
 import org.eclipse.emf.edit.ui.dnd.ViewerDragAdapter;
+import org.eclipse.emf.edit.ui.provider.AdapterFactoryContentProvider;
+import org.eclipse.emf.edit.ui.provider.AdapterFactoryLabelProvider;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
@@ -73,6 +65,7 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.TextCellEditor;
+import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.window.ToolTip;
 import org.eclipse.nebula.widgets.formattedtext.FormattedTextCellEditor;
 import org.eclipse.swt.SWT;
@@ -123,17 +116,24 @@ import org.opengda.lde.ui.providers.ProgressLabelProvider;
 import org.opengda.lde.ui.providers.SampleGroupViewContentProvider;
 import org.opengda.lde.ui.providers.SampleGroupViewLabelProvider;
 import org.opengda.lde.ui.providers.SampleTableConstants;
-
 import org.opengda.lde.ui.utils.AnimatedTableItemFeedback;
-
 import org.opengda.lde.ui.utils.StringUtils;
-
 import org.opengda.lde.utils.LDEResourceUtil;
-
+import org.opengda.lde.utils.SampleGroupEditingDomain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
+
+import gda.configuration.properties.LocalProperties;
+import gda.data.NumTracker;
+import gda.device.detector.pixium.events.ScanEndEvent;
+import gda.device.detector.pixium.events.ScanPointStartEvent;
+import gda.device.detector.pixium.events.ScanStartEvent;
+import gda.factory.Finder;
+import gda.jython.InterfaceProvider;
+import gda.jython.scriptcontroller.Scriptcontroller;
+import gda.observable.IObserver;
 
 /**
  * This sample view shows data obtained from the EMF model. 
@@ -206,6 +206,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 	private Scriptcontroller eventAdmin;
 	private int numActiveSamples;
 	private Text txtCellname;
+	private TreeViewer selectionViewer;
 	
 	/**
 	 * The constructor.
@@ -213,17 +214,25 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 	public SampleGroupView() {
 		setTitleToolTip("Create a new or editing an existing sample");
 		// setContentDescription("A view for editing sample parameters");
-		setPartName("Samples");
+		setPartName("Sample View");
 		this.selectionChangedListeners = new ArrayList<ISelectionChangedListener>();
 	}
+
 
 	/**
 	 * This is a callback that will allow us to create the viewer and initialise it.
 	 */
-	public void createPartControl(Composite parent) {
+	public void createPartControl1(Composite parent) {
 		Composite rootComposite = new Composite(parent, SWT.NONE);
 		rootComposite.setLayout(new GridLayout());
 //		rootComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		
+		selectionViewer = new TreeViewer(rootComposite, SWT.BORDER);
+		selectionViewer.setContentProvider(new AdapterFactoryContentProvider(SampleGroupEditingDomain.INSTANCE.getAdapterFactory()));
+
+		selectionViewer.setLabelProvider(new AdapterFactoryLabelProvider(SampleGroupEditingDomain.INSTANCE.getAdapterFactory()));
+		selectionViewer.setInput(editingDomain.getResourceSet());
+		selectionViewer.setSelection(new StructuredSelection(editingDomain.getResourceSet().getResources().get(0)), true);
 		
 		viewer = new TableViewer(rootComposite, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
 		Table table = viewer.getTable();
@@ -1789,4 +1798,12 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 	public void setEventAdminName(String eventAdminName) {
 		this.eventAdminName = eventAdminName;
 	}
+
+
+	@Override
+	public void createPartControl(Composite parent) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

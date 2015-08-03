@@ -46,11 +46,11 @@ public class SampleGroupEditingDomain implements IEditingDomainProvider {
 	 */
 	protected void initializeEditingDomain() {
 		// Create an adapter factory that yields item providers.
-		adapterFactory = new ComposedAdapterFactory(ComposedAdapterFactory.Descriptor.Registry.INSTANCE);
+		setAdapterFactory(new ComposedAdapterFactory(ComposedAdapterFactory.Descriptor.Registry.INSTANCE));
 
-		adapterFactory.addAdapterFactory(new ResourceItemProviderAdapterFactory());
-		adapterFactory.addAdapterFactory(new LDEExperimentsItemProviderAdapterFactory());
-		adapterFactory.addAdapterFactory(new ReflectiveItemProviderAdapterFactory());
+		getAdapterFactory().addAdapterFactory(new ResourceItemProviderAdapterFactory());
+		getAdapterFactory().addAdapterFactory(new LDEExperimentsItemProviderAdapterFactory());
+		getAdapterFactory().addAdapterFactory(new ReflectiveItemProviderAdapterFactory());
 
 		// Create the command stack that will notify this editor as commands are executed.
 		BasicCommandStack commandStack = new BasicCommandStack();
@@ -77,7 +77,7 @@ public class SampleGroupEditingDomain implements IEditingDomainProvider {
 //		 });
 
 		// Create the editing domain with a special command stack.
-		editingDomain = new AdapterFactoryEditingDomain(adapterFactory, commandStack, new HashMap<Resource, Boolean>());
+		editingDomain = new AdapterFactoryEditingDomain(getAdapterFactory(), commandStack, new HashMap<Resource, Boolean>());
 
 		// Register the appropriate resource factory to handle all file
 		ResourceSet resourceSet = editingDomain.getResourceSet();
@@ -94,6 +94,14 @@ public class SampleGroupEditingDomain implements IEditingDomainProvider {
 			initializeEditingDomain();
 		}
 		return editingDomain;
+	}
+
+	public ComposedAdapterFactory getAdapterFactory() {
+		return adapterFactory;
+	}
+
+	public void setAdapterFactory(ComposedAdapterFactory adapterFactory) {
+		this.adapterFactory = adapterFactory;
 	}
 
 }
