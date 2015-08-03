@@ -134,9 +134,11 @@ public class NexusFileTest {
 		assertNotNull(group);
 
 		// test that the group is a child of its expected parent group
+		GroupNode childGroup = nf.getGroup("/a/b/c", false);
 		GroupNode parentGroup = nf.getGroup("/a/b", false);
 		assertEquals(1, parentGroup.getNames().size());
 		assertTrue(parentGroup.getNames().contains("c"));
+		assertSame(childGroup, parentGroup.getGroupNode("c"));
 	}
 
 	@Test(expected = NexusException.class)
