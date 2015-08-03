@@ -36,7 +36,7 @@ Require-Bundle: org.junit;bundle-version="[4.10.0,5.0.0)",
  org.apache.commons.configuration;bundle-version="[1.10.0,1.11.0)",
  org.apache.commons.beanutils;bundle-version="[1.9.1,1.9.2)",
  org.apache.commons.lang;bundle-version="[2.6.0,2.7.0)",
- org.dawnsci.common.widgets
+ org.eclipse.richbeans.widgets;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: org.exolab.castor.mapping;version="1.2.0",
