@@ -100,20 +100,19 @@ public class DataTypesTest {
 			T[] expected = toTest.clone();
 
 			String filename = testScratchDirectoryName + "foo.nxs";
-			NexusFile file = NexusUtils.createNexusFile(filename);
-			GroupNode group = file.getGroup(NexusUtils.createAugmentPath("entry1", NexusExtractor.NXEntryClassName), true);
+			try (NexusFile file = NexusUtils.createNexusFile(filename)) {
+				GroupNode group = file.getGroup(NexusUtils.createAugmentPath("entry1", NexusExtractor.NXEntryClassName), true);
+				NexusUtils.write(file, group, "data", toTest);
+			}
 
-			NexusUtils.write(file, group, "data", toTest);
-			file.close();
+			try (NexusFile file = NexusUtils.openNexusFileReadOnly(filename)) {
+				GroupNode group = file.getGroup(NexusUtils.createAugmentPath("entry1", NexusExtractor.NXEntryClassName), true);
+				DataNode data = file.getData(group, "data");
+				IDataset d = data.getDataset().getSlice();
 
-			file.openToRead();
-			group = file.getGroup(NexusUtils.createAugmentPath("entry1", NexusExtractor.NXEntryClassName), true);
-			DataNode data = file.getData(group, "data");
-			IDataset d = data.getDataset().getSlice();
-			file.close();
-
-			for (int i = 0; i < expected.length; i++) {
-				assertEquals(expected[i], d.getObject(i));
+				for (int i = 0; i < expected.length; i++) {
+					assertEquals(expected[i], d.getObject(i));
+				}
 			}
 		}
 	}
