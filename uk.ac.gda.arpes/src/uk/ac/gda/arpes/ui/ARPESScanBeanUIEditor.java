@@ -20,7 +20,7 @@ package uk.ac.gda.arpes.ui;
 
 import java.net.URL;
 
-import org.dawnsci.common.richbeans.beans.IFieldWidget;
+import org.eclipse.richbeans.api.widget.IFieldWidget;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.layout.GridLayout;
