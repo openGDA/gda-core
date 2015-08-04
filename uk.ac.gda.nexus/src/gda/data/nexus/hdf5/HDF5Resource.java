@@ -23,12 +23,6 @@ package gda.data.nexus.hdf5;
  * can be used with try-with-resource.
  */
 public interface HDF5Resource extends AutoCloseable {
-
-	/**
-	 * @param resource identifier to wrap
-	 */
-	public void acquire(long resource);
-
 	/**
 	 * @return raw resource identifier
 	 */

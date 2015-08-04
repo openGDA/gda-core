@@ -27,16 +27,12 @@ import org.slf4j.LoggerFactory;
 public class HDF5AttributeResource extends HDF5BaseResource {
 
 	private static final Logger logger = LoggerFactory.getLogger(HDF5AttributeResource.class);
-
-	public HDF5AttributeResource() {
-	}
-
 	/**
 	 * Wrap the specified attribute resource identifier
 	 * @param resource attribute identifier to wrap
 	 */
 	public HDF5AttributeResource(int resource) {
-		this.resource = resource;
+		super(resource);
 	}
 
 	@Override
@@ -46,7 +42,6 @@ public class HDF5AttributeResource extends HDF5BaseResource {
 		}
 		try {
 			H5.H5Aclose((int)resource);
-			resource = -1;
 		} catch (HDF5LibraryException e) {
 			logger.error("Could not close HDF5 object", e);
 		}

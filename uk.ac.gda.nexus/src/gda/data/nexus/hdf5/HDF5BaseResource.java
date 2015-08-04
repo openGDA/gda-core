@@ -20,15 +20,10 @@ package gda.data.nexus.hdf5;
 
 public abstract class HDF5BaseResource implements HDF5Resource {
 
-	protected long resource = -1;
+	protected final long resource;
 
-	@Override
-	public void acquire(long resource) {
-		if (resource >= 0) {
-			throw new IllegalStateException("Already acquired resource");
-		}
-		this.resource = resource;
-
+	public HDF5BaseResource(long resource) {
+		this.resource = resource;;
 	}
 
 	@Override

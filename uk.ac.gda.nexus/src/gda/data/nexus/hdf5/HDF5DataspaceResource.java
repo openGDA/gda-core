@@ -28,25 +28,18 @@ public class HDF5DataspaceResource extends HDF5BaseResource {
 
 	private static final Logger logger = LoggerFactory.getLogger(HDF5DataspaceResource.class);
 
-	public HDF5DataspaceResource() {
-	}
-
 	/**
 	 * Wrap the specified dataspace resource identifier
 	 * @param resource dataspace identifier to wrap
 	 */
 	public HDF5DataspaceResource(int resource) {
-		this.resource = resource;
+		super(resource);
 	}
 
 	@Override
 	public void close() {
-		if (resource < 0) {
-			return;
-		}
 		try {
 			H5.H5Sclose((int)resource);
-			resource = -1;
 		} catch (HDF5LibraryException e) {
 			logger.error("Could not close HDF5 object", e);
 		}

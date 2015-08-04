@@ -28,25 +28,18 @@ public class HDF5PropertiesResource extends HDF5BaseResource {
 
 	private static final Logger logger = LoggerFactory.getLogger(HDF5PropertiesResource.class);
 
-	public HDF5PropertiesResource() {
-	}
-
 	/**
 	 * Wrap the specified property list resource identifier
 	 * @param resource property list identifier to wrap
 	 */
 	public HDF5PropertiesResource(int resource) {
-		this.resource = resource;
+		super(resource);
 	}
 
 	@Override
 	public void close() {
-		if (resource < 0) {
-			return;
-		}
 		try {
 			H5.H5Pclose((int)resource);
-			resource = -1;
 		} catch (HDF5LibraryException e) {
 			logger.error("Could not close HDF5 object", e);
 		}
