@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 
-import org.dawnsci.common.richbeans.beans.BeanUI;
 import org.eclipse.core.commands.operations.IOperationHistory;
 import org.eclipse.core.commands.operations.IUndoContext;
 import org.eclipse.core.commands.operations.ObjectUndoContext;
@@ -359,7 +358,7 @@ public abstract class RichBeanMultiPageEditorPart extends MultiPageEditorPart im
 		if (newPageIndex == 1) {
 			try {
 				setXMLUndoRedo();
-				BeanUI.uiToBean(richBeanEditor, editingBean);
+				richBeanEditor.uiToBean();
 				xmlEditor.beanToXML(getPrivateXMLFields());
 				
 			} catch (Exception e) {

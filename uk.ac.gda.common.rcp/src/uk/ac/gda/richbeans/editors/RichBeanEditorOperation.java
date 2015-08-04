@@ -18,7 +18,6 @@
 
 package uk.ac.gda.richbeans.editors;
 
-import org.dawnsci.common.richbeans.beans.BeanUI;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.operations.AbstractOperation;
 import org.eclipse.core.runtime.IAdaptable;
@@ -49,7 +48,7 @@ public class RichBeanEditorOperation extends AbstractOperation {
 		shell.setRedraw(false);
 		richBeanEditor.setUndoStackActive(false);
 		try {		
-			BeanUI.beanToUI(bean, richBeanEditor.getEditorUI());
+			richBeanEditor.beanToUI();
 			return Status.OK_STATUS;
 		} catch (Exception e) {
 			throw new ExecutionException(e.getMessage(), e);

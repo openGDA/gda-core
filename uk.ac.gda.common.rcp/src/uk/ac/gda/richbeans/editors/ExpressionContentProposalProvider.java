@@ -23,9 +23,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.dawnsci.common.richbeans.beans.IExpressionWidget;
 import org.eclipse.jface.fieldassist.IContentProposal;
 import org.eclipse.jface.fieldassist.IContentProposalProvider;
+import org.eclipse.richbeans.api.widget.IExpressionWidget;
 
 public class ExpressionContentProposalProvider implements IContentProposalProvider {
 

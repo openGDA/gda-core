@@ -23,12 +23,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.List;
 
-import org.dawnsci.common.richbeans.beans.BeanUI;
-import org.dawnsci.common.richbeans.beans.BeansFactory;
-import org.dawnsci.common.richbeans.beans.IFieldProvider;
-import org.dawnsci.common.richbeans.beans.IFieldWidget;
-import org.dawnsci.common.richbeans.event.ValueEvent;
-import org.dawnsci.common.richbeans.event.ValueListener;
 import org.eclipse.core.commands.operations.IUndoContext;
 import org.eclipse.core.commands.operations.OperationHistoryFactory;
 import org.eclipse.core.resources.IFile;
@@ -36,6 +30,13 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.richbeans.api.beans.BeansFactory;
+import org.eclipse.richbeans.api.event.ValueEvent;
+import org.eclipse.richbeans.api.event.ValueListener;
+import org.eclipse.richbeans.api.reflection.IBeanController;
+import org.eclipse.richbeans.api.reflection.IBeanService;
+import org.eclipse.richbeans.api.widget.IFieldProvider;
+import org.eclipse.richbeans.api.widget.IFieldWidget;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IReusableEditor;
@@ -46,6 +47,7 @@ import org.eclipse.ui.part.EditorPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.gda.ServiceGrabber;
 import uk.ac.gda.common.rcp.util.EclipseUtils;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
@@ -92,6 +94,11 @@ public abstract class RichBeanEditorPart extends EditorPart  implements ValueLis
 	private boolean isDisposed      = false;
 
 	/**
+	 * Controller used to map ui <-> bean
+	 */
+	protected IBeanController controller;
+
+	/**
 	 * Return the name that the editor should be referred as in error messages and
 	 * in the multi-editor view.
 	 * @return string
@@ -114,6 +121,8 @@ public abstract class RichBeanEditorPart extends EditorPart  implements ValueLis
 		this.dirtyContainer   = dirtyContainer;
 		this.editingBean      = editingBean;
 		
+		IBeanService service  = ServiceGrabber.getBeanService();
+		this.controller       = service.createController(getEditorUI(), editingBean);
 		/**
 		 * The final undo state is recorded by cloning the editing bean and 
 		 * not editing it further when this editor is 
@@ -223,8 +232,8 @@ public abstract class RichBeanEditorPart extends EditorPart  implements ValueLis
 	 * @throws Exception 
 	 */
 	public Object updateFromUIAndReturnEditingBean() throws Exception {
-		BeanUI.uiToBean(getEditorUI(), editingBean);
-		return editingBean;
+		controller.uiToBean();
+		return controller.getBean();
 	}
 
 	/**
@@ -325,12 +334,12 @@ public abstract class RichBeanEditorPart extends EditorPart  implements ValueLis
         // the ui in this class. This class can be used to do this for any
 		// bean and any UI object (editor etc.)
         try {
-    		BeanUI.switchState(editingBean, getEditorUI(), false);
-			BeanUI.beanToUI(editingBean, getEditorUI());
-			BeanUI.switchState(editingBean, getEditorUI(), true);
+        	controller.switchState(false);
+        	controller.beanToUI();
+        	controller.switchState(true);
 			if (!addedListenersAndSwitchedOn) {
-				BeanUI.addValueListener(editingBean, getEditorUI(), this);
-				BeanUI.setBeanFields(editingBean, getEditorUI());
+				controller.addValueListener(this);
+				controller.recordBeanFields();
 				addedListenersAndSwitchedOn = true;
 					
 				// TODO resolve this - the DawnSci widgets do not allow expressions - a licensing issue??
@@ -377,14 +386,14 @@ public abstract class RichBeanEditorPart extends EditorPart  implements ValueLis
 	protected List<String> getExpressionFields() throws Exception {
   	    
 		if (expressionFields==null) {
-			expressionFields = BeanUI.getEditingFields(editingBean, getEditorUI());
+			expressionFields = controller.getEditingFields();
 		}
         return expressionFields;
 	}
 	
 	@Override
 	public IFieldWidget getField(final String fieldName) throws Exception {
-		return BeanUI.getFieldWidget(fieldName, getEditorUI());
+		return controller.getFieldWidget(fieldName);
 	}
 
 	@Override
@@ -398,7 +407,7 @@ public abstract class RichBeanEditorPart extends EditorPart  implements ValueLis
 		super.dispose();
 		
 		try {
-			BeanUI.dispose(editingBean, getEditorUI());
+			controller.dispose();
 		} catch (Exception e) {
 			logger.error("Cannot dispose parts as expected", e);
 		}
@@ -425,6 +434,22 @@ public abstract class RichBeanEditorPart extends EditorPart  implements ValueLis
 	 */
 	public void setUndoStackActive(boolean undoStackActive) {
 		this.undoStackActive = undoStackActive;
+	}
+
+	public void uiToBean() throws Exception {
+		controller.uiToBean();
+	}
+
+	public void beanToUI() throws Exception {
+		controller.beanToUI();
+	}
+
+	protected void switchState(boolean on) throws Exception {
+		controller.switchState(on);
+	}
+
+	protected void addValueListener(ValueListener l) throws Exception {
+		controller.addValueListener(l);
 	}
 
 }

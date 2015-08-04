@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2015 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -16,22 +16,19 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.richbeans.examples;
+package uk.ac.gda;
 
-import org.eclipse.richbeans.xml.XMLBeanContentDescriber;
+import org.eclipse.richbeans.api.reflection.IBeanService;
 
-/**
- * Describer for XML file written by Castor. Checks XML in format
- * specifically design for that written by Castor.
- */
-public class ExampleDescriber extends XMLBeanContentDescriber {
-	@Override
-	protected String getBeanName() {
-		return ExampleParameters.class.getName();
+public class ServiceGrabber {
+
+	private static IBeanService beanService;
+
+	public static IBeanService getBeanService() {
+		return beanService;
 	}
 
-	@Override
-	protected String getEditorId() {
-		return "org.diamond.ui.examples.ExampleEditor";
+	public static void setBeanService(IBeanService bs) {
+		beanService = bs;
 	}
 }
