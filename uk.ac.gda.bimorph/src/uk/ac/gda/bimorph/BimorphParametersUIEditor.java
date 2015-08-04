@@ -20,10 +20,10 @@ package uk.ac.gda.bimorph;
 
 import java.net.URL;
 
-import org.eclipse.richbeans.widgets.FieldComposite;
-import org.eclipse.richbeans.widgets.scalebox.ScaleBox;
-import org.eclipse.richbeans.widgets.wrappers.BooleanWrapper;
-import org.eclipse.richbeans.widgets.wrappers.ComboWrapper;
+import org.dawnsci.common.richbeans.components.FieldComposite;
+import org.dawnsci.common.richbeans.components.scalebox.ScaleBox;
+import org.dawnsci.common.richbeans.components.wrappers.BooleanWrapper;
+import org.dawnsci.common.richbeans.components.wrappers.ComboWrapper;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.widgets.Composite;
