@@ -191,6 +191,8 @@ public class NexusFileHDF5 implements NexusFile {
 
 	private TreeFile tree;
 
+	private static long ROOT_NODE_ADDR = -1234;
+
 	private Map<Long, Node> nodeMap; //used to remember node locations in file for detecting hard links
 
 	private boolean writeable = false;
@@ -296,7 +298,7 @@ public class NexusFileHDF5 implements NexusFile {
 		if (link != null) {
 			if (link.isDestinationGroup()) {
 				GroupNode g = (GroupNode) link.getDestination();
-				if (!g.isPopulated() && getLinkTarget(augmentedPath) != NO_LINK) {
+				if (!g.isPopulated() && getLinkTarget(plainPath) != NO_LINK) {
 					//"leaf" group nodes are never populated and paths that traverse napimounts cannot be populated
 					//via the simple path mechanism
 					if (!plainPath.endsWith(Node.SEPARATOR)) {
@@ -1228,6 +1230,11 @@ public class NexusFileHDF5 implements NexusFile {
 	}
 	private long getLinkTarget(String path) throws NexusException {
 		try {
+			//The H5 library doesn't consider the "root" node to really be a group but NAPI does,
+			//so we emulate the old behaviour by pretending it has a file address
+			if (path.equals(Tree.ROOT)) {
+				return ROOT_NODE_ADDR;
+			}
 			if (!testLinkExists(path)) {
 				return NO_LINK;
 			}
@@ -1237,7 +1244,6 @@ public class NexusFileHDF5 implements NexusFile {
 				H5.H5Lget_val(fileId, path, name, HDF5Constants.H5P_DEFAULT);
 				return getLinkTarget(name[0]);
 			} else if (linkInfo.type == HDF5Constants.H5L_TYPE_HARD) {
-				//return nodeMap.get(linkInfo.address_val_size);
 				return linkInfo.address_val_size;
 			} else if (linkInfo.type == HDF5Constants.H5L_TYPE_EXTERNAL) {
 				return IS_EXTERNAL_LINK;

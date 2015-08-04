@@ -160,6 +160,19 @@ public class NexusFileTest {
 	}
 
 	@Test
+	public void testGetRootNode() throws Exception {
+		nf.getGroup("/a/b", true);
+		GroupNode root = nf.getGroup("/", false);
+		assertNotNull(root);
+		assertTrue(root.containsGroupNode("a"));
+		nf.close();
+		nf = NexusUtils.openNexusFileReadOnly(FILE_NAME);
+		root =  nf.getGroup("/", false);
+		assertNotNull(root);
+		assertTrue(root.containsGroupNode("a"));
+	}
+
+	@Test
 	public void testGroupProperties() throws Exception {
 		//Test that the properties on a retrieved node match expectations without having traversed to children
 		nf.getGroup("/a/b/c", true);
