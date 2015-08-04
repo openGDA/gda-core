@@ -30,9 +30,11 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.xml.sax.InputSource;
 
+@Ignore("GDA-5474 - test disabled 2013/Mar/15")
 public class NexusTreeBuilderTest {
 	String scratchFolder;
 	URL testdataFile;
