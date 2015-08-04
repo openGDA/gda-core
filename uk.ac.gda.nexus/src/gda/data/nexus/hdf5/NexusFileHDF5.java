@@ -322,7 +322,7 @@ public class NexusFileHDF5 implements NexusFile {
 			boolean createPathIfNecessary) throws NexusException {
 		String path = getPath(group);
 		if (path == null) {
-			throw new IllegalArgumentException("Group path is null");
+			throw new NullPointerException("Group path must not be null");
 		}
 		return getGroup(NexusUtils.addToAugmentPath(path,  name,  nxClass), createPathIfNecessary);
 	}
@@ -841,7 +841,7 @@ public class NexusFileHDF5 implements NexusFile {
 		String dataName = data.getName();
 		String dataPath = parentPath + dataName;
 		if (dataName == null || dataName.isEmpty()) {
-			throw new IllegalArgumentException("Dataset name must be defined");
+			throw new NullPointerException("Dataset name must be defined");
 		}
 		if (isPathValid(dataPath)) {
 			throw new NexusException("Object already exists at specified location");
@@ -929,7 +929,7 @@ public class NexusFileHDF5 implements NexusFile {
 		NodeData parentNode = getGroupNode(path, createPathIfNecessary);
 		String dataName = data.getName();
 		if (dataName == null || dataName.isEmpty()) {
-			throw new IllegalArgumentException("Dataset name must be defined");
+			throw new NullPointerException("Dataset name must be defined");
 		}
 
 		String dataPath = parentNode.path + parentNode.name + Node.SEPARATOR + dataName;
@@ -1000,7 +1000,7 @@ public class NexusFileHDF5 implements NexusFile {
 		for (Attribute attr : attribute) {
 			String attrName = attr.getName();
 			if (attrName == null || attrName.isEmpty()) {
-				throw new IllegalArgumentException("Attribute must have a name");
+				throw new NullPointerException("Attribute must have a name");
 			}
 			Node node = getNode(path, false).node;
 			node.addAttribute(attr);
