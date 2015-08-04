@@ -1,8 +1,5 @@
 package uk.ac.gda.devices.detector.xspress3;
 
-import java.io.File;
-import java.util.List;
-
 import gda.data.PathConstructor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
@@ -16,7 +13,13 @@ import gda.factory.FactoryException;
 import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanInformation;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 import uk.ac.gda.beans.DetectorROI;
+import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.vortex.Xspress3Parameters;
 import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
@@ -31,8 +34,15 @@ import uk.ac.gda.util.beans.xml.XMLHelpers;
  *
  * @see uk.ac.gda.devices.detector.xspress#Xspress3System
  * @author rjw82
+ * <p>
+ *         now replaced with Xspress3WithFullCalculationsDetector. This new
+ *         class was developed for I18 after problems were seen in the EPICS
+ *         layer. This new class is yet to be tested on B18. But it should work
+ *         and should be applicable for B18, the classes should be able to be
+ *         swapped with no further changes required in the rest of the code.
  *
  */
+@Deprecated
 public class Xspress3Detector extends DetectorBase implements Xspress3 {
 
 	private static final int MCA_SIZE = 4096;
@@ -495,7 +505,6 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 		controller.doStart();
 	}
 
-	@Override
 	public int[][] getData() throws DeviceException {
 
 		double[][] deadTimeCorrectedData = controller.readoutDTCorrectedLatestMCA(firstChannelToRead,
@@ -516,7 +525,7 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 	 * @throws DeviceException
 	 */
 	@Override
-	public double[][] getMCData(double time) throws DeviceException {
+	public int[][] getMCData(double time) throws DeviceException {
 		controller.doErase();
 		controller.doStart();
 		((Timer) Finder.getInstance().find("tfg")).clearFrameSets(); // we only
@@ -541,7 +550,7 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 
 		controller.doStop();
 
-		return controller.readoutDTCorrectedLatestMCA(firstChannelToRead, controller.getNumberOfChannels() - 1);
+		return getData();
 	}
 
 	public int getFirstChannelToRead() {
@@ -637,21 +646,6 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 		this.filePrefix = filePrefix;
 	}
 
-	// public String getNumTrackerExtension() {
-	// return numTrackerExtension;
-	// }
-	//
-	// public void setNumTrackerExtension(String numTrackerExtension) {
-	// this.numTrackerExtension = numTrackerExtension;
-	// createNumTracker();
-	// }
-
-	@Override
-	public Object getCountRates() throws DeviceException {
-		// is this ever called??? Should it be removed from the interface???
-		return null;
-	}
-
 	@Override
 	public String getConfigFileName() {
 		return configFileName;
@@ -707,5 +701,38 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 	@Override
 	public int getMCASize() {
 		return MCA_SIZE;
+	}
+
+	@Override
+	public Class<? extends FluorescenceDetectorParameters> getConfigurationParametersClass() {
+		return Xspress3Parameters.class;
+	}
+
+	@Override
+	public FluorescenceDetectorParameters getConfigurationParameters() {
+		DetectorROI[] regions;
+		try {
+			regions = getRegionsOfInterest();
+		} catch (DeviceException e) {
+			Xspress3Parameters parameters = new Xspress3Parameters();
+			parameters.setDetectorName(getName());
+			return parameters;
+		}
+
+		List<DetectorElement> detectorList = new ArrayList<DetectorElement>();
+
+		for(int i = 0; i < getNumberOfChannels(); i++){
+			DetectorElement thisElement = new DetectorElement();
+			for(DetectorROI region : regions){
+				thisElement.addRegion(region);
+			}
+			detectorList.add(thisElement);
+		}
+
+		Xspress3Parameters parameters = new Xspress3Parameters();
+		parameters.setDetectorName(getName());
+		parameters.setDetectorList(detectorList);
+
+		return parameters;
 	}
 }

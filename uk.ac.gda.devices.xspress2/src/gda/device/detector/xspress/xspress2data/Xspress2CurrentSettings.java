@@ -6,7 +6,7 @@ import java.util.List;
 import gda.device.DeviceException;
 import gda.device.detector.xspress.Xspress2Detector;
 import uk.ac.gda.beans.DetectorROI;
-import uk.ac.gda.beans.xspress.DetectorElement;
+import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.xspress.XspressDetector;
 import uk.ac.gda.beans.xspress.XspressParameters;
 
@@ -27,6 +27,12 @@ public class Xspress2CurrentSettings {
 	private Double deadtimeEnergy; // in keV NOT eV!
 	private boolean addDTScalerValuesToAscii = false;
 	private String[] defaultOutputFormat = new String[] { "%5.4g" };
+	private boolean sumAllElementData = false;
+	/*
+	 * If true, then always write non-deadtime corrected MCAs to nexus file,
+	 * irrespective of any other settings.
+	 */
+	private boolean alwaysRecordRawMCAs = false;
 
 	public Xspress2CurrentSettings() {
 	}
@@ -211,5 +217,21 @@ public class Xspress2CurrentSettings {
 
 	public void setFullMCABits(int fullMCABits) throws DeviceException {
 		this.fullMCABits = fullMCABits;
+	}
+
+	public boolean isSumAllElementData() {
+		return sumAllElementData;
+	}
+
+	public void setSumAllElementData(boolean sumAllElementData) {
+		this.sumAllElementData = sumAllElementData;
+	}
+
+	public boolean isAlwaysRecordRawMCAs() {
+		return alwaysRecordRawMCAs;
+	}
+
+	public void setAlwaysRecordRawMCAs(boolean alwaysRecordRawMCAs) {
+		this.alwaysRecordRawMCAs = alwaysRecordRawMCAs;
 	}
 }

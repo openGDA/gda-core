@@ -195,8 +195,6 @@ public interface Xspress3Controller extends Findable{
 	public double[][] readoutDTCorrectedLatestMCA(int startChannel, int finalChannel) throws DeviceException;
 
 	/**
-	 *
-	 *
 	 * @param startChannel
 	 * @param finalChannel
 	 * @return Double[detector channel][mca channel]
@@ -260,7 +258,13 @@ public interface Xspress3Controller extends Findable{
 
 	public int getNumberOfChannels();
 
+	/*
+	 * Enabled in the Epics sense of EPICS, not in the GDA sense of contributing to the FF.
+	 */
 	public boolean isChannelEnabled(int channel) throws DeviceException;
 
+	/*
+	 * Enabled in the Epics sense of EPICS, not in the GDA sense of contributing to the FF.
+	 */
 	public void enableChannel(int channel, boolean doEnable) throws DeviceException;
 }

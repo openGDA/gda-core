@@ -65,7 +65,7 @@ public class HidenRGAController implements IObservable, InitializationListener {
 
 	}
 
-	final int numberOfMassChannels = 21;
+	private int numberOfMassChannels = 21;
 
 	private String epicsPrefix;
 	private ObservableComponent observableComponent = new ObservableComponent();
@@ -93,6 +93,8 @@ public class HidenRGAController implements IObservable, InitializationListener {
 
 	private int numberOfMasses;
 
+	private boolean useAuxiliaryInputs=true; //B18 first implemented this class
+
 	public HidenRGAController(String epicsPrefix) {
 		this.epicsPrefix = epicsPrefix;
 	}
@@ -111,16 +113,18 @@ public class HidenRGAController implements IObservable, InitializationListener {
 		scanCyclesTypePV = LazyPVFactory.newIntegerPV(generatePVName(":MID:CYC:CONT"));  // set 1 for continuous
 		startScanPV = LazyPVFactory.newIntegerPV(generatePVName(":MID:START.PROC"));	// set 1 to run procedure
 		stopScanPV = LazyPVFactory.newIntegerPV(generatePVName(":ABORT.PROC"));		// set 1 to run procedure
-		currentValvePV = LazyPVFactory.newReadOnlyDoublePV(generatePVName(":P:MIDAUX1-I"));
-		currentTempPV = LazyPVFactory.newReadOnlyDoublePV(generatePVName(":P:MIDAUX2-I"));
+		if (isUseAuxiliaryInputs()) {
+			currentValvePV = LazyPVFactory.newReadOnlyDoublePV(generatePVName(":P:MIDAUX1-I"));
+			currentTempPV = LazyPVFactory.newReadOnlyDoublePV(generatePVName(":P:MIDAUX2-I"));
+		}
 
-		massSetPVs = new PV[numberOfMassChannels];
-		massReadbackPVs = new ReadOnlyPV[numberOfMassChannels];
-		massCountsPerSecPVs = new ReadOnlyPV[numberOfMassChannels];
-		enableMassPVs = new PV[numberOfMassChannels-1];  // the first channel cannot be disabled
-		dataPVs = new ReadOnlyPV[numberOfMassChannels];
+		massSetPVs = new PV[getNumberOfMassChannels()];
+		massReadbackPVs = new ReadOnlyPV[getNumberOfMassChannels()];
+		massCountsPerSecPVs = new ReadOnlyPV[getNumberOfMassChannels()];
+		enableMassPVs = new PV[getNumberOfMassChannels()-1];  // the first channel cannot be disabled
+		dataPVs = new ReadOnlyPV[getNumberOfMassChannels()];
 
-		for (int chan = 1; chan <= numberOfMassChannels; chan++){
+		for (int chan = 1; chan <= getNumberOfMassChannels(); chan++){
 			massSetPVs[chan - 1] = LazyPVFactory.newIntegerPV(generatePVName(String.format(":MID:%d:M_SP",chan)));
 			massReadbackPVs[chan - 1] = LazyPVFactory.newReadOnlyDoublePV(generatePVName(String.format(":MID:%d:M_RBV",chan)));
 			massCountsPerSecPVs[chan - 1] = LazyPVFactory.newReadOnlyDoublePV(generatePVName(String.format(":P:MID%d-I",chan)));
@@ -133,8 +137,10 @@ public class HidenRGAController implements IObservable, InitializationListener {
 
 		dataPointsCountPV= LazyPVFactory.newReadOnlyIntegerPV(generatePVName(String.format(":MID:COUNT")));
 		timestampPV= LazyPVFactory.newReadOnlyDoubleArrayPV(generatePVName(String.format(":MID:TIME:ABS")));
-		valveDataPV= LazyPVFactory.newReadOnlyDoubleArrayPV(generatePVName(String.format(":MID:AUX1:P:RAW")));
-		tempDataPV= LazyPVFactory.newReadOnlyDoubleArrayPV(generatePVName(String.format(":MID:AUX2:P:RAW")));
+		if (isUseAuxiliaryInputs()) {
+			valveDataPV= LazyPVFactory.newReadOnlyDoubleArrayPV(generatePVName(String.format(":MID:AUX1:P:RAW")));
+			tempDataPV= LazyPVFactory.newReadOnlyDoubleArrayPV(generatePVName(String.format(":MID:AUX2:P:RAW")));
+		}
 	}
 
 	private String generatePVName(String suffix) {
@@ -156,7 +162,7 @@ public class HidenRGAController implements IObservable, InitializationListener {
 		}
 
 		// disable all the other channels
-		for(;chan <= numberOfMassChannels; chan++){
+		for(;chan <= getNumberOfMassChannels(); chan++){
 			enableMassPVs[chan - 2].putNoWait(0);
 		}
 
@@ -184,11 +190,17 @@ public class HidenRGAController implements IObservable, InitializationListener {
 	}
 
 	public double readValve() throws IOException {
-		return currentValvePV.get();
+		if (isUseAuxiliaryInputs()) {
+			return currentValvePV.get();
+		}
+		throw new UnsupportedOperationException("RGA auxiliary inputs are not supported.");
 	}
 
 	public double readtemp() throws IOException {
-		return currentTempPV.get();
+		if (isUseAuxiliaryInputs()) {
+			return currentTempPV.get();
+		}
+		throw new UnsupportedOperationException("RGA auxiliary inputs are not supported.");
 	}
 
 	public double[] readout() throws DeviceException {
@@ -221,6 +233,22 @@ public class HidenRGAController implements IObservable, InitializationListener {
 	@Override
 	public void initializationCompleted() throws InterruptedException, DeviceException, TimeoutException, CAException {
 		//
+	}
+
+	public boolean isUseAuxiliaryInputs() {
+		return useAuxiliaryInputs;
+	}
+
+	public void setUseAuxiliaryInputs(boolean useAuxiliaryInputs) {
+		this.useAuxiliaryInputs = useAuxiliaryInputs;
+	}
+
+	public int getNumberOfMassChannels() {
+		return numberOfMassChannels;
+	}
+
+	public void setNumberOfMassChannels(int numberOfMassChannels) {
+		this.numberOfMassChannels = numberOfMassChannels;
 	}
 
 }

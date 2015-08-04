@@ -26,6 +26,7 @@ import gda.device.detector.xspress.Xspress2Detector;
 /**
  * Version of TFGXspress2 which does not perform deadtime corrections on the values it returns
  */
+@Deprecated
 public class TfgXspress2NoCorrection extends TfgXspress2 {
 
 	String[] format;

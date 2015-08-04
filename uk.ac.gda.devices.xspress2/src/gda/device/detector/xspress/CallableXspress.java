@@ -26,6 +26,7 @@ import gda.device.DeviceException;
 import gda.device.scannable.PositionCallableProvider;
 import uk.ac.gda.beans.xspress.XspressDetector;
 
+@Deprecated
 public class CallableXspress extends Xspress2Detector implements XspressDetector, PositionCallableProvider<NexusTreeProvider>  {
 
 	AtomicBoolean readingOut = new AtomicBoolean(false);

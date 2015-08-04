@@ -23,7 +23,6 @@ import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.axis.ClickEvent;
 import org.eclipse.dawnsci.plotting.api.axis.IClickListener;
-import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
@@ -32,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerFacade;
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
+import uk.ac.diamond.scisoft.analysis.rcp.views.AbstractPlotView;
 import uk.ac.gda.client.microfocus.views.ExafsSelectionView;
 import uk.ac.gda.client.microfocus.views.scan.MapPlotView;
 import uk.ac.gda.client.microfocus.views.scan.MicroFocusElementListView;
@@ -53,54 +53,57 @@ public class MicroFocusNexusPlotter {
 
 	public MicroFocusNexusPlotter() {
 		super();
+		createClickListener();
 	}
 
-	private void createClickListener() throws PartInitException {
+	private void createClickListener() {
+		mouseClickListener = new IClickListener() {
+			@Override
+			public void clickPerformed(ClickEvent evt) {
+				// do conversion this way to always cast down
+				int xArrayIndex = (int) evt.getxValue();
+				int yArrayIndex = (int) evt.getyValue();
 
-		if (mouseClickListener == null) {
-			mouseClickListener = new IClickListener() {
+				// is it a ctrl-left click?
+				if (evt.isControlDown()) {
 
-				@Override
-				public void clickPerformed(ClickEvent evt) {
+					double[] dataXYValues = getDataXYValues(xArrayIndex, yArrayIndex);
 
-					// do conversion this way to always cast down
-					int xArrayIndex = (int) evt.getxValue();
-					int yArrayIndex = (int) evt.getyValue();
+					MicroFocusElementListView mfElements = (MicroFocusElementListView) PlatformUI.getWorkbench()
+							.getActiveWorkbenchWindow().getActivePage().findView(MicroFocusElementListView.ID);
+					mfElements.setLastXYSelection(dataXYValues[0], dataXYValues[1]);
+					Double[] xyz = mfElements.getLastXYZSelection();
 
-					// is it a ctrl-left click?
-					if (evt.isControlDown()) {
+					ExafsSelectionView selectionView = (ExafsSelectionView) PlatformUI.getWorkbench()
+							.getActiveWorkbenchWindow().getActivePage().findView(ExafsSelectionView.ID);
+					selectionView.setSelectedPoint(xyz);
 
-						double[] dataXYValues = getDataXYValues(xArrayIndex, yArrayIndex);
-
-						MicroFocusElementListView mfElements = (MicroFocusElementListView) PlatformUI.getWorkbench()
-								.getActiveWorkbenchWindow().getActivePage().findView(MicroFocusElementListView.ID);
-						mfElements.setLastXYSelection(dataXYValues[0], dataXYValues[1]);
-						Double[] xyz = mfElements.getLastXYZSelection();
-
-						ExafsSelectionView selectionView = (ExafsSelectionView) PlatformUI.getWorkbench()
-								.getActiveWorkbenchWindow().getActivePage().findView(ExafsSelectionView.ID);
-						selectionView.setSelectedPoint(xyz);
-
-						plotSpectrum(xArrayIndex, yArrayIndex);
-					}
+					plotSpectrum(xArrayIndex, yArrayIndex);
 				}
+			}
 
-				@Override
-				public void doubleClickPerformed(ClickEvent evt) {
-					// ignore these events
-				}
+			@Override
+			public void doubleClickPerformed(ClickEvent ignoreDoubleClicks) {
+			}
+		};
 
-			};
-
-			IPlottingSystem system = getMapPlotPlottingSystem();
-			system.addClickListener(mouseClickListener);
-		}
+		addClickListenerToPlottingSystem(mouseClickListener);
 	}
 
-	private IPlottingSystem getMapPlotPlottingSystem() throws PartInitException {
-		IViewPart mapplotview = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
-				.showView(MapPlotView.ID);
-		return (IPlottingSystem) mapplotview.getAdapter(IPlottingSystem.class);
+	private void addClickListenerToPlottingSystem(final IClickListener mouseClickListener) {
+		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					AbstractPlotView mapplotview = (AbstractPlotView) PlatformUI.getWorkbench()
+							.getActiveWorkbenchWindow().getActivePage().showView(MapPlotView.ID);
+					IPlottingSystem plottingSystem = (IPlottingSystem) mapplotview.getAdapter(IPlottingSystem.class);
+					plottingSystem.addClickListener(mouseClickListener);
+				} catch (PartInitException e) {
+					logger.warn("Problem linking the MapPlot mouse events to the Exafs Selection view. This view may not work properly. Switch away and back again to this perspective to try again.");
+				}
+			}
+		});
 	}
 
 	private double[] getDataXYValues(int xPixel, int yPixel) {
@@ -142,7 +145,7 @@ public class MicroFocusNexusPlotter {
 					JythonServerFacade.getInstance().evaluateCommand(
 							"map.getMFD().displayPlot(\"" + elementName + "\"," + selectedChannel + ")");
 					updateSpectrum();
-					createClickListener();
+//					createClickListener();
 				} catch (Exception e) {
 					logger.error("Error plotting the dataset in MicroFocusNexusPlotter", e);
 				}
@@ -159,7 +162,7 @@ public class MicroFocusNexusPlotter {
 		try {
 			SDAPlotter.imagePlot(MapPlotView.NAME, dataset);
 			updateSpectrum();
-			createClickListener();
+//			createClickListener();
 		} catch (Exception e) {
 			logger.error("Error plotting the dataset in MicroFocusNexusPlotter", e);
 		}
@@ -174,7 +177,8 @@ public class MicroFocusNexusPlotter {
 		}
 	}
 
-	public void plotElement(MicroFocusMappableDataProvider fileDataProvider, final String elementName, Integer selectedChannel) {
+	public void plotElement(MicroFocusMappableDataProvider fileDataProvider, final String elementName,
+			Integer selectedChannel) {
 		dataProvider = fileDataProvider;
 		dataProvider.setSelectedElement(elementName);
 		dataProvider.setSelectedChannel(selectedChannel);
@@ -194,7 +198,7 @@ public class MicroFocusNexusPlotter {
 				try {
 					SDAPlotter.imagePlot(MapPlotView.NAME, xDataset, yDataset, plotSet);
 					updateSpectrum();
-					createClickListener();
+//					createClickListener();
 				} catch (Exception e) {
 					logger.error("Error plotting the dataset in MicroFocusNexusPlotter", e);
 				}
@@ -212,8 +216,6 @@ public class MicroFocusNexusPlotter {
 			double[] spectrum = dataProvider.getSpectrum(dataProvider.getSelectedChannel(), xPixel, yPixel);
 			if (spectrum != null) {
 				final Dataset yaxis = DatasetFactory.createFromObject(spectrum);
-				logger.info("Plotting spectrum for channel " + dataProvider.getSelectedChannel() + ", pixel " + xPixel + ","
-						+ yPixel);
 				PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 					@Override
 					public void run() {
@@ -226,11 +228,11 @@ public class MicroFocusNexusPlotter {
 					}
 				});
 			} else {
-				logger.info("No Spectrum available for index " + dataProvider.getSelectedChannel() + " " + xPixel + "," + yPixel);
+				logger.info("No Spectrum available for index " + dataProvider.getSelectedChannel() + " " + xPixel + ","
+						+ yPixel);
 			}
 		} else {
 			// server needs to show the spectrum
-			logger.info("Plotting spectrum for element 0," + xPixel + "," + yPixel);
 			JythonServerFacade.getInstance().evaluateCommand(
 					"map.getMFD().plotSpectrum(" + serverPlotChannel + "," + xPixel + "," + yPixel + ")");
 		}

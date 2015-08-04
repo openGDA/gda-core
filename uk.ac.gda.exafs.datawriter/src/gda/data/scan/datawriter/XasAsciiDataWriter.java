@@ -29,7 +29,7 @@ import gda.device.detector.DarkCurrentDetector;
 import gda.device.detector.DarkCurrentResults;
 import gda.device.detector.xspress.XspressSystem;
 import gda.scan.IScanDataPoint;
-import uk.ac.gda.beans.xspress.DetectorElement;
+import uk.ac.gda.beans.vortex.DetectorElement;
 
 /**
  * Extension to the asciidatawriter which uses xml files if defined which have more options specific to the exafs RCP

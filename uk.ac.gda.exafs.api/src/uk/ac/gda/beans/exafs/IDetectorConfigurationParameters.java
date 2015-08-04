@@ -1,5 +1,8 @@
 package uk.ac.gda.beans.exafs;
 
+import java.util.List;
+
+import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.util.beans.xml.XMLRichBean;
 
 /**

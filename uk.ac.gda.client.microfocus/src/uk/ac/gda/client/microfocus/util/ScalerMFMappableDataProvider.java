@@ -45,6 +45,7 @@ public class ScalerMFMappableDataProvider extends MicroFocusMappableDataProvider
 	private List<IonChamberParameters> ionChambersList;
 	private int numberOfIonChambers;
 	private Hashtable<String, double[]> detectorData;
+	private String detectorName;
 
 	@Override
 	public void loadData(String fileName) {
@@ -96,7 +97,7 @@ public class ScalerMFMappableDataProvider extends MicroFocusMappableDataProvider
 		}
 		if (detectorBean != null && ((DetectorParameters) detectorBean).getTransmissionParameters() != null) {
 			ionChambersList = ((DetectorParameters) detectorBean).getTransmissionParameters().getIonChamberParameters();
-			setDetectorName(ionChambersList.get(0).getDeviceName());
+			detectorName = ionChambersList.get(0).getDeviceName();
 			numberOfIonChambers = ionChambersList.size();
 			setElementNames();
 		}

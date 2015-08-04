@@ -27,6 +27,7 @@ import gda.data.nexus.extractor.NexusGroupData;
 /**
  * Class which is sent at ScanDataPoint data. Must be public so that serializes.
  */
+@Deprecated
 public class MultiDetectorData extends HashMap<String, NexusGroupData > {
 
 	@Override

@@ -1,9 +1,5 @@
 package uk.ac.gda.devices.detector.xspress3.fullCalculations;
 
-import java.util.List;
-
-import org.eclipse.dawnsci.hdf5.nexus.NexusException;
-
 import gda.data.nexus.extractor.NexusExtractorException;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
@@ -12,7 +8,14 @@ import gda.device.DeviceException;
 import gda.device.Timer;
 import gda.device.detector.NXDetectorData;
 import gda.factory.Finder;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.eclipse.dawnsci.hdf5.nexus.NexusException;
+
 import uk.ac.gda.beans.DetectorROI;
+import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.vortex.Xspress3Parameters;
 import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
 import uk.ac.gda.devices.detector.xspress3.Xspress3Controller;
@@ -31,6 +34,7 @@ public class Xspress3DataOperations {
 	private int framesRead;
 	private String configFileName;
 	private DetectorROI[] rois;
+	private boolean[] isChannelEnabled;
 	private Xspress3FileReader reader;
 
 	public Xspress3DataOperations(Xspress3Controller controller, int firstChannelToRead) {
@@ -95,6 +99,10 @@ public class Xspress3DataOperations {
 					.get(index).getRoiEnd());
 		}
 
+		isChannelEnabled = new boolean[controller.getNumberOfChannels()];
+		for (int detector = 0; detector < controller.getNumberOfChannels(); detector++) {
+			isChannelEnabled[detector] = !parameters.getDetector(detector).isExcluded();
+		}
 	}
 
 	private void disableAllEPICSCalculations() throws DeviceException {
@@ -183,22 +191,24 @@ public class Xspress3DataOperations {
 		int numRois = rois.length;
 
 		double[][] roiValues = new double[numRois][numChannels];
-		// double[] ffs = new double[numChannels];
 		double theFF = 0;
 		for (int chan = 0; chan < numChannels; chan++) {
-			for (int roi = 0; roi < numRois; roi++) {
-				double thisRoiSum = extractRoi(mcasFromFile[chan], rois[roi].getRoiStart(), rois[roi].getRoiEnd());
-				roiValues[roi][chan] = thisRoiSum;
-				// ffs[chan] += thisRoiSum;
-				theFF += thisRoiSum;
+			if (isChannelEnabled[chan]){ // excluded channels do not have a value for ROIs or do they contribute to the FF
+				for (int roi = 0; roi < numRois; roi++) {
+					double thisRoiSum = extractRoi(mcasFromFile[chan], rois[roi].getRoiStart(), rois[roi].getRoiEnd());
+					roiValues[roi][chan] = thisRoiSum;
+					theFF += thisRoiSum;
+				}
 			}
 		}
 
 		int numMcaElements = mcasFromFile[0].length;
 		double[] allElementSum = new double[numMcaElements];
-		for (int element = 0; element < numMcaElements; element++) {
-			for (int chan = 0; chan < numChannels; chan++) {
-				allElementSum[element] += mcasFromFile[chan][element];
+		for (int chan = 0; chan < numChannels; chan++) {
+			if (isChannelEnabled[chan]){ // excluded channels do not contribute to the allElementSum
+				for (int element = 0; element < numMcaElements; element++) {
+					allElementSum[element] += mcasFromFile[chan][element];
+				}
 			}
 		}
 
@@ -281,9 +291,11 @@ public class Xspress3DataOperations {
 
 		double theFF = 0;
 		for (int chan = 0; chan < numChannels; chan++) {
-			for (int roi = 0; roi < numRois; roi++) {
-				double thisRoiSum = extractRoi(data[chan], rois[roi].getRoiStart(), rois[roi].getRoiEnd());
-				theFF += thisRoiSum;
+			if (isChannelEnabled[chan]){
+				for (int roi = 0; roi < numRois; roi++) {
+					double thisRoiSum = extractRoi(data[chan], rois[roi].getRoiStart(), rois[roi].getRoiEnd());
+					theFF += thisRoiSum;
+				}
 			}
 		}
 		return theFF;
@@ -324,7 +336,7 @@ public class Xspress3DataOperations {
 	 * @return
 	 * @throws DeviceException
 	 */
-	public double[][] getMCData(double time) throws DeviceException {
+	public int[][] getMCData(double time) throws DeviceException {
 		controller.doErase();
 		enableEpicsMcaStorage();
 		controller.doStart();
@@ -341,7 +353,7 @@ public class Xspress3DataOperations {
 
 		controller.doStop();
 
-		return controller.readoutDTCorrectedLatestMCA(firstChannelToRead, controller.getNumberOfChannels() - 1);
+		return getData();
 	}
 
 	public DetectorROI[] getRegionsOfInterest() {
@@ -350,5 +362,27 @@ public class Xspress3DataOperations {
 
 	public void setRegionsOfInterest(DetectorROI[] regionList) {
 		rois = regionList;
+	}
+
+	public FluorescenceDetectorParameters getConfigurationParameters() {
+		DetectorROI[] regions = getRegionsOfInterest();
+		if (regions == null){
+			regions = new DetectorROI[0];
+		}
+
+		List<DetectorElement> detectorList = new ArrayList<DetectorElement>();
+
+		for (int i = 0; i < controller.getNumberOfChannels(); i++) {
+			DetectorElement thisElement = new DetectorElement();
+			for (DetectorROI region : regions) {
+				thisElement.addRegion(region);
+			}
+			detectorList.add(thisElement);
+		}
+
+		Xspress3Parameters parameters = new Xspress3Parameters();
+		parameters.setDetectorList(detectorList);
+
+		return parameters;
 	}
 }

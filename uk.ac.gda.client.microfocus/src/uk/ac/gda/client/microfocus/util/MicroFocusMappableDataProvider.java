@@ -53,7 +53,7 @@ public abstract class MicroFocusMappableDataProvider {
 	protected String yScannableName;
 	protected double zValue;
 	protected String zScannableName = "sc_sample_z";
-	protected String detectorName;
+//	protected String detectorName;
 	protected INexusTree detectorNode;
 	protected String beanFile;
 	private Dataset i0data;
@@ -194,6 +194,9 @@ public abstract class MicroFocusMappableDataProvider {
 		} else if (names.contains("/entry1/raster_counterTimer01/It")) {
 			ILazyDataset itDS = dataHolder.getLazyDataset("/entry1/instrument/raster_counterTimer01/It");
 			itdata = DatasetUtils.convertToDataset(getDatasetFromLazyDataset(itDS));
+		} else if (names.contains("/entry1/qexafs_counterTimer01/It")) {
+			ILazyDataset itDS = dataHolder.getLazyDataset("/entry1/qexafs_counterTimer01/It");
+			itdata = DatasetUtils.convertToDataset(getDatasetFromLazyDataset(itDS));
 		}
 	}
 
@@ -210,6 +213,9 @@ public abstract class MicroFocusMappableDataProvider {
 		} else if (names.contains("/entry1/instrument/raster_counterTimer01/I0")) {
 			ILazyDataset i0DS = dataHolder.getLazyDataset("/entry1/instrument/raster_counterTimer01/I0");
 			i0data = DatasetUtils.convertToDataset(getDatasetFromLazyDataset(i0DS));
+		} else if (names.contains("/entry1/qexafs_counterTimer01/I0")) {
+			ILazyDataset itDS = dataHolder.getLazyDataset("/entry1/qexafs_counterTimer01/I0");
+			i0data = DatasetUtils.convertToDataset(getDatasetFromLazyDataset(itDS));
 		}
 	}
 
@@ -336,13 +342,4 @@ public abstract class MicroFocusMappableDataProvider {
 	public void setSelectedChannel(Integer selectedChannel) {
 		this.selectedChannel = selectedChannel;
 	}
-
-	public String getDetectorName() {
-		return detectorName;
-	}
-
-	public void setDetectorName(String detectorName) {
-		this.detectorName = detectorName;
-	}
-
 }

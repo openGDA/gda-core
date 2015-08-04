@@ -24,6 +24,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import gda.device.DeviceException;
 import gda.device.scannable.PositionCallableProvider;
 
+@Deprecated
 public class CallableTfgXspress2 extends TfgXspress2 implements PositionCallableProvider<Object> {
 
 	AtomicBoolean readingOut = new AtomicBoolean(false);

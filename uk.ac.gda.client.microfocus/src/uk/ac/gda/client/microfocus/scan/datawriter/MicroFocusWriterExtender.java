@@ -18,6 +18,17 @@
 
 package uk.ac.gda.client.microfocus.scan.datawriter;
 
+import gda.data.nexus.extractor.NexusGroupData;
+import gda.data.scan.datawriter.DataWriterExtenderBase;
+import gda.data.scan.datawriter.IDataWriterExtender;
+import gda.device.Detector;
+import gda.device.DeviceException;
+import gda.device.detector.BufferedDetector;
+import gda.device.detector.NXDetectorData;
+import gda.device.detector.countertimer.TfgScaler;
+import gda.device.detector.xspress.Xspress2BufferedDetector;
+import gda.scan.IScanDataPoint;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -39,22 +50,12 @@ import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.data.nexus.extractor.NexusGroupData;
-import gda.data.scan.datawriter.DataWriterExtenderBase;
-import gda.data.scan.datawriter.IDataWriterExtender;
-import gda.device.Detector;
-import gda.device.DeviceException;
-import gda.device.detector.BufferedDetector;
-import gda.device.detector.NXDetectorData;
-import gda.device.detector.countertimer.TfgScaler;
-import gda.device.detector.xspress.Xspress2BufferedDetector;
-import gda.scan.IScanDataPoint;
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
 import uk.ac.gda.beans.DetectorROI;
+import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.vortex.Xspress3Parameters;
-import uk.ac.gda.beans.xspress.DetectorElement;
 import uk.ac.gda.beans.xspress.XspressDetector;
 import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.client.microfocus.util.MicroFocusNexusPlotter;
@@ -63,7 +64,23 @@ import uk.ac.gda.devices.detector.xspress3.Xspress3;
 import uk.ac.gda.devices.detector.xspress3.Xspress3BufferedDetector;
 import uk.ac.gda.util.beans.xml.XMLRichBean;
 
-
+/**
+ * Messy class - about the only thing I did not have time to refactor.
+ * <p>
+ * However this plays a vital role: it caches map data during data collection. It is this data which is sent to the
+ * MapPlot when the user changes the selection in the Elements view. This works by their being a reference to this
+ * object in the GDA Jython environment and the GUI makes calls to this object via the Jython. Not an ideal design...
+ * <p>
+ * This also writes the RBG files which are ASCII versions of the map data. These files are *vital* for users to be able
+ * to analyse their data using third-party tools. These files are almost more important than the other data files as far
+ * as I18 is concerned.
+ * <p>
+ * There should be an analogous service to this for I08 and I14: some way of caching the data from the latest map and
+ * then user clicks on the UI telling such a cache to replot. However I would move this functionality into a distributed
+ * object separate from the DataWriterExtender mechanism. However an RBG data writer extender would still be required.
+ * <p>
+ * Richard Woolliscroft March 2015
+ */
 public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 
 	protected int numberOfXPoints = 0;
@@ -81,14 +98,14 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 	protected List[] elementRois;
 	protected Logger logger = LoggerFactory.getLogger(MicroFocusWriterExtender.class);
 	protected int selectedElementIndex = -1;
-//	protected String detectorBeanFileName;
 	protected int numberOfSubDetectors;
 	protected String detectorName;
 	protected Hashtable<String, Integer> roiNameMap;
-	protected StringBuffer roiHeader = new StringBuffer("row  column");
 	private Writer writer;
 	protected String[] roiNames;
-	protected HashMap<String,double[]> scalerValuesCache; // now: <channel name>[buffer array] (to handle multiple TfgScalers) was:[buffer array][element]
+	protected HashMap<String, double[]> scalerValuesCache; // now: <channel name>[buffer array] (to handle multiple
+															// TfgScalers) was:[buffer array][element]
+	protected String[] rgbColumnNames = new String[] { "row", "column" };
 	protected double[][][] detectorValuesCache; // [det chan][element][buffer array]
 	protected double[] xValues;
 	protected double[] yValues;
@@ -98,13 +115,14 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 	protected int yIndex = -1;
 	protected IScanDataPoint lastDataPoint = null;
 	protected long lastTimePlotWasUpdate = 0;
-	protected HDF5Loader hdf5Loader;
+//	protected HDF5Loader hdf5Loader;
 	protected ILazyDataset lazyDataset;
 	protected int spectrumLength = 4096;
 	protected boolean normalise = false;
 	protected String normaliseElement = "I0";
 	protected int normaliseElementIndex = -1;
 	protected double normaliseValue = 1.0;
+	private String currentHDF5filename;
 
 	public MicroFocusWriterExtender(int xPoints, int yPoints, double xStepSize, double yStepSize,
 			XMLRichBean detectorBean, Detector[] detectors2) {
@@ -113,7 +131,6 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 		this.xStepSize = xStepSize;
 		this.yStepSize = yStepSize;
 		this.yIndex = 0;
-//		logger.info("The number of X and Y points are " + this.numberOfXPoints + " " + this.numberOfYPoints);
 		this.detectorBean = detectorBean;
 		setDetectors(detectors2);
 		getWindowsfromBean();
@@ -136,7 +153,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 				}
 				fillRoiNames();
 				elementRois = new List[numberOfSubDetectors];
-				for (int detectorNo = 0; detectorNo < numberOfSubDetectors; detectorNo++){
+				for (int detectorNo = 0; detectorNo < numberOfSubDetectors; detectorNo++) {
 					elementRois[detectorNo] = ((XspressParameters) detectorBean).getDetector(detectorNo)
 							.getRegionList();
 				}
@@ -145,13 +162,14 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 				detectorName = xspress.getName();
 				roiNames = new String[((Xspress3Parameters) detectorBean).getDetector(0).getRegionList().size()];
 				for (int roiIndex = 0; roiIndex < roiNames.length; roiIndex++) {
-					roiNames[roiIndex] = ((Xspress3Parameters) detectorBean).getDetector(0).getRegionList().get(roiIndex)
-							.getRoiName();
+					roiNames[roiIndex] = ((Xspress3Parameters) detectorBean).getDetector(0).getRegionList()
+							.get(roiIndex).getRoiName();
 				}
 				fillRoiNames();
 				elementRois = new List[numberOfSubDetectors];
 				for (int detectorNo = 0; detectorNo < numberOfSubDetectors; detectorNo++) {
-					elementRois[detectorNo] = ((Xspress3Parameters) detectorBean).getDetector(detectorNo).getRegionList();
+					elementRois[detectorNo] = ((Xspress3Parameters) detectorBean).getDetector(detectorNo)
+							.getRegionList();
 				}
 			}
 		}
@@ -190,7 +208,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 		this.detectors = xspress;
 	}
 
-	protected int getCurrentSDPNumber(IScanDataPoint dataPoint){
+	protected int getCurrentSDPNumber(IScanDataPoint dataPoint) {
 		return dataPoint.getCurrentPointNumber();
 	}
 
@@ -203,12 +221,13 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 		int currentPointNumber = getCurrentSDPNumber(dataPoint);
 		if (currentPointNumber == 0 && lastDataPoint == null) {
 			// this is the first point in the scan
-			totalPoints = deriveXYArrays(xy,detFromDP);
+			totalPoints = deriveXYArrays(xy, detFromDP);
 			deriveROIHeader(detFromDP);
 			// create the rgb file
 			createRgbFile((new StringTokenizer(dataPoint.getCurrentFilename(), ".")).nextToken());
 			// load the dataset for reading the spectrum
-			hdf5Loader = new HDF5Loader(dataPoint.getCurrentFilename());
+//			hdf5Loader = new HDF5Loader(dataPoint.getCurrentFilename());
+			currentHDF5filename = dataPoint.getCurrentFilename();
 		}
 
 		if ((lastDataPoint == null || (!lastDataPoint.equals(dataPoint) && lastDataPoint.getCurrentFilename().equals(
@@ -217,136 +236,37 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 
 			Hashtable<String, Double> rgbLineData = new Hashtable<String, Double>(roiNames.length);
 
-			NXDetectorData d = null;
 			Vector<Object> detectorsData = dataPoint.getDetectorData();
-			if (detectorsData.size() != detFromDP.size()){
-				logger.error("Inconsistency in ScanDataPoint. There are " + detFromDP.size() + " detectors and " + detectorsData.size() + " data parts");
+			if (detectorsData.size() != detFromDP.size()) {
+				logger.error("Inconsistency in ScanDataPoint. There are " + detFromDP.size() + " detectors and "
+						+ detectorsData.size() + " data parts");
 			}
 
 			for (int detDataIndex = 0; detDataIndex < detectorsData.size(); detDataIndex++) {
+
 				Object dataObj = detectorsData.get(detDataIndex);
 				Detector detector = detFromDP.get(detDataIndex);
+
 				// if the ionchambers
-				if (dataObj instanceof double[] && ( detector instanceof TfgScaler)) {
+				if (dataObj instanceof double[] && (detector instanceof TfgScaler)) {
 					double[] scalerData = (double[]) dataObj;
-					if (scalerData.length != detector.getExtraNames().length) {
-						logger.error("Inconsistency in ScanDataPoint. There are " + scalerData.length
-								+ " parts in the data and " + detector.getExtraNames().length + " extra names for "
-								+ detector.getName());
-					}
+					addScalerDataToCache(dataPoint, rgbLineData, detector, scalerData);
 
-					for (int index = 0; index < scalerData.length; index++) {
-						String columnName = detector.getExtraNames()[index];
-						double data = scalerData[index];
-						rgbLineData.put(columnName, data);
-					}
-
-					if (normaliseElementIndex != -1 && normaliseElementIndex < scalerData.length){
-						normaliseValue = scalerData[normaliseElementIndex];
-					}
-
-					String[] elementNames = detector.getExtraNames();
-
-					for (int channel = 0 ; channel < elementNames.length; channel ++){
-						String elementName = elementNames[channel];
-						double value = scalerData[channel];
-						scalerValuesCache.get(elementName)[dataPoint.getCurrentPointNumber()] = value;
-					}
-//					scalerValuesCache[dataPoint.getCurrentPointNumber()] = scalerData;
-
-				} else if (dataObj instanceof NXDetectorData) {  // then this must be a fluorescence detector
-					// make the roiHeader once
-					if (dataPoint.getCurrentPointNumber() == 0) {
-						for (String s : roiNames) {
-							// add the fluo det columns to the rbg header
-							if (dataPoint.getCurrentPointNumber() == 0) {
-								roiHeader.append("  " + s);
-							}
-						}
-					}
-					// add rbgData to the array to start off the counts
-					for (String s : roiNames) {
-						// add the fluo det columns to the rbg header
-						rgbLineData.put(s, 0.0);
-					}
+				} else if (dataObj instanceof NXDetectorData) { // then this must be a fluorescence detector
 
 					if (isXspressScan()
 							&& ((detector instanceof XspressDetector) || detector instanceof BufferedDetector)) {
-						d = ((NXDetectorData) dataObj);
-						double[][] dataArray = (double[][]) d.getData(detectorName, "MCAs", "SDS").getBuffer();
-						// assuming all detector elements have the same number of roi
-						spectrumLength = dataArray[0].length;
-						for (int i = 0; i < numberOfSubDetectors; i++) {
-							@SuppressWarnings("unchecked")
-							List<DetectorROI> roiList = elementRois[i];
-							for (DetectorROI roi : roiList) {
-								String key = roi.getRoiName();
-								if (ArrayUtils.contains(roiNames, key)) {
-									if (detectorValuesCache[i][roiNameMap.get(key)] == null)
-										detectorValuesCache[i][roiNameMap.get(key)] = new double[totalPoints];
-									double windowTotal = getWindowedData(dataArray[i], roi.getRoiStart(),
-											roi.getRoiEnd());
-									double rgbElementSum = rgbLineData.get(key);
-									rgbLineData.put(key, rgbElementSum + windowTotal);
-									detectorValuesCache[i][roiNameMap.get(key)][currentPointNumber] = windowTotal;
-								}
-							}
-						}
+						addXspress2DataToCache(dataPoint, totalPoints, currentPointNumber, rgbLineData, dataObj);
 
-					} else if (isXspress3Scan()){
-						// TODO  extract the ROIs and put into the detectorValuesCache object for holding the map in memory
-						//  problem: at the moment, only the FFs are in the data, not the rois...
-
-						d = ((NXDetectorData) dataObj);
-						for (int i = 0; i < numberOfSubDetectors; i++) {
-							@SuppressWarnings("unchecked")
-							List<DetectorROI> roiList = elementRois[i];
-							for (DetectorROI roi : roiList) {
-								String key = roi.getRoiName();
-								if (ArrayUtils.contains(roiNames, key)) {
-									if (detectorValuesCache[i][roiNameMap.get(key)] == null)
-										detectorValuesCache[i][roiNameMap.get(key)] = new double[totalPoints];
-									NexusGroupData groupData = d.getData(detectorName, key, "SDS");
-// 									in the simulation we get Doubles but live we return doubles. Fix the sim
-									double[] dataArray = (double[]) groupData.getBuffer();
-									double windowTotal = dataArray[i];
-									double rgbElementSum = rgbLineData.get(key);
-									rgbLineData.put(key, rgbElementSum + windowTotal);
-									detectorValuesCache[i][roiNameMap.get(key)][currentPointNumber] = windowTotal;
-								}
-							}
-						}
+					} else if (isXspress3Scan()) {
+						addXspress3DataToCache(dataPoint, totalPoints, currentPointNumber, rgbLineData, dataObj);
 					}
 				}
 			}
 
-			// TODO move this into new method after merge to master
-			// so what goes into RGB files? An average or a single detector channel or what?
-			StringBuffer rgbLine = new StringBuffer();
-			int xindex = dataPoint.getCurrentPointNumber() % numberOfXPoints;
-			int yindex = dataPoint.getCurrentPointNumber() / numberOfXPoints;
-			rgbLine.append(yindex + " " + xindex + " ");
-			String[] rbgColumns = roiHeader.toString().split(" +");
-			for (String s : rbgColumns) {
-				Double val = rgbLineData.get(s);
-				if (val != null){
-					DecimalFormat df;
-					if (s.contains("ime")){
-						df = new DecimalFormat("#.###");
-					} else {
-						df = new DecimalFormat("#");
-					}
-					rgbLine.append(df.format(val));
-					rgbLine.append(" ");
-				}
-			}
-			int lineNumber = dataPoint.getCurrentPointNumber();
-			if (lineNumber == 0) {
-				addToRgbFile(lineNumber, roiHeader.toString());
-			}
-			addToRgbFile(lineNumber, rgbLine.toString().trim());
+			writeRGBLine(dataPoint, rgbLineData);
 
-			normaliseDetectorValues(dataPoint);
+			normaliseCachedDetectorValues(dataPoint);
 
 			// keep a track of which line we are doing
 			if (((currentPointNumber + 1) / (yIndex + 1)) == numberOfXPoints) {
@@ -365,13 +285,135 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 		}
 	}
 
+	private void addScalerDataToCache(IScanDataPoint dataPoint, Hashtable<String, Double> rgbLineData,
+			Detector detector, double[] scalerData) {
+		if (scalerData.length != detector.getExtraNames().length) {
+			logger.error("Inconsistency in ScanDataPoint. There are " + scalerData.length + " parts in the data and "
+					+ detector.getExtraNames().length + " extra names for " + detector.getName());
+		}
+
+		for (int index = 0; index < scalerData.length; index++) {
+			String columnName = detector.getExtraNames()[index];
+			double data = scalerData[index];
+			rgbLineData.put(columnName, data);
+		}
+
+		if (normaliseElementIndex != -1 && normaliseElementIndex < scalerData.length) {
+			normaliseValue = scalerData[normaliseElementIndex];
+		}
+
+		String[] elementNames = detector.getExtraNames();
+
+		for (int channel = 0; channel < elementNames.length; channel++) {
+			String elementName = elementNames[channel];
+			double value = scalerData[channel];
+			scalerValuesCache.get(elementName)[dataPoint.getCurrentPointNumber()] = value;
+		}
+	}
+
+	private void addXspress2DataToCache(IScanDataPoint dataPoint, int totalPoints, int currentPointNumber,
+			Hashtable<String, Double> rgbLineData, Object dataObj) throws IOException {
+
+		addFluoToRGBLineData(dataPoint, rgbLineData);
+
+		NXDetectorData d = ((NXDetectorData) dataObj);
+		double[][] dataArray = (double[][]) d.getData(detectorName, "MCAs", "SDS").getBuffer();
+
+		// assuming all detector elements have the same number of roi
+		spectrumLength = dataArray[0].length;
+		for (int i = 0; i < numberOfSubDetectors; i++) {
+			@SuppressWarnings("unchecked")
+			List<DetectorROI> roiList = elementRois[i];
+			for (DetectorROI roi : roiList) {
+				String key = roi.getRoiName();
+				if (ArrayUtils.contains(roiNames, key)) {
+					if (detectorValuesCache[i][roiNameMap.get(key)] == null)
+						detectorValuesCache[i][roiNameMap.get(key)] = new double[totalPoints];
+					double windowTotal = getWindowedData(dataArray[i], roi.getRoiStart(), roi.getRoiEnd());
+					double rgbElementSum = rgbLineData.get(key);
+					rgbLineData.put(key, rgbElementSum + windowTotal);
+					detectorValuesCache[i][roiNameMap.get(key)][currentPointNumber] = windowTotal;
+				}
+			}
+		}
+	}
+
+	private void addXspress3DataToCache(IScanDataPoint dataPoint, int totalPoints, int currentPointNumber,
+			Hashtable<String, Double> rgbLineData, Object dataObj) throws IOException {
+
+		addFluoToRGBLineData(dataPoint, rgbLineData);
+
+		NXDetectorData d = ((NXDetectorData) dataObj);
+		for (int i = 0; i < numberOfSubDetectors; i++) {
+			@SuppressWarnings("unchecked")
+			List<DetectorROI> roiList = elementRois[i];
+			for (DetectorROI roi : roiList) {
+				String key = roi.getRoiName();
+				if (ArrayUtils.contains(roiNames, key)) {
+					if (detectorValuesCache[i][roiNameMap.get(key)] == null)
+						detectorValuesCache[i][roiNameMap.get(key)] = new double[totalPoints];
+					NexusGroupData groupData = d.getData(detectorName, key, "SDS");
+					// in the simulation we get Doubles but live we return doubles. Fix the sim
+					double[] dataArray = (double[]) groupData.getBuffer();
+					double windowTotal = dataArray[i];
+					double rgbElementSum = rgbLineData.get(key);
+					rgbLineData.put(key, rgbElementSum + windowTotal);
+					detectorValuesCache[i][roiNameMap.get(key)][currentPointNumber] = windowTotal;
+				}
+			}
+		}
+	}
+
+	private void writeRGBLine(IScanDataPoint dataPoint, Hashtable<String, Double> rgbLineData) throws IOException {
+		StringBuffer rgbLine = new StringBuffer();
+		int xindex = dataPoint.getCurrentPointNumber() % numberOfXPoints;
+		int yindex = dataPoint.getCurrentPointNumber() / numberOfXPoints;
+		rgbLine.append(yindex + " " + xindex + " ");
+		for (String s : rgbColumnNames) {
+			Double val = rgbLineData.get(s);
+			if (val != null) {
+				DecimalFormat df;
+				if (s.contains("ime")) {
+					df = new DecimalFormat("#.###");
+				} else {
+					df = new DecimalFormat("#");
+				}
+				rgbLine.append(df.format(val));
+				rgbLine.append(" ");
+			}
+		}
+		addToRgbFile(0, rgbLine.toString().trim());
+	}
+
+	private void addFluoToRGBLineData(IScanDataPoint dataPoint, Hashtable<String, Double> rgbLineData)
+			throws IOException {
+		// make the roiHeader once
+		if (dataPoint.getCurrentPointNumber() == 0) {
+			for (String s : roiNames) {
+				if (dataPoint.getCurrentPointNumber() == 0) {
+					rgbColumnNames = (String[]) ArrayUtils.add(rgbColumnNames, s);
+				}
+			}
+
+			StringBuffer roiHeader = new StringBuffer();
+			for (String col : rgbColumnNames) {
+				roiHeader.append("  " + col);
+			}
+			addToRgbFile(0, roiHeader.toString().trim());
+		}
+
+		// add rbgData to the array to start off the counts
+		for (String s : roiNames) {
+			rgbLineData.put(s, 0.0);
+		}
+	}
+
 	/*
 	 * if normalise is requested plot the normalised value in map and save normalised value internally but write raw
 	 * value to rgb files
-	 *
 	 * @param dataPoint
 	 */
-	private void normaliseDetectorValues(IScanDataPoint dataPoint) {
+	private void normaliseCachedDetectorValues(IScanDataPoint dataPoint) {
 		if (isNormalise() && normaliseValue > 0.0) {//
 			for (int detChan = 0; detChan < numberOfSubDetectors; detChan++) {
 				for (int i = 0; i < detectorValuesCache.length; i++) {
@@ -383,8 +425,6 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 	}
 
 	private void deriveROIHeader(Vector<Detector> detFromDP) {
-		// get the list of names from Scalers
-		roiHeader = new StringBuffer("row  column");
 		for (Detector det : detFromDP) {
 			if (det instanceof TfgScaler) {
 
@@ -405,13 +445,8 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 						normaliseElementIndex = -1;
 					}
 				}
-				// Build the rgb file column names with scaler names
-				int headerCounter = 0;
-				roiHeader.append("  ");
 				for (String h : s) {
-					roiHeader.append(h);
-					if (++headerCounter != s.length)
-						roiHeader.append("  ");
+					rgbColumnNames = (String[]) ArrayUtils.add(rgbColumnNames, h);
 				}
 			}
 		}
@@ -422,11 +457,11 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 		firstY = xy[0];
 		int totalPoints = numberOfXPoints * numberOfYPoints;
 
-		scalerValuesCache = new HashMap<String,double[]>();
+		scalerValuesCache = new HashMap<String, double[]>();
 		for (Detector detector : detFromDP) {
 			if (detector instanceof TfgScaler) {
 				for (String detectorChannel : detector.getExtraNames())
-				scalerValuesCache.put(detectorChannel,  new double[totalPoints]);
+					scalerValuesCache.put(detectorChannel, new double[totalPoints]);
 			}
 		}
 
@@ -461,7 +496,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 	 * @param elementIndex
 	 * @return double[] the map for the given channel and element
 	 */
-	public double[] getData(int detectorChannel, int elementIndex){
+	public double[] getData(int detectorChannel, int elementIndex) {
 		return detectorValuesCache[detectorChannel][elementIndex];
 	}
 
@@ -471,33 +506,24 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 
 		int point = y * numberOfXPoints + x;
 		int current = 0;
-		if (lastDataPoint != null){
+		if (lastDataPoint != null) {
 			current = lastDataPoint.getCurrentPointNumber();
 		}
 
 		if (current >= point) {
 			IDataset slice = null;
-			DataHolder dataHolder = hdf5Loader.loadFile();
+			// reopen every time to ensure latest data is picked up - seems to be new behaviour in NAPI
+			DataHolder dataHolder = new HDF5Loader(currentHDF5filename).loadFile();
 			if (isXspressScan()) {
 				lazyDataset = dataHolder.getLazyDataset("/entry1/instrument/" + detectorName + "/MCAs");
 				slice = lazyDataset.getSlice(new int[] { y, x, detNo, 0 }, new int[] { y + 1, x + 1, detNo + 1,
 						spectrumLength }, new int[] { 1, 1, 1, 1 });
 			} else if (isXspress3Scan()) {
-				// when SWMR available we can write all MCAs for to a single multidimensional data block
-				// but for the moment have different data per row.
 				try {
 					lazyDataset = dataHolder.getLazyDataset("/entry1/instrument/" + detectorName + "/MCAs");
 					slice = lazyDataset.getSlice(new int[] { y, x, detNo, 0 }, new int[] { y + 1, x + 1, detNo + 1,
 							spectrumLength }, new int[] { 1, 1, 1, 1 });
-//					if (lazyDataset == null){
-//						String nameOfMcaForGivenRow = "/entry1/instrument/" + detectorName + "/"
-//								+ Xspress3Detector.getNameOfRowSubNode(y);
-//						lazyDataset = dataHolder.getLazyDataset(nameOfMcaForGivenRow);
-//						slice = lazyDataset.getSlice(new int[] { x, detNo, 0 }, new int[] { x + 1, detNo + 1,
-//								spectrumLength }, new int[] { 1, 1, 1 });
-//					}
-
-				} catch (Exception e) {
+				} catch (Exception ignore) {
 					// absorb the exception here as if the MCA does not exist then it will probably be because the row
 					// has not completed so the MCA are not available yet.
 					slice = AbstractDataset.zeros(new int[] { 4096 }, Dataset.ARRAYINT64);
@@ -529,14 +555,14 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 		dataSetToDisplay.fill(Double.NaN);
 
 		// nothing selected yet
-		if (selectedElement.isEmpty()){
+		if (selectedElement.isEmpty()) {
 			return;
 		}
 		// the selected element is a scaler value displaying the map for the scaler
 		else if (selectedElementIndex == -1 && scalerValuesCache.containsKey(selectedElement)) {
 			double[] selectedScalerChannelData = scalerValuesCache.get(selectedElement);
 			for (int i = 0; i <= plottedSoFar; i++) {
-				dataSetToDisplay.setAbs(i,selectedScalerChannelData[i]);
+				dataSetToDisplay.setAbs(i, selectedScalerChannelData[i]);
 			}
 			plotImage(dataSetToDisplay);
 			return;
@@ -575,7 +601,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 		return false;
 	}
 
-	protected void addToRgbFile(@SuppressWarnings("unused") int lineNumber, String string) throws IOException {
+	protected void addToRgbFile(@SuppressWarnings("unused") int unused, String string) throws IOException {
 		if (writer != null) {
 			writer.write(string + "\n");
 			writer.flush();
@@ -626,10 +652,6 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 	public void setSelectedChannel(int selectedChannel) {
 		this.selectedChannel = selectedChannel;
 	}
-
-//	public String getDetectorBeanFileName() {
-//		return detectorBeanFileName;
-//	}
 
 	public void setZValue(double zValue) {
 		this.zValue = zValue;

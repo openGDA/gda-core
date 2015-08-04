@@ -51,6 +51,7 @@ import uk.ac.gda.exafs.ui.detector.IDetectorROICompositeFactory;
 import uk.ac.gda.exafs.ui.detector.vortex.VortexParametersUIHelper;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
+@Deprecated
 public class ImportVortexROIWizardPage extends ImportROIWizardPage {
 	private static final Logger logger = LoggerFactory.getLogger(ImportVortexROIWizardPage.class);
 

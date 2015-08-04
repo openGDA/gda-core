@@ -20,53 +20,18 @@ package uk.ac.gda.exafs.ui.views.detectors;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.part.ViewPart;
 
-import gda.factory.Finder;
-import uk.ac.gda.devices.detector.FluorescenceDetector;
-import uk.ac.gda.exafs.ui.composites.detectors.FluorescenceDetectorComposite;
+import uk.ac.gda.exafs.ui.composites.detectors.Xspress3ParametersComposite;
 
 /**
- * Configures the regions of interest of an Xspress3 detector. Name is hardcoded but could be replaced with a java
- * property if required.
+ * Configures the regions of interest of an Xspress3 detector.
  */
-public class Xspress3ConfigurationView extends ViewPart implements FluorescenceConfigurationView {
+public class Xspress3ConfigurationView extends FluorescenceDetectorConfigurationView {
 
 	public static final String ID = "uk.ac.gda.client.exafs.ui.views.detectors.xspress3";
-	private FluorescenceDetectorComposite x3Composite;
-
-	public Xspress3ConfigurationView() {
-	}
 
 	@Override
 	public void createPartControl(Composite parent) {
-		FluorescenceDetector theDetector = (FluorescenceDetector) Finder.getInstance().find("xspress3");
-		x3Composite = new FluorescenceDetectorComposite(parent, SWT.NONE, this, theDetector);
+		fluorescenceDetectorComposite = new Xspress3ParametersComposite(parent, SWT.NONE);
 	}
-
-	@Override
-	public void setFocus() {
-		x3Composite.setFocus();
-	}
-
-	@Override
-	public void dispose() {
-		x3Composite.dispose();
-		super.dispose();
-	}
-
-	public FluorescenceDetectorComposite getFluorescenceDetectorComposite() {
-		return x3Composite;
-	}
-
-	@Override
-	public void applyConfigurationToDetector() {
-		getFluorescenceDetectorComposite().getController().applyConfigurationToDetector();
-	}
-
-	@Override
-	public void fetchConfigurationFromDetector() {
-		getFluorescenceDetectorComposite().getController().fetchConfigurationFromDetector();
-	}
-
 }

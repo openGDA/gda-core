@@ -66,6 +66,7 @@ import uk.ac.gda.exafs.ui.detector.xspress3.Xspress3ParametersUIEditor;
  * <p>
  *
  */
+@Deprecated
 public class ImportROIWizard extends Wizard {
 
 	private ImportROIWizardPage mainPage;

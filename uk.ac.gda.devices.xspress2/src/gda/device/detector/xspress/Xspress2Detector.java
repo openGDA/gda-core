@@ -34,12 +34,14 @@ import gda.device.detector.xspress.xspress2data.Xspress2CurrentSettings;
 import gda.device.detector.xspress.xspress2data.Xspress2NexusTreeProvider;
 import gda.factory.FactoryException;
 import uk.ac.gda.beans.DetectorROI;
-import uk.ac.gda.beans.xspress.DetectorDeadTimeElement;
-import uk.ac.gda.beans.xspress.DetectorElement;
+import uk.ac.gda.beans.vortex.DetectorDeadTimeElement;
+import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.xspress.ResGrades;
 import uk.ac.gda.beans.xspress.XspressDeadTimeParameters;
 import uk.ac.gda.beans.xspress.XspressDetector;
 import uk.ac.gda.beans.xspress.XspressParameters;
+import uk.ac.gda.devices.detector.FluorescenceDetector;
+import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 /**
@@ -59,7 +61,7 @@ import uk.ac.gda.util.beans.xml.XMLHelpers;
  * scale both types of ROI using total counts / counts in rois This needs
  * refactoring so that roi when all are selected are also corrected.
  */
-public class Xspress2Detector extends XspressSystem implements NexusDetector, XspressDetector {
+public class Xspress2Detector extends XspressSystem implements NexusDetector, XspressDetector, FluorescenceDetector {
 
 	private static final Logger logger = LoggerFactory.getLogger(Xspress2Detector.class);
 
@@ -382,11 +384,11 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 	}
 
 	public boolean isAlwaysRecordRawMCAs() {
-		return xspress2SystemData.isAlwaysRecordRawMCAs();
+		return settings.isAlwaysRecordRawMCAs();
 	}
 
 	public void setAlwaysRecordRawMCAs(boolean alwaysRecordRawMCAs) {
-		xspress2SystemData.setAlwaysRecordRawMCAs(alwaysRecordRawMCAs);
+		settings.setAlwaysRecordRawMCAs(alwaysRecordRawMCAs);
 	}
 
 	/**
@@ -543,7 +545,7 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 	}
 
 	/**
-	 * @return int - the number of copies of data you get depending on
+	 * @return int - the number of versions of data you get depending on
 	 *         resolution setting
 	 */
 	private int numResGrades() {
@@ -576,25 +578,32 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 	 * properly
 	 */
 	public NexusTreeProvider[] readout(int startFrame, int finalFrame) throws DeviceException {
+		return readout(getName(), startFrame, finalFrame);
+	}
+
+	/**
+	 * Version of readout method in which the given detectorName is used in the NexusTree. Used where this object is a component of a different detector class.
+	 */
+	public NexusTreeProvider[] readout(String detectorName, int startFrame, int finalFrame) throws DeviceException {
 		int numberOfFrames = finalFrame - startFrame + 1;
 
 		int[] rawHardwareScalerData = controller.readoutHardwareScalers(startFrame, numberOfFrames);
 
 		if (settings.getParameters().getReadoutMode().equals(XspressDetector.READOUT_SCALERONLY)) {
-			return xspress2SystemData.unpackScalerData(numberOfFrames, rawHardwareScalerData);
+			return xspress2SystemData.unpackScalerData(detectorName, numberOfFrames, rawHardwareScalerData);
 		}
 
 		int[] mcaData = controller.readoutMca(startFrame, numberOfFrames, getCurrentMCASize());
-		double[][] scalerDataUsingMCAMemory = xspress2SystemData.readoutScalerDataUsingMCAMemory(numberOfFrames,
+		double[][] scalerDataUsingMCAMemory = xspress2SystemData.readoutScalerDataUsingMCAMemory(detectorName, numberOfFrames,
 				rawHardwareScalerData, mcaData, true, controller.getI0());
 
 		if (settings.getParameters().getReadoutMode().equals(XspressDetector.READOUT_ROIS)) {
-			return xspress2SystemData.readoutROIData(numberOfFrames, rawHardwareScalerData, mcaData,
+			return xspress2SystemData.readoutROIData(detectorName, numberOfFrames, rawHardwareScalerData, mcaData,
 					scalerDataUsingMCAMemory);
 		}
 
 		// else read out full mca, which is deadtime corrected using the hardware scalers
-		return xspress2SystemData.readoutFullMCA(numberOfFrames, rawHardwareScalerData, mcaData, scalerDataUsingMCAMemory);
+		return xspress2SystemData.readoutFullMCA(detectorName, numberOfFrames, rawHardwareScalerData, mcaData, scalerDataUsingMCAMemory);
 	}
 
 	@Override
@@ -628,12 +637,19 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 		return readoutScalerData(lastFrameCollected, lastFrameCollected, false, getRawScalerData(), getCurrentMCASize())[0];
 	}
 
-	public double[][] readoutScalerData(int startFrame, int finalFrame, boolean performCorrections,
+	public double[][] readoutScalerData(String detectorName, int startFrame, int finalFrame, boolean performCorrections,
 			int[] rawscalerData, int currentMcaSize) throws DeviceException {
 		int numberOfFrames = finalFrame - startFrame + 1;
 		int[] mcaData = controller.readoutMca(startFrame, numberOfFrames, currentMcaSize);
-		return xspress2SystemData.readoutScalerDataUsingMCAMemory(numberOfFrames, rawscalerData, mcaData,
+		return xspress2SystemData.readoutScalerDataUsingMCAMemory(detectorName, numberOfFrames, rawscalerData, mcaData,
 				performCorrections, controller.getI0());
+
+	}
+	
+	public double[][] readoutScalerData(int startFrame, int finalFrame, boolean performCorrections,
+			int[] rawscalerData, int currentMcaSize) throws DeviceException {
+		return readoutScalerData(getName(), startFrame, finalFrame, performCorrections,
+			 rawscalerData,  currentMcaSize);
 	}
 
 	@Override
@@ -744,11 +760,11 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 	}
 
 	public void setSumAllElementData(boolean sumAllElementData) {
-		xspress2SystemData.setSumAllElementData(sumAllElementData);
+		settings.setSumAllElementData(sumAllElementData);
 	}
 
 	public boolean isSumAllElementData() {
-		return xspress2SystemData.isSumAllElementData();
+		return settings.isSumAllElementData();
 	}
 
 	@Override
@@ -780,5 +796,94 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 
 	public Xspress2NexusTreeProvider getSystemData() {
 		return xspress2SystemData;
+	}
+
+	@Override
+	public int[][] getMCData(double time) throws DeviceException {
+		
+		int[] data = controller.runOneFrame((int) Math.round(time));
+
+		if (data != null) {
+			try {
+				// [numFrames][numberOfDetectors][numResGrades][mcaSize]
+				int[][][][] fourD = xspress2SystemData.unpackRawDataTo4D(data, 1, 1, 4096,
+						settings.getNumberOfDetectors());
+				
+				// remove frame and res-grade settings - not used by I18 or B18
+				int numDetectors = fourD[0].length;
+				int mcaSize = fourD[0][0][0].length;
+				int[][] twoD = new int[numDetectors][mcaSize];
+				
+				for (int det = 0; det < numDetectors; det++){
+					for (int mcaChan = 0; mcaChan < mcaSize; mcaChan++){
+						twoD[det][mcaChan] = fourD[0][det][0][mcaChan];
+					}
+				}
+				
+				return twoD;
+			} catch (Exception e) {
+				throw new DeviceException("Error while unpacking MCA Data. Data length was " + data.length, e);
+			}
+		}
+
+		return null;
+	}
+
+	@Override
+	public void loadConfigurationFromFile() throws Exception {
+		loadAndInitializeDetectors(getConfigFileName());		
+	}
+
+	@Override
+	public DetectorROI[] getRegionsOfInterest() throws DeviceException {
+		List<DetectorROI> rois = settings.getParameters().getDetectorList().get(0).getRegionList();
+		return (DetectorROI[]) rois.toArray();
+	}
+
+	@Override
+	public void setRegionsOfInterest(DetectorROI[] regionList)
+			throws DeviceException {
+		
+		// convert to list
+		List<DetectorROI> rois = new ArrayList<DetectorROI>();
+		for(DetectorROI roi : regionList){
+			rois.add(roi);
+		}
+		
+		// replace rois in each detector channel(element) in the settings object and push to hardware
+		for(DetectorElement element : settings.getParameters().getDetectorList()){
+			element.setRegionList(rois);
+			controller.doSetROICommand(element);
+		}
+	}
+
+	@Override
+	public int getNumberOfChannels() {
+		return settings.getNumberOfDetectors();
+	}
+
+	@Override
+	public int getMCASize() {
+		return settings.getFullMCASize();
+	}
+
+	@Override
+	public void applyConfigurationParameters(
+			FluorescenceDetectorParameters parameters) throws Exception {
+		settings.setXspressParameters((XspressParameters) parameters);
+		// if mode override is set as a property ignore all the parameter file settings
+		if (modeOverride) {
+			settings.getParameters().setReadoutMode(READOUT_MCA);
+		}
+	}
+
+	@Override
+	public Class<? extends FluorescenceDetectorParameters> getConfigurationParametersClass() {
+		return XspressParameters.class;
+	}
+
+	@Override
+	public FluorescenceDetectorParameters getConfigurationParameters() {
+		return settings.getParameters();
 	}
 }

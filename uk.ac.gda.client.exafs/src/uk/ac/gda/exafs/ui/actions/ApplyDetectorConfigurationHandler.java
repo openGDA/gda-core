@@ -26,10 +26,10 @@ import org.eclipse.ui.PlatformUI;
 
 import uk.ac.gda.devices.detector.FluorescenceDetector;
 import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
-import uk.ac.gda.exafs.ui.views.detectors.FluorescenceConfigurationView;
+import uk.ac.gda.exafs.ui.views.detectors.FluorescenceDetectorConfigurationView;
 
 /**
- * Applies the {@link FluorescenceDetectorParameters} in a {@link FluorescenceConfigurationView} to the {@link FluorescenceDetector} the view talks to
+ * Applies the {@link FluorescenceDetectorParameters} in a {@link FluorescenceDetectorConfigurationView} to the {@link FluorescenceDetector} the view talks to
  */
 public class ApplyDetectorConfigurationHandler extends AbstractHandler {
 
@@ -40,8 +40,8 @@ public class ApplyDetectorConfigurationHandler extends AbstractHandler {
 		IWorkbenchPart activePart = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
 				.getActivePart();
 
-		if (activePart instanceof FluorescenceConfigurationView) {
-			((FluorescenceConfigurationView) activePart).applyConfigurationToDetector();
+		if (activePart instanceof FluorescenceDetectorConfigurationView) {
+			((FluorescenceDetectorConfigurationView) activePart).applyConfigurationToDetector();
 		} else {
 			throw new ExecutionException(
 					"ApplyDetectorConfigurationCommand executed outside the context of a detector configuration view");

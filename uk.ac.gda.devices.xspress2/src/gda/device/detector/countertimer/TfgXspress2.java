@@ -36,6 +36,7 @@ import uk.ac.gda.beans.xspress.XspressDetector;
  * <p>
  * This has a slave mode for when its used in the same scan as another class which triggers the tfg.
  */
+@Deprecated
 public class TfgXspress2 extends TFGCounterTimer implements CounterTimer {
 
 	private static final Logger logger = LoggerFactory.getLogger(TfgXspress2.class);

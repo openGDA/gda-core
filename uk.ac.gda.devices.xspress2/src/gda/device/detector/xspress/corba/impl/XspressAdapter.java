@@ -19,12 +19,6 @@
 
 package gda.device.detector.xspress.corba.impl;
 
-import java.util.ArrayList;
-
-import org.omg.CORBA.Any;
-import org.omg.CORBA.COMM_FAILURE;
-import org.omg.CORBA.TRANSIENT;
-
 import gda.device.DeviceException;
 import gda.device.corba.CorbaDeviceException;
 import gda.device.detector.corba.impl.DetectorAdapter;
@@ -32,7 +26,14 @@ import gda.device.detector.xspress.corba.CorbaDetectorElement;
 import gda.device.detector.xspress.corba.CorbaXspress;
 import gda.device.detector.xspress.corba.CorbaXspressHelper;
 import gda.factory.corba.util.NetService;
-import uk.ac.gda.beans.xspress.DetectorElement;
+
+import java.util.ArrayList;
+
+import org.omg.CORBA.Any;
+import org.omg.CORBA.COMM_FAILURE;
+import org.omg.CORBA.TRANSIENT;
+
+import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.xspress.XspressDetector;
 
 /**

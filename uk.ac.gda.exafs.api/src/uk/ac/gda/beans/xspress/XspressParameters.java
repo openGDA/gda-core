@@ -26,15 +26,20 @@ import java.util.List;
 import org.apache.commons.beanutils.BeanUtils;
 
 import uk.ac.gda.beans.exafs.IDetectorConfigurationParameters;
+import uk.ac.gda.beans.vortex.DetectorElement;
+import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
 
-
-public class XspressParameters implements Serializable,IDetectorConfigurationParameters {
+public class XspressParameters implements Serializable,IDetectorConfigurationParameters, FluorescenceDetectorParameters {
 	/**
 	 * The region type when the ROI returns the sum of counts in the region, so acts like a scaler.
 	 */
 	static public final String VIRTUALSCALER = "Virtual Scaler";
 	static public final URL mappingURL = XspressParameters.class.getResource("XspressMapping.xml");
 	static public final URL schemaURL = XspressParameters.class.getResource("XspressMapping.xsd");
+
+	static public final String READOUT_MODE_SCALERS_ONLY = "Scalers only";
+	static public final String READOUT_MODE_SCALERS_AND_MCA = "Scalers and MCA";
+	static public final String READOUT_MODE_REGIONSOFINTEREST = "Regions Of Interest";
 
 	private String detectorName;
 	private String resGrade;
@@ -57,14 +62,17 @@ public class XspressParameters implements Serializable,IDetectorConfigurationPar
 		detectorList.add(detectorElement);
 	}
 
+	@Override
 	public List<DetectorElement> getDetectorList() {
 		return detectorList;
 	}
 
+	@Override
 	public void setDetectorList(List<DetectorElement> detectorList) {
 		this.detectorList = detectorList;
 	}
 
+	@Override
 	public DetectorElement getDetector(int index) {
 		return detectorList.get(index);
 	}
@@ -218,5 +226,4 @@ public class XspressParameters implements Serializable,IDetectorConfigurationPar
 	public void setSelectedRegionNumber(int selectedRegionNumber) {
 		this.selectedRegionNumber = selectedRegionNumber;
 	}
-
 }

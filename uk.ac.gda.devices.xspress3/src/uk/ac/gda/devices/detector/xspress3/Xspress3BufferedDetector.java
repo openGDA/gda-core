@@ -10,6 +10,7 @@ import gda.device.detector.NexusDetector;
 import gda.factory.FactoryException;
 import gda.observable.IObserver;
 import uk.ac.gda.beans.DetectorROI;
+import uk.ac.gda.beans.vortex.Xspress3Parameters;
 import uk.ac.gda.devices.detector.FluorescenceDetector;
 import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
 import uk.ac.gda.devices.detector.xspress3.fullCalculations.Xspress3WithFullCalculationsDetector;
@@ -282,11 +283,6 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 	}
 
 	@Override
-	public int[][] getData() throws DeviceException {
-		return xspress3Detector.getData();
-	}
-
-	@Override
 	public void atLevelStart() throws DeviceException {
 		xspress3Detector.atLevelStart();
 	}
@@ -297,7 +293,7 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 	}
 
 	@Override
-	public double[][] getMCData(double time) throws DeviceException {
+	public int[][] getMCData(double time) throws DeviceException {
 		return xspress3Detector.getMCData(time);
 	}
 
@@ -363,11 +359,6 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 	}
 
 	@Override
-	public Object getCountRates() throws DeviceException {
-		return xspress3Detector.getCountRates();
-	}
-
-	@Override
 	public String getConfigFileName() {
 		return xspress3Detector.getConfigFileName();
 	}
@@ -421,5 +412,15 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 	@Override
 	public void applyConfigurationParameters(FluorescenceDetectorParameters parameters) throws Exception {
 		xspress3Detector.applyConfigurationParameters(parameters);
+	}
+
+	@Override
+	public Class<? extends FluorescenceDetectorParameters> getConfigurationParametersClass() {
+		return Xspress3Parameters.class;
+	}
+
+	@Override
+	public FluorescenceDetectorParameters getConfigurationParameters() {
+		return xspress3Detector.getConfigurationParameters();
 	}
 }

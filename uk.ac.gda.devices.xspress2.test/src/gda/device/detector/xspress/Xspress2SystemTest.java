@@ -37,8 +37,8 @@ import gda.factory.FactoryException;
 import gda.util.TestUtils;
 import gda.util.exceptionUtils;
 import uk.ac.gda.beans.DetectorROI;
-import uk.ac.gda.beans.xspress.DetectorDeadTimeElement;
-import uk.ac.gda.beans.xspress.DetectorElement;
+import uk.ac.gda.beans.vortex.DetectorDeadTimeElement;
+import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.xspress.ResGrades;
 import uk.ac.gda.beans.xspress.XspressDetector;
 

@@ -38,6 +38,7 @@ import gda.device.scannable.ScannableMotor;
  * <p>
  * This otherwise is a simulation of energy so should point to a ScannableMotor object for real movement.
  */
+@Deprecated
 public class QexafsTestingScannable extends ScannableMotor implements ContinuouslyScannable, IQexafsScannableState{
 
 	private static final Logger logger = LoggerFactory.getLogger(QexafsTestingScannable.class);

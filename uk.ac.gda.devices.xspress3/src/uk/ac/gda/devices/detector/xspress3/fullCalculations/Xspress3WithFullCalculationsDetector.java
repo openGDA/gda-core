@@ -1,14 +1,16 @@
 package uk.ac.gda.devices.detector.xspress3.fullCalculations;
 
+
+import uk.ac.gda.beans.DetectorROI;
+import uk.ac.gda.beans.vortex.Xspress3Parameters;
+import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
+import uk.ac.gda.devices.detector.xspress3.Xspress3;
+import uk.ac.gda.devices.detector.xspress3.Xspress3Controller;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.detector.DetectorBase;
 import gda.device.detector.NXDetectorData;
-import uk.ac.gda.beans.DetectorROI;
-import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
-import uk.ac.gda.devices.detector.xspress3.Xspress3;
-import uk.ac.gda.devices.detector.xspress3.Xspress3Controller;
 
 /**
  * Performs all data reductions at the GDA level (e.g. ROIs, all element sum)
@@ -114,24 +116,13 @@ public class Xspress3WithFullCalculationsDetector extends DetectorBase implement
 	}
 
 	@Override
-	public double[][] getMCData(double time) throws DeviceException {
+	public int[][] getMCData(double time) throws DeviceException {
 		return dataOperations.getMCData(time);
-	}
-
-	@Override
-	public int[][] getData() throws DeviceException {
-		return dataOperations.getData();
 	}
 
 	@Override
 	public void clearAndStart() throws DeviceException {
 		scanOperations.clearAndStart();
-	}
-
-	@Override
-	public Object getCountRates() throws DeviceException {
-		// is this ever called??? Should it be removed from the interface???
-		return null;
 	}
 
 	@Override
@@ -206,4 +197,15 @@ public class Xspress3WithFullCalculationsDetector extends DetectorBase implement
 	public void applyConfigurationParameters(FluorescenceDetectorParameters parameters) throws Exception {
 		dataOperations.applyConfigurationParameters(parameters);
 	}
+	
+	@Override
+	public Class<? extends FluorescenceDetectorParameters> getConfigurationParametersClass() {
+		return Xspress3Parameters.class;
+	}
+
+	@Override
+	public FluorescenceDetectorParameters getConfigurationParameters() {
+		return dataOperations.getConfigurationParameters();
+	}
+
 }

@@ -70,11 +70,13 @@ public class XasScanFactory extends SpectroscopyScanFactory {
 		qexafsScan = new QexafsScan();
 		qexafsScan.setBeamlinePreparer(beamlinePreparer);
 		qexafsScan.setDetectorPreparer(qexafsDetectorPreparer);
+		qexafsScan.setQexafsdetectorPreparer(qexafsDetectorPreparer);
 		qexafsScan.setOutputPreparer(outputPreparer);
 		qexafsScan.setSamplePreparer(samplePreparer);
 		qexafsScan.setLoggingScriptController(loggingScriptController);
 		qexafsScan.setDatawriterconfig(datawriterconfig);
 		qexafsScan.setEnergyScannable(qexafsEnergyScannable);
+		qexafsScan.setQexafsScanable(qexafsEnergyScannable);
 		qexafsScan.setMetashop(metashop);
 		qexafsScan.setIncludeSampleNameInNexusName(includeSampleNameInNexusName);
 		qexafsScan.setScanName(scanName);

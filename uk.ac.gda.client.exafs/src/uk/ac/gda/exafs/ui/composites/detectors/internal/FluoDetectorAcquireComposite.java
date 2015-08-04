@@ -18,29 +18,20 @@
 
 package uk.ac.gda.exafs.ui.composites.detectors.internal;
 
-import org.dawnsci.common.richbeans.components.FieldComposite;
 import org.dawnsci.common.richbeans.components.scalebox.ScaleBox;
-import org.dawnsci.common.richbeans.components.wrappers.LabelWrapper;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.swtdesigner.SWTResourceManager;
-
-import gda.configuration.properties.LocalProperties;
-import uk.ac.gda.exafs.ui.detector.DetectorEditor;
 
 public class FluoDetectorAcquireComposite extends Composite {
 
@@ -52,55 +43,45 @@ public class FluoDetectorAcquireComposite extends Composite {
 	private Button autoSaveCheckBox;
 	private Button liveCheckBox;
 
-	public FluoDetectorAcquireComposite(Composite composite, final FluorescenceDetectorCompositeController controller) {
+	public FluoDetectorAcquireComposite(Composite composite, final FluoDetectorCompositeController controller) {
 		super(composite, SWT.NONE);
 
 		this.setLayout(new FillLayout());
 
-		Group grpAcquire = new Group(this, SWT.NONE);
-		grpAcquire.setText("Acquire Spectra");
-		GridLayoutFactory.fillDefaults().applyTo(grpAcquire);
+		Group acquireGroup = new Group(this, SWT.NONE);
+		acquireGroup.setText("Acquire Spectra");
 
-		loadButton = new Button(grpAcquire, SWT.NONE);
-		loadButton.setImage(SWTResourceManager.getImage(DetectorEditor.class, "/icons/folder.png"));
+		final int numberOfColumns = 4;
+		GridLayoutFactory.swtDefaults().numColumns(numberOfColumns).applyTo(acquireGroup);
+
+		loadButton = new Button(acquireGroup, SWT.NONE);
+		GridDataFactory.swtDefaults().span(numberOfColumns, 1).applyTo(loadButton);
+		loadButton.setImage(SWTResourceManager.getImage(FluoDetectorAcquireComposite.class, "/icons/folder.png"));
 		loadButton.setText("Load");
-		loadButton.addSelectionListener(new SelectionListener() {
+		loadButton.addSelectionListener(new SelectionAdapter() {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				// TODO
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
+				controller.loadAcquireDataFromFile();
 			}
 		});
 
-		Composite acquire = new Composite(grpAcquire, SWT.NONE);
-		final GridLayout gridLayoutAcq = new GridLayout();
-		gridLayoutAcq.numColumns = 9;
-		gridLayoutAcq.marginWidth = 0;
-		acquire.setLayout(gridLayoutAcq);
-
-		acquireButton = new Button(acquire, SWT.NONE);
+		acquireButton = new Button(acquireGroup, SWT.NONE);
 		setAcquireImageToSnapshot();
 		acquireButton.setText("Acquire");
 
-		acquireTime = new ScaleBox(acquire, SWT.NONE);
+		acquireTime = new ScaleBox(acquireGroup, SWT.NONE);
 		acquireTime.setMinimum(1);
 		acquireTime.setValue(1000);
 		acquireTime.setMaximum(50000);
 		acquireTime.setUnit("ms");
-		acquireTime.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 
-		autoSaveCheckBox = new Button(acquire, SWT.CHECK);
+		autoSaveCheckBox = new Button(acquireGroup, SWT.CHECK);
 		autoSaveCheckBox.setText("Save on Acquire");
-		autoSaveCheckBox.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 3, 1));
 
-		liveCheckBox = new Button(acquire, SWT.CHECK);
+		liveCheckBox = new Button(acquireGroup, SWT.CHECK);
 		liveCheckBox.setText("Live");
-		liveCheckBox.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 3, 1));
-		liveCheckBox.addSelectionListener(new SelectionListener() {
+		liveCheckBox.addSelectionListener(new SelectionAdapter() {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -112,13 +93,9 @@ public class FluoDetectorAcquireComposite extends Composite {
 					setAcquireImageToSnapshot();
 				}
 			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-			}
 		});
 
-		acquireButton.addSelectionListener(new SelectionListener() {
+		acquireButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				try {
@@ -131,44 +108,22 @@ public class FluoDetectorAcquireComposite extends Composite {
 					logger.error("Cannot acquire xmap data", e1);
 				}
 			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-			}
 		});
-
-		FileDialog openDialog = new FileDialog(controller.getSite().getShell(), SWT.OPEN);
-		openDialog.setFilterPath(LocalProperties.get(LocalProperties.GDA_DATAWRITER_DIR));
-
-		Composite composite_1 = new Composite(grpAcquire, SWT.NONE);
-		GridDataFactory.fillDefaults().applyTo(composite_1);
-		GridLayoutFactory.fillDefaults().numColumns(2).applyTo(composite_1);
-
-		Label lblDeadTime = new Label(composite_1, SWT.NONE);
-		lblDeadTime.setText("Dead Time");
-		lblDeadTime.setVisible(false);
-
-		LabelWrapper deadTimeLabel = new LabelWrapper(composite_1, SWT.NONE);
-		deadTimeLabel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		deadTimeLabel.setText("12");
-		deadTimeLabel.setUnit("%");
-		deadTimeLabel.setDecimalPlaces(3);
-		deadTimeLabel.setVisible(false);
 	}
 
 	private void setAcquireImageToSnapshot() {
-		acquireButton.setImage(SWTResourceManager.getImage(DetectorEditor.class, "/icons/camera_go.png"));
+		acquireButton.setImage(SWTResourceManager.getImage(FluoDetectorAcquireComposite.class, "/icons/camera_go.png"));
 	}
 
 	private void setAcquireImageToGo() {
-		acquireButton.setImage(SWTResourceManager.getImage(DetectorEditor.class, "/icons/control_play_blue.png"));
+		acquireButton.setImage(SWTResourceManager.getImage(FluoDetectorAcquireComposite.class, "/icons/control_play_blue.png"));
 	}
 
 	private void setAcquireImageToStop() {
-		acquireButton.setImage(SWTResourceManager.getImage(DetectorEditor.class, "/icons/control_stop_blue.png"));
+		acquireButton.setImage(SWTResourceManager.getImage(FluoDetectorAcquireComposite.class, "/icons/control_stop_blue.png"));
 	}
 
-	public FieldComposite getCollectionTime() {
+	public ScaleBox getCollectionTime() {
 		return acquireTime;
 	}
 

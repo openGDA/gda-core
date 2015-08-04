@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import gda.device.detector.xspress.corba.CorbaDetectorElement;
 import gda.device.detector.xspress.corba.CorbaXspressROI;
 import uk.ac.gda.beans.DetectorROI;
-import uk.ac.gda.beans.xspress.DetectorElement;
+import uk.ac.gda.beans.vortex.DetectorElement;
 
 /**
  * Contains methods which convert Detector to CorbaDetector and vice versa

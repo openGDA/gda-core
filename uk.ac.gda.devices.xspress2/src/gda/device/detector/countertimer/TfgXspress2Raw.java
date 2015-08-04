@@ -29,6 +29,7 @@ import gda.device.DeviceException;
  * <p>
  * This should not be used when using regions of interest mode in the xspress.
  */
+@Deprecated
 public class TfgXspress2Raw extends TfgXspress2 {
 
 	@Override

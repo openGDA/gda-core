@@ -47,8 +47,8 @@ import gov.aps.jca.CAException;
  * The Hiden RGA is a gas mass analyser for use on Spectroscopy beamlines.
  * <p>
  * It will be shared across different beamlines but only Spectroscopy ones for
- * the moment. If other beamlines need this then this class should be moved into
- * its own plugin.
+ * the moment. If other beamlines need this then this class maybe should be
+ * moved into its a different repository.
  * <p>
  * This class operates in two modes: either it can be part of a stwp scan, but
  * it will force the scan to run slow enough that the Hiden can take a new
@@ -61,7 +61,7 @@ import gov.aps.jca.CAException;
  * If it is already recording to a file and it is included in a scan that it
  * will throw an exception which will abort the scan.
  */
-public class HidenRGAScannable extends ScannableBase implements IObserver, HidenRGA {
+public class HidenRGAScannable extends ScannableBase implements IObserver , HidenRGA{
 
 	public static final String RECORDING_STARTED = "RGA recording started";
 	public static final String RECORDING_STOPPED = "RGA recording stopped";
@@ -69,6 +69,7 @@ public class HidenRGAScannable extends ScannableBase implements IObserver, Hiden
 	private static final Logger logger = LoggerFactory.getLogger(HidenRGAScannable.class);
 	private static final String FORMAT = "%.3f";
 	private static final String DATE_FORMAT = "HH:mm:ss:SSS d MMM yyyy ";
+	private boolean useAuxiliaryInputs=true;
 
 	private class HidenFileWriter extends Thread {
 
@@ -178,8 +179,10 @@ public class HidenRGAScannable extends ScannableBase implements IObserver, Hiden
 			for (int chan = 0; chan < masses.size(); chan++) {
 				massesData[chan] = controller.dataPVs[chan].get();
 			}
-			valveData = controller.valveDataPV.get(availableDataPoints);
-			tempData = controller.tempDataPV.get(availableDataPoints);
+			if (isUseAuxiliaryInputs()) {
+				valveData = controller.valveDataPV.get(availableDataPoints);
+				tempData = controller.tempDataPV.get(availableDataPoints);
+			}
 			timeStampData = controller.timestampPV.get(availableDataPoints);
 
 			for (int cycle = lastDataPoint; cycle < availableDataPoints; cycle++) {
@@ -190,7 +193,11 @@ public class HidenRGAScannable extends ScannableBase implements IObserver, Hiden
 				}
 				long relativeTime = timeStampData[cycle].longValue() - timeStampData[0].longValue();
 
-				recordSingleEntry(buffer, latestMasses, valveData[cycle], tempData[cycle], relativeTime);
+				if (isUseAuxiliaryInputs()) {
+					recordSingleEntry(buffer, latestMasses, valveData[cycle], tempData[cycle], relativeTime);
+				} else {
+					recordSingleEntry(buffer, latestMasses, null, null, relativeTime);
+				}
 			}
 			lastDataPoint = availableDataPoints;
 		}
@@ -205,10 +212,14 @@ public class HidenRGAScannable extends ScannableBase implements IObserver, Hiden
 				lineToWrite.append(String.format(FORMAT, mass));
 				lineToWrite.append("\t");
 			}
-			lineToWrite.append(String.format(FORMAT, valve));
-			lineToWrite.append("\t");
-			lineToWrite.append(String.format(FORMAT, temp));
-			lineToWrite.append("\n");
+			if (valve!=null) {
+				lineToWrite.append(String.format(FORMAT, valve));
+				lineToWrite.append("\t");
+			}
+			if (temp!=null) {
+				lineToWrite.append(String.format(FORMAT, temp));
+				lineToWrite.append("\n");
+			}
 
 			buffer.write(lineToWrite.toString());
 		}
@@ -217,9 +228,12 @@ public class HidenRGAScannable extends ScannableBase implements IObserver, Hiden
 			Date now = new Date();
 			long timesinceStart = now.getTime() - startTime.getTime();
 			double[] latestMasses = controller.readout();
-			double valve = controller.readValve();
-			double temp = controller.readtemp();
-
+			Double valve =null;
+			Double temp=null;
+			if (isUseAuxiliaryInputs()) {
+				valve = controller.readValve();
+				temp = controller.readtemp();
+			}
 			StringBuffer lineToWrite = new StringBuffer();
 			lineToWrite.append(String.format("%d", timesinceStart));
 			lineToWrite.append("\t");
@@ -227,10 +241,14 @@ public class HidenRGAScannable extends ScannableBase implements IObserver, Hiden
 				lineToWrite.append(String.format(FORMAT, mass));
 				lineToWrite.append("\t");
 			}
-			lineToWrite.append(String.format(FORMAT, valve));
-			lineToWrite.append("\t");
-			lineToWrite.append(String.format(FORMAT, temp));
-			lineToWrite.append("\n");
+			if (valve!=null) {
+				lineToWrite.append(String.format(FORMAT, valve));
+				lineToWrite.append("\t");
+			}
+			if (temp!=null) {
+				lineToWrite.append(String.format(FORMAT, temp));
+				lineToWrite.append("\n");
+			}
 
 			buffer.write(lineToWrite.toString());
 		}
@@ -256,13 +274,16 @@ public class HidenRGAScannable extends ScannableBase implements IObserver, Hiden
 
 	@Override
 	public void configure() throws FactoryException {
-		try {
-			controller.connect();
-			controller.addIObserver(this);
-			InterfaceProvider.getTerminalPrinter().print(getName() + " connected to Epics");
-			configured = true;
-		} catch (CAException e) {
-			throw new FactoryException("CAException when trying to connect ot RGA", e);
+		if (!configured) {
+			try {
+				controller.setUseAuxiliaryInputs(isUseAuxiliaryInputs());//this must be called before connect.
+				controller.connect();
+				controller.addIObserver(this);
+				InterfaceProvider.getTerminalPrinter().print(getName() + " connected to Epics");
+				configured = true;
+			} catch (CAException e) {
+				throw new FactoryException("CAException when trying to connect ot RGA", e);
+			}
 		}
 	}
 
@@ -299,6 +320,11 @@ public class HidenRGAScannable extends ScannableBase implements IObserver, Hiden
 
 	private boolean isRecording() {
 		return fileWriterThread != null && fileWriterThread.isAlive();
+	}
+	
+	@Override
+	public void stop() throws DeviceException {
+		atCommandFailure();
 	}
 
 	@Override
@@ -381,12 +407,13 @@ public class HidenRGAScannable extends ScannableBase implements IObserver, Hiden
 
 			try {
 				double[] latestMasses = controller.readout();
-				double valve = controller.readValve();
-				double temp = controller.readtemp();
+				if (isUseAuxiliaryInputs()) {
+					double valve = controller.readValve();
+					double temp = controller.readtemp();
 
-				latestMasses = ArrayUtils.add(latestMasses, valve);
-				latestMasses = ArrayUtils.add(latestMasses, temp);
-
+					latestMasses = ArrayUtils.add(latestMasses, valve);
+					latestMasses = ArrayUtils.add(latestMasses, temp);
+				}
 				return latestMasses;
 			} catch (IOException e) {
 				throw new DeviceException("IOException while reading from " + getName(), e);
@@ -450,11 +477,12 @@ public class HidenRGAScannable extends ScannableBase implements IObserver, Hiden
 			newNames[index] = it.next() + "_amu";
 			outputFormat[index] = FORMAT;
 		}
-		newNames = (String[]) ArrayUtils.add(newNames, "rga_valve");
-		outputFormat = (String[]) ArrayUtils.add(outputFormat, FORMAT);
-		newNames = (String[]) ArrayUtils.add(newNames, "rga_temp");
-		outputFormat = (String[]) ArrayUtils.add(outputFormat, FORMAT);
-
+		if (isUseAuxiliaryInputs()) {
+			newNames = (String[]) ArrayUtils.add(newNames, "rga_valve");
+			outputFormat = (String[]) ArrayUtils.add(outputFormat, FORMAT);
+			newNames = (String[]) ArrayUtils.add(newNames, "rga_temp");
+			outputFormat = (String[]) ArrayUtils.add(outputFormat, FORMAT);
+		}
 		this.setExtraNames(newNames);
 		this.setOutputFormat(outputFormat);
 	}
@@ -476,5 +504,13 @@ public class HidenRGAScannable extends ScannableBase implements IObserver, Hiden
 		if (inAScan || isRecording()) {
 			lastScanCycleSeen = (int) arg;
 		}
+	}
+
+	public boolean isUseAuxiliaryInputs() {
+		return useAuxiliaryInputs;
+	}
+
+	public void setUseAuxiliaryInputs(boolean useAuxiliaryInputs) {
+		this.useAuxiliaryInputs = useAuxiliaryInputs;
 	}
 }

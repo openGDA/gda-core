@@ -19,8 +19,6 @@
 
 package gda.device.detector.xspress.corba.impl;
 
-import org.omg.CORBA.Any;
-
 import gda.device.DeviceException;
 import gda.device.corba.CorbaDeviceException;
 import gda.device.corba.impl.DeviceImpl;
@@ -29,7 +27,10 @@ import gda.device.detector.xspress.corba.CorbaDetectorElement;
 import gda.device.detector.xspress.corba.CorbaXspressPOA;
 import gda.device.scannable.corba.impl.ScannableImpl;
 import gda.factory.corba.CorbaFactoryException;
-import uk.ac.gda.beans.xspress.DetectorElement;
+
+import org.omg.CORBA.Any;
+
+import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.xspress.XspressDetector;
 
 /**

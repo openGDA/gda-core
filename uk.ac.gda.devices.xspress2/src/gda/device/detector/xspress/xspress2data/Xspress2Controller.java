@@ -2,7 +2,7 @@ package gda.device.detector.xspress.xspress2data;
 
 import gda.device.DeviceException;
 import gda.factory.FactoryException;
-import uk.ac.gda.beans.xspress.DetectorElement;
+import uk.ac.gda.beans.vortex.DetectorElement;
 
 public interface Xspress2Controller {
 

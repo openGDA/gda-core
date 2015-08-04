@@ -26,11 +26,11 @@ import org.eclipse.ui.PlatformUI;
 
 import uk.ac.gda.devices.detector.FluorescenceDetector;
 import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
-import uk.ac.gda.exafs.ui.views.detectors.FluorescenceConfigurationView;
+import uk.ac.gda.exafs.ui.views.detectors.FluorescenceDetectorConfigurationView;
 
 /**
  * Fetches the {@link FluorescenceDetectorParameters} of a {@link FluorescenceDetector} to update a
- * {@link FluorescenceConfigurationView}
+ * {@link FluorescenceDetectorConfigurationView}
  */
 public class RefreshDetectorConfigurationHandler extends AbstractHandler {
 
@@ -42,8 +42,8 @@ public class RefreshDetectorConfigurationHandler extends AbstractHandler {
 		IWorkbenchPart activePart = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
 				.getActivePart();
 
-		if (activePart instanceof FluorescenceConfigurationView) {
-			((FluorescenceConfigurationView) activePart).fetchConfigurationFromDetector();
+		if (activePart instanceof FluorescenceDetectorConfigurationView) {
+			((FluorescenceDetectorConfigurationView) activePart).fetchConfigurationFromDetector();
 		} else {
 			throw new ExecutionException(
 					"RefreshDetectorConfigurationHandler executed outside the context of a detector configuration view");

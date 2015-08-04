@@ -16,26 +16,25 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.exafs.ui.views.detectors;
+package uk.ac.gda.exafs.ui.composites.detectors;
+
+import gda.factory.Finder;
+
+import org.eclipse.swt.widgets.Composite;
 
 import uk.ac.gda.devices.detector.FluorescenceDetector;
 
 /**
- * Views which are used to configure the Regions of Interest of detectors implementing {@link FluorescenceDetector}
- * <p>
- * There should be a view for each detector instance on the beamline. However all views implementing this interface can
- * share the same command handlers.
+ * Xspress3-specific subclass of FluorescenceDetectorComposite.
  */
-public interface FluorescenceConfigurationView {
+public class Xspress3ParametersComposite extends FluorescenceDetectorComposite {
 
-	/**
-	 * Apply the Regions as displayed in the view to the detector
-	 */
-	public void applyConfigurationToDetector();
+	public Xspress3ParametersComposite(Composite parent, int style) {
+		super(parent, style);
+	}
 
-	/**
-	 * Update the regions displayed in the view from the detector
-	 */
-	public void fetchConfigurationFromDetector();
-
+	@Override
+	protected FluorescenceDetector getDetectorInstance() {
+		return (FluorescenceDetector) Finder.getInstance().find("xspress3");
+	}
 }

@@ -248,7 +248,7 @@ public class EnergyScanTest {
 					experimentalFullPath);
 			inorder.verify(detectorPreparer).configure(xanesParams, detParams, outputParams, experimentalFullPath);
 			inorder.verify(samplePreparer).configure(xanesParams,sampleParams);
-			inorder.verify(outputPreparer).configure(outputParams, xanesParams, detParams);
+			inorder.verify(outputPreparer).configure(outputParams, xanesParams, detParams,sampleParams);
 
 			inorder.verify(samplePreparer).createIterator("Transmission");
 			inorder.verify(beamlinePreparer).prepareForExperiment();
@@ -332,7 +332,7 @@ public class EnergyScanTest {
 					experimentalFullPath);
 			Mockito.verify(detectorPreparer).configure(xanesParams, detParams, outputParams, experimentalFullPath);
 			Mockito.verify(samplePreparer).configure(xanesParams,sampleParams);
-			Mockito.verify(outputPreparer).configure(outputParams, xanesParams, detParams);
+			Mockito.verify(outputPreparer).configure(outputParams, xanesParams, detParams,sampleParams);
 
 			Mockito.verify(samplePreparer).createIterator("Transmission");
 			Mockito.verify(beamlinePreparer).prepareForExperiment();
@@ -389,7 +389,7 @@ public class EnergyScanTest {
 					experimentalFullPath);
 			Mockito.verify(detectorPreparer).configure(xanesParams, detParams, outputParams, experimentalFullPath);
 			Mockito.verify(samplePreparer).configure(xanesParams,sampleParams);
-			Mockito.verify(outputPreparer).configure(outputParams, xanesParams, detParams);
+			Mockito.verify(outputPreparer).configure(outputParams, xanesParams, detParams,sampleParams);
 
 			Mockito.verify(samplePreparer).createIterator("Transmission");
 			Mockito.verify(beamlinePreparer).prepareForExperiment();

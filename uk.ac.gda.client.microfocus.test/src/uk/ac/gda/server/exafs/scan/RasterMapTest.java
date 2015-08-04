@@ -18,6 +18,20 @@
 
 package uk.ac.gda.server.exafs.scan;
 
+import gda.device.CounterTimer;
+import gda.device.DeviceException;
+import gda.device.Scannable;
+import gda.device.detector.BufferedDetector;
+import gda.device.detector.countertimer.BufferedScaler;
+import gda.device.detector.xspress.Xspress2BufferedDetector;
+import gda.device.scannable.ContinuouslyScannable;
+import gda.device.scannable.RealPositionReader;
+import gda.jython.commands.ScannableCommands;
+import gda.jython.scriptcontroller.ScriptControllerBase;
+import gda.scan.ConcurrentScan;
+import gda.scan.ContinuousScan;
+import gda.scan.ScanPlotSettings;
+
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 
@@ -34,19 +48,6 @@ import org.powermock.api.support.membermodification.strategy.MethodStubStrategy;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import gda.device.CounterTimer;
-import gda.device.DeviceException;
-import gda.device.Scannable;
-import gda.device.detector.BufferedDetector;
-import gda.device.detector.countertimer.BufferedScaler;
-import gda.device.detector.xspress.Xspress2BufferedDetector;
-import gda.device.scannable.ContinuouslyScannable;
-import gda.device.scannable.RealPositionReader;
-import gda.jython.commands.ScannableCommands;
-import gda.jython.scriptcontroller.ScriptControllerBase;
-import gda.scan.ConcurrentScan;
-import gda.scan.ContinuousScan;
-import gda.scan.ScanPlotSettings;
 import uk.ac.gda.client.microfocus.scan.MapFactory;
 import uk.ac.gda.client.microfocus.scan.RasterMapDetectorPreparer;
 import uk.ac.gda.server.exafs.scan.iterators.SampleEnvironmentIterator;
@@ -131,8 +132,8 @@ public class RasterMapTest {
 				testHelper.getDetParams(), testHelper.getOutputParams(), testHelper.getExperimentalFullPath());
 		inorder.verify(testHelper.getSamplePreparer()).configure(testHelper.getMapscanParams(),
 				testHelper.getSampleParams());
-		inorder.verify(testHelper.getOutputPreparer()).configure(testHelper.getOutputParams(),
-				testHelper.getMapscanParams(), testHelper.getDetParams());
+		inorder.verify(testHelper.getOutputPreparer()).configure(testHelper.getOutputParams(), testHelper.getMapscanParams(), testHelper.getDetParams(),
+				testHelper.getSampleParams());
 
 		inorder.verify(testHelper.getSamplePreparer()).createIterator("Fluorescence");
 		inorder.verify(testHelper.getBeamlinepreparer()).prepareForExperiment();

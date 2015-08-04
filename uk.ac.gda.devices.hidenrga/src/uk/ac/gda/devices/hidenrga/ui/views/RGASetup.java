@@ -1,5 +1,10 @@
 package uk.ac.gda.devices.hidenrga.ui.views;
 
+import gda.device.HidenRGA;
+import gda.device.HidenRGAScannable;
+import gda.factory.Finder;
+import gda.observable.IObserver;
+
 import java.util.Set;
 
 import org.eclipse.jface.layout.GridDataFactory;
@@ -17,17 +22,14 @@ import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.device.HidenRGA;
-import gda.device.HidenRGAScannable;
-import gda.factory.Finder;
-import gda.observable.IObserver;
-
+/**
+ * This View component requires the HidenRGA scannable on the GDA server to be called 'rga'.
+ */
 public class RGASetup extends ViewPart implements IObserver {
 
 	public static String ID = "uk.ac.gda.devices.hidenrga.rgasetup";
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(RGASetup.class);
+	private static final Logger logger = LoggerFactory.getLogger(RGASetup.class);
 
 	private Composite massesComposite;
 	private Composite[] massesComposites;

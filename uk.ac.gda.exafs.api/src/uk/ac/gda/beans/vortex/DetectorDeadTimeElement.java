@@ -19,6 +19,7 @@
 package uk.ac.gda.beans.vortex;
 
 import java.io.Serializable;
+import java.net.URL;
 
 import org.apache.commons.beanutils.BeanUtils;
 
@@ -27,25 +28,43 @@ import org.apache.commons.beanutils.BeanUtils;
  * Communication with the real detector element is left in the XspressSystem class because it makes sense to speak to
  * all detector elements at once sometimes.
  */
-public class DetectorDeadTimeElement  implements Serializable{
+public class DetectorDeadTimeElement implements Serializable {
 
-	private String name;
+	static public final URL mappingURL = DetectorDeadTimeElement.class.getResource("XspressMapping.xml");
 
-	// Each detector knows its own number (counting from 0). This has little
-	// use within the software but helps to make the configuration file human
-	// readable and writeable.
-	private int number;
-	private double processDeadTimeAllEvent;
+	static public final URL schemaURL  = DetectorDeadTimeElement.class.getResource("XspressMapping.xsd");
+
+	private double processDeadTimeAllEventGradient;
+	private double processDeadTimeAllEventOffset;
 	private double processDeadTimeInWindow;
+	private double processDeadTimeInWindowGradient;
+	private String name;
+	private int number;
+
 	/**
 	 * default constructor for Castor
 	 */
 	public DetectorDeadTimeElement() {
 	}
 
-	/**
-	 *
-	 */
+	public DetectorDeadTimeElement(String name, int number, double processDeadTimeAllEventGradient, double processDeadTimeAllEventOffset, double processDeadTimeInWindow) {
+		this.name = name;
+		this.number = number;
+		this.processDeadTimeAllEventGradient = processDeadTimeAllEventGradient;
+		this.processDeadTimeAllEventOffset = processDeadTimeAllEventOffset;
+		this.processDeadTimeInWindow = processDeadTimeInWindow;
+		this.processDeadTimeInWindowGradient = 0; // only noticed on 64-element so this value is optional
+	}
+
+	public DetectorDeadTimeElement(String name, int number, double processDeadTimeAllEventGradient, double processDeadTimeAllEventOffset, double processDeadTimeInWindow,double processDeadTimeInWindowGradient) {
+		this.name = name;
+		this.number = number;
+		this.processDeadTimeAllEventGradient = processDeadTimeAllEventGradient;
+		this.processDeadTimeAllEventOffset = processDeadTimeAllEventOffset;
+		this.processDeadTimeInWindow = processDeadTimeInWindow;
+		this.processDeadTimeInWindowGradient = processDeadTimeInWindowGradient;
+	}
+
 	@Override
 	public String toString() {
 		try {
@@ -55,103 +74,106 @@ public class DetectorDeadTimeElement  implements Serializable{
 		}
 	}
 
-	/**
-	 * @return Returns the processDeadTimeAllEvent.
-	 */
-	public double getProcessDeadTimeAllEvent() {
-		return processDeadTimeAllEvent;
+	public double getProcessDeadTimeAllEventGradient() {
+		return processDeadTimeAllEventGradient;
 	}
 
-	/**
-	 * @param processDeadTimeAllEvent The processDeadTimeAllEvent to set.
-	 */
-	public void setProcessDeadTimeAllEvent(double processDeadTimeAllEvent) {
-		this.processDeadTimeAllEvent = processDeadTimeAllEvent;
+	public void setProcessDeadTimeAllEventGradient(double processDeadTimeAllEventGradient) {
+		this.processDeadTimeAllEventGradient = processDeadTimeAllEventGradient;
 	}
 
-	/**
-	 * @return Returns the processDeadTimeInWindow.
-	 */
+	public double getProcessDeadTimeAllEventOffset() {
+		return processDeadTimeAllEventOffset;
+	}
+
+	public void setProcessDeadTimeAllEventOffset(double processDeadTimeAllEventOffset) {
+		this.processDeadTimeAllEventOffset = processDeadTimeAllEventOffset;
+	}
+
 	public double getProcessDeadTimeInWindow() {
 		return processDeadTimeInWindow;
 	}
 
-	/**
-	 * @param processDeadTimeInWindow The processDeadTimeInWindow to set.
-	 */
 	public void setProcessDeadTimeInWindow(double processDeadTimeInWindow) {
 		this.processDeadTimeInWindow = processDeadTimeInWindow;
 	}
 
-	/**
-	 * @return Returns the name.
-	 */
+	public double getProcessDeadTimeInWindowGradient() {
+		return processDeadTimeInWindowGradient;
+	}
+
+	public void setProcessDeadTimeInWindowGradient(double processDeadTimeInWindowGradient) {
+		this.processDeadTimeInWindowGradient = processDeadTimeInWindowGradient;
+	}
+
 	public String getName() {
 		return name;
 	}
 
-	/**
-	 * @param name The name to set.
-	 */
 	public void setName(String name) {
 		this.name = name;
 	}
 
+	public void setNumber(int number) {
+		this.number = number;
+	}
+
 	/**
+	 * NOTE number = the pixel number
+	 *
+	 * A value starting at 1 used to reference pixels on the detector.
+	 *
 	 * @return number
 	 */
 	public int getNumber() {
 		return number;
-	}
-	/**
-	 * @param number The number to set.
-	 */
-	public void setNumber(int number) {
-		this.number = number;
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + number;
 		long temp;
-		temp = Double.doubleToLongBits(processDeadTimeAllEvent);
+		temp = Double.doubleToLongBits(processDeadTimeAllEventGradient);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		temp = Double.doubleToLongBits(processDeadTimeAllEventOffset);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		temp = Double.doubleToLongBits(processDeadTimeInWindow);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		temp = Double.doubleToLongBits(processDeadTimeInWindowGradient);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		return result;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj) {
+		if (this == obj)
 			return true;
-		}
-		if (obj == null) {
+		if (obj == null)
 			return false;
-		}
-		if (getClass() != obj.getClass()) {
+		if (getClass() != obj.getClass())
 			return false;
-		}
 		DetectorDeadTimeElement other = (DetectorDeadTimeElement) obj;
 		if (name == null) {
-			if (other.name != null) {
+			if (other.name != null)
 				return false;
-			}
-		} else if (!name.equals(other.name)) {
+		} else if (!name.equals(other.name))
 			return false;
-		}
-		if (number != other.number) {
+		if (number != other.number)
 			return false;
-		}
-		if (Double.doubleToLongBits(processDeadTimeAllEvent) != Double
-				.doubleToLongBits(other.processDeadTimeAllEvent)) {
+		if (Double.doubleToLongBits(processDeadTimeAllEventGradient) != Double
+				.doubleToLongBits(other.processDeadTimeAllEventGradient))
 			return false;
-		}
-		if (Double.doubleToLongBits(processDeadTimeInWindow) != Double
-				.doubleToLongBits(other.processDeadTimeInWindow)) {
+		if (Double.doubleToLongBits(processDeadTimeAllEventOffset) != Double
+				.doubleToLongBits(other.processDeadTimeAllEventOffset))
 			return false;
-		}
+		if (Double.doubleToLongBits(processDeadTimeInWindow) != Double.doubleToLongBits(other.processDeadTimeInWindow))
+			return false;
+		if (Double.doubleToLongBits(processDeadTimeInWindowGradient) != Double
+				.doubleToLongBits(other.processDeadTimeInWindowGradient))
+			return false;
 		return true;
 	}
 }

@@ -18,6 +18,8 @@
 
 package uk.ac.gda.exafs.ui.composites;
 
+import gda.jython.JythonServerFacade;
+
 import org.dawnsci.common.richbeans.components.FieldComposite;
 import org.dawnsci.common.richbeans.components.scalebox.ScaleBox;
 import org.dawnsci.common.richbeans.components.wrappers.TextWrapper;
@@ -34,7 +36,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.ui.forms.widgets.ExpandableComposite;
 
-import gda.jython.JythonServerFacade;
 import uk.ac.gda.beans.exafs.i18.AttenuatorParameters;
 import uk.ac.gda.beans.exafs.i18.I18SampleParameters;
 
@@ -142,7 +143,7 @@ public final class I18SampleParametersComposite extends Composite {
 		Button currentPosition = new Button(composite, SWT.NONE);
 		currentPosition.setBounds(229, 0, 133, 29);
 		currentPosition.setToolTipText("Fill the text boxes with the current stage 1 values");
-		currentPosition.setText("Use stage 1 values");
+		currentPosition.setText("Fetch stage 1 values");
 
 		currentPosition.addListener(SWT.Selection, new Listener() {
 			@Override
@@ -156,7 +157,7 @@ public final class I18SampleParametersComposite extends Composite {
 		currentPosition = new Button(composite, SWT.NONE);
 		currentPosition.setBounds(229, 0, 133, 29);
 		currentPosition.setToolTipText("Fill the text boxes with the current stage3 values");
-		currentPosition.setText("Use stage 3 values");
+		currentPosition.setText("Fetch stage 3 values");
 
 		currentPosition.addListener(SWT.Selection, new Listener() {
 			@Override

@@ -9,6 +9,13 @@
 
 package uk.ac.gda.exafs.ui.detector.xspress3;
 
+import gda.configuration.properties.LocalProperties;
+import gda.data.NumTracker;
+import gda.data.PathConstructor;
+import gda.device.DeviceException;
+import gda.factory.Finder;
+import gda.jython.accesscontrol.AccessDeniedException;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -45,14 +52,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.swtdesigner.SWTResourceManager;
-
-import gda.configuration.properties.LocalProperties;
-import gda.data.NumTracker;
-import gda.data.PathConstructor;
-import gda.device.DeviceException;
-import gda.factory.Finder;
-import gda.jython.accesscontrol.AccessDeniedException;
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.ElementCountsData;
 import uk.ac.gda.beans.exafs.DetectorParameters;
@@ -67,6 +66,9 @@ import uk.ac.gda.exafs.ui.detector.IDetectorROICompositeFactory;
 import uk.ac.gda.exafs.ui.detector.vortex.VortexParametersUIEditor;
 import uk.ac.gda.richbeans.editors.DirtyContainer;
 
+import com.swtdesigner.SWTResourceManager;
+
+@Deprecated
 public class Xspress3ParametersUIEditor extends DetectorEditor {
 	private static final String XSPRESS3_EDITOR_DATA_XML_FILENAME = "xspress3_editor_data.xml";
 	private String detectorName;
@@ -305,7 +307,7 @@ public class Xspress3ParametersUIEditor extends DetectorEditor {
 
 		try {
 
-			final double[][] theData = theDetector.getMCData(collectionTimeValue);
+			final int[][] theData = theDetector.getMCData(collectionTimeValue);
 			storeDataInWrapper(theData);
 
 
@@ -406,12 +408,12 @@ public class Xspress3ParametersUIEditor extends DetectorEditor {
 		}
 	}
 
-	private void storeDataInWrapper(double[][] theData) {
+	private void storeDataInWrapper(int[][] theData) {
 		// first convert to a 3D int array to match with the Xspress2 editor
 		final int[][][] ret = new int[theData.length][1][theData[0].length];
 		for (int i = 0; i < theData.length; i++) {
 			for (int mcaChan = 0; mcaChan < theData[0].length; mcaChan++){
-				ret[i][0][mcaChan] = (int) Math.round(theData[i][mcaChan]);// Int array is [element][grade (1, 2 or all 16)][mca channel]
+				ret[i][0][mcaChan] = theData[i][mcaChan];// Int array is [element][grade (1, 2 or all 16)][mca channel]
 			}
 		}
 		getDataWrapper().setValue(ElementCountsData.getDataFor(ret));
