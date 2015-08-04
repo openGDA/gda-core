@@ -166,7 +166,6 @@ public class NexusFileHDF5 implements NexusFile {
 		}
 	}
 
-	//TODO: Better name?
 	final class NodeData {
 		public final String name;
 		public final String nxClass;
@@ -376,13 +375,10 @@ public class NexusFileHDF5 implements NexusFile {
 						final int nativeTypeId = nativeTypeResource.getResource();
 						final int dataclass = H5.H5Tget_class(nativeTypeId);
 						final int datatypeSize = H5.H5Tget_size(nativeTypeId);
-						//TODO: handle strings
 						if (dataclass == HDF5Constants.H5T_STRING) {
 							datasetType = Dataset.STRING;
-							//unsigned = false;
 						} else {
 							int typeRepresentation = getTypeRepresentation(nativeTypeId);
-							//unsigned = UNSIGNED_HDF_TYPES.contains(typeRepresentation);
 							datasetType = HDF_TYPES_TO_DATASET_TYPES.get(typeRepresentation);
 						}
 						if (datasetType == null) {
@@ -437,7 +433,6 @@ public class NexusFileHDF5 implements NexusFile {
 	}
 
 	private void populateGroupNode(String path, GroupNode group) throws NexusException {
-		//TODO: verify soft/external/hard links work
 		cacheAttributes(path, group);
 		try {
 			H5G_info_t groupInfo = H5.H5Gget_info_by_name(fileId, path, HDF5Constants.H5P_DEFAULT);
@@ -680,7 +675,6 @@ public class NexusFileHDF5 implements NexusFile {
 	}
 
 	private int openDataset(String absolutePath) throws NexusException {
-		//TODO: Potentially handle external datasets (are they transparent? if they are do we want to cache their data?)
 		NodeType type = getNodeType(absolutePath);
 		if (type != NodeType.DATASET) {
 			throw new NexusException("Path does not refer to dataset");
@@ -748,7 +742,6 @@ public class NexusFileHDF5 implements NexusFile {
 			final int nativeTypeId = hdfNativetype.getResource();
 			final int dataClass = H5.H5Tget_class(nativeTypeId);
 			if (dataClass == HDF5Constants.H5T_STRING || H5.H5Tis_variable_str(nativeTypeId)) {
-				//TODO: This is questionable
 				typeRepresentation = HDF5Constants.H5T_C_S1;
 			} else {
 				typeRepresentation = getTypeRepresentation(nativeTypeId);
@@ -802,7 +795,6 @@ public class NexusFileHDF5 implements NexusFile {
 		}
 
 		String dataName = NexusUtils.getName(path);
-		//TODO: make sure this works
 		String parentPath = path.substring(0, path.lastIndexOf(dataName));
 		NodeData parentNodeData = getGroupNode(parentPath, false);
 		if (parentNodeData.name == null) {
@@ -937,7 +929,6 @@ public class NexusFileHDF5 implements NexusFile {
 			throw new NexusException("Object already exists at specified location");
 		}
 
-		//TODO: Scalar dataspaces? i.e. rank 0
 		boolean stringDataset = data.elementClass().equals(String.class);//ngd.isChar();
 		final long[] shape = data.getRank() == 0 ? new long[] {1} : intArrayToLongArray(data.getShape());
 
@@ -1126,8 +1117,6 @@ public class NexusFileHDF5 implements NexusFile {
 		assertCanWrite();
 		boolean useNameAtSource = destination.endsWith(Node.SEPARATOR);
 		String linkName = destination;
-		//TODO: add class attribute
-		String linkClass;
 		String sourceString = source.toString();
 		//the URI is malformed if the specified path was relative, so we have to manually extract the path
 		String externalFileName;
@@ -1152,8 +1141,8 @@ public class NexusFileHDF5 implements NexusFile {
 			destination = destination.substring(0, destination.lastIndexOf(Node.SEPARATOR));
 			if (destination.isEmpty()) destination = Tree.ROOT;
 		}
-		NodeData destinationGroup = getGroupNode(destination, true);
-		linkClass = destinationGroup.nxClass;
+		//create the destination node (the path on our side of the link)
+		getGroupNode(destination, true);
 		if (useNameAtSource) {
 			int index = externalNexusPath.lastIndexOf(Node.SEPARATOR);
 			linkName += externalNexusPath.substring(index);
