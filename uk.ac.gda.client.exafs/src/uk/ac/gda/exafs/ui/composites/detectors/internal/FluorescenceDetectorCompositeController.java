@@ -18,6 +18,12 @@
 
 package uk.ac.gda.exafs.ui.composites.detectors.internal;
 
+import gda.data.NumTracker;
+import gda.data.PathConstructor;
+import gda.device.DeviceException;
+import gda.observable.IObserver;
+import gda.observable.ObservableComponent;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -39,11 +45,6 @@ import org.eclipse.ui.progress.IProgressService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.data.NumTracker;
-import gda.data.PathConstructor;
-import gda.device.DeviceException;
-import gda.observable.IObserver;
-import gda.observable.ObservableComponent;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.SashFormPlotComposite;
 import uk.ac.gda.devices.detector.FluorescenceDetector;
 import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
@@ -129,7 +130,7 @@ public class FluorescenceDetectorCompositeController {
 		// data.get(i).setName(name);
 		// }
 
-		sashFormPlot.setDataSets(new DoubleDataset(theData));
+		sashFormPlot.setDatasets(new DoubleDataset(theData));
 		sashFormPlot.getPlottingSystem().setRescale(true);
 		sashFormPlot.plotData();
 		sashFormPlot.getPlottingSystem().setTitle(plotTitle);

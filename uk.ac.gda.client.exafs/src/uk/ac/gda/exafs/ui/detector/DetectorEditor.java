@@ -18,6 +18,12 @@
 
 package uk.ac.gda.exafs.ui.detector;
 
+import gda.device.Detector;
+import gda.device.detector.FluorescentDetectorConfiguration;
+import gda.factory.Finder;
+import gda.jython.scriptcontroller.corba.impl.ScriptcontrollerAdapter;
+import gda.observable.IObserver;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -75,13 +81,6 @@ import org.eclipse.ui.progress.IProgressService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.swtdesigner.SWTResourceManager;
-
-import gda.device.Detector;
-import gda.device.detector.FluorescentDetectorConfiguration;
-import gda.factory.Finder;
-import gda.jython.scriptcontroller.corba.impl.ScriptcontrollerAdapter;
-import gda.observable.IObserver;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.SashFormPlotComposite;
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.ElementCountsData;
@@ -96,6 +95,8 @@ import uk.ac.gda.exafs.ui.detector.wizards.ImportROIWizard;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 import uk.ac.gda.richbeans.editors.DirtyContainer;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
+
+import com.swtdesigner.SWTResourceManager;
 
 /**
  * Class to contain plotting which some detector editors require.
@@ -768,7 +769,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 			data.get(i).setName(name);
 		}
 
-		sashPlotForm.setDataSets(data.toArray(new Dataset[data.size()]));
+		sashPlotForm.setDatasets(data.toArray(new Dataset[data.size()]));
 		sashPlotForm.getPlottingSystem().setRescale(updateTitle);
 		sashPlotForm.plotData();
 		sashPlotForm.getPlottingSystem().setTitle(plotTitle);
