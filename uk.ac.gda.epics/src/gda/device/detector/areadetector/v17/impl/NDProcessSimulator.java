@@ -135,6 +135,15 @@ public class NDProcessSimulator extends NDBaseImpl implements NDProcess {
 	@Override
 	public void setScaleFlatField(double scaleflatfield) throws Exception {
 
+	}
+
+	@Override
+	public short getAutoOffsetScale() throws Exception {
+		return 0;
+	}
+
+	@Override
+	public void setAutoOffsetScale(int enableoffsetscale) throws Exception {
 
 	}
 
@@ -743,5 +752,6 @@ public class NDProcessSimulator extends NDBaseImpl implements NDProcess {
 		}
 		return offsetObservable;
 	}
+
 
 }
