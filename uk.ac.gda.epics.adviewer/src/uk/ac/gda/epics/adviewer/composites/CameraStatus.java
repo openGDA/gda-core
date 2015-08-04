@@ -21,10 +21,10 @@ package uk.ac.gda.epics.adviewer.composites;
 import gda.observable.Observable;
 import gda.observable.Observer;
 
-import org.dawnsci.common.richbeans.components.scalebox.StandardBox;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.richbeans.widgets.scalebox.StandardBox;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;

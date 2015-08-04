@@ -23,7 +23,7 @@ import gda.observable.Observer;
 
 import java.text.DecimalFormat;
 
-import org.dawnsci.common.richbeans.components.scalebox.StandardBox;
+import org.eclipse.richbeans.widgets.scalebox.StandardBox;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
