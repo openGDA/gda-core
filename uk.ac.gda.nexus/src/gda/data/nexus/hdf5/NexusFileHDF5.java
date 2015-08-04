@@ -848,13 +848,17 @@ public class NexusFileHDF5 implements NexusFile {
 		long[] shape = intArrayToLongArray(iShape);
 		long[] maxShape = intArrayToLongArray(iMaxShape);
 		long[] chunks = intArrayToLongArray(iChunks);
-		if (!Arrays.equals(shape, maxShape)) {
+		long maxDim = 10;
+		for (long d : shape) {
+			maxDim = d > maxDim ? d : maxDim;
+		}
+		if (!Arrays.equals(shape, maxShape) && chunks == null) {
 			//we *must* configure chunking
+			//TODO: need to think of a sensible default
 			chunks = new long[shape.length];
-			Arrays.fill(chunks, 1);
+			Arrays.fill(chunks, maxDim);
 		}
 		boolean stringDataset = data.elementClass().equals(String.class);
-		//TODO: compression
 		int hdfType = getHDF5Type(data);
 		try {
 			try (HDF5Resource hdfDatatype = new HDF5DatatypeResource(H5.H5Tcopy(hdfType));
@@ -875,6 +879,18 @@ public class NexusFileHDF5 implements NexusFile {
 					//these have to be set in this order
 					H5.H5Pset_layout(hdfPropertiesId, HDF5Constants.H5D_CHUNKED);
 					H5.H5Pset_chunk(hdfPropertiesId, chunks.length, chunks);
+				}
+				int deflateLevel = 0;
+				switch (compression) {
+				case COMPRESSION_LZW_L1:
+					deflateLevel = 1;
+					break;
+				default:
+					compression = COMPRESSION_NONE;
+					break;
+				}
+				if (compression != COMPRESSION_NONE) {
+					H5.H5Pset_deflate(hdfPropertiesId, deflateLevel);
 				}
 				int datasetId = H5.H5Dcreate(fileId, dataPath, hdfDatatypeId, hdfDataspaceId,
 						HDF5Constants.H5P_DEFAULT, hdfPropertiesId, HDF5Constants.H5P_DEFAULT);

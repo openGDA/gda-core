@@ -26,6 +26,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.fail;
 
+import java.io.File;
 import java.net.URI;
 import java.util.Arrays;
 
@@ -751,5 +752,29 @@ public class NexusFileTest {
 			assertNotNull(readData);
 			assertEquals(dummyData, readData);
 		}
+	}
+
+	@Test
+	public void testCreateCompressedDataDeflate() throws Exception {
+		//Not a very elegant test
+		int[] chunking = new int[] {200, 200};
+		ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset("d", Dataset.FLOAT64,
+				new int[] {ILazyWriteableDataset.UNLIMITED, 1000}, null, null);
+		lazy.setChunking(chunking);
+		nf.createData("/a", lazy, true);
+		lazy.setSlice(null, DatasetFactory.createRange(1, 1000000, Dataset.FLOAT64).reshape(1000, 1000),
+				new int[] {0, 0}, new int[] {1000, 1000}, null);
+		nf.close();
+		try (NexusFile cf = NexusUtils.createNexusFile(FILE2_NAME)) {
+			lazy = NexusUtils.createLazyWriteableDataset("d", Dataset.FLOAT64,
+					new int[] {ILazyWriteableDataset.UNLIMITED, 1000}, null, null);
+			lazy.setChunking(chunking);
+			cf.createData("/a", lazy, NexusFile.COMPRESSION_LZW_L1, true);
+			lazy.setSlice(null, DatasetFactory.createRange(1, 1000000, Dataset.FLOAT64).reshape(1000, 1000),
+					new int[] {0, 0}, new int[] {1000, 1000}, null);
+		}
+		File uncompressed = new File(FILE_NAME);
+		File compressed = new File(FILE2_NAME);
+		assertTrue(compressed.length() < uncompressed.length());
 	}
 }
