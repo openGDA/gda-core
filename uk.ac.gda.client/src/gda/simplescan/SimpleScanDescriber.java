@@ -18,7 +18,7 @@
 
 package gda.simplescan;
 
-import org.dawnsci.common.richbeans.xml.XMLBeanContentDescriber;
+import org.eclipse.richbeans.xml.XMLBeanContentDescriber;
 
 public final class SimpleScanDescriber extends XMLBeanContentDescriber {
 

@@ -21,7 +21,6 @@ package uk.ac.gda.client.experimentdefinition.components;
 import java.util.Comparator;
 import java.util.List;
 
-import org.dawnsci.common.richbeans.xml.XMLBeanContentDescriberFactory;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
@@ -41,6 +40,7 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TextCellEditor;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.richbeans.xml.XMLBeanContentDescriberFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.dnd.DND;

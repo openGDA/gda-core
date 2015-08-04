@@ -20,7 +20,7 @@ package org.myls.scan;
 
 import java.net.URL;
 
-import org.dawnsci.common.richbeans.components.FieldComposite;
+import org.eclipse.richbeans.widgets.FieldComposite;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.widgets.Composite;

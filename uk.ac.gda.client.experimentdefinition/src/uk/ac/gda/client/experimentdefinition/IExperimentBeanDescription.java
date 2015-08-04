@@ -18,8 +18,8 @@
 
 package uk.ac.gda.client.experimentdefinition;
 
-import org.dawnsci.common.richbeans.components.cell.IXMLFileListProvider;
 import org.eclipse.core.runtime.content.IContentType;
+import org.eclipse.richbeans.xml.cell.IXMLFileListProvider;
 
 import uk.ac.gda.client.experimentdefinition.ui.handlers.XMLCommandHandler;
 import uk.ac.gda.util.beans.xml.XMLRichBean;
