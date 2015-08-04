@@ -86,7 +86,7 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 			try {
 				dataWriter = DefaultDataWriterFactory.createDataWriterFromFactory();
 			} catch (Exception e) {
-				logger.error("Error creating datawriter", e);
+				logger.error(getName() + " Error creating datawriter", e);
 			}
 		}
 	}
@@ -170,7 +170,7 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 	 */
 	@Override
 	public void clearRamps() {
-		logger.debug("clearRamps() called");
+		logger.debug(getName() + " clearRamps() called");
 		rampList.clear();
 	}
 
@@ -188,7 +188,7 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 	 */
 	public void stopPoller() {
 		if (poller != null) {
-			logger.info("stop the temperature poller thread.");
+			logger.info(getName() + " stop the temperature poller thread.");
 			poller.stop();
 		}
 	}
@@ -246,8 +246,9 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 		// Wait for the controller to reach its setPoint.
 		// It requires 5 consecutive readings to be +/- accuracy to minimise errors
 		// caused be overheat or overcool.
-
-		logger.info("isAt TargetTemperature()");
+		if (busy) {
+			logger.info(getName() + " isAt TargetTemperature()");
+		}
 		currentTemp = getCurrentTemperature();
 		double diff = setPoint - currentTemp;
 
@@ -330,7 +331,7 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 		}
 
 		this.targetTemp = targetTemp;
-		logger.debug("setTargetTemperature targetTemp " + this.targetTemp);
+		logger.debug(getName() + " setTargetTemperature targetTemp " + this.targetTemp);
 		poller.setPollTime(SHORTPOLLTIME);
 		startTowardsTarget();
 	}
@@ -371,7 +372,7 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 				doStart();
 				poller.setPollTime(polltime);
 			} catch (DeviceException de) {
-				logger.error("DeviceException caught in start() " + de.getMessage());
+				logger.error(getName() + " DeviceException caught in start() " + de.getMessage());
 				running = false;
 			}
 		} else {
@@ -386,7 +387,7 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 		double holdTime;
 		if (currentRamp != -1 && !rampList.isEmpty()) {
 			holdTime = rampList.get(currentRamp).getDwellTime();
-			logger.debug("Hold timer starting for " + holdTime);
+			logger.debug(getName() + " Hold timer starting for " + holdTime);
 			// If holdTime is 0.0 should hold forever so do not set alarm
 			if (holdTime > 0.0)
 				holdTimeAlarm = new Alarm((long) (holdTime * 60000.0), this);
@@ -416,7 +417,7 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 			// reset time as this stops the graph plotting. see bug #377
 			timeSinceStart = -1000;
 		} catch (DeviceException de) {
-			logger.error("DeviceException caught in stop() " + de.getMessage());
+			logger.error(getName() + " DeviceException caught in stop() " + de.getMessage());
 		}
 	}
 
