@@ -21,8 +21,8 @@
  */
 package gda.example.richbean;
 
-import org.dawnsci.common.richbeans.components.FieldComposite;
-import org.dawnsci.common.richbeans.components.scalebox.ScaleBox;
+import org.eclipse.richbeans.widgets.FieldComposite;
+import org.eclipse.richbeans.widgets.scalebox.ScaleBox;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;

@@ -21,7 +21,7 @@
  */
 package gda.example.richbean;
 
-import org.dawnsci.common.richbeans.xml.XMLBeanContentDescriber;
+import org.eclipse.richbeans.xml.XMLBeanContentDescriber;
 
 public final class ExampleExptDescriber extends XMLBeanContentDescriber {
 

@@ -26,13 +26,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import org.dawnsci.common.richbeans.xml.XMLBeanContentDescriberFactory;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.content.IContentType;
+import org.eclipse.richbeans.xml.XMLBeanContentDescriberFactory;
 
 import uk.ac.gda.client.experimentdefinition.ui.handlers.XMLCommandHandler;
 import uk.ac.gda.common.rcp.util.ISortingUtils;

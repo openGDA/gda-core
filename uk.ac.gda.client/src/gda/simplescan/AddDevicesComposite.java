@@ -21,8 +21,8 @@ package gda.simplescan;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.dawnsci.common.richbeans.components.selector.BeanSelectionEvent;
-import org.dawnsci.common.richbeans.components.selector.BeanSelectionListener;
+import org.eclipse.richbeans.widgets.selector.BeanSelectionEvent;
+import org.eclipse.richbeans.widgets.selector.BeanSelectionListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;

@@ -2,12 +2,12 @@ package gda.simplescan;
 
 import java.util.List;
 
-import org.dawnsci.common.richbeans.components.FieldBeanComposite;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.CellLabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.ViewerCell;
+import org.eclipse.richbeans.widgets.FieldBeanComposite;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;

@@ -30,6 +30,7 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 
 import uk.ac.gda.common.rcp.NamedServiceProvider;
 
@@ -148,6 +149,17 @@ public class GDAClientActivator extends AbstractUIPlugin {
 		}
 		return namedServiceProvider.getNamedService(clzz, "SERVICE_NAME", name);
 
+	}
+
+	/**
+	 * Method to get a service.
+	 * 
+	 * @param serviceClass
+	 * @return any loaded OSGi service which the bundle can see.
+	 */
+	public static Object getService(Class<?> serviceClass) {
+		ServiceReference<?> ref = plugin.getBundle().getBundleContext().getServiceReference(serviceClass);
+		return plugin.getBundle().getBundleContext().getService(ref);
 	}
 
 }

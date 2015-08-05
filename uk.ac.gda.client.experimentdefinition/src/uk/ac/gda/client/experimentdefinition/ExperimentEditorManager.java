@@ -33,10 +33,6 @@ import java.util.Properties;
 import java.util.Vector;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.dawnsci.common.richbeans.beans.BeanUI;
-import org.dawnsci.common.richbeans.beans.BeansFactory;
-import org.dawnsci.common.richbeans.beans.IFieldWidget;
-import org.dawnsci.common.richbeans.xml.XMLBeanContentDescriberFactory;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -54,6 +50,10 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.richbeans.api.beans.BeansFactory;
+import org.eclipse.richbeans.api.reflection.IBeanController;
+import org.eclipse.richbeans.api.widget.IFieldWidget;
+import org.eclipse.richbeans.xml.XMLBeanContentDescriberFactory;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;
@@ -508,9 +508,9 @@ public class ExperimentEditorManager implements IExperimentEditorManager {
 
 	@SafeVarargs
 	@Override
-	public final Object getValueFromUIOrBean(final String fieldName, final Class<? extends XMLRichBean>... classes)
-			throws Exception {
-		IFieldWidget uiBox = BeanUI.getBeanField(fieldName, classes);
+	public final Object getValueFromUIOrBean(final String fieldName, IBeanController control, final Class<? extends XMLRichBean>... classes) throws Exception {
+
+		IFieldWidget uiBox = control.getBeanField(fieldName, classes);
 		if (uiBox != null)
 			return uiBox.getValue();
 

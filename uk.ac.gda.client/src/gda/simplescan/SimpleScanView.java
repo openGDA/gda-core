@@ -19,10 +19,12 @@
 package gda.simplescan;
 
 import gda.configuration.properties.LocalProperties;
+import gda.rcp.GDAClientActivator;
 
 import java.io.File;
 
-import org.dawnsci.common.richbeans.beans.BeanUI;
+import org.eclipse.richbeans.api.reflection.IBeanController;
+import org.eclipse.richbeans.api.reflection.IBeanService;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -61,11 +63,14 @@ public class SimpleScanView extends ViewPart {
 		@Override
 		public void partDeactivated(IWorkbenchPart part) {
 			if(part instanceof SimpleScanView){
-			try {
-				BeanUI.uiToBean(simpleScanComposite, bean);
-				XMLHelpers.writeToXML(SimpleScan.mappingURL, bean, path);
-			} catch (Exception e) {
-			}
+				try {
+					final IBeanService service = (IBeanService) GDAClientActivator.getService(IBeanService.class);
+					final IBeanController control = service.createController(simpleScanComposite, bean);
+					control.uiToBean();
+					XMLHelpers.writeToXML(SimpleScan.mappingURL, bean, path);
+				} catch (Exception e) {
+					logger.error("Cannot map ui to bean!");
+				}
 			}
 		}
 		@Override

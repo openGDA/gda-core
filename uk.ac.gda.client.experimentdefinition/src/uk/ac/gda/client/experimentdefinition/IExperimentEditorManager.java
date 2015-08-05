@@ -24,6 +24,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.richbeans.api.reflection.IBeanController;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.ISelectionListener;
@@ -73,7 +74,7 @@ public interface IExperimentEditorManager {
 
 	public IExperimentObject getSelectedScan();
 
-	public Object getValueFromUIOrBean(String fieldName, Class<? extends XMLRichBean>... classes) throws Exception;
+	public Object getValueFromUIOrBean(String fieldName, IBeanController control, Class<? extends XMLRichBean>... classes) throws Exception;
 
 	public ExperimentExperimentView getViewer();
 
