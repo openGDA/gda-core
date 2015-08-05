@@ -38,7 +38,6 @@
 			<batchtest todir="@{report.dir}">
 				<fileset dir="${plugin.basedir}/src">
 					<include name="**/*Test.java" />
-					<exclude name="**/NexusTreeBuilderTest.java" />  <!-- excluded, see GDA-5474 -->
 				</fileset>
 			</batchtest>
 		</junit-call>
