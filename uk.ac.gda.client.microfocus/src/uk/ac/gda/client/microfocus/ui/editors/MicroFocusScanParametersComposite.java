@@ -20,12 +20,12 @@ package uk.ac.gda.client.microfocus.ui.editors;
 
 import java.text.DecimalFormat;
 
-import org.dawnsci.common.richbeans.components.FieldComposite;
-import org.dawnsci.common.richbeans.components.scalebox.ScaleBox;
-import org.dawnsci.common.richbeans.components.wrappers.BooleanWrapper;
-import org.dawnsci.common.richbeans.event.ValueAdapter;
-import org.dawnsci.common.richbeans.event.ValueEvent;
-import org.dawnsci.common.richbeans.event.ValueListener;
+import org.eclipse.richbeans.api.event.ValueAdapter;
+import org.eclipse.richbeans.api.event.ValueEvent;
+import org.eclipse.richbeans.api.event.ValueListener;
+import org.eclipse.richbeans.widgets.FieldComposite;
+import org.eclipse.richbeans.widgets.scalebox.ScaleBox;
+import org.eclipse.richbeans.widgets.wrappers.BooleanWrapper;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;

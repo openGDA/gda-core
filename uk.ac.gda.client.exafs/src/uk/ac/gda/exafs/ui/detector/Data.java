@@ -26,7 +26,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.dawnsci.common.richbeans.components.data.DataWrapper;
+import org.eclipse.richbeans.widgets.data.DataWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

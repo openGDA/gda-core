@@ -25,10 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import org.dawnsci.common.richbeans.beans.BeanUI;
-import org.dawnsci.common.richbeans.components.scalebox.ScaleBox;
-import org.dawnsci.common.richbeans.components.wrappers.ComboWrapper;
-import org.dawnsci.common.richbeans.components.wrappers.LabelWrapper;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -36,6 +32,9 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.richbeans.widgets.scalebox.ScaleBox;
+import org.eclipse.richbeans.widgets.wrappers.ComboWrapper;
+import org.eclipse.richbeans.widgets.wrappers.LabelWrapper;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -465,7 +464,7 @@ public class Xspress3ParametersUIEditor extends DetectorEditor {
 	@Override
 	public void notifyFileSaved(File file) {
 		@SuppressWarnings("unchecked")
-		final FluorescenceComposite comp = (FluorescenceComposite) BeanUI.getBeanField("fluorescenceParameters",
+		final FluorescenceComposite comp = (FluorescenceComposite) controller.getBeanField("fluorescenceParameters",
 				DetectorParameters.class);
 		if (comp == null || comp.isDisposed()) {
 			return;

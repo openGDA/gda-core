@@ -18,6 +18,9 @@
 
 package uk.ac.gda.exafs.ui.detectorviews.wizards;
 
+import gda.configuration.properties.LocalProperties;
+import gda.data.PathConstructor;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -27,9 +30,6 @@ import java.io.OutputStream;
 
 import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.jface.wizard.Wizard;
-
-import gda.configuration.properties.LocalProperties;
-import gda.data.PathConstructor;
 
 public class ImportExperimentWizard extends Wizard implements IWizard {
 	private ImportExperimentWizardPage page;

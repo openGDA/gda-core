@@ -23,14 +23,14 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import gda.util.TestUtils;
 
-import org.dawnsci.common.richbeans.beans.BeansFactory;
+import org.eclipse.richbeans.api.beans.BeansFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import gda.util.TestUtils;
 import uk.ac.gda.util.beans.xml.XMLRichBean;
 
 public class ScalerMFMappableDataProviderTest {

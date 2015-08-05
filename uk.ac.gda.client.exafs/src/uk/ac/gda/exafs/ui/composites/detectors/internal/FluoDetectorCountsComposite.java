@@ -18,11 +18,11 @@
 
 package uk.ac.gda.exafs.ui.composites.detectors.internal;
 
-import org.dawnsci.common.richbeans.beans.IFieldWidget;
-import org.dawnsci.common.richbeans.components.wrappers.LabelWrapper;
-import org.dawnsci.common.richbeans.components.wrappers.LabelWrapper.TEXT_TYPE;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.richbeans.api.widget.IFieldWidget;
+import org.eclipse.richbeans.widgets.wrappers.LabelWrapper;
+import org.eclipse.richbeans.widgets.wrappers.LabelWrapper.TEXT_TYPE;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;

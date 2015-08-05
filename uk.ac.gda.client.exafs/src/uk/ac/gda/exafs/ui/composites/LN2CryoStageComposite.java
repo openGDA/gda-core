@@ -18,17 +18,19 @@
 
 package uk.ac.gda.exafs.ui.composites;
 
+import gda.jython.JythonServerFacade;
+
 import java.io.InputStream;
 
-import org.dawnsci.common.richbeans.components.FieldBeanComposite;
-import org.dawnsci.common.richbeans.components.FieldComposite;
-import org.dawnsci.common.richbeans.components.scalebox.NumberBox;
-import org.dawnsci.common.richbeans.components.scalebox.ScaleBox;
-import org.dawnsci.common.richbeans.components.wrappers.BooleanWrapper;
-import org.dawnsci.common.richbeans.components.wrappers.ComboWrapper;
-import org.dawnsci.common.richbeans.event.ValueAdapter;
-import org.dawnsci.common.richbeans.event.ValueEvent;
-import org.dawnsci.common.richbeans.event.ValueListener;
+import org.eclipse.richbeans.api.event.ValueAdapter;
+import org.eclipse.richbeans.api.event.ValueEvent;
+import org.eclipse.richbeans.api.event.ValueListener;
+import org.eclipse.richbeans.widgets.FieldBeanComposite;
+import org.eclipse.richbeans.widgets.FieldComposite;
+import org.eclipse.richbeans.widgets.scalebox.NumberBox;
+import org.eclipse.richbeans.widgets.scalebox.ScaleBox;
+import org.eclipse.richbeans.widgets.wrappers.BooleanWrapper;
+import org.eclipse.richbeans.widgets.wrappers.ComboWrapper;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
@@ -46,7 +48,6 @@ import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.jython.JythonServerFacade;
 import uk.ac.gda.beans.exafs.b18.B18SampleParameters;
 
 /**

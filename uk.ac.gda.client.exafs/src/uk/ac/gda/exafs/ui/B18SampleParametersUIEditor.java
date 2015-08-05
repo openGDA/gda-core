@@ -20,18 +20,17 @@ package uk.ac.gda.exafs.ui;
 
 import java.net.URL;
 
-import org.dawnsci.common.richbeans.ACTIVE_MODE;
-import org.dawnsci.common.richbeans.beans.BeanUI;
-import org.dawnsci.common.richbeans.components.FieldBeanComposite;
-import org.dawnsci.common.richbeans.components.FieldComposite;
-import org.dawnsci.common.richbeans.components.scalebox.ScaleBox;
-import org.dawnsci.common.richbeans.components.selector.VerticalListEditor;
-import org.dawnsci.common.richbeans.components.wrappers.BooleanWrapper;
-import org.dawnsci.common.richbeans.components.wrappers.ComboWrapper;
-import org.dawnsci.common.richbeans.components.wrappers.TextWrapper;
-import org.dawnsci.common.richbeans.event.ValueAdapter;
-import org.dawnsci.common.richbeans.event.ValueEvent;
-import org.dawnsci.common.richbeans.event.ValueListener;
+import org.eclipse.richbeans.api.event.ValueAdapter;
+import org.eclipse.richbeans.api.event.ValueEvent;
+import org.eclipse.richbeans.api.event.ValueListener;
+import org.eclipse.richbeans.api.widget.ACTIVE_MODE;
+import org.eclipse.richbeans.widgets.FieldBeanComposite;
+import org.eclipse.richbeans.widgets.FieldComposite;
+import org.eclipse.richbeans.widgets.scalebox.ScaleBox;
+import org.eclipse.richbeans.widgets.selector.VerticalListEditor;
+import org.eclipse.richbeans.widgets.wrappers.BooleanWrapper;
+import org.eclipse.richbeans.widgets.wrappers.ComboWrapper;
+import org.eclipse.richbeans.widgets.wrappers.TextWrapper;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.custom.StackLayout;
@@ -251,10 +250,11 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 
 	public void linkuiForDynamicLoading(@SuppressWarnings("unused") final boolean isPageChange) {
 		try {
-			BeanUI.switchState(editingBean, this, false);
-			BeanUI.beanToUI(editingBean, this);
-			BeanUI.switchState(editingBean, this, true);
+			controller.switchState(false);
+			controller.beanToUI();
+			controller.switchState(true);
 		} catch (Exception e) {
+			logger.error("Cannot save bean!", e);
 		}
 	}
 

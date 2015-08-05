@@ -18,8 +18,11 @@
 
 package uk.ac.gda.exafs.ui.composites;
 
-import org.dawnsci.common.richbeans.components.scalebox.ScaleBox;
-import org.dawnsci.common.richbeans.components.wrappers.TextWrapper;
+import gda.device.Scannable;
+import gda.factory.Finder;
+
+import org.eclipse.richbeans.widgets.scalebox.ScaleBox;
+import org.eclipse.richbeans.widgets.wrappers.TextWrapper;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -31,8 +34,6 @@ import org.eclipse.swt.widgets.Link;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.device.Scannable;
-import gda.factory.Finder;
 import uk.ac.gda.components.wrappers.FindableNameWrapper;
 
 /**

@@ -18,14 +18,16 @@
 
 package uk.ac.gda.exafs.ui.composites;
 
-import org.dawnsci.common.richbeans.beans.BeanUI;
-import org.dawnsci.common.richbeans.components.FieldBeanComposite;
-import org.dawnsci.common.richbeans.components.scalebox.ScaleBox;
-import org.dawnsci.common.richbeans.components.selector.VerticalListEditor;
-import org.dawnsci.common.richbeans.event.ValueAdapter;
-import org.dawnsci.common.richbeans.event.ValueEvent;
+import gda.util.Element;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.richbeans.api.event.ValueAdapter;
+import org.eclipse.richbeans.api.event.ValueEvent;
+import org.eclipse.richbeans.api.reflection.IBeanController;
+import org.eclipse.richbeans.widgets.FieldBeanComposite;
+import org.eclipse.richbeans.widgets.scalebox.ScaleBox;
+import org.eclipse.richbeans.widgets.selector.VerticalListEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -41,7 +43,6 @@ import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.util.Element;
 import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.exafs.IScanParameters;
 import uk.ac.gda.beans.exafs.QEXAFSParameters;
@@ -82,7 +83,7 @@ public class WorkingEnergyComposite extends FieldBeanComposite {
 
 
 
-	protected void createEdgeEnergy(Composite comp) {
+	protected void createEdgeEnergy(Composite comp, IBeanController control) {
 
 		Label workingELbl = new Label(comp, SWT.NONE);
 		workingELbl.setText("Calculate ion chamber gas filling for energy:");
@@ -170,27 +171,12 @@ public class WorkingEnergyComposite extends FieldBeanComposite {
 		}
 
 		try {
-			BeanUI.addBeanFieldValueListener(XasScanParameters.class, "EdgeEnergy", new ValueAdapter(
-					"EdgeEnergyListener") {
+			control.addBeanFieldValueListener("EdgeEnergy", new ValueAdapter("EdgeEnergyListener") {
 				@Override
 				public void valueChangePerformed(ValueEvent e) {
 					updateWorkingEnergy(e);
 				}
 
-			});
-			BeanUI.addBeanFieldValueListener(XanesScanParameters.class, "EdgeEnergy", new ValueAdapter(
-					"EdgeEnergyListener") {
-				@Override
-				public void valueChangePerformed(ValueEvent e) {
-					updateWorkingEnergy(e);
-				}
-			});
-			BeanUI.addBeanFieldValueListener(QEXAFSParameters.class, "EdgeEnergy", new ValueAdapter(
-					"EdgeEnergyListener") {
-				@Override
-				public void valueChangePerformed(ValueEvent e) {
-					updateWorkingEnergy(e);
-				}
 			});
 
 		} catch (Exception ne) {

@@ -20,6 +20,12 @@ package uk.ac.gda.exafs.beans;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
+import gda.TestHelpers;
+import gda.device.scannable.DummyScannable;
+import gda.exafs.scan.ExafsValidator;
+import gda.factory.Factory;
+import gda.factory.Finder;
+import gda.util.TestUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -30,12 +36,6 @@ import org.eclipse.core.runtime.content.IContentDescriber;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import gda.TestHelpers;
-import gda.device.scannable.DummyScannable;
-import gda.exafs.scan.ExafsValidator;
-import gda.factory.Factory;
-import gda.factory.Finder;
-import gda.util.TestUtils;
 import uk.ac.gda.beans.exafs.Region;
 import uk.ac.gda.beans.exafs.XanesScanParameters;
 import uk.ac.gda.beans.validation.InvalidBeanMessage;

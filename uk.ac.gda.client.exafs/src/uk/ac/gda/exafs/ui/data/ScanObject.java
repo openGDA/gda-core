@@ -18,16 +18,17 @@
 
 package uk.ac.gda.exafs.ui.data;
 
+import gda.exafs.scan.ExafsTimeEstimator;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.dawnsci.common.richbeans.beans.BeansFactory;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
+import org.eclipse.richbeans.api.beans.BeansFactory;
 
-import gda.exafs.scan.ExafsTimeEstimator;
 import uk.ac.gda.beans.exafs.IDetectorParameters;
 import uk.ac.gda.beans.exafs.IOutputParameters;
 import uk.ac.gda.beans.exafs.ISampleParameters;

@@ -18,10 +18,12 @@
 
 package uk.ac.gda.exafs.ui.composites;
 
-import org.dawnsci.common.richbeans.components.FieldBeanComposite;
-import org.dawnsci.common.richbeans.components.FieldComposite;
-import org.dawnsci.common.richbeans.components.scalebox.ScaleBox;
-import org.dawnsci.common.richbeans.components.wrappers.BooleanWrapper;
+import gda.jython.JythonServerFacade;
+
+import org.eclipse.richbeans.widgets.FieldBeanComposite;
+import org.eclipse.richbeans.widgets.FieldComposite;
+import org.eclipse.richbeans.widgets.scalebox.ScaleBox;
+import org.eclipse.richbeans.widgets.wrappers.BooleanWrapper;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -29,8 +31,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import gda.jython.JythonServerFacade;
 
 public class B18FurnaceComposite extends FieldBeanComposite {
 	private ScaleBox temperature;

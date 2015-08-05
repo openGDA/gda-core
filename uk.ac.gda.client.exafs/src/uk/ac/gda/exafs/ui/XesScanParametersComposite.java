@@ -18,28 +18,36 @@
 
 package uk.ac.gda.exafs.ui;
 
+import gda.device.DeviceException;
+import gda.device.Scannable;
+import gda.device.scannable.ScannableUtils;
+import gda.exafs.xes.XesUtils;
+import gda.exafs.xes.XesUtils.XesMaterial;
+import gda.factory.Finder;
+import gda.util.Element;
+
 import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.dawnsci.common.richbeans.beans.BeansFactory;
-import org.dawnsci.common.richbeans.components.FieldComposite;
-import org.dawnsci.common.richbeans.components.file.FileBox;
-import org.dawnsci.common.richbeans.components.file.FileBox.ChoiceType;
-import org.dawnsci.common.richbeans.components.scalebox.ScaleBox;
-import org.dawnsci.common.richbeans.components.scalebox.ScaleBoxAndFixedExpression;
-import org.dawnsci.common.richbeans.components.wrappers.BooleanWrapper;
-import org.dawnsci.common.richbeans.components.wrappers.ComboWrapper;
-import org.dawnsci.common.richbeans.components.wrappers.LabelWrapper;
-import org.dawnsci.common.richbeans.components.wrappers.LabelWrapper.TEXT_TYPE;
-import org.dawnsci.common.richbeans.components.wrappers.RadioWrapper;
-import org.dawnsci.common.richbeans.components.wrappers.TextWrapper;
-import org.dawnsci.common.richbeans.event.ValueAdapter;
-import org.dawnsci.common.richbeans.event.ValueEvent;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.richbeans.api.beans.BeansFactory;
+import org.eclipse.richbeans.api.event.ValueAdapter;
+import org.eclipse.richbeans.api.event.ValueEvent;
+import org.eclipse.richbeans.widgets.FieldComposite;
+import org.eclipse.richbeans.widgets.file.FileBox;
+import org.eclipse.richbeans.widgets.file.FileBox.ChoiceType;
+import org.eclipse.richbeans.widgets.scalebox.ScaleBox;
+import org.eclipse.richbeans.widgets.scalebox.ScaleBoxAndFixedExpression;
+import org.eclipse.richbeans.widgets.wrappers.BooleanWrapper;
+import org.eclipse.richbeans.widgets.wrappers.ComboWrapper;
+import org.eclipse.richbeans.widgets.wrappers.LabelWrapper;
+import org.eclipse.richbeans.widgets.wrappers.LabelWrapper.TEXT_TYPE;
+import org.eclipse.richbeans.widgets.wrappers.RadioWrapper;
+import org.eclipse.richbeans.widgets.wrappers.TextWrapper;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -58,21 +66,14 @@ import org.eclipse.ui.forms.widgets.ExpandableComposite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.swtdesigner.SWTResourceManager;
-
-import gda.device.DeviceException;
-import gda.device.Scannable;
-import gda.device.scannable.ScannableUtils;
-import gda.exafs.xes.XesUtils;
-import gda.exafs.xes.XesUtils.XesMaterial;
-import gda.factory.Finder;
-import gda.util.Element;
 import uk.ac.gda.beans.exafs.XanesScanParameters;
 import uk.ac.gda.beans.exafs.XasScanParameters;
 import uk.ac.gda.beans.exafs.XesScanParameters;
 import uk.ac.gda.client.experimentdefinition.ExperimentBeanManager;
 import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
 import uk.ac.gda.common.rcp.util.EclipseUtils;
+
+import com.swtdesigner.SWTResourceManager;
 
 public final class XesScanParametersComposite extends Composite {
 

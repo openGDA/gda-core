@@ -18,20 +18,23 @@
 
 package uk.ac.gda.exafs.ui.dialogs;
 
+import gda.util.Element;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
-import org.dawnsci.common.richbeans.beans.BeanUI;
-import org.dawnsci.common.richbeans.beans.IFieldWidget;
-import org.dawnsci.common.richbeans.components.scalebox.ScaleBox;
-import org.dawnsci.common.richbeans.components.wrappers.ComboWrapper;
-import org.dawnsci.common.richbeans.event.ValueAdapter;
-import org.dawnsci.common.richbeans.event.ValueEvent;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.wizard.WizardPage;
+import org.eclipse.richbeans.api.event.ValueAdapter;
+import org.eclipse.richbeans.api.event.ValueEvent;
+import org.eclipse.richbeans.api.reflection.IBeanController;
+import org.eclipse.richbeans.api.reflection.IBeanService;
+import org.eclipse.richbeans.api.widget.IFieldWidget;
+import org.eclipse.richbeans.widgets.scalebox.ScaleBox;
+import org.eclipse.richbeans.widgets.wrappers.ComboWrapper;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -48,9 +51,6 @@ import org.eclipse.ui.forms.widgets.ExpandableComposite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.swtdesigner.SWTResourceManager;
-
-import gda.util.Element;
 import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.exafs.ElementPosition;
 import uk.ac.gda.beans.exafs.FluorescenceParameters;
@@ -61,6 +61,7 @@ import uk.ac.gda.beans.exafs.XanesScanParameters;
 import uk.ac.gda.beans.exafs.XasScanParameters;
 import uk.ac.gda.beans.exafs.i20.I20SampleParameters;
 import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
+import uk.ac.gda.exafs.ExafsActivator;
 import uk.ac.gda.exafs.ui.data.ScanObject;
 import uk.ac.gda.exafs.util.CancelledException;
 import uk.ac.gda.exafs.util.GainBean;
@@ -68,8 +69,10 @@ import uk.ac.gda.exafs.util.GainCalculation;
 import uk.ac.gda.exafs.util.IntensityException;
 import uk.ac.gda.exafs.util.SmallIntensityException;
 
+import com.swtdesigner.SWTResourceManager;
+
 public class GainWizardPage extends WizardPage {
-	private static Logger logger = LoggerFactory.getLogger(GainDialog.class);
+	private static Logger logger = LoggerFactory.getLogger(GainWizardPage.class);
 	private ScaleBox referenceEdgeEnergy;
 	private ScaleBox sampleEdgeEnergy;
 	private ScaleBox finalEnergy;
@@ -80,11 +83,13 @@ public class GainWizardPage extends WizardPage {
 	private Button calculateButton;
 	private String i0_gain,it_gain,iref_gain;
 	private Text resultsLabel;
+	private IBeanController control;
 
-	public GainWizardPage() {
+	public GainWizardPage(IBeanController control) {
 		super("Gain Calculation");
 		setTitle("Gain Calculation");
 		setDescription("Configures gain on amplifiers for the ion chambers.");
+		this.control = control;
 	}
 
 	@Override
@@ -240,7 +245,9 @@ public class GainWizardPage extends WizardPage {
 			};
 			resultsLabel.setText("");
 
-			BeanUI.uiToBean(this, bean);
+			IBeanService service = (IBeanService) ExafsActivator.getService(IBeanService.class);
+			IBeanController mapper = service.createController(this, bean);
+			mapper.uiToBean();
 			bean.setCollectionTime(1000L);
 			bean.setTolerance(tolerance.getNumericValue());
 			bean.setLogger(logger);
@@ -253,11 +260,13 @@ public class GainWizardPage extends WizardPage {
 
 			// Name of amplifiers
 			final List<IonChamberParameters> ionChambers;
-			String type = (String)BeanUI.getBeanField("experimentType", DetectorParameters.class).getValue();
+			String type = (String) control.getBeanField("experimentType", DetectorParameters.class).getValue();
 			if (type.equalsIgnoreCase("Transmission"))
-				ionChambers = ((TransmissionParameters)BeanUI.getBeanField("transmissionParameters", DetectorParameters.class).getValue()).getIonChamberParameters();
+				ionChambers = ((TransmissionParameters) control.getBeanField("transmissionParameters", DetectorParameters.class).getValue())
+						.getIonChamberParameters();
 			else if (type.equalsIgnoreCase("fluorescence"))
-				ionChambers = ((FluorescenceParameters)BeanUI.getBeanField("fluorescenceParameters", DetectorParameters.class).getValue()).getIonChamberParameters();
+				ionChambers = ((FluorescenceParameters) control.getBeanField("fluorescenceParameters", DetectorParameters.class).getValue())
+						.getIonChamberParameters();
 			else
 				throw new Exception("Cannot deal with experimentType = '"+type+"'");
 
@@ -343,8 +352,9 @@ public class GainWizardPage extends WizardPage {
 	@SuppressWarnings("unchecked")
 	protected void getReferenceEdgeSample() {
 		try {
-			int pos = (Integer)ExperimentFactory.getExperimentEditorManager().getValueFromUIOrBean("sampleWheelPosition", I20SampleParameters.class);
-			List<ElementPosition> elePos = (List<ElementPosition>)ExperimentFactory.getExperimentEditorManager().getValueFromUIOrBean("elementPositions", I20SampleParameters.class);
+			int pos = (Integer) ExperimentFactory.getExperimentEditorManager().getValueFromUIOrBean("sampleWheelPosition", control, I20SampleParameters.class);
+			List<ElementPosition> elePos = (List<ElementPosition>) ExperimentFactory.getExperimentEditorManager().getValueFromUIOrBean("elementPositions",
+					control, I20SampleParameters.class);
 			for (ElementPosition elementPosition : elePos) {
 				if (elementPosition.getWheelPosition()==pos) {
 					Element refElement = Element.getElement(elementPosition.getPrincipleElement());
@@ -363,7 +373,8 @@ public class GainWizardPage extends WizardPage {
 	@SuppressWarnings("unchecked")
 	protected void getFinalEnergyValue() {
 		try {
-			finalEnergyValue = ExperimentFactory.getExperimentEditorManager().getValueFromUIOrBean("finalEnergy", XasScanParameters.class, XanesScanParameters.class);
+			finalEnergyValue = ExperimentFactory.getExperimentEditorManager().getValueFromUIOrBean("finalEnergy", control, XasScanParameters.class,
+					XanesScanParameters.class);
 			if (finalEnergy!=null) this.finalEnergy.setValue(finalEnergyValue);
 		} catch (Exception ne) {
 			logger.error("Cannot get final energy", ne);
@@ -373,7 +384,7 @@ public class GainWizardPage extends WizardPage {
 	protected void getSampleEdgeValue() {
 		try {
 			@SuppressWarnings("unchecked")
-			IFieldWidget ui = BeanUI.getBeanField("edgeEnergy", XasScanParameters.class, XanesScanParameters.class);
+			IFieldWidget ui = control.getBeanField("edgeEnergy", XasScanParameters.class, XanesScanParameters.class);
 			if (ui!=null) {
 				sampleEdgeEnergyValue = ui.getValue();
 			} else {

@@ -18,8 +18,11 @@
 
 package uk.ac.gda.exafs.ui.composites;
 
-import org.dawnsci.common.richbeans.components.wrappers.SpinnerWrapper;
-import org.dawnsci.common.richbeans.components.wrappers.TextWrapper;
+import gda.device.CurrentAmplifier;
+import gda.device.Scannable;
+
+import org.eclipse.richbeans.widgets.wrappers.SpinnerWrapper;
+import org.eclipse.richbeans.widgets.wrappers.TextWrapper;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
@@ -31,8 +34,6 @@ import org.eclipse.ui.forms.events.ExpansionEvent;
 import org.eclipse.ui.forms.widgets.ColumnLayout;
 import org.eclipse.ui.forms.widgets.ExpandableComposite;
 
-import gda.device.CurrentAmplifier;
-import gda.device.Scannable;
 import uk.ac.gda.components.wrappers.FindableNameWrapper;
 
 /**

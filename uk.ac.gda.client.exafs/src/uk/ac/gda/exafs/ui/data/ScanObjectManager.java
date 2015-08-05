@@ -18,11 +18,6 @@
 
 package uk.ac.gda.exafs.ui.data;
 
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.runtime.CoreException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.exafs.scan.ScanStartedMessage;
 import gda.factory.Findable;
 import gda.factory.Finder;
@@ -30,6 +25,12 @@ import gda.jython.scriptcontroller.logging.ILoggingScriptController;
 import gda.jython.scriptcontroller.logging.LoggingScriptController;
 import gda.observable.IObserver;
 import gda.rcp.GDAClientActivator;
+
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.CoreException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import uk.ac.gda.beans.exafs.IDetectorParameters;
 import uk.ac.gda.beans.exafs.IScanParameters;
 import uk.ac.gda.client.experimentdefinition.ExperimentObjectManager;

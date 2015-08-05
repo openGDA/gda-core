@@ -18,8 +18,8 @@
 
 package uk.ac.gda.exafs.ui.detector;
 
-import org.dawnsci.common.richbeans.components.scalebox.ScaleBox;
-import org.dawnsci.common.richbeans.components.wrappers.LabelWrapper;
+import org.eclipse.richbeans.widgets.scalebox.ScaleBox;
+import org.eclipse.richbeans.widgets.wrappers.LabelWrapper;
 import org.eclipse.swt.widgets.Composite;
 import org.springframework.util.Assert;
 

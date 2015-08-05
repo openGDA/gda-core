@@ -18,14 +18,14 @@
 
 package uk.ac.gda.exafs.ui.composites;
 
-import org.dawnsci.common.richbeans.components.FieldBeanComposite;
-import org.dawnsci.common.richbeans.components.scalebox.NumberBox;
-import org.dawnsci.common.richbeans.components.scalebox.RangeBox;
-import org.dawnsci.common.richbeans.components.scalebox.ScaleBox;
-import org.dawnsci.common.richbeans.components.wrappers.ComboWrapper;
-import org.dawnsci.common.richbeans.components.wrappers.SpinnerWrapper;
-import org.dawnsci.common.richbeans.event.ValueAdapter;
-import org.dawnsci.common.richbeans.event.ValueEvent;
+import org.eclipse.richbeans.api.event.ValueAdapter;
+import org.eclipse.richbeans.api.event.ValueEvent;
+import org.eclipse.richbeans.widgets.FieldBeanComposite;
+import org.eclipse.richbeans.widgets.scalebox.NumberBox;
+import org.eclipse.richbeans.widgets.scalebox.RangeBox;
+import org.eclipse.richbeans.widgets.scalebox.ScaleBox;
+import org.eclipse.richbeans.widgets.wrappers.ComboWrapper;
+import org.eclipse.richbeans.widgets.wrappers.SpinnerWrapper;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StackLayout;
 import org.eclipse.swt.layout.FillLayout;

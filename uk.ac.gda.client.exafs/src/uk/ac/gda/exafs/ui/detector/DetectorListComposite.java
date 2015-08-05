@@ -18,19 +18,19 @@
 
 package uk.ac.gda.exafs.ui.detector;
 
-import org.dawnsci.common.richbeans.components.selector.GridListEditor;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
+import org.eclipse.richbeans.widgets.selector.GridListEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.forms.events.IExpansionListener;
 
-import com.swtdesigner.SWTResourceManager;
-
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.exafs.IDetectorElement;
+
+import com.swtdesigner.SWTResourceManager;
 
 public class DetectorListComposite extends Composite {
 

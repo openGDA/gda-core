@@ -19,13 +19,6 @@
 package uk.ac.gda.exafs.ui;
 
 
-import org.eclipse.ui.IViewPart;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.actions.ActionFactory;
-import org.junit.Before;
-import org.junit.Test;
-
 import gda.TestHelpers;
 import gda.jython.IScanDataPointObserver;
 import gda.jython.IScanDataPointProvider;
@@ -34,6 +27,14 @@ import gda.observable.IObserver;
 import gda.rcp.GDAClientActivator;
 import gda.rcp.util.UIScanDataPointEventService;
 import gda.scan.IScanDataPoint;
+
+import org.eclipse.ui.IViewPart;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.actions.ActionFactory;
+import org.junit.Before;
+import org.junit.Test;
+
 import uk.ac.gda.ClientManager;
 import uk.ac.gda.common.rcp.util.EclipseUtils;
 import uk.ac.gda.exafs.ui.actions.AlignmentModeHandler;

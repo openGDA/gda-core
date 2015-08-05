@@ -18,6 +18,7 @@
 
 package uk.ac.gda.exafs.ui.composites;
 
+import org.eclipse.richbeans.api.reflection.IBeanController;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -27,7 +28,7 @@ import uk.ac.gda.beans.exafs.DetectorParameters;
 
 public class TransmissionComposite extends WorkingEnergyWithIonChambersComposite {
 
-	public TransmissionComposite(Composite parent, int style, DetectorParameters abean) {
+	public TransmissionComposite(Composite parent, int style, DetectorParameters abean, IBeanController control) {
 		super(parent, style, abean);
 		setLayout(new GridLayout());
 
@@ -39,8 +40,8 @@ public class TransmissionComposite extends WorkingEnergyWithIonChambersComposite
 
 		createDiffractionSection(top);
 
-		createEdgeEnergy(top);
+		createEdgeEnergy(top, control);
 
-		createIonChamberSection(abean);
+		createIonChamberSection(abean, control);
 	}
 }

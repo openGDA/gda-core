@@ -18,6 +18,8 @@
 
 package uk.ac.gda.exafs.ui.composites;
 
+import gda.jython.JythonServerFacade;
+
 import java.io.File;
 import java.io.Serializable;
 import java.text.DateFormat;
@@ -31,7 +33,6 @@ import java.util.TimeZone;
 
 import org.eclipse.swt.widgets.Composite;
 
-import gda.jython.JythonServerFacade;
 import uk.ac.gda.ClientManager;
 import uk.ac.gda.common.rcp.util.EclipseUtils;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;

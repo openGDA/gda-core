@@ -22,17 +22,18 @@ package uk.ac.gda.exafs.ui.composites;
 
 import java.io.File;
 
-import org.dawnsci.common.richbeans.beans.BeansFactory;
-import org.dawnsci.common.richbeans.components.file.FileBox;
-import org.dawnsci.common.richbeans.components.file.FileBox.ChoiceType;
-import org.dawnsci.common.richbeans.components.scalebox.ScaleBox;
-import org.dawnsci.common.richbeans.components.wrappers.BooleanWrapper;
-import org.dawnsci.common.richbeans.components.wrappers.RadioWrapper;
-import org.dawnsci.common.richbeans.event.ValueAdapter;
-import org.dawnsci.common.richbeans.event.ValueEvent;
-import org.dawnsci.common.richbeans.event.ValueListener;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
+import org.eclipse.richbeans.api.beans.BeansFactory;
+import org.eclipse.richbeans.api.event.ValueAdapter;
+import org.eclipse.richbeans.api.event.ValueEvent;
+import org.eclipse.richbeans.api.event.ValueListener;
+import org.eclipse.richbeans.api.reflection.IBeanController;
+import org.eclipse.richbeans.widgets.file.FileBox;
+import org.eclipse.richbeans.widgets.file.FileBox.ChoiceType;
+import org.eclipse.richbeans.widgets.scalebox.ScaleBox;
+import org.eclipse.richbeans.widgets.wrappers.BooleanWrapper;
+import org.eclipse.richbeans.widgets.wrappers.RadioWrapper;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -73,7 +74,7 @@ public class SoftXRaysComposite extends WorkingEnergyWithDrainCurrentsComposite 
 	 * @param parent
 	 * @param style
 	 */
-	public SoftXRaysComposite(Composite parent, int style) {
+	public SoftXRaysComposite(Composite parent, int style, IBeanController control) {
 		super(parent, style, null);
 		setLayout(new GridLayout());
 
@@ -199,8 +200,8 @@ public class SoftXRaysComposite extends WorkingEnergyWithDrainCurrentsComposite 
 				}
 			}
 		});
-		createEdgeEnergy(top);
-		createDrainCurrentSection();
+		createEdgeEnergy(top, control);
+		createDrainCurrentSection(control);
 	}
 
 	@Override

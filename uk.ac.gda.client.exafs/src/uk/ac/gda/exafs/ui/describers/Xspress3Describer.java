@@ -19,7 +19,7 @@
 
 package uk.ac.gda.exafs.ui.describers;
 
-import org.dawnsci.common.richbeans.xml.XMLBeanContentDescriber;
+import org.eclipse.richbeans.xml.XMLBeanContentDescriber;
 
 import uk.ac.gda.beans.vortex.Xspress3Parameters;
 import uk.ac.gda.exafs.ui.editors.detectors.Xspress3ParametersEditor;

@@ -21,10 +21,10 @@ package uk.ac.gda.exafs.ui.detector.xspress;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.dawnsci.common.richbeans.components.selector.GridListEditor;
-import org.dawnsci.common.richbeans.components.selector.GridListEditor.GRID_ORDER;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.richbeans.widgets.selector.GridListEditor;
+import org.eclipse.richbeans.widgets.selector.GridListEditor.GRID_ORDER;
 import org.eclipse.swt.widgets.Composite;
 
 import uk.ac.gda.exafs.ui.detector.DetectorROIComposite;

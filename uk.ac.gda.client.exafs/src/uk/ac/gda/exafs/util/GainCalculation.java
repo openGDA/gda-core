@@ -18,15 +18,16 @@
 
 package uk.ac.gda.exafs.util;
 
+import gda.device.CurrentAmplifier;
+import gda.device.Detector;
+import gda.device.Scannable;
+import gda.factory.Finder;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.dialogs.MessageDialog;
 
-import gda.device.CurrentAmplifier;
-import gda.device.Detector;
-import gda.device.Scannable;
-import gda.factory.Finder;
 import uk.ac.gda.util.number.DoubleUtils;
 
 /**

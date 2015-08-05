@@ -18,9 +18,9 @@
 
 package uk.ac.gda.exafs.ui.composites;
 
-import org.dawnsci.common.richbeans.components.FieldBeanComposite;
-import org.dawnsci.common.richbeans.components.scalebox.NumberBox;
-import org.dawnsci.common.richbeans.components.scalebox.ScaleBox;
+import org.eclipse.richbeans.widgets.FieldBeanComposite;
+import org.eclipse.richbeans.widgets.scalebox.NumberBox;
+import org.eclipse.richbeans.widgets.scalebox.ScaleBox;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;

@@ -18,18 +18,22 @@
 
 package uk.ac.gda.exafs.ui.detector.wizards;
 
+import gda.configuration.properties.LocalProperties;
+
 import java.util.List;
 
-import org.dawnsci.common.richbeans.components.file.FileBox;
-import org.dawnsci.common.richbeans.components.file.FileBox.ChoiceType;
-import org.dawnsci.common.richbeans.components.selector.ListEditor;
-import org.dawnsci.common.richbeans.event.ValueAdapter;
-import org.dawnsci.common.richbeans.event.ValueEvent;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.wizard.WizardPage;
+import org.eclipse.richbeans.api.event.ValueAdapter;
+import org.eclipse.richbeans.api.event.ValueEvent;
+import org.eclipse.richbeans.api.reflection.IBeanController;
+import org.eclipse.richbeans.api.reflection.IBeanService;
+import org.eclipse.richbeans.widgets.file.FileBox;
+import org.eclipse.richbeans.widgets.file.FileBox.ChoiceType;
+import org.eclipse.richbeans.widgets.selector.ListEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -39,8 +43,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 
-import gda.configuration.properties.LocalProperties;
 import uk.ac.gda.beans.DetectorROI;
+import uk.ac.gda.exafs.ExafsActivator;
 
 public abstract class ImportROIWizardPage extends WizardPage {
 
@@ -185,5 +189,12 @@ public abstract class ImportROIWizardPage extends WizardPage {
 
 	}
 
+	protected void beanToUI(Object ui, Object bean) throws Exception {
+		IBeanService service = (IBeanService) ExafsActivator.getService(IBeanService.class);
+		IBeanController control = service.createController(ui, bean);
+		control.switchState(false);
+		control.beanToUI();
+		control.switchState(true);
+	}
 
 }

@@ -18,12 +18,12 @@
 
 package uk.ac.gda.exafs.ui.composites.detectors.internal;
 
-import org.dawnsci.common.richbeans.beans.IFieldWidget;
-import org.dawnsci.common.richbeans.components.scalebox.NumberBox;
-import org.dawnsci.common.richbeans.components.selector.ListEditor;
-import org.dawnsci.common.richbeans.components.selector.VerticalListEditor;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.richbeans.api.widget.IFieldWidget;
+import org.eclipse.richbeans.widgets.scalebox.NumberBox;
+import org.eclipse.richbeans.widgets.selector.ListEditor;
+import org.eclipse.richbeans.widgets.selector.VerticalListEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Button;

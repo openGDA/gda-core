@@ -18,14 +18,16 @@
 
 package uk.ac.gda.exafs.ui;
 
+import gda.jython.JythonServerFacade;
+
 import java.net.URL;
 import java.util.List;
 
-import org.dawnsci.common.richbeans.components.selector.BeanSelectionEvent;
-import org.dawnsci.common.richbeans.components.selector.BeanSelectionListener;
-import org.dawnsci.common.richbeans.components.selector.VerticalListEditor;
-import org.dawnsci.common.richbeans.components.wrappers.BooleanWrapper;
-import org.dawnsci.common.richbeans.components.wrappers.TextWrapper;
+import org.eclipse.richbeans.widgets.selector.BeanSelectionEvent;
+import org.eclipse.richbeans.widgets.selector.BeanSelectionListener;
+import org.eclipse.richbeans.widgets.selector.VerticalListEditor;
+import org.eclipse.richbeans.widgets.wrappers.BooleanWrapper;
+import org.eclipse.richbeans.widgets.wrappers.TextWrapper;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -41,7 +43,6 @@ import org.eclipse.ui.forms.events.ExpansionAdapter;
 import org.eclipse.ui.forms.events.ExpansionEvent;
 import org.eclipse.ui.forms.widgets.ExpandableComposite;
 
-import gda.jython.JythonServerFacade;
 import uk.ac.gda.beans.exafs.MetadataParameters;
 import uk.ac.gda.beans.exafs.SignalParameters;
 import uk.ac.gda.beans.exafs.i20.I20OutputParameters;

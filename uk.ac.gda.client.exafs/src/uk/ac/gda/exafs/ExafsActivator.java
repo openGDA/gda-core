@@ -22,6 +22,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 
 /**
  * Activator for Exafs Plugin
@@ -74,6 +75,17 @@ public class ExafsActivator extends AbstractUIPlugin {
 			return window.getShell();
 		}
 		return null;
+	}
+
+	/**
+	 * Method to get a service.
+	 *
+	 * @param serviceClass
+	 * @return any loaded OSGi service which the bundle can see.
+	 */
+	public static Object getService(Class<?> serviceClass) {
+		ServiceReference<?> ref = plugin.getBundle().getBundleContext().getServiceReference(serviceClass);
+		return plugin.getBundle().getBundleContext().getService(ref);
 	}
 
 }

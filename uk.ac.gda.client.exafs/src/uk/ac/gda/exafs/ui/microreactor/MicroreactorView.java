@@ -18,6 +18,8 @@
 
 package uk.ac.gda.exafs.ui.microreactor;
 
+import gda.jython.JythonServerFacade;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -27,7 +29,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 
-import gda.jython.JythonServerFacade;
 import uk.ac.gda.beans.exafs.i20.MicroreactorParameters;
 
 public class MicroreactorView extends ViewPart {

@@ -32,11 +32,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-import org.dawnsci.common.richbeans.beans.BeanController;
-import org.dawnsci.common.richbeans.components.selector.BeanSelectionEvent;
-import org.dawnsci.common.richbeans.components.selector.BeanSelectionListener;
-import org.dawnsci.common.richbeans.event.ValueEvent;
-import org.dawnsci.common.richbeans.event.ValueListener;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
@@ -48,6 +43,12 @@ import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.wizard.WizardDialog;
+import org.eclipse.richbeans.api.event.ValueEvent;
+import org.eclipse.richbeans.api.event.ValueListener;
+import org.eclipse.richbeans.api.reflection.IBeanController;
+import org.eclipse.richbeans.api.reflection.IBeanService;
+import org.eclipse.richbeans.widgets.selector.BeanSelectionEvent;
+import org.eclipse.richbeans.widgets.selector.BeanSelectionListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -67,6 +68,7 @@ import uk.ac.gda.exafs.ui.composites.detectors.internal.FluoCompositeDataStore;
 import uk.ac.gda.exafs.ui.detector.wizards.ImportFluoDetROIWizard;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 
+
 /**
  * Provides control logic for a FluorescenceDetectorComposite. To use this class, create a new controller and then call
  * setEditorUI() to provide a FluorescenceDetectorComposite. If necessary (e.g. if using in an editor where the
@@ -82,7 +84,7 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 	private FluorescenceDetectorParameters detectorParameters;
 	private FluorescenceDetector theDetector;
 	private FluorescenceDetectorComposite fluorescenceDetectorComposite;
-	private BeanController dataBindingController;
+	private IBeanController dataBindingController;
 	private FluoCompositeDataStore dataStore;
 	private FileDialog openDialog;
 	private Thread continuousThread;
@@ -117,7 +119,8 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 	}
 
 	private void updateDataBindingController() {
-		dataBindingController = new BeanController(fluorescenceDetectorComposite, detectorParameters);
+		IBeanService service = (IBeanService)ExafsActivator.getService(IBeanService.class);
+		dataBindingController = service.createController(fluorescenceDetectorComposite, detectorParameters);
 	}
 
 	/**
@@ -301,9 +304,9 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 
 	private void updateUIFromBean() {
 		try {
-			dataBindingController.switchUIOff();
+			dataBindingController.switchState(false);
 			dataBindingController.beanToUI();
-			dataBindingController.switchUIOn();
+			dataBindingController.switchState(true);
 		} catch (Exception ex) {
 			logger.error("Error trying to update UI from bean", ex);
 			displayErrorMessage("Data binding error", "Error trying to update user interface. See log for details.");

@@ -20,13 +20,14 @@ package uk.ac.gda.exafs.ui.composites;
 
 import java.util.List;
 
-import org.dawnsci.common.richbeans.components.selector.ListEditor;
-import org.dawnsci.common.richbeans.components.selector.ListEditorUI;
-import org.dawnsci.common.richbeans.components.wrappers.BooleanWrapper;
-import org.dawnsci.common.richbeans.components.wrappers.ComboWrapper;
-import org.dawnsci.common.richbeans.components.wrappers.SpinnerWrapper;
-import org.dawnsci.common.richbeans.components.wrappers.TextWrapper;
 import org.eclipse.jface.wizard.WizardDialog;
+import org.eclipse.richbeans.api.reflection.IBeanController;
+import org.eclipse.richbeans.widgets.selector.ListEditor;
+import org.eclipse.richbeans.widgets.selector.ListEditorUI;
+import org.eclipse.richbeans.widgets.wrappers.BooleanWrapper;
+import org.eclipse.richbeans.widgets.wrappers.ComboWrapper;
+import org.eclipse.richbeans.widgets.wrappers.SpinnerWrapper;
+import org.eclipse.richbeans.widgets.wrappers.TextWrapper;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -59,7 +60,7 @@ public class DrainCurrentComposite extends Composite implements ListEditorUI {
 	 * @param style
 	 */
 	@SuppressWarnings("unused")
-	public DrainCurrentComposite(Composite parent, int style) {
+	public DrainCurrentComposite(Composite parent, int style, final IBeanController control) {
 
 
 		super(parent, style);
@@ -97,7 +98,7 @@ public class DrainCurrentComposite extends Composite implements ListEditorUI {
 		gain.addButtonListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				WizardDialog dialog = new WizardDialog(getShell(), new GainWizard());
+				WizardDialog dialog = new WizardDialog(getShell(), new GainWizard(control));
 				dialog.setPageSize(new Point(780, 550));
 				dialog.create();
 				dialog.open();

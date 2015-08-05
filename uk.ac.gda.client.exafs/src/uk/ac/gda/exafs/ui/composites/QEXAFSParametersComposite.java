@@ -18,17 +18,22 @@
 
 package uk.ac.gda.exafs.ui.composites;
 
+import gda.configuration.properties.LocalProperties;
+import gda.jscience.physics.quantities.BraggAngle;
+import gda.jython.JythonServerFacade;
+import gda.util.QuantityFactory;
+
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
-import org.dawnsci.common.richbeans.components.FieldBeanComposite;
-import org.dawnsci.common.richbeans.components.FieldComposite;
-import org.dawnsci.common.richbeans.components.scalebox.ScaleBox;
-import org.dawnsci.common.richbeans.components.scalebox.ScaleBoxAndFixedExpression;
-import org.dawnsci.common.richbeans.components.scalebox.ScaleBoxAndFixedExpression.ExpressionProvider;
-import org.dawnsci.common.richbeans.components.wrappers.BooleanWrapper;
-import org.dawnsci.common.richbeans.event.ValueAdapter;
-import org.dawnsci.common.richbeans.event.ValueEvent;
+import org.eclipse.richbeans.api.event.ValueAdapter;
+import org.eclipse.richbeans.api.event.ValueEvent;
+import org.eclipse.richbeans.widgets.FieldBeanComposite;
+import org.eclipse.richbeans.widgets.FieldComposite;
+import org.eclipse.richbeans.widgets.scalebox.ScaleBox;
+import org.eclipse.richbeans.widgets.scalebox.ScaleBoxAndFixedExpression;
+import org.eclipse.richbeans.widgets.scalebox.ScaleBoxAndFixedExpression.ExpressionProvider;
+import org.eclipse.richbeans.widgets.wrappers.BooleanWrapper;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.GridData;
@@ -42,10 +47,6 @@ import org.jscience.physics.quantities.Quantity;
 import org.jscience.physics.units.NonSI;
 import org.jscience.physics.units.Unit;
 
-import gda.configuration.properties.LocalProperties;
-import gda.jscience.physics.quantities.BraggAngle;
-import gda.jython.JythonServerFacade;
-import gda.util.QuantityFactory;
 import uk.ac.gda.beans.exafs.QEXAFSParameters;
 import uk.ac.gda.exafs.ExafsActivator;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;

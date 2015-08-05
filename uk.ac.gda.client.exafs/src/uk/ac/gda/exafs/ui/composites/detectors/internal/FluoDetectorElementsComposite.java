@@ -18,16 +18,16 @@
 
 package uk.ac.gda.exafs.ui.composites.detectors.internal;
 
-import org.dawnsci.common.richbeans.beans.IFieldWidget;
-import org.dawnsci.common.richbeans.components.selector.GridListEditor;
-import org.dawnsci.common.richbeans.components.selector.ListEditor;
-import org.dawnsci.common.richbeans.components.wrappers.BooleanWrapper;
-import org.dawnsci.common.richbeans.components.wrappers.BooleanWrapper.BOOLEAN_MODE;
-import org.dawnsci.common.richbeans.components.wrappers.LabelWrapper;
-import org.dawnsci.common.richbeans.components.wrappers.LabelWrapper.TEXT_TYPE;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
+import org.eclipse.richbeans.api.widget.IFieldWidget;
+import org.eclipse.richbeans.widgets.selector.GridListEditor;
+import org.eclipse.richbeans.widgets.selector.ListEditor;
+import org.eclipse.richbeans.widgets.wrappers.BooleanWrapper;
+import org.eclipse.richbeans.widgets.wrappers.BooleanWrapper.BOOLEAN_MODE;
+import org.eclipse.richbeans.widgets.wrappers.LabelWrapper;
+import org.eclipse.richbeans.widgets.wrappers.LabelWrapper.TEXT_TYPE;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.FillLayout;

@@ -20,11 +20,11 @@ package uk.ac.gda.exafs.ui.microreactor;
 
 import java.util.regex.Pattern;
 
-import org.dawnsci.common.richbeans.components.FieldBeanComposite;
-import org.dawnsci.common.richbeans.components.FieldComposite;
-import org.dawnsci.common.richbeans.components.scalebox.ScaleBox;
-import org.dawnsci.common.richbeans.components.wrappers.RegularExpressionTextWrapper;
-import org.dawnsci.common.richbeans.components.wrappers.SpinnerWrapper;
+import org.eclipse.richbeans.widgets.FieldBeanComposite;
+import org.eclipse.richbeans.widgets.FieldComposite;
+import org.eclipse.richbeans.widgets.scalebox.ScaleBox;
+import org.eclipse.richbeans.widgets.wrappers.RegularExpressionTextWrapper;
+import org.eclipse.richbeans.widgets.wrappers.SpinnerWrapper;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;

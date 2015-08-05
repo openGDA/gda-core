@@ -18,19 +18,21 @@
 
 package uk.ac.gda.exafs.ui.composites;
 
+import gda.configuration.properties.LocalProperties;
+
 import java.io.File;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.dawnsci.common.richbeans.beans.BeanUI;
-import org.dawnsci.common.richbeans.beans.BeansFactory;
-import org.dawnsci.common.richbeans.components.file.FileBox;
-import org.dawnsci.common.richbeans.components.file.FileBox.ChoiceType;
-import org.dawnsci.common.richbeans.components.wrappers.RadioWrapper;
-import org.dawnsci.common.richbeans.event.ValueAdapter;
-import org.dawnsci.common.richbeans.event.ValueEvent;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.richbeans.api.beans.BeansFactory;
+import org.eclipse.richbeans.api.event.ValueAdapter;
+import org.eclipse.richbeans.api.event.ValueEvent;
+import org.eclipse.richbeans.api.reflection.IBeanController;
+import org.eclipse.richbeans.widgets.file.FileBox;
+import org.eclipse.richbeans.widgets.file.FileBox.ChoiceType;
+import org.eclipse.richbeans.widgets.wrappers.RadioWrapper;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -42,7 +44,6 @@ import org.eclipse.swt.widgets.Link;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.configuration.properties.LocalProperties;
 import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.exafs.XanesScanParameters;
 import uk.ac.gda.beans.exafs.XasScanParameters;
@@ -66,9 +67,12 @@ public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite
 	private boolean checkTemplate = LocalProperties.check("gda.microfocus.checkInTemplate");
 	private boolean fileNameChangeRequired = false;
 	private boolean autoChangeFluorescenceFile = LocalProperties.check("gda.microfocus.exafs.autoChangeFluorescenceFile");
+	private IBeanController control;
 
-	public FluorescenceComposite(Composite parent, int style, boolean includeVortex, boolean includeGermanium, boolean includeXspress3, DetectorParameters abean) {
+	public FluorescenceComposite(Composite parent, int style, boolean includeVortex, boolean includeGermanium, boolean includeXspress3,
+			DetectorParameters abean, final IBeanController control) {
 		super(parent, style, abean);
+		this.control = control;
 		setLayout(new GridLayout());
 		Composite top = new Composite(this, SWT.NONE);
 		top.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
@@ -175,29 +179,15 @@ public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite
 		configure.addSelectionListener(configureAction);
 
 		try {
-			BeanUI.addBeanFieldValueListener(XasScanParameters.class, "Element", new ValueAdapter("FluorElementListener") {
+			// TODO FIXME Should not be using controller in UI really!
+			control.addBeanFieldValueListener("Element", new ValueAdapter("FluorElementListener") {
 				@Override
 				public void valueChangePerformed(ValueEvent e) {
 					setFileNameChangeRequired(true);
 					updateFileName();
 				}
 			});
-			BeanUI.addBeanFieldValueListener(XasScanParameters.class, "Edge", new ValueAdapter("FluorEdgeListener") {
-				@Override
-				public void valueChangePerformed(ValueEvent e) {
-					setFileNameChangeRequired(true);
-					updateFileName();
-				}
-			});
-			BeanUI.addBeanFieldValueListener(XanesScanParameters.class, "Element", new ValueAdapter(
-					"FluorElementListener") {
-				@Override
-				public void valueChangePerformed(ValueEvent e) {
-					setFileNameChangeRequired(true);
-					updateFileName();
-				}
-			});
-			BeanUI.addBeanFieldValueListener(XanesScanParameters.class, "Edge", new ValueAdapter("FluorEdgeListener") {
+			control.addBeanFieldValueListener("Edge", new ValueAdapter("FluorEdgeListener") {
 				@Override
 				public void valueChangePerformed(ValueEvent e) {
 					setFileNameChangeRequired(true);
@@ -211,8 +201,8 @@ public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite
 		createDiffractionSection(top);
 
 		if (!ExafsActivator.getDefault().getPreferenceStore().getDefaultBoolean(ExafsPreferenceConstants.HIDE_WORKING_ENERGY)) {
-			createEdgeEnergy(top);
-			createIonChamberSection(abean);
+			createEdgeEnergy(top, control);
+			createIonChamberSection(abean, control);
 		}
 	}
 
@@ -270,11 +260,11 @@ public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite
 					if ((params instanceof XasScanParameters) || params instanceof XanesScanParameters) {
 
 						if (params instanceof XasScanParameters) {
-							element = BeanUI.getBeanField("Element", XasScanParameters.class).getValue().toString();
-							edge = BeanUI.getBeanField("Edge", XasScanParameters.class).getValue().toString();
+							element = control.getBeanField("Element", XasScanParameters.class).getValue().toString();
+							edge = control.getBeanField("Edge", XasScanParameters.class).getValue().toString();
 						} else {
-							element = BeanUI.getBeanField("Element", XanesScanParameters.class).getValue().toString();
-							edge = BeanUI.getBeanField("Edge", XanesScanParameters.class).getValue().toString();
+							element = control.getBeanField("Element", XanesScanParameters.class).getValue().toString();
+							edge = control.getBeanField("Edge", XanesScanParameters.class).getValue().toString();
 						}
 
 						if (value.equals("Silicon")) {

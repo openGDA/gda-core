@@ -18,6 +18,14 @@
 
 package uk.ac.gda.exafs.ui;
 
+import gda.configuration.properties.LocalProperties;
+import gda.exafs.scan.ExafsScanPointCreator;
+import gda.exafs.scan.ExafsScanPointCreatorException;
+import gda.exafs.scan.ExafsTimeEstimator;
+import gda.exafs.scan.XanesScanPointCreator;
+import gda.jython.JythonServerFacade;
+import gda.util.exafs.Element;
+
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.text.DateFormat;
@@ -29,14 +37,6 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import org.dawb.common.ui.widgets.ActionBarWrapper;
-import org.dawnsci.common.richbeans.beans.BeanUI;
-import org.dawnsci.common.richbeans.beans.BeansFactory;
-import org.dawnsci.common.richbeans.components.FieldComposite.NOTIFY_TYPE;
-import org.dawnsci.common.richbeans.components.scalebox.ScaleBox;
-import org.dawnsci.common.richbeans.components.wrappers.ComboWrapper;
-import org.dawnsci.common.richbeans.components.wrappers.LabelWrapper;
-import org.dawnsci.common.richbeans.event.ValueAdapter;
-import org.dawnsci.common.richbeans.event.ValueEvent;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -50,6 +50,13 @@ import org.eclipse.dawnsci.plotting.api.PlottingFactory;
 import org.eclipse.dawnsci.plotting.api.trace.ILineTrace;
 import org.eclipse.dawnsci.plotting.api.trace.ITrace;
 import org.eclipse.jface.preference.PreferenceDialog;
+import org.eclipse.richbeans.api.beans.BeansFactory;
+import org.eclipse.richbeans.api.event.ValueAdapter;
+import org.eclipse.richbeans.api.event.ValueEvent;
+import org.eclipse.richbeans.widgets.FieldComposite.NOTIFY_TYPE;
+import org.eclipse.richbeans.widgets.scalebox.ScaleBox;
+import org.eclipse.richbeans.widgets.wrappers.ComboWrapper;
+import org.eclipse.richbeans.widgets.wrappers.LabelWrapper;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.graphics.Color;
@@ -70,13 +77,6 @@ import org.python.core.PyObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.configuration.properties.LocalProperties;
-import gda.exafs.scan.ExafsScanPointCreator;
-import gda.exafs.scan.ExafsScanPointCreatorException;
-import gda.exafs.scan.ExafsTimeEstimator;
-import gda.exafs.scan.XanesScanPointCreator;
-import gda.jython.JythonServerFacade;
-import gda.util.exafs.Element;
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 import uk.ac.gda.beans.exafs.XanesScanParameters;
 import uk.ac.gda.beans.exafs.XasScanParameters;
@@ -191,7 +191,7 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 	public void linkUI(final boolean isPageChange) {
 		super.linkUI(isPageChange);
 		try {
-			BeanUI.addValueListener(editingBean, this, new ValueAdapter("Element Edge Bean Listener") {
+			controller.addValueListener(new ValueAdapter("Element Edge Bean Listener") {
 				@Override
 				public void valueChangePerformed(ValueEvent e) {
 					getSite().getShell().getDisplay().asyncExec(new Runnable() {
@@ -217,7 +217,7 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 	@Override
 	protected List<String> getExpressionFields() throws Exception {
 		if (expressionFields == null) {
-			expressionFields = BeanUI.getEditingFields(editingBean, this);
+			expressionFields = controller.getEditingFields();
 			expressionFields.add("edge");
 		}
 		return expressionFields;
@@ -304,7 +304,7 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 		}
 		else
 			edgeEnergyLabel.setMaximum(40000.0);
-		BeanUI.addBeanField(editingBean.getClass(), "EdgeEnergy", edgeEnergyLabel);
+		controller.addBeanField("EdgeEnergy", edgeEnergyLabel);
 		Label coreHoleLabel = new Label(left, SWT.NONE);
 		coreHoleLabel.setText("Core Hole");
 		coreHoleValueLabel = new LabelWrapper(left, SWT.NONE);

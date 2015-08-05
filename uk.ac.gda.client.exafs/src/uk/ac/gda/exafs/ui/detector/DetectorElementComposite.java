@@ -20,14 +20,14 @@ package uk.ac.gda.exafs.ui.detector;
 
 import java.text.NumberFormat;
 
-import org.dawnsci.common.richbeans.beans.IFieldWidget;
-import org.dawnsci.common.richbeans.components.scalebox.ScaleBox;
-import org.dawnsci.common.richbeans.components.selector.VerticalListEditor;
-import org.dawnsci.common.richbeans.components.wrappers.BooleanWrapper;
-import org.dawnsci.common.richbeans.components.wrappers.BooleanWrapper.BOOLEAN_MODE;
-import org.dawnsci.common.richbeans.components.wrappers.LabelWrapper;
-import org.dawnsci.common.richbeans.components.wrappers.LabelWrapper.TEXT_TYPE;
-import org.dawnsci.common.richbeans.event.ValueAdapter;
+import org.eclipse.richbeans.api.event.ValueAdapter;
+import org.eclipse.richbeans.api.widget.IFieldWidget;
+import org.eclipse.richbeans.widgets.scalebox.ScaleBox;
+import org.eclipse.richbeans.widgets.selector.VerticalListEditor;
+import org.eclipse.richbeans.widgets.wrappers.BooleanWrapper;
+import org.eclipse.richbeans.widgets.wrappers.BooleanWrapper.BOOLEAN_MODE;
+import org.eclipse.richbeans.widgets.wrappers.LabelWrapper;
+import org.eclipse.richbeans.widgets.wrappers.LabelWrapper.TEXT_TYPE;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;

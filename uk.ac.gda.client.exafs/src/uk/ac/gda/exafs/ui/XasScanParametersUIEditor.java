@@ -18,19 +18,13 @@
 
 package uk.ac.gda.exafs.ui;
 
+import gda.util.Converter;
+import gda.util.exafs.Element;
+
 import java.text.DecimalFormat;
 import java.util.EventObject;
 import java.util.List;
 
-import org.dawnsci.common.richbeans.ACTIVE_MODE;
-import org.dawnsci.common.richbeans.beans.BeanUI;
-import org.dawnsci.common.richbeans.beans.IFieldWidget;
-import org.dawnsci.common.richbeans.components.scalebox.ScaleBox;
-import org.dawnsci.common.richbeans.components.scalebox.ScaleBoxAndFixedExpression;
-import org.dawnsci.common.richbeans.components.scalebox.ScaleBoxAndFixedExpression.ExpressionProvider;
-import org.dawnsci.common.richbeans.components.wrappers.ComboWrapper;
-import org.dawnsci.common.richbeans.event.ValueAdapter;
-import org.dawnsci.common.richbeans.event.ValueEvent;
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
@@ -48,6 +42,14 @@ import org.eclipse.jface.dialogs.IPageChangedListener;
 import org.eclipse.jface.dialogs.PageChangedEvent;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
+import org.eclipse.richbeans.api.event.ValueAdapter;
+import org.eclipse.richbeans.api.event.ValueEvent;
+import org.eclipse.richbeans.api.widget.ACTIVE_MODE;
+import org.eclipse.richbeans.api.widget.IFieldWidget;
+import org.eclipse.richbeans.widgets.scalebox.ScaleBox;
+import org.eclipse.richbeans.widgets.scalebox.ScaleBoxAndFixedExpression;
+import org.eclipse.richbeans.widgets.scalebox.ScaleBoxAndFixedExpression.ExpressionProvider;
+import org.eclipse.richbeans.widgets.wrappers.ComboWrapper;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -63,8 +65,6 @@ import org.eclipse.swt.widgets.Link;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.util.Converter;
-import gda.util.exafs.Element;
 import uk.ac.gda.beans.exafs.XasScanParameters;
 import uk.ac.gda.exafs.ExafsActivator;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
@@ -1409,7 +1409,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 
 	@Override
 	public Object updateFromUIAndReturnEditingBean() throws Exception {
-		BeanUI.uiToBean(this, editingBean);
+		controller.uiToBean();
 		return fetchEditingBean();
 	}
 

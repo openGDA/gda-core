@@ -18,7 +18,7 @@
 
 package uk.ac.gda.microfocus.ui.describers;
 
-import org.dawnsci.common.richbeans.xml.XMLBeanContentDescriber;
+import org.eclipse.richbeans.xml.XMLBeanContentDescriber;
 
 import uk.ac.gda.beans.microfocus.MicroFocusScanParameters;
 

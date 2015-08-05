@@ -18,13 +18,14 @@
 
 package uk.ac.gda.exafs.ui;
 
+import gda.configuration.properties.LocalProperties;
+import gda.gui.scriptcontroller.logging.ScriptControllerLogView;
+import gda.rcp.views.JythonTerminalView;
+
 import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
 
-import gda.configuration.properties.LocalProperties;
-import gda.gui.scriptcontroller.logging.ScriptControllerLogView;
-import gda.rcp.views.JythonTerminalView;
 import uk.ac.gda.client.CommandQueueViewFactory;
 import uk.ac.gda.client.liveplot.LivePlotView;
 import uk.ac.gda.exafs.ExafsActivator;

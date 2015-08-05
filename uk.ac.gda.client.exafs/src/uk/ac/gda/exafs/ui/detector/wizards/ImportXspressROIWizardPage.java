@@ -22,17 +22,16 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.dawnsci.common.richbeans.beans.BeanUI;
-import org.dawnsci.common.richbeans.beans.BeansFactory;
-import org.dawnsci.common.richbeans.components.selector.GridListEditor;
-import org.dawnsci.common.richbeans.components.selector.ListEditor;
-import org.dawnsci.common.richbeans.components.selector.ListEditorUI;
-import org.dawnsci.common.richbeans.components.selector.VerticalListEditor;
-import org.dawnsci.common.richbeans.event.ValueAdapter;
-import org.dawnsci.common.richbeans.event.ValueEvent;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.richbeans.api.beans.BeansFactory;
+import org.eclipse.richbeans.api.event.ValueAdapter;
+import org.eclipse.richbeans.api.event.ValueEvent;
+import org.eclipse.richbeans.widgets.selector.GridListEditor;
+import org.eclipse.richbeans.widgets.selector.ListEditor;
+import org.eclipse.richbeans.widgets.selector.ListEditorUI;
+import org.eclipse.richbeans.widgets.selector.VerticalListEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
@@ -231,9 +230,7 @@ public class ImportXspressROIWizardPage extends ImportROIWizardPage {
 		element.setRegionList(currentBeans);
 
 		try {
-			BeanUI.switchState(element, roisToImportComposite, false);
-			BeanUI.beanToUI(element, roisToImportComposite);
-			BeanUI.switchState(element, roisToImportComposite, true);
+			beanToUI(roisToImportComposite, element);
 		} catch (Exception e1) {
 			// this is very unexpected as the currentBeans was just cloned from the current editor
 			logger.error("Unexpected exception creating destination contents", e1);
@@ -246,9 +243,7 @@ public class ImportXspressROIWizardPage extends ImportROIWizardPage {
 		try {
 			xspressParameters = (XspressParameters)XMLHelpers.readBean(path.toFile(), XspressParameters.class);
 			if (xspressParameters.getDetectorList().size() == elementListSize) {
-				BeanUI.switchState(xspressParameters, detectorListComposite, false);
-				BeanUI.beanToUI(xspressParameters, detectorListComposite);
-				BeanUI.switchState(xspressParameters, detectorListComposite, true);
+				beanToUI(detectorListComposite, xspressParameters);
 				validSource = true;
 			}
 		} catch (Exception e1) {
@@ -298,7 +293,7 @@ public class ImportXspressROIWizardPage extends ImportROIWizardPage {
 //			System.out.println("the beans found are " + this.currentDetectorList.getValue());
 			try {
 			final List<?> elements = (List<?>) this.currentDetectorList.getValue();
-			final List<?> regionClone = BeanUI.cloneBeans(regionToCopy);
+				final List<?> regionClone = BeansFactory.cloneBeans(regionToCopy);
 			int index = -1;
 
 				for (Object element : elements) {

@@ -18,8 +18,8 @@
 
 package uk.ac.gda.exafs.ui.detector.vortex;
 
-import org.dawnsci.common.richbeans.components.selector.GridListEditor;
-import org.dawnsci.common.richbeans.components.selector.GridListEditor.GRID_ORDER;
+import org.eclipse.richbeans.widgets.selector.GridListEditor;
+import org.eclipse.richbeans.widgets.selector.GridListEditor.GRID_ORDER;
 import org.eclipse.swt.widgets.Composite;
 
 import uk.ac.gda.exafs.ui.detector.DetectorROIComposite;

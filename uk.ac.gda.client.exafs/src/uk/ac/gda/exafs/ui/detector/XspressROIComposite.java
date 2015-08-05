@@ -18,17 +18,18 @@
 
 package uk.ac.gda.exafs.ui.detector;
 
-import org.dawnsci.common.richbeans.components.FieldComposite.NOTIFY_TYPE;
-import org.dawnsci.common.richbeans.components.scalebox.ScaleBox;
-import org.dawnsci.common.richbeans.components.wrappers.LabelWrapper;
-import org.dawnsci.common.richbeans.components.wrappers.TextWrapper;
+import gda.configuration.properties.LocalProperties;
+
+import org.eclipse.richbeans.widgets.FieldComposite.NOTIFY_TYPE;
+import org.eclipse.richbeans.widgets.scalebox.ScaleBox;
+import org.eclipse.richbeans.widgets.wrappers.LabelWrapper;
+import org.eclipse.richbeans.widgets.wrappers.TextWrapper;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
-import gda.configuration.properties.LocalProperties;
 import uk.ac.gda.common.rcp.util.GridUtils;
 
 /**

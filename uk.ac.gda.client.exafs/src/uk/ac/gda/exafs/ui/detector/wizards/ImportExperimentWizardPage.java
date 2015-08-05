@@ -18,6 +18,8 @@
 
 package uk.ac.gda.exafs.ui.detector.wizards;
 
+import gda.configuration.properties.LocalProperties;
+
 import java.io.File;
 
 import org.eclipse.core.resources.IWorkspace;
@@ -31,8 +33,6 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.List;
-
-import gda.configuration.properties.LocalProperties;
 
 public class ImportExperimentWizardPage extends WizardPage {
 

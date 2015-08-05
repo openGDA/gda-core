@@ -18,30 +18,39 @@
 
 package uk.ac.gda.exafs.ui.composites;
 
+import gda.configuration.properties.LocalProperties;
+import gda.device.CurrentAmplifier;
+import gda.device.DeviceException;
+import gda.device.Scannable;
+import gda.exafs.mucal.PressureBean;
+import gda.exafs.mucal.PressureCalculation;
+import gda.factory.Finder;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.dawnsci.common.richbeans.beans.BeanUI;
-import org.dawnsci.common.richbeans.components.FieldComposite.NOTIFY_TYPE;
-import org.dawnsci.common.richbeans.components.scalebox.ScaleBox;
-import org.dawnsci.common.richbeans.components.selector.ListEditor;
-import org.dawnsci.common.richbeans.components.selector.ListEditorUI;
-import org.dawnsci.common.richbeans.components.selector.VerticalListEditor;
-import org.dawnsci.common.richbeans.components.wrappers.BooleanWrapper;
-import org.dawnsci.common.richbeans.components.wrappers.ComboWrapper;
-import org.dawnsci.common.richbeans.components.wrappers.LabelWrapper;
-import org.dawnsci.common.richbeans.components.wrappers.TextWrapper;
-import org.dawnsci.common.richbeans.event.ValueAdapter;
-import org.dawnsci.common.richbeans.event.ValueEvent;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.wizard.WizardDialog;
+import org.eclipse.richbeans.api.event.ValueAdapter;
+import org.eclipse.richbeans.api.event.ValueEvent;
+import org.eclipse.richbeans.api.reflection.IBeanController;
+import org.eclipse.richbeans.api.reflection.IBeanService;
+import org.eclipse.richbeans.widgets.FieldComposite.NOTIFY_TYPE;
+import org.eclipse.richbeans.widgets.scalebox.ScaleBox;
+import org.eclipse.richbeans.widgets.selector.ListEditor;
+import org.eclipse.richbeans.widgets.selector.ListEditorUI;
+import org.eclipse.richbeans.widgets.selector.VerticalListEditor;
+import org.eclipse.richbeans.widgets.wrappers.BooleanWrapper;
+import org.eclipse.richbeans.widgets.wrappers.ComboWrapper;
+import org.eclipse.richbeans.widgets.wrappers.LabelWrapper;
+import org.eclipse.richbeans.widgets.wrappers.TextWrapper;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -66,13 +75,6 @@ import org.eclipse.ui.progress.IProgressService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.configuration.properties.LocalProperties;
-import gda.device.CurrentAmplifier;
-import gda.device.DeviceException;
-import gda.device.Scannable;
-import gda.exafs.mucal.PressureBean;
-import gda.exafs.mucal.PressureCalculation;
-import gda.factory.Finder;
 import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.exafs.FluorescenceParameters;
 import uk.ac.gda.beans.exafs.IonChamberParameters;
@@ -118,7 +120,7 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 	private Label offsetLabel;
 
 	public IonChamberComposite(Composite parent, int style, final VerticalListEditor provider,
-			final DetectorParameters abean) {
+ final DetectorParameters abean, IBeanController control) {
 		super(parent, style);
 		setLayout(new GridLayout());
 
@@ -138,16 +140,16 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 				useGasProperties = false;
 			}
 		}
-		createLeft(main);
+		createLeft(main, control);
 		createRight(main);
 	}
 
-	private void createLeft(final Composite main) {
+	private void createLeft(final Composite main, IBeanController control) {
 		final Composite left = new Composite(main, SWT.NONE);
 		left.setLayout(new GridLayout());
 		left.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
-		createLeftSensitivityProperties(left);
+		createLeftSensitivityProperties(left, control);
 		if (useGasProperties)
 			createLeftGasProperties(left);
 	}
@@ -327,7 +329,7 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 	}
 
 	@SuppressWarnings("unused")
-	private void createLeftSensitivityProperties(final Composite left) {
+	private void createLeftSensitivityProperties(final Composite left, final IBeanController control) {
 		final Composite gainProperties = new Composite(left, SWT.NONE);
 		final GridLayout gridLayout = new GridLayout();
 		gridLayout.numColumns = 2;
@@ -379,7 +381,7 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 		gain.addButtonListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				WizardDialog dialog = new WizardDialog(getShell(), new GainWizard());
+				WizardDialog dialog = new WizardDialog(getShell(), new GainWizard(control));
 				dialog.setPageSize(new Point(780, 550));
 				dialog.create();
 				dialog.open();
@@ -400,7 +402,7 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 			offset.addButtonListener(new SelectionAdapter() {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
-					WizardDialog dialog = new WizardDialog(getShell(), new GainWizard());
+					WizardDialog dialog = new WizardDialog(getShell(), new GainWizard(control));
 					dialog.setPageSize(new Point(780, 550));
 					dialog.create();
 					dialog.open();
@@ -609,7 +611,9 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 								@Override
 								public void run() {
 									try {
-										BeanUI.uiToBean(IonChamberComposite.this, bean);
+										final IBeanService service = (IBeanService) ExafsActivator.getService(IBeanService.class);
+										final IBeanController control = service.createController(IonChamberComposite.this, bean);
+										control.uiToBean();
 									} catch (Exception e) {
 
 										e.printStackTrace();

@@ -41,17 +41,6 @@ import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.dawnsci.common.richbeans.beans.BeanUI;
-import org.dawnsci.common.richbeans.beans.BeansFactory;
-import org.dawnsci.common.richbeans.components.data.DataWrapper;
-import org.dawnsci.common.richbeans.components.scalebox.ScaleBox;
-import org.dawnsci.common.richbeans.components.selector.BeanSelectionEvent;
-import org.dawnsci.common.richbeans.components.selector.BeanSelectionListener;
-import org.dawnsci.common.richbeans.components.selector.GridListEditor;
-import org.dawnsci.common.richbeans.components.selector.VerticalListEditor;
-import org.dawnsci.common.richbeans.event.ValueAdapter;
-import org.dawnsci.common.richbeans.event.ValueEvent;
-import org.dawnsci.common.richbeans.event.ValueListener;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
@@ -68,6 +57,16 @@ import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.wizard.WizardDialog;
+import org.eclipse.richbeans.api.beans.BeansFactory;
+import org.eclipse.richbeans.api.event.ValueAdapter;
+import org.eclipse.richbeans.api.event.ValueEvent;
+import org.eclipse.richbeans.api.event.ValueListener;
+import org.eclipse.richbeans.widgets.data.DataWrapper;
+import org.eclipse.richbeans.widgets.scalebox.ScaleBox;
+import org.eclipse.richbeans.widgets.selector.BeanSelectionEvent;
+import org.eclipse.richbeans.widgets.selector.BeanSelectionListener;
+import org.eclipse.richbeans.widgets.selector.GridListEditor;
+import org.eclipse.richbeans.widgets.selector.VerticalListEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -573,7 +572,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 				if (index == currentIndex)
 					continue;
 
-				final List<?> regionClone = BeanUI.cloneBeans(regions);
+				final List<?> regionClone = BeansFactory.cloneBeans(regions);
 				final Method setRegionList = element.getClass().getMethod("setRegionList", java.util.List.class);
 				setRegionList.invoke(element, regionClone);
 

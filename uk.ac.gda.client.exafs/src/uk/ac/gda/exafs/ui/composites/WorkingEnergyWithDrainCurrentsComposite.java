@@ -18,8 +18,9 @@
 
 package uk.ac.gda.exafs.ui.composites;
 
-import org.dawnsci.common.richbeans.ACTIVE_MODE;
-import org.dawnsci.common.richbeans.components.selector.VerticalListEditor;
+import org.eclipse.richbeans.api.reflection.IBeanController;
+import org.eclipse.richbeans.api.widget.ACTIVE_MODE;
+import org.eclipse.richbeans.widgets.selector.VerticalListEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
@@ -38,7 +39,7 @@ public class WorkingEnergyWithDrainCurrentsComposite extends WorkingEnergyCompos
 		super(parent, style, abean);
 	}
 
-	protected void createDrainCurrentSection() {
+	protected void createDrainCurrentSection(IBeanController control) {
 
 //		final TabItem ionChambersTabItem = new TabItem(getTabFolder(), SWT.NONE);
 //		ionChambersTabItem.setText("Drain Currents");
@@ -46,7 +47,7 @@ public class WorkingEnergyWithDrainCurrentsComposite extends WorkingEnergyCompos
 
 		drainCurrentParameters = new VerticalListEditor(getTabFolder(), SWT.BORDER);
 		drainCurrentParameters.setEditorClass(DrainCurrentParameters.class);
-		drainCurrentComposite = new DrainCurrentComposite(drainCurrentParameters, SWT.NONE);
+		drainCurrentComposite = new DrainCurrentComposite(drainCurrentParameters, SWT.NONE, control);
 		drainCurrentComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		drainCurrentParameters.setEditorUI(drainCurrentComposite);
 		drainCurrentParameters.setListEditorUI(drainCurrentComposite);

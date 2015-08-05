@@ -22,8 +22,8 @@ package uk.ac.gda.exafs.ui;
 import java.io.File;
 import java.util.List;
 
-import org.dawnsci.common.richbeans.components.selector.VerticalListEditor;
 import org.eclipse.core.filesystem.EFS;
+import org.eclipse.richbeans.widgets.selector.VerticalListEditor;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.FileStoreEditorInput;

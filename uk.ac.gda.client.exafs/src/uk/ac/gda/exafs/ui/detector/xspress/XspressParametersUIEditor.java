@@ -18,6 +18,13 @@
 
 package uk.ac.gda.exafs.ui.detector.xspress;
 
+import gda.configuration.properties.LocalProperties;
+import gda.data.NumTracker;
+import gda.data.PathConstructor;
+import gda.device.DeviceException;
+import gda.factory.Finder;
+import gda.jython.accesscontrol.AccessDeniedException;
+
 import java.awt.Color;
 import java.io.BufferedReader;
 import java.io.File;
@@ -31,16 +38,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import org.dawnsci.common.richbeans.beans.BeanUI;
-import org.dawnsci.common.richbeans.components.scalebox.ScaleBox;
-import org.dawnsci.common.richbeans.components.selector.ListEditor;
-import org.dawnsci.common.richbeans.components.selector.ListEditorUIAdapter;
-import org.dawnsci.common.richbeans.components.wrappers.BooleanWrapper;
-import org.dawnsci.common.richbeans.components.wrappers.ComboAndNumberWrapper;
-import org.dawnsci.common.richbeans.components.wrappers.ComboWrapper;
-import org.dawnsci.common.richbeans.event.ValueAdapter;
-import org.dawnsci.common.richbeans.event.ValueEvent;
-import org.dawnsci.common.richbeans.event.ValueListener;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -52,6 +49,15 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.richbeans.api.event.ValueAdapter;
+import org.eclipse.richbeans.api.event.ValueEvent;
+import org.eclipse.richbeans.api.event.ValueListener;
+import org.eclipse.richbeans.widgets.scalebox.ScaleBox;
+import org.eclipse.richbeans.widgets.selector.ListEditor;
+import org.eclipse.richbeans.widgets.selector.ListEditorUIAdapter;
+import org.eclipse.richbeans.widgets.wrappers.BooleanWrapper;
+import org.eclipse.richbeans.widgets.wrappers.ComboAndNumberWrapper;
+import org.eclipse.richbeans.widgets.wrappers.ComboWrapper;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -68,15 +74,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.swtdesigner.ResourceManager;
-import com.swtdesigner.SWTResourceManager;
-
-import gda.configuration.properties.LocalProperties;
-import gda.data.NumTracker;
-import gda.data.PathConstructor;
-import gda.device.DeviceException;
-import gda.factory.Finder;
-import gda.jython.accesscontrol.AccessDeniedException;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.SashFormPlotComposite;
 import uk.ac.gda.beans.ElementCountsData;
 import uk.ac.gda.beans.exafs.DetectorParameters;
@@ -99,6 +96,9 @@ import uk.ac.gda.exafs.ui.detector.IDetectorROICompositeFactory;
 import uk.ac.gda.exafs.ui.detector.XspressROIComposite;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 import uk.ac.gda.richbeans.editors.DirtyContainer;
+
+import com.swtdesigner.ResourceManager;
+import com.swtdesigner.SWTResourceManager;
 
 /**
  *
@@ -734,7 +734,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void notifyFileSaved(File file) {
-		final FluorescenceComposite comp = (FluorescenceComposite) BeanUI.getBeanField("fluorescenceParameters",
+		final FluorescenceComposite comp = (FluorescenceComposite) controller.getBeanField("fluorescenceParameters",
 				DetectorParameters.class);
 		if (comp == null || comp.isDisposed())
 			return;

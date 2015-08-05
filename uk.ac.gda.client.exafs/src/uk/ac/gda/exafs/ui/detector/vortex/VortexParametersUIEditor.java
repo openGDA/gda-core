@@ -18,6 +18,15 @@
 
 package uk.ac.gda.exafs.ui.detector.vortex;
 
+import gda.configuration.properties.LocalProperties;
+import gda.data.NumTracker;
+import gda.data.PathConstructor;
+import gda.device.DeviceException;
+import gda.device.Timer;
+import gda.device.XmapDetector;
+import gda.factory.Finder;
+import gda.jython.accesscontrol.AccessDeniedException;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -27,11 +36,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import org.dawnsci.common.richbeans.beans.BeanUI;
-import org.dawnsci.common.richbeans.components.scalebox.ScaleBox;
-import org.dawnsci.common.richbeans.components.wrappers.BooleanWrapper;
-import org.dawnsci.common.richbeans.components.wrappers.ComboWrapper;
-import org.dawnsci.common.richbeans.components.wrappers.LabelWrapper;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -39,6 +43,10 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.richbeans.widgets.scalebox.ScaleBox;
+import org.eclipse.richbeans.widgets.wrappers.BooleanWrapper;
+import org.eclipse.richbeans.widgets.wrappers.ComboWrapper;
+import org.eclipse.richbeans.widgets.wrappers.LabelWrapper;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -55,16 +63,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.swtdesigner.SWTResourceManager;
-
-import gda.configuration.properties.LocalProperties;
-import gda.data.NumTracker;
-import gda.data.PathConstructor;
-import gda.device.DeviceException;
-import gda.device.Timer;
-import gda.device.XmapDetector;
-import gda.factory.Finder;
-import gda.jython.accesscontrol.AccessDeniedException;
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.ElementCountsData;
 import uk.ac.gda.beans.exafs.DetectorParameters;
@@ -78,6 +76,8 @@ import uk.ac.gda.exafs.ui.detector.DetectorEditor;
 import uk.ac.gda.exafs.ui.detector.IDetectorROICompositeFactory;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 import uk.ac.gda.richbeans.editors.DirtyContainer;
+
+import com.swtdesigner.SWTResourceManager;
 
 public class VortexParametersUIEditor extends DetectorEditor {
 
@@ -540,7 +540,7 @@ public class VortexParametersUIEditor extends DetectorEditor {
 	@Override
 	public void notifyFileSaved(File file) {
 		@SuppressWarnings("unchecked")
-		final FluorescenceComposite comp = (FluorescenceComposite) BeanUI.getBeanField("fluorescenceParameters",
+		final FluorescenceComposite comp = (FluorescenceComposite) controller.getBeanField("fluorescenceParameters",
 				DetectorParameters.class);
 		if (comp == null || comp.isDisposed()) {
 			return;

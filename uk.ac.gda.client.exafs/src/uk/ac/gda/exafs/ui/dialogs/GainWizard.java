@@ -18,9 +18,9 @@
 
 package uk.ac.gda.exafs.ui.dialogs;
 
-import org.dawnsci.common.richbeans.beans.BeanUI;
-import org.dawnsci.common.richbeans.components.selector.VerticalListEditor;
 import org.eclipse.jface.wizard.Wizard;
+import org.eclipse.richbeans.api.reflection.IBeanController;
+import org.eclipse.richbeans.widgets.selector.VerticalListEditor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,15 +34,17 @@ import uk.ac.gda.exafs.ui.composites.TransmissionComposite;
 public class GainWizard extends Wizard {
 	private final static Logger logger = LoggerFactory.getLogger(GainWizard.class);
     private GainWizardPage gainPage;
+	private IBeanController control;
 
-    public GainWizard() {
+	public GainWizard(IBeanController control) {
     	super();
     	setNeedsProgressMonitor(true);
+		this.control = control;
     }
 
     @Override
 	public void addPages() {
-        this.gainPage = new GainWizardPage();
+		this.gainPage = new GainWizardPage(control);
         addPage(gainPage);
 
         getAllValues();
@@ -52,13 +54,13 @@ public class GainWizard extends Wizard {
 	@Override
 	public boolean performFinish() {
 		final VerticalListEditor ionChambers;
-		final String type = (String)BeanUI.getBeanField("experimentType", DetectorParameters.class).getValue();
+		final String type = (String) control.getBeanField("experimentType", DetectorParameters.class).getValue();
 		if (type.equalsIgnoreCase("Transmission")) {
-			TransmissionComposite tpc = (TransmissionComposite)BeanUI.getBeanField("transmissionParameters", DetectorParameters.class);
+			TransmissionComposite tpc = (TransmissionComposite) control.getBeanField("transmissionParameters", DetectorParameters.class);
 			ionChambers = tpc.getIonChamberParameters();
 		}
 		else if (type.equalsIgnoreCase("fluorescence")) {
-			FluorescenceComposite fpc = (FluorescenceComposite)BeanUI.getBeanField("fluorescenceParameters", DetectorParameters.class);
+			FluorescenceComposite fpc = (FluorescenceComposite) control.getBeanField("fluorescenceParameters", DetectorParameters.class);
 			ionChambers = fpc.getIonChamberParameters();
 		}
 		else {

@@ -20,17 +20,16 @@ package uk.ac.gda.exafs.ui.detector.wizards;
 
 import java.util.List;
 
-import org.dawnsci.common.richbeans.beans.BeanUI;
-import org.dawnsci.common.richbeans.beans.BeansFactory;
-import org.dawnsci.common.richbeans.components.selector.GridListEditor;
-import org.dawnsci.common.richbeans.components.selector.ListEditor;
-import org.dawnsci.common.richbeans.components.selector.ListEditorUI;
-import org.dawnsci.common.richbeans.components.selector.VerticalListEditor;
-import org.dawnsci.common.richbeans.event.ValueAdapter;
-import org.dawnsci.common.richbeans.event.ValueEvent;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.richbeans.api.beans.BeansFactory;
+import org.eclipse.richbeans.api.event.ValueAdapter;
+import org.eclipse.richbeans.api.event.ValueEvent;
+import org.eclipse.richbeans.widgets.selector.GridListEditor;
+import org.eclipse.richbeans.widgets.selector.ListEditor;
+import org.eclipse.richbeans.widgets.selector.ListEditorUI;
+import org.eclipse.richbeans.widgets.selector.VerticalListEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
@@ -63,7 +62,7 @@ public class ImportFluoDetROIWizardPage extends ImportROIWizardPage {
 
 	private Class<? extends FluorescenceDetectorParameters> detectorParametersClass;
 
-	
+
 	// Region list stores a list of ROIs, potentially unsafe conversion, if it fails
 	// there will be runtime class cast exceptions
 	@SuppressWarnings("unchecked")
@@ -90,9 +89,9 @@ public class ImportFluoDetROIWizardPage extends ImportROIWizardPage {
 			setEnables(detectorListComposite, false);
 		}
 		updateAddButtonEnables();
-		
+
 	}
-	
+
 	private void updateAddButtonEnables() {
 		if (!currentSourceValid()) {
 			// error set by invalid source
@@ -111,7 +110,7 @@ public class ImportFluoDetROIWizardPage extends ImportROIWizardPage {
 
 	@Override
 	protected void createSourceControls(Composite parent) {
-	
+
 		IDetectorROICompositeFactory factory = Xspress3ParametersUIHelper.INSTANCE.getDetectorROICompositeFactory();
 		detectorListComposite = new DetectorListComposite(parent,
 				DetectorElement.class, elementListSize, DetectorROI.class, factory,false);
@@ -124,32 +123,32 @@ public class ImportFluoDetROIWizardPage extends ImportROIWizardPage {
 				scrolledComp.setMinSize(mainComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 			}
 		});
-		
+
 		importFileRegionList = detectorListComposite.getDetectorElementComposite().getRegionList();
 		importFileRegionList.setListEditorUI(new ListEditorUI() {
-			
+
 			@Override
 			public void notifySelected(ListEditor listEditor) {
 //		   		XspressROIComposite xspressROIComposite = (XspressROIComposite)(listEditor.getEditorUI());
 //				xspressROIComposite.setFitTypeVisibility();
 			}
-			
+
 			@Override
 			public boolean isReorderAllowed(ListEditor listEditor) {
 				return false;
 			}
-			
+
 			@Override
 			public boolean isDeleteAllowed(ListEditor listEditor) {
 				return false;
 			}
-			
+
 			@Override
 			public boolean isAddAllowed(ListEditor listEditor) {
 				return false;
 			}
 		});
-		
+
 		detectorListComposite.getDetectorElementComposite().setEndMaximum((int)maximum);
 		detectorListComposite.getDetectorElementComposite().setWindowsEditable(false);
 		GridUtils.setVisibleAndLayout(importFileRegionList, true);
@@ -166,12 +165,12 @@ public class ImportFluoDetROIWizardPage extends ImportROIWizardPage {
 			regionList = new VerticalListEditor(this, SWT.BORDER);
 			regionList.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 			regionList.setEditorClass(DetectorROI.class);
-			
+
 //			final DetectorROIComposite detectorROIComposite = Xspress3ParametersUIHelper.INSTANCE.getDetectorROICompositeFactory().createDetectorROIComposite(regionList, SWT.NONE);
 			final FluoDetectorROIComposite detectorROIComposite = new FluoDetectorROIComposite(regionList, SWT.NONE);
 			detectorROIComposite.getRoiEnd().setMaximum(maximum);
 			regionList.setEditorUI(detectorROIComposite);
-			
+
 			detectorROIComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 
 			regionList.setTemplateName("ROI");
@@ -186,79 +185,76 @@ public class ImportFluoDetROIWizardPage extends ImportROIWizardPage {
 				}
 			});
 			regionList.setListEditorUI(new ListEditorUI() {
-				
+
 				@Override
 				public void notifySelected(ListEditor listEditor) {
 //			   		XspressROIComposite xspressROIComposite = (XspressROIComposite)(listEditor.getEditorUI());
 //					xspressROIComposite.setFitTypeVisibility();
 				}
-				
+
 				@Override
 				public boolean isReorderAllowed(ListEditor listEditor) {
 					return true;
 				}
-				
+
 				@Override
 				public boolean isDeleteAllowed(ListEditor listEditor) {
 					return true;
 				}
-				
+
 				@Override
 				public boolean isAddAllowed(ListEditor listEditor) {
 					// add is performed by using the >>> button
 					return false;
 				}
 			});
-		
+
 		}
-		
+
 
 		public VerticalListEditor getRegionList() {
 			return regionList;
 		}
-		
-		
+
+
 	}
-	
+
 	@Override
 	protected void createDestinationControls(Composite parent) {
 		roisToImportComposite = new DetectorComposite(parent, SWT.NONE, maximum);
 		GridDataFactory.swtDefaults().applyTo(roisToImportComposite);
-		
+
 		// create a temporary DetectorElement as a container for the beans
 		DetectorElement element = new DetectorElement();
 		element.setRegionList(currentBeans);
-		
+
 		try {
-			BeanUI.switchState(element, roisToImportComposite, false);
-			BeanUI.beanToUI(element, roisToImportComposite);
-			BeanUI.switchState(element, roisToImportComposite, true);
+			beanToUI(roisToImportComposite, element);
 		} catch (Exception e1) {
 			// this is very unexpected as the currentBeans was just cloned from the current editor
 			logger.error("Unexpected exception creating destination contents", e1);
 		}
 	}
-	
+
 	@Override
 	protected void newSourceSelected(IPath path) {
 		validSource = false;
 		try {
 			detParameters = (FluorescenceDetectorParameters) XMLHelpers.readBean(path.toFile(), detectorParametersClass);
 			if (detParameters.getDetectorList().size() == elementListSize) {
-				BeanUI.switchState(detParameters, detectorListComposite, false);
-				BeanUI.beanToUI(detParameters, detectorListComposite);
-				BeanUI.switchState(detParameters, detectorListComposite, true);
+				beanToUI(detectorListComposite, detParameters);
 				validSource = true;
 			}
 		} catch (Exception e1) {
-		} 
+			logger.error("Unexpected exception creating destination contents", e1);
+		}
 	}
-	
+
 	@Override
 	protected boolean currentSourceValid() {
 		return validSource;
 	}
-	
+
 	@Override
 	protected void performAdd() {
 		Object bean = detectorListComposite.getDetectorElementComposite().getRegionList().getBean();
@@ -273,7 +269,7 @@ public class ImportFluoDetROIWizardPage extends ImportROIWizardPage {
 	protected void performAddAll() {
 		performAdd(); // Since detector elements do not actually support separate lists of ROIs
 	}
-	
+
 	@Override
 	public List<? extends DetectorROI> getBeansToAdd() {
 		// the region list is a wrapper for a List of DetectorROIs, therefore safe SuppressWarning

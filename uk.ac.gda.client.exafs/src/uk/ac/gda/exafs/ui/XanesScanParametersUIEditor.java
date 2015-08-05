@@ -18,9 +18,13 @@
 
 package uk.ac.gda.exafs.ui;
 
+import gda.configuration.properties.LocalProperties;
+import gda.jython.JythonServerFacade;
+import gda.util.exafs.Element;
+
 import java.util.List;
 
-import org.dawnsci.common.richbeans.components.scalebox.ScaleBox;
+import org.eclipse.richbeans.widgets.scalebox.ScaleBox;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.SelectionEvent;
@@ -34,9 +38,6 @@ import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.configuration.properties.LocalProperties;
-import gda.jython.JythonServerFacade;
-import gda.util.exafs.Element;
 import swing2swt.layout.BorderLayout;
 import uk.ac.gda.beans.exafs.Region;
 import uk.ac.gda.beans.exafs.XanesScanParameters;
