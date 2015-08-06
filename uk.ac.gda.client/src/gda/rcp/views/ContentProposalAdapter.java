@@ -1787,6 +1787,8 @@ public class ContentProposalAdapter {
 						});
 						internalPopupOpened();
 						notifyPopupOpened();
+					} else {
+						proposalAccepted(proposals[0]);
 					}
 				} else if (!autoActivated) {
 					getControl().getDisplay().beep();
