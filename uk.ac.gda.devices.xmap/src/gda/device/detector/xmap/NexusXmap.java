@@ -39,6 +39,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.vortex.DetectorElement;
+import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.util.CorrectionUtils;
 
 /**
@@ -265,6 +266,8 @@ public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
 		}
 		extraNames = (String[]) ArrayUtils.add(extraNames, "FF");
 		if (saveRawSpectrum) {
+			// previously numberOfElements was not initialised
+			numberOfElements = vortexParameters.getDetectorList().size();
 			for (int element = 0; element < numberOfElements; element++) {
 				extraNames = (String[]) ArrayUtils.add(extraNames, getIcrColumnName(element));
 				extraNames = (String[]) ArrayUtils.add(extraNames,  getOcrColumnName(element));
@@ -283,7 +286,7 @@ public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
 		}
 		return format;
 	}
-	
+
 	@Override
 	public int[] getDataDimensions() throws DeviceException {
 		return new int[] { getExtraNames().length };
@@ -319,7 +322,7 @@ public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
 	private String getOcrColumnName(int elementNumber){
 		return getElementNames()[elementNumber]+ "_ocr";
 	}
-	
+
 	public int getNumberOfIncludedDetectors() {
 		int numFilteredDetectors = 0;
 		for (int element = 0; element < vortexParameters.getDetectorList().size(); element++)
@@ -327,5 +330,10 @@ public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
 				numFilteredDetectors++;
 		return numFilteredDetectors;
 	}
+
+	public VortexParameters getVortexParameters(){
+		return this.vortexParameters;
+	}
+
 
 }
