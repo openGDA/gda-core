@@ -437,6 +437,12 @@ public class NexusFileTest {
 	}
 
 	@Test
+	public void testLinkExternalNonExistent() throws Exception {
+		nf.linkExternal(new URI("nxfile://NOT_REAL.nxs#/d/e"), "/a/b/c", true);
+		nf.getGroup("/a/b", false);
+	}
+
+	@Test
 	public void testLinkExternalUnderRoot() throws Exception {
 		try (NexusFile extFile = NexusUtils.createNexusFile(FILE2_NAME)) {
 			extFile.getGroup("/d", true);

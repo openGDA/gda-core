@@ -443,6 +443,18 @@ public class NexusFileHDF5 implements NexusFile {
 					int objId = objResource.getResource();
 					String linkName = H5.H5Lget_name_by_idx(objId, ".", HDF5Constants.H5_INDEX_NAME,
 							HDF5Constants.H5_ITER_INC, i, HDF5Constants.H5P_DEFAULT);
+					H5L_info_t linkInfo = H5.H5Lget_info_by_idx(objId, ".", HDF5Constants.H5_INDEX_NAME,
+							HDF5Constants.H5_ITER_INC, i, HDF5Constants.H5P_DEFAULT);
+					if (linkInfo.type == HDF5Constants.H5L_TYPE_EXTERNAL) {
+						String[] value = new String[2];
+						H5.H5Lget_val(objId, linkName, value, HDF5Constants.H5P_DEFAULT);
+						String extFilePath = value[1];
+						if (!new File(extFilePath).exists()) {
+							//TODO: cache "lazy" node
+							//this results on a potentially invalid cache
+							continue;
+						}
+					}
 					String childPath = path + linkName;
 					H5O_info_t objectInfo = H5.H5Oget_info_by_name(fileId, childPath, HDF5Constants.H5P_DEFAULT);
 					if (objectInfo.type == HDF5Constants.H5O_TYPE_GROUP) {
