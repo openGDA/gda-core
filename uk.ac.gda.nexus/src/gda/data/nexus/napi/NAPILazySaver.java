@@ -39,7 +39,7 @@ public class NAPILazySaver extends NAPILazyLoader implements ILazySaver, Seriali
 	private int textLength;
 
 	/**
-	 * @param file 
+	 * @param file
 	 * @param tree
 	 * @param path group where dataset will reside
 	 * @param name
@@ -114,7 +114,8 @@ public class NAPILazySaver extends NAPILazyLoader implements ILazySaver, Seriali
 				file.openpath(path);
 			}
 			file.opendata(name);
-			if (!Arrays.equals(trueShape, slice.getSourceShape())) { // if shape was squeezed then need to translate to true slice
+			int[] sourceShape = slice.getSourceShape();
+			if (trueShape.length != sourceShape.length) { // if shape was squeezed then need to translate to true slice
 				final int trank = trueShape.length;
 				int[] tstart = new int[trank];
 				int[] tsize = new int[trank];
@@ -130,10 +131,13 @@ public class NAPILazySaver extends NAPILazyLoader implements ILazySaver, Seriali
 						j++;
 					}
 				}
-				
+
 				saveData(file, data, tstart, tsize);
 			} else {
 				saveData(file, data, lstart, size);
+			}
+			if (slice.isExpanded()) {
+				trueShape = sourceShape.clone();
 			}
 		} catch (NexusException e) {
 			logger.error("Problem with NeXus library: {}", e);
