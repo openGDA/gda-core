@@ -1124,13 +1124,14 @@ public class NexusFileHDF5 implements NexusFile {
 	@Override
 	public void link(String source, String destination) throws NexusException {
 		assertCanWrite();
-		createHardLink(source, destination);
+		createHardLink(NexusUtils.stripAugmentedPath(source), NexusUtils.stripAugmentedPath(destination));
 	}
 
 	@Override
 	public void linkExternal(URI source, String destination, boolean isGroup) throws NexusException {
 		//creates a soft link *at* destination *to* source
 		assertCanWrite();
+		destination = NexusUtils.stripAugmentedPath(destination);
 		boolean useNameAtSource = destination.endsWith(Node.SEPARATOR);
 		String linkName = destination;
 		String sourceString = source.toString();
@@ -1145,6 +1146,7 @@ public class NexusFileHDF5 implements NexusFile {
 		if (externalFileName.contains("#")) {
 			externalFileName = externalFileName.substring(0, externalFileName.indexOf("#"));
 		}
+		externalNexusPath = NexusUtils.stripAugmentedPath(externalNexusPath);
 		if (externalFileName == null || externalFileName.isEmpty()) {
 			createSoftLink(externalNexusPath, destination);
 			return;
