@@ -1023,6 +1023,18 @@ public class NexusFileHDF5 implements NexusFile {
 			}
 			Node node = getNode(path, false).node;
 			node.addAttribute(attr);
+			try {
+				//if an attribute with the same name already exists, we delete it to be consistent with NAPI
+				if (H5.H5Aexists_by_name(fileId, path, attrName, HDF5Constants.H5P_DEFAULT)) {
+					try {
+						H5.H5Adelete_by_name(fileId, path, attrName, HDF5Constants.H5P_DEFAULT);
+					} catch (HDF5LibraryException e) {
+						throw new NexusException("Could not delete existing attribute", e);
+					}
+				}
+			} catch (HDF5LibraryException e) {
+				throw new NexusException("Error inspecting existing attributes", e);
+			}
 			IDataset attrData = attr.getValue();
 			int baseHdf5Type = getHDF5Type(attrData);
 			final long[] shape = attrData.getRank() == 0 ? new long[] {1} : intArrayToLongArray(attrData.getShape());

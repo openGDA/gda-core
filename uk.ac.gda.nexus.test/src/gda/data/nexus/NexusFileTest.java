@@ -395,6 +395,33 @@ public class NexusFileTest {
 	}
 
 	@Test
+	public void testOverwritingAttribute() throws Exception {
+		GroupNode group = nf.getGroup("/a", true);
+		IDataset attr = DatasetFactory.createFromObject(new int[] {1, 2});
+		attr.setName("test");
+		nf.addAttribute(group, nf.createAttribute(attr));
+		IDataset attr2 = DatasetFactory.createFromObject(new int[] {3, 4, 5});
+		attr2.setName("test");
+		nf.addAttribute(group, nf.createAttribute(attr2));
+		nf.close();
+
+		nf = NexusUtils.openNexusFile(FILE_NAME);
+		group = nf.getGroup("/a", true);
+		assertTrue(group.containsAttribute("test"));
+		assertEquals(attr2, group.getAttribute("test").getValue());
+
+		IDataset attr3 = DatasetFactory.createFromObject(new String[] {"test attribute"});
+		attr3.setName("test");
+		nf.addAttribute(group, nf.createAttribute(attr3));
+		nf.close();
+
+		nf = NexusUtils.openNexusFileReadOnly(FILE_NAME);
+		group = nf.getGroup("/a", true);
+		assertTrue(group.containsAttribute("test"));
+		assertEquals(attr3, group.getAttribute("test").getValue());
+	}
+
+	@Test
 	public void testLink() throws Exception {
 		nf.getGroup("/a/b/c/d", true);
 		nf.link("/a/b/c", "/f/g");
