@@ -459,6 +459,36 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 		}
 	}
 
+	@Override
+	public short getAutoOffsetScale() throws Exception {
+		try {
+			if (config != null) {
+				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getAutoOffsetScale().getPv()));
+			}
+			return EPICS_CONTROLLER.cagetEnum(getChannel(AutoOffsetScale));
+		} catch (Exception ex) {
+			logger.warn("g.d.d.a.v.i.NDProcessImpl-> Cannot getAutoOffsetScale", ex);
+			throw ex;
+		}
+	}
+
+	/**
+	*
+	*/
+	@Override
+	public void setAutoOffsetScale(int autooffsetscale) throws Exception {
+		try {
+			if (config != null) {
+				EPICS_CONTROLLER.caput(createChannel(config.getAutoOffsetScale().getPv()), autooffsetscale);
+			} else {
+				EPICS_CONTROLLER.caput(getChannel(AutoOffsetScale), autooffsetscale);
+			}
+		} catch (Exception ex) {
+			logger.warn("g.d.d.a.v.i.NDProcessImpl-> Cannot setAutoOffsetScale", ex);
+			throw ex;
+		}
+	}
+
 	/**
 	*
 	*/
