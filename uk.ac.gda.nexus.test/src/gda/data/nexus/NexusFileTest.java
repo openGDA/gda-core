@@ -25,6 +25,7 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.fail;
+import gda.util.TestUtils;
 
 import java.io.File;
 import java.net.URI;
@@ -43,15 +44,32 @@ import org.eclipse.dawnsci.hdf5.nexus.NexusException;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
 public class NexusFileTest {
 
-	private static final String FILE_NAME = "/tmp/test.nxs";
-	private static final String FILE2_NAME = "/tmp/ext-test.nxs";
+	private static String testScratchDirectoryName;
+	private static String FILE_NAME;
+	private static String FILE2_NAME;
 
 	private NexusFile nf;
+
+	/**
+	 * Creates an empty directory for use by test code.
+	 * 
+	 * @throws Exception if setup fails
+	 */
+	@BeforeClass
+	public static void setUpBeforeClass() throws Exception {
+		testScratchDirectoryName = TestUtils.generateDirectorynameFromClassname(NexusFileTest.class.getCanonicalName());
+		TestUtils.makeScratchDirectory(testScratchDirectoryName);
+		(new File(testScratchDirectoryName + "origin/")).mkdirs();
+		(new File(testScratchDirectoryName + "linked/")).mkdirs();
+		FILE_NAME = testScratchDirectoryName + "test.nxs";
+		FILE2_NAME = testScratchDirectoryName + "ext-test.nxs";
+	}
 
 	@Before
 	public void setUp() throws Exception {
@@ -495,7 +513,7 @@ public class NexusFileTest {
 		try (NexusFile ef = NexusUtils.createNexusFile(FILE2_NAME)) {
 			ef.createData("/a/b/c", externalData, true);
 		}
-		nf.linkExternal(new URI("nxfile://" + FILE2_NAME.replaceFirst("/tmp/", "") + "#a/b/c/data"), "/x/y/", false);
+		nf.linkExternal(new URI("nxfile://" + FILE2_NAME.replaceFirst(testScratchDirectoryName, "") + "#a/b/c/data"), "/x/y/", false);
 		DataNode dataNode = nf.getData("/x/y/data");
 		IDataset linkedData = dataNode.getDataset().getSlice();
 		assertNotNull(linkedData);
@@ -650,7 +668,7 @@ public class NexusFileTest {
 	@Test
 	public void testRelativeNapiMountToGroup() throws Exception {
 		GroupNode g = nf.getGroup("/e/g", true);
-		Dataset mountData = DatasetFactory.createFromObject(new String[] {"nxfile://" + FILE2_NAME.replaceFirst("/tmp/", "") + "#x/y"});
+		Dataset mountData = DatasetFactory.createFromObject(new String[] {"nxfile://" + FILE2_NAME.replaceFirst(testScratchDirectoryName, "") + "#x/y"});
 		mountData.setName("napimount");
 		nf.addAttribute( g, nf.createAttribute(mountData) );
 		nf.close();
@@ -668,7 +686,7 @@ public class NexusFileTest {
 	@Ignore("napi mount to dataset is invalid")
 	public void testRelativeNapiMountToDataset() throws Exception {
 		GroupNode g = nf.getGroup("/e/g", true);
-		Dataset mountData = DatasetFactory.createFromObject(new String[] {"nxfile://" + FILE2_NAME.replaceFirst("/tmp/", "") + "#x/y/z"});
+		Dataset mountData = DatasetFactory.createFromObject(new String[] {"nxfile://" + FILE2_NAME.replaceFirst(testScratchDirectoryName, "") + "#x/y/z"});
 		mountData.setName("napimount");
 		nf.addAttribute( g, nf.createAttribute(mountData) );
 		nf.close();
@@ -687,15 +705,15 @@ public class NexusFileTest {
 
 	@Test
 	public void testAbsoluteNapiMountToGroup() throws Exception {
-		try (NexusFile origin = NexusUtils.createNexusFile("/tmp/origin/test.nxs");
-				NexusFile linked = NexusUtils.createNexusFile("/tmp/linked/linked.nxs")) {
+		try (NexusFile origin = NexusUtils.createNexusFile(testScratchDirectoryName + "origin/test.nxs");
+				NexusFile linked = NexusUtils.createNexusFile(testScratchDirectoryName + "linked/linked.nxs")) {
 			GroupNode g = origin.getGroup("/a/b", true);
 			linked.getGroup("/x/y/z", true);
-			Dataset mountData = DatasetFactory.createFromObject(new String[] {"nxfile:///tmp/linked/linked.nxs#x/y/"});
+			Dataset mountData = DatasetFactory.createFromObject(new String[] {"nxfile://" + testScratchDirectoryName + "linked/linked.nxs#x/y/"});
 			mountData.setName("napimount");
 			origin.addAttribute( g, nf.createAttribute(mountData) );
 		}
-		try (NexusFile origin = NexusUtils.openNexusFileReadOnly("/tmp/origin/test.nxs")) {
+		try (NexusFile origin = NexusUtils.openNexusFileReadOnly(testScratchDirectoryName + "origin/test.nxs")) {
 			GroupNode g = origin.getGroup("/a/b", false);
 			GroupNode g2 = origin.getGroup("/a/b/z", false);
 			assertNotNull(g2);
@@ -710,16 +728,16 @@ public class NexusFileTest {
 	public void testAbsoluteNapiMountToDataset() throws Exception {
 		Dataset dummyData = DatasetFactory.createFromObject(new int[] {0, 1, 2});
 		dummyData.setName("z");
-		try (NexusFile origin = NexusUtils.createNexusFile("/tmp/origin/test.nxs");
-				NexusFile linked = NexusUtils.createNexusFile("/tmp/linked/linked.nxs")) {
+		try (NexusFile origin = NexusUtils.createNexusFile(testScratchDirectoryName + "origin/test.nxs");
+				NexusFile linked = NexusUtils.createNexusFile(testScratchDirectoryName + "linked/linked.nxs")) {
 			GroupNode g = origin.getGroup("/a/b/d", true);
-			Dataset mountData = DatasetFactory.createFromObject(new String[] {"nxfile:///tmp/linked/linked.nxs#x/y/z"});
+			Dataset mountData = DatasetFactory.createFromObject(new String[] {"nxfile://" + testScratchDirectoryName + "linked/linked.nxs#x/y/z"});
 			mountData.setName("napimount");
 			origin.addAttribute(g, origin.createAttribute(mountData));
 			GroupNode l = linked.getGroup("/x/y/", true);
 			linked.createData(l, dummyData);
 		}
-		try (NexusFile origin = NexusUtils.openNexusFileReadOnly("/tmp/origin/test.nxs")) {
+		try (NexusFile origin = NexusUtils.openNexusFileReadOnly(testScratchDirectoryName + "origin/test.nxs")) {
 			DataNode dataNode = origin.getData("/a/b/d");
 			assertNotNull(dataNode);
 			IDataset readData = dataNode.getDataset().getSlice();
@@ -732,16 +750,16 @@ public class NexusFileTest {
 	public void testNapiMountToGroupThenDataset() throws Exception {
 		Dataset dummyData = DatasetFactory.createFromObject(new int[] {0, 1, 2});
 		dummyData.setName("z");
-		try (NexusFile origin = NexusUtils.createNexusFile("/tmp/origin/test.nxs");
-				NexusFile linked = NexusUtils.createNexusFile("/tmp/linked/linked.nxs")) {
+		try (NexusFile origin = NexusUtils.createNexusFile(testScratchDirectoryName + "origin/test.nxs");
+				NexusFile linked = NexusUtils.createNexusFile(testScratchDirectoryName + "linked/linked.nxs")) {
 			GroupNode g = origin.getGroup("/a/b/d", true);
-			Dataset mountData = DatasetFactory.createFromObject(new String[] {"nxfile:///tmp/linked/linked.nxs#w/x"});
+			Dataset mountData = DatasetFactory.createFromObject(new String[] {"nxfile://" + testScratchDirectoryName + "linked/linked.nxs#w/x"});
 			mountData.setName("napimount");
 			origin.addAttribute(g, origin.createAttribute(mountData));
 			GroupNode l = linked.getGroup("/w/x/y/", true);
 			linked.createData(l, dummyData);
 		}
-		try (NexusFile origin = NexusUtils.openNexusFileReadOnly("/tmp/origin/test.nxs")) {
+		try (NexusFile origin = NexusUtils.openNexusFileReadOnly(testScratchDirectoryName + "origin/test.nxs")) {
 			DataNode dataNode = origin.getData("/a/b/d/y/z");
 			assertNotNull(dataNode);
 			GroupNode groupNode = origin.getGroup("/a/b/d/y", false);
