@@ -37,6 +37,7 @@ import gda.device.detector.NXDetectorData;
 import gda.device.detector.NexusDetector;
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.vortex.DetectorElement;
+import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.util.CorrectionUtils;
 
 /**
@@ -266,6 +267,8 @@ public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
 		}
 		extraNames = (String[]) ArrayUtils.add(extraNames, "FF");
 		if (saveRawSpectrum) {
+			// previously numberOfElements was not initialised
+			numberOfElements = vortexParameters.getDetectorList().size();
 			for (int element = 0; element < numberOfElements; element++) {
 				extraNames = (String[]) ArrayUtils.add(extraNames, getIcrColumnName(element));
 				extraNames = (String[]) ArrayUtils.add(extraNames,  getOcrColumnName(element));
@@ -328,5 +331,10 @@ public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
 				numFilteredDetectors++;
 		return numFilteredDetectors;
 	}
+
+	public VortexParameters getVortexParameters(){
+		return this.vortexParameters;
+	}
+
 
 }
