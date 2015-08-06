@@ -364,7 +364,7 @@ public class NexusFileHDF5 implements NexusFile {
 					int attrId = attrResource.getResource();
 					String[] name = new String[1];
 					H5.H5Aget_name(attrId, name);
-					if (node.containsAttribute(name[0]) && writeable) {
+					if (node.containsAttribute(name[0])) {
 						//we don't need to read an attribute we already have
 						continue;
 					}
