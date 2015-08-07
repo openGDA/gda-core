@@ -1,10 +1,31 @@
+/*-
+ * Copyright © 2015 Diamond Light Source Ltd.
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package gda.device.detector.nxdetector.andor.proc;
 
-import java.io.IOException;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import gda.device.DeviceException;
 import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.device.detector.areadetector.v17.NDProcess;
 import gda.device.detector.nxdetector.andor.proc.FlatAndDarkFieldPlugin.ScanType;
+
+import java.io.IOException;
 
 import org.junit.After;
 import org.junit.Before;
@@ -13,10 +34,8 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.verify;
 
-public class FlatAndDarkFieldPluginTest {
+public class FlatAndDarkFieldPluginJUnitTest {
 
 	private FlatAndDarkFieldPlugin flatAndDarkFieldPluginToTest;
 	private InOrder order;
@@ -29,7 +48,7 @@ public class FlatAndDarkFieldPluginTest {
 	NDPluginBase pluginBase;
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		MockitoAnnotations.initMocks(this);
 
 		this.order = Mockito.inOrder(ndProcess,pluginBase);
@@ -38,7 +57,7 @@ public class FlatAndDarkFieldPluginTest {
 	}
 
 	@After
-	public void tearDown() throws Exception {
+	public void tearDown() {
 		flatAndDarkFieldPluginToTest = null;
 	}
 
