@@ -449,6 +449,20 @@ public class NexusFileTest {
 		assertSame(dataNode, linkedNode);
 	}
 
+	@Test
+	public void testTargetAttributeAfterLink() throws Exception {
+		nf.getGroup("/a/", true);
+		nf.getGroup("/x/y", true);
+		nf.link("/x/y", "/a/b");
+		GroupNode b = nf.getGroup("/a/b", false);
+		assertTrue(b.containsAttribute("target"));
+		IDataset attrData = b.getAttribute("target").getValue();
+		IDataset expected = DatasetFactory.createFromObject("/x/y");
+		expected.resize(new int[] {1});
+		expected.setName("target");
+		attrData.resize(new int[] {1});
+		assertEquals(expected, attrData);
+	}
 
 	@Test
 	public void testLinkExternal() throws Exception {

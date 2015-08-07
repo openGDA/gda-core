@@ -1143,6 +1143,11 @@ public class NexusFileHDF5 implements NexusFile {
 		} catch (HDF5LibraryException e) {
 			throw new NexusException("Could not create hard link", e);
 		}
+		//TODO: Maybe remove this and fix the areas where this is required (NexusLoader and some tests?)
+		IDataset target = DatasetFactory.createFromObject(source);
+		target.setName("target");
+		Attribute targetAttr = createAttribute(target);
+		addAttribute(linkName, targetAttr);
 	}
 
 	@Override
