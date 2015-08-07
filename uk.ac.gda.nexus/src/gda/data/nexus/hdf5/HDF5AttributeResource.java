@@ -41,7 +41,7 @@ public class HDF5AttributeResource extends HDF5BaseResource {
 			return;
 		}
 		try {
-			H5.H5Aclose((int)resource);
+			H5.H5Aclose(resource);
 		} catch (HDF5LibraryException e) {
 			logger.error("Could not close HDF5 attribute", e);
 		}

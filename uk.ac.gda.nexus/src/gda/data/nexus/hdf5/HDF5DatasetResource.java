@@ -39,7 +39,7 @@ public class HDF5DatasetResource extends HDF5BaseResource {
 	@Override
 	public void close() {
 		try {
-			H5.H5Dclose((int)resource);
+			H5.H5Dclose(resource);
 		} catch (HDF5LibraryException e) {
 			logger.error("Could not close HDF5 dataset", e);
 		}
