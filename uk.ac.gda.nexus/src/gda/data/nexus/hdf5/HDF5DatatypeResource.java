@@ -32,16 +32,16 @@ public class HDF5DatatypeResource extends HDF5BaseResource {
 	 * Wrap the specified datatype resource identifier
 	 * @param resource datatype identifier to wrap
 	 */
-	public HDF5DatatypeResource(int resource) {
+	public HDF5DatatypeResource(long resource) {
 		super(resource);
 	}
 
 	@Override
 	public void close() {
 		try {
-			H5.H5Tclose((int)resource);
+			H5.H5Tclose(resource);
 		} catch (HDF5LibraryException e) {
-			logger.error("Could not close HDF5 object", e);
+			logger.error("Could not close HDF5 datatype", e);
 		}
 	}
 

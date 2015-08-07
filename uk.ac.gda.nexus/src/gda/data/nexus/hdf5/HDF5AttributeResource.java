@@ -31,7 +31,7 @@ public class HDF5AttributeResource extends HDF5BaseResource {
 	 * Wrap the specified attribute resource identifier
 	 * @param resource attribute identifier to wrap
 	 */
-	public HDF5AttributeResource(int resource) {
+	public HDF5AttributeResource(long resource) {
 		super(resource);
 	}
 
@@ -43,7 +43,7 @@ public class HDF5AttributeResource extends HDF5BaseResource {
 		try {
 			H5.H5Aclose((int)resource);
 		} catch (HDF5LibraryException e) {
-			logger.error("Could not close HDF5 object", e);
+			logger.error("Could not close HDF5 attribute", e);
 		}
 	}
 

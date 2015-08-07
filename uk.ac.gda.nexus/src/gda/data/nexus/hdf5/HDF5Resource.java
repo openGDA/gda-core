@@ -26,7 +26,7 @@ public interface HDF5Resource extends AutoCloseable {
 	/**
 	 * @return raw resource identifier
 	 */
-	public int getResource();
+	public long getResource();
 
 	@Override
 	public void close();

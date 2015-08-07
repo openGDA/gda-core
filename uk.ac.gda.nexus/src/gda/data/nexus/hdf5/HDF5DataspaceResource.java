@@ -32,16 +32,16 @@ public class HDF5DataspaceResource extends HDF5BaseResource {
 	 * Wrap the specified dataspace resource identifier
 	 * @param resource dataspace identifier to wrap
 	 */
-	public HDF5DataspaceResource(int resource) {
+	public HDF5DataspaceResource(long resource) {
 		super(resource);
 	}
 
 	@Override
 	public void close() {
 		try {
-			H5.H5Sclose((int)resource);
+			H5.H5Sclose(resource);
 		} catch (HDF5LibraryException e) {
-			logger.error("Could not close HDF5 object", e);
+			logger.error("Could not close HDF5 dataspace", e);
 		}
 	}
 

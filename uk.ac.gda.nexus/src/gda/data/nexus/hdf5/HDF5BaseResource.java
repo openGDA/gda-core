@@ -27,10 +27,10 @@ public abstract class HDF5BaseResource implements HDF5Resource {
 	}
 
 	@Override
-	public int getResource() {
+	public long getResource() {
 		if (resource < 0) {
 			throw new IllegalStateException("No resource acquired");
 		}
-		return (int)resource;
+		return resource;
 	}
 }

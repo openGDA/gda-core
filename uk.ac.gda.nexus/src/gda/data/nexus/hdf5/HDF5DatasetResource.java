@@ -32,7 +32,7 @@ public class HDF5DatasetResource extends HDF5BaseResource {
 	 * Wrap the specified dataset resource identifier
 	 * @param resource dataset identifier to wrap
 	 */
-	public HDF5DatasetResource(int resource) {
+	public HDF5DatasetResource(long resource) {
 		super(resource);
 	}
 
@@ -41,7 +41,7 @@ public class HDF5DatasetResource extends HDF5BaseResource {
 		try {
 			H5.H5Dclose((int)resource);
 		} catch (HDF5LibraryException e) {
-			logger.error("Could not close HDF5 object", e);
+			logger.error("Could not close HDF5 dataset", e);
 		}
 	}
 

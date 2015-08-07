@@ -32,7 +32,7 @@ public class HDF5ObjectResource extends HDF5BaseResource {
 	 * Wrap the specified object resource identifier
 	 * @param resource object identifier to wrap
 	 */
-	public HDF5ObjectResource(int resource) {
+	public HDF5ObjectResource(long resource) {
 		super(resource);
 	}
 
@@ -40,7 +40,7 @@ public class HDF5ObjectResource extends HDF5BaseResource {
 	public void close() {
 		try {
 			//TODO: determine object type and call more specific close?
-			H5.H5Oclose((int)resource);
+			H5.H5Oclose(resource);
 		} catch (HDF5LibraryException e) {
 			logger.error("Could not close HDF5 object", e);
 		}

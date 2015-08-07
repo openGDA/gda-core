@@ -32,16 +32,16 @@ public class HDF5PropertiesResource extends HDF5BaseResource {
 	 * Wrap the specified property list resource identifier
 	 * @param resource property list identifier to wrap
 	 */
-	public HDF5PropertiesResource(int resource) {
+	public HDF5PropertiesResource(long resource) {
 		super(resource);
 	}
 
 	@Override
 	public void close() {
 		try {
-			H5.H5Pclose((int)resource);
+			H5.H5Pclose(resource);
 		} catch (HDF5LibraryException e) {
-			logger.error("Could not close HDF5 object", e);
+			logger.error("Could not close HDF5 property", e);
 		}
 	}
 }

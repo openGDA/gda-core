@@ -69,12 +69,12 @@ public class NexusFileHDF5 implements NexusFile {
 
 	//TODO: Clean up and move stuff to helper classes?
 
-	private static Map<Integer, Integer> HDF_TYPES_TO_DATASET_TYPES;
-	private static Map<Integer, Integer> DATASET_TYPES_TO_HDF_TYPES;
-	private static Set<Integer> UNSIGNED_HDF_TYPES;
+	private static Map<Long, Integer> HDF_TYPES_TO_DATASET_TYPES;
+	private static Map<Integer, Long> DATASET_TYPES_TO_HDF_TYPES;
+	private static Set<Long> UNSIGNED_HDF_TYPES;
 
-	private static int getTypeRepresentation(int nativeHdfTypeId) throws NexusException {
-		final int[] types = {HDF5Constants.H5T_NATIVE_DOUBLE,
+	private static long getTypeRepresentation(long nativeHdfTypeId) throws NexusException {
+		final long[] types = {HDF5Constants.H5T_NATIVE_DOUBLE,
 				HDF5Constants.H5T_NATIVE_FLOAT,
 				HDF5Constants.H5T_NATIVE_INT8,
 				HDF5Constants.H5T_NATIVE_UINT8,
@@ -86,7 +86,7 @@ public class NexusFileHDF5 implements NexusFile {
 				HDF5Constants.H5T_NATIVE_UINT64,
 				HDF5Constants.H5T_C_S1};
 		try {
-			for (int type : types) {
+			for (long type : types) {
 				if (H5.H5Tequal(nativeHdfTypeId, type)) {
 					return type;
 				}
@@ -98,9 +98,9 @@ public class NexusFileHDF5 implements NexusFile {
 	}
 
 	static {
-		HDF_TYPES_TO_DATASET_TYPES = new HashMap<Integer, Integer>();
-		DATASET_TYPES_TO_HDF_TYPES = new HashMap<Integer, Integer>();
-		UNSIGNED_HDF_TYPES = new HashSet<Integer>();
+		HDF_TYPES_TO_DATASET_TYPES = new HashMap<Long, Integer>();
+		DATASET_TYPES_TO_HDF_TYPES = new HashMap<Integer, Long>();
+		UNSIGNED_HDF_TYPES = new HashSet<Long>();
 
 		HDF_TYPES_TO_DATASET_TYPES.put(HDF5Constants.H5T_NATIVE_INT8, Dataset.INT8);
 		DATASET_TYPES_TO_HDF_TYPES.put(Dataset.INT8, HDF5Constants.H5T_NATIVE_INT8);
@@ -184,7 +184,7 @@ public class NexusFileHDF5 implements NexusFile {
 	//TODO: Logging
 	private static final Logger logger = LoggerFactory.getLogger(NexusFile.class);
 
-	private int fileId = -1;
+	private long fileId = -1;
 
 	private String fileName;
 
@@ -361,7 +361,7 @@ public class NexusFileHDF5 implements NexusFile {
 				try (HDF5Resource attrResource = new HDF5AttributeResource(
 						H5.H5Aopen_by_idx(fileId, path, HDF5Constants.H5_INDEX_NAME, HDF5Constants.H5_ITER_INC, i,
 								HDF5Constants.H5P_DEFAULT, HDF5Constants.H5P_DEFAULT))) {
-					int attrId = attrResource.getResource();
+					long attrId = attrResource.getResource();
 					String[] name = new String[1];
 					H5.H5Aget_name(attrId, name);
 					if (node.containsAttribute(name[0])) {
@@ -371,14 +371,14 @@ public class NexusFileHDF5 implements NexusFile {
 					try (HDF5Resource spaceResource = new HDF5DataspaceResource( H5.H5Aget_space(attrId) );
 							HDF5Resource typeResource = new HDF5DatatypeResource( H5.H5Aget_type(attrId) );
 							HDF5Resource nativeTypeResource = new HDF5DatatypeResource( H5.H5Tget_native_type(typeResource.getResource()) )) {
-						final int spaceId = spaceResource.getResource();
-						final int nativeTypeId = nativeTypeResource.getResource();
+						final long spaceId = spaceResource.getResource();
+						final long nativeTypeId = nativeTypeResource.getResource();
 						final int dataclass = H5.H5Tget_class(nativeTypeId);
 						final int datatypeSize = H5.H5Tget_size(nativeTypeId);
 						if (dataclass == HDF5Constants.H5T_STRING) {
 							datasetType = Dataset.STRING;
 						} else {
-							int typeRepresentation = getTypeRepresentation(nativeTypeId);
+							long typeRepresentation = getTypeRepresentation(nativeTypeId);
 							datasetType = HDF_TYPES_TO_DATASET_TYPES.get(typeRepresentation);
 						}
 						if (datasetType == null) {
@@ -440,7 +440,7 @@ public class NexusFileHDF5 implements NexusFile {
 				//we have to open the object itself to handle external links
 				//H5.H5Lget_name_by_idx(fileId, "X", ....) will fail if X is an external link node, as will similar methods
 				try (HDF5Resource objResource = new HDF5ObjectResource( H5.H5Oopen(fileId, path, HDF5Constants.H5P_DEFAULT) )) {
-					int objId = objResource.getResource();
+					long objId = objResource.getResource();
 					String linkName = H5.H5Lget_name_by_idx(objId, ".", HDF5Constants.H5_INDEX_NAME,
 							HDF5Constants.H5_ITER_INC, i, HDF5Constants.H5P_DEFAULT);
 					H5L_info_t linkInfo = H5.H5Lget_info_by_idx(objId, ".", HDF5Constants.H5_INDEX_NAME,
@@ -569,8 +569,7 @@ public class NexusFileHDF5 implements NexusFile {
 			type = getNodeType(path);
 			if (type == null || type == NodeType.GROUP) {
 				//make sure the group actually exists
-				int nodeId;
-				nodeId = openGroup(path, parsedNode.nxClass, createPathIfNecessary);
+				long nodeId = openGroup(path, parsedNode.nxClass, createPathIfNecessary);
 				closeNode(nodeId);
 				type = NodeType.GROUP;
 			} else if (type == NodeType.DATASET) {
@@ -651,7 +650,7 @@ public class NexusFileHDF5 implements NexusFile {
 		}
 	}
 
-	private int openNode(String absolutePath) throws NexusException {
+	private long openNode(String absolutePath) throws NexusException {
 		if (!absolutePath.startsWith(Tree.ROOT)) {
 			throw new IllegalArgumentException("Group path must be absolute");
 		}
@@ -662,9 +661,9 @@ public class NexusFileHDF5 implements NexusFile {
 		}
 	}
 
-	private int openGroup(String absolutePath, String nxClass, boolean create) throws NexusException {
+	private long openGroup(String absolutePath, String nxClass, boolean create) throws NexusException {
 		NodeType type = getNodeType(absolutePath);
-		int groupId;
+		long groupId;
 
 		if (type == null) {
 			if (create && writeable) {
@@ -686,7 +685,7 @@ public class NexusFileHDF5 implements NexusFile {
 		return groupId;
 	}
 
-	private int openDataset(String absolutePath) throws NexusException {
+	private long openDataset(String absolutePath) throws NexusException {
 		NodeType type = getNodeType(absolutePath);
 		if (type != NodeType.DATASET) {
 			throw new NexusException("Path does not refer to dataset");
@@ -694,7 +693,7 @@ public class NexusFileHDF5 implements NexusFile {
 		return openNode(absolutePath);
 	}
 
-	private void closeNode(int nodeId) throws NexusException {
+	private void closeNode(long nodeId) throws NexusException {
 		try {
 			H5.H5Oclose(nodeId);
 		} catch (HDF5LibraryException e) {
@@ -748,10 +747,10 @@ public class NexusFileHDF5 implements NexusFile {
 				HDF5Resource hdfDataspace = new HDF5DataspaceResource( H5.H5Dget_space(hdfDataset.getResource()) );
 				HDF5Resource hdfDatatype = new HDF5DatatypeResource( H5.H5Dget_type(hdfDataset.getResource()) );
 				HDF5Resource hdfNativetype = new HDF5DatatypeResource( H5.H5Tget_native_type(hdfDatatype.getResource()) )) {
-			final int datasetId = hdfDataset.getResource();
-			int typeRepresentation;
-			final int dataspaceId = hdfDataspace.getResource();
-			final int nativeTypeId = hdfNativetype.getResource();
+			final long datasetId = hdfDataset.getResource();
+			long typeRepresentation;
+			final long dataspaceId = hdfDataspace.getResource();
+			final long nativeTypeId = hdfNativetype.getResource();
 			final int dataClass = H5.H5Tget_class(nativeTypeId);
 			if (dataClass == HDF5Constants.H5T_STRING || H5.H5Tis_variable_str(nativeTypeId)) {
 				typeRepresentation = HDF5Constants.H5T_C_S1;
@@ -765,7 +764,7 @@ public class NexusFileHDF5 implements NexusFile {
 			}
 			int nDims = H5.H5Sget_simple_extent_ndims(dataspaceId);
 			try (HDF5Resource hdfProperties = new HDF5PropertiesResource(H5.H5Dget_create_plist(datasetId))) {
-				int propertiesId = hdfProperties.getResource();
+				long propertiesId = hdfProperties.getResource();
 				if (H5.H5Pget_layout(propertiesId) == HDF5Constants.H5D_CHUNKED) {
 					chunks = new long[nDims];
 					H5.H5Pget_chunk(propertiesId, nDims, chunks);
@@ -871,15 +870,15 @@ public class NexusFileHDF5 implements NexusFile {
 			Arrays.fill(chunks, maxDim);
 		}
 		boolean stringDataset = data.elementClass().equals(String.class);
-		int hdfType = getHDF5Type(data);
+		long hdfType = getHDF5Type(data);
 		try {
 			try (HDF5Resource hdfDatatype = new HDF5DatatypeResource(H5.H5Tcopy(hdfType));
 					HDF5Resource hdfDataspace = new HDF5DataspaceResource(H5.H5Screate_simple(shape.length, shape, maxShape));
 					HDF5Resource hdfProperties = new HDF5PropertiesResource(H5.H5Pcreate(HDF5Constants.H5P_DATASET_CREATE))) {
 
-				final int hdfPropertiesId = hdfProperties.getResource();
-				final int hdfDatatypeId = hdfDatatype.getResource();
-				final int hdfDataspaceId = hdfDataspace.getResource();
+				final long hdfPropertiesId = hdfProperties.getResource();
+				final long hdfDatatypeId = hdfDatatype.getResource();
+				final long hdfDataspaceId = hdfDataspace.getResource();
 				if (stringDataset) {
 					H5.H5Tset_cset(hdfDatatypeId, HDF5Constants.H5T_CSET_UTF8);
 					H5.H5Tset_size(hdfDatatypeId, HDF5Constants.H5T_VARIABLE);
@@ -904,7 +903,7 @@ public class NexusFileHDF5 implements NexusFile {
 				if (compression != COMPRESSION_NONE) {
 					H5.H5Pset_deflate(hdfPropertiesId, deflateLevel);
 				}
-				int datasetId = H5.H5Dcreate(fileId, dataPath, hdfDatatypeId, hdfDataspaceId,
+				long datasetId = H5.H5Dcreate(fileId, dataPath, hdfDatatypeId, hdfDataspaceId,
 						HDF5Constants.H5P_DEFAULT, hdfPropertiesId, HDF5Constants.H5P_DEFAULT);
 				H5.H5Dclose(datasetId);
 			}
@@ -960,15 +959,15 @@ public class NexusFileHDF5 implements NexusFile {
 		boolean stringDataset = data.elementClass().equals(String.class);//ngd.isChar();
 		final long[] shape = data.getRank() == 0 ? new long[] {1} : intArrayToLongArray(data.getShape());
 
-		int type = getHDF5Type(data);
+		long type = getHDF5Type(data);
 
 		try {
 			try (HDF5Resource hdfDatatype = new HDF5DatatypeResource(H5.H5Tcopy(type));
 					HDF5Resource hdfDataspace = new HDF5DataspaceResource(
 							H5.H5Screate_simple(shape.length, shape, (long[])null))) {
 
-				final int datatypeId = hdfDatatype.getResource();
-				final int dataspaceId = hdfDataspace.getResource();
+				final long datatypeId = hdfDatatype.getResource();
+				final long dataspaceId = hdfDataspace.getResource();
 				if (stringDataset) {
 					H5.H5Tset_cset(datatypeId, HDF5Constants.H5T_CSET_UTF8);
 					H5.H5Tset_size(datatypeId, HDF5Constants.H5T_VARIABLE);
@@ -977,7 +976,7 @@ public class NexusFileHDF5 implements NexusFile {
 						H5.H5Dcreate(fileId, dataPath, datatypeId, dataspaceId,
 								HDF5Constants.H5P_DEFAULT, HDF5Constants.H5P_DEFAULT, HDF5Constants.H5P_DEFAULT));) {
 
-					final int dataId = hdfDataset.getResource();
+					final long dataId = hdfDataset.getResource();
 					if (stringDataset) {
 						String[] strings = (String[])DatasetUtils.serializeDataset(data);
 						H5.H5DwriteString(dataId, datatypeId, HDF5Constants.H5S_ALL, HDF5Constants.H5S_ALL, HDF5Constants.H5P_DEFAULT, strings);
@@ -1036,15 +1035,15 @@ public class NexusFileHDF5 implements NexusFile {
 				throw new NexusException("Error inspecting existing attributes", e);
 			}
 			IDataset attrData = attr.getValue();
-			int baseHdf5Type = getHDF5Type(attrData);
+			long baseHdf5Type = getHDF5Type(attrData);
 			final long[] shape = attrData.getRank() == 0 ? new long[] {1} : intArrayToLongArray(attrData.getShape());
 			try {
 				try (HDF5Resource typeResource = new HDF5DatatypeResource(H5.H5Tcopy(baseHdf5Type));
 						HDF5Resource spaceResource = new HDF5DataspaceResource(
 								H5.H5Screate_simple(shape.length, shape, shape))) {
 
-					int datatypeId = typeResource.getResource();
-					int dataspaceId = spaceResource.getResource();
+					long datatypeId = typeResource.getResource();
+					long dataspaceId = spaceResource.getResource();
 					boolean stringDataset = attrData.elementClass().equals(String.class);
 					Serializable buffer = DatasetUtils.serializeDataset(attrData);
 					if (stringDataset) {
@@ -1310,7 +1309,7 @@ public class NexusFileHDF5 implements NexusFile {
 		}
 	}
 
-	private static int getHDF5Type(ILazyDataset data) {
+	private static long getHDF5Type(ILazyDataset data) {
 		Class<?> clazz = data.elementClass();
 		if (clazz.equals(String.class)) {
 			return HDF5Constants.H5T_C_S1;
