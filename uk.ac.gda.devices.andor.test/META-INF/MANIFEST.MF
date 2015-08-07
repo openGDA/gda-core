@@ -3,16 +3,11 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Test
 Bundle-SymbolicName: uk.ac.gda.devices.andor.test
 Bundle-Version: 1.0.0.qualifier
+Fragment-Host: uk.ac.gda.devices.andor
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Require-Bundle: uk.ac.gda.core;bundle-version="8.44.0",
- uk.ac.gda.epics;bundle-version="1.0.0",
- uk.ac.gda.nexus;bundle-version="1.0.0",
- slf4j.api;bundle-version="1.7.6",
- uk.ac.gda.common;bundle-version="1.2.0",
- uk.ac.gda.exafs.api;bundle-version="1.0.0",
- org.apache.commons.lang;bundle-version="2.6.0",
- uk.ac.diamond.org.springframework;bundle-version="4.0.6",
- uk.ac.gda.devices.andor;bundle-version="1.0.0",
- org.junit
-Import-Package: org.mockito,
- org.mockito.stubbing;version="1.9.5"
+Require-Bundle: uk.ac.gda.test.helpers;bundle-version="1.0.0",
+ org.junit;bundle-version="[4.10.0,5.0.0)",
+ org.mockito.mockito-core;bundle-version="[1.9.5,2.0.0)",
+ com.springsource.org.hamcrest.core;bundle-version="[1.1.0,2.0.0)",
+ com.springsource.org.objenesis;bundle-version="[1.0.0,2.0.0)"
+Bundle-Vendor: Diamond Light Source
