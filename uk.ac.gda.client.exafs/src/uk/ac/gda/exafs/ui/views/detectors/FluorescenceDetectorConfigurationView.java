@@ -81,9 +81,8 @@ public class FluorescenceDetectorConfigurationView extends ViewPart {
 			setPartName(secondaryId + " Configuration");
 			FluorescenceDetector detector = findNamedDetector(secondaryId);
 			fluorescenceDetectorComposite = new FluorescenceDetectorComposite(parent, SWT.NONE);
-			controller = new FluorescenceDetectorCompositeController();
+			controller = new FluorescenceDetectorCompositeController(fluorescenceDetectorComposite);
 			controller.setDetector(detector);
-			controller.setEditorUI(fluorescenceDetectorComposite);
 			controller.initialise();
 		}
 	}

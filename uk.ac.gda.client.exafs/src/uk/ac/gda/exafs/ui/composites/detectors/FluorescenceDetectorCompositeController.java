@@ -68,12 +68,10 @@ import uk.ac.gda.exafs.ui.composites.detectors.internal.FluoCompositeDataStore;
 import uk.ac.gda.exafs.ui.detector.wizards.ImportFluoDetROIWizard;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 
-
 /**
- * Provides control logic for a FluorescenceDetectorComposite. To use this class, create a new controller and then call
- * setEditorUI() to provide a FluorescenceDetectorComposite. If necessary (e.g. if using in an editor where the
- * parameters object has already been created from a file) call setEditingBean() to set the initial parameters. Finally
- * call initialise() to start the controller.
+ * Provides control logic for a FluorescenceDetectorComposite. To use this class, create a new controller and then call setEditorUI() to provide a
+ * FluorescenceDetectorComposite. If necessary (e.g. if using in an editor where the parameters object has already been created from a file) call
+ * setEditingBean() to set the initial parameters. Finally call initialise() to start the controller.
  */
 // TODO clarify creation logic for detector and parameters
 public class FluorescenceDetectorCompositeController implements ValueListener, BeanSelectionListener, IROIListener {
@@ -97,47 +95,28 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 	private boolean updatingRoiUIFromPlot;
 
 	/**
-	 * Empty constructor. Call setEditorUI() and setEditingBean() as necessary to set up the controller.
+	 * Create a new FluorescenceDetectorCompositeController for the given FluorescenceDetectorComposite. Call at least one of setDetector() and
+	 * setDetectorParameters() before calling initialise() to set up the controller.
 	 */
-	public FluorescenceDetectorCompositeController() {
-		// empty
-	}
-
-	/**
-	 * Set the FluorescenceDetectorComposite to be controlled. Call this after GUI construction but before calling
-	 * initialise()
-	 *
-	 * @param ui the FluorescenceDetectorComposite object
-	 */
-	public void setEditorUI(FluorescenceDetectorComposite ui) {
-		if (fluorescenceDetectorComposite != null) {
-			throw new IllegalStateException("FluorescenceDetectorCompositeController does not support changing the editor UI after it has been set");
-		}
-
+	public FluorescenceDetectorCompositeController(FluorescenceDetectorComposite ui) {
 		fluorescenceDetectorComposite = ui;
-		updateDataBindingController();
-	}
-
-	private void updateDataBindingController() {
-		IBeanService service = (IBeanService)ExafsActivator.getService(IBeanService.class);
-		dataBindingController = service.createController(fluorescenceDetectorComposite, detectorParameters);
 	}
 
 	/**
-	 * Set the detector parameters bean to be edited by the FluorescenceDetectorComposite. Call this (if required) after
-	 * GUI construction but before calling initialise()
+	 * Set the detector to be configured by this controller. Call this (if required) before calling initialise()
 	 *
-	 * @param bean the detector parameters bean. Must be an implementation of FluorescenceDetectorParameters
+	 * @param detector
+	 *            the FluorescenceDetector instance to be configured
 	 */
-	public void setEditingBean(Object bean) {
-		if (bean instanceof FluorescenceDetectorParameters) {
-			setDetectorParameters((FluorescenceDetectorParameters) bean);
-		} else {
-			throw new IllegalArgumentException("Illegal bean type passed to FluorescenceDetectorCompositeController");
-		}
+	public void setDetector(FluorescenceDetector detector) {
+		this.theDetector = detector;
 	}
 
-	private void setDetectorParameters(FluorescenceDetectorParameters parameters) {
+	/**
+	 * Set the detector parameters bean to be edited by the FluorescenceDetectorComposite. Call this (if required) after GUI construction but before calling
+	 * initialise()
+	 */
+	public void setDetectorParameters(FluorescenceDetectorParameters parameters) {
 		detectorParameters = parameters;
 		updateDataBindingController();
 		checkDetectorMatchesParameters();
@@ -151,6 +130,13 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 					updatePlottedRegion();
 				}
 			});
+		}
+	}
+
+	private void updateDataBindingController() {
+		if (fluorescenceDetectorComposite != null && detectorParameters != null) {
+			IBeanService service = (IBeanService) ExafsActivator.getService(IBeanService.class);
+			dataBindingController = service.createController(fluorescenceDetectorComposite, detectorParameters);
 		}
 	}
 
@@ -169,19 +155,9 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 	}
 
 	/**
-	 * Set the detector to be configured by this controller. Call this (if required) after GUI construction but before
-	 * calling initialise()
-	 *
-	 * @param detector the FluorescenceDetector instance to be configured
-	 */
-	public void setDetector(FluorescenceDetector detector) {
-		this.theDetector = detector;
-	}
-
-	/**
-	 * Call this method from the UI thread once the GUI has been fully constructed and the detector parameters object
-	 * has been set (if desired; otherwise the current parameters will be fetched from the detector but this risks
-	 * losing synchronisation between parameter objects if a different one is held by a containing editor)
+	 * Call this method from the UI thread once the GUI has been fully constructed and the detector parameters object has been set (if desired; otherwise the
+	 * current parameters will be fetched from the detector but this risks losing synchronisation between parameter objects if a different one is held by a
+	 * containing editor)
 	 */
 	public void initialise() {
 
@@ -241,8 +217,7 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 				if (fluorescenceDetectorComposite.getContinuousModeSelection()) {
 					continuousAcquire(fluorescenceDetectorComposite.getAcquisitionTime());
 				} else {
-					singleAcquire(fluorescenceDetectorComposite.getAcquisitionTime(),
-							fluorescenceDetectorComposite.getAutoSaveModeSelection());
+					singleAcquire(fluorescenceDetectorComposite.getAcquisitionTime(), fluorescenceDetectorComposite.getAutoSaveModeSelection());
 				}
 			}
 		});
@@ -261,9 +236,8 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 		fluorescenceDetectorComposite.addRegionImportButtonSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent event) {
-				WizardDialog dialog = new WizardDialog(fluorescenceDetectorComposite.getShell(),
-						new ImportFluoDetROIWizard(fluorescenceDetectorComposite.getRegionList(),
-								fluorescenceDetectorComposite.getDetectorList(), detectorParameters.getClass()));
+				WizardDialog dialog = new WizardDialog(fluorescenceDetectorComposite.getShell(), new ImportFluoDetROIWizard(fluorescenceDetectorComposite
+						.getRegionList(), fluorescenceDetectorComposite.getDetectorList(), detectorParameters.getClass()));
 				dialog.create();
 				dialog.open();
 			}
@@ -294,9 +268,8 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 	/**
 	 * Fetch the current configuration from the detector.
 	 * <p>
-	 * Be careful calling this when the FluorescenceDetectorComposite is being used in an editor - it will cause the
-	 * detector parameters objects underlying the editor and the composite to be different and subject to
-	 * synchronisation problems.
+	 * Be careful calling this when the FluorescenceDetectorComposite is being used in an editor - it will cause the detector parameters objects underlying the
+	 * editor and the composite to be different and subject to synchronisation problems.
 	 */
 	public void fetchConfigurationFromDetector() {
 		setDetectorParameters(theDetector.getConfigurationParameters());
@@ -475,8 +448,10 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 	/**
 	 * Acquire a single frame from the detector
 	 *
-	 * @param collectionTimeValue the time to collect for (in milliseconds)
-	 * @param writeToDisk set <code>true</code> to save data automatically after collection
+	 * @param collectionTimeValue
+	 *            the time to collect for (in milliseconds)
+	 * @param writeToDisk
+	 *            set <code>true</code> to save data automatically after collection
 	 */
 	public void singleAcquire(final double collectionTimeValue, final boolean writeToDisk) {
 		IProgressService service = (IProgressService) PlatformUI.getWorkbench().getService(IProgressService.class);
@@ -523,8 +498,7 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 			}
 		} catch (DeviceException de) {
 			logger.error("Exception reading out detector data.", de);
-			displayErrorMessage("Exception reading out detector data",
-					"Hardware problem acquiring data. See log for details.");
+			displayErrorMessage("Exception reading out detector data", "Hardware problem acquiring data. See log for details.");
 		}
 
 		if (monitor != null) {
@@ -569,12 +543,10 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 
 		} catch (DeviceException de) {
 			logger.error("Exception applying detector settings.", de);
-			displayErrorMessage("Exception applying detector settings",
-					"Hardware problem applying detector settings. See log for details.");
+			displayErrorMessage("Exception applying detector settings", "Hardware problem applying detector settings. See log for details.");
 		} catch (Exception ex) {
 			logger.error("Exception applying detector settings.", ex);
-			displayErrorMessage("Exception applying detector settings",
-					"Internal error while applying detector settings. See log for details.");
+			displayErrorMessage("Exception applying detector settings", "Internal error while applying detector settings. See log for details.");
 		}
 	}
 

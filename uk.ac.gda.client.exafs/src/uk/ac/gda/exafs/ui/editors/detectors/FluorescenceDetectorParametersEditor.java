@@ -20,6 +20,7 @@ package uk.ac.gda.exafs.ui.editors.detectors;
 
 import org.eclipse.swt.widgets.Composite;
 
+import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
 import uk.ac.gda.exafs.ui.composites.detectors.FluorescenceDetectorComposite;
 import uk.ac.gda.exafs.ui.composites.detectors.FluorescenceDetectorCompositeController;
 import uk.ac.gda.richbeans.CompositeFactory;
@@ -31,34 +32,28 @@ import uk.ac.gda.richbeans.editors.RichBeanMultiPageEditorPart;
  * Configures the parameters of a fluorescence detector. Subclasses should override getBeanClass(), getMappingUrl(),
  * getSchemaUrl() and getRichEditorTabText() with specific implementations.
  */
-public abstract class FluorescenceDetectorParametersEditor extends RichBeanMultiPageEditorPart implements
-		CompositeFactory {
+public abstract class FluorescenceDetectorParametersEditor extends RichBeanMultiPageEditorPart implements CompositeFactory {
 
+	FluorescenceDetectorParameters cachedBean;
 	FluorescenceDetectorCompositeController controller;
 
 	@Override
 	public RichBeanEditorPart getRichBeanEditorPart(String path, Object editingBean) {
-		DelegatingRichBeanEditorPart editor = new DelegatingRichBeanEditorPart(path, getMappingUrl(), this,
-				editingBean, this);
+		DelegatingRichBeanEditorPart editor = new DelegatingRichBeanEditorPart(path, getMappingUrl(), this, editingBean, this);
 		editor.setRichEditorTabText(getRichEditorTabText());
-		controller = getNewController();
-		controller.setEditingBean(editingBean);
+		if (editingBean instanceof FluorescenceDetectorParameters) {
+			cachedBean = (FluorescenceDetectorParameters) editingBean;
+		}
 		return editor;
 	}
 
 	protected abstract String getRichEditorTabText();
 
-	protected FluorescenceDetectorCompositeController getNewController() {
-		return new FluorescenceDetectorCompositeController();
-	}
-
 	@Override
 	public Composite createComposite(Composite parent, int style) {
 		FluorescenceDetectorComposite composite = new FluorescenceDetectorComposite(parent, style);
-		if (controller == null) {
-			controller = getNewController();
-		}
-		controller.setEditorUI(composite);
+		controller = new FluorescenceDetectorCompositeController(composite);
+		controller.setDetectorParameters(cachedBean);
 		controller.initialise();
 		return composite;
 	}
@@ -67,7 +62,12 @@ public abstract class FluorescenceDetectorParametersEditor extends RichBeanMulti
 	protected void linkUI() {
 		super.linkUI();
 		if (controller != null) {
-			controller.setEditingBean(editingBean);
+			// This method is called after the editing bean has been changed; pass that on to the controller
+			if (editingBean instanceof FluorescenceDetectorParameters) {
+				controller.setDetectorParameters((FluorescenceDetectorParameters) editingBean);
+			} else {
+				throw new IllegalStateException("Editing bean must be a FluorescenceDetectorParameters object");
+			}
 		}
 	}
 }
