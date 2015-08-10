@@ -53,43 +53,43 @@ import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 
 /**
- * This class is designed to be extended and then the extending class edited with 
+ * This class is designed to be extended and then the extending class edited with
  * RCP developer. By naming the data entry fields the same as the fields in the bean,
  * this class will automatically save and open the bean values into the UI.
- * 
+ *
  * @author Matthew Gerring
  *
  */
 public abstract class RichBeanEditorPart extends EditorPart  implements ValueListener, IReusableEditor, IFieldProvider {
 
 	protected static final Logger logger = LoggerFactory.getLogger(RichBeanEditorPart.class);
-	
+
 	/**
 	 * The bean used for state
 	 */
 	protected volatile Object editingBean;
-	
+
 	/**
 	 * A bean used in the undo stack assigned when the editor
 	 * changes IEditorInput (normally at start up)
 	 */
 	protected volatile Object previousUndoBean;
-	
+
 	/**
 	 * An interface which provides for if the editor is dirty.
 	 */
 	protected final DirtyContainer dirtyContainer;
-	
+
 	/**
 	 * The file path which can be null
 	 */
 	protected       String         path;
-	
+
 	/**
 	 * The URL used in in saving the editing bean
 	 */
 	protected final URL            mappingURL;
-	
+
 	private boolean undoStackActive = true;
 	private boolean isDisposed      = false;
 
@@ -104,28 +104,30 @@ public abstract class RichBeanEditorPart extends EditorPart  implements ValueLis
 	 * @return string
 	 */
 	protected abstract String getRichEditorTabText();
-	
+
 	/**
 	 * @param path
-	 * @param mappingURL 
+	 * @param mappingURL
 	 * @param dirtyContainer
 	 * @param editingBean
 	 */
-	public RichBeanEditorPart(final String         path, 
+	public RichBeanEditorPart(final String         path,
 			                  final URL            mappingURL,
 			                  final DirtyContainer dirtyContainer,
 			                  final Object         editingBean) {
-		
+
 		this.path             = path;
 		this.mappingURL       = mappingURL;
 		this.dirtyContainer   = dirtyContainer;
 		this.editingBean      = editingBean;
-		
-		IBeanService service  = ServiceGrabber.getBeanService();
-		this.controller       = service.createController(getEditorUI(), editingBean);
+
+		if (getEditorUI() != null) {
+			createDataBindingController();
+		}
+
 		/**
-		 * The final undo state is recorded by cloning the editing bean and 
-		 * not editing it further when this editor is 
+		 * The final undo state is recorded by cloning the editing bean and
+		 * not editing it further when this editor is
 		 */
 		try {
 			this.previousUndoBean = BeansFactory.deepClone(editingBean);
@@ -139,9 +141,14 @@ public abstract class RichBeanEditorPart extends EditorPart  implements ValueLis
 		}
 	}
 
+	protected void createDataBindingController() {
+		IBeanService service = ServiceGrabber.getBeanService();
+		this.controller = service.createController(getEditorUI(), this.editingBean);
+	}
+
 	@Override
 	public void doSave(IProgressMonitor monitor) {
-		
+
 		if (path==null) return; // Nothing to save.
 		final File file = new File(path);
 		monitor.beginTask(file.getName(), 100);
@@ -154,7 +161,7 @@ public abstract class RichBeanEditorPart extends EditorPart  implements ValueLis
 							InterruptedException {
 						try {
 							XMLHelpers.writeToXML(mappingURL, editingBean, path);
-							
+
 							final IFile ifile = getIFile();
 							if (ifile!=null) {
 								ifile.refreshLocal(IResource.DEPTH_ZERO, null);
@@ -164,9 +171,9 @@ public abstract class RichBeanEditorPart extends EditorPart  implements ValueLis
 							MessageDialog dialog = new MessageDialog(getSite().getShell(), "File didn't save", null,
 									"Path="+path, MessageDialog.ERROR, new String[] {}, 0);
 								int result = dialog.open();
-								System.out.println(result); 
+								System.out.println(result);
 							throw new InvocationTargetException(e);
-						}					
+						}
 					}
 				};
 
@@ -174,29 +181,29 @@ public abstract class RichBeanEditorPart extends EditorPart  implements ValueLis
 						saveOp);
 				notifyFileSaved(file);
 				dirtyContainer.setDirty(false);
-				
-				
+
+
 			} catch (Exception e) {
 				// Saving is very important as it saves the state of the editors when switching between editors, perspectives, etc.
-				
+
 				logger.error("Error - RichBeanEditorPart.doSave() failed. Path="+path+e.getMessage());
 				MessageDialog dialog = new MessageDialog(getSite().getShell(), "File didn't save", null,
 						"Path="+path, MessageDialog.ERROR, new String[] {}, 0);
 					int result = dialog.open();
-					System.out.println(result); 
+					System.out.println(result);
 			}
 		} finally {
 			monitor.done();
 		}
 	}
 
-	
+
 	/**
 	 * Override to be called when a file is saved.
 	 * @param file
 	 */
 	protected void notifyFileSaved(@SuppressWarnings("unused") File file) {
-		
+
 	}
 
 	@Override
@@ -209,9 +216,9 @@ public abstract class RichBeanEditorPart extends EditorPart  implements ValueLis
 		setSite(site);
         setInput(input);
         if (dirtyContainer!=null) dirtyContainer.setDirty(false);
-                
+
  	}
-	
+
 	/**
 	 * Might be null
 	 * @return iFile
@@ -231,7 +238,7 @@ public abstract class RichBeanEditorPart extends EditorPart  implements ValueLis
 	}
 	/**
 	 * @return the editingBean
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	public Object updateFromUIAndReturnEditingBean() throws Exception {
 		controller.uiToBean();
@@ -244,14 +251,15 @@ public abstract class RichBeanEditorPart extends EditorPart  implements ValueLis
 	public String getPath() {
 		return path;
 	}
-	
+
 	/** Should only be used internally.
 	 * Do not override / change to be not final.
-	 * 
+	 *
 	 * @param editingBean the editingBean to set
 	 */
 	protected final void setEditingBean(Object editingBean) {
 		this.editingBean = editingBean;
+		createDataBindingController();
 	}
 
 	/**
@@ -263,29 +271,29 @@ public abstract class RichBeanEditorPart extends EditorPart  implements ValueLis
 
 
 	protected IUndoContext undoableContext;
-	
+
 	public void setUndoableContext(IUndoContext context) {
 		this.undoableContext = context;
 	}
-	
+
 	@Override
 	public void valueChangePerformed(ValueEvent e) {
-		
+
 		dirtyContainer.setDirty(true);
 		recordUndoableEvent(e.getFieldName());
 	}
-	
+
 	protected void recordUndoableEvent(final String fieldName) {
-		
+
 		if (!isUndoStackActive()) return;
 		try {
 			if (Thread.currentThread()!=getSite().getShell().getDisplay().getThread()) return;
-			
+
 			// Save current bean state
 			final Object previousBean =  BeansFactory.deepClone(previousUndoBean);
-			
+
 			// Be careful about messing with this, very sensitive to make
-			// this code correctly generic, try with many editors before 
+			// this code correctly generic, try with many editors before
 			// committing a change.
 			Object newBean = BeansFactory.deepClone(editingBean);
 			updateFromUIAndReturnEditingBean();
@@ -293,16 +301,16 @@ public abstract class RichBeanEditorPart extends EditorPart  implements ValueLis
 
 			// If the values are the same as last edited, do nothing.
 			if (previousUndoBean!=null&&previousUndoBean.equals(newBean)) return;
-			
+
 			// Add operation to stack.
 			final RichBeanEditorOperation undoableOperation = new RichBeanEditorOperation(fieldName, previousBean, newBean, this);
 			undoableOperation.addContext(undoableContext);
 			OperationHistoryFactory.getOperationHistory().add(undoableOperation);
-			
+
 			previousUndoBean = newBean;
 
 			getEditorSite().getActionBars().updateActionBars();
-			
+
 		} catch (Exception e1) {
 			logger.error("Unable to add event to stack "+editingBean.toString(), e1);
 		}
@@ -325,14 +333,14 @@ public abstract class RichBeanEditorPart extends EditorPart  implements ValueLis
 	}
 
 	protected boolean addedListenersAndSwitchedOn = false;
-	
+
 	/**
-	 * Extending classes should normally overide this method with bounds and 
+	 * Extending classes should normally overide this method with bounds and
 	 * choice information and then call this method with super.linkUI();
 	 */
 	public void linkUI(@SuppressWarnings("unused") final boolean isPageChange) {
 
-        // Call a method which assigns properties from the scan parameters bean to 
+        // Call a method which assigns properties from the scan parameters bean to
         // the ui in this class. This class can be used to do this for any
 		// bean and any UI object (editor etc.)
         try {
@@ -343,7 +351,7 @@ public abstract class RichBeanEditorPart extends EditorPart  implements ValueLis
 				controller.addValueListener(this);
 				controller.recordBeanFields();
 				addedListenersAndSwitchedOn = true;
-					
+
 				// TODO resolve this - the DawnSci widgets do not allow expressions - a licensing issue??
 //				// We ensure that fields being edited which allow expressions, have the IExpressionManager
 //				// available to evaluate the expressions for them.
@@ -366,7 +374,7 @@ public abstract class RichBeanEditorPart extends EditorPart  implements ValueLis
 			logger.error("Cannot push values from bean to UI in linkUI()", e);
 		}
 	}
-	
+
 	/**
 	 * Override to define a different object for editing the UI.
 	 * @return the editorUI object
@@ -378,21 +386,21 @@ public abstract class RichBeanEditorPart extends EditorPart  implements ValueLis
 	protected List<String> expressionFields;
 	/**
 	 * Override this method (usually by calling it too) to add values which should be available in expressions.
-	 * 
+	 *
 	 * NOTE when overriding that after the first call the expressionFields are cached to avoid too many
 	 * interogations of the bean.
-	 * 
+	 *
 	 * @return List<String> of possible expression vars.
 	 * @throws Exception
 	 */
 	protected List<String> getExpressionFields() throws Exception {
-  	    
+
 		if (expressionFields==null) {
 			expressionFields = controller.getEditingFields();
 		}
         return expressionFields;
 	}
-	
+
 	@Override
 	public IFieldWidget getField(final String fieldName) throws Exception {
 		return controller.getFieldWidget(fieldName);
@@ -402,20 +410,20 @@ public abstract class RichBeanEditorPart extends EditorPart  implements ValueLis
 	public Object getFieldValue(final String fieldName) throws Exception{
 		return getField(fieldName).getValue();
 	}
-	
+
 	@Override
 	public void dispose() {
 		setDisposed(true);
 		super.dispose();
-		
+
 		try {
 			controller.dispose();
 		} catch (Exception e) {
 			logger.error("Cannot dispose parts as expected", e);
 		}
 	}
-	
-	
+
+
 	public boolean isDisposed() {
 		return isDisposed;
 	}

@@ -90,6 +90,7 @@ public class DelegatingRichBeanEditorPart extends RichBeanEditorPart {
 	private void instantiateComposite(Composite parent) {
 		parent.setLayout(new FillLayout());
 		editorUI = uiProvider.createComposite(parent, SWT.BORDER);
+		createDataBindingController();
 	}
 
 	@Override
