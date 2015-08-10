@@ -25,10 +25,6 @@
          id="org.eclipse.rcp"
          version="0.0.0"/>
 
-   <includes
-         id="org.eclipse.jdt"
-         version="0.0.0"/>
-
    <plugin
          id="uk.ac.gda.client.logpanel"
          download-size="0"
@@ -134,13 +130,6 @@
          unpack="false"/>
 
    <plugin
-         id="org.dawnsci.common.widgets"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="uk.ac.diamond.org.jscience4"
          download-size="0"
          install-size="0"
@@ -226,6 +215,37 @@
 
    <plugin
          id="uk.ac.diamond.jama"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.richbeans.widgets"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.eclipse.richbeans.reflection"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.eclipse.richbeans.api"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.junit"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.hamcrest.core"
          download-size="0"
          install-size="0"
          version="0.0.0"
