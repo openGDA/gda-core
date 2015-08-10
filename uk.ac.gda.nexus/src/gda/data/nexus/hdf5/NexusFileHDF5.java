@@ -57,6 +57,7 @@ import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
 import org.eclipse.dawnsci.analysis.dataset.impl.LazyDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.LazyWriteableDataset;
 import org.eclipse.dawnsci.analysis.tree.TreeFactory;
+import org.eclipse.dawnsci.hdf5.HDF5Utils;
 import org.eclipse.dawnsci.hdf5.nexus.NexusException;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
 import org.slf4j.Logger;
@@ -239,7 +240,7 @@ public class NexusFileHDF5 implements NexusFile {
 	@Override
 	public void openToRead() throws NexusException {
 		try {
-			fileId = H5.H5Fopen(fileName, HDF5Constants.H5F_ACC_RDONLY, HDF5Constants.H5P_DEFAULT);
+			fileId = HDF5Utils.H5Fopen(fileName, HDF5Constants.H5F_ACC_RDONLY, HDF5Constants.H5P_DEFAULT);
 		} catch (HDF5LibraryException e) {
 			throw new NexusException("Cannot open to read", e);
 		}
@@ -250,7 +251,7 @@ public class NexusFileHDF5 implements NexusFile {
 	public void openToWrite(boolean createIfNecessary) throws NexusException {
 		if (new java.io.File(fileName).exists()) {
 			try {
-				fileId = H5.H5Fopen(fileName, HDF5Constants.H5F_ACC_RDWR, HDF5Constants.H5P_DEFAULT);
+				fileId = HDF5Utils.H5Fopen(fileName, HDF5Constants.H5F_ACC_RDWR, HDF5Constants.H5P_DEFAULT);
 			} catch (HDF5LibraryException e) {
 				throw new NexusException("Cannot open to write", e);
 			}
