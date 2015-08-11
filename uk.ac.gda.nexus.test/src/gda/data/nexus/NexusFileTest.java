@@ -18,14 +18,13 @@
 
 package gda.data.nexus;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.fail;
-import gda.util.TestUtils;
 
 import java.io.File;
 import java.net.URI;
@@ -45,8 +44,9 @@ import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
+
+import gda.util.TestUtils;
 
 public class NexusFileTest {
 
@@ -730,7 +730,6 @@ public class NexusFileTest {
 	}
 
 	@Test
-	@Ignore("napi mount to dataset is invalid")
 	public void testRelativeNapiMountToDataset() throws Exception {
 		GroupNode g = nf.getGroup("/e/g", true);
 		Dataset mountData = DatasetFactory.createFromObject(new String[] {"nxfile://" + FILE2_NAME.replaceFirst(testScratchDirectoryName, "") + "#x/y/z"});
@@ -744,9 +743,10 @@ public class NexusFileTest {
 		}
 		try (NexusFile oFile = NexusUtils.openNexusFileReadOnly(FILE_NAME)) {
 			g = oFile.getGroup("/e", false);
-			assertTrue(g.containsDataNode("g"));
-			IDataset readData = oFile.getData("/e/g").getDataset().getSlice();
-			assertEquals(dummyData, readData);
+			assertFalse(g.containsDataNode("g")); // NAPI mount from group to dataset not supported
+			oFile.getData("/e/g");
+			fail("NAPI mount from group to dataset not supported");
+		} catch (IllegalArgumentException e) { // throws this
 		}
 	}
 
@@ -771,7 +771,6 @@ public class NexusFileTest {
 	}
 
 	@Test
-	@Ignore("napi mount to dataset is invalid")
 	public void testAbsoluteNapiMountToDataset() throws Exception {
 		Dataset dummyData = DatasetFactory.createFromObject(new int[] {0, 1, 2});
 		dummyData.setName("z");
@@ -785,11 +784,11 @@ public class NexusFileTest {
 			linked.createData(l, dummyData);
 		}
 		try (NexusFile origin = NexusUtils.openNexusFileReadOnly(testScratchDirectoryName + "origin/test.nxs")) {
-			DataNode dataNode = origin.getData("/a/b/d");
-			assertNotNull(dataNode);
-			IDataset readData = dataNode.getDataset().getSlice();
-			assertNotNull(readData);
-			assertEquals(dummyData, readData);
+			GroupNode group = origin.getGroup("/a/b", false);
+			assertFalse(group.containsDataNode("d"));
+			origin.getData(group, "d");
+			fail("NAPI mount from group to dataset not supported");
+		} catch (IllegalArgumentException e) { // throws this
 		}
 	}
 

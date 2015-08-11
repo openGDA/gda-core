@@ -22,7 +22,6 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import gda.data.nexus.hdf5.NexusFileHDF5;
 
 import java.net.URI;
 
@@ -38,13 +37,11 @@ import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.analysis.dataset.impl.LazyWriteableDataset;
 import org.eclipse.dawnsci.hdf5.nexus.NexusException;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class NexusFileIntegrationTest {
 
 	@Test
-	//@Ignore("20150715: Breaks JVM with NAPI implementation of NexusFile - re-enable once that is replaced")
 	public void testNexusFile() throws Exception {
 		String name = "test-scratch/test.nxs";
 		NexusFile nf = NexusUtils.createNexusFile(name);
@@ -180,7 +177,6 @@ public class NexusFileIntegrationTest {
 	}
 
 	@Test
-	//@Ignore("20150715: Breaks JVM with NAPI implementation of NexusFile - re-enable once that is replaced")
 	public void testLinked() throws NexusException {
 		String d = "testfiles/gda/data/nexus/";
 		String n = "testnapilinks.nxs";

@@ -792,9 +792,11 @@ public class NexusFileHDF5 implements NexusFile {
 		DataNode dataNode;
 		long fileAddr = getLinkTarget(path);
 		if (fileAddr != IS_EXTERNAL_LINK && fileAddr != NO_LINK) {
-			dataNode = (DataNode) nodeMap.get(fileAddr);
-			if (dataNode != null) {
-				return dataNode;
+			Node node = nodeMap.get(fileAddr);
+			if (node instanceof DataNode) {
+				return (DataNode) node;
+			} else if (node != null) {
+				throw new IllegalArgumentException("Path specified is not for a dataset");
 			}
 		}
 
