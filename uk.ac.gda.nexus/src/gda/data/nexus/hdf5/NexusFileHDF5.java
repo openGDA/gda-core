@@ -944,6 +944,8 @@ public class NexusFileHDF5 implements NexusFile {
 				//chunks == null check is unnecessary, but compiler warns otherwise
 				if (!Arrays.equals(shape, maxShape) && (recalcChunks || chunks == null || chunks[chunks.length - 1] == 1)) {
 					chunks = estimateChunking(shape, maxShape, H5.H5Tget_size(hdfDatatypeId));
+					iChunks = longArrayToIntArray(chunks);
+					data.setChunking(iChunks);
 				}
 
 				if (stringDataset) {
