@@ -849,7 +849,7 @@ public class NexusFileHDF5 implements NexusFile {
 		for (int i = 0; i < shape.length; i++) {
 			fixedDims[i] = maxshape[i] == shape[i];
 			fixedSize &= fixedDims[i];
-			chunk[i] = maxshape[i] >= 0 ? maxshape[i] : UNLIMITED_DIM_ESTIMATE; //we have to have *something* for unlimited dimensions
+			chunk[i] = maxshape[i] > 0 ? maxshape[i] : UNLIMITED_DIM_ESTIMATE; //we have to have *something* for unlimited dimensions
 		}
 		long rawDataSize = typeSize;
 		for (long c : chunk) {
@@ -884,6 +884,7 @@ public class NexusFileHDF5 implements NexusFile {
 		while ( !((chunkByteSize < targetSize || (chunkByteSize - targetSize) / (double)targetSize < 0.5) &&
 				chunkByteSize < MAX_CHUNK) ) {
 			chunk[idx] = (long)Math.ceil(chunk[idx] / 2.0);
+			chunkByteSize /= 2;
 			long p = 1;
 			for (long c : chunk) p *= c;
 			if (p == 1) break;
@@ -934,10 +935,14 @@ public class NexusFileHDF5 implements NexusFile {
 				boolean recalcChunks = true;
 				if (chunks != null) {
 					for (long c : chunks) {
-						recalcChunks &= c <= 1;
+						if (c > 1) {
+							recalcChunks = false;
+							break;
+						}
 					}
 				}
-				if (!Arrays.equals(shape, maxShape) && recalcChunks) {
+				//chunks == null check is unnecessary, but compiler warns otherwise
+				if (!Arrays.equals(shape, maxShape) && (recalcChunks || chunks == null || chunks[chunks.length - 1] == 1)) {
 					chunks = estimateChunking(shape, maxShape, H5.H5Tget_size(hdfDatatypeId));
 				}
 
