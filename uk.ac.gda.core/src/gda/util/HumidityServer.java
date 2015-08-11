@@ -75,17 +75,11 @@ public class HumidityServer implements Runnable {
 
 	@Override
 	public void run() {
+		ServerSocket serverSocket = null;
+		BufferedReader reader = null;
 		try {
-			ServerSocket serverSocket;
-			BufferedReader reader = null;
 			String command;
-
-			try {
-				serverSocket = new ServerSocket(port);
-			} catch (IOException ex) {
-				logger.error("Fatal error in SocketServer, failed to bind socket on port " + port);
-				return;
-			}
+			serverSocket = new ServerSocket(port);
 
 			while (true) {
 				try {
@@ -101,7 +95,6 @@ public class HumidityServer implements Runnable {
 							break;
 					}
 
-					reader.close();
 					socket.close();
 				} catch (IOException ioex) {
 					logger.error("IOException caught in Grip Command Server " + ioex.getMessage() + " " + socket + " "
@@ -110,6 +103,23 @@ public class HumidityServer implements Runnable {
 			}
 		} catch (NumberFormatException e) {
 			logger.debug(e.getStackTrace().toString());
+		} catch (IOException ex) {
+			logger.error("Fatal error in SocketServer, failed to bind socket on port " + port);
+		} finally {
+			if (serverSocket != null) {
+				try {
+					serverSocket.close();
+				} catch (IOException e) {
+					// ignore
+				}
+			}
+			if (reader != null) {
+				try {
+					reader.close();
+				} catch (IOException e) {
+					// ignore
+				}
+			}
 		}
 	}
 }

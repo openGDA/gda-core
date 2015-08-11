@@ -68,7 +68,7 @@ public abstract class DefaultComponentWriter implements ComponentWriter {
 
 	protected abstract Object getComponentSlab(final Object pos);
 
-	protected int[] slabSizeForWriting(final int[] dim, final int length) {
+	protected int[] slabSizeForWriting(final int[] dim, @SuppressWarnings("unused") final int length) {
 		// default: ignore length
 		return slabsizedimfordim(dim);
 	}
@@ -85,8 +85,9 @@ public abstract class DefaultComponentWriter implements ComponentWriter {
 	 *            extra or input name being written
 	 * @throws NexusException
 	 */
-	protected void addCustomAttributes(final NexusFile file, Node group, final String scannableName,
-			final String componentName) throws NexusException {
+	@SuppressWarnings("unused")
+	// Overriding classes will use the arguments
+	protected void addCustomAttributes(final NexusFile file, Node group, final String scannableName, final String componentName) throws NexusException {
 		// Default no operation
 	}
 

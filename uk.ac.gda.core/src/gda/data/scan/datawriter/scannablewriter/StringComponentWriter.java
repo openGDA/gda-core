@@ -105,4 +105,5 @@ public class StringComponentWriter extends DefaultComponentWriter {
 
 		return Collections.emptySet();
 	}
+
 }

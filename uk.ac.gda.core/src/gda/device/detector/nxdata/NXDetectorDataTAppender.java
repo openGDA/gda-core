@@ -18,14 +18,14 @@
 
 package gda.device.detector.nxdata;
 
+import java.text.MessageFormat;
+import java.util.List;
+
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeNode;
 import gda.device.detector.NXDetectorData;
-
-import java.text.MessageFormat;
-import java.util.List;
 
 public class NXDetectorDataTAppender <T> implements NXDetectorDataAppender {
 
@@ -43,7 +43,7 @@ public class NXDetectorDataTAppender <T> implements NXDetectorDataAppender {
 		this.elementUnits=null;
 	}
 
-	public NXDetectorDataTAppender(List<String> elementNames, List<T> elementValues, List<String> elementUnits) {
+	public NXDetectorDataTAppender(List<String> elementNames, List<T> elementValues, @SuppressWarnings("unused") List<String> elementUnits) {
 		if (elementNames.size() != elementValues.size()) {
 			throw new IllegalArgumentException(MessageFormat.format(
 					"Length of elementNames[{0}] != elementValues[{1}]", elementNames.size(), elementValues.size()));

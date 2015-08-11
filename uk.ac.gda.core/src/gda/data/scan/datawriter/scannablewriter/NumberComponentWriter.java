@@ -68,7 +68,7 @@ public class NumberComponentWriter extends DefaultComponentWriter {
 					aPath, scannableName);
 			return null;
 		}
-		
+
 		String name = NexusUtils.getName(aPath);
 
 		final int[] makedatadim = makedatadimfordim(dim);
@@ -109,4 +109,5 @@ public class NumberComponentWriter extends DefaultComponentWriter {
 
 		return Collections.singleton(scl);
 	}
+
 }

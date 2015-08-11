@@ -19,14 +19,14 @@
 
 package gda.device.temperature;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
 import gda.device.Temperature;
 import gda.device.TemperatureStatus;
 import gda.factory.FactoryException;
 import gda.util.PollerEvent;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Dummy temperature class designed to simulate the temperature interface and TemperatureBase, without threads, for unit
@@ -54,7 +54,7 @@ public class DummyTemperature extends TemperatureBase implements Temperature {
 	}
 
 	@Override
-	public void setTargetTemperature(double target) throws DeviceException {
+	public synchronized void setTargetTemperature(double target) throws DeviceException {
 		// FIXME - this has a problem with visibility and setting of limits
 		if (target > upperTemp || target < lowerTemp) {
 			throw new DeviceException("Target temperature outside hard limits");

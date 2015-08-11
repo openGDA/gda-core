@@ -340,15 +340,15 @@ public enum Marker {
 	 *
 	 * @return a suitable JComboBox
 	 */
-	public static JComboBox getChooser() {
-		JComboBox markersCombo = new JComboBox();
+	public static JComboBox<Marker> getChooser() {
+		JComboBox<Marker> markersCombo = new JComboBox<>();
 		for (Marker m : Marker.values()) {
 			markersCombo.addItem(m);
 		}
 
-		markersCombo.setRenderer(new ListCellRenderer() {
+		markersCombo.setRenderer(new ListCellRenderer<Object>() {
 			@Override
-			public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected,
+			public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected,
 					boolean cellHasFocus) {
 				JLabel component = new JLabel();
 				component.setText(value.toString());

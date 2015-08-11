@@ -18,12 +18,12 @@
 
 package gda.data.scan.datawriter.scannablewriter;
 
-import gda.data.nexus.NexusUtils;
-import gda.device.Scannable;
-
 import org.eclipse.dawnsci.analysis.api.tree.Node;
 import org.eclipse.dawnsci.hdf5.nexus.NexusException;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
+
+import gda.data.nexus.NexusUtils;
+import gda.device.Scannable;
 
 public class TransformationWriter extends SingleScannableWriter {
 

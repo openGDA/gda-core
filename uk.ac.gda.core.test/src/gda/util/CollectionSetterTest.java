@@ -22,6 +22,11 @@ package gda.util;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+
+import java.util.ArrayList;
+
+import org.junit.Test;
+
 import gda.data.metadata.GdaMetadata;
 import gda.data.metadata.IMetadataEntry;
 import gda.data.metadata.NexusMetadataEntry;
@@ -34,10 +39,6 @@ import gda.function.Function;
 import gda.function.IdentityFunction;
 import gda.util.converters.util.RangeConverterNameProvider;
 import gda.util.converters.util.RangeandConverterNameHolder;
-
-import java.util.ArrayList;
-
-import org.junit.Test;
 
 
 /**
@@ -106,11 +107,11 @@ public class CollectionSetterTest {
 		assertEquals(2, rcnp.getConverterList().size());
 	}
 
-	private <T> T[] arrayOf(T... items) {
+	private <T> T[] arrayOf(@SuppressWarnings("unchecked") T... items) {
 		return items;
 	}
 
-	private <T> ArrayList<T> arrayListOf(T...items) {
+	private <T> ArrayList<T> arrayListOf(@SuppressWarnings("unchecked") T... items) {
 		ArrayList<T> list = new ArrayList<T>();
 		for (T i : items) {
 			list.add(i);

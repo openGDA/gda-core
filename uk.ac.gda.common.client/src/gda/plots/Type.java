@@ -103,8 +103,8 @@ public enum Type {
 	 *
 	 * @return the JComboBox
 	 */
-	public static JComboBox getChooser() {
-		JComboBox typesCombo = new JComboBox();
+	public static JComboBox<Type> getChooser() {
+		JComboBox<Type> typesCombo = new JComboBox<>();
 		for (Type t : values()) {
 			typesCombo.addItem(t);
 		}
@@ -114,11 +114,11 @@ public enum Type {
 	}
 }
 
-class TypeCellRenderer implements ListCellRenderer
+class TypeCellRenderer implements ListCellRenderer<Object>
 {
 	HashMap<Type, JLabel>comps = new HashMap<Type, JLabel>(); //http://www.blogjava.net/rednight/archive/2007/01/16/94089.html
 	@Override
-	public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected,
+	public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected,
 			boolean cellHasFocus) {
 		Type type = Type.class.cast(value);
 		JLabel component = comps.get(Type.class.cast(value));

@@ -22,7 +22,6 @@ import gda.TestHelpers;
 import gda.configuration.properties.LocalProperties;
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
-import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.continuouscontroller.ConstantVelocityMoveController;
@@ -49,7 +48,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.Callable;
 
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -73,9 +71,6 @@ public class MultiScanTest {
 		Scannable simpleScannable1 = TestHelpers.createTestScannable("csvc", 0., new String[] {},
 				new String[] { "csvc" }, 0, new String[] { "%5.2g" }, null);
 
-		Scannable simpleScannable2 = TestHelpers.createTestScannable("SimpleScannable1", 0., new String[] {},
-				new String[] { "simpleScannable1" }, 0, new String[] { "%5.2g" }, null);
-
 		int totalLength;
 		int[] dims2 = new int[] { 2, 3 };
 		totalLength = NexusExtractor.calcTotalLength(dims2);
@@ -85,13 +80,6 @@ public class MultiScanTest {
 		}
 		outputFormat[totalLength] =  "%5.2g"; //for collectionTime
 
-
-		Detector det = TestHelpers.createTestDetector("htd", 0., new String[] {},
-				new String[] { "htd" }, 0, outputFormat, TestHelpers.createTestNexusGroupData(
-						dims2, Dataset.INT32, true), null, "description2", "detectorID2",
-				"detectorType2");
-
-		ConcurrentScan scan2 = new ConcurrentScan(new Object[]{simpleScannable2, 0, 20, 2, det, .1});
 		MyCMC cmc = new MyCMC();
 		My my = new My();
 		my.setName("csvc");
@@ -110,7 +98,6 @@ public class MultiScanTest {
 
 		ConcurrentScan scan1 = new ConcurrentScan(new Object[]{simpleScannable1, 0, 10, 1, htd, .1});
 		ConstantVelocityScanLine cvls = new ConstantVelocityScanLine(new Object[]{my, 0, 10, 1, htd, .1});
-//		MultiScan ms = new MultiScan(Arrays.asList(new ScanBase[]{scan1,scan2, cvls}));
 		MultiScan ms = new MultiScan(Arrays.asList(new ScanBase[]{scan1, cvls}));
 		ms.runScan();
 	}

@@ -19,18 +19,18 @@
 
 package gda.device.temperature;
 
+import java.text.NumberFormat;
+import java.util.Date;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
 import gda.device.Serial;
 import gda.device.TemperatureStatus;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
 import gda.util.PollerEvent;
-
-import java.text.NumberFormat;
-import java.util.Date;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Class to control the Marlow SE50100 series controller. The Marlow expects even parity, 1 stop bit and 7 data bits
@@ -585,7 +585,7 @@ public class Marlow extends TemperatureBase implements ReplyChecker {
 	 * @throws DeviceException
 	 */
 	@Override
-	public void waitForTemp() throws DeviceException {
+	public synchronized void waitForTemp() throws DeviceException {
 		while (busy) {
 			logger.debug("waitForTemp: the busy flag is: " + busy);
 			synchronized (this) {

@@ -69,12 +69,10 @@ public class PositionInputStreamCombinerTest {
 	public void setUp() {
 		stream1 = mock(SimplePositionInputStream.class);
 		stream2 = mock(SimplePositionInputStream.class);
-		@SuppressWarnings("unchecked")
 		List<PositionInputStream<Object>> streamList = asList(stream1, stream2);
 		combinedStream = new PositionInputStreamCombiner<Object>(streamList);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void testGetInOneBigChunck() throws Exception {
 		when(stream1.read(anyInt())).thenReturn(asList(a0, a1, a2, a3));

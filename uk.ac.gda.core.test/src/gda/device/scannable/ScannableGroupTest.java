@@ -23,21 +23,21 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import gda.MockFactory;
-import gda.device.Scannable;
-import gda.device.scannable.scannablegroup.ScannableGroup;
-import gda.factory.Factory;
-import gda.factory.Finder;
-import gda.factory.MapFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import junit.framework.TestCase;
-
 import org.junit.Test;
+
+import gda.MockFactory;
+import gda.device.Scannable;
+import gda.device.scannable.scannablegroup.ScannableGroup;
+import gda.factory.Factory;
+import gda.factory.Finder;
+import gda.factory.MapFactory;
+import junit.framework.TestCase;
 
 /**
  * Tests {@link ScannableGroup}.
@@ -354,11 +354,11 @@ public class ScannableGroupTest extends TestCase {
 		return sg;
 	}
 
-	private static <T> ArrayList<T> arrayListOf(T... items) {
+	private static <T> ArrayList<T> arrayListOf(@SuppressWarnings("unchecked") T... items) {
 		return new ArrayList<T>(Arrays.asList(items));
 	}
 
-	private static <T> T[] arrayOf(T... items) {
+	private static <T> T[] arrayOf(@SuppressWarnings("unchecked") T... items) {
 		return items;
 	}
 

@@ -77,41 +77,59 @@ public class SocketServer implements Runnable {
 
 	@Override
 	public void run() {
+		ServerSocket serverSocket = null;
+		BufferedReader reader = null;
+
 		try {
-			ServerSocket serverSocket;
-			BufferedReader reader = null;
-			String command;
 
 			try {
 				serverSocket = new ServerSocket(port);
 			} catch (IOException ex) {
 				logger.error("Fatal error in SocketServer, failed to bind socket on port " + port);
-				return;
 			}
 
-			while (true) {
-				try {
-					socket = serverSocket.accept();
-					executor.setSocket(socket);
-					reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-					BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+			if (serverSocket != null) {
+				while (true) {
+					try {
+						socket = serverSocket.accept();
+						executor.setSocket(socket);
+						reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+						BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 
-					while (!socket.isClosed() && socket.isConnected()) {
-						if ((command = reader.readLine()) != null) {
-							executor.execute(command, writer);
-						} else
-							break;
+						while (!socket.isClosed() && socket.isConnected()) {
+							String command;
+							if ((command = reader.readLine()) != null) {
+								executor.execute(command, writer);
+							} else
+								break;
+						}
+
+						reader.close();
+						socket.close();
+					} catch (IOException ioex) {
+						logger.error("IOException caught in Grip Command Server " + ioex.getMessage() + " " + socket + " " + reader);
 					}
-
-					reader.close();
-					socket.close();
-				} catch (IOException ioex) {
-					logger.error("IOException caught in Grip Command Server " + ioex.getMessage() + " " + socket + " "
-							+ reader);
 				}
 			}
+
 		} catch (NumberFormatException e) {
 			logger.debug(e.getStackTrace().toString());
+
+		} finally {
+			if (serverSocket != null) {
+				try {
+					serverSocket.close();
+				} catch (IOException e) {
+					// ignore
+				}
+			}
+			if (reader != null) {
+				try {
+					reader.close();
+				} catch (IOException e) {
+					// ignore
+				}
+			}
 		}
 	}
 }

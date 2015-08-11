@@ -18,16 +18,16 @@
 
 package gda.device.detector;
 
-import gda.device.Detector;
-import gda.device.DeviceException;
-import gda.device.scannable.ScannableUtils;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
 
 import org.springframework.util.StringUtils;
+
+import gda.device.Detector;
+import gda.device.DeviceException;
+import gda.device.scannable.ScannableUtils;
 
 /**
  * Extends NXDetectorData to report a single filepath associated with the first extra name of a detector.
@@ -58,7 +58,7 @@ public class NXDetectorDataWithFilepathForSrs extends NXDetectorData {
 		filepath = filename;
 	}
 
-	public void addFileNames(String detName, String[] filenames) {
+	public void addFileNames(@SuppressWarnings("unused") String detName, String[] filenames) {
 		for (String each : filenames) {
 			//super.addFileName(detName, each);
 			filepaths.add(each);

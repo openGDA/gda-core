@@ -465,17 +465,15 @@ public class UnitsComponent implements PositionConvertor {
 	}
 
 	private ArrayList<Unit<? extends Quantity>> generateCompatibleUnits(String hardwareUnitString) {
-		ArrayList<Unit<? extends Quantity>> unitList = new ArrayList<Unit<? extends Quantity>>();
+		ArrayList<Unit<? extends Quantity>> unitList = new ArrayList<>();
 		Quantity hardwareUnitQuantity = QuantityFactory.createFromTwoStrings("1.0", hardwareUnitString);
 
 		if (hardwareUnitQuantity == null) {
 			throw new IllegalArgumentException("Hardware unit string " + hardwareUnitString + " not supportd.");
 		}
 
-		unitList = new ArrayList<Unit<? extends Quantity>>();
-
 		if (hardwareUnitQuantity instanceof Length) {
-			// these first two lines here so theat they are not overwritten
+			// these first two lines here so that they are not overwritten
 			// unless we recognise the dimensions of the hardware units
 			unitList.add(METER);
 			unitList.add(NANO((METER)));
@@ -554,7 +552,8 @@ public class UnitsComponent implements PositionConvertor {
 		}
 
 		else if (hardwareUnitQuantity instanceof VolumetricDensity) {
-			unitList.add(Unit.valueOf("mg/mL"));
+			// mg/mL
+			unitList.add(SI.MICRO(SI.KILOGRAM).divide(SI.MILLI(NonSI.LITER)));
 		}
 
 		else {

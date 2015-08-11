@@ -18,9 +18,6 @@
 
 package uk.ac.gda.client.commandinfo.ui;
 
-import gda.jython.commandinfo.CommandThreadEvent;
-import gda.jython.commandinfo.ICommandThreadObserver;
-
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.swt.SWT;
@@ -30,6 +27,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 
+import gda.jython.commandinfo.CommandThreadEvent;
+import gda.jython.commandinfo.ICommandThreadObserver;
 import uk.ac.gda.client.commandinfo.CommandInfoModel;
 
 public class CommandInfoComposite extends Composite implements ICommandThreadObserver {
@@ -70,12 +69,12 @@ public class CommandInfoComposite extends Composite implements ICommandThreadObs
 
 	public CommandInfoComposite(Composite parent, int style) {
 		super(parent, style);
-		this.createLayout(parent,style);
+		this.createLayout(parent);
 	}
 
 	private void addInternalListeners() { }
 
-	public void createLayout(Composite parent, int style) {
+	public void createLayout(Composite parent) {
 		GridData   masterData = new GridData(SWT.FILL,SWT.FILL,true,true);
 		GridLayout masterLayout = new GridLayout(1,false);
 		masterLayout.marginWidth = 0;
@@ -129,7 +128,7 @@ public class CommandInfoComposite extends Composite implements ICommandThreadObs
 
 	@Override
 	public void dispose() {
-		this.contentProvider = null;;
+		this.contentProvider = null;
 		this.labelProvider = null;
 		super.dispose();
 	}

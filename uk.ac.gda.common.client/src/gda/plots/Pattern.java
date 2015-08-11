@@ -130,15 +130,15 @@ public enum Pattern {
 	 *
 	 * @return a suitable JComboBox
 	 */
-	public static JComboBox getChooser() {
-		JComboBox patternsCombo = new JComboBox();
+	public static JComboBox<Pattern> getChooser() {
+		JComboBox<Pattern> patternsCombo = new JComboBox<>();
 		for (Pattern p : values()) {
 			patternsCombo.addItem(p);
 		}
 
-		patternsCombo.setRenderer(new ListCellRenderer() {
+		patternsCombo.setRenderer(new ListCellRenderer<Object>() {
 			@Override
-			public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected,
+			public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected,
 					boolean cellHasFocus) {
 				JLabel component = new JLabel();
 				component.setText(value.toString());

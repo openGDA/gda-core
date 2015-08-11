@@ -1,5 +1,9 @@
 package gda.util;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -240,43 +244,16 @@ public class Base64 {
 	 * @since 1.4
 	 */
 	public static String encodeObject(java.io.Serializable serializableObject, boolean breakLines) {
-		java.io.ByteArrayOutputStream baos = null;
-		java.io.OutputStream b64os = null;
-		java.io.ObjectOutputStream oos = null;
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-		// create streams
-		try {
-			baos = new java.io.ByteArrayOutputStream();
-			b64os = new Base64.OutputStream(baos, Base64.ENCODE, breakLines);
-			oos = new java.io.ObjectOutputStream(b64os);
-		} // end try
-		catch (java.io.IOException e) {
-			logger.debug(e.getStackTrace().toString());
-			return null;
-		} // end catch
-
-		// write object
-		try {
+		try (java.io.OutputStream b64os = new Base64.OutputStream(baos, Base64.ENCODE, breakLines); ObjectOutputStream oos = new ObjectOutputStream(b64os)) {
+			// write object
 			oos.writeObject(serializableObject);
 		} // end try
-		catch (java.io.IOException e) {
-			logger.debug(e.getStackTrace().toString());
+		catch (IOException e) {
+			logger.error("IO exception caught while encoding objects to base64", e);
 			return null;
 		} // end catch
-		finally {
-			try {
-				oos.close();
-			} catch (Exception e) {
-			}
-			try {
-				b64os.close();
-			} catch (Exception e) {
-			}
-			try {
-				baos.close();
-			} catch (Exception e) {
-			}
-		} // end finally
 
 		return new String(baos.toByteArray());
 	} // end encode

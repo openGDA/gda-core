@@ -23,7 +23,6 @@ import gda.jython.commandinfo.ICommandThreadObserver;
 
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
-import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -34,7 +33,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
-import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
@@ -72,8 +70,6 @@ public class CommandInfoView extends ViewPart implements ICommandThreadObserver 
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(comCommandInfo.getViewer().getControl(), "uk.ac.gda.client.commandinfo.viewer");
 		hookContextMenu();
 		hookDoubleClickAction();
-		contributeToolbars();
-
 	}
 
 	private void disableEvents() {
@@ -116,27 +112,11 @@ public class CommandInfoView extends ViewPart implements ICommandThreadObserver 
 		getSite().registerContextMenu(menuMgr, comCommandInfo.getViewer());
 	}
 
-	private void contributeToolbars() {
-		IActionBars bars = getViewSite().getActionBars();
-		fillLocalPullDown(bars.getMenuManager());
-		fillLocalToolBar(bars.getToolBarManager());
-	}
-
-	private void fillLocalPullDown(IMenuManager manager) {
-		//manager.add(action1);
-		//manager.add(new Separator());
-	}
-
 	private void fillContextMenu(IMenuManager manager) {
 		//manager.add(action1);
 		// Other plug-ins can contribute there actions here
 		manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
 	}
-
-	private void fillLocalToolBar(IToolBarManager manager) {
-		//manager.add(action1);
-	}
-
 
 	private void hookDoubleClickAction() {
 		comCommandInfo.getViewer().addDoubleClickListener(new IDoubleClickListener() {

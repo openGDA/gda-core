@@ -470,7 +470,9 @@ class TreeListenerArea extends JScrollPane implements TreeSelectionListener {
 					sxys.setPaint(scanPair.scanLine.lineColor);
 					sxys.setMarker(scanPair.scanLine.marker);
 					Object obj = getTopLevelAncestor();
-					new LinePropertiesEditor((obj instanceof JFrame)? (JFrame) obj : null, "Properties", "scanLine.name", sxys, false);
+					@SuppressWarnings("unused")
+					LinePropertiesEditor lpe = new LinePropertiesEditor((obj instanceof JFrame) ? (JFrame) obj : null, "Properties", "scanLine.name", sxys,
+							false);
 					scanPair.scanLine.lineColor = (Color) sxys.getPaint();
 					scanPair.scanLine.marker = sxys.getMarker();
 					tree.getModel().valueForPathChanged(new TreePath(scanPair.getPath()), scanPair.scanLine);

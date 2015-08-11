@@ -18,18 +18,6 @@
 
 package gda.scan;
 
-import gda.device.DeviceException;
-import gda.device.Scannable;
-import gda.device.continuouscontroller.ContinuousMoveController;
-import gda.device.continuouscontroller.TrajectoryMoveController;
-import gda.device.detector.hardwaretriggerable.HardwareTriggeredDetector;
-import gda.device.scannable.ContinuouslyScannableViaController;
-import gda.device.scannable.PassthroughScannableDecorator;
-import gda.device.scannable.PositionCallableProvider;
-import gda.device.scannable.PositionConvertorFunctions;
-import gda.device.scannable.VariableCollectionTimeDetector;
-import gda.jython.commands.ScannableCommands;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -41,6 +29,18 @@ import java.util.concurrent.Callable;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.math.linear.MatrixUtils;
 import org.apache.commons.math.linear.RealVector;
+
+import gda.device.DeviceException;
+import gda.device.Scannable;
+import gda.device.continuouscontroller.ContinuousMoveController;
+import gda.device.continuouscontroller.TrajectoryMoveController;
+import gda.device.detector.hardwaretriggerable.HardwareTriggeredDetector;
+import gda.device.scannable.ContinuouslyScannableViaController;
+import gda.device.scannable.PassthroughScannableDecorator;
+import gda.device.scannable.PositionCallableProvider;
+import gda.device.scannable.PositionConvertorFunctions;
+import gda.device.scannable.VariableCollectionTimeDetector;
+import gda.jython.commands.ScannableCommands;
 
 public class TrajectoryScanLine extends AbstractContinuousScanLine {
 
@@ -134,15 +134,14 @@ public class TrajectoryScanLine extends AbstractContinuousScanLine {
 
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private static Object[] wrapContinuouslyScannables(Object[] args) {
 		for (int i = 0; i < args.length; i++) {
 			Object object = args[i];
 			if (object instanceof ContinuouslyScannableViaController) {
 				if((object instanceof PositionCallableProvider<?>)){
-					args[i] = new PositionGrabbingCallableDecorator((ContinuouslyScannableViaController) args[i]);
+					args[i] = new PositionGrabbingCallableDecorator<>((ContinuouslyScannableViaController) args[i]);
 				} else {
-					args[i] = new PositionGrabbingDecorator((ContinuouslyScannableViaController) args[i]);
+					args[i] = new PositionGrabbingDecorator<>((ContinuouslyScannableViaController) args[i]);
 				}
 			}
 		}

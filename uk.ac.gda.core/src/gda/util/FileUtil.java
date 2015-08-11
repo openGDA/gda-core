@@ -19,8 +19,6 @@
 
 package gda.util;
 
-import gda.configuration.properties.LocalProperties;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -31,6 +29,8 @@ import java.util.zip.Adler32;
 import java.util.zip.CheckedInputStream;
 
 import org.springframework.util.StringUtils;
+
+import gda.configuration.properties.LocalProperties;
 
 /**
  * A class containing utility methods for files.
@@ -51,7 +51,9 @@ public class FileUtil {
 		byte[] buffer = new byte[128];
 		while (cis.read(buffer) >= 0)
 			continue;
-		return cis.getChecksum().getValue();
+		long checksum = cis.getChecksum().getValue();
+		cis.close();
+		return checksum;
 	}
 
 	/**

@@ -32,7 +32,7 @@ import javax.swing.SwingConstants;
 /**
  * Creates a JComboBox for choosing one of the values in an Enum.
  */
-public class EnumChooser extends JComboBox implements ListCellRenderer {
+public class EnumChooser extends JComboBox<Object> implements ListCellRenderer<Object> {
 	Class<?> c;
 
 	/**
@@ -85,7 +85,7 @@ public class EnumChooser extends JComboBox implements ListCellRenderer {
 	 * @return A component whose paint() method will render the specified value.
 	 */
 	@Override
-	public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected,
+	public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected,
 			boolean cellHasFocus) {
 		JLabel component = new JLabel();
 		component.setText(value.toString());

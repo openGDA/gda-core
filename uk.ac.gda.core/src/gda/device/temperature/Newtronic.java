@@ -19,18 +19,18 @@
 
 package gda.device.temperature;
 
+import java.text.NumberFormat;
+import java.util.Date;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
 import gda.device.Serial;
 import gda.device.TemperatureStatus;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
 import gda.util.PollerEvent;
-
-import java.text.NumberFormat;
-import java.util.Date;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Class to control the Newtronic Micro 96 temperature controller. The Newtronic expects even parity, 1 stop bit and 7
@@ -406,7 +406,7 @@ public class Newtronic extends TemperatureBase implements ReplyChecker {
 	 * @throws DeviceException
 	 */
 	@Override
-	public void setTargetTemperature(double temp) throws DeviceException {
+	public synchronized void setTargetTemperature(double temp) throws DeviceException {
 		if (temp > upperTemp || temp < lowerTemp)
 			throw new DeviceException("Trying to set temperature outside of limits");
 		if (busy)
