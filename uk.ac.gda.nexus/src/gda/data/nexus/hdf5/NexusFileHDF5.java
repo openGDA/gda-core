@@ -833,6 +833,64 @@ public class NexusFileHDF5 implements NexusFile {
 		return getData(path);
 	}
 
+	private static final int MAX_CHUNK = 1024 * 1024; //default chunk cache is 1MB so we should fit in that.
+	private static final int MIN_CHUNK = 8 * 1024;
+	private static final int BASE_CHUNK = 16 * 1024;
+	private static final int UNLIMITED_DIM_ESTIMATE = 64; //we'd like this to be lower than typical detector sizes
+
+	private long[] estimateChunking(long[] shape, long[] maxshape, int typeSize) {
+		//typesize is 1 for VLen structures which is off by a factor of 16 (ish).
+		//unlikely to cause any issues unless we have a dataset containing 65000 strings
+		boolean fixedSize = true;
+		long[] chunk = new long[shape.length];
+		boolean[] fixedDims = new boolean[shape.length];
+		for (int i = 0; i < shape.length; i++) {
+			fixedDims[i] = maxshape[i] == shape[i];
+			fixedSize &= fixedDims[i];
+			chunk[i] = maxshape[i] >= 0 ? maxshape[i] : UNLIMITED_DIM_ESTIMATE; //we have to have *something* for unlimited dimensions
+		}
+		long rawDataSize = typeSize;
+		for (long c : chunk) {
+			rawDataSize *= c;
+			assert rawDataSize > 0;
+		}
+		//heuristic copied from h5py
+		//(2 << ... instead of 1 << ... because we want to "round up" the exponent)
+		long targetSize = BASE_CHUNK * (2 << (int) Math.log10(rawDataSize / (1024 * 1024)));
+		if (targetSize > MAX_CHUNK) {
+			targetSize = MAX_CHUNK;
+		} else if (targetSize < MIN_CHUNK) {
+			targetSize = MIN_CHUNK;
+		}
+
+		long chunkByteSize = rawDataSize;
+		//make sure we're over the minimum chunk size if possible
+		if (!fixedSize) {
+			while (chunkByteSize < targetSize) {
+				int count = 0;
+				for (int i = 0; i < chunk.length; i++) {
+					if (!fixedDims[i]) {
+						chunk[i] *= 2;
+						count++;
+					}
+				}
+				chunkByteSize <<= count;
+			}
+		}
+		int idx = 0;
+		//halve each axis in turn until we're under the maximum size, and smaller than the target size or within 50% of it
+		while ( !((chunkByteSize < targetSize || (chunkByteSize - targetSize) / (double)targetSize < 0.5) &&
+				chunkByteSize < MAX_CHUNK) ) {
+			chunk[idx] = (long)Math.ceil(chunk[idx] / 2.0);
+			long p = 1;
+			for (long c : chunk) p *= c;
+			if (p == 1) break;
+			idx++;
+			idx %= chunk.length;
+		}
+		return chunk;
+	}
+
 	@Override
 	public DataNode createData(String path, ILazyWriteableDataset data, int compression, boolean createPathIfNecessary)
 			throws NexusException {
@@ -860,16 +918,6 @@ public class NexusFileHDF5 implements NexusFile {
 		long[] shape = intArrayToLongArray(iShape);
 		long[] maxShape = intArrayToLongArray(iMaxShape);
 		long[] chunks = intArrayToLongArray(iChunks);
-		long maxDim = 10;
-		for (long d : shape) {
-			maxDim = d > maxDim ? d : maxDim;
-		}
-		if (!Arrays.equals(shape, maxShape) && chunks == null) {
-			//we *must* configure chunking
-			//TODO: need to think of a sensible default
-			chunks = new long[shape.length];
-			Arrays.fill(chunks, maxDim);
-		}
 		boolean stringDataset = data.elementClass().equals(String.class);
 		long hdfType = getHDF5Type(data);
 		try {
@@ -880,6 +928,17 @@ public class NexusFileHDF5 implements NexusFile {
 				final long hdfPropertiesId = hdfProperties.getResource();
 				final long hdfDatatypeId = hdfDatatype.getResource();
 				final long hdfDataspaceId = hdfDataspace.getResource();
+
+				boolean recalcChunks = true;
+				if (chunks != null) {
+					for (long c : chunks) {
+						recalcChunks &= c <= 1;
+					}
+				}
+				if (!Arrays.equals(shape, maxShape) && recalcChunks) {
+					chunks = estimateChunking(shape, maxShape, H5.H5Tget_size(hdfDatatypeId));
+				}
+
 				if (stringDataset) {
 					H5.H5Tset_cset(hdfDatatypeId, HDF5Constants.H5T_CSET_UTF8);
 					H5.H5Tset_size(hdfDatatypeId, HDF5Constants.H5T_VARIABLE);
