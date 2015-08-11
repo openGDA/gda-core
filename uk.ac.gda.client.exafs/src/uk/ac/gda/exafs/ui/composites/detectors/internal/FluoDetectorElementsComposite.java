@@ -82,7 +82,6 @@ public class FluoDetectorElementsComposite extends Composite {
 
 		detectorElementTable.setEditorClass(DetectorElement.class);
 		detectorElementTable.setEditorUI(regionsComposite);
-		detectorElementTable.setGridWidth(200);
 		detectorElementTable.setEnabled(true);
 		detectorElementTable.setAdditionalLabelProvider(new ColumnLabelProvider() {
 			private final Color lightGray = PlatformUI.getWorkbench().getDisplay().getSystemColor(SWT.COLOR_GRAY);
@@ -127,6 +126,8 @@ public class FluoDetectorElementsComposite extends Composite {
 		}
 
 		detectorElementTable = new GridListEditor(elementsGroup, SWT.NONE, columns, rows);
+		detectorElementTable.setGridWidth(Math.max(160, columns * 25));
+		detectorElementTable.setGridHeight(rows * 23);
 		GridDataFactory.fillDefaults().align(SWT.CENTER, SWT.CENTER).span(2, 1).applyTo(detectorElementTable);
 		detectorElementTable.moveAbove(elementName);
 		this.getParent().layout(true, true);
