@@ -23,7 +23,7 @@ public abstract class HDF5BaseResource implements HDF5Resource {
 	protected final long resource;
 
 	public HDF5BaseResource(long resource) {
-		this.resource = resource;;
+		this.resource = resource;
 	}
 
 	@Override
