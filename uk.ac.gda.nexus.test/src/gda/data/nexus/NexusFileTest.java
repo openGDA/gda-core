@@ -841,4 +841,36 @@ public class NexusFileTest {
 		File compressed = new File(FILE2_NAME);
 		assertTrue(compressed.length() < uncompressed.length());
 	}
+
+	@Test
+	public void testDefaultChunking() throws Exception {
+		ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset("data", Dataset.FLOAT64,
+				new int[] {1 ,100, 100}, new int[] {ILazyWriteableDataset.UNLIMITED, 1000, 1000}, null);
+		nf.createData("/a", lazy, true);
+		int[] newChunking = lazy.getChunking();
+		assertNotNull(newChunking);
+		assertTrue(newChunking[0] >= 1);
+		assertTrue(newChunking[1] >= 32);
+		assertTrue(newChunking[2] >= 32);
+		//our chunks should be at *least* 16kb on this sort of dataset
+		assertTrue(newChunking[0] * newChunking[1] * newChunking[2] * 8 >= 16 * 1024);
+		//should favour the last axis
+		assertTrue(newChunking[2] >= newChunking[1]);
+	}
+
+	@Test
+	public void testSensibleChunkingOverride() throws Exception {
+		int[] originalChunking = new int[] {1, 1, 1};
+		ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset("data", Dataset.FLOAT64,
+				new int[] {1 ,100, 100}, new int[] {ILazyWriteableDataset.UNLIMITED, 1000, 1000}, null);
+		lazy.setChunking(originalChunking);
+		nf.createData("/a", lazy, true);
+		int[] newChunking = lazy.getChunking();
+		assertFalse(Arrays.equals(originalChunking, newChunking));
+		assertTrue(newChunking[0] >= 1);
+		assertTrue(newChunking[1] >= 32);
+		assertTrue(newChunking[2] >= 32);
+		assertTrue(newChunking[0] * newChunking[1] * newChunking[2] * 8 >= 16 * 1024);
+		assertTrue(newChunking[2] >= newChunking[1]);
+	}
 }
