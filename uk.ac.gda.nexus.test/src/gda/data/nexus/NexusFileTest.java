@@ -855,7 +855,7 @@ public class NexusFileTest {
 		//our chunks should be at *least* 16kb on this sort of dataset
 		assertTrue(newChunking[0] * newChunking[1] * newChunking[2] * 8 >= 16 * 1024);
 		//should favour the last axis
-		assertTrue(newChunking[2] >= newChunking[1]);
+		assertTrue(newChunking[2] >= newChunking[1] && newChunking[2] >= newChunking[0]);
 	}
 
 	@Test
@@ -871,6 +871,6 @@ public class NexusFileTest {
 		assertTrue(newChunking[1] >= 32);
 		assertTrue(newChunking[2] >= 32);
 		assertTrue(newChunking[0] * newChunking[1] * newChunking[2] * 8 >= 16 * 1024);
-		assertTrue(newChunking[2] >= newChunking[1]);
+		assertTrue(newChunking[2] >= newChunking[1] && newChunking[2] >= newChunking[0]);
 	}
 }
