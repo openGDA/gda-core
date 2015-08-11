@@ -19,7 +19,6 @@
 package uk.ac.gda.exafs.ui.composites.detectors.internal;
 
 import org.eclipse.jface.layout.GridDataFactory;
-import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.richbeans.api.widget.IFieldWidget;
 import org.eclipse.richbeans.widgets.scalebox.NumberBox;
 import org.eclipse.richbeans.widgets.scalebox.ScaleBox;
@@ -46,8 +45,6 @@ public class FluoDetectorROIComposite extends Composite {
 
 		roiName = new TextWrapper(this, SWT.BORDER);
 		horizontalGrabGridData.applyTo(roiName);
-		// Override layout specified in TextWrapper to make box size match the ScaleBoxes
-		GridLayoutFactory.fillDefaults().applyTo(roiName);
 
 		Label windowStartLabel = new Label(this, SWT.NONE);
 		windowStartLabel.setText("Start ");

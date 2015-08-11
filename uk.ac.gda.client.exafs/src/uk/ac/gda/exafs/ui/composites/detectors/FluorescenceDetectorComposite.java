@@ -72,6 +72,7 @@ public class FluorescenceDetectorComposite extends Composite {
 		try {
 			sashFormPlot = new SashFormPlotComposite(this, null);
 			sashFormPlot.getPlottingSystem().setRescale(false);
+			sashFormPlot.getPlottingSystem().setShowLegend(false);
 			sashFormPlot.getSashForm().setWeights(new int[] { 30, 70 });
 			sashFormPlot.getRegionOnDisplay().setShowPosition(true); // This has no effect but would be nice!
 			sashFormPlot.setXAxisLabel("Channel number");
