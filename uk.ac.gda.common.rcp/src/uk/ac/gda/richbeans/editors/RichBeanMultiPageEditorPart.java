@@ -65,19 +65,15 @@ import uk.ac.gda.richbeans.editors.xml.XMLBeanEditor;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 /**
- * This multipage editor is designed to be extended and the resulting class declared
- * as an extension point.
- * 
- * If you extend this class, you must implement the createPart0() method and this must return
- * a RichBeanEditor implementation. This class extending RichBeanEditor can be created entirely
- * automatically using RCP developer and exposing the relevant, correctly named, fields within
- * RCP developer.
- * 
+ * This multipage editor is designed to be extended and the resulting class declared as an extension point.
+ * <p>
+ * If you extend this class, you must implement the createPart0() method and this must return a RichBeanEditor implementation. This class extending
+ * RichBeanEditor can be created entirely automatically using RCP developer and exposing the relevant, correctly named, fields within RCP developer.
  */
 public abstract class RichBeanMultiPageEditorPart extends MultiPageEditorPart implements DirtyContainer, IReusableEditor {
-	
+
 	private boolean undoRegistered = false;
-	
+
 	/**
 	 * Creates editor and sets a property that can be used to check
 	 * if the class is a RichBeanEditorPart. Useful for checking subclasses
@@ -86,46 +82,45 @@ public abstract class RichBeanMultiPageEditorPart extends MultiPageEditorPart im
 	public RichBeanMultiPageEditorPart() {
 		setPartProperty("RichBeanEditorPart", "true");
 	}
-	
-	// We must ensure that bundle urls are transformed to 
-	// absolute or the sax parser does not work.
+
+	// We must ensure that bundle urls are transformed to absolute or the sax parser does not work.
 	static {
 		XMLHelpers.setUrlResolver(EclipseUtils.getUrlResolver());
 	}
-	
+
 	protected static final Logger logger = LoggerFactory.getLogger(RichBeanMultiPageEditorPart.class);
-	
+
 	/**
 	 * The bean we are currently editing
 	 */
 	protected Object                editingBean;
-	
+
 	/**
 	 * The UI editor being used normally to define the data
 	 */
 	protected RichBeanEditorPart    richBeanEditor;
-	
+
 	/**
-	 * The XML editor on the second tab which can be used to edit 
+	 * The XML editor on the second tab which can be used to edit
 	 * the xml directly
 	 */
 	protected XMLBeanEditor         xmlEditor;
-	
+
 	/**
 	 * The path to the editing bean, may be null
 	 */
 	protected String                path;
-	
+
 	/**
 	 * An action used to undo
 	 */
 	protected UndoActionHandler     undoAction;
-	
+
 	/**
 	 * An action used to redo
 	 */
 	protected RedoActionHandler     redoAction;
-	
+
 	/**
 	 * The context used in the undo stack
 	 */
@@ -135,27 +130,27 @@ public abstract class RichBeanMultiPageEditorPart extends MultiPageEditorPart im
 	 * @return Class
 	 */
 	public abstract Class<?>        getBeanClass();
-	
+
 	/**
 	 * @return URL
 	 */
 	public abstract URL             getMappingUrl();
-	
+
 	/**
 	 * @return URL
 	 */
 	public abstract URL             getSchemaUrl();
-	
+
 	/**
 	 * Please implement this method to return your RichBeanEditorPart implementation.
 	 * @param path
 	 * @param editingBean
 	 * @return RichBeanEditorPart
 	 */
-	protected abstract RichBeanEditorPart   getRichBeanEditorPart(String path, 
+	protected abstract RichBeanEditorPart   getRichBeanEditorPart(String path,
 			                                                      Object editingBean);
-	
-	
+
+
 	@Override
 	public void setInput(final IEditorInput input) {
 		try {
@@ -164,8 +159,7 @@ public abstract class RichBeanMultiPageEditorPart extends MultiPageEditorPart im
 			linkUI();
 
 			// Close all other editors editing this bean.
-			// Currently only one editor for a given bean class may be open
-			// at a time.
+			// Currently only one editor for a given bean class may be open at a time.
 			final IEditorReference[] refs = getSite().getPage().getEditorReferences();
 			for (int i = 0; i < refs.length; i++) {
 				if (refs[i].getId().equals(this.getSite().getId())) {
@@ -173,8 +167,7 @@ public abstract class RichBeanMultiPageEditorPart extends MultiPageEditorPart im
 					if (part!=this) getSite().getPage().closeEditor(part, true);
 				}
 			}
-			// TODO this method should fire a property change as specified in the javadoc, but when this is implemented
-			// it will need testing
+			// TODO this method should fire a property change as specified in the javadoc, but when this is implemented it will need testing
 
 		} catch (Throwable th){
 			logger.error("Error setting input for editor from input " + input.getName(), th);
@@ -185,48 +178,46 @@ public abstract class RichBeanMultiPageEditorPart extends MultiPageEditorPart im
 		try {
 			// Do not validate this bean on the read, user may not have added all parameters.
 			if (this.getEditorInput() instanceof IStorageEditorInput) {
-				
+
 				IStorage storage = ((IStorageEditorInput)getEditorInput()).getStorage();
 				InputSource source = new InputSource(IStorageUtils.getContents(storage));
-				this.editingBean = XMLHelpers.createFromXML(getMappingUrl(), 
-															getBeanClass(), 
-															getSchemaUrl(), 
-															source, 
+				this.editingBean = XMLHelpers.createFromXML(getMappingUrl(),
+															getBeanClass(),
+															getSchemaUrl(),
+															source,
 															false);
-				
+
 			} else {
-				this.editingBean = XMLHelpers.createFromXML(getMappingUrl(), 
-														getBeanClass(), 
-														getSchemaUrl(), 
-														path, 
+				this.editingBean = XMLHelpers.createFromXML(getMappingUrl(),
+														getBeanClass(),
+														getSchemaUrl(),
+														path,
 														false);
 			}
 
 		} catch (Throwable e) {
-			// Class not found can come through here
-			// when the classes required for castor to load 
-			// the bean from file are not present.
+			// Class not found can come through here when the classes required for castor to load the bean from file are not present.
 			throw new RuntimeException(e.getMessage(), e);
 		}
 	}
-		
+
 	protected void createUndoRedoActions() {
-        
+
 		this.context       = new ObjectUndoContext(this);
         this.undoAction    = new UndoActionHandler(getSite(), context);
         this.redoAction    = new RedoActionHandler(getSite(), context);
- 
+
 		IOperationHistory history= OperationHistoryFactory.getOperationHistory();
 		history.addOperationApprover(new NonLocalUndoUserApprover(context, this, new Object [] { getEditorInput() }, Object.class));
 		history.addOperationApprover(new LinearUndoViolationUserApprover(context, this));
 	}
-	
+
 	protected void assignInput(IEditorInput input) {
         super.setInput(input);
-		
+
        	this.path = EclipseUtils.getFilePath(input);
     	setPartName(input.getName());
-		   
+
         if (richBeanEditor!=null) {
         	try {
         		pageChangeProcessing = false;
@@ -239,8 +230,11 @@ public abstract class RichBeanMultiPageEditorPart extends MultiPageEditorPart im
         if (xmlEditor!=null) {
         	xmlEditor.setInput(input);
         }
- 	}
-	
+	}
+
+	/**
+	 * Called at creation and after the editor input has changed. If overriding, please call super.linkUI()
+	 */
 	protected void linkUI() {
         if (richBeanEditor!=null) {
         	try {
@@ -268,7 +262,7 @@ public abstract class RichBeanMultiPageEditorPart extends MultiPageEditorPart im
 			Assert.isTrue(false); // this is how org.eclipse.ui objects handle this sort of problem
 		}
 	}
-	
+
 	/**
 	 * Creates page 1 of the multi-page editor,
 	 * which allows you to change the font used in page 2.
@@ -290,8 +284,8 @@ public abstract class RichBeanMultiPageEditorPart extends MultiPageEditorPart im
 		}
 		return null;
 	}
-	
-	
+
+
 	/**
 	 * Creates page 1 of the multi-page editor,
 	 * which contains a text editor.
@@ -305,7 +299,7 @@ public abstract class RichBeanMultiPageEditorPart extends MultiPageEditorPart im
 			int index = addPage(xmlEditor, getEditorInput());
 			setPageText(index, "XML");
 			return xmlEditor;
-			
+
 		} catch (PartInitException e) {
 			logger.error(e.getMessage(), e);
 			ErrorDialog.openError(
@@ -334,16 +328,16 @@ public abstract class RichBeanMultiPageEditorPart extends MultiPageEditorPart im
 	}
 
 	private boolean pageChangeProcessing = false;
-	
+
 	@Override
 	protected void initializePageSwitching() {
 		super.initializePageSwitching();
 		pageChangeProcessing = true;
 	}
-	
+
 	@Override
 	protected void pageChange(int newPageIndex)  {
-		
+
 		if (!pageChangeProcessing) {
 			if (!undoRegistered) {
 				getSite().getShell().getDisplay().asyncExec(new Runnable() {
@@ -355,14 +349,14 @@ public abstract class RichBeanMultiPageEditorPart extends MultiPageEditorPart im
 			super.pageChange(newPageIndex);
 			return;
 		}
-		
+
 		// If first page going to then regenerate bean.
 		if (newPageIndex == 1) {
 			try {
 				setXMLUndoRedo();
 				richBeanEditor.uiToBean();
 				xmlEditor.beanToXML(getPrivateXMLFields());
-				
+
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -397,11 +391,11 @@ public abstract class RichBeanMultiPageEditorPart extends MultiPageEditorPart im
 			} finally {
 				allowDirtyUpdates = true;
 			}
-			
+
 		}
 		super.pageChange(newPageIndex);
 	}
-	
+
 	protected void setUIUndoRedo() {
 		final IActionBars actionBars = getEditorSite().getActionBars();
 		actionBars.setGlobalActionHandler(ActionFactory.UNDO.getId(), undoAction);
@@ -410,7 +404,7 @@ public abstract class RichBeanMultiPageEditorPart extends MultiPageEditorPart im
 		OperationHistoryFactory.getOperationHistory().dispose(context, true, true, false);
 		undoRegistered = true;
 	}
-	
+
 	protected void setXMLUndoRedo() {
 		final IActionBars actionBars = getEditorSite().getActionBars();
 		actionBars.setGlobalActionHandler(ActionFactory.UNDO.getId(), xmlEditor.getAction(ActionFactory.UNDO.getId()));
@@ -426,7 +420,7 @@ public abstract class RichBeanMultiPageEditorPart extends MultiPageEditorPart im
 	 */
 	@Override
 	public void doSaveAs() {
-		
+
 		final IFile currentiFile = EclipseUtils.getIFile(getEditorInput());
 		final IFolder folder = (currentiFile != null) ? (IFolder) currentiFile.getParent() : null;
 
@@ -439,11 +433,11 @@ public abstract class RichBeanMultiPageEditorPart extends MultiPageEditorPart im
 
 	    String newFile = dialog.open();
 		if (newFile!=null) {
-			
+
 			if (!newFile.endsWith(".xml")) newFile = newFile+".xml";
 			newFile = validateFileName(newFile);
 			if (newFile==null) return;
-			
+
 			final File file = new File(newFile);
 			if (file.exists()) {
 				final boolean ovr = MessageDialog.openQuestion(getSite().getShell(),
@@ -469,7 +463,7 @@ public abstract class RichBeanMultiPageEditorPart extends MultiPageEditorPart im
 				logger.error("Cannot confirm name change", ne);
 				return;
 			}
-	        
+
 	        IEditorInput input;
 	        if (folder!=null&&folder.getLocation().toFile().equals(file.getParentFile())) {
 	        	final IFile ifile = folder.getFile(file.getName());
@@ -482,7 +476,7 @@ public abstract class RichBeanMultiPageEditorPart extends MultiPageEditorPart im
 	        } else {
 	        	input = new FileStoreEditorInput(EFS.getLocalFileSystem().fromLocalFile(file));
 	        }
-	        
+
 	        assignInput(input);
             doSave(new NullProgressMonitor());
             setDirty(false);
@@ -498,7 +492,7 @@ public abstract class RichBeanMultiPageEditorPart extends MultiPageEditorPart im
 			xmlEditor.doSave(monitor);
 		}
 	}
-	
+
 	/**
 	 * Please override if work should be done when save as changes the active file name.
 	 * @param oldName
@@ -520,9 +514,9 @@ public abstract class RichBeanMultiPageEditorPart extends MultiPageEditorPart im
 	public boolean isSaveAsAllowed() {
 		return true;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return the editor if it is already in existance.
 	 */
 	public RichBeanEditorPart getRichBeanEditor() {
@@ -537,13 +531,13 @@ public abstract class RichBeanMultiPageEditorPart extends MultiPageEditorPart im
 	public List<String> getPrivateXMLFields() {
 		return null;
 	}
-	
+
 	@Override
 	public void dispose() {
 		editingBean = null;
 		richBeanEditor.dispose();
 		richBeanEditor = null;
-		
+
 		super.dispose();
 	}
-}	
+}

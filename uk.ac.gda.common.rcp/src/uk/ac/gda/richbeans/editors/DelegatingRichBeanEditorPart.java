@@ -28,15 +28,18 @@ import org.eclipse.swt.widgets.Composite;
 import uk.ac.gda.richbeans.CompositeFactory;
 
 /**
- * A bean editor part that delegates to a composite.
- *
- * You must call setEditorClass(...) and setRichEditorTabText(...) just after the part is instantiated.
- *
-  <usage>
-  DelegatingRichBeanEditorPart ed = new DelegatingRichBeanEditorPart(path, getMappingUrl(), this, editingBean);
-  ed.setEditorClass(uiClass);
+ * A bean editor part that delegates to a composite created by a CompositeFactory.
+ * <p>
+ * This is intended to be used in a RichBeanMultiPageEditorPart. You must call setRichEditorTabText(...) just after the part is instantiated. If you are keeping
+ * a reference to the editing bean and need to respond when the bean in the editor is changed, override {@link RichBeanMultiPageEditorPart#linkUI()}, which is
+ * called after an input change.
+ * <p>
+ * Usage:
+ * <p>
+ * <usage><code>
+  DelegatingRichBeanEditorPart ed = new DelegatingRichBeanEditorPart(path, mappingUrl, dirtyContainer, editingBean, compositeFactory);
   ed.setRichEditorTabText(editorTabName);
-  </usage>
+  </code></usage>
  */
 public class DelegatingRichBeanEditorPart extends RichBeanEditorPart {
 
@@ -45,8 +48,7 @@ public class DelegatingRichBeanEditorPart extends RichBeanEditorPart {
 	private String tabText;
 	private boolean enableScrolling = false;
 
-	public DelegatingRichBeanEditorPart(String path, URL mappingURL, DirtyContainer dirtyContainer, Object editingBean,
-			CompositeFactory uiProvider) {
+	public DelegatingRichBeanEditorPart(String path, URL mappingURL, DirtyContainer dirtyContainer, Object editingBean, CompositeFactory uiProvider) {
 		super(path, mappingURL, dirtyContainer, editingBean);
 		this.uiProvider = uiProvider;
 	}
@@ -89,7 +91,7 @@ public class DelegatingRichBeanEditorPart extends RichBeanEditorPart {
 
 	private void instantiateComposite(Composite parent) {
 		parent.setLayout(new FillLayout());
-		editorUI = uiProvider.createComposite(parent, SWT.BORDER);
+		editorUI = uiProvider.createComposite(parent, SWT.NONE);
 		createDataBindingController();
 	}
 
