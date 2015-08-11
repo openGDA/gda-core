@@ -91,7 +91,7 @@ public class PerVisitMaskLocation implements StoredDetectorInfo, IObserver, Conf
 
 	private void setNewFile(FileHolder fh, String path, String prefix) throws IOException {
 		if (path == null || path.isEmpty()) {
-			fh.setFile("");
+			fh.clear();
 		} else {
 			File newFile = new File(path);
 			if (newFile.exists()) {
