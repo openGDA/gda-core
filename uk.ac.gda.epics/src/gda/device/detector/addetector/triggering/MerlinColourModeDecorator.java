@@ -18,6 +18,8 @@
 
 package gda.device.detector.addetector.triggering;
 
+import gda.device.detector.nxdetector.AbstractCollectionStrategyDecorator;
+
 public final class MerlinColourModeDecorator extends AbstractCollectionStrategyDecorator {
 
 	private int imagesPerCollectionMultiplier = 1;
