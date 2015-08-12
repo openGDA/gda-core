@@ -843,6 +843,24 @@ public class NexusFileTest {
 	}
 
 	@Test
+	public void testChunking() throws Exception {
+		int[] chunking = new int[] {1, 256, 256};
+		ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset("data", Dataset.FLOAT64,
+				new int[] {1 ,100, 100}, new int[] {ILazyWriteableDataset.UNLIMITED, 1024, 1024}, null);
+		lazy.setChunking(chunking);
+		nf.createData("/a/", lazy, true);
+		assertArrayEquals(chunking, lazy.getChunking());
+		lazy.setSlice(null, DatasetFactory.createRange(1, 1024 * 1024 * 8, Dataset.FLOAT64).reshape(8, 1024, 1024),
+				new int[] {0, 0, 0}, null, null);
+		nf.close();
+
+		nf = NexusUtils.openNexusFile(FILE_NAME);
+		ILazyWriteableDataset readData = nf.getData("/a/data").getWriteableDataset();
+		assertNotNull(readData);
+		assertArrayEquals(chunking, readData.getChunking());
+	}
+
+	@Test
 	public void testDefaultChunking() throws Exception {
 		ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset("data", Dataset.FLOAT64,
 				new int[] {1 ,100, 100}, new int[] {ILazyWriteableDataset.UNLIMITED, 1000, 1000}, null);

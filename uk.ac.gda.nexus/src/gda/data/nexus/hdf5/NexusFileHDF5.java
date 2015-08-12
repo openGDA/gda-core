@@ -717,7 +717,7 @@ public class NexusFileHDF5 implements NexusFile {
 		boolean extendUnsigned = false;
 		Object[] fill = getFillValue(datasetType);
 		if (writeable) {
-			lazyDataset = new LazyWriteableDataset(name, datasetType, iShape, null, null, 
+			lazyDataset = new LazyWriteableDataset(name, datasetType, iShape, iMaxShape, iChunks,
 					new HDF5LazySaver(null, fileName, path, name, iShape, itemSize,
 							datasetType, extendUnsigned, iMaxShape, iChunks, fill));
 		} else {
