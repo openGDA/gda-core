@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device.detector.addetector.triggering;
+package gda.device.detector.nxdetector;
 
 import gda.device.DeviceException;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
