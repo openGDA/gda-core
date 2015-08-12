@@ -669,6 +669,20 @@ public class NexusFileTest {
 	}
 
 	@Test
+	public void testLazyDatasetMaxShape() throws Exception {
+		int[] maxShape = new int[] {ILazyWriteableDataset.UNLIMITED, 10, 100};
+		ILazyWriteableDataset lazyData = NexusUtils.createLazyWriteableDataset("data", Dataset.INT32,
+				new int[] {10, 10, 10}, maxShape, null);
+		nf.createData("/a/", lazyData, true);
+		nf.close();
+
+		nf = NexusUtils.openNexusFile(FILE_NAME);
+		ILazyWriteableDataset readData = nf.getData("/a/data").getWriteableDataset();
+		assertNotNull(readData);
+		assertArrayEquals(maxShape, readData.getMaxShape());
+	}
+
+	@Test
 	public void testWriteAfterHardLink() throws Exception {
 		//Have had bugs where writing created a "new" dataset, leaving previously
 		//hard linked nodes un-updated
