@@ -29,7 +29,7 @@ import gda.factory.FactoryException;
  * Implements the Scannable interface so it may also run in scans, but this has otehr functionality for users outside of
  * scans.
  */
-public class CirrusScannable extends ScannableBase {
+public class CirrusScannable extends ScannableBase implements Cirrus {
 
 	private CirrusController controller;
 	private String cirrusHost;
