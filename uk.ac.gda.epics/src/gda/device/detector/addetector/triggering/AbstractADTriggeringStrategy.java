@@ -22,6 +22,7 @@ import gda.device.DeviceException;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataDoubleAppender;
+import gda.device.detector.nxdetector.CollectionStrategyBeanInterface;
 import gda.scan.ScanInformation;
 
 import java.util.ArrayList;

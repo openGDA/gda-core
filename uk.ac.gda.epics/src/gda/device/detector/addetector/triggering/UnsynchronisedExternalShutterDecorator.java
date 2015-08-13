@@ -18,6 +18,8 @@
 
 package gda.device.detector.addetector.triggering;
 
+import gda.device.detector.nxdetector.AbstractCollectionStrategyDecorator;
+import gda.device.detector.nxdetector.CollectionStrategyBeanInterface;
 import gda.scan.ScanInformation;
 
 public final class UnsynchronisedExternalShutterDecorator extends AbstractCollectionStrategyDecorator
