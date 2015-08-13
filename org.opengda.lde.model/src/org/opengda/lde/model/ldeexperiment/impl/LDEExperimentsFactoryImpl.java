@@ -97,6 +97,8 @@ public class LDEExperimentsFactoryImpl extends EFactoryImpl implements LDEExperi
 		switch (eDataType.getClassifierID()) {
 			case LDEExperimentsPackage.STATUS:
 				return createSTATUSFromString(eDataType, initialValue);
+			case LDEExperimentsPackage.STAGE_ID_STRING:
+				return createStageIDStringFromString(eDataType, initialValue);
 			default:
 				throw new IllegalArgumentException("The datatype '" + eDataType.getName() + "' is not a valid classifier");
 		}
@@ -112,6 +114,8 @@ public class LDEExperimentsFactoryImpl extends EFactoryImpl implements LDEExperi
 		switch (eDataType.getClassifierID()) {
 			case LDEExperimentsPackage.STATUS:
 				return convertSTATUSToString(eDataType, instanceValue);
+			case LDEExperimentsPackage.STAGE_ID_STRING:
+				return convertStageIDStringToString(eDataType, instanceValue);
 			default:
 				throw new IllegalArgumentException("The datatype '" + eDataType.getName() + "' is not a valid classifier");
 		}
@@ -185,6 +189,24 @@ public class LDEExperimentsFactoryImpl extends EFactoryImpl implements LDEExperi
 	 */
 	public String convertSTATUSToString(EDataType eDataType, Object instanceValue) {
 		return instanceValue == null ? null : instanceValue.toString();
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public String createStageIDStringFromString(EDataType eDataType, String initialValue) {
+		return (String)super.createFromString(eDataType, initialValue);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public String convertStageIDStringToString(EDataType eDataType, Object instanceValue) {
+		return super.convertToString(eDataType, instanceValue);
 	}
 
 	/**

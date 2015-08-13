@@ -51,5 +51,15 @@
             contributorClass="org.opengda.lde.model.ldeexperiment.presentation.LDEExperimentsActionBarContributor">
       </editor>
    </extension>
+   <extension
+         point="org.eclipse.core.contenttype.contentTypes">
+      <content-type
+            base-type="org.eclipse.core.runtime.xml"
+            file-extensions="lde, xml"
+            id="org.opengda.lde.model.editor.xml"
+            name="LDE files"
+            priority="normal">
+      </content-type>
+   </extension>
 
 </plugin>

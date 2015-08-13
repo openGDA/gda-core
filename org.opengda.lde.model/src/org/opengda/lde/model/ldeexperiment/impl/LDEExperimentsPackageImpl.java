@@ -24,10 +24,12 @@ package org.opengda.lde.model.ldeexperiment.impl;
 
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EEnum;
 import org.eclipse.emf.ecore.EOperation;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
+import org.eclipse.emf.ecore.EValidator;
 import org.eclipse.emf.ecore.impl.EPackageImpl;
 import org.opengda.lde.model.ldeexperiment.Cell;
 import org.opengda.lde.model.ldeexperiment.Experiment;
@@ -36,6 +38,7 @@ import org.opengda.lde.model.ldeexperiment.LDEExperimentsFactory;
 import org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage;
 import org.opengda.lde.model.ldeexperiment.Sample;
 import org.opengda.lde.model.ldeexperiment.Stage;
+import org.opengda.lde.model.ldeexperiment.util.LDEExperimentsValidator;
 
 /**
  * <!-- begin-user-doc -->
@@ -85,6 +88,13 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * @generated
 	 */
 	private EEnum statusEEnum = null;
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	private EDataType stageIDStringEDataType = null;
 
 	/**
 	 * Creates an instance of the model <b>Package</b>, registered with
@@ -138,6 +148,15 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 		// Initialize created meta-data
 		theLDEExperimentsPackage.initializePackageContents();
 
+		// Register package validator
+		EValidator.Registry.INSTANCE.put
+			(theLDEExperimentsPackage, 
+			 new EValidator.Descriptor() {
+				 public EValidator getEValidator() {
+					 return LDEExperimentsValidator.INSTANCE;
+				 }
+			 });
+
 		// Mark meta-data to indicate it can't be changed
 		theLDEExperimentsPackage.freeze();
 
@@ -163,6 +182,15 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 */
 	public EReference getExperimentDefinition_Experiments() {
 		return (EReference)experimentDefinitionEClass.getEStructuralFeatures().get(0);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getExperimentDefinition_Filename() {
+		return (EAttribute)experimentDefinitionEClass.getEStructuralFeatures().get(1);
 	}
 
 	/**
@@ -206,7 +234,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EAttribute getExperiment_Filename() {
+	public EAttribute getExperiment_Description() {
 		return (EAttribute)experimentEClass.getEStructuralFeatures().get(2);
 	}
 
@@ -638,6 +666,15 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public EDataType getStageIDString() {
+		return stageIDStringEDataType;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	public LDEExperimentsFactory getLDEExperimentsFactory() {
 		return (LDEExperimentsFactory)getEFactoryInstance();
 	}
@@ -663,12 +700,13 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 		// Create classes and their features
 		experimentDefinitionEClass = createEClass(EXPERIMENT_DEFINITION);
 		createEReference(experimentDefinitionEClass, EXPERIMENT_DEFINITION__EXPERIMENTS);
+		createEAttribute(experimentDefinitionEClass, EXPERIMENT_DEFINITION__FILENAME);
 		createEOperation(experimentDefinitionEClass, EXPERIMENT_DEFINITION___GET_EXPERIMENT__STRING);
 
 		experimentEClass = createEClass(EXPERIMENT);
 		createEAttribute(experimentEClass, EXPERIMENT__NAME);
 		createEReference(experimentEClass, EXPERIMENT__STAGES);
-		createEAttribute(experimentEClass, EXPERIMENT__FILENAME);
+		createEAttribute(experimentEClass, EXPERIMENT__DESCRIPTION);
 		createEOperation(experimentEClass, EXPERIMENT___GET_STAGE_BY_ID__STRING);
 
 		stageEClass = createEClass(STAGE);
@@ -721,6 +759,9 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 
 		// Create enums
 		statusEEnum = createEEnum(STATUS);
+
+		// Create data types
+		stageIDStringEDataType = createEDataType(STAGE_ID_STRING);
 	}
 
 	/**
@@ -755,6 +796,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 		// Initialize classes, features, and operations; add parameters
 		initEClass(experimentDefinitionEClass, ExperimentDefinition.class, "ExperimentDefinition", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEReference(getExperimentDefinition_Experiments(), this.getExperiment(), null, "experiments", null, 0, -1, ExperimentDefinition.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getExperimentDefinition_Filename(), ecorePackage.getEString(), "filename", "samples", 0, 1, ExperimentDefinition.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		EOperation op = initEOperation(getExperimentDefinition__GetExperiment__String(), this.getExperiment(), "getExperiment", 0, 1, IS_UNIQUE, IS_ORDERED);
 		addEParameter(op, ecorePackage.getEString(), "name", 0, 1, IS_UNIQUE, IS_ORDERED);
@@ -762,13 +804,13 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 		initEClass(experimentEClass, Experiment.class, "Experiment", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getExperiment_Name(), ecorePackage.getEString(), "name", null, 0, 1, Experiment.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getExperiment_Stages(), this.getStage(), this.getStage_Experiment(), "stages", null, 0, -1, Experiment.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getExperiment_Filename(), ecorePackage.getEString(), "filename", "samples", 0, 1, Experiment.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getExperiment_Description(), ecorePackage.getEString(), "description", null, 0, 1, Experiment.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		op = initEOperation(getExperiment__GetStageByID__String(), this.getStage(), "getStageByID", 0, 1, IS_UNIQUE, IS_ORDERED);
 		addEParameter(op, ecorePackage.getEString(), "stageId", 0, 1, IS_UNIQUE, IS_ORDERED);
 
 		initEClass(stageEClass, Stage.class, "Stage", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-		initEAttribute(getStage_StageID(), ecorePackage.getEString(), "stageID", "", 0, 1, Stage.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getStage_StageID(), this.getStageIDString(), "stageID", "LS1", 0, 1, Stage.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getStage_Experiment(), this.getExperiment(), this.getExperiment_Stages(), "experiment", null, 1, 1, Stage.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getStage_Cells(), this.getCell(), this.getCell_Stage(), "cells", null, 0, -1, Stage.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getStage_Detector_x(), ecorePackage.getEDouble(), "detector_x", "0.0", 0, 1, Stage.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -830,8 +872,49 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 		addEEnumLiteral(statusEEnum, org.opengda.lde.model.ldeexperiment.STATUS.ABORTED);
 		addEEnumLiteral(statusEEnum, org.opengda.lde.model.ldeexperiment.STATUS.ERROR);
 
+		// Initialize data types
+		initEDataType(stageIDStringEDataType, String.class, "StageIDString", IS_SERIALIZABLE, !IS_GENERATED_INSTANCE_CLASS);
+
 		// Create resource
 		createResource(eNS_URI);
+
+		// Create annotations
+		// http://www.eclipse.org/emf/2002/Ecore
+		createEcoreAnnotations();
+		// http:///org/eclipse/emf/ecore/util/ExtendedMetaData
+		createExtendedMetaDataAnnotations();
+	}
+
+	/**
+	 * Initializes the annotations for <b>http://www.eclipse.org/emf/2002/Ecore</b>.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected void createEcoreAnnotations() {
+		String source = "http://www.eclipse.org/emf/2002/Ecore";	
+		addAnnotation
+		  (stageEClass, 
+		   source, 
+		   new String[] {
+			 "constraints", "ValidStageID"
+		   });
+	}
+
+	/**
+	 * Initializes the annotations for <b>http:///org/eclipse/emf/ecore/util/ExtendedMetaData</b>.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected void createExtendedMetaDataAnnotations() {
+		String source = "http:///org/eclipse/emf/ecore/util/ExtendedMetaData";	
+		addAnnotation
+		  (stageIDStringEDataType, 
+		   source, 
+		   new String[] {
+			 "enumeration", "LS1 LS2 MS1 MS2 MS3 MS4 SS1 SS2 SS3 SS4 SS5 SS6 ROBOT"
+		   });
 	}
 
 } //LDEExperimentsPackageImpl

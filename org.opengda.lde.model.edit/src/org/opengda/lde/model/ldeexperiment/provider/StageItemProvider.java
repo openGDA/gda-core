@@ -3,6 +3,7 @@
 package org.opengda.lde.model.ldeexperiment.provider;
 
 
+import java.text.DateFormat;
 import java.util.Collection;
 import java.util.List;
 
@@ -24,7 +25,9 @@ import org.eclipse.emf.edit.provider.ITreeItemContentProvider;
 import org.eclipse.emf.edit.provider.ItemPropertyDescriptor;
 import org.eclipse.emf.edit.provider.ItemProviderAdapter;
 import org.eclipse.emf.edit.provider.ViewerNotification;
-
+import org.opengda.lde.model.edit.CellTableConstants;
+import org.opengda.lde.model.edit.ImageConstants;
+import org.opengda.lde.model.ldeexperiment.Cell;
 import org.opengda.lde.model.ldeexperiment.LDEExperimentsFactory;
 import org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage;
 import org.opengda.lde.model.ldeexperiment.Stage;
@@ -336,5 +339,55 @@ public class StageItemProvider
 	public ResourceLocator getResourceLocator() {
 		return SampledefinitionEditPlugin.INSTANCE;
 	}
-
+	@Override
+	public Object getColumnImage(Object object, int columnIndex) {
+		if (object instanceof Cell) {
+			Cell cell = (Cell)object;
+			if (columnIndex == CellTableConstants.COL_AUTO_EMAIL) {
+				if (cell.isEnableAutoEmail()) {
+					return getResourceLocator().getImage(ImageConstants.ICON_CHECKED_STATE);
+				} else {
+					return getResourceLocator().getImage(ImageConstants.ICON_UNCHECKED_STATE);
+				}
+			}		
+		}
+		return super.getColumnImage(object, columnIndex);
+	}
+	@Override
+	public String getColumnText(Object object, int columnIndex) {
+		if (object instanceof Cell) {
+			Cell cell = (Cell)object;
+			switch(columnIndex) {
+			case CellTableConstants.COL_CELL_NAME:
+				return cell.getName();
+			case CellTableConstants.COL_CELL_ID:
+				return cell.getCellID();
+			case CellTableConstants.COL_VISIT_ID:
+				return cell.getVisitID();
+			case CellTableConstants.COL_CALIBRANT_NAME:
+				return cell.getCalibrant();
+			case CellTableConstants.COL_CALIBRANT_X:
+				return String.valueOf(cell.getCalibrant_x());
+			case CellTableConstants.COL_CALIBRANT_Y:
+				return String.valueOf(cell.getCalibrant_y());
+			case CellTableConstants.COL_CALIBRANT_EXPOSURE:
+				return String.valueOf(cell.getCalibrant_exposure());
+			case CellTableConstants.COL_ENV_SCANNABLE_NAMES:
+				return cell.getEvnScannableNames();
+			case CellTableConstants.COL_ENV_SAMPLING_INTERVAL:
+				return String.valueOf(cell.getEnvSamplingInterval());
+			case CellTableConstants.COL_START_DATE:
+				return DateFormat.getInstance().format(cell.getStartDate());
+			case CellTableConstants.COL_END_DATE: 
+				return DateFormat.getInstance().format(cell.getEndDate());
+			case CellTableConstants.COL_EMAIL:
+				return cell.getEmail();
+			case CellTableConstants.COL_AUTO_EMAIL:
+				return "";
+			default:
+				break;
+			}
+		}
+		return super.getColumnText(object, columnIndex);
+	}
 }

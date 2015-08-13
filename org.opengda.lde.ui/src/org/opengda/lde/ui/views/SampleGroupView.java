@@ -222,7 +222,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 	/**
 	 * This is a callback that will allow us to create the viewer and initialise it.
 	 */
-	public void createPartControl1(Composite parent) {
+	public void createPartControl(Composite parent) {
 		Composite rootComposite = new Composite(parent, SWT.NONE);
 		rootComposite.setLayout(new GridLayout());
 //		rootComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
@@ -314,7 +314,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		txtTotalNumberCollections.setBackground(ColorConstants.black);
 
 		Group grpDataCollectionProgress = new Group(statusArea, SWT.NONE);
-		grpDataCollectionProgress.setLayout(new GridLayout(10, false));
+		grpDataCollectionProgress.setLayout(new GridLayout(12, false));
 		GridData gd_grpDataCollectionProgress = new GridData(SWT.FILL, SWT.TOP,
 				false, true, 4, 1);
 		gd_grpDataCollectionProgress.heightHint = 67;
@@ -1798,12 +1798,4 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 	public void setEventAdminName(String eventAdminName) {
 		this.eventAdminName = eventAdminName;
 	}
-
-
-	@Override
-	public void createPartControl(Composite parent) {
-		// TODO Auto-generated method stub
-		
-	}
-
 }

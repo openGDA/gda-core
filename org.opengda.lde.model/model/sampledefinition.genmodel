@@ -7,7 +7,8 @@
     featureMapWrapperInterface="" featureMapWrapperInternalInterface="" featureMapWrapperClass=""
     booleanFlagsField="" importerID="org.eclipse.emf.importer.ecore" complianceLevel="7.0"
     copyrightFields="false" providerRootExtendsClass="" tableProviders="true" language=""
-    interfaceNamePattern="" classNamePattern="" operationReflection="true" importOrganizing="true">
+    interfaceNamePattern="" classNamePattern="" operationReflection="true" importOrganizing="true"
+    decoration="Live">
   <foreignModel>sampledefinition.ecore</foreignModel>
   <genPackages prefix="LDEExperiments" basePackage="org.opengda.lde.model" resource="XML"
       disposableProviderFactory="true" contentTypeIdentifier="" fileExtensions="lde"
@@ -20,8 +21,10 @@
       <genEnumLiterals ecoreEnumLiteral="sampledefinition.ecore#//STATUS/ABORTED"/>
       <genEnumLiterals ecoreEnumLiteral="sampledefinition.ecore#//STATUS/ERROR"/>
     </genEnums>
+    <genDataTypes ecoreDataType="sampledefinition.ecore#//StageIDString"/>
     <genClasses ecoreClass="sampledefinition.ecore#//ExperimentDefinition">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference sampledefinition.ecore#//ExperimentDefinition/experiments"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//ExperimentDefinition/filename"/>
       <genOperations ecoreOperation="sampledefinition.ecore#//ExperimentDefinition/getExperiment">
         <genParameters ecoreParameter="sampledefinition.ecore#//ExperimentDefinition/getExperiment/name"/>
       </genOperations>
@@ -29,13 +32,14 @@
     <genClasses ecoreClass="sampledefinition.ecore#//Experiment">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Experiment/name"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference sampledefinition.ecore#//Experiment/stages"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Experiment/filename"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Experiment/description"/>
       <genOperations ecoreOperation="sampledefinition.ecore#//Experiment/getStageByID">
         <genParameters ecoreParameter="sampledefinition.ecore#//Experiment/getStageByID/stageId"/>
       </genOperations>
     </genClasses>
     <genClasses ecoreClass="sampledefinition.ecore#//Stage">
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Stage/stageID"/>
+      <genFeatures createChild="false" propertyCategory="" propertyDescription=""
+          ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Stage/stageID"/>
       <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference sampledefinition.ecore#//Stage/experiment"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference sampledefinition.ecore#//Stage/cells"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Stage/detector_x"/>

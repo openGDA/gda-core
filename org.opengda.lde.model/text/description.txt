@@ -9,16 +9,17 @@ Package ldeexperiment <http://www.opengda.org/LDEExperiments>
 
   Class ExperimentDefinition
     Reference experiments : Experiment<<0..*>>
+    Attribute filename : EString
     Operation getExperiment(EString) : Experiment
 
   Class Experiment
     Attribute name : EString
     Reference stages : Stage<<0..*>>
-    Attribute filename : EString
+    Attribute description : EString
     Operation getStageByID(EString) : Stage
 
   Class Stage
-    Attribute stageID : EString
+    Attribute stageID : StageIDString
     Reference experiment : Experiment<<1..1>>
     Reference cells : Cell<<0..*>>
     Attribute detector_x : EDouble
@@ -72,3 +73,5 @@ Package ldeexperiment <http://www.opengda.org/LDEExperiments>
     Literal COMPLETED = 3
     Literal ABORTED = 4
     Literal ERROR = 5
+
+  DataType StageIDString <java.lang.String>

@@ -37,7 +37,7 @@ import org.eclipse.emf.ecore.EObject;
  * <ul>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Experiment#getName <em>Name</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Experiment#getStages <em>Stages</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.Experiment#getFilename <em>Filename</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.Experiment#getDescription <em>Description</em>}</li>
  * </ul>
  *
  * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getExperiment()
@@ -90,31 +90,30 @@ public interface Experiment extends EObject {
 	EList<Stage> getStages();
 
 	/**
-	 * Returns the value of the '<em><b>Filename</b></em>' attribute.
-	 * The default value is <code>"samples"</code>.
+	 * Returns the value of the '<em><b>Description</b></em>' attribute.
 	 * <!-- begin-user-doc -->
 	 * <p>
-	 * If the meaning of the '<em>Filename</em>' attribute isn't clear,
+	 * If the meaning of the '<em>Description</em>' attribute isn't clear,
 	 * there really should be more of a description here...
 	 * </p>
 	 * <!-- end-user-doc -->
-	 * @return the value of the '<em>Filename</em>' attribute.
-	 * @see #setFilename(String)
-	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getExperiment_Filename()
-	 * @model default="samples"
+	 * @return the value of the '<em>Description</em>' attribute.
+	 * @see #setDescription(String)
+	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getExperiment_Description()
+	 * @model
 	 * @generated
 	 */
-	String getFilename();
+	String getDescription();
 
 	/**
-	 * Sets the value of the '{@link org.opengda.lde.model.ldeexperiment.Experiment#getFilename <em>Filename</em>}' attribute.
+	 * Sets the value of the '{@link org.opengda.lde.model.ldeexperiment.Experiment#getDescription <em>Description</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @param value the new value of the '<em>Filename</em>' attribute.
-	 * @see #getFilename()
+	 * @param value the new value of the '<em>Description</em>' attribute.
+	 * @see #getDescription()
 	 * @generated
 	 */
-	void setFilename(String value);
+	void setDescription(String value);
 
 	/**
 	 * <!-- begin-user-doc -->

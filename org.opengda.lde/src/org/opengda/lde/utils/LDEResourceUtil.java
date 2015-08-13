@@ -206,7 +206,7 @@ public class LDEResourceUtil {
 				return root.getExperiments();
 			}
 		}
-		return null;
+		return Collections.emptyList();
 	}
 
 	public Resource getResource(String fileName) throws Exception {

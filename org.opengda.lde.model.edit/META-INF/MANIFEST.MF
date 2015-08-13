@@ -11,5 +11,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: org.opengda.lde.model.ldeexperiment.provider
 Require-Bundle: org.eclipse.core.runtime,
  org.opengda.lde.model;visibility:=reexport,
- org.eclipse.emf.edit;visibility:=reexport
+ org.eclipse.emf.edit;visibility:=reexport,
+ org.eclipse.swt
 Bundle-ActivationPolicy: lazy
+Import-Package: org.eclipse.jface.resource

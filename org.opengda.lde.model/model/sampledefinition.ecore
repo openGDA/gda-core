@@ -8,6 +8,8 @@
     </eOperations>
     <eStructuralFeatures xsi:type="ecore:EReference" name="experiments" upperBound="-1"
         eType="#//Experiment" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="filename" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
+        defaultValueLiteral="samples"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Experiment">
     <eOperations name="getStageByID" eType="#//Stage">
@@ -16,15 +18,17 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="stages" upperBound="-1"
         eType="#//Stage" containment="true" eOpposite="#//Stage/experiment"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="filename" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
-        defaultValueLiteral="samples"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="description" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Stage">
+    <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+      <details key="constraints" value="ValidStageID"/>
+    </eAnnotations>
     <eOperations name="getCellByID" eType="#//Cell">
       <eParameters name="cellId" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     </eOperations>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="stageID" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
-        defaultValueLiteral=""/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="stageID" eType="#//StageIDString"
+        defaultValueLiteral="LS1"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="experiment" lowerBound="1"
         eType="#//Experiment" eOpposite="#//Experiment/stages"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="cells" upperBound="-1"
@@ -106,5 +110,10 @@
     <eLiterals name="COMPLETED" value="3"/>
     <eLiterals name="ABORTED" value="4"/>
     <eLiterals name="ERROR" value="5"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EDataType" name="StageIDString" instanceClassName="java.lang.String">
+    <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
+      <details key="enumeration" value="LS1 LS2 MS1 MS2 MS3 MS4 SS1 SS2 SS3 SS4 SS5 SS6 ROBOT"/>
+    </eAnnotations>
   </eClassifiers>
 </ecore:EPackage>

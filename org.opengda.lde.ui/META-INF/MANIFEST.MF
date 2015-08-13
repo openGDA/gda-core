@@ -35,7 +35,11 @@ Require-Bundle: org.eclipse.ui,
  uk.ac.gda.devices.pixium,
  org.opengda.lde,
  org.apache.commons.io,
- org.eclipse.emf.edit.ui
+ org.eclipse.emf.edit.ui,
+ org.eclipse.emf.common,
+ org.eclipse.emf.ecore,
+ org.opengda.lde.model.editor,
+ org.eclipse.ui.workbench
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy

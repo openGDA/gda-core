@@ -38,4 +38,6 @@ public interface ExperimentDefinitionValidator {
 
 	boolean validateExperiments(EList<Experiment> value);
 
+	boolean validateFilename(String value);
+
 }

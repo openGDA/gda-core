@@ -9,6 +9,7 @@ import org.eclipse.emf.common.notify.AdapterFactory;
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.util.ResourceLocator;
 import org.eclipse.emf.ecore.EStructuralFeature;
+import org.eclipse.emf.edit.provider.ComposeableAdapterFactory;
 import org.eclipse.emf.edit.provider.IEditingDomainItemProvider;
 import org.eclipse.emf.edit.provider.IItemLabelProvider;
 import org.eclipse.emf.edit.provider.IItemPropertyDescriptor;
@@ -16,8 +17,11 @@ import org.eclipse.emf.edit.provider.IItemPropertySource;
 import org.eclipse.emf.edit.provider.IStructuredItemContentProvider;
 import org.eclipse.emf.edit.provider.ITableItemLabelProvider;
 import org.eclipse.emf.edit.provider.ITreeItemContentProvider;
+import org.eclipse.emf.edit.provider.ItemPropertyDescriptor;
 import org.eclipse.emf.edit.provider.ItemProviderAdapter;
 import org.eclipse.emf.edit.provider.ViewerNotification;
+import org.opengda.lde.model.edit.ExperimentTableConstants;
+import org.opengda.lde.model.ldeexperiment.Experiment;
 import org.opengda.lde.model.ldeexperiment.ExperimentDefinition;
 import org.opengda.lde.model.ldeexperiment.LDEExperimentsFactory;
 import org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage;
@@ -53,8 +57,31 @@ public class ExperimentDefinitionItemProvider
 		if (itemPropertyDescriptors == null) {
 			super.getPropertyDescriptors(object);
 
+			addFilenamePropertyDescriptor(object);
 		}
 		return itemPropertyDescriptors;
+	}
+
+	/**
+	 * This adds a property descriptor for the Filename feature.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected void addFilenamePropertyDescriptor(Object object) {
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_ExperimentDefinition_filename_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_ExperimentDefinition_filename_feature", "_UI_ExperimentDefinition_type"),
+				 LDEExperimentsPackage.Literals.EXPERIMENT_DEFINITION__FILENAME,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
+				 null,
+				 null));
 	}
 
 	/**
@@ -106,7 +133,10 @@ public class ExperimentDefinitionItemProvider
 	 */
 	@Override
 	public String getText(Object object) {
-		return getString("_UI_ExperimentDefinition_type");
+		String label = ((ExperimentDefinition)object).getFilename();
+		return label == null || label.length() == 0 ?
+			getString("_UI_ExperimentDefinition_type") :
+			getString("_UI_ExperimentDefinition_type") + " " + label;
 	}
 	
 
@@ -122,6 +152,9 @@ public class ExperimentDefinitionItemProvider
 		updateChildren(notification);
 
 		switch (notification.getFeatureID(ExperimentDefinition.class)) {
+			case LDEExperimentsPackage.EXPERIMENT_DEFINITION__FILENAME:
+				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
+				return;
 			case LDEExperimentsPackage.EXPERIMENT_DEFINITION__EXPERIMENTS:
 				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), true, false));
 				return;
@@ -155,6 +188,22 @@ public class ExperimentDefinitionItemProvider
 	@Override
 	public ResourceLocator getResourceLocator() {
 		return SampledefinitionEditPlugin.INSTANCE;
+	}
+	
+	@Override
+	public String getColumnText(Object object, int columnIndex) {
+		if (object instanceof Experiment) {
+			Experiment experiment=(Experiment)object;
+			switch (columnIndex) {
+			case ExperimentTableConstants.COL_NAME:
+				return experiment.getName();
+			case ExperimentTableConstants.COL_DESCRIPTION:
+				return experiment.getDescription();
+			default:
+				break;
+			}
+		}
+		return super.getColumnText(object, columnIndex);
 	}
 
 }

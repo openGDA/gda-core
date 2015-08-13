@@ -48,7 +48,7 @@ import org.opengda.lde.model.ldeexperiment.exceptions.NotFoundException;
  * <ul>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.ExperimentImpl#getName <em>Name</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.ExperimentImpl#getStages <em>Stages</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.ExperimentImpl#getFilename <em>Filename</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.ExperimentImpl#getDescription <em>Description</em>}</li>
  * </ul>
  *
  * @generated
@@ -85,24 +85,24 @@ public class ExperimentImpl extends MinimalEObjectImpl.Container implements Expe
 	protected EList<Stage> stages;
 
 	/**
-	 * The default value of the '{@link #getFilename() <em>Filename</em>}' attribute.
+	 * The default value of the '{@link #getDescription() <em>Description</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see #getFilename()
+	 * @see #getDescription()
 	 * @generated
 	 * @ordered
 	 */
-	protected static final String FILENAME_EDEFAULT = "samples";
+	protected static final String DESCRIPTION_EDEFAULT = null;
 
 	/**
-	 * The cached value of the '{@link #getFilename() <em>Filename</em>}' attribute.
+	 * The cached value of the '{@link #getDescription() <em>Description</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see #getFilename()
+	 * @see #getDescription()
 	 * @generated
 	 * @ordered
 	 */
-	protected String filename = FILENAME_EDEFAULT;
+	protected String description = DESCRIPTION_EDEFAULT;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -161,8 +161,8 @@ public class ExperimentImpl extends MinimalEObjectImpl.Container implements Expe
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public String getFilename() {
-		return filename;
+	public String getDescription() {
+		return description;
 	}
 
 	/**
@@ -170,11 +170,11 @@ public class ExperimentImpl extends MinimalEObjectImpl.Container implements Expe
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public void setFilename(String newFilename) {
-		String oldFilename = filename;
-		filename = newFilename;
+	public void setDescription(String newDescription) {
+		String oldDescription = description;
+		description = newDescription;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, LDEExperimentsPackage.EXPERIMENT__FILENAME, oldFilename, filename));
+			eNotify(new ENotificationImpl(this, Notification.SET, LDEExperimentsPackage.EXPERIMENT__DESCRIPTION, oldDescription, description));
 	}
 
 	/**
@@ -232,8 +232,8 @@ public class ExperimentImpl extends MinimalEObjectImpl.Container implements Expe
 				return getName();
 			case LDEExperimentsPackage.EXPERIMENT__STAGES:
 				return getStages();
-			case LDEExperimentsPackage.EXPERIMENT__FILENAME:
-				return getFilename();
+			case LDEExperimentsPackage.EXPERIMENT__DESCRIPTION:
+				return getDescription();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -254,8 +254,8 @@ public class ExperimentImpl extends MinimalEObjectImpl.Container implements Expe
 				getStages().clear();
 				getStages().addAll((Collection<? extends Stage>)newValue);
 				return;
-			case LDEExperimentsPackage.EXPERIMENT__FILENAME:
-				setFilename((String)newValue);
+			case LDEExperimentsPackage.EXPERIMENT__DESCRIPTION:
+				setDescription((String)newValue);
 				return;
 		}
 		super.eSet(featureID, newValue);
@@ -275,8 +275,8 @@ public class ExperimentImpl extends MinimalEObjectImpl.Container implements Expe
 			case LDEExperimentsPackage.EXPERIMENT__STAGES:
 				getStages().clear();
 				return;
-			case LDEExperimentsPackage.EXPERIMENT__FILENAME:
-				setFilename(FILENAME_EDEFAULT);
+			case LDEExperimentsPackage.EXPERIMENT__DESCRIPTION:
+				setDescription(DESCRIPTION_EDEFAULT);
 				return;
 		}
 		super.eUnset(featureID);
@@ -294,8 +294,8 @@ public class ExperimentImpl extends MinimalEObjectImpl.Container implements Expe
 				return NAME_EDEFAULT == null ? name != null : !NAME_EDEFAULT.equals(name);
 			case LDEExperimentsPackage.EXPERIMENT__STAGES:
 				return stages != null && !stages.isEmpty();
-			case LDEExperimentsPackage.EXPERIMENT__FILENAME:
-				return FILENAME_EDEFAULT == null ? filename != null : !FILENAME_EDEFAULT.equals(filename);
+			case LDEExperimentsPackage.EXPERIMENT__DESCRIPTION:
+				return DESCRIPTION_EDEFAULT == null ? description != null : !DESCRIPTION_EDEFAULT.equals(description);
 		}
 		return super.eIsSet(featureID);
 	}
@@ -326,8 +326,8 @@ public class ExperimentImpl extends MinimalEObjectImpl.Container implements Expe
 		StringBuffer result = new StringBuffer(super.toString());
 		result.append(" (name: ");
 		result.append(name);
-		result.append(", filename: ");
-		result.append(filename);
+		result.append(", description: ");
+		result.append(description);
 		result.append(')');
 		return result.toString();
 	}

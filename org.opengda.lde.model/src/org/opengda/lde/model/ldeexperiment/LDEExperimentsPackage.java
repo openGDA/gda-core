@@ -24,6 +24,7 @@ package org.opengda.lde.model.ldeexperiment;
 
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EEnum;
 import org.eclipse.emf.ecore.EOperation;
 import org.eclipse.emf.ecore.EPackage;
@@ -98,13 +99,22 @@ public interface LDEExperimentsPackage extends EPackage {
 	int EXPERIMENT_DEFINITION__EXPERIMENTS = 0;
 
 	/**
+	 * The feature id for the '<em><b>Filename</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int EXPERIMENT_DEFINITION__FILENAME = 1;
+
+	/**
 	 * The number of structural features of the '<em>Experiment Definition</em>' class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int EXPERIMENT_DEFINITION_FEATURE_COUNT = 1;
+	int EXPERIMENT_DEFINITION_FEATURE_COUNT = 2;
 
 	/**
 	 * The operation id for the '<em>Get Experiment</em>' operation.
@@ -153,13 +163,13 @@ public interface LDEExperimentsPackage extends EPackage {
 	int EXPERIMENT__STAGES = 1;
 
 	/**
-	 * The feature id for the '<em><b>Filename</b></em>' attribute.
+	 * The feature id for the '<em><b>Description</b></em>' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int EXPERIMENT__FILENAME = 2;
+	int EXPERIMENT__DESCRIPTION = 2;
 
 	/**
 	 * The number of structural features of the '<em>Experiment</em>' class.
@@ -662,6 +672,17 @@ public interface LDEExperimentsPackage extends EPackage {
 
 
 	/**
+	 * The meta object id for the '<em>Stage ID String</em>' data type.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see java.lang.String
+	 * @see org.opengda.lde.model.ldeexperiment.impl.LDEExperimentsPackageImpl#getStageIDString()
+	 * @generated
+	 */
+	int STAGE_ID_STRING = 6;
+
+
+	/**
 	 * Returns the meta object for class '{@link org.opengda.lde.model.ldeexperiment.ExperimentDefinition <em>Experiment Definition</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -681,6 +702,17 @@ public interface LDEExperimentsPackage extends EPackage {
 	 * @generated
 	 */
 	EReference getExperimentDefinition_Experiments();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.ExperimentDefinition#getFilename <em>Filename</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Filename</em>'.
+	 * @see org.opengda.lde.model.ldeexperiment.ExperimentDefinition#getFilename()
+	 * @see #getExperimentDefinition()
+	 * @generated
+	 */
+	EAttribute getExperimentDefinition_Filename();
 
 	/**
 	 * Returns the meta object for the '{@link org.opengda.lde.model.ldeexperiment.ExperimentDefinition#getExperiment(java.lang.String) <em>Get Experiment</em>}' operation.
@@ -725,15 +757,15 @@ public interface LDEExperimentsPackage extends EPackage {
 	EReference getExperiment_Stages();
 
 	/**
-	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Experiment#getFilename <em>Filename</em>}'.
+	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Experiment#getDescription <em>Description</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Filename</em>'.
-	 * @see org.opengda.lde.model.ldeexperiment.Experiment#getFilename()
+	 * @return the meta object for the attribute '<em>Description</em>'.
+	 * @see org.opengda.lde.model.ldeexperiment.Experiment#getDescription()
 	 * @see #getExperiment()
 	 * @generated
 	 */
-	EAttribute getExperiment_Filename();
+	EAttribute getExperiment_Description();
 
 	/**
 	 * Returns the meta object for the '{@link org.opengda.lde.model.ldeexperiment.Experiment#getStageByID(java.lang.String) <em>Get Stage By ID</em>}' operation.
@@ -1245,6 +1277,18 @@ public interface LDEExperimentsPackage extends EPackage {
 	EEnum getSTATUS();
 
 	/**
+	 * Returns the meta object for data type '{@link java.lang.String <em>Stage ID String</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for data type '<em>Stage ID String</em>'.
+	 * @see java.lang.String
+	 * @model instanceClass="java.lang.String"
+	 *        extendedMetaData="enumeration='LS1 LS2 MS1 MS2 MS3 MS4 SS1 SS2 SS3 SS4 SS5 SS6 ROBOT'"
+	 * @generated
+	 */
+	EDataType getStageIDString();
+
+	/**
 	 * Returns the factory that creates the instances of the model.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -1286,6 +1330,14 @@ public interface LDEExperimentsPackage extends EPackage {
 		EReference EXPERIMENT_DEFINITION__EXPERIMENTS = eINSTANCE.getExperimentDefinition_Experiments();
 
 		/**
+		 * The meta object literal for the '<em><b>Filename</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute EXPERIMENT_DEFINITION__FILENAME = eINSTANCE.getExperimentDefinition_Filename();
+
+		/**
 		 * The meta object literal for the '<em><b>Get Experiment</b></em>' operation.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
@@ -1320,12 +1372,12 @@ public interface LDEExperimentsPackage extends EPackage {
 		EReference EXPERIMENT__STAGES = eINSTANCE.getExperiment_Stages();
 
 		/**
-		 * The meta object literal for the '<em><b>Filename</b></em>' attribute feature.
+		 * The meta object literal for the '<em><b>Description</b></em>' attribute feature.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
 		 * @generated
 		 */
-		EAttribute EXPERIMENT__FILENAME = eINSTANCE.getExperiment_Filename();
+		EAttribute EXPERIMENT__DESCRIPTION = eINSTANCE.getExperiment_Description();
 
 		/**
 		 * The meta object literal for the '<em><b>Get Stage By ID</b></em>' operation.
@@ -1710,6 +1762,16 @@ public interface LDEExperimentsPackage extends EPackage {
 		 * @generated
 		 */
 		EEnum STATUS = eINSTANCE.getSTATUS();
+
+		/**
+		 * The meta object literal for the '<em>Stage ID String</em>' data type.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @see java.lang.String
+		 * @see org.opengda.lde.model.ldeexperiment.impl.LDEExperimentsPackageImpl#getStageIDString()
+		 * @generated
+		 */
+		EDataType STAGE_ID_STRING = eINSTANCE.getStageIDString();
 
 	}
 

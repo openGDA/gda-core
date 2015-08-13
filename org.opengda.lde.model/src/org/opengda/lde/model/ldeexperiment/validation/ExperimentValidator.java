@@ -39,5 +39,7 @@ public interface ExperimentValidator {
 
 	boolean validateName(String value);
 	boolean validateStages(EList<Stage> value);
+	boolean validateDescription(String value);
+
 	boolean validateFilename(String value);
 }

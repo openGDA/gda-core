@@ -70,7 +70,7 @@ public class StageImpl extends MinimalEObjectImpl.Container implements Stage {
 	 * @generated
 	 * @ordered
 	 */
-	protected static final String STAGE_ID_EDEFAULT = "";
+	protected static final String STAGE_ID_EDEFAULT = "LS1";
 
 	/**
 	 * The cached value of the '{@link #getStageID() <em>Stage ID</em>}' attribute.

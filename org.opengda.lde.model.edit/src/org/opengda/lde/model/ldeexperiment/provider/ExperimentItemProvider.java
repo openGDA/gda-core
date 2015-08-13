@@ -24,10 +24,11 @@ import org.eclipse.emf.edit.provider.ITreeItemContentProvider;
 import org.eclipse.emf.edit.provider.ItemPropertyDescriptor;
 import org.eclipse.emf.edit.provider.ItemProviderAdapter;
 import org.eclipse.emf.edit.provider.ViewerNotification;
-
+import org.opengda.lde.model.edit.StageTableConstants;
 import org.opengda.lde.model.ldeexperiment.Experiment;
 import org.opengda.lde.model.ldeexperiment.LDEExperimentsFactory;
 import org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage;
+import org.opengda.lde.model.ldeexperiment.Stage;
 
 /**
  * This is the item provider adapter for a {@link org.opengda.lde.model.ldeexperiment.Experiment} object.
@@ -61,7 +62,7 @@ public class ExperimentItemProvider
 			super.getPropertyDescriptors(object);
 
 			addNamePropertyDescriptor(object);
-			addFilenamePropertyDescriptor(object);
+			addDescriptionPropertyDescriptor(object);
 		}
 		return itemPropertyDescriptors;
 	}
@@ -89,19 +90,19 @@ public class ExperimentItemProvider
 	}
 
 	/**
-	 * This adds a property descriptor for the Filename feature.
+	 * This adds a property descriptor for the Description feature.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	protected void addFilenamePropertyDescriptor(Object object) {
+	protected void addDescriptionPropertyDescriptor(Object object) {
 		itemPropertyDescriptors.add
 			(createItemPropertyDescriptor
 				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
 				 getResourceLocator(),
-				 getString("_UI_Experiment_filename_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_Experiment_filename_feature", "_UI_Experiment_type"),
-				 LDEExperimentsPackage.Literals.EXPERIMENT__FILENAME,
+				 getString("_UI_Experiment_description_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_Experiment_description_feature", "_UI_Experiment_type"),
+				 LDEExperimentsPackage.Literals.EXPERIMENT__DESCRIPTION,
 				 true,
 				 false,
 				 false,
@@ -179,7 +180,7 @@ public class ExperimentItemProvider
 
 		switch (notification.getFeatureID(Experiment.class)) {
 			case LDEExperimentsPackage.EXPERIMENT__NAME:
-			case LDEExperimentsPackage.EXPERIMENT__FILENAME:
+			case LDEExperimentsPackage.EXPERIMENT__DESCRIPTION:
 				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
 				return;
 			case LDEExperimentsPackage.EXPERIMENT__STAGES:
@@ -215,6 +216,31 @@ public class ExperimentItemProvider
 	@Override
 	public ResourceLocator getResourceLocator() {
 		return SampledefinitionEditPlugin.INSTANCE;
+	}
+	@Override
+	public String getColumnText(Object object, int columnIndex) {
+		if (object instanceof Stage) {
+			Stage stage=(Stage)object;
+			switch (columnIndex) {
+			case StageTableConstants.COL_STAGE_ID:
+				return stage.getStageID();
+			case StageTableConstants.COL_DETECTOR_X:
+				return String.valueOf(stage.getDetector_x());
+			case StageTableConstants.COL_DETECTOR_Y:
+				return String.valueOf(stage.getDetector_y());
+			case StageTableConstants.COL_DETECTOR_Z:
+				return String.valueOf(stage.getDetector_z());
+			case StageTableConstants.COL_CAMERA_X:
+				return String.valueOf(stage.getCamera_x());
+			case StageTableConstants.COL_CAMERA_Y:
+				return String.valueOf(stage.getCamera_y());
+			case StageTableConstants.COL_CAMERA_Z:
+				return String.valueOf(stage.getCamera_z());
+			default:
+				break;
+			}
+		}
+		return super.getColumnText(object, columnIndex);
 	}
 
 }

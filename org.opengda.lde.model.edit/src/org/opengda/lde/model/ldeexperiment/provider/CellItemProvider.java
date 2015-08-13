@@ -8,11 +8,8 @@ import java.util.List;
 
 import org.eclipse.emf.common.notify.AdapterFactory;
 import org.eclipse.emf.common.notify.Notification;
-
 import org.eclipse.emf.common.util.ResourceLocator;
-
 import org.eclipse.emf.ecore.EStructuralFeature;
-
 import org.eclipse.emf.edit.provider.ComposeableAdapterFactory;
 import org.eclipse.emf.edit.provider.IEditingDomainItemProvider;
 import org.eclipse.emf.edit.provider.IItemLabelProvider;
@@ -24,10 +21,13 @@ import org.eclipse.emf.edit.provider.ITreeItemContentProvider;
 import org.eclipse.emf.edit.provider.ItemPropertyDescriptor;
 import org.eclipse.emf.edit.provider.ItemProviderAdapter;
 import org.eclipse.emf.edit.provider.ViewerNotification;
-
+import org.opengda.lde.model.edit.ImageConstants;
+import org.opengda.lde.model.edit.SampleTableConstants;
 import org.opengda.lde.model.ldeexperiment.Cell;
 import org.opengda.lde.model.ldeexperiment.LDEExperimentsFactory;
 import org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage;
+import org.opengda.lde.model.ldeexperiment.STATUS;
+import org.opengda.lde.model.ldeexperiment.Sample;
 
 /**
  * This is the item provider adapter for a {@link org.opengda.lde.model.ldeexperiment.Cell} object.
@@ -479,6 +479,70 @@ public class CellItemProvider
 	@Override
 	public ResourceLocator getResourceLocator() {
 		return SampledefinitionEditPlugin.INSTANCE;
+	}
+	
+	@Override
+	public Object getColumnImage(Object element, int columnIndex) {
+		if (element instanceof Sample) {
+			Sample sample = (Sample) element;
+			if (columnIndex == SampleTableConstants.COL_ACTIVE) {
+				if (sample.isActive()) {
+					return getResourceLocator().getImage(ImageConstants.ICON_CHECKED_STATE);
+				} else {
+					return getResourceLocator().getImage(ImageConstants.ICON_UNCHECKED_STATE);
+				}
+			} else if (columnIndex == SampleTableConstants.COL_STATUS) {
+				if (sample.isActive()) {
+					if (sample.getStatus() == STATUS.READY) {
+						return getResourceLocator().getImage(ImageConstants.ICON_RUN_READY);
+					} else if (sample.getStatus() == STATUS.RUNNING) {
+						return getResourceLocator().getImage(ImageConstants.ICON_RUNNING);
+					} else if (sample.getStatus() == STATUS.COMPLETED) {
+						return getResourceLocator().getImage(ImageConstants.ICON_RUN_COMPLETE);
+					} else if (sample.getStatus() == STATUS.ABORTED) {
+						return getResourceLocator().getImage(ImageConstants.ICON_RUN_FAILURE);
+					} else if (sample.getStatus() == STATUS.ERROR) {
+						return getResourceLocator().getImage(ImageConstants.ICON_ERROR);
+					}
+				}
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public String getColumnText(Object element, int columnIndex) {
+		if (element instanceof Sample) {
+			Sample sample = (Sample) element;
+			switch (columnIndex) {
+			case SampleTableConstants.COL_STATUS:
+				return "";
+			case SampleTableConstants.COL_ACTIVE:
+				return "";
+			case SampleTableConstants.COL_SAMPLE_NAME:
+				return sample.getName();
+			case SampleTableConstants.COL_SAMPLE_X_START:
+				return String.valueOf(sample.getSample_x_start());
+			case SampleTableConstants.COL_SAMPLE_X_STOP:
+				return String.valueOf(sample.getSample_x_stop());
+			case SampleTableConstants.COL_SAMPLE_X_STEP:
+				return String.valueOf(sample.getSample_x_step());
+			case SampleTableConstants.COL_SAMPLE_Y_START:
+				return String.valueOf(sample.getSample_y_start());
+			case SampleTableConstants.COL_SAMPLE_Y_STOP:
+				return String.valueOf(sample.getSample_y_stop());
+			case SampleTableConstants.COL_SAMPLE_Y_STEP:
+				return String.valueOf(sample.getSample_y_step());
+			case SampleTableConstants.COL_SAMPLE_EXPOSURE:
+				return String.valueOf(sample.getSample_exposure());
+			case SampleTableConstants.COL_COMMAND:
+				return sample.getCommand();
+			case SampleTableConstants.COL_COMMENT:
+				return sample.getComment();
+			}
+		}
+		return null;
+
 	}
 
 }
