@@ -38,7 +38,7 @@ public class CirrusDetector extends DetectorBase implements NexusDetector, Cirru
 	private CirrusController controller = new CirrusController();
 	private String cirrusHost;
 	private Integer[] masses = new Integer[] {};
-	
+
 	public static void main(String[] args) {
 		try {
 			CirrusDetector det = new CirrusDetector();
@@ -53,7 +53,7 @@ public class CirrusDetector extends DetectorBase implements NexusDetector, Cirru
 			det.configure();
 
 			det.collectData();
-			
+
 			while(det.isBusy()){
 				System.out.println("Detector is busy...");
 				Thread.sleep(50);
@@ -62,30 +62,30 @@ public class CirrusDetector extends DetectorBase implements NexusDetector, Cirru
 			System.out.println("System heater on?" + det.isCirrusHeaterOn());
 			System.out.println("Chamber pressure:" + det.getChamberPressure());
 			System.out.println("Filament:" + det.getFilamentToUse());
-			
+
 			System.out.println("Measured values:");
 			Double[] results = ((NXDetectorData)det.readout()).getDoubleVals();
 			for (int i = 0; i < results.length; i++){
 				System.out.println("Mass: " + masses[i] + " -> " + String.format("%.2f",results[i]) + " mbar");
 			}
-			
+
 			System.out.println("Test of Cirrus complete!");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		System.exit(0);
-		
+
 	}
-	
+
 	public CirrusDetector() {
 		setInputNames(null);
 	}
-	
+
 	@Override
 	public void configure() throws FactoryException {
 		getController().connect(cirrusHost);
 	}
-	
+
 	@Override
 	public void reconfigure() throws FactoryException {
 		getController().disconnect();
@@ -102,7 +102,7 @@ public class CirrusDetector extends DetectorBase implements NexusDetector, Cirru
 		// add the measurement to the scan and start it
 		getController().createAndRunScan(masses);
 	}
-	
+
 	@Override
 	public void atCommandFailure() throws DeviceException {
 		getController().getCurrentState().setStatus(new ScannableStatus("Cirrus", ScannableStatus.BUSY));
@@ -166,35 +166,35 @@ public class CirrusDetector extends DetectorBase implements NexusDetector, Cirru
 		return nxdata;
 
 	}
-	
+
 	@Override
 	public String[] getExtraNames() {
-		
+
 		// dynamic, based on number of masses
 		String[] extranames = new String[masses.length];
-		
+
 		for (int i = 0 ; i < masses.length; i++){
 			extranames[i] = getName() + "_" + Integer.toString(masses[i]);
 		}
-		
+
 		return extranames;
 	}
-	
+
 	@Override
 	public String[] getOutputFormat() {
 		String[] extranames = new String[masses.length];
-		
+
 		for (int i = 0 ; i < masses.length; i++){
 			extranames[i] = "%.4f";
 		}
-		
+
 		return extranames;
 	}
-	
+
 	public float getChamberPressure(){
 		return getController().getPressure();
 	}
-	
+
 	public void turnOffHardware() throws DeviceException{
 		controller.turnOffHardware();
 	}
@@ -211,14 +211,16 @@ public class CirrusDetector extends DetectorBase implements NexusDetector, Cirru
 		this.cirrusHost = cirrusHost;
 	}
 
+	@Override
 	public Integer[] getMasses() {
 		return masses;
 	}
 
+	@Override
 	public void setMasses(Integer[] masses) {
 		this.masses = masses;
 	}
-	
+
 	public int getFilamentToUse() {
 		return controller.getFilamentToUse();
 	}
@@ -226,7 +228,7 @@ public class CirrusDetector extends DetectorBase implements NexusDetector, Cirru
 	public void setFilamentToUse(int filamentToUse) {
 		controller.setFilamentToUse(filamentToUse);
 	}
-	
+
 	public boolean isCapillaryHeaterOn() {
 		return controller.isCapillaryHeaterOn();
 	}

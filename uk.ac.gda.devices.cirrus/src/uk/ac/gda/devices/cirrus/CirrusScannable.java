@@ -100,10 +100,12 @@ public class CirrusScannable extends ScannableBase implements Cirrus {
 		return cirrusHost;
 	}
 
+	@Override
 	public void setMasses(Integer[] masses) {
 		this.masses = masses;
 	}
 
+	@Override
 	public Integer[] getMasses() {
 		return masses;
 	}
