@@ -17,6 +17,7 @@ import java.util.Vector;
  * @author rjw82
  *
  */
+@Deprecated
 public class Xspress3FFCalculatorNXPlugin implements NXPlugin{
 
 	public static int SUM_ALL_ROI = 0;

@@ -20,6 +20,7 @@ import java.util.Vector;
  * @author rjw82
  *
  */
+@Deprecated
 public class Xspress3CollectionStrategy implements AsyncNXCollectionStrategy, Configurable{
 
 	private Xspress3Controller controller;
