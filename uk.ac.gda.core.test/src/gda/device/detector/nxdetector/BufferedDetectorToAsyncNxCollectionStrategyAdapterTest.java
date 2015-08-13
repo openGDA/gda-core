@@ -206,15 +206,16 @@ public class BufferedDetectorToAsyncNxCollectionStrategyAdapterTest {
 	}
 
 	@Test
-	public void completeLineShouldSetContinuousModeFalseAndCallAtScanLineEnd() throws Exception {
+	public void completeLineShouldDoNothing() throws Exception {
 		adapter.completeLine();
-		inOrder.verify(bufferedDetector).setContinuousMode(false);
-		inOrder.verify(bufferedDetector).atScanLineEnd();
+		verifyZeroInteractions(bufferedDetector);
 	}
 
 	@Test
-	public void completeCollectionShouldCallAtScanEndAndEndCollection() throws Exception {
+	public void completeCollectionShouldFinishScanCorrectly() throws Exception {
 		adapter.completeCollection();
+		inOrder.verify(bufferedDetector).setContinuousMode(false);
+		inOrder.verify(bufferedDetector).atScanLineEnd();
 		inOrder.verify(bufferedDetector).atScanEnd();
 		inOrder.verify(bufferedDetector).endCollection();
 	}

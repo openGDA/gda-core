@@ -100,12 +100,12 @@ public class BufferedDetectorToAsyncNXCollectionStrategyAdapter implements Async
 
 	@Override
 	public void completeLine() throws Exception {
-		bufferedDetector.setContinuousMode(false);
-		bufferedDetector.atScanLineEnd();
 	}
 
 	@Override
 	public void completeCollection() throws Exception {
+		bufferedDetector.setContinuousMode(false);
+		bufferedDetector.atScanLineEnd();
 		bufferedDetector.atScanEnd();
 		bufferedDetector.endCollection();
 	}
