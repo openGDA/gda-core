@@ -19,7 +19,7 @@
 package gda.device.detector.xmap;
 
 import gda.device.DeviceException;
-import gda.device.detector.addetector.triggering.CollectionStrategyBeanInterface;
+import gda.device.detector.nxdetector.CollectionStrategyBeanInterface;
 import gda.device.detector.xmap.edxd.EDXDController.COLLECTION_MODES;
 import gda.device.detector.xmap.edxd.EDXDMappingController;
 import gda.scan.ScanInformation;
