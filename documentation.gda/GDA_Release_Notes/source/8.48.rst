@@ -16,6 +16,7 @@ Developer
 
 Important
 ~~~~~~~~~
+- Replaced ScanFileHolder with dnp.io.load in scan processing scripts. See JIRA ticket `GDA-6177 <http://jira.diamond.ac.uk/browse/GDA-6177>`_ and Gerrit change set `780 <http://gerrit.diamond.ac.uk:8080/#/c/780/>`_ for details
 
 New Features
 ~~~~~~~~~~~~
