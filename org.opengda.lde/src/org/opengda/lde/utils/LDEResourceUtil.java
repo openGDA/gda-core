@@ -308,7 +308,12 @@ public class LDEResourceUtil {
 	}
 	
 	public List<Sample>  getSamples() throws Exception {
-		// TODO Auto-generated method stub
 		return Collections.unmodifiableList((List<Sample>) getSamples(getFileName()).values());
+	}
+	public List<Stage> getStages() throws Exception {
+		return Collections.unmodifiableList((List<Stage>) getStages(getFileName()).values());
+	}
+	public List<Cell> getCells() throws Exception {
+		return Collections.unmodifiableList((List<Cell>) getCells(getFileName()).values());
 	}
 }

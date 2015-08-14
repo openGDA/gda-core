@@ -507,7 +507,7 @@ public class CellItemProvider
 				}
 			}
 		}
-		return null;
+		return super.getColumnImage(element, columnIndex);
 	}
 
 	@Override
@@ -539,10 +539,11 @@ public class CellItemProvider
 				return sample.getCommand();
 			case SampleTableConstants.COL_COMMENT:
 				return sample.getComment();
+			default:
+				break;
 			}
 		}
-		return null;
-
+		return super.getColumnText(element, columnIndex);
 	}
 
 }

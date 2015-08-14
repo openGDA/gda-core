@@ -15,9 +15,9 @@ public interface SampleTableConstants {
 	static final int COL_SAMPLE_EXPOSURE= COL_SAMPLE_Y_STEP + 1;
 	static final int COL_COMMAND = COL_SAMPLE_EXPOSURE + 1;
 	static final int COL_COMMENT = COL_COMMAND + 1;
-	static final int COL_DATA_FILE_COUNT = COL_COMMENT + 1;
-	static final int COL_CELL = COL_DATA_FILE_COUNT + 1;
+	static final int COL_CELL = COL_COMMENT + 1;
 	static final int COL_STAGE = COL_CELL + 1;
+	static final int COL_DATA_FILE_COUNT = COL_STAGE + 1;
 
 	static final String STATUS = "Run\nState";
 	static final String PROGRESS = "Progress";
@@ -32,7 +32,7 @@ public interface SampleTableConstants {
 	static final String SAMPLE_EXPOSURE= "Sample\nExposure";
 	static final String COMMAND = "Command";
 	static final String COMMENT = "Comment";
-	static final String DATA_FILE_COUNT = "Data\nCount";
 	static final String CELL_ID = "Cell\nID";
 	static final String STAGE_ID = "Stage\nID";
+	static final String DATA_FILE_COUNT = "Data\nCount";
 }
