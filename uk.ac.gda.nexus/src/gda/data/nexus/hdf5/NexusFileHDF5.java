@@ -182,7 +182,6 @@ public class NexusFileHDF5 implements NexusFile {
 		}
 	}
 
-	//TODO: Logging
 	private static final Logger logger = LoggerFactory.getLogger(NexusFile.class);
 
 	private long fileId = -1;
@@ -840,6 +839,8 @@ public class NexusFileHDF5 implements NexusFile {
 	private static final int BASE_CHUNK = 16 * 1024;
 	private static final int UNLIMITED_DIM_ESTIMATE = 64; //we'd like this to be lower than typical detector sizes
 
+	//TODO: lustre might prefer larger chunks (1MB or 4MB)
+	//      we might want to reconsider this later as a result
 	private long[] estimateChunking(long[] shape, long[] maxshape, int typeSize) {
 		//typesize is 1 for VLen structures which is off by a factor of 16 (ish).
 		//unlikely to cause any issues unless we have a dataset containing 65000 strings
@@ -943,6 +944,7 @@ public class NexusFileHDF5 implements NexusFile {
 				}
 				//chunks == null check is unnecessary, but compiler warns otherwise
 				if (!Arrays.equals(shape, maxShape) && (recalcChunks || chunks == null || chunks[chunks.length - 1] == 1)) {
+					logger.warn("Inappropiate chunking requested; attempting to estimate suitable chunking.");
 					chunks = estimateChunking(shape, maxShape, H5.H5Tget_size(hdfDatatypeId));
 					iChunks = longArrayToIntArray(chunks);
 					data.setChunking(iChunks);
