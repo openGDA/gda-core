@@ -507,7 +507,7 @@ public class CellItemProvider
 				}
 			}
 		}
-		return null;
+		return super.getColumnImage(element, columnIndex);
 	}
 
 	@Override
@@ -515,8 +515,6 @@ public class CellItemProvider
 		if (element instanceof Sample) {
 			Sample sample = (Sample) element;
 			switch (columnIndex) {
-			case SampleTableConstants.COL_STATUS:
-				return "";
 			case SampleTableConstants.COL_ACTIVE:
 				return "";
 			case SampleTableConstants.COL_SAMPLE_NAME:
@@ -539,10 +537,11 @@ public class CellItemProvider
 				return sample.getCommand();
 			case SampleTableConstants.COL_COMMENT:
 				return sample.getComment();
+			default:
+				break;
 			}
 		}
-		return null;
-
+		return super.getColumnText(element, columnIndex);
 	}
 
 }

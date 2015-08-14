@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -26,6 +25,7 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.emf.common.command.Command;
 import org.eclipse.emf.common.notify.Adapter;
+import org.eclipse.emf.common.notify.AdapterFactory;
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.EContentAdapter;
@@ -35,6 +35,7 @@ import org.eclipse.emf.edit.command.RemoveCommand;
 import org.eclipse.emf.edit.command.SetCommand;
 import org.eclipse.emf.edit.domain.EditingDomain;
 import org.eclipse.emf.edit.domain.IEditingDomainProvider;
+import org.eclipse.emf.edit.provider.ChildCreationExtenderManager;
 import org.eclipse.emf.edit.ui.dnd.EditingDomainViewerDropAdapter;
 import org.eclipse.emf.edit.ui.dnd.LocalTransfer;
 import org.eclipse.emf.edit.ui.dnd.ViewerDragAdapter;
@@ -46,7 +47,6 @@ import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.TableColumnLayout;
-import org.eclipse.jface.layout.TreeColumnLayout;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.CheckboxCellEditor;
@@ -60,12 +60,10 @@ import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.LabelProvider;
-import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.TextCellEditor;
-import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.window.ToolTip;
 import org.eclipse.nebula.widgets.formattedtext.FormattedTextCellEditor;
 import org.eclipse.swt.SWT;
@@ -90,7 +88,6 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.widgets.Tree;
 import org.eclipse.ui.ISaveablePart;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
@@ -106,6 +103,10 @@ import org.opengda.lde.events.SampleChangedEvent;
 import org.opengda.lde.events.SampleProcessingEvent;
 import org.opengda.lde.events.SampleStatusEvent;
 import org.opengda.lde.events.StageChangedEvent;
+import org.opengda.lde.model.edit.CellTableConstants;
+import org.opengda.lde.model.edit.ExperimentTableConstants;
+import org.opengda.lde.model.edit.SampleTableConstants;
+import org.opengda.lde.model.edit.StageTableConstants;
 import org.opengda.lde.model.ldeexperiment.Cell;
 import org.opengda.lde.model.ldeexperiment.Experiment;
 import org.opengda.lde.model.ldeexperiment.ExperimentDefinition;
@@ -115,10 +116,11 @@ import org.opengda.lde.model.ldeexperiment.STATUS;
 import org.opengda.lde.model.ldeexperiment.Sample;
 import org.opengda.lde.model.ldeexperiment.Stage;
 import org.opengda.lde.model.ldeexperiment.presentation.LDEExperimentsEditor;
+import org.opengda.lde.model.ldeexperiment.presentation.SampledefinitionEditorPlugin;
 import org.opengda.lde.ui.Activator;
 import org.opengda.lde.ui.ImageConstants;
 import org.opengda.lde.ui.cdatetime.CDateTimeCellEditor;
-import org.opengda.lde.ui.providers.SampleTableConstants;
+import org.opengda.lde.ui.providers.ProgressLabelProvider;
 import org.opengda.lde.ui.utils.AnimatedTableItemFeedback;
 import org.opengda.lde.ui.utils.StringUtils;
 import org.opengda.lde.utils.LDEResourceUtil;
@@ -193,29 +195,54 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 	@SuppressWarnings("restriction")
 	protected AnimationEngine animation=null;
 	
-	private final String columnHeaders[] = { SampleTableConstants.STATUS, SampleTableConstants.PROGRESS, SampleTableConstants.ACTIVE, SampleTableConstants.SAMPLE_NAME,
-			SampleTableConstants.CELL_ID, SampleTableConstants.VISIT_ID, SampleTableConstants.CALIBRANT_NAME, SampleTableConstants.CALIBRANT_X, 
-			SampleTableConstants.CALIBRANT_Y, SampleTableConstants.CALIBRANT_EXPOSURE, SampleTableConstants.SAMPLE_X_START, SampleTableConstants.SAMPLE_X_STOP, 
-			SampleTableConstants.SAMPLE_X_STEP, SampleTableConstants.SAMPLE_Y_START, SampleTableConstants.SAMPLE_Y_STOP, SampleTableConstants.SAMPLE_Y_STEP, 
-			SampleTableConstants.SAMPLE_EXPOSURE, SampleTableConstants.DETECTOR_X, SampleTableConstants.DETECTOR_Y, SampleTableConstants.DETECTOR_Z, 
-			SampleTableConstants.EMAIL, SampleTableConstants.START_DATE, SampleTableConstants.END_DATE, SampleTableConstants.COMMAND, 
-			SampleTableConstants.MAIL_COUNT, SampleTableConstants.DATA_FILE_COUNT,SampleTableConstants.COMMENT };
+	private final String sampleColumnHeaders[] = { SampleTableConstants.STATUS, SampleTableConstants.PROGRESS, SampleTableConstants.ACTIVE, 
+			SampleTableConstants.SAMPLE_NAME, SampleTableConstants.SAMPLE_X_START, SampleTableConstants.SAMPLE_X_STOP, SampleTableConstants.SAMPLE_X_STEP, 
+			SampleTableConstants.SAMPLE_Y_START, SampleTableConstants.SAMPLE_Y_STOP, SampleTableConstants.SAMPLE_Y_STEP, 
+			SampleTableConstants.SAMPLE_EXPOSURE, SampleTableConstants.COMMAND, SampleTableConstants.COMMENT,
+			SampleTableConstants.CELL_ID, SampleTableConstants.STAGE_ID, SampleTableConstants.DATA_FILE, SampleTableConstants.CALIBRATION_FILE
+			};
 
-	private ColumnWeightData columnLayouts[] = { new ColumnWeightData(10, 50, false),new ColumnWeightData(10, 70, false), new ColumnWeightData(10, 35, false),new ColumnWeightData(80, 110, true), 
-			new ColumnWeightData(40, 55, true), new ColumnWeightData(40, 90, true), new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 75, true),
-			new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true),
-			new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true),
-			new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 75, true),
-			new ColumnWeightData(40, 200, true), new ColumnWeightData(50, 120, true), new ColumnWeightData(50, 120, true), new ColumnWeightData(40, 300, true),
-			new ColumnWeightData(10, 50, false), new ColumnWeightData(10, 50, false),new ColumnWeightData(50, 300, true) };
+	private final String cellColumnHeaders[] = { CellTableConstants.CELL_NAME, CellTableConstants.CELL_ID, CellTableConstants.VISIT_ID, 
+			CellTableConstants.CALIBRANT_NAME, CellTableConstants.CALIBRANT_X, CellTableConstants.CALIBRANT_Y, CellTableConstants.CALIBRANT_EXPOSURE, 
+			CellTableConstants.ENV_SCANNABLE_NAMES, CellTableConstants.ENV_SAMPLING_INTERVAL, 
+			CellTableConstants.START_DATE, CellTableConstants.END_DATE, CellTableConstants.EMAIL, CellTableConstants.AUTO_EMAILING 
+			};
+
+	private final String stageColumnHeaders[] = { StageTableConstants.STAGE_ID, 
+			StageTableConstants.DETECTOR_X, StageTableConstants.DETECTOR_Y, StageTableConstants.DETECTOR_Z, 
+			StageTableConstants.CAMERA_X, StageTableConstants.CAMERA_Y, StageTableConstants.CAMERA_Z
+			};
+
+	private final String experimentColumnHeaders[] = { ExperimentTableConstants.NAME,ExperimentTableConstants.DESCRIPTION};
+
+	private ColumnWeightData sampleColumnLayouts[] = { new ColumnWeightData(10, 50, false),new ColumnWeightData(10, 70, false), new ColumnWeightData(10, 35, false),
+			new ColumnWeightData(80, 110, true), new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true), 
+			new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true),	
+			new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 300, true), new ColumnWeightData(50, 300, true),
+			new ColumnWeightData(40, 55, true), new ColumnWeightData(40, 55, true), new ColumnWeightData(50, 300, true), new ColumnWeightData(50, 300, true)
+			};
 	
+	private ColumnWeightData cellColumnLayouts[] = { new ColumnWeightData(80, 110, true), new ColumnWeightData(40, 55, true), new ColumnWeightData(40, 90, true), 
+			new ColumnWeightData(40, 90, true), new ColumnWeightData(40, 75, true),	new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 75, true), 
+			new ColumnWeightData(40, 90, true), new ColumnWeightData(40, 65, true),
+			new ColumnWeightData(50, 120, true), new ColumnWeightData(50, 120, true), new ColumnWeightData(40, 200, true),  new ColumnWeightData(40, 60, true),
+			};
+	
+	private ColumnWeightData stageColumnLayouts[] = { new ColumnWeightData(10, 50, false),
+			new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 75, true), 
+			new ColumnWeightData(40, 75, true),	new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 75, true) 
+			};
+	private ColumnWeightData experimentColumnLayouts[] = { new ColumnWeightData(80, 150, true), new ColumnWeightData(50, 500, true) };
+
 	private ISelectionListener selectionListener;
 	private EditingDomain editingDomain;
+	protected AdapterFactory adapterFactory;
+	protected TableViewerColumn progressColumn;
 
 	public ChildrenTableView() {
-		setTitleToolTip("List of children under seleceted tree node.");
+		setTitleToolTip("List of children for the seleceted tree node.");
 		setContentDescription("A table for editing child properties.");
-		setPartName("C");
+		setPartName("Children List");
 		this.selectionChangedListeners = new ArrayList<ISelectionChangedListener>();
 	}
 
@@ -430,60 +457,120 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 		updateActionIconsState();
 	}
 	
-	private void createColumns(String[] columnHeaders, ColumnWeightData[] columnLayouts, TableViewer tableViewer) {
-		for (int i = 0; i < columnHeaders.length; i++) {
+	private TableViewerColumn createColumn(String columnHeader, ColumnWeightData columnLayout, TableViewer tableViewer) {
 			TableViewerColumn tableViewerColumn = new TableViewerColumn(tableViewer, SWT.None);
 			TableColumn column = tableViewerColumn.getColumn();
-			column.setResizable(columnLayouts[i].resizable);
-			column.setText(columnHeaders[i]);
-			column.setToolTipText(columnHeaders[i]);
-
-			column.setWidth(columnLayouts[i].minimumWidth);
-			tableViewerColumn.setEditingSupport(new TableColumnEditingSupport(tableViewer, tableViewerColumn));
-		}
+			column.setResizable(columnLayout.resizable);
+			column.setText(columnHeader);
+			column.setToolTipText(columnHeader);
+			column.setWidth(columnLayout.minimumWidth);
+			return tableViewerColumn;
 	}
 
 
 	private void initialisation() {
-		try {
-			editingDomain=getResUtil().getEditingDomain();
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+		editingDomain=getResUtil().getEditingDomain();
+		adapterFactory=SampleGroupEditingDomain.INSTANCE.getAdapterFactory();
 		try {
 			resource = getResUtil().getResource();
 			resource.eAdapters().add(notifyListener);
+			childrenTableViewer.setInput(resource);
 		} catch (Exception e2) {
 			logger.error("Cannot load resouce from file: "+getResUtil().getFileName(), e2);
 		}
-
+		if (getEventAdminName()!=null) {
+			eventAdmin = Finder.getInstance().find(getEventAdminName());
+			if (eventAdmin!=null) {
+				eventAdmin.addIObserver(this);
+			}
+		}
 		selectionListener= new ISelectionListener() {
 			
 			@Override
 			public void selectionChanged(IWorkbenchPart part, ISelection selection) {
 				if (part instanceof LDEExperimentsEditor) {
+					Table table = childrenTableViewer.getTable();
+					Composite parent=table.getParent();
+					table.dispose();
+					childrenTableViewer=new TableViewer(parent,SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
 					if (selection instanceof ExperimentDefinition) {
+						for (int i = 0; i < experimentColumnHeaders.length; i++) {
+							TableViewerColumn viewerColumn = createColumn(experimentColumnHeaders[i], experimentColumnLayouts[i], childrenTableViewer);
+							viewerColumn.setEditingSupport(new ExperimentTableColumnEditingSupport(childrenTableViewer, viewerColumn));
+						}
+						childrenTableViewer.setContentProvider(new AdapterFactoryContentProvider(adapterFactory));
+						childrenTableViewer.setLabelProvider(new AdapterFactoryLabelProvider(adapterFactory));
 						childrenTableViewer.setInput(((ExperimentDefinition)selection).getExperiments());
 						setPartName("Experiments");
 					} else if (selection instanceof Experiment) {
+						for (int i = 0; i < stageColumnHeaders.length; i++) {
+							TableViewerColumn viewerColumn = createColumn(stageColumnHeaders[i], stageColumnLayouts[i], childrenTableViewer);
+							viewerColumn.setEditingSupport(new StageTableColumnEditingSupport(childrenTableViewer, viewerColumn));
+						}
+						childrenTableViewer.setContentProvider(new AdapterFactoryContentProvider(adapterFactory));
+						childrenTableViewer.setLabelProvider(new AdapterFactoryLabelProvider(adapterFactory));
 						childrenTableViewer.setInput(((Experiment)selection).getStages());
 						setPartName("Stages in experiment "+((Experiment)selection).getName());
 					} else if (selection instanceof Stage) {
+						for (int i = 0; i < cellColumnHeaders.length; i++) {
+							TableViewerColumn viewerColumn = createColumn(cellColumnHeaders[i], cellColumnLayouts[i], childrenTableViewer);
+							viewerColumn.setEditingSupport(new CellTableColumnEditingSupport(childrenTableViewer, viewerColumn));
+						}
+						childrenTableViewer.setContentProvider(new AdapterFactoryContentProvider(adapterFactory));
+						childrenTableViewer.setLabelProvider(new AdapterFactoryLabelProvider(adapterFactory));
 						childrenTableViewer.setInput(((Stage)selection).getCells());
 						setPartName("Cells in stage "+((Stage)selection).getStageID());
 					} else if (selection instanceof Cell) {
+						for (int i = 0; i < sampleColumnHeaders.length; i++) {
+							TableViewerColumn viewerColumn = createColumn(sampleColumnHeaders[i], sampleColumnLayouts[i], childrenTableViewer);
+							viewerColumn.setEditingSupport(new SampleTableColumnEditingSupport(childrenTableViewer, viewerColumn));
+						}
+						//Hide non-editable fields.
+						Table table1=childrenTableViewer.getTable();
+						table1.getColumn(SampleTableConstants.COL_STATUS).setWidth(0);
+						table1.getColumn(SampleTableConstants.COL_PROGRESS).setWidth(0);
+						table1.getColumn(SampleTableConstants.COL_CELL).setWidth(0);
+						table1.getColumn(SampleTableConstants.COL_STAGE).setWidth(0);
+						table1.getColumn(SampleTableConstants.COL_DATA_FILE).setWidth(0);
+						table1.getColumn(SampleTableConstants.COL_CALIBRATION_FILE).setWidth(0);
+						childrenTableViewer.setContentProvider(new AdapterFactoryContentProvider(adapterFactory));
+						childrenTableViewer.setLabelProvider(new AdapterFactoryLabelProvider(adapterFactory));
 						childrenTableViewer.setInput(((Cell)selection).getSamples());
 						setPartName("Samples in cell "+((Cell)selection).getName());
 					} else if (selection instanceof Sample) {
 						try {
-							//display all samples 
+							//display all samples with progress and collected data info.
+							for (int i = 0; i < sampleColumnHeaders.length; i++) {
+								TableViewerColumn viewerColumn = createColumn(sampleColumnHeaders[i], sampleColumnLayouts[i], childrenTableViewer);
+								viewerColumn.setEditingSupport(new SampleTableColumnEditingSupport(childrenTableViewer, viewerColumn));
+							}
+							childrenTableViewer.setContentProvider(new AdapterFactoryContentProvider(adapterFactory));
+							childrenTableViewer.setLabelProvider(new AdapterFactoryLabelProvider(adapterFactory));
 							childrenTableViewer.setInput(getResUtil().getSamples());
 							setPartName("Samples in experiment "+((Sample)selection).getCell().getStage().getExperiment().getName());
 						} catch (Exception e) {
 							logger.error("Fail to get all samples from sample definition file", e);
 						}
+						progressColumn= new TableViewerColumn(childrenTableViewer, childrenTableViewer.getTable().getColumn(1));
+						ProgressLabelProvider progressLabelProvider = new ProgressLabelProvider(childrenTableViewer, samples);
+						if (eventAdmin!=null) {
+							progressLabelProvider.setEventAdmin(eventAdmin);
+							eventAdmin.addIObserver(progressLabelProvider);
+						}
+						progressColumn.setLabelProvider(progressLabelProvider);
+						//STATUS animation
+						images = loadAnimatedGIF(childrenTableViewer.getControl().getDisplay(), ImageConstants.ICON_RUNNING);
 					}
+					Table childrentable = childrenTableViewer.getTable();
+					GridData gd_childrentable = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
+					gd_childrentable.heightHint = 386;
+					gd_childrentable.widthHint = 1000;
+					childrentable.setLayoutData(gd_childrentable);		
+					childrentable.setHeaderVisible(true);
+					childrentable.setLinesVisible(true);
+					
+					ColumnViewerToolTipSupport.enableFor(childrenTableViewer, ToolTip.NO_RECREATE);
+					childrenTableViewer.refresh();
 				}
 			}
 		};
@@ -508,19 +595,12 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 		if (getResUtil() != null) {
 			txtSamplesfile.setText(getResUtil().getFileName());
 		}
-		
+		//change order within a cell group
 		childrenTableViewer.addDragSupport(DND.DROP_COPY | DND.DROP_MOVE | DND.DROP_LINK, new Transfer[] { LocalTransfer.getInstance() },new ViewerDragAdapter(childrenTableViewer));
 		childrenTableViewer.addDropSupport(DND.DROP_COPY | DND.DROP_MOVE | DND.DROP_LINK, new Transfer[] { LocalTransfer.getInstance() },new EditingDomainViewerDropAdapter(editingDomain, childrenTableViewer));
 		updateNumberActiveSamples();
 		
-		if (getEventAdminName()!=null) {
-			eventAdmin = Finder.getInstance().find(getEventAdminName());
-			if (eventAdmin!=null) {
-				eventAdmin.addIObserver(this);
-			}
-		}
-		//TODO only available for sample table, not cell or stage table
-		images = loadAnimatedGIF(childrenTableViewer.getControl().getDisplay(), ImageConstants.ICON_RUNNING);
+
 		String beamline=null;
 		if ((beamline=LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME))!=null) {
 			NumTracker tracker;
@@ -1104,6 +1184,7 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 			}
 		}
 	};
+	private String[] stageIDs;
 
 	/**
 	 * refresh the table viewer with the sequence file name provided. If it is a new file, an empty sequence will be created.
@@ -1283,12 +1364,460 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 		this.eventAdminName = eventAdminName;
 	}
 
-	private class TableColumnEditingSupport extends EditingSupport {
+	private class ExperimentTableColumnEditingSupport extends EditingSupport {
 		
 		private String columnIdentifier;
 		private Table table;
 
-		public TableColumnEditingSupport(ColumnViewer viewer, TableViewerColumn tableViewerColumn) {
+		public ExperimentTableColumnEditingSupport(ColumnViewer viewer, TableViewerColumn tableViewerColumn) {
+			super(viewer);
+			table=((TableViewer)viewer).getTable();
+			columnIdentifier=tableViewerColumn.getColumn().getText();
+		}
+
+		@Override
+		protected CellEditor getCellEditor(final Object element) {
+			if (ExperimentTableConstants.NAME.equals(columnIdentifier)) {
+				return new TextCellEditor(table);
+			} else if (ExperimentTableConstants.DESCRIPTION.equals(columnIdentifier)) {
+				return new TextCellEditor(table);
+			}
+			return null;
+		}
+
+		@Override
+		protected boolean canEdit(Object element) {
+			if (ExperimentTableConstants.NAME.equals(columnIdentifier)) {
+				return true;
+			} else if (ExperimentTableConstants.DESCRIPTION.equals(columnIdentifier)) {
+				return true;
+			} 
+			return false;
+		}
+
+		@Override
+		protected Object getValue(Object element) {
+			if (element instanceof Experiment) {
+				Experiment experiment = (Experiment) element;
+				 if (ExperimentTableConstants.NAME.equals(columnIdentifier)) {
+					return experiment.getName();
+				} else if (ExperimentTableConstants.DESCRIPTION.equals(columnIdentifier)) {
+					return experiment.getDescription();
+				} 
+			}
+			return null;
+		}
+
+		@Override
+		protected void setValue(Object element, Object value) {
+			if (ExperimentTableConstants.NAME.equals(columnIdentifier)) {
+				if (value instanceof String) {
+					try {
+						runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.EXPERIMENT__NAME, value));
+					} catch (Exception e) {
+						logger.error("Exception on setting "+ExperimentTableConstants.NAME+" field for experiment "+((Experiment)element).getName(), e);
+					}
+				}
+			} else if (ExperimentTableConstants.DESCRIPTION.equals(columnIdentifier)) {
+				if (value instanceof String) {
+					try {
+						runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.EXPERIMENT__DESCRIPTION, value));
+					} catch (Exception e) {
+						logger.error("Exception on setting "+ExperimentTableConstants.DESCRIPTION+" field for experiment "+((Experiment)element).getName(), e);
+					}
+				}
+			} 
+		}
+	}
+	
+	private class StageTableColumnEditingSupport extends EditingSupport {
+		
+		private String columnIdentifier;
+		private Table table;
+
+		public StageTableColumnEditingSupport(ColumnViewer viewer, TableViewerColumn tableViewerColumn) {
+			super(viewer);
+			table=((TableViewer)viewer).getTable();
+			columnIdentifier=tableViewerColumn.getColumn().getText();
+		}
+
+		@Override
+		protected CellEditor getCellEditor(final Object element) {
+			if (StageTableConstants.STAGE_ID.equals(columnIdentifier)) {
+				final ComboBoxViewerCellEditor ce = new ComboBoxViewerCellEditor(table, SWT.READ_ONLY);
+				ce.setLabelProvider(new LabelProvider());
+				ce.setContentProvider(new ArrayContentProvider());
+				ce.setInput(getStageIDs());
+				return ce;
+			} else if (StageTableConstants.DETECTOR_X.equals(columnIdentifier)) {
+				return new FormattedTextCellEditor(table);
+			} else if (StageTableConstants.DETECTOR_Y.equals(columnIdentifier)) {
+				return new FormattedTextCellEditor(table);
+			} else if (StageTableConstants.DETECTOR_Z.equals(columnIdentifier)) {
+				return new FormattedTextCellEditor(table);
+			} else if (StageTableConstants.CAMERA_X.equals(columnIdentifier)) {
+				return new FormattedTextCellEditor(table);
+			} else if (StageTableConstants.CAMERA_Y.equals(columnIdentifier)) {
+				return new FormattedTextCellEditor(table);
+			} else if (StageTableConstants.CAMERA_Z.equals(columnIdentifier)) {
+				return new FormattedTextCellEditor(table);
+			}
+			return null;
+		}
+
+		@Override
+		protected boolean canEdit(Object element) {
+			if (StageTableConstants.STAGE_ID.equals(columnIdentifier)) {
+				return true;
+			} else if (StageTableConstants.DETECTOR_X.equals(columnIdentifier)) {
+				return true;
+			} else if (StageTableConstants.DETECTOR_Y.equals(columnIdentifier)) {
+				return true;
+			} else if (StageTableConstants.DETECTOR_Z.equals(columnIdentifier)) {
+				return true;
+			} else if (StageTableConstants.CAMERA_X.equals(columnIdentifier)) {
+				return true;
+			} else if (StageTableConstants.CAMERA_Y.equals(columnIdentifier)) {
+				return true;
+			} else if (StageTableConstants.CAMERA_Z.equals(columnIdentifier)) {
+				return true;
+			} 
+			return false;
+		}
+
+		@Override
+		protected Object getValue(Object element) {
+			if (element instanceof Stage) {
+				Stage stage = (Stage) element;
+				if (StageTableConstants.STAGE_ID.equals(columnIdentifier)) {
+					return stage.getStageID();
+				} else if (StageTableConstants.DETECTOR_X.equals(columnIdentifier)) {
+					return stage.getDetector_x();
+				} else if (StageTableConstants.DETECTOR_Y.equals(columnIdentifier)) {
+					return stage.getDetector_y();
+				} else if (StageTableConstants.DETECTOR_Z.equals(columnIdentifier)) {
+					return stage.getDetector_z();
+				} else if (StageTableConstants.CAMERA_X.equals(columnIdentifier)) {
+					return stage.getCamera_x();
+				} else if (StageTableConstants.CAMERA_Y.equals(columnIdentifier)) {
+					return stage.getCamera_y();
+				} else if (StageTableConstants.CAMERA_Z.equals(columnIdentifier)) {
+					return stage.getCamera_z();
+				} 
+			}
+			return null;
+		}
+
+		@Override
+		protected void setValue(Object element, Object value) {
+			if (StageTableConstants.STAGE_ID.equals(columnIdentifier)) {
+				if (value instanceof String) {
+					try {
+						if (isValidStageID((Stage)element,(String)value)) {
+							runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.STAGE__STAGE_ID, value));
+						}
+					} catch (Exception e) {
+						logger.error("Exception on setting "+StageTableConstants.STAGE_ID+" field for stage "+((Stage)element).getStageID(), e);
+					}
+				}
+			} else if (StageTableConstants.DETECTOR_X.equals(columnIdentifier)) {
+				try {
+					runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.STAGE__DETECTOR_X, value));
+				} catch (Exception e) {
+					logger.error("Exception on setting "+StageTableConstants.DETECTOR_X+" field for stage "+((Stage)element).getStageID(), e);
+				}
+			} else if (StageTableConstants.DETECTOR_Y.equals(columnIdentifier)) {
+				try {
+					runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.STAGE__DETECTOR_Y, value));
+				} catch (Exception e) {
+					logger.error("Exception on setting "+StageTableConstants.DETECTOR_Y+" field for stage "+((Stage)element).getStageID(), e);
+				}
+			} else if (StageTableConstants.DETECTOR_Z.equals(columnIdentifier)) {
+				try {
+					runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.STAGE__DETECTOR_Z, value));
+				} catch (Exception e) {
+					logger.error("Exception on setting "+StageTableConstants.DETECTOR_Z+" field for stage "+((Stage)element).getStageID(), e);
+				}
+			} else if (StageTableConstants.CAMERA_X.equals(columnIdentifier)) {
+				try {
+					runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.STAGE__CAMERA_X, value));
+				} catch (Exception e) {
+					logger.error("Exception on setting "+StageTableConstants.CAMERA_X+" field for stage "+((Stage)element).getStageID(), e);
+				}
+			} else if (StageTableConstants.CAMERA_Y.equals(columnIdentifier)) {
+				try {
+					runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.STAGE__CAMERA_Y, value));
+				} catch (Exception e) {
+					logger.error("Exception on setting "+StageTableConstants.CAMERA_Y+" field for stage "+((Stage)element).getStageID(), e);
+				}
+			} else if (StageTableConstants.CAMERA_Z.equals(columnIdentifier)) {
+				try {
+					runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.STAGE__CAMERA_Z, value));
+				} catch (Exception e) {
+					logger.error("Exception on setting "+StageTableConstants.CAMERA_Z+" field for stage "+((Stage)element).getStageID(), e);
+				}
+			}
+		}
+	}
+	private boolean isValidStageID(Stage element, String value) {
+		if (value == null || value.isEmpty()) {
+			String message="You must select a Sample Stage ID.\n";
+			openMessageBox(message, "Invalid Stage ID");
+			return false;
+		}
+		
+		try {
+			for (Stage stage : resUtil.getStages()) {
+				if (element != stage && value.equals(stage.getStageID())) {
+					String message="Sample Stage is already used.\n";
+					openMessageBox(message, "Invalid Satge ID");
+					return false;
+				}
+			}
+		} catch (Exception e) {
+			logger.error("Fail to get all stages in a resource.", e);
+		}
+		return true;
+	}
+
+	private class CellTableColumnEditingSupport extends EditingSupport {
+		
+		private String columnIdentifier;
+		private Table table;
+
+		public CellTableColumnEditingSupport(ColumnViewer viewer, TableViewerColumn tableViewerColumn) {
+			super(viewer);
+			table=((TableViewer)viewer).getTable();
+			columnIdentifier=tableViewerColumn.getColumn().getText();
+		}
+
+		@Override
+		protected CellEditor getCellEditor(final Object element) {
+			if (CellTableConstants.CELL_NAME.equals(columnIdentifier)) {
+				return new TextCellEditor(table);
+			} else if (CellTableConstants.CELL_ID.equals(columnIdentifier)) {
+				final ComboBoxViewerCellEditor ce = new ComboBoxViewerCellEditor(table, SWT.READ_ONLY);
+				ce.setLabelProvider(new LabelProvider());
+				ce.setContentProvider(new ArrayContentProvider());
+				ce.setInput(getCellIDs());
+				return ce;
+			} else if (CellTableConstants.VISIT_ID.equals(columnIdentifier)) {
+				final ComboBoxViewerCellEditor ce = new ComboBoxViewerCellEditor(table);
+				ce.setLabelProvider(new LabelProvider());
+				ce.setContentProvider(new ArrayContentProvider());
+				ce.setInput(getVisitIDs());
+				return ce;
+//				return new TextCellEditor(table);
+			} else if (CellTableConstants.CALIBRANT_NAME.equals(columnIdentifier)) {
+				ComboBoxViewerCellEditor ce = new ComboBoxViewerCellEditor(table, SWT.READ_ONLY);
+				ce.setLabelProvider(new LabelProvider());
+				ce.setContentProvider(new ArrayContentProvider());
+				ce.setInput(getCalibrants());
+				return ce;
+			} else if (CellTableConstants.CALIBRANT_X.equals(columnIdentifier)) {
+				return new FormattedTextCellEditor(table);
+			} else if (CellTableConstants.CALIBRANT_Y.equals(columnIdentifier)) {
+				return new FormattedTextCellEditor(table);
+			} else if (CellTableConstants.CALIBRANT_EXPOSURE.equals(columnIdentifier)) {
+				return new FormattedTextCellEditor(table);
+			} else if (CellTableConstants.ENV_SCANNABLE_NAMES.equals(columnIdentifier)) {
+				//TODO using a list of environment scannables
+				return new TextCellEditor(table);
+			} else if (CellTableConstants.ENV_SAMPLING_INTERVAL.equals(columnIdentifier)) {
+				return new FormattedTextCellEditor(table);
+			} else if (CellTableConstants.START_DATE.equals(columnIdentifier)){
+				return new CDateTimeCellEditor(table);
+			} else if (CellTableConstants.END_DATE.equals(columnIdentifier)){
+				return new CDateTimeCellEditor(table);
+			} else if (CellTableConstants.EMAIL.equals(columnIdentifier)) {
+				return new TextCellEditor(table);
+			} else if (CellTableConstants.AUTO_EMAILING.equals(columnIdentifier)) {
+				return new CheckboxCellEditor(table);
+			}
+			return null;
+		}
+
+		@Override
+		protected boolean canEdit(Object element) {
+			if (CellTableConstants.CELL_NAME.equals(columnIdentifier)) {
+				return true;
+			} else if (CellTableConstants.CELL_ID.equals(columnIdentifier)) {
+				return true;
+			} else if (CellTableConstants.VISIT_ID.equals(columnIdentifier)) {
+				return true;
+			} else if (CellTableConstants.CALIBRANT_NAME.equals(columnIdentifier)) {
+				return true;
+			} else if (CellTableConstants.CALIBRANT_X.equals(columnIdentifier)) {
+				return true;
+			} else if (CellTableConstants.CALIBRANT_Y.equals(columnIdentifier)) {
+				return true;
+			} else if (CellTableConstants.CALIBRANT_EXPOSURE.equals(columnIdentifier)) {
+				return true;
+			} else if (CellTableConstants.ENV_SCANNABLE_NAMES.equals(columnIdentifier)) {
+				return true;
+			} else if (CellTableConstants.ENV_SAMPLING_INTERVAL.equals(columnIdentifier)) {
+				return true;
+			} else if (CellTableConstants.START_DATE.equals(columnIdentifier)) {
+				return true;
+			} else if (CellTableConstants.END_DATE.equals(columnIdentifier)) {
+				return true;
+			} else if (CellTableConstants.EMAIL.equals(columnIdentifier)) {
+				return true;
+			} else if (CellTableConstants.AUTO_EMAILING.equals(columnIdentifier)) {
+				return true;
+			} 
+			return false;
+		}
+
+		@Override
+		protected Object getValue(Object element) {
+			if (element instanceof Cell) {
+				Cell cell = (Cell) element;
+				if (CellTableConstants.CELL_NAME.equals(columnIdentifier)) {
+					return cell.getName();
+				} else if (CellTableConstants.CELL_ID.equals(columnIdentifier)) {
+					return cell.getCellID();
+				} else if (CellTableConstants.VISIT_ID.equals(columnIdentifier)) {
+					return cell.getVisitID();
+				} else if (CellTableConstants.CALIBRANT_NAME.equals(columnIdentifier)) {
+					return cell.getCalibrant();
+				} else if (CellTableConstants.CALIBRANT_X.equals(columnIdentifier)) {
+					return cell.getCalibrant_x();
+				} else if (CellTableConstants.CALIBRANT_Y.equals(columnIdentifier)) {
+					return cell.getCalibrant_y();
+				} else if (CellTableConstants.CALIBRANT_EXPOSURE.equals(columnIdentifier)) {
+					return cell.getCalibrant_exposure();
+				} else if (CellTableConstants.ENV_SCANNABLE_NAMES.equals(columnIdentifier)) {
+					return cell.getEvnScannableNames();
+				} else if (CellTableConstants.ENV_SAMPLING_INTERVAL.equals(columnIdentifier)) {
+					return cell.getEnvSamplingInterval();
+				} else if (CellTableConstants.START_DATE.equals(columnIdentifier)) {
+					return cell.getStartDate();
+				} else if (CellTableConstants.END_DATE.equals(columnIdentifier)) {
+					return cell.getEndDate();
+				} else if (CellTableConstants.EMAIL.equals(columnIdentifier)) {
+					return cell.getEmail();
+				} else if (CellTableConstants.AUTO_EMAILING.equals(columnIdentifier)) {
+					return cell.isEnableAutoEmail();
+				} 
+			}
+			return null;
+		}
+
+		@Override
+		protected void setValue(Object element, Object value) {
+			if (CellTableConstants.CELL_NAME.equals(columnIdentifier)) {
+				if (value instanceof String) {
+					try {
+						runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.CELL__NAME, value));
+					} catch (Exception e) {
+						logger.error("Exception on setting "+CellTableConstants.CELL_NAME+" field for cell "+((Cell)element).getName(), e);
+					}
+				}
+			} else if (CellTableConstants.CELL_ID.equals(columnIdentifier)) {
+				if (value instanceof String) {
+					try {
+						if (isValidCellID((Cell)element,(String)value)) {
+							runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.CELL__CELL_ID, value));
+						}
+					} catch (Exception e) {
+						logger.error("Exception on setting "+CellTableConstants.CELL_ID+" field for cell "+((Cell)element).getName(), e);
+					}
+				}
+			} else if (CellTableConstants.VISIT_ID.equals(columnIdentifier)) {
+				if (value instanceof String) {
+					try {
+						if (isValidVisitID((Sample)element, (String)value)) {
+							runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.CELL__VISIT_ID, value));
+						}
+					} catch (Exception e) {
+						logger.error("Exception on setting "+CellTableConstants.VISIT_ID+" field for cell "+((Cell)element).getName(), e);
+					}
+				}
+			} else if (CellTableConstants.CALIBRANT_NAME.equals(columnIdentifier)) {
+				if (value instanceof String) {
+					try {
+						runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.CELL__CALIBRANT, value));
+					} catch (Exception e) {
+						logger.error("Exception on setting "+CellTableConstants.CALIBRANT_NAME+" field for cell "+((Cell)element).getName(), e);
+					}
+				}
+			} else if (CellTableConstants.CALIBRANT_X.equals(columnIdentifier)) {
+				try {
+					runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.CELL__CALIBRANT_X, value));
+				} catch (Exception e) {
+					logger.error("Exception on setting "+CellTableConstants.CALIBRANT_X+" field for cell "+((Cell)element).getName(), e);
+				}
+			} else if (CellTableConstants.CALIBRANT_Y.equals(columnIdentifier)) {
+				try {
+					runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.CELL__CALIBRANT_Y, value));
+				} catch (Exception e) {
+					logger.error("Exception on setting "+CellTableConstants.CALIBRANT_Y+" field for cell "+((Cell)element).getName(), e);
+				}
+			} else if (CellTableConstants.CALIBRANT_EXPOSURE.equals(columnIdentifier)) {
+				try {
+					runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.CELL__CALIBRANT_EXPOSURE, value));
+				} catch (Exception e) {
+					logger.error("Exception on setting "+CellTableConstants.CALIBRANT_EXPOSURE+" field for cell "+((Cell)element).getName(), e);
+				}
+			} else if (CellTableConstants.ENV_SCANNABLE_NAMES.equals(columnIdentifier)) {
+				try {
+					runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.CELL__EVN_SCANNABLE_NAMES, value));
+				} catch (Exception e) {
+					logger.error("Exception on setting "+CellTableConstants.ENV_SCANNABLE_NAMES+" field for cell "+((Cell)element).getName(), e);
+				}
+			} else if (CellTableConstants.ENV_SAMPLING_INTERVAL.equals(columnIdentifier)) {
+				try {
+					runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.eINSTANCE.getSample_Sample_x_stop(), value));
+				} catch (Exception e) {
+					logger.error("Exception on setting "+CellTableConstants.ENV_SAMPLING_INTERVAL+" field for cell "+((Cell)element).getName(), e);
+				}
+			} else if (CellTableConstants.START_DATE.equals(columnIdentifier)) {
+				if (value instanceof Date) {
+					try {
+						runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.CELL__START_DATE, value));
+					} catch (Exception e) {
+						logger.error("Exception on setting "+CellTableConstants.START_DATE+" field for cell "+((Cell)element).getName(), e);
+					}
+				}
+			} else if (CellTableConstants.END_DATE.equals(columnIdentifier)) {
+				if (value instanceof Date) {
+					try {
+						runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.CELL__END_DATE, value));
+					} catch (Exception e) {
+						logger.error("Exception on setting "+CellTableConstants.END_DATE+" field for cell "+((Cell)element).getName(), e);
+					}
+				}
+			} else if (CellTableConstants.EMAIL.equals(columnIdentifier)) {
+				if (value instanceof String) {
+					try {
+						if (isValidEmail((String)value)) {
+							runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.CELL__EMAIL, value));
+						}
+					} catch (Exception e) {
+						logger.error("Exception on setting "+CellTableConstants.EMAIL+" field for cell "+((Cell)element).getName(), e);
+					}
+				}
+			} else if (CellTableConstants.AUTO_EMAILING.equals(columnIdentifier)) {
+				if (value instanceof Boolean) {
+					try {
+						runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.eINSTANCE.getSample_Active(), value));
+					} catch (Exception e) {
+						logger.error("Exception on setting "+SampleTableConstants.ACTIVE+" field for sample "+((Sample)element).getName(), e);
+					}
+					updateNumberActiveSamples();
+				}
+			}
+		}
+
+	}
+
+	private class SampleTableColumnEditingSupport extends EditingSupport {
+		
+		private String columnIdentifier;
+		private Table table;
+
+		public SampleTableColumnEditingSupport(ColumnViewer viewer, TableViewerColumn tableViewerColumn) {
 			super(viewer);
 			table=((TableViewer)viewer).getTable();
 			columnIdentifier=tableViewerColumn.getColumn().getText();
@@ -1300,31 +1829,6 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 				return new CheckboxCellEditor(table);
 			} else if (SampleTableConstants.SAMPLE_NAME.equals(columnIdentifier)) {
 				return new TextCellEditor(table);
-			} else if (SampleTableConstants.CELL_ID.equals(columnIdentifier)) {
-				final ComboBoxViewerCellEditor ce = new ComboBoxViewerCellEditor(table, SWT.READ_ONLY);
-				ce.setLabelProvider(new LabelProvider());
-				ce.setContentProvider(new ArrayContentProvider());
-				ce.setInput(getCellIDs());
-				return ce;
-			} else if (SampleTableConstants.VISIT_ID.equals(columnIdentifier)) {
-				final ComboBoxViewerCellEditor ce = new ComboBoxViewerCellEditor(table);
-				ce.setLabelProvider(new LabelProvider());
-				ce.setContentProvider(new ArrayContentProvider());
-				ce.setInput(getVisitIDs());
-				return ce;
-//				return new TextCellEditor(table);
-			} else if (SampleTableConstants.CALIBRANT_NAME.equals(columnIdentifier)) {
-				ComboBoxViewerCellEditor ce = new ComboBoxViewerCellEditor(table, SWT.READ_ONLY);
-				ce.setLabelProvider(new LabelProvider());
-				ce.setContentProvider(new ArrayContentProvider());
-				ce.setInput(getCalibrants());
-				return ce;
-			} else if (SampleTableConstants.CALIBRANT_X.equals(columnIdentifier)) {
-				return new FormattedTextCellEditor(table);
-			} else if (SampleTableConstants.CALIBRANT_Y.equals(columnIdentifier)) {
-				return new FormattedTextCellEditor(table);
-			} else if (SampleTableConstants.CALIBRANT_EXPOSURE.equals(columnIdentifier)) {
-				return new FormattedTextCellEditor(table);
 			} else if (SampleTableConstants.SAMPLE_X_START.equals(columnIdentifier)) {
 				return new FormattedTextCellEditor(table);
 			} else if (SampleTableConstants.SAMPLE_X_STOP.equals(columnIdentifier)) {
@@ -1339,18 +1843,6 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 				return new FormattedTextCellEditor(table);
 			} else if (SampleTableConstants.SAMPLE_EXPOSURE.equals(columnIdentifier)) {
 				return new FormattedTextCellEditor(table);
-			} else if (SampleTableConstants.DETECTOR_X.equals(columnIdentifier)) {
-				return new FormattedTextCellEditor(table);
-			} else if (SampleTableConstants.DETECTOR_Y.equals(columnIdentifier)) {
-				return new FormattedTextCellEditor(table);
-			} else if (SampleTableConstants.DETECTOR_Z.equals(columnIdentifier)) {
-				return new FormattedTextCellEditor(table);
-			} else if (SampleTableConstants.EMAIL.equals(columnIdentifier)) {
-				return new TextCellEditor(table);
-			} else if (SampleTableConstants.START_DATE.equals(columnIdentifier)){
-				return new CDateTimeCellEditor(table);
-			} else if (SampleTableConstants.END_DATE.equals(columnIdentifier)){
-				return new CDateTimeCellEditor(table);
 			} else if (SampleTableConstants.COMMAND.equals(columnIdentifier)) {
 				return new TextCellEditor(table);
 			} else if (SampleTableConstants.COMMENT.equals(columnIdentifier)) {
@@ -1365,18 +1857,6 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 				return true;
 			} else if (SampleTableConstants.SAMPLE_NAME.equals(columnIdentifier)) {
 				return true;
-			} else if (SampleTableConstants.CELL_ID.equals(columnIdentifier)) {
-				return true;
-			} else if (SampleTableConstants.VISIT_ID.equals(columnIdentifier)) {
-				return true;
-			} else if (SampleTableConstants.CALIBRANT_NAME.equals(columnIdentifier)) {
-				return true;
-			} else if (SampleTableConstants.CALIBRANT_X.equals(columnIdentifier)) {
-				return true;
-			} else if (SampleTableConstants.CALIBRANT_Y.equals(columnIdentifier)) {
-				return true;
-			} else if (SampleTableConstants.CALIBRANT_EXPOSURE.equals(columnIdentifier)) {
-				return true;
 			} else if (SampleTableConstants.SAMPLE_X_START.equals(columnIdentifier)) {
 				return true;
 			} else if (SampleTableConstants.SAMPLE_X_STOP.equals(columnIdentifier)) {
@@ -1390,18 +1870,6 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 			} else if (SampleTableConstants.SAMPLE_Y_STEP.equals(columnIdentifier)) {
 				return true;
 			} else if (SampleTableConstants.SAMPLE_EXPOSURE.equals(columnIdentifier)) {
-				return true;
-			} else if (SampleTableConstants.DETECTOR_X.equals(columnIdentifier)) {
-				return true;
-			} else if (SampleTableConstants.DETECTOR_Y.equals(columnIdentifier)) {
-				return true;
-			} else if (SampleTableConstants.DETECTOR_Z.equals(columnIdentifier)) {
-				return true;
-			} else if (SampleTableConstants.EMAIL.equals(columnIdentifier)) {
-				return true;
-			} else if (SampleTableConstants.START_DATE.equals(columnIdentifier)) {
-				return true;
-			} else if (SampleTableConstants.END_DATE.equals(columnIdentifier)) {
 				return true;
 			} else if (SampleTableConstants.COMMAND.equals(columnIdentifier)) {
 				return true;
@@ -1419,18 +1887,6 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 					return sample.isActive();
 				} else if (SampleTableConstants.SAMPLE_NAME.equals(columnIdentifier)) {
 					return sample.getName();
-				} else if (SampleTableConstants.CELL_ID.equals(columnIdentifier)) {
-					return sample.getCell().getCellID();
-				} else if (SampleTableConstants.VISIT_ID.equals(columnIdentifier)) {
-					return sample.getCell().getVisitID();
-				} else if (SampleTableConstants.CALIBRANT_NAME.equals(columnIdentifier)) {
-					return sample.getCell().getCalibrant();
-				} else if (SampleTableConstants.CALIBRANT_X.equals(columnIdentifier)) {
-					return sample.getCell().getCalibrant_x();
-				} else if (SampleTableConstants.CALIBRANT_Y.equals(columnIdentifier)) {
-					return sample.getCell().getCalibrant_y();
-				} else if (SampleTableConstants.CALIBRANT_EXPOSURE.equals(columnIdentifier)) {
-					return sample.getCell().getCalibrant_exposure();
 				} else if (SampleTableConstants.SAMPLE_X_START.equals(columnIdentifier)) {
 					return sample.getSample_x_start();
 				} else if (SampleTableConstants.SAMPLE_X_STOP.equals(columnIdentifier)) {
@@ -1445,22 +1901,14 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 					return sample.getSample_y_step();
 				} else if (SampleTableConstants.SAMPLE_EXPOSURE.equals(columnIdentifier)) {
 					return sample.getSample_exposure();
-				} else if (SampleTableConstants.DETECTOR_X.equals(columnIdentifier)) {
-					return sample.getCell().getStage().getDetector_x();
-				} else if (SampleTableConstants.DETECTOR_Y.equals(columnIdentifier)) {
-					return sample.getCell().getStage().getDetector_y();
-				} else if (SampleTableConstants.DETECTOR_Z.equals(columnIdentifier)) {
-					return sample.getCell().getStage().getDetector_z();
-				} else if (SampleTableConstants.EMAIL.equals(columnIdentifier)) {
-					return sample.getCell().getEmail();
-				} else if (SampleTableConstants.START_DATE.equals(columnIdentifier)) {
-					return sample.getCell().getStartDate();
-				} else if (SampleTableConstants.END_DATE.equals(columnIdentifier)) {
-					return sample.getCell().getEndDate();
 				} else if (SampleTableConstants.COMMAND.equals(columnIdentifier)) {
 					return sample.getCommand();
 				} else if (SampleTableConstants.COMMENT.equals(columnIdentifier)) {
 					return sample.getComment();
+				} else if (SampleTableConstants.CELL_ID.equals(columnIdentifier)) {
+					return sample.getCell().getCellID();
+				} else if (SampleTableConstants.STAGE_ID.equals(columnIdentifier)) {
+					return sample.getCell().getStage().getStageID();
 				} 
 			}
 			return null;
@@ -1472,7 +1920,7 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 				if (value instanceof Boolean) {
 					try {
 						if ((boolean)value==true) {
-							if (isDatesValid((Sample)element) && isValidCellID((Sample)element, ((Sample)element).getCell().getCellID())) {
+							if (isDatesValid((Sample)element)) {
 								runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.eINSTANCE.getSample_Active(), value));
 							}
 						} else {
@@ -1490,52 +1938,6 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 					} catch (Exception e) {
 						logger.error("Exception on setting "+SampleTableConstants.SAMPLE_NAME+" field for sample "+((Sample)element).getName(), e);
 					}
-				}
-			} else if (SampleTableConstants.CELL_ID.equals(columnIdentifier)) {
-				if (value instanceof String) {
-					try {
-						if (isValidCellID((Sample)element,(String)value)) {
-							runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.CELL__CELL_ID, value));
-						}
-					} catch (Exception e) {
-						logger.error("Exception on setting "+SampleTableConstants.CELL_ID+" field for sample "+((Sample)element).getName(), e);
-					}
-				}
-			} else if (SampleTableConstants.VISIT_ID.equals(columnIdentifier)) {
-				if (value instanceof String) {
-					try {
-						if (isValidVisitID((Sample)element, (String)value)) {
-							runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.CELL__VISIT_ID, value));
-						}
-					} catch (Exception e) {
-						logger.error("Exception on setting "+SampleTableConstants.VISIT_ID+" field for sample "+((Sample)element).getName(), e);
-					}
-				}
-			} else if (SampleTableConstants.CALIBRANT_NAME.equals(columnIdentifier)) {
-				if (value instanceof String) {
-					try {
-						runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.CELL__CALIBRANT, value));
-					} catch (Exception e) {
-						logger.error("Exception on setting "+SampleTableConstants.CALIBRANT_NAME+" field for sample "+((Sample)element).getName(), e);
-					}
-				}
-			} else if (SampleTableConstants.CALIBRANT_X.equals(columnIdentifier)) {
-				try {
-					runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.CELL__CALIBRANT_X, value));
-				} catch (Exception e) {
-					logger.error("Exception on setting "+SampleTableConstants.CALIBRANT_X+" field for sample "+((Sample)element).getName(), e);
-				}
-			} else if (SampleTableConstants.CALIBRANT_Y.equals(columnIdentifier)) {
-				try {
-					runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.CELL__CALIBRANT_Y, value));
-				} catch (Exception e) {
-					logger.error("Exception on setting "+SampleTableConstants.CALIBRANT_Y+" field for sample "+((Sample)element).getName(), e);
-				}
-			} else if (SampleTableConstants.CALIBRANT_EXPOSURE.equals(columnIdentifier)) {
-				try {
-					runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.CELL__CALIBRANT_EXPOSURE, value));
-				} catch (Exception e) {
-					logger.error("Exception on setting "+SampleTableConstants.CALIBRANT_EXPOSURE+" field for sample "+((Sample)element).getName(), e);
 				}
 			} else if (SampleTableConstants.SAMPLE_X_START.equals(columnIdentifier)) {
 				try {
@@ -1579,50 +1981,6 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 				} catch (Exception e) {
 					logger.error("Exception on setting "+SampleTableConstants.SAMPLE_EXPOSURE+" field for sample "+((Sample)element).getName(), e);
 				}
-			} else if (SampleTableConstants.DETECTOR_X.equals(columnIdentifier)) {
-				try {
-					runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.STAGE__DETECTOR_X, value));
-				} catch (Exception e) {
-					logger.error("Exception on setting "+SampleTableConstants.DETECTOR_X+" field for sample "+((Sample)element).getName(), e);
-				}
-			} else if (SampleTableConstants.DETECTOR_Y.equals(columnIdentifier)) {
-				try {
-					runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.STAGE__DETECTOR_Y, value));
-				} catch (Exception e) {
-					logger.error("Exception on setting "+SampleTableConstants.DETECTOR_Y+" field for sample "+((Sample)element).getName(), e);
-				}
-			} else if (SampleTableConstants.DETECTOR_Z.equals(columnIdentifier)) {
-				try {
-					runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.STAGE__DETECTOR_Z, value));
-				} catch (Exception e) {
-					logger.error("Exception on setting "+SampleTableConstants.DETECTOR_Z+" field for sample "+((Sample)element).getName(), e);
-				}
-			} else if (SampleTableConstants.EMAIL.equals(columnIdentifier)) {
-				if (value instanceof String) {
-					try {
-						if (isValidEmail((String)value)) {
-							runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.CELL__EMAIL, value));
-						}
-					} catch (Exception e) {
-						logger.error("Exception on setting "+SampleTableConstants.EMAIL+" field for sample "+((Sample)element).getName(), e);
-					}
-				}
-			} else if (SampleTableConstants.START_DATE.equals(columnIdentifier)) {
-				if (value instanceof Date) {
-					try {
-						runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.CELL__START_DATE, value));
-					} catch (Exception e) {
-						logger.error("Exception on setting "+SampleTableConstants.START_DATE+" field for sample "+((Sample)element).getName(), e);
-					}
-				}
-			} else if (SampleTableConstants.END_DATE.equals(columnIdentifier)) {
-				if (value instanceof Date) {
-					try {
-						runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.CELL__END_DATE, value));
-					} catch (Exception e) {
-						logger.error("Exception on setting "+SampleTableConstants.END_DATE+" field for sample "+((Sample)element).getName(), e);
-					}
-				}
 			} else if (SampleTableConstants.COMMAND.equals(columnIdentifier)) {
 				if (value instanceof String) {
 					try {
@@ -1644,75 +2002,87 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 			} 
 		}
 
-		private boolean isDatesValid(Sample sample) {
-			Date now=new Date();
-			boolean startLessEnd = sample.getCell().getStartDate().compareTo(sample.getCell().getEndDate())<=0;
-			boolean nowInBetween = now.compareTo(sample.getCell().getStartDate())>=0 && now.compareTo(sample.getCell().getEndDate())<0;
-			if (startLessEnd && nowInBetween) {
-				return true;
-			}
-			String message="";
-			if (!startLessEnd) {
-				message="Sample start date must be before the end date.";
-			}
-			if (!nowInBetween) {
-				message="Cannot active this sample because the current date time is outside its date time range set.";
-			}
-			openMessageBox(message, "Activation Failed - Invalid dates ");
-			return false;
-		}
-
-		private boolean isValidCommand(String value) {
-			// TODO Implement GDA command validator?
-			// validate single/multiple commands, e.g. scan, pos, scripts, etc. HOW???
+	}
+	private boolean isDatesValid(Sample sample) {
+		Date now=new Date();
+		boolean startLessEnd = sample.getCell().getStartDate().compareTo(sample.getCell().getEndDate())<=0;
+		boolean nowInBetween = now.compareTo(sample.getCell().getStartDate())>=0 && now.compareTo(sample.getCell().getEndDate())<0;
+		if (startLessEnd && nowInBetween) {
 			return true;
 		}
-
-		private boolean isValidEmail(String value) {
-			String EMAIL_REGEX = "^[\\w-_\\.+]*[\\w-_\\.]\\@([\\w]+\\.)+[\\w]+[\\w]$";
-			if (value.matches(EMAIL_REGEX)) {
-				try {
-					InternetAddress emailAddr=new InternetAddress(value);
-					return true;
-				} catch (AddressException e) {
-					String message=e.getMessage();
-					openMessageBox(message, "Invalid Email Address");
-					return false;
-				}
-			}
-			String message="Email: " + value +" is incorrectly formatted.";
-			openMessageBox(message, "Invalid Email Address");
-			return false;
+		String message="";
+		if (!startLessEnd) {
+			message="Sample start date must be before the end date.";
 		}
+		if (!nowInBetween) {
+			message="Cannot active this sample because the current date time is outside its date time range set.";
+		}
+		openMessageBox(message, "Activation Failed - Invalid dates ");
+		return false;
+	}
+	
+	public String[] getStageIDs() {
+		return stageIDs;
+	}
+	public void setStageIDs(String[] stageIDs) {
+		this.stageIDs = stageIDs;
+	}
 
-		private boolean isValidCellID(Sample element, String value) {
-			if (value == null || value.isEmpty()) {
-				String message="You must select a Sample Cell ID.\n";
-				openMessageBox(message, "Invalid Cell ID");
+
+	private boolean isValidCommand(String value) {
+		// TODO Implement GDA command validator?
+		// validate single/multiple commands, e.g. scan, pos, scripts, etc. HOW???
+		return true;
+	}
+	
+	private boolean isValidEmail(String value) {
+		String EMAIL_REGEX = "^[\\w-_\\.+]*[\\w-_\\.]\\@([\\w]+\\.)+[\\w]+[\\w]$";
+		if (value.matches(EMAIL_REGEX)) {
+			try {
+				InternetAddress emailAddr=new InternetAddress(value);
+				return true;
+			} catch (AddressException e) {
+				String message=e.getMessage();
+				openMessageBox(message, "Invalid Email Address");
 				return false;
 			}
-			for (Sample sample : samples) {
-				if (element != sample && value.equals(sample.getCell().getCellID())) {
+		}
+		String message="Email: " + value +" is incorrectly formatted.";
+		openMessageBox(message, "Invalid Email Address");
+		return false;
+	}
+	
+	private boolean isValidCellID(Cell element, String value) {
+		if (value == null || value.isEmpty()) {
+			String message="You must select a Sample Cell ID.\n";
+			openMessageBox(message, "Invalid Cell ID");
+			return false;
+		}
+		try {
+			for (Cell cell : resUtil.getCells()) {
+				if (element != cell && value.equals(cell.getCellID())) {
 					String message="Sample Cell is already used.\n";
 					openMessageBox(message, "Invalid Cell ID");
 					return false;
 				}
 			}
+		} catch (Exception e) {
+			logger.error("Fail to get all cells from resource.",e);
+		}
+		return true;
+	}
+	
+	private boolean isValidVisitID(Sample sample, String value) {
+		if (value.contentEquals("0-0")){ // Commissioning folder
 			return true;
 		}
-
-		private boolean isValidVisitID(Sample sample, String value) {
-			if (value.contentEquals("0-0")){ // Commissioning folder
-				return true;
-			}
-			File dir=new File(getDataDirectory(sample));
-			if (dir.exists()) {
-				return true;
-			}
-			String message="Cannot find the data directory '" + dir.getAbsolutePath()+"' for this sample on data storage driver.\n";
-			openMessageBox(message, "Invalid Visit ID");
-			return false;
+		File dir=new File(getDataDirectory(sample));
+		if (dir.exists()) {
+			return true;
 		}
+		String message="Cannot find the data directory '" + dir.getAbsolutePath()+"' for this sample on data storage driver.\n";
+		openMessageBox(message, "Invalid Visit ID");
+		return false;
 	}
 	
 	private String getDataDirectory(Sample sample) {

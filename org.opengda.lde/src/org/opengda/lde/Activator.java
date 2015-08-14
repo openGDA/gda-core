@@ -41,14 +41,7 @@ public class Activator implements BundleActivator {
 		return plugin;
 	}
 
-	public EditingDomain getSampleGroupEditingDomain() throws Exception {
-		try {
-			// return TransactionalEditingDomain.Registry.INSTANCE
-			// .getEditingDomain(EDITING_DOMAIN_ID);
+	public EditingDomain getSampleGroupEditingDomain() {
 			return SampleGroupEditingDomain.INSTANCE.getEditingDomain();
-		} catch (Exception ex) {
-			throw new Exception("Unable to get editing domain:"
-					+ ex.getMessage());
-		}
 	}
 }

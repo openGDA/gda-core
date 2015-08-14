@@ -61,7 +61,7 @@ public class ProgressLabelProvider extends OwnerDrawLabelProvider implements
 				return;
 			}
 		}
-		if (currentSample==null || (Sample)element == currentSample) {
+		if (currentSample!=null || (Sample)element == currentSample) {
 			//enable active sample display 0% on activation, but only update progress for the sample in collection.
 
 			int percentage = (completedUnits * 100 / totalUnits);
@@ -70,11 +70,14 @@ public class ProgressLabelProvider extends OwnerDrawLabelProvider implements
 			Color background = event.gc.getBackground();
 			event.gc.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_RED));
 			event.gc.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_YELLOW));
+			
 			Rectangle bounds = ((TableItem) event.item).getBounds(event.index);
+			
 			int width = (bounds.width - 1) * percentage / 100;
 			event.gc.fillGradientRectangle(event.x, event.y, width,event.height, true);
 			Rectangle rect2 = new Rectangle(event.x, event.y, width - 1,event.height - 1);
 			event.gc.drawRectangle(rect2);
+			
 			event.gc.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_LIST_FOREGROUND));
 			String text = percentage + "%";
 			Point size = event.gc.textExtent(text);
