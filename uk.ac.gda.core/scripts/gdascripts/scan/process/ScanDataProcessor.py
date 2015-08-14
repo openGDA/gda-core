@@ -1,35 +1,24 @@
-from gdascripts.scan.scanListener import ScanListener
-from ScanDataProcessorResult import ScanDataProcessorResult
-from gdascripts.scan.process.ScanDataProcessorResult import determineScannableContainingField
-
-from gda.analysis.io import SRSLoader
-from uk.ac.diamond.scisoft.analysis.io import HDF5Loader
-from gda.analysis import ScanFileHolder
-import java.lang.Throwable
 from UserDict import IterableUserDict
+import java.lang.Throwable
 import traceback
-from gdascripts.scan.process.sfhloader import getDataSetFromSFH
 
-def loadScanFile(ob, columnNames=None, scannables=[]):
-	sfh = ScanFileHolder()
-	# ConcurrentScan
-	#if isinstance(ob, ConcurrentScan) or isinstance(ob, SecondaryConcurrentScan):
-	filepath = ob.getDataWriter().getCurrentFileName()
-	if filepath[-3:] == 'nxs':
-		sfh.load(HDF5Loader(filepath))
-	elif filepath[-3:] == 'dat':
-		srsloader = SRSLoader(filepath)
-		srsloader.setUseImageLoaderForStrings(False)
-		sfh.load(srsloader)
-		for name in sfh.getHeadings():
-			scannable = determineScannableContainingField(name, scannables)
-			if (len(scannable.getInputNames())+len(scannable.getExtraNames())) > 1:
-				newname = scannable.name + "." + name
-				sfh.addDataSet(newname, sfh.getAxis(name))
-	#else:
-	#	raise Exception("Failed to load scan file: was expecting a ConcurrentScan object")
-	return sfh
+from gdascripts.scan.process.ScanDataProcessorResult import *  # @UnusedWildImport
+from gdascripts.scan.scanListener import ScanListener
 
+
+def loadScanFile(scanOb):
+	'''
+	From a scan object load back the data file
+	returns file reference
+	see also ScanDataProcessorResult.getDatasetFromLoadedFile(loadedFile, fieldName)
+	'''
+
+	# Get the file path of the last scan from the scan object
+	filepath = scanOb.getDataWriter().getCurrentFileName()
+
+	lastScanFile = dnp.io.load(filepath, formats=('nx','srs'))
+
+	return lastScanFile
 
 class ScanDataProcessorResults(IterableUserDict):
 
@@ -46,9 +35,8 @@ class ScanDataProcessorResults(IterableUserDict):
 		# Blank so that when concurrentScanWrapper returns this after the
 		# scan after having printed the report explicitly, Jython does not show the report again
 
-
 class ScanDataProcessor(ScanListener):
-	
+
 	def __init__(self, datasetProcessorList=[], rootNamespaceDict={}, raiseProcessorExceptions=False):
 		self.raiseProcessorExceptions = raiseProcessorExceptions
 		self.processors = datasetProcessorList
@@ -57,7 +45,7 @@ class ScanDataProcessor(ScanListener):
 		self.report = None
 		self.last_scannable_scanned = None
 		self.duplicate_names = {}
-		
+
 	def __repr__(self):
 		labelList=[]
 		for processor in self.processors:
@@ -79,49 +67,32 @@ class ScanDataProcessor(ScanListener):
 			yscannable = determineScannableContainingField(yfieldname, allscannables)
 			yfieldname = yscannable.name+"."+yfieldname
 			self.last_scannable_scanned = determineScannableContainingField(xfieldname, allscannables)
-			all_detectors_and_scannables = list(concurrentScan.getAllScannables()) + list(concurrentScan.getDetectors())
-			self.sfh = loadScanFile(concurrentScan, [xfieldname, yfieldname], all_detectors_and_scannables)
-			
-			# determine from the scan object which fields are to be processed as x and y
-			
-			# NOTE: As of gda 8.38 xfieldname and yfieldname are prefaced with scannable name. i.e. x.x rather than x
-			# This is inorder that things work with ScanFileHolder loading Nexus files. When ScanFileHolder loads
-			# SRS files it does not do this.
-			
+
+			# Get the x and y  datasets from the scan file
+			lastScanFile = loadScanFile(concurrentScan)
+			xDataset = getDatasetFromLoadedFile(lastScanFile, xfieldname)
+			yDataset = getDatasetFromLoadedFile(lastScanFile, yfieldname)
+
 			report += "   (Processing %s v's %s)\n"%(yfieldname,xfieldname)
 
-			try:
-				xDataSet = getDataSetFromSFH(self.sfh,xfieldname)
-			except KeyError, e:
-				if self.raiseProcessorExceptions:
-					raise e
-				return "<" + e.message + ">"
-			
-			if len(xDataSet.getShape()) > 1:
-				return "<Cannot process multidimensional scans>"
-			
-			if xDataSet.getShape()[0] in (0,1):
-				return "<Scan too short to process sensibly>"
+			# Check the datasets are processable
+			if len(xDataset.shape) > 1:
+				return "Cannot process multidimensional scans"
+			if xDataset.shape[0] in (0,1):
+				return "Scan too short to process sensibly"
+			if xDataset.shape[0] != yDataset.shape[0]:
+				return "Scan dimensions mismatch! (length(x)=%d != length(y)=%d)" % (xDataset.shape[0], yDataset.shape[0])
 
-			#try:
-			
-			try:
-				yDataSet = getDataSetFromSFH(self.sfh, yfieldname)
-			except KeyError, e:
-				if self.raiseProcessorExceptions:
-					raise e
-				return "<" + e.message + ">"
-			
 			lines = []
 			for processor in self.processors:
-				sdpr = processor.process(xDataSet, yDataSet)
+				sdpr = processor.process(xDataset, yDataset)
 				if type(sdpr) == type(list()):
 					for each in sdpr:
-						sdpr = ScanDataProcessorResult(each, self.sfh, allscannables, xfieldname, yfieldname)
+						sdpr = ScanDataProcessorResult(each, allscannables, xfieldname, yfieldname)
 						self.results[each.name] = each
 						lines.append('   ' + (each.name+':').ljust(8) + each.report)
 				else:
-					sdpr = ScanDataProcessorResult(sdpr, self.sfh, allscannables, xfieldname, yfieldname)
+					sdpr = ScanDataProcessorResult(sdpr, lastScanFile, allscannables, xfieldname, yfieldname)
 					self.results[sdpr.name] = sdpr
 					lines.append('   ' + (sdpr.name+':').ljust(8) + sdpr.report)
 			report = '\n'.join(lines)
@@ -130,7 +101,7 @@ class ScanDataProcessor(ScanListener):
 			for name, result in self.results.items():
 				if d.has_key(name):
 					if not isinstance(d[name], ScanDataProcessorResult):
-						raise Exception("Could not add ScanDataProcessorResult %s to root Jython namespace as object by that name already exists"%name)
+						raise Exception("Could not add ScanDataProcessorResult " + name.toString() + " to root Jython namespace as object by that name already exists")
 				d[name] = result
 				if self.duplicate_names.has_key(name):
 					d[self.duplicate_names[name]] = result
@@ -140,12 +111,12 @@ class ScanDataProcessor(ScanListener):
 			if self.raiseProcessorExceptions:
 				raise e
 			return "Error processing scan file: " + traceback.format_exc() + "\n<< No exception raised >>>"
-		
+
 		except Exception, e:
 			if self.raiseProcessorExceptions:
 				raise e
 			return "Error processing scan file: " + traceback.format_exc() + "\n<< No exception raised >>>"
-	
+
 	def prepareForScan(self):
 		# Remove all pre-existing ScanDataProcessorResults
 		self.last_scannable_scanned = None
@@ -160,7 +131,6 @@ class ScanDataProcessor(ScanListener):
 					if d.has_key(dupname) and isinstance(d[dupname], ScanDataProcessorResult):
 						del d[dupname]
 
-				
 	def go(self, position_or_scanDataProcessorResult):
 		try:
 			# assume its a ScanDataProcessorResult
@@ -171,22 +141,20 @@ class ScanDataProcessor(ScanListener):
 				raise Exception("No scan has successfully completed, so 'go' does not what to move to '" + `position_or_scanDataProcessorResult` +"'")
 			print "Moving %s to %s" % (self.last_scannable_scanned.getName(), `position_or_scanDataProcessorResult`)
 			self.last_scannable_scanned.moveTo(position_or_scanDataProcessorResult)
-	
-	
+
 	def __getitem__(self, key):
 		return self.results[key]
-	
+
 	def __determineKeyFieldNames(self, concurrentScan):
 		sps = concurrentScan.getScanPlotSettings()
 		if sps is None:
 			raise RuntimeError("ScanDataProcessor expects the scan being processed to have had ScanPlotSettings set")
 		return sps.getXAxisName(), sps.getYAxesShown()[-1]
-	
-### ScanListener
 
+### ScanListener
 	def update(self, concurrentScan):
 		return self.processScan(concurrentScan)
-	
+
 if __name__ == '__main__':
 	r = ScanDataProcessorResults({'a':1,'b':2}, 'abc')
 	print r
