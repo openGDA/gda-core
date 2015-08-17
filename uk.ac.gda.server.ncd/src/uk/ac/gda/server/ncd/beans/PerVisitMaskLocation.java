@@ -148,11 +148,14 @@ public class PerVisitMaskLocation implements StoredDetectorInfo, IObserver, Conf
 	}
 
 	private static File getMaskDirectory() throws IOException {
-		File path = new File(String.format("%s/%s", PathConstructor.createFromProperty(VISIT_DIRECTORY_PROPERTY), "processing/masks"));
+		File path = new File(String.format("%s/%s", PathConstructor.createFromProperty(VISIT_DIRECTORY_PROPERTY), "masks"));
+		logger.debug("mask directory: {}", path);
 		if (!path.exists()) {
 			if (!path.mkdirs()) {
 				throw new IOException("Could not create mask directory");
 			}
+		} else if (!path.canWrite()) {
+			throw new IOException("No write permissions for mask directory: " + path.getAbsolutePath());
 		}
 		return path;
 	}
