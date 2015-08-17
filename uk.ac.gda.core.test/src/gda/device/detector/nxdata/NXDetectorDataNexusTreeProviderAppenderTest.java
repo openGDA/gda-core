@@ -22,6 +22,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
+import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
 import gda.device.detector.NXDetectorData;
 
@@ -48,7 +49,7 @@ public class NXDetectorDataNexusTreeProviderAppenderTest {
 	public void setUp() throws Exception {
 		parentData = new NXDetectorData(TWO_EXTRA_NAMES, TWO_OUTPUT_FORMATS, FIRST_DETECTOR_NAME);
 		dataToAppend = new NXDetectorData(ONE_EXTRA_NAME, ONE_OUTPUT_FORMAT, SECOND_DETECTOR_NAME);
-		dataToAppend.addData(SECOND_DETECTOR_NAME, "Data value", 1.426, null);
+		dataToAppend.addData(SECOND_DETECTOR_NAME, "Data value", new NexusGroupData(1.426));
 		// Deliberately not setting plottable values at this point
 
 		appender = new NXDetectorDataNexusTreeProviderAppender(dataToAppend);
