@@ -493,22 +493,22 @@ public final class Element {
 
 		if (getAtomicNumber() >= 15 && getAtomicNumber() <= 54)
 			ret.add("K");
-		if (getAtomicNumber() >= 37 && getAtomicNumber() <= 92)
+		if (getAtomicNumber() >= 37 && getAtomicNumber() <= 93)
 			ret.add("L1");
-		if (getAtomicNumber() >= 39 && getAtomicNumber() <= 92)
+		if (getAtomicNumber() >= 39 && getAtomicNumber() <= 93)
 			ret.add("L2");
-		if (getAtomicNumber() >= 39 && getAtomicNumber() <= 92)
+		if (getAtomicNumber() >= 39 && getAtomicNumber() <= 93)
 			ret.add("L3");
 
-		if (getAtomicNumber() >= 66 && getAtomicNumber() <= 92)
+		if (getAtomicNumber() >= 66 && getAtomicNumber() <= 93)
 			ret.add("M1");
-		if (getAtomicNumber() >= 69 && getAtomicNumber() <= 92)
+		if (getAtomicNumber() >= 69 && getAtomicNumber() <= 93)
 			ret.add("M2");
-		if (getAtomicNumber() >= 72 && getAtomicNumber() <= 92)
+		if (getAtomicNumber() >= 72 && getAtomicNumber() <= 93)
 			ret.add("M3");
-		if (getAtomicNumber() >= 77 && getAtomicNumber() <= 92)
+		if (getAtomicNumber() >= 77 && getAtomicNumber() <= 93)
 			ret.add("M4");
-		if (getAtomicNumber() >= 78 && getAtomicNumber() <= 92)
+		if (getAtomicNumber() >= 78 && getAtomicNumber() <= 93)
 			ret.add("M5");
 		return ret;
 	}
