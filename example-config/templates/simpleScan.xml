@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SimpleScan>
+    <scannableName>s1x1</scannableName>
+    <fromPos>1.0</fromPos>
+    <toPos>10.0</toPos>
+    <stepSize>1.0</stepSize>
+    <acqTime>1.0</acqTime>
+    <scannables>
+        <scannableName>s1x1</scannableName>
+    </scannables>
+    <detectors>
+        <enabled>true</enabled>
+        <detectorName>ddl</detectorName>
+        <detectorDescription></detectorDescription>
+    </detectors>
+</SimpleScan>
