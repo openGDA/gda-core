@@ -11,4 +11,4 @@ class PixelIntensity(TwodDataSetProcessor):
 	
 	def _process(self, ds, dsxaxis, dsyaxis):
 		dsysize, dsxsize = ds.shape
-		return ( ds.mean(), ds.std() )
+		return ( ds.mean(), ds.stdDeviation() )
