@@ -1,3 +1,21 @@
+/*-
+ * Copyright © 2009 Diamond Light Source Ltd.
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package uk.ac.gda.devices.detector.xspress3;
 
 import gda.device.DeviceException;
@@ -27,9 +45,6 @@ import gda.factory.Findable;
  * In GDA, arrays are zero based. In EPICS, arrays are 1 based. So input
  * parameters to this interface, and results from this interface are all zero
  * based.
- *
- * @author rjw82
- *
  */
 public interface Xspress3Controller extends Findable{
 
@@ -267,4 +282,8 @@ public interface Xspress3Controller extends Findable{
 	 * Enabled in the Epics sense of EPICS, not in the GDA sense of contributing to the FF.
 	 */
 	public void enableChannel(int channel, boolean doEnable) throws DeviceException;
+
+	public int getNumberOfRois();
+
+	public int getMcaSize();
 }

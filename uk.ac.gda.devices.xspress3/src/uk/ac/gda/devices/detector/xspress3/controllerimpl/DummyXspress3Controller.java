@@ -1,9 +1,22 @@
+/*-
+ * Copyright © 2009 Diamond Light Source Ltd.
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package uk.ac.gda.devices.detector.xspress3.controllerimpl;
-
-import java.util.Random;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import gda.device.Detector;
 import gda.device.DeviceException;
@@ -13,6 +26,12 @@ import gda.device.timer.Tfg;
 import gda.factory.Configurable;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
+
+import java.util.Random;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.devices.detector.xspress3.TRIGGER_MODE;
 import uk.ac.gda.devices.detector.xspress3.Xspress3Controller;
@@ -33,6 +52,9 @@ import uk.ac.gda.devices.detector.xspress3.Xspress3Controller;
 public class DummyXspress3Controller implements Xspress3Controller, Findable, Configurable {
 
 	private static final Logger logger = LoggerFactory.getLogger(DummyXspress3Controller.class);
+
+	private int NUMBER_ROIs = 10;
+	private int MCA_SIZE = 4096;
 
 	// Tfg is only for simulation purposes to get current state (in real system
 	// Xspress3 hardware would know what is going on)
@@ -521,5 +543,15 @@ public class DummyXspress3Controller implements Xspress3Controller, Findable, Co
 	@Override
 	public void setPerformROICalculations(Boolean doCalcs) throws DeviceException {
 	    // do nothing
+	}
+
+	@Override
+	public int getNumberOfRois() {
+		return NUMBER_ROIs;
+	}
+
+	@Override
+	public int getMcaSize() {
+		return MCA_SIZE;
 	}
 }

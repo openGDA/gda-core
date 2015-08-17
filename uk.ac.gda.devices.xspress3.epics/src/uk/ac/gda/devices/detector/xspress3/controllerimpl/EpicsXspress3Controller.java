@@ -1,3 +1,21 @@
+/*-
+ * Copyright © 2009 Diamond Light Source Ltd.
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package uk.ac.gda.devices.detector.xspress3.controllerimpl;
 
 import java.io.IOException;
@@ -27,6 +45,9 @@ import uk.ac.gda.devices.detector.xspress3.Xspress3Controller;
 public class EpicsXspress3Controller implements Xspress3Controller, Configurable, Findable {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsXspress3Controller.class);
+
+	private static final int NUMBER_ROIs = 10; // fixed for the moment, but will could be changed in the future as this is an EPICS-level calculation
+	private static final int MCA_SIZE = 4096; // fixed for the moment, but will could be changed in the future as this is an EPICS-level calculation
 
 	private String epicsTemplate;
 
@@ -774,5 +795,13 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 		} catch (IOException e) {
 			throw new DeviceException("IOException while setting channel enabled", e);
 		}
+	}
+
+	public int getNumberOfRois() {
+		return NUMBER_ROIs;
+	}
+
+	public int getMcaSize() {
+		return MCA_SIZE;
 	}
 }
