@@ -18,18 +18,19 @@
 
 package uk.ac.gda.devices.detector.xspress3.controllerimpl;
 
-import java.io.IOException;
-
-import org.apache.commons.lang.ArrayUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.epics.ReadOnlyPV;
 import gda.factory.Configurable;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
+
+import java.io.IOException;
+
+import org.apache.commons.lang.ArrayUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import uk.ac.gda.devices.detector.xspress3.TRIGGER_MODE;
 import uk.ac.gda.devices.detector.xspress3.Xspress3Controller;
 
@@ -797,10 +798,12 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 		}
 	}
 
+	@Override
 	public int getNumberOfRois() {
 		return NUMBER_ROIs;
 	}
 
+	@Override
 	public int getMcaSize() {
 		return MCA_SIZE;
 	}
