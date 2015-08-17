@@ -33,6 +33,8 @@ public class TfgScalerWithFrames extends TfgScalerWithLogValues {
 	private static final Logger logger = LoggerFactory.getLogger(TfgScalerWithFrames.class);
 
 	private Double[] times; // milliseconds
+	
+	private int livePort=0; // choose 0 by default as used on I18 and B18, I20 used 1 and setup in Spring
 
 	public Double[] getTimes() {
 		return times;
@@ -42,7 +44,7 @@ public class TfgScalerWithFrames extends TfgScalerWithLogValues {
 	 * @param times - array of times of the upcoming scan in seconds.
 	 */
 	public void setTimes(Double[] times) {
-		logger.debug("array of " + times.length + " frame times given to " + getName());
+		//logger.debug("array of " + times.length + " frame times given to " + getName());
 		this.times = times;
 	}
 
@@ -50,10 +52,10 @@ public class TfgScalerWithFrames extends TfgScalerWithLogValues {
 	public void atScanLineStart() throws DeviceException {
 		if (times != null && times.length > 0) {
 			super.clearFrameSets();
-			// create the time frames here
+			 // create the time frames here
 			for (int i = 0; i < times.length; i++) {
 				// convert times to milliseconds for da.server
-				addFrameSet(1, 0, times[i] * 1000, 0, 0, -1, 0);
+				addFrameSet(1, 0, times[i] * 1000, 0, livePort, -1, 0);
 			}
 		}
 		timer.setAttribute(Tfg.SOFTWARE_START_AND_TRIG_ATTR_NAME, Boolean.TRUE);
@@ -94,5 +96,26 @@ public class TfgScalerWithFrames extends TfgScalerWithLogValues {
 	private void clearTimesArray() {
 		times = null;
 		logger.debug("array of frame times cleared in " + getName());
+	}
+	
+	@Override
+	public void acquireDarkCurrent() throws Exception {
+		// When acquiring dark current the array of times is cleared, so cache and restore them here.
+		Double[] storedTimes = getTimes();
+		try {
+			super.acquireDarkCurrent();
+		} finally {
+			if (storedTimes != null) {
+				setTimes(storedTimes);
+			}
+		}
+	}
+
+	public int getLivePort() {
+		return livePort;
+	}
+
+	public void setLivePort(int livePort) {
+		this.livePort = livePort;
 	}
 }
