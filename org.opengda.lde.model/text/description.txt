@@ -64,6 +64,7 @@ Package ldeexperiment <http://www.opengda.org/LDEExperiments>
     Attribute sample_exposure : EDouble
     Attribute command : EString
     Attribute comment : EString
+    Attribute calibrationFilePath : EString
     Attribute dataFilePath : EString
 
   Enum STATUS

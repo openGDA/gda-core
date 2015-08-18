@@ -68,5 +68,7 @@ public interface SampleValidator {
 	boolean validateMailCount(int value);
 	boolean validateDataFileCount(int value);
 	boolean validateComment(String value);
+	boolean validateCalibrationFilePath(String value);
+
 	boolean validateDataFilePath(String value);
 }

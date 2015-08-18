@@ -69,6 +69,7 @@ public class SampleItemProvider
 			addSample_exposurePropertyDescriptor(object);
 			addCommandPropertyDescriptor(object);
 			addCommentPropertyDescriptor(object);
+			addCalibrationFilePathPropertyDescriptor(object);
 			addDataFilePathPropertyDescriptor(object);
 		}
 		return itemPropertyDescriptors;
@@ -361,6 +362,28 @@ public class SampleItemProvider
 	}
 
 	/**
+	 * This adds a property descriptor for the Calibration File Path feature.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected void addCalibrationFilePathPropertyDescriptor(Object object) {
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_Sample_calibrationFilePath_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_calibrationFilePath_feature", "_UI_Sample_type"),
+				 LDEExperimentsPackage.Literals.SAMPLE__CALIBRATION_FILE_PATH,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
+				 null,
+				 null));
+	}
+
+	/**
 	 * This adds a property descriptor for the Data File Path feature.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -433,6 +456,7 @@ public class SampleItemProvider
 			case LDEExperimentsPackage.SAMPLE__SAMPLE_EXPOSURE:
 			case LDEExperimentsPackage.SAMPLE__COMMAND:
 			case LDEExperimentsPackage.SAMPLE__COMMENT:
+			case LDEExperimentsPackage.SAMPLE__CALIBRATION_FILE_PATH:
 			case LDEExperimentsPackage.SAMPLE__DATA_FILE_PATH:
 				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
 				return;
@@ -526,8 +550,12 @@ public class SampleItemProvider
 				return sample.getCell().getCellID();
 			case SampleTableConstants.COL_STAGE:
 				return sample.getCell().getStage().getStageID();
-			case SampleTableConstants.COL_DATA_FILE_COUNT:
+			case SampleTableConstants.COL_CALIBRATION_FILE:
+				return sample.getCalibrationFilePath();
+			case SampleTableConstants.COL_DATA_FILE:
 				return sample.getDataFilePath();
+			default:
+				break;
 			}
 		}
 		return super.getColumnText(element, columnIndex);

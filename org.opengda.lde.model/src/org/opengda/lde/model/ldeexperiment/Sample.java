@@ -47,6 +47,7 @@ import org.eclipse.emf.ecore.EObject;
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getSample_exposure <em>Sample exposure</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getCommand <em>Command</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getComment <em>Comment</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getCalibrationFilePath <em>Calibration File Path</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getDataFilePath <em>Data File Path</em>}</li>
  * </ul>
  *
@@ -454,6 +455,32 @@ public interface Sample extends EObject {
 	 * @generated
 	 */
 	void setComment(String value);
+
+	/**
+	 * Returns the value of the '<em><b>Calibration File Path</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Calibration File Path</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Calibration File Path</em>' attribute.
+	 * @see #setCalibrationFilePath(String)
+	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getSample_CalibrationFilePath()
+	 * @model
+	 * @generated
+	 */
+	String getCalibrationFilePath();
+
+	/**
+	 * Sets the value of the '{@link org.opengda.lde.model.ldeexperiment.Sample#getCalibrationFilePath <em>Calibration File Path</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Calibration File Path</em>' attribute.
+	 * @see #getCalibrationFilePath()
+	 * @generated
+	 */
+	void setCalibrationFilePath(String value);
 
 	/**
 	 * Returns the value of the '<em><b>Data File Path</b></em>' attribute.

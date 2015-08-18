@@ -648,8 +648,17 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EAttribute getSample_DataFilePath() {
+	public EAttribute getSample_CalibrationFilePath() {
 		return (EAttribute)sampleEClass.getEStructuralFeatures().get(14);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getSample_DataFilePath() {
+		return (EAttribute)sampleEClass.getEStructuralFeatures().get(15);
 	}
 
 	/**
@@ -755,6 +764,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 		createEAttribute(sampleEClass, SAMPLE__SAMPLE_EXPOSURE);
 		createEAttribute(sampleEClass, SAMPLE__COMMAND);
 		createEAttribute(sampleEClass, SAMPLE__COMMENT);
+		createEAttribute(sampleEClass, SAMPLE__CALIBRATION_FILE_PATH);
 		createEAttribute(sampleEClass, SAMPLE__DATA_FILE_PATH);
 
 		// Create enums
@@ -861,6 +871,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 		initEAttribute(getSample_Sample_exposure(), ecorePackage.getEDouble(), "sample_exposure", "5.0", 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getSample_Command(), ecorePackage.getEString(), "command", null, 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getSample_Comment(), ecorePackage.getEString(), "comment", "comment here", 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getSample_CalibrationFilePath(), ecorePackage.getEString(), "calibrationFilePath", null, 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getSample_DataFilePath(), ecorePackage.getEString(), "dataFilePath", null, 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		// Initialize enums and add enum literals

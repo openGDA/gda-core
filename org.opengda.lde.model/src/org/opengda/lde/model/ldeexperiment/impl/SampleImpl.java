@@ -59,6 +59,7 @@ import org.opengda.lde.model.ldeexperiment.Sample;
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getSample_exposure <em>Sample exposure</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getCommand <em>Command</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getComment <em>Comment</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getCalibrationFilePath <em>Calibration File Path</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getDataFilePath <em>Data File Path</em>}</li>
  * </ul>
  *
@@ -387,6 +388,26 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * @ordered
 	 */
 	protected String comment = COMMENT_EDEFAULT;
+
+	/**
+	 * The default value of the '{@link #getCalibrationFilePath() <em>Calibration File Path</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getCalibrationFilePath()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final String CALIBRATION_FILE_PATH_EDEFAULT = null;
+
+	/**
+	 * The cached value of the '{@link #getCalibrationFilePath() <em>Calibration File Path</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getCalibrationFilePath()
+	 * @generated
+	 * @ordered
+	 */
+	protected String calibrationFilePath = CALIBRATION_FILE_PATH_EDEFAULT;
 
 	/**
 	 * The default value of the '{@link #getDataFilePath() <em>Data File Path</em>}' attribute.
@@ -756,6 +777,27 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public String getCalibrationFilePath() {
+		return calibrationFilePath;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setCalibrationFilePath(String newCalibrationFilePath) {
+		String oldCalibrationFilePath = calibrationFilePath;
+		calibrationFilePath = newCalibrationFilePath;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, LDEExperimentsPackage.SAMPLE__CALIBRATION_FILE_PATH, oldCalibrationFilePath, calibrationFilePath));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	public String getDataFilePath() {
 		return dataFilePath;
 	}
@@ -893,6 +935,8 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 				return getCommand();
 			case LDEExperimentsPackage.SAMPLE__COMMENT:
 				return getComment();
+			case LDEExperimentsPackage.SAMPLE__CALIBRATION_FILE_PATH:
+				return getCalibrationFilePath();
 			case LDEExperimentsPackage.SAMPLE__DATA_FILE_PATH:
 				return getDataFilePath();
 		}
@@ -948,6 +992,9 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 				return;
 			case LDEExperimentsPackage.SAMPLE__COMMENT:
 				setComment((String)newValue);
+				return;
+			case LDEExperimentsPackage.SAMPLE__CALIBRATION_FILE_PATH:
+				setCalibrationFilePath((String)newValue);
 				return;
 			case LDEExperimentsPackage.SAMPLE__DATA_FILE_PATH:
 				setDataFilePath((String)newValue);
@@ -1006,6 +1053,9 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 			case LDEExperimentsPackage.SAMPLE__COMMENT:
 				setComment(COMMENT_EDEFAULT);
 				return;
+			case LDEExperimentsPackage.SAMPLE__CALIBRATION_FILE_PATH:
+				setCalibrationFilePath(CALIBRATION_FILE_PATH_EDEFAULT);
+				return;
 			case LDEExperimentsPackage.SAMPLE__DATA_FILE_PATH:
 				setDataFilePath(DATA_FILE_PATH_EDEFAULT);
 				return;
@@ -1049,6 +1099,8 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 				return COMMAND_EDEFAULT == null ? command != null : !COMMAND_EDEFAULT.equals(command);
 			case LDEExperimentsPackage.SAMPLE__COMMENT:
 				return COMMENT_EDEFAULT == null ? comment != null : !COMMENT_EDEFAULT.equals(comment);
+			case LDEExperimentsPackage.SAMPLE__CALIBRATION_FILE_PATH:
+				return CALIBRATION_FILE_PATH_EDEFAULT == null ? calibrationFilePath != null : !CALIBRATION_FILE_PATH_EDEFAULT.equals(calibrationFilePath);
 			case LDEExperimentsPackage.SAMPLE__DATA_FILE_PATH:
 				return DATA_FILE_PATH_EDEFAULT == null ? dataFilePath != null : !DATA_FILE_PATH_EDEFAULT.equals(dataFilePath);
 		}
@@ -1091,6 +1143,8 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 		result.append(command);
 		result.append(", comment: ");
 		result.append(comment);
+		result.append(", calibrationFilePath: ");
+		result.append(calibrationFilePath);
 		result.append(", dataFilePath: ");
 		result.append(dataFilePath);
 		result.append(')');

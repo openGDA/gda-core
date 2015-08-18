@@ -634,13 +634,22 @@ public interface LDEExperimentsPackage extends EPackage {
 	int SAMPLE__COMMENT = 13;
 
 	/**
+	 * The feature id for the '<em><b>Calibration File Path</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SAMPLE__CALIBRATION_FILE_PATH = 14;
+
+	/**
 	 * The feature id for the '<em><b>Data File Path</b></em>' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE__DATA_FILE_PATH = 14;
+	int SAMPLE__DATA_FILE_PATH = 15;
 
 	/**
 	 * The number of structural features of the '<em>Sample</em>' class.
@@ -649,7 +658,7 @@ public interface LDEExperimentsPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE_FEATURE_COUNT = 15;
+	int SAMPLE_FEATURE_COUNT = 16;
 
 	/**
 	 * The number of operations of the '<em>Sample</em>' class.
@@ -1256,6 +1265,17 @@ public interface LDEExperimentsPackage extends EPackage {
 	EAttribute getSample_Comment();
 
 	/**
+	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Sample#getCalibrationFilePath <em>Calibration File Path</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Calibration File Path</em>'.
+	 * @see org.opengda.lde.model.ldeexperiment.Sample#getCalibrationFilePath()
+	 * @see #getSample()
+	 * @generated
+	 */
+	EAttribute getSample_CalibrationFilePath();
+
+	/**
 	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Sample#getDataFilePath <em>Data File Path</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -1744,6 +1764,14 @@ public interface LDEExperimentsPackage extends EPackage {
 		 * @generated
 		 */
 		EAttribute SAMPLE__COMMENT = eINSTANCE.getSample_Comment();
+
+		/**
+		 * The meta object literal for the '<em><b>Calibration File Path</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute SAMPLE__CALIBRATION_FILE_PATH = eINSTANCE.getSample_CalibrationFilePath();
 
 		/**
 		 * The meta object literal for the '<em><b>Data File Path</b></em>' attribute feature.
