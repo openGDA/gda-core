@@ -29,7 +29,7 @@ class ScanFileLoader:
 		
 		filespec = filespec.__str__()
 		
-		self.filename = self.tryFiles([ filespec, self.dir+"/"+filespec, self.prefix+filespec+"."+self.ext, self.dir+"/"+self.prefix+filespec+"."+self.ext ])
+		self.filename = self.tryFiles([ filespec, self.dir+"/"+filespec, self.prefix+filespec+"."+self.ext, self.dir+"/"+self.prefix+filespec+"."+self.ext, self.dir+"/"+filespec+"."+self.ext ])
 		
 		if (self.filename == None):
 			raise Exception("no file found for %s" % filespec)
