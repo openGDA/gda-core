@@ -18,6 +18,7 @@
 
 package gda.simplescan;
 
+import gda.configuration.properties.LocalProperties;
 import gda.jython.JythonServerFacade;
 
 import java.math.BigDecimal;
@@ -58,6 +59,8 @@ public class PosComposite extends Composite {
 	Label lblReadbackVal;
 	Job updateReadbackJob;
 	String scannable;
+	Text setVal;
+	Button btnSet;
 
 	public PosComposite(Composite parent, int style, Object editingBean) {
 		super(parent, style);
@@ -129,6 +132,7 @@ public class PosComposite extends Composite {
 
 		Button btnGo = new Button(composite_2, SWT.NONE);
 		btnGo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		btnGo.setToolTipText("Moves scannable to new position");
 		btnGo.setText("Go");
 
 		btnGo.addSelectionListener(new SelectionAdapter() {
@@ -214,6 +218,30 @@ public class PosComposite extends Composite {
 		gd_lblStatus.widthHint = 55;
 		lblStatus.setLayoutData(gd_lblStatus);
 		lblStatus.setText("     Idle     ");
+
+		if (LocalProperties.check("gda.simplescan.allowSet", false)) {
+			Label lblSet = new Label(composite_2, SWT.NONE);
+			lblSet.setText("Set");
+			createEmptyLabel(composite_2);
+
+			setVal = new Text(composite_2, SWT.BORDER);
+			setVal.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+			setVal.setText("");
+			createEmptyLabel(composite_2);
+
+			Button btnSet = new Button(composite_2, SWT.NONE);
+			btnSet.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+			btnSet.setText("Set");
+			btnSet.setToolTipText("Set scannable position (does not move!)");
+
+			btnSet.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					performSet();
+				}
+			});
+			btnSet.setEnabled(true);
+		}
 
 		try {
 			setMotorLimits(bean.getScannableName(), textTo);
@@ -322,6 +350,18 @@ public class PosComposite extends Composite {
 		JythonServerFacade.getInstance().runCommand(command);
 		command = scannable + ".stop()";
 		JythonServerFacade.getInstance().runCommand(command);
+	}
+
+	private void performSet() {
+		scannable = scannableName.getItem(scannableName.getSelectionIndex());
+		double pos = Double.parseDouble(setVal.getText());
+		String command = scannable + ".setPosition(" + pos + ")";
+		JythonServerFacade.getInstance().runCommand(command);
+		try {
+			Thread.sleep(100);
+		} catch (InterruptedException e) {
+		}
+		updateReadbackJob.schedule();
 	}
 
 	public void createScannables(Composite comp) {
