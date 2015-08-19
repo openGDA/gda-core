@@ -189,15 +189,6 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EAttribute getExperimentDefinition_Filename() {
-		return (EAttribute)experimentDefinitionEClass.getEStructuralFeatures().get(1);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
 	public EOperation getExperimentDefinition__GetExperiment__String() {
 		return experimentDefinitionEClass.getEOperations().get(0);
 	}
@@ -709,7 +700,6 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 		// Create classes and their features
 		experimentDefinitionEClass = createEClass(EXPERIMENT_DEFINITION);
 		createEReference(experimentDefinitionEClass, EXPERIMENT_DEFINITION__EXPERIMENTS);
-		createEAttribute(experimentDefinitionEClass, EXPERIMENT_DEFINITION__FILENAME);
 		createEOperation(experimentDefinitionEClass, EXPERIMENT_DEFINITION___GET_EXPERIMENT__STRING);
 
 		experimentEClass = createEClass(EXPERIMENT);
@@ -806,7 +796,6 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 		// Initialize classes, features, and operations; add parameters
 		initEClass(experimentDefinitionEClass, ExperimentDefinition.class, "ExperimentDefinition", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEReference(getExperimentDefinition_Experiments(), this.getExperiment(), null, "experiments", null, 0, -1, ExperimentDefinition.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getExperimentDefinition_Filename(), ecorePackage.getEString(), "filename", "samples", 0, 1, ExperimentDefinition.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		EOperation op = initEOperation(getExperimentDefinition__GetExperiment__String(), this.getExperiment(), "getExperiment", 0, 1, IS_UNIQUE, IS_ORDERED);
 		addEParameter(op, ecorePackage.getEString(), "name", 0, 1, IS_UNIQUE, IS_ORDERED);
@@ -820,7 +809,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 		addEParameter(op, ecorePackage.getEString(), "stageId", 0, 1, IS_UNIQUE, IS_ORDERED);
 
 		initEClass(stageEClass, Stage.class, "Stage", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-		initEAttribute(getStage_StageID(), this.getStageIDString(), "stageID", "LS1", 0, 1, Stage.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getStage_StageID(), this.getStageIDString(), "stageID", null, 0, 1, Stage.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getStage_Experiment(), this.getExperiment(), this.getExperiment_Stages(), "experiment", null, 1, 1, Stage.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getStage_Cells(), this.getCell(), this.getCell_Stage(), "cells", null, 0, -1, Stage.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getStage_Detector_x(), ecorePackage.getEDouble(), "detector_x", "0.0", 0, 1, Stage.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -860,7 +849,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 		initEReference(getSample_Cell(), this.getCell(), this.getCell_Samples(), "cell", null, 1, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getSample_Status(), this.getSTATUS(), "status", "READY", 0, 1, Sample.class, IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getSample_Active(), ecorePackage.getEBoolean(), "active", "false", 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getSample_Name(), ecorePackage.getEString(), "name", "new_sample", 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getSample_Name(), ecorePackage.getEString(), "name", null, 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getSample_SampleID(), ecorePackage.getEString(), "sampleID", null, 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getSample_Sample_x_start(), ecorePackage.getEDoubleObject(), "sample_x_start", null, 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getSample_Sample_x_stop(), ecorePackage.getEDoubleObject(), "sample_x_stop", null, 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);

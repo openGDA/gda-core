@@ -9,7 +9,6 @@ Package ldeexperiment <http://www.opengda.org/LDEExperiments>
 
   Class ExperimentDefinition
     Reference experiments : Experiment<<0..*>>
-    Attribute filename : EString
     Operation getExperiment(EString) : Experiment
 
   Class Experiment

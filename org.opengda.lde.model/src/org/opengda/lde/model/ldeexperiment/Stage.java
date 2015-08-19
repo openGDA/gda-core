@@ -53,7 +53,6 @@ import org.eclipse.emf.ecore.EObject;
 public interface Stage extends EObject {
 	/**
 	 * Returns the value of the '<em><b>Stage ID</b></em>' attribute.
-	 * The default value is <code>"LS1"</code>.
 	 * <!-- begin-user-doc -->
 	 * <p>
 	 * If the meaning of the '<em>Stage ID</em>' attribute isn't clear,
@@ -63,7 +62,7 @@ public interface Stage extends EObject {
 	 * @return the value of the '<em>Stage ID</em>' attribute.
 	 * @see #setStageID(String)
 	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getStage_StageID()
-	 * @model default="LS1" dataType="org.opengda.lde.model.ldeexperiment.StageIDString"
+	 * @model dataType="org.opengda.lde.model.ldeexperiment.StageIDString"
 	 * @generated
 	 */
 	String getStageID();

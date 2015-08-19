@@ -8,8 +8,6 @@
     </eOperations>
     <eStructuralFeatures xsi:type="ecore:EReference" name="experiments" upperBound="-1"
         eType="#//Experiment" containment="true"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="filename" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
-        defaultValueLiteral="samples"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Experiment">
     <eOperations name="getStageByID" eType="#//Stage">
@@ -27,8 +25,7 @@
     <eOperations name="getCellByID" eType="#//Cell">
       <eParameters name="cellId" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     </eOperations>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="stageID" eType="#//StageIDString"
-        defaultValueLiteral="LS1"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="stageID" eType="#//StageIDString"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="experiment" lowerBound="1"
         eType="#//Experiment" eOpposite="#//Experiment/stages"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="cells" upperBound="-1"
@@ -86,8 +83,7 @@
         transient="true" defaultValueLiteral="READY" unsettable="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="active" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"
         defaultValueLiteral="false"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
-        defaultValueLiteral="new_sample"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="sampleID" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
         unsettable="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="sample_x_start" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDoubleObject"/>

@@ -24,12 +24,10 @@ package org.opengda.lde.model.ldeexperiment.impl;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
-import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.NotificationChain;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.InternalEObject;
-import org.eclipse.emf.ecore.impl.ENotificationImpl;
 import org.eclipse.emf.ecore.impl.MinimalEObjectImpl;
 import org.eclipse.emf.ecore.util.EObjectContainmentEList;
 import org.eclipse.emf.ecore.util.InternalEList;
@@ -47,7 +45,6 @@ import org.opengda.lde.model.ldeexperiment.exceptions.NotFoundException;
  * </p>
  * <ul>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.ExperimentDefinitionImpl#getExperiments <em>Experiments</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.ExperimentDefinitionImpl#getFilename <em>Filename</em>}</li>
  * </ul>
  *
  * @generated
@@ -62,24 +59,6 @@ public class ExperimentDefinitionImpl extends MinimalEObjectImpl.Container imple
 	 * @ordered
 	 */
 	protected EList<Experiment> experiments;
-	/**
-	 * The default value of the '{@link #getFilename() <em>Filename</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getFilename()
-	 * @generated
-	 * @ordered
-	 */
-	protected static final String FILENAME_EDEFAULT = "samples";
-	/**
-	 * The cached value of the '{@link #getFilename() <em>Filename</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getFilename()
-	 * @generated
-	 * @ordered
-	 */
-	protected String filename = FILENAME_EDEFAULT;
 	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -109,27 +88,6 @@ public class ExperimentDefinitionImpl extends MinimalEObjectImpl.Container imple
 			experiments = new EObjectContainmentEList<Experiment>(Experiment.class, this, LDEExperimentsPackage.EXPERIMENT_DEFINITION__EXPERIMENTS);
 		}
 		return experiments;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public String getFilename() {
-		return filename;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setFilename(String newFilename) {
-		String oldFilename = filename;
-		filename = newFilename;
-		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, LDEExperimentsPackage.EXPERIMENT_DEFINITION__FILENAME, oldFilename, filename));
 	}
 
 	/**
@@ -171,8 +129,6 @@ public class ExperimentDefinitionImpl extends MinimalEObjectImpl.Container imple
 		switch (featureID) {
 			case LDEExperimentsPackage.EXPERIMENT_DEFINITION__EXPERIMENTS:
 				return getExperiments();
-			case LDEExperimentsPackage.EXPERIMENT_DEFINITION__FILENAME:
-				return getFilename();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -190,9 +146,6 @@ public class ExperimentDefinitionImpl extends MinimalEObjectImpl.Container imple
 				getExperiments().clear();
 				getExperiments().addAll((Collection<? extends Experiment>)newValue);
 				return;
-			case LDEExperimentsPackage.EXPERIMENT_DEFINITION__FILENAME:
-				setFilename((String)newValue);
-				return;
 		}
 		super.eSet(featureID, newValue);
 	}
@@ -208,9 +161,6 @@ public class ExperimentDefinitionImpl extends MinimalEObjectImpl.Container imple
 			case LDEExperimentsPackage.EXPERIMENT_DEFINITION__EXPERIMENTS:
 				getExperiments().clear();
 				return;
-			case LDEExperimentsPackage.EXPERIMENT_DEFINITION__FILENAME:
-				setFilename(FILENAME_EDEFAULT);
-				return;
 		}
 		super.eUnset(featureID);
 	}
@@ -225,8 +175,6 @@ public class ExperimentDefinitionImpl extends MinimalEObjectImpl.Container imple
 		switch (featureID) {
 			case LDEExperimentsPackage.EXPERIMENT_DEFINITION__EXPERIMENTS:
 				return experiments != null && !experiments.isEmpty();
-			case LDEExperimentsPackage.EXPERIMENT_DEFINITION__FILENAME:
-				return FILENAME_EDEFAULT == null ? filename != null : !FILENAME_EDEFAULT.equals(filename);
 		}
 		return super.eIsSet(featureID);
 	}
@@ -243,22 +191,6 @@ public class ExperimentDefinitionImpl extends MinimalEObjectImpl.Container imple
 				return getExperiment((String)arguments.get(0));
 		}
 		return super.eInvoke(operationID, arguments);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@Override
-	public String toString() {
-		if (eIsProxy()) return super.toString();
-
-		StringBuffer result = new StringBuffer(super.toString());
-		result.append(" (filename: ");
-		result.append(filename);
-		result.append(')');
-		return result.toString();
 	}
 
 } //ExperimentDefinitionImpl

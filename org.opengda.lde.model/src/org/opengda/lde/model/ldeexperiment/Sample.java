@@ -195,7 +195,6 @@ public interface Sample extends EObject {
 
 	/**
 	 * Returns the value of the '<em><b>Name</b></em>' attribute.
-	 * The default value is <code>"new_sample"</code>.
 	 * <!-- begin-user-doc -->
 	 * <p>
 	 * If the meaning of the '<em>Name</em>' attribute isn't clear,
@@ -205,7 +204,7 @@ public interface Sample extends EObject {
 	 * @return the value of the '<em>Name</em>' attribute.
 	 * @see #setName(String)
 	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getSample_Name()
-	 * @model default="new_sample"
+	 * @model
 	 * @generated
 	 */
 	String getName();

@@ -123,7 +123,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * @generated
 	 * @ordered
 	 */
-	protected static final String NAME_EDEFAULT = "new_sample";
+	protected static final String NAME_EDEFAULT = null;
 
 	/**
 	 * The cached value of the '{@link #getName() <em>Name</em>}' attribute.

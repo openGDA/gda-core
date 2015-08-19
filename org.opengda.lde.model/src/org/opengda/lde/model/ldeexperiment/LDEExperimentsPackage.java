@@ -99,22 +99,13 @@ public interface LDEExperimentsPackage extends EPackage {
 	int EXPERIMENT_DEFINITION__EXPERIMENTS = 0;
 
 	/**
-	 * The feature id for the '<em><b>Filename</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int EXPERIMENT_DEFINITION__FILENAME = 1;
-
-	/**
 	 * The number of structural features of the '<em>Experiment Definition</em>' class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int EXPERIMENT_DEFINITION_FEATURE_COUNT = 2;
+	int EXPERIMENT_DEFINITION_FEATURE_COUNT = 1;
 
 	/**
 	 * The operation id for the '<em>Get Experiment</em>' operation.
@@ -711,17 +702,6 @@ public interface LDEExperimentsPackage extends EPackage {
 	 * @generated
 	 */
 	EReference getExperimentDefinition_Experiments();
-
-	/**
-	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.ExperimentDefinition#getFilename <em>Filename</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Filename</em>'.
-	 * @see org.opengda.lde.model.ldeexperiment.ExperimentDefinition#getFilename()
-	 * @see #getExperimentDefinition()
-	 * @generated
-	 */
-	EAttribute getExperimentDefinition_Filename();
 
 	/**
 	 * Returns the meta object for the '{@link org.opengda.lde.model.ldeexperiment.ExperimentDefinition#getExperiment(java.lang.String) <em>Get Experiment</em>}' operation.
@@ -1348,14 +1328,6 @@ public interface LDEExperimentsPackage extends EPackage {
 		 * @generated
 		 */
 		EReference EXPERIMENT_DEFINITION__EXPERIMENTS = eINSTANCE.getExperimentDefinition_Experiments();
-
-		/**
-		 * The meta object literal for the '<em><b>Filename</b></em>' attribute feature.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated
-		 */
-		EAttribute EXPERIMENT_DEFINITION__FILENAME = eINSTANCE.getExperimentDefinition_Filename();
 
 		/**
 		 * The meta object literal for the '<em><b>Get Experiment</b></em>' operation.

@@ -24,7 +24,6 @@
     <genDataTypes ecoreDataType="sampledefinition.ecore#//StageIDString"/>
     <genClasses ecoreClass="sampledefinition.ecore#//ExperimentDefinition">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference sampledefinition.ecore#//ExperimentDefinition/experiments"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//ExperimentDefinition/filename"/>
       <genOperations ecoreOperation="sampledefinition.ecore#//ExperimentDefinition/getExperiment">
         <genParameters ecoreParameter="sampledefinition.ecore#//ExperimentDefinition/getExperiment/name"/>
       </genOperations>
