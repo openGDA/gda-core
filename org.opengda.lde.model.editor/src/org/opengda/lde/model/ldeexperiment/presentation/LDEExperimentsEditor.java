@@ -54,6 +54,7 @@ import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.ui.MarkerHelper;
 import org.eclipse.emf.common.ui.ViewerPane;
 import org.eclipse.emf.common.ui.editor.ProblemEditorPart;
+import org.eclipse.emf.common.ui.viewer.ColumnViewerInformationControlToolTipSupport;
 import org.eclipse.emf.common.ui.viewer.IViewerProvider;
 import org.eclipse.emf.common.util.BasicDiagnostic;
 import org.eclipse.emf.common.util.Diagnostic;
@@ -76,6 +77,8 @@ import org.eclipse.emf.edit.ui.dnd.LocalTransfer;
 import org.eclipse.emf.edit.ui.dnd.ViewerDragAdapter;
 import org.eclipse.emf.edit.ui.provider.AdapterFactoryContentProvider;
 import org.eclipse.emf.edit.ui.provider.AdapterFactoryLabelProvider;
+import org.eclipse.emf.edit.ui.provider.DecoratingColumLabelProvider;
+import org.eclipse.emf.edit.ui.provider.DiagnosticDecorator;
 import org.eclipse.emf.edit.ui.provider.UnwrappingSelectionProvider;
 import org.eclipse.emf.edit.ui.util.EditUIMarkerHelper;
 import org.eclipse.emf.edit.ui.util.EditUIUtil;
@@ -131,9 +134,6 @@ import org.eclipse.ui.views.properties.PropertySheet;
 import org.eclipse.ui.views.properties.PropertySheetPage;
 import org.opengda.lde.model.editor.XMLEditor;
 import org.opengda.lde.model.ldeexperiment.provider.LDEExperimentsItemProviderAdapterFactory;
-import org.eclipse.emf.common.ui.viewer.ColumnViewerInformationControlToolTipSupport;
-import org.eclipse.emf.edit.ui.provider.DecoratingColumLabelProvider;
-import org.eclipse.emf.edit.ui.provider.DiagnosticDecorator;
 
 /**
  * This is an example of a LDEExperiments model editor.
@@ -990,7 +990,8 @@ public class LDEExperimentsEditor
 			return Diagnostic.OK_INSTANCE;
 		}
 	}
-	List<XMLEditor> editors=new ArrayList<XMLEditor>();
+
+	private XMLEditor editor;
 
 	/**
 	 * This is the method used by the framework to install your own controls.
@@ -1034,14 +1035,13 @@ public class LDEExperimentsEditor
 				setPageText(pageIndex, getString("_UI_DesignPage_label"));
 			}
 
-			// This is the page for the table viewer.
+			// This is the page for the XML viewer.
 			//
 			{
 				try {
-					XMLEditor editor = new XMLEditor();
+					editor = new XMLEditor();
 					int pageIndex = addPage(editor, getEditorInput());
 					setPageText(pageIndex,  getString("_UI_XMLPage_label"));
-					editors.add(editor);
 				} catch (PartInitException e) {
 					ErrorDialog.openError(getSite().getShell(), "Error creating nested XML editor", "Error add XML edtor to page '"+getString("_UI_XMLPage_label")+"'", e.getStatus());
 				}
@@ -1293,69 +1293,74 @@ public class LDEExperimentsEditor
 	 */
 	@Override
 	public boolean isDirty() {
-		return ((BasicCommandStack)editingDomain.getCommandStack()).isSaveNeeded() || super.isDirty();
+		return ((BasicCommandStack)editingDomain.getCommandStack()).isSaveNeeded() || editor.isDirty();
 	}
 
 	/**
 	 * This is for implementing {@link IEditorPart} and simply saves the model file.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	@Override
 	public void doSave(IProgressMonitor progressMonitor) {
-		// Save only resources that have actually changed.
-		//
-		final Map<Object, Object> saveOptions = new HashMap<Object, Object>();
-		saveOptions.put(Resource.OPTION_SAVE_ONLY_IF_CHANGED, Resource.OPTION_SAVE_ONLY_IF_CHANGED_MEMORY_BUFFER);
-		saveOptions.put(Resource.OPTION_LINE_DELIMITER, Resource.OPTION_LINE_DELIMITER_UNSPECIFIED);
-
-		// Do the work within an operation because this is a long running activity that modifies the workbench.
-		//
-		WorkspaceModifyOperation operation =
-			new WorkspaceModifyOperation() {
-				// This is the method that gets invoked when the operation runs.
-				//
-				@Override
-				public void execute(IProgressMonitor monitor) {
-					// Save the resources to the file system.
+		if (editor.isDirty()) {
+			editor.doSave(progressMonitor);
+		} else {
+			// Save only resources that have actually changed.
+			//
+			final Map<Object, Object> saveOptions = new HashMap<Object, Object>();
+			saveOptions.put(Resource.OPTION_SAVE_ONLY_IF_CHANGED, Resource.OPTION_SAVE_ONLY_IF_CHANGED_MEMORY_BUFFER);
+			saveOptions.put(Resource.OPTION_LINE_DELIMITER, Resource.OPTION_LINE_DELIMITER_UNSPECIFIED);
+	
+			// Do the work within an operation because this is a long running activity that modifies the workbench.
+			//
+			WorkspaceModifyOperation operation =
+				new WorkspaceModifyOperation() {
+					// This is the method that gets invoked when the operation runs.
 					//
-					boolean first = true;
-					for (Resource resource : editingDomain.getResourceSet().getResources()) {
-						if ((first || !resource.getContents().isEmpty() || isPersisted(resource)) && !editingDomain.isReadOnly(resource)) {
-							try {
-								long timeStamp = resource.getTimeStamp();
-								resource.save(saveOptions);
-								if (resource.getTimeStamp() != timeStamp) {
-									savedResources.add(resource);
+					@Override
+					public void execute(IProgressMonitor monitor) {
+						// Save the resources to the file system.
+						//
+						boolean first = true;
+						for (Resource resource : editingDomain.getResourceSet().getResources()) {
+							if ((first || !resource.getContents().isEmpty() || isPersisted(resource)) && !editingDomain.isReadOnly(resource)) {
+								try {
+									long timeStamp = resource.getTimeStamp();
+									resource.save(saveOptions);
+									if (resource.getTimeStamp() != timeStamp) {
+										savedResources.add(resource);
+									}
 								}
+								catch (Exception exception) {
+									resourceToDiagnosticMap.put(resource, analyzeResourceProblems(resource, exception));
+								}
+								first = false;
 							}
-							catch (Exception exception) {
-								resourceToDiagnosticMap.put(resource, analyzeResourceProblems(resource, exception));
-							}
-							first = false;
 						}
 					}
-				}
-			};
-
-		updateProblemIndication = false;
-		try {
-			// This runs the options, and shows progress.
-			//
-			new ProgressMonitorDialog(getSite().getShell()).run(true, false, operation);
-
-			// Refresh the necessary state.
-			//
-			((BasicCommandStack)editingDomain.getCommandStack()).saveIsDone();
-			firePropertyChange(IEditorPart.PROP_DIRTY);
+				};
+	
+			updateProblemIndication = false;
+			try {
+				// This runs the options, and shows progress.
+				//
+				new ProgressMonitorDialog(getSite().getShell()).run(true, false, operation);
+	
+				// Refresh the necessary state.
+				//
+				((BasicCommandStack)editingDomain.getCommandStack()).saveIsDone();
+				firePropertyChange(IEditorPart.PROP_DIRTY);
+			}
+			catch (Exception exception) {
+				// Something went wrong that shouldn't.
+				//
+				SampledefinitionEditorPlugin.INSTANCE.log(exception);
+			}
+			
+			updateProblemIndication = true;
 		}
-		catch (Exception exception) {
-			// Something went wrong that shouldn't.
-			//
-			SampledefinitionEditorPlugin.INSTANCE.log(exception);
-		}
-		updateProblemIndication = true;
 		updateProblemIndication();
 	}
 

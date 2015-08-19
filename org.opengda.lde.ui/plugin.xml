@@ -125,23 +125,6 @@
    </extension>
    <extension
          point="org.eclipse.ui.navigator.navigatorContent">
-      <actionProvider
-            class="org.opengda.lde.ui.actions.OpenLDEFileProvider"
-            id="org.opengda.lde.ui.actions.OpenLDEFileProvider"
-            overrides="org.eclipse.ui.navigator.resources.OpenActions"
-            priority="highest">
-         <enablement>
-            <and>
-               <instanceof
-                     value="org.eclipse.core.resources.IFile">
-               </instanceof>
-               <test
-                     property="org.eclipse.core.resources.extension"
-                     value="lde">
-               </test>
-            </and>
-         </enablement>
-      </actionProvider>
    </extension>
    <extension
          point="org.eclipse.ui.navigator.viewer">

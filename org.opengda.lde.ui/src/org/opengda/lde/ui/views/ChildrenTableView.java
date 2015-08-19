@@ -11,11 +11,7 @@ import java.util.List;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
-import org.apache.commons.io.FilenameUtils;
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -87,11 +83,10 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.ISaveablePart;
+import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.dialogs.SaveAsDialog;
 import org.eclipse.ui.internal.AnimationEngine;
 import org.eclipse.ui.part.ViewPart;
 import org.opengda.lde.events.CellChangedEvent;
@@ -138,7 +133,7 @@ import gda.jython.InterfaceProvider;
 import gda.jython.scriptcontroller.Scriptcontroller;
 import gda.observable.IObserver;
 
-public class ChildrenTableView extends ViewPart implements IEditingDomainProvider, ISelectionProvider, ISaveablePart, IObserver {
+public class ChildrenTableView extends ViewPart implements IEditingDomainProvider, ISelectionProvider, IObserver {
 
 	public static final String ID = "org.opengda.lde.ui.views.ChildrenTableView"; //$NON-NLS-1$
 	public static final String DATA_DRIVER = "dls";
@@ -185,7 +180,6 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 	private Image[] images;
 	private TableViewer childrenTableViewer;
 	protected int nameCount;
-	private boolean isDirty;
 	private Resource resource;
 	private Sample currentSample;
 	private long totalNumberOfPoints;
@@ -884,8 +878,9 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 				paused=false;
 				updateActionIconsState();
 				try {
-					if (isDirty()) {
-						doSave(new NullProgressMonitor());
+					IEditorPart activeEditor = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
+					if (activeEditor.isDirty()) {
+						activeEditor.doSave(new NullProgressMonitor());
 					}
 					InterfaceProvider.getCommandRunner().runCommand("datacollection.collectData("+getResUtil().getFileName()+")");
 				} catch (Exception e) {
@@ -1177,115 +1172,25 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 			super.notifyChanged(notification);
 			if (notification.getFeature() != null && !notification.getFeature().equals("null") && notification.getNotifier() != null
 					&& (!notification.getFeature().equals(LDEExperimentsPackage.eINSTANCE.getSample_Status()))) {
-				isDirty = true;
-				firePropertyChange(PROP_DIRTY);
+				//TODO what need here to sync view with editor???
 			}
 		}
 	};
 	private String[] stageIDs;
 
-	/**
-	 * refresh the table viewer with the sequence file name provided. If it is a new file, an empty sequence will be created.
-	 */
-	public void refreshTable(String seqFileName, boolean newFile) {
-		logger.debug("refresh table with file: {}{}", FilenameUtils.getFullPath(seqFileName), FilenameUtils.getName(seqFileName));
-		if (isDirty()) {
-//			InterfaceProvider.getCurrentScanController().pauseCurrentScan();
-			MessageDialog msgDialog = new MessageDialog(getViewSite().getShell(), "Unsaved Data", null,
-					"Current sample list contains unsaved data. Do you want to save them first?", MessageDialog.WARNING, new String[] { "Yes", "No" }, 0);
-			int result = msgDialog.open();
-			if (result == 0) {
-				doSave(new NullProgressMonitor());
-			} else {
-				isDirty = false;
-				firePropertyChange(PROP_DIRTY);
-			}
-//			InterfaceProvider.getCurrentScanController().resumeCurrentScan();
-		}
-		try {
-			resource.eAdapters().remove(notifyListener); // remove old resource listener
-			resUtil.setFileName(seqFileName);
-			if (newFile) {
-				resUtil.createExperiments()
-				;
-			}
-			resource = resUtil.getResource();
-			childrenTableViewer.setInput(resUtil.getSamples());
-			resource.eAdapters().add(notifyListener);
 
-			// update existing sample list
-			samples = resUtil.getSamples();
-			for (Sample sample : samples) {
-				if (sample.isActive()) {
-					currentSample=sample;
-					break;
-				}
-			}
-		} catch (Exception e) {
-			logger.error("Cannot refresh table.", e);
-		}
-	}	
 
 	@Override
 	public void dispose() {
 		try {
 			resUtil.getResource().eAdapters().remove(notifyListener);
-//			getViewSite().getWorkbenchWindow().getSelectionService().removeSelectionListener(SampleViewExtensionFactory.ID, selectionListener);
+			getViewSite().getWorkbenchWindow().getSelectionService().removeSelectionListener(LDEExperimentsEditor.ID, selectionListener);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		super.dispose();
 	}
 	
-	@Override
-	public void doSave(IProgressMonitor monitor) {
-		// TODO Auto-generated method stub
-		try {
-			resUtil.getResource().save(null);
-			isDirty = false;
-			firePropertyChange(PROP_DIRTY);
-		} catch (IOException e) {
-			logger.error("Cannot save the resource to a file.", e);
-		} catch (Exception e) {
-			logger.error("Cannot get resource from resUtil.", e);
-		}
-	}
-	@Override
-	public void doSaveAs() {
-		Resource resource = null;
-		try {
-			resource = resUtil.getResource();
-		} catch (Exception e1) {
-			logger.error("Cannot get resource from resUtil.", e1);
-		}
-		SaveAsDialog saveAsDialog = new SaveAsDialog(getSite().getShell());
-		saveAsDialog.open();
-		IPath path = saveAsDialog.getResult();
-		if (path != null) {
-			IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(path);
-			if (file != null && resource != null) {
-				String newFilename = file.getLocation().toOSString();
-				resUtil.saveAs(resource, newFilename);
-				isDirty = false;
-				firePropertyChange(PROP_DIRTY);
-				refreshTable(newFilename, false);
-			}
-		}
-	}
-	
-	@Override
-	public boolean isDirty() {
-		return isDirty;
-	}
-	@Override
-	public boolean isSaveAsAllowed() {
-		return true;
-	}
-	@Override
-	public boolean isSaveOnCloseNeeded() {
-		return true;
-	}
-
 	@Override
 	public void addSelectionChangedListener(ISelectionChangedListener listener) {
 		selectionChangedListeners.add(listener);		
