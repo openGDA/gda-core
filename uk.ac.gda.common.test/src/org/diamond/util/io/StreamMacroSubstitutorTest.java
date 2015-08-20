@@ -47,7 +47,7 @@ public class StreamMacroSubstitutorTest {
 			+ "<File>"
 			+ "${my.file.macro}/log.txt"
 			+ "</File>"
-			+ "<layout class='ch.qos.logback.classic.PatternLayout'><pattern>%-5level %logger %ex - %m%n</pattern></layout></appender>"
+			+ "<layout class='ch.qos.logback.classic.PatternLayout'><pattern>%-5level %logger %rEx - %m%n</pattern></layout></appender>"
 			+ "${my.file.macro1}${my.file.macro}<logger name='gda'><level value='INFO'/></logger>"
 			+ "<root><level value='ALL'/><appender-ref ref='DebugFILE'/></root></configuration>";
 		final HashMap<String, String> map = new HashMap<String, String>();
