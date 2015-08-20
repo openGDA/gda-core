@@ -19,25 +19,6 @@
 
 package gda.data.scan.datawriter;
 
-import gda.configuration.properties.LocalProperties;
-import gda.data.NumTracker;
-import gda.data.PathConstructor;
-import gda.data.metadata.GDAMetadataProvider;
-import gda.data.metadata.IMetadataEntry;
-import gda.data.metadata.Metadata;
-import gda.data.nexus.INeXusInfoWriteable;
-import gda.data.nexus.NexusUtils;
-import gda.data.nexus.extractor.NexusExtractor;
-import gda.data.nexus.extractor.NexusGroupData;
-import gda.data.nexus.tree.INexusTree;
-import gda.data.nexus.tree.NexusTreeProvider;
-import gda.device.Detector;
-import gda.device.DeviceException;
-import gda.device.Scannable;
-import gda.device.detector.NexusDetector;
-import gda.device.scannable.ScannableUtils;
-import gda.scan.IScanDataPoint;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -61,6 +42,25 @@ import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
 import org.python.core.PyList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.configuration.properties.LocalProperties;
+import gda.data.NumTracker;
+import gda.data.PathConstructor;
+import gda.data.metadata.GDAMetadataProvider;
+import gda.data.metadata.IMetadataEntry;
+import gda.data.metadata.Metadata;
+import gda.data.nexus.INeXusInfoWriteable;
+import gda.data.nexus.NexusUtils;
+import gda.data.nexus.extractor.NexusExtractor;
+import gda.data.nexus.extractor.NexusGroupData;
+import gda.data.nexus.tree.INexusTree;
+import gda.data.nexus.tree.NexusTreeProvider;
+import gda.device.Detector;
+import gda.device.DeviceException;
+import gda.device.Scannable;
+import gda.device.detector.NexusDetector;
+import gda.device.scannable.ScannableUtils;
+import gda.scan.IScanDataPoint;
 
 /**
  * DataWriter that outputs NeXus files and optionally a SRS/Text file as well.
@@ -641,10 +641,12 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 	 * Does nothing otherwise.
 	 * @throws NexusException
 	 */
+	@SuppressWarnings("unused")
 	protected void createCustomMetaData() throws NexusException {
 	}
 
-	private String getGroupNameFor(Scannable s) {
+	private String getGroupNameFor(@SuppressWarnings("unused") Scannable s) {
+		// FIXME Either use 's', or replace this method with a String constant
 		String groupName = "NXpositioner";
 		return groupName;
 	}

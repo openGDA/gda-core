@@ -39,24 +39,42 @@ public class PropertyPlaceholderConfigurerTest extends TestCase {
 	}
 
 	public void testPropertyPlaceholderElementCanAppearAfterBeanDefinitionUsingPlaceholder() throws Exception {
-		File f = TestUtils.getResourceAsFile(PropertyPlaceholderConfigurerTest.class, "placeholder-test-1.xml");
-		FileSystemXmlApplicationContext x = new FileSystemXmlApplicationContext("file:" + f.getAbsolutePath());
-		Bean b = (Bean) x.getBean("b");
-		assertEquals("value", b.name);
+		FileSystemXmlApplicationContext x = null;
+		try {
+			File f = TestUtils.getResourceAsFile(PropertyPlaceholderConfigurerTest.class, "placeholder-test-1.xml");
+			x = new FileSystemXmlApplicationContext("file:" + f.getAbsolutePath());
+			Bean b = (Bean) x.getBean("b");
+			assertEquals("value", b.name);
+		} finally {
+			if (x != null)
+				x.close();
+		}
 	}
 
 	public void testPropertyPlaceholderElementAffectsImportedBeanDefinitions() throws Exception {
-		File f = TestUtils.getResourceAsFile(PropertyPlaceholderConfigurerTest.class, "placeholder-test-2a.xml");
-		FileSystemXmlApplicationContext x = new FileSystemXmlApplicationContext("file:" + f.getAbsolutePath());
-		Bean b = (Bean) x.getBean("b");
-		assertEquals("value", b.name);
+		FileSystemXmlApplicationContext x = null;
+		try {
+			File f = TestUtils.getResourceAsFile(PropertyPlaceholderConfigurerTest.class, "placeholder-test-2a.xml");
+			x = new FileSystemXmlApplicationContext("file:" + f.getAbsolutePath());
+			Bean b = (Bean) x.getBean("b");
+			assertEquals("value", b.name);
+		} finally {
+			if (x != null)
+				x.close();
+		}
 	}
 
 	public void testImportedPropertyPlaceholderElementAffectsNonImportedBeanDefinitions() throws Exception {
-		File f = TestUtils.getResourceAsFile(PropertyPlaceholderConfigurerTest.class, "placeholder-test-3a.xml");
-		FileSystemXmlApplicationContext x = new FileSystemXmlApplicationContext("file:" + f.getAbsolutePath());
-		Bean b = (Bean) x.getBean("b");
-		assertEquals("value", b.name);
+		FileSystemXmlApplicationContext x = null;
+		try {
+			File f = TestUtils.getResourceAsFile(PropertyPlaceholderConfigurerTest.class, "placeholder-test-3a.xml");
+			x = new FileSystemXmlApplicationContext("file:" + f.getAbsolutePath());
+			Bean b = (Bean) x.getBean("b");
+			assertEquals("value", b.name);
+		} finally {
+			if (x != null)
+				x.close();
+		}
 	}
 
 }

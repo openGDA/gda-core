@@ -19,10 +19,6 @@
 
 package gda.util;
 
-import gda.observable.IObservable;
-import gda.observable.IObserver;
-import gda.observable.ObservableComponent;
-
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
@@ -31,10 +27,14 @@ import javax.swing.JComboBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.observable.IObservable;
+import gda.observable.IObserver;
+import gda.observable.ObservableComponent;
+
 /**
  * Is a JComboBox which allows selection of a space group based on bravais lattice.
  */
-public class BravaisLatticeComboBox extends JComboBox implements IObservable, ItemListener {
+public class BravaisLatticeComboBox extends JComboBox<Group>implements IObservable, ItemListener {
 
 	private static final Logger logger = LoggerFactory.getLogger(BravaisLatticeComboBox.class);
 
@@ -137,7 +137,7 @@ public class BravaisLatticeComboBox extends JComboBox implements IObservable, It
 		logger.info("Setting space group to " + spaceGroup);
 
 		for (int i = 0; i < getItemCount(); i++) {
-			if (((Group) getItemAt(i)).getDefault().equals(spaceGroup)) {
+			if (getItemAt(i).getDefault().equals(spaceGroup)) {
 				setSelectedIndex(i);
 				break;
 			}

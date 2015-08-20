@@ -25,22 +25,6 @@ import static gda.jython.InterfaceProvider.getJythonServerNotifer;
 import static gda.jython.InterfaceProvider.getScanStatusHolder;
 import static gda.jython.InterfaceProvider.getTerminalPrinter;
 import static gda.scan.ScanDataPoint.handleZeroInputExtraNameDevice;
-import gda.configuration.properties.LocalProperties;
-import gda.data.NumTracker;
-import gda.data.scan.datawriter.DataWriter;
-import gda.data.scan.datawriter.DefaultDataWriterFactory;
-import gda.device.Detector;
-import gda.device.DeviceException;
-import gda.device.Scannable;
-import gda.device.scannable.PositionCallableProvider;
-import gda.device.scannable.ScannableBase;
-import gda.device.scannable.ScannableUtils;
-import gda.jython.InterfaceProvider;
-import gda.jython.Jython;
-import gda.jython.JythonServer.JythonServerThread;
-import gda.scan.Scan.ScanStatus;
-import gda.util.OSCommandRunner;
-import gda.util.ScannableLevelComparator;
 
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -58,6 +42,22 @@ import org.python.core.PyException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
+import gda.data.NumTracker;
+import gda.data.scan.datawriter.DataWriter;
+import gda.data.scan.datawriter.DefaultDataWriterFactory;
+import gda.device.Detector;
+import gda.device.DeviceException;
+import gda.device.Scannable;
+import gda.device.scannable.PositionCallableProvider;
+import gda.device.scannable.ScannableBase;
+import gda.device.scannable.ScannableUtils;
+import gda.jython.InterfaceProvider;
+import gda.jython.Jython;
+import gda.jython.JythonServer.JythonServerThread;
+import gda.scan.Scan.ScanStatus;
+import gda.util.OSCommandRunner;
+import gda.util.ScannableLevelComparator;
 import uk.ac.gda.util.ThreadManager;
 
 /**
@@ -461,6 +461,7 @@ public abstract class ScanBase implements NestableScan {
 	 * @throws ExecutionException
 	 * @throws InterruptedException
 	 */
+	@SuppressWarnings("unused")
 	public void waitForDetectorReadoutAndPublishCompletion() throws InterruptedException, ExecutionException {
 		// Do nothing as readoutDetectorsAndPublish blocks until complete.
 	}
@@ -540,6 +541,7 @@ public abstract class ScanBase implements NestableScan {
 	 *
 	 * @throws DeviceException
 	 */
+	@SuppressWarnings("unused")
 	protected void endScan() throws DeviceException, InterruptedException {
 
 		// if the interrupt was set
@@ -1017,7 +1019,7 @@ public abstract class ScanBase implements NestableScan {
 				scanNumber = runNumber.incrementNumber();
 			}
 		}  else if (isChild()){
-			// assume that the outermost scan in a nest of scans would have its scan number defined before 
+			// assume that the outermost scan in a nest of scans would have its scan number defined before
 			// prepareScanForCollection() called on any of the inner scans
 			scanNumber = getOuterMostScan().getScanNumber();
 		}

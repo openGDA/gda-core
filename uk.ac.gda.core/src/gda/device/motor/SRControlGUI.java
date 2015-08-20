@@ -19,10 +19,16 @@
 
 package gda.device.motor;
 
-import gda.device.DeviceException;
-
+import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+
+import gda.device.DeviceException;
 
 /**
  * To change the template for this generated type comment go to Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code
@@ -31,45 +37,45 @@ import javax.swing.SwingConstants;
 public class SRControlGUI extends JFrame {
 	private static SRControl SRC;
 
-	private javax.swing.JPanel jContentPane = null;
+	private JPanel jContentPane = null;
 
-	private javax.swing.JPanel jPanel = null;
+	private JPanel jPanel = null;
 
-	private javax.swing.JButton jButton = null;
+	private JButton jButton = null;
 
-	private javax.swing.JButton jButton1 = null;
+	private JButton jButton1 = null;
 
-	private javax.swing.JButton jButton2 = null;
+	private JButton jButton2 = null;
 
-	private javax.swing.JPanel jPanel1 = null;
+	private JPanel jPanel1 = null;
 
-	private javax.swing.JLabel jLabel = null;
+	private JLabel jLabel = null;
 
-	private javax.swing.JTextField jTextField = null;
+	private JTextField jTextField = null;
 
-	private javax.swing.JLabel jLabel1 = null;
+	private JLabel jLabel1 = null;
 
-	private javax.swing.JTextField jTextField1 = null;
+	private JTextField jTextField1 = null;
 
-	private javax.swing.JLabel jLabel2 = null;
+	private JLabel jLabel2 = null;
 
-	private javax.swing.JTextField jTextField2 = null;
+	private JTextField jTextField2 = null;
 
-	private javax.swing.JPanel jPanel2 = null;
+	private JPanel jPanel2 = null;
 
-	private javax.swing.JLabel jLabel3 = null;
+	private JLabel jLabel3 = null;
 
-	private javax.swing.JLabel jLabel4 = null;
+	private JLabel jLabel4 = null;
 
-	private javax.swing.JTextField jTextField3 = null;
+	private JTextField jTextField3 = null;
 
-	private javax.swing.JTextField jTextField4 = null;
+	private JTextField jTextField4 = null;
 
-	private javax.swing.JButton jButton3 = null;
+	private JButton jButton3 = null;
 
-	private javax.swing.JList jList = null;
+	private JList<?> jList = null;
 
-	private javax.swing.JComboBox jComboBox = null;
+	private JComboBox<String> jComboBox = null;
 
 	/**
 	 * @param args
@@ -89,23 +95,21 @@ public class SRControlGUI extends JFrame {
 	}
 
 	/**
-	 * This method initializes this
+	 * This method initialises this
 	 */
 	private void initialize() {
 		this.setSize(300, 150);
 		this.setContentPane(getJContentPane());
-		this.setDefaultCloseOperation(javax.swing.JFrame.EXIT_ON_CLOSE);
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setVisible(true);
 	}
 
 	/**
-	 * This method initializes jContentPane
-	 *
-	 * @return javax.swing.JPanel
+	 * This method initialises jContentPane @return javax.swing.JPanel
 	 */
-	private javax.swing.JPanel getJContentPane() {
+	private JPanel getJContentPane() {
 		if (jContentPane == null) {
-			jContentPane = new javax.swing.JPanel();
+			jContentPane = new JPanel();
 			jContentPane.setLayout(new java.awt.BorderLayout());
 			jContentPane.add(getJPanel1(), java.awt.BorderLayout.NORTH);
 			jContentPane.add(getJPanel2(), java.awt.BorderLayout.CENTER);
@@ -114,13 +118,11 @@ public class SRControlGUI extends JFrame {
 	}
 
 	/**
-	 * This method initializes jPanel
-	 *
-	 * @return javax.swing.JPanel
+	 * This method initialises jPanel @return javax.swing.JPanel
 	 */
-	private javax.swing.JPanel getJPanel() {
+	private JPanel getJPanel() {
 		if (jPanel == null) {
-			jPanel = new javax.swing.JPanel();
+			jPanel = new JPanel();
 			jPanel.add(getJButton3(), null);
 			jPanel.add(getJButton(), null);
 			jPanel.add(getJButton1(), null);
@@ -130,13 +132,11 @@ public class SRControlGUI extends JFrame {
 	}
 
 	/**
-	 * This method initializes jButton
-	 *
-	 * @return javax.swing.JButton
+	 * This method initialises jButton @return javax.swing.JButton
 	 */
-	private javax.swing.JButton getJButton() {
+	private JButton getJButton() {
 		if (jButton == null) {
-			jButton = new javax.swing.JButton();
+			jButton = new JButton();
 			jButton.setText("Read");
 			jButton.setEnabled(true);
 			jButton.addActionListener(new java.awt.event.ActionListener() {
@@ -193,13 +193,11 @@ public class SRControlGUI extends JFrame {
 	}
 
 	/**
-	 * This method initializes jButton1
-	 *
-	 * @return javax.swing.JButton
+	 * This method initialises jButton1 @return javax.swing.JButton
 	 */
-	private javax.swing.JButton getJButton1() {
+	private JButton getJButton1() {
 		if (jButton1 == null) {
-			jButton1 = new javax.swing.JButton();
+			jButton1 = new JButton();
 			jButton1.setText("Write");
 			jButton1.setEnabled(true);
 			jButton1.addActionListener(new java.awt.event.ActionListener() {
@@ -237,13 +235,11 @@ public class SRControlGUI extends JFrame {
 	}
 
 	/**
-	 * This method initializes jButton2
-	 *
-	 * @return javax.swing.JButton
+	 * This method initialises jButton2 @return javax.swing.JButton
 	 */
-	private javax.swing.JButton getJButton2() {
+	private JButton getJButton2() {
 		if (jButton2 == null) {
-			jButton2 = new javax.swing.JButton();
+			jButton2 = new JButton();
 			jButton2.setText("Quit");
 			jButton2.addActionListener(new java.awt.event.ActionListener() {
 				@Override
@@ -256,13 +252,11 @@ public class SRControlGUI extends JFrame {
 	}
 
 	/**
-	 * This method initializes jPanel1
-	 *
-	 * @return javax.swing.JPanel
+	 * This method initialises jPanel1 @return javax.swing.JPanel
 	 */
-	private javax.swing.JPanel getJPanel1() {
+	private JPanel getJPanel1() {
 		if (jPanel1 == null) {
-			jPanel1 = new javax.swing.JPanel();
+			jPanel1 = new JPanel();
 			jPanel1.add(getJLabel(), null);
 			jPanel1.add(getJTextField(), null);
 			jPanel1.add(getJLabel1(), null);
@@ -274,26 +268,22 @@ public class SRControlGUI extends JFrame {
 	}
 
 	/**
-	 * This method initializes jLabel
-	 *
-	 * @return javax.swing.JLabel
+	 * This method initialises jLabel @return javax.swing.JLabel
 	 */
-	private javax.swing.JLabel getJLabel() {
+	private JLabel getJLabel() {
 		if (jLabel == null) {
-			jLabel = new javax.swing.JLabel();
+			jLabel = new JLabel();
 			jLabel.setText("Parameter   ");
 		}
 		return jLabel;
 	}
 
 	/**
-	 * This method initializes jTextField
-	 *
-	 * @return javax.swing.JTextField
+	 * This method initialises jTextField @return javax.swing.JTextField
 	 */
-	private javax.swing.JTextField getJTextField() {
+	private JTextField getJTextField() {
 		if (jTextField == null) {
-			jTextField = new javax.swing.JTextField();
+			jTextField = new JTextField();
 			jTextField.setPreferredSize(new java.awt.Dimension(30, 20));
 			jTextField.setHorizontalAlignment(SwingConstants.CENTER);
 			jTextField.setText("TST");
@@ -302,26 +292,22 @@ public class SRControlGUI extends JFrame {
 	}
 
 	/**
-	 * This method initializes jLabel1
-	 *
-	 * @return javax.swing.JLabel
+	 * This method initialises jLabel1 @return javax.swing.JLabel
 	 */
-	private javax.swing.JLabel getJLabel1() {
+	private JLabel getJLabel1() {
 		if (jLabel1 == null) {
-			jLabel1 = new javax.swing.JLabel();
+			jLabel1 = new JLabel();
 			jLabel1.setText(".");
 		}
 		return jLabel1;
 	}
 
 	/**
-	 * This method initializes jTextField1
-	 *
-	 * @return javax.swing.JTextField
+	 * This method initialises jTextField1 @return javax.swing.JTextField
 	 */
-	private javax.swing.JTextField getJTextField1() {
+	private JTextField getJTextField1() {
 		if (jTextField1 == null) {
-			jTextField1 = new javax.swing.JTextField();
+			jTextField1 = new JTextField();
 			jTextField1.setHorizontalAlignment(SwingConstants.CENTER);
 			jTextField1.setPreferredSize(new java.awt.Dimension(50, 20));
 			jTextField1.setText("PARM");
@@ -330,26 +316,22 @@ public class SRControlGUI extends JFrame {
 	}
 
 	/**
-	 * This method initializes jLabel2
-	 *
-	 * @return javax.swing.JLabel
+	 * This method initialises jLabel2 @return javax.swing.JLabel
 	 */
-	private javax.swing.JLabel getJLabel2() {
+	private JLabel getJLabel2() {
 		if (jLabel2 == null) {
-			jLabel2 = new javax.swing.JLabel();
+			jLabel2 = new JLabel();
 			jLabel2.setText(".");
 		}
 		return jLabel2;
 	}
 
 	/**
-	 * This method initializes jTextField2
-	 *
-	 * @return javax.swing.JTextField
+	 * This method initialises jTextField2 @return javax.swing.JTextField
 	 */
-	private javax.swing.JTextField getJTextField2() {
+	private JTextField getJTextField2() {
 		if (jTextField2 == null) {
-			jTextField2 = new javax.swing.JTextField();
+			jTextField2 = new JTextField();
 			jTextField2.setPreferredSize(new java.awt.Dimension(25, 20));
 			jTextField2.setHorizontalAlignment(SwingConstants.CENTER);
 			jTextField2.setText("01");
@@ -358,13 +340,11 @@ public class SRControlGUI extends JFrame {
 	}
 
 	/**
-	 * This method initializes jPanel2
-	 *
-	 * @return javax.swing.JPanel
+	 * This method initialises jPanel2 @return javax.swing.JPanel
 	 */
-	private javax.swing.JPanel getJPanel2() {
+	private JPanel getJPanel2() {
 		if (jPanel2 == null) {
-			jPanel2 = new javax.swing.JPanel();
+			jPanel2 = new JPanel();
 			jPanel2.add(getJLabel3(), null);
 			jPanel2.add(getJComboBox(), null);
 			jPanel2.add(getJList(), null);
@@ -378,39 +358,33 @@ public class SRControlGUI extends JFrame {
 	}
 
 	/**
-	 * This method initializes jLabel3
-	 *
-	 * @return javax.swing.JLabel
+	 * This method initialises jLabel3 @return javax.swing.JLabel
 	 */
-	private javax.swing.JLabel getJLabel3() {
+	private JLabel getJLabel3() {
 		if (jLabel3 == null) {
-			jLabel3 = new javax.swing.JLabel();
+			jLabel3 = new JLabel();
 			jLabel3.setText("Property");
 		}
 		return jLabel3;
 	}
 
 	/**
-	 * This method initializes jLabel4
-	 *
-	 * @return javax.swing.JLabel
+	 * This method initialises jLabel4 @return javax.swing.JLabel
 	 */
-	private javax.swing.JLabel getJLabel4() {
+	private JLabel getJLabel4() {
 		if (jLabel4 == null) {
-			jLabel4 = new javax.swing.JLabel();
+			jLabel4 = new JLabel();
 			jLabel4.setText("     Value");
 		}
 		return jLabel4;
 	}
 
 	/**
-	 * This method initializes jTextField3
-	 *
-	 * @return javax.swing.JTextField
+	 * This method initialises jTextField3 @return javax.swing.JTextField
 	 */
-	private javax.swing.JTextField getJTextField3() {
+	private JTextField getJTextField3() {
 		if (jTextField3 == null) {
-			jTextField3 = new javax.swing.JTextField();
+			jTextField3 = new JTextField();
 			jTextField3.setPreferredSize(new java.awt.Dimension(40, 20));
 			jTextField3.setHorizontalAlignment(SwingConstants.CENTER);
 			jTextField3.setText("1");
@@ -419,26 +393,22 @@ public class SRControlGUI extends JFrame {
 	}
 
 	/**
-	 * This method initializes jTextField4
-	 *
-	 * @return javax.swing.JTextField
+	 * This method initialises jTextField4 @return javax.swing.JTextField
 	 */
-	private javax.swing.JTextField getJTextField4() {
+	private JTextField getJTextField4() {
 		if (jTextField4 == null) {
-			jTextField4 = new javax.swing.JTextField();
+			jTextField4 = new JTextField();
 			jTextField4.setPreferredSize(new java.awt.Dimension(280, 20));
 		}
 		return jTextField4;
 	}
 
 	/**
-	 * This method initializes jButton3
-	 *
-	 * @return javax.swing.JButton
+	 * This method initialises jButton3 @return javax.swing.JButton
 	 */
-	private javax.swing.JButton getJButton3() {
+	private JButton getJButton3() {
 		if (jButton3 == null) {
-			jButton3 = new javax.swing.JButton();
+			jButton3 = new JButton();
 			jButton3.setText("Init");
 			jButton3.addActionListener(new java.awt.event.ActionListener() {
 				@Override
@@ -461,25 +431,21 @@ public class SRControlGUI extends JFrame {
 	}
 
 	/**
-	 * This method initializes jList
-	 *
-	 * @return javax.swing.JList
+	 * This method initialises jList @return javax.swing.JList
 	 */
-	private javax.swing.JList getJList() {
+	private JList<?> getJList() {
 		if (jList == null) {
-			jList = new javax.swing.JList();
+			jList = new JList<>();
 		}
 		return jList;
 	}
 
 	/**
-	 * This method initializes jComboBox
-	 *
-	 * @return javax.swing.JComboBox
+	 * This method initialises jComboBox @return javax.swing.JComboBox
 	 */
-	private javax.swing.JComboBox getJComboBox() {
+	private JComboBox<String> getJComboBox() {
 		if (jComboBox == null) {
-			jComboBox = new javax.swing.JComboBox();
+			jComboBox = new JComboBox<>();
 			jComboBox.setComponentOrientation(java.awt.ComponentOrientation.LEFT_TO_RIGHT);
 			jComboBox.setMinimumSize(new java.awt.Dimension(100, 25));
 			jComboBox.setPreferredSize(new java.awt.Dimension(70, 20));

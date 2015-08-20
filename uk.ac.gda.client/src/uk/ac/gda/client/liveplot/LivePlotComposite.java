@@ -168,14 +168,14 @@ public class LivePlotComposite extends Composite {
 	 * @param partName
 	 * @param toolbarActions
 	 */
-	void createAndRegisterPlotActions(final Composite parent, IActionBars actionBars, String partName,
+	void createAndRegisterPlotActions(@SuppressWarnings("unused") final Composite parent, IActionBars actionBars, @SuppressWarnings("unused") String partName,
 		final List<IAction> toolbarActions) {
 
 		for (IAction iAction : toolbarActions) {
 			actionBars.getToolBarManager().add(iAction);
 		}
 
-// TODO Get this working. Is there a ticket associated with this. What is the dialog's purpose.
+		// FIXME Get this working. Is there a ticket associated with this. What is the dialog's purpose.
 //			@Override
 //			public void plotActionPerformed(final PlotActionEvent event) {
 //				if (event instanceof PlotActionComplexEvent) {

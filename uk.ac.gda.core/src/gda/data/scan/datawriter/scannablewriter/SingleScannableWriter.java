@@ -74,7 +74,7 @@ public class SingleScannableWriter implements ScannableWriter {
 		throw new ArrayIndexOutOfBoundsException();
 	}
 
-	protected ComponentWriter getComponentWriter(final Scannable s, final String componentName, final Object object) {
+	protected ComponentWriter getComponentWriter(@SuppressWarnings("unused") final Scannable s, final String componentName, final Object object) {
 
 		final Map<String, ComponentWriter> cwmap = getCwriter();
 
@@ -122,11 +122,8 @@ public class SingleScannableWriter implements ScannableWriter {
 
 				final Object componentObject = getComponentObject(s, position, i);
 				final ComponentWriter cw = getComponentWriter(s, componentName, componentObject);
-				final Collection<SelfCreatingLink> compLinks = cw.makeComponent(file, group, dim, getPaths()[i], s.getName(),
-						componentName, componentObject, unit);
-				if (cw != null) {
-					sclc.addAll(compLinks);
-				}
+				cw.makeComponent(file, group, dim, getPaths()[i], s.getName(), componentName, componentObject,
+						unit);
 
 			} catch (final Exception e) {
 				LOGGER.error("error converting scannable data", e);
@@ -150,7 +147,7 @@ public class SingleScannableWriter implements ScannableWriter {
 		}
 	}
 
-	protected Object getComponentObject(final Scannable s, final Object position, final int i) {
+	protected Object getComponentObject(@SuppressWarnings("unused") final Scannable s, final Object position, final int i) {
 		return getArrayObject(position)[i];
 	}
 

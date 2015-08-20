@@ -19,16 +19,6 @@
 
 package gda.device.scannable.scannablegroup;
 
-import gda.device.DeviceException;
-import gda.device.Scannable;
-import gda.device.ScannableMotion;
-import gda.device.ScannableMotionUnits;
-import gda.device.scannable.PositionConvertorFunctions;
-import gda.device.scannable.ScannableBase;
-import gda.device.scannable.component.PositionValidator;
-import gda.factory.FactoryException;
-import gda.observable.IObserver;
-
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,8 +29,16 @@ import java.util.Map.Entry;
 
 import org.jscience.physics.quantities.Quantity;
 import org.python.core.PyString;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import gda.device.DeviceException;
+import gda.device.Scannable;
+import gda.device.ScannableMotion;
+import gda.device.ScannableMotionUnits;
+import gda.device.scannable.PositionConvertorFunctions;
+import gda.device.scannable.ScannableBase;
+import gda.device.scannable.component.PositionValidator;
+import gda.factory.FactoryException;
+import gda.observable.IObserver;
 /**
  * Works with the ICoordinateChildScannable interface to trigger a coordinated move.
  */
@@ -511,7 +509,6 @@ interface ICoordinatedScannableGroupChildScannable extends ICoordinatedChildScan
 class CoordinatedChildScannable extends ScannableBase implements Scannable, ICoordinatedScannableGroupChildScannable {
 
 	// ScannableBAse provides Jython functionality, e.g. __call__
-	private static final Logger logger = LoggerFactory.getLogger(ScannableBase.class);
 
 	protected ICoordinatedParentScannable group;
 	protected Scannable delegate;

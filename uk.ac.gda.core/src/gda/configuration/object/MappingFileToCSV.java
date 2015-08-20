@@ -45,7 +45,7 @@ public class MappingFileToCSV {
 	 *            the name of a CSV file to write out.
 	 */
 	public static void dumpMappingFileDataToCSV(String fileName, String outFileName) {
-		try {
+		try (FileOutputStream f = new FileOutputStream(outFileName)) {
 			String tmp = "";
 			String comma = ",";
 			String newline = "\r\n";
@@ -53,9 +53,6 @@ public class MappingFileToCSV {
 			// read in mapping file
 			Mapping mapping = new Mapping();
 			mapping.loadMapping(fileName);
-
-			// create output file
-			FileOutputStream f = new FileOutputStream(outFileName);
 
 			// write column headers to file
 			String headers = "Class,(XML) Name,Parent Class/Attribute,"
@@ -92,11 +89,9 @@ public class MappingFileToCSV {
 			}
 
 		} catch (MappingException me) {
-			logger.debug("dumpMappingFileDataToCSV mapping exception" + me.getMessage());
-			logger.debug(me.getStackTrace().toString());
+			logger.error("dumpMappingFileDataToCSV mapping exception", me);
 		} catch (IOException ie) {
-			logger.debug("dumpMappingFileDataToCSV IO exception" + ie.getMessage());
-			logger.debug(ie.getStackTrace().toString());
+			logger.error("dumpMappingFileDataToCSV IO exception", ie);
 		}
 	}
 }

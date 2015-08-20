@@ -39,8 +39,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This class communicates with the Jython Server via Corba and can act as a terminal to receive Jython output. This
- * class is intended to be used for clients of the CommandServer other than the GDA client.
+ * This class communicates with the Jython Server via Corba and can act as a terminal to receive Jython output. This class is intended to be used for clients of
+ * the CommandServer other than the GDA client.
  */
 public class ExternalJavaClient implements Terminal
 
@@ -62,7 +62,6 @@ public class ExternalJavaClient implements Terminal
 
 	/**
 	 * @throws FactoryException
-	 *
 	 */
 	public ExternalJavaClient() throws FactoryException {
 
@@ -90,8 +89,8 @@ public class ExternalJavaClient implements Terminal
 	/**
 	 * Run a command.
 	 *
-	 * @param comm -
-	 *            the command to run.
+	 * @param comm
+	 *            - the command to run.
 	 */
 	public void send(String comm) {
 		dataBuffer.clear();
@@ -161,11 +160,8 @@ public class ExternalJavaClient implements Terminal
 		String fileURL = "C:\\users\\data" + File.separator + filename;
 		boolean dataReady = false;
 		Vector<String[]> buffer = new Vector<String[]>();
-		@SuppressWarnings("unused")
-		String columnNames = null;
 		String[][] data = null;
-		try {
-			BufferedReader reader = new BufferedReader(new FileReader(fileURL));
+		try (BufferedReader reader = new BufferedReader(new FileReader(fileURL))) {
 			while (true) {
 				String line = reader.readLine();
 				// Message.debug("The String is " + line);
@@ -188,7 +184,7 @@ public class ExternalJavaClient implements Terminal
 					continue;
 				if (line.startsWith("&END")) {
 					dataReady = true;
-					columnNames = reader.readLine();
+					reader.readLine();
 				}
 
 			}

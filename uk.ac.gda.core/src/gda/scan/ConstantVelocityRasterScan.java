@@ -18,16 +18,13 @@
 
 package gda.scan;
 
-import gda.device.DeviceException;
-import gda.device.continuouscontroller.ConstantVelocityRasterMoveController;
-import gda.device.scannable.PositionConvertorFunctions;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import gda.device.DeviceException;
+import gda.device.continuouscontroller.ConstantVelocityRasterMoveController;
+import gda.device.scannable.PositionConvertorFunctions;
 
 /**
  * NOTE: This code assumes that the controller will advance trigger by half a point.
@@ -41,7 +38,6 @@ import org.slf4j.LoggerFactory;
  */
 public class ConstantVelocityRasterScan extends ConstantVelocityScanLine {
 
-	private static final Logger logger = LoggerFactory.getLogger(ConstantVelocityRasterScan.class);
 	private Double outerStart;
 	private Double outerStop;
 	private Double outerStep;

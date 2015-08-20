@@ -19,9 +19,6 @@
 
 package gda.factory.corba.util;
 
-import gda.configuration.properties.LocalProperties;
-import gda.factory.FactoryException;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -50,6 +47,9 @@ import org.omg.PortableServer.POAManagerPackage.AdapterInactive;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
+
+import gda.configuration.properties.LocalProperties;
+import gda.factory.FactoryException;
 
 /**
  * A Network implementation for CORBA
@@ -89,7 +89,6 @@ public class NetService {
 	}
 
 	private void init() throws FactoryException {
-		String property;
 		Properties props = System.getProperties();
 
 		props.put("org.omg.CORBA.ORBClass", LocalProperties.get("gda.ORBClass", "org.jacorb.orb.ORB"));

@@ -18,12 +18,6 @@
 
 package uk.ac.gda.ui.viewer;
 
-import gda.device.DeviceException;
-import gda.device.Scannable;
-import gda.device.ScannableMotionUnits;
-import gda.jython.InterfaceProvider;
-import gda.observable.IObserver;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -44,6 +38,11 @@ import org.eclipse.swt.widgets.Shell;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.DeviceException;
+import gda.device.Scannable;
+import gda.device.ScannableMotionUnits;
+import gda.jython.InterfaceProvider;
+import gda.observable.IObserver;
 import uk.ac.gda.ui.internal.viewer.ScannableMotionUnitsPositionSource;
 import uk.ac.gda.ui.internal.viewer.ScannablePositionSource;
 
@@ -79,7 +78,7 @@ public class MotorPositionViewer {
 
 	private boolean restoreValueWhenFocusLost;
 
-	private IPositionVerifierDialogCreator newPositionDialog;
+	private IPositionVerifierDialogCreator<Double> newPositionDialog;
 
 	private Object labelLayoutData;
 
@@ -341,10 +340,12 @@ public class MotorPositionViewer {
 		this.restoreValueWhenFocusLost = restoreValueWhenFocusLost;
 		motorBox.setRestoreValueWhenFocusLost(restoreValueWhenFocusLost);
 	}
-	public IPositionVerifierDialogCreator getNewPositionDialog() {
+
+	public IPositionVerifierDialogCreator<Double> getNewPositionDialog() {
 		return newPositionDialog;
 	}
-	public void setNewPositionDialog(IPositionVerifierDialogCreator newPositionDialog) {
+
+	public void setNewPositionDialog(IPositionVerifierDialogCreator<Double> newPositionDialog) {
 		this.newPositionDialog = newPositionDialog;
 	}
 

@@ -19,17 +19,6 @@
 
 package gda.util;
 
-import gda.configuration.properties.LocalProperties;
-import gda.factory.Factory;
-import gda.factory.FactoryException;
-import gda.factory.Findable;
-import gda.factory.Finder;
-import gda.factory.corba.util.EventService;
-import gda.factory.corba.util.ImplFactory;
-import gda.factory.corba.util.NetService;
-import gda.util.logging.LogbackUtils;
-import gda.util.logging.LoggingUtils;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -41,6 +30,17 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.SimpleBeanDefinitionRegistry;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.util.StringUtils;
+
+import gda.configuration.properties.LocalProperties;
+import gda.factory.Factory;
+import gda.factory.FactoryException;
+import gda.factory.Findable;
+import gda.factory.Finder;
+import gda.factory.corba.util.EventService;
+import gda.factory.corba.util.ImplFactory;
+import gda.factory.corba.util.NetService;
+import gda.util.logging.LogbackUtils;
+import gda.util.logging.LoggingUtils;
 
 /**
  * A utility class which creates objects for local or remote access.
@@ -196,6 +196,7 @@ public abstract class ObjectServer implements Runnable {
 		return objectServer;
 	}
 
+	@SuppressWarnings("unused")
 	private static ObjectServer createObjectServer(String xmlFile, String mappingFile, boolean serverSide, boolean localObjectsOnly) throws FactoryException {
 		File file = getAbsoluteFilePath(xmlFile);
 		logger.info("Starting ObjectServer using file " + xmlFile);

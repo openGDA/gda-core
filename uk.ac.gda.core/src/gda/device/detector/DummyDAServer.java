@@ -19,11 +19,6 @@
 
 package gda.device.detector;
 
-import gda.configuration.properties.LocalProperties;
-import gda.device.DeviceException;
-import gda.device.timer.FrameSet;
-import gda.util.Gaussian;
-
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -39,6 +34,10 @@ import java.util.Vector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
+import gda.device.DeviceException;
+import gda.device.timer.FrameSet;
+import gda.util.Gaussian;
 import uk.ac.gda.util.io.FileUtils;
 
 /**
@@ -105,7 +104,7 @@ public class DummyDAServer extends DAServer {
 	}
 
 	@Override
-	public void reconnect() {
+	public synchronized void reconnect() {
 		logger.info("DummyDAServer {} being reconnected", getName());
 		connected = true;
 	}

@@ -51,6 +51,8 @@ public class ScanTree extends DefaultTreeModel {
 		} else {
 			item.setSelectedFlag(visibility);
 		}
+
+		@SuppressWarnings("unchecked")
 		Enumeration<TreeNode> e = item.children();
 		while (e.hasMoreElements()) {
 			TreeNode n = e.nextElement();
@@ -116,6 +118,8 @@ public class ScanTree extends DefaultTreeModel {
 		if(node.getChildCount()>0){
 			TreeNode nextLevelNode = node.getChildAt(0);
 			if( nextLevelNode instanceof ScanPair){
+
+				@SuppressWarnings("unchecked")
 				Enumeration<TreeNode> e = node.children();
 				while (e.hasMoreElements()) {
 					TreeNode n = e.nextElement();
@@ -196,6 +200,8 @@ public class ScanTree extends DefaultTreeModel {
 	 */
 	public void removeScanGroup(String filename){
 		ScanTreeM scanTreeM = (ScanTreeM) getRoot();
+
+		@SuppressWarnings("unchecked")
 		Enumeration<TreeNode> e = scanTreeM.children();
 		while (e.hasMoreElements()) {
 			TreeNode n = e.nextElement();
@@ -238,6 +244,8 @@ public class ScanTree extends DefaultTreeModel {
 	}
 
 	void removeNodeFromPlot(TreeNode item) {
+
+		@SuppressWarnings("unchecked")
 		Enumeration<TreeNode> e = item.children();
 		while (e.hasMoreElements()){
 			removeNodeFromPlot( e.nextElement());

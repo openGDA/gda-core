@@ -37,37 +37,25 @@ public class PCO4000Sim implements IPCO4000Hardware {
 	String inData = "testfiles/gda/device/detector/pco4000/pco.tif";
 
 	/**
-	 * This constructor needs to load in some data and store it internaly,
-	 * so the objects saves out the data
+	 * This constructor needs to load in some data and store it internally, so the objects saves out the data
+	 *
 	 * @throws DeviceException
 	 */
 	public PCO4000Sim() throws DeviceException {
 
-		// get the size of the data
+		// Get path to file
 		File in = new File(inData);
-		FileInputStream fis = null;
-		try {
-			fis = new FileInputStream(in);
-		} catch (FileNotFoundException e) {
-			throw new DeviceException("File '"+inData+"' not found, simulation failed ", e);
-		}
-		// set the ammount of memory required to store the file
-		data = new byte[(int) in.length()];
+		try (FileInputStream fis = new FileInputStream(in)) {
 
-		try {
+			// set the amount of memory required to store the file
+			data = new byte[(int) in.length()];
+
+			// Read in the data
 			fis.read(data);
+
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			throw new DeviceException("File '"+inData+"' not found, simulation failed ", e);
 		}
-
-		try {
-			fis.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			throw new DeviceException("File '"+inData+"' not found, simulation failed ", e);
-		}
-
 	}
 
 	/**
@@ -100,14 +88,13 @@ public class PCO4000Sim implements IPCO4000Hardware {
 			fos.write(data);
 		} catch (IOException e) {
 			throw new DeviceException("Output to file '"+fileName+"' in simulation failed ", e);
+		} finally {
+			try {
+				fos.close();
+			} catch (IOException e) {
+				// Ignore
+			}
 		}
-
-		try {
-			fos.close();
-		} catch (IOException e) {
-			throw new DeviceException("Output to file '"+fileName+"' in simulation failed ", e);
-		}
-
 	}
 
 	/**

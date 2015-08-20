@@ -122,26 +122,19 @@ public class ColumnDataFile implements Findable, Configurable {
 	 * Reads the file and rearranges the data into the required column based format.
 	 */
 	private void readTheFile() {
-		BufferedReader br;
 		String nextLine;
 		String[] unitStrings = null;
 		ArrayList<String> lines = new ArrayList<String>();
 		String filePath = filename;
 		if (!filenameIsFull) {
+			// Find out lookup table folder
 			String lookupTableFolder = LocalProperties.get(GDA_FUNCTION_COLUMN_DATA_FILE_LOOKUP_DIR);
-
 			filePath = lookupTableFolder + File.separator + filename;
 		}
-		try {
-			// Find out lookup table folder
 
+		try (FileReader fr = new FileReader(filePath); BufferedReader br = new BufferedReader(fr)) {
 			logger.debug("ColumnDataFile loading file: " + filePath);
-
-			br = new BufferedReader(new FileReader(filePath));
 			while (((nextLine = br.readLine()) != null) && (nextLine.length() > 0)) {
-				// Message.out("ColumnDataFile.readThFile read line " +
-				// nextLine,
-				// Message.Level.THREE);
 				if (nextLine.startsWith("Units")) {
 					logger.debug("Units are :" + nextLine.substring(6));
 					// NB This regex means one or more comma space or tab
@@ -152,6 +145,7 @@ public class ColumnDataFile implements Findable, Configurable {
 				} else if (!nextLine.startsWith("#"))
 					lines.add(nextLine);
 			}
+
 		} catch (IOException ioe) {
 			throw new RuntimeException("Could not load " + StringUtils.quote(filePath), ioe);
 		}

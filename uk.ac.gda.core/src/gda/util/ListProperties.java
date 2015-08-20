@@ -81,7 +81,8 @@ public class ListProperties {
 		try {
 			initialiseGUI();
 
-			enumeration = (new JarFile(args[0])).entries();
+			final JarFile jar = new JarFile(args[0]);
+			enumeration = jar.entries();
 			while (enumeration.hasMoreElements()) {
 				name = enumeration.nextElement().toString();
 				if (name.indexOf(".class") >= 0 && name.indexOf("$") < 0) {
@@ -107,6 +108,7 @@ public class ListProperties {
 					}
 				}
 			}
+			jar.close();
 
 			frame.pack();
 			Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();

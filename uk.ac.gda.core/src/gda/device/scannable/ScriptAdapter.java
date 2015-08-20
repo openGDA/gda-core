@@ -35,7 +35,6 @@ public class ScriptAdapter extends ScannableBase implements Scannable {
 	/**
 	 * This is the Jython documentation. Use it in the GDA Jython via the help command.
 	 */
-	@SuppressWarnings("hiding")
 	public static String __doc__ = "This is Scannable which wraps a script. When it is moved to any position, the script is run.";
 
 	String fileName = "";

@@ -18,9 +18,6 @@
 
 package uk.ac.gda.client.logpanel.view;
 
-import gda.configuration.properties.LocalProperties;
-import gda.util.logging.LogbackUtils;
-
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -61,14 +58,6 @@ import org.eclipse.swt.widgets.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.PatternLayout;
-import ch.qos.logback.classic.net.SocketReceiver;
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.Appender;
-import ch.qos.logback.core.AppenderBase;
-
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
@@ -76,6 +65,16 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.PatternLayout;
+import ch.qos.logback.classic.net.SocketReceiver;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.Appender;
+import ch.qos.logback.core.AppenderBase;
+import gda.configuration.properties.LocalProperties;
+import gda.util.logging.LogbackUtils;
 
 public class Logpanel extends Composite {
 
@@ -553,7 +552,7 @@ public class Logpanel extends Composite {
 			String message = layoutMessage(loggingEvent);
 			return pattern.matcher(message).matches();
 		}
-	};
+	}
 
 	private MatchingFilter matchingFilter;
 
@@ -597,7 +596,7 @@ public class Logpanel extends Composite {
 		public boolean select(Viewer viewer, Object parentElement, Object element) {
 			return ((ILoggingEvent) element).getLevel().isGreaterOrEqual(minLogLevel) ? true : false;
 		}
-	};
+	}
 
 	private MinLogLevelFilter minLogLevelFilter;
 

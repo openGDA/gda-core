@@ -18,14 +18,14 @@
 
 package uk.ac.gda.remoting.client;
 
-import gda.observable.IObservable;
-import gda.observable.IObserver;
-import gda.observable.ObservableComponent;
-
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
+
+import gda.observable.IObservable;
+import gda.observable.IObserver;
+import gda.observable.ObservableComponent;
 
 /**
  * Advice that can be applied to client-side proxies, so that the proxy maintains its own list of observers and doesn't
@@ -41,7 +41,6 @@ public class ClientSideIObservableAdvice {
 	}
 
 	@Pointcut("execution(* gda.observable.IObservable.addIObserver(..))")
-	@SuppressWarnings("unused")
 	private void addIObserver() {}
 
 	@Around("addIObserver()")
@@ -52,7 +51,6 @@ public class ClientSideIObservableAdvice {
 	}
 
 	@Pointcut("execution(* gda.observable.IObservable.deleteIObserver(..))")
-	@SuppressWarnings("unused")
 	private void deleteIObserver() {}
 
 	@Around("deleteIObserver()")
@@ -63,7 +61,6 @@ public class ClientSideIObservableAdvice {
 	}
 
 	@Pointcut("execution(* gda.observable.IObservable.deleteIObservers())")
-	@SuppressWarnings("unused")
 	private void deleteIObservers() {}
 
 	@Around("deleteIObservers()")
