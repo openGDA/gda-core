@@ -116,7 +116,7 @@ public class TestHelpers {
 				+ testScratchDirectoryName
 				+ "/log.txt"
 				+ "</File>"
-				+ "<layout class='ch.qos.logback.classic.PatternLayout'><pattern>%-5level %logger %ex - %m%n</pattern></layout></appender>"
+				+ "<layout class='ch.qos.logback.classic.PatternLayout'><pattern>%-5level %logger %rEx - %m%n</pattern></layout></appender>"
 				+ "<appender name='DebugCONSOLE' class='ch.qos.logback.core.ConsoleAppender'>";
 
 		String level = "INFO";
@@ -125,7 +125,7 @@ public class TestHelpers {
 					+ "</level>" + "</filter>";
 			level = consoleLogLevel;
 		}
-		f += "<layout class='ch.qos.logback.classic.PatternLayout'><pattern>%-5level %logger %ex - %m%n</pattern></layout></appender>"
+		f += "<layout class='ch.qos.logback.classic.PatternLayout'><pattern>%-5level %logger %rEx - %m%n</pattern></layout></appender>"
 				+ "<logger name='gda'><level value='" + level + "'/></logger>"
 				+ "<logger name='gda.data.metadata.GDAMetadataProvider'><level value='ERROR'/></logger>"  // suppress "WARN  gda.data.metadata.GDAMetadataProvider  - setInstanceForTesting called"
 				+ "<logger name='gda.jython.InterfaceProvider'><level value='ERROR'/></logger>"  // suppress "WARN  gda.jython.InterfaceProvider  - setXxYyZzForTesting called"

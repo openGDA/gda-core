@@ -35,7 +35,7 @@ import ch.qos.logback.core.Layout;
 		 * 		<UserID>gda</UserID> is the user ID, please ensure this is lower case for it to work in the production database
 		 *
 		 * 		<layout class="ch.qos.logback.classic.PatternLayout">
-		 * 		<pattern>%-5level [%logger] %ex - %m%n</pattern>
+		 * 		<pattern>%-5level [%logger] %rEx - %m%n</pattern>
 		 * 		</layout>
 		 *
 		 * The layout is used to format the messages that are sent to ELog, where pattern defines the format codes.

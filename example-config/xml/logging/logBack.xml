@@ -10,7 +10,7 @@
     </appender>
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <layout class="ch.qos.logback.classic.PatternLayout">
-            <Pattern>%date %-5level %logger{36} - %m%n%ex</Pattern>
+            <Pattern>%date %-5level %logger{36} - %m%n%rEx</Pattern>
         </layout>
 	    <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
 	      <level>INFO</level>

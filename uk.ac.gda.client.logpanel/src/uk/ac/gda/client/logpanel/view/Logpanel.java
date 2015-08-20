@@ -214,8 +214,8 @@ public class Logpanel extends Composite {
 		});
 		return button;
 	}
-	public static final String logpanelPattern  = "%d %-5level %logger - %m%n%ex";
-	public static final String serverLogPattern = "%d %-5level [%property{GDA_SOURCE}/%property{JVMNAME}] %logger - %m%n%ex";
+	public static final String logpanelPattern  = "%d %-5level %logger - %m%n%rEx";
+	public static final String serverLogPattern = "%d %-5level [%property{GDA_SOURCE}/%property{JVMNAME}] %logger - %m%n%rEx";
 	/**
 	 * Can use pattern with properties GDA_SOURCE and JVNNAME, latter
 	 * defined by loggingEvent producers in logging.xml files using
