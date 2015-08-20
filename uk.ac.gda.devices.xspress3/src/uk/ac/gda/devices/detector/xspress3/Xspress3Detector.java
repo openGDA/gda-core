@@ -398,18 +398,25 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 	}
 
 	@Override
-	public double readoutFF() throws DeviceException {
-		// assume that this is readout before the full readout() is called!!
-		Double[][][] data = controller.readoutDTCorrectedROI(framesRead, framesRead, firstChannelToRead,
-				controller.getNumberOfChannels() + firstChannelToRead - 1);
-		double[] ffSum = calculateFFs(data, 1)[0];
+	/**
+	 * For use by Xspress3FFOverI0Detector only. Not intended for use in continuous scans. Largely duplicates code
+	 * used in Xspress3FFoverI0BufferedDetector.getFF().
+	 */
+	public double readoutFFTotal() throws DeviceException {
 
-		double ff = 0.0;
-		for (double value : ffSum){
-			ff += value;
+		// inefficient to call this whole method just to get the FF, but easiest option for now
+		NXDetectorData xspressFrame = (NXDetectorData) readout();
+
+		Double[] xspressOutput = xspressFrame.getDoubleVals();
+		String[] names = getExtraNames();
+
+		double ffTotal = 0;
+		for (int index = 0; index < names.length; index++) {
+			if (names[index].equals("FF")) {
+				ffTotal = xspressOutput[index];
+			}
 		}
-		return ff;
-
+		return ffTotal;
 	}
 
 	private double[][] calculateFFs(Double[][][] data, int numFramesRead) {

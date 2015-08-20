@@ -471,8 +471,16 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 	}
 
 	private void updateArrays() throws DeviceException {
+		int maxNumChannels;
 		try {
 			pvProvider.pvUpdate.putWait(1);
+			maxNumChannels = pvProvider.pvGetMaxNumChannels.get();
+			// With the EPICs upgrade, it seems that the update arrays does not work as 
+			// before and we miss some points. The work around here is to update 
+			// SCA5 array individually for each channel
+			for (int i = 0; i < maxNumChannels; i++) {
+				pvProvider.pvsSCA5UpdateArrays[i].putWait(UPDATE_CTRL.Enable);
+			}
 		} catch (IOException e) {
 			throw new DeviceException("IOException while updating Xspress3 arrays", e);
 		}
@@ -520,14 +528,14 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 	public void setWindows(int channel, int windowNumber, int[] lowHighScalerWindowChannels) throws DeviceException {
 		try {
 			switch (windowNumber) {
-			case 1:
-				pvProvider.pvsScaWin1Low[channel].putWait(0);
-				pvProvider.pvsScaWin1High[channel].putWait(lowHighScalerWindowChannels[1]);
+			case 0:
+				pvProvider.pvsScaWin1Low[channel].putNoWait(0);
+				pvProvider.pvsScaWin1High[channel].putNoWait(lowHighScalerWindowChannels[1]);
 				pvProvider.pvsScaWin1Low[channel].putWait(lowHighScalerWindowChannels[0]);
 				break;
-			case 2:
-				pvProvider.pvsScaWin2Low[channel].putWait(0);
-				pvProvider.pvsScaWin2High[channel].putWait(lowHighScalerWindowChannels[1]);
+			case 1:
+				pvProvider.pvsScaWin2Low[channel].putNoWait(0);
+				pvProvider.pvsScaWin2High[channel].putNoWait(lowHighScalerWindowChannels[1]);
 				pvProvider.pvsScaWin2Low[channel].putWait(lowHighScalerWindowChannels[0]);
 				break;
 			default:

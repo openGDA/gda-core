@@ -18,6 +18,9 @@
 
 package uk.ac.gda.devices.detector.xspress3;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.CounterTimer;
 import gda.device.DeviceException;
 import gda.device.detector.DetectorBase;
@@ -27,7 +30,7 @@ import gda.device.detector.DetectorBase;
  * with other detectors in scans
  */
 public class Xspress3FFoverI0Detector extends DetectorBase {
-//	private static final Logger logger = LoggerFactory.getLogger(Xspress3FFoverI0Detector.class);
+	private static final Logger logger = LoggerFactory.getLogger(Xspress3FFoverI0Detector.class);
 
 	private Xspress3 xspress3 = null;
 	private CounterTimer ct = null;
@@ -42,7 +45,7 @@ public class Xspress3FFoverI0Detector extends DetectorBase {
 			this.setExtraNames(new String[] { "FFI0" });
 		this.setInputNames(new String[0]);
 		if (outputFormat == null || outputFormat.length != 1)
-			this.setOutputFormat(new String[] { "%.9f" });
+			this.setOutputFormat(new String[] { "%.6f" });
 
 	}
 
@@ -51,8 +54,13 @@ public class Xspress3FFoverI0Detector extends DetectorBase {
 		Double i0 = getI0();
 		Double ff = xspress3.readoutFF();
 		Double ffio = ff / i0;
-		if (i0 == 0.0 || ff == 0.0 || i0.isInfinite() || i0.isNaN() || ff.isInfinite() || ff.isNaN())
+		if (i0 == 0.0 || i0.isNaN() || i0.isInfinite()){ 
+			logger.info("Problem with I0, so set FF/I0 to 0.0");
 			ffio = 0.0;
+		} else if (ff == 0.0 || ff.isInfinite() || ff.isNaN()){
+			logger.info("Problem with FF, so set FF/I0 to 0.0");
+			ffio = 0.0;
+		}
 		return ffio;
 	}
 

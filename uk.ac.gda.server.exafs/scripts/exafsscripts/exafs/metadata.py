@@ -5,7 +5,7 @@ from gdascripts.parameters import beamline_parameters
 from gdascripts.parameters.beamline_parameters import JythonNameSpaceMapping
 from gda.data.scan.datawriter import NexusDataWriter
 #from gda.data.scan.datawriter.NexusFileMetadata import EntryTypes, NXinstrumentSubTypes
-from gdascripts.metadata.metadata_commands import meta_add
+from gdascripts.metadata.metadata_commands import meta_add, meta_rm 
 
 class Metadata():
     
