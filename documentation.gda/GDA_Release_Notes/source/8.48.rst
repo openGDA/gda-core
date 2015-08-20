@@ -11,6 +11,23 @@ Fixes
 ~~~~~
 - The behaviour of the scan plot view at the start of a new scan has been corrected. See JIRA ticket `GDA-6168 <http://jira.diamond.ac.uk/browse/GDA-6168>`_ for details.
 
+NAPI migration
+--------------
+
+Continuing the migration away from NAPI, the following changes have occurred.
+
+   * An implementation of NexusFile using the Java bindings for HDF5 has been added.
+   * The NAPI implementation is no longer in use with the HDF5 implementation taking its place.
+   * The HDF5 library has been switched to a more recent version that includes the SWMR functionality.
+
+Planned changes for the future
+
+   * Incorporate SWMR functionality into GDA
+   * Investigate thread safety issues for the NexusFile interface
+   * Auto-generate interfaces and classes from NXDL for all Nexus classes to be used
+     for loading and validating then for saving. These will include the application definitions.
+
+
 Developer
 ---------
 
