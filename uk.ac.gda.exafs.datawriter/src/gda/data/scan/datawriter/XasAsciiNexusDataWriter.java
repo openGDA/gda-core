@@ -90,8 +90,8 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements Configura
 				ascii.setConfiguration(configuration);
 
 			ascii.setScanParametersName(scanParametersName);
-			ascii.setDetectorParametersName(sampleParametersName);
-			ascii.setSampleParametersName(detectorParametersName);
+			ascii.setDetectorParametersName(detectorParametersName);
+			ascii.setSampleParametersName(sampleParametersName);
 			ascii.setOutputParametersName(outputParametersName);
 			ascii.setFolderName(folderName);
 

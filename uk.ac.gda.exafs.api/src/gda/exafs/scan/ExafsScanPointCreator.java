@@ -18,6 +18,9 @@
 
 package gda.exafs.scan;
 
+import gda.util.Converter;
+import gda.util.Element;
+
 import java.util.ArrayList;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -26,8 +29,6 @@ import org.python.core.PyFloat;
 import org.python.core.PyObject;
 import org.python.core.PyTuple;
 
-import gda.util.Converter;
-import gda.util.Element;
 import uk.ac.gda.beans.exafs.XasScanParameters;
 
 /**
@@ -79,6 +80,12 @@ public class ExafsScanPointCreator {
 		ExafsScanPointCreator creator = new ExafsScanPointCreator();
 		setupScanPointCreator(parameters, creator);
 		return creator.getEnergies();
+	}
+
+	public static double[][] calculateScanEnergies(XasScanParameters parameters) throws Exception {
+		ExafsScanPointCreator creator = new ExafsScanPointCreator();
+		setupScanPointCreator(parameters, creator);
+		return creator.getScanEnergies();
 	}
 
 	public static ArrayList<ExafsScanRegionTime> getScanTimes(XasScanParameters parameters) throws Exception{

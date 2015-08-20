@@ -131,10 +131,6 @@ public abstract class XasScanBase implements XasScan {
 		String outputFileName = ((PySequence) pyArgs).__finditem__(3).asString();
 		String experimentFullPath = ((PySequence) pyArgs).__finditem__(4).asString();
 
-		if (!experimentFullPath.endsWith(File.separator)) {
-			experimentFullPath = experimentFullPath + File.separator;
-		}
-
 		int numRepetitions = ((PySequence) pyArgs).__finditem__(5).asInt();
 
 		doCollection(sampleFileName, scanFileName, detectorFileName, outputFileName, experimentFullPath, numRepetitions);
@@ -309,10 +305,15 @@ public abstract class XasScanBase implements XasScan {
 	}
 
 	private void determineExperimentPath(String experimentFullPath) {
+
+		if (!experimentFullPath.endsWith(File.separator)) {
+			experimentFullPath = experimentFullPath + File.separator;
+		}
 		String experimentFolderName = experimentFullPath.substring(experimentFullPath.indexOf("xml") + 4,
 				experimentFullPath.length());
 		log("Using data folder: " + experimentFullPath);
 		log("Using xml subfolder: " + experimentFolderName);
+
 		this.experimentFullPath = experimentFullPath;
 		this.experimentFolderName = experimentFolderName;
 	}
@@ -354,18 +355,17 @@ public abstract class XasScanBase implements XasScan {
 				+ detectorFileName + ", " + outputFileName);
 		sampleBean = null;
 		if (sampleFileName != null) {
-			sampleBean = (ISampleParameters) XMLHelpers.getBeanObject(experimentFullPath + "/", sampleFileName);
+			sampleBean = (ISampleParameters) XMLHelpers.getBeanObject(experimentFullPath, sampleFileName);
 		}
-		scanBean = (IScanParameters) XMLHelpers.getBeanObject(experimentFullPath + "/", scanFileName);
-		detectorBean = (IDetectorParameters) XMLHelpers.getBeanObject(experimentFullPath + "/", detectorFileName);
-		outputBean = (IOutputParameters) XMLHelpers.getBeanObject(experimentFullPath + "/", outputFileName);
+		scanBean = (IScanParameters) XMLHelpers.getBeanObject(experimentFullPath, scanFileName);
+		detectorBean = (IDetectorParameters) XMLHelpers.getBeanObject(experimentFullPath, detectorFileName);
+		outputBean = (IOutputParameters) XMLHelpers.getBeanObject(experimentFullPath, outputFileName);
 
 		// get the xml for the specific detector in use e.g. vortex, xspress2 or xspress3
 		// TODO these beans should have their own interface for clarity
 		String detectorConfigurationFilename = determineDetectorFilename();
 		if (detectorConfigurationFilename != null && !detectorConfigurationFilename.isEmpty()) {
-			detectorConfigurationBean = (IDetectorConfigurationParameters) XMLHelpers.getBeanObject(experimentFullPath
-					+ "/", detectorConfigurationFilename);
+			detectorConfigurationBean = (IDetectorConfigurationParameters) XMLHelpers.getBeanObject(experimentFullPath, detectorConfigurationFilename);
 		}
 
 		setXmlFileNames(sampleFileName, scanFileName, detectorFileName, outputFileName);
@@ -465,26 +465,33 @@ public abstract class XasScanBase implements XasScan {
 	}
 
 	private String[] deriveFilenametemplates(String sampleName) {
-		String nexusSubFolder = experimentFolderName + "/" + outputBean.getNexusDirectory();
-		String asciiSubFolder = experimentFolderName + "/" + outputBean.getAsciiDirectory();
+
+		String nexusSubFolder = experimentFolderName + outputBean.getNexusDirectory();
+		String asciiSubFolder = experimentFolderName + outputBean.getAsciiDirectory();
 		String nexusFileNameTemplate, asciiFileNameTemplate;
 
 		sampleName = sampleName.replaceAll(" +", "_");
 
+		if (!nexusSubFolder.endsWith(File.separator)) {
+			nexusSubFolder += File.separator;
+		}
+		if (!asciiSubFolder.endsWith(File.separator)) {
+			asciiSubFolder += File.separator;
+		}
 		if (LocalProperties.check(NexusDataWriter.GDA_NEXUS_BEAMLINE_PREFIX)) {
 			if (sampleName != null && !sampleName.isEmpty()) {
-				nexusFileNameTemplate = nexusSubFolder + "/%d_" + sampleName + "_" + currentRepetition + ".nxs";
-				asciiFileNameTemplate = asciiSubFolder + "/%d_" + sampleName + "_" + currentRepetition + ".dat";
+				nexusFileNameTemplate = nexusSubFolder + "%d_" + sampleName + "_" + currentRepetition + ".nxs";
+				asciiFileNameTemplate = asciiSubFolder + "%d_" + sampleName + "_" + currentRepetition + ".dat";
 			} else {
-				nexusFileNameTemplate = nexusSubFolder + "/%d_" + currentRepetition + ".nxs";
-				asciiFileNameTemplate = asciiSubFolder + "/%d_" + currentRepetition + ".dat";
+				nexusFileNameTemplate = nexusSubFolder + "%d_" + currentRepetition + ".nxs";
+				asciiFileNameTemplate = asciiSubFolder + "%d_" + currentRepetition + ".dat";
 			}
 		} else if (includeSampleNameInNexusName) {
-			nexusFileNameTemplate = nexusSubFolder + "/" + sampleName + "_%d_" + currentRepetition + ".nxs";
-			asciiFileNameTemplate = asciiSubFolder + "/" + sampleName + "_%d_" + currentRepetition + ".dat";
+			nexusFileNameTemplate = nexusSubFolder + sampleName + "_%d_" + currentRepetition + ".nxs";
+			asciiFileNameTemplate = asciiSubFolder + sampleName + "_%d_" + currentRepetition + ".dat";
 		} else {
-			nexusFileNameTemplate = nexusSubFolder + "/" + "%d_" + currentRepetition + ".nxs";
-			asciiFileNameTemplate = asciiSubFolder + "/" + sampleName + "_%d_" + currentRepetition + ".dat";
+			nexusFileNameTemplate = nexusSubFolder + "%d_" + currentRepetition + ".nxs";
+			asciiFileNameTemplate = asciiSubFolder + sampleName + "_%d_" + currentRepetition + ".dat";
 		}
 
 		return new String[] { nexusFileNameTemplate, asciiFileNameTemplate };

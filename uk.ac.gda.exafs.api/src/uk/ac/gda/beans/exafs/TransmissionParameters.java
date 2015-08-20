@@ -29,6 +29,7 @@ public class TransmissionParameters implements IExperimentDetectorParameters, Se
 	private String detectorType;
 	private double mythenEnergy = 1000;
 	private double mythenTime = 1.0;
+	private int mythenFrames = 1;
 	private boolean collectDiffractionImages;
 
 	@Override
@@ -84,6 +85,15 @@ public class TransmissionParameters implements IExperimentDetectorParameters, Se
 	}
 
 	@Override
+	public int getMythenFrames() {
+		return mythenFrames;
+	}
+
+	public void setMythenFrames(Integer mythenFrames) {
+		this.mythenFrames = mythenFrames;
+	}
+
+	@Override
 	public boolean isCollectDiffractionImages() {
 		return collectDiffractionImages;
 	}
@@ -106,6 +116,7 @@ public class TransmissionParameters implements IExperimentDetectorParameters, Se
 		long temp;
 		temp = Double.doubleToLongBits(mythenEnergy);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
+		result = prime * result + mythenFrames;
 		temp = Double.doubleToLongBits(mythenTime);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		temp = Double.doubleToLongBits(workingEnergy);
@@ -136,10 +147,13 @@ public class TransmissionParameters implements IExperimentDetectorParameters, Se
 			return false;
 		if (Double.doubleToLongBits(mythenEnergy) != Double.doubleToLongBits(other.mythenEnergy))
 			return false;
+		if (mythenFrames != other.mythenFrames)
+			return false;
 		if (Double.doubleToLongBits(mythenTime) != Double.doubleToLongBits(other.mythenTime))
 			return false;
 		if (Double.doubleToLongBits(workingEnergy) != Double.doubleToLongBits(other.workingEnergy))
 			return false;
 		return true;
 	}
+
 }

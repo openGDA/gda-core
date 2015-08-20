@@ -38,6 +38,7 @@ public class FluorescenceParameters  implements IExperimentDetectorParameters, S
 	private boolean collectDiffractionImages;
 	private double mythenEnergy;
 	private double mythenTime;
+	private int mythenFrames = 1;
 	private Double workingEnergy;
 
 	public FluorescenceParameters() {
@@ -140,6 +141,15 @@ public class FluorescenceParameters  implements IExperimentDetectorParameters, S
 	}
 
 	@Override
+	public int getMythenFrames() {
+		return mythenFrames;
+	}
+
+	public void setMythenFrames(int mythenFrames) {
+		this.mythenFrames = mythenFrames;
+	}
+
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
@@ -147,6 +157,12 @@ public class FluorescenceParameters  implements IExperimentDetectorParameters, S
 		result = prime * result + ((configFileName == null) ? 0 : configFileName.hashCode());
 		result = prime * result + ((detectorType == null) ? 0 : detectorType.hashCode());
 		result = prime * result + ((ionChamberParameters == null) ? 0 : ionChamberParameters.hashCode());
+		long temp;
+		temp = Double.doubleToLongBits(mythenEnergy);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		result = prime * result + mythenFrames;
+		temp = Double.doubleToLongBits(mythenTime);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
 		result = prime * result + ((workingEnergy == null) ? 0 : workingEnergy.hashCode());
 		return result;
 	}
@@ -177,6 +193,12 @@ public class FluorescenceParameters  implements IExperimentDetectorParameters, S
 				return false;
 		} else if (!ionChamberParameters.equals(other.ionChamberParameters))
 			return false;
+		if (Double.doubleToLongBits(mythenEnergy) != Double.doubleToLongBits(other.mythenEnergy))
+			return false;
+		if (mythenFrames != other.mythenFrames)
+			return false;
+		if (Double.doubleToLongBits(mythenTime) != Double.doubleToLongBits(other.mythenTime))
+			return false;
 		if (workingEnergy == null) {
 			if (other.workingEnergy != null)
 				return false;
@@ -184,4 +206,5 @@ public class FluorescenceParameters  implements IExperimentDetectorParameters, S
 			return false;
 		return true;
 	}
+
 }

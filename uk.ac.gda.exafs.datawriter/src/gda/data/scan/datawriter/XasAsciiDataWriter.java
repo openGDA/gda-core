@@ -18,17 +18,19 @@
 
 package gda.data.scan.datawriter;
 
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.configuration.properties.LocalProperties;
 import gda.device.Detector;
 import gda.device.detector.DarkCurrentDetector;
 import gda.device.detector.DarkCurrentResults;
 import gda.device.detector.xspress.XspressSystem;
 import gda.scan.IScanDataPoint;
+
+import java.io.File;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import uk.ac.gda.beans.vortex.DetectorElement;
 
 /**
@@ -65,7 +67,11 @@ public class XasAsciiDataWriter extends AsciiDataWriter {
 				asciiFileNameTemplate = "%d_" + LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME) + "."+ this.fileExtension;
 			else
 				asciiFileNameTemplate = "%d." + this.fileExtension;
-			dataDir += "ascii/";
+
+			if (!dataDir.endsWith(File.separator)) {
+				dataDir += File.separator;
+			}
+			dataDir += "ascii" + File.separator;
 		}
 
 		this.currentFileName = String.format(asciiFileNameTemplate, getFileNumber());

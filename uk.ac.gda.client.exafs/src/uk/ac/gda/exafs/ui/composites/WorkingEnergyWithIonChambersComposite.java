@@ -24,6 +24,7 @@ import org.eclipse.richbeans.api.event.ValueListener;
 import org.eclipse.richbeans.api.reflection.IBeanController;
 import org.eclipse.richbeans.api.reflection.IBeanService;
 import org.eclipse.richbeans.api.widget.ACTIVE_MODE;
+import org.eclipse.richbeans.widgets.scalebox.IntegerBox;
 import org.eclipse.richbeans.widgets.scalebox.ScaleBox;
 import org.eclipse.richbeans.widgets.selector.BeanSelectionEvent;
 import org.eclipse.richbeans.widgets.selector.BeanSelectionListener;
@@ -55,6 +56,7 @@ public class WorkingEnergyWithIonChambersComposite extends WorkingEnergyComposit
 	private BooleanWrapper collectDiffractionImages;
 	private ScaleBox mythenEnergy;
 	private ScaleBox mythenTime;
+	private ScaleBox mythenFrames;
 
 	public WorkingEnergyWithIonChambersComposite(Composite parent, int style, DetectorParameters abean) {
 		super(parent, style, abean);
@@ -84,30 +86,31 @@ public class WorkingEnergyWithIonChambersComposite extends WorkingEnergyComposit
 		ionChamberComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		ionChamberParameters.setEditorUI(ionChamberComposite);
 		ionChamberParameters.setListEditorUI(ionChamberComposite);
-		if (ionChamberComposite.isUseGasProperties()) {
-			ionChamberParameters.addBeanSelectionListener(new BeanSelectionListener() {
-				@Override
-				public void selectionChanged(BeanSelectionEvent evt) {
-					ionChamberComposite.calculatePressure();
-					try {
-						IBeanService service = (IBeanService) ExafsActivator.getService(IBeanService.class);
-						IBeanController control = service.createController(ionChamberComposite, evt.getSelectedBean());
-						control.uiToBean("pressure");
-					} catch (Exception e) {
-						logger.error("Error sending bean value to bean.", e);
+		if (!ExafsActivator.getDefault().getPreferenceStore().getDefaultBoolean(ExafsPreferenceConstants.HIDE_WORKING_ENERGY)) {
+			if (ionChamberComposite.isUseGasProperties()) {
+				ionChamberParameters.addBeanSelectionListener(new BeanSelectionListener() {
+					@Override
+					public void selectionChanged(BeanSelectionEvent evt) {
+						ionChamberComposite.calculatePressure();
+						try {
+							IBeanService service = ExafsActivator.getService(IBeanService.class);
+							IBeanController control = service.createController(ionChamberComposite, evt.getSelectedBean());
+							control.uiToBean("pressure");
+						} catch (Exception e) {
+							logger.error("Error sending bean value to bean.", e);
+						}
 					}
+				});
+			}
+			workingEnergy.addValueListener(new ValueAdapter("workingEnergyListener") {
+				@Override
+				public void valueChangePerformed(ValueEvent e) {
+					ionChamberComposite.calculatePressure();
 				}
 			});
 		}
-		workingEnergy.addValueListener(new ValueAdapter("workingEnergyListener") {
-			@Override
-			public void valueChangePerformed(ValueEvent e) {
-				ionChamberComposite.calculatePressure();
-			}
-		});
 
-		if (!ExafsActivator.getDefault().getPreferenceStore()
-				.getBoolean(ExafsPreferenceConstants.HIDE_DEFAULT_GAS_MIXTURES_BUTTON)) {
+		if (!ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.HIDE_DEFAULT_GAS_MIXTURES_BUTTON)) {
 			this.selectDefaultsListener = new SelectionAdapter() {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
@@ -134,7 +137,7 @@ public class WorkingEnergyWithIonChambersComposite extends WorkingEnergyComposit
 			collectDiffImagesLabel.setText("Diffraction Images");
 			collectDiffImagesLabel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 			Composite diffractionComp = new Composite(top, SWT.NONE);
-			diffractionComp.setLayout(new GridLayout(5, true));
+			diffractionComp.setLayout(new GridLayout(7, true));
 			collectDiffractionImages = new BooleanWrapper(diffractionComp, SWT.NONE);
 			collectDiffractionImages.setToolTipText("Collect diffraction data");
 			collectDiffractionImages.setText("Collect");
@@ -151,6 +154,11 @@ public class WorkingEnergyWithIonChambersComposite extends WorkingEnergyComposit
 				mythenTimeLabel.setText("     Time");
 				mythenTime = new ScaleBox(diffractionComp, SWT.NONE);
 				mythenTime.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+
+				final Label mythenFramesLabel = new Label(diffractionComp, SWT.NONE);
+				mythenFramesLabel.setText("     Frames");
+				mythenFrames = new IntegerBox(diffractionComp, SWT.NONE);
+				mythenFrames.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 
 				collectDiffractionImages.addValueListener(new ValueListener() {
 
@@ -177,6 +185,10 @@ public class WorkingEnergyWithIonChambersComposite extends WorkingEnergyComposit
 
 	public ScaleBox getMythenTime() {
 		return mythenTime;
+	}
+
+	public ScaleBox getMythenFrames() {
+		return mythenFrames;
 	}
 
 	/**

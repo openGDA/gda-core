@@ -19,6 +19,23 @@
 package uk.ac.gda.server.exafs.scan;
 
 import static org.junit.Assert.fail;
+import gda.configuration.properties.LocalProperties;
+import gda.data.metadata.NXMetaDataProvider;
+import gda.data.scan.datawriter.AsciiDataWriterConfiguration;
+import gda.device.Detector;
+import gda.device.DeviceException;
+import gda.device.Scannable;
+import gda.device.detector.countertimer.TfgScalerWithFrames;
+import gda.device.scannable.ScannableMotor;
+import gda.device.scannable.XasScannable;
+import gda.jython.InterfaceProvider;
+import gda.jython.JythonServer;
+import gda.jython.JythonServerFacade;
+import gda.jython.batoncontrol.ClientDetails;
+import gda.jython.commands.ScannableCommands;
+import gda.jython.scriptcontroller.logging.LoggingScriptController;
+import gda.scan.ConcurrentScan;
+import gda.scan.ScanPlotSettings;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -40,23 +57,6 @@ import org.powermock.api.support.membermodification.strategy.MethodStubStrategy;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import gda.configuration.properties.LocalProperties;
-import gda.data.metadata.NXMetaDataProvider;
-import gda.data.scan.datawriter.AsciiDataWriterConfiguration;
-import gda.device.Detector;
-import gda.device.DeviceException;
-import gda.device.Scannable;
-import gda.device.detector.countertimer.TfgScalerWithFrames;
-import gda.device.scannable.ScannableMotor;
-import gda.device.scannable.XasScannable;
-import gda.jython.InterfaceProvider;
-import gda.jython.JythonServer;
-import gda.jython.JythonServerFacade;
-import gda.jython.batoncontrol.ClientDetails;
-import gda.jython.commands.ScannableCommands;
-import gda.jython.scriptcontroller.logging.LoggingScriptController;
-import gda.scan.ConcurrentScan;
-import gda.scan.ScanPlotSettings;
 import uk.ac.gda.beans.exafs.DetectorGroup;
 import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.exafs.IOutputParameters;
@@ -87,7 +87,7 @@ public class EnergyScanTest {
 	private ISampleParameters sampleParams;
 	private IOutputParameters outputParams;
 	private TfgScalerWithFrames ionchambers;
-	private final String experimentalFullPath = "/scratch/test/xml/path";
+	private final String experimentalFullPath = "/scratch/test/xml/path/";
 	private ConcurrentScan mockScan;
 	private ScanPlotSettings mockPlotSettings;
 
