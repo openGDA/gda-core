@@ -119,7 +119,7 @@ public class Xspress3WithFullCalculationsDetector extends DetectorBase implement
 	 * The detectorName is the string used in the Nexus tree returned. Allows for composition where the xspress3 is a component of another detector e.g. Xspress3BufferedDetector
 	 */
 	public NXDetectorData[] readFrames(int startFrame, int finalFrame, String detectorName) throws DeviceException {
-		return dataOperations.readoutFrames(startFrame, finalFrame,detectorName);
+		return dataOperations.readoutFrames(startFrame, finalFrame, detectorName);
 	}
 
 
@@ -199,6 +199,7 @@ public class Xspress3WithFullCalculationsDetector extends DetectorBase implement
 	/**
 	 * @deprecated Use getConfigurationParameters() instead
 	 */
+	@Override
 	@Deprecated
 	public DetectorROI[] getRegionsOfInterest() throws DeviceException {
 		return dataOperations.getRegionsOfInterest();
@@ -207,6 +208,7 @@ public class Xspress3WithFullCalculationsDetector extends DetectorBase implement
 	/**
 	 * @deprecated Use applyConfigurationParameters() instead
 	 */
+	@Override
 	@Deprecated
 	public void setRegionsOfInterest(DetectorROI[] regionList)
 			throws DeviceException {

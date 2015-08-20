@@ -3,6 +3,7 @@ package uk.ac.gda.devices.detector.xspress3;
 import gda.device.DeviceException;
 import gda.device.detector.NXDetectorData;
 import gda.device.detector.NexusDetector;
+import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.devices.detector.FluorescenceDetector;
 
 /**
@@ -36,4 +37,8 @@ public interface Xspress3 extends FluorescenceDetector, NexusDetector {
 	public void setConfigFileName(String configFileName);
 
 	public void loadConfigurationFromFile() throws Exception;
+
+	public DetectorROI[] getRegionsOfInterest() throws DeviceException;
+
+	public void setRegionsOfInterest(DetectorROI[] regionList) throws DeviceException;
 }

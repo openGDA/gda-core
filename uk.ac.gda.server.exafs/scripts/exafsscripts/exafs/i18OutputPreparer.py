@@ -1,4 +1,7 @@
 from metadata import Metadata
+from uk.ac.gda.beans.exafs import XanesScanParameters
+from uk.ac.gda.beans.exafs import XasScanParameters
+from uk.ac.gda.beans.exafs import QEXAFSParameters
 #from gda.data.scan.datawriter import NexusExtraMetadataDataWriter
 #from gda.data.scan.datawriter import NexusFileMetadata
 #from gda.data.scan.datawriter.NexusFileMetadata import EntryTypes, NXinstrumentSubTypes
@@ -7,41 +10,39 @@ class I18OutputPreparer:
     
     def __init__(self, datawriterconfig):
         self.datawriterconfig = datawriterconfig
+        self.scanBean = None
+        self.asciiSampleMetadataX = None
+        self.asciiSampleMetadataY = None
+        self.asciiSampleMetadataZ = None
 
-    def prepare(self, outputParameters, scanBean):
+    def prepare(self, outputParameters, scanBean, sampleParameters):
         initial_energy = scanBean.getInitialEnergy()
         final_energy = scanBean.getFinalEnergy()
         #from gda.data.scan.datawriter import NexusExtraMetadataDataWriter
         #NexusExtraMetadataDataWriter.removeAllMetadataEntries();
         metadata = outputParameters.getMetadataList()
         meta=Metadata(self.datawriterconfig)
+        self.scanBean = scanBean
         if len(metadata)>0:
             print "adding to file metadata from output parameters"
             meta.add_to_metadata(metadata)
-            
-        #meta.add_to_nexus_metadata("initial_energy", str(initial_energy), "additional_scannables", NXinstrumentSubTypes.NXmonochromator)
-        #meta.add_to_nexus_metadata("final_energy", str(final_energy), "additional_scannables", NXinstrumentSubTypes.NXmonochromator)
-                
-        #meta.addScannableMetadataEntry("d1motor", "additional_scannables",NXinstrumentSubTypes.NXattenuator)
-        #meta.addScannableMetadataEntry("d2motor", "additional_scannables",NXinstrumentSubTypes.NXattenuator)
-        #meta.addScannableMetadataEntry("d3motor", "additional_scannables",NXinstrumentSubTypes.NXattenuator)
-        #meta.addScannableMetadataEntry("d5amotor", "additional_scannables",NXinstrumentSubTypes.NXattenuator)
-        #meta.addScannableMetadataEntry("d5bmotor", "additional_scannables",NXinstrumentSubTypes.NXattenuator)
-        #meta.addScannableMetadataEntry("d6amotor", "additional_scannables",NXinstrumentSubTypes.NXattenuator)
-        #meta.addScannableMetadataEntry("d6bmotor", "additional_scannables",NXinstrumentSubTypes.NXattenuator)
-        #meta.addScannableMetadataEntry("d7amotor", "additional_scannables",NXinstrumentSubTypes.NXattenuator)
-        #meta.addScannableMetadataEntry("d7bmotor", "additional_scannables",NXinstrumentSubTypes.NXattenuator)
-        
-        #meta.addScannableMetadataEntry("sid_x", "additional_scannables",NXinstrumentSubTypes.NXpositioner)
-        
-        #meta.addScannableMetadataEntry("sc_MicroFocusSampleX", "additional_scannables",NXinstrumentSubTypes.NXpositioner)
-        #meta.addScannableMetadataEntry("sc_MicroFocusSampleY", "additional_scannables",NXinstrumentSubTypes.NXpositioner)
-        #meta.addScannableMetadataEntry("sc_sample_z", "additional_scannables",NXinstrumentSubTypes.NXpositioner)
-        #meta.addScannableMetadataEntry("sc_sample_thetacoarse", "additional_scannables",NXinstrumentSubTypes.NXpositioner)
-        #meta.addScannableMetadataEntry("sc_sample_thetafine", "additional_scannables",NXinstrumentSubTypes.NXpositioner)
+        self.originalAsciiHeader = self.getAsciiDataWriterConfig(scanBean).getHeader()
+        if isinstance (scanBean,XasScanParameters) or isinstance (scanBean,XanesScanParameters) or isinstance (scanBean,QEXAFSParameters):
+            stage = sampleParameters.getSampleStageParameters()
+            self.asciiSampleMetadataX = self.setAsciiSampleStageMetadata(scanBean,stage.getX(), "X stage:")
+            self.asciiSampleMetadataY = self.setAsciiSampleStageMetadata(scanBean,stage.getY(), "Y stage:")
+            self.asciiSampleMetadataZ = self.setAsciiSampleStageMetadata(scanBean,stage.getZ(), "Z stage:")
         
     # Determines the AsciiDataWriterConfiguration to use to format the header/footer of the ascii data files
     # If this returns None, then let the Ascii Data Writer class find the config for itself.
+    
+    def setAsciiSampleStageMetadata(self, scanBean,position, name):
+        from gda.data.scan.datawriter import AsciiMetadataConfig
+        asciiConfig = AsciiMetadataConfig()
+        asciiConfig.setLabel(name + str(position))
+        self.getAsciiDataWriterConfig(scanBean).getHeader().add(asciiConfig)
+        return asciiConfig 
+            
     def getAsciiDataWriterConfig(self,scanBean):
         return self.datawriterconfig
 
@@ -51,4 +52,12 @@ class I18OutputPreparer:
     
     def _resetNexusStaticMetadataList(self):
         pass
+    
+    def _resetAsciiStaticMetadataList(self):
+        if self.asciiSampleMetadataX!= None:
+            self.getAsciiDataWriterConfig(self.scanBean).getHeader().remove(self.asciiSampleMetadataX)
+        if self.asciiSampleMetadataY!= None:
+            self.getAsciiDataWriterConfig(self.scanBean).getHeader().remove(self.asciiSampleMetadataY)
+        if self.asciiSampleMetadataZ!= None:
+            self.getAsciiDataWriterConfig(self.scanBean).getHeader().remove(self.asciiSampleMetadataZ)
     

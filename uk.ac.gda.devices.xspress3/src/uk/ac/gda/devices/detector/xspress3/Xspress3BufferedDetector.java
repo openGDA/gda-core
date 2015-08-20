@@ -41,7 +41,7 @@ import uk.ac.gda.devices.detector.xspress3.fullCalculations.Xspress3WithFullCalc
 public class Xspress3BufferedDetector extends DetectorBase implements BufferedDetector, NexusDetector,
 		FluorescenceDetector, Xspress3 {
 
-	private Xspress3WithFullCalculationsDetector xspress3Detector;
+	private Xspress3 xspress3Detector;
 	private ContinuousParameters parameters;
 	private boolean isContinuousModeOn;
 	private TRIGGER_MODE triggerModeWhenInContinuousScan = TRIGGER_MODE.TTl_Veto_Only;
@@ -56,11 +56,20 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 	public void setContinuousMode(boolean on) throws DeviceException {
 		this.isContinuousModeOn = on;
 		if (on) {
+			if (xspress3Detector instanceof Xspress3WithFullCalculationsDetector) {
 			// we are doing the same work as in a step scan, but need to do the operations at this point
 			// as the number of points may have changed and also atScanLineStart is not called in ContinuousScans
-			((Xspress3WithFullCalculationsDetector) xspress3Detector).setReadDataFromFile(true);
-			xspress3Detector.atScanStart();
-			xspress3Detector.atScanLineStart();
+				((Xspress3WithFullCalculationsDetector) xspress3Detector).setReadDataFromFile(true);
+				xspress3Detector.atScanStart();
+				xspress3Detector.atScanLineStart();
+			} else {
+				xspress3Detector.getController().setNumFramesToAcquire(parameters.getNumberDataPoints());
+				xspress3Detector.getController().setTriggerMode(triggerModeWhenInContinuousScan);
+				// Epics needs us to clear memory again after setting trig mode and num frames
+				clearMemory();
+				xspress3Detector.getController().doStart();
+			}
+
 		}
 	}
 
@@ -74,7 +83,9 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 		this.parameters = parameters;
 		// Just call the underlying atScanLineStart here, atScanStart would already have been called.
 		// The atScanLineStart of this class should do nothing
-		xspress3Detector.atScanLineStart();
+		if (xspress3Detector instanceof Xspress3WithFullCalculationsDetector) {
+			xspress3Detector.atScanLineStart();
+		}
 	}
 
 	@Override
@@ -96,17 +107,23 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 
 	@Override
 	public NXDetectorData[] readFrames(int startFrame, int finalFrame) throws DeviceException {
-		return xspress3Detector.readFrames(startFrame, finalFrame, getName());
+		if (xspress3Detector instanceof Xspress3WithFullCalculationsDetector) {
+			return ((Xspress3WithFullCalculationsDetector) xspress3Detector).readFrames(startFrame, finalFrame, getName());
+		}
+		return xspress3Detector.readFrames(startFrame, finalFrame);
 	}
 
 	@Override
 	public NXDetectorData[] readAllFrames() throws DeviceException {
-		return xspress3Detector.readFrames(0, xspress3Detector.getController().getNumFramesToAcquire(), getName());
+		if (xspress3Detector instanceof Xspress3WithFullCalculationsDetector) {
+			return ((Xspress3WithFullCalculationsDetector) xspress3Detector).readFrames(0, xspress3Detector.getController().getNumFramesToAcquire(), getName());
+		}
+		return xspress3Detector.readFrames(0, xspress3Detector.getController().getNumFramesToAcquire());
 	}
 
 	@Override
 	public int maximumReadFrames() throws DeviceException {
-		return 250;
+		return 500;
 	}
 
 	public TRIGGER_MODE getTriggerModeWhenInContinuousScan() {
@@ -187,8 +204,10 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 
 	@Override
 	public void atScanEnd() throws DeviceException {
-		((Xspress3WithFullCalculationsDetector) xspress3Detector).setReadDataFromFile(false);
-		xspress3Detector.atScanEnd();
+		if (xspress3Detector instanceof Xspress3WithFullCalculationsDetector) {
+			((Xspress3WithFullCalculationsDetector) xspress3Detector).setReadDataFromFile(false);
+			xspress3Detector.atScanEnd();
+		}
 	}
 
 	@Override
@@ -411,6 +430,7 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 	/**
 	 * @deprecated Use getConfigurationParameters() instead
 	 */
+	@Override
 	@Deprecated
 	public DetectorROI[] getRegionsOfInterest() throws DeviceException {
 		return xspress3Detector.getRegionsOfInterest();
@@ -419,6 +439,7 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 	/**
 	 * @deprecated Use applyConfigurationParameters() instead
 	 */
+	@Override
 	@Deprecated
 	public void setRegionsOfInterest(DetectorROI[] regionList)
 			throws DeviceException {
