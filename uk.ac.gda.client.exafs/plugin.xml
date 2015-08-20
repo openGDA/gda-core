@@ -481,24 +481,7 @@
       </menuContribution>
       <menuContribution
             allPopups="false"
-            locationURI="toolbar:uk.ac.gda.client.exafs.ui.views.detectors.xspress3">
-         <command
-               commandId="uk.ac.gda.client.exafs.applyDetectorConfigurationCommand"
-               icon="icons/cog_go.png"
-               label="Apply to Detector"
-               style="push"
-               tooltip="Apply settings to detector">
-         </command>
-         <command
-               commandId="uk.ac.gda.client.exafs.fetchDetectorConfigurationCommand"
-               icon="icons/arrow_refresh.png"
-               label="Refresh"
-               tooltip="Fetch current settings from detector">
-         </command>
-      </menuContribution>
-      <menuContribution
-            allPopups="false"
-            locationURI="toolbar:uk.ac.gda.client.exafs.ui.views.detectors.xspress2">
+            locationURI="toolbar:uk.ac.gda.exafs.ui.views.detectors.FluorescenceDetectorConfigurationView">
          <command
                commandId="uk.ac.gda.client.exafs.applyDetectorConfigurationCommand"
                icon="icons/cog_go.png"
