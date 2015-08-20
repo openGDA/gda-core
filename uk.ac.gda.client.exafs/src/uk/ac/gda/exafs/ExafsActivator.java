@@ -83,8 +83,8 @@ public class ExafsActivator extends AbstractUIPlugin {
 	 * @param serviceClass
 	 * @return any loaded OSGi service which the bundle can see.
 	 */
-	public static Object getService(Class<?> serviceClass) {
-		ServiceReference<?> ref = plugin.getBundle().getBundleContext().getServiceReference(serviceClass);
+	public static <T> T getService(Class<T> serviceClass) {
+		ServiceReference<T> ref = plugin.getBundle().getBundleContext().getServiceReference(serviceClass);
 		return plugin.getBundle().getBundleContext().getService(ref);
 	}
 
