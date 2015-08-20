@@ -397,12 +397,12 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 		return results;
 	}
 
-	@Override
 	/**
 	 * For use by Xspress3FFOverI0Detector only. Not intended for use in continuous scans. Largely duplicates code
 	 * used in Xspress3FFoverI0BufferedDetector.getFF().
 	 */
-	public double readoutFFTotal() throws DeviceException {
+	@Override
+	public double readoutFF() throws DeviceException {
 
 		// inefficient to call this whole method just to get the FF, but easiest option for now
 		NXDetectorData xspressFrame = (NXDetectorData) readout();
@@ -471,6 +471,7 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 	/**
 	 * @deprecated Use applyConfigurationParameters() instead
 	 */
+	@Override
 	@Deprecated
 	public void setRegionsOfInterest(DetectorROI[] regionList) throws DeviceException {
 		if (regionList.length > MAX_ROI_PER_CHANNEL) {
@@ -510,6 +511,7 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 	 * @throws DeviceException
 	 * @deprecated Use getConfigurationParameters() instead
 	 */
+	@Override
 	@Deprecated
 	public DetectorROI[] getRegionsOfInterest() throws DeviceException {
 		// assume that the ROIs were defined via this class and so the

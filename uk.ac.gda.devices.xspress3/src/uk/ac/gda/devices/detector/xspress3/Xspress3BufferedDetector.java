@@ -23,6 +23,7 @@ import gda.device.ContinuousParameters;
 import gda.device.DeviceException;
 import gda.device.detector.BufferedDetector;
 import gda.device.detector.DetectorBase;
+import gda.device.detector.NXDetectorData;
 import gda.device.detector.NexusDetector;
 import gda.factory.FactoryException;
 import gda.observable.IObserver;
@@ -40,7 +41,7 @@ import uk.ac.gda.devices.detector.xspress3.fullCalculations.Xspress3WithFullCalc
 public class Xspress3BufferedDetector extends DetectorBase implements BufferedDetector, NexusDetector,
 		FluorescenceDetector, Xspress3 {
 
-	private Xspress3WithFullCalculationsDetector xspress3Detector;
+	private Xspress3 xspress3Detector;
 	private ContinuousParameters parameters;
 	private boolean isContinuousModeOn;
 	private TRIGGER_MODE triggerModeWhenInContinuousScan = TRIGGER_MODE.TTl_Veto_Only;
@@ -61,14 +62,14 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 				((Xspress3WithFullCalculationsDetector) xspress3Detector).setReadDataFromFile(true);
 				xspress3Detector.atScanStart();
 				xspress3Detector.atScanLineStart();
-			} else if (xspress3Detector instanceof Xspress3Detector) {
+			} else {
 				xspress3Detector.getController().setNumFramesToAcquire(parameters.getNumberDataPoints());
 				xspress3Detector.getController().setTriggerMode(triggerModeWhenInContinuousScan);
 				// Epics needs us to clear memory again after setting trig mode and num frames
 				clearMemory();
 				xspress3Detector.getController().doStart();
 			}
-			
+
 		}
 	}
 
@@ -105,13 +106,19 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 	}
 
 	@Override
-	public NexusTreeProvider[] readFrames(int startFrame, int finalFrame) throws DeviceException {
-		return xspress3Detector.readFrames(startFrame, finalFrame, getName());
+	public NXDetectorData[] readFrames(int startFrame, int finalFrame) throws DeviceException {
+		if (xspress3Detector instanceof Xspress3WithFullCalculationsDetector) {
+			return ((Xspress3WithFullCalculationsDetector) xspress3Detector).readFrames(startFrame, finalFrame, getName());
+		}
+		return xspress3Detector.readFrames(startFrame, finalFrame);
 	}
 
 	@Override
-	public NexusTreeProvider[] readAllFrames() throws DeviceException {
-		return xspress3Detector.readFrames(0, xspress3Detector.getController().getNumFramesToAcquire(), getName());
+	public NXDetectorData[] readAllFrames() throws DeviceException {
+		if (xspress3Detector instanceof Xspress3WithFullCalculationsDetector) {
+			return ((Xspress3WithFullCalculationsDetector) xspress3Detector).readFrames(0, xspress3Detector.getController().getNumFramesToAcquire(), getName());
+		}
+		return xspress3Detector.readFrames(0, xspress3Detector.getController().getNumFramesToAcquire());
 	}
 
 	@Override
@@ -423,6 +430,7 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 	/**
 	 * @deprecated Use getConfigurationParameters() instead
 	 */
+	@Override
 	@Deprecated
 	public DetectorROI[] getRegionsOfInterest() throws DeviceException {
 		return xspress3Detector.getRegionsOfInterest();
@@ -431,6 +439,7 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 	/**
 	 * @deprecated Use applyConfigurationParameters() instead
 	 */
+	@Override
 	@Deprecated
 	public void setRegionsOfInterest(DetectorROI[] regionList)
 			throws DeviceException {
