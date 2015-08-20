@@ -43,6 +43,7 @@ public class Activator extends AbstractUIPlugin {
 	 * (non-Javadoc)
 	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext)
 	 */
+	@Override
 	public void start(BundleContext c) throws Exception {
 		super.start(c);
 		plugin  = this;
@@ -80,9 +81,9 @@ public class Activator extends AbstractUIPlugin {
 		return imageDescriptorFromPlugin(PLUGIN_ID, path);
 	}
 	
-	public static Object getService(Class<?> clazz) {
+	public static <T> T getService(Class<T> clazz) {
 		if (plugin==null) return null;
-		ServiceReference<?> ref = context.getServiceReference(clazz);
+		ServiceReference<T> ref = context.getServiceReference(clazz);
 		if (ref==null) return null;
 		return context.getService(ref);
 	}
