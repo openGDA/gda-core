@@ -15,28 +15,26 @@ This section lists people who have contributed in some way (code, design, docume
       * Jonathan Blakes
       * Mark Booth
       * Peter Chang
-      * Silvia Da Graca Ramos
+      * Matthew Dickie
+      * Silvia da Graca Ramos
       * Baha El Kassaby
       * Jacob Filik
       * Matthew Gerring
-      * Paul Gibbons
+      * Markus Gerstel
+      * Iain Hall
       * Paul Hathaway
       * Peter Holloway
       * Michael Kleyn
-      * Phyo Kyaw
       * Karl Levik
       * Charles Mita
       * James Mudd
       * Colin Palmer
       * Deepa Rethinam
-      * Tobias Richter
       * Chris Sharpe
-      * Irakli Sikharulidze
       * Robert Walton
       * Kaz Wanelik
       * Michael Wharmby
       * Matthew Webber
-      * Richard Woolliscroft
       * Fajin Yuan
 
    * Past contributors
@@ -47,7 +45,9 @@ This section lists people who have contributed in some way (code, design, docume
       * Chris Coles
       * Joachim Diepstraten
       * Richard Fearn
+      * Paul Gibbons
       * Jonah Graham
+      * Phyo Kyaw
       * Graham Lee
       * Conor Lehane
       * Geoff Mant
@@ -56,6 +56,9 @@ This section lists people who have contributed in some way (code, design, docume
       * William Newell
       * Bill Pulford
       * Xiaoxu Ren (Eric)
+      * Tobias Richter
+      * Irakli Sikharulidze
       * Duncan Sneddon
       * Ravi Somayaji
       * Richard Tyler
+      * Richard Woolliscroft
