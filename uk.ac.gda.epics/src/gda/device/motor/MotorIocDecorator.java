@@ -85,8 +85,8 @@ public abstract class MotorIocDecorator extends MotorBase implements Motor,Motor
 		}
 		// initialise IOC status
 		Channel iocChannel = channelManager.createChannel(iocPv, isml);
-		String value = controller.caget(iocChannel);
-		if (value.equalsIgnoreCase("Running")) {
+		int value = controller.cagetEnum(iocChannel);
+		if (value == 0) {
 			setIocRunning(true);
 		} else {
 			setIocRunning(false);
