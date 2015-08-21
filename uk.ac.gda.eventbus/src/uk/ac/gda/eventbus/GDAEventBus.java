@@ -48,7 +48,7 @@ import com.google.common.eventbus.Subscribe;
 
 /**
  * A Java-friendly route to a publish-subscribe message-oriented architecture
- * changes forshadowed by Eclipse 4. For general EventBus rationale please read:
+ * changes foreshadowed by Eclipse 4. For general EventBus rationale please read:
  * https://code.google.com/p/guava-libraries/wiki/EventBusExplained
  *
  * For intra-process event delivery GDAEventBus delegates to a Guava EventBus, as this
@@ -66,7 +66,7 @@ import com.google.common.eventbus.Subscribe;
  *
  * AsyncEventBus: http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/eventbus/AsyncEventBus.html
  */
-public class GDAEventBus extends EventBus {
+public class GDAEventBus extends EventBus implements IGDAEventBus {
 
 	public static final Logger logger = LoggerFactory.getLogger(GDAEventBus.class);
 
@@ -183,6 +183,9 @@ public class GDAEventBus extends EventBus {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see uk.ac.gda.eventbus.IGDAEventBus#post(java.lang.Object)
+	 */
 	@Override
 	public void post(Object event) {
 		logger.debug("posting event: {}", event);
@@ -192,6 +195,7 @@ public class GDAEventBus extends EventBus {
 	/**
 	 * Forwards messages to ActiveMQ
 	 */
+	@Override
 	public void publish(Serializable event) {
 		logger.debug("publishing event: {}", event);
 		try {
@@ -203,16 +207,26 @@ public class GDAEventBus extends EventBus {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see uk.ac.gda.eventbus.IGDAEventBus#identifier()
+	 */
+	@Override
 	public String identifier() {
 		return this.identifier;
 //		return delegate.identifier(); // only available in Guava > 16
 	}
 
+	/* (non-Javadoc)
+	 * @see uk.ac.gda.eventbus.IGDAEventBus#register(java.lang.Object)
+	 */
 	@Override
 	public void register(Object handler) {
 		delegate.register(handler);
 	}
 
+	/* (non-Javadoc)
+	 * @see uk.ac.gda.eventbus.IGDAEventBus#unregister(java.lang.Object)
+	 */
 	@Override
 	public void unregister(Object handler) {
 		delegate.unregister(handler);

@@ -11,4 +11,5 @@ Import-Package: javax.jms,
  org.slf4j;version="[1.7.6,1.7.7)",
  org.springframework.beans.factory;version="3.2.9.RELEASE"
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
-Export-Package: uk.ac.gda.eventbus
+Export-Package: uk.ac.gda.eventbus,
+ uk.ac.gda.eventbus.message
