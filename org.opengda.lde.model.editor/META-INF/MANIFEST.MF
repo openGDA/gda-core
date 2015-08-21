@@ -22,5 +22,6 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.wst.xml.ui;bundle-version="1.1.301",
  org.eclipse.jface.text;bundle-version="3.8.2",
  org.eclipse.nebula.jface.cdatetime,
- org.eclipse.nebula.widgets.cdatetime
+ org.eclipse.nebula.widgets.cdatetime,
+ org.eclipse.nebula.widgets.formattedtext;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy

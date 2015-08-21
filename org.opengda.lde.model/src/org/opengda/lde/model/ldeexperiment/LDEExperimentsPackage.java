@@ -694,6 +694,28 @@ public interface LDEExperimentsPackage extends EPackage {
 
 
 	/**
+	 * The meta object id for the '<em>Calibrant Name String</em>' data type.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see java.lang.String
+	 * @see org.opengda.lde.model.ldeexperiment.impl.LDEExperimentsPackageImpl#getCalibrantNameString()
+	 * @generated
+	 */
+	int CALIBRANT_NAME_STRING = 8;
+
+
+	/**
+	 * The meta object id for the '<em>Cell ID String</em>' data type.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see java.lang.String
+	 * @see org.opengda.lde.model.ldeexperiment.impl.LDEExperimentsPackageImpl#getCellIDString()
+	 * @generated
+	 */
+	int CELL_ID_STRING = 9;
+
+
+	/**
 	 * Returns the meta object for class '{@link org.opengda.lde.model.ldeexperiment.ExperimentDefinition <em>Experiment Definition</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -1311,6 +1333,30 @@ public interface LDEExperimentsPackage extends EPackage {
 	EDataType getDate();
 
 	/**
+	 * Returns the meta object for data type '{@link java.lang.String <em>Calibrant Name String</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for data type '<em>Calibrant Name String</em>'.
+	 * @see java.lang.String
+	 * @model instanceClass="java.lang.String"
+	 *        extendedMetaData="enumeration='Si(NIST-SRM-640c) CeO2(NIST-SRM-674b)'"
+	 * @generated
+	 */
+	EDataType getCalibrantNameString();
+
+	/**
+	 * Returns the meta object for data type '{@link java.lang.String <em>Cell ID String</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for data type '<em>Cell ID String</em>'.
+	 * @see java.lang.String
+	 * @model instanceClass="java.lang.String"
+	 *        extendedMetaData="enumeration='LS1-1 LS1-2 LS1-3 LS2-1 LS2-2 LS2-3 MS1-1 MS1-2 MS1-3 MS2-1 MS2-2 MS2-3 MS3-1 MS3-2 MS3-3 MS4-1 MS4-2 MS4-3 SS1-1 SS1-2 SS1-3 SS2-1 SS2-2 SS2-3 SS3-1 SS3-2 SS3-3 SS4-1 SS4-2 SS4-3 SS5-1 SS5-2 SS5-3 SS6-1 SS6-2 SS6-3 ROBOT-1 ROBOT-2 ROBOT-3 ROBOT-4 ROBOT-5 ROBOT-6 ROBOT-7 ROBOT-8 ROTOB-9 ROBOT-10'"
+	 * @generated
+	 */
+	EDataType getCellIDString();
+
+	/**
 	 * Returns the factory that creates the instances of the model.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -1804,6 +1850,26 @@ public interface LDEExperimentsPackage extends EPackage {
 		 * @generated
 		 */
 		EDataType DATE = eINSTANCE.getDate();
+
+		/**
+		 * The meta object literal for the '<em>Calibrant Name String</em>' data type.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @see java.lang.String
+		 * @see org.opengda.lde.model.ldeexperiment.impl.LDEExperimentsPackageImpl#getCalibrantNameString()
+		 * @generated
+		 */
+		EDataType CALIBRANT_NAME_STRING = eINSTANCE.getCalibrantNameString();
+
+		/**
+		 * The meta object literal for the '<em>Cell ID String</em>' data type.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @see java.lang.String
+		 * @see org.opengda.lde.model.ldeexperiment.impl.LDEExperimentsPackageImpl#getCellIDString()
+		 * @generated
+		 */
+		EDataType CELL_ID_STRING = eINSTANCE.getCellIDString();
 
 	}
 
