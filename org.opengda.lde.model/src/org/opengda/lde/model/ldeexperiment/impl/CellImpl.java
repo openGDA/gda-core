@@ -243,7 +243,7 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	 * @generated
 	 * @ordered
 	 */
-	protected static final String CALIBRANT_EDEFAULT = "Si(NIST SRM 640c)";
+	protected static final String CALIBRANT_EDEFAULT = "Si(NIST-SRM-640c)";
 
 	/**
 	 * The cached value of the '{@link #getCalibrant() <em>Calibrant</em>}' attribute.

@@ -122,6 +122,10 @@ public class LDEExperimentsValidator extends EObjectValidator {
 				return validateStageIDString((String)value, diagnostics, context);
 			case LDEExperimentsPackage.DATE:
 				return validateDate((Date)value, diagnostics, context);
+			case LDEExperimentsPackage.CALIBRANT_NAME_STRING:
+				return validateCalibrantNameString((String)value, diagnostics, context);
+			case LDEExperimentsPackage.CELL_ID_STRING:
+				return validateCellIDString((String)value, diagnostics, context);
 			default:
 				return true;
 		}
@@ -273,6 +277,122 @@ public class LDEExperimentsValidator extends EObjectValidator {
 	 */
 	public boolean validateDate(Date date, DiagnosticChain diagnostics, Map<Object, Object> context) {
 		return true;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public boolean validateCalibrantNameString(String calibrantNameString, DiagnosticChain diagnostics, Map<Object, Object> context) {
+		boolean result = validateCalibrantNameString_Enumeration(calibrantNameString, diagnostics, context);
+		return result;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @see #validateCalibrantNameString_Enumeration
+	 */
+	public static final Collection<Object> CALIBRANT_NAME_STRING__ENUMERATION__VALUES =
+		wrapEnumerationValues
+			(new Object[] {
+				 "Si(NIST-SRM-640c)",
+				 "CeO2(NIST-SRM-674b)"
+			 });
+
+	/**
+	 * Validates the Enumeration constraint of '<em>Calibrant Name String</em>'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public boolean validateCalibrantNameString_Enumeration(String calibrantNameString, DiagnosticChain diagnostics, Map<Object, Object> context) {
+		boolean result = CALIBRANT_NAME_STRING__ENUMERATION__VALUES.contains(calibrantNameString);
+		if (!result && diagnostics != null)
+			reportEnumerationViolation(LDEExperimentsPackage.Literals.CALIBRANT_NAME_STRING, calibrantNameString, CALIBRANT_NAME_STRING__ENUMERATION__VALUES, diagnostics, context);
+		return result;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public boolean validateCellIDString(String cellIDString, DiagnosticChain diagnostics, Map<Object, Object> context) {
+		boolean result = validateCellIDString_Enumeration(cellIDString, diagnostics, context);
+		return result;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @see #validateCellIDString_Enumeration
+	 */
+	public static final Collection<Object> CELL_ID_STRING__ENUMERATION__VALUES =
+		wrapEnumerationValues
+			(new Object[] {
+				 "LS1-1",
+				 "LS1-2",
+				 "LS1-3",
+				 "LS2-1",
+				 "LS2-2",
+				 "LS2-3",
+				 "MS1-1",
+				 "MS1-2",
+				 "MS1-3",
+				 "MS2-1",
+				 "MS2-2",
+				 "MS2-3",
+				 "MS3-1",
+				 "MS3-2",
+				 "MS3-3",
+				 "MS4-1",
+				 "MS4-2",
+				 "MS4-3",
+				 "SS1-1",
+				 "SS1-2",
+				 "SS1-3",
+				 "SS2-1",
+				 "SS2-2",
+				 "SS2-3",
+				 "SS3-1",
+				 "SS3-2",
+				 "SS3-3",
+				 "SS4-1",
+				 "SS4-2",
+				 "SS4-3",
+				 "SS5-1",
+				 "SS5-2",
+				 "SS5-3",
+				 "SS6-1",
+				 "SS6-2",
+				 "SS6-3",
+				 "ROBOT-1",
+				 "ROBOT-2",
+				 "ROBOT-3",
+				 "ROBOT-4",
+				 "ROBOT-5",
+				 "ROBOT-6",
+				 "ROBOT-7",
+				 "ROBOT-8",
+				 "ROTOB-9",
+				 "ROBOT-10"
+			 });
+
+	/**
+	 * Validates the Enumeration constraint of '<em>Cell ID String</em>'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public boolean validateCellIDString_Enumeration(String cellIDString, DiagnosticChain diagnostics, Map<Object, Object> context) {
+		boolean result = CELL_ID_STRING__ENUMERATION__VALUES.contains(cellIDString);
+		if (!result && diagnostics != null)
+			reportEnumerationViolation(LDEExperimentsPackage.Literals.CELL_ID_STRING, cellIDString, CELL_ID_STRING__ENUMERATION__VALUES, diagnostics, context);
+		return result;
 	}
 
 	/**

@@ -23,6 +23,8 @@
     </genEnums>
     <genDataTypes ecoreDataType="sampledefinition.ecore#//StageIDString"/>
     <genDataTypes ecoreDataType="sampledefinition.ecore#//Date"/>
+    <genDataTypes ecoreDataType="sampledefinition.ecore#//CalibrantNameString"/>
+    <genDataTypes ecoreDataType="sampledefinition.ecore#//CellIDString"/>
     <genClasses ecoreClass="sampledefinition.ecore#//ExperimentDefinition">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference sampledefinition.ecore#//ExperimentDefinition/experiments"/>
       <genOperations ecoreOperation="sampledefinition.ecore#//ExperimentDefinition/getExperiment">

@@ -104,6 +104,10 @@ public class LDEExperimentsFactoryImpl extends EFactoryImpl implements LDEExperi
 				return createStageIDStringFromString(eDataType, initialValue);
 			case LDEExperimentsPackage.DATE:
 				return createDateFromString(eDataType, initialValue);
+			case LDEExperimentsPackage.CALIBRANT_NAME_STRING:
+				return createCalibrantNameStringFromString(eDataType, initialValue);
+			case LDEExperimentsPackage.CELL_ID_STRING:
+				return createCellIDStringFromString(eDataType, initialValue);
 			default:
 				throw new IllegalArgumentException("The datatype '" + eDataType.getName() + "' is not a valid classifier");
 		}
@@ -123,6 +127,10 @@ public class LDEExperimentsFactoryImpl extends EFactoryImpl implements LDEExperi
 				return convertStageIDStringToString(eDataType, instanceValue);
 			case LDEExperimentsPackage.DATE:
 				return convertDateToString(eDataType, instanceValue);
+			case LDEExperimentsPackage.CALIBRANT_NAME_STRING:
+				return convertCalibrantNameStringToString(eDataType, instanceValue);
+			case LDEExperimentsPackage.CELL_ID_STRING:
+				return convertCellIDStringToString(eDataType, instanceValue);
 			default:
 				throw new IllegalArgumentException("The datatype '" + eDataType.getName() + "' is not a valid classifier");
 		}
@@ -219,7 +227,7 @@ public class LDEExperimentsFactoryImpl extends EFactoryImpl implements LDEExperi
 	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	public Date createDateFromString(EDataType eDataType, String initialValue) {
 		if (initialValue==null) return null;
@@ -235,12 +243,48 @@ public class LDEExperimentsFactoryImpl extends EFactoryImpl implements LDEExperi
 	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	public String convertDateToString(EDataType eDataType, Object instanceValue) {
 		if (instanceValue==null) return null;
 		SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
 		return format.format((Date)instanceValue);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public String createCalibrantNameStringFromString(EDataType eDataType, String initialValue) {
+		return (String)super.createFromString(eDataType, initialValue);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public String convertCalibrantNameStringToString(EDataType eDataType, Object instanceValue) {
+		return super.convertToString(eDataType, instanceValue).replace('-', ' ');
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public String createCellIDStringFromString(EDataType eDataType, String initialValue) {
+		return ((String)super.createFromString(eDataType, initialValue)).replace(' ', '-');
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public String convertCellIDStringToString(EDataType eDataType, Object instanceValue) {
+		return super.convertToString(eDataType, instanceValue);
 	}
 
 	/**
