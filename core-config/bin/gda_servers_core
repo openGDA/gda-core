@@ -39,7 +39,7 @@ else
     # This runs when live on the control machine or in any mode other than live
 
     echo
-    case "${GDA_OPERATION,,-}" in
+    case "${GDA_OPERATION,,}" in
         stop) echo "Stopping the GDA Server, please wait..." ;;
         start|restart) echo "${GDA_OPERATION^}ing the GDA Server, please wait...";; # ^ converts 1st character to upper case
         *) echo "Restarting the GDA Server, please wait..." ;; # if no stop|start|restart was passed to this script, then restart is assumed
@@ -67,13 +67,24 @@ else
 
     bashlog info "gda_servers_core" "${GDA_CORE_SCRIPT} ${GDA_CORE_SCRIPT_OPTIONS}"
     echo  ${GDA_CORE_SCRIPT} ${GDA_CORE_SCRIPT_OPTIONS} >> ${GDA_LOG_FILE}
-    nohup ${GDA_CORE_SCRIPT} ${GDA_CORE_SCRIPT_OPTIONS} >> ${GDA_LOG_FILE}  2>&1 &
-    export SERVERS_SSH_PID=$!
-    
-    ${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel}/bin/utils/lookForFile $OBJECT_SERVER_STARTUP_FILE $HOSTNAME
-    # TODO: Ideally we would like to stop waiting for the startup file if the startup fails, but since
-    #       we put it in the background, we never find out the exit codes and failed startups will continue to
-    #       wait for this file until a subsequent start of the GDA servers works.
+    nohup ${GDA_CORE_SCRIPT} ${GDA_CORE_SCRIPT_OPTIONS} >> ${GDA_LOG_FILE}  2>&1
+
+    if [[ ${GDA_OPERATION,,} != "stop" ]]; then
+        # Starting; wait for the startup file to be created so that any
+        # gda_servers_post scripts don't run before the servers are started.
+
+        ${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel}/bin/utils/lookForFile $OBJECT_SERVER_STARTUP_FILE $HOSTNAME
+        echo
+        echo "GDA Server started"
+
+        # TODO: Ideally we would like to stop waiting for the startup file if the startup fails, but all
+        #       output from the gda core script is written to the log file and not returned from nohup.
+        #       We never find out the exit codes or process status and failed startups will continue to
+        #       wait for this file until a subsequent start of the GDA servers works.
+    else
+        echo
+        echo "GDA Server stopped"
+    fi
 fi
 
 bashlog debug "gda_servers_core" "Exited"
