@@ -79,7 +79,8 @@ public class ObservableComponent implements IObservable, IIsBeingObserved {
 	}
 
 	/**
-	 * Notify all observers on the list of the requested change.
+	 * Notify all observers on the list of the requested change,
+	 * swallowing any exceptions to ensure all observers are updated.
 	 * 
 	 * @param theObserved
 	 *            the observed component
@@ -91,12 +92,17 @@ public class ObservableComponent implements IObservable, IIsBeingObserved {
 		synchronized(myIObservers){
 			observers = myIObservers.toArray(new IObserver[0]);
 		}
-		
 		for (IObserver anIObserver : observers) {
 			try {
 				anIObserver.update(theObserved, changeCode);
 			} catch (Exception ex) {
-				logger.error("notifyIObservers of " + theObserved.toString(), ex);
+				logger.error("swallowing exception {}", ex.toString());
+				logger.debug("triggered by {}.update({}, {})", anIObserver, theObserved, changeCode, ex);
+				
+				if (theObserved == null) { //TODO remove in GDA 9
+					logger.warn("GDA-6190 subsequent observers now being notified when 1st argument of "
+							+ "update is null: {}.update({}, {})", anIObserver, theObserved, changeCode);
+				}
 			}
 		}
 	}
