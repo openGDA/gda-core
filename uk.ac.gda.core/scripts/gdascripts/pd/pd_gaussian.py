@@ -1,6 +1,7 @@
 import java
 from gda.device.scannable import ScannableMotionBase
 from math import exp, sqrt
+import random
 
 class GaussianX(ScannableMotionBase):
 	"""Device to allow control and readback of X value"""
@@ -27,7 +28,7 @@ class GaussianY(ScannableMotionBase):
 	pos y
 	scan x -10 10 1 y
 	"""
-	def __init__(self, name, gaussianX, centre, width, height, background):
+	def __init__(self, name, gaussianX, centre, width, height, background, noise=0):
 #		PseudoDevice.__init__(self)
 		self.setName(name)
 		self.setInputNames([name])
@@ -36,7 +37,8 @@ class GaussianY(ScannableMotionBase):
 		self.width=width
 		self.height=height
 		self.centre = centre
-		self.background=background
+		self.background = background
+		self.noise = noise
 
 	def rawIsBusy(self):
 		return 0
@@ -44,18 +46,19 @@ class GaussianY(ScannableMotionBase):
 	def rawGetPosition(self):
 		if self.height == None:
 			return self.background + self.gaussianX.getPosition()
-		return self.background + self.height * exp( -1.0 *(((self.gaussianX.getPosition() - self.centre )**2)/ self.width) )
+		val = self.background + self.height * exp( -1.0 *(((self.gaussianX.getPosition() - self.centre )**2)/ self.width) )
+		return val + self.height * self.noise * (0.5 - random.random())
 
 	def rawAsynchronousMoveTo(self,new_position):
 		pass
 
 class EdgeY(GaussianY):
-	def __init__(self, name, gaussianX, centre, width, height, background):
+	def __init__(self, name, gaussianX, centre, width, height, background, noise=0):
 		self.cur_position = background
 		self.setName(name)
 		self.setInputNames([name])
 		self.reset = background
-		self.gauss = GaussianY(name + "_gauss", gaussianX, centre, width, height, 0)
+		self.gauss = GaussianY(name + "_gauss", gaussianX, centre, width, height, 0, noise)
 
 	def rawGetPosition(self):
 		self.cur_position += self.gauss.getPosition()
