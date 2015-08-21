@@ -54,7 +54,6 @@ Import-Package: javax.mail.internet;version="1.5.0",
  org.springframework.beans.factory
 Export-Package: org.opengda.lde.ui,
  org.opengda.lde.ui.actions,
- org.opengda.lde.ui.cdatetime,
  org.opengda.lde.ui.dialogs,
  org.opengda.lde.ui.jobs,
  org.opengda.lde.ui.providers,
