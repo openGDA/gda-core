@@ -1,4 +1,4 @@
-package org.opengda.lde.ui.cdatetime;
+package org.opengda.lde.model.editor.ui.provider;
 
 import org.eclipse.nebula.widgets.cdatetime.CDateTime;
 import org.eclipse.swt.events.FocusAdapter;
