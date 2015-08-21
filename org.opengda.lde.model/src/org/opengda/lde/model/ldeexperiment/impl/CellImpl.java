@@ -23,6 +23,7 @@
 package org.opengda.lde.model.ldeexperiment.impl;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import org.eclipse.emf.common.notify.Notification;
@@ -127,7 +128,7 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	 * @generated
 	 * @ordered
 	 */
-	protected static final String VISIT_ID_EDEFAULT = "";
+	protected static final String VISIT_ID_EDEFAULT = null;
 
 	/**
 	 * The cached value of the '{@link #getVisitID() <em>Visit ID</em>}' attribute.
@@ -147,7 +148,7 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	 * @generated
 	 * @ordered
 	 */
-	protected static final String EMAIL_EDEFAULT = "";
+	protected static final String EMAIL_EDEFAULT = null;
 
 	/**
 	 * The cached value of the '{@link #getEmail() <em>Email</em>}' attribute.
@@ -164,10 +165,25 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @see #getStartDate()
-	 * @generated
+	 * @generated NOT
 	 * @ordered
 	 */
-	protected static final Date START_DATE_EDEFAULT = null;
+	protected static final Date START_DATE_EDEFAULT = Calendar.getInstance().getTime();
+
+
+	/**
+	 * The default value for the '{@link #getEndDate() <em>End Date</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getEndDate()
+	 * @generated NOT
+	 * @ordered
+	 */
+	private static Date threeMonths() {
+		 Calendar calendar=Calendar.getInstance();
+		 calendar.add(Calendar.DAY_OF_YEAR, 91);
+		 return (calendar.getTime());
+	}
 
 	/**
 	 * The cached value of the '{@link #getStartDate() <em>Start Date</em>}' attribute.
@@ -184,10 +200,10 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @see #getEndDate()
-	 * @generated
+	 * @generated NOT
 	 * @ordered
 	 */
-	protected static final Date END_DATE_EDEFAULT = null;
+	protected static final Date END_DATE_EDEFAULT = threeMonths();
 
 	/**
 	 * The cached value of the '{@link #getEndDate() <em>End Date</em>}' attribute.

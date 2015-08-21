@@ -6,9 +6,9 @@
     rootExtendsClass="org.eclipse.emf.ecore.impl.MinimalEObjectImpl$Container" rootImplementsInterface=""
     featureMapWrapperInterface="" featureMapWrapperInternalInterface="" featureMapWrapperClass=""
     booleanFlagsField="" importerID="org.eclipse.emf.importer.ecore" complianceLevel="7.0"
-    copyrightFields="false" providerRootExtendsClass="" tableProviders="true" language=""
-    interfaceNamePattern="" classNamePattern="" operationReflection="true" importOrganizing="true"
-    decoration="Live">
+    copyrightFields="false" providerRootExtendsClass="" tableProviders="true" runtimeVersion="2.10"
+    language="" interfaceNamePattern="" classNamePattern="" operationReflection="true"
+    importOrganizing="true" decoration="Live">
   <foreignModel>sampledefinition.ecore</foreignModel>
   <genPackages prefix="LDEExperiments" basePackage="org.opengda.lde.model" resource="XML"
       disposableProviderFactory="true" contentTypeIdentifier="" fileExtensions="lde"
@@ -22,6 +22,7 @@
       <genEnumLiterals ecoreEnumLiteral="sampledefinition.ecore#//STATUS/ERROR"/>
     </genEnums>
     <genDataTypes ecoreDataType="sampledefinition.ecore#//StageIDString"/>
+    <genDataTypes ecoreDataType="sampledefinition.ecore#//Date"/>
     <genClasses ecoreClass="sampledefinition.ecore#//ExperimentDefinition">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference sampledefinition.ecore#//ExperimentDefinition/experiments"/>
       <genOperations ecoreOperation="sampledefinition.ecore#//ExperimentDefinition/getExperiment">

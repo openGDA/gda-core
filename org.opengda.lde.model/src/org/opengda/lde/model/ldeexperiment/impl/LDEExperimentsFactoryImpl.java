@@ -22,6 +22,9 @@
  */
 package org.opengda.lde.model.ldeexperiment.impl;
 
+import java.text.ParsePosition;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EObject;
@@ -99,6 +102,8 @@ public class LDEExperimentsFactoryImpl extends EFactoryImpl implements LDEExperi
 				return createSTATUSFromString(eDataType, initialValue);
 			case LDEExperimentsPackage.STAGE_ID_STRING:
 				return createStageIDStringFromString(eDataType, initialValue);
+			case LDEExperimentsPackage.DATE:
+				return createDateFromString(eDataType, initialValue);
 			default:
 				throw new IllegalArgumentException("The datatype '" + eDataType.getName() + "' is not a valid classifier");
 		}
@@ -116,6 +121,8 @@ public class LDEExperimentsFactoryImpl extends EFactoryImpl implements LDEExperi
 				return convertSTATUSToString(eDataType, instanceValue);
 			case LDEExperimentsPackage.STAGE_ID_STRING:
 				return convertStageIDStringToString(eDataType, instanceValue);
+			case LDEExperimentsPackage.DATE:
+				return convertDateToString(eDataType, instanceValue);
 			default:
 				throw new IllegalArgumentException("The datatype '" + eDataType.getName() + "' is not a valid classifier");
 		}
@@ -207,6 +214,33 @@ public class LDEExperimentsFactoryImpl extends EFactoryImpl implements LDEExperi
 	 */
 	public String convertStageIDStringToString(EDataType eDataType, Object instanceValue) {
 		return super.convertToString(eDataType, instanceValue);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public Date createDateFromString(EDataType eDataType, String initialValue) {
+		if (initialValue==null) return null;
+		SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+		ParsePosition position= new ParsePosition(0);
+		Date result=format.parse(initialValue, position);
+		if (position.getIndex()==0) {
+			throw new IllegalArgumentException("Date must be of format dd/MM/yyyy");
+		}
+		return result;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public String convertDateToString(EDataType eDataType, Object instanceValue) {
+		if (instanceValue==null) return null;
+		SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+		return format.format((Date)instanceValue);
 	}
 
 	/**

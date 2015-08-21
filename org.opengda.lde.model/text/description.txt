@@ -36,8 +36,8 @@ Package ldeexperiment <http://www.opengda.org/LDEExperiments>
     Attribute name : EString
     Attribute visitID : EString
     Attribute email : EString
-    Attribute startDate : EDate
-    Attribute endDate : EDate
+    Attribute startDate : Date
+    Attribute endDate : Date
     Attribute enableAutoEmail : EBoolean
     Attribute calibrant : EString
     Attribute calibrant_x : EDouble
@@ -75,3 +75,5 @@ Package ldeexperiment <http://www.opengda.org/LDEExperiments>
     Literal ERROR = 5
 
   DataType StageIDString <java.lang.String>
+
+  DataType Date <java.util.Date>

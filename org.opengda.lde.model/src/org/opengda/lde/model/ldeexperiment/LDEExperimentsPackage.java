@@ -683,6 +683,17 @@ public interface LDEExperimentsPackage extends EPackage {
 
 
 	/**
+	 * The meta object id for the '<em>Date</em>' data type.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see java.util.Date
+	 * @see org.opengda.lde.model.ldeexperiment.impl.LDEExperimentsPackageImpl#getDate()
+	 * @generated
+	 */
+	int DATE = 7;
+
+
+	/**
 	 * Returns the meta object for class '{@link org.opengda.lde.model.ldeexperiment.ExperimentDefinition <em>Experiment Definition</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -1289,6 +1300,17 @@ public interface LDEExperimentsPackage extends EPackage {
 	EDataType getStageIDString();
 
 	/**
+	 * Returns the meta object for data type '{@link java.util.Date <em>Date</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for data type '<em>Date</em>'.
+	 * @see java.util.Date
+	 * @model instanceClass="java.util.Date"
+	 * @generated
+	 */
+	EDataType getDate();
+
+	/**
 	 * Returns the factory that creates the instances of the model.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -1772,6 +1794,16 @@ public interface LDEExperimentsPackage extends EPackage {
 		 * @generated
 		 */
 		EDataType STAGE_ID_STRING = eINSTANCE.getStageIDString();
+
+		/**
+		 * The meta object literal for the '<em>Date</em>' data type.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @see java.util.Date
+		 * @see org.opengda.lde.model.ldeexperiment.impl.LDEExperimentsPackageImpl#getDate()
+		 * @generated
+		 */
+		EDataType DATE = eINSTANCE.getDate();
 
 	}
 

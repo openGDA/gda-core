@@ -154,7 +154,6 @@ public interface Cell extends EObject {
 
 	/**
 	 * Returns the value of the '<em><b>Visit ID</b></em>' attribute.
-	 * The default value is <code>""</code>.
 	 * <!-- begin-user-doc -->
 	 * <p>
 	 * If the meaning of the '<em>Visit ID</em>' attribute isn't clear,
@@ -164,7 +163,7 @@ public interface Cell extends EObject {
 	 * @return the value of the '<em>Visit ID</em>' attribute.
 	 * @see #setVisitID(String)
 	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getCell_VisitID()
-	 * @model default=""
+	 * @model
 	 * @generated
 	 */
 	String getVisitID();
@@ -181,7 +180,6 @@ public interface Cell extends EObject {
 
 	/**
 	 * Returns the value of the '<em><b>Email</b></em>' attribute.
-	 * The default value is <code>""</code>.
 	 * <!-- begin-user-doc -->
 	 * <p>
 	 * If the meaning of the '<em>Email</em>' attribute isn't clear,
@@ -191,7 +189,7 @@ public interface Cell extends EObject {
 	 * @return the value of the '<em>Email</em>' attribute.
 	 * @see #setEmail(String)
 	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getCell_Email()
-	 * @model default="" unique="false"
+	 * @model unique="false"
 	 * @generated
 	 */
 	String getEmail();
@@ -217,7 +215,7 @@ public interface Cell extends EObject {
 	 * @return the value of the '<em>Start Date</em>' attribute.
 	 * @see #setStartDate(Date)
 	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getCell_StartDate()
-	 * @model
+	 * @model dataType="org.opengda.lde.model.ldeexperiment.Date"
 	 * @generated
 	 */
 	Date getStartDate();
@@ -243,7 +241,7 @@ public interface Cell extends EObject {
 	 * @return the value of the '<em>End Date</em>' attribute.
 	 * @see #setEndDate(Date)
 	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getCell_EndDate()
-	 * @model
+	 * @model dataType="org.opengda.lde.model.ldeexperiment.Date"
 	 * @generated
 	 */
 	Date getEndDate();

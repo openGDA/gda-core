@@ -22,9 +22,6 @@
  */
 package org.opengda.lde.model.ldeexperiment.impl;
 
-import gda.configuration.properties.LocalProperties;
-import java.util.Calendar;
-import java.util.Date;
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.NotificationChain;
 import org.eclipse.emf.ecore.EClass;
@@ -165,16 +162,6 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	protected boolean sampleIDESet;
 
 	/**
-	 * The default value of the '{@link #getVisitID() <em>Visit ID</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getVisitID()
-	 * @generated NOT
-	 * @ordered
-	 */
-	protected static final String VISIT_ID_EDEFAULT = LocalProperties.get(LocalProperties.RCP_APP_VISIT);
-
-	/**
 	 * The default value of the '{@link #getSample_x_start() <em>Sample xstart</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -313,41 +300,6 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * @ordered
 	 */
 	protected double sample_exposure = SAMPLE_EXPOSURE_EDEFAULT;
-
-	/**
-	 * The default value of the '{@link #getStartDate() <em>Start Date</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getStartDate()
-	 * @generated NOT
-	 * @ordered
-	 */
-	protected static final Date START_DATE_EDEFAULT = Calendar.getInstance().getTime();
-
-
-	/**
-	 * The default value of the '{@link #getEndDate() <em>End Date</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getEndDate()
-	 * @generated NOT
-	 * @ordered
-	 */
-	protected static final Date END_DATE_EDEFAULT = threeMonths();
-
-	/**
-	 * The default value for the '{@link #getEndDate() <em>End Date</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getEndDate()
-	 * @generated NOT
-	 * @ordered
-	 */
-	private static Date threeMonths() {
-		 Calendar calendar=Calendar.getInstance();
-		 calendar.add(Calendar.DAY_OF_YEAR, 91);
-		 return (calendar.getTime());
-	}
 
 	/**
 	 * The default value of the '{@link #getCommand() <em>Command</em>}' attribute.

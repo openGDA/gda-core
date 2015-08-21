@@ -21,6 +21,7 @@
 package org.opengda.lde.model.ldeexperiment.util;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.Map;
 
 import org.eclipse.emf.common.util.Diagnostic;
@@ -119,6 +120,8 @@ public class LDEExperimentsValidator extends EObjectValidator {
 				return validateSTATUS((STATUS)value, diagnostics, context);
 			case LDEExperimentsPackage.STAGE_ID_STRING:
 				return validateStageIDString((String)value, diagnostics, context);
+			case LDEExperimentsPackage.DATE:
+				return validateDate((Date)value, diagnostics, context);
 			default:
 				return true;
 		}
@@ -261,6 +264,15 @@ public class LDEExperimentsValidator extends EObjectValidator {
 		if (!result && diagnostics != null)
 			reportEnumerationViolation(LDEExperimentsPackage.Literals.STAGE_ID_STRING, stageIDString, STAGE_ID_STRING__ENUMERATION__VALUES, diagnostics, context);
 		return result;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public boolean validateDate(Date date, DiagnosticChain diagnostics, Map<Object, Object> context) {
+		return true;
 	}
 
 	/**

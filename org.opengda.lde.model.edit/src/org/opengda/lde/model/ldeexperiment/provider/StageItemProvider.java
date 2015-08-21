@@ -339,6 +339,7 @@ public class StageItemProvider
 	public ResourceLocator getResourceLocator() {
 		return SampledefinitionEditPlugin.INSTANCE;
 	}
+	
 	@Override
 	public Object getColumnImage(Object object, int columnIndex) {
 		if (object instanceof Cell) {
