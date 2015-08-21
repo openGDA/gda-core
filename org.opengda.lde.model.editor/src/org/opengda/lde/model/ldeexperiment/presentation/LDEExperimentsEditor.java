@@ -133,6 +133,7 @@ import org.eclipse.ui.views.properties.IPropertySheetPage;
 import org.eclipse.ui.views.properties.PropertySheet;
 import org.eclipse.ui.views.properties.PropertySheetPage;
 import org.opengda.lde.model.editor.XMLEditor;
+import org.opengda.lde.model.editor.ui.provider.CustomisedAdapterFactoryContentProvider;
 import org.opengda.lde.model.ldeexperiment.provider.LDEExperimentsItemProviderAdapterFactory;
 
 /**
@@ -1240,7 +1241,7 @@ public class LDEExperimentsEditor
 					getActionBarContributor().shareGlobalActions(this, actionBars);
 				}
 			};
-		propertySheetPage.setPropertySourceProvider(new AdapterFactoryContentProvider(adapterFactory));
+		propertySheetPage.setPropertySourceProvider(new CustomisedAdapterFactoryContentProvider(adapterFactory));
 		propertySheetPages.add(propertySheetPage);
 
 		return propertySheetPage;
