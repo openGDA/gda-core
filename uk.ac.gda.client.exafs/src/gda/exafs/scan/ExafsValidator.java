@@ -18,6 +18,12 @@
 
 package gda.exafs.scan;
 
+import gda.configuration.properties.LocalProperties;
+import gda.device.Scannable;
+import gda.factory.Findable;
+import gda.factory.Finder;
+import gda.util.Element;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -25,11 +31,6 @@ import java.util.List;
 
 import org.nfunk.jep.JEP;
 
-import gda.configuration.properties.LocalProperties;
-import gda.device.Scannable;
-import gda.factory.Findable;
-import gda.factory.Finder;
-import gda.util.Element;
 import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.exafs.IDetectorParameters;
 import uk.ac.gda.beans.exafs.IOutputParameters;
@@ -99,11 +100,11 @@ public abstract class ExafsValidator extends AbstractValidator {
 
 			checkFindable("Scannable Name", sp.getScannableName(), Scannable.class, errors);
 
-			if (sp.getName() != null) {
+			if (sp.getName() != null && !sp.getName().isEmpty()) {
 				checkRegExp("Variable Name", sp.getName(), "[a-zA-Z0-9_]+", errors,
 						"Only alpha-numeric characters (a-z,A-Z,0-9) and '_' are allowed.");
 			}
-			if (sp.getExpression() != null) {
+			if (sp.getExpression() != null && !sp.getExpression().isEmpty()) {
 				checkExpressionSyntax("Expression", sp.getExpression(), errors);
 			}
 		}

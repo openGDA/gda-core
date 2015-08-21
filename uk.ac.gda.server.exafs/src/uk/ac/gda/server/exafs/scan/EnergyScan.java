@@ -1,5 +1,13 @@
 package uk.ac.gda.server.exafs.scan;
 
+import gda.device.Detector;
+import gda.device.Scannable;
+import gda.device.scannable.JEPScannable;
+import gda.device.scannable.XasScannable;
+import gda.exafs.scan.ExafsScanPointCreator;
+import gda.exafs.scan.XanesScanPointCreator;
+import gda.jython.InterfaceProvider;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,12 +15,6 @@ import org.apache.commons.lang.ArrayUtils;
 import org.nfunk.jep.ParseException;
 import org.python.core.PyTuple;
 
-import gda.device.Detector;
-import gda.device.Scannable;
-import gda.device.scannable.JEPScannable;
-import gda.device.scannable.XasScannable;
-import gda.exafs.scan.ExafsScanPointCreator;
-import gda.exafs.scan.XanesScanPointCreator;
 import uk.ac.gda.beans.exafs.SignalParameters;
 import uk.ac.gda.beans.exafs.XanesScanParameters;
 import uk.ac.gda.beans.exafs.XasScanParameters;
@@ -71,10 +73,15 @@ public class EnergyScan extends XasScanBase {
 	private List<Scannable> getSignalList() throws ParseException {
 		List<Scannable> signalList = new ArrayList<Scannable>();
 		for (SignalParameters signal : outputBean.getSignalList()) {
-			int dp = signal.getDecimalPlaces();
-			String dataFormat = "%6." + dp + 'f';// # construct data format from dp e.g. "%6.2f"
-			Scannable scannable = JEPScannable.createJEPScannable(signal.getLabel(), signal.getScannableName(),
+			Scannable scannable;
+			if (signal.getExpression() != null && !signal.getExpression().isEmpty()) {
+				int dp = signal.getDecimalPlaces();
+				String dataFormat = "%6." + dp + 'f';// # construct data format from dp e.g. "%6.2f"
+				scannable = JEPScannable.createJEPScannable(signal.getLabel(), signal.getScannableName(),
 					dataFormat, signal.getName(), signal.getExpression());
+			} else {
+				scannable = (Scannable) InterfaceProvider.getJythonNamespace().getFromJythonNamespace(signal.getScannableName());
+			}
 			signalList.add(scannable);
 		}
 		return signalList;

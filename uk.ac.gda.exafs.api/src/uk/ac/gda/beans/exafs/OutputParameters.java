@@ -124,6 +124,13 @@ public class OutputParameters implements Serializable, IOutputParameters {
 		this.metadataList = metadataList;
 	}
 
+	public void clear() {
+		if (signalList != null)
+			signalList.clear();
+		if (metadataList != null)
+			metadataList.clear();
+	}
+
 	@Override
 	public int hashCode() {
 		int prime = 31;
