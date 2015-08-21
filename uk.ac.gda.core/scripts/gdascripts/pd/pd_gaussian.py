@@ -47,4 +47,19 @@ class GaussianY(ScannableMotionBase):
 		return self.background + self.height * exp( -1.0 *(((self.gaussianX.getPosition() - self.centre )**2)/ self.width) )
 
 	def rawAsynchronousMoveTo(self,new_position):
-		pass	
+		pass
+
+class EdgeY(GaussianY):
+	def __init__(self, name, gaussianX, centre, width, height, background):
+		self.cur_position = background
+		self.setName(name)
+		self.setInputNames([name])
+		self.reset = background
+		self.gauss = GaussianY(name + "_gauss", gaussianX, centre, width, height, 0)
+
+	def rawGetPosition(self):
+		self.cur_position += self.gauss.getPosition()
+		return self.cur_position
+
+	def atScanLineStart(self):
+		self.cur_position = self.reset
