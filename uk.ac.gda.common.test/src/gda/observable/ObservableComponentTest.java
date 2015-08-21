@@ -29,6 +29,23 @@ import junit.framework.TestCase;
 public class ObservableComponentTest extends TestCase {
 	
 	/**
+	 * Test notifyIObservers swallows and does not cause any exceptions
+	 */
+	public void testSwallowedExceptionLoggingDoesNotCauseException() {
+		ObservableComponent oc = new ObservableComponent();
+		oc.addIObserver(new IObserver() {
+			@Override
+			public void update(Object source, Object arg) {
+				throw new RuntimeException("should be swallowed");
+			}
+		});
+		// notifyIObservers previously caused a NullPointerException
+		// when it logged an exception and theObserved was null by
+		// calling toString on theObserved
+		oc.notifyIObservers(null, "\"theObserved is null\"");
+	}
+	
+	/**
 	 * Tests that all observers of an observable component receive an update,
 	 * even if one of the observers deletes itself from the list of
 	 * observers when it gets an update.
