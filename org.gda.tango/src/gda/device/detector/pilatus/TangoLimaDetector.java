@@ -45,8 +45,8 @@ public class TangoLimaDetector extends DetectorBase implements Detector, Scannab
 	private static final Logger logger = LoggerFactory.getLogger(TangoLimaDetector.class);
 	private TangoDeviceProxy dev = null;
 	
-	private int width = 1;
-	private int height = 1;
+	protected int width = 1;
+	protected int height = 1;
 	private double exposureTime = 0.0;
 	private int frames = 1;
 	private boolean createsOwnFile = false;
@@ -237,8 +237,7 @@ public class TangoLimaDetector extends DetectorBase implements Detector, Scannab
 		}		
 	}
 		
-	public void reset() throws DeviceException
-	{
+	public void reset() throws DeviceException {
 		try {
 			dev.command_inout("Reset");
 		} catch (DevFailed e) {
@@ -269,7 +268,6 @@ public class TangoLimaDetector extends DetectorBase implements Detector, Scannab
 
 			writeSavingNextNumber(nextNumber);
 
-			System.out.println("Check for readiness **************************");
 			for (int i=0; i<100; i++) {
 				if (readReadyForNextAcq()) {
 					break;
@@ -281,9 +279,8 @@ public class TangoLimaDetector extends DetectorBase implements Detector, Scannab
 				}
 			}
 			if (readReadyForNextAcq()) {
-				System.out.println("Preparing acq **************************");
+				logger.debug("Preparing for acquisition");
 				dev.command_inout("PrepareAcq");
-				System.out.println("Prepared **************************");
 				// Add small sleep time for slower detectors to respond before start arrives.
 				try {
 					Thread.sleep(10);
@@ -395,13 +392,16 @@ public class TangoLimaDetector extends DetectorBase implements Detector, Scannab
 
 	@Override
 	public Object readout() throws DeviceException {
+		return null;
+	}
+
+	public int[] getData() throws DeviceException {
 		byte[] byteData = null;	
 		int[] intData = new int[width*height*frames];
 		isAvailable();
 		try {
 			int n = 0;
-			if (readLastImageReady() != frames-1)
-			{
+			if (readLastImageReady() != frames-1) {
 				logger.error("TangoLimaDetector: readout: image not ready {} should be ", readLastImageReady(), frames-1);
 				throw new DeviceException("TangoLimaDetector: readout: image not ready");				
 			}
@@ -411,7 +411,7 @@ public class TangoLimaDetector extends DetectorBase implements Detector, Scannab
 				DeviceData argout = dev.command_inout("getImage", argin);
 				byteData = argout.extractByteArray();
 				
-				if ("Bpp32S".equalsIgnoreCase(imageType)) {
+				if ("Bpp32S".equalsIgnoreCase(imageType) || "Bpp32".equalsIgnoreCase(imageType)) {
 					if (byteData.length !=  width*height*4) {
 						logger.error("TangoLimaDetector.readout failed: expected {} bytes, got {}", width*height*4, byteData.length);
 						throw new DeviceException("TangoLimaDetector.readout failed to read all the image data");
@@ -420,7 +420,7 @@ public class TangoLimaDetector extends DetectorBase implements Detector, Scannab
 						intData[n] = ((byteData[j + 3] & 0xff) << 24) | ((byteData[j + 2] & 0xff) << 16)
 								| ((byteData[j + 1] & 0xff) << 8) | (byteData[j] & 0xff);
 					}
-				} else if ("Bpp16".equalsIgnoreCase(imageType)) {
+				} else if ("Bpp16S".equalsIgnoreCase(imageType) || "Bpp16".equalsIgnoreCase(imageType)) {
 					if (byteData.length !=  width*height*2) {
 						logger.error("TangoLimaDetector.readout failed: expected {} bytes, got {}", width*height*2, byteData.length);
 						throw new DeviceException("TangoLimaDetector.readout failed to read all the image data");
@@ -454,7 +454,7 @@ public class TangoLimaDetector extends DetectorBase implements Detector, Scannab
 				DeviceData argout = dev.command_inout("getImage", argin);
 				byteData = argout.extractByteArray();
 				
-				if ("Bpp32S".equalsIgnoreCase(imageType)) {
+				if ("Bpp32S".equalsIgnoreCase(imageType) || "Bpp32".equalsIgnoreCase(imageType)) {
 					if (byteData.length !=  width*height*4) {
 						logger.error("TangoLimaDetector.readout failed: expected {} bytes, got {}", width*height*4, byteData.length);
 						throw new DeviceException("TangoLimaDetector.readout failed to read all the image data");
@@ -463,7 +463,7 @@ public class TangoLimaDetector extends DetectorBase implements Detector, Scannab
 						data[n] = ((byteData[j + 3] & 0xff) << 24) | ((byteData[j + 2] & 0xff) << 16)
 								| ((byteData[j + 1] & 0xff) << 8) | (byteData[j] & 0xff);
 					}
-				} else if ("Bpp16".equalsIgnoreCase(imageType)) {
+				} else if ("Bpp16S".equalsIgnoreCase(imageType) || "Bpp16".equalsIgnoreCase(imageType)) {
 					if (byteData.length !=  width*height*2) {
 						logger.error("TangoLimaDetector.readout failed: expected {} bytes, got {}", width*height*2, byteData.length);
 						throw new DeviceException("TangoLimaDetector.readout failed to read all the image data");
@@ -675,7 +675,7 @@ public class TangoLimaDetector extends DetectorBase implements Detector, Scannab
 		isAvailable();
 		try {
 			readyForNextAcq = dev.read_attribute("ready_for_next_acq").extractBoolean();
-			System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$ ready " + readyForNextAcq);
+			logger.debug("ready for next acquisition" + readyForNextAcq);
 		} catch (DevFailed e) {
 			throw new DeviceException("failed to get ready for next acq", e);
 		}		

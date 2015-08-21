@@ -69,8 +69,33 @@ public class DummyTangoDeviceImpl implements TangoDevice {
 			int width = (int) read_attribute("image_width").extractULong();
 			int height = (int) read_attribute("image_height").extractULong();
 			DeviceData image = new DeviceData();
-			image.insert(generateImage(width, height));
+			if (height > 1)
+				image.insert(generateImage(width, height));
+			else {
+				byte[] bytebuf = new byte[width*4];
+				int[] rawData = new int[width];
+				for (int i=0; i<width; i++) {
+					rawData[i] = (int) ((Math.random() + 1)*10);
+				}
+				int k=0;
+				for (int l=0; l<width; l++) {
+					bytebuf[k++] = (byte) (rawData[l] & 0xff);
+					bytebuf[k++] = (byte) (rawData[l] >> 8 & 0xff);
+					bytebuf[k++] = (byte) (rawData[l] >> 16 & 0xff);
+					bytebuf[k++] = (byte) (rawData[l] >> 24 & 0xff);
+				}
+				image.insert(bytebuf);
+			}
 			return image;
+		} else if ("readCounters".equals(cmd)) {
+			// ROI read counters returns 7 values per counter
+			float[] rawData = new float[7];
+			for (int i = 0; i<7; i++) {
+				rawData[i] = (float)((Math.random() + 1)*10);
+			}
+			DeviceData data = new DeviceData();
+			data.insert(rawData);
+			return data;			
 		} else if ("ReadScalers".equals(cmd)) {
 			int[] args = new int[6];
 			args = argin.extractLongArray();
