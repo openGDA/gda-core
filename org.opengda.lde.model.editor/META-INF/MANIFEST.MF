@@ -3,12 +3,14 @@ Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.opengda.lde.model.editor;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-ClassPath: .
+Bundle-ClassPath: .,
+ jars/org.eclipse.nebula.widgets.datechooser_1.0.0.201508141958.jar
 Bundle-Activator: org.opengda.lde.model.ldeexperiment.presentation.SampledefinitionEditorPlugin$Implementation
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Export-Package: org.opengda.lde.model.ldeexperiment.presentation
+Export-Package: org.opengda.lde.model.editor.ui.provider,
+ org.opengda.lde.model.ldeexperiment.presentation
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.core.resources;visibility:=reexport,
  org.opengda.lde.model.edit;visibility:=reexport,
@@ -18,5 +20,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.wst.sse.ui,
  org.eclipse.wst.xml.core;bundle-version="1.1.700",
  org.eclipse.wst.xml.ui;bundle-version="1.1.301",
- org.eclipse.jface.text;bundle-version="3.8.2"
+ org.eclipse.jface.text;bundle-version="3.8.2",
+ org.eclipse.nebula.jface.cdatetime,
+ org.eclipse.nebula.widgets.cdatetime
 Bundle-ActivationPolicy: lazy
