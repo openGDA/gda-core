@@ -162,6 +162,7 @@ public class Logpanel extends Composite {
 
 		// add appender to root logger
 		ch.qos.logback.classic.Logger rootLogger = logpanelContext.getLogger(Logger.ROOT_LOGGER_NAME);
+		rootLogger.setLevel(Level.ALL); // rootLogger defaults to Level.DEBUG
 		rootLogger.addAppender(loggingEventsAppender);
 
 		// start receiving from the log server and appending to input
@@ -196,10 +197,10 @@ public class Logpanel extends Composite {
 				// swap patterns
 				if (++buttonPressCount % 2 == 0) {
 					messagePattern = simplePatternLayout;
-					button.setText(buttonPressCount + "Simple pattern layout");
+					button.setText("Simple pattern layout");
 				} else {
 					messagePattern = detailPatternLayout;
-					button.setText(buttonPressCount + "Detail pattern layout");
+					button.setText("Detail pattern layout");
 				}
 
 				//FIXME small hack to reconfigure LoggerContext
