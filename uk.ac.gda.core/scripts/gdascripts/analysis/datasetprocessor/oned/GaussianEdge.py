@@ -4,7 +4,7 @@ from org.eclipse.dawnsci.analysis.dataset.impl import Maths
 
 class GaussianEdge(XYDataSetFunction):
 
-	def __init__(self, name='edge', labelList=('pos','slope', 'fwhm', 'residual'),formatString='Edge at %f (pos) with slope proportional to: %f, and fwhm: %f', plotPanel=None):
+	def __init__(self, name='edge', labelList=('pos','slope', 'fwhm', 'residual'),formatString='Edge at %f (pos) with slope proportional to: %f, fwhm: %f and residual: %f', plotPanel=None):
 		XYDataSetFunction.__init__(self, name, labelList, 'pos', formatString)
 		self.smoothwidth = 1
 		self.plotPanel = plotPanel

@@ -1,71 +1,78 @@
 from XYDataSetProcessor import XYDataSetFunction
 import scisoftpy as dnp
 
-class GaussianPeakAndBackground(XYDataSetFunction):
 
-	def __init__(self, name='peak', labelList=('pos','offset','top', 'fwhm', 'residual'),formatString='Gaussian at %f (pos) with offset: %f, top: %f and fwhm: %f', plotPanel=None):
+class _GaussianPeak(XYDataSetFunction):
+	def __init__(self, name, labelList, formatString, plotPanel, offset):
 		XYDataSetFunction.__init__(self, name, labelList, 'pos', formatString)
 		self.plotPanel = plotPanel
+		self.offset = offset
 
-	def _process(self,xDataSet, yDataSet):
-		if yDataSet.max()-yDataSet.min() == 0:
+	def _process(self, xDataset, yDataset):
+		if yDataset.max()-yDataset.min() == 0:
 			raise ValueError("There is no peak")
 
-		x, y = toDnpArrays(xDataSet, yDataSet)
-
-		fitResult = dnp.fit.fit([dnp.fit.function.gaussian, dnp.fit.function.offset], x, y, gaussianWithOffsetInitialParameters(x, y), bounds=gaussianWithOffsetBounds(x, y), optimizer='global')
-
-		peak, fwhm, area, offset = fitResult.parameters[:4]
-		residual = fitResult.residual
-		top = area/fwhm
-
+		x, y = toDnpArrays(xDataset, yDataset)
+		fitResult = self.getFitResult(x,y)
 		if self.plotPanel != None:
 			plotGaussian(x, fitResult, self.plotPanel)
+		return self.getResults(fitResult)
+
+	def getFitResult(self, x, y):
+		funcs = getFitFunctions(self.offset)
+		initial = gaussianInitialParameters(x, y, offset=self.offset)
+		fitResult_p = dnp.fit.fit(funcs, x, y, initial, bounds=gaussianBounds(x, y, offset=self.offset), optimizer='global')
+		fitResult_n = dnp.fit.fit(funcs, x, y, initial, bounds=gaussianBounds(x, y, negative_peak=True, offset=self.offset), optimizer='global')
+		return fitResult_p if fitResult_p.residual < fitResult_n.residual else fitResult_n
+
+
+class GaussianPeakAndBackground(_GaussianPeak):
+
+	def __init__(self, name='peak', labelList=('pos','offset','top', 'fwhm', 'residual'),formatString='Gaussian at %f (pos) with offset: %f, top: %f, fwhm: %f and residual: %f', plotPanel=None):
+		_GaussianPeak.__init__(self, name, labelList, formatString, plotPanel, offset=True)
+
+	def getResults(self, fitResult):
+		peak, fwhm, area, offset = fitResult.parameters[:4]
+		residual = fitResult.residual
+		top = area / fwhm
 		return peak, offset, top, fwhm, residual
-	
-class GaussianPeak(XYDataSetFunction):
 
-	def __init__(self, name='peak', labelList=('pos','top', 'fwhm','residual'),formatString='Gaussian at %f (pos) with top: %f and fwhm: %f', plotPanel=None):
-		XYDataSetFunction.__init__(self, name, labelList, 'pos', formatString)
-		self.plotPanel = plotPanel
 
-	def _process(self,xDataSet, yDataSet):
-		if yDataSet.max()-yDataSet.min() == 0:
-			raise ValueError("There is no peak")
+class GaussianPeak(_GaussianPeak):
 
-		x, y = toDnpArrays(xDataSet, yDataSet)
-		
-		fitResult = dnp.fit.fit([dnp.fit.function.gaussian], x, y, gaussianInitialParameters(x, y), bounds=gaussianBounds(x, y), optimizer='global')
-		
+	def __init__(self, name='peak', labelList=('pos','top', 'fwhm','residual'), formatString='Gaussian at %f (pos) with top: %f, fwhm: %f and residual: %f', plotPanel=None):
+		_GaussianPeak.__init__(self, name, labelList, formatString, plotPanel, offset=False)
+
+	def getResults(self, fitResult):
 		peak, fwhm, area = fitResult.parameters[:3]
 		residual = fitResult.residual
 		top = area / fwhm
-		
-		if self.plotPanel != None:
-			plotGaussian(x, fitResult, self.plotPanel)
 		return peak, top, fwhm, residual
 
-def gaussianInitialParameters(x, y):
-	return [x.mean(), x.ptp()*.5, x.ptp()*y.ptp()]
 
-def gaussianWithOffsetInitialParameters(x,y):
-	return gaussianInitialParameters(x,y) + [y.mean()]
+def gaussianInitialParameters(x, y, offset=False):
+	initialParameters = [x.mean(), x.ptp()*.5, x.ptp()*y.ptp()]
+	if offset:
+		initialParameters += [y.mean()]
+	return initialParameters
 
-def gaussianBounds(x, y):
-	return [(x.min(), x.max()), (0, x.ptp()), (x.ptp()*y.ptp()*-1, x.ptp()*y.ptp())]
+def getFitFunctions(offset):
+	funcs = [dnp.fit.function.gaussian]
+	if offset:
+		funcs += [dnp.fit.function.offset]
+	return funcs
 
-def gaussianWithOffsetBounds(x, y):
-	return gaussianBounds(x,y) + [(y.min(), y.max())]
+def gaussianBounds(x, y, negative_peak=False, offset=False):
+	bounds = [(x.min(), x.max()), (0, x.ptp())]
+	bounds += [(x.ptp()*y.ptp()*-1, 0, x.ptp()*y.ptp())[negative_peak:negative_peak+2]]
+	if offset:
+		bounds += [(y.min(), y.max())]
+	return bounds
 
 def toDnpArrays(*args):
-	l = []
-	for arg in args:
-		l.append(dnp.array(arg))
-	return l
+	return [dnp.array(arg) for arg in args]
 
 def plotGaussian(x, fitResult, plotPanel):
-	dnp.plot.line(x, [	dnp.array(fitResult.makeplotdata()[0]),
-								dnp.array(fitResult.makeplotdata()[1]),
-								dnp.array(fitResult.makeplotdata()[2]),
-								dnp.array(fitResult.makeplotdata()[3])],
+	plotData = fitResult.makeplotdata()
+	dnp.plot.line(x, toDnpArrays(plotData[0], plotData[1], plotData[2], plotData[3]),
 							name=plotPanel)
