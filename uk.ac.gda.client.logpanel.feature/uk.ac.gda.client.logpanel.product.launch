@@ -16,7 +16,7 @@
 <stringAttribute key="featureDefaultLocation" value="external"/>
 <stringAttribute key="featurePluginResolution" value="workspace"/>
 <booleanAttribute key="includeOptional" value="false"/>
-<stringAttribute key="location" value="${workspace_loc}/../runtime-uk.ac.gda.client.logpanel.product"/>
+<stringAttribute key="location" value=""/>
 <booleanAttribute key="org.eclipse.debug.core.capture_output" value="false"/>
 <booleanAttribute key="org.eclipse.debug.ui.ATTR_CONSOLE_OUTPUT_ON" value="false"/>
 <listAttribute key="org.eclipse.debug.ui.favoriteGroups">
