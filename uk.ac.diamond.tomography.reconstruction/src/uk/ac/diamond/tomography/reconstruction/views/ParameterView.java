@@ -17,6 +17,9 @@
  */
 package uk.ac.diamond.tomography.reconstruction.views;
 
+import gda.util.OSCommandRunner;
+import gda.util.OSCommandRunner.LOGOPTION;
+
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -40,7 +43,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.dawnsci.analysis.api.EventTracker;
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
 import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
@@ -93,14 +95,11 @@ import org.eclipse.ui.part.PageBook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.util.OSCommandRunner;
-import gda.util.OSCommandRunner.LOGOPTION;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
 import uk.ac.diamond.scisoft.analysis.io.TIFFImageLoader;
 import uk.ac.diamond.tomography.reconstruction.Activator;
 import uk.ac.diamond.tomography.reconstruction.ReconUtil;
-import uk.ac.diamond.tomography.reconstruction.ServiceLoader;
 import uk.ac.diamond.tomography.reconstruction.dialogs.DefineHeightRoiDialog;
 import uk.ac.diamond.tomography.reconstruction.dialogs.DefineRoiDialog;
 import uk.ac.diamond.tomography.reconstruction.jobs.ReconSchedulingRule;
@@ -643,19 +642,6 @@ public class ParameterView extends BaseParameterView implements ISelectionListen
 				}
 				startEnd = defineHeightRoiDialog.getStartEnd();
 			}
-			// track event
-			try {
-				EventTracker tracker = ServiceLoader.getEventTracker();
-				if (tracker != null)
-					if (!quick) {
-						tracker.trackActionEvent("Tomo_Full_reconstruction");
-					} else {
-						tracker.trackActionEvent("Tomo_Preview_reconstruction");
-					}
-			} catch (Exception e1) {
-				logger.debug("Could not track event");
-			}
-
 			URL shFileURL = new URL(String.format(HDF_RECON_SCRIPT_LOCATION, Activator.PLUGIN_ID));
 			logger.debug("shFileURL:{}", shFileURL);
 			tomoDoShScript = new File(FileLocator.toFileURL(shFileURL).toURI());
