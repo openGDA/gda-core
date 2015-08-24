@@ -230,6 +230,28 @@ public class NDArraySimulator extends NDBaseImpl implements NDArray {
 	}
 
 	@Override
+	public double[] getDoubleArrayData() throws Exception {
+		double maxHeightForType = getMaxHeightForType(getPluginBase().getDataType_RBV());
+		int width = getPluginBase().getArraySize0_RBV();
+		int height = getPluginBase().getArraySize1_RBV();
+		Gaussian g = new Gaussian(gC.heightFrac * maxHeightForType, gC.centreXFrac * width, gC.centreYFrac * height, gC.widthXFrac * width, gC.widthYFrac
+				* height);
+
+		double[] bytes = new double[width * height];
+		for (int i = 0; i < width; i++) {
+			for (int j = 0; j < height; j++) {
+				bytes[j * width + i] = g.getVal(i, j);
+			}
+		}
+		return bytes;
+	}
+
+	@Override
+	public double[] getDoubleArrayData(int numberOfElements) throws Exception {
+		return getDoubleArrayData();
+	}
+
+	@Override
 	public Object getImageData(int expectedNumPixels) throws Exception {
 		return null;
 	}

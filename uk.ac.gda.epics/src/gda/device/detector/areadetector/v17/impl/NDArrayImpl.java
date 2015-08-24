@@ -286,5 +286,30 @@ public class NDArrayImpl extends NDBaseImpl implements NDArray, InitializingBean
 		return EPICS_CONTROLLER.getDBR(ch, ch.getFieldType(),expectedNumPixels).getValue();
 	}
 
+	@Override
+	public double[] getDoubleArrayData(int numberOfElements) throws Exception {
+		try {
+			if (config != null) {
+				return EPICS_CONTROLLER.cagetDoubleArray(createChannel(config.getArrayData().getPv()), numberOfElements);
+			}
+			return EPICS_CONTROLLER.cagetDoubleArray(getChannel(ARRAY_DATA), numberOfElements);
+		} catch (Exception ex) {
+			logger.warn("problem with g.d.d.a.v.i.NDArrayImpl -> cagetDoubleArray()", ex);
+			throw ex;
+		}
+	}
+
+	@Override
+	public double[] getDoubleArrayData() throws Exception {
+		try {
+			if (config != null) {
+				return EPICS_CONTROLLER.cagetDoubleArray(createChannel(config.getArrayData().getPv()));
+			}
+			return EPICS_CONTROLLER.cagetDoubleArray(getChannel(ARRAY_DATA));
+		} catch (Exception ex) {
+			logger.warn("problem in getFloatArrayData()", ex);
+			throw ex;
+		}
+	}
 
 }

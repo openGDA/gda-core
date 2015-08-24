@@ -109,12 +109,19 @@ public class ArrayData {
 			dataVals = new NexusGroupData(dims, s);
 		}
 			break;
-		case NDPluginBase.Float32:
-		case NDPluginBase.Float64: {
+		case NDPluginBase.Float32: {
 			float[] s = ndArray.getFloatArrayData(expectedNumPixels);
 			if (expectedNumPixels > s.length)
 				throw new DeviceException("Data size is not valid length read:" + s.length + " expected:"
 						+ expectedNumPixels);
+
+			dataVals = new NexusGroupData(dims, s);
+		}
+			break;
+		case NDPluginBase.Float64: {
+			double[] s = ndArray.getDoubleArrayData(expectedNumPixels);
+			if (expectedNumPixels > s.length)
+				throw new DeviceException("Data size is not valid length read:" + s.length + " expected:" + expectedNumPixels);
 
 			dataVals = new NexusGroupData(dims, s);
 		}

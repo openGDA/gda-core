@@ -36,6 +36,10 @@ public interface NDArray extends GetPluginBaseAvailable {
 
 	float[] getFloatArrayData() throws Exception;
 
+	double[] getDoubleArrayData(int numberOfElements) throws Exception;
+
+	double[] getDoubleArrayData() throws Exception;
+
 	void reset() throws Exception;
 
 	byte[] getByteArrayData() throws Exception;

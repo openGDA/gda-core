@@ -34,6 +34,7 @@ public class DummyNDArray extends NDBaseImpl implements NDArray {
 	private int[] intArrayData;
 	private short[] shortArrayData;
 	private byte[] byteArrayData;
+	private double[] doubleArrayData;
 
 	@Override
 	public byte[] getByteArrayData(int numberOfElements) throws Exception {
@@ -78,6 +79,16 @@ public class DummyNDArray extends NDBaseImpl implements NDArray {
 	@Override
 	public Object getImageData(int expectedNumPixels) throws Exception {
 		return null;
+	}
+
+	@Override
+	public double[] getDoubleArrayData(int numberOfElements) throws Exception {
+		return doubleArrayData;
+	}
+
+	@Override
+	public double[] getDoubleArrayData() throws Exception {
+		return doubleArrayData;
 	}
 
 }
