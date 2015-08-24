@@ -43,9 +43,9 @@ import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DatasetWithAxisInformation;
-import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
 import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
 import uk.ac.diamond.scisoft.analysis.rcp.views.PlotViewStatsAndMaths;
 
@@ -80,7 +80,8 @@ public class NcdDataSource extends ViewPart implements IObserver {
 	private String doubleFormat = "%5.5g";
 	private Combo combo;
 	private Button btnStopUpdates;
-	
+	private Button btnStartUpdates;
+
 	/**
 	 * Controls the server side display of live or near live data and displays statistics
 	 */
@@ -95,11 +96,11 @@ public class NcdDataSource extends ViewPart implements IObserver {
 			plotView = (PlotView) getSite().getPage().showView(panelId);
 			plotView.addDataObserver(this);
 			plotPanelName = plotView.getPlotViewName();
-			
+
 		} catch (PartInitException e) {
 			logger.error("All over now! Cannot find plotview: " + plotPanelName, e);
 		}
-		
+
 		GridLayout layout= new GridLayout();
 
 		parent.setLayout(layout);
@@ -109,19 +110,27 @@ public class NcdDataSource extends ViewPart implements IObserver {
 		grpSource.setText("Source for "+plotPanelName);
 		grpSource.setLayout(new GridLayout(2, false));
 		grpSource.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		
+
 		btnStopUpdates = new Button(grpSource, SWT.NONE);
 		btnStopUpdates.setText("Stop Updates");
 		btnStopUpdates.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				JythonServerFacade.getInstance().runCommand("finder.find(\"ncdlistener\").monitorStop(\"" + plotPanelName +"\")");
+				stopUpdates();
 			}
 		});
-		new Label(grpSource, SWT.NONE);
-		
+
+		btnStartUpdates = new Button(grpSource, SWT.NONE);
+		btnStartUpdates.setText("Start Updates");
+		btnStartUpdates.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				updateSourceCombo();
+			}
+		});
+
 		combo = new Combo(grpSource, SWT.NONE);
-		combo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		combo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
 		populateSourceCombo();
 		combo.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -130,12 +139,17 @@ public class NcdDataSource extends ViewPart implements IObserver {
 				populateSourceCombo();
 			}
 		});
-		
+
+		if (combo.getItemCount() > 0) {
+			combo.select(0);
+			updateSourceCombo();
+		}
+
 		Group grpMaths = new Group(parent, SWT.NONE);
 		grpMaths.setText("Maths");
 		grpMaths.setLayout(new GridLayout(4, false));
 		grpMaths.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		
+
 		btnStoreCurrentAsA = new Button(grpMaths, SWT.NONE);
 		btnStoreCurrentAsA.setText("Store current as A");
 		btnStoreCurrentAsA.setEnabled(false);
@@ -153,7 +167,6 @@ public class NcdDataSource extends ViewPart implements IObserver {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				pushToPlotView(dataBeanA);
-
 			}
 		});
 
@@ -165,7 +178,7 @@ public class NcdDataSource extends ViewPart implements IObserver {
 				pushToPlotView(PlotViewStatsAndMaths.dataBeanSubtract(dataBeanA, dataBeanB));
 			}
 		});
-		
+
 		btnPlotAnB = new Button(grpMaths, SWT.NONE);
 		btnPlotAnB.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 2));
 		btnPlotAnB.setText("Plot A + B");
@@ -175,7 +188,7 @@ public class NcdDataSource extends ViewPart implements IObserver {
 				pushToPlotView(PlotViewStatsAndMaths.dataBeanAdd(dataBeanA, dataBeanB));
 			}
 		});
-		
+
 		btnStoreCurrentAsB = new Button(grpMaths, SWT.NONE);
 		btnStoreCurrentAsB.setText("Store current as B");
 		btnStoreCurrentAsB.setEnabled(false);
@@ -209,8 +222,6 @@ public class NcdDataSource extends ViewPart implements IObserver {
 		grpStatistics.setText("Statistics");
 		grpStatistics.setLayout(new GridLayout(3, false));
 		grpStatistics.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		
-		new Label(grpStatistics, SWT.NONE);
 
 		Label txtValue = new Label(grpStatistics, SWT.NONE);
 		txtValue.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
@@ -272,8 +283,6 @@ public class NcdDataSource extends ViewPart implements IObserver {
 		textSum.setLayoutData(gd_textSum);
 		textSum.setEditable(false);
 
-		new Label(grpStatistics, SWT.NONE);
-
 		Label txtMean = new Label(grpStatistics, SWT.NONE);
 		txtMean.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		txtMean.setAlignment(SWT.RIGHT);
@@ -285,8 +294,6 @@ public class NcdDataSource extends ViewPart implements IObserver {
 		gd_textMean.widthHint = 120;
 		textMean.setLayoutData(gd_textMean);
 		textMean.setEditable(false);
-		
-		new Label(grpStatistics, SWT.NONE);
 
 		enableDisableMaths();
 	}
@@ -296,8 +303,7 @@ public class NcdDataSource extends ViewPart implements IObserver {
 		String selstr = combo.getItem(selected);
 		if (selstr.startsWith("Live ")) {
 			JythonServerFacade.getInstance().runCommand("finder.find(\"ncdlistener\").monitorLive(\"" + plotPanelName + "\",\"" + selstr.substring(5) + "\")");
-		}
-		if (selstr.startsWith("SDP ")) {
+		} else if (selstr.startsWith("SDP ")) {
 			JythonServerFacade.getInstance().runCommand("finder.find(\"ncdlistener\").monitorSDP(\"" + plotPanelName + "\",\"" + selstr.substring(4) + "\")");
 		}
 	}
@@ -305,16 +311,16 @@ public class NcdDataSource extends ViewPart implements IObserver {
 	protected void populateSourceCombo() {
 		String oldSelected = "nothing";
 		try {
-		oldSelected = combo.getItem(combo.getSelectionIndex());
+			oldSelected = combo.getItem(combo.getSelectionIndex());
 		} catch(Exception ignored) {
-			
+
 		}
 		combo.removeAll();
-		
+
 		List<String> items = new ArrayList<String>();
 		items.add("Live SAXS");
 		items.add("Live WAXS");
-		String names = JythonServerFacade.getInstance().evaluateCommand("finder.find(\"ncdlistener\").getSDPDetectorNamesAsString()");
+		String names = JythonServerFacade.getInstance().evaluateCommand("finder.find('ncdlistener').getSDPDetectorNamesAsString()");
 		if (names != null) {
 		StringTokenizer st = new StringTokenizer(names, ",");
 		while(st.hasMoreTokens()) {
@@ -391,7 +397,13 @@ public class NcdDataSource extends ViewPart implements IObserver {
 		return sb.toString();
 	}
 
+	private void stopUpdates() {
+		logger.debug("Stopped saxs updates");
+		JythonServerFacade.getInstance().runCommand("finder.find('ncdlistener').monitorStop('" + plotPanelName + "')");
+	}
+
 	private void pushToPlotView(DataBean dBean) {
+		stopUpdates();
 		List<DatasetWithAxisInformation> dc = dBean.getData();
 		Dataset data = dc.get(0).getData();
 
@@ -399,13 +411,11 @@ public class NcdDataSource extends ViewPart implements IObserver {
 			return;
 		}
 
-		if (data.getRank() == 1) {
-			plotView.updatePlotMode(GuiPlotMode.ONED);
-		} else if (data.getRank() == 2) {
-			plotView.updatePlotMode(GuiPlotMode.TWOD);
+		try {
+			SDAPlotter.imagePlot(plotPanelName, data);
+		} catch (Exception e) {
+			logger.error("Could not update {}", plotPanelName, e);
 		}
-
-		plotView.processPlotUpdate(dBean);
 		currentBean = dBean;
 		processData(dBean);
 	}
