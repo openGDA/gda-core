@@ -37,7 +37,10 @@ def getDatasetFromLoadedFile(loadedFile, fieldName):
 	if isinstance(loadedFile, NXroot):
 		# Note: Using first node returned, this might fail if there are multiple nodes with the same name!
 		# Might be possible to disambiguate this using the original fieldname?
-		lazyDataset = loadedFile.getnodes(strippedFieldName, group=False, data=True)[0]
+		loadedNodes = loadedFile.getnodes(strippedFieldName, group=False, data=True)
+		if len(loadedNodes) == 0:
+			raise KeyError("%s not found in data file" % strippedFieldName)
+		lazyDataset = loadedNodes[0]
 
 		# Use slicing to load the whole lazy dataset into a array i.e. non-lazy dataset
 		dataset = lazyDataset[...]
