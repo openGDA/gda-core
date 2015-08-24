@@ -8,8 +8,10 @@
 
    <launcherArgs>
       <vmArgsLin>-Dorg.eclipse.swt.internal.gtk.cairoGraphics=false
--Dorg.eclipse.swt.internal.gtk.useCairo=false</vmArgsLin>
-      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
+-Dorg.eclipse.swt.internal.gtk.useCairo=false
+      </vmArgsLin>
+      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
+      </vmArgsMac>
    </launcherArgs>
 
    <windowImages i16="/uk.ac.gda.client.logpanel/icons/GDAlogos/GDALogo16.png" i32="/uk.ac.gda.client.logpanel/icons/GDAlogos/GDALogo32.png" i48="/uk.ac.gda.client.logpanel/icons/GDAlogos/GDALogo48.png" i64="/uk.ac.gda.client.logpanel/icons/GDAlogos/GDALogo64.png" i128="/uk.ac.gda.client.logpanel/icons/GDAlogos/GDALogo128.png"/>
@@ -51,5 +53,6 @@ with GDA. If not, see &lt;http://www.gnu.org/licenses/&gt;.
    <features>
       <feature id="uk.ac.gda.client.logpanel.feature"/>
    </features>
+
 
 </product>
