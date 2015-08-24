@@ -198,8 +198,6 @@ public class JakartaPropertiesConfig implements PropertiesConfig {
 	@Override
 	public void dumpProperties() {
 
-		((ch.qos.logback.classic.Logger)logger).setLevel(ch.qos.logback.classic.Level.DEBUG);
-
 		Iterator<String> keyIterator = config.getKeys();
 
 		while (keyIterator.hasNext()) {
@@ -208,18 +206,18 @@ public class JakartaPropertiesConfig implements PropertiesConfig {
 			Object o = config.getProperty(key);
 			if (o != null) {
 				// Check for multiple setting of properties
-				if (o instanceof  ArrayList) {
-					logger.info(key + " is set multiple times the value used will be the first! This maybe ok if deliberately overridden");
+				if (o instanceof ArrayList) {
+					logger.debug(key + " is set multiple times the value used will be the first! This maybe ok if deliberately overridden");
 				}
 				if (o instanceof String) {
 					// Calling getString method ensures value has any
 					// processing
 					// done by commons config applied - ie string
 					// interpolation, etc.
-					logger.info(key + " = " + LocalProperties.get(key));
+					logger.debug(key + " = " + LocalProperties.get(key));
 				} else {
 					// Handle non-string objects, eg ArrayList's
-					logger.info(key + " = " + o.toString());
+					logger.debug(key + " = " + o.toString());
 				}
 			}
 		}
