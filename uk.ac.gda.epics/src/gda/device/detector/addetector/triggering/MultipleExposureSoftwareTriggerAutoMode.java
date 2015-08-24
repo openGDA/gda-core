@@ -252,9 +252,16 @@ public class MultipleExposureSoftwareTriggerAutoMode extends AbstractADTriggerin
 		completeCollection();
 	}
 
+	/**
+	 * @see gda.device.detector.nxdetector.NXCollectionStrategyPlugin#getNumberImagesPerCollection
+	 */
 	protected int calcNumberImagesPerCollection(double collectionTime, double exposureTime) {
 		if (collectionTime > exposureTime)
-			return (int)(collectionTime/exposureTime + 0.5);
+			// This rounds off! Which means that we could acquire for less time than is requested!
+			// For example, if we have a exposureTime of 8s and request an 18s collectionTime, we get just 16s!
+			//return (int)(collectionTime/exposureTime + 0.5);
+			// We really should just round up!
+			return (int)Math.ceil(collectionTime/exposureTime);
 		return 1;
 	}
 
