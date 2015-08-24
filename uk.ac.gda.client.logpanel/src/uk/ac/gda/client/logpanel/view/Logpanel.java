@@ -604,6 +604,8 @@ public class Logpanel extends Composite {
 	public Logpanel(Composite parent, int style) {
 		super(parent, style);
 
+		final int numColumns = 4;
+
 		connectToLogServer();
 
 		// display copyable path to gda logs dir
@@ -620,7 +622,7 @@ public class Logpanel extends Composite {
 			logFileText.setToolTipText(String.format("'%s' in java.properties", LocalProperties.GDA_LOGS_DIR));
 			logFileText.setBackground(logDirComposite.getBackground());
 
-			GridDataFactory.swtDefaults().span(4, 1).applyTo(logDirComposite);
+			GridDataFactory.swtDefaults().span(numColumns, 1).applyTo(logDirComposite);
 			GridLayoutFactory.fillDefaults().numColumns(2).applyTo(logDirComposite);
 			GridDataFactory.fillDefaults().applyTo(logFileText);
 		}
@@ -686,11 +688,11 @@ public class Logpanel extends Composite {
 			}
 		});
 
-		GridLayoutFactory.swtDefaults().numColumns(4).applyTo(this);
+		GridLayoutFactory.swtDefaults().numColumns(numColumns).applyTo(this);
 		GridDataFactory.swtDefaults().span(1, 1).applyTo(filterLabel);
 		GridDataFactory.fillDefaults().span(2, 1).grab(true, false).applyTo(filterText);
 		GridDataFactory.swtDefaults().span(1, 1).grab(false, false).applyTo(button);
-		GridDataFactory.fillDefaults().span(4, 1).grab(true, true).applyTo(viewer.getControl());
+		GridDataFactory.fillDefaults().span(numColumns, 1).grab(true, true).applyTo(viewer.getControl());
 
 		// former controls supplanted by command buttons in LogpanelView toolbar
 		// methods still useful for other Composites embedding Logpanel
