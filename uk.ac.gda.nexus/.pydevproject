@@ -7,6 +7,6 @@
 <pydev_pathproperty name="org.python.pydev.PROJECT_SOURCE_PATH">
 <path>/uk.ac.gda.nexus/src</path>
 <path>/uk.ac.gda.nexus/bin</path>
-<path>/uk.ac.gda.nexus/jars/jnexus-4.3.jar</path>
+<path>/uk.ac.gda.nexus/jars/jnexus.jar</path>
 </pydev_pathproperty>
 </pydev_project>
