@@ -201,7 +201,9 @@ public class Logpanel extends Composite {
 				
 				//FIXME small hack to reconfigure LoggerContext
 				connectToLogServer();
-				
+
+				viewer.refresh();
+
 				// for testing without logging events
 //				logger.trace("trace");
 //				logger.info("info");
@@ -617,8 +619,9 @@ public class Logpanel extends Composite {
 			final Text logFileText = new Text(logDirComposite, SWT.SINGLE | SWT.READ_ONLY);
 			logFileText.setText(logsDir);
 			logFileText.setToolTipText(String.format("'%s' in java.properties", LocalProperties.GDA_LOGS_DIR));
-			
-			GridDataFactory.swtDefaults().span(3, 1).applyTo(logDirComposite);
+			logFileText.setBackground(logDirComposite.getBackground());
+
+			GridDataFactory.swtDefaults().span(4, 1).applyTo(logDirComposite);
 			GridLayoutFactory.fillDefaults().numColumns(2).applyTo(logDirComposite);
 			GridDataFactory.fillDefaults().applyTo(logFileText);
 		}
