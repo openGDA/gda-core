@@ -18,14 +18,6 @@
 
 package uk.ac.gda.devices.vgscienta;
 
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.FloatDataset;
-import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.cosylab.epics.caj.CAJChannel;
-
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
@@ -49,7 +41,16 @@ import gda.observable.IObserver;
 import gov.aps.jca.dbr.DBR_Enum;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
+
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
+import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import uk.ac.diamond.scisoft.analysis.roi.ROIProfile;
+
+import com.cosylab.epics.caj.CAJChannel;
 
 @CorbaAdapterClass(DeviceAdapter.class)
 @CorbaImplClass(DeviceImpl.class)
@@ -311,23 +312,19 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 		double acquireTime_RBV = flex.getAcquireTime();
 		data.addData(getName(), "time_per_channel", new NexusGroupData(acquireTime_RBV), "s", null, null, true);
 
-		NexusGroupData groupData = data.getData(getName(), "data", NexusExtractor.SDSClassName);
-		if (groupData.isFloat()) {
-			long sum = 0;
-			if (cpsRoi == null) {
-				float[] floats = (float[]) groupData.getBuffer();
-				for (int i = 0; i < floats.length; i++) {
-					sum += floats[i];
-				}
-			} else {
-				Dataset[] datasets = ROIProfile.box(new FloatDataset((float[]) groupData.getBuffer(), groupData.dimensions), cpsRoi);
-				sum = ((Number) datasets[0].sum()).longValue();
-			}
-			addDoubleItem(data, "cps", sum / acquireTime_RBV, "Hz");
-		} else {
-			logger.error("unexpected data type for cps");
-			addDoubleItem(data, "cps", 0.0, "Hz");
+		// Get the dataset as doubles
+		NexusGroupData groupData = data.getData(getName(), "data", NexusExtractor.SDSClassName).asDouble();
+		Dataset dataset = new DoubleDataset((double[]) groupData.getBuffer(), groupData.dimensions);
+
+		// Calculate the total CPS in the ROI if it exists otherwise over the whole image
+		double sum;
+		if (cpsRoi == null) { // Sum the whole dataset
+			sum = (double) dataset.sum();
+		} else { // use the ROI
+			// ROIProfile.box() returns two datasets one summed in x and one in y just use x
+			sum = (double) ROIProfile.box(dataset, cpsRoi)[0].sum();
 		}
+		addDoubleItem(data, "cps", sum / acquireTime_RBV, "Hz");
 	}
 
 	protected void addDoubleItem(NXDetectorData data, String name, double d, String units){
