@@ -54,9 +54,9 @@ public interface Frelon extends Base {
 	
 	void setROIMode(ROIMode roiMode) throws DevFailed;	
 	
-	long getROIBinOffset() throws DevFailed;
+	int getROIBinOffset() throws DevFailed;
 	
-	void setROIBinOffset(long roiBinOffset) throws DevFailed;
+//	void setROIBinOffset(long roiBinOffset) throws DevFailed;
 	
 	enum SPB2Config {
 		PRECISION, SPEED
@@ -66,7 +66,7 @@ public interface Frelon extends Base {
 	
 	void setSPB2Config(SPB2Config sPB2Config) throws DevFailed;	
 	
-	long getSeqStatus() throws DevFailed;
+	int getSeqStatus() throws DevFailed;
 	/**
 	 * send a command through the serial line
 	 * @param cmd
@@ -79,4 +79,6 @@ public interface Frelon extends Base {
 	 * @throws DevFailed
 	 */
 	void resetLink() throws DevFailed;
+
+	void setROIBinOffset(int roiBinOffset) throws DevFailed;
 }

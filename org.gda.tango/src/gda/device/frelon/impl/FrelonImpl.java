@@ -184,13 +184,13 @@ public class FrelonImpl extends BaseImpl implements Frelon {
 	}
 
 	@Override
-	public long getROIBinOffset() throws DevFailed {
+	public int getROIBinOffset() throws DevFailed {
 		//TODO why .getAttributeAsLong(ROI_BIN_OFFSET) throws org.omg.CORBA.BAD_OPERATION: 
 		return getTangoDeviceProxy().getAttributeAsInt(ROI_BIN_OFFSET);
 	}
 
 	@Override
-	public void setROIBinOffset(long roiBinOffset) throws DevFailed {
+	public void setROIBinOffset(int roiBinOffset) throws DevFailed {
 		getTangoDeviceProxy().setAttribute(ROI_BIN_OFFSET, roiBinOffset);
 
 	}
@@ -222,8 +222,8 @@ public class FrelonImpl extends BaseImpl implements Frelon {
 	}
 
 	@Override
-	public long getSeqStatus() throws DevFailed {
-		return getTangoDeviceProxy().getAttributeAsLong(SEQ_STATUS);
+	public int getSeqStatus() throws DevFailed {
+		return getTangoDeviceProxy().getAttributeAsInt(SEQ_STATUS);
 	}
 
 	@Override

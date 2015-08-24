@@ -56,6 +56,8 @@ public class LimaCCDImpl extends BaseImpl implements LimaCCD, InitializingBean {
 	 static final String ATTRIBUTE_DEBUG_TYPES = "debug_types";
 	 static final String ATTRIBUTE_LAST_IMAGE_SAVED = "last_image_saved";
 	 static final String ATTRIBUTE_LAST_IMAGE_READY = "last_image_ready";
+	 static final String ATTRIBUTE_LAST_IMAGE_ACQUIRED = "last_image_acquired";
+	 static final String ATTRIBUTE_LAST_COUNTER_READY = "last_counter_ready";
 	 static final String ATTRIBUTE_SAVING_HEADER_DELIMITER = "saving_header_delimiter";
 	 static final String ATTRIBUTE_SAVING_COMMON_HEADER = "saving_common_header";
 	 static final String ATTRIBUTE_SAVING_FRAME_PER_FILE = "saving_frame_per_file";
@@ -397,7 +399,7 @@ public class LimaCCDImpl extends BaseImpl implements LimaCCD, InitializingBean {
 	@Override
 	public void setImageROIInt(LimaROIInt limaROI) throws DevFailed {
 		int[] val = new int[] { limaROI.getBeginX(), limaROI.getBeginY(), limaROI.getLengthX(), limaROI.getLengthY() };
-		getTangoDeviceProxy().setAttribute(ATTRIBUTE_IMAGE_ROI, val, 4, 1);
+		getTangoDeviceProxy().setAttribute(ATTRIBUTE_IMAGE_ROI, val, 4, 0);
 	}
 
 	@Override
@@ -706,6 +708,14 @@ public class LimaCCDImpl extends BaseImpl implements LimaCCD, InitializingBean {
 	}
 
 	@Override
+	public int getLastCounterReady() throws DevFailed {
+		return getTangoDeviceProxy().getAttributeAsInt(ATTRIBUTE_LAST_COUNTER_READY);
+	}
+
+	@Override
+	public int getLastImageAcquired() throws DevFailed {
+		return getTangoDeviceProxy().getAttributeAsInt(ATTRIBUTE_LAST_IMAGE_ACQUIRED);
+	}
 	public boolean getReadyForNextImage() throws DevFailed {
 		return getTangoDeviceProxy().getAttributeAsBoolean(ATTRIBUTE_READY_FOR_NEXT_IMAGE);
 	}
