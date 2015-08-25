@@ -18,6 +18,7 @@
 
 package gda.device.detector.nxdetector.plugin.areadetector.filewriter;
 
+@Deprecated // Use gda.device.detector.addetector.filewriter.MultipleImagesPerHDF5FileWriter directly.
 public class MultipleImagesPerHDF5FileWriter extends gda.device.detector.addetector.filewriter.MultipleImagesPerHDF5FileWriter {
 
 }
