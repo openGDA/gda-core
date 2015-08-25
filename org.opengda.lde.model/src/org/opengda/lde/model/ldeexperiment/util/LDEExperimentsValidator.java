@@ -306,10 +306,10 @@ public class LDEExperimentsValidator extends EObjectValidator {
 	 * Validates the Enumeration constraint of '<em>Calibrant Name String</em>'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	public boolean validateCalibrantNameString_Enumeration(String calibrantNameString, DiagnosticChain diagnostics, Map<Object, Object> context) {
-		boolean result = CALIBRANT_NAME_STRING__ENUMERATION__VALUES.contains(calibrantNameString);
+		boolean result = CALIBRANT_NAME_STRING__ENUMERATION__VALUES.contains(calibrantNameString.replace(' ', '-'));
 		if (!result && diagnostics != null)
 			reportEnumerationViolation(LDEExperimentsPackage.Literals.CALIBRANT_NAME_STRING, calibrantNameString, CALIBRANT_NAME_STRING__ENUMERATION__VALUES, diagnostics, context);
 		return result;
