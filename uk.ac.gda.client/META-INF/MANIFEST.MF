@@ -57,7 +57,7 @@ Require-Bundle: org.eclipse.help.ui,
  org.eclipse.richbeans.widgets;bundle-version="1.0.0",
  org.eclipse.richbeans.xml;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
-Bundle-Version: 8.48.0.qualifier
+Bundle-Version: 8.50.0.qualifier
 Eclipse-RegisterBuddy: uk.ac.gda.libs, uk.ac.gda.core
 Eclipse-BuddyPolicy: registered
 Bundle-Localization: plugin
