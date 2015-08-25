@@ -29,13 +29,21 @@ import java.util.List;
 
 import org.nexusformat.NexusFile;
 
-public class NXDetectorDataTAppender <T> implements NXDetectorDataAppender {
+/**
+ * This generic class only supports Integer or Double, see the validation in {@link #appendTo(NXDetectorData, String)}
+ *
+ * Since we can't say <T extends Double | Integer> we constrain it to Number, so most inappropriate uses will result in a
+ * compile-time error rather than a run-time error.
+ *
+ * @param <T>
+ */
+public class NXDetectorDataTAppender <T extends Number> implements NXDetectorDataAppender {
 
 	static private final int[] SINGLE_DIMENSION = new int[] { 1 };
 	private final List<String> elementNames;
 	private final List<T> elementValues;
 	private final List<String> elementUnits;
-	
+
 	public NXDetectorDataTAppender(List<String> elementNames, List<T> elementValues) {
 		if (elementNames.size() != elementValues.size()) {
 			throw new IllegalArgumentException(MessageFormat.format(
