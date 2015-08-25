@@ -199,11 +199,10 @@ public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite
 		}
 
 		createDiffractionSection(top);
-
 		if (!ExafsActivator.getDefault().getPreferenceStore().getDefaultBoolean(ExafsPreferenceConstants.HIDE_WORKING_ENERGY)) {
 			createEdgeEnergy(top, control);
-			createIonChamberSection(abean, control);
 		}
+		createIonChamberSection(abean, control);
 	}
 
 	@Override

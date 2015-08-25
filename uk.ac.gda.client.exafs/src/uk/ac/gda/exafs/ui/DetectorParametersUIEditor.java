@@ -140,8 +140,11 @@ public class DetectorParametersUIEditor extends RichBeanEditorPart {
 		stackLayout.topControl = transmissionComposite;
 		scrolledComposite.setContent(composite);
 		scrolledComposite.setMinSize(composite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
-		transmissionComposite.getIonChamberComposite().calculatePressure();
-		fluorescenceComposite.getIonChamberComposite().calculatePressure();
+
+		if (!ExafsActivator.getDefault().getPreferenceStore().getDefaultBoolean(ExafsPreferenceConstants.HIDE_WORKING_ENERGY)) {
+			transmissionComposite.getIonChamberComposite().calculatePressure();
+			fluorescenceComposite.getIonChamberComposite().calculatePressure();
+		}
 	}
 
 	@Override

@@ -18,15 +18,6 @@
 
 package uk.ac.gda.server.exafs.scan;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.Vector;
-
-import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-
 import gda.commandqueue.Processor;
 import gda.configuration.properties.LocalProperties;
 import gda.data.metadata.NXMetaDataProvider;
@@ -41,6 +32,16 @@ import gda.jython.JythonServer;
 import gda.jython.JythonServerFacade;
 import gda.jython.batoncontrol.ClientDetails;
 import gda.jython.scriptcontroller.logging.LoggingScriptController;
+
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.Vector;
+
+import org.mockito.Mockito;
+import org.powermock.api.mockito.PowerMockito;
+
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.exafs.DetectorGroup;
 import uk.ac.gda.beans.exafs.DetectorParameters;
@@ -74,7 +75,7 @@ public class MicrofocusMapTestComponent {
 	private DetectorParameters detParams;
 	private ISampleParameters sampleParams;
 	private IOutputParameters outputParams;
-	private final String experimentalFullPath = "/scratch/test/xml/path";
+	private final String experimentalFullPath = "/scratch/test/xml/path/";
 	private ScannableMotor y_scannable;
 	private ScannableMotor z_scannable;
 	private XspressParameters xspressConfigurationParameters;

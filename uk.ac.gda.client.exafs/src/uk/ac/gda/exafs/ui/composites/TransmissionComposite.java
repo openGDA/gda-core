@@ -25,6 +25,8 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 
 import uk.ac.gda.beans.exafs.DetectorParameters;
+import uk.ac.gda.exafs.ExafsActivator;
+import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 
 public class TransmissionComposite extends WorkingEnergyWithIonChambersComposite {
 
@@ -40,8 +42,9 @@ public class TransmissionComposite extends WorkingEnergyWithIonChambersComposite
 
 		createDiffractionSection(top);
 
-		createEdgeEnergy(top, control);
-
+		if (!ExafsActivator.getDefault().getPreferenceStore().getDefaultBoolean(ExafsPreferenceConstants.HIDE_WORKING_ENERGY)) {
+			createEdgeEnergy(top, control);
+		}
 		createIonChamberSection(abean, control);
 	}
 }

@@ -214,6 +214,9 @@ public class DetectorParametersTest {
 		ionChamberParameters3.setPercentAbsorption(67.0);
 		fluorescenceParameters.addIonChamberParameter(ionChamberParameters3);
 
+		fluorescenceParameters.setMythenEnergy(9000);
+		fluorescenceParameters.setMythenTime(10);
+
 		expectedValue.setFluorescenceParameters(fluorescenceParameters);
 
 		DetectorParameters d = createFromXML(PackageUtils.getTestPath(getClass())

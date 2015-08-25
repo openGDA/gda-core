@@ -42,6 +42,7 @@ public class SampleParameters implements Serializable, ISampleParameters {
 	private String stage = "None";
 	private XYZStageParameters xyzStageParameters = new XYZStageParameters();
 	private XYZStageParameters cryoStageParameters = new XYZStageParameters();
+	private NoneParameters noneParameters = new NoneParameters();
 	private boolean shouldValidate = true;
 
 	@Override
@@ -86,7 +87,11 @@ public class SampleParameters implements Serializable, ISampleParameters {
 	}
 
 	public NoneParameters getNoneParameters() {
-		return new NoneParameters();
+		return this.noneParameters;
+	}
+
+	public void setNoneParameters(NoneParameters noneParameters) {
+		this.noneParameters = noneParameters;
 	}
 
 	@Override
@@ -119,6 +124,7 @@ public class SampleParameters implements Serializable, ISampleParameters {
 		result = prime * result + ((description2 == null) ? 0 : description2.hashCode());
 		result = prime * result + ((xyzStageParameters == null) ? 0 : xyzStageParameters.hashCode());
 		result = prime * result + ((cryoStageParameters == null) ? 0 : cryoStageParameters.hashCode());
+		result = prime * result + ((noneParameters == null) ? 0 : noneParameters.hashCode());
 		result = prime * result + ((stage == null) ? 0 : stage.hashCode());
 		result = prime * result + (shouldValidate ? 1231 : 1237);
 		return result;
@@ -157,6 +163,11 @@ public class SampleParameters implements Serializable, ISampleParameters {
 			if (other.xyzStageParameters != null)
 				return false;
 		} else if (!cryoStageParameters.equals(other.cryoStageParameters))
+			return false;
+		if (noneParameters == null) {
+			if (other.noneParameters != null)
+				return false;
+		} else if (!noneParameters.equals(other.noneParameters))
 			return false;
 		if (stage == null) {
 			if (other.stage != null)

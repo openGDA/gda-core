@@ -116,8 +116,7 @@ public class WorkingEnergyComposite extends FieldBeanComposite {
 		};
 		workingEnergyBtn.addSelectionListener(workingEnergyListener);
 
-		if (!ExafsActivator.getDefault().getPreferenceStore()
-				.getBoolean(ExafsPreferenceConstants.HIDE_DEFAULT_GAS_MIXTURES_BUTTON)) {
+		if (!ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.HIDE_DEFAULT_GAS_MIXTURES_BUTTON)) {
 			this.selectDefaultsBtn = new Button(workingEComp, SWT.NONE);
 			selectDefaultsBtn.setText("Set Default Gas Mixtures");
 			selectDefaultsBtn.setToolTipText("Click to set ion chamber gas types to defaults.");
