@@ -25,6 +25,7 @@ import gda.data.PathConstructor;
 import gda.device.DeviceException;
 import gda.device.detector.areadetector.v17.NDFile;
 import gda.device.detector.nxdetector.NXFileWriterPlugin;
+import gda.device.detector.nxdetector.NXFileWriterWithTemplate;
 import gda.jython.InterfaceProvider;
 import gda.observable.Observable;
 import gda.observable.Observer;
@@ -33,7 +34,7 @@ import gda.scan.ScanInformation;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
 
-public abstract class FileWriterBase implements NXFileWriterPlugin, InitializingBean{
+public abstract class FileWriterBase implements NXFileWriterPlugin, NXFileWriterWithTemplate, InitializingBean {
 
 	private NDFile ndFile;
 	
@@ -153,6 +154,7 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 	 * 
 	 * @param fileTemplate
 	 */
+	@Override
 	public void setFileTemplate(String fileTemplate) {
 		this.fileTemplate = fileTemplate;
 	}
@@ -163,6 +165,7 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 	 * 
 	 * @param filePathTemplate
 	 */
+	@Override
 	public void setFilePathTemplate(String filePathTemplate) {
 		this.filePathTemplate = filePathTemplate;
 	}
@@ -173,6 +176,7 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 	 * 
 	 * @param fileNameTemplate
 	 */
+	@Override
 	public void setFileNameTemplate(String fileNameTemplate) {
 		this.fileNameTemplate = fileNameTemplate;
 	}
