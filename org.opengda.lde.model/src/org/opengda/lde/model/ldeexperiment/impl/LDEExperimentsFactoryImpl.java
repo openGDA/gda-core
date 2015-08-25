@@ -254,10 +254,10 @@ public class LDEExperimentsFactoryImpl extends EFactoryImpl implements LDEExperi
 	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	public String createCalibrantNameStringFromString(EDataType eDataType, String initialValue) {
-		return (String)super.createFromString(eDataType, initialValue);
+		return ((String)super.createFromString(eDataType, initialValue)).replace(' ', '-');
 	}
 
 	/**
@@ -272,10 +272,10 @@ public class LDEExperimentsFactoryImpl extends EFactoryImpl implements LDEExperi
 	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @generated NOT
+	 * @generated
 	 */
 	public String createCellIDStringFromString(EDataType eDataType, String initialValue) {
-		return ((String)super.createFromString(eDataType, initialValue)).replace(' ', '-');
+		return (String)super.createFromString(eDataType, initialValue);
 	}
 
 	/**
