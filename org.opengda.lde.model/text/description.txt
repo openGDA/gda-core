@@ -34,7 +34,7 @@ Package ldeexperiment <http://www.opengda.org/LDEExperiments>
   Class Cell
     Reference stage : Stage<<1..1>>
     Reference samples : Sample<<0..*>>
-    Attribute cellID : EString
+    Attribute cellID : CellIDString
     Attribute name : EString
     Attribute visitID : EString
     Attribute email : EString
