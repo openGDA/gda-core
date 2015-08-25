@@ -37,6 +37,7 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.gda.eventbus.api.IGDAEventBus;
 import ch.qos.logback.classic.Level;
 
 import com.google.common.base.Objects;
