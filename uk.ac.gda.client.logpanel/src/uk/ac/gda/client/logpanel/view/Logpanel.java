@@ -18,6 +18,9 @@
 
 package uk.ac.gda.client.logpanel.view;
 
+import gda.configuration.properties.LocalProperties;
+import gda.util.logging.LogbackUtils;
+
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -58,14 +61,6 @@ import org.eclipse.swt.widgets.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Function;
-import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
-import com.google.common.collect.BiMap;
-import com.google.common.collect.ImmutableBiMap;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.PatternLayout;
@@ -73,8 +68,14 @@ import ch.qos.logback.classic.net.SocketReceiver;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.AppenderBase;
-import gda.configuration.properties.LocalProperties;
-import gda.util.logging.LogbackUtils;
+
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.ImmutableBiMap;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 
 public class Logpanel extends Composite {
 
@@ -161,6 +162,7 @@ public class Logpanel extends Composite {
 
 		// add appender to root logger
 		ch.qos.logback.classic.Logger rootLogger = logpanelContext.getLogger(Logger.ROOT_LOGGER_NAME);
+		rootLogger.setLevel(Level.ALL); // rootLogger defaults to Level.DEBUG
 		rootLogger.addAppender(loggingEventsAppender);
 
 		// start receiving from the log server and appending to input
@@ -187,34 +189,32 @@ public class Logpanel extends Composite {
 	 */
 	int buttonPressCount = 0; //TODO remove with button
 	private Button createSwitchPatternButton() {
-		Button button = new Button(this, SWT.TOGGLE);
+		final Button button = new Button(this, SWT.TOGGLE);
 		button.setText("Switch pattern layout");
 		button.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				// swap patterns
-				messagePattern =
-					(++buttonPressCount % 2 == 0)
-						? logpanelPattern
-							: serverLogPattern;
+				if (++buttonPressCount % 2 == 0) {
+					messagePattern = simplePatternLayout;
+					button.setText("Simple pattern layout");
+				} else {
+					messagePattern = detailPatternLayout;
+					button.setText("Detail pattern layout");
+				}
 
 				//FIXME small hack to reconfigure LoggerContext
 				connectToLogServer();
 
 				viewer.refresh();
-
-				// for testing without logging events
-//				logger.trace("trace");
-//				logger.info("info");
-//				logger.debug("debug");
-//				logger.warn("warn");
-//				logger.error("error");
 			}
 		});
 		return button;
 	}
-	public static final String logpanelPattern  = "%d %-5level %logger - %m%n%rEx";
-	public static final String serverLogPattern = "%d %-5level [%property{GDA_SOURCE}/%property{JVMNAME}] %logger - %m%n%rEx";
+
+	public static final String simplePatternLayout = "%d %-5level %logger - %m%n%rEx{5}";
+	public static final String detailPatternLayout = "%d %-5level [%property{GDA_SOURCE}/%property{JVMNAME}] %logger - %m%n%rEx";
+
 	/**
 	 * Can use pattern with properties GDA_SOURCE and JVNNAME, latter
 	 * defined by loggingEvent producers in logging.xml files using
@@ -224,7 +224,7 @@ public class Logpanel extends Composite {
 	 *
 	 * http://logback.qos.ch/manual/layouts.html#ClassicPatternLayout
 	 */
-	private String messagePattern = logpanelPattern;
+	private String messagePattern = simplePatternLayout;
 
 	public String getMessagePattern() {
 		return messagePattern;
@@ -604,6 +604,8 @@ public class Logpanel extends Composite {
 	public Logpanel(Composite parent, int style) {
 		super(parent, style);
 
+		final int numColumns = 4;
+
 		connectToLogServer();
 
 		// display copyable path to gda logs dir
@@ -620,7 +622,7 @@ public class Logpanel extends Composite {
 			logFileText.setToolTipText(String.format("'%s' in java.properties", LocalProperties.GDA_LOGS_DIR));
 			logFileText.setBackground(logDirComposite.getBackground());
 
-			GridDataFactory.swtDefaults().span(4, 1).applyTo(logDirComposite);
+			GridDataFactory.swtDefaults().span(numColumns, 1).applyTo(logDirComposite);
 			GridLayoutFactory.fillDefaults().numColumns(2).applyTo(logDirComposite);
 			GridDataFactory.fillDefaults().applyTo(logFileText);
 		}
@@ -686,11 +688,11 @@ public class Logpanel extends Composite {
 			}
 		});
 
-		GridLayoutFactory.swtDefaults().numColumns(4).applyTo(this);
+		GridLayoutFactory.swtDefaults().numColumns(numColumns).applyTo(this);
 		GridDataFactory.swtDefaults().span(1, 1).applyTo(filterLabel);
 		GridDataFactory.fillDefaults().span(2, 1).grab(true, false).applyTo(filterText);
 		GridDataFactory.swtDefaults().span(1, 1).grab(false, false).applyTo(button);
-		GridDataFactory.fillDefaults().span(4, 1).grab(true, true).applyTo(viewer.getControl());
+		GridDataFactory.fillDefaults().span(numColumns, 1).grab(true, true).applyTo(viewer.getControl());
 
 		// former controls supplanted by command buttons in LogpanelView toolbar
 		// methods still useful for other Composites embedding Logpanel
