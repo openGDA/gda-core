@@ -23,6 +23,7 @@ import gda.jython.JythonServerFacade;
 import org.eclipse.richbeans.widgets.FieldComposite;
 import org.eclipse.richbeans.widgets.scalebox.ScaleBox;
 import org.eclipse.richbeans.widgets.wrappers.TextWrapper;
+import org.eclipse.richbeans.widgets.wrappers.TextWrapper.TEXT_TYPE;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -71,20 +72,19 @@ public final class I18SampleParametersComposite extends Composite {
 		nameAndDescriptionComposite.setLayout(new GridLayout(2, false));
 
 		Label lblName = new Label(nameAndDescriptionComposite, SWT.NONE);
-		lblName.setSize(37, 17);
 		lblName.setText("Name");
 
-		this.name = new TextWrapper(nameAndDescriptionComposite, SWT.NONE);
+		this.name = new TextWrapper(nameAndDescriptionComposite, SWT.BORDER | SWT.SINGLE);
+		((TextWrapper) name).setTextType(TEXT_TYPE.FILENAME);
 		GridData gd_name = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_name.widthHint = 294;
 		name.setLayoutData(gd_name);
 
 		Label lblDescription = new Label(nameAndDescriptionComposite, SWT.NONE);
 		lblDescription.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1));
-		lblDescription.setSize(72, 17);
 		lblDescription.setText("Description");
 
-		this.description = new TextWrapper(nameAndDescriptionComposite, SWT.MULTI);
+		this.description = new TextWrapper(nameAndDescriptionComposite, SWT.BORDER | SWT.MULTI | SWT.WRAP | SWT.V_SCROLL);
 		GridData gd_description = new GridData(SWT.LEFT, SWT.FILL, true, true, 1, 1);
 		gd_description.heightHint = 62;
 		gd_description.widthHint = 294;
@@ -195,10 +195,6 @@ public final class I18SampleParametersComposite extends Composite {
 		centre.setLayoutData(gridData_4);
 
 		attenuator1 = new AttenuatorParametersComposite(centre, SWT.NONE);
-		GridData gridData_1 = (GridData) attenuator1.getSelectedPosition().getLayoutData();
-		gridData_1.grabExcessVerticalSpace = false;
-		gridData_1.heightHint = -1;
-		((GridData) attenuator1.getName().getLayoutData()).heightHint = 22;
 		attenuator1.setEditorClass(AttenuatorParameters.class);
 
 		gridData = new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1);
@@ -206,10 +202,6 @@ public final class I18SampleParametersComposite extends Composite {
 		attenuator1.setLayoutData(gridData);
 
 		attenuator2 = new AttenuatorParametersComposite(centre, SWT.NONE);
-		GridData gridData_2 = (GridData) attenuator2.getSelectedPosition().getLayoutData();
-		gridData_2.grabExcessVerticalSpace = false;
-		gridData_2.heightHint = -1;
-		((GridData) attenuator2.getName().getLayoutData()).heightHint = 22;
 		attenuator2.setEditorClass(AttenuatorParameters.class);
 
 		gridData = new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1);

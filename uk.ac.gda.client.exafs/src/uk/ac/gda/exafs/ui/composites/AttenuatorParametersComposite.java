@@ -38,17 +38,14 @@ public final class AttenuatorParametersComposite extends FieldBeanComposite {
 		setLayout(new GridLayout(2, false));
 
 		Label label = new Label(this, SWT.NONE);
-		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		label.setText("name");
-		this.name = new TextWrapper(this, SWT.NONE);
+		label.setText("Name");
+		this.name = new TextWrapper(this, SWT.BORDER | SWT.SINGLE);
 		name.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 
 		label = new Label(this, SWT.NONE);
-		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		label.setText("position");
+		label.setText("Position");
 		this.selectedPosition = new ComboWrapper(this, SWT.READ_ONLY);
 		GridData gridData = new GridData(SWT.FILL, SWT.CENTER, true, true, 1, 1);
-		gridData.heightHint = 188;
 		selectedPosition.setLayoutData(gridData);
 	}
 

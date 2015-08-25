@@ -20,6 +20,8 @@ package uk.ac.gda.exafs.ui;
 
 import java.net.URL;
 
+import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.richbeans.api.event.ValueAdapter;
 import org.eclipse.richbeans.api.event.ValueEvent;
 import org.eclipse.richbeans.api.event.ValueListener;
@@ -31,6 +33,7 @@ import org.eclipse.richbeans.widgets.selector.VerticalListEditor;
 import org.eclipse.richbeans.widgets.wrappers.BooleanWrapper;
 import org.eclipse.richbeans.widgets.wrappers.ComboWrapper;
 import org.eclipse.richbeans.widgets.wrappers.TextWrapper;
+import org.eclipse.richbeans.widgets.wrappers.TextWrapper.TEXT_TYPE;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.custom.StackLayout;
@@ -86,12 +89,14 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 	private Group grpEnvironmentParameters;
 	private Group grpStage;
 	private Group grpBeanComposite;
-	private Composite composite;
+	private Composite topComposite;
+	private Composite bottomComposite;
 	private StackLayout stageLayout;
 	private Composite blankStageComposite;
 	private StackLayout environmentLayout;
 	private Composite blankEnvironmentComposite;
-	private ScrolledComposite topComposite;
+	private ScrolledComposite scrolledComposite;
+	private Composite scrolledContents;
 	private SampleWheelParametersComposite sampleWheelParametersComposite;
 	private Group grpSampleWheel;
 
@@ -129,64 +134,53 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 		return "B18SampleParametersEditor";
 	}
 
-	@SuppressWarnings("unused")
 	@Override
 	public void createPartControl(Composite comp) {
 		comp.setLayout(new FillLayout());
 
-		topComposite = new ScrolledComposite(comp, SWT.H_SCROLL | SWT.V_SCROLL);
-		topComposite.setExpandHorizontal(true);
-		topComposite.setExpandVertical(true);
+		scrolledComposite = new ScrolledComposite(comp, SWT.H_SCROLL | SWT.V_SCROLL);
+		scrolledComposite.setExpandHorizontal(true);
+		scrolledComposite.setExpandVertical(true);
 
-		Composite container = new Composite(topComposite, SWT.NONE);
-		container.setLayout(new GridLayout(2, false));
+		scrolledContents = new Composite(scrolledComposite, SWT.NONE);
+		scrolledContents.setLayout(new GridLayout(1, false));
 
-		composite = new Composite(container, SWT.NONE);
-		composite.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, false, 1, 1));
-		composite.setLayout(new GridLayout(3, false));
+		topComposite = new Composite(scrolledContents, SWT.NONE);
+		GridLayoutFactory.fillDefaults().numColumns(2).applyTo(topComposite);
 
-		topComposite.setContent(container);
-		topComposite.setMinSize(container.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+		Label nameLabel = new Label(topComposite, SWT.NONE);
+		nameLabel.setText("Sample name");
 
-		Label label = new Label(composite, SWT.NONE);
-		label.setSize(37, 17);
-		label.setText("Filename");
+		name = new TextWrapper(topComposite, SWT.BORDER | SWT.SINGLE);
+		((TextWrapper) name).setTextType(TEXT_TYPE.FILENAME);
+		GridDataFactory.fillDefaults().hint(294, SWT.DEFAULT).applyTo(name);
 
-		name = new TextWrapper(composite, SWT.NONE);
-		name.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		name.setSize(234, 21);
+		Label descriptionLabel = new Label(topComposite, SWT.NONE);
+		descriptionLabel.setText("Sample description");
+		GridDataFactory.swtDefaults().align(SWT.BEGINNING, SWT.TOP).applyTo(descriptionLabel);
 
-		new Label(composite, SWT.NONE);
+		description1 = new TextWrapper(topComposite, SWT.BORDER | SWT.MULTI | SWT.WRAP | SWT.V_SCROLL);
+		GridDataFactory.fillDefaults().hint(SWT.DEFAULT, 53).applyTo(description1);
 
-		label = new Label(composite, SWT.NONE);
-		label.setSize(72, 17);
-		label.setText("Sample description");
+		Label commentsLabel = new Label(topComposite, SWT.NONE);
+		commentsLabel.setText("Additional comments");
+		GridDataFactory.swtDefaults().align(SWT.BEGINNING, SWT.TOP).applyTo(commentsLabel);
 
-		description1 = new TextWrapper(composite, SWT.NONE);
-		description1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		description1.setSize(234, 21);
+		description2 = new TextWrapper(topComposite, SWT.BORDER | SWT.MULTI | SWT.WRAP | SWT.V_SCROLL);
+		GridDataFactory.fillDefaults().hint(SWT.DEFAULT, 53).applyTo(description2);
 
-		new Label(composite, SWT.NONE);
+		bottomComposite = new Composite(scrolledContents, SWT.NONE);
+		GridLayoutFactory.fillDefaults().numColumns(3).applyTo(bottomComposite);
 
-		label = new Label(composite, SWT.NONE);
-		label.setSize(72, 17);
-		label.setText("Additional comments");
-
-		description2 = new TextWrapper(composite, SWT.NONE);
-		description2.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		description2.setSize(234, 21);
-
-		new Label(composite, SWT.NONE);
-
-		sampleStageExpandableComposite = new ExpandableComposite(composite, SWT.NONE);
+		sampleStageExpandableComposite = new ExpandableComposite(bottomComposite, SWT.NONE);
 		sampleStageExpandableComposite.setText("Sample Stage");
 		sampleStageExpandableComposite.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
 
-		temperatureExpandableComposite = new ExpandableComposite(composite, SWT.NONE);
+		temperatureExpandableComposite = new ExpandableComposite(bottomComposite, SWT.NONE);
 		temperatureExpandableComposite.setText("Temperature Controller");
 		temperatureExpandableComposite.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
 
-		wheelExpandableComposite = new ExpandableComposite(composite, SWT.NONE);
+		wheelExpandableComposite = new ExpandableComposite(bottomComposite, SWT.NONE);
 		wheelExpandableComposite.setText("Sample Wheel");
 		wheelExpandableComposite.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
 
@@ -198,6 +192,7 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 				if (!stage.getValue().toString().equals("none"))
 					sampleStageExpandableComposite.setExpanded(true);
 				GridUtils.layoutFull(sampleStageExpandableComposite);
+				refreshScrolledContentsSize();
 				linkuiForDynamicLoading(false);
 			}
 		};
@@ -218,6 +213,7 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 				if (!sampleEnvironment.getValue().toString().equals("none"))
 					temperatureExpandableComposite.setExpanded(true);
 				GridUtils.layoutFull(temperatureExpandableComposite);
+				refreshScrolledContentsSize();
 				linkuiForDynamicLoading(false);
 			}
 		};
@@ -239,6 +235,7 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 				else
 					wheelExpandableComposite.setExpanded(e.getState());
 				GridUtils.layoutFull(wheelExpandableComposite);
+				refreshScrolledContentsSize();
 				linkuiForDynamicLoading(false);
 			}
 		};
@@ -246,6 +243,13 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 
 		if (bean.getSampleWheelParameters().isWheelEnabled())
 			wheelExpandableComposite.setExpanded(true);
+
+		refreshScrolledContentsSize();
+	}
+
+	private void refreshScrolledContentsSize() {
+		scrolledComposite.setContent(scrolledContents);
+		scrolledComposite.setMinSize(scrolledContents.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 	}
 
 	public void linkuiForDynamicLoading(@SuppressWarnings("unused") final boolean isPageChange) {
@@ -457,7 +461,7 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 	@Override
 	public void linkUI(final boolean isPageChange) {
 		try {
-			GridUtils.startMultiLayout(topComposite);
+			GridUtils.startMultiLayout(scrolledComposite);
 			super.linkUI(isPageChange);
 			if (sampleEnvironment != null) {
 				sampleEnvironment.select(sampleEnvironment.getSelectionIndex());
