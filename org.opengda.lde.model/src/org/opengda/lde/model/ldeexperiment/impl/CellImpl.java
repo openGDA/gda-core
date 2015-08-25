@@ -65,6 +65,7 @@ import org.opengda.lde.model.ldeexperiment.exceptions.NotFoundException;
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.CellImpl#getCalibrant_exposure <em>Calibrant exposure</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.CellImpl#getEnvSamplingInterval <em>Env Sampling Interval</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.CellImpl#getEvnScannableNames <em>Evn Scannable Names</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.CellImpl#getNumberOfSamples <em>Number Of Samples</em>}</li>
  * </ul>
  *
  * @generated
@@ -354,6 +355,26 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	 * @ordered
 	 */
 	protected String evnScannableNames = EVN_SCANNABLE_NAMES_EDEFAULT;
+
+	/**
+	 * The default value of the '{@link #getNumberOfSamples() <em>Number Of Samples</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getNumberOfSamples()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final int NUMBER_OF_SAMPLES_EDEFAULT = 1;
+
+	/**
+	 * The cached value of the '{@link #getNumberOfSamples() <em>Number Of Samples</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getNumberOfSamples()
+	 * @generated
+	 * @ordered
+	 */
+	protected int numberOfSamples = NUMBER_OF_SAMPLES_EDEFAULT;
 
 	private boolean processed;
 
@@ -684,6 +705,27 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public int getNumberOfSamples() {
+		return numberOfSamples;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setNumberOfSamples(int newNumberOfSamples) {
+		int oldNumberOfSamples = numberOfSamples;
+		numberOfSamples = newNumberOfSamples;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, LDEExperimentsPackage.CELL__NUMBER_OF_SAMPLES, oldNumberOfSamples, numberOfSamples));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
 	 * @generated NOT
 	 */
 	public Sample getSampleById(String sampleId) {
@@ -838,6 +880,8 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 				return getEnvSamplingInterval();
 			case LDEExperimentsPackage.CELL__EVN_SCANNABLE_NAMES:
 				return getEvnScannableNames();
+			case LDEExperimentsPackage.CELL__NUMBER_OF_SAMPLES:
+				return getNumberOfSamples();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -897,6 +941,9 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 			case LDEExperimentsPackage.CELL__EVN_SCANNABLE_NAMES:
 				setEvnScannableNames((String)newValue);
 				return;
+			case LDEExperimentsPackage.CELL__NUMBER_OF_SAMPLES:
+				setNumberOfSamples((Integer)newValue);
+				return;
 		}
 		super.eSet(featureID, newValue);
 	}
@@ -954,6 +1001,9 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 			case LDEExperimentsPackage.CELL__EVN_SCANNABLE_NAMES:
 				setEvnScannableNames(EVN_SCANNABLE_NAMES_EDEFAULT);
 				return;
+			case LDEExperimentsPackage.CELL__NUMBER_OF_SAMPLES:
+				setNumberOfSamples(NUMBER_OF_SAMPLES_EDEFAULT);
+				return;
 		}
 		super.eUnset(featureID);
 	}
@@ -996,6 +1046,8 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 				return envSamplingInterval != ENV_SAMPLING_INTERVAL_EDEFAULT;
 			case LDEExperimentsPackage.CELL__EVN_SCANNABLE_NAMES:
 				return EVN_SCANNABLE_NAMES_EDEFAULT == null ? evnScannableNames != null : !EVN_SCANNABLE_NAMES_EDEFAULT.equals(evnScannableNames);
+			case LDEExperimentsPackage.CELL__NUMBER_OF_SAMPLES:
+				return numberOfSamples != NUMBER_OF_SAMPLES_EDEFAULT;
 		}
 		return super.eIsSet(featureID);
 	}
@@ -1052,6 +1104,8 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 		result.append(envSamplingInterval);
 		result.append(", evnScannableNames: ");
 		result.append(evnScannableNames);
+		result.append(", numberOfSamples: ");
+		result.append(numberOfSamples);
 		result.append(')');
 		return result.toString();
 	}

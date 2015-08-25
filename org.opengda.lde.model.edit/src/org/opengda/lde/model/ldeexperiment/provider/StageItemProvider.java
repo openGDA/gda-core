@@ -70,6 +70,7 @@ public class StageItemProvider
 			addCamera_xPropertyDescriptor(object);
 			addCamera_yPropertyDescriptor(object);
 			addCamera_zPropertyDescriptor(object);
+			addNumberOfCellsPropertyDescriptor(object);
 		}
 		return itemPropertyDescriptors;
 	}
@@ -229,6 +230,28 @@ public class StageItemProvider
 	}
 
 	/**
+	 * This adds a property descriptor for the Number Of Cells feature.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected void addNumberOfCellsPropertyDescriptor(Object object) {
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_Stage_numberOfCells_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_Stage_numberOfCells_feature", "_UI_Stage_type"),
+				 LDEExperimentsPackage.Literals.STAGE__NUMBER_OF_CELLS,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.INTEGRAL_VALUE_IMAGE,
+				 null,
+				 null));
+	}
+
+	/**
 	 * This specifies how to implement {@link #getChildren} and is used to deduce an appropriate feature for an
 	 * {@link org.eclipse.emf.edit.command.AddCommand}, {@link org.eclipse.emf.edit.command.RemoveCommand} or
 	 * {@link org.eclipse.emf.edit.command.MoveCommand} in {@link #createCommand}.
@@ -303,6 +326,7 @@ public class StageItemProvider
 			case LDEExperimentsPackage.STAGE__CAMERA_X:
 			case LDEExperimentsPackage.STAGE__CAMERA_Y:
 			case LDEExperimentsPackage.STAGE__CAMERA_Z:
+			case LDEExperimentsPackage.STAGE__NUMBER_OF_CELLS:
 				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
 				return;
 			case LDEExperimentsPackage.STAGE__CELLS:

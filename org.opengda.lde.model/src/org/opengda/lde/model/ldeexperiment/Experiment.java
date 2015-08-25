@@ -38,6 +38,7 @@ import org.eclipse.emf.ecore.EObject;
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Experiment#getName <em>Name</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Experiment#getStages <em>Stages</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Experiment#getDescription <em>Description</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.Experiment#getNumberOfStages <em>Number Of Stages</em>}</li>
  * </ul>
  *
  * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getExperiment()
@@ -114,6 +115,33 @@ public interface Experiment extends EObject {
 	 * @generated
 	 */
 	void setDescription(String value);
+
+	/**
+	 * Returns the value of the '<em><b>Number Of Stages</b></em>' attribute.
+	 * The default value is <code>"13"</code>.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Number Of Stages</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Number Of Stages</em>' attribute.
+	 * @see #setNumberOfStages(int)
+	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getExperiment_NumberOfStages()
+	 * @model default="13"
+	 * @generated
+	 */
+	int getNumberOfStages();
+
+	/**
+	 * Sets the value of the '{@link org.opengda.lde.model.ldeexperiment.Experiment#getNumberOfStages <em>Number Of Stages</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Number Of Stages</em>' attribute.
+	 * @see #getNumberOfStages()
+	 * @generated
+	 */
+	void setNumberOfStages(int value);
 
 	/**
 	 * <!-- begin-user-doc -->

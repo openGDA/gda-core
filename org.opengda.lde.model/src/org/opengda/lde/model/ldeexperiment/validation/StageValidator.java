@@ -47,5 +47,7 @@ public interface StageValidator {
 	boolean validateCamera_y(double value);
 	boolean validateCamera_z(double value);
 
+	boolean validateNumberOfCells(int value);
+
 	boolean validateExperiment(Experiment value);
 }

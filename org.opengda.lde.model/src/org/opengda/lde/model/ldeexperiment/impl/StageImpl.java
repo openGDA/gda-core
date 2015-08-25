@@ -57,6 +57,7 @@ import org.opengda.lde.model.ldeexperiment.exceptions.NotFoundException;
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.StageImpl#getCamera_x <em>Camera x</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.StageImpl#getCamera_y <em>Camera y</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.StageImpl#getCamera_z <em>Camera z</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.StageImpl#getNumberOfCells <em>Number Of Cells</em>}</li>
  * </ul>
  *
  * @generated
@@ -211,6 +212,26 @@ public class StageImpl extends MinimalEObjectImpl.Container implements Stage {
 	 * @ordered
 	 */
 	protected double camera_z = CAMERA_Z_EDEFAULT;
+
+	/**
+	 * The default value of the '{@link #getNumberOfCells() <em>Number Of Cells</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getNumberOfCells()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final int NUMBER_OF_CELLS_EDEFAULT = 3;
+
+	/**
+	 * The cached value of the '{@link #getNumberOfCells() <em>Number Of Cells</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getNumberOfCells()
+	 * @generated
+	 * @ordered
+	 */
+	protected int numberOfCells = NUMBER_OF_CELLS_EDEFAULT;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -393,6 +414,27 @@ public class StageImpl extends MinimalEObjectImpl.Container implements Stage {
 	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public int getNumberOfCells() {
+		return numberOfCells;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setNumberOfCells(int newNumberOfCells) {
+		int oldNumberOfCells = numberOfCells;
+		numberOfCells = newNumberOfCells;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, LDEExperimentsPackage.STAGE__NUMBER_OF_CELLS, oldNumberOfCells, numberOfCells));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
 	 * @generated NOT
 	 */
 	public Cell getCellByID(String cellId) {
@@ -520,6 +562,8 @@ public class StageImpl extends MinimalEObjectImpl.Container implements Stage {
 				return getCamera_y();
 			case LDEExperimentsPackage.STAGE__CAMERA_Z:
 				return getCamera_z();
+			case LDEExperimentsPackage.STAGE__NUMBER_OF_CELLS:
+				return getNumberOfCells();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -561,6 +605,9 @@ public class StageImpl extends MinimalEObjectImpl.Container implements Stage {
 			case LDEExperimentsPackage.STAGE__CAMERA_Z:
 				setCamera_z((Double)newValue);
 				return;
+			case LDEExperimentsPackage.STAGE__NUMBER_OF_CELLS:
+				setNumberOfCells((Integer)newValue);
+				return;
 		}
 		super.eSet(featureID, newValue);
 	}
@@ -600,6 +647,9 @@ public class StageImpl extends MinimalEObjectImpl.Container implements Stage {
 			case LDEExperimentsPackage.STAGE__CAMERA_Z:
 				setCamera_z(CAMERA_Z_EDEFAULT);
 				return;
+			case LDEExperimentsPackage.STAGE__NUMBER_OF_CELLS:
+				setNumberOfCells(NUMBER_OF_CELLS_EDEFAULT);
+				return;
 		}
 		super.eUnset(featureID);
 	}
@@ -630,6 +680,8 @@ public class StageImpl extends MinimalEObjectImpl.Container implements Stage {
 				return camera_y != CAMERA_Y_EDEFAULT;
 			case LDEExperimentsPackage.STAGE__CAMERA_Z:
 				return camera_z != CAMERA_Z_EDEFAULT;
+			case LDEExperimentsPackage.STAGE__NUMBER_OF_CELLS:
+				return numberOfCells != NUMBER_OF_CELLS_EDEFAULT;
 		}
 		return super.eIsSet(featureID);
 	}
@@ -672,6 +724,8 @@ public class StageImpl extends MinimalEObjectImpl.Container implements Stage {
 		result.append(camera_y);
 		result.append(", camera_z: ");
 		result.append(camera_z);
+		result.append(", numberOfCells: ");
+		result.append(numberOfCells);
 		result.append(')');
 		return result.toString();
 	}

@@ -163,13 +163,22 @@ public interface LDEExperimentsPackage extends EPackage {
 	int EXPERIMENT__DESCRIPTION = 2;
 
 	/**
+	 * The feature id for the '<em><b>Number Of Stages</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int EXPERIMENT__NUMBER_OF_STAGES = 3;
+
+	/**
 	 * The number of structural features of the '<em>Experiment</em>' class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int EXPERIMENT_FEATURE_COUNT = 3;
+	int EXPERIMENT_FEATURE_COUNT = 4;
 
 	/**
 	 * The operation id for the '<em>Get Stage By ID</em>' operation.
@@ -281,13 +290,22 @@ public interface LDEExperimentsPackage extends EPackage {
 	int STAGE__CAMERA_Z = 8;
 
 	/**
+	 * The feature id for the '<em><b>Number Of Cells</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int STAGE__NUMBER_OF_CELLS = 9;
+
+	/**
 	 * The number of structural features of the '<em>Stage</em>' class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int STAGE_FEATURE_COUNT = 9;
+	int STAGE_FEATURE_COUNT = 10;
 
 	/**
 	 * The operation id for the '<em>Get Cell By ID</em>' operation.
@@ -453,13 +471,22 @@ public interface LDEExperimentsPackage extends EPackage {
 	int CELL__EVN_SCANNABLE_NAMES = 14;
 
 	/**
+	 * The feature id for the '<em><b>Number Of Samples</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int CELL__NUMBER_OF_SAMPLES = 15;
+
+	/**
 	 * The number of structural features of the '<em>Cell</em>' class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int CELL_FEATURE_COUNT = 15;
+	int CELL_FEATURE_COUNT = 16;
 
 	/**
 	 * The operation id for the '<em>Get Sample By Id</em>' operation.
@@ -790,6 +817,17 @@ public interface LDEExperimentsPackage extends EPackage {
 	EAttribute getExperiment_Description();
 
 	/**
+	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Experiment#getNumberOfStages <em>Number Of Stages</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Number Of Stages</em>'.
+	 * @see org.opengda.lde.model.ldeexperiment.Experiment#getNumberOfStages()
+	 * @see #getExperiment()
+	 * @generated
+	 */
+	EAttribute getExperiment_NumberOfStages();
+
+	/**
 	 * Returns the meta object for the '{@link org.opengda.lde.model.ldeexperiment.Experiment#getStageByID(java.lang.String) <em>Get Stage By ID</em>}' operation.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -896,6 +934,17 @@ public interface LDEExperimentsPackage extends EPackage {
 	 * @generated
 	 */
 	EAttribute getStage_Camera_z();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Stage#getNumberOfCells <em>Number Of Cells</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Number Of Cells</em>'.
+	 * @see org.opengda.lde.model.ldeexperiment.Stage#getNumberOfCells()
+	 * @see #getStage()
+	 * @generated
+	 */
+	EAttribute getStage_NumberOfCells();
 
 	/**
 	 * Returns the meta object for the container reference '{@link org.opengda.lde.model.ldeexperiment.Stage#getExperiment <em>Experiment</em>}'.
@@ -1092,6 +1141,17 @@ public interface LDEExperimentsPackage extends EPackage {
 	 * @generated
 	 */
 	EAttribute getCell_EvnScannableNames();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Cell#getNumberOfSamples <em>Number Of Samples</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Number Of Samples</em>'.
+	 * @see org.opengda.lde.model.ldeexperiment.Cell#getNumberOfSamples()
+	 * @see #getCell()
+	 * @generated
+	 */
+	EAttribute getCell_NumberOfSamples();
 
 	/**
 	 * Returns the meta object for the '{@link org.opengda.lde.model.ldeexperiment.Cell#getSampleById(java.lang.String) <em>Get Sample By Id</em>}' operation.
@@ -1440,6 +1500,14 @@ public interface LDEExperimentsPackage extends EPackage {
 		EAttribute EXPERIMENT__DESCRIPTION = eINSTANCE.getExperiment_Description();
 
 		/**
+		 * The meta object literal for the '<em><b>Number Of Stages</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute EXPERIMENT__NUMBER_OF_STAGES = eINSTANCE.getExperiment_NumberOfStages();
+
+		/**
 		 * The meta object literal for the '<em><b>Get Stage By ID</b></em>' operation.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
@@ -1520,6 +1588,14 @@ public interface LDEExperimentsPackage extends EPackage {
 		 * @generated
 		 */
 		EAttribute STAGE__CAMERA_Z = eINSTANCE.getStage_Camera_z();
+
+		/**
+		 * The meta object literal for the '<em><b>Number Of Cells</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute STAGE__NUMBER_OF_CELLS = eINSTANCE.getStage_NumberOfCells();
 
 		/**
 		 * The meta object literal for the '<em><b>Experiment</b></em>' container reference feature.
@@ -1666,6 +1742,14 @@ public interface LDEExperimentsPackage extends EPackage {
 		 * @generated
 		 */
 		EAttribute CELL__EVN_SCANNABLE_NAMES = eINSTANCE.getCell_EvnScannableNames();
+
+		/**
+		 * The meta object literal for the '<em><b>Number Of Samples</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute CELL__NUMBER_OF_SAMPLES = eINSTANCE.getCell_NumberOfSamples();
 
 		/**
 		 * The meta object literal for the '<em><b>Get Sample By Id</b></em>' operation.

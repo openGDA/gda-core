@@ -35,6 +35,7 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Experiment/name"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference sampledefinition.ecore#//Experiment/stages"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Experiment/description"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Experiment/numberOfStages"/>
       <genOperations ecoreOperation="sampledefinition.ecore#//Experiment/getStageByID">
         <genParameters ecoreParameter="sampledefinition.ecore#//Experiment/getStageByID/stageId"/>
       </genOperations>
@@ -50,6 +51,7 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Stage/camera_x"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Stage/camera_y"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Stage/camera_z"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Stage/numberOfCells"/>
       <genOperations ecoreOperation="sampledefinition.ecore#//Stage/getCellByID">
         <genParameters ecoreParameter="sampledefinition.ecore#//Stage/getCellByID/cellId"/>
       </genOperations>
@@ -70,6 +72,7 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Cell/calibrant_exposure"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Cell/envSamplingInterval"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Cell/evnScannableNames"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Cell/numberOfSamples"/>
       <genOperations ecoreOperation="sampledefinition.ecore#//Cell/getSampleById">
         <genParameters ecoreParameter="sampledefinition.ecore#//Cell/getSampleById/sampleId"/>
       </genOperations>

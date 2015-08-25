@@ -44,6 +44,7 @@ import org.eclipse.emf.ecore.EObject;
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Stage#getCamera_x <em>Camera x</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Stage#getCamera_y <em>Camera y</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Stage#getCamera_z <em>Camera z</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.Stage#getNumberOfCells <em>Number Of Cells</em>}</li>
  * </ul>
  *
  * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getStage()
@@ -256,6 +257,33 @@ public interface Stage extends EObject {
 	 * @generated
 	 */
 	void setCamera_z(double value);
+
+	/**
+	 * Returns the value of the '<em><b>Number Of Cells</b></em>' attribute.
+	 * The default value is <code>"3"</code>.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Number Of Cells</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Number Of Cells</em>' attribute.
+	 * @see #setNumberOfCells(int)
+	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getStage_NumberOfCells()
+	 * @model default="3"
+	 * @generated
+	 */
+	int getNumberOfCells();
+
+	/**
+	 * Sets the value of the '{@link org.opengda.lde.model.ldeexperiment.Stage#getNumberOfCells <em>Number Of Cells</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Number Of Cells</em>' attribute.
+	 * @see #getNumberOfCells()
+	 * @generated
+	 */
+	void setNumberOfCells(int value);
 
 	/**
 	 * <!-- begin-user-doc -->

@@ -63,6 +63,7 @@ public class ExperimentItemProvider
 
 			addNamePropertyDescriptor(object);
 			addDescriptionPropertyDescriptor(object);
+			addNumberOfStagesPropertyDescriptor(object);
 		}
 		return itemPropertyDescriptors;
 	}
@@ -107,6 +108,28 @@ public class ExperimentItemProvider
 				 false,
 				 false,
 				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
+				 null,
+				 null));
+	}
+
+	/**
+	 * This adds a property descriptor for the Number Of Stages feature.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected void addNumberOfStagesPropertyDescriptor(Object object) {
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_Experiment_numberOfStages_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_Experiment_numberOfStages_feature", "_UI_Experiment_type"),
+				 LDEExperimentsPackage.Literals.EXPERIMENT__NUMBER_OF_STAGES,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.INTEGRAL_VALUE_IMAGE,
 				 null,
 				 null));
 	}
@@ -181,6 +204,7 @@ public class ExperimentItemProvider
 		switch (notification.getFeatureID(Experiment.class)) {
 			case LDEExperimentsPackage.EXPERIMENT__NAME:
 			case LDEExperimentsPackage.EXPERIMENT__DESCRIPTION:
+			case LDEExperimentsPackage.EXPERIMENT__NUMBER_OF_STAGES:
 				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
 				return;
 			case LDEExperimentsPackage.EXPERIMENT__STAGES:

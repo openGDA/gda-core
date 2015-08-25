@@ -55,6 +55,7 @@ public class LDEExperimentsResourceFactoryImpl extends ResourceFactoryImpl {
 	public Resource createResource(URI uri) {
 		Resource result = new LDEExperimentsResourceImpl(uri);
 		((XMLResource) result).getDefaultSaveOptions().put(XMLResource.OPTION_KEEP_DEFAULT_CONTENT, Boolean.TRUE);
+		((XMLResource) result).getDefaultSaveOptions().put(XMLResource.OPTION_EXTENDED_META_DATA,	Boolean.TRUE);
 		return result;
 	}
 

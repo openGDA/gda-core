@@ -57,4 +57,6 @@ public interface CellValidator {
 	boolean validateCalibrant_exposure(double value);
 	boolean validateEnvSamplingInterval(double value);
 	boolean validateEvnScannableNames(String value);
+
+	boolean validateNumberOfSamples(int value);
 }

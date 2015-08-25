@@ -52,6 +52,7 @@ import org.eclipse.emf.ecore.EObject;
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Cell#getCalibrant_exposure <em>Calibrant exposure</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Cell#getEnvSamplingInterval <em>Env Sampling Interval</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Cell#getEvnScannableNames <em>Evn Scannable Names</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.Cell#getNumberOfSamples <em>Number Of Samples</em>}</li>
  * </ul>
  *
  * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getCell()
@@ -111,7 +112,7 @@ public interface Cell extends EObject {
 	 * @return the value of the '<em>Cell ID</em>' attribute.
 	 * @see #setCellID(String)
 	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getCell_CellID()
-	 * @model dataType="org.opengda.lde.model.ldeexperiment.CellIDString"
+	 * @model
 	 * @generated
 	 */
 	String getCellID();
@@ -442,6 +443,33 @@ public interface Cell extends EObject {
 	 * @generated
 	 */
 	void setEvnScannableNames(String value);
+
+	/**
+	 * Returns the value of the '<em><b>Number Of Samples</b></em>' attribute.
+	 * The default value is <code>"1"</code>.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Number Of Samples</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Number Of Samples</em>' attribute.
+	 * @see #setNumberOfSamples(int)
+	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getCell_NumberOfSamples()
+	 * @model default="1"
+	 * @generated
+	 */
+	int getNumberOfSamples();
+
+	/**
+	 * Sets the value of the '{@link org.opengda.lde.model.ldeexperiment.Cell#getNumberOfSamples <em>Number Of Samples</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Number Of Samples</em>' attribute.
+	 * @see #getNumberOfSamples()
+	 * @generated
+	 */
+	void setNumberOfSamples(int value);
 
 	/**
 	 * <!-- begin-user-doc -->

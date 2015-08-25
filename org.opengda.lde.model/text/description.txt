@@ -15,6 +15,7 @@ Package ldeexperiment <http://www.opengda.org/LDEExperiments>
     Attribute name : EString
     Reference stages : Stage<<0..*>>
     Attribute description : EString
+    Attribute numberOfStages : EInt
     Operation getStageByID(EString) : Stage
 
   Class Stage
@@ -27,12 +28,13 @@ Package ldeexperiment <http://www.opengda.org/LDEExperiments>
     Attribute camera_x : EDouble
     Attribute camera_y : EDouble
     Attribute camera_z : EDouble
+    Attribute numberOfCells : EInt
     Operation getCellByID(EString) : Cell
 
   Class Cell
     Reference stage : Stage<<1..1>>
     Reference samples : Sample<<0..*>>
-    Attribute cellID : CellIDString
+    Attribute cellID : EString
     Attribute name : EString
     Attribute visitID : EString
     Attribute email : EString
@@ -45,6 +47,7 @@ Package ldeexperiment <http://www.opengda.org/LDEExperiments>
     Attribute calibrant_exposure : EDouble
     Attribute envSamplingInterval : EDouble
     Attribute evnScannableNames : EString
+    Attribute numberOfSamples : EInt
     Operation getSampleById(EString) : Sample
     Operation getSampleByName(EString) : Sample
 

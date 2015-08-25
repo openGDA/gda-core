@@ -49,6 +49,7 @@ import org.opengda.lde.model.ldeexperiment.exceptions.NotFoundException;
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.ExperimentImpl#getName <em>Name</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.ExperimentImpl#getStages <em>Stages</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.ExperimentImpl#getDescription <em>Description</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.ExperimentImpl#getNumberOfStages <em>Number Of Stages</em>}</li>
  * </ul>
  *
  * @generated
@@ -103,6 +104,26 @@ public class ExperimentImpl extends MinimalEObjectImpl.Container implements Expe
 	 * @ordered
 	 */
 	protected String description = DESCRIPTION_EDEFAULT;
+
+	/**
+	 * The default value of the '{@link #getNumberOfStages() <em>Number Of Stages</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getNumberOfStages()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final int NUMBER_OF_STAGES_EDEFAULT = 13;
+
+	/**
+	 * The cached value of the '{@link #getNumberOfStages() <em>Number Of Stages</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getNumberOfStages()
+	 * @generated
+	 * @ordered
+	 */
+	protected int numberOfStages = NUMBER_OF_STAGES_EDEFAULT;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -180,6 +201,27 @@ public class ExperimentImpl extends MinimalEObjectImpl.Container implements Expe
 	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public int getNumberOfStages() {
+		return numberOfStages;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setNumberOfStages(int newNumberOfStages) {
+		int oldNumberOfStages = numberOfStages;
+		numberOfStages = newNumberOfStages;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, LDEExperimentsPackage.EXPERIMENT__NUMBER_OF_STAGES, oldNumberOfStages, numberOfStages));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
 	 * @generated NOT
 	 */
 	public Stage getStageByID(String stageId) {
@@ -234,6 +276,8 @@ public class ExperimentImpl extends MinimalEObjectImpl.Container implements Expe
 				return getStages();
 			case LDEExperimentsPackage.EXPERIMENT__DESCRIPTION:
 				return getDescription();
+			case LDEExperimentsPackage.EXPERIMENT__NUMBER_OF_STAGES:
+				return getNumberOfStages();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -257,6 +301,9 @@ public class ExperimentImpl extends MinimalEObjectImpl.Container implements Expe
 			case LDEExperimentsPackage.EXPERIMENT__DESCRIPTION:
 				setDescription((String)newValue);
 				return;
+			case LDEExperimentsPackage.EXPERIMENT__NUMBER_OF_STAGES:
+				setNumberOfStages((Integer)newValue);
+				return;
 		}
 		super.eSet(featureID, newValue);
 	}
@@ -278,6 +325,9 @@ public class ExperimentImpl extends MinimalEObjectImpl.Container implements Expe
 			case LDEExperimentsPackage.EXPERIMENT__DESCRIPTION:
 				setDescription(DESCRIPTION_EDEFAULT);
 				return;
+			case LDEExperimentsPackage.EXPERIMENT__NUMBER_OF_STAGES:
+				setNumberOfStages(NUMBER_OF_STAGES_EDEFAULT);
+				return;
 		}
 		super.eUnset(featureID);
 	}
@@ -296,6 +346,8 @@ public class ExperimentImpl extends MinimalEObjectImpl.Container implements Expe
 				return stages != null && !stages.isEmpty();
 			case LDEExperimentsPackage.EXPERIMENT__DESCRIPTION:
 				return DESCRIPTION_EDEFAULT == null ? description != null : !DESCRIPTION_EDEFAULT.equals(description);
+			case LDEExperimentsPackage.EXPERIMENT__NUMBER_OF_STAGES:
+				return numberOfStages != NUMBER_OF_STAGES_EDEFAULT;
 		}
 		return super.eIsSet(featureID);
 	}
@@ -328,6 +380,8 @@ public class ExperimentImpl extends MinimalEObjectImpl.Container implements Expe
 		result.append(name);
 		result.append(", description: ");
 		result.append(description);
+		result.append(", numberOfStages: ");
+		result.append(numberOfStages);
 		result.append(')');
 		return result.toString();
 	}

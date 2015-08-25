@@ -256,6 +256,15 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public EAttribute getExperiment_NumberOfStages() {
+		return (EAttribute)experimentEClass.getEStructuralFeatures().get(3);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	public EOperation getExperiment__GetStageByID__String() {
 		return experimentEClass.getEOperations().get(0);
 	}
@@ -339,6 +348,15 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 */
 	public EAttribute getStage_Camera_z() {
 		return (EAttribute)stageEClass.getEStructuralFeatures().get(8);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getStage_NumberOfCells() {
+		return (EAttribute)stageEClass.getEStructuralFeatures().get(9);
 	}
 
 	/**
@@ -501,6 +519,15 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 */
 	public EAttribute getCell_EvnScannableNames() {
 		return (EAttribute)cellEClass.getEStructuralFeatures().get(14);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getCell_NumberOfSamples() {
+		return (EAttribute)cellEClass.getEStructuralFeatures().get(15);
 	}
 
 	/**
@@ -755,6 +782,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 		createEAttribute(experimentEClass, EXPERIMENT__NAME);
 		createEReference(experimentEClass, EXPERIMENT__STAGES);
 		createEAttribute(experimentEClass, EXPERIMENT__DESCRIPTION);
+		createEAttribute(experimentEClass, EXPERIMENT__NUMBER_OF_STAGES);
 		createEOperation(experimentEClass, EXPERIMENT___GET_STAGE_BY_ID__STRING);
 
 		stageEClass = createEClass(STAGE);
@@ -767,6 +795,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 		createEAttribute(stageEClass, STAGE__CAMERA_X);
 		createEAttribute(stageEClass, STAGE__CAMERA_Y);
 		createEAttribute(stageEClass, STAGE__CAMERA_Z);
+		createEAttribute(stageEClass, STAGE__NUMBER_OF_CELLS);
 		createEOperation(stageEClass, STAGE___GET_CELL_BY_ID__STRING);
 
 		cellEClass = createEClass(CELL);
@@ -785,6 +814,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 		createEAttribute(cellEClass, CELL__CALIBRANT_EXPOSURE);
 		createEAttribute(cellEClass, CELL__ENV_SAMPLING_INTERVAL);
 		createEAttribute(cellEClass, CELL__EVN_SCANNABLE_NAMES);
+		createEAttribute(cellEClass, CELL__NUMBER_OF_SAMPLES);
 		createEOperation(cellEClass, CELL___GET_SAMPLE_BY_ID__STRING);
 		createEOperation(cellEClass, CELL___GET_SAMPLE_BY_NAME__STRING);
 
@@ -856,6 +886,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 		initEAttribute(getExperiment_Name(), ecorePackage.getEString(), "name", null, 0, 1, Experiment.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getExperiment_Stages(), this.getStage(), this.getStage_Experiment(), "stages", null, 0, -1, Experiment.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getExperiment_Description(), ecorePackage.getEString(), "description", null, 0, 1, Experiment.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getExperiment_NumberOfStages(), ecorePackage.getEInt(), "numberOfStages", "13", 0, 1, Experiment.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		op = initEOperation(getExperiment__GetStageByID__String(), this.getStage(), "getStageByID", 0, 1, IS_UNIQUE, IS_ORDERED);
 		addEParameter(op, ecorePackage.getEString(), "stageId", 0, 1, IS_UNIQUE, IS_ORDERED);
@@ -870,6 +901,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 		initEAttribute(getStage_Camera_x(), ecorePackage.getEDouble(), "camera_x", null, 0, 1, Stage.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getStage_Camera_y(), ecorePackage.getEDouble(), "camera_y", null, 0, 1, Stage.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getStage_Camera_z(), ecorePackage.getEDouble(), "camera_z", null, 0, 1, Stage.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getStage_NumberOfCells(), ecorePackage.getEInt(), "numberOfCells", "3", 0, 1, Stage.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		op = initEOperation(getStage__GetCellByID__String(), this.getCell(), "getCellByID", 0, 1, IS_UNIQUE, IS_ORDERED);
 		addEParameter(op, ecorePackage.getEString(), "cellId", 0, 1, IS_UNIQUE, IS_ORDERED);
@@ -877,7 +909,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 		initEClass(cellEClass, Cell.class, "Cell", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEReference(getCell_Stage(), this.getStage(), this.getStage_Cells(), "stage", null, 1, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getCell_Samples(), this.getSample(), this.getSample_Cell(), "samples", null, 0, -1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getCell_CellID(), this.getCellIDString(), "cellID", null, 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getCell_CellID(), ecorePackage.getEString(), "cellID", null, 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getCell_Name(), ecorePackage.getEString(), "name", null, 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getCell_VisitID(), ecorePackage.getEString(), "visitID", null, 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getCell_Email(), ecorePackage.getEString(), "email", null, 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -890,6 +922,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 		initEAttribute(getCell_Calibrant_exposure(), ecorePackage.getEDouble(), "calibrant_exposure", "1.0", 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getCell_EnvSamplingInterval(), ecorePackage.getEDouble(), "envSamplingInterval", null, 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getCell_EvnScannableNames(), ecorePackage.getEString(), "evnScannableNames", null, 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getCell_NumberOfSamples(), ecorePackage.getEInt(), "numberOfSamples", "1", 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		op = initEOperation(getCell__GetSampleById__String(), this.getSample(), "getSampleById", 0, 1, IS_UNIQUE, IS_ORDERED);
 		addEParameter(op, ecorePackage.getEString(), "sampleId", 0, 1, IS_UNIQUE, IS_ORDERED);

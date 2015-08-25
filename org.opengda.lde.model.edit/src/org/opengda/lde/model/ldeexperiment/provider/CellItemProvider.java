@@ -3,6 +3,7 @@
 package org.opengda.lde.model.ldeexperiment.provider;
 
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -73,6 +74,7 @@ public class CellItemProvider
 			addCalibrant_exposurePropertyDescriptor(object);
 			addEnvSamplingIntervalPropertyDescriptor(object);
 			addEvnScannableNamesPropertyDescriptor(object);
+			addNumberOfSamplesPropertyDescriptor(object);
 		}
 		return itemPropertyDescriptors;
 	}
@@ -80,12 +82,14 @@ public class CellItemProvider
 	/**
 	 * This adds a property descriptor for the Cell ID feature.
 	 * <!-- begin-user-doc -->
+	 * override {@link ItemPropertyDescriptor#getChoiceOfValues(Object)} to dynamically generated unique Cell IDs
+	 * for a stage, and filter out Cell IDs that are already been used as the physical cell can only be used once. 
 	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	protected void addCellIDPropertyDescriptor(Object object) {
 		itemPropertyDescriptors.add
-			(createItemPropertyDescriptor
+			(new ItemPropertyDescriptor
 				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
 				 getResourceLocator(),
 				 getString("_UI_Cell_cellID_feature"),
@@ -96,7 +100,37 @@ public class CellItemProvider
 				 false,
 				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
 				 null,
-				 null));
+				 null)
+				{
+				@Override
+				public Collection<?> getChoiceOfValues(Object object){
+					List<String> choiceOfValues = new ArrayList<String>();
+					Cell cell=(Cell)object;
+					String stageName=cell.getStage().getStageID();
+					if (stageName==null) {
+						SampledefinitionEditPlugin.INSTANCE.log("Stage must have an ID");
+					}
+					// update the used Cell IDs for this stage
+					List<String> usedCellIDs=new ArrayList<String>();
+					for (Cell usedcell : cell.getStage().getCells()) {
+						usedCellIDs.add(usedcell.getCellID());
+					}
+					//Dynamically generate cell ID for the stage.
+					List<String> choiceOfValues2 = new ArrayList<String>();
+					for (int i=1; i<= cell.getStage().getNumberOfCells(); i++) {
+						choiceOfValues2.add(stageName+"-"+i);
+					}
+					// filter the Cell IDs to ensure one cell ID can only be used once.
+					for (String each : choiceOfValues2) {
+						if (stageName!=null && each.startsWith(stageName)) {
+							if (!usedCellIDs.contains(each.toString())) {
+								choiceOfValues.add(each);
+							}
+						}
+					}
+					return choiceOfValues;
+				}
+			});
 	}
 
 	/**
@@ -364,6 +398,28 @@ public class CellItemProvider
 	}
 
 	/**
+	 * This adds a property descriptor for the Number Of Samples feature.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected void addNumberOfSamplesPropertyDescriptor(Object object) {
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_Cell_numberOfSamples_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_Cell_numberOfSamples_feature", "_UI_Cell_type"),
+				 LDEExperimentsPackage.Literals.CELL__NUMBER_OF_SAMPLES,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.INTEGRAL_VALUE_IMAGE,
+				 null,
+				 null));
+	}
+
+	/**
 	 * This specifies how to implement {@link #getChildren} and is used to deduce an appropriate feature for an
 	 * {@link org.eclipse.emf.edit.command.AddCommand}, {@link org.eclipse.emf.edit.command.RemoveCommand} or
 	 * {@link org.eclipse.emf.edit.command.MoveCommand} in {@link #createCommand}.
@@ -444,6 +500,7 @@ public class CellItemProvider
 			case LDEExperimentsPackage.CELL__CALIBRANT_EXPOSURE:
 			case LDEExperimentsPackage.CELL__ENV_SAMPLING_INTERVAL:
 			case LDEExperimentsPackage.CELL__EVN_SCANNABLE_NAMES:
+			case LDEExperimentsPackage.CELL__NUMBER_OF_SAMPLES:
 				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
 				return;
 			case LDEExperimentsPackage.CELL__SAMPLES:

@@ -10,6 +10,12 @@ import org.eclipse.nebula.widgets.datechooser.DateChooserCombo;
 import org.eclipse.nebula.widgets.datechooser.DateChooserComboCellEditor;
 import org.eclipse.swt.widgets.Composite;
 
+/**
+ * provide customised property editor for {@link Date} defined in an EMF model as {@link EDataType}.
+ * It uses Nebula's {@linkplain DateChooserComboCellEditor} to set date value.
+ * @author fy65
+ *
+ */
 public class CustomisedPropertyDescriptor extends PropertyDescriptor {
 
 	public CustomisedPropertyDescriptor(Object object, IItemPropertyDescriptor itemPropertyDescriptor) {
