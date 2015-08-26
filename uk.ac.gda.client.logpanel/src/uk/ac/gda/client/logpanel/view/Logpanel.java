@@ -21,8 +21,10 @@ package uk.ac.gda.client.logpanel.view;
 import gda.configuration.properties.LocalProperties;
 import gda.util.logging.LogbackUtils;
 
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -191,6 +193,7 @@ public class Logpanel extends Composite {
 	private Button createSwitchPatternButton() {
 		final Button button = new Button(this, SWT.TOGGLE);
 		button.setText("Switch pattern layout");
+		button.setToolTipText("Switch pattern layout between Simple and Detailed");
 		button.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -214,6 +217,31 @@ public class Logpanel extends Composite {
 
 	public static final String simplePatternLayout = "%d %-5level %logger - %m%n%rEx{5}";
 	public static final String detailPatternLayout = "%d %-5level [%property{GDA_SOURCE}/%property{JVMNAME}] %logger - %m%n%rEx";
+
+	private Button createExpireOptionButton() {
+		Button button = new Button(this, SWT.TOGGLE);
+		button.setText("Switch expire option");
+		button.setToolTipText("Switch between expiring oldest messages and expring lowest priority messages");
+		button.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				Button button = (Button) e.widget;
+				expireByPriority = button.getSelection();
+				button.setText(expireByPriority ? "Expiring by priority" : "Expiring oldest");
+			}
+		});
+		return button;
+	}
+
+	private boolean expireByPriority = false;
+
+	public boolean getExpireOldestChecked() {
+		return expireByPriority;
+	}
+
+	public void setExpireOldestChecked(final boolean isChecked) {
+		scrollLockChecked = isChecked;
+	}
 
 	/**
 	 * Can use pattern with properties GDA_SOURCE and JVNNAME, latter
@@ -391,6 +419,16 @@ public class Logpanel extends Composite {
 		return input;
 	}
 
+	private static Map<Level, Integer> levelCounts = new LinkedHashMap<Level, Integer>() {
+		{
+			put(Level.TRACE, 0);
+			put(Level.DEBUG, 0);
+			put(Level.INFO, 0);
+			put(Level.WARN, 0);
+			put(Level.ERROR, 0);
+		}
+	};
+
 	/**
 	 * Updates TableViewer's IObservableList input in UI thread
 	 *
@@ -402,20 +440,70 @@ public class Logpanel extends Composite {
 			@Override
 			public void run() {
 				// don't exceed maxSize
-				if (input.size() == maxSize)
-					input.remove(0); // must run in UI thread
-
+				if (input.size() == maxSize) {
+					if (expireByPriority) {
+						removeLeastImportantEvent();
+					} else {
+						removeEvent(0);
+					}
+				}
 				//TODO here would be suitable when switching pattern layout to re-layout past events too
-
-				input.add(loggingEvent); // must run in UI thread
-
-				latestLoggingEvent = loggingEvent;
+				addEvent(loggingEvent);
 			}
 		});
 		revealLatestUnlessScrollLockChecked();
 	}
 
 	ILoggingEvent latestLoggingEvent = null;
+
+	private void removeLeastImportantEvent() {
+		// Instead of removing the first element, remove the first element of this level
+		for (Level level : levelCounts.keySet()) {
+			if (levelCounts.get(level) > (maxSize / levelCounts.size())) {
+				removeFirstEventOf(level);
+				return;
+			}
+		} // If we didn't find a suitable over full log level, just remove the oldest entry
+		removeEvent(0);
+		logger.warn("Removing first 2 elements (to make space for this one), couldn't find a logger with more than {} level counts: {}",
+				(maxSize / levelCounts.size()), levelCounts);
+		removeEvent(0);
+	}
+
+	private void removeFirstEventOf(Level level) {
+		for (Object entry : input) {
+			ILoggingEvent loggingEvent = (ILoggingEvent) entry;
+			if (loggingEvent.getLevel() == level) {
+				removeEvent(loggingEvent);
+				return;
+			}
+		} // If we didn't find a log entry, just remove the first entry
+		removeEvent(0);
+		logger.error("Removing first 2 elements (to make space for this one), couldn't find a {} log entry, should be {} level counts: {}", level,
+				levelCounts.get(level), levelCounts);
+		removeEvent(0);
+	}
+
+	private ILoggingEvent getEvent(int index) {
+		return (ILoggingEvent) (input.get(index));
+	}
+
+	private void addEvent(ILoggingEvent loggingEvent) {
+		Level level = loggingEvent.getLevel();
+		levelCounts.put(level, levelCounts.get(level) + 1);
+		input.add(loggingEvent); // must run in UI thread
+		latestLoggingEvent = loggingEvent;
+	}
+
+	private void removeEvent(ILoggingEvent loggingEvent) {
+		Level level = loggingEvent.getLevel();
+		levelCounts.put(level, levelCounts.get(level) - 1);
+		input.remove(loggingEvent); // must run in UI thread
+	}
+
+	private void removeEvent(int index) {
+		removeEvent(getEvent(index));
+	}
 
 	// widgets
 
@@ -604,7 +692,7 @@ public class Logpanel extends Composite {
 	public Logpanel(Composite parent, int style) {
 		super(parent, style);
 
-		final int numColumns = 4;
+		final int numColumns = 5;
 
 		connectToLogServer();
 
@@ -655,7 +743,8 @@ public class Logpanel extends Composite {
 
 		//TODO exclusion filter as well as matching filter
 
-		Button button = createSwitchPatternButton();
+		Button switchPatternButton = createSwitchPatternButton();
+		Button expireButton = createExpireOptionButton();
 
 		// 1-column table of log messages
 		viewer = new TableViewer(this, SWT.BORDER | SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
@@ -691,7 +780,8 @@ public class Logpanel extends Composite {
 		GridLayoutFactory.swtDefaults().numColumns(numColumns).applyTo(this);
 		GridDataFactory.swtDefaults().span(1, 1).applyTo(filterLabel);
 		GridDataFactory.fillDefaults().span(2, 1).grab(true, false).applyTo(filterText);
-		GridDataFactory.swtDefaults().span(1, 1).grab(false, false).applyTo(button);
+		GridDataFactory.swtDefaults().span(1, 1).grab(false, false).applyTo(switchPatternButton);
+		GridDataFactory.swtDefaults().span(1, 1).grab(false, false).applyTo(expireButton);
 		GridDataFactory.fillDefaults().span(numColumns, 1).grab(true, true).applyTo(viewer.getControl());
 
 		// former controls supplanted by command buttons in LogpanelView toolbar
