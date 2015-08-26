@@ -109,7 +109,7 @@ public class StoredDetectorInfoImpl implements StoredDetectorInfo, IObserver {
 	}
 
 	private void updateSaxsDetectorInfo() {
-		if (saxsDetectorInfo.exists()) {
+		if (saxsDetectorInfo != null && saxsDetectorInfo.exists()) {
 			logger.debug("Copying saxs Detector Info to new data directory");
 			String newPath = getNewFilePath(saxsDetectorInfo);
 			File newFile = new File(newPath);
@@ -123,7 +123,7 @@ public class StoredDetectorInfoImpl implements StoredDetectorInfo, IObserver {
 	}
 
 	private void updateDataCalibrationReductionSetup() {
-		if (dataCalibrationReductionSetup.exists()) {
+		if (dataCalibrationReductionSetup != null && dataCalibrationReductionSetup.exists()) {
 			String newPath = getNewFilePath(dataCalibrationReductionSetup);
 			File newFile = new File(newPath);
 			copyFile(dataCalibrationReductionSetup, newFile);
