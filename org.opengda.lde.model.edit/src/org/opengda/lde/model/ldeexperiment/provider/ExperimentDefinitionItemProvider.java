@@ -168,6 +168,8 @@ public class ExperimentDefinitionItemProvider
 				return experiment.getName();
 			case ExperimentTableConstants.COL_DESCRIPTION:
 				return experiment.getDescription();
+			case ExperimentTableConstants.COL_NUMBER_OF_STAGES:
+				return String.valueOf(experiment.getNumberOfStages());
 			default:
 				break;
 			}

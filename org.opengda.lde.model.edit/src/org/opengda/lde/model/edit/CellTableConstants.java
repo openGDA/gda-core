@@ -10,7 +10,8 @@ public interface CellTableConstants {
 	static final int COL_CALIBRANT_X= COL_CALIBRANT_NAME + 1;
 	static final int COL_CALIBRANT_Y= COL_CALIBRANT_X + 1;
 	static final int COL_CALIBRANT_EXPOSURE= COL_CALIBRANT_Y + 1;
-	static final int COL_ENV_SCANNABLE_NAMES= COL_CALIBRANT_EXPOSURE + 1;
+	static final int COL_NUMBER_OF_SAMPLES= COL_CALIBRANT_EXPOSURE + 1;
+	static final int COL_ENV_SCANNABLE_NAMES= COL_NUMBER_OF_SAMPLES + 1;
 	static final int COL_ENV_SAMPLING_INTERVAL= COL_ENV_SCANNABLE_NAMES + 1;
 	static final int COL_START_DATE= COL_ENV_SAMPLING_INTERVAL + 1;
 	static final int COL_END_DATE= COL_START_DATE + 1;
@@ -24,6 +25,7 @@ public interface CellTableConstants {
 	static final String CALIBRANT_X = "Calibrant\nX";
 	static final String CALIBRANT_Y = "Calibrant\nY";
 	static final String CALIBRANT_EXPOSURE = "Calibrant\nExposure";
+	static final String NUMBER_OF_SAMPLES ="Number of\nsamples";
 	static final String ENV_SCANNABLE_NAMES= "Environment\nScannables";
 	static final String ENV_SAMPLING_INTERVAL= "Sampling\nInterval";
 	static final String START_DATE = "Start Date";

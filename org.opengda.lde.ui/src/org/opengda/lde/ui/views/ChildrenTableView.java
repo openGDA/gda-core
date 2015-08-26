@@ -89,6 +89,8 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.internal.AnimationEngine;
 import org.eclipse.ui.part.ViewPart;
+import org.eclipse.ui.views.properties.PropertyColumnLabelProvider;
+import org.eclipse.ui.views.properties.PropertyEditingSupport;
 import org.opengda.lde.events.CellChangedEvent;
 import org.opengda.lde.events.DataReductionFailedEvent;
 import org.opengda.lde.events.NewDataFileEvent;
@@ -194,18 +196,24 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 			SampleTableConstants.CELL_ID, SampleTableConstants.STAGE_ID, SampleTableConstants.DATA_FILE, SampleTableConstants.CALIBRATION_FILE
 			};
 
+	private final String sampleColumnHeadersForCell[] = {SampleTableConstants.ACTIVE, 
+			SampleTableConstants.SAMPLE_NAME, SampleTableConstants.SAMPLE_X_START, SampleTableConstants.SAMPLE_X_STOP, SampleTableConstants.SAMPLE_X_STEP, 
+			SampleTableConstants.SAMPLE_Y_START, SampleTableConstants.SAMPLE_Y_STOP, SampleTableConstants.SAMPLE_Y_STEP, 
+			SampleTableConstants.SAMPLE_EXPOSURE, SampleTableConstants.COMMAND, SampleTableConstants.COMMENT
+			};
+
 	private final String cellColumnHeaders[] = { CellTableConstants.CELL_NAME, CellTableConstants.CELL_ID, CellTableConstants.VISIT_ID, 
 			CellTableConstants.CALIBRANT_NAME, CellTableConstants.CALIBRANT_X, CellTableConstants.CALIBRANT_Y, CellTableConstants.CALIBRANT_EXPOSURE, 
-			CellTableConstants.ENV_SCANNABLE_NAMES, CellTableConstants.ENV_SAMPLING_INTERVAL, 
+			CellTableConstants.NUMBER_OF_SAMPLES, CellTableConstants.ENV_SCANNABLE_NAMES, CellTableConstants.ENV_SAMPLING_INTERVAL, 
 			CellTableConstants.START_DATE, CellTableConstants.END_DATE, CellTableConstants.EMAIL, CellTableConstants.AUTO_EMAILING 
 			};
 
 	private final String stageColumnHeaders[] = { StageTableConstants.STAGE_ID, 
 			StageTableConstants.DETECTOR_X, StageTableConstants.DETECTOR_Y, StageTableConstants.DETECTOR_Z, 
-			StageTableConstants.CAMERA_X, StageTableConstants.CAMERA_Y, StageTableConstants.CAMERA_Z
+			StageTableConstants.CAMERA_X, StageTableConstants.CAMERA_Y, StageTableConstants.CAMERA_Z, StageTableConstants.NUMBER_OF_CELLS
 			};
 
-	private final String experimentColumnHeaders[] = { ExperimentTableConstants.NAME,ExperimentTableConstants.DESCRIPTION};
+	private final String experimentColumnHeaders[] = { ExperimentTableConstants.NAME,ExperimentTableConstants.DESCRIPTION, ExperimentTableConstants.NUMBER_OF_STAGES};
 
 	private ColumnWeightData sampleColumnLayouts[] = { new ColumnWeightData(10, 50, false),new ColumnWeightData(10, 70, false), new ColumnWeightData(10, 35, false),
 			new ColumnWeightData(80, 110, true), new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true), 
@@ -214,17 +222,23 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 			new ColumnWeightData(40, 55, true), new ColumnWeightData(40, 55, true), new ColumnWeightData(50, 300, true), new ColumnWeightData(50, 300, true)
 			};
 	
+	private ColumnWeightData sampleColumnLayoutsForCell[] = { new ColumnWeightData(10, 35, false),
+			new ColumnWeightData(80, 110, true), new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true), 
+			new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true),	
+			new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 300, true), new ColumnWeightData(50, 300, true)
+			};
+
 	private ColumnWeightData cellColumnLayouts[] = { new ColumnWeightData(80, 110, true), new ColumnWeightData(40, 55, true), new ColumnWeightData(40, 90, true), 
 			new ColumnWeightData(40, 90, true), new ColumnWeightData(40, 75, true),	new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 75, true), 
-			new ColumnWeightData(40, 90, true), new ColumnWeightData(40, 65, true),
+			new ColumnWeightData(10, 50, false), new ColumnWeightData(40, 90, true), new ColumnWeightData(40, 65, true),
 			new ColumnWeightData(50, 120, true), new ColumnWeightData(50, 120, true), new ColumnWeightData(40, 200, true),  new ColumnWeightData(40, 60, true),
 			};
 	
 	private ColumnWeightData stageColumnLayouts[] = { new ColumnWeightData(10, 50, false),
 			new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 75, true), 
-			new ColumnWeightData(40, 75, true),	new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 75, true) 
+			new ColumnWeightData(40, 75, true),	new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 75, true), new ColumnWeightData(10, 50, false)
 			};
-	private ColumnWeightData experimentColumnLayouts[] = { new ColumnWeightData(80, 150, true), new ColumnWeightData(50, 500, true) };
+	private ColumnWeightData experimentColumnLayouts[] = { new ColumnWeightData(80, 150, true), new ColumnWeightData(50, 500, true), new ColumnWeightData(10, 50, false)};
 
 	private ISelectionListener selectionListener;
 	private EditingDomain editingDomain;
@@ -485,48 +499,39 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 					Composite parent=table.getParent();
 					table.dispose();
 					childrenTableViewer=new TableViewer(parent,SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
+					AdapterFactoryContentProvider contentprovider = new AdapterFactoryContentProvider(adapterFactory);
+//					childrenTableViewer.setContentProvider(contentprovider);
+//					childrenTableViewer.setLabelProvider(new AdapterFactoryLabelProvider(adapterFactory));
 					if (selection instanceof ExperimentDefinition) {
 						for (int i = 0; i < experimentColumnHeaders.length; i++) {
 							TableViewerColumn viewerColumn = createColumn(experimentColumnHeaders[i], experimentColumnLayouts[i], childrenTableViewer);
-							viewerColumn.setEditingSupport(new ExperimentTableColumnEditingSupport(childrenTableViewer, viewerColumn));
+							viewerColumn.setLabelProvider(new PropertyColumnLabelProvider(contentprovider, experimentColumnHeaders[i]));
+							viewerColumn.setEditingSupport(new PropertyEditingSupport(childrenTableViewer, contentprovider, experimentColumnHeaders[i]));
 						}
-						childrenTableViewer.setContentProvider(new AdapterFactoryContentProvider(adapterFactory));
-						childrenTableViewer.setLabelProvider(new AdapterFactoryLabelProvider(adapterFactory));
 						childrenTableViewer.setInput(((ExperimentDefinition)selection).getExperiments());
 						setPartName("Experiments");
 					} else if (selection instanceof Experiment) {
 						for (int i = 0; i < stageColumnHeaders.length; i++) {
 							TableViewerColumn viewerColumn = createColumn(stageColumnHeaders[i], stageColumnLayouts[i], childrenTableViewer);
-							viewerColumn.setEditingSupport(new StageTableColumnEditingSupport(childrenTableViewer, viewerColumn));
+							viewerColumn.setLabelProvider(new PropertyColumnLabelProvider(contentprovider, stageColumnHeaders[i]));
+							viewerColumn.setEditingSupport(new PropertyEditingSupport(childrenTableViewer, contentprovider, stageColumnHeaders[i]));
 						}
-						childrenTableViewer.setContentProvider(new AdapterFactoryContentProvider(adapterFactory));
-						childrenTableViewer.setLabelProvider(new AdapterFactoryLabelProvider(adapterFactory));
 						childrenTableViewer.setInput(((Experiment)selection).getStages());
 						setPartName("Stages in experiment "+((Experiment)selection).getName());
 					} else if (selection instanceof Stage) {
 						for (int i = 0; i < cellColumnHeaders.length; i++) {
 							TableViewerColumn viewerColumn = createColumn(cellColumnHeaders[i], cellColumnLayouts[i], childrenTableViewer);
-							viewerColumn.setEditingSupport(new CellTableColumnEditingSupport(childrenTableViewer, viewerColumn));
+							viewerColumn.setLabelProvider(new PropertyColumnLabelProvider(contentprovider, cellColumnHeaders[i]));
+							viewerColumn.setEditingSupport(new PropertyEditingSupport(childrenTableViewer, contentprovider, cellColumnHeaders[i]));
 						}
-						childrenTableViewer.setContentProvider(new AdapterFactoryContentProvider(adapterFactory));
-						childrenTableViewer.setLabelProvider(new AdapterFactoryLabelProvider(adapterFactory));
 						childrenTableViewer.setInput(((Stage)selection).getCells());
 						setPartName("Cells in stage "+((Stage)selection).getStageID());
 					} else if (selection instanceof Cell) {
-						for (int i = 0; i < sampleColumnHeaders.length; i++) {
-							TableViewerColumn viewerColumn = createColumn(sampleColumnHeaders[i], sampleColumnLayouts[i], childrenTableViewer);
-							viewerColumn.setEditingSupport(new SampleTableColumnEditingSupport(childrenTableViewer, viewerColumn));
+						for (int i = 0; i < sampleColumnHeadersForCell.length; i++) {
+							TableViewerColumn viewerColumn = createColumn(sampleColumnHeadersForCell[i], sampleColumnLayoutsForCell[i], childrenTableViewer);
+							viewerColumn.setLabelProvider(new PropertyColumnLabelProvider(contentprovider, sampleColumnHeadersForCell[i]));
+							viewerColumn.setEditingSupport(new PropertyEditingSupport(childrenTableViewer, contentprovider, sampleColumnHeadersForCell[i]));
 						}
-						//Hide non-editable fields.
-						Table table1=childrenTableViewer.getTable();
-						table1.getColumn(SampleTableConstants.COL_STATUS).setWidth(0);
-						table1.getColumn(SampleTableConstants.COL_PROGRESS).setWidth(0);
-						table1.getColumn(SampleTableConstants.COL_CELL).setWidth(0);
-						table1.getColumn(SampleTableConstants.COL_STAGE).setWidth(0);
-						table1.getColumn(SampleTableConstants.COL_DATA_FILE).setWidth(0);
-						table1.getColumn(SampleTableConstants.COL_CALIBRATION_FILE).setWidth(0);
-						childrenTableViewer.setContentProvider(new AdapterFactoryContentProvider(adapterFactory));
-						childrenTableViewer.setLabelProvider(new AdapterFactoryLabelProvider(adapterFactory));
 						childrenTableViewer.setInput(((Cell)selection).getSamples());
 						setPartName("Samples in cell "+((Cell)selection).getName());
 					} else if (selection instanceof Sample) {
@@ -534,10 +539,9 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 							//display all samples with progress and collected data info.
 							for (int i = 0; i < sampleColumnHeaders.length; i++) {
 								TableViewerColumn viewerColumn = createColumn(sampleColumnHeaders[i], sampleColumnLayouts[i], childrenTableViewer);
-								viewerColumn.setEditingSupport(new SampleTableColumnEditingSupport(childrenTableViewer, viewerColumn));
+								viewerColumn.setLabelProvider(new PropertyColumnLabelProvider(contentprovider, sampleColumnHeaders[i]));
+								viewerColumn.setEditingSupport(new PropertyEditingSupport(childrenTableViewer, contentprovider, sampleColumnHeaders[i]));
 							}
-							childrenTableViewer.setContentProvider(new AdapterFactoryContentProvider(adapterFactory));
-							childrenTableViewer.setLabelProvider(new AdapterFactoryLabelProvider(adapterFactory));
 							childrenTableViewer.setInput(getResUtil().getSamples());
 							setPartName("Samples in experiment "+((Sample)selection).getCell().getStage().getExperiment().getName());
 						} catch (Exception e) {
@@ -827,9 +831,8 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 					for (int i=0; i<recipients.length; i++) {
 						recipients[i] = recipients[i].trim();
 					}
-					final String senderName=LocalProperties.get("org.opengda.mail.sender.name","i11-LDE");
-					//TODO changeto i11-LDE operation email account please
-					final String senderEmail=LocalProperties.get("org.opengda.mail.sender.email","chiu.tang@diamond.ac.uk");
+					final String senderName=LocalProperties.get("org.opengda.mail.sender.name","I11-LDE");
+					final String senderEmail=LocalProperties.get("org.opengda.mail.sender.email","diamondi11-lde@diamond.ac.uk");
 					String description="Data for sample "+sample.getName()+" are available now for download and view.\n";
 					description+="To download raw data files, please log into http://icat.diamond.ac.uk \n";
 					description+= "To view and download reducted data please visit http://ispyb.diamond.ac.uk/dc/visit/"+sample.getCell().getVisitID()+"\n";
@@ -1284,6 +1287,8 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 				return new TextCellEditor(table);
 			} else if (ExperimentTableConstants.DESCRIPTION.equals(columnIdentifier)) {
 				return new TextCellEditor(table);
+			} else if (ExperimentTableConstants.NUMBER_OF_STAGES.equals(columnIdentifier)) {
+				return new TextCellEditor(table);
 			}
 			return null;
 		}
@@ -1294,7 +1299,9 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 				return true;
 			} else if (ExperimentTableConstants.DESCRIPTION.equals(columnIdentifier)) {
 				return true;
-			} 
+			} else if (ExperimentTableConstants.NUMBER_OF_STAGES.equals(columnIdentifier)) {
+				return true;
+			}
 			return false;
 		}
 
@@ -1306,6 +1313,8 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 					return experiment.getName();
 				} else if (ExperimentTableConstants.DESCRIPTION.equals(columnIdentifier)) {
 					return experiment.getDescription();
+				} else if (ExperimentTableConstants.NUMBER_OF_STAGES.equals(columnIdentifier)) {
+					return experiment.getNumberOfStages();
 				} 
 			}
 			return null;
@@ -1328,6 +1337,12 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 					} catch (Exception e) {
 						logger.error("Exception on setting "+ExperimentTableConstants.DESCRIPTION+" field for experiment "+((Experiment)element).getName(), e);
 					}
+				}
+			} else if (ExperimentTableConstants.DESCRIPTION.equals(columnIdentifier)) {
+					try {
+						runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.EXPERIMENT__NUMBER_OF_STAGES, value));
+					} catch (Exception e) {
+						logger.error("Exception on setting "+ExperimentTableConstants.NUMBER_OF_STAGES+" field for experiment "+((Experiment)element).getName(), e);
 				}
 			} 
 		}

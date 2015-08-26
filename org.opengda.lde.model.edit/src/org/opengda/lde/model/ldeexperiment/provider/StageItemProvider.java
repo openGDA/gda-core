@@ -397,6 +397,8 @@ public class StageItemProvider
 				return String.valueOf(cell.getCalibrant_y());
 			case CellTableConstants.COL_CALIBRANT_EXPOSURE:
 				return String.valueOf(cell.getCalibrant_exposure());
+			case CellTableConstants.COL_NUMBER_OF_SAMPLES:
+				return String.valueOf(cell.getNumberOfSamples());
 			case CellTableConstants.COL_ENV_SCANNABLE_NAMES:
 				return cell.getEvnScannableNames();
 			case CellTableConstants.COL_ENV_SAMPLING_INTERVAL:

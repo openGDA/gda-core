@@ -260,6 +260,8 @@ public class ExperimentItemProvider
 				return String.valueOf(stage.getCamera_y());
 			case StageTableConstants.COL_CAMERA_Z:
 				return String.valueOf(stage.getCamera_z());
+			case StageTableConstants.COL_NUMBER_OF_CELLS:
+				return String.valueOf(stage.getNumberOfCells());
 			default:
 				break;
 			}
