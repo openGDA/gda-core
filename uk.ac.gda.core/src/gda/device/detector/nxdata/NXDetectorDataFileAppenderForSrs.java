@@ -26,13 +26,15 @@ import gda.device.detector.NXDetectorDataWithFilepathForSrs;
 
 import java.util.Arrays;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 public class NXDetectorDataFileAppenderForSrs implements NXDetectorDataAppender {
 
+	private static final Logger logger = LoggerFactory.getLogger(NXDetectorDataFileAppenderForSrs.class);
 
 	private final String filename;
-
 	private final String filepathExtraName;
 	private final Double xPixelSize;
 	private final Double yPixelSize;
@@ -58,13 +60,13 @@ public class NXDetectorDataFileAppenderForSrs implements NXDetectorDataAppender 
 		this.yPixelSizeUnit = yPixelSizeUnit;
 	}
 
-	/**
-	 *
-	 */
 	@Override
 	public void appendTo(NXDetectorData data, String detectorName) {
 
-		assert (data instanceof NXDetectorDataWithFilepathForSrs);
+		if (!(data instanceof NXDetectorDataWithFilepathForSrs)) {
+			logger.error("The read method which returns this object for {} must implement "
+					+ "NXFileWriterPlugin and return appendsFilepathStrings=true.", detectorName);
+		}
 
 		if (!StringUtils.hasLength(filename)) {
 			throw new IllegalArgumentException("filename is null or zero length");
@@ -87,7 +89,5 @@ public class NXDetectorDataFileAppenderForSrs implements NXDetectorDataAppender 
 		if (yPixelSize!=null) {
 			data.addData(detectorName, "y_pixel_size", new NexusGroupData(yPixelSize), yPixelSizeUnit);
 		}
-
 	}
-
 }
