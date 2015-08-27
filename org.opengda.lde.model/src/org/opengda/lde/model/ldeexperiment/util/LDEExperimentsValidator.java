@@ -77,12 +77,20 @@ public class LDEExperimentsValidator extends EObjectValidator {
 	public static final int CELL__HAS_CELL_ID = 2;
 
 	/**
+	 * The {@link org.eclipse.emf.common.util.Diagnostic#getCode() code} for constraint 'Has Visit ID' of 'Cell'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public static final int CELL__HAS_VISIT_ID = 3;
+
+	/**
 	 * A constant with a fixed name that can be used as the base value for additional hand written constants.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	private static final int GENERATED_DIAGNOSTIC_CODE_COUNT = 2;
+	private static final int GENERATED_DIAGNOSTIC_CODE_COUNT = 3;
 
 	/**
 	 * A constant with a fixed name that can be used as the base value for additional hand written constants in a derived class.
@@ -212,6 +220,7 @@ public class LDEExperimentsValidator extends EObjectValidator {
 		if (result || diagnostics != null) result &= validateCell_ValidStartDate(cell, diagnostics, context);
 		if (result || diagnostics != null) result &= validateCell_ValidEndDate(cell, diagnostics, context);
 		if (result || diagnostics != null) result &= validateCell_hasCellID(cell, diagnostics, context);
+		if (result || diagnostics != null) result &= validateCell_hasVisitID(cell, diagnostics, context);
 		return result;
 	}
 
@@ -232,7 +241,7 @@ public class LDEExperimentsValidator extends EObjectValidator {
 					(createDiagnostic
 						(Diagnostic.ERROR,
 						 DIAGNOSTIC_SOURCE,
-						 0,
+						 LDEExperimentsPackage.CELL__START_DATE,
 						 "_UI_StartDateNullConstraint_diagnostic",
 						 new Object[] { "ValidStartDate", getObjectLabel(cell, context) },
 						 new Object[] { cell },
@@ -245,7 +254,7 @@ public class LDEExperimentsValidator extends EObjectValidator {
 					(createDiagnostic
 						(Diagnostic.ERROR,
 						 DIAGNOSTIC_SOURCE,
-						 0,
+						 LDEExperimentsPackage.CELL__START_DATE,
 						 "_UI_StartDateAfterEndDateConstraint_diagnostic",
 						 new Object[] { "ValidStartDate", getObjectLabel(cell, context) },
 						 new Object[] { cell },
@@ -273,7 +282,7 @@ public class LDEExperimentsValidator extends EObjectValidator {
 					(createDiagnostic
 						(Diagnostic.ERROR,
 						 DIAGNOSTIC_SOURCE,
-						 0,
+						 LDEExperimentsPackage.CELL__END_DATE,
 						 "_UI_EndDateNullConstraint_diagnostic",
 						 new Object[] { "ValidEndDate", getObjectLabel(cell, context) },
 						 new Object[] { cell },
@@ -286,7 +295,7 @@ public class LDEExperimentsValidator extends EObjectValidator {
 					(createDiagnostic
 						(Diagnostic.ERROR,
 						 DIAGNOSTIC_SOURCE,
-						 0,
+						 LDEExperimentsPackage.CELL__END_DATE,
 						 "_UI_EndDateBeforeStartDateConstraint_diagnostic",
 						 new Object[] { "ValidEndDate", getObjectLabel(cell, context) },
 						 new Object[] { cell },
@@ -305,6 +314,16 @@ public class LDEExperimentsValidator extends EObjectValidator {
 	 */
 	public boolean validateCell_hasCellID(Cell cell, DiagnosticChain diagnostics, Map<Object, Object> context) {
 		return cell.hasCellID(diagnostics, context);
+	}
+
+	/**
+	 * Validates the hasVisitID constraint of '<em>Cell</em>'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public boolean validateCell_hasVisitID(Cell cell, DiagnosticChain diagnostics, Map<Object, Object> context) {
+		return cell.hasVisitID(diagnostics, context);
 	}
 
 	/**

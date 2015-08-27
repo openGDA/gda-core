@@ -471,7 +471,7 @@ public class StageImpl extends MinimalEObjectImpl.Container implements Stage {
 						(Diagnostic.ERROR,
 						 LDEExperimentsValidator.DIAGNOSTIC_SOURCE,
 						 LDEExperimentsValidator.STAGE__HAS_ID,
-						 EcorePlugin.INSTANCE.getString("_UI_GenericInvariant_diagnostic", new Object[] { "hasID", EObjectValidator.getObjectLabel(this, (Map<Object, Object>) context) }),
+						 EcorePlugin.INSTANCE.getString("_UI_StageIDInvariant_diagnostic", new Object[] { "hasID", EObjectValidator.getObjectLabel(this, (Map<Object, Object>) context) }),
 						 new Object [] { this }));
 			}
 			return false;

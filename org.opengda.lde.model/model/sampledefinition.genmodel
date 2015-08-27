@@ -87,6 +87,10 @@
         <genParameters ecoreParameter="sampledefinition.ecore#//Cell/hasCellID/diagnostics"/>
         <genParameters ecoreParameter="sampledefinition.ecore#//Cell/hasCellID/context"/>
       </genOperations>
+      <genOperations ecoreOperation="sampledefinition.ecore#//Cell/hasVisitID">
+        <genParameters ecoreParameter="sampledefinition.ecore#//Cell/hasVisitID/daignostics"/>
+        <genParameters ecoreParameter="sampledefinition.ecore#//Cell/hasVisitID/context"/>
+      </genOperations>
     </genClasses>
     <genClasses ecoreClass="sampledefinition.ecore#//Sample">
       <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference sampledefinition.ecore#//Sample/cell"/>

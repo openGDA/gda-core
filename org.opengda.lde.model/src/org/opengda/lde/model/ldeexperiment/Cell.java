@@ -521,6 +521,14 @@ public interface Cell extends EObject {
 	 */
 	boolean hasCellID(DiagnosticChain diagnostics, Map<?, ?> context);
 
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @model
+	 * @generated
+	 */
+	boolean hasVisitID(DiagnosticChain daignostics, Map<?, ?> context);
+
 	void setProcessed(boolean b);
 
 	void setCalibrated(boolean b);

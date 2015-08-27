@@ -52,6 +52,7 @@ Package ldeexperiment <http://www.opengda.org/LDEExperiments>
     Operation getSampleById(EString) : Sample
     Operation getSampleByName(EString) : Sample
     Operation hasCellID(EDiagnosticChain, EMap) : EBoolean
+    Operation hasVisitID(EDiagnosticChain, EMap) : EBoolean
 
   Class Sample
     Reference cell : Cell<<1..1>>

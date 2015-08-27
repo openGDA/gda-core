@@ -827,6 +827,31 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 
 	/**
 	 * <!-- begin-user-doc -->
+	 * check if Visit ID is set or not
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public boolean hasVisitID(DiagnosticChain daignostics, Map<?, ?> context) {
+		// -> specify the condition that violates the invariant
+		// -> verify the details of the diagnostic, including severity and message
+		// Ensure that you remove @generated or mark it @generated NOT
+		if (getVisitID()==null || getVisitID().isEmpty()) {
+			if (daignostics != null) {
+				daignostics.add
+					(new BasicDiagnostic
+						(Diagnostic.ERROR,
+						 LDEExperimentsValidator.DIAGNOSTIC_SOURCE,
+						 LDEExperimentsValidator.CELL__HAS_VISIT_ID,
+						 EcorePlugin.INSTANCE.getString("_UI_VisitIDInvariant_diagnostic", new Object[] { "hasVisitID", EObjectValidator.getObjectLabel(this, (Map<Object, Object>) context) }),
+						 new Object [] { this }));
+			}
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
@@ -1098,6 +1123,8 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 				return getSampleByName((String)arguments.get(0));
 			case LDEExperimentsPackage.CELL___HAS_CELL_ID__DIAGNOSTICCHAIN_MAP:
 				return hasCellID((DiagnosticChain)arguments.get(0), (Map<?, ?>)arguments.get(1));
+			case LDEExperimentsPackage.CELL___HAS_VISIT_ID__DIAGNOSTICCHAIN_MAP:
+				return hasVisitID((DiagnosticChain)arguments.get(0), (Map<?, ?>)arguments.get(1));
 		}
 		return super.eInvoke(operationID, arguments);
 	}

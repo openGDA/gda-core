@@ -525,13 +525,22 @@ public interface LDEExperimentsPackage extends EPackage {
 	int CELL___HAS_CELL_ID__DIAGNOSTICCHAIN_MAP = 2;
 
 	/**
+	 * The operation id for the '<em>Has Visit ID</em>' operation.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int CELL___HAS_VISIT_ID__DIAGNOSTICCHAIN_MAP = 3;
+
+	/**
 	 * The number of operations of the '<em>Cell</em>' class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int CELL_OPERATION_COUNT = 3;
+	int CELL_OPERATION_COUNT = 4;
 
 	/**
 	 * The meta object id for the '{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl <em>Sample</em>}' class.
@@ -1212,6 +1221,16 @@ public interface LDEExperimentsPackage extends EPackage {
 	EOperation getCell__HasCellID__DiagnosticChain_Map();
 
 	/**
+	 * Returns the meta object for the '{@link org.opengda.lde.model.ldeexperiment.Cell#hasVisitID(org.eclipse.emf.common.util.DiagnosticChain, java.util.Map) <em>Has Visit ID</em>}' operation.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the '<em>Has Visit ID</em>' operation.
+	 * @see org.opengda.lde.model.ldeexperiment.Cell#hasVisitID(org.eclipse.emf.common.util.DiagnosticChain, java.util.Map)
+	 * @generated
+	 */
+	EOperation getCell__HasVisitID__DiagnosticChain_Map();
+
+	/**
 	 * Returns the meta object for class '{@link org.opengda.lde.model.ldeexperiment.Sample <em>Sample</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -1820,6 +1839,14 @@ public interface LDEExperimentsPackage extends EPackage {
 		 * @generated
 		 */
 		EOperation CELL___HAS_CELL_ID__DIAGNOSTICCHAIN_MAP = eINSTANCE.getCell__HasCellID__DiagnosticChain_Map();
+
+		/**
+		 * The meta object literal for the '<em><b>Has Visit ID</b></em>' operation.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EOperation CELL___HAS_VISIT_ID__DIAGNOSTICCHAIN_MAP = eINSTANCE.getCell__HasVisitID__DiagnosticChain_Map();
 
 		/**
 		 * The meta object literal for the '{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl <em>Sample</em>}' class.
