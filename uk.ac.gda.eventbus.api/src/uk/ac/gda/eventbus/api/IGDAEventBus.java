@@ -18,9 +18,11 @@
 
 package uk.ac.gda.eventbus.api;
 
+import gda.factory.Findable;
+
 import java.io.Serializable;
 
-public interface IGDAEventBus {
+public interface IGDAEventBus extends Findable {
 
 	String identifier();
 

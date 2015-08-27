@@ -9,7 +9,8 @@ Require-Bundle: com.google.guava;bundle-version="[16.0.0,17.0.0)",
  ch.qos.logback.classic;bundle-version="[1.1.1,1.1.2)",
  ch.qos.logback.core;bundle-version="[1.1.1,1.1.2)",
  uk.ac.gda.eventbus.api
-Import-Package: javax.jms,
+Import-Package: gda.factory,
+ javax.jms,
  org.apache.activemq,
  org.slf4j;version="[1.7.6,1.7.7)",
  org.springframework.beans.factory;version="3.2.9.RELEASE"

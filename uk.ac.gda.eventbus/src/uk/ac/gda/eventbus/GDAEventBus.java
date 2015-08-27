@@ -347,4 +347,14 @@ public class GDAEventBus extends EventBus implements IGDAEventBus {
 		connection.close();
 	}
 
+	@Override
+	public void setName(String name) {
+		this.identifier = name;
+	}
+
+	@Override
+	public String getName() {
+		return this.identifier;
+	}
+
 }
