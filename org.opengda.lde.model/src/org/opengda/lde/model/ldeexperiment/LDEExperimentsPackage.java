@@ -317,13 +317,22 @@ public interface LDEExperimentsPackage extends EPackage {
 	int STAGE___GET_CELL_BY_ID__STRING = 0;
 
 	/**
+	 * The operation id for the '<em>Has ID</em>' operation.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int STAGE___HAS_ID__DIAGNOSTICCHAIN_MAP = 1;
+
+	/**
 	 * The number of operations of the '<em>Stage</em>' class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int STAGE_OPERATION_COUNT = 1;
+	int STAGE_OPERATION_COUNT = 2;
 
 	/**
 	 * The meta object id for the '{@link org.opengda.lde.model.ldeexperiment.impl.CellImpl <em>Cell</em>}' class.
@@ -966,6 +975,16 @@ public interface LDEExperimentsPackage extends EPackage {
 	 * @generated
 	 */
 	EOperation getStage__GetCellByID__String();
+
+	/**
+	 * Returns the meta object for the '{@link org.opengda.lde.model.ldeexperiment.Stage#hasID(org.eclipse.emf.common.util.DiagnosticChain, java.util.Map) <em>Has ID</em>}' operation.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the '<em>Has ID</em>' operation.
+	 * @see org.opengda.lde.model.ldeexperiment.Stage#hasID(org.eclipse.emf.common.util.DiagnosticChain, java.util.Map)
+	 * @generated
+	 */
+	EOperation getStage__HasID__DiagnosticChain_Map();
 
 	/**
 	 * Returns the meta object for class '{@link org.opengda.lde.model.ldeexperiment.Cell <em>Cell</em>}'.
@@ -1612,6 +1631,14 @@ public interface LDEExperimentsPackage extends EPackage {
 		 * @generated
 		 */
 		EOperation STAGE___GET_CELL_BY_ID__STRING = eINSTANCE.getStage__GetCellByID__String();
+
+		/**
+		 * The meta object literal for the '<em><b>Has ID</b></em>' operation.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EOperation STAGE___HAS_ID__DIAGNOSTICCHAIN_MAP = eINSTANCE.getStage__HasID__DiagnosticChain_Map();
 
 		/**
 		 * The meta object literal for the '{@link org.opengda.lde.model.ldeexperiment.impl.CellImpl <em>Cell</em>}' class.

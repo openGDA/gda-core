@@ -55,6 +55,10 @@
       <genOperations ecoreOperation="sampledefinition.ecore#//Stage/getCellByID">
         <genParameters ecoreParameter="sampledefinition.ecore#//Stage/getCellByID/cellId"/>
       </genOperations>
+      <genOperations ecoreOperation="sampledefinition.ecore#//Stage/hasID">
+        <genParameters ecoreParameter="sampledefinition.ecore#//Stage/hasID/diagnostics"/>
+        <genParameters ecoreParameter="sampledefinition.ecore#//Stage/hasID/context"/>
+      </genOperations>
     </genClasses>
     <genClasses ecoreClass="sampledefinition.ecore#//Cell">
       <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference sampledefinition.ecore#//Cell/stage"/>

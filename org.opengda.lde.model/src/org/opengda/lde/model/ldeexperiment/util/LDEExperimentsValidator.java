@@ -23,8 +23,6 @@ package org.opengda.lde.model.ldeexperiment.util;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
-
-import org.eclipse.emf.common.util.Diagnostic;
 import org.eclipse.emf.common.util.DiagnosticChain;
 import org.eclipse.emf.common.util.ResourceLocator;
 
@@ -61,12 +59,20 @@ public class LDEExperimentsValidator extends EObjectValidator {
 	public static final String DIAGNOSTIC_SOURCE = "org.opengda.lde.model.ldeexperiment";
 
 	/**
+	 * The {@link org.eclipse.emf.common.util.Diagnostic#getCode() code} for constraint 'Has ID' of 'Stage'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public static final int STAGE__HAS_ID = 1;
+
+	/**
 	 * A constant with a fixed name that can be used as the base value for additional hand written constants.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	private static final int GENERATED_DIAGNOSTIC_CODE_COUNT = 0;
+	private static final int GENERATED_DIAGNOSTIC_CODE_COUNT = 1;
 
 	/**
 	 * A constant with a fixed name that can be used as the base value for additional hand written constants in a derived class.
@@ -164,36 +170,18 @@ public class LDEExperimentsValidator extends EObjectValidator {
 		if (result || diagnostics != null) result &= validate_UniqueID(stage, diagnostics, context);
 		if (result || diagnostics != null) result &= validate_EveryKeyUnique(stage, diagnostics, context);
 		if (result || diagnostics != null) result &= validate_EveryMapEntryUnique(stage, diagnostics, context);
-		if (result || diagnostics != null) result &= validateStage_ValidStageID(stage, diagnostics, context);
+		if (result || diagnostics != null) result &= validateStage_hasID(stage, diagnostics, context);
 		return result;
 	}
 
 	/**
-	 * Validates the ValidStageID constraint of '<em>Stage</em>'.
+	 * Validates the hasID constraint of '<em>Stage</em>'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public boolean validateStage_ValidStageID(Stage stage, DiagnosticChain diagnostics, Map<Object, Object> context) {
-		// TODO implement the constraint
-		// -> specify the condition that violates the constraint
-		// -> verify the diagnostic details, including severity, code, and message
-		// Ensure that you remove @generated or mark it @generated NOT
-		if (false) {
-			if (diagnostics != null) {
-				diagnostics.add
-					(createDiagnostic
-						(Diagnostic.ERROR,
-						 DIAGNOSTIC_SOURCE,
-						 0,
-						 "_UI_GenericConstraint_diagnostic",
-						 new Object[] { "ValidStageID", getObjectLabel(stage, context) },
-						 new Object[] { stage },
-						 context));
-			}
-			return false;
-		}
-		return true;
+	public boolean validateStage_hasID(Stage stage, DiagnosticChain diagnostics, Map<Object, Object> context) {
+		return stage.hasID(diagnostics, context);
 	}
 
 	/**

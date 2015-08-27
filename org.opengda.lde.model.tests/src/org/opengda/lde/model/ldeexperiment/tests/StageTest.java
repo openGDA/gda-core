@@ -35,6 +35,7 @@ import org.opengda.lde.model.ldeexperiment.Stage;
  * The following operations are tested:
  * <ul>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Stage#getCellByID(java.lang.String) <em>Get Cell By ID</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.Stage#hasID(org.eclipse.emf.common.util.DiagnosticChain, java.util.Map) <em>Has ID</em>}</li>
  * </ul>
  * </p>
  * @generated
@@ -118,6 +119,19 @@ public class StageTest extends TestCase {
 	 * @generated
 	 */
 	public void testGetCellByID__String() {
+		// TODO: implement this operation test method
+		// Ensure that you remove @generated or mark it @generated NOT
+		fail();
+	}
+
+	/**
+	 * Tests the '{@link org.opengda.lde.model.ldeexperiment.Stage#hasID(org.eclipse.emf.common.util.DiagnosticChain, java.util.Map) <em>Has ID</em>}' operation.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see org.opengda.lde.model.ldeexperiment.Stage#hasID(org.eclipse.emf.common.util.DiagnosticChain, java.util.Map)
+	 * @generated
+	 */
+	public void testHasID__DiagnosticChain_Map() {
 		// TODO: implement this operation test method
 		// Ensure that you remove @generated or mark it @generated NOT
 		fail();

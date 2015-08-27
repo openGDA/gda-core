@@ -27,6 +27,7 @@ import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EEnum;
+import org.eclipse.emf.ecore.EGenericType;
 import org.eclipse.emf.ecore.EOperation;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
@@ -375,6 +376,15 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 */
 	public EOperation getStage__GetCellByID__String() {
 		return stageEClass.getEOperations().get(0);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EOperation getStage__HasID__DiagnosticChain_Map() {
+		return stageEClass.getEOperations().get(1);
 	}
 
 	/**
@@ -797,6 +807,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 		createEAttribute(stageEClass, STAGE__CAMERA_Z);
 		createEAttribute(stageEClass, STAGE__NUMBER_OF_CELLS);
 		createEOperation(stageEClass, STAGE___GET_CELL_BY_ID__STRING);
+		createEOperation(stageEClass, STAGE___HAS_ID__DIAGNOSTICCHAIN_MAP);
 
 		cellEClass = createEClass(CELL);
 		createEReference(cellEClass, CELL__STAGE);
@@ -906,6 +917,15 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 		op = initEOperation(getStage__GetCellByID__String(), this.getCell(), "getCellByID", 0, 1, IS_UNIQUE, IS_ORDERED);
 		addEParameter(op, ecorePackage.getEString(), "cellId", 0, 1, IS_UNIQUE, IS_ORDERED);
 
+		op = initEOperation(getStage__HasID__DiagnosticChain_Map(), ecorePackage.getEBoolean(), "hasID", 0, 1, IS_UNIQUE, IS_ORDERED);
+		addEParameter(op, ecorePackage.getEDiagnosticChain(), "diagnostics", 0, 1, IS_UNIQUE, IS_ORDERED);
+		EGenericType g1 = createEGenericType(ecorePackage.getEMap());
+		EGenericType g2 = createEGenericType();
+		g1.getETypeArguments().add(g2);
+		g2 = createEGenericType();
+		g1.getETypeArguments().add(g2);
+		addEParameter(op, g1, "context", 0, 1, IS_UNIQUE, IS_ORDERED);
+
 		initEClass(cellEClass, Cell.class, "Cell", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEReference(getCell_Stage(), this.getStage(), this.getStage_Cells(), "stage", null, 1, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getCell_Samples(), this.getSample(), this.getSample_Cell(), "samples", null, 0, -1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -967,26 +987,8 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 		createResource(eNS_URI);
 
 		// Create annotations
-		// http://www.eclipse.org/emf/2002/Ecore
-		createEcoreAnnotations();
 		// http:///org/eclipse/emf/ecore/util/ExtendedMetaData
 		createExtendedMetaDataAnnotations();
-	}
-
-	/**
-	 * Initializes the annotations for <b>http://www.eclipse.org/emf/2002/Ecore</b>.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	protected void createEcoreAnnotations() {
-		String source = "http://www.eclipse.org/emf/2002/Ecore";	
-		addAnnotation
-		  (stageEClass, 
-		   source, 
-		   new String[] {
-			 "constraints", "ValidStageID"
-		   });
 	}
 
 	/**

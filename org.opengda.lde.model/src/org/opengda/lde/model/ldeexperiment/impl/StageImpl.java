@@ -24,14 +24,20 @@ package org.opengda.lde.model.ldeexperiment.impl;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
+import java.util.Map;
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.NotificationChain;
+import org.eclipse.emf.common.util.BasicDiagnostic;
+import org.eclipse.emf.common.util.Diagnostic;
+import org.eclipse.emf.common.util.DiagnosticChain;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
 import org.eclipse.emf.ecore.impl.MinimalEObjectImpl;
+import org.eclipse.emf.ecore.plugin.EcorePlugin;
 import org.eclipse.emf.ecore.util.EObjectContainmentWithInverseEList;
+import org.eclipse.emf.ecore.util.EObjectValidator;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.ecore.util.InternalEList;
 import org.opengda.lde.model.ldeexperiment.Cell;
@@ -39,6 +45,7 @@ import org.opengda.lde.model.ldeexperiment.Experiment;
 import org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage;
 import org.opengda.lde.model.ldeexperiment.Stage;
 import org.opengda.lde.model.ldeexperiment.exceptions.NotFoundException;
+import org.opengda.lde.model.ldeexperiment.util.LDEExperimentsValidator;
 
 /**
  * <!-- begin-user-doc -->
@@ -448,6 +455,32 @@ public class StageImpl extends MinimalEObjectImpl.Container implements Stage {
 
 	/**
 	 * <!-- begin-user-doc -->
+	 * validate stage must have an ID
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public boolean hasID(DiagnosticChain diagnostics, Map<?, ?> context) {
+		// TODO: implement this method
+		// -> specify the condition that violates the invariant
+		// -> verify the details of the diagnostic, including severity and message
+		// Ensure that you remove @generated or mark it @generated NOT
+		if (getStageID()==null || getStageID().isEmpty()) {
+			if (diagnostics != null) {
+				diagnostics.add
+					(new BasicDiagnostic
+						(Diagnostic.ERROR,
+						 LDEExperimentsValidator.DIAGNOSTIC_SOURCE,
+						 LDEExperimentsValidator.STAGE__HAS_ID,
+						 EcorePlugin.INSTANCE.getString("_UI_GenericInvariant_diagnostic", new Object[] { "hasID", EObjectValidator.getObjectLabel(this, (Map<Object, Object>) context) }),
+						 new Object [] { this }));
+			}
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
@@ -692,10 +725,13 @@ public class StageImpl extends MinimalEObjectImpl.Container implements Stage {
 	 * @generated
 	 */
 	@Override
+	@SuppressWarnings("unchecked")
 	public Object eInvoke(int operationID, EList<?> arguments) throws InvocationTargetException {
 		switch (operationID) {
 			case LDEExperimentsPackage.STAGE___GET_CELL_BY_ID__STRING:
 				return getCellByID((String)arguments.get(0));
+			case LDEExperimentsPackage.STAGE___HAS_ID__DIAGNOSTICCHAIN_MAP:
+				return hasID((DiagnosticChain)arguments.get(0), (Map<?, ?>)arguments.get(1));
 		}
 		return super.eInvoke(operationID, arguments);
 	}

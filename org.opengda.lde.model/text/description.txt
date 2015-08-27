@@ -30,6 +30,7 @@ Package ldeexperiment <http://www.opengda.org/LDEExperiments>
     Attribute camera_z : EDouble
     Attribute numberOfCells : EInt
     Operation getCellByID(EString) : Cell
+    Operation hasID(EDiagnosticChain, EMap) : EBoolean
 
   Class Cell
     Reference stage : Stage<<1..1>>

@@ -22,6 +22,8 @@
  */
 package org.opengda.lde.model.ldeexperiment;
 
+import java.util.Map;
+import org.eclipse.emf.common.util.DiagnosticChain;
 import org.eclipse.emf.common.util.EList;
 
 import org.eclipse.emf.ecore.EObject;
@@ -48,7 +50,7 @@ import org.eclipse.emf.ecore.EObject;
  * </ul>
  *
  * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getStage()
- * @model annotation="http://www.eclipse.org/emf/2002/Ecore constraints='ValidStageID'"
+ * @model
  * @generated
  */
 public interface Stage extends EObject {
@@ -292,6 +294,14 @@ public interface Stage extends EObject {
 	 * @generated
 	 */
 	Cell getCellByID(String cellId);
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @model
+	 * @generated
+	 */
+	boolean hasID(DiagnosticChain diagnostics, Map<?, ?> context);
 
 	/**
 	 * Returns the value of the '<em><b>Experiment</b></em>' container reference.
