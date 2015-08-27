@@ -3,7 +3,9 @@
 package org.opengda.lde.model.ldeexperiment.provider;
 
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.List;
 
@@ -29,6 +31,8 @@ import org.opengda.lde.model.ldeexperiment.LDEExperimentsFactory;
 import org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage;
 import org.opengda.lde.model.ldeexperiment.STATUS;
 import org.opengda.lde.model.ldeexperiment.Sample;
+
+import gda.configuration.properties.LocalProperties;
 
 /**
  * This is the item provider adapter for a {@link org.opengda.lde.model.ldeexperiment.Cell} object.
@@ -158,12 +162,13 @@ public class CellItemProvider
 	/**
 	 * This adds a property descriptor for the Visit ID feature.
 	 * <!-- begin-user-doc -->
+	 * dynamically fill the drop down list with all existing folders for current year
 	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	protected void addVisitIDPropertyDescriptor(Object object) {
 		itemPropertyDescriptors.add
-			(createItemPropertyDescriptor
+			(new ItemPropertyDescriptor
 				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
 				 getResourceLocator(),
 				 getString("_UI_Cell_visitID_feature"),
@@ -174,7 +179,30 @@ public class CellItemProvider
 				 false,
 				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
 				 null,
-				 null));
+				 null)
+				{
+				@Override
+				public Collection<?> getChoiceOfValues(Object object) {
+					return getVisitIDs();
+				}
+				});
+	}
+	
+	private List<String> getVisitIDs() {
+		String string = LocalProperties.get(LocalProperties.GDA_DATA, "/dls/i11-1/data");
+		String dataDir = string+File.separator+Calendar.getInstance().get(Calendar.YEAR);
+		File dir=new File(dataDir);
+		String[] list = dir.list();
+		List<String> dirList=new ArrayList<String>();
+		if (list != null) {
+			for (String s : list) {
+				File file=new File(dataDir+File.separator+s);
+				if (file.isDirectory()) {
+					dirList.add(s);
+				}
+			}
+		}
+		return dirList;
 	}
 
 	/**
