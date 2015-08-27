@@ -86,7 +86,7 @@
         eOpposite="#//Stage/cells"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="samples" upperBound="-1"
         eType="#//Sample" unsettable="true" containment="true" eOpposite="#//Sample/cell"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="cellID" eType="#//CellIDString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="cellID" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="visitID" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="email" unique="false" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
@@ -148,11 +148,6 @@
   <eClassifiers xsi:type="ecore:EDataType" name="CalibrantNameString" instanceClassName="java.lang.String">
     <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
       <details key="enumeration" value="Si(NIST-SRM-640c) CeO2(NIST-SRM-674b)"/>
-    </eAnnotations>
-  </eClassifiers>
-  <eClassifiers xsi:type="ecore:EDataType" name="CellIDString" instanceClassName="java.lang.String">
-    <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
-      <details key="enumeration" value="LS1-1 LS1-2 LS1-3 LS2-1 LS2-2 LS2-3 MS1-1 MS1-2 MS1-3 MS2-1 MS2-2 MS2-3 MS3-1 MS3-2 MS3-3 MS4-1 MS4-2 MS4-3 SS1-1 SS1-2 SS1-3 SS2-1 SS2-2 SS2-3 SS3-1 SS3-2 SS3-3 SS4-1 SS4-2 SS4-3 SS5-1 SS5-2 SS5-3 SS6-1 SS6-2 SS6-3 ROBOT-1 ROBOT-2 ROBOT-3 ROBOT-4 ROBOT-5 ROBOT-6 ROBOT-7 ROBOT-8 ROTOB-9 ROBOT-10"/>
     </eAnnotations>
   </eClassifiers>
 </ecore:EPackage>

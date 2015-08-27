@@ -460,7 +460,6 @@ public class StageImpl extends MinimalEObjectImpl.Container implements Stage {
 	 * @generated NOT
 	 */
 	public boolean hasID(DiagnosticChain diagnostics, Map<?, ?> context) {
-		// TODO: implement this method
 		// -> specify the condition that violates the invariant
 		// -> verify the details of the diagnostic, including severity and message
 		// Ensure that you remove @generated or mark it @generated NOT
@@ -471,7 +470,7 @@ public class StageImpl extends MinimalEObjectImpl.Container implements Stage {
 						(Diagnostic.ERROR,
 						 LDEExperimentsValidator.DIAGNOSTIC_SOURCE,
 						 LDEExperimentsValidator.STAGE__HAS_ID,
-						 EcorePlugin.INSTANCE.getString("_UI_StageIDInvariant_diagnostic", new Object[] { "hasID", EObjectValidator.getObjectLabel(this, (Map<Object, Object>) context) }),
+						 SampledefinitionModelPlugin.INSTANCE.getString("_UI_StageIDInvariant_diagnostic", new Object[] { "hasID", EObjectValidator.getObjectLabel(this, (Map<Object, Object>) context) }),
 						 new Object [] { this }));
 			}
 			return false;

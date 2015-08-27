@@ -113,13 +113,6 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	private EDataType calibrantNameStringEDataType = null;
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	private EDataType cellIDStringEDataType = null;
-
-	/**
 	 * Creates an instance of the model <b>Package</b>, registered with
 	 * {@link org.eclipse.emf.ecore.EPackage.Registry EPackage.Registry} by the package
 	 * package URI value.
@@ -770,15 +763,6 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EDataType getCellIDString() {
-		return cellIDStringEDataType;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
 	public LDEExperimentsFactory getLDEExperimentsFactory() {
 		return (LDEExperimentsFactory)getEFactoryInstance();
 	}
@@ -874,7 +858,6 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 		stageIDStringEDataType = createEDataType(STAGE_ID_STRING);
 		dateEDataType = createEDataType(DATE);
 		calibrantNameStringEDataType = createEDataType(CALIBRANT_NAME_STRING);
-		cellIDStringEDataType = createEDataType(CELL_ID_STRING);
 	}
 
 	/**
@@ -949,7 +932,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 		initEClass(cellEClass, Cell.class, "Cell", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEReference(getCell_Stage(), this.getStage(), this.getStage_Cells(), "stage", null, 1, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getCell_Samples(), this.getSample(), this.getSample_Cell(), "samples", null, 0, -1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getCell_CellID(), this.getCellIDString(), "cellID", null, 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getCell_CellID(), ecorePackage.getEString(), "cellID", null, 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getCell_Name(), ecorePackage.getEString(), "name", null, 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getCell_VisitID(), ecorePackage.getEString(), "visitID", null, 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getCell_Email(), ecorePackage.getEString(), "email", null, 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -1019,7 +1002,6 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 		initEDataType(stageIDStringEDataType, String.class, "StageIDString", IS_SERIALIZABLE, !IS_GENERATED_INSTANCE_CLASS);
 		initEDataType(dateEDataType, Date.class, "Date", IS_SERIALIZABLE, !IS_GENERATED_INSTANCE_CLASS);
 		initEDataType(calibrantNameStringEDataType, String.class, "CalibrantNameString", IS_SERIALIZABLE, !IS_GENERATED_INSTANCE_CLASS);
-		initEDataType(cellIDStringEDataType, String.class, "CellIDString", IS_SERIALIZABLE, !IS_GENERATED_INSTANCE_CLASS);
 
 		// Create resource
 		createResource(eNS_URI);
@@ -1066,12 +1048,6 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 		   source, 
 		   new String[] {
 			 "enumeration", "Si(NIST-SRM-640c) CeO2(NIST-SRM-674b)"
-		   });	
-		addAnnotation
-		  (cellIDStringEDataType, 
-		   source, 
-		   new String[] {
-			 "enumeration", "LS1-1 LS1-2 LS1-3 LS2-1 LS2-2 LS2-3 MS1-1 MS1-2 MS1-3 MS2-1 MS2-2 MS2-3 MS3-1 MS3-2 MS3-3 MS4-1 MS4-2 MS4-3 SS1-1 SS1-2 SS1-3 SS2-1 SS2-2 SS2-3 SS3-1 SS3-2 SS3-3 SS4-1 SS4-2 SS4-3 SS5-1 SS5-2 SS5-3 SS6-1 SS6-2 SS6-3 ROBOT-1 ROBOT-2 ROBOT-3 ROBOT-4 ROBOT-5 ROBOT-6 ROBOT-7 ROBOT-8 ROTOB-9 ROBOT-10"
 		   });
 	}
 

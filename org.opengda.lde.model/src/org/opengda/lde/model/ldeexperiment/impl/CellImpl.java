@@ -817,7 +817,7 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 						(Diagnostic.ERROR,
 						 LDEExperimentsValidator.DIAGNOSTIC_SOURCE,
 						 LDEExperimentsValidator.CELL__HAS_CELL_ID,
-						 EcorePlugin.INSTANCE.getString("_UI_CellIDInvariant_diagnostic", new Object[] { "hasCellID", EObjectValidator.getObjectLabel(this, (Map<Object, Object>) context) }),
+						 SampledefinitionModelPlugin.INSTANCE.getString("_UI_CellIDInvariant_diagnostic", new Object[] { "hasCellID", EObjectValidator.getObjectLabel(this, (Map<Object, Object>) context) }),
 						 new Object [] { this }));
 			}
 			return false;
@@ -842,7 +842,7 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 						(Diagnostic.ERROR,
 						 LDEExperimentsValidator.DIAGNOSTIC_SOURCE,
 						 LDEExperimentsValidator.CELL__HAS_VISIT_ID,
-						 EcorePlugin.INSTANCE.getString("_UI_VisitIDInvariant_diagnostic", new Object[] { "hasVisitID", EObjectValidator.getObjectLabel(this, (Map<Object, Object>) context) }),
+						 SampledefinitionModelPlugin.INSTANCE.getString("_UI_VisitIDInvariant_diagnostic", new Object[] { "hasVisitID", EObjectValidator.getObjectLabel(this, (Map<Object, Object>) context) }),
 						 new Object [] { this }));
 			}
 			return false;

@@ -35,7 +35,7 @@ Package ldeexperiment <http://www.opengda.org/LDEExperiments>
   Class Cell
     Reference stage : Stage<<1..1>>
     Reference samples : Sample<<0..*>>
-    Attribute cellID : CellIDString
+    Attribute cellID : EString
     Attribute name : EString
     Attribute visitID : EString
     Attribute email : EString
@@ -85,5 +85,3 @@ Package ldeexperiment <http://www.opengda.org/LDEExperiments>
   DataType Date <java.util.Date>
 
   DataType CalibrantNameString <java.lang.String>
-
-  DataType CellIDString <java.lang.String>

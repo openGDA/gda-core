@@ -114,7 +114,7 @@ public interface Cell extends EObject {
 	 * @return the value of the '<em>Cell ID</em>' attribute.
 	 * @see #setCellID(String)
 	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getCell_CellID()
-	 * @model dataType="org.opengda.lde.model.ldeexperiment.CellIDString"
+	 * @model
 	 * @generated
 	 */
 	String getCellID();
