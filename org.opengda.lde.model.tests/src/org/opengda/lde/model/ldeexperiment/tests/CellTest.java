@@ -36,6 +36,7 @@ import org.opengda.lde.model.ldeexperiment.LDEExperimentsFactory;
  * <ul>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Cell#getSampleById(java.lang.String) <em>Get Sample By Id</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Cell#getSampleByName(java.lang.String) <em>Get Sample By Name</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.Cell#hasCellID(org.eclipse.emf.common.util.DiagnosticChain, java.util.Map) <em>Has Cell ID</em>}</li>
  * </ul>
  * </p>
  * @generated
@@ -132,6 +133,19 @@ public class CellTest extends TestCase {
 	 * @generated
 	 */
 	public void testGetSampleByName__String() {
+		// TODO: implement this operation test method
+		// Ensure that you remove @generated or mark it @generated NOT
+		fail();
+	}
+
+	/**
+	 * Tests the '{@link org.opengda.lde.model.ldeexperiment.Cell#hasCellID(org.eclipse.emf.common.util.DiagnosticChain, java.util.Map) <em>Has Cell ID</em>}' operation.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see org.opengda.lde.model.ldeexperiment.Cell#hasCellID(org.eclipse.emf.common.util.DiagnosticChain, java.util.Map)
+	 * @generated
+	 */
+	public void testHasCellID__DiagnosticChain_Map() {
 		// TODO: implement this operation test method
 		// Ensure that you remove @generated or mark it @generated NOT
 		fail();

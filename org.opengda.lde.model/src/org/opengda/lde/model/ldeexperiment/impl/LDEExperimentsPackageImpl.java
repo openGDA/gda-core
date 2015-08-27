@@ -563,6 +563,15 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public EOperation getCell__HasCellID__DiagnosticChain_Map() {
+		return cellEClass.getEOperations().get(2);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	public EClass getSample() {
 		return sampleEClass;
 	}
@@ -828,6 +837,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 		createEAttribute(cellEClass, CELL__NUMBER_OF_SAMPLES);
 		createEOperation(cellEClass, CELL___GET_SAMPLE_BY_ID__STRING);
 		createEOperation(cellEClass, CELL___GET_SAMPLE_BY_NAME__STRING);
+		createEOperation(cellEClass, CELL___HAS_CELL_ID__DIAGNOSTICCHAIN_MAP);
 
 		sampleEClass = createEClass(SAMPLE);
 		createEReference(sampleEClass, SAMPLE__CELL);
@@ -949,6 +959,15 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 
 		op = initEOperation(getCell__GetSampleByName__String(), this.getSample(), "getSampleByName", 0, 1, IS_UNIQUE, IS_ORDERED);
 		addEParameter(op, ecorePackage.getEString(), "sampleName", 0, 1, IS_UNIQUE, IS_ORDERED);
+
+		op = initEOperation(getCell__HasCellID__DiagnosticChain_Map(), ecorePackage.getEBoolean(), "hasCellID", 0, 1, IS_UNIQUE, IS_ORDERED);
+		addEParameter(op, ecorePackage.getEDiagnosticChain(), "diagnostics", 0, 1, IS_UNIQUE, IS_ORDERED);
+		g1 = createEGenericType(ecorePackage.getEMap());
+		g2 = createEGenericType();
+		g1.getETypeArguments().add(g2);
+		g2 = createEGenericType();
+		g1.getETypeArguments().add(g2);
+		addEParameter(op, g1, "context", 0, 1, IS_UNIQUE, IS_ORDERED);
 
 		initEClass(sampleEClass, Sample.class, "Sample", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEReference(getSample_Cell(), this.getCell(), this.getCell_Samples(), "cell", null, 1, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);

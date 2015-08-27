@@ -26,14 +26,20 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Map;
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.NotificationChain;
+import org.eclipse.emf.common.util.BasicDiagnostic;
+import org.eclipse.emf.common.util.Diagnostic;
+import org.eclipse.emf.common.util.DiagnosticChain;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
 import org.eclipse.emf.ecore.impl.MinimalEObjectImpl;
+import org.eclipse.emf.ecore.plugin.EcorePlugin;
 import org.eclipse.emf.ecore.util.EObjectContainmentWithInverseEList;
+import org.eclipse.emf.ecore.util.EObjectValidator;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.ecore.util.InternalEList;
 import org.opengda.lde.model.ldeexperiment.Cell;
@@ -41,6 +47,7 @@ import org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage;
 import org.opengda.lde.model.ldeexperiment.Sample;
 import org.opengda.lde.model.ldeexperiment.Stage;
 import org.opengda.lde.model.ldeexperiment.exceptions.NotFoundException;
+import org.opengda.lde.model.ldeexperiment.util.LDEExperimentsValidator;
 
 /**
  * <!-- begin-user-doc -->
@@ -795,6 +802,31 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 
 	/**
 	 * <!-- begin-user-doc -->
+	 * check if Cell ID property is set or not.
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public boolean hasCellID(DiagnosticChain diagnostics, Map<?, ?> context) {
+		// -> specify the condition that violates the invariant
+		// -> verify the details of the diagnostic, including severity and message
+		// Ensure that you remove @generated or mark it @generated NOT
+		if (getCellID()==null || getCellID().isEmpty()) {
+			if (diagnostics != null) {
+				diagnostics.add
+					(new BasicDiagnostic
+						(Diagnostic.ERROR,
+						 LDEExperimentsValidator.DIAGNOSTIC_SOURCE,
+						 LDEExperimentsValidator.CELL__HAS_CELL_ID,
+						 EcorePlugin.INSTANCE.getString("_UI_CellIDInvariant_diagnostic", new Object[] { "hasCellID", EObjectValidator.getObjectLabel(this, (Map<Object, Object>) context) }),
+						 new Object [] { this }));
+			}
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
@@ -1064,6 +1096,8 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 				return getSampleById((String)arguments.get(0));
 			case LDEExperimentsPackage.CELL___GET_SAMPLE_BY_NAME__STRING:
 				return getSampleByName((String)arguments.get(0));
+			case LDEExperimentsPackage.CELL___HAS_CELL_ID__DIAGNOSTICCHAIN_MAP:
+				return hasCellID((DiagnosticChain)arguments.get(0), (Map<?, ?>)arguments.get(1));
 		}
 		return super.eInvoke(operationID, arguments);
 	}

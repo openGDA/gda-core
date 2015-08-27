@@ -51,6 +51,7 @@ Package ldeexperiment <http://www.opengda.org/LDEExperiments>
     Attribute numberOfSamples : EInt
     Operation getSampleById(EString) : Sample
     Operation getSampleByName(EString) : Sample
+    Operation hasCellID(EDiagnosticChain, EMap) : EBoolean
 
   Class Sample
     Reference cell : Cell<<1..1>>
