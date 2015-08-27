@@ -463,16 +463,18 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 		updateActionIconsState();
 	}
 	
-	private TableViewerColumn createColumn(String columnHeader, ColumnWeightData columnLayout, TableViewer tableViewer) {
+	private void createColumns(TableViewer tableViewer, String[] columnHeaders, ColumnWeightData[] columnLayouts) {
+		for (int i = 0; i < columnHeaders.length; i++) {
 			TableViewerColumn tableViewerColumn = new TableViewerColumn(tableViewer, SWT.None);
 			TableColumn column = tableViewerColumn.getColumn();
-			column.setResizable(columnLayout.resizable);
-			column.setText(columnHeader);
-			column.setToolTipText(columnHeader);
-			column.setWidth(columnLayout.minimumWidth);
-			return tableViewerColumn;
+			column.setResizable(columnLayouts[i].resizable);
+			column.setText(columnHeaders[i]);
+			column.setToolTipText(columnHeaders[i]);
+			column.setWidth(columnLayouts[i].minimumWidth);
+			tableViewerColumn.setLabelProvider(new PropertyColumnLabelProvider(new AdapterFactoryContentProvider(adapterFactory), columnHeaders[i]));
+			tableViewerColumn.setEditingSupport(new PropertyEditingSupport(tableViewer, new AdapterFactoryContentProvider(adapterFactory), columnHeaders[i]));
+		}
 	}
-
 
 	private void initialisation() {
 		editingDomain=getResUtil().getEditingDomain();
@@ -499,49 +501,26 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 					Composite parent=table.getParent();
 					table.dispose();
 					childrenTableViewer=new TableViewer(parent,SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
-					AdapterFactoryContentProvider contentprovider = new AdapterFactoryContentProvider(adapterFactory);
-//					childrenTableViewer.setContentProvider(contentprovider);
-//					childrenTableViewer.setLabelProvider(new AdapterFactoryLabelProvider(adapterFactory));
 					if (selection instanceof ExperimentDefinition) {
-						for (int i = 0; i < experimentColumnHeaders.length; i++) {
-							TableViewerColumn viewerColumn = createColumn(experimentColumnHeaders[i], experimentColumnLayouts[i], childrenTableViewer);
-							viewerColumn.setLabelProvider(new PropertyColumnLabelProvider(contentprovider, experimentColumnHeaders[i]));
-							viewerColumn.setEditingSupport(new PropertyEditingSupport(childrenTableViewer, contentprovider, experimentColumnHeaders[i]));
-						}
+						createColumns(childrenTableViewer, experimentColumnHeaders, experimentColumnLayouts);
 						childrenTableViewer.setInput(((ExperimentDefinition)selection).getExperiments());
 						setPartName("Experiments");
 					} else if (selection instanceof Experiment) {
-						for (int i = 0; i < stageColumnHeaders.length; i++) {
-							TableViewerColumn viewerColumn = createColumn(stageColumnHeaders[i], stageColumnLayouts[i], childrenTableViewer);
-							viewerColumn.setLabelProvider(new PropertyColumnLabelProvider(contentprovider, stageColumnHeaders[i]));
-							viewerColumn.setEditingSupport(new PropertyEditingSupport(childrenTableViewer, contentprovider, stageColumnHeaders[i]));
-						}
+						createColumns(childrenTableViewer, stageColumnHeaders, stageColumnLayouts);
 						childrenTableViewer.setInput(((Experiment)selection).getStages());
 						setPartName("Stages in experiment "+((Experiment)selection).getName());
 					} else if (selection instanceof Stage) {
-						for (int i = 0; i < cellColumnHeaders.length; i++) {
-							TableViewerColumn viewerColumn = createColumn(cellColumnHeaders[i], cellColumnLayouts[i], childrenTableViewer);
-							viewerColumn.setLabelProvider(new PropertyColumnLabelProvider(contentprovider, cellColumnHeaders[i]));
-							viewerColumn.setEditingSupport(new PropertyEditingSupport(childrenTableViewer, contentprovider, cellColumnHeaders[i]));
-						}
+						createColumns(childrenTableViewer, cellColumnHeaders, cellColumnLayouts);
 						childrenTableViewer.setInput(((Stage)selection).getCells());
 						setPartName("Cells in stage "+((Stage)selection).getStageID());
 					} else if (selection instanceof Cell) {
-						for (int i = 0; i < sampleColumnHeadersForCell.length; i++) {
-							TableViewerColumn viewerColumn = createColumn(sampleColumnHeadersForCell[i], sampleColumnLayoutsForCell[i], childrenTableViewer);
-							viewerColumn.setLabelProvider(new PropertyColumnLabelProvider(contentprovider, sampleColumnHeadersForCell[i]));
-							viewerColumn.setEditingSupport(new PropertyEditingSupport(childrenTableViewer, contentprovider, sampleColumnHeadersForCell[i]));
-						}
+						createColumns(childrenTableViewer, sampleColumnHeadersForCell, sampleColumnLayoutsForCell);
 						childrenTableViewer.setInput(((Cell)selection).getSamples());
 						setPartName("Samples in cell "+((Cell)selection).getName());
 					} else if (selection instanceof Sample) {
 						try {
 							//display all samples with progress and collected data info.
-							for (int i = 0; i < sampleColumnHeaders.length; i++) {
-								TableViewerColumn viewerColumn = createColumn(sampleColumnHeaders[i], sampleColumnLayouts[i], childrenTableViewer);
-								viewerColumn.setLabelProvider(new PropertyColumnLabelProvider(contentprovider, sampleColumnHeaders[i]));
-								viewerColumn.setEditingSupport(new PropertyEditingSupport(childrenTableViewer, contentprovider, sampleColumnHeaders[i]));
-							}
+							createColumns(childrenTableViewer, sampleColumnHeaders, sampleColumnLayouts);
 							childrenTableViewer.setInput(getResUtil().getSamples());
 							setPartName("Samples in experiment "+((Sample)selection).getCell().getStage().getExperiment().getName());
 						} catch (Exception e) {
