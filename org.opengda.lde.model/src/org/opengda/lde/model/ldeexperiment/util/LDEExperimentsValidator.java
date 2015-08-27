@@ -23,6 +23,7 @@ package org.opengda.lde.model.ldeexperiment.util;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
+import org.eclipse.emf.common.util.Diagnostic;
 import org.eclipse.emf.common.util.DiagnosticChain;
 import org.eclipse.emf.common.util.ResourceLocator;
 
@@ -31,6 +32,7 @@ import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.util.EObjectValidator;
 
 import org.opengda.lde.model.ldeexperiment.*;
+import org.opengda.lde.model.ldeexperiment.impl.SampledefinitionModelPlugin;
 
 /**
  * <!-- begin-user-doc -->
@@ -190,7 +192,100 @@ public class LDEExperimentsValidator extends EObjectValidator {
 	 * @generated
 	 */
 	public boolean validateCell(Cell cell, DiagnosticChain diagnostics, Map<Object, Object> context) {
-		return validate_EveryDefaultConstraint(cell, diagnostics, context);
+		if (!validate_NoCircularContainment(cell, diagnostics, context)) return false;
+		boolean result = validate_EveryMultiplicityConforms(cell, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryDataValueConforms(cell, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryReferenceIsContained(cell, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryBidirectionalReferenceIsPaired(cell, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryProxyResolves(cell, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_UniqueID(cell, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryKeyUnique(cell, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryMapEntryUnique(cell, diagnostics, context);
+		if (result || diagnostics != null) result &= validateCell_ValidStartDate(cell, diagnostics, context);
+		if (result || diagnostics != null) result &= validateCell_ValidEndDate(cell, diagnostics, context);
+		return result;
+	}
+
+	/**
+	 * Validates the ValidStartDate constraint of '<em>Cell</em>'.
+	 * <!-- begin-user-doc -->
+	 * check if start date is null or after end date.
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public boolean validateCell_ValidStartDate(Cell cell, DiagnosticChain diagnostics, Map<Object, Object> context) {
+		// -> specify the condition that violates the constraint
+		// -> verify the diagnostic details, including severity, code, and message
+		// Ensure that you remove @generated or mark it @generated NOT
+		if (cell.getStartDate()== null) {
+			if (diagnostics != null) {
+				diagnostics.add
+					(createDiagnostic
+						(Diagnostic.ERROR,
+						 DIAGNOSTIC_SOURCE,
+						 0,
+						 "_UI_StartDateNullConstraint_diagnostic",
+						 new Object[] { "ValidStartDate", getObjectLabel(cell, context) },
+						 new Object[] { cell },
+						 context));
+			}
+			return false;
+		} else if (cell.getEndDate()!=null && cell.getStartDate().after(cell.getEndDate())) {
+			if (diagnostics != null) {
+				diagnostics.add
+					(createDiagnostic
+						(Diagnostic.ERROR,
+						 DIAGNOSTIC_SOURCE,
+						 0,
+						 "_UI_StartDateAfterEndDateConstraint_diagnostic",
+						 new Object[] { "ValidStartDate", getObjectLabel(cell, context) },
+						 new Object[] { cell },
+						 context));
+			}
+			return false;			
+		}
+		return true;
+	}
+
+	/**
+	 * Validates the ValidEndDate constraint of '<em>Cell</em>'.
+	 * <!-- begin-user-doc -->
+	 * check if end date is null or before start date.
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public boolean validateCell_ValidEndDate(Cell cell, DiagnosticChain diagnostics, Map<Object, Object> context) {
+		// -> specify the condition that violates the constraint
+		// -> verify the diagnostic details, including severity, code, and message
+		// Ensure that you remove @generated or mark it @generated NOT
+		if (cell.getEndDate()==null) {
+			if (diagnostics != null) {
+				diagnostics.add
+					(createDiagnostic
+						(Diagnostic.ERROR,
+						 DIAGNOSTIC_SOURCE,
+						 0,
+						 "_UI_EndDateNullConstraint_diagnostic",
+						 new Object[] { "ValidEndDate", getObjectLabel(cell, context) },
+						 new Object[] { cell },
+						 context));
+			}
+			return false;
+		} else if (cell.getStartDate()!=null && cell.getEndDate().before(cell.getStartDate())) {
+			if (diagnostics != null) {
+				diagnostics.add
+					(createDiagnostic
+						(Diagnostic.ERROR,
+						 DIAGNOSTIC_SOURCE,
+						 0,
+						 "_UI_EndDateBeforeStartDateConstraint_diagnostic",
+						 new Object[] { "ValidEndDate", getObjectLabel(cell, context) },
+						 new Object[] { cell },
+						 context));
+			}
+			return false;
+		}
+		return true;
 	}
 
 	/**
@@ -391,10 +486,7 @@ public class LDEExperimentsValidator extends EObjectValidator {
 	 */
 	@Override
 	public ResourceLocator getResourceLocator() {
-		// TODO
-		// Specialize this to return a resource locator for messages specific to this validator.
-		// Ensure that you remove @generated or mark it @generated NOT
-		return super.getResourceLocator();
+		return SampledefinitionModelPlugin.INSTANCE;
 	}
 
 } //LDEExperimentsValidator
