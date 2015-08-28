@@ -217,6 +217,7 @@ public class LDEExperimentsValidator extends EObjectValidator {
 		if (result || diagnostics != null) result &= validate_EveryMapEntryUnique(cell, diagnostics, context);
 		if (result || diagnostics != null) result &= validateCell_ValidStartDate(cell, diagnostics, context);
 		if (result || diagnostics != null) result &= validateCell_ValidEndDate(cell, diagnostics, context);
+		if (result || diagnostics != null) result &= validateCell_NonNegativeQuantity(cell, diagnostics, context);
 		if (result || diagnostics != null) result &= validateCell_hasCellID(cell, diagnostics, context);
 		if (result || diagnostics != null) result &= validateCell_hasVisitID(cell, diagnostics, context);
 		return result;
@@ -296,6 +297,33 @@ public class LDEExperimentsValidator extends EObjectValidator {
 						 LDEExperimentsPackage.CELL__END_DATE,
 						 "_UI_EndDateBeforeStartDateConstraint_diagnostic",
 						 new Object[] { "ValidEndDate", getObjectLabel(cell, context) },
+						 new Object[] { cell },
+						 context));
+			}
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Validates the NonNegativeQuantity constraint of '<em>Cell</em>'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public boolean validateCell_NonNegativeQuantity(Cell cell, DiagnosticChain diagnostics, Map<Object, Object> context) {
+		// -> specify the condition that violates the constraint
+		// -> verify the diagnostic details, including severity, code, and message
+		// Ensure that you remove @generated or mark it @generated NOT
+		if (cell.getNumberOfSamples()<0) {
+			if (diagnostics != null) {
+				diagnostics.add
+					(createDiagnostic
+						(Diagnostic.ERROR,
+						 DIAGNOSTIC_SOURCE,
+						 LDEExperimentsPackage.CELL__NUMBER_OF_SAMPLES,
+						 "_UI_NumberOfSampleNonNegativeConstraint_diagnostic",
+						 new Object[] { "NonNegativeQuantity", getObjectLabel(cell, context) },
 						 new Object[] { cell },
 						 context));
 			}

@@ -1025,7 +1025,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 		  (cellEClass, 
 		   source, 
 		   new String[] {
-			 "constraints", "ValidStartDate ValidEndDate"
+			 "constraints", "ValidStartDate ValidEndDate NonNegativeQuantity"
 		   });
 	}
 
