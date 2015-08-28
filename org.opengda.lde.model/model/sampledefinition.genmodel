@@ -59,12 +59,12 @@
         <genParameters ecoreParameter="sampledefinition.ecore#//Stage/hasID/context"/>
       </genOperations>
     </genClasses>
-    <genClasses ecoreClass="sampledefinition.ecore#//Cell">
+    <genClasses ecoreClass="sampledefinition.ecore#//Cell" labelFeature="#//ldeexperiment/Cell/cellID">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Cell/cellID"/>
       <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference sampledefinition.ecore#//Cell/stage"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference sampledefinition.ecore#//Cell/samples"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Cell/cellID"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Cell/name"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Cell/visitID"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Cell/name"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Cell/email"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Cell/startDate"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Cell/endDate"/>

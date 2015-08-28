@@ -33,11 +33,11 @@ Package ldeexperiment <http://www.opengda.org/LDEExperiments>
     Operation hasID(EDiagnosticChain, EMap) : EBoolean
 
   Class Cell
+    Attribute cellID : EString
     Reference stage : Stage<<1..1>>
     Reference samples : Sample<<0..*>>
-    Attribute cellID : EString
-    Attribute name : EString
     Attribute visitID : EString
+    Attribute name : EString
     Attribute email : EString
     Attribute startDate : Date
     Attribute endDate : Date

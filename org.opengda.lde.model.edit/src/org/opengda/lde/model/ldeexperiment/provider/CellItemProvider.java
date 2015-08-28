@@ -66,8 +66,8 @@ public class CellItemProvider
 			super.getPropertyDescriptors(object);
 
 			addCellIDPropertyDescriptor(object);
-			addNamePropertyDescriptor(object);
 			addVisitIDPropertyDescriptor(object);
+			addNamePropertyDescriptor(object);
 			addEmailPropertyDescriptor(object);
 			addStartDatePropertyDescriptor(object);
 			addEndDatePropertyDescriptor(object);
@@ -496,7 +496,7 @@ public class CellItemProvider
 	 */
 	@Override
 	public String getText(Object object) {
-		String label = ((Cell)object).getName();
+		String label = ((Cell)object).getCellID();
 		return label == null || label.length() == 0 ?
 			getString("_UI_Cell_type") :
 			getString("_UI_Cell_type") + " " + label;
@@ -516,8 +516,8 @@ public class CellItemProvider
 
 		switch (notification.getFeatureID(Cell.class)) {
 			case LDEExperimentsPackage.CELL__CELL_ID:
-			case LDEExperimentsPackage.CELL__NAME:
 			case LDEExperimentsPackage.CELL__VISIT_ID:
+			case LDEExperimentsPackage.CELL__NAME:
 			case LDEExperimentsPackage.CELL__EMAIL:
 			case LDEExperimentsPackage.CELL__START_DATE:
 			case LDEExperimentsPackage.CELL__END_DATE:

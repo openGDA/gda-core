@@ -58,11 +58,11 @@ import org.opengda.lde.model.ldeexperiment.util.LDEExperimentsValidator;
  * The following features are implemented:
  * </p>
  * <ul>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.CellImpl#getCellID <em>Cell ID</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.CellImpl#getStage <em>Stage</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.CellImpl#getSamples <em>Samples</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.CellImpl#getCellID <em>Cell ID</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.CellImpl#getName <em>Name</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.CellImpl#getVisitID <em>Visit ID</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.CellImpl#getName <em>Name</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.CellImpl#getEmail <em>Email</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.CellImpl#getStartDate <em>Start Date</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.CellImpl#getEndDate <em>End Date</em>}</li>
@@ -79,16 +79,6 @@ import org.opengda.lde.model.ldeexperiment.util.LDEExperimentsValidator;
  * @generated
  */
 public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
-	/**
-	 * The cached value of the '{@link #getSamples() <em>Samples</em>}' containment reference list.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getSamples()
-	 * @generated
-	 * @ordered
-	 */
-	protected EList<Sample> samples;
-
 	/**
 	 * The default value of the '{@link #getCellID() <em>Cell ID</em>}' attribute.
 	 * <!-- begin-user-doc -->
@@ -110,24 +100,14 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	protected String cellID = CELL_ID_EDEFAULT;
 
 	/**
-	 * The default value of the '{@link #getName() <em>Name</em>}' attribute.
+	 * The cached value of the '{@link #getSamples() <em>Samples</em>}' containment reference list.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see #getName()
+	 * @see #getSamples()
 	 * @generated
 	 * @ordered
 	 */
-	protected static final String NAME_EDEFAULT = null;
-
-	/**
-	 * The cached value of the '{@link #getName() <em>Name</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getName()
-	 * @generated
-	 * @ordered
-	 */
-	protected String name = NAME_EDEFAULT;
+	protected EList<Sample> samples;
 
 	/**
 	 * The default value of the '{@link #getVisitID() <em>Visit ID</em>}' attribute.
@@ -148,6 +128,26 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	 * @ordered
 	 */
 	protected String visitID = VISIT_ID_EDEFAULT;
+
+	/**
+	 * The default value of the '{@link #getName() <em>Name</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getName()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final String NAME_EDEFAULT = null;
+
+	/**
+	 * The cached value of the '{@link #getName() <em>Name</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getName()
+	 * @generated
+	 * @ordered
+	 */
+	protected String name = NAME_EDEFAULT;
 
 	/**
 	 * The default value of the '{@link #getEmail() <em>Email</em>}' attribute.
@@ -870,16 +870,16 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	@Override
 	public Object eGet(int featureID, boolean resolve, boolean coreType) {
 		switch (featureID) {
+			case LDEExperimentsPackage.CELL__CELL_ID:
+				return getCellID();
 			case LDEExperimentsPackage.CELL__STAGE:
 				return getStage();
 			case LDEExperimentsPackage.CELL__SAMPLES:
 				return getSamples();
-			case LDEExperimentsPackage.CELL__CELL_ID:
-				return getCellID();
-			case LDEExperimentsPackage.CELL__NAME:
-				return getName();
 			case LDEExperimentsPackage.CELL__VISIT_ID:
 				return getVisitID();
+			case LDEExperimentsPackage.CELL__NAME:
+				return getName();
 			case LDEExperimentsPackage.CELL__EMAIL:
 				return getEmail();
 			case LDEExperimentsPackage.CELL__START_DATE:
@@ -915,6 +915,9 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	@Override
 	public void eSet(int featureID, Object newValue) {
 		switch (featureID) {
+			case LDEExperimentsPackage.CELL__CELL_ID:
+				setCellID((String)newValue);
+				return;
 			case LDEExperimentsPackage.CELL__STAGE:
 				setStage((Stage)newValue);
 				return;
@@ -922,14 +925,11 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 				getSamples().clear();
 				getSamples().addAll((Collection<? extends Sample>)newValue);
 				return;
-			case LDEExperimentsPackage.CELL__CELL_ID:
-				setCellID((String)newValue);
+			case LDEExperimentsPackage.CELL__VISIT_ID:
+				setVisitID((String)newValue);
 				return;
 			case LDEExperimentsPackage.CELL__NAME:
 				setName((String)newValue);
-				return;
-			case LDEExperimentsPackage.CELL__VISIT_ID:
-				setVisitID((String)newValue);
 				return;
 			case LDEExperimentsPackage.CELL__EMAIL:
 				setEmail((String)newValue);
@@ -978,20 +978,20 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	@Override
 	public void eUnset(int featureID) {
 		switch (featureID) {
+			case LDEExperimentsPackage.CELL__CELL_ID:
+				setCellID(CELL_ID_EDEFAULT);
+				return;
 			case LDEExperimentsPackage.CELL__STAGE:
 				setStage((Stage)null);
 				return;
 			case LDEExperimentsPackage.CELL__SAMPLES:
 				unsetSamples();
 				return;
-			case LDEExperimentsPackage.CELL__CELL_ID:
-				setCellID(CELL_ID_EDEFAULT);
+			case LDEExperimentsPackage.CELL__VISIT_ID:
+				setVisitID(VISIT_ID_EDEFAULT);
 				return;
 			case LDEExperimentsPackage.CELL__NAME:
 				setName(NAME_EDEFAULT);
-				return;
-			case LDEExperimentsPackage.CELL__VISIT_ID:
-				setVisitID(VISIT_ID_EDEFAULT);
 				return;
 			case LDEExperimentsPackage.CELL__EMAIL:
 				setEmail(EMAIL_EDEFAULT);
@@ -1038,16 +1038,16 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	@Override
 	public boolean eIsSet(int featureID) {
 		switch (featureID) {
+			case LDEExperimentsPackage.CELL__CELL_ID:
+				return CELL_ID_EDEFAULT == null ? cellID != null : !CELL_ID_EDEFAULT.equals(cellID);
 			case LDEExperimentsPackage.CELL__STAGE:
 				return getStage() != null;
 			case LDEExperimentsPackage.CELL__SAMPLES:
 				return isSetSamples();
-			case LDEExperimentsPackage.CELL__CELL_ID:
-				return CELL_ID_EDEFAULT == null ? cellID != null : !CELL_ID_EDEFAULT.equals(cellID);
-			case LDEExperimentsPackage.CELL__NAME:
-				return NAME_EDEFAULT == null ? name != null : !NAME_EDEFAULT.equals(name);
 			case LDEExperimentsPackage.CELL__VISIT_ID:
 				return VISIT_ID_EDEFAULT == null ? visitID != null : !VISIT_ID_EDEFAULT.equals(visitID);
+			case LDEExperimentsPackage.CELL__NAME:
+				return NAME_EDEFAULT == null ? name != null : !NAME_EDEFAULT.equals(name);
 			case LDEExperimentsPackage.CELL__EMAIL:
 				return EMAIL_EDEFAULT == null ? email != null : !EMAIL_EDEFAULT.equals(email);
 			case LDEExperimentsPackage.CELL__START_DATE:
@@ -1106,10 +1106,10 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 		StringBuffer result = new StringBuffer(super.toString());
 		result.append(" (cellID: ");
 		result.append(cellID);
-		result.append(", name: ");
-		result.append(name);
 		result.append(", visitID: ");
 		result.append(visitID);
+		result.append(", name: ");
+		result.append(name);
 		result.append(", email: ");
 		result.append(email);
 		result.append(", startDate: ");

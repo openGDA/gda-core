@@ -345,13 +345,22 @@ public interface LDEExperimentsPackage extends EPackage {
 	int CELL = 3;
 
 	/**
+	 * The feature id for the '<em><b>Cell ID</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int CELL__CELL_ID = 0;
+
+	/**
 	 * The feature id for the '<em><b>Stage</b></em>' container reference.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int CELL__STAGE = 0;
+	int CELL__STAGE = 1;
 
 	/**
 	 * The feature id for the '<em><b>Samples</b></em>' containment reference list.
@@ -360,25 +369,7 @@ public interface LDEExperimentsPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int CELL__SAMPLES = 1;
-
-	/**
-	 * The feature id for the '<em><b>Cell ID</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int CELL__CELL_ID = 2;
-
-	/**
-	 * The feature id for the '<em><b>Name</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int CELL__NAME = 3;
+	int CELL__SAMPLES = 2;
 
 	/**
 	 * The feature id for the '<em><b>Visit ID</b></em>' attribute.
@@ -387,7 +378,16 @@ public interface LDEExperimentsPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int CELL__VISIT_ID = 4;
+	int CELL__VISIT_ID = 3;
+
+	/**
+	 * The feature id for the '<em><b>Name</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int CELL__NAME = 4;
 
 	/**
 	 * The feature id for the '<em><b>Email</b></em>' attribute.

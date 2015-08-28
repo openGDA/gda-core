@@ -395,15 +395,6 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * @generated
 	 */
 	public EReference getCell_Stage() {
-		return (EReference)cellEClass.getEStructuralFeatures().get(0);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public EReference getCell_Samples() {
 		return (EReference)cellEClass.getEStructuralFeatures().get(1);
 	}
 
@@ -412,8 +403,17 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public EReference getCell_Samples() {
+		return (EReference)cellEClass.getEStructuralFeatures().get(2);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	public EAttribute getCell_CellID() {
-		return (EAttribute)cellEClass.getEStructuralFeatures().get(2);
+		return (EAttribute)cellEClass.getEStructuralFeatures().get(0);
 	}
 
 	/**
@@ -422,7 +422,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * @generated
 	 */
 	public EAttribute getCell_Name() {
-		return (EAttribute)cellEClass.getEStructuralFeatures().get(3);
+		return (EAttribute)cellEClass.getEStructuralFeatures().get(4);
 	}
 
 	/**
@@ -431,7 +431,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * @generated
 	 */
 	public EAttribute getCell_VisitID() {
-		return (EAttribute)cellEClass.getEStructuralFeatures().get(4);
+		return (EAttribute)cellEClass.getEStructuralFeatures().get(3);
 	}
 
 	/**
@@ -812,11 +812,11 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 		createEOperation(stageEClass, STAGE___HAS_ID__DIAGNOSTICCHAIN_MAP);
 
 		cellEClass = createEClass(CELL);
+		createEAttribute(cellEClass, CELL__CELL_ID);
 		createEReference(cellEClass, CELL__STAGE);
 		createEReference(cellEClass, CELL__SAMPLES);
-		createEAttribute(cellEClass, CELL__CELL_ID);
-		createEAttribute(cellEClass, CELL__NAME);
 		createEAttribute(cellEClass, CELL__VISIT_ID);
+		createEAttribute(cellEClass, CELL__NAME);
 		createEAttribute(cellEClass, CELL__EMAIL);
 		createEAttribute(cellEClass, CELL__START_DATE);
 		createEAttribute(cellEClass, CELL__END_DATE);
@@ -930,11 +930,11 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 		addEParameter(op, g1, "context", 0, 1, IS_UNIQUE, IS_ORDERED);
 
 		initEClass(cellEClass, Cell.class, "Cell", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
+		initEAttribute(getCell_CellID(), ecorePackage.getEString(), "cellID", null, 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getCell_Stage(), this.getStage(), this.getStage_Cells(), "stage", null, 1, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getCell_Samples(), this.getSample(), this.getSample_Cell(), "samples", null, 0, -1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getCell_CellID(), ecorePackage.getEString(), "cellID", null, 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getCell_Name(), ecorePackage.getEString(), "name", null, 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getCell_VisitID(), ecorePackage.getEString(), "visitID", null, 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getCell_Name(), ecorePackage.getEString(), "name", null, 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getCell_Email(), ecorePackage.getEString(), "email", null, 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getCell_StartDate(), this.getDate(), "startDate", null, 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getCell_EndDate(), this.getDate(), "endDate", null, 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -1031,7 +1031,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 		  (stageEClass, 
 		   source, 
 		   new String[] {
-			 "constraints", "NonNegativeQuantity UniqueID"
+			 "constraints", "NonNegativeQuantity"
 		   });	
 		addAnnotation
 		  (cellEClass, 

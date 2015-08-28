@@ -39,11 +39,11 @@ import org.eclipse.emf.ecore.EObject;
  * The following features are supported:
  * </p>
  * <ul>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.Cell#getCellID <em>Cell ID</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Cell#getStage <em>Stage</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Cell#getSamples <em>Samples</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.Cell#getCellID <em>Cell ID</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.Cell#getName <em>Name</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Cell#getVisitID <em>Visit ID</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.Cell#getName <em>Name</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Cell#getEmail <em>Email</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Cell#getStartDate <em>Start Date</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Cell#getEndDate <em>End Date</em>}</li>
