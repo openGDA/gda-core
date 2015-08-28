@@ -20,8 +20,10 @@
  */
 package org.opengda.lde.model.ldeexperiment.util;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import org.eclipse.emf.common.util.Diagnostic;
 import org.eclipse.emf.common.util.DiagnosticChain;
@@ -220,10 +222,11 @@ public class LDEExperimentsValidator extends EObjectValidator {
 		if (result || diagnostics != null) result &= validate_EveryReferenceIsContained(stage, diagnostics, context);
 		if (result || diagnostics != null) result &= validate_EveryBidirectionalReferenceIsPaired(stage, diagnostics, context);
 		if (result || diagnostics != null) result &= validate_EveryProxyResolves(stage, diagnostics, context);
-		if (result || diagnostics != null) result &= validate_UniqueID(stage, diagnostics, context);
+		if (result || diagnostics != null) result &= validateStage_UniqueID(stage, diagnostics, context);
 		if (result || diagnostics != null) result &= validate_EveryKeyUnique(stage, diagnostics, context);
 		if (result || diagnostics != null) result &= validate_EveryMapEntryUnique(stage, diagnostics, context);
 		if (result || diagnostics != null) result &= validateStage_NonNegativeQuantity(stage, diagnostics, context);
+		if (result || diagnostics != null) result &= validateStage_UniqueID(stage, diagnostics, context);
 		if (result || diagnostics != null) result &= validateStage_hasID(stage, diagnostics, context);
 		return result;
 	}
@@ -247,6 +250,38 @@ public class LDEExperimentsValidator extends EObjectValidator {
 						 LDEExperimentsPackage.STAGE__NUMBER_OF_CELLS,
 						 "_UI_NumberOfCellsConstraint_diagnostic",
 						 new Object[] { "NonNegativeQuantity", getObjectLabel(stage, context) },
+						 new Object[] { stage },
+						 context));
+			}
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Validates the UniqueID constraint of '<em>Stage</em>'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public boolean validateStage_UniqueID(Stage stage, DiagnosticChain diagnostics, Map<Object, Object> context) {
+		// -> specify the condition that violates the constraint
+		// -> verify the diagnostic details, including severity, code, and message
+		// Ensure that you remove @generated or mark it @generated NOT
+		List<String> usedSategIDs=new ArrayList<String>();
+		for (Stage each : stage.getExperiment().getStages()) {
+			usedSategIDs.add(each.getStageID());
+		}
+
+		if (usedSategIDs.contains(stage.getStageID())) {
+			if (diagnostics != null) {
+				diagnostics.add
+					(createDiagnostic
+						(Diagnostic.ERROR,
+						 DIAGNOSTIC_SOURCE,
+						 LDEExperimentsPackage.STAGE__STAGE_ID,
+						 "_UI_UniqueStageIDConstraint_diagnostic",
+						 new Object[] { "UniqueID", getObjectLabel(stage, context) },
 						 new Object[] { stage },
 						 context));
 			}
