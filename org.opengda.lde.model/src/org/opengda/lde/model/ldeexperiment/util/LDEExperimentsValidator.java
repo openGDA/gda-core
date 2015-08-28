@@ -23,15 +23,19 @@ package org.opengda.lde.model.ldeexperiment.util;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
+
 import org.eclipse.emf.common.util.Diagnostic;
 import org.eclipse.emf.common.util.DiagnosticChain;
 import org.eclipse.emf.common.util.ResourceLocator;
-
 import org.eclipse.emf.ecore.EPackage;
-
 import org.eclipse.emf.ecore.util.EObjectValidator;
-
-import org.opengda.lde.model.ldeexperiment.*;
+import org.opengda.lde.model.ldeexperiment.Cell;
+import org.opengda.lde.model.ldeexperiment.Experiment;
+import org.opengda.lde.model.ldeexperiment.ExperimentDefinition;
+import org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage;
+import org.opengda.lde.model.ldeexperiment.STATUS;
+import org.opengda.lde.model.ldeexperiment.Sample;
+import org.opengda.lde.model.ldeexperiment.Stage;
 import org.opengda.lde.model.ldeexperiment.impl.SampledefinitionModelPlugin;
 
 /**
@@ -254,6 +258,7 @@ public class LDEExperimentsValidator extends EObjectValidator {
 		}
 		return true;
 	}
+
 
 	/**
 	 * Validates the hasID constraint of '<em>Stage</em>'.

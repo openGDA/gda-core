@@ -76,8 +76,8 @@ public class CellItemProvider
 			addCalibrant_xPropertyDescriptor(object);
 			addCalibrant_yPropertyDescriptor(object);
 			addCalibrant_exposurePropertyDescriptor(object);
-			addEnvSamplingIntervalPropertyDescriptor(object);
-			addEvnScannableNamesPropertyDescriptor(object);
+			addEnvSamplingIntervalsPropertyDescriptor(object);
+			addEnvScannableNamesPropertyDescriptor(object);
 			addNumberOfSamplesPropertyDescriptor(object);
 		}
 		return itemPropertyDescriptors;
@@ -382,19 +382,19 @@ public class CellItemProvider
 	}
 
 	/**
-	 * This adds a property descriptor for the Env Sampling Interval feature.
+	 * This adds a property descriptor for the Env Sampling Intervals feature.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	protected void addEnvSamplingIntervalPropertyDescriptor(Object object) {
+	protected void addEnvSamplingIntervalsPropertyDescriptor(Object object) {
 		itemPropertyDescriptors.add
 			(createItemPropertyDescriptor
 				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
 				 getResourceLocator(),
-				 getString("_UI_Cell_envSamplingInterval_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_Cell_envSamplingInterval_feature", "_UI_Cell_type"),
-				 LDEExperimentsPackage.Literals.CELL__ENV_SAMPLING_INTERVAL,
+				 getString("_UI_Cell_envSamplingIntervals_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_Cell_envSamplingIntervals_feature", "_UI_Cell_type"),
+				 LDEExperimentsPackage.Literals.CELL__ENV_SAMPLING_INTERVALS,
 				 true,
 				 false,
 				 false,
@@ -404,19 +404,19 @@ public class CellItemProvider
 	}
 
 	/**
-	 * This adds a property descriptor for the Evn Scannable Names feature.
+	 * This adds a property descriptor for the Env Scannable Names feature.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	protected void addEvnScannableNamesPropertyDescriptor(Object object) {
+	protected void addEnvScannableNamesPropertyDescriptor(Object object) {
 		itemPropertyDescriptors.add
 			(createItemPropertyDescriptor
 				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
 				 getResourceLocator(),
-				 getString("_UI_Cell_evnScannableNames_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_Cell_evnScannableNames_feature", "_UI_Cell_type"),
-				 LDEExperimentsPackage.Literals.CELL__EVN_SCANNABLE_NAMES,
+				 getString("_UI_Cell_envScannableNames_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_Cell_envScannableNames_feature", "_UI_Cell_type"),
+				 LDEExperimentsPackage.Literals.CELL__ENV_SCANNABLE_NAMES,
 				 true,
 				 false,
 				 false,
@@ -526,8 +526,8 @@ public class CellItemProvider
 			case LDEExperimentsPackage.CELL__CALIBRANT_X:
 			case LDEExperimentsPackage.CELL__CALIBRANT_Y:
 			case LDEExperimentsPackage.CELL__CALIBRANT_EXPOSURE:
-			case LDEExperimentsPackage.CELL__ENV_SAMPLING_INTERVAL:
-			case LDEExperimentsPackage.CELL__EVN_SCANNABLE_NAMES:
+			case LDEExperimentsPackage.CELL__ENV_SAMPLING_INTERVALS:
+			case LDEExperimentsPackage.CELL__ENV_SCANNABLE_NAMES:
 			case LDEExperimentsPackage.CELL__NUMBER_OF_SAMPLES:
 				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
 				return;

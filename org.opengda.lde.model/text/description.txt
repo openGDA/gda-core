@@ -46,8 +46,8 @@ Package ldeexperiment <http://www.opengda.org/LDEExperiments>
     Attribute calibrant_x : EDouble
     Attribute calibrant_y : EDouble
     Attribute calibrant_exposure : EDouble
-    Attribute envSamplingInterval : EDouble
-    Attribute evnScannableNames : EString
+    Attribute envSamplingIntervals : EDouble<<0..*>>
+    Attribute envScannableNames : EString<<0..*>>
     Attribute numberOfSamples : EInt
     Operation getSampleById(EString) : Sample
     Operation getSampleByName(EString) : Sample

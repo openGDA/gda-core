@@ -52,8 +52,8 @@ import org.eclipse.emf.ecore.EObject;
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Cell#getCalibrant_x <em>Calibrant x</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Cell#getCalibrant_y <em>Calibrant y</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Cell#getCalibrant_exposure <em>Calibrant exposure</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.Cell#getEnvSamplingInterval <em>Env Sampling Interval</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.Cell#getEvnScannableNames <em>Evn Scannable Names</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.Cell#getEnvSamplingIntervals <em>Env Sampling Intervals</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.Cell#getEnvScannableNames <em>Env Scannable Names</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Cell#getNumberOfSamples <em>Number Of Samples</em>}</li>
  * </ul>
  *
@@ -114,7 +114,7 @@ public interface Cell extends EObject {
 	 * @return the value of the '<em>Cell ID</em>' attribute.
 	 * @see #setCellID(String)
 	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getCell_CellID()
-	 * @model
+	 * @model id="true"
 	 * @generated
 	 */
 	String getCellID();
@@ -395,56 +395,36 @@ public interface Cell extends EObject {
 	void setCalibrant_exposure(double value);
 
 	/**
-	 * Returns the value of the '<em><b>Env Sampling Interval</b></em>' attribute.
+	 * Returns the value of the '<em><b>Env Sampling Intervals</b></em>' attribute list.
+	 * The list contents are of type {@link java.lang.Double}.
 	 * <!-- begin-user-doc -->
 	 * <p>
-	 * If the meaning of the '<em>Env Sampling Interval</em>' attribute isn't clear,
+	 * If the meaning of the '<em>Env Sampling Intervals</em>' attribute list isn't clear,
 	 * there really should be more of a description here...
 	 * </p>
 	 * <!-- end-user-doc -->
-	 * @return the value of the '<em>Env Sampling Interval</em>' attribute.
-	 * @see #setEnvSamplingInterval(double)
-	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getCell_EnvSamplingInterval()
-	 * @model
+	 * @return the value of the '<em>Env Sampling Intervals</em>' attribute list.
+	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getCell_EnvSamplingIntervals()
+	 * @model unique="false"
 	 * @generated
 	 */
-	double getEnvSamplingInterval();
+	EList<Double> getEnvSamplingIntervals();
 
 	/**
-	 * Sets the value of the '{@link org.opengda.lde.model.ldeexperiment.Cell#getEnvSamplingInterval <em>Env Sampling Interval</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @param value the new value of the '<em>Env Sampling Interval</em>' attribute.
-	 * @see #getEnvSamplingInterval()
-	 * @generated
-	 */
-	void setEnvSamplingInterval(double value);
-
-	/**
-	 * Returns the value of the '<em><b>Evn Scannable Names</b></em>' attribute.
+	 * Returns the value of the '<em><b>Env Scannable Names</b></em>' attribute list.
+	 * The list contents are of type {@link java.lang.String}.
 	 * <!-- begin-user-doc -->
 	 * <p>
-	 * If the meaning of the '<em>Evn Scannable Names</em>' attribute isn't clear,
+	 * If the meaning of the '<em>Env Scannable Names</em>' attribute list isn't clear,
 	 * there really should be more of a description here...
 	 * </p>
 	 * <!-- end-user-doc -->
-	 * @return the value of the '<em>Evn Scannable Names</em>' attribute.
-	 * @see #setEvnScannableNames(String)
-	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getCell_EvnScannableNames()
+	 * @return the value of the '<em>Env Scannable Names</em>' attribute list.
+	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getCell_EnvScannableNames()
 	 * @model
 	 * @generated
 	 */
-	String getEvnScannableNames();
-
-	/**
-	 * Sets the value of the '{@link org.opengda.lde.model.ldeexperiment.Cell#getEvnScannableNames <em>Evn Scannable Names</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @param value the new value of the '<em>Evn Scannable Names</em>' attribute.
-	 * @see #getEvnScannableNames()
-	 * @generated
-	 */
-	void setEvnScannableNames(String value);
+	EList<String> getEnvScannableNames();
 
 	/**
 	 * Returns the value of the '<em><b>Number Of Samples</b></em>' attribute.

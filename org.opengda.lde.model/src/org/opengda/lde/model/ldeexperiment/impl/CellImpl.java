@@ -37,6 +37,8 @@ import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
 import org.eclipse.emf.ecore.impl.MinimalEObjectImpl;
+import org.eclipse.emf.ecore.util.EDataTypeEList;
+import org.eclipse.emf.ecore.util.EDataTypeUniqueEList;
 import org.eclipse.emf.ecore.util.EObjectContainmentWithInverseEList;
 import org.eclipse.emf.ecore.util.EObjectValidator;
 import org.eclipse.emf.ecore.util.EcoreUtil;
@@ -69,8 +71,8 @@ import org.opengda.lde.model.ldeexperiment.util.LDEExperimentsValidator;
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.CellImpl#getCalibrant_x <em>Calibrant x</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.CellImpl#getCalibrant_y <em>Calibrant y</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.CellImpl#getCalibrant_exposure <em>Calibrant exposure</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.CellImpl#getEnvSamplingInterval <em>Env Sampling Interval</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.CellImpl#getEvnScannableNames <em>Evn Scannable Names</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.CellImpl#getEnvSamplingIntervals <em>Env Sampling Intervals</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.CellImpl#getEnvScannableNames <em>Env Scannable Names</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.CellImpl#getNumberOfSamples <em>Number Of Samples</em>}</li>
  * </ul>
  *
@@ -323,44 +325,24 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	protected double calibrant_exposure = CALIBRANT_EXPOSURE_EDEFAULT;
 
 	/**
-	 * The default value of the '{@link #getEnvSamplingInterval() <em>Env Sampling Interval</em>}' attribute.
+	 * The cached value of the '{@link #getEnvSamplingIntervals() <em>Env Sampling Intervals</em>}' attribute list.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see #getEnvSamplingInterval()
+	 * @see #getEnvSamplingIntervals()
 	 * @generated
 	 * @ordered
 	 */
-	protected static final double ENV_SAMPLING_INTERVAL_EDEFAULT = 0.0;
+	protected EList<Double> envSamplingIntervals;
 
 	/**
-	 * The cached value of the '{@link #getEnvSamplingInterval() <em>Env Sampling Interval</em>}' attribute.
+	 * The cached value of the '{@link #getEnvScannableNames() <em>Env Scannable Names</em>}' attribute list.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see #getEnvSamplingInterval()
+	 * @see #getEnvScannableNames()
 	 * @generated
 	 * @ordered
 	 */
-	protected double envSamplingInterval = ENV_SAMPLING_INTERVAL_EDEFAULT;
-
-	/**
-	 * The default value of the '{@link #getEvnScannableNames() <em>Evn Scannable Names</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getEvnScannableNames()
-	 * @generated
-	 * @ordered
-	 */
-	protected static final String EVN_SCANNABLE_NAMES_EDEFAULT = null;
-
-	/**
-	 * The cached value of the '{@link #getEvnScannableNames() <em>Evn Scannable Names</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getEvnScannableNames()
-	 * @generated
-	 * @ordered
-	 */
-	protected String evnScannableNames = EVN_SCANNABLE_NAMES_EDEFAULT;
+	protected EList<String> envScannableNames;
 
 	/**
 	 * The default value of the '{@link #getNumberOfSamples() <em>Number Of Samples</em>}' attribute.
@@ -671,8 +653,11 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public double getEnvSamplingInterval() {
-		return envSamplingInterval;
+	public EList<Double> getEnvSamplingIntervals() {
+		if (envSamplingIntervals == null) {
+			envSamplingIntervals = new EDataTypeEList<Double>(Double.class, this, LDEExperimentsPackage.CELL__ENV_SAMPLING_INTERVALS);
+		}
+		return envSamplingIntervals;
 	}
 
 	/**
@@ -680,32 +665,11 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public void setEnvSamplingInterval(double newEnvSamplingInterval) {
-		double oldEnvSamplingInterval = envSamplingInterval;
-		envSamplingInterval = newEnvSamplingInterval;
-		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, LDEExperimentsPackage.CELL__ENV_SAMPLING_INTERVAL, oldEnvSamplingInterval, envSamplingInterval));
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public String getEvnScannableNames() {
-		return evnScannableNames;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setEvnScannableNames(String newEvnScannableNames) {
-		String oldEvnScannableNames = evnScannableNames;
-		evnScannableNames = newEvnScannableNames;
-		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, LDEExperimentsPackage.CELL__EVN_SCANNABLE_NAMES, oldEvnScannableNames, evnScannableNames));
+	public EList<String> getEnvScannableNames() {
+		if (envScannableNames == null) {
+			envScannableNames = new EDataTypeUniqueEList<String>(String.class, this, LDEExperimentsPackage.CELL__ENV_SCANNABLE_NAMES);
+		}
+		return envScannableNames;
 	}
 
 	/**
@@ -932,10 +896,10 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 				return getCalibrant_y();
 			case LDEExperimentsPackage.CELL__CALIBRANT_EXPOSURE:
 				return getCalibrant_exposure();
-			case LDEExperimentsPackage.CELL__ENV_SAMPLING_INTERVAL:
-				return getEnvSamplingInterval();
-			case LDEExperimentsPackage.CELL__EVN_SCANNABLE_NAMES:
-				return getEvnScannableNames();
+			case LDEExperimentsPackage.CELL__ENV_SAMPLING_INTERVALS:
+				return getEnvSamplingIntervals();
+			case LDEExperimentsPackage.CELL__ENV_SCANNABLE_NAMES:
+				return getEnvScannableNames();
 			case LDEExperimentsPackage.CELL__NUMBER_OF_SAMPLES:
 				return getNumberOfSamples();
 		}
@@ -991,11 +955,13 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 			case LDEExperimentsPackage.CELL__CALIBRANT_EXPOSURE:
 				setCalibrant_exposure((Double)newValue);
 				return;
-			case LDEExperimentsPackage.CELL__ENV_SAMPLING_INTERVAL:
-				setEnvSamplingInterval((Double)newValue);
+			case LDEExperimentsPackage.CELL__ENV_SAMPLING_INTERVALS:
+				getEnvSamplingIntervals().clear();
+				getEnvSamplingIntervals().addAll((Collection<? extends Double>)newValue);
 				return;
-			case LDEExperimentsPackage.CELL__EVN_SCANNABLE_NAMES:
-				setEvnScannableNames((String)newValue);
+			case LDEExperimentsPackage.CELL__ENV_SCANNABLE_NAMES:
+				getEnvScannableNames().clear();
+				getEnvScannableNames().addAll((Collection<? extends String>)newValue);
 				return;
 			case LDEExperimentsPackage.CELL__NUMBER_OF_SAMPLES:
 				setNumberOfSamples((Integer)newValue);
@@ -1051,11 +1017,11 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 			case LDEExperimentsPackage.CELL__CALIBRANT_EXPOSURE:
 				setCalibrant_exposure(CALIBRANT_EXPOSURE_EDEFAULT);
 				return;
-			case LDEExperimentsPackage.CELL__ENV_SAMPLING_INTERVAL:
-				setEnvSamplingInterval(ENV_SAMPLING_INTERVAL_EDEFAULT);
+			case LDEExperimentsPackage.CELL__ENV_SAMPLING_INTERVALS:
+				getEnvSamplingIntervals().clear();
 				return;
-			case LDEExperimentsPackage.CELL__EVN_SCANNABLE_NAMES:
-				setEvnScannableNames(EVN_SCANNABLE_NAMES_EDEFAULT);
+			case LDEExperimentsPackage.CELL__ENV_SCANNABLE_NAMES:
+				getEnvScannableNames().clear();
 				return;
 			case LDEExperimentsPackage.CELL__NUMBER_OF_SAMPLES:
 				setNumberOfSamples(NUMBER_OF_SAMPLES_EDEFAULT);
@@ -1098,10 +1064,10 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 				return calibrant_y != CALIBRANT_Y_EDEFAULT;
 			case LDEExperimentsPackage.CELL__CALIBRANT_EXPOSURE:
 				return calibrant_exposure != CALIBRANT_EXPOSURE_EDEFAULT;
-			case LDEExperimentsPackage.CELL__ENV_SAMPLING_INTERVAL:
-				return envSamplingInterval != ENV_SAMPLING_INTERVAL_EDEFAULT;
-			case LDEExperimentsPackage.CELL__EVN_SCANNABLE_NAMES:
-				return EVN_SCANNABLE_NAMES_EDEFAULT == null ? evnScannableNames != null : !EVN_SCANNABLE_NAMES_EDEFAULT.equals(evnScannableNames);
+			case LDEExperimentsPackage.CELL__ENV_SAMPLING_INTERVALS:
+				return envSamplingIntervals != null && !envSamplingIntervals.isEmpty();
+			case LDEExperimentsPackage.CELL__ENV_SCANNABLE_NAMES:
+				return envScannableNames != null && !envScannableNames.isEmpty();
 			case LDEExperimentsPackage.CELL__NUMBER_OF_SAMPLES:
 				return numberOfSamples != NUMBER_OF_SAMPLES_EDEFAULT;
 		}
@@ -1160,10 +1126,10 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 		result.append(calibrant_y);
 		result.append(", calibrant_exposure: ");
 		result.append(calibrant_exposure);
-		result.append(", envSamplingInterval: ");
-		result.append(envSamplingInterval);
-		result.append(", evnScannableNames: ");
-		result.append(evnScannableNames);
+		result.append(", envSamplingIntervals: ");
+		result.append(envSamplingIntervals);
+		result.append(", envScannableNames: ");
+		result.append(envScannableNames);
 		result.append(", numberOfSamples: ");
 		result.append(numberOfSamples);
 		result.append(')');

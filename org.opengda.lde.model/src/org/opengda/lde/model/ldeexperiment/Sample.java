@@ -69,7 +69,7 @@ public interface Sample extends EObject {
 	 * @see #unsetSampleID()
 	 * @see #setSampleID(String)
 	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getSample_SampleID()
-	 * @model unsettable="true"
+	 * @model unsettable="true" id="true"
 	 * @generated
 	 */
 	String getSampleID();

@@ -462,22 +462,22 @@ public interface LDEExperimentsPackage extends EPackage {
 	int CELL__CALIBRANT_EXPOSURE = 12;
 
 	/**
-	 * The feature id for the '<em><b>Env Sampling Interval</b></em>' attribute.
+	 * The feature id for the '<em><b>Env Sampling Intervals</b></em>' attribute list.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int CELL__ENV_SAMPLING_INTERVAL = 13;
+	int CELL__ENV_SAMPLING_INTERVALS = 13;
 
 	/**
-	 * The feature id for the '<em><b>Evn Scannable Names</b></em>' attribute.
+	 * The feature id for the '<em><b>Env Scannable Names</b></em>' attribute list.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int CELL__EVN_SCANNABLE_NAMES = 14;
+	int CELL__ENV_SCANNABLE_NAMES = 14;
 
 	/**
 	 * The feature id for the '<em><b>Number Of Samples</b></em>' attribute.
@@ -1147,26 +1147,26 @@ public interface LDEExperimentsPackage extends EPackage {
 	EAttribute getCell_Calibrant_exposure();
 
 	/**
-	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Cell#getEnvSamplingInterval <em>Env Sampling Interval</em>}'.
+	 * Returns the meta object for the attribute list '{@link org.opengda.lde.model.ldeexperiment.Cell#getEnvSamplingIntervals <em>Env Sampling Intervals</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Env Sampling Interval</em>'.
-	 * @see org.opengda.lde.model.ldeexperiment.Cell#getEnvSamplingInterval()
+	 * @return the meta object for the attribute list '<em>Env Sampling Intervals</em>'.
+	 * @see org.opengda.lde.model.ldeexperiment.Cell#getEnvSamplingIntervals()
 	 * @see #getCell()
 	 * @generated
 	 */
-	EAttribute getCell_EnvSamplingInterval();
+	EAttribute getCell_EnvSamplingIntervals();
 
 	/**
-	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Cell#getEvnScannableNames <em>Evn Scannable Names</em>}'.
+	 * Returns the meta object for the attribute list '{@link org.opengda.lde.model.ldeexperiment.Cell#getEnvScannableNames <em>Env Scannable Names</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Evn Scannable Names</em>'.
-	 * @see org.opengda.lde.model.ldeexperiment.Cell#getEvnScannableNames()
+	 * @return the meta object for the attribute list '<em>Env Scannable Names</em>'.
+	 * @see org.opengda.lde.model.ldeexperiment.Cell#getEnvScannableNames()
 	 * @see #getCell()
 	 * @generated
 	 */
-	EAttribute getCell_EvnScannableNames();
+	EAttribute getCell_EnvScannableNames();
 
 	/**
 	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Cell#getNumberOfSamples <em>Number Of Samples</em>}'.
@@ -1770,20 +1770,20 @@ public interface LDEExperimentsPackage extends EPackage {
 		EAttribute CELL__CALIBRANT_EXPOSURE = eINSTANCE.getCell_Calibrant_exposure();
 
 		/**
-		 * The meta object literal for the '<em><b>Env Sampling Interval</b></em>' attribute feature.
+		 * The meta object literal for the '<em><b>Env Sampling Intervals</b></em>' attribute list feature.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
 		 * @generated
 		 */
-		EAttribute CELL__ENV_SAMPLING_INTERVAL = eINSTANCE.getCell_EnvSamplingInterval();
+		EAttribute CELL__ENV_SAMPLING_INTERVALS = eINSTANCE.getCell_EnvSamplingIntervals();
 
 		/**
-		 * The meta object literal for the '<em><b>Evn Scannable Names</b></em>' attribute feature.
+		 * The meta object literal for the '<em><b>Env Scannable Names</b></em>' attribute list feature.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
 		 * @generated
 		 */
-		EAttribute CELL__EVN_SCANNABLE_NAMES = eINSTANCE.getCell_EvnScannableNames();
+		EAttribute CELL__ENV_SCANNABLE_NAMES = eINSTANCE.getCell_EnvScannableNames();
 
 		/**
 		 * The meta object literal for the '<em><b>Number Of Samples</b></em>' attribute feature.

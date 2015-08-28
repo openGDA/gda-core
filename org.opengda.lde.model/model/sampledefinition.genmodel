@@ -73,8 +73,8 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Cell/calibrant_x"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Cell/calibrant_y"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Cell/calibrant_exposure"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Cell/envSamplingInterval"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Cell/evnScannableNames"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Cell/envSamplingIntervals"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Cell/envScannableNames"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Cell/numberOfSamples"/>
       <genOperations ecoreOperation="sampledefinition.ecore#//Cell/getSampleById">
         <genParameters ecoreParameter="sampledefinition.ecore#//Cell/getSampleById/sampleId"/>

@@ -1585,9 +1585,9 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 				} else if (CellTableConstants.CALIBRANT_EXPOSURE.equals(columnIdentifier)) {
 					return cell.getCalibrant_exposure();
 				} else if (CellTableConstants.ENV_SCANNABLE_NAMES.equals(columnIdentifier)) {
-					return cell.getEvnScannableNames();
+					return cell.getEnvScannableNames();
 				} else if (CellTableConstants.ENV_SAMPLING_INTERVAL.equals(columnIdentifier)) {
-					return cell.getEnvSamplingInterval();
+					return cell.getEnvSamplingIntervals();
 				} else if (CellTableConstants.START_DATE.equals(columnIdentifier)) {
 					return cell.getStartDate();
 				} else if (CellTableConstants.END_DATE.equals(columnIdentifier)) {
@@ -1659,7 +1659,7 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 				}
 			} else if (CellTableConstants.ENV_SCANNABLE_NAMES.equals(columnIdentifier)) {
 				try {
-					runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.CELL__EVN_SCANNABLE_NAMES, value));
+					runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.CELL__ENV_SCANNABLE_NAMES, value));
 				} catch (Exception e) {
 					logger.error("Exception on setting "+CellTableConstants.ENV_SCANNABLE_NAMES+" field for cell "+((Cell)element).getName(), e);
 				}

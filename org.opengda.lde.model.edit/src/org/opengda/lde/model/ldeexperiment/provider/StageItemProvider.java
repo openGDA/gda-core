@@ -400,9 +400,9 @@ public class StageItemProvider
 			case CellTableConstants.COL_NUMBER_OF_SAMPLES:
 				return String.valueOf(cell.getNumberOfSamples());
 			case CellTableConstants.COL_ENV_SCANNABLE_NAMES:
-				return cell.getEvnScannableNames();
+				return cell.getEnvScannableNames().toString();
 			case CellTableConstants.COL_ENV_SAMPLING_INTERVAL:
-				return String.valueOf(cell.getEnvSamplingInterval());
+				return cell.getEnvSamplingIntervals().toString();
 			case CellTableConstants.COL_START_DATE:
 				return DateFormat.getInstance().format(cell.getStartDate());
 			case CellTableConstants.COL_END_DATE: 

@@ -65,7 +65,7 @@ public interface Stage extends EObject {
 	 * @return the value of the '<em>Stage ID</em>' attribute.
 	 * @see #setStageID(String)
 	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getStage_StageID()
-	 * @model dataType="org.opengda.lde.model.ldeexperiment.StageIDString"
+	 * @model id="true" dataType="org.opengda.lde.model.ldeexperiment.StageIDString"
 	 * @generated
 	 */
 	String getStageID();

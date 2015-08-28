@@ -511,7 +511,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EAttribute getCell_EnvSamplingInterval() {
+	public EAttribute getCell_EnvSamplingIntervals() {
 		return (EAttribute)cellEClass.getEStructuralFeatures().get(13);
 	}
 
@@ -520,7 +520,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EAttribute getCell_EvnScannableNames() {
+	public EAttribute getCell_EnvScannableNames() {
 		return (EAttribute)cellEClass.getEStructuralFeatures().get(14);
 	}
 
@@ -825,8 +825,8 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 		createEAttribute(cellEClass, CELL__CALIBRANT_X);
 		createEAttribute(cellEClass, CELL__CALIBRANT_Y);
 		createEAttribute(cellEClass, CELL__CALIBRANT_EXPOSURE);
-		createEAttribute(cellEClass, CELL__ENV_SAMPLING_INTERVAL);
-		createEAttribute(cellEClass, CELL__EVN_SCANNABLE_NAMES);
+		createEAttribute(cellEClass, CELL__ENV_SAMPLING_INTERVALS);
+		createEAttribute(cellEClass, CELL__ENV_SCANNABLE_NAMES);
 		createEAttribute(cellEClass, CELL__NUMBER_OF_SAMPLES);
 		createEOperation(cellEClass, CELL___GET_SAMPLE_BY_ID__STRING);
 		createEOperation(cellEClass, CELL___GET_SAMPLE_BY_NAME__STRING);
@@ -906,7 +906,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 		addEParameter(op, ecorePackage.getEString(), "stageId", 0, 1, IS_UNIQUE, IS_ORDERED);
 
 		initEClass(stageEClass, Stage.class, "Stage", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-		initEAttribute(getStage_StageID(), this.getStageIDString(), "stageID", null, 0, 1, Stage.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getStage_StageID(), this.getStageIDString(), "stageID", null, 0, 1, Stage.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getStage_Experiment(), this.getExperiment(), this.getExperiment_Stages(), "experiment", null, 1, 1, Stage.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getStage_Cells(), this.getCell(), this.getCell_Stage(), "cells", null, 0, -1, Stage.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getStage_Detector_x(), ecorePackage.getEDouble(), "detector_x", "0.0", 0, 1, Stage.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -932,7 +932,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 		initEClass(cellEClass, Cell.class, "Cell", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEReference(getCell_Stage(), this.getStage(), this.getStage_Cells(), "stage", null, 1, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getCell_Samples(), this.getSample(), this.getSample_Cell(), "samples", null, 0, -1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getCell_CellID(), ecorePackage.getEString(), "cellID", null, 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getCell_CellID(), ecorePackage.getEString(), "cellID", null, 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getCell_Name(), ecorePackage.getEString(), "name", null, 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getCell_VisitID(), ecorePackage.getEString(), "visitID", null, 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getCell_Email(), ecorePackage.getEString(), "email", null, 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -943,8 +943,8 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 		initEAttribute(getCell_Calibrant_x(), ecorePackage.getEDouble(), "calibrant_x", "0", 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getCell_Calibrant_y(), ecorePackage.getEDouble(), "calibrant_y", "0", 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getCell_Calibrant_exposure(), ecorePackage.getEDouble(), "calibrant_exposure", "1.0", 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getCell_EnvSamplingInterval(), ecorePackage.getEDouble(), "envSamplingInterval", null, 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getCell_EvnScannableNames(), ecorePackage.getEString(), "evnScannableNames", null, 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getCell_EnvSamplingIntervals(), ecorePackage.getEDouble(), "envSamplingIntervals", null, 0, -1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getCell_EnvScannableNames(), ecorePackage.getEString(), "envScannableNames", null, 0, -1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getCell_NumberOfSamples(), ecorePackage.getEInt(), "numberOfSamples", "1", 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		op = initEOperation(getCell__GetSampleById__String(), this.getSample(), "getSampleById", 0, 1, IS_UNIQUE, IS_ORDERED);
@@ -976,7 +976,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 		initEAttribute(getSample_Status(), this.getSTATUS(), "status", "READY", 0, 1, Sample.class, IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getSample_Active(), ecorePackage.getEBoolean(), "active", "false", 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getSample_Name(), ecorePackage.getEString(), "name", null, 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getSample_SampleID(), ecorePackage.getEString(), "sampleID", null, 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getSample_SampleID(), ecorePackage.getEString(), "sampleID", null, 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getSample_Sample_x_start(), ecorePackage.getEDoubleObject(), "sample_x_start", null, 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getSample_Sample_x_stop(), ecorePackage.getEDoubleObject(), "sample_x_stop", null, 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getSample_Sample_x_step(), ecorePackage.getEDoubleObject(), "sample_x_step", null, 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
