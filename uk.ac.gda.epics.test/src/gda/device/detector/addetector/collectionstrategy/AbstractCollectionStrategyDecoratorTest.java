@@ -16,10 +16,12 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device.detector.addetector.triggering;
+package gda.device.detector.addetector.collectionstrategy;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
+import gda.device.detector.addetector.triggering.SimpleAcquire;
+import gda.device.detector.addetector.triggering.UnsynchronisedExternalShutterNXCollectionStrategy;
 
 import java.util.List;
 
