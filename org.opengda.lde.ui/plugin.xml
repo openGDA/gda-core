@@ -10,10 +10,10 @@
       </category>
       <view
             category="org.opengda.lde.ui"
-            class="gda.rcp.views.ViewFactory:sampleGroupViewFactory"
+            class="gda.rcp.views.ViewFactory:childrenTableViewFactory"
             icon="icons/table_edit.png"
-            id="org.opengda.lde.ui.views.SampleGroupView"
-            name="Samples View"
+            id="org.opengda.lde.ui.views.ChildrenTableView"
+            name="Children List"
             restorable="true">
       </view>
       <view
