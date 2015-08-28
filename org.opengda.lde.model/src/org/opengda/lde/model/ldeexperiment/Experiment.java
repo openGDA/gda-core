@@ -42,7 +42,7 @@ import org.eclipse.emf.ecore.EObject;
  * </ul>
  *
  * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getExperiment()
- * @model
+ * @model annotation="http://www.eclipse.org/emf/2002/Ecore constraints='NonNegativeQuantity'"
  * @generated
  */
 public interface Experiment extends EObject {

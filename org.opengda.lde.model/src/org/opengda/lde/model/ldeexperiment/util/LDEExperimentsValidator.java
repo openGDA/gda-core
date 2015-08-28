@@ -168,7 +168,44 @@ public class LDEExperimentsValidator extends EObjectValidator {
 	 * @generated
 	 */
 	public boolean validateExperiment(Experiment experiment, DiagnosticChain diagnostics, Map<Object, Object> context) {
-		return validate_EveryDefaultConstraint(experiment, diagnostics, context);
+		if (!validate_NoCircularContainment(experiment, diagnostics, context)) return false;
+		boolean result = validate_EveryMultiplicityConforms(experiment, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryDataValueConforms(experiment, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryReferenceIsContained(experiment, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryBidirectionalReferenceIsPaired(experiment, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryProxyResolves(experiment, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_UniqueID(experiment, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryKeyUnique(experiment, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryMapEntryUnique(experiment, diagnostics, context);
+		if (result || diagnostics != null) result &= validateExperiment_NonNegativeQuantity(experiment, diagnostics, context);
+		return result;
+	}
+
+	/**
+	 * Validates the NonNegativeQuantity constraint of '<em>Experiment</em>'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public boolean validateExperiment_NonNegativeQuantity(Experiment experiment, DiagnosticChain diagnostics, Map<Object, Object> context) {
+		// -> specify the condition that violates the constraint
+		// -> verify the diagnostic details, including severity, code, and message
+		// Ensure that you remove @generated or mark it @generated NOT
+		if (experiment.getNumberOfStages()<0) {
+			if (diagnostics != null) {
+				diagnostics.add
+					(createDiagnostic
+						(Diagnostic.ERROR,
+						 DIAGNOSTIC_SOURCE,
+						 LDEExperimentsPackage.EXPERIMENT__NUMBER_OF_STAGES,
+						 "_UI_NumberOfStagesConstraint_diagnostic",
+						 new Object[] { "NonNegativeQuantity", getObjectLabel(experiment, context) },
+						 new Object[] { experiment },
+						 context));
+			}
+			return false;
+		}
+		return true;
 	}
 
 	/**
