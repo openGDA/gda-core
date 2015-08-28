@@ -50,7 +50,7 @@ import org.eclipse.emf.ecore.EObject;
  * </ul>
  *
  * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getStage()
- * @model annotation="http://www.eclipse.org/emf/2002/Ecore constraints='NonNegativeQuantity'"
+ * @model annotation="http://www.eclipse.org/emf/2002/Ecore constraints='NonNegativeQuantity UniqueID'"
  * @generated
  */
 public interface Stage extends EObject {

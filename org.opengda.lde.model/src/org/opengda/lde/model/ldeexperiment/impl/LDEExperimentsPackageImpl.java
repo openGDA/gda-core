@@ -1031,7 +1031,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 		  (stageEClass, 
 		   source, 
 		   new String[] {
-			 "constraints", "NonNegativeQuantity"
+			 "constraints", "NonNegativeQuantity UniqueID"
 		   });	
 		addAnnotation
 		  (cellEClass, 
