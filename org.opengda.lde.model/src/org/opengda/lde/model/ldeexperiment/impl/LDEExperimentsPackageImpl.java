@@ -1022,6 +1022,12 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	protected void createEcoreAnnotations() {
 		String source = "http://www.eclipse.org/emf/2002/Ecore";	
 		addAnnotation
+		  (stageEClass, 
+		   source, 
+		   new String[] {
+			 "constraints", "NonNegativeQuantity"
+		   });	
+		addAnnotation
 		  (cellEClass, 
 		   source, 
 		   new String[] {

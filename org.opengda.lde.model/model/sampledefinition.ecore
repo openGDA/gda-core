@@ -21,6 +21,9 @@
         defaultValueLiteral="13"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Stage">
+    <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
+      <details key="constraints" value="NonNegativeQuantity"/>
+    </eAnnotations>
     <eOperations name="getCellByID" eType="#//Cell">
       <eParameters name="cellId" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     </eOperations>

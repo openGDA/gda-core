@@ -186,8 +186,36 @@ public class LDEExperimentsValidator extends EObjectValidator {
 		if (result || diagnostics != null) result &= validate_UniqueID(stage, diagnostics, context);
 		if (result || diagnostics != null) result &= validate_EveryKeyUnique(stage, diagnostics, context);
 		if (result || diagnostics != null) result &= validate_EveryMapEntryUnique(stage, diagnostics, context);
+		if (result || diagnostics != null) result &= validateStage_NonNegativeQuantity(stage, diagnostics, context);
 		if (result || diagnostics != null) result &= validateStage_hasID(stage, diagnostics, context);
 		return result;
+	}
+
+	/**
+	 * Validates the NonNegativeQuantity constraint of '<em>Stage</em>'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public boolean validateStage_NonNegativeQuantity(Stage stage, DiagnosticChain diagnostics, Map<Object, Object> context) {
+		// -> specify the condition that violates the constraint
+		// -> verify the diagnostic details, including severity, code, and message
+		// Ensure that you remove @generated or mark it @generated NOT
+		if (stage.getNumberOfCells()<0) {
+			if (diagnostics != null) {
+				diagnostics.add
+					(createDiagnostic
+						(Diagnostic.ERROR,
+						 DIAGNOSTIC_SOURCE,
+						 LDEExperimentsPackage.STAGE__NUMBER_OF_CELLS,
+						 "_UI_NumberOfCellsConstraint_diagnostic",
+						 new Object[] { "NonNegativeQuantity", getObjectLabel(stage, context) },
+						 new Object[] { stage },
+						 context));
+			}
+			return false;
+		}
+		return true;
 	}
 
 	/**
@@ -322,7 +350,7 @@ public class LDEExperimentsValidator extends EObjectValidator {
 						(Diagnostic.ERROR,
 						 DIAGNOSTIC_SOURCE,
 						 LDEExperimentsPackage.CELL__NUMBER_OF_SAMPLES,
-						 "_UI_NumberOfSampleNonNegativeConstraint_diagnostic",
+						 "_UI_NumberOfSamplesConstraint_diagnostic",
 						 new Object[] { "NonNegativeQuantity", getObjectLabel(cell, context) },
 						 new Object[] { cell },
 						 context));
