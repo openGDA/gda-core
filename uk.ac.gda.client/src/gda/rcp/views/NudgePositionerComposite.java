@@ -255,20 +255,25 @@ public class NudgePositionerComposite extends Composite{
 			protected IStatus run(IProgressMonitor monitor) {
 				boolean moving = true;
 				while (moving) { // Loop which runs while scannable is moving
-					boolean status;
 					try {
-						status = NudgePositionerComposite.this.scannable.isBusy();
-						if (!status) {
-							moving = false;
-						}
-					} catch (DeviceException e1) {
-						logger.error("Error while determining whether " + scannableName + " is busy", e1);
+						moving = NudgePositionerComposite.this.scannable.isBusy();
+					} catch (DeviceException e) {
+						logger.error("Error while determining whether {} is busy", scannableName, e);
+						return Status.CANCEL_STATUS;
+					}
+
+					// Check if the user has cancelled the job
+					if (monitor.isCanceled()) {
+						return Status.CANCEL_STATUS;
 					}
 
 					try {
 						Thread.sleep(100); // Pause to stop loop running to fast. ~ 10 Hz
-					} catch (InterruptedException e) { // Do nothing
+					} catch (InterruptedException e) {
+						logger.error("Thread interrupted during update job for {}", scannableName, e);
+						return Status.CANCEL_STATUS; // Thread interrupted so cancel update job
 					}
+
 					// Update the GUI
 					updateGui(getCurrentPosition(), moving);
 				}
