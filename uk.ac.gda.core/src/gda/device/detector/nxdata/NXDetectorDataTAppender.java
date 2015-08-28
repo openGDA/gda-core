@@ -27,7 +27,15 @@ import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeNode;
 import gda.device.detector.NXDetectorData;
 
-public class NXDetectorDataTAppender <T> implements NXDetectorDataAppender {
+/**
+ * This generic class only supports Integer or Double, see the validation in {@link #appendTo(NXDetectorData, String)}
+ *
+ * Since we can't say <T extends Double | Integer> we constrain it to Number, so most inappropriate uses will result in a
+ * compile-time error rather than a run-time error.
+ *
+ * @param <T>
+ */
+public class NXDetectorDataTAppender <T extends Number> implements NXDetectorDataAppender {
 
 	private final List<String> elementNames;
 	private final List<T> elementValues;
