@@ -348,6 +348,8 @@
 								maxOccurs="1" minOccurs="0" />
 							<xsd:element name="mythenTime" type="xsd:double"
 								maxOccurs="1" minOccurs="0" />
+							<xsd:element name="mythenFrames" type="xsd:integer"
+								maxOccurs="1" minOccurs="0" />
 						</xsd:sequence>
 					</xsd:complexType>
 				</xsd:element>
@@ -381,6 +383,8 @@
 							<xsd:element name="mythenEnergy" type="xsd:double"
 								maxOccurs="1" minOccurs="0" />
 							<xsd:element name="mythenTime" type="xsd:double"
+								maxOccurs="1" minOccurs="0" />
+							<xsd:element name="mythenFrames" type="xsd:integer"
 								maxOccurs="1" minOccurs="0" />
 						</xsd:sequence>
 					</xsd:complexType>
@@ -418,6 +422,8 @@
 							<xsd:element name="mythenEnergy" type="xsd:double"
 								maxOccurs="1" minOccurs="0" />
 							<xsd:element name="mythenTime" type="xsd:double"
+								maxOccurs="1" minOccurs="0" />
+							<xsd:element name="mythenFrames" type="xsd:integer"
 								maxOccurs="1" minOccurs="0" />
 						</xsd:sequence>
 					</xsd:complexType>

@@ -57,6 +57,9 @@ public class WorkingEnergyWithIonChambersComposite extends WorkingEnergyComposit
 	private ScaleBox mythenEnergy;
 	private ScaleBox mythenTime;
 	private ScaleBox mythenFrames;
+	private Label mythenEnergyLabel;
+	private Label mythenTimeLabel;
+	private Label mythenFramesLabel;
 
 	public WorkingEnergyWithIonChambersComposite(Composite parent, int style, DetectorParameters abean) {
 		super(parent, style, abean);
@@ -144,21 +147,23 @@ public class WorkingEnergyWithIonChambersComposite extends WorkingEnergyComposit
 
 			// extra options when collecting diffraction data separately from fluo data
 			if (!diffractionCollectedWithFluoData){
-				final Label mythenEnergyLabel = new Label(diffractionComp, SWT.NONE);
+				mythenEnergyLabel = new Label(diffractionComp, SWT.NONE);
 				mythenEnergyLabel.setText("     Energy");
 				mythenEnergy = new ScaleBox(diffractionComp, SWT.NONE);
 				mythenEnergy.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 				mythenEnergy.setMaximum(20000.0);
 				mythenEnergy.setUnit("eV");
-				final Label mythenTimeLabel = new Label(diffractionComp, SWT.NONE);
+				mythenTimeLabel = new Label(diffractionComp, SWT.NONE);
 				mythenTimeLabel.setText("     Time");
 				mythenTime = new ScaleBox(diffractionComp, SWT.NONE);
 				mythenTime.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 
-				final Label mythenFramesLabel = new Label(diffractionComp, SWT.NONE);
+				mythenFramesLabel = new Label(diffractionComp, SWT.NONE);
 				mythenFramesLabel.setText("     Frames");
 				mythenFrames = new IntegerBox(diffractionComp, SWT.NONE);
 				mythenFrames.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+
+				showMythenParameters(collectDiffractionImages.getValue());
 
 				collectDiffractionImages.addValueListener(new ValueListener() {
 
@@ -169,14 +174,20 @@ public class WorkingEnergyWithIonChambersComposite extends WorkingEnergyComposit
 
 					@Override
 					public void valueChangePerformed(ValueEvent e) {
-						mythenEnergy.setVisible(collectDiffractionImages.getValue());
-						mythenTime.setVisible(collectDiffractionImages.getValue());
-						mythenEnergyLabel.setVisible(collectDiffractionImages.getValue());
-						mythenTimeLabel.setVisible(collectDiffractionImages.getValue());
+						showMythenParameters(collectDiffractionImages.getValue());
 					}
 				});
 			}
 		}
+	}
+
+	void showMythenParameters(boolean show) {
+		mythenEnergy.setVisible(show);
+		mythenTime.setVisible(show);
+		mythenFrames.setVisible(show);
+		mythenEnergyLabel.setVisible(show);
+		mythenTimeLabel.setVisible(show);
+		mythenFramesLabel.setVisible(show);
 	}
 
 	public ScaleBox getMythenEnergy() {
