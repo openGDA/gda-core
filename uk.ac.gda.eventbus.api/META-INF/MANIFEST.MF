@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: GDA Event Bus API
+Bundle-SymbolicName: uk.ac.gda.eventbus.api
+Bundle-Version: 8.44.0.qualifier
+Bundle-Activator: uk.ac.gda.eventbus.api.Activator
+Require-Bundle: org.eclipse.core.runtime
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ActivationPolicy: lazy
+Import-Package: com.google.common.base,
+ gda.factory
+Bundle-Vendor: Diamond Light Source
+Export-Package: uk.ac.gda.eventbus.api,
+ uk.ac.gda.eventbus.api.message

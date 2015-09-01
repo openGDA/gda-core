@@ -1,4 +1,4 @@
-package uk.ac.gda.eventbus.message;
+package uk.ac.gda.eventbus.api.message;
 
 public class CommandMessage extends GDAMessage {
 
