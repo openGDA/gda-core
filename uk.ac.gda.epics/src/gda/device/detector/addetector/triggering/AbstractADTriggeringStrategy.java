@@ -143,6 +143,16 @@ abstract public class AbstractADTriggeringStrategy implements CollectionStrategy
 	}
 
 	@Override
+	public double getAcquireTime() throws Exception {
+		return getAdBase().getAcquireTime_RBV();
+	}
+
+	@Override
+	public double getAcquirePeriod() throws Exception {
+		return getAdBase().getAcquirePeriod_RBV();
+	}
+
+	@Override
 	public void prepareForCollection(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
 		throw new UnsupportedOperationException("Must be operated via prepareForCollection(collectionTime, numberImagesPerCollection)");
 	}
@@ -172,15 +182,24 @@ abstract public class AbstractADTriggeringStrategy implements CollectionStrategy
 		getAdBase().setAcquireTime(expoTime);
 		getAdBase().setNumExposures(isAccumlationMode() ? (int)(collectionTime / acc_expo_time + 0.5) : 1);
 	}
-	
-	
+
+	@Override
+	public int getStatus() throws DeviceException {
+		return getAdBase().getStatus();
+	}
+
+	@Override
+	public void waitWhileBusy() throws InterruptedException, DeviceException {
+		getAdBase().waitWhileStatusBusy();
+	}
+
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		if( adBase == null)
 			throw new RuntimeException("adBase is not set");
 		propertiesSet = true;
 	}
-	
+
 	@Override
 	public String getName() {
 		return "driver";
