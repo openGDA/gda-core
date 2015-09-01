@@ -43,7 +43,7 @@ public class HardwareTriggeredStandard extends SimpleAcquire {
 		getAdBase().setTriggerMode(StandardTriggerMode.EXTERNAL.ordinal());
 	}
 	
-	@Override
+	@Override @Deprecated
 	public void configureAcquireAndPeriodTimes(double collectionTime) throws Exception {
 		if (getReadoutTime() < 0) {
 			getAdBase().setAcquirePeriod(collectionTime);

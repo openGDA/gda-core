@@ -68,7 +68,7 @@ public class CMOSMultipleHardwareTriggered extends SimpleAcquire {
 		getAdBase().setImageMode(ImageMode.MULTIPLE);
 	}
 
-	@Override
+	@Override @Deprecated
 	public void configureAcquireAndPeriodTimes(double collectionTime) throws Exception {
 		if (getReadoutTime() < 0) {
 			getAdBase().setAcquirePeriod(collectionTime);

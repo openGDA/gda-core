@@ -160,8 +160,8 @@ abstract public class AbstractADTriggeringStrategy implements CollectionStrategy
 			getAdBase().setArrayCallbacks(isGenerateCallbacks() ? 1 : 0);
 		}
 	}
-	
-	@Override
+
+	@Override @Deprecated
 	public void configureAcquireAndPeriodTimes(double collectionTime) throws Exception {
 		double expoTime = isAccumlationMode() ? acc_expo_time : collectionTime;
 		if (getReadoutTime() < 0) {
