@@ -28,7 +28,7 @@ public class SimpleAcquire extends AbstractADTriggeringStrategy {
 
 	
 	public SimpleAcquire(ADBase adBase, double readoutTime) {
-		super(adBase);
+		setAdBase(adBase);
 		setReadoutTime(readoutTime);
 	}
 

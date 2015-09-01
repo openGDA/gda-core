@@ -32,7 +32,8 @@ import java.util.Vector;
 
 abstract public class AbstractADTriggeringStrategy implements CollectionStrategyBeanInterface{
 
-	private final ADBase adBase;
+	private ADBase adBase;
+	private boolean propertiesSet = false;
 
 	private double readoutTime = 0.1; // TODO: Should default to 0, change setReadoutTime javadoc if this changes.
 	
@@ -88,10 +89,6 @@ abstract public class AbstractADTriggeringStrategy implements CollectionStrategy
 
 	private String timeFormat = "%.2f"; 
 	
-	AbstractADTriggeringStrategy(ADBase adBase) {
-		this.adBase = adBase;
-	}
-	
 	/**
 	 * Sets the required readout/dwell time (t_period - t_acquire).
 	 * <p>
@@ -127,7 +124,12 @@ abstract public class AbstractADTriggeringStrategy implements CollectionStrategy
 	public double getReadoutTime() {
 		return readoutTime;
 	}
-	
+
+	public void setAdBase(ADBase adBase) {
+		errorIfPropertySetAfterBeanConfigured("adBase");
+		this.adBase = adBase;
+	}
+
 	public ADBase getAdBase() {
 		return adBase;
 	}
@@ -176,6 +178,7 @@ abstract public class AbstractADTriggeringStrategy implements CollectionStrategy
 	public void afterPropertiesSet() throws Exception {
 		if( adBase == null)
 			throw new RuntimeException("adBase is not set");
+		propertiesSet = true;
 	}
 	
 	@Override
@@ -290,4 +293,12 @@ abstract public class AbstractADTriggeringStrategy implements CollectionStrategy
 		this.acquisitionTimeUnit = acquisitionTimeUnit;
 	}
 
+	/**
+	 * This function can be used to enforce the condition that properties are not changed after Bean initialisation completes.
+	 *
+	 * @param description used in thrown exceptions
+	 */
+	public void errorIfPropertySetAfterBeanConfigured(String description) {
+		if (propertiesSet) throw new IllegalAccessError("Attempt to set property " + description  + " in bean "+ getName() + "after Bean configured!");
+	}
 }
