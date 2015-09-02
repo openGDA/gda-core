@@ -70,7 +70,7 @@ public class EpicsSimpleMbbinary extends EnumPositionerBase implements EnumPosit
 
 	private String epicsRecordName;
 
-	private boolean readOnly = true;
+	private boolean readOnly = false;
 
 	private String recordName;
 
@@ -95,6 +95,14 @@ public class EpicsSimpleMbbinary extends EnumPositionerBase implements EnumPosit
 	 */
 	public void setRecordName(String recordName) {
 		this.recordName = recordName;
+	}
+
+	public boolean isReadOnly() {
+		return readOnly;
+	}
+
+	public void setReadOnly(boolean readOnly) {
+		this.readOnly = readOnly;
 	}
 
 	@Override
