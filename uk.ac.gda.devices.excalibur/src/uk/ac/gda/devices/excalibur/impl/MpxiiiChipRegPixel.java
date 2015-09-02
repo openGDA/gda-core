@@ -116,6 +116,9 @@ public class MpxiiiChipRegPixel implements ChipPixel, InitializingBean {
 
 	private Channel getChannel(String pvPostFix) throws CAException, TimeoutException {
 		String fullPvName = basePVName + pvPostFix;
+		if (pvPostFix == GAINMODE) {
+			fullPvName = "BL13J-EA-EXCBR-01:CONFIG:ACQUIRE:CsmSpmMode";
+		}
 		Channel channel = channelMap.get(fullPvName);
 		if (channel == null) {
 			channel = EPICS_CONTROLLER.createChannel(fullPvName);
