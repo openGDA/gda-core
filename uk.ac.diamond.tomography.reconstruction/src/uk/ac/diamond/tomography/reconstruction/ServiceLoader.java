@@ -24,11 +24,6 @@ public class ServiceLoader {
 
 	private static EventTracker tracker;
 
-	// Used by OSGI
-	ServiceLoader() {
-
-	}
-
 	public static EventTracker getEventTracker() {
 		return tracker;
 	}
