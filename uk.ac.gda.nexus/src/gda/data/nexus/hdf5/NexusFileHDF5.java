@@ -67,6 +67,7 @@ import uk.ac.diamond.scisoft.analysis.io.HDF5LazyLoader;
 import uk.ac.diamond.scisoft.analysis.io.HDF5LazySaver;
 
 public class NexusFileHDF5 implements NexusFile {
+	final Logger logger = LoggerFactory.getLogger(NexusFileHDF5.class);
 
 	//TODO: Clean up and move stuff to helper classes?
 
@@ -181,8 +182,6 @@ public class NexusFileHDF5 implements NexusFile {
 			this.type = type;
 		}
 	}
-
-	private static final Logger logger = LoggerFactory.getLogger(NexusFile.class);
 
 	private long fileId = -1;
 
@@ -720,7 +719,7 @@ public class NexusFileHDF5 implements NexusFile {
 					new HDF5LazySaver(null, fileName, path, name, iShape, itemSize,
 							datasetType, extendUnsigned, iMaxShape, iChunks, fill));
 		} else {
-			lazyDataset = new LazyDataset(name, datasetType, iShape, 
+			lazyDataset = new LazyDataset(name, datasetType, iShape,
 					new HDF5LazyLoader(null, fileName, path, name, iShape, itemSize,
 							datasetType, extendUnsigned));
 		}
@@ -944,7 +943,7 @@ public class NexusFileHDF5 implements NexusFile {
 				}
 				//chunks == null check is unnecessary, but compiler warns otherwise
 				if (!Arrays.equals(shape, maxShape) && (recalcChunks || chunks == null || chunks[chunks.length - 1] == 1)) {
-					logger.warn("Inappropiate chunking requested; attempting to estimate suitable chunking.");
+					logger.warn("Inappropriate chunking requested for {}; attempting to estimate suitable chunking.", dataName);
 					chunks = estimateChunking(shape, maxShape, H5.H5Tget_size(hdfDatatypeId));
 					iChunks = longArrayToIntArray(chunks);
 					data.setChunking(iChunks);
@@ -1436,7 +1435,7 @@ public class NexusFileHDF5 implements NexusFile {
 			return HDF5Constants.H5T_NATIVE_INT32;
 		} else if (clazz.equals(Long.class)) {
 			return HDF5Constants.H5T_NATIVE_INT64;
-		} else if (clazz.equals(Float.class)) { 
+		} else if (clazz.equals(Float.class)) {
 			return HDF5Constants.H5T_NATIVE_FLOAT;
 		} else if (clazz.equals(Double.class)) {
 			return HDF5Constants.H5T_NATIVE_DOUBLE;
