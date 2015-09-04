@@ -40,8 +40,6 @@ import org.eclipse.jface.fieldassist.IControlContentAdapter;
 import org.eclipse.jface.fieldassist.TextContentAdapter;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Text;
 import org.slf4j.Logger;
@@ -68,23 +66,6 @@ public class AutoCompleter {
 
 	public AutoCompleter(final Text txtInput) {
 		this.txtInput = txtInput;
-
-		txtInput.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyPressed(final org.eclipse.swt.events.KeyEvent e) {
-				if ((((e.stateMask & SWT.CTRL) != 0) && e.keyCode == ' ') || e.keyCode == SWT.TAB) {
-					List<IContentProposal> proposals = getProposals();
-					if (proposals != null && proposals.size() == 1) {
-						if (!txtInput.getText().trim().equals(proposals.get(0).getContent())) {
-							contentProposalListener.proposalAccepted(proposals.get(0));
-						}
-					} else {
-						handleModify();
-					}
-				}
-			}
-		});
-
 		try {
 			installContentProposalAdapter(txtInput, new TextContentAdapter());
 		} catch (ParseException e) {
@@ -95,18 +76,15 @@ public class AutoCompleter {
 	void installContentProposalAdapter(Control control, IControlContentAdapter contentAdapter) throws ParseException {
 		char[] autoActivationCharacters = null;
 		KeyStroke tabStroke = KeyStroke.getInstance("Tab");
-		tabAdapter = new ContentProposalAdapter(control, contentAdapter, getContentProposalProvider(), tabStroke,
-				autoActivationCharacters);
-		setupContentPropoasalAdapter(tabAdapter);
+		tabAdapter = new ContentProposalAdapter(control, contentAdapter, getContentProposalProvider(), tabStroke, autoActivationCharacters);
+		setupContentProposalAdapter(tabAdapter);
 
 		KeyStroke ctrlSpaceKeyStroke = KeyStroke.getInstance("Ctrl+Space");
-		ctrlSpaceAdapter = new ContentProposalAdapter(control, contentAdapter, getContentProposalProvider(), ctrlSpaceKeyStroke,
-				autoActivationCharacters);
-		setupContentPropoasalAdapter(ctrlSpaceAdapter);
-
+		ctrlSpaceAdapter = new ContentProposalAdapter(control, contentAdapter, getContentProposalProvider(), ctrlSpaceKeyStroke, autoActivationCharacters);
+		setupContentProposalAdapter(ctrlSpaceAdapter);
 	}
 
-	private void setupContentPropoasalAdapter(ContentProposalAdapter cpa) {
+	private void setupContentProposalAdapter(ContentProposalAdapter cpa) {
 		boolean propagate = true;
 		int autoActivationDelay = 0;
 		cpa.setInfoPopupRequired(false);
@@ -168,15 +146,11 @@ public class AutoCompleter {
 		return contentProposalProvider;
 	}
 
-	protected void handleModify() {
-		List<IContentProposal> proposals = getProposals();
-		contentProposalProvider.setProposals(proposals);
+	private List<IContentProposal> getProposals() {
+		return getProposals(getLastWord());
 	}
 
-	private List<IContentProposal> getProposals() {
-		postFix = "";
-		// get last word on which to prompt for completion
-		String lastWord = getLastWord();
+	private List<IContentProposal> getProposals(String lastWord) {
 		List<AutoCompletionParts> options = (new AutoCompletionGetter(commandRunner, lastWord)).getOptions();
 
 		List<IContentProposal> proposals = new ArrayList<IContentProposal>();
@@ -198,7 +172,8 @@ public class AutoCompleter {
 		}
 	};
 
-	public String getLastWord() {
+	private String getLastWord() {
+		postFix = "";
 		String lastWord = "";
 		{
 			String currentInput = txtInput.getText();
@@ -266,6 +241,9 @@ public class AutoCompleter {
 			txtInput.setFocus();
 			txtInput.setSelection(toCaret.length(), toCaret.length());
 		}
+		// if key to open proposals != key to accept proposal, popup can remain open
+		tabAdapter.closeProposalPopup();
+		ctrlSpaceAdapter.closeProposalPopup();
 	}
 
 	private class JythonTerminalContentProposalProvider implements IContentProposalProvider {
@@ -295,6 +273,7 @@ public class AutoCompleter {
 		@Override
 		public IContentProposal[] getProposals(String contents, int position) {
 			contents = getLastWord();
+			contentProposals = AutoCompleter.this.getProposals(contents);
 			ArrayList<IContentProposal> list = new ArrayList<IContentProposal>();
 			if (contentProposals != null && contents != null) {
 				for (IContentProposal contentProposal : contentProposals) {
@@ -305,16 +284,6 @@ public class AutoCompleter {
 				}
 			}
 			return list.toArray(new IContentProposal[list.size()]);
-		}
-
-		/**
-		 * Set the Strings to be used as content proposals.
-		 *
-		 * @param items
-		 *            the array of Strings to be used as proposals.
-		 */
-		public void setProposals(List<IContentProposal> items) {
-			contentProposals = items;
 		}
 	}
 
