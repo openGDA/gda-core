@@ -82,7 +82,7 @@ public class GeneralCommandsTest{
 
 		output = jsfWithGroup.getTerminalOutput();
 
-		expected = "\ngroup::\n lev4 : 0.0\n lev5a: 0.0\n lev5b: 0.0\n lev6 : 0.0\n\n";
+		expected = "\ngroup ::\n  lev4  : 0.0\n  lev5a : 0.0\n  lev5b : 0.0\n  lev6  : 0.0\n\n";
 
 		assertEquals(expected, output);
 
@@ -104,7 +104,7 @@ public class GeneralCommandsTest{
 		ScannableCommands.pos();
 
 		output = jsfWithGroup.getTerminalOutput();
-		expected = "group::\n lev4 : 0.0\n lev5a: 0.0\n lev5b: 0.0\n lev6 : 0.0\n";
+		expected = "group ::\n  lev4  : 0.0\n  lev5a : 0.0\n  lev5b : 0.0\n  lev6  : 0.0\n";
 
 		assertEquals(expected, output);
 	}

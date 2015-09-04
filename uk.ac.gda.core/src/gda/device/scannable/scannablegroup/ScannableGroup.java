@@ -36,7 +36,6 @@ import java.util.Set;
 import java.util.Vector;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringUtils;
 import org.python.core.Py;
 import org.python.core.PyString;
 import org.slf4j.Logger;
@@ -48,6 +47,7 @@ import org.slf4j.LoggerFactory;
 public class ScannableGroup extends ScannableBase implements Configurable, IScannableGroup, IObserver {
 
 	private static final Logger logger = LoggerFactory.getLogger(ScannableGroup.class);
+	private static final String INDENT = "  ";
 
 	// the list of members
 	String[] groupMemberNames = new String[0]; // will use jakarta commons.lang to manipulate this
@@ -373,68 +373,43 @@ public class ScannableGroup extends ScannableBase implements Configurable, IScan
 
 	@Override
 	public String toFormattedString() {
-		//TODO this method does not provide correct indentation level for a scannable group inside another scannable group
-		//TODO the regex parser is unreliable as described by FIXME below
-		// IT would be better to create format message by delegate to individual members directly, rather than re-parsing output again.
-
-		//TODO this works if the toFormattedString method of the members conforms to a standard. But I don't think there is one!
-		//Rather use getPosition and format here.
-		String membersOutput = getName() + " ::\n";
-		for (Scannable member : groupMembers) {
-			membersOutput += member.toFormattedString() + "\n";
-		}
-
-		String[] originalInputNames = getInputNames();
-		String[] namesToSplitOn = getInputNames();
-		String[] names = getGroupMemberNames();
-		String[] extras = getExtraNames();
-
-		// FIXME regex-based splitting of membersOutput is broken if one group member name is a substring of another - e.g. "col_y" and "col_yaw"
-
-		if (originalInputNames.length + extras.length == 0) {
-			return membersOutput;
-		}
-
-		if (extras.length > 0) {
-			namesToSplitOn = (String[]) ArrayUtils.addAll(namesToSplitOn, extras);
-		}
-
-		// find the longest name, to help with formatting the output
-		int longestName = 0;
-		for (String objName : namesToSplitOn){
-			if (objName.length() > longestName){
-				longestName = objName.length();
+		StringBuilder positionString = new StringBuilder(getName());
+		positionString.append(" ::");
+		for (Scannable s : getGroupMembers()) {
+			String pos = s.toFormattedString();
+			for (String line : pos.split("\n")) {
+				positionString.append('\n');
+				positionString.append(INDENT);
+				positionString.append(line);
 			}
 		}
-		namesToSplitOn = (String[]) ArrayUtils.add(namesToSplitOn, getName());
-		namesToSplitOn = (String[]) ArrayUtils.addAll(namesToSplitOn, names);
+		return alignOutput(positionString.toString());
+	}
 
-		String regex = "";
-		for (String name : namesToSplitOn) {
-			regex += name + " +|";
-		}
-		regex = regex.substring(0, regex.length() - 1);
-
-		String[] values = membersOutput.split(regex);
-
-		String returnString = getName() + "::\n";
-		int nextNameIndex = 0;
-		for (int i = 0; i < values.length; i++) {
-			String value = values[i].trim();
-			if (value.startsWith(":")) {
-				value = value.substring(1).trim();
+	private String alignOutput(String unaligned) {
+		int longest = 0;
+		for (String line : unaligned.split("\n")) {
+			int colon = line.indexOf(':');
+			if (colon > longest) {
+				longest = colon;
 			}
-			if (StringUtils.containsOnly(value, ":()") || value.isEmpty()) {
-				continue;
-			}
-			returnString += " " + StringUtils.rightPad(namesToSplitOn[nextNameIndex], longestName) + ": " + value
-					+ "\n";
-			nextNameIndex++;
 		}
-		returnString.trim();
-		returnString = returnString.substring(0, returnString.length() - 1);
-
-		return returnString;
+		StringBuilder outputString = new StringBuilder();
+		for (String line : unaligned.split("\n")) {
+			String splitLine[] = line.split("(?<!:):(?!:)", 2);// only split on first colon, ignore double colon
+			if (splitLine.length > 1) {
+				int colon = splitLine[0].length();
+				int padding = longest - colon + 1;
+				outputString.append(splitLine[0]);
+				outputString.append(String.format("%" + padding + "s", ":"));
+				outputString.append(splitLine[1]);
+			} else {
+				// no colon - just print as is
+				outputString.append(line);
+			}
+			outputString.append('\n');
+		}
+		return outputString.toString().trim();
 	}
 
 	@Override
@@ -455,28 +430,35 @@ public class ScannableGroup extends ScannableBase implements Configurable, IScan
 		 * only fan out if the notification did not already come from oneself. This is required for situations where a
 		 * scannable is observing its surrounding scannableGroup and the scannablegroup is observing its children.
 		 */
-		if (theObserved != this)
+		if (theObserved != this) {
 			notifyIObservers(this, changeCode);
+		}
 	}
 
 	@Override
 	public String[] getExtraNames() {
 		// recalculate every time as these attributes may be dynamic
-		String[] extraNames = new String[0];
+		// prepend scannable names to extra names to ensure uniqueness
+		List<String> eNames = new ArrayList<>();
 		for (Scannable member : groupMembers) {
-			extraNames = (String[]) ArrayUtils.addAll(extraNames, member.getExtraNames());
+			for (String eN : member.getExtraNames()) {
+				eNames.add(eN);
+			}
 		}
-		return extraNames;
+		return eNames.toArray(new String[eNames.size()]);
 	}
 
 	@Override
 	public String[] getInputNames() {
 		// recalculate every time as these attributes may be dynamic
-		String[] inputNames = new String[0];
+		// prepend scannable names to input names to ensure uniqueness
+		List<String> iNames = new ArrayList<>();
 		for (Scannable member : groupMembers) {
-			inputNames = (String[]) ArrayUtils.addAll(inputNames, member.getInputNames());
+			for (String iN : member.getInputNames()) {
+				iNames.add(iN);
+			}
 		}
-		return inputNames;
+		return iNames.toArray(new String[iNames.size()]);
 	}
 
 	@Override
