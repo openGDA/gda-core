@@ -67,7 +67,7 @@ import uk.ac.diamond.scisoft.analysis.io.HDF5LazyLoader;
 import uk.ac.diamond.scisoft.analysis.io.HDF5LazySaver;
 
 public class NexusFileHDF5 implements NexusFile {
-	final Logger logger = LoggerFactory.getLogger(NexusFileHDF5.class);
+	private static final Logger logger = LoggerFactory.getLogger(NexusFileHDF5.class);
 
 	//TODO: Clean up and move stuff to helper classes?
 
