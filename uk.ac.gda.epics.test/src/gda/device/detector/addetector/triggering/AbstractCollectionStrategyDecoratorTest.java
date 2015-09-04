@@ -40,8 +40,9 @@ public class AbstractCollectionStrategyDecoratorTest {
 	}
 
 	@Test
-	public void expectEmptyListWithNoIncompatibleDecorators() {
+	public void expectEmptyListWithNoIncompatibleDecorators() throws Exception {
 		merlinColourModeDecorator.setDecoratee(mockSimpleAcquire);
+		merlinColourModeDecorator.afterPropertiesSet();
 		List<UnsynchronisedExternalShutterNXCollectionStrategy> unsynchronisedExternalShutterNXCollectionStrategies =
 				merlinColourModeDecorator.getDecorateesOfType(UnsynchronisedExternalShutterNXCollectionStrategy.class);
 
@@ -49,9 +50,11 @@ public class AbstractCollectionStrategyDecoratorTest {
 	}
 
 	@Test
-	public void expectCorrectSizeListOnCompatibleInnerDecorator() {
+	public void expectCorrectSizeListOnCompatibleInnerDecorator() throws Exception {
 		unsynchronisedExternalShutterDecorator.setDecoratee(mockSimpleAcquire);
+		unsynchronisedExternalShutterDecorator.afterPropertiesSet();
 		merlinColourModeDecorator.setDecoratee(unsynchronisedExternalShutterDecorator);
+		merlinColourModeDecorator.afterPropertiesSet();
 		List<UnsynchronisedExternalShutterNXCollectionStrategy> unsynchronisedExternalShutterNXCollectionStrategies =
 				merlinColourModeDecorator.getDecorateesOfType(UnsynchronisedExternalShutterNXCollectionStrategy.class);
 
@@ -59,9 +62,11 @@ public class AbstractCollectionStrategyDecoratorTest {
 	}
 
 	@Test
-	public void expectCorrectSizeListOnCompatibleOuterDecorator() {
+	public void expectCorrectSizeListOnCompatibleOuterDecorator() throws Exception {
 		merlinColourModeDecorator.setDecoratee(mockSimpleAcquire);
+		merlinColourModeDecorator.afterPropertiesSet();
 		unsynchronisedExternalShutterDecorator.setDecoratee(merlinColourModeDecorator);
+		unsynchronisedExternalShutterDecorator.afterPropertiesSet();
 		List<UnsynchronisedExternalShutterNXCollectionStrategy> unsynchronisedExternalShutterNXCollectionStrategies =
 				unsynchronisedExternalShutterDecorator.getDecorateesOfType(UnsynchronisedExternalShutterNXCollectionStrategy.class);
 
