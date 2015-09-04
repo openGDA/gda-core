@@ -41,6 +41,7 @@ public abstract class AbstractCollectionStrategyDecorator implements CollectionS
 	}
 
 	private CollectionStrategyBeanInterface decoratee;
+	private boolean propertiesSet = false;
 
 	/* interface NXCollectionStrategyPlugin */
 
@@ -172,6 +173,7 @@ public abstract class AbstractCollectionStrategyDecorator implements CollectionS
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		getDecoratee().afterPropertiesSet();
+		propertiesSet = true;
 	}
 
 	/* Class functions */
@@ -181,6 +183,7 @@ public abstract class AbstractCollectionStrategyDecorator implements CollectionS
 	}
 
 	public void setDecoratee(CollectionStrategyBeanInterface decoratee) {
+		errorIfPropertySetAfterBeanConfigured("decoratee");
 		this.decoratee = decoratee;
 	}
 
@@ -191,6 +194,8 @@ public abstract class AbstractCollectionStrategyDecorator implements CollectionS
 	 * @return			 the list of decoratees which are of the specified type
 	 */
 	public <T> List<T> getDecorateesOfType(Class<T> clazz) {
+		if (!propertiesSet) throw new IllegalAccessError("Attempt to getDecorateesOfType(" + clazz.getName() + ") before initialisation complete!");
+
 		List<T> decorateesOfT;
 
 		if (decoratee instanceof AbstractCollectionStrategyDecorator) { // Recurse down
@@ -203,5 +208,14 @@ public abstract class AbstractCollectionStrategyDecorator implements CollectionS
 			decorateesOfT.add(clazz.cast(this));
 		}
 		return decorateesOfT;
+	}
+
+	/**
+	 * This function can be used to enforce the condition that properties are not changed after Bean initialisation completes.
+	 *
+	 * @param description used in thrown exceptions
+	 */
+	protected void errorIfPropertySetAfterBeanConfigured(String description) {
+		if (propertiesSet) throw new IllegalAccessError("Attempt to set property " + description  + " in bean "+ getName() + "after Bean configured!");
 	}
 }
