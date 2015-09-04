@@ -36,6 +36,7 @@ import gda.device.scannable.PositionInputStream;
 import gda.device.scannable.PositionInputStreamCombiner;
 import gda.device.scannable.PositionStreamIndexer;
 import gda.jython.InterfaceProvider;
+import gda.scan.NamedQueueTask;
 import gda.scan.ScanInformation;
 
 import java.text.SimpleDateFormat;
@@ -565,7 +566,7 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 	
 }
 
-class NXDetectorDataCompletingCallable implements Callable<NexusTreeProvider> {
+class NXDetectorDataCompletingCallable implements Callable<NexusTreeProvider>, NamedQueueTask {
 
 	private final NXDetectorData data;
 
@@ -607,4 +608,13 @@ class NXDetectorDataCompletingCallable implements Callable<NexusTreeProvider> {
 		}
 	}
 
+	@Override
+	public String getExecutorServiceName() {
+		return "NXDetector";
+	}
+
+	@Override
+	public int getThreadPoolSize() {
+		return 1;
+	}
 }
