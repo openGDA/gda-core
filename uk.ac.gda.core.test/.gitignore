@@ -23,6 +23,10 @@ cachedir/
 ### JUnit testing ###
 /test-reports
 /test-scratch
+/derby.log
+/dummyMotor
+/motor
+/null
 
 ### Security files ###
 *ssh.key
