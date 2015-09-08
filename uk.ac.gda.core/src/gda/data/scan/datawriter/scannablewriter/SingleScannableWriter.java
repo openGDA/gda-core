@@ -122,8 +122,9 @@ public class SingleScannableWriter implements ScannableWriter {
 
 				final Object componentObject = getComponentObject(s, position, i);
 				final ComponentWriter cw = getComponentWriter(s, componentName, componentObject);
-				cw.makeComponent(file, group, dim, getPaths()[i], s.getName(), componentName, componentObject,
+				final Collection<SelfCreatingLink> compLinks = cw.makeComponent(file, group, dim, getPaths()[i], s.getName(), componentName, componentObject,
 						unit);
+				sclc.addAll(compLinks);
 
 			} catch (final Exception e) {
 				LOGGER.error("error converting scannable data", e);

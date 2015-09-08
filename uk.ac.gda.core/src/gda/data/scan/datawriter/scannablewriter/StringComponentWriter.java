@@ -24,7 +24,6 @@ import gda.data.scan.datawriter.SelfCreatingLink;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyWriteableDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.SliceND;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
@@ -36,30 +35,8 @@ import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
 
 public class StringComponentWriter extends DefaultComponentWriter {
 
-//	private int stringlength = 0;
-	private int rank = 0;
-
 	public StringComponentWriter() {
 		// no op
-	}
-
-	@Override
-	protected int[] slabSizeForWriting(final int[] dim, final int slablength) {
-
-		final int[] onedimfordim = slabsizedimfordim(dim);
-
-		if (onedimfordim.length < rank) {
-			return ArrayUtils.add(onedimfordim, slablength);
-
-		} else {
-			onedimfordim[onedimfordim.length - 1] = slablength;
-			return onedimfordim;
-		}
-	}
-
-	@Override
-	protected int[] putslabdimfordim(final int[] dim) {
-		return ArrayUtils.add(dim, 0);
 	}
 
 	@Override
