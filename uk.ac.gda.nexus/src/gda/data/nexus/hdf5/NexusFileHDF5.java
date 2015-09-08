@@ -666,7 +666,7 @@ public class NexusFileHDF5 implements NexusFile {
 		long groupId;
 
 		if (type == null) {
-			if (create || writeable) {
+			if (create && writeable) {
 				try {
 					groupId = H5.H5Gcreate(fileId, absolutePath,
 							HDF5Constants.H5P_DEFAULT, HDF5Constants.H5P_DEFAULT, HDF5Constants.H5P_DEFAULT);
