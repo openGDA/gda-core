@@ -1064,7 +1064,7 @@ public class NexusFileHDF5 implements NexusFile {
 		long fileAddr = getLinkTarget(dataPath);
 		nodeMap.put(fileAddr, dataNode);
 		dataNode.setDataset(data);
-		((GroupNode) parentNode.node).addDataNode(dataPath, dataName, dataNode);
+		((GroupNode) parentNode.node).addDataNode(path, dataName, dataNode);
 		return dataNode;
 	}
 
