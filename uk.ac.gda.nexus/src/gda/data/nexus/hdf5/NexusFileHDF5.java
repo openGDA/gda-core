@@ -343,7 +343,7 @@ public class NexusFileHDF5 implements NexusFile {
 		} else {
 			g = (GroupNode)nodeMap.get(fileAddr);
 		}
-		group.addGroupNode(path, name, g);
+		group.addGroupNode(name, g);
 	}
 
 	private void cacheAttributes(String path, Node node) throws NexusException {
@@ -459,7 +459,7 @@ public class NexusFileHDF5 implements NexusFile {
 					if (objectInfo.type == HDF5Constants.H5O_TYPE_GROUP) {
 						createGroupNode(childPath.hashCode(), group, path, linkName, "");
 					} else if (objectInfo.type == HDF5Constants.H5O_TYPE_DATASET) {
-						group.addDataNode(childPath, linkName, getDataNodeFromFile(childPath, group, linkName));
+						group.addDataNode(linkName, getDataNodeFromFile(childPath, group, linkName));
 					} else {
 						throw new NexusException("Unhandled object type");
 					}
@@ -523,9 +523,9 @@ public class NexusFileHDF5 implements NexusFile {
 				while (names.hasNext()) {
 					String name = names.next();
 					NodeLink link = originalNode.getNodeLink(name);
-					newNode.addNode(internalMountPoint + Node.SEPARATOR + name, name, link.getDestination());
+					newNode.addNode(name, link.getDestination());
 				}
-				parentGroup.addGroupNode(internalMountPoint, nodeName, newNode);
+				parentGroup.addGroupNode(nodeName, newNode);
 				return extFile.getNode(fullPathInExtFile, false);
 			}
 		}
@@ -582,7 +582,7 @@ public class NexusFileHDF5 implements NexusFile {
 					node = group.getDataNode(parsedNode.name);
 				} else {
 					node = getData(path);
-					group.addDataNode(parentPath, parsedNode.name, (DataNode) node);
+					group.addDataNode(parsedNode.name, (DataNode) node);
 				}
 				break;
 			} else {
@@ -597,7 +597,7 @@ public class NexusFileHDF5 implements NexusFile {
 					path = name[0];
 					if (!group.containsGroupNode(parsedNode.name)) {
 						NodeData linkedNode = getGroupNode(path, false);
-						group.addGroupNode(parentPath, parsedNode.name, (GroupNode)linkedNode.node);
+						group.addGroupNode(parsedNode.name, (GroupNode)linkedNode.node);
 					}
 				}
 			} catch (HDF5LibraryException e) {
@@ -708,7 +708,7 @@ public class NexusFileHDF5 implements NexusFile {
 		DataNode dataNode = TreeFactory.createDataNode(path.hashCode());
 		cacheAttributes(path, dataNode);
 		String parentPath = path.substring(0, path.length() - name.length());
-		parentNode.addDataNode(parentPath, name, dataNode);
+		parentNode.addDataNode(name, dataNode);
 		dataNode.setUnsigned(unsigned);
 		ILazyDataset lazyDataset = null;
 		int itemSize = 1;
@@ -986,7 +986,7 @@ public class NexusFileHDF5 implements NexusFile {
 		data.setSaver(saver);
 
 		DataNode dataNode = TreeFactory.createDataNode(dataPath.hashCode());
-		((GroupNode)parentNode.node).addDataNode(parentPath, dataName, dataNode);
+		((GroupNode)parentNode.node).addDataNode(dataName, dataNode);
 		dataNode.setDataset(data);
 		long fileAddr = getLinkTarget(dataPath);
 		nodeMap.put(fileAddr, dataNode);
@@ -1063,7 +1063,7 @@ public class NexusFileHDF5 implements NexusFile {
 		long fileAddr = getLinkTarget(dataPath);
 		nodeMap.put(fileAddr, dataNode);
 		dataNode.setDataset(data);
-		((GroupNode) parentNode.node).addDataNode(dataPath, dataName, dataNode);
+		((GroupNode) parentNode.node).addDataNode(dataName, dataNode);
 		return dataNode;
 	}
 
@@ -1201,10 +1201,10 @@ public class NexusFileHDF5 implements NexusFile {
 		GroupNode destNode = (GroupNode)getGroupNode(destination, true).node;
 		switch(sourceData.type) {
 		case DATASET:
-			destNode.addDataNode(destination, nodeName, (DataNode) sourceData.node);
+			destNode.addDataNode(nodeName, (DataNode) sourceData.node);
 			break;
 		case GROUP:
-			destNode.addGroupNode(destination, nodeName, (GroupNode) sourceData.node);
+			destNode.addGroupNode(nodeName, (GroupNode) sourceData.node);
 			break;
 		}
 		try {
