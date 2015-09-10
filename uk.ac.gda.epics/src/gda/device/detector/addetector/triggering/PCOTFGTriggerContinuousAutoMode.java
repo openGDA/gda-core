@@ -55,7 +55,7 @@ import org.slf4j.LoggerFactory;
  * The ADDetector should be set with usePipeline to not hold up the triggering through waiting/checking files.
  * 
  */
-public class PCOTFGTrigger extends SimpleAcquire {
+public class PCOTFGTriggerContinuousAutoMode extends SimpleAcquire {
 	private String shutterPVName = "BL13I-EA-FSHTR-01:CONTROL";
 	private static Logger logger = LoggerFactory.getLogger(PCOTFGTrigger.class);
 	private final ADDriverPco adDriverPco;
@@ -63,7 +63,7 @@ public class PCOTFGTrigger extends SimpleAcquire {
 	private double collectionTime = 0.;
 	PV<Integer> shutterPV;
 
-	public PCOTFGTrigger(ADBase adBase, ADDriverPco adDriverPco, Etfg tfg) {
+	public PCOTFGTriggerContinuousAutoMode(ADBase adBase, ADDriverPco adDriverPco, Etfg tfg) {
 		super(adBase, 0.);
 		this.adDriverPco = adDriverPco;
 		this.etfg = tfg;
@@ -181,14 +181,13 @@ public class PCOTFGTrigger extends SimpleAcquire {
 		// we want 1 image per trigger - there will be multiple triggers per collection
 		getAdBase().setNumImages(1);
 		getAdBase().setNumExposures(1);
-		getAdBase().setImageModeWait(ImageMode.SINGLE);
+		getAdBase().setImageModeWait(ImageMode.CONTINUOUS);
 		adDriverPco.getAdcModePV().putWait(adcMode); // 2 adcs
 		adDriverPco.getTimeStampModePV().putWait(timeStamp); // BCD - if set to None then the image is blank. BCD means no timestamp
 													// on image
 		// getAdBase().setAcquirePeriod(0.0); //this is needed for PCO to make sure delay=0 - do not use as it effects
 		// delay
-		//getAdBase().setTriggerMode(PcoTriggerMode.EXTERNAL_AND_SOFTWARE.ordinal()); // exposure time set by camera
-		getAdBase().setTriggerMode(PcoTriggerMode.EXTERNAL_ONLY.ordinal()); // exposure time set by camera
+		getAdBase().setTriggerMode(PcoTriggerMode.AUTO.ordinal()); // exposure time set by camera
 																					// rather than trigger
 		adDriverPco.getArmModePV().putWait(true);
 		// the callback is coming back before the camera is ready as seen by the BUSY out is still high

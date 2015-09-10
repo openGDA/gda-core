@@ -340,6 +340,7 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 	public void disableFileWriting() throws Exception {
 		NDPluginBase filePluginBase = getNdFile().getPluginBase();
 		if (filePluginBase != null) { // camserver filewriter has no base
+			Thread.sleep(1000);
 			filePluginBase.disableCallbacks();
 			filePluginBase.setBlockingCallbacks((short) 0);
 		}
