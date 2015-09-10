@@ -89,6 +89,10 @@ public class MultiScanRunner implements NestableScan, ContiguousScan{
 				scan.callScannablesAtScanStart();
 				scan.run();
 				pointCount = scan.currentPointCount;
+				Runnable postscan = item.postscan;
+				if( postscan != null){
+					postscan.run();
+				}
 			}
 			for (MultiScanItem item : scans) {
 				ScanBase scan = item.scan;
