@@ -818,6 +818,16 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 		return dataNode;
 	}
 
+	@Override
+	public void addNode(GroupNode group, String name, Node node) throws NexusException {
+		throw new NexusException("This method is not supported in this implementation");
+	}
+
+	@Override
+	public void addNode(String path, Node node) throws NexusException {
+		throw new NexusException("This method is not supported in this implementation");
+	}
+
 	/**
 	 * @param data
 	 * @return NAPI dataset type

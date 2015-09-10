@@ -1071,6 +1071,18 @@ public class NexusFileHDF5 implements NexusFile {
 	}
 
 	@Override
+	public void addNode(GroupNode group, String name, Node node) throws NexusException {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void addNode(String path, Node node) throws NexusException {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
 	public Attribute createAttribute(IDataset attr) {
 		assertOpen();
 		Attribute a = TreeFactory.createAttribute(attr.getName());
