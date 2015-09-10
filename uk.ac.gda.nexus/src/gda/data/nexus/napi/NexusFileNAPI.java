@@ -18,9 +18,6 @@
 
 package gda.data.nexus.napi;
 
-import gda.data.nexus.NexusUtils;
-import gda.data.nexus.extractor.NexusGroupData;
-
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.URI;
@@ -53,6 +50,9 @@ import org.nexusformat.NXlink;
 import org.nexusformat.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.data.nexus.NexusUtils;
+import gda.data.nexus.extractor.NexusGroupData;
 
 public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 	/**
@@ -259,7 +259,7 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 		}
 		String[] parts = path.split(Node.SEPARATOR);
 		String[][] pairs = new String[parts.length][];
-	
+
 		int i = 0;
 		for (String p : parts) {
 			pairs[i++] = p.split(NXCLASS_SEPARATOR, 2);
@@ -292,7 +292,7 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 	 * @param createPathIfNecessary
 	 * @param toBottom
 	 * @return name, NeXus class, group, path (with {@value Node#SEPARATOR}), external link, group, bottom node
-	 * @throws NexusException 
+	 * @throws NexusException
 	 */
 	private Tuple<String, GroupNode, Node> openAll(String path, boolean createPathIfNecessary, boolean toBottom) throws NexusException {
 		String[][] pairs = parseAugmentedPath(path);
@@ -331,7 +331,7 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 				break;
 			}
 			if (!group.containsGroupNode(name)) {
-				createGroupNode(cpath.hashCode(), group, ppath, name, clazz);
+				createGroupNode(cpath.hashCode(), group, name, clazz);
 			}
 			group = group.getGroupNode(name);
 			cpath.append(name);
@@ -390,7 +390,7 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 		return new Tuple<String, GroupNode, Node>(name, clazz, ppath, ext, group, node);
 	}
 
-	private void createGroupNode(long oid, GroupNode group, String path, String name, String clazz)
+	private void createGroupNode(long oid, GroupNode group, String name, String clazz)
 			throws NexusException {
 		GroupNode g = TreeFactory.createGroupNode(oid);
 		if (clazz != null && !clazz.isEmpty())
@@ -418,7 +418,7 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 					if (c.equals(SDS)) {
 						createDataNode(group, npath, n);
 					} else {
-						createGroupNode(npath.hashCode(), group, path, n, c);
+						createGroupNode(npath.hashCode(), group, n, c);
 						file.closegroup();
 					}
 				} else {
@@ -609,7 +609,7 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 			} else {
 				f.openToRead();
 			}
-			
+
 			return f.openAll(nodepath, createPathIfNecessary, toBottom);
 		}
 	}

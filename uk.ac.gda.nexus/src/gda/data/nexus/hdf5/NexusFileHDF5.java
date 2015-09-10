@@ -18,8 +18,6 @@
 
 package gda.data.nexus.hdf5;
 
-import gda.data.nexus.NexusUtils;
-
 import java.io.File;
 import java.io.Serializable;
 import java.net.URI;
@@ -30,14 +28,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-
-import ncsa.hdf.hdf5lib.H5;
-import ncsa.hdf.hdf5lib.HDF5Constants;
-import ncsa.hdf.hdf5lib.exceptions.HDF5Exception;
-import ncsa.hdf.hdf5lib.exceptions.HDF5LibraryException;
-import ncsa.hdf.hdf5lib.structs.H5G_info_t;
-import ncsa.hdf.hdf5lib.structs.H5L_info_t;
-import ncsa.hdf.hdf5lib.structs.H5O_info_t;
 
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
@@ -63,6 +53,14 @@ import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.data.nexus.NexusUtils;
+import ncsa.hdf.hdf5lib.H5;
+import ncsa.hdf.hdf5lib.HDF5Constants;
+import ncsa.hdf.hdf5lib.exceptions.HDF5Exception;
+import ncsa.hdf.hdf5lib.exceptions.HDF5LibraryException;
+import ncsa.hdf.hdf5lib.structs.H5G_info_t;
+import ncsa.hdf.hdf5lib.structs.H5L_info_t;
+import ncsa.hdf.hdf5lib.structs.H5O_info_t;
 import uk.ac.diamond.scisoft.analysis.io.HDF5LazyLoader;
 import uk.ac.diamond.scisoft.analysis.io.HDF5LazySaver;
 
@@ -707,7 +705,6 @@ public class NexusFileHDF5 implements NexusFile {
 		int[] iChunks = chunks == null ? null : longArrayToIntArray(chunks);
 		DataNode dataNode = TreeFactory.createDataNode(path.hashCode());
 		cacheAttributes(path, dataNode);
-		String parentPath = path.substring(0, path.length() - name.length());
 		parentNode.addDataNode(name, dataNode);
 		dataNode.setUnsigned(unsigned);
 		ILazyDataset lazyDataset = null;
