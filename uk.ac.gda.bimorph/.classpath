@@ -8,6 +8,5 @@
 	<classpathentry kind="lib" path="/tp/plugins/jcl.over.slf4j_1.7.6.jar"/>
 	<classpathentry exported="true" kind="lib" path="/tp/plugins/uk.ac.diamond.jama_1.0.3.jar"/>
 	<classpathentry kind="lib" path="/tp/plugins/log4j.over.slf4j_1.7.6.jar"/>
-	<classpathentry kind="lib" path="/ncsa.hdf/jars/netcdf.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
