@@ -1073,14 +1073,74 @@ public class NexusFileHDF5 implements NexusFile {
 
 	@Override
 	public void addNode(GroupNode group, String name, Node node) throws NexusException {
-		// TODO Auto-generated method stub
-
+		String parentPath = getPath(group);
+		recursivelyUpdateTree(parentPath, name, node);
 	}
 
 	@Override
 	public void addNode(String path, Node node) throws NexusException {
-		// TODO Auto-generated method stub
+		if (path == null || path == "" || path == Node.SEPARATOR) {
+			throw new IllegalArgumentException("Path name must be specified and cannot be the root");
+		}
+		String[] componenets = path.split(Node.SEPARATOR);
+		String name = componenets[componenets.length - 1];
+		String parentPath = path.substring(0, path.lastIndexOf(name));
+		recursivelyUpdateTree(parentPath, name, node);
+	}
 
+	private void recursivelyUpdateTree(String parentPath, String name, Node node) throws NexusException {
+		String nxClass = node.containsAttribute("NX_class") ? node.getAttribute("NX_class").getValue().getString(0) : "NULL";
+		String fullPath = parentPath + Node.SEPARATOR + name;
+		NodeData parentNodeData = getNode(parentPath, false);
+		GroupNode parentNode = (GroupNode) parentNodeData.node;
+		if (node instanceof GroupNode) {
+			GroupNode updatingGroupNode = (GroupNode) node;
+			if (!parentNode.containsGroupNode(name)) {
+				if (nxClass == "NULL") {
+					logger.warn("Adding node at " + fullPath + " without an NXclass");
+				}
+				long id = openGroup(fullPath, nxClass, true);
+				closeNode(id);
+			}
+			GroupNode existingNode = (GroupNode) getNode(fullPath, false).node;
+			Iterator<? extends Attribute> it = node.getAttributeIterator();
+			while (it.hasNext()) {
+				Attribute attr = it.next();
+				if (!existingNode.containsAttribute(attr.getName())) {
+					IDataset value = attr.getValue().getSlice();
+					value.setName(attr.getName());
+					addAttribute(existingNode, createAttribute(value));
+				}
+			}
+			for (String childName : updatingGroupNode.getNames()) {
+				Node childNode = updatingGroupNode.getNodeLink(childName).getDestination();
+				recursivelyUpdateTree(fullPath, childName, childNode);
+			}
+		} else if (node instanceof DataNode) {
+			DataNode updatingDataNode = (DataNode) node;
+			if (!parentNode.containsDataNode(name)) {
+				ILazyDataset dataset = updatingDataNode.getDataset();
+				if ((dataset instanceof IDataset)) {
+					createData(parentNode, (IDataset) dataset);
+				} else if ((dataset instanceof ILazyWriteableDataset)) {
+					createData(parentNode, (ILazyWriteableDataset) dataset);
+				} else {
+					throw new NexusException("Unrecognised dataset type");
+				}
+			}
+			DataNode existingNode = getData(parentNode, name);
+			Iterator<? extends Attribute> it = node.getAttributeIterator();
+			while (it.hasNext()) {
+				Attribute attr = it.next();
+				if (!existingNode.containsAttribute(attr.getName())) {
+					IDataset value = attr.getValue().getSlice();
+					value.setName(attr.getName());
+					addAttribute(existingNode, createAttribute(value));
+				}
+			}
+		} else {
+			throw new NexusException("Node to update is not a group or data node");
+		}
 	}
 
 	@Override

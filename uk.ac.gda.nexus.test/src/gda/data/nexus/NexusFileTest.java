@@ -39,6 +39,8 @@ import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.analysis.dataset.impl.LazyWriteableDataset;
+import org.eclipse.dawnsci.analysis.tree.impl.DataNodeImpl;
+import org.eclipse.dawnsci.analysis.tree.impl.GroupNodeImpl;
 import org.eclipse.dawnsci.hdf5.nexus.NexusException;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
 import org.junit.After;
@@ -907,5 +909,73 @@ public class NexusFileTest {
 		assertTrue(newChunking[0] * newChunking[1] * newChunking[2] * 8 >= 16 * 1024);
 		assertTrue(newChunking[0] * newChunking[1] * newChunking[2] * 8 <= 1024 * 1024);
 		assertTrue(newChunking[2] >= newChunking[1] && newChunking[2] >= newChunking[0]);
+	}
+
+	@Test
+	public void testAddGroupNode() throws Exception {
+		GroupNode groupNode = new GroupNodeImpl("/base/g".hashCode());
+		DataNode dataNode = new DataNodeImpl("/base/g/d".hashCode());
+		Dataset dataset = DatasetFactory.createRange(10.0, Dataset.FLOAT64).reshape(2, 5);
+		dataset.setName("d");
+		dataNode.setDataset(dataset);
+		groupNode.addDataNode(dataset.getName(), dataNode);
+		GroupNode base = nf.getGroup("/base", true);
+		nf.addNode(base, "g", groupNode);
+
+		GroupNode readG = nf.getGroup("/base/g", false);
+		assertNotNull(readG);
+		assertTrue(readG.containsDataNode("d"));
+		DataNode readDataNode = readG.getDataNode("d");
+		assertNotNull(readDataNode);
+		assertSame(readDataNode, nf.getData("/base/g/d"));
+		IDataset readData = readDataNode.getDataset().getSlice();
+		assertEquals(dataset, readData);
+		assertFalse(dataset == readData); // we probably shouldn't be referencing the same object
+	}
+
+	@Test
+	public void testUpdateNodes() throws Exception {
+		nf.getGroup("/a/b/c", true);
+		Dataset attrData = DatasetFactory.createRange(10.0, Dataset.FLOAT64).reshape(2, 5);
+		attrData.setName("atr");
+		Attribute attr = nf.createAttribute(attrData);
+		GroupNode base = nf.getGroup("/a", false);
+		GroupNode b = new GroupNodeImpl("/a/b".hashCode());
+		b.addAttribute(attr);
+		GroupNode x = new GroupNodeImpl("/a/b/x".hashCode());
+		b.addGroupNode("x", x);
+		nf.addNode(base, "b", b);
+
+		assertNotNull(nf.getGroup("/a/b/x", false));
+		GroupNode readB = nf.getGroup("/a/b", false);
+		assertTrue(readB.containsAttribute("atr"));
+		Attribute readAttr = readB.getAttribute("atr");
+		assertEquals(attrData, readAttr.getValue());
+	}
+
+	@Test
+	public void testAddLazyDataNode() throws Exception {
+		GroupNode g = new GroupNodeImpl("/base/g".hashCode());
+		DataNode lazyDataNode = new DataNodeImpl("/base/g/intarray".hashCode());
+		ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset("intarray", Dataset.INT32,
+				new int[] { ILazyWriteableDataset.UNLIMITED, 10 }, null, null);
+		lazyDataNode.setDataset(lazy);
+		g.addDataNode("intarray", lazyDataNode);
+		GroupNode base = nf.getGroup("/base", true);
+		nf.addNode(base, "g", g);
+
+		DataNode readNode = nf.getData("/base/g/intarray");
+		assertNotNull(readNode);
+		assertSame(lazy, readNode.getDataset());
+		nf.close();
+		nf = null;
+
+		lazy.setSlice(null, DatasetFactory.createFromObject(new int[] { -1, -1, -1, -1 }).reshape(2, 2),
+				new int[] { 0, 0 }, new int[] { 2, 2 }, null);
+
+		nf = NexusUtils.openNexusFileReadOnly(FILE_NAME);
+		DataNode node = nf.getData("/base/g/intarray");
+		IDataset data = node.getDataset().getSlice(new int[] { 0, 0 }, new int[] { 2, 2 }, new int[] { 1, 1 });
+		assertArrayEquals(new int[] { -1, -1, -1, -1 }, (int[]) ((Dataset) data).getBuffer());
 	}
 }
