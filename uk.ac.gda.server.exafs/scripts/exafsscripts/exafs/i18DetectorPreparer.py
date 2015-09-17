@@ -1,5 +1,6 @@
 from gda.device.detector.xspress import Xspress2DetectorConfiguration
 from gda.device.detector.xmap import VortexDetectorConfiguration
+from gda.factory import Finder
 from gda.epics import CAClient
 from gda.exafs.scan import BeanGroup, BeanGroups
 from gda.exafs.scan import ExafsScanPointCreator,XanesScanPointCreator
@@ -46,6 +47,12 @@ class I18DetectorPreparer:
             elif detType == "Xspress3":
                 self.xspress3Config.initialize()
                 self.xspress3Config.configure(xmlFileName)
+                finder = Finder.getInstance()
+                xspress3 = finder.find("xspress3")
+                if (isinstance(scanBean,XasScanParameters)or isinstance(scanBean,XanesScanParameters)):
+                    xspress3.setReadDataFromFile(False)
+                else:
+                     xspress3.setReadDataFromFile(True)
             self._control_all_ionc(fluoresenceParameters.getIonChamberParameters())
             if fluoresenceParameters.isCollectDiffractionImages() and isinstance (scanBean,MicroFocusScanParameters):
                 self._control_cmos(scanBean)
