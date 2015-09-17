@@ -978,4 +978,49 @@ public class NexusFileTest {
 		IDataset data = node.getDataset().getSlice(new int[] { 0, 0 }, new int[] { 2, 2 }, new int[] { 1, 1 });
 		assertArrayEquals(new int[] { -1, -1, -1, -1 }, (int[]) ((Dataset) data).getBuffer());
 	}
+
+	@Test
+	public void testAddNodeWithHardlinks() throws Exception {
+		GroupNode g = new GroupNodeImpl("/base/g".hashCode());
+		GroupNode h = new GroupNodeImpl("/base/g/h".hashCode());
+		g.addGroupNode("h", h);
+		// /base/g/i = hardlink to /base/g/h
+		g.addGroupNode("i", h);
+		GroupNode j = new GroupNodeImpl("/base/g/j".hashCode());
+		g.addGroupNode("j", j);
+		GroupNode k = new GroupNodeImpl("/base/g/h/k".hashCode());
+		h.addGroupNode("k", k);
+		// /base/g/h/k/l hardlink to /base/g/j
+		k.addGroupNode("l", j);
+
+		GroupNode base = nf.getGroup("/base", true);
+		nf.addNode(base, "g", g);
+
+		GroupNode readH = nf.getGroup("/base/g/h", false);
+		GroupNode readI = nf.getGroup("/base/g/i", false);
+		assertNotNull(readH);
+		assertSame(readH, readI);
+
+		GroupNode readL = nf.getGroup("/base/g/h/k/l", false);
+		GroupNode readJ = nf.getGroup("/base/g/j", false);
+		assertNotNull(readL);
+		assertSame(readJ, readL);
+
+		assertFalse(readH == readL);
+
+		nf.close();
+		nf = NexusUtils.openNexusFile(FILE_NAME);
+
+		readH = nf.getGroup("/base/g/h", false);
+		readI = nf.getGroup("/base/g/i", false);
+		assertNotNull(readH);
+		assertSame(readH, readI);
+
+		readL = nf.getGroup("/base/g/h/k/l", false);
+		readJ = nf.getGroup("/base/g/j", false);
+		assertNotNull(readL);
+		assertSame(readJ, readL);
+
+		assertFalse(readH == readL);
+	}
 }
