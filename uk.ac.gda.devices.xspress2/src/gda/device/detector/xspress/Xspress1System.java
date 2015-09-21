@@ -19,12 +19,6 @@
 
 package gda.device.detector.xspress;
 
-import java.util.ArrayList;
-
-import org.apache.commons.lang.ArrayUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeProvider;
@@ -32,6 +26,13 @@ import gda.device.DeviceException;
 import gda.device.Timer;
 import gda.device.detector.NXDetectorData;
 import gda.factory.FactoryException;
+
+import java.util.ArrayList;
+
+import org.apache.commons.lang.ArrayUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.vortex.DetectorDeadTimeElement;
 import uk.ac.gda.beans.vortex.DetectorElement;
@@ -39,12 +40,14 @@ import uk.ac.gda.beans.xspress.ResGrades;
 import uk.ac.gda.beans.xspress.XspressDeadTimeParameters;
 import uk.ac.gda.beans.xspress.XspressDetector;
 import uk.ac.gda.beans.xspress.XspressParameters;
+import uk.ac.gda.devices.detector.FluorescenceDetector;
+import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 /**
  * Represents a set of Xspress1 boards and detectors. Actually communicates with an DAServer object.
  */
-public class Xspress1System extends XspressSystem {
+public class Xspress1System extends XspressSystem implements XspressDetector, FluorescenceDetector {
 	private static final long serialVersionUID = 1L;
 	private static final Logger logger = LoggerFactory.getLogger(Xspress1System.class);
 	public static final int READOUT_FILE = 0;
@@ -55,6 +58,7 @@ public class Xspress1System extends XspressSystem {
 	private int framesRead = 0;
 	private XspressDeadTimeParameters xspressDeadTimeParameters;
 	private int numberOfDetectors;
+	public static int MCA_SIZE = 65536;
 
 
 	public Xspress1System() {
@@ -415,13 +419,13 @@ public class Xspress1System extends XspressSystem {
 		// Note We dont have resgrades so this is set to 1
 		// for compatibility with xspressDetector interface
 		int[] data = null;
-		int[][][] output = new int[numberOfDetectors][1][65535];
+		int[][][] output = new int[numberOfDetectors][1][MCA_SIZE];
 		for (int detector = 0; detector < numberOfDetectors; detector++) {
 			logger.debug("Reading mca detector " + detector);
 			xspressDetectorImpl.setCollectionTime(time);
-			data = xspressDetectorImpl.readoutMca(detector, 0, 1, 65535); // NOTE 1 time frame
+			data = xspressDetectorImpl.readoutMca(detector, 0, 1, MCA_SIZE - 1); // NOTE 1 time frame
 			if (data != null) {
-				for (int energy = 0; energy < 65535; energy++) {
+				for (int energy = 0; energy < MCA_SIZE - 1; energy++) {
 					output[detector][0][energy] = data[energy];
 				}
 			}
@@ -646,5 +650,45 @@ public class Xspress1System extends XspressSystem {
 			}
 		}
 		return results;
+	}
+
+	@Override
+	public double[][] getMCAData(double time) throws DeviceException {
+		// Note We dont have resgrades so this is set to 1
+		// for compatibility with xspressDetector interface
+		int[] data = null;
+		double[][] output = new double[numberOfDetectors][MCA_SIZE];
+		for (int detector = 0; detector < numberOfDetectors; detector++) {
+			logger.debug("Reading mca detector " + detector);
+			xspressDetectorImpl.setCollectionTime((int) time);
+			data = xspressDetectorImpl.readoutMca(detector, 0, 1, MCA_SIZE - 1); // NOTE 1 time frame
+			if (data != null) {
+				for (int energy = 0; energy < MCA_SIZE - 1; energy++) {
+					output[detector][energy] = data[energy];
+				}
+			}
+		}
+		return output;
+	}
+
+	@Override
+	public int getNumberOfElements() {
+		return numberOfDetectors;
+	}
+
+	@Override
+	public int getMCASize() {
+		return MCA_SIZE;
+	}
+
+	@Override
+	public void applyConfigurationParameters(FluorescenceDetectorParameters parameters) throws Exception {
+		this.xspressParameters = (XspressParameters) parameters;
+		this.configureDetectorFromParameters();
+	}
+
+	@Override
+	public FluorescenceDetectorParameters getConfigurationParameters() {
+		return xspressParameters;
 	}
 }
