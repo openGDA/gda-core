@@ -135,7 +135,7 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 
 	private void updateDataBindingController() {
 		if (fluorescenceDetectorComposite != null && detectorParameters != null) {
-			IBeanService service = (IBeanService) ExafsActivator.getService(IBeanService.class);
+			IBeanService service = ExafsActivator.getService(IBeanService.class);
 			dataBindingController = service.createController(fluorescenceDetectorComposite, detectorParameters);
 		}
 	}
@@ -321,7 +321,9 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 	private void plotDataAndUpdateCounts() {
 		if (theData != null) {
 			int element = getCurrentlySelectedElementNumber();
-			Dataset dataset = DatasetFactory.createFromObject(theData[element]);
+
+			double[] elementData = (element < theData.length) ? theData[element] : new double[] {/* empty */};
+			Dataset dataset = DatasetFactory.createFromObject(elementData);
 
 			String elementName = "Element " + element;
 			fluorescenceDetectorComposite.setXAxisLabel("Channel Number (" + elementName + ")");
@@ -344,12 +346,15 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 			fluorescenceDetectorComposite.setEnabledElementsCounts(enabledElementCounts);
 
 			int currentElement = getCurrentlySelectedElementNumber();
-			double currentElementCounts = calculateSingleElementTotal(theData[currentElement]);
+			double currentElementCounts = 0;
+			double regionCounts = 0;
+			if (currentElement < theData.length) {
+				currentElementCounts = calculateSingleElementTotal(theData[currentElement]);
+				int regionStart = fluorescenceDetectorComposite.getRegionStart();
+				int regionEnd = fluorescenceDetectorComposite.getRegionEnd();
+				regionCounts = calculateRegionTotal(theData[currentElement], regionStart, regionEnd);
+			}
 			fluorescenceDetectorComposite.setSelectedElementCounts(currentElementCounts);
-
-			int regionStart = fluorescenceDetectorComposite.getRegionStart();
-			int regionEnd = fluorescenceDetectorComposite.getRegionEnd();
-			double regionCounts = calculateRegionTotal(theData[currentElement], regionStart, regionEnd);
 			fluorescenceDetectorComposite.setSelectedRegionCounts(regionCounts);
 		}
 	}
@@ -357,7 +362,7 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 	private double calculateEnabledElementTotal() {
 		double total = 0;
 		for (DetectorElement element : detectorParameters.getDetectorList()) {
-			if (!element.isExcluded()) {
+			if (element.getNumber() < theData.length && !element.isExcluded()) {
 				total += calculateSingleElementTotal(theData[element.getNumber()]);
 			}
 		}
