@@ -7,7 +7,7 @@ public interface FluorescenceDetector extends Detector {
 
 	/**
 	 * Perform a 'snapshot' data collection and return the MCA data. No file writing is involved.
-	 * 
+	 *
 	 * @param time The collection time in milliseconds
 	 * @return the MCA data as a double array: [detector element][MCA channel]
 	 * @throws DeviceException
@@ -26,13 +26,18 @@ public interface FluorescenceDetector extends Detector {
 	public int getMCASize();
 
 	/**
+	 * @return The maximum number of ROIs per channel
+	 */
+	public int getMaxNumberOfRois();
+
+	/**
 	 * Configure the detector using the given parameters
-	 * 
+	 *
 	 * @param parameters
 	 * @throws Exception
 	 */
 	public void applyConfigurationParameters(FluorescenceDetectorParameters parameters) throws Exception;
-	
+
 	/**
 	 * @return The current detector configuration
 	 */

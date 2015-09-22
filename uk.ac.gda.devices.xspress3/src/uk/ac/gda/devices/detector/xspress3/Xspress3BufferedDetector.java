@@ -457,6 +457,11 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 	}
 
 	@Override
+	public int getMaxNumberOfRois() {
+		return xspress3Detector.getMaxNumberOfRois();
+	}
+
+	@Override
 	public void applyConfigurationParameters(FluorescenceDetectorParameters parameters) throws Exception {
 		xspress3Detector.applyConfigurationParameters(parameters);
 	}

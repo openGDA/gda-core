@@ -34,7 +34,6 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,16 +89,16 @@ public class FluorescenceDetectorComposite extends Composite {
 			acquireComposite = new FluoDetectorAcquireComposite(sashFormPlot.getLeft(), SWT.NONE);
 			horizontalGrabGridData.applyTo(acquireComposite);
 
-			elementsComposite = new FluoDetectorElementsComposite(sashFormPlot.getLeft(), SWT.NONE);
-			horizontalGrabGridData.applyTo(elementsComposite);
-
 			countsComposite = new FluoDetectorCountsComposite(sashFormPlot.getLeft(), SWT.NONE);
 			horizontalGrabGridData.applyTo(countsComposite);
+
+			elementsComposite = new FluoDetectorElementsComposite(sashFormPlot.getLeft(), SWT.NONE);
+			horizontalGrabGridData.applyTo(elementsComposite);
 
 			regionsComposite = new FluoDetectorRegionsComposite(sashFormPlot.getLeft(), SWT.NONE, elementsComposite);
 			horizontalGrabGridData.applyTo(regionsComposite);
 
-			updateAfterLayoutChange();
+			sashFormPlot.computeSizes();
 
 		} catch (Exception ex) {
 			// Creating the PlottingSystem in SashFormPlotComposite can throw Exception
@@ -109,17 +108,6 @@ public class FluorescenceDetectorComposite extends Composite {
 		}
 	}
 
-	private void updateAfterLayoutChange() {
-		sashFormPlot.computeSizes();
-		// Set up a task to make final adjustments after the GUI has finished construction
-		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				regionsComposite.updateAfterLayoutChange();
-			}
-		});
-	}
-
 	/**
 	 * Call this once after construction when the number of detector elements is known
 	 *
@@ -127,7 +115,7 @@ public class FluorescenceDetectorComposite extends Composite {
 	 */
 	public void setDetectorElementListSize(int size) {
 		elementsComposite.configureDetectorElementTable(size, regionsComposite);
-		updateAfterLayoutChange();
+		sashFormPlot.computeSizes();
 	}
 
 	/**
@@ -138,6 +126,15 @@ public class FluorescenceDetectorComposite extends Composite {
 	public void setMCASize(int mcaSize) {
 		this.mcaSize = mcaSize;
 		regionsComposite.getRoiEnd().setMaximum(mcaSize);
+	}
+
+	/**
+	 * Call this after construction when the maximum number of ROIs per channel is known
+	 *
+	 * @param maxNumberOfRois
+	 */
+	public void setMaxNumberOfRois(int maxNumberOfRois) {
+		getRegionList().setMaxItems(maxNumberOfRois);
 	}
 
 	// TODO move the label outside the acquire composite?
@@ -164,10 +161,24 @@ public class FluorescenceDetectorComposite extends Composite {
 	}
 
 	/**
+	 * For access by BeanUI only. This name must match the field name in XspressParameters.
+	 */
+	public IFieldWidget getEditIndividualElements() {
+		return regionsComposite.getApplyToAllCheckbox(); // the apply to all box has reversed boolean mode
+	}
+
+	/**
+	 * For access by the controller.
+	 */
+	public boolean isApplyRoisToAllElements() {
+		return regionsComposite.getApplyToAllCheckbox().getButton().getSelection();
+	}
+
+	/**
 	 * For access by the controller <em>only</em> for the purpose of initialising the Import Region wizard.
 	 * <p>
-	 * It would be better to avoid breaking encapsulation like this if possible but that might not be possible, or would
-	 * certainly require the wizard to be rewritten.
+	 * It would be better to avoid breaking encapsulation like this if possible but that might not be possible, or would certainly require the wizard to be
+	 * rewritten.
 	 */
 	public ListEditor getRegionList() {
 		return regionsComposite.getRegionList();

@@ -19,12 +19,6 @@
 
 package gda.device.detector.xspress;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.configuration.properties.LocalProperties;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
@@ -33,6 +27,13 @@ import gda.device.detector.xspress.xspress2data.Xspress2Controller;
 import gda.device.detector.xspress.xspress2data.Xspress2CurrentSettings;
 import gda.device.detector.xspress.xspress2data.Xspress2NexusTreeProvider;
 import gda.factory.FactoryException;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.vortex.DetectorDeadTimeElement;
 import uk.ac.gda.beans.vortex.DetectorElement;
@@ -69,6 +70,8 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 	public static final int RES_THRES = 2;
 	public static final int ALL_RES = 16;
 	public static final String ADD_DT_VALUES_ATTR = "add_dt_values";
+
+	protected int maxNumberOfRois = 7; // TODO check this value against what the hardware can actually handle!
 
 	protected int lastFrameCollected = 0;
 	// mode override property, when set to true the xspress is always set in SCAlers and MCA Mode
@@ -645,7 +648,7 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 				performCorrections, controller.getI0());
 
 	}
-	
+
 	public double[][] readoutScalerData(int startFrame, int finalFrame, boolean performCorrections,
 			int[] rawscalerData, int currentMcaSize) throws DeviceException {
 		return readoutScalerData(getName(), startFrame, finalFrame, performCorrections,
@@ -800,7 +803,7 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 
 	@Override
 	public double[][] getMCAData(double time) throws DeviceException {
-		
+
 		int[] data = controller.runOneFrame((int) Math.round(time));
 
 		if (data != null) {
@@ -808,18 +811,18 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 				// [numFrames][numberOfDetectors][numResGrades][mcaSize]
 				int[][][][] fourD = xspress2SystemData.unpackRawDataTo4D(data, 1, 1, 4096,
 						settings.getNumberOfDetectors());
-				
+
 				// remove frame and res-grade settings - not used by I18 or B18
 				int numDetectors = fourD[0].length;
 				int mcaSize = fourD[0][0][0].length;
 				double[][] twoD = new double[numDetectors][mcaSize];
-				
+
 				for (int det = 0; det < numDetectors; det++){
 					for (int mcaChan = 0; mcaChan < mcaSize; mcaChan++){
 						twoD[det][mcaChan] = fourD[0][det][0][mcaChan];
 					}
 				}
-				
+
 				return twoD;
 			} catch (Exception e) {
 				throw new DeviceException("Error while unpacking MCA Data. Data length was " + data.length, e);
@@ -830,7 +833,7 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 	}
 
 	public void loadConfigurationFromFile() throws Exception {
-		loadAndInitializeDetectors(getConfigFileName());		
+		loadAndInitializeDetectors(getConfigFileName());
 	}
 
 	public DetectorROI[] getRegionsOfInterest() throws DeviceException {
@@ -840,13 +843,13 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 
 	public void setRegionsOfInterest(DetectorROI[] regionList)
 			throws DeviceException {
-		
+
 		// convert to list
 		List<DetectorROI> rois = new ArrayList<DetectorROI>();
 		for(DetectorROI roi : regionList){
 			rois.add(roi);
 		}
-		
+
 		// replace rois in each detector channel(element) in the settings object and push to hardware
 		for(DetectorElement element : settings.getParameters().getDetectorList()){
 			element.setRegionList(rois);
@@ -862,6 +865,11 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 	@Override
 	public int getMCASize() {
 		return settings.getFullMCASize();
+	}
+
+	@Override
+	public int getMaxNumberOfRois() {
+		return maxNumberOfRois;
 	}
 
 	@Override

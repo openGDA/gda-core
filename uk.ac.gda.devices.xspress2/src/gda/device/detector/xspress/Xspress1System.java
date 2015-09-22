@@ -59,6 +59,7 @@ public class Xspress1System extends XspressSystem implements XspressDetector, Fl
 	private XspressDeadTimeParameters xspressDeadTimeParameters;
 	private int numberOfDetectors;
 	public static int MCA_SIZE = 65536;
+	private int maxNumberOfRois = 1; // The code currently uses one ROI to represent the detector window
 
 
 	public Xspress1System() {
@@ -152,7 +153,8 @@ public class Xspress1System extends XspressSystem implements XspressDetector, Fl
 
 	private void configureDetectorFromParameters() throws DeviceException {
 		for (DetectorElement detector : xspressParameters.getDetectorList()) {
-			xspressDetectorImpl.setWindows(detector.getNumber(), detector.getWindowStart(), detector.getWindowEnd());
+			DetectorROI detectorRoi = detector.getRegionList().get(0);
+			xspressDetectorImpl.setWindows(detector.getNumber(), detectorRoi.getRoiStart(), detectorRoi.getRoiEnd());
 		}
 	}
 
@@ -177,23 +179,6 @@ public class Xspress1System extends XspressSystem implements XspressDetector, Fl
 		loadAndInitializeDetectors(filename);
 		xspressDeadTimeParameters = (XspressDeadTimeParameters)XMLHelpers.createFromXML(XspressDeadTimeParameters.mappingURL,
 				XspressDeadTimeParameters.class, XspressDeadTimeParameters.schemaURL, dtcConfigFileName);
-//		xspressDeadTimeParameters = (XspressDeadTimeParameters)XMLHelpers.createFromXML(DetectorDeadTimeElement.mappingURL,
-//				DetectorDeadTimeElement.class, DetectorDeadTimeElement.schemaURL, dtcConfigFileName);
-	}
-	/**
-	 * Set the hardware scaler window
-	 *
-	 * @param detector
-	 * @param windowStart
-	 * @param windowEnd
-	 * @throws DeviceException
-	 */
-	public void setWindows(int detector, int windowStart, int windowEnd) throws DeviceException {
-		DetectorElement detectorElement = xspressParameters.getDetector(detector);
-		detectorElement.setWindow(windowStart, windowEnd);
-		if (configured) {
-			xspressDetectorImpl.setWindows(detectorElement.getNumber(), windowStart, windowEnd);
-		}
 	}
 
 	@Override
@@ -679,6 +664,11 @@ public class Xspress1System extends XspressSystem implements XspressDetector, Fl
 	@Override
 	public int getMCASize() {
 		return MCA_SIZE;
+	}
+
+	@Override
+	public int getMaxNumberOfRois() {
+		return maxNumberOfRois;
 	}
 
 	@Override

@@ -24,6 +24,8 @@ import org.apache.commons.beanutils.BeanUtils;
 
 public class DetectorROI implements Serializable {
 
+	private static final long serialVersionUID = -213975250331620456L;
+
 	private int roiStart;
 	private int roiEnd;
 	private String roiName = "<need to set a name>";
@@ -31,10 +33,17 @@ public class DetectorROI implements Serializable {
 	public DetectorROI() {
 	}
 
+	/**
+	 * Copy constructor
+	 */
+	public DetectorROI(DetectorROI roiToCopy) {
+		this(roiToCopy.getRoiName(), roiToCopy.getRoiStart(), roiToCopy.getRoiEnd());
+	}
+
 	public DetectorROI(String roiName, int roiStart, int roiEnd) {
 		this.roiName = roiName;
-		this.roiEnd = roiEnd;
 		this.roiStart = roiStart;
+		this.roiEnd = roiEnd;
 	}
 
 	@Override
