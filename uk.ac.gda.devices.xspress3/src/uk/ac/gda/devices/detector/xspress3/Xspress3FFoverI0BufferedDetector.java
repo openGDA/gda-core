@@ -18,6 +18,9 @@
 
 package uk.ac.gda.devices.detector.xspress3;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.ContinuousParameters;
 import gda.device.DeviceException;
@@ -32,7 +35,10 @@ import gda.device.detector.countertimer.BufferedScaler;
  * @author rjw82
  *
  */
-public class Xspress3FFoverI0BufferedDetector extends DetectorBase implements BufferedDetector{
+public class Xspress3FFoverI0BufferedDetector extends DetectorBase implements BufferedDetector {
+
+	private static final Logger logger = LoggerFactory.getLogger(Xspress3FFoverI0BufferedDetector.class);
+
 	private Xspress3BufferedDetector qxspress = null;
 	private BufferedScaler qscaler = null;
 	protected ContinuousParameters continuousParameters = null;
@@ -71,14 +77,20 @@ public class Xspress3FFoverI0BufferedDetector extends DetectorBase implements Bu
 
 	private double getFF(NexusTreeProvider[] expressFrames, int i) {
 		NXDetectorData expressFrameData = (NXDetectorData) expressFrames[i];
-		Double[] xspressOutput = expressFrameData.getDoubleVals();
-		String[] names = qxspress.getExtraNames();
-		
-		double ffTotal = 0;
-		for (int index = 0; index < names.length; index++) {
-			if (names[index].equals("FF")) {
-				ffTotal = xspressOutput[index];
+		Double[] FFs = expressFrameData.getDoubleVals();
+		String[] extraNames = expressFrameData.getExtraNames();
+
+		// If we can find the FF value, return it
+		for (int index = 0; index < extraNames.length && index < FFs.length; index++) {
+			if ("FF".equals(extraNames[index])) {
+				return FFs[index].doubleValue();
 			}
+		}
+
+		logger.warn("FF not found; using the sum of all Xspress3 plottable values");
+		double ffTotal = 0;
+		for (Double ff : FFs){
+			ffTotal += ff;
 		}
 		return ffTotal;
 	}
