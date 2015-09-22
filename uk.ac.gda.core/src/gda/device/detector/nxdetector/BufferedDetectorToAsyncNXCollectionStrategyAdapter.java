@@ -1,12 +1,13 @@
 package gda.device.detector.nxdetector;
 
-import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.ContinuousParameters;
 import gda.device.DeviceException;
 import gda.device.detector.BufferedDetector;
+import gda.device.detector.NXDetectorData;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
+import gda.device.detector.nxdata.NXDetectorDataChildNodeAppender;
 import gda.device.detector.nxdata.NXDetectorDataDoubleAppender;
-import gda.device.detector.nxdata.NXDetectorDataNexusTreeProviderAppender;
+import gda.device.detector.nxdata.NXDetectorSerialAppender;
 import gda.scan.ScanInformation;
 
 import java.util.ArrayList;
@@ -240,10 +241,18 @@ public class BufferedDetectorToAsyncNXCollectionStrategyAdapter implements Async
 		NXDetectorDataAppender appender = null;
 
 		// Xspress3BufferedDetector returns NXDetectorData objects. Xspress2BufferedDetector, XmapBufferedDetector and
-		// DummyXmapBufferedDetector return NexusTreeProvider objects (which might really be NXDetectorData objects but
-		// are not declared as such). Both types will be handled correctly by an NXDetectorDataNexusTreeProviderAppender
-		if (dataObject instanceof NexusTreeProvider) {
-			appender = new NXDetectorDataNexusTreeProviderAppender((NexusTreeProvider)dataObject);
+		// DummyXmapBufferedDetector claim to return NexusTreeProvider objects, but they are actually NXDetectorData
+		// objects just not declared as such. Therefore checking for NXDetectorData should work for all of them.
+		if (dataObject instanceof NXDetectorData) {
+			NXDetectorData nxData = (NXDetectorData) dataObject;
+
+			// Get the first detector tree from the data object and append it to the parent data. This is necessary since
+			// the detector names do not match (the BufferedDetector has a different name from the normal Detector) but
+			// could cause problems if the data object has multiple detector trees.
+			NXDetectorDataAppender nexusAppender = new NXDetectorDataChildNodeAppender(nxData.getDetTree(null));
+
+			NXDetectorDataAppender doubleValuesAppender = new NXDetectorDataDoubleAppender(Arrays.asList(nxData.getExtraNames()), Arrays.asList(nxData.getDoubleVals()));
+			appender = new NXDetectorSerialAppender(Arrays.asList(new NXDetectorDataAppender[] { nexusAppender, doubleValuesAppender }));
 		}
 		// Xspress3FFoverI0BufferedDetector, VortexQexafsFFIO, QexafsGMSDOverI0 and QexafsFFoverIO return Doubles
 		// Creation of NXDetectorDataDoubleAppender will fail if getInputStreamNames().size() != 1
