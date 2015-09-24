@@ -22,6 +22,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import gda.util.TestUtils;
 
 import java.io.File;
 import java.net.URI;
@@ -31,11 +32,18 @@ import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.hdf5.nexus.NexusException;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class NexusFileLinkTest {
+	static String testScratchDirectoryName;
+
+	@BeforeClass
+	public static void setUpBeforeClass() throws Exception {
+		testScratchDirectoryName = TestUtils.generateDirectorynameFromClassname(NexusFileLinkTest.class.getCanonicalName());
+		TestUtils.makeScratchDirectory(testScratchDirectoryName);
+	}
+
 	@Test
 	public void testAuthority() throws Exception {
 		// explore how URI is decomposed
@@ -70,8 +78,8 @@ public class NexusFileLinkTest {
 		GroupNode g;
 
 		// create file where /e/f/g -> a so /e/f/g/b/c is available
-		ename = createExternalFile("test-scratch/external1.nxs", a);
-		tname = "test-scratch/test1.nxs";
+		ename = createExternalFile(testScratchDirectoryName + "external1.nxs", a);
+		tname = testScratchDirectoryName + "test1.nxs";
 		nf = NexusUtils.createNexusFile(tname);
 		nf.linkExternal(new URI("nxfile://./" + ename + "#/a"), "/e/f/g", true);
 		nf.close();
@@ -91,8 +99,8 @@ public class NexusFileLinkTest {
 		nf.close();
 
 		// create file where /e/f/g/a -> a so /e/f/g/a/b/c is available
-		ename = createExternalFile("test-scratch/external2.nxs", a);
-		tname = "test-scratch/test2.nxs";
+		ename = createExternalFile(testScratchDirectoryName + "external2.nxs", a);
+		tname = testScratchDirectoryName + "test2.nxs";
 		nf = NexusUtils.createNexusFile(tname);
 		nf.linkExternal(new URI("nxfile://./" + ename + "#/a"), "/e/f/g/", true);
 		nf.close();
@@ -117,9 +125,9 @@ public class NexusFileLinkTest {
 		nf.close();
 
 		// create file where /e/f/d -> value so /e/f/d is available
-		ename = createExternalFile("test-scratch/external3.nxs", a);
+		ename = createExternalFile(testScratchDirectoryName + "external3.nxs", a);
 		createExternalFile(ename, a);
-		tname = "test-scratch/test3.nxs";
+		tname = testScratchDirectoryName + "test3.nxs";
 		nf = NexusUtils.createNexusFile(tname);
 		nf.linkExternal(new URI("nxfile://./" + ename + "#/a/b/c/value"), "/e/f/d", false);
 		nf.close();
@@ -134,9 +142,9 @@ public class NexusFileLinkTest {
 		nf.close();
 
 		// create file where /e/f/g -> c so /e/f/g/value is available
-		ename = createExternalFile("test-scratch/external4.nxs", a);
+		ename = createExternalFile(testScratchDirectoryName + "external4.nxs", a);
 		createExternalFile(ename, a);
-		tname = "test-scratch/test4.nxs";
+		tname = testScratchDirectoryName + "test4.nxs";
 		nf = NexusUtils.createNexusFile(tname);
 		nf.linkExternal(new URI("nxfile://./" + ename + "#/a/b/c/value"), "/e/f/g/", false);
 		nf.close();
@@ -149,22 +157,6 @@ public class NexusFileLinkTest {
 		assertEquals(a, nf.getData(g, "value").getDataset().getSlice());
 		assertEquals(a, nf.getData("/e/f/g/value").getDataset().getSlice());
 		nf.close();
-	}
-
-	@AfterClass
-	@BeforeClass
-	public static void cleanUp() {
-		delete("test-scratch/external.nxs");
-		delete("test-scratch/external1.nxs");
-		delete("test-scratch/external2.nxs");
-		delete("test-scratch/external3.nxs");
-		delete("test-scratch/external4.nxs");
-	}
-
-	private static void delete(String filename) {
-		File f = new File(filename);
-		if (f.exists())
-			f.delete();
 	}
 
 	// need to create a new external file as NAPI does not seem to cope well if an external file

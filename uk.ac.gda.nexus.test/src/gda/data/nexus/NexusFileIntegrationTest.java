@@ -22,6 +22,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import gda.util.TestUtils;
 
 import java.net.URI;
 
@@ -37,13 +38,21 @@ import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.analysis.dataset.impl.LazyWriteableDataset;
 import org.eclipse.dawnsci.hdf5.nexus.NexusException;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class NexusFileIntegrationTest {
+	static String testScratchDirectoryName;
+
+	@BeforeClass
+	public static void setUpBeforeClass() throws Exception {
+		testScratchDirectoryName = TestUtils.generateDirectorynameFromClassname(NexusFileIntegrationTest.class.getCanonicalName());
+		TestUtils.makeScratchDirectory(testScratchDirectoryName);
+	}
 
 	@Test
 	public void testNexusFile() throws Exception {
-		String name = "test-scratch/test.nxs";
+		String name = testScratchDirectoryName + "test.nxs";
 		NexusFile nf = NexusUtils.createNexusFile(name);
 
 		GroupNode g = nf.getGroup("/e/a/b", true);
