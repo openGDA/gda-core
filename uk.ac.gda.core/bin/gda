@@ -88,11 +88,8 @@ class PluginData(object):
 			self.logger.error('Manifest file "%s" does not exist' % (self.manifest,))
 			self.manifest_lines = []
 			return
-		f = open(self.manifest)
-		try:
-			self.manifest_lines = f.readlines()
-		finally:
-			f.close()
+		with open(self.manifest, 'r') as manifest_file:
+			self.manifest_lines = manifest_file.readlines()
 		if not self.manifest_lines:
 			self.logger.error('Manifest file "%s" is empty' % (self.manifest,))
 		return self.manifest_lines
@@ -286,7 +283,7 @@ where task can be:
 	def mainline(self, argv):
 
 		self.get_commandlineArgs(argv)
-		# this file is  <workspace>_git/gda-core.git/uk.ac.gda.core/bin/gda
+		# this file is workspace_git/gda-core.git/uk.ac.gda.core/bin/gda
 		self.gda_install_git_loc = os.path.realpath(abspath(os.path.realpath(os.path.dirname(__file__)), "..", "..", ".."))
 		assert self.gda_install_git_loc.endswith("_git")
 		self.gda_install_workspace_loc = self.gda_install_git_loc[:-4]
@@ -318,7 +315,7 @@ where task can be:
 			"debug_suspend": self.options.debug_suspend
 		}
 
-		will_start_objectserver = self.task in ("objectserver", "servers")
+		will_start_objectserver = self.task in ("objectserver", "servers") and self.options.start
 		if will_start_objectserver and self.layout != OLD:
 			self.options.os_xml = abspath(self.options.gda_config, "servers", self.options.profile, self.options.gda_mode, "server.xml")
 			if not os.path.isfile(self.options.os_xml):
@@ -468,9 +465,11 @@ where task can be:
 		self.osIsWindows = os.name == 'nt'
 		if self.osIsWindows : 
 			javaFileName = "java.exe"
+			jpsFileName = "jps.exe"
 			self.libPath = "Path"
 		else:
 			javaFileName = "java"
+			jpsFileName = "jps"
 			self.libPath = "LD_LIBRARY_PATH"
 
 		# Complain if JAVA_HOME is not set
@@ -483,6 +482,10 @@ where task can be:
 		self.javabin = abspath(java_home, "bin", javaFileName)
 		if not os.path.isfile(self.javabin):
 			self.logger.critical('JAVA_HOME does not appear to point to a JRE or JDK - "%s" does not exist.' % (self.javabin,))
+			sys.exit(1)
+		self.jpsbin = abspath(java_home, "bin", jpsFileName)
+		if not os.path.isfile(self.jpsbin):
+			self.logger.critical('JAVA_HOME does not appear to point to a JRE or JDK - "%s" does not exist.' % (self.jpsbin,))
 			sys.exit(1)
 
 		# look for extra VM arguments
@@ -908,14 +911,12 @@ where task can be:
 		self.logger.debug("adding to %s: %s " % (self.libPath, path))
 
 
-	def getpids(self, grep_phrases):
+	def getpids(self, grep_phrases, use_jps):
 		if len(grep_phrases) == 0:
 			raise "getpids - grep_phrases is empty)"
-		self.logger.debug("grep_phrases is %s" % (grep_phrases,))
 		pids = ()
 		if(self.osIsWindows):
-			jpsPath = abspath(os.getenv("JAVA_HOME"), "bin", "jps.exe")
-			a = self.gdaos.popen_get_stdout('"%s" -vl' % jpsPath, False)  # quotes around jpsPath in case of embedded blanks
+			a = self.gdaos.popen_get_stdout('"%s" -vl' % self.jpsbin, False)  # quotes around jpsPath in case of embedded blanks
 			lines = a.readlines()
 			print "pid lines are "
 			print lines
@@ -935,29 +936,41 @@ where task can be:
 				if allfound:
 					pids += (int(parts[0]),)
 		else:
-			a = self.gdaos.popen_get_stdout("ps -u `whoami` -f --cols 6000 | grep -F -e '%s' | grep -v grep " % grep_phrases[0], False)
-			lines = a.readlines()
-			if self.options.verbose :
-				print lines
-			# pids=()
-			for line in lines :
-				line = line.strip()
-				parts = line.split()
-				allfound = True 
-				for grep_phrase in grep_phrases:
-					if not grep_phrase in parts:
-						allfound = False
-						break
-				if allfound:
-					pids += (int(parts[1]),)
-		if self.options.verbose :
-			print pids
+			if use_jps:
+				a = self.gdaos.popen_get_stdout("%s -l | grep %s" % (self.jpsbin, grep_phrases[0]), False)
+				lines = a.readlines()
+				self.logger.debug("getpids: jps returned %s" % (lines,))
+				for line in lines:
+					pids += (int(line.split()[0]),)
+			else:
+				a = self.gdaos.popen_get_stdout("ps -u `whoami` -f --cols 6000 | grep -F -e '%s' | grep -v grep " % grep_phrases[0], False)
+				lines = a.readlines()
+				self.logger.debug("getpids: grep returned %s" % (lines,))
+				for line in lines :
+					line = line.strip()
+					parts = line.split()
+					allfound = True 
+					for grep_phrase in grep_phrases:
+						if not grep_phrase in parts:
+							allfound = False
+							break
+					if allfound:
+						pids += (int(parts[1]),)
+		self.logger.debug("getpids: found pids %s" % (pids,))
 		return pids
 
-	def kill_process(self, grep_phrases, send_quit=False):
+	def kill_process(self, grep_phrases, use_jps=False, send_quit=False):
+		"""
+		grep_phrases (a misnomer) is a list of strings, which together identify which pid(s) to kill.
+		use_jps=True says that the process to kill is a java process, so use "jps" to identify the pid(s) to kill.
+		use_jps=False says to use "ps", and grep over the output, to identify the pid(s) to kill.
+		Although the code below attempts to work on Windows, this is unsupported and untested, and will probably be removed in future.
+		"""
+
+		self.logger.debug("kill_process entered for %s" % (grep_phrases,))
 		if(self.osIsWindows):
 			print grep_phrases
-			pids = self.getpids(grep_phrases)
+			pids = self.getpids(grep_phrases, use_jps)
 			for pid in pids:
 				if not self.options.dry_run:
 					try:
@@ -974,32 +987,29 @@ where task can be:
 			# sending the quit signal to the VM process produces a thread dump
 			if send_quit:
 				signals = [signal.SIGQUIT] + signals
-			
+
 			for sig in signals:
-				pids = self.getpids(grep_phrases)
+				pids = self.getpids(grep_phrases, use_jps)
+				if not pids:
+					return True
 				for pid in pids:
-					if self.options.verbose:
-						print "About to kill process %d with signal %d" % (pid, sig)
+					self.logger.debug("About to kill process %d with signal %d" % (pid, sig))
 					if not self.options.dry_run:
 						try:
 							os.kill(pid, sig)
-						except:
-							type, exception, traceback = sys.exc_info()
-							print "Exception raised when trying to kill process %s. %s" % (pid, exception)
-							print "You may not have privilege"
+						except Exception as fault:
+							exc_type = sys.exc_info()[0]
+							self.logger.critical("Exception raised when trying to kill process %s: %s %s" % (pid, exc_type, fault))
 							return False
-						if (len(pids) > 0 and sig == signal.SIGTERM):
-							time.sleep(3)
-						pids = self.getpids(grep_phrases)
-						if (len(pids) > 0 and sig == signal.SIGTERM):
-							time.sleep(7)
-						if (len(pids) == 0):
-							return True
+				if sig != signal.SIGKILL:
+					time.sleep(3)
+				else:
+					time.sleep(7)
 		if self.options.dry_run:
 			return True
-		pids = self.getpids(grep_phrases)
+		pids = self.getpids(grep_phrases, use_jps)
 		for pid in pids:
-			print "Error -unable to kill process id=%d", pid
+			self.logger.critical("Unable to kill process %s" % (pid,))
 		return len(pids) == 0
 
 
@@ -1014,7 +1024,7 @@ where task can be:
 		self.logger.debug("setting CLASSPATH to %s" % new_class_path)
 		class_name_tuple = (class_name,)
 		pid = self.start_process(self.javabin, prevmargs, vmargs, class_name_tuple + args, wait, debug_opts)
-		# Reset to old value so that future calls to java are not effected by this one
+		# Reset to old value so that future calls to java are not affected by this one
 		self.gdaos.putenv("CLASSPATH", old_class_path)
 		return pid
 
@@ -1055,7 +1065,7 @@ where task can be:
 			return self.gdaos.spawn_nowait(imagePath , prevmargs + vmargs_tuple + args, self.options.dry_run)
 
 	def stop_start_java(self, classpath, class_name, vmargs=(), args=(), sleep=0, debug_opts=None):
-		if self.options.stop and not self.kill_process((class_name,) + vmargs + args, send_quit=self.options.threaddump):
+		if self.options.stop and not self.kill_process((class_name,), use_jps=True, send_quit=self.options.threaddump):
 			return 0
 		if not self.options.start:
 			return 0
@@ -1236,17 +1246,16 @@ where task can be:
 		if self.options.dry_run:
 			return 
 		lines = a.readlines()
-		if self.options.verbose:
-			print lines
+		self.logger.debug("get_version: lines=%s" % (lines,))
 		script = ""
 		for line in lines:
 			script += line
 		exec(script)
 		class_path_returned = eval("TestStartupScript_result[\"CLASSPATH\"]")
 		if repr(class_path) != repr(class_path_returned):
-			print "Error get_version returned incorrect classpath"
-			print class_path_returned
-			print class_path
+			self.logger.critical("get_version: returned incorrect classpath")
+			self.logger.critical("class_path_returned: %s" % (class_path_returned,))
+			self.logger.critical("class_path         : %s" % (class_path,))
 			return "Error get_version returned incorrect classpath"
 		else:
 			return eval("TestStartupScript_result[\"Release\"]")

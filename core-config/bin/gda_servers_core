@@ -63,7 +63,7 @@ else
 
     export JAVA_OPTS="-Dgda.deploytype=1 -XX:MaxPermSize=1024m" # Seems to fix the reset_namespace problem
     #GDA_CORE_SCRIPT_OPTIONS="--headless --debug --debugport=8001 --mode=$GDA_MODE $@"
-    GDA_CORE_SCRIPT_OPTIONS="--headless --debug --debugport=8001 --mode=$GDA_MODE --vardir=${GDA_VAR} $@"
+    GDA_CORE_SCRIPT_OPTIONS="--verbose --headless --debug --debugport=8001 --mode=$GDA_MODE --vardir=${GDA_VAR} $@"
 
     bashlog info "gda_servers_core" "${GDA_CORE_SCRIPT} ${GDA_CORE_SCRIPT_OPTIONS}"
     echo  ${GDA_CORE_SCRIPT} ${GDA_CORE_SCRIPT_OPTIONS} >> ${GDA_LOG_FILE}
