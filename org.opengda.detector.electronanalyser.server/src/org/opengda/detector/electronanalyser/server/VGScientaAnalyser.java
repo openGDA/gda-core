@@ -18,19 +18,6 @@
 
 package org.opengda.detector.electronanalyser.server;
 
-import java.util.Arrays;
-
-import org.eclipse.dawnsci.analysis.api.dataset.ILazyWriteableDataset;
-import org.eclipse.dawnsci.analysis.api.dataset.SliceND;
-import org.eclipse.dawnsci.analysis.api.tree.DataNode;
-import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
-import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.data.nexus.NexusUtils;
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
@@ -47,6 +34,19 @@ import gda.factory.corba.util.CorbaAdapterClass;
 import gda.factory.corba.util.CorbaImplClass;
 import gov.aps.jca.CAException;
 import gov.aps.jca.TimeoutException;
+
+import java.util.Arrays;
+
+import org.eclipse.dawnsci.analysis.api.dataset.ILazyWriteableDataset;
+import org.eclipse.dawnsci.analysis.api.dataset.SliceND;
+import org.eclipse.dawnsci.analysis.api.tree.DataNode;
+import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
+import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
+import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @CorbaAdapterClass(DeviceAdapter.class)
 @CorbaImplClass(DeviceImpl.class)
@@ -388,9 +388,8 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 				logger.warn("Dimensions of image data from " + getName() + " are zero length");
 				return;
 			}
-//			int[] datadims = new int[] {ILazyWriteableDataset.UNLIMITED , dims[0], dims[1] };
 
-			NexusGroupData image_data=new NexusGroupData(dims, getImage());
+			NexusGroupData image_data = new NexusGroupData(dims, getImage(dims[0] * dims[1]));
 			image_data.isDetectorEntryData=true;
 			NexusTreeNode image_data_node=new NexusTreeNode("image_data", NexusExtractor.SDSClassName, null,image_data);
 			image_data_node.setIsPointDependent(true);
