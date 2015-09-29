@@ -18,6 +18,8 @@
 
 package gda.data.nexus.hdf5;
 
+import gda.data.nexus.NexusUtils;
+
 import java.io.File;
 import java.io.Serializable;
 import java.net.URI;
@@ -28,6 +30,14 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+
+import ncsa.hdf.hdf5lib.H5;
+import ncsa.hdf.hdf5lib.HDF5Constants;
+import ncsa.hdf.hdf5lib.exceptions.HDF5Exception;
+import ncsa.hdf.hdf5lib.exceptions.HDF5LibraryException;
+import ncsa.hdf.hdf5lib.structs.H5G_info_t;
+import ncsa.hdf.hdf5lib.structs.H5L_info_t;
+import ncsa.hdf.hdf5lib.structs.H5O_info_t;
 
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
@@ -47,20 +57,15 @@ import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
 import org.eclipse.dawnsci.analysis.dataset.impl.LazyDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.LazyWriteableDataset;
 import org.eclipse.dawnsci.analysis.tree.TreeFactory;
+import org.eclipse.dawnsci.analysis.tree.impl.TreeFileImpl;
 import org.eclipse.dawnsci.hdf5.HDF5Utils;
 import org.eclipse.dawnsci.hdf5.nexus.NexusException;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
+import org.eclipse.dawnsci.nexus.NXobject;
+import org.eclipse.dawnsci.nexus.impl.NXobjectFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.data.nexus.NexusUtils;
-import ncsa.hdf.hdf5lib.H5;
-import ncsa.hdf.hdf5lib.HDF5Constants;
-import ncsa.hdf.hdf5lib.exceptions.HDF5Exception;
-import ncsa.hdf.hdf5lib.exceptions.HDF5LibraryException;
-import ncsa.hdf.hdf5lib.structs.H5G_info_t;
-import ncsa.hdf.hdf5lib.structs.H5L_info_t;
-import ncsa.hdf.hdf5lib.structs.H5O_info_t;
 import uk.ac.diamond.scisoft.analysis.io.HDF5LazyLoader;
 import uk.ac.diamond.scisoft.analysis.io.HDF5LazySaver;
 
@@ -203,6 +208,7 @@ public class NexusFileHDF5 implements NexusFile {
 	private void initializeTree() {
 		if (tree == null) {
 			tree = TreeFactory.createTreeFile(fileName.hashCode(), fileName);
+			((TreeFileImpl) tree).setGroupNode(NXobjectFactory.createNXroot(0l));
 			nodeMap = new HashMap<Long, Node>();
 			idMap = new HashMap<Long, String>();
 		} else {
@@ -333,10 +339,26 @@ public class NexusFileHDF5 implements NexusFile {
 		long fileAddr = getLinkTarget(path + Node.SEPARATOR + name);
 		if (!nodeMap.containsKey(fileAddr)) {
 			g = TreeFactory.createGroupNode(oid);
+			// create the new group, a subclass of NXobject if nxClass is set. Note nxClass is not yet known when loading
+			if (nxClass == null || nxClass.equals("")) {
+				 g = TreeFactory.createGroupNode(oid);
+			} else {
+				g = NXobjectFactory.createNXobjectForClass(nxClass, oid);
+			}
 			if (nxClass != null && !nxClass.isEmpty()) {
 				g.addAttribute(TreeFactory.createAttribute(NXCLASS, nxClass, false));
 			}
 			cacheAttributes(path + Node.SEPARATOR + name, g);
+			// if the new attributes now includes an nxClass attribute, create
+			// the appropriate subclass of NXobject (TODO is there a better way of doing this?)
+			if (!(g instanceof NXobject) && g.getAttribute(NXCLASS) != null) {
+				nxClass = g.getAttribute(NXCLASS).getFirstElement();
+				if (nxClass != null && !nxClass.isEmpty()) {
+					g = NXobjectFactory.createNXobjectForClass(nxClass, oid);
+					cacheAttributes(path + Node.SEPARATOR + name, g);
+				}
+			}
+
 			if (fileAddr != IS_EXTERNAL_LINK && fileAddr != NO_LINK &&  !testForExternalLink(path)) {
 				//if our node is an external link we cannot cache its file location
 				//we cannot handle hard links in external files
@@ -896,7 +918,12 @@ public class NexusFileHDF5 implements NexusFile {
 	}
 
 	@Override
-	public DataNode createData(String path, ILazyWriteableDataset data, int compression, boolean createPathIfNecessary)
+	public DataNode createData(String path, ILazyWriteableDataset data, int compression, boolean createPathIfNecessary) throws NexusException {
+		return createData(path, null, data, compression, createPathIfNecessary);
+	}
+
+	@Override
+	public DataNode createData(String path, String name, ILazyWriteableDataset data, int compression, boolean createPathIfNecessary)
 			throws NexusException {
 		assertCanWrite();
 		NodeData parentNode = getGroupNode(path, createPathIfNecessary);
@@ -904,14 +931,17 @@ public class NexusFileHDF5 implements NexusFile {
 			return null;
 		}
 		String parentPath = path.endsWith(Node.SEPARATOR) ? path : path + Node.SEPARATOR;
-		String dataName = data.getName();
-		String dataPath = parentPath + dataName;
-		if (dataName == null || dataName.isEmpty()) {
+		if (name == null) {
+			name = data.getName();
+		}
+		if (name == null || name.isEmpty()) {
 			throw new NullPointerException("Dataset name must be defined");
 		}
+		String dataPath = parentPath + name;
 		if (isPathValid(dataPath)) {
 			throw new NexusException("Object already exists at specified location");
 		}
+
 		int itemSize = 1;
 		int dataType = AbstractDataset.getDType(data);
 		int[] iShape = data.getShape();
@@ -944,7 +974,7 @@ public class NexusFileHDF5 implements NexusFile {
 				}
 				//chunks == null check is unnecessary, but compiler warns otherwise
 				if (!Arrays.equals(shape, maxShape) && (recalcChunks || chunks == null || chunks[chunks.length - 1] == 1)) {
-					logger.warn("Inappropriate chunking requested for {}; attempting to estimate suitable chunking.", dataName);
+					logger.warn("Inappropriate chunking requested for {}; attempting to estimate suitable chunking.", name);
 					chunks = estimateChunking(shape, maxShape, H5.H5Tget_size(hdfDatatypeId));
 					iChunks = longArrayToIntArray(chunks);
 					data.setChunking(iChunks);
@@ -982,12 +1012,12 @@ public class NexusFileHDF5 implements NexusFile {
 			throw new NexusException("Could not create dataset", e);
 		}
 
-		HDF5LazySaver saver = new HDF5LazySaver(null, fileName, parentPath, dataName,
+		HDF5LazySaver saver = new HDF5LazySaver(null, fileName, parentPath, name,
 				iShape, itemSize, dataType, false, iMaxShape, iChunks, fillValue);
 		data.setSaver(saver);
 
 		DataNode dataNode = TreeFactory.createDataNode(dataPath.hashCode());
-		((GroupNode)parentNode.node).addDataNode(dataName, dataNode);
+		((GroupNode)parentNode.node).addDataNode(name, dataNode);
 		dataNode.setDataset(data);
 		long fileAddr = getLinkTarget(dataPath);
 		nodeMap.put(fileAddr, dataNode);
@@ -995,34 +1025,56 @@ public class NexusFileHDF5 implements NexusFile {
 	}
 
 	@Override
-	public DataNode createData(String path, ILazyWriteableDataset data, boolean createPathIfNecessary)
+	public DataNode createData(String path, ILazyWriteableDataset data, boolean createPathIfNecessary) throws NexusException {
+		return createData(path, null, data, createPathIfNecessary);
+	}
+
+	@Override
+	public DataNode createData(String path, String name, ILazyWriteableDataset data, boolean createPathIfNecessary)
 			throws NexusException {
-		return createData(path, data, COMPRESSION_NONE, createPathIfNecessary);
+		return createData(path, name, data, COMPRESSION_NONE, createPathIfNecessary);
 	}
 
 	@Override
 	public DataNode createData(GroupNode group, ILazyWriteableDataset data, int compression) throws NexusException {
+		return createData(group, null, data, compression);
+	}
+
+	@Override
+	public DataNode createData(GroupNode group, String name, ILazyWriteableDataset data, int compression) throws NexusException {
 		String path = getPath(group);
-		return createData(path, data, compression, true);
+		return createData(path, name, data, compression, true);
 	}
 
 	@Override
 	public DataNode createData(GroupNode group, ILazyWriteableDataset data) throws NexusException {
+		return createData(group, null, data);
+	}
+
+	@Override
+	public DataNode createData(GroupNode group, String name, ILazyWriteableDataset data) throws NexusException {
 		String path = getPath(group);
-		return createData(path, data, true);
+		return createData(path, name, data, true);
 	}
 
 	@Override
 	public DataNode createData(String path, IDataset data, boolean createPathIfNecessary) throws NexusException {
+		return createData(path, null, data, createPathIfNecessary);
+	}
+
+	@Override
+	public DataNode createData(String path, String name, IDataset data, boolean createPathIfNecessary) throws NexusException {
 		assertCanWrite();
 
 		NodeData parentNode = getGroupNode(path, createPathIfNecessary);
-		String dataName = data.getName();
-		if (dataName == null || dataName.isEmpty()) {
+		if (name == null) {
+			name = data.getName();
+		}
+		if (name == null || name.isEmpty()) {
 			throw new NullPointerException("Dataset name must be defined");
 		}
 
-		String dataPath = parentNode.path + parentNode.name + Node.SEPARATOR + dataName;
+		String dataPath = parentNode.path + parentNode.name + Node.SEPARATOR + name;
 		if (isPathValid(dataPath)) {
 			throw new NexusException("Object already exists at specified location");
 		}
@@ -1064,14 +1116,19 @@ public class NexusFileHDF5 implements NexusFile {
 		long fileAddr = getLinkTarget(dataPath);
 		nodeMap.put(fileAddr, dataNode);
 		dataNode.setDataset(data);
-		((GroupNode) parentNode.node).addDataNode(dataName, dataNode);
+		((GroupNode) parentNode.node).addDataNode(name, dataNode);
 		return dataNode;
 	}
 
 	@Override
 	public DataNode createData(GroupNode group, IDataset data) throws NexusException {
+		return createData(group, null, data);
+	}
+
+	@Override
+	public DataNode createData(GroupNode group, String name, IDataset data) throws NexusException {
 		String path = getPath(group);
-		return createData(path, data, true);
+		return createData(path, name, data, true);
 	}
 
 	@Override
@@ -1082,18 +1139,22 @@ public class NexusFileHDF5 implements NexusFile {
 
 	@Override
 	public void addNode(String path, Node node) throws NexusException {
-		if (path == null || path == "" || path == Node.SEPARATOR) {
-			throw new IllegalArgumentException("Path name must be specified and cannot be the root");
+		if (path == null || path == "") {
+			throw new IllegalArgumentException("Path name must be specified.");
 		}
-		String[] componenets = path.split(Node.SEPARATOR);
-		String name = componenets[componenets.length - 1];
-		String parentPath = path.substring(0, path.lastIndexOf(name));
-		recursivelyUpdateTree(parentPath, name, node);
+		if (path == "/") {
+			recursivelyUpdateTree("/", null, node);
+		} else {
+			String[] components = path.split(Node.SEPARATOR);
+			String name = components[components.length - 1];
+			String parentPath = path.substring(0, path.lastIndexOf(name));
+			recursivelyUpdateTree(parentPath, name, node);
+		}
 	}
 
 	private void recursivelyUpdateTree(String parentPath, String name, Node node) throws NexusException {
-		String nxClass = node.containsAttribute("NX_class") ? node.getAttribute("NX_class").getValue().getString(0) : "NULL";
-		String fullPath = parentPath + Node.SEPARATOR + name;
+		String nxClass = node.containsAttribute("NX_class") ? node.getAttribute("NX_class").getValue().getString(0) : "";
+		String fullPath = parentPath + Node.SEPARATOR + (name == null ? "" : name);
 		fullPath = fullPath.replaceAll("//", "/");
 		NodeData parentNodeData = getNode(parentPath, false);
 		GroupNode parentNode = (GroupNode) parentNodeData.node;
@@ -1107,7 +1168,7 @@ public class NexusFileHDF5 implements NexusFile {
 		if (node instanceof GroupNode) {
 			GroupNode updatingGroupNode = (GroupNode) node;
 			if (!parentNode.containsGroupNode(name)) {
-				if (nxClass == "NULL") {
+				if (nxClass.isEmpty()) {
 					logger.warn("Adding node at " + fullPath + " without an NXclass");
 				}
 				long id = openGroup(fullPath, nxClass, true);
@@ -1132,9 +1193,9 @@ public class NexusFileHDF5 implements NexusFile {
 			if (!parentNode.containsDataNode(name)) {
 				ILazyDataset dataset = updatingDataNode.getDataset();
 				if ((dataset instanceof IDataset)) {
-					createData(parentNode, (IDataset) dataset);
+					createData(parentNode, name, (IDataset) dataset);
 				} else if ((dataset instanceof ILazyWriteableDataset)) {
-					createData(parentNode, (ILazyWriteableDataset) dataset);
+					createData(parentNode, name, (ILazyWriteableDataset) dataset);
 				} else {
 					throw new NexusException("Unrecognised dataset type");
 				}

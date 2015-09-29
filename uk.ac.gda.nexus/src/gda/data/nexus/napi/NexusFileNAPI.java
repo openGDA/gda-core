@@ -18,6 +18,9 @@
 
 package gda.data.nexus.napi;
 
+import gda.data.nexus.NexusUtils;
+import gda.data.nexus.extractor.NexusGroupData;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.URI;
@@ -50,9 +53,6 @@ import org.nexusformat.NXlink;
 import org.nexusformat.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import gda.data.nexus.NexusUtils;
-import gda.data.nexus.extractor.NexusGroupData;
 
 public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 	/**
@@ -741,18 +741,30 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 
 	@Override
 	public DataNode createData(String path, ILazyWriteableDataset data, boolean createPathIfNecessary) throws NexusException {
-		return createData(path, data, COMPRESSION_NONE, createPathIfNecessary);
+		return createData(path, null, data, createPathIfNecessary);
+	}
+
+	@Override
+	public DataNode createData(String path, String name, ILazyWriteableDataset data, boolean createPathIfNecessary) throws NexusException {
+		return createData(path, name, data, COMPRESSION_NONE, createPathIfNecessary);
 	}
 
 	@Override
 	public DataNode createData(String path, ILazyWriteableDataset data, int compression, boolean createPathIfNecessary) throws NexusException {
+		return createData(path, null, data, compression, createPathIfNecessary);
+	}
+
+	@Override
+	public DataNode createData(String path, String name, ILazyWriteableDataset data, int compression, boolean createPathIfNecessary) throws NexusException {
 		checkClosed(true);
 
 		Tuple<String, GroupNode, Node> tuple = openAll(path, createPathIfNecessary, true);
 		if (tuple.name == null)
 			return null;
 
-		String name = data.getName();
+		if (name == null) {
+			name = data.getName();
+		}
 		if (name == null || name.isEmpty()) {
 			throw new NullPointerException("Dataset name must be defined");
 		}
@@ -854,12 +866,22 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 
 	@Override
 	public DataNode createData(GroupNode group, ILazyWriteableDataset data) throws NexusException {
+		return createData(group, null, data);
+	}
+
+	@Override
+	public DataNode createData(GroupNode group, String name, ILazyWriteableDataset data) throws NexusException {
 		String path = getPath(group);
-		return createData(path, data, true);
+		return createData(path, name, data, true);
 	}
 
 	@Override
 	public DataNode createData(GroupNode group, ILazyWriteableDataset data, int compression) throws NexusException {
+		return createData(group, null, data, compression);
+	}
+
+	@Override
+	public DataNode createData(GroupNode group, final String name, ILazyWriteableDataset data, int compression) throws NexusException {
 		String path = getPath(group);
 		return createData(path, data, compression, true);
 	}
@@ -867,18 +889,31 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 	@Override
 	public DataNode createData(GroupNode group, IDataset data) throws NexusException {
 		String path = getPath(group);
-		return createData(path, data, true);
+		return createData(path, null, data, true);
+	}
+
+	@Override
+	public DataNode createData(GroupNode group, String name, IDataset data) throws NexusException {
+		String path = getPath(group);
+		return createData(path, name, data, true);
 	}
 
 	@Override
 	public DataNode createData(String path, IDataset data, boolean createPathIfNecessary) throws NexusException {
+		return createData(path, null, data, createPathIfNecessary);
+	}
+
+	@Override
+	public DataNode createData(String path, String name, IDataset data, boolean createPathIfNecessary) throws NexusException {
 		checkClosed(true);
 
 		Tuple<String, GroupNode, Node> tuple = openAll(path, createPathIfNecessary, true);
 		if (tuple.name == null)
 			return null;
 
-		String name = data.getName();
+		if (name == null) {
+			name = data.getName();
+		}
 		if (name == null || name.isEmpty()) {
 			throw new NullPointerException("Dataset name must be defined");
 		}
