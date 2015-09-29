@@ -309,6 +309,9 @@ class ProcessingDetectorWrapper(PseudoDevice, PositionCallableProvider):
 			if path == '':
 				raise IOError("Could no load dataset: %s does not have a record of the last file saved" % self.name)
 			path = self.replacePartOfPath(path)
+			if path[0] != '/':
+				#if relative path then we have to assume it's from the data directory
+				path = gda.data.PathConstructor.createFromDefaultProperty() + "/" + path
 			self.datasetProvider = LazyDataSetProvider(path, self.iFileLoader, self.fileLoadTimout, self.printNfsTimes, wait_for_exposure_callable)
 		
 		if self.det.createsOwnFiles():
