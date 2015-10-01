@@ -951,7 +951,7 @@ public class NexusFileHDF5 implements NexusFile {
 				}
 
 				if (stringDataset) {
-					H5.H5Tset_cset(hdfDatatypeId, HDF5Constants.H5T_CSET_UTF8);
+//					H5.H5Tset_cset(hdfDatatypeId, HDF5Constants.H5T_CSET_UTF8); // XXX  does not work...
 					H5.H5Tset_size(hdfDatatypeId, HDF5Constants.H5T_VARIABLE);
 				} else if (fillValue != null) {
 					//Strings must not have a fill value set
@@ -1040,7 +1040,7 @@ public class NexusFileHDF5 implements NexusFile {
 				final long datatypeId = hdfDatatype.getResource();
 				final long dataspaceId = hdfDataspace.getResource();
 				if (stringDataset) {
-					H5.H5Tset_cset(datatypeId, HDF5Constants.H5T_CSET_UTF8);
+//					H5.H5Tset_cset(datatypeId, HDF5Constants.H5T_CSET_UTF8); // XXX does not work...
 					H5.H5Tset_size(datatypeId, HDF5Constants.H5T_VARIABLE);
 				}
 				try (HDF5Resource hdfDataset = new HDF5DatasetResource(
