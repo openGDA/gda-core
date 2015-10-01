@@ -867,7 +867,7 @@ public class NexusFileTest {
 		nf.createData("/a/", lazy, true);
 		assertArrayEquals(chunking, lazy.getChunking());
 		lazy.setSlice(null, DatasetFactory.createRange(1, 1024 * 1024 * 8, Dataset.FLOAT64).reshape(8, 1024, 1024),
-				new int[] {0, 0, 0}, null, null);
+				new int[] {0, 0, 0}, new int[] {8, 1024, 1024}, null);
 		nf.close();
 
 		nf = NexusUtils.openNexusFile(FILE_NAME);
