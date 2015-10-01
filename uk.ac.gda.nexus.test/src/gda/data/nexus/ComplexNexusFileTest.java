@@ -1,4 +1,4 @@
-package org.eclipse.dawnsci.nexus;
+package gda.data.nexus;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -16,6 +16,13 @@ import org.eclipse.dawnsci.analysis.dataset.impl.IntegerDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.LongDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.ShortDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.StringDataset;
+import org.eclipse.dawnsci.nexus.NXcollection;
+import org.eclipse.dawnsci.nexus.NXdata;
+import org.eclipse.dawnsci.nexus.NXdetector;
+import org.eclipse.dawnsci.nexus.NXinstrument;
+import org.eclipse.dawnsci.nexus.NXroot;
+import org.eclipse.dawnsci.nexus.NXsource;
+import org.eclipse.dawnsci.nexus.NXsubentry;
 import org.eclipse.dawnsci.nexus.impl.NXcollectionImpl;
 import org.eclipse.dawnsci.nexus.impl.NXdataImpl;
 import org.eclipse.dawnsci.nexus.impl.NXdetectorImpl;

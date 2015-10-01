@@ -1,10 +1,9 @@
-package org.eclipse.dawnsci.nexus;
+package gda.data.nexus;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import gda.data.nexus.NexusUtils;
 import gda.util.TestUtils;
 
 import java.util.Iterator;
@@ -14,7 +13,9 @@ import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
 import org.eclipse.dawnsci.analysis.api.tree.Attribute;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
+import org.eclipse.dawnsci.analysis.api.tree.Tree;
 import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
+import org.eclipse.dawnsci.analysis.api.tree.TreeUtils;
 import org.eclipse.dawnsci.analysis.dataset.impl.AbstractDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.PositionIterator;
@@ -22,7 +23,8 @@ import org.eclipse.dawnsci.analysis.tree.TreeFactory;
 import org.eclipse.dawnsci.analysis.tree.impl.TreeFileImpl;
 import org.eclipse.dawnsci.hdf5.nexus.NexusException;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
-import org.eclipse.dawnsci.nexus.impl.NXentryImpl;
+import org.eclipse.dawnsci.nexus.NXobject;
+import org.eclipse.dawnsci.nexus.NXroot;
 import org.eclipse.dawnsci.nexus.impl.NXobjectFactory;
 import org.eclipse.dawnsci.nexus.impl.NXrootImpl;
 import org.junit.After;
@@ -75,42 +77,51 @@ public abstract class AbstractNexusFileTest {
 		TreeFile loadedTree = loadFile();
 
 		assertNexusTreesEqual(originalNexusTree, loadedTree);
-
-		// TODO close loaded tree
 	}
 
 	private void saveFile(TreeFile nexusTree) throws Exception {
-		NexusFile nexusFile = NexusUtils.createNexusFile(nexusTree.getFilename());
-		try {
+		try (NexusFile nexusFile = NexusUtils.createNexusFile(nexusTree.getFilename())) {
 			nexusFile.addNode("/", nexusTree.getGroupNode());
-		} finally {
 			nexusFile.flush();
-			nexusFile.close();
 		}
 	}
 
 	private TreeFile loadFile() throws NexusException {
-		NexusFile nexusFile = NexusUtils.openNexusFileReadOnly(FILE_PATH);
-		assertNotNull(nexusFile);
-		GroupNode rootNode = nexusFile.getGroup("/", false);
-		assertNotNull(rootNode);
-		assertTrue(rootNode instanceof NXrootImpl);
+		// open the nexus file read only
+		TreeFile treeFile;
+		try (NexusFile nexusFile = NexusUtils.openNexusFileReadOnly(FILE_PATH)) {
+			assertNotNull(nexusFile);
 
-		// GroupNode entry = nexusFile.getGroup("/entry", false);
-		GroupNode entry = rootNode.getGroupNode("entry");
-		assertNotNull(entry);
-		assertEquals("NXentry", entry.getAttribute(NexusFile.NXCLASS).getFirstElement());
-		assertTrue(entry instanceof NXentryImpl);
+			// get the root node
+			GroupNode rootNode = nexusFile.getGroup("/", false);
+			assertNotNull(rootNode);
+			assertTrue(rootNode instanceof NXrootImpl);
+			// add the root node to a new TreeFile object
+			treeFile = TreeFactory.createTreeFile(0l, FILE_PATH);
+			treeFile.setGroupNode(rootNode);
+			// recursively load the nexus tree
+			recursivelyLoadTree(treeFile, nexusFile, rootNode);
 
-		TreeFile treeFile = TreeFactory.createTreeFile(0l, FILE_PATH);
-		treeFile.setGroupNode(rootNode);
+		}
 
 		return treeFile;
 	}
 
+	private void recursivelyLoadTree(Tree tree, NexusFile nexusFile, GroupNode group) throws NexusException {
+		Iterator<String> nodeNames = group.getNodeNameIterator();
+		while (nodeNames.hasNext()) {
+			String nodeName = nodeNames.next();
+			if (group.containsGroupNode(nodeName)) {
+				// use the nexusFile api to populate the child group
+				GroupNode childGroup = nexusFile.getGroup(group, nodeName, null, false);
+				System.err.println("Populating child group: " + TreeUtils.getPath(tree, childGroup)); // TODO remove
+				recursivelyLoadTree(tree, nexusFile, childGroup);
+			}
+		}
+	}
+
 	private void assertNexusTreesEqual(final TreeFile tree1, final TreeFile tree2) throws Exception {
-		// TODO
-		// assertGroupNodesEqual(tree1.getGroupNode(), tree2.getGroupNode());
+		assertGroupNodesEqual(tree1.getGroupNode(), tree2.getGroupNode());
 	}
 
 	private void assertGroupNodesEqual(final GroupNode group1, final GroupNode group2) throws Exception {
@@ -168,7 +179,7 @@ public abstract class AbstractNexusFileTest {
 		// check attributes same
 		Iterator<String> attributeNameIterator = dataNode1.getAttributeNameIterator();
 		while (attributeNameIterator.hasNext()) {
-			String attributeName = (String) attributeNameIterator.next();
+			String attributeName = attributeNameIterator.next();
 			Attribute attr1 = dataNode1.getAttribute(attributeName);
 			Attribute attr2 = dataNode2.getAttribute(attributeName);
 			assertNotNull(attr2);
@@ -190,8 +201,9 @@ public abstract class AbstractNexusFileTest {
 	}
 
 	private void assertDatasetsEqual(final ILazyDataset dataset1, final ILazyDataset dataset2) throws Exception {
-		assertEquals(dataset1.getName(), dataset2.getName());
-		assertEquals(dataset1.getClass(), dataset2.getClass());
+		// Note: dataset names can be different, as long as the containing data node names are the same
+		// assertEquals(dataset1.getName(), dataset2.getName());
+		// assertEquals(dataset1.getClass(), dataset2.getClass());
 		assertEquals(dataset1.elementClass(), dataset2.elementClass());
 		assertEquals(dataset1.getElementsPerItem(), dataset2.getElementsPerItem());
 		assertEquals(dataset1.getRank(), dataset2.getRank());
@@ -200,12 +212,11 @@ public abstract class AbstractNexusFileTest {
 
 		assertDatasetDataEqual(dataset1, dataset2);
 
-		// TODO check metadata
-
+		// TODO: in future also check metadata
 	}
 
 	private void assertDatasetDataEqual(final ILazyDataset dataset1, final ILazyDataset dataset2) throws Exception {
-		if (dataset1 instanceof AbstractDataset) {
+		if (dataset1 instanceof Dataset && dataset2 instanceof Dataset) {
 			assertEquals(dataset1, dataset2);
 		} else {
 			// getSlice() with no args loads whole dataset if a lazy dataset

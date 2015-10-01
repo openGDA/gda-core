@@ -1,4 +1,4 @@
-package org.eclipse.dawnsci.nexus;
+package gda.data.nexus;
 
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.AbstractDataset;
@@ -39,6 +39,7 @@ public class SimpleNexusFileTest extends AbstractNexusFileTest {
 				827880, 1227100, 1434640, 1330280, 1037070,
 				598720, 316460, 56677, 1000, 1000
 		};
+
 		dataGroup.setDataset("counts", new LongDataset(countsData));
 		dataGroup.setAttribute("counts", "long_name", "photodiode counts");
 		dataGroup.setAttribute("counts", "signal", 1.0);
