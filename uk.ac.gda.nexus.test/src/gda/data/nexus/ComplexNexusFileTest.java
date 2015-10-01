@@ -369,8 +369,7 @@ public class ComplexNexusFileTest extends AbstractNexusFileTest {
 		instrument.setDetector(detector);
 		// tomo_entry/instrument/detector/data has the same data as tomo_entry/data/data
 		detector.addDataNode("data", dataGroupNode.getDataNode("data"));
-
-		// TODO: note some of these links in the original file look don't seem correct, e.g. distance -> scan_identifier
+		// note some of these links in the original file are strange
 		detector.addDataNode("distance", getDataNode("/entry1/scan_identifier"));
 
 		detector.addDataNode("image_key", getDataNode("/entry1/instrument/tomoScanDevice/image_key"));
@@ -380,7 +379,6 @@ public class ComplexNexusFileTest extends AbstractNexusFileTest {
 		// source : NXsource - hardlink to /entry1/instument/source
 		NXsource source = (NXsource) root.findNodeLink("/entry1/instrument/source").getDestination();
 		instrument.addGroupNode("source", source);
-
 
 		// sample : NXsample
 		NXsampleImpl sample = nxObjectFactory.createNXsample();

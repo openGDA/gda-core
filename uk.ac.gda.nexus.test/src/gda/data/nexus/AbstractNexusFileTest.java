@@ -13,9 +13,7 @@ import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
 import org.eclipse.dawnsci.analysis.api.tree.Attribute;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
-import org.eclipse.dawnsci.analysis.api.tree.Tree;
 import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
-import org.eclipse.dawnsci.analysis.api.tree.TreeUtils;
 import org.eclipse.dawnsci.analysis.dataset.impl.AbstractDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.PositionIterator;
@@ -100,22 +98,21 @@ public abstract class AbstractNexusFileTest {
 			treeFile = TreeFactory.createTreeFile(0l, FILE_PATH);
 			treeFile.setGroupNode(rootNode);
 			// recursively load the nexus tree
-			recursivelyLoadTree(treeFile, nexusFile, rootNode);
+			recursivelyLoadTree(nexusFile, rootNode);
 
 		}
 
 		return treeFile;
 	}
 
-	private void recursivelyLoadTree(Tree tree, NexusFile nexusFile, GroupNode group) throws NexusException {
+	private void recursivelyLoadTree(NexusFile nexusFile, GroupNode group) throws NexusException {
 		Iterator<String> nodeNames = group.getNodeNameIterator();
 		while (nodeNames.hasNext()) {
 			String nodeName = nodeNames.next();
 			if (group.containsGroupNode(nodeName)) {
 				// use the nexusFile api to populate the child group
 				GroupNode childGroup = nexusFile.getGroup(group, nodeName, null, false);
-				System.err.println("Populating child group: " + TreeUtils.getPath(tree, childGroup)); // TODO remove
-				recursivelyLoadTree(tree, nexusFile, childGroup);
+				recursivelyLoadTree(nexusFile, childGroup);
 			}
 		}
 	}
@@ -143,7 +140,13 @@ public abstract class AbstractNexusFileTest {
 			assertNotNull(attr2);
 			assertAttributesEquals(attr1, attr2);
 		}
-		assertEquals(group1.getNumberOfAttributes(), group2.getNumberOfAttributes());
+		// check number of attributes same (i.e. group2 has no additional attributes)
+		// additional attribute "target" is allowed. This is added when loading a file with >1 hard link to same node
+		int expectedNumAttributes = group1.getNumberOfAttributes();
+		if (group2.containsAttribute("target")) {
+			expectedNumAttributes++;
+		}
+		assertEquals(expectedNumAttributes, group2.getNumberOfAttributes());
 
 		// check child nodes same
 		final Iterator<String> nodeNameIterator = group1.getNodeNameIterator();
@@ -185,7 +188,13 @@ public abstract class AbstractNexusFileTest {
 			assertNotNull(attr2);
 			assertAttributesEquals(attr1, attr2);
 		}
-		assertEquals(dataNode1.getNumberOfAttributes(), dataNode2.getNumberOfAttributes());
+		// check number of attributes same (i.e. dataset2 has no additional attributes)
+		// additional attribute "target" is allowed. This is added when loading a file with >1 hard link to same node
+		int expectedNumAttributes = dataNode1.getNumberOfAttributes();
+		if (dataNode2.containsAttribute("target")) {
+			expectedNumAttributes++;
+		}
+		assertEquals(expectedNumAttributes, dataNode2.getNumberOfAttributes());
 
 		assertEquals(dataNode1.getTypeName(), dataNode2.getTypeName());
 		assertEquals(dataNode1.isAugmented(), dataNode2.isAugmented());
@@ -206,9 +215,16 @@ public abstract class AbstractNexusFileTest {
 		// assertEquals(dataset1.getClass(), dataset2.getClass());
 		assertEquals(dataset1.elementClass(), dataset2.elementClass());
 		assertEquals(dataset1.getElementsPerItem(), dataset2.getElementsPerItem());
-		assertEquals(dataset1.getRank(), dataset2.getRank());
-		assertArrayEquals(dataset1.getShape(), dataset2.getShape());
 		assertEquals(dataset1.getSize(), dataset2.getSize());
+		if (dataset1.getRank() == 0) {
+			// TODO: special case for scalar datasets. This could be fixed in future by marking the
+			// dataset as scalar in the HDF5 file
+			assertEquals(1, dataset2.getRank());
+			assertArrayEquals(new int[] { 1 }, dataset2.getShape());
+		} else {
+			assertEquals(dataset1.getRank(), dataset2.getRank());
+			assertArrayEquals(dataset1.getShape(), dataset2.getShape());
+		}
 
 		assertDatasetDataEqual(dataset1, dataset2);
 
@@ -241,7 +257,7 @@ public abstract class AbstractNexusFileTest {
 					assertEquals(dataset1Slice.getLong(position), dataset2Slice.getLong(position));
 					break;
 				case Dataset.FLOAT32:
-					assertEquals(dataset1Slice.getFloat(position), dataset2Slice.getFloat(), 1e-7);
+					assertEquals(dataset1Slice.getFloat(position), dataset2Slice.getFloat(position), 1e-7);
 					break;
 				case Dataset.FLOAT64:
 					assertEquals(dataset1Slice.getDouble(position), dataset2Slice.getDouble(position), 1e-15);
