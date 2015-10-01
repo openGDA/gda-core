@@ -42,6 +42,8 @@ public interface CellValidator {
 
 	boolean validateStage(Stage value);
 
+	boolean validateSample(EList<Sample> value);
+
 	boolean validateSamples(EList<Sample> value);
 	boolean validateCellID(String value);
 	boolean validateName(String value);

@@ -90,6 +90,7 @@ import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.ErrorDialog;
+import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.util.LocalSelectionTransfer;
@@ -114,6 +115,7 @@ import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.Tree;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
@@ -129,9 +131,11 @@ import org.eclipse.ui.part.MultiPageEditorPart;
 import org.eclipse.ui.views.contentoutline.ContentOutline;
 import org.eclipse.ui.views.contentoutline.ContentOutlinePage;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
+import org.eclipse.ui.views.properties.IPropertySheetEntry;
 import org.eclipse.ui.views.properties.IPropertySheetPage;
 import org.eclipse.ui.views.properties.PropertySheet;
 import org.eclipse.ui.views.properties.PropertySheetPage;
+import org.eclipse.ui.views.properties.PropertySheetSorter;
 import org.opengda.lde.model.editor.XMLEditor;
 import org.opengda.lde.model.editor.ui.provider.CustomisedAdapterFactoryContentProvider;
 import org.opengda.lde.model.ldeexperiment.provider.LDEExperimentsItemProviderAdapterFactory;
@@ -1009,14 +1013,16 @@ public class LDEExperimentsEditor
 		// Only creates the other pages if there is something that can be edited
 		//
 		if (!getEditingDomain().getResourceSet().getResources().isEmpty()) {
-			// This is the page for the tree viewer
+			// Create a page for the selection tree view.
 			//
 			{
 				ViewerPane viewerPane =
 					new ViewerPane(getSite().getPage(), LDEExperimentsEditor.this) {
 						@Override
 						public Viewer createViewer(Composite composite) {
-							return new TreeViewer(composite);
+							Tree tree = new Tree(composite, SWT.MULTI);
+							TreeViewer newTreeViewer = new TreeViewer(tree);
+							return newTreeViewer;
 						}
 						@Override
 						public void requestActivation() {
@@ -1025,15 +1031,21 @@ public class LDEExperimentsEditor
 						}
 					};
 				viewerPane.createControl(getContainer());
-				treeViewer = (TreeViewer)viewerPane.getViewer();
-				treeViewer.setContentProvider(new AdapterFactoryContentProvider(adapterFactory));
-				treeViewer.setLabelProvider(new AdapterFactoryLabelProvider(adapterFactory));
 
-				new AdapterFactoryTreeEditor(treeViewer.getTree(), adapterFactory);
+				selectionViewer = (TreeViewer)viewerPane.getViewer();
+				selectionViewer.setContentProvider(new AdapterFactoryContentProvider(adapterFactory));
 
-				createContextMenuFor(treeViewer);
+				selectionViewer.setLabelProvider(new DecoratingColumLabelProvider(new AdapterFactoryLabelProvider(adapterFactory), new DiagnosticDecorator(editingDomain, selectionViewer, SampledefinitionEditorPlugin.getPlugin().getDialogSettings())));
+				selectionViewer.setInput(editingDomain.getResourceSet().getResources().get(0));
+				selectionViewer.setSelection(new StructuredSelection(editingDomain.getResourceSet().getResources().get(0)), true);
+				viewerPane.setTitle(editingDomain.getResourceSet().getResources().get(0));
+
+				new AdapterFactoryTreeEditor(selectionViewer.getTree(), adapterFactory);
+				new ColumnViewerInformationControlToolTipSupport(selectionViewer, new DiagnosticDecorator.EditingDomainLocationListener(editingDomain, selectionViewer));
+
+				createContextMenuFor(selectionViewer);
 				int pageIndex = addPage(viewerPane.getControl());
-				setPageText(pageIndex, getString("_UI_DesignPage_label"));
+				setPageText(pageIndex, getString("_UI_SelectionPage_label"));
 			}
 
 			// This is the page for the XML viewer.
@@ -1220,27 +1232,56 @@ public class LDEExperimentsEditor
 		return contentOutlinePage;
 	}
 
+	private class MyExtendedPropertySheetPage extends ExtendedPropertySheetPage {
+
+		private class MyPropertySheetSorter extends PropertySheetSorter {
+
+			@Override
+			public void sort(IPropertySheetEntry[] entries) {
+				// do nothing;
+			}
+		}
+
+		public MyExtendedPropertySheetPage(AdapterFactoryEditingDomain editingDomain) {
+			super(editingDomain);
+			setSorter(new MyPropertySheetSorter());
+		}
+
+		public MyExtendedPropertySheetPage(AdapterFactoryEditingDomain editingDomain, Decoration live,	IDialogSettings dialogSettings) {
+			super(editingDomain,live, dialogSettings);
+			setSorter(new MyPropertySheetSorter());
+		}
+
+		@Override
+		public void setSelectionToViewer(List<?> selection) {
+			LDEExperimentsEditor.this.setSelectionToViewer(selection);
+			LDEExperimentsEditor.this.setFocus();
+		}
+
+		@Override
+		public void setActionBars(IActionBars actionBars) {
+			super.setActionBars(actionBars);
+			getActionBarContributor().shareGlobalActions(this, actionBars);
+		}
+
+		@Override
+		protected void setSorter(PropertySheetSorter sorter) {
+			if (!(sorter instanceof MyPropertySheetSorter))
+				sorter = new MyPropertySheetSorter();
+
+			super.setSorter(sorter);
+		}
+
+	}
 	/**
-	 * This accesses a cached version of the property sheet.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * This accesses a cached version of the property sheet. <!-- begin-user-doc
+	 * --> <!-- end-user-doc -->
+	 * 
 	 * @generated NOT
 	 */
 	public IPropertySheetPage getPropertySheetPage() {
 		PropertySheetPage propertySheetPage =
-			new ExtendedPropertySheetPage(editingDomain, ExtendedPropertySheetPage.Decoration.LIVE, SampledefinitionEditorPlugin.getPlugin().getDialogSettings()) {
-				@Override
-				public void setSelectionToViewer(List<?> selection) {
-					LDEExperimentsEditor.this.setSelectionToViewer(selection);
-					LDEExperimentsEditor.this.setFocus();
-				}
-
-				@Override
-				public void setActionBars(IActionBars actionBars) {
-					super.setActionBars(actionBars);
-					getActionBarContributor().shareGlobalActions(this, actionBars);
-				}
-			};
+			new MyExtendedPropertySheetPage(editingDomain, ExtendedPropertySheetPage.Decoration.LIVE, SampledefinitionEditorPlugin.getPlugin().getDialogSettings());
 		propertySheetPage.setPropertySourceProvider(new CustomisedAdapterFactoryContentProvider(adapterFactory));
 		propertySheetPages.add(propertySheetPage);
 

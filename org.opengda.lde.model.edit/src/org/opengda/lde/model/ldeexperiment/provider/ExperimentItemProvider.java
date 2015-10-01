@@ -24,11 +24,10 @@ import org.eclipse.emf.edit.provider.ITreeItemContentProvider;
 import org.eclipse.emf.edit.provider.ItemPropertyDescriptor;
 import org.eclipse.emf.edit.provider.ItemProviderAdapter;
 import org.eclipse.emf.edit.provider.ViewerNotification;
-import org.opengda.lde.model.edit.StageTableConstants;
+import org.opengda.lde.model.edit.ExperimentTableConstants;
 import org.opengda.lde.model.ldeexperiment.Experiment;
 import org.opengda.lde.model.ldeexperiment.LDEExperimentsFactory;
 import org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage;
-import org.opengda.lde.model.ldeexperiment.Stage;
 
 /**
  * This is the item provider adapter for a {@link org.opengda.lde.model.ldeexperiment.Experiment} object.
@@ -146,7 +145,7 @@ public class ExperimentItemProvider
 	public Collection<? extends EStructuralFeature> getChildrenFeatures(Object object) {
 		if (childrenFeatures == null) {
 			super.getChildrenFeatures(object);
-			childrenFeatures.add(LDEExperimentsPackage.Literals.EXPERIMENT__STAGES);
+			childrenFeatures.add(LDEExperimentsPackage.Literals.EXPERIMENT__STAGE);
 		}
 		return childrenFeatures;
 	}
@@ -207,7 +206,7 @@ public class ExperimentItemProvider
 			case LDEExperimentsPackage.EXPERIMENT__NUMBER_OF_STAGES:
 				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
 				return;
-			case LDEExperimentsPackage.EXPERIMENT__STAGES:
+			case LDEExperimentsPackage.EXPERIMENT__STAGE:
 				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), true, false));
 				return;
 		}
@@ -227,7 +226,7 @@ public class ExperimentItemProvider
 
 		newChildDescriptors.add
 			(createChildParameter
-				(LDEExperimentsPackage.Literals.EXPERIMENT__STAGES,
+				(LDEExperimentsPackage.Literals.EXPERIMENT__STAGE,
 				 LDEExperimentsFactory.eINSTANCE.createStage()));
 	}
 
@@ -243,29 +242,17 @@ public class ExperimentItemProvider
 	}
 	@Override
 	public String getColumnText(Object object, int columnIndex) {
-		if (object instanceof Stage) {
-			Stage stage=(Stage)object;
+			Experiment experiment=(Experiment)object;
 			switch (columnIndex) {
-			case StageTableConstants.COL_STAGE_ID:
-				return stage.getStageID();
-			case StageTableConstants.COL_DETECTOR_X:
-				return String.valueOf(stage.getDetector_x());
-			case StageTableConstants.COL_DETECTOR_Y:
-				return String.valueOf(stage.getDetector_y());
-			case StageTableConstants.COL_DETECTOR_Z:
-				return String.valueOf(stage.getDetector_z());
-			case StageTableConstants.COL_CAMERA_X:
-				return String.valueOf(stage.getCamera_x());
-			case StageTableConstants.COL_CAMERA_Y:
-				return String.valueOf(stage.getCamera_y());
-			case StageTableConstants.COL_CAMERA_Z:
-				return String.valueOf(stage.getCamera_z());
-			case StageTableConstants.COL_NUMBER_OF_CELLS:
-				return String.valueOf(stage.getNumberOfCells());
+			case ExperimentTableConstants.COL_NAME:
+				return experiment.getName();
+			case ExperimentTableConstants.COL_DESCRIPTION:
+				return experiment.getDescription();
+			case ExperimentTableConstants.COL_NUMBER_OF_STAGES:
+				return String.valueOf(experiment.getNumberOfStages());
 			default:
 				break;
 			}
-		}
 		return super.getColumnText(object, columnIndex);
 	}
 

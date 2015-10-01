@@ -1,16 +1,21 @@
 package org.opengda.lde.ui.views;
 
+import java.beans.PropertyDescriptor;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
+import org.eclipse.core.databinding.observable.map.IObservableMap;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -19,18 +24,31 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.draw2d.ColorConstants;
+import org.eclipse.emf.common.command.BasicCommandStack;
 import org.eclipse.emf.common.command.Command;
 import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.common.notify.AdapterFactory;
 import org.eclipse.emf.common.notify.Notification;
+import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.databinding.EMFProperties;
+import org.eclipse.emf.databinding.edit.EMFEditProperties;
+import org.eclipse.emf.ecore.EAttribute;
+import org.eclipse.emf.ecore.EClassifier;
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.EContentAdapter;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.edit.command.AddCommand;
 import org.eclipse.emf.edit.command.RemoveCommand;
 import org.eclipse.emf.edit.command.SetCommand;
+import org.eclipse.emf.edit.domain.AdapterFactoryEditingDomain;
 import org.eclipse.emf.edit.domain.EditingDomain;
 import org.eclipse.emf.edit.domain.IEditingDomainProvider;
+import org.eclipse.emf.edit.provider.ComposedAdapterFactory;
+import org.eclipse.emf.edit.provider.ItemPropertyDescriptor.PropertyValueWrapper;
+import org.eclipse.emf.edit.provider.ItemProvider;
+import org.eclipse.emf.edit.provider.ReflectiveItemProviderAdapterFactory;
+import org.eclipse.emf.edit.provider.resource.ResourceItemProviderAdapterFactory;
 import org.eclipse.emf.edit.ui.dnd.EditingDomainViewerDropAdapter;
 import org.eclipse.emf.edit.ui.dnd.LocalTransfer;
 import org.eclipse.emf.edit.ui.dnd.ViewerDragAdapter;
@@ -40,6 +58,8 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.databinding.viewers.ObservableListContentProvider;
+import org.eclipse.jface.databinding.viewers.ObservableMapCellLabelProvider;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.viewers.ArrayContentProvider;
@@ -56,6 +76,7 @@ import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.jface.viewers.TableLayout;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.TextCellEditor;
@@ -76,6 +97,7 @@ import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Item;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.ProgressBar;
@@ -89,6 +111,8 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.internal.AnimationEngine;
 import org.eclipse.ui.part.ViewPart;
+import org.eclipse.ui.views.properties.IPropertyDescriptor;
+import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.properties.PropertyColumnLabelProvider;
 import org.eclipse.ui.views.properties.PropertyEditingSupport;
 import org.opengda.lde.events.CellChangedEvent;
@@ -104,6 +128,7 @@ import org.opengda.lde.model.edit.ExperimentTableConstants;
 import org.opengda.lde.model.edit.SampleTableConstants;
 import org.opengda.lde.model.edit.StageTableConstants;
 import org.opengda.lde.model.editor.ui.provider.CDateTimeCellEditor;
+import org.opengda.lde.model.editor.ui.provider.CustomisedAdapterFactoryContentProvider;
 import org.opengda.lde.model.ldeexperiment.Cell;
 import org.opengda.lde.model.ldeexperiment.Experiment;
 import org.opengda.lde.model.ldeexperiment.ExperimentDefinition;
@@ -113,6 +138,8 @@ import org.opengda.lde.model.ldeexperiment.STATUS;
 import org.opengda.lde.model.ldeexperiment.Sample;
 import org.opengda.lde.model.ldeexperiment.Stage;
 import org.opengda.lde.model.ldeexperiment.presentation.LDEExperimentsEditor;
+import org.opengda.lde.model.ldeexperiment.provider.ExperimentItemProvider;
+import org.opengda.lde.model.ldeexperiment.provider.LDEExperimentsItemProviderAdapterFactory;
 import org.opengda.lde.ui.Activator;
 import org.opengda.lde.ui.ImageConstants;
 import org.opengda.lde.ui.providers.ProgressLabelProvider;
@@ -122,6 +149,7 @@ import org.opengda.lde.utils.LDEResourceUtil;
 import org.opengda.lde.utils.SampleGroupEditingDomain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.support.GenericTypeAwareAutowireCandidateResolver;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 
@@ -135,7 +163,7 @@ import gda.jython.InterfaceProvider;
 import gda.jython.scriptcontroller.Scriptcontroller;
 import gda.observable.IObserver;
 
-public class ChildrenTableView extends ViewPart implements IEditingDomainProvider, ISelectionProvider, IObserver {
+public class ChildrenTableView extends ViewPart implements IEditingDomainProvider, ISelectionProvider {
 
 	public static final String ID = "org.opengda.lde.ui.views.ChildrenTableView"; //$NON-NLS-1$
 	public static final String DATA_DRIVER = "dls";
@@ -149,19 +177,6 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 	private LDEResourceUtil resUtil;
 	private String[] cellIDs;
 	private String[] calibrants;
-	private Text txtDataFilePath;
-	private Text txtSamplesfile;
-	private Text txtActivesamples;
-	private Text txtNumberCalibrations;
-	private Text txtTotalNumberCollections;
-	private Text txtScanNumber;
-	private Text txtSamplename;
-	private Text txtCellname;
-	private Text txtStagename;
-	private Text txtCollectionNumber;
-	private Text txtScanPointNumber;
-	private ProgressBar progressBar;
-	private Text txtProgressMessage;
 	private Action startAction;
 	protected boolean running;
 	protected boolean paused;
@@ -180,7 +195,7 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 	private Scriptcontroller eventAdmin;
 	private String eventAdminName;
 	private Image[] images;
-	private TableViewer childrenTableViewer;
+	private TableViewer viewer;
 	protected int nameCount;
 	private Resource resource;
 	private Sample currentSample;
@@ -204,7 +219,7 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 
 	private final String cellColumnHeaders[] = { CellTableConstants.CELL_NAME, CellTableConstants.CELL_ID, CellTableConstants.VISIT_ID, 
 			CellTableConstants.CALIBRANT_NAME, CellTableConstants.CALIBRANT_X, CellTableConstants.CALIBRANT_Y, CellTableConstants.CALIBRANT_EXPOSURE, 
-			CellTableConstants.NUMBER_OF_SAMPLES, CellTableConstants.ENV_SCANNABLE_NAMES, CellTableConstants.ENV_SAMPLING_INTERVAL, 
+			CellTableConstants.NUMBER_OF_SAMPLES, CellTableConstants.ENV_SCANNABLE_NAMES, 
 			CellTableConstants.START_DATE, CellTableConstants.END_DATE, CellTableConstants.EMAIL, CellTableConstants.AUTO_EMAILING 
 			};
 
@@ -228,30 +243,38 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 			new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 300, true), new ColumnWeightData(50, 300, true)
 			};
 
-	private ColumnWeightData cellColumnLayouts[] = { new ColumnWeightData(80, 110, true), new ColumnWeightData(40, 55, true), new ColumnWeightData(40, 90, true), 
-			new ColumnWeightData(40, 90, true), new ColumnWeightData(40, 75, true),	new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 75, true), 
-			new ColumnWeightData(10, 50, false), new ColumnWeightData(40, 90, true), new ColumnWeightData(40, 65, true),
+	private ColumnWeightData cellColumnLayouts[] = { new ColumnWeightData(10, 50, true), new ColumnWeightData(40, 55, true), new ColumnWeightData(40, 90, true), 
+			new ColumnWeightData(40, 110, true), new ColumnWeightData(40, 50, true), new ColumnWeightData(40, 50, true), new ColumnWeightData(40, 80, true), 
+			new ColumnWeightData(40, 90, false), new ColumnWeightData(40, 90, true), 
 			new ColumnWeightData(50, 120, true), new ColumnWeightData(50, 120, true), new ColumnWeightData(40, 200, true),  new ColumnWeightData(40, 60, true),
 			};
 	
-	private ColumnWeightData stageColumnLayouts[] = { new ColumnWeightData(10, 50, false),
-			new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 75, true), 
-			new ColumnWeightData(40, 75, true),	new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 75, true), new ColumnWeightData(10, 50, false)
+	private ColumnWeightData stageColumnLayouts[] = { new ColumnWeightData(10, 70, true),
+			new ColumnWeightData(40, 80, true), new ColumnWeightData(40, 80, true), new ColumnWeightData(40, 80, true), 
+			new ColumnWeightData(40, 75, true),	new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 75, true), new ColumnWeightData(10, 50, true)
 			};
 	private ColumnWeightData experimentColumnLayouts[] = { new ColumnWeightData(80, 150, true), new ColumnWeightData(50, 500, true), new ColumnWeightData(10, 50, false)};
 
 	private ISelectionListener selectionListener;
-	private EditingDomain editingDomain;
-	protected AdapterFactory adapterFactory;
+	protected ComposedAdapterFactory adapterFactory;
 	protected TableViewerColumn progressColumn;
+	protected AdapterFactoryEditingDomain editingDomain;
+	private LinkedHashMap<EAttribute, String> cellAttributeMap;
+	private LinkedHashMap<EAttribute, String> sampleAttributeMap;
 
 	public ChildrenTableView() {
 		setTitleToolTip("List of children for the seleceted tree node.");
-		setContentDescription("A table for editing child properties.");
+//		setContentDescription("A table for editing child properties.");
 		setPartName("Children List");
 		this.selectionChangedListeners = new ArrayList<ISelectionChangedListener>();
-	}
+		adapterFactory = new ComposedAdapterFactory(ComposedAdapterFactory.Descriptor.Registry.INSTANCE);
 
+		adapterFactory.addAdapterFactory(new ResourceItemProviderAdapterFactory());
+		adapterFactory.addAdapterFactory(new LDEExperimentsItemProviderAdapterFactory());
+		adapterFactory.addAdapterFactory(new ReflectiveItemProviderAdapterFactory());
+		BasicCommandStack commandStack = new BasicCommandStack();
+		editingDomain = new AdapterFactoryEditingDomain(adapterFactory, commandStack, new HashMap<Resource, Boolean>());
+	}
 
 	/**
 	 * Create contents of the view part.
@@ -260,210 +283,56 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 	 */
 	@Override
 	public void createPartControl(Composite parent) {
-		parent.setLayout(new FillLayout(SWT.HORIZONTAL));
+		rootComposite = new Composite(parent, SWT.NONE);
+		rootComposite.setLayout(new GridLayout());
 
-		SashForm mainSashForm = new SashForm(parent, SWT.BORDER | SWT.SMOOTH | SWT.VERTICAL);
-
-		SashForm topSashForm = new SashForm(mainSashForm, SWT.BORDER | SWT.SMOOTH);
-		topSashForm.setSashWidth(2);
-		topSashForm.setWeights(new int[] { 4, 1 });
+		viewer = new TableViewer(rootComposite,SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
+		Table table = viewer.getTable();
+		GridData gd_table = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
+		gd_table.heightHint = 386;
+		gd_table.widthHint = 1000;
+		table.setLayoutData(gd_table);
+		table.setHeaderVisible(true);
+		table.setLinesVisible(true);
 		
-		Composite childrencomposite = new Composite(topSashForm, SWT.NONE);
-		childrencomposite.setLayout(new TableColumnLayout());
-
-		childrenTableViewer = new TableViewer(childrencomposite,SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
-		childrenTableViewer.setContentProvider(new AdapterFactoryContentProvider(SampleGroupEditingDomain.INSTANCE.getAdapterFactory()));
-		childrenTableViewer.setLabelProvider(new AdapterFactoryLabelProvider(SampleGroupEditingDomain.INSTANCE.getAdapterFactory()));
-		Table childrentable = childrenTableViewer.getTable();
-		GridData gd_childrentable = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
-		gd_childrentable.heightHint = 386;
-		gd_childrentable.widthHint = 1000;
-		childrentable.setLayoutData(gd_childrentable);		
-		childrentable.setHeaderVisible(true);
-		childrentable.setLinesVisible(true);
+		ColumnViewerToolTipSupport.enableFor(viewer, ToolTip.NO_RECREATE);
+		String name = getResUtil().getFileName();
+		try {
+			resource = getResUtil().getResource(name);
+		} catch (Exception e) {
+			logger.error("Cannot load resouce from file: "+name, e);
+		}
+		EObject eObject = resource.getContents().get(0);
+		createColumns(viewer, experimentColumnHeaders, experimentColumnLayouts, eObject);
 		
-		ColumnViewerToolTipSupport.enableFor(childrenTableViewer, ToolTip.NO_RECREATE);
+		viewer.setContentProvider(new CustomisedAdapterFactoryContentProvider(adapterFactory));
+		viewer.setLabelProvider(new AdapterFactoryLabelProvider(adapterFactory));
 		
-		SashForm bottomSsashForm = new SashForm(mainSashForm, SWT.BORDER | SWT.SMOOTH);
-
-		Composite statusArea = new Composite(bottomSsashForm, SWT.NONE);
-		GridData gd_statusArea = new GridData(SWT.FILL, SWT.FILL, true, false,1, 1);
-		gd_statusArea.heightHint = 150;
-		statusArea.setLayoutData(gd_statusArea);
-		statusArea.setLayout(new GridLayout(5, false));
-
-		Group grpDataFile = new Group(statusArea, SWT.NONE);
-		grpDataFile.setLayout(new FillLayout(SWT.HORIZONTAL));
-		GridData layoutData = new GridData(SWT.FILL, SWT.CENTER, true, false,1, 1);
-		layoutData.widthHint = 290;
-		grpDataFile.setLayoutData(layoutData);
-		grpDataFile.setText("Data File");
-
-		txtDataFilePath = new Text(grpDataFile, SWT.BORDER);
-		txtDataFilePath.setText("Current data file path");
-		txtDataFilePath.setForeground(ColorConstants.lightGreen);
-		txtDataFilePath.setBackground(ColorConstants.black);
-
-		Group grpSampleDefinitionFile = new Group(statusArea, SWT.NONE);
-		grpSampleDefinitionFile.setLayout(new FillLayout(SWT.HORIZONTAL));
-		grpSampleDefinitionFile.setLayoutData(new GridData(SWT.FILL,SWT.CENTER, true, false, 1, 1));
-		grpSampleDefinitionFile.setText("Sample Definition File");
-
-		txtSamplesfile = new Text(grpSampleDefinitionFile, SWT.BORDER);
-		txtSamplesfile.setEditable(false);
-		txtSamplesfile.setForeground(ColorConstants.lightGreen);
-		txtSamplesfile.setBackground(ColorConstants.black);
-		txtSamplesfile.setText("samples definition file path");
-
-		Group grpNoActiveSamples = new Group(statusArea, SWT.NONE);
-		GridData gd_grpNoSamplesTo = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_grpNoSamplesTo.widthHint = 111;
-		gd_grpNoSamplesTo.heightHint = 28;
-		grpNoActiveSamples.setLayoutData(gd_grpNoSamplesTo);
-		grpNoActiveSamples.setText("No. Active Samples");
-		grpNoActiveSamples.setLayout(new RowLayout(SWT.HORIZONTAL));
-
-		txtActivesamples = new Text(grpNoActiveSamples, SWT.BORDER | SWT.RIGHT);
-		txtActivesamples.setLayoutData(new RowData(117, SWT.DEFAULT));
-		txtActivesamples.setEditable(false);
-		txtActivesamples.setForeground(ColorConstants.lightGreen);
-		txtActivesamples.setBackground(ColorConstants.black);
-		txtActivesamples.setText("0");
+		samples = Collections.emptyList();
+		resource.eAdapters().add(notifyListener);
+		viewer.setInput(eObject);
 		
-		Group grpNoCalibrations = new Group(statusArea, SWT.NONE);
-		grpNoCalibrations.setText("No. Calibrations");
-		grpNoCalibrations.setLayout(new RowLayout(SWT.HORIZONTAL));
-
-		txtNumberCalibrations = new Text(grpNoCalibrations, SWT.BORDER | SWT.RIGHT);
-		txtNumberCalibrations.setLayoutData(new RowData(100, SWT.DEFAULT));
-		txtNumberCalibrations.setForeground(ColorConstants.lightGreen);
-		txtNumberCalibrations.setText("0");
-		txtNumberCalibrations.setEditable(false);
-		txtNumberCalibrations.setBackground(ColorConstants.black);
-		
-		Group grpTotalCollections = new Group(statusArea, SWT.NONE);
-		grpTotalCollections.setText("Total Collections");
-		grpTotalCollections.setLayout(new RowLayout(SWT.HORIZONTAL));
-
-		txtTotalNumberCollections = new Text(grpTotalCollections, SWT.BORDER | SWT.RIGHT);
-		txtTotalNumberCollections.setLayoutData(new RowData(100, SWT.DEFAULT));
-		txtTotalNumberCollections.setForeground(ColorConstants.lightGreen);
-		txtTotalNumberCollections.setText("0");
-		txtTotalNumberCollections.setEditable(false);
-		txtTotalNumberCollections.setBackground(ColorConstants.black);
-		
-		Group grpDataCollectionProgress = new Group(statusArea, SWT.NONE);
-		grpDataCollectionProgress.setLayout(new GridLayout(12, false));
-		GridData gd_grpDataCollectionProgress = new GridData(SWT.FILL,SWT.FILL, false, true, 5, 1);
-		gd_grpDataCollectionProgress.heightHint = 67;
-		grpDataCollectionProgress.setLayoutData(gd_grpDataCollectionProgress);
-		grpDataCollectionProgress.setText("Data Collection Progress");
-
-		Label lblCurrentScanNumber = new Label(grpDataCollectionProgress,SWT.NONE);
-		lblCurrentScanNumber.setText("Scan Number:");
-
-		txtScanNumber = new Text(grpDataCollectionProgress, SWT.BORDER);
-		txtScanNumber.setEditable(false);
-		txtScanNumber.setForeground(ColorConstants.lightGreen);
-		txtScanNumber.setBackground(ColorConstants.black);
-		txtScanNumber.setText("display current scan number");
-		GridData gd_txtScanNumber = new GridData(SWT.FILL, SWT.CENTER, true,false, 1, 1);
-		gd_txtScanNumber.widthHint = 60;
-		txtScanNumber.setLayoutData(gd_txtScanNumber);
-
-		Label lblCurrentSample = new Label(grpDataCollectionProgress, SWT.NONE);
-		lblCurrentSample.setText("Sample:");
-
-		txtSamplename = new Text(grpDataCollectionProgress, SWT.BORDER);
-		txtSamplename.setEditable(false);
-		txtSamplename.setForeground(ColorConstants.lightGreen);
-		txtSamplename.setBackground(ColorConstants.black);
-		txtSamplename.setText("display current sample name");
-		GridData gd_txtSamplename = new GridData(SWT.FILL, SWT.CENTER, true,false, 1, 1);
-		gd_txtSamplename.widthHint = 100;
-		txtSamplename.setLayoutData(gd_txtSamplename);
-		
-		Label lblCurrentCell = new Label(grpDataCollectionProgress, SWT.NONE);
-		lblCurrentCell.setText("Cell:");
-
-		txtCellname = new Text(grpDataCollectionProgress, SWT.BORDER);
-		txtCellname.setEditable(false);
-		txtCellname.setForeground(ColorConstants.lightGreen);
-		txtCellname.setBackground(ColorConstants.black);
-		txtCellname.setText("display current cell name");
-		GridData gd_txtCellname = new GridData(SWT.FILL, SWT.CENTER, true,false, 1, 1);
-		gd_txtCellname.widthHint = 100;
-		txtCellname.setLayoutData(gd_txtCellname);
-		
-		Label lblCurrentStage = new Label(grpDataCollectionProgress, SWT.NONE);
-		lblCurrentStage.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblCurrentStage.setText("Stage:");
-				
-		txtStagename = new Text(grpDataCollectionProgress, SWT.BORDER);
-		txtStagename.setEditable(false);
-		txtStagename.setForeground(ColorConstants.lightGreen);
-		txtStagename.setBackground(ColorConstants.black);
-		txtStagename.setText("display current stage name");
-		txtStagename.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		
-		Label lblCollectionNumber = new Label(grpDataCollectionProgress, SWT.NONE);
-		lblCollectionNumber.setText("Collection:");
-
-		txtCollectionNumber = new Text(grpDataCollectionProgress, SWT.BORDER);
-		txtCollectionNumber.setEditable(false);
-		txtCollectionNumber.setBackground(ColorConstants.black);
-		txtCollectionNumber.setForeground(ColorConstants.lightGreen);
-		txtCollectionNumber.setText("0/0");
-		GridData gd_txtCollectionNumber = new GridData(SWT.FILL, SWT.CENTER, true,
-				false, 1, 1);
-		gd_txtCollectionNumber.widthHint = 40;
-		txtCollectionNumber.setLayoutData(gd_txtCollectionNumber);
-
-		Label lblScanPointNumber = new Label(grpDataCollectionProgress,SWT.NONE);
-		lblScanPointNumber.setText("Scan Point:");
-
-		txtScanPointNumber = new Text(grpDataCollectionProgress, SWT.BORDER);
-		txtScanPointNumber.setEditable(false);
-		txtScanPointNumber.setForeground(ColorConstants.lightGreen);
-		txtScanPointNumber.setBackground(ColorConstants.black);
-		txtScanPointNumber.setText("0/0");
-		GridData gd_txtScanPointNumber = new GridData(SWT.FILL, SWT.CENTER,true, false, 1, 1);
-		gd_txtScanPointNumber.widthHint = 40;
-		txtScanPointNumber.setLayoutData(gd_txtScanPointNumber);
-
-		Label lblProgress = new Label(grpDataCollectionProgress, SWT.NONE);
-		lblProgress.setText("Acquisition Progress:");
-		
-		progressBar = new ProgressBar(grpDataCollectionProgress, SWT.NONE);
-		progressBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true,false, 5, 1));
-		progressBar.setMaximum(100);
-		progressBar.setMinimum(0);
-		
-		Label lblProgressMessage = new Label(grpDataCollectionProgress,SWT.NONE);
-		lblProgressMessage.setText("Progress Message:");
-
-		txtProgressMessage = new Text(grpDataCollectionProgress, SWT.BORDER);
-		txtProgressMessage.setForeground(ColorConstants.lightGreen);
-		txtProgressMessage.setBackground(ColorConstants.black);
-		txtProgressMessage.setEditable(false);
-		txtProgressMessage.setText("progressMessage");
-		txtProgressMessage.setLayoutData(new GridData(SWT.FILL, SWT.CENTER,true, false, 5, 1));
-
 		initialisation();
 		// register as selection provider to the SelectionService
 		getViewSite().setSelectionProvider(this);
 		// register as selection listener of sample editor if exist
 		getViewSite().getWorkbenchWindow().getSelectionService().addSelectionListener(LDEExperimentsEditor.ID, selectionListener);
 		// Create the help context id for the viewer's control
-		PlatformUI.getWorkbench().getHelpSystem().setHelp(childrenTableViewer.getControl(), "org.opengda.lde.ui.views.childerntableview");
+//		PlatformUI.getWorkbench().getHelpSystem().setHelp(childrenTableViewer.getControl(), "org.opengda.lde.ui.views.childerntableview");
 		createActions();
 		initializeToolBar();
 		initializeMenu();
 
 		updateActionIconsState();
 	}
-	
-	private void createColumns(TableViewer tableViewer, String[] columnHeaders, ColumnWeightData[] columnLayouts) {
+	/**
+	 * create table columns using customised Content Provider, Label Provider, and Input using List or array of Objects to be displayed
+	 * @param tableViewer
+	 * @param columnHeaders
+	 * @param columnLayouts
+	 * @param firstElement
+	 */
+	private void createColumns(TableViewer tableViewer, String[] columnHeaders, ColumnWeightData[] columnLayouts, Object firstElement) {
 		for (int i = 0; i < columnHeaders.length; i++) {
 			TableViewerColumn tableViewerColumn = new TableViewerColumn(tableViewer, SWT.None);
 			TableColumn column = tableViewerColumn.getColumn();
@@ -471,81 +340,341 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 			column.setText(columnHeaders[i]);
 			column.setToolTipText(columnHeaders[i]);
 			column.setWidth(columnLayouts[i].minimumWidth);
-			tableViewerColumn.setLabelProvider(new PropertyColumnLabelProvider(new AdapterFactoryContentProvider(adapterFactory), columnHeaders[i]));
-			tableViewerColumn.setEditingSupport(new PropertyEditingSupport(tableViewer, new AdapterFactoryContentProvider(adapterFactory), columnHeaders[i]));
-		}
-	}
-
-	private void initialisation() {
-		editingDomain=getResUtil().getEditingDomain();
-		adapterFactory=SampleGroupEditingDomain.INSTANCE.getAdapterFactory();
-		try {
-			resource = getResUtil().getResource();
-			resource.eAdapters().add(notifyListener);
-			childrenTableViewer.setInput(resource);
-		} catch (Exception e2) {
-			logger.error("Cannot load resouce from file: "+getResUtil().getFileName(), e2);
-		}
-		if (getEventAdminName()!=null) {
-			eventAdmin = Finder.getInstance().find(getEventAdminName());
-			if (eventAdmin!=null) {
-				eventAdmin.addIObserver(this);
+			if (firstElement instanceof ExperimentDefinition) {
+				tableViewerColumn.setEditingSupport(new ExperimentTableColumnEditingSupport(tableViewer, tableViewerColumn));
+				
+			} else	if (firstElement instanceof Experiment) {
+				tableViewerColumn.setEditingSupport(new StageTableColumnEditingSupport(tableViewer, tableViewerColumn));
+			} else if (firstElement instanceof Stage){
+				tableViewerColumn.setEditingSupport(new CellTableColumnEditingSupport(tableViewer, tableViewerColumn));
+				
+			} else if (firstElement instanceof Cell) {
+				tableViewerColumn.setEditingSupport(new SampleTableColumnEditingSupport(tableViewer, tableViewerColumn));
+				
+			} else if (firstElement instanceof Sample) {
+				tableViewerColumn.setEditingSupport(new SampleTableColumnEditingSupport(tableViewer, tableViewerColumn));
+			
 			}
 		}
+	}
+	/**
+	 * Create table columns using property descriptors and  AdapterFactoryContentProvider
+	 * @param tableViewer
+	 * @param propertyDescriptors
+	 * @param adapterFactoryContentProvider
+	 */
+	private void createColumns(TableViewer tableViewer, IPropertyDescriptor[] propertyDescriptors, AdapterFactoryContentProvider adapterFactoryContentProvider) {
+
+			for (IPropertyDescriptor descriptor : propertyDescriptors) {
+				TableColumn column = new TableColumn(tableViewer.getTable(), SWT.None);
+				column.setResizable(true);
+				column.setText(descriptor.getId().toString());
+				column.setToolTipText(descriptor.getDescription());
+				column.setWidth(200);
+				TableViewerColumn tableViewerColumn = new TableViewerColumn(tableViewer, column);
+				tableViewerColumn.setLabelProvider(new PropertyColumnLabelProvider(adapterFactoryContentProvider, descriptor.getId()));
+				tableViewerColumn.setEditingSupport(new PropertyEditingSupport(tableViewer, adapterFactoryContentProvider,descriptor.getId()));			
+			}
+	 }
+
+	 private void createColumns(TableViewer viewer, HashMap<EAttribute, String> attributeMap, ObservableListContentProvider cp) {
+			// create a column for each attribute & setup the databinding
+			for (EAttribute attribute : attributeMap.keySet()) {
+				// create a new column
+				TableViewerColumn tvc = new TableViewerColumn(viewer, SWT.LEFT);
+				// determine the attribute that should be observed
+				IObservableMap map = EMFEditProperties.value(editingDomain, attribute).observeDetail(cp.getKnownElements());
+				tvc.setLabelProvider(new ObservableMapCellLabelProvider(map));
+				// set the column title & set the size
+				tvc.getColumn().setText(attributeMap.get(attribute));
+				tvc.getColumn().setWidth(100);
+				tvc.getColumn().setMoveable(true);
+				tvc.getColumn().setResizable(true);
+			}
+
+	 }
+
+//	private void configureColumns(TableViewer tableViewer, IPropertySource propertySource) {
+//		Table table = tableViewer.getTable();
+//		TableLayout layout = new TableLayout();
+//		table.setLayout(layout);
+//		IPropertyDescriptor[] propertyDescriptors = propertySource.getPropertyDescriptors();
+//		CellEditor[] cellEditors = new CellEditor[propertyDescriptors.length];
+//		String[] properties = new String[propertyDescriptors.length];
+//		for (int i = 0; i < propertyDescriptors.length; i++) {
+//			IPropertyDescriptor prop = propertyDescriptors[i];
+//			TableColumn objectColumn = new TableColumn(table, SWT.LEFT);
+//			objectColumn.setText(prop.getDisplayName());
+//			objectColumn.setToolTipText(prop.getDescription());
+//			objectColumn.setData(COLUMN_DATA_KEY, prop);
+//			objectColumn.setResizable(true);
+//			layout.addColumnData(new ColumnWeightData(3, 100, true));
+//			cellEditors[i] = prop.createPropertyEditor(table);
+//			properties[i] = Integer.toString(i);
+//		}
+//		tableViewer.setCellEditors(cellEditors);
+//		tableViewer.setColumnProperties(properties);
+//		tableViewer.setCellModifier(new EClassifierTableCellModifier(adapterFactory, tableViewer));
+//	}
+//
+//	public class EClassifierTableCellModifier implements org.eclipse.jface.viewers.ICellModifier {
+//		protected AdapterFactory adapterFactory;
+//		protected TableViewer viewer;
+//		/**
+//		 * If this is true then we are operating on a containing object which is
+//		 * a property source - not the list item
+//		 */
+//		protected boolean containerMode = false;
+//		protected IPropertySource containerPropertySource = null;
+//
+//		protected EClassifierTableCellModifier(AdapterFactory adapterFactory, TableViewer viewer) {
+//			this.adapterFactory = adapterFactory;
+//			this.viewer = viewer;
+//		}
+//
+//		protected EClassifierTableCellModifier(AdapterFactory adapterFactory, TableViewer viewer,
+//				IPropertySource containerPropertySource) {
+//			this.adapterFactory = adapterFactory;
+//			this.viewer = viewer;
+//			this.containerPropertySource = containerPropertySource;
+//			containerMode = true;
+//		}
+//
+//		public boolean canModify(Object element, String property) {
+//			/*
+//			 * IPropertyDescriptor propDesc = getPropertyDescriptor(property);
+//			 * AdapterFactoryContentProvider contentProvider = new
+//			 * AdapterFactoryContentProvider(adapterFactory); IPropertySource
+//			 * propertySource = contentProvider.getPropertySource(element);
+//			 */
+//			return true;
+//		}
+//
+//		public Object getValue(Object element, String property) {
+//			IPropertyDescriptor propDesc = getPropertyDescriptor(property);
+//			IPropertySource propertySource;
+//			if (containerMode) {
+//				propertySource = this.containerPropertySource;
+//			} else {
+//				AdapterFactoryContentProvider contentProvider = new AdapterFactoryContentProvider(adapterFactory);
+//				propertySource = contentProvider.getPropertySource(element);
+//			}
+//			Object value = propertySource.getPropertyValue(propDesc.getId());
+//			if (value instanceof PropertyValueWrapper) {
+//				return ((PropertyValueWrapper) value).getEditableValue(element);
+//			} else
+//				return value;
+//		}
+//
+//		public void modify(Object element, String property, Object value) {
+//			if (element instanceof Item)
+//				element = ((Item) element).getData();
+//			IPropertyDescriptor propDesc = getPropertyDescriptor(property);
+//			IPropertySource propertySource;
+//			if (containerMode) {
+//				propertySource = this.containerPropertySource;
+//			} else {
+//				AdapterFactoryContentProvider contentProvider = new AdapterFactoryContentProvider(adapterFactory);
+//				propertySource = contentProvider.getPropertySource(element);
+//			}
+//			propertySource.setPropertyValue(propDesc.getId(), value);
+//		}
+//
+////	protected IPropertyDescriptor getPropertyDescriptor(String property)
+////	{
+////	int columnIndex = Integer.parseInt(property);
+////	return (IPropertyDescriptor)viewer.getTable().getColumn(columnIndex).getData(EClassifier TableConfigurer.COLUMN_DATA_KEY);
+////	}
+//	}
+
+	private void initialisation() {
+
+		experimentAttributeMap = new LinkedHashMap<EAttribute, String>();
+		experimentAttributeMap.put(LDEExperimentsPackage.Literals.EXPERIMENT__NAME, ExperimentTableConstants.NAME);
+		experimentAttributeMap.put(LDEExperimentsPackage.Literals.EXPERIMENT__DESCRIPTION, ExperimentTableConstants.DESCRIPTION);
+		experimentAttributeMap.put(LDEExperimentsPackage.Literals.EXPERIMENT__NUMBER_OF_STAGES, ExperimentTableConstants.NUMBER_OF_STAGES);
+		
+		stageAttributeMap = new LinkedHashMap<EAttribute, String>();
+		stageAttributeMap.put(LDEExperimentsPackage.Literals.STAGE__STAGE_ID, StageTableConstants.STAGE_ID);
+		stageAttributeMap.put(LDEExperimentsPackage.Literals.STAGE__DETECTOR_X, StageTableConstants.DETECTOR_X);
+		stageAttributeMap.put(LDEExperimentsPackage.Literals.STAGE__DETECTOR_Y, StageTableConstants.DETECTOR_Y);
+		stageAttributeMap.put(LDEExperimentsPackage.Literals.STAGE__DETECTOR_Z, StageTableConstants.DETECTOR_Z);
+		stageAttributeMap.put(LDEExperimentsPackage.Literals.STAGE__CAMERA_X, StageTableConstants.CAMERA_X);
+		stageAttributeMap.put(LDEExperimentsPackage.Literals.STAGE__CAMERA_Y, StageTableConstants.CAMERA_Y);
+		stageAttributeMap.put(LDEExperimentsPackage.Literals.STAGE__CAMERA_Z, StageTableConstants.CAMERA_Z);
+		stageAttributeMap.put(LDEExperimentsPackage.Literals.STAGE__NUMBER_OF_CELLS, StageTableConstants.NUMBER_OF_CELLS);
+		
+		cellAttributeMap = new LinkedHashMap<EAttribute, String>();
+		cellAttributeMap.put(LDEExperimentsPackage.Literals.CELL__CELL_ID, CellTableConstants.CELL_ID);
+		cellAttributeMap.put(LDEExperimentsPackage.Literals.CELL__NAME, CellTableConstants.CELL_NAME);
+		cellAttributeMap.put(LDEExperimentsPackage.Literals.CELL__VISIT_ID, CellTableConstants.VISIT_ID);
+		cellAttributeMap.put(LDEExperimentsPackage.Literals.CELL__CALIBRANT, CellTableConstants.CALIBRANT_NAME);
+		cellAttributeMap.put(LDEExperimentsPackage.Literals.CELL__CALIBRANT_X, CellTableConstants.CALIBRANT_X);
+		cellAttributeMap.put(LDEExperimentsPackage.Literals.CELL__CALIBRANT_Y, CellTableConstants.CALIBRANT_Y);
+		cellAttributeMap.put(LDEExperimentsPackage.Literals.CELL__CALIBRANT_EXPOSURE, CellTableConstants.CALIBRANT_EXPOSURE);
+		cellAttributeMap.put(LDEExperimentsPackage.Literals.CELL__START_DATE, CellTableConstants.START_DATE);
+		cellAttributeMap.put(LDEExperimentsPackage.Literals.CELL__END_DATE, CellTableConstants.END_DATE);
+		cellAttributeMap.put(LDEExperimentsPackage.Literals.CELL__EMAIL, CellTableConstants.EMAIL);
+		cellAttributeMap.put(LDEExperimentsPackage.Literals.CELL__ENABLE_AUTO_EMAIL, CellTableConstants.AUTO_EMAILING);
+		cellAttributeMap.put(LDEExperimentsPackage.Literals.CELL__ENV_SCANNABLE_NAMES, CellTableConstants.ENV_SCANNABLE_NAMES);
+		
+		sampleAttributeMap = new LinkedHashMap<EAttribute, String>();
+		sampleAttributeMap.put(LDEExperimentsPackage.Literals.SAMPLE__ACTIVE, SampleTableConstants.ACTIVE);
+		sampleAttributeMap.put(LDEExperimentsPackage.Literals.SAMPLE__NAME, SampleTableConstants.SAMPLE_NAME);
+		sampleAttributeMap.put(LDEExperimentsPackage.Literals.SAMPLE__SAMPLE_XSTART, SampleTableConstants.SAMPLE_X_START);
+		sampleAttributeMap.put(LDEExperimentsPackage.Literals.SAMPLE__SAMPLE_XSTOP, SampleTableConstants.SAMPLE_X_STOP);
+		sampleAttributeMap.put(LDEExperimentsPackage.Literals.SAMPLE__SAMPLE_XSTEP, SampleTableConstants.SAMPLE_X_STEP);
+		sampleAttributeMap.put(LDEExperimentsPackage.Literals.SAMPLE__SAMPLE_YSTART, SampleTableConstants.SAMPLE_Y_START);
+		sampleAttributeMap.put(LDEExperimentsPackage.Literals.SAMPLE__SAMPLE_YSTOP, SampleTableConstants.SAMPLE_Y_STOP);
+		sampleAttributeMap.put(LDEExperimentsPackage.Literals.SAMPLE__SAMPLE_YSTEP, SampleTableConstants.SAMPLE_Y_STEP);
+		sampleAttributeMap.put(LDEExperimentsPackage.Literals.SAMPLE__SAMPLE_EXPOSURE, SampleTableConstants.SAMPLE_EXPOSURE);
+		sampleAttributeMap.put(LDEExperimentsPackage.Literals.SAMPLE__COMMAND, SampleTableConstants.COMMAND);
+		sampleAttributeMap.put(LDEExperimentsPackage.Literals.SAMPLE__COMMENT, SampleTableConstants.COMMENT);
+		
+		
+		
 		selectionListener= new ISelectionListener() {
 			
 			@Override
 			public void selectionChanged(IWorkbenchPart part, ISelection selection) {
+				boolean usePropertyDescripors=false;
+				boolean useEMFDataBinding=false;
+				boolean useCustomizedImpl=true;
 				if (part instanceof LDEExperimentsEditor) {
-					Table table = childrenTableViewer.getTable();
-					Composite parent=table.getParent();
-					table.dispose();
-					childrenTableViewer=new TableViewer(parent,SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
-					if (selection instanceof ExperimentDefinition) {
-						createColumns(childrenTableViewer, experimentColumnHeaders, experimentColumnLayouts);
-						childrenTableViewer.setInput(((ExperimentDefinition)selection).getExperiments());
-						setPartName("Experiments");
-					} else if (selection instanceof Experiment) {
-						createColumns(childrenTableViewer, stageColumnHeaders, stageColumnLayouts);
-						childrenTableViewer.setInput(((Experiment)selection).getStages());
-						setPartName("Stages in experiment "+((Experiment)selection).getName());
-					} else if (selection instanceof Stage) {
-						createColumns(childrenTableViewer, cellColumnHeaders, cellColumnLayouts);
-						childrenTableViewer.setInput(((Stage)selection).getCells());
-						setPartName("Cells in stage "+((Stage)selection).getStageID());
-					} else if (selection instanceof Cell) {
-						createColumns(childrenTableViewer, sampleColumnHeadersForCell, sampleColumnLayoutsForCell);
-						childrenTableViewer.setInput(((Cell)selection).getSamples());
-						setPartName("Samples in cell "+((Cell)selection).getName());
-					} else if (selection instanceof Sample) {
-						try {
-							//display all samples with progress and collected data info.
-							createColumns(childrenTableViewer, sampleColumnHeaders, sampleColumnLayouts);
-							childrenTableViewer.setInput(getResUtil().getSamples());
-							setPartName("Samples in experiment "+((Sample)selection).getCell().getStage().getExperiment().getName());
-						} catch (Exception e) {
-							logger.error("Fail to get all samples from sample definition file", e);
-						}
-						progressColumn= new TableViewerColumn(childrenTableViewer, childrenTableViewer.getTable().getColumn(1));
-						ProgressLabelProvider progressLabelProvider = new ProgressLabelProvider(childrenTableViewer, samples);
-						if (eventAdmin!=null) {
-							progressLabelProvider.setEventAdmin(eventAdmin);
-							eventAdmin.addIObserver(progressLabelProvider);
-						}
-						progressColumn.setLabelProvider(progressLabelProvider);
-						//STATUS animation
-						images = loadAnimatedGIF(childrenTableViewer.getControl().getDisplay(), ImageConstants.ICON_RUNNING);
-					}
-					Table childrentable = childrenTableViewer.getTable();
-					GridData gd_childrentable = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
-					gd_childrentable.heightHint = 386;
-					gd_childrentable.widthHint = 1000;
-					childrentable.setLayoutData(gd_childrentable);		
-					childrentable.setHeaderVisible(true);
-					childrentable.setLinesVisible(true);
+
+					Object firstElement = ((IStructuredSelection)selection).getFirstElement();
+					Table oldtable = viewer.getTable();
+					Composite parent=oldtable.getParent();
+					oldtable.dispose();
+
 					
-					ColumnViewerToolTipSupport.enableFor(childrenTableViewer, ToolTip.NO_RECREATE);
-					childrenTableViewer.refresh();
+					viewer=new TableViewer(parent,SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
+					Table table = viewer.getTable();
+					GridData gd_table = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
+					gd_table.heightHint = 386;
+					gd_table.widthHint = 1000;
+					table.setLayoutData(gd_table);
+					table.setHeaderVisible(true);
+					table.setLinesVisible(true);
+					
+					ColumnViewerToolTipSupport.enableFor(viewer, ToolTip.NO_RECREATE);
+					
+					// create a content provider
+//					ObservableListContentProvider cp = new ObservableListContentProvider();
+
+//					CustomisedAdapterFactoryContentProvider provider = new CustomisedAdapterFactoryContentProvider(adapterFactory);
+//					childrenTableViewer.setContentProvider(provider);
+//					childrenTableViewer.setLabelProvider(new AdapterFactoryLabelProvider(adapterFactory));
+//					childrenTableViewer.setContentProvider(new ArrayContentProvider());
+					if (firstElement instanceof ExperimentDefinition) {
+						ExperimentDefinition experimentDefinition=(ExperimentDefinition)firstElement;
+						if (useEMFDataBinding) {
+							ObservableListContentProvider cp = new ObservableListContentProvider();
+							createColumns(viewer, experimentAttributeMap, cp);
+							viewer.setContentProvider(cp);
+							viewer.setInput(EMFProperties.list(LDEExperimentsPackage.Literals.EXPERIMENT_DEFINITION__EXPERIMENT).observe(experimentDefinition));
+						}
+						if (usePropertyDescripors) {
+							EList<Experiment> experiments2 = experimentDefinition.getExperiment();
+							CustomisedAdapterFactoryContentProvider provider = new CustomisedAdapterFactoryContentProvider(adapterFactory);
+							createColumns(viewer, provider.getPropertySource(experiments2.get(0)).getPropertyDescriptors(), provider);
+							viewer.setContentProvider(provider);
+							viewer.setLabelProvider(new AdapterFactoryLabelProvider(adapterFactory));
+							viewer.setInput(experimentDefinition);
+						}
+						if (useCustomizedImpl) {				
+							createColumns(viewer, experimentColumnHeaders, experimentColumnLayouts, experimentDefinition);
+							viewer.setContentProvider(new CustomisedAdapterFactoryContentProvider(adapterFactory));
+							viewer.setLabelProvider(new AdapterFactoryLabelProvider(adapterFactory));
+							viewer.setInput(experimentDefinition);
+						}
+						setPartName("Experiments");
+					} else if (firstElement instanceof Experiment) {
+						Experiment experiment= (Experiment) firstElement;
+						if (useEMFDataBinding) {
+							ObservableListContentProvider cp = new ObservableListContentProvider();
+							createColumns(viewer, stageAttributeMap, cp);
+							viewer.setContentProvider(cp);
+							viewer.setInput(EMFProperties.list(LDEExperimentsPackage.Literals.EXPERIMENT__STAGE).observe(experiment));
+						}
+						if (usePropertyDescripors) {
+							EList<Stage> stages = experiment.getStage();
+							CustomisedAdapterFactoryContentProvider provider = new CustomisedAdapterFactoryContentProvider(adapterFactory);
+							createColumns(viewer,provider.getPropertySource(stages.get(0)).getPropertyDescriptors(), provider);
+							viewer.setContentProvider(provider);
+							viewer.setLabelProvider(new AdapterFactoryLabelProvider(adapterFactory));
+							viewer.setInput(experiment);
+						}
+						if (useCustomizedImpl) {				
+							createColumns(viewer, stageColumnHeaders, stageColumnLayouts, experiment);
+							viewer.setContentProvider(new CustomisedAdapterFactoryContentProvider(adapterFactory));
+							viewer.setLabelProvider(new AdapterFactoryLabelProvider(adapterFactory));
+							viewer.setInput(experiment);
+						}
+							
+						setPartName("Stages in experiment '"+experiment.getName()+"'");
+					} else if (firstElement instanceof Stage) {
+						Stage stage=(Stage) firstElement;
+						if (useEMFDataBinding) {
+							ObservableListContentProvider cp = new ObservableListContentProvider();
+							createColumns(viewer, cellAttributeMap, cp);
+							viewer.setContentProvider(cp);
+							viewer.setInput(EMFProperties.list(LDEExperimentsPackage.Literals.STAGE__CELL).observe(stage));
+						}
+						if (usePropertyDescripors) {
+							EList<Cell> cells = stage.getCell();
+							CustomisedAdapterFactoryContentProvider provider = new CustomisedAdapterFactoryContentProvider(adapterFactory);
+							createColumns(viewer, provider.getPropertySource(cells.get(0)).getPropertyDescriptors(), provider);
+							viewer.setContentProvider(provider);
+							viewer.setLabelProvider(new AdapterFactoryLabelProvider(adapterFactory));
+							viewer.setInput(stage);
+						}
+						if (useCustomizedImpl) {				
+							createColumns(viewer, cellColumnHeaders, cellColumnLayouts, stage);
+							viewer.setContentProvider(new CustomisedAdapterFactoryContentProvider(adapterFactory));
+							viewer.setLabelProvider(new AdapterFactoryLabelProvider(adapterFactory));
+							viewer.setInput(stage);
+						}
+							
+						setPartName("Cells in stage '"+stage.getStageID()+"'");
+					} else if (firstElement instanceof Cell) {
+						Cell cell=(Cell) firstElement;
+						if (useEMFDataBinding) {
+							ObservableListContentProvider cp = new ObservableListContentProvider();
+							createColumns(viewer, sampleAttributeMap, cp);
+							viewer.setContentProvider(cp);
+							viewer.setInput(EMFProperties.list(LDEExperimentsPackage.Literals.CELL__SAMPLE).observe(cell));
+						}
+						if (usePropertyDescripors) {
+							EList<Sample> samples2 = cell.getSample();
+							CustomisedAdapterFactoryContentProvider provider = new CustomisedAdapterFactoryContentProvider(adapterFactory);
+							createColumns(viewer, provider.getPropertySource(samples2.get(0)).getPropertyDescriptors(), provider);
+							viewer.setContentProvider(provider);
+							viewer.setLabelProvider(new AdapterFactoryLabelProvider(adapterFactory));
+							viewer.setInput(cell);
+						}
+						if (useCustomizedImpl) {				
+							createColumns(viewer, sampleColumnHeadersForCell, sampleColumnLayoutsForCell, cell);
+							viewer.setContentProvider(new CustomisedAdapterFactoryContentProvider(adapterFactory));
+							viewer.setLabelProvider(new AdapterFactoryLabelProvider(adapterFactory));
+							viewer.setInput(cell);
+						}
+						setPartName("Samples in cell '"+cell.getName()+"'");
+					} 
+//					Table childrentable = childrenTableViewer.getTable();
+//					GridData gd_childrentable = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
+//					gd_childrentable.heightHint = 386;
+//					gd_childrentable.widthHint = 1000;
+//					childrentable.setLayoutData(gd_childrentable);		
+//					childrentable.setHeaderVisible(true);
+//					childrentable.setLinesVisible(true);
+					
+//					ColumnViewerToolTipSupport.enableFor(childrenTableViewer, ToolTip.NO_RECREATE);
+					//change order within a cell group
+//					childrenTableViewer.addDragSupport(DND.DROP_COPY | DND.DROP_MOVE | DND.DROP_LINK, new Transfer[] { LocalTransfer.getInstance() },new ViewerDragAdapter(childrenTableViewer));
+//					childrenTableViewer.addDropSupport(DND.DROP_COPY | DND.DROP_MOVE | DND.DROP_LINK, new Transfer[] { LocalTransfer.getInstance() },new EditingDomainViewerDropAdapter(editingDomain, childrenTableViewer));
+					parent.layout(true);
+//					viewer.refresh();
 				}
 			}
 		};
@@ -567,26 +696,6 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 				}
 			}
 		}
-		if (getResUtil() != null) {
-			txtSamplesfile.setText(getResUtil().getFileName());
-		}
-		//change order within a cell group
-		childrenTableViewer.addDragSupport(DND.DROP_COPY | DND.DROP_MOVE | DND.DROP_LINK, new Transfer[] { LocalTransfer.getInstance() },new ViewerDragAdapter(childrenTableViewer));
-		childrenTableViewer.addDropSupport(DND.DROP_COPY | DND.DROP_MOVE | DND.DROP_LINK, new Transfer[] { LocalTransfer.getInstance() },new EditingDomainViewerDropAdapter(editingDomain, childrenTableViewer));
-		updateNumberActiveSamples();
-		
-
-		String beamline=null;
-		if ((beamline=LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME))!=null) {
-			NumTracker tracker;
-			try {
-				tracker = new NumTracker(beamline);
-				int currentFileNumber = tracker.getCurrentFileNumber();
-				txtScanNumber.setText(String.valueOf(currentFileNumber));
-			} catch (IOException e) {
-				logger.error("Failed on getting file tracker", e);
-			}
-		}
 	}
 	
 	private Image[] loadAnimatedGIF(Display display, String imagePath) {
@@ -604,246 +713,6 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 		}
 		return images;
 	}	
-	@Override
-	public void update(Object source, Object arg) {
-		if (source==eventAdmin) {
-			if (arg instanceof ScanStartEvent) {
-				ScanStartEvent event = ((ScanStartEvent)arg);
-				totalNumberOfPoints = event.getNumberOfPoints();
-				final String scanFilename = event.getScanFilename();
-				final long scanNumber = event.getScanNumber();
-
-				Display.getDefault().asyncExec(new Runnable() {
-
-					@Override
-					public void run() {
-						txtDataFilePath.setText(scanFilename);
-						txtScanNumber.setText(String.valueOf(scanNumber));
-						updateScanPointNumber(currentPointNumber,totalNumberOfPoints);
-					}
-				});
-			} else if (arg instanceof ScanPointStartEvent) {
-				currentPointNumber=((ScanPointStartEvent)arg).getCurrentPointNumber();
-				Display.getDefault().asyncExec(new Runnable() {
-
-					@Override
-					public void run() {
-						updateScanPointNumber(currentPointNumber,totalNumberOfPoints);
-					}
-				});
-				
-			} else if (arg instanceof ScanEndEvent) {
-				Display.getDefault().asyncExec(new Runnable() {
-
-					@SuppressWarnings("restriction")
-					@Override
-					public void run() {
-						if (currentSample!=null) {
-							updateSampleStatus(currentSample, STATUS.COMPLETED);
-						}
-						if (animation!=null) {
-							animation.cancelAnimation();
-						}
-					}
-				});
-			} else if (arg instanceof StageChangedEvent) {
-				StageChangedEvent event = ((StageChangedEvent)arg);
-				final String currentStage = event.getStageName();
-				final int numberOfCells = event.getNumberOfCells();
-				Display.getDefault().asyncExec(new Runnable() {
-
-					@Override
-					public void run() {
-						txtStagename.setText(currentStage+": "+numberOfCells+" cells.");
-					}
-				});
-			} else if (arg instanceof CellChangedEvent) {
-				CellChangedEvent event = ((CellChangedEvent)arg);
-				final String currentCell = event.getCellName();
-				final int numberOfSamples = event.getNumberOfSamples();
-				Display.getDefault().asyncExec(new Runnable() {
-
-					@Override
-					public void run() {
-						txtCellname.setText(currentCell+": "+numberOfSamples+" samples.");
-					}
-				});
-			} else if (arg instanceof SampleProcessingEvent) {
-				SampleProcessingEvent event = ((SampleProcessingEvent)arg);
-				final String currentSampleName = event.getCurrentSampleName();
-				final int currentSampleNumber = event.getCurrentSampleNumber();
-				final int totalNumberActiveSamples = event.getTotalNumberActiveSamples();
-				final int currentCalibrationNumber = event.getCurrentCalibrationNumber();
-				final int totalNumberCalibrations = event.getTotalNumberCalibrations();
-				
-				Display.getDefault().asyncExec(new Runnable() {
-
-					@Override
-					public void run() {
-						txtSamplename.setText(currentSampleName);
-						txtTotalNumberCollections.setText(String.valueOf(totalNumberActiveSamples+totalNumberCalibrations));
-						updateCollectionNumber(currentSampleNumber+currentCalibrationNumber,totalNumberActiveSamples+totalNumberCalibrations);
-						progressBar.setSelection(((currentSampleNumber+currentCalibrationNumber)*100)/(totalNumberActiveSamples+totalNumberCalibrations));
-					}
-				});
-			} else if (arg instanceof SampleChangedEvent) {
-				SampleChangedEvent event = (SampleChangedEvent)arg;
-				final String sampleID = event.getSampleID();
-				logger.debug("sample update to {}",sampleID);
-				Display.getDefault().asyncExec(new Runnable() {
-					@SuppressWarnings("restriction")
-					@Override
-					public void run() {
-						for (Sample sample : samples) {
-							if (sample.getSampleID().equalsIgnoreCase(sampleID)) {
-								if (currentSample != sample) {
-									updateSampleStatus(currentSample, STATUS.COMPLETED);
-								}
-								currentSample = sample;
-							}
-						}
-						childrenTableViewer.setSelection(new StructuredSelection(currentSample));
-						if (animation!=null) {
-							animation.cancelAnimation();
-						}
-						try {
-							//TODO this should only apply to sample table.
-							TableItem tableItem = childrenTableViewer.getTable().getItem(samples.indexOf(currentSample));
-							AnimatedTableItemFeedback feedback = new AnimatedTableItemFeedback(childrenTableViewer.getControl().getShell(),images, tableItem,SampleTableConstants.COL_STATUS);
-							animation= new AnimationEngine(feedback,-1,100);
-							animation.schedule();
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
-					}
-				});
-			} else if (arg instanceof SampleStatusEvent) {
-				SampleStatusEvent event = (SampleStatusEvent)arg;
-				final String sampleID = event.getSampleID();
-				final STATUS status = event.getStatus();
-				Display.getDefault().asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						logger.debug("sample {} update to {}",sampleID, status);
-						for (Sample sample : samples) {
-							if (sample.getSampleID().equalsIgnoreCase(sampleID)) {
-								updateSampleStatus(sample, status);
-							}
-						}
-						if (status==STATUS.PAUSED) {
-							animation.sleep();
-						} else if (status==STATUS.RUNNING) {
-							animation.wakeUp();
-						}
-					}
-				});
-			} else if (arg instanceof ProcessMessage) {
-				final String message = ((ProcessMessage)arg).getMessage();
-				Display.getDefault().asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						txtProgressMessage.setText(message);
-					}
-				});
-				
-			} else if (arg instanceof NewDataFileEvent) {
-				NewDataFileEvent event = ((NewDataFileEvent)arg);
-				String sampleID = event.getSampleID();
-				for (Sample sample : samples) {
-					if (sample.getSampleID().equalsIgnoreCase(sampleID)) {
-						sendEmailToUsers(sample);
-					}
-				}
-			} else if (arg instanceof DataReductionFailedEvent) {
-				final String message = ((DataReductionFailedEvent)arg).getMesaage();
-				Display.getDefault().asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						txtProgressMessage.setText(message);
-					}
-				});
-			}
-		}
-	}
-	
-	private void updateCollectionNumber(int currentSampleNumber,int totalNumberActiveSamples) {
-		txtCollectionNumber.setText(String.valueOf(currentSampleNumber) + '/'+ String.valueOf(totalNumberActiveSamples));
-	}
-
-	private void updateScanPointNumber(long currentPointNumber,long totalNumberOfPoints) {
-		txtScanPointNumber.setText(String.valueOf(currentPointNumber) + '/'+ String.valueOf(totalNumberOfPoints));
-	}
-
-	protected void updateSampleStatus(final Sample sample, final STATUS status) {
-		getViewSite().getShell().getDisplay().asyncExec(new Runnable() {
-
-			@Override
-			public void run() {
-				sample.setStatus(status);
-				childrenTableViewer.refresh();
-			}
-		});
-	}
-
-	private void updateNumberActiveSamples() {
-		int numActives = 0;
-		if (!samples.isEmpty()) {
-			for (Sample sample : samples) {
-				if (sample.isActive()) {
-					numActives++;
-				}
-			}
-		}
-		txtActivesamples.setText(String.format("%d", numActives));
-		this.numActiveSamples=numActives;
-	}
-
-	protected void sendEmailToUsers(final Sample sample) {
-		Job job = new Job("Send users email") {
-			@Override
-			protected IStatus run(IProgressMonitor monitor) {
-				
-				try{
-					final String subject = LocalProperties.get("org.opengda.mail.subject","Data now available to download and view");
-					final String usersEmail=sample.getCell().getEmail();
-					final String[] recipients = usersEmail.split(" ");
-					for (int i=0; i<recipients.length; i++) {
-						recipients[i] = recipients[i].trim();
-					}
-					final String senderName=LocalProperties.get("org.opengda.mail.sender.name","I11-LDE");
-					final String senderEmail=LocalProperties.get("org.opengda.mail.sender.email","diamondi11-lde@diamond.ac.uk");
-					String description="Data for sample "+sample.getName()+" are available now for download and view.\n";
-					description+="To download raw data files, please log into http://icat.diamond.ac.uk \n";
-					description+= "To view and download reducted data please visit http://ispyb.diamond.ac.uk/dc/visit/"+sample.getCell().getVisitID()+"\n";
-					final String from = String.format("%s <%s>", senderName, senderEmail);
-					
-					final String beamlineName = LocalProperties.get("gda.beamline.name","Beamline Unknown");
-					final String mailSubject = String.format("[LDE Notification - %s] %s", beamlineName.toUpperCase(), subject);
-					
-					final String smtpHost = LocalProperties.get("org.opengda.mail.smtp.host","localhost");
-					
-					JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-					mailSender.setHost(smtpHost);
-					
-					SimpleMailMessage message = new SimpleMailMessage();
-					message.setFrom(from);
-					message.setTo(recipients);
-					message.setSubject(mailSubject);
-					message.setText(description);
-					
-					mailSender.send(message);
-					return Status.OK_STATUS;
-				} catch(Exception ex){
-					return new Status(IStatus.ERROR, Activator.PLUGIN_ID, 1, "Error sending email", ex);
-				}
-				
-			}
-		};
-		
-		job.schedule();
-		
-	}
-
 	/**
 	 * Create the actions.
 	 */
@@ -1123,7 +992,7 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 
 	@Override
 	public void setFocus() {
-		childrenTableViewer.getControl().setFocus();
+		viewer.getControl().setFocus();
 	}
 
 	private void updateActionIconsState() {
@@ -1159,6 +1028,10 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 		}
 	};
 	private String[] stageIDs;
+	private Composite childrencomposite;
+	private LinkedHashMap<EAttribute, String> experimentAttributeMap;
+	private LinkedHashMap<EAttribute, String> stageAttributeMap;
+	private Composite rootComposite;
 
 
 
@@ -1185,12 +1058,12 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 
 	@Override
 	public ISelection getSelection() {
-		return childrenTableViewer.getSelection();
+		return viewer.getSelection();
 	}
 
 	@Override
 	public void setSelection(ISelection selection) {
-		childrenTableViewer.setSelection(selection);		
+		viewer.setSelection(selection);		
 	}
 
 	public LDEResourceUtil getResUtil() {
@@ -1520,8 +1393,6 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 			} else if (CellTableConstants.ENV_SCANNABLE_NAMES.equals(columnIdentifier)) {
 				//TODO using a list of environment scannables
 				return new TextCellEditor(table);
-			} else if (CellTableConstants.ENV_SAMPLING_INTERVAL.equals(columnIdentifier)) {
-				return new FormattedTextCellEditor(table);
 			} else if (CellTableConstants.START_DATE.equals(columnIdentifier)){
 				return new CDateTimeCellEditor(table);
 			} else if (CellTableConstants.END_DATE.equals(columnIdentifier)){
@@ -1551,8 +1422,6 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 			} else if (CellTableConstants.CALIBRANT_EXPOSURE.equals(columnIdentifier)) {
 				return true;
 			} else if (CellTableConstants.ENV_SCANNABLE_NAMES.equals(columnIdentifier)) {
-				return true;
-			} else if (CellTableConstants.ENV_SAMPLING_INTERVAL.equals(columnIdentifier)) {
 				return true;
 			} else if (CellTableConstants.START_DATE.equals(columnIdentifier)) {
 				return true;
@@ -1586,8 +1455,6 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 					return cell.getCalibrant_exposure();
 				} else if (CellTableConstants.ENV_SCANNABLE_NAMES.equals(columnIdentifier)) {
 					return cell.getEnvScannableNames();
-				} else if (CellTableConstants.ENV_SAMPLING_INTERVAL.equals(columnIdentifier)) {
-					return cell.getEnvSamplingIntervals();
 				} else if (CellTableConstants.START_DATE.equals(columnIdentifier)) {
 					return cell.getStartDate();
 				} else if (CellTableConstants.END_DATE.equals(columnIdentifier)) {
@@ -1663,12 +1530,6 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 				} catch (Exception e) {
 					logger.error("Exception on setting "+CellTableConstants.ENV_SCANNABLE_NAMES+" field for cell "+((Cell)element).getName(), e);
 				}
-			} else if (CellTableConstants.ENV_SAMPLING_INTERVAL.equals(columnIdentifier)) {
-				try {
-					runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.eINSTANCE.getSample_Sample_x_stop(), value));
-				} catch (Exception e) {
-					logger.error("Exception on setting "+CellTableConstants.ENV_SAMPLING_INTERVAL+" field for cell "+((Cell)element).getName(), e);
-				}
 			} else if (CellTableConstants.START_DATE.equals(columnIdentifier)) {
 				if (value instanceof Date) {
 					try {
@@ -1702,7 +1563,6 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 					} catch (Exception e) {
 						logger.error("Exception on setting "+SampleTableConstants.ACTIVE+" field for sample "+((Sample)element).getName(), e);
 					}
-					updateNumberActiveSamples();
 				}
 			}
 		}
@@ -1826,7 +1686,6 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 					} catch (Exception e) {
 						logger.error("Exception on setting "+SampleTableConstants.ACTIVE+" field for sample "+((Sample)element).getName(), e);
 					}
-					updateNumberActiveSamples();
 				}
 			} else if (SampleTableConstants.SAMPLE_NAME.equals(columnIdentifier)) {
 				if (value instanceof String) {
@@ -2037,5 +1896,10 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 	@Override
 	public EditingDomain getEditingDomain() {
 		return editingDomain;
+	}
+
+
+	public void setViewPartName(String viewPartName) {
+		setPartName(viewPartName);		
 	}
 }

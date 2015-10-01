@@ -50,4 +50,6 @@ public interface StageValidator {
 	boolean validateNumberOfCells(int value);
 
 	boolean validateExperiment(Experiment value);
+
+	boolean validateCell(EList<Cell> value);
 }

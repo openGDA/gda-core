@@ -8,12 +8,12 @@ This can be disabled with -vmargs -Dorg.eclipse.emf.examples.generator.validator
 Package ldeexperiment <http://www.opengda.org/LDEExperiments>
 
   Class ExperimentDefinition
-    Reference experiments : Experiment<<0..*>>
+    Reference experiment : Experiment<<0..*>>
     Operation getExperiment(EString) : Experiment
 
   Class Experiment
     Attribute name : EString
-    Reference stages : Stage<<0..*>>
+    Reference stage : Stage<<0..*>>
     Attribute description : EString
     Attribute numberOfStages : EInt
     Operation getStageByID(EString) : Stage
@@ -21,7 +21,7 @@ Package ldeexperiment <http://www.opengda.org/LDEExperiments>
   Class Stage
     Attribute stageID : StageIDString
     Reference experiment : Experiment<<1..1>>
-    Reference cells : Cell<<0..*>>
+    Reference cell : Cell<<0..*>>
     Attribute detector_x : EDouble
     Attribute detector_y : EDouble
     Attribute detector_z : EDouble
@@ -35,7 +35,7 @@ Package ldeexperiment <http://www.opengda.org/LDEExperiments>
   Class Cell
     Attribute cellID : EString
     Reference stage : Stage<<1..1>>
-    Reference samples : Sample<<0..*>>
+    Reference sample : Sample<<0..*>>
     Attribute visitID : EString
     Attribute name : EString
     Attribute email : EString

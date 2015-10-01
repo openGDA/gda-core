@@ -27,6 +27,7 @@ import javax.jms.IllegalStateException;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
+import org.opengda.lde.ui.views.ChildrenTableView;
 import org.opengda.lde.ui.views.SampleGroupView;
 
 import org.opengda.lde.utils.LDEResourceUtil;
@@ -71,7 +72,7 @@ public class ChildrenTableViewFactory implements FindableExecutableExtension {
 	@Override
 	public Object create() throws CoreException {
 		logger.info("Creating children table view");
-		SampleGroupView sampleGroupView = new SampleGroupView();
+		ChildrenTableView sampleGroupView = new ChildrenTableView();
 		sampleGroupView.setViewPartName(viewPartName);
 		sampleGroupView.setResUtil(resUtil);
 		if (getDataDriver()!=null) {

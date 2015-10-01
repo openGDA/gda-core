@@ -18,8 +18,6 @@ import org.eclipse.emf.edit.provider.ITableItemLabelProvider;
 import org.eclipse.emf.edit.provider.ITreeItemContentProvider;
 import org.eclipse.emf.edit.provider.ItemProviderAdapter;
 import org.eclipse.emf.edit.provider.ViewerNotification;
-import org.opengda.lde.model.edit.ExperimentTableConstants;
-import org.opengda.lde.model.ldeexperiment.Experiment;
 import org.opengda.lde.model.ldeexperiment.ExperimentDefinition;
 import org.opengda.lde.model.ldeexperiment.LDEExperimentsFactory;
 import org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage;
@@ -71,7 +69,7 @@ public class ExperimentDefinitionItemProvider
 	public Collection<? extends EStructuralFeature> getChildrenFeatures(Object object) {
 		if (childrenFeatures == null) {
 			super.getChildrenFeatures(object);
-			childrenFeatures.add(LDEExperimentsPackage.Literals.EXPERIMENT_DEFINITION__EXPERIMENTS);
+			childrenFeatures.add(LDEExperimentsPackage.Literals.EXPERIMENT_DEFINITION__EXPERIMENT);
 		}
 		return childrenFeatures;
 	}
@@ -124,7 +122,7 @@ public class ExperimentDefinitionItemProvider
 		updateChildren(notification);
 
 		switch (notification.getFeatureID(ExperimentDefinition.class)) {
-			case LDEExperimentsPackage.EXPERIMENT_DEFINITION__EXPERIMENTS:
+			case LDEExperimentsPackage.EXPERIMENT_DEFINITION__EXPERIMENT:
 				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), true, false));
 				return;
 		}
@@ -144,7 +142,7 @@ public class ExperimentDefinitionItemProvider
 
 		newChildDescriptors.add
 			(createChildParameter
-				(LDEExperimentsPackage.Literals.EXPERIMENT_DEFINITION__EXPERIMENTS,
+				(LDEExperimentsPackage.Literals.EXPERIMENT_DEFINITION__EXPERIMENT,
 				 LDEExperimentsFactory.eINSTANCE.createExperiment()));
 	}
 
@@ -159,22 +157,6 @@ public class ExperimentDefinitionItemProvider
 		return SampledefinitionEditPlugin.INSTANCE;
 	}
 	
-	@Override
-	public String getColumnText(Object object, int columnIndex) {
-		if (object instanceof Experiment) {
-			Experiment experiment=(Experiment)object;
-			switch (columnIndex) {
-			case ExperimentTableConstants.COL_NAME:
-				return experiment.getName();
-			case ExperimentTableConstants.COL_DESCRIPTION:
-				return experiment.getDescription();
-			case ExperimentTableConstants.COL_NUMBER_OF_STAGES:
-				return String.valueOf(experiment.getNumberOfStages());
-			default:
-				break;
-			}
-		}
-		return super.getColumnText(object, columnIndex);
-	}
+
 
 }

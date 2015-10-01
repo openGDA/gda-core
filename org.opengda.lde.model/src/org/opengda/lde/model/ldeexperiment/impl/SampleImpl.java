@@ -805,7 +805,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	public NotificationChain eBasicRemoveFromContainerFeature(NotificationChain msgs) {
 		switch (eContainerFeatureID()) {
 			case LDEExperimentsPackage.SAMPLE__CELL:
-				return eInternalContainer().eInverseRemove(this, LDEExperimentsPackage.CELL__SAMPLES, Cell.class, msgs);
+				return eInternalContainer().eInverseRemove(this, LDEExperimentsPackage.CELL__SAMPLE, Cell.class, msgs);
 		}
 		return super.eBasicRemoveFromContainerFeature(msgs);
 	}
@@ -843,7 +843,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 			if (eInternalContainer() != null)
 				msgs = eBasicRemoveFromContainer(msgs);
 			if (newCell != null)
-				msgs = ((InternalEObject)newCell).eInverseAdd(this, LDEExperimentsPackage.CELL__SAMPLES, Cell.class, msgs);
+				msgs = ((InternalEObject)newCell).eInverseAdd(this, LDEExperimentsPackage.CELL__SAMPLE, Cell.class, msgs);
 			msgs = basicSetCell(newCell, msgs);
 			if (msgs != null) msgs.dispatch();
 		}

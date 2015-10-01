@@ -4,6 +4,7 @@ package org.opengda.lde.model.ldeexperiment.provider;
 
 
 import java.io.File;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -24,14 +25,11 @@ import org.eclipse.emf.edit.provider.ITreeItemContentProvider;
 import org.eclipse.emf.edit.provider.ItemPropertyDescriptor;
 import org.eclipse.emf.edit.provider.ItemProviderAdapter;
 import org.eclipse.emf.edit.provider.ViewerNotification;
+import org.opengda.lde.model.edit.CellTableConstants;
 import org.opengda.lde.model.edit.ImageConstants;
-import org.opengda.lde.model.edit.SampleTableConstants;
 import org.opengda.lde.model.ldeexperiment.Cell;
 import org.opengda.lde.model.ldeexperiment.LDEExperimentsFactory;
 import org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage;
-import org.opengda.lde.model.ldeexperiment.STATUS;
-import org.opengda.lde.model.ldeexperiment.Sample;
-
 import gda.configuration.properties.LocalProperties;
 
 /**
@@ -116,7 +114,7 @@ public class CellItemProvider
 					}
 					// update the used Cell IDs for this stage
 					List<String> usedCellIDs=new ArrayList<String>();
-					for (Cell usedcell : cell.getStage().getCells()) {
+					for (Cell usedcell : cell.getStage().getCell()) {
 						usedCellIDs.add(usedcell.getCellID());
 					}
 					//Dynamically generate cell ID for the stage.
@@ -459,7 +457,7 @@ public class CellItemProvider
 	public Collection<? extends EStructuralFeature> getChildrenFeatures(Object object) {
 		if (childrenFeatures == null) {
 			super.getChildrenFeatures(object);
-			childrenFeatures.add(LDEExperimentsPackage.Literals.CELL__SAMPLES);
+			childrenFeatures.add(LDEExperimentsPackage.Literals.CELL__SAMPLE);
 		}
 		return childrenFeatures;
 	}
@@ -531,7 +529,7 @@ public class CellItemProvider
 			case LDEExperimentsPackage.CELL__NUMBER_OF_SAMPLES:
 				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
 				return;
-			case LDEExperimentsPackage.CELL__SAMPLES:
+			case LDEExperimentsPackage.CELL__SAMPLE:
 				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), true, false));
 				return;
 		}
@@ -551,7 +549,7 @@ public class CellItemProvider
 
 		newChildDescriptors.add
 			(createChildParameter
-				(LDEExperimentsPackage.Literals.CELL__SAMPLES,
+				(LDEExperimentsPackage.Literals.CELL__SAMPLE,
 				 LDEExperimentsFactory.eINSTANCE.createSample()));
 	}
 
@@ -567,66 +565,55 @@ public class CellItemProvider
 	}
 	
 	@Override
-	public Object getColumnImage(Object element, int columnIndex) {
-		if (element instanceof Sample) {
-			Sample sample = (Sample) element;
-			if (columnIndex == SampleTableConstants.COL_ACTIVE) {
-				if (sample.isActive()) {
+	public Object getColumnImage(Object object, int columnIndex) {
+		if (object instanceof Cell) {
+			Cell cell = (Cell)object;
+			if (columnIndex == CellTableConstants.COL_AUTO_EMAIL) {
+				if (cell.isEnableAutoEmail()) {
 					return getResourceLocator().getImage(ImageConstants.ICON_CHECKED_STATE);
 				} else {
 					return getResourceLocator().getImage(ImageConstants.ICON_UNCHECKED_STATE);
 				}
-			} else if (columnIndex == SampleTableConstants.COL_STATUS) {
-				if (sample.isActive()) {
-					if (sample.getStatus() == STATUS.READY) {
-						return getResourceLocator().getImage(ImageConstants.ICON_RUN_READY);
-					} else if (sample.getStatus() == STATUS.RUNNING) {
-						return getResourceLocator().getImage(ImageConstants.ICON_RUNNING);
-					} else if (sample.getStatus() == STATUS.COMPLETED) {
-						return getResourceLocator().getImage(ImageConstants.ICON_RUN_COMPLETE);
-					} else if (sample.getStatus() == STATUS.ABORTED) {
-						return getResourceLocator().getImage(ImageConstants.ICON_RUN_FAILURE);
-					} else if (sample.getStatus() == STATUS.ERROR) {
-						return getResourceLocator().getImage(ImageConstants.ICON_ERROR);
-					}
-				}
-			}
+			}		
 		}
-		return super.getColumnImage(element, columnIndex);
+		return super.getColumnImage(object, columnIndex);
 	}
-
 	@Override
-	public String getColumnText(Object element, int columnIndex) {
-		if (element instanceof Sample) {
-			Sample sample = (Sample) element;
-			switch (columnIndex) {
-			case SampleTableConstants.COL_ACTIVE:
+	public String getColumnText(Object object, int columnIndex) {
+		if (object instanceof Cell) {
+			Cell cell = (Cell)object;
+			switch(columnIndex) {
+			case CellTableConstants.COL_CELL_NAME:
+				return cell.getName();
+			case CellTableConstants.COL_CELL_ID:
+				return cell.getCellID();
+			case CellTableConstants.COL_VISIT_ID:
+				return cell.getVisitID();
+			case CellTableConstants.COL_CALIBRANT_NAME:
+				return cell.getCalibrant();
+			case CellTableConstants.COL_CALIBRANT_X:
+				return String.valueOf(cell.getCalibrant_x());
+			case CellTableConstants.COL_CALIBRANT_Y:
+				return String.valueOf(cell.getCalibrant_y());
+			case CellTableConstants.COL_CALIBRANT_EXPOSURE:
+				return String.valueOf(cell.getCalibrant_exposure());
+			case CellTableConstants.COL_NUMBER_OF_SAMPLES:
+				return String.valueOf(cell.getNumberOfSamples());
+			case CellTableConstants.COL_ENV_SCANNABLE_NAMES:
+				return cell.getEnvScannableNames().toString();
+			case CellTableConstants.COL_START_DATE:
+				return DateFormat.getInstance().format(cell.getStartDate());
+			case CellTableConstants.COL_END_DATE: 
+				return DateFormat.getInstance().format(cell.getEndDate());
+			case CellTableConstants.COL_EMAIL:
+				return cell.getEmail();
+			case CellTableConstants.COL_AUTO_EMAIL:
 				return "";
-			case SampleTableConstants.COL_SAMPLE_NAME:
-				return sample.getName();
-			case SampleTableConstants.COL_SAMPLE_X_START:
-				return String.valueOf(sample.getSample_x_start());
-			case SampleTableConstants.COL_SAMPLE_X_STOP:
-				return String.valueOf(sample.getSample_x_stop());
-			case SampleTableConstants.COL_SAMPLE_X_STEP:
-				return String.valueOf(sample.getSample_x_step());
-			case SampleTableConstants.COL_SAMPLE_Y_START:
-				return String.valueOf(sample.getSample_y_start());
-			case SampleTableConstants.COL_SAMPLE_Y_STOP:
-				return String.valueOf(sample.getSample_y_stop());
-			case SampleTableConstants.COL_SAMPLE_Y_STEP:
-				return String.valueOf(sample.getSample_y_step());
-			case SampleTableConstants.COL_SAMPLE_EXPOSURE:
-				return String.valueOf(sample.getSample_exposure());
-			case SampleTableConstants.COL_COMMAND:
-				return sample.getCommand();
-			case SampleTableConstants.COL_COMMENT:
-				return sample.getComment();
 			default:
 				break;
 			}
 		}
-		return super.getColumnText(element, columnIndex);
+		return super.getColumnText(object, columnIndex);
 	}
 
 }

@@ -254,7 +254,7 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 		for (SampleStage stage : getStages()) {
 			//initialize stage cached states
 			stage.setProcessed(false);
-			for (Cell cell : stages.get(stage.getName()).getCells()) {
+			for (Cell cell : stages.get(stage.getName()).getCell()) {
 				//initialise cell states
 				cell.setProcessed(false);
 				cell.setCalibrated(false);
@@ -322,7 +322,7 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 		checkForPauseAndInterruption();
 		String message="Processing each of the sample stages down the X-ray beam direction ...";
 		for (SampleStage stage : getStages()) {
-			EList<Cell> cells2 = stages.get(stage.getName()).getCells();
+			EList<Cell> cells2 = stages.get(stage.getName()).getCell();
 			if (eventAdmin!=null) {
 				((ScriptControllerBase)eventAdmin).update(eventAdmin, new StageChangedEvent(stage.getName(), cells2.size()));
 			}

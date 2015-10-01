@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
 
 public class LDEResourceUtil {
 	private final Logger logger = LoggerFactory.getLogger(LDEResourceUtil.class);
-	String defaultFilename = "operationtable.lde";
+	String defaultFilename = "newsamples.lde";
 
 	/**
 	 * returns the default filename. The returned value depends on java
@@ -89,7 +89,6 @@ public class LDEResourceUtil {
 			// set the original value back for other processing
 			metadata.setMetadataValue("subdirectory", metadataValue);
 		} catch (DeviceException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return dir;
@@ -123,7 +122,7 @@ public class LDEResourceUtil {
 	/**
 	 * return the resource. The filename for this resource can be set in Spring object configuration property. 
 	 * If not set in Spring configuration, it is built using GDA property {@link gda.configuration.properties.LocalProperties.GDA_DATAWRITER_DIR}
-	 * or {@code gda.data.scan.datawriter.datadir} and the default file name {@code user.seq}. If this property is not set this sequence file will
+	 * or {@code gda.data.scan.datawriter.datadir} and the default file name {@code newsamples.lde}. If this property is not set this sequence file will
 	 * be created at {@code user.home}
 	 * 
 	 * @return
@@ -167,12 +166,12 @@ public class LDEResourceUtil {
 
 		Experiment experiment = LDEExperimentsFactory.eINSTANCE.createExperiment();
 		Stage stage = LDEExperimentsFactory.eINSTANCE.createStage();
-		experiment.getStages().add(stage);
+		experiment.getStage().add(stage);
 		Cell cell = LDEExperimentsFactory.eINSTANCE.createCell();
-		stage.getCells().add(cell);
+		stage.getCell().add(cell);
 		Sample sample=LDEExperimentsFactory.eINSTANCE.createSample();
-		cell.getSamples().add(sample);
-		root.getExperiments().add(experiment);
+		cell.getSample().add(sample);
+		root.getExperiment().add(experiment);
 		newResource.getContents().add(root);
 
 		// use Transaction
@@ -203,7 +202,7 @@ public class LDEResourceUtil {
 			EObject eobj = contents.get(0);
 			if (eobj instanceof ExperimentDefinition) {
 				ExperimentDefinition root = (ExperimentDefinition) eobj;
-				return root.getExperiments();
+				return root.getExperiment();
 			}
 		}
 		return Collections.emptyList();
@@ -225,26 +224,26 @@ public class LDEResourceUtil {
 			EObject eobj = contents.get(0);
 			if (eobj instanceof ExperimentDefinition) {
 				ExperimentDefinition root = (ExperimentDefinition) eobj;
-				return root.getExperiments();
+				return root.getExperiment();
 			}
 		}
 		return Collections.emptyList();
 	}
 	public List<Stage> getStages(Experiment experiment) throws Exception {
 		if (experiment != null) {
-			return experiment.getStages();
+			return experiment.getStage();
 		}
 		return Collections.emptyList();
 	}
 	public List<Cell> getCells(Stage stage) throws Exception {
 		if (stage != null) {
-			return stage.getCells();
+			return stage.getCell();
 		}
 		return Collections.emptyList();
 	}
 	public List<Sample> getSamples(Cell cell) throws Exception {
 		if (cell != null) {
-			return cell.getSamples();
+			return cell.getSample();
 		}
 		return Collections.emptyList();
 	}
@@ -272,9 +271,9 @@ public class LDEResourceUtil {
 		Map<String, Sample> samples=new HashMap<String, Sample>();
 		List<Experiment> experiments = getExperiments(filename);
 		for (Experiment experiment : experiments) {
-			for (Stage stage :experiment.getStages()) {
-				for (Cell cell : stage.getCells()) {
-					for (Sample sample : cell.getSamples()) {
+			for (Stage stage :experiment.getStage()) {
+				for (Cell cell : stage.getCell()) {
+					for (Sample sample : cell.getSample()) {
 						samples.put(sample.getSampleID(), sample);
 					}
 				}
@@ -287,7 +286,7 @@ public class LDEResourceUtil {
 		Map<String, Stage> stages=new HashMap<String, Stage>();
 		List<Experiment> experiments = getExperiments(filename);
 		for (Experiment experiment : experiments) {
-			for (Stage stage : experiment.getStages()) {
+			for (Stage stage : experiment.getStage()) {
 				stages.put(stage.getStageID(), stage);
 			}
 		}
@@ -298,8 +297,8 @@ public class LDEResourceUtil {
 		Map<String, Cell> cells=new HashMap<String, Cell>();
 		List<Experiment> experiments = getExperiments(filename);
 		for (Experiment experiment : experiments) {
-			for (Stage stage : experiment.getStages()) {
-				for (Cell cell : stage.getCells()) {
+			for (Stage stage : experiment.getStage()) {
+				for (Cell cell : stage.getCell()) {
 					cells.put(cell.getCellID(), cell);
 				}
 			}
@@ -308,12 +307,24 @@ public class LDEResourceUtil {
 	}
 	
 	public List<Sample>  getSamples() throws Exception {
-		return Collections.unmodifiableList((List<Sample>) getSamples(getFileName()).values());
+		List<Sample> samples=new ArrayList<Sample>();
+		for (Sample sample : getSamples(getFileName()).values()) {
+			samples.add(sample);
+		}
+		return samples;
 	}
 	public List<Stage> getStages() throws Exception {
-		return Collections.unmodifiableList((List<Stage>) getStages(getFileName()).values());
+		List<Stage> stages=new ArrayList<Stage>();
+		for (Stage stage : getStages(getFileName()).values()) {
+			stages.add(stage);
+		}
+		return stages;
 	}
 	public List<Cell> getCells() throws Exception {
-		return Collections.unmodifiableList((List<Cell>) getCells(getFileName()).values());
+		List<Cell> cells=new ArrayList<Cell>();
+		for (Cell cell : getCells(getFileName()).values()) {
+			cells.add(cell);
+		}
+		return cells;
 	}
 }

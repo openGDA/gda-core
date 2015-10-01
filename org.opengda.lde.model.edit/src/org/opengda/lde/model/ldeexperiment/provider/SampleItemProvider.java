@@ -498,21 +498,7 @@ public class SampleItemProvider
 				} else {
 					return getResourceLocator().getImage(ImageConstants.ICON_UNCHECKED_STATE);
 				}
-			} else if (columnIndex == SampleTableConstants.COL_STATUS) {
-				if (sample.isActive()) {
-					if (sample.getStatus() == STATUS.READY) {
-						return getResourceLocator().getImage(ImageConstants.ICON_RUN_READY);
-					} else if (sample.getStatus() == STATUS.RUNNING) {
-						return getResourceLocator().getImage(ImageConstants.ICON_RUNNING);
-					} else if (sample.getStatus() == STATUS.COMPLETED) {
-						return getResourceLocator().getImage(ImageConstants.ICON_RUN_COMPLETE);
-					} else if (sample.getStatus() == STATUS.ABORTED) {
-						return getResourceLocator().getImage(ImageConstants.ICON_RUN_FAILURE);
-					} else if (sample.getStatus() == STATUS.ERROR) {
-						return getResourceLocator().getImage(ImageConstants.ICON_ERROR);
-					}
-				}
-			}
+			} 
 		}
 		return super.getColumnImage(element, columnIndex);
 	}
@@ -522,8 +508,6 @@ public class SampleItemProvider
 		if (element instanceof Sample) {
 			Sample sample = (Sample) element;
 			switch (columnIndex) {
-			case SampleTableConstants.COL_STATUS:
-				return "";
 			case SampleTableConstants.COL_ACTIVE:
 				return "";
 			case SampleTableConstants.COL_SAMPLE_NAME:
@@ -546,14 +530,6 @@ public class SampleItemProvider
 				return sample.getCommand();
 			case SampleTableConstants.COL_COMMENT:
 				return sample.getComment();
-			case SampleTableConstants.COL_CELL:
-				return sample.getCell().getCellID();
-			case SampleTableConstants.COL_STAGE:
-				return sample.getCell().getStage().getStageID();
-			case SampleTableConstants.COL_CALIBRATION_FILE:
-				return sample.getCalibrationFilePath();
-			case SampleTableConstants.COL_DATA_FILE:
-				return sample.getDataFilePath();
 			default:
 				break;
 			}

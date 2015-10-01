@@ -12,7 +12,7 @@ import org.eclipse.emf.ecore.EObject;
  * The following features are supported:
  * </p>
  * <ul>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.ExperimentDefinition#getExperiments <em>Experiments</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.ExperimentDefinition#getExperiment <em>Experiment</em>}</li>
  * </ul>
  *
  * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getExperimentDefinition()
@@ -21,20 +21,20 @@ import org.eclipse.emf.ecore.EObject;
  */
 public interface ExperimentDefinition extends EObject {
 	/**
-	 * Returns the value of the '<em><b>Experiments</b></em>' containment reference list.
+	 * Returns the value of the '<em><b>Experiment</b></em>' containment reference list.
 	 * The list contents are of type {@link org.opengda.lde.model.ldeexperiment.Experiment}.
 	 * <!-- begin-user-doc -->
 	 * <p>
-	 * If the meaning of the '<em>Experiments</em>' containment reference list isn't clear,
+	 * If the meaning of the '<em>Experiment</em>' containment reference list isn't clear,
 	 * there really should be more of a description here...
 	 * </p>
 	 * <!-- end-user-doc -->
-	 * @return the value of the '<em>Experiments</em>' containment reference list.
-	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getExperimentDefinition_Experiments()
+	 * @return the value of the '<em>Experiment</em>' containment reference list.
+	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getExperimentDefinition_Experiment()
 	 * @model containment="true"
 	 * @generated
 	 */
-	EList<Experiment> getExperiments();
+	EList<Experiment> getExperiment();
 
 	/**
 	 * <!-- begin-user-doc -->

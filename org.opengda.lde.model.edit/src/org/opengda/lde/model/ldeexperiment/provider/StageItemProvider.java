@@ -3,7 +3,6 @@
 package org.opengda.lde.model.ldeexperiment.provider;
 
 
-import java.text.DateFormat;
 import java.util.Collection;
 import java.util.List;
 
@@ -25,9 +24,7 @@ import org.eclipse.emf.edit.provider.ITreeItemContentProvider;
 import org.eclipse.emf.edit.provider.ItemPropertyDescriptor;
 import org.eclipse.emf.edit.provider.ItemProviderAdapter;
 import org.eclipse.emf.edit.provider.ViewerNotification;
-import org.opengda.lde.model.edit.CellTableConstants;
-import org.opengda.lde.model.edit.ImageConstants;
-import org.opengda.lde.model.ldeexperiment.Cell;
+import org.opengda.lde.model.edit.StageTableConstants;
 import org.opengda.lde.model.ldeexperiment.LDEExperimentsFactory;
 import org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage;
 import org.opengda.lde.model.ldeexperiment.Stage;
@@ -263,7 +260,7 @@ public class StageItemProvider
 	public Collection<? extends EStructuralFeature> getChildrenFeatures(Object object) {
 		if (childrenFeatures == null) {
 			super.getChildrenFeatures(object);
-			childrenFeatures.add(LDEExperimentsPackage.Literals.STAGE__CELLS);
+			childrenFeatures.add(LDEExperimentsPackage.Literals.STAGE__CELL);
 		}
 		return childrenFeatures;
 	}
@@ -329,7 +326,7 @@ public class StageItemProvider
 			case LDEExperimentsPackage.STAGE__NUMBER_OF_CELLS:
 				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
 				return;
-			case LDEExperimentsPackage.STAGE__CELLS:
+			case LDEExperimentsPackage.STAGE__CELL:
 				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), true, false));
 				return;
 		}
@@ -349,7 +346,7 @@ public class StageItemProvider
 
 		newChildDescriptors.add
 			(createChildParameter
-				(LDEExperimentsPackage.Literals.STAGE__CELLS,
+				(LDEExperimentsPackage.Literals.STAGE__CELL,
 				 LDEExperimentsFactory.eINSTANCE.createCell()));
 	}
 
@@ -365,56 +362,31 @@ public class StageItemProvider
 	}
 	
 	@Override
-	public Object getColumnImage(Object object, int columnIndex) {
-		if (object instanceof Cell) {
-			Cell cell = (Cell)object;
-			if (columnIndex == CellTableConstants.COL_AUTO_EMAIL) {
-				if (cell.isEnableAutoEmail()) {
-					return getResourceLocator().getImage(ImageConstants.ICON_CHECKED_STATE);
-				} else {
-					return getResourceLocator().getImage(ImageConstants.ICON_UNCHECKED_STATE);
-				}
-			}		
-		}
-		return super.getColumnImage(object, columnIndex);
-	}
-	@Override
 	public String getColumnText(Object object, int columnIndex) {
-		if (object instanceof Cell) {
-			Cell cell = (Cell)object;
-			switch(columnIndex) {
-			case CellTableConstants.COL_CELL_NAME:
-				return cell.getName();
-			case CellTableConstants.COL_CELL_ID:
-				return cell.getCellID();
-			case CellTableConstants.COL_VISIT_ID:
-				return cell.getVisitID();
-			case CellTableConstants.COL_CALIBRANT_NAME:
-				return cell.getCalibrant();
-			case CellTableConstants.COL_CALIBRANT_X:
-				return String.valueOf(cell.getCalibrant_x());
-			case CellTableConstants.COL_CALIBRANT_Y:
-				return String.valueOf(cell.getCalibrant_y());
-			case CellTableConstants.COL_CALIBRANT_EXPOSURE:
-				return String.valueOf(cell.getCalibrant_exposure());
-			case CellTableConstants.COL_NUMBER_OF_SAMPLES:
-				return String.valueOf(cell.getNumberOfSamples());
-			case CellTableConstants.COL_ENV_SCANNABLE_NAMES:
-				return cell.getEnvScannableNames().toString();
-			case CellTableConstants.COL_ENV_SAMPLING_INTERVAL:
-				return cell.getEnvSamplingIntervals().toString();
-			case CellTableConstants.COL_START_DATE:
-				return DateFormat.getInstance().format(cell.getStartDate());
-			case CellTableConstants.COL_END_DATE: 
-				return DateFormat.getInstance().format(cell.getEndDate());
-			case CellTableConstants.COL_EMAIL:
-				return cell.getEmail();
-			case CellTableConstants.COL_AUTO_EMAIL:
-				return "";
+		if (object instanceof Stage) {
+			Stage stage=(Stage)object;
+			switch (columnIndex) {
+			case StageTableConstants.COL_STAGE_ID:
+				return stage.getStageID();
+			case StageTableConstants.COL_DETECTOR_X:
+				return String.valueOf(stage.getDetector_x());
+			case StageTableConstants.COL_DETECTOR_Y:
+				return String.valueOf(stage.getDetector_y());
+			case StageTableConstants.COL_DETECTOR_Z:
+				return String.valueOf(stage.getDetector_z());
+			case StageTableConstants.COL_CAMERA_X:
+				return String.valueOf(stage.getCamera_x());
+			case StageTableConstants.COL_CAMERA_Y:
+				return String.valueOf(stage.getCamera_y());
+			case StageTableConstants.COL_CAMERA_Z:
+				return String.valueOf(stage.getCamera_z());
+			case StageTableConstants.COL_NUMBER_OF_CELLS:
+				return String.valueOf(stage.getNumberOfCells());
 			default:
 				break;
 			}
 		}
 		return super.getColumnText(object, columnIndex);
 	}
+
 }

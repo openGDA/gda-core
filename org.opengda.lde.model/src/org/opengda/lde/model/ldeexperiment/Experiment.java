@@ -36,7 +36,7 @@ import org.eclipse.emf.ecore.EObject;
  * </p>
  * <ul>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Experiment#getName <em>Name</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.Experiment#getStages <em>Stages</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.Experiment#getStage <em>Stage</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Experiment#getDescription <em>Description</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Experiment#getNumberOfStages <em>Number Of Stages</em>}</li>
  * </ul>
@@ -73,22 +73,22 @@ public interface Experiment extends EObject {
 	void setName(String value);
 
 	/**
-	 * Returns the value of the '<em><b>Stages</b></em>' containment reference list.
+	 * Returns the value of the '<em><b>Stage</b></em>' containment reference list.
 	 * The list contents are of type {@link org.opengda.lde.model.ldeexperiment.Stage}.
 	 * It is bidirectional and its opposite is '{@link org.opengda.lde.model.ldeexperiment.Stage#getExperiment <em>Experiment</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <p>
-	 * If the meaning of the '<em>Stages</em>' containment reference list isn't clear,
+	 * If the meaning of the '<em>Stage</em>' containment reference list isn't clear,
 	 * there really should be more of a description here...
 	 * </p>
 	 * <!-- end-user-doc -->
-	 * @return the value of the '<em>Stages</em>' containment reference list.
-	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getExperiment_Stages()
+	 * @return the value of the '<em>Stage</em>' containment reference list.
+	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getExperiment_Stage()
 	 * @see org.opengda.lde.model.ldeexperiment.Stage#getExperiment
 	 * @model opposite="experiment" containment="true"
 	 * @generated
 	 */
-	EList<Stage> getStages();
+	EList<Stage> getStage();
 
 	/**
 	 * Returns the value of the '<em><b>Description</b></em>' attribute.

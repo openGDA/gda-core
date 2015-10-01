@@ -44,21 +44,21 @@ import org.opengda.lde.model.ldeexperiment.exceptions.NotFoundException;
  * The following features are implemented:
  * </p>
  * <ul>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.ExperimentDefinitionImpl#getExperiments <em>Experiments</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.ExperimentDefinitionImpl#getExperiment <em>Experiment</em>}</li>
  * </ul>
  *
  * @generated
  */
 public class ExperimentDefinitionImpl extends MinimalEObjectImpl.Container implements ExperimentDefinition {
 	/**
-	 * The cached value of the '{@link #getExperiments() <em>Experiments</em>}' containment reference list.
+	 * The cached value of the '{@link #getExperiment() <em>Experiment</em>}' containment reference list.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see #getExperiments()
+	 * @see #getExperiment()
 	 * @generated
 	 * @ordered
 	 */
-	protected EList<Experiment> experiments;
+	protected EList<Experiment> experiment;
 	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -83,11 +83,11 @@ public class ExperimentDefinitionImpl extends MinimalEObjectImpl.Container imple
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EList<Experiment> getExperiments() {
-		if (experiments == null) {
-			experiments = new EObjectContainmentEList<Experiment>(Experiment.class, this, LDEExperimentsPackage.EXPERIMENT_DEFINITION__EXPERIMENTS);
+	public EList<Experiment> getExperiment() {
+		if (experiment == null) {
+			experiment = new EObjectContainmentEList<Experiment>(Experiment.class, this, LDEExperimentsPackage.EXPERIMENT_DEFINITION__EXPERIMENT);
 		}
-		return experiments;
+		return experiment;
 	}
 
 	/**
@@ -97,7 +97,7 @@ public class ExperimentDefinitionImpl extends MinimalEObjectImpl.Container imple
 	 * @generated NOT
 	 */
 	public Experiment getExperiment(String name) {
-		for (Experiment experiment : getExperiments()) {
+		for (Experiment experiment : getExperiment()) {
 			if (experiment.getName().equals(name)) {
 				return experiment;
 			}
@@ -113,8 +113,8 @@ public class ExperimentDefinitionImpl extends MinimalEObjectImpl.Container imple
 	@Override
 	public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
 		switch (featureID) {
-			case LDEExperimentsPackage.EXPERIMENT_DEFINITION__EXPERIMENTS:
-				return ((InternalEList<?>)getExperiments()).basicRemove(otherEnd, msgs);
+			case LDEExperimentsPackage.EXPERIMENT_DEFINITION__EXPERIMENT:
+				return ((InternalEList<?>)getExperiment()).basicRemove(otherEnd, msgs);
 		}
 		return super.eInverseRemove(otherEnd, featureID, msgs);
 	}
@@ -127,8 +127,8 @@ public class ExperimentDefinitionImpl extends MinimalEObjectImpl.Container imple
 	@Override
 	public Object eGet(int featureID, boolean resolve, boolean coreType) {
 		switch (featureID) {
-			case LDEExperimentsPackage.EXPERIMENT_DEFINITION__EXPERIMENTS:
-				return getExperiments();
+			case LDEExperimentsPackage.EXPERIMENT_DEFINITION__EXPERIMENT:
+				return getExperiment();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -142,9 +142,9 @@ public class ExperimentDefinitionImpl extends MinimalEObjectImpl.Container imple
 	@Override
 	public void eSet(int featureID, Object newValue) {
 		switch (featureID) {
-			case LDEExperimentsPackage.EXPERIMENT_DEFINITION__EXPERIMENTS:
-				getExperiments().clear();
-				getExperiments().addAll((Collection<? extends Experiment>)newValue);
+			case LDEExperimentsPackage.EXPERIMENT_DEFINITION__EXPERIMENT:
+				getExperiment().clear();
+				getExperiment().addAll((Collection<? extends Experiment>)newValue);
 				return;
 		}
 		super.eSet(featureID, newValue);
@@ -158,8 +158,8 @@ public class ExperimentDefinitionImpl extends MinimalEObjectImpl.Container imple
 	@Override
 	public void eUnset(int featureID) {
 		switch (featureID) {
-			case LDEExperimentsPackage.EXPERIMENT_DEFINITION__EXPERIMENTS:
-				getExperiments().clear();
+			case LDEExperimentsPackage.EXPERIMENT_DEFINITION__EXPERIMENT:
+				getExperiment().clear();
 				return;
 		}
 		super.eUnset(featureID);
@@ -173,8 +173,8 @@ public class ExperimentDefinitionImpl extends MinimalEObjectImpl.Container imple
 	@Override
 	public boolean eIsSet(int featureID) {
 		switch (featureID) {
-			case LDEExperimentsPackage.EXPERIMENT_DEFINITION__EXPERIMENTS:
-				return experiments != null && !experiments.isEmpty();
+			case LDEExperimentsPackage.EXPERIMENT_DEFINITION__EXPERIMENT:
+				return experiment != null && !experiment.isEmpty();
 		}
 		return super.eIsSet(featureID);
 	}

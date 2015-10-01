@@ -47,7 +47,7 @@ import org.opengda.lde.model.ldeexperiment.exceptions.NotFoundException;
  * </p>
  * <ul>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.ExperimentImpl#getName <em>Name</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.ExperimentImpl#getStages <em>Stages</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.ExperimentImpl#getStage <em>Stage</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.ExperimentImpl#getDescription <em>Description</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.ExperimentImpl#getNumberOfStages <em>Number Of Stages</em>}</li>
  * </ul>
@@ -76,14 +76,14 @@ public class ExperimentImpl extends MinimalEObjectImpl.Container implements Expe
 	protected String name = NAME_EDEFAULT;
 
 	/**
-	 * The cached value of the '{@link #getStages() <em>Stages</em>}' containment reference list.
+	 * The cached value of the '{@link #getStage() <em>Stage</em>}' containment reference list.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see #getStages()
+	 * @see #getStage()
 	 * @generated
 	 * @ordered
 	 */
-	protected EList<Stage> stages;
+	protected EList<Stage> stage;
 
 	/**
 	 * The default value of the '{@link #getDescription() <em>Description</em>}' attribute.
@@ -170,11 +170,11 @@ public class ExperimentImpl extends MinimalEObjectImpl.Container implements Expe
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EList<Stage> getStages() {
-		if (stages == null) {
-			stages = new EObjectContainmentWithInverseEList<Stage>(Stage.class, this, LDEExperimentsPackage.EXPERIMENT__STAGES, LDEExperimentsPackage.STAGE__EXPERIMENT);
+	public EList<Stage> getStage() {
+		if (stage == null) {
+			stage = new EObjectContainmentWithInverseEList<Stage>(Stage.class, this, LDEExperimentsPackage.EXPERIMENT__STAGE, LDEExperimentsPackage.STAGE__EXPERIMENT);
 		}
-		return stages;
+		return stage;
 	}
 
 	/**
@@ -225,7 +225,7 @@ public class ExperimentImpl extends MinimalEObjectImpl.Container implements Expe
 	 * @generated NOT
 	 */
 	public Stage getStageByID(String stageId) {
-		for (Stage stage : getStages()) {
+		for (Stage stage : getStage()) {
 			if (stage.getStageID().equals(stageId)) {
 				return stage;
 			}
@@ -242,8 +242,8 @@ public class ExperimentImpl extends MinimalEObjectImpl.Container implements Expe
 	@Override
 	public NotificationChain eInverseAdd(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
 		switch (featureID) {
-			case LDEExperimentsPackage.EXPERIMENT__STAGES:
-				return ((InternalEList<InternalEObject>)(InternalEList<?>)getStages()).basicAdd(otherEnd, msgs);
+			case LDEExperimentsPackage.EXPERIMENT__STAGE:
+				return ((InternalEList<InternalEObject>)(InternalEList<?>)getStage()).basicAdd(otherEnd, msgs);
 		}
 		return super.eInverseAdd(otherEnd, featureID, msgs);
 	}
@@ -256,8 +256,8 @@ public class ExperimentImpl extends MinimalEObjectImpl.Container implements Expe
 	@Override
 	public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
 		switch (featureID) {
-			case LDEExperimentsPackage.EXPERIMENT__STAGES:
-				return ((InternalEList<?>)getStages()).basicRemove(otherEnd, msgs);
+			case LDEExperimentsPackage.EXPERIMENT__STAGE:
+				return ((InternalEList<?>)getStage()).basicRemove(otherEnd, msgs);
 		}
 		return super.eInverseRemove(otherEnd, featureID, msgs);
 	}
@@ -272,8 +272,8 @@ public class ExperimentImpl extends MinimalEObjectImpl.Container implements Expe
 		switch (featureID) {
 			case LDEExperimentsPackage.EXPERIMENT__NAME:
 				return getName();
-			case LDEExperimentsPackage.EXPERIMENT__STAGES:
-				return getStages();
+			case LDEExperimentsPackage.EXPERIMENT__STAGE:
+				return getStage();
 			case LDEExperimentsPackage.EXPERIMENT__DESCRIPTION:
 				return getDescription();
 			case LDEExperimentsPackage.EXPERIMENT__NUMBER_OF_STAGES:
@@ -294,9 +294,9 @@ public class ExperimentImpl extends MinimalEObjectImpl.Container implements Expe
 			case LDEExperimentsPackage.EXPERIMENT__NAME:
 				setName((String)newValue);
 				return;
-			case LDEExperimentsPackage.EXPERIMENT__STAGES:
-				getStages().clear();
-				getStages().addAll((Collection<? extends Stage>)newValue);
+			case LDEExperimentsPackage.EXPERIMENT__STAGE:
+				getStage().clear();
+				getStage().addAll((Collection<? extends Stage>)newValue);
 				return;
 			case LDEExperimentsPackage.EXPERIMENT__DESCRIPTION:
 				setDescription((String)newValue);
@@ -319,8 +319,8 @@ public class ExperimentImpl extends MinimalEObjectImpl.Container implements Expe
 			case LDEExperimentsPackage.EXPERIMENT__NAME:
 				setName(NAME_EDEFAULT);
 				return;
-			case LDEExperimentsPackage.EXPERIMENT__STAGES:
-				getStages().clear();
+			case LDEExperimentsPackage.EXPERIMENT__STAGE:
+				getStage().clear();
 				return;
 			case LDEExperimentsPackage.EXPERIMENT__DESCRIPTION:
 				setDescription(DESCRIPTION_EDEFAULT);
@@ -342,8 +342,8 @@ public class ExperimentImpl extends MinimalEObjectImpl.Container implements Expe
 		switch (featureID) {
 			case LDEExperimentsPackage.EXPERIMENT__NAME:
 				return NAME_EDEFAULT == null ? name != null : !NAME_EDEFAULT.equals(name);
-			case LDEExperimentsPackage.EXPERIMENT__STAGES:
-				return stages != null && !stages.isEmpty();
+			case LDEExperimentsPackage.EXPERIMENT__STAGE:
+				return stage != null && !stage.isEmpty();
 			case LDEExperimentsPackage.EXPERIMENT__DESCRIPTION:
 				return DESCRIPTION_EDEFAULT == null ? description != null : !DESCRIPTION_EDEFAULT.equals(description);
 			case LDEExperimentsPackage.EXPERIMENT__NUMBER_OF_STAGES:

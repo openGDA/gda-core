@@ -38,6 +38,8 @@ public interface ExperimentValidator {
 	boolean validate();
 
 	boolean validateName(String value);
+	boolean validateStage(EList<Stage> value);
+
 	boolean validateStages(EList<Stage> value);
 	boolean validateDescription(String value);
 

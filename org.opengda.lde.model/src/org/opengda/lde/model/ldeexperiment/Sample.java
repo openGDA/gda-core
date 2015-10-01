@@ -509,14 +509,14 @@ public interface Sample extends EObject {
 
 	/**
 	 * Returns the value of the '<em><b>Cell</b></em>' container reference.
-	 * It is bidirectional and its opposite is '{@link org.opengda.lde.model.ldeexperiment.Cell#getSamples <em>Samples</em>}'.
+	 * It is bidirectional and its opposite is '{@link org.opengda.lde.model.ldeexperiment.Cell#getSample <em>Sample</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @return the value of the '<em>Cell</em>' container reference.
 	 * @see #setCell(Cell)
 	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getSample_Cell()
-	 * @see org.opengda.lde.model.ldeexperiment.Cell#getSamples
-	 * @model opposite="samples" required="true" transient="false"
+	 * @see org.opengda.lde.model.ldeexperiment.Cell#getSample
+	 * @model opposite="sample" required="true" transient="false"
 	 * @generated
 	 */
 	Cell getCell();

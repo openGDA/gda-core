@@ -46,35 +46,14 @@ public class SampleGroupEditingDomain implements IEditingDomainProvider {
 	 */
 	protected void initializeEditingDomain() {
 		// Create an adapter factory that yields item providers.
-		setAdapterFactory(new ComposedAdapterFactory(ComposedAdapterFactory.Descriptor.Registry.INSTANCE));
+		adapterFactory =new ComposedAdapterFactory(ComposedAdapterFactory.Descriptor.Registry.INSTANCE);
 
-		getAdapterFactory().addAdapterFactory(new ResourceItemProviderAdapterFactory());
-		getAdapterFactory().addAdapterFactory(new LDEExperimentsItemProviderAdapterFactory());
-		getAdapterFactory().addAdapterFactory(new ReflectiveItemProviderAdapterFactory());
+		adapterFactory.addAdapterFactory(new ResourceItemProviderAdapterFactory());
+		adapterFactory.addAdapterFactory(new LDEExperimentsItemProviderAdapterFactory());
+		adapterFactory.addAdapterFactory(new ReflectiveItemProviderAdapterFactory());
 
 		// Create the command stack that will notify this editor as commands are executed.
 		BasicCommandStack commandStack = new BasicCommandStack();
-
-		// Add a listener to set the most recent command's affected objects to be the selection of the viewer with focus.
-//		 commandStack.addCommandStackListener(new CommandStackListener() {
-//			 @Override
-//			 public void commandStackChanged(final EventObject event) {
-//				 PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-//					 public void run() {
-//						 firePropertyChange(IEditorPart.PROP_DIRTY);
-//		
-//						 // Try to select the affected objects.
-//						 Command mostRecentCommand = ((CommandStack)event.getSource()).getMostRecentCommand();
-//						 if (mostRecentCommand != null) {
-//							 setSelectionToViewer(mostRecentCommand.getAffectedObjects());
-//						 }
-//						 if (propertySheetPage != null && !propertySheetPage.getControl().isDisposed()) {
-//							 propertySheetPage.refresh();
-//						 }
-//					 }
-//				 });
-//			 }
-//		 });
 
 		// Create the editing domain with a special command stack.
 		editingDomain = new AdapterFactoryEditingDomain(getAdapterFactory(), commandStack, new HashMap<Resource, Boolean>());

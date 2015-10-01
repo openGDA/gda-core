@@ -60,7 +60,7 @@ import org.opengda.lde.model.ldeexperiment.util.LDEExperimentsValidator;
  * <ul>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.CellImpl#getCellID <em>Cell ID</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.CellImpl#getStage <em>Stage</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.CellImpl#getSamples <em>Samples</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.CellImpl#getSample <em>Sample</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.CellImpl#getVisitID <em>Visit ID</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.CellImpl#getName <em>Name</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.CellImpl#getEmail <em>Email</em>}</li>
@@ -100,14 +100,14 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	protected String cellID = CELL_ID_EDEFAULT;
 
 	/**
-	 * The cached value of the '{@link #getSamples() <em>Samples</em>}' containment reference list.
+	 * The cached value of the '{@link #getSample() <em>Sample</em>}' containment reference list.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see #getSamples()
+	 * @see #getSample()
 	 * @generated
 	 * @ordered
 	 */
-	protected EList<Sample> samples;
+	protected EList<Sample> sample;
 
 	/**
 	 * The default value of the '{@link #getVisitID() <em>Visit ID</em>}' attribute.
@@ -385,36 +385,6 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	@Override
 	protected EClass eStaticClass() {
 		return LDEExperimentsPackage.Literals.CELL;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public EList<Sample> getSamples() {
-		if (samples == null) {
-			samples = new EObjectContainmentWithInverseEList.Unsettable<Sample>(Sample.class, this, LDEExperimentsPackage.CELL__SAMPLES, LDEExperimentsPackage.SAMPLE__CELL);
-		}
-		return samples;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void unsetSamples() {
-		if (samples != null) ((InternalEList.Unsettable<?>)samples).unset();
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public boolean isSetSamples() {
-		return samples != null && ((InternalEList.Unsettable<?>)samples).isSet();
 	}
 
 	/**
@@ -700,7 +670,7 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	 */
 	public Sample getSampleById(String sampleId) {
 
-		for (Sample sample : getSamples()) {
+		for (Sample sample : getSample()) {
 			if (sample.getSampleID().equals(sampleId)) {
 				return sample;
 			}
@@ -741,7 +711,7 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 			if (eInternalContainer() != null)
 				msgs = eBasicRemoveFromContainer(msgs);
 			if (newStage != null)
-				msgs = ((InternalEObject)newStage).eInverseAdd(this, LDEExperimentsPackage.STAGE__CELLS, Stage.class, msgs);
+				msgs = ((InternalEObject)newStage).eInverseAdd(this, LDEExperimentsPackage.STAGE__CELL, Stage.class, msgs);
 			msgs = basicSetStage(newStage, msgs);
 			if (msgs != null) msgs.dispatch();
 		}
@@ -752,10 +722,40 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EList<Sample> getSample() {
+		if (sample == null) {
+			sample = new EObjectContainmentWithInverseEList.Unsettable<Sample>(Sample.class, this, LDEExperimentsPackage.CELL__SAMPLE, LDEExperimentsPackage.SAMPLE__CELL);
+		}
+		return sample;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void unsetSample() {
+		if (sample != null) ((InternalEList.Unsettable<?>)sample).unset();
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public boolean isSetSample() {
+		return sample != null && ((InternalEList.Unsettable<?>)sample).isSet();
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
 	 * @generated NOT
 	 */
 	public Sample getSampleByName(String sampleName) {
-		for (Sample sample : getSamples()) {
+		for (Sample sample : getSample()) {
 			if (sample.getName().equals(sampleName)) {
 				return sample;
 			}
@@ -826,8 +826,8 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 				if (eInternalContainer() != null)
 					msgs = eBasicRemoveFromContainer(msgs);
 				return basicSetStage((Stage)otherEnd, msgs);
-			case LDEExperimentsPackage.CELL__SAMPLES:
-				return ((InternalEList<InternalEObject>)(InternalEList<?>)getSamples()).basicAdd(otherEnd, msgs);
+			case LDEExperimentsPackage.CELL__SAMPLE:
+				return ((InternalEList<InternalEObject>)(InternalEList<?>)getSample()).basicAdd(otherEnd, msgs);
 		}
 		return super.eInverseAdd(otherEnd, featureID, msgs);
 	}
@@ -842,8 +842,8 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 		switch (featureID) {
 			case LDEExperimentsPackage.CELL__STAGE:
 				return basicSetStage(null, msgs);
-			case LDEExperimentsPackage.CELL__SAMPLES:
-				return ((InternalEList<?>)getSamples()).basicRemove(otherEnd, msgs);
+			case LDEExperimentsPackage.CELL__SAMPLE:
+				return ((InternalEList<?>)getSample()).basicRemove(otherEnd, msgs);
 		}
 		return super.eInverseRemove(otherEnd, featureID, msgs);
 	}
@@ -857,7 +857,7 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	public NotificationChain eBasicRemoveFromContainerFeature(NotificationChain msgs) {
 		switch (eContainerFeatureID()) {
 			case LDEExperimentsPackage.CELL__STAGE:
-				return eInternalContainer().eInverseRemove(this, LDEExperimentsPackage.STAGE__CELLS, Stage.class, msgs);
+				return eInternalContainer().eInverseRemove(this, LDEExperimentsPackage.STAGE__CELL, Stage.class, msgs);
 		}
 		return super.eBasicRemoveFromContainerFeature(msgs);
 	}
@@ -874,8 +874,8 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 				return getCellID();
 			case LDEExperimentsPackage.CELL__STAGE:
 				return getStage();
-			case LDEExperimentsPackage.CELL__SAMPLES:
-				return getSamples();
+			case LDEExperimentsPackage.CELL__SAMPLE:
+				return getSample();
 			case LDEExperimentsPackage.CELL__VISIT_ID:
 				return getVisitID();
 			case LDEExperimentsPackage.CELL__NAME:
@@ -921,9 +921,9 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 			case LDEExperimentsPackage.CELL__STAGE:
 				setStage((Stage)newValue);
 				return;
-			case LDEExperimentsPackage.CELL__SAMPLES:
-				getSamples().clear();
-				getSamples().addAll((Collection<? extends Sample>)newValue);
+			case LDEExperimentsPackage.CELL__SAMPLE:
+				getSample().clear();
+				getSample().addAll((Collection<? extends Sample>)newValue);
 				return;
 			case LDEExperimentsPackage.CELL__VISIT_ID:
 				setVisitID((String)newValue);
@@ -984,8 +984,8 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 			case LDEExperimentsPackage.CELL__STAGE:
 				setStage((Stage)null);
 				return;
-			case LDEExperimentsPackage.CELL__SAMPLES:
-				unsetSamples();
+			case LDEExperimentsPackage.CELL__SAMPLE:
+				unsetSample();
 				return;
 			case LDEExperimentsPackage.CELL__VISIT_ID:
 				setVisitID(VISIT_ID_EDEFAULT);
@@ -1042,8 +1042,8 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 				return CELL_ID_EDEFAULT == null ? cellID != null : !CELL_ID_EDEFAULT.equals(cellID);
 			case LDEExperimentsPackage.CELL__STAGE:
 				return getStage() != null;
-			case LDEExperimentsPackage.CELL__SAMPLES:
-				return isSetSamples();
+			case LDEExperimentsPackage.CELL__SAMPLE:
+				return isSetSample();
 			case LDEExperimentsPackage.CELL__VISIT_ID:
 				return VISIT_ID_EDEFAULT == null ? visitID != null : !VISIT_ID_EDEFAULT.equals(visitID);
 			case LDEExperimentsPackage.CELL__NAME:

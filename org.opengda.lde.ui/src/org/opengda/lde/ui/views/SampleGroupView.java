@@ -163,21 +163,27 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 	private String[] cellIDs;
 	private String[] calibrants;
 	
-	private final String columnHeaders[] = { SampleTableConstants.STATUS, SampleTableConstants.PROGRESS, SampleTableConstants.ACTIVE, SampleTableConstants.SAMPLE_NAME,
-			SampleTableConstants.CELL_ID, SampleTableConstants.VISIT_ID, SampleTableConstants.CALIBRANT_NAME, SampleTableConstants.CALIBRANT_X, 
-			SampleTableConstants.CALIBRANT_Y, SampleTableConstants.CALIBRANT_EXPOSURE, SampleTableConstants.SAMPLE_X_START, SampleTableConstants.SAMPLE_X_STOP, 
-			SampleTableConstants.SAMPLE_X_STEP, SampleTableConstants.SAMPLE_Y_START, SampleTableConstants.SAMPLE_Y_STOP, SampleTableConstants.SAMPLE_Y_STEP, 
-			SampleTableConstants.SAMPLE_EXPOSURE, SampleTableConstants.DETECTOR_X, SampleTableConstants.DETECTOR_Y, SampleTableConstants.DETECTOR_Z, 
-			SampleTableConstants.EMAIL, SampleTableConstants.START_DATE, SampleTableConstants.END_DATE, SampleTableConstants.COMMAND, 
-			SampleTableConstants.MAIL_COUNT, SampleTableConstants.DATA_FILE_COUNT,SampleTableConstants.COMMENT };
+	private final String columnHeaders[] = { SampleTableConstants.STATUS, SampleTableConstants.PROGRESS, SampleTableConstants.ACTIVE, 
+			SampleTableConstants.SAMPLE_NAME, SampleTableConstants.VISIT_ID, SampleTableConstants.SAMPLE_X_START,
+			SampleTableConstants.SAMPLE_X_STOP, SampleTableConstants.SAMPLE_X_STEP, SampleTableConstants.SAMPLE_Y_START, 
+			SampleTableConstants.SAMPLE_Y_STOP, SampleTableConstants.SAMPLE_Y_STEP, SampleTableConstants.SAMPLE_EXPOSURE, 
+			SampleTableConstants.CALIBRANT_NAME, SampleTableConstants.CALIBRANT_X, SampleTableConstants.CALIBRANT_Y, 
+			SampleTableConstants.CALIBRANT_EXPOSURE, SampleTableConstants.CELL_ID, SampleTableConstants.STAGE_ID, 
+			SampleTableConstants.DETECTOR_X, SampleTableConstants.DETECTOR_Y, SampleTableConstants.DETECTOR_Z, 
+			SampleTableConstants.EMAIL, SampleTableConstants.START_DATE, SampleTableConstants.END_DATE, 
+			SampleTableConstants.COMMAND, SampleTableConstants.COMMENT, SampleTableConstants.DATA_FILE, 
+			SampleTableConstants.CALIBRATION_FILE };
 
-	private ColumnWeightData columnLayouts[] = { new ColumnWeightData(10, 50, false),new ColumnWeightData(10, 70, false), new ColumnWeightData(10, 35, false),new ColumnWeightData(80, 110, true), 
-			new ColumnWeightData(40, 55, true), new ColumnWeightData(40, 90, true), new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 75, true),
-			new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true),
-			new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true),
-			new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 75, true),
-			new ColumnWeightData(40, 200, true), new ColumnWeightData(50, 120, true), new ColumnWeightData(50, 120, true), new ColumnWeightData(40, 300, true),
-			new ColumnWeightData(10, 50, false), new ColumnWeightData(10, 50, false),new ColumnWeightData(50, 300, true) };
+	private ColumnWeightData columnLayouts[] = { new ColumnWeightData(10, 50, false),new ColumnWeightData(10, 70, false), new ColumnWeightData(10, 35, false),
+			new ColumnWeightData(80, 110, true), new ColumnWeightData(40, 90, true), new ColumnWeightData(40, 65, true), 
+			new ColumnWeightData(40, 65, true),	new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true), 
+			new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true),	new ColumnWeightData(40, 75, true),
+			new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 75, true),	new ColumnWeightData(40, 75, true), 
+			new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 55, true), new ColumnWeightData(40, 55, true), 
+			new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 75, true),
+			new ColumnWeightData(40, 200, true), new ColumnWeightData(50, 120, true), new ColumnWeightData(50, 120, true), 
+			new ColumnWeightData(40, 300, true), new ColumnWeightData(50, 300, true), new ColumnWeightData(50, 300, true), 
+			new ColumnWeightData(50, 300, true),};
 	
 	private TableViewer viewer;
 //	private SampleList sampleList;
@@ -226,13 +232,6 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		Composite rootComposite = new Composite(parent, SWT.NONE);
 		rootComposite.setLayout(new GridLayout());
 //		rootComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-		
-		selectionViewer = new TreeViewer(rootComposite, SWT.BORDER);
-		selectionViewer.setContentProvider(new AdapterFactoryContentProvider(SampleGroupEditingDomain.INSTANCE.getAdapterFactory()));
-
-		selectionViewer.setLabelProvider(new AdapterFactoryLabelProvider(SampleGroupEditingDomain.INSTANCE.getAdapterFactory()));
-		selectionViewer.setInput(editingDomain.getResourceSet());
-		selectionViewer.setSelection(new StructuredSelection(editingDomain.getResourceSet().getResources().get(0)), true);
 		
 		viewer = new TableViewer(rootComposite, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
 		Table table = viewer.getTable();

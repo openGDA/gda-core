@@ -56,7 +56,7 @@ import org.opengda.lde.model.ldeexperiment.util.LDEExperimentsValidator;
  * <ul>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.StageImpl#getStageID <em>Stage ID</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.StageImpl#getExperiment <em>Experiment</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.StageImpl#getCells <em>Cells</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.StageImpl#getCell <em>Cell</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.StageImpl#getDetector_x <em>Detector x</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.StageImpl#getDetector_y <em>Detector y</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.StageImpl#getDetector_z <em>Detector z</em>}</li>
@@ -90,14 +90,14 @@ public class StageImpl extends MinimalEObjectImpl.Container implements Stage {
 	protected String stageID = STAGE_ID_EDEFAULT;
 
 	/**
-	 * The cached value of the '{@link #getCells() <em>Cells</em>}' containment reference list.
+	 * The cached value of the '{@link #getCell() <em>Cell</em>}' containment reference list.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see #getCells()
+	 * @see #getCell()
 	 * @generated
 	 * @ordered
 	 */
-	protected EList<Cell> cells;
+	protected EList<Cell> cell;
 
 	/**
 	 * The default value of the '{@link #getDetector_x() <em>Detector x</em>}' attribute.
@@ -284,18 +284,6 @@ public class StageImpl extends MinimalEObjectImpl.Container implements Stage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EList<Cell> getCells() {
-		if (cells == null) {
-			cells = new EObjectContainmentWithInverseEList<Cell>(Cell.class, this, LDEExperimentsPackage.STAGE__CELLS, LDEExperimentsPackage.CELL__STAGE);
-		}
-		return cells;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
 	public double getDetector_x() {
 		return detector_x;
 	}
@@ -444,7 +432,7 @@ public class StageImpl extends MinimalEObjectImpl.Container implements Stage {
 	 * @generated NOT
 	 */
 	public Cell getCellByID(String cellId) {
-		for (Cell cell : getCells()) {
+		for (Cell cell : getCell()) {
 			if (cell.getCellID().equals(cellId)) {
 				return cell;
 			}
@@ -490,8 +478,8 @@ public class StageImpl extends MinimalEObjectImpl.Container implements Stage {
 				if (eInternalContainer() != null)
 					msgs = eBasicRemoveFromContainer(msgs);
 				return basicSetExperiment((Experiment)otherEnd, msgs);
-			case LDEExperimentsPackage.STAGE__CELLS:
-				return ((InternalEList<InternalEObject>)(InternalEList<?>)getCells()).basicAdd(otherEnd, msgs);
+			case LDEExperimentsPackage.STAGE__CELL:
+				return ((InternalEList<InternalEObject>)(InternalEList<?>)getCell()).basicAdd(otherEnd, msgs);
 		}
 		return super.eInverseAdd(otherEnd, featureID, msgs);
 	}
@@ -529,7 +517,7 @@ public class StageImpl extends MinimalEObjectImpl.Container implements Stage {
 			if (eInternalContainer() != null)
 				msgs = eBasicRemoveFromContainer(msgs);
 			if (newExperiment != null)
-				msgs = ((InternalEObject)newExperiment).eInverseAdd(this, LDEExperimentsPackage.EXPERIMENT__STAGES, Experiment.class, msgs);
+				msgs = ((InternalEObject)newExperiment).eInverseAdd(this, LDEExperimentsPackage.EXPERIMENT__STAGE, Experiment.class, msgs);
 			msgs = basicSetExperiment(newExperiment, msgs);
 			if (msgs != null) msgs.dispatch();
 		}
@@ -542,13 +530,25 @@ public class StageImpl extends MinimalEObjectImpl.Container implements Stage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public EList<Cell> getCell() {
+		if (cell == null) {
+			cell = new EObjectContainmentWithInverseEList<Cell>(Cell.class, this, LDEExperimentsPackage.STAGE__CELL, LDEExperimentsPackage.CELL__STAGE);
+		}
+		return cell;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	@Override
 	public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
 		switch (featureID) {
 			case LDEExperimentsPackage.STAGE__EXPERIMENT:
 				return basicSetExperiment(null, msgs);
-			case LDEExperimentsPackage.STAGE__CELLS:
-				return ((InternalEList<?>)getCells()).basicRemove(otherEnd, msgs);
+			case LDEExperimentsPackage.STAGE__CELL:
+				return ((InternalEList<?>)getCell()).basicRemove(otherEnd, msgs);
 		}
 		return super.eInverseRemove(otherEnd, featureID, msgs);
 	}
@@ -562,7 +562,7 @@ public class StageImpl extends MinimalEObjectImpl.Container implements Stage {
 	public NotificationChain eBasicRemoveFromContainerFeature(NotificationChain msgs) {
 		switch (eContainerFeatureID()) {
 			case LDEExperimentsPackage.STAGE__EXPERIMENT:
-				return eInternalContainer().eInverseRemove(this, LDEExperimentsPackage.EXPERIMENT__STAGES, Experiment.class, msgs);
+				return eInternalContainer().eInverseRemove(this, LDEExperimentsPackage.EXPERIMENT__STAGE, Experiment.class, msgs);
 		}
 		return super.eBasicRemoveFromContainerFeature(msgs);
 	}
@@ -579,8 +579,8 @@ public class StageImpl extends MinimalEObjectImpl.Container implements Stage {
 				return getStageID();
 			case LDEExperimentsPackage.STAGE__EXPERIMENT:
 				return getExperiment();
-			case LDEExperimentsPackage.STAGE__CELLS:
-				return getCells();
+			case LDEExperimentsPackage.STAGE__CELL:
+				return getCell();
 			case LDEExperimentsPackage.STAGE__DETECTOR_X:
 				return getDetector_x();
 			case LDEExperimentsPackage.STAGE__DETECTOR_Y:
@@ -614,9 +614,9 @@ public class StageImpl extends MinimalEObjectImpl.Container implements Stage {
 			case LDEExperimentsPackage.STAGE__EXPERIMENT:
 				setExperiment((Experiment)newValue);
 				return;
-			case LDEExperimentsPackage.STAGE__CELLS:
-				getCells().clear();
-				getCells().addAll((Collection<? extends Cell>)newValue);
+			case LDEExperimentsPackage.STAGE__CELL:
+				getCell().clear();
+				getCell().addAll((Collection<? extends Cell>)newValue);
 				return;
 			case LDEExperimentsPackage.STAGE__DETECTOR_X:
 				setDetector_x((Double)newValue);
@@ -657,8 +657,8 @@ public class StageImpl extends MinimalEObjectImpl.Container implements Stage {
 			case LDEExperimentsPackage.STAGE__EXPERIMENT:
 				setExperiment((Experiment)null);
 				return;
-			case LDEExperimentsPackage.STAGE__CELLS:
-				getCells().clear();
+			case LDEExperimentsPackage.STAGE__CELL:
+				getCell().clear();
 				return;
 			case LDEExperimentsPackage.STAGE__DETECTOR_X:
 				setDetector_x(DETECTOR_X_EDEFAULT);
@@ -697,8 +697,8 @@ public class StageImpl extends MinimalEObjectImpl.Container implements Stage {
 				return STAGE_ID_EDEFAULT == null ? stageID != null : !STAGE_ID_EDEFAULT.equals(stageID);
 			case LDEExperimentsPackage.STAGE__EXPERIMENT:
 				return getExperiment() != null;
-			case LDEExperimentsPackage.STAGE__CELLS:
-				return cells != null && !cells.isEmpty();
+			case LDEExperimentsPackage.STAGE__CELL:
+				return cell != null && !cell.isEmpty();
 			case LDEExperimentsPackage.STAGE__DETECTOR_X:
 				return detector_x != DETECTOR_X_EDEFAULT;
 			case LDEExperimentsPackage.STAGE__DETECTOR_Y:

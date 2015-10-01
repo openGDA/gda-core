@@ -327,17 +327,17 @@ public class LDEExperimentsActionBarContributor
 				Object firstElement = ((StructuredSelection)selection).getFirstElement();
 				if (firstElement instanceof Experiment) {
 					Experiment experiment=(Experiment) firstElement;
-					if (experiment.getStages().size()>=experiment.getNumberOfStages()) {
+					if (experiment.getStage().size()>=experiment.getNumberOfStages()) {
 						enabled=false;
 					}
 				} else if (firstElement instanceof Stage) {
 					Stage stage=(Stage) firstElement;
-					if (stage.getCells().size()>=stage.getNumberOfCells()) {
+					if (stage.getCell().size()>=stage.getNumberOfCells()) {
 						enabled=false;
 					}
 				} else if (firstElement instanceof Cell) {
 					Cell cell=(Cell) firstElement;
-					if (cell.getSamples().size()>=cell.getNumberOfSamples()) {
+					if (cell.getSample().size()>=cell.getNumberOfSamples()) {
 						enabled=false;
 					}
 				}
@@ -367,17 +367,17 @@ public class LDEExperimentsActionBarContributor
 				Object firstElement = ((StructuredSelection)selection).getFirstElement();
 				if (firstElement instanceof Stage) {
 					Experiment experiment=((Stage) firstElement).getExperiment();
-					if (experiment.getStages().size()>=experiment.getNumberOfStages()) {
+					if (experiment.getStage().size()>=experiment.getNumberOfStages()) {
 						enabled=false;
 					}
 				} else if (firstElement instanceof Cell) {
 					Stage stage=((Cell) firstElement).getStage();
-					if (stage.getCells().size()>=stage.getNumberOfCells()) {
+					if (stage.getCell().size()>=stage.getNumberOfCells()) {
 						enabled=false;
 					}
 				} else if (firstElement instanceof Sample) {
 					Cell cell=((Sample) firstElement).getCell();
-					if (cell.getSamples().size()>=cell.getNumberOfSamples()) {
+					if (cell.getSample().size()>=cell.getNumberOfSamples()) {
 						enabled=false;
 					}
 				}

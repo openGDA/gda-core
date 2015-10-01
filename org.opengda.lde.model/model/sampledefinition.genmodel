@@ -25,14 +25,14 @@
     <genDataTypes ecoreDataType="sampledefinition.ecore#//Date"/>
     <genDataTypes ecoreDataType="sampledefinition.ecore#//CalibrantNameString"/>
     <genClasses ecoreClass="sampledefinition.ecore#//ExperimentDefinition">
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference sampledefinition.ecore#//ExperimentDefinition/experiments"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference sampledefinition.ecore#//ExperimentDefinition/experiment"/>
       <genOperations ecoreOperation="sampledefinition.ecore#//ExperimentDefinition/getExperiment">
         <genParameters ecoreParameter="sampledefinition.ecore#//ExperimentDefinition/getExperiment/name"/>
       </genOperations>
     </genClasses>
     <genClasses ecoreClass="sampledefinition.ecore#//Experiment">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Experiment/name"/>
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference sampledefinition.ecore#//Experiment/stages"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference sampledefinition.ecore#//Experiment/stage"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Experiment/description"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Experiment/numberOfStages"/>
       <genOperations ecoreOperation="sampledefinition.ecore#//Experiment/getStageByID">
@@ -43,7 +43,7 @@
       <genFeatures createChild="false" propertyCategory="" propertyDescription=""
           ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Stage/stageID"/>
       <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference sampledefinition.ecore#//Stage/experiment"/>
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference sampledefinition.ecore#//Stage/cells"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference sampledefinition.ecore#//Stage/cell"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Stage/detector_x"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Stage/detector_y"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Stage/detector_z"/>
@@ -62,7 +62,7 @@
     <genClasses ecoreClass="sampledefinition.ecore#//Cell" labelFeature="#//ldeexperiment/Cell/cellID">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Cell/cellID"/>
       <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference sampledefinition.ecore#//Cell/stage"/>
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference sampledefinition.ecore#//Cell/samples"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference sampledefinition.ecore#//Cell/sample"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Cell/visitID"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Cell/name"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Cell/email"/>

@@ -41,7 +41,7 @@ import org.eclipse.emf.ecore.EObject;
  * <ul>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Cell#getCellID <em>Cell ID</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Cell#getStage <em>Stage</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.Cell#getSamples <em>Samples</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.Cell#getSample <em>Sample</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Cell#getVisitID <em>Visit ID</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Cell#getName <em>Name</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Cell#getEmail <em>Email</em>}</li>
@@ -62,47 +62,6 @@ import org.eclipse.emf.ecore.EObject;
  * @generated
  */
 public interface Cell extends EObject {
-	/**
-	 * Returns the value of the '<em><b>Samples</b></em>' containment reference list.
-	 * The list contents are of type {@link org.opengda.lde.model.ldeexperiment.Sample}.
-	 * It is bidirectional and its opposite is '{@link org.opengda.lde.model.ldeexperiment.Sample#getCell <em>Cell</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <p>
-	 * If the meaning of the '<em>Samples</em>' containment reference list isn't clear,
-	 * there really should be more of a description here...
-	 * </p>
-	 * <!-- end-user-doc -->
-	 * @return the value of the '<em>Samples</em>' containment reference list.
-	 * @see #isSetSamples()
-	 * @see #unsetSamples()
-	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getCell_Samples()
-	 * @see org.opengda.lde.model.ldeexperiment.Sample#getCell
-	 * @model opposite="cell" containment="true" unsettable="true"
-	 * @generated
-	 */
-	EList<Sample> getSamples();
-
-	/**
-	 * Unsets the value of the '{@link org.opengda.lde.model.ldeexperiment.Cell#getSamples <em>Samples</em>}' containment reference list.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #isSetSamples()
-	 * @see #getSamples()
-	 * @generated
-	 */
-	void unsetSamples();
-
-	/**
-	 * Returns whether the value of the '{@link org.opengda.lde.model.ldeexperiment.Cell#getSamples <em>Samples</em>}' containment reference list is set.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return whether the value of the '<em>Samples</em>' containment reference list is set.
-	 * @see #unsetSamples()
-	 * @see #getSamples()
-	 * @generated
-	 */
-	boolean isSetSamples();
-
 	/**
 	 * Returns the value of the '<em><b>Cell ID</b></em>' attribute.
 	 * <!-- begin-user-doc -->
@@ -463,14 +422,14 @@ public interface Cell extends EObject {
 
 	/**
 	 * Returns the value of the '<em><b>Stage</b></em>' container reference.
-	 * It is bidirectional and its opposite is '{@link org.opengda.lde.model.ldeexperiment.Stage#getCells <em>Cells</em>}'.
+	 * It is bidirectional and its opposite is '{@link org.opengda.lde.model.ldeexperiment.Stage#getCell <em>Cell</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @return the value of the '<em>Stage</em>' container reference.
 	 * @see #setStage(Stage)
 	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getCell_Stage()
-	 * @see org.opengda.lde.model.ldeexperiment.Stage#getCells
-	 * @model opposite="cells" required="true" transient="false"
+	 * @see org.opengda.lde.model.ldeexperiment.Stage#getCell
+	 * @model opposite="cell" required="true" transient="false"
 	 * @generated
 	 */
 	Stage getStage();
@@ -484,6 +443,47 @@ public interface Cell extends EObject {
 	 * @generated
 	 */
 	void setStage(Stage value);
+
+	/**
+	 * Returns the value of the '<em><b>Sample</b></em>' containment reference list.
+	 * The list contents are of type {@link org.opengda.lde.model.ldeexperiment.Sample}.
+	 * It is bidirectional and its opposite is '{@link org.opengda.lde.model.ldeexperiment.Sample#getCell <em>Cell</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Sample</em>' containment reference list isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Sample</em>' containment reference list.
+	 * @see #isSetSample()
+	 * @see #unsetSample()
+	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getCell_Sample()
+	 * @see org.opengda.lde.model.ldeexperiment.Sample#getCell
+	 * @model opposite="cell" containment="true" unsettable="true"
+	 * @generated
+	 */
+	EList<Sample> getSample();
+
+	/**
+	 * Unsets the value of the '{@link org.opengda.lde.model.ldeexperiment.Cell#getSample <em>Sample</em>}' containment reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #isSetSample()
+	 * @see #getSample()
+	 * @generated
+	 */
+	void unsetSample();
+
+	/**
+	 * Returns whether the value of the '{@link org.opengda.lde.model.ldeexperiment.Cell#getSample <em>Sample</em>}' containment reference list is set.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return whether the value of the '<em>Sample</em>' containment reference list is set.
+	 * @see #unsetSample()
+	 * @see #getSample()
+	 * @generated
+	 */
+	boolean isSetSample();
 
 	/**
 	 * <!-- begin-user-doc -->

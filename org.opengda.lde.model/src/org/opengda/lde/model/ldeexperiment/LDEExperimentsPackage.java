@@ -90,13 +90,13 @@ public interface LDEExperimentsPackage extends EPackage {
 	int EXPERIMENT_DEFINITION = 0;
 
 	/**
-	 * The feature id for the '<em><b>Experiments</b></em>' containment reference list.
+	 * The feature id for the '<em><b>Experiment</b></em>' containment reference list.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int EXPERIMENT_DEFINITION__EXPERIMENTS = 0;
+	int EXPERIMENT_DEFINITION__EXPERIMENT = 0;
 
 	/**
 	 * The number of structural features of the '<em>Experiment Definition</em>' class.
@@ -145,13 +145,13 @@ public interface LDEExperimentsPackage extends EPackage {
 	int EXPERIMENT__NAME = 0;
 
 	/**
-	 * The feature id for the '<em><b>Stages</b></em>' containment reference list.
+	 * The feature id for the '<em><b>Stage</b></em>' containment reference list.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int EXPERIMENT__STAGES = 1;
+	int EXPERIMENT__STAGE = 1;
 
 	/**
 	 * The feature id for the '<em><b>Description</b></em>' attribute.
@@ -227,13 +227,13 @@ public interface LDEExperimentsPackage extends EPackage {
 	int STAGE__EXPERIMENT = 1;
 
 	/**
-	 * The feature id for the '<em><b>Cells</b></em>' containment reference list.
+	 * The feature id for the '<em><b>Cell</b></em>' containment reference list.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int STAGE__CELLS = 2;
+	int STAGE__CELL = 2;
 
 	/**
 	 * The feature id for the '<em><b>Detector x</b></em>' attribute.
@@ -363,13 +363,13 @@ public interface LDEExperimentsPackage extends EPackage {
 	int CELL__STAGE = 1;
 
 	/**
-	 * The feature id for the '<em><b>Samples</b></em>' containment reference list.
+	 * The feature id for the '<em><b>Sample</b></em>' containment reference list.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int CELL__SAMPLES = 2;
+	int CELL__SAMPLE = 2;
 
 	/**
 	 * The feature id for the '<em><b>Visit ID</b></em>' attribute.
@@ -769,15 +769,15 @@ public interface LDEExperimentsPackage extends EPackage {
 	EClass getExperimentDefinition();
 
 	/**
-	 * Returns the meta object for the containment reference list '{@link org.opengda.lde.model.ldeexperiment.ExperimentDefinition#getExperiments <em>Experiments</em>}'.
+	 * Returns the meta object for the containment reference list '{@link org.opengda.lde.model.ldeexperiment.ExperimentDefinition#getExperiment <em>Experiment</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return the meta object for the containment reference list '<em>Experiments</em>'.
-	 * @see org.opengda.lde.model.ldeexperiment.ExperimentDefinition#getExperiments()
+	 * @return the meta object for the containment reference list '<em>Experiment</em>'.
+	 * @see org.opengda.lde.model.ldeexperiment.ExperimentDefinition#getExperiment()
 	 * @see #getExperimentDefinition()
 	 * @generated
 	 */
-	EReference getExperimentDefinition_Experiments();
+	EReference getExperimentDefinition_Experiment();
 
 	/**
 	 * Returns the meta object for the '{@link org.opengda.lde.model.ldeexperiment.ExperimentDefinition#getExperiment(java.lang.String) <em>Get Experiment</em>}' operation.
@@ -811,15 +811,15 @@ public interface LDEExperimentsPackage extends EPackage {
 	EAttribute getExperiment_Name();
 
 	/**
-	 * Returns the meta object for the containment reference list '{@link org.opengda.lde.model.ldeexperiment.Experiment#getStages <em>Stages</em>}'.
+	 * Returns the meta object for the containment reference list '{@link org.opengda.lde.model.ldeexperiment.Experiment#getStage <em>Stage</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return the meta object for the containment reference list '<em>Stages</em>'.
-	 * @see org.opengda.lde.model.ldeexperiment.Experiment#getStages()
+	 * @return the meta object for the containment reference list '<em>Stage</em>'.
+	 * @see org.opengda.lde.model.ldeexperiment.Experiment#getStage()
 	 * @see #getExperiment()
 	 * @generated
 	 */
-	EReference getExperiment_Stages();
+	EReference getExperiment_Stage();
 
 	/**
 	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Experiment#getDescription <em>Description</em>}'.
@@ -873,17 +873,6 @@ public interface LDEExperimentsPackage extends EPackage {
 	 * @generated
 	 */
 	EAttribute getStage_StageID();
-
-	/**
-	 * Returns the meta object for the containment reference list '{@link org.opengda.lde.model.ldeexperiment.Stage#getCells <em>Cells</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for the containment reference list '<em>Cells</em>'.
-	 * @see org.opengda.lde.model.ldeexperiment.Stage#getCells()
-	 * @see #getStage()
-	 * @generated
-	 */
-	EReference getStage_Cells();
 
 	/**
 	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Stage#getDetector_x <em>Detector x</em>}'.
@@ -974,6 +963,17 @@ public interface LDEExperimentsPackage extends EPackage {
 	EReference getStage_Experiment();
 
 	/**
+	 * Returns the meta object for the containment reference list '{@link org.opengda.lde.model.ldeexperiment.Stage#getCell <em>Cell</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference list '<em>Cell</em>'.
+	 * @see org.opengda.lde.model.ldeexperiment.Stage#getCell()
+	 * @see #getStage()
+	 * @generated
+	 */
+	EReference getStage_Cell();
+
+	/**
 	 * Returns the meta object for the '{@link org.opengda.lde.model.ldeexperiment.Stage#getCellByID(java.lang.String) <em>Get Cell By ID</em>}' operation.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -1015,15 +1015,15 @@ public interface LDEExperimentsPackage extends EPackage {
 	EReference getCell_Stage();
 
 	/**
-	 * Returns the meta object for the containment reference list '{@link org.opengda.lde.model.ldeexperiment.Cell#getSamples <em>Samples</em>}'.
+	 * Returns the meta object for the containment reference list '{@link org.opengda.lde.model.ldeexperiment.Cell#getSample <em>Sample</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return the meta object for the containment reference list '<em>Samples</em>'.
-	 * @see org.opengda.lde.model.ldeexperiment.Cell#getSamples()
+	 * @return the meta object for the containment reference list '<em>Sample</em>'.
+	 * @see org.opengda.lde.model.ldeexperiment.Cell#getSample()
 	 * @see #getCell()
 	 * @generated
 	 */
-	EReference getCell_Samples();
+	EReference getCell_Sample();
 
 	/**
 	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Cell#getCellID <em>Cell ID</em>}'.
@@ -1484,12 +1484,12 @@ public interface LDEExperimentsPackage extends EPackage {
 		EClass EXPERIMENT_DEFINITION = eINSTANCE.getExperimentDefinition();
 
 		/**
-		 * The meta object literal for the '<em><b>Experiments</b></em>' containment reference list feature.
+		 * The meta object literal for the '<em><b>Experiment</b></em>' containment reference list feature.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
 		 * @generated
 		 */
-		EReference EXPERIMENT_DEFINITION__EXPERIMENTS = eINSTANCE.getExperimentDefinition_Experiments();
+		EReference EXPERIMENT_DEFINITION__EXPERIMENT = eINSTANCE.getExperimentDefinition_Experiment();
 
 		/**
 		 * The meta object literal for the '<em><b>Get Experiment</b></em>' operation.
@@ -1518,12 +1518,12 @@ public interface LDEExperimentsPackage extends EPackage {
 		EAttribute EXPERIMENT__NAME = eINSTANCE.getExperiment_Name();
 
 		/**
-		 * The meta object literal for the '<em><b>Stages</b></em>' containment reference list feature.
+		 * The meta object literal for the '<em><b>Stage</b></em>' containment reference list feature.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
 		 * @generated
 		 */
-		EReference EXPERIMENT__STAGES = eINSTANCE.getExperiment_Stages();
+		EReference EXPERIMENT__STAGE = eINSTANCE.getExperiment_Stage();
 
 		/**
 		 * The meta object literal for the '<em><b>Description</b></em>' attribute feature.
@@ -1566,14 +1566,6 @@ public interface LDEExperimentsPackage extends EPackage {
 		 * @generated
 		 */
 		EAttribute STAGE__STAGE_ID = eINSTANCE.getStage_StageID();
-
-		/**
-		 * The meta object literal for the '<em><b>Cells</b></em>' containment reference list feature.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated
-		 */
-		EReference STAGE__CELLS = eINSTANCE.getStage_Cells();
 
 		/**
 		 * The meta object literal for the '<em><b>Detector x</b></em>' attribute feature.
@@ -1640,6 +1632,14 @@ public interface LDEExperimentsPackage extends EPackage {
 		EReference STAGE__EXPERIMENT = eINSTANCE.getStage_Experiment();
 
 		/**
+		 * The meta object literal for the '<em><b>Cell</b></em>' containment reference list feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EReference STAGE__CELL = eINSTANCE.getStage_Cell();
+
+		/**
 		 * The meta object literal for the '<em><b>Get Cell By ID</b></em>' operation.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
@@ -1674,12 +1674,12 @@ public interface LDEExperimentsPackage extends EPackage {
 		EReference CELL__STAGE = eINSTANCE.getCell_Stage();
 
 		/**
-		 * The meta object literal for the '<em><b>Samples</b></em>' containment reference list feature.
+		 * The meta object literal for the '<em><b>Sample</b></em>' containment reference list feature.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
 		 * @generated
 		 */
-		EReference CELL__SAMPLES = eINSTANCE.getCell_Samples();
+		EReference CELL__SAMPLE = eINSTANCE.getCell_Sample();
 
 		/**
 		 * The meta object literal for the '<em><b>Cell ID</b></em>' attribute feature.

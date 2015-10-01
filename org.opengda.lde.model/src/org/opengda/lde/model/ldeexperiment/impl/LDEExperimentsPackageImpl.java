@@ -196,7 +196,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EReference getExperimentDefinition_Experiments() {
+	public EReference getExperimentDefinition_Experiment() {
 		return (EReference)experimentDefinitionEClass.getEStructuralFeatures().get(0);
 	}
 
@@ -232,7 +232,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EReference getExperiment_Stages() {
+	public EReference getExperiment_Stage() {
 		return (EReference)experimentEClass.getEStructuralFeatures().get(1);
 	}
 
@@ -279,15 +279,6 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 */
 	public EAttribute getStage_StageID() {
 		return (EAttribute)stageEClass.getEStructuralFeatures().get(0);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public EReference getStage_Cells() {
-		return (EReference)stageEClass.getEStructuralFeatures().get(2);
 	}
 
 	/**
@@ -367,6 +358,15 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public EReference getStage_Cell() {
+		return (EReference)stageEClass.getEStructuralFeatures().get(2);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	public EOperation getStage__GetCellByID__String() {
 		return stageEClass.getEOperations().get(0);
 	}
@@ -403,7 +403,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EReference getCell_Samples() {
+	public EReference getCell_Sample() {
 		return (EReference)cellEClass.getEStructuralFeatures().get(2);
 	}
 
@@ -787,12 +787,12 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 
 		// Create classes and their features
 		experimentDefinitionEClass = createEClass(EXPERIMENT_DEFINITION);
-		createEReference(experimentDefinitionEClass, EXPERIMENT_DEFINITION__EXPERIMENTS);
+		createEReference(experimentDefinitionEClass, EXPERIMENT_DEFINITION__EXPERIMENT);
 		createEOperation(experimentDefinitionEClass, EXPERIMENT_DEFINITION___GET_EXPERIMENT__STRING);
 
 		experimentEClass = createEClass(EXPERIMENT);
 		createEAttribute(experimentEClass, EXPERIMENT__NAME);
-		createEReference(experimentEClass, EXPERIMENT__STAGES);
+		createEReference(experimentEClass, EXPERIMENT__STAGE);
 		createEAttribute(experimentEClass, EXPERIMENT__DESCRIPTION);
 		createEAttribute(experimentEClass, EXPERIMENT__NUMBER_OF_STAGES);
 		createEOperation(experimentEClass, EXPERIMENT___GET_STAGE_BY_ID__STRING);
@@ -800,7 +800,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 		stageEClass = createEClass(STAGE);
 		createEAttribute(stageEClass, STAGE__STAGE_ID);
 		createEReference(stageEClass, STAGE__EXPERIMENT);
-		createEReference(stageEClass, STAGE__CELLS);
+		createEReference(stageEClass, STAGE__CELL);
 		createEAttribute(stageEClass, STAGE__DETECTOR_X);
 		createEAttribute(stageEClass, STAGE__DETECTOR_Y);
 		createEAttribute(stageEClass, STAGE__DETECTOR_Z);
@@ -814,7 +814,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 		cellEClass = createEClass(CELL);
 		createEAttribute(cellEClass, CELL__CELL_ID);
 		createEReference(cellEClass, CELL__STAGE);
-		createEReference(cellEClass, CELL__SAMPLES);
+		createEReference(cellEClass, CELL__SAMPLE);
 		createEAttribute(cellEClass, CELL__VISIT_ID);
 		createEAttribute(cellEClass, CELL__NAME);
 		createEAttribute(cellEClass, CELL__EMAIL);
@@ -891,14 +891,14 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 
 		// Initialize classes, features, and operations; add parameters
 		initEClass(experimentDefinitionEClass, ExperimentDefinition.class, "ExperimentDefinition", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-		initEReference(getExperimentDefinition_Experiments(), this.getExperiment(), null, "experiments", null, 0, -1, ExperimentDefinition.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getExperimentDefinition_Experiment(), this.getExperiment(), null, "experiment", null, 0, -1, ExperimentDefinition.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		EOperation op = initEOperation(getExperimentDefinition__GetExperiment__String(), this.getExperiment(), "getExperiment", 0, 1, IS_UNIQUE, IS_ORDERED);
 		addEParameter(op, ecorePackage.getEString(), "name", 0, 1, IS_UNIQUE, IS_ORDERED);
 
 		initEClass(experimentEClass, Experiment.class, "Experiment", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getExperiment_Name(), ecorePackage.getEString(), "name", null, 0, 1, Experiment.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEReference(getExperiment_Stages(), this.getStage(), this.getStage_Experiment(), "stages", null, 0, -1, Experiment.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getExperiment_Stage(), this.getStage(), this.getStage_Experiment(), "stage", null, 0, -1, Experiment.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getExperiment_Description(), ecorePackage.getEString(), "description", null, 0, 1, Experiment.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getExperiment_NumberOfStages(), ecorePackage.getEInt(), "numberOfStages", "13", 0, 1, Experiment.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
@@ -907,8 +907,8 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 
 		initEClass(stageEClass, Stage.class, "Stage", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getStage_StageID(), this.getStageIDString(), "stageID", null, 0, 1, Stage.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEReference(getStage_Experiment(), this.getExperiment(), this.getExperiment_Stages(), "experiment", null, 1, 1, Stage.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEReference(getStage_Cells(), this.getCell(), this.getCell_Stage(), "cells", null, 0, -1, Stage.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getStage_Experiment(), this.getExperiment(), this.getExperiment_Stage(), "experiment", null, 1, 1, Stage.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getStage_Cell(), this.getCell(), this.getCell_Stage(), "cell", null, 0, -1, Stage.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getStage_Detector_x(), ecorePackage.getEDouble(), "detector_x", "0.0", 0, 1, Stage.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getStage_Detector_y(), ecorePackage.getEDouble(), "detector_y", "0.0", 0, 1, Stage.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getStage_Detector_z(), ecorePackage.getEDouble(), "detector_z", "400.0", 0, 1, Stage.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -931,8 +931,8 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 
 		initEClass(cellEClass, Cell.class, "Cell", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getCell_CellID(), ecorePackage.getEString(), "cellID", null, 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEReference(getCell_Stage(), this.getStage(), this.getStage_Cells(), "stage", null, 1, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEReference(getCell_Samples(), this.getSample(), this.getSample_Cell(), "samples", null, 0, -1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getCell_Stage(), this.getStage(), this.getStage_Cell(), "stage", null, 1, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getCell_Sample(), this.getSample(), this.getSample_Cell(), "sample", null, 0, -1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getCell_VisitID(), ecorePackage.getEString(), "visitID", null, 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getCell_Name(), ecorePackage.getEString(), "name", null, 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getCell_Email(), ecorePackage.getEString(), "email", null, 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -972,7 +972,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 		addEParameter(op, g1, "context", 0, 1, IS_UNIQUE, IS_ORDERED);
 
 		initEClass(sampleEClass, Sample.class, "Sample", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-		initEReference(getSample_Cell(), this.getCell(), this.getCell_Samples(), "cell", null, 1, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getSample_Cell(), this.getCell(), this.getCell_Sample(), "cell", null, 1, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getSample_Status(), this.getSTATUS(), "status", "READY", 0, 1, Sample.class, IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getSample_Active(), ecorePackage.getEBoolean(), "active", "false", 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getSample_Name(), ecorePackage.getEString(), "name", null, 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);

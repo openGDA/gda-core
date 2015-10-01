@@ -39,7 +39,10 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.emf.common,
  org.eclipse.emf.ecore,
  org.opengda.lde.model.editor,
- org.eclipse.ui.workbench
+ org.eclipse.ui.workbench,
+ org.eclipse.jface.databinding,
+ org.eclipse.core.databinding.observable,
+ org.eclipse.core.databinding.property;bundle-version="1.4.100"
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
@@ -60,3 +63,6 @@ Export-Package: org.opengda.lde.ui,
  org.opengda.lde.ui.utils,
  org.opengda.lde.ui.viewfactories,
  org.opengda.lde.ui.views
+Bundle-ClassPath: jars/org.eclipse.emf.databinding_1.3.0.v20150601-0402.jar,
+ jars/org.eclipse.emf.databinding.edit_1.3.0.v20150601-0402.jar,
+ .

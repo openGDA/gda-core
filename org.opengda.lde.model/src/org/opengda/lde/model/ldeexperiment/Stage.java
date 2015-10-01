@@ -39,7 +39,7 @@ import org.eclipse.emf.ecore.EObject;
  * <ul>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Stage#getStageID <em>Stage ID</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Stage#getExperiment <em>Experiment</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.Stage#getCells <em>Cells</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.Stage#getCell <em>Cell</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Stage#getDetector_x <em>Detector x</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Stage#getDetector_y <em>Detector y</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Stage#getDetector_z <em>Detector z</em>}</li>
@@ -79,24 +79,6 @@ public interface Stage extends EObject {
 	 * @generated
 	 */
 	void setStageID(String value);
-
-	/**
-	 * Returns the value of the '<em><b>Cells</b></em>' containment reference list.
-	 * The list contents are of type {@link org.opengda.lde.model.ldeexperiment.Cell}.
-	 * It is bidirectional and its opposite is '{@link org.opengda.lde.model.ldeexperiment.Cell#getStage <em>Stage</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <p>
-	 * If the meaning of the '<em>Cells</em>' containment reference list isn't clear,
-	 * there really should be more of a description here...
-	 * </p>
-	 * <!-- end-user-doc -->
-	 * @return the value of the '<em>Cells</em>' containment reference list.
-	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getStage_Cells()
-	 * @see org.opengda.lde.model.ldeexperiment.Cell#getStage
-	 * @model opposite="stage" containment="true"
-	 * @generated
-	 */
-	EList<Cell> getCells();
 
 	/**
 	 * Returns the value of the '<em><b>Detector x</b></em>' attribute.
@@ -305,14 +287,14 @@ public interface Stage extends EObject {
 
 	/**
 	 * Returns the value of the '<em><b>Experiment</b></em>' container reference.
-	 * It is bidirectional and its opposite is '{@link org.opengda.lde.model.ldeexperiment.Experiment#getStages <em>Stages</em>}'.
+	 * It is bidirectional and its opposite is '{@link org.opengda.lde.model.ldeexperiment.Experiment#getStage <em>Stage</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @return the value of the '<em>Experiment</em>' container reference.
 	 * @see #setExperiment(Experiment)
 	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getStage_Experiment()
-	 * @see org.opengda.lde.model.ldeexperiment.Experiment#getStages
-	 * @model opposite="stages" required="true" transient="false"
+	 * @see org.opengda.lde.model.ldeexperiment.Experiment#getStage
+	 * @model opposite="stage" required="true" transient="false"
 	 * @generated
 	 */
 	Experiment getExperiment();
@@ -326,5 +308,23 @@ public interface Stage extends EObject {
 	 * @generated
 	 */
 	void setExperiment(Experiment value);
+
+	/**
+	 * Returns the value of the '<em><b>Cell</b></em>' containment reference list.
+	 * The list contents are of type {@link org.opengda.lde.model.ldeexperiment.Cell}.
+	 * It is bidirectional and its opposite is '{@link org.opengda.lde.model.ldeexperiment.Cell#getStage <em>Stage</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Cell</em>' containment reference list isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Cell</em>' containment reference list.
+	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getStage_Cell()
+	 * @see org.opengda.lde.model.ldeexperiment.Cell#getStage
+	 * @model opposite="stage" containment="true"
+	 * @generated
+	 */
+	EList<Cell> getCell();
 
 } // Stage

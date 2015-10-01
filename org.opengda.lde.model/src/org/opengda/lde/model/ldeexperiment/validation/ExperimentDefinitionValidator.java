@@ -36,6 +36,8 @@ import org.opengda.lde.model.ldeexperiment.Experiment;
 public interface ExperimentDefinitionValidator {
 	boolean validate();
 
+	boolean validateExperiment(EList<Experiment> value);
+
 	boolean validateExperiments(EList<Experiment> value);
 
 	boolean validateFilename(String value);
