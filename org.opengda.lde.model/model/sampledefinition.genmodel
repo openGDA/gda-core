@@ -95,7 +95,7 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/status"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/active"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/name"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/sampleID"/>
+      <genFeatures property="None" createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/sampleID"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/sample_x_start"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/sample_x_stop"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/sample_x_step"/>

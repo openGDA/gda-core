@@ -58,7 +58,6 @@ public class SampleItemProvider
 			addStatusPropertyDescriptor(object);
 			addActivePropertyDescriptor(object);
 			addNamePropertyDescriptor(object);
-			addSampleIDPropertyDescriptor(object);
 			addSample_x_startPropertyDescriptor(object);
 			addSample_x_stopPropertyDescriptor(object);
 			addSample_x_stepPropertyDescriptor(object);
@@ -72,28 +71,6 @@ public class SampleItemProvider
 			addDataFilePathPropertyDescriptor(object);
 		}
 		return itemPropertyDescriptors;
-	}
-
-	/**
-	 * This adds a property descriptor for the Sample ID feature.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	protected void addSampleIDPropertyDescriptor(Object object) {
-		itemPropertyDescriptors.add
-			(createItemPropertyDescriptor
-				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
-				 getResourceLocator(),
-				 getString("_UI_Sample_sampleID_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_sampleID_feature", "_UI_Sample_type"),
-				 LDEExperimentsPackage.Literals.SAMPLE__SAMPLE_ID,
-				 true,
-				 false,
-				 false,
-				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
-				 null,
-				 null));
 	}
 
 	/**
