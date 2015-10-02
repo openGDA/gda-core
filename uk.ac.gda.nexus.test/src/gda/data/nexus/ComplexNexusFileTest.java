@@ -38,7 +38,7 @@ import org.eclipse.dawnsci.nexus.impl.NXuserImpl;
 import org.junit.After;
 import org.junit.Before;
 
-public class ComplexNexusFileTest extends AbstractNexusFileTest {
+public class ComplexNexusFileTest extends AbstractNexusFileTestBase {
 
 	private static final String FILE_NAME = "complex.nx5";
 

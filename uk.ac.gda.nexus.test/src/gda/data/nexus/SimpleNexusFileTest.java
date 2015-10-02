@@ -13,7 +13,7 @@ import org.eclipse.dawnsci.nexus.impl.NXrootImpl;
  * NeXus documentation at http://download.nexusformat.org/doc/html/introduction.html
  * Direct link: http://download.nexusformat.org/doc/html/_downloads/verysimple.nx5
  */
-public class SimpleNexusFileTest extends AbstractNexusFileTest {
+public class SimpleNexusFileTest extends AbstractNexusFileTestBase {
 
 	private static final String FILE_NAME = "verysimple.nx5";
 

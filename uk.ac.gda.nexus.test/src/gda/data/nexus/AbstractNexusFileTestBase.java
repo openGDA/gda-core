@@ -30,7 +30,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public abstract class AbstractNexusFileTest {
+public abstract class AbstractNexusFileTestBase {
 
 	protected NXobjectFactory nxObjectFactory;
 
@@ -40,7 +40,7 @@ public abstract class AbstractNexusFileTest {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		testScratchDirectoryName = TestUtils.generateDirectorynameFromClassname(AbstractNexusFileTest.class.getCanonicalName());
+		testScratchDirectoryName = TestUtils.generateDirectorynameFromClassname(AbstractNexusFileTestBase.class.getCanonicalName());
 		TestUtils.makeScratchDirectory(testScratchDirectoryName);
 	}
 
@@ -209,7 +209,7 @@ public abstract class AbstractNexusFileTest {
 		assertDatasetsEqual(dataNode1.getDataset(), dataNode2.getDataset());
 	}
 
-	private void assertDatasetsEqual(final ILazyDataset dataset1, final ILazyDataset dataset2) throws Exception {
+	private void assertDatasetsEqual(final ILazyDataset dataset1, final ILazyDataset dataset2) {
 		// Note: dataset names can be different, as long as the containing data node names are the same
 		// assertEquals(dataset1.getName(), dataset2.getName());
 		// assertEquals(dataset1.getClass(), dataset2.getClass());
@@ -231,7 +231,7 @@ public abstract class AbstractNexusFileTest {
 		// TODO: in future also check metadata
 	}
 
-	private void assertDatasetDataEqual(final ILazyDataset dataset1, final ILazyDataset dataset2) throws Exception {
+	private void assertDatasetDataEqual(final ILazyDataset dataset1, final ILazyDataset dataset2) {
 		if (dataset1 instanceof Dataset && dataset2 instanceof Dataset) {
 			assertEquals(dataset1, dataset2);
 		} else {
