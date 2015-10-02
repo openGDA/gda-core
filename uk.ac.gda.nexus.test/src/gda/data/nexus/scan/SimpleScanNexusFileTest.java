@@ -20,6 +20,7 @@ package gda.data.nexus.scan;
 
 import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import gda.data.nexus.NexusUtils;
 import gda.util.TestUtils;
 
 import java.util.ArrayList;
@@ -129,20 +130,28 @@ public class SimpleScanNexusFileTest {
 	}
 
 	@Test
-	public void testNexusScan() {
-		TestNexusScan nexusScan = new TestNexusScan();
+	public void testNexusScan() throws Exception {
+		// setup the scan
+		final TestNexusScan nexusScan = new TestNexusScan();
 		nexusScan.addDevice(new TestDetector());
 		nexusScan.addDevice(new TestBeam());
 
-		DefaultNexusFileBuilder nexusFileBuilder = new DefaultNexusFileBuilder();
+		// setup and create the nexus file builder
+		final DefaultNexusFileBuilder nexusFileBuilder = new DefaultNexusFileBuilder();
 		nexusFileBuilder.setNexusScan(nexusScan);
 		nexusFileBuilder.setFilePath(filePath);
 		nexusFileBuilder.buildNexusFile();
 
-		checkNexusTree(nexusFileBuilder.getNexusTree());
-		// nexusFileBuilder.save(); // TODO SAVE;
+		// check the constructed tree is as expected
+		final TreeFile nexusTree = nexusFileBuilder.getNexusTree();
+		checkNexusTree(nexusTree);
 
+		// save the nexus file
+		NexusUtils.saveNexusFile(nexusTree);
 
+		// load the saved file and check the loaded tree is as expected
+		TreeFile reloadedNexusTree = NexusUtils.loadNexusFile(filePath, true);
+		checkNexusTree(reloadedNexusTree);
 	}
 
 	public void checkNexusTree(TreeFile nexusTree) {
@@ -161,7 +170,6 @@ public class SimpleScanNexusFileTest {
 
 		NXsample sample = entry.getSample();
 		checkSample(sample);
-
 	}
 
 	private void checkInstrument(NXinstrument instrument) {

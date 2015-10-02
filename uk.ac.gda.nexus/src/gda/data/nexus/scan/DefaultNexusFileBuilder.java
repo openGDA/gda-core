@@ -2,6 +2,8 @@ package gda.data.nexus.scan;
 
 import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
 import org.eclipse.dawnsci.analysis.tree.impl.TreeFileImpl;
+import org.eclipse.dawnsci.nexus.NXdata;
+import org.eclipse.dawnsci.nexus.NXentry;
 import org.eclipse.dawnsci.nexus.NXinstrument;
 import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.NXroot;
@@ -60,17 +62,6 @@ public class DefaultNexusFileBuilder implements NexusFileBuilder {
 		return rootNode.getEntry().getInstrument();
 	}
 
-	private void saveFile(TreeFile nexusTree) throws Exception {
-		// TODO: update project dependency so we can see gda.data.nexus?
-//		NexusFile nexusFile = NexusUtils.createNexusFile(nexusTree.getFilename());
-//		try {
-//			nexusFile.addNode("/", nexusTree.getGroupNode());
-//		} finally {
-//			nexusFile.flush();
-//			nexusFile.close();
-//		}
-	}
-
 	protected NXroot createNexusTree() {
 		NXrootImpl root = nxObjectFactory.createNXroot();
 		root.setAttributeFile_name(filePath);
@@ -81,13 +72,23 @@ public class DefaultNexusFileBuilder implements NexusFileBuilder {
 		root.setEntry(entry);
 
 		createSkeletonEntry(entry);
-
 		addBaseClassesInstancesForDevices(entry);
+		performAdditionalActions(entry);
 
 		// TODO data group?
 		// TODO other standard groups?
 
 		return root;
+	}
+
+	/**
+	 * Perform additional actions to build the NeXus entry.
+	 * Subclasses should override this to perform add any additional child groups
+	 * or data nodes as required.
+	 * @param entry
+	 */
+	protected void performAdditionalActions(NXentry entry) {
+		// default implementation does nothing
 	}
 
 	protected void addBaseClassesInstancesForDevices(NXentryImpl entry) {
@@ -119,6 +120,11 @@ public class DefaultNexusFileBuilder implements NexusFileBuilder {
 
 		NXsample sample = nxObjectFactory.createNXsample();
 		entry.setSample(sample);
+
+		NXdata data = nxObjectFactory.createNXdata();
+		entry.setData(data);
+		// TODO how to get the data:
+
 		return instrument;
 	}
 
