@@ -65,7 +65,7 @@ public class MultiScanTest {
 	public void simplestScan() throws Exception {
 
 
-		TestHelpers.setUpTest(MultiScanTest.class, "simplestScan2", true, "INFO");
+		TestHelpers.setUpTest(MultiScanTest.class, "simplestScan2", true);
 		LocalProperties.setScanSetsScanNumber(true);
 
 		Scannable simpleScannable1 = TestHelpers.createTestScannable("csvc", 0., new String[] {},

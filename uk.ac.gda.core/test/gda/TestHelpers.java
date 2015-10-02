@@ -39,7 +39,6 @@ import gda.jython.MockJythonServerFacade;
 import gda.observable.IObserver;
 import gda.util.TestUtils;
 
-import java.io.ByteArrayInputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -55,18 +54,14 @@ import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.joran.JoranConfigurator;
-
 /**
  * Collection of utility functions to assist testing.
  */
 public class TestHelpers {
 
 	/**
-	 * Sets up of environment for the a test Set property so that output is to Nexus format file Uses
-	 * MockJythonServerFacade and MockJythonServer to configure InterfaceProvider Configure logging so that DEBUG and
-	 * above go to log.txt in output folder
+	 * Sets up of environment for the a test Set property so that output is to Nexus format file 
+	 * Uses MockJythonServerFacade and MockJythonServer to configure InterfaceProvider
 	 *
 	 * @param testClass
 	 *            e.g. gda.data.nexus.ScanToNexusTest
@@ -79,58 +74,8 @@ public class TestHelpers {
 	 *             if setup fails
 	 */
 	public static String setUpTest(Class<?> testClass, String nameOfTest, boolean makedir) throws Exception {
-		return setUpTest(testClass, nameOfTest, makedir, "WARN");
-	}
-
-	/**
-	 * Sets up of environment for the a test Set property so that output is to Nexus format file Uses
-	 * MockJythonServerFacade and MockJythonServer to configure InterfaceProvider Configure logging so that DEBUG and
-	 * above go to log.txt in output folder
-	 *
-	 * @param testClass
-	 *            e.g. gda.data.nexus.ScanToNexusTest
-	 * @param nameOfTest
-	 *            name of test method which the testClass e.g. testCreateScanFile
-	 * @param makedir
-	 *            if true the scratch dir is deleted and constructed
-	 * @param consoleLogLevel
-	 *            level for logging to console e.g. WARN, use empty value or null for no filter
-	 * @return The directory into which output will be sent
-	 * @throws Exception
-	 *             if setup fails
-	 */
-	public static String setUpTest(Class<?> testClass, String nameOfTest, boolean makedir, String consoleLogLevel)
-			throws Exception {
 
 		String testScratchDirectoryName = TestUtils.setUpTest(testClass, nameOfTest, makedir);
-
-		LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
-		JoranConfigurator joranConfigurator = new JoranConfigurator();
-		loggerContext.reset();
-		joranConfigurator.setContext(loggerContext);
-
-		String f = "<?xml version='1.0' encoding='UTF-8'?>"
-				+ "<configuration>"
-				+ "<appender name='DebugFILE' class='ch.qos.logback.core.FileAppender'>"
-				+ "<File>"
-				+ testScratchDirectoryName
-				+ "/log.txt"
-				+ "</File>"
-				+ "<layout class='ch.qos.logback.classic.PatternLayout'><pattern>%-5level %logger %rEx - %m%n</pattern></layout></appender>"
-				+ "<appender name='DebugCONSOLE' class='ch.qos.logback.core.ConsoleAppender'>";
-
-		String level = "INFO";
-		if (consoleLogLevel != null && !consoleLogLevel.isEmpty()) {
-			f += "<filter class='ch.qos.logback.classic.filter.ThresholdFilter'>" + "<level>" + consoleLogLevel
-					+ "</level>" + "</filter>";
-			level = consoleLogLevel;
-		}
-		f += "<layout class='ch.qos.logback.classic.PatternLayout'><pattern>%-5level %logger %rEx - %m%n</pattern></layout></appender>"
-				+ "<logger name='gda'><level value='" + level + "'/></logger>"
-				+ "<logger name='gda.data.metadata.GDAMetadataProvider'><level value='ERROR'/></logger>"  // suppress "WARN  gda.data.metadata.GDAMetadataProvider  - setInstanceForTesting called"
-				+ "<logger name='gda.jython.InterfaceProvider'><level value='ERROR'/></logger>"  // suppress "WARN  gda.jython.InterfaceProvider  - setXxYyZzForTesting called"
-				+ "<root><level value='ALL'/><appender-ref ref='DebugFILE'/><appender-ref ref='DebugCONSOLE'/></root></configuration>";
-		joranConfigurator.doConfigure(new ByteArrayInputStream(f.getBytes()));
 
 		MockJythonServerFacade mockJythonServerFacade = new MockJythonServerFacade();
 		InterfaceProvider.setCommandRunnerForTesting(mockJythonServerFacade);
