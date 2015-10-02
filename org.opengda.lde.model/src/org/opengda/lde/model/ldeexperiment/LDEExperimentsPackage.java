@@ -390,49 +390,13 @@ public interface LDEExperimentsPackage extends EPackage {
 	int CELL__NAME = 4;
 
 	/**
-	 * The feature id for the '<em><b>Email</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int CELL__EMAIL = 5;
-
-	/**
-	 * The feature id for the '<em><b>Start Date</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int CELL__START_DATE = 6;
-
-	/**
-	 * The feature id for the '<em><b>End Date</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int CELL__END_DATE = 7;
-
-	/**
-	 * The feature id for the '<em><b>Enable Auto Email</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int CELL__ENABLE_AUTO_EMAIL = 8;
-
-	/**
 	 * The feature id for the '<em><b>Calibrant</b></em>' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int CELL__CALIBRANT = 9;
+	int CELL__CALIBRANT = 5;
 
 	/**
 	 * The feature id for the '<em><b>Calibrant x</b></em>' attribute.
@@ -441,7 +405,7 @@ public interface LDEExperimentsPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int CELL__CALIBRANT_X = 10;
+	int CELL__CALIBRANT_X = 6;
 
 	/**
 	 * The feature id for the '<em><b>Calibrant y</b></em>' attribute.
@@ -450,7 +414,7 @@ public interface LDEExperimentsPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int CELL__CALIBRANT_Y = 11;
+	int CELL__CALIBRANT_Y = 7;
 
 	/**
 	 * The feature id for the '<em><b>Calibrant exposure</b></em>' attribute.
@@ -459,16 +423,7 @@ public interface LDEExperimentsPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int CELL__CALIBRANT_EXPOSURE = 12;
-
-	/**
-	 * The feature id for the '<em><b>Env Sampling Intervals</b></em>' attribute list.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int CELL__ENV_SAMPLING_INTERVALS = 13;
+	int CELL__CALIBRANT_EXPOSURE = 8;
 
 	/**
 	 * The feature id for the '<em><b>Env Scannable Names</b></em>' attribute list.
@@ -477,7 +432,7 @@ public interface LDEExperimentsPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int CELL__ENV_SCANNABLE_NAMES = 14;
+	int CELL__ENV_SCANNABLE_NAMES = 9;
 
 	/**
 	 * The feature id for the '<em><b>Number Of Samples</b></em>' attribute.
@@ -486,7 +441,43 @@ public interface LDEExperimentsPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int CELL__NUMBER_OF_SAMPLES = 15;
+	int CELL__NUMBER_OF_SAMPLES = 10;
+
+	/**
+	 * The feature id for the '<em><b>Email</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int CELL__EMAIL = 11;
+
+	/**
+	 * The feature id for the '<em><b>Start Date</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int CELL__START_DATE = 12;
+
+	/**
+	 * The feature id for the '<em><b>End Date</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int CELL__END_DATE = 13;
+
+	/**
+	 * The feature id for the '<em><b>Enable Auto Email</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int CELL__ENABLE_AUTO_EMAIL = 14;
 
 	/**
 	 * The number of structural features of the '<em>Cell</em>' class.
@@ -495,7 +486,7 @@ public interface LDEExperimentsPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int CELL_FEATURE_COUNT = 16;
+	int CELL_FEATURE_COUNT = 15;
 
 	/**
 	 * The operation id for the '<em>Get Sample By Id</em>' operation.
@@ -1147,17 +1138,6 @@ public interface LDEExperimentsPackage extends EPackage {
 	EAttribute getCell_Calibrant_exposure();
 
 	/**
-	 * Returns the meta object for the attribute list '{@link org.opengda.lde.model.ldeexperiment.Cell#getEnvSamplingIntervals <em>Env Sampling Intervals</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute list '<em>Env Sampling Intervals</em>'.
-	 * @see org.opengda.lde.model.ldeexperiment.Cell#getEnvSamplingIntervals()
-	 * @see #getCell()
-	 * @generated
-	 */
-	EAttribute getCell_EnvSamplingIntervals();
-
-	/**
 	 * Returns the meta object for the attribute list '{@link org.opengda.lde.model.ldeexperiment.Cell#getEnvScannableNames <em>Env Scannable Names</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -1768,14 +1748,6 @@ public interface LDEExperimentsPackage extends EPackage {
 		 * @generated
 		 */
 		EAttribute CELL__CALIBRANT_EXPOSURE = eINSTANCE.getCell_Calibrant_exposure();
-
-		/**
-		 * The meta object literal for the '<em><b>Env Sampling Intervals</b></em>' attribute list feature.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated
-		 */
-		EAttribute CELL__ENV_SAMPLING_INTERVALS = eINSTANCE.getCell_EnvSamplingIntervals();
 
 		/**
 		 * The meta object literal for the '<em><b>Env Scannable Names</b></em>' attribute list feature.

@@ -37,7 +37,6 @@ import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
 import org.eclipse.emf.ecore.impl.MinimalEObjectImpl;
-import org.eclipse.emf.ecore.util.EDataTypeEList;
 import org.eclipse.emf.ecore.util.EDataTypeUniqueEList;
 import org.eclipse.emf.ecore.util.EObjectContainmentWithInverseEList;
 import org.eclipse.emf.ecore.util.EObjectValidator;
@@ -63,17 +62,16 @@ import org.opengda.lde.model.ldeexperiment.util.LDEExperimentsValidator;
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.CellImpl#getSample <em>Sample</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.CellImpl#getVisitID <em>Visit ID</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.CellImpl#getName <em>Name</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.CellImpl#getEmail <em>Email</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.CellImpl#getStartDate <em>Start Date</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.CellImpl#getEndDate <em>End Date</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.CellImpl#isEnableAutoEmail <em>Enable Auto Email</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.CellImpl#getCalibrant <em>Calibrant</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.CellImpl#getCalibrant_x <em>Calibrant x</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.CellImpl#getCalibrant_y <em>Calibrant y</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.CellImpl#getCalibrant_exposure <em>Calibrant exposure</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.CellImpl#getEnvSamplingIntervals <em>Env Sampling Intervals</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.CellImpl#getEnvScannableNames <em>Env Scannable Names</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.CellImpl#getNumberOfSamples <em>Number Of Samples</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.CellImpl#getEmail <em>Email</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.CellImpl#getStartDate <em>Start Date</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.CellImpl#getEndDate <em>End Date</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.CellImpl#isEnableAutoEmail <em>Enable Auto Email</em>}</li>
  * </ul>
  *
  * @generated
@@ -150,37 +148,6 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	protected String name = NAME_EDEFAULT;
 
 	/**
-	 * The default value of the '{@link #getEmail() <em>Email</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getEmail()
-	 * @generated
-	 * @ordered
-	 */
-	protected static final String EMAIL_EDEFAULT = null;
-
-	/**
-	 * The cached value of the '{@link #getEmail() <em>Email</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getEmail()
-	 * @generated
-	 * @ordered
-	 */
-	protected String email = EMAIL_EDEFAULT;
-
-	/**
-	 * The default value of the '{@link #getStartDate() <em>Start Date</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getStartDate()
-	 * @generated NOT
-	 * @ordered
-	 */
-	protected static final Date START_DATE_EDEFAULT = Calendar.getInstance().getTime();
-
-
-	/**
 	 * The default value for the '{@link #getEndDate() <em>End Date</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -193,56 +160,6 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 		 calendar.add(Calendar.DAY_OF_YEAR, 91);
 		 return (calendar.getTime());
 	}
-
-	/**
-	 * The cached value of the '{@link #getStartDate() <em>Start Date</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getStartDate()
-	 * @generated
-	 * @ordered
-	 */
-	protected Date startDate = START_DATE_EDEFAULT;
-
-	/**
-	 * The default value of the '{@link #getEndDate() <em>End Date</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getEndDate()
-	 * @generated NOT
-	 * @ordered
-	 */
-	protected static final Date END_DATE_EDEFAULT = threeMonths();
-
-	/**
-	 * The cached value of the '{@link #getEndDate() <em>End Date</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getEndDate()
-	 * @generated
-	 * @ordered
-	 */
-	protected Date endDate = END_DATE_EDEFAULT;
-
-	/**
-	 * The default value of the '{@link #isEnableAutoEmail() <em>Enable Auto Email</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #isEnableAutoEmail()
-	 * @generated
-	 * @ordered
-	 */
-	protected static final boolean ENABLE_AUTO_EMAIL_EDEFAULT = false;
-
-	/**
-	 * The cached value of the '{@link #isEnableAutoEmail() <em>Enable Auto Email</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #isEnableAutoEmail()
-	 * @generated
-	 * @ordered
-	 */
-	protected boolean enableAutoEmail = ENABLE_AUTO_EMAIL_EDEFAULT;
 
 	/**
 	 * The default value of the '{@link #getCalibrant() <em>Calibrant</em>}' attribute.
@@ -325,16 +242,6 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	protected double calibrant_exposure = CALIBRANT_EXPOSURE_EDEFAULT;
 
 	/**
-	 * The cached value of the '{@link #getEnvSamplingIntervals() <em>Env Sampling Intervals</em>}' attribute list.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getEnvSamplingIntervals()
-	 * @generated
-	 * @ordered
-	 */
-	protected EList<Double> envSamplingIntervals;
-
-	/**
 	 * The cached value of the '{@link #getEnvScannableNames() <em>Env Scannable Names</em>}' attribute list.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -363,6 +270,86 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	 * @ordered
 	 */
 	protected int numberOfSamples = NUMBER_OF_SAMPLES_EDEFAULT;
+
+	/**
+	 * The default value of the '{@link #getEmail() <em>Email</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getEmail()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final String EMAIL_EDEFAULT = null;
+
+	/**
+	 * The cached value of the '{@link #getEmail() <em>Email</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getEmail()
+	 * @generated
+	 * @ordered
+	 */
+	protected String email = EMAIL_EDEFAULT;
+
+	/**
+	 * The default value of the '{@link #getStartDate() <em>Start Date</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getStartDate()
+	 * @generated NOT
+	 * @ordered
+	 */
+	protected static final Date START_DATE_EDEFAULT = Calendar.getInstance().getTime();
+
+	/**
+	 * The cached value of the '{@link #getStartDate() <em>Start Date</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getStartDate()
+	 * @generated
+	 * @ordered
+	 */
+	protected Date startDate = START_DATE_EDEFAULT;
+
+	/**
+	 * The default value of the '{@link #getEndDate() <em>End Date</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getEndDate()
+	 * @generated NOT
+	 * @ordered
+	 */
+	protected static final Date END_DATE_EDEFAULT = threeMonths();
+
+	/**
+	 * The cached value of the '{@link #getEndDate() <em>End Date</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getEndDate()
+	 * @generated
+	 * @ordered
+	 */
+	protected Date endDate = END_DATE_EDEFAULT;
+
+	/**
+	 * The default value of the '{@link #isEnableAutoEmail() <em>Enable Auto Email</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #isEnableAutoEmail()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final boolean ENABLE_AUTO_EMAIL_EDEFAULT = false;
+
+	/**
+	 * The cached value of the '{@link #isEnableAutoEmail() <em>Enable Auto Email</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #isEnableAutoEmail()
+	 * @generated
+	 * @ordered
+	 */
+	protected boolean enableAutoEmail = ENABLE_AUTO_EMAIL_EDEFAULT;
 
 	private boolean processed;
 
@@ -623,18 +610,6 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EList<Double> getEnvSamplingIntervals() {
-		if (envSamplingIntervals == null) {
-			envSamplingIntervals = new EDataTypeEList<Double>(Double.class, this, LDEExperimentsPackage.CELL__ENV_SAMPLING_INTERVALS);
-		}
-		return envSamplingIntervals;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
 	public EList<String> getEnvScannableNames() {
 		if (envScannableNames == null) {
 			envScannableNames = new EDataTypeUniqueEList<String>(String.class, this, LDEExperimentsPackage.CELL__ENV_SCANNABLE_NAMES);
@@ -880,14 +855,6 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 				return getVisitID();
 			case LDEExperimentsPackage.CELL__NAME:
 				return getName();
-			case LDEExperimentsPackage.CELL__EMAIL:
-				return getEmail();
-			case LDEExperimentsPackage.CELL__START_DATE:
-				return getStartDate();
-			case LDEExperimentsPackage.CELL__END_DATE:
-				return getEndDate();
-			case LDEExperimentsPackage.CELL__ENABLE_AUTO_EMAIL:
-				return isEnableAutoEmail();
 			case LDEExperimentsPackage.CELL__CALIBRANT:
 				return getCalibrant();
 			case LDEExperimentsPackage.CELL__CALIBRANT_X:
@@ -896,12 +863,18 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 				return getCalibrant_y();
 			case LDEExperimentsPackage.CELL__CALIBRANT_EXPOSURE:
 				return getCalibrant_exposure();
-			case LDEExperimentsPackage.CELL__ENV_SAMPLING_INTERVALS:
-				return getEnvSamplingIntervals();
 			case LDEExperimentsPackage.CELL__ENV_SCANNABLE_NAMES:
 				return getEnvScannableNames();
 			case LDEExperimentsPackage.CELL__NUMBER_OF_SAMPLES:
 				return getNumberOfSamples();
+			case LDEExperimentsPackage.CELL__EMAIL:
+				return getEmail();
+			case LDEExperimentsPackage.CELL__START_DATE:
+				return getStartDate();
+			case LDEExperimentsPackage.CELL__END_DATE:
+				return getEndDate();
+			case LDEExperimentsPackage.CELL__ENABLE_AUTO_EMAIL:
+				return isEnableAutoEmail();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -931,18 +904,6 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 			case LDEExperimentsPackage.CELL__NAME:
 				setName((String)newValue);
 				return;
-			case LDEExperimentsPackage.CELL__EMAIL:
-				setEmail((String)newValue);
-				return;
-			case LDEExperimentsPackage.CELL__START_DATE:
-				setStartDate((Date)newValue);
-				return;
-			case LDEExperimentsPackage.CELL__END_DATE:
-				setEndDate((Date)newValue);
-				return;
-			case LDEExperimentsPackage.CELL__ENABLE_AUTO_EMAIL:
-				setEnableAutoEmail((Boolean)newValue);
-				return;
 			case LDEExperimentsPackage.CELL__CALIBRANT:
 				setCalibrant((String)newValue);
 				return;
@@ -955,16 +916,24 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 			case LDEExperimentsPackage.CELL__CALIBRANT_EXPOSURE:
 				setCalibrant_exposure((Double)newValue);
 				return;
-			case LDEExperimentsPackage.CELL__ENV_SAMPLING_INTERVALS:
-				getEnvSamplingIntervals().clear();
-				getEnvSamplingIntervals().addAll((Collection<? extends Double>)newValue);
-				return;
 			case LDEExperimentsPackage.CELL__ENV_SCANNABLE_NAMES:
 				getEnvScannableNames().clear();
 				getEnvScannableNames().addAll((Collection<? extends String>)newValue);
 				return;
 			case LDEExperimentsPackage.CELL__NUMBER_OF_SAMPLES:
 				setNumberOfSamples((Integer)newValue);
+				return;
+			case LDEExperimentsPackage.CELL__EMAIL:
+				setEmail((String)newValue);
+				return;
+			case LDEExperimentsPackage.CELL__START_DATE:
+				setStartDate((Date)newValue);
+				return;
+			case LDEExperimentsPackage.CELL__END_DATE:
+				setEndDate((Date)newValue);
+				return;
+			case LDEExperimentsPackage.CELL__ENABLE_AUTO_EMAIL:
+				setEnableAutoEmail((Boolean)newValue);
 				return;
 		}
 		super.eSet(featureID, newValue);
@@ -993,18 +962,6 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 			case LDEExperimentsPackage.CELL__NAME:
 				setName(NAME_EDEFAULT);
 				return;
-			case LDEExperimentsPackage.CELL__EMAIL:
-				setEmail(EMAIL_EDEFAULT);
-				return;
-			case LDEExperimentsPackage.CELL__START_DATE:
-				setStartDate(START_DATE_EDEFAULT);
-				return;
-			case LDEExperimentsPackage.CELL__END_DATE:
-				setEndDate(END_DATE_EDEFAULT);
-				return;
-			case LDEExperimentsPackage.CELL__ENABLE_AUTO_EMAIL:
-				setEnableAutoEmail(ENABLE_AUTO_EMAIL_EDEFAULT);
-				return;
 			case LDEExperimentsPackage.CELL__CALIBRANT:
 				setCalibrant(CALIBRANT_EDEFAULT);
 				return;
@@ -1017,14 +974,23 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 			case LDEExperimentsPackage.CELL__CALIBRANT_EXPOSURE:
 				setCalibrant_exposure(CALIBRANT_EXPOSURE_EDEFAULT);
 				return;
-			case LDEExperimentsPackage.CELL__ENV_SAMPLING_INTERVALS:
-				getEnvSamplingIntervals().clear();
-				return;
 			case LDEExperimentsPackage.CELL__ENV_SCANNABLE_NAMES:
 				getEnvScannableNames().clear();
 				return;
 			case LDEExperimentsPackage.CELL__NUMBER_OF_SAMPLES:
 				setNumberOfSamples(NUMBER_OF_SAMPLES_EDEFAULT);
+				return;
+			case LDEExperimentsPackage.CELL__EMAIL:
+				setEmail(EMAIL_EDEFAULT);
+				return;
+			case LDEExperimentsPackage.CELL__START_DATE:
+				setStartDate(START_DATE_EDEFAULT);
+				return;
+			case LDEExperimentsPackage.CELL__END_DATE:
+				setEndDate(END_DATE_EDEFAULT);
+				return;
+			case LDEExperimentsPackage.CELL__ENABLE_AUTO_EMAIL:
+				setEnableAutoEmail(ENABLE_AUTO_EMAIL_EDEFAULT);
 				return;
 		}
 		super.eUnset(featureID);
@@ -1048,14 +1014,6 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 				return VISIT_ID_EDEFAULT == null ? visitID != null : !VISIT_ID_EDEFAULT.equals(visitID);
 			case LDEExperimentsPackage.CELL__NAME:
 				return NAME_EDEFAULT == null ? name != null : !NAME_EDEFAULT.equals(name);
-			case LDEExperimentsPackage.CELL__EMAIL:
-				return EMAIL_EDEFAULT == null ? email != null : !EMAIL_EDEFAULT.equals(email);
-			case LDEExperimentsPackage.CELL__START_DATE:
-				return START_DATE_EDEFAULT == null ? startDate != null : !START_DATE_EDEFAULT.equals(startDate);
-			case LDEExperimentsPackage.CELL__END_DATE:
-				return END_DATE_EDEFAULT == null ? endDate != null : !END_DATE_EDEFAULT.equals(endDate);
-			case LDEExperimentsPackage.CELL__ENABLE_AUTO_EMAIL:
-				return enableAutoEmail != ENABLE_AUTO_EMAIL_EDEFAULT;
 			case LDEExperimentsPackage.CELL__CALIBRANT:
 				return CALIBRANT_EDEFAULT == null ? calibrant != null : !CALIBRANT_EDEFAULT.equals(calibrant);
 			case LDEExperimentsPackage.CELL__CALIBRANT_X:
@@ -1064,12 +1022,18 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 				return calibrant_y != CALIBRANT_Y_EDEFAULT;
 			case LDEExperimentsPackage.CELL__CALIBRANT_EXPOSURE:
 				return calibrant_exposure != CALIBRANT_EXPOSURE_EDEFAULT;
-			case LDEExperimentsPackage.CELL__ENV_SAMPLING_INTERVALS:
-				return envSamplingIntervals != null && !envSamplingIntervals.isEmpty();
 			case LDEExperimentsPackage.CELL__ENV_SCANNABLE_NAMES:
 				return envScannableNames != null && !envScannableNames.isEmpty();
 			case LDEExperimentsPackage.CELL__NUMBER_OF_SAMPLES:
 				return numberOfSamples != NUMBER_OF_SAMPLES_EDEFAULT;
+			case LDEExperimentsPackage.CELL__EMAIL:
+				return EMAIL_EDEFAULT == null ? email != null : !EMAIL_EDEFAULT.equals(email);
+			case LDEExperimentsPackage.CELL__START_DATE:
+				return START_DATE_EDEFAULT == null ? startDate != null : !START_DATE_EDEFAULT.equals(startDate);
+			case LDEExperimentsPackage.CELL__END_DATE:
+				return END_DATE_EDEFAULT == null ? endDate != null : !END_DATE_EDEFAULT.equals(endDate);
+			case LDEExperimentsPackage.CELL__ENABLE_AUTO_EMAIL:
+				return enableAutoEmail != ENABLE_AUTO_EMAIL_EDEFAULT;
 		}
 		return super.eIsSet(featureID);
 	}
@@ -1110,14 +1074,6 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 		result.append(visitID);
 		result.append(", name: ");
 		result.append(name);
-		result.append(", email: ");
-		result.append(email);
-		result.append(", startDate: ");
-		result.append(startDate);
-		result.append(", endDate: ");
-		result.append(endDate);
-		result.append(", enableAutoEmail: ");
-		result.append(enableAutoEmail);
 		result.append(", calibrant: ");
 		result.append(calibrant);
 		result.append(", calibrant_x: ");
@@ -1126,12 +1082,18 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 		result.append(calibrant_y);
 		result.append(", calibrant_exposure: ");
 		result.append(calibrant_exposure);
-		result.append(", envSamplingIntervals: ");
-		result.append(envSamplingIntervals);
 		result.append(", envScannableNames: ");
 		result.append(envScannableNames);
 		result.append(", numberOfSamples: ");
 		result.append(numberOfSamples);
+		result.append(", email: ");
+		result.append(email);
+		result.append(", startDate: ");
+		result.append(startDate);
+		result.append(", endDate: ");
+		result.append(endDate);
+		result.append(", enableAutoEmail: ");
+		result.append(enableAutoEmail);
 		result.append(')');
 		return result.toString();
 	}

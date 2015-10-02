@@ -44,17 +44,16 @@ import org.eclipse.emf.ecore.EObject;
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Cell#getSample <em>Sample</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Cell#getVisitID <em>Visit ID</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Cell#getName <em>Name</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.Cell#getEmail <em>Email</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.Cell#getStartDate <em>Start Date</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.Cell#getEndDate <em>End Date</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.Cell#isEnableAutoEmail <em>Enable Auto Email</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Cell#getCalibrant <em>Calibrant</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Cell#getCalibrant_x <em>Calibrant x</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Cell#getCalibrant_y <em>Calibrant y</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Cell#getCalibrant_exposure <em>Calibrant exposure</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.Cell#getEnvSamplingIntervals <em>Env Sampling Intervals</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Cell#getEnvScannableNames <em>Env Scannable Names</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Cell#getNumberOfSamples <em>Number Of Samples</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.Cell#getEmail <em>Email</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.Cell#getStartDate <em>Start Date</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.Cell#getEndDate <em>End Date</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.Cell#isEnableAutoEmail <em>Enable Auto Email</em>}</li>
  * </ul>
  *
  * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getCell()
@@ -352,22 +351,6 @@ public interface Cell extends EObject {
 	 * @generated
 	 */
 	void setCalibrant_exposure(double value);
-
-	/**
-	 * Returns the value of the '<em><b>Env Sampling Intervals</b></em>' attribute list.
-	 * The list contents are of type {@link java.lang.Double}.
-	 * <!-- begin-user-doc -->
-	 * <p>
-	 * If the meaning of the '<em>Env Sampling Intervals</em>' attribute list isn't clear,
-	 * there really should be more of a description here...
-	 * </p>
-	 * <!-- end-user-doc -->
-	 * @return the value of the '<em>Env Sampling Intervals</em>' attribute list.
-	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getCell_EnvSamplingIntervals()
-	 * @model unique="false"
-	 * @generated
-	 */
-	EList<Double> getEnvSamplingIntervals();
 
 	/**
 	 * Returns the value of the '<em><b>Env Scannable Names</b></em>' attribute list.

@@ -394,99 +394,6 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 
 	 }
 
-//	private void configureColumns(TableViewer tableViewer, IPropertySource propertySource) {
-//		Table table = tableViewer.getTable();
-//		TableLayout layout = new TableLayout();
-//		table.setLayout(layout);
-//		IPropertyDescriptor[] propertyDescriptors = propertySource.getPropertyDescriptors();
-//		CellEditor[] cellEditors = new CellEditor[propertyDescriptors.length];
-//		String[] properties = new String[propertyDescriptors.length];
-//		for (int i = 0; i < propertyDescriptors.length; i++) {
-//			IPropertyDescriptor prop = propertyDescriptors[i];
-//			TableColumn objectColumn = new TableColumn(table, SWT.LEFT);
-//			objectColumn.setText(prop.getDisplayName());
-//			objectColumn.setToolTipText(prop.getDescription());
-//			objectColumn.setData(COLUMN_DATA_KEY, prop);
-//			objectColumn.setResizable(true);
-//			layout.addColumnData(new ColumnWeightData(3, 100, true));
-//			cellEditors[i] = prop.createPropertyEditor(table);
-//			properties[i] = Integer.toString(i);
-//		}
-//		tableViewer.setCellEditors(cellEditors);
-//		tableViewer.setColumnProperties(properties);
-//		tableViewer.setCellModifier(new EClassifierTableCellModifier(adapterFactory, tableViewer));
-//	}
-//
-//	public class EClassifierTableCellModifier implements org.eclipse.jface.viewers.ICellModifier {
-//		protected AdapterFactory adapterFactory;
-//		protected TableViewer viewer;
-//		/**
-//		 * If this is true then we are operating on a containing object which is
-//		 * a property source - not the list item
-//		 */
-//		protected boolean containerMode = false;
-//		protected IPropertySource containerPropertySource = null;
-//
-//		protected EClassifierTableCellModifier(AdapterFactory adapterFactory, TableViewer viewer) {
-//			this.adapterFactory = adapterFactory;
-//			this.viewer = viewer;
-//		}
-//
-//		protected EClassifierTableCellModifier(AdapterFactory adapterFactory, TableViewer viewer,
-//				IPropertySource containerPropertySource) {
-//			this.adapterFactory = adapterFactory;
-//			this.viewer = viewer;
-//			this.containerPropertySource = containerPropertySource;
-//			containerMode = true;
-//		}
-//
-//		public boolean canModify(Object element, String property) {
-//			/*
-//			 * IPropertyDescriptor propDesc = getPropertyDescriptor(property);
-//			 * AdapterFactoryContentProvider contentProvider = new
-//			 * AdapterFactoryContentProvider(adapterFactory); IPropertySource
-//			 * propertySource = contentProvider.getPropertySource(element);
-//			 */
-//			return true;
-//		}
-//
-//		public Object getValue(Object element, String property) {
-//			IPropertyDescriptor propDesc = getPropertyDescriptor(property);
-//			IPropertySource propertySource;
-//			if (containerMode) {
-//				propertySource = this.containerPropertySource;
-//			} else {
-//				AdapterFactoryContentProvider contentProvider = new AdapterFactoryContentProvider(adapterFactory);
-//				propertySource = contentProvider.getPropertySource(element);
-//			}
-//			Object value = propertySource.getPropertyValue(propDesc.getId());
-//			if (value instanceof PropertyValueWrapper) {
-//				return ((PropertyValueWrapper) value).getEditableValue(element);
-//			} else
-//				return value;
-//		}
-//
-//		public void modify(Object element, String property, Object value) {
-//			if (element instanceof Item)
-//				element = ((Item) element).getData();
-//			IPropertyDescriptor propDesc = getPropertyDescriptor(property);
-//			IPropertySource propertySource;
-//			if (containerMode) {
-//				propertySource = this.containerPropertySource;
-//			} else {
-//				AdapterFactoryContentProvider contentProvider = new AdapterFactoryContentProvider(adapterFactory);
-//				propertySource = contentProvider.getPropertySource(element);
-//			}
-//			propertySource.setPropertyValue(propDesc.getId(), value);
-//		}
-//
-////	protected IPropertyDescriptor getPropertyDescriptor(String property)
-////	{
-////	int columnIndex = Integer.parseInt(property);
-////	return (IPropertyDescriptor)viewer.getTable().getColumn(columnIndex).getData(EClassifier TableConfigurer.COLUMN_DATA_KEY);
-////	}
-//	}
-
 	private void initialisation() {
 
 		experimentAttributeMap = new LinkedHashMap<EAttribute, String>();
@@ -537,9 +444,9 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 			
 			@Override
 			public void selectionChanged(IWorkbenchPart part, ISelection selection) {
-				boolean usePropertyDescripors=false;
+				boolean usePropertyDescripors=true;
 				boolean useEMFDataBinding=false;
-				boolean useCustomizedImpl=true;
+				boolean useCustomizedImpl=false;
 				if (part instanceof LDEExperimentsEditor) {
 
 					Object firstElement = ((IStructuredSelection)selection).getFirstElement();

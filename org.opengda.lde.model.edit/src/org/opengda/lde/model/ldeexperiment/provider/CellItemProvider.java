@@ -66,17 +66,16 @@ public class CellItemProvider
 			addCellIDPropertyDescriptor(object);
 			addVisitIDPropertyDescriptor(object);
 			addNamePropertyDescriptor(object);
-			addEmailPropertyDescriptor(object);
-			addStartDatePropertyDescriptor(object);
-			addEndDatePropertyDescriptor(object);
-			addEnableAutoEmailPropertyDescriptor(object);
 			addCalibrantPropertyDescriptor(object);
 			addCalibrant_xPropertyDescriptor(object);
 			addCalibrant_yPropertyDescriptor(object);
 			addCalibrant_exposurePropertyDescriptor(object);
-			addEnvSamplingIntervalsPropertyDescriptor(object);
 			addEnvScannableNamesPropertyDescriptor(object);
 			addNumberOfSamplesPropertyDescriptor(object);
+			addEmailPropertyDescriptor(object);
+			addStartDatePropertyDescriptor(object);
+			addEndDatePropertyDescriptor(object);
+			addEnableAutoEmailPropertyDescriptor(object);
 		}
 		return itemPropertyDescriptors;
 	}
@@ -380,28 +379,6 @@ public class CellItemProvider
 	}
 
 	/**
-	 * This adds a property descriptor for the Env Sampling Intervals feature.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	protected void addEnvSamplingIntervalsPropertyDescriptor(Object object) {
-		itemPropertyDescriptors.add
-			(createItemPropertyDescriptor
-				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
-				 getResourceLocator(),
-				 getString("_UI_Cell_envSamplingIntervals_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_Cell_envSamplingIntervals_feature", "_UI_Cell_type"),
-				 LDEExperimentsPackage.Literals.CELL__ENV_SAMPLING_INTERVALS,
-				 true,
-				 false,
-				 false,
-				 ItemPropertyDescriptor.REAL_VALUE_IMAGE,
-				 null,
-				 null));
-	}
-
-	/**
 	 * This adds a property descriptor for the Env Scannable Names feature.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -516,17 +493,16 @@ public class CellItemProvider
 			case LDEExperimentsPackage.CELL__CELL_ID:
 			case LDEExperimentsPackage.CELL__VISIT_ID:
 			case LDEExperimentsPackage.CELL__NAME:
-			case LDEExperimentsPackage.CELL__EMAIL:
-			case LDEExperimentsPackage.CELL__START_DATE:
-			case LDEExperimentsPackage.CELL__END_DATE:
-			case LDEExperimentsPackage.CELL__ENABLE_AUTO_EMAIL:
 			case LDEExperimentsPackage.CELL__CALIBRANT:
 			case LDEExperimentsPackage.CELL__CALIBRANT_X:
 			case LDEExperimentsPackage.CELL__CALIBRANT_Y:
 			case LDEExperimentsPackage.CELL__CALIBRANT_EXPOSURE:
-			case LDEExperimentsPackage.CELL__ENV_SAMPLING_INTERVALS:
 			case LDEExperimentsPackage.CELL__ENV_SCANNABLE_NAMES:
 			case LDEExperimentsPackage.CELL__NUMBER_OF_SAMPLES:
+			case LDEExperimentsPackage.CELL__EMAIL:
+			case LDEExperimentsPackage.CELL__START_DATE:
+			case LDEExperimentsPackage.CELL__END_DATE:
+			case LDEExperimentsPackage.CELL__ENABLE_AUTO_EMAIL:
 				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
 				return;
 			case LDEExperimentsPackage.CELL__SAMPLE:

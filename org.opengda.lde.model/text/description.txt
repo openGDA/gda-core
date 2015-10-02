@@ -38,17 +38,16 @@ Package ldeexperiment <http://www.opengda.org/LDEExperiments>
     Reference sample : Sample<<0..*>>
     Attribute visitID : EString
     Attribute name : EString
-    Attribute email : EString
-    Attribute startDate : Date
-    Attribute endDate : Date
-    Attribute enableAutoEmail : EBoolean
     Attribute calibrant : CalibrantNameString
     Attribute calibrant_x : EDouble
     Attribute calibrant_y : EDouble
     Attribute calibrant_exposure : EDouble
-    Attribute envSamplingIntervals : EDouble<<0..*>>
     Attribute envScannableNames : EString<<0..*>>
     Attribute numberOfSamples : EInt
+    Attribute email : EString
+    Attribute startDate : Date
+    Attribute endDate : Date
+    Attribute enableAutoEmail : EBoolean
     Operation getSampleById(EString) : Sample
     Operation getSampleByName(EString) : Sample
     Operation hasCellID(EDiagnosticChain, EMap) : EBoolean
@@ -56,7 +55,7 @@ Package ldeexperiment <http://www.opengda.org/LDEExperiments>
 
   Class Sample
     Reference cell : Cell<<1..1>>
-    Attribute status : STATUS
+    Attribute /status : STATUS
     Attribute active : EBoolean
     Attribute name : EString
     Attribute sampleID : EString

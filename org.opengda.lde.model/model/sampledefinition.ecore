@@ -97,11 +97,6 @@
         eType="#//Sample" unsettable="true" containment="true" eOpposite="#//Sample/cell"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="visitID" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="email" unique="false" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="startDate" eType="#//Date"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="endDate" eType="#//Date"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="enableAutoEmail" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"
-        defaultValueLiteral="false"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="calibrant" eType="#//CalibrantNameString"
         defaultValueLiteral="Si(NIST-SRM-640c)"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="calibrant_x" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble"
@@ -110,18 +105,21 @@
         defaultValueLiteral="0"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="calibrant_exposure" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble"
         defaultValueLiteral="1.0"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="envSamplingIntervals" unique="false"
-        upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="envScannableNames" upperBound="-1"
         eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="numberOfSamples" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"
         defaultValueLiteral="1"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="email" unique="false" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="startDate" eType="#//Date"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="endDate" eType="#//Date"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="enableAutoEmail" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"
+        defaultValueLiteral="false"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Sample">
     <eStructuralFeatures xsi:type="ecore:EReference" name="cell" lowerBound="1" eType="#//Cell"
         eOpposite="#//Cell/sample"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="status" eType="#//STATUS"
-        transient="true" defaultValueLiteral="READY" unsettable="true"/>
+        transient="true" defaultValueLiteral="READY" unsettable="true" derived="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="active" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"
         defaultValueLiteral="false"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>

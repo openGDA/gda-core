@@ -22,7 +22,6 @@ import org.eclipse.emf.edit.provider.ViewerNotification;
 import org.opengda.lde.model.edit.ImageConstants;
 import org.opengda.lde.model.edit.SampleTableConstants;
 import org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage;
-import org.opengda.lde.model.ldeexperiment.STATUS;
 import org.opengda.lde.model.ldeexperiment.Sample;
 
 /**

@@ -440,60 +440,6 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * @generated
 	 */
 	public EAttribute getCell_Email() {
-		return (EAttribute)cellEClass.getEStructuralFeatures().get(5);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public EAttribute getCell_StartDate() {
-		return (EAttribute)cellEClass.getEStructuralFeatures().get(6);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public EAttribute getCell_EndDate() {
-		return (EAttribute)cellEClass.getEStructuralFeatures().get(7);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public EAttribute getCell_EnableAutoEmail() {
-		return (EAttribute)cellEClass.getEStructuralFeatures().get(8);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public EAttribute getCell_Calibrant() {
-		return (EAttribute)cellEClass.getEStructuralFeatures().get(9);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public EAttribute getCell_Calibrant_x() {
-		return (EAttribute)cellEClass.getEStructuralFeatures().get(10);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public EAttribute getCell_Calibrant_y() {
 		return (EAttribute)cellEClass.getEStructuralFeatures().get(11);
 	}
 
@@ -502,7 +448,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EAttribute getCell_Calibrant_exposure() {
+	public EAttribute getCell_StartDate() {
 		return (EAttribute)cellEClass.getEStructuralFeatures().get(12);
 	}
 
@@ -511,7 +457,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EAttribute getCell_EnvSamplingIntervals() {
+	public EAttribute getCell_EndDate() {
 		return (EAttribute)cellEClass.getEStructuralFeatures().get(13);
 	}
 
@@ -520,7 +466,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EAttribute getCell_EnvScannableNames() {
+	public EAttribute getCell_EnableAutoEmail() {
 		return (EAttribute)cellEClass.getEStructuralFeatures().get(14);
 	}
 
@@ -529,8 +475,53 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public EAttribute getCell_Calibrant() {
+		return (EAttribute)cellEClass.getEStructuralFeatures().get(5);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getCell_Calibrant_x() {
+		return (EAttribute)cellEClass.getEStructuralFeatures().get(6);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getCell_Calibrant_y() {
+		return (EAttribute)cellEClass.getEStructuralFeatures().get(7);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getCell_Calibrant_exposure() {
+		return (EAttribute)cellEClass.getEStructuralFeatures().get(8);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getCell_EnvScannableNames() {
+		return (EAttribute)cellEClass.getEStructuralFeatures().get(9);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	public EAttribute getCell_NumberOfSamples() {
-		return (EAttribute)cellEClass.getEStructuralFeatures().get(15);
+		return (EAttribute)cellEClass.getEStructuralFeatures().get(10);
 	}
 
 	/**
@@ -817,17 +808,16 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 		createEReference(cellEClass, CELL__SAMPLE);
 		createEAttribute(cellEClass, CELL__VISIT_ID);
 		createEAttribute(cellEClass, CELL__NAME);
-		createEAttribute(cellEClass, CELL__EMAIL);
-		createEAttribute(cellEClass, CELL__START_DATE);
-		createEAttribute(cellEClass, CELL__END_DATE);
-		createEAttribute(cellEClass, CELL__ENABLE_AUTO_EMAIL);
 		createEAttribute(cellEClass, CELL__CALIBRANT);
 		createEAttribute(cellEClass, CELL__CALIBRANT_X);
 		createEAttribute(cellEClass, CELL__CALIBRANT_Y);
 		createEAttribute(cellEClass, CELL__CALIBRANT_EXPOSURE);
-		createEAttribute(cellEClass, CELL__ENV_SAMPLING_INTERVALS);
 		createEAttribute(cellEClass, CELL__ENV_SCANNABLE_NAMES);
 		createEAttribute(cellEClass, CELL__NUMBER_OF_SAMPLES);
+		createEAttribute(cellEClass, CELL__EMAIL);
+		createEAttribute(cellEClass, CELL__START_DATE);
+		createEAttribute(cellEClass, CELL__END_DATE);
+		createEAttribute(cellEClass, CELL__ENABLE_AUTO_EMAIL);
 		createEOperation(cellEClass, CELL___GET_SAMPLE_BY_ID__STRING);
 		createEOperation(cellEClass, CELL___GET_SAMPLE_BY_NAME__STRING);
 		createEOperation(cellEClass, CELL___HAS_CELL_ID__DIAGNOSTICCHAIN_MAP);
@@ -935,17 +925,16 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 		initEReference(getCell_Sample(), this.getSample(), this.getSample_Cell(), "sample", null, 0, -1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getCell_VisitID(), ecorePackage.getEString(), "visitID", null, 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getCell_Name(), ecorePackage.getEString(), "name", null, 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getCell_Email(), ecorePackage.getEString(), "email", null, 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getCell_StartDate(), this.getDate(), "startDate", null, 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getCell_EndDate(), this.getDate(), "endDate", null, 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getCell_EnableAutoEmail(), ecorePackage.getEBoolean(), "enableAutoEmail", "false", 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getCell_Calibrant(), this.getCalibrantNameString(), "calibrant", "Si(NIST-SRM-640c)", 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getCell_Calibrant_x(), ecorePackage.getEDouble(), "calibrant_x", "0", 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getCell_Calibrant_y(), ecorePackage.getEDouble(), "calibrant_y", "0", 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getCell_Calibrant_exposure(), ecorePackage.getEDouble(), "calibrant_exposure", "1.0", 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getCell_EnvSamplingIntervals(), ecorePackage.getEDouble(), "envSamplingIntervals", null, 0, -1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getCell_EnvScannableNames(), ecorePackage.getEString(), "envScannableNames", null, 0, -1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getCell_NumberOfSamples(), ecorePackage.getEInt(), "numberOfSamples", "1", 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getCell_Email(), ecorePackage.getEString(), "email", null, 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getCell_StartDate(), this.getDate(), "startDate", null, 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getCell_EndDate(), this.getDate(), "endDate", null, 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getCell_EnableAutoEmail(), ecorePackage.getEBoolean(), "enableAutoEmail", "false", 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		op = initEOperation(getCell__GetSampleById__String(), this.getSample(), "getSampleById", 0, 1, IS_UNIQUE, IS_ORDERED);
 		addEParameter(op, ecorePackage.getEString(), "sampleId", 0, 1, IS_UNIQUE, IS_ORDERED);
@@ -973,7 +962,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 
 		initEClass(sampleEClass, Sample.class, "Sample", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEReference(getSample_Cell(), this.getCell(), this.getCell_Sample(), "cell", null, 1, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getSample_Status(), this.getSTATUS(), "status", "READY", 0, 1, Sample.class, IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getSample_Status(), this.getSTATUS(), "status", "READY", 0, 1, Sample.class, IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
 		initEAttribute(getSample_Active(), ecorePackage.getEBoolean(), "active", "false", 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getSample_Name(), ecorePackage.getEString(), "name", null, 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getSample_SampleID(), ecorePackage.getEString(), "sampleID", null, 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
