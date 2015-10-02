@@ -17,14 +17,10 @@ import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
 import org.eclipse.dawnsci.analysis.dataset.impl.AbstractDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.PositionIterator;
-import org.eclipse.dawnsci.analysis.tree.TreeFactory;
 import org.eclipse.dawnsci.analysis.tree.impl.TreeFileImpl;
-import org.eclipse.dawnsci.hdf5.nexus.NexusException;
-import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.NXroot;
 import org.eclipse.dawnsci.nexus.impl.NXobjectFactory;
-import org.eclipse.dawnsci.nexus.impl.NXrootImpl;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -70,51 +66,10 @@ public abstract class AbstractNexusFileTestBase {
 	@Test
 	public void testNexusFile() throws Exception {
 		TreeFile originalNexusTree = createNexusTree();
+		NexusUtils.saveNexusFile(originalNexusTree);
 
-		saveFile(originalNexusTree);
-		TreeFile loadedTree = loadFile();
-
+		TreeFile loadedTree = NexusUtils.loadNexusFile(FILE_PATH, true);
 		assertNexusTreesEqual(originalNexusTree, loadedTree);
-	}
-
-	private void saveFile(TreeFile nexusTree) throws Exception {
-		try (NexusFile nexusFile = NexusUtils.createNexusFile(nexusTree.getFilename())) {
-			nexusFile.addNode("/", nexusTree.getGroupNode());
-			nexusFile.flush();
-		}
-	}
-
-	private TreeFile loadFile() throws NexusException {
-		// open the nexus file read only
-		TreeFile treeFile;
-		try (NexusFile nexusFile = NexusUtils.openNexusFileReadOnly(FILE_PATH)) {
-			assertNotNull(nexusFile);
-
-			// get the root node
-			GroupNode rootNode = nexusFile.getGroup("/", false);
-			assertNotNull(rootNode);
-			assertTrue(rootNode instanceof NXrootImpl);
-			// add the root node to a new TreeFile object
-			treeFile = TreeFactory.createTreeFile(0l, FILE_PATH);
-			treeFile.setGroupNode(rootNode);
-			// recursively load the nexus tree
-			recursivelyLoadTree(nexusFile, rootNode);
-
-		}
-
-		return treeFile;
-	}
-
-	private void recursivelyLoadTree(NexusFile nexusFile, GroupNode group) throws NexusException {
-		Iterator<String> nodeNames = group.getNodeNameIterator();
-		while (nodeNames.hasNext()) {
-			String nodeName = nodeNames.next();
-			if (group.containsGroupNode(nodeName)) {
-				// use the nexusFile api to populate the child group
-				GroupNode childGroup = nexusFile.getGroup(group, nodeName, null, false);
-				recursivelyLoadTree(nexusFile, childGroup);
-			}
-		}
 	}
 
 	private void assertNexusTreesEqual(final TreeFile tree1, final TreeFile tree2) throws Exception {
@@ -168,7 +123,7 @@ public abstract class AbstractNexusFileTestBase {
 		assertEquals(group1.getNumberOfGroupNodes(), group2.getNumberOfGroupNodes());
 	}
 
-	private void assertAttributesEquals(final Attribute attr1, final Attribute attr2) throws Exception {
+	private void assertAttributesEquals(final Attribute attr1, final Attribute attr2) {
 		assertEquals(attr1.getName(), attr2.getName());
 		assertEquals(attr1.getTypeName(), attr2.getTypeName());
 		assertEquals(attr1.getFirstElement(), attr2.getFirstElement());
@@ -178,7 +133,7 @@ public abstract class AbstractNexusFileTestBase {
 		assertDatasetsEqual(attr1.getValue(), attr2.getValue());
 	}
 
-	private void assertDataNodesEqual(final DataNode dataNode1, final DataNode dataNode2) throws Exception {
+	private void assertDataNodesEqual(final DataNode dataNode1, final DataNode dataNode2) {
 		// check attributes same
 		Iterator<String> attributeNameIterator = dataNode1.getAttributeNameIterator();
 		while (attributeNameIterator.hasNext()) {

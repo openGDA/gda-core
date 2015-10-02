@@ -23,17 +23,24 @@ package gda.data.nexus;
 import gda.data.nexus.hdf5.NexusFileHDF5;
 import gda.data.nexus.napi.NexusFileNAPI;
 
+import java.util.Iterator;
+
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyWriteableDataset;
 import org.eclipse.dawnsci.analysis.api.tree.Attribute;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
 import org.eclipse.dawnsci.analysis.api.tree.Node;
 import org.eclipse.dawnsci.analysis.api.tree.Tree;
+import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.analysis.dataset.impl.LazyWriteableDataset;
+import org.eclipse.dawnsci.analysis.tree.TreeFactory;
+import org.eclipse.dawnsci.analysis.tree.impl.TreeFileImpl;
 import org.eclipse.dawnsci.hdf5.nexus.NexusException;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
+import org.eclipse.dawnsci.nexus.NXobject;
+import org.eclipse.dawnsci.nexus.NXroot;
 
 /**
  * Utility methods for dealing with NeXus files.
@@ -90,7 +97,7 @@ public class NexusUtils {
 	}
 
 	/**
-	 * Create a plain path by stripping out NXclasses 
+	 * Create a plain path by stripping out NXclasses
 	 * @param augmentedPath
 	 * @return plain path
 	 */
@@ -130,12 +137,12 @@ public class NexusUtils {
 
 	/**
 	 * Write the string into a field called 'name' at the group in the NeXus file.
-	 * 
+	 *
 	 * @param file
 	 * @param group
 	 * @param name
 	 * @param value
-	 * @throws NexusException 
+	 * @throws NexusException
 	 */
 	public static DataNode writeString(NexusFile file, GroupNode group, String name, String value) throws NexusException {
 		if (name == null || name.isEmpty() || value == null || value.isEmpty())
@@ -145,12 +152,12 @@ public class NexusUtils {
 
 	/**
 	 * Write the integer into a field called 'name' at the group in the NeXus file.
-	 * 
+	 *
 	 * @param file
 	 * @param group
 	 * @param name
 	 * @param value
-	 * @throws NexusException 
+	 * @throws NexusException
 	 */
 	public static DataNode writeInteger(NexusFile file, GroupNode group, String name, int value) throws NexusException {
 		return write(file, group, name, value);
@@ -158,12 +165,12 @@ public class NexusUtils {
 
 	/**
 	 * Write the integer array into a field called 'name' at the group in the NeXus file.
-	 * 
+	 *
 	 * @param file
 	 * @param group
 	 * @param name
 	 * @param value
-	 * @throws NexusException 
+	 * @throws NexusException
 	 */
 	public static DataNode writeIntegerArray(NexusFile file, GroupNode group, String name, int[] value) throws NexusException {
 		return write(file, group, name, value);
@@ -171,12 +178,12 @@ public class NexusUtils {
 
 	/**
 	 * Write the double into a field called 'name' at the group in the NeXus file.
-	 * 
+	 *
 	 * @param file
 	 * @param group
 	 * @param name
 	 * @param value
-	 * @throws NexusException 
+	 * @throws NexusException
 	 */
 	public static DataNode writeDouble(NexusFile file, GroupNode group, String name, double value) throws NexusException {
 		return write(file, group, name, value);
@@ -184,12 +191,12 @@ public class NexusUtils {
 
 	/**
 	 * Write the double into a field called 'name' at the group in the NeXus file.
-	 * 
+	 *
 	 * @param file
 	 * @param group
 	 * @param name
 	 * @param value
-	 * @throws NexusException 
+	 * @throws NexusException
 	 */
 	public static DataNode writeDoubleArray(NexusFile file, GroupNode group, String name, double[] value) throws NexusException {
 		return write(file, group, name, value);
@@ -197,12 +204,12 @@ public class NexusUtils {
 
 	/**
 	 * Write the double into a field called 'name' at the group in the NeXus file.
-	 * 
+	 *
 	 * @param file
 	 * @param group
 	 * @param name
 	 * @param value
-	 * @throws NexusException 
+	 * @throws NexusException
 	 */
 	public static DataNode writeDoubleArray(NexusFile file, GroupNode group, String name, Double[] value) throws NexusException {
 		return write(file, group, name, value);
@@ -210,13 +217,13 @@ public class NexusUtils {
 
 	/**
 	 * Write the double into a field called 'name' at the group in the NeXus file.
-	 * 
+	 *
 	 * @param file
 	 * @param group
 	 * @param name
 	 * @param value
 	 * @param units
-	 * @throws NexusException 
+	 * @throws NexusException
 	 */
 	public static DataNode writeDouble(NexusFile file, GroupNode group, String name, double value, String units) throws NexusException {
 		DataNode node = write(file, group, name, value);
@@ -228,18 +235,18 @@ public class NexusUtils {
 
 	/**
 	 * Write the object into a field called 'name' at the group in the NeXus file.
-	 * 
+	 *
 	 * @param file
 	 * @param group
 	 * @param name
 	 * @param value
 	 * @return data node
-	 * @throws NexusException 
+	 * @throws NexusException
 	 */
 	public static DataNode write(NexusFile file, GroupNode group, String name, Object value) throws NexusException {
 		if (value == null || name == null || name.isEmpty())
 			return null;
-	
+
 		Dataset a = DatasetFactory.createFromObject(value);
 		a.setName(name);
 
@@ -264,7 +271,7 @@ public class NexusUtils {
 	 * @param node
 	 * @param name
 	 * @param value
-	 * @throws NexusException 
+	 * @throws NexusException
 	 */
 	public static void writeStringAttribute(NexusFile file, Node node, String name, String value) throws NexusException {
 		writeAttribute(file, node, name, value);
@@ -275,7 +282,7 @@ public class NexusUtils {
 	 * @param node
 	 * @param name
 	 * @param value
-	 * @throws NexusException 
+	 * @throws NexusException
 	 */
 	public static void writeIntegerAttribute(NexusFile file, Node node, String name, int... value) throws NexusException {
 		writeAttribute(file, node, name, value);
@@ -286,7 +293,7 @@ public class NexusUtils {
 	 * @param node
 	 * @param name
 	 * @param value
-	 * @throws NexusException 
+	 * @throws NexusException
 	 */
 	public static void writeDoubleAttribute(NexusFile file, Node node, String name, double... value) throws NexusException {
 		writeAttribute(file, node, name, value);
@@ -297,7 +304,7 @@ public class NexusUtils {
 	 * @param node
 	 * @param name
 	 * @param value
-	 * @throws NexusException 
+	 * @throws NexusException
 	 */
 	public static void writeDoubleAttribute(NexusFile file, Node node, String name, Double... value) throws NexusException {
 		writeAttribute(file, node, name, value);
@@ -308,7 +315,7 @@ public class NexusUtils {
 	 * @param node
 	 * @param name
 	 * @param value
-	 * @throws NexusException 
+	 * @throws NexusException
 	 */
 	public static void writeAttribute(NexusFile file, Node node, String name, Object value) throws NexusException {
 		if (value == null || name == null || name.isEmpty())
@@ -355,4 +362,63 @@ public class NexusUtils {
 		file.openToRead();
 		return file;
 	}
+
+	/**
+	 * Save the NeXus tree with the given root node to the given path.
+	 * <p>
+	 * Use this method when the NeXus tree has been created using the NeXus base classes (subinterfaces of {@link NXobject}), rather than using
+	 * {@link NexusFile} to create the nodes.
+	 *
+	 * @param rootNode
+	 *            root node
+	 * @param filePath
+	 *            file path
+	 * @throws NexusException
+	 */
+	public static void saveNexusFile(NXroot rootNode, String filePath) throws NexusException {
+		final TreeFileImpl treeFile = new TreeFileImpl(filePath.hashCode(), filePath);
+		treeFile.setGroupNode(rootNode);
+		saveNexusFile(treeFile);
+	}
+
+	/**
+	 * Save the given NeXus file tree.
+	 * <p>
+	 * Use this method when the NeXus tree has been created using the NeXus base classes (subinterfaces of {@link NXobject}), rather than using
+	 * {@link NexusFile} to create the nodes.
+	 *
+	 * @param nexusTree
+	 *            nexus tree
+	 * @throws NexusException
+	 */
+	public static void saveNexusFile(TreeFile nexusTree) throws NexusException {
+		try (NexusFile nexusFile = createNexusFile(nexusTree.getFilename())) {
+			nexusFile.addNode("/", nexusTree.getGroupNode());
+			nexusFile.flush();
+		}
+	}
+
+	public static TreeFile loadNexusFile(String filePath, boolean readOnly) throws NexusException {
+		try (NexusFile nexusFile = readOnly ? openNexusFileReadOnly(filePath) : openNexusFile(filePath)) {
+			final GroupNode rootNode = nexusFile.getGroup("/", false);
+			final TreeFile treeFile = TreeFactory.createTreeFile(filePath.hashCode(), filePath);
+			treeFile.setGroupNode(rootNode);
+			recursivelyLoadNexusTree(nexusFile, rootNode);
+
+			return treeFile;
+		}
+	}
+
+	private static void recursivelyLoadNexusTree(NexusFile nexusFile, GroupNode group) throws NexusException {
+		final Iterator<String> nodeNames = group.getNodeNameIterator();
+		while (nodeNames.hasNext()) {
+			String nodeName = nodeNames.next();
+			if (group.containsGroupNode(nodeName)) {
+				// nexusFile.getGroup causes that group to be populated
+				GroupNode childGroup = nexusFile.getGroup(group, nodeName, null, false);
+				recursivelyLoadNexusTree(nexusFile, childGroup);
+			}
+		}
+	}
+
 }

@@ -11,21 +11,25 @@ import org.eclipse.dawnsci.nexus.impl.NXobjectFactory;
 import org.eclipse.dawnsci.nexus.impl.NXrootImpl;
 
 public class DefaultNexusFileBuilder implements NexusFileBuilder {
-	
+
 	private NXobjectFactory nxObjectFactory = new NXobjectFactory();
-	
+
 	private NexusScan nexusScan;
-	
+
 	private String filePath;
-	
+
+	private NXroot rootNode;
+
+	private TreeFileImpl treeFile;
+
 	public DefaultNexusFileBuilder() {
 	}
-	
+
 	public DefaultNexusFileBuilder(final NexusScan nexusScan) {
 		// TODO: do we prefer a setter or a constructor?
 		this.nexusScan = nexusScan;
 	}
-	
+
 	@Override
 	public TreeFile buildNexusFile() {
 		if (nexusScan == null) {
@@ -34,14 +38,28 @@ public class DefaultNexusFileBuilder implements NexusFileBuilder {
 		if (filePath == null) {
 			throw new IllegalStateException("Nexus path not set");
 		}
-		
-		final TreeFileImpl treeFile = nxObjectFactory.createTreeFile(filePath);
-		final NXroot rootNode = createNexusTree();
+
+		treeFile = nxObjectFactory.createTreeFile(filePath);
+		rootNode = createNexusTree();
 		treeFile.setGroupNode(rootNode);
-		
+
 		return treeFile;
 	}
-	
+
+	public TreeFile getNexusTree() {
+		return treeFile;
+	}
+
+	public NXsample getSample() {
+		// TODO: only gets sample from first entry
+		return rootNode.getEntry().getSample();
+	}
+
+	public NXinstrument getInstrument() {
+		// TODO: only gets sample from first entry
+		return rootNode.getEntry().getInstrument();
+	}
+
 	private void saveFile(TreeFile nexusTree) throws Exception {
 		// TODO: update project dependency so we can see gda.data.nexus?
 //		NexusFile nexusFile = NexusUtils.createNexusFile(nexusTree.getFilename());
@@ -58,34 +76,50 @@ public class DefaultNexusFileBuilder implements NexusFileBuilder {
 		root.setAttributeFile_name(filePath);
 		// TODO set other attributes: nexus version, hdf5 version, etc
 //		root.setAttributeFile_time(
-		
+
 		NXentryImpl entry = nxObjectFactory.createNXentry();
 		root.setEntry(entry);
-		
-		NXinstrument instrument = nxObjectFactory.createNXinstrument();
-		entry.setInstrument(instrument);
-		
-		NXsample sample = nxObjectFactory.createNXsample();
-		entry.setSample(sample);
-		
+
+		createSkeletonEntry(entry);
+
+		addBaseClassesInstancesForDevices(entry);
+
+		// TODO data group?
+		// TODO other standard groups?
+
+		return root;
+	}
+
+	protected void addBaseClassesInstancesForDevices(NXentryImpl entry) {
+		final NXinstrument instrument = entry.getInstrument();
+		final NXsample sample = entry.getSample();
+
 		for (NxDevice<?> nexusDevice : nexusScan.getDevices()) {
 			final String deviceName = nexusDevice.getName();
-			NXobject baseClassInstance = nexusDevice.createBaseClassInstance();
-			
+			if (deviceName == null || deviceName.isEmpty()) {
+				throw new NullPointerException("Device name must be specified");
+			}
+			NXobject baseClassInstance = nexusDevice.createBaseClassInstance(nxObjectFactory);
 			switch (nexusDevice.getDeviceType()) {
 			case INSTRUMENT:
 				instrument.addGroupNode(deviceName, baseClassInstance);
 				break;
 			case SAMPLE:
-				instrument.addGroupNode(deviceName, baseClassInstance);
+				sample.addGroupNode(deviceName, baseClassInstance);
 				break;
+			default:
+				throw new IllegalArgumentException("Unknown device type " + nexusDevice.getDeviceType());
 			}
 		}
-		
-		// TODO data group?
-		// TODO other standard groups?
-		
-		return root;
+	}
+
+	protected NXinstrument createSkeletonEntry(NXentryImpl entry) {
+		NXinstrument instrument = nxObjectFactory.createNXinstrument();
+		entry.setInstrument(instrument);
+
+		NXsample sample = nxObjectFactory.createNXsample();
+		entry.setSample(sample);
+		return instrument;
 	}
 
 	@Override
@@ -97,6 +131,6 @@ public class DefaultNexusFileBuilder implements NexusFileBuilder {
 	public void setFilePath(String filePath) {
 		this.filePath = filePath;
 	}
-	
+
 
 }
