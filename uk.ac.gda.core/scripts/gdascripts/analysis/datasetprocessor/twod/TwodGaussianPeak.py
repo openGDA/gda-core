@@ -34,14 +34,14 @@ class TwodGaussianPeak(TwodDataSetProcessor):
 		TwodDataSetProcessor.__init__(self, name, labelList, keyxlabel, keyylabel, formatString)
 		self.maxwidth = None
 		
-	def _process(self, ds, xoffset=0, yoffset=0):###dsxaxis, dsyaxis):
+	def _process(self, ds, xoffset=0, yoffset=0, Dataset=DoubleDataset):###dsxaxis, dsyaxis):
 ##		assert(dsyaxis is None)		# STUB
 ##		assert(dsxaxis is None)		# STUB
 		
 		integrator = Integrate2D()
 		dsy, dsx = integrator.value(ds)
-		dsyaxis = DoubleDataset.arange(dsy.shape[0])
-		dsxaxis = DoubleDataset.arange(dsx.shape[0])
+		dsyaxis = Dataset.arange(dsy.shape[0])
+		dsxaxis = Dataset.arange(dsx.shape[0])
 		
 		gaussian = Gaussian(dsyaxis.min(), dsyaxis.max(), dsyaxis.max()-dsyaxis.min(), (dsyaxis.max()-dsyaxis.min())*(dsy.max()-dsy.min()) )
 		gaussian.getParameter(2).setLowerLimit(0)
