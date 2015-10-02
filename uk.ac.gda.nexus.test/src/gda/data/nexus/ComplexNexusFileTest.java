@@ -352,7 +352,7 @@ public class ComplexNexusFileTest extends AbstractNexusFileTest {
 		ShortDataset dataset = new ShortDataset(111, 135, 160);
 		for (int i = 0; i < data.length; i++) {
 			for (int j = 0; j < data.length; j++) {
-				dataset.setItem(data[i][j], i, j);
+				dataset.setItem(data[i][j], 0, i, j);
 			}
 		}
 		dataGroupNode.setDataset("data", dataset);
