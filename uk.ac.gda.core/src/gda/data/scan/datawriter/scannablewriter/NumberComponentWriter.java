@@ -72,7 +72,8 @@ public class NumberComponentWriter extends DefaultComponentWriter {
 		String name = NexusUtils.getName(aPath);
 
 		final int[] makedatadim = makedatadimfordim(dim);
-		ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset(name, Dataset.FLOAT64, makedatadim, makedatadim, null);
+		final int[] initialdims = new int[makedatadim.length];
+		ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset(name, Dataset.FLOAT64, initialdims, makedatadim, null);
 		GroupNode lGroup = file.getGroup(aPath.substring(0, aPath.length() - name.length()), true);
 		data = file.createData(lGroup, lazy);
 
