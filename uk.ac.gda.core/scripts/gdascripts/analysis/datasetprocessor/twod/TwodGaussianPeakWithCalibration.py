@@ -35,8 +35,8 @@ class TwodGaussianPeakWithCalibration(TwodGaussianPeak):
 		self.x_offset = 0.0
 		self.y_offset = 0.0
 
-	def _process(self, ds, xoffset=0, yoffset=0, DataSet=DoubleDataset):
-		background, peakx_raw_pixels, peaky_raw_pixels, topx, topy, fwhmx, fwhmy, fwhmarea = TwodGaussianPeak._process(self, ds, xoffset=xoffset, yoffset=yoffset, DataSet=DataSet)
+	def _process(self, ds, xoffset=0, yoffset=0, Dataset=DoubleDataset):
+		background, peakx_raw_pixels, peaky_raw_pixels, topx, topy, fwhmx, fwhmy, fwhmarea = TwodGaussianPeak._process(self, ds, xoffset=xoffset, yoffset=yoffset, Dataset=Dataset)
 		peakx = peakx_raw_pixels - self.x_offset
 		peaky = peaky_raw_pixels - self.y_offset
 		peakx_mm = peakx * self.x_scalingFactor
