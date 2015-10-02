@@ -23,6 +23,7 @@ package gda.data.nexus;
 import gda.data.nexus.hdf5.NexusFileHDF5;
 import gda.data.nexus.napi.NexusFileNAPI;
 
+import java.util.Arrays;
 import java.util.Iterator;
 
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyWriteableDataset;
@@ -421,4 +422,41 @@ public class NexusUtils {
 		}
 	}
 
+	/**
+	 * Estimate suitable chunking paremeters based on the expected final size of a dataset
+	 *
+	 * @param expectedMaxShape
+	 *            expected final size of the dataset
+	 * @param dataByteSize
+	 *            size of each element in bytes
+	 * @return chunking estimate
+	 */
+	public static int[] estimateChunking(int[] expectedMaxShape, int dataByteSize) {
+		// aim for at most a 1MB chunk
+		final int targetSize = 1024 * 1024;
+		if (expectedMaxShape == null) {
+			throw new NullPointerException("Must provide an expected shape");
+		}
+		for (int d : expectedMaxShape) {
+			if (d <= 0) {
+				throw new IllegalArgumentException("Shape estimation must have dimensions greater than zero");
+			}
+		}
+		int[] chunks = Arrays.copyOf(expectedMaxShape, expectedMaxShape.length);
+		int currentSize = dataByteSize;
+		for (int i : chunks) {
+			currentSize *= i;
+		}
+		int index = 0;
+		while (currentSize > targetSize) {
+			chunks[index] = (int) (Math.round((chunks[index]) / 2.0) + 0.5);
+			index++;
+			index %= chunks.length;
+			currentSize = dataByteSize;
+			for (int i : chunks) {
+				currentSize *= i;
+			}
+		}
+		return chunks;
+	}
 }
