@@ -45,7 +45,7 @@ public class StringComponentWriter extends DefaultComponentWriter {
 	}
 
 	@Override
-	public Collection<SelfCreatingLink> makeComponent(final NexusFile file, GroupNode group, int[] dim, final String path,
+	public Collection<SelfCreatingLink> makeComponent(final NexusFile file, GroupNode group, int[] scanDims, final String path,
 			final String scannableName, final String componentName, final Object pos, final String unit)
 					throws NexusException {
 
@@ -54,10 +54,11 @@ public class StringComponentWriter extends DefaultComponentWriter {
 
 		final String slab = getComponentSlab(pos);
 
-		dim = makedatadimfordim(dim);
+		int[] dim = makedatadimfordim(scanDims);
 
 		ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset(name, Dataset.STRING, dim, null, null);
 		GroupNode lGroup = file.getGroup(aPath.substring(0, aPath.length() - name.length()), true);
+		lazy.setChunking(NexusUtils.estimateChunking(scanDims, 8));
 		DataNode data = file.createData(lGroup, lazy);
 
 		int[] sstart = nulldimfordim(dim);

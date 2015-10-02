@@ -995,7 +995,8 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 				for (String element : inputNames) {
 					// Create the data array (with an unlimited scan
 					// dimension)
-					ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset(element, Dataset.FLOAT64, dataDim, null, null);
+					int[] chunking = NexusUtils.estimateChunking(scanDimensions, 8);
+					ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset(element, Dataset.FLOAT64, dataDim, null, chunking);
 					DataNode data = file.createData(g, lazy);
 
 					// Get a link ID to this data set.
@@ -1346,6 +1347,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 
 			// this can fail if the list of names contains duplicates
 			ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset(extraNames[j], Dataset.FLOAT64, dataDim, null, null);
+			lazy.setChunking(NexusUtils.estimateChunking(scanDimensions, 8));
 			DataNode data = file.createData(group, lazy);
 
 			// Get a link ID to this data set
