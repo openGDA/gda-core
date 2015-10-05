@@ -26,6 +26,7 @@ import java.util.List;
 import uk.ac.gda.beans.exafs.ISampleParameters;
 
 public class B18SampleParameters implements Serializable, ISampleParameters {
+	private static final long serialVersionUID = 7285061621724049474L;
 
 	static public final URL mappingURL = B18SampleParameters.class.getResource("B18ParameterMapping.xml");
 

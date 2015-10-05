@@ -25,6 +25,7 @@ import java.util.List;
 import org.apache.commons.beanutils.BeanUtils;
 
 public class CryostatParameters implements Serializable {
+	private static final long serialVersionUID = -1237848111297463940L;
 	private String loopChoice;
 	private Double tolerance; // temperature deadband (GDA-level concept, this is not in EPICS)
 	private Integer waitTime = 0; // timeout while waiting for heat to reach desired value

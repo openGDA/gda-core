@@ -23,6 +23,7 @@ import java.io.Serializable;
 import org.apache.commons.beanutils.BeanUtils;
 
 public class CryostatSampleDetails implements Serializable {
+	private static final long serialVersionUID = 8260616108202580177L;
 	private Double position = 0.0;
 	private Double finePosition = 0.0;
 	private String sample_name = "";

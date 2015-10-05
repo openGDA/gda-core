@@ -27,7 +27,7 @@ import org.apache.commons.beanutils.BeanUtils;
  *
  */
 public class DetectorGroup implements Serializable {
-
+	private static final long serialVersionUID = -7901297089683824142L;
 	private String name;
 	private String [] detector;
 

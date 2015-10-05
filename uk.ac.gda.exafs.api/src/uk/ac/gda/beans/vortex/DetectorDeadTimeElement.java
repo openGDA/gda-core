@@ -29,6 +29,7 @@ import org.apache.commons.beanutils.BeanUtils;
  * all detector elements at once sometimes.
  */
 public class DetectorDeadTimeElement implements Serializable {
+	private static final long serialVersionUID = 5102273536126939949L;
 
 	static public final URL mappingURL = DetectorDeadTimeElement.class.getResource("XspressMapping.xml");
 

@@ -22,6 +22,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 public class AttenuatorParameters  implements Serializable{
+	private static final long serialVersionUID = 8216501671758607731L;
+
 	public AttenuatorParameters() {
 		this.position = new ArrayList<String>();
 	}

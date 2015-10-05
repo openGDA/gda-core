@@ -23,6 +23,7 @@ import java.io.Serializable;
 import org.apache.commons.beanutils.BeanUtils;
 
 public class CustomXYZParameter  implements Serializable {
+	private static final long serialVersionUID = -4016489674169646458L;
 	private String deviceName;
 	private double value;
 	private double x;

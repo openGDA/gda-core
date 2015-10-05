@@ -18,14 +18,15 @@
 
 package gda.device.detector.countertimer;
 
-import java.util.concurrent.Callable;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import gda.device.DeviceException;
 import gda.device.scannable.PositionCallableProvider;
 
+import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 @Deprecated
 public class CallableTfgXspress2 extends TfgXspress2 implements PositionCallableProvider<Object> {
+	private static final long serialVersionUID = 657534701405273689L;
 
 	AtomicBoolean readingOut = new AtomicBoolean(false);
 	@Override

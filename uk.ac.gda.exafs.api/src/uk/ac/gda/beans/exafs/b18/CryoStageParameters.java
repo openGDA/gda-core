@@ -21,6 +21,7 @@ package uk.ac.gda.beans.exafs.b18;
 import java.io.Serializable;
 
 public class CryoStageParameters  implements Serializable {
+	private static final long serialVersionUID = 6739782741727145010L;
 	double x;
 	double rot;
 

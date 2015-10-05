@@ -34,6 +34,7 @@ import uk.ac.gda.beans.exafs.IDetectorElement;
  * all detector elements at once sometimes.
  */
 public class DetectorElement implements Serializable, IDetectorElement {
+	private static final long serialVersionUID = -3607118505921948915L;
 
 	private List<DetectorROI> regionList;
 

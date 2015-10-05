@@ -18,13 +18,6 @@
 
 package gda.device.detector.xmap;
 
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
@@ -38,6 +31,14 @@ import gda.device.detector.NXDetectorData;
 import gda.device.detector.NexusDetector;
 import gda.device.detector.xmap.util.XmapNexusFileLoader;
 import gda.factory.FactoryException;
+
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.util.CorrectionUtils;
@@ -303,7 +304,7 @@ public class DummyXmapBufferedDetector extends DetectorBase implements BufferedD
 		return null;
 	}
 
-	public boolean isStillWriting(@SuppressWarnings("unused") String fileName)  {
+	public boolean isStillWriting(@SuppressWarnings("unused") String fileName) {
 		currentTime = System.currentTimeMillis();
 		if((currentTime - scanStartTime) <= (long)continuousParameters.getTotalTime() )
 			return true;

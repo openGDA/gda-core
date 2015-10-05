@@ -22,7 +22,8 @@ import java.io.Serializable;
 
 import org.apache.commons.beanutils.BeanUtils;
 
-public class CustomParameter  implements Serializable {
+public class CustomParameter implements Serializable {
+	private static final long serialVersionUID = -9011200324586543142L;
 	private String deviceName;
 	private double value;
 

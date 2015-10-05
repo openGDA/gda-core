@@ -18,16 +18,18 @@
 
 package gda.device.detector.xspress;
 
-import java.util.concurrent.Callable;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
 import gda.device.scannable.PositionCallableProvider;
+
+import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import uk.ac.gda.beans.xspress.XspressDetector;
 
 @Deprecated
 public class CallableXspress extends Xspress2Detector implements XspressDetector, PositionCallableProvider<NexusTreeProvider>  {
+	private static final long serialVersionUID = 8674467307988118579L;
 
 	AtomicBoolean readingOut = new AtomicBoolean(false);
 
