@@ -47,7 +47,7 @@ public class NexusExtractorTest {
 			Assert.fail("TestUtils.getGDALargeTestFilesLocation() returned null - test aborted");
 		}
 	}
-	
+
 	@Before
 	public void setUp() throws Exception {
 		scratchFolder = TestUtils.setUpTest(NexusExtractorTest.class, "setUp", true);
@@ -63,7 +63,7 @@ public class NexusExtractorTest {
 	 * test of NexusExtractor.getNexusGroupData for an SDS and then an attribute The path of the item to get is obtained
 	 * by reading in the tree from file TestFileFolder + "327.nxs" THe value returned should equal the value of the node
 	 * from the tree used to get the path
-	 * 
+	 *
 	 * @throws NexusException
 	 */
 	@Test
@@ -94,12 +94,12 @@ public class NexusExtractorTest {
 	/**
 	 * test of NexusExtractor.getNexusGroupData for an SDS and then an attribute The path of the item to get is given
 	 * explicitly
-	 * 
+	 *
 	 * @throws NexusException
 	 * @throws MalformedURLException
 	 */
 	@Test
-	public void testGetNexusGroupDataURLStringBoolean2() throws NexusException, NexusExtractorException,
+	public void testGetNexusGroupDataURLStringBoolean2() throws NexusException,
 			MalformedURLException {
 		String pathWithClass = "//" + "entry1" + "/" + NexusExtractor.NXEntryClassName + "/" + "EDXD_Element_22" + "/"
 				+ NexusExtractor.NXDataClassName + "/" + "a" + "/" + NexusExtractor.SDSClassName + "/";

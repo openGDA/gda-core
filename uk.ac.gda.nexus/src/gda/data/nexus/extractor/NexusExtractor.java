@@ -309,11 +309,11 @@ final public class NexusExtractor implements INexusDataGetter {
 	 * @param debug
 	 *            true if the file api is to be logged
 	 * @return NexusGroupData
-	 * @throws NexusExtractorException
 	 * @throws NexusException
 	 */
 	static synchronized public NexusGroupData getNexusGroupData(URL source, String nodePathWithClasses, int[] startPos,
-			int[] dims, boolean debug) throws NexusException, NexusExtractorException {
+ int[] dims, boolean debug)
+			throws NexusException {
 		return new SimpleExtractor(source, nodePathWithClasses, startPos, dims, debug).getData();
 	}
 
@@ -321,11 +321,9 @@ final public class NexusExtractor implements INexusDataGetter {
 	 * @param node
 	 * @param readIfNull
 	 * @return the NexusGroupData from a node - reading from the file if possible and requested
-	 * @throws NexusExtractorException
 	 * @throws NexusException
 	 */
-	static public NexusGroupData getNexusGroupDataWithBuffer(INexusTree node, boolean readIfNull)
-			throws NexusException, NexusExtractorException {
+	static public NexusGroupData getNexusGroupDataWithBuffer(INexusTree node, boolean readIfNull) throws NexusException {
 		if ((node.getData() == null || node.getData().getBuffer() == null) && readIfNull) {
 			INexusTree top = node;
 			while (top.getParentNode() != null) {
@@ -366,7 +364,7 @@ final public class NexusExtractor implements INexusDataGetter {
 }
 
 class Group {
-	
+
 	final String name;
 	final String NXclass;
 	final Node parent;
@@ -469,10 +467,8 @@ class SimpleExtractor {
 	 * @param nodePathWithClasses
 	 * @return node with given path
 	 * @throws NexusException
-	 * @throws NexusExtractorException
 	 */
-	public NexusGroupData getData(NexusFile file, String nodePathWithClasses) throws NexusException,
-			NexusExtractorException {
+	public NexusGroupData getData(NexusFile file, String nodePathWithClasses) throws NexusException {
 		String augmentedPath = createAugmentedPath(nodePathWithClasses);
 		String attrName = null;
 		if (augmentedPath.endsWith(NexusExtractor.AttrClassName)) {
@@ -511,7 +507,7 @@ class SimpleExtractor {
 		return NexusGroupData.createFromDataset(lazy.getSlice(slice));
 	}
 
-	protected final NexusGroupData getData() throws NexusException, NexusExtractorException {
+	protected final NexusGroupData getData() throws NexusException {
 		try (NexusFile file = NexusUtils.openNexusFileReadOnly(source.getPath())) {
 			file.setDebug(debug);
 			return getData(file, nodePathWithClasses);
