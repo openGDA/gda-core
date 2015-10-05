@@ -18,22 +18,11 @@
 
 package uk.ac.gda.server.ncd.optimiser;
 
-import static org.junit.Assert.*;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import static org.junit.Assert.assertArrayEquals;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.LazyDataset;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import uk.ac.diamond.scisoft.analysis.io.DataHolder;
-import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 
 public class LadderSampleFinderTest {
 
