@@ -20,7 +20,6 @@ package gda.jython;
 
 import gda.device.DeviceException;
 import gda.device.Scannable;
-import gda.jython.authenticator.UserAuthentication;
 import gda.jython.batoncontrol.ClientDetails;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
@@ -29,7 +28,6 @@ import gda.scan.Scan;
 import gda.scan.ScanDataPoint;
 import gda.scan.ScanEvent;
 import gda.scan.ScanInformation;
-import gda.util.LibGdaCommon;
 
 import java.io.File;
 import java.util.HashMap;
@@ -70,8 +68,10 @@ public class MockJythonServerFacade implements IDefaultScannableProvider, ICurre
 			false, "0-0") };
 	private ClientDetails myDetails;
 	{
-		final String username = UserAuthentication.getUsername();
-		final String fullName = LibGdaCommon.getFullNameOfUser(username);
+		// mock UserAuthentication.getUsername();
+		// mock LibGdaCommon.getFullNameOfUser(username);
+		final String username = "mockusername";
+		final String fullName = "Mock FullNameOfUser";
 		myDetails = new ClientDetails(0, username, fullName, "pc012345", 3, true, "0-0");
 	}
 
