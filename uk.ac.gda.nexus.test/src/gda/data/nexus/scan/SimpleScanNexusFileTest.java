@@ -162,7 +162,7 @@ public class SimpleScanNexusFileTest {
 
 		NXentry entry = rootNode.getEntry();
 		assertNotNull(entry);
-		assertEquals(2, entry.getNumberOfGroupNodes());
+		assertEquals(3, entry.getNumberOfGroupNodes());
 		assertEquals(0, rootNode.getNumberOfDataNodes());
 
 		NXinstrument instrument = entry.getInstrument();
