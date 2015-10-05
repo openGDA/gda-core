@@ -18,8 +18,6 @@
 
 package uk.ac.diamond.tomography.reconstruction.dialogs;
 
-import java.util.Collections;
-
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;

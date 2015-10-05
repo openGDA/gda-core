@@ -514,7 +514,7 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 
 	/**
 	 * Force the GUI control to toggle the right button
-	 * 
+	 *
 	 * @param zoomLevel
 	 */
 	public void setZoom(ZOOM_LEVEL zoomLevel) {
@@ -525,7 +525,7 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 	 * This is called when the "Stream" button is de-selected from the GDA GUI.
 	 */
 	public void stopStream() {
-		if (this != null && !this.isDisposed()) {
+		if (!this.isDisposed()) {
 			this.getDisplay().syncExec(new Runnable() {
 
 				@Override
@@ -968,7 +968,7 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 
 	/**
 	 * Starts the sample single
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	public void startSingle() throws Exception {
@@ -999,7 +999,7 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 	}
 
 	public void setFlatFieldCorrection(final boolean enabled) {
-		if (this != null && !this.isDisposed()) {
+		if (!this.isDisposed()) {
 			this.getDisplay().asyncExec(new Runnable() {
 
 				@Override

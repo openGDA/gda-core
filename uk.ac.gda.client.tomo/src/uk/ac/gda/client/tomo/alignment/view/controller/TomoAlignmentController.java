@@ -168,7 +168,7 @@ public class TomoAlignmentController extends TomoViewController {
 
 	/**
 	 * This method finds in EPICS the ROI1 MJpeg streaming URL.
-	 * 
+	 *
 	 * @return the URL of the MJpeg streamer
 	 * @throws Exception
 	 */
@@ -178,7 +178,7 @@ public class TomoAlignmentController extends TomoViewController {
 
 	/**
 	 * This method finds in EPICS the ROI2 MJpeg streaming URL.
-	 * 
+	 *
 	 * @return the URL of the MJpeg streamer
 	 * @throws Exception
 	 */
@@ -215,7 +215,7 @@ public class TomoAlignmentController extends TomoViewController {
 
 	/**
 	 * Executes the procedure in a new {@link Callable}.
-	 * 
+	 *
 	 * @return {@link Future}
 	 */
 	public Future<Boolean> getStreamUrl() {
@@ -351,7 +351,7 @@ public class TomoAlignmentController extends TomoViewController {
 				updateEnergy(getEnergy());
 
 				updateResolutionPixelSize(getResolutionPixelSize(getModule()));
-				
+
 				updateAcqExposure(getCameraExposureTime());
 
 				Double cameraMotionMotorPosition = getCameraMotionMotorPosition();
@@ -524,7 +524,7 @@ public class TomoAlignmentController extends TomoViewController {
 	/**
 	 * This method invokes a jython command using the {@link JythonServerFacade}. In fact, this is the only one that
 	 * does that.
-	 * 
+	 *
 	 * @param newModule
 	 * @param monitor
 	 * @throws Exception
@@ -1116,7 +1116,7 @@ public class TomoAlignmentController extends TomoViewController {
 		return cameraHandler.getFastPreviewExposureThreshold();
 	}
 
-	public String doAutoFocus(SubMonitor progress, double exposureTime) throws Exception {
+	public String doAutoFocus(SubMonitor progress, double exposureTime) {
 		try {
 			return autofocusController.doAutoFocus(progress, exposureTime);
 		} catch (Exception ex) {

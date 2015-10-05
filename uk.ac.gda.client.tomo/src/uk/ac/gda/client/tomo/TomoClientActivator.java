@@ -73,7 +73,7 @@ public class TomoClientActivator extends AbstractUIPlugin {
 
 	/**
 	 * Returns the shared instance
-	 * 
+	 *
 	 * @return the shared instance
 	 */
 	public static TomoClientActivator getDefault() {
@@ -89,8 +89,8 @@ public class TomoClientActivator extends AbstractUIPlugin {
 	 */
 	public static ImageDescriptor getImageDescriptor(String path) {
 		return imageDescriptorFromPlugin(PLUGIN_ID, path);
-	}	
-	
+	}
+
 	@Override
 	protected void initializeImageRegistry(ImageRegistry reg) {
 		for (String imgPath : ImageConstants.IMAGES) {
@@ -102,7 +102,7 @@ public class TomoClientActivator extends AbstractUIPlugin {
 
 	private EditingDomain editingDomain;
 
-	public EditingDomain getTomoConfigEditingDomain() throws Exception {
+	public EditingDomain getTomoConfigEditingDomain() {
 		if (editingDomain == null) {
 			ComposedAdapterFactory adapterFactory = new ComposedAdapterFactory(
 					ComposedAdapterFactory.Descriptor.Registry.INSTANCE);

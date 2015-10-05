@@ -177,7 +177,7 @@ public abstract class BaseParameterView extends BaseTomoReconPart implements ISe
 		}
 	}
 
-	protected int[] getReducedDataShape() throws Exception {
+	protected int[] getReducedDataShape() {
 		reducedNexusFile = getReducedNexusFile(nexusFile);
 		if (reducedNexusFile.exists()) {
 			ILazyDataset reducedDataset = getDataSetFromFileLocation(reducedNexusFile.getPath());
@@ -190,7 +190,7 @@ public abstract class BaseParameterView extends BaseTomoReconPart implements ISe
 		return reducedDataShape;
 	}
 
-	private File getReducedNexusFile(IFile nexusFile) throws Exception {
+	private File getReducedNexusFile(IFile nexusFile) {
 		File reducedNexusFile = ReconUtil.getReducedNexusFile(nexusFile.getLocation().toString());
 		if (!reducedNexusFile.exists()) {
 			createReducedNexusFile(nexusFile.getLocation().toOSString(), reducedNexusFile.getPath());
@@ -198,8 +198,7 @@ public abstract class BaseParameterView extends BaseTomoReconPart implements ISe
 		return reducedNexusFile;
 	}
 
-	private void createReducedNexusFile(String actualNexusFileLocation, String outputNexusFileLocation)
-			throws Exception {
+	private void createReducedNexusFile(String actualNexusFileLocation, String outputNexusFileLocation) {
 		URL compressNxsURL = null;
 		try {
 			String compressNxsUrlString = String.format(COMPRESS_NXS_URL_FORMAT, Activator.PLUGIN_ID);
@@ -370,7 +369,7 @@ public abstract class BaseParameterView extends BaseTomoReconPart implements ISe
 		return defaultSettingFile;
 	}
 
-	protected void runCommand(final String jobName, final String command) throws Exception {
+	protected void runCommand(final String jobName, final String command) {
 		Job job = new Job(jobName) {
 			@Override
 			public IStatus run(IProgressMonitor monitor) {

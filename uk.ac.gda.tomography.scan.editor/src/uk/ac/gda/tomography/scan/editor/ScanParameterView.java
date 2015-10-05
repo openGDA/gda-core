@@ -42,7 +42,6 @@ import uk.ac.gda.client.CommandQueueViewFactory;
 import uk.ac.gda.tomography.scan.Parameters;
 import uk.ac.gda.tomography.scan.ScanFactory;
 import uk.ac.gda.tomography.scan.presentation.ParametersComposite;
-import uk.ac.gda.tomography.scan.presentation.ScanEditorPlugin;
 import uk.ac.gda.tomography.scan.provider.ScanItemProviderAdapterFactory;
 
 public class ScanParameterView extends ViewPart {

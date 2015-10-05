@@ -6,8 +6,6 @@
  */
 package uk.ac.diamond.tomography.reconstruction.parameters.hm;
 
-import java.math.BigDecimal;
-
 import org.eclipse.emf.ecore.EObject;
 
 /**

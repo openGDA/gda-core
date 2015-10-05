@@ -451,7 +451,7 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 			tomoAlignmentView.getLeftPanelComposite().deSelectSaturationButton();
 			tomoAlignmentView.disableCameraControls();
 
-			tomoAlignmentView.getLeftPanelComposite().stopStream(); 
+			tomoAlignmentView.getLeftPanelComposite().stopStream();
 			final double steppedAcqTime = tomoAlignmentView.getLeftPanelComposite().getSampleExposureTime();
 
 			ACTIVE_WORKBENCH_WINDOW.run(true, true, new IRunnableWithProgress() {
@@ -486,7 +486,7 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 							logger.debug("Sleeping for 5 sec to allow rsync to copy images");
 							//logger.debug("Camera distance changed to {}", cameraDistance);
 							Sleep.sleep(5*1000);
-							
+
 							// Loading the first image
 							img = new Image(tomoAlignmentView.getLeftWindowImageViewer().getDisplay(),
 									firstImageLocation);
@@ -1247,7 +1247,7 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	private void rotationCompleted() {
 		if (tomoAlignmentView.getTomoControlComposite() != null
@@ -1266,7 +1266,7 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 	 */
 	private CrossWireMouseListener crossWireMouseListener = new CrossWireMouseListener();
 
-	private void centringStopped() throws Exception {
+	private void centringStopped() {
 		tomoAlignmentView.enableLeftPanelControls();
 		tomoAlignmentView.getHistogramAdjuster().setOverlayImageData(null);
 		tomoAlignmentView.getLeftWindowImageViewer().removeOverlayImage();

@@ -140,7 +140,7 @@ public class FixedImageViewerComposite extends Composite {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	private SliderMidpointListener sliderMidpointListener = new SliderMidpointListener() {
 
@@ -190,7 +190,7 @@ public class FixedImageViewerComposite extends Composite {
 
 	/**
 	 * Adds a zoom rectangle listener to the list of listeners.
-	 * 
+	 *
 	 * @param zRL
 	 */
 	public void addZoomRectListener(ZoomRectangleListener zRL) {
@@ -199,7 +199,7 @@ public class FixedImageViewerComposite extends Composite {
 
 	/**
 	 * Remove the specified zoom rectangle listener from the list of listeners.
-	 * 
+	 *
 	 * @param zRL
 	 */
 	public void removeZoomRectListener(ZoomRectangleListener zRL) {
@@ -340,7 +340,7 @@ public class FixedImageViewerComposite extends Composite {
 		fig.setLayoutManager(flowLayout);
 		/**
 		 * Di-sected the light weight system to get it tool-tip helper so that calls to updateTooltips can be called
-		 * 
+		 *
 		 * @see
 		 */
 		lightWeightSystem = new LightweightSystem(canvas) {
@@ -450,7 +450,7 @@ public class FixedImageViewerComposite extends Composite {
 
 	/**
 	 * Show the zoom rectangle figure.
-	 * 
+	 *
 	 * @param dimension
 	 */
 	public void showZoomRectangleFigure(Dimension dimension) {
@@ -499,7 +499,7 @@ public class FixedImageViewerComposite extends Composite {
 
 	/**
 	 * Returns the bounds of the drawn image
-	 * 
+	 *
 	 * @return Point image bounds
 	 */
 	public Rectangle getImageBounds() {
@@ -508,12 +508,11 @@ public class FixedImageViewerComposite extends Composite {
 
 	/**
 	 * Reload image from a file This method must be called from the UI thread
-	 * 
+	 *
 	 * @param filename
 	 *            image file
-	 * @throws Exception
 	 */
-	public void loadImage(String filename) throws Exception {
+	public void loadImage(String filename) {
 		if (mainImage != null && !mainImage.isDisposed()) {
 			mainImage.dispose();
 		}
@@ -531,12 +530,11 @@ public class FixedImageViewerComposite extends Composite {
 
 	/**
 	 * Reload image from a provided ImageData
-	 * 
+	 *
 	 * @param imageDataIn
 	 *            ImageData
-	 * @throws Exception
 	 */
-	public void loadMainImage(final ImageData imageDataIn) throws Exception {
+	public void loadMainImage(final ImageData imageDataIn) {
 		try {
 			if (!canvas.isDisposed()) {
 				Image newImage = null;
@@ -560,12 +558,11 @@ public class FixedImageViewerComposite extends Composite {
 
 	/**
 	 * Reload image from a provided ImageData
-	 * 
+	 *
 	 * @param imageDataIn
 	 *            ImageData
-	 * @throws Exception
 	 */
-	public void loadOverlayImage(final ImageData imageDataIn) throws Exception {
+	public void loadOverlayImage(final ImageData imageDataIn) {
 		try {
 			if (!canvas.isDisposed()) {
 				if (imageDataIn == null) {
@@ -608,7 +605,7 @@ public class FixedImageViewerComposite extends Composite {
 
 	/**
 	 * Returns the underlying canvas of this viewer
-	 * 
+	 *
 	 * @return canvas
 	 */
 	public Canvas getCanvas() {
@@ -624,7 +621,7 @@ public class FixedImageViewerComposite extends Composite {
 
 	/**
 	 * Returns the imagedata of the last displayed image in the viewer
-	 * 
+	 *
 	 * @return ImageData
 	 */
 	public ImageData getImageData() {
@@ -634,7 +631,7 @@ public class FixedImageViewerComposite extends Composite {
 	/**
 	 * Returns the IFigure of the image being drawn. The figure has an XYLayout and the layout manager should not be
 	 * changed.
-	 * 
+	 *
 	 * @return top IFigure
 	 */
 	public IFigure getTopFigure() {
@@ -645,10 +642,7 @@ public class FixedImageViewerComposite extends Composite {
 		overlayImgFig.setMoveAxis(moveAxis);
 	}
 
-	/**
-	 * @throws Exception
-	 */
-	public void removeOverlayImage() throws Exception {
+	public void removeOverlayImage() {
 
 		loadOverlayImage(null);
 		if (topFig.getChildren().contains(overlayImgFig)) {

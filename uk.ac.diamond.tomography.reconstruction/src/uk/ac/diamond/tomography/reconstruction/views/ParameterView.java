@@ -17,6 +17,9 @@
  */
 package uk.ac.diamond.tomography.reconstruction.views;
 
+import gda.util.OSCommandRunner;
+import gda.util.OSCommandRunner.LOGOPTION;
+
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -93,8 +96,6 @@ import org.eclipse.ui.part.PageBook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.util.OSCommandRunner;
-import gda.util.OSCommandRunner.LOGOPTION;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
 import uk.ac.diamond.scisoft.analysis.io.TIFFImageLoader;
@@ -629,7 +630,7 @@ public class ParameterView extends BaseParameterView implements ISelectionListen
 		}
 	}
 
-	private void runHdfReconstruction(boolean quick) throws Exception {
+	private void runHdfReconstruction(boolean quick) {
 		File tomoDoShScript = null;
 
 		int[] startEnd = null;
