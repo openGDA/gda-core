@@ -314,9 +314,9 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 		
 		initialisation();
 		// register as selection provider to the SelectionService
-		getViewSite().setSelectionProvider(this);
+//		getViewSite().setSelectionProvider(this);
 		// register as selection listener of sample editor if exist
-		getViewSite().getWorkbenchWindow().getSelectionService().addSelectionListener(LDEExperimentsEditor.ID, selectionListener);
+		getViewSite().getWorkbenchWindow().getSelectionService().addSelectionListener(selectionListener);
 		// Create the help context id for the viewer's control
 //		PlatformUI.getWorkbench().getHelpSystem().setHelp(childrenTableViewer.getControl(), "org.opengda.lde.ui.views.childerntableview");
 		createActions();
@@ -367,10 +367,11 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 
 			for (IPropertyDescriptor descriptor : propertyDescriptors) {
 				TableColumn column = new TableColumn(tableViewer.getTable(), SWT.None);
-				column.setResizable(true);
-				column.setText(descriptor.getId().toString());
+				column.setText(descriptor.getDisplayName());
 				column.setToolTipText(descriptor.getDescription());
-				column.setWidth(200);
+				column.setWidth(100);
+				column.setMoveable(true);
+				column.setResizable(true);
 				TableViewerColumn tableViewerColumn = new TableViewerColumn(tableViewer, column);
 				tableViewerColumn.setLabelProvider(new PropertyColumnLabelProvider(adapterFactoryContentProvider, descriptor.getId()));
 				tableViewerColumn.setEditingSupport(new PropertyEditingSupport(tableViewer, adapterFactoryContentProvider,descriptor.getId()));			

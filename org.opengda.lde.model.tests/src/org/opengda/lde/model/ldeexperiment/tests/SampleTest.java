@@ -31,12 +31,6 @@ import org.opengda.lde.model.ldeexperiment.Sample;
  * <!-- begin-user-doc -->
  * A test case for the model object '<em><b>Sample</b></em>'.
  * <!-- end-user-doc -->
- * <p>
- * The following features are tested:
- * <ul>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getStatus() <em>Status</em>}</li>
- * </ul>
- * </p>
  * @generated
  */
 public class SampleTest extends TestCase {
@@ -108,58 +102,6 @@ public class SampleTest extends TestCase {
 	@Override
 	protected void tearDown() throws Exception {
 		setFixture(null);
-	}
-
-	/**
-	 * Tests the '{@link org.opengda.lde.model.ldeexperiment.Sample#getStatus() <em>Status</em>}' feature getter.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see org.opengda.lde.model.ldeexperiment.Sample#getStatus()
-	 * @generated
-	 */
-	public void testGetStatus() {
-		// TODO: implement this feature getter test method
-		// Ensure that you remove @generated or mark it @generated NOT
-		fail();
-	}
-
-	/**
-	 * Tests the '{@link org.opengda.lde.model.ldeexperiment.Sample#setStatus(org.opengda.lde.model.ldeexperiment.STATUS) <em>Status</em>}' feature setter.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see org.opengda.lde.model.ldeexperiment.Sample#setStatus(org.opengda.lde.model.ldeexperiment.STATUS)
-	 * @generated
-	 */
-	public void testSetStatus() {
-		// TODO: implement this feature setter test method
-		// Ensure that you remove @generated or mark it @generated NOT
-		fail();
-	}
-
-	/**
-	 * Tests the '{@link org.opengda.lde.model.ldeexperiment.Sample#unsetStatus() <em>unsetStatus()</em>}' method.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see org.opengda.lde.model.ldeexperiment.Sample#unsetStatus()
-	 * @generated
-	 */
-	public void testUnsetStatus() {
-		// TODO: implement this test method
-		// Ensure that you remove @generated or mark it @generated NOT
-		fail();
-	}
-
-	/**
-	 * Tests the '{@link org.opengda.lde.model.ldeexperiment.Sample#isSetStatus() <em>isSetStatus()</em>}' method.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see org.opengda.lde.model.ldeexperiment.Sample#isSetStatus()
-	 * @generated
-	 */
-	public void testIsSetStatus() {
-		// TODO: implement this test method
-		// Ensure that you remove @generated or mark it @generated NOT
-		fail();
 	}
 
 } //SampleTest

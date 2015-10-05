@@ -53,7 +53,6 @@ public class LDEExperimentsTests extends TestSuite {
 		suite.addTestSuite(ExperimentTest.class);
 		suite.addTestSuite(StageTest.class);
 		suite.addTestSuite(CellTest.class);
-		suite.addTestSuite(SampleTest.class);
 		return suite;
 	}
 

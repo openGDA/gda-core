@@ -55,7 +55,7 @@ Package ldeexperiment <http://www.opengda.org/LDEExperiments>
 
   Class Sample
     Reference cell : Cell<<1..1>>
-    Attribute /status : STATUS
+    Attribute status : STATUS
     Attribute active : EBoolean
     Attribute name : EString
     Attribute sampleID : EString

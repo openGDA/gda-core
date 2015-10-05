@@ -92,7 +92,7 @@
     </genClasses>
     <genClasses ecoreClass="sampledefinition.ecore#//Sample">
       <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference sampledefinition.ecore#//Sample/cell"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/status"/>
+      <genFeatures property="None" createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/status"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/active"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/name"/>
       <genFeatures property="None" createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/sampleID"/>

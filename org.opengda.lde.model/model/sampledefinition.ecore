@@ -119,7 +119,7 @@
     <eStructuralFeatures xsi:type="ecore:EReference" name="cell" lowerBound="1" eType="#//Cell"
         eOpposite="#//Cell/sample"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="status" eType="#//STATUS"
-        transient="true" defaultValueLiteral="READY" unsettable="true" derived="true"/>
+        transient="true" defaultValueLiteral="READY" unsettable="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="active" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"
         defaultValueLiteral="false"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>

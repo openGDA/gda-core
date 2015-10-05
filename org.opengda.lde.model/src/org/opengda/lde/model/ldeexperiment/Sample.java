@@ -125,7 +125,7 @@ public interface Sample extends EObject {
 	 * @see #unsetStatus()
 	 * @see #setStatus(STATUS)
 	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getSample_Status()
-	 * @model default="READY" unsettable="true" transient="true" derived="true"
+	 * @model default="READY" unsettable="true" transient="true"
 	 * @generated
 	 */
 	STATUS getStatus();
