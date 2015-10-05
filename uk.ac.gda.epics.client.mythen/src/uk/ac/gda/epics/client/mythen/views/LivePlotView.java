@@ -3,8 +3,6 @@ package uk.ac.gda.epics.client.mythen.views;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
@@ -33,7 +31,6 @@ public class LivePlotView extends ViewPart {
 	
 	private LivePlotComposite plotComposite;
 
-	private EpicsDetectorProgressMonitor progressMonitor;
 	private EpicsDoubleDataListener exposureTimeListener;
 	private EpicsDoubleDataListener timeRemainingListener;
 	private EpicsEnumPVScannable stopScannable;
