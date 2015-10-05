@@ -19,8 +19,6 @@
 
 package gda.device;
 
-import java.io.IOException;
-
 /**
  * An interface for a distributed PEEM Uview Detector class
  */

@@ -22,7 +22,6 @@ package gda.device.detector.uviewnew;
 // CORBA Studbs
 // import java.awt.image.*;
 import gda.device.DeviceException;
-import gda.device.UViewNew;
 import gda.device.detector.uviewnew.UViewController.GrayAdjustment;
 import gda.device.detector.uviewnew.UViewController.ImageData;
 import gda.device.detector.uviewnew.UViewController.ImageFile;

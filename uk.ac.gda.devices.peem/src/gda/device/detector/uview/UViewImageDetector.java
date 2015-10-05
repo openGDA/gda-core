@@ -23,7 +23,6 @@ import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.UView;
 import gda.device.detector.DetectorBase;
-import gda.device.detector.areadetector.EpicsAreaDetector;
 
 import java.awt.Rectangle;
 import java.io.IOException;
