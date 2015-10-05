@@ -19,6 +19,7 @@ Require-Bundle: org.eclipse.core.runtime,
 Export-Package: gda.data.nexus,
  gda.data.nexus.extractor,
  gda.data.nexus.napi,
+ gda.data.nexus.scan,
  gda.data.nexus.tree
 Bundle-ClassPath: .,
  jars/jnexus.jar

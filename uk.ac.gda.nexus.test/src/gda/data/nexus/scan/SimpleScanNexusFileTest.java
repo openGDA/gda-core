@@ -26,6 +26,7 @@ import gda.util.TestUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.dawnsci.analysis.api.dataset.ILazyWriteableDataset;
 import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.analysis.dataset.impl.StringDataset;
@@ -33,7 +34,6 @@ import org.eclipse.dawnsci.nexus.NXbeam;
 import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NXentry;
 import org.eclipse.dawnsci.nexus.NXinstrument;
-import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.NXroot;
 import org.eclipse.dawnsci.nexus.NXsample;
 import org.eclipse.dawnsci.nexus.impl.NXbeamImpl;
@@ -44,22 +44,7 @@ import org.junit.Test;
 
 public class SimpleScanNexusFileTest {
 
-	public class TestNexusScan implements NexusScan {
-
-		private List<NxDevice<?>> devices = new ArrayList<NxDevice<?>>();
-
-		public void addDevice(NxDevice<? extends NXobject> device) {
-			devices.add(device);
-		}
-
-		@Override
-		public List<NxDevice<? extends NXobject>> getDevices() {
-			return devices;
-		}
-
-	}
-
-	public class TestDetector implements NxDevice<NXdetector> {
+	public class TestDetector implements NexusDevice<NXdetector> {
 
 		@Override
 		public Class<NXdetector> getNexusBaseClass() {
@@ -86,9 +71,14 @@ public class SimpleScanNexusFileTest {
 			return "analyser";
 		}
 
+		@Override
+		public ILazyWriteableDataset getDataset() {
+			return null;
+		}
+
 	}
 
-	public class TestBeam implements NxDevice<NXbeam> {
+	public class TestBeam implements NexusDevice<NXbeam> {
 
 		@Override
 		public Class<NXbeam> getNexusBaseClass() {
@@ -105,7 +95,7 @@ public class SimpleScanNexusFileTest {
 		}
 
 		@Override
-		public gda.data.nexus.scan.NxDevice.DeviceType getDeviceType() {
+		public gda.data.nexus.scan.NexusDevice.DeviceType getDeviceType() {
 			return DeviceType.SAMPLE;
 		}
 
@@ -114,9 +104,14 @@ public class SimpleScanNexusFileTest {
 			return "beam";
 		}
 
+		@Override
+		public ILazyWriteableDataset getDataset() {
+			return null;
+		}
+
 	}
 
-	private static String FILE_NAME = "nexusTestFile.nx5";
+	private static final String FILE_NAME = "nexusTestFile.nx5";
 
 	private static String testScratchDirectoryName;
 
@@ -132,13 +127,13 @@ public class SimpleScanNexusFileTest {
 	@Test
 	public void testNexusScan() throws Exception {
 		// setup the scan
-		final TestNexusScan nexusScan = new TestNexusScan();
-		nexusScan.addDevice(new TestDetector());
-		nexusScan.addDevice(new TestBeam());
+		final List<NexusDevice<?>> devices = new ArrayList<>();
+		devices.add(new TestDetector());
+		devices.add(new TestBeam());
 
 		// setup and create the nexus file builder
 		final DefaultNexusFileBuilder nexusFileBuilder = new DefaultNexusFileBuilder();
-		nexusFileBuilder.setNexusScan(nexusScan);
+		nexusFileBuilder.setNexusDevices(devices);
 		nexusFileBuilder.setFilePath(filePath);
 		nexusFileBuilder.buildNexusFile();
 
@@ -162,7 +157,7 @@ public class SimpleScanNexusFileTest {
 
 		NXentry entry = rootNode.getEntry();
 		assertNotNull(entry);
-		assertEquals(2, entry.getNumberOfGroupNodes());
+		assertEquals(3, entry.getNumberOfGroupNodes());
 		assertEquals(0, rootNode.getNumberOfDataNodes());
 
 		NXinstrument instrument = entry.getInstrument();

@@ -1,5 +1,6 @@
 package gda.data.nexus.scan;
 
+import org.eclipse.dawnsci.analysis.api.dataset.ILazyWriteableDataset;
 import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.impl.NXobjectFactory;
 
@@ -9,11 +10,11 @@ import org.eclipse.dawnsci.nexus.impl.NXobjectFactory;
  *
  * @param <D> the NeXus bass class for the device
  */
-public interface NxDevice<D extends NXobject> {
+public interface NexusDevice<D extends NXobject> {
 
 	/**
-	 * Enumeration of device types. 
-	 * 
+	 * Enumeration of device types.
+	 *
 	 */
 	public enum DeviceType {
 		INSTRUMENT, SAMPLE
@@ -30,7 +31,7 @@ public interface NxDevice<D extends NXobject> {
 
 	/**
 	 * Returns a new instance of the appropriate NeXus base class for this device.
-	 * 
+	 *
 	 * @param nxObjectFactory
 	 *            object factory to use to create instances of NeXus base classes
 	 * @return new instance of NeXus base class
@@ -47,11 +48,13 @@ public interface NxDevice<D extends NXobject> {
 
 	/**
 	 * Return the name of the device, cannot be <code>null</code> or empty.
-	 * 
+	 *
 	 * TODO: maybe if this is null or empty we use a default name based on the class,
 	 * e.g. for an NXdetector we use 'detector'
 	 * @return device name
 	 */
 	public String getName();
+
+	public ILazyWriteableDataset getDataset();
 
 }

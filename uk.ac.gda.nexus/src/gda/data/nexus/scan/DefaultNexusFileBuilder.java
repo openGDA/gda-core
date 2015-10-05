@@ -1,5 +1,7 @@
 package gda.data.nexus.scan;
 
+import java.util.List;
+
 import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
 import org.eclipse.dawnsci.analysis.tree.impl.TreeFileImpl;
 import org.eclipse.dawnsci.nexus.NXdata;
@@ -16,7 +18,7 @@ public class DefaultNexusFileBuilder implements NexusFileBuilder {
 
 	private NXobjectFactory nxObjectFactory = new NXobjectFactory();
 
-	private NexusScan nexusScan;
+	private List<NexusDevice<?>> nexusDevices = null;
 
 	private String filePath;
 
@@ -27,18 +29,13 @@ public class DefaultNexusFileBuilder implements NexusFileBuilder {
 	public DefaultNexusFileBuilder() {
 	}
 
-	public DefaultNexusFileBuilder(final NexusScan nexusScan) {
-		// TODO: do we prefer a setter or a constructor?
-		this.nexusScan = nexusScan;
-	}
-
 	@Override
 	public TreeFile buildNexusFile() {
-		if (nexusScan == null) {
-			throw new IllegalStateException("Nexus scan not set");
-		}
 		if (filePath == null) {
 			throw new IllegalStateException("Nexus path not set");
+		}
+		if (nexusDevices == null || nexusDevices.isEmpty()) {
+			throw new IllegalStateException("No nexus devices set");
 		}
 
 		treeFile = nxObjectFactory.createTreeFile(filePath);
@@ -95,7 +92,7 @@ public class DefaultNexusFileBuilder implements NexusFileBuilder {
 		final NXinstrument instrument = entry.getInstrument();
 		final NXsample sample = entry.getSample();
 
-		for (NxDevice<?> nexusDevice : nexusScan.getDevices()) {
+		for (NexusDevice<?> nexusDevice : nexusDevices) {
 			final String deviceName = nexusDevice.getName();
 			if (deviceName == null || deviceName.isEmpty()) {
 				throw new NullPointerException("Device name must be specified");
@@ -129,8 +126,8 @@ public class DefaultNexusFileBuilder implements NexusFileBuilder {
 	}
 
 	@Override
-	public void setNexusScan(NexusScan nexusScan) {
-		this.nexusScan = nexusScan;
+	public void setNexusDevices(List<NexusDevice<?>> nexusDevices) {
+		this.nexusDevices = nexusDevices;
 	}
 
 	@Override
