@@ -341,7 +341,7 @@ public class ColourSliderComposite extends Composite {
 		return getCountForPixel(topSliderBounds.y + topSliderBounds.height);
 	}
 
-	public static void main(String[] args) throws InterruptedException {
+	public static void main(String[] args) {
 		final Display display = new Display();
 		final Shell shell = new Shell(display, SWT.SHELL_TRIM);
 		shell.setBounds(new org.eclipse.swt.graphics.Rectangle(0, 0, 100, 800));
