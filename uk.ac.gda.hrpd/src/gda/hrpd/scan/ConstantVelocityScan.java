@@ -34,14 +34,9 @@ import gda.device.monitor.IonChamberBeamMonitor;
 import gda.factory.Finder;
 import gda.hrpd.data.MacDataProcessing;
 import gda.hrpd.data.MacDataWriter;
-import gda.jython.Jython;
-import gda.jython.JythonServerFacade;
 import gda.scan.EpicsTrajectoryScanController;
 import gda.scan.Scan;
 import gda.scan.Trajectory;
-import gda.scan.Scan.ScanStatus;
-import gov.aps.jca.CAException;
-import gov.aps.jca.TimeoutException;
 
 import java.io.BufferedReader;
 import java.io.IOException;

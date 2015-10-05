@@ -8,7 +8,6 @@ import java.util.List;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.progress.IProgressService;
@@ -74,8 +73,6 @@ public class LivePlotView extends ViewPart {
 	private int highDataBound;
 	
 	private LivePlotComposite plotComposite;
-
-	private EpicsProcessProgressMonitor progressMonitor;
 
 	private EpicsIntegerDataListener totalWorkListener;
 	private EpicsIntegerDataListener workListener;

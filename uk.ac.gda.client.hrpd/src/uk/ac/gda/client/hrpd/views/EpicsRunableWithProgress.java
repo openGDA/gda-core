@@ -19,7 +19,6 @@
 package uk.ac.gda.client.hrpd.views;
 
 import gda.device.DeviceException;
-import gda.device.scannable.EpicsScannable;
 
 import java.lang.reflect.InvocationTargetException;
 

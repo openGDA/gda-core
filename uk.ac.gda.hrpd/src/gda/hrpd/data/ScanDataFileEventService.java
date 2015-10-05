@@ -30,36 +30,35 @@ import java.util.List;
  * This class is used to minimise the number of runnables being added to the stack
  * to process scan data points. It has reduced the listeners to a client side list
  * which is processes as one Runnable.
- * 
+ *
  * It is also required as the graph may not have been initialised when a scan is run.
- * This class is always listening however and if a listener adds themselves later, 
+ * This class is always listening however and if a listener adds themselves later,
  * they are updated with all points instead of just the latest.
- * 
- * It currently keeps the ScanDataPoints in memory. 
+ *
+ * It currently keeps the ScanDataPoints in memory.
  */
 public class ScanDataFileEventService {
 
 	private static ScanDataFileEventService staticInstance;
-	
+
 	/**
 	 * @return ScanDataPointUtils
-	 * @throws Exception 
 	 */
-	public static ScanDataFileEventService getInstance() throws Exception {
+	public static ScanDataFileEventService getInstance() {
 		if (staticInstance==null) staticInstance = new ScanDataFileEventService();
 		return staticInstance;
 	}
-	
+
 	private List<ScanDataFile> currentDataFiles;
-	
+
 	/**
-	 * Called once to add a listener for scan data points. This also means that the 
+	 * Called once to add a listener for scan data points. This also means that the
 	 * scan data is built up even if the UI as not been initialised.
 	 */
-	private ScanDataFileEventService() throws Exception {
-		
-		currentDataFiles = new ArrayList<ScanDataFile>(89); 
-		
+	private ScanDataFileEventService() {
+
+		currentDataFiles = new ArrayList<ScanDataFile>(89);
+
 		//JythonServerFacade.getCurrentInstance().addIScanDataFileObserver(new IScanDataFileObserver() {
 //			@Override
 //			public String getName() {
@@ -72,7 +71,7 @@ public class ScanDataFileEventService {
 //					public void run() {
 //						if (!(info instanceof JythonServerStatus)  &&
 //							    !(info instanceof ScanDataFile)) return;
-//							
+//
 //						if (info instanceof JythonServerStatus) {
 //							final JythonServerStatus status = (JythonServerStatus)info;
 //							if (status.scanStatus == Jython.IDLE) {
@@ -82,7 +81,7 @@ public class ScanDataFileEventService {
 //							} else {
 //								fireScanStarted();
 //							}
-//							
+//
 //						} else if (info instanceof ScanDataFile) {
 //							currentDataFiles.add((ScanDataFile)info);
 //							fireScanDataFile(new ScanDataFileEvent(currentDataFiles, (ScanDataFile)info));
@@ -96,7 +95,7 @@ public class ScanDataFileEventService {
 
 	protected Collection<ScanPlotListener> listeners;
 	protected boolean running = false;
-	
+
 	/**
 	 * @param l
 	 */
@@ -104,7 +103,7 @@ public class ScanDataFileEventService {
 		if (listeners==null) listeners = new ArrayList<ScanPlotListener>(3);
 		listeners.add(l);
 	}
-	
+
 	protected void fireScanPaused() {
 		for (ScanPlotListener l : listeners) l.scanPaused();
 	}
@@ -119,7 +118,7 @@ public class ScanDataFileEventService {
 		running = true;
 		for (ScanPlotListener l : listeners) l.scanStarted();
 	}
-	
+
 	protected void fireScanDataFile(ScanDataFileEvent e) {
 		for (ScanPlotListener l : listeners) l.scanDataFileChanged(e);
 	}
@@ -132,7 +131,7 @@ public class ScanDataFileEventService {
 	}
 
 	/**
-	 * 
+	 *
 	 * @return Returns the currentDataPoints.
 	 */
 	public List<ScanDataFile> getCurrentDataFiles() {

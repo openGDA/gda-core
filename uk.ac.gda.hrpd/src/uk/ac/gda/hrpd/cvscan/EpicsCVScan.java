@@ -39,7 +39,6 @@ import gov.aps.jca.event.MonitorListener;
 import gov.aps.jca.event.PutEvent;
 import gov.aps.jca.event.PutListener;
 
-import java.text.MessageFormat;
 import java.util.Vector;
 
 import org.slf4j.Logger;

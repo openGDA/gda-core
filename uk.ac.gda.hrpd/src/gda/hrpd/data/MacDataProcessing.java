@@ -25,7 +25,6 @@ import gda.analysis.io.MACLoader;
 import gda.configuration.properties.LocalProperties;
 import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerFacade;
-import gda.scan.ScanBase;
 
 import java.io.File;
 import java.io.IOException;

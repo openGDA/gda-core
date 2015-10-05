@@ -11,18 +11,25 @@
 
 package gda.hrpd.data;
 
-import java.io.IOException;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.hssf.usermodel.HSSFDataFormat;
+import org.apache.poi.hssf.usermodel.HSSFFont;
+import org.apache.poi.hssf.usermodel.HSSFRichTextString;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.hssf.util.Region;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
-import org.apache.poi.hssf.usermodel.*;
-import org.apache.poi.hssf.util.*;
 
 /**
  * File for HSSF testing/examples THIS IS NOT THE MAIN HSSF FILE!! This is a util for testing functionality. It does
  * contain sample API usage that may be educational to regular API users.
- * 
+ *
  * @see #main
  * @author Andrew Oliver (acoliver at apache dot org)
  */
@@ -35,7 +42,7 @@ public class HSSF {
 	/**
 	 * Constructor HSSF - creates an HSSFStream from an InputStream. The HSSFStream reads in the records allowing
 	 * modification.
-	 * 
+	 *
 	 * @param filename
 	 * @exception IOException
 	 */
@@ -51,7 +58,7 @@ public class HSSF {
 
 	/**
 	 * Constructor HSSF - given a filename this outputs a sample sheet with just a set of rows/cells.
-	 * 
+	 *
 	 * @param filename
 	 * @param write
 	 * @exception IOException
@@ -62,7 +69,7 @@ public class HSSF {
 		FileOutputStream out = new FileOutputStream(filename);
 		HSSFWorkbook wb = new HSSFWorkbook();
 		HSSFSheet s = wb.createSheet();
-		HSSFRow r = null;
+		HSSFRow r;
 		HSSFCell c = null;
 		HSSFCellStyle cs = wb.createCellStyle();
 		HSSFCellStyle cs2 = wb.createCellStyle();
@@ -132,7 +139,7 @@ public class HSSF {
 
 	/**
 	 * Constructor HSSF - takes in file - attempts to read it then reconstruct it
-	 * 
+	 *
 	 * @param infile
 	 * @param outfile
 	 * @param write
@@ -157,7 +164,7 @@ public class HSSF {
 	 * write) and the third is "modify1", attempts to read in the spreadsheet, deletes rows 0-24, 74-99. Changes cell at
 	 * row 39, col 3 to "MODIFIED CELL" then writes it out. Hence this is "modify test 1". If you take the output from
 	 * the write test, you'll have a valid scenario.
-	 * 
+	 *
 	 * @param args
 	 */
 

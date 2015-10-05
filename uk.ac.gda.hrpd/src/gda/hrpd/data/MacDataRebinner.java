@@ -19,25 +19,23 @@
 
 package gda.hrpd.data;
 
-import java.io.File;
-import java.io.IOException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.configuration.properties.LocalProperties;
 import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerFacade;
 import gda.observable.IObservable;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
-import gda.scan.ScanBase;
+
+import java.io.File;
+import java.io.IOException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MacDataRebinner implements IObservable, Runnable {
 	
 	private static final Logger logger = LoggerFactory.getLogger(MacDataRebinner.class);
 	private ObservableComponent observers = new ObservableComponent();
-	private boolean rebinCompleted = false;
 	private File inputDataFile;
 	private File outputDataFile;
 
