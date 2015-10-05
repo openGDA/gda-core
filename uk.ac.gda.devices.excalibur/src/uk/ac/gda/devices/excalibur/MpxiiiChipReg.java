@@ -18,8 +18,6 @@
 
 package uk.ac.gda.devices.excalibur;
 
-import gov.aps.jca.CAException;
-import gov.aps.jca.TimeoutException;
 
 
 /**

@@ -20,9 +20,7 @@ package uk.ac.gda.devices.excalibur.impl;
 
 import gda.device.detector.areadetector.IPVProvider;
 import gda.epics.connection.EpicsController;
-import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
-import gov.aps.jca.TimeoutException;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -137,7 +137,7 @@ public class DummyExcaliburSummaryAdbaseImpl extends ADBaseSimulator implements 
 		//
 	}
 
-	private int getConnectionStatus() throws TimeoutException, CAException, InterruptedException, Exception {
+	private int getConnectionStatus() {
 		return connectionStatus;
 	}
 

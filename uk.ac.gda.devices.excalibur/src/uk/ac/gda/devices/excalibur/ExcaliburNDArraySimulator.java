@@ -2,7 +2,6 @@ package uk.ac.gda.devices.excalibur;
 
 import gda.device.Scannable;
 import gda.device.detector.areadetector.v17.NDArray;
-import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.device.detector.areadetector.v17.impl.NDBaseImpl;
 import gda.device.scannable.ScannableUtils;
 
@@ -11,7 +10,6 @@ import java.util.Random;
 
 import org.apache.commons.math.distribution.NormalDistribution;
 import org.apache.commons.math.distribution.NormalDistributionImpl;
-import org.springframework.beans.factory.InitializingBean;
 
 
 public class ExcaliburNDArraySimulator extends NDBaseImpl implements NDArray {

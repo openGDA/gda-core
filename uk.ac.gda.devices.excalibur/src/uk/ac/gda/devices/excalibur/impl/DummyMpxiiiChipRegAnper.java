@@ -18,9 +18,6 @@
 
 package uk.ac.gda.devices.excalibur.impl;
 
-import gov.aps.jca.CAException;
-import gov.aps.jca.TimeoutException;
-
 import org.springframework.beans.factory.InitializingBean;
 
 import uk.ac.gda.devices.excalibur.ChipAnper;
