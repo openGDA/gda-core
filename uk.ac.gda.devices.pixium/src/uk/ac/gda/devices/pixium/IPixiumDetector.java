@@ -18,7 +18,6 @@
 
 package uk.ac.gda.devices.pixium;
 
-import gda.device.detector.NexusDetector;
 import gda.device.detector.areadetector.v17.EpicsAreaDetector;
 
 public interface IPixiumDetector extends EpicsAreaDetector{//, NexusDetector{

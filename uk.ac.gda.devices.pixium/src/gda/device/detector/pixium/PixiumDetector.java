@@ -118,7 +118,7 @@ public class PixiumDetector extends DetectorBase implements InitializingBean, IP
 
 	/**
 	 * start live streaming of images from detector, no viewer will open
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	public void preview() throws Exception {
@@ -329,7 +329,7 @@ public class PixiumDetector extends DetectorBase implements InitializingBean, IP
 	// }
 
 	// @Override
-	public Callable<NexusTreeProvider> getPositionCallable() throws DeviceException {
+	public Callable<NexusTreeProvider> getPositionCallable() {
 		NexusTreeProviderCallable nexusTreeProviderCallable = new NexusTreeProviderCallable(getName(),
 				nexusMetaDataForPixium, timesCurrentAcq, !getPositionCalledForCurrentAcq);
 		getPositionCalledForCurrentAcq = true;
@@ -460,7 +460,7 @@ public class PixiumDetector extends DetectorBase implements InitializingBean, IP
 	/**
 	 * plot image data on default pane configured in Spring object. This starts independent job to plot so it does not
 	 * block acquisition. Timing values are printed and logged to provide more information of file saving timings.
-	 * 
+	 *
 	 * @param imageFileName
 	 */
 	public void plotImage(final String imageFileName) {
@@ -691,7 +691,7 @@ public class PixiumDetector extends DetectorBase implements InitializingBean, IP
 	/**
 	 * change detector logical mode and return status message following the change The logical mode you changed to must
 	 * be exist.
-	 * 
+	 *
 	 * @param logicalMode
 	 * @param offsetreferenceNumber
 	 * @return status message of the detector.
@@ -712,7 +712,7 @@ public class PixiumDetector extends DetectorBase implements InitializingBean, IP
 
 	/**
 	 * start Offset Calibration process. This must be done whenever the detector mode has been changed.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	@Override
@@ -727,7 +727,7 @@ public class PixiumDetector extends DetectorBase implements InitializingBean, IP
 
 	/**
 	 * connect EPICS IOC to detector hardware.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	@Override
@@ -737,7 +737,7 @@ public class PixiumDetector extends DetectorBase implements InitializingBean, IP
 
 	/**
 	 * disconnect EPICS IOC to detector hardware
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	@Override
@@ -871,7 +871,7 @@ public class PixiumDetector extends DetectorBase implements InitializingBean, IP
 	/**
 	 * processing to be done before starting acquire data from detector - create data storage parameters and metadata
 	 * file
-	 * 
+	 *
 	 * @throws Exception
 	 * @throws IOException
 	 * @throws DeviceException
@@ -969,7 +969,7 @@ public class PixiumDetector extends DetectorBase implements InitializingBean, IP
 	 * Helper methods to create data directory using GDA file number tracking system. It uses the current file number to
 	 * create a data directory for EPICS to save images to. Important: it is the caller's responsibility to ensure the
 	 * current file number is not already exist to avoid data over-written.
-	 * 
+	 *
 	 * @return directory
 	 * @throws IOException
 	 */
@@ -993,7 +993,7 @@ public class PixiumDetector extends DetectorBase implements InitializingBean, IP
 	/**
 	 * manage the file path mapping between Windows (where the EPICS IOC is running) and Linux (Where data is to be
 	 * stored).
-	 * 
+	 *
 	 * @param filePath
 	 * @throws Exception
 	 */
@@ -1156,7 +1156,7 @@ public class PixiumDetector extends DetectorBase implements InitializingBean, IP
 
 	/**
 	 * check if file writer is still busy
-	 * 
+	 *
 	 * @return true - busy.
 	 * @throws Exception
 	 */
@@ -1169,7 +1169,7 @@ public class PixiumDetector extends DetectorBase implements InitializingBean, IP
 
 	/**
 	 * method to print message to the Jython Terminal console.
-	 * 
+	 *
 	 * @param msg
 	 */
 	private void print(String msg) {
