@@ -197,7 +197,7 @@ public class GainWithScalingAndOffset extends ScannableBase implements Scannable
 			if (gaintosando.containsKey(g)) {
 				if (currentgain.compareTo(gaintosando.get(g).scaling) * higher > 0) {
 					solution = g;
-					if (looksLikeSimilarSettings(gain, solution))
+					if (looksLikeSimilarSettings(gain, g))
 						return solution;
 				}
 			}
