@@ -83,7 +83,7 @@ public class ADPilatusTest extends ADDetectorTest {
 	}
 
 	@Override
-	protected void createDetector() throws Exception {
+	protected void createDetector() {
 		adPilatus = new HardwareTriggerableADDetector();
 		adPilatus.setIntegratesBetweenPoints(true);
 		mockAdDriverPilatus = mock(ADDriverPilatus.class);

@@ -42,6 +42,7 @@ import gda.device.detector.nxdetector.plugin.areadetector.ADBasicStats;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Vector;
 import java.util.concurrent.Callable;
 
@@ -168,7 +169,7 @@ public class NXDetectorAreaDetectorIntegrationTest extends ADDetectorTest {
 	}
 
 	@Override
-	protected void enableFileWriter(boolean enableFileWriter) throws Exception {
+	protected void enableFileWriter(boolean enableFileWriter) throws NoSuchElementException, InterruptedException, DeviceException {
 		if (enableFileWriter) {
 			when(fileWriter.getInputStreamNames()).thenReturn(Arrays.asList("filepath"));
 			when(fileWriter.getInputStreamFormats()).thenReturn(Arrays.asList("%.2f"));

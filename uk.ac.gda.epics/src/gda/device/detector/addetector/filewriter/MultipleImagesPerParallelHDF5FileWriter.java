@@ -43,7 +43,6 @@ import org.slf4j.LoggerFactory;
 
 public class MultipleImagesPerParallelHDF5FileWriter extends FileWriterBase implements NXPlugin{
 
-	@SuppressWarnings("unused")
 	private static Logger logger = LoggerFactory.getLogger(MultipleImagesPerParallelHDF5FileWriter.class);
 
 	private NDParallelHDF ndFilePHDF5;

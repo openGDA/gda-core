@@ -107,8 +107,7 @@ public class ADDetectorTest {
 		when(fileWriter.appendsFilepathStrings()).thenReturn(true);
 	}
 
-	@SuppressWarnings("unused")
-	protected void createDetector() throws Exception {
+	protected void createDetector() {
 		adDet = new ADDetector();
 		adDet.setCollectionStrategy(collectionStrategy);
 	}
