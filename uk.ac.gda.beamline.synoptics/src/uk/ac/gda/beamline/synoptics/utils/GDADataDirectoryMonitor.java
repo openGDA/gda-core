@@ -29,7 +29,6 @@ import org.apache.commons.vfs.FileMonitor;
 import org.apache.commons.vfs.FileName;
 import org.apache.commons.vfs.FileObject;
 import org.apache.commons.vfs.FileSystemException;
-import org.apache.commons.vfs.FileType;
 import org.apache.commons.vfs.provider.AbstractFileSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

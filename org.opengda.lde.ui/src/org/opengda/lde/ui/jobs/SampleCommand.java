@@ -6,7 +6,6 @@ import gda.commandqueue.CommandDetails;
 import gda.commandqueue.CommandSummary;
 import gda.commandqueue.SimpleCommandDetails;
 import gda.commandqueue.SimpleCommandSummary;
-import gda.device.DeviceException;
 import gda.jython.InterfaceProvider;
 import gda.jython.Jython;
 import gda.util.Sleep;

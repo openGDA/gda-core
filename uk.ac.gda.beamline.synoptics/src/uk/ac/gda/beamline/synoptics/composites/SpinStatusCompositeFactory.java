@@ -18,7 +18,6 @@ package uk.ac.gda.beamline.synoptics.composites;
  */
 
 import gda.device.DeviceException;
-import gda.device.IBeamMonitor;
 import gda.device.ISpin;
 import gda.observable.IObserver;
 import gda.rcp.views.CompositeFactory;
@@ -42,7 +41,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
-import org.eclipse.ui.IWorkbenchPartSite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
