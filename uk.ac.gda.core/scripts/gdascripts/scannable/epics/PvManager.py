@@ -44,14 +44,14 @@ class PvManager(object):
 	def caput(self, *args):
 		"""If only one pv registered caput to this, other wise raise Exception"""
 		if len(self.clients)==1:
-			self.clients.items()[0].caput(*args)
+			self.clients.values()[0].caput(*args)
 		else:
 			raise Exception("caput can only be used if only one pv has been configured. Use: pvs['key'].caput(val) instead")
 	
 	def caget(self):
 		"""If only one pv registered caget fromt this, other wise raise Exception"""
 		if len(self.clients)==1:
-			self.clients.items()[0].caget()
+			return self.clients.values()[0].caget()
 		else:
 			raise Exception("caget can only be used if only one pv has been configured. Use: pvs['key'].caget(val) instead")
 
