@@ -11,7 +11,6 @@ This section lists people who have contributed in some way (code, design, docume
       * Jun Aishima
       * Mark Basham
       * Kristian Benning
-      * Simon Berriman
       * Jonathan Blakes
       * Mark Booth
       * Peter Chang
@@ -24,14 +23,16 @@ This section lists people who have contributed in some way (code, design, docume
       * Iain Hall
       * Paul Hathaway
       * Peter Holloway
+      * Anthony Hull
       * Michael Kleyn
       * Karl Levik
       * Charles Mita
       * James Mudd
       * Colin Palmer
+      * Keith Ralphs
       * Deepa Rethinam
       * Chris Sharpe
-      * Robert Walton
+      * Rob Walton
       * Kaz Wanelik
       * Michael Wharmby
       * Matthew Webber
@@ -39,6 +40,7 @@ This section lists people who have contributed in some way (code, design, docume
 
    * Past contributors
       * Alun Ashton
+      * Simon Berriman
       * Oliver Buckley
       * Stuart Campbell
       * Josephine Chan
