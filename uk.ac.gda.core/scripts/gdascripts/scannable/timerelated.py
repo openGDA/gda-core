@@ -141,9 +141,9 @@ class TimeOfDay(PseudoDevice):
 		return not self.clock.hasPast(self.targetTimeTuple)
 	
 	def getPosition(self):
-		pos = self.clock.lastClock()
+		position = self.clock.lastClock()
 		self.clock.clear()
-		return pos
+		return position
 		
 	def atPointEnd(self):
 		self.clock.clear()
