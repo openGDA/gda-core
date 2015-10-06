@@ -18,8 +18,6 @@
 
 package gda.data.nexus.hdf5;
 
-import gda.data.nexus.NexusUtils;
-
 import java.io.File;
 import java.io.Serializable;
 import java.net.URI;
@@ -30,14 +28,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-
-import ncsa.hdf.hdf5lib.H5;
-import ncsa.hdf.hdf5lib.HDF5Constants;
-import ncsa.hdf.hdf5lib.exceptions.HDF5Exception;
-import ncsa.hdf.hdf5lib.exceptions.HDF5LibraryException;
-import ncsa.hdf.hdf5lib.structs.H5G_info_t;
-import ncsa.hdf.hdf5lib.structs.H5L_info_t;
-import ncsa.hdf.hdf5lib.structs.H5O_info_t;
 
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
@@ -66,6 +56,14 @@ import org.eclipse.dawnsci.nexus.impl.NXobjectFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.data.nexus.NexusUtils;
+import ncsa.hdf.hdf5lib.H5;
+import ncsa.hdf.hdf5lib.HDF5Constants;
+import ncsa.hdf.hdf5lib.exceptions.HDF5Exception;
+import ncsa.hdf.hdf5lib.exceptions.HDF5LibraryException;
+import ncsa.hdf.hdf5lib.structs.H5G_info_t;
+import ncsa.hdf.hdf5lib.structs.H5L_info_t;
+import ncsa.hdf.hdf5lib.structs.H5O_info_t;
 import uk.ac.diamond.scisoft.analysis.io.HDF5LazyLoader;
 import uk.ac.diamond.scisoft.analysis.io.HDF5LazySaver;
 
@@ -981,7 +979,7 @@ public class NexusFileHDF5 implements NexusFile {
 				}
 
 				if (stringDataset) {
-//					H5.H5Tset_cset(hdfDatatypeId, HDF5Constants.H5T_CSET_UTF8); // XXX  does not work...
+					H5.H5Tset_cset(hdfDatatypeId, HDF5Constants.H5T_CSET_UTF8);
 					H5.H5Tset_size(hdfDatatypeId, HDF5Constants.H5T_VARIABLE);
 				} else if (fillValue != null) {
 					//Strings must not have a fill value set
@@ -1092,7 +1090,7 @@ public class NexusFileHDF5 implements NexusFile {
 				final long datatypeId = hdfDatatype.getResource();
 				final long dataspaceId = hdfDataspace.getResource();
 				if (stringDataset) {
-//					H5.H5Tset_cset(datatypeId, HDF5Constants.H5T_CSET_UTF8); // XXX does not work...
+					H5.H5Tset_cset(datatypeId, HDF5Constants.H5T_CSET_UTF8);
 					H5.H5Tset_size(datatypeId, HDF5Constants.H5T_VARIABLE);
 				}
 				try (HDF5Resource hdfDataset = new HDF5DatasetResource(
