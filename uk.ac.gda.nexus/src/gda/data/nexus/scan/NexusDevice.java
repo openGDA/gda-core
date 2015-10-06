@@ -38,10 +38,11 @@ public interface NexusDevice<D extends NXobject> {
 	 */
 	public D createBaseClassInstance(NXobjectFactory nxObjectFactory);
 
+
 	/**
-	 * Returns the device type. The {@link NexusFileBuilder} uses this to determine
-	 * which element to add the NeXus base class instance for the device to.
-	 * TODO: is an enum the best way to do this - we could use a path instead?
+	 * Returns the device type. The {@link NexusFileBuilder} uses this to determine which element to add the NeXus base class instance for the device to. TODO:
+	 * is an enum the best way to do this - we could use a path instead?
+	 *
 	 * @return device type
 	 */
 	public DeviceType getDeviceType();
@@ -55,6 +56,20 @@ public interface NexusDevice<D extends NXobject> {
 	 */
 	public String getName();
 
-	public ILazyWriteableDataset getDataset();
+	/**
+	 * Returns the default dataset for the device.
+	 *
+	 * @return dataset
+	 */
+	public ILazyWriteableDataset getDefaultWriteableDataset();
+
+	/**
+	 * Returns the dataset with the given name or path
+	 * 
+	 * @param path
+	 *            name or path
+	 * @return dataset
+	 */
+	public ILazyWriteableDataset getDataset(String path);
 
 }
