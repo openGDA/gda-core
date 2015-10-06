@@ -72,7 +72,14 @@ public class SimpleScanNexusFileTest {
 		}
 
 		@Override
-		public ILazyWriteableDataset getDataset() {
+		public ILazyWriteableDataset getDefaultWriteableDataset() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public ILazyWriteableDataset getDataset(String path) {
+			// TODO Auto-generated method stub
 			return null;
 		}
 
@@ -105,7 +112,14 @@ public class SimpleScanNexusFileTest {
 		}
 
 		@Override
-		public ILazyWriteableDataset getDataset() {
+		public ILazyWriteableDataset getDefaultWriteableDataset() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public ILazyWriteableDataset getDataset(String path) {
+			// TODO Auto-generated method stub
 			return null;
 		}
 
