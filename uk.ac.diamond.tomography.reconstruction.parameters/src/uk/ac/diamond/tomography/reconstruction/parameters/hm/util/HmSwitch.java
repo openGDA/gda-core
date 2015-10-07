@@ -26,6 +26,7 @@ import uk.ac.diamond.tomography.reconstruction.parameters.hm.*;
  * @see uk.ac.diamond.tomography.reconstruction.parameters.hm.HmPackage
  * @generated
  */
+@SuppressWarnings("unused")
 public class HmSwitch<T> extends Switch<T> {
 	/**
 	 * The cached model package
