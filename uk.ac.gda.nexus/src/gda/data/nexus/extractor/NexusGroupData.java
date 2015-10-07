@@ -32,17 +32,14 @@ import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Data class that is returned by first class Nexus aware detectors
  */
 public class NexusGroupData implements Serializable {
-	transient private static final Logger logger = LoggerFactory.getLogger(NexusGroupData.class);		
 
 	private Serializable data;
-	
+
 	/**
 	 * dimensions of data
 	 */
@@ -50,7 +47,7 @@ public class NexusGroupData implements Serializable {
 
 	/**
 	 * This array may be used to indicate a preferred choice of chunking to the datawriter.
-	 * The data-writer might well ignore that though (for now all will). 
+	 * The data-writer might well ignore that though (for now all will).
 	 */
 	public int[] chunkDimensions = null;
 
@@ -62,7 +59,7 @@ public class NexusGroupData implements Serializable {
 	/**
 	 * Setting this can advise a data-writer to use the specified compression algorithm
 	 * for a choice see:
-	 * 
+	 *
 	 * {@link NexusFile}.COMPRESSION_*
 	 */
 	public Integer compressionType = null;
@@ -611,7 +608,7 @@ public class NexusGroupData implements Serializable {
 		Serializable value;
 
 		if (data.getClass().isArray()) {
-			if (dtype == Dataset.STRING) { // reinterpret byte arrays as String 
+			if (dtype == Dataset.STRING) { // reinterpret byte arrays as String
 				return getStringFromArray(data);
 			}
 			value = getFromArray(data);
@@ -755,38 +752,6 @@ public class NexusGroupData implements Serializable {
 		return null;
 	}
 
-	@Override
-	public boolean equals(Object obj) {
-		return equals(obj, false);
-	}
-
-	public boolean equals(Object obj, boolean logWhenFalseInOneCase) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		NexusGroupData other = (NexusGroupData) obj;
-		if (data == null) {
-			if (other.data != null) {
-				return false;
-			}
-		} else {
-			String dataToTxt = dataToTxt(false, false, false);
-			String dataToTxt2 = other.dataToTxt(false, false, false);
-			if (!dataToTxt.equals(dataToTxt2)) {
-				if (logWhenFalseInOneCase)
-					logger.info("expected = "+dataToTxt(false,true,false) + ", actual= " +other.dataToTxt(false,true,false));
-				return false;
-			}
-		}
-		return true;
-	}
-
 	private NexusGroupData asType(int type) {
 		if (this.dtype == type)
 			return this;
@@ -862,7 +827,7 @@ public class NexusGroupData implements Serializable {
 		return asType(Dataset.FLOAT32);
 	}
 
-	
+
 	/**
 	 * @return data with output type as double
 	 */
@@ -876,5 +841,54 @@ public class NexusGroupData implements Serializable {
 
 	public boolean isDouble() {
 		return dtype == Dataset.FLOAT64;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + Arrays.hashCode(chunkDimensions);
+		result = prime * result + ((compressionType == null) ? 0 : compressionType.hashCode());
+		result = prime * result + ((data == null) ? 0 : data.hashCode());
+		result = prime * result + Arrays.hashCode(dimensions);
+		result = prime * result + dtype;
+		result = prime * result + (isDetectorEntryData ? 1231 : 1237);
+		result = prime * result + (isUnsigned ? 1231 : 1237);
+		result = prime * result + textLength;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		NexusGroupData other = (NexusGroupData) obj;
+		if (!Arrays.equals(chunkDimensions, other.chunkDimensions))
+			return false;
+		if (compressionType == null) {
+			if (other.compressionType != null)
+				return false;
+		} else if (!compressionType.equals(other.compressionType))
+			return false;
+		if (data == null) {
+			if (other.data != null)
+				return false;
+		} else if (!data.equals(other.data))
+			return false;
+		if (!Arrays.equals(dimensions, other.dimensions))
+			return false;
+		if (dtype != other.dtype)
+			return false;
+		if (isDetectorEntryData != other.isDetectorEntryData)
+			return false;
+		if (isUnsigned != other.isUnsigned)
+			return false;
+		if (textLength != other.textLength)
+			return false;
+		return true;
 	}
 }

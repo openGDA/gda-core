@@ -29,17 +29,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * Class to represent a Nexus Group - a child is either a DATASET or an ATTRIBUTE
  */
 public class NexusTreeNode implements INexusTree, Serializable {
-	
-	private static final long serialVersionUID = 1L;
 
-	transient private static final Logger logger = LoggerFactory.getLogger(NexusTreeNode.class);	
 	/**
 	 * The actual data read from the element
 	 */
@@ -48,12 +42,12 @@ public class NexusTreeNode implements INexusTree, Serializable {
 
 	/**
 	 * @return Comparator that compares items by comparing the result of getName
-	 * 
+	 *
 	 */
 	public static Comparator<INexusTree> getNameComparator(){
 		return nameComparator;
 	}
-	
+
 	private static Comparator<INexusTree> nameComparator = new Comparator<INexusTree>() {
 		@Override
 		public int compare(INexusTree o1, INexusTree o2) {
@@ -69,7 +63,7 @@ public class NexusTreeNode implements INexusTree, Serializable {
 	 * The class of the element
 	 */
 	public final String nxClass;
-	
+
 	/**
 	 * The parent of the current node - null if this is the top node
 	 */
@@ -107,15 +101,15 @@ public class NexusTreeNode implements INexusTree, Serializable {
 	 * @param parentNode
 	 * @param groupData
 	 */
-	public NexusTreeNode(String name, String nxClass, INexusTree parentNode, 
+	public NexusTreeNode(String name, String nxClass, INexusTree parentNode,
 			NexusGroupData groupData) {
 		this.name = name;
 		this.nxClass = nxClass;
 		this.parentNode = parentNode;
 		this.groupData = groupData;
 	}
-	
-	
+
+
 	/**
 	 * @param name
 	 * @param nxClass
@@ -172,7 +166,7 @@ public class NexusTreeNode implements INexusTree, Serializable {
 			msg.append(groupData.dataToTxt(newlineAfterEach, dataAsString, true));
 
 		}
-		
+
 		for (INexusTree ntn : childNodes) {
 			msg.append(ntn.toXMLbegin(newlineAfterEach, dataAsString));
 			msg.append(ntn.toXMLend(newlineAfterEach, dataAsString));
@@ -218,7 +212,7 @@ public class NexusTreeNode implements INexusTree, Serializable {
 	public INexusTree getChildNode(int index) {
 		return childNodes.get(index);
 	}
-	
+
 	public int getChildCount() {
 		return childNodes.size();
 	}
@@ -227,7 +221,7 @@ public class NexusTreeNode implements INexusTree, Serializable {
 	public String toText(String prefix, String keyValueSep, String dataItemSep, String nodeSep) {
 		return toText(prefix, keyValueSep, dataItemSep, nodeSep, true);
 	}
-	
+
 	@Override
 	public String toText(String prefix, String keyValueSep, String dataItemSep, String nodeSep, boolean includeData) {
 		StringBuffer msg = new StringBuffer(prefix + nodeSep + nxClass + keyValueSep + name);
@@ -258,7 +252,7 @@ public class NexusTreeNode implements INexusTree, Serializable {
 
 	/**
 	 * Recursively find node depth-first
-	 * 
+	 *
 	 * @param nodeName
 	 * @return node with given name
 	 */
@@ -306,7 +300,7 @@ public class NexusTreeNode implements INexusTree, Serializable {
 		}
 		return totalPath.toString();
 	}
-	
+
 	/**
 	 * @param path
 	 * @return node with given path
@@ -321,7 +315,7 @@ public class NexusTreeNode implements INexusTree, Serializable {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Get an attribute of current node
 	 * @param name
@@ -358,84 +352,6 @@ public class NexusTreeNode implements INexusTree, Serializable {
 		return attributes;
 	}
 
-	@Override
-	public boolean equals(Object obj) {
-		return equals(obj,false);
-	}
-
-	private boolean childNodesEqual(List<INexusTree> otherChildNodes, boolean reportFalse){
-		int ilen = childNodes.size();
-		int iotherlen= otherChildNodes.size();
-		if(ilen != iotherlen){
-			if(reportFalse){
-				logger.info("childNode lengths differ.\n"+childNodes.toString() +"\n\n" + otherChildNodes.toString());
-			}
-			return false;
-		}
-		for(int i=0; i< ilen; i++){
-			INexusTree tree = childNodes.get(i);
-			INexusTree other = otherChildNodes.get(i);
-			if( !tree.equals(other, reportFalse))
-				return false;
-		}
-		return true;
-	}
-
-	/**
-	 * @param obj
-	 * @param reportFalse
-	 * @return true is equals
-	 */
-	@Override
-	public boolean equals(Object obj, boolean reportFalse) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		NexusTreeNode other = (NexusTreeNode) obj;
-		if (childNodes == null) {
-			if (other.childNodes != null) {
-				return false;
-			}
-		} else if (!childNodesEqual(other.childNodes, reportFalse)) {
-			if(reportFalse)
-				logger.info("childNodes differ - "+ name + " " + nxClass);
-			return false;
-		}
-		if (groupData == null) {
-			if (other.groupData != null) {
-				return false;
-			}
-		} else if (!groupData.equals(other.groupData, reportFalse)) {
-			if(reportFalse)
-				logger.info(this.getNodePathWithClasses() + " groupData differ - "+ name + " " + nxClass);
-			return false;
-		}
-		if (name == null) {
-			if (other.name != null) {
-				return false;
-			}
-		} else if (!name.equals(other.name)) {
-			if(reportFalse)
-				logger.info("name differ - "+ name + " " + nxClass);
-			return false;
-		}
-		if (nxClass == null) {
-			if (other.nxClass != null) {
-				return false;
-			}
-		} else if (!nxClass.equals(other.nxClass)) {
-			if(reportFalse)
-				logger.info("nxClass differ - "+ name + " " + nxClass);
-			return false;
-		}
-		return true;
-	}
 
 	@Override
 	public void sort(Comparator<INexusTree> comparator) {
@@ -456,7 +372,7 @@ public class NexusTreeNode implements INexusTree, Serializable {
 	}
 
 	boolean isPointDependent=false;
-	
+
 	public void setIsPointDependent(boolean val){
 		isPointDependent = val;
 	}
@@ -468,6 +384,53 @@ public class NexusTreeNode implements INexusTree, Serializable {
 
 	@Override
 	public int hashCode() {
-		return super.hashCode();
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((childNodes == null) ? 0 : childNodes.hashCode());
+		result = prime * result + ((groupData == null) ? 0 : groupData.hashCode());
+		result = prime * result + (isPointDependent ? 1231 : 1237);
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + ((nxClass == null) ? 0 : nxClass.hashCode());
+		result = prime * result + ((parentNode == null) ? 0 : parentNode.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		NexusTreeNode other = (NexusTreeNode) obj;
+		if (childNodes == null) {
+			if (other.childNodes != null)
+				return false;
+		} else if (!childNodes.equals(other.childNodes))
+			return false;
+		if (groupData == null) {
+			if (other.groupData != null)
+				return false;
+		} else if (!groupData.equals(other.groupData))
+			return false;
+		if (isPointDependent != other.isPointDependent)
+			return false;
+		if (name == null) {
+			if (other.name != null)
+				return false;
+		} else if (!name.equals(other.name))
+			return false;
+		if (nxClass == null) {
+			if (other.nxClass != null)
+				return false;
+		} else if (!nxClass.equals(other.nxClass))
+			return false;
+		if (parentNode == null) {
+			if (other.parentNode != null)
+				return false;
+		} else if (!parentNode.equals(other.parentNode))
+			return false;
+		return true;
 	}
 }

@@ -21,7 +21,7 @@ import gda.data.nexus.extractor.NexusGroupData;
 
 import java.io.Serializable;
 import java.util.Comparator;
-import java.util.HashMap;
+import java.util.Map;
 
 public interface INexusTree extends Iterable<INexusTree>, Serializable  {
 
@@ -29,30 +29,30 @@ public interface INexusTree extends Iterable<INexusTree>, Serializable  {
 	 * @return List of child nodes
 	 */
 	public int getNumberOfChildNodes();
-	
+
 	/**
 	 * Add a tree as a child node of the current item
 	 * @param e
 	 */
 	public void addChildNode(INexusTree e);
-	
+
 	/**
 	 *  Remove tree from collection of child nodes of  the current item
 	 * @param e
 	 */
 	public void removeChildNode(INexusTree e);
-	
+
 	/**
 	 * Get child tree node at position index
 	 * @param index - between 0 and getNumberOfChildNodes-1
 	 * @return child node of the current item
 	 */
 	public INexusTree getChildNode(int index);
-	
+
 	/**
 	 * Get child tree node with given name and class
-	 * @param name 
-	 * @param className 
+	 * @param name
+	 * @param className
 	 * @return child node of the current item
 	 */
 	public INexusTree getChildNode(String name, String className);
@@ -89,7 +89,7 @@ public interface INexusTree extends Iterable<INexusTree>, Serializable  {
 	 * @return A string that represents the tree in text format e.g. NXextry:NXinstrument:name=
 	 */
 	public String toText(String prefix, String keyValueSep, String dataItemSep, String nodeSep) ;
-	
+
 	/**
 	 * @param prefix Text that begins each line e.g. ""
 	 * @param keyValueSep Text between key and value e.g. ":"
@@ -99,7 +99,7 @@ public interface INexusTree extends Iterable<INexusTree>, Serializable  {
 	 * @return A string that represents the tree in text format e.g. NXextry:NXinstrument:name=
 	 */
 	public String toText(String prefix, String keyValueSep, String dataItemSep, String nodeSep, boolean includeData) ;
-	
+
 
 	/**
 	 * @param newlineAfterEach - if true the output is interspersed with newlines to make it more humanly readable
@@ -121,21 +121,12 @@ public interface INexusTree extends Iterable<INexusTree>, Serializable  {
 	 * @return final </ > part of an xml representation of the node and children
 	 */
 	public  StringBuffer toXMLend(boolean newlineAfterEach, boolean dataAsString);
-	
-	@Override
-	public boolean equals(Object obj);
-	/**
-	 * @param obj
-	 * @param reportFalse
-	 * @return true if equal
-	 */
-	public boolean equals(Object obj, boolean reportFalse);
-	
+
 	/**
 	 * @param comparator
 	 */
 	public void sort(Comparator<INexusTree> comparator);
-	
+
 	/**
 	 * @return true if the data can vary during a scan
 	 */
@@ -145,19 +136,19 @@ public interface INexusTree extends Iterable<INexusTree>, Serializable  {
 	 * @return unique id of item in the tree - name_of_top/.../name
 	 */
 	public String getNodePath();
-	
+
 
 	/**
 	 * @return unique id of item in the tree - name_of_top/class_of_top/.../name/class
 	 */
 	public String getNodePathWithClasses();
-	
+
 	/**
 	 * @param nodePath - format as returned by getNodePath  - name_of_top/.../name
 	 * @return node at given path in the tree.
 	 */
-	public INexusTree getNode(String nodePath); 	
-	
+	public INexusTree getNode(String nodePath);
+
 	/**
 	 * Get an attribute of current node
 	 * @param name
@@ -167,7 +158,8 @@ public interface INexusTree extends Iterable<INexusTree>, Serializable  {
 
 	/**
 	 * Get all attributes of current node
-	 * @return a HashMap of attributes
+	 * 
+	 * @return a Map of attributes
 	 */
-	public HashMap<String,Serializable> getAttributes();
+	public Map<String, Serializable> getAttributes();
 }
