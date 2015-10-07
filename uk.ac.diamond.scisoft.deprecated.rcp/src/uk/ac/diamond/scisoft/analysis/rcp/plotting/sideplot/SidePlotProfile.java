@@ -832,7 +832,7 @@ public abstract class SidePlotProfile extends SidePlot implements Overlay2DConsu
 	 * @param roi
 	 */
 	protected void setROIName(String prefix, IROI roi) {
-		final IRegionService rservice = (IRegionService)Activator.getService(IRegionService.class);
+		final IRegionService rservice = Activator.getService(IRegionService.class);
 		String stub = rservice.forROI(roi).getName();
 		if (prefix != null)
 			stub = prefix + stub;

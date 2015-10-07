@@ -567,7 +567,7 @@ public class DiffractionViewer extends SidePlotProfile implements SelectionListe
 						}
 					}
 				} else {
-					final RectangularROI rroi = (RectangularROI) rectRioHandler.interpretMouseDragging(cpt, ((ImagePositionEvent) event)
+					final RectangularROI rroi = rectRioHandler.interpretMouseDragging(cpt, ((ImagePositionEvent) event)
 							.getImagePosition());
 					if (rroi != null) {
 						if (System.currentTimeMillis() >= nextTime) {
@@ -604,7 +604,7 @@ public class DiffractionViewer extends SidePlotProfile implements SelectionListe
 				// sendCurrentROI(roi);
 				updatePlot();
 			} else {
-				rectROI = (RectangularROI) rectRioHandler.interpretMouseDragging(cpt, ((ImagePositionEvent) event).getImagePosition());
+				rectROI = rectRioHandler.interpretMouseDragging(cpt, ((ImagePositionEvent) event).getImagePosition());
 				// rectROI = interpretMouseDraggingRectangle(tempMousePos);
 				rectRioHandler.setROI(rectROI);
 				rectRioHandler.unconfigureDragging();
