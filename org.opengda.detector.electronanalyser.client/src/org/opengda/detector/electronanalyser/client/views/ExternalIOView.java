@@ -62,4 +62,5 @@ public class ExternalIOView extends LivePlotView {
 		.removeSelectionListener(SequenceView.ID,
 				selectionListener);
 		super.dispose();
-	};}
+	}
+}
