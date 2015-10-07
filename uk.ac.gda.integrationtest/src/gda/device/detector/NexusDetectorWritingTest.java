@@ -107,7 +107,7 @@ public class NexusDetectorWritingTest {
 		String filename_expected = TestFileFolder + "testWriteNXDetector_expected.nxs";
 		INexusTree tree_expected = NexusTreeBuilder.getNexusTree(filename_expected, TREE_CONTENTS.ALLNXENTRY);
 		tree_expected.sort(NexusTreeNode.getNameComparator());
-		Assert.assertFalse("sorted trees are not the same: sort(" + filename_expected + ") NE (" + filename + ")", !tree_expected.equals(tree, true));
+		Assert.assertFalse("sorted trees are not the same: sort(" + filename_expected + ") NE (" + filename + ")", !tree_expected.equals(tree));
 
 	}
 
@@ -129,7 +129,7 @@ public class NexusDetectorWritingTest {
 		String filename_expected = TestFileFolder + "testWriteNXDetector_MultiElement_expected.nxs";
 		INexusTree tree_expected = NexusTreeBuilder.getNexusTree(filename_expected, TREE_CONTENTS.ALLNXENTRY);
 		tree_expected.sort(NexusTreeNode.getNameComparator());
-		Assert.assertFalse("sorted trees are not the same: sort(" + filename_expected + ") NE (" + filename + ")", !tree_expected.equals(tree, true));
+		Assert.assertFalse("sorted trees are not the same: sort(" + filename_expected + ") NE (" + filename + ")", !tree_expected.equals(tree));
 
 	}
 

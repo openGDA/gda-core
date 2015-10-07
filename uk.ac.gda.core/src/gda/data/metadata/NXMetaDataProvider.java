@@ -1150,7 +1150,7 @@ class NexusTreeStringDump {
 	public boolean isToBeTraversed(INexusTree tree) {
 		int nNodes = tree.getNumberOfChildNodes();
 		boolean out = (nNodes > 0);
-		HashMap<String,Serializable> attributes = tree.getAttributes();
+		Map<String, Serializable> attributes = tree.getAttributes();
 		if (attributes != null && attributes.size() == nNodes ) {
 
 			Serializable units = attributes.get("units");
@@ -1179,7 +1179,7 @@ class NexusTreeStringDump {
 	public boolean isToBeHarvested(INexusTree tree) {
 		int nNodes = tree.getNumberOfChildNodes();
 		boolean out = (nNodes > 0);
-		HashMap<String,Serializable> attributes = tree.getAttributes();
+		Map<String, Serializable> attributes = tree.getAttributes();
 		if (attributes != null && attributes.size() == nNodes ) {
 
 			Serializable units = attributes.get("units");
