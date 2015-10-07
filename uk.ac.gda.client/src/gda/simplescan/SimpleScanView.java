@@ -64,7 +64,7 @@ public class SimpleScanView extends ViewPart {
 		public void partDeactivated(IWorkbenchPart part) {
 			if(part instanceof SimpleScanView){
 				try {
-					final IBeanService service = (IBeanService) GDAClientActivator.getService(IBeanService.class);
+					final IBeanService service = GDAClientActivator.getService(IBeanService.class);
 					final IBeanController control = service.createController(simpleScanComposite, bean);
 					control.uiToBean();
 					XMLHelpers.writeToXML(SimpleScan.mappingURL, bean, path);
