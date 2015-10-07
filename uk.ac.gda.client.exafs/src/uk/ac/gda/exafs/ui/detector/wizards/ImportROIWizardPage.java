@@ -190,7 +190,7 @@ public abstract class ImportROIWizardPage extends WizardPage {
 	}
 
 	protected void beanToUI(Object ui, Object bean) throws Exception {
-		IBeanService service = (IBeanService) ExafsActivator.getService(IBeanService.class);
+		IBeanService service = ExafsActivator.getService(IBeanService.class);
 		IBeanController control = service.createController(ui, bean);
 		control.switchState(false);
 		control.beanToUI();
