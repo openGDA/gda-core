@@ -208,7 +208,8 @@ public class FileMonitor
     monitor.addListener (monitor.new TestListener());
 
     // Avoid program exit
-    while (!false);
+		while (!false) {
+		}
   }
 
 
