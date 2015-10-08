@@ -197,7 +197,7 @@ public class NexusFileHDF5 implements NexusFile {
 
 	private boolean writeable = false;
 
-	private Map<Long, String> idMap; // associate node ids with "canonical" path (used for working out hardlinks)
+	private Map<Node, String> passedNodeMap; // associate given nodes with "canonical" path (used for working out hardlinks)
 
 	public NexusFileHDF5(String path) {
 		fileName = path;
@@ -208,7 +208,7 @@ public class NexusFileHDF5 implements NexusFile {
 			tree = TreeFactory.createTreeFile(fileName.hashCode(), fileName);
 			((TreeFileImpl) tree).setGroupNode(NXobjectFactory.createNXroot(0l));
 			nodeMap = new HashMap<Long, Node>();
-			idMap = new HashMap<Long, String>();
+			passedNodeMap = new HashMap<Node, String>();
 		} else {
 			throw new IllegalStateException("File is already open");
 		}
@@ -1156,10 +1156,9 @@ public class NexusFileHDF5 implements NexusFile {
 		fullPath = fullPath.replaceAll("//", "/");
 		NodeData parentNodeData = getNode(parentPath, false);
 		GroupNode parentNode = (GroupNode) parentNodeData.node;
-		long oid = node.getID();
-		if (idMap.containsKey(oid)) {
-			if (fullPath != idMap.get(oid)) {
-				createHardLink(idMap.get(oid), fullPath);
+		if (passedNodeMap.containsKey(node)) {
+			if (fullPath != passedNodeMap.get(node)) {
+				createHardLink(passedNodeMap.get(node), fullPath);
 			}
 			return;
 		}
@@ -1211,7 +1210,7 @@ public class NexusFileHDF5 implements NexusFile {
 		} else {
 			throw new NexusException("Node to update is not a group or data node");
 		}
-		idMap.put(oid, fullPath);
+		passedNodeMap.put(node, fullPath);
 	}
 
 	@Override
@@ -1479,7 +1478,7 @@ public class NexusFileHDF5 implements NexusFile {
 			fileId = -1;
 			tree = null;
 			nodeMap = null;
-			idMap = null;
+			passedNodeMap = null;
 			writeable = false;
 		} catch (HDF5LibraryException | NexusException e) {
 			throw new NexusException("Cannot close file", e);
