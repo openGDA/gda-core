@@ -135,7 +135,7 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 
 	private void updateDataBindingController() {
 		if (fluorescenceDetectorComposite != null && detectorParameters != null) {
-			IBeanService service = (IBeanService) ExafsActivator.getService(IBeanService.class);
+			IBeanService service = ExafsActivator.getService(IBeanService.class);
 			dataBindingController = service.createController(fluorescenceDetectorComposite, detectorParameters);
 		}
 	}

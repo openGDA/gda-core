@@ -245,7 +245,7 @@ public class GainWizardPage extends WizardPage {
 			};
 			resultsLabel.setText("");
 
-			IBeanService service = (IBeanService) ExafsActivator.getService(IBeanService.class);
+			IBeanService service = ExafsActivator.getService(IBeanService.class);
 			IBeanController mapper = service.createController(this, bean);
 			mapper.uiToBean();
 			bean.setCollectionTime(1000L);

@@ -611,7 +611,7 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 								@Override
 								public void run() {
 									try {
-										final IBeanService service = (IBeanService) ExafsActivator.getService(IBeanService.class);
+										final IBeanService service = ExafsActivator.getService(IBeanService.class);
 										final IBeanController control = service.createController(IonChamberComposite.this, bean);
 										control.uiToBean();
 									} catch (Exception e) {
