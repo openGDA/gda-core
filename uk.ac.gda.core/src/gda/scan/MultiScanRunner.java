@@ -33,16 +33,15 @@ import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MultiScanRunner implements NestableScan, ContiguousScan{
+public class MultiScanRunner implements NestableScan, ContiguousScan {
 	private static final Logger logger = LoggerFactory.getLogger(MultiScanRunner.class);
-	List<MultiScanItem> scans;
+	private final List<MultiScanItem> scans;
 	private int TotalNumberOfPoints=0;
 	private ScanBase first;
 	private ScanBase lastscan;
 	protected ParentScanComponent parentComponent = new ParentScanComponent(ScanStatus.NOTSTARTED);
 
-	public MultiScanRunner(List<MultiScanItem> scans) {
-		super();
+	public MultiScanRunner(final List<MultiScanItem> scans) {
 		this.scans = scans;
 	}
 
@@ -90,6 +89,10 @@ public class MultiScanRunner implements NestableScan, ContiguousScan{
 				scan.callScannablesAtScanStart();
 				scan.run();
 				pointCount = scan.currentPointCount;
+				final Runnable postscan = item.postscan;
+				if (postscan != null) {
+					postscan.run();
+				}
 			}
 			for (MultiScanItem item : scans) {
 				ScanBase scan = item.scan;
@@ -125,7 +128,6 @@ public class MultiScanRunner implements NestableScan, ContiguousScan{
 				throw new AssertionError("Unexpected status at the end of scan:" + getStatus().toString());
 			}
 
-
 			if( lastscan != null){
 				lastscan.signalScanComplete();
 			}
@@ -141,7 +143,7 @@ public class MultiScanRunner implements NestableScan, ContiguousScan{
 		info.setDimensions(dimensions);
 
 		int points = 0;
-		for(MultiScanItem scan : scans){
+		for (MultiScanItem scan : scans) {
 			points += scan.scan.getScanInformation().getNumberOfPoints();
 		}
 		info.setNumberOfPoints(points);

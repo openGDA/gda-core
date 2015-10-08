@@ -21,10 +21,15 @@ package gda.scan;
 public class MultiScanItem {
 	public final ScanBase scan;
 	public final Runnable prescan;
+	public final Runnable postscan;
+
 	public MultiScanItem(ScanBase scan, Runnable prescan) {
-		super();
-		this.scan = scan;
-		this.prescan = prescan;
+		this(scan, prescan, null);
 	}
 
+	public MultiScanItem(ScanBase scan, Runnable prescan, Runnable postscan) {
+		this.scan = scan;
+		this.prescan = prescan;
+		this.postscan = postscan;
+	}
 }
