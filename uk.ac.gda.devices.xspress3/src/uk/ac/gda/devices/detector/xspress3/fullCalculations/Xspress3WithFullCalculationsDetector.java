@@ -44,6 +44,7 @@ import uk.ac.gda.devices.detector.xspress3.Xspress3Controller;
 public class Xspress3WithFullCalculationsDetector extends DetectorBase implements Xspress3 {
 
 	private static final int MCA_SIZE = 4096;
+	private static final int MAX_NUMBER_OF_ROIS = Integer.MAX_VALUE; // calculations are done in software so no limit to number of ROIs
 
 	Xspress3Controller controller;
 	private Xspress3ScanOperations scanOperations;
@@ -223,6 +224,11 @@ public class Xspress3WithFullCalculationsDetector extends DetectorBase implement
 	@Override
 	public int getMCASize() {
 		return MCA_SIZE;
+	}
+
+	@Override
+	public int getMaxNumberOfRois() {
+		return MAX_NUMBER_OF_ROIS;
 	}
 
 	@Override

@@ -89,7 +89,7 @@ public class TransmissionParameters implements IExperimentDetectorParameters, Se
 		return mythenFrames;
 	}
 
-	public void setMythenFrames(Integer mythenFrames) {
+	public void setMythenFrames(int mythenFrames) {
 		this.mythenFrames = mythenFrames;
 	}
 

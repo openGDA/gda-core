@@ -732,6 +732,11 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 	}
 
 	@Override
+	public int getMaxNumberOfRois() {
+		return MAX_ROI_PER_CHANNEL;
+	}
+
+	@Override
 	public FluorescenceDetectorParameters getConfigurationParameters() {
 		DetectorROI[] regions;
 		try {

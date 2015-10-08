@@ -24,6 +24,8 @@ import org.eclipse.richbeans.api.widget.IFieldWidget;
 import org.eclipse.richbeans.widgets.scalebox.NumberBox;
 import org.eclipse.richbeans.widgets.selector.ListEditor;
 import org.eclipse.richbeans.widgets.selector.VerticalListEditor;
+import org.eclipse.richbeans.widgets.wrappers.BooleanWrapper;
+import org.eclipse.richbeans.widgets.wrappers.BooleanWrapper.BOOLEAN_MODE;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Button;
@@ -38,6 +40,7 @@ public class FluoDetectorRegionsComposite extends Composite {
 
 	private FluoDetectorElementsComposite elementsComposite;
 	private Button importButton;
+	private BooleanWrapper applyToAllCheckbox;
 	private VerticalListEditor regionList;
 	private FluoDetectorROIComposite detectorROIComposite;
 
@@ -50,7 +53,7 @@ public class FluoDetectorRegionsComposite extends Composite {
 
 		Group regionsGroup = new Group(this, SWT.NONE);
 		regionsGroup.setText("Regions");
-		GridLayoutFactory.swtDefaults().applyTo(regionsGroup);
+		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(regionsGroup);
 
 		importButton = new Button(regionsGroup, SWT.NONE);
 		importButton.setImage(SWTResourceManager.getImage(FluoDetectorRegionsComposite.class,
@@ -58,8 +61,15 @@ public class FluoDetectorRegionsComposite extends Composite {
 		importButton.setText("Import");
 		importButton.setToolTipText("Import Regions Of Interest from other Parameters files");
 
+		applyToAllCheckbox = new BooleanWrapper(regionsGroup, SWT.NONE);
+		GridDataFactory.fillDefaults().align(SWT.RIGHT, SWT.CENTER).applyTo(applyToAllCheckbox);
+		applyToAllCheckbox.setValue(true);
+		applyToAllCheckbox.setBooleanMode(BOOLEAN_MODE.REVERSE); // because the XspressParameters object field isEditIndividualElements has the opposite sense
+		applyToAllCheckbox.setText("Apply to all");
+		applyToAllCheckbox.setToolTipText("Apply the same ROIs to all detector elements");
+
 		regionList = new VerticalListEditor(regionsGroup, SWT.NONE);
-		GridDataFactory.fillDefaults().grab(true, true).applyTo(regionList);
+		GridDataFactory.fillDefaults().span(2, 1).grab(true, true).applyTo(regionList);
 		regionList.setRequireSelectionPack(false);
 		regionList.setTemplateName("ROI");
 		regionList.setNameField("roiName");
@@ -71,7 +81,7 @@ public class FluoDetectorRegionsComposite extends Composite {
 		regionList.setEditorClass(DetectorROI.class);
 
 		detectorROIComposite = new FluoDetectorROIComposite(regionList, SWT.NONE);
-		GridDataFactory.fillDefaults().grab(true, false).applyTo(detectorROIComposite);
+		GridDataFactory.fillDefaults().span(2, 1).grab(true, false).applyTo(detectorROIComposite);
 		regionList.setEditorUI(detectorROIComposite);
 		regionList.setVisible(true);
 		regionList.setEnabled(true);
@@ -90,14 +100,12 @@ public class FluoDetectorRegionsComposite extends Composite {
 		return elementsComposite.getExcluded();
 	}
 
-	public void updateAfterLayoutChange() {
-		getRoiStart().checkBounds(); // Prevent roiStart appearing in red on first opening
-		regionList.setShowAdditionalFields(true); // Need to call this here to get correct names showing in header due
-													// to a bug in Dawn 1.8. Should be fixed in later versions.
-	}
-
 	public Button getImportButton() {
 		return importButton;
+	}
+
+	public BooleanWrapper getApplyToAllCheckbox() {
+		return applyToAllCheckbox;
 	}
 
 	public ListEditor getRegionList() {

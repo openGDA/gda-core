@@ -268,6 +268,9 @@
 		<field name="mythenTime" type="double">
 			<bind-xml name="mythenTime" node="element" />
 		</field>
+		<field name="mythenFrames" type="integer">
+			<bind-xml name="mythenFrames" node="element" />
+		</field>
 	</class>
 
 	<class name="uk.ac.gda.beans.exafs.FluorescenceParameters">
@@ -295,6 +298,9 @@
 		<field name="mythenTime" type="double">
 			<bind-xml name="mythenTime" node="element" />
 		</field>
+		<field name="mythenFrames" type="integer">
+			<bind-xml name="mythenFrames" node="element" />
+		</field>
 	</class>
 
 	<class name="uk.ac.gda.beans.exafs.SoftXRaysParameters">
@@ -321,6 +327,9 @@
 		</field>
 		<field name="mythenTime" type="double">
 			<bind-xml name="mythenTime" node="element" />
+		</field>
+		<field name="mythenFrames" type="integer">
+			<bind-xml name="mythenFrames" node="element" />
 		</field>
 	</class>
 

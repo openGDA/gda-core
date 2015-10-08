@@ -28,7 +28,7 @@ import org.apache.commons.beanutils.BeanUtils;
  * Class to represent changeable parameters in a softxrays (GMSD) xas scan
  *
  */
-public class SoftXRaysParameters  implements Serializable{
+public class SoftXRaysParameters implements IExperimentDetectorParameters, Serializable {
 
 	private String configFileName;
 	private List<DrainCurrentParameters> drainCurrentParameters;
@@ -37,6 +37,7 @@ public class SoftXRaysParameters  implements Serializable{
 	private boolean collectDiffractionImages;
 	private double mythenEnergy;
 	private double mythenTime;
+	private int mythenFrames;
 
 	/**
 	 *
@@ -48,6 +49,7 @@ public class SoftXRaysParameters  implements Serializable{
 	/**
 	 * @return the workingEnergy
 	 */
+	@Override
 	public Double getWorkingEnergy() {
 		return workingEnergy;
 	}
@@ -63,6 +65,7 @@ public class SoftXRaysParameters  implements Serializable{
 	/**
 	 * @return type
 	 */
+	@Override
 	public String getDetectorType() {
 		return detectorType;
 	}
@@ -114,14 +117,20 @@ public class SoftXRaysParameters  implements Serializable{
 		this.configFileName = configFileName;
 	}
 
-
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + (collectDiffractionImages ? 1231 : 1237);
 		result = prime * result + ((configFileName == null) ? 0 : configFileName.hashCode());
 		result = prime * result + ((detectorType == null) ? 0 : detectorType.hashCode());
 		result = prime * result + ((drainCurrentParameters == null) ? 0 : drainCurrentParameters.hashCode());
+		long temp;
+		temp = Double.doubleToLongBits(mythenEnergy);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		result = prime * result + mythenFrames;
+		temp = Double.doubleToLongBits(mythenTime);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
 		result = prime * result + ((workingEnergy == null) ? 0 : workingEnergy.hashCode());
 		return result;
 	}
@@ -135,6 +144,8 @@ public class SoftXRaysParameters  implements Serializable{
 		if (getClass() != obj.getClass())
 			return false;
 		SoftXRaysParameters other = (SoftXRaysParameters) obj;
+		if (collectDiffractionImages != other.collectDiffractionImages)
+			return false;
 		if (configFileName == null) {
 			if (other.configFileName != null)
 				return false;
@@ -149,6 +160,12 @@ public class SoftXRaysParameters  implements Serializable{
 			if (other.drainCurrentParameters != null)
 				return false;
 		} else if (!drainCurrentParameters.equals(other.drainCurrentParameters))
+			return false;
+		if (Double.doubleToLongBits(mythenEnergy) != Double.doubleToLongBits(other.mythenEnergy))
+			return false;
+		if (mythenFrames != other.mythenFrames)
+			return false;
+		if (Double.doubleToLongBits(mythenTime) != Double.doubleToLongBits(other.mythenTime))
 			return false;
 		if (workingEnergy == null) {
 			if (other.workingEnergy != null)
@@ -170,6 +187,7 @@ public class SoftXRaysParameters  implements Serializable{
 		}
 	}
 
+	@Override
 	public boolean isCollectDiffractionImages() {
 		return collectDiffractionImages;
 	}
@@ -178,8 +196,7 @@ public class SoftXRaysParameters  implements Serializable{
 		this.collectDiffractionImages = collectDiffractionImages;
 	}
 
-
-
+	@Override
 	public double getMythenEnergy() {
 		return mythenEnergy;
 	}
@@ -188,6 +205,7 @@ public class SoftXRaysParameters  implements Serializable{
 		this.mythenEnergy = mythenEnergy;
 	}
 
+	@Override
 	public double getMythenTime() {
 		return mythenTime;
 	}
@@ -195,4 +213,14 @@ public class SoftXRaysParameters  implements Serializable{
 	public void setMythenTime(double mythenTime) {
 		this.mythenTime = mythenTime;
 	}
+
+	@Override
+	public int getMythenFrames() {
+		return mythenFrames;
+	}
+
+	public void setMythenFrames(int mythenFrames) {
+		this.mythenFrames = mythenFrames;
+	}
+
 }

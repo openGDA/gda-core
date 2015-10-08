@@ -29,6 +29,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -185,6 +186,7 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 		fluorescenceDetectorComposite.setDetectorName(theDetector.getName());
 		fluorescenceDetectorComposite.setDetectorElementListSize(theDetector.getNumberOfElements());
 		fluorescenceDetectorComposite.setMCASize(theDetector.getMCASize());
+		fluorescenceDetectorComposite.setMaxNumberOfRois(theDetector.getMaxNumberOfRois());
 
 		// Add listeners
 		try {
@@ -287,8 +289,6 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 	}
 
 	private void setRegionEditableFromPreference() {
-		// Bug in dawn stops this working correctly when preference is changed at runtime
-		// See DAWNSCI-5843 for latest status on a possible fix
 		fluorescenceDetectorComposite.setPlottedRegionMobile(ExafsActivator.getDefault().getPreferenceStore()
 				.getBoolean(ExafsPreferenceConstants.DETECTOR_OVERLAY_ENABLED));
 	}
@@ -321,7 +321,9 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 	private void plotDataAndUpdateCounts() {
 		if (theData != null) {
 			int element = getCurrentlySelectedElementNumber();
-			Dataset dataset = DatasetFactory.createFromObject(theData[element]);
+
+			double[] elementData = (element < theData.length) ? theData[element] : new double[] {/* empty */};
+			Dataset dataset = DatasetFactory.createFromObject(elementData);
 
 			String elementName = "Element " + element;
 			fluorescenceDetectorComposite.setXAxisLabel("Channel Number (" + elementName + ")");
@@ -344,12 +346,15 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 			fluorescenceDetectorComposite.setEnabledElementsCounts(enabledElementCounts);
 
 			int currentElement = getCurrentlySelectedElementNumber();
-			double currentElementCounts = calculateSingleElementTotal(theData[currentElement]);
+			double currentElementCounts = 0;
+			double regionCounts = 0;
+			if (currentElement < theData.length) {
+				currentElementCounts = calculateSingleElementTotal(theData[currentElement]);
+				int regionStart = fluorescenceDetectorComposite.getRegionStart();
+				int regionEnd = fluorescenceDetectorComposite.getRegionEnd();
+				regionCounts = calculateRegionTotal(theData[currentElement], regionStart, regionEnd);
+			}
 			fluorescenceDetectorComposite.setSelectedElementCounts(currentElementCounts);
-
-			int regionStart = fluorescenceDetectorComposite.getRegionStart();
-			int regionEnd = fluorescenceDetectorComposite.getRegionEnd();
-			double regionCounts = calculateRegionTotal(theData[currentElement], regionStart, regionEnd);
 			fluorescenceDetectorComposite.setSelectedRegionCounts(regionCounts);
 		}
 	}
@@ -357,7 +362,7 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 	private double calculateEnabledElementTotal() {
 		double total = 0;
 		for (DetectorElement element : detectorParameters.getDetectorList()) {
-			if (!element.isExcluded()) {
+			if (element.getNumber() < theData.length && !element.isExcluded()) {
 				total += calculateSingleElementTotal(theData[element.getNumber()]);
 			}
 		}
@@ -550,17 +555,6 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 		}
 	}
 
-	private void applyCurrentRegionsToAllElements() {
-		final int currentElementNumber = getCurrentlySelectedElementNumber();
-		List<DetectorROI> regions = detectorParameters.getDetector(currentElementNumber).getRegionList();
-		List<DetectorElement> elements = detectorParameters.getDetectorList();
-		for (DetectorElement element : elements) {
-			// Consider making a copy of the regions list if the detector classes ever support separate region
-			// lists for each detector element
-			element.setRegionList(regions);
-		}
-	}
-
 	/**
 	 * Load existing data from a file chosen by the user
 	 */
@@ -611,6 +605,17 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 		if (selectedBean instanceof IDetectorElement) {
 			// Element changed - need to replot data and recalculate all counts
 			replot();
+
+			// Re-select the first region in the region list. (The first region is automatically selected anyway so this has no visible effect for the user.)
+			// This is a workaround for a Rich Beans problem: bounds updaters are not fired on nested list editors, so changing the detector element selection
+			// can leave the ROI start and end boxes with invalid bounds until another value change occurs. Calling setSelectedBean() (via setSelectedIndex())
+			// on the region list causes a refresh at the correct nesting level. If there are no regions the call will throw IndexOutOfBoundsException, which we
+			// silently ignore.
+			try {
+				fluorescenceDetectorComposite.getRegionList().setSelectedIndex(0);
+			} catch (IndexOutOfBoundsException ignored) {
+				// empty - ignore this exception
+			}
 		} else if (selectedBean instanceof DetectorROI) {
 			// Region changed - need to redraw region on plot and recalculate region count
 			updatePlottedRegion();
@@ -623,13 +628,35 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 	@Override
 	public void valueChangePerformed(ValueEvent event) {
 		updateBeanFromUI();
-		applyCurrentRegionsToAllElements();
+
+		if (fluorescenceDetectorComposite.isApplyRoisToAllElements()) {
+			applyCurrentRegionsToAllElements();
+		}
+
 		calculateAndDisplayCountTotals(); // might want to only update the changed totals to speed up UI?
 
 		// Update the plot with the new region, but check that this event has not originally been caused by an update
 		// of the ROI UI from the plot to avoid a recursive loop of events.
 		if (!updatingRoiUIFromPlot) {
 			updatePlottedRegion();
+		}
+	}
+
+	private void applyCurrentRegionsToAllElements() {
+		final int currentElementNumber = getCurrentlySelectedElementNumber();
+		List<DetectorROI> regionsToCopy = detectorParameters.getDetector(currentElementNumber).getRegionList();
+		List<DetectorElement> elements = detectorParameters.getDetectorList();
+
+		// Do not overwrite the regions of the current element - this is important to avoid synchronisation issues with updates from the UI
+		elements.remove(currentElementNumber);
+
+		for (DetectorElement element : elements) {
+			// Copy the regions list to avoid problems with shared objects
+			List<DetectorROI> copiedRegions = new ArrayList<DetectorROI>(regionsToCopy.size());
+			for (DetectorROI regionToCopy : regionsToCopy) {
+				copiedRegions.add(new DetectorROI(regionToCopy));
+			}
+			element.setRegionList(copiedRegions);
 		}
 	}
 
