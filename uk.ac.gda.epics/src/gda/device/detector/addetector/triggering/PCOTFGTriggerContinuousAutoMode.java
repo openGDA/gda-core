@@ -55,7 +55,7 @@ import org.slf4j.LoggerFactory;
  * The ADDetector should be set with usePipeline to not hold up the triggering through waiting/checking files.
  *
  */
-public class PCOTFGTrigger extends SimpleAcquire {
+public class PCOTFGTriggerContinuousAutoMode extends SimpleAcquire {
 	private String shutterPVName = "BL13I-EA-FSHTR-01:CONTROL";
 	private static Logger logger = LoggerFactory.getLogger(PCOTFGTrigger.class);
 	private final ADDriverPco adDriverPco;
@@ -63,7 +63,7 @@ public class PCOTFGTrigger extends SimpleAcquire {
 	private double collectionTime = 0.;
 	private PV<Integer> shutterPV;
 
-	public PCOTFGTrigger(ADBase adBase, ADDriverPco adDriverPco, Etfg tfg) {
+	public PCOTFGTriggerContinuousAutoMode(ADBase adBase, ADDriverPco adDriverPco, Etfg tfg) {
 		super(adBase, 0.);
 		this.adDriverPco = adDriverPco;
 		this.etfg = tfg;
@@ -121,12 +121,12 @@ public class PCOTFGTrigger extends SimpleAcquire {
 
 	// command to setup the trigger used to detect that the camera is no longer busy
 	private String noLongerBusyTriggerSetupCommand = "tfg setup-trig start adc5 alternate 1"; // // PCO BUSY Out on TFg2
-	private int shutterSleep=100;
+	private int shutterSleep = 100;
 	private Scannable shutterDarkScannable;
-	private Integer adcMode=1;//2 adcs
-	private boolean useShutterPV=false;
-	private Integer timeStamp=1; //BCD
-																								// TF3_OUT5
+	private Integer adcMode = 1;// 2 adcs
+	private boolean useShutterPV = false;
+	private Integer timeStamp = 1; // BCD
+									// TF3_OUT5
 
 	public Integer getAdcMode() {
 		return adcMode;
@@ -181,14 +181,14 @@ public class PCOTFGTrigger extends SimpleAcquire {
 		// we want 1 image per trigger - there will be multiple triggers per collection
 		getAdBase().setNumImages(1);
 		getAdBase().setNumExposures(1);
-		getAdBase().setImageModeWait(ImageMode.SINGLE);
+		getAdBase().setImageModeWait(ImageMode.CONTINUOUS);
 		adDriverPco.getAdcModePV().putWait(adcMode); // 2 adcs
 		adDriverPco.getTimeStampModePV().putWait(timeStamp); // BCD - if set to None then the image is blank. BCD means no timestamp
-													// on image
+		// on image
 		// getAdBase().setAcquirePeriod(0.0); //this is needed for PCO to make sure delay=0 - do not use as it effects
 		// delay
-		getAdBase().setTriggerMode(PcoTriggerMode.EXTERNAL_ONLY.ordinal()); // exposure time set by camera
-																					// rather than trigger
+		getAdBase().setTriggerMode(PcoTriggerMode.AUTO.ordinal()); // exposure time set by camera
+																	// rather than trigger
 		adDriverPco.getArmModePV().putWait(true);
 		// the callback is coming back before the camera is ready as seen by the BUSY out is still high
 		while (!adDriverPco.getArmModePV().get()) {// this is not working as armMode does not reflect true state of arm
@@ -213,7 +213,7 @@ public class PCOTFGTrigger extends SimpleAcquire {
 				@Override
 				public void monitorChanged(MonitorEvent arg0) {
 					DBR dbr = arg0.getDBR();
-					if( dbr != null)
+					if (dbr != null)
 						cameraUsage = adDriverPco.getCameraUsagePV().extractValueFromDbr(dbr);
 				}
 			};
@@ -276,21 +276,20 @@ public class PCOTFGTrigger extends SimpleAcquire {
 	}
 
 	private void openShutter(Boolean open) throws DeviceException {
-		try{
-			if( !shutterPVName.isEmpty() && useShutterPV){
-				if( shutterPV == null ){
+		try {
+			if (!shutterPVName.isEmpty() && useShutterPV) {
+				if (shutterPV == null) {
 					shutterPV = LazyPVFactory.newIntegerPV(shutterPVName);
 					shutterPV.get();
 				}
-				if( open && ( shutterDarkScannable != null) && ( !shutterDarkScannable.getPosition().equals("Open"))){
+				if (open && (shutterDarkScannable != null) && (!shutterDarkScannable.getPosition().equals("Open"))) {
 					open = false;
 				}
 				shutterPV.putNoWait(open ? 1 : 0);
-				if(open && (shutterSleep > 0))
+				if (open && (shutterSleep > 0))
 					Thread.sleep(shutterSleep);
 			}
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			throw new DeviceException("Error controlling the shutter", e);
 		}
 	}
@@ -346,8 +345,8 @@ public class PCOTFGTrigger extends SimpleAcquire {
 
 	/**
 	 * @param checkCameraUsage
-	 *            If true(default) the camera usage is checked. If usage goes above cameraUsageUpperLimit the scan
-	 *            pauses until it goes below cameraUsageLowerLimit
+	 *            If true(default) the camera usage is checked. If usage goes above cameraUsageUpperLimit the scan pauses until it goes below
+	 *            cameraUsageLowerLimit
 	 */
 	public void setCheckCameraUsage(boolean checkCameraUsage) {
 		this.checkCameraUsage = checkCameraUsage;
@@ -359,8 +358,7 @@ public class PCOTFGTrigger extends SimpleAcquire {
 
 	/**
 	 * @param cameraUsageUpperLimit
-	 *            If checkCameraUsage is true then this is the usage at which the scan pauses until it goes below
-	 *            cameraUsageLowerLimit
+	 *            If checkCameraUsage is true then this is the usage at which the scan pauses until it goes below cameraUsageLowerLimit
 	 */
 	public void setCameraUsageUpperLimit(Double cameraUsageUpperLimit) {
 		this.cameraUsageUpperLimit = cameraUsageUpperLimit;
@@ -372,14 +370,14 @@ public class PCOTFGTrigger extends SimpleAcquire {
 
 	/**
 	 * @param cameraUsageLowerLimit
-	 *            If checkCameraUsage is true and it was gone above cameraUsageUpperLimit the scan pauses until it goes
-	 *            below this value
+	 *            If checkCameraUsage is true and it was gone above cameraUsageUpperLimit the scan pauses until it goes below this value
 	 */
 	public void setCameraUsageLowerLimit(Double cameraUsageLowerLimit) {
 		this.cameraUsageLowerLimit = cameraUsageLowerLimit;
 	}
+
 	@Override
 	public boolean requiresAsynchronousPlugins() {
-		return true; //there is no synchronisation between this collection strategy and reading of the data in to the areaDetector plugins
+		return true; // there is no synchronisation between this collection strategy and reading of the data in to the areaDetector plugins
 	}
 }
