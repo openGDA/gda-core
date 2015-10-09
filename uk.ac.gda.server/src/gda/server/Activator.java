@@ -156,7 +156,7 @@ public class Activator extends Plugin {
 
 	private void processXJythonDirective(Set<String> visiblePackages, Bundle bundle)
 			throws BundleException {
-		String exportPackageString = (String) bundle.getHeaders().get(Constants.EXPORT_PACKAGE);
+		String exportPackageString = bundle.getHeaders().get(Constants.EXPORT_PACKAGE);
 		ManifestElement[] exportPackages = ManifestElement.parseHeader(Constants.EXPORT_PACKAGE, exportPackageString);
 		if (exportPackages != null) {
 			for (int j = 0; j < exportPackages.length; j++) {

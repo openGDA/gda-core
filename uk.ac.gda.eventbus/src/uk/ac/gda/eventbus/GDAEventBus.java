@@ -199,7 +199,7 @@ public class GDAEventBus extends EventBus implements IGDAEventBus {
 	public void publish(Serializable event) {
 		logger.debug("publishing event: {}", event);
 		try {
-			ObjectMessage message = session.createObjectMessage((Serializable) event);
+			ObjectMessage message = session.createObjectMessage(event);
 			producer.send(message);
 			logger.debug("enqueued message");
 		} catch (JMSException e) {
