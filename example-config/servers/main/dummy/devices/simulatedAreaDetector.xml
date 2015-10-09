@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<description>
+		This needs the simulated area detector to be running and the PVs to 
+		have naming starting with the workstation name, this needs to be in an environment 
+		variable WORKSTATION which can be read by spring when setting up the config. 
+		The property gda.scan.sets.scannumber=true must also be set for scan numbering 
+		to work
+	</description>
+
+
+	<bean id="simAD_base" class="gda.device.detector.areadetector.v17.impl.ADBaseImpl">
+		<property name="basePVName" value="${WORKSTATION}-AD-SIM-01:CAM:" />
+	</bean>
+
+	<bean id="simAD_collection_strategy"
+		class="gda.device.detector.addetector.triggering.SingleExposureStandard">
+		<constructor-arg ref="simAD_base" /> <!-- ADBase -->
+		<constructor-arg value="0.01" /> <!-- Readout time -->
+	</bean>
+
+	<bean id="simAD_NDFileHDF5" class="gda.spring.V17NDFileHDF5FactoryBean">
+		<property name="ndFileImpl">
+			<bean class="gda.spring.V17NDFileFactoryBean">
+				<property name="prefix" value="${WORKSTATION}-AD-SIM-01:HDF5:" />
+				<property name="resetToInitialValues" value="false" />
+			</bean>
+		</property>
+	</bean>
+
+	<bean id="simAD_MultipleImagesPerHDF5FileWriter"
+		class="gda.device.detector.nxdetector.plugin.areadetector.filewriter.MultipleImagesPerHDF5FileWriter">
+		<property name="ndFileHDF5" ref="simAD_NDFileHDF5" />
+		<property name="fileTemplate" value="%s%s%05d.hdf5" />
+		<property name="filePathTemplate" value="$datadir$" />
+		<property name="fileNameTemplate" value="$scan$-simAD-" />
+		<property name="fileNumberAtScanStart" value="-1" />
+		<property name="setChunking" value="false" />
+		<property name="lazyOpen" value="true" />
+	</bean>
+
+	<bean id="simAD" class="gda.device.detector.NXDetector">
+		<property name="name" value="simAD" />
+		<property name="collectionStrategy" ref="simAD_collection_strategy" />
+		<property name="additionalPluginList">
+			<list>
+				<ref bean="simAD_MultipleImagesPerHDF5FileWriter" />
+			</list>
+		</property>
+	</bean>
+
+</beans>
