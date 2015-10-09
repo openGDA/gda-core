@@ -70,11 +70,15 @@ class ScanDataProcessor(ScanListener):
 
 			# Get the x and y  datasets from the scan file
 			lastScanFile = loadScanFile(concurrentScan)
-			xDataset = getDatasetFromLoadedFile(lastScanFile, xfieldname)
-			yDataset = getDatasetFromLoadedFile(lastScanFile, yfieldname)
+			try:
+				xDataset = getDatasetFromLoadedFile(lastScanFile, xfieldname)
+				yDataset = getDatasetFromLoadedFile(lastScanFile, yfieldname)
+			except KeyError, e:
+				if self.raiseProcessorExceptions:
+					raise e
+				return "<" + e.message + ">"
 
 			report += "   (Processing %s v's %s)\n"%(yfieldname,xfieldname)
-
 			# Check the datasets are processable
 			if len(xDataset.shape) > 1:
 				return "Cannot process multidimensional scans"
