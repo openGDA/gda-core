@@ -55,6 +55,8 @@
 	<import resource="scriptcontroller.xml" />
 	<import resource="../mvc_example_model.xml"/>
 	<import resource="devices/mapping_motors.xml"/>
+	<!-- To enable use of a simulated AD uncomment this import and set the WORKSTATION environment variable to your workstation name -->
+	<!-- <import resource="devices/simulatedAreaDetector.xml"/> -->
 
 <!-- do not remove anything below here -->
 	<import resource="jythonServerFacade.xml" />
