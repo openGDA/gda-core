@@ -62,4 +62,5 @@ public class SlicesView extends LivePlotView {
 		.removeSelectionListener(SequenceView.ID,
 				selectionListener);
 		super.dispose();
-	};}
+	}
+}

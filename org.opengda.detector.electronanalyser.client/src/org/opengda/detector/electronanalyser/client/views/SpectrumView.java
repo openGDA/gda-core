@@ -68,5 +68,5 @@ public class SpectrumView extends LivePlotView {
 		.removeSelectionListener(SequenceView.ID,
 				selectionListener);
 		super.dispose();
-	};
+	}
 }

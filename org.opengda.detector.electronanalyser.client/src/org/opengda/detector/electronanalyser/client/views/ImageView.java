@@ -68,5 +68,5 @@ public class ImageView extends LivePlotView {
 		.removeSelectionListener(SequenceView.ID,
 				selectionListener);
 		super.dispose();
-	};
+	}
 }
