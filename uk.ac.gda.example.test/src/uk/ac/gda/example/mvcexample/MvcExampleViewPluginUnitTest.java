@@ -58,7 +58,7 @@ public class MvcExampleViewPluginUnitTest {
 	}
 
 	@AfterClass
-	public static void tearDownAfterClass() throws Exception {
+	public static void tearDownAfterClass() {
 		waitForJobs();
 //		delay(20000);
 		PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
@@ -68,15 +68,15 @@ public class MvcExampleViewPluginUnitTest {
 	}
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 	}
 
 	@After
-	public void tearDown() throws Exception {
+	public void tearDown() {
 	}
 
 	@Test
-	public void testSetBtnSelected() throws Exception {
+	public void testSetBtnSelected() {
 		model.setSelected(false);
 		Assert.assertEquals(false, view.btn1.getSelection());
 		model.setSelected(true);
@@ -92,14 +92,14 @@ public class MvcExampleViewPluginUnitTest {
 		Assert.assertEquals("1 mm", view.motorPosControl._getTextForTesting());
 	}
 	@Test
-	public void testPosition() throws Exception {
+	public void testPosition() {
 		model.setPosition(10.);
 		Assert.assertEquals("10", view.numberControl._getTextForTesting());
 	}
 
 
 	@Test
-	public void testItems() throws Exception {
+	public void testItems() {
 		ObservableList items = model.getItems();
 		for( int i=0; i<10; i++){
 			MyMvcExampleItem e = new MyMvcExampleItem("ItemA"+i, 0.);
