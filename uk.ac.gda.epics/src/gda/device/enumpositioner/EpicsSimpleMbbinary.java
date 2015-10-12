@@ -340,6 +340,18 @@ public class EpicsSimpleMbbinary extends EnumPositionerBase implements EnumPosit
 		this.deviceName = deviceName;
 	}
 
+	public boolean isReadOnly() {
+		return readOnly;
+	}
+
+	public void setReadOnly(boolean readOnly) throws DeviceException {
+		if (recordName == null) {
+			// readOnly is set by createChannelAccess
+			throw new DeviceException("readOnly may only be set when recordName is used to configure device: " + deviceName);
+		}
+		this.readOnly = readOnly;
+	}
+
 	@Override
 	public String toFormattedString() {
 		try {
