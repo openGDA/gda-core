@@ -180,8 +180,8 @@ public class ExcaliburConfigModelHelper {
 			readoutNodeFem.setCounterDepth(fem.getCounterDepth());
 			readoutNodeFem.setCounterSelect(fem.getCounterSelect());
 			readoutNodeFem.setOperationMode(fem.getOperationMode());
-			readoutNodeFem.setDacExternal(fem.getDacExternal());
-			readoutNodeFem.setDacSense(fem.getDacSense());
+			//readoutNodeFem.setDacExternal(fem.getDacExternal()); // kw 30 June 2015
+			//readoutNodeFem.setDacSense(fem.getDacSense()); // kw 30 June 2015
 			readoutNodeFem.setMpxiiiChipReg1(getMpxiiiChipRegModel(fem.getMpxiiiChipReg1()));
 			readoutNodeFem.setMpxiiiChipReg2(getMpxiiiChipRegModel(fem.getMpxiiiChipReg2()));
 			readoutNodeFem.setMpxiiiChipReg3(getMpxiiiChipRegModel(fem.getMpxiiiChipReg3()));
@@ -221,7 +221,7 @@ public class ExcaliburConfigModelHelper {
 	private MpxiiiChipRegModel getMpxiiiChipRegModel(MpxiiiChipReg chip) throws Exception {
 		MpxiiiChipRegModel chipRegModel = ExcaliburConfigFactory.eINSTANCE.createMpxiiiChipRegModel();
 		
-		chipRegModel.setAnper(getAnperModel(chip.getAnper()));
+		//chipRegModel.setAnper(getAnperModel(chip.getAnper()));	// kw 30 June 2015 
 		chipRegModel.setPixel(getPixelModel(chip.getPixel()));
 		chipRegModel.setChipDisable(!chip.isChipEnabled());
 		chipRegModel.setDacIntoMpx(chip.getDacIntoMpx());
@@ -306,8 +306,8 @@ public class ExcaliburConfigModelHelper {
 						detectorNode.setCounterDepth(modelReadoutNodeFem.getCounterDepth());
 						detectorNode.setCounterSelect(modelReadoutNodeFem.getCounterSelect());
 						detectorNode.setOperationMode(modelReadoutNodeFem.getOperationMode());
-						detectorNode.setDacExternal(modelReadoutNodeFem.getDacExternal());
-						detectorNode.setDacSense(modelReadoutNodeFem.getDacSense());
+						//detectorNode.setDacExternal(modelReadoutNodeFem.getDacExternal()); // kw 30 June 2015
+						//detectorNode.setDacSense(modelReadoutNodeFem.getDacSense()); // kw 30 June 2015
 						
 						setDetectorChipReg(detectorNode.getMpxiiiChipReg1(), modelReadoutNodeFem.getMpxiiiChipReg1());
 						setDetectorChipReg(detectorNode.getMpxiiiChipReg2(), modelReadoutNodeFem.getMpxiiiChipReg2());
