@@ -390,11 +390,15 @@ public abstract class ObjectServer implements Runnable {
 	 *            the command line arguments
 	 */
 	public static void main(String[] args) {
+		start(args);
+	}
+
+	public static ObjectServer start(String[] args) {
 		LoggingUtils.setLogDirectory();
 		LogbackUtils.configureLoggingForServerProcess("objectserver");
+		ObjectServer server = null;
 
 		try {
-
 			// Set default options...
 			commandLineXmlFile = getDefaultServerSideXmlFile();
 			// ...but possibly override them with command-line arguments
@@ -413,8 +417,7 @@ public abstract class ObjectServer implements Runnable {
 			}
 			oos = null;
 
-			ObjectServer.createServerImpl(commandLineXmlFile, commandLineMappingFile);
-
+			server = createServerImpl(commandLineXmlFile, commandLineMappingFile);
 
 		} catch (Exception e) {
 			final String msg = "Unable to start ObjectServer";
@@ -422,6 +425,7 @@ public abstract class ObjectServer implements Runnable {
 			System.err.println(msg);
 			e.printStackTrace(System.err);
 		}
+		return server;
 	}
 
 	/**

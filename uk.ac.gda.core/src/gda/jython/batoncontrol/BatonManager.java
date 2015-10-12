@@ -39,10 +39,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Component used by JythonServer to manage the list of clients registered to that server. If enabled, there is a baton
- * which can be 'requested' by one of the client which prevents the other clients from operating equipment. The baton
- * can be passed from the holder to another client, or taken from a client by a higher level user, or released by the
- * holder. If no one holds the baton then any client can operate equipment.
+ * Component used by JythonServer to manage the list of clients registered to that server. If enabled, there is a baton which can be 'requested' by one of the
+ * client which prevents the other clients from operating equipment. The baton can be passed from the holder to another client, or taken from a client by a
+ * higher level user, or released by the holder. If no one holds the baton then any client can operate equipment.
+ * <p>
+ * 09 Oct 2015 {@link <a href="http://jira.diamond.ac.uk/browse/DATAACQTEAM-154">DATAACQTEAM-154</a>}
+ * <p>
+ * Changes made to stop accessing the fields of ClientInfo directly as this causes IllegalAccessExceptions under OSGI due to the split package problem. Instead
+ * the (already present) mutators are now used
  */
 public class BatonManager implements IBatonManager {
 
@@ -86,7 +90,7 @@ public class BatonManager implements IBatonManager {
 			return 0;
 		}
 
-		int authLevel = getClientInfo(uniqueID).authorisationLevel;
+		int authLevel = getClientInfo(uniqueID).getAuthorisationLevel();
 
 		// always skip if its a server
 		if (authLevel == Integer.MAX_VALUE) {
@@ -115,7 +119,7 @@ public class BatonManager implements IBatonManager {
 			return 0;
 		}
 		String uniqueID = idFromIndex(index);
-		return getClientInfo(uniqueID).authorisationLevel;
+		return getClientInfo(uniqueID).getAuthorisationLevel();
 	}
 
 	@Override
@@ -129,16 +133,16 @@ public class BatonManager implements IBatonManager {
 			// if baton control not in use and this is the only client, the set this as the baton holder (meaning in
 			// this case the only client. This is useful as it gives this client certain privileges in this class
 			// which subsequent clients do not have e.g. to set the visit ID).
-			if (!useBaton && leaseHolders.size() == 0 && !info.userID.equals("")) {
+			if (!useBaton && leaseHolders.size() == 0 && !info.getUserID().equals("")) {
 				changeBatonHolder(uniqueID);
 			}
 			// if baton in use and firstClientTakesBaton flag set and this is the first client
-			else if (firstClientTakesBaton && useBaton && leaseHolders.size() == 0 && !info.userID.equals("")) {
+			else if (firstClientTakesBaton && useBaton && leaseHolders.size() == 0 && !info.getUserID().equals("")) {
 				changeBatonHolder(uniqueID);
 			}
 
 			// skip this part if an object server
-			if (info.authorisationLevel != Integer.MAX_VALUE) {
+			if (info.getAuthorisationLevel() != Integer.MAX_VALUE) {
 				renewLease(uniqueID);
 				notifyServerOfBatonChange();
 			}
@@ -153,12 +157,12 @@ public class BatonManager implements IBatonManager {
 		boolean changeMade = false;
 		//only change if information is supplied
 		if (username != null && !username.equals("")){
-			info.userID = username;
-			info.authorisationLevel = accessLevel;
+			info.setUserID(username);
+			info.setAuthorisationLevel(accessLevel);
 			changeMade = true;
 		}
 		if (visitID != null && !visitID.equals("")){
-			info.visitID = visitID;
+			info.setVisitID(visitID);
 			changeMade = true;
 		}
 
@@ -216,10 +220,10 @@ public class BatonManager implements IBatonManager {
 		if (getClientInfo(theirJSFIdentifier) == null)
 			return false;
 
-		String myFedID = getClientInfo(myJSFIdentifier).userID;
-		String theirFedID = getClientInfo(theirJSFIdentifier).userID;
-		String myVisitID = getClientInfo(myJSFIdentifier).visitID;
-		String theirVisitID = getClientInfo(theirJSFIdentifier).visitID;
+		String myFedID = getClientInfo(myJSFIdentifier).getUserID();
+		String theirFedID = getClientInfo(theirJSFIdentifier).getUserID();
+		String myVisitID = getClientInfo(myJSFIdentifier).getVisitID();
+		String theirVisitID = getClientInfo(theirJSFIdentifier).getVisitID();
 
 		if (myFedID == null && theirFedID == null)
 			return true;
@@ -256,8 +260,7 @@ public class BatonManager implements IBatonManager {
 
 			// add other clients whose lease has not run out
 			// (so ignore Object Servers and Clients who have probably died and not de-registered)
-			if (!uniqueID.equals(myJSFIdentifier) && !details.userID.equals("")
-					&& leaseHolders.containsKey(idFromIndex(details.index))) {
+			if (!uniqueID.equals(myJSFIdentifier) && !details.getUserID().equals("") && leaseHolders.containsKey(idFromIndex(details.getIndex()))) {
 				array = (ClientDetails[]) ArrayUtils.add(array, details);
 			}
 		}
@@ -284,8 +287,8 @@ public class BatonManager implements IBatonManager {
 			ClientInfo other = getClientInfo(uniqueIdentifier);
 
 			// if requester has higher auth than current baton holder then take
-			if (other.authorisationLevel > currentHolder.authorisationLevel
-					|| (other.userID.equals(currentHolder.userID) && other.authorisationLevel == currentHolder.authorisationLevel)) {
+			if (other.getAuthorisationLevel() > currentHolder.authorisationLevel
+					|| (other.getUserID().equals(currentHolder.getUserID()) && other.getAuthorisationLevel() == currentHolder.getAuthorisationLevel())) {
 				changeBatonHolder(uniqueIdentifier);
 				return true;
 			}
@@ -304,7 +307,7 @@ public class BatonManager implements IBatonManager {
 		if (!uniqueIdentifier.equals("")) {
 			//log any change
 			if (!uniqueIdentifier.equals(batonHolder)){
-				logger.info("Baton now held by " + getClientInfo(uniqueIdentifier).userID);
+				logger.info("Baton now held by " + getClientInfo(uniqueIdentifier).getUserID());
 			}
 			changeUserIDDefinedMetadata(uniqueIdentifier);
 		}
@@ -429,7 +432,7 @@ public class BatonManager implements IBatonManager {
 		// loop through facades and find matching index
 		for (String uniqueID : facadeNames.keySet()) {
 			ClientInfo details = getClientInfo(uniqueID);
-			if (details.index == index) {
+			if (details.getIndex() == index) {
 				return uniqueID;
 			}
 		}
@@ -452,7 +455,7 @@ public class BatonManager implements IBatonManager {
 
 	private synchronized void renewLease(String myJSFIdentifier) {
 		// update the start time of this lease, but only for clients
-		if (facadeNames.containsKey(myJSFIdentifier) && !getClientInfo(myJSFIdentifier).userID.equals("")) {
+		if (facadeNames.containsKey(myJSFIdentifier) && !getClientInfo(myJSFIdentifier).getUserID().equals("")) {
 			leaseHolders.put(myJSFIdentifier, new GregorianCalendar().getTimeInMillis());
 		}
 	}

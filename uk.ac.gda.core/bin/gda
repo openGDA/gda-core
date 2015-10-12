@@ -248,6 +248,9 @@ where task can be:
 		group.add_option("--headless", dest="headless", action="store_true", help="run the process with the headless flag")
 		group.add_option("--lib_subdir", dest="lib_subdir", type="string", help="override lib sub directory, needed when platform.machine() result unrecognised")
 		group.add_option("-s", "--smart", dest="smart", action="store_true", default=True, help="use smart dependencies to determine classpath")
+		# DATAACQTEAM-154 support eclipse osgi application startup mode 
+		group.add_option("--osgi", dest="osgi", action="store_true", help="run the servers using the osgi eclipse application - only use this with the 'gda servers' command")
+		# END
 		self.parser.add_option_group(group)
 
 		group = OptionGroup(self.parser, "Configuration options")
@@ -288,9 +291,24 @@ where task can be:
 		assert self.gda_install_git_loc.endswith("_git")
 		self.gda_install_workspace_loc = self.gda_install_git_loc[:-4]
 		assert os.path.isdir(self.gda_install_workspace_loc)
+		
+		# DATAACQTEAM-154 definitions associated with running the server as an eclipse osgi appilcation
+		self.gda_workspace_parent = os.path.abspath(os.path.join(self.gda_install_git_loc, '..'))
+		assert os.path.isdir(self.gda_workspace_parent)
+		self.gda_install_springframework_jars_loc = abspath(self.gda_install_git_loc, "diamond-springframework.git", "uk.ac.diamond.org.springframework", "jars")
+		assert os.path.isdir(self.gda_install_springframework_jars_loc)
+		self.gda_install_product = abspath(self.gda_workspace_parent, "server_product", "gda-server", "gda-server")
+		assert os.path.isfile(self.gda_install_product)
+		self.gda_osgi_process_matcher = (self.gda_install_product, '-Dosgi.gda.application=true')
+		# END
 
 		self.logger.debug("gda_install_workspace_loc = " + self.gda_install_workspace_loc)
 		self.logger.debug("gda_install_git_loc = " + str(self.gda_install_git_loc))
+		# DATAACQTEAM-154
+		self.logger.debug("gda_workspace_parent = " + self.gda_workspace_parent)
+		self.logger.debug("gda_install_springframework_jars_loc = " + self.gda_install_springframework_jars_loc)
+		self.logger.debug("gda_install_springframework_jars_loc = " + self.gda_install_product)
+		# END
 		self.determine_operating_environment()
 		self.determine_gda_configuration()
 		self.determine_gda_environment()
@@ -365,20 +383,34 @@ where task can be:
 		#force stop false
 		old_options_stop = self.options.stop
 		self.options.stop = False
-		pids.append(self.log_server())
-		pids.append(self.name_server(port=self.options.ns_port))
-		pids.append(self.event_server())
-		pids.append(self.object_server(xmlfile=self.options.os_xml, debug_opts=debug_opts))
+		
+		# DATAACQTEAM-154 check for eclipse osgi application startup
+		if self.options.osgi:
+			pids.append(self.servers_product(xmlfile=self.options.os_xml, debug_opts=debug_opts))
+		else:
+			pids.append(self.log_server())
+			pids.append(self.name_server(port=self.options.ns_port))
+			pids.append(self.event_server())
+			pids.append(self.object_server(xmlfile=self.options.os_xml, debug_opts=debug_opts))
+		# END
 		self.options.stop = old_options_stop
 
 	def stop_all_processes(self, pids, debug_opts):
 		#force start False
 		old_options_start = self.options.start
 		self.options.start = False
-		pids.append(self.object_server(xmlfile=self.options.os_xml, debug_opts=debug_opts))
-		pids.append(self.event_server())
-		pids.append(self.name_server(port=self.options.ns_port))
-		pids.append(self.log_server())
+		
+		# DATAACQTEAM-154 check if the running instance is the eclipse osgi application variant
+		if len(self.greplines(self.gda_osgi_process_matcher)) > 0:
+			print "OSGI"
+			pids.append(self.servers_product(xmlfile=self.options.os_xml, debug_opts=debug_opts))
+		else:
+			print "NORMAL"
+			pids.append(self.object_server(xmlfile=self.options.os_xml, debug_opts=debug_opts))
+			pids.append(self.event_server())
+			pids.append(self.name_server(port=self.options.ns_port))
+			pids.append(self.log_server())
+		# END
 		self.options.start = old_options_start
 
 	def get_commandlineArgs(self, argv):
@@ -910,6 +942,24 @@ where task can be:
 		self.gdaos.putenv(self.libPath, newvalue)
 		self.logger.debug("adding to %s: %s " % (self.libPath, path))
 
+	# DATAACQTEAM-154 
+	def greplines(self, grep_phrases):
+		a = self.gdaos.popen_get_stdout("ps -u `whoami` -f --cols 6000 | grep -F -e '%s' | grep -v grep " % grep_phrases[0], False)
+		return a.readlines()
+		
+	def build_debugArgs(self, debug_opts=None):
+		vmargs_debug = ()
+		if debug_opts and debug_opts["debug"]:
+			suspend = "n"
+			if debug_opts["debug_suspend"]:
+				suspend = "y"
+			vmargs_debug = (
+				"-Xdebug",
+				"-Xrunjdwp:transport=dt_socket," + 
+				"address=" + str(debug_opts["debug_port"]) + 
+				",server=y,suspend=" + suspend,)
+		return vmargs_debug
+	# END
 
 	def getpids(self, grep_phrases, use_jps):
 		if len(grep_phrases) == 0:
@@ -943,8 +993,7 @@ where task can be:
 				for line in lines:
 					pids += (int(line.split()[0]),)
 			else:
-				a = self.gdaos.popen_get_stdout("ps -u `whoami` -f --cols 6000 | grep -F -e '%s' | grep -v grep " % grep_phrases[0], False)
-				lines = a.readlines()
+				lines = self.greplines(grep_phrases)     # DATAACQTEAM-154
 				self.logger.debug("getpids: grep returned %s" % (lines,))
 				for line in lines :
 					line = line.strip()
@@ -1035,17 +1084,7 @@ where task can be:
 			self.addToLd_Library_Path(plugin_lib_path)
 
 		vmargs_tuple = tuple(self.options.java_opts)
-
-		if debug_opts and debug_opts["debug"]:
-			suspend = "n"
-			if debug_opts["debug_suspend"]:
-				suspend = "y"
-			vmargs_debug = (
-				"-Xdebug",
-				"-Xrunjdwp:transport=dt_socket," + 
-				"address=" + str(debug_opts["debug_port"]) + 
-				",server=y,suspend=" + suspend,)
-			vmargs_tuple += vmargs_debug
+		vmargs_tuple += self.build_debugArgs(debug_opts)  # DATAACQTEAM-154
 			
 		if self.options.profiler:
 			vmargs_profiler = (
@@ -1178,6 +1217,40 @@ where task can be:
 		if self.options.headless:
 			vmargs += ("-Djava.awt.headless=true",)
 		return self.stop_start_java(self.gda_class_path, class_name , vmargs=vmargs, args=args, debug_opts=debug_opts)
+
+	# DATAACQTEAM-154 Starts/stops the log, name, channel/event and object servers as an 
+	# eclipse osgi application only in response to the command gda --osgi servers
+	#
+	def servers_product(self, xmlfile="", debug_opts=None):
+		if self.options.stop and not self.kill_process((self.gda_osgi_process_matcher), send_quit=self.options.threaddump):
+			return 0
+		if not self.options.start:
+			filename = os.getenv("OBJECT_SERVER_STARTUP_FILE")
+			if filename:
+				open(filename, "wb").close()
+			return 0
+		args = ()
+		if xmlfile != None:
+			args = ("-f", xmlfile)
+			if self.options.profile:
+				args = args + ("-p", self.options.profile)
+		vmargs = (
+					"-Dgda.install.workspace.loc=" + self.gda_install_workspace_loc,
+					"-Dgda.install.git.loc=" + self.gda_install_git_loc,
+					"-Dgda.config=" + self.options.gda_config,
+					"-Djacorb.config.dir=" + self.options.jacorb_config_dir,
+					"-Dgov.aps.jca.JCALibrary.properties=" + self.options.jcalibrary_properties,
+					"-Dderby.stream.error.field=gda.util.persistence.LocalObjectShelfManager.DerbyLogStream",
+					# These args identify that we are using the osgi application and overcome the rmi classloading problem
+					"-Dosgi.gda.application=true",
+					"-Djava.ext.dirs=" + self.gda_install_springframework_jars_loc,
+					)
+		vmargs = self.addOptionalVMArgs(vmargs)
+		if self.options.headless:
+			vmargs += ("-Djava.awt.headless=true",)
+		vmargs += self.build_debugArgs(debug_opts)			
+		return self.gdaos.spawn_nowait(self.gda_install_product, args + ("-vmargs",) + vmargs, False)
+	# END
 
 	def client(self, xmlfile="", debug_opts=None):
 		class_name = "gda.gui.AcquisitionGUI"		

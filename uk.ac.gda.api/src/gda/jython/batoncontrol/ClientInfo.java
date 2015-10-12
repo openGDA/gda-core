@@ -23,11 +23,14 @@ import java.io.Serializable;
 import java.text.MessageFormat;
 
 /**
- * Private class for holding information within the BatonManager. This information is shared outside this class using
- * the ClientDetails class.
+ * Private class for holding information within the BatonManager. This information is shared outside this class using the ClientDetails class.
+ * <p>
+ * 09 Oct 2015 {@link <a href="http://jira.diamond.ac.uk/browse/DATAACQTEAM-154">DATAACQTEAM-154</a>}
+ * <p>
+ * copy method made public to get round the split package problem under OSGI.
  */
 public class ClientInfo implements Serializable {
-	
+
 	int index;
 	String userID;
 	String fullName;
@@ -47,8 +50,8 @@ public class ClientInfo implements Serializable {
 		this.authorisationLevel = authorisationLevel;
 		this.visitID = visitID;
 	}
-	
-	protected ClientInfo copy() {
+
+	public ClientInfo copy() {
 		return new ClientInfo(this.index, this.userID, this.fullName, this.hostname, this.authorisationLevel, this.visitID);
 	}
 
@@ -56,7 +59,7 @@ public class ClientInfo implements Serializable {
 	public String toString() {
 		return MessageFormat.format("{0}@{1} visit:{2} authorisation:{3}", userID, hostname, visitID, authorisationLevel);
 	}
-	
+
 	public int getIndex() {
 		return index;
 	}
@@ -96,7 +99,7 @@ public class ClientInfo implements Serializable {
 	public void setVisitID(String visitID) {
 		this.visitID = visitID;
 	}
-	
+
 	public String getHostname() {
 		return hostname;
 	}
