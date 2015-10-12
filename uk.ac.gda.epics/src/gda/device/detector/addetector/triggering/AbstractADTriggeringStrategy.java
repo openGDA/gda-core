@@ -83,6 +83,22 @@ abstract public class AbstractADTriggeringStrategy implements CollectionStrategy
 		this.acc_expo_time = acc_expo_time;
 	}
 
+	
+	protected TriggerModeProvider triggerModeProvider;
+	
+	
+	/**
+	 * 
+	 * @return a triggerModeProvider - used to determine the value to which to set the TriggerMode PV
+	 */
+	public TriggerModeProvider getTriggerModeProvider() {
+		return triggerModeProvider;
+	}
+
+	public void setTriggerModeProvider(TriggerModeProvider triggerModeProvider) {
+		this.triggerModeProvider = triggerModeProvider;
+	}
+
 	private String timeFormat = "%.2f"; 
 	
 	AbstractADTriggeringStrategy(ADBase adBase) {
@@ -159,15 +175,21 @@ abstract public class AbstractADTriggeringStrategy implements CollectionStrategy
 	@Override
 	public void configureAcquireAndPeriodTimes(double collectionTime) throws Exception {
 		double expoTime = isAccumlationMode() ? acc_expo_time : collectionTime;
+		//Merlin detector requires the acquireTime to be set before setting acquirePeriod
+		getAdBase().setAcquireTime(expoTime);
 		if (getReadoutTime() < 0) {
 			getAdBase().setAcquirePeriod(0.0);
 		} else {
 			getAdBase().setAcquirePeriod(expoTime + getReadoutTime());
 		}
-		getAdBase().setAcquireTime(expoTime);
 		getAdBase().setNumExposures(isAccumlationMode() ? (int)(collectionTime / acc_expo_time + 0.5) : 1);
 	}
 	
+	protected void configureTriggerMode() throws Exception {
+		if( triggerModeProvider != null){
+			getAdBase().setTriggerMode(triggerModeProvider.getTriggerMode().getTriggerModePVValue());
+		}
+	}
 	
 	@Override
 	public void afterPropertiesSet() throws Exception {
@@ -234,7 +256,6 @@ abstract public class AbstractADTriggeringStrategy implements CollectionStrategy
 				throw new DeviceException(e);
 			}
 		}
-		//need to add NumExposures for accumulationMode
 		Vector<NXDetectorDataAppender> vector = new Vector<NXDetectorDataAppender>();
 		vector.add(new NXDetectorDataDoubleAppender(getInputStreamNames(), times));
 		return vector;

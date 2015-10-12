@@ -19,7 +19,6 @@
 package gda.device.detector.addetector.triggering;
 
 import gda.device.detector.areadetector.v17.ADBase;
-import gda.scan.ScanInformation;
 
 import java.text.MessageFormat;
 
@@ -32,20 +31,17 @@ public class HardwareTriggeredMedipix extends HardwareTriggeredStandard {
 
 	public HardwareTriggeredMedipix(ADBase adBase, double readoutTime) {
 		super(adBase, readoutTime);
+		setTriggerModeProvider(new MedipixTriggerModeProvider(MedipixTriggerModeProvider.TriggerStartRising));
+		
 	}
 
 	
 	
-	@Override
-	protected void configureTriggerMode() throws Exception {
-		// TODO: We really need a medipix enum!
-		getAdBase().setTriggerMode(2); // "Trigger start rising"
-	}
 	
 	@Override
 	public void collectData() throws Exception {
 		getAdBase().startAcquiring();
-		logger.warn("Sleeping for 1s afte starting medipix acquisition. Otherwise is may miss the first trigger.");
+		logger.warn("Sleeping for 1s after starting medipix acquisition. Otherwise it may miss the first trigger.");
 		Thread.sleep(2000);
 	}
 	
@@ -59,7 +55,7 @@ public class HardwareTriggeredMedipix extends HardwareTriggeredStandard {
 		getAdBase().setAcquirePeriod(0);  // This forces Epics to choose an appropriate one
 		
 		double resultingPeriod = getAdBase().getAcquirePeriod_RBV();
-		String msg = MessageFormat.format("collection_time:{0} aquire_time:{1} aquire_period{2}",
+		String msg = MessageFormat.format("collection_time:{0} acquire_time:{1} acquire_period{2}",
 				collectionTime, collectionTime - getReadoutTime(), resultingPeriod);
 		logger.info(msg);
 		
