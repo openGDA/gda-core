@@ -180,6 +180,11 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 
 		if (detectorParameters == null) {
 			fetchConfigurationFromDetector(); // initialises the dataBindingController as a side effect
+			if (detectorParameters == null) {
+				fluorescenceDetectorComposite.setDetectorName("No detector parameters available");
+				logger.warn("No detector parameters returned by detector {}", theDetector.getName());
+				return;
+			}
 		}
 
 		// Set up the composite with information about the detector
