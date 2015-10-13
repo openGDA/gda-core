@@ -20,7 +20,7 @@ import org.eclipse.dawnsci.analysis.dataset.impl.PositionIterator;
 import org.eclipse.dawnsci.analysis.tree.impl.TreeFileImpl;
 import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.NXroot;
-import org.eclipse.dawnsci.nexus.impl.NXobjectFactory;
+import org.eclipse.dawnsci.nexus.impl.NexusNodeFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -28,7 +28,7 @@ import org.junit.Test;
 
 public abstract class AbstractNexusFileTestBase {
 
-	protected NXobjectFactory nxObjectFactory;
+	protected NexusNodeFactory nxObjectFactory;
 
 	private static String testScratchDirectoryName;
 
@@ -42,7 +42,7 @@ public abstract class AbstractNexusFileTestBase {
 
 	@Before
 	public void setUp() {
-		nxObjectFactory = new NXobjectFactory();
+		nxObjectFactory = new NexusNodeFactory();
 		FILE_PATH = testScratchDirectoryName + getFilename();
 	}
 

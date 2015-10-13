@@ -2,13 +2,13 @@ package gda.data.nexus.scan;
 
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyWriteableDataset;
 import org.eclipse.dawnsci.nexus.NXobject;
-import org.eclipse.dawnsci.nexus.impl.NXobjectFactory;
+import org.eclipse.dawnsci.nexus.impl.NexusNodeFactory;
 
 /**
- * This interface defines a method that returns a new instance
- * of the appropriate NeXus base class for this device.
+ * This interface defines a method that returns a new instance of the appropriate NeXus base class for this device.
  *
- * @param <D> the NeXus bass class for the device
+ * @param <D>
+ *            the NeXus bass class for the device
  */
 public interface NexusDevice<D extends NXobject> {
 
@@ -22,7 +22,7 @@ public interface NexusDevice<D extends NXobject> {
 
 	/**
 	 * The {@link Class} of the NeXus object returned by
-	 * {@link #createBaseClassInstance(NXobjectFactory)}, a
+	 * {@link #createBaseClassInstance(NexusNodeFactory)}, a
 	 * subclass of {@link NXobject}.
 	 *
 	 * @return NeXus base class
@@ -35,8 +35,10 @@ public interface NexusDevice<D extends NXobject> {
 	 * @param nxObjectFactory
 	 *            object factory to use to create instances of NeXus base classes
 	 * @return new instance of NeXus base class
+	 * @throws Exception
+	 *             if the base class instance could not be created for some reason
 	 */
-	public D createBaseClassInstance(NXobjectFactory nxObjectFactory);
+	public D createBaseClassInstance(NexusNodeFactory nxObjectFactory) throws Exception;
 
 
 	/**
@@ -65,11 +67,19 @@ public interface NexusDevice<D extends NXobject> {
 
 	/**
 	 * Returns the dataset with the given name or path
-	 * 
+	 *
 	 * @param path
 	 *            name or path
 	 * @return dataset
 	 */
 	public ILazyWriteableDataset getDataset(String path);
+
+	/**
+	 * Returns the names of the application definitions that this device supports.
+	 * TODO: make this an enum?
+	 *
+	 * @return name of application definitions
+	 */
+	// public List<String> getApplicationDefinitions();
 
 }

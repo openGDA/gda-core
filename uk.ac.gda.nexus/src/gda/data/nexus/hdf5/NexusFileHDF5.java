@@ -53,7 +53,7 @@ import org.eclipse.dawnsci.hdf5.HDF5FileFactory;
 import org.eclipse.dawnsci.hdf5.nexus.NexusException;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NXobject;
-import org.eclipse.dawnsci.nexus.impl.NXobjectFactory;
+import org.eclipse.dawnsci.nexus.impl.NexusNodeFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -207,7 +207,7 @@ public class NexusFileHDF5 implements NexusFile {
 	private void initializeTree() {
 		if (tree == null) {
 			tree = TreeFactory.createTreeFile(fileName.hashCode(), fileName);
-			((TreeFileImpl) tree).setGroupNode(NXobjectFactory.createNXroot(0l));
+			((TreeFileImpl) tree).setGroupNode(NexusNodeFactory.createNXroot(0l));
 			nodeMap = new HashMap<Long, Node>();
 			passedNodeMap = new HashMap<Node, String>();
 		} else {
@@ -342,7 +342,7 @@ public class NexusFileHDF5 implements NexusFile {
 			if (nxClass == null || nxClass.equals("")) {
 				 g = TreeFactory.createGroupNode(oid);
 			} else {
-				g = NXobjectFactory.createNXobjectForClass(nxClass, oid);
+				g = NexusNodeFactory.createNXobjectForClass(nxClass, oid);
 			}
 			if (nxClass != null && !nxClass.isEmpty()) {
 				g.addAttribute(TreeFactory.createAttribute(NXCLASS, nxClass, false));
@@ -353,7 +353,7 @@ public class NexusFileHDF5 implements NexusFile {
 			if (!(g instanceof NXobject) && g.getAttribute(NXCLASS) != null) {
 				nxClass = g.getAttribute(NXCLASS).getFirstElement();
 				if (nxClass != null && !nxClass.isEmpty()) {
-					g = NXobjectFactory.createNXobjectForClass(nxClass, oid);
+					g = NexusNodeFactory.createNXobjectForClass(nxClass, oid);
 					cacheAttributes(path + Node.SEPARATOR + name, g);
 				}
 			}

@@ -20,25 +20,30 @@ package gda.data.nexus.scan;
 
 import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
 import gda.data.nexus.NexusUtils;
 import gda.util.TestUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyWriteableDataset;
 import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.analysis.dataset.impl.StringDataset;
 import org.eclipse.dawnsci.nexus.NXbeam;
 import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NXentry;
-import org.eclipse.dawnsci.nexus.NXinstrument;
 import org.eclipse.dawnsci.nexus.NXroot;
-import org.eclipse.dawnsci.nexus.NXsample;
 import org.eclipse.dawnsci.nexus.impl.NXbeamImpl;
+import org.eclipse.dawnsci.nexus.impl.NXdataImpl;
 import org.eclipse.dawnsci.nexus.impl.NXdetectorImpl;
-import org.eclipse.dawnsci.nexus.impl.NXobjectFactory;
+import org.eclipse.dawnsci.nexus.impl.NXinstrumentImpl;
+import org.eclipse.dawnsci.nexus.impl.NXobjectImpl;
+import org.eclipse.dawnsci.nexus.impl.NXsampleImpl;
+import org.eclipse.dawnsci.nexus.impl.NexusNodeFactory;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -46,17 +51,20 @@ public class SimpleScanNexusFileTest {
 
 	public class TestDetector implements NexusDevice<NXdetector> {
 
+		private ILazyWriteableDataset defaultDataset;
+
 		@Override
 		public Class<NXdetector> getNexusBaseClass() {
 			return NXdetector.class;
 		}
 
 		@Override
-		public NXdetector createBaseClassInstance(NXobjectFactory nxObjectFactory) {
+		public NXdetector createBaseClassInstance(NexusNodeFactory nxObjectFactory) {
 			final NXdetectorImpl nxDetector = nxObjectFactory.createNXdetector();
 
 			nxDetector.setDescription(StringDataset.createFromObject("Test Detector"));
-			// TODO set more fields
+			defaultDataset = nxDetector.initializeLazyDataset(NXdetectorImpl.NX_DATA, 2, Dataset.FLOAT64);
+			// could add more fields
 
 			return nxDetector;
 		}
@@ -73,13 +81,11 @@ public class SimpleScanNexusFileTest {
 
 		@Override
 		public ILazyWriteableDataset getDefaultWriteableDataset() {
-			// TODO Auto-generated method stub
-			return null;
+			return defaultDataset;
 		}
 
 		@Override
 		public ILazyWriteableDataset getDataset(String path) {
-			// TODO Auto-generated method stub
 			return null;
 		}
 
@@ -93,7 +99,7 @@ public class SimpleScanNexusFileTest {
 		}
 
 		@Override
-		public NXbeam createBaseClassInstance(NXobjectFactory nxObjectFactory) {
+		public NXbeam createBaseClassInstance(NexusNodeFactory nxObjectFactory) {
 			final NXbeamImpl beam = nxObjectFactory.createNXbeam();
 			beam.setIncident_wavelength(DatasetFactory.createFromObject(123.456));
 			beam.setFlux(DatasetFactory.createFromObject(12.34f));
@@ -113,13 +119,11 @@ public class SimpleScanNexusFileTest {
 
 		@Override
 		public ILazyWriteableDataset getDefaultWriteableDataset() {
-			// TODO Auto-generated method stub
 			return null;
 		}
 
 		@Override
 		public ILazyWriteableDataset getDataset(String path) {
-			// TODO Auto-generated method stub
 			return null;
 		}
 
@@ -149,21 +153,23 @@ public class SimpleScanNexusFileTest {
 		final DefaultNexusFileBuilder nexusFileBuilder = new DefaultNexusFileBuilder();
 		nexusFileBuilder.setNexusDevices(devices);
 		nexusFileBuilder.setFilePath(filePath);
+		nexusFileBuilder.addDataLink(NXdataImpl.NX_DATA, "instrument/analyser/data");
+
 		nexusFileBuilder.buildNexusFile();
 
 		// check the constructed tree is as expected
 		final TreeFile nexusTree = nexusFileBuilder.getNexusTree();
-		checkNexusTree(nexusTree);
+		checkNexusTree(nexusTree, true);
 
 		// save the nexus file
 		NexusUtils.saveNexusFile(nexusTree);
 
 		// load the saved file and check the loaded tree is as expected
 		TreeFile reloadedNexusTree = NexusUtils.loadNexusFile(filePath, true);
-		checkNexusTree(reloadedNexusTree);
+		checkNexusTree(reloadedNexusTree, false);
 	}
 
-	public void checkNexusTree(TreeFile nexusTree) {
+	public void checkNexusTree(TreeFile nexusTree, boolean beforeSave) {
 		final NXroot rootNode = (NXroot) nexusTree.getGroupNode();
 		assertNotNull(rootNode);
 		assertEquals(1, rootNode.getNumberOfGroupNodes());
@@ -174,24 +180,43 @@ public class SimpleScanNexusFileTest {
 		assertEquals(3, entry.getNumberOfGroupNodes());
 		assertEquals(0, rootNode.getNumberOfDataNodes());
 
-		NXinstrument instrument = entry.getInstrument();
-		checkInstrument(instrument);
+		NXinstrumentImpl instrument = (NXinstrumentImpl) entry.getInstrument();
+		checkInstrument(instrument, beforeSave);
 
-		NXsample sample = entry.getSample();
-		checkSample(sample);
+		NXsampleImpl sample = (NXsampleImpl) entry.getSample();
+		checkSample(sample, beforeSave);
+
+		NXdataImpl data = (NXdataImpl) entry.getData();
+		checkData(data, beforeSave);
+		assertSame(data.getDataNode(NXdataImpl.NX_DATA), instrument.getDetector("analyser").getDataNode("data"));
 	}
 
-	private void checkInstrument(NXinstrument instrument) {
+	private void checkWriteableDataset(NXobjectImpl impl, String name, int expectedRank, Class<?> expectedElementClass, boolean beforeSave) {
+		ILazyDataset dataset;
+		if (beforeSave) {
+			dataset = impl.getLazyWritableDataset(name);
+		} else {
+			dataset = impl.getDataset(name);
+		}
+
+		assertNotNull(dataset);
+		assertEquals(expectedRank, dataset.getRank());
+		assertEquals(expectedElementClass, dataset.elementClass());
+	}
+
+	private void checkInstrument(NXinstrumentImpl instrument, boolean beforeSave) {
 		assertNotNull(instrument);
 		assertEquals(1, instrument.getNumberOfGroupNodes());
 		assertEquals(0, instrument.getNumberOfDataNodes());
 
-		NXdetector detector = instrument.getDetector("analyser");
+		NXdetectorImpl detector = (NXdetectorImpl) instrument.getDetector("analyser");
 		assertNotNull(detector);
 		assertEquals("Test Detector", detector.getDescription().getString());
+
+		checkWriteableDataset(detector, NXdetectorImpl.NX_DATA, 2, Double.class, beforeSave);
 	}
 
-	private void checkSample(NXsample sample) {
+	private void checkSample(NXsampleImpl sample, boolean beforeSave) {
 		assertNotNull(sample);
 		assertEquals(1, sample.getNumberOfGroupNodes());
 		assertEquals(0, sample.getNumberOfDataNodes());
@@ -200,6 +225,13 @@ public class SimpleScanNexusFileTest {
 		assertNotNull(beam);
 		assertEquals(123.456, beam.getIncident_wavelength().getDouble(), 1e-15);
 		assertEquals(12.34f, beam.getFlux().getFloat(), 1e-7);
+	}
+
+	private void checkData(NXdataImpl data, boolean beforeSave) {
+		assertNotNull(data);
+		assertEquals(0, data.getNumberOfGroupNodes());
+		assertEquals(1, data.getNumberOfDataNodes());
+		checkWriteableDataset(data, NXdataImpl.NX_DATA, 2, Double.class, beforeSave);
 	}
 
 }

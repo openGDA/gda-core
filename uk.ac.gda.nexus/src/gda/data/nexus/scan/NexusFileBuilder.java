@@ -5,14 +5,29 @@ import java.util.List;
 import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
 
 /**
- * A nexus file builder knows how to build a nexus file for a given scan.
+ * A NeXus file builder knows how to build a NeXus file for a given scan.
  */
 public interface NexusFileBuilder {
 
+	/**
+	 * Add the NeXus devices to the builder
+	 *
+	 * @param devices
+	 */
 	public void setNexusDevices(List<NexusDevice<?>> devices);
 
+	/**
+	 * Set the path of the NeXus file.
+	 * @param filepath
+	 */
 	public void setFilePath(String filepath);
 
-	public TreeFile buildNexusFile();
+	/**
+	 * Build the NeXus file.
+	 *
+	 * @return nexus file
+	 * @throws Exception
+	 */
+	public TreeFile buildNexusFile() throws Exception;
 
 }
