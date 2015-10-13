@@ -18,15 +18,19 @@
 
 package uk.ac.gda.arpes.ui.views;
 
+import gda.device.Device;
+import gda.device.MotorStatus;
+import gda.factory.Finder;
+import gda.observable.IObserver;
+
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.FocusAdapter;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
@@ -36,11 +40,6 @@ import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.device.Device;
-import gda.device.MotorStatus;
-import gda.factory.Finder;
-import gda.jython.InterfaceProvider;
-import gda.observable.IObserver;
 import uk.ac.gda.arpes.widgets.ProgressBarWithText;
 import uk.ac.gda.devices.vgscienta.FlexibleFrameDetector;
 import uk.ac.gda.devices.vgscienta.FrameUpdate;
@@ -51,8 +50,10 @@ public class AnalyserProgressView extends ViewPart implements IObserver {
 
 	private Text csweep;
 	private FlexibleFrameDetector analyser;
+	private Device sweepUpdater;
 	private Spinner sweepSpinner;
-	private int oldMax = -1, compSweep = -1;
+	private int scheduledIterations = -1;
+	private int compSweep = -1;
 	private ProgressBarWithText progressBar;
 
 	private Color idleColor = new Color(Display.getCurrent(), 150, 150, 150);
@@ -98,70 +99,40 @@ public class AnalyserProgressView extends ViewPart implements IObserver {
 		sweepSpinner.setMinimum(1);
 		sweepSpinner.setMaximum(1000);
 		sweepSpinner.setSelection(1);
-		sweepSpinner.addModifyListener(new ModifyListener() {
-
-			@Override
-			public void modifyText(ModifyEvent e) {
-				int newMax = sweepSpinner.getSelection();
-				if (newMax < compSweep)
-					return;
-				oldMax = newMax;
-				analyser.setMaximumFrame(oldMax);
-			}
-		});
-
-		Button btnStop = new Button(parent, SWT.NONE);
-		btnStop.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 2, 1));
-		btnStop.setText("Abort Scan");
-		btnStop.addSelectionListener(new SelectionListener() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				InterfaceProvider.getCommandAborter().abortCommands();
-				analyser.setMaximumFrame(analyser.getCurrentFrame());
-			}
+		sweepSpinner.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
+				// Enter pressed in spinner box try to change scheduled iterations
+				changeScheduledIterations(sweepSpinner.getSelection());
 			}
 		});
-
-		Button btnCompleteAndStop = new Button(parent, SWT.NONE);
-		btnCompleteAndStop.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 2, 1));
-		btnCompleteAndStop.setText("Finish after current Iteration");
-		btnCompleteAndStop.addSelectionListener(new SelectionListener() {
+		sweepSpinner.addFocusListener(new FocusAdapter() {
 			@Override
-			public void widgetSelected(SelectionEvent e) {
-				analyser.setMaximumFrame(analyser.getCurrentFrame());
-			}
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
+			public void focusLost(FocusEvent e) {
+				// Reset the value to the actual scheduled iterations
+				sweepSpinner.setSelection(scheduledIterations);
 			}
 		});
+		sweepSpinner.setToolTipText("The total number of iterations required. Press enter to confim changes");
 
 		analyser = (FlexibleFrameDetector) Finder.getInstance().find("analyser");
 		if (analyser != null) {
 			analyser.addIObserver(this);
 		}
 
-		Device su = (Device) Finder.getInstance().find("sweepupdater");
-		if (su != null) {
-			su.addIObserver(this);
+		sweepUpdater = (Device) Finder.getInstance().find("sweepupdater");
+		if (sweepUpdater != null) {
+			sweepUpdater.addIObserver(this);
 		}
 	}
 
 	@Override
 	public void setFocus() {
-		// TODO Auto-generated method stub
+		sweepSpinner.setFocus();
 	}
 
 	@Override
 	public void update(Object source, Object arg) {
-		if (csweep.isDisposed()) {
-			try {
-				((Device) source).deleteIObserver(this);
-			} catch (Exception e) {}
-			return;
-		}
-
 		if (arg instanceof FrameUpdate) {
 			final FrameUpdate fu = (FrameUpdate) arg;
 			Display.getDefault().asyncExec(new Runnable() {
@@ -169,8 +140,10 @@ public class AnalyserProgressView extends ViewPart implements IObserver {
 				public void run() {
 					compSweep = fu.cFrame;
 					csweep.setText(String.valueOf(compSweep));
-					if (fu.mFrame != oldMax) {
-						sweepSpinner.setSelection(fu.mFrame);
+					if (fu.mFrame != scheduledIterations) {
+						scheduledIterations = fu.mFrame;
+						sweepSpinner.setSelection(scheduledIterations);
+						logger.debug("Updated scheduled iterations to {}", scheduledIterations);
 					}
 				}
 			});
@@ -196,7 +169,7 @@ public class AnalyserProgressView extends ViewPart implements IObserver {
 			return;
 		}
 		if (arg instanceof SweptProgress) {
-			logger.debug("updated with "+arg.toString());
+			logger.trace("updated with " + arg.toString());
 			final SweptProgress sp = (SweptProgress) arg;
 			Display.getDefault().asyncExec(new Runnable() {
 				@Override
@@ -213,4 +186,28 @@ public class AnalyserProgressView extends ViewPart implements IObserver {
 		}
 	}
 
+	/**
+	 * Allow increasing or reducing the number of scheduled iterations while the scan is running
+	 *
+	 * @param newScheduledIterations
+	 */
+	private void changeScheduledIterations(int newScheduledIterations) {
+		logger.debug("About to change scheduled iterations to: {}", newScheduledIterations);
+		try {
+			analyser.setMaximumFrame(newScheduledIterations);
+			logger.info("Changed scheduled iterations to: {}", newScheduledIterations);
+		} catch (IllegalArgumentException e) {
+			logger.error("Scheduled iteratons could not be set to {}", newScheduledIterations, e);
+			// Reset the scheduled iterations GUI to reflect the unsuccessful change
+			sweepSpinner.setSelection(scheduledIterations);
+		}
+	}
+
+	@Override
+	public void dispose() {
+		// Remove the listeners
+		analyser.deleteIObserver(this);
+		sweepUpdater.deleteIObserver(this);
+		super.dispose();
+	}
 }

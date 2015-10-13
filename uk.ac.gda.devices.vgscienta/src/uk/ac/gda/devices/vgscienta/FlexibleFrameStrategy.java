@@ -19,9 +19,6 @@
 package uk.ac.gda.devices.vgscienta;
 
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.device.DeviceException;
 import gda.device.detector.addetector.triggering.SimpleAcquire;
 import gda.device.detector.areadetector.v17.ADBase;
@@ -36,6 +33,9 @@ import gov.aps.jca.TimeoutException;
 import gov.aps.jca.dbr.DBR_Int;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FlexibleFrameStrategy extends SimpleAcquire implements MonitorListener, IObservable {
 	static final Logger logger = LoggerFactory.getLogger(FlexibleFrameStrategy.class);
@@ -121,7 +121,8 @@ public class FlexibleFrameStrategy extends SimpleAcquire implements MonitorListe
 	public void setMaxNumberOfFrames(int maxNumberOfFrames) {
 		if (maxNumberOfFrames < 1)
 			throw new IllegalArgumentException("must collect at least one frame");
-		if (maxNumberOfFrames < currentFrame)
+		// Catch the equal case as it can cause problems if a frame completes while changing iterations
+		if (maxNumberOfFrames <= currentFrame)
 			throw new IllegalArgumentException("cannot reduce number of frames when I already collected more");
 		this.maxNumberOfFrames = maxNumberOfFrames;
 		interactWithDeviceIfRequired();
