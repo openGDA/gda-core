@@ -55,7 +55,8 @@ public class P2RZebraConstantVelMoveController extends ZebraConstantVelocityMove
 	protected void setupGateAndArm(double pcGateStart, double pcGateWidth, double step, double pcGateTimeInS) throws Exception {
 		getZebra().pcDisarm();
 		
-		comm.send("TR2,"+pcGateStart+","+pcGateStart+step);
+		//comm.send("TR2,"+pcGateStart+","+pcGateStart+step);
+		comm.send("TR1,"+pcGateStart);
 		comm.send("TS");
 		
 		pcGateWidthRBV = pcGateWidth;
