@@ -92,10 +92,10 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 			zebra.setPCPulseSource(mode);
 
 			//set motor before setting gates and pulse parameters
-			zebra.setPCCaptureBitField(pcCaptureBitField);
-			//zebra.setPCCaptureBitField(2); // kw
-			zebra.setPCEnc(zebraMotorInfoProvider.getPcEnc()); // Default is Zebra.PC_ENC_ENC1
-			//zebra.setPCEnc(1); // kw
+			//zebra.setPCCaptureBitField(pcCaptureBitField);
+			zebra.setPCCaptureBitField(2); // kw
+			//zebra.setPCEnc(zebraMotorInfoProvider.getPcEnc()); // Default is Zebra.PC_ENC_ENC1
+			zebra.setPCEnc(1); // kw
 			zebra.setPCDir(step>0 ? Zebra.PC_DIR_POSITIVE : Zebra.PC_DIR_NEGATIVE);
 			
 			zebra.setPCGateNumberOfGates(1);
@@ -231,8 +231,8 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 				
 				double pcPulseWidthRaw;
 				if ( !isPcPulseGateNotTrigger() ) {
-//					pcPulseWidthRaw = Math.max(0.01*timeUnitConversion, 0.0001);
-					pcPulseWidthRaw = 1.0;
+					pcPulseWidthRaw = Math.max(0.01*timeUnitConversion, 0.0001);
+					//pcPulseWidthRaw = 1.0; // kw
 				} else {
 					//pcPulseWidthRaw=maxCollectionTimeFromDetectors*timeUnitConversion;
 					// TODO: Remove offset when the bug in zebra with PC_PULSE_WID == PC_PULSE_STEP is fixed.

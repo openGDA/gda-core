@@ -389,8 +389,8 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 
 	@Override
 	public ReadOnlyPV<Double[]> getEnc1AvalPV() {
-		return dev.getReadOnlyPVDoubleArray(useAvalField? PCEnc1Aval + ".AVAL": PCEnc1Aval);
-		//return dev.getReadOnlyPVDoubleArray("PC_ENC2"); // kw
+		//return dev.getReadOnlyPVDoubleArray(useAvalField? PCEnc1Aval + ".AVAL": PCEnc1Aval);
+		return dev.getReadOnlyPVDoubleArray("PC_ENC2"); // kw
 	}
 
 	@Override
