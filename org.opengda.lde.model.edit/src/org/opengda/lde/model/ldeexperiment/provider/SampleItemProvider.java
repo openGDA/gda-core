@@ -66,8 +66,6 @@ public class SampleItemProvider
 			addSample_exposurePropertyDescriptor(object);
 			addCommandPropertyDescriptor(object);
 			addCommentPropertyDescriptor(object);
-			addCalibrationFilePathPropertyDescriptor(object);
-			addDataFilePathPropertyDescriptor(object);
 		}
 		return itemPropertyDescriptors;
 	}
@@ -306,50 +304,6 @@ public class SampleItemProvider
 				 getString("_UI_Sample_comment_feature"),
 				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_comment_feature", "_UI_Sample_type"),
 				 LDEExperimentsPackage.Literals.SAMPLE__COMMENT,
-				 true,
-				 false,
-				 false,
-				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
-				 null,
-				 null));
-	}
-
-	/**
-	 * This adds a property descriptor for the Calibration File Path feature.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	protected void addCalibrationFilePathPropertyDescriptor(Object object) {
-		itemPropertyDescriptors.add
-			(createItemPropertyDescriptor
-				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
-				 getResourceLocator(),
-				 getString("_UI_Sample_calibrationFilePath_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_calibrationFilePath_feature", "_UI_Sample_type"),
-				 LDEExperimentsPackage.Literals.SAMPLE__CALIBRATION_FILE_PATH,
-				 true,
-				 false,
-				 false,
-				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
-				 null,
-				 null));
-	}
-
-	/**
-	 * This adds a property descriptor for the Data File Path feature.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	protected void addDataFilePathPropertyDescriptor(Object object) {
-		itemPropertyDescriptors.add
-			(createItemPropertyDescriptor
-				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
-				 getResourceLocator(),
-				 getString("_UI_Sample_dataFilePath_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_dataFilePath_feature", "_UI_Sample_type"),
-				 LDEExperimentsPackage.Literals.SAMPLE__DATA_FILE_PATH,
 				 true,
 				 false,
 				 false,

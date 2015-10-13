@@ -105,8 +105,8 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/sample_exposure"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/command"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/comment"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/calibrationFilePath"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/dataFilePath"/>
+      <genFeatures property="None" createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/calibrationFilePath"/>
+      <genFeatures property="None" createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/dataFilePath"/>
     </genClasses>
   </genPackages>
 </genmodel:GenModel>
