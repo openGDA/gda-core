@@ -189,7 +189,9 @@ public class RGASetup extends ViewPart implements IObserver {
 
 	@Override
 	public void setFocus() {
-		massesComposites[0].setFocus();
+		if (massesComposites != null && massesComposites.length > 0 && massesComposites[0] != null) {
+			massesComposites[0].setFocus();
+		}
 	}
 
 	/**
@@ -227,7 +229,7 @@ public class RGASetup extends ViewPart implements IObserver {
 				rga.stopRecording();
 			}
 		} catch (Exception e) {
-			logger.error("Exception when tryign to toggle RGA recording", e);
+			logger.error("Exception when trying to toggle RGA recording", e);
 		}
 	}
 

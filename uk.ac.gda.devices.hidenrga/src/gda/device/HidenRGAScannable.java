@@ -18,6 +18,16 @@
 
 package gda.device;
 
+import gda.configuration.properties.LocalProperties;
+import gda.data.NumTracker;
+import gda.data.PathConstructor;
+import gda.device.scannable.ScannableBase;
+import gda.epics.EpicsConstants;
+import gda.factory.FactoryException;
+import gda.jython.InterfaceProvider;
+import gda.observable.IObserver;
+import gov.aps.jca.CAException;
+
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -32,16 +42,6 @@ import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.core.runtime.IPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import gda.configuration.properties.LocalProperties;
-import gda.data.NumTracker;
-import gda.data.PathConstructor;
-import gda.device.scannable.ScannableBase;
-import gda.epics.EpicsConstants;
-import gda.factory.FactoryException;
-import gda.jython.InterfaceProvider;
-import gda.observable.IObserver;
-import gov.aps.jca.CAException;
 
 /**
  * The Hiden RGA is a gas mass analyser for use on Spectroscopy beamlines.
@@ -61,15 +61,16 @@ import gov.aps.jca.CAException;
  * If it is already recording to a file and it is included in a scan that it
  * will throw an exception which will abort the scan.
  */
-public class HidenRGAScannable extends ScannableBase implements IObserver , HidenRGA{
+public class HidenRGAScannable extends ScannableBase implements IObserver, HidenRGA {
 
 	public static final String RECORDING_STARTED = "RGA recording started";
 	public static final String RECORDING_STOPPED = "RGA recording stopped";
 
 	private static final Logger logger = LoggerFactory.getLogger(HidenRGAScannable.class);
-	private static final String FORMAT = "%.3f";
-	private static final String DATE_FORMAT = "HH:mm:ss:SSS d MMM yyyy ";
-	private boolean useAuxiliaryInputs=true;
+	private static final String FORMAT = "%.6g";
+	private static final String DATE_FORMAT = "HH:mm:ss:SSS d MMM yyyy";
+	private static final String TIME_FORMAT = "HH:mm:ss:SSS";
+	private boolean useAuxiliaryInputs = true;
 
 	private class HidenFileWriter extends Thread {
 
@@ -77,6 +78,7 @@ public class HidenRGAScannable extends ScannableBase implements IObserver , Hide
 		private boolean shouldStop = false;
 		private Date startTime;
 		private DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+		private DateFormat timeFormat = new SimpleDateFormat(TIME_FORMAT);
 		private Double[][] massesData = new Double[21][];
 		private Double[] valveData;
 		private Double[] tempData;
@@ -109,6 +111,10 @@ public class HidenRGAScannable extends ScannableBase implements IObserver , Hide
 						}
 						lastScanCycleUsed = lastScanCycleSeen;
 					}
+					if (messageToAppend != null) {
+						buffer.write(String.format("# %s\n", messageToAppend));
+						messageToAppend = null;
+					}
 					sleep();
 				}
 			} catch (DeviceException e) {
@@ -130,11 +136,10 @@ public class HidenRGAScannable extends ScannableBase implements IObserver , Hide
 
 		private void sleep() {
 
-			// increase the sleep time if the collectionRate attribute has been
-			// set
+			// increase the sleep time if the collectionRate attribute has been set
 			int sleepTime_ms = 50;
 			if (collectionRate >= 1) {
-				sleepTime_ms = collectionRate * 1000;
+				sleepTime_ms = collectionRate * 100; // use 1/10th of the collection time to avoid overshooting too much
 			}
 
 			try {
@@ -145,15 +150,29 @@ public class HidenRGAScannable extends ScannableBase implements IObserver , Hide
 		}
 
 		private void writeHeader(BufferedWriter buffer) throws IOException {
-			startTime = new Date(); // used for 'slow' (throttled) data
-									// collection
+			startTime = new Date(); // used for 'slow' (throttled) data collection
 
-			Double[] dataCollectionStartEpicsEpoch = controller.timestampPV.get(1); // in
-																					// Epics
-																					// Epoch
-			Double dataCollectionStartInJavaEpoch = dataCollectionStartEpicsEpoch[0]
-					+ EpicsConstants.EPICS_EPOCH_OFFSET;
-			Date dataCollectionStart = new Date(dataCollectionStartInJavaEpoch.longValue());
+			Double dataCollectionStartEpicsEpoch = controller.timestampPV.get(1)[0]; // in Epics epoch
+
+			// Check if start time is zero (occurs while EPICS is waiting for the RGA to start scanning)
+			while (Math.abs(dataCollectionStartEpicsEpoch.doubleValue()) < 0.01
+					&& (new Date().getTime() - startTime.getTime()) < 60000) { // timeout after a minute
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					break;
+				}
+				dataCollectionStartEpicsEpoch = controller.timestampPV.get(1)[0];
+			}
+
+			Date dataCollectionStart;
+			if (Math.abs(dataCollectionStartEpicsEpoch.doubleValue()) < 0.01) {
+				logger.warn("Timeout while waiting for timestamp from RGA controller");
+				dataCollectionStart = startTime;
+			} else {
+				Double dataCollectionStartInJavaEpoch = dataCollectionStartEpicsEpoch + EpicsConstants.EPICS_EPOCH_OFFSET;
+				dataCollectionStart = new Date(dataCollectionStartInJavaEpoch.longValue());
+			}
 
 			String[] columns = getExtraNames();
 
@@ -161,15 +180,29 @@ public class HidenRGAScannable extends ScannableBase implements IObserver , Hide
 			header.append("# Scan started: ");
 			header.append(dateFormat.format(dataCollectionStart));
 			header.append("\n");
-			header.append("Relative Time (ms)");
+			header.append("Absolute Time");
 			header.append("\t");
+			header.append("Relative Time (ms)");
 			for (String column : columns) {
-				header.append(column);
 				header.append("\t");
+				header.append(column);
 			}
 			header.append("\n");
 
 			buffer.write(header.toString());
+		}
+
+		private void recordNewEntry(BufferedWriter buffer) throws DeviceException, IOException {
+			Date now = new Date();
+			long timeSinceStart = now.getTime() - startTime.getTime();
+			double[] latestMasses = controller.readout();
+			Double valve = null;
+			Double temp = null;
+			if (isUseAuxiliaryInputs()) {
+				valve = controller.readValve();
+				temp = controller.readtemp();
+			}
+			recordSingleEntry(buffer, now, timeSinceStart, latestMasses, valve, temp);
 		}
 
 		private void recordMissingEntries(BufferedWriter buffer) throws DeviceException, IOException {
@@ -186,69 +219,44 @@ public class HidenRGAScannable extends ScannableBase implements IObserver , Hide
 			timeStampData = controller.timestampPV.get(availableDataPoints);
 
 			for (int cycle = lastDataPoint; cycle < availableDataPoints; cycle++) {
-				System.out.println("Doing cycle " + cycle);
+				logger.debug("Doing cycle " + cycle);
 				double[] latestMasses = new double[masses.size()];
 				for (int chan = 0; chan < masses.size(); chan++) {
 					latestMasses[chan] = massesData[chan][cycle];
 				}
-				long relativeTime = timeStampData[cycle].longValue() - timeStampData[0].longValue();
+				long absTime = timeStampData[cycle].longValue();
+				long relativeTime = absTime - timeStampData[0].longValue();
+
+				Date absTimeInJavaEpoch = new Date(absTime + EpicsConstants.EPICS_EPOCH_OFFSET);
 
 				if (isUseAuxiliaryInputs()) {
-					recordSingleEntry(buffer, latestMasses, valveData[cycle], tempData[cycle], relativeTime);
+					recordSingleEntry(buffer, absTimeInJavaEpoch, relativeTime, latestMasses, valveData[cycle], tempData[cycle]);
 				} else {
-					recordSingleEntry(buffer, latestMasses, null, null, relativeTime);
+					recordSingleEntry(buffer, absTimeInJavaEpoch, relativeTime, latestMasses, null, null);
 				}
 			}
 			lastDataPoint = availableDataPoints;
 		}
 
-		private void recordSingleEntry(BufferedWriter buffer, double[] latestMasses, Double valve, Double temp,
-				long relativeTime) throws IOException {
+		private void recordSingleEntry(BufferedWriter buffer, Date absTime, long relativeTime, double[] latestMasses, Double valve, Double temp) throws IOException {
 
 			StringBuffer lineToWrite = new StringBuffer();
+			lineToWrite.append(timeFormat.format(absTime));
+			lineToWrite.append("\t");
 			lineToWrite.append(String.format("%d", relativeTime));
-			lineToWrite.append("\t");
 			for (double mass : latestMasses) {
+				lineToWrite.append("\t");
 				lineToWrite.append(String.format(FORMAT, mass));
-				lineToWrite.append("\t");
 			}
-			if (valve!=null) {
+			if (valve != null) {
+				lineToWrite.append("\t");
 				lineToWrite.append(String.format(FORMAT, valve));
-				lineToWrite.append("\t");
 			}
-			if (temp!=null) {
+			if (temp != null) {
+				lineToWrite.append("\t");
 				lineToWrite.append(String.format(FORMAT, temp));
-				lineToWrite.append("\n");
 			}
-
-			buffer.write(lineToWrite.toString());
-		}
-
-		private void recordNewEntry(BufferedWriter buffer) throws DeviceException, IOException {
-			Date now = new Date();
-			long timesinceStart = now.getTime() - startTime.getTime();
-			double[] latestMasses = controller.readout();
-			Double valve =null;
-			Double temp=null;
-			if (isUseAuxiliaryInputs()) {
-				valve = controller.readValve();
-				temp = controller.readtemp();
-			}
-			StringBuffer lineToWrite = new StringBuffer();
-			lineToWrite.append(String.format("%d", timesinceStart));
-			lineToWrite.append("\t");
-			for (double mass : latestMasses) {
-				lineToWrite.append(String.format(FORMAT, mass));
-				lineToWrite.append("\t");
-			}
-			if (valve!=null) {
-				lineToWrite.append(String.format(FORMAT, valve));
-				lineToWrite.append("\t");
-			}
-			if (temp!=null) {
-				lineToWrite.append(String.format(FORMAT, temp));
-				lineToWrite.append("\n");
-			}
+			lineToWrite.append("\n");
 
 			buffer.write(lineToWrite.toString());
 		}
@@ -264,9 +272,9 @@ public class HidenRGAScannable extends ScannableBase implements IObserver , Hide
 	private HidenFileWriter fileWriterThread;
 	private volatile int lastScanCycleSeen = 0;
 	private volatile int lastScanCycleUsed = 0;
+	private volatile String messageToAppend;
 	private boolean inAScan = false;
-	private int collectionRate = -1; // the minimum time between data
-										// collections, in seconds
+	private int collectionRate = -1; // the minimum time between data collections, in seconds
 
 	public HidenRGAScannable() {
 		setInputNames(new String[] {});
@@ -279,7 +287,6 @@ public class HidenRGAScannable extends ScannableBase implements IObserver , Hide
 				controller.setUseAuxiliaryInputs(isUseAuxiliaryInputs());//this must be called before connect.
 				controller.connect();
 				controller.addIObserver(this);
-				InterfaceProvider.getTerminalPrinter().print(getName() + " connected to Epics");
 				configured = true;
 			} catch (CAException e) {
 				throw new FactoryException("CAException when trying to connect ot RGA", e);
@@ -321,7 +328,7 @@ public class HidenRGAScannable extends ScannableBase implements IObserver , Hide
 	private boolean isRecording() {
 		return fileWriterThread != null && fileWriterThread.isAlive();
 	}
-	
+
 	@Override
 	public void stop() throws DeviceException {
 		atCommandFailure();
@@ -388,7 +395,7 @@ public class HidenRGAScannable extends ScannableBase implements IObserver , Hide
 
 	@Override
 	public String toFormattedString() {
-		if (configured){
+		if (configured) {
 			return super.toFormattedString();
 		}
 
@@ -400,7 +407,7 @@ public class HidenRGAScannable extends ScannableBase implements IObserver , Hide
 
 		synchronized (this) {
 
-			if (!configured){
+			if (!configured) {
 				int numberZeroes = getExtraNames().length;
 				return new int[numberZeroes];
 			}
@@ -512,5 +519,20 @@ public class HidenRGAScannable extends ScannableBase implements IObserver , Hide
 
 	public void setUseAuxiliaryInputs(boolean useAuxiliaryInputs) {
 		this.useAuxiliaryInputs = useAuxiliaryInputs;
+	}
+
+	/**
+	 * Add a message to the RGA data file. This can be used for recording, say,
+	 * scan numbers and sample conditions to allow them to be easily linked to
+	 * the corresponding RGA data
+	 *
+	 * @param message
+	 */
+	public void addToOutputFile(String message) {
+		if (isRecording()) {
+			messageToAppend = message;
+		} else {
+			logger.warn("RGA is not recording a file, could not append message '{}'", message);
+		}
 	}
 }

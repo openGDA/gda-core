@@ -127,7 +127,7 @@ public class HidenRGAController implements IObservable, InitializationListener {
 		for (int chan = 1; chan <= getNumberOfMassChannels(); chan++){
 			massSetPVs[chan - 1] = LazyPVFactory.newIntegerPV(generatePVName(String.format(":MID:%d:M_SP",chan)));
 			massReadbackPVs[chan - 1] = LazyPVFactory.newReadOnlyDoublePV(generatePVName(String.format(":MID:%d:M_RBV",chan)));
-			massCountsPerSecPVs[chan - 1] = LazyPVFactory.newReadOnlyDoublePV(generatePVName(String.format(":P:MID%d-I",chan)));
+			massCountsPerSecPVs[chan - 1] = LazyPVFactory.newReadOnlyDoublePV(generatePVName(String.format(":P:MID%d-PCALC",chan)));
 			if (chan > 1){
 				enableMassPVs[chan - 2] = LazyPVFactory.newIntegerPV(generatePVName(String.format(":MID:%d:ENABLE",chan)));
 			}
@@ -177,8 +177,23 @@ public class HidenRGAController implements IObservable, InitializationListener {
 		writeToRGAPv.putWait(1);
 	}
 
-	protected void startScan() throws IOException{
-		startScanPV.putWait(1);
+	protected void startScan() throws IOException {
+		int retries = 0;
+		while (true) {
+			try {
+				retries++;
+				startScanPV.putWait(1);
+				break;
+			} catch (IOException e) {
+				if (retries > 10) {
+					throw e;
+				}
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException ignored) {
+				}
+			}
+		}
 	}
 
 	public void stopScan() throws IOException {
