@@ -286,12 +286,14 @@ class Map(Scan):
             beamMonitor = command_server.getFromJythonNamespace("beamMonitor", None)
             detectorFillingMonitor = command_server.getFromJythonNamespace("detectorFillingMonitor", None)
             
-            topupMonitor.setPauseBeforePoint(True)
-            topupMonitor.setCollectionTime(collectionTime)
-            topupMonitor.setPauseBeforeLine(False)
-    
-            beamMonitor.setPauseBeforePoint(True)
-            beamMonitor.setPauseBeforeLine(True)
+            if topupMonitor != None:
+                topupMonitor.setPauseBeforePoint(True)
+                topupMonitor.setCollectionTime(collectionTime)
+                topupMonitor.setPauseBeforeLine(False)
+            
+            if beamMonitor != None:
+                beamMonitor.setPauseBeforePoint(True)
+                beamMonitor.setPauseBeforeLine(True)
             
             if(beanGroup.getDetector().getExperimentType() == "Fluorescence" and beanGroup.getDetector().getFluorescenceParameters().getDetectorType() == "Germanium"):
                 self.finder.find("command_server").addDefault(detectorFillingMonitor);
