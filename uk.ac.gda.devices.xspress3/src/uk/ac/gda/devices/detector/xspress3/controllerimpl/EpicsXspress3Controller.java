@@ -445,7 +445,7 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 		return mcas;
 	}
 
-	private void updateArrays() throws DeviceException {
+	private synchronized void updateArrays() throws DeviceException {
 		int maxNumChannels;
 		try {
 			pvProvider.pvUpdate.putWait(1);
