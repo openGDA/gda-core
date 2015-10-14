@@ -3,10 +3,10 @@ from gda.configuration.properties import LocalProperties
 import subprocess
 import os
 COMMAND_PROPERTY = "gda.scan.executeAtEnd"
-
+DEFAULT_COMMAND = LocalProperties.get(COMMAND_PROPERTY)
 def bslConversionCommand():
     """Get the command used to convert files - specified in java.properties"""
-    return LocalProperties.get(COMMAND_PROPERTY)
+    return DEFAULT_COMMAND
 
 
 def createBslFiles(create, command=bslConversionCommand()):
