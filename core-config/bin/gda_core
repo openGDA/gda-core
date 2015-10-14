@@ -9,7 +9,7 @@ bashlog debug "gda_core" "Start of gda_core script"
  
 function gda_core_help {
 	cat 1>&2 <<EOF
-Usage: gda_core [OPTION]... COMPONENT 
+Usage: $(basename "$0") [OPTION]... COMPONENT 
 
 Start the specified GDA component, where COMPONENT can be
     logpanel|servers|client
