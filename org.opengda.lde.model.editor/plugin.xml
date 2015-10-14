@@ -43,12 +43,13 @@
    <extension point="org.eclipse.ui.editors">
       <!-- @generated sampledefinition -->
       <editor
-            id="org.opengda.lde.model.ldeexperiment.presentation.LDEExperimentsEditorID"
-            name="%_UI_LDEExperimentsEditor_label"
-            icon="icons/full/obj16/LDEExperimentsModelFile.gif"
-            extensions="lde"
             class="org.opengda.lde.model.ldeexperiment.presentation.LDEExperimentsEditor"
-            contributorClass="org.opengda.lde.model.ldeexperiment.presentation.LDEExperimentsActionBarContributor">
+            contributorClass="org.opengda.lde.model.ldeexperiment.presentation.LDEExperimentsActionBarContributor"
+            default="true"
+            extensions="lde"
+            icon="icons/full/obj16/LDEExperimentsModelFile.gif"
+            id="org.opengda.lde.model.ldeexperiment.presentation.LDEExperimentsEditorID"
+            name="%_UI_LDEExperimentsEditor_label">
       </editor>
    </extension>
 
@@ -59,7 +60,7 @@
             file-extensions="lde"
             id="org.opengda.lde.model.editor.xml"
             name="LDE files"
-            priority="normal">
+            priority="low">
       </content-type>
    </extension>
 
