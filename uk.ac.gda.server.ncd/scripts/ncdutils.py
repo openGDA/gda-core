@@ -1,5 +1,6 @@
 from uk.ac.gda.server.ncd.subdetector import * 
 from gda.device.scannable import ScannableMotionUnitsBase
+from gdascripts.scannable.epics.PvManager import PvManager
 
 def getDetectorByType(detsystem, dettype):
         for det in detsystem.getDetectors():
@@ -44,3 +45,21 @@ class DetectorMeta(ScannableMotionUnitsBase):
 
     def isBusy(self):
         return 0
+
+class DetectorMetaWithPv(DetectorMeta, object):
+    def __init__(self, name, detsystem, type, meta, unit=None, pv=None):
+        super(DetectorMetaWithPv, self).__init__(name, detsystem, type, meta, unit)
+        self.pv = None
+        if pv is not None:
+            self.pv = PvManager(pv[1:], pv[0])
+            self.pv.configure()
+            self.pv_conversion = 1
+
+    def rawAsynchronousMoveTo(self, p):
+        if p is not None:
+            p = float(p)
+            if p <= 0:
+                p = None
+        if self.pv:
+            self.pv.caput(self.pv_conversion * p)
+        super(DetectorMetaWithPv, self).rawAsynchronousMoveTo(p)
