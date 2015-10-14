@@ -650,7 +650,7 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 	private void applyCurrentRegionsToAllElements() {
 		final int currentElementNumber = getCurrentlySelectedElementNumber();
 		List<DetectorROI> regionsToCopy = detectorParameters.getDetector(currentElementNumber).getRegionList();
-		List<DetectorElement> elements = detectorParameters.getDetectorList();
+		List<DetectorElement> elements = new ArrayList<DetectorElement>(detectorParameters.getDetectorList());
 
 		// Do not overwrite the regions of the current element - this is important to avoid synchronisation issues with updates from the UI
 		elements.remove(currentElementNumber);
