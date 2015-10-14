@@ -297,9 +297,14 @@ where task can be:
 		assert os.path.isdir(self.gda_workspace_parent)
 		self.gda_install_springframework_jars_loc = abspath(self.gda_install_git_loc, "diamond-springframework.git", "uk.ac.diamond.org.springframework", "jars")
 		assert os.path.isdir(self.gda_install_springframework_jars_loc)
+		self.gda_product_present = False
 		self.gda_install_product = abspath(self.gda_workspace_parent, "server_product", "gda-server", "gda-server")
-		assert os.path.isfile(self.gda_install_product)
 		self.gda_osgi_process_matcher = (self.gda_install_product, '-Dosgi.gda.application=true')
+		if os.path.isfile(self.gda_install_product):
+			self.gda_product_present = True			
+		elif self.options.osgi:
+			self.logger.critical("Cannot start in osgi mode; gda-server application file is not present")
+			sys.exit(1)
 		# END
 
 		self.logger.debug("gda_install_workspace_loc = " + self.gda_install_workspace_loc)
@@ -307,7 +312,7 @@ where task can be:
 		# DATAACQTEAM-154
 		self.logger.debug("gda_workspace_parent = " + self.gda_workspace_parent)
 		self.logger.debug("gda_install_springframework_jars_loc = " + self.gda_install_springframework_jars_loc)
-		self.logger.debug("gda_install_springframework_jars_loc = " + self.gda_install_product)
+		self.logger.debug("gda_install_product = " + self.gda_install_product)
 		# END
 		self.determine_operating_environment()
 		self.determine_gda_configuration()
@@ -402,10 +407,8 @@ where task can be:
 		
 		# DATAACQTEAM-154 check if the running instance is the eclipse osgi application variant
 		if len(self.greplines(self.gda_osgi_process_matcher)) > 0:
-			print "OSGI"
 			pids.append(self.servers_product(xmlfile=self.options.os_xml, debug_opts=debug_opts))
 		else:
-			print "NORMAL"
 			pids.append(self.object_server(xmlfile=self.options.os_xml, debug_opts=debug_opts))
 			pids.append(self.event_server())
 			pids.append(self.name_server(port=self.options.ns_port))
