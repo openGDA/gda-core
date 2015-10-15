@@ -65,7 +65,7 @@ else
     #GDA_CORE_SCRIPT_OPTIONS="--headless --debug --debugport=8001 --mode=$GDA_MODE $@"
     GDA_CORE_SCRIPT_OPTIONS="--verbose --headless --debug --debugport=8001 --mode=$GDA_MODE --vardir=${GDA_VAR} $@"
 
-    bashlog info "gda_servers_core" "${GDA_CORE_SCRIPT} ${GDA_CORE_SCRIPT_OPTIONS}"
+    bashlog debug "gda_servers_core" "Starting ${GDA_CORE_SCRIPT} ${GDA_CORE_SCRIPT_OPTIONS}"
     echo  ${GDA_CORE_SCRIPT} ${GDA_CORE_SCRIPT_OPTIONS} >> ${GDA_LOG_FILE}
     nohup ${GDA_CORE_SCRIPT} ${GDA_CORE_SCRIPT_OPTIONS} >> ${GDA_LOG_FILE}  2>&1
 

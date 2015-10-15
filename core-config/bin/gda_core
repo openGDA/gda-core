@@ -5,9 +5,11 @@
 . ${GDA_WORKSPACE_PARENT}/${GDA_CORE_CONFIG_rel}/bin/bashlog_function
 bashlog debug "gda_core" "Start of gda_core script"
 
+# If the supported components or options change, both the help text and gda_core_completion script should be updated to match.
+ 
 function gda_core_help {
 	cat 1>&2 <<EOF
-Usage: gda_core [OPTION]... COMPONENT 
+Usage: $(basename "$0") [OPTION]... COMPONENT 
 
 Start the specified GDA component, where COMPONENT can be
     logpanel|servers|client
