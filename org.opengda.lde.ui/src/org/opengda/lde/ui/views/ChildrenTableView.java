@@ -1,6 +1,5 @@
 package org.opengda.lde.ui.views;
 
-import java.beans.PropertyDescriptor;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -15,25 +14,15 @@ import java.util.List;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
-import org.eclipse.core.databinding.observable.map.IObservableMap;
 import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.emf.common.command.BasicCommandStack;
 import org.eclipse.emf.common.command.Command;
 import org.eclipse.emf.common.notify.Adapter;
-import org.eclipse.emf.common.notify.AdapterFactory;
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.util.EList;
-import org.eclipse.emf.databinding.EMFProperties;
-import org.eclipse.emf.databinding.edit.EMFEditProperties;
 import org.eclipse.emf.ecore.EAttribute;
-import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.EContentAdapter;
@@ -45,8 +34,6 @@ import org.eclipse.emf.edit.domain.AdapterFactoryEditingDomain;
 import org.eclipse.emf.edit.domain.EditingDomain;
 import org.eclipse.emf.edit.domain.IEditingDomainProvider;
 import org.eclipse.emf.edit.provider.ComposedAdapterFactory;
-import org.eclipse.emf.edit.provider.ItemPropertyDescriptor.PropertyValueWrapper;
-import org.eclipse.emf.edit.provider.ItemProvider;
 import org.eclipse.emf.edit.provider.ReflectiveItemProviderAdapterFactory;
 import org.eclipse.emf.edit.provider.resource.ResourceItemProviderAdapterFactory;
 import org.eclipse.emf.edit.ui.dnd.EditingDomainViewerDropAdapter;
@@ -58,10 +45,7 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
-import org.eclipse.jface.databinding.viewers.ObservableListContentProvider;
-import org.eclipse.jface.databinding.viewers.ObservableMapCellLabelProvider;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.CheckboxCellEditor;
@@ -75,15 +59,12 @@ import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.LabelProvider;
-import org.eclipse.jface.viewers.StructuredSelection;
-import org.eclipse.jface.viewers.TableLayout;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.TextCellEditor;
 import org.eclipse.jface.window.ToolTip;
 import org.eclipse.nebula.widgets.formattedtext.FormattedTextCellEditor;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.graphics.Image;
@@ -92,37 +73,22 @@ import org.eclipse.swt.graphics.ImageLoader;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.layout.RowData;
-import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Item;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
-import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.internal.AnimationEngine;
+import org.eclipse.ui.part.PageBook;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.properties.PropertyColumnLabelProvider;
-import org.eclipse.ui.views.properties.PropertyEditingSupport;
-import org.opengda.lde.events.CellChangedEvent;
-import org.opengda.lde.events.DataReductionFailedEvent;
-import org.opengda.lde.events.NewDataFileEvent;
-import org.opengda.lde.events.ProcessMessage;
-import org.opengda.lde.events.SampleChangedEvent;
-import org.opengda.lde.events.SampleProcessingEvent;
-import org.opengda.lde.events.SampleStatusEvent;
-import org.opengda.lde.events.StageChangedEvent;
 import org.opengda.lde.model.edit.CellTableConstants;
 import org.opengda.lde.model.edit.ExperimentTableConstants;
 import org.opengda.lde.model.edit.SampleTableConstants;
@@ -134,34 +100,22 @@ import org.opengda.lde.model.ldeexperiment.Experiment;
 import org.opengda.lde.model.ldeexperiment.ExperimentDefinition;
 import org.opengda.lde.model.ldeexperiment.LDEExperimentsFactory;
 import org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage;
-import org.opengda.lde.model.ldeexperiment.STATUS;
 import org.opengda.lde.model.ldeexperiment.Sample;
 import org.opengda.lde.model.ldeexperiment.Stage;
 import org.opengda.lde.model.ldeexperiment.presentation.LDEExperimentsEditor;
-import org.opengda.lde.model.ldeexperiment.provider.ExperimentItemProvider;
 import org.opengda.lde.model.ldeexperiment.provider.LDEExperimentsItemProviderAdapterFactory;
 import org.opengda.lde.ui.Activator;
 import org.opengda.lde.ui.ImageConstants;
 import org.opengda.lde.ui.providers.ProgressLabelProvider;
-import org.opengda.lde.ui.utils.AnimatedTableItemFeedback;
+import org.opengda.lde.ui.providers.SampleGroupViewContentProvider;
+import org.opengda.lde.ui.providers.SampleGroupViewLabelProvider;
 import org.opengda.lde.ui.utils.StringUtils;
 import org.opengda.lde.utils.LDEResourceUtil;
-import org.opengda.lde.utils.SampleGroupEditingDomain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.support.GenericTypeAwareAutowireCandidateResolver;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
 
-import gda.configuration.properties.LocalProperties;
-import gda.data.NumTracker;
-import gda.device.detector.pixium.events.ScanEndEvent;
-import gda.device.detector.pixium.events.ScanPointStartEvent;
-import gda.device.detector.pixium.events.ScanStartEvent;
-import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
 import gda.jython.scriptcontroller.Scriptcontroller;
-import gda.observable.IObserver;
 
 public class ChildrenTableView extends ViewPart implements IEditingDomainProvider, ISelectionProvider {
 
@@ -258,9 +212,12 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 	private ISelectionListener selectionListener;
 	protected ComposedAdapterFactory adapterFactory;
 	protected TableViewerColumn progressColumn;
+	protected TableViewerColumn statusColumn;
 	protected AdapterFactoryEditingDomain editingDomain;
 	private LinkedHashMap<EAttribute, String> cellAttributeMap;
 	private LinkedHashMap<EAttribute, String> sampleAttributeMap;
+	private PageBook pageBook;
+	private Composite plainComposite;
 
 	public ChildrenTableView() {
 		setTitleToolTip("List of children for the seleceted tree node.");
@@ -283,7 +240,11 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 	 */
 	@Override
 	public void createPartControl(Composite parent) {
-		rootComposite = new Composite(parent, SWT.NONE);
+		pageBook=new PageBook(parent,SWT.None);
+		plainComposite=new Composite(pageBook, SWT.None);
+		plainComposite.setLayout(new FillLayout());
+		 
+		rootComposite = new Composite(pageBook, SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
 		rootComposite.setLayout(new GridLayout());
 
 		viewer = new TableViewer(rootComposite,SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
@@ -303,11 +264,11 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 			logger.error("Cannot load resouce from file: "+name, e);
 		}
 		EObject eObject = resource.getContents().get(0);
-		createColumns(viewer, experimentColumnHeaders, experimentColumnLayouts, eObject);
-		
-		viewer.setContentProvider(new CustomisedAdapterFactoryContentProvider(adapterFactory));
+		contentprovider = new CustomisedAdapterFactoryContentProvider(adapterFactory);
+		viewer.setContentProvider(contentprovider);
 		viewer.setLabelProvider(new AdapterFactoryLabelProvider(adapterFactory));
-		
+		createColumns(viewer, contentprovider.getPropertySource(((ExperimentDefinition)eObject).getExperiment().get(0)), contentprovider);
+
 		samples = Collections.emptyList();
 		resource.eAdapters().add(notifyListener);
 		viewer.setInput(eObject);
@@ -319,11 +280,9 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 		getViewSite().getWorkbenchWindow().getSelectionService().addSelectionListener(selectionListener);
 		// Create the help context id for the viewer's control
 //		PlatformUI.getWorkbench().getHelpSystem().setHelp(childrenTableViewer.getControl(), "org.opengda.lde.ui.views.childerntableview");
-		createActions();
+		createClientActions();
 		initializeToolBar();
 		initializeMenu();
-
-		updateActionIconsState();
 	}
 	/**
 	 * create table columns using customised Content Provider, Label Provider, and Input using List or array of Objects to be displayed
@@ -332,7 +291,7 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 	 * @param columnLayouts
 	 * @param firstElement
 	 */
-	private void createColumns(TableViewer tableViewer, String[] columnHeaders, ColumnWeightData[] columnLayouts, Object firstElement) {
+	private void createColumns(TableViewer tableViewer, String[] columnHeaders, ColumnWeightData[] columnLayouts) {
 		for (int i = 0; i < columnHeaders.length; i++) {
 			TableViewerColumn tableViewerColumn = new TableViewerColumn(tableViewer, SWT.None);
 			TableColumn column = tableViewerColumn.getColumn();
@@ -340,21 +299,6 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 			column.setText(columnHeaders[i]);
 			column.setToolTipText(columnHeaders[i]);
 			column.setWidth(columnLayouts[i].minimumWidth);
-			if (firstElement instanceof ExperimentDefinition) {
-				tableViewerColumn.setEditingSupport(new ExperimentTableColumnEditingSupport(tableViewer, tableViewerColumn));
-				
-			} else	if (firstElement instanceof Experiment) {
-				tableViewerColumn.setEditingSupport(new StageTableColumnEditingSupport(tableViewer, tableViewerColumn));
-			} else if (firstElement instanceof Stage){
-				tableViewerColumn.setEditingSupport(new CellTableColumnEditingSupport(tableViewer, tableViewerColumn));
-				
-			} else if (firstElement instanceof Cell) {
-				tableViewerColumn.setEditingSupport(new SampleTableColumnEditingSupport(tableViewer, tableViewerColumn));
-				
-			} else if (firstElement instanceof Sample) {
-				tableViewerColumn.setEditingSupport(new SampleTableColumnEditingSupport(tableViewer, tableViewerColumn));
-			
-			}
 		}
 	}
 	/**
@@ -363,226 +307,148 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 	 * @param propertyDescriptors
 	 * @param adapterFactoryContentProvider
 	 */
-	private void createColumns(TableViewer tableViewer, IPropertyDescriptor[] propertyDescriptors, AdapterFactoryContentProvider adapterFactoryContentProvider) {
-
+	private void createColumns(TableViewer tableViewer, IPropertySource propertySource, AdapterFactoryContentProvider adapterFactoryContentProvider) {
+		IPropertyDescriptor[] propertyDescriptors=propertySource.getPropertyDescriptors();
 			for (IPropertyDescriptor descriptor : propertyDescriptors) {
 				TableColumn column = new TableColumn(tableViewer.getTable(), SWT.None);
 				column.setText(descriptor.getDisplayName());
 				column.setToolTipText(descriptor.getDescription());
-				column.setWidth(100);
+				column.setWidth(150);
 				column.setMoveable(true);
 				column.setResizable(true);
 				TableViewerColumn tableViewerColumn = new TableViewerColumn(tableViewer, column);
-				tableViewerColumn.setLabelProvider(new PropertyColumnLabelProvider(adapterFactoryContentProvider, descriptor.getId()));
-				tableViewerColumn.setEditingSupport(new PropertyEditingSupport(tableViewer, adapterFactoryContentProvider,descriptor.getId()));			
+				tableViewerColumn.setLabelProvider(new PropertyColumnLabelProvider(adapterFactoryContentProvider, descriptor.getId()) {
+					@Override
+					public Image getImage(Object object) {
+						//get ride of default image provided by EMFPlugin
+						return null;
+					}
+				});
+				// make table cell editable cause tree node selection to move and data just typed in not shown until re-selection the same node.
+//				tableViewerColumn.setEditingSupport(new PropertyEditingSupport(tableViewer, adapterFactoryContentProvider,descriptor.getId()));			
 			}
-	 }
-
-	 private void createColumns(TableViewer viewer, HashMap<EAttribute, String> attributeMap, ObservableListContentProvider cp) {
-			// create a column for each attribute & setup the databinding
-			for (EAttribute attribute : attributeMap.keySet()) {
-				// create a new column
-				TableViewerColumn tvc = new TableViewerColumn(viewer, SWT.LEFT);
-				// determine the attribute that should be observed
-				IObservableMap map = EMFEditProperties.value(editingDomain, attribute).observeDetail(cp.getKnownElements());
-				tvc.setLabelProvider(new ObservableMapCellLabelProvider(map));
-				// set the column title & set the size
-				tvc.getColumn().setText(attributeMap.get(attribute));
-				tvc.getColumn().setWidth(100);
-				tvc.getColumn().setMoveable(true);
-				tvc.getColumn().setResizable(true);
-			}
-
 	 }
 
 	private void initialisation() {
 
-		experimentAttributeMap = new LinkedHashMap<EAttribute, String>();
-		experimentAttributeMap.put(LDEExperimentsPackage.Literals.EXPERIMENT__NAME, ExperimentTableConstants.NAME);
-		experimentAttributeMap.put(LDEExperimentsPackage.Literals.EXPERIMENT__DESCRIPTION, ExperimentTableConstants.DESCRIPTION);
-		experimentAttributeMap.put(LDEExperimentsPackage.Literals.EXPERIMENT__NUMBER_OF_STAGES, ExperimentTableConstants.NUMBER_OF_STAGES);
-		
-		stageAttributeMap = new LinkedHashMap<EAttribute, String>();
-		stageAttributeMap.put(LDEExperimentsPackage.Literals.STAGE__STAGE_ID, StageTableConstants.STAGE_ID);
-		stageAttributeMap.put(LDEExperimentsPackage.Literals.STAGE__DETECTOR_X, StageTableConstants.DETECTOR_X);
-		stageAttributeMap.put(LDEExperimentsPackage.Literals.STAGE__DETECTOR_Y, StageTableConstants.DETECTOR_Y);
-		stageAttributeMap.put(LDEExperimentsPackage.Literals.STAGE__DETECTOR_Z, StageTableConstants.DETECTOR_Z);
-		stageAttributeMap.put(LDEExperimentsPackage.Literals.STAGE__CAMERA_X, StageTableConstants.CAMERA_X);
-		stageAttributeMap.put(LDEExperimentsPackage.Literals.STAGE__CAMERA_Y, StageTableConstants.CAMERA_Y);
-		stageAttributeMap.put(LDEExperimentsPackage.Literals.STAGE__CAMERA_Z, StageTableConstants.CAMERA_Z);
-		stageAttributeMap.put(LDEExperimentsPackage.Literals.STAGE__NUMBER_OF_CELLS, StageTableConstants.NUMBER_OF_CELLS);
-		
-		cellAttributeMap = new LinkedHashMap<EAttribute, String>();
-		cellAttributeMap.put(LDEExperimentsPackage.Literals.CELL__CELL_ID, CellTableConstants.CELL_ID);
-		cellAttributeMap.put(LDEExperimentsPackage.Literals.CELL__NAME, CellTableConstants.CELL_NAME);
-		cellAttributeMap.put(LDEExperimentsPackage.Literals.CELL__VISIT_ID, CellTableConstants.VISIT_ID);
-		cellAttributeMap.put(LDEExperimentsPackage.Literals.CELL__CALIBRANT, CellTableConstants.CALIBRANT_NAME);
-		cellAttributeMap.put(LDEExperimentsPackage.Literals.CELL__CALIBRANT_X, CellTableConstants.CALIBRANT_X);
-		cellAttributeMap.put(LDEExperimentsPackage.Literals.CELL__CALIBRANT_Y, CellTableConstants.CALIBRANT_Y);
-		cellAttributeMap.put(LDEExperimentsPackage.Literals.CELL__CALIBRANT_EXPOSURE, CellTableConstants.CALIBRANT_EXPOSURE);
-		cellAttributeMap.put(LDEExperimentsPackage.Literals.CELL__START_DATE, CellTableConstants.START_DATE);
-		cellAttributeMap.put(LDEExperimentsPackage.Literals.CELL__END_DATE, CellTableConstants.END_DATE);
-		cellAttributeMap.put(LDEExperimentsPackage.Literals.CELL__EMAIL, CellTableConstants.EMAIL);
-		cellAttributeMap.put(LDEExperimentsPackage.Literals.CELL__ENABLE_AUTO_EMAIL, CellTableConstants.AUTO_EMAILING);
-		cellAttributeMap.put(LDEExperimentsPackage.Literals.CELL__ENV_SCANNABLE_NAMES, CellTableConstants.ENV_SCANNABLE_NAMES);
-		
-		sampleAttributeMap = new LinkedHashMap<EAttribute, String>();
-		sampleAttributeMap.put(LDEExperimentsPackage.Literals.SAMPLE__ACTIVE, SampleTableConstants.ACTIVE);
-		sampleAttributeMap.put(LDEExperimentsPackage.Literals.SAMPLE__NAME, SampleTableConstants.SAMPLE_NAME);
-		sampleAttributeMap.put(LDEExperimentsPackage.Literals.SAMPLE__SAMPLE_XSTART, SampleTableConstants.SAMPLE_X_START);
-		sampleAttributeMap.put(LDEExperimentsPackage.Literals.SAMPLE__SAMPLE_XSTOP, SampleTableConstants.SAMPLE_X_STOP);
-		sampleAttributeMap.put(LDEExperimentsPackage.Literals.SAMPLE__SAMPLE_XSTEP, SampleTableConstants.SAMPLE_X_STEP);
-		sampleAttributeMap.put(LDEExperimentsPackage.Literals.SAMPLE__SAMPLE_YSTART, SampleTableConstants.SAMPLE_Y_START);
-		sampleAttributeMap.put(LDEExperimentsPackage.Literals.SAMPLE__SAMPLE_YSTOP, SampleTableConstants.SAMPLE_Y_STOP);
-		sampleAttributeMap.put(LDEExperimentsPackage.Literals.SAMPLE__SAMPLE_YSTEP, SampleTableConstants.SAMPLE_Y_STEP);
-		sampleAttributeMap.put(LDEExperimentsPackage.Literals.SAMPLE__SAMPLE_EXPOSURE, SampleTableConstants.SAMPLE_EXPOSURE);
-		sampleAttributeMap.put(LDEExperimentsPackage.Literals.SAMPLE__COMMAND, SampleTableConstants.COMMAND);
-		sampleAttributeMap.put(LDEExperimentsPackage.Literals.SAMPLE__COMMENT, SampleTableConstants.COMMENT);
-		
-		
-		
 		selectionListener= new ISelectionListener() {
 			
 			@Override
 			public void selectionChanged(IWorkbenchPart part, ISelection selection) {
-				boolean usePropertyDescripors=true;
-				boolean useEMFDataBinding=false;
-				boolean useCustomizedImpl=false;
 				if (part instanceof LDEExperimentsEditor) {
+					if (selection.isEmpty()) {
+						new Label(plainComposite, SWT.None).setText("Children are not available.");
+						pageBook.showPage(plainComposite);
+					} else {
+						Object firstElement = ((IStructuredSelection)selection).getFirstElement();
+						Table oldtable = viewer.getTable();
+						Composite parent=oldtable.getParent();
+						oldtable.dispose();
+						
+						viewer=new TableViewer(rootComposite, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
+						Table table = viewer.getTable();
+						GridData gd_table = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
+						gd_table.heightHint = 386;
+						gd_table.widthHint = 1000;
+						table.setLayoutData(gd_table);
+						table.setHeaderVisible(true);
+						table.setLinesVisible(true);
 
-					Object firstElement = ((IStructuredSelection)selection).getFirstElement();
-					Table oldtable = viewer.getTable();
-					Composite parent=oldtable.getParent();
-					oldtable.dispose();
+						ColumnViewerToolTipSupport.enableFor(viewer, ToolTip.NO_RECREATE);
+						//change order within a cell group
+						viewer.addDragSupport(DND.DROP_COPY | DND.DROP_MOVE | DND.DROP_LINK, new Transfer[] { LocalTransfer.getInstance() },new ViewerDragAdapter(viewer));
+						viewer.addDropSupport(DND.DROP_COPY | DND.DROP_MOVE | DND.DROP_LINK, new Transfer[] { LocalTransfer.getInstance() },new EditingDomainViewerDropAdapter(editingDomain, viewer));
 
-					
-					viewer=new TableViewer(parent,SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
-					Table table = viewer.getTable();
-					GridData gd_table = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
-					gd_table.heightHint = 386;
-					gd_table.widthHint = 1000;
-					table.setLayoutData(gd_table);
-					table.setHeaderVisible(true);
-					table.setLinesVisible(true);
-					
-					ColumnViewerToolTipSupport.enableFor(viewer, ToolTip.NO_RECREATE);
-					
-					// create a content provider
-//					ObservableListContentProvider cp = new ObservableListContentProvider();
+						viewer.setContentProvider(contentprovider);
 
-//					CustomisedAdapterFactoryContentProvider provider = new CustomisedAdapterFactoryContentProvider(adapterFactory);
-//					childrenTableViewer.setContentProvider(provider);
-//					childrenTableViewer.setLabelProvider(new AdapterFactoryLabelProvider(adapterFactory));
-//					childrenTableViewer.setContentProvider(new ArrayContentProvider());
-					if (firstElement instanceof ExperimentDefinition) {
-						ExperimentDefinition experimentDefinition=(ExperimentDefinition)firstElement;
-						if (useEMFDataBinding) {
-							ObservableListContentProvider cp = new ObservableListContentProvider();
-							createColumns(viewer, experimentAttributeMap, cp);
-							viewer.setContentProvider(cp);
-							viewer.setInput(EMFProperties.list(LDEExperimentsPackage.Literals.EXPERIMENT_DEFINITION__EXPERIMENT).observe(experimentDefinition));
-						}
-						if (usePropertyDescripors) {
+						if (firstElement instanceof ExperimentDefinition) {
+							ExperimentDefinition experimentDefinition = (ExperimentDefinition) firstElement;
 							EList<Experiment> experiments2 = experimentDefinition.getExperiment();
-							CustomisedAdapterFactoryContentProvider provider = new CustomisedAdapterFactoryContentProvider(adapterFactory);
-							createColumns(viewer, provider.getPropertySource(experiments2.get(0)).getPropertyDescriptors(), provider);
-							viewer.setContentProvider(provider);
-							viewer.setLabelProvider(new AdapterFactoryLabelProvider(adapterFactory));
+							Experiment experiment;
+							if (experiments2.isEmpty()) {
+								experiment = LDEExperimentsFactory.eINSTANCE.createExperiment();
+							} else {
+								experiment = experiments2.get(0);
+							}
+							createColumns(viewer, contentprovider.getPropertySource(experiment), contentprovider);
 							viewer.setInput(experimentDefinition);
-						}
-						if (useCustomizedImpl) {				
-							createColumns(viewer, experimentColumnHeaders, experimentColumnLayouts, experimentDefinition);
-							viewer.setContentProvider(new CustomisedAdapterFactoryContentProvider(adapterFactory));
-							viewer.setLabelProvider(new AdapterFactoryLabelProvider(adapterFactory));
-							viewer.setInput(experimentDefinition);
-						}
-						setPartName("Experiments");
-					} else if (firstElement instanceof Experiment) {
-						Experiment experiment= (Experiment) firstElement;
-						if (useEMFDataBinding) {
-							ObservableListContentProvider cp = new ObservableListContentProvider();
-							createColumns(viewer, stageAttributeMap, cp);
-							viewer.setContentProvider(cp);
-							viewer.setInput(EMFProperties.list(LDEExperimentsPackage.Literals.EXPERIMENT__STAGE).observe(experiment));
-						}
-						if (usePropertyDescripors) {
+							setPartName("Experiments");
+						} else if (firstElement instanceof Experiment) {
+							Experiment experiment = (Experiment) firstElement;
 							EList<Stage> stages = experiment.getStage();
-							CustomisedAdapterFactoryContentProvider provider = new CustomisedAdapterFactoryContentProvider(adapterFactory);
-							createColumns(viewer,provider.getPropertySource(stages.get(0)).getPropertyDescriptors(), provider);
-							viewer.setContentProvider(provider);
-							viewer.setLabelProvider(new AdapterFactoryLabelProvider(adapterFactory));
+							Stage stage;
+							if (stages.isEmpty()) {
+								stage = LDEExperimentsFactory.eINSTANCE.createStage();
+							} else {
+								stage = stages.get(0);
+							}
+							createColumns(viewer, contentprovider.getPropertySource(stage), contentprovider);
 							viewer.setInput(experiment);
-						}
-						if (useCustomizedImpl) {				
-							createColumns(viewer, stageColumnHeaders, stageColumnLayouts, experiment);
-							viewer.setContentProvider(new CustomisedAdapterFactoryContentProvider(adapterFactory));
-							viewer.setLabelProvider(new AdapterFactoryLabelProvider(adapterFactory));
-							viewer.setInput(experiment);
-						}
-							
-						setPartName("Stages in experiment '"+experiment.getName()+"'");
-					} else if (firstElement instanceof Stage) {
-						Stage stage=(Stage) firstElement;
-						if (useEMFDataBinding) {
-							ObservableListContentProvider cp = new ObservableListContentProvider();
-							createColumns(viewer, cellAttributeMap, cp);
-							viewer.setContentProvider(cp);
-							viewer.setInput(EMFProperties.list(LDEExperimentsPackage.Literals.STAGE__CELL).observe(stage));
-						}
-						if (usePropertyDescripors) {
+							setPartName("Stages (" + experiment.getName() + ")");
+						} else if (firstElement instanceof Stage) {
+							Stage stage = (Stage) firstElement;
 							EList<Cell> cells = stage.getCell();
-							CustomisedAdapterFactoryContentProvider provider = new CustomisedAdapterFactoryContentProvider(adapterFactory);
-							createColumns(viewer, provider.getPropertySource(cells.get(0)).getPropertyDescriptors(), provider);
-							viewer.setContentProvider(provider);
-							viewer.setLabelProvider(new AdapterFactoryLabelProvider(adapterFactory));
+							Cell cell;
+							if (cells.isEmpty()) {
+								cell = LDEExperimentsFactory.eINSTANCE.createCell();
+							} else {
+								cell = cells.get(0);
+							}
+							createColumns(viewer, contentprovider.getPropertySource(cell), contentprovider);
 							viewer.setInput(stage);
-						}
-						if (useCustomizedImpl) {				
-							createColumns(viewer, cellColumnHeaders, cellColumnLayouts, stage);
-							viewer.setContentProvider(new CustomisedAdapterFactoryContentProvider(adapterFactory));
-							viewer.setLabelProvider(new AdapterFactoryLabelProvider(adapterFactory));
-							viewer.setInput(stage);
-						}
-							
-						setPartName("Cells in stage '"+stage.getStageID()+"'");
-					} else if (firstElement instanceof Cell) {
-						Cell cell=(Cell) firstElement;
-						if (useEMFDataBinding) {
-							ObservableListContentProvider cp = new ObservableListContentProvider();
-							createColumns(viewer, sampleAttributeMap, cp);
-							viewer.setContentProvider(cp);
-							viewer.setInput(EMFProperties.list(LDEExperimentsPackage.Literals.CELL__SAMPLE).observe(cell));
-						}
-						if (usePropertyDescripors) {
+							setPartName("Cells (" + stage.getStageID() + ")");
+						} else if (firstElement instanceof Cell) {
+							Cell cell = (Cell) firstElement;
 							EList<Sample> samples2 = cell.getSample();
-							CustomisedAdapterFactoryContentProvider provider = new CustomisedAdapterFactoryContentProvider(adapterFactory);
-							createColumns(viewer, provider.getPropertySource(samples2.get(0)).getPropertyDescriptors(), provider);
-							viewer.setContentProvider(provider);
-							viewer.setLabelProvider(new AdapterFactoryLabelProvider(adapterFactory));
+							Sample sample;
+							if (samples2.isEmpty()) {
+								sample = LDEExperimentsFactory.eINSTANCE.createSample();
+							} else {
+								sample = samples2.get(0);
+							}
+							createColumns(viewer, contentprovider.getPropertySource(sample), contentprovider);
 							viewer.setInput(cell);
+							setPartName("Samples (" + cell.getName() + ")");
+						} else if (firstElement instanceof Sample) {
+								//display all samples with progress and collected data info.
+							createColumns(viewer, sampleColumnHeaders,sampleColumnLayouts);
+							viewer.setContentProvider(new SampleGroupViewContentProvider(getResUtil()));
+							viewer.setLabelProvider(new SampleGroupViewLabelProvider());
+							
+							samples = Collections.emptyList();
+							try {
+								resource = getResUtil().getResource();
+								resource.eAdapters().add(notifyListener);
+								viewer.setInput(resource);
+							} catch (Exception e2) {
+								logger.error("Cannot load resouce from file: "+getResUtil().getFileName(), e2);
+							}
+							
+							images = loadAnimatedGIF(viewer.getControl().getDisplay(), ImageConstants.ICON_RUNNING);
+
+							progressColumn = new TableViewerColumn(viewer, viewer.getTable().getColumn(1));
+							ProgressLabelProvider progressLabelProvider = new ProgressLabelProvider(viewer, samples);
+							if (eventAdmin != null) {
+								progressLabelProvider.setEventAdmin(eventAdmin);
+								eventAdmin.addIObserver(progressLabelProvider);
+							}
+							progressColumn.setLabelProvider(progressLabelProvider);
+							try {
+								viewer.setInput(getResUtil().getSamples());
+							} catch (Exception e) {
+								logger.error("Fail to get all samples from sample definition file", e);
+							}
+							setPartName("Samples ("
+									+ ((Sample) firstElement).getCell().getStage().getExperiment().getName()+")");
+
+							createServerActions();
+							addServerActionsToToolBar();
+							addserverActionsToMenu();
+							updateActionIconsState();
 						}
-						if (useCustomizedImpl) {				
-							createColumns(viewer, sampleColumnHeadersForCell, sampleColumnLayoutsForCell, cell);
-							viewer.setContentProvider(new CustomisedAdapterFactoryContentProvider(adapterFactory));
-							viewer.setLabelProvider(new AdapterFactoryLabelProvider(adapterFactory));
-							viewer.setInput(cell);
-						}
-						setPartName("Samples in cell '"+cell.getName()+"'");
-					} 
-//					Table childrentable = childrenTableViewer.getTable();
-//					GridData gd_childrentable = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
-//					gd_childrentable.heightHint = 386;
-//					gd_childrentable.widthHint = 1000;
-//					childrentable.setLayoutData(gd_childrentable);		
-//					childrentable.setHeaderVisible(true);
-//					childrentable.setLinesVisible(true);
-					
-//					ColumnViewerToolTipSupport.enableFor(childrenTableViewer, ToolTip.NO_RECREATE);
-					//change order within a cell group
-//					childrenTableViewer.addDragSupport(DND.DROP_COPY | DND.DROP_MOVE | DND.DROP_LINK, new Transfer[] { LocalTransfer.getInstance() },new ViewerDragAdapter(childrenTableViewer));
-//					childrenTableViewer.addDropSupport(DND.DROP_COPY | DND.DROP_MOVE | DND.DROP_LINK, new Transfer[] { LocalTransfer.getInstance() },new EditingDomainViewerDropAdapter(editingDomain, childrenTableViewer));
-					parent.layout(true);
-//					viewer.refresh();
+						parent.layout(true);
+						pageBook.showPage(rootComposite);
+					}
 				}
 			}
 		};
@@ -624,7 +490,7 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 	/**
 	 * Create the actions.
 	 */
-	private void createActions() {
+	private void createServerActions() {
 
 		startAction= new Action() {
 
@@ -732,6 +598,10 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 		skipAction.setText("Skip");
 		skipAction.setImageDescriptor(Activator.getDefault().getImageRegistry().getDescriptor(ImageConstants.ICON_SKIP));
 		skipAction.setToolTipText("Skip the current sample data collection on GDA server");
+	}
+	
+	
+	private void createClientActions() {
 		
 		addAction = new Action() {
 
@@ -865,12 +735,6 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 	 */
 	private void initializeToolBar() {
 		IToolBarManager toolbarManager = getViewSite().getActionBars().getToolBarManager();
-		toolbarManager.add(startAction);
-		toolbarManager.add(stopAction);
-		toolbarManager.add(pauseAction);
-		toolbarManager.add(resumeAction);
-		toolbarManager.add(skipAction);
-		toolbarManager.add(new Separator());
 		toolbarManager.add(addAction);
 		toolbarManager.add(deleteAction);
 		toolbarManager.add(copyAction);
@@ -879,17 +743,20 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 		toolbarManager.add(new Separator());		
 	}
 
+	private void addServerActionsToToolBar() {
+		IToolBarManager toolbarManager = getViewSite().getActionBars().getToolBarManager();
+		toolbarManager.add(startAction);
+		toolbarManager.add(stopAction);
+		toolbarManager.add(pauseAction);
+		toolbarManager.add(resumeAction);
+		toolbarManager.add(skipAction);
+		toolbarManager.add(new Separator());
+	}
 	/**
 	 * Initialize the menu.
 	 */
 	private void initializeMenu() {
 		IMenuManager menuManager = getViewSite().getActionBars().getMenuManager();
-		menuManager.add(startAction);
-		menuManager.add(stopAction);
-		menuManager.add(pauseAction);
-		menuManager.add(resumeAction);
-		menuManager.add(skipAction);
-		menuManager.add(new Separator());
 		menuManager.add(addAction);
 		menuManager.add(deleteAction);
 		menuManager.add(copyAction);
@@ -897,7 +764,15 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 		menuManager.add(redoAction);
 		menuManager.add(new Separator());
 	}
-
+	private void addserverActionsToMenu() {
+		IMenuManager menuManager = getViewSite().getActionBars().getMenuManager();
+		menuManager.add(startAction);
+		menuManager.add(stopAction);
+		menuManager.add(pauseAction);
+		menuManager.add(resumeAction);
+		menuManager.add(skipAction);
+		menuManager.add(new Separator());
+	}
 	@Override
 	public void setFocus() {
 		viewer.getControl().setFocus();
@@ -940,6 +815,7 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 	private LinkedHashMap<EAttribute, String> experimentAttributeMap;
 	private LinkedHashMap<EAttribute, String> stageAttributeMap;
 	private Composite rootComposite;
+	private CustomisedAdapterFactoryContentProvider contentprovider;
 
 
 
