@@ -37,6 +37,7 @@ import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
 import org.eclipse.emf.ecore.impl.MinimalEObjectImpl;
+import org.eclipse.emf.ecore.util.EDataTypeEList;
 import org.eclipse.emf.ecore.util.EDataTypeUniqueEList;
 import org.eclipse.emf.ecore.util.EObjectContainmentWithInverseEList;
 import org.eclipse.emf.ecore.util.EObjectValidator;
@@ -272,24 +273,14 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	protected int numberOfSamples = NUMBER_OF_SAMPLES_EDEFAULT;
 
 	/**
-	 * The default value of the '{@link #getEmail() <em>Email</em>}' attribute.
+	 * The cached value of the '{@link #getEmail() <em>Email</em>}' attribute list.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @see #getEmail()
 	 * @generated
 	 * @ordered
 	 */
-	protected static final String EMAIL_EDEFAULT = null;
-
-	/**
-	 * The cached value of the '{@link #getEmail() <em>Email</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getEmail()
-	 * @generated
-	 * @ordered
-	 */
-	protected String email = EMAIL_EDEFAULT;
+	protected EList<String> email;
 
 	/**
 	 * The default value of the '{@link #getStartDate() <em>Start Date</em>}' attribute.
@@ -442,20 +433,11 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public String getEmail() {
+	public EList<String> getEmail() {
+		if (email == null) {
+			email = new EDataTypeEList<String>(String.class, this, LDEExperimentsPackage.CELL__EMAIL);
+		}
 		return email;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setEmail(String newEmail) {
-		String oldEmail = email;
-		email = newEmail;
-		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, LDEExperimentsPackage.CELL__EMAIL, oldEmail, email));
 	}
 
 	/**
@@ -924,7 +906,8 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 				setNumberOfSamples((Integer)newValue);
 				return;
 			case LDEExperimentsPackage.CELL__EMAIL:
-				setEmail((String)newValue);
+				getEmail().clear();
+				getEmail().addAll((Collection<? extends String>)newValue);
 				return;
 			case LDEExperimentsPackage.CELL__START_DATE:
 				setStartDate((Date)newValue);
@@ -981,7 +964,7 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 				setNumberOfSamples(NUMBER_OF_SAMPLES_EDEFAULT);
 				return;
 			case LDEExperimentsPackage.CELL__EMAIL:
-				setEmail(EMAIL_EDEFAULT);
+				getEmail().clear();
 				return;
 			case LDEExperimentsPackage.CELL__START_DATE:
 				setStartDate(START_DATE_EDEFAULT);
@@ -1027,7 +1010,7 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 			case LDEExperimentsPackage.CELL__NUMBER_OF_SAMPLES:
 				return numberOfSamples != NUMBER_OF_SAMPLES_EDEFAULT;
 			case LDEExperimentsPackage.CELL__EMAIL:
-				return EMAIL_EDEFAULT == null ? email != null : !EMAIL_EDEFAULT.equals(email);
+				return email != null && !email.isEmpty();
 			case LDEExperimentsPackage.CELL__START_DATE:
 				return START_DATE_EDEFAULT == null ? startDate != null : !START_DATE_EDEFAULT.equals(startDate);
 			case LDEExperimentsPackage.CELL__END_DATE:

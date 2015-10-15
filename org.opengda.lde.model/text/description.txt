@@ -44,7 +44,7 @@ Package ldeexperiment <http://www.opengda.org/LDEExperiments>
     Attribute calibrant_exposure : EDouble
     Attribute envScannableNames : EString<<0..*>>
     Attribute numberOfSamples : EInt
-    Attribute email : EString
+    Attribute email : EString<<0..*>>
     Attribute startDate : Date
     Attribute endDate : Date
     Attribute enableAutoEmail : EBoolean

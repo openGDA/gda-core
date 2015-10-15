@@ -1,70 +1,35 @@
 package org.opengda.lde.ui.views;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.io.FilenameUtils;
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.emf.common.command.Command;
 import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.common.notify.Notification;
-import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.util.EContentAdapter;
-import org.eclipse.emf.ecore.util.EcoreUtil;
-import org.eclipse.emf.edit.command.AddCommand;
-import org.eclipse.emf.edit.command.RemoveCommand;
-import org.eclipse.emf.edit.command.SetCommand;
 import org.eclipse.emf.edit.domain.AdapterFactoryEditingDomain;
 import org.eclipse.emf.edit.domain.EditingDomain;
 import org.eclipse.emf.edit.domain.IEditingDomainProvider;
 import org.eclipse.emf.edit.provider.ComposedAdapterFactory;
 import org.eclipse.emf.edit.provider.ReflectiveItemProviderAdapterFactory;
 import org.eclipse.emf.edit.provider.resource.ResourceItemProviderAdapterFactory;
-import org.eclipse.emf.edit.ui.dnd.EditingDomainViewerDropAdapter;
-import org.eclipse.emf.edit.ui.dnd.LocalTransfer;
-import org.eclipse.emf.edit.ui.dnd.ViewerDragAdapter;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.layout.TableColumnLayout;
-import org.eclipse.jface.viewers.CellEditor;
-import org.eclipse.jface.viewers.CheckboxCellEditor;
-import org.eclipse.jface.viewers.ColumnViewer;
-import org.eclipse.jface.viewers.ColumnViewerToolTipSupport;
-import org.eclipse.jface.viewers.ColumnWeightData;
-import org.eclipse.jface.viewers.EditingSupport;
-import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.ISelectionChangedListener;
-import org.eclipse.jface.viewers.ISelectionProvider;
-import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.jface.viewers.StructuredSelection;
-import org.eclipse.jface.viewers.TableViewer;
-import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.jface.window.ToolTip;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
-import org.eclipse.swt.dnd.DND;
-import org.eclipse.swt.dnd.Transfer;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.ImageData;
-import org.eclipse.swt.graphics.ImageLoader;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -76,14 +41,8 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.ProgressBar;
-import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.TableColumn;
-import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.ISaveablePart;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.dialogs.SaveAsDialog;
-import org.eclipse.ui.internal.AnimationEngine;
+import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.part.ViewPart;
 import org.opengda.lde.events.CellChangedEvent;
 import org.opengda.lde.events.DataReductionFailedEvent;
@@ -94,18 +53,12 @@ import org.opengda.lde.events.SampleProcessingEvent;
 import org.opengda.lde.events.SampleStatusEvent;
 import org.opengda.lde.events.StageChangedEvent;
 import org.opengda.lde.model.ldeexperiment.Experiment;
-import org.opengda.lde.model.ldeexperiment.LDEExperimentsFactory;
 import org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage;
 import org.opengda.lde.model.ldeexperiment.STATUS;
 import org.opengda.lde.model.ldeexperiment.Sample;
 import org.opengda.lde.model.ldeexperiment.provider.LDEExperimentsItemProviderAdapterFactory;
 import org.opengda.lde.ui.Activator;
 import org.opengda.lde.ui.ImageConstants;
-import org.opengda.lde.ui.providers.SampleGroupViewContentProvider;
-import org.opengda.lde.ui.providers.SampleGroupViewLabelProvider;
-import org.opengda.lde.ui.providers.SampleTableConstants;
-import org.opengda.lde.ui.utils.AnimatedTableItemFeedback;
-import org.opengda.lde.ui.utils.StringUtils;
 import org.opengda.lde.utils.LDEResourceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -126,11 +79,10 @@ import gda.observable.IObserver;
  * @author fy65
  *
  */
-public class SamplesView extends ViewPart implements IEditingDomainProvider, ISelectionProvider, ISaveablePart, IObserver {
+public class DataCollectionStatus extends ViewPart implements IEditingDomainProvider, IObserver {
 
 	public static final String ID = "org.opengda.lde.ui.views.SamplesView"; //$NON-NLS-1$
-	private static final Logger logger = LoggerFactory.getLogger(SamplesView.class);
-	private List<ISelectionChangedListener> selectionChangedListeners;
+	private static final Logger logger = LoggerFactory.getLogger(DataCollectionStatus.class);
 	private LDEResourceUtil resUtil;
 
 	private Text txtDataFilePath;
@@ -153,59 +105,23 @@ public class SamplesView extends ViewPart implements IEditingDomainProvider, ISe
 	private Action pauseAction;
 	private Action resumeAction;
 	private Action skipAction;
-	private Action addAction;
-	private Action copyAction;
-	private Action deleteAction;
-	private Action undoAction;
-	private Action redoAction;
 	private List<Sample> samples;
 	private List<Experiment> experiments;
 	private int numActiveSamples;
 	private Scriptcontroller eventAdmin;
 	private String eventAdminName;
-	private Image[] images;
-	private TableViewer tableViewer;
 	protected int nameCount;
-	private boolean isDirty;
-	private Resource resource;
 	private Sample currentSample;
 	private long totalNumberOfPoints;
 	protected long currentPointNumber;
-	@SuppressWarnings("restriction")
-	protected AnimationEngine animation=null;
 	
-	private final String columnHeaders[] = { SampleTableConstants.STATUS, SampleTableConstants.PROGRESS, SampleTableConstants.ACTIVE, 
-			SampleTableConstants.SAMPLE_NAME, SampleTableConstants.VISIT_ID, SampleTableConstants.SAMPLE_X_START,
-			SampleTableConstants.SAMPLE_X_STOP, SampleTableConstants.SAMPLE_X_STEP, SampleTableConstants.SAMPLE_Y_START, 
-			SampleTableConstants.SAMPLE_Y_STOP, SampleTableConstants.SAMPLE_Y_STEP, SampleTableConstants.SAMPLE_EXPOSURE, 
-			SampleTableConstants.CALIBRANT_NAME, SampleTableConstants.CALIBRANT_X, SampleTableConstants.CALIBRANT_Y, 
-			SampleTableConstants.CALIBRANT_EXPOSURE, SampleTableConstants.CELL_ID, SampleTableConstants.STAGE_ID, 
-			SampleTableConstants.DETECTOR_X, SampleTableConstants.DETECTOR_Y, SampleTableConstants.DETECTOR_Z, 
-			SampleTableConstants.EMAIL, SampleTableConstants.START_DATE, SampleTableConstants.END_DATE, 
-			SampleTableConstants.COMMAND, SampleTableConstants.COMMENT, SampleTableConstants.DATA_FILE, 
-			SampleTableConstants.CALIBRATION_FILE };
-
-	private ColumnWeightData columnLayouts[] = { new ColumnWeightData(10, 50, false),new ColumnWeightData(10, 70, false), new ColumnWeightData(10, 35, false),
-			new ColumnWeightData(80, 110, true), new ColumnWeightData(40, 90, true), new ColumnWeightData(40, 65, true), 
-			new ColumnWeightData(40, 65, true),	new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true), 
-			new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true),	new ColumnWeightData(40, 75, true),
-			new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 75, true),	new ColumnWeightData(40, 75, true), 
-			new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 55, true), new ColumnWeightData(40, 55, true), 
-			new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 75, true),
-			new ColumnWeightData(40, 200, true), new ColumnWeightData(50, 120, true), new ColumnWeightData(50, 120, true), 
-			new ColumnWeightData(40, 300, true), new ColumnWeightData(50, 300, true), new ColumnWeightData(50, 300, true), 
-			new ColumnWeightData(50, 300, true),};
-
 	protected AdapterFactoryEditingDomain editingDomain;
 	protected ComposedAdapterFactory adapterFactory;
 	protected Viewer currentViewer;
 
-	public SamplesView() {
-		setTitleToolTip("Display all samples in the experiment.");
-//		setContentDescription("A view for displaying all samples in an experiment.");
-		setPartName("Samples");
-		
-		this.selectionChangedListeners = new ArrayList<ISelectionChangedListener>();
+	public DataCollectionStatus() {
+		setTitleToolTip("Display data collection processing status on GDA server.");
+		setPartName("Data Collection Status");
 		
 		adapterFactory = new ComposedAdapterFactory(ComposedAdapterFactory.Descriptor.Registry.INSTANCE);
 
@@ -224,33 +140,6 @@ public class SamplesView extends ViewPart implements IEditingDomainProvider, ISe
 		parent.setLayout(new FillLayout(SWT.HORIZONTAL));
 
 		SashForm sashForm = new SashForm(parent, SWT.BORDER | SWT.SMOOTH | SWT.VERTICAL);
-
-		Composite childrencomposite = new Composite(sashForm, SWT.NONE);
-		childrencomposite.setLayout(new TableColumnLayout());
-
-		tableViewer = new TableViewer(childrencomposite,SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
-		Table table = tableViewer.getTable();
-		GridData gd_table = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
-		gd_table.heightHint = 386;
-		gd_table.widthHint = 1000;
-		table.setLayoutData(gd_table);
-		table.setHeaderVisible(true);
-		table.setLinesVisible(true);
-		
-		ColumnViewerToolTipSupport.enableFor(tableViewer, ToolTip.NO_RECREATE);
-		createColumns(tableViewer);
-		
-		tableViewer.setContentProvider(new SampleGroupViewContentProvider(getResUtil()));
-		tableViewer.setLabelProvider(new SampleGroupViewLabelProvider());
-		
-		samples = Collections.emptyList();
-		try {
-			resource = getResUtil().getResource();
-			resource.eAdapters().add(notifyListener);
-			tableViewer.setInput(resource);
-		} catch (Exception e2) {
-			logger.error("Cannot load resouce from file: "+getResUtil().getFileName(), e2);
-		}
 
 		Composite statusArea = new Composite(sashForm, SWT.NONE);
 		GridData gd_statusArea = new GridData(SWT.FILL, SWT.FILL, true, false,1, 1);
@@ -418,12 +307,8 @@ public class SamplesView extends ViewPart implements IEditingDomainProvider, ISe
 		txtProgressMessage.setLayoutData(new GridData(SWT.FILL, SWT.CENTER,true, false, 5, 1));
 
 		initialisation();
-		// register as selection provider to the SelectionService
-		getViewSite().setSelectionProvider(this);
 		// register as selection listener of sample editor if exist
 //		getViewSite().getWorkbenchWindow().getSelectionService().addSelectionListener(SampleViewExtensionFactory.ID, selectionListener);
-		// Create the help context id for the viewer's control
-		PlatformUI.getWorkbench().getHelpSystem().setHelp(tableViewer.getControl(), "org.opengda.lde.ui.views.samplesview");
 		createActions();
 		initializeToolBar();
 		initializeMenu();
@@ -431,20 +316,6 @@ public class SamplesView extends ViewPart implements IEditingDomainProvider, ISe
 		updateActionIconsState();
 	}
 	
-	private void createColumns(TableViewer tableViewer) {
-		for (int i = 0; i < columnHeaders.length; i++) {
-			TableViewerColumn tableViewerColumn = new TableViewerColumn(tableViewer, SWT.None);
-			TableColumn column = tableViewerColumn.getColumn();
-			column.setResizable(columnLayouts[i].resizable);
-			column.setText(columnHeaders[i]);
-			column.setToolTipText(columnHeaders[i]);
-
-			column.setWidth(columnLayouts[i].minimumWidth);
-			tableViewerColumn.setEditingSupport(new TableColumnEditingSupport(tableViewer, tableViewerColumn));
-		}
-	}
-
-
 	private void initialisation() {
 		try {
 			editingDomain=(AdapterFactoryEditingDomain) getResUtil().getEditingDomain();
@@ -474,8 +345,6 @@ public class SamplesView extends ViewPart implements IEditingDomainProvider, ISe
 			txtSamplesfile.setText(getResUtil().getFileName());
 		}
 		
-		tableViewer.addDragSupport(DND.DROP_COPY | DND.DROP_MOVE | DND.DROP_LINK, new Transfer[] { LocalTransfer.getInstance() },new ViewerDragAdapter(tableViewer));
-		tableViewer.addDropSupport(DND.DROP_COPY | DND.DROP_MOVE | DND.DROP_LINK, new Transfer[] { LocalTransfer.getInstance() },new EditingDomainViewerDropAdapter(editingDomain, tableViewer));
 		updateNumberActiveSamples();
 		
 		if (getEventAdminName()!=null) {
@@ -484,8 +353,6 @@ public class SamplesView extends ViewPart implements IEditingDomainProvider, ISe
 				eventAdmin.addIObserver(this);
 			}
 		}
-		//TODO only available for sample table, not cell or stage table
-		images = loadAnimatedGIF(tableViewer.getControl().getDisplay(), ImageConstants.ICON_RUNNING);
 		String beamline=null;
 		if ((beamline=LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME))!=null) {
 			NumTracker tracker;
@@ -499,21 +366,6 @@ public class SamplesView extends ViewPart implements IEditingDomainProvider, ISe
 		}
 	}
 	
-	private Image[] loadAnimatedGIF(Display display, String imagePath) {
-		URL url = FileLocator.find(Activator.getDefault().getBundle(), new Path(imagePath), null);
-		ImageLoader imageLoader = new ImageLoader();
-		try {
-			imageLoader.load(url.openStream());
-		} catch (IOException e) {
-			logger.error("Cannot load animated gif file {}", url.getPath());
-		}
-		Image[] images = new Image[imageLoader.data.length];
-		for (int i = 0; i < imageLoader.data.length; ++i) {
-			ImageData nextFrameData = imageLoader.data[i];
-			images[i] = new Image(display, nextFrameData);
-		}
-		return images;
-	}	
 	@Override
 	public void update(Object source, Object arg) {
 		if (source==eventAdmin) {
@@ -545,14 +397,10 @@ public class SamplesView extends ViewPart implements IEditingDomainProvider, ISe
 			} else if (arg instanceof ScanEndEvent) {
 				Display.getDefault().asyncExec(new Runnable() {
 
-					@SuppressWarnings("restriction")
 					@Override
 					public void run() {
 						if (currentSample!=null) {
 							updateSampleStatus(currentSample, STATUS.COMPLETED);
-						}
-						if (animation!=null) {
-							animation.cancelAnimation();
 						}
 					}
 				});
@@ -601,7 +449,6 @@ public class SamplesView extends ViewPart implements IEditingDomainProvider, ISe
 				final String sampleID = event.getSampleID();
 				logger.debug("sample update to {}",sampleID);
 				Display.getDefault().asyncExec(new Runnable() {
-					@SuppressWarnings("restriction")
 					@Override
 					public void run() {
 						for (Sample sample : samples) {
@@ -611,19 +458,6 @@ public class SamplesView extends ViewPart implements IEditingDomainProvider, ISe
 								}
 								currentSample = sample;
 							}
-						}
-						tableViewer.setSelection(new StructuredSelection(currentSample));
-						if (animation!=null) {
-							animation.cancelAnimation();
-						}
-						try {
-							//TODO this should only apply to sample table.
-							TableItem tableItem = tableViewer.getTable().getItem(samples.indexOf(currentSample));
-							AnimatedTableItemFeedback feedback = new AnimatedTableItemFeedback(tableViewer.getControl().getShell(),images, tableItem,SampleTableConstants.COL_STATUS);
-							animation= new AnimationEngine(feedback,-1,100);
-							animation.schedule();
-						} catch (Exception e) {
-							e.printStackTrace();
 						}
 					}
 				});
@@ -639,11 +473,6 @@ public class SamplesView extends ViewPart implements IEditingDomainProvider, ISe
 							if (sample.getSampleID().equalsIgnoreCase(sampleID)) {
 								updateSampleStatus(sample, status);
 							}
-						}
-						if (status==STATUS.PAUSED) {
-							animation.sleep();
-						} else if (status==STATUS.RUNNING) {
-							animation.wakeUp();
 						}
 					}
 				});
@@ -690,7 +519,6 @@ public class SamplesView extends ViewPart implements IEditingDomainProvider, ISe
 			@Override
 			public void run() {
 				sample.setStatus(status);
-				tableViewer.refresh();
 			}
 		});
 	}
@@ -715,14 +543,14 @@ public class SamplesView extends ViewPart implements IEditingDomainProvider, ISe
 				
 				try{
 					final String subject = LocalProperties.get("org.opengda.mail.subject","Data now available to download and view");
-					final String usersEmail=sample.getCell().getEmail();
-					final String[] recipients = usersEmail.split(" ");
+					final EList<String> usersEmail=sample.getCell().getEmail();
+					final String[] recipients = usersEmail.toArray(new String[0]);
 					for (int i=0; i<recipients.length; i++) {
 						recipients[i] = recipients[i].trim();
 					}
 					final String senderName=LocalProperties.get("org.opengda.mail.sender.name","i11-LDE");
 					//TODO changeto i11-LDE operation email account please
-					final String senderEmail=LocalProperties.get("org.opengda.mail.sender.email","chiu.tang@diamond.ac.uk");
+					final String senderEmail=LocalProperties.get("org.opengda.mail.sender.email","diamondi11-lde@diamond.ac.uk");
 					String description="Data for sample "+sample.getName()+" are available now for download and view.\n";
 					description+="To download raw data files, please log into http://icat.diamond.ac.uk \n";
 					description+= "To view and download reducted data please visit http://ispyb.diamond.ac.uk/dc/visit/"+sample.getCell().getVisitID()+"\n";
@@ -771,10 +599,13 @@ public class SamplesView extends ViewPart implements IEditingDomainProvider, ISe
 				paused=false;
 				updateActionIconsState();
 				try {
-					if (isDirty()) {
-						doSave(new NullProgressMonitor());
+					IEditorPart activeEditor = getSite().getWorkbenchWindow().getActivePage().getActiveEditor();
+					if (activeEditor.isDirty()) {
+						activeEditor.doSave(new NullProgressMonitor());
 					}
-					InterfaceProvider.getCommandRunner().runCommand("datacollection.collectData("+getResUtil().getFileName()+")");
+					IFile file = (IFile) activeEditor.getEditorInput().getAdapter(IFile.class);
+					if (file==null) throw new FileNotFoundException();
+					InterfaceProvider.getCommandRunner().runCommand("datacollection.collectData("+file.getRawLocation().toOSString()+")");
 				} catch (Exception e) {
 					logger.error("exception throws on start queue processor.", e);
 					running = false;
@@ -866,126 +697,9 @@ public class SamplesView extends ViewPart implements IEditingDomainProvider, ISe
 		skipAction.setImageDescriptor(Activator.getDefault().getImageRegistry().getDescriptor(ImageConstants.ICON_SKIP));
 		skipAction.setToolTipText("Skip the current sample data collection on GDA server");
 		
-		addAction = new Action() {
-
-			@Override
-			public void run() {
-				try {
-					//TODO implement add experiment, stage, cell as well based on selected tree node type.
-					Sample newSample = LDEExperimentsFactory.eINSTANCE.createSample();
-					nameCount = StringUtils.largestIntAtEndStringsWithPrefix(getSampleNames(), newSample.getName());
-					if (nameCount != -1) {
-						// increment the name
-						nameCount++;
-						newSample.setName(newSample.getName() + nameCount);
-					}
-					editingDomain.getCommandStack().execute(AddCommand.create(editingDomain, getResUtil().getSamples(), LDEExperimentsPackage.SAMPLE, newSample));
-				} catch (Exception e1) {
-					e1.printStackTrace();
-				}
-			}
-		};
-		addAction.setText("Add");
-		addAction.setImageDescriptor(Activator.getDefault().getImageRegistry().getDescriptor(ImageConstants.ICON_ADD_OBJ));
-		addAction.setToolTipText("Add a new sample");
-		
-		copyAction = new Action() {
-
-			@Override
-			public void run() {
-				try {
-					//TODO implement copy experiment, stage, cell as well, based on selected tree node type.
-					if (getSelectedSample() != null) {
-						Sample copy = EcoreUtil.copy(getSelectedSample());
-						copy.setSampleID(EcoreUtil.generateUUID());
-						String sampleNamePrefix = StringUtils.prefixBeforeInt(copy.getName());
-						int largestIntInNames = StringUtils.largestIntAtEndStringsWithPrefix(getSampleNames(), sampleNamePrefix);
-						if (largestIntInNames != -1) {
-							largestIntInNames++;
-							copy.setName(sampleNamePrefix + largestIntInNames);
-						}
-						editingDomain.getCommandStack().execute(AddCommand.create(editingDomain, getResUtil().getSamples(), LDEExperimentsPackage.SAMPLE, copy));
-					} else {
-						MessageDialog msgd = new MessageDialog(getSite().getShell(), "No Sample Selected", null,
-								"You must selecte a sample to copy from.", MessageDialog.ERROR, new String[] { "OK" }, 0);
-						msgd.open();
-					}
-				} catch (Exception e1) {
-					e1.printStackTrace();
-				}
-			}
-		};
-		copyAction.setText("Copy");
-		copyAction.setImageDescriptor(Activator.getDefault().getImageRegistry().getDescriptor(ImageConstants.ICON_COPY_EDIT));
-		copyAction.setToolTipText("Copy selected sample");
-
-		deleteAction = new Action() {
-
-			@Override
-			public void run() {
-				//TODO implement delete experiment, stage, cell depending on selecet
-				try {
-					Sample selectedSample = getSelectedSample();
-					if (selectedSample != null) {
-						editingDomain.getCommandStack().execute(RemoveCommand.create(editingDomain, getResUtil().getSamples(), LDEExperimentsPackage.SAMPLE, selectedSample));
-					} else {
-						MessageDialog msgd = new MessageDialog(getSite().getShell(), "No Sample Selected", null,
-								"You must selecte a sample to delete.", MessageDialog.ERROR, new String[] { "OK" }, 0);
-						msgd.open();
-					}
-				} catch (Exception e1) {
-					logger.error("Cannot not get Editing Domain object.", e1);
-				}
-			}
-		};
-		deleteAction.setText("Delete");
-		deleteAction.setImageDescriptor(Activator.getDefault().getImageRegistry().getDescriptor(ImageConstants.ICON_DELETE_OBJ));
-		deleteAction.setToolTipText("Delete selected sample");
-
-		undoAction = new Action() {
-
-			@Override
-			public void run() {
-				try {
-					editingDomain.getCommandStack().undo();
-				} catch (Exception e1) {
-					logger.error("Cannot not get Editing Domain object.", e1);
-				}
-			}
-		};
-		undoAction.setText("Undo");
-		undoAction.setImageDescriptor(Activator.getDefault().getImageRegistry().getDescriptor(ImageConstants.ICON_UNDO_EDIT));
-		undoAction.setToolTipText("Undo");
-		
-
-		redoAction = new Action() {
-
-			@Override
-			public void run() {
-				try {
-					editingDomain.getCommandStack().redo();
-				} catch (Exception e1) {
-					logger.error("Cannot not get Editing Domain object.", e1);
-				}
-			}
-		};
-		redoAction.setText("Redo");
-		redoAction.setImageDescriptor(Activator.getDefault().getImageRegistry().getDescriptor(ImageConstants.ICON_REDO_EDIT));
-		redoAction.setToolTipText("Redo");
 
 	}
-	private Sample getSelectedSample() {
-		ISelection selection = getSelection();
-		if (selection instanceof IStructuredSelection) {
-			IStructuredSelection structuredSel = (IStructuredSelection) selection;
-			Object firstElement = structuredSel.getFirstElement();
-			if (firstElement instanceof Sample) {
-				Sample sample = (Sample) firstElement;
-				return sample;
-			}
-		}
-		return null;
-	}
+
 	protected List<String> getSampleNames() {
 		List<String> sampleNames=new ArrayList<String>();
 		for (Sample sample : samples) {
@@ -1004,12 +718,6 @@ public class SamplesView extends ViewPart implements IEditingDomainProvider, ISe
 		toolbarManager.add(resumeAction);
 		toolbarManager.add(skipAction);
 		toolbarManager.add(new Separator());
-		toolbarManager.add(addAction);
-		toolbarManager.add(deleteAction);
-		toolbarManager.add(copyAction);
-		toolbarManager.add(undoAction);
-		toolbarManager.add(redoAction);
-		toolbarManager.add(new Separator());		
 	}
 
 	/**
@@ -1023,17 +731,6 @@ public class SamplesView extends ViewPart implements IEditingDomainProvider, ISe
 		menuManager.add(resumeAction);
 		menuManager.add(skipAction);
 		menuManager.add(new Separator());
-		menuManager.add(addAction);
-		menuManager.add(deleteAction);
-		menuManager.add(copyAction);
-		menuManager.add(undoAction);
-		menuManager.add(redoAction);
-		menuManager.add(new Separator());
-	}
-
-	@Override
-	public void setFocus() {
-		tableViewer.getControl().setFocus();
 	}
 
 	private void updateActionIconsState() {
@@ -1063,52 +760,10 @@ public class SamplesView extends ViewPart implements IEditingDomainProvider, ISe
 			super.notifyChanged(notification);
 			if (notification.getFeature() != null && !notification.getFeature().equals("null") && notification.getNotifier() != null
 					&& (!notification.getFeature().equals(LDEExperimentsPackage.eINSTANCE.getSample_Status()))) {
-				isDirty = true;
-				firePropertyChange(PROP_DIRTY);
+
 			}
 		}
 	};
-
-	/**
-	 * refresh the table viewer with the sequence file name provided. If it is a new file, an empty sequence will be created.
-	 */
-	public void refreshTable(String seqFileName, boolean newFile) {
-		logger.debug("refresh table with file: {}{}", FilenameUtils.getFullPath(seqFileName), FilenameUtils.getName(seqFileName));
-		if (isDirty()) {
-//			InterfaceProvider.getCurrentScanController().pauseCurrentScan();
-			MessageDialog msgDialog = new MessageDialog(getViewSite().getShell(), "Unsaved Data", null,
-					"Current sample list contains unsaved data. Do you want to save them first?", MessageDialog.WARNING, new String[] { "Yes", "No" }, 0);
-			int result = msgDialog.open();
-			if (result == 0) {
-				doSave(new NullProgressMonitor());
-			} else {
-				isDirty = false;
-				firePropertyChange(PROP_DIRTY);
-			}
-//			InterfaceProvider.getCurrentScanController().resumeCurrentScan();
-		}
-		try {
-			resource.eAdapters().remove(notifyListener); // remove old resource listener
-			resUtil.setFileName(seqFileName);
-			if (newFile) {
-				resUtil.createExperiments();
-			}
-			resource = resUtil.getResource();
-			tableViewer.setInput(resource);
-			resource.eAdapters().add(notifyListener);
-
-			// update existing sample list
-			samples = resUtil.getSamples();
-			for (Sample sample : samples) {
-				if (sample.isActive()) {
-					currentSample=sample;
-					break;
-				}
-			}
-		} catch (Exception e) {
-			logger.error("Cannot refresh table.", e);
-		}
-	}	
 
 	@Override
 	public void dispose() {
@@ -1121,75 +776,6 @@ public class SamplesView extends ViewPart implements IEditingDomainProvider, ISe
 		super.dispose();
 	}
 	
-	@Override
-	public void doSave(IProgressMonitor monitor) {
-		// TODO Auto-generated method stub
-		try {
-			resUtil.getResource().save(null);
-			isDirty = false;
-			firePropertyChange(PROP_DIRTY);
-		} catch (IOException e) {
-			logger.error("Cannot save the resource to a file.", e);
-		} catch (Exception e) {
-			logger.error("Cannot get resource from resUtil.", e);
-		}
-	}
-	@Override
-	public void doSaveAs() {
-		Resource resource = null;
-		try {
-			resource = resUtil.getResource();
-		} catch (Exception e1) {
-			logger.error("Cannot get resource from resUtil.", e1);
-		}
-		SaveAsDialog saveAsDialog = new SaveAsDialog(getSite().getShell());
-		saveAsDialog.open();
-		IPath path = saveAsDialog.getResult();
-		if (path != null) {
-			IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(path);
-			if (file != null && resource != null) {
-				String newFilename = file.getLocation().toOSString();
-				resUtil.saveAs(resource, newFilename);
-				isDirty = false;
-				firePropertyChange(PROP_DIRTY);
-				refreshTable(newFilename, false);
-			}
-		}
-	}
-	
-	@Override
-	public boolean isDirty() {
-		return isDirty;
-	}
-	@Override
-	public boolean isSaveAsAllowed() {
-		return true;
-	}
-	@Override
-	public boolean isSaveOnCloseNeeded() {
-		return true;
-	}
-
-	@Override
-	public void addSelectionChangedListener(ISelectionChangedListener listener) {
-		selectionChangedListeners.add(listener);		
-	}
-	
-	@Override
-	public void removeSelectionChangedListener(ISelectionChangedListener listener) {
-		selectionChangedListeners.remove(listener);		
-	}
-
-	@Override
-	public ISelection getSelection() {
-		return tableViewer.getSelection();
-	}
-
-	@Override
-	public void setSelection(ISelection selection) {
-		tableViewer.setSelection(selection);		
-	}
-
 	public LDEResourceUtil getResUtil() {
 		return resUtil;
 	}
@@ -1206,126 +792,6 @@ public class SamplesView extends ViewPart implements IEditingDomainProvider, ISe
 		this.eventAdminName = eventAdminName;
 	}
 
-	private class TableColumnEditingSupport extends EditingSupport {
-		
-		private String columnIdentifier;
-		private Table table;
-		public TableColumnEditingSupport(ColumnViewer viewer, TableViewerColumn tableViewerColumn) {
-			super(viewer);
-			table=((TableViewer)viewer).getTable();
-			columnIdentifier=tableViewerColumn.getColumn().getText();
-		}
-
-		@Override
-		protected CellEditor getCellEditor(final Object element) {
-			if (SampleTableConstants.ACTIVE.equals(columnIdentifier)) {
-				return new CheckboxCellEditor(table);
-			} 
-			return null;
-		}
-
-		@Override
-		protected boolean canEdit(Object element) {
-			if (SampleTableConstants.ACTIVE.equals(columnIdentifier)) {
-				return true;
-			} 
-			return false;
-		}
-
-		@Override
-		protected Object getValue(Object element) {
-			if (element instanceof Sample) {
-				Sample sample = (Sample) element;
-				if (SampleTableConstants.ACTIVE.equals(columnIdentifier)) {
-					return sample.isActive();
-				} else if (SampleTableConstants.SAMPLE_NAME.equals(columnIdentifier)) {
-					return sample.getName();
-				} else if (SampleTableConstants.CELL_ID.equals(columnIdentifier)) {
-					return sample.getCell().getCellID();
-				} else if (SampleTableConstants.VISIT_ID.equals(columnIdentifier)) {
-					return sample.getCell().getVisitID();
-				} else if (SampleTableConstants.CALIBRANT_NAME.equals(columnIdentifier)) {
-					return sample.getCell().getCalibrant();
-				} else if (SampleTableConstants.CALIBRANT_X.equals(columnIdentifier)) {
-					return sample.getCell().getCalibrant_x();
-				} else if (SampleTableConstants.CALIBRANT_Y.equals(columnIdentifier)) {
-					return sample.getCell().getCalibrant_y();
-				} else if (SampleTableConstants.CALIBRANT_EXPOSURE.equals(columnIdentifier)) {
-					return sample.getCell().getCalibrant_exposure();
-				} else if (SampleTableConstants.SAMPLE_X_START.equals(columnIdentifier)) {
-					return sample.getSample_x_start();
-				} else if (SampleTableConstants.SAMPLE_X_STOP.equals(columnIdentifier)) {
-					return sample.getSample_x_stop();
-				} else if (SampleTableConstants.SAMPLE_X_STEP.equals(columnIdentifier)) {
-					return sample.getSample_x_step();
-				} else if (SampleTableConstants.SAMPLE_Y_START.equals(columnIdentifier)) {
-					return sample.getSample_y_start();
-				} else if (SampleTableConstants.SAMPLE_Y_STOP.equals(columnIdentifier)) {
-					return sample.getSample_y_stop();
-				} else if (SampleTableConstants.SAMPLE_Y_STEP.equals(columnIdentifier)) {
-					return sample.getSample_y_step();
-				} else if (SampleTableConstants.SAMPLE_EXPOSURE.equals(columnIdentifier)) {
-					return sample.getSample_exposure();
-				} else if (SampleTableConstants.DETECTOR_X.equals(columnIdentifier)) {
-					return sample.getCell().getStage().getDetector_x();
-				} else if (SampleTableConstants.DETECTOR_Y.equals(columnIdentifier)) {
-					return sample.getCell().getStage().getDetector_y();
-				} else if (SampleTableConstants.DETECTOR_Z.equals(columnIdentifier)) {
-					return sample.getCell().getStage().getDetector_z();
-				} else if (SampleTableConstants.EMAIL.equals(columnIdentifier)) {
-					return sample.getCell().getEmail();
-				} else if (SampleTableConstants.START_DATE.equals(columnIdentifier)) {
-					return sample.getCell().getStartDate();
-				} else if (SampleTableConstants.END_DATE.equals(columnIdentifier)) {
-					return sample.getCell().getEndDate();
-				} else if (SampleTableConstants.COMMAND.equals(columnIdentifier)) {
-					return sample.getCommand();
-				} else if (SampleTableConstants.COMMENT.equals(columnIdentifier)) {
-					return sample.getComment();
-				} 
-			}
-			return null;
-		}
-
-		@Override
-		protected void setValue(Object element, Object value) {
-			if (SampleTableConstants.ACTIVE.equals(columnIdentifier)) {
-				if (value instanceof Boolean) {
-					try {
-						if ((boolean)value==true) {
-							if (isDatesValid((Sample)element) ) {
-								runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.eINSTANCE.getSample_Active(), value));
-							}
-						} else {
-							runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.eINSTANCE.getSample_Active(), value));
-						}
-					} catch (Exception e) {
-						logger.error("Exception on setting "+SampleTableConstants.ACTIVE+" field for sample "+((Sample)element).getName(), e);
-					}
-					updateNumberActiveSamples();
-				}
-			} 
-		}
-
-		private boolean isDatesValid(Sample sample) {
-			Date now=new Date();
-			boolean startLessEnd = sample.getCell().getStartDate().compareTo(sample.getCell().getEndDate())<=0;
-			boolean nowInBetween = now.compareTo(sample.getCell().getStartDate())>=0 && now.compareTo(sample.getCell().getEndDate())<0;
-			if (startLessEnd && nowInBetween) {
-				return true;
-			}
-			String message="";
-			if (!startLessEnd) {
-				message="Sample start date must be before the end date.";
-			}
-			if (!nowInBetween) {
-				message="Cannot active this sample because the current date time is outside its date time range set.";
-			}
-			openMessageBox(message, "Activation Failed - Invalid dates ");
-			return false;
-		}
-	}
-	
 
 	private void openMessageBox(String message, String title) {
 		MessageBox dialog=new MessageBox(getSite().getShell(), SWT.ICON_ERROR | SWT.OK);
@@ -1341,5 +807,11 @@ public class SamplesView extends ViewPart implements IEditingDomainProvider, ISe
 	@Override
 	public EditingDomain getEditingDomain() {
 		return editingDomain;
+	}
+
+	@Override
+	public void setFocus() {
+		// TODO Auto-generated method stub
+		
 	}
 }

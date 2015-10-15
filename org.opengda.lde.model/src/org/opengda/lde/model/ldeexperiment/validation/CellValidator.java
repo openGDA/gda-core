@@ -69,4 +69,6 @@ public interface CellValidator {
 	boolean validateEvnScannableNames(String value);
 
 	boolean validateNumberOfSamples(int value);
+
+	boolean validateEmail(EList<String> value);
 }

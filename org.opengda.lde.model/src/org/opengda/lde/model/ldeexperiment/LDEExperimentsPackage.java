@@ -444,7 +444,7 @@ public interface LDEExperimentsPackage extends EPackage {
 	int CELL__NUMBER_OF_SAMPLES = 10;
 
 	/**
-	 * The feature id for the '<em><b>Email</b></em>' attribute.
+	 * The feature id for the '<em><b>Email</b></em>' attribute list.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
@@ -1050,10 +1050,10 @@ public interface LDEExperimentsPackage extends EPackage {
 	EAttribute getCell_VisitID();
 
 	/**
-	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Cell#getEmail <em>Email</em>}'.
+	 * Returns the meta object for the attribute list '{@link org.opengda.lde.model.ldeexperiment.Cell#getEmail <em>Email</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Email</em>'.
+	 * @return the meta object for the attribute list '<em>Email</em>'.
 	 * @see org.opengda.lde.model.ldeexperiment.Cell#getEmail()
 	 * @see #getCell()
 	 * @generated
@@ -1686,7 +1686,7 @@ public interface LDEExperimentsPackage extends EPackage {
 		EAttribute CELL__VISIT_ID = eINSTANCE.getCell_VisitID();
 
 		/**
-		 * The meta object literal for the '<em><b>Email</b></em>' attribute feature.
+		 * The meta object literal for the '<em><b>Email</b></em>' attribute list feature.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
 		 * @generated
