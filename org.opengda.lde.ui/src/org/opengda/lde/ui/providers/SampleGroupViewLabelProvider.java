@@ -105,7 +105,7 @@ public class SampleGroupViewLabelProvider extends LabelProvider implements
 			case SampleTableConstants.COL_DETECTOR_Z:
 				return String.valueOf(sample.getCell().getStage().getDetector_z());
 			case SampleTableConstants.COL_EMAIL:
-				return sample.getCell().getEmail();
+				return sample.getCell().getEmail().toString();
 			case SampleTableConstants.COL_START_DATE:
 				return DateFormat.getInstance().format(sample.getCell().getStartDate());
 			case SampleTableConstants.COL_END_DATE:

@@ -30,6 +30,7 @@ import org.opengda.lde.model.edit.ImageConstants;
 import org.opengda.lde.model.ldeexperiment.Cell;
 import org.opengda.lde.model.ldeexperiment.LDEExperimentsFactory;
 import org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage;
+
 import gda.configuration.properties.LocalProperties;
 
 /**
@@ -582,7 +583,7 @@ public class CellItemProvider
 			case CellTableConstants.COL_END_DATE: 
 				return DateFormat.getInstance().format(cell.getEndDate());
 			case CellTableConstants.COL_EMAIL:
-				return cell.getEmail();
+				return cell.getEmail().toString();
 			case CellTableConstants.COL_AUTO_EMAIL:
 				return "";
 			default:

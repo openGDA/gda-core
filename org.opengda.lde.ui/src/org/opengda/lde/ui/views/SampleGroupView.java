@@ -27,6 +27,7 @@ import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.emf.common.command.Command;
 import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.common.notify.Notification;
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.EContentAdapter;
 import org.eclipse.emf.ecore.util.EcoreUtil;
@@ -37,8 +38,6 @@ import org.eclipse.emf.edit.domain.EditingDomain;
 import org.eclipse.emf.edit.ui.dnd.EditingDomainViewerDropAdapter;
 import org.eclipse.emf.edit.ui.dnd.LocalTransfer;
 import org.eclipse.emf.edit.ui.dnd.ViewerDragAdapter;
-import org.eclipse.emf.edit.ui.provider.AdapterFactoryContentProvider;
-import org.eclipse.emf.edit.ui.provider.AdapterFactoryLabelProvider;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
@@ -119,7 +118,6 @@ import org.opengda.lde.ui.providers.SampleTableConstants;
 import org.opengda.lde.ui.utils.AnimatedTableItemFeedback;
 import org.opengda.lde.ui.utils.StringUtils;
 import org.opengda.lde.utils.LDEResourceUtil;
-import org.opengda.lde.utils.SampleGroupEditingDomain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.mail.SimpleMailMessage;
@@ -228,6 +226,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 	/**
 	 * This is a callback that will allow us to create the viewer and initialise it.
 	 */
+	@Override
 	public void createPartControl(Composite parent) {
 		Composite rootComposite = new Composite(parent, SWT.NONE);
 		rootComposite.setLayout(new GridLayout());
@@ -697,8 +696,8 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 				
 				try{
 					final String subject = LocalProperties.get("org.opengda.mail.subject","Data now available to download and view");
-					final String usersEmail=sample.getCell().getEmail();
-					final String[] recipients = usersEmail.split(" ");
+					final EList<String> usersEmail=sample.getCell().getEmail();
+					final String[] recipients = usersEmail.toArray(new String[0]);
 					for (int i=0; i<recipients.length; i++) {
 						recipients[i] = recipients[i].trim();
 					}
@@ -1531,6 +1530,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		MenuManager menuMgr = new MenuManager("#PopupMenu");
 		menuMgr.setRemoveAllWhenShown(true);
 		menuMgr.addMenuListener(new IMenuListener() {
+			@Override
 			public void menuAboutToShow(IMenuManager manager) {
 				SampleGroupView.this.fillContextMenu(manager);
 			}
@@ -1595,6 +1595,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 
 	private void hookDoubleClickAction() {
 		viewer.addDoubleClickListener(new IDoubleClickListener() {
+			@Override
 			public void doubleClick(DoubleClickEvent event) {
 				//TODO implement this editor
 //				doubleClickAction.run();
@@ -1609,6 +1610,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 	/**
 	 * Passing the focus request to the viewer's control.
 	 */
+	@Override
 	public void setFocus() {
 		viewer.getTable().setFocus();
 	}
