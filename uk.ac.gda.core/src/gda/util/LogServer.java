@@ -98,7 +98,7 @@ public class LogServer implements Configurable, BeanNameAware {
 			}
 			logServer = new LogServer(port, configFile);
 		} else {
-			usage("Wrong number of arguments.");
+			usage("Wrong number of arguments or " + CONFIG_FILE_PROPERTY + " property not set!");
 		}
 
 		if (logServer != null) {
@@ -108,7 +108,7 @@ public class LogServer implements Configurable, BeanNameAware {
 
 	static void usage(String msg) {
 		System.err.println(msg);
-		System.err.println("Usage: java " + LogServer.class.getName() + " port configFile");
+		System.err.println("Usage: java " + LogServer.class.getName() + " [port configFile]");
 		System.exit(1);
 	}
 
