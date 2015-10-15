@@ -19,9 +19,13 @@ if [[ "${GDA_MODE}" == "live" && "${CONTROL_MACHINE_NAME}" != "$(uname -n)" ]]; 
 
     # To prevent man-in-the-middle attacks, ensure that we use a validated host key
     if [[ -n "${CONTROL_MACHINE_PUBKEY-}" ]]; then
-      ssh-keygen -R ${CONTROL_MACHINE_NAME} &> /dev/null
+      if [[ -f ~/.ssh/known_hosts ]]; then
+        # Only try to remove old key if known_hosts exists, otherwise ssh-keygen failing will return us to the command line.
+        bashlog debug "gda_servers_core" "removing old public key for ${CONTROL_MACHINE_NAME} in ~/.ssh/known_hosts"
+        ssh-keygen -R ${CONTROL_MACHINE_NAME} &> /dev/null
+      fi
+      bashlog debug "gda_servers_core" "adding new public key for ${CONTROL_MACHINE_NAME} in ~/.ssh/known_hosts"
       echo "${CONTROL_MACHINE_NAME} ${CONTROL_MACHINE_PUBKEY}" >> ~/.ssh/known_hosts
-      bashlog debug "gda_servers_core" "replacing public key for ${CONTROL_MACHINE_PUBKEY} in ~/.ssh/known_hosts"
     fi
 
     ssh -T -o BatchMode=yes -i ${CONTROL_MACHINE_SSHKEY_LOC} ${CONTROL_MACHINE_USER}@${CONTROL_MACHINE_NAME} ${GDA_OPERATION} &

@@ -2,6 +2,11 @@
 
 # Expects a parameter line that can be passed on to the gda python script
 
+if [[ $# > 0 && ( $1 == -v || $1 == --verbose ) ]] ; then
+	export GDA_DEBUG=TRUE
+	shift
+fi
+
 . ${GDA_WORKSPACE_PARENT}/${GDA_CORE_CONFIG_rel}/bin/bashlog_function
 bashlog debug "gda_core" "Start of gda_core script"
 
@@ -9,7 +14,7 @@ bashlog debug "gda_core" "Start of gda_core script"
  
 function gda_core_help {
 	cat 1>&2 <<EOF
-Usage: $(basename "$0") [OPTION]... COMPONENT 
+Usage: $(basename "$0") [-v|-verbose] [OPTION]... COMPONENT 
 
 Start the specified GDA component, where COMPONENT can be
     logpanel|servers|client
@@ -24,7 +29,11 @@ Required Environment variables:
     GDA_FACILITY_CONFIG_rel  Location of FACILITY-config, may be empty.
     GDA_CORE_CONFIG_rel      Location of core-config.
 
+Optional Environment variables:
+    GDA_DEBUG                Display debug messages on the console if defined.
+
 OPTIONS:
+ -v --verbose   Turns on verbose logging even if GDA_DEBUG is not defined.
     --restart   Stop and restart component (default)
     --start     Start component
     --stop      Stop component
