@@ -1,0 +1,17 @@
+# Source this script from your BEAMLINE_profile.sh to enable bash command completion for your instance gda script.
+# For example: source /dls_sw/$BEAMLINE/software/gda/workspace_git/gda-core.git/core-config/bin/gda_core_completion
+
+# If the components or options supported by gda_core change, this script should be updated to match.
+  
+_gda_core_completion()
+{
+    local cur prev opts
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    opts="logpanel servers client logserver nameserver eventserver objectserver --restart --start --stop --mode"
+
+    COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+    return 0
+}
+complete -F _gda_core_completion gda
