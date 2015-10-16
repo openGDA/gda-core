@@ -1,6 +1,6 @@
 package org.opengda.lde.ui.providers;
 
-import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.jface.viewers.ITableColorProvider;
@@ -107,9 +107,9 @@ public class SampleGroupViewLabelProvider extends LabelProvider implements
 			case SampleTableConstants.COL_EMAIL:
 				return sample.getCell().getEmail().toString();
 			case SampleTableConstants.COL_START_DATE:
-				return DateFormat.getInstance().format(sample.getCell().getStartDate());
+				return new SimpleDateFormat("dd/MM/yyyy").format(sample.getCell().getStartDate());
 			case SampleTableConstants.COL_END_DATE:
-				return DateFormat.getInstance().format(sample.getCell().getEndDate());
+				return new SimpleDateFormat("dd/MM/yyyy").format(sample.getCell().getEndDate());
 			case SampleTableConstants.COL_COMMAND:
 				return sample.getCommand();
 			case SampleTableConstants.COL_COMMENT:

@@ -4,7 +4,7 @@ package org.opengda.lde.model.ldeexperiment.provider;
 
 
 import java.io.File;
-import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -579,9 +579,9 @@ public class CellItemProvider
 			case CellTableConstants.COL_ENV_SCANNABLE_NAMES:
 				return cell.getEnvScannableNames().toString();
 			case CellTableConstants.COL_START_DATE:
-				return DateFormat.getInstance().format(cell.getStartDate());
+				return new SimpleDateFormat("dd/MM/yyyy").format(cell.getStartDate());
 			case CellTableConstants.COL_END_DATE: 
-				return DateFormat.getInstance().format(cell.getEndDate());
+				return new SimpleDateFormat("dd/MM/yyyy").format(cell.getEndDate());
 			case CellTableConstants.COL_EMAIL:
 				return cell.getEmail().toString();
 			case CellTableConstants.COL_AUTO_EMAIL:
