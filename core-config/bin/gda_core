@@ -123,10 +123,13 @@ if [[ -n "${GDA_COMPONENT-}" ]]; then
     # (2) on the control machine, when remotestartupscript.sh issues the gda bash command
     for filename in \
       "${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel}/bin/gda_${GDA_COMPONENT_CATEGORY}_pre_facility" \
+      "${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel}/etc/_common/gda_${GDA_COMPONENT_CATEGORY}_pre_facility" \
       "${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel}/etc/${GDA_MODE-ignore}/gda_${GDA_COMPONENT_CATEGORY}_pre_facility" \
       "${GDA_WORKSPACE_PARENT}/${GDA_GROUP_CONFIG_rel}/bin/gda_${GDA_COMPONENT_CATEGORY}_pre_group" \
+      "${GDA_WORKSPACE_PARENT}/${GDA_GROUP_CONFIG_rel}/etc/_common/gda_${GDA_COMPONENT_CATEGORY}_pre_group" \
       "${GDA_WORKSPACE_PARENT}/${GDA_GROUP_CONFIG_rel}/etc/${GDA_MODE-ignore}/gda_${GDA_COMPONENT_CATEGORY}_pre_group" \
       "${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/bin/gda_${GDA_COMPONENT_CATEGORY}_pre_instance" \
+      "${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/etc/_common/gda_${GDA_COMPONENT_CATEGORY}_pre_instance" \
       "${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/etc/${GDA_MODE-ignore}/gda_${GDA_COMPONENT_CATEGORY}_pre_instance"
     do
       if [ -e "${filename}" ]; then
@@ -165,10 +168,13 @@ if [[ -n "${GDA_COMPONENT-}" ]]; then
     # (2) on the control machine, when remotestartupscript.sh issues the gda bash command
     for filename in \
       "${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel}/bin/gda_${GDA_COMPONENT_CATEGORY}_post_facility" \
+      "${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel}/etc/_common/gda_${GDA_COMPONENT_CATEGORY}_post_facility" \
       "${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel}/etc/${GDA_MODE-ignore}/gda_${GDA_COMPONENT_CATEGORY}_post_facility" \
       "${GDA_WORKSPACE_PARENT}/${GDA_GROUP_CONFIG_rel}/bin/gda_${GDA_COMPONENT_CATEGORY}_post_group" \
+      "${GDA_WORKSPACE_PARENT}/${GDA_GROUP_CONFIG_rel}/etc/_common/gda_${GDA_COMPONENT_CATEGORY}_post_group" \
       "${GDA_WORKSPACE_PARENT}/${GDA_GROUP_CONFIG_rel}/etc/${GDA_MODE-ignore}/gda_${GDA_COMPONENT_CATEGORY}_post_group" \
       "${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/bin/gda_${GDA_COMPONENT_CATEGORY}_post_instance" \
+      "${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/etc/_common/gda_${GDA_COMPONENT_CATEGORY}_post_instance" \
       "${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/etc/${GDA_MODE-ignore}/gda_${GDA_COMPONENT_CATEGORY}_post_instance"
     do
       if [ -e "${filename}" ]; then
