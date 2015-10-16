@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.eventbus.message;
+package uk.ac.gda.eventbus.api.message;
 
 import java.io.Serializable;
 
