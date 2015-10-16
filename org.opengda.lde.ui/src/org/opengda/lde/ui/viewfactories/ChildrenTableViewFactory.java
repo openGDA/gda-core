@@ -18,22 +18,16 @@
 
 package org.opengda.lde.ui.viewfactories;
 
-import gda.rcp.views.FindableExecutableExtension;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.jms.IllegalStateException;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.opengda.lde.ui.views.ChildrenTableView;
-import org.opengda.lde.ui.views.SampleGroupView;
-
 import org.opengda.lde.utils.LDEResourceUtil;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.rcp.views.FindableExecutableExtension;
 
 /**
  * Factory method that create the View object
@@ -44,11 +38,6 @@ public class ChildrenTableViewFactory implements FindableExecutableExtension {
 	private String viewPartName;
 	private String name;
 	private LDEResourceUtil resUtil;
-	private String dataDriver;
-	private String dataFolder;
-	private String beamlineID;
-	private List<String> cellIDs=new ArrayList<String>();
-	private List<String> calibrantNames=new ArrayList<String>();
 	private String eventAdminName;
 
 	public String getViewPartName() {
@@ -75,20 +64,9 @@ public class ChildrenTableViewFactory implements FindableExecutableExtension {
 		ChildrenTableView sampleGroupView = new ChildrenTableView();
 		sampleGroupView.setViewPartName(viewPartName);
 		sampleGroupView.setResUtil(resUtil);
-		if (getDataDriver()!=null) {
-			sampleGroupView.setDataDriver(getDataDriver());
-		}
-		if (getDataFolder() != null) {
-			sampleGroupView.setDataFolder(getDataFolder());
-		}
-		if (getBeamlineID() != null) {
-			sampleGroupView.setBeamlineID(beamlineID);;
-		}
 		if (getEventAdminName()!=null) {
 			sampleGroupView.setEventAdminName(eventAdminName);
 		}
-		sampleGroupView.setCellIDs(cellIDs.toArray(new String[0]));
-		sampleGroupView.setCalibrants(calibrantNames.toArray(new String[0]));
 		return sampleGroupView;
 	}
 
@@ -110,46 +88,6 @@ public class ChildrenTableViewFactory implements FindableExecutableExtension {
 
 	public void setResUtil(LDEResourceUtil resUtil) {
 		this.resUtil = resUtil;
-	}
-
-	public String getDataDriver() {
-		return dataDriver;
-	}
-
-	public void setDataDriver(String dataDriver) {
-		this.dataDriver = dataDriver;
-	}
-
-	public String getDataFolder() {
-		return dataFolder;
-	}
-
-	public void setDataFolder(String dataFolder) {
-		this.dataFolder = dataFolder;
-	}
-
-	public String getBeamlineID() {
-		return beamlineID;
-	}
-
-	public void setBeamlineID(String beamlineID) {
-		this.beamlineID = beamlineID;
-	}
-
-	public List<String> getCellIDs() {
-		return cellIDs;
-	}
-
-	public void setCellIDs(List<String> cellIDs) {
-		this.cellIDs = cellIDs;
-	}
-
-	public List<String> getCalibrantNames() {
-		return calibrantNames;
-	}
-
-	public void setCalibrantNames(List<String> calibrantNames) {
-		this.calibrantNames = calibrantNames;
 	}
 
 	public String getEventAdminName() {

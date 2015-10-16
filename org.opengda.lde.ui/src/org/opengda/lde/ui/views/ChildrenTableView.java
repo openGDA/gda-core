@@ -1,18 +1,14 @@
 package org.opengda.lde.ui.views;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
-
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -22,14 +18,12 @@ import org.eclipse.emf.common.command.Command;
 import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.util.EList;
-import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.EContentAdapter;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.edit.command.AddCommand;
 import org.eclipse.emf.edit.command.RemoveCommand;
-import org.eclipse.emf.edit.command.SetCommand;
 import org.eclipse.emf.edit.domain.AdapterFactoryEditingDomain;
 import org.eclipse.emf.edit.domain.EditingDomain;
 import org.eclipse.emf.edit.domain.IEditingDomainProvider;
@@ -46,24 +40,15 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.viewers.ArrayContentProvider;
-import org.eclipse.jface.viewers.CellEditor;
-import org.eclipse.jface.viewers.CheckboxCellEditor;
-import org.eclipse.jface.viewers.ColumnViewer;
 import org.eclipse.jface.viewers.ColumnViewerToolTipSupport;
 import org.eclipse.jface.viewers.ColumnWeightData;
-import org.eclipse.jface.viewers.ComboBoxViewerCellEditor;
-import org.eclipse.jface.viewers.EditingSupport;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
-import org.eclipse.jface.viewers.TextCellEditor;
 import org.eclipse.jface.window.ToolTip;
-import org.eclipse.nebula.widgets.formattedtext.FormattedTextCellEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.Transfer;
@@ -80,6 +65,7 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.INullSelectionListener;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
@@ -89,11 +75,6 @@ import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.properties.PropertyColumnLabelProvider;
-import org.opengda.lde.model.edit.CellTableConstants;
-import org.opengda.lde.model.edit.ExperimentTableConstants;
-import org.opengda.lde.model.edit.SampleTableConstants;
-import org.opengda.lde.model.edit.StageTableConstants;
-import org.opengda.lde.model.editor.ui.provider.CDateTimeCellEditor;
 import org.opengda.lde.model.editor.ui.provider.CustomisedAdapterFactoryContentProvider;
 import org.opengda.lde.model.ldeexperiment.Cell;
 import org.opengda.lde.model.ldeexperiment.Experiment;
@@ -109,6 +90,7 @@ import org.opengda.lde.ui.ImageConstants;
 import org.opengda.lde.ui.providers.ProgressLabelProvider;
 import org.opengda.lde.ui.providers.SampleGroupViewContentProvider;
 import org.opengda.lde.ui.providers.SampleGroupViewLabelProvider;
+import org.opengda.lde.ui.providers.SampleTableConstants;
 import org.opengda.lde.ui.utils.StringUtils;
 import org.opengda.lde.utils.LDEResourceUtil;
 import org.slf4j.Logger;
@@ -117,20 +99,13 @@ import org.slf4j.LoggerFactory;
 import gda.jython.InterfaceProvider;
 import gda.jython.scriptcontroller.Scriptcontroller;
 
+@SuppressWarnings("restriction")
 public class ChildrenTableView extends ViewPart implements IEditingDomainProvider, ISelectionProvider {
 
 	public static final String ID = "org.opengda.lde.ui.views.ChildrenTableView"; //$NON-NLS-1$
-	public static final String DATA_DRIVER = "dls";
-	public static final String BEAMLINE_ID = "i11-1";
-	public static final String DATA_FOLDER = "data";
 	private static final Logger logger = LoggerFactory.getLogger(ChildrenTableView.class);
 	private List<ISelectionChangedListener> selectionChangedListeners;
-	private String dataDriver = DATA_DRIVER;
-	private String beamlineID = BEAMLINE_ID;
-	private String dataFolder = DATA_FOLDER;
 	private LDEResourceUtil resUtil;
-	private String[] cellIDs;
-	private String[] calibrants;
 	private Action startAction;
 	protected boolean running;
 	protected boolean paused;
@@ -155,67 +130,35 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 	private Sample currentSample;
 	private long totalNumberOfPoints;
 	protected long currentPointNumber;
-	@SuppressWarnings("restriction")
 	protected AnimationEngine animation=null;
+	private Composite rootComposite;
+	private CustomisedAdapterFactoryContentProvider contentprovider;
 	
 	private final String sampleColumnHeaders[] = { SampleTableConstants.STATUS, SampleTableConstants.PROGRESS, SampleTableConstants.ACTIVE, 
 			SampleTableConstants.SAMPLE_NAME, SampleTableConstants.SAMPLE_X_START, SampleTableConstants.SAMPLE_X_STOP, SampleTableConstants.SAMPLE_X_STEP, 
 			SampleTableConstants.SAMPLE_Y_START, SampleTableConstants.SAMPLE_Y_STOP, SampleTableConstants.SAMPLE_Y_STEP, 
-			SampleTableConstants.SAMPLE_EXPOSURE, SampleTableConstants.COMMAND, SampleTableConstants.COMMENT,
-			SampleTableConstants.CELL_ID, SampleTableConstants.STAGE_ID, SampleTableConstants.DATA_FILE, SampleTableConstants.CALIBRATION_FILE
+			SampleTableConstants.SAMPLE_EXPOSURE, SampleTableConstants.COMMAND, SampleTableConstants.COMMENT, SampleTableConstants.DATA_FILE,
+			SampleTableConstants.VISIT_ID, SampleTableConstants.CELL_ID, SampleTableConstants.CALIBRANT_NAME, 
+			SampleTableConstants.CALIBRANT_X, SampleTableConstants.CALIBRANT_Y, SampleTableConstants.CALIBRANT_EXPOSURE, 
+			SampleTableConstants.ENV_SCANNABLE_NAMES, SampleTableConstants.EMAIL, SampleTableConstants.START_DATE, SampleTableConstants.END_DATE, 
+			SampleTableConstants.CALIBRATION_FILE, SampleTableConstants.STAGE_ID, SampleTableConstants.DETECTOR_X, SampleTableConstants.DETECTOR_Y, SampleTableConstants.DETECTOR_Z
 			};
-
-	private final String sampleColumnHeadersForCell[] = {SampleTableConstants.ACTIVE, 
-			SampleTableConstants.SAMPLE_NAME, SampleTableConstants.SAMPLE_X_START, SampleTableConstants.SAMPLE_X_STOP, SampleTableConstants.SAMPLE_X_STEP, 
-			SampleTableConstants.SAMPLE_Y_START, SampleTableConstants.SAMPLE_Y_STOP, SampleTableConstants.SAMPLE_Y_STEP, 
-			SampleTableConstants.SAMPLE_EXPOSURE, SampleTableConstants.COMMAND, SampleTableConstants.COMMENT
-			};
-
-	private final String cellColumnHeaders[] = { CellTableConstants.CELL_NAME, CellTableConstants.CELL_ID, CellTableConstants.VISIT_ID, 
-			CellTableConstants.CALIBRANT_NAME, CellTableConstants.CALIBRANT_X, CellTableConstants.CALIBRANT_Y, CellTableConstants.CALIBRANT_EXPOSURE, 
-			CellTableConstants.NUMBER_OF_SAMPLES, CellTableConstants.ENV_SCANNABLE_NAMES, 
-			CellTableConstants.START_DATE, CellTableConstants.END_DATE, CellTableConstants.EMAIL, CellTableConstants.AUTO_EMAILING 
-			};
-
-	private final String stageColumnHeaders[] = { StageTableConstants.STAGE_ID, 
-			StageTableConstants.DETECTOR_X, StageTableConstants.DETECTOR_Y, StageTableConstants.DETECTOR_Z, 
-			StageTableConstants.CAMERA_X, StageTableConstants.CAMERA_Y, StageTableConstants.CAMERA_Z, StageTableConstants.NUMBER_OF_CELLS
-			};
-
-	private final String experimentColumnHeaders[] = { ExperimentTableConstants.NAME,ExperimentTableConstants.DESCRIPTION, ExperimentTableConstants.NUMBER_OF_STAGES};
 
 	private ColumnWeightData sampleColumnLayouts[] = { new ColumnWeightData(10, 50, false),new ColumnWeightData(10, 70, false), new ColumnWeightData(10, 35, false),
 			new ColumnWeightData(80, 110, true), new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true), 
 			new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true),	
-			new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 300, true), new ColumnWeightData(50, 300, true),
-			new ColumnWeightData(40, 55, true), new ColumnWeightData(40, 55, true), new ColumnWeightData(50, 300, true), new ColumnWeightData(50, 300, true)
+			new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 300, true), new ColumnWeightData(50, 300, true), new ColumnWeightData(50, 300, true),
+			new ColumnWeightData(40, 90, true), new ColumnWeightData(40, 55, true), new ColumnWeightData(40, 110, true), 
+			new ColumnWeightData(40, 80, true), new ColumnWeightData(40, 80, true), new ColumnWeightData(40, 80, true),
+			new ColumnWeightData(40, 90, true), new ColumnWeightData(40, 200, true), new ColumnWeightData(50, 120, true), new ColumnWeightData(50, 120, true),
+			new ColumnWeightData(50, 300, true), new ColumnWeightData(40, 55, true), new ColumnWeightData(40, 80, true), new ColumnWeightData(40, 80, true), new ColumnWeightData(40, 80, true) 
 			};
 	
-	private ColumnWeightData sampleColumnLayoutsForCell[] = { new ColumnWeightData(10, 35, false),
-			new ColumnWeightData(80, 110, true), new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true), 
-			new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true),	
-			new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 300, true), new ColumnWeightData(50, 300, true)
-			};
-
-	private ColumnWeightData cellColumnLayouts[] = { new ColumnWeightData(10, 50, true), new ColumnWeightData(40, 55, true), new ColumnWeightData(40, 90, true), 
-			new ColumnWeightData(40, 110, true), new ColumnWeightData(40, 50, true), new ColumnWeightData(40, 50, true), new ColumnWeightData(40, 80, true), 
-			new ColumnWeightData(40, 90, false), new ColumnWeightData(40, 90, true), 
-			new ColumnWeightData(50, 120, true), new ColumnWeightData(50, 120, true), new ColumnWeightData(40, 200, true),  new ColumnWeightData(40, 60, true),
-			};
-	
-	private ColumnWeightData stageColumnLayouts[] = { new ColumnWeightData(10, 70, true),
-			new ColumnWeightData(40, 80, true), new ColumnWeightData(40, 80, true), new ColumnWeightData(40, 80, true), 
-			new ColumnWeightData(40, 75, true),	new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 75, true), new ColumnWeightData(10, 50, true)
-			};
-	private ColumnWeightData experimentColumnLayouts[] = { new ColumnWeightData(80, 150, true), new ColumnWeightData(50, 500, true), new ColumnWeightData(10, 50, false)};
-
 	private ISelectionListener selectionListener;
 	protected ComposedAdapterFactory adapterFactory;
 	protected TableViewerColumn progressColumn;
 	protected TableViewerColumn statusColumn;
 	protected AdapterFactoryEditingDomain editingDomain;
-	private LinkedHashMap<EAttribute, String> cellAttributeMap;
-	private LinkedHashMap<EAttribute, String> sampleAttributeMap;
 	private PageBook pageBook;
 	private Composite plainComposite;
 
@@ -243,6 +186,7 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 		pageBook=new PageBook(parent,SWT.None);
 		plainComposite=new Composite(pageBook, SWT.None);
 		plainComposite.setLayout(new FillLayout());
+		new Label(plainComposite, SWT.None).setText("No parent is selected yet.");
 		 
 		rootComposite = new Composite(pageBook, SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
 		rootComposite.setLayout(new GridLayout());
@@ -317,13 +261,28 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 				column.setMoveable(true);
 				column.setResizable(true);
 				TableViewerColumn tableViewerColumn = new TableViewerColumn(tableViewer, column);
-				tableViewerColumn.setLabelProvider(new PropertyColumnLabelProvider(adapterFactoryContentProvider, descriptor.getId()) {
-					@Override
-					public Image getImage(Object object) {
-						//get ride of default image provided by EMFPlugin
-						return null;
-					}
-				});
+			tableViewerColumn.setLabelProvider(
+					new PropertyColumnLabelProvider(adapterFactoryContentProvider, descriptor.getId()) {
+						@Override
+						public Image getImage(Object object) {
+							// get ride of default image provided by EMFPlugin
+							return null;
+						}
+
+						@Override
+						public String getText(Object object) {
+							// A hack to trap the date string so we can format it
+							SimpleDateFormat format = new SimpleDateFormat("EEE MMM dd kk:mm:ss z yyyy");
+							String text = super.getText(object);
+							try {
+								Date date=format.parse(text);
+								return new SimpleDateFormat("dd/MM/yyyy").format(date);
+							} catch (ParseException e) {
+								//do nothing
+							}
+							return text;
+						}
+					});
 				// make table cell editable cause tree node selection to move and data just typed in not shown until re-selection the same node.
 //				tableViewerColumn.setEditingSupport(new PropertyEditingSupport(tableViewer, adapterFactoryContentProvider,descriptor.getId()));			
 			}
@@ -331,13 +290,12 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 
 	private void initialisation() {
 
-		selectionListener= new ISelectionListener() {
+		selectionListener= new INullSelectionListener() {
 			
 			@Override
 			public void selectionChanged(IWorkbenchPart part, ISelection selection) {
 				if (part instanceof LDEExperimentsEditor) {
 					if (selection.isEmpty()) {
-						new Label(plainComposite, SWT.None).setText("Children are not available.");
 						pageBook.showPage(plainComposite);
 					} else {
 						Object firstElement = ((IStructuredSelection)selection).getFirstElement();
@@ -810,12 +768,6 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 			}
 		}
 	};
-	private String[] stageIDs;
-	private Composite childrencomposite;
-	private LinkedHashMap<EAttribute, String> experimentAttributeMap;
-	private LinkedHashMap<EAttribute, String> stageAttributeMap;
-	private Composite rootComposite;
-	private CustomisedAdapterFactoryContentProvider contentprovider;
 
 
 
@@ -858,46 +810,6 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 		this.resUtil = resUtil;
 	}
 
-	public String getDataDriver() {
-		return dataDriver;
-	}
-
-	public void setDataDriver(String dataDriver) {
-		this.dataDriver = dataDriver;
-	}
-
-	public String getDataFolder() {
-		return dataFolder;
-	}
-
-	public void setDataFolder(String dataFolder) {
-		this.dataFolder = dataFolder;
-	}
-
-	public String[] getCellIDs() {
-		return cellIDs;
-	}
-
-	public void setCellIDs(String[] cellIDs) {
-		this.cellIDs = cellIDs;
-	}
-
-	public String[] getCalibrants() {
-		return calibrants;
-	}
-
-	public void setCalibrants(String[] calibrants) {
-		this.calibrants = calibrants;
-	}
-
-	public String getBeamlineID() {
-		return beamlineID;
-	}
-
-	public void setBeamlineID(String beamlineID) {
-		this.beamlineID = beamlineID;
-	}
-
 	public String getEventAdminName() {
 		return eventAdminName;
 	}
@@ -905,767 +817,7 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 	public void setEventAdminName(String eventAdminName) {
 		this.eventAdminName = eventAdminName;
 	}
-
-	private class ExperimentTableColumnEditingSupport extends EditingSupport {
-		
-		private String columnIdentifier;
-		private Table table;
-
-		public ExperimentTableColumnEditingSupport(ColumnViewer viewer, TableViewerColumn tableViewerColumn) {
-			super(viewer);
-			table=((TableViewer)viewer).getTable();
-			columnIdentifier=tableViewerColumn.getColumn().getText();
-		}
-
-		@Override
-		protected CellEditor getCellEditor(final Object element) {
-			if (ExperimentTableConstants.NAME.equals(columnIdentifier)) {
-				return new TextCellEditor(table);
-			} else if (ExperimentTableConstants.DESCRIPTION.equals(columnIdentifier)) {
-				return new TextCellEditor(table);
-			} else if (ExperimentTableConstants.NUMBER_OF_STAGES.equals(columnIdentifier)) {
-				return new TextCellEditor(table);
-			}
-			return null;
-		}
-
-		@Override
-		protected boolean canEdit(Object element) {
-			if (ExperimentTableConstants.NAME.equals(columnIdentifier)) {
-				return true;
-			} else if (ExperimentTableConstants.DESCRIPTION.equals(columnIdentifier)) {
-				return true;
-			} else if (ExperimentTableConstants.NUMBER_OF_STAGES.equals(columnIdentifier)) {
-				return true;
-			}
-			return false;
-		}
-
-		@Override
-		protected Object getValue(Object element) {
-			if (element instanceof Experiment) {
-				Experiment experiment = (Experiment) element;
-				 if (ExperimentTableConstants.NAME.equals(columnIdentifier)) {
-					return experiment.getName();
-				} else if (ExperimentTableConstants.DESCRIPTION.equals(columnIdentifier)) {
-					return experiment.getDescription();
-				} else if (ExperimentTableConstants.NUMBER_OF_STAGES.equals(columnIdentifier)) {
-					return experiment.getNumberOfStages();
-				} 
-			}
-			return null;
-		}
-
-		@Override
-		protected void setValue(Object element, Object value) {
-			if (ExperimentTableConstants.NAME.equals(columnIdentifier)) {
-				if (value instanceof String) {
-					try {
-						runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.EXPERIMENT__NAME, value));
-					} catch (Exception e) {
-						logger.error("Exception on setting "+ExperimentTableConstants.NAME+" field for experiment "+((Experiment)element).getName(), e);
-					}
-				}
-			} else if (ExperimentTableConstants.DESCRIPTION.equals(columnIdentifier)) {
-				if (value instanceof String) {
-					try {
-						runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.EXPERIMENT__DESCRIPTION, value));
-					} catch (Exception e) {
-						logger.error("Exception on setting "+ExperimentTableConstants.DESCRIPTION+" field for experiment "+((Experiment)element).getName(), e);
-					}
-				}
-			} else if (ExperimentTableConstants.DESCRIPTION.equals(columnIdentifier)) {
-					try {
-						runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.EXPERIMENT__NUMBER_OF_STAGES, value));
-					} catch (Exception e) {
-						logger.error("Exception on setting "+ExperimentTableConstants.NUMBER_OF_STAGES+" field for experiment "+((Experiment)element).getName(), e);
-				}
-			} 
-		}
-	}
 	
-	private class StageTableColumnEditingSupport extends EditingSupport {
-		
-		private String columnIdentifier;
-		private Table table;
-
-		public StageTableColumnEditingSupport(ColumnViewer viewer, TableViewerColumn tableViewerColumn) {
-			super(viewer);
-			table=((TableViewer)viewer).getTable();
-			columnIdentifier=tableViewerColumn.getColumn().getText();
-		}
-
-		@Override
-		protected CellEditor getCellEditor(final Object element) {
-			if (StageTableConstants.STAGE_ID.equals(columnIdentifier)) {
-				final ComboBoxViewerCellEditor ce = new ComboBoxViewerCellEditor(table, SWT.READ_ONLY);
-				ce.setLabelProvider(new LabelProvider());
-				ce.setContentProvider(new ArrayContentProvider());
-				ce.setInput(getStageIDs());
-				return ce;
-			} else if (StageTableConstants.DETECTOR_X.equals(columnIdentifier)) {
-				return new FormattedTextCellEditor(table);
-			} else if (StageTableConstants.DETECTOR_Y.equals(columnIdentifier)) {
-				return new FormattedTextCellEditor(table);
-			} else if (StageTableConstants.DETECTOR_Z.equals(columnIdentifier)) {
-				return new FormattedTextCellEditor(table);
-			} else if (StageTableConstants.CAMERA_X.equals(columnIdentifier)) {
-				return new FormattedTextCellEditor(table);
-			} else if (StageTableConstants.CAMERA_Y.equals(columnIdentifier)) {
-				return new FormattedTextCellEditor(table);
-			} else if (StageTableConstants.CAMERA_Z.equals(columnIdentifier)) {
-				return new FormattedTextCellEditor(table);
-			}
-			return null;
-		}
-
-		@Override
-		protected boolean canEdit(Object element) {
-			if (StageTableConstants.STAGE_ID.equals(columnIdentifier)) {
-				return true;
-			} else if (StageTableConstants.DETECTOR_X.equals(columnIdentifier)) {
-				return true;
-			} else if (StageTableConstants.DETECTOR_Y.equals(columnIdentifier)) {
-				return true;
-			} else if (StageTableConstants.DETECTOR_Z.equals(columnIdentifier)) {
-				return true;
-			} else if (StageTableConstants.CAMERA_X.equals(columnIdentifier)) {
-				return true;
-			} else if (StageTableConstants.CAMERA_Y.equals(columnIdentifier)) {
-				return true;
-			} else if (StageTableConstants.CAMERA_Z.equals(columnIdentifier)) {
-				return true;
-			} 
-			return false;
-		}
-
-		@Override
-		protected Object getValue(Object element) {
-			if (element instanceof Stage) {
-				Stage stage = (Stage) element;
-				if (StageTableConstants.STAGE_ID.equals(columnIdentifier)) {
-					return stage.getStageID();
-				} else if (StageTableConstants.DETECTOR_X.equals(columnIdentifier)) {
-					return stage.getDetector_x();
-				} else if (StageTableConstants.DETECTOR_Y.equals(columnIdentifier)) {
-					return stage.getDetector_y();
-				} else if (StageTableConstants.DETECTOR_Z.equals(columnIdentifier)) {
-					return stage.getDetector_z();
-				} else if (StageTableConstants.CAMERA_X.equals(columnIdentifier)) {
-					return stage.getCamera_x();
-				} else if (StageTableConstants.CAMERA_Y.equals(columnIdentifier)) {
-					return stage.getCamera_y();
-				} else if (StageTableConstants.CAMERA_Z.equals(columnIdentifier)) {
-					return stage.getCamera_z();
-				} 
-			}
-			return null;
-		}
-
-		@Override
-		protected void setValue(Object element, Object value) {
-			if (StageTableConstants.STAGE_ID.equals(columnIdentifier)) {
-				if (value instanceof String) {
-					try {
-						if (isValidStageID((Stage)element,(String)value)) {
-							runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.STAGE__STAGE_ID, value));
-						}
-					} catch (Exception e) {
-						logger.error("Exception on setting "+StageTableConstants.STAGE_ID+" field for stage "+((Stage)element).getStageID(), e);
-					}
-				}
-			} else if (StageTableConstants.DETECTOR_X.equals(columnIdentifier)) {
-				try {
-					runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.STAGE__DETECTOR_X, value));
-				} catch (Exception e) {
-					logger.error("Exception on setting "+StageTableConstants.DETECTOR_X+" field for stage "+((Stage)element).getStageID(), e);
-				}
-			} else if (StageTableConstants.DETECTOR_Y.equals(columnIdentifier)) {
-				try {
-					runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.STAGE__DETECTOR_Y, value));
-				} catch (Exception e) {
-					logger.error("Exception on setting "+StageTableConstants.DETECTOR_Y+" field for stage "+((Stage)element).getStageID(), e);
-				}
-			} else if (StageTableConstants.DETECTOR_Z.equals(columnIdentifier)) {
-				try {
-					runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.STAGE__DETECTOR_Z, value));
-				} catch (Exception e) {
-					logger.error("Exception on setting "+StageTableConstants.DETECTOR_Z+" field for stage "+((Stage)element).getStageID(), e);
-				}
-			} else if (StageTableConstants.CAMERA_X.equals(columnIdentifier)) {
-				try {
-					runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.STAGE__CAMERA_X, value));
-				} catch (Exception e) {
-					logger.error("Exception on setting "+StageTableConstants.CAMERA_X+" field for stage "+((Stage)element).getStageID(), e);
-				}
-			} else if (StageTableConstants.CAMERA_Y.equals(columnIdentifier)) {
-				try {
-					runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.STAGE__CAMERA_Y, value));
-				} catch (Exception e) {
-					logger.error("Exception on setting "+StageTableConstants.CAMERA_Y+" field for stage "+((Stage)element).getStageID(), e);
-				}
-			} else if (StageTableConstants.CAMERA_Z.equals(columnIdentifier)) {
-				try {
-					runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.STAGE__CAMERA_Z, value));
-				} catch (Exception e) {
-					logger.error("Exception on setting "+StageTableConstants.CAMERA_Z+" field for stage "+((Stage)element).getStageID(), e);
-				}
-			}
-		}
-	}
-	private boolean isValidStageID(Stage element, String value) {
-		if (value == null || value.isEmpty()) {
-			String message="You must select a Sample Stage ID.\n";
-			openMessageBox(message, "Invalid Stage ID");
-			return false;
-		}
-		
-		try {
-			for (Stage stage : resUtil.getStages()) {
-				if (element != stage && value.equals(stage.getStageID())) {
-					String message="Sample Stage is already used.\n";
-					openMessageBox(message, "Invalid Satge ID");
-					return false;
-				}
-			}
-		} catch (Exception e) {
-			logger.error("Fail to get all stages in a resource.", e);
-		}
-		return true;
-	}
-
-	private class CellTableColumnEditingSupport extends EditingSupport {
-		
-		private String columnIdentifier;
-		private Table table;
-
-		public CellTableColumnEditingSupport(ColumnViewer viewer, TableViewerColumn tableViewerColumn) {
-			super(viewer);
-			table=((TableViewer)viewer).getTable();
-			columnIdentifier=tableViewerColumn.getColumn().getText();
-		}
-
-		@Override
-		protected CellEditor getCellEditor(final Object element) {
-			if (CellTableConstants.CELL_NAME.equals(columnIdentifier)) {
-				return new TextCellEditor(table);
-			} else if (CellTableConstants.CELL_ID.equals(columnIdentifier)) {
-				final ComboBoxViewerCellEditor ce = new ComboBoxViewerCellEditor(table, SWT.READ_ONLY);
-				ce.setLabelProvider(new LabelProvider());
-				ce.setContentProvider(new ArrayContentProvider());
-				ce.setInput(getCellIDs());
-				return ce;
-			} else if (CellTableConstants.VISIT_ID.equals(columnIdentifier)) {
-				final ComboBoxViewerCellEditor ce = new ComboBoxViewerCellEditor(table);
-				ce.setLabelProvider(new LabelProvider());
-				ce.setContentProvider(new ArrayContentProvider());
-				ce.setInput(getVisitIDs());
-				return ce;
-//				return new TextCellEditor(table);
-			} else if (CellTableConstants.CALIBRANT_NAME.equals(columnIdentifier)) {
-				ComboBoxViewerCellEditor ce = new ComboBoxViewerCellEditor(table, SWT.READ_ONLY);
-				ce.setLabelProvider(new LabelProvider());
-				ce.setContentProvider(new ArrayContentProvider());
-				ce.setInput(getCalibrants());
-				return ce;
-			} else if (CellTableConstants.CALIBRANT_X.equals(columnIdentifier)) {
-				return new FormattedTextCellEditor(table);
-			} else if (CellTableConstants.CALIBRANT_Y.equals(columnIdentifier)) {
-				return new FormattedTextCellEditor(table);
-			} else if (CellTableConstants.CALIBRANT_EXPOSURE.equals(columnIdentifier)) {
-				return new FormattedTextCellEditor(table);
-			} else if (CellTableConstants.ENV_SCANNABLE_NAMES.equals(columnIdentifier)) {
-				//TODO using a list of environment scannables
-				return new TextCellEditor(table);
-			} else if (CellTableConstants.START_DATE.equals(columnIdentifier)){
-				return new CDateTimeCellEditor(table);
-			} else if (CellTableConstants.END_DATE.equals(columnIdentifier)){
-				return new CDateTimeCellEditor(table);
-			} else if (CellTableConstants.EMAIL.equals(columnIdentifier)) {
-				return new TextCellEditor(table);
-			} else if (CellTableConstants.AUTO_EMAILING.equals(columnIdentifier)) {
-				return new CheckboxCellEditor(table);
-			}
-			return null;
-		}
-
-		@Override
-		protected boolean canEdit(Object element) {
-			if (CellTableConstants.CELL_NAME.equals(columnIdentifier)) {
-				return true;
-			} else if (CellTableConstants.CELL_ID.equals(columnIdentifier)) {
-				return true;
-			} else if (CellTableConstants.VISIT_ID.equals(columnIdentifier)) {
-				return true;
-			} else if (CellTableConstants.CALIBRANT_NAME.equals(columnIdentifier)) {
-				return true;
-			} else if (CellTableConstants.CALIBRANT_X.equals(columnIdentifier)) {
-				return true;
-			} else if (CellTableConstants.CALIBRANT_Y.equals(columnIdentifier)) {
-				return true;
-			} else if (CellTableConstants.CALIBRANT_EXPOSURE.equals(columnIdentifier)) {
-				return true;
-			} else if (CellTableConstants.ENV_SCANNABLE_NAMES.equals(columnIdentifier)) {
-				return true;
-			} else if (CellTableConstants.START_DATE.equals(columnIdentifier)) {
-				return true;
-			} else if (CellTableConstants.END_DATE.equals(columnIdentifier)) {
-				return true;
-			} else if (CellTableConstants.EMAIL.equals(columnIdentifier)) {
-				return true;
-			} else if (CellTableConstants.AUTO_EMAILING.equals(columnIdentifier)) {
-				return true;
-			} 
-			return false;
-		}
-
-		@Override
-		protected Object getValue(Object element) {
-			if (element instanceof Cell) {
-				Cell cell = (Cell) element;
-				if (CellTableConstants.CELL_NAME.equals(columnIdentifier)) {
-					return cell.getName();
-				} else if (CellTableConstants.CELL_ID.equals(columnIdentifier)) {
-					return cell.getCellID();
-				} else if (CellTableConstants.VISIT_ID.equals(columnIdentifier)) {
-					return cell.getVisitID();
-				} else if (CellTableConstants.CALIBRANT_NAME.equals(columnIdentifier)) {
-					return cell.getCalibrant();
-				} else if (CellTableConstants.CALIBRANT_X.equals(columnIdentifier)) {
-					return cell.getCalibrant_x();
-				} else if (CellTableConstants.CALIBRANT_Y.equals(columnIdentifier)) {
-					return cell.getCalibrant_y();
-				} else if (CellTableConstants.CALIBRANT_EXPOSURE.equals(columnIdentifier)) {
-					return cell.getCalibrant_exposure();
-				} else if (CellTableConstants.ENV_SCANNABLE_NAMES.equals(columnIdentifier)) {
-					return cell.getEnvScannableNames();
-				} else if (CellTableConstants.START_DATE.equals(columnIdentifier)) {
-					return cell.getStartDate();
-				} else if (CellTableConstants.END_DATE.equals(columnIdentifier)) {
-					return cell.getEndDate();
-				} else if (CellTableConstants.EMAIL.equals(columnIdentifier)) {
-					return cell.getEmail();
-				} else if (CellTableConstants.AUTO_EMAILING.equals(columnIdentifier)) {
-					return cell.isEnableAutoEmail();
-				} 
-			}
-			return null;
-		}
-
-		@Override
-		protected void setValue(Object element, Object value) {
-			if (CellTableConstants.CELL_NAME.equals(columnIdentifier)) {
-				if (value instanceof String) {
-					try {
-						runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.CELL__NAME, value));
-					} catch (Exception e) {
-						logger.error("Exception on setting "+CellTableConstants.CELL_NAME+" field for cell "+((Cell)element).getName(), e);
-					}
-				}
-			} else if (CellTableConstants.CELL_ID.equals(columnIdentifier)) {
-				if (value instanceof String) {
-					try {
-						if (isValidCellID((Cell)element,(String)value)) {
-							runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.CELL__CELL_ID, value));
-						}
-					} catch (Exception e) {
-						logger.error("Exception on setting "+CellTableConstants.CELL_ID+" field for cell "+((Cell)element).getName(), e);
-					}
-				}
-			} else if (CellTableConstants.VISIT_ID.equals(columnIdentifier)) {
-				if (value instanceof String) {
-					try {
-						if (isValidVisitID((Sample)element, (String)value)) {
-							runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.CELL__VISIT_ID, value));
-						}
-					} catch (Exception e) {
-						logger.error("Exception on setting "+CellTableConstants.VISIT_ID+" field for cell "+((Cell)element).getName(), e);
-					}
-				}
-			} else if (CellTableConstants.CALIBRANT_NAME.equals(columnIdentifier)) {
-				if (value instanceof String) {
-					try {
-						runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.CELL__CALIBRANT, value));
-					} catch (Exception e) {
-						logger.error("Exception on setting "+CellTableConstants.CALIBRANT_NAME+" field for cell "+((Cell)element).getName(), e);
-					}
-				}
-			} else if (CellTableConstants.CALIBRANT_X.equals(columnIdentifier)) {
-				try {
-					runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.CELL__CALIBRANT_X, value));
-				} catch (Exception e) {
-					logger.error("Exception on setting "+CellTableConstants.CALIBRANT_X+" field for cell "+((Cell)element).getName(), e);
-				}
-			} else if (CellTableConstants.CALIBRANT_Y.equals(columnIdentifier)) {
-				try {
-					runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.CELL__CALIBRANT_Y, value));
-				} catch (Exception e) {
-					logger.error("Exception on setting "+CellTableConstants.CALIBRANT_Y+" field for cell "+((Cell)element).getName(), e);
-				}
-			} else if (CellTableConstants.CALIBRANT_EXPOSURE.equals(columnIdentifier)) {
-				try {
-					runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.CELL__CALIBRANT_EXPOSURE, value));
-				} catch (Exception e) {
-					logger.error("Exception on setting "+CellTableConstants.CALIBRANT_EXPOSURE+" field for cell "+((Cell)element).getName(), e);
-				}
-			} else if (CellTableConstants.ENV_SCANNABLE_NAMES.equals(columnIdentifier)) {
-				try {
-					runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.CELL__ENV_SCANNABLE_NAMES, value));
-				} catch (Exception e) {
-					logger.error("Exception on setting "+CellTableConstants.ENV_SCANNABLE_NAMES+" field for cell "+((Cell)element).getName(), e);
-				}
-			} else if (CellTableConstants.START_DATE.equals(columnIdentifier)) {
-				if (value instanceof Date) {
-					try {
-						runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.CELL__START_DATE, value));
-					} catch (Exception e) {
-						logger.error("Exception on setting "+CellTableConstants.START_DATE+" field for cell "+((Cell)element).getName(), e);
-					}
-				}
-			} else if (CellTableConstants.END_DATE.equals(columnIdentifier)) {
-				if (value instanceof Date) {
-					try {
-						runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.CELL__END_DATE, value));
-					} catch (Exception e) {
-						logger.error("Exception on setting "+CellTableConstants.END_DATE+" field for cell "+((Cell)element).getName(), e);
-					}
-				}
-			} else if (CellTableConstants.EMAIL.equals(columnIdentifier)) {
-				if (value instanceof String) {
-					try {
-						if (isValidEmail((String)value)) {
-							runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.CELL__EMAIL, value));
-						}
-					} catch (Exception e) {
-						logger.error("Exception on setting "+CellTableConstants.EMAIL+" field for cell "+((Cell)element).getName(), e);
-					}
-				}
-			} else if (CellTableConstants.AUTO_EMAILING.equals(columnIdentifier)) {
-				if (value instanceof Boolean) {
-					try {
-						runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.eINSTANCE.getSample_Active(), value));
-					} catch (Exception e) {
-						logger.error("Exception on setting "+SampleTableConstants.ACTIVE+" field for sample "+((Sample)element).getName(), e);
-					}
-				}
-			}
-		}
-
-	}
-
-	private class SampleTableColumnEditingSupport extends EditingSupport {
-		
-		private String columnIdentifier;
-		private Table table;
-
-		public SampleTableColumnEditingSupport(ColumnViewer viewer, TableViewerColumn tableViewerColumn) {
-			super(viewer);
-			table=((TableViewer)viewer).getTable();
-			columnIdentifier=tableViewerColumn.getColumn().getText();
-		}
-
-		@Override
-		protected CellEditor getCellEditor(final Object element) {
-			if (SampleTableConstants.ACTIVE.equals(columnIdentifier)) {
-				return new CheckboxCellEditor(table);
-			} else if (SampleTableConstants.SAMPLE_NAME.equals(columnIdentifier)) {
-				return new TextCellEditor(table);
-			} else if (SampleTableConstants.SAMPLE_X_START.equals(columnIdentifier)) {
-				return new FormattedTextCellEditor(table);
-			} else if (SampleTableConstants.SAMPLE_X_STOP.equals(columnIdentifier)) {
-				return new FormattedTextCellEditor(table);
-			} else if (SampleTableConstants.SAMPLE_X_STEP.equals(columnIdentifier)) {
-				return new FormattedTextCellEditor(table);
-			} else if (SampleTableConstants.SAMPLE_Y_START.equals(columnIdentifier)) {
-				return new FormattedTextCellEditor(table);
-			} else if (SampleTableConstants.SAMPLE_Y_STOP.equals(columnIdentifier)) {
-				return new FormattedTextCellEditor(table);
-			} else if (SampleTableConstants.SAMPLE_Y_STEP.equals(columnIdentifier)) {
-				return new FormattedTextCellEditor(table);
-			} else if (SampleTableConstants.SAMPLE_EXPOSURE.equals(columnIdentifier)) {
-				return new FormattedTextCellEditor(table);
-			} else if (SampleTableConstants.COMMAND.equals(columnIdentifier)) {
-				return new TextCellEditor(table);
-			} else if (SampleTableConstants.COMMENT.equals(columnIdentifier)) {
-				return new TextCellEditor(table);
-			}
-			return null;
-		}
-
-		@Override
-		protected boolean canEdit(Object element) {
-			if (SampleTableConstants.ACTIVE.equals(columnIdentifier)) {
-				return true;
-			} else if (SampleTableConstants.SAMPLE_NAME.equals(columnIdentifier)) {
-				return true;
-			} else if (SampleTableConstants.SAMPLE_X_START.equals(columnIdentifier)) {
-				return true;
-			} else if (SampleTableConstants.SAMPLE_X_STOP.equals(columnIdentifier)) {
-				return true;
-			} else if (SampleTableConstants.SAMPLE_X_STEP.equals(columnIdentifier)) {
-				return true;
-			} else if (SampleTableConstants.SAMPLE_Y_START.equals(columnIdentifier)) {
-				return true;
-			} else if (SampleTableConstants.SAMPLE_Y_STOP.equals(columnIdentifier)) {
-				return true;
-			} else if (SampleTableConstants.SAMPLE_Y_STEP.equals(columnIdentifier)) {
-				return true;
-			} else if (SampleTableConstants.SAMPLE_EXPOSURE.equals(columnIdentifier)) {
-				return true;
-			} else if (SampleTableConstants.COMMAND.equals(columnIdentifier)) {
-				return true;
-			} else if (SampleTableConstants.COMMENT.equals(columnIdentifier)) {
-				return true;
-			} 
-			return false;
-		}
-
-		@Override
-		protected Object getValue(Object element) {
-			if (element instanceof Sample) {
-				Sample sample = (Sample) element;
-				if (SampleTableConstants.ACTIVE.equals(columnIdentifier)) {
-					return sample.isActive();
-				} else if (SampleTableConstants.SAMPLE_NAME.equals(columnIdentifier)) {
-					return sample.getName();
-				} else if (SampleTableConstants.SAMPLE_X_START.equals(columnIdentifier)) {
-					return sample.getSample_x_start();
-				} else if (SampleTableConstants.SAMPLE_X_STOP.equals(columnIdentifier)) {
-					return sample.getSample_x_stop();
-				} else if (SampleTableConstants.SAMPLE_X_STEP.equals(columnIdentifier)) {
-					return sample.getSample_x_step();
-				} else if (SampleTableConstants.SAMPLE_Y_START.equals(columnIdentifier)) {
-					return sample.getSample_y_start();
-				} else if (SampleTableConstants.SAMPLE_Y_STOP.equals(columnIdentifier)) {
-					return sample.getSample_y_stop();
-				} else if (SampleTableConstants.SAMPLE_Y_STEP.equals(columnIdentifier)) {
-					return sample.getSample_y_step();
-				} else if (SampleTableConstants.SAMPLE_EXPOSURE.equals(columnIdentifier)) {
-					return sample.getSample_exposure();
-				} else if (SampleTableConstants.COMMAND.equals(columnIdentifier)) {
-					return sample.getCommand();
-				} else if (SampleTableConstants.COMMENT.equals(columnIdentifier)) {
-					return sample.getComment();
-				} else if (SampleTableConstants.CELL_ID.equals(columnIdentifier)) {
-					return sample.getCell().getCellID();
-				} else if (SampleTableConstants.STAGE_ID.equals(columnIdentifier)) {
-					return sample.getCell().getStage().getStageID();
-				} 
-			}
-			return null;
-		}
-
-		@Override
-		protected void setValue(Object element, Object value) {
-			if (SampleTableConstants.ACTIVE.equals(columnIdentifier)) {
-				if (value instanceof Boolean) {
-					try {
-						if ((boolean)value==true) {
-							if (isDatesValid((Sample)element)) {
-								runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.eINSTANCE.getSample_Active(), value));
-							}
-						} else {
-							runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.eINSTANCE.getSample_Active(), value));
-						}
-					} catch (Exception e) {
-						logger.error("Exception on setting "+SampleTableConstants.ACTIVE+" field for sample "+((Sample)element).getName(), e);
-					}
-				}
-			} else if (SampleTableConstants.SAMPLE_NAME.equals(columnIdentifier)) {
-				if (value instanceof String) {
-					try {
-						runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.eINSTANCE.getSample_Name(), value));
-					} catch (Exception e) {
-						logger.error("Exception on setting "+SampleTableConstants.SAMPLE_NAME+" field for sample "+((Sample)element).getName(), e);
-					}
-				}
-			} else if (SampleTableConstants.SAMPLE_X_START.equals(columnIdentifier)) {
-				try {
-					runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.eINSTANCE.getSample_Sample_x_start(), value));
-				} catch (Exception e) {
-					logger.error("Exception on setting "+SampleTableConstants.SAMPLE_X_START+" field for sample "+((Sample)element).getName(), e);
-				}
-			} else if (SampleTableConstants.SAMPLE_X_STOP.equals(columnIdentifier)) {
-				try {
-					runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.eINSTANCE.getSample_Sample_x_stop(), value));
-				} catch (Exception e) {
-					logger.error("Exception on setting "+SampleTableConstants.SAMPLE_X_STOP+" field for sample "+((Sample)element).getName(), e);
-				}
-			} else if (SampleTableConstants.SAMPLE_X_STEP.equals(columnIdentifier)) {
-				try {
-					runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.eINSTANCE.getSample_Sample_x_step(), value));
-				} catch (Exception e) {
-					logger.error("Exception on setting "+SampleTableConstants.SAMPLE_X_STEP+" field for sample "+((Sample)element).getName(), e);
-				}
-			} else if (SampleTableConstants.SAMPLE_Y_START.equals(columnIdentifier)) {
-				try {
-					runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.eINSTANCE.getSample_Sample_y_start(), value));
-				} catch (Exception e) {
-					logger.error("Exception on setting "+SampleTableConstants.SAMPLE_Y_START+" field for sample "+((Sample)element).getName(), e);
-				}
-			} else if (SampleTableConstants.SAMPLE_Y_STOP.equals(columnIdentifier)) {
-				try {
-					runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.eINSTANCE.getSample_Sample_y_stop(), value));
-				} catch (Exception e) {
-					logger.error("Exception on setting "+SampleTableConstants.SAMPLE_Y_STOP+" field for sample "+((Sample)element).getName(), e);
-				}
-			} else if (SampleTableConstants.SAMPLE_Y_STEP.equals(columnIdentifier)) {
-				try {
-					runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.eINSTANCE.getSample_Sample_y_step(), value));
-				} catch (Exception e) {
-					logger.error("Exception on setting "+SampleTableConstants.SAMPLE_Y_STEP+" field for sample "+((Sample)element).getName(), e);
-				}
-			} else if (SampleTableConstants.SAMPLE_EXPOSURE.equals(columnIdentifier)) {
-				try {
-					runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.eINSTANCE.getSample_Sample_exposure(), value));
-				} catch (Exception e) {
-					logger.error("Exception on setting "+SampleTableConstants.SAMPLE_EXPOSURE+" field for sample "+((Sample)element).getName(), e);
-				}
-			} else if (SampleTableConstants.COMMAND.equals(columnIdentifier)) {
-				if (value instanceof String) {
-					try {
-						if (isValidCommand((String)value)) {
-							runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.eINSTANCE.getSample_Command(), value));
-						}
-					} catch (Exception e) {
-						logger.error("Exception on setting "+SampleTableConstants.COMMAND+" field for sample "+((Sample)element).getName(), e);
-					}
-				}
-			} else if (SampleTableConstants.COMMENT.equals(columnIdentifier)) {
-				if (value instanceof String) {
-					try {
-						runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.eINSTANCE.getSample_Comment(), value));
-					} catch (Exception e) {
-						logger.error("Exception on setting "+SampleTableConstants.COMMENT+" field for sample "+((Sample)element).getName(), e);
-					}
-				}
-			} 
-		}
-
-	}
-	private boolean isDatesValid(Sample sample) {
-		Date now=new Date();
-		boolean startLessEnd = sample.getCell().getStartDate().compareTo(sample.getCell().getEndDate())<=0;
-		boolean nowInBetween = now.compareTo(sample.getCell().getStartDate())>=0 && now.compareTo(sample.getCell().getEndDate())<0;
-		if (startLessEnd && nowInBetween) {
-			return true;
-		}
-		String message="";
-		if (!startLessEnd) {
-			message="Sample start date must be before the end date.";
-		}
-		if (!nowInBetween) {
-			message="Cannot active this sample because the current date time is outside its date time range set.";
-		}
-		openMessageBox(message, "Activation Failed - Invalid dates ");
-		return false;
-	}
-	
-	public String[] getStageIDs() {
-		return stageIDs;
-	}
-	public void setStageIDs(String[] stageIDs) {
-		this.stageIDs = stageIDs;
-	}
-
-
-	private boolean isValidCommand(String value) {
-		// TODO Implement GDA command validator?
-		// validate single/multiple commands, e.g. scan, pos, scripts, etc. HOW???
-		return true;
-	}
-	
-	private boolean isValidEmail(String value) {
-		String EMAIL_REGEX = "^[\\w-_\\.+]*[\\w-_\\.]\\@([\\w]+\\.)+[\\w]+[\\w]$";
-		if (value.matches(EMAIL_REGEX)) {
-			try {
-				InternetAddress emailAddr=new InternetAddress(value);
-				return true;
-			} catch (AddressException e) {
-				String message=e.getMessage();
-				openMessageBox(message, "Invalid Email Address");
-				return false;
-			}
-		}
-		String message="Email: " + value +" is incorrectly formatted.";
-		openMessageBox(message, "Invalid Email Address");
-		return false;
-	}
-	
-	private boolean isValidCellID(Cell element, String value) {
-		if (value == null || value.isEmpty()) {
-			String message="You must select a Sample Cell ID.\n";
-			openMessageBox(message, "Invalid Cell ID");
-			return false;
-		}
-		try {
-			for (Cell cell : resUtil.getCells()) {
-				if (element != cell && value.equals(cell.getCellID())) {
-					String message="Sample Cell is already used.\n";
-					openMessageBox(message, "Invalid Cell ID");
-					return false;
-				}
-			}
-		} catch (Exception e) {
-			logger.error("Fail to get all cells from resource.",e);
-		}
-		return true;
-	}
-	
-	private boolean isValidVisitID(Sample sample, String value) {
-		if (value.contentEquals("0-0")){ // Commissioning folder
-			return true;
-		}
-		File dir=new File(getDataDirectory(sample));
-		if (dir.exists()) {
-			return true;
-		}
-		String message="Cannot find the data directory '" + dir.getAbsolutePath()+"' for this sample on data storage driver.\n";
-		openMessageBox(message, "Invalid Visit ID");
-		return false;
-	}
-	
-	private String getDataDirectory(Sample sample) {
-		String dataDir=File.separator;
-		if (getDataDriver()!=null && !getDataDriver().isEmpty()) {
-			dataDir += getDataDriver()+File.separator;
-		}
-		if (getBeamlineID()!=null && !getBeamlineID().isEmpty()) {
-			dataDir += getBeamlineID()+File.separator;
-		}
-		if (getDataFolder()!=null && !getDataFolder().isEmpty()) {
-			dataDir += getDataFolder()+File.separator;
-		}
-		dataDir += Calendar.getInstance().get(Calendar.YEAR)+File.separator+sample.getCell().getVisitID();
-		return dataDir;
-	}
-	
-	private String[] getVisitIDs() {
-		String dataDir=File.separator;
-		if (getDataDriver()!=null && !getDataDriver().isEmpty()) {
-			dataDir += getDataDriver()+File.separator;
-		}
-		if (getBeamlineID()!=null && !getBeamlineID().isEmpty()) {
-			dataDir += getBeamlineID()+File.separator;
-		}
-		if (getDataFolder()!=null && !getDataFolder().isEmpty()) {
-			dataDir += getDataFolder()+File.separator;
-		}
-		dataDir += Calendar.getInstance().get(Calendar.YEAR);
-		File dir=new File(dataDir);
-		String[] list = dir.list();
-		List<String> dirList=new ArrayList<String>();
-		if (list != null) {
-			for (String s : list) {
-				File file=new File(dataDir+File.separator+s);
-				if (file.isDirectory()) {
-					dirList.add(s);
-				}
-			}
-		}
-		return dirList.toArray(new String[0]);
-	}
-
 	private void openMessageBox(String message, String title) {
 		MessageBox dialog=new MessageBox(getSite().getShell(), SWT.ICON_ERROR | SWT.OK);
 		dialog.setText(title);
