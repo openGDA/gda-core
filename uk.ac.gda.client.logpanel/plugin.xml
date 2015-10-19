@@ -68,7 +68,6 @@
                icon="icons/copy_edit_on.gif"
                label="Copy Selected"
                mnemonic="C"
-               mode="FORCE_TEXT"
                style="push"
                tooltip="Copy selected messages to system clipboard">
          </command>
@@ -77,7 +76,6 @@
                icon="icons/console_clear.gif"
                label="Clear All"
                mnemonic="l"
-               mode="FORCE_TEXT"
                style="push"
                tooltip="Delete contents (of this panel only)">
          </command>
@@ -86,7 +84,6 @@
                icon="icons/scroll_lock.gif"
                label="Lock Scrolling"
                mnemonic="S"
-               mode="FORCE_TEXT"
                style="toggle"
                tooltip="Stop scrolling to reveal latest messages as they are received">
          </command>
