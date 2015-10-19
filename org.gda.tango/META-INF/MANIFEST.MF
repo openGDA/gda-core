@@ -16,7 +16,10 @@ Require-Bundle: org.eclipse.core.runtime,
  uk.ac.diamond.scisoft.analysis.plotserver;bundle-version="1.0.0",
  org.apache.commons.lang;bundle-version="2.6.0",
  org.eclipse.dawnsci.analysis.api;bundle-version="1.0.0",
- org.eclipse.dawnsci.hdf5;bundle-version="1.2.0"
+ org.eclipse.dawnsci.hdf5;bundle-version="1.2.0",
+ uk.ac.gda.exafs.api,
+ uk.ac.gda.devices.xmap;bundle-version="1.0.0",
+ uk.ac.gda.devices.xspress3;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: gda.device,
@@ -24,6 +27,7 @@ Export-Package: gda.device,
  gda.device.detector.frelon,
  gda.device.detector.mythen,
  gda.device.detector.pilatus,
+ gda.device.detector.xmap,
  gda.device.frelon,
  gda.device.frelon.impl,
  gda.device.lima,
