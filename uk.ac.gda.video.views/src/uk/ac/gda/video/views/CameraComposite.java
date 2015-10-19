@@ -546,7 +546,8 @@ public class CameraComposite extends Composite {
 		cp.setAcquirePV("BL13J-DI-PHDGN-01:CAM:Acquire");
 		cp.setExposurePV("BL13J-DI-PHDGN-01:CAM:AcquireTim");
 		cp.setGainPV("BL13J-DI-PHDGN-01:CAM:Gain");
-		cp.setUrlPV("BL13J-DI-PHDGN-01:FFMPEG:JPG_URL_RBV");
+		//cp.setUrlPV("BL13J-DI-PHDGN-01:FFMPEG:JPG_URL_RBV");
+		cp.setUrlPV("BL13J-DI-PHDGN-01:MJPG:JPG_URL_RBV");
 		cp.setName("D1 - Post Mirror  1");
 		cp.afterPropertiesSet();
 
@@ -555,7 +556,8 @@ public class CameraComposite extends Composite {
 		cp2.setAcquirePV("BL13J-DI-PHDGN-02:CAM:Acquire");
 		cp2.setExposurePV("BL13J-DI-PHDGN-02:CAM:AcquireTim");
 		cp2.setGainPV("BL13J-DI-PHDGN-02:CAM:Gain");
-		cp2.setUrlPV("BL13J-DI-PHDGN-02:FFMPEG:JPG_URL_RBV");
+		//cp2.setUrlPV("BL13J-DI-PHDGN-02:FFMPEG:JPG_URL_RBV");
+		cp2.setUrlPV("BL13J-DI-PHDGN-02:MJPG:JPG_URL_RBV");
 		cp2.setName("D2 - Post Absorber 1");
 		cp2.afterPropertiesSet();
 
