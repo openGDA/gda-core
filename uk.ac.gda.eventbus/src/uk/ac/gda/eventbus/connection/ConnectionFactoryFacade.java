@@ -27,7 +27,7 @@ public class ConnectionFactoryFacade {
 	/**
 	 * Create a ConnectionFactory using activemq
 	 * @param uri
-	 * @return
+	 * @return a queue connection factory
 	 * @throws JMSException
 	 */
 	public static QueueConnectionFactory createConnectionFactory(final String uri) throws JMSException {
@@ -37,7 +37,7 @@ public class ConnectionFactoryFacade {
 	/**
 	 * Create a ConnectionFactory using activemq
 	 * @param uri
-	 * @return
+	 * @return a queue connection factory
 	 * @throws JMSException
 	 */
 	public static QueueConnectionFactory createConnectionFactory(final URI uri) throws JMSException {
