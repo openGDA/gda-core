@@ -1,9 +1,9 @@
 package uk.ac.gda.devices.detector;
 
-import gda.device.Detector;
 import gda.device.DeviceException;
+import gda.factory.Findable;
 
-public interface FluorescenceDetector extends Detector {
+public interface FluorescenceDetector extends Findable {
 
 	/**
 	 * Perform a 'snapshot' data collection and return the MCA data. No file writing is involved.
