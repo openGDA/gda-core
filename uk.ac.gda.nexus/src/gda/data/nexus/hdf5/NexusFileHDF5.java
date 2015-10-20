@@ -18,8 +18,6 @@
 
 package gda.data.nexus.hdf5;
 
-import gda.data.nexus.NexusUtils;
-
 import java.io.File;
 import java.io.Serializable;
 import java.net.URI;
@@ -31,17 +29,10 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import ncsa.hdf.hdf5lib.H5;
-import ncsa.hdf.hdf5lib.HDF5Constants;
-import ncsa.hdf.hdf5lib.exceptions.HDF5Exception;
-import ncsa.hdf.hdf5lib.exceptions.HDF5LibraryException;
-import ncsa.hdf.hdf5lib.structs.H5G_info_t;
-import ncsa.hdf.hdf5lib.structs.H5L_info_t;
-import ncsa.hdf.hdf5lib.structs.H5O_info_t;
-
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyWriteableDataset;
+import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
 import org.eclipse.dawnsci.analysis.api.tree.Attribute;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
@@ -57,12 +48,20 @@ import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
 import org.eclipse.dawnsci.analysis.dataset.impl.LazyDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.LazyWriteableDataset;
 import org.eclipse.dawnsci.analysis.tree.TreeFactory;
-import org.eclipse.dawnsci.hdf5.HDF5Utils;
+import org.eclipse.dawnsci.hdf5.HDF5FileFactory;
 import org.eclipse.dawnsci.hdf5.nexus.NexusException;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.data.nexus.NexusUtils;
+import ncsa.hdf.hdf5lib.H5;
+import ncsa.hdf.hdf5lib.HDF5Constants;
+import ncsa.hdf.hdf5lib.exceptions.HDF5Exception;
+import ncsa.hdf.hdf5lib.exceptions.HDF5LibraryException;
+import ncsa.hdf.hdf5lib.structs.H5G_info_t;
+import ncsa.hdf.hdf5lib.structs.H5L_info_t;
+import ncsa.hdf.hdf5lib.structs.H5O_info_t;
 import uk.ac.diamond.scisoft.analysis.io.HDF5LazyLoader;
 import uk.ac.diamond.scisoft.analysis.io.HDF5LazySaver;
 
@@ -239,8 +238,8 @@ public class NexusFileHDF5 implements NexusFile {
 	@Override
 	public void openToRead() throws NexusException {
 		try {
-			fileId = HDF5Utils.H5Fopen(fileName, HDF5Constants.H5F_ACC_RDONLY, HDF5Constants.H5P_DEFAULT);
-		} catch (HDF5LibraryException e) {
+			fileId = HDF5FileFactory.acquireFile(fileName, false);
+		} catch (ScanFileHolderException e) {
 			throw new NexusException("Cannot open to read", e);
 		}
 		initializeTree();
@@ -250,14 +249,14 @@ public class NexusFileHDF5 implements NexusFile {
 	public void openToWrite(boolean createIfNecessary) throws NexusException {
 		if (new java.io.File(fileName).exists()) {
 			try {
-				fileId = HDF5Utils.H5Fopen(fileName, HDF5Constants.H5F_ACC_RDWR, HDF5Constants.H5P_DEFAULT);
-			} catch (HDF5LibraryException e) {
+				fileId = HDF5FileFactory.acquireFile(fileName, true);
+			} catch (ScanFileHolderException e) {
 				throw new NexusException("Cannot open to write", e);
 			}
 		} else if (createIfNecessary) {
 			try {
-				fileId = H5.H5Fcreate(fileName, HDF5Constants.H5F_ACC_EXCL, HDF5Constants.H5P_DEFAULT, HDF5Constants.H5P_DEFAULT);
-			} catch (HDF5LibraryException e) {
+				fileId = HDF5FileFactory.acquireFile(fileName, true);
+			} catch (ScanFileHolderException e) {
 				throw new NexusException("Cannot create to write", e);
 			}
 		} else {
@@ -270,8 +269,8 @@ public class NexusFileHDF5 implements NexusFile {
 	@Override
 	public void createAndOpenToWrite() throws NexusException {
 		try {
-			fileId = H5.H5Fcreate(fileName, HDF5Constants.H5F_ACC_TRUNC, HDF5Constants.H5P_DEFAULT, HDF5Constants.H5P_DEFAULT);
-		} catch (HDF5LibraryException e) {
+			fileId = HDF5FileFactory.acquireFileAsNew(fileName);
+		} catch (ScanFileHolderException e) {
 			throw new NexusException("Cannot create to write", e);
 		}
 		initializeTree();
@@ -1335,12 +1334,12 @@ public class NexusFileHDF5 implements NexusFile {
 		}
 		try {
 			tryToCloseOpenObjects();
-			H5.H5Fclose(fileId);
+			HDF5FileFactory.releaseFile(fileName, true);
 			fileId = -1;
 			tree = null;
 			nodeMap = null;
 			writeable = false;
-		} catch (HDF5LibraryException | NexusException e) {
+		} catch (NexusException | ScanFileHolderException e) {
 			throw new NexusException("Cannot close file", e);
 		}
 	}
