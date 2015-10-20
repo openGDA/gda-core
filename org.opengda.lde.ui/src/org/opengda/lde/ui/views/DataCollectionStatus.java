@@ -11,7 +11,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.emf.common.command.Command;
 import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.common.notify.Notification;
@@ -29,20 +28,22 @@ import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.SashForm;
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.layout.RowData;
-import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.forms.events.ExpansionAdapter;
+import org.eclipse.ui.forms.events.ExpansionEvent;
+import org.eclipse.ui.forms.widgets.FormToolkit;
+import org.eclipse.ui.forms.widgets.ScrolledForm;
+import org.eclipse.ui.forms.widgets.Section;
+import org.eclipse.ui.forms.widgets.TableWrapData;
+import org.eclipse.ui.forms.widgets.TableWrapLayout;
 import org.eclipse.ui.part.ViewPart;
 import org.opengda.lde.events.CellChangedEvent;
 import org.opengda.lde.events.DataReductionFailedEvent;
@@ -81,8 +82,10 @@ import gda.observable.IObserver;
  */
 public class DataCollectionStatus extends ViewPart implements IEditingDomainProvider, IObserver {
 
-	public static final String ID = "org.opengda.lde.ui.views.SamplesView"; //$NON-NLS-1$
+	public static final String ID = "org.opengda.lde.ui.views.dataCollectionStatusView"; //$NON-NLS-1$
 	private static final Logger logger = LoggerFactory.getLogger(DataCollectionStatus.class);
+	private FormToolkit toolkit;
+	private ScrolledForm form;
 	private LDEResourceUtil resUtil;
 
 	private Text txtDataFilePath;
@@ -137,175 +140,131 @@ public class DataCollectionStatus extends ViewPart implements IEditingDomainProv
 	 */
 	@Override
 	public void createPartControl(Composite parent) {
-		parent.setLayout(new FillLayout(SWT.HORIZONTAL));
-
-		SashForm sashForm = new SashForm(parent, SWT.BORDER | SWT.SMOOTH | SWT.VERTICAL);
-
-		Composite statusArea = new Composite(sashForm, SWT.NONE);
-		GridData gd_statusArea = new GridData(SWT.FILL, SWT.FILL, true, false,1, 1);
-		gd_statusArea.heightHint = 150;
-		statusArea.setLayoutData(gd_statusArea);
-		statusArea.setLayout(new GridLayout(5, false));
-
-		sashForm.setWeights(new int[] { 3, 1 });
-
-		Group grpDataFile = new Group(statusArea, SWT.NONE);
-		grpDataFile.setLayout(new FillLayout(SWT.HORIZONTAL));
-		GridData layoutData = new GridData(SWT.FILL, SWT.CENTER, true, false,1, 1);
-		layoutData.widthHint = 290;
-		grpDataFile.setLayoutData(layoutData);
-		grpDataFile.setText("Data File");
-
-		txtDataFilePath = new Text(grpDataFile, SWT.BORDER);
-		txtDataFilePath.setText("Current data file path");
-		txtDataFilePath.setForeground(ColorConstants.lightGreen);
-		txtDataFilePath.setBackground(ColorConstants.black);
-
-		Group grpSampleDefinitionFile = new Group(statusArea, SWT.NONE);
-		grpSampleDefinitionFile.setLayout(new FillLayout(SWT.HORIZONTAL));
-		grpSampleDefinitionFile.setLayoutData(new GridData(SWT.FILL,SWT.CENTER, true, false, 1, 1));
-		grpSampleDefinitionFile.setText("Sample Definition File");
-
-		txtSamplesfile = new Text(grpSampleDefinitionFile, SWT.BORDER);
-		txtSamplesfile.setEditable(false);
-		txtSamplesfile.setForeground(ColorConstants.lightGreen);
-		txtSamplesfile.setBackground(ColorConstants.black);
-		txtSamplesfile.setText("samples definition file path");
-
-		Group grpNoActiveSamples = new Group(statusArea, SWT.NONE);
-		GridData gd_grpNoSamplesTo = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_grpNoSamplesTo.widthHint = 111;
-		gd_grpNoSamplesTo.heightHint = 28;
-		grpNoActiveSamples.setLayoutData(gd_grpNoSamplesTo);
-		grpNoActiveSamples.setText("No. Active Samples");
-		grpNoActiveSamples.setLayout(new RowLayout(SWT.HORIZONTAL));
-
-		txtActivesamples = new Text(grpNoActiveSamples, SWT.BORDER | SWT.RIGHT);
-		txtActivesamples.setLayoutData(new RowData(117, SWT.DEFAULT));
-		txtActivesamples.setEditable(false);
-		txtActivesamples.setForeground(ColorConstants.lightGreen);
-		txtActivesamples.setBackground(ColorConstants.black);
-		txtActivesamples.setText("0");
+		toolkit = new FormToolkit(parent.getDisplay());
+		form = toolkit.createScrolledForm(parent);
+		form.setText("Server Data Collection Status Report");
+		TableWrapLayout layout = new TableWrapLayout();
+		form.getBody().setLayout(layout);
+		 
+		layout.numColumns = 2;
+	    Section section1=toolkit.createSection(form.getBody(),  Section.DESCRIPTION|Section.TITLE_BAR|Section.TWISTIE|Section.EXPANDED);
+		TableWrapData td = new TableWrapData(TableWrapData.FILL);
+		td.colspan = 2;
+		section1.setLayoutData(td);
+		section1.addExpansionListener(new ExpansionAdapter() {
+			@Override
+			public void expansionStateChanged(ExpansionEvent e) {
+				form.reflow(true);
+			}
+		});
+		section1.setText("Experiment Setup");
+		section1.setDescription("Summary information on the samples to be processed on the server.");
 		
-		Group grpNoCalibrations = new Group(statusArea, SWT.NONE);
-		grpNoCalibrations.setText("No. Calibrations");
-		grpNoCalibrations.setLayout(new RowLayout(SWT.HORIZONTAL));
-
-		txtNumberCalibrations = new Text(grpNoCalibrations, SWT.BORDER | SWT.RIGHT);
-		txtNumberCalibrations.setLayoutData(new RowData(100, SWT.DEFAULT));
-		txtNumberCalibrations.setForeground(ColorConstants.lightGreen);
-		txtNumberCalibrations.setText("0");
-		txtNumberCalibrations.setEditable(false);
-		txtNumberCalibrations.setBackground(ColorConstants.black);
+		Composite section1Client=toolkit.createComposite(section1);
+		section1Client.setLayout(new GridLayout(4,false));
 		
-		Group grpTotalCollections = new Group(statusArea, SWT.NONE);
-		grpTotalCollections.setText("Total Collections");
-		grpTotalCollections.setLayout(new RowLayout(SWT.HORIZONTAL));
+		Label label=toolkit.createLabel(section1Client,"Sample configuration file: ");
+		GridData gd=new GridData();
+		gd.horizontalSpan=1;
+		label.setLayoutData(gd);
+		txtSamplesfile = toolkit.createText(section1Client, "samples definition file path", SWT.READ_ONLY|SWT.WRAP);
+		gd=new GridData(GridData.FILL_HORIZONTAL);
+		gd.horizontalSpan=3;
+		gd.grabExcessHorizontalSpace=true;
+		txtSamplesfile.setLayoutData(gd);
 
-		txtTotalNumberCollections = new Text(grpTotalCollections, SWT.BORDER | SWT.RIGHT);
-		txtTotalNumberCollections.setLayoutData(new RowData(100, SWT.DEFAULT));
-		txtTotalNumberCollections.setForeground(ColorConstants.lightGreen);
-		txtTotalNumberCollections.setText("0");
-		txtTotalNumberCollections.setEditable(false);
-		txtTotalNumberCollections.setBackground(ColorConstants.black);
+		label=toolkit.createLabel(section1Client,"Number of Active Samples: ");
+		txtActivesamples = toolkit.createText(section1Client,"0", SWT.READ_ONLY);
+		txtActivesamples.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		
-		Group grpDataCollectionProgress = new Group(statusArea, SWT.NONE);
-		grpDataCollectionProgress.setLayout(new GridLayout(12, false));
-		GridData gd_grpDataCollectionProgress = new GridData(SWT.FILL,SWT.FILL, false, true, 5, 1);
-		gd_grpDataCollectionProgress.heightHint = 67;
-		grpDataCollectionProgress.setLayoutData(gd_grpDataCollectionProgress);
-		grpDataCollectionProgress.setText("Data Collection Progress");
-
-		Label lblCurrentScanNumber = new Label(grpDataCollectionProgress,SWT.NONE);
-		lblCurrentScanNumber.setText("Scan Number:");
-
-		txtScanNumber = new Text(grpDataCollectionProgress, SWT.BORDER);
-		txtScanNumber.setEditable(false);
-		txtScanNumber.setForeground(ColorConstants.lightGreen);
-		txtScanNumber.setBackground(ColorConstants.black);
-		txtScanNumber.setText("display current scan number");
-		GridData gd_txtScanNumber = new GridData(SWT.FILL, SWT.CENTER, true,false, 1, 1);
-		gd_txtScanNumber.widthHint = 60;
-		txtScanNumber.setLayoutData(gd_txtScanNumber);
-
-		Label lblCurrentSample = new Label(grpDataCollectionProgress, SWT.NONE);
-		lblCurrentSample.setText("Sample:");
-
-		txtSamplename = new Text(grpDataCollectionProgress, SWT.BORDER);
-		txtSamplename.setEditable(false);
-		txtSamplename.setForeground(ColorConstants.lightGreen);
-		txtSamplename.setBackground(ColorConstants.black);
-		txtSamplename.setText("display current sample name");
-		GridData gd_txtSamplename = new GridData(SWT.FILL, SWT.CENTER, true,false, 1, 1);
-		gd_txtSamplename.widthHint = 100;
-		txtSamplename.setLayoutData(gd_txtSamplename);
+		label=toolkit.createLabel(section1Client,"Number of Calibrations: ");
+		txtNumberCalibrations = toolkit.createText(section1Client, "0", SWT.READ_ONLY);
+		txtNumberCalibrations.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		
-		Label lblCurrentCell = new Label(grpDataCollectionProgress, SWT.NONE);
-		lblCurrentCell.setText("Cell:");
-
-		txtCellname = new Text(grpDataCollectionProgress, SWT.BORDER);
-		txtCellname.setEditable(false);
-		txtCellname.setForeground(ColorConstants.lightGreen);
-		txtCellname.setBackground(ColorConstants.black);
-		txtCellname.setText("display current cell name");
-		GridData gd_txtCellname = new GridData(SWT.FILL, SWT.CENTER, true,false, 1, 1);
-		gd_txtCellname.widthHint = 100;
-		txtCellname.setLayoutData(gd_txtCellname);
+		label=toolkit.createLabel(section1Client,"Total Number of Collections: ");
+		txtTotalNumberCollections = toolkit.createText(section1Client,"0", SWT.READ_ONLY);
+		txtTotalNumberCollections.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		
-		Label lblCurrentStage = new Label(grpDataCollectionProgress, SWT.NONE);
-		lblCurrentStage.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblCurrentStage.setText("Stage:");
-				
-		txtStagename = new Text(grpDataCollectionProgress, SWT.BORDER);
-		txtStagename.setEditable(false);
-		txtStagename.setForeground(ColorConstants.lightGreen);
-		txtStagename.setBackground(ColorConstants.black);
-		txtStagename.setText("display current stage name");
-		txtStagename.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		section1.setClient(section1Client);
+		toolkit.paintBordersFor(section1Client);
 		
-		Label lblCollectionNumber = new Label(grpDataCollectionProgress, SWT.NONE);
-		lblCollectionNumber.setText("Collection:");
+		Section section=toolkit.createSection(form.getBody(), Section.DESCRIPTION|Section.TITLE_BAR|Section.TWISTIE|Section.EXPANDED);
+		td = new TableWrapData(TableWrapData.FILL);
+		td.colspan = 2;
+		section.setLayoutData(td);
+		section.addExpansionListener(new ExpansionAdapter() {
+			@Override
+			public void expansionStateChanged(ExpansionEvent e) {
+				form.reflow(true);
+			}
+		});
+		section.setText("Experiment Progress");
+		section.setDescription("Display data collection progress informtion of the samples on the server.");
 
-		txtCollectionNumber = new Text(grpDataCollectionProgress, SWT.BORDER);
-		txtCollectionNumber.setEditable(false);
-		txtCollectionNumber.setBackground(ColorConstants.black);
-		txtCollectionNumber.setForeground(ColorConstants.lightGreen);
-		txtCollectionNumber.setText("0/0");
-		GridData gd_txtCollectionNumber = new GridData(SWT.FILL, SWT.CENTER, true,
-				false, 1, 1);
-		gd_txtCollectionNumber.widthHint = 40;
-		txtCollectionNumber.setLayoutData(gd_txtCollectionNumber);
-
-		Label lblScanPointNumber = new Label(grpDataCollectionProgress,SWT.NONE);
-		lblScanPointNumber.setText("Scan Point:");
-
-		txtScanPointNumber = new Text(grpDataCollectionProgress, SWT.BORDER);
-		txtScanPointNumber.setEditable(false);
-		txtScanPointNumber.setForeground(ColorConstants.lightGreen);
-		txtScanPointNumber.setBackground(ColorConstants.black);
-		txtScanPointNumber.setText("0/0");
-		GridData gd_txtScanPointNumber = new GridData(SWT.FILL, SWT.CENTER,true, false, 1, 1);
-		gd_txtScanPointNumber.widthHint = 40;
-		txtScanPointNumber.setLayoutData(gd_txtScanPointNumber);
-
-		Label lblProgress = new Label(grpDataCollectionProgress, SWT.NONE);
-		lblProgress.setText("Acquisition Progress:");
+		Composite sectionClient = toolkit.createComposite(section);
+		sectionClient.setLayout(new GridLayout(4, false));
 		
-		progressBar = new ProgressBar(grpDataCollectionProgress, SWT.NONE);
-		progressBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true,false, 5, 1));
+		label=toolkit.createLabel(sectionClient, "Data file to collect: ");
+		gd=new GridData();
+		gd.horizontalSpan=1;
+		label.setLayoutData(gd);
+		txtDataFilePath=toolkit.createText(sectionClient,"Current data file path", SWT.READ_ONLY|SWT.WRAP);
+		gd=new GridData(GridData.FILL_HORIZONTAL);
+		gd.horizontalSpan=3;
+		gd.grabExcessHorizontalSpace=true;
+		txtDataFilePath.setLayoutData(gd);
+
+		label=toolkit.createLabel(sectionClient,"Acquisition Progress: ");
+		gd=new GridData();
+		gd.horizontalSpan=1;
+		label.setLayoutData(gd);		
+		progressBar = new ProgressBar(sectionClient, SWT.NONE);
+		gd=new GridData(GridData.FILL_HORIZONTAL);
+		gd.horizontalSpan=3;
+		gd.grabExcessHorizontalSpace=true;
+		progressBar.setLayoutData(gd);
 		progressBar.setMaximum(100);
 		progressBar.setMinimum(0);
+		progressBar.setData(FormToolkit.KEY_DRAW_BORDER,FormToolkit.TEXT_BORDER);
 		
-		Label lblProgressMessage = new Label(grpDataCollectionProgress,SWT.NONE);
-		lblProgressMessage.setText("Progress Message:");
+		label=toolkit.createLabel(sectionClient,"Progress Message: ");
+		gd=new GridData();
+		gd.horizontalSpan=1;
+		label.setLayoutData(gd);		
+		txtProgressMessage = toolkit.createText(sectionClient,"display progress messages here.", SWT.READ_ONLY|SWT.WRAP);
+		gd=new GridData(GridData.FILL_HORIZONTAL);
+		gd.horizontalSpan=3;
+		gd.grabExcessHorizontalSpace=true;
+		txtProgressMessage.setLayoutData(gd);
+		
+		label=toolkit.createLabel(sectionClient,"Current Scan Number: ");
+		txtScanNumber = toolkit.createText(sectionClient,"display current scan number", SWT.READ_ONLY);
+		txtScanNumber.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
-		txtProgressMessage = new Text(grpDataCollectionProgress, SWT.BORDER);
-		txtProgressMessage.setForeground(ColorConstants.lightGreen);
-		txtProgressMessage.setBackground(ColorConstants.black);
-		txtProgressMessage.setEditable(false);
-		txtProgressMessage.setText("progressMessage");
-		txtProgressMessage.setLayoutData(new GridData(SWT.FILL, SWT.CENTER,true, false, 5, 1));
+		label=toolkit.createLabel(sectionClient,"Current Scan Point: ");
+		txtScanPointNumber = toolkit.createText(sectionClient,"0/0", SWT.READ_ONLY);
+		txtScanPointNumber.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
+		label=toolkit.createLabel(sectionClient,"Current Sample: ");
+		txtSamplename = toolkit.createText(sectionClient,"display current sample name", SWT.READ_ONLY);
+		txtSamplename.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		
+		label=toolkit.createLabel(sectionClient,"Current Cell: ");
+		txtCellname =  toolkit.createText(sectionClient,"display current cell name", SWT.READ_ONLY);
+		txtCellname.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		
+		label=toolkit.createLabel(sectionClient,"Current Stage: ");
+		txtStagename = toolkit.createText(sectionClient,"display current stage name", SWT.READ_ONLY);
+		txtStagename.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		
+		label=toolkit.createLabel(sectionClient,"Current Collection: ");
+		txtCollectionNumber = toolkit.createText(sectionClient,"0/0", SWT.READ_ONLY);
+		txtCollectionNumber.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+
+		section.setClient(sectionClient);
+		toolkit.paintBordersFor(sectionClient);
+		
 		initialisation();
 		// register as selection listener of sample editor if exist
 //		getViewSite().getWorkbenchWindow().getSelectionService().addSelectionListener(SampleViewExtensionFactory.ID, selectionListener);
@@ -773,6 +732,7 @@ public class DataCollectionStatus extends ViewPart implements IEditingDomainProv
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		toolkit.dispose();
 		super.dispose();
 	}
 	
@@ -811,7 +771,10 @@ public class DataCollectionStatus extends ViewPart implements IEditingDomainProv
 
 	@Override
 	public void setFocus() {
-		// TODO Auto-generated method stub
-		
+		form.setFocus();		
+	}
+
+	public void setViewPartName(String viewPartName) {
+		setPartName(viewPartName);		
 	}
 }
