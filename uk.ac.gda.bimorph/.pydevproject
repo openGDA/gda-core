@@ -6,6 +6,6 @@
 <path>/uk.ac.gda.bimorph/scripts</path>
 </pydev_pathproperty>
 <pydev_pathproperty name="org.python.pydev.PROJECT_EXTERNAL_SOURCE_PATH">
-<path>/gda_workspaces/bimorph/tp/plugins/uk.ac.diamond.jama_1.0.3.jar</path>
+<path>${GDA_WORKSPACE_PARENT}/workspace/tp/plugins/uk.ac.diamond.jama_1.0.3.jar</path>
 </pydev_pathproperty>
 </pydev_project>
