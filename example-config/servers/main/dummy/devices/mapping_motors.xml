@@ -36,4 +36,13 @@
 		<property name="motor" ref="stage_z_motor" />
 	</bean>
 
+	<bean id="mapping_stage_xy" class="gda.device.scannable.scannablegroup.ScannableGroup">
+		<property name="groupMembers">
+			<list>
+				<ref bean="stage_x" />
+				<ref bean="stage_y" />
+			</list>
+		</property>
+	</bean>
+
 </beans>
