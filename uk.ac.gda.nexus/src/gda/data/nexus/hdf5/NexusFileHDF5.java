@@ -1272,7 +1272,7 @@ public class NexusFileHDF5 implements NexusFile {
 
 	@Override
 	public void flush() throws NexusException {
-		if (fileId < 0) {
+		if (fileId == -1) {
 			return;
 		}
 		try {
@@ -1329,18 +1329,23 @@ public class NexusFileHDF5 implements NexusFile {
 
 	@Override
 	public void close() throws NexusException {
-		if (fileId < 0) {
+		if (fileId == -1) {
 			return;
 		}
 		try {
 			tryToCloseOpenObjects();
-			HDF5FileFactory.releaseFile(fileName, true);
 			fileId = -1;
 			tree = null;
 			nodeMap = null;
 			writeable = false;
-		} catch (NexusException | ScanFileHolderException e) {
+		} catch (NexusException e) {
 			throw new NexusException("Cannot close file", e);
+		} finally {
+			try {
+				HDF5FileFactory.releaseFile(fileName, true);
+			} catch (ScanFileHolderException e) {
+				throw new NexusException("Cannot release file", e);
+			}
 		}
 	}
 
