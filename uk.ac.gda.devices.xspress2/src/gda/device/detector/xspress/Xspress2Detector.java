@@ -41,8 +41,8 @@ import uk.ac.gda.beans.xspress.ResGrades;
 import uk.ac.gda.beans.xspress.XspressDeadTimeParameters;
 import uk.ac.gda.beans.xspress.XspressDetector;
 import uk.ac.gda.beans.xspress.XspressParameters;
-import uk.ac.gda.devices.detector.FluorescenceDetector;
 import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
+import uk.ac.gda.devices.detector.XspressFluorescenceDetector;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 /**
@@ -62,7 +62,7 @@ import uk.ac.gda.util.beans.xml.XMLHelpers;
  * scale both types of ROI using total counts / counts in rois This needs
  * refactoring so that roi when all are selected are also corrected.
  */
-public class Xspress2Detector extends XspressSystem implements NexusDetector, XspressDetector, FluorescenceDetector {
+public class Xspress2Detector extends XspressSystem implements NexusDetector, XspressFluorescenceDetector {
 
 	private static final Logger logger = LoggerFactory.getLogger(Xspress2Detector.class);
 
