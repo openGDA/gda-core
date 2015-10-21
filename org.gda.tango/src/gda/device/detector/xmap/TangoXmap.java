@@ -19,6 +19,7 @@
 package gda.device.detector.xmap;
 
 import gda.device.DeviceException;
+import gda.device.Timer;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanInformation;
 
@@ -102,7 +103,9 @@ public class TangoXmap extends Xmap implements FluorescenceDetector {
 			for (int i = 0; i < rois.size(); i++) {
 				roiList[i] = rois.get(i);
 			}
-			((TangoXmapController) controller).setAllROIs(roiList);
+			if (((TangoXmapController) controller).isConfigured()) {
+				((TangoXmapController) controller).setAllROIs(roiList);
+			}
 		} catch (DeviceException e) {
 			logger.error(e.getMessage(), e);
 			throw new Exception("Cannot configure vortex regions of interest.", e);
@@ -118,6 +121,14 @@ public class TangoXmap extends Xmap implements FluorescenceDetector {
 			logger.error("Cannot get the number of elements", e);
 		}
 		return nelements;
+	}
+
+	public Timer getTimer() {
+		return tfg;
+	}
+
+	public void setTimer(Timer tfg) {
+		this.tfg = tfg;
 	}
 
 	@Override

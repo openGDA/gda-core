@@ -52,16 +52,16 @@ public class TangoFrelonDetector extends TangoLimaDetector implements Initializi
 	private Integer roi_bin_offset = null;
 	private String roi_mode = null;
 	private String spb2_config = null;
-	
+
 	private static int detectorCount = 0;
 	private static int ready = 0;
 	private static int scanPoint;
-	
+
 	@Override
 	public void configure() throws FactoryException {
 		super.configure();
+		if (isConfigured()) {
 		try {
-			init();
 			if (e2v_correction != null)
 				writeE2vCorrection(e2v_correction);
 			if (image_mode != null)
@@ -81,6 +81,7 @@ public class TangoFrelonDetector extends TangoLimaDetector implements Initializi
 			configured = false;
 			logger.error("TangoPilatusDetector {} configure: {}", getName(), e);
 		}
+		}
 	}
 
 	@Override
@@ -96,14 +97,14 @@ public class TangoFrelonDetector extends TangoLimaDetector implements Initializi
 		logger.debug("NcdDetector reconfiguring " + getName());
 		configure();
 	}
-	
+
 	@Override
 	public void close() {
 		configured = false;
 		System.out.println("************************************Frelon close() deleting timer IOBserver");
 		timer.deleteIObserver(this);
 	}
-	
+
 	@Override
 	public void atScanStart() throws DeviceException {
 		scanPoint = 0;
@@ -112,7 +113,7 @@ public class TangoFrelonDetector extends TangoLimaDetector implements Initializi
 		writeSavingSuffix(getSavingSuffix());
 		writeSavingDirectory(getSavingDirectory());
 	}
-	
+
 	@Override
 	public void collectData() throws DeviceException {
 		detectorCount++;
@@ -208,70 +209,70 @@ public class TangoFrelonDetector extends TangoLimaDetector implements Initializi
 			e2v_correction = dev.read_attribute("e2v_correction").extractString();
 		} catch (DevFailed e) {
 			throw new DeviceException("failed to get e2v_correction", e);
-		}		
+		}
 		return e2v_correction;
 	}
-	
+
 	public Short readEspiaDevNb() throws DeviceException {
 		isAvailable();
 		try {
 			espia_dev_nb = dev.read_attribute("espia_dev_nb").extractShort();
 		} catch (DevFailed e) {
 			throw new DeviceException("failed to get espia_dev_nb", e);
-		}		
+		}
 		return espia_dev_nb;
 	}
-	
+
 	public String readImageMode() throws DeviceException {
 		isAvailable();
 		try {
 			image_mode = dev.read_attribute("image_mode").extractString();
 		} catch (DevFailed e) {
 			throw new DeviceException("failed to get image_mode", e);
-		}		
+		}
 		return image_mode;
 	}
-	
+
 	public String readInputChannel() throws DeviceException {
 		isAvailable();
 		try {
 			input_channel = dev.read_attribute("input_channel").extractString();
 		} catch (DevFailed e) {
 			throw new DeviceException("failed to get input_channel", e);
-		}		
+		}
 		return input_channel;
 	}
-	
+
 	public Integer readRoiBinOffset() throws DeviceException {
 		isAvailable();
 		try {
 			roi_bin_offset = dev.read_attribute("roi_bin_offset").extractLong();
 		} catch (DevFailed e) {
 			throw new DeviceException("failed to get roi_bin_offset", e);
-		}		
+		}
 		return roi_bin_offset;
 	}
-	
+
 	public String readRoiMode() throws DeviceException {
 		isAvailable();
 		try {
 			roi_mode = dev.read_attribute("roi_mode").extractString();
 		} catch (DevFailed e) {
 			throw new DeviceException("failed to get roi_mode", e);
-		}		
+		}
 		return roi_mode;
 	}
-	
+
 	public String readSpb2Config() throws DeviceException {
 		isAvailable();
 		try {
 			spb2_config = dev.read_attribute("spb2_config").extractString();
 		} catch (DevFailed e) {
 			throw new DeviceException("failed to get spb2_config", e);
-		}		
+		}
 		return spb2_config;
 	}
-	
+
 	public void writeE2vCorrection(String e2v_correction) throws DeviceException {
 		isAvailable();
 		try {
@@ -280,7 +281,7 @@ public class TangoFrelonDetector extends TangoLimaDetector implements Initializi
 			throw new DeviceException("failed to set e2v_correction", e);
 		}
 	}
-	
+
 	public void writeImageMode(String image_mode) throws DeviceException {
 		isAvailable();
 		try {
@@ -289,7 +290,7 @@ public class TangoFrelonDetector extends TangoLimaDetector implements Initializi
 			throw new DeviceException("failed to set image_mode", e);
 		}
 	}
-	
+
 	public void writeInputChannel(String input_channel) throws DeviceException {
 		isAvailable();
 		try {
@@ -298,7 +299,7 @@ public class TangoFrelonDetector extends TangoLimaDetector implements Initializi
 			throw new DeviceException("failed to set input_channel", e);
 		}
 	}
-	
+
 	public void writeRoiBinOffset(Integer roi_bin_offset) throws DeviceException {
 		isAvailable();
 		try {
@@ -307,7 +308,7 @@ public class TangoFrelonDetector extends TangoLimaDetector implements Initializi
 			throw new DeviceException("failed to set roi_bin_offset", e);
 		}
 	}
-	
+
 	public void writeRoiMode(String roi_mode) throws DeviceException {
 		isAvailable();
 		try {
@@ -316,7 +317,7 @@ public class TangoFrelonDetector extends TangoLimaDetector implements Initializi
 			throw new DeviceException("failed to set roi_mode", e);
 		}
 	}
-	
+
 	public void writeSpb2Config(String spb2_config) throws DeviceException {
 		isAvailable();
 		try {
@@ -343,7 +344,7 @@ public class TangoFrelonDetector extends TangoLimaDetector implements Initializi
 		}
 		super.setAttribute(attributeName, value);
 	}
-	
+
 	@Override
 	public Object getAttribute(String attributeName) throws DeviceException {
 		Object object = null;

@@ -67,10 +67,13 @@ public class TangoXmapController extends DeviceBase implements XmapController, I
 			tangoDeviceProxy.setAttribute("filePrefix", filePrefix);
 			tangoDeviceProxy.setAttribute("fileSuffix", fileSuffix);
 			tangoDeviceProxy.setAttribute("filePath", filePath);
+			setConfigured(true);
 		} catch (DeviceException e) {
 			logger.error("xmap device server is not available", e.getMessage());
+			setConfigured(false);
 		} catch (DevFailed e) {
 			logger.error(e.errors[0].desc);
+			setConfigured(false);
 		}
 	}
 
