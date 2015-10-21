@@ -24,7 +24,7 @@ import java.util.Vector;
 
 import org.eclipse.dawnsci.analysis.api.tree.Node;
 import org.eclipse.dawnsci.analysis.api.tree.Tree;
-import org.eclipse.dawnsci.hdf5.HDF5Utils;
+import org.eclipse.dawnsci.hdf5.HDF5FileFactory;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,26 +71,26 @@ public class NXLinkCreator {
 
 						logger.debug("DBG: pathToGroup = {}", pathToGroup);
 						logger.debug("DBG: groupName = {}", groupName);
-
-						long fid = -1;
-						fid = HDF5Utils.H5Fopen(filename, HDF5Constants.H5F_ACC_RDWR, HDF5Constants.H5P_DEFAULT);
-
-						long gid = -1;
-						gid = H5.H5Gopen(fid, pathToGroup, HDF5Constants.H5P_DEFAULT);
-
-						String oname = groupName;
-						String[] linkName = new String[2]; // file name and file path
-						H5.H5Lget_val(gid, oname, linkName, HDF5Constants.H5P_DEFAULT);
-
 						String linkInfo = "nxfile://";
-						linkInfo += linkName[1] + "#" + linkName[0];
-						logger.debug("DBG: linkInfo 1 = {}", linkInfo);
 
-						if (gid >= 0)
-							H5.H5Gclose(gid);
+						try {
+							long fid = HDF5FileFactory.acquireFile(filename, false);
 
-						if (fid >= 0)
-							H5.H5Fclose(fid);
+							long gid = -1;
+							gid = H5.H5Gopen(fid, pathToGroup, HDF5Constants.H5P_DEFAULT);
+
+							String oname = groupName;
+							String[] linkName = new String[2]; // file name and file path
+							H5.H5Lget_val(gid, oname, linkName, HDF5Constants.H5P_DEFAULT);
+
+							linkInfo += linkName[1] + "#" + linkName[0];
+							logger.debug("DBG: linkInfo 1 = {}", linkInfo);
+
+							if (gid >= 0)
+								H5.H5Gclose(gid);
+						} finally {
+							HDF5FileFactory.releaseFile(filename);
+						}
 						file.linkExternal(new URI(linkInfo), key, false);
 					}
 				} else { // create hard link
