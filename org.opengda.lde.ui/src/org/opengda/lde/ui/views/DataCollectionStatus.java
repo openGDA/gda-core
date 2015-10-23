@@ -33,7 +33,6 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IEditorPart;
@@ -508,7 +507,7 @@ public class DataCollectionStatus extends ViewPart implements IEditingDomainProv
 						recipients[i] = recipients[i].trim();
 					}
 					final String senderName=LocalProperties.get("org.opengda.mail.sender.name","i11-LDE");
-					//TODO changeto i11-LDE operation email account please
+					//TODO change to i11-LDE operation email account please
 					final String senderEmail=LocalProperties.get("org.opengda.mail.sender.email","diamondi11-lde@diamond.ac.uk");
 					String description="Data for sample "+sample.getName()+" are available now for download and view.\n";
 					description+="To download raw data files, please log into http://icat.diamond.ac.uk \n";
@@ -752,14 +751,6 @@ public class DataCollectionStatus extends ViewPart implements IEditingDomainProv
 		this.eventAdminName = eventAdminName;
 	}
 
-
-	private void openMessageBox(String message, String title) {
-		MessageBox dialog=new MessageBox(getSite().getShell(), SWT.ICON_ERROR | SWT.OK);
-		dialog.setText(title);
-		dialog.setMessage(message);
-		dialog.open();
-	}
-	
 	protected void runCommand(final Command rmCommand) throws Exception {
 		editingDomain.getCommandStack().execute(rmCommand);
 	}

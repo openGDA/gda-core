@@ -98,6 +98,8 @@ public class SampleGroupViewLabelProvider extends LabelProvider implements
 				return String.valueOf(sample.getSample_y_step());
 			case SampleTableConstants.COL_SAMPLE_EXPOSURE:
 				return String.valueOf(sample.getSample_exposure());
+			case SampleTableConstants.COL_STAGE_ID:
+				return sample.getCell().getStage().getStageID();
 			case SampleTableConstants.COL_DETECTOR_X:
 				return String.valueOf(sample.getCell().getStage().getDetector_x());
 			case SampleTableConstants.COL_DETECTOR_Y:

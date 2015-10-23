@@ -55,6 +55,13 @@
             name="Data Collection Status"
             restorable="true">
       </view>
+      <view
+            category="org.opengda.lde.ui"
+            class="gda.rcp.views.ViewFactory:samplesViewFactory"
+            id="org.opengda.lde.ui.views.SampleGroupView"
+            name="Samples (server)"
+            restorable="true">
+      </view>
    </extension>
    <extension
          point="org.eclipse.help.contexts">

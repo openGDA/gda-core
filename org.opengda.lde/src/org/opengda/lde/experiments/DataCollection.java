@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.eclipse.emf.common.util.EList;
 import org.opengda.lde.events.CellChangedEvent;
+import org.opengda.lde.events.DataFileEvent;
 import org.opengda.lde.events.ProcessMessage;
 import org.opengda.lde.events.SampleChangedEvent;
 import org.opengda.lde.events.SampleProcessingEvent;
@@ -552,10 +553,13 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 				}
 				logger.info("collect diffraction data from {} with request for post collection data reduction on cluster.", getCalibrantNameScannable().getName());
 				ScannableCommands.scan(getDatareduction(), 1,1,1, getPixium(), cell.getCalibrant_exposure());
-				cell.setCalibrated(true);
 			} else {
 				logger.info("collect diffraction data from {} without data reduction post processing.", getCalibrantNameScannable().getName());
 				ScannableCommands.scan(new DummyScannable("ds"), 1,1,1, getPixium(), cell.getCalibrant_exposure());
+			}
+			cell.setCalibrated(true);
+			if (eventAdmin!=null) {
+				((ScriptControllerBase)eventAdmin).update(eventAdmin, new DataFileEvent(cell.getCellID(), true, InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation().getFilename()));
 			}
 		} catch (Exception e) {
 			message="Scan failed during calibrant diffraction collection: "+e.getMessage();
@@ -686,6 +690,9 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 		}
 		try {
 			ScannableCommands.scan(scanparameters);
+			if (eventAdmin!=null) {
+				((ScriptControllerBase)eventAdmin).update(eventAdmin, new DataFileEvent(sample.getSampleID(), false, InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation().getFilename()));
+			}
 		} catch (Exception e) {
 			message="Scan failed during sample '"+name+"' diffraction collection: "+e.getMessage();
 			updateMessage(e, message);

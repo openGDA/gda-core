@@ -97,6 +97,4 @@ public class DataCollectionStatusFactory implements FindableExecutableExtension 
 	public void setEventAdminName(String eventAdminName) {
 		this.eventAdminName = eventAdminName;
 	}
-
-
 }

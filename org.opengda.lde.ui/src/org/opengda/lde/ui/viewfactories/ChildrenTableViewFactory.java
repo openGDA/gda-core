@@ -38,7 +38,6 @@ public class ChildrenTableViewFactory implements FindableExecutableExtension {
 	private String viewPartName;
 	private String name;
 	private LDEResourceUtil resUtil;
-	private String eventAdminName;
 
 	public String getViewPartName() {
 		return viewPartName;
@@ -64,9 +63,7 @@ public class ChildrenTableViewFactory implements FindableExecutableExtension {
 		ChildrenTableView sampleGroupView = new ChildrenTableView();
 		sampleGroupView.setViewPartName(viewPartName);
 		sampleGroupView.setResUtil(resUtil);
-		if (getEventAdminName()!=null) {
-			sampleGroupView.setEventAdminName(eventAdminName);
-		}
+
 		return sampleGroupView;
 	}
 
@@ -89,14 +86,4 @@ public class ChildrenTableViewFactory implements FindableExecutableExtension {
 	public void setResUtil(LDEResourceUtil resUtil) {
 		this.resUtil = resUtil;
 	}
-
-	public String getEventAdminName() {
-		return eventAdminName;
-	}
-
-	public void setEventAdminName(String eventAdminName) {
-		this.eventAdminName = eventAdminName;
-	}
-
-
 }
