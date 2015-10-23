@@ -30,10 +30,23 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Finder, a singleton class, allows objects to be retrieved from local store, a name service or created by a factory.
- * Objects must be specified in XML file.
+ * <p>
+ * For unit testing classes which depend on the Finder, set up the Finder first with a test factory (see TestHelpers in the uk.ac.gda.test.helpers bundle) and
+ * add any necessary Findables for the test to it. For example:
+ *
+ * <pre>
+ * <code>
+ * public void setUp() throws Exception {
+ * 	// .. set up mocks first
+ * 	Factory testFactory = TestHelpers.createTestFactory("test");
+ * 	testFactory.addFindable(mockFindable);
+ * 	Finder.getInstance().addFactory(testFactory);
+ * }
+ * </code>
+ * </pre>
  */
 public class Finder {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(Finder.class);
 
 	private static Finder instance;
@@ -49,7 +62,9 @@ public class Finder {
 
 	/**
 	 * Getter to construct and/or return single instance of the finder.
-	 * 
+	 * <p>
+	 * This can be used in unit tests independently of the rest of the GDA framework.
+	 *
 	 * @return the instance of finder.
 	 */
 	public synchronized static Finder getInstance() {
@@ -61,7 +76,7 @@ public class Finder {
 
 	/**
 	 * Return a named object from any of the factories known to the finder.
-	 * 
+	 *
 	 * @param <T>
 	 * @param name
 	 *            object to find.
@@ -84,7 +99,7 @@ public class Finder {
 
 	/**
 	 * Return a named object from any of the factories known to the finder.
-	 * 
+	 *
 	 * @param <T>
 	 *            class of Object being returned
 	 * @param name
@@ -107,7 +122,7 @@ public class Finder {
 
 	/**
 	 * Find an instance of a locally defined object
-	 * 
+	 *
 	 * @param <T>
 	 * @param name
 	 *            the name of the instance to find
@@ -132,7 +147,7 @@ public class Finder {
 
 	/**
 	 * Adds a factory to the list of searchable factories known by the Finder.
-	 * 
+	 *
 	 * @param factory
 	 *            the factory to add to the list.
 	 */
@@ -143,12 +158,12 @@ public class Finder {
 	public void removeAllFactories(){
 		factories.clear();
 	}
-	
+
 
 	/**
 	 * List all the interfaces available on the Finder. This method is aimed at users of the scripting environment for
 	 * searching for available hardware by using the 'list' command.
-	 * 
+	 *
 	 * @return array of interface names
 	 */
 	public ArrayList<String> listAllInterfaces() {
@@ -177,7 +192,7 @@ public class Finder {
 	/**
 	 * Returns an array of the names of all the objects in this Finder's factories which use the supplied interface
 	 * name, as defined by the XML.
-	 * 
+	 *
 	 * @param interfaceName
 	 *            the required interface to search for.
 	 * @return the list of Findable object names supporting the named interface.
@@ -192,11 +207,11 @@ public class Finder {
 		}
 		return findableNames;
 	}
-	
+
 
 	/**
 	 * Local version of listAllObjects
-	 * 
+	 *
 	 * @param interfaceName
 	 * @return the list of Findable objects supporting the named interface.
 	 */
@@ -207,7 +222,7 @@ public class Finder {
 	/**
 	 * Returns an array of the references of all the objects in this Finder's factories which use the supplied interface
 	 * name as defined by the XML.
-	 * 
+	 *
 	 * @param interfaceName
 	 *            the required interface to search for.
 	 * @return the list of Findable objects supporting the named interface.
@@ -215,7 +230,7 @@ public class Finder {
 	public ArrayList<Findable> listAllObjects(String interfaceName) {
 		return listAllObjects(interfaceName,false);
 	}
-	
+
 	private ArrayList<Findable> listAllObjects(String interfaceName, boolean localObjectsOnly) {
 		// if no class name given, then supply all objects
 		if (interfaceName == null) {
@@ -225,11 +240,11 @@ public class Finder {
 		ArrayList<Findable> objectRefs = new ArrayList<Findable>();
 		// loop through all factories
 		for (Factory factory : factories) {
-			
+
 			if (localObjectsOnly && !factory.isLocal()){
 				continue;
 			}
-			
+
 			// loop through all objects in that factory
 			for (Findable findable : factory.getFindables()) {
 
@@ -260,7 +275,7 @@ public class Finder {
 
 	/**
 	 * Tests the given class to see if its name, or the name of any interface it uses, matches the given interface name.
-	 * 
+	 *
 	 * @param classToTest
 	 * @param interfaceName
 	 * @return true if the same else false
@@ -285,7 +300,7 @@ public class Finder {
 	/**
 	 * Tests if the given Class has a name which matches the given interface name. This works if the interface name is
 	 * either fully resolved or not.
-	 * 
+	 *
 	 * @param theClass
 	 * @param interfaceName
 	 * @return true if the same else false
@@ -298,7 +313,7 @@ public class Finder {
 
 	/**
 	 * Returns an array of all the objects in this finder's factories as defined by the XML.
-	 * 
+	 *
 	 * @return a list of all known Findable objects.
 	 */
 	private ArrayList<Findable> listAllObjects() {
@@ -311,9 +326,9 @@ public class Finder {
 
 	/**
 	 * Returns {@link Findable}s that match the specified object type.
-	 * 
+	 *
 	 * @param clazz the class or interface to match
-	 * 
+	 *
 	 * @return a map of matching {@code Findable}s, with the object names as
 	 *         keys and the objects as values
 	 */
@@ -331,9 +346,9 @@ public class Finder {
 
 	/**
 	 * Returns a typed list {@link Findable}s that match the specified object type.
-	 * 
+	 *
 	 * @param clazz the class or interface to match
-	 * 
+	 *
 	 * @return a list of matching {@code Findable}s
 	 */
 	@SuppressWarnings("unchecked")
