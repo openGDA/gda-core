@@ -18,8 +18,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.dawnsci.nexus;bundle-version="1.0.0"
 Export-Package: gda.data.nexus,
  gda.data.nexus.extractor,
+ gda.data.nexus.hdf5,
  gda.data.nexus.napi,
- gda.data.nexus.scan,
  gda.data.nexus.tree
 Bundle-ClassPath: .,
  jars/jnexus.jar

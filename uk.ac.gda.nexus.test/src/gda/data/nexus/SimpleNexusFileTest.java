@@ -20,7 +20,7 @@ public class SimpleNexusFileTest extends AbstractNexusFileTestBase {
 	@Override
 	protected NXrootImpl createNXroot() {
 		// create the root object of the nexus file
-		NXrootImpl root = nxObjectFactory.createNXroot();
+		NXrootImpl root = nexusNodeFactory.createNXroot();
 		root.setAttributeFile_name(FILE_NAME);
 		root.setAttributeFile_time("2014-09-08T09:07:11.939912");
 		root.setAttributeNeXus_version("4.3.0");
@@ -28,10 +28,10 @@ public class SimpleNexusFileTest extends AbstractNexusFileTestBase {
 		root.setAttribute(null, "h5py_version", "2.3.0");
 
 		// create the single entry object of the nexus file
-		NXentryImpl entry = nxObjectFactory.createNXentry();
+		NXentryImpl entry = nexusNodeFactory.createNXentry();
 		root.setEntry(entry);
 
-		NXdataImpl dataGroup = nxObjectFactory.createNXdata();
+		NXdataImpl dataGroup = nexusNodeFactory.createNXdata();
 		entry.setData(dataGroup);
 
 		long[] countsData = new long[] {
@@ -46,7 +46,6 @@ public class SimpleNexusFileTest extends AbstractNexusFileTestBase {
 		dataGroup.setAttribute("counts", "axes", "two_theta");
 
 		IDataset twoTheta = DatasetFactory.createRange(18.9094, 18.9122, 0.0002, AbstractDataset.FLOAT64);
-		// TODO set units on dataset
 		dataGroup.setDataset("two_theta", twoTheta);
 		dataGroup.setAttribute("two_theta", "units", "degrees");
 		dataGroup.setAttribute("two_theta", "long_name", "two_theta (degrees)");

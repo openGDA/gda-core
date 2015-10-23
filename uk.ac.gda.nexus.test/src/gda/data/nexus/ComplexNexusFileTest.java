@@ -56,7 +56,7 @@ public class ComplexNexusFileTest extends AbstractNexusFileTestBase {
 	@Override
 	@After
 	public void tearDown() {
-		nxObjectFactory = null;
+		nexusNodeFactory = null;
 	}
 
 	private void setupTestData() {
@@ -176,7 +176,7 @@ public class ComplexNexusFileTest extends AbstractNexusFileTestBase {
 	}
 
 	private NXcollection createCS1Collection() {
-		NXcollectionImpl cs1Collection = nxObjectFactory.createNXcollection();
+		NXcollectionImpl cs1Collection = nexusNodeFactory.createNXcollection();
 
 		final String[] csFieldNames = new String[] { "cs1_x", "cs1_y", "cs1_z" };
 		for (String fieldName : csFieldNames) {
@@ -192,7 +192,7 @@ public class ComplexNexusFileTest extends AbstractNexusFileTestBase {
 	}
 
 	private NXcollection createSampleStageCollection() {
-		NXcollectionImpl sampleStageCollection = nxObjectFactory.createNXcollection();
+		NXcollectionImpl sampleStageCollection = nexusNodeFactory.createNXcollection();
 
 		String[] sampleStageFields = new String[] { "ss1_X", "ss1_Y", "ss1_Z", "ss1_rot", "ss1_samplex", "ss1_sampley", "ss1_samplez" };
 		for (String fieldName : sampleStageFields) {
@@ -216,24 +216,24 @@ public class ComplexNexusFileTest extends AbstractNexusFileTestBase {
 	}
 
 	private NXinstrument createInstrument() {
-		NXinstrumentImpl instrument = nxObjectFactory.createNXinstrument();
+		NXinstrumentImpl instrument = nexusNodeFactory.createNXinstrument();
 
 		// actualTime : NXpositioner
-		NXpositionerImpl actualTimePositioner = nxObjectFactory.createNXpositioner();
+		NXpositionerImpl actualTimePositioner = nexusNodeFactory.createNXpositioner();
 		instrument.setPositioner("actualTime", actualTimePositioner);
 		actualTimePositioner.setDataset("actualTime", getTestData("actualTime"));
 		actualTimePositioner.setAttribute("actualTime", "local_name", "actualTime.actualTime");
 //		actualTimePositioner.setAttribute("actualTime", "target", "/entry1/instrument/actualTime/actualTime");
 
 		// beamok : NXpositioner
-		NXpositionerImpl beamokPositioner = nxObjectFactory.createNXpositioner();
+		NXpositionerImpl beamokPositioner = nexusNodeFactory.createNXpositioner();
 		instrument.setPositioner("beamok", beamokPositioner);
 		beamokPositioner.setDataset("beamok", getTestData("beamok"));
 		beamokPositioner.setAttribute("beamok", "local_name", "beamok.beamok");
 //		beamokPositioner.setAttribute("beamok", "target", "/entry1/instrument/beamok/beamok");
 
 		// icon_i : NXpositioner
-		NXpositionerImpl ioncIPositioner = nxObjectFactory.createNXpositioner();
+		NXpositionerImpl ioncIPositioner = nexusNodeFactory.createNXpositioner();
 		instrument.setPositioner("ionc_i", ioncIPositioner);
 		// use a range for the dataset (not the actual data from the example file)
 		ioncIPositioner.setDataset("ionc_i", getTestData("ionc_i"));
@@ -243,7 +243,7 @@ public class ComplexNexusFileTest extends AbstractNexusFileTestBase {
 		instrument.setName(DatasetFactory.createFromObject("i13"));
 
 		// pc01_hw_hdf: NXdetector
-		NXdetectorImpl pco1HwHdfDectector = nxObjectFactory.createNXdetector();
+		NXdetectorImpl pco1HwHdfDectector = nexusNodeFactory.createNXdetector();
 		instrument.setDetector("pco1_hw_hdf", pco1HwHdfDectector);
 
 		pco1HwHdfDectector.setDataset("count_time", getTestData("count_time"));
@@ -264,7 +264,7 @@ public class ComplexNexusFileTest extends AbstractNexusFileTestBase {
 		pco1HwHdfDectector.setAttribute("time_ms", "units", "ms");
 
 		// source : NXsource
-		NXsourceImpl source = nxObjectFactory.createNXsource();
+		NXsourceImpl source = nexusNodeFactory.createNXsource();
 		instrument.setSource(source);
 		source.setDataset("current", getTestData("current"));
 		source.setAttribute("current", "units", "mA");
@@ -277,7 +277,7 @@ public class ComplexNexusFileTest extends AbstractNexusFileTestBase {
 		source.setType(getTestData("sourceType"));
 
 		// tomoScanDevice : NXpositioner
-		NXpositionerImpl tomoScanDevice = nxObjectFactory.createNXpositioner();
+		NXpositionerImpl tomoScanDevice = nexusNodeFactory.createNXpositioner();
 		instrument.setPositioner("tomoScanDevice", tomoScanDevice);
 		tomoScanDevice.setDataset("imageNumber", getTestData("imageNumber"));
 		tomoScanDevice.setAttribute("imageNumber", "axis", "1");
@@ -305,7 +305,7 @@ public class ComplexNexusFileTest extends AbstractNexusFileTestBase {
 	}
 
 	private NXdata createPco1HwHdfData() {
-		NXdataImpl data = nxObjectFactory.createNXdata();
+		NXdataImpl data = nexusNodeFactory.createNXdata();
 
 		data.addDataNode("actualTime", getDataNode("/entry1/instrument/actualTime/actualTime"));
 		data.addDataNode("beamok", getDataNode("/entry1/instrument/beamok/beamok"));
@@ -325,15 +325,15 @@ public class ComplexNexusFileTest extends AbstractNexusFileTestBase {
 	}
 
 	private NXsubentry createTomoEntry() {
-		NXsubentryImpl tomoEntry = nxObjectFactory.createNXsubentry();
+		NXsubentryImpl tomoEntry = nexusNodeFactory.createNXsubentry();
 
 		// control : NXmonitor
-		NXmonitorImpl controlMonitor = nxObjectFactory.createNXmonitor();
+		NXmonitorImpl controlMonitor = nexusNodeFactory.createNXmonitor();
 		tomoEntry.setMonitor("control", controlMonitor);
 		controlMonitor.addDataNode("data", getDataNode("entry1/instrument/ionc_i/ionc_i"));
 
 		// data : NXdata
-		NXdataImpl dataGroupNode = nxObjectFactory.createNXdata();
+		NXdataImpl dataGroupNode = nexusNodeFactory.createNXdata();
 		tomoEntry.setData(dataGroupNode);
 
 		// TODO read data from file?
@@ -361,11 +361,11 @@ public class ComplexNexusFileTest extends AbstractNexusFileTestBase {
 		tomoEntry.setDefinition(StringDataset.createFromObject("definition"));
 
 		// instrument : NXinstrument
-		NXinstrumentImpl instrument = nxObjectFactory.createNXinstrument();
+		NXinstrumentImpl instrument = nexusNodeFactory.createNXinstrument();
 		tomoEntry.setInstrument(instrument);
 
 		// detector : NXdetector
-		NXdetector detector = nxObjectFactory.createNXdetector();
+		NXdetector detector = nexusNodeFactory.createNXdetector();
 		instrument.setDetector(detector);
 		// tomo_entry/instrument/detector/data has the same data as tomo_entry/data/data
 		detector.addDataNode("data", dataGroupNode.getDataNode("data"));
@@ -381,7 +381,7 @@ public class ComplexNexusFileTest extends AbstractNexusFileTestBase {
 		instrument.addGroupNode("source", source);
 
 		// sample : NXsample
-		NXsampleImpl sample = nxObjectFactory.createNXsample();
+		NXsampleImpl sample = nexusNodeFactory.createNXsample();
 		tomoEntry.setSample(sample);
 		sample.addDataNode("rotation_angle", getDataNode("/entry1/instrument/tomoScanDevice/ss1_rot"));
 		sample.addDataNode("x_translation", getDataNode("/entry1/before_scan/sample_stage/ss1_samplex"));
@@ -395,15 +395,15 @@ public class ComplexNexusFileTest extends AbstractNexusFileTestBase {
 
 	@Override
 	protected NXroot createNXroot() {
-		root = nxObjectFactory.createNXroot();
+		root = nexusNodeFactory.createNXroot();
 
 		// create the single entry object of the nexus file
-		NXentryImpl entry1 = nxObjectFactory.createNXentry();
+		NXentryImpl entry1 = nexusNodeFactory.createNXentry();
 		root.setEntry("entry1", entry1);
 		// TODO, should we set any attributes on the root, or are they only set when a file is loaded?
 		assertNotNull(root.getEntry("entry1"));
 
-		NXcollectionImpl beforeScanCollection = nxObjectFactory.createNXcollection();
+		NXcollectionImpl beforeScanCollection = nexusNodeFactory.createNXcollection();
 		entry1.setCollection("before_scan", beforeScanCollection);
 
 		NXcollection cs1Collection = createCS1Collection();
@@ -430,7 +430,7 @@ public class ComplexNexusFileTest extends AbstractNexusFileTestBase {
 		NXsubentry tomoEntry = createTomoEntry();
 		entry1.setSubentry("tomo_entry", tomoEntry);
 
-		NXuserImpl user = nxObjectFactory.createNXuser();
+		NXuserImpl user = nexusNodeFactory.createNXuser();
 		entry1.setUser(user);
 		user.setField("username", "ssg37927");
 

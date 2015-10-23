@@ -28,7 +28,7 @@ import org.junit.Test;
 
 public abstract class AbstractNexusFileTestBase {
 
-	protected NexusNodeFactory nxObjectFactory;
+	protected NexusNodeFactory nexusNodeFactory;
 
 	private static String testScratchDirectoryName;
 
@@ -42,13 +42,13 @@ public abstract class AbstractNexusFileTestBase {
 
 	@Before
 	public void setUp() {
-		nxObjectFactory = new NexusNodeFactory();
+		nexusNodeFactory = new NexusNodeFactory();
 		FILE_PATH = testScratchDirectoryName + getFilename();
 	}
 
 	@After
 	public void tearDown() {
-		nxObjectFactory = null;
+		nexusNodeFactory = null;
 	}
 
 	protected abstract String getFilename();
@@ -56,7 +56,7 @@ public abstract class AbstractNexusFileTestBase {
 	protected abstract NXroot createNXroot();
 
 	private TreeFile createNexusTree() {
-		final TreeFileImpl treeFile = nxObjectFactory.createTreeFile(FILE_PATH);
+		final TreeFileImpl treeFile = nexusNodeFactory.createTreeFile(FILE_PATH);
 		final NXroot root = createNXroot();
 		treeFile.setGroupNode(root);
 
