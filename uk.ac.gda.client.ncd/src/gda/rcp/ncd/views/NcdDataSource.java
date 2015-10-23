@@ -18,9 +18,6 @@
 
 package gda.rcp.ncd.views;
 
-import gda.jython.JythonServerFacade;
-import gda.observable.IObserver;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -43,9 +40,10 @@ import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.jython.JythonServerFacade;
+import gda.observable.IObserver;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DatasetWithAxisInformation;
-import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
 import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
 import uk.ac.diamond.scisoft.analysis.rcp.views.PlotViewStatsAndMaths;
 
@@ -392,17 +390,8 @@ public class NcdDataSource extends ViewPart implements IObserver {
 	}
 
 	private void pushToPlotView(DataBean dBean) {
-		List<DatasetWithAxisInformation> dc = dBean.getData();
-		Dataset data = dc.get(0).getData();
-
 		if (plotView == null) {
 			return;
-		}
-
-		if (data.getRank() == 1) {
-			plotView.updatePlotMode(GuiPlotMode.ONED);
-		} else if (data.getRank() == 2) {
-			plotView.updatePlotMode(GuiPlotMode.TWOD);
 		}
 
 		plotView.processPlotUpdate(dBean);
