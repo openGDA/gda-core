@@ -28,7 +28,6 @@ import gda.factory.ObjectFactory;
 import gda.factory.corba.util.AdapterFactory;
 import gda.factory.corba.util.NetService;
 import gda.jython.InterfaceProvider;
-import gda.jython.MockJythonServerFacade;
 import gda.jython.authenticator.Authenticator;
 import gda.jython.authenticator.UserAuthentication;
 import gda.jython.authoriser.AuthoriserProvider;
@@ -57,7 +56,6 @@ import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.ClientManager;
 import uk.ac.gda.preferences.PreferenceConstants;
 import uk.ac.gda.richbeans.BeansFactoryInit;
 import uk.ac.gda.ui.dialog.AuthenticationDialog;
@@ -81,28 +79,23 @@ public class Application implements IApplication {
 		try {
 			// NOTE: Please keep the methods called during startup in tidy order. New tests or configurations should be
 			// encapsulated in their own method.
-			final boolean localObjectsOnly = createLocalObjectsIfRequired();
 
 			LogbackUtils.configureLoggingForClientProcess("rcp");
 			LogbackUtils.configureLoggingForClientBeagle();
 
 			authenticateUser(display);
 
-			if(!localObjectsOnly ){
-				//get access to distributed metadata object needed for identifying Visit
-				ObjectFactory objectFactory = new ObjectFactory();
-				objectFactory.setName(LocalProperties.get("gda.factory.factoryName"));
-				Finder finder = Finder.getInstance();
-				finder.addFactory(objectFactory);
-				NetService netService = NetService.getInstance();
-				// Add an adapter factory to the finder to allow access to
-				// objects created elsewhere. eg. in a standalone object server.
-				AdapterFactory adapterFactory = new AdapterFactory(objectFactory.getName(), netService);
-				finder.addFactory(adapterFactory);
-				objectFactory.configure();
-
-			}
-
+			// get access to distributed metadata object needed for identifying Visit
+			ObjectFactory objectFactory = new ObjectFactory();
+			objectFactory.setName(LocalProperties.get("gda.factory.factoryName"));
+			Finder finder = Finder.getInstance();
+			finder.addFactory(objectFactory);
+			NetService netService = NetService.getInstance();
+			// Add an adapter factory to the finder to allow access to
+			// objects created elsewhere. eg. in a standalone object server.
+			AdapterFactory adapterFactory = new AdapterFactory(objectFactory.getName(), netService);
+			finder.addFactory(adapterFactory);
+			objectFactory.configure();
 
 			if (identifyVisitID(display) == EXIT_OK) {
 				return EXIT_OK;
@@ -113,7 +106,7 @@ public class Application implements IApplication {
 			final String workspacePath = getWorkSpacePath();
 			createVisitBasedWorkspace(workspacePath);
 
-			createObjectFactory(display, localObjectsOnly);
+			createObjectFactory();
 
 			// To break the dependency of uk.ac.gda.common.BeansFactory of RCP/Eclipse, we
 			// manually force initialisation here. In the object server this is handled
@@ -186,30 +179,6 @@ public class Application implements IApplication {
 	private void fixVisitID() {
 		logger.info("User " + UserAuthentication.getUsername() + " running GDA client using visit " + LocalProperties.get(LocalProperties.RCP_APP_VISIT));
 		InterfaceProvider.getBatonStateProvider().changeVisitID(LocalProperties.get(LocalProperties.RCP_APP_VISIT));
-	}
-
-	private boolean createLocalObjectsIfRequired() {
-		boolean localObjectsOnly = LocalProperties.check("gda.localObjectsOnly");
-		if (localObjectsOnly) {
-			// we need to add a mock jython server facade until we can add a Command Server to the GUI.
-			MockJythonServerFacade mockJythonServerFacade = new MockJythonServerFacade();
-			InterfaceProvider.setCommandRunnerForTesting(mockJythonServerFacade);
-			InterfaceProvider.setCurrentScanControllerForTesting(mockJythonServerFacade);
-			InterfaceProvider.setTerminalPrinterForTesting(mockJythonServerFacade);
-			InterfaceProvider.setScanStatusHolderForTesting(mockJythonServerFacade);
-			InterfaceProvider.setJythonNamespaceForTesting(mockJythonServerFacade);
-			InterfaceProvider.setAuthorisationHolderForTesting(mockJythonServerFacade);
-			InterfaceProvider.setScriptControllerForTesting(mockJythonServerFacade);
-			InterfaceProvider.setPanicStopForTesting(mockJythonServerFacade);
-			InterfaceProvider.setCurrentScanInformationHolderForTesting(mockJythonServerFacade);
-			InterfaceProvider.setJythonServerNotiferForTesting(mockJythonServerFacade);
-			InterfaceProvider.setDefaultScannableProviderForTesting(mockJythonServerFacade);
-			InterfaceProvider.setScanDataPointProviderForTesting(mockJythonServerFacade);
-			InterfaceProvider.setBatonStateProviderForTesting(mockJythonServerFacade);
-			InterfaceProvider.setJSFObserverForTesting(mockJythonServerFacade);
-			InterfaceProvider.setAliasedCommandProvider(mockJythonServerFacade);
-		}
-		return localObjectsOnly;
 	}
 
 	private void createScanDataPointService() {
@@ -504,33 +473,16 @@ public class Application implements IApplication {
 		return path;
 	}
 
-	private static void createObjectFactory(final Display display, final boolean localObjectsOnly) {
-		try {
-			if (!started) {
-				String gda_gui_beans = LocalProperties.get(
-						LocalProperties.GDA_GUI_BEANS_XML,
-						LocalProperties.get(LocalProperties.GDA_GUI_XML));
-					if (gda_gui_beans != null) {
-						// remove existing factories first
-						Finder.getInstance().removeAllFactories();
-						SpringObjectServer s = new SpringObjectServer(new File(gda_gui_beans), localObjectsOnly);
-						s.configure();
-
-					}
-					started = true;
+	private static void createObjectFactory() throws FactoryException {
+		if (!started) {
+			String gda_gui_beans = LocalProperties.get(LocalProperties.GDA_GUI_BEANS_XML, LocalProperties.get(LocalProperties.GDA_GUI_XML));
+			if (gda_gui_beans != null) {
+				// remove existing factories first
+				Finder.getInstance().removeAllFactories();
+				SpringObjectServer s = new SpringObjectServer(new File(gda_gui_beans), false);
+				s.configure();
 			}
-		} catch (Exception ne) {
-			logger.error("Error in createObjectFactory", ne);// Representative
-
-			MessageDialog
-					.openError(
-							new Shell(display),
-							"Error starting GDA Client",
-							"The GDA Client cannot start.\n\nPlease contact your GDA support representative.\n\n'"
-									+ ne.getMessage() + "'");
-
-			if (!ClientManager.isTestingMode())
-				System.exit(-1);
+			started = true;
 		}
 	}
 }
