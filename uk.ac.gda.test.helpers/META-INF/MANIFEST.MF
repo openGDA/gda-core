@@ -10,7 +10,14 @@ Require-Bundle: org.mockito.mockito-core;bundle-version="[1.9.5,2.0.0)",
  uk.ac.gda.common.client;bundle-version="1.0.0",
  uk.ac.gda.api,
  uk.ac.gda.core;bundle-version="8.26.0",
- uk.ac.gda.common;bundle-version="1.2.0"
+ uk.ac.gda.common;bundle-version="1.2.0",
+ uk.ac.gda.nexus,
+ org.eclipse.dawnsci.hdf5,
+ org.eclipse.dawnsci.analysis.dataset,
+ org.eclipse.dawnsci.analysis.api
 Export-Package: gda,
+ gda.commandqueue,
  gda.gui.scanplot,
+ gda.jython,
  uk.ac.gda.test.helpers.springmock
+Import-Package: org.slf4j;version="1.7.6"
