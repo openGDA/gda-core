@@ -48,9 +48,7 @@ import org.opengda.lde.events.CellChangedEvent;
 import org.opengda.lde.events.DataReductionFailedEvent;
 import org.opengda.lde.events.NewDataFileEvent;
 import org.opengda.lde.events.ProcessMessage;
-import org.opengda.lde.events.SampleChangedEvent;
 import org.opengda.lde.events.SampleProcessingEvent;
-import org.opengda.lde.events.SampleStatusEvent;
 import org.opengda.lde.events.StageChangedEvent;
 import org.opengda.lde.model.ldeexperiment.Experiment;
 import org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage;
@@ -400,38 +398,6 @@ public class DataCollectionStatus extends ViewPart implements IEditingDomainProv
 						txtTotalNumberCollections.setText(String.valueOf(totalNumberActiveSamples+totalNumberCalibrations));
 						updateCollectionNumber(currentSampleNumber+currentCalibrationNumber,totalNumberActiveSamples+totalNumberCalibrations);
 						progressBar.setSelection(((currentSampleNumber+currentCalibrationNumber)*100)/(totalNumberActiveSamples+totalNumberCalibrations));
-					}
-				});
-			} else if (arg instanceof SampleChangedEvent) {
-				SampleChangedEvent event = (SampleChangedEvent)arg;
-				final String sampleID = event.getSampleID();
-				logger.debug("sample update to {}",sampleID);
-				Display.getDefault().asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						for (Sample sample : samples) {
-							if (sample.getSampleID().equalsIgnoreCase(sampleID)) {
-								if (currentSample != sample) {
-									updateSampleStatus(currentSample, STATUS.COMPLETED);
-								}
-								currentSample = sample;
-							}
-						}
-					}
-				});
-			} else if (arg instanceof SampleStatusEvent) {
-				SampleStatusEvent event = (SampleStatusEvent)arg;
-				final String sampleID = event.getSampleID();
-				final STATUS status = event.getStatus();
-				Display.getDefault().asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						logger.debug("sample {} update to {}",sampleID, status);
-						for (Sample sample : samples) {
-							if (sample.getSampleID().equalsIgnoreCase(sampleID)) {
-								updateSampleStatus(sample, status);
-							}
-						}
 					}
 				});
 			} else if (arg instanceof ProcessMessage) {
