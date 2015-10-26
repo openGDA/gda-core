@@ -40,8 +40,7 @@ Require-Bundle: uk.ac.diamond.org.jacorb;bundle-version="2.2.0",
 Eclipse-RegisterBuddy: uk.ac.gda.libs, uk.ac.diamond.scisoft.analysis,
  uk.ac.diamond.org.jacorb, uk.ac.gda.api, uk.ac.diamond.org.springframework
 Eclipse-BuddyPolicy: registered
-Export-Package: gda,
- gda.beamline.beam,
+Export-Package: gda.beamline.beam,
  gda.beamline.beam.corba.impl,
  gda.beamline.beamline,
  gda.beamline.beamline.corba.impl,
