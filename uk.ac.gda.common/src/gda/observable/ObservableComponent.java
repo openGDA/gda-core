@@ -98,26 +98,24 @@ public class ObservableComponent implements IObservable, IIsBeingObserved {
 			} catch (Exception ex) {
 				logger.error("swallowing exception {}", ex.toString());
 				
-				// Try to log something useful about the args of update
-				// which caused the exception to be thrown, but beware:
-				// ServerSideEventDispatcher.update details how calling toString
-				// (including via {} in logger) on Scannables can cause deadlocks.
-				String toStringSubstitute = null;
-				if (theObserved != null) {
-					// importing Findable causes a cyclic dependency!
-					//if (theObserved instanceof Findable)
-					//	toStringSubstitute = ((Findable) theObserved).getName();
-					//else
-						toStringSubstitute = "<" + theObserved.getClass().getName() + ">";
-				}
+				/*
+				 * Try to log something useful about the args of update
+				 * which caused the exception to be thrown, but beware:
+				 * ServerSideEventDispatcher.update details how calling
+				 * toString (including via {} in logger) on Scannables
+				 * can cause deadlocks...so just use class names to
+				 * describe problem.
+				 */
+				final String anIObserverDescription = anIObserver == null ? "null" : anIObserver.getClass().getName();
+				final String theObservedDescription = theObserved == null ? "null" : theObserved.getClass().getName();
 				
 				if (logger.isDebugEnabled()) {
-					logger.debug("triggered by {}.update({}, {})", anIObserver, toStringSubstitute, changeCode, ex);
+					logger.debug("triggered by {}.update({}, {})", anIObserverDescription, theObservedDescription, changeCode, ex);
 				}
 				
 				if (theObserved == null) { //TODO remove in GDA 9
 					logger.warn("GDA-6190 subsequent observers now being notified when 1st argument of "
-							+ "update is null: {}.update({}, {})", anIObserver, toStringSubstitute, changeCode);
+							+ "update is null: {}.update({}, {})", anIObserverDescription, theObservedDescription, changeCode);
 				}
 			}
 		}
