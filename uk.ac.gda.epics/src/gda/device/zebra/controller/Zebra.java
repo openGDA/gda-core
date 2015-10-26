@@ -202,4 +202,15 @@ public interface Zebra {
 	 */
 	public Observable<SoftInputChangedEvent> getSoftInputObservable();
 
+	/**
+	 * Reset the zebra box and all internal counters.
+	 * @throws IOException 
+	 */
+	public void reset() throws IOException;
+
+	void setPCPulseStart(double val) throws Exception;
+
+	double getPCPulseStart() throws Exception;
+
+	double getPCPulseStartRBV() throws Exception;
 }

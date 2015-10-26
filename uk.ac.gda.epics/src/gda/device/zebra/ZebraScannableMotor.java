@@ -160,5 +160,12 @@ public class ZebraScannableMotor extends ScannableMotor implements ContinuouslyS
 		this.exposureStepDefined = exposureStepDefined;
 	}
 
+	@Override
+	public void atScanStart() throws DeviceException {
+		// Due to the fragility of ZebraConstantVelocityMoveController and particulary the life cycle of
+		// its parts which read out time series arrays: here we will clear these so that controller this 
+		//ZebraScannableMotor returns is fit to be used by the scan.
+		continuousMoveController.prepareControllerToBeUsedForUpcomingScan();
+	}
 
 }

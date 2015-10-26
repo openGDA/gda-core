@@ -77,6 +77,7 @@ class ZebraCaptureInputStreamCollection implements PositionInputStream<Double> {
 
 	private void tidyup() throws IOException {
 		numDownloadedPV.setValueMonitoring(false);
+		numPointsReturned = 0;
 	}
 
 	@Override
@@ -91,7 +92,13 @@ class ZebraCaptureInputStreamCollection implements PositionInputStream<Double> {
 
 		int numPointsAvailable=0;
 		try {
+			//numDownloadedPV.setValueMonitoring(true);
+			logger.info("**numDownloadedPV: " + numDownloadedPV.get());  // force numDownloadedPV to go and get a new value
+			logger.info("**desiredPoint " + desiredPoint);
 			numPointsAvailable = numDownloadedPV.waitForValue(new GreaterThanOrEqualTo(desiredPoint), -1);
+			logger.info("**numPointsAvailable: " + numPointsAvailable);
+
+			logger.info("**** Finished waiting");
 		} catch (InterruptedException e) {
 			throw new InterruptedException("Interupted while waiting for point: " + desiredPoint);
 		} catch (Exception e) {

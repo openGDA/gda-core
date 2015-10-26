@@ -65,7 +65,7 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 	final public static String PCTimeUnits = "PC_TSPRE";
 	final public static String PCTimeUnits_ms = "ms";
 	final public static String PCTimeUnits_s = "s";
-	
+
 	final public static String PCArmSource = "PC_ARM_SEL";
 	final public static String PCArm = "PC_ARM";
 	final public static String PCDisArm = "PC_DISARM";
@@ -99,6 +99,7 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 
 	final public static String PCPulseSource = "PC_PULSE_SEL";
 	final public static String PCPulseDelay = "PC_PULSE_DLY";
+	final public static String PCPulseStart = "PC_PULSE_START";
 	final public static String PCPulseWidth = "PC_PULSE_WID";
 	final public static String PCPulseStep = "PC_PULSE_STEP";
 	final public static String PCPulseStatus = "PC_PULSE_OUT";
@@ -118,9 +119,9 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 	final public static String PCGateStartRBV = "PC_GATE_START:RBV";
 	final public static String PCGateWidthRBV = "PC_GATE_WID:RBV";
 	final public static String PCTimeUnit = "PC_TSPRE";
-	private static final String PCPulseMax = "PC_PULSE_MAX";	
+	private static final String PCPulseMax = "PC_PULSE_MAX";
 	public static final String PCArmInput="PC_ARM_INP";
-	
+
 	private static final String SYS_SOFT_IN_PV = "SOFT_IN";
 
 	final public static double PulseDelayMin = 0.0001;
@@ -132,11 +133,8 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 	String zebraPrefix;
 
 	CachedLazyPVFactory dev;
-	
-	
-	
 	private boolean useAvalField=false;
-	
+
 	public boolean isUseAvalField() {
 		return useAvalField;
 	}
@@ -154,7 +152,7 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 		assert (val == PC_PULSE_SOURCE_POSITION ||
 				val == PC_PULSE_SOURCE_TIME ||
 				val == PC_PULSE_SOURCE_EXTERNAL);
-		
+
 		dev.getIntegerPVValueCache(PCPulseSource).putWait(val);
 	}
 
@@ -173,9 +171,24 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 	public double getPCPulseDelay() throws Exception {
 		return dev.getDoublePVValueCache(PCPulseDelay).get();
 	}
+
 	@Override
 	public double getPCPulseDelayRBV() throws Exception {
 		return dev.getDoublePVValueCache(PCPulseDelayRBV).get();
+	}
+
+	@Override
+	public void setPCPulseStart(double val) throws Exception {
+		dev.getDoublePVValueCache(PCPulseStart).putWait(val);
+	}
+
+	@Override
+	public double getPCPulseStart() throws Exception {
+		return dev.getDoublePVValueCache(PCPulseStart).get();
+	}
+	@Override
+	public double getPCPulseStartRBV() throws Exception {
+		return dev.getDoublePVValueCache(PCPulseStart).get();
 	}
 
 	@Override
@@ -219,7 +232,7 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 		assert (PCPulsePulseMaxMin <= val && val <= PCPulsePulseMaxMax);
 		dev.getIntegerPVValueCache(PCPulseMax).putWait(val);
 	}
-	
+
 	@Override
 	public void setPCGateSource(int val) throws Exception {
 		assert (val == PC_GATE_SOURCE_POSITION ||
@@ -369,7 +382,6 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 		return dev.getIntegerPVValueCache(PCNumberOfPointsCaptured).get();
 	}
 
-	
 	public String getZebraPrefix() {
 		return zebraPrefix;
 	}
@@ -452,7 +464,7 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 		assert(SysSignalMin <= outputSignal && outputSignal <= SysSignalMax);
 		dev.getIntegerPVValueCache("OUT"+outId+"_TTL").putWait(outputSignal);
 	}
-	
+
 	@Override
 	public boolean getTtlOutputState(int output) throws IOException {
 		Preconditions.checkArgument(1 <= output && output <= 4);
@@ -521,34 +533,32 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 	private final Lock softInputsLock = new ReentrantLock();
 
 	private void startMonitoringSoftInputs() {
-		
+
 		final PV<Integer> pv = dev.getPVInteger(SYS_SOFT_IN_PV);
-		
-		
+
 		try {
 			lastSoftInputsValue = pv.get();
-			
+
 			pv.addObserver(new Observer<Integer>() {
 				@Override
 				public void update(Observable<Integer> source, Integer arg) {
-					
+
 					softInputsLock.lock();
-					
 					try {
-						
+
 						final int newValue = arg;
-						
+
 						for (int input=1; input<=4; input++) {
-							
+
 							final boolean wasSetBefore = isSoftInputSet(lastSoftInputsValue, input);
 							final boolean isSetNow = isSoftInputSet(newValue, input);
-							
+
 							if (wasSetBefore != isSetNow) {
 								final SoftInputChangedEvent ev = new SoftInputChangedEvent(input, isSetNow);
 								softInputObservable.notifyIObservers(softInputObservable, ev);
 							}
 						}
-						
+
 						lastSoftInputsValue = newValue;
 					}
 					
@@ -559,7 +569,6 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 			});
 			logger.info("Now monitoring soft inputs");
 		}
-		
 		catch (Exception e) {
 			logger.error("Could not start monitoring soft inputs", e);
 		}
@@ -574,14 +583,11 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 
 	@Override
 	public void setSoftInput(int inputNumber, boolean set) throws IOException {
-		
 		final PV<Integer> pv = dev.getPVInteger(SYS_SOFT_IN_PV);
-		
 		final int oldValue = pv.get();
-		
 		final int bit = 1<<(inputNumber-1);
 		final int newValue = set ? (oldValue | bit) : (oldValue & ~bit);
-		
+
 		pv.putWait(newValue);
 	}
 
@@ -611,6 +617,9 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 		return ((sysStatPvValue & (1<<inputNumber)) > 0);
 	}
 
+	public void reset() throws IOException {
+		dev.getPVInteger(sysResetProc).putWait(1);
+	}
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 }
