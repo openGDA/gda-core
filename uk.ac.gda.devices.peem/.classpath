@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry excluding="corba/|idl/" kind="src" path="src"/>
-	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
-	<classpathentry exported="true" kind="lib" path="jars/gda_peem-corba.jar"/>
+	<classpathentry exported="true" kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry excluding="corba/|idl/" kind="src" path="src"/>
 	<classpathentry exported="true" kind="lib" path="jars/peem-1.0.jar"/>
-	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/uk.ac.gda.core"/>
+	<classpathentry exported="true" kind="lib" path="jars/gda_peem-corba.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

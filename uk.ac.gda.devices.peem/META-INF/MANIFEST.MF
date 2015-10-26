@@ -8,14 +8,11 @@ Require-Bundle: org.eclipse.core.runtime;bundle-version="3.5.0",
  uk.ac.gda.core;bundle-version="8.26.0",
  uk.ac.gda.common;bundle-version="1.2.0",
  uk.ac.diamond.scisoft.analysis;bundle-version="1.0.0",
- uk.ac.gda.devices.pco;bundle-version="[1.0.0,2.0.0)",
  uk.ac.gda.epics;bundle-version="1.0.0",
  uk.ac.gda.api;bundle-version="8.26.0",
  uk.ac.gda.swingclient;bundle-version="1.0.0",
  uk.ac.diamond.jython;bundle-version="[2.5.3,3.0.0)",
- org.junit;bundle-version="[4.10.0,5.0.0)",
- uk.ac.diamond.org.springframework;bundle-version="3.2.2",
- uk.ac.gda.test.helpers;bundle-version="1.0.0"
+ uk.ac.diamond.org.springframework;bundle-version="3.2.2"
 Eclipse-RegisterBuddy: uk.ac.gda.libs
 Eclipse-BuddyPolicy: registered
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7

@@ -16,11 +16,4 @@
 	<import file="${workspace.git.loc}/diamond-releng.git/diamond.releng.tools/ant-headless/corba-common.ant" />
 	<property name="corba.jar.name" value="gda_peem-corba.jar" />
 
-	<!-- ====================================================================
-		   JUnit tests
-		 ==================================================================== -->
-
-	<target name="junit-tests" />  <!-- tests here are just for development, so indicate nothing to run -->
-
 </project>
-
