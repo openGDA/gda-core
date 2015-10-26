@@ -1,0 +1,74 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+           http://www.springframework.org/schema/util
+           http://www.springframework.org/schema/util/spring-util-2.0.xsd">
+
+	<bean id="GDAMetadata" class="gda.data.metadata.GdaMetadata">
+
+		<property name="metadataEntries">
+			<list>
+				<bean class="gda.data.metadata.PropertyMetadataEntry">
+					<property name="name" value="instrument" />
+					<property name="propertyName" value="gda.instrument" />
+				</bean>
+
+				<bean class="gda.data.metadata.PropertyMetadataEntry">
+					<property name="name" value="facility" />
+					<property name="propertyName" value="gda.facility" />
+				</bean>
+
+				<bean class="gda.data.metadata.PropertyMetadataEntry">
+					<property name="name" value="facilityType" />
+					<property name="propertyName" value="gda.facility.type" />
+				</bean>
+
+				<bean class="gda.data.metadata.PropertyMetadataEntry">
+					<property name="name" value="probe" />
+					<property name="propertyName" value="gda.facility.probe" />
+				</bean>
+
+				<bean class="gda.data.metadata.StoredMetadataEntry">
+					<property name="name" value="userid" />
+				</bean>
+
+				<bean class="gda.data.metadata.StoredMetadataEntry">
+					<property name="name" value="federalid" />
+				</bean>
+
+				<bean class="gda.data.metadata.PropertyMetadataEntry">
+					<property name="name" value="defVisit" />
+					<property name="propertyName" value="gda.defVisit" />
+				</bean>
+
+				<bean class="gda.data.metadata.IcatMetadataEntry">
+					<property name="name" value="investigation" />
+					<property name="query" value="id:investigation:id" />
+				</bean>
+
+				<bean class="gda.data.metadata.StoredMetadataEntry">
+					<property name="name" value="visit" />
+					<property name="defEntryName" value="defVisit" />
+				</bean>
+
+				<bean class="gda.data.metadata.IcatMetadataEntry">
+					<property name="name" value="proposal" />
+					<property name="query" value="INV_NUMBER:investigation:id" />
+				</bean>
+
+				<bean class="gda.data.metadata.IcatMetadataEntry">
+					<property name="name" value="investigationTitle" />
+					<property name="query" value="TITLE:investigation:id" />
+				</bean>
+
+				<bean class="gda.data.metadata.IcatMetadataEntry">
+					<property name="name" value="user" />
+					<property name="query"
+						value="first_name, middle_name, last_name:facility_user where facility_user_id in (select facility_user_id from investigator:investigation_id" />
+				</bean>
+
+			</list>
+		</property>
+	</bean>
+</beans>

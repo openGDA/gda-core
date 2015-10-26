@@ -28,7 +28,7 @@ import gda.device.DeviceException;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
 import gda.util.ObjectServer;
-import gda.util.TestsUtil;
+import gda.util.TestUtils;
 
 import java.text.Format;
 import java.text.SimpleDateFormat;
@@ -53,23 +53,21 @@ public class PathConstructorTest {
 	private String validId = "shk78";
 	private static String year = null;
 	private String propertyName = "test.property";
-//	private String path;
 
 	/**
 	 * Test setup to be run once at the start.
 	 * @throws FactoryException
 	 */
 	@BeforeClass()
-	public static void setUpBeforeClass() throws FactoryException {
+	public static void setUpBeforeClass() throws Exception {
 		/*
 		 * The following line is required to ensure that the default LocalProperties are obtained from the test's Java
 		 * properties file. The property gda.propertiesFile must be set BEFORE LocalProperties is used and thus it's
 		 * static block is invoked.
 		 */
-		System.setProperty("gda.propertiesFile", TestsUtil.constructTestPath("java.properties",
-				PathConstructorTest.class));
+		System.setProperty("gda.propertiesFile", TestUtils.getResourceAsFile(PathConstructorTest.class, "java.properties").getAbsolutePath());
 
-		ObjectServer.createLocalImpl(TestsUtil.constructTestPath("server.xml", PathConstructorTest.class));
+		ObjectServer.createLocalImpl(TestUtils.getResourceAsFile(PathConstructorTest.class, "metadata_test_beans.xml").getAbsolutePath());
 		metadata = (Metadata) Finder.getInstance().find("GDAMetadata");
 
 		Date date = new Date();

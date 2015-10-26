@@ -38,8 +38,8 @@ public class FileUtilTest {
 	 */
 	@Ignore("2010/06/03 Test ignored since not passing. Method being tested does not appear to be used. GDA-3274")
 	@Test
-	public void testChecksumCalculation() {
-		String checksumFile = TestsUtil.constructTestPath("checksumFile", FileUtilTest.class);
+	public void testChecksumCalculation() throws Exception {
+		String checksumFile = TestUtils.getResourceAsFile(FileUtilTest.class, "checksumFile").getAbsolutePath();
 		try {
 			assertEquals(expectedChecksum, FileUtil.checksum(checksumFile));
 		} catch (IOException e) {
