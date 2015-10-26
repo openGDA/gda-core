@@ -28,7 +28,7 @@ import org.springframework.util.StopWatch;
 /**
  * Tests a few different ways of loading Mythen data to see which is fastest.
  */
-public class DataLoadAlgorithmTest {
+public class DataLoadAlgorithmExperiment {
 	
 	private static final String TEST_FILE = "Si_15keV_5.dat";
 	
@@ -44,10 +44,10 @@ public class DataLoadAlgorithmTest {
 	}
 	
 	public static void main(String args[]) throws Exception {
-		final File dataFile = TestUtils.getResourceAsFile(DataLoadAlgorithmTest.class, TEST_FILE);
+		final File dataFile = TestUtils.getResourceAsFile(DataLoadAlgorithmExperiment.class, TEST_FILE);
 		final String filename = dataFile.getAbsolutePath();
 		
-		StopWatch sw = new StopWatch(DataLoadAlgorithmTest.class.getSimpleName());
+		StopWatch sw = new StopWatch(DataLoadAlgorithmExperiment.class.getSimpleName());
 		
 		Algorithm loadUsingCurrentAlgorithm = new Algorithm(
 			"loadUsingCurrentAlgorithm") {
