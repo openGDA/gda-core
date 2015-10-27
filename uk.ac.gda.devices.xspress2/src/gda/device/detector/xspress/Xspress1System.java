@@ -40,14 +40,14 @@ import uk.ac.gda.beans.xspress.ResGrades;
 import uk.ac.gda.beans.xspress.XspressDeadTimeParameters;
 import uk.ac.gda.beans.xspress.XspressDetector;
 import uk.ac.gda.beans.xspress.XspressParameters;
-import uk.ac.gda.devices.detector.FluorescenceDetector;
 import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
+import uk.ac.gda.devices.detector.XspressFluorescenceDetector;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 /**
  * Represents a set of Xspress1 boards and detectors. Actually communicates with an DAServer object.
  */
-public class Xspress1System extends XspressSystem implements XspressDetector, FluorescenceDetector {
+public class Xspress1System extends XspressSystem implements XspressFluorescenceDetector {
 	private static final long serialVersionUID = 1L;
 	private static final Logger logger = LoggerFactory.getLogger(Xspress1System.class);
 	public static final int READOUT_FILE = 0;
