@@ -43,6 +43,7 @@ public class TfgScalerTest {
 		daserver.configure();
 
 		tfg = new Etfg();
+		tfg.setDaServer(daserver);
 		tfg.configure();
 
 		memory = new Scaler();

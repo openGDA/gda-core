@@ -25,7 +25,7 @@ import gda.device.Scannable;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
 import gda.util.ObjectServer;
-import gda.util.TestsUtil;
+import gda.util.TestUtils;
 import gda.util.findableHashtable.FindableHashtable;
 import gda.util.findableHashtable.Hashtable;
 
@@ -67,17 +67,15 @@ public class ScanTest {
 	 * @throws FactoryException
 	 */
 	@BeforeClass()
-	public static void setup() throws FactoryException {
+	public static void setup() throws Exception {
 		// TODO: Make sure all GDA files required/written by this test are all
 		// stored
 		// relative to the test directory. Some properties may need changing?
-
-		ScanTest scanTest = new ScanTest();
 		/*
 		 * The following line is required to ensure that files created within this test (e.g. motor position files) are
 		 * created in a sensible location.
 		 */
-		testDir = TestsUtil.constructTestPath("", scanTest);
+		testDir = TestUtils.createClassScratchDirectory(ScanTest.class).getAbsolutePath();
 		System.setProperty("gda.testDir", testDir);
 
 		/*
@@ -85,10 +83,10 @@ public class ScanTest {
 		 * properties file. The property gda.propertiesFile must be set BEFORE LocalProperties is used and thus it's
 		 * static block is invoked.
 		 */
-		System.setProperty("gda.propertiesFile", TestsUtil.constructTestPath("scanTest.properties", scanTest));
+		System.setProperty("gda.propertiesFile", TestUtils.getResourceAsFile(ScanTest.class, "scanTest.properties").getAbsolutePath());
 
 		configureLogging();
-		ObjectServer.createLocalImpl(TestsUtil.constructTestPath("scanTest_server.xml", scanTest));
+		ObjectServer.createLocalImpl(TestUtils.getResourceAsFile(ScanTest.class, "scanTest_server.xml").getAbsolutePath());
 
 		finder = Finder.getInstance();
 		hashtable = (gda.util.findableHashtable.Hashtable) finder.find("GDAHashtable");

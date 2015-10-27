@@ -21,7 +21,6 @@
 			<sysproperty key="basedir" value="${plugin.basedir}" />
 			<sysproperty key="gda.tests" value = "${plugin.basedir}/src"/>  <!-- read by plugins/uk.ac.gda.core/src/gda/util/TestsUtil.java -->
 			<sysproperty key="gda.propertiesFiles" value = "${plugin.basedir}/src/java.properties"/>
-			<sysproperty key="gov.aps.jca.JCALibrary.properties" value="${plugin.basedir}/src/${gov.aps.jca.JCALibrary.properties}"/>
 			<formatter type="xml" />
 			<classpath>
 				<pathelement location="${junitjar.loc}" />

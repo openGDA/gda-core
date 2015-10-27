@@ -29,7 +29,6 @@ import gda.factory.Finder;
 import gda.util.findableHashtable.Hashtable;
 
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -39,7 +38,6 @@ import org.junit.Test;
  * AS A VM ARGUMENT when running the test. In the latter case the test's Java property and XML files are assumed to be
  * under ${gda.tests}/gda/src...
  */
-@Ignore("2010/06/07 Test ignored since not passing GDA-3275")
 public class FindableHashtableTest {
 	private static Hashtable hashtable;
 	private String key;
@@ -63,17 +61,16 @@ public class FindableHashtableTest {
 	 * @throws FactoryException
 	 */
 	@BeforeClass()
-	public static void setUpBeforeClass() throws FactoryException {
+	public static void setUpBeforeClass() throws Exception {
 		/*
 		 * The following line is required to ensure that the default LocalProperties are obtained from the test's Java
 		 * properties file. The property gda.propertiesFile must be set BEFORE LocalProperties is used and thus it's
 		 * static block is invoked.
 		 */
-		System.setProperty("gda.propertiesFile", TestsUtil.constructTestPath("java_findableHashtable.properties",
-				FindableHashtableTest.class));
+		System.setProperty("gda.propertiesFile", TestUtils.getResourceAsFile(FindableHashtableTest.class, "java_findableHashtable.properties")
+				.getAbsolutePath());
 
-		ObjectServer.createLocalImpl(TestsUtil.constructTestPath("server_findableHashtable.xml",
-				FindableHashtableTest.class));
+		ObjectServer.createLocalImpl(TestUtils.getResourceAsFile(FindableHashtableTest.class, "server_findableHashtable.xml").getAbsolutePath());
 		hashtable = (Hashtable) Finder.getInstance().find("GDAHashtable");
 	}
 
@@ -90,7 +87,7 @@ public class FindableHashtableTest {
 		}
 		key = "booleanTest";
 		hashtable.putBoolean(key, b);
-		assertEquals("boolean test failed", hashtable.getBoolean(key));
+		assertEquals("boolean test failed", true, hashtable.getBoolean(key));
 
 		key = "intTest";
 		hashtable.putInt(key, i);
@@ -110,23 +107,23 @@ public class FindableHashtableTest {
 
 		key = "floatTest";
 		hashtable.putFloat(key, f);
-		assertEquals("float test failed", hashtable.getFloat(key), f);
+		assertEquals("float test failed", hashtable.getFloat(key), f, Double.MIN_VALUE);
 		hashtable.putFloat(key, fMin);
-		assertEquals("float test failed", hashtable.getFloat(key), fMin);
+		assertEquals("float test failed", hashtable.getFloat(key), fMin, Double.MIN_VALUE);
 		hashtable.putFloat(key, fMax);
-		assertEquals("float test failed", hashtable.getFloat(key), fMax);
+		assertEquals("float test failed", hashtable.getFloat(key), fMax, Double.MIN_VALUE);
 
 		key = "doubleTest";
 		hashtable.putDouble(key, d);
-		assertEquals("double test failed", hashtable.getDouble(key), d);
+		assertEquals("double test failed", hashtable.getDouble(key), d, Double.MIN_VALUE);
 		hashtable.putDouble(key, dMin);
-		assertEquals("double test failed", hashtable.getDouble(key), dMin);
+		assertEquals("double test failed", hashtable.getDouble(key), dMin, Double.MIN_VALUE);
 		hashtable.putDouble(key, dMax);
-		assertEquals("double test failed", hashtable.getDouble(key), dMax);
+		assertEquals("double test failed", hashtable.getDouble(key), dMax, Double.MIN_VALUE);
 
 		key = "StringTest";
 		hashtable.putString(key, hello);
-		assertEquals(hashtable.getString(key), hello, "String test failed");
+		assertEquals("String test failed", hashtable.getString(key), hello);
 
 		TestClass tc = (TestClass) hashtable.get("ObjectTest1");
 		assertNull("Hashtable test failed, returned object that shouldn't exist", tc);
@@ -134,6 +131,6 @@ public class FindableHashtableTest {
 		tc = (TestClass) hashtable.get("ObjectTest");
 		assertNotNull("Hashtable test failed to return object", tc);
 		assertEquals("Object int compare test failed", tc.getInt(), i);
-		assertEquals("Object double compare test failed", tc.getDouble(), d);
+		assertEquals("Object double compare test failed", tc.getDouble(), d, Double.MIN_VALUE);
 	}
 }
