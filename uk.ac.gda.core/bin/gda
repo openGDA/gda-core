@@ -9,6 +9,7 @@ import platform
 import glob
 from optparse import OptionParser, OptionGroup
 import operator
+import re
 from xml.dom import minidom
 from types import MethodType
 
@@ -990,10 +991,16 @@ where task can be:
 					pids += (int(parts[0]),)
 		else:
 			if use_jps:
-				a = self.gdaos.popen_get_stdout("%s -l | grep %s" % (self.jpsbin, grep_phrases[0]), False)
+				a = self.gdaos.popen_get_stdout("%s -lm | grep %s" % (self.jpsbin, grep_phrases[0]), False)
 				lines = a.readlines()
 				self.logger.debug("getpids: jps returned %s" % (lines,))
 				for line in lines:
+					
+					# skip objectservers with different profiles
+					if self.options.profile:
+						m = re.search("\s-p\s([a-z]+)", line)
+						if m and m.group(1) != self.options.profile:
+							continue # i.e skip adding this pid to the list to be killed when killing old processes
 					pids += (int(line.split()[0]),)
 			else:
 				lines = self.greplines(grep_phrases)     # DATAACQTEAM-154
