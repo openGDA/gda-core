@@ -42,9 +42,18 @@ public class ObservableComponentTest extends TestCase {
 		// notifyIObservers previously caused a NullPointerException
 		// when it logged an exception and theObserved was null by
 		// calling toString on theObserved
-		oc.notifyIObservers(null, "\"theObserved is null\"");
+		try {
+			oc.notifyIObservers(null, "\"theObserved is null\"");
+			assertTrue("toStringSubstitute should be null", true);
+			
+			oc.notifyIObservers(new Integer(1), "theObserved is not null");
+			assertTrue("toStringSubstitute should be <Integer>", true);
+		}
+		catch (RuntimeException ex) {
+			fail("notifyIObservers should swallow exceptions");
+		}
 	}
-	
+
 	/**
 	 * Tests that all observers of an observable component receive an update,
 	 * even if one of the observers deletes itself from the list of
