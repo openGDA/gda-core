@@ -325,6 +325,7 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 
 	@Override
 	public void atScanStart() throws DeviceException {
+		logger.trace("atScanStart()");
 
 		ScanInformation scanInfo = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation();
 		try {
@@ -366,6 +367,7 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 	
 	
 	protected void prepareCollectionStrategyAtScanStart(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception, DeviceException {
+		logger.trace("prepareCollectionStrategyAtScanStart({},{})", numberImagesPerCollection, scanInfo);
 		getCollectionStrategy().setGenerateCallbacks(areCallbacksRequired());
 		getCollectionStrategy().prepareForCollection(getCollectionTime(), numberImagesPerCollection, scanInfo);
 	}

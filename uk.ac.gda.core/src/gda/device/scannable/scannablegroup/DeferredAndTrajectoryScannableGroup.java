@@ -284,6 +284,11 @@ class CoordinatedChildContinuousScannable extends CoordinatedChildScannable impl
 	}
 
 	@Override
+	public void setContinuousMoveController(ContinuousMoveController controller) {
+		throw new IllegalArgumentException("setContinuousMoveController("+controller.getName()+") not supported on "+this.getName());
+	}
+
+	@Override
 	public Object getPosition() throws DeviceException {
 		if (isOperatingContinously()) {
 			return group.getPositionWhileMovingContinuousely(this);
@@ -316,6 +321,11 @@ class CoordinatedChildContinuousScannableMotion extends CoordinatedChildScannabl
 	}
 
 	@Override
+	public void setContinuousMoveController(ContinuousMoveController controller) {
+		throw new IllegalArgumentException("setContinuousMoveController("+controller.getName()+") not supported on "+this.getName());
+	}
+
+	@Override
 	public Object getPosition() throws DeviceException {
 		if (isOperatingContinously()) {
 			return group.getPositionWhileMovingContinuousely(this);
@@ -345,6 +355,11 @@ class CoordinatedChildContinuousScannableMotionUnits extends CoordinatedChildSca
 	@Override
 	public ContinuousMoveController getContinuousMoveController() {
 		return ((ContinuouslyScannableViaController) group).getContinuousMoveController();
+	}
+
+	@Override
+	public void setContinuousMoveController(ContinuousMoveController controller) {
+		throw new IllegalArgumentException("setContinuousMoveController("+controller.getName()+") not supported on "+this.getName());
 	}
 
 	@Override
