@@ -540,18 +540,21 @@ public class DataCollectionStatus extends ViewPart implements IEditingDomainProv
 					if (file==null) throw new FileNotFoundException();
 
 					String filename = file.getRawLocation().toOSString();
-					//TODO must ensure all model elements are valid before starting server data collection
+					// must ensure the data model is valid before starting server data collection
 					EList<EObject> contents = resUtil.getResource(filename).getContents();
 					for (EObject eobject : contents){
 						Diagnostic diagnostic = Diagnostician.INSTANCE.validate(eobject);
 						if (diagnostic.getSeverity()==Diagnostic.ERROR || diagnostic.getSeverity()==Diagnostic.WARNING) {
+							//display error or warning messages to users
 						    String title = EMFEditUIPlugin.INSTANCE.getString("_UI_ValidationProblems_title");
 						    String message = EMFEditUIPlugin.INSTANCE.getString("_UI_ValidationProblems_message");
 						    message +="\n\n Please make sure the data model is valid before click the Run button to start server data collection process.";
 						    int result = DiagnosticDialog.open
 						    	        (PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), title, message, diagnostic, Diagnostic.ERROR | Diagnostic.WARNING);
 						} else {
+							//kick start server data collection process
 							InterfaceProvider.getCommandRunner().runCommand("datacollection.collectData("+filename+")");
+							//display the server samples configuration in Samples view.
 							IViewPart showView = getSite().getWorkbenchWindow().getActivePage().showView(SampleGroupView.ID);
 							if (showView instanceof SampleGroupView) {
 								((SampleGroupView)showView).refreshTable(filename);
