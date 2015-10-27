@@ -25,6 +25,11 @@ public class UnixToWindowsFilePathConverter implements FilePathConverter, Initia
 
 	private String windowsSubString;
 	private String unixSubString;
+
+	/**
+	 * See {@link #setBackSlash(boolean)}
+	 */
+	@Deprecated
 	private boolean backSlash = true; //some plugins use forward slash for both windows and Unix but previous GDA version uses only different slash
 
 
@@ -66,10 +71,22 @@ public class UnixToWindowsFilePathConverter implements FilePathConverter, Initia
 		this.unixSubString = unixSubString;
 	}
 
+	/**
+	 * See {@link #setBackSlash(boolean)}
+	 */
+	@Deprecated
 	public boolean isBackSlash() {
 		return backSlash;
 	}
 
+	/**
+	 * If backslash conversion is not required, see {@link uk.ac.gda.util.SimpleFilePathConverter}
+	 * 
+	 * Instead of this class with unixSubString=X, windowsSubString=Y and backSlash=false
+	 * use SimpleFilePathConverter with userSubString=X and internalSubString=Y
+	 * @param backSlash
+	 */
+	@Deprecated
 	public void setBackSlash(boolean backSlash) {
 		this.backSlash = backSlash;
 	}
