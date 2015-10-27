@@ -14,7 +14,11 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.emf.common.command.Command;
 import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.common.notify.Notification;
+import org.eclipse.emf.common.ui.dialogs.DiagnosticDialog;
+import org.eclipse.emf.common.util.Diagnostic;
 import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.util.Diagnostician;
 import org.eclipse.emf.ecore.util.EContentAdapter;
 import org.eclipse.emf.edit.domain.AdapterFactoryEditingDomain;
 import org.eclipse.emf.edit.domain.EditingDomain;
@@ -22,6 +26,7 @@ import org.eclipse.emf.edit.domain.IEditingDomainProvider;
 import org.eclipse.emf.edit.provider.ComposedAdapterFactory;
 import org.eclipse.emf.edit.provider.ReflectiveItemProviderAdapterFactory;
 import org.eclipse.emf.edit.provider.resource.ResourceItemProviderAdapterFactory;
+import org.eclipse.emf.edit.ui.EMFEditUIPlugin;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
@@ -36,6 +41,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.forms.events.ExpansionAdapter;
 import org.eclipse.ui.forms.events.ExpansionEvent;
 import org.eclipse.ui.forms.widgets.FormToolkit;
@@ -459,7 +465,10 @@ public class DataCollectionStatus extends ViewPart implements IEditingDomainProv
 		txtActivesamples.setText(String.format("%d", numActives));
 		this.numActiveSamples=numActives;
 	}
-
+	/**
+	 * send email to registered user email accounts.
+	 * @param sample
+	 */
 	protected void sendEmailToUsers(final Sample sample) {
 		Job job = new Job("Send users email") {
 			@Override
@@ -473,7 +482,6 @@ public class DataCollectionStatus extends ViewPart implements IEditingDomainProv
 						recipients[i] = recipients[i].trim();
 					}
 					final String senderName=LocalProperties.get("org.opengda.mail.sender.name","i11-LDE");
-					//TODO change to i11-LDE operation email account please
 					final String senderEmail=LocalProperties.get("org.opengda.mail.sender.email","diamondi11-lde@diamond.ac.uk");
 					String description="Data for sample "+sample.getName()+" are available now for download and view.\n";
 					description+="To download raw data files, please log into http://icat.diamond.ac.uk \n";
@@ -523,13 +531,30 @@ public class DataCollectionStatus extends ViewPart implements IEditingDomainProv
 				paused=false;
 				updateActionIconsState();
 				try {
+					// process samples in the active editor, ensure any modifications are saved before start server data collection.
 					IEditorPart activeEditor = getSite().getWorkbenchWindow().getActivePage().getActiveEditor();
 					if (activeEditor.isDirty()) {
 						activeEditor.doSave(new NullProgressMonitor());
 					}
+					
 					IFile file = (IFile) activeEditor.getEditorInput().getAdapter(IFile.class);
 					if (file==null) throw new FileNotFoundException();
-					InterfaceProvider.getCommandRunner().runCommand("datacollection.collectData("+file.getRawLocation().toOSString()+")");
+
+					String filename = file.getRawLocation().toOSString();
+					//TODO must ensure all model elements are valid before starting server data collection
+					EList<EObject> contents = resUtil.getResource(filename).getContents();
+					for (EObject eobject : contents){
+						Diagnostic diagnostic = Diagnostician.INSTANCE.validate(eobject);
+						if (diagnostic.getSeverity()==Diagnostic.ERROR || diagnostic.getSeverity()==Diagnostic.WARNING) {
+						    String title = EMFEditUIPlugin.INSTANCE.getString("_UI_ValidationProblems_title");
+						    String message = EMFEditUIPlugin.INSTANCE.getString("_UI_ValidationProblems_message");
+						    message +="\n\n Please make sure the data model is valid before click the Run button to start server data collection process.";
+						    int result = DiagnosticDialog.open
+						    	        (PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), title, message, diagnostic, Diagnostic.ERROR | Diagnostic.WARNING);
+						} else {
+							InterfaceProvider.getCommandRunner().runCommand("datacollection.collectData("+filename+")");
+						}
+					}
 				} catch (Exception e) {
 					logger.error("exception throws on start queue processor.", e);
 					running = false;
