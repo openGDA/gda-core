@@ -5,7 +5,6 @@ import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -16,7 +15,7 @@ import gda.device.detector.BufferedDetector;
 import gda.device.detector.NXDetectorData;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataDoubleAppender;
-import gda.device.detector.nxdata.NXDetectorDataNexusTreeProviderAppender;
+import gda.device.detector.nxdata.NXDetectorSerialAppender;
 
 import java.util.Arrays;
 import java.util.List;
@@ -206,15 +205,16 @@ public class BufferedDetectorToAsyncNxCollectionStrategyAdapterTest {
 	}
 
 	@Test
-	public void completeLineShouldSetContinuousModeFalseAndCallAtScanLineEnd() throws Exception {
+	public void completeLineShouldDoNothing() throws Exception {
 		adapter.completeLine();
-		inOrder.verify(bufferedDetector).setContinuousMode(false);
-		inOrder.verify(bufferedDetector).atScanLineEnd();
+		verifyZeroInteractions(bufferedDetector);
 	}
 
 	@Test
-	public void completeCollectionShouldCallAtScanEndAndEndCollection() throws Exception {
+	public void completeCollectionShouldFinishScanCorrectly() throws Exception {
 		adapter.completeCollection();
+		inOrder.verify(bufferedDetector).setContinuousMode(false);
+		inOrder.verify(bufferedDetector).atScanLineEnd();
 		inOrder.verify(bufferedDetector).atScanEnd();
 		inOrder.verify(bufferedDetector).endCollection();
 	}
@@ -320,9 +320,9 @@ public class BufferedDetectorToAsyncNxCollectionStrategyAdapterTest {
 	}
 
 	@Test
-	public void NXDetectorDataNexusTreeProviderAppenderShouldBeCreatedFromNXDetectorDataObject() throws Exception {
+	public void NXDetectorSerialAppenderShouldBeCreatedFromNXDetectorDataObject() throws Exception {
 		NXDetectorDataAppender appender = adapter.createDataAppenderFromObject(new NXDetectorData());
-		assertThat(appender, is(instanceOf(NXDetectorDataNexusTreeProviderAppender.class)));
+		assertThat(appender, is(instanceOf(NXDetectorSerialAppender.class)));
 	}
 
 	@Test
