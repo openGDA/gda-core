@@ -272,7 +272,7 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 	}
 	
 	@Override
-	final public void prepareForCollection() throws DeviceException {
+	public void prepareForCollection() throws DeviceException {
 		// atScanLineStart implemented instead
 		firstReadOut=true;
 		if(addCollectTimeMs){
