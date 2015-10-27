@@ -371,24 +371,19 @@ public class SampleGroupView extends ViewPart implements IObserver {
 	/**
 	 * refresh the table viewer with the sequence file name provided. If it is a new file, an empty sequence will be created.
 	 */
-	public void refreshTable(String seqFileName, boolean newFile) {
+	public void refreshTable(String seqFileName) {
 		logger.debug("refresh table with file: {}{}", FilenameUtils.getFullPath(seqFileName), FilenameUtils.getName(seqFileName));
 
 		try {
 			resource.eAdapters().remove(notifyListener); // remove old resource listener
 			resUtil.setFileName(seqFileName);
-			if (newFile) {
-				resUtil.createExperiments()
-				;
-			}
-			Resource sequenceRes = resUtil.getResource();
-			viewer.setInput(sequenceRes);
-			// update the resource in this view.
-			resource = sequenceRes;
+
+			resource = resUtil.getResource();
 			resource.eAdapters().add(notifyListener);
 
 			// update existing regions list
 			samples = resUtil.getSamples();
+			viewer.setInput(samples);
 			for (Sample sample : samples) {
 				if (sample.isActive()) {
 					currentSample=sample;

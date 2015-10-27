@@ -41,6 +41,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.forms.events.ExpansionAdapter;
 import org.eclipse.ui.forms.events.ExpansionEvent;
@@ -507,12 +508,10 @@ public class DataCollectionStatus extends ViewPart implements IEditingDomainProv
 				} catch(Exception ex){
 					return new Status(IStatus.ERROR, Activator.PLUGIN_ID, 1, "Error sending email", ex);
 				}
-				
 			}
 		};
 		
 		job.schedule();
-		
 	}
 
 	/**
@@ -553,6 +552,10 @@ public class DataCollectionStatus extends ViewPart implements IEditingDomainProv
 						    	        (PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), title, message, diagnostic, Diagnostic.ERROR | Diagnostic.WARNING);
 						} else {
 							InterfaceProvider.getCommandRunner().runCommand("datacollection.collectData("+filename+")");
+							IViewPart showView = getSite().getWorkbenchWindow().getActivePage().showView(SampleGroupView.ID);
+							if (showView instanceof SampleGroupView) {
+								((SampleGroupView)showView).refreshTable(filename);
+							}
 						}
 					}
 				} catch (Exception e) {
