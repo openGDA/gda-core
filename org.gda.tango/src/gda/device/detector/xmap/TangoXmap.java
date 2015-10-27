@@ -89,15 +89,15 @@ public class TangoXmap extends Xmap implements FluorescenceDetector {
 		try {
 			final List<DetectorElement> dl = vp.getDetectorList();
 			ArrayList<Integer> rois = new ArrayList<Integer>();
-			int elementIndex = 0;
+			// int elementIndex = 0;
 			for (DetectorElement e : dl) {
 				final List<DetectorROI> regions = e.getRegionList();
 				for (DetectorROI roi : regions) {
-					rois.add(elementIndex);
+					rois.add(e.getNumber());
 					rois.add(roi.getRoiStart());
 					rois.add(roi.getRoiEnd());
 				}
-				++elementIndex;
+				// ++elementIndex;
 			}
 			int[] roiList = new int[rois.size()];
 			for (int i = 0; i < rois.size(); i++) {
@@ -170,7 +170,12 @@ public class TangoXmap extends Xmap implements FluorescenceDetector {
 
 	@Override
 	public int getMaxNumberOfRois() {
-		return ((TangoXmapController) controller).getMaxScas();
+		try {
+			return ((TangoXmapController) controller).getMaxScas();
+		} catch (DeviceException e) {
+			logger.error("Exception from h/w: Set default max scalers (32)");
+			return 32;
+		}
 	}
 
 	@Override
@@ -192,11 +197,7 @@ public class TangoXmap extends Xmap implements FluorescenceDetector {
 
 	public double getFF() throws DeviceException {
 		double[] rois = ((TangoXmapController) controller).getROIsSum();
-		double sum = 0.0;
-		for (int i = 0; i < rois.length; i++) {
-			sum += rois[i];
-		}
-		return sum;
+		return rois[0];
 	}
 
 	@Override

@@ -43,6 +43,13 @@ public class TangoXmapController extends DeviceBase implements XmapController, I
 	private String filePath = null;
 	private int fileIndex;
 
+	private enum FileFormat {
+		EDF, HDF5
+	}
+	private enum PresetType {
+		presetNone, realTime, liveTime, outputCounts, inputCounts
+	}
+
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		if (tangoDeviceProxy == null) {
@@ -62,11 +69,13 @@ public class TangoXmapController extends DeviceBase implements XmapController, I
 	public void configure() throws FactoryException {
 		try {
 			tangoDeviceProxy.isAvailable();
-			numberOfElements = tangoDeviceProxy.getAttributeAsInt("numberOfElements");
+			numberOfElements = tangoDeviceProxy.getAttributeAsInt("numChan");
 			numberOfScas = tangoDeviceProxy.getAttributeAsInt("numberOfScas");
 			tangoDeviceProxy.setAttribute("filePrefix", filePrefix);
 			tangoDeviceProxy.setAttribute("fileSuffix", fileSuffix);
 			tangoDeviceProxy.setAttribute("filePath", filePath);
+			tangoDeviceProxy.setAttribute("fileFormat", FileFormat.EDF.ordinal());
+
 			setConfigured(true);
 		} catch (DeviceException e) {
 			logger.error("xmap device server is not available", e.getMessage());
@@ -121,20 +130,6 @@ public class TangoXmapController extends DeviceBase implements XmapController, I
 		}
 	}
 
-	public double[] readStats() throws DeviceException {
-		try {
-			tangoDeviceProxy.isAvailable();
-			DeviceData argout = tangoDeviceProxy.command_inout("ReadStats");
-			// return argout.extractDoubleArray();
-			// testing
-			double[] d = { 0., 1., 2., 3., 4., 5., 0., 1., 2., 3., 4., 5., 0., 1., 2., 3., 4., 5., 0., 1., 2., 3., 4., 5. };
-			return d;
-		} catch (DevFailed e) {
-			logger.error(e.errors[0].desc);
-			throw new DeviceException(e.errors[0].desc);
-		}
-	}
-
 	public String getFilePrefix() {
 		return filePrefix;
 	}
@@ -166,8 +161,6 @@ public class TangoXmapController extends DeviceBase implements XmapController, I
 			tangoDeviceProxy.isAvailable();
 			tangoDeviceProxy.command_inout("SetScas", args);
 			numberOfScas = tangoDeviceProxy.getAttributeAsInt("numberOfScas");
-			// testing
-			numberOfScas = roiList.length / (3 * numberOfElements);
 		} catch (DevFailed e) {
 			logger.error(e.errors[0].desc);
 			throw new DeviceException(e.errors[0].desc);
@@ -185,8 +178,16 @@ public class TangoXmapController extends DeviceBase implements XmapController, I
 		}
 	}
 
-	public int getMaxScas() {
-		return 32; // this should come from the device server
+	public int getMaxScas() throws DeviceException {
+		try {
+			tangoDeviceProxy.isAvailable();
+			return tangoDeviceProxy.getAttributeAsInt("maxNumberScas");
+		} catch (DevFailed e) {
+			logger.error(e.errors[0].desc);
+			throw new DeviceException(e.errors[0].desc);
+		}
+		// testing
+		// return 32;
 	}
 
 	@Override
@@ -225,7 +226,7 @@ public class TangoXmapController extends DeviceBase implements XmapController, I
 		double[] roiSum = new double[numberOfScas];
 		for (int j = 0; j < numberOfElements; j++) {
 			double roi[] = this.getROIs(j);
-			for (int i = 0; i < numberOfScas; i++) {
+			for (int i = 0; i < roi.length; i++) {
 				roiSum[i] += roi[i];
 			}
 		}
@@ -248,15 +249,18 @@ public class TangoXmapController extends DeviceBase implements XmapController, I
 			tangoDeviceProxy.isAvailable();
 			DeviceData args = new DeviceData();
 			args.insert(elementNumber);
-			// DeviceData argout = tangoDeviceProxy.command_inout("ReadScas", args);
-			// return argout.extractDoubleArray();
-			// for testing only
-			double[] rawData = new double[numberOfScas];
-			for (int i = 0; i < numberOfScas; i++) {
-				// rawData[i] = (double) ((Math.random() + 1) * 10);
-				rawData[i] = (double) (elementNumber + 2) * (i + 2);
+			DeviceData argout = tangoDeviceProxy.command_inout("ReadHWScas", args);
+			long[] output = argout.extractULongArray();
+			double[] data = new double[output.length];
+			for (int i = 0; i < output.length; i++) {
+				data[i] = (double) output[i];
 			}
-			return rawData;
+			// for testing only
+			// for (int i = 0; i < numberOfScas; i++) {
+			// // data[i] = (double) ((Math.random() + 1) * 10);
+			// data[i] = (double) (elementNumber + 2) * (i + 2);
+			// }
+			return data;
 		} catch (DevFailed e) {
 			logger.error(e.errors[0].desc);
 			throw new DeviceException(e.errors[0].desc);
@@ -280,45 +284,74 @@ public class TangoXmapController extends DeviceBase implements XmapController, I
 		} catch (Exception e) {
 			throw new DeviceException("Tango device server stuffed");
 		}
+		System.out.println("xmap controller status " + status);
 		return status;
 	}
 
 	public double[][] getMCAData(double time) throws DeviceException {
-		double[] data = null;
+		long[] data = null;
 		int total = 0;
+		int mcaMode = 1;
 		int mcaSize = getMCASize();
 		double[][] output = new double[numberOfElements][mcaSize];
-		// testing
-		// try {
-		// tangoDeviceProxy.isAvailable();
-		// tangoDeviceProxy.setAttribute("PresetTime", time);
-		// tangoDeviceProxy.command_inout("Start");
-		// while (getStatus() == Detector.BUSY) {
-		// try {
-		// Thread.sleep(100);
-		// total += 100;
-		// if (total >= (time + time / 10))
-		// break;
-		// } catch (InterruptedException e) {
-		// logger.error("Sleep interrupted", e);
-		// }
-		// }
-		// DeviceData argout = tangoDeviceProxy.command_inout("ReadMca");
-		// data = argout.extractDoubleArray();
-		// } catch (DevFailed e) {
-		// logger.error(e.errors[0].desc);
-		// throw new DeviceException(e.errors[0].desc);
-		// }
-		// if (data != null) {
-		int k = 1; // for testing
-		for (int element = 0; element < numberOfElements; element++) {
-			for (int energy = 0; energy < mcaSize; energy++) {
-				// testing output[element][energy] = data[energy];
-				output[element][energy] = k++;
+		try {
+			tangoDeviceProxy.isAvailable();
+			tangoDeviceProxy.setAttribute("autosave", false);
+			tangoDeviceProxy.setAttribute("mappingMode", mcaMode);
+			tangoDeviceProxy.setAttribute("PresetType", (short) PresetType.realTime.ordinal());
+			tangoDeviceProxy.command_inout("Start");
+			while (getStatus() == Detector.BUSY) {
+				try {
+					Thread.sleep(100);
+					total += 100;
+					if (total >= (time + time / 10))
+						break;
+				} catch (InterruptedException e) {
+					logger.error("Sleep interrupted", e);
 				}
 			}
-		// }
+			DeviceData argin = new DeviceData();
+			short param = 0;
+			argin.insert(param);
+			DeviceData argout = tangoDeviceProxy.command_inout("ReadData", argin);
+			data = argout.extractULongArray();
+		} catch (DevFailed e) {
+			logger.error(e.errors[0].desc);
+			throw new DeviceException(e.errors[0].desc);
+		}
+		if (data != null) {
+			// int k = 1; // for testing
+		for (int element = 0; element < numberOfElements; element++) {
+			for (int energy = 0; energy < mcaSize; energy++) {
+					output[element][energy] = data[energy];
+					// output[element][energy] = k++;
+				}
+			}
+		}
 		return output;
+	}
+
+	public double[] readStats() throws DeviceException {
+		long[] data = null;
+		try {
+			tangoDeviceProxy.isAvailable();
+			short param = 0;
+			DeviceData argin = new DeviceData();
+			argin.insert(param);
+			DeviceData argout = tangoDeviceProxy.command_inout("ReadStat", argin);
+			data = argout.extractULongArray();
+			double[] output = new double[data.length];
+			for (int i = 0; i < data.length; i++) {
+				output[i] = data[i];
+			}
+			return output;
+			// testing
+			// double[] d = { 0., 1., 2., 3., 4., 5., 0., 1., 2., 3., 4., 5., 0., 1., 2., 3., 4., 5., 0., 1., 2., 3., 4., 5. };
+			// return d;
+		} catch (DevFailed e) {
+			logger.error(e.errors[0].desc);
+			throw new DeviceException(e.errors[0].desc);
+		}
 	}
 
 	@Override
