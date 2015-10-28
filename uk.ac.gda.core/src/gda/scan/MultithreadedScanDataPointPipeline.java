@@ -142,7 +142,8 @@ public class MultithreadedScanDataPointPipeline implements ScanDataPointPipeline
 			logger.warn("A zero length pipeline was requested but this would be unable to accept ScanDataPoints. A pipeline of length one hase been created instead");
 			scanDataPointPipelineLength = 1;
 		}
-
+		// TODO: Remove this configuration as it now unused
+		logger.info("MultithreadedScanDataPointPipeline is ignoring the request to create a fixed length cure and is making an indefinetely lengthed one");
 		NamedThreadFactory threadFactory = new NamedThreadFactory(
 				" scan-" + scanName + "-MSDPP.positionCallableService-%d of " + positionCallableThreadPoolSize);
 		if (positionCallableThreadPoolSize > 0) {

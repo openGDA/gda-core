@@ -714,7 +714,8 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 
 	@Override
 	public double getMotorResolution() throws DeviceException {
-		return motor.getMotorResolution();
+		// Motor resolution from Epics may be negative!
+		return Math.abs(motor.getMotorResolution());
 	}
 
 	@Override
