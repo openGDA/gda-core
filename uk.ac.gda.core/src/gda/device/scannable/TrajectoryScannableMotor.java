@@ -55,6 +55,7 @@ public class TrajectoryScannableMotor extends ScannableMotor implements Continuo
 		return controller;
 	}
 
+	@Override
 	public void setContinuousMoveController(ContinuousMoveController controller) {
 		this.controller = (TrajectoryMoveController) controller;
 	}

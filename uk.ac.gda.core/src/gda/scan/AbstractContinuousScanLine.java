@@ -103,23 +103,41 @@ public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 	}
 
 	private void extractContinuousMoveController(Vector<ContinuouslyScannableViaController> scannables) {
+		// If we have a move controller as a scannable, use it.
+		for (ContinuouslyScannableViaController scn : scannables) {
+			if (scn instanceof ContinuousMoveController) {
+				ContinuousMoveController moveController = (ContinuousMoveController)scn;
+				if (getController() == null) {
+					logger.warn("Using {} as the ContinuousMoveController.", moveController);
+					setController(moveController);
+				} else if (getController() == moveController) {
+					logger.warn("ContinuousMoveController {} added to scan multiple times.", moveController);
+				} else {
+					logger.warn("Both {} and {} ContinuousMoveController added to scan!", getController(), moveController);
+				}
+			}
+		}
 		for (ContinuouslyScannableViaController scn : scannables) {
 			ContinuousMoveController scnsController;
 			try {
 				scnsController = scn.getContinuousMoveController();
 			} catch (ClassCastException e) {
 				throw new IllegalArgumentException(scn.getName()
-						+ " has a continuous move controller that does not support trajectory scanning");
+						+ " has a continuous move controller that does not support continuous scanning");
 			}
 			if (scnsController == null) {
-				throw new IllegalArgumentException(scn.getName() + " has no Trajectory scan controller configured.");
+				throw new IllegalArgumentException(scn.getName() + " has no continuous move controller configured.");
 			}
 			if (getController() == null) {
 				setController(scnsController);
 			} else {
 				if (getController() != scnsController) {
-					throw new IllegalArgumentException(scn.getName()
-							+ " has a different trajectory scan controller than another scannable to be scanned over");
+					try {
+						scn.setContinuousMoveController(getController());
+					} catch (Exception e) {
+						throw new IllegalArgumentException(scn.getName()
+								+ " has a scan controller which is incompatible with another scannable to be scanned over", e);
+					}
 				}
 			}
 		}
@@ -252,6 +270,7 @@ public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 	abstract protected void configureControllerPositions(boolean detectorsIntegrateBetweenTriggers) throws DeviceException, InterruptedException, Exception;
 
 	final protected double extractCommonCollectionTimeFromDetectors() throws DeviceException {
+		logger.trace("extractCommonCollectionTimeFromDetectors()"); 
 		HardwareTriggeredDetector firstDetector = detectors.get(0);
 		double period = firstDetector.getCollectionTime();
 		if(firstDetector instanceof DetectorWithReadoutTime){
@@ -270,6 +289,7 @@ public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 			}
 			period = (period + detsPeriod) / 2.; // average away differences less than .1% to be pedantic
 		}
+		logger.trace("extractCommonCollectionTimeFromDetectors() returning period={}", period);
 		return period;
 	}
 
@@ -299,6 +319,7 @@ public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 				try {
 					det.collectData();
 				} catch (Exception e) {
+					logger.error("Detector {} threw an exception in collectData()", det.getName(), e);
 					throw new Exception("Problem arming " + det.getName(), e);
 				}
 				return null;

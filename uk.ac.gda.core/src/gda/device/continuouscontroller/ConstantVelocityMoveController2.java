@@ -39,5 +39,7 @@ public interface ConstantVelocityMoveController2 extends ConstantVelocityMoveCon
 
 	void setDetectors(Collection<HardwareTriggeredDetector> detectors) throws DeviceException;
 
-
+	int getPointBeingPrepared();
+	
+	void resetPointBeingPrepared();
 }

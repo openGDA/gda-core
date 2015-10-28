@@ -27,6 +27,7 @@ import gda.factory.Configurable;
 import gda.factory.Findable;
 import gda.util.exceptionUtils;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.SocketTimeoutException;
@@ -83,6 +84,7 @@ public class ODCCDController extends DetectorBase implements Configurable, Seria
 	 * @param loginName
 	 */
 	public void setMLoginName(String loginName) {
+		logger.trace("setMLoginName({})", loginName);
 		mLoginName = loginName;
 	}
 
@@ -97,6 +99,7 @@ public class ODCCDController extends DetectorBase implements Configurable, Seria
 	 * @param port
 	 */
 	public void setPort(int port) {
+		logger.trace("setPort({})", port);
 		Port = port;
 	}
 
@@ -134,6 +137,7 @@ public class ODCCDController extends DetectorBase implements Configurable, Seria
 	 */
 	@Override
 	public synchronized void connect(String host) throws IOException {
+		logger.trace("connect({})", host);
 		// String to store the initial response from the IS server.
 		String theInput = null;
 
@@ -189,6 +193,7 @@ public class ODCCDController extends DetectorBase implements Configurable, Seria
 	 * @throws IOException
 	 */
 	private synchronized void newConnectProcedure() throws IOException {
+		logger.trace("newConnectProcedure()");
 		//from IS_v2_0_1096 we no longer get the message Script init completed
 		String theInput = "";//getODCCDNativeSock().readUntil("Script init completed.");
 		mConnected = true;
@@ -200,7 +205,9 @@ public class ODCCDController extends DetectorBase implements Configurable, Seria
 	}
 
 	/**
-	 * Use this method to disconnect from the IS software.
+	 * Use this method to disconnect from older versions of the IS software.
+	 * 
+	 * See also {@link ODCCDController#logout}
 	 */
 	@Override
 	public synchronized void disconnect() {
@@ -214,6 +221,28 @@ public class ODCCDController extends DetectorBase implements Configurable, Seria
 			getODCCDNativeSock().disconnect();
 		}
 		mConnected = false;
+	}
+
+	/**
+	 * Use this method to disconnect from newer versions of the IS software.
+	 * 
+	 * See also {@link ODCCDController#disconnect}
+	 */
+	public synchronized void logout() {
+		if(!mConnected){
+			logger.warn("Logout method called when not connected");
+			return;
+		}
+		try {
+			this.writeCommand("logout");
+			logger.debug("Flushed {} characters", this.flush());
+		} finally {
+			if (mConnected) {
+				logger.error("Flush completed but still connected!");
+			}
+			mConnected = false;
+			getODCCDNativeSock().disconnect();
+		}
 	}
 
 	/**
@@ -232,6 +261,7 @@ public class ODCCDController extends DetectorBase implements Configurable, Seria
 	 * @param command
 	 */
 	private synchronized void writeCommand(String command) {
+		logger.trace("writeCommand({})", command);
 		// Check is we connected succesfully to IS
 		if (!mConnected) {
 			throw new IllegalStateException("ERROR: ODCCDController is trying to use IS and is not connected.");
@@ -255,6 +285,7 @@ public class ODCCDController extends DetectorBase implements Configurable, Seria
 	 * @throws IOException
 	 */
 	public synchronized String readInputUntil(String str) throws IOException {
+		logger.trace("readInputUntil({})", str);
 		return getODCCDNativeSock().readUntil(str);
 	}
 
@@ -265,7 +296,7 @@ public class ODCCDController extends DetectorBase implements Configurable, Seria
 	 */
 	@Override
 	public synchronized void collectData() throws DeviceException {
-
+		logger.trace("collectData() called, ignoring...");
 	}
 
 	/**
@@ -287,6 +318,7 @@ public class ODCCDController extends DetectorBase implements Configurable, Seria
 	 */
 	@Override
 	public synchronized Object readout() throws DeviceException {
+		logger.trace("readout() called, returning null");
 		return null;
 	}
 
@@ -403,6 +435,9 @@ public class ODCCDController extends DetectorBase implements Configurable, Seria
 	 * @return int
 	 */
 	public synchronized int flush(){
+		logger.trace("flush()");
+		
+		StringBuffer sb = new StringBuffer();
 		int charactersRead=0;
 		if(mConnected){
 			ODCCDNativeSock sock = getODCCDNativeSock();
@@ -410,19 +445,28 @@ public class ODCCDController extends DetectorBase implements Configurable, Seria
 			try{
 				sock.setSocketTimeOut(1000);
 				while(true){
-					sock.readChar();
+					sb.append(sock.readChar());
 					charactersRead++;
 				}
 			}
 			catch(SocketTimeoutException ex){
 				//do nothing
 			}
+			catch(EOFException ex) {
+				logger.info("EOF exception while flushing(). Socket must have been disconnected. isConnected={}, isClosed={}",
+						getODCCDNativeSock().socket.isConnected(), getODCCDNativeSock().socket.isClosed());
+				mConnected = false;
+				getODCCDNativeSock().disconnect();
+			}
 			catch(IOException ex){
 				exceptionUtils.logException(logger, ex);
 			}
 			finally{
+				logger.trace("Flushed: {}", sb.toString());
 				sock.setSocketTimeOut(timeout);
 			}
+		} else {
+			logger.warn("Flush method called when not connected");
 		}
 		return charactersRead;
 	}
@@ -482,6 +526,7 @@ public class ODCCDController extends DetectorBase implements Configurable, Seria
 	 * @param command
 	 */
 	private synchronized void binaryCommand(String command) {
+		logger.trace("binaryCommand({})", command);
 		// The command is sent as a string.
 		this.writeCommand(command);
 
@@ -493,6 +538,7 @@ public class ODCCDController extends DetectorBase implements Configurable, Seria
 	 * begins.
 	 */
 	public synchronized void readBinaryFrameUntilData() {
+		logger.trace("readBinaryFrameUntilData()");
 		// read back the binary header information and fill header object.
 		try {
 			// Read until the start of the binary header.
