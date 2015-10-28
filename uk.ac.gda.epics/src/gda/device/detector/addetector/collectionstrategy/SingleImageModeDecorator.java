@@ -18,7 +18,7 @@
 
 package gda.device.detector.addetector.collectionstrategy;
 
-import gda.device.detector.areadetector.v17.ADBase.ImageMode;
+import gda.device.detector.areadetector.v17.ImageMode;
 import gda.scan.ScanInformation;
 
 /**
@@ -29,7 +29,7 @@ public class SingleImageModeDecorator extends AbstractADCollectionStrategyDecora
 	// NXCollectionStrategyPlugin interface
 
 	@Override
-	public void prepareForCollection(double collectionTime, int numberImagesPerCollection, ScanInformation scanInfo) 
+	public void prepareForCollection(double collectionTime, int numberImagesPerCollection, ScanInformation scanInfo)
 			throws Exception {
 		if (numberImagesPerCollection != 1) {
 			throw new IllegalArgumentException("This single exposure triggering strategy expects to expose only 1 image");

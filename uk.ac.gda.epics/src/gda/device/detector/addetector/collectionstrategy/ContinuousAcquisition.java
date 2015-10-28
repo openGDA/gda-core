@@ -20,7 +20,7 @@ package gda.device.detector.addetector.collectionstrategy;
 
 import gda.device.Detector;
 import gda.device.DeviceException;
-import gda.device.detector.areadetector.v17.ADBase.ImageMode;
+import gda.device.detector.areadetector.v17.ImageMode;
 import gda.device.detector.areadetector.v17.NDFile;
 import gda.scan.ScanInformation;
 
@@ -48,7 +48,7 @@ public class ContinuousAcquisition extends AbstractADCollectionStrategy {
 	// NXCollectionStrategyPlugin interface
 
 	@Override
-	public void prepareForCollection(double collectionTime, int numberImagesPerCollection, ScanInformation scanInfo) 
+	public void prepareForCollection(double collectionTime, int numberImagesPerCollection, ScanInformation scanInfo)
 			throws Exception {
 		logger.trace("prepareForCollection({}, {}, {})", collectionTime, numberImagesPerCollection, scanInfo);
 

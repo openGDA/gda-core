@@ -18,8 +18,7 @@
 
 package gda.device.detector.addetector.collectionstrategy;
 
-import gda.device.detector.areadetector.v17.ADBase.ImageMode;
-import gda.device.detector.areadetector.v17.NDProcess;
+import gda.device.detector.areadetector.v17.ImageMode;
 import gda.scan.ScanInformation;
 
 import org.slf4j.Logger;
@@ -36,7 +35,7 @@ public class MultipleImageModeDecorator extends AbstractADCollectionStrategyDeco
 	// NXCollectionStrategyPlugin interface
 
 	@Override
-	public void prepareForCollection(double collectionTime, int numberImagesPerCollection, ScanInformation scanInfo) 
+	public void prepareForCollection(double collectionTime, int numberImagesPerCollection, ScanInformation scanInfo)
 			throws Exception {
 		logger.trace("prepareForCollection({}, {}, {})", collectionTime, numberImagesPerCollection, scanInfo);
 

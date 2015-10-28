@@ -18,7 +18,6 @@
 
 package gda.device.detector.addetector.collectionstrategy;
 
-import gda.device.detector.areadetector.v17.ADBase.ImageMode;
 import gda.device.detector.areadetector.v17.NDProcess;
 import gda.scan.ScanInformation;
 
@@ -39,7 +38,7 @@ public class AutoSummingProcessDecorator extends AbstractADCollectionStrategyDec
 
 	// Class properties
 	private NDProcess ndProcess=null;
-	private int processDataTypeOut=5; // UINT32	
+	private int processDataTypeOut=5; // UINT32
 
 	// Instance variables
 	private static final Logger logger = LoggerFactory.getLogger(AutoSummingProcessDecorator.class);
@@ -58,7 +57,7 @@ public class AutoSummingProcessDecorator extends AbstractADCollectionStrategyDec
 	}
 
 	@Override
-	public void prepareForCollection(double collectionTime, int numberImagesPerCollection, ScanInformation scanInfo) 
+	public void prepareForCollection(double collectionTime, int numberImagesPerCollection, ScanInformation scanInfo)
 			throws Exception {
 		logger.trace("prepareForCollection({}, {}, {})", collectionTime, numberImagesPerCollection, scanInfo);
 		if (numberImagesPerCollection != getDecoratee().getNumberImagesPerCollection(collectionTime))
@@ -71,7 +70,7 @@ public class AutoSummingProcessDecorator extends AbstractADCollectionStrategyDec
 			ndProcess.setFilterType(NDProcess.FilterTypeV1_8_Sum);
 			ndProcess.setNumFilter(totalImagesPerCollection);
 			ndProcess.setAutoResetFilter(1);
-			ndProcess.setFilterCallbacks(NDProcess.FilterCallback_ArrayNOnly); 
+			ndProcess.setFilterCallbacks(NDProcess.FilterCallback_ArrayNOnly);
 			ndProcess.setEnableFilter(1);
 			ndProcess.setEnableHighClip(0);
 			ndProcess.setEnableLowClip(0);
@@ -80,7 +79,7 @@ public class AutoSummingProcessDecorator extends AbstractADCollectionStrategyDec
 			ndProcess.setEnableBackground(0);
 			ndProcess.getPluginBase().setArrayCounter(0);
 			ndProcess.getPluginBase().setDroppedArrays(0);
-			ndProcess.setDataTypeOut(processDataTypeOut);		
+			ndProcess.setDataTypeOut(processDataTypeOut);
 			ndProcess.getPluginBase().disableCallbacks();
 		}
 		getDecoratee().prepareForCollection(collectionTime, totalImagesPerCollection, scanInfo);

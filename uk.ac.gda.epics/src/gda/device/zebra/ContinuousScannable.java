@@ -261,6 +261,7 @@ public class ContinuousScannable implements ContinuouslyScannableViaController {
 		this.delegate = delegate;
 	}
 
+	@Override
 	public void setContinuousMoveController(ContinuousMoveController continuousMoveController) {
 		this.continuousMoveController = continuousMoveController;
 	}
