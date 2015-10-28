@@ -421,7 +421,9 @@ public class DataCollectionStatus extends ViewPart implements IEditingDomainProv
 				String sampleID = event.getSampleID();
 				for (Sample sample : samples) {
 					if (sample.getSampleID().equalsIgnoreCase(sampleID)) {
-						sendEmailToUsers(sample);
+						if (sample.getCell().isEnableAutoEmail()) {
+							sendEmailToUsers(sample);
+						}
 					}
 				}
 			} else if (arg instanceof DataReductionFailedEvent) {
@@ -478,6 +480,10 @@ public class DataCollectionStatus extends ViewPart implements IEditingDomainProv
 				try{
 					final String subject = LocalProperties.get("org.opengda.mail.subject","Data now available to download and view");
 					final EList<String> usersEmail=sample.getCell().getEmail();
+					if (usersEmail.isEmpty()) {
+						logger.info("User email address is not available to send data notification for sample {}.", sample.getName());
+						return new Status(IStatus.WARNING, Activator.PLUGIN_ID, "User email address is not available.");
+					}
 					final String[] recipients = usersEmail.toArray(new String[0]);
 					for (int i=0; i<recipients.length; i++) {
 						recipients[i] = recipients[i].trim();
