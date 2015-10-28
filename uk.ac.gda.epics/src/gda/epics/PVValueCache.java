@@ -52,6 +52,16 @@ public class PVValueCache<T> implements Observer<T> {
 		return cache;
 	}
 
+	/**
+	 * Where a PV pair of PVs are used to set and read back a value, and you
+	 * read back soon after setting, you may end up with the old cached value
+	 * instead on the new value. To prevent this, cached readback values need to
+	 * be reset whenever the PV setting them is set.
+	 */
+	public void resetCache() {
+		cache = null;
+	}
+
 	@Override
 	public void update(Observable<T> source, T arg) {
 		cache=arg;

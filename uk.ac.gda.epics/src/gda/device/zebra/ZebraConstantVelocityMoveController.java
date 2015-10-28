@@ -34,6 +34,7 @@ import gda.device.scannable.PositionStreamIndexer;
 import gda.device.scannable.ScannableBase;
 import gda.device.scannable.ScannableMotor;
 import gda.device.scannable.ScannableUtils;
+import gda.device.scannable.VariableCollectionTimeDetector;
 import gda.device.zebra.controller.Zebra;
 import gda.epics.ReadOnlyPV;
 import gda.factory.FactoryException;
@@ -53,7 +54,6 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 						PositionCallableProvider<Double>, ContinuouslyScannableViaController, InitializingBean {
 	private static final Logger logger = LoggerFactory.getLogger(ZebraConstantVelocityMoveController.class);
 
-	short pcCaptureBitField = 1;
 	Zebra zebra;
 
 	ScannableMotor scannableMotor;
@@ -73,17 +73,29 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 
 	public ZebraConstantVelocityMoveController() {
 		super();
-		setExtraNames(new String[]{"Time"});
+		setExtraNames(new String[]{"CaptureTime"});
 		setInputNames(new String[]{});
 		setOutputFormat(new String[]{"%5.5g"});
+	}
+
+	int pointBeingPrepared = 0;
+
+	@Override
+	public void resetPointBeingPrepared() {
+		pointBeingPrepared = 0;
+	}
+
+	@Override
+	public int getPointBeingPrepared() {
+		logger.trace("getPointBeingPrepared() returning {}", pointBeingPrepared);
+		return pointBeingPrepared;
 	}
 
 	@SuppressWarnings("unused")
 	@Override
 	public void prepareForMove() throws DeviceException, InterruptedException {
+		logger.info("prepareForMove() pointBeingPrepared={}", pointBeingPrepared);
 		try {
-			logger.info("prepare for move");
-
 			zebra.reset(); // Doing a reset does appear to disarm the zebra before we check it, so we don't need to explicitly
 			// disarm. We probably don't need to check either, but to verify that we will leave the check and log message in.
 
@@ -106,8 +118,11 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 			zebra.setPCPulseSource(mode);
 
 			//set motor before setting gates and pulse parameters
+			int pcEnc = zebraMotorInfoProvider.getPcEnc();
+			int pcCaptureBitField = 1 << pcEnc;
 			zebra.setPCCaptureBitField(pcCaptureBitField);
-			zebra.setPCEnc(zebraMotorInfoProvider.getPcEnc()); // Default is Zebra.PC_ENC_ENC1
+			logger.debug("pcEnc={}, pcCaptureBitField={}, step={}", pcEnc, pcCaptureBitField, step);
+			zebra.setPCEnc(pcEnc); // Default is Zebra.PC_ENC_ENC1
 			zebra.setPCDir(step>0 ? Zebra.PC_DIR_POSITIVE : Zebra.PC_DIR_NEGATIVE);
 
 			zebra.setPCGateNumberOfGates(1);
@@ -125,7 +140,12 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 				double minimumAccelerationTime = Double.MAX_VALUE;
 
 				for( Detector det : detectors){
-					double collectionTime = det.getCollectionTime();
+					double collectionTime;
+					if (det instanceof VariableCollectionTimeDetector) {
+						collectionTime = ((VariableCollectionTimeDetector)det).getCollectionTimeProfile()[pointBeingPrepared];
+					} else {
+						collectionTime = det.getCollectionTime();
+					}
 					maxCollectionTimeFromDetectors = Math.max(maxCollectionTimeFromDetectors, collectionTime);
 					minCollectionTimeFromDetectors = Math.min(minCollectionTimeFromDetectors, collectionTime);
 
@@ -156,6 +176,7 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 					 */
 					throw new IllegalArgumentException("ZebraConstantVelocityMoveController cannot handle 2 collection times");
 				}
+				logger.trace("prepareForMove() maxCollectionTimeFromDetectors={}", maxCollectionTimeFromDetectors);
 				double timeUnitConversion;
 
 				// Maximise the resolution of the timing by selecting the fastest timebase for the maximum collection time.
@@ -317,9 +338,9 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 			}
 
 		} catch (Exception e) {
+			logger.error("Error in prepareForMove() of {}", getName(), e);
 			throw new DeviceException("Error arming the zebra: "+e.getMessage(), e);
 		}
-
 	}
 
 	protected void setupGateAndArm(double pcGateStart, double pcGateWidth, @SuppressWarnings("unused") double step2, @SuppressWarnings("unused") double gateWidthTimeInS) throws Exception {
@@ -371,6 +392,7 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 	}
 
 	public void setMode(int mode) {
+		logger.trace("setMode({})", mode);
 		if(mode!= Zebra.PC_PULSE_SOURCE_TIME)
 			throw new IllegalArgumentException("Only PC_PULSE_SOURCE_TIME is supported at the moment");
 		this.mode = mode;
@@ -381,6 +403,7 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 	}
 
 	public void setPcPulseGateNotTrigger(boolean pcPulseGateNotTrigger) {
+		logger.trace("setPcPulseGateNotTrigger({})", pcPulseGateNotTrigger);
 		this.pcPulseGateNotTrigger = pcPulseGateNotTrigger;
 	}
 
@@ -420,23 +443,22 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 
 	@Override
 	public void startMove() throws DeviceException {
-		logger.info("startMove");
+		logger.trace("startMove() pointBeingPrepared={}++", pointBeingPrepared);
 
+		pointBeingPrepared++; // This is the first point in the scan when we know all prepareForCollections for the current scan point
+		// will have been called, but none for the next point will have been.
 		moveFuture = new FutureTask<Void>(new ExecuteMoveTask());
 		new Thread(moveFuture, getName() + "_execute_move").start(); // FutureTask implements Runnable
-
 	}
 
 	@Override
 	public boolean isMoving() throws DeviceException {
-		logger.trace("isMoving");
-
 		return !((moveFuture == null) || (moveFuture.isDone()));
 	}
 
 	@Override
 	public void waitWhileMoving() throws DeviceException, InterruptedException {
-		logger.info("waitWhileMoving");
+		logger.trace("waitWhileMoving, moveFuture={}", moveFuture);
 		if (moveFuture == null) {
 			return;
 		}
@@ -467,7 +489,7 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 
 	@Override
 	public void setTriggerPeriod(double seconds) throws DeviceException {
-		logger.info("setTriggerPeriod:"+seconds);
+		logger.info("setTriggerPeriod({})", seconds);
 		triggerPeriod = seconds; //readout need to use readout time;
 
 	}
@@ -496,21 +518,35 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 
 	@Override
 	public void setStart(double start) throws DeviceException {
-		logger.info("setStart:" + start);
+		logger.info("setStart({})", start); 
 		this.start = start;
 	}
 
 	@Override
+	public double getStart() {
+		return start;
+	}
+
+	@Override
 	public void setEnd(double end) throws DeviceException {
-		logger.info("setEnd:" + end);
+		logger.info("setEnd({})", end);
 		this.end = end;
 	}
 
 	@Override
-	public void setStep(double step) throws DeviceException {
-		logger.info("setStep:"+ step);
-		this.step = step;
+	public double getEnd() {
+		return end;
+	}
 
+	@Override
+	public void setStep(double step) throws DeviceException {
+		logger.info("setStep({})", step);
+		this.step = step;
+	}
+
+	@Override
+	public double getStep() {
+		return step;
 	}
 
 	// copied from EpicsTrajectoryMoveControllerAdapter - need a base class
@@ -519,6 +555,7 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 	public List<ZebraCaptureInputStreamCollection> timeSeriesCollection;
 
 	public void addPoint(Double point) {
+		logger.trace("addPoint({})", point);
 		if(points == null){
 			points = new ArrayList<Double>();
 		}
@@ -539,6 +576,7 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 	}
 
 	public void setZebra(Zebra zebra) {
+		logger.trace("setZebra({})", zebra);
 		this.zebra = zebra;
 	}
 
@@ -549,6 +587,7 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 	}
 
 	public void setScannableMotor(ScannableMotor scannableMotor) {
+		logger.trace("setScannableMotor({})", scannableMotor);
 		this.scannableMotor = scannableMotor;
 	}
 
@@ -557,6 +596,7 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 	}
 
 	public void setZebraMotorInfoProvider(ZebraMotorInfoProvider zebraMotorInfoProvider) {
+		logger.trace("setZebraMotorInfoProvider({})", zebraMotorInfoProvider);
 		this.zebraMotorInfoProvider = zebraMotorInfoProvider;
 		setScannableMotor(zebraMotorInfoProvider.getActualScannableMotor());
 	}
@@ -568,7 +608,6 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 	}
 
 	int numPosCallableReturned = 0;
-	int numPosCallableReturned1 = 0;
 
 	private double pcPulseDelayRBV;
 
@@ -584,6 +623,7 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 
 
 	public PositionStreamIndexer<Double> getPositionSteamIndexer(int index) {
+		logger.trace("getPositionSteamIndexer({})", index);
 		if( lastImageNumberStreamIndexer[index] == null){
 			logger.info("Creating lastImageNumberStreamIndexer " + index);
 			ReadOnlyPV<Double[]> rdDblArrayPV = zebra.getEnc1AvalPV();
@@ -611,6 +651,7 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 	@SuppressWarnings("unchecked")
 	@Override
 	public void atScanLineStart() throws DeviceException {
+		logger.trace("atScanLineStart()");
 		lastImageNumberStreamIndexer = new PositionStreamIndexer[11];
 		timeSeriesCollection = null;
 		moveFuture=null;
@@ -624,6 +665,8 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 
 	@Override
 	public void stop() throws DeviceException {
+		logger.trace("stop() pointBeingPrepared={}", pointBeingPrepared);
+		pointBeingPrepared=0;
 		//ensure the callables have all been called
 		boolean done=true;
 		if( timeSeriesCollection != null){
@@ -634,6 +677,13 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 		if(!done)
 			throw new DeviceException("stop called before all callables have been processed");
 		timeSeriesCollection = null;
+	}
+
+	@Override
+	public void atCommandFailure() throws DeviceException {
+		logger.trace("atCommandFailure() pointBeingPrepared={}", pointBeingPrepared);
+		pointBeingPrepared=0;
+		super.atCommandFailure();
 	}
 
 	@Override
@@ -653,8 +703,8 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 
 	@Override
 	public void setOperatingContinuously(boolean b) throws DeviceException {
+		logger.trace("setOperatingContinuously({})", b);
 		operatingContinously = b;
-
 	}
 
 	@Override
@@ -667,7 +717,13 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 		return this;
 	}
 
+	@Override
+	public void setContinuousMoveController(ContinuousMoveController controller) {
+		throw new IllegalArgumentException("setContinuousMoveController("+controller.getName()+") not supported on "+this.getName());
+	}
+
 	public Scannable createScannable(Scannable delegate){
+		logger.trace("createScannable({})", delegate);
 		ContinuousScannable cs = new ContinuousScannable();
 		cs.setDelegate(delegate);
 		cs.setContinuousMoveController(this);
@@ -676,6 +732,7 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 
 	@Override
 	public void setScannableToMove(Collection<ContinuouslyScannableViaController> scannablesToMove) {
+		logger.trace("setScannableToMove({})", scannablesToMove);
 //		this.scannablesToMove = scannablesToMove;
 		ContinuouslyScannableViaController[] array = scannablesToMove.toArray(new ContinuouslyScannableViaController[]{});
 		ContinuouslyScannableViaController continuouslyScannableViaController = array[0];
@@ -686,6 +743,7 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 
 	@Override
 	public void setDetectors(Collection<HardwareTriggeredDetector> detectors)  {
+		logger.trace("setDetectors({})", detectors);
 		this.detectors = detectors;
 	}
 
@@ -702,6 +760,7 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 	 * @param minimumAccelerationDistance
 	 */
 	public final void setMinimumAccelerationDistance(double minimumAccelerationDistance) {
+		logger.trace("setMinimumAccelerationDistance({})", minimumAccelerationDistance);
 		this.minimumAccelerationDistance = minimumAccelerationDistance;
 	}
 

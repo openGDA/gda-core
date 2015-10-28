@@ -69,15 +69,33 @@ public class TFG2CVmoveController extends DeviceBase implements HardwareTriggerP
 	}
 
 	@Override
+	public double getStart() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
 	public void setEnd(double end) throws DeviceException {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
+	public double getEnd() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
 	public void setStep(double step) throws DeviceException {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public double getStep() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 	@Override

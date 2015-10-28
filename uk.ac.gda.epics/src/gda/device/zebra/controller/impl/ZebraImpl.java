@@ -164,6 +164,7 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 	@Override
 	public void setPCPulseDelay(double val) throws Exception {
 		assert (PCPulseDelayMin <= val && val <= PCPulseDelayMax);
+		dev.getDoublePVValueCache(PCPulseDelayRBV).resetCache();
 		dev.getDoublePVValueCache(PCPulseDelay).putWait(val);
 	}
 
@@ -180,6 +181,7 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 	public void setPCPulseWidth(double val) throws Exception {
 		assert (PCPulseWidthMin <= val && val <= PCPulseWidthMax);
 		// TODO: PULSE_STEP *must* be bigger than PULSE_WID so warn here if it isn't!
+		dev.getDoublePVValueCache(PCPulseWidthRBV).resetCache();
 		dev.getDoublePVValueCache(PCPulseWidth).putWait(val);
 	}
 
@@ -195,6 +197,7 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 	@Override
 	public void setPCPulseStep(double val) throws Exception {
 		assert (PCPulseStepMin <= val && val <= PCPulseStepMax);
+		dev.getDoublePVValueCache(PCPulseStepRBV).resetCache();
 		dev.getDoublePVValueCache(PCPulseStep).putWait(val);
 	}
 
@@ -235,6 +238,7 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 	@Override
 	public void setPCGateStart(double val) throws Exception {
 		assert (PCGateStartMin <= val && val <= PCGateStartMax);
+		dev.getDoublePVValueCache(PCGateStartRBV).resetCache();
 		dev.getDoublePVValueCache(PCGateStart).putWait(val);
 	}
 
@@ -250,6 +254,7 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 	@Override
 	public void setPCGateWidth(double val) throws Exception {
 		assert (PCGateWidthMin <= val && val <= PCGateWidthMax);
+		dev.getDoublePVValueCache(PCGateWidthRBV).resetCache();
 		dev.getDoublePVValueCache(PCGateWidth).putWait(val);
 	}
 

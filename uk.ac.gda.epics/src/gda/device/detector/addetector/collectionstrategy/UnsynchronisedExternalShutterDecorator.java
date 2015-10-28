@@ -47,8 +47,8 @@ public final class UnsynchronisedExternalShutterDecorator extends AbstractCollec
 	 */
 
 	@Override
-	public void prepareForCollection(double collectionTime, int numImagesIgnored, ScanInformation scanInfo) throws Exception {
-		getDecoratee().prepareForCollection(collectionTime + collectionExtensionTimeS, numImagesIgnored, scanInfo);
+	public void prepareForCollection(double collectionTime, int numImages, ScanInformation scanInfo) throws Exception {
+		getDecoratee().prepareForCollection(collectionTime + collectionExtensionTimeS, numImages, scanInfo);
 	}
 
 	@Override
@@ -70,6 +70,11 @@ public final class UnsynchronisedExternalShutterDecorator extends AbstractCollec
 			}
 		}
 		return acquirePeriod_RBV;
+	}
+
+	@Override
+	public int getNumberImagesPerCollection(double collectionTime) throws Exception {
+		return getDecoratee().getNumberImagesPerCollection(collectionTime + collectionExtensionTimeS);
 	}
 
 	/* Getters and setters for private fields. */

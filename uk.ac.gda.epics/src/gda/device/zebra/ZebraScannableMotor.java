@@ -61,13 +61,24 @@ public class ZebraScannableMotor extends ScannableMotor implements ContinuouslyS
 	}
 
 	@Override
+	public void setContinuousMoveController(ContinuousMoveController continuousMoveController) {
+		try {
+			ZebraConstantVelocityMoveController zebraController = (ZebraConstantVelocityMoveController) continuousMoveController;
+			if (this.continuousMoveController.zebra != zebraController.zebra) {
+				throw new IllegalArgumentException("ZebraConstantVelocityMoveController "+continuousMoveController.getName()+" uses a different zebra to the already configured "+this.continuousMoveController.getName());
+			}
+			this.continuousMoveController = zebraController;
+		} catch (Exception e) {
+			throw new IllegalArgumentException("setContinuousMoveController("+continuousMoveController.getName()+") is not a ZebraConstantVelocityMoveController required for "+getName(), e);
+		}
+	}
+
+	@Override
 	public void afterPropertiesSet() throws Exception {
 		if( continuousMoveController == null){
 			throw new Exception("continuousMoveController == null");
 		}
 	}
-
-
 
 	// Scannable //
 	@Override
