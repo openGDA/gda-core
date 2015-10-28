@@ -69,19 +69,5 @@
             file="contexts.xml">
       </contexts>
    </extension>
-   <extension
-         point="org.eclipse.ui.navigator.navigatorContent">
-   </extension>
-   <extension
-         point="org.eclipse.ui.navigator.viewer">
-      <viewerActionBinding
-            viewerId="org.eclipse.ui.navigator.ProjectExplorer">
-         <includes>
-            <actionExtension
-                  pattern="org.opengda.lde.ui.actions.*">
-            </actionExtension>
-         </includes>
-      </viewerActionBinding>
-   </extension>
 
 </plugin>
