@@ -32,7 +32,8 @@ import java.util.Vector;
 
 abstract public class AbstractADTriggeringStrategy implements CollectionStrategyBeanInterface{
 
-	private final ADBase adBase;
+	private ADBase adBase;
+	private boolean propertiesSet = false;
 
 	private double readoutTime = 0.1; // TODO: Should default to 0, change setReadoutTime javadoc if this changes.
 	
@@ -88,10 +89,6 @@ abstract public class AbstractADTriggeringStrategy implements CollectionStrategy
 
 	private String timeFormat = "%.2f"; 
 	
-	AbstractADTriggeringStrategy(ADBase adBase) {
-		this.adBase = adBase;
-	}
-	
 	/**
 	 * Sets the required readout/dwell time (t_period - t_acquire).
 	 * <p>
@@ -127,7 +124,12 @@ abstract public class AbstractADTriggeringStrategy implements CollectionStrategy
 	public double getReadoutTime() {
 		return readoutTime;
 	}
-	
+
+	public void setAdBase(ADBase adBase) {
+		errorIfPropertySetAfterBeanConfigured("adBase");
+		this.adBase = adBase;
+	}
+
 	public ADBase getAdBase() {
 		return adBase;
 	}
@@ -138,6 +140,16 @@ abstract public class AbstractADTriggeringStrategy implements CollectionStrategy
 	
 	public boolean isReadAcquisitionPeriod() {
 		return readAcquisitionPeriod;
+	}
+
+	@Override
+	public double getAcquireTime() throws Exception {
+		return getAdBase().getAcquireTime_RBV();
+	}
+
+	@Override
+	public double getAcquirePeriod() throws Exception {
+		return getAdBase().getAcquirePeriod_RBV();
 	}
 
 	@Override
@@ -158,8 +170,8 @@ abstract public class AbstractADTriggeringStrategy implements CollectionStrategy
 			getAdBase().setArrayCallbacks(isGenerateCallbacks() ? 1 : 0);
 		}
 	}
-	
-	@Override
+
+	@Override @Deprecated
 	public void configureAcquireAndPeriodTimes(double collectionTime) throws Exception {
 		double expoTime = isAccumlationMode() ? acc_expo_time : collectionTime;
 		if (getReadoutTime() < 0) {
@@ -170,14 +182,24 @@ abstract public class AbstractADTriggeringStrategy implements CollectionStrategy
 		getAdBase().setAcquireTime(expoTime);
 		getAdBase().setNumExposures(isAccumlationMode() ? (int)(collectionTime / acc_expo_time + 0.5) : 1);
 	}
-	
-	
+
+	@Override
+	public int getStatus() throws DeviceException {
+		return getAdBase().getStatus();
+	}
+
+	@Override
+	public void waitWhileBusy() throws InterruptedException, DeviceException {
+		getAdBase().waitWhileStatusBusy();
+	}
+
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		if( adBase == null)
 			throw new RuntimeException("adBase is not set");
+		propertiesSet = true;
 	}
-	
+
 	@Override
 	public String getName() {
 		return "driver";
@@ -290,4 +312,12 @@ abstract public class AbstractADTriggeringStrategy implements CollectionStrategy
 		this.acquisitionTimeUnit = acquisitionTimeUnit;
 	}
 
+	/**
+	 * This function can be used to enforce the condition that properties are not changed after Bean initialisation completes.
+	 *
+	 * @param description used in thrown exceptions
+	 */
+	public void errorIfPropertySetAfterBeanConfigured(String description) {
+		if (propertiesSet) throw new IllegalAccessError("Attempt to set property " + description  + " in bean "+ getName() + "after Bean configured!");
+	}
 }

@@ -156,11 +156,6 @@ public class PCOHWTriggerBase extends SimpleAcquire {
 		}
 	}
 
-	@Override
-	public int getStatus() throws DeviceException {
-		return super.getStatus();
-	}
-
 	public boolean isCheckCameraUsage() {
 		return checkCameraUsage;
 	}
