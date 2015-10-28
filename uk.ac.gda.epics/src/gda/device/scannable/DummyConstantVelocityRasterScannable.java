@@ -153,8 +153,18 @@ public class DummyConstantVelocityRasterScannable extends ScannableMotionWithSca
 		}
 
 		@Override
+		public double getStart() {
+			return xmin;
+		}
+
+		@Override
 		public void setEnd(double endExternal) throws DeviceException {
 			xmax = endExternal;
+		}
+
+		@Override
+		public double getEnd() {
+			return xmax;
 		}
 
 		@Override
@@ -162,6 +172,10 @@ public class DummyConstantVelocityRasterScannable extends ScannableMotionWithSca
 			this.xstep = step;
 		}
 
+		@Override
+		public double getStep() {
+			return xstep;
+		}
 		@Override
 		public void setOuterStart(double startExternal) throws DeviceException {
 			ymin = startExternal;

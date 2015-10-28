@@ -195,14 +195,29 @@ public class PIE725ConstantVelocityRasterScannable extends ScannableMotionWithSc
 		}
 
 		@Override
+		public double getStart() {
+			return xmin;
+		}
+
+		@Override
 		public void setEnd(double endExternal) throws DeviceException {
 			xmax = toInternalX(endExternal);
+		}
+
+		@Override
+		public double getEnd() {
+			return xmax;
 		}
 
 		@Override
 		public void setStep(double step) throws DeviceException {
 			assertAgainstForScalingOrUnitChange();
 			this.xstep = step;
+		}
+
+		@Override
+		public double getStep() {
+			return xstep;
 		}
 
 		@Override

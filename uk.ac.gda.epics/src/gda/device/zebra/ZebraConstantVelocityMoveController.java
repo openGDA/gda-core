@@ -501,16 +501,30 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 	}
 
 	@Override
+	public double getStart() {
+		return start;
+	}
+
+	@Override
 	public void setEnd(double end) throws DeviceException {
 		logger.info("setEnd:" + end);
 		this.end = end;
 	}
 
 	@Override
+	public double getEnd() {
+		return end;
+	}
+
+	@Override
 	public void setStep(double step) throws DeviceException {
 		logger.info("setStep:"+ step);
 		this.step = step;
+	}
 
+	@Override
+	public double getStep() {
+		return step;
 	}
 
 	// copied from EpicsTrajectoryMoveControllerAdapter - need a base class
