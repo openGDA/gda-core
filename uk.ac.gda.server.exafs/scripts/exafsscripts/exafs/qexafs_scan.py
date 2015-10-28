@@ -12,13 +12,12 @@ from gda.configuration.properties import LocalProperties
 from gda.device import DeviceException
 from gda.epics import CAClient
 from gda.exafs.scan import BeanGroup, BeanGroups, ScanStartedMessage, RepetitionsProperties
-from gda.jython import InterfaceProvider
 from gda.jython import ScriptBase
 from gda.jython.scriptcontroller.event import ScanCreationEvent, ScanFinishEvent, ScriptProgressEvent
 from gda.jython.scriptcontroller.logging import XasProgressUpdater
 from gda.jython.scriptcontroller.logging import LoggingScriptController
 from gda.jython.scriptcontroller.logging import XasLoggingMessage
-from gda.scan import ScanBase, ContinuousScan
+from gda.scan import ScanBase, ContinuousScan, ConstantVelocityScanLine
 from gdascripts.metadata.metadata_commands import meta_clear_alldynamical
 
 class QexafsScan(Scan):
@@ -31,6 +30,7 @@ class QexafsScan(Scan):
         self.additional_channels_enabled = False
         self.topupMonitor = topupMonitor
         self.beamMonitor = beamMonitor
+        self.isConstantVelocityLineScan = False
         
     def __call__(self, sampleFileName, scanFileName, detectorFileName, outputFileName, experimentFullPath, numRepetitions= -1, validation=True):
 
@@ -99,8 +99,11 @@ class QexafsScan(Scan):
                     self.acquireCirrus()
 
                 loggingbean = XasProgressUpdater(loggingcontroller,logmsg,timeRepetitionsStarted)
-            
-                current_energy = self.energy_scannable();
+                if self.isConstantVelocityLineScan == False:
+                    current_energy = self.energy_scannable;
+                else: 
+                    #the energy is given in keV so multiply by 1000 to get it in eV
+                    current_energy = self.energy_scannable.getZebraScannableMotor().getActualScannableMotor().getPosition()*1000;
                 dist_to_init = math.fabs(initial_energy - current_energy)
                 dist_to_final = math.fabs(final_energy - current_energy)
 
@@ -122,7 +125,7 @@ class QexafsScan(Scan):
                         #go reverse
                         start=final_energy
                         end=initial_energy
-                
+                #if self.isConstantVelocityLineScan == False:
                 self.log( "Scan: " + str(self.energy_scannable.getName()) + " " + str(start) + " " + str(end) + " " + str(numberPoints) + " " + str(scan_time) + " " + str(detectorList))
                 controller.update(None, ScriptProgressEvent("Running QEXAFS scan"))
                 thisscan = ContinuousScan(self.energy_scannable , start, end, numberPoints, scan_time, detectorList)
@@ -257,3 +260,9 @@ class QexafsScan(Scan):
     
     def disableAdditionalChannels(self):
         self.additional_channels_enabled=False
+        
+    def setConstantVelocityLineScan(self,enable):
+        self.isConstantVelocityLineScan = enable
+    
+    def getConstantVelocityLineScan(self):
+        return self.isConstantVelocityLineScan

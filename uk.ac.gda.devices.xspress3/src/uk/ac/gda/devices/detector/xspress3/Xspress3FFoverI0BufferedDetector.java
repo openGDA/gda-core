@@ -20,6 +20,9 @@ package uk.ac.gda.devices.detector.xspress3;
 
 import org.apache.commons.lang.ArrayUtils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.ContinuousParameters;
 import gda.device.DeviceException;
@@ -34,7 +37,10 @@ import gda.device.detector.countertimer.BufferedScaler;
  * @author rjw82
  *
  */
-public class Xspress3FFoverI0BufferedDetector extends DetectorBase implements BufferedDetector{
+public class Xspress3FFoverI0BufferedDetector extends DetectorBase implements BufferedDetector {
+
+	private static final Logger logger = LoggerFactory.getLogger(Xspress3FFoverI0BufferedDetector.class);
+
 	private Xspress3BufferedDetector qxspress = null;
 	private BufferedScaler qscaler = null;
 	protected ContinuousParameters continuousParameters = null;
@@ -73,18 +79,22 @@ public class Xspress3FFoverI0BufferedDetector extends DetectorBase implements Bu
 
 	private double getFF(NexusTreeProvider[] expressFrames, int i) {
 		NXDetectorData expressFrameData = (NXDetectorData) expressFrames[i];
-		// find the FF column
-		int ffIndex = ArrayUtils.indexOf(expressFrameData.getExtraNames(),"FF");
-		// if its not there then sum the other columns
-		if (ffIndex == -1){
-			Double[] FFs = expressFrameData.getDoubleVals();
-			double ffTotal = 0;
-			for (Double ff : FFs){
-				ffTotal += ff;
+		Double[] FFs = expressFrameData.getDoubleVals();
+		String[] extraNames = expressFrameData.getExtraNames();
+
+		// If we can find the FF value, return it
+		for (int index = 0; index < extraNames.length && index < FFs.length; index++) {
+			if ("FF".equals(extraNames[index])) {
+				return FFs[index].doubleValue();
 			}
-			return ffTotal;
 		}
-		return expressFrameData.getDoubleVals()[ffIndex];
+
+		logger.warn("FF not found; using the sum of all Xspress3 plottable values");
+		double ffTotal = 0;
+		for (Double ff : FFs){
+			ffTotal += ff;
+		}
+		return ffTotal;
 	}
 
 	@Override
@@ -111,7 +121,10 @@ public class Xspress3FFoverI0BufferedDetector extends DetectorBase implements Bu
 	public int getNumberFrames() throws DeviceException {
 		if (!isContinuousMode)
 			return 0;
-		return continuousParameters.getNumberDataPoints();
+//		return continuousParameters.getNumberDataPoints();
+		int xspress3Frames = qxspress.getNumberFrames();
+		int scalerFrames = qscaler.getNumberFrames();
+		return Math.min(scalerFrames, xspress3Frames);
 	}
 
 	@Override
