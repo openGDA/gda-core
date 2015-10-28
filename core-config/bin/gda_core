@@ -23,7 +23,6 @@ Start the specified GDA component, where COMPONENT can be
 Required Environment variables:
     GDA_WORKSPACE_PARENT     The root directory of the deployment, parent of
                              workspace and prefix of all _rel variables below.
-    GDA_WORKSPACE_GIT_NAME   Should be workspace_git, must end with _git
     GDA_INSTANCE_CONFIG_rel  Location of BEAMLINE-config.
     GDA_GROUP_CONFIG_rel     Location of GROUP-config, may be empty.
     GDA_FACILITY_CONFIG_rel  Location of FACILITY-config, may be empty.
@@ -55,10 +54,10 @@ EOF
 }
 
 # Validate environment variables
-for env_var_name in GDA_WORKSPACE_PARENT GDA_WORKSPACE_GIT_NAME GDA_INSTANCE_CONFIG_rel GDA_GROUP_CONFIG_rel GDA_FACILITY_CONFIG_rel GDA_CORE_CONFIG_rel; do
+for env_var_name in GDA_WORKSPACE_PARENT GDA_INSTANCE_CONFIG_rel GDA_GROUP_CONFIG_rel GDA_FACILITY_CONFIG_rel GDA_CORE_CONFIG_rel; do
     bashlog debug "gda_core" "\${${env_var_name}}=${!env_var_name}"
 done
-for env_var_name in GDA_WORKSPACE_PARENT GDA_WORKSPACE_GIT_NAME GDA_INSTANCE_CONFIG_rel GDA_CORE_CONFIG_rel; do
+for env_var_name in GDA_WORKSPACE_PARENT GDA_INSTANCE_CONFIG_rel GDA_CORE_CONFIG_rel; do
     if [[ -z "${!env_var_name}" ]]; then
         bashlog error "gda_core" "\${${env_var_name}} is not set (or is null) - exiting"
         gda_core_help
