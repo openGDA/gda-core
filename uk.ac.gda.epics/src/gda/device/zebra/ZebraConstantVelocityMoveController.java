@@ -34,6 +34,7 @@ import gda.device.scannable.PositionStreamIndexer;
 import gda.device.scannable.ScannableBase;
 import gda.device.scannable.ScannableMotor;
 import gda.device.scannable.ScannableUtils;
+import gda.device.scannable.VariableCollectionTimeDetector;
 import gda.device.zebra.controller.Zebra;
 import gda.epics.ReadOnlyPV;
 import gda.factory.FactoryException;
@@ -53,7 +54,6 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 						PositionCallableProvider<Double>, ContinuouslyScannableViaController, InitializingBean {
 	private static final Logger logger = LoggerFactory.getLogger(ZebraConstantVelocityMoveController.class);
 
-	short pcCaptureBitField = 1;
 	Zebra zebra;
 
 	ScannableMotor scannableMotor;
@@ -73,17 +73,29 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 
 	public ZebraConstantVelocityMoveController() {
 		super();
-		setExtraNames(new String[]{"Time"});
+		setExtraNames(new String[]{"CaptureTime"});
 		setInputNames(new String[]{});
 		setOutputFormat(new String[]{"%5.5g"});
+	}
+
+	int pointBeingPrepared = 0;
+
+	@Override
+	public void resetPointBeingPrepared() {
+		pointBeingPrepared = 0;
+	}
+
+	@Override
+	public int getPointBeingPrepared() {
+		logger.trace("getPointBeingPrepared() returning {}", pointBeingPrepared);
+		return pointBeingPrepared;
 	}
 
 	@SuppressWarnings("unused")
 	@Override
 	public void prepareForMove() throws DeviceException, InterruptedException {
+		logger.info("prepareForMove() pointBeingPrepared={}", pointBeingPrepared);
 		try {
-			logger.info("prepare for move");
-
 			zebra.reset(); // Doing a reset does appear to disarm the zebra before we check it, so we don't need to explicitly
 			// disarm. We probably don't need to check either, but to verify that we will leave the check and log message in.
 
@@ -106,8 +118,11 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 			zebra.setPCPulseSource(mode);
 
 			//set motor before setting gates and pulse parameters
+			int pcEnc = zebraMotorInfoProvider.getPcEnc();
+			int pcCaptureBitField = 1 << pcEnc;
 			zebra.setPCCaptureBitField(pcCaptureBitField);
-			zebra.setPCEnc(zebraMotorInfoProvider.getPcEnc()); // Default is Zebra.PC_ENC_ENC1
+			logger.debug("pcEnc={}, pcCaptureBitField={}, step={}", pcEnc, pcCaptureBitField, step);
+			zebra.setPCEnc(pcEnc); // Default is Zebra.PC_ENC_ENC1
 			zebra.setPCDir(step>0 ? Zebra.PC_DIR_POSITIVE : Zebra.PC_DIR_NEGATIVE);
 			
 			zebra.setPCGateNumberOfGates(1);
@@ -125,7 +140,12 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 				double minimumAccelerationTime = Double.MAX_VALUE;
 				
 				for( Detector det : detectors){
-					double collectionTime = det.getCollectionTime();
+					double collectionTime;
+					if (det instanceof VariableCollectionTimeDetector) {
+						collectionTime = ((VariableCollectionTimeDetector)det).getCollectionTimeProfile()[pointBeingPrepared];
+					} else {
+						collectionTime = det.getCollectionTime();
+					}
 					maxCollectionTimeFromDetectors = Math.max(maxCollectionTimeFromDetectors, collectionTime);
 					minCollectionTimeFromDetectors = Math.min(minCollectionTimeFromDetectors, collectionTime);
 					
@@ -423,8 +443,10 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 
 	@Override
 	public void startMove() throws DeviceException {
-		logger.info("startMove");
+		logger.trace("startMove() pointBeingPrepared={}++", pointBeingPrepared);
 
+		pointBeingPrepared++; // This is the first point in the scan when we know all prepareForCollections for the current scan point
+		// will have been called, but none for the next point will have been.
 		moveFuture = new FutureTask<Void>(new ExecuteMoveTask());
 		new Thread(moveFuture, getName() + "_execute_move").start(); // FutureTask implements Runnable
 	}
@@ -586,7 +608,6 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 	}
 
 	int numPosCallableReturned = 0;
-	int numPosCallableReturned1 = 0;
 
 	private double pcPulseDelayRBV;
 
@@ -644,6 +665,8 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 
 	@Override
 	public void stop() throws DeviceException {
+		logger.trace("stop() pointBeingPrepared={}", pointBeingPrepared);
+		pointBeingPrepared=0;
 		//ensure the callables have all been called
 		boolean done=true;
 		if( timeSeriesCollection != null){
@@ -654,6 +677,13 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 		if(!done)
 			throw new DeviceException("stop called before all callables have been processed");
 		timeSeriesCollection = null;
+	}
+
+	@Override
+	public void atCommandFailure() throws DeviceException {
+		logger.trace("atCommandFailure() pointBeingPrepared={}", pointBeingPrepared);
+		pointBeingPrepared=0;
+		super.atCommandFailure();
 	}
 
 	@Override
