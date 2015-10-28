@@ -18,7 +18,6 @@
 
 package gda.device.detector.addetector.triggering;
 
-import gda.device.DeviceException;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.ImageMode;
 import gda.scan.ScanInformation;
@@ -28,7 +27,7 @@ public class SimpleAcquire extends AbstractADTriggeringStrategy {
 
 
 	public SimpleAcquire(ADBase adBase, double readoutTime) {
-		super(adBase);
+		setAdBase(adBase);
 		setReadoutTime(readoutTime);
 	}
 
@@ -44,28 +43,8 @@ public class SimpleAcquire extends AbstractADTriggeringStrategy {
 	}
 
 	@Override
-	public double getAcquireTime() throws Exception {
-		return getAdBase().getAcquireTime_RBV();
-	}
-
-	@Override
-	public double getAcquirePeriod() throws Exception {
-		return getAdBase().getAcquirePeriod_RBV();
-	}
-
-	@Override
 	public void collectData() throws Exception {
 		getAdBase().startAcquiring();
-	}
-
-	@Override
-	public int getStatus() throws DeviceException {
-		return getAdBase().getStatus();
-	}
-
-	@Override
-	public void waitWhileBusy() throws InterruptedException, DeviceException {
-		getAdBase().waitWhileStatusBusy();
 	}
 
 	@Override

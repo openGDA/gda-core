@@ -91,13 +91,13 @@ public class MultipleExposureSoftwareTriggerAutoMode extends AbstractADTriggerin
 	}
 
 	public MultipleExposureSoftwareTriggerAutoMode(ADBase adBase, double maxExposureTime) {
-		super(adBase);
+		setAdBase(adBase);
 		this.maxExposureTime = maxExposureTime;
 		exposureTime = maxExposureTime;
 	}
 
 	public MultipleExposureSoftwareTriggerAutoMode(ADBase adBase) {
-		super(adBase);
+		setAdBase(adBase);
 		exposureTime = this.maxExposureTime;
 	}
 
