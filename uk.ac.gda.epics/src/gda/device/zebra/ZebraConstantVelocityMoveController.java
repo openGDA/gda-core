@@ -156,6 +156,7 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 					 */
 					throw new IllegalArgumentException("ZebraConstantVelocityMoveController cannot handle 2 collection times");
 				}
+				logger.trace("prepareForMove() maxCollectionTimeFromDetectors={}", maxCollectionTimeFromDetectors);
 				double timeUnitConversion;
 				
 				// Maximise the resolution of the timing by selecting the fastest timebase for the maximum collection time.
@@ -317,9 +318,9 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 			}
 
 		} catch (Exception e) {
+			logger.error("Error in prepareForMove() of {}", getName(), e);
 			throw new DeviceException("Error arming the zebra: "+e.getMessage(), e);
 		}
-
 	}
 
 	protected void setupGateAndArm(double pcGateStart, double pcGateWidth, @SuppressWarnings("unused") double step2, @SuppressWarnings("unused") double gateWidthTimeInS) throws Exception {
@@ -371,6 +372,7 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 	}
 
 	public void setMode(int mode) {
+		logger.trace("setMode({})", mode);
 		if(mode!= Zebra.PC_PULSE_SOURCE_TIME)
 			throw new IllegalArgumentException("Only PC_PULSE_SOURCE_TIME is supported at the moment");
 		this.mode = mode;
@@ -381,6 +383,7 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 	}
 
 	public void setPcPulseGateNotTrigger(boolean pcPulseGateNotTrigger) {
+		logger.trace("setPcPulseGateNotTrigger({})", pcPulseGateNotTrigger);
 		this.pcPulseGateNotTrigger = pcPulseGateNotTrigger;
 	}
 
@@ -424,19 +427,16 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 
 		moveFuture = new FutureTask<Void>(new ExecuteMoveTask());
 		new Thread(moveFuture, getName() + "_execute_move").start(); // FutureTask implements Runnable
-
 	}
 
 	@Override
 	public boolean isMoving() throws DeviceException {
-		logger.trace("isMoving");
-
 		return !((moveFuture == null) || (moveFuture.isDone()));
 	}
 
 	@Override
 	public void waitWhileMoving() throws DeviceException, InterruptedException {
-		logger.info("waitWhileMoving");
+		logger.trace("waitWhileMoving, moveFuture={}", moveFuture);
 		if (moveFuture == null) {
 			return;
 		}
@@ -467,7 +467,7 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 
 	@Override
 	public void setTriggerPeriod(double seconds) throws DeviceException {
-		logger.info("setTriggerPeriod:"+seconds);
+		logger.info("setTriggerPeriod({})", seconds);
 		triggerPeriod = seconds; //readout need to use readout time;
 
 	}
@@ -496,7 +496,7 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 
 	@Override
 	public void setStart(double start) throws DeviceException {
-		logger.info("setStart:" + start); 
+		logger.info("setStart({})", start); 
 		this.start = start;
 	}
 
@@ -507,7 +507,7 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 
 	@Override
 	public void setEnd(double end) throws DeviceException {
-		logger.info("setEnd:" + end);
+		logger.info("setEnd({})", end);
 		this.end = end;
 	}
 
@@ -518,7 +518,7 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 
 	@Override
 	public void setStep(double step) throws DeviceException {
-		logger.info("setStep:"+ step);
+		logger.info("setStep({})", step);
 		this.step = step;
 	}
 
@@ -533,6 +533,7 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 	public List<ZebraCaptureInputStreamCollection> timeSeriesCollection;
 
 	public void addPoint(Double point) {
+		logger.trace("addPoint({})", point);
 		if(points == null){
 			points = new ArrayList<Double>();
 		}
@@ -553,6 +554,7 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 	}
 
 	public void setZebra(Zebra zebra) {
+		logger.trace("setZebra({})", zebra);
 		this.zebra = zebra;
 	}
 
@@ -563,6 +565,7 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 	}
 
 	public void setScannableMotor(ScannableMotor scannableMotor) {
+		logger.trace("setScannableMotor({})", scannableMotor);
 		this.scannableMotor = scannableMotor;
 	}
 
@@ -571,6 +574,7 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 	}
 
 	public void setZebraMotorInfoProvider(ZebraMotorInfoProvider zebraMotorInfoProvider) {
+		logger.trace("setZebraMotorInfoProvider({})", zebraMotorInfoProvider);
 		this.zebraMotorInfoProvider = zebraMotorInfoProvider;
 		setScannableMotor(zebraMotorInfoProvider.getActualScannableMotor());
 	}
@@ -598,6 +602,7 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 
 
 	public PositionStreamIndexer<Double> getPositionSteamIndexer(int index) {
+		logger.trace("getPositionSteamIndexer({})", index);
 		if( lastImageNumberStreamIndexer[index] == null){
 			logger.info("Creating lastImageNumberStreamIndexer " + index);
 			ReadOnlyPV<Double[]> rdDblArrayPV = zebra.getEnc1AvalPV();
@@ -625,6 +630,7 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 	@SuppressWarnings("unchecked")
 	@Override
 	public void atScanLineStart() throws DeviceException {
+		logger.trace("atScanLineStart()");
 		lastImageNumberStreamIndexer = new PositionStreamIndexer[11];
 		timeSeriesCollection = null;
 		moveFuture=null;
@@ -667,8 +673,8 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 
 	@Override
 	public void setOperatingContinuously(boolean b) throws DeviceException {
+		logger.trace("setOperatingContinuously({})", b);
 		operatingContinously = b;
-		
 	}
 
 	@Override
@@ -682,6 +688,7 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 	}
 
 	public Scannable createScannable(Scannable delegate){
+		logger.trace("createScannable({})", delegate);
 		ContinuousScannable cs = new ContinuousScannable();
 		cs.setDelegate(delegate);
 		cs.setContinuousMoveController(this);
@@ -690,6 +697,7 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 
 	@Override
 	public void setScannableToMove(Collection<ContinuouslyScannableViaController> scannablesToMove) {
+		logger.trace("setScannableToMove({})", scannablesToMove);
 //		this.scannablesToMove = scannablesToMove;
 		ContinuouslyScannableViaController[] array = scannablesToMove.toArray(new ContinuouslyScannableViaController[]{});
 		ContinuouslyScannableViaController continuouslyScannableViaController = array[0];
@@ -700,6 +708,7 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 
 	@Override
 	public void setDetectors(Collection<HardwareTriggeredDetector> detectors)  {
+		logger.trace("setDetectors({})", detectors);
 		this.detectors = detectors;
 	}
 
@@ -716,6 +725,7 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 	 * @param minimumAccelerationDistance
 	 */
 	public final void setMinimumAccelerationDistance(double minimumAccelerationDistance) {
+		logger.trace("setMinimumAccelerationDistance({})", minimumAccelerationDistance);
 		this.minimumAccelerationDistance = minimumAccelerationDistance;
 	}
 
