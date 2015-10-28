@@ -18,6 +18,7 @@
 
 package gda.device.detector.nxdetector.plugin.areadetector.filewriter;
 
+@Deprecated // Use gda.device.detector.addetector.filewriter.SingleImagePerFileWriter directly
 public class SingleImagePerFileWriter extends gda.device.detector.addetector.filewriter.SingleImagePerFileWriter {
 
 	public SingleImagePerFileWriter() {
