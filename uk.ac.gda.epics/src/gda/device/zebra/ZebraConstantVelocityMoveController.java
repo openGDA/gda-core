@@ -687,6 +687,11 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 		return this;
 	}
 
+	@Override
+	public void setContinuousMoveController(ContinuousMoveController controller) {
+		throw new IllegalArgumentException("setContinuousMoveController("+controller.getName()+") not supported on "+this.getName());
+	}
+
 	public Scannable createScannable(Scannable delegate){
 		logger.trace("createScannable({})", delegate);
 		ContinuousScannable cs = new ContinuousScannable();
