@@ -19,7 +19,7 @@ public class OpenFileHandler extends AbstractHandler implements IHandler {
 			FileDialog fileDialog = new FileDialog(HandlerUtil.getActiveShell(event));
 			String fileName = fileDialog.open();
 			if (fileName != null) {
-				view.refreshTable(fileName, false);
+				view.refreshTable(fileName);
 			}
 		}
 		return null;

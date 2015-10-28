@@ -41,7 +41,7 @@ public class NewFileWizard extends Wizard implements INewWizard {
 		IFile file = newFilePage.createNewFile();
 		if (file != null ) {
 			if (view != null) {
-				view.refreshTable(file.getLocation().toString(), true);
+				view.refreshTable(file.getLocation().toString());
 			} else {
 				logger.error("Cannot find the active part in new LDE file wizard.");
 			}

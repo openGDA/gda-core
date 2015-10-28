@@ -47,7 +47,7 @@ public class OpenAction extends Action {
 			if (viewPart != null && fileName != null) {
 				if (viewPart instanceof SampleGroupView) {
 					SampleGroupView view = (SampleGroupView) viewPart;
-					view.refreshTable(fileName, false);
+					view.refreshTable(fileName);
 				}
 			}
 		}
