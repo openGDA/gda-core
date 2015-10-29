@@ -45,4 +45,5 @@ public interface ContinuouslyScannableViaController extends Scannable {
 
 	public ContinuousMoveController getContinuousMoveController();
 
+	public void setContinuousMoveController(ContinuousMoveController controller);
 }

@@ -145,6 +145,11 @@ class My extends ScannableMotor implements ContinuouslyScannableViaController, P
 	}
 
 	@Override
+	public void setContinuousMoveController(ContinuousMoveController controller) {
+		throw new IllegalArgumentException("setContinuousMoveController("+controller.getName()+") not supported on "+this.getName());
+	}
+
+	@Override
 	public void asynchronousMoveTo(Object position) throws DeviceException {
 		if (isOperatingContinously()) {
 			addPoint(PositionConvertorFunctions.toDouble(externalToInternal(position)));
@@ -263,9 +268,19 @@ class MyCMC extends ScannableBase implements ConstantVelocityMoveController{
 	}
 
 	@Override
+	public double getStart() {
+		return start;
+	}
+
+	@Override
 	public void setEnd(double end) throws DeviceException {
 		logger.info("setEnd:" + end);
 		this.end = end;
+	}
+
+	@Override
+	public double getEnd() {
+		return end;
 	}
 
 	@Override
@@ -275,6 +290,10 @@ class MyCMC extends ScannableBase implements ConstantVelocityMoveController{
 
 	}
 
+	@Override
+	public double getStep() {
+		return step;
+	}
 }
 
 

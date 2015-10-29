@@ -194,7 +194,10 @@ public abstract class AbstractCollectionStrategyDecorator implements CollectionS
 	 * @return			 the list of decoratees which are of the specified type
 	 */
 	public <T> List<T> getDecorateesOfType(Class<T> clazz) {
-		if (!propertiesSet) throw new IllegalAccessError("Attempt to getDecorateesOfType(" + clazz.getName() + ") before initialisation complete!");
+		if (!propertiesSet) {
+			String name = getName() == null ? "<unknown>" : getName();
+			throw new IllegalAccessError("Attempt to getDecorateesOfType(" + clazz.getName() + ") before initialisation of " + name + " complete!");
+		}
 
 		List<T> decorateesOfT;
 
@@ -202,6 +205,10 @@ public abstract class AbstractCollectionStrategyDecorator implements CollectionS
 			decorateesOfT = ((AbstractCollectionStrategyDecorator) decoratee).getDecorateesOfType(clazz);
 		} else { // Otherwise start a new list
 			decorateesOfT = new ArrayList<>();
+			// and add decoratee if it is one
+			if (clazz.isInstance(decoratee)) {
+				decorateesOfT.add(clazz.cast(decoratee));
+			}
 		}
 		// Now add self if we are one.
 		if (clazz.isInstance(this)) {
@@ -216,6 +223,6 @@ public abstract class AbstractCollectionStrategyDecorator implements CollectionS
 	 * @param description used in thrown exceptions
 	 */
 	protected void errorIfPropertySetAfterBeanConfigured(String description) {
-		if (propertiesSet) throw new IllegalAccessError("Attempt to set property " + description  + " in bean "+ getName() + "after Bean configured!");
+		//if (propertiesSet) throw new IllegalAccessError("Attempt to set property " + description  + " in bean "+ getName() + "after Bean configured!");
 	}
 }

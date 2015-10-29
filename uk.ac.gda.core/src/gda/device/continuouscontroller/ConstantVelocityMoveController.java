@@ -33,6 +33,8 @@ public interface ConstantVelocityMoveController extends ContinuousMoveController
 	 */
 	void setStart(double start) throws DeviceException;
 
+	double getStart();
+
 	/**
 	 * Set the end location for the move in hardware units/offset/scale.
 	 * @param end
@@ -40,6 +42,7 @@ public interface ConstantVelocityMoveController extends ContinuousMoveController
 	 */
 	void setEnd(double end) throws DeviceException;
 
+	double getEnd();
 
 	/**
 	 * Set the step size for the move in hardware units/scale.
@@ -48,4 +51,5 @@ public interface ConstantVelocityMoveController extends ContinuousMoveController
 	 */
 	void setStep(double step) throws DeviceException;
 
+	double getStep();
 }

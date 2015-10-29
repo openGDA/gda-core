@@ -91,13 +91,14 @@ public class ODCCDNativeSock extends NativeSock {
 
 				if ((char) ch == lastChar) {
 					if (sb.toString().endsWith(pattern)) {
+						logger.trace("IS sent: {}", sb.toString());
 						return (sb.toString());
 					}
 				}
 				ch = inputStream.readByte();
 			}
 		} catch (IOException e) {
-			logger.warn("Exception caught when trying to readUntil(" + pattern + ") in NativeSock.");
+			logger.warn("Exception caught when trying to readUntil({}) in NativeSock. IS sent: {}", pattern, sb.toString());
 			throw e;
 		}
 	}

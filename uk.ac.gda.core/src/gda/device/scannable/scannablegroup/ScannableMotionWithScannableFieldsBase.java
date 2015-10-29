@@ -408,6 +408,11 @@ public class ScannableMotionWithScannableFieldsBase extends ScannableMotionBase 
 		}
 
 		@Override
+		public void setContinuousMoveController(ContinuousMoveController controller) {
+			throw new IllegalArgumentException("setContinuousMoveController("+controller.getName()+") not supported on "+this.getName());
+		}
+
+		@Override
 		public boolean isOperatingContinously() {
 			return parent.isOperatingContinously();
 		}
@@ -694,6 +699,7 @@ public class ScannableMotionWithScannableFieldsBase extends ScannableMotionBase 
 		return controller;
 	}
 
+	@Override
 	public void setContinuousMoveController(ContinuousMoveController controller) {
 		this.controller = controller;
 	}
