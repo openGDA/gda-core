@@ -21,18 +21,14 @@ package gda.device.detector.mythen;
 
 import fr.esrf.Tango.DevFailed;
 import fr.esrf.TangoApi.DeviceData;
-import gda.device.Detector;
 import gda.device.DeviceException;
-import gda.device.Scannable;
 import gda.device.TangoDeviceProxy;
-import gda.device.detector.DetectorBase;
 import gda.device.detector.corba.impl.DetectorAdapter;
 import gda.device.detector.corba.impl.DetectorImpl;
-import gda.factory.Configurable;
+import gda.device.detector.pilatus.TangoLimaDetector;
 import gda.factory.FactoryException;
 import gda.factory.corba.util.CorbaAdapterClass;
 import gda.factory.corba.util.CorbaImplClass;
-import gda.device.detector.pilatus.TangoLimaDetector;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,15 +51,16 @@ public class TangoMythenDetectorCT extends TangoLimaDetector implements Initiali
 
 	@Override
 	public void configure() throws FactoryException {
-		super.configure();
 		try {
-			tangoDeviceProxy.isAvailable();
+			super.configure();
+			// if (isConfigured()) {
+//			tangoDeviceProxy.isAvailable();
 //			width = getWidth();
 			setConfigured(true);
 			setInputNames(null);
 		} catch (Exception e) {
 			setConfigured(false);
-			logger.error("TangoMythenDetector {} configure: {}", getName(), e);
+			logger.error("TangoMythenDetector {} configure: {}", getName(), e.getMessage());
 		}
 	}
 

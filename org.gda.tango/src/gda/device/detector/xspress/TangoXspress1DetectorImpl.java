@@ -21,18 +21,18 @@ package gda.device.detector.xspress;
 
 import fr.esrf.Tango.DevFailed;
 import fr.esrf.TangoApi.DeviceData;
+import gda.device.DeviceException;
 import gda.device.TangoDeviceProxy;
 import gda.factory.FactoryException;
-import gda.device.DeviceException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Represents a set of Xspress1 boards and detectors. 
+ * Represents a set of Xspress1 boards and detectors.
  */
 public class TangoXspress1DetectorImpl implements XspressDetectorImpl {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(TangoXspress1DetectorImpl.class);
 	private TangoDeviceProxy tangoDeviceProxy;
 	private int numberOfDetectors;
@@ -70,7 +70,7 @@ public class TangoXspress1DetectorImpl implements XspressDetectorImpl {
 		} catch (DevFailed e) {
 			DeviceException ex = new DeviceException(e.errors[0].desc);
 			logger.error(ex.getMessage());
-			throw ex;			
+			throw ex;
 		}
 	}
 
@@ -96,6 +96,7 @@ public class TangoXspress1DetectorImpl implements XspressDetectorImpl {
 	@Override
 	public void setCollectionTime(int time) throws DeviceException {
 		try {
+			collectionTime = time;
 			tangoDeviceProxy.setAttribute("collectionTime",time);
 		} catch (DevFailed e) {
 			DeviceException ex = new DeviceException(e.errors[0].desc);

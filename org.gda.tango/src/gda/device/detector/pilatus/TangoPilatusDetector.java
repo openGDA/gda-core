@@ -43,7 +43,7 @@ public class TangoPilatusDetector extends TangoLimaDetector implements Initializ
 	private static final Logger logger = LoggerFactory.getLogger(TangoPilatusDetector.class);
 	private TangoDeviceProxy dev = null;
 	private Tfg timer;
-	
+
 	private Double triggerDelay = null;
 	private Integer threshold = null;
 	private String thresholdGain = null;
@@ -52,12 +52,12 @@ public class TangoPilatusDetector extends TangoLimaDetector implements Initializ
 	private static int detectorCount = 0;
 	private static int ready = 0;
 	private static int scanPoint;
-	
+
 	@Override
 	public void configure() throws FactoryException {
 		super.configure();
+		if (isConfigured()) {
 		try {
-			init();
 			if (energyThreshold != null)
 				writeEnergyThreshold(energyThreshold);
 			if (threshold != null)
@@ -70,11 +70,12 @@ public class TangoPilatusDetector extends TangoLimaDetector implements Initializ
 				writeThresholdGain(thresholdGain);
 			if (timer != null)
 				timer.addIObserver(this);
-			configured = true;
+				setConfigured(true);
 			logger.debug("TangoPilatusDetector {} configured successfully", getName());
 		} catch (Exception e) {
-			configured = false;
+				setConfigured(false);
 			logger.error("TangoPilatusDetector {} configure: {}", getName(), e);
+		}
 		}
 	}
 
@@ -91,19 +92,19 @@ public class TangoPilatusDetector extends TangoLimaDetector implements Initializ
 		logger.debug("NcdDetector reconfiguring " + getName());
 		configure();
 	}
-	
+
 	@Override
 	public void close() {
 		configured = false;
 		timer.deleteIObserver(this);
 	}
-	
+
 	@Override
 	public void atScanStart() throws DeviceException {
 		scanPoint = 0;
 		writeSavingOverwritePolicy("OVERWRITE");
 	}
-	
+
 	@Override
 	public void collectData() throws DeviceException {
 		detectorCount++;
@@ -190,7 +191,7 @@ public class TangoPilatusDetector extends TangoLimaDetector implements Initializ
 			triggerDelay = dev.read_attribute("trigger_delay").extractDouble();
 		} catch (DevFailed e) {
 			throw new DeviceException("failed to get trigger delay", e);
-		}		
+		}
 		return triggerDelay;
 	}
 
@@ -200,7 +201,7 @@ public class TangoPilatusDetector extends TangoLimaDetector implements Initializ
 			dev.write_attribute(new DeviceAttribute("trigger_delay", triggerDelay));
 		} catch (DevFailed e) {
 			throw new DeviceException("failed to set trigger Delay", e);
-		}		
+		}
 	}
 
 	public double readEnergyThreshold() throws DeviceException {
@@ -209,7 +210,7 @@ public class TangoPilatusDetector extends TangoLimaDetector implements Initializ
 			energyThreshold = dev.read_attribute("energy_threshold").extractFloat();
 		} catch (DevFailed e) {
 			throw new DeviceException("failed to get energy threshold", e);
-		}		
+		}
 		return energyThreshold;
 	}
 
@@ -219,7 +220,7 @@ public class TangoPilatusDetector extends TangoLimaDetector implements Initializ
 			dev.write_attribute(new DeviceAttribute("energy_threshold", energyThreshold));
 		} catch (DevFailed e) {
 			throw new DeviceException("failed to set energy threshold", e);
-		}		
+		}
 	}
 
 	public int readThreshold() throws DeviceException {
@@ -228,7 +229,7 @@ public class TangoPilatusDetector extends TangoLimaDetector implements Initializ
 			threshold = dev.read_attribute("threshold").extractLong();
 		} catch (DevFailed e) {
 			throw new DeviceException("failed to get threshold", e);
-		}		
+		}
 		return threshold;
 	}
 
@@ -238,7 +239,7 @@ public class TangoPilatusDetector extends TangoLimaDetector implements Initializ
 			dev.write_attribute(new DeviceAttribute("threshold", threshold));
 		} catch (DevFailed e) {
 			throw new DeviceException("failed to set threshold", e);
-		}		
+		}
 	}
 
 	public String readThresholdGain() throws DeviceException {
@@ -247,7 +248,7 @@ public class TangoPilatusDetector extends TangoLimaDetector implements Initializ
 			thresholdGain = dev.read_attribute("threshold_gain").extractString();
 		} catch (DevFailed e) {
 			throw new DeviceException("failed to get threshold gain", e);
-		}		
+		}
 		return thresholdGain;
 	}
 
@@ -257,7 +258,7 @@ public class TangoPilatusDetector extends TangoLimaDetector implements Initializ
 			dev.write_attribute(new DeviceAttribute("threshold_gain", thresholdGain));
 		} catch (DevFailed e) {
 			throw new DeviceException("failed to set threshold gain", e);
-		}		
+		}
 	}
 
 	public String readFillMode() throws DeviceException {
@@ -266,7 +267,7 @@ public class TangoPilatusDetector extends TangoLimaDetector implements Initializ
 			fillMode = dev.read_attribute("fill_mode").extractString();
 		} catch (DevFailed e) {
 			throw new DeviceException("failed to get fill mode", e);
-		}		
+		}
 		return fillMode;
 	}
 
@@ -276,7 +277,7 @@ public class TangoPilatusDetector extends TangoLimaDetector implements Initializ
 			dev.write_attribute(new DeviceAttribute("fill_mode", fillMode));
 		} catch (DevFailed e) {
 			throw new DeviceException("failed to set fill mode", e);
-		}		
+		}
 	}
 
 	@Override
@@ -298,7 +299,7 @@ public class TangoPilatusDetector extends TangoLimaDetector implements Initializ
 		}
 		super.setAttribute(attributeName, value);
 	}
-	
+
 	@Override
 	public Object getAttribute(String attributeName) throws DeviceException {
 		Object object = null;

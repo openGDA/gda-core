@@ -77,7 +77,7 @@ public class TangoMythenDetector extends TangoLimaDetector implements Runnable {
 			runner.start();
 		} catch (Exception e) {
 			setConfigured(false);
-			logger.error("TangoMythenDetector {} configure: {}", getName(), e);
+			logger.error("TangoMythenDetector {} configure: {}", getName(), e.getMessage());
 		}
 	}
 
@@ -190,7 +190,7 @@ public class TangoMythenDetector extends TangoLimaDetector implements Runnable {
 			ds.setName("Mythen");
 			plotData(plotPanelName, ds);
 		} catch (Exception e) {
-			logger.error("TangoMythenDetector: Exception preparing or sending live data: ", e);
+			logger.error("TangoMythenDetector: Exception preparing or sending live data: ", e.getMessage());
 		}
 		lastFrame = currentFrameUFC;
 	}
@@ -209,7 +209,7 @@ public class TangoMythenDetector extends TangoLimaDetector implements Runnable {
 				break;
 			}
 		} catch (Exception e) {
-			logger.error("TangoMythenDetector: plotData() could not plot", e);
+			logger.error("TangoMythenDetector: plotData() could not plot", e.getMessage());
 		}
 	}
 
