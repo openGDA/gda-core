@@ -471,7 +471,7 @@ where task can be:
 
 		# --foreground only valid when starting a single process
 		if self.options.foreground:
-			if self.task not in self.single_processes or (not self.options.start or self.options.stop):
+			if self.task not in self.single_processes and not (self.options.start or self.options.stop):
 				self.logger.critical('GDA: --foreground/-f can only be used when starting a single process')
 				sys.exit(1)
 
