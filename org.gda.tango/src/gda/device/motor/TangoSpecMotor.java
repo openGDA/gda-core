@@ -43,7 +43,7 @@ public class TangoSpecMotor extends MotorBase implements Motor {
 	private TangoDeviceProxy tangoDeviceProxy;
 	private TangoSpecCmd tangoSpecCmd;
 	private String specMotorName;
-	
+
 	@Override
 	public void configure() throws FactoryException {
 		try {
@@ -170,7 +170,7 @@ public class TangoSpecMotor extends MotorBase implements Motor {
 			configured = false;
 			throw new MotorException(MotorStatus.UNKNOWN, "Tango device server " + tangoDeviceProxy.get_name() + " failed");
 		} catch (Exception e) {
-			throw new MotorException(MotorStatus.UNKNOWN, "Tango device server stuffed");			
+			throw new MotorException(MotorStatus.UNKNOWN, "Tango device server stuffed");
 		}
 	}
 
@@ -179,6 +179,8 @@ public class TangoSpecMotor extends MotorBase implements Motor {
 		logger.info("setPosition() to " + position);
 		try {
 			String cmd = "eval(\"set " + specMotorName + " " + position + "\")";
+			logger.debug("SpecCmd: " + cmd);
+			tangoSpecCmd.isAvailable();
 			tangoSpecCmd.executeCmd(cmd);
 		} catch (DeviceException e) {
 			logger.error(e.getMessage());
@@ -188,7 +190,7 @@ public class TangoSpecMotor extends MotorBase implements Motor {
 
 
 // Methods not implemented below here
-	
+
 	@Override
 	public double getSpeed() throws MotorException {
 		logger.error("setPosition() is not implemented");

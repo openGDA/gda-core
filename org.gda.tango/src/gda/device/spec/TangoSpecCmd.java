@@ -18,14 +18,15 @@
 
 package gda.device.spec;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import fr.esrf.Tango.DevFailed;
 import fr.esrf.TangoApi.DeviceData;
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.device.TangoDeviceProxy;
 import gda.factory.FactoryException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TangoSpecCmd extends DeviceBase {
 
@@ -51,6 +52,10 @@ public class TangoSpecCmd extends DeviceBase {
 		return tangoDeviceProxy;
 	}
 
+	public void isAvailable() throws DeviceException {
+		tangoDeviceProxy.isAvailable();
+	}
+
 	/**
 	 * @param tangoDeviceProxy The Tango device proxy to set.
 	 */
@@ -67,7 +72,6 @@ public class TangoSpecCmd extends DeviceBase {
 			DeviceData args = new DeviceData();
 			args.insert(argin);
 			tangoDeviceProxy.isAvailable();
-			System.out.println("################### " + cmd);
 			DeviceData argout = tangoDeviceProxy.command_inout("ExecuteCmd", args);
 			value = argout.extractString();
 		} catch (DevFailed e) {
