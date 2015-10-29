@@ -59,7 +59,7 @@
         <genParameters ecoreParameter="sampledefinition.ecore#//Stage/hasID/context"/>
       </genOperations>
     </genClasses>
-    <genClasses ecoreClass="sampledefinition.ecore#//Cell" labelFeature="#//ldeexperiment/Cell/cellID">
+    <genClasses ecoreClass="sampledefinition.ecore#//Cell">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Cell/cellID"/>
       <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference sampledefinition.ecore#//Cell/stage"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference sampledefinition.ecore#//Cell/sample"/>
