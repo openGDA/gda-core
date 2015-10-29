@@ -236,7 +236,7 @@ public interface Cell extends EObject {
 
 	/**
 	 * Returns the value of the '<em><b>Calibrant</b></em>' attribute.
-	 * The default value is <code>"Si(NIST-SRM-640c)"</code>.
+	 * The default value is <code>"CeO2(NIST-SRM-674b)"</code>.
 	 * <!-- begin-user-doc -->
 	 * <p>
 	 * If the meaning of the '<em>Calibrant</em>' attribute isn't clear,
@@ -246,7 +246,7 @@ public interface Cell extends EObject {
 	 * @return the value of the '<em>Calibrant</em>' attribute.
 	 * @see #setCalibrant(String)
 	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getCell_Calibrant()
-	 * @model default="Si(NIST-SRM-640c)" dataType="org.opengda.lde.model.ldeexperiment.CalibrantNameString"
+	 * @model default="CeO2(NIST-SRM-674b)" dataType="org.opengda.lde.model.ldeexperiment.CalibrantNameString"
 	 * @generated
 	 */
 	String getCalibrant();

@@ -98,7 +98,7 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="visitID" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="calibrant" eType="#//CalibrantNameString"
-        defaultValueLiteral="Si(NIST-SRM-640c)"/>
+        defaultValueLiteral="CeO2(NIST-SRM-674b)"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="calibrant_x" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble"
         defaultValueLiteral="0"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="calibrant_y" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble"
