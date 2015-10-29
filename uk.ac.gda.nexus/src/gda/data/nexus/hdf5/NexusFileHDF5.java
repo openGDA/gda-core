@@ -1277,7 +1277,7 @@ public class NexusFileHDF5 implements NexusFile {
 							offset += maxLength;
 						}
 
-						H5.H5Tset_cset(datatypeId, HDF5Constants.H5T_CSET_UTF8);
+						H5.H5Tset_cset(datatypeId, HDF5Constants.H5T_CSET_ASCII);
 						H5.H5Tset_size(datatypeId, maxLength);
 					}
 					try (HDF5Resource attributeResource = new HDF5AttributeResource(
