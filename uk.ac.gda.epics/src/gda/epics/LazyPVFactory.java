@@ -569,6 +569,7 @@ public class LazyPVFactory {
 				logger.info("Disabling constant monitoring of pv '{}'", pvName);
 				removeMonitorListener(valueMonitorListener);
 				valueMonitorListener = null;
+				lastMonitoredValue = null;
 			}
 
 		}

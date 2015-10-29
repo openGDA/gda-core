@@ -18,13 +18,13 @@
 
 package gda.device.zebra.controller.impl;
 
-import java.io.IOException;
-
 import gda.device.zebra.controller.SoftInputChangedEvent;
 import gda.device.zebra.controller.Zebra;
 import gda.epics.ReadOnlyPV;
 import gda.factory.Findable;
 import gda.observable.Observable;
+
+import java.io.IOException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +33,7 @@ import org.springframework.beans.factory.InitializingBean;
 public class ZebraDummy implements Zebra, Findable, InitializingBean {
 
 	private static final Logger logger = LoggerFactory.getLogger(ZebraImpl.class);
-	
+
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		// TODO Auto-generated method stub
@@ -43,7 +43,7 @@ public class ZebraDummy implements Zebra, Findable, InitializingBean {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Findable method implementations
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	//Set and get the bean name 
+	//Set and get the bean name
 	private String name;
 
 	@Override
@@ -58,7 +58,7 @@ public class ZebraDummy implements Zebra, Findable, InitializingBean {
 	@SuppressWarnings("unused")
 	public void encCopyMotorPosToZebra(int posNum) throws Exception {
 	}
-	
+
 	@Override
 	public double getPCPulseDelay() throws Exception {
 		// TODO Auto-generated method stub
@@ -383,5 +383,23 @@ public class ZebraDummy implements Zebra, Findable, InitializingBean {
 	@Override
 	public void reset() throws IOException {
 		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void setPCPulseStart(double val) throws Exception {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public double getPCPulseStart() throws Exception {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public double getPCPulseStartRBV() throws Exception {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 }

@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2013 Diamond Light Source Ltd.
+ * Copyright © 2015 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -39,6 +39,7 @@ import gda.device.zebra.controller.Zebra;
 import gda.epics.ReadOnlyPV;
 import gda.factory.FactoryException;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -71,11 +72,27 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 
 	private double minimumAccelerationDistance = 0.5; // If this changes, change the setMinimumAccelerationDistance javadoc.
 
+	private double scannableMotorEndPosition;
+
 	public ZebraConstantVelocityMoveController() {
 		super();
 		setExtraNames(new String[]{"CaptureTime"});
 		setInputNames(new String[]{});
 		setOutputFormat(new String[]{"%5.5g"});
+	}
+
+	/**
+	 * This method should not be necessary. We have added it so that the scannable giving this controller to a scan
+	 * can reset it to a known state. We hope this help us work around numerous hard to track down issues.
+	 * @throws DeviceException
+	 */
+	@Deprecated
+	protected void prepareControllerToBeUsedForUpcomingScan() throws DeviceException {
+		atScanLineStart();
+	}
+
+	public short getPcCaptureBitField(int pcEnc) {
+		return (short) (1 << pcEnc);
 	}
 
 	int pointBeingPrepared = 0;
@@ -90,6 +107,7 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 		logger.trace("getPointBeingPrepared() returning {}", pointBeingPrepared);
 		return pointBeingPrepared;
 	}
+
 
 	@SuppressWarnings("unused")
 	@Override
@@ -119,7 +137,7 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 
 			//set motor before setting gates and pulse parameters
 			int pcEnc = zebraMotorInfoProvider.getPcEnc();
-			int pcCaptureBitField = 1 << pcEnc;
+			short pcCaptureBitField = getPcCaptureBitField(pcEnc);
 			zebra.setPCCaptureBitField(pcCaptureBitField);
 			logger.debug("pcEnc={}, pcCaptureBitField={}, step={}", pcEnc, pcCaptureBitField, step);
 			zebra.setPCEnc(pcEnc); // Default is Zebra.PC_ENC_ENC1
@@ -330,12 +348,12 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 
 			setupGateAndArm(pcGateStart,pcGateWidth, step, gateWidthTime );
 
-
 			if( timeSeriesCollection != null){
 				for(ZebraCaptureInputStreamCollection ts : timeSeriesCollection){
 					ts.start(numberTriggers);
 				}
 			}
+			scannableMotorEndPosition = pcGateStartRBV + ((step>0 ? 1.0 : -1.0)*pcGateWidthRBV + (step>0 ? 1.0 : -1.0)*accelerationDistance);
 
 		} catch (Exception e) {
 			logger.error("Error in prepareForMove() of {}", getName(), e);
@@ -380,7 +398,7 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 		zebra.pcArm();
 	}
 
-	private void checkRBV(double raw, double RBVRaw, double tolerance, String desc) {
+	public void checkRBV(double raw, double RBVRaw, double tolerance, String desc) {
 		double rawDiff = Math.abs(raw - RBVRaw);
 		if (rawDiff > tolerance) {
 			throw new IllegalStateException("ZebraConstantVelocityMoveController: Wrote "+raw+" to "+desc+" but read back "+RBVRaw+" (diff="+rawDiff+")");
@@ -416,9 +434,7 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 					logger.info("ExecuteMoveTask.call: " + " requiredSpeed=" + requiredSpeed + " pcGateStartRBV=" + pcGateStartRBV +
 								" pcGateWidthRBV=" + pcGateWidthRBV + " accelerationDistance=" + accelerationDistance);
 					scannableMotor.setSpeed(requiredSpeed);
-					scannableMotor.moveTo(pcGateStartRBV + ((step>0 ? 1.0 : -1.0)*pcGateWidthRBV +
-															(step>0 ? 1.0 : -1.0)*accelerationDistance ));
-
+					scannableMotor.moveTo(scannableMotorEndPosition);
 				} finally {
 					scannableMotor.setSpeed(speed);
 				}
@@ -429,7 +445,6 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 			}
 			return null;
 		}
-
 	}
 
 	private FutureTask<Void> moveFuture;
@@ -484,6 +499,11 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 	@Override
 	public void stopAndReset() throws DeviceException, InterruptedException {
 		logger.info("stopAndReset");
+		try {
+			zebra.reset();
+		} catch (IOException e) {
+			throw new DeviceException("problem resetng EPICS zebra", e);
+		}
 		points = null;
 	}
 
@@ -492,6 +512,10 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 		logger.info("setTriggerPeriod({})", seconds);
 		triggerPeriod = seconds; //readout need to use readout time;
 
+	}
+
+	public double getTriggerPeriod() throws DeviceException {
+		return triggerPeriod;
 	}
 
 	@Override
@@ -518,7 +542,7 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 
 	@Override
 	public void setStart(double start) throws DeviceException {
-		logger.info("setStart({})", start); 
+		logger.info("setStart({})", start);
 		this.start = start;
 	}
 
@@ -554,6 +578,14 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 
 	public List<ZebraCaptureInputStreamCollection> timeSeriesCollection;
 
+	public List<ZebraCaptureInputStreamCollection> getTimeSeriesCollection() {
+		return timeSeriesCollection;
+	}
+
+	public void setTimeSeriesCollection(List<ZebraCaptureInputStreamCollection> timeSeriesCollection) {
+		this.timeSeriesCollection = timeSeriesCollection;
+	}
+
 	public void addPoint(Double point) {
 		logger.trace("addPoint({})", point);
 		if(points == null){
@@ -579,8 +611,6 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 		logger.trace("setZebra({})", zebra);
 		this.zebra = zebra;
 	}
-
-
 
 	public ScannableMotor getScannableMotor() {
 		return scannableMotor;
@@ -621,7 +651,6 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 
 	private Collection<HardwareTriggeredDetector> detectors;
 
-
 	public PositionStreamIndexer<Double> getPositionSteamIndexer(int index) {
 		logger.trace("getPositionSteamIndexer({})", index);
 		if( lastImageNumberStreamIndexer[index] == null){
@@ -637,7 +666,6 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 			}
 			if( timeSeriesCollection == null)
 				timeSeriesCollection = new Vector<ZebraCaptureInputStreamCollection>();
-
 
 			ZebraCaptureInputStreamCollection sc = new ZebraCaptureInputStreamCollection(zebra.getNumberOfPointsDownloadedPV(), rdDblArrayPV);
 			lastImageNumberStreamIndexer[index] = new PositionStreamIndexer<Double>(sc);
@@ -747,6 +775,10 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 		this.detectors = detectors;
 	}
 
+	public Collection<HardwareTriggeredDetector> getDetectors()  {
+		return detectors;
+	}
+
 	/**
 	 * Set the minimum allowable acceleration distance. If this value is less than distanceToAccToVelocity at the
 	 * requiredSpeed then it will be used instead of the calculated value.
@@ -767,4 +799,21 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 	public double getMinimumAccelerationDistance() {
 		return minimumAccelerationDistance;
 	}
+
+	public double getRequiredSpeed() {
+		return requiredSpeed;
+	}
+
+	public void setRequiredSpeed(double requiredSpeed) {
+		this.requiredSpeed = requiredSpeed;
+	}
+
+	public double getScannableMotorEndPosition() {
+		return scannableMotorEndPosition;
+	}
+
+	public void setScannableMotorEndPosition(double scannableMotorEndPosition) {
+		this.scannableMotorEndPosition = scannableMotorEndPosition;
+	}
+
 }

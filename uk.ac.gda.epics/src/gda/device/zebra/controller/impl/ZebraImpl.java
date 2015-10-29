@@ -97,6 +97,7 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 
 	final public static String PCPulseSource = "PC_PULSE_SEL";
 	final public static String PCPulseDelay = "PC_PULSE_DLY";
+	final public static String PCPulseStart = "PC_PULSE_START";
 	final public static String PCPulseWidth = "PC_PULSE_WID";
 	final public static String PCPulseStep = "PC_PULSE_STEP";
 	final public static String PCPulseStatus = "PC_PULSE_OUT";
@@ -130,9 +131,6 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 	String zebraPrefix;
 
 	CachedLazyPVFactory dev;
-
-
-
 	private boolean useAvalField=false;
 
 	public boolean isUseAvalField() {
@@ -172,9 +170,24 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 	public double getPCPulseDelay() throws Exception {
 		return dev.getDoublePVValueCache(PCPulseDelay).get();
 	}
+
 	@Override
 	public double getPCPulseDelayRBV() throws Exception {
 		return dev.getDoublePVValueCache(PCPulseDelayRBV).get();
+	}
+
+	@Override
+	public void setPCPulseStart(double val) throws Exception {
+		dev.getDoublePVValueCache(PCPulseStart).putWait(val);
+	}
+
+	@Override
+	public double getPCPulseStart() throws Exception {
+		return dev.getDoublePVValueCache(PCPulseStart).get();
+	}
+	@Override
+	public double getPCPulseStartRBV() throws Exception {
+		return dev.getDoublePVValueCache(PCPulseStart).get();
 	}
 
 	@Override
@@ -372,7 +385,6 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 		return dev.getIntegerPVValueCache(PCNumberOfPointsCaptured).get();
 	}
 
-
 	public String getZebraPrefix() {
 		return zebraPrefix;
 	}
@@ -527,7 +539,6 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 
 		final PV<Integer> pv = dev.getPVInteger(SYS_SOFT_IN_PV);
 
-
 		try {
 			lastSoftInputsValue = pv.get();
 
@@ -536,7 +547,6 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 				public void update(Observable<Integer> source, Integer arg) {
 
 					softInputsLock.lock();
-
 					try {
 
 						final int newValue = arg;
@@ -562,7 +572,6 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 			});
 			logger.info("Now monitoring soft inputs");
 		}
-
 		catch (Exception e) {
 			logger.error("Could not start monitoring soft inputs", e);
 		}
@@ -577,11 +586,8 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 
 	@Override
 	public void setSoftInput(int inputNumber, boolean set) throws IOException {
-
 		final PV<Integer> pv = dev.getPVInteger(SYS_SOFT_IN_PV);
-
 		final int oldValue = pv.get();
-
 		final int bit = 1<<(inputNumber-1);
 		final int newValue = set ? (oldValue | bit) : (oldValue & ~bit);
 
