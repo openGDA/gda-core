@@ -27,6 +27,7 @@ import gda.device.scannable.ScannableUtils;
 import gda.factory.Configurable;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,11 +49,13 @@ public abstract class DetectorBase extends ScannableBase implements Serializable
 
 	@Override
 	public double getCollectionTime() throws DeviceException {
+		logger.trace("getCollectionTime()={}, stack trace {}", collectionTime, Arrays.toString(Thread.currentThread().getStackTrace()));
 		return collectionTime;
 	}
 
 	@Override
 	public void setCollectionTime(double collectionTime) throws DeviceException {
+		logger.trace("setCollectionTime({}) stack trace {}", collectionTime, Arrays.toString(Thread.currentThread().getStackTrace()));
 		this.collectionTime = collectionTime;
 	}
 
@@ -103,6 +106,7 @@ public abstract class DetectorBase extends ScannableBase implements Serializable
 	 */
 	@Override
 	public void prepareForCollection() throws DeviceException {
+		logger.trace("prepareForCollection()");
 	}
 
 	/**

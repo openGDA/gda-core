@@ -18,6 +18,9 @@
 
 package gda.device.detector;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
 import gda.device.continuouscontroller.HardwareTriggerProvider;
@@ -27,6 +30,7 @@ import gda.scan.ScanInformation;
 
 public class HardwareTriggeredNXDetector extends NXDetector implements HardwareTriggeredDetector , HardwareTriggerableDetector {
 
+	private static final Logger logger = LoggerFactory.getLogger(HardwareTriggeredNXDetector.class);
 	private HardwareTriggerProvider triggerProvider;
 	
 	private int numberImagesToCollect;
@@ -52,6 +56,7 @@ public class HardwareTriggeredNXDetector extends NXDetector implements HardwareT
 	
 	@Override
 	public void collectData() throws DeviceException {
+		logger.trace("collectData()");
 		lastReadoutValue = null;
 		try {
 			// Set number of images: the last trigger to end the exposure is superfluous, although it will be created

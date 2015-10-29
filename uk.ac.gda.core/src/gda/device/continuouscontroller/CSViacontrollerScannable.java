@@ -67,8 +67,12 @@ class CSViacontrollerScannable extends SimpleScannable implements ContinuouslySc
 	public ContinuousMoveController getContinuousMoveController() {
 		return cmc;
 	}
-	
-	
+
+	@Override
+	public void setContinuousMoveController(ContinuousMoveController controller) {
+		throw new IllegalArgumentException("setContinuousMoveController("+controller.getName()+") not supported on "+this.getName());
+	}
+
 	@Override
 	public void asynchronousMoveTo(Object position) throws DeviceException {
 		addPoint(PositionConvertorFunctions.toDouble(externalToInternal(position)));

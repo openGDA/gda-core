@@ -72,7 +72,11 @@ public class TrajectoryScanLine extends AbstractContinuousScanLine {
 		public ContinuousMoveController getContinuousMoveController() {
 			return getDelegate().getContinuousMoveController();
 		}
-		
+
+		@Override
+		public void setContinuousMoveController(ContinuousMoveController controller) {
+			getDelegate().setContinuousMoveController(controller);
+		}
 	}
 	
 	private static class PositionGrabbingDecorator<T> extends PassthroughContinouselyScannableViaControllerDecorator {
