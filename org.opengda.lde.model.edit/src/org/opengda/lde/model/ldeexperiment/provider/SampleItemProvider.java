@@ -5,9 +5,21 @@ package org.opengda.lde.model.ldeexperiment.provider;
 
 import java.util.Collection;
 import java.util.List;
+
+import org.eclipse.emf.common.command.Command;
 import org.eclipse.emf.common.notify.AdapterFactory;
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.util.ResourceLocator;
+import org.eclipse.emf.ecore.EAttribute;
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EReference;
+import org.eclipse.emf.ecore.EStructuralFeature;
+import org.eclipse.emf.ecore.util.EcoreUtil;
+import org.eclipse.emf.ecore.util.FeatureMap;
+import org.eclipse.emf.ecore.util.FeatureMapUtil;
+import org.eclipse.emf.edit.command.CopyCommand.Helper;
+import org.eclipse.emf.edit.command.InitializeCopyCommand;
+import org.eclipse.emf.edit.domain.EditingDomain;
 import org.eclipse.emf.edit.provider.ComposeableAdapterFactory;
 import org.eclipse.emf.edit.provider.IEditingDomainItemProvider;
 import org.eclipse.emf.edit.provider.IItemLabelProvider;
@@ -43,7 +55,75 @@ public class SampleItemProvider
 	public SampleItemProvider(AdapterFactory adapterFactory) {
 		super(adapterFactory);
 	}
-
+	@Override
+	protected Command createInitializeCopyCommand(EditingDomain domain, EObject owner, Helper helper) {
+		return new InitializeCopyCommand(domain, owner, helper) {
+			@Override
+			protected void copyAttributes() {
+			    for (EAttribute attribute : getAttributesToCopy())
+			    {
+			      if (attribute.isChangeable() && !attribute.isDerived() && (attribute.isMany() || owner.eIsSet(attribute)))
+			      {
+			        Object value = owner.eGet(attribute);
+			        if (!attribute.isMany())
+			        {
+			        	if (attribute.isID() ) {
+			        		//customise - if attribute is ID generate a new one for the copy as ID is unique.
+			        		copy.eSet(attribute, EcoreUtil.generateUUID());
+			        	} else {
+			        		copy.eSet(attribute, value);
+			        	}
+			        }
+			        else
+			        {
+			          @SuppressWarnings("unchecked")
+			          List<Object> list = (List<Object>)copy.eGet(attribute);
+			          if (FeatureMapUtil.isFeatureMap(attribute))
+			          {
+			            FeatureMap featureMap = (FeatureMap)(List<?>)list;
+			            LOOP:
+			            for (FeatureMap.Entry entry : (FeatureMap)value)
+			            {
+			              EStructuralFeature entryFeature = entry.getEStructuralFeature();
+			              if (entryFeature instanceof EAttribute)
+			              {
+			                featureMap.add(entry);
+			              }
+			              else
+			              {
+			                EReference reference = (EReference)entryFeature;
+			                EReference reverseReference = reference.getEOpposite();
+			                Object entryValue = entry.getValue();
+			                boolean copiedTargetRequired = reverseReference != null || reference.isContainment();
+			                EObject target = copyHelper.getCopyTarget((EObject)entryValue, copiedTargetRequired);
+			                if (target != null)
+			                {
+			                  if (reverseReference != null)
+			                  {
+			                    for (FeatureMap.Entry copyEntry : featureMap)
+			                    {
+			                      if (copyEntry.getEStructuralFeature() == reference && copyEntry.getValue() == target)
+			                      {
+			                        featureMap.move(featureMap.size() - 1, copyEntry);
+			                        continue LOOP;
+			                      }
+			                    }
+			                  }
+			                  featureMap.add(reference, target);
+			                }
+			              }
+			            }
+			          }
+			          else
+			          {
+			            list.addAll((List<?>)value);
+			          }
+			        }
+			      }
+			    }
+			}
+		};
+	}
 	/**
 	 * This returns the property descriptors for the adapted class.
 	 * <!-- begin-user-doc -->
