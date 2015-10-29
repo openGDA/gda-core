@@ -184,7 +184,9 @@ public class TangoXspress1DetectorImpl implements XspressDetectorImpl {
 			DeviceData args = new DeviceData();
 			args.insert(argin);
 			tangoDeviceProxy.isAvailable();
-			tangoDeviceProxy.set_timeout_millis(collectionTime+collectionTime/10);
+			int timeout = collectionTime + (collectionTime / 4);
+			timeout = (timeout <= 3000) ? 3000 : timeout;
+			tangoDeviceProxy.set_timeout_millis(timeout);
 			DeviceData argout = tangoDeviceProxy.command_inout("ReadMca", args);
 			tangoDeviceProxy.set_timeout_millis(3000);
 			value = argout.extractLongArray();
