@@ -55,6 +55,7 @@ public class SampleItemProvider
 	public SampleItemProvider(AdapterFactory adapterFactory) {
 		super(adapterFactory);
 	}
+
 	@Override
 	protected Command createInitializeCopyCommand(EditingDomain domain, EObject owner, Helper helper) {
 		return new InitializeCopyCommand(domain, owner, helper) {

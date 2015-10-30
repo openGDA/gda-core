@@ -6,13 +6,14 @@ package org.opengda.lde.model.ldeexperiment.provider;
 import java.util.Collection;
 import java.util.List;
 
+import org.eclipse.emf.common.command.Command;
 import org.eclipse.emf.common.notify.AdapterFactory;
 import org.eclipse.emf.common.notify.Notification;
-
 import org.eclipse.emf.common.util.ResourceLocator;
-
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EStructuralFeature;
-
+import org.eclipse.emf.edit.command.AddCommand;
+import org.eclipse.emf.edit.domain.EditingDomain;
 import org.eclipse.emf.edit.provider.ComposeableAdapterFactory;
 import org.eclipse.emf.edit.provider.IEditingDomainItemProvider;
 import org.eclipse.emf.edit.provider.IItemLabelProvider;
@@ -48,7 +49,26 @@ public class StageItemProvider
 	public StageItemProvider(AdapterFactory adapterFactory) {
 		super(adapterFactory);
 	}
-
+	/**
+	 * disable add command if the number of children exceeded limit set in its property {@link LDEExperimentsPackage#STAGE__NUMBER_OF_CELLS}.
+	 * This will disable or enable the global 'Paste' Action in the editor context menu. 
+	 */
+	@Override
+	protected Command createAddCommand(EditingDomain domain, EObject owner, EStructuralFeature feature,
+			Collection<?> collection, int index) {
+		return new AddCommand(domain, owner, feature, collection, index) {
+			@Override
+			protected boolean prepare() {
+				if (owner instanceof Stage) {
+					if (ownerList.size() >= ((Stage) owner).getNumberOfCells()) {
+						return false;
+					}
+				}
+				return super.prepare();
+			}
+		};
+	}
+	
 	/**
 	 * This returns the property descriptors for the adapted class.
 	 * <!-- begin-user-doc -->
