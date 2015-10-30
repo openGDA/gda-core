@@ -85,49 +85,65 @@ public class PixiumViewController implements InitializingBean, IPixiumViewContro
 
 		@Override
 		public void updateArrayCounter(int arrayCounter) {
-			pixiumView.setArrayCounter(String.valueOf(arrayCounter));
+			if (pixiumView!=null) {
+				pixiumView.setArrayCounter(String.valueOf(arrayCounter));
+			}
 		}
 
 		@Override
 		public void updateArrayRate(double arrayRate) {
-			pixiumView.setArrayRate(String.valueOf(arrayRate));
+			if (pixiumView!=null) {
+				pixiumView.setArrayRate(String.valueOf(arrayRate));
+			}
 		}
 
 		@Override
 		public void updateTimeRemaining(double timeRemaining) {
-			pixiumView.setTime(String.valueOf(timeRemaining));
+			if (pixiumView!=null) {
+				pixiumView.setTime(String.valueOf(timeRemaining));
+			}
 		}
 
 		@Override
 		public void updateNumberOfExposuresCounter(int numExposuresCounter) {
-			pixiumView.setExp(String.valueOf(numExposuresCounter));
-			if (numExposuresCounter!=0) {
-				int value=((numExposuresCounter+numExposuresPerImage*numImagesCounter)*100)/(numExposuresPerImage*numImages);
-				pixiumView.setProgressBarState(value);
+			if (pixiumView!=null) {
+				pixiumView.setExp(String.valueOf(numExposuresCounter));
+				if (numExposuresCounter!=0) {
+					int value=((numExposuresCounter+numExposuresPerImage*numImagesCounter)*100)/(numExposuresPerImage*numImages);
+					pixiumView.setProgressBarState(value);
+				}
 			}
 		}
 
 		@Override
 		public void updateNumberOfImagesCounter(int numImagesCounter) {
 			this.numImagesCounter=numImagesCounter;
-			pixiumView.setImg(String.valueOf(numImagesCounter));
 			int value=((numExposuresCounter+numExposuresPerImage*numImagesCounter)*100)/(numExposuresPerImage*numImages);
-			pixiumView.setProgressBarState(value);
+			if (pixiumView!=null) {
+				pixiumView.setImg(String.valueOf(numImagesCounter));
+				pixiumView.setProgressBarState(value);
+			}
 		}
 
 		@Override
 		public void updateAcquireState(short acquireState) {
-			pixiumView.setAcquireState(acquireState);
+			if (pixiumView!=null) {
+				pixiumView.setAcquireState(acquireState);
+			}
 		}
 
 		@Override
 		public void updateAcqExposure(double acqExposure) {
-			pixiumView.setAcqExposure(String.valueOf(acqExposure));
+			if (pixiumView!=null) {
+				pixiumView.setAcqExposure(String.valueOf(acqExposure));
+			}
 		}
 
 		@Override
 		public void updateAcqPeriod(double acqPeriod) {
-			pixiumView.setAcqPeriod(String.valueOf(acqPeriod));
+			if (pixiumView!=null) {
+				pixiumView.setAcqPeriod(String.valueOf(acqPeriod));
+			}
 		}
 		
 		@Override
@@ -310,15 +326,21 @@ public class PixiumViewController implements InitializingBean, IPixiumViewContro
 
 	@Override
 	public void updateCalibrationRequiredState(short requiredState) {
-		pixiumView.setCalibrationRequiredState(requiredState);		
+		if (pixiumView!=null) {
+			pixiumView.setCalibrationRequiredState(requiredState);		
+		}
 	}
 	@Override
 	public void updatePUMode(int mode) {
-		pixiumView.setPUMode(mode);
+		if (pixiumView!=null) {
+			pixiumView.setPUMode(mode);
+		}
 	}
 	@Override
 	public void updateCalibrationRunningState(short runningState) {
-		pixiumView.setCalibrationRunningState(runningState);
+		if (pixiumView!=null) {
+			pixiumView.setCalibrationRunningState(runningState);
+		}
 	}
 	public void startCalibration() throws Exception {
 		pixiumModel.calibrate();
