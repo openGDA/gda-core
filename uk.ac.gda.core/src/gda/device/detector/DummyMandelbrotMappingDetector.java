@@ -37,7 +37,9 @@ public class DummyMandelbrotMappingDetector extends DetectorBase implements Nexu
 	private NXDetectorData data;
 	private Scannable xPos;
 	private Scannable yPos;
-	private int maxIterations = 1001;
+
+	// TODO make this configurable (using some kind of detector parameters?)
+	private int maxIterations = 501;
 
 	public DummyMandelbrotMappingDetector() {
 		super();
@@ -78,33 +80,74 @@ public class DummyMandelbrotMappingDetector extends DetectorBase implements Nexu
 	public void collectData() throws DeviceException {
 		status = BUSY;
 
-		double x = ((Double) xPos.getPosition()).doubleValue();
-		double y = ((Double) yPos.getPosition()).doubleValue();
+		final double a = ((Double) xPos.getPosition()).doubleValue();
+		final double b = ((Double) yPos.getPosition()).doubleValue();
 
-		int value = mandelbrot(x, y, maxIterations, 10.0);
-		float[] spectrum = new float[maxIterations];
-		for (int i = 0; i < spectrum.length; i++) {
-			double diff = i - value;
-			spectrum[i] = (float) Math.exp(-(diff * diff) / (2 * maxIterations));
-		}
+		// TODO normalise the value somehow?
+		int value = maxIterations - mandelbrot(a, b, maxIterations, 10.0);
+
+		// TODO configurable switch between 1D and 2D output?
+		// 1D
+		// float[] spectrum = new float[maxIterations];
+		// for (int i = 0; i < spectrum.length; i++) {
+		// double diff = i - value;
+		// spectrum[i] = (float) Math.exp(-(diff * diff) / (2 * maxIterations));
+		// }
+
+		// 2D
+		int[][] juliaSet = calculateJuliaSet(a, b);
+
 		data = new NXDetectorData(this);
-		data.addData(getName(), "data", new NexusGroupData(spectrum), null, Integer.valueOf(1));
+		data.addData(getName(), "data", new NexusGroupData(juliaSet), null, Integer.valueOf(1));
 		data.addData(getName(), VALUE_NAME, new NexusGroupData(value));
 		data.setPlottableValue(VALUE_NAME, Double.valueOf(value));
 
 		status = IDLE;
 	}
 
-	private int mandelbrot(final double x, final double y, final int maxIterations, final double escapeRadius) {
-		double workingX = 0.0;
-		double workingY = 0.0;
+	/**
+	 * Fill a Julia set around the origin for the value C = a + bi
+	 */
+	private int[][] calculateJuliaSet(final double a, final double b) {
+		int columns = 301;
+		int rows = 241;
+		double xStart = -1.5;
+		double xStop = 1.5;
+		double xStep = (xStop - xStart) / columns;
+		double yStart = -1.2;
+		double yStop = 1.2;
+		double yStep = (yStop - yStart) / rows;
+		double x, y;
+		int[][] juliaSet = new int[rows][columns];
+		for (int yIndex = 0; yIndex < rows; yIndex++) {
+			for (int xIndex = 0; xIndex < columns; xIndex++) {
+				x = xStart + xIndex * xStep;
+				y = yStart + yIndex * yStep;
+				// TODO normalise the value somehow?
+				juliaSet[yIndex][xIndex] = maxIterations - julia(x, y, a, b, maxIterations, 10.0);
+			}
+		}
+		return juliaSet;
+	}
+
+	/**
+	 * Iterations of f(z) = z^2 + C, where z = x + yi, C = a + bi, and initial z = 0
+	 */
+	private int mandelbrot(final double a, final double b, final int maxIterations, final double escapeRadius) {
+		return julia(0.0, 0.0, a, b, maxIterations, escapeRadius);
+	}
+
+	/**
+	 * Iterations of f(z) = z^2 + C, where z = x + yi and C = a + bi
+	 */
+	private int julia(double x, double y, final double a, final double b, final int maxIterations, final double escapeRadius) {
 		int iteration = 0;
-		while (iteration < maxIterations && workingX * workingX + workingY * workingY < escapeRadius * escapeRadius) {
-			double tempX = workingX * workingX - workingY * workingY + x;
-			workingY = 2 * workingX * workingY + y;
-			workingX = tempX;
+		while (iteration < maxIterations && x * x + y * y < escapeRadius * escapeRadius) {
+			double tempX = x * x - y * y + a;
+			y = 2 * x * y + b;
+			x = tempX;
 			iteration++;
 		}
-		return maxIterations - iteration;
+		return iteration;
 	}
 }
