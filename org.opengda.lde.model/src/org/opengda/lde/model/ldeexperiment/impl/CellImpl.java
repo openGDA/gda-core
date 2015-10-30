@@ -68,6 +68,7 @@ import org.opengda.lde.model.ldeexperiment.util.LDEExperimentsValidator;
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.CellImpl#getCalibrant_x <em>Calibrant x</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.CellImpl#getCalibrant_y <em>Calibrant y</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.CellImpl#getCalibrant_exposure <em>Calibrant exposure</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.CellImpl#isSpin <em>Spin</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.CellImpl#getEnvScannableNames <em>Env Scannable Names</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.CellImpl#getNumberOfSamples <em>Number Of Samples</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.CellImpl#getEmail <em>Email</em>}</li>
@@ -242,6 +243,26 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	 * @ordered
 	 */
 	protected double calibrant_exposure = CALIBRANT_EXPOSURE_EDEFAULT;
+
+	/**
+	 * The default value of the '{@link #isSpin() <em>Spin</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #isSpin()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final boolean SPIN_EDEFAULT = false;
+
+	/**
+	 * The cached value of the '{@link #isSpin() <em>Spin</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #isSpin()
+	 * @generated
+	 * @ordered
+	 */
+	protected boolean spin = SPIN_EDEFAULT;
 
 	/**
 	 * The cached value of the '{@link #getEnvScannableNames() <em>Env Scannable Names</em>}' attribute list.
@@ -614,6 +635,27 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public boolean isSpin() {
+		return spin;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setSpin(boolean newSpin) {
+		boolean oldSpin = spin;
+		spin = newSpin;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, LDEExperimentsPackage.CELL__SPIN, oldSpin, spin));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	@Override
 	public EList<String> getEnvScannableNames() {
 		if (envScannableNames == null) {
@@ -879,6 +921,8 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 				return getCalibrant_y();
 			case LDEExperimentsPackage.CELL__CALIBRANT_EXPOSURE:
 				return getCalibrant_exposure();
+			case LDEExperimentsPackage.CELL__SPIN:
+				return isSpin();
 			case LDEExperimentsPackage.CELL__ENV_SCANNABLE_NAMES:
 				return getEnvScannableNames();
 			case LDEExperimentsPackage.CELL__NUMBER_OF_SAMPLES:
@@ -931,6 +975,9 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 				return;
 			case LDEExperimentsPackage.CELL__CALIBRANT_EXPOSURE:
 				setCalibrant_exposure((Double)newValue);
+				return;
+			case LDEExperimentsPackage.CELL__SPIN:
+				setSpin((Boolean)newValue);
 				return;
 			case LDEExperimentsPackage.CELL__ENV_SCANNABLE_NAMES:
 				getEnvScannableNames().clear();
@@ -991,6 +1038,9 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 			case LDEExperimentsPackage.CELL__CALIBRANT_EXPOSURE:
 				setCalibrant_exposure(CALIBRANT_EXPOSURE_EDEFAULT);
 				return;
+			case LDEExperimentsPackage.CELL__SPIN:
+				setSpin(SPIN_EDEFAULT);
+				return;
 			case LDEExperimentsPackage.CELL__ENV_SCANNABLE_NAMES:
 				getEnvScannableNames().clear();
 				return;
@@ -1039,6 +1089,8 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 				return calibrant_y != CALIBRANT_Y_EDEFAULT;
 			case LDEExperimentsPackage.CELL__CALIBRANT_EXPOSURE:
 				return calibrant_exposure != CALIBRANT_EXPOSURE_EDEFAULT;
+			case LDEExperimentsPackage.CELL__SPIN:
+				return spin != SPIN_EDEFAULT;
 			case LDEExperimentsPackage.CELL__ENV_SCANNABLE_NAMES:
 				return envScannableNames != null && !envScannableNames.isEmpty();
 			case LDEExperimentsPackage.CELL__NUMBER_OF_SAMPLES:
@@ -1099,6 +1151,8 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 		result.append(calibrant_y);
 		result.append(", calibrant_exposure: ");
 		result.append(calibrant_exposure);
+		result.append(", spin: ");
+		result.append(spin);
 		result.append(", envScannableNames: ");
 		result.append(envScannableNames);
 		result.append(", numberOfSamples: ");

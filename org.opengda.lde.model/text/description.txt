@@ -42,6 +42,7 @@ Package ldeexperiment <http://www.opengda.org/LDEExperiments>
     Attribute calibrant_x : EDouble
     Attribute calibrant_y : EDouble
     Attribute calibrant_exposure : EDouble
+    Attribute spin : EBoolean
     Attribute envScannableNames : EString<<0..*>>
     Attribute numberOfSamples : EInt
     Attribute email : EString<<0..*>>

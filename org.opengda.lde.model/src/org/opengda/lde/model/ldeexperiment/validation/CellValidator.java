@@ -57,6 +57,8 @@ public interface CellValidator {
 	boolean validateCalibrant_x(double value);
 	boolean validateCalibrant_y(double value);
 	boolean validateCalibrant_exposure(double value);
+	boolean validateSpin(boolean value);
+
 	boolean validateEnvSamplingIntervals(EList<Double> value);
 
 	boolean validateEnvScannableNames(EList<String> value);

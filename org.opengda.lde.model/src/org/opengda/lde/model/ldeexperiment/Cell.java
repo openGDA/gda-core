@@ -48,6 +48,7 @@ import org.eclipse.emf.ecore.EObject;
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Cell#getCalibrant_x <em>Calibrant x</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Cell#getCalibrant_y <em>Calibrant y</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Cell#getCalibrant_exposure <em>Calibrant exposure</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.Cell#isSpin <em>Spin</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Cell#getEnvScannableNames <em>Env Scannable Names</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Cell#getNumberOfSamples <em>Number Of Samples</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Cell#getEmail <em>Email</em>}</li>
@@ -341,6 +342,33 @@ public interface Cell extends EObject {
 	 * @generated
 	 */
 	void setCalibrant_exposure(double value);
+
+	/**
+	 * Returns the value of the '<em><b>Spin</b></em>' attribute.
+	 * The default value is <code>"false"</code>.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Spin</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Spin</em>' attribute.
+	 * @see #setSpin(boolean)
+	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getCell_Spin()
+	 * @model default="false"
+	 * @generated
+	 */
+	boolean isSpin();
+
+	/**
+	 * Sets the value of the '{@link org.opengda.lde.model.ldeexperiment.Cell#isSpin <em>Spin</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Spin</em>' attribute.
+	 * @see #isSpin()
+	 * @generated
+	 */
+	void setSpin(boolean value);
 
 	/**
 	 * Returns the value of the '<em><b>Env Scannable Names</b></em>' attribute list.

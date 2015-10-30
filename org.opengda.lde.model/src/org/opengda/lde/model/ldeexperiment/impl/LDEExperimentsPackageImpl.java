@@ -440,15 +440,6 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * @generated
 	 */
 	public EAttribute getCell_Email() {
-		return (EAttribute)cellEClass.getEStructuralFeatures().get(11);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public EAttribute getCell_StartDate() {
 		return (EAttribute)cellEClass.getEStructuralFeatures().get(12);
 	}
 
@@ -457,7 +448,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EAttribute getCell_EndDate() {
+	public EAttribute getCell_StartDate() {
 		return (EAttribute)cellEClass.getEStructuralFeatures().get(13);
 	}
 
@@ -466,8 +457,17 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EAttribute getCell_EnableAutoEmail() {
+	public EAttribute getCell_EndDate() {
 		return (EAttribute)cellEClass.getEStructuralFeatures().get(14);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getCell_EnableAutoEmail() {
+		return (EAttribute)cellEClass.getEStructuralFeatures().get(15);
 	}
 
 	/**
@@ -511,7 +511,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EAttribute getCell_EnvScannableNames() {
+	public EAttribute getCell_Spin() {
 		return (EAttribute)cellEClass.getEStructuralFeatures().get(9);
 	}
 
@@ -520,8 +520,17 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EAttribute getCell_NumberOfSamples() {
+	public EAttribute getCell_EnvScannableNames() {
 		return (EAttribute)cellEClass.getEStructuralFeatures().get(10);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getCell_NumberOfSamples() {
+		return (EAttribute)cellEClass.getEStructuralFeatures().get(11);
 	}
 
 	/**
@@ -812,6 +821,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 		createEAttribute(cellEClass, CELL__CALIBRANT_X);
 		createEAttribute(cellEClass, CELL__CALIBRANT_Y);
 		createEAttribute(cellEClass, CELL__CALIBRANT_EXPOSURE);
+		createEAttribute(cellEClass, CELL__SPIN);
 		createEAttribute(cellEClass, CELL__ENV_SCANNABLE_NAMES);
 		createEAttribute(cellEClass, CELL__NUMBER_OF_SAMPLES);
 		createEAttribute(cellEClass, CELL__EMAIL);
@@ -929,6 +939,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 		initEAttribute(getCell_Calibrant_x(), ecorePackage.getEDouble(), "calibrant_x", "0", 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getCell_Calibrant_y(), ecorePackage.getEDouble(), "calibrant_y", "0", 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getCell_Calibrant_exposure(), ecorePackage.getEDouble(), "calibrant_exposure", "1.0", 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getCell_Spin(), ecorePackage.getEBoolean(), "spin", "false", 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getCell_EnvScannableNames(), ecorePackage.getEString(), "envScannableNames", null, 0, -1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getCell_NumberOfSamples(), ecorePackage.getEInt(), "numberOfSamples", "1", 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getCell_Email(), ecorePackage.getEString(), "email", null, 0, -1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);

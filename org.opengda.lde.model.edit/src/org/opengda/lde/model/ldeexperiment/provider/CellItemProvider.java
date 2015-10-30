@@ -94,6 +94,7 @@ public class CellItemProvider
 			addCalibrant_xPropertyDescriptor(object);
 			addCalibrant_yPropertyDescriptor(object);
 			addCalibrant_exposurePropertyDescriptor(object);
+			addSpinPropertyDescriptor(object);
 			addEnvScannableNamesPropertyDescriptor(object);
 			addNumberOfSamplesPropertyDescriptor(object);
 			addEmailPropertyDescriptor(object);
@@ -403,6 +404,27 @@ public class CellItemProvider
 	}
 
 	/**
+	 * This adds a property descriptor for the Spin feature.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected void addSpinPropertyDescriptor(Object object) {
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_Cell_spin_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_Cell_spin_feature", "_UI_Cell_type"),
+				 LDEExperimentsPackage.Literals.CELL__SPIN,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.BOOLEAN_VALUE_IMAGE,
+				 null,
+				 null));
+	}
+	/**
 	 * This adds a property descriptor for the Env Scannable Names feature.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -521,6 +543,7 @@ public class CellItemProvider
 			case LDEExperimentsPackage.CELL__CALIBRANT_X:
 			case LDEExperimentsPackage.CELL__CALIBRANT_Y:
 			case LDEExperimentsPackage.CELL__CALIBRANT_EXPOSURE:
+			case LDEExperimentsPackage.CELL__SPIN:
 			case LDEExperimentsPackage.CELL__ENV_SCANNABLE_NAMES:
 			case LDEExperimentsPackage.CELL__NUMBER_OF_SAMPLES:
 			case LDEExperimentsPackage.CELL__EMAIL:
