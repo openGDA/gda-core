@@ -63,7 +63,7 @@
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Cell">
     <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
-      <details key="constraints" value="ValidStartDate ValidEndDate NonNegativeQuantity"/>
+      <details key="constraints" value="ValidStartDate ValidEndDate NonNegativeQuantity ValidCellID"/>
     </eAnnotations>
     <eOperations name="getSampleById" eType="#//Sample">
       <eParameters name="sampleId" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>

@@ -27,6 +27,7 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
+
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.NotificationChain;
 import org.eclipse.emf.common.util.BasicDiagnostic;
@@ -370,6 +371,7 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getCellID() {
 		return cellID;
 	}
@@ -379,6 +381,7 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setCellID(String newCellID) {
 		String oldCellID = cellID;
 		cellID = newCellID;
@@ -391,6 +394,7 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getName() {
 		return name;
 	}
@@ -400,6 +404,7 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setName(String newName) {
 		String oldName = name;
 		name = newName;
@@ -412,6 +417,7 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getVisitID() {
 		return visitID;
 	}
@@ -421,6 +427,7 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setVisitID(String newVisitID) {
 		String oldVisitID = visitID;
 		visitID = newVisitID;
@@ -433,6 +440,7 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EList<String> getEmail() {
 		if (email == null) {
 			email = new EDataTypeEList<String>(String.class, this, LDEExperimentsPackage.CELL__EMAIL);
@@ -445,6 +453,7 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public Date getStartDate() {
 		return startDate;
 	}
@@ -454,6 +463,7 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setStartDate(Date newStartDate) {
 		Date oldStartDate = startDate;
 		startDate = newStartDate;
@@ -466,6 +476,7 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public Date getEndDate() {
 		return endDate;
 	}
@@ -475,6 +486,7 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setEndDate(Date newEndDate) {
 		Date oldEndDate = endDate;
 		endDate = newEndDate;
@@ -487,6 +499,7 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isEnableAutoEmail() {
 		return enableAutoEmail;
 	}
@@ -496,6 +509,7 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setEnableAutoEmail(boolean newEnableAutoEmail) {
 		boolean oldEnableAutoEmail = enableAutoEmail;
 		enableAutoEmail = newEnableAutoEmail;
@@ -508,6 +522,7 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getCalibrant() {
 		return calibrant;
 	}
@@ -517,6 +532,7 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setCalibrant(String newCalibrant) {
 		String oldCalibrant = calibrant;
 		calibrant = newCalibrant;
@@ -529,6 +545,7 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public double getCalibrant_x() {
 		return calibrant_x;
 	}
@@ -538,6 +555,7 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setCalibrant_x(double newCalibrant_x) {
 		double oldCalibrant_x = calibrant_x;
 		calibrant_x = newCalibrant_x;
@@ -550,6 +568,7 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public double getCalibrant_y() {
 		return calibrant_y;
 	}
@@ -559,6 +578,7 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setCalibrant_y(double newCalibrant_y) {
 		double oldCalibrant_y = calibrant_y;
 		calibrant_y = newCalibrant_y;
@@ -571,6 +591,7 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public double getCalibrant_exposure() {
 		return calibrant_exposure;
 	}
@@ -580,6 +601,7 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setCalibrant_exposure(double newCalibrant_exposure) {
 		double oldCalibrant_exposure = calibrant_exposure;
 		calibrant_exposure = newCalibrant_exposure;
@@ -592,6 +614,7 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EList<String> getEnvScannableNames() {
 		if (envScannableNames == null) {
 			envScannableNames = new EDataTypeUniqueEList<String>(String.class, this, LDEExperimentsPackage.CELL__ENV_SCANNABLE_NAMES);
@@ -604,6 +627,7 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getNumberOfSamples() {
 		return numberOfSamples;
 	}
@@ -613,6 +637,7 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setNumberOfSamples(int newNumberOfSamples) {
 		int oldNumberOfSamples = numberOfSamples;
 		numberOfSamples = newNumberOfSamples;
@@ -625,6 +650,7 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	 * <!-- end-user-doc -->
 	 * @generated NOT
 	 */
+	@Override
 	public Sample getSampleById(String sampleId) {
 
 		for (Sample sample : getSample()) {
@@ -640,6 +666,7 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public Stage getStage() {
 		if (eContainerFeatureID() != LDEExperimentsPackage.CELL__STAGE) return null;
 		return (Stage)eInternalContainer();
@@ -660,6 +687,7 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setStage(Stage newStage) {
 		if (newStage != eInternalContainer() || (eContainerFeatureID() != LDEExperimentsPackage.CELL__STAGE && newStage != null)) {
 			if (EcoreUtil.isAncestor(this, newStage))
@@ -681,6 +709,7 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EList<Sample> getSample() {
 		if (sample == null) {
 			sample = new EObjectContainmentWithInverseEList.Unsettable<Sample>(Sample.class, this, LDEExperimentsPackage.CELL__SAMPLE, LDEExperimentsPackage.SAMPLE__CELL);
@@ -693,6 +722,7 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetSample() {
 		if (sample != null) ((InternalEList.Unsettable<?>)sample).unset();
 	}
@@ -702,6 +732,7 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetSample() {
 		return sample != null && ((InternalEList.Unsettable<?>)sample).isSet();
 	}
@@ -711,6 +742,7 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	 * <!-- end-user-doc -->
 	 * @generated NOT
 	 */
+	@Override
 	public Sample getSampleByName(String sampleName) {
 		for (Sample sample : getSample()) {
 			if (sample.getName().equals(sampleName)) {
@@ -726,6 +758,7 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	 * <!-- end-user-doc -->
 	 * @generated NOT
 	 */
+	@Override
 	public boolean hasCellID(DiagnosticChain diagnostics, Map<?, ?> context) {
 		// -> specify the condition that violates the invariant
 		// -> verify the details of the diagnostic, including severity and message
@@ -751,6 +784,7 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	 * <!-- end-user-doc -->
 	 * @generated NOT
 	 */
+	@Override
 	public boolean hasVisitID(DiagnosticChain daignostics, Map<?, ?> context) {
 		// -> specify the condition that violates the invariant
 		// -> verify the details of the diagnostic, including severity and message
