@@ -3,12 +3,12 @@
     xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel" copyrightText="Copyright ©2015 Diamond Light Source Ltd&#xA;&#xA;This file is part of GDA.&#xA; &#xA;GDA is free software: you can redistribute it and/or modify it under the&#xA;terms of the GNU General Public License version 3 as published by the Free&#xA;Software Foundation.&#xA;&#xA;GDA is distributed in the hope that it will be useful, but WITHOUT ANY&#xA;WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS&#xA;FOR A PARTICULAR PURPOSE. See the GNU General Public License for more&#xA;details.&#xA;&#xA;You should have received a copy of the GNU General Public License along&#xA;with GDA. If not, see &lt;http://www.gnu.org/licenses/>.&#xA;&#xA;Contributors:&#xA;&#x9;Fajin Yuan"
     modelDirectory="/org.opengda.lde.model/src" modelPluginID="org.opengda.lde.model"
     templateDirectory="" redirection="" modelName="Sampledefinition" modelPluginClass="org.opengda.lde.model.ldeexperiment.impl.SampledefinitionModelPlugin"
-    rootExtendsClass="org.eclipse.emf.ecore.impl.MinimalEObjectImpl$Container" rootImplementsInterface=""
-    featureMapWrapperInterface="" featureMapWrapperInternalInterface="" featureMapWrapperClass=""
-    booleanFlagsField="" importerID="org.eclipse.emf.importer.ecore" complianceLevel="7.0"
-    copyrightFields="false" providerRootExtendsClass="" tableProviders="true" runtimeVersion="2.10"
-    language="" interfaceNamePattern="" classNamePattern="" operationReflection="true"
-    importOrganizing="true" decoration="Live">
+    updateClasspath="false" rootExtendsClass="org.eclipse.emf.ecore.impl.MinimalEObjectImpl$Container"
+    rootImplementsInterface="" featureMapWrapperInterface="" featureMapWrapperInternalInterface=""
+    featureMapWrapperClass="" booleanFlagsField="" importerID="org.eclipse.emf.importer.ecore"
+    complianceLevel="7.0" copyrightFields="false" providerRootExtendsClass="" tableProviders="true"
+    runtimeVersion="2.10" language="" interfaceNamePattern="" classNamePattern=""
+    operationReflection="true" importOrganizing="true" decoration="Live">
   <foreignModel>sampledefinition.ecore</foreignModel>
   <genPackages prefix="LDEExperiments" basePackage="org.opengda.lde.model" resource="XML"
       disposableProviderFactory="true" contentTypeIdentifier="" fileExtensions="lde"
