@@ -37,6 +37,8 @@ public class DeferredScannableGroup extends CoordinatedScannableGroup {
 	ControlPoint deferredControlPoint;
 	String deferredControlPointName;
 
+	private int deferOnValue = 1;
+
 	private boolean logDefFlagChangesAsInfo = false;
 
 	/**
@@ -90,7 +92,7 @@ public class DeferredScannableGroup extends CoordinatedScannableGroup {
 	 */
 	public void setDefer(boolean deferFlag) throws DeviceException {
 		if (deferFlag == true) {
-			deferredControlPoint.setValue(1);
+			deferredControlPoint.setValue(deferOnValue);
 		} else {
 			deferredControlPoint.setValue(0);
 		}
@@ -152,5 +154,13 @@ public class DeferredScannableGroup extends CoordinatedScannableGroup {
 
 	public void setLogDefFlagChangesAsInfo(boolean logDefFlagChangesAsInfo) {
 		this.logDefFlagChangesAsInfo = logDefFlagChangesAsInfo;
+	}
+
+	public void setDeferOnValue(int deferOnValue) {
+		this.deferOnValue = deferOnValue;
+	}
+
+	public int getDeferOnValue() {
+		return deferOnValue;
 	}
 }
