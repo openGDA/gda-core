@@ -11,7 +11,7 @@
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Experiment">
     <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
-      <details key="constraints" value="NonNegativeQuantity"/>
+      <details key="constraints" value="NonNegativeQuantity MaximumQuantity"/>
     </eAnnotations>
     <eOperations name="getStageByID" eType="#//Stage">
       <eParameters name="stageId" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
@@ -25,7 +25,7 @@
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Stage">
     <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
-      <details key="constraints" value="NonNegativeQuantity"/>
+      <details key="constraints" value="NonNegativeQuantity MaximumQuantity"/>
     </eAnnotations>
     <eOperations name="getCellByID" eType="#//Cell">
       <eParameters name="cellId" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
@@ -63,7 +63,7 @@
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Cell">
     <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
-      <details key="constraints" value="ValidStartDate ValidEndDate NonNegativeQuantity ValidCellID"/>
+      <details key="constraints" value="ValidStartDate ValidEndDate NonNegativeQuantity ValidCellID MaximumQuantity"/>
     </eAnnotations>
     <eOperations name="getSampleById" eType="#//Sample">
       <eParameters name="sampleId" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>

@@ -1014,19 +1014,19 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 		  (experimentEClass, 
 		   source, 
 		   new String[] {
-			 "constraints", "NonNegativeQuantity"
+			 "constraints", "NonNegativeQuantity MaximumQuantity"
 		   });	
 		addAnnotation
 		  (stageEClass, 
 		   source, 
 		   new String[] {
-			 "constraints", "NonNegativeQuantity"
+			 "constraints", "NonNegativeQuantity MaximumQuantity"
 		   });	
 		addAnnotation
 		  (cellEClass, 
 		   source, 
 		   new String[] {
-			 "constraints", "ValidStartDate ValidEndDate NonNegativeQuantity ValidCellID"
+			 "constraints", "ValidStartDate ValidEndDate NonNegativeQuantity ValidCellID MaximumQuantity"
 		   });
 	}
 

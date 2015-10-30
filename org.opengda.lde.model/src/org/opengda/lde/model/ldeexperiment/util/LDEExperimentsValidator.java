@@ -182,6 +182,7 @@ public class LDEExperimentsValidator extends EObjectValidator {
 		if (result || diagnostics != null) result &= validate_EveryKeyUnique(experiment, diagnostics, context);
 		if (result || diagnostics != null) result &= validate_EveryMapEntryUnique(experiment, diagnostics, context);
 		if (result || diagnostics != null) result &= validateExperiment_NonNegativeQuantity(experiment, diagnostics, context);
+		if (result || diagnostics != null) result &= validateExperiment_MaximumQuantity(experiment, diagnostics, context);
 		return result;
 	}
 
@@ -213,6 +214,33 @@ public class LDEExperimentsValidator extends EObjectValidator {
 	}
 
 	/**
+	 * Validates the MaximumQuantity constraint of '<em>Experiment</em>'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public boolean validateExperiment_MaximumQuantity(Experiment experiment, DiagnosticChain diagnostics, Map<Object, Object> context) {
+		// -> specify the condition that violates the constraint
+		// -> verify the diagnostic details, including severity, code, and message
+		// Ensure that you remove @generated or mark it @generated NOT
+		if (experiment.getStage().size()>experiment.getNumberOfStages()) {
+			if (diagnostics != null) {
+				diagnostics.add
+					(createDiagnostic
+						(Diagnostic.ERROR,
+						 DIAGNOSTIC_SOURCE,
+						 0,
+						 "_UI_MaximumQuantityConstraint_diagnostic",
+						 new Object[] { "MaximumQuantity", getObjectLabel(experiment, context) },
+						 new Object[] { experiment },
+						 context));
+			}
+			return false;
+		}
+		return true;
+	}
+
+	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
@@ -228,6 +256,7 @@ public class LDEExperimentsValidator extends EObjectValidator {
 		if (result || diagnostics != null) result &= validate_EveryKeyUnique(stage, diagnostics, context);
 		if (result || diagnostics != null) result &= validate_EveryMapEntryUnique(stage, diagnostics, context);
 		if (result || diagnostics != null) result &= validateStage_NonNegativeQuantity(stage, diagnostics, context);
+		if (result || diagnostics != null) result &= validateStage_MaximumQuantity(stage, diagnostics, context);
 		if (result || diagnostics != null) result &= validateStage_hasID(stage, diagnostics, context);
 		return result;
 	}
@@ -251,6 +280,33 @@ public class LDEExperimentsValidator extends EObjectValidator {
 						 LDEExperimentsPackage.STAGE__NUMBER_OF_CELLS,
 						 "_UI_NumberOfCellsConstraint_diagnostic",
 						 new Object[] { "NonNegativeQuantity", getObjectLabel(stage, context) },
+						 new Object[] { stage },
+						 context));
+			}
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Validates the MaximumQuantity constraint of '<em>Stage</em>'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public boolean validateStage_MaximumQuantity(Stage stage, DiagnosticChain diagnostics, Map<Object, Object> context) {
+		// -> specify the condition that violates the constraint
+		// -> verify the diagnostic details, including severity, code, and message
+		// Ensure that you remove @generated or mark it @generated NOT
+		if (stage.getCell().size()>stage.getNumberOfCells()) {
+			if (diagnostics != null) {
+				diagnostics.add
+					(createDiagnostic
+						(Diagnostic.ERROR,
+						 DIAGNOSTIC_SOURCE,
+						 0,
+						 "_UI_MaximumQuantityConstraint_diagnostic",
+						 new Object[] { "MaximumQuantity", getObjectLabel(stage, context) },
 						 new Object[] { stage },
 						 context));
 			}
@@ -288,6 +344,7 @@ public class LDEExperimentsValidator extends EObjectValidator {
 		if (result || diagnostics != null) result &= validateCell_ValidEndDate(cell, diagnostics, context);
 		if (result || diagnostics != null) result &= validateCell_NonNegativeQuantity(cell, diagnostics, context);
 		if (result || diagnostics != null) result &= validateCell_ValidCellID(cell, diagnostics, context);
+		if (result || diagnostics != null) result &= validateCell_MaximumQuantity(cell, diagnostics, context);
 		if (result || diagnostics != null) result &= validateCell_hasCellID(cell, diagnostics, context);
 		if (result || diagnostics != null) result &= validateCell_hasVisitID(cell, diagnostics, context);
 		return result;
@@ -421,6 +478,33 @@ public class LDEExperimentsValidator extends EObjectValidator {
 						 0,
 						 "_UI_CellIDConstraint_diagnostic",
 						 new Object[] { "ValidCellID", getObjectLabel(cell, context) },
+						 new Object[] { cell },
+						 context));
+			}
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Validates the MaximumQuantity constraint of '<em>Cell</em>'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public boolean validateCell_MaximumQuantity(Cell cell, DiagnosticChain diagnostics, Map<Object, Object> context) {
+		// -> specify the condition that violates the constraint
+		// -> verify the diagnostic details, including severity, code, and message
+		// Ensure that you remove @generated or mark it @generated NOT
+		if (cell.getSample().size()>cell.getNumberOfSamples()) {
+			if (diagnostics != null) {
+				diagnostics.add
+					(createDiagnostic
+						(Diagnostic.ERROR,
+						 DIAGNOSTIC_SOURCE,
+						 0,
+						 "_UI_MaximumQuantityConstraint_diagnostic",
+						 new Object[] { "MaximumQuantity", getObjectLabel(cell, context) },
 						 new Object[] { cell },
 						 context));
 			}
