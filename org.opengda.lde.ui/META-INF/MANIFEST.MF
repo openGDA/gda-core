@@ -43,11 +43,13 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.jface.databinding,
  org.eclipse.core.databinding.observable,
  org.eclipse.core.databinding.property;bundle-version="1.4.100",
- org.eclipse.ui.forms;bundle-version="3.5.200"
+ org.eclipse.ui.forms;bundle-version="3.5.200",
+ com.google.guava;bundle-version="16.0.1"
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
-Import-Package: javax.mail.internet;version="1.5.0",
+Import-Package: com.google.common.base;version="16.0.1",
+ javax.mail.internet;version="1.5.0",
  org.apache.commons.collections4;version="4.0.0",
  org.apache.commons.collections4.map;version="4.0.0",
  org.apache.commons.lang;version="2.6.0",

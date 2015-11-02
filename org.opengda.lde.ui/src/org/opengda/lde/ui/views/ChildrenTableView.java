@@ -2,9 +2,12 @@ package org.opengda.lde.ui.views;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.emf.common.command.BasicCommandStack;
 import org.eclipse.emf.common.command.Command;
 import org.eclipse.emf.common.util.EList;
@@ -22,6 +25,7 @@ import org.eclipse.emf.edit.ui.dnd.ViewerDragAdapter;
 import org.eclipse.emf.edit.ui.provider.AdapterFactoryContentProvider;
 import org.eclipse.emf.edit.ui.provider.AdapterFactoryLabelProvider;
 import org.eclipse.jface.viewers.ColumnViewerToolTipSupport;
+import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
@@ -55,6 +59,9 @@ import org.opengda.lde.model.ldeexperiment.Sample;
 import org.opengda.lde.model.ldeexperiment.Stage;
 import org.opengda.lde.model.ldeexperiment.presentation.LDEExperimentsEditor;
 import org.opengda.lde.model.ldeexperiment.provider.LDEExperimentsItemProviderAdapterFactory;
+import org.opengda.lde.ui.providers.SampleGroupViewContentProvider;
+import org.opengda.lde.ui.providers.SampleGroupViewLabelProvider;
+import org.opengda.lde.ui.providers.SampleTableConstants;
 import org.opengda.lde.utils.LDEResourceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -177,6 +184,44 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 					});
 		}
 	}
+	private final String sampleColumnHeaders[] = { SampleTableConstants.STATUS, SampleTableConstants.PROGRESS, SampleTableConstants.ACTIVE, 
+			SampleTableConstants.SAMPLE_NAME, SampleTableConstants.SAMPLE_X_START, SampleTableConstants.SAMPLE_X_STOP, SampleTableConstants.SAMPLE_X_STEP, 
+			SampleTableConstants.SAMPLE_Y_START, SampleTableConstants.SAMPLE_Y_STOP, SampleTableConstants.SAMPLE_Y_STEP, 
+			SampleTableConstants.SAMPLE_EXPOSURE, SampleTableConstants.COMMAND, SampleTableConstants.COMMENT, SampleTableConstants.DATA_FILE,
+			SampleTableConstants.VISIT_ID, SampleTableConstants.CELL_ID, SampleTableConstants.CALIBRANT_NAME, 
+			SampleTableConstants.CALIBRANT_X, SampleTableConstants.CALIBRANT_Y, SampleTableConstants.CALIBRANT_EXPOSURE, 
+			SampleTableConstants.ENV_SCANNABLE_NAMES, SampleTableConstants.EMAIL, SampleTableConstants.START_DATE, SampleTableConstants.END_DATE, 
+			SampleTableConstants.CALIBRATION_FILE, SampleTableConstants.STAGE_ID, SampleTableConstants.DETECTOR_X, SampleTableConstants.DETECTOR_Y, SampleTableConstants.DETECTOR_Z
+			};
+
+	private ColumnWeightData sampleColumnLayouts[] = { new ColumnWeightData(10, 50, false),new ColumnWeightData(10, 70, false), new ColumnWeightData(10, 35, false),
+			new ColumnWeightData(80, 110, true), new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true), 
+			new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true),	
+			new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 300, true), new ColumnWeightData(50, 300, true), new ColumnWeightData(50, 300, true),
+			new ColumnWeightData(40, 90, true), new ColumnWeightData(40, 55, true), new ColumnWeightData(40, 110, true), 
+			new ColumnWeightData(40, 80, true), new ColumnWeightData(40, 80, true), new ColumnWeightData(40, 80, true),
+			new ColumnWeightData(40, 90, true), new ColumnWeightData(40, 200, true), new ColumnWeightData(50, 120, true), new ColumnWeightData(50, 120, true),
+			new ColumnWeightData(50, 300, true), new ColumnWeightData(40, 55, true), new ColumnWeightData(40, 80, true), new ColumnWeightData(40, 80, true), new ColumnWeightData(40, 80, true) 
+			};
+
+	/**
+	 * create table columns using customised Content Provider, Label Provider, and Input using List or array of Objects to be displayed
+	 * @param tableViewer
+	 * @param columnHeaders
+	 * @param columnLayouts
+	 * @param firstElement
+	 */
+	private void createColumns(TableViewer tableViewer, String[] columnHeaders, ColumnWeightData[] columnLayouts) {
+		for (int i = 0; i < columnHeaders.length; i++) {
+			TableViewerColumn tableViewerColumn = new TableViewerColumn(tableViewer, SWT.None);
+			TableColumn column = tableViewerColumn.getColumn();
+			column.setResizable(columnLayouts[i].resizable);
+			column.setText(columnHeaders[i]);
+			column.setToolTipText(columnHeaders[i]);
+			column.setWidth(columnLayouts[i].minimumWidth);
+			column.setMoveable(true);
+		}
+	}
 
 	private void initialisation() {
 
@@ -220,6 +265,7 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 							}
 							createColumns(viewer, contentprovider.getPropertySource(experiment), contentprovider);
 							viewer.setInput(experimentDefinition);
+							setTitleToolTip("List of Experiments.");
 							setPartName("Experiments");
 							parent.layout(true);
 							pageBook.showPage(rootComposite);
@@ -234,6 +280,7 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 							}
 							createColumns(viewer, contentprovider.getPropertySource(stage), contentprovider);
 							viewer.setInput(experiment);
+							setTitleToolTip("List of Stages in experiment "+experiment.getName());
 							setPartName("Stages (" + experiment.getName() + ")");
 							parent.layout(true);
 							pageBook.showPage(rootComposite);
@@ -248,6 +295,7 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 							}
 							createColumns(viewer, contentprovider.getPropertySource(cell), contentprovider);
 							viewer.setInput(stage);
+							setTitleToolTip("List of Cells in stage "+stage.getStageID());
 							setPartName("Cells (" + stage.getStageID() + ")");
 							parent.layout(true);
 							pageBook.showPage(rootComposite);
@@ -262,13 +310,33 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 							}
 							createColumns(viewer, contentprovider.getPropertySource(sample), contentprovider);
 							viewer.setInput(cell);
+							setTitleToolTip("List of Samples in cell "+ cell.getName());
 							setPartName("Samples (" + cell.getName() + ")");
 							parent.layout(true);
 							pageBook.showPage(rootComposite);
 						} else if (firstElement instanceof Sample) {
-							setPartName("Children");
+							createColumns(viewer, sampleColumnHeaders,sampleColumnLayouts);
+							
+							viewer.setContentProvider(new SampleGroupViewContentProvider(getResUtil()));
+							viewer.setLabelProvider(new SampleGroupViewLabelProvider());
+							IFile file = (IFile) getViewSite().getPage().getActiveEditor().getEditorInput().getAdapter(IFile.class);
+							String filename = file.getRawLocation().toOSString();
+							try {
+								List<Sample> samples=new ArrayList<Sample>();
+								for (Sample sample : getResUtil().getSamples(filename).values()) {
+									samples.add(sample);
+								}
+								viewer.setInput(samples);
+							} catch (Exception e) {
+								logger.error("Cannot load all samples from file: "+ filename, e);
+							}
+							viewer.getTable().getColumn(SampleTableConstants.COL_STATUS).setWidth(0);
+							viewer.getTable().getColumn(SampleTableConstants.COL_PROGRESS).setWidth(0);
+							setTitleToolTip("List of all Samples in file: "+ filename);
+							setPartName("Samples (Client)");
 							parent.layout(true);
-							pageBook.showPage(plainComposite);
+							pageBook.showPage(rootComposite);
+//							pageBook.showPage(plainComposite);
 						}
 					}
 				}
