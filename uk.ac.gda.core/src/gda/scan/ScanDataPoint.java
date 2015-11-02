@@ -264,7 +264,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	}
 
 	/**
-	 * Call getPosition on the zero-input-extra-names scannable. The zie must return null. This hook is used by some
+	 * Call getPosition on the zero-input-extra-names scannable. The zie should return null. This hook is used by some
 	 * Scannables to perform a task in a scan but return nothing.
 	 *
 	 * @param zie
@@ -273,10 +273,15 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	static void handleZeroInputExtraNameDevice(Scannable zie) throws DeviceException {
 		Object zeroInputExtraNameDevicePosition = zie.getPosition();
 		if (zeroInputExtraNameDevicePosition != null) {
-			final String msg = String
-					.format(
-							"Scannable %s has no input or extra names defined. Its getPosition method should return null/None but returned: '%s'.",
-							zie.getName(), zeroInputExtraNameDevicePosition.toString());
+			if (zeroInputExtraNameDevicePosition instanceof Object[]) {
+				Object[] position = (Object[]) zeroInputExtraNameDevicePosition;
+				if (position.length == 0) {
+					return;
+				}
+			}
+			final String msg = String.format(
+					"Scannable %s has no input or extra names defined. Its getPosition method should return null/None but returned: '%s'.", zie.getName(),
+					zeroInputExtraNameDevicePosition.toString());
 			throw new DeviceException(msg);
 		}
 	}
