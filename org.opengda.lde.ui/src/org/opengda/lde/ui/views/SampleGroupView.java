@@ -340,6 +340,7 @@ public class SampleGroupView extends ViewPart implements IObserver {
 			column.setText(columnHeaders[i]);
 			column.setToolTipText(columnHeaders[i]);
 			column.setWidth(columnLayouts[i].minimumWidth);
+			column.setMoveable(true);
 		}
 	}
 	
