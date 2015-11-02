@@ -189,7 +189,7 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 			SampleTableConstants.SAMPLE_Y_START, SampleTableConstants.SAMPLE_Y_STOP, SampleTableConstants.SAMPLE_Y_STEP, 
 			SampleTableConstants.SAMPLE_EXPOSURE, SampleTableConstants.COMMAND, SampleTableConstants.COMMENT, SampleTableConstants.DATA_FILE,
 			SampleTableConstants.VISIT_ID, SampleTableConstants.CELL_ID, SampleTableConstants.CALIBRANT_NAME, 
-			SampleTableConstants.CALIBRANT_X, SampleTableConstants.CALIBRANT_Y, SampleTableConstants.CALIBRANT_EXPOSURE, 
+			SampleTableConstants.CALIBRANT_X, SampleTableConstants.CALIBRANT_Y, SampleTableConstants.CALIBRANT_EXPOSURE, SampleTableConstants.SPIN,
 			SampleTableConstants.ENV_SCANNABLE_NAMES, SampleTableConstants.EMAIL, SampleTableConstants.START_DATE, SampleTableConstants.END_DATE, 
 			SampleTableConstants.CALIBRATION_FILE, SampleTableConstants.STAGE_ID, SampleTableConstants.DETECTOR_X, SampleTableConstants.DETECTOR_Y, SampleTableConstants.DETECTOR_Z
 			};
@@ -199,7 +199,7 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 			new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true),	
 			new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 300, true), new ColumnWeightData(50, 300, true), new ColumnWeightData(50, 300, true),
 			new ColumnWeightData(40, 90, true), new ColumnWeightData(40, 55, true), new ColumnWeightData(40, 110, true), 
-			new ColumnWeightData(40, 80, true), new ColumnWeightData(40, 80, true), new ColumnWeightData(40, 80, true),
+			new ColumnWeightData(40, 80, true), new ColumnWeightData(40, 80, true), new ColumnWeightData(40, 80, true), new ColumnWeightData(40, 80, true),
 			new ColumnWeightData(40, 90, true), new ColumnWeightData(40, 200, true), new ColumnWeightData(50, 120, true), new ColumnWeightData(50, 120, true),
 			new ColumnWeightData(50, 300, true), new ColumnWeightData(40, 55, true), new ColumnWeightData(40, 80, true), new ColumnWeightData(40, 80, true), new ColumnWeightData(40, 80, true) 
 			};

@@ -107,6 +107,8 @@ public class SampleGroupViewLabelProvider extends LabelProvider implements
 				return String.valueOf(sample.getCell().getCalibrant_y());
 			case SampleTableConstants.COL_CALIBRANT_EXPOSURE:
 				return String.valueOf(sample.getCell().getCalibrant_exposure());
+			case SampleTableConstants.COL_SPIN:
+				return sample.getCell().isSpin() ? "true" : "false";
 			case SampleTableConstants.COL_ENV_SCANNABLE_NAMES:
 				return Joiner.on(",").join(sample.getCell().getEnvScannableNames());
 			case SampleTableConstants.COL_EMAIL:

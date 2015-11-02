@@ -22,7 +22,8 @@ public interface SampleTableConstants {
 	static final int COL_CALIBRANT_X= COL_CALIBRANT_NAME + 1;
 	static final int COL_CALIBRANT_Y= COL_CALIBRANT_X + 1;
 	static final int COL_CALIBRANT_EXPOSURE= COL_CALIBRANT_Y + 1;
-	static final int COL_ENV_SCANNABLE_NAMES= COL_CALIBRANT_EXPOSURE + 1;
+	static final int COL_SPIN = COL_CALIBRANT_EXPOSURE + 1;
+	static final int COL_ENV_SCANNABLE_NAMES= COL_SPIN + 1;
 	static final int COL_EMAIL = COL_ENV_SCANNABLE_NAMES + 1;
 	static final int COL_START_DATE = COL_EMAIL + 1;
 	static final int COL_END_DATE = COL_START_DATE + 1;
@@ -61,4 +62,5 @@ public interface SampleTableConstants {
 	static final String DETECTOR_X= "Detector\n X";
 	static final String DETECTOR_Y= "Detector\n Y";
 	static final String DETECTOR_Z= "Detector\nZ relative";
+	static final String SPIN = "Spin";
 }
