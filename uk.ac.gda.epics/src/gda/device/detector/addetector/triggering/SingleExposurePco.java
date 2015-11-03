@@ -23,6 +23,7 @@ import gda.device.detector.areadetector.v17.ADDriverPco;
 import gda.device.detector.areadetector.v17.ADDriverPco.PcoTriggerMode;
 import gda.scan.ScanInformation;
 import gda.util.LiveModeUtil;
+import org.slf4j.LoggerFactory;
 
 public class SingleExposurePco extends SingleExposureStandard {
 
@@ -40,12 +41,20 @@ public class SingleExposurePco extends SingleExposureStandard {
 		if (LiveModeUtil.isLiveMode()) {
 			adDriverPco.getArmModePV().putWait(true);
 		}
+		else {
+			LoggerFactory.getLogger("SingleExposurePco:"+this.getName()).info("prepareForCollection: Not live, but Arming anyway!");
+			adDriverPco.getArmModePV().putWait(true);
+		}
 	}
 
 	@Override
 	public void completeCollection() throws Exception {
 		super.completeCollection();
 		if (LiveModeUtil.isLiveMode()) {
+			adDriverPco.getArmModePV().putWait(false);
+		}
+		else {
+			LoggerFactory.getLogger("SingleExposurePco:"+this.getName()).info("completeCollection: Not live, but Disarming anyway!");
 			adDriverPco.getArmModePV().putWait(false);
 		}
 	}
