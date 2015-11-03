@@ -469,7 +469,7 @@ public class LDEExperimentsValidator extends EObjectValidator {
 		// -> specify the condition that violates the constraint
 		// -> verify the diagnostic details, including severity, code, and message
 		// Ensure that you remove @generated or mark it @generated NOT
-		if (!cell.getCellID().split("-")[0].equals(cell.getStage().getStageID())) {
+		if (cell.getCellID()!=null && !cell.getCellID().split("-")[0].equals(cell.getStage().getStageID())) {
 			if (diagnostics != null) {
 				diagnostics.add
 					(createDiagnostic
