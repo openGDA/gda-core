@@ -57,6 +57,7 @@ import org.opengda.lde.events.NewDataFileEvent;
 import org.opengda.lde.events.ProcessMessage;
 import org.opengda.lde.events.SampleProcessingEvent;
 import org.opengda.lde.events.StageChangedEvent;
+import org.opengda.lde.model.ldeexperiment.Cell;
 import org.opengda.lde.model.ldeexperiment.Experiment;
 import org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage;
 import org.opengda.lde.model.ldeexperiment.STATUS;
@@ -125,6 +126,9 @@ public class DataCollectionStatus extends ViewPart implements IEditingDomainProv
 	protected AdapterFactoryEditingDomain editingDomain;
 	protected ComposedAdapterFactory adapterFactory;
 	protected Viewer currentViewer;
+	private List<Cell> cells;
+	private int numberOfCalibrations;
+	private int totalNumberOfCollections;
 
 	public DataCollectionStatus() {
 		setTitleToolTip("Display data collection processing status on GDA server.");
@@ -162,7 +166,7 @@ public class DataCollectionStatus extends ViewPart implements IEditingDomainProv
 			}
 		});
 		section1.setText("Experiment Setup");
-		section1.setDescription("Summary information on the samples to be processed on the server.");
+		section1.setDescription("Dispaly summary information on samples being processed on the server after start.");
 		
 		Composite section1Client=toolkit.createComposite(section1);
 		section1Client.setLayout(new GridLayout(4,false));
@@ -212,7 +216,7 @@ public class DataCollectionStatus extends ViewPart implements IEditingDomainProv
 		gd=new GridData();
 		gd.horizontalSpan=1;
 		label.setLayoutData(gd);
-		txtDataFilePath=toolkit.createText(sectionClient,"Current data file path", SWT.READ_ONLY|SWT.WRAP);
+		txtDataFilePath=toolkit.createText(sectionClient,"Display data file name is currently collecting", SWT.READ_ONLY|SWT.WRAP);
 		gd=new GridData(GridData.FILL_HORIZONTAL);
 		gd.horizontalSpan=3;
 		gd.grabExcessHorizontalSpace=true;
@@ -235,14 +239,14 @@ public class DataCollectionStatus extends ViewPart implements IEditingDomainProv
 		gd=new GridData();
 		gd.horizontalSpan=1;
 		label.setLayoutData(gd);		
-		txtProgressMessage = toolkit.createText(sectionClient,"display progress messages here.", SWT.READ_ONLY|SWT.WRAP);
+		txtProgressMessage = toolkit.createText(sectionClient,"Display server data collection progress messages here.", SWT.READ_ONLY|SWT.WRAP);
 		gd=new GridData(GridData.FILL_HORIZONTAL);
 		gd.horizontalSpan=3;
 		gd.grabExcessHorizontalSpace=true;
 		txtProgressMessage.setLayoutData(gd);
 		
 		label=toolkit.createLabel(sectionClient,"Current Scan Number: ");
-		txtScanNumber = toolkit.createText(sectionClient,"display current scan number", SWT.READ_ONLY);
+		txtScanNumber = toolkit.createText(sectionClient,"Display current scan number", SWT.READ_ONLY);
 		txtScanNumber.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
 		label=toolkit.createLabel(sectionClient,"Current Scan Point: ");
@@ -250,15 +254,15 @@ public class DataCollectionStatus extends ViewPart implements IEditingDomainProv
 		txtScanPointNumber.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
 		label=toolkit.createLabel(sectionClient,"Current Sample: ");
-		txtSamplename = toolkit.createText(sectionClient,"display current sample name", SWT.READ_ONLY);
+		txtSamplename = toolkit.createText(sectionClient,"Display current sample name", SWT.READ_ONLY);
 		txtSamplename.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		
 		label=toolkit.createLabel(sectionClient,"Current Cell: ");
-		txtCellname =  toolkit.createText(sectionClient,"display current cell name", SWT.READ_ONLY);
+		txtCellname =  toolkit.createText(sectionClient,"Display current cell name", SWT.READ_ONLY);
 		txtCellname.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		
 		label=toolkit.createLabel(sectionClient,"Current Stage: ");
-		txtStagename = toolkit.createText(sectionClient,"display current stage name", SWT.READ_ONLY);
+		txtStagename = toolkit.createText(sectionClient,"Display current stage name", SWT.READ_ONLY);
 		txtStagename.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		
 		label=toolkit.createLabel(sectionClient,"Current Collection: ");
@@ -290,6 +294,7 @@ public class DataCollectionStatus extends ViewPart implements IEditingDomainProv
 		if (getResUtil() != null) {
 			try {
 				samples=getResUtil().getSamples();
+				cells=getResUtil().getCells();
 			} catch (Exception e) {
 				logger.error("Cannot get sample list from resource.", e);
 			}
@@ -309,6 +314,8 @@ public class DataCollectionStatus extends ViewPart implements IEditingDomainProv
 		}
 		
 		updateNumberActiveSamples();
+		updateNumberOfCalibrations();
+		updateTotalNumberOfCollections();
 		
 		if (getEventAdminName()!=null) {
 			eventAdmin = Finder.getInstance().find(getEventAdminName());
@@ -329,6 +336,7 @@ public class DataCollectionStatus extends ViewPart implements IEditingDomainProv
 		}
 	}
 	
+
 	@Override
 	public void update(Object source, Object arg) {
 		if (source==eventAdmin) {
@@ -438,8 +446,8 @@ public class DataCollectionStatus extends ViewPart implements IEditingDomainProv
 		}
 	}
 	
-	private void updateCollectionNumber(int currentSampleNumber,int totalNumberActiveSamples) {
-		txtCollectionNumber.setText(String.valueOf(currentSampleNumber) + '/'+ String.valueOf(totalNumberActiveSamples));
+	private void updateCollectionNumber(int currentCollectionNumber,int totalNumberOfCollections) {
+		txtCollectionNumber.setText(String.valueOf(currentCollectionNumber) + '/'+ String.valueOf(totalNumberOfCollections));
 	}
 
 	private void updateScanPointNumber(long currentPointNumber,long totalNumberOfPoints) {
@@ -468,6 +476,30 @@ public class DataCollectionStatus extends ViewPart implements IEditingDomainProv
 		txtActivesamples.setText(String.format("%d", numActives));
 		this.numActiveSamples=numActives;
 	}
+	
+	private void updateNumberOfCalibrations() {
+		int numCalibrations=0;
+		for (Cell cell : cells) {
+			if (containActiveSamples(cell)) {
+				numCalibrations++;
+			}
+			txtNumberCalibrations.setText(String.format("%d", numCalibrations));
+			this.numberOfCalibrations=numCalibrations;
+		}
+	}
+	private void updateTotalNumberOfCollections() {
+		totalNumberOfCollections = this.numActiveSamples+this.numberOfCalibrations;
+		txtTotalNumberCollections.setText(String.format("%d", totalNumberOfCollections));
+	}
+	private boolean containActiveSamples(Cell cell) {
+		for (Sample sample : cell.getSample()) {
+			if (sample.isActive()) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	/**
 	 * send email to registered user email accounts.
 	 * @param sample
@@ -545,7 +577,7 @@ public class DataCollectionStatus extends ViewPart implements IEditingDomainProv
 					IFile file = (IFile) activeEditor.getEditorInput().getAdapter(IFile.class);
 					if (file==null) throw new FileNotFoundException();
 
-					String filename = file.getRawLocation().toOSString();
+					final String filename = file.getRawLocation().toOSString();
 					// must ensure the data model is valid before starting server data collection
 					EList<EObject> contents = resUtil.getResource(filename).getContents();
 					for (EObject eobject : contents){
@@ -560,7 +592,19 @@ public class DataCollectionStatus extends ViewPart implements IEditingDomainProv
 						} else {
 							//kick start server data collection process
 							InterfaceProvider.getCommandRunner().runCommand("datacollection.collectData("+filename+")");
-							//display the server samples configuration in Samples view.
+							//update experiment setup info in Data collection status view
+							Display.getDefault().asyncExec(new Runnable() {
+								
+								@Override
+								public void run() {
+									txtSamplesfile.setText(filename);
+									updateNumberActiveSamples();
+									updateNumberOfCalibrations();
+									updateTotalNumberOfCollections();
+								}
+							});
+							
+							//update Samples view to display the new sample configuration to to the server.
 							IViewPart showView = getSite().getWorkbenchWindow().getActivePage().showView(SampleGroupView.ID);
 							if (showView instanceof SampleGroupView) {
 								((SampleGroupView)showView).refreshTable(filename);
