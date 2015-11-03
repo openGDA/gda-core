@@ -253,23 +253,39 @@ public class QbpmImpl extends CorbaQbpmPOA {
 	}
 
 	@Override
-	public double getCurrent1() {
-		return qbpm.getCurrent1();
+	public double getCurrent1() throws CorbaDeviceException {
+		try {
+			return qbpm.getCurrent1();
+		} catch (DeviceException e) {
+			throw new CorbaDeviceException(e.getMessage());
+		}
 	}
 
 	@Override
-	public double getCurrent2() {
-		return qbpm.getCurrent2();
+	public double getCurrent2() throws CorbaDeviceException {
+		try {
+			return qbpm.getCurrent2();
+		} catch (DeviceException e) {
+			throw new CorbaDeviceException(e.getMessage());
+		}
 	}
 
 	@Override
-	public double getCurrent3() {
-		return qbpm.getCurrent3();
+	public double getCurrent3() throws CorbaDeviceException {
+		try {
+			return qbpm.getCurrent3();
+		} catch (DeviceException e) {
+			throw new CorbaDeviceException(e.getMessage());
+		}
 	}
 
 	@Override
-	public double getCurrent4() {
-		return qbpm.getCurrent4();
+	public double getCurrent4() throws CorbaDeviceException {
+		try {
+			return qbpm.getCurrent4();
+		} catch (DeviceException e) {
+			throw new CorbaDeviceException(e.getMessage());
+		}
 	}
 
 	@Override
@@ -282,18 +298,30 @@ public class QbpmImpl extends CorbaQbpmPOA {
 	}
 
 	@Override
-	public double getIntensityTotal() {
-		return qbpm.getIntensityTotal();
+	public double getIntensityTotal() throws CorbaDeviceException {
+		try {
+			return qbpm.getIntensityTotal();
+		} catch (DeviceException e) {
+			throw new CorbaDeviceException(e.getMessage());
+		}
 	}
 
 	@Override
-	public double getXPosition() {
-		return qbpm.getXPosition();
+	public double getXPosition() throws CorbaDeviceException {
+		try {
+			return qbpm.getXPosition();
+		} catch (DeviceException e) {
+			throw new CorbaDeviceException(e.getMessage());
+		}
 	}
 
 	@Override
-	public double getYPosition() {
-		return qbpm.getYPosition();
+	public double getYPosition() throws CorbaDeviceException {
+		try {
+			return qbpm.getYPosition();
+		} catch (DeviceException e) {
+			throw new CorbaDeviceException(e.getMessage());
+		}
 	}
 
 	@Override

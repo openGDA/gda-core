@@ -349,7 +349,8 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 
 	@Override
 	public boolean willRequireCallbacks() {
-		return isEnabled(); // always requires callbacks if enabled
+		return ndFile.getPluginBase() != null && isEnabled(); // always requires callbacks if enabled
+		// Note: camserver filewriter has no base so cannot require callbacks
 	}
 
 	@Override

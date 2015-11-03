@@ -51,7 +51,7 @@ import uk.ac.gda.epics.client.ImageConstants;
  * values from EPICS.
  */
 public class StatusView extends ViewPart implements InitializingBean {
-
+	public static final String ID="uk.ac.gda.epics.client.views.StatusView";
 	private static final String FF_M_JPEG = "FfMJpeg";
 
 	private static final String REFRESH_CONNECTION_TOOLTIP = "Refresh Connection";

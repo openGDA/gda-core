@@ -33,9 +33,12 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import gda.factory.Findable;
 
 import org.springframework.beans.factory.InitializingBean;
+
+import com.google.common.base.Preconditions;
 
 public class ZebraImpl implements Zebra, Findable, InitializingBean {
 
@@ -462,6 +465,15 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 		dev.getIntegerPVValueCache(PCArmInput).putWait(input);
 
 	}	
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	public void encCopyMotorPosToZebra(int posNum) throws Exception {
+		Preconditions.checkArgument(1 <= posNum && posNum <= 4, "posNum must be between 1 and 4 inclusive");
+		final String pvSuffix = String.format("M%d:SETPOS.PROC", posNum);
+		final PV<Integer> pv = dev.getPVInteger(pvSuffix);
+		pv.putWait(1);
+	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

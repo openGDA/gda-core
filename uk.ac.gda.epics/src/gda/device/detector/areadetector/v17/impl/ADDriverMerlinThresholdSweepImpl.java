@@ -28,13 +28,10 @@ import java.io.IOException;
 
 import org.springframework.beans.factory.InitializingBean;
 
-
-
-
-
 public class ADDriverMerlinThresholdSweepImpl implements ADDriverMerlinThresholdSweep, InitializingBean {
 
 	private String basePVName;
+	private boolean useTriggerModeNotStartThresholdScanning;
 	
 	private PV<Double> thresholdScanPVPair;
 	private PV<Double> startThresholdScanPVPair;
@@ -77,8 +74,9 @@ public class ADDriverMerlinThresholdSweepImpl implements ADDriverMerlinThreshold
 				LazyPVFactory.newDoublePV(basePVName +"StepThresholdScan"),
 				LazyPVFactory.newReadOnlyDoublePV(basePVName +"StepThresholdScan_RBV"));
 
-		startThresholdScanningPV = LazyPVFactory.newNoCallbackBooleanFromIntegerPV(basePVName +"StartThresholdScanning");
-
+		if (!isUseTriggerModeNotStartThresholdScanning()) {
+			startThresholdScanningPV = LazyPVFactory.newNoCallbackBooleanFromIntegerPV(basePVName +"StartThresholdScanning");
+		}
 	}
 
 	@Override
@@ -134,4 +132,12 @@ public class ADDriverMerlinThresholdSweepImpl implements ADDriverMerlinThreshold
 		return (int) Math.floor(distance / step) + 1;
 	}
 
+	@Override
+	public boolean isUseTriggerModeNotStartThresholdScanning() {
+		return useTriggerModeNotStartThresholdScanning;
+	}
+
+	public void setUseTriggerModeNotStartThresholdScanning(boolean useTriggerModeNotStartThresholdScanning) {
+		this.useTriggerModeNotStartThresholdScanning = useTriggerModeNotStartThresholdScanning;
+	}
 }

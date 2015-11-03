@@ -145,7 +145,7 @@ public class ADDriverPilatusImpl implements ADDriverPilatus, InitializingBean {
 				fullname("ThresholdEnergy_RBV") : getRoPvName(config.getThresholdEnergy_RBV()));
 
 		pvGain = LazyPVFactory.newEnumPV((config == null) ?
-				fullname("Gain") : getPvName(config.getGain()), Gain.class);
+				fullname("GainMenu") : getPvName(config.getGain()), Gain.class);
 
 		pvImageFileTmot = LazyPVFactory.newFloatPV((config == null) ?
 				fullname("ImageFileTmot") : getPvName(config.getImageFileTmot()));

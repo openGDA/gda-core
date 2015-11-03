@@ -22,7 +22,6 @@ import gda.device.DeviceException;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataDoubleAppender;
-import gda.device.detector.nxdetector.AsyncNXCollectionStrategy;
 import gda.scan.ScanInformation;
 
 import java.util.ArrayList;
@@ -30,9 +29,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 
-import org.springframework.beans.factory.InitializingBean;
-
-abstract public class AbstractADTriggeringStrategy implements AsyncNXCollectionStrategy, InitializingBean{
+abstract public class AbstractADTriggeringStrategy implements CollectionStrategyBeanInterface{
 
 	private final ADBase adBase;
 
@@ -43,6 +40,8 @@ abstract public class AbstractADTriggeringStrategy implements AsyncNXCollectionS
 	private boolean readAcquisitionPeriod = false;
 
 	private Boolean generateCallbacks = null;
+	
+	private String timeFormat = "%.2f"; 
 	
 	AbstractADTriggeringStrategy(ADBase adBase) {
 		this.adBase = adBase;
@@ -166,10 +165,10 @@ abstract public class AbstractADTriggeringStrategy implements AsyncNXCollectionS
 	public List<String> getInputStreamFormats() {
 		List<String> formats = new ArrayList<String>();
 		if (isReadAcquisitionTime()) {
-			formats.add("%.2f");
+			formats.add(getTimeFormat());
 		}
 		if (isReadAcquisitionPeriod()) {
-			formats.add("%.2f");
+			formats.add(getTimeFormat());
 		}
 		return formats;
 	}
@@ -198,6 +197,14 @@ abstract public class AbstractADTriggeringStrategy implements AsyncNXCollectionS
 	@Override
 	public boolean requiresAsynchronousPlugins() {
 		return false; //This is fine for software triggered cameras
+	}
+
+	public String getTimeFormat() {
+		return timeFormat;
+	}
+
+	public void setTimeFormat(String timeFormat) {
+		this.timeFormat = timeFormat;
 	}
 
 }

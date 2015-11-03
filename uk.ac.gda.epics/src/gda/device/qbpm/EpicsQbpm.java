@@ -130,22 +130,22 @@ public class EpicsQbpm extends EnumPositionerBase implements Monitor, Initializa
 	}
 
 	@Override
-	public double getCurrent1() {
+	public double getCurrent1() throws DeviceException {
 		return this.currAmpController.getCurrent1();
 	}
 
 	@Override
-	public double getCurrent2() {
+	public double getCurrent2() throws DeviceException {
 		return this.currAmpController.getCurrent2();
 	}
 
 	@Override
-	public double getCurrent3() {
+	public double getCurrent3() throws DeviceException {
 		return this.currAmpController.getCurrent3();
 	}
 
 	@Override
-	public double getCurrent4() {
+	public double getCurrent4() throws DeviceException {
 		return this.currAmpController.getCurrent4();
 	}
 
@@ -155,17 +155,17 @@ public class EpicsQbpm extends EnumPositionerBase implements Monitor, Initializa
 	}
 
 	@Override
-	public double getIntensityTotal() {
+	public double getIntensityTotal() throws DeviceException {
 		return this.bpmController.getIntensityTotal();
 	}
 
 	@Override
-	public double getXPosition() {
+	public double getXPosition() throws DeviceException {
 		return this.bpmController.getXPosition();
 	}
 
 	@Override
-	public double getYPosition() {
+	public double getYPosition() throws DeviceException {
 		return this.bpmController.getYPosition();
 	}
 

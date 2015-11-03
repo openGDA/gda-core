@@ -192,7 +192,7 @@ public class EpicsTrajectoryMoveControllerAdapter extends DeviceBase implements 
 			// We have broken encapsulation early on with this design. As a repercussion we should make sure
 			// that an offset is not applied twice when moving to the start. TODO: Fix encapsulation issue.
 			if (scannableForMovingGroupToStart instanceof ScannableGroup) {
-				ArrayList<Scannable> groupMembers = ((ScannableGroup) scannableForMovingGroupToStart).getGroupMembers();
+				List<Scannable> groupMembers = ((ScannableGroup) scannableForMovingGroupToStart).getGroupMembers();
 				for (Scannable member : groupMembers) {
 					if (member instanceof ScannableMotion) {
 						Double[] offset = ((ScannableMotion) member).getOffset();

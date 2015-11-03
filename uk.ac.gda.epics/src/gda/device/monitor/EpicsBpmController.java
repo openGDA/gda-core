@@ -24,12 +24,16 @@ import gda.device.DeviceException;
 import gda.device.Monitor;
 import gda.device.scannable.ScannableBase;
 import gda.epics.connection.EpicsChannelManager;
-import gda.epics.connection.EpicsController.MonitorType;
+import gda.epics.connection.EpicsController;
 import gda.epics.connection.InitializationListener;
 import gda.epics.interfaces.BpmType;
 import gda.factory.FactoryException;
+import gov.aps.jca.CAException;
+import gov.aps.jca.Channel;
+import gov.aps.jca.TimeoutException;
 import gov.aps.jca.dbr.DBR;
-import gov.aps.jca.dbr.DBR_CTRL_Double;
+import gov.aps.jca.dbr.DBRType;
+import gov.aps.jca.dbr.DBR_Double;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 
@@ -51,11 +55,15 @@ public class EpicsBpmController extends ScannableBase implements Monitor, Initia
 
 //	private String[] inputNames = { "intensityTotal", "xPosition", "yPosition" };
 
-	private IntensityMonitorListener intensityMonitor;
+	private IntensityMonitorListener intensityMonitorListener;
 
-	private XPosMonitorListener xPosMonitor;
+	private XPosMonitorListener xPosMonitorListener;
 
-	private YPosMonitorListener yPosMonitor;
+	private YPosMonitorListener yPosMonitorListener;
+	private boolean poll=false;
+	private gov.aps.jca.Monitor iMonitor;
+	private gov.aps.jca.Monitor xMonitor;
+	private gov.aps.jca.Monitor yMonitor;
 
 	/**
 	 * GDA device Name
@@ -63,19 +71,26 @@ public class EpicsBpmController extends ScannableBase implements Monitor, Initia
 	private String deviceName = null;
 
 	private EpicsChannelManager channelManager;
+	private EpicsController controller;
+
+	private Channel intensityCh;
+
+	private Channel xPosCh;
+
+	private Channel yPosCh;
 
 	/**
 	 * Constructor
 	 */
 	public EpicsBpmController() {
 		channelManager = new EpicsChannelManager(this);
-		intensityMonitor = new IntensityMonitorListener();
-		xPosMonitor = new XPosMonitorListener();
-		yPosMonitor = new YPosMonitorListener();
+		controller=EpicsController.getInstance();
+		intensityMonitorListener = new IntensityMonitorListener();
+		xPosMonitorListener = new XPosMonitorListener();
+		yPosMonitorListener = new YPosMonitorListener();
 		
 		setInputNames(new String[0]);
 		setExtraNames(new String[]{ "intensityTotal", "xPosition", "yPosition" });
-//		this.setOutputFormat(names);
 
 		outputFormat = new String[inputNames.length + extraNames.length];
 		
@@ -83,7 +98,6 @@ public class EpicsBpmController extends ScannableBase implements Monitor, Initia
 			outputFormat[i] = "%4.10f";
 		}
 		setOutputFormat(outputFormat);
-		//completeInstantiation();
 	}
 
 	@Override
@@ -126,9 +140,9 @@ public class EpicsBpmController extends ScannableBase implements Monitor, Initia
 
 	private void createChannelAccess(String intensityRec, String xPosRec, String yPosRec) throws FactoryException {
 		try {
-			channelManager.createChannel(intensityRec, intensityMonitor, MonitorType.CTRL, false);
-			channelManager.createChannel(xPosRec, xPosMonitor, MonitorType.CTRL, false);
-			channelManager.createChannel(yPosRec, yPosMonitor, MonitorType.CTRL, false);
+			intensityCh = channelManager.createChannel(intensityRec, false);
+			xPosCh = channelManager.createChannel(xPosRec, false);
+			yPosCh = channelManager.createChannel(yPosRec, false);
 			channelManager.creationPhaseCompleted();
 		} catch (Throwable th) {
 			// TODO take care of destruction
@@ -171,8 +185,55 @@ public class EpicsBpmController extends ScannableBase implements Monitor, Initia
 
 	@Override
 	public void initializationCompleted() {
-		// TODO Auto-generated method stub
+		if (isPoll()) {
+			disablePoll();
+		} else {
+			enablePoll();
+		}
+		logger.info("{} initialisation completed", getName());
+	}
+	public void disablePoll() {
+		setPoll(false);
+		if (intensityCh != null && intensityMonitorListener != null) {
+			try {
+				iMonitor = intensityCh.addMonitor(DBRType.DOUBLE, 0, gov.aps.jca.Monitor.VALUE, intensityMonitorListener);
+			} catch (IllegalStateException e) {
+				logger.error("Fail to add monitor to channel " + intensityCh.getName(), e);
+			} catch (CAException e) {
+				logger.error("Fail to add monitor to channel " + intensityCh.getName(), e);
+			}
+		}
+		if (xPosCh != null && xPosMonitorListener != null) {
+			try {
+				xMonitor = xPosCh.addMonitor(DBRType.DOUBLE, 0, gov.aps.jca.Monitor.VALUE, xPosMonitorListener);
+			} catch (IllegalStateException e) {
+				logger.error("Fail to add monitor to channel " + xPosCh.getName(), e);
+			} catch (CAException e) {
+				logger.error("Fail to add monitor to channel " + xPosCh.getName(), e);
+			}
+		}
+		if (yPosCh != null && yPosMonitorListener != null) {
+			try {
+				yMonitor = yPosCh.addMonitor(DBRType.DOUBLE, 0, gov.aps.jca.Monitor.VALUE, yPosMonitorListener);
+			} catch (IllegalStateException e) {
+				logger.error("Fail to add monitor to channel " + yPosCh.getName(), e);
+			} catch (CAException e) {
+				logger.error("Fail to add monitor to channel " + yPosCh.getName(), e);
+			}
+		}
+	}
 
+	public void enablePoll() {
+		setPoll(true);
+		if (iMonitor != null && intensityMonitorListener != null) {
+			iMonitor.removeMonitorListener(intensityMonitorListener);
+		}
+		if (xMonitor != null && xPosMonitorListener != null) {
+			xMonitor.removeMonitorListener(xPosMonitorListener);
+		}
+		if (yMonitor != null && yPosMonitorListener != null) {
+			yMonitor.removeMonitorListener(yPosMonitorListener);
+		}
 	}
 
 	private class IntensityMonitorListener implements MonitorListener {
@@ -180,13 +241,12 @@ public class EpicsBpmController extends ScannableBase implements Monitor, Initia
 		public void monitorChanged(MonitorEvent mev) {
 			DBR dbr = mev.getDBR();
 			if (dbr.isDOUBLE()) {
-				intensityTotal = ((DBR_CTRL_Double) dbr).getDoubleValue()[0];
+				intensityTotal = ((DBR_Double) dbr).getDoubleValue()[0];
 				notifyIObservers(this, intensityTotal);
 			} else {
 				logger.error("Error: .RBV should return DOUBLE type value.");
 			}
 		}
-
 	}
 
 	private class XPosMonitorListener implements MonitorListener {
@@ -194,7 +254,7 @@ public class EpicsBpmController extends ScannableBase implements Monitor, Initia
 		public void monitorChanged(MonitorEvent mev) {
 			DBR dbr = mev.getDBR();
 			if (dbr.isDOUBLE()) {
-				xPosition = ((DBR_CTRL_Double) dbr).getDoubleValue()[0];
+				xPosition = ((DBR_Double) dbr).getDoubleValue()[0];
 				notifyIObservers(this, xPosition);
 			} else {
 				logger.error("Error: .RBV should return DOUBLE type value.");
@@ -207,7 +267,7 @@ public class EpicsBpmController extends ScannableBase implements Monitor, Initia
 		public void monitorChanged(MonitorEvent mev) {
 			DBR dbr = mev.getDBR();
 			if (dbr.isDOUBLE()) {
-				yPosition = ((DBR_CTRL_Double) dbr).getDoubleValue()[0];
+				yPosition = ((DBR_Double) dbr).getDoubleValue()[0];
 				notifyIObservers(this, yPosition);
 			} else {
 				logger.error("Error: .RBV should return DOUBLE type value.");
@@ -217,23 +277,76 @@ public class EpicsBpmController extends ScannableBase implements Monitor, Initia
 
 	/**
 	 * @return intensity total
+	 * @throws DeviceException 
 	 */
-	public double getIntensityTotal() {
+	public double getIntensityTotal() throws DeviceException {
+		if (isPoll()) {
+			try {
+				return controller.cagetDouble(intensityCh);
+			} catch (TimeoutException e) {
+				logger.error("Timeout Exception on get intensity from" + intensityCh.getName(), e);
+				throw new DeviceException("Timeout Exception on get intensity from" + intensityCh.getName(), e);
+			} catch (CAException e) {
+				logger.error("CAException on get intensity from" + intensityCh.getName(), e);
+				throw new DeviceException("CAException on get intensity from" + intensityCh.getName(), e);
+			} catch (InterruptedException e) {
+				logger.error("Interrupted Exception on get intensity from" + intensityCh.getName(), e);
+				throw new DeviceException("Interrupted Exception on get intensity from" + intensityCh.getName(), e);
+			}
+		}
 		return this.intensityTotal;
 	}
 
 	/**
 	 * @return x position
+	 * @throws DeviceException 
 	 */
-	public double getXPosition() {
+	public double getXPosition() throws DeviceException {
+		if (isPoll()) {
+			try {
+				return controller.cagetDouble(xPosCh);
+			} catch (TimeoutException e) {
+				logger.error("Timeout Exception on get intensity from" + xPosCh.getName(), e);
+				throw new DeviceException("Timeout Exception on get intensity from" + xPosCh.getName(), e);
+			} catch (CAException e) {
+				logger.error("CAException on get intensity from" + xPosCh.getName(), e);
+				throw new DeviceException("CAException on get intensity from" + xPosCh.getName(), e);
+			} catch (InterruptedException e) {
+				logger.error("Interrupted Exception on get intensity from" + xPosCh.getName(), e);
+				throw new DeviceException("Interrupted Exception on get intensity from" + xPosCh.getName(), e);
+			}
+		}
 		return this.xPosition;
 	}
 
 	/**
 	 * @return y position
+	 * @throws DeviceException 
 	 */
-	public double getYPosition() {
+	public double getYPosition() throws  DeviceException {
+		if (isPoll()) {
+			try {
+				return controller.cagetDouble(yPosCh);
+			} catch (TimeoutException e) {
+				logger.error("Timeout Exception on get intensity from" + yPosCh.getName(), e);
+				throw new DeviceException("Timeout Exception on get intensity from" + yPosCh.getName(), e);
+			} catch (CAException e) {
+				logger.error("CAException on get intensity from" + yPosCh.getName(), e);
+				throw new DeviceException("CAException on get intensity from" + yPosCh.getName(), e);
+			} catch (InterruptedException e) {
+				logger.error("Interrupted Exception on get intensity from" + yPosCh.getName(), e);
+				throw new DeviceException("Interrupted Exception on get intensity from" + yPosCh.getName(), e);
+			}
+		}
 		return this.yPosition;
+	}
+
+	public boolean isPoll() {
+		return poll;
+	}
+
+	public void setPoll(boolean poll) {
+		this.poll = poll;
 	}
 
 }

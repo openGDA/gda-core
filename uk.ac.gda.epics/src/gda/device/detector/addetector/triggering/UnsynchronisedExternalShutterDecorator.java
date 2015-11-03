@@ -18,21 +18,21 @@
 
 package gda.device.detector.addetector.triggering;
 
-import gda.device.detector.areadetector.v17.ADBase;
+import javax.swing.text.html.HTMLDocument.HTMLReader.IsindexAction;
 
-@Deprecated // Decorate SingleExposureStandard with UnsynchronisedExternalShutterDecorator
-public final class SingleExposureUnsynchronisedExternalShutter extends SingleExposureStandard
+import gda.device.detector.areadetector.v17.ADBase;
+import gda.scan.ScanInformation;
+
+public final class UnsynchronisedExternalShutterDecorator extends AbstractCollectionStrategyDecorator
 		implements UnsynchronisedExternalShutterNXCollectionStrategy {
 
 	private double collectionExtensionTimeS = 5.0;
 
-	public SingleExposureUnsynchronisedExternalShutter(ADBase adBase, double readoutTimeS, double collectionExtensionTimeS) {
-		super(adBase, readoutTimeS);
-		this.collectionExtensionTimeS = collectionExtensionTimeS;
+	public UnsynchronisedExternalShutterDecorator() {
 	}
 
 	/**
-	 * Override SingleExposureStandard in order to silently extend detector acquisition time.
+	 * Override decorated class in order to silently extend detector acquisition time.
 	 * 
 	 * On beamlines where an external shutter is used to control the length of an exposure and the trigger/gate for the shutter
 	 * is not also sent to the detector, the acquisition must enclose the shutter acquisition time. Thus the actual acquisition
@@ -46,24 +46,28 @@ public final class SingleExposureUnsynchronisedExternalShutter extends SingleExp
 	 */
 
 	@Override
-	public void configureAcquireAndPeriodTimes(double collectionTime) throws Exception {
-		if (getReadoutTime() < 0) {
-			getAdBase().setAcquirePeriod(0.0);
-		} else {
-			getAdBase().setAcquirePeriod(collectionTime + getReadoutTime() + collectionExtensionTimeS);
-		}
-		getAdBase().setAcquireTime(collectionTime + collectionExtensionTimeS);
+	public void prepareForCollection(double collectionTime, int numImagesIgnored, ScanInformation scanInfo) throws Exception {
+		getDecoratee().prepareForCollection(collectionTime + collectionExtensionTimeS, numImagesIgnored, scanInfo);
 	}
 
 	@Override
 	public double getAcquireTime() throws Exception {
-		return getAdBase().getAcquireTime_RBV() - collectionExtensionTimeS;
+		return getDecoratee().getAcquireTime() - collectionExtensionTimeS;
 	}
 
 	@Override
 	public double getAcquirePeriod() throws Exception {
-		double acquirePeriod_RBV = getAdBase().getAcquirePeriod_RBV();
-		if (getReadoutTime() > 0) acquirePeriod_RBV -= collectionExtensionTimeS;
+		// TODO: Note there ware some differences between SingleExposureUnsynchronisedExternalShutter and
+		//       MultipleExposureSoftwareTriggerAutoModeUnsynchronisedExternalShutter which suggest that this may
+		//       require more testing an experimentation to get right.
+		double acquirePeriod_RBV = super.getAcquirePeriod();
+		CollectionStrategyBeanInterface decoratee = getDecoratee();
+		if (decoratee instanceof AbstractADTriggeringStrategy) {
+			//AbstractADTriggeringStrategy a = (AbstractADTriggeringStrategy) decoratee;
+			if (((AbstractADTriggeringStrategy)decoratee).getReadoutTime() > 0) {
+				acquirePeriod_RBV -= collectionExtensionTimeS;
+			}
+		}
 		return acquirePeriod_RBV; 
 	}
 

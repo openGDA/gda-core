@@ -41,14 +41,14 @@ servocycle = 0.00005
 
 
 class RasterGenerator():
-    def __init__(self, rate, xmin, xmax, ymin, ymax, rows=-1, cols=-1):
-        rate = float(rate)
-        xmin = float(xmin)
-        xmax = float(xmax)
-        ymin = float(ymin)
-        ymax = float(ymax)
-        rows = int(rows)
-        cols = int(cols)
+    def __init__(self, _rate, _xmin, _xmax, _ymin, _ymax, _rows=-1, _cols=-1):
+        rate = float(_rate)
+        xmin = float(_xmin)
+        xmax = float(_xmax)
+        ymin = float(_ymin)
+        ymax = float(_ymax)
+        rows = int(_rows)
+        cols = int(_cols)
         # note cols and rows are inclusive of 1st point
         if cols == -1:
             cols = xmax - xmin + 1
@@ -56,7 +56,7 @@ class RasterGenerator():
             rows = ymax - ymin + 1
 
         #verify the parameters
-        if rate > 50:
+        if rate > 100:
             raise(Exception("Error: rate too high. Motor lag approaches .5"
                             " microns over 20Hz"))
         if xmax < xmin or \
@@ -80,26 +80,31 @@ class RasterGenerator():
         # so this deserves further investigation
         self.points = wavepoints
 
-        # calculated values for wave table generation
-        # step size in motor micrometers
-        self.xstepSize = (self.xmax - self.xmin + 1) / float(self.cols)
-        self.ystepSize = (self.ymax - self.ymin + 1) / float(self.rows)
-
-        self.eguToPts = self.points / (xmax - xmin + 1)
-        self.waveTableRate = ((xmax - xmin + 1) / self.rate / 
-                              servocycle / self.points)
+        # calculate values for wave table generation
+        # step size in motor micrometers (note that there is one less interval
+        # than there is columns/rows so hence the - 1
+        self.xstepSize = (self.xmax - self.xmin) / ( float(self.cols) - 1)
+        self.ystepSize = (self.ymax - self.ymin) / ( float(self.rows) - 1)
 
         if self.xmin < self.xstepSize / 2.0 or \
             self.xmax > xsize - self.xstepSize / 2.0:
             raise(Exception("range of scan must leave space for 1/2 step each"
                             " side of the scan"))
         else:
-            # move the start and end points out by half a step to accommodate
+            # move the X start and end points out by half a step to accommodate
             # triggers which happen half step before reaching a point ---
             # acquisition is then assumed to continue to the next half
             # step point
             self.xmin -= self.xstepSize / 2.0
             self.xmax += self.xstepSize / 2.0
+
+
+        # eguTo pts is a conversion factor from microns to steps in the wavetable
+        self.eguToPts = self.points / (self.xmax - self.xmin)
+        # waveTableRate sets the no. of servocycles per step in the wavetable
+        # this controls the rate the wavetable is executed at
+        self.waveTableRate = ((self.xmax - self.xmin) / self.rate /
+                              servocycle / self.points)
 
     def add(self, command, cmdtype=cmdTypes.setup):
         if cmdtype is cmdTypes.setup:
@@ -139,8 +144,8 @@ class RasterGenerator():
         #    linear return to min over 0.1 * n points
         flybackPoints = self.points * .1
         flybackTime = flybackPoints * .9
-        # command format is
-        # WAV 1 X <SegLength> <Amplitude> <Offset> <WaveLength>
+        # command format is as follows (X = create new waveform, & = append)
+        # WAV <axis> X <SegLength> <Amplitude> <Offset> <WaveLength>
         #         <StartPoint> <SpeedUpDown>
         # the Offset is the start point and the amplitude the change in
         # relative position from that point over the life of the LIN waveform
@@ -185,9 +190,12 @@ class RasterGenerator():
             cmdr = "TWS "
             for col in range(10):  # @UnusedVariable
                 # note the +1 because the triggers table is indexed from 1
-                cmdr += "1 %4d 1 " % ((pos - start) * self.eguToPts + 1)
+                nextpos = ((pos - start) * self.eguToPts + 1)
+                cmdr += "1 %4d 1 " % nextpos
+                # DEBUG cmdr += "   %4d  %6.3f" % (nextpos, pos)
                 pos += self.xstepSize
-                if round(pos, 5) > stop:
+                if round(pos, 10) > stop:
+                    # DEBUG print "pos %f, rounded %f, stop %f, xstep %f" % (pos, round(pos, 10), stop, self.xstepSize )
                     break
             self.add(cmdr)
 
@@ -218,11 +226,12 @@ class RasterGenerator():
               self.stopCmd, timeout=1, datatype=DBR_CHAR_STR)
 
     def printCommands(self):
-        print 'Setup Commands ...'
         print ("parms: x1=%(xmin)f x2=%(xmax)f y1=%(ymin)f y2=%(ymax)f "
                "rows=%(rows)d cols=%(cols)d xstep=%(xstepSize)f "
                "ystep=%(ystepSize)f eguToPts=%(eguToPts)f"
                % self.__dict__)
+        print
+        print 'Setup Commands ...'
         print self.commands
         print
         print 'Start Commands ...'
@@ -293,3 +302,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+

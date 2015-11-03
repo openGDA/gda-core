@@ -41,23 +41,34 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/*
- * SingleImagePerFileWriter(ndFileSimulator, "detectorName", "%%s%d%%s-%%d-detname.tif",true,true);
+/**
+ * Write each image to a separate file.
+ * 
+ * Note that if using an NDFile with no PluginBase (one integrated into the camserver) then this class will not attempt to
+ * enable or disable callbacks and blocking callbacks.
+ * 
+ * Constructors:
+ * 
+ *   SingleImagePerFileWriter();
+ *   SingleImagePerFileWriter("detectorName");
  */
 public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin{
 
 	protected static final String FILEPATH_EXTRANAME = "filepath";
+	protected static final String DEFAULT_FILEWRITERNAME = "tifwriter";
 
 	private static Logger logger = LoggerFactory.getLogger(SingleImagePerFileWriter.class);
-
 
 	private String fileNameUsed = "";
 	private String filePathUsed = "";
 	private String fileTemplateUsed = "";
+	private String fileWriterName = DEFAULT_FILEWRITERNAME;
+
 	private long nextExpectedFileNumber = 0;
 	boolean blocking = true;  
 
 	private boolean returnPathRelativeToDatadir = false; // TODO: should really be enabled by default RobW
+	private boolean fullFileNameFromRBV = false;
 
 	private int SECONDS_BETWEEN_SLOW_FILE_ARRIVAL_MESSAGES = 10;
 
@@ -69,15 +80,25 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 
 	private boolean waitForFileArrival = true;
 
+	private boolean waitForFileArrivalInCompleteCollection = false;
+
 	private String keyNameForMetadataPathTemplate = "";
 
 	private FileWriteMode fileWriteMode = FileWriteMode.SINGLE;
+	
+	private boolean filePathInaccessibleFromServer = false;
+	
+	private String lastExpectedFullFilepath = null;
 
 	@Override
 	public String getName() {
-		return "tifwriter"; // TODO: Multiple filewriters require different names.
+		return fileWriterName;
 	}
-	
+
+	public void setName(String fileWriterName) {
+		this.fileWriterName = fileWriterName;
+	}
+
 	public String getFileWriteMode() {
 		return fileWriteMode.toString();
 	}
@@ -111,6 +132,14 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 
 	public boolean isWaitForFileArrival() {
 		return waitForFileArrival;
+	}
+
+	public boolean isWaitForFileArrivalInCompleteCollection() {
+		return waitForFileArrivalInCompleteCollection;
+	}
+
+	public void setWaitForFileArrivalInCompleteCollection(boolean waitForFileArrivalInCompleteCollection) {
+		this.waitForFileArrivalInCompleteCollection = waitForFileArrivalInCompleteCollection;
 	}
 
 	/**
@@ -169,10 +198,13 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 		if( alreadyPrepared)
 			return;
 		// Create filePath directory if required
-		File f = new File(getFilePath());
-		if (!f.exists()) {
-			if (!f.mkdirs())
-				throw new Exception("Folder does not exist and cannot be made:" + getFilePath());
+		
+		if (!isFilePathInaccessibleFromServer()) {
+			File f = new File(getFilePath());
+			if (!f.exists()) {
+				if (!f.mkdirs())
+					throw new Exception("Folder does not exist and cannot be made:" + getFilePath());
+			}
 		}
 
 		if (isSetFileNameAndNumber()) {
@@ -190,14 +222,16 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 		NDPluginBase pluginBase = getNdFile().getPluginBase();
 		if (pluginBase != null) {
 			pluginBase.enableCallbacks();
-			logger.warn("Detector will block the AreaDetectors acquisition thread while writing files");
+			if (blocking) {
+				logger.warn("Detector will block the AreaDetectors acquisition thread while writing files");
+			} 
 			pluginBase.setBlockingCallbacks((short)(blocking? 1:0));
 			// It should be possible to avoid blocking the acquisition thread
 			// and use the pipeline by setting BlockingCallbacks according to
 			// returnExpectedFileName, but when this was tried, at r48170, it
 			// caused the files to be corrupted.
 		} else {
-			logger.warn("Cannot ensure callbacks and blocking callbacks are enebled as pluginBase is not set");
+			logger.warn("Cannot ensure callbacks and blocking callbacks are enabled as pluginBase is not set");
 		}
 
 		getNdFile().setFileWriteMode(fileWriteMode);
@@ -239,9 +273,11 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 		if (!filePathUsed.endsWith(File.separator))
 			filePathUsed += File.separator;
 		File f = new File(filePathUsed);
-		if (!f.exists()) {
-			if (!f.mkdirs())
-				throw new Exception("Folder does not exist and cannot be made:" + filePathUsed);
+		if (!filePathInaccessibleFromServer) {
+			if (!f.exists()) {
+				if (!f.mkdirs())
+					throw new Exception("Folder does not exist and cannot be made:" + filePathUsed);
+			}
 		}
 		getNdFile().setFilePath(filePathUsed);
 
@@ -281,6 +317,11 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 		alreadyPrepared=false;
 		if (!isEnabled())
 			return;
+		
+		if (isWaitForFileArrivalInCompleteCollection() && (lastExpectedFullFilepath != null)) {
+			checkErrorStatus();
+			waitForFile(lastExpectedFullFilepath);
+		}
 		disableFileWriting();
 	}
 
@@ -309,14 +350,15 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 	@Override
 	public String getFullFileName() throws Exception {
 		String template = (getFileTemplateForReadout() != null) ? getFileTemplateForReadout() : fileTemplateUsed;
-		String fullFileName = String.format(template, filePathUsed, fileNameUsed, nextExpectedFileNumber);
+		String fullFileName = (isFullFileNameFromRBV() ? this.getNdFile().getFullFileName_RBV()
+			: String.format(template, filePathUsed, fileNameUsed, nextExpectedFileNumber) );
 		nextExpectedFileNumber++;
 		return fullFileName;
 	}
 
 	@Override
 	public List<String> getInputStreamNames() {
-		return Arrays.asList(FILEPATH_EXTRANAME);
+		return Arrays.asList((fileWriterName == DEFAULT_FILEWRITERNAME ? "" : fileWriterName+".") + FILEPATH_EXTRANAME);
 	}
 
 	@Override
@@ -339,9 +381,9 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 	protected NXDetectorDataAppender readNXDetectorDataAppender()  throws NoSuchElementException, DeviceException{
 
 		String filepath;
-		boolean returnRelativePath = isReturnPathRelativeToDatadir();
+		boolean returnPathIsRelative = isReturnPathRelativeToDatadir();
 		try {
-			if (returnRelativePath) {
+			if (returnPathIsRelative) {
 				if (!StringUtils.startsWith(getFilePathTemplate(), "$datadir$")) {
 					throw new IllegalStateException(
 							"If configured to return a path relative to the datadir, the configured filePathTemplate must begin wiht $datadir$. It is :'"
@@ -354,33 +396,38 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 		} catch (Exception e) {
 			throw new DeviceException(e);
 		}
-
+		lastExpectedFullFilepath = returnPathIsRelative ? getAbsoluteFilePath(filepath) : filepath;
 		checkErrorStatus();
 		if( isWaitForFileArrival()){
 			// Now check that the file exists
-			String fullFilePath = returnRelativePath ? getAbsoluteFilePath(filepath) : filepath;
-			try {
-				File f = new File(fullFilePath);
-				long numChecks = 0;
-				while (!f.exists()) {
-					numChecks++;
-					Thread.sleep(MILLI_SECONDS_BETWEEN_POLLS);
-					checkErrorStatus();
-					// checkForInterrupts only throws exception if a scan is running. This code will run beyond that point
-					if (ScanBase.isInterrupted())
-						throw new Exception("ScanBase is interrupted whilst waiting for '" + fullFilePath + "'");
-					if ((numChecks * MILLI_SECONDS_BETWEEN_POLLS/1000) > SECONDS_BETWEEN_SLOW_FILE_ARRIVAL_MESSAGES) {
-						InterfaceProvider.getTerminalPrinter().print(
-								"Waiting for file '" + fullFilePath + "' to be created");
-						numChecks = 0;
-					}
-				}
-			} catch (Exception e) {
-				throw new DeviceException("Error checking for existence of file '" + fullFilePath + "'",e);
-			}
+			waitForFile(lastExpectedFullFilepath);
 		}
 
-		return new NXDetectorDataFileAppenderForSrs(filepath, FILEPATH_EXTRANAME);
+		// Multiple filewriters require different file writer names and extra names
+		return new NXDetectorDataFileAppenderForSrs(filepath, getInputStreamNames().get(0));
+	}
+
+	private void waitForFile(String fullFilePath) throws DeviceException {
+		try {
+			File f = new File(fullFilePath);
+			long numChecks = 0;
+			while (!f.exists()) {
+				numChecks++;
+				Thread.sleep(MILLI_SECONDS_BETWEEN_POLLS);
+				checkErrorStatus();
+				// checkForInterrupts only throws exception if a scan is running. This code will run beyond that point
+				if (ScanBase.isInterrupted())
+					throw new Exception("ScanBase is interrupted whilst waiting for '" + fullFilePath + "'");
+				if ((numChecks * MILLI_SECONDS_BETWEEN_POLLS/1000) > SECONDS_BETWEEN_SLOW_FILE_ARRIVAL_MESSAGES) {
+					InterfaceProvider.getTerminalPrinter().print(
+							"Waiting for file '" + fullFilePath + "' to be created");
+					numChecks = 0;
+				}
+			}
+		} catch (Exception e) {
+			throw new DeviceException("Error checking for existence of file '" + fullFilePath + "'",e);
+		}
+
 	}
 
 	public boolean isReturnPathRelativeToDatadir() {
@@ -389,6 +436,33 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 
 	public void setReturnPathRelativeToDatadir(boolean returnPathRelativeToDatadir) {
 		this.returnPathRelativeToDatadir = returnPathRelativeToDatadir;
+	}
+
+	public boolean isFullFileNameFromRBV() {
+		return fullFileNameFromRBV;
+	}
+
+	/**
+	 * Set this filewriter to get the full filename from the Epics readback. This is needed for detectors which add a different
+	 * extension depending on their mode of operation, such as the Mar Area Detector, which adds .mar3450 or .mar2300 etc.
+	 * 
+	 * Note, when this option is in use, only the name of the current image can be returned, the names of future images cannot
+	 * be inferred, so this option is incompatible with the continuous scan mechanism.
+	 * 
+	 * @param fullFileNameFromRBV defaults to false.
+	 */
+	public void setFullFileNameFromRBV(boolean fullFileNameFromRBV) {
+		if (fullFileNameFromRBV)
+			logger.warn("Getting full Filename from Epics RBV value: This will not work for continuous scanning.");
+		this.fullFileNameFromRBV = fullFileNameFromRBV;
+	}
+
+	public boolean isFilePathInaccessibleFromServer() {
+		return filePathInaccessibleFromServer;
+	}
+
+	public void setFilePathInaccessibleFromServer(boolean filePathNotVisibleFromServer) {
+		this.filePathInaccessibleFromServer = filePathNotVisibleFromServer;
 	}
 
 }

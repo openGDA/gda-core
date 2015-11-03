@@ -22,6 +22,8 @@ import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.device.CurrentAmplifier;
 import gda.device.DeviceException;
+import gov.aps.jca.CAException;
+import gov.aps.jca.Monitor;
 import gda.device.Scannable;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
@@ -32,6 +34,7 @@ import gda.factory.FactoryException;
 import gda.jython.JythonServerFacade;
 import gov.aps.jca.Channel;
 import gov.aps.jca.dbr.DBR;
+import gov.aps.jca.dbr.DBRType;
 import gov.aps.jca.dbr.DBR_CTRL_Double;
 import gov.aps.jca.dbr.DBR_CTRL_Enum;
 import gov.aps.jca.event.MonitorEvent;
@@ -65,13 +68,16 @@ public class EpicsCurrAmpSingle extends CurrentAmplifierBase implements Initiali
 	private Channel setGain = null;
 
 	private Channel setAcDc = null;
-	
-	private Object lock = new Object();
 
+	private Object lock = new Object();
 
 	private CurrentMonitorListener iMonitor;
 	private GainMonitorListener gainMonitor;
 	private ModeMonitorListener modeMonitor;
+	private boolean enableValueMonitoring = true;
+	private boolean poll=false;
+
+	private Monitor monitor;
 
 	/**
 	 * Constructor
@@ -124,7 +130,7 @@ public class EpicsCurrAmpSingle extends CurrentAmplifierBase implements Initiali
 		try {
 			positionLabels = controller.cagetLabels(setGain);
 		} catch (Exception e) {
-			throw new DeviceException(getName() + " exception in getGainPositions",e);
+			throw new DeviceException(getName() + " exception in getGainPositions", e);
 		}
 		return positionLabels;
 	}
@@ -227,7 +233,11 @@ public class EpicsCurrAmpSingle extends CurrentAmplifierBase implements Initiali
 					super.modePositions.add(mode[i]);
 				}
 			}
-
+			if (!isEnableValueMonitoring()) {
+				disableValueMonitoring();
+			} else {
+				enableValueMonitoring();
+			}
 			logger.info(getName() + " - initialisation completed.");
 		} catch (DeviceException e) {
 			logger.warn(getName() + " - initialisation failed.");
@@ -288,7 +298,7 @@ public class EpicsCurrAmpSingle extends CurrentAmplifierBase implements Initiali
 	 */
 	private void createChannelAccess(CurrAmpSingleType currAmpConfig) throws FactoryException {
 		try {
-			Ic = channelManager.createChannel(currAmpConfig.getI().getPv(), iMonitor, MonitorType.CTRL, false);
+			Ic = channelManager.createChannel(currAmpConfig.getI().getPv(), false);
 			setGain = channelManager.createChannel(currAmpConfig.getSETGAIN().getPv(), gainMonitor, MonitorType.CTRL,
 					false);
 			setAcDc = channelManager.createChannel(currAmpConfig.getSETACDC().getPv(), modeMonitor, MonitorType.CTRL,
@@ -382,7 +392,47 @@ public class EpicsCurrAmpSingle extends CurrentAmplifierBase implements Initiali
 	}
 
 	@Override
-	public void setGainUnit(String unit) throws DeviceException {		
+	public void setGainUnit(String unit) throws DeviceException {
+	}
+
+	public boolean isEnableValueMonitoring() {
+		return enableValueMonitoring;
+	}
+
+	public void setEnableValueMonitoring(boolean enableValueMonitoring) {
+		this.enableValueMonitoring = enableValueMonitoring;
+		this.poll=!enableValueMonitoring;
+	}
+
+	public void enableValueMonitoring() {
+		if (Ic != null && iMonitor != null) {
+			try {
+				monitor = Ic.addMonitor(DBRType.CTRL_DOUBLE, 0, Monitor.VALUE, iMonitor);
+				setEnableValueMonitoring(true);
+				setPoll(false);
+			} catch (IllegalStateException e) {
+				logger.error("Fail to add monitor to channel " + Ic.getName(), e);
+			} catch (CAException e) {
+				logger.error("Fail to add monitor to channel " + Ic.getName(), e);
+			}
+		}
+	}
+
+	public void disableValueMonitoring() {
+		if (monitor != null && iMonitor != null) {
+			monitor.removeMonitorListener(iMonitor);
+			setEnableValueMonitoring(false);
+			setPoll(true);
+		}
+	}
+
+	public boolean isPoll() {
+		return poll;
+	}
+
+	public void setPoll(boolean poll) {
+		this.poll = poll;
+		this.enableValueMonitoring=!poll;
 	}
 
 }

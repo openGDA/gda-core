@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2011 Diamond Light Source Ltd.
+ * Copyright © 2014 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -19,36 +19,32 @@
 package gda.device.detector.addetector.triggering;
 
 import gda.device.detector.areadetector.v17.ADBase;
-import gda.device.detector.areadetector.v17.ADBase.ImageMode;
-import gda.device.detector.areadetector.v17.ADBase.StandardTriggerMode;
 import gda.scan.ScanInformation;
 
-public class SingleExposureStandard extends SimpleAcquire {
+public class PSLSingleExposure extends SimpleAcquire {
 
-	private final int triggerMode;
-	
-	public SingleExposureStandard(ADBase adBase, double readoutTime) {
-		super(adBase, readoutTime);
-		triggerMode = StandardTriggerMode.INTERNAL.ordinal();
+	public enum PSLImageMode {
+		MULTIPLE, CONTINUOUS
 	}
 	
-	public SingleExposureStandard(ADBase adBase, double readoutTime, int triggerMode) {
+	public PSLSingleExposure(ADBase adBase, double readoutTime) {
 		super(adBase, readoutTime);
-		this.triggerMode = triggerMode;
+		if (readoutTime >= 0 ) {
+			throw new IllegalArgumentException("This detector does not support acquistion period. Please set the readout time to be negative to indicate that it will not be used.");
+		}
 	}
 
 	@Override
+	public void configureAcquireAndPeriodTimes(double collectionTime) throws Exception {
+		// there is no acquire period pv visible for this detecot
+		getAdBase().setAcquireTime(collectionTime);
+	}
+	
+	@Override
 	public void prepareForCollection(double collectionTime, int numImages, ScanInformation scanInfo) throws Exception {
-		if (numImages != 1) {
-			throw new IllegalArgumentException("This single exposure triggering strategy expects to expose only 1 image, asked to expose " + numImages);
-		}
 		super.prepareForCollection(collectionTime, 1, scanInfo);
-		configureTriggerMode();
-		getAdBase().setImageModeWait(ImageMode.SINGLE);
-		getAdBase().setNumImages(1);
+		// This detector has no trigger mode
+		getAdBase().setImageMode(PSLImageMode.MULTIPLE.ordinal());
 	}
 
-	protected void configureTriggerMode() throws Exception {
-		getAdBase().setTriggerMode(triggerMode);
-	}
 }

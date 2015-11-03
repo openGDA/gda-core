@@ -6,8 +6,8 @@ Created on 25 Feb 2014
 
 from gdascripts.utils import caput_wait
 
-def setup_overlay_plugin(pvbase_det='BL16I-EA-DET-30:'):
-    for i in range(1, 7):
+def setup_overlay_plugin(pvbase_det='BL16I-EA-DET-30:', number_plugins=7):
+    for i in range(1, number_plugins):
         pvbase_roi = pvbase_det + 'ROI' + str(i) + ':'
         pvbase_overlay = pvbase_det + 'OVER:' + str(i) + ':'
         _link_overlay_to_roi_plugin_and_enable(pvbase_roi, pvbase_overlay)
