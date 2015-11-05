@@ -16,6 +16,7 @@ Require-Bundle: uk.ac.gda.epics,
  uk.ac.gda.core;bundle-version="8.26.0",
  uk.ac.gda.libs;bundle-version="1.0.0",
  uk.ac.diamond.scisoft.analysis.plotserver;bundle-version="1.0.0",
+ org.eclipse.dawnsci.nexus;bundle-version="1.0.0",
  org.eclipse.dawnsci.hdf5;bundle-version="1.2.0"
 Bundle-ActivationPolicy: lazy
 Import-Package: org.slf4j,

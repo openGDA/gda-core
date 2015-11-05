@@ -18,7 +18,6 @@
 
 package org.opengda.detector.electronanalyser.server;
 
-import gda.data.nexus.NexusUtils;
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
@@ -45,6 +44,7 @@ import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
+import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
