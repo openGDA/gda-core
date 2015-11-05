@@ -18,8 +18,6 @@
 
 package gda.data.nexus.extractor;
 
-import gda.data.nexus.NexusUtils;
-
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.nio.charset.Charset;
@@ -32,6 +30,7 @@ import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
+import org.eclipse.dawnsci.nexus.NexusUtils;
 
 /**
  * Data class that is returned by first class Nexus aware detectors

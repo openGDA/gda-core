@@ -17,7 +17,6 @@
 
 package gda.data.nexus.extractor;
 
-import gda.data.nexus.NexusUtils;
 import gda.data.nexus.extractor.INexusTreeProcessor.RESPONSE;
 import gda.data.nexus.tree.INexusSourceProvider;
 import gda.data.nexus.tree.INexusTree;
@@ -38,6 +37,7 @@ import org.eclipse.dawnsci.analysis.api.tree.NodeLink;
 import org.eclipse.dawnsci.analysis.api.tree.Tree;
 import org.eclipse.dawnsci.hdf5.nexus.NexusException;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
+import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

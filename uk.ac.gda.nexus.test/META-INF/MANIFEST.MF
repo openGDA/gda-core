@@ -10,7 +10,6 @@ Require-Bundle: org.junit;bundle-version="[4.10.0,5.0.0)",
  org.eclipse.dawnsci.nexus;bundle-version="1.0.0",
  uk.ac.gda.test.helpers;bundle-version="1.0.0"
 Import-Package: gda.data.nexus,
- gda.data.nexus.hdf5,
  gda.data.nexus.napi,
  gda.data.nexus.tree,
  org.eclipse.dawnsci.hdf5.nexus

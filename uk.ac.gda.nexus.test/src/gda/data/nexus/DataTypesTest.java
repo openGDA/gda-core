@@ -26,12 +26,13 @@ import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
+import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
- * Just a short test class to check writing of file types using the nexus java api 
- * 
+ * Just a short test class to check writing of file types using the nexus java api
+ *
  * There is no need to include this into the standard test suite as it only tests
  */
 public class DataTypesTest {
@@ -39,7 +40,7 @@ public class DataTypesTest {
 
 	/**
 	 * Creates an empty directory for use by test code.
-	 * 
+	 *
 	 * @throws Exception if setup fails
 	 */
 	@BeforeClass

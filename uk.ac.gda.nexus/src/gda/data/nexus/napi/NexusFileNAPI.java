@@ -18,7 +18,6 @@
 
 package gda.data.nexus.napi;
 
-import gda.data.nexus.NexusUtils;
 import gda.data.nexus.extractor.NexusGroupData;
 
 import java.io.IOException;
@@ -48,12 +47,14 @@ import org.eclipse.dawnsci.analysis.dataset.impl.LazyDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.LazyWriteableDataset;
 import org.eclipse.dawnsci.analysis.tree.TreeFactory;
 import org.eclipse.dawnsci.hdf5.nexus.NexusException;
+import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.nexusformat.AttributeEntry;
 import org.nexusformat.NXlink;
 import org.nexusformat.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Deprecated
 public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 	/**
 	 * Maximum length of any text string encoded as bytes
