@@ -16,6 +16,8 @@ class XYDataSetProcessor(object):
 		self.formatString = formatString # see getWordyResults()
 		self.lastResults = None
 		self.keyxlabel = keyxlabel
+		if keyxlabel not in labelList:
+			raise ValueError('key x label not in label list')
 		self.raise_process_exceptions = False
 		
 	def process(self, xDataSet, yDataSet):

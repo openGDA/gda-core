@@ -24,8 +24,8 @@ except ImportError:
 
 class TwoGaussianEdges(XYDataSetFunction):
 
-	def __init__(self, smoothwidth=1, name='edges', labelList=('upos', 'ufwhm', 'dpos', 'dfwhm', 'area', 'fwhm'), formatString='upos:%f ufwhm:%f dpos:%f dfwhm:%f %f:area %f:fwhm'):
-		XYDataSetFunction.__init__(self, name, labelList, 'upos', formatString)
+	def __init__(self, smoothwidth=1, name='edges', labelList=('upos', 'ufwhm', 'dpos', 'dfwhm', 'area', 'fwhm'), formatString='upos:%f ufwhm:%f dpos:%f dfwhm:%f %f:area %f:fwhm', keyxlabel='upos'):
+		XYDataSetFunction.__init__(self, name, labelList, keyxlabel, formatString)
 		self.smoothwidth = smoothwidth
 
 	def coarseProcess(self, xDataSet, dyDataSet):
