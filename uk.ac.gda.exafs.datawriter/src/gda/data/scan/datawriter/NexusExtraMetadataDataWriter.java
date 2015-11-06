@@ -23,8 +23,7 @@ import java.util.Vector;
 
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
 import org.eclipse.dawnsci.hdf5.nexus.NexusException;
-
-import gda.data.nexus.NexusUtils;
+import org.eclipse.dawnsci.nexus.NexusUtils;
 
 /**
  * Nexus Data Writer which has a custom list of metadata values about the sample to add to the nexus file.

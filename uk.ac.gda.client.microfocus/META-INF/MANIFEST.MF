@@ -37,7 +37,8 @@ Require-Bundle: org.eclipse.ui;bundle-version="3.5.1",
  org.eclipse.dawnsci.analysis.dataset,
  org.eclipse.dawnsci.analysis.api,
  org.eclipse.richbeans.widgets;bundle-version="1.0.0",
- org.eclipse.richbeans.xml;bundle-version="1.0.0"
+ org.eclipse.richbeans.xml;bundle-version="1.0.0",
+ org.eclipse.dawnsci.nexus;bundle-version="1.0.0"
 Export-Package: uk.ac.gda.client.microfocus.controller,
  uk.ac.gda.client.microfocus.scan,
  uk.ac.gda.client.microfocus.scan.datawriter,
