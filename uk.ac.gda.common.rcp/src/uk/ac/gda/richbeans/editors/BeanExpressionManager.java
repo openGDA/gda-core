@@ -33,6 +33,7 @@ import org.eclipse.richbeans.api.widget.IExpressionWidget;
 import org.eclipse.richbeans.api.widget.IFieldProvider;
 import org.eclipse.richbeans.api.widget.IFieldWidget;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.widgets.Control;
 import org.nfunk.jep.ASTVarNode;
 import org.nfunk.jep.JEP;
 import org.nfunk.jep.Node;
@@ -106,7 +107,7 @@ public class BeanExpressionManager implements IExpressionManager, ValueListener 
 
 	/**
 	 * Removes old listeners and adds new ones.
-	 * 
+	 *
 	 * @throws ParseException
 	 */
 	private void updateListeners() throws Exception {
@@ -146,7 +147,7 @@ public class BeanExpressionManager implements IExpressionManager, ValueListener 
 
 	/**
 	 * Recursive node parsing
-	 * 
+	 *
 	 * @param node
 	 * @param precedents
 	 * @throws Exception
@@ -218,7 +219,7 @@ public class BeanExpressionManager implements IExpressionManager, ValueListener 
 		if ((widget.getControl()) instanceof StyledText  && widget.isExpressionAllowed()) {
 			if (proposalProvider == null) {
 				proposalProvider = new ExpressionContentProposalProvider(fieldsArray, widget);
-				ContentProposalAdapter adapter = new ContentProposalAdapter(widget.getControl(),
+				ContentProposalAdapter adapter = new ContentProposalAdapter((Control) widget.getControl(),
 						new StyledTextContentAdapter(), proposalProvider, null, null);
 				adapter.setLabelProvider(new ExpressionLabelProvider(fields));
 				adapter.setPropagateKeys(true);
