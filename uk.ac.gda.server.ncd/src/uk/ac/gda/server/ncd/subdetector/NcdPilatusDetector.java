@@ -22,7 +22,6 @@ import gda.data.NumTracker;
 import gda.data.PathConstructor;
 import gda.data.metadata.GDAMetadataProvider;
 import gda.data.metadata.Metadata;
-import gda.data.nexus.NexusUtils;
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
@@ -39,6 +38,7 @@ import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 import org.eclipse.dawnsci.hdf5.nexus.NexusException;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
+import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -96,7 +96,7 @@ public class NcdPilatusDetector extends NcdSubDetector implements LastImageProvi
 			logger.error("Error closing hdf5 file "+ nexusFileUrl + " : " + e.getMessage());
 		}
 	}
-	
+
 	private void writeSubFile(int frames) {
 		try {
 			int[] dims = detector.getDataDimensions();
@@ -104,7 +104,7 @@ public class NcdPilatusDetector extends NcdSubDetector implements LastImageProvi
 			// Open data array.
 			int rank = datadims.length;
 			int[] slabdatadims = new int[] { 1, 1, dims[0], dims[1] };
-			
+
 			ILazyWriteableDataset lazy;
 			DataNode data;
 			if (scanDataPoint == 0) {
@@ -166,7 +166,7 @@ public class NcdPilatusDetector extends NcdSubDetector implements LastImageProvi
 		}
 		return nexusFileUrl;
 	}
-	
+
 	public boolean isDetectorConfigured() {
 		boolean reply;
 		reply = ((DeviceBase)detector).isConfigured();
