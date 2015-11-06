@@ -18,11 +18,11 @@
 
 package gda.data.scan.datawriter;
 
-import gda.data.nexus.NexusUtils;
 import gda.data.nexus.extractor.NexusExtractor;
 
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
+import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.springframework.beans.factory.InitializingBean;
 
 /**

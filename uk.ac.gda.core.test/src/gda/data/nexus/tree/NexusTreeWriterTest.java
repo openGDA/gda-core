@@ -20,11 +20,11 @@
 package gda.data.nexus.tree;
 
 import gda.TestHelpers;
-import gda.data.nexus.NexusUtils;
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 
 import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
+import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.junit.Assert;
 import org.junit.Test;
 

@@ -18,14 +18,13 @@
 
 package gda.data.scan.datawriter;
 
-import gda.data.nexus.NexusUtils;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
 import org.eclipse.dawnsci.hdf5.nexus.NexusException;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
+import org.eclipse.dawnsci.nexus.NexusUtils;
 
 public class ExternalNXlink extends SelfCreatingLink {
 	String name, url;

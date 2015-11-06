@@ -24,6 +24,7 @@ import gda.data.nexus.extractor.NexusExtractor;
 import java.io.File;
 
 import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
+import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

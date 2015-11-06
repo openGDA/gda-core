@@ -19,7 +19,6 @@
 
 package gda.data.metadata;
 
-import gda.data.nexus.NexusUtils;
 import gda.factory.Findable;
 
 import java.util.ArrayList;
@@ -28,6 +27,7 @@ import java.util.List;
 
 import org.eclipse.dawnsci.hdf5.nexus.NexusException;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
+import org.eclipse.dawnsci.nexus.NexusUtils;
 
 /**
  * NexusMetadataReader class.
