@@ -1,35 +1,22 @@
-import java.lang.NoClassDefFoundError
-
 from XYDataSetProcessor import XYDataSetFunction
-from gda.analysis import RCPPlotter
 from org.eclipse.dawnsci.analysis.dataset.impl import Maths
 import scisoftpy as dnp
-from uk.ac.diamond.scisoft.analysis.fitting import Fitter
 
 
 try:
-	def fitplot(*args):
-		fitted_function = Fitter.fit(*args)
-		RCPPlotter.plot("Data Vector", args[0],fitted_function.display(args[0])[0]);
-		return fitted_function
-except ImportError:
-	def fitplot(*args):
-		raise
-
-try:
-	from gda.analysis import Plotter  # for Swing
+	from gda.analysis import Plotter # for Swing
 except ImportError:
 	Plotter = None
 
 
 class TwoGaussianEdges(XYDataSetFunction):
 
-	def __init__(self, smoothwidth=1, name='edges', labelList=('upos', 'ufwhm', 'dpos', 'dfwhm', 'area', 'fwhm'), formatString='upos:%f ufwhm:%f dpos:%f dfwhm:%f %f:area %f:fwhm', keyxlabel='upos'):
+	def __init__(self, smoothwidth=1, name='edges', labelList=('upos', 'ufwhm', 'dpos', 'dfwhm', 'area', 'fwhm'), formatString='upos:%f ufwhm:%f dpos:%f dfwhm:%f %f:area %f:fwhm', keyxlabel='upos', plotPanel=None):
 		XYDataSetFunction.__init__(self, name, labelList, keyxlabel, formatString)
 		self.smoothwidth = smoothwidth
+		self.plotPanel = plotPanel
 
 	def coarseProcess(self, xDataSet, dyDataSet):
-
 		upos = xDataSet[dnp.argmax(dyDataSet)]
 		dpos = xDataSet[dnp.argmin(dyDataSet)]
 
@@ -57,7 +44,6 @@ class TwoGaussianEdges(XYDataSetFunction):
 		gaussian = dnp.fit.function.gaussian
 
 		if abs(dareaC) < .2 * uareaC:
-			print "only upward edge present"
 			r = dnp.fit.fit([gaussian], xDataSet, dyDataSet,
 							[uposC, ufwhmC, uareaC],
 							ptol=1e-10, optimizer='apache_nm')
@@ -65,7 +51,6 @@ class TwoGaussianEdges(XYDataSetFunction):
 			results = {'upos': upos, 'ufwhm': ufwhm, 'area': _uarea, 'uarea': _uarea, 'fwhm': ufwhm}
 
 		elif uareaC < .2 * abs(dareaC):
-			print "only downward edge present"
 			r = dnp.fit.fit([gaussian], xDataSet, dyDataSet,
 							[dposC, dfwhmC, dareaC],
 							ptol=1e-10, optimizer='apache_nm')
@@ -73,7 +58,6 @@ class TwoGaussianEdges(XYDataSetFunction):
 			results = {'dpos': dpos, 'dfwhm': dfwhm, 'area': abs(_darea), 'darea': _darea, 'fwhm': dfwhm}
 
 		else:
-			print "both edges present"
 			r = dnp.fit.fit([gaussian, gaussian], xDataSet, dyDataSet,
 							[uposC, ufwhmC, uareaC,dposC, dfwhmC, dareaC],
 							ptol=1e-10, optimizer='apache_nm')
@@ -89,12 +73,20 @@ class TwoGaussianEdges(XYDataSetFunction):
 					'area': (_uarea + abs(_darea)) / 2.0,
 					'fwhm': (ufwhm + dfwhm) / 2.0}
 
-
-		# Plot to RCP
-		try:
-			r.plot()
-		except java.lang.NoClassDefFoundError:
-			print "WARNING: TwoGaussianEdges could not plot fit details to RCP client"
-
+		self.plotResult(r)
 		results['residual'] = r.residual
 		return [results.get(label, float('NaN')) for label in self.labelList]
+
+	def plotResult(self, result):
+		if self.plotPanel is not None:
+			try:
+				if Plotter is not None:
+					#swing
+					Plotter.plot(self.plotPanel, *result.makeplotdata)
+				else:
+					#rcp
+					dnp.plot.clear(self.plotPanel)
+					result.plot(name=self.plotPanel, title=self.plotPanel)
+			except Exception, e:
+				print "Could not plot two gaussian fit"
+				print e.message
