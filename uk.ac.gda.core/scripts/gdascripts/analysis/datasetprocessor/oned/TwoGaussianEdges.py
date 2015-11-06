@@ -52,11 +52,8 @@ class TwoGaussianEdges(XYDataSetFunction):
 		return upos, ufwhm, uarea, dpos, dfwhm , darea
 
 	def _process(self, xDataSet, yDataSet):
-
 		dyDataSet = dnp.array(Maths.derivative(xDataSet._jdataset(), yDataSet._jdataset(), self.smoothwidth))
-
 		uposC, ufwhmC, uareaC, dposC, dfwhmC, dareaC = self.coarseProcess(xDataSet, dyDataSet)
-
 		gaussian = dnp.fit.function.gaussian
 
 		if abs(dareaC) < .2 * uareaC:
@@ -65,10 +62,7 @@ class TwoGaussianEdges(XYDataSetFunction):
 							[uposC, ufwhmC, uareaC],
 							ptol=1e-10, optimizer='apache_nm')
 			upos, ufwhm, _uarea = r.parameters
-			dpos = 0.
-			dfwhm = 0.
-			area = _uarea
-			fwhm = ufwhm
+			results = {'upos': upos, 'ufwhm': ufwhm, 'area': _uarea, 'uarea': _uarea, 'fwhm': ufwhm}
 
 		elif uareaC < .2 * abs(dareaC):
 			print "only downward edge present"
@@ -76,10 +70,7 @@ class TwoGaussianEdges(XYDataSetFunction):
 							[dposC, dfwhmC, dareaC],
 							ptol=1e-10, optimizer='apache_nm')
 			dpos, dfwhm, _darea = r.parameters
-			upos = 0.
-			ufwhm = 0.
-			area = abs(_darea)
-			fwhm = dfwhm
+			results = {'dpos': dpos, 'dfwhm': dfwhm, 'area': abs(_darea), 'darea': _darea, 'fwhm': dfwhm}
 
 		else:
 			print "both edges present"
@@ -87,8 +78,17 @@ class TwoGaussianEdges(XYDataSetFunction):
 							[uposC, ufwhmC, uareaC,dposC, dfwhmC, dareaC],
 							ptol=1e-10, optimizer='apache_nm')
 			upos, ufwhm, _uarea, dpos, dfwhm, _darea = r.parameters
-			area = (_uarea + abs(_darea)) / 2.
-			fwhm = (ufwhm + dfwhm) / 2.
+			results = {'upos': upos,
+					'dpos': dpos,
+					'ufwhm': ufwhm,
+					'dfwhm': dfwhm,
+					'uarea': _uarea,
+					'darea': _darea,
+					'centre': (upos + dpos) / 2.0,
+					'width': abs(upos - dpos),
+					'area': (_uarea + abs(_darea)) / 2.0,
+					'fwhm': (ufwhm + dfwhm) / 2.0}
+
 
 		# Plot to RCP
 		try:
@@ -96,4 +96,5 @@ class TwoGaussianEdges(XYDataSetFunction):
 		except java.lang.NoClassDefFoundError:
 			print "WARNING: TwoGaussianEdges could not plot fit details to RCP client"
 
-		return upos, ufwhm, dpos, dfwhm , area, fwhm
+		results['residual'] = r.residual
+		return [results.get(label, float('NaN')) for label in self.labelList]
