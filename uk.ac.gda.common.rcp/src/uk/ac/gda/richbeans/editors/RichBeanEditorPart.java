@@ -36,7 +36,6 @@ import org.eclipse.richbeans.api.reflection.IBeanController;
 import org.eclipse.richbeans.api.reflection.IBeanService;
 import org.eclipse.richbeans.api.widget.IFieldProvider;
 import org.eclipse.richbeans.api.widget.IFieldWidget;
-import org.eclipse.richbeans.reflection.BeansFactory;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IReusableEditor;
@@ -49,6 +48,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.ServiceGrabber;
 import uk.ac.gda.common.rcp.util.EclipseUtils;
+import uk.ac.gda.util.beans.BeansFactory;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 /**

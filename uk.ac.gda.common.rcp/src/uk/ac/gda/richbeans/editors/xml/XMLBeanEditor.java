@@ -33,7 +33,7 @@ import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.IRegion;
-import org.eclipse.richbeans.reflection.BeansFactory;
+import org.eclipse.richbeans.reflection.RichBeanUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -51,6 +51,7 @@ import uk.ac.gda.richbeans.editors.DirtyContainer;
 import uk.ac.gda.richbeans.editors.xml.bean.ColorManager;
 import uk.ac.gda.richbeans.editors.xml.bean.XMLConfiguration;
 import uk.ac.gda.richbeans.editors.xml.bean.XMLDocumentProvider;
+import uk.ac.gda.util.beans.BeansFactory;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 import com.swtdesigner.SWTResourceManager;
@@ -259,7 +260,7 @@ public class XMLBeanEditor extends TextEditor  {
 			final Object       clone  = BeansFactory.deepClone(editingBean);
 			if (privateFields!=null) {
 				for (String fieldName : privateFields) {
-					BeansFactory.setBeanValue(clone, fieldName, null);
+					RichBeanUtils.setBeanValue(clone, fieldName, null);
 				}
 			}
 			try {
