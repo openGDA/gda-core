@@ -34,7 +34,6 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.richbeans.reflection.BeansFactory;
 import org.exolab.castor.mapping.Mapping;
 import org.exolab.castor.mapping.MappingException;
 import org.exolab.castor.xml.Marshaller;
@@ -43,6 +42,8 @@ import org.exolab.castor.xml.XMLContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
+
+import uk.ac.gda.util.beans.BeansFactory;
 
 public class XMLHelpers {
 
