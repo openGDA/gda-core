@@ -37,7 +37,7 @@ import org.eclipse.draw2d.FigureCanvas;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.richbeans.api.event.ValueAdapter;
 import org.eclipse.richbeans.api.event.ValueEvent;
-import org.eclipse.richbeans.api.widget.ACTIVE_MODE;
+import org.eclipse.richbeans.api.widget.ActiveMode;
 import org.eclipse.richbeans.widgets.scalebox.DemandBox;
 import org.eclipse.richbeans.widgets.scalebox.NumberBox;
 import org.eclipse.swt.SWT;
@@ -187,7 +187,7 @@ public class CameraComposite extends Composite {
 		gainBox.setUnit("");
 		gainBox.setLabel("Gain");
 		gainBox.setLabelWidth(labelWidth);
-		gainBox.setActiveMode(ACTIVE_MODE.SET_ENABLED_AND_ACTIVE);
+		gainBox.setActiveMode(ActiveMode.SET_ENABLED_AND_ACTIVE);
 		gainBox.setActive(true);
 		gainBox.setDecimalPlaces(3);
 		gainBox.setEnabled(false); //enabled when channel connection is made
