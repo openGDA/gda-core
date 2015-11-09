@@ -26,9 +26,6 @@ import java.io.ObjectStreamClass;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * Has a series of utilities for interacting with the beans and the
  * xml files in which they are persisted.
@@ -37,8 +34,6 @@ import org.slf4j.LoggerFactory;
  * uk.ac.common.beans.factory extension point (RCP client-side).
  */
 public class BeansFactory {
-
-	private static final Logger logger = LoggerFactory.getLogger(BeansFactory.class);
 
 	private static Class<? extends Object>[] CLASSES;
 
@@ -150,28 +145,6 @@ public class BeansFactory {
 		if (cLASSES == null)
 			throw new NullPointerException("cLASSES must be-non null to initialzied BeansFactory");
 		CLASSES = cLASSES;
-	}
-
-	private List<String> classList;
-
-	public List<String> getClassList() {
-		return classList;
-	}
-
-	public void setClassList(List<String> classList) {
-		this.classList = classList;
-
-		int i = 0;
-		final Class<? extends Object>[] classes = (Class<? extends Object>[]) new Class<?>[classList.size()];
-		for (String clazz : classList) {
-			try {
-				classes[i] = (Class<? extends Object>) Class.forName(clazz);
-			} catch (ClassNotFoundException e) {
-				logger.info("ClassNotFoundException, cannot load class " + clazz);
-			}
-			++i;
-		}
-		BeansFactory.setClasses(classes);
 	}
 
 	/**
