@@ -302,7 +302,7 @@ where task can be:
 		self.gda_install_product = abspath(self.gda_workspace_parent, "server_product", "gda-server", "gda-server")
 		self.gda_osgi_process_matcher = (self.gda_install_product, '-Dosgi.gda.application=true')
 		if os.path.isfile(self.gda_install_product):
-			self.gda_product_present = True			
+			self.gda_product_present = True
 		elif self.options.osgi:
 			self.logger.critical("Cannot start in osgi mode; gda-server application file is not present")
 			sys.exit(1)
