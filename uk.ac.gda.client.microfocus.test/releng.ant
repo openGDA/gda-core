@@ -33,6 +33,7 @@
 				<pathelement location="${workspace.git.loc}/gda-nexus.git/uk.ac.gda.nexus/jars/*" />
 				<pathelement location="${workspace.git.loc}/dawnsci.git/org.eclipse.dawnsci.analysis.api/bin" />
 				<pathelement location="${workspace.git.loc}/dawn-eclipse.git/org.eclipse.richbeans.api/bin" />
+				<pathelement location="${workspace.git.loc}/dawn-eclipse.git/org.eclipse.richbeans.reflection/bin" />
 				<pathelement location="${workspace.git.loc}/dawn-eclipse.git/org.eclipse.richbeans.xml/bin" />
 				<pathelement location="${workspace.git.loc}/scisoft-core.git/uk.ac.diamond.scisoft.analysis/bin" />
 				<pathelement location="${workspace.git.loc}/dawnsci.git/org.eclipse.dawnsci.analysis.dataset/bin" />

@@ -23,7 +23,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 
-import org.eclipse.richbeans.api.beans.BeansFactory;
+import org.eclipse.richbeans.reflection.BeansFactory;
 import org.junit.BeforeClass;
 import org.junit.Test;
 

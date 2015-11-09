@@ -27,7 +27,7 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
-import org.eclipse.richbeans.api.beans.BeansFactory;
+import org.eclipse.richbeans.reflection.BeansFactory;
 
 import uk.ac.gda.beans.exafs.IDetectorParameters;
 import uk.ac.gda.beans.exafs.IOutputParameters;

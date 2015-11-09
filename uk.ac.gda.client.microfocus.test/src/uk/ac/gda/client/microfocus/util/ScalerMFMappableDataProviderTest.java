@@ -25,7 +25,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import gda.util.TestUtils;
 
-import org.eclipse.richbeans.api.beans.BeansFactory;
+import org.eclipse.richbeans.reflection.BeansFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;

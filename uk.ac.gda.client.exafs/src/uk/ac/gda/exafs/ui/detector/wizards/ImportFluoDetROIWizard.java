@@ -21,7 +21,7 @@ package uk.ac.gda.exafs.ui.detector.wizards;
 import java.util.List;
 
 import org.eclipse.jface.wizard.Wizard;
-import org.eclipse.richbeans.api.beans.BeansFactory;
+import org.eclipse.richbeans.reflection.BeansFactory;
 import org.eclipse.richbeans.widgets.selector.ListEditor;
 
 import uk.ac.gda.beans.DetectorROI;
