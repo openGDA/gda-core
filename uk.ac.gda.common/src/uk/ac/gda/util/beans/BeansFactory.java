@@ -41,7 +41,7 @@ public class BeansFactory {
 	 * Check that CLASSES is init and throw an exception if it hasn't been yet. Using CLASSES in this file would
 	 * generally through a {@link NullPointerException} anyway, this is just a more informative check that is less
 	 * likely to be caught by over aggressive try/catchs that exist in this file.
-	 * 
+	 *
 	 * @throws NullPointerException
 	 *             thrown if CLASSES has not been initialised
 	 */
@@ -63,7 +63,7 @@ public class BeansFactory {
 	/**
 	 * Fast way to determine if XML file is a bean in the system which can be read by castor and control things on the
 	 * server.
-	 * 
+	 *
 	 * @param beanFile
 	 * @return true if bean file.
 	 * @throws Exception
@@ -81,7 +81,7 @@ public class BeansFactory {
 
 	/**
 	 * Find the first filename of an xml file persisting a bean of the given class
-	 * 
+	 *
 	 * @param folder
 	 * @param clazz
 	 * @return String - filename
@@ -99,7 +99,7 @@ public class BeansFactory {
 
 	/**
 	 * Checks if the XML file is a Castor persistence file of a bean in the given list
-	 * 
+	 *
 	 * @param beanFile
 	 * @return true if file is a saved version of this bean
 	 * @throws Exception
@@ -149,7 +149,7 @@ public class BeansFactory {
 
 	/**
 	 * Can be used to test if a given class is a class defined by the extension point.
-	 * 
+	 *
 	 * @param clazz
 	 * @return true if class.
 	 */
@@ -166,7 +166,7 @@ public class BeansFactory {
 	/**
 	 * Deep copy using serialization. All objects in the graph must serialize to use this method or an exception will be
 	 * thrown.
-	 * 
+	 *
 	 * @param fromBean
 	 * @return deeply cloned bean
 	 */
@@ -178,7 +178,7 @@ public class BeansFactory {
 	 * Creates a clone of any serializable object. Collections and arrays may be cloned if the entries are serializable.
 	 * Caution super class members are not cloned if a super class is not serializable.
 	 */
-	public static <T> T deepClone(T toClone, final ClassLoader classLoader) throws Exception {
+	private static <T> T deepClone(T toClone, final ClassLoader classLoader) throws Exception {
 		if (null == toClone)
 			return null;
 
@@ -219,11 +219,11 @@ public class BeansFactory {
 		return copy;
 	}
 
-	
+
 
 	/**
 	 * Creates a new list of cloned beans (deep).
-	 * 
+	 *
 	 * @param beans
 	 * @return list of cloned beans.
 	 * @throws Exception
