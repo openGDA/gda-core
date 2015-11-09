@@ -18,7 +18,8 @@ Require-Bundle: uk.ac.gda.client;bundle-version="1.0.0",
  org.apache.commons.lang;bundle-version="[2.6.0,2.7.0)",
  org.eclipse.richbeans.widgets;bundle-version="1.0.0",
  org.eclipse.richbeans.xml;bundle-version="1.0.0",
- org.dawnsci.common.widgets;bundle-version="1.2.0"
+ org.dawnsci.common.widgets;bundle-version="1.2.0",
+ org.eclipse.richbeans.reflection;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Eclipse-BuddyPolicy: registered
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
