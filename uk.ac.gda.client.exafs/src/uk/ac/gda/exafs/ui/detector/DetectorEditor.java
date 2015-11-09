@@ -60,7 +60,7 @@ import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.richbeans.api.event.ValueAdapter;
 import org.eclipse.richbeans.api.event.ValueEvent;
 import org.eclipse.richbeans.api.event.ValueListener;
-import org.eclipse.richbeans.reflection.BeansFactory;
+import org.eclipse.richbeans.reflection.RichBeanUtils;
 import org.eclipse.richbeans.widgets.data.DataWrapper;
 import org.eclipse.richbeans.widgets.scalebox.ScaleBox;
 import org.eclipse.richbeans.widgets.selector.BeanSelectionEvent;
@@ -94,6 +94,7 @@ import uk.ac.gda.exafs.ui.detector.wizards.ImportROIWizard;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 import uk.ac.gda.richbeans.editors.DirtyContainer;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
+import uk.ac.gda.util.beans.BeansFactory;
 
 import com.swtdesigner.SWTResourceManager;
 
@@ -578,8 +579,8 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 
 				// If there are a window start and end, set them
 				try {
-					BeansFactory.setBeanValue(element, "windowStart", startWindow);
-					BeansFactory.setBeanValue(element, "windowEnd", endWindow);
+					RichBeanUtils.setBeanValue(element, "windowStart", startWindow);
+					RichBeanUtils.setBeanValue(element, "windowEnd", endWindow);
 				} catch (IllegalArgumentException ignored) {
 					// The bean may not have windowStart and windowEnd to synchronize
 				}

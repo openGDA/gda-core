@@ -27,7 +27,7 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
-import org.eclipse.richbeans.reflection.BeansFactory;
+import org.eclipse.richbeans.reflection.RichBeanUtils;
 
 import uk.ac.gda.beans.exafs.IDetectorParameters;
 import uk.ac.gda.beans.exafs.IOutputParameters;
@@ -41,6 +41,7 @@ import uk.ac.gda.beans.microfocus.MicroFocusScanParameters;
 import uk.ac.gda.client.experimentdefinition.ExperimentObject;
 import uk.ac.gda.client.experimentdefinition.IExperimentObject;
 import uk.ac.gda.client.experimentdefinition.ui.handlers.XMLCommandHandler;
+import uk.ac.gda.util.beans.BeansFactory;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 import uk.ac.gda.util.beans.xml.XMLRichBean;
 
@@ -274,7 +275,7 @@ public class ScanObject extends ExperimentObject implements IExperimentObject {
 		if (params instanceof MicroFocusScanParameters)
 			return ""; // not used by MicroFocusScanParameters, the object reference is held in the map scan objects
 
-		return (String) BeansFactory.getBeanValue(params, "scannableName");
+		return (String) RichBeanUtils.getBeanValue(params, "scannableName");
 	}
 
 	/**

@@ -52,7 +52,7 @@ import org.eclipse.dawnsci.plotting.api.trace.ITrace;
 import org.eclipse.jface.preference.PreferenceDialog;
 import org.eclipse.richbeans.api.event.ValueAdapter;
 import org.eclipse.richbeans.api.event.ValueEvent;
-import org.eclipse.richbeans.reflection.BeansFactory;
+import org.eclipse.richbeans.reflection.RichBeanUtils;
 import org.eclipse.richbeans.widgets.FieldComposite.NOTIFY_TYPE;
 import org.eclipse.richbeans.widgets.scalebox.ScaleBox;
 import org.eclipse.richbeans.widgets.wrappers.ComboWrapper;
@@ -83,6 +83,7 @@ import uk.ac.gda.beans.exafs.XasScanParameters;
 import uk.ac.gda.exafs.ui.preferences.ExafsEditorPreferencePage;
 import uk.ac.gda.richbeans.editors.DirtyContainer;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
+import uk.ac.gda.util.beans.BeansFactory;
 import uk.ac.gda.util.schema.SchemaReader;
 
 /**
@@ -504,14 +505,14 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 	protected Element getElementUseBean() throws Exception {
 		String symbol = (String) element.getValue();
 		if (symbol == null || "".equals(symbol))
-			symbol = (String) BeansFactory.getBeanValue(editingBean, "element");
+			symbol = (String) RichBeanUtils.getBeanValue(editingBean, "element");
 		return Element.getElement(symbol);
 	}
 
 	protected String getEdgeUseBean() throws Exception {
 		String edgeName = (String) edge.getValue();
 		if (edgeName == null || "".equals(edgeName))
-			edgeName = (String) BeansFactory.getBeanValue(editingBean, "edge");
+			edgeName = (String) RichBeanUtils.getBeanValue(editingBean, "edge");
 		return edgeName;
 	}
 
