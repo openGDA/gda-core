@@ -52,7 +52,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.richbeans.api.reflection.IBeanController;
 import org.eclipse.richbeans.api.widget.IFieldWidget;
-import org.eclipse.richbeans.reflection.BeansFactory;
+import org.eclipse.richbeans.reflection.RichBeanUtils;
 import org.eclipse.richbeans.xml.XMLBeanContentDescriberFactory;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
@@ -519,7 +519,7 @@ public class ExperimentEditorManager implements IExperimentEditorManager {
 		for (Object object : params)
 			for (int i = 0; i < classes.length; i++)
 				if (classes[i].isInstance(object))
-					return BeansFactory.getBeanValue(object, fieldName);
+					return RichBeanUtils.getBeanValue(object, fieldName);
 
 		return null;
 	}
