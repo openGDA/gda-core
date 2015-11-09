@@ -21,11 +21,11 @@ package uk.ac.gda.exafs.ui.detector.wizards;
 import java.util.List;
 
 import org.eclipse.jface.wizard.Wizard;
-import org.eclipse.richbeans.reflection.BeansFactory;
 import org.eclipse.richbeans.widgets.selector.ListEditor;
 
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
+import uk.ac.gda.util.beans.BeansFactory;
 
 /**
  * This is the Import Wizard that allows Regions Of Interest to be imported into the current DetectorEditor from another

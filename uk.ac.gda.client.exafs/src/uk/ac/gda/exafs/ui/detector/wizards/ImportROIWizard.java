@@ -21,7 +21,6 @@ package uk.ac.gda.exafs.ui.detector.wizards;
 import java.util.List;
 
 import org.eclipse.jface.wizard.Wizard;
-import org.eclipse.richbeans.reflection.BeansFactory;
 import org.eclipse.richbeans.widgets.selector.VerticalListEditor;
 
 import uk.ac.gda.beans.DetectorROI;
@@ -29,6 +28,7 @@ import uk.ac.gda.exafs.ui.detector.DetectorEditor;
 import uk.ac.gda.exafs.ui.detector.vortex.VortexParametersUIEditor;
 import uk.ac.gda.exafs.ui.detector.xspress.XspressParametersUIEditor;
 import uk.ac.gda.exafs.ui.detector.xspress3.Xspress3ParametersUIEditor;
+import uk.ac.gda.util.beans.BeansFactory;
 
 
 /**

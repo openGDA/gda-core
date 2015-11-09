@@ -29,7 +29,6 @@ import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.richbeans.api.event.ValueAdapter;
 import org.eclipse.richbeans.api.event.ValueEvent;
 import org.eclipse.richbeans.api.reflection.IBeanController;
-import org.eclipse.richbeans.reflection.BeansFactory;
 import org.eclipse.richbeans.widgets.file.FileBox;
 import org.eclipse.richbeans.widgets.file.FileBox.ChoiceType;
 import org.eclipse.richbeans.widgets.wrappers.RadioWrapper;
@@ -56,6 +55,7 @@ import uk.ac.gda.client.experimentdefinition.ui.handlers.XMLCommandHandler;
 import uk.ac.gda.exafs.ExafsActivator;
 import uk.ac.gda.exafs.ui.data.ScanObject;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
+import uk.ac.gda.util.beans.BeansFactory;
 
 public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite {
 	private final static Logger logger = LoggerFactory.getLogger(FluorescenceComposite.class);

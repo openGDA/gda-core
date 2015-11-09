@@ -23,11 +23,11 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 
-import org.eclipse.richbeans.reflection.BeansFactory;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import uk.ac.gda.beans.DetectorROI;
+import uk.ac.gda.util.beans.BeansFactory;
 import uk.ac.gda.util.beans.xml.XMLRichBean;
 
 
