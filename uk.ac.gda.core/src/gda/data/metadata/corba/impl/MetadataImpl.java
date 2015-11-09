@@ -56,7 +56,7 @@ public class MetadataImpl extends CorbaMetadataPOA implements IObserver {
 		this.metadata = metadata;
 		this.poa = poa;
 		dispatcher = EventService.getInstance().getEventDispatcher();
-		metadata.addIObserver(this);
+		metadata.addIObserver(this); //FIXME: potential race condition
 		name = metadata.getName();
 	}
 

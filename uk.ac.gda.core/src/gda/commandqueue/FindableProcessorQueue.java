@@ -347,7 +347,7 @@ public class FindableProcessorQueue implements IFindableQueueProcessor, Runnable
 					notifyObserversOfProgress(100, msg);
 					log(msg);
 				}
-				cmdBeingProcessed.deleteIObserver(this);
+				cmdBeingProcessed.deleteIObserver(this); // TODO repeat above in catch?
 				cmdBeingProcessed = null;
 
 				synchronized(lock){

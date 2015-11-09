@@ -42,7 +42,7 @@ public class UpdateDelayer implements IObserver {
 		this.iObserver = iObserver;
 
 		// the UpdateDisplayer IObserves the specified IObservable directly
-		iObservable.addIObserver(this);
+		iObservable.addIObserver(this); //FIXME: potential race condition
 	}
 
 	/**

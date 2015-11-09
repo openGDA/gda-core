@@ -43,7 +43,7 @@ public class CorbaImplBase implements IObserver{
 		name = corbarisable.getName();
 		id = NameFilter.MakeEventChannelName(name);
 		dispatcher = EventService.getInstance().getEventDispatcher();
-		corbarisable.addIObserver(this);
+		corbarisable.addIObserver(this); //FIXME: potential race condition
 	}
 
 	@Override
