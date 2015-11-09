@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2010 Diamond Light Source Ltd.
+ * Copyright © 2015 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -16,67 +16,66 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.scan;
+package uk.ac.gda.api.scan;
 
 import gda.device.DeviceException;
 import gda.device.Scannable;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import gda.scan.IScanStepId;
 
 /**
- * Structures to hold information about each object that will be scanned.
+ * Interface for a ScanObject to reduce the incentive to split the gda.scan package across plugins just so you can get at the scannable member The ScanObject
+ * abstract class this replaces has been moved back to the main gda.scan package in uk.ac.gda.core.
+ *
+ * @author Keith Ralphs
  */
-public abstract class ScanObject {
-	protected static final Logger logger = LoggerFactory.getLogger(ScanObject.class);
+public interface IScanObject {
 
-	/**
-	 * The scannable this object operates.
-	 */
-	public Scannable scannable;
+	Scannable getScannable();
+
+	void setScannable(Scannable scannable);
 
 	/**
 	 * @return true if the object has a defined start position
 	 */
-	abstract boolean hasStart();
+	boolean hasStart();
 
 	/**
 	 * @return true if the object has a defined stop position (i.e. defines an entire scan)
 	 */
-	abstract boolean hasStop();
+	boolean hasStop();
 
 	/**
 	 * Move the scannable to the start position
-	 * 
+	 *
 	 * @throws Exception
 	 */
-	abstract IScanStepId moveToStart() throws Exception;
+	IScanStepId moveToStart() throws Exception;
 
 	/**
 	 * Move the scannable to its next position
-	 * 
+	 *
 	 * @throws Exception
 	 */
-	abstract IScanStepId moveStep() throws Exception;
+	IScanStepId moveStep() throws Exception;
 
 	/**
 	 * The number of points this object can move its scannable to.
-	 * 
+	 *
 	 * @return the size of the array of points
 	 */
-	abstract int getNumberPoints();
+	int getNumberPoints();
 
 	/**
 	 * Set the size of the array of points to use.
-	 * 
+	 *
 	 * @param numberPoints
 	 */
-	abstract void setNumberPoints(int numberPoints);
+	void setNumberPoints(int numberPoints);
 
 	/**
-	 * @return null if all points in the array of points are valid for the scannable or the toString() of the point
-	 *         which is unacceptable
+	 * @return null if all points in the array of points are valid for the scannable or the toString() of the point which is unacceptable
 	 * @throws DeviceException
 	 */
-	abstract String arePointsValid() throws DeviceException;
+	String arePointsValid() throws DeviceException;
+
 }

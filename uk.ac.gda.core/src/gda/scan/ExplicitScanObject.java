@@ -36,7 +36,7 @@ public class ExplicitScanObject extends ScanObject {
 	}
 
 	@Override
-	ScanStepId moveToStart() throws Exception {
+	public ScanStepId moveToStart() throws Exception {
 		Object pos = points.get(0);
 		logger.debug("Moving " + scannable.getName() + " to " + pos);
 		scannable.asynchronousMoveTo(pos);
@@ -45,7 +45,7 @@ public class ExplicitScanObject extends ScanObject {
 	}
 
 	@Override
-	ScanStepId moveStep() throws Exception {
+	public ScanStepId moveStep() throws Exception {
 		Object pos = null;
 
 		if (lastPoint != points.size()) {
@@ -58,17 +58,17 @@ public class ExplicitScanObject extends ScanObject {
 	}
 
 	@Override
-	int getNumberPoints() {
+	public int getNumberPoints() {
 		return points.size();
 	}
 
 	@Override
-	void setNumberPoints(int number) {
+	public void setNumberPoints(int number) {
 		// do nothing
 	}
 
 	@Override
-	String arePointsValid() throws DeviceException {
+	public String arePointsValid() throws DeviceException {
 		for (int i = 0; i < getNumberPoints(); i++) {
 			// if any points invalid then return false
 			String reason = this.scannable.checkPositionValid(points.get(i));
@@ -80,12 +80,12 @@ public class ExplicitScanObject extends ScanObject {
 	}
 
 	@Override
-	boolean hasStart() {
+	public boolean hasStart() {
 		return getNumberPoints() > 0;
 	}
 
 	@Override
-	boolean hasStop() {
+	public boolean hasStop() {
 		return getNumberPoints() > 1;
 	}
 }

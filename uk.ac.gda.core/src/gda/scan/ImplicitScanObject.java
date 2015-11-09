@@ -148,12 +148,12 @@ public class ImplicitScanObject extends ScanObject {
 	}
 
 	@Override
-	boolean hasStart() {
+	public boolean hasStart() {
 		return start != null;
 	}
 
 	@Override
-	boolean hasStop() {
+	public boolean hasStop() {
 		return stop != null;
 	}
 }

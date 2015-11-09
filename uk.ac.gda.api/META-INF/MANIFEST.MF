@@ -98,7 +98,8 @@ Export-Package: gda.analysis.numerical.optimization.optimizers,
  gda.util.findableHashtable.corba,
  gda.util.lookupFileReader.corba,
  gda.util.lookupFileWriter.corba,
- uk.ac.diamond.scisoft.analysis.plotserver.corba
+ uk.ac.diamond.scisoft.analysis.plotserver.corba,
+ uk.ac.gda.api.scan
 Require-Bundle: uk.ac.gda.common;bundle-version="1.0.0",
  uk.ac.diamond.org.jscience;bundle-version="[2.0.2,3.0.0)",
  uk.ac.gda.nexus;bundle-version="1.0.0",
