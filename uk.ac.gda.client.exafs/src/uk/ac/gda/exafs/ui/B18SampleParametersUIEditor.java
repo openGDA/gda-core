@@ -25,7 +25,7 @@ import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.richbeans.api.event.ValueAdapter;
 import org.eclipse.richbeans.api.event.ValueEvent;
 import org.eclipse.richbeans.api.event.ValueListener;
-import org.eclipse.richbeans.api.widget.ACTIVE_MODE;
+import org.eclipse.richbeans.api.widget.ActiveMode;
 import org.eclipse.richbeans.widgets.FieldBeanComposite;
 import org.eclipse.richbeans.widgets.FieldComposite;
 import org.eclipse.richbeans.widgets.scalebox.ScaleBox;
@@ -296,22 +296,22 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 					"sam2rot");
 			xythetaStageParameters.setVisible(true);
 			xythetaStageParameters.setEditorClass(XYThetaStageParameters.class);
-			xythetaStageParameters.setActiveMode(ACTIVE_MODE.ACTIVE_ONLY);
+			xythetaStageParameters.setActiveMode(ActiveMode.ACTIVE_ONLY);
 
 			ln2CryoStageComposite = new LN2CryoStageComposite(grpStageParameters, SWT.NONE, bean);
 			ln2CryoStageComposite.setVisible(true);
 			ln2CryoStageComposite.setEditorClass(LN2CryoStageParameters.class);
-			ln2CryoStageComposite.setActiveMode(ACTIVE_MODE.ACTIVE_ONLY);
+			ln2CryoStageComposite.setActiveMode(ActiveMode.ACTIVE_ONLY);
 
 			sxCryoStageComposite = new SXCryoStageComposite(grpStageParameters, SWT.NONE, bean);
 			sxCryoStageComposite.setVisible(true);
 			sxCryoStageComposite.setEditorClass(SXCryoStageParameters.class);
-			sxCryoStageComposite.setActiveMode(ACTIVE_MODE.ACTIVE_ONLY);
+			sxCryoStageComposite.setActiveMode(ActiveMode.ACTIVE_ONLY);
 
 			userStageComposite = new UserStageComposite(grpStageParameters, SWT.NONE, "user2", "user4", "user5", "user6", "user7", "user8");
 			userStageComposite.setVisible(true);
 			userStageComposite.setEditorClass(UserStageParameters.class);
-			userStageComposite.setActiveMode(ACTIVE_MODE.ACTIVE_ONLY);
+			userStageComposite.setActiveMode(ActiveMode.ACTIVE_ONLY);
 
 			Control[] children = grpStageParameters.getChildren();
 			for (int i = 0; i < children.length; i++) {
@@ -393,7 +393,7 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 			pulseTubeCryostatParameters = new B18PulseTubeCryostatComposite(grpEnvironmentParameters, SWT.NONE, bean);
 			pulseTubeCryostatParameters.setVisible(false);
 			pulseTubeCryostatParameters.setEditorClass(PulseTubeCryostatParameters.class);
-			pulseTubeCryostatParameters.setActiveMode(ACTIVE_MODE.ACTIVE_ONLY);
+			pulseTubeCryostatParameters.setActiveMode(ActiveMode.ACTIVE_ONLY);
 
 			new Label(pulseTubeCryostatParameters, SWT.NONE);
 			new Label(pulseTubeCryostatParameters.getSetPoint(), SWT.NONE);
@@ -403,7 +403,7 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 			furnaceParameters = new B18FurnaceComposite(grpEnvironmentParameters, SWT.NONE);
 			furnaceParameters.setVisible(false);
 			furnaceParameters.setEditorClass(FurnaceParameters.class);
-			furnaceParameters.setActiveMode(ACTIVE_MODE.ACTIVE_ONLY);
+			furnaceParameters.setActiveMode(ActiveMode.ACTIVE_ONLY);
 
 			new Label(furnaceParameters, SWT.NONE);
 			new Label(furnaceParameters.getTolerance(), SWT.NONE);
@@ -412,7 +412,7 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 			lakeshoreComposite = new LakeshoreComposite(grpEnvironmentParameters, SWT.NONE);
 			lakeshoreComposite.setVisible(false);
 			lakeshoreComposite.setEditorClass(LakeshoreParameters.class);
-			lakeshoreComposite.setActiveMode(ACTIVE_MODE.ACTIVE_ONLY);
+			lakeshoreComposite.setActiveMode(ActiveMode.ACTIVE_ONLY);
 
 			new Label(lakeshoreComposite, SWT.NONE);
 			new Label(lakeshoreComposite.getTolerance(), SWT.NONE);
@@ -439,7 +439,7 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 			sampleWheelParametersComposite = new SampleWheelParametersComposite(grpSampleWheel, SWT.NONE, bean);
 			sampleWheelParametersComposite.setBounds(10, 29, 400, 230);
 			sampleWheelParametersComposite.setEditorClass(SampleWheelParameters.class);
-			sampleWheelParametersComposite.setActiveMode(ACTIVE_MODE.ACTIVE_ONLY);
+			sampleWheelParametersComposite.setActiveMode(ActiveMode.ACTIVE_ONLY);
 			sampleWheelParametersComposite.layout();
 
 			sampleWheelParametersComposite.addValueListener(new ValueListener() {

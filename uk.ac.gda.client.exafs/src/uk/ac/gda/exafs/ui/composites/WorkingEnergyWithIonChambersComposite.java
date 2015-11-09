@@ -23,7 +23,7 @@ import org.eclipse.richbeans.api.event.ValueEvent;
 import org.eclipse.richbeans.api.event.ValueListener;
 import org.eclipse.richbeans.api.reflection.IBeanController;
 import org.eclipse.richbeans.api.reflection.IBeanService;
-import org.eclipse.richbeans.api.widget.ACTIVE_MODE;
+import org.eclipse.richbeans.api.widget.ActiveMode;
 import org.eclipse.richbeans.widgets.scalebox.IntegerBox;
 import org.eclipse.richbeans.widgets.scalebox.ScaleBox;
 import org.eclipse.richbeans.widgets.selector.BeanSelectionEvent;
@@ -78,7 +78,7 @@ public class WorkingEnergyWithIonChambersComposite extends WorkingEnergyComposit
 
 		this.ionChamberParameters = new VerticalListEditor(getTabFolder(), SWT.BORDER);
 		ionChamberParameters.setEditorClass(IonChamberParameters.class);
-		ionChamberParameters.setActiveMode(ACTIVE_MODE.ACTIVE_ONLY);
+		ionChamberParameters.setActiveMode(ActiveMode.ACTIVE_ONLY);
 		ionChamberParameters.setNameField("name");
 		ionChamberParameters.setAdditionalFields(new String[] { "Gain", "GasType", "pressure" });
 		ionChamberParameters.setMinItems(3);

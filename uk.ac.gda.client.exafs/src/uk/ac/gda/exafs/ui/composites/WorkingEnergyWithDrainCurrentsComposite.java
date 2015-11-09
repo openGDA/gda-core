@@ -19,7 +19,7 @@
 package uk.ac.gda.exafs.ui.composites;
 
 import org.eclipse.richbeans.api.reflection.IBeanController;
-import org.eclipse.richbeans.api.widget.ACTIVE_MODE;
+import org.eclipse.richbeans.api.widget.ActiveMode;
 import org.eclipse.richbeans.widgets.selector.VerticalListEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -51,7 +51,7 @@ public class WorkingEnergyWithDrainCurrentsComposite extends WorkingEnergyCompos
 		drainCurrentComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		drainCurrentParameters.setEditorUI(drainCurrentComposite);
 		drainCurrentParameters.setListEditorUI(drainCurrentComposite);
-		drainCurrentParameters.setActiveMode(ACTIVE_MODE.ACTIVE_ONLY);
+		drainCurrentParameters.setActiveMode(ActiveMode.ACTIVE_ONLY);
 		drainCurrentParameters.setNameField("name");
 		drainCurrentParameters.setAdditionalFields(new String[]{"Gain"});
 		drainCurrentParameters.setMinItems(2);

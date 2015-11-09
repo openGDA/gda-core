@@ -27,7 +27,7 @@ import java.util.List;
 
 import org.eclipse.richbeans.api.event.ValueAdapter;
 import org.eclipse.richbeans.api.event.ValueEvent;
-import org.eclipse.richbeans.api.widget.ACTIVE_MODE;
+import org.eclipse.richbeans.api.widget.ActiveMode;
 import org.eclipse.richbeans.widgets.wrappers.ComboWrapper;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
@@ -115,7 +115,7 @@ public class DetectorParametersUIEditor extends RichBeanEditorPart {
 		GridData gd_stackComponent = new GridData(SWT.FILL, SWT.FILL, true, true);
 		stackComponent.setLayoutData(gd_stackComponent);
 		transmissionComposite = new TransmissionComposite(stackComponent, SWT.NONE, (DetectorParameters) editingBean, controller);
-		transmissionComposite.setActiveMode(ACTIVE_MODE.ACTIVE_ONLY);
+		transmissionComposite.setActiveMode(ActiveMode.ACTIVE_ONLY);
 		transmissionComposite.setEditorClass(TransmissionParameters.class);
 		if (LocalProperties.get("gda.factory.factoryName").equals("b16server") ||  LocalProperties.get("gda.factory.factoryName").equals("b16"))
 			fluorescenceComposite = new FluorescenceComposite(stackComponent, SWT.NONE, true, false, false, (DetectorParameters) editingBean, controller);
@@ -125,16 +125,16 @@ public class DetectorParametersUIEditor extends RichBeanEditorPart {
 			fluorescenceComposite = new FluorescenceComposite(stackComponent, SWT.NONE, false, true, true, (DetectorParameters) editingBean, controller);
 		else
 			fluorescenceComposite = new FluorescenceComposite(stackComponent, SWT.NONE, true, true, false, (DetectorParameters) editingBean, controller);
-		fluorescenceComposite.setActiveMode(ACTIVE_MODE.ACTIVE_ONLY);
+		fluorescenceComposite.setActiveMode(ActiveMode.ACTIVE_ONLY);
 		fluorescenceComposite.setEditorClass(FluorescenceParameters.class);
 		if (LocalProperties.get("gda.factory.factoryName").equals("b18")) {
 			softXRaysParameters = new SoftXRaysComposite(stackComponent, SWT.NONE, controller);
-			softXRaysParameters.setActiveMode(ACTIVE_MODE.ACTIVE_ONLY);
+			softXRaysParameters.setActiveMode(ActiveMode.ACTIVE_ONLY);
 			softXRaysParameters.setEditorClass(SoftXRaysParameters.class);
 		}
 		if (LocalProperties.get("gda.factory.factoryName").equals("i20")) {
 			xesParameters = new FluorescenceComposite(stackComponent, SWT.NONE, true, false, false, (DetectorParameters) editingBean, controller);
-			xesParameters.setActiveMode(ACTIVE_MODE.ACTIVE_ONLY);
+			xesParameters.setActiveMode(ActiveMode.ACTIVE_ONLY);
 			xesParameters.setEditorClass(FluorescenceParameters.class);
 		}
 		stackLayout.topControl = transmissionComposite;

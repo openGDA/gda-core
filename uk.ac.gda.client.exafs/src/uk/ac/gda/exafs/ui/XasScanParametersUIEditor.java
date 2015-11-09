@@ -44,7 +44,7 @@ import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.richbeans.api.event.ValueAdapter;
 import org.eclipse.richbeans.api.event.ValueEvent;
-import org.eclipse.richbeans.api.widget.ACTIVE_MODE;
+import org.eclipse.richbeans.api.widget.ActiveMode;
 import org.eclipse.richbeans.api.widget.IFieldWidget;
 import org.eclipse.richbeans.widgets.scalebox.ScaleBox;
 import org.eclipse.richbeans.widgets.scalebox.ScaleBoxAndFixedExpression;
@@ -626,7 +626,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		gaf1Label.setText("Gaf1");
 		gaf1Label.setToolTipText("Gamma function 1: B = Edge Energy - (Core Hole x gaf1)");
 		gaf1 = new ScaleBox(topCentre, SWT.NONE);
-		gaf1.setActiveMode(ACTIVE_MODE.SET_ENABLED_AND_ACTIVE);
+		gaf1.setActiveMode(ActiveMode.SET_ENABLED_AND_ACTIVE);
 		gaf1.setNumericValue(30);
 		gaf1.setDoNotUseExpressions(true);
 		gaf1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
@@ -665,7 +665,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		gaf2Label.setText("Gaf2");
 		gaf2Label.setToolTipText("Gamma function 2: B = Edge Energy - (Core Hole x gaf2)");
 		gaf2 = new ScaleBox(topCentre, SWT.NONE);
-		gaf2.setActiveMode(ACTIVE_MODE.SET_ENABLED_AND_ACTIVE);
+		gaf2.setActiveMode(ActiveMode.SET_ENABLED_AND_ACTIVE);
 		gaf2.setNumericValue(10);
 		gaf2.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 		gaf2.setDoNotUseExpressions(true);
@@ -710,7 +710,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		gaf3Label.setText("Gaf3");
 		gaf3Label.setToolTipText("Gamma function 3: C = Edge Energy + (Core Hole x gaf3)");
 		gaf3 = new ScaleBox(topCentre, SWT.NONE);
-		gaf3.setActiveMode(ACTIVE_MODE.SET_ENABLED_AND_ACTIVE);
+		gaf3.setActiveMode(ActiveMode.SET_ENABLED_AND_ACTIVE);
 		gaf3.setNumericValue(10);
 		gaf3.setDoNotUseExpressions(true);
 		gaf3.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
@@ -750,7 +750,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		aLabel.addSelectionListener(aListener);
 		a = new ScaleBox(topCentre, SWT.NONE);
 		a.setDoNotUseExpressions(true);
-		a.setActiveMode(ACTIVE_MODE.SET_ENABLED_AND_ACTIVE);
+		a.setActiveMode(ActiveMode.SET_ENABLED_AND_ACTIVE);
 		a.setUnit("eV");
 		a.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		a.setMinimum(initialEnergy);
@@ -769,7 +769,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		bLabel.addSelectionListener(bListener);
 		b = new ScaleBox(topCentre, SWT.NONE);
 		b.setDoNotUseExpressions(true);
-		b.setActiveMode(ACTIVE_MODE.SET_ENABLED_AND_ACTIVE);
+		b.setActiveMode(ActiveMode.SET_ENABLED_AND_ACTIVE);
 		b.setUnit("eV");
 		b.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		b.setMinimum(initialEnergy);
@@ -793,7 +793,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 			c.setLabelDecimalPlaces(1);
 			c.setLabelWidth(1000000);
 			c.setPrefix(" ");
-			c.setActiveMode(ACTIVE_MODE.SET_ENABLED_AND_ACTIVE);
+			c.setActiveMode(ActiveMode.SET_ENABLED_AND_ACTIVE);
 			c.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 			c.setUnit("Å\u207B\u00b9");
 			c.setMinimum(0);
@@ -805,7 +805,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 			c.setLabelUnit("Å\u207B\u00b9");
 			c.setLabelDecimalPlaces(3);
 			c.setLabelWidth(100);
-			c.setActiveMode(ACTIVE_MODE.SET_ENABLED_AND_ACTIVE);
+			c.setActiveMode(ActiveMode.SET_ENABLED_AND_ACTIVE);
 			c.setUnit("eV");
 			c.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 			c.setMinimum(b);
