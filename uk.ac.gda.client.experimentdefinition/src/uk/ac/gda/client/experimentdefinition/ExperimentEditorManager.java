@@ -50,7 +50,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
-import org.eclipse.richbeans.api.reflection.IBeanController;
+import org.eclipse.richbeans.api.binding.IBeanController;
 import org.eclipse.richbeans.api.widget.IFieldWidget;
 import org.eclipse.richbeans.reflection.RichBeanUtils;
 import org.eclipse.richbeans.xml.XMLBeanContentDescriberFactory;
