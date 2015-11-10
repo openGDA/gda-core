@@ -18,18 +18,24 @@
 
 package uk.ac.gda.doe;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.ObjectStreamClass;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.eclipse.richbeans.reflection.RichBeanUtils;
-
-import uk.ac.gda.util.beans.BeansFactory;
+import org.apache.commons.beanutils.BeanMap;
 
 /**
  * IMPORTANT NOTE: All beans used with this class must have hashCode and equals
@@ -117,7 +123,7 @@ public class DOEUtils {
 			// NOTE: You must implement hashCode and equals
 			// on all beans. These are used to avoid adding
 			// repeats.
-			final RangeInfo clone = BeansFactory.deepClone(info);
+			final RangeInfo clone = (RangeInfo) deepClone(info);
 			ret.add(clone);
 			return;
 		}
@@ -125,7 +131,7 @@ public class DOEUtils {
 		final FieldContainer field      = orderedFields.get(index);
 
 		final Object originalObject = field.getOriginalObject();
-	    final String stringValue    = (String)RichBeanUtils.getBeanValue(originalObject, field.getName());
+		final String stringValue = (String) getBeanValue(originalObject, field.getName());
 		if (stringValue==null) {
 			getInfo(info, orderedFields, index+1, ret);
 			return;
@@ -162,7 +168,7 @@ public class DOEUtils {
 		List<FieldContainer> expandedFields = expandFields(weightedFields);
 		final List<Object> ret = new ArrayList<Object>(31);
 
-		Object clone = BeansFactory.deepClone(bean);
+		Object clone = deepClone(bean);
         expand(clone, expandedFields, 0, ret);
 
 		return ret;
@@ -250,7 +256,7 @@ public class DOEUtils {
 						}
 
 					} else {
-						final Object value = RichBeanUtils.getBeanValue(fieldObject, f.getName());
+						final Object value = getBeanValue(fieldObject, f.getName());
 						if (value!=null) readAnnotations(fc, value, weightedFields, -1);
 					}
 				} catch (Throwable ignored) {
@@ -270,7 +276,7 @@ public class DOEUtils {
 			final Field    f   = ff[i];
 			final DOEControl control = f.getAnnotation(DOEControl.class);
 			if (control!=null) {
-				final Object value  = RichBeanUtils.getBeanValue(fieldObject, f.getName());
+				final Object value = getBeanValue(fieldObject, f.getName());
 				if (value!=null) {
 					final String[] vals = control.values();
 					if (!Arrays.asList(vals).contains(value)) continue;
@@ -316,7 +322,7 @@ public class DOEUtils {
 		final FieldContainer field      = orderedFields.get(index);
 
 		final Object originalObject = field.getOriginalObject();
-	    final String stringValue    = (String)RichBeanUtils.getBeanValue(originalObject, field.getName());
+		final String stringValue = (String) getBeanValue(originalObject, field.getName());
 		if (stringValue==null) {
 			expand(clone, orderedFields, index+1, ret);
 			return;
@@ -325,7 +331,7 @@ public class DOEUtils {
 		final String      range = stringValue.toString();
 		final List<? extends Number> vals = DOEUtils.expand(range, field.getAnnotation().type());
 		for (Number value : vals) {
-			clone = BeansFactory.deepClone(clone);
+			clone = deepClone(clone);
 			setBeanValue(clone, field, value.toString(), field.getListIndex());
 			expand(clone, orderedFields, index+1, ret);
 		}
@@ -353,7 +359,7 @@ public class DOEUtils {
 					return false;
 				}
 			} else {
-			    cloneObject = RichBeanUtils.getBeanValue(cloneObject, fc.getName());
+				cloneObject = getBeanValue(cloneObject, fc.getName());
 			}
 		}
 
@@ -361,12 +367,87 @@ public class DOEUtils {
 			cloneObject = ((List<?>)cloneObject).get(index);
 		}
 
-		if (value!=null && value.equals(RichBeanUtils.getBeanValue(cloneObject, field.getName()))) {
+		if (value != null && value.equals(getBeanValue(cloneObject, field.getName()))) {
 			return false;
 		}
 
-	    RichBeanUtils.setBeanValue(cloneObject, field.getName(), value);
+		setBeanValue(cloneObject, field.getName(), value);
 	    return true;
+	}
+
+	/**
+	 * Deep copy using serialization. All objects in the graph must serialize to use this method or an exception will be thrown.
+	 *
+	 * @param fromBean
+	 * @return deeply cloned bean
+	 */
+	public static Object deepClone(final Object fromBean) throws Exception {
+		return deepClone(fromBean, fromBean.getClass().getClassLoader());
+	}
+
+	/**
+	 * Creates a clone of any serializable object. Collections and arrays may be cloned if the entries are serializable. Caution super class members are not
+	 * cloned if a super class is not serializable.
+	 */
+	public static Object deepClone(Object toClone, final ClassLoader classLoader) throws Exception {
+		if (null == toClone)
+			return null;
+
+		ByteArrayOutputStream bOut = new ByteArrayOutputStream();
+		ObjectOutputStream oOut = new ObjectOutputStream(bOut);
+		oOut.writeObject(toClone);
+		oOut.close();
+		ByteArrayInputStream bIn = new ByteArrayInputStream(bOut.toByteArray());
+		bOut.close();
+		ObjectInputStream oIn = new ObjectInputStream(bIn) {
+			/**
+			 * What we are saying with this is that either the class loader or any of the beans added using extension points classloaders should be able to find
+			 * the class.
+			 */
+			@Override
+			protected Class<?> resolveClass(ObjectStreamClass desc) throws IOException, ClassNotFoundException {
+				try {
+					return Class.forName(desc.getName(), false, classLoader);
+				} catch (Exception ne) {
+					ne.printStackTrace();
+				}
+				return null;
+			}
+		};
+		bIn.close();
+		// the whole idea is to create a clone, therefore the readObject must
+		// be the same type in the toClone, hence of T
+		@SuppressWarnings("unchecked")
+		Object copy = oIn.readObject();
+		oIn.close();
+
+		return copy;
+	}
+
+	/**
+	 * Changes a value on the given bean using reflection
+	 *
+	 * @param bean
+	 * @param fieldName
+	 * @param value
+	 * @throws Exception
+	 */
+	public static void setBeanValue(final Object bean, final String fieldName, final Object value) throws Exception {
+		final String setterName = getSetterName(fieldName);
+		try {
+			final Method method;
+			if (value != null) {
+				method = bean.getClass().getMethod(setterName, value.getClass());
+			} else {
+				method = bean.getClass().getMethod(setterName, Object.class);
+			}
+			method.invoke(bean, value);
+		} catch (NoSuchMethodException ne) {
+			// Happens when UI and bean types are not the same, for instance Text editing a double field,
+			// or label showing a double field.
+			final BeanMap properties = new BeanMap(bean);
+			properties.put(fieldName, value);
+		}
 	}
 
 	/**
@@ -586,6 +667,54 @@ public class DOEUtils {
         final Matcher matcher = pattern.matcher(value);
         if (matcher.matches()) return matcher.group(1);
         return value;
+	}
+
+	/**
+	 * Method gets value out of bean using reflection.
+	 *
+	 * @param bean
+	 * @param fieldName
+	 * @return value
+	 * @throws Exception
+	 */
+	public static Object getBeanValue(final Object bean, final String fieldName) throws Exception {
+		final String getterName = getGetterName(fieldName);
+		final Method method = bean.getClass().getMethod(getterName);
+		return method.invoke(bean);
+	}
+
+	/**
+	 * There must be a smarter way of doing this i.e. a JDK method I cannot find. However it is one line of Java so after spending some time looking have coded
+	 * self.
+	 *
+	 * @param fieldName
+	 * @return String
+	 */
+	public static String getSetterName(final String fieldName) {
+		if (fieldName == null)
+			return null;
+		return getName("set", fieldName);
+	}
+
+	/**
+	 * There must be a smarter way of doing this i.e. a JDK method I cannot find. However it is one line of Java so after spending some time looking have coded
+	 * self.
+	 *
+	 * @param fieldName
+	 * @return String
+	 */
+	public static String getGetterName(final String fieldName) {
+		if (fieldName == null)
+			return null;
+		return getName("get", fieldName);
+	}
+
+	public static String getFieldWithUpperCaseFirstLetter(final String fieldName) {
+		return fieldName.substring(0, 1).toUpperCase(Locale.US) + fieldName.substring(1);
+	}
+
+	private static String getName(final String prefix, final String fieldName) {
+		return prefix + getFieldWithUpperCaseFirstLetter(fieldName);
 	}
 
 }
