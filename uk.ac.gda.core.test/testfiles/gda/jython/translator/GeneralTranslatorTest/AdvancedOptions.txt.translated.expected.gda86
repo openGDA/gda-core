@@ -5,7 +5,7 @@ import sys
 import time
 import os
 
-import gda.util.SavePNGPlot.save
+import gda.px.util.SavePNGPlot.save
 from gda.util.userOptions.UserOptions import getUserOptionsFromConfig
 from gda.util.persistence import LocalParameters
 from gda.util import QuantityFactory,ElogEntry
@@ -650,7 +650,7 @@ def LoadPowderPin():
 		return "Powder Pin <SPAN style='BACKGROUND-COLOR: #ff0000'><b>NOT</b></SPAN> loaded successfully: "+str(e)
 
 def SavePNG(dest,source,title="Title",width=1024,height=768):
-	gda.util.SavePNGPlot.save(dest,source,width,height,title)
+	gda.px.util.SavePNGPlot.save(dest,source,width,height,title)
 	return dest
 
 def MoveFemtoIn():
