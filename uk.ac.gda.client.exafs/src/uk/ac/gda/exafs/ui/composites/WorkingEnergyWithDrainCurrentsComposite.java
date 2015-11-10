@@ -18,7 +18,7 @@
 
 package uk.ac.gda.exafs.ui.composites;
 
-import org.eclipse.richbeans.api.reflection.IBeanController;
+import org.eclipse.richbeans.api.binding.IBeanController;
 import org.eclipse.richbeans.api.widget.ActiveMode;
 import org.eclipse.richbeans.widgets.selector.VerticalListEditor;
 import org.eclipse.swt.SWT;

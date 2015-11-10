@@ -18,7 +18,7 @@
 
 package uk.ac.gda.exafs.ui.composites;
 
-import org.eclipse.richbeans.api.reflection.IBeanController;
+import org.eclipse.richbeans.api.binding.IBeanController;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;

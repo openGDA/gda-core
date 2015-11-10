@@ -21,7 +21,7 @@ package uk.ac.gda.exafs.ui.composites;
 import java.util.List;
 
 import org.eclipse.jface.wizard.WizardDialog;
-import org.eclipse.richbeans.api.reflection.IBeanController;
+import org.eclipse.richbeans.api.binding.IBeanController;
 import org.eclipse.richbeans.widgets.selector.ListEditor;
 import org.eclipse.richbeans.widgets.selector.ListEditorUI;
 import org.eclipse.richbeans.widgets.wrappers.BooleanWrapper;

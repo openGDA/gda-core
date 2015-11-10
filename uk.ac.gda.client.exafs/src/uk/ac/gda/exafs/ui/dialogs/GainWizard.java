@@ -19,7 +19,7 @@
 package uk.ac.gda.exafs.ui.dialogs;
 
 import org.eclipse.jface.wizard.Wizard;
-import org.eclipse.richbeans.api.reflection.IBeanController;
+import org.eclipse.richbeans.api.binding.IBeanController;
 import org.eclipse.richbeans.widgets.selector.VerticalListEditor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

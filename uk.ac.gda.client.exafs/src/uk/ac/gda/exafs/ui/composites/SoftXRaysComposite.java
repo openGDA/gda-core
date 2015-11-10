@@ -24,10 +24,10 @@ import java.io.File;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
+import org.eclipse.richbeans.api.binding.IBeanController;
 import org.eclipse.richbeans.api.event.ValueAdapter;
 import org.eclipse.richbeans.api.event.ValueEvent;
 import org.eclipse.richbeans.api.event.ValueListener;
-import org.eclipse.richbeans.api.reflection.IBeanController;
 import org.eclipse.richbeans.widgets.file.FileBox;
 import org.eclipse.richbeans.widgets.file.FileBox.ChoiceType;
 import org.eclipse.richbeans.widgets.scalebox.ScaleBox;

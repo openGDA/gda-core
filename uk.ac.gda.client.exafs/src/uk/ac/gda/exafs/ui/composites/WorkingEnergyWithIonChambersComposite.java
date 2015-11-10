@@ -18,11 +18,11 @@
 
 package uk.ac.gda.exafs.ui.composites;
 
+import org.eclipse.richbeans.api.binding.IBeanController;
+import org.eclipse.richbeans.api.binding.IBeanService;
 import org.eclipse.richbeans.api.event.ValueAdapter;
 import org.eclipse.richbeans.api.event.ValueEvent;
 import org.eclipse.richbeans.api.event.ValueListener;
-import org.eclipse.richbeans.api.reflection.IBeanController;
-import org.eclipse.richbeans.api.reflection.IBeanService;
 import org.eclipse.richbeans.api.widget.ActiveMode;
 import org.eclipse.richbeans.widgets.scalebox.IntegerBox;
 import org.eclipse.richbeans.widgets.scalebox.ScaleBox;
