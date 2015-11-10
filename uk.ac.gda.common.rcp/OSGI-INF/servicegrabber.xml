@@ -1,5 +1,5 @@
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="Service Grabber">
    <implementation class="uk.ac.gda.ServiceGrabber"/>
-   <reference bind="setBeanService" cardinality="1..1" interface="org.eclipse.richbeans.api.reflection.IBeanService" name="IBeanService" policy="static"/>
+   <reference bind="setBeanService" cardinality="1..1" interface="org.eclipse.richbeans.api.binding.IBeanService" name="IBeanService" policy="static"/>
    
 </scr:component>

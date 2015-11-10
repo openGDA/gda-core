@@ -18,7 +18,7 @@
 
 package uk.ac.gda;
 
-import org.eclipse.richbeans.api.reflection.IBeanService;
+import org.eclipse.richbeans.api.binding.IBeanService;
 
 public class ServiceGrabber {
 
