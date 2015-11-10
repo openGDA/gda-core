@@ -27,7 +27,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.eclipse.richbeans.api.beans.BeansFactory;
+import org.eclipse.richbeans.reflection.RichBeanUtils;
+
+import uk.ac.gda.util.beans.BeansFactory;
 
 /**
  * IMPORTANT NOTE: All beans used with this class must have hashCode and equals
@@ -123,7 +125,7 @@ public class DOEUtils {
 		final FieldContainer field      = orderedFields.get(index);
 
 		final Object originalObject = field.getOriginalObject();
-	    final String stringValue    = (String)BeansFactory.getBeanValue(originalObject, field.getName());
+	    final String stringValue    = (String)RichBeanUtils.getBeanValue(originalObject, field.getName());
 		if (stringValue==null) {
 			getInfo(info, orderedFields, index+1, ret);
 			return;
@@ -248,7 +250,7 @@ public class DOEUtils {
 						}
 
 					} else {
-						final Object value = BeansFactory.getBeanValue(fieldObject, f.getName());
+						final Object value = RichBeanUtils.getBeanValue(fieldObject, f.getName());
 						if (value!=null) readAnnotations(fc, value, weightedFields, -1);
 					}
 				} catch (Throwable ignored) {
@@ -268,7 +270,7 @@ public class DOEUtils {
 			final Field    f   = ff[i];
 			final DOEControl control = f.getAnnotation(DOEControl.class);
 			if (control!=null) {
-				final Object value  = BeansFactory.getBeanValue(fieldObject, f.getName());
+				final Object value  = RichBeanUtils.getBeanValue(fieldObject, f.getName());
 				if (value!=null) {
 					final String[] vals = control.values();
 					if (!Arrays.asList(vals).contains(value)) continue;
@@ -314,7 +316,7 @@ public class DOEUtils {
 		final FieldContainer field      = orderedFields.get(index);
 
 		final Object originalObject = field.getOriginalObject();
-	    final String stringValue    = (String)BeansFactory.getBeanValue(originalObject, field.getName());
+	    final String stringValue    = (String)RichBeanUtils.getBeanValue(originalObject, field.getName());
 		if (stringValue==null) {
 			expand(clone, orderedFields, index+1, ret);
 			return;
@@ -351,7 +353,7 @@ public class DOEUtils {
 					return false;
 				}
 			} else {
-			    cloneObject = BeansFactory.getBeanValue(cloneObject, fc.getName());
+			    cloneObject = RichBeanUtils.getBeanValue(cloneObject, fc.getName());
 			}
 		}
 
@@ -359,11 +361,11 @@ public class DOEUtils {
 			cloneObject = ((List<?>)cloneObject).get(index);
 		}
 
-		if (value!=null && value.equals(BeansFactory.getBeanValue(cloneObject, field.getName()))) {
+		if (value!=null && value.equals(RichBeanUtils.getBeanValue(cloneObject, field.getName()))) {
 			return false;
 		}
 
-	    BeansFactory.setBeanValue(cloneObject, field.getName(), value);
+	    RichBeanUtils.setBeanValue(cloneObject, field.getName(), value);
 	    return true;
 	}
 
