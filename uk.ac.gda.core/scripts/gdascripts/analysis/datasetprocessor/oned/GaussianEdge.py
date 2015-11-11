@@ -15,6 +15,5 @@ class GaussianEdge(XYDataSetFunction):
 		if maxVal - minVal == 0:
 			raise ValueError("There is no edge")
 
-		fitResult = GaussianPeak(self.name, self.labelList, self.formatString, self.plotPanel)._process(xDataSet, dyDataSet)
-
-		return fitResult
+		labels = [label if label != 'slope' else 'top' for label in self.labelList]
+		return GaussianPeak(self.name, labels, self.formatString, self.plotPanel)._process(xDataSet, dyDataSet)

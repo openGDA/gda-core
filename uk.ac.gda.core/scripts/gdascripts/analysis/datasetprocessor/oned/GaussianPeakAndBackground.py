@@ -16,7 +16,8 @@ class _GaussianPeak(XYDataSetFunction):
 		fitResult = self.getFitResult(x,y)
 		if self.plotPanel != None:
 			plotGaussian(x, fitResult, self.plotPanel)
-		return self.getResults(fitResult)
+		results = self.getResults(fitResult)
+		return [results.get(label, float('NaN')) for label in self.labelList]
 
 	def getFitResult(self, x, y):
 		funcs = getFitFunctions(self.offset)
@@ -35,7 +36,7 @@ class GaussianPeakAndBackground(_GaussianPeak):
 		peak, fwhm, area, offset = fitResult.parameters[:4]
 		residual = fitResult.residual
 		top = area / fwhm
-		return peak, offset, top, fwhm, residual
+		return {'pos': peak, 'offset': offset, 'top': top, 'fwhm': fwhm,'residual': residual}
 
 
 class GaussianPeak(_GaussianPeak):
@@ -47,7 +48,7 @@ class GaussianPeak(_GaussianPeak):
 		peak, fwhm, area = fitResult.parameters[:3]
 		residual = fitResult.residual
 		top = area / fwhm
-		return peak, top, fwhm, residual
+		return {'pos': peak, 'top': top, 'fwhm': fwhm, 'residual': residual}
 
 
 def gaussianInitialParameters(x, y, offset=False):
