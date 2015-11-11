@@ -68,7 +68,7 @@ public abstract class ServerThread extends Thread implements Terminal, SessionCl
 		super("CommandThread");
 
 		// This also adds this instance to the JSF's list of terminals, so as to receive output
-		command_server.addIObserver(this);
+		command_server.addIObserver(this); //FIXME: potential race condition
 	}
 
 	/**

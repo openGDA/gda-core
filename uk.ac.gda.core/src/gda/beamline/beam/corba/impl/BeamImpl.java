@@ -54,7 +54,7 @@ public class BeamImpl extends CorbaBeamInfoPOA implements IObserver {
 
 		name = theObject.getName();
 		dispatcher = EventService.getInstance().getEventDispatcher();
-		theObject.addIObserver(this);
+		theObject.addIObserver(this); //FIXME: potential race condition
 	}
 
 	/**

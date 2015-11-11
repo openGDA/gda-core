@@ -68,7 +68,7 @@ public class ExternalJavaClient implements Terminal
 		ObjectServer.createClientImpl();
 		try {
 			facade = JythonServerFacade.getInstance();
-			facade.addIObserver(this);
+			facade.addIObserver(this); //FIXME: potential race condition
 			logger.debug("Server facde " + facade);
 		} catch (NullPointerException e) {
 			logger.error("Can't find a command_server. Exiting.");

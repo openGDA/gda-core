@@ -69,7 +69,7 @@ public class GDACorbaConsoleCommunication implements IScriptConsoleCommunication
 			String file = new File(localURL.getFile()).getCanonicalFile().toString();
 
 			commandserver = JythonServerFacade.getInstance();
-			commandserver.addIObserver(this);
+			commandserver.addIObserver(this); //FIXME: potential race condition
 
 			// rather than ensure the completer code is included in the -Dpython.path definition
 			commandserver.runsource("sys.path.append(\"" + file + "\")", "GDACorbaConsoleCommunication");

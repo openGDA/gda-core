@@ -59,7 +59,7 @@ public class ScriptcontrollerImpl extends CorbaScriptControllerPOA implements IO
 
 		dispatcher = EventService.getInstance().getEventDispatcher();
 
-		controller.addIObserver(this);
+		controller.addIObserver(this); //FIXME: potential race condition
 	}
 
 	@Override

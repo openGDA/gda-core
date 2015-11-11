@@ -67,7 +67,7 @@ public class DeviceImpl extends CorbaDevicePOA implements IObserver {
 		this.poa = poa;
 		name = device.getName();
 		dispatcher = EventService.getInstance().getEventDispatcher();
-		device.addIObserver(this);
+		device.addIObserver(this); //FIXME: potential race condition
 	}
 
 	/**

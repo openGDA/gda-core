@@ -124,7 +124,7 @@ public class RedirectableFileLogger implements LineLogger, IObserver {
 		localLogger.addAppender(localAppender);
 
 		// register for path updates
-		logFilePathProvider.addIObserver(this);
+		logFilePathProvider.addIObserver(this); //FIXME: potential race condition
 	}
 
 	private void setFile(String logfile) {

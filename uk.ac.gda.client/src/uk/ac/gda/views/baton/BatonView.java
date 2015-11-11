@@ -76,7 +76,7 @@ public class BatonView extends ViewPart implements IObserver{
 	public void init(final IViewSite site) throws PartInitException {
 		super.init(site);
 		try {
-		    InterfaceProvider.getJSFObserver().addIObserver(this);
+			InterfaceProvider.getJSFObserver().addIObserver(this);
 		} catch (Exception e) {
 			throw new PartInitException("Cannot attach to Jython Server", e);
 		}

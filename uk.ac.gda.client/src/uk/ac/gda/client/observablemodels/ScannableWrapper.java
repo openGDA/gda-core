@@ -62,7 +62,7 @@ public class ScannableWrapper extends UIObservableModel implements IObserver {
 
 	public ScannableWrapper(Scannable scannable) {
 		this.scannable = scannable;
-		this.scannable.addIObserver(this);
+		this.scannable.addIObserver(this); //FIXME: potential race condition
 		updateLimits(scannable);
 	}
 
