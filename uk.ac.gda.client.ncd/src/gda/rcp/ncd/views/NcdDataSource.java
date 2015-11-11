@@ -78,7 +78,7 @@ public class NcdDataSource extends ViewPart implements IObserver {
 	private String doubleFormat = "%5.5g";
 	private Combo combo;
 	private Button btnStopUpdates;
-	
+
 	/**
 	 * Controls the server side display of live or near live data and displays statistics
 	 */
@@ -93,11 +93,11 @@ public class NcdDataSource extends ViewPart implements IObserver {
 			plotView = (PlotView) getSite().getPage().showView(panelId);
 			plotView.addDataObserver(this);
 			plotPanelName = plotView.getPlotViewName();
-			
+
 		} catch (PartInitException e) {
 			logger.error("All over now! Cannot find plotview: " + plotPanelName, e);
 		}
-		
+
 		GridLayout layout= new GridLayout();
 
 		parent.setLayout(layout);
@@ -107,7 +107,7 @@ public class NcdDataSource extends ViewPart implements IObserver {
 		grpSource.setText("Source for "+plotPanelName);
 		grpSource.setLayout(new GridLayout(2, false));
 		grpSource.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		
+
 		btnStopUpdates = new Button(grpSource, SWT.NONE);
 		btnStopUpdates.setText("Stop Updates");
 		btnStopUpdates.addSelectionListener(new SelectionAdapter() {
@@ -117,7 +117,7 @@ public class NcdDataSource extends ViewPart implements IObserver {
 			}
 		});
 		new Label(grpSource, SWT.NONE);
-		
+
 		combo = new Combo(grpSource, SWT.NONE);
 		combo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		populateSourceCombo();
@@ -128,12 +128,12 @@ public class NcdDataSource extends ViewPart implements IObserver {
 				populateSourceCombo();
 			}
 		});
-		
+
 		Group grpMaths = new Group(parent, SWT.NONE);
 		grpMaths.setText("Maths");
 		grpMaths.setLayout(new GridLayout(4, false));
 		grpMaths.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		
+
 		btnStoreCurrentAsA = new Button(grpMaths, SWT.NONE);
 		btnStoreCurrentAsA.setText("Store current as A");
 		btnStoreCurrentAsA.setEnabled(false);
@@ -163,7 +163,7 @@ public class NcdDataSource extends ViewPart implements IObserver {
 				pushToPlotView(PlotViewStatsAndMaths.dataBeanSubtract(dataBeanA, dataBeanB));
 			}
 		});
-		
+
 		btnPlotAnB = new Button(grpMaths, SWT.NONE);
 		btnPlotAnB.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 2));
 		btnPlotAnB.setText("Plot A + B");
@@ -173,7 +173,7 @@ public class NcdDataSource extends ViewPart implements IObserver {
 				pushToPlotView(PlotViewStatsAndMaths.dataBeanAdd(dataBeanA, dataBeanB));
 			}
 		});
-		
+
 		btnStoreCurrentAsB = new Button(grpMaths, SWT.NONE);
 		btnStoreCurrentAsB.setText("Store current as B");
 		btnStoreCurrentAsB.setEnabled(false);
@@ -207,7 +207,7 @@ public class NcdDataSource extends ViewPart implements IObserver {
 		grpStatistics.setText("Statistics");
 		grpStatistics.setLayout(new GridLayout(3, false));
 		grpStatistics.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		
+
 		new Label(grpStatistics, SWT.NONE);
 
 		Label txtValue = new Label(grpStatistics, SWT.NONE);
@@ -283,7 +283,7 @@ public class NcdDataSource extends ViewPart implements IObserver {
 		gd_textMean.widthHint = 120;
 		textMean.setLayoutData(gd_textMean);
 		textMean.setEditable(false);
-		
+
 		new Label(grpStatistics, SWT.NONE);
 
 		enableDisableMaths();
@@ -305,10 +305,10 @@ public class NcdDataSource extends ViewPart implements IObserver {
 		try {
 		oldSelected = combo.getItem(combo.getSelectionIndex());
 		} catch(Exception ignored) {
-			
+
 		}
 		combo.removeAll();
-		
+
 		List<String> items = new ArrayList<String>();
 		items.add("Live SAXS");
 		items.add("Live WAXS");
