@@ -147,7 +147,7 @@ public class ViewTestObject implements IScanDataPointProvider {
 		if (data.isEmpty())
 			throw new Exception("Data should not be empty!");
 		for (IDataset d : data.values()) {
-			DoubleDataset oldD = (DoubleDataset) DatasetUtils.convertToDataset(d).cast(Dataset.FLOAT64);
+			DoubleDataset oldD = (DoubleDataset) DatasetUtils.cast(d, Dataset.FLOAT64);
 			if (oldD.getSize() != checkSize)
 				throw new Exception("Data (size = " + oldD.getSize() + ") should be same size as plotted data (size = "
 						+ checkSize + ").");

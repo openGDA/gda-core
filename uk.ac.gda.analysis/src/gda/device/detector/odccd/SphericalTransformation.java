@@ -25,14 +25,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
-import java.util.List;
 
 import javax.imageio.ImageIO;
 
-import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
 import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
 
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.PilatusTiffLoader;
@@ -405,9 +402,8 @@ public class SphericalTransformation {
 		DataHolder pilDataHolder = null;
 		try {
 			pilDataHolder = pilLoad.loadFile();
-			List<ILazyDataset> pilData = pilDataHolder.getList();
 
-			Dataset myData = DatasetUtils.convertToDataset(pilData.get(0));
+			Dataset myData = pilDataHolder.getDataset(0);
 
 			int PILATUS_SIZE_X = myData.getShape()[1]; // was 195;
 			int PILATUS_SIZE_Y = myData.getShape()[0]; // was 487;
