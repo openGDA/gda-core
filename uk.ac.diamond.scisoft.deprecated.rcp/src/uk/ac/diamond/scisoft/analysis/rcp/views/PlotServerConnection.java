@@ -85,7 +85,6 @@ public class PlotServerConnection implements IObserver,
 		
 		plotConsumer = new PlotConsumer(plotServer, plotName);
 
-		plotConsumer.addIObserver(this);
 		execSvc.execute(plotConsumer);
 		plotConsumer.addJob(new PlotJob(PlotJobType.Data));
 
@@ -256,5 +255,6 @@ public class PlotServerConnection implements IObserver,
 
 	public void setPlotWindow(AbstractPlotWindow plotWindow) {
 		this.plotWindow = plotWindow;
+		plotConsumer.addIObserver(this);
 	}
 }

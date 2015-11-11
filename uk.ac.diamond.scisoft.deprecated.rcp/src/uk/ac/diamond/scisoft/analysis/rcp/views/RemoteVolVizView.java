@@ -113,10 +113,11 @@ public class RemoteVolVizView extends ViewPart implements PaintListener, MouseLi
 	
 	public RemoteVolVizView() {
 		plotServer = PlotServerProvider.getPlotServer();
-		plotServer.addIObserver(this);
 	}
+
 	@Override
 	public void createPartControl(Composite parent) {
+		plotServer.addIObserver(this);
 		viewName = getViewSite().getRegisteredName();
 //		this.parent = parent;
 		parent.setLayout(new GridLayout(4, false));
