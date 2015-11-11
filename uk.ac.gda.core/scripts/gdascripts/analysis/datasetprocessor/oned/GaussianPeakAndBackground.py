@@ -3,8 +3,8 @@ import scisoftpy as dnp
 
 
 class _GaussianPeak(XYDataSetFunction):
-	def __init__(self, name, labelList, formatString, plotPanel, offset):
-		XYDataSetFunction.__init__(self, name, labelList, 'pos', formatString)
+	def __init__(self, name, labelList, formatString, plotPanel, offset, keyxlabel):
+		XYDataSetFunction.__init__(self, name, labelList, keyxlabel, formatString)
 		self.plotPanel = plotPanel
 		self.offset = offset
 
@@ -28,8 +28,8 @@ class _GaussianPeak(XYDataSetFunction):
 
 class GaussianPeakAndBackground(_GaussianPeak):
 
-	def __init__(self, name='peak', labelList=('pos','offset','top', 'fwhm', 'residual'),formatString='Gaussian at %f (pos) with offset: %f, top: %f, fwhm: %f and residual: %f', plotPanel=None):
-		_GaussianPeak.__init__(self, name, labelList, formatString, plotPanel, offset=True)
+	def __init__(self, name='peak', labelList=('pos','offset','top', 'fwhm', 'residual'),formatString='Gaussian at %f (pos) with offset: %f, top: %f, fwhm: %f and residual: %f', plotPanel=None, keyxlabel='pos'):
+		_GaussianPeak.__init__(self, name, labelList, formatString, plotPanel, offset=True, keyxlabel=keyxlabel)
 
 	def getResults(self, fitResult):
 		peak, fwhm, area, offset = fitResult.parameters[:4]
@@ -40,8 +40,8 @@ class GaussianPeakAndBackground(_GaussianPeak):
 
 class GaussianPeak(_GaussianPeak):
 
-	def __init__(self, name='peak', labelList=('pos','top', 'fwhm','residual'), formatString='Gaussian at %f (pos) with top: %f, fwhm: %f and residual: %f', plotPanel=None):
-		_GaussianPeak.__init__(self, name, labelList, formatString, plotPanel, offset=False)
+	def __init__(self, name='peak', labelList=('pos','top', 'fwhm','residual'), formatString='Gaussian at %f (pos) with top: %f, fwhm: %f and residual: %f', plotPanel=None, keyxlabel='pos'):
+		_GaussianPeak.__init__(self, name, labelList, formatString, plotPanel, offset=False, keyxlabel=keyxlabel)
 
 	def getResults(self, fitResult):
 		peak, fwhm, area = fitResult.parameters[:3]
