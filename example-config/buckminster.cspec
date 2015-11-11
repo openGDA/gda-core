@@ -5,7 +5,8 @@
         <cs:dependency name="uk.ac.diamond.scisoft.analysis" componentType="osgi.bundle"/>
         <cs:dependency name="uk.ac.diamond.scisoft.python" componentType="osgi.bundle"/>
         <cs:dependency name="uk.ac.gda.epics" componentType="osgi.bundle"/>
-        <cs:dependency name="uk.ac.gda.example" componentType="osgi.bundle"/>
+        <cs:dependency name="uk.ac.gda.example.server" componentType="osgi.bundle"/>
         <cs:dependency name="uk.ac.gda.example.site" componentType="eclipse.feature"/>
+        <cs:dependency name="uk.ac.gda.example" componentType="osgi.bundle"/>
     </cs:dependencies>
 </cs:cspec>

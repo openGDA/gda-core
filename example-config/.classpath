@@ -3,5 +3,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/uk.ac.gda.core"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/uk.ac.gda.example"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/uk.ac.gda.example.server"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

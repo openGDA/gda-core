@@ -1,0 +1,43 @@
+GDA 8.52  (expected release: Mar/2016)
+======================================
+
+User Highlights
+---------------
+
+New Features
+~~~~~~~~~~~~
+
+Fixes
+~~~~~
+
+Developer
+---------
+The uk.ac.gda.example plugin has been split into two with the server based packages being in the new uk.ac.gda.example.server and the client code remaining in the original.
+This is to remove one of the links that causes server code to have to depend on client plugins. 
+
+Important
+~~~~~~~~~
+
+New Features
+~~~~~~~~~~~~
+
+Fixes
+~~~~~
+
+How to create notes
+~~~~~~~~~~~~~~~~~~~
+
+1. Run the git command: ``git log --no-merges --pretty="format:%aD, %an, * %s [%an - %h] %b" gda-8.46rel..gda-8.48rel > /tmp/reponame.version.csv``
+
+2. Open up in excel or the likes,
+
+   a. Sort by name, as we tend to work in our pet areas and this makes categorisation simpler (also message quality is likewise correlated).
+   b. Add an empty column to fill with single character tags. These will become component headings. e.g.  'u' for user 'dz' for developer+zebra.
+   c. Sort by the tab columns
+
+3. Cut each tag group paste to the release notes file under the appropriate heading.
+
+4. Fixup the reStructuredText.
+
+5. Tweak the text of the user highlights at the top.
+
