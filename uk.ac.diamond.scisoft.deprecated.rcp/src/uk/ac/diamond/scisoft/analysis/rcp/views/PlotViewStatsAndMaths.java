@@ -515,7 +515,7 @@ public class PlotViewStatsAndMaths extends ViewPart implements IObserver {
 			return;
 		}
 
-		plotView.processPlotUpdate(dBean);
+		plotView.processPlotUpdate(dBean, this);
 		currentBean = dBean;
 	}
 }
