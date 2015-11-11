@@ -21,11 +21,11 @@ Export-Package: gda.data.nexus,
  gda.data.nexus.tree
 Bundle-ClassPath: .,
  jars/jnexus.jar
-Bundle-NativeCode: lib/win32-x86/hdf5dll.dll;  lib/win32-x86/jnexus.dll;  lib/win32-x86/libNeXus-0.dll;  lib/win32-x86/mxml1.dll;  lib/win32-x86/szip.dll;  lib/win32-x86/zlib1.dll;
+Bundle-NativeCode: lib/win32-x86/hdf5dll.dll; lib/win32-x86/mxml1.dll; lib/win32-x86/szip.dll; lib/win32-x86/zlib1.dll;
  osname=Win32; processor=x86; processor=x86-64,
- lib/linux-x86/libhdf5.so.7;  lib/linux-x86/libjnexus.so;  lib/linux-x86/libNeXus.so.0;  lib/linux-x86/libz.so.1;
+ lib/linux-x86/libhdf5.so.7; lib/linux-x86/libz.so.1;
  osname=Linux; processor=x86,
- lib/linux-x86_64/libhdf5.so.8; lib/linux-x86_64/libjnexus.so; lib/linux-x86_64/libNeXus.so.0;
+ lib/linux-x86_64/libhdf5.so.8;
  osname=Linux; processor=x86-64,
  *
 Import-Package: org.slf4j;version="[1.7.6,1.7.7)"
