@@ -31,12 +31,24 @@ import gda.device.Scannable;
  */
 public class DummyMandelbrotMappingDetector extends DetectorBase implements NexusDetector {
 
+	public enum OutputDimensions { ONE_D, TWO_D }
+
 	public static final String VALUE_NAME = "mandelbrot_value";
 
-	private int status = IDLE;
-	private NXDetectorData data;
+	private static final int COLUMNS = 301;
+	private static final int ROWS = 241;
+	private static final int POINTS = 1000;
+	private static final double MAX_X = 1.5;
+	private static final double MAX_Y = 1.2;
+
+	// Internal state
+	private volatile int status = IDLE;
+	private volatile NXDetectorData data;
+
+	// Configurable fields
 	private Scannable xPos;
 	private Scannable yPos;
+	private OutputDimensions outputDimensions = OutputDimensions.TWO_D;
 
 	// TODO make this configurable (using some kind of detector parameters?)
 	private int maxIterations = 501;
@@ -56,9 +68,19 @@ public class DummyMandelbrotMappingDetector extends DetectorBase implements Nexu
 		this.yPos = yPos;
 	}
 
+	public void setOutputDimensions(OutputDimensions outputDimensions) {
+		this.outputDimensions = outputDimensions;
+	}
+
 	@Override
 	public int[] getDataDimensions() throws DeviceException {
-		return new int[] { 1, 1 }; // returning { 1 } caused scans to fail; no idea why!
+		if (outputDimensions == OutputDimensions.ONE_D) {
+			return new int[] { POINTS };
+		} else if (outputDimensions == OutputDimensions.TWO_D) {
+			return new int[] { COLUMNS, ROWS };
+		} else {
+			throw new IllegalStateException("Unknown number of dimensions!");
+		}
 	}
 
 	@Override
@@ -86,21 +108,17 @@ public class DummyMandelbrotMappingDetector extends DetectorBase implements Nexu
 		// TODO normalise the value somehow?
 		int value = maxIterations - mandelbrot(a, b, maxIterations, 10.0);
 
-		// TODO configurable switch between 1D and 2D output?
-		// 1D
-		// float[] spectrum = new float[maxIterations];
-		// for (int i = 0; i < spectrum.length; i++) {
-		// double diff = i - value;
-		// spectrum[i] = (float) Math.exp(-(diff * diff) / (2 * maxIterations));
-		// }
-
-		// 2D
-		int[][] juliaSet = calculateJuliaSet(a, b);
-
 		data = new NXDetectorData(this);
-		data.addData(getName(), "data", new NexusGroupData(juliaSet), null, Integer.valueOf(1));
 		data.addData(getName(), VALUE_NAME, new NexusGroupData(value));
 		data.setPlottableValue(VALUE_NAME, Double.valueOf(value));
+
+		if (outputDimensions == OutputDimensions.ONE_D) {
+			int[] juliaSetLine = calculateJuliaSetLine(a, b, 0.0, 0.0, MAX_X, POINTS);
+			data.addData(getName(), "data", new NexusGroupData(juliaSetLine), null, Integer.valueOf(1));
+		} else if (outputDimensions == OutputDimensions.TWO_D) {
+			int[][] juliaSet = calculateJuliaSet(a, b, COLUMNS, ROWS);
+			data.addData(getName(), "data", new NexusGroupData(juliaSet), null, Integer.valueOf(1));
+		}
 
 		status = IDLE;
 	}
@@ -108,26 +126,34 @@ public class DummyMandelbrotMappingDetector extends DetectorBase implements Nexu
 	/**
 	 * Fill a Julia set around the origin for the value C = a + bi
 	 */
-	private int[][] calculateJuliaSet(final double a, final double b) {
-		int columns = 301;
-		int rows = 241;
-		double xStart = -1.5;
-		double xStop = 1.5;
-		double xStep = (xStop - xStart) / columns;
-		double yStart = -1.2;
-		double yStop = 1.2;
-		double yStep = (yStop - yStart) / rows;
-		double x, y;
+	private int[][] calculateJuliaSet(final double a, final double b, int columns, int rows) {
+		final double xStart = -MAX_X;
+		final double xStop = MAX_X;
+		final double yStart = -MAX_Y;
+		final double yStop = MAX_Y;
+		final double yStep = (yStop - yStart) / rows;
+		double y;
 		int[][] juliaSet = new int[rows][columns];
 		for (int yIndex = 0; yIndex < rows; yIndex++) {
-			for (int xIndex = 0; xIndex < columns; xIndex++) {
-				x = xStart + xIndex * xStep;
-				y = yStart + yIndex * yStep;
-				// TODO normalise the value somehow?
-				juliaSet[yIndex][xIndex] = maxIterations - julia(x, y, a, b, maxIterations, 10.0);
-			}
+			y = yStart + yIndex * yStep;
+			juliaSet[yIndex] = calculateJuliaSetLine(a, b, y, xStart, xStop, columns);
 		}
 		return juliaSet;
+	}
+
+	/**
+	 * Fill a Julia set line between xStart and xStop at the given y value, for the value C = a + bi
+	 */
+	private int[] calculateJuliaSetLine(final double a, final double b, final double y, final double xStart, final double xStop, final int numPoints) {
+		final double xStep = (xStop - xStart) / numPoints;
+		double x;
+		int[] juliaSetLine = new int[numPoints];
+		for (int xIndex = 0; xIndex < numPoints; xIndex++) {
+			x = xStart + xIndex * xStep;
+			// TODO normalise the value somehow?
+			juliaSetLine[xIndex] = maxIterations - julia(x, y, a, b, maxIterations, 10.0);
+		}
+		return juliaSetLine;
 	}
 
 	/**
