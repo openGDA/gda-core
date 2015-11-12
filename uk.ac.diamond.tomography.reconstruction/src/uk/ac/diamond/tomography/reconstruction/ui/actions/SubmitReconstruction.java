@@ -23,7 +23,6 @@ import java.net.URI;
 import org.dawb.common.ui.util.EclipseUtils;
 import org.dawnsci.commandserver.core.ActiveMQServiceHolder;
 import org.dawnsci.commandserver.tomo.beans.TomoBean;
-import org.dawnsci.commandserver.ui.view.StatusQueueView;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -36,6 +35,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.core.ISubmitter;
+import org.eclipse.scanning.event.ui.view.StatusQueueView;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -74,7 +74,7 @@ public class SubmitReconstruction implements IWorkbenchWindowActionDelegate {
     	    tBean.setRunDirectory("/dls/p45/test/");
     	    tBean.setName("Test Recon "+resource.getName());
 
-    		IPreferenceStore store = new ScopedPreferenceStore(InstanceScope.INSTANCE, "org.dawnsci.commandserver.ui");
+    		IPreferenceStore store = new ScopedPreferenceStore(InstanceScope.INSTANCE, "org.eclipse.scanning.event.ui");
     		final String uri        = store.getString("org.dawnsci.commandserver.URI");
     		final String queueName  = "scisoft.tomo.SUBMISSION_QUEUE";
 
