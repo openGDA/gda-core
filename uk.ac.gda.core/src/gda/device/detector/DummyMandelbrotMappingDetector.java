@@ -31,15 +31,27 @@ import gda.device.Scannable;
  */
 public class DummyMandelbrotMappingDetector extends DetectorBase implements NexusDetector {
 
+	public enum OutputDimensions { ONE_D, TWO_D }
+
 	public static final String VALUE_NAME = "mandelbrot_value";
 
-	private int status = IDLE;
-	private NXDetectorData data;
+	// Constants
+	private static final int MAX_ITERATIONS = 500;
+	private static final double ESCAPE_RADIUS = 10.0;
+	private static final int COLUMNS = 301;
+	private static final int ROWS = 241;
+	private static final int POINTS = 1000;
+	private static final double MAX_X = 1.5;
+	private static final double MAX_Y = 1.2;
+
+	// Internal state
+	private volatile int status = IDLE;
+	private volatile NXDetectorData data;
+
+	// Configurable fields
 	private Scannable xPos;
 	private Scannable yPos;
-
-	// TODO make this configurable (using some kind of detector parameters?)
-	private int maxIterations = 501;
+	private OutputDimensions outputDimensions = OutputDimensions.TWO_D;
 
 	public DummyMandelbrotMappingDetector() {
 		super();
@@ -56,9 +68,19 @@ public class DummyMandelbrotMappingDetector extends DetectorBase implements Nexu
 		this.yPos = yPos;
 	}
 
+	public void setOutputDimensions(OutputDimensions outputDimensions) {
+		this.outputDimensions = outputDimensions;
+	}
+
 	@Override
 	public int[] getDataDimensions() throws DeviceException {
-		return new int[] { 1, 1 }; // returning { 1 } caused scans to fail; no idea why!
+		if (outputDimensions == OutputDimensions.ONE_D) {
+			return new int[] { POINTS };
+		} else if (outputDimensions == OutputDimensions.TWO_D) {
+			return new int[] { COLUMNS, ROWS };
+		} else {
+			throw new IllegalStateException("Unknown number of dimensions!");
+		}
 	}
 
 	@Override
@@ -83,24 +105,19 @@ public class DummyMandelbrotMappingDetector extends DetectorBase implements Nexu
 		final double a = ((Double) xPos.getPosition()).doubleValue();
 		final double b = ((Double) yPos.getPosition()).doubleValue();
 
-		// TODO normalise the value somehow?
-		int value = maxIterations - mandelbrot(a, b, maxIterations, 10.0);
-
-		// TODO configurable switch between 1D and 2D output?
-		// 1D
-		// float[] spectrum = new float[maxIterations];
-		// for (int i = 0; i < spectrum.length; i++) {
-		// double diff = i - value;
-		// spectrum[i] = (float) Math.exp(-(diff * diff) / (2 * maxIterations));
-		// }
-
-		// 2D
-		int[][] juliaSet = calculateJuliaSet(a, b);
+		double value = mandelbrot(a, b);
 
 		data = new NXDetectorData(this);
-		data.addData(getName(), "data", new NexusGroupData(juliaSet), null, Integer.valueOf(1));
 		data.addData(getName(), VALUE_NAME, new NexusGroupData(value));
 		data.setPlottableValue(VALUE_NAME, Double.valueOf(value));
+
+		if (outputDimensions == OutputDimensions.ONE_D) {
+			double[] juliaSetLine = calculateJuliaSetLine(a, b, 0.0, 0.0, MAX_X, POINTS);
+			data.addData(getName(), "data", new NexusGroupData(juliaSetLine), null, Integer.valueOf(1));
+		} else if (outputDimensions == OutputDimensions.TWO_D) {
+			double[][] juliaSet = calculateJuliaSet(a, b, COLUMNS, ROWS);
+			data.addData(getName(), "data", new NexusGroupData(juliaSet), null, Integer.valueOf(1));
+		}
 
 		status = IDLE;
 	}
@@ -108,46 +125,66 @@ public class DummyMandelbrotMappingDetector extends DetectorBase implements Nexu
 	/**
 	 * Fill a Julia set around the origin for the value C = a + bi
 	 */
-	private int[][] calculateJuliaSet(final double a, final double b) {
-		int columns = 301;
-		int rows = 241;
-		double xStart = -1.5;
-		double xStop = 1.5;
-		double xStep = (xStop - xStart) / columns;
-		double yStart = -1.2;
-		double yStop = 1.2;
-		double yStep = (yStop - yStart) / rows;
-		double x, y;
-		int[][] juliaSet = new int[rows][columns];
+	private double[][] calculateJuliaSet(final double a, final double b, int columns, int rows) {
+		final double xStart = -MAX_X;
+		final double xStop = MAX_X;
+		final double yStart = -MAX_Y;
+		final double yStop = MAX_Y;
+		final double yStep = (yStop - yStart) / (rows - 1);
+		double y;
+		double[][] juliaSet = new double[rows][columns];
 		for (int yIndex = 0; yIndex < rows; yIndex++) {
-			for (int xIndex = 0; xIndex < columns; xIndex++) {
-				x = xStart + xIndex * xStep;
-				y = yStart + yIndex * yStep;
-				// TODO normalise the value somehow?
-				juliaSet[yIndex][xIndex] = maxIterations - julia(x, y, a, b, maxIterations, 10.0);
-			}
+			y = yStart + yIndex * yStep;
+			juliaSet[yIndex] = calculateJuliaSetLine(a, b, y, xStart, xStop, columns);
 		}
 		return juliaSet;
 	}
 
 	/**
+	 * Fill a Julia set line between xStart and xStop at the given y value, for the value C = a + bi
+	 */
+	private double[] calculateJuliaSetLine(final double a, final double b, final double y, final double xStart, final double xStop, final int numPoints) {
+		final double xStep = (xStop - xStart) / (numPoints - 1);
+		double x;
+		double[] juliaSetLine = new double[numPoints];
+		for (int xIndex = 0; xIndex < numPoints; xIndex++) {
+			x = xStart + xIndex * xStep;
+			juliaSetLine[xIndex] = julia(x, y, a, b);
+		}
+		return juliaSetLine;
+	}
+
+	/**
 	 * Iterations of f(z) = z^2 + C, where z = x + yi, C = a + bi, and initial z = 0
 	 */
-	private int mandelbrot(final double a, final double b, final int maxIterations, final double escapeRadius) {
-		return julia(0.0, 0.0, a, b, maxIterations, escapeRadius);
+	private double mandelbrot(final double a, final double b) {
+		return julia(0.0, 0.0, a, b);
 	}
 
 	/**
 	 * Iterations of f(z) = z^2 + C, where z = x + yi and C = a + bi
 	 */
-	private int julia(double x, double y, final double a, final double b, final int maxIterations, final double escapeRadius) {
+	private double julia(double x, double y, final double a, final double b) {
 		int iteration = 0;
-		while (iteration < maxIterations && x * x + y * y < escapeRadius * escapeRadius) {
-			double tempX = x * x - y * y + a;
+		double xSquared, ySquared, tempX;
+		double escapeRadiusSquared = ESCAPE_RADIUS * ESCAPE_RADIUS;
+		do {
+			xSquared = x * x;
+			ySquared = y * y;
+			tempX = xSquared - ySquared + a;
 			y = 2 * x * y + b;
 			x = tempX;
 			iteration++;
+		} while (iteration < MAX_ITERATIONS && xSquared + ySquared < escapeRadiusSquared);
+
+		double modulus = Math.sqrt(x * x + y * y);
+
+		// If modulus > 1.0, normalise the result
+		// (Theoretically, I think this should make the value roughly independent of MAX_ITERATIONS and ESCAPE_RADIUS)
+		if (modulus > 1.0) {
+			return iteration - (Math.log(Math.log(modulus)) / Math.log(2.0));
 		}
+		// Otherwise just return the iteration count
 		return iteration;
 	}
 }
