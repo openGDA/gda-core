@@ -15,7 +15,8 @@ Require-Bundle: org.eclipse.ui,
  uk.ac.gda.client;bundle-version="1.0.0",
  uk.ac.gda.nexus,
  uk.ac.diamond.scisoft.analysis.plotserver;bundle-version="1.0.0",
- uk.ac.diamond.jython;bundle-version="2.5.3"
+ uk.ac.diamond.jython;bundle-version="2.5.3",
+ uk.ac.gda.analysis;bundle-version="8.50.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: org.slf4j,
