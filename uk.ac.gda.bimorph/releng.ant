@@ -45,9 +45,10 @@
 				<pathelement location="${workspace.git.loc}/diamond-jacorb.git/uk.ac.diamond.org.jacorb/jars/jacorb.jar" />
 				<pathelement location="${workspace.git.loc}/scisoft-core.git/uk.ac.diamond.scisoft.python/bin" />
 				<pathelement location="${workspace.git.loc}/diamond-springframework.git/uk.ac.diamond.org.springframework/jars/*" />
-				<pathelement path="${workspace.loc}/tp/plugins/uk.ac.diamond.org.jscience_2.0.2.jar" />  <!--ensure that 2.0.2 appears first in classpath -->
-				<path refid="tp.slf4j.path" />  <!--ensure that required org.slf4j.LoggerFactory appears first in classpath -->
-				<pathelement location="${workspace.loc}/tp/plugins/*" />
+				<path refid="tp.slf4j.path" />  <!-- ensure that required org.slf4j.LoggerFactory appears first in classpath -->
+				<path refid="tp.jcl-over-slf4j.path" />  <!-- ensure that matching imp appears first in classpath -->
+				<pathelement path="${workspace.loc}/tp/plugins/uk.ac.diamond.org.jscience_2.0.2.jar" />  <!-- ensure that 2.0.2 appears first in classpath -->
+				<path refid="tp.path" />  <!-- target platform -->
 				<pathelement location="${workspace.git.loc}/dawn-third.git/ncsa.hdf/bin" />
 				<pathelement location="${workspace.git.loc}/dawn-third.git/ncsa.hdf/jars/*" />
 				<path refid="libs.jars.path" />
