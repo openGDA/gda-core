@@ -1,6 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
- * Facilities Council
+ * Copyright © 2015 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -44,11 +43,10 @@ public class RCPPlotter extends SDAPlotter {
 	 */
 	private static final Logger logger = LoggerFactory.getLogger(RCPPlotter.class);
 
-	protected static String saveTempFile(DataHolder tHolder,
-			IDataset dataset) throws ScanFileHolderException {
+	protected static String saveTempFile(DataHolder tHolder, IDataset dataset) throws ScanFileHolderException {
 
 		try {
-			java.io.File tmpFile = File.createTempFile("tmp_img",".raw");
+			java.io.File tmpFile = File.createTempFile("tmp_img", ".raw");
 			String dirName = PathConstructor.createFromRCPProperties() + PlotServer.GRIDVIEWDIR;
 			java.io.File directory = new java.io.File(dirName);
 			if (!directory.exists())
@@ -59,9 +57,9 @@ public class RCPPlotter extends SDAPlotter {
 			return rawFilename;
 		} catch (IOException e) {
 			logger.error("Couldn't load file: {}", e);
-			throw new ScanFileHolderException("Couldn't load file",e);
+			throw new ScanFileHolderException("Couldn't load file", e);
 		}
 	}
 
-
 }
+

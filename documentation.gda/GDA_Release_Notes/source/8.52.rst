@@ -15,6 +15,9 @@ Developer
 The uk.ac.gda.example plugin has been split into two with the server based packages being in the new uk.ac.gda.example.server and the client code remaining in the original.
 This is to remove one of the links that causes server code to have to depend on client plugins. 
 
+The RCPPlotter class has been moved from the gda-client plugin into the gda.analysis plugin to break the dependency of gda.epics on gda.client. 
+This also affects uk.ac.gda.beamline.i12 and uk.ac.gda.devices.pixium whose manifest files now require the uk.ac.gda.analysis bundle.
+
 Important
 ~~~~~~~~~
 

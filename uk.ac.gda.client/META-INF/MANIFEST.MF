@@ -67,7 +67,6 @@ Bundle-ManifestVersion: 2
 Bundle-SymbolicName: uk.ac.gda.client;singleton:=true
 Eclipse-LazyStart: true
 Export-Package: com.swtdesigner,
- gda.analysis,
  gda.gui,
  gda.gui.scriptcontroller.logging,
  gda.osgi,
