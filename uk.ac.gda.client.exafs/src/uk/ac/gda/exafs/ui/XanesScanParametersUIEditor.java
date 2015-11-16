@@ -163,7 +163,7 @@ public class XanesScanParametersUIEditor extends ElementEdgeEditor {
 
 		finalEnergy = new ScaleBox(bottom, SWT.NONE);
 
-		if (LocalProperties.get("gda.beamline.name").equals("BL18B")) {
+		if (LocalProperties.get("gda.beamline.name").equals("b18")) {
 			String dcmCrystal = JythonServerFacade.getInstance().evaluateCommand("dcm_crystal()");
 
 			if (dcmCrystal.equals("Si(111)")) {

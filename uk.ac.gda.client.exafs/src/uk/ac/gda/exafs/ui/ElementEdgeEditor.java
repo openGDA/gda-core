@@ -291,7 +291,7 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 		edgeEnergyLabel.setNotifyType(NOTIFY_TYPE.VALUE_CHANGED);
 		edgeEnergyLabel.on();
 
-		if (LocalProperties.get("gda.beamline.name").equals("BL18B")) {
+		if (LocalProperties.get("gda.beamline.name").equals("b18")) {
 			String dcmCrystal = JythonServerFacade.getInstance().evaluateCommand("dcm_crystal()");
 			if (dcmCrystal.equals("Si(111)")) {
 				edgeEnergyLabel.setMaximum(26000.0);
