@@ -37,7 +37,7 @@ public abstract class BaseRoiDialog extends Dialog {
 
 	private static final String DEFINE_ROI_PLOT = SHELL_TITLE;
 
-	protected IPlottingSystem plottingSystem;
+	protected IPlottingSystem<Composite> plottingSystem;
 
 	protected final Dataset image;
 

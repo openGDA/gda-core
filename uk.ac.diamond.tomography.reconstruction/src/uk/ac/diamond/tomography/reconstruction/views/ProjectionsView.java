@@ -95,7 +95,7 @@ public class ProjectionsView extends BaseTomoReconPart implements ISelectionList
 	 */
 	transient private static final Logger logger = LoggerFactory.getLogger(ProjectionsView.class);
 
-	private IPlottingSystem plottingSystem;
+	private IPlottingSystem<Composite> plottingSystem;
 
 	private Text fileName;
 
@@ -250,7 +250,7 @@ public class ProjectionsView extends BaseTomoReconPart implements ISelectionList
 		getRefreshJob();
 	}
 
-	protected void disablePlottingSystemActions(IPlottingSystem plottingSystem) {
+	protected void disablePlottingSystemActions(IPlottingSystem<Composite> plottingSystem) {
 		plottingSystem.getPlotActionSystem().remove(BasePlottingConstants.REMOVE_REGION);
 		plottingSystem.getPlotActionSystem().remove(ToolbarConfigurationConstants.CONFIG.getId() + BasePlottingConstants.CONFIG_SETTINGS);
 		plottingSystem.getPlotActionSystem().remove(ToolbarConfigurationConstants.CONFIG.getId() + BasePlottingConstants.XY_SHOWLEGEND);
