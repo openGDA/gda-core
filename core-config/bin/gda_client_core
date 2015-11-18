@@ -16,7 +16,7 @@ jacorb_config_dir=${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/properties/
 if [ -d "${jacorb_config_dir}" ]; then
     VMARGS="-Djacorb.config.dir=${jacorb_config_dir} $VMARGS"
 else
-    echo "Can't find jacorb directory $jacorb_config_dir}"
+    bashlog error "gda_client_core" "Can't find jacorb directory $jacorb_config_dir}"
     exit 1
 fi
 
@@ -24,7 +24,7 @@ jca_properties_file=${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/propertie
 if [ -r "${jca_properties_file}" ]; then
     VMARGS="-Dgov.aps.jca.JCALibrary.properties=${jca_properties_file} $VMARGS"
 else
-    echo "Can't find JCALibrary.properties file ${jca_properties_file}"
+    bashlog error "gda_client_core" "Can't find JCALibrary.properties file ${jca_properties_file}"
     exit 1
 fi
 

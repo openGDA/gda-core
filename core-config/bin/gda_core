@@ -138,9 +138,9 @@ if [[ -n "${GDA_COMPONENT-}" ]]; then
       fi
     done
 fi
-echo '$@=' $@
+bashlog debug "gda_core" '$@=' $@
 
-echo 'About to pick which console log file to run'
+bashlog debug "gda_core" 'About to pick which console log file to run'
 
 # Set up the directory and file in which to write the console log
 # We only invoke one script to do this (the most specific one)
@@ -151,7 +151,7 @@ for filename in \
 do
     if [ -e "${filename}" ]; then
         . ${filename} ${GDA_COMPONENT_CATEGORY}
-        echo 'just ran console log file ' ${filename} ${GDA_COMPONENT_CATEGORY}
+        bashlog debug "gda_core" 'just ran console log file ' ${filename} ${GDA_COMPONENT_CATEGORY}
         break
     fi
 done
