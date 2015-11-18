@@ -45,7 +45,7 @@ import org.slf4j.Logger;
 public class DetectorPlotter extends Composite {
 	private SashForm sash;
 	private Composite plotterComposite;
-	private IPlottingSystem plottingsystem;
+	private IPlottingSystem<Composite> plottingsystem;
 	private IRegion regionOnDisplay;
 	private Text statusLabel;
 	private Dataset[] dataSets;

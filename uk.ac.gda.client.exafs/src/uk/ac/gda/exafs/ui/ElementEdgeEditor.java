@@ -102,7 +102,7 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 	protected Label estimatePointsLabel;
 	protected Label estimateTimeLabel;
 	protected Composite expandContainer;
-	protected IPlottingSystem plottingsystem;
+	protected IPlottingSystem<Composite> plottingsystem;
 	protected ActionBarWrapper plottingsystemActionBarWrapper;
 	protected AxisValues xAxisValues;
 	protected volatile boolean suspendGraphUpdate = false;
