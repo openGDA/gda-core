@@ -8,7 +8,7 @@
 
 bashlog() {
     local level=$(echo "${1:-DEBUG}" | tr '[:lower:]' '[:upper:]')
-    if [[ "${level}" != "DEBUG" || -n "${GDA_DEBUG:-}" ]]; then
+    if [[ "${level}" != "DEBUG" || -n "${GDA_DEBUG:-}" || -e "${GDA_LOG_FILE-}" ]]; then
         shift
         local caller="${1:-}"
         shift
@@ -18,14 +18,19 @@ bashlog() {
         else
             line="[$(date '+%F %T') $HOSTNAME] ${level}: $@"
         fi
-        if [[ -t 2 || -p /dev/stderr ]]; then
-            # interactive shell, if stderr is a tty, or a socket (i.e. coming via ssh)
-            declare -A colour=([DEBUG]=30 [INFO]=36 [WARN]=33 [ERROR]=31 )
-            code=${colour[$level]:-37}
-            echo -e "\e[${code}m${line}\e[0m" >&2
-        else
-            # non-interactive shell
-            echo "${line}" >&2
+        if [[ "${level}" != "DEBUG" || -n "${GDA_DEBUG:-}" ]]; then
+            if [[ -t 2 || -p /dev/stderr ]]; then
+                # interactive shell, if stderr is a tty, or a socket (i.e. coming via ssh)
+                declare -A colour=([DEBUG]=30 [INFO]=36 [WARN]=33 [ERROR]=31 )
+                code=${colour[$level]:-37}
+                echo -e "\e[${code}m${line}\e[0m" >&2
+            else
+                # non-interactive shell
+                echo "${line}" >&2
+            fi
+        fi
+        if [[ -e "${GDA_LOG_FILE-}" ]]; then
+            echo "${line}" >> $GDA_LOG_FILE
         fi
     fi
 }

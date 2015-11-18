@@ -16,7 +16,6 @@ if [ "$LOGPANELWINDOW" == "" ] ; then
     
   
   bashlog debug "gda_logpanel_core" $GDA_LOGPANEL_APP $GDA_LOGPANEL_APP_ARGS
-  echo                              $GDA_LOGPANEL_APP $GDA_LOGPANEL_APP_ARGS >> ${GDA_LOG_FILE}
   nohup                             $GDA_LOGPANEL_APP $GDA_LOGPANEL_APP_ARGS >> ${GDA_LOG_FILE} 2>&1 &
 
 else
