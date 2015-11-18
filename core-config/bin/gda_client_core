@@ -3,7 +3,7 @@ bashlog debug "gda_client_core" "Entered"
 export GDA_CLIENT_LOG_DIR=${GDA_LOGS_DIR}
 export GDA_CLIENT_WORKING_DIR=${GDA_WORKSPACE_PARENT}/client
 
-VMARGS="-Dgda.mode=${GDA_MODE} ${VMARGS-}"
+VMARGS="-Dgda.mode=${GDA_MODE} ${GDA_CLIENT_VMARGS-}"
 VMARGS="-Dgda.instance.dir=${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel} $VMARGS"
 VMARGS="-Dgda.group.dir=${GDA_WORKSPACE_PARENT}/${GDA_GROUP_CONFIG_rel} $VMARGS"
 VMARGS="-Dgda.facility.dir=${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel} $VMARGS"
