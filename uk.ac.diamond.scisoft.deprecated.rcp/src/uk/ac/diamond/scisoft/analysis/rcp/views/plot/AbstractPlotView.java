@@ -48,7 +48,7 @@ public abstract class AbstractPlotView extends ViewPart implements PlotView {
 	protected StackLayout stack;
 	protected Composite stackComposite;
 	protected Label lblNoDataMessage;
-	protected IPlottingSystem system;
+	protected IPlottingSystem<Composite> system;
 
 	protected abstract String getYAxisName();
 

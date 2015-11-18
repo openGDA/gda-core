@@ -115,7 +115,7 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 	private CCombo ccXsampling;
 	private CCombo ccYsampling;
 	
-	private IPlottingSystem plottingSystem;
+	private IPlottingSystem<Composite> plottingSystem;
 	private Logger logger = LoggerFactory.getLogger(DataWindowView.class);
 	private Composite plotComp;
 	private int xSize = 0;
