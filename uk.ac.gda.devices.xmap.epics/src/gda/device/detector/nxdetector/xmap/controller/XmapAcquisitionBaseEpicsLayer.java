@@ -1,240 +1,82 @@
+/*-
+ * Copyright © 2015 Diamond Light Source Ltd.
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package gda.device.detector.nxdetector.xmap.controller;
+
+import gda.device.detector.nxdetector.xmap.controller.XmapModes.CollectionModeEnum;
+import gda.device.detector.nxdetector.xmap.controller.XmapModes.PresetMode;
+
 import java.io.IOException;
 
-import gda.epics.LazyPVFactory;
-import gda.epics.PV;
-import gda.epics.PVWithSeparateReadback;
-import gda.epics.ReadOnlyPV;
+public interface XmapAcquisitionBaseEpicsLayer {
 
-/**
- * Communication layer between
- *
- */
-public class XmapAcquisitionBaseEpicsLayer {
+	String fullPVname(String PVsuffix);
 
-	public enum CollectionModeEnum{
-		/* MCA spectra used in step scan: acquire only one spectrum */
-		MCA_SPECTRA,
-		/* MCA mapping used in raster/continuous scan: acquire multiple spectra */
-		MCA_MAPPING,
-		SCA_MAPPING,
-		LIST_MAPPING
-	}
+	String getBasePVName();
 
-	// This class defines the acquisition mode: step scan uses MCA SPECTRA while raster scan uses MCA_MAPPING
-	private CollectionMode collectionMode;
+	void setStart() throws Exception;
 
-	public enum PresetMode{
-		/* Option used for hardware trigger*/
-		NO_PRESET,
-		REAL_TIME,
-		LIVE_TIME,
-		EVENTS,
-		TRIGGERS
-	}
+	void setStop() throws Exception;
 
-	 // PV names corresponding to the EPICs Acquisition Control panel
+	void setErase() throws Exception;
 
-	private enum AcqControlPVname{
-		StartAll, EraseStart, EraseAll, StopAll, Acquiring;
-	}
+	void setEraseStart() throws Exception;
 
-	 // PV names corresponding to the EPICs Acquisition Configuration panel
+	boolean getAcquiring() throws Exception;
 
-	private enum AcqConfigPVname {
-		CollectMode("CollectMode"), CollectMode_RBV("CollectMode_RBV"), NBINS(
-				"MCA1.NUSE"), NBINS_RBV("MCA1:NBINS"), PresetMode("PresetMode"), PresetReal(
-				"PresetReal"), PresetLive("PresetLive"), PresetValue(
-				"PresetValue"), PresetEvents("PresetEvents"), PresetTriggers(
-				"PresetTriggers");
-
-		private final String PVName;
-
-		AcqConfigPVname(String pvname) {
-			this.PVName = pvname;
-		}
-
-		@Override
-		public String toString() {
-			return PVName;
-		}
-	}
-
-	//Map <AcqControlPVname,PV<Boolean>> acqControlPV = new EnumMap<AcqControlPVname,PV<Boolean>>(AcqControlPVname.class);
-
-	private PV<Boolean> startAllPV;
-	private PV<Boolean> eraseStartPV;
-	private PV<Boolean> eraseAllPV;
-	private PV<Boolean> stopAllPV;
-	private ReadOnlyPV<Boolean> acquiringPV;
-	private String basePVName;
-	private PV<CollectionModeEnum> collectModePVPair;
-	private PV<Integer> nbinsPVPair;
-	private PV<PresetMode> presetModePV;
-	private PV<Double> presetRealPV;
-	private PV<Double> presetLivePV;
-	private PV<Integer> presetEventsPV;
-	private PV<Integer> presetTriggersPV;
-	private PV<Double> presetValuePV;
-
-
-	public XmapAcquisitionBaseEpicsLayer(String basePVname,CollectionMode collectMode) throws IOException{
-		this.basePVName= basePVname;
-		this.collectionMode = collectMode;
-		if (basePVName == null) {
-			throw new IllegalArgumentException("'basePVName' needs to be declared");
-		}
-		if (collectMode == null) {
-			throw new NullPointerException("Collection Mode needs to be declared");
-		}
-		createAcquisitionControlLazyPVs();
-		createAcquisitionConfigurationLazyPVs();
-	}
-
-	public String fullPVname(String PVsuffix){
-		return basePVName + PVsuffix;
-
-	}
-
-	public String getBasePVName(){
-		return basePVName;
-	}
-
-	private void createAcquisitionControlLazyPVs() throws IOException{
-		/* Create PVs corresponding to the EPICs Acquisition Control panel, all buttons in the panel do not have any returned value
-		(StartAll, StopAll, EraseAll, Erase), only the Acquiring field will return the status of the acquisition.
-		*/
-		/*for (AcqControlPVname pvname: AcqControlPVname.values()){
-			acqControlPV.put(pvname, LazyPVFactory.newBooleanFromEnumPV(fullPVname(pvname.name())));
-		}*/
-		startAllPV =  LazyPVFactory.newBooleanFromEnumPV(fullPVname(AcqControlPVname.StartAll.name()));
-		eraseStartPV = LazyPVFactory.newBooleanFromEnumPV(fullPVname(AcqControlPVname.EraseStart.name()));
-		eraseAllPV = LazyPVFactory.newBooleanFromEnumPV(fullPVname(AcqControlPVname.EraseAll.name()));
-		stopAllPV = LazyPVFactory.newBooleanFromEnumPV(fullPVname(AcqControlPVname.StopAll.name()));
-		acquiringPV = LazyPVFactory.newReadOnlyBooleanFromEnumPV(fullPVname(AcqControlPVname.Acquiring.name()));
-
-	}
-
-	private void createAcquisitionConfigurationLazyPVs() throws IOException{
-		collectModePVPair = new PVWithSeparateReadback<CollectionModeEnum>(
-				LazyPVFactory.newEnumPV(fullPVname(AcqConfigPVname.CollectMode.name()), CollectionModeEnum.class),
-				LazyPVFactory.newReadOnlyEnumPV(fullPVname(AcqConfigPVname.CollectMode.name()), CollectionModeEnum.class));
-		nbinsPVPair = new PVWithSeparateReadback<Integer>(
-				LazyPVFactory.newIntegerPV(fullPVname(AcqConfigPVname.NBINS.toString())),
-				LazyPVFactory.newReadOnlyIntegerPV(fullPVname(AcqConfigPVname.NBINS_RBV.toString())));
-		presetModePV = LazyPVFactory.newEnumPV(fullPVname(AcqConfigPVname.PresetMode.name()), PresetMode.class);
-		presetRealPV = LazyPVFactory.newDoublePV(fullPVname(AcqConfigPVname.PresetReal.name()));
-		presetLivePV = LazyPVFactory.newDoublePV(fullPVname(AcqConfigPVname.PresetLive.name()));
-		presetEventsPV= LazyPVFactory.newIntegerPV(fullPVname(AcqConfigPVname.PresetEvents.name()));
-		presetTriggersPV= LazyPVFactory.newIntegerPV(fullPVname(AcqConfigPVname.PresetTriggers.name()));
-		presetValuePV= LazyPVFactory.newDoublePV(fullPVname(AcqConfigPVname.PresetValue.name()));
-
-
-	}
-
-
-	public void setStart() throws Exception {
-		startAllPV.putNoWait(true);
-	}
-
-
-	public void setStop() throws Exception {
-		stopAllPV.putNoWait(true);
-	}
-
-	public void setErase() throws Exception {
-		eraseAllPV.putNoWait(true);
-	}
-
-	public void setEraseStart() throws Exception {
-		eraseStartPV.putNoWait(true);
-	}
-
-	public boolean getAcquiring() throws Exception {
-		return acquiringPV.get();
-	}
 	// Add this method as it is called in CollectionStrategyPlugin
-	public int getStatus() throws Exception{
-		if (getAcquiring()) return 1;
-		else return 0;
-	}
+	int getStatus() throws Exception;
 
-	public void setCollectMode(CollectionModeEnum collectMode) throws Exception {
-		if (collectMode.equals(CollectionModeEnum.MCA_MAPPING))
-			isXmapMappingModeInstance("MCA_MAPPING mode");
-		collectModePVPair.putWait(collectMode);
-	}
+	void setCollectMode(CollectionModeEnum collectMode) throws Exception;
 
-	public CollectionModeEnum getCollectMode() throws Exception {
-		return collectModePVPair.get();
-	}
+	CollectionModeEnum getCollectMode() throws Exception;
 
-	public void setNbins(int nbins) throws Exception {
-		nbinsPVPair.putWait(nbins);
-	}
+	void setNbins(int nbins) throws Exception;
 
-	public int getNbins() throws Exception {
-		return nbinsPVPair.get();
-	}
+	int getNbins() throws Exception;
 
-	public void setPresetMode(PresetMode presetMode) throws Exception {
-		if (presetMode.equals(PresetMode.NO_PRESET))
-				isXmapMappingModeInstance("NO_PRESET type");
-		presetModePV.putWait(presetMode);
-	}
+	void setPresetMode(PresetMode presetMode) throws Exception;
 
-	public PresetMode getPresetMode() throws Exception {
-		return presetModePV.get();
-	}
+	PresetMode getPresetMode() throws Exception;
 
-	public void setPresetRealTime(double realTime) throws Exception {
-		presetRealPV.putWait(realTime);
-	}
+	void setPresetRealTime(double realTime) throws Exception;
 
-	public double getPresetRealTime() throws Exception {
-		return presetRealPV.get();
-	}
+	double getPresetRealTime() throws Exception;
 
-	public void setPresetLiveTime(double liveTime) throws Exception {
-		presetLivePV.putWait(liveTime);
-	}
+	void setPresetLiveTime(double liveTime) throws Exception;
 
-	public double getPresetLiveTime() throws Exception {
-		return presetLivePV.get();
-	}
+	double getPresetLiveTime() throws Exception;
 
-	public void setPresetEvents(int event) throws Exception {
-		presetEventsPV.putWait(event);
-	}
+	void setPresetEvents(int event) throws Exception;
 
-	public int getPresetEvents() throws Exception {
-		return presetEventsPV.get();
-	}
+	int getPresetEvents() throws Exception;
 
-	public void setPresetTriggers(int triggers) throws Exception {
-		presetTriggersPV.putWait(triggers);
-	}
+	void setPresetTriggers(int triggers) throws Exception;
 
-	public int getPresetTriggers() throws Exception {
-		return presetTriggersPV.get();
-	}
+	int getPresetTriggers() throws Exception;
 
-	public void setAquisitionTime(double presetValue) throws Exception {
-		presetValuePV.putWait(presetValue);
-	}
+	void setAquisitionTime(double presetValue) throws Exception;
 
-	public double getAquisitionTime() throws Exception {
-		return presetValuePV.get();
-	}
+	double getAquisitionTime() throws Exception;
 
-	public CollectionMode getCollectionMode(){
-		return collectionMode;
-	}
+	CollectionMode getCollectionMode();
 
-	public boolean isXmapMappingModeInstance(String message){
-		if (!(collectionMode instanceof XmapMappingModeEpicsLayer))
-			throw new ClassCastException("For "+ message + " CollectionMode object should be of type "
-					+ "XmapMappingModeEpicsLayer.");
-		else return true;
-	}
+	boolean isXmapMappingModeInstance(String message);
+
+	double[] getDataPerElement(int i) throws IOException, Exception;
 }

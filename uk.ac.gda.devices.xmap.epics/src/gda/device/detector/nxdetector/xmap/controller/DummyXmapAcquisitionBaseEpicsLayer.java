@@ -18,25 +18,19 @@
 
 package gda.device.detector.nxdetector.xmap.controller;
 
+import gda.device.detector.nxdetector.xmap.controller.XmapModes.CollectionModeEnum;
+import gda.device.detector.nxdetector.xmap.controller.XmapModes.PresetMode;
+
 import java.io.IOException;
 import java.util.Random;
 
-public class DummyXmapAcquisitionBaseEpicsLayer {
-	public enum CollectionModeEnum {
-		/* MCA spectra used in step scan: acquire only one spectrum */
-		MCA_SPECTRA,
-		/* MCA mapping used in raster/continuous scan: acquire multiple spectra */
-		MCA_MAPPING, SCA_MAPPING, LIST_MAPPING
-	}
+public class DummyXmapAcquisitionBaseEpicsLayer implements XmapAcquisitionBaseEpicsLayer {
+
 
 	// This class defines the acquisition mode: step scan uses MCA SPECTRA while raster scan uses MCA_MAPPING
 	private CollectionMode collectionMode;
 	private String basePVName;
-
-	public enum PresetMode {
-		/* Option used for hardware trigger */
-		NO_PRESET, REAL_TIME, LIVE_TIME, EVENTS, TRIGGERS
-	}
+	private boolean acquiring;
 
 
 	// Map <AcqControlPVname,PV<Boolean>> acqControlPV = new EnumMap<AcqControlPVname,PV<Boolean>>(AcqControlPVname.class);
@@ -52,46 +46,55 @@ public class DummyXmapAcquisitionBaseEpicsLayer {
 		}
 		createAcquisitionControlLazyPVs();
 		createAcquisitionConfigurationLazyPVs();
+		acquiring = false;
 	}
 
+	private void createAcquisitionConfigurationLazyPVs() {
+
+	}
+
+	private void createAcquisitionControlLazyPVs() {
+
+	}
+
+	@Override
 	public String fullPVname(String PVsuffix) {
 		return basePVName + PVsuffix;
 
 	}
 
+	@Override
 	public String getBasePVName() {
 		return basePVName;
 	}
 
-	private void createAcquisitionControlLazyPVs() throws IOException {
-
-	}
-
-	private void createAcquisitionConfigurationLazyPVs() throws IOException {
-
-	}
-
+	@Override
 	public void setStart() throws Exception {
-
+		acquiring = true;
 	}
 
+	@Override
 	public void setStop() throws Exception {
-
+		acquiring = false;
 	}
 
+	@Override
 	public void setErase() throws Exception {
 
 	}
 
+	@Override
 	public void setEraseStart() throws Exception {
-
+		acquiring = true;
 	}
 
+	@Override
 	public boolean getAcquiring() throws Exception {
-		return false;
+		return acquiring;
 	}
 
 	// Add this method as it is called in CollectionStrategyPlugin
+	@Override
 	public int getStatus() throws Exception {
 		if (getAcquiring())
 			return 1;
@@ -99,74 +102,91 @@ public class DummyXmapAcquisitionBaseEpicsLayer {
 			return 0;
 	}
 
+	@Override
 	public void setCollectMode(CollectionModeEnum collectMode) throws Exception {
 		if (collectMode.equals(CollectionModeEnum.MCA_MAPPING))
 			isXmapMappingModeInstance("MCA_MAPPING mode");
 
 	}
 
+	@Override
 	public CollectionModeEnum getCollectMode() throws Exception {
 		return CollectionModeEnum.MCA_MAPPING;
 	}
 
+	@Override
 	public void setNbins(int nbins) throws Exception {
 
 	}
 
+	@Override
 	public int getNbins() throws Exception {
 		return 2048;
 	}
 
+	@Override
 	public void setPresetMode(PresetMode presetMode) throws Exception {
 		if (presetMode.equals(PresetMode.NO_PRESET))
 			isXmapMappingModeInstance("NO_PRESET type");
 
 	}
 
+	@Override
 	public PresetMode getPresetMode() throws Exception {
 		return PresetMode.NO_PRESET;
 	}
 
+	@Override
 	public void setPresetRealTime(double realTime) throws Exception {
 
 	}
 
+	@Override
 	public double getPresetRealTime() throws Exception {
 		return 1.0;
 	}
 
+	@Override
 	public void setPresetLiveTime(double liveTime) throws Exception {
 
 	}
 
+	@Override
 	public double getPresetLiveTime() throws Exception {
 		return 1.0;
 	}
 
+	@Override
 	public void setPresetEvents(int event) throws Exception {
 
 	}
 
+	@Override
 	public int getPresetEvents() throws Exception {
 		return 100;
 	}
 
+	@Override
 	public void setPresetTriggers(int triggers) throws Exception {
 
 	}
 
+	@Override
 	public int getPresetTriggers() throws Exception {
 		return 10;
 	}
 
+	@Override
 	public void setAquisitionTime(double presetValue) throws Exception {
 
 	}
 
+	@Override
 	public double getAquisitionTime() throws Exception {
 		return 1.0;
 	}
 
+	@Override
 	public CollectionMode getCollectionMode() {
 		return collectionMode;
 	}
@@ -174,6 +194,7 @@ public class DummyXmapAcquisitionBaseEpicsLayer {
 	// For now include the getData for Xmap subdetector here! Just used for experimental setup otherwise
 	// data written in HDF5 file!
 
+	@Override
 	public double[] getDataPerElement(int subdetector) throws Exception {
 		double[] dummyData = new double[getNbins()];
 		Random generator = new Random();
@@ -182,6 +203,7 @@ public class DummyXmapAcquisitionBaseEpicsLayer {
 		return dummyData;
 	}
 
+	@Override
 	public boolean isXmapMappingModeInstance(String message) {
 		if (!(collectionMode instanceof DummyXmapMappingModeEpicsLayer))
 			throw new ClassCastException("For " + message + " CollectionMode object should be of type " + "XmapMappingModeEpicsLayer.");
