@@ -18,10 +18,6 @@
 
 package uk.ac.gda.arpes.scannable;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Vector;
-
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.ScannableBase;
@@ -31,6 +27,10 @@ import gda.factory.FactoryException;
 import gda.factory.corba.util.CorbaAdapterClass;
 import gda.factory.corba.util.CorbaImplClass;
 import gda.observable.IObserver;
+
+import java.util.Iterator;
+import java.util.List;
+import java.util.Vector;
 
 /**
  *
@@ -139,7 +139,13 @@ public class CombinedManipulator extends ScannableBase implements IObserver {
 	Vector<Double> getPositions() throws DeviceException {
 		Vector<Double> pos = new Vector<Double>();
 		for (Scannable s : scannables) {
-			pos.add((Double) s.getPosition());
+			Object position = s.getPosition();
+			if (position instanceof Object[]) {
+				pos.add(((Double[]) s.getPosition())[0]);
+			} else {
+				pos.add((Double) s.getPosition());
+			}
+
 		}
 		return pos;
 	}
