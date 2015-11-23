@@ -299,8 +299,8 @@ where task can be:
 		self.gda_install_springframework_jars_loc = abspath(self.gda_install_git_loc, "diamond-springframework.git", "uk.ac.diamond.org.springframework", "jars")
 		assert os.path.isdir(self.gda_install_springframework_jars_loc)
 		self.gda_product_present = False
-		self.gda_install_product = abspath(self.gda_workspace_parent, "server_product", "gda-server", "gda-server")
-		self.gda_osgi_process_matcher = (self.gda_install_product, '-Dosgi.gda.application=true')
+		self.gda_install_product = abspath(self.gda_workspace_parent, "servers", "gda-server", "gda-server")
+		self.gda_osgi_process_matcher = ('-Dosgi.gda.application=true',)
 		if os.path.isfile(self.gda_install_product):
 			self.gda_product_present = True
 		elif self.options.osgi:

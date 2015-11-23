@@ -390,10 +390,10 @@ public abstract class ObjectServer implements Runnable {
 	 *            the command line arguments
 	 */
 	public static void main(String[] args) {
-		start(args);
+		spawn(args);
 	}
 
-	public static ObjectServer start(String[] args) {
+	public static ObjectServer spawn(String[] args) {
 		LoggingUtils.setLogDirectory();
 		LogbackUtils.configureLoggingForServerProcess("objectserver");
 		ObjectServer server = null;
