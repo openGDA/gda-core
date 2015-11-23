@@ -102,7 +102,7 @@ class QexafsScan(Scan):
 
                 loggingbean = XasProgressUpdater(loggingcontroller,logmsg,timeRepetitionsStarted)
                 if self.isConstantVelocityLineScan == False:
-                    current_energy = self.energy_scannable;
+                    current_energy = self.energy_scannable.getPosition();
                 else: 
                     #the energy is given in keV so multiply by 1000 to get it in eV
                     current_energy = self.energy_scannable.getZebraScannableMotor().getActualScannableMotor().getPosition()*1000;
