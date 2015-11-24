@@ -168,8 +168,8 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 	public void atScanEnd() throws DeviceException {
 		if (xspress3Detector instanceof Xspress3WithFullCalculationsDetector) {
 			((Xspress3WithFullCalculationsDetector) xspress3Detector).setReadDataFromFile(false);
-			xspress3Detector.atScanEnd();
 		}
+		xspress3Detector.atScanEnd();
 	}
 
 	public void atPointEnd() throws DeviceException {
@@ -277,7 +277,9 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 	}
 
 	public void atCommandFailure() throws DeviceException {
-		((Xspress3WithFullCalculationsDetector) xspress3Detector).setReadDataFromFile(false);
+		if (xspress3Detector instanceof Xspress3WithFullCalculationsDetector) {
+			((Xspress3WithFullCalculationsDetector) xspress3Detector).setReadDataFromFile(false);
+		}
 		xspress3Detector.atCommandFailure();
 	}
 
