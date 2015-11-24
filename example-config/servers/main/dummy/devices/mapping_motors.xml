@@ -32,7 +32,7 @@
 		<property name="timeToVelocity" value="0.01" />
 	</bean>
 
-	<bean id="stage_z" class="gda.device.scannable.ScannableMotor">
+	<bean id="stage_z" class="gda.device.scannable.ScannableMotorWithDemandPosition">
 		<property name="motor" ref="stage_z_motor" />
 	</bean>
 
