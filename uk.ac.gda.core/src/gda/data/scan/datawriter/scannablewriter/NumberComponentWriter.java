@@ -74,7 +74,7 @@ public class NumberComponentWriter extends DefaultComponentWriter {
 		final int[] makedatadim = makedatadimfordim(dim);
 		final int[] initialdims = new int[makedatadim.length];
 		ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset(name, Dataset.FLOAT64, initialdims, makedatadim, null);
-		lazy.setChunking(NexusUtils.estimateChunking(dim, 8));
+		lazy.setChunking(chunkfordim(dim, 8));
 		GroupNode lGroup = file.getGroup(aPath.substring(0, aPath.length() - name.length()), true);
 		data = file.createData(lGroup, lazy);
 

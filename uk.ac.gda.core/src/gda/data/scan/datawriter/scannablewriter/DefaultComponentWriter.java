@@ -29,6 +29,7 @@ import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.hdf5.nexus.NexusException;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
+import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,6 +52,10 @@ public abstract class DefaultComponentWriter implements ComponentWriter {
 
 	protected int[] makedatadimfordim(final int[] dim) {
 		return dimForDimForValue(dim, -1);
+	}
+
+	protected int[] chunkfordim(final int[] dim, final int dataByteSize) {
+		return NexusUtils.estimateChunking(dim, dataByteSize);
 	}
 
 	private int[] dimForDimForValue(final int[] dim, final int value) {
