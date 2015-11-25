@@ -67,6 +67,11 @@ public class EnergyScannableWriter extends SingleScannableWriter {
 		protected int[] slabsizedimfordim(final int[] dim) {
 			return ArrayUtils.add(super.slabsizedimfordim(dim), arraylength);
 		}
+
+		@Override
+		protected int[] chunkfordim(final int[] dim, final int dataByteSize) {
+			return super.chunkfordim(ArrayUtils.add(dim, arraylength), dataByteSize);
+		}
 	}
 
 	protected class PolarisationComponentWriter extends StringComponentWriter {
