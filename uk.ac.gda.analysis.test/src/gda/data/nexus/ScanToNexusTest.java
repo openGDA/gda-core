@@ -19,12 +19,15 @@
 
 package gda.data.nexus;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertTrue;
 import gda.TestHelpers;
 import gda.configuration.properties.LocalProperties;
 import gda.data.metadata.GDAMetadataProvider;
 import gda.data.metadata.GdaMetadata;
 import gda.data.metadata.Metadata;
 import gda.data.metadata.StoredMetadataEntry;
+import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeBuilder;
 import gda.data.nexus.tree.NexusTreeNode;
@@ -443,6 +446,49 @@ public class ScanToNexusTest {
 		*/
 	}
 
+	@Test
+	public void testDetectorDimensions() throws Exception {
+		// write a variety of detectors that do not return their output in the scan
+		// scan x 0 4 1 y 0 1 1 pointDet 1dDet 2dDet
+		String testScratchDirectoryName = TestHelpers.setUpTest(ScanToNexusTest.class, "TestDetectorWriting", true);
+		String scanFileName = testScratchDirectoryName + File.separator + "Data" + File.separator + "1.nxs";
+		LocalProperties.set(LocalProperties.GDA_DATA_SCAN_DATAWRITER_DATAFORMAT, "NexusDataWriter");
+		Scannable scannableX = TestHelpers.createTestScannable("scannableX", 0., new String[] {},
+				new String[] {"scannableX"}, 0, new String[] { "%5.2g" }, new String[] { "\u212B" });
+		Scannable scannableY = TestHelpers.createTestScannable("scannableY", 0., new String[] {},
+				new String[] {"scannableY" }, 0, new String[] { "%5.2g" }, new String[] { "\u212B" });
+		Detector pointDetector = TestHelpers.createTestDetector(
+				"pointDetector", 0., new String[] {}, new String[] {"CountTime"}, 0, new String[] {"%d"},
+				TestHelpers.createTestNexusGroupData(new int[] { 1 }, Dataset.INT32, true),
+				null, "description1", "detectorID1", "detectorType1");
+		pointDetector.setExtraNames(new String[] {});
+		Detector oneDimDetector = TestHelpers.createTestDetector(
+				"1dDetector", 0., new String[] {}, new String[] {"CountTime"}, 0, new String[] {"%d"},
+				TestHelpers.createTestNexusGroupData(new int[] { 128 }, Dataset.INT32, true),
+				null, "description1", "detectorID1", "detectorType1");
+		oneDimDetector.setExtraNames(new String[] {});
+		Detector twoDimDetector = TestHelpers.createTestDetector(
+				"2dDetector", 0., new String[] {}, new String[] {"CountTime"}, 0, new String[] {"%d"},
+				TestHelpers.createTestNexusGroupData(new int[] { 32, 64 }, Dataset.INT32, true),
+				null, "description1", "detectorID1", "detectorType1");
+		twoDimDetector.setExtraNames(new String[] {});
+		Object[] args = new Object[] { scannableX, 0., 4., 1., scannableY, 0, 1, 1, pointDetector, oneDimDetector, twoDimDetector };
+		ConcurrentScan scan = new ConcurrentScan(args);
+		scan.setDataWriter(DefaultDataWriterFactory.createDataWriterFromFactory());
+		scan.runScan();
+
+		assertTrue(new File(scanFileName).exists());
+		NexusTreeNodeSelection selection = NexusTreeNodeSelection.createTreeForAllNXData();
+		INexusTree tree = NexusTreeBuilder.getNexusTree(scanFileName, selection);
+		INexusTree entry = tree.getChildNode("entry1", "NXentry");
+		NexusGroupData pointData = entry.getChildNode("pointDetector", "NXdata").getChildNode("data", "SDS").getData();
+		NexusGroupData onedData = entry.getChildNode("1dDetector", "NXdata").getChildNode("data", "SDS").getData();
+		NexusGroupData twodData = entry.getChildNode("2dDetector", "NXdata").getChildNode("data", "SDS").getData();
+		// scan dimensions are {5, 2}
+		assertArrayEquals(new int[] { 5, 2 }, pointData.getDimensions());
+		assertArrayEquals(new int[] { 5, 2, 128 }, onedData.getDimensions());
+		assertArrayEquals(new int[] { 5, 2, 32, 64 }, twodData.getDimensions());
+	}
 }
 
 
