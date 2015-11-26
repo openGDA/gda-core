@@ -279,8 +279,10 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 	static final int[] generateDataStartPos(int[] dataStartPosPrefix, int[] dataDimensions) {
 		int[] dataStartPos = null;
 		if (dataStartPosPrefix != null) {
-			dataStartPos = Arrays.copyOf(dataStartPosPrefix, dataStartPosPrefix.length
-					+ (dataDimensions != null ? dataDimensions.length : 0));
+			// Do not add to the dimensions if we are dealing with a single points
+			int dataDimensionToAdd = dataDimensions != null && (dataDimensions.length > 1 || dataDimensions[0] > 1) ?
+					dataDimensions.length : 0;
+			dataStartPos = Arrays.copyOf(dataStartPosPrefix, dataStartPosPrefix.length + dataDimensionToAdd);
 		} else if (dataDimensions != null) {
 			dataStartPos = new int[dataDimensions.length];
 		}
