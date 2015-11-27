@@ -23,6 +23,7 @@ Important
 
 New Features
 ~~~~~~~~~~~~
+-Added ScannableMotorWithDemandPosition to return both the actual and demand positions See JIRA ticket `ARPES-319 <http://jira.diamond.ac.uk/browse/ARPES-319>`_ and Gerrit change set `1392 <http://gerrit.diamond.ac.uk:8080/#/c/1392/>`_ for details. This class can be used as a direct replacement of ScannableMotor
 
 Fixes
 ~~~~~
