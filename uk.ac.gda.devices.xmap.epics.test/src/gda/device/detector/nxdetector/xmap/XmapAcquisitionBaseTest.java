@@ -20,6 +20,11 @@ package gda.device.detector.nxdetector.xmap;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import gda.device.detector.nxdetector.xmap.controller.CollectionMode;
+import gda.device.detector.nxdetector.xmap.controller.XmapAcquisitionBaseEpicsLayer;
+import gda.device.detector.nxdetector.xmap.controller.XmapAcquisitionBaseEpicsLayerImpl;
+import gda.device.detector.nxdetector.xmap.controller.XmapMappingModeEpicsLayer;
+import gda.device.detector.nxdetector.xmap.controller.XmapMappingModeEpicsLayerImpl;
 
 import java.io.IOException;
 
@@ -29,10 +34,6 @@ import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-
-import gda.device.detector.nxdetector.xmap.controller.CollectionMode;
-import gda.device.detector.nxdetector.xmap.controller.XmapAcquisitionBaseEpicsLayer;
-import gda.device.detector.nxdetector.xmap.controller.XmapMappingModeEpicsLayer;
 
 /**
  *
@@ -55,9 +56,9 @@ public class XmapAcquisitionBaseTest {
 	public void setUp() throws IOException {
 		basePVname = "basePV:";
 		CollectionMode mcaMode = PowerMockito.mock(CollectionMode.class);
-		mappingMode = PowerMockito.mock(XmapMappingModeEpicsLayer.class);
-		xmapAcquisitionEpicsLayer = new XmapAcquisitionBaseEpicsLayer(basePVname, mcaMode);
-		xmapAcquisitionEpicsLayerwithMapping = new XmapAcquisitionBaseEpicsLayer(basePVname, mappingMode);
+		mappingMode = PowerMockito.mock(XmapMappingModeEpicsLayerImpl.class);
+		xmapAcquisitionEpicsLayer = new XmapAcquisitionBaseEpicsLayerImpl(basePVname, mcaMode);
+		xmapAcquisitionEpicsLayerwithMapping = new XmapAcquisitionBaseEpicsLayerImpl(basePVname, (CollectionMode) mappingMode);
 
 	}
 
@@ -68,12 +69,12 @@ public class XmapAcquisitionBaseTest {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testBasePVnameInConstructorExceptionIsThrown() throws IOException {
-		XmapAcquisitionBaseEpicsLayer xmapAcquisitionEpicsLayerException = new XmapAcquisitionBaseEpicsLayer(null, mcaMode);
+		XmapAcquisitionBaseEpicsLayer xmapAcquisitionEpicsLayerException = new XmapAcquisitionBaseEpicsLayerImpl(null, mcaMode);
 	}
 
 	@Test(expected = NullPointerException.class)
 	public void testCollectionModeInConstructorExceptionIsThrown() throws IOException {
-		XmapAcquisitionBaseEpicsLayer xmapAcquisitionEpicsLayerException = new XmapAcquisitionBaseEpicsLayer(basePVname, null);
+		XmapAcquisitionBaseEpicsLayer xmapAcquisitionEpicsLayerException = new XmapAcquisitionBaseEpicsLayerImpl(basePVname, null);
 	}
 
 

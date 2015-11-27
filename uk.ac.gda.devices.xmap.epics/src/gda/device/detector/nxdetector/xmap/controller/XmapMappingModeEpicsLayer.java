@@ -1,181 +1,64 @@
-/**
- *
- */
 package gda.device.detector.nxdetector.xmap.controller;
+
+import gda.device.detector.nxdetector.xmap.controller.XmapModes.ListMode;
+import gda.device.detector.nxdetector.xmap.controller.XmapModes.PixelAdvanceMode;
 
 import java.io.IOException;
 
-import gda.device.detector.nxdetector.xmap.controller.XmapAcquisitionBaseEpicsLayer.CollectionModeEnum;
-import gda.epics.LazyPVFactory;
-import gda.epics.PV;
-import gda.epics.PVWithSeparateReadback;
-import gda.epics.ReadOnlyPV;
-
-/**
- * @author dfq16044
+/*-
+ * Copyright © 2015 Diamond Light Source Ltd.
  *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
-public class XmapMappingModeEpicsLayer extends CollectionMode{
 
-	public enum ListMode{
-		EAndGate, EAndSync, EAndClock
-	}
+public interface XmapMappingModeEpicsLayer {
 
-	public enum PixelAdvanceMode{
-		Gate, Sync
-	}
+	String fullPVname(String PVsuffix);
 
-	/* Here the CollectMode will be not used as the PV is already created in the XmapAcquisitionBase class*/
+	ListMode getListMode_RBV() throws IOException;
 
-	private enum MappingSettingsPVname{
-		ListMode_RBV, PixelAdvanceMode, PixelAdvanceMode_RBV, SyncCount, SyncCount_RBV,
-		IgnoreGate, IgnoreGate_RBV, InputLogicPolarity, PixelsPerRun, PixelsPerRun_RBV
-	}
+	void setPixelAdvanceMode(PixelAdvanceMode pixelAdvanceMode) throws IOException;
 
-	private enum PixelsPerBufferPVname{
-		AutoPixelsPerBuffer, AutoPixelsPerBuffer_RBV, PixelsPerBuffer, PixelsPerBuffer_RBV,
-		BufferSize
-	}
+	PixelAdvanceMode getPixelAdvanceMode() throws IOException;
 
-	private enum RunTimePV{
-		NextPixel("NextPixel"), CurrentPixel("DXP1:CurrentPixel");
-		private final String PVName;
+	void setSyncCount(int syncCount) throws IOException;
 
-		 RunTimePV(String pvname){
-			 this.PVName = pvname;
-		 }
-		 @Override
-		public String toString(){return PVName;}
-	}
+	int getSyncCount() throws IOException;
 
-	private ReadOnlyPV<ListMode> ListMode_RBVPV;
-	private PV<PixelAdvanceMode> PixelAdvanceModePV;
-	private PV<Integer> SyncCountPV;
-	private PV<Boolean> IgnoreGatePV;
-	private PV<Boolean> InputLogicPolarityPV;
-	private PV<Integer> PixelsperRunPV;
-	private PV<Boolean> AutoPixelsPerBufferPV;
-	private PV<Integer> PixelsPerBufferPV;
-	private PV<Boolean> NextPixelPV;
-	private ReadOnlyPV<Integer> CurrentPixelPV;
+	void setIgnoreGate(boolean ignoreGate) throws IOException;
 
-	private String basePVName;
-	CollectionModeEnum collectMode;
+	boolean getIgnoreGate() throws IOException;
 
-	public XmapMappingModeEpicsLayer(String basePVname) {
-		this.collectMode = CollectionModeEnum.MCA_MAPPING;
-		this.basePVName = basePVname;
-		if (basePVname == null) {
-			throw new IllegalArgumentException("'basePVName' needs to be declared");
-		}
-		createMappingSettingsLazyPVs();
-		createPixelsPerBufferLazyPVs();
-		createRuntimeLazyPVs();
-	}
+	void setInputLogicPolarity(boolean inputLogicParity) throws IOException;
 
-	public String fullPVname(String PVsuffix){
-		return basePVName + PVsuffix;
-	}
+	boolean getInputLogicPolarity() throws IOException;
 
-	private void createMappingSettingsLazyPVs(){
-		ListMode_RBVPV = LazyPVFactory.newReadOnlyEnumPV(fullPVname(MappingSettingsPVname.ListMode_RBV.name()), ListMode.class);
-		PixelAdvanceModePV = new PVWithSeparateReadback<PixelAdvanceMode>(
-				LazyPVFactory.newEnumPV(fullPVname(MappingSettingsPVname.PixelAdvanceMode.name()), PixelAdvanceMode.class),
-				LazyPVFactory.newReadOnlyEnumPV(fullPVname(MappingSettingsPVname.PixelAdvanceMode_RBV.name()), PixelAdvanceMode.class));
-		SyncCountPV = new PVWithSeparateReadback<Integer>(
-					LazyPVFactory.newIntegerPV(fullPVname(MappingSettingsPVname.SyncCount.name())),
-					LazyPVFactory.newReadOnlyIntegerPV(fullPVname(MappingSettingsPVname.SyncCount_RBV.name())));
-		IgnoreGatePV = new PVWithSeparateReadback<Boolean>(
-				LazyPVFactory.newBooleanFromEnumPV(fullPVname(MappingSettingsPVname.IgnoreGate.name())),
-				LazyPVFactory.newReadOnlyBooleanFromEnumPV(fullPVname(MappingSettingsPVname.IgnoreGate_RBV.name())));
-		InputLogicPolarityPV = LazyPVFactory.newBooleanFromEnumPV(fullPVname(MappingSettingsPVname.InputLogicPolarity.name()));
-		PixelsperRunPV = new PVWithSeparateReadback<Integer>(
-				LazyPVFactory.newIntegerPV(fullPVname(MappingSettingsPVname.PixelsPerRun.name())),
-				LazyPVFactory.newReadOnlyIntegerPV(fullPVname(MappingSettingsPVname.PixelsPerRun_RBV.name())));
-	}
+	void setPixelsPerRun(int pixelsPerRun) throws IOException;
 
+	int getPixelsPerRun() throws IOException;
 
-	private void createPixelsPerBufferLazyPVs(){
-		AutoPixelsPerBufferPV = new PVWithSeparateReadback<Boolean>(
-				LazyPVFactory.newBooleanFromEnumPV(fullPVname(PixelsPerBufferPVname.AutoPixelsPerBuffer.name())),
-				LazyPVFactory.newBooleanFromEnumPV(fullPVname(PixelsPerBufferPVname.AutoPixelsPerBuffer_RBV.name())));
-		PixelsPerBufferPV = new PVWithSeparateReadback<Integer>(
-				LazyPVFactory.newIntegerPV(fullPVname(PixelsPerBufferPVname.PixelsPerBuffer.name())),
-				LazyPVFactory.newReadOnlyIntegerPV(fullPVname(PixelsPerBufferPVname.PixelsPerBuffer_RBV.name())));
-	}
+	void setAutoPixelsPerBuffer(boolean autoPixelsPerBuffer) throws IOException;
 
-	private void createRuntimeLazyPVs(){
-		NextPixelPV = LazyPVFactory.newBooleanFromEnumPV(fullPVname(RunTimePV.NextPixel.name()));
-		CurrentPixelPV = LazyPVFactory.newReadOnlyIntegerPV(fullPVname(RunTimePV.CurrentPixel.toString()));
-	}
+	boolean getAutoPixelsPerBuffer() throws IOException;
 
-	public ListMode getListMode_RBV() throws IOException{
-		return ListMode_RBVPV.get();
-	}
+	void setPixelsPerBuffer(int pixelsPerBuffer) throws IOException;
 
-	public void setPixelAdvanceMode(PixelAdvanceMode pixelAdvanceMode) throws IOException{
-		PixelAdvanceModePV.putWait(pixelAdvanceMode);
-	}
+	int getPixelsPerBuffer() throws IOException;
 
-	public PixelAdvanceMode getPixelAdvanceMode() throws IOException{
-		return PixelAdvanceModePV.get();
-	}
+	void setNextPixel() throws IOException;
 
+	int getCurrentPixel() throws IOException;
 
-
-	public void setSyncCount(int syncCount) throws IOException{
-		SyncCountPV.putWait(syncCount);
-	}
-
-	public int getSyncCount() throws IOException{
-		return SyncCountPV.get();
-	}
-
-	public void setIgnoreGate(boolean ignoreGate) throws IOException{
-		IgnoreGatePV.putWait(ignoreGate);
-	}
-
-	public boolean getIgnoreGate() throws IOException{
-		return IgnoreGatePV.get();
-	}
-
-	public void setInputLogicPolarity(boolean inputLogicParity) throws IOException{
-		InputLogicPolarityPV.putWait(inputLogicParity);
-	}
-
-	public boolean getInputLogicPolarity() throws IOException{
-		return InputLogicPolarityPV.get();
-	}
-
-	public void setPixelsPerRun(int pixelsPerRun) throws IOException{
-		PixelsperRunPV.putWait(pixelsPerRun);
-	}
-
-	public int getPixelsPerRun() throws IOException{
-		return PixelsperRunPV.get();
-	}
-
-	public void setAutoPixelsPerBuffer(boolean autoPixelsPerBuffer) throws IOException{
-		AutoPixelsPerBufferPV.putWait(autoPixelsPerBuffer);
-	}
-
-	public boolean getAutoPixelsPerBuffer() throws IOException{
-		return AutoPixelsPerBufferPV.get();
-	}
-
-	public void setPixelsPerBuffer(int pixelsPerBuffer) throws IOException{
-		PixelsPerBufferPV.putWait(pixelsPerBuffer);
-	}
-
-	public int getPixelsPerBuffer() throws IOException{
-		return PixelsPerBufferPV.get();
-	}
-
-	public void setNextPixel() throws IOException{
-		NextPixelPV.putWait(true);
-	}
-
-	public int getCurrentPixel() throws IOException{
-		return CurrentPixelPV.get();
-	}
 }

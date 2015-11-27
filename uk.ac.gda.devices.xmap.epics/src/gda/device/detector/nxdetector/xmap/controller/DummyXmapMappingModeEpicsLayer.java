@@ -18,43 +18,13 @@
 
 package gda.device.detector.nxdetector.xmap.controller;
 
-import gda.device.detector.nxdetector.xmap.controller.DummyXmapAcquisitionBaseEpicsLayer.CollectionModeEnum;
+import gda.device.detector.nxdetector.xmap.controller.XmapModes.CollectionModeEnum;
+import gda.device.detector.nxdetector.xmap.controller.XmapModes.ListMode;
+import gda.device.detector.nxdetector.xmap.controller.XmapModes.PixelAdvanceMode;
 
 import java.io.IOException;
 
-public class DummyXmapMappingModeEpicsLayer extends CollectionMode {
-	public enum ListMode {
-		EAndGate, EAndSync, EAndClock
-	}
-
-	public enum PixelAdvanceMode {
-		Gate, Sync
-	}
-
-
-	/* Here the CollectMode will be not used as the PV is already created in the XmapAcquisitionBase class */
-
-	private enum MappingSettingsPVname {
-		ListMode_RBV, PixelAdvanceMode, PixelAdvanceMode_RBV, SyncCount, SyncCount_RBV, IgnoreGate, IgnoreGate_RBV, InputLogicPolarity, PixelsPerRun, PixelsPerRun_RBV
-	}
-
-	private enum PixelsPerBufferPVname {
-		AutoPixelsPerBuffer, AutoPixelsPerBuffer_RBV, PixelsPerBuffer, PixelsPerBuffer_RBV, BufferSize
-	}
-
-	private enum RunTimePV {
-		NextPixel("NextPixel"), CurrentPixel("DXP1:CurrentPixel");
-		private final String PVName;
-
-		RunTimePV(String pvname) {
-			this.PVName = pvname;
-		}
-
-		@Override
-		public String toString() {
-			return PVName;
-		}
-	}
+public class DummyXmapMappingModeEpicsLayer extends CollectionMode implements XmapMappingModeEpicsLayer {
 
 	private String basePVName;
 	CollectionModeEnum collectMode;
@@ -70,6 +40,7 @@ public class DummyXmapMappingModeEpicsLayer extends CollectionMode {
 		createRuntimeLazyPVs();
 	}
 
+	@Override
 	public String fullPVname(String PVsuffix) {
 		return basePVName + PVsuffix;
 	}
@@ -83,68 +54,85 @@ public class DummyXmapMappingModeEpicsLayer extends CollectionMode {
 	private void createRuntimeLazyPVs() {
 	}
 
+	@Override
 	public ListMode getListMode_RBV() throws IOException {
 		return ListMode.EAndGate;
 	}
 
+	@Override
 	public void setPixelAdvanceMode(PixelAdvanceMode pixelAdvanceMode) throws IOException {
 	}
 
+	@Override
 	public PixelAdvanceMode getPixelAdvanceMode() throws IOException {
 		return PixelAdvanceMode.Gate;
 	}
 
+	@Override
 	public void setSyncCount(int syncCount) throws IOException {
 	}
 
+	@Override
 	public int getSyncCount() throws IOException {
 		return 1;
 	}
 
+	@Override
 	public void setIgnoreGate(boolean ignoreGate) throws IOException {
 
 	}
 
+	@Override
 	public boolean getIgnoreGate() throws IOException {
 		return false;
 	}
 
+	@Override
 	public void setInputLogicPolarity(boolean inputLogicParity) throws IOException {
 
 	}
 
+	@Override
 	public boolean getInputLogicPolarity() throws IOException {
 		return true;
 	}
 
+	@Override
 	public void setPixelsPerRun(int pixelsPerRun) throws IOException {
 
 	}
 
+	@Override
 	public int getPixelsPerRun() throws IOException {
 		return 2;
 	}
 
+	@Override
 	public void setAutoPixelsPerBuffer(boolean autoPixelsPerBuffer) throws IOException {
 
 	}
 
+	@Override
 	public boolean getAutoPixelsPerBuffer() throws IOException {
 		return false;
 	}
 
+	@Override
 	public void setPixelsPerBuffer(int pixelsPerBuffer) throws IOException {
 
 	}
 
+	@Override
 	public int getPixelsPerBuffer() throws IOException {
 		return 10;
 	}
 
+	@Override
 	public void setNextPixel() throws IOException {
 
 	}
 
+	@Override
 	public int getCurrentPixel() throws IOException {
 		return 20;
 	}

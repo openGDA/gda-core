@@ -18,20 +18,20 @@
 
 package gda.device.detector.nxdetector.xmap.collectionStrategy;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Vector;
-
 import gda.device.DeviceException;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataDoubleAppender;
 import gda.device.detector.nxdetector.xmap.controller.XmapAcquisitionBaseEpicsLayer;
-import gda.device.detector.nxdetector.xmap.controller.XmapAcquisitionBaseEpicsLayer.CollectionModeEnum;
-import gda.device.detector.nxdetector.xmap.controller.XmapAcquisitionBaseEpicsLayer.PresetMode;
 import gda.device.detector.nxdetector.xmap.controller.XmapMappingModeEpicsLayer;
-import gda.device.detector.nxdetector.xmap.controller.XmapMappingModeEpicsLayer.PixelAdvanceMode;
+import gda.device.detector.nxdetector.xmap.controller.XmapModes.CollectionModeEnum;
+import gda.device.detector.nxdetector.xmap.controller.XmapModes.PixelAdvanceMode;
+import gda.device.detector.nxdetector.xmap.controller.XmapModes.PresetMode;
 import gda.scan.ScanInformation;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Vector;
 
 /**
  * Drive the XIA Xmap card using hardware triggers in Constant Velocity scans.

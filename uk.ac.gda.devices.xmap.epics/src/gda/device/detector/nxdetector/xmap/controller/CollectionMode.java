@@ -1,6 +1,6 @@
 package gda.device.detector.nxdetector.xmap.controller;
 
-import gda.device.detector.nxdetector.xmap.controller.XmapAcquisitionBaseEpicsLayer.CollectionModeEnum;
+import gda.device.detector.nxdetector.xmap.controller.XmapModes.CollectionModeEnum;
 
 
 public class CollectionMode{
@@ -14,5 +14,6 @@ public class CollectionMode{
 	public CollectionModeEnum getCollectMode(){
 		return collectMode;
 	}
+
 
 }
