@@ -482,11 +482,6 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 
 	@Override
 	public Object getPosition() throws DeviceException {
-		try {
-			// in some cases this message can be logged twice every millisecond and fill up the disks
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-		}
 		throw new RuntimeException("ADDetector does not support operation through its Scannable interface.");
 	}
 
