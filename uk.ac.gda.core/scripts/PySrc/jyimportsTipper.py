@@ -443,8 +443,12 @@ def GenerateImportsTipForModule(obj_to_complete, dirComps=None, getattr=getattr,
             ret.append((d, '', '', retType))
             #that's ok, private things cannot be gotten...
             continue
+        except java.lang.Exception:
+            #let autocomplete work when get methods throw exceptions
+            #eg if x.getPosition() throws an exception, getattr(x, 'position') will throw
+            #an exception and autocomplete fails to return any options
+            pass
         else:
-
             isMet = ismethod(obj)
             if isMet[0]:
                 info = isMet[1][0]
