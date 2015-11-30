@@ -18,6 +18,15 @@
 
 package org.opengda.detector.electronanalyser.client.views;
 
+import gda.device.detector.areadetector.v17.ADBase;
+import gda.epics.connection.EpicsController.MonitorType;
+import gov.aps.jca.CAException;
+import gov.aps.jca.Channel;
+import gov.aps.jca.dbr.DBR;
+import gov.aps.jca.dbr.DBR_Double;
+import gov.aps.jca.event.MonitorEvent;
+import gov.aps.jca.event.MonitorListener;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -47,15 +56,6 @@ import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import gda.device.detector.areadetector.v17.ADBase;
-import gda.epics.connection.EpicsController.MonitorType;
-import gov.aps.jca.CAException;
-import gov.aps.jca.Channel;
-import gov.aps.jca.dbr.DBR;
-import gov.aps.jca.dbr.DBR_Double;
-import gov.aps.jca.event.MonitorEvent;
-import gov.aps.jca.event.MonitorListener;
 
 public class SlicesPlotComposite extends EpicsArrayPlotComposite {
 
@@ -235,9 +235,7 @@ public class SlicesPlotComposite extends EpicsArrayPlotComposite {
 				Dataset dataset1=slice.flatten();
 				dataslices.add(dataset1);
 			}
-//			Dataset slice2 = ds.getSlice(new int[] { selectedSlice-1, 0 },new int[] { selectedSlice, dims[1]-1 }, new int[] {1,1});
-//			dataset=slice2.flatten();
-			dataset=dataslices.get(selectedSlice);
+			dataset = dataslices.get(selectedSlice - 1);
 			dataset.setName("Intensity (counts)");
 			plotDataSets.add(dataset);
 			final List<ITrace> profileLineTraces = plottingSystem.createPlot1D(xAxis, plotDataSets, monitor);
