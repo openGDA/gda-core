@@ -25,6 +25,7 @@ import gda.data.nexus.tree.NexusTreeNode;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
+import gda.device.detector.nxdetector.FrameCountingNXPlugin;
 import gda.device.detector.nxdetector.NXCollectionStrategyPlugin;
 import gda.device.detector.nxdetector.NXFileWriterPlugin;
 import gda.device.detector.nxdetector.NXPlugin;
@@ -91,6 +92,9 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 	//start time for each frame relative to start_time_start
 	private double start_time;
 
+	private int scanFramesCollected = 0;
+
+	private int scanLineFramesCollected = 0;
 
 	public NXDetector(String name, NXCollectionStrategyPlugin collectionStrategy, List<NXPluginBase> additionalPluginList) {
 		setName(name);
@@ -325,8 +329,8 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 
 	@Override
 	public void atScanStart() throws DeviceException {
+		scanFramesCollected = 0;
 		logger.trace("atScanStart()");
-
 		ScanInformation scanInfo = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation();
 		try {
 			int numberImagesPerCollection = getCollectionStrategy().getNumberImagesPerCollection(getCollectionTime());
@@ -383,6 +387,7 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 
 	@Override
 	public void atScanLineStart() throws DeviceException {
+		scanLineFramesCollected = 0;
 		for (NXPluginBase plugin : getPluginList()) {
 			try {
 				plugin.prepareForLine();
@@ -401,6 +406,8 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 		lastReadoutValue  = null;
 		try {
 			getCollectionStrategy().collectData();
+			scanFramesCollected++;
+			scanLineFramesCollected++;
 		} catch (Exception e) {
 			throw new DeviceException(e);
 		}
@@ -501,7 +508,11 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 	public void atScanLineEnd() throws DeviceException {
 		try {
 			for (NXPluginBase plugin : getAdditionalPluginList()) {
-				plugin.completeLine();
+				if (plugin instanceof FrameCountingNXPlugin) {
+					((FrameCountingNXPlugin) plugin).completeLine(scanLineFramesCollected);
+				} else {
+					plugin.completeLine();
+				}
 			}
 			getCollectionStrategy().completeLine();
 		} catch (Exception e) {
@@ -515,7 +526,11 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 			if( lastCallable != null)
 				lastCallable.waitForCompletion();
 			for (NXPluginBase plugin : getAdditionalPluginList()) {
-				plugin.completeCollection();
+				if (plugin instanceof FrameCountingNXPlugin) {
+					((FrameCountingNXPlugin) plugin).completeCollection(scanFramesCollected);
+				} else {
+					plugin.completeCollection();
+				}
 			}
 			getCollectionStrategy().completeCollection();
 		} catch (Exception e) {
