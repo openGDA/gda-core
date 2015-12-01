@@ -7,6 +7,7 @@ import gda.device.detector.NXDetectorData;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataChildNodeAppender;
 import gda.device.detector.nxdata.NXDetectorDataDoubleAppender;
+import gda.device.detector.nxdata.NXDetectorDataPlottableValuesAppender;
 import gda.device.detector.nxdata.NXDetectorSerialAppender;
 import gda.scan.ScanInformation;
 
@@ -251,7 +252,7 @@ public class BufferedDetectorToAsyncNXCollectionStrategyAdapter implements Async
 			// could cause problems if the data object has multiple detector trees.
 			NXDetectorDataAppender nexusAppender = new NXDetectorDataChildNodeAppender(nxData.getDetTree(null));
 
-			NXDetectorDataAppender doubleValuesAppender = new NXDetectorDataDoubleAppender(Arrays.asList(nxData.getExtraNames()), Arrays.asList(nxData.getDoubleVals()));
+			NXDetectorDataAppender doubleValuesAppender = new NXDetectorDataPlottableValuesAppender(nxData.getExtraNames(), nxData.getDoubleVals());
 			appender = new NXDetectorSerialAppender(Arrays.asList(new NXDetectorDataAppender[] { nexusAppender, doubleValuesAppender }));
 		}
 		// Xspress3FFoverI0BufferedDetector, VortexQexafsFFIO, QexafsGMSDOverI0 and QexafsFFoverIO return Doubles

@@ -33,16 +33,18 @@ import org.python.core.PyString;
 
 public class DummyScannableTest {
 
+	private static final double INITIAL_POSITION = 10.0;
+
 	//The following string applies only for default limits. This does not work
 	//after the limits are set in testLimits()
 	private static String OUTPUTSTRING = "testPD : 10.000 (-1.7977e+308:1.7977e+308)";
 
-	DummyScannable theScannable;
+	private DummyScannable theScannable;
 
 	@Before
 	public void setUp() throws Exception {
 		theScannable = new DummyScannable("testPD");
-		theScannable.moveTo(10.0);
+		theScannable.moveTo(INITIAL_POSITION);
 	}
 
 	@Test
@@ -221,6 +223,38 @@ public class DummyScannableTest {
 			assertTrue(theScannable.checkPositionValid(5.) == null);
 		} catch (DeviceException e) {
 			fail("Exception while checking positions in testLimits: " + e.getMessage());
+		}
+	}
+
+	/**
+	 * Test behaviour when incrementing
+	 */
+	private static final double INCREMENT = 0.53;
+	private static final double LOWER_LIMIT = -2.6;
+	private static final double UPPER_LIMIT = 12.3;
+
+	@Test
+	public void testIncrement() throws DeviceException {
+		theScannable.setIncrement(INCREMENT);
+		assertEquals(INITIAL_POSITION + INCREMENT, (double) theScannable.getPosition(), 0.001);
+		assertEquals(INITIAL_POSITION + 2 * INCREMENT, (double) theScannable.getPosition(), 0.001);
+	}
+
+	@Test
+	public void testIncrementWithinLimits() throws Exception {
+		// Test that the value keeps varying but stays within limits
+		// subject to inaccuracies in double.
+		theScannable.setIncrement(INCREMENT);
+		theScannable.setLowerGdaLimits(LOWER_LIMIT);
+		theScannable.setUpperGdaLimits(UPPER_LIMIT);
+
+		double lastPos = INITIAL_POSITION;
+		for (int i = 0; i < 100; i++) {
+			final double currentPos = (double) theScannable.getPosition();
+			assertTrue(Math.abs(currentPos - lastPos) > 0.001);
+			assertTrue(currentPos - UPPER_LIMIT < 0.001);
+			assertTrue(currentPos - LOWER_LIMIT > 0.001);
+			lastPos = currentPos;
 		}
 	}
 }

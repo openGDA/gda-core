@@ -28,6 +28,7 @@ import org.apache.commons.lang.math.NumberUtils;
 public class DummyScannable extends ScannableMotionBase {
 
 	protected double currentPosition = 0;
+	protected double increment = 0.0;
 
 	public DummyScannable() {
 		this.setInputNames(new String[]{""});
@@ -49,9 +50,13 @@ public class DummyScannable extends ScannableMotionBase {
 		setInputNames(new String[] {name});
 	}
 
-	public DummyScannable(String string, double d) {
-		this(string);
+	public DummyScannable(String name, double d) {
+		this(name);
 		this.currentPosition = d;
+	}
+
+	public void setIncrement(final Double increment) {
+		this.increment = increment;
 	}
 
 	@Override
@@ -78,5 +83,22 @@ public class DummyScannable extends ScannableMotionBase {
 			return "position not a number";
 		}
 		return super.checkPositionValid(position);
+	}
+
+	@Override
+	public Object getPosition() throws DeviceException {
+		if (increment != 0.0) {
+			double newPosition = currentPosition + increment;
+
+			// Check that new position is within limits: if not, reverse the direction of change
+			if (checkPositionValid(newPosition) != null) {
+				increment = -increment;
+				newPosition = currentPosition + increment;
+			}
+
+			moveTo(newPosition);
+		}
+
+		return super.getPosition();
 	}
 }
