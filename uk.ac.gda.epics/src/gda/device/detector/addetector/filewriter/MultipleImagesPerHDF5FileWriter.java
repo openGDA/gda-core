@@ -27,7 +27,7 @@ import gda.device.detector.areadetector.v17.NDFileHDF5;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataFileLinkAppender;
 import gda.device.detector.nxdata.NXDetectorDataNullAppender;
-import gda.device.detector.nxdetector.NXPlugin;
+import gda.device.detector.nxdetector.FrameCountingNXPlugin;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanInformation;
 import gov.aps.jca.TimeoutException;
@@ -42,13 +42,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
-public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements NXPlugin{
+public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements FrameCountingNXPlugin {
 
 	private static Logger logger = LoggerFactory.getLogger(MultipleImagesPerHDF5FileWriter.class);
 
 	private NDFileHDF5 ndFileHDF5;
 
 	private boolean blocking = true;
+
+	private int expectedFrameCount = 0;
 
 	/*
 	 * default chunking is off so we get 1 image per chunk
@@ -272,6 +274,7 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements N
 		for( int dim : actualDims ){
 			numberOfAcquires *= dim;
 		}
+		expectedFrameCount = numberOfAcquires;
 		getNdFileHDF5().setNumCapture(numberOfAcquires);
 		if( isSetChunking()){
 			getNdFileHDF5().setNumRowChunks(rowChunks);
@@ -340,7 +343,23 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements N
 
 
 	@Override
+	public void completeLine() throws Exception {
+		super.completeLine();
+	}
+
+	@Override
+	public void completeLine(int framesCollected) throws Exception {
+		completeLine();
+	}
+
+	@Override
 	public void completeCollection() throws Exception{
+		completeCollection(expectedFrameCount);
+	}
+
+	@Override
+	public void completeCollection(int framesCollected) throws Exception {
+		expectedFrameCount = framesCollected;
 		alreadyPrepared=false;
 		if(!isEnabled())
 			return;
@@ -350,7 +369,8 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements N
 	}
 
 	private void endRecording() throws Exception {
-		while (getNdFileHDF5().getFile().getCapture_RBV() != 0) {
+		while (getNdFileHDF5().getFile().getCapture_RBV() != 0 &&
+				getNdFileHDF5().getFile().getNumCaptured_RBV() != expectedFrameCount) {
 			Thread.sleep(1000);
 		}
 		getNdFileHDF5().stopCapture();
