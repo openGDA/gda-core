@@ -19,6 +19,9 @@
 package gda.scan;
 
 import static org.junit.Assert.assertEquals;
+
+import org.junit.Test;
+
 import gda.TestHelpers;
 import gda.configuration.properties.LocalProperties;
 import gda.device.detector.BufferedDetector;
@@ -27,8 +30,6 @@ import gda.device.monitor.DummyMonitor;
 import gda.device.scannable.DummyContinuouslyScannable;
 import gda.device.scannable.DummyScannable;
 import gda.jython.InterfaceProvider;
-
-import org.junit.Test;
 
 /**
  *
@@ -91,7 +92,7 @@ public class ContinuousScanTest {
 		assertEquals(-1,scan.getScanNumber());
 		scan.runScan();
 		Thread.sleep(5000);
-		assertEquals(-1,scan.getScanNumber());
+		assertEquals(1, scan.getScanNumber());
 
 		// check that the detector has been operated the expected number of times.
 		int[][] data = (int[][]) detector.readAllFrames();
@@ -153,7 +154,7 @@ public class ContinuousScanTest {
 		ConcurrentScan mainScan = new ConcurrentScan(new Object[] { temp01, 10, 20, 5, mon01 });
 		assertEquals(-1,mainScan.getScanNumber());
 		mainScan.runScan();
-		assertEquals(-1,mainScan.getScanNumber());
+		assertEquals(1, mainScan.getScanNumber());
 		IScanDataPoint point = InterfaceProvider.getScanDataPointProvider().getLastScanDataPoint();
 		assertEquals(1, point.getScanIdentifier());
 		assertEquals(dir + "/Data/1.dat", point.getCurrentFilename());
@@ -273,7 +274,7 @@ public class ContinuousScanTest {
 
 		assertEquals(-1,mainScan.getScanNumber());
 		mainScan.runScan();
-		assertEquals(-1,mainScan.getScanNumber());
+		assertEquals(1, mainScan.getScanNumber());
 		// but check that the detector has been triggered 150 times
 //		verify(detector, times(30)).addPoint();
 		assertEquals(10,detector.getNumberFrames());
@@ -305,7 +306,7 @@ public class ContinuousScanTest {
 
 		assertEquals(-1,mainScan.getScanNumber());
 		mainScan.runScan();
-		assertEquals(-1,mainScan.getScanNumber());
+		assertEquals(1, mainScan.getScanNumber());
 		// but check that the detector has been triggered 150 times
 //		verify(detector, times(30)).addPoint();
 		assertEquals(10,detector.getNumberFrames());

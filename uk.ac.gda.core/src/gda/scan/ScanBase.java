@@ -1003,7 +1003,11 @@ public abstract class ScanBase implements NestableScan {
 		if (scanDataPointPipeline == null) {
 			createScanDataPointPipeline();
 		}
-		getDataWriter().configureScanNumber(getScanNumber());
+		DataWriter dw = getDataWriter();
+		dw.configureScanNumber(getScanNumber());
+		if (scanNumber < 0) {
+			scanNumber = dw.getCurrentScanIdentifier();
+		}
 	}
 
 
