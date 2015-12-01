@@ -37,7 +37,8 @@ import org.eclipse.ui.ExtensionFactory;
  * client had started.
  * <p>
  * Please see the example below for usage in contributing to the extension point.
- *{@code
+ * <pre>
+ * {@code
  * <extension point="org.eclipse.ui.views">
  *    <view  name="..."  class="gda.rcp.views.ViewFactory:yourViewFactoryInstanceHere", id="..."/>
  * </extension>
