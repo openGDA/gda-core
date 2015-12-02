@@ -232,7 +232,6 @@ public abstract class XasScanBase implements XasScan {
 			if (num_sample_repeats == 1) {
 				printRepetition();
 			}
-
 			doSingleScan(sampleName, descriptions, logmsg);
 		}
 	}
