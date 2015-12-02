@@ -390,7 +390,7 @@ public class ZebraConstantVelocityMoveControllerForQexafs implements Scannable,
 					 * PC_PULSE as the input and delay before set to (pulse step size - collection time)/2
 
 					 Code of the form below is needed - but it has to be repeated for each detector with readouttime >0.*/
-					zebra.setOutTTL(1, 52); //PULSE1
+				zebra.setOutTTL(1, 31); // PULSE1
 					zebra.setPulseInput(1, 31); //PC_PULSE
 					zebra.setPulseTimeUnit(1, Zebra.PC_TIMEUNIT_SEC);
 					zebra.setPulseDelay(1, (pcPulseStepRBVRaw - 10)/2000); //10 is a hardcoded collection time in ms
