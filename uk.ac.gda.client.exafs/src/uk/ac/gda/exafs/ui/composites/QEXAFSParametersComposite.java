@@ -206,16 +206,20 @@ public final class QEXAFSParametersComposite extends FieldBeanComposite {
 		initialEnergy.addValueListener(new ValueAdapter("initialEnergyListener") {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
-				if (initialEnergy.getNumericValue() != 0 && !initialEnergy.getValue().toString().equals(""))
+				if (initialEnergy.getNumericValue() != 0 && !initialEnergy.getValue().toString().equals("")) {
+					provider.setInitialEnergy(initialEnergy.getNumericValue());
 					calculate(provider);
+				}
 			}
 		});
 
 		finalEnergy.addValueListener(new ValueAdapter("finalEnergyListener") {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
-				if (finalEnergy.getNumericValue() != 0 && !finalEnergy.getValue().toString().equals(""))
+				if (finalEnergy.getNumericValue() != 0 && !finalEnergy.getValue().toString().equals("")) {
+					provider.setFinalEnergy(finalEnergy.getNumericValue());
 					calculate(provider);
+				}
 			}
 		});
 
@@ -223,6 +227,7 @@ public final class QEXAFSParametersComposite extends FieldBeanComposite {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
 				if (speed.getNumericValue() != 0 && !speed.getValue().toString().equals("")){
+					provider.setSpeed(speed.getNumericValue());
 					calculate(provider);
 				}
 			}
@@ -231,8 +236,10 @@ public final class QEXAFSParametersComposite extends FieldBeanComposite {
 		stepSize.addValueListener(new ValueAdapter("stepSizeListener") {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
-				if (stepSize.getNumericValue() != 0 && !stepSize.getValue().toString().equals(""))
+				if (stepSize.getNumericValue() != 0 && !stepSize.getValue().toString().equals("")) {
+					provider.setStepSize(stepSize.getNumericValue());
 					calculate(provider);
+				}
 			}
 		});
 		calculate(provider);
