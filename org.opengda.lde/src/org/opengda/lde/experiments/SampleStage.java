@@ -13,7 +13,7 @@ import gda.factory.corba.util.CorbaAdapterClass;
 import gda.factory.corba.util.CorbaImplClass;
 @CorbaAdapterClass(ScannablegroupAdapter.class)
 @CorbaImplClass(ScannablegroupImpl.class)
-public class SampleStage extends ScannableGroup implements InitializingBean {
+public class SampleStage extends ScannableGroup implements InitializingBean, Comparable<SampleStage> {
 	private double parkPosition = -400.0;
 	private double engagePosition = 0.0;
 	private double positionTolerance=0.001;
@@ -118,6 +118,11 @@ public class SampleStage extends ScannableGroup implements InitializingBean {
 
 	public void setProcessed(boolean processed) {
 		this.processed = processed;
+	}
+
+	@Override
+	public int compareTo(SampleStage o) {
+		return getName().compareTo(o.getName());
 	}
 
 }
