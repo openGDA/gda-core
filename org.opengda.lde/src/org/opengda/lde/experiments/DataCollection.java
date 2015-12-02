@@ -16,6 +16,7 @@ import org.opengda.lde.events.SampleProcessingEvent;
 import org.opengda.lde.events.SampleStatusEvent;
 import org.opengda.lde.events.StageChangedEvent;
 import org.opengda.lde.model.ldeexperiment.Cell;
+import org.opengda.lde.model.ldeexperiment.Experiment;
 import org.opengda.lde.model.ldeexperiment.STATUS;
 import org.opengda.lde.model.ldeexperiment.Sample;
 import org.opengda.lde.model.ldeexperiment.Stage;
@@ -52,7 +53,7 @@ import gda.util.Sleep;
 
 public class DataCollection extends ScriptBase implements IObserver, InitializingBean, Findable, Configurable {
 	private static final Logger logger = LoggerFactory.getLogger(DataCollection.class);
-	private List<SampleStage> sampleStages = new ArrayList<SampleStage>();
+	private Map<String, SampleStage> sampleStages = new HashMap<String, SampleStage>();
 	private Map<String, Stage> stages=new HashMap<String, Stage>();
 	private Map<String, Cell> cells= new HashMap<String, Cell>();
 	private Map<String, Sample> samples = new HashMap<String, Sample>();
@@ -77,6 +78,7 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 	private int currentCalibrationNumber;
 	private Sample currentSample;
 	private Cell currentCell;
+	private List<Experiment> experiments;
 	/**
 	 * blocking move to park all sampleStages in their safe positions. It only returns after all sampleStages are parked.
 	 * @throws DeviceException
@@ -86,7 +88,7 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 		String message = "Parking all stages...";
 		updateMessage(null, message);
 		if (getStages() != null && !getStages().isEmpty()) {
-			for (SampleStage stage : getStages()) {
+			for (SampleStage stage : getStages().values()) {
 				stage.parkStage();
 				checkForPauseAndInterruption();
 			}
@@ -100,7 +102,7 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 		boolean allParked = false;
 		while (!allParked) {
 			boolean parked = true;
-			for (SampleStage stage : getStages()) {
+			for (SampleStage stage : getStages().values()) {
 				parked = stage.isParked() && parked;
 				checkForPauseAndInterruption();
 			}
@@ -134,7 +136,7 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 	 */
 	public void collectData(String filename) throws InterruptedException {
 		prepareDataCollection(filename);
-		processStages();
+		processExperiments(filename);
 		completeDataCollection();
 	}
 	
@@ -143,6 +145,7 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 		updateMessage(null, message);
 		InterfaceProvider.getTerminalPrinter().print("Data collection completed !");
 		cellActiveSamplesMap.clear();
+		experiments.clear();
 		stages.clear();
 		cells.clear();
 		samples.clear();
@@ -222,9 +225,11 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 		if (resUtil != null) {
 			// load samples definition from .lde file
 			try {
+				experiments = resUtil.getExperiments(filename);
 				samples = resUtil.getSamples(filename);
 				cells = resUtil.getCells(filename);
 				stages = resUtil.getStages(filename);
+				
 			} catch (Exception e) {
 				message = "Cannot load samples from experiment sample definition file "+ filename + ".";
 				updateMessage(e, message);
@@ -252,8 +257,8 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 			//stop when no active sample
 			throw new IllegalStateException(message);
 		}
-		for (SampleStage stage : getStages()) {
-			//initialize stage cached states
+		for (SampleStage stage : getStages().values()) {
+			//initialise stage cached states
 			stage.setProcessed(false);
 			for (Cell cell : stages.get(stage.getName()).getCell()) {
 				//initialise cell states
@@ -266,7 +271,7 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 		if (eventAdmin!=null) {
 			((ScriptControllerBase)eventAdmin).update(eventAdmin, new SampleProcessingEvent(currentSampleName, currentSampleNumber, currentCalibrationNumber, numActiveSamples, numCalibrations));
 		}
-		for (SampleStage stage : getStages()) {
+		for (SampleStage stage : getStages().values()) {
 			try {
 				if (!stage.isParked()) {
 					try {
@@ -314,15 +319,43 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 		updateMessage(null, message);
 	}
 
+	private void processExperiments(String filename) throws InterruptedException {
+		// TODO Auto-generated method stub
+		checkForPauseAndInterruption();
+		String message = "Processing experiments in sample parameter file "+ filename;
+		updateMessage(null, message);
+		for (Experiment experiment : experiments) {
+			processExperiment(experiment);
+		}
+	}
+
+	private void processExperiment(Experiment experiment) throws InterruptedException {
+		// TODO Auto-generated method stub
+		checkForPauseAndInterruption();
+		String message = "Processing stages in experiment "+ experiment.getName() +": "+experiment.getDescription();
+		updateMessage(null, message);
+		processStages(experiment.getStage());
+	}
+
 	/**
-	 * process samples on each stage in order, engage the stage when its samples are processed or it has no samples 
-	 * except the last stage.
+	 * process samples on each stage in order, engage the stage when its samples are processed, it has no samples,
+	 * or the stage is not contained in the given stage list, except the last stage. This is required to satisfy 
+	 * the experiment conditions in which diffraction data from samples must be collected in a specified order following 
+	 * X-ray beam direction in order to minimise delays due to stage motions. 
+	 * @param eList 
 	 * @throws InterruptedException 
 	 */
-	private void processStages() throws InterruptedException {
+	private void processStages(EList<Stage> eList) throws InterruptedException {
 		checkForPauseAndInterruption();
+		//TODO map data model Stage to real SampleStage
 		String message="Processing each of the sample stages down the X-ray beam direction ...";
-		for (SampleStage stage : getStages()) {
+		Map<String, Stage> stages=new HashMap<String, Stage>();
+		for (Stage stage : eList) {
+			stages.put(stage.getStageID(), stage);
+		}
+		// loop through actual hardware stages in downstream direction
+		for (SampleStage stage : getStages().values()) {
+			//TODO this is where I left off - to be continued after Fajin is back
 			EList<Cell> cells2 = stages.get(stage.getName()).getCell();
 			if (eventAdmin!=null) {
 				((ScriptControllerBase)eventAdmin).update(eventAdmin, new StageChangedEvent(stage.getName(), cells2.size()));
@@ -739,12 +772,12 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 		this.eventAdmin = eventAdmin;
 	}
 
-	public List<SampleStage> getStages() {
+	public Map<String, SampleStage> getStages() {
 		return sampleStages;
 	}
 
-	public void setStages(List<SampleStage> sampleStages) {
-		this.sampleStages = sampleStages;
+	public void setStages(Map<String, SampleStage> sampleStageMap) {
+		this.sampleStages = sampleStageMap;
 	}
 
 	private void print(String message) {
