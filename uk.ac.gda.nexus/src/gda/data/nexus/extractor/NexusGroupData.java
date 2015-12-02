@@ -873,11 +873,6 @@ public class NexusGroupData implements Serializable {
 				return false;
 		} else if (!compressionType.equals(other.compressionType))
 			return false;
-		if (data == null) {
-			if (other.data != null)
-				return false;
-		} else if (!data.equals(other.data))
-			return false;
 		if (!Arrays.equals(dimensions, other.dimensions))
 			return false;
 		if (dtype != other.dtype)
@@ -887,6 +882,11 @@ public class NexusGroupData implements Serializable {
 		if (isUnsigned != other.isUnsigned)
 			return false;
 		if (textLength != other.textLength)
+			return false;
+		if (data == null) {
+			if (other.data != null)
+				return false;
+		} else if (!Arrays.deepEquals(new Object[] { data }, new Object[] { other.data }))
 			return false;
 		return true;
 	}
