@@ -18,9 +18,6 @@
 
 package gda.data.nexus.tree;
 
-import gda.data.nexus.extractor.NexusExtractorException;
-import gda.util.TestUtils;
-
 import java.io.File;
 import java.io.StringReader;
 import java.net.URL;
@@ -30,23 +27,25 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.xml.sax.InputSource;
 
-@Ignore("GDA-5474 - test disabled 2013/Mar/15")
+import gda.data.nexus.extractor.NexusExtractorException;
+import gda.util.TestUtils;
+
 public class NexusTreeBuilderTest {
 	String scratchFolder;
 	URL testdataFile;
-	
+
 	static String TestFileFolder;
+
 	@BeforeClass
 	static public void setUpClass() {
 		TestFileFolder = TestUtils.getGDALargeTestFilesLocation();
 		if( TestFileFolder == null){
 			Assert.fail("TestUtils.getGDALargeTestFilesLocation() returned null - test aborted");
 		}
-	}	
+	}
 	@Before
 	public void setUp() throws Exception {
 		scratchFolder=TestUtils.setUpTest(NexusTreeBuilderTest.class, "setUp", true);
@@ -57,7 +56,7 @@ public class NexusTreeBuilderTest {
 	public void tearDown() {
 	}
 
-	
+
 	private NexusTreeNodeSelection getSelForAllButData() throws Exception{
 		String xml = "<?xml version='1.0' encoding='UTF-8'?>" +
 		"<nexusTreeNodeSelection>" +
@@ -82,6 +81,5 @@ public class NexusTreeBuilderTest {
 		INexusTree tree = NexusTreeBuilder.getNexusTree(TestFileFolder + File.separator + "327.nxs", getSelForAllButData());
 		Assert.assertEquals("test",tree.getChildNode(0).getChildNode(26).getChildNode(22).getChildNode(5).getData().dimensions[0],11);
 		Assert.assertEquals("test",tree.getChildNode(0).getChildNode(26).getChildNode(22).getChildNode(5).getData().getBuffer(),null);
-		
 	}
 }

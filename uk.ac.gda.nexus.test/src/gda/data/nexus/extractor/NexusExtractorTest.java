@@ -18,12 +18,6 @@
 
 package gda.data.nexus.extractor;
 
-import gda.data.nexus.tree.INexusSourceProvider;
-import gda.data.nexus.tree.INexusTree;
-import gda.data.nexus.tree.NexusTreeBuilder;
-import gda.data.nexus.tree.NexusTreeNodeSelection;
-import gda.util.TestUtils;
-
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -33,8 +27,13 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
+
+import gda.data.nexus.tree.INexusSourceProvider;
+import gda.data.nexus.tree.INexusTree;
+import gda.data.nexus.tree.NexusTreeBuilder;
+import gda.data.nexus.tree.NexusTreeNodeSelection;
+import gda.util.TestUtils;
 
 public class NexusExtractorTest {
 	String scratchFolder;
@@ -67,7 +66,6 @@ public class NexusExtractorTest {
 	 * @throws NexusException
 	 */
 	@Test
-	@Ignore("2015/06/11 Test ignored since intermittently fails SCI-5295")
 	public void testGetNexusGroupDataURLStringBoolean() throws NexusException, NexusExtractorException {
 		INexusTree tree = NexusTreeBuilder.getNexusTree(TestFileFolder + "327.nxs", NexusTreeNodeSelection
 				.createTreeForAllNXData());
@@ -88,7 +86,6 @@ public class NexusExtractorTest {
 		data = NexusExtractor.getNexusGroupData(((INexusSourceProvider) tree).getSource(), node
 				.getNodePathWithClasses(), startPos, dims, true);
 		Assert.assertEquals(1, data.dimensions[dims.length - 1]);
-
 	}
 
 	/**
@@ -118,6 +115,5 @@ public class NexusExtractorTest {
 		Assert.assertEquals( 2, data.dimensions[0]);
 		Assert.assertEquals( (Double)0.2, (Double)((double [])data.getBuffer())[0]);
 		Assert.assertEquals( (Double)0.3, (Double)((double [])data.getBuffer())[1]);
-
 	}
 }
