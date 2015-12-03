@@ -45,7 +45,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * in anti parallel mode (circular) we have the top phase positive for right circular
+ * Class for controlling the ID on I05 the unique feature is calculating a move path through gap and phase space which avoids the exclusion zone. in anti
+ * <p>
+ * Circular polarisation we have the top phase positive for right circular
  */
 public class I05Apple extends ScannableMotionBase {
 
@@ -73,6 +75,7 @@ public class I05Apple extends ScannableMotionBase {
 	private EpicsController epicsController;
 	private Channel upperDemandChannel;
 	private Channel lowerDemandChannel;
+	private double phaseTolerance;
 
 	private static Logger logger = LoggerFactory.getLogger(I05Apple.class);
 
@@ -244,10 +247,23 @@ public class I05Apple extends ScannableMotionBase {
 		return result.toArray(new Point2D[] {});
 	}
 
+	/**
+	 * This function checks that the phase axis are at the same value to within phaseTolerance.
+	 * <p>
+	 * This is useful as GDA determined the current polarisation by using the current phase axis position and if these differ the polarisation will be
+	 * undefined.
+	 *
+	 * @throws DeviceException
+	 */
 	public void checkPhases() throws DeviceException {
-		if (upperPhaseScannable.isAt(lowerPhaseScannable.getPosition()))
-			return;
-		throw new DeviceException("upper and lower phase out of sync");
+		double upperPhasePos = (double) upperPhaseScannable.getPosition();
+		double lowerPhasePos = (double) lowerPhaseScannable.getPosition();
+		if (Math.abs(upperPhasePos - lowerPhasePos) > phaseTolerance) {
+			logger.error("Upper and Lower position differ by more than tollerence ({}). Upper phase: {}, Lower phase: {}", phaseTolerance, upperPhasePos,
+					lowerPhasePos);
+			throw new DeviceException("Upper and Lower phase out of sync.");
+		}
+		return;
 	}
 
 	public double findEnergyForCircularGap(double gap) {
@@ -527,4 +543,13 @@ public class I05Apple extends ScannableMotionBase {
 	public void setLowerPhaseScannable(ScannableMotion lowerPhaseScannable) {
 		this.lowerPhaseScannable = lowerPhaseScannable;
 	}
+
+	public double getPhaseTolerance() {
+		return phaseTolerance;
+	}
+
+	public void setPhaseTolerance(double phaseTolerance) {
+		this.phaseTolerance = phaseTolerance;
+	}
+
 }
