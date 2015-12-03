@@ -23,9 +23,6 @@ import java.util.List;
 
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
-import org.eclipse.dawnsci.plotting.api.histogram.functions.AbstractMapFunction;
-import org.eclipse.dawnsci.plotting.api.histogram.functions.ConstMapFunction;
-import org.eclipse.dawnsci.plotting.api.histogram.functions.SquareRootMapFunction;
 import org.eclipse.dawnsci.plotting.api.jreality.impl.PlotException;
 import org.eclipse.dawnsci.plotting.api.jreality.impl.SurfPlotStyles;
 import org.eclipse.swt.layout.FormAttachment;
@@ -35,13 +32,16 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
+import uk.ac.diamond.scisoft.analysis.histogram.functions.AbstractMapFunction;
+import uk.ac.diamond.scisoft.analysis.histogram.functions.ConstMapFunction;
+import uk.ac.diamond.scisoft.analysis.histogram.functions.SquareRootMapFunction;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlottingMode;
 
 public class MythenDataView extends ViewPart {
 
 	public static final String ID = MythenDataView.class.getName();
-	
+
 	public static MythenDataView getInstance() {
 		return (MythenDataView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().findView(ID);
 	}
@@ -51,9 +51,9 @@ public class MythenDataView extends ViewPart {
 	private static AbstractMapFunction ONE_MAP_FUNCTION = new ConstMapFunction(1, "1");
 
 	private Composite parent;
-	
+
 	private DataSetPlotter plotter;
-	
+
 	@Override
 	public void createPartControl(Composite parent) {
 		this.parent = parent;
@@ -62,7 +62,7 @@ public class MythenDataView extends ViewPart {
 
 	public void plot1D(List<IDataset> data) {
 		replacePlotter(PlottingMode.ONED);
-		
+
 		try {
 			plotter.replaceAllPlots(data);
 			refreshPlotter();
@@ -73,7 +73,7 @@ public class MythenDataView extends ViewPart {
 
 	public void plot2D(DoubleDataset data) {
 		replacePlotter(PlottingMode.TWOD);
-		
+
 		try {
 			plotter.replaceAllPlots(Collections.singleton(data));
 			refreshPlotter();
@@ -90,16 +90,16 @@ public class MythenDataView extends ViewPart {
 			e1.printStackTrace();
 		}
 	}
-	
+
 	public void plot3D(IDataset data, @SuppressWarnings("unused") int yScaleFactor) {
 		replacePlotter(PlottingMode.SURF2D);
 //		((DataSet3DPlot3D) plotter.getPlotter()).setYScaleFactor(yScaleFactor);
-		
+
 		try {
 			plotter.replaceAllPlots(Collections.singleton(data));
 			plotter.setPlot2DSurfStyle(SurfPlotStyles.FILLED); // or WIREFRAME
 			refreshPlotter();
-			
+
 			plotter.applyColourCast(
 				new SquareRootMapFunction(),
 				ZERO_MAP_FUNCTION,
@@ -107,24 +107,24 @@ public class MythenDataView extends ViewPart {
 				ONE_MAP_FUNCTION,
 				false, false, false, false,
 				0, 200);
-			
+
 		} catch (PlotException e1) {
 			e1.printStackTrace();
 		}
 	}
-	
+
 	private void replacePlotter(PlottingMode plotMode) {
 		removeExistingPlotter();
 		addPlotter(plotMode);
 	}
-	
+
 	private void removeExistingPlotter() {
 		if (plotter != null) {
 			plotter.cleanUp();
 			plotter = null;
 		}
 	}
-	
+
 	private void addPlotter(PlottingMode plotMode) {
 		plotter = new DataSetPlotter(plotMode, parent);
 		FormData formData = new FormData();
@@ -134,7 +134,7 @@ public class MythenDataView extends ViewPart {
 		formData.right = new FormAttachment(100, -5);
 		plotter.getComposite().setLayoutData(formData);
 	}
-	
+
 	private void refreshPlotter() {
 		parent.layout();
 	}
