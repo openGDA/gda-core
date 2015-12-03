@@ -18,6 +18,15 @@
 
 package uk.ac.gda.arpes.scannable;
 
+import gda.device.DeviceException;
+import gda.device.ScannableMotion;
+import gda.device.scannable.ScannableMotionBase;
+import gda.epics.connection.EpicsController;
+import gda.factory.FactoryException;
+import gov.aps.jca.CAException;
+import gov.aps.jca.Channel;
+import gov.aps.jca.TimeoutException;
+
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -35,19 +44,8 @@ import org.apache.commons.math3.optim.univariate.UnivariatePointValuePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.device.DeviceException;
-import gda.device.ScannableMotion;
-import gda.device.scannable.ScannableMotionBase;
-import gda.epics.connection.EpicsController;
-import gda.factory.FactoryException;
-import gov.aps.jca.CAException;
-import gov.aps.jca.Channel;
-import gov.aps.jca.TimeoutException;
-
-
 /**
  * in anti parallel mode (circular) we have the top phase positive for right circular
- *
  */
 public class I05Apple extends ScannableMotionBase {
 
@@ -68,155 +66,156 @@ public class I05Apple extends ScannableMotionBase {
 
 	private TrajectorySolver solver;
 
-	private PolynomialFunction horizontalGapPolynomial = new PolynomialFunction(new double[] {0, 1});
-	private PolynomialFunction verticalGapPolynomial = new PolynomialFunction(new double[] {0, 1});
-	private PolynomialFunction circularGapPolynomial = new PolynomialFunction(new double[] {0, 1});
-	private PolynomialFunction circularPhasePolynomial = new PolynomialFunction(new double[] {0, 1});
+	private PolynomialFunction horizontalGapPolynomial = new PolynomialFunction(new double[] { 0, 1 });
+	private PolynomialFunction verticalGapPolynomial = new PolynomialFunction(new double[] { 0, 1 });
+	private PolynomialFunction circularGapPolynomial = new PolynomialFunction(new double[] { 0, 1 });
+	private PolynomialFunction circularPhasePolynomial = new PolynomialFunction(new double[] { 0, 1 });
 	private EpicsController epicsController;
 	private Channel upperDemandChannel;
 	private Channel lowerDemandChannel;
 
 	private static Logger logger = LoggerFactory.getLogger(I05Apple.class);
 
-	class PGMove {                // a move is defined by the change in position and whether it's Gap-then-Phase or Phase-then-Gap
+	class PGMove { // a move is defined by the change in position and whether it's Gap-then-Phase or Phase-then-Gap
 		public String moveOrder;
 		public Line2D moveVector;
+
 		public PGMove(String mo, Line2D ln) {
 			moveOrder = mo;
 			moveVector = ln;
 		}
 	}
-	class Quadrant {              // identify Quadrant by 1/-1 pair labels for sign of x y coordinates in the given Quadrant
+
+	class Quadrant { // identify Quadrant by 1/-1 pair labels for sign of x y coordinates in the given Quadrant
 		public int xsign;
 		public int ysign;
+
 		public Quadrant(int xs, int ys) {
 			xsign = xs;
 			ysign = ys;
 		}
-	    public boolean equals(Quadrant other) {
-	    	return (this.xsign == other.xsign &&
-	    			this.ysign == other.ysign);
-	    }
+
+		public boolean equals(Quadrant other) {
+			return (this.xsign == other.xsign && this.ysign == other.ysign);
+		}
 	}
+
 	class TrajectorySolver {
 
 		/**
-		 * For the application we treat the problem as a 2D graph with Phase(=X) and Gap(=Y).
-		 * Exclusion area avoidance is based on moving Phase(X) and Gap(Y) in sequence rather than concurrently.
-		 * Moving concurrently must model or make assumptions about relative speed of Gap & Phase movement, so best avoided.
-		 * Avoidance trajectory algorithm is based on splitting into 8 cases: which Phase half-space (+ve or -ve) and which cartesian Quadrant
-		 * the move *vector* is in. In all 8 cases except 2, the order of movement doesn't matter, so arbitrarily choose to do Gap then Phase.
-		 * If its one of these 2 cases, do Phase then Gap. See getGapPhaseOrder method.
-		 *
-		 * exclusionZone: an array of rectangles to avoid in the trajectory, going around "the top".
-		 * In the implementation we use awt primitives (maybe not be best choice?)
-		 *
-		 * Limitation:
-		 *    getGapPhaseOrder trajectory solver is very specific, assumes exclusion is of
-		 *    symmetric "tower-of-hanoi" shape about the Phase=0 line
-		 *
+		 * For the application we treat the problem as a 2D graph with Phase(=X) and Gap(=Y). Exclusion area avoidance is based on moving Phase(X) and Gap(Y) in
+		 * sequence rather than concurrently. Moving concurrently must model or make assumptions about relative speed of Gap & Phase movement, so best avoided.
+		 * Avoidance trajectory algorithm is based on splitting into 8 cases: which Phase half-space (+ve or -ve) and which cartesian Quadrant the move *vector*
+		 * is in. In all 8 cases except 2, the order of movement doesn't matter, so arbitrarily choose to do Gap then Phase. If its one of these 2 cases, do
+		 * Phase then Gap. See getGapPhaseOrder method. exclusionZone: an array of rectangles to avoid in the trajectory, going around "the top". In the
+		 * implementation we use awt primitives (maybe not be best choice?) Limitation: getGapPhaseOrder trajectory solver is very specific, assumes exclusion
+		 * is of symmetric "tower-of-hanoi" shape about the Phase=0 line
 		 */
 
 		Rectangle2D[] rectangles;
-		double towerTop = 0.0;                // store highest point of tower of rectangles
+		double towerTop = 0.0; // store highest point of tower of rectangles
 
-		Quadrant qd1 = new Quadrant( 1,  1);  // identify Quadrants by whether X(=Phase) and Y(=Gap) are negative or positive
-		Quadrant qd2 = new Quadrant(-1,  1);
+		Quadrant qd1 = new Quadrant(1, 1); // identify Quadrants by whether X(=Phase) and Y(=Gap) are negative or positive
+		Quadrant qd2 = new Quadrant(-1, 1);
 		Quadrant qd3 = new Quadrant(-1, -1);
-		Quadrant qd4 = new Quadrant( 1, -1);
+		Quadrant qd4 = new Quadrant(1, -1);
 
-		public int qsign(double x) {          // include 0 as part of positive Quadrant
-			return Math.signum(x) >= 0.0 ?  1 : -1;
+		public int qsign(double x) { // include 0 as part of positive Quadrant
+			return Math.signum(x) >= 0.0 ? 1 : -1;
 		}
 
 		public boolean phaseSide(double xa, double xb, int side) { // include 0 as part of both phase half-space sides
 			boolean res;
-			if ( (Math.signum(xa)==side && Math.signum(xb)==side)   ||
-				 (Math.signum(xa)==side && xb==0.0)   ||
-				 (Math.signum(xb)==side && xa==0.0) ) {
+			if ((Math.signum(xa) == side && Math.signum(xb) == side) || (Math.signum(xa) == side && xb == 0.0) || (Math.signum(xb) == side && xa == 0.0)) {
 				res = true;
 			} else {
-				res= false;
+				res = false;
 			}
 			return res;
 		}
+
 		public TrajectorySolver(Rectangle2D[] exclusionZone) {
 			logger.info("Instantiating trajectory solver for ID move");
 			rectangles = exclusionZone;
-			for (Rectangle2D r: rectangles) {                         // change to reduction one-liner when we go to Java8
+			for (Rectangle2D r : rectangles) { // change to reduction one-liner when we go to Java8
 				towerTop = Math.max(towerTop, r.getMaxY());
 			}
-			logger.info("Highest point of rectangles tower="+towerTop);
+			logger.info("Highest point of rectangles tower=" + towerTop);
 		}
 
 		public List<Line2D> splitMoveAtZeroPhase(Line2D ln) {
 			// small performance optimisation: cross zero line near Gap(=Y) start and end points
 
-			Point2D zcp = new Point2D.Double(0.0, Math.max(towerTop, (ln.getP1().getY()+ln.getP2().getY())/2.0));  // cross at average Y
+			Point2D zcp = new Point2D.Double(0.0, Math.max(towerTop, (ln.getP1().getY() + ln.getP2().getY()) / 2.0)); // cross at average Y
 			List<Line2D> linePair = new ArrayList<Line2D>();
 			linePair.add(new Line2D.Double(ln.getP1(), zcp));
 			linePair.add(new Line2D.Double(zcp, ln.getP2()));
 			return linePair;
 		}
 
-		public List<PGMove> getGapPhaseOrder(Line2D ln, int recDepth){
+		public List<PGMove> getGapPhaseOrder(Line2D ln, int recDepth) {
 
-			logger.info("Computing Phase-Gap trajectory: for"+ln.getP1()+ "--->"+ln.getP2());
+			logger.info("Computing Phase-Gap trajectory: for" + ln.getP1() + "--->" + ln.getP2());
 
-			List<PGMove> res = new ArrayList<PGMove>();  // initialise result as empty list, returning empty indicates unable to produce valid path
+			List<PGMove> res = new ArrayList<PGMove>(); // initialise result as empty list, returning empty indicates unable to produce valid path
 
 			// some defensive checks for undesirable input cases:
-			if (ln.getP1().equals(ln.getP2())) {  // 1) end points differ
+			if (ln.getP1().equals(ln.getP2())) { // 1) end points differ
 				return res;
 			}
-			if (recDepth>1) { 			          // 2) recurse only once
+			if (recDepth > 1) { // 2) recurse only once
 				return res;
 			}
-			for (Rectangle2D r: rectangles) { 	  // 3) neither end of move is in exclusion zone
+			for (Rectangle2D r : rectangles) { // 3) neither end of move is in exclusion zone
 				if (r.contains(ln.getP1()) || r.contains(ln.getP2())) {
 					return res;
 				}
 			}
 
-		    if ( (Math.signum(ln.getP1().getX()) == Math.signum(ln.getP2().getX()) ||  // move doesn't cross Phase=0 line
-		    	 ln.getP1().getX()==0.0 ||                                             // in this context, startpoint or endpoint on the Phase=0 line doesn't count as crossing it
-		    	 ln.getP2().getX()==0.0) ) {
+			if ((Math.signum(ln.getP1().getX()) == Math.signum(ln.getP2().getX()) || // move doesn't cross Phase=0 line
+					ln.getP1().getX() == 0.0 || // in this context, startpoint or endpoint on the Phase=0 line doesn't count as crossing it
+			ln.getP2().getX() == 0.0)) {
 
-		        Boolean moveWithinPosPhase = phaseSide(ln.getP1().getX(), ln.getP2().getX(), 1);
+				Boolean moveWithinPosPhase = phaseSide(ln.getP1().getX(), ln.getP2().getX(), 1);
 				logger.info("move within zero-inclusive PosPhase:" + moveWithinPosPhase.toString());
-		        Boolean moveWithinNegPhase = phaseSide(ln.getP1().getX(), ln.getP2().getX(), -1);
+				Boolean moveWithinNegPhase = phaseSide(ln.getP1().getX(), ln.getP2().getX(), -1);
 				logger.info("move within zero-inclusive NegPhase:" + moveWithinNegPhase.toString());
 
-		        Quadrant qd = new Quadrant(qsign(ln.getP2().getX() - ln.getP1().getX()), qsign(ln.getP2().getY() - ln.getP1().getY()));
-				logger.info("move vector Quadrant XSIGN:" + Integer.toString(qd.xsign)+ ", YSIGN:"+ Integer.toString(qd.xsign));
+				Quadrant qd = new Quadrant(qsign(ln.getP2().getX() - ln.getP1().getX()), qsign(ln.getP2().getY() - ln.getP1().getY()));
+				logger.info("move vector Quadrant XSIGN:" + Integer.toString(qd.xsign) + ", YSIGN:" + Integer.toString(qd.xsign));
 
-			    String moveDir = "";
-		        if      (qd.equals(qd1)) { moveDir = "GP"; }
-		        else if (qd.equals(qd2)) { moveDir = "GP"; }
-		        else if (qd.equals(qd3)) { moveDir = moveWithinNegPhase ? "PG" : "GP"; }
-		        else if (qd.equals(qd4)) { moveDir = moveWithinPosPhase ? "PG" : "GP"; }
+				String moveDir = "";
+				if (qd.equals(qd1)) {
+					moveDir = "GP";
+				} else if (qd.equals(qd2)) {
+					moveDir = "GP";
+				} else if (qd.equals(qd3)) {
+					moveDir = moveWithinNegPhase ? "PG" : "GP";
+				} else if (qd.equals(qd4)) {
+					moveDir = moveWithinPosPhase ? "PG" : "GP";
+				}
 
-		        res.add(new PGMove(moveDir, ln));
-				logger.info("Computed Phase-Gap trajectory: "+moveDir+" "+ln.getP1()+ "--->"+ln.getP2());
+				res.add(new PGMove(moveDir, ln));
+				logger.info("Computed Phase-Gap trajectory: " + moveDir + " " + ln.getP1() + "--->" + ln.getP2());
 
-		    }   else {  // move crosses between negative and positive phase => split the move into two moves
+			} else { // move crosses between negative and positive phase => split the move into two moves
 
-		    	List<Line2D> lns = splitMoveAtZeroPhase(ln);
-		        res.add(getGapPhaseOrder(lns.get(0), recDepth+1).get(0));
-		        res.add(getGapPhaseOrder(lns.get(1), recDepth+1).get(0));
-				logger.info("Computed Phase-Gap trajectory: FIRST:"+res.get(0).moveOrder+" "+res.get(0).moveVector.getP1()+"--->"+res.get(0).moveVector.getP2()+
-						                                   " THEN:"+res.get(1).moveOrder+" "+res.get(1).moveVector.getP1()+"--->"+res.get(1).moveVector.getP2());
-		    }
-		    return res;
+				List<Line2D> lns = splitMoveAtZeroPhase(ln);
+				res.add(getGapPhaseOrder(lns.get(0), recDepth + 1).get(0));
+				res.add(getGapPhaseOrder(lns.get(1), recDepth + 1).get(0));
+				logger.info("Computed Phase-Gap trajectory: FIRST:" + res.get(0).moveOrder + " " + res.get(0).moveVector.getP1() + "--->"
+						+ res.get(0).moveVector.getP2() + " THEN:" + res.get(1).moveOrder + " " + res.get(1).moveVector.getP1() + "--->"
+						+ res.get(1).moveVector.getP2());
+			}
+			return res;
 		}
 	}
 
 	public I05Apple() {
 		setInputNames(new String[] { "gap", "polarisation" });
 		setExtraNames(new String[] { "phase" });
-		setOutputFormat(new String[] {"%5.3f", "%s", "%5.3f"});
+		setOutputFormat(new String[] { "%5.3f", "%s", "%5.3f" });
 	}
-
 
 	@Override
 	public void configure() throws FactoryException {
@@ -233,7 +232,6 @@ public class I05Apple extends ScannableMotionBase {
 			throw new FactoryException("timeout connecting to phase demand pvs", e);
 		}
 	}
-
 
 	protected static Point2D[] trajectoryToPointArray(List<PGMove> traj) {
 		Point2D lastPoint = traj.get(0).moveVector.getP1();
@@ -257,9 +255,7 @@ public class I05Apple extends ScannableMotionBase {
 		poly = poly.multiply(poly);
 		UnivariateOptimizer optimizer = new BrentOptimizer(1e-6, 1e-4);
 
-		UnivariatePointValuePair pointValuePair = optimizer.optimize(new MaxEval(100),
-				new UnivariateObjectiveFunction(poly),
-				GoalType.MINIMIZE,
+		UnivariatePointValuePair pointValuePair = optimizer.optimize(new MaxEval(100), new UnivariateObjectiveFunction(poly), GoalType.MINIMIZE,
 				new SearchInterval(10, 1000));
 
 		return pointValuePair.getPoint();
@@ -330,7 +326,6 @@ public class I05Apple extends ScannableMotionBase {
 		}
 	}
 
-
 	private void setPhaseDemandsTo(Double phase) throws TimeoutException, CAException, InterruptedException {
 		if (upperDemandChannel != null)
 			epicsController.caputWait(upperDemandChannel, phase);
@@ -385,10 +380,10 @@ public class I05Apple extends ScannableMotionBase {
 	public String getCurrentPolarisation() throws DeviceException {
 		checkPhases();
 		Double gap = (Double) gapScannable.getPosition();
-		for (String polarisation : new String[] {HORIZONTAL, VERTICAL, CIRCULAR_LEFT, CIRCULAR_RIGHT}) {
+		for (String polarisation : new String[] { HORIZONTAL, VERTICAL, CIRCULAR_LEFT, CIRCULAR_RIGHT }) {
 			if (lowerPhaseScannable.isAt(getPhaseForGap(gap, polarisation)))
 				return polarisation;
-			if (VERTICAL.equalsIgnoreCase(polarisation) && lowerPhaseScannable.isAt(-1*getPhaseForGap(gap, polarisation))) {
+			if (VERTICAL.equalsIgnoreCase(polarisation) && lowerPhaseScannable.isAt(-1 * getPhaseForGap(gap, polarisation))) {
 				return polarisation;
 			}
 		}
@@ -397,14 +392,14 @@ public class I05Apple extends ScannableMotionBase {
 
 	@Override
 	public Object getPosition() throws DeviceException {
-//		checkPhases(); // don't check - so we have something to report in any case
+		// checkPhases(); // don't check - so we have something to report in any case
 		String polarisation = "unknown";
 		try {
 			polarisation = getCurrentPolarisation();
 		} catch (Exception e) {
 			// ignored
 		}
-		return new Object[] { gapScannable.getPosition(), polarisation, upperPhaseScannable.getPosition()};
+		return new Object[] { gapScannable.getPosition(), polarisation, upperPhaseScannable.getPosition() };
 	}
 
 	private synchronized void checkThreadException() throws DeviceException {
@@ -435,7 +430,7 @@ public class I05Apple extends ScannableMotionBase {
 		if (position instanceof List)
 			position = ((List) position).toArray();
 		try {
-			Object[] arr = (Object []) position;
+			Object[] arr = (Object[]) position;
 			if (arr[0] instanceof Number)
 				energy = ((Number) arr[0]).doubleValue();
 			else
