@@ -28,9 +28,6 @@ import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
-import org.eclipse.dawnsci.plotting.api.histogram.functions.AbstractMapFunction;
-import org.eclipse.dawnsci.plotting.api.histogram.functions.GlobalColourMaps;
-import org.eclipse.dawnsci.plotting.api.histogram.functions.UserCustomFunction;
 import org.eclipse.dawnsci.plotting.api.jreality.overlay.Overlay1DProvider;
 import org.eclipse.dawnsci.plotting.api.jreality.overlay.OverlayProvider;
 import org.eclipse.dawnsci.plotting.api.jreality.overlay.OverlayType;
@@ -39,6 +36,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
 
+import uk.ac.diamond.scisoft.analysis.histogram.functions.AbstractMapFunction;
+import uk.ac.diamond.scisoft.analysis.histogram.functions.GlobalColourMaps;
+import uk.ac.diamond.scisoft.analysis.histogram.functions.UserCustomFunction;
 import uk.ac.diamond.scisoft.analysis.rcp.volimage.CommandClient;
 
 

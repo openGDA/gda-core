@@ -21,12 +21,11 @@ import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
 import org.eclipse.dawnsci.analysis.dataset.impl.IndexIterator;
 import org.eclipse.dawnsci.analysis.dataset.impl.RGBDataset;
-import org.eclipse.dawnsci.plotting.api.histogram.functions.AbstractMapFunction;
 import org.eclipse.dawnsci.plotting.api.jreality.core.ScaleType;
 import org.eclipse.dawnsci.plotting.api.jreality.data.ColourImageData;
 import org.eclipse.dawnsci.plotting.api.jreality.util.ScalingUtility;
 
-
+import uk.ac.diamond.scisoft.analysis.histogram.functions.AbstractMapFunction;
 
 /**
  *

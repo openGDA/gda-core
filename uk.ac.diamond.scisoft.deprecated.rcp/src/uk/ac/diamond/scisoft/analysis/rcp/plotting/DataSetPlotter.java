@@ -63,7 +63,6 @@ import org.eclipse.dawnsci.analysis.api.metadata.IDiffractionMetadata;
 import org.eclipse.dawnsci.analysis.api.metadata.IMetadata;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
-import org.eclipse.dawnsci.plotting.api.histogram.functions.AbstractMapFunction;
 import org.eclipse.dawnsci.plotting.api.jreality.compositing.CompositeEntry;
 import org.eclipse.dawnsci.plotting.api.jreality.compositing.CompositeOp;
 import org.eclipse.dawnsci.plotting.api.jreality.compositing.CompositingControl;
@@ -106,6 +105,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 import uk.ac.diamond.scisoft.analysis.diffraction.QSpace;
+import uk.ac.diamond.scisoft.analysis.histogram.functions.AbstractMapFunction;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.ColorMappingUpdate;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.ColourLookupTable;
