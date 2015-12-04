@@ -18,14 +18,34 @@ if [[ "${GDA_MODE}" == "live" && "${CONTROL_MACHINE_NAME}" != "$(uname -n)" ]]; 
     done
 
     # To prevent man-in-the-middle attacks, ensure that we use a validated host key
+    CONTROL_MACHINE_PUBKEY_FILE=${GDA_VAR}/.ssh/$BEAMLINE-host.key.pub
+    if [[ -f $CONTROL_MACHINE_PUBKEY_FILE ]]; then
+      if [[ -n "${CONTROL_MACHINE_PUBKEY-}" ]]; then
+        bashlog info "gda_servers_core" "Public key file $CONTROL_MACHINE_PUBKEY_FILE exists, overriding CONTROL_MACHINE_PUBKEY"
+      fi
+      CONTROL_MACHINE_PUBKEY="$(<$CONTROL_MACHINE_PUBKEY_FILE)"
+    fi
+    CONTROL_MACHINE_NAME_SHORT=${CONTROL_MACHINE_NAME%.diamond.ac.uk}
+    CONTROL_MACHINE_IP=$(hostname -I $CONTROL_MACHINE_NAME)
+    CONTROL_MACHINE_IP=${CONTROL_MACHINE_IP%% }
     if [[ -n "${CONTROL_MACHINE_PUBKEY-}" ]]; then
       if [[ -f ~/.ssh/known_hosts ]]; then
+        ssh-keygen-remove() {
+	        bashlog debug "gda_servers_core" "removing old public key for $1 in ~/.ssh/known_hosts"
+	        SSH_KEYGEN_OUT=$(ssh-keygen -R $1 2>&1)
+	        bashlog debug "gda_servers_core" "removed old public key for $1 in ~/.ssh/known_hosts: $SSH_KEYGEN_OUT"
+        }
         # Only try to remove old key if known_hosts exists, otherwise ssh-keygen failing will return us to the command line.
-        bashlog debug "gda_servers_core" "removing old public key for ${CONTROL_MACHINE_NAME} in ~/.ssh/known_hosts"
-        ssh-keygen -R ${CONTROL_MACHINE_NAME} &> /dev/null
+        ssh-keygen-remove ${CONTROL_MACHINE_NAME}
+        # Also remove the short name of the control server, it it exists
+        ssh-keygen-remove ${CONTROL_MACHINE_NAME_SHORT}
+        # And remove the numeric IP address of the server, if it has an entry
+        ssh-keygen-remove ${CONTROL_MACHINE_IP}
       fi
       bashlog debug "gda_servers_core" "adding new public key for ${CONTROL_MACHINE_NAME} in ~/.ssh/known_hosts"
-      echo "${CONTROL_MACHINE_NAME} ${CONTROL_MACHINE_PUBKEY}" >> ~/.ssh/known_hosts
+      echo "${CONTROL_MACHINE_NAME_SHORT},${CONTROL_MACHINE_NAME},${CONTROL_MACHINE_IP} ${CONTROL_MACHINE_PUBKEY}" >> ~/.ssh/known_hosts
+    else
+      bashlog warn "gda_servers_core" "Public key file $CONTROL_MACHINE_PUBKEY_FILE doesn't exist and no CONTROL_MACHINE_PUBKEY defined!"
     fi
 
     ssh -T -o BatchMode=yes -i ${CONTROL_MACHINE_SSHKEY_LOC} ${CONTROL_MACHINE_USER}@${CONTROL_MACHINE_NAME} ${GDA_OPERATION} &
@@ -70,8 +90,7 @@ else
     GDA_CORE_SCRIPT_OPTIONS="--verbose --headless --debug --debugport=8001 --mode=$GDA_MODE --vardir=${GDA_VAR} $@"
 
     bashlog debug "gda_servers_core" "Starting ${GDA_CORE_SCRIPT} ${GDA_CORE_SCRIPT_OPTIONS}"
-    echo  ${GDA_CORE_SCRIPT} ${GDA_CORE_SCRIPT_OPTIONS} >> ${GDA_LOG_FILE}
-    nohup ${GDA_CORE_SCRIPT} ${GDA_CORE_SCRIPT_OPTIONS} >> ${GDA_LOG_FILE}  2>&1
+    nohup                                      ${GDA_CORE_SCRIPT} ${GDA_CORE_SCRIPT_OPTIONS} >> ${GDA_LOG_FILE}  2>&1 &
 
     if [[ ${GDA_OPERATION,,} != "stop" ]]; then
         # Starting; wait for the startup file to be created so that any
