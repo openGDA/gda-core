@@ -12,6 +12,8 @@ __all__ = ["t", "dt", "w", "clock", "epoch"]
 
 
 from gda.device.scannable import PseudoDevice
+from gda.device.scannable.scannablegroup import ScannableGroup
+
 import time # as this module is names time
 
 class _Timer(object):
@@ -181,3 +183,7 @@ dt = TimeSinceLastGetPosition("dt")
 w = Wait("w")
 clock = TimeOfDay('clock')
 epoch = TimeSinceEpoch('epoch')
+
+timerelated = ScannableGroup()
+timerelated.setName("timerelated")
+timerelated.setGroupMembers([t, dt, w, clock, epoch])
