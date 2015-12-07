@@ -501,7 +501,7 @@ public abstract class XasScanBase implements XasScan {
 		if (detectorBean.getExperimentType().equalsIgnoreCase("Fluorescence")) {
 			FluorescenceParameters fluoresenceParameters = detectorBean.getFluorescenceParameters();
 			xmlFileName = fluoresenceParameters.getConfigFileName();
-		} else if (detectorBean.getExperimentType() == "XES") {
+		} else if (detectorBean.getExperimentType().equals("XES")) {
 			FluorescenceParameters fluoresenceParameters = detectorBean.getXesParameters();
 			xmlFileName = fluoresenceParameters.getConfigFileName();
 		}
@@ -554,7 +554,7 @@ public abstract class XasScanBase implements XasScan {
 	}
 
 	protected void handleScanInterrupt(Exception exceptionObject) throws Exception {
-		if (LocalProperties.get(RepetitionsProperties.SKIP_REPETITION_PROPERTY) == "true") {
+		if (LocalProperties.get(RepetitionsProperties.SKIP_REPETITION_PROPERTY).equals("true")) {
 			LocalProperties.set(RepetitionsProperties.SKIP_REPETITION_PROPERTY, "false");
 			// check if a panic stop has been issued, so the whole script should stop?
 			if (Thread.currentThread().isInterrupted()) {
