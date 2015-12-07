@@ -19,9 +19,7 @@
 package gda.device.detector.nxdetector.roi;
 
 import java.io.Serializable;
-import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
 
@@ -68,14 +66,7 @@ public class PlotServerROISelectionProvider implements IndexedRectangularROIProv
 	}
 
 	public List<org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI> getScisoftRoiListFromSDAPlotter() throws Exception {
-		// Check bean exists (SDAPlotter will create it if not!)
-		String[] guiNames = SDAPlotter.getGuiNames();
-		if ((!Arrays.asList(guiNames).contains(viewName))) {
-			throw new Exception(MessageFormat.format(
-					"No gui bean for view named ''{0}'' available from SDAPlotter. Available: {1}",
-					viewName, Arrays.toString(SDAPlotter.getGuiNames())));
-		}
-
+		// GuiBean is created if it does not exist
 		GuiBean guiBean = SDAPlotter.getGuiBean(viewName);
 		Serializable serializable = guiBean.get(GuiParameters.ROIDATALIST);
 
