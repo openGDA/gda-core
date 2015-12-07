@@ -100,7 +100,7 @@ public final class QEXAFSParametersComposite extends FieldBeanComposite {
 		createEmptyLabel(finalEnergy);
 		createEmptyLabel(finalEnergy);
 
-		if (LocalProperties.get("gda.beamline.name").equals("BL18B")) {
+		if (LocalProperties.get("gda.beamline.name").equals("b18")) {
 			String dcmCrystal = JythonServerFacade.getInstance().evaluateCommand("dcm_crystal()");
 			if (dcmCrystal.equals("Si(111)")) {
 				finalEnergy.setMinimum(2050.0);

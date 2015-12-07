@@ -22,10 +22,10 @@ import gda.device.DeviceException;
 import gda.device.detector.HardwareTriggeredNXDetector;
 import gda.device.detector.nxdetector.NXPluginBase;
 import gda.device.detector.nxdetector.plugin.areadetector.ADRoiStatsPair;
-import gda.device.detector.nxdetector.xmap.collectionStrategy.DummyXmapHardwareTriggeredCollectionStrategy;
-import gda.device.detector.nxdetector.xmap.controller.DummyXmapAcquisitionBaseEpicsLayer.CollectionModeEnum;
-import gda.device.detector.nxdetector.xmap.controller.DummyXmapAcquisitionBaseEpicsLayer.PresetMode;
-import gda.device.detector.nxdetector.xmap.controller.DummyXmapMappingModeEpicsLayer;
+import gda.device.detector.nxdetector.xmap.collectionStrategy.XmapCollectionStrategyBeanInterface;
+import gda.device.detector.nxdetector.xmap.controller.XmapMappingModeEpicsLayer;
+import gda.device.detector.nxdetector.xmap.controller.XmapModes.CollectionModeEnum;
+import gda.device.detector.nxdetector.xmap.controller.XmapModes.PresetMode;
 import gda.device.detector.xmap.NexusXmap;
 import gda.observable.IObservable;
 import gda.observable.IObserver;
@@ -53,11 +53,19 @@ public class XmapFluorescenceDetector implements FluorescenceDetector, Initializ
 	// For i08 4 Elements appear in EPICs but only one is used, set up in spring
 	private final int numberOfElements;
 	private final List<ADRoiStatsPair> nxdetectorROI;
+	private String name;
 	private static final Logger logger = LoggerFactory.getLogger(NexusXmap.class);
+	// Hardcoded as I08 TwoDScanPlotter does not work properly when the roi name changes
+	private final List<String> roiNameList;
 
 	public XmapFluorescenceDetector(int numberOfElements) {
 		this.numberOfElements = numberOfElements;
 		nxdetectorROI = new ArrayList<ADRoiStatsPair>();
+		roiNameList = new ArrayList<String>();
+		for (int i = 1; i < 8; i++) {
+			roiNameList.add("roi" + i);
+		}
+
 	}
 
 	public final List<ADRoiStatsPair> updateNxdetectorROIList() {
@@ -71,31 +79,35 @@ public class XmapFluorescenceDetector implements FluorescenceDetector, Initializ
 
 	@Override
 	public void setName(String name) {
-		edxdInterface.setName(name);
+		this.name = name;
 	}
 
 	@Override
 	public String getName() {
-		return edxdInterface.getName();
+		return name;
 	}
 
 	@Override
 	public double[][] getMCAData(double time) throws DeviceException {
-		DummyXmapHardwareTriggeredCollectionStrategy xmapCollectionStrategy = null;
+		XmapCollectionStrategyBeanInterface xmapCollectionStrategy = null;
 		double[][] MCAdata = null;
-		xmapCollectionStrategy = (DummyXmapHardwareTriggeredCollectionStrategy) (nxdetectorInterface.getCollectionStrategy());
+		xmapCollectionStrategy = (XmapCollectionStrategyBeanInterface) (nxdetectorInterface.getCollectionStrategy());
 		try {
 			MCAdata = new double[numberOfElements][xmapCollectionStrategy.getXmap().getNbins()];
 			// follow this logic due to a bug in EPICs
 			xmapCollectionStrategy.getXmap().setCollectMode(CollectionModeEnum.MCA_MAPPING);
-			DummyXmapMappingModeEpicsLayer mappingXmap = (DummyXmapMappingModeEpicsLayer) (xmapCollectionStrategy.getXmap().getCollectionMode());
+			XmapMappingModeEpicsLayer mappingXmap = (XmapMappingModeEpicsLayer) (xmapCollectionStrategy.getXmap().getCollectionMode());
 			mappingXmap.setIgnoreGate(true);
 			xmapCollectionStrategy.getXmap().setCollectMode(CollectionModeEnum.MCA_SPECTRA);
 			xmapCollectionStrategy.getXmap().setPresetMode(PresetMode.REAL_TIME);
-			xmapCollectionStrategy.getXmap().setAquisitionTime(time);
-			nxdetectorInterface.collectData();
+			xmapCollectionStrategy.getXmap().setAquisitionTime(time / 1000);
+			logger.info("Acquisition time set");
+			edxdInterface.collectData();
+			logger.info("Collecting data");
 			for (int i = 0; i < numberOfElements; i++) {
-				MCAdata[i] = xmapCollectionStrategy.getXmap().getDataPerElement(i);
+				// in EDXD interface, the getData already contains a waitWhileBusy()
+				for (int j = 0; j < edxdInterface.getData()[i].length; j++)
+					MCAdata[i][j] = (double) (edxdInterface.getData(i)[j]);
 			}
 		} catch (Exception e) {
 			logger.error("Error getting MCA data.", e);
@@ -137,7 +149,7 @@ public class XmapFluorescenceDetector implements FluorescenceDetector, Initializ
 				// By using an area detector only use X dimensions, the Y dimension is related to the number of elements
 				if (numberOfRois != 0) {
 					nxdetectorROI.get(roiIndex).setRoi(detectorROI.getRoiStart(), 0, (detectorROI.getRoiEnd() - detectorROI.getRoiStart() + 1), 1,
-						detectorROI.getRoiName());
+							roiNameList.get(roiIndex));
 				} else {
 					logger.warn("NXDetector should contain at least one ROI.");
 				}
@@ -196,10 +208,15 @@ public class XmapFluorescenceDetector implements FluorescenceDetector, Initializ
 			logger.error("HardwareTriggeredNXDetector does not exist.");
 			throw new NullPointerException("HardwareTriggeredNXDetector does not exist.");
 		}
+		if (name == null) {
+			logger.error("XmapFluorescenceDetector name must be set.");
+			throw new NullPointerException("XmapFluorescenceDetector name must be set.");
+		}
 		if (getMaxNumberOfRois() == 0) {
 			logger.error("NXDetector should contain at least one ROI.");
 			throw new Exception("NXDetector should contain at least one ROI.");
 		}
+
 	}
 
 	// Maximum number of ROIs should be given by NXdetector because EDXD will always contain more ROIs

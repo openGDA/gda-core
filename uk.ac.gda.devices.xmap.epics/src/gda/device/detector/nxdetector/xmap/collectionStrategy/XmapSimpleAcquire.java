@@ -19,9 +19,8 @@
 package gda.device.detector.nxdetector.xmap.collectionStrategy;
 
 import gda.device.DeviceException;
-import gda.device.detector.nxdetector.CollectionStrategyBeanInterface;
 import gda.device.detector.nxdetector.xmap.controller.XmapAcquisitionBaseEpicsLayer;
-import gda.device.detector.nxdetector.xmap.controller.XmapAcquisitionBaseEpicsLayer.CollectionModeEnum;
+import gda.device.detector.nxdetector.xmap.controller.XmapModes.CollectionModeEnum;
 import gda.scan.ScanInformation;
 
 /**
@@ -32,7 +31,7 @@ import gda.scan.ScanInformation;
  * This plugin could be used as a base for a software triggered strategy, but as
  * this is not a full implementation it is abstract.
  */
-public abstract class XmapSimpleAcquire implements CollectionStrategyBeanInterface {
+public abstract class XmapSimpleAcquire implements XmapCollectionStrategyBeanInterface {
 
 	private XmapAcquisitionBaseEpicsLayer xmap;
 
@@ -42,6 +41,7 @@ public abstract class XmapSimpleAcquire implements CollectionStrategyBeanInterfa
 
 	}
 
+	@Override
 	public XmapAcquisitionBaseEpicsLayer getXmap() {
 		return xmap;
 	}
