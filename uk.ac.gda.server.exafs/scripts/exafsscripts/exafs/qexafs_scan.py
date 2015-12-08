@@ -90,10 +90,8 @@ class QexafsScan(Scan):
                 initialPercent = str(int((float(repetitionNumber - 1) / float(numRepetitions)) * 100)) + "%" 
                 timeSinceRepetitionsStarted = System.currentTimeMillis() - timeRepetitionsStarted
                 sampleName = sampleBean.getName()
-                try:
-                    logmsg = XasLoggingMessage(self._getMyVisitID(), unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str(numRepetitions), str(1), str(1), initialPercent,str(0),str(timeSinceRepetitionsStarted),beanGroup.getScan(),outputFolder,sampleName, 0)
-                except java.lang.Exception, e: 
-                    print "Problem with XasLoggingMessage" 
+
+                logmsg = XasLoggingMessage(self._getMyVisitID(), unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str(numRepetitions), str(1), str(1), initialPercent,str(0),str(timeSinceRepetitionsStarted),beanGroup.getScan(),outputFolder,sampleName, 0)
                 loggingcontroller.update(None,logmsg)
                 loggingcontroller.update(None,ScanStartedMessage(scanBean,detectorBean))
 
@@ -102,7 +100,7 @@ class QexafsScan(Scan):
 
                 loggingbean = XasProgressUpdater(loggingcontroller,logmsg,timeRepetitionsStarted)
                 if self.isConstantVelocityLineScan == False:
-                    current_energy = self.energy_scannable;
+                    current_energy = self.energy_scannable.getPosition();
                 else: 
                     #the energy is given in keV so multiply by 1000 to get it in eV
                     current_energy = self.energy_scannable.getZebraScannableMotor().getActualScannableMotor().getPosition()*1000;

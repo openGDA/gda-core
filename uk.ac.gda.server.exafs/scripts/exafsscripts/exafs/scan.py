@@ -183,4 +183,12 @@ class Scan:
         return xmlFileName
     
     def _getMyVisitID(self):
-        return InterfaceProvider.getBatonStateProvider().getBatonHolder().getVisitID()
+        # Check that there is a baton holder to provide the visit ID
+        batonHolder = InterfaceProvider.getBatonStateProvider().getBatonHolder()
+        if batonHolder is not None:
+            return batonHolder.getVisitID()
+
+        # There is no baton holder - the client has lost the baton, probably due to a communication timeout
+        # It seems to be impossible at this point to return the baton to the client (i.e. the client itself must request it),
+        # so we return a string (rather than returning None or throwing an exception) to avoid exceptions causing scans to fail
+        return 'unknown-visit'
