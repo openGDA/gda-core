@@ -38,6 +38,7 @@ import org.eclipse.ui.forms.widgets.ExpandableComposite;
 
 import uk.ac.gda.beans.exafs.b18.B18SampleParameters;
 import uk.ac.gda.beans.exafs.b18.FurnaceParameters;
+import uk.ac.gda.beans.exafs.b18.GenericCryostatParameters;
 import uk.ac.gda.beans.exafs.b18.LN2CryoStageParameters;
 import uk.ac.gda.beans.exafs.b18.LakeshoreParameters;
 import uk.ac.gda.beans.exafs.b18.PulseTubeCryostatParameters;
@@ -48,6 +49,7 @@ import uk.ac.gda.beans.exafs.b18.XYThetaStageParameters;
 import uk.ac.gda.common.rcp.util.GridUtils;
 import uk.ac.gda.exafs.ui.composites.B18FurnaceComposite;
 import uk.ac.gda.exafs.ui.composites.B18PulseTubeCryostatComposite;
+import uk.ac.gda.exafs.ui.composites.GenericCryostatComposite;
 import uk.ac.gda.exafs.ui.composites.LN2CryoStageComposite;
 import uk.ac.gda.exafs.ui.composites.LakeshoreComposite;
 import uk.ac.gda.exafs.ui.composites.SXCryoStageComposite;
@@ -86,6 +88,7 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 	private B18PulseTubeCryostatComposite pulseTubeCryostatParameters;
 	private B18FurnaceComposite furnaceParameters;
 	private LakeshoreComposite lakeshoreComposite;
+	private GenericCryostatComposite genericCryostatParameters;
 	private Group grpStageParameters;
 	private Group grpEnvironmentParameters;
 	private Group grpStage;
@@ -373,7 +376,7 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 			label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 			label.setText("temperatureControl");
 			sampleEnvironment = new ComboWrapper(grpBeanComposite, SWT.READ_ONLY);
-			sampleEnvironment.setItems(new String[] { "none", "pulsetubecryostat", "furnace", "lakeshore" });
+			sampleEnvironment.setItems(new String[] { "none", "pulsetubecryostat", "furnace", "lakeshore", "generic_cryostat" });
 			sampleEnvironment.select(0);
 			sampleEnvironment.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
 
@@ -390,6 +393,7 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 			grpEnvironmentParameters.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, false, 2, 1));
 
 			blankEnvironmentComposite = new Composite(grpEnvironmentParameters, SWT.NONE);
+
 			pulseTubeCryostatParameters = new B18PulseTubeCryostatComposite(grpEnvironmentParameters, SWT.NONE, bean);
 			pulseTubeCryostatParameters.setVisible(false);
 			pulseTubeCryostatParameters.setEditorClass(PulseTubeCryostatParameters.class);
@@ -417,6 +421,11 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 			new Label(lakeshoreComposite, SWT.NONE);
 			new Label(lakeshoreComposite.getTolerance(), SWT.NONE);
 			new Label(lakeshoreComposite.getTime(), SWT.NONE);
+
+			genericCryostatParameters = new GenericCryostatComposite(grpEnvironmentParameters, SWT.NONE);
+			genericCryostatParameters.setVisible(false);
+			genericCryostatParameters.setEditorClass(GenericCryostatParameters.class);
+			genericCryostatParameters.setActiveMode(ACTIVE_MODE.ACTIVE_ONLY);
 
 			temperatureExpandableComposite.setClient(tempComp);
 		}
@@ -507,6 +516,9 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 		case 3:
 			environmentLayout.topControl = lakeshoreComposite;
 			break;
+		case 4:
+			environmentLayout.topControl = genericCryostatParameters;
+			break;
 		}
 		GridUtils.layoutFull(grpEnvironmentParameters);
 	}
@@ -561,6 +573,10 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 
 	public LakeshoreComposite getLakeshoreParameters() {
 		return lakeshoreComposite;
+	}
+
+	public GenericCryostatComposite getGenericCryostatParameters() {
+		return genericCryostatParameters;
 	}
 
 	public SampleWheelParametersComposite getSampleWheelParameters() {

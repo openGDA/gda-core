@@ -3,38 +3,39 @@
 	<!-- N.B. this stuff breaks Xerlin
  targetNamespace="http://www.dl.ac.uk/GDASchema" xmlns="http://www.dl.ac.uk/GDASchema">
  -->
- 	 <xsd:element name="B18SampleParameters">
-	 	<xsd:complexType>
-	 		<xsd:sequence>
-	 			<xsd:element  name="shouldValidate" type="xsd:boolean" maxOccurs="1" minOccurs="0"/>
-	 			<xsd:element  name="name" type="xsd:string" maxOccurs="1" minOccurs="1"/>
+	<xsd:element name="B18SampleParameters">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element  name="shouldValidate" type="xsd:boolean" maxOccurs="1" minOccurs="0"/>
+				<xsd:element  name="name" type="xsd:string" maxOccurs="1" minOccurs="1"/>
 				<xsd:element  name="description1" type="xsd:string" maxOccurs="1" minOccurs="0"/>
 				<xsd:element  name="description2" type="xsd:string" maxOccurs="1" minOccurs="0"/>
- 				
- 				<xsd:element name="stage" maxOccurs="1" minOccurs="1">
- 					<xsd:simpleType>
- 						<xsd:restriction base="xsd:string">
- 							<xsd:enumeration value="none"/>
- 							<xsd:enumeration value="xythetastage"/>
- 							<xsd:enumeration value="ln2cryostage"/>
- 							<xsd:enumeration value="sxcryostage"/>
- 							<xsd:enumeration value="userstage"/>
- 						</xsd:restriction>
- 					</xsd:simpleType>
- 				</xsd:element>
- 				
- 				<xsd:element name="temperaturecontrol" maxOccurs="1" minOccurs="1">
- 					<xsd:simpleType>
- 						<xsd:restriction base="xsd:string">
- 							<xsd:enumeration value="none"/>
- 							<xsd:enumeration value="pulsetubecryostat"/>
- 							<xsd:enumeration value="furnace"/>
- 							<xsd:enumeration value="lakeshore"/>
- 						</xsd:restriction>
- 					</xsd:simpleType>
- 				</xsd:element>
 
- 				<xsd:element name="xythetastage" maxOccurs="1" minOccurs="0">
+				<xsd:element name="stage" maxOccurs="1" minOccurs="1">
+					<xsd:simpleType>
+						<xsd:restriction base="xsd:string">
+							<xsd:enumeration value="none"/>
+							<xsd:enumeration value="xythetastage"/>
+							<xsd:enumeration value="ln2cryostage"/>
+							<xsd:enumeration value="sxcryostage"/>
+							<xsd:enumeration value="userstage"/>
+						</xsd:restriction>
+					</xsd:simpleType>
+				</xsd:element>
+
+				<xsd:element name="temperaturecontrol" maxOccurs="1" minOccurs="1">
+					<xsd:simpleType>
+						<xsd:restriction base="xsd:string">
+							<xsd:enumeration value="none"/>
+							<xsd:enumeration value="pulsetubecryostat"/>
+							<xsd:enumeration value="furnace"/>
+							<xsd:enumeration value="lakeshore"/>
+							<xsd:enumeration value="generic_cryostat"/>
+						</xsd:restriction>
+					</xsd:simpleType>
+				</xsd:element>
+
+				<xsd:element name="xythetastage" maxOccurs="1" minOccurs="0">
 					<xsd:complexType>
 						<xsd:sequence>
 							<xsd:element name="x" type="xsd:double" maxOccurs="1" minOccurs="1"/>
@@ -42,9 +43,9 @@
 							<xsd:element name="theta" type="xsd:double" maxOccurs="1" minOccurs="1"/>
 						</xsd:sequence>
 					</xsd:complexType>
- 				</xsd:element>
- 				
- 				<xsd:element name="ln2cryostage" maxOccurs="1" minOccurs="0">
+				</xsd:element>
+
+				<xsd:element name="ln2cryostage" maxOccurs="1" minOccurs="0">
 					<xsd:complexType>
 						<xsd:sequence>
 							<xsd:element name="height" type="xsd:double" maxOccurs="1" minOccurs="1"/>
@@ -58,9 +59,9 @@
 							<xsd:element name="editCalibration" type="xsd:boolean" maxOccurs="1" minOccurs="1"/>
 						</xsd:sequence>
 					</xsd:complexType>
- 				</xsd:element>
- 				
- 				<xsd:element name="sxcryostage" maxOccurs="1" minOccurs="0">
+				</xsd:element>
+
+				<xsd:element name="sxcryostage" maxOccurs="1" minOccurs="0">
 					<xsd:complexType>
 						<xsd:sequence>
 							<xsd:element name="height" type="xsd:double" maxOccurs="1" minOccurs="1"/>
@@ -96,7 +97,7 @@
 						</xsd:sequence>
 					</xsd:complexType>
 				</xsd:element>
-				
+
 				<xsd:element name="lakeshore" maxOccurs="1" minOccurs="0">
 					<xsd:complexType>
 						<xsd:sequence>
@@ -115,8 +116,19 @@
 						</xsd:sequence>
 					</xsd:complexType>
 				</xsd:element>
- 				
- 				 <xsd:element name="samplewheel" maxOccurs="1" minOccurs="0">
+
+				<xsd:element name="generic_cryostat" maxOccurs="1" minOccurs="0">
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element name="temperature" type="xsd:double" maxOccurs="1" minOccurs="1"/>
+							<xsd:element name="accuracy" type="xsd:double" maxOccurs="1" minOccurs="1"/>
+							<xsd:element name="time" type="xsd:double" maxOccurs="1" minOccurs="1"/>
+							<xsd:element name="controlFlag" type="xsd:boolean" maxOccurs="1" minOccurs="1"/>
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+
+				<xsd:element name="samplewheel" maxOccurs="1" minOccurs="0">
 					<xsd:complexType>
 						<xsd:sequence>
 							<xsd:element name="demand" type="xsd:double" maxOccurs="1" minOccurs="0"/>
@@ -125,9 +137,9 @@
 							<xsd:element name="wheelEnabled" type="xsd:boolean" maxOccurs="1" minOccurs="0"/>
 						</xsd:sequence>
 					</xsd:complexType>
- 				</xsd:element>
- 				
- 				<xsd:element name="userstage" maxOccurs="1" minOccurs="0">
+				</xsd:element>
+
+				<xsd:element name="userstage" maxOccurs="1" minOccurs="0">
 					<xsd:complexType>
 						<xsd:sequence>
 							<xsd:element name="axis2" type="xsd:double" maxOccurs="1" minOccurs="1"/>
@@ -138,8 +150,8 @@
 							<xsd:element name="axis8" type="xsd:double" maxOccurs="1" minOccurs="1"/>
 						</xsd:sequence>
 					</xsd:complexType>
- 				</xsd:element>
- 			</xsd:sequence>
+				</xsd:element>
+			</xsd:sequence>
 		</xsd:complexType>
 	</xsd:element>	
 </xsd:schema>

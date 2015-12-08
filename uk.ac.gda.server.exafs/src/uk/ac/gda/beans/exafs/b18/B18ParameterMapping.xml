@@ -38,6 +38,9 @@
 		<field name="LakeshoreParameters" type="uk.ac.gda.beans.exafs.b18.LakeshoreParameters">
 			<bind-xml name="lakeshore" node="element" />
 		</field>
+		<field name="GenericCryostatParameters" type="uk.ac.gda.beans.exafs.b18.GenericCryostatParameters">
+			<bind-xml name="generic_cryostat" node="element" />
+		</field>
 		<field name="SampleWheelParameters" type="uk.ac.gda.beans.exafs.b18.SampleWheelParameters">
 			<bind-xml name="samplewheel" node="element" />
 		</field>
@@ -219,6 +222,22 @@
 		</field>
 		<field name="tolerance" type="double">
 			<bind-xml name="tolerance" node="element" />
+		</field>
+		<field name="time" type="double">
+			<bind-xml name="time" node="element" />
+		</field>
+		<field name="controlFlag" type="boolean">
+			<bind-xml name="controlFlag" node="element" />
+		</field>
+	</class>
+
+	<class name="uk.ac.gda.beans.exafs.b18.GenericCryostatParameters">
+		<map-to xml="generic_cryostat" />
+		<field name="temperature" type="double">
+			<bind-xml name="temperature" node="element" />
+		</field>
+		<field name="accuracy" type="double">
+			<bind-xml name="accuracy" node="element" />
 		</field>
 		<field name="time" type="double">
 			<bind-xml name="time" node="element" />

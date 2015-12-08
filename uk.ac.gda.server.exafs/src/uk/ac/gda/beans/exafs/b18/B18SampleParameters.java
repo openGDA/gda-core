@@ -36,7 +36,7 @@ public class B18SampleParameters implements Serializable, ISampleParameters {
 	/**
 	 * Valid sample environments.
 	 */
-	public static final String[] TEMP_CONTROL = new String[] { "none", "pulsetubecryostat", "furnace", "lakeshore" };
+	public static final String[] TEMP_CONTROL = new String[] { "none", "pulsetubecryostat", "furnace", "lakeshore", "generic_cryostat" };
 
 	/**
 	 * Valid sample stages.
@@ -51,12 +51,13 @@ public class B18SampleParameters implements Serializable, ISampleParameters {
 	XYThetaStageParameters xythetaParameters = new XYThetaStageParameters();
 	LN2CryoStageParameters ln2CryoStageParameters = new LN2CryoStageParameters();
 	SXCryoStageParameters sxCryoStageParameters = new SXCryoStageParameters();
-	PulseTubeCryostatParameters lheParameters = new PulseTubeCryostatParameters();
+	PulseTubeCryostatParameters pulseTubeCryostatParameters = new PulseTubeCryostatParameters();
+	GenericCryostatParameters genericCryostatParameters = new GenericCryostatParameters();
 	FurnaceParameters furnaceParameters = new FurnaceParameters();
 	LakeshoreParameters lakeshoreParameters = new LakeshoreParameters();
 	SampleWheelParameters sampleWheelParameters = new SampleWheelParameters();
 	UserStageParameters userStageParameters = new UserStageParameters();
-	
+
 	boolean shouldValidate = true;
 
 	@Override
@@ -67,8 +68,8 @@ public class B18SampleParameters implements Serializable, ISampleParameters {
 			xythetaParameters.clear();
 		if (userStageParameters != null)
 			userStageParameters.clear();
-		if (lheParameters != null)
-			lheParameters.clear();
+		if (pulseTubeCryostatParameters != null)
+			pulseTubeCryostatParameters.clear();
 		if (furnaceParameters != null)
 			furnaceParameters.clear();
 		if (lakeshoreParameters != null)
@@ -78,7 +79,9 @@ public class B18SampleParameters implements Serializable, ISampleParameters {
 		if (sxCryoStageParameters != null)
 			sxCryoStageParameters.clear();
 		if (sampleWheelParameters != null)
-				sampleWheelParameters.clear();
+			sampleWheelParameters.clear();
+		if (genericCryostatParameters != null)
+			genericCryostatParameters.clear();
 		shouldValidate = true;
 	}
 
@@ -98,17 +101,18 @@ public class B18SampleParameters implements Serializable, ISampleParameters {
 		result = prime * result + ((description1 == null) ? 0 : description1.hashCode());
 		result = prime * result + ((description2 == null) ? 0 : description2.hashCode());
 		result = prime * result + ((furnaceParameters == null) ? 0 : furnaceParameters.hashCode());
-		result = prime * result + ((lheParameters == null) ? 0 : lheParameters.hashCode());
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result + (shouldValidate ? 1231 : 1237);
-		result = prime * result + ((stage == null) ? 0 : stage.hashCode());
-		result = prime * result + ((temperatureControl == null) ? 0 : temperatureControl.hashCode());
-		result = prime * result + ((xythetaParameters == null) ? 0 : xythetaParameters.hashCode());
-		result = prime * result + ((userStageParameters == null) ? 0 : userStageParameters.hashCode());
+		result = prime * result + ((genericCryostatParameters == null) ? 0 : genericCryostatParameters.hashCode());
 		result = prime * result + ((lakeshoreParameters == null) ? 0 : lakeshoreParameters.hashCode());
 		result = prime * result + ((ln2CryoStageParameters == null) ? 0 : ln2CryoStageParameters.hashCode());
-		result = prime * result + ((sxCryoStageParameters == null) ? 0 : sxCryoStageParameters.hashCode());
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + ((pulseTubeCryostatParameters == null) ? 0 : pulseTubeCryostatParameters.hashCode());
 		result = prime * result + ((sampleWheelParameters == null) ? 0 : sampleWheelParameters.hashCode());
+		result = prime * result + (shouldValidate ? 1231 : 1237);
+		result = prime * result + ((stage == null) ? 0 : stage.hashCode());
+		result = prime * result + ((sxCryoStageParameters == null) ? 0 : sxCryoStageParameters.hashCode());
+		result = prime * result + ((temperatureControl == null) ? 0 : temperatureControl.hashCode());
+		result = prime * result + ((userStageParameters == null) ? 0 : userStageParameters.hashCode());
+		result = prime * result + ((xythetaParameters == null) ? 0 : xythetaParameters.hashCode());
 		return result;
 	}
 
@@ -136,15 +140,35 @@ public class B18SampleParameters implements Serializable, ISampleParameters {
 				return false;
 		} else if (!furnaceParameters.equals(other.furnaceParameters))
 			return false;
-		if (lheParameters == null) {
-			if (other.lheParameters != null)
+		if (genericCryostatParameters == null) {
+			if (other.genericCryostatParameters != null)
 				return false;
-		} else if (!lheParameters.equals(other.lheParameters))
+		} else if (!genericCryostatParameters.equals(other.genericCryostatParameters))
+			return false;
+		if (lakeshoreParameters == null) {
+			if (other.lakeshoreParameters != null)
+				return false;
+		} else if (!lakeshoreParameters.equals(other.lakeshoreParameters))
+			return false;
+		if (ln2CryoStageParameters == null) {
+			if (other.ln2CryoStageParameters != null)
+				return false;
+		} else if (!ln2CryoStageParameters.equals(other.ln2CryoStageParameters))
 			return false;
 		if (name == null) {
 			if (other.name != null)
 				return false;
 		} else if (!name.equals(other.name))
+			return false;
+		if (pulseTubeCryostatParameters == null) {
+			if (other.pulseTubeCryostatParameters != null)
+				return false;
+		} else if (!pulseTubeCryostatParameters.equals(other.pulseTubeCryostatParameters))
+			return false;
+		if (sampleWheelParameters == null) {
+			if (other.sampleWheelParameters != null)
+				return false;
+		} else if (!sampleWheelParameters.equals(other.sampleWheelParameters))
 			return false;
 		if (shouldValidate != other.shouldValidate)
 			return false;
@@ -153,37 +177,25 @@ public class B18SampleParameters implements Serializable, ISampleParameters {
 				return false;
 		} else if (!stage.equals(other.stage))
 			return false;
+		if (sxCryoStageParameters == null) {
+			if (other.sxCryoStageParameters != null)
+				return false;
+		} else if (!sxCryoStageParameters.equals(other.sxCryoStageParameters))
+			return false;
 		if (temperatureControl == null) {
 			if (other.temperatureControl != null)
 				return false;
 		} else if (!temperatureControl.equals(other.temperatureControl))
-			return false;
-		if (xythetaParameters == null) {
-			if (other.xythetaParameters != null)
-				return false;
-		} else if (!xythetaParameters.equals(other.xythetaParameters))
 			return false;
 		if (userStageParameters == null) {
 			if (other.userStageParameters != null)
 				return false;
 		} else if (!userStageParameters.equals(other.userStageParameters))
 			return false;
-		if (ln2CryoStageParameters == null) {
-			if (other.ln2CryoStageParameters != null)
+		if (xythetaParameters == null) {
+			if (other.xythetaParameters != null)
 				return false;
-		} else if (!ln2CryoStageParameters.equals(other.ln2CryoStageParameters))
-			return false;
-		if (sxCryoStageParameters == null) {
-			if (other.sxCryoStageParameters != null)
-				return false;
-		} else if (!sxCryoStageParameters.equals(other.sxCryoStageParameters))
-			return false;
-		if (lakeshoreParameters == null) {
-			if (other.lakeshoreParameters != null)
-				return false;
-		} else if (!lakeshoreParameters.equals(other.lakeshoreParameters))
-			return false;
-		else if (!sampleWheelParameters.equals(other.sampleWheelParameters))
+		} else if (!xythetaParameters.equals(other.xythetaParameters))
 			return false;
 		return true;
 	}
@@ -204,7 +216,7 @@ public class B18SampleParameters implements Serializable, ISampleParameters {
 	public void setDescription1(String description) {
 		this.description1 = description;
 	}
-	
+
 	public String getDescription2() {
 		return description2;
 	}
@@ -228,7 +240,7 @@ public class B18SampleParameters implements Serializable, ISampleParameters {
 	public void setXYThetaStageParameters(XYThetaStageParameters xythetaParameters) {
 		this.xythetaParameters = xythetaParameters;
 	}
-	
+
 	public UserStageParameters getUserStageParameters() {
 		return userStageParameters;
 	}
@@ -254,11 +266,11 @@ public class B18SampleParameters implements Serializable, ISampleParameters {
 	}
 
 	public PulseTubeCryostatParameters getPulseTubeCryostatParameters() {
-		return lheParameters;
+		return pulseTubeCryostatParameters;
 	}
 
 	public void setPulseTubeCryostatParameters(PulseTubeCryostatParameters lheParameters) {
-		this.lheParameters = lheParameters;
+		this.pulseTubeCryostatParameters = lheParameters;
 	}
 
 	public FurnaceParameters getFurnaceParameters() {
@@ -297,12 +309,20 @@ public class B18SampleParameters implements Serializable, ISampleParameters {
 	public List<String> getDescriptions() {
 		return Arrays.asList(new String[] { description1, description2 });
 	}
-	
+
 	public SampleWheelParameters getSampleWheelParameters() {
 		return sampleWheelParameters;
 	}
 
 	public void setSampleWheelParameters(SampleWheelParameters sampleWheelParameters) {
 		this.sampleWheelParameters = sampleWheelParameters;
+	}
+
+	public GenericCryostatParameters getGenericCryostatParameters() {
+		return genericCryostatParameters;
+	}
+
+	public void setGenericCryostatParameters(GenericCryostatParameters genericCryostatParameters) {
+		this.genericCryostatParameters = genericCryostatParameters;
 	}
 }
