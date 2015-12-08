@@ -36,7 +36,7 @@ public class NexusSorter extends ViewerSorter {
 	 * Zero-argument constructor for extension point instantiation
 	 */
 	public NexusSorter() {
-		this(NexusSorterPreferencesCache.CACHE, org.eclipse.dawnsci.hdf5.Activator.getPlugin().getHierarchicalDataModel());
+		this(NexusSorterPreferencesCache.CACHE, org.eclipse.dawnsci.hdf5.model.Activator.getPlugin().getHierarchicalDataModel());
 	}
 
 	public NexusSorter(INexusSorterPreferencesCache nexusSorterPreferencesCache, IHierarchicalDataModel model) {

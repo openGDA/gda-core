@@ -36,7 +36,7 @@ public class NexusFilter extends ViewerFilter {
 	 * Zero-argument constructor for extension point instantiation
 	 */
 	public NexusFilter() {
-		this(NexusFilterPreferencesCache.CACHE, org.eclipse.dawnsci.hdf5.Activator.getPlugin().getHierarchicalDataModel());
+		this(NexusFilterPreferencesCache.CACHE, org.eclipse.dawnsci.hdf5.model.Activator.getPlugin().getHierarchicalDataModel());
 	}
 
 	public NexusFilter(INexusFilterPreferencesCache nexusFilterPreferencesCache, IHierarchicalDataModel model) {
