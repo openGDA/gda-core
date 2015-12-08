@@ -939,6 +939,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 			setPointsUpdate(false);
 			suspendGraphUpdate = true;
 
+			updateExafsTimeType();
 			updateExafsStepType();
 			updateKStartIfVisible();
 			a.checkBounds();
@@ -1309,11 +1310,13 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 	}
 
 	protected void updateExafsTimeType() {
-		String exafsTimeTypeVal = ((XasScanParameters) editingBean).getExafsTimeType();
-		boolean isVariableTime=false;
-		if(exafsTimeTypeVal!=null)
-			if(exafsTimeTypeVal.equals("Variable Time"))
-				isVariableTime=true;
+		boolean isVariableTime = false;
+		int index = exafsTimeType.getSelectionIndex();
+		if (index == 0) { // Constant time
+			isVariableTime = false;
+		} else { // Variable time
+			isVariableTime = true;
+		}
 		// Bean fields use active
 		getExafsTime().setActive(!isVariableTime);
 		getExafsFromTime().setActive(isVariableTime);

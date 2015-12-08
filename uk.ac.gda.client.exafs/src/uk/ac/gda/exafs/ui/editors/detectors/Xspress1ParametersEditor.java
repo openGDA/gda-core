@@ -20,6 +20,8 @@ package uk.ac.gda.exafs.ui.editors.detectors;
 
 import java.net.URL;
 
+import org.eclipse.swt.widgets.Composite;
+
 import uk.ac.gda.beans.xspress.XspressParameters;
 
 /**
@@ -47,5 +49,12 @@ public final class Xspress1ParametersEditor extends FluorescenceDetectorParamete
 	@Override
 	protected String getRichEditorTabText() {
 		return "Xspress1";
+	}
+
+	@Override
+	public Composite createComposite(Composite parent, int style) {
+		Composite composite = super.createComposite(parent, style);
+		controller.setApplyParametersBeforeAcquire(true);
+		return composite;
 	}
 }

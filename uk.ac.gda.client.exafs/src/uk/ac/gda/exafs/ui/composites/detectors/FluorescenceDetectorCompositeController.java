@@ -91,6 +91,7 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 	// Controller state
 	private double[][] theData;
 	private String plotTitle;
+	private boolean applyParametersBeforeAcquire = false;
 	private boolean continuousAquire;
 	private boolean updatingRoiPlotFromUI;
 	private boolean updatingRoiUIFromPlot;
@@ -101,6 +102,10 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 	 */
 	public FluorescenceDetectorCompositeController(FluorescenceDetectorComposite ui) {
 		fluorescenceDetectorComposite = ui;
+	}
+
+	public void setApplyParametersBeforeAcquire(boolean applyParametersBeforeAcquire) {
+		this.applyParametersBeforeAcquire = applyParametersBeforeAcquire;
 	}
 
 	/**
@@ -221,6 +226,9 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 		fluorescenceDetectorComposite.addAcquireButtonListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent event) {
+				if (applyParametersBeforeAcquire) {
+					applyConfigurationToDetector();
+				}
 				if (fluorescenceDetectorComposite.getContinuousModeSelection()) {
 					continuousAcquire(fluorescenceDetectorComposite.getAcquisitionTime());
 				} else {
@@ -399,7 +407,7 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 	 *
 	 * @param collectionTime
 	 */
-	public synchronized void continuousAcquire(final double collectionTime) {
+	private synchronized void continuousAcquire(final double collectionTime) {
 		if (continuousAquire) {
 			stopContinuousAcquire();
 		} else {
@@ -463,7 +471,8 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 	 * @param writeToDisk
 	 *            set <code>true</code> to save data automatically after collection
 	 */
-	public void singleAcquire(final double collectionTimeValue, final boolean writeToDisk) {
+	private void singleAcquire(final double collectionTimeValue, final boolean writeToDisk) {
+
 		IProgressService service = (IProgressService) PlatformUI.getWorkbench().getService(IProgressService.class);
 		try {
 			service.run(true, false, new IRunnableWithProgress() {

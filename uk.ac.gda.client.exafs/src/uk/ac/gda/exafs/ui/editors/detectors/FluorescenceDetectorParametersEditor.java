@@ -34,8 +34,8 @@ import uk.ac.gda.richbeans.editors.RichBeanMultiPageEditorPart;
  */
 public abstract class FluorescenceDetectorParametersEditor extends RichBeanMultiPageEditorPart implements CompositeFactory {
 
-	FluorescenceDetectorParameters cachedBean;
-	FluorescenceDetectorCompositeController controller;
+	private FluorescenceDetectorParameters cachedBean;
+	protected FluorescenceDetectorCompositeController controller;
 
 	@Override
 	public RichBeanEditorPart getRichBeanEditorPart(String path, Object editingBean) {
