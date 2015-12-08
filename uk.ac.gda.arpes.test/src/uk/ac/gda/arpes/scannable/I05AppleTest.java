@@ -20,7 +20,9 @@ package uk.ac.gda.arpes.scannable;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import gda.device.DeviceException;
+import gda.device.ScannableMotion;
+import gda.device.scannable.DummyScannable;
 
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
@@ -31,9 +33,6 @@ import org.apache.commons.math3.analysis.polynomials.PolynomialFunction;
 import org.junit.Before;
 import org.junit.Test;
 
-import gda.device.DeviceException;
-import gda.device.ScannableMotion;
-import gda.device.scannable.DummyUnitsScannable;
 import uk.ac.gda.arpes.scannable.I05Apple.PGMove;
 import uk.ac.gda.arpes.scannable.I05Apple.TrajectorySolver;
 
@@ -44,17 +43,18 @@ public class I05AppleTest {
 	Rectangle2D[] rectangles;
 
 	@Before
-	public void setup() throws DeviceException {
+	public void setup() throws Exception {
 		apple = new I05Apple();
-		gap = new DummyUnitsScannable("gap", 100.0, "mm", "mm");
+		gap = new DummyScannable("gap", 100.0);
 		gap.setTolerances(new Double[] { 0.1});
-		lower = new DummyUnitsScannable("lower", 0.0, "mm", "mm");
+		lower = new DummyScannable("lower", 0.0);
 		lower.setTolerances(new Double[] { 0.1});
-		upper = new DummyUnitsScannable("upper", 0.0, "mm", "mm");
+		upper = new DummyScannable("upper", 0.0);
 		upper.setTolerances(new Double[] { 0.1});
 		apple.setLowerPhaseScannable(lower);
 		apple.setUpperPhaseScannable(upper);
 		apple.setGapScannable(gap);
+		apple.setPhaseTolerance(0.01);
 		apple.setVerticalGapPolynomial(new PolynomialFunction(new double[] {0, 1}));
 		apple.setHorizontalGapPolynomial(new PolynomialFunction(new double[] {0, 1}));
 		apple.setCircularGapPolynomial(new PolynomialFunction(new double[] {0, 1}));
@@ -65,13 +65,13 @@ public class I05AppleTest {
 	}
 
 	@Test
-	public void testH100Pol() throws DeviceException {
+	public void testH100Pol() throws Exception {
 		String pol = apple.getCurrentPolarisation();
 		assertEquals("H100Pol does not match", I05Apple.HORIZONTAL, pol);
 	}
 
 	@Test
-	public void testV100_1Pol() throws DeviceException {
+	public void testV100_1Pol() throws Exception {
 		lower.moveTo(70.0);
 		upper.moveTo(70.0);
 		String pol = apple.getCurrentPolarisation();
@@ -79,7 +79,7 @@ public class I05AppleTest {
 	}
 
 	@Test
-	public void testV100_2Pol() throws DeviceException {
+	public void testV100_2Pol() throws Exception {
 		lower.moveTo(-70.0);
 		upper.moveTo(-70.0);
 		String pol = apple.getCurrentPolarisation();
@@ -87,7 +87,7 @@ public class I05AppleTest {
 	}
 
 	@Test
-	public void testCRPol() throws DeviceException {
+	public void testCRPol() throws Exception {
 		lower.moveTo(30.0);
 		upper.moveTo(30.0);
 		gap.moveTo(30.0);
@@ -97,7 +97,7 @@ public class I05AppleTest {
 
 
 	@Test
-	public void testCLPol() throws DeviceException {
+	public void testCLPol() throws Exception {
 		lower.moveTo(-30.0);
 		upper.moveTo(-30.0);
 		gap.moveTo(30.0);
@@ -105,32 +105,29 @@ public class I05AppleTest {
 		assertEquals("CLPol does not match", I05Apple.CIRCULAR_LEFT, pol);
 	}
 
-	@Test
-	public void testFailForMismatch() throws DeviceException {
+	@Test(expected = DeviceException.class)
+	public void testFailForMismatch() throws Exception {
 		lower.moveTo(-7.0);
 		upper.moveTo(17.0);
-		try {
-			apple.getCurrentPolarisation();
-			fail("getPolarisation does not thow exception with differing phases");
-		} catch (DeviceException de) {
-			// expected
-		}
+
+		// Should throw DeviceException as phases are outside tolerance;
+		apple.getCurrentPolarisation();
 	}
 
 	@Test
-	public void testLeftCircPhaseCalc() throws DeviceException {
+	public void testLeftCircPhaseCalc() throws Exception {
 		double phase = apple.getPhaseForGap(32.0, I05Apple.CIRCULAR_LEFT);
 		assertEquals("testCircPhaseCalc phase does not match", -32.0, phase, 0.2);
 	}
 
 	@Test
-	public void testRightCircPhaseCalc() throws DeviceException {
+	public void testRightCircPhaseCalc() throws Exception {
 		double phase = apple.getPhaseForGap(32.0, I05Apple.CIRCULAR_RIGHT);
 		assertEquals("testCircPhaseCalc phase does not match", 32.0, phase, 0.2);
 	}
 
 	@Test
-	public void testTowerTop() throws DeviceException {
+	public void testTowerTop() throws Exception {
 		TrajectorySolver ts = new I05Apple().new TrajectorySolver(rectangles);
 		assertEquals(ts.towerTop, 38.0, 0.0);  // zero tolerance, should be identical
 	}
@@ -139,7 +136,7 @@ public class I05AppleTest {
 	 * - a better test would be be a double loop to intersection test each orthogonal step move against the exclusion zone
 	 */
 	@Test
-	public void testAvoidA() throws DeviceException {
+	public void testAvoidA() throws Exception {
 		Line2D line = new Line2D.Double(-60, 70,  -10, 40);   // tA
 		TrajectorySolver ts = new I05Apple().new TrajectorySolver(rectangles);
 		List<PGMove> list = ts.getGapPhaseOrder(line, 0);
@@ -150,7 +147,7 @@ public class I05AppleTest {
 	}
 
 	@Test
-	public void testAvoidB() throws DeviceException {
+	public void testAvoidB() throws Exception {
 		Line2D line = new Line2D.Double(-50, 70,   20, 30);   // tB
 		TrajectorySolver ts = new I05Apple().new TrajectorySolver(rectangles);
 		List<PGMove> list = ts.getGapPhaseOrder(line, 0);
@@ -164,7 +161,7 @@ public class I05AppleTest {
 	}
 
 	@Test
-	public void testAvoidC() throws DeviceException {
+	public void testAvoidC() throws Exception {
 		Line2D line = new Line2D.Double( 67, 10,  -68, 20);   // tC
 		TrajectorySolver ts = new I05Apple().new TrajectorySolver(rectangles);
 		List<PGMove> list = ts.getGapPhaseOrder(line, 0);
@@ -178,7 +175,7 @@ public class I05AppleTest {
 	}
 
 	@Test
-	public void testAvoidD() throws DeviceException {
+	public void testAvoidD() throws Exception {
 		Line2D line = new Line2D.Double(-70, 10,   69, 60);      // tD
 		// Line2D line = new Line2D.Double(-20, 40,   70, 25);
 		TrajectorySolver ts = new I05Apple().new TrajectorySolver(rectangles);
