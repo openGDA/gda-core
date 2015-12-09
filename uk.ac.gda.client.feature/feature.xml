@@ -26,7 +26,7 @@
          version="0.0.0"/>
 
    <includes
-         id="org.eclipse.rcp"
+         id="org.eclipse.e4.rcp"
          version="0.0.0"/>
 
    <includes
@@ -35,6 +35,14 @@
 
    <includes
          id="uk.ac.diamond.scisoft.gda.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.emf.ecore"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.emf.common"
          version="0.0.0"/>
 
    <plugin
@@ -363,6 +371,20 @@
 
    <plugin
          id="org.apache.commons.math"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.apache.commons.httpclient"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.apache.commons.codec"
          download-size="0"
          install-size="0"
          version="0.0.0"

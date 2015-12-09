@@ -85,11 +85,8 @@ import org.eclipse.ui.application.IWorkbenchWindowConfigurer;
 import org.eclipse.ui.application.WorkbenchAdvisor;
 import org.eclipse.ui.application.WorkbenchWindowAdvisor;
 import org.eclipse.ui.ide.IDE;
-import org.eclipse.ui.internal.Perspective;
-import org.eclipse.ui.internal.WorkbenchPage;
 import org.eclipse.ui.internal.ide.IDEInternalWorkbenchImages;
 import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin;
-import org.eclipse.ui.internal.registry.IActionSetDescriptor;
 import org.eclipse.ui.menus.CommandContributionItem;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
@@ -250,22 +247,21 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 				@SuppressWarnings("unchecked")
 				@Override
 				public void perspectiveActivated(IWorkbenchPage page, IPerspectiveDescriptor perspectiveDescriptor) {
-					if (page instanceof WorkbenchPage) {
-						WorkbenchPage worbenchPage = (WorkbenchPage) page;
-						Perspective perspective = worbenchPage.getActivePerspective();
-						ArrayList<IActionSetDescriptor> toRemove = new ArrayList<IActionSetDescriptor>();
-						if (perspective != null) {
-							for (IActionSetDescriptor actionSetDescriptor : perspective.getAlwaysOnActionSets()) {
-								if (actionSetsToHide.contains(actionSetDescriptor.getId())) {
-									toRemove.add(actionSetDescriptor);
-								}
-							}
-							perspective.turnOffActionSets(toRemove.toArray(new IActionSetDescriptor[toRemove.size()]));
-							perspective.getHiddenToolbarItems().addAll(actionSetsToHide);
-							perspective.getHiddenMenuItems().addAll(actionSetsToHide);
-							perspective.updateActionBars();
-						}
-					}
+// E4FIXME: This code needs to be revisited
+//					if (page instanceof WorkbenchPage) {
+//						IPerspectiveDescriptor perspective2 = page.getPerspective();
+//						ArrayList<IActionSetDescriptor> toRemove = new ArrayList<IActionSetDescriptor>();
+//						if (perspective != null) {
+//							for (IActionSetDescriptor actionSetDescriptor : perspective.getAlwaysOnActionSets()) {
+//								if (actionSetsToHide.contains(actionSetDescriptor.getId())) {
+//									toRemove.add(actionSetDescriptor);
+//								}
+//							}
+//							perspective.turnOffActionSets(toRemove.toArray(new IActionSetDescriptor[toRemove.size()]));
+//							perspective.getHiddenToolbarItems().addAll(actionSetsToHide);
+//							perspective.getHiddenMenuItems().addAll(actionSetsToHide);
+//							perspective.updateActionBars();
+//						}
 				}
 
 			};
