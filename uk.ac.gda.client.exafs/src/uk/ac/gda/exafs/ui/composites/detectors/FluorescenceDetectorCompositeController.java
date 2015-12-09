@@ -505,6 +505,7 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 
 			updatePlotTitle();
 			replot();
+			fluorescenceDetectorComposite.autoscaleAxes();
 
 			if (monitor != null) {
 				monitor.worked(1);
@@ -586,6 +587,7 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 			theData = newStore.readDataFromFile();
 			plotTitle = "Saved data";
 			replot();
+			fluorescenceDetectorComposite.autoscaleAxes();
 		}
 	}
 

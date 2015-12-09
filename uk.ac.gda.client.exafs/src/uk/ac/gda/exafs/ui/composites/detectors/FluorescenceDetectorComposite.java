@@ -312,7 +312,7 @@ public class FluorescenceDetectorComposite extends Composite {
 	}
 
 	private String formatDoubleValue(double val) {
-		return NumberFormat.getInstance().format(val);
+		return NumberFormat.getIntegerInstance().format(val);
 	}
 
 	/**
