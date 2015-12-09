@@ -34,6 +34,7 @@ import gda.device.zebra.controller.Zebra;
 import gda.factory.FactoryException;
 import gda.observable.IObserver;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -693,6 +694,11 @@ public class ZebraConstantVelocityMoveControllerForQexafs implements Scannable,
 	@Override
 	public void atScanEnd() throws DeviceException {
 		zebraController.atScanEnd();
+		try {
+			zebraController.getZebra().reset();
+		} catch (IOException e) {
+			throw new DeviceException("Problem resetting Zebra:" + e);
+		}
 	}
 
 	@Override
