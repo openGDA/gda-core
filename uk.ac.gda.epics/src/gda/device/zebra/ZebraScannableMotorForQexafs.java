@@ -176,6 +176,12 @@ public class ZebraScannableMotorForQexafs extends ScannableMotor implements Cont
 	}
 
 	@Override
+	public void atScanEnd() throws DeviceException {
+		zebraScannableMotor.atScanEnd();
+		continuousMoveController.atScanEnd();
+	}
+
+	@Override
 	public void atScanStart() throws DeviceException {
 		// Due to the fragility of ZebraConstantVelocityMoveController and particulary the life cycle of
 		// its parts which read out time series arrays: here we will clear these so that controller this
