@@ -92,7 +92,6 @@ import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBeanException;
 import uk.ac.diamond.scisoft.analysis.plotserver.DatasetWithAxisInformation;
-import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
 import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
@@ -677,12 +676,9 @@ public class TwoDArray extends Composite {
 						@Override
 						public void run() {
 							try {
-								GuiBean guiBean = new GuiBean();
-								guiBean.put(GuiParameters.PLOTMODE, GuiPlotMode.TWOD);
-								guiBean.put(GuiParameters.TITLE, nonNullDSToPlot.getName());
-								plotView.processGUIUpdate(guiBean);
-								plotView.updatePlotMode(GuiPlotMode.TWOD);
 								DataBean dataBean = new DataBean(GuiPlotMode.TWOD);
+								dataBean.putGuiParameter(GuiParameters.PLOTMODE, GuiPlotMode.TWOD);
+								dataBean.putGuiParameter(GuiParameters.TITLE, nonNullDSToPlot.getName());
 
 								DatasetWithAxisInformation axisData = new DatasetWithAxisInformation();
 								AxisMapBean amb = new AxisMapBean();

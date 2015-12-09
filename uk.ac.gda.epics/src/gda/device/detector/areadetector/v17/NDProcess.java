@@ -58,6 +58,8 @@ public interface NDProcess extends GetPluginBaseAvailable {
 
 	static final String ScaleFlatField_RBV = "ScaleFlatField_RBV";
 
+	static final String AutoOffsetScale = "AutoOffsetScale";
+
 	static final String EnableOffsetScale = "EnableOffsetScale";
 
 	static final String EnableOffsetScale_RBV = "EnableOffsetScale_RBV";
@@ -307,7 +309,19 @@ public interface NDProcess extends GetPluginBaseAvailable {
 	 *
 	 */
 	double getScaleFlatField_RBV() throws Exception;
+	/**
+	 *
+	 */
+	short getAutoOffsetScale() throws Exception;
 
+	/**
+	 *
+	 */
+	void setAutoOffsetScale(int enableoffsetscale) throws Exception;
+
+	/**
+	 *
+	 */
 	/**
 	 *
 	 */
