@@ -838,7 +838,7 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 
 	public DetectorROI[] getRegionsOfInterest() throws DeviceException {
 		List<DetectorROI> rois = settings.getParameters().getDetectorList().get(0).getRegionList();
-		return (DetectorROI[]) rois.toArray();
+		return rois.toArray(new DetectorROI[rois.size()]);
 	}
 
 	public void setRegionsOfInterest(DetectorROI[] regionList)

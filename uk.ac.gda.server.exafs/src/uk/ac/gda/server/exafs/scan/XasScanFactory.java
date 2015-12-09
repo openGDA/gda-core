@@ -18,14 +18,21 @@
 
 package uk.ac.gda.server.exafs.scan;
 
+import gda.device.detector.HardwareTriggeredNXDetector;
 import gda.device.scannable.ContinuouslyScannable;
+import gda.device.scannable.ContinuouslyScannableViaController;
+
+import java.util.List;
 
 public class XasScanFactory extends SpectroscopyScanFactory {
 
 	private QexafsDetectorPreparer qexafsDetectorPreparer;
 	private ContinuouslyScannable qexafsEnergyScannable;
+	private ContinuouslyScannableViaController qexafsEnergyScannableForConstantVelocityScan;
+	private List<HardwareTriggeredNXDetector> nxDetectorList;
 	private EnergyScan energyScan;
 	private QexafsScan qexafsScan;
+	private QexafsConstantVelocityScan qexafsConstantVelocityScan;
 
 	public XasScanFactory() {
 	}
@@ -84,12 +91,52 @@ public class XasScanFactory extends SpectroscopyScanFactory {
 		return qexafsScan;
 	}
 
+	public QexafsConstantVelocityScan createQexafsConstantVelocityScan() {
+
+		if (qexafsConstantVelocityScan != null) {
+			return qexafsConstantVelocityScan;
+		}
+
+		checkSharedObjectsNonNull();
+		checkDefined(qexafsEnergyScannableForConstantVelocityScan, "zebraBraggEnergy");
+		if (nxDetectorList == null)
+			throw new IllegalArgumentException("No NXdetector available!");
+
+		qexafsConstantVelocityScan = new QexafsConstantVelocityScan();
+		qexafsConstantVelocityScan.setBeamlinePreparer(beamlinePreparer);
+		qexafsConstantVelocityScan.setDetectorPreparer(qexafsDetectorPreparer);
+		qexafsConstantVelocityScan.setOutputPreparer(outputPreparer);
+		qexafsConstantVelocityScan.setSamplePreparer(samplePreparer);
+		qexafsConstantVelocityScan.setLoggingScriptController(loggingScriptController);
+		qexafsConstantVelocityScan.setDatawriterconfig(datawriterconfig);
+		qexafsConstantVelocityScan.setEnergyScannable(energyScannable);
+		qexafsConstantVelocityScan.setQexafsScanable(qexafsEnergyScannableForConstantVelocityScan);
+		qexafsConstantVelocityScan.setQexafsNXDetectorList(nxDetectorList);
+		qexafsConstantVelocityScan.setMetashop(metashop);
+		qexafsConstantVelocityScan.setIncludeSampleNameInNexusName(includeSampleNameInNexusName);
+		qexafsConstantVelocityScan.setScanName(scanName);
+		placeInJythonNamespace(qexafsScan);
+		return qexafsConstantVelocityScan;
+	}
+
 	public ContinuouslyScannable getQexafsEnergyScannable() {
 		return qexafsEnergyScannable;
 	}
 
 	public void setQexafsEnergyScannable(ContinuouslyScannable qexafsEnergyScannable) {
 		this.qexafsEnergyScannable = qexafsEnergyScannable;
+	}
+
+	public void setQexafsEnergyScannableForConstantVelocityScan(ContinuouslyScannableViaController qexafsEnergyScannable) {
+		this.qexafsEnergyScannableForConstantVelocityScan = qexafsEnergyScannable;
+	}
+
+	public ContinuouslyScannableViaController getQexafsEnergyScannableForConstantVelocityScan() {
+		return qexafsEnergyScannableForConstantVelocityScan;
+	}
+
+	public void setQexafsNXDetectorList(List<HardwareTriggeredNXDetector> nxDetectorList) {
+		this.nxDetectorList = nxDetectorList;
 	}
 
 	public QexafsDetectorPreparer getQexafsDetectorPreparer() {
@@ -99,4 +146,5 @@ public class XasScanFactory extends SpectroscopyScanFactory {
 	public void setQexafsDetectorPreparer(QexafsDetectorPreparer qexafsDetectorPreparer) {
 		this.qexafsDetectorPreparer = qexafsDetectorPreparer;
 	}
+
 }

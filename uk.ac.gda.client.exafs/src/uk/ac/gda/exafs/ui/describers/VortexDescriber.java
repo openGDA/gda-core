@@ -21,7 +21,7 @@ package uk.ac.gda.exafs.ui.describers;
 import org.eclipse.richbeans.xml.XMLBeanContentDescriber;
 
 import uk.ac.gda.beans.vortex.VortexParameters;
-import uk.ac.gda.exafs.ui.detector.vortex.VortexParametersEditor;
+import uk.ac.gda.exafs.ui.editors.detectors.VortexParametersEditor;
 
 public class VortexDescriber extends XMLBeanContentDescriber {
 
