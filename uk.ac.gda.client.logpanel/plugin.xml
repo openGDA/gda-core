@@ -42,7 +42,7 @@
             name="GDA Logpanel">
          <property
                name="windowImages"
-               value="platform:/plugin/uk.ac.gda.client.logpanel/icons/GDAlogos/GDALogo16.png,platform:/plugin/uk.ac.gda.client.logpanel/icons/GDAlogos/GDALogo32.png,platform:/plugin/uk.ac.gda.client.logpanel/icons/GDAlogos/GDALogo48.png,platform:/plugin/uk.ac.gda.client.logpanel/icons/GDAlogos/GDALogo64.png,platform:/plugin/uk.ac.gda.client.logpanel/icons/GDAlogos/GDALogo128.png">
+               value="icons/GDAlogos/GDALogo16.png,icons/GDAlogos/GDALogo32.png,icons/GDAlogos/GDALogo48.png,icons/GDAlogos/GDALogo64.png,icons/GDAlogos/GDALogo128.png">
          </property>
          <property
                name="appName"

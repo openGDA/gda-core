@@ -32,6 +32,7 @@ public class MultiScan extends ScanBase implements ContiguousScan{
 	private static final Logger logger = LoggerFactory.getLogger(MultiScan.class);
 	private int pointCount = -1;
 	List<ScanBase> scans;
+	private ScanBase currentRunningScan;
 
 	/*
 	 * public void runScan() throws InterruptedException, Exception { if( scans != null){ DataWriter writer =
@@ -107,6 +108,7 @@ public class MultiScan extends ScanBase implements ContiguousScan{
 			scan.name = name;
 			scan.setScanNumber(getScanNumber());
 			
+			setCurrentRunningScan(scan);
 			scan.callScannablesAtScanLineStart();
 			scan.doCollection();
 			scan.callScannablesAtScanLineEnd();
@@ -116,6 +118,15 @@ public class MultiScan extends ScanBase implements ContiguousScan{
 
 		}
 	}
+
+	public ScanBase getCurrentRunningScan() {
+		return currentRunningScan;
+	}
+
+	public void setCurrentRunningScan(ScanBase currentRunningScan) {
+		this.currentRunningScan = currentRunningScan;
+	}
+
 
 }
 

@@ -86,19 +86,6 @@
          unpack="false"/>
 
    <plugin
-         id="org.junit"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="org.hamcrest.core"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="org.apache.commons.lang"
          download-size="0"
          install-size="0"
@@ -218,6 +205,34 @@
 
    <plugin
          id="uk.ac.diamond.org.nfunk.jep"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.dawnsci.analysis.api"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="javax.vecmath"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.apache.commons.math3"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="uk.ac.diamond.jama"
          download-size="0"
          install-size="0"
          version="0.0.0"
