@@ -18,6 +18,7 @@
 
 package gda.data.scan.datawriter;
 import gda.configuration.properties.LocalProperties;
+import gda.data.nexus.NeXusUtils;
 
 
 /**
@@ -45,5 +46,11 @@ public class XasNexusDataWriter extends NexusDataWriter {
 		}
 		super.createNextFile();
 	}
-
+	@Override
+	public void completeCollection() throws Exception {
+		//TODO the following line will not work when use as nested scan
+		file.opengroup(this.entryName, "NXentry");
+		NeXusUtils.writeNexusIntegerArray(file, "scan_dimensions", new int[] {scanPointNumber+1});
+		super.completeCollection();
+	}
 }
