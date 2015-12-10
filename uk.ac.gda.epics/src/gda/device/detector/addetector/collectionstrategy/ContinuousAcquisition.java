@@ -20,7 +20,7 @@ package gda.device.detector.addetector.collectionstrategy;
 
 import gda.device.Detector;
 import gda.device.DeviceException;
-import gda.device.detector.areadetector.v17.ADBase.ImageMode;
+import gda.device.detector.areadetector.v17.ImageMode;
 import gda.device.detector.areadetector.v17.NDFile;
 import gda.scan.ScanInformation;
 
