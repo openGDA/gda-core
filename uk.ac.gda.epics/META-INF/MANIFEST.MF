@@ -17,7 +17,7 @@ Require-Bundle: uk.ac.gda.common;bundle-version="1.0.0",
  org.apache.commons.io;bundle-version="[2.4.0,2.5.0)",
  org.apache.commons.lang;bundle-version="[2.6.0,2.7.0)",
  com.google.guava;bundle-version="[16.0.0,17.0.0)",
- org.eclipse.dawnsci.hdf5;bundle-version="1.2.0"
+ org.eclipse.dawnsci.nexus;bundle-version="1.0.0"
 Export-Package: com.cosylab.epics.caj,
  com.cosylab.epics.caj.cas,
  com.cosylab.epics.caj.cas.handlers,
