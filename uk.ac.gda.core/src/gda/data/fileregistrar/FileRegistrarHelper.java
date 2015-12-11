@@ -19,10 +19,8 @@
 
 package gda.data.fileregistrar;
 
-import gda.factory.Findable;
 import gda.factory.Finder;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
@@ -35,12 +33,11 @@ public class FileRegistrarHelper {
 
 	private static List<IFileRegistrar> registrars;
 
-	@SuppressWarnings("unchecked")
 	private static void fillRegistrars() {
 		if (registrars == null || registrars.isEmpty()) {
-			Map<String, Findable> findables = Finder.getInstance().getFindablesOfType(IFileRegistrar.class);
+			Map<String, IFileRegistrar> findables = Finder.getInstance().getFindablesOfType(IFileRegistrar.class);
 
-			registrars = new Vector<IFileRegistrar>((Collection<? extends IFileRegistrar>) findables.values());
+			registrars = new Vector<IFileRegistrar>(findables.values());
 		}
 	}
 

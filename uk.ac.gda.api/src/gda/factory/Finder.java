@@ -325,19 +325,19 @@ public class Finder {
 	}
 
 	/**
-	 * Returns {@link Findable}s that match the specified object type.
+	 * Returns a map of all {@link Findable} objects of the given type
 	 *
-	 * @param clazz the class or interface to match
-	 *
-	 * @return a map of matching {@code Findable}s, with the object names as
-	 *         keys and the objects as values
+	 * @param <T>
+	 * @param clazz
+	 *            the class or interface to match
+	 * @return a map of matching {@code Findable}s, with the object names as keys and the objects as values
 	 */
-	public Map<String, Findable> getFindablesOfType(Class<?> clazz) {
-		Map<String, Findable> findables = new HashMap<String, Findable>();
+	public <T extends Findable> Map<String, T> getFindablesOfType(Class<T> clazz) {
+		Map<String, T> findables = new HashMap<String, T>();
 		for (Factory factory : factories) {
 			for (Findable findable : factory.getFindables()) {
 				if (clazz.isAssignableFrom(findable.getClass())) {
-					findables.put(findable.getName(), findable);
+					findables.put(findable.getName(), clazz.cast(findable));
 				}
 			}
 		}
@@ -345,23 +345,22 @@ public class Finder {
 	}
 
 	/**
-	 * Returns a typed list {@link Findable}s that match the specified object type.
+	 * Returns a list of all {@link Findable} objects of the given type
 	 *
-	 * @param clazz the class or interface to match
-	 *
+	 * @param clazz
+	 *            the class or interface to match
 	 * @return a list of matching {@code Findable}s
 	 */
-	@SuppressWarnings("unchecked")
 	public <T extends Findable> List<T> listFindablesOfType(Class<T> clazz) {
-		List<T> clazzList = new ArrayList<T>();
+		List<T> findables = new ArrayList<T>();
 		for (Factory factory : factories) {
 			for (Findable findable : factory.getFindables()) {
 				if (clazz.isAssignableFrom(findable.getClass())) {
-					clazzList.add((T)findable);
+					findables.add(clazz.cast(findable));
 				}
 			}
 		}
-		return clazzList;
+		return findables;
 	}
 
 	/**

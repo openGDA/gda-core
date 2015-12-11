@@ -298,9 +298,8 @@ public class GeneralCommands {
 	}
 
 	private static void reconfigureScriptControllers() {
-		Map<String, Findable> scriptControllers = Finder.getInstance().getFindablesOfType(Scriptcontroller.class);
-		for (Findable f : scriptControllers.values()) {
-			final Scriptcontroller sc = (Scriptcontroller) f;
+		Map<String, Scriptcontroller> scriptControllers = Finder.getInstance().getFindablesOfType(Scriptcontroller.class);
+		for (Scriptcontroller sc : scriptControllers.values()) {
 			logger.debug("Reconfiguring '{}' script controller", sc.getName());
 			try {
 				sc.reconfigure();

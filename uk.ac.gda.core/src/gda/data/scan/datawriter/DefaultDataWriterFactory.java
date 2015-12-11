@@ -196,7 +196,7 @@ public class DefaultDataWriterFactory implements DataWriterFactory, Findable, Co
 	 */
 	static public DataWriter createDataWriterFromFactory() throws Exception {
 
-		Map<String, Findable> factoryMap = Finder.getInstance().getFindablesOfType(DataWriterFactory.class);
+		Map<String, DataWriterFactory> factoryMap = Finder.getInstance().getFindablesOfType(DataWriterFactory.class);
 
 		if (factoryMap.size() == 0) {
 			// no factory configured - default for now
@@ -207,6 +207,6 @@ public class DefaultDataWriterFactory implements DataWriterFactory, Findable, Co
 		if (factoryMap.size() > 1) {
 			logger.warn("more than one DataWriterFactory found, choosing " + factoryName);
 		}
-		return  ((DataWriterFactory) factoryMap.get(factoryName)).createDataWriter();
+		return factoryMap.get(factoryName).createDataWriter();
 	}
 }
