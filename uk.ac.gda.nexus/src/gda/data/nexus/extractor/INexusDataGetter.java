@@ -21,7 +21,7 @@ package gda.data.nexus.extractor;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import org.eclipse.dawnsci.hdf5.nexus.NexusException;
+import org.eclipse.dawnsci.nexus.NexusException;
 
 
 /**

@@ -19,8 +19,8 @@
 package gda.data.nexus;
 
 import org.eclipse.dawnsci.analysis.api.tree.Node;
-import org.eclipse.dawnsci.hdf5.nexus.NexusException;
-import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
+import org.eclipse.dawnsci.nexus.NexusException;
+import org.eclipse.dawnsci.nexus.NexusFile;
 
 /**
  * An interface to be implemented by a device (normally) if it is able to write additional information about itself to

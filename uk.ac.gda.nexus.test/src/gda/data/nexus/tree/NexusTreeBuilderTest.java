@@ -22,7 +22,7 @@ import java.io.File;
 import java.io.StringReader;
 import java.net.URL;
 
-import org.eclipse.dawnsci.hdf5.nexus.NexusException;
+import org.eclipse.dawnsci.nexus.NexusException;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

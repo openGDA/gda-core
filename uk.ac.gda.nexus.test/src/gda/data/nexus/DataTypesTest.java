@@ -19,16 +19,18 @@
 package gda.data.nexus;
 
 import static org.junit.Assert.assertEquals;
-import gda.data.nexus.extractor.NexusExtractor;
-import gda.util.TestUtils;
 
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
-import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
+import org.eclipse.dawnsci.hdf5.nexus.NexusFileHDF5;
+import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import gda.data.nexus.extractor.NexusExtractor;
+import gda.util.TestUtils;
 
 /**
  * Just a short test class to check writing of file types using the nexus java api
@@ -101,7 +103,7 @@ public class DataTypesTest {
 			T[] expected = toTest.clone();
 
 			String filename = testScratchDirectoryName + "foo.nxs";
-			try (NexusFile file = NexusUtils.createNexusFile(filename)) {
+			try (NexusFile file = NexusFileHDF5.createNexusFile(filename)) {
 				GroupNode group = file.getGroup(NexusUtils.createAugmentPath("entry1", NexusExtractor.NXEntryClassName), true);
 				NexusUtils.write(file, group, "data", toTest);
 			}
