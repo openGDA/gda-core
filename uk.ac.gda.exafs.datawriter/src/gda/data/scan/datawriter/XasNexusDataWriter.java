@@ -17,8 +17,11 @@
  */
 
 package gda.data.scan.datawriter;
+
 import gda.configuration.properties.LocalProperties;
-import gda.data.nexus.NeXusUtils;
+
+import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 
 
 /**
@@ -48,9 +51,9 @@ public class XasNexusDataWriter extends NexusDataWriter {
 	}
 	@Override
 	public void completeCollection() throws Exception {
-		//TODO the following line will not work when use as nested scan
-		file.opengroup(this.entryName, "NXentry");
-		NeXusUtils.writeNexusIntegerArray(file, "scan_dimensions", new int[] {scanPointNumber+1});
+		//TODO Check if following will work when used as nested scan, the old file.opengroup method did not.
+		IDataset data = DatasetFactory.createFromObject(new int[] {scanPointNumber+1});
+		file.createData(this.entryName, "scan_dimensions", data, true);
 		super.completeCollection();
 	}
 }
