@@ -17,7 +17,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.apache.commons.lang;bundle-version="[2.6.0,2.7.0)",
  uk.ac.gda.exafs.api;bundle-version="1.0.0",
  slf4j.api,
- org.eclipse.dawnsci.hdf5;bundle-version="1.2.0"
+ org.eclipse.dawnsci.nexus;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Eclipse-RegisterBuddy: uk.ac.gda.common, uk.ac.gda.core

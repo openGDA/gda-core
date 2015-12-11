@@ -18,10 +18,6 @@
 
 package uk.ac.gda.client.microfocus.util;
 
-import gda.data.nexus.extractor.NexusExtractor;
-import gda.data.nexus.extractor.NexusGroupData;
-import gda.data.nexus.tree.INexusTree;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -32,12 +28,16 @@ import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
-import org.eclipse.dawnsci.hdf5.nexus.NexusException;
-import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
+import org.eclipse.dawnsci.hdf5.nexus.NexusFileHDF5;
+import org.eclipse.dawnsci.nexus.NexusException;
+import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.data.nexus.extractor.NexusExtractor;
+import gda.data.nexus.extractor.NexusGroupData;
+import gda.data.nexus.tree.INexusTree;
 import uk.ac.diamond.scisoft.analysis.io.NexusLoader;
 
 public class DetectorElementDataSelector {
@@ -174,7 +174,7 @@ public class DetectorElementDataSelector {
 			if (sumData != null) {
 				// fileName = fileName.replace(".nxs", "_1.nxs");
 				String newFileName = fileCopy(fileName, outputFileDir);
-				file = NexusUtils.openNexusFile(newFileName);
+				file = NexusFileHDF5.openNexusFile(newFileName);
 				StringBuilder path = NexusUtils.addToAugmentPath(new StringBuilder(), "entry1", NexusExtractor.NXEntryClassName);
 				ge = file.getGroup(path.toString(), false);
 				NexusUtils.addToAugmentPath(path, "instrument", NexusExtractor.NXInstrumentClassName);

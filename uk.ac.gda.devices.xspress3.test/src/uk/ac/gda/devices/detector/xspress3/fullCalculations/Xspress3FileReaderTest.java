@@ -20,7 +20,7 @@ package uk.ac.gda.devices.detector.xspress3.fullCalculations;
 
 import gda.data.nexus.extractor.NexusExtractorException;
 
-import org.eclipse.dawnsci.hdf5.nexus.NexusException;
+import org.eclipse.dawnsci.nexus.NexusException;
 import org.junit.Test;
 
 public class Xspress3FileReaderTest {

@@ -30,7 +30,7 @@ import gda.factory.Finder;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.dawnsci.hdf5.nexus.NexusException;
+import org.eclipse.dawnsci.nexus.NexusException;
 
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.vortex.DetectorElement;

@@ -14,7 +14,7 @@ Require-Bundle: uk.ac.gda.api;bundle-version="8.26.0",
  uk.ac.gda.exafs.api;bundle-version="1.0.0",
  slf4j.api,
  uk.ac.diamond.jython,
- org.eclipse.dawnsci.hdf5
+ org.eclipse.dawnsci.nexus
 Export-Package: uk.ac.gda.devices.detector.xspress3,
  uk.ac.gda.devices.detector.xspress3.controllerimpl,
  uk.ac.gda.devices.detector.xspress3.fullCalculations

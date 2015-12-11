@@ -18,6 +18,8 @@
 
 package uk.ac.gda.devices.detector.xspress3.fullCalculations;
 
+import org.eclipse.dawnsci.nexus.NexusException;
+
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusExtractorException;
 import gda.data.nexus.extractor.NexusGroupData;
@@ -25,8 +27,6 @@ import gda.data.nexus.tree.INexusSourceProvider;
 import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeBuilder;
 import gda.data.nexus.tree.NexusTreeNodeSelection;
-
-import org.eclipse.dawnsci.hdf5.nexus.NexusException;
 
 public class Xspress3FileReader {
 
