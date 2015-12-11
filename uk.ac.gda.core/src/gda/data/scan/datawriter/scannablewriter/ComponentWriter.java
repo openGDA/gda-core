@@ -23,8 +23,8 @@ import gda.data.scan.datawriter.SelfCreatingLink;
 import java.util.Collection;
 
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
-import org.eclipse.dawnsci.hdf5.nexus.NexusException;
-import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
+import org.eclipse.dawnsci.nexus.NexusException;
+import org.eclipse.dawnsci.nexus.NexusFile;
 
 /**
  * This interface allows writing of a single input or extra element of a scannable

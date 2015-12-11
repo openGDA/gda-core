@@ -19,8 +19,8 @@
 package gda.data.scan.datawriter.scannablewriter;
 
 import org.eclipse.dawnsci.analysis.api.tree.Node;
-import org.eclipse.dawnsci.hdf5.nexus.NexusException;
-import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
+import org.eclipse.dawnsci.nexus.NexusException;
+import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusUtils;
 
 import gda.device.Scannable;

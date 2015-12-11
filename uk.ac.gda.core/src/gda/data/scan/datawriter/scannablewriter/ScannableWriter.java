@@ -24,8 +24,8 @@ import gda.device.Scannable;
 import java.util.Collection;
 
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
-import org.eclipse.dawnsci.hdf5.nexus.NexusException;
-import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
+import org.eclipse.dawnsci.nexus.NexusException;
+import org.eclipse.dawnsci.nexus.NexusFile;
 
 /**
  * This interface is used by the NexusDataWriterMetadataTree to place the "position" of a scannable in the correct place

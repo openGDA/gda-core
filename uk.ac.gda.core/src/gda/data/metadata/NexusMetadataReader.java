@@ -19,15 +19,15 @@
 
 package gda.data.metadata;
 
-import gda.factory.Findable;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.eclipse.dawnsci.hdf5.nexus.NexusException;
-import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
-import org.eclipse.dawnsci.nexus.NexusUtils;
+import org.eclipse.dawnsci.hdf5.nexus.NexusFileHDF5;
+import org.eclipse.dawnsci.nexus.NexusException;
+import org.eclipse.dawnsci.nexus.NexusFile;
+
+import gda.factory.Findable;
 
 /**
  * NexusMetadataReader class.
@@ -96,7 +96,7 @@ public class NexusMetadataReader implements Findable {
 	 * @throws NexusException
 	 */
 	public String getNexusMetadata(String location) throws NexusException {
-		nf = NexusUtils.openNexusFileReadOnly(filename);
+		nf = NexusFileHDF5.openNexusFileReadOnly(filename);
 		return nf.getData(transformAccessName(location)).getString();
 	}
 

@@ -24,8 +24,8 @@ import java.util.Vector;
 
 import org.eclipse.dawnsci.analysis.api.tree.Node;
 import org.eclipse.dawnsci.analysis.api.tree.Tree;
-import org.eclipse.dawnsci.hdf5.HDF5Utils;
-import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
+import org.eclipse.dawnsci.hdf5.nexus.NexusFileHDF5;
+import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +46,7 @@ public class NXLinkCreator {
 	}
 
 	public void makelinks(String filename) throws Exception {
-		NexusFile file = NexusUtils.openNexusFile(filename);
+		NexusFile file = NexusFileHDF5.openNexusFile(filename);
 
 		try {
 			for (SubEntryLink link : links) {
@@ -73,7 +73,7 @@ public class NXLinkCreator {
 						logger.debug("DBG: groupName = {}", groupName);
 
 						long fid = -1;
-						fid = HDF5Utils.H5Fopen(filename, HDF5Constants.H5F_ACC_RDWR, HDF5Constants.H5P_DEFAULT);
+						fid = H5.H5Fopen(filename, HDF5Constants.H5F_ACC_RDWR, HDF5Constants.H5P_DEFAULT);
 
 						long gid = -1;
 						gid = H5.H5Gopen(fid, pathToGroup, HDF5Constants.H5P_DEFAULT);

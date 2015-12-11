@@ -21,7 +21,7 @@ package gda.data.test;
 
 import gda.data.nexus.NexusFileFactory;
 
-import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
+import org.eclipse.dawnsci.nexus.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

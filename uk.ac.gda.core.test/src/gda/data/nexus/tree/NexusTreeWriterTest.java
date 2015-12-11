@@ -19,14 +19,14 @@
 
 package gda.data.nexus.tree;
 
+import org.eclipse.dawnsci.hdf5.nexus.NexusFileHDF5;
+import org.eclipse.dawnsci.nexus.NexusFile;
+import org.junit.Assert;
+import org.junit.Test;
+
 import gda.TestHelpers;
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
-
-import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
-import org.eclipse.dawnsci.nexus.NexusUtils;
-import org.junit.Assert;
-import org.junit.Test;
 
 /**
  *
@@ -44,7 +44,7 @@ public class NexusTreeWriterTest {
 		tree_in.addChildNode( entry2);
 		entry2.addChildNode( new NexusTreeNode("units",NexusExtractor.AttrClassName,entry2, new NexusGroupData("\u212B")));
 		String filename = testScratchDirectoryName+"/out.nxs";
-		NexusFile file = NexusUtils.createNexusFile(filename);
+		NexusFile file = NexusFileHDF5.createNexusFile(filename);
 		file.setDebug(true);
 		NexusTreeWriter.writeHere(file, file.getGroup("/", true), tree_in);
 		file.close();

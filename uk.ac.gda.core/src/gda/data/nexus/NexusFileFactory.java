@@ -19,14 +19,15 @@
 
 package gda.data.nexus;
 
-import gda.data.nexus.extractor.NexusExtractor;
-
 import java.io.File;
 
-import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
+import org.eclipse.dawnsci.hdf5.nexus.NexusFileHDF5;
+import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.data.nexus.extractor.NexusExtractor;
 
 /**
  * <p>
@@ -59,7 +60,7 @@ public class NexusFileFactory {
 			fparent.mkdirs();
 		}
 		logger.debug("Creating HDF5 format NeXus file.");
-		NexusFile nf = NexusUtils.createNexusFile(fileUrl);
+		NexusFile nf = NexusFileHDF5.createNexusFile(fileUrl);
 		nf.setDebug(instrumentFileApi);
 
 		// For now we will assume that all the NeXus files have a single

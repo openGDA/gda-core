@@ -18,12 +18,13 @@
 
 package gda.data.scan.datawriter;
 
-import gda.data.nexus.extractor.NexusExtractor;
-
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
-import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
+import org.eclipse.dawnsci.hdf5.nexus.NexusFileHDF5;
+import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.springframework.beans.factory.InitializingBean;
+
+import gda.data.nexus.extractor.NexusExtractor;
 
 /**
  *
@@ -238,7 +239,7 @@ public class NXTomoEntryLinkCreator extends NXLinkCreator implements Initializin
 	}
 
 	public void writeStringData(String filename, String dataName, String dataValue ) throws Exception {
-		NexusFile file = NexusUtils.openNexusFile(filename);
+		NexusFile file = NexusFileHDF5.openNexusFile(filename);
 		StringBuilder path = NexusUtils.addToAugmentPath(new StringBuilder(), "entry1", NexusExtractor.NXEntryClassName);
 		NexusUtils.addToAugmentPath(path, "tomo_entry", "NXsubentry");
 //		NexusUtils.addToAugmentPath(path, detectorName, NexusExtractor.NXDetectorClassName);

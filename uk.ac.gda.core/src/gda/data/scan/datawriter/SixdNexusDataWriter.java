@@ -37,8 +37,9 @@ import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
-import org.eclipse.dawnsci.hdf5.nexus.NexusException;
-import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
+import org.eclipse.dawnsci.hdf5.nexus.NexusFileHDF5;
+import org.eclipse.dawnsci.nexus.NexusException;
+import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.python.core.PyList;
 import org.slf4j.Logger;
@@ -1033,7 +1034,7 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 			}
 
 			// create nexus file and return handle
-			file = NexusUtils.createNexusFile(nexusFileUrl);
+			file = NexusFileHDF5.createNexusFile(nexusFileUrl);
 			file.setDebug(LocalProperties.check(GDA_NEXUS_INSTRUMENT_API));
 			if (createSrsFile) {
 				// Check to see if the file(s) already exists!
