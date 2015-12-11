@@ -280,7 +280,7 @@ public final class MicroFocusScanParametersComposite extends Composite {
 		updateScanInfo();
 	}
 
-	protected void updateScanInfo() {
+	public void updateScanInfo() {
 		double rowDistance = Math.abs(xEnd.getNumericValue() - xStart.getNumericValue());
 		int pointsPerRow = (int) (Math.round((rowDistance / xStepSize.getNumericValue()) + 1));
 		int numberOfRows = (int) Math.round((Math.abs(yEnd.getNumericValue() - yStart.getNumericValue())
@@ -343,4 +343,5 @@ public final class MicroFocusScanParametersComposite extends Composite {
 	public FieldComposite getRowTime() {
 		return rowTime;
 	}
+
 }

@@ -30,6 +30,8 @@ import uk.ac.gda.richbeans.editors.RichBeanMultiPageEditorPart;
 
 public final class MicroFocusScanParametersEditor extends RichBeanMultiPageEditorPart implements CompositeFactory {
 
+	private MicroFocusScanParametersComposite microfocusComposite;
+
 	@Override
 	public Class<?> getBeanClass() {
 		return MicroFocusScanParameters.class;
@@ -50,13 +52,21 @@ public final class MicroFocusScanParametersEditor extends RichBeanMultiPageEdito
 	}
 
 	@Override
+	protected RichBeanEditorPart createPage0() {
+		RichBeanEditorPart result = super.createPage0();
+		microfocusComposite.updateScanInfo();
+		return result;
+	}
+
+	@Override
 	public URL getSchemaUrl() {
 		return MicroFocusScanParameters.schemaUrl;
 	}
 
 	@Override
 	public Composite createComposite(Composite parent, int style) {
-		return new MicroFocusScanParametersComposite(parent, style);
+		microfocusComposite = new MicroFocusScanParametersComposite(parent, style);
+		return microfocusComposite;
 	}
 
 }
