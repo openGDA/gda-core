@@ -23,8 +23,8 @@ import java.util.Collections;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
-import org.eclipse.dawnsci.hdf5.nexus.NexusException;
-import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
+import org.eclipse.dawnsci.nexus.NexusException;
+import org.eclipse.dawnsci.nexus.NexusFile;
 
 import gda.data.scan.datawriter.SelfCreatingLink;
 import gda.data.scan.datawriter.scannablewriter.ComponentWriter;

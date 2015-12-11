@@ -18,22 +18,22 @@
 
 package org.opengda.detector.electronanalyser.nxdetector;
 
-import gda.configuration.properties.LocalProperties;
-import gda.data.NumTracker;
-import gda.data.PathConstructor;
-import gda.data.scan.datawriter.NexusDataWriter;
-import gda.jython.InterfaceProvider;
-
 import java.io.File;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
-import org.eclipse.dawnsci.nexus.NexusUtils;
+import org.eclipse.dawnsci.hdf5.nexus.NexusFileHDF5;
+import org.eclipse.dawnsci.nexus.NexusFile;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.configuration.properties.LocalProperties;
+import gda.data.NumTracker;
+import gda.data.PathConstructor;
+import gda.data.scan.datawriter.NexusDataWriter;
+import gda.jython.InterfaceProvider;
 
 public class NexusDataWriterExtension extends NexusDataWriter {
 	private static final Logger logger = LoggerFactory
@@ -128,7 +128,7 @@ public class NexusDataWriterExtension extends NexusDataWriter {
 
 		String regionNexusFileUrl = dir.getAbsolutePath()+File.separator + regionNexusFileName;
 		InterfaceProvider.getTerminalPrinter().print("Region '" + regionName + "' data will write to: "+ regionNexusFileUrl);
-		NexusFile regionNexusfile = NexusUtils.createNexusFile(regionNexusFileUrl);
+		NexusFile regionNexusfile = NexusFileHDF5.createNexusFile(regionNexusFileUrl);
 		regionNexusfile.setDebug(LocalProperties.check(GDA_NEXUS_INSTRUMENT_API));
 
 		RegionFileMapper regionFileMapper = new RegionFileMapper(regionName,regionNexusFileUrl,regionNexusfile );
