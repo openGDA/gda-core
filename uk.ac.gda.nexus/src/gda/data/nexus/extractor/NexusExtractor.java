@@ -17,10 +17,6 @@
 
 package gda.data.nexus.extractor;
 
-import gda.data.nexus.extractor.INexusTreeProcessor.RESPONSE;
-import gda.data.nexus.tree.INexusSourceProvider;
-import gda.data.nexus.tree.INexusTree;
-
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -35,11 +31,15 @@ import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
 import org.eclipse.dawnsci.analysis.api.tree.Node;
 import org.eclipse.dawnsci.analysis.api.tree.NodeLink;
 import org.eclipse.dawnsci.analysis.api.tree.Tree;
+import org.eclipse.dawnsci.hdf5.nexus.NexusFileHDF5;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusFile;
-import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.data.nexus.extractor.INexusTreeProcessor.RESPONSE;
+import gda.data.nexus.tree.INexusSourceProvider;
+import gda.data.nexus.tree.INexusTree;
 
 /**
  * see the package-info.java file for information on this class
@@ -282,7 +282,7 @@ final public class NexusExtractor implements INexusDataGetter {
 			NexusExtractorException {
 		this.loopProcessor = loopProcessor;
 		try {
-			file = NexusUtils.openNexusFileReadOnly(fileName);
+			file = NexusFileHDF5.openNexusFileReadOnly(fileName);
 			file.setDebug(debug);
 			loop(new Group(null, topName, topClass), mon);
 		} finally {
@@ -508,7 +508,7 @@ class SimpleExtractor {
 	}
 
 	protected final NexusGroupData getData() throws NexusException {
-		try (NexusFile file = NexusUtils.openNexusFileReadOnly(source.getPath())) {
+		try (NexusFile file = NexusFileHDF5.openNexusFileReadOnly(source.getPath())) {
 			file.setDebug(debug);
 			return getData(file, nodePathWithClasses);
 		}

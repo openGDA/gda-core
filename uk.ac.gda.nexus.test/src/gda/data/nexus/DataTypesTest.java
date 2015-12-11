@@ -108,7 +108,7 @@ public class DataTypesTest {
 				NexusUtils.write(file, group, "data", toTest);
 			}
 
-			try (NexusFile file = NexusUtils.openNexusFileReadOnly(filename)) {
+			try (NexusFile file = NexusFileHDF5.openNexusFileReadOnly(filename)) {
 				GroupNode group = file.getGroup(NexusUtils.createAugmentPath("entry1", NexusExtractor.NXEntryClassName), true);
 				DataNode data = file.getData(group, "data");
 				IDataset d = data.getDataset().getSlice();
