@@ -21,7 +21,6 @@ package gda.data.fileregistrar;
 
 import gda.data.metadata.Metadata;
 import gda.device.DeviceException;
-import gda.factory.Findable;
 import gda.factory.Finder;
 
 import java.io.File;
@@ -227,7 +226,7 @@ public class IcatXMLCreator {
 	}
 
 	private void getMetadataObject() {
-		Map<String, Findable> findables = Finder.getInstance().getFindablesOfType(Metadata.class);
+		Map<String, Metadata> findables = Finder.getInstance().getFindablesOfType(Metadata.class);
 
 		if (findables.size() == 0) {
 			logger.error("cannot find a metadata object");
@@ -236,7 +235,7 @@ public class IcatXMLCreator {
 		if (findables.size() != 1) {
 			logger.warn("multiple metadata objects found, using first found");
 		}
-		metadata = (Metadata) findables.values().iterator().next();
+		metadata = findables.values().iterator().next();
 	}
 
 	private void closeFile() {
