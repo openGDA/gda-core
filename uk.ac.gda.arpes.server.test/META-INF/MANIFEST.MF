@@ -1,10 +1,10 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Test
-Bundle-SymbolicName: uk.ac.gda.arpes.test
+Bundle-SymbolicName: uk.ac.gda.arpes.server.test
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Diamond Light Source
-Fragment-Host: uk.ac.gda.arpes;bundle-version="1.0.0.qualifier"
+Fragment-Host: uk.ac.gda.arpes.server;bundle-version="1.0.0.qualifier"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: org.mockito.mockito-core;bundle-version="[1.9.5,2.0.0)",
  org.junit;bundle-version="[4.10.0,5.0.0)"

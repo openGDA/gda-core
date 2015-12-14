@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: ARPES Plug-in
+Bundle-Name: ARPES Non-Server Components Plug-in
 Bundle-SymbolicName: uk.ac.gda.arpes;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Require-Bundle: org.eclipse.ui,
@@ -25,12 +25,11 @@ Require-Bundle: org.eclipse.ui,
  org.apache.commons.math3;bundle-version="3.2.0",
  org.apache.commons.lang;bundle-version="2.6.0",
  org.eclipse.richbeans.widgets;bundle-version="1.0.0",
- org.eclipse.richbeans.xml;bundle-version="1.0.0"
+ org.eclipse.richbeans.xml;bundle-version="1.0.0",
+ uk.ac.gda.arpes.server;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Export-Package: uk.ac.gda.arpes.beans;uses:="uk.ac.gda.beans",
- uk.ac.gda.arpes.scannable,
- uk.ac.gda.arpes.ui;
+Export-Package: uk.ac.gda.arpes.beans;uses:="uk.ac.gda.beans",uk.ac.gda.arpes.ui;
   uses:="uk.ac.gda.richbeans.xml,
    uk.ac.gda.richbeans.editors,
    uk.ac.gda.richbeans.beans,

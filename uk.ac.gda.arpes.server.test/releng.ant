@@ -1,4 +1,4 @@
-<project name="plugin-uk.ac.gda.arpes.test" basedir=".">
+<project name="plugin-uk.ac.gda.arpes.server.test" basedir=".">
 
 	<dirname property="plugin.basedir" file="${ant.file}" />
 	<pathconvert property="workspace.loc" setonempty="false">
