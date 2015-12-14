@@ -21,6 +21,9 @@ package gda.jython;
 
 import java.util.Set;
 
+import org.eclipse.core.runtime.Platform;
+import org.osgi.framework.Bundle;
+
 
 /**
  * A classloader for use with Jython in the GDA environment.
@@ -84,8 +87,18 @@ public class GDAJythonClassLoader extends ClassLoader {
 			throw new ClassNotFoundException(name);
 
 		// always allow core java packages and python specific ones
-		if (allowAllPackages || name.startsWith("java.") || name.startsWith("org.python."))
-			return super.loadClass(name);
+		if (allowAllPackages || name.startsWith("java.") || name.startsWith("org.python.")) {
+
+			// TODO: Fix this temporary bodge to support scisoft python classloading
+			Class<?> class1 = null;
+			try {
+				class1 = super.loadClass(name);
+			} catch (Exception e) {
+				Bundle bundle = Platform.getBundle("uk.ac.diamond.scisoft.python");
+				class1 = bundle.loadClass(name);
+			}
+			return class1;
+		}
 
 		int lastDot = name.lastIndexOf('.');
 		String packageName;
