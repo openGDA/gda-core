@@ -221,19 +221,35 @@ public class CommandQueueComposite extends Composite {
 
 		};
 		detailsAction.setEnabled(false);
-
+		
+		// create Move to head of queue action and enable if rows are selected
+		final Action moveToHeadAction = new Action("Move to head of queue") {
+			@Override public void run() {
+				try {
+					List<CommandId> ids = getSelectedCommandIds();
+					if (!ids.isEmpty()) {
+						queue.moveToHead(ids);
+						tableViewer.refresh();
+					}
+				} catch (Exception e) {
+					logger.error("Error in run", e);
+				}
+			}
+		};
+		moveToHeadAction.setEnabled(false);
+		
 		tableViewer.addSelectionChangedListener(new ISelectionChangedListener() {
-
-			@Override
-			public void selectionChanged(SelectionChangedEvent event) {
+			@Override public void selectionChanged(SelectionChangedEvent event) {
 				boolean enableOnSelection = !event.getSelection().isEmpty();
+				moveToHeadAction.setEnabled(enableOnSelection);
 				deleteAction.setEnabled(enableOnSelection);
 				detailsAction.setEnabled(enableOnSelection);
 			}
 		});
-
+		
 		// add context menu
 		MenuManager mgr = new MenuManager();
+		mgr.add(moveToHeadAction);
 		mgr.add(detailsAction);
 		mgr.add(deleteAction);
 		mgr.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
@@ -269,7 +285,8 @@ public class CommandQueueComposite extends Composite {
 					}
 					return true;
 				} catch (Exception e) {
-					logger.error("Error in performDrop", e);
+					logger.error("Error in performDrop");
+					logger.debug("Error in performDrop", e);
 				}
 				return false;
 
