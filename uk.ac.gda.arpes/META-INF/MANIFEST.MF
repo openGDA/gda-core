@@ -29,7 +29,7 @@ Require-Bundle: org.eclipse.ui,
  uk.ac.gda.arpes.server;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Export-Package: uk.ac.gda.arpes.beans;uses:="uk.ac.gda.beans",uk.ac.gda.arpes.ui;
+Export-Package: uk.ac.gda.arpes.ui;
   uses:="uk.ac.gda.richbeans.xml,
    uk.ac.gda.richbeans.editors,
    uk.ac.gda.richbeans.beans,
