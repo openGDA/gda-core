@@ -23,7 +23,6 @@ import org.eclipse.dawnsci.analysis.api.fitting.functions.IFunction;
 import org.eclipse.dawnsci.analysis.api.fitting.functions.IOperator;
 import org.eclipse.dawnsci.analysis.api.fitting.functions.IParameter;
 import org.eclipse.dawnsci.analysis.api.monitor.IMonitor;
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 
 import uk.ac.diamond.scisoft.analysis.fitting.functions.Parameter;
 
@@ -87,32 +86,21 @@ public class ProblemFunction implements IFunction {
 	}
 
 	@Override
-	public double partialDeriv(int Parameter, double... position) {
-		return 0;
-	}
-
-	@Override
 	public double partialDeriv(IParameter param, double... values) {
 		return 0;
 	}
 
-	@Override
-	public DoubleDataset makeDataset(IDataset... values) {
-		return null;
+	public double residual(boolean allValues, IDataset data, IDataset... values) {
+		return residual(allValues, data, null, values);
 	}
 
 	@Override
-	public double residual(boolean allValues, IDataset data, IDataset... values) {
+	public double residual(boolean allValues, IDataset data, IDataset weight, IDataset... values) {
 		try {
 			return def.eval(parameters);
 		} catch (Exception e) {
 			return 0;
 		}
-	}
-
-	@Override
-	public double residual(boolean allValues, IDataset data, IDataset weight, IDataset... values) {
-		return residual(allValues, data, values);
 	}
 
 	@Override
