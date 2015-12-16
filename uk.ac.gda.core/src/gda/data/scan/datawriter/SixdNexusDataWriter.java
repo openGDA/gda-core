@@ -19,6 +19,24 @@
 
 package gda.data.scan.datawriter;
 
+import gda.configuration.properties.LocalProperties;
+import gda.data.NumTracker;
+import gda.data.PathConstructor;
+import gda.data.metadata.GDAMetadataProvider;
+import gda.data.metadata.IMetadataEntry;
+import gda.data.metadata.Metadata;
+import gda.data.nexus.INeXusInfoWriteable;
+import gda.data.nexus.extractor.NexusExtractor;
+import gda.data.nexus.extractor.NexusGroupData;
+import gda.data.nexus.tree.INexusTree;
+import gda.data.nexus.tree.NexusTreeProvider;
+import gda.device.Detector;
+import gda.device.DeviceException;
+import gda.device.Scannable;
+import gda.device.detector.NexusDetector;
+import gda.device.scannable.ScannableUtils;
+import gda.scan.IScanDataPoint;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -44,24 +62,6 @@ import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.python.core.PyList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import gda.configuration.properties.LocalProperties;
-import gda.data.NumTracker;
-import gda.data.PathConstructor;
-import gda.data.metadata.GDAMetadataProvider;
-import gda.data.metadata.IMetadataEntry;
-import gda.data.metadata.Metadata;
-import gda.data.nexus.INeXusInfoWriteable;
-import gda.data.nexus.extractor.NexusExtractor;
-import gda.data.nexus.extractor.NexusGroupData;
-import gda.data.nexus.tree.INexusTree;
-import gda.data.nexus.tree.NexusTreeProvider;
-import gda.device.Detector;
-import gda.device.DeviceException;
-import gda.device.Scannable;
-import gda.device.detector.NexusDetector;
-import gda.device.scannable.ScannableUtils;
-import gda.scan.IScanDataPoint;
 
 /**
  * DataWriter that outputs NeXus files and optionally a SRS/Text file as well.
@@ -972,8 +972,8 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 
 
 	/**
-	 * Create the next file. First increment the file number and then try and get a NeXus file from
-	 * {@link NexusUtils#createNexusFile(String)}.
+	 * Create the next file. First increment the file number and then try and get a NeXus file from 
+	 * {@link NexusFileHDF5#createNexusFile(String)}
 	 */
 	public void createNextFile() {
 		try {
