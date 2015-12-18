@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: MsgBus Tests
+Bundle-SymbolicName: uk.ac.diamond.daq.msgbus.test
+Bundle-Version: 1.0.0.qualifier
+Fragment-Host: uk.ac.diamond.daq.msgbus
+Bundle-Vendor: Diamond Light Source
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: org.junit;bundle-version="[4.10.0,5.0.0)"
