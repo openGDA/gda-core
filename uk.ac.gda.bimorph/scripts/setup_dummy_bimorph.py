@@ -13,12 +13,12 @@ from time import sleep
 import java.lang.InterruptedException
 
 run("bimorph_mirror_optimising.py") # as it still uses globals to keep things understandable to scientists
-from gdascripts.bimorph.bimorph_mirror_optimising import ScanAborter
+from bimorph_mirror_optimising import ScanAborter
 
 print "Creating dummy detector"
-x = DummyPD("x")
-x.asynchronousMoveTo(430)
-cam1det = CreateImageReadingDummyDetector.create(x)
+xdp = DummyPD("x")
+xdp.asynchronousMoveTo(430)
+cam1det = CreateImageReadingDummyDetector.create(xdp)
 cam1 = ProcessingDetectorWrapper('cam1', cam1det, [], panel_name='ImageProPlus Plot')
 
 # To use a firewire camera:
