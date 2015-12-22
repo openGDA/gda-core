@@ -76,7 +76,7 @@ public class CalibratedAmplifier extends EpicsScannable {
 
 	@Override
 	public void asynchronousMoveTo(Object externalPosition) throws DeviceException {
-		throw new DeviceException("I do not move");
+		throw new DeviceException(getName() + " - I do not move");
 	}
 
 	@Override
@@ -109,13 +109,13 @@ public class CalibratedAmplifier extends EpicsScannable {
 				// this is normal when no beam for overloaded
 				break;
 			} catch (GainWithScalingAndOffset.MoveProhibitedException e) {
-				logger.debug("gain change currently probitited");
+				logger.trace("{} - gain change currently probitited", getName());
 				break;
 			} catch (DeviceException e) {
-				logger.info("exception received trying to adjust gain", e);
+				logger.error("{} - exception received trying to adjust gain", getName(), e);
 				break;
 			} catch (InterruptedException e) {
-				throw new DeviceException("interrupted waiting for gain to be set", e);
+				throw new DeviceException("{} - interrupted waiting for gain to be set", getName(), e);
 			}
 		} while (true);
 		return scalingAndOffset.getOffset() + value * scalingAndOffset.getScaling();
