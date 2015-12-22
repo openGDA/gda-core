@@ -15,3 +15,4 @@ Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ClassPath: scripts/,
  .
+Bundle-Vendor: Diamond Light Source
