@@ -7,6 +7,7 @@
 ### Java ###
 *.class
 hs_err_pid*
+derby.log
 
 ### Python / Jython ###
 __pycache__/
