@@ -7,6 +7,7 @@
 ### Java ###
 *.class
 hs_err_pid*
+derby.log
 
 ### Python / Jython ###
 __pycache__/
@@ -23,10 +24,6 @@ cachedir/
 ### JUnit testing ###
 /test-reports
 /test-scratch
-/derby.log
-/dummyMotor
-/motor
-/null
 
 ### Security files ###
 *ssh.key
@@ -35,6 +32,10 @@ passwords
 
 ### Various OS, etc. files ###
 *.lnk
-desktop.ini
+.DS_Store
+[Dd]esktop.ini
 .nfs[:xdigit:][:xdigit:][:xdigit:][:xdigit:][:xdigit:][:xdigit:][:xdigit:][:xdigit:]*
 .svn/
+Thumbs.db
+$RECYCLE.BIN/
+.Trash-*
