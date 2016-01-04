@@ -1,4 +1,16 @@
 Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: GDA Client Plug-in
+Bundle-SymbolicName: uk.ac.gda.client;singleton:=true
+Bundle-Activator: gda.rcp.GDAClientActivator
+Bundle-Version: 8.50.0.qualifier
+Bundle-Vendor: Diamond Light Source
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ActivationPolicy: lazy
+Eclipse-RegisterBuddy: uk.ac.gda.libs, uk.ac.gda.core
+Eclipse-BuddyPolicy: registered
+Bundle-Localization: plugin
+Eclipse-LazyStart: true
 Require-Bundle: org.eclipse.help.ui,
  org.eclipse.ui.console,
  org.python.pydev;bundle-version="[3.6.0,3.6.1)",
@@ -55,16 +67,6 @@ Require-Bundle: org.eclipse.help.ui,
  uk.ac.diamond.scisoft.analysis.plotclient,
  org.eclipse.richbeans.widgets;bundle-version="1.0.0",
  org.eclipse.richbeans.xml;bundle-version="1.0.0"
-Bundle-ActivationPolicy: lazy
-Bundle-Version: 8.50.0.qualifier
-Eclipse-RegisterBuddy: uk.ac.gda.libs, uk.ac.gda.core
-Eclipse-BuddyPolicy: registered
-Bundle-Localization: plugin
-Bundle-Name: uk.ac.gda.client Plug-in
-Bundle-Activator: gda.rcp.GDAClientActivator
-Bundle-ManifestVersion: 2
-Bundle-SymbolicName: uk.ac.gda.client;singleton:=true
-Eclipse-LazyStart: true
 Export-Package: com.swtdesigner,
  gda.gui,
  gda.gui.scriptcontroller.logging,
@@ -102,9 +104,6 @@ Export-Package: com.swtdesigner,
  uk.ac.gda.views.baton,
  uk.ac.gda.views.baton.action,
  uk.ac.gda.views.baton.dialogs
-Bundle-ClassPath: .
-Bundle-Vendor: Diamond Light Source
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.google.gson.annotations;version="2.2.4",
  org.apache.commons.io;version="2.4.0",
  org.dawb.common.ui.plot,
