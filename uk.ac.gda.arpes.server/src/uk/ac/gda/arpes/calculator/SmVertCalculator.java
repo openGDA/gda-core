@@ -21,9 +21,9 @@ package uk.ac.gda.arpes.calculator;
 import java.util.Arrays;
 import java.util.List;
 
-import uk.ac.gda.arpes.scannable.CombinedCaculator;
+import uk.ac.gda.api.virtualaxis.IVirtualAxisCombinedCalculator;
 
-public class SmVertCalculator implements CombinedCaculator {
+public class SmVertCalculator implements IVirtualAxisCombinedCalculator {
 
 	@Override
 	public Double getRBV(List<Double> values) {

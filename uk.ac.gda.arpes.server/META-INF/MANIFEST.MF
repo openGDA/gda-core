@@ -28,8 +28,7 @@ Import-Package: net.sf.cglib.core,
  org.python.core;version="2.5.3",
  org.slf4j;version="1.7.6",
  org.springframework.beans.factory;version="4.0.6.RELEASE"
-Export-Package: uk.ac.gda.arpes.beans;uses:="uk.ac.gda.beans",
- uk.ac.gda.arpes.calculator,
+Export-Package: uk.ac.gda.arpes.calculator,
  uk.ac.gda.arpes.scannable
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework, 
  uk.ac.gda.api,
