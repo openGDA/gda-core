@@ -21,6 +21,8 @@ package gda.device.detector.areadetector.v17.impl;
 import gda.device.detector.areadetector.AreaDetectorBin;
 import gda.device.detector.areadetector.AreaDetectorROI;
 import gda.device.detector.areadetector.v17.ADBase;
+import gda.device.detector.areadetector.v17.ImageMode;
+import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.observable.Observable;
 import gda.observable.ObservableUtil;
 
@@ -463,6 +465,11 @@ public class ADBaseSimulator implements ADBase {
 	}
 
 	@Override
+	public short getDetectorStateLastMonitoredValue() throws Exception {
+		return 0;
+	}
+
+	@Override
 	public short getArrayCallbacks() throws Exception {
 
 		return 0;
@@ -759,7 +766,7 @@ public class ADBaseSimulator implements ADBase {
 	}
 
 	@Override
-	public void setImageModeWait(gda.device.detector.areadetector.v17.ImageMode imagemode) throws Exception {
+	public void setImageModeWait(ImageMode imagemode) throws Exception {
 	}
 
 	@Override
@@ -779,7 +786,7 @@ public class ADBaseSimulator implements ADBase {
 	}
 
 	@Override
-	public void setImageMode(gda.device.detector.areadetector.v17.ImageMode imagemode) throws Exception {
+	public void setImageMode(ImageMode imagemode) throws Exception {
 
 	}
 
@@ -804,7 +811,7 @@ public class ADBaseSimulator implements ADBase {
 	}
 
 	@Override
-	public void setImageModeWait(gda.device.detector.areadetector.v17.ImageMode imagemode, double timeout)
+	public void setImageModeWait(ImageMode imagemode, double timeout)
 			throws Exception {
 	}
 
@@ -813,14 +820,12 @@ public class ADBaseSimulator implements ADBase {
 	}
 
 	@Override
-	public gda.device.detector.areadetector.v17.NDPluginBase.DataType getDataType_RBV2() throws Exception {
-		return gda.device.detector.areadetector.v17.NDPluginBase.DataType.INT8;
+	public NDPluginBase.DataType getDataType_RBV2() throws Exception {
+		return NDPluginBase.DataType.INT8;
 	}
 
 	@Override
 	public void startAcquiringWait() throws Exception {
 		// TODO Auto-generated method stub
-		
 	}
-
 }
