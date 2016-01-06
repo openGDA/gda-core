@@ -675,13 +675,6 @@ public class SimpleXYSeries extends XYSeries {
 	}
 
 	/**
-	 * @return maximum X value of this series
-	 */
-	public double getMaxX() {
-		return maxX;
-	}
-
-	/**
 	 * function to return the min/max X and Y over range of items from start to end
 	 *
 	 * @param start
@@ -743,27 +736,6 @@ public class SimpleXYSeries extends XYSeries {
 		extents[2] = minY;
 		extents[3] = maxY;
 		return extents;
-	}
-
-	/**
-	 * @return maximum Y value of this series
-	 */
-	public double getMaxY() {
-		return maxY;
-	}
-
-	/**
-	 * @return minimum X value of this series
-	 */
-	public double getMinX() {
-		return minX;
-	}
-
-	/**
-	 * @return minimum Y value of this series
-	 */
-	public double getMinY() {
-		return minY;
 	}
 
 	/**
