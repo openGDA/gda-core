@@ -62,7 +62,7 @@ public class HardwareTriggeredAndor extends HardwareTriggeredStandard {
 	@Override
 	public void configureAcquireAndPeriodTimes(double collectionTime) throws Exception {
 		if (data.triggerMode == AndorTriggerMode.EXTERNAL_EXPOSURE) {
-			logger.info("Not configuring aquire period and times as the triggerMode is EXTERNAL_EXPOSURE");
+			logger.info("Not configuring acquire period and times as the triggerMode is EXTERNAL_EXPOSURE");
 			return;
 		}
 		super.configureAcquireAndPeriodTimes(collectionTime);
@@ -79,6 +79,8 @@ public class HardwareTriggeredAndor extends HardwareTriggeredStandard {
 	@Override
 	public void completeCollection() throws Exception {
 		super.completeCollection();
+		//by default the trigger mode used in scans is External_Exposure
+		setTriggerMode(AndorTriggerMode.EXTERNAL_EXPOSURE);
 		getAdBase().setTriggerMode(AndorTriggerMode.INTERNAL.ordinal());
 	}
 }
