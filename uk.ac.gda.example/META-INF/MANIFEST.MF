@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: GDA Example
 Bundle-SymbolicName: uk.ac.gda.example;singleton:=true
-Bundle-Version: 8.50.0.qualifier
+Bundle-Version: 8.52.0.qualifier
 Eclipse-RegisterBuddy: uk.ac.gda.libs, uk.ac.gda.client.experimentdefinition, uk.ac.gda.client
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
