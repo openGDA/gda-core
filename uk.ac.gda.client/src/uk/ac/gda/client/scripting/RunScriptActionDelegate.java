@@ -18,10 +18,6 @@
 
 package uk.ac.gda.client.scripting;
 
-import gda.jython.ICommandRunner;
-import gda.jython.InterfaceProvider;
-import gda.jython.gui.JythonGuiConstants;
-
 import java.io.File;
 
 import org.eclipse.jface.action.IAction;
@@ -29,10 +25,16 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IEditorActionDelegate;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import gda.jython.ICommandRunner;
+import gda.jython.InterfaceProvider;
+import gda.jython.gui.JythonGuiConstants;
 import uk.ac.gda.common.rcp.util.EclipseUtils;
 
 public class RunScriptActionDelegate implements IEditorActionDelegate {
+	private static final Logger logger = LoggerFactory.getLogger(RunScriptActionDelegate.class);
 
 	private IEditorPart ePart;
 	@Override
@@ -49,6 +51,7 @@ public class RunScriptActionDelegate implements IEditorActionDelegate {
 		if (ePart != null){
 			IEditorInput input = ePart.getEditorInput();
 			final File fileToRun = EclipseUtils.getFile(input);
+			logger.info("Running script '{}' from editor", fileToRun);
 			commandRunner.runScript(fileToRun, JythonGuiConstants.TERMINALNAME);
 		}
 	}
