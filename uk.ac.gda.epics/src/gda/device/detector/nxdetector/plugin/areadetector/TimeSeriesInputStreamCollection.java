@@ -74,9 +74,13 @@ class TimeSeriesInputStreamCollection implements PositionInputStream<List<Double
 	}
 
 	public void waitForCompletion() throws InterruptedException {
+		waitForCompletion(Integer.MAX_VALUE);
+	}
+
+	public void waitForCompletion(int framesAcquired) throws InterruptedException {
 		synchronized (completetionMonitor) {
-			if (!complete) {
-				completetionMonitor.wait();
+			while (!complete && numPointsReturned < framesAcquired) {
+				completetionMonitor.wait(100);
 			}
 		}
 	}

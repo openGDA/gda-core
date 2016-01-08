@@ -27,6 +27,7 @@ import gda.device.detector.areadetector.v18.impl.NDStatsPVsImpl;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataDoubleAppender;
 import gda.device.detector.nxdata.NXDetectorDataNullAppender;
+import gda.device.detector.nxdetector.FrameCountingNXPlugin;
 import gda.device.detector.nxdetector.NXPlugin;
 import gda.device.detector.nxdetector.roi.RectangularROI;
 import gda.device.detector.nxdetector.roi.RectangularROIProvider;
@@ -39,7 +40,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-public class ADTimeSeriesStatsPlugin implements NXPlugin, NDPlugin {
+public class ADTimeSeriesStatsPlugin implements NXPlugin, NDPlugin, FrameCountingNXPlugin {
 
 	public static ADTimeSeriesStatsPlugin createFromBasePVName(String pluginName, String basePVName, RectangularROIProvider<Integer> roiProvider) {
 		NDStatsPVs statsPVs = NDStatsPVsImpl.createFromBasePVName(basePVName);
@@ -245,16 +246,22 @@ public class ADTimeSeriesStatsPlugin implements NXPlugin, NDPlugin {
 	}
 
 	@Override
-	public void completeLine() throws Exception {
+	public void completeLine(int framesCollected) throws Exception {
 		if (isOneTimeSeriesCollectionPerLine()){
-			waitForTimeSeriesCollectionCompletion();
+			waitForTimeSeriesCollectionCompletion(framesCollected);
 		}
 	}
 
-	private void waitForTimeSeriesCollectionCompletion() throws InterruptedException {
+	@Override
+	public void completeLine() throws Exception {
+		completeLine(Integer.MAX_VALUE);
+	}
+
+	private void waitForTimeSeriesCollectionCompletion(int framesCollected) throws Exception {
 		if (timeSeriesCollection != null) {
 			try {
-				timeSeriesCollection.waitForCompletion();
+				timeSeriesCollection.waitForCompletion(framesCollected);
+				timeSeriesCollection.stop();
 			} finally {
 				timeSeriesCollection = null;
 			}
@@ -262,11 +269,16 @@ public class ADTimeSeriesStatsPlugin implements NXPlugin, NDPlugin {
 	}
 
 	@Override
-	public void completeCollection() throws Exception {
+	public void completeCollection(int framesCollected) throws Exception {
 		scanInfo = null;
 		if (!isOneTimeSeriesCollectionPerLine()){
-			waitForTimeSeriesCollectionCompletion();
+			waitForTimeSeriesCollectionCompletion(framesCollected);
 		}
+	}
+
+	@Override
+	public void completeCollection() throws Exception {
+		completeCollection(Integer.MAX_VALUE);
 	}
 
 	@Override

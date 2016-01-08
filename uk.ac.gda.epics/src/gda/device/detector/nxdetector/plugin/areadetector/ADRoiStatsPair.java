@@ -24,6 +24,7 @@ import gda.device.detector.areadetector.v18.NDStatsPVs.CentroidStat;
 import gda.device.detector.areadetector.v18.NDStatsPVs.Stat;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorSerialAppender;
+import gda.device.detector.nxdetector.FrameCountingNXPlugin;
 import gda.device.detector.nxdetector.NXPlugin;
 import gda.device.detector.nxdetector.roi.ImutableRectangularIntegerROI;
 import gda.device.detector.nxdetector.roi.RectangularROI;
@@ -42,7 +43,7 @@ import java.util.NoSuchElementException;
  * Enabled if any stats are enabled. If stats are enabled an ROI must have been set. The names of the specidfied roi and
  * stats plugins are ignored in favour of this plugins name (could be revisited--RobW Feb2013).
  */
-public class ADRoiStatsPair implements NXPlugin, RectangularROIProvider<Integer> {
+public class ADRoiStatsPair implements NXPlugin, RectangularROIProvider<Integer>, FrameCountingNXPlugin {
 
 	final private ADRectangularROIPlugin roiPlugin;
 
@@ -194,9 +195,21 @@ public class ADRoiStatsPair implements NXPlugin, RectangularROIProvider<Integer>
 	}
 
 	@Override
+	public void completeLine(int framesCollected) throws Exception {
+		getRoiPlugin().completeLine();
+		getStatsPlugin().completeLine(framesCollected);
+	}
+
+	@Override
 	public void completeCollection() throws Exception {
 		getRoiPlugin().completeCollection();
 		getStatsPlugin().completeCollection();
+	}
+
+	@Override
+	public void completeCollection(int framesCollected) throws Exception {
+		getRoiPlugin().completeCollection();
+		getStatsPlugin().completeCollection(framesCollected);
 	}
 
 	@Override
