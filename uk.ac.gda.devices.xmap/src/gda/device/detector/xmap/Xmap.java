@@ -105,12 +105,24 @@ public class Xmap extends DetectorBase implements XmapDetector, Detector, Scanna
 	public void loadConfigurationFromFile() throws Exception {
 		if (getConfigFileName() == null)
 			return;
+		setParameters((VortexParameters) XMLHelpers.createFromXML(
+					VortexParameters.mappingURL,
+					VortexParameters.class,
+					VortexParameters.schemaURL,
+					getConfigFileName()),
+				true);
+	}
 
-		this.vortexParameters = (VortexParameters) XMLHelpers.createFromXML(VortexParameters.mappingURL,
-				VortexParameters.class, VortexParameters.schemaURL, getConfigFileName());
-		// Number of ROIs defined in XML file.
-		configureRegionsOfInterest(vortexParameters);
-		configureChannelLabels(vortexParameters);
+	public void setParameters(VortexParameters parameters, boolean push) throws Exception {
+		this.vortexParameters = parameters;
+		if (push) {
+			configureRegionsOfInterest(parameters);
+			configureChannelLabels(parameters);
+		}
+	}
+
+	public void setParameters(VortexParameters parameters) throws Exception {
+		setParameters(parameters, true);
 	}
 
 	protected List<String> channelLabels = Collections.emptyList();
