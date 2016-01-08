@@ -487,4 +487,9 @@ public class TangoXmapController extends DeviceBase implements XmapController, I
 		return null;
 	}
 
+	@Override
+	public double[][] getROIParameters(int mcaNumber) throws DeviceException {
+		logger.warn("getROIParameters(int) not implemented in the tango xmap interface");
+		return null;
+	}
 }
