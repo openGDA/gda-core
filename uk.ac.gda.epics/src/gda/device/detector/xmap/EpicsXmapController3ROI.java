@@ -317,6 +317,24 @@ public class EpicsXmapController3ROI extends DeviceBase implements XmapControlle
 		actualNumberOfROIs = actualRois.length;
 	}
 
+	// Literally copy-pasted from EpicsXmapController.getRoiParameters(...)
+	@Override
+	public double[][] getROIParameters(int mcaIndex) throws DeviceException {
+		EDXDElement element = edxdController.getSubDetector(mcaIndex);
+		if (element == null) {
+			throw new IndexOutOfBoundsException("No subelement for index " + mcaIndex + "exists.");
+		}
+		double[] lows = element.getLowROIs();
+		double[] highs = element.getHighROIs();
+		int length = Math.min(lows.length, highs.length); // these should never be different
+		double[][] rois = new double[length][2];
+		for (int i = 0; i < length; i++) {
+			rois[i][0] = lows[i];
+			rois[i][1] = highs[i];
+		}
+		return rois;
+	}
+
 	@Override
 	public void setROIs(double[][] rois) throws DeviceException {
 		for(int i =0; i< numberOfMca; i++)
