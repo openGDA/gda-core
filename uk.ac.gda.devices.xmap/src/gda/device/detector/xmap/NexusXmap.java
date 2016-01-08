@@ -48,6 +48,7 @@ public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
 	private static final Logger logger = LoggerFactory.getLogger(NexusXmap.class);
 	private boolean sumAllElementData = false;
 	private int numberOfElements;
+	private boolean calculateUnifiedRois = false;
 
 	/**
 	 * If true, then always write non-deadtime corrected MCAs to nexus file, irrespective of any other settings.
@@ -98,6 +99,7 @@ public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
 		String[] roiNames = new String[numberOfROIs];
 		double correctedDetData[][] = new double[numFilteredElements][];
 		double reducedDetectorData[][] = new double[numFilteredElements][];
+		double[] unifiedRegionCounts = new double[numberOfROIs];
 
 		// create deadtime corrected values
 		int index = -1;
@@ -144,6 +146,11 @@ public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
 					summation = new double[correctedDetData[index].length];
 				for (int i = 0; i < correctedDetData[index].length; i++) {
 					summation[i] += correctedDetData[index][i];
+				}
+			}
+			if (calculateUnifiedRois) {
+				for (int iroi = 0; iroi < numberOfROIs; iroi++) {
+					unifiedRegionCounts[iroi] += roiCounts[iroi][index];
 				}
 			}
 		}
@@ -220,6 +227,14 @@ public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
 				output.setPlottableValue(getOcrColumnName(element), ocrs[element]);
 			}
 		}
+		if (calculateUnifiedRois) {
+			for (int iRoi = 0; iRoi < numberOfROIs; iRoi++) {
+				DetectorROI roi = vortexParameters.getDetector(0).getRegionList().get(iRoi);
+				NXDetectorData.addData(detTree, roi.getRoiName() + "_ElementSum",
+						new NexusGroupData(unifiedRegionCounts[iRoi]), "counts", 1);
+				output.setPlottableValue(roi.getRoiName(), unifiedRegionCounts[iRoi]);
+			}
+		}
 		if (summation != null)
 			NXDetectorData.addData(detTree, "allElementSum", new NexusGroupData(summation), "counts", 1);
 		return output;
@@ -274,6 +289,14 @@ public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
 				extraNames = (String[]) ArrayUtils.add(extraNames,  getOcrColumnName(element));
 			}
 		}
+		if (calculateUnifiedRois) {
+			DetectorElement repElement = vortexParameters.getDetector(0);
+			int numberOfROIs = repElement.getRegionList().size();
+			for (int i = 0; i < numberOfROIs; i++) {
+				final DetectorROI roi = repElement.getRegionList().get(i);
+				extraNames = (String[]) ArrayUtils.add(extraNames, roi.getRoiName());
+			}
+		}
 		return extraNames;
 	}
 
@@ -299,6 +322,14 @@ public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
 
 	public boolean isSumAllElementData() {
 		return sumAllElementData;
+	}
+
+	public boolean isCaclulateUnifiedRois() {
+		return calculateUnifiedRois;
+	}
+
+	public void setCalculateUnifiedRois(boolean calculateUnifiedRois) {
+		this.calculateUnifiedRois = calculateUnifiedRois;
 	}
 
 	public boolean isAlwaysRecordRawMCAs() {
