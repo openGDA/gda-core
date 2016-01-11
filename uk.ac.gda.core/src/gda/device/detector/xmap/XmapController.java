@@ -244,4 +244,6 @@ public interface XmapController  extends Device, Configurable, Findable{
 	 * @throws DeviceException
 	 */
 	public double[] getROIs(int mcaNumber, int[][]data) throws DeviceException;
+
+	public double[][] getROIParameters(int mcaNumber) throws DeviceException;
 }

@@ -206,6 +206,11 @@ public class DummyXmapController extends DetectorBase implements XmapController 
 	}
 
 	@Override
+	public double[][] getROIParameters(int mcaNumber) throws DeviceException {
+		return new double[][] {};
+	}
+
+	@Override
 	public void deleteROIs(int mcaIndex) throws DeviceException {
 		actualNumberOfROIs = 0;
 	}
