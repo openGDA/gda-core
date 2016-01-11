@@ -18,6 +18,12 @@
 
 package org.opengda.detector.electronanalyser.nxdetector;
 
+import gda.configuration.properties.LocalProperties;
+import gda.data.NumTracker;
+import gda.data.PathConstructor;
+import gda.data.scan.datawriter.NexusDataWriter;
+import gda.jython.InterfaceProvider;
+
 import java.io.File;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -28,12 +34,6 @@ import org.eclipse.dawnsci.nexus.NexusFile;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import gda.configuration.properties.LocalProperties;
-import gda.data.NumTracker;
-import gda.data.PathConstructor;
-import gda.data.scan.datawriter.NexusDataWriter;
-import gda.jython.InterfaceProvider;
 
 public class NexusDataWriterExtension extends NexusDataWriter {
 	private static final Logger logger = LoggerFactory
@@ -145,7 +145,7 @@ public class NexusDataWriterExtension extends NexusDataWriter {
 		return null;
 	}
 
-	class RegionFileMapper {
+	public class RegionFileMapper {
 		private String regionName;
 		private String URL;
 		private NexusFile nxFile;
