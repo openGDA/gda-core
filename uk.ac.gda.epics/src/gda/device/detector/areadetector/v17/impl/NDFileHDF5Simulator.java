@@ -340,4 +340,13 @@ public class NDFileHDF5Simulator implements NDFileHDF5 {
 	public int getBoundaryAlign() throws Exception {
 		return 0;
 	}
+
+	@Override
+	public int getAttrByDim() throws Exception {
+		return 0;
+	}
+
+	@Override
+	public void setAttrByDim(int attrByDim) throws Exception {
+	}
 }
