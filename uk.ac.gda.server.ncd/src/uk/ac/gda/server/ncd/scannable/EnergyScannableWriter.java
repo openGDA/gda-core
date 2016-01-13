@@ -18,7 +18,6 @@
 
 package uk.ac.gda.server.ncd.scannable;
 
-import gda.data.nexus.NexusUtils;
 import gda.data.scan.datawriter.SelfCreatingLink;
 import gda.data.scan.datawriter.scannablewriter.NumberComponentWriter;
 import gda.data.scan.datawriter.scannablewriter.SingleScannableWriter;
@@ -27,8 +26,9 @@ import java.util.Collection;
 
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
 import org.eclipse.dawnsci.analysis.api.tree.Node;
-import org.eclipse.dawnsci.hdf5.nexus.NexusException;
-import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
+import org.eclipse.dawnsci.nexus.NexusException;
+import org.eclipse.dawnsci.nexus.NexusFile;
+import org.eclipse.dawnsci.nexus.NexusUtils;
 
 public class EnergyScannableWriter extends SingleScannableWriter {
 
