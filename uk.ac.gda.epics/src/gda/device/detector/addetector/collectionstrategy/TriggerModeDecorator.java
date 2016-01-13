@@ -30,16 +30,36 @@ import gda.scan.ScanInformation;
  */
 public class TriggerModeDecorator extends AbstractADCollectionStrategyDecorator {
 
+	private boolean restoreTriggerMode = false;
+	private int savedTriggerMode;
+
 	private int triggerMode;
 	private boolean triggerModeSet = false;
 
 	// NXCollectionStrategyPlugin interface
 
 	@Override
-	public void prepareForCollection(double collectionTime, int numberImagesPerCollection, ScanInformation scanInfo) 
-			throws Exception {
+	protected void rawPrepareForCollection(double collectionTime, int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
 		getAdBase().setTriggerMode(triggerMode);
 		getDecoratee().prepareForCollection(collectionTime, numberImagesPerCollection, scanInfo);
+	}
+
+	// CollectionStrategyBeanInterface
+
+	@Override
+	public void saveState() throws Exception {
+		getDecoratee().saveState();
+		if (restoreTriggerMode) {
+			savedTriggerMode = getAdBase().getTriggerMode();
+		}
+	}
+
+	@Override
+	public void restoreState() throws Exception {
+		if (restoreTriggerMode) {
+			getAdBase().setTriggerMode(savedTriggerMode);
+		}
+		getDecoratee().restoreState();
 	}
 
 	// InitializingBean interface
@@ -60,5 +80,13 @@ public class TriggerModeDecorator extends AbstractADCollectionStrategyDecorator 
 		errorIfPropertySetAfterBeanConfigured("triggerMode");
 		this.triggerMode = triggerMode;
 		this.triggerModeSet = true;
+	}
+
+	public boolean getRestoreTriggerMode() {
+		return restoreTriggerMode;
+	}
+
+	public void setRestoreTriggerMode(boolean restoreTriggerMode) {
+		this.restoreTriggerMode = restoreTriggerMode;
 	}
 }

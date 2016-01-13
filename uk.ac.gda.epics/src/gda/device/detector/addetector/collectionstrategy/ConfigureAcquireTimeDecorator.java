@@ -23,9 +23,7 @@ import gda.scan.ScanInformation;
 public class ConfigureAcquireTimeDecorator extends AbstractADCollectionStrategyDecorator {
 
 	@Override
-	public void prepareForCollection(double collectionTime, int numberImagesPerCollection, ScanInformation scanInfo)
-			throws Exception {
-
+	protected void rawPrepareForCollection(double collectionTime, int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
 		getAdBase().setAcquireTime(collectionTime);
 
 		super.prepareForCollection(collectionTime, numberImagesPerCollection, scanInfo);

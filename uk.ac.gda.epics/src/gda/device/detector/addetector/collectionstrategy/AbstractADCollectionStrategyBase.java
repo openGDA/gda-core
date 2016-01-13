@@ -22,7 +22,7 @@ import gda.device.DeviceException;
 import gda.device.detector.addetector.triggering.AbstractADTriggeringStrategy;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
-import gda.device.detector.nxdetector.CollectionStrategyBeanInterface;
+import gda.device.detector.nxdetector.CollectionStrategyDecoratableBase;
 import gda.scan.ScanInformation;
 
 import java.util.List;
@@ -34,7 +34,7 @@ import java.util.NoSuchElementException;
  * used by delegation rather than by inheritance in order to keep the inheritance hierarchy of the new composition system collection strategies separate from
  * old-style strategies.
  */
-public abstract class AbstractADCollectionStrategyBase implements CollectionStrategyBeanInterface {
+public abstract class AbstractADCollectionStrategyBase extends CollectionStrategyDecoratableBase {
 
 	// NXCollectionStrategyPlugin interface
 

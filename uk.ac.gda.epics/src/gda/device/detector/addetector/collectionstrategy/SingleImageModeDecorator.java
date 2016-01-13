@@ -26,10 +26,40 @@ import gda.scan.ScanInformation;
  */
 public class SingleImageModeDecorator extends AbstractADCollectionStrategyDecorator {
 
+	private boolean restoreNumImagesAndImageMode = false;
+
+	private int savedNumImages;
+	private short savedImageMode;
+
+	// CollectionStrategyBeanInterface interface
+
+	@Override
+	public void saveState() throws Exception {
+		getDecoratee().saveState();
+		if (restoreNumImagesAndImageMode) {
+			savedNumImages = getAdBase().getNumImages();
+			savedImageMode = getAdBase().getImageMode();
+		}
+	}
+
+	@Override
+	public void restoreState() throws Exception {
+		if (restoreNumImagesAndImageMode) {
+			final int acquireStatus = getAdBase().getAcquireState();
+			getAdBase().stopAcquiring();
+			getAdBase().setNumImages(savedNumImages);
+			getAdBase().setImageMode(savedImageMode);
+			if (acquireStatus == 1) {
+				getAdBase().startAcquiring();
+			}
+		}
+		getDecoratee().restoreState();
+	}
+
 	// NXCollectionStrategyPlugin interface
 
 	@Override
-	public void prepareForCollection(double collectionTime, int numberImagesPerCollection, ScanInformation scanInfo)
+	protected void rawPrepareForCollection(double collectionTime, int numberImagesPerCollection, ScanInformation scanInfo)
 			throws Exception {
 		if (numberImagesPerCollection != 1) {
 			throw new IllegalArgumentException("This single exposure triggering strategy expects to expose only 1 image");
@@ -42,5 +72,15 @@ public class SingleImageModeDecorator extends AbstractADCollectionStrategyDecora
 	@Override
 	public int getNumberImagesPerCollection(double collectionTime) throws Exception {
 		return 1;
+	}
+
+	// Class properties
+
+	public boolean getRestoreNumImagesAndImageMode() {
+		return restoreNumImagesAndImageMode;
+	}
+
+	public void setRestoreNumImagesAndImageMode(boolean restoreNumImagesAndImageMode) {
+		this.restoreNumImagesAndImageMode = restoreNumImagesAndImageMode;
 	}
 }

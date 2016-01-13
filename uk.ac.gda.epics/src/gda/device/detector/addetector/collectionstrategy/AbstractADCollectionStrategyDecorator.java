@@ -27,7 +27,7 @@ import java.util.List;
  * This class is intended as the base class for all Area Detector Collection Strategy Decorators. It adds the ability to get the
  * ADBase of the object being decorated, so requires it to be an Area Detector Collection Strategy.
  */
-public class AbstractADCollectionStrategyDecorator extends AbstractCollectionStrategyDecorator {
+public abstract class AbstractADCollectionStrategyDecorator extends AbstractCollectionStrategyDecorator {
 
 	private ADBase adBaseCache;
 

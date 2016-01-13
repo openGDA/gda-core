@@ -57,16 +57,15 @@ public class AutoSummingProcessDecorator extends AbstractADCollectionStrategyDec
 	}
 
 	@Override
-	public void prepareForCollection(double collectionTime, int numberImagesPerCollection, ScanInformation scanInfo)
-			throws Exception {
-		logger.trace("prepareForCollection({}, {}, {})", collectionTime, numberImagesPerCollection, scanInfo);
+	protected void rawPrepareForCollection(double collectionTime, int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
+		logger.trace("rawPrepareForCollection({}, {}, {})", collectionTime, numberImagesPerCollection, scanInfo);
 		if (numberImagesPerCollection != getDecoratee().getNumberImagesPerCollection(collectionTime))
-			logger.warn("numberImagesPerCollection {} not equal to getDecoratee().getNumberImagesPerCollection({})",
-					numberImagesPerCollection, collectionTime, getDecoratee().getNumberImagesPerCollection(collectionTime));
+			logger.warn("numberImagesPerCollection {} not equal to getDecoratee().getNumberImagesPerCollection({})", numberImagesPerCollection, collectionTime,
+					getDecoratee().getNumberImagesPerCollection(collectionTime));
 
 		int totalImagesPerCollection = calcNumberImagesPerCollection(collectionTime);
 
-		if( ndProcess != null){
+		if (ndProcess != null) {
 			ndProcess.setFilterType(NDProcess.FilterTypeV1_8_Sum);
 			ndProcess.setNumFilter(totalImagesPerCollection);
 			ndProcess.setAutoResetFilter(1);
