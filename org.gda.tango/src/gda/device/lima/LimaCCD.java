@@ -538,5 +538,7 @@ public interface LimaCCD extends Base {
 	String[] getDebugTypes() throws DevFailed;
 
 	void setDebugTypes(String[] debugTypes) throws DevFailed;
+	int getLastCounterReady() throws DevFailed;
+	int getLastImageAcquired() throws DevFailed;
 
 }
