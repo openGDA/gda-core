@@ -18,7 +18,7 @@ public class ExcaliburNDArraySimulator extends NDBaseImpl implements NDArray {
 	double centre=0.;
 	double width=1.;
 	boolean reportSCurve=false;
-	
+
 	/**
 	 * @return Returns the reportSCurve.
 	 * If false the data for each pixel is the value of a Gaussian
@@ -38,7 +38,7 @@ public class ExcaliburNDArraySimulator extends NDBaseImpl implements NDArray {
 	 * Back door to threshold scannable  being scanned - to allow the simulation to know the position in the scan
 	 */
 	Scannable threshold;
-	
+
 	/**
 	 * @return Returns the threshold.
 	 */
@@ -52,11 +52,11 @@ public class ExcaliburNDArraySimulator extends NDBaseImpl implements NDArray {
 		this.threshold = threshold;
 	}
 
-	
-	List<ExcaliburReadoutNodeFem> fems;
-	
 
-	
+	List<ExcaliburReadoutNodeFem> fems;
+
+
+
 	/**
 	 * @return Returns the fems.
 	 */
@@ -95,7 +95,7 @@ public class ExcaliburNDArraySimulator extends NDBaseImpl implements NDArray {
 	public short[] getShortArrayData(int numberOfElements) throws Exception {
 		int w = getPluginBase().getArraySize0_RBV();
 		int h = getPluginBase().getArraySize1_RBV();
-		
+
 		if( widthUsed != w || heightUsed != h || heights==null){
 			handleWidthHeight(w, h);
 		}
@@ -119,7 +119,7 @@ public class ExcaliburNDArraySimulator extends NDBaseImpl implements NDArray {
 				}
 			}
 		}
-		
+
 		return ldata;
 	}
 
@@ -131,7 +131,7 @@ public class ExcaliburNDArraySimulator extends NDBaseImpl implements NDArray {
 	int widthUsed=-1;
 	int heightUsed=-1;
 	List<Integer> deadRows;
-	
+
 	public List<Integer> getDeadRows() {
 		return deadRows;
 	}
@@ -145,7 +145,7 @@ public class ExcaliburNDArraySimulator extends NDBaseImpl implements NDArray {
 */
 		int w = getPluginBase().getArraySize0_RBV();
 		int h = getPluginBase().getArraySize1_RBV();
-		
+
 		if( widthUsed != w || heightUsed != h || heights==null){
 			handleWidthHeight(w, h);
 		}
@@ -169,7 +169,7 @@ public class ExcaliburNDArraySimulator extends NDBaseImpl implements NDArray {
 				}
 			}
 		}
-		
+
 		return ldata;
 	}
 
@@ -177,7 +177,7 @@ public class ExcaliburNDArraySimulator extends NDBaseImpl implements NDArray {
 	double[] widths;
 	double[] centres;
 	NormalDistribution[] distributions;
-	
+
 	private double heightRandomFactor=0.1;
 	private double widthRandomFactor=0.1;
 	private double centreRandomFactor=0.1;
@@ -212,7 +212,7 @@ public class ExcaliburNDArraySimulator extends NDBaseImpl implements NDArray {
 		centres = new double[w*h];
 		distributions = new NormalDistribution[w*h];
 		for (int i = 0; i < w; i++) {
-			for (int j = 0; j < h; j++) { 
+			for (int j = 0; j < h; j++) {
 				heights[i*h +j] = height*Math.max(0.001,(1 + heightRandomFactor*heightRandomizer.nextGaussian()));
 				widths[i*h +j] = width*Math.max(0.001,(1 + widthRandomFactor*widthRandomizer.nextGaussian()));
 				centres[i*h +j] = centre*Math.max(0.001,(1 + centreRandomFactor*centreRandomizer.nextGaussian()));
@@ -221,7 +221,7 @@ public class ExcaliburNDArraySimulator extends NDBaseImpl implements NDArray {
 		}
 		widthUsed = w;
 		heightUsed = h;
-		
+
 	}
 	@Override
 	public float[] getFloatArrayData(int numberOfElements) throws Exception {
@@ -247,5 +247,15 @@ public class ExcaliburNDArraySimulator extends NDBaseImpl implements NDArray {
 		throw new UnsupportedOperationException("getImageData is supported");
 	}
 
-	
+	@Override
+	public double[] getDoubleArrayData(int numberOfElements) throws Exception {
+		throw new UnsupportedOperationException("Only getIntArrayData is supported");
+	}
+
+	@Override
+	public double[] getDoubleArrayData() throws Exception {
+		throw new UnsupportedOperationException("Only getIntArrayData is supported");
+	}
+
+
 }
