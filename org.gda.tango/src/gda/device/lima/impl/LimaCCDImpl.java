@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
 public class LimaCCDImpl extends BaseImpl implements LimaCCD, InitializingBean {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(LimaCCDImpl.class);
 
 	static final String ACQ_STATUS_VAL_FAULT = "Fault";
@@ -154,7 +154,7 @@ public class LimaCCDImpl extends BaseImpl implements LimaCCD, InitializingBean {
 	public double[] getCameraPixelSize() throws DevFailed {
 		return getTangoDeviceProxy().getAttributeAsDoubleArray(ATTRIBUTE_CAMERA_PIXEL_SIZE);
 	}
-	
+
 	@Override
 	public String getCameraModel() throws DevFailed {
 		return getTangoDeviceProxy().getAttributeAsString(ATTRIBUTE_CAMERA_MODEL);
@@ -513,7 +513,7 @@ public class LimaCCDImpl extends BaseImpl implements LimaCCD, InitializingBean {
 	@Override
 	public String getShutterManualState() throws DevFailed {
 		return getTangoDeviceProxy().getAttributeAsString(ATTRIBUTE_SHUTTER_MANUAL_STATE);
-		
+
 	}
 	@Override
 	public void setShutterManualState(String value) throws DevFailed{
@@ -716,6 +716,8 @@ public class LimaCCDImpl extends BaseImpl implements LimaCCD, InitializingBean {
 	public int getLastImageAcquired() throws DevFailed {
 		return getTangoDeviceProxy().getAttributeAsInt(ATTRIBUTE_LAST_IMAGE_ACQUIRED);
 	}
+
+	@Override
 	public boolean getReadyForNextImage() throws DevFailed {
 		return getTangoDeviceProxy().getAttributeAsBoolean(ATTRIBUTE_READY_FOR_NEXT_IMAGE);
 	}
