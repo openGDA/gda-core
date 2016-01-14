@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Microfocus API
+Bundle-SymbolicName: uk.ac.diamond.daq.microfocus.api
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: Diamond Light Source Ltd
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: uk.ac.gda.server.exafs,
+ uk.ac.gda.exafs.api
+Export-Package: uk.ac.diamond.daq.microfocus.api
