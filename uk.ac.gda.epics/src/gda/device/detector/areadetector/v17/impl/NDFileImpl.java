@@ -31,7 +31,6 @@ import gda.epics.connection.EpicsController;
 import gda.epics.interfaces.NDFileType;
 import gda.factory.FactoryException;
 import gda.observable.Observable;
-import gda.util.Sleep;
 import gov.aps.jca.CAException;
 import gov.aps.jca.CAStatus;
 import gov.aps.jca.Channel;
@@ -750,7 +749,7 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 	public void startCaptureSynchronously() throws Exception {
 		startCapture();
 		while (getStatus() != Detector.IDLE) {
-			Sleep.sleep(100);
+			Thread.sleep(100);
 		}
 	}
 
@@ -765,7 +764,7 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 			// If the acquisition state is busy then wait for it to complete.
 			while (getCapture() == 1) {
 				logger.info("sleeping for 25");
-				Sleep.sleep(25);
+				Thread.sleep(25);
 			}
 			setStatus(Detector.IDLE);
 		} catch (Exception e) {

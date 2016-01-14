@@ -37,7 +37,6 @@ import gda.epics.interfaces.ADBaseType;
 import gda.factory.FactoryException;
 import gda.observable.Observable;
 import gda.observable.Predicate;
-import gda.util.Sleep;
 import gov.aps.jca.CAException;
 import gov.aps.jca.CAStatus;
 import gov.aps.jca.Channel;
@@ -1382,7 +1381,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	public void startAcquiringWait() throws Exception {
 		startAcquiring();
 		while (getStatus() != Detector.IDLE && getStatus() != Detector.FAULT) {
-			Sleep.sleep(100);
+			Thread.sleep(100);
 		}
 		if (getStatus() == Detector.FAULT) {
 			logger.debug("detector in a fault state");
@@ -1394,7 +1393,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 		int countBefore = getArrayCounter_RBV();
 		startAcquiring();
 		while (getStatus() != Detector.IDLE && getStatus() != Detector.FAULT) {
-			Sleep.sleep(100);
+			Thread.sleep(100);
 			if( getAcquireState()==0)
 				throw new Exception("Camera is not acquiring but putListener has not been called");
 		}
@@ -1420,7 +1419,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 		} finally {
 			// If the acquisition state is busy then wait for it to complete.
 			while (getAcquireState() == 1) {
-				Sleep.sleep(25);
+				Thread.sleep(25);
 			}
 			setStatus(Detector.IDLE);
 			logger.info("Stopping detector acquisition");
