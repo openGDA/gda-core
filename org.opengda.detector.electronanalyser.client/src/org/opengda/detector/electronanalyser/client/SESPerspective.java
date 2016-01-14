@@ -1,5 +1,7 @@
 package org.opengda.detector.electronanalyser.client;
 
+import gda.rcp.views.JythonTerminalView;
+
 import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
@@ -13,8 +15,6 @@ import org.opengda.detector.electronanalyser.client.views.SequenceView;
 import org.opengda.detector.electronanalyser.client.views.SlicesView;
 import org.opengda.detector.electronanalyser.client.views.SpectrumView;
 
-import gda.rcp.views.JythonTerminalView;
-import gda.util.Sleep;
 import uk.ac.gda.client.liveplot.LivePlotView;
 import uk.ac.gda.client.scripting.JythonPerspective;
 
@@ -89,15 +89,12 @@ public class SESPerspective implements IPerspectiveFactory {
 			IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 			IViewPart view = page.findView(IMAGEVIEW);
 			view.setFocus();
-			Sleep.sleep(1000);
 			layout.addView(SLICEVIEW, IPageLayout.BOTTOM, 0.5f, IMAGEVIEW);
 			view = page.findView(SLICEVIEW);
 			view.setFocus();
-			Sleep.sleep(1000);
 			layout.addView(EXTERNALIOVIEW, IPageLayout.BOTTOM, 0.5f, SPECTRUMVIEW);
 			view = page.findView(EXTERNALIOVIEW);
 			view.setFocus();
-			Sleep.sleep(1000);
 		} else if (ElectronAnalyserClientPlugin.TILE_HORIZONTAL.equals(plotLayoutString)) {
 			layout.addView(IMAGEVIEW, IPageLayout.RIGHT, 0.25f, SPECTRUMVIEW);
 			IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
