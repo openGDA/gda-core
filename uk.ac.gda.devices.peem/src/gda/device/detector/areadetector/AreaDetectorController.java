@@ -27,7 +27,6 @@ import gda.device.DeviceException;
 import gda.device.detector.DetectorBase;
 import gda.device.scannable.ScannableUtils;
 import gda.factory.FactoryException;
-import gda.util.Sleep;
 import gov.aps.jca.CAException;
 import gov.aps.jca.TimeoutException;
 
@@ -47,7 +46,7 @@ public class AreaDetectorController extends DetectorBase implements Detector {
 	protected EpicsAreaDetectorROI        areaDetectorROI;
 	protected EpicsAreaDetectorFileSave   fullFrameSaver;
 	protected EPICSAreaDetectorImage      image;
-	
+
 	// New Parameters
 	long aquisitionStartTime = 0;
 	long pauseTime = 0;
@@ -59,7 +58,7 @@ public class AreaDetectorController extends DetectorBase implements Detector {
 	protected String localFilePath;
 
 	protected String newImageDir = null;
-	
+
 	protected Integer idlePollTime_ms	= 100;
 
 	public EpicsAreaDetector getAreaDetector() {
@@ -108,7 +107,7 @@ public class AreaDetectorController extends DetectorBase implements Detector {
 
 	public void setLocalFilePath(String localFilePath) {
 		this.localFilePath = localFilePath;
-	}	
+	}
 
 	// Methods for configurable interface and the reset method
 	@Override
@@ -137,8 +136,8 @@ public class AreaDetectorController extends DetectorBase implements Detector {
 		areaDetector.setArrayCounter(0);
 		// set to single images
 		areaDetector.setImageMode(0);
-		
-		
+
+
 	}
 
 	public void resetAll() throws CAException, InterruptedException{
@@ -146,22 +145,22 @@ public class AreaDetectorController extends DetectorBase implements Detector {
 		areaDetectorROI.reset();
 		fullFrameSaver.reset();
 		image.reset();
-		reset();		
+		reset();
 	}
 
 	public void enableAll() throws CAException, InterruptedException {
-		// Frame Saver 
+		// Frame Saver
 		fullFrameSaver.setEnable(true);
 		fullFrameSaver.startCapture();
-		
+
 		// Make sure the preview channel is also available
 		image.setEnable(true);
-		
+
 		// ROI Elements
 		areaDetectorROI.setEnable(true);
 	}
 
-	
+
 	public void trigger() throws CAException, InterruptedException {
 		areaDetector.acquire();
 	}
@@ -169,7 +168,7 @@ public class AreaDetectorController extends DetectorBase implements Detector {
 	public void prepare() throws DeviceException {
 		try {
 			// and sort out the real place to save to
-			enableAll();	
+			enableAll();
 			fullImageLocation = getImageFolder();
 			setFileSaverParameters(fullImageLocation);
 		} catch (Exception e) {
@@ -189,7 +188,7 @@ public class AreaDetectorController extends DetectorBase implements Detector {
 			prepare();
 			Thread.sleep(10);// wait a while to let the camera prepare itself.
 			this.collectData();
-			
+
 			do {
 				status = this.getStatus();
 				if (status == Detector.IDLE) {
@@ -198,31 +197,31 @@ public class AreaDetectorController extends DetectorBase implements Detector {
 				}
 				Thread.sleep(100);
 			} while (status == Detector.BUSY);
-			
+
 		} catch (Exception e) {
 			throw new DeviceException("Failed to use AreaDetector to take a single image ",e);
 		}
 
 	}
-	
-	
+
+
 	@Override
 	public void prepareForCollection() throws DeviceException {
 		this.prepare();
 	}
-	
+
 	@Override
 	public void asynchronousMoveTo(Object collectionTime) throws DeviceException {
 		throwExceptionIfInvalidTarget(collectionTime);
 		Double[] collectionTimeArray = ScannableUtils.objectToArray(collectionTime);
-		
+
 		setCollectionTime(collectionTimeArray[0]);
-		
+
 		prepare();
-		
+
 		collectData();
 	}
-	
+
 	// Methods which are required for the Detector Interface
 	@Override
 	public boolean createsOwnFiles() throws DeviceException {
@@ -244,7 +243,7 @@ public class AreaDetectorController extends DetectorBase implements Detector {
 	public String getDetectorType() throws DeviceException {
 		return "Area Detector" ;
 	}
-	
+
 	@Override
 	public double getCollectionTime() {
 		try {
@@ -268,14 +267,14 @@ public class AreaDetectorController extends DetectorBase implements Detector {
 	}
 
 	@Override
-	public int getStatus() throws DeviceException {	
+	public int getStatus() throws DeviceException {
 		try {
 			if(areaDetector.getState().equalsIgnoreCase("1")) {
 				return Detector.BUSY;
 			}
 		} catch (Exception e) {
 			throw new DeviceException("Failure to get Area Detector Status",e);
-		} 
+		}
 
 		return Detector.IDLE;
 	}
@@ -304,17 +303,17 @@ public class AreaDetectorController extends DetectorBase implements Detector {
 			while(!state.equalsIgnoreCase("0")) {
 				logger.debug("State of the camera is {}",state);
 				state = areaDetector.getState();
-				Sleep.sleep(idlePollTime_ms);				
+				Thread.sleep(idlePollTime_ms);
 			}
 
-			// Having some issues with the camera, so adding in a small sleep here, 
+			// Having some issues with the camera, so adding in a small sleep here,
 			// running the camera more slowly seems to help with EPICS so might be
 			// an issue of the commands coming through too quickly with the new 10G
 			// Card
 
 //			areaDetector.acquire();
 			trigger();
-			
+
 			nextImageNumber++;
 
 			// now sleep for a small period to let the detector set itself to busy
@@ -323,28 +322,28 @@ public class AreaDetectorController extends DetectorBase implements Detector {
 		} catch (Exception e) {
 			throw new DeviceException("Failed to collec data from the Area Detector",e);
 		}
-		
-		
+
+
 		aquisitionStartTime = System.currentTimeMillis();
 
 	}
 
-	
+
 	@Override
 	public Object readout() throws DeviceException {
 
-		String output; 		
+		String output;
 
 		try {
-			String absolutePath = fullImageLocation.getAbsolutePath();			
+			String absolutePath = fullImageLocation.getAbsolutePath();
 			String fileName = fullFrameSaver.getFileName();
 			fileName = fileName.trim();
-			
+
 			output = String.format(fullFrameSaver.getFileTemplate(), absolutePath, fileName, nextImageNumber-1);
 
 			// To register the file for auto backup
 			//FileRegistrarHelper.registerFile(output);
-			
+
 		} catch (Exception e) {
 			throw new DeviceException("Failure to readout PIXIS detector",e);
 		}
@@ -357,22 +356,22 @@ public class AreaDetectorController extends DetectorBase implements Detector {
 	public void atScanStart() throws DeviceException {
 
 		logger.debug("Starting Area Detector.AtScanStart");
-		
+
 		// first thing to do is stop the preview if its still running
 		try {
 			stopPreview();
 		} catch (Exception e) {
 			throw new DeviceException("Failed to stop preview",e);
-		} 
-		
+		}
+
 		pauseTime = 2000;
-		
+
 		try {
 			prepare();
-			
+
 			// wait a while to let the camera prepare itself.
 			Thread.sleep(100);
-			
+
 		} catch (Exception e) {
 			throw new DeviceException("Failed to cause Area Detector to setup for scan",e);
 		}
@@ -388,12 +387,12 @@ public class AreaDetectorController extends DetectorBase implements Detector {
 	@Override
 	public void stop() throws DeviceException {
 
-		stopAndCopy();	
+		stopAndCopy();
 		try {
 			stopPreview();
 		} catch (Exception e) {
 			throw new DeviceException("Failed to cause PCO to setup for scan",e);
-		} 
+		}
 	}
 
 	private void stopAndCopy() throws DeviceException {
@@ -407,7 +406,7 @@ public class AreaDetectorController extends DetectorBase implements Detector {
 //				Runtime rt = Runtime.getRuntime();
 //				Process p = rt.exec(String.format("/dls_sw/i12/software/gda/config/bin/transfer.sh %s", fullImageLocation.getAbsolutePath()));
 //				InterfaceProvider.getTerminalPrinter().print("Copying data to Central Storage");
-//				p.waitFor();		
+//				p.waitFor();
 //			}
 
 		} catch (Exception e) {
@@ -436,16 +435,16 @@ public class AreaDetectorController extends DetectorBase implements Detector {
 
 	/**
 	 * Find the image folder based on the current scan run number. If necessary create a new one.
-	 * @throws InterruptedException 
-	 * @throws CAException 
-	 * @throws IOException 
+	 * @throws InterruptedException
+	 * @throws CAException
+	 * @throws IOException
 	 */
 	public File getImageFolder() throws CAException, InterruptedException, IOException {
 		NumTracker runs=null;
 		runs = new NumTracker("tmp");
 		long nextNum = 0L + runs.getCurrentFileNumber();
-		
-		
+
+
 		newImageDir = PathConstructor.createFromDefaultProperty() + File.separator + nextNum + "_PixisImage";
 
 		File fd = new File(newImageDir);
@@ -457,30 +456,30 @@ public class AreaDetectorController extends DetectorBase implements Detector {
 		}
 		return fd;
 	}
-	
-	
+
+
 	public void setFileSaverParameters(File filePath) throws CAException, InterruptedException {
 		// make the change for the windows filesystem and mount
 		// TODO Definatly parameterise this
-		
+
 		String dataDirGDA = LocalProperties.get("gda.data.directoryMappingGDA");
 		String dataDirDet = LocalProperties.get("gda.data.directoryMappingDetector");
-		
+
 		String filePathString = filePath.getAbsolutePath().replace(dataDirGDA, dataDirDet);
 		fullFrameSaver.setFilePath(filePathString);
 	}
 
-	
+
 	public void waitForIdle() throws TimeoutException, CAException, InterruptedException {
 		String state = areaDetector.getState();
 		while(!state.equalsIgnoreCase("0")) {
 			logger.debug("State of the camera is {}",state);
 			state = areaDetector.getState();
-			Sleep.sleep(idlePollTime_ms);				
+			Thread.sleep(idlePollTime_ms);
 		}
 	}
 
-	
+
 	public void preview(double collectionTime) throws CAException, InterruptedException, DeviceException {
 		// stop the camera first
 		areaDetector.stop();
@@ -488,7 +487,7 @@ public class AreaDetectorController extends DetectorBase implements Detector {
 		// make sure all the data savers are off
 		// disable the savers the savers
 		fullFrameSaver.setEnable(false);
-		
+
 		// make sure everything is set up
 		areaDetectorROI.setEnable(true);
 		image.setEnable(true);
@@ -509,16 +508,16 @@ public class AreaDetectorController extends DetectorBase implements Detector {
 		}
 		trigger();
 	}
-	
+
 
 	private void stopPreview() throws CAException, InterruptedException{
 		// stop the camera
 		areaDetector.stop();
 
 		// turn off the live view
-//		live.stop();		
+//		live.stop();
 	}
 
-	
+
 }
 
