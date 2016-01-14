@@ -19,17 +19,33 @@
 
 package gda.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
+ * <p>
+ * This class is deprecated and should not be used! See <a href="http://jira.diamond.ac.uk/browse/GDA-6241">GDA-6241</a>
+ * </p>
+ * <p>
  * A utility class which allows easy sleeping.
+ * </p>
  */
+@Deprecated
 public class Sleep {
+	private static final Logger logger = LoggerFactory.getLogger(Sleep.class);
+
 	/**
+	 * This method is deprecated and should not be used! See <a href="http://jira.diamond.ac.uk/browse/GDA-6241">GDA-6241</a>. Typically use
+	 * {@link Thread#sleep(long)} directly instead.
+	 *
 	 * @param milliSecs
 	 */
+	@Deprecated
 	public static void sleep(int milliSecs) {
 		try {
 			Thread.sleep(milliSecs);
 		} catch (InterruptedException ex) {
+			logger.error("InterruptedException was swallowed. The call to this method should be removed!", ex);
 		}
 	}
 }
