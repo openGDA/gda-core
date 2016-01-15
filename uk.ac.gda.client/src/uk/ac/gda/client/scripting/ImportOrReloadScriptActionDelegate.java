@@ -30,7 +30,7 @@ import gda.jython.ICommandRunner;
 import gda.jython.InterfaceProvider;
 import uk.ac.gda.common.rcp.util.EclipseUtils;
 
-public class ReloadScriptActionDelegate implements IEditorActionDelegate {
+public class ImportOrReloadScriptActionDelegate implements IEditorActionDelegate {
 
 	private IEditorPart ePart;
 	private ICommandRunner commandRunner = InterfaceProvider.getCommandRunner();
