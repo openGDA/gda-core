@@ -31,10 +31,10 @@ import gda.device.scannable.RealPositionReader;
 import gda.jython.scriptcontroller.ScriptControllerBase;
 import gda.jython.scriptcontroller.logging.LoggingScriptController;
 import junit.framework.Assert;
+import uk.ac.diamond.daq.microfocus.api.RasterMapDetectorPreparer;
 import uk.ac.gda.client.microfocus.scan.FasterRasterMap;
 import uk.ac.gda.client.microfocus.scan.MapFactory;
 import uk.ac.gda.client.microfocus.scan.RasterMap;
-import uk.ac.gda.client.microfocus.scan.RasterMapDetectorPreparer;
 import uk.ac.gda.client.microfocus.scan.StepMap;
 
 public class MapFactoryTest {

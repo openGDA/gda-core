@@ -26,6 +26,7 @@ import gda.device.detector.BufferedDetector;
 import gda.device.scannable.ContinuouslyScannable;
 import gda.device.scannable.RealPositionReader;
 import gda.scan.ContinuousScan;
+import uk.ac.diamond.daq.microfocus.api.RasterMapDetectorPreparer;
 import uk.ac.gda.beans.microfocus.MicroFocusScanParameters;
 
 /**

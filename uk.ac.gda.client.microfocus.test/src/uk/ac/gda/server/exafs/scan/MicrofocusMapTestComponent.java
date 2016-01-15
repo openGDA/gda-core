@@ -42,6 +42,7 @@ import java.util.Vector;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 
+import uk.ac.diamond.daq.microfocus.api.RasterMapDetectorPreparer;
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.exafs.DetectorGroup;
 import uk.ac.gda.beans.exafs.DetectorParameters;
@@ -55,7 +56,6 @@ import uk.ac.gda.beans.exafs.SignalParameters;
 import uk.ac.gda.beans.microfocus.MicroFocusScanParameters;
 import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.xspress.XspressParameters;
-import uk.ac.gda.client.microfocus.scan.RasterMapDetectorPreparer;
 
 /**
  * Supplies common attributes for map test classes.

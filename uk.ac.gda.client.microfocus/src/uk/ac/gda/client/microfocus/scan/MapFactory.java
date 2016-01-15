@@ -23,6 +23,7 @@ import gda.device.Scannable;
 import gda.device.scannable.ContinuouslyScannable;
 import gda.device.scannable.RealPositionReader;
 import gda.jython.scriptcontroller.ScriptControllerBase;
+import uk.ac.diamond.daq.microfocus.api.RasterMapDetectorPreparer;
 import uk.ac.gda.server.exafs.scan.SpectroscopyScanFactory;
 
 public class MapFactory extends SpectroscopyScanFactory {

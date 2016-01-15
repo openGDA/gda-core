@@ -48,8 +48,8 @@ import org.powermock.api.support.membermodification.strategy.MethodStubStrategy;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import uk.ac.diamond.daq.microfocus.api.RasterMapDetectorPreparer;
 import uk.ac.gda.client.microfocus.scan.MapFactory;
-import uk.ac.gda.client.microfocus.scan.RasterMapDetectorPreparer;
 import uk.ac.gda.server.exafs.scan.iterators.SampleEnvironmentIterator;
 
 @RunWith(PowerMockRunner.class)
