@@ -18,14 +18,11 @@
 
 package gda.device.detector.addetector.collectionstrategy;
 
-import gda.device.detector.addetector.triggering.AbstractADTriggeringStrategy;
-
 /**
- * This class is intended as the base class for all Area Detector Collection strategies which are compatible with
- * the new composition system. Currently is just redirects to AbstractADTriggeringStrategybut eventually it should
- * replace it, with a minimal set of collection strategy functions, allowing AbstractADCollectionStrategyDecorators
- * to add most of the more complex code.
+ * This class is intended as the base class for all Area Detector Collection strategies which are compatible with the new composition system. Currently it just
+ * redirects to AbstractADTriggeringStrategy, but eventually it should replace it, with a minimal set of collection strategy functions, allowing
+ * AbstractADCollectionStrategyDecorators to add most of the more complex code. Any functions that just delegate to AbstractADTriggeringStrategy should be added
+ * to AbstractADCollectionStrategyBase, not to this class.
  */
-public abstract class AbstractADCollectionStrategy extends AbstractADTriggeringStrategy {
-
+public abstract class AbstractADCollectionStrategy extends AbstractADCollectionStrategyBase {
 }
