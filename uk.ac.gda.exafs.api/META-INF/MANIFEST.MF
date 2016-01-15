@@ -21,12 +21,10 @@ Export-Package: gda.device.detector;uses:="gda.factory,gda.observable",
  uk.ac.gda.devices.detector;uses:="gda.device"
 Require-Bundle: uk.ac.gda.common,
  slf4j.api;bundle-version="1.7.6",
- uk.ac.gda.libs;bundle-version="1.0.0",
  uk.ac.gda.api;bundle-version="8.42.0",
  uk.ac.diamond.jython,
  org.apache.commons.lang,
- org.apache.commons.beanutils,
- uk.ac.gda.client.experimentdefinition;bundle-version="8.43.0"
+ org.apache.commons.beanutils
 Import-Package: org.jscience.physics.quantities;version="2.0.2",
  org.jscience.physics.units;version="2.0.2"
 
