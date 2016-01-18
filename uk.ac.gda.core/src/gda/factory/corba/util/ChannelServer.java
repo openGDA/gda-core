@@ -282,6 +282,7 @@ class UnbindEventServerShutdownHook extends Thread {
 
 	public UnbindEventServerShutdownHook(ChannelServer channelServer) {
 		this.channelServer = channelServer;
+		setName("GDA Server CORBA Shutdown Thread"); // Names stop people getting confused and are good.
 	}
 
 	@Override
