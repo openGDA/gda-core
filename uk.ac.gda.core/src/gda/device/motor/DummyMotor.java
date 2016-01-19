@@ -477,6 +477,8 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 			if (i == numberOfIncrements)
 				currentPosition = targetPosition;
 
+			savePosition(getName());
+
 			// If the status is still BUSY the move was completed without a
 			// limit
 			// flag being set and so status should be set to READY.
