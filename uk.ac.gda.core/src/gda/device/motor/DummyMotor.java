@@ -281,6 +281,17 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 	/**
 	 * Sets the current position (i.e. changes the value without actually moving).
 	 * 
+	 * <p>This property can be used in Spring configuration to define what the
+	 * initial position of the motor should be after the motor object has been
+	 * configured.
+	 * 
+	 * <p>However if a different position has previously been saved to file,
+	 * the motor will instead be at that position after it has been configured.
+	 * 
+	 * <p>In other words: at configuration time, a previously-saved position
+	 * takes precedence over the initial position set using the
+	 * {@code position} property.
+	 * 
 	 * @param newPosition
 	 *            the current position
 	 */
