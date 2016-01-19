@@ -80,6 +80,7 @@ public class NudgePositionerComposite extends Composite {
 	private String displayName; // Allow a different prettier name be used if required
 	private Double incrementValue = DEFAULT_INCREMENT;
 	private Double currentPosition;
+	private GridData stopButtonGridData;
 
 	/**
 	 * Constructor for a NudgePositionerComposite only requires the specification of minimal parameters.
@@ -96,6 +97,7 @@ public class NudgePositionerComposite extends Composite {
 		GridLayout gridLayout = new GridLayout(3, false);
 		gridLayout.horizontalSpacing = 0;
 		gridLayout.verticalSpacing = 0;
+		gridLayout.marginHeight = 0;
 		this.setLayout(gridLayout);
 
 		// Name label
@@ -183,7 +185,8 @@ public class NudgePositionerComposite extends Composite {
 				}
 			}
 		});
-		stopButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 3, 1));
+		stopButtonGridData = new GridData(SWT.FILL, SWT.CENTER, false, false, 3, 1);
+		stopButton.setLayoutData(stopButtonGridData);
 		stopButton.setText("Stop");
 
 		// At this time the control is built but no scannable is set so disable it.
@@ -436,6 +439,8 @@ public class NudgePositionerComposite extends Composite {
 	 */
 	public void hideStopButton() {
 		stopButton.setVisible(false);
+		// Exclude the stop button so the layout will compress when its hidden
+		stopButtonGridData.exclude = true;
 		this.redraw();
 	}
 
@@ -446,6 +451,8 @@ public class NudgePositionerComposite extends Composite {
 	 */
 	public void showStopButton() {
 		stopButton.setVisible(true);
+		// Don't exclude the stop button so the layout will expand when its shown
+		stopButtonGridData.exclude = false;
 		this.redraw();
 	}
 
