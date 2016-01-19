@@ -1053,6 +1053,7 @@ public abstract class ScanBase implements NestableScan {
 
 	@Override
 	public final void run() throws Exception {
+		Exception exceptionFromMainTryClause = null;
 		// lineScanNeedsDoing = false;
 		logger.debug("ScanBase.run() for scan: '" + getName() + "'");
 		do {
@@ -1101,6 +1102,7 @@ public abstract class ScanBase implements NestableScan {
 					// need the correct exception type so wrapping code know its an interrupt
 					String message = "Scan aborted on request.";
 					logger.info(message);
+					exceptionFromMainTryClause = e;
 					throw new ScanInterruptedException(message,e.getStackTrace());
 				} catch (RedoScanLineThrowable e){
 					logger.info("Redoing scan line because: ", e.getMessage());
@@ -1118,6 +1120,7 @@ public abstract class ScanBase implements NestableScan {
 						throw new ScanInterruptedException(message,e.getStackTrace());
 					}
 					setStatus(ScanStatus.TIDYING_UP_AFTER_FAILURE);
+					exceptionFromMainTryClause = e;
 					throw new Exception("during scan collection: " + createMessage(e), e);
 				}
 				
@@ -1148,14 +1151,21 @@ public abstract class ScanBase implements NestableScan {
 				cancelReadoutAndPublishCompletion();
 
 				logger.info("Ending scan and rethrowing exception");
-
-				throw e; 
-			} finally {
+				
+				// normally this exception would be thrown at the end of the following finally clause.
+				//However if the call to endScan() below results in an exception, it will be lost. So save it:
+				exceptionFromMainTryClause = e;
+				throw e;
+				
+				
+			} finally { 
 				try {
 					// TODO: endScan now duplicates some of the exception handling performed above. 
 					// I do not understand the paths that result inScanBase.interupted being set well enough to
 					// change the logic here. RobW
 					endScan();
+					
+					// 
 				} catch (DeviceException e) {
 					if ((e instanceof RedoScanLineThrowable) && (getChild() == null)) {
 						logger.info("Redoing scan line because: ", e.getMessage());
@@ -1165,6 +1175,13 @@ public abstract class ScanBase implements NestableScan {
 						setStatus(ScanStatus.TIDYING_UP_AFTER_FAILURE);
 						logger.error(createMessage(e) + " Calling atCommandFailure hooks.",e);
 						callAtCommandFailureHooks();
+						if (exceptionFromMainTryClause != null) {
+							logger.error("There has been a problem with the scan and while ending the scan a second problem occured");
+							logger.error("This second exception is logged here, and the original exception that stopped the scan will be thrown instead of it");
+							logger.error("", e);
+							logger.info("Throwing original exception that stopped scan");
+							throw exceptionFromMainTryClause;
+						}
 						throw e;
 					}
 				}
