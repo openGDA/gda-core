@@ -67,8 +67,6 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 
 	private volatile double currentPosition;
 
-	private double defaultPosition = 0.0;
-
 	private volatile int status;
 
 	private double speed = 0;
@@ -138,7 +136,7 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 		isInitialised = true;
 
 		runner.setName(getClass().getName() + " " + getName());
-		loadPosition(getName(), defaultPosition);
+		loadPosition(getName(), currentPosition);
 		logger.debug("Loaded motor position " + getPosition());
 		if (speed == 0.0) {
 			speed = getSlowSpeed();
@@ -281,16 +279,23 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 	/**
 	 * Sets the current position (i.e. changes the value without actually moving).
 	 *
+	 * <p>This property can be used in Spring configuration to define what the
+	 * initial position of the motor should be after the motor object has been
+	 * configured.
+	 * 
+	 * <p>However if a different position has previously been saved to file,
+	 * the motor will instead be at that position after it has been configured.
+	 * 
+	 * <p>In other words: at configuration time, a previously-saved position
+	 * takes precedence over the initial position set using the
+	 * {@code position} property.
+	 * 
 	 * @param newPosition
 	 *            the current position
 	 */
 	@Override
 	public void setPosition(double newPosition) {
 		currentPosition = newPosition;
-	}
-
-	public void setDefaultPosition(double defaultPosition) {
-		this.defaultPosition = defaultPosition;
 	}
 
 	/**
