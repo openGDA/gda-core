@@ -249,8 +249,8 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 						throw new IllegalArgumentException("\n Minimum acceleration distance " + minimumAccelerationDistance +
 							" takes too long (" + totalTime + "s) at speed " + requiredSpeed + 
 							"\n Either increase rock size, decrease collection time or increase CollectionExtensionTime " +
-							"\n and take a new dark (currently extension time=" + minimumAccelerationTime + "s) e.g.:" +
-							"\n  <detector>.getCollectionStrategy().setCollectionExtensionTimeS(" + (int)(totalTime*2+1) + ")");
+							"\n and take a new dark (currently extension time=" + minimumAccelerationTime + "s)"); // e.g.:" +
+							//"\n  <detector>.getCollectionStrategy().setCollectionExtensionTimeS(" + (int)(totalTime*2+1) + ")");
 					accelerationDistance = minimumAccelerationDistance;
 				}
 				
