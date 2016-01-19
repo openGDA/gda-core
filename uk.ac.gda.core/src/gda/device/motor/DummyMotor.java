@@ -67,8 +67,6 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 
 	private volatile double currentPosition;
 
-	private double defaultPosition = 0.0;
-
 	private volatile int status;
 
 	private double speed = 0;
@@ -138,7 +136,7 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 		isInitialised = true;
 
 		runner.setName(getClass().getName() + " " + getName());
-		loadPosition(getName(), defaultPosition);
+		loadPosition(getName(), currentPosition);
 		logger.debug("Loaded motor position " + getPosition());
 		if (speed == 0.0) {
 			speed = getSlowSpeed();
@@ -287,10 +285,6 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 	@Override
 	public void setPosition(double newPosition) {
 		currentPosition = newPosition;
-	}
-
-	public void setDefaultPosition(double defaultPosition) {
-		this.defaultPosition = defaultPosition;
 	}
 
 	/**
