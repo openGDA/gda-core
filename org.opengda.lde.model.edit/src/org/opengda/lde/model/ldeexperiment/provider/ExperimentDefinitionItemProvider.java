@@ -14,6 +14,7 @@ import org.eclipse.emf.edit.provider.IItemLabelProvider;
 import org.eclipse.emf.edit.provider.IItemPropertyDescriptor;
 import org.eclipse.emf.edit.provider.IItemPropertySource;
 import org.eclipse.emf.edit.provider.IStructuredItemContentProvider;
+import org.eclipse.emf.edit.provider.ITableItemLabelProvider;
 import org.eclipse.emf.edit.provider.ITreeItemContentProvider;
 import org.eclipse.emf.edit.provider.ItemProviderAdapter;
 import org.eclipse.emf.edit.provider.ViewerNotification;
@@ -30,11 +31,7 @@ import org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage;
 public class ExperimentDefinitionItemProvider 
 	extends ItemProviderAdapter
 	implements
-		IEditingDomainItemProvider,
-		IStructuredItemContentProvider,
-		ITreeItemContentProvider,
-		IItemLabelProvider,
-		IItemPropertySource {
+		IEditingDomainItemProvider, IStructuredItemContentProvider, ITreeItemContentProvider, IItemLabelProvider, IItemPropertySource, ITableItemLabelProvider {
 	/**
 	 * This constructs an instance from a factory and a notifier.
 	 * <!-- begin-user-doc -->
@@ -72,7 +69,7 @@ public class ExperimentDefinitionItemProvider
 	public Collection<? extends EStructuralFeature> getChildrenFeatures(Object object) {
 		if (childrenFeatures == null) {
 			super.getChildrenFeatures(object);
-			childrenFeatures.add(LDEExperimentsPackage.Literals.EXPERIMENT_DEFINITION__SAMPLELIST);
+			childrenFeatures.add(LDEExperimentsPackage.Literals.EXPERIMENT_DEFINITION__EXPERIMENT);
 		}
 		return childrenFeatures;
 	}
@@ -125,7 +122,7 @@ public class ExperimentDefinitionItemProvider
 		updateChildren(notification);
 
 		switch (notification.getFeatureID(ExperimentDefinition.class)) {
-			case LDEExperimentsPackage.EXPERIMENT_DEFINITION__SAMPLELIST:
+			case LDEExperimentsPackage.EXPERIMENT_DEFINITION__EXPERIMENT:
 				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), true, false));
 				return;
 		}
@@ -145,8 +142,8 @@ public class ExperimentDefinitionItemProvider
 
 		newChildDescriptors.add
 			(createChildParameter
-				(LDEExperimentsPackage.Literals.EXPERIMENT_DEFINITION__SAMPLELIST,
-				 LDEExperimentsFactory.eINSTANCE.createSampleList()));
+				(LDEExperimentsPackage.Literals.EXPERIMENT_DEFINITION__EXPERIMENT,
+				 LDEExperimentsFactory.eINSTANCE.createExperiment()));
 	}
 
 	/**
@@ -159,5 +156,7 @@ public class ExperimentDefinitionItemProvider
 	public ResourceLocator getResourceLocator() {
 		return SampledefinitionEditPlugin.INSTANCE;
 	}
+	
+
 
 }

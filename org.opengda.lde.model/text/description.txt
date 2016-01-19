@@ -8,25 +8,58 @@ This can be disabled with -vmargs -Dorg.eclipse.emf.examples.generator.validator
 Package ldeexperiment <http://www.opengda.org/LDEExperiments>
 
   Class ExperimentDefinition
-    Reference samplelist : SampleList
+    Reference experiment : Experiment<<0..*>>
+    Operation getExperiment(EString) : Experiment
 
-  Class SampleList
-    Attribute filename : EString
-    Reference samples : Sample<<0..*>>
-    Operation getSampleById(EString) : Sample
-    Operation getSampleByName(EString) : Sample
-
-  Class Sample
-    Attribute sampleID : EString
-    Attribute status : STATUS
-    Attribute active : EBoolean
+  Class Experiment
     Attribute name : EString
+    Reference stage : Stage<<0..*>>
+    Attribute description : EString
+    Attribute numberOfStages : EInt
+    Operation getStageByID(EString) : Stage
+
+  Class Stage
+    Attribute stageID : StageIDString
+    Reference experiment : Experiment<<1..1>>
+    Reference cell : Cell<<0..*>>
+    Attribute detector_x : EDouble
+    Attribute detector_y : EDouble
+    Attribute detector_z : EDouble
+    Attribute camera_x : EDouble
+    Attribute camera_y : EDouble
+    Attribute camera_z : EDouble
+    Attribute numberOfCells : EInt
+    Operation getCellByID(EString) : Cell
+    Operation hasID(EDiagnosticChain, EMap) : EBoolean
+
+  Class Cell
     Attribute cellID : EString
+    Reference stage : Stage<<1..1>>
+    Reference sample : Sample<<0..*>>
     Attribute visitID : EString
-    Attribute calibrant : EString
+    Attribute name : EString
+    Attribute calibrant : CalibrantNameString
     Attribute calibrant_x : EDouble
     Attribute calibrant_y : EDouble
     Attribute calibrant_exposure : EDouble
+    Attribute spin : EBoolean
+    Attribute envScannableNames : EString<<0..*>>
+    Attribute numberOfSamples : EInt
+    Attribute email : EString<<0..*>>
+    Attribute startDate : Date
+    Attribute endDate : Date
+    Attribute enableAutoEmail : EBoolean
+    Operation getSampleById(EString) : Sample
+    Operation getSampleByName(EString) : Sample
+    Operation hasCellID(EDiagnosticChain, EMap) : EBoolean
+    Operation hasVisitID(EDiagnosticChain, EMap) : EBoolean
+
+  Class Sample
+    Reference cell : Cell<<1..1>>
+    Attribute status : STATUS
+    Attribute active : EBoolean
+    Attribute name : EString
+    Attribute sampleID : EString
     Attribute sample_x_start : EDoubleObject
     Attribute sample_x_stop : EDoubleObject
     Attribute sample_x_step : EDoubleObject
@@ -34,16 +67,9 @@ Package ldeexperiment <http://www.opengda.org/LDEExperiments>
     Attribute sample_y_stop : EDoubleObject
     Attribute sample_y_step : EDoubleObject
     Attribute sample_exposure : EDouble
-    Attribute detector_x : EDouble
-    Attribute detector_y : EDouble
-    Attribute detector_z : EDouble
-    Attribute email : EString
-    Attribute startDate : EDate
-    Attribute endDate : EDate
     Attribute command : EString
-    Attribute mailCount : EInt
-    Attribute dataFileCount : EInt
     Attribute comment : EString
+    Attribute calibrationFilePath : EString
     Attribute dataFilePath : EString
 
   Enum STATUS
@@ -53,3 +79,9 @@ Package ldeexperiment <http://www.opengda.org/LDEExperiments>
     Literal COMPLETED = 3
     Literal ABORTED = 4
     Literal ERROR = 5
+
+  DataType StageIDString <java.lang.String>
+
+  DataType Date <java.util.Date>
+
+  DataType CalibrantNameString <java.lang.String>

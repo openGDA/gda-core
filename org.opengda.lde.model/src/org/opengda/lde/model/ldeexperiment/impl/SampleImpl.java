@@ -1,17 +1,35 @@
+/*******************************************************************************
+ * Copyright © 2009, 2014 Diamond Light Source Ltd
+ *
+ * This file is part of GDA.
+ *  
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Contributors:
+ * 	Diamond Light Source Ltd
+ *******************************************************************************/
 /**
  */
 package org.opengda.lde.model.ldeexperiment.impl;
 
-import gda.configuration.properties.LocalProperties;
-
-import java.util.Calendar;
-import java.util.Date;
-
 import org.eclipse.emf.common.notify.Notification;
+import org.eclipse.emf.common.notify.NotificationChain;
 import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
 import org.eclipse.emf.ecore.impl.MinimalEObjectImpl;
 import org.eclipse.emf.ecore.util.EcoreUtil;
+import org.opengda.lde.model.ldeexperiment.Cell;
 import org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage;
 import org.opengda.lde.model.ldeexperiment.STATUS;
 import org.opengda.lde.model.ldeexperiment.Sample;
@@ -22,17 +40,13 @@ import org.opengda.lde.model.ldeexperiment.Sample;
  * <!-- end-user-doc -->
  * <p>
  * The following features are implemented:
+ * </p>
  * <ul>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getSampleID <em>Sample ID</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getCell <em>Cell</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getStatus <em>Status</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#isActive <em>Active</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getName <em>Name</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getCellID <em>Cell ID</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getVisitID <em>Visit ID</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getCalibrant <em>Calibrant</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getCalibrant_x <em>Calibrant x</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getCalibrant_y <em>Calibrant y</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getCalibrant_exposure <em>Calibrant exposure</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getSampleID <em>Sample ID</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getSample_x_start <em>Sample xstart</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getSample_x_stop <em>Sample xstop</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getSample_x_step <em>Sample xstep</em>}</li>
@@ -40,52 +54,15 @@ import org.opengda.lde.model.ldeexperiment.Sample;
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getSample_y_stop <em>Sample ystop</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getSample_y_step <em>Sample ystep</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getSample_exposure <em>Sample exposure</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getDetector_x <em>Detector x</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getDetector_y <em>Detector y</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getDetector_z <em>Detector z</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getEmail <em>Email</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getStartDate <em>Start Date</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getEndDate <em>End Date</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getCommand <em>Command</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getMailCount <em>Mail Count</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getDataFileCount <em>Data File Count</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getComment <em>Comment</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getCalibrationFilePath <em>Calibration File Path</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getDataFilePath <em>Data File Path</em>}</li>
  * </ul>
- * </p>
  *
  * @generated
  */
 public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
-	/**
-	 * The default value of the '{@link #getSampleID() <em>Sample ID</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getSampleID()
-	 * @generated
-	 * @ordered
-	 */
-	protected static final String SAMPLE_ID_EDEFAULT = null;
-
-	/**
-	 * The cached value of the '{@link #getSampleID() <em>Sample ID</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getSampleID()
-	 * @generated
-	 * @ordered
-	 */
-	protected String sampleID = SAMPLE_ID_EDEFAULT;
-
-	/**
-	 * This is true if the Sample ID attribute has been set.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	protected boolean sampleIDESet;
-
 	/**
 	 * The default value of the '{@link #getStatus() <em>Status</em>}' attribute.
 	 * <!-- begin-user-doc -->
@@ -143,7 +120,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * @generated
 	 * @ordered
 	 */
-	protected static final String NAME_EDEFAULT = "new_sample";
+	protected static final String NAME_EDEFAULT = null;
 
 	/**
 	 * The cached value of the '{@link #getName() <em>Name</em>}' attribute.
@@ -156,124 +133,33 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	protected String name = NAME_EDEFAULT;
 
 	/**
-	 * The default value of the '{@link #getCellID() <em>Cell ID</em>}' attribute.
+	 * The default value of the '{@link #getSampleID() <em>Sample ID</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see #getCellID()
+	 * @see #getSampleID()
 	 * @generated
 	 * @ordered
 	 */
-	protected static final String CELL_ID_EDEFAULT = null;
+	protected static final String SAMPLE_ID_EDEFAULT = null;
 
 	/**
-	 * The cached value of the '{@link #getCellID() <em>Cell ID</em>}' attribute.
+	 * The cached value of the '{@link #getSampleID() <em>Sample ID</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see #getCellID()
+	 * @see #getSampleID()
 	 * @generated
 	 * @ordered
 	 */
-	protected String cellID = CELL_ID_EDEFAULT;
+	protected String sampleID = SAMPLE_ID_EDEFAULT;
 
 	/**
-	 * The default value of the '{@link #getVisitID() <em>Visit ID</em>}' attribute.
+	 * This is true if the Sample ID attribute has been set.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see #getVisitID()
-	 * @generated NOT
-	 * @ordered
-	 */
-	protected static final String VISIT_ID_EDEFAULT = LocalProperties.get(LocalProperties.RCP_APP_VISIT);
-
-	/**
-	 * The cached value of the '{@link #getVisitID() <em>Visit ID</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getVisitID()
 	 * @generated
 	 * @ordered
 	 */
-	protected String visitID = VISIT_ID_EDEFAULT;
-
-	/**
-	 * The default value of the '{@link #getCalibrant() <em>Calibrant</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getCalibrant()
-	 * @generated
-	 * @ordered
-	 */
-	protected static final String CALIBRANT_EDEFAULT = "Si(NIST SRM 640c)";
-
-	/**
-	 * The cached value of the '{@link #getCalibrant() <em>Calibrant</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getCalibrant()
-	 * @generated
-	 * @ordered
-	 */
-	protected String calibrant = CALIBRANT_EDEFAULT;
-
-	/**
-	 * The default value of the '{@link #getCalibrant_x() <em>Calibrant x</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getCalibrant_x()
-	 * @generated
-	 * @ordered
-	 */
-	protected static final double CALIBRANT_X_EDEFAULT = 0.0;
-
-	/**
-	 * The cached value of the '{@link #getCalibrant_x() <em>Calibrant x</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getCalibrant_x()
-	 * @generated
-	 * @ordered
-	 */
-	protected double calibrant_x = CALIBRANT_X_EDEFAULT;
-
-	/**
-	 * The default value of the '{@link #getCalibrant_y() <em>Calibrant y</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getCalibrant_y()
-	 * @generated
-	 * @ordered
-	 */
-	protected static final double CALIBRANT_Y_EDEFAULT = 0.0;
-
-	/**
-	 * The cached value of the '{@link #getCalibrant_y() <em>Calibrant y</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getCalibrant_y()
-	 * @generated
-	 * @ordered
-	 */
-	protected double calibrant_y = CALIBRANT_Y_EDEFAULT;
-
-	/**
-	 * The default value of the '{@link #getCalibrant_exposure() <em>Calibrant exposure</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getCalibrant_exposure()
-	 * @generated
-	 * @ordered
-	 */
-	protected static final double CALIBRANT_EXPOSURE_EDEFAULT = 1.0;
-
-	/**
-	 * The cached value of the '{@link #getCalibrant_exposure() <em>Calibrant exposure</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getCalibrant_exposure()
-	 * @generated
-	 * @ordered
-	 */
-	protected double calibrant_exposure = CALIBRANT_EXPOSURE_EDEFAULT;
+	protected boolean sampleIDESet;
 
 	/**
 	 * The default value of the '{@link #getSample_x_start() <em>Sample xstart</em>}' attribute.
@@ -416,141 +302,6 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	protected double sample_exposure = SAMPLE_EXPOSURE_EDEFAULT;
 
 	/**
-	 * The default value of the '{@link #getDetector_x() <em>Detector x</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getDetector_x()
-	 * @generated
-	 * @ordered
-	 */
-	protected static final double DETECTOR_X_EDEFAULT = 0.0;
-
-	/**
-	 * The cached value of the '{@link #getDetector_x() <em>Detector x</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getDetector_x()
-	 * @generated
-	 * @ordered
-	 */
-	protected double detector_x = DETECTOR_X_EDEFAULT;
-
-	/**
-	 * The default value of the '{@link #getDetector_y() <em>Detector y</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getDetector_y()
-	 * @generated
-	 * @ordered
-	 */
-	protected static final double DETECTOR_Y_EDEFAULT = 0.0;
-
-	/**
-	 * The cached value of the '{@link #getDetector_y() <em>Detector y</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getDetector_y()
-	 * @generated
-	 * @ordered
-	 */
-	protected double detector_y = DETECTOR_Y_EDEFAULT;
-
-	/**
-	 * The default value of the '{@link #getDetector_z() <em>Detector z</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getDetector_z()
-	 * @generated
-	 * @ordered
-	 */
-	protected static final double DETECTOR_Z_EDEFAULT = 100.0;
-
-	/**
-	 * The cached value of the '{@link #getDetector_z() <em>Detector z</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getDetector_z()
-	 * @generated
-	 * @ordered
-	 */
-	protected double detector_z = DETECTOR_Z_EDEFAULT;
-
-	/**
-	 * The default value of the '{@link #getEmail() <em>Email</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getEmail()
-	 * @generated
-	 * @ordered
-	 */
-	protected static final String EMAIL_EDEFAULT = "chiu.tang@diamond.ac.uk";
-
-	/**
-	 * The cached value of the '{@link #getEmail() <em>Email</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getEmail()
-	 * @generated
-	 * @ordered
-	 */
-	protected String email = EMAIL_EDEFAULT;
-
-	/**
-	 * The default value of the '{@link #getStartDate() <em>Start Date</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getStartDate()
-	 * @generated NOT
-	 * @ordered
-	 */
-	protected static final Date START_DATE_EDEFAULT = Calendar.getInstance().getTime();
-
-
-	/**
-	 * The cached value of the '{@link #getStartDate() <em>Start Date</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getStartDate()
-	 * @generated
-	 * @ordered
-	 */
-	protected Date startDate = START_DATE_EDEFAULT;
-
-	/**
-	 * The default value of the '{@link #getEndDate() <em>End Date</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getEndDate()
-	 * @generated NOT
-	 * @ordered
-	 */
-	protected static final Date END_DATE_EDEFAULT = threeMonths();
-
-	/**
-	 * The default value for the '{@link #getEndDate() <em>End Date</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getEndDate()
-	 * @generated NOT
-	 * @ordered
-	 */
-	private static Date threeMonths() {
-		 Calendar calendar=Calendar.getInstance();
-		 calendar.add(Calendar.DAY_OF_YEAR, 91);
-		 return (calendar.getTime());
-	}
-
-	/**
-	 * The cached value of the '{@link #getEndDate() <em>End Date</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getEndDate()
-	 * @generated
-	 * @ordered
-	 */
-	protected Date endDate = END_DATE_EDEFAULT;
-
-	/**
 	 * The default value of the '{@link #getCommand() <em>Command</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -571,46 +322,6 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	protected String command = COMMAND_EDEFAULT;
 
 	/**
-	 * The default value of the '{@link #getMailCount() <em>Mail Count</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getMailCount()
-	 * @generated
-	 * @ordered
-	 */
-	protected static final int MAIL_COUNT_EDEFAULT = 0;
-
-	/**
-	 * The cached value of the '{@link #getMailCount() <em>Mail Count</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getMailCount()
-	 * @generated
-	 * @ordered
-	 */
-	protected int mailCount = MAIL_COUNT_EDEFAULT;
-
-	/**
-	 * The default value of the '{@link #getDataFileCount() <em>Data File Count</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getDataFileCount()
-	 * @generated
-	 * @ordered
-	 */
-	protected static final int DATA_FILE_COUNT_EDEFAULT = 0;
-
-	/**
-	 * The cached value of the '{@link #getDataFileCount() <em>Data File Count</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getDataFileCount()
-	 * @generated
-	 * @ordered
-	 */
-	protected int dataFileCount = DATA_FILE_COUNT_EDEFAULT;
-
-	/**
 	 * The default value of the '{@link #getComment() <em>Comment</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -629,6 +340,26 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * @ordered
 	 */
 	protected String comment = COMMENT_EDEFAULT;
+
+	/**
+	 * The default value of the '{@link #getCalibrationFilePath() <em>Calibration File Path</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getCalibrationFilePath()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final String CALIBRATION_FILE_PATH_EDEFAULT = null;
+
+	/**
+	 * The cached value of the '{@link #getCalibrationFilePath() <em>Calibration File Path</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getCalibrationFilePath()
+	 * @generated
+	 * @ordered
+	 */
+	protected String calibrationFilePath = CALIBRATION_FILE_PATH_EDEFAULT;
 
 	/**
 	 * The default value of the '{@link #getDataFilePath() <em>Data File Path</em>}' attribute.
@@ -809,132 +540,6 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public String getCellID() {
-		return cellID;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setCellID(String newCellID) {
-		String oldCellID = cellID;
-		cellID = newCellID;
-		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, LDEExperimentsPackage.SAMPLE__CELL_ID, oldCellID, cellID));
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public String getVisitID() {
-		return visitID;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setVisitID(String newVisitID) {
-		String oldVisitID = visitID;
-		visitID = newVisitID;
-		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, LDEExperimentsPackage.SAMPLE__VISIT_ID, oldVisitID, visitID));
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public String getCalibrant() {
-		return calibrant;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setCalibrant(String newCalibrant) {
-		String oldCalibrant = calibrant;
-		calibrant = newCalibrant;
-		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, LDEExperimentsPackage.SAMPLE__CALIBRANT, oldCalibrant, calibrant));
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public double getCalibrant_x() {
-		return calibrant_x;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setCalibrant_x(double newCalibrant_x) {
-		double oldCalibrant_x = calibrant_x;
-		calibrant_x = newCalibrant_x;
-		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, LDEExperimentsPackage.SAMPLE__CALIBRANT_X, oldCalibrant_x, calibrant_x));
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public double getCalibrant_y() {
-		return calibrant_y;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setCalibrant_y(double newCalibrant_y) {
-		double oldCalibrant_y = calibrant_y;
-		calibrant_y = newCalibrant_y;
-		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, LDEExperimentsPackage.SAMPLE__CALIBRANT_Y, oldCalibrant_y, calibrant_y));
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public double getCalibrant_exposure() {
-		return calibrant_exposure;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setCalibrant_exposure(double newCalibrant_exposure) {
-		double oldCalibrant_exposure = calibrant_exposure;
-		calibrant_exposure = newCalibrant_exposure;
-		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, LDEExperimentsPackage.SAMPLE__CALIBRANT_EXPOSURE, oldCalibrant_exposure, calibrant_exposure));
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
 	public Double getSample_x_start() {
 		return sample_x_start;
 	}
@@ -1082,132 +687,6 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public double getDetector_x() {
-		return detector_x;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setDetector_x(double newDetector_x) {
-		double oldDetector_x = detector_x;
-		detector_x = newDetector_x;
-		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, LDEExperimentsPackage.SAMPLE__DETECTOR_X, oldDetector_x, detector_x));
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public double getDetector_y() {
-		return detector_y;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setDetector_y(double newDetector_y) {
-		double oldDetector_y = detector_y;
-		detector_y = newDetector_y;
-		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, LDEExperimentsPackage.SAMPLE__DETECTOR_Y, oldDetector_y, detector_y));
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public double getDetector_z() {
-		return detector_z;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setDetector_z(double newDetector_z) {
-		double oldDetector_z = detector_z;
-		detector_z = newDetector_z;
-		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, LDEExperimentsPackage.SAMPLE__DETECTOR_Z, oldDetector_z, detector_z));
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public String getEmail() {
-		return email;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setEmail(String newEmail) {
-		String oldEmail = email;
-		email = newEmail;
-		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, LDEExperimentsPackage.SAMPLE__EMAIL, oldEmail, email));
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public Date getStartDate() {
-		return startDate;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setStartDate(Date newStartDate) {
-		Date oldStartDate = startDate;
-		startDate = newStartDate;
-		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, LDEExperimentsPackage.SAMPLE__START_DATE, oldStartDate, startDate));
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public Date getEndDate() {
-		return endDate;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setEndDate(Date newEndDate) {
-		Date oldEndDate = endDate;
-		endDate = newEndDate;
-		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, LDEExperimentsPackage.SAMPLE__END_DATE, oldEndDate, endDate));
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
 	public String getCommand() {
 		return command;
 	}
@@ -1229,48 +708,6 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public int getMailCount() {
-		return mailCount;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setMailCount(int newMailCount) {
-		int oldMailCount = mailCount;
-		mailCount = newMailCount;
-		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, LDEExperimentsPackage.SAMPLE__MAIL_COUNT, oldMailCount, mailCount));
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public int getDataFileCount() {
-		return dataFileCount;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setDataFileCount(int newDataFileCount) {
-		int oldDataFileCount = dataFileCount;
-		dataFileCount = newDataFileCount;
-		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, LDEExperimentsPackage.SAMPLE__DATA_FILE_COUNT, oldDataFileCount, dataFileCount));
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
 	public String getComment() {
 		return comment;
 	}
@@ -1285,6 +722,27 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 		comment = newComment;
 		if (eNotificationRequired())
 			eNotify(new ENotificationImpl(this, Notification.SET, LDEExperimentsPackage.SAMPLE__COMMENT, oldComment, comment));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public String getCalibrationFilePath() {
+		return calibrationFilePath;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setCalibrationFilePath(String newCalibrationFilePath) {
+		String oldCalibrationFilePath = calibrationFilePath;
+		calibrationFilePath = newCalibrationFilePath;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, LDEExperimentsPackage.SAMPLE__CALIBRATION_FILE_PATH, oldCalibrationFilePath, calibrationFilePath));
 	}
 
 	/**
@@ -1314,28 +772,103 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * @generated
 	 */
 	@Override
+	public NotificationChain eInverseAdd(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
+		switch (featureID) {
+			case LDEExperimentsPackage.SAMPLE__CELL:
+				if (eInternalContainer() != null)
+					msgs = eBasicRemoveFromContainer(msgs);
+				return basicSetCell((Cell)otherEnd, msgs);
+		}
+		return super.eInverseAdd(otherEnd, featureID, msgs);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
+		switch (featureID) {
+			case LDEExperimentsPackage.SAMPLE__CELL:
+				return basicSetCell(null, msgs);
+		}
+		return super.eInverseRemove(otherEnd, featureID, msgs);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public NotificationChain eBasicRemoveFromContainerFeature(NotificationChain msgs) {
+		switch (eContainerFeatureID()) {
+			case LDEExperimentsPackage.SAMPLE__CELL:
+				return eInternalContainer().eInverseRemove(this, LDEExperimentsPackage.CELL__SAMPLE, Cell.class, msgs);
+		}
+		return super.eBasicRemoveFromContainerFeature(msgs);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public Cell getCell() {
+		if (eContainerFeatureID() != LDEExperimentsPackage.SAMPLE__CELL) return null;
+		return (Cell)eInternalContainer();
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public NotificationChain basicSetCell(Cell newCell, NotificationChain msgs) {
+		msgs = eBasicSetContainer((InternalEObject)newCell, LDEExperimentsPackage.SAMPLE__CELL, msgs);
+		return msgs;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setCell(Cell newCell) {
+		if (newCell != eInternalContainer() || (eContainerFeatureID() != LDEExperimentsPackage.SAMPLE__CELL && newCell != null)) {
+			if (EcoreUtil.isAncestor(this, newCell))
+				throw new IllegalArgumentException("Recursive containment not allowed for " + toString());
+			NotificationChain msgs = null;
+			if (eInternalContainer() != null)
+				msgs = eBasicRemoveFromContainer(msgs);
+			if (newCell != null)
+				msgs = ((InternalEObject)newCell).eInverseAdd(this, LDEExperimentsPackage.CELL__SAMPLE, Cell.class, msgs);
+			msgs = basicSetCell(newCell, msgs);
+			if (msgs != null) msgs.dispatch();
+		}
+		else if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, LDEExperimentsPackage.SAMPLE__CELL, newCell, newCell));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
 	public Object eGet(int featureID, boolean resolve, boolean coreType) {
 		switch (featureID) {
-			case LDEExperimentsPackage.SAMPLE__SAMPLE_ID:
-				return getSampleID();
+			case LDEExperimentsPackage.SAMPLE__CELL:
+				return getCell();
 			case LDEExperimentsPackage.SAMPLE__STATUS:
 				return getStatus();
 			case LDEExperimentsPackage.SAMPLE__ACTIVE:
 				return isActive();
 			case LDEExperimentsPackage.SAMPLE__NAME:
 				return getName();
-			case LDEExperimentsPackage.SAMPLE__CELL_ID:
-				return getCellID();
-			case LDEExperimentsPackage.SAMPLE__VISIT_ID:
-				return getVisitID();
-			case LDEExperimentsPackage.SAMPLE__CALIBRANT:
-				return getCalibrant();
-			case LDEExperimentsPackage.SAMPLE__CALIBRANT_X:
-				return getCalibrant_x();
-			case LDEExperimentsPackage.SAMPLE__CALIBRANT_Y:
-				return getCalibrant_y();
-			case LDEExperimentsPackage.SAMPLE__CALIBRANT_EXPOSURE:
-				return getCalibrant_exposure();
+			case LDEExperimentsPackage.SAMPLE__SAMPLE_ID:
+				return getSampleID();
 			case LDEExperimentsPackage.SAMPLE__SAMPLE_XSTART:
 				return getSample_x_start();
 			case LDEExperimentsPackage.SAMPLE__SAMPLE_XSTOP:
@@ -1350,26 +883,12 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 				return getSample_y_step();
 			case LDEExperimentsPackage.SAMPLE__SAMPLE_EXPOSURE:
 				return getSample_exposure();
-			case LDEExperimentsPackage.SAMPLE__DETECTOR_X:
-				return getDetector_x();
-			case LDEExperimentsPackage.SAMPLE__DETECTOR_Y:
-				return getDetector_y();
-			case LDEExperimentsPackage.SAMPLE__DETECTOR_Z:
-				return getDetector_z();
-			case LDEExperimentsPackage.SAMPLE__EMAIL:
-				return getEmail();
-			case LDEExperimentsPackage.SAMPLE__START_DATE:
-				return getStartDate();
-			case LDEExperimentsPackage.SAMPLE__END_DATE:
-				return getEndDate();
 			case LDEExperimentsPackage.SAMPLE__COMMAND:
 				return getCommand();
-			case LDEExperimentsPackage.SAMPLE__MAIL_COUNT:
-				return getMailCount();
-			case LDEExperimentsPackage.SAMPLE__DATA_FILE_COUNT:
-				return getDataFileCount();
 			case LDEExperimentsPackage.SAMPLE__COMMENT:
 				return getComment();
+			case LDEExperimentsPackage.SAMPLE__CALIBRATION_FILE_PATH:
+				return getCalibrationFilePath();
 			case LDEExperimentsPackage.SAMPLE__DATA_FILE_PATH:
 				return getDataFilePath();
 		}
@@ -1384,8 +903,8 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	@Override
 	public void eSet(int featureID, Object newValue) {
 		switch (featureID) {
-			case LDEExperimentsPackage.SAMPLE__SAMPLE_ID:
-				setSampleID((String)newValue);
+			case LDEExperimentsPackage.SAMPLE__CELL:
+				setCell((Cell)newValue);
 				return;
 			case LDEExperimentsPackage.SAMPLE__STATUS:
 				setStatus((STATUS)newValue);
@@ -1396,23 +915,8 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 			case LDEExperimentsPackage.SAMPLE__NAME:
 				setName((String)newValue);
 				return;
-			case LDEExperimentsPackage.SAMPLE__CELL_ID:
-				setCellID((String)newValue);
-				return;
-			case LDEExperimentsPackage.SAMPLE__VISIT_ID:
-				setVisitID((String)newValue);
-				return;
-			case LDEExperimentsPackage.SAMPLE__CALIBRANT:
-				setCalibrant((String)newValue);
-				return;
-			case LDEExperimentsPackage.SAMPLE__CALIBRANT_X:
-				setCalibrant_x((Double)newValue);
-				return;
-			case LDEExperimentsPackage.SAMPLE__CALIBRANT_Y:
-				setCalibrant_y((Double)newValue);
-				return;
-			case LDEExperimentsPackage.SAMPLE__CALIBRANT_EXPOSURE:
-				setCalibrant_exposure((Double)newValue);
+			case LDEExperimentsPackage.SAMPLE__SAMPLE_ID:
+				setSampleID((String)newValue);
 				return;
 			case LDEExperimentsPackage.SAMPLE__SAMPLE_XSTART:
 				setSample_x_start((Double)newValue);
@@ -1435,35 +939,14 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 			case LDEExperimentsPackage.SAMPLE__SAMPLE_EXPOSURE:
 				setSample_exposure((Double)newValue);
 				return;
-			case LDEExperimentsPackage.SAMPLE__DETECTOR_X:
-				setDetector_x((Double)newValue);
-				return;
-			case LDEExperimentsPackage.SAMPLE__DETECTOR_Y:
-				setDetector_y((Double)newValue);
-				return;
-			case LDEExperimentsPackage.SAMPLE__DETECTOR_Z:
-				setDetector_z((Double)newValue);
-				return;
-			case LDEExperimentsPackage.SAMPLE__EMAIL:
-				setEmail((String)newValue);
-				return;
-			case LDEExperimentsPackage.SAMPLE__START_DATE:
-				setStartDate((Date)newValue);
-				return;
-			case LDEExperimentsPackage.SAMPLE__END_DATE:
-				setEndDate((Date)newValue);
-				return;
 			case LDEExperimentsPackage.SAMPLE__COMMAND:
 				setCommand((String)newValue);
 				return;
-			case LDEExperimentsPackage.SAMPLE__MAIL_COUNT:
-				setMailCount((Integer)newValue);
-				return;
-			case LDEExperimentsPackage.SAMPLE__DATA_FILE_COUNT:
-				setDataFileCount((Integer)newValue);
-				return;
 			case LDEExperimentsPackage.SAMPLE__COMMENT:
 				setComment((String)newValue);
+				return;
+			case LDEExperimentsPackage.SAMPLE__CALIBRATION_FILE_PATH:
+				setCalibrationFilePath((String)newValue);
 				return;
 			case LDEExperimentsPackage.SAMPLE__DATA_FILE_PATH:
 				setDataFilePath((String)newValue);
@@ -1480,8 +963,8 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	@Override
 	public void eUnset(int featureID) {
 		switch (featureID) {
-			case LDEExperimentsPackage.SAMPLE__SAMPLE_ID:
-				unsetSampleID();
+			case LDEExperimentsPackage.SAMPLE__CELL:
+				setCell((Cell)null);
 				return;
 			case LDEExperimentsPackage.SAMPLE__STATUS:
 				unsetStatus();
@@ -1492,23 +975,8 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 			case LDEExperimentsPackage.SAMPLE__NAME:
 				setName(NAME_EDEFAULT);
 				return;
-			case LDEExperimentsPackage.SAMPLE__CELL_ID:
-				setCellID(CELL_ID_EDEFAULT);
-				return;
-			case LDEExperimentsPackage.SAMPLE__VISIT_ID:
-				setVisitID(VISIT_ID_EDEFAULT);
-				return;
-			case LDEExperimentsPackage.SAMPLE__CALIBRANT:
-				setCalibrant(CALIBRANT_EDEFAULT);
-				return;
-			case LDEExperimentsPackage.SAMPLE__CALIBRANT_X:
-				setCalibrant_x(CALIBRANT_X_EDEFAULT);
-				return;
-			case LDEExperimentsPackage.SAMPLE__CALIBRANT_Y:
-				setCalibrant_y(CALIBRANT_Y_EDEFAULT);
-				return;
-			case LDEExperimentsPackage.SAMPLE__CALIBRANT_EXPOSURE:
-				setCalibrant_exposure(CALIBRANT_EXPOSURE_EDEFAULT);
+			case LDEExperimentsPackage.SAMPLE__SAMPLE_ID:
+				unsetSampleID();
 				return;
 			case LDEExperimentsPackage.SAMPLE__SAMPLE_XSTART:
 				setSample_x_start(SAMPLE_XSTART_EDEFAULT);
@@ -1531,35 +999,14 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 			case LDEExperimentsPackage.SAMPLE__SAMPLE_EXPOSURE:
 				setSample_exposure(SAMPLE_EXPOSURE_EDEFAULT);
 				return;
-			case LDEExperimentsPackage.SAMPLE__DETECTOR_X:
-				setDetector_x(DETECTOR_X_EDEFAULT);
-				return;
-			case LDEExperimentsPackage.SAMPLE__DETECTOR_Y:
-				setDetector_y(DETECTOR_Y_EDEFAULT);
-				return;
-			case LDEExperimentsPackage.SAMPLE__DETECTOR_Z:
-				setDetector_z(DETECTOR_Z_EDEFAULT);
-				return;
-			case LDEExperimentsPackage.SAMPLE__EMAIL:
-				setEmail(EMAIL_EDEFAULT);
-				return;
-			case LDEExperimentsPackage.SAMPLE__START_DATE:
-				setStartDate(START_DATE_EDEFAULT);
-				return;
-			case LDEExperimentsPackage.SAMPLE__END_DATE:
-				setEndDate(END_DATE_EDEFAULT);
-				return;
 			case LDEExperimentsPackage.SAMPLE__COMMAND:
 				setCommand(COMMAND_EDEFAULT);
 				return;
-			case LDEExperimentsPackage.SAMPLE__MAIL_COUNT:
-				setMailCount(MAIL_COUNT_EDEFAULT);
-				return;
-			case LDEExperimentsPackage.SAMPLE__DATA_FILE_COUNT:
-				setDataFileCount(DATA_FILE_COUNT_EDEFAULT);
-				return;
 			case LDEExperimentsPackage.SAMPLE__COMMENT:
 				setComment(COMMENT_EDEFAULT);
+				return;
+			case LDEExperimentsPackage.SAMPLE__CALIBRATION_FILE_PATH:
+				setCalibrationFilePath(CALIBRATION_FILE_PATH_EDEFAULT);
 				return;
 			case LDEExperimentsPackage.SAMPLE__DATA_FILE_PATH:
 				setDataFilePath(DATA_FILE_PATH_EDEFAULT);
@@ -1576,26 +1023,16 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	@Override
 	public boolean eIsSet(int featureID) {
 		switch (featureID) {
-			case LDEExperimentsPackage.SAMPLE__SAMPLE_ID:
-				return isSetSampleID();
+			case LDEExperimentsPackage.SAMPLE__CELL:
+				return getCell() != null;
 			case LDEExperimentsPackage.SAMPLE__STATUS:
 				return isSetStatus();
 			case LDEExperimentsPackage.SAMPLE__ACTIVE:
 				return active != ACTIVE_EDEFAULT;
 			case LDEExperimentsPackage.SAMPLE__NAME:
 				return NAME_EDEFAULT == null ? name != null : !NAME_EDEFAULT.equals(name);
-			case LDEExperimentsPackage.SAMPLE__CELL_ID:
-				return CELL_ID_EDEFAULT == null ? cellID != null : !CELL_ID_EDEFAULT.equals(cellID);
-			case LDEExperimentsPackage.SAMPLE__VISIT_ID:
-				return VISIT_ID_EDEFAULT == null ? visitID != null : !VISIT_ID_EDEFAULT.equals(visitID);
-			case LDEExperimentsPackage.SAMPLE__CALIBRANT:
-				return CALIBRANT_EDEFAULT == null ? calibrant != null : !CALIBRANT_EDEFAULT.equals(calibrant);
-			case LDEExperimentsPackage.SAMPLE__CALIBRANT_X:
-				return calibrant_x != CALIBRANT_X_EDEFAULT;
-			case LDEExperimentsPackage.SAMPLE__CALIBRANT_Y:
-				return calibrant_y != CALIBRANT_Y_EDEFAULT;
-			case LDEExperimentsPackage.SAMPLE__CALIBRANT_EXPOSURE:
-				return calibrant_exposure != CALIBRANT_EXPOSURE_EDEFAULT;
+			case LDEExperimentsPackage.SAMPLE__SAMPLE_ID:
+				return isSetSampleID();
 			case LDEExperimentsPackage.SAMPLE__SAMPLE_XSTART:
 				return SAMPLE_XSTART_EDEFAULT == null ? sample_x_start != null : !SAMPLE_XSTART_EDEFAULT.equals(sample_x_start);
 			case LDEExperimentsPackage.SAMPLE__SAMPLE_XSTOP:
@@ -1610,26 +1047,12 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 				return SAMPLE_YSTEP_EDEFAULT == null ? sample_y_step != null : !SAMPLE_YSTEP_EDEFAULT.equals(sample_y_step);
 			case LDEExperimentsPackage.SAMPLE__SAMPLE_EXPOSURE:
 				return sample_exposure != SAMPLE_EXPOSURE_EDEFAULT;
-			case LDEExperimentsPackage.SAMPLE__DETECTOR_X:
-				return detector_x != DETECTOR_X_EDEFAULT;
-			case LDEExperimentsPackage.SAMPLE__DETECTOR_Y:
-				return detector_y != DETECTOR_Y_EDEFAULT;
-			case LDEExperimentsPackage.SAMPLE__DETECTOR_Z:
-				return detector_z != DETECTOR_Z_EDEFAULT;
-			case LDEExperimentsPackage.SAMPLE__EMAIL:
-				return EMAIL_EDEFAULT == null ? email != null : !EMAIL_EDEFAULT.equals(email);
-			case LDEExperimentsPackage.SAMPLE__START_DATE:
-				return START_DATE_EDEFAULT == null ? startDate != null : !START_DATE_EDEFAULT.equals(startDate);
-			case LDEExperimentsPackage.SAMPLE__END_DATE:
-				return END_DATE_EDEFAULT == null ? endDate != null : !END_DATE_EDEFAULT.equals(endDate);
 			case LDEExperimentsPackage.SAMPLE__COMMAND:
 				return COMMAND_EDEFAULT == null ? command != null : !COMMAND_EDEFAULT.equals(command);
-			case LDEExperimentsPackage.SAMPLE__MAIL_COUNT:
-				return mailCount != MAIL_COUNT_EDEFAULT;
-			case LDEExperimentsPackage.SAMPLE__DATA_FILE_COUNT:
-				return dataFileCount != DATA_FILE_COUNT_EDEFAULT;
 			case LDEExperimentsPackage.SAMPLE__COMMENT:
 				return COMMENT_EDEFAULT == null ? comment != null : !COMMENT_EDEFAULT.equals(comment);
+			case LDEExperimentsPackage.SAMPLE__CALIBRATION_FILE_PATH:
+				return CALIBRATION_FILE_PATH_EDEFAULT == null ? calibrationFilePath != null : !CALIBRATION_FILE_PATH_EDEFAULT.equals(calibrationFilePath);
 			case LDEExperimentsPackage.SAMPLE__DATA_FILE_PATH:
 				return DATA_FILE_PATH_EDEFAULT == null ? dataFilePath != null : !DATA_FILE_PATH_EDEFAULT.equals(dataFilePath);
 		}
@@ -1646,26 +1069,14 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 		if (eIsProxy()) return super.toString();
 
 		StringBuffer result = new StringBuffer(super.toString());
-		result.append(" (sampleID: ");
-		if (sampleIDESet) result.append(sampleID); else result.append("<unset>");
-		result.append(", status: ");
+		result.append(" (status: ");
 		if (statusESet) result.append(status); else result.append("<unset>");
 		result.append(", active: ");
 		result.append(active);
 		result.append(", name: ");
 		result.append(name);
-		result.append(", cellID: ");
-		result.append(cellID);
-		result.append(", visitID: ");
-		result.append(visitID);
-		result.append(", calibrant: ");
-		result.append(calibrant);
-		result.append(", calibrant_x: ");
-		result.append(calibrant_x);
-		result.append(", calibrant_y: ");
-		result.append(calibrant_y);
-		result.append(", calibrant_exposure: ");
-		result.append(calibrant_exposure);
+		result.append(", sampleID: ");
+		if (sampleIDESet) result.append(sampleID); else result.append("<unset>");
 		result.append(", sample_x_start: ");
 		result.append(sample_x_start);
 		result.append(", sample_x_stop: ");
@@ -1680,26 +1091,12 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 		result.append(sample_y_step);
 		result.append(", sample_exposure: ");
 		result.append(sample_exposure);
-		result.append(", detector_x: ");
-		result.append(detector_x);
-		result.append(", detector_y: ");
-		result.append(detector_y);
-		result.append(", detector_z: ");
-		result.append(detector_z);
-		result.append(", email: ");
-		result.append(email);
-		result.append(", startDate: ");
-		result.append(startDate);
-		result.append(", endDate: ");
-		result.append(endDate);
 		result.append(", command: ");
 		result.append(command);
-		result.append(", mailCount: ");
-		result.append(mailCount);
-		result.append(", dataFileCount: ");
-		result.append(dataFileCount);
 		result.append(", comment: ");
 		result.append(comment);
+		result.append(", calibrationFilePath: ");
+		result.append(calibrationFilePath);
 		result.append(", dataFilePath: ");
 		result.append(dataFilePath);
 		result.append(')');
