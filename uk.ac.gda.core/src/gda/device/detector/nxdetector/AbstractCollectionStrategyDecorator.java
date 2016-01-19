@@ -35,12 +35,9 @@ import java.util.NoSuchElementException;
  *  Note the class is abstract, but all of the methods are concrete, which prevents this 'do nothing'
  *  decorator class from being instantiated, but allows any or all methods to be overwritten.
  */
-public abstract class AbstractCollectionStrategyDecorator implements CollectionStrategyBeanInterface {
+public abstract class AbstractCollectionStrategyDecorator extends CollectionStrategyDecoratableBase {
 
-	public AbstractCollectionStrategyDecorator() {
-	}
-
-	private CollectionStrategyBeanInterface decoratee;
+	private CollectionStrategyDecoratableInterface decoratee;
 	private boolean propertiesSet = false;
 
 	/* interface NXCollectionStrategyPlugin */
@@ -62,10 +59,9 @@ public abstract class AbstractCollectionStrategyDecorator implements CollectionS
 	}
 
 	@Override
-	public void prepareForCollection(double collectionTime, int numberImagesPerCollection, ScanInformation scanInfo)
-			throws Exception {
-		getDecoratee().prepareForCollection(collectionTime, numberImagesPerCollection, scanInfo);
-
+	public final void prepareForCollection(double collectionTime, int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
+		beforePreparation();
+		rawPrepareForCollection(collectionTime, numberImagesPerCollection, scanInfo);
 	}
 
 	@Override
@@ -116,8 +112,9 @@ public abstract class AbstractCollectionStrategyDecorator implements CollectionS
 	}
 
 	@Override
-	public void prepareForCollection(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
-		getDecoratee().prepareForCollection(numberImagesPerCollection, scanInfo);
+	public final void prepareForCollection(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
+		beforePreparation();
+		rawPrepareForCollection(numberImagesPerCollection, scanInfo);
 	}
 
 	@Override
@@ -133,21 +130,24 @@ public abstract class AbstractCollectionStrategyDecorator implements CollectionS
 	}
 
 	@Override
-	public void completeCollection() throws Exception {
-		getDecoratee().completeCollection();
-
+	public final void completeCollection() throws Exception {
+		beforeCompletion();
+		rawCompleteCollection();
+		afterCompletion();
 	}
 
 	@Override
-	public void atCommandFailure() throws Exception {
-		getDecoratee().atCommandFailure();
-
+	public final void atCommandFailure() throws Exception {
+		beforeCompletion();
+		rawAtCommandFailure();
+		afterCompletion();
 	}
 
 	@Override
-	public void stop() throws Exception {
-		getDecoratee().stop();
-
+	public final void stop() throws Exception {
+		beforeCompletion();
+		rawStop();
+		afterCompletion();
 	}
 
 	@Override
@@ -176,13 +176,41 @@ public abstract class AbstractCollectionStrategyDecorator implements CollectionS
 		propertiesSet = true;
 	}
 
+	// CollectionStrategyDecoratableInterface
+
+	@Override
+	public final void setSuppressSave() {
+		suppressSave = true;
+		getDecoratee().setSuppressSave();
+	}
+
+	@Override
+	public final void setSuppressRestore() {
+		suppressRestore = true;
+		getDecoratee().setSuppressRestore();
+	}
+
+	/*
+	 * Default implementations of save/restore functions. All overrides of these functions MUST call on to the decoratee. For saveState(), the call to the
+	 * decoratee should normally be the first statement in the function; for restoreState(), it should normally be the last.
+	 */
+	@Override
+	public void saveState() throws Exception {
+		getDecoratee().saveState();
+	}
+
+	@Override
+	public void restoreState() throws Exception {
+		getDecoratee().restoreState();
+	}
+
 	/* Class functions */
 
-	public CollectionStrategyBeanInterface getDecoratee() {
+	public CollectionStrategyDecoratableInterface getDecoratee() {
 		return decoratee;
 	}
 
-	public void setDecoratee(CollectionStrategyBeanInterface decoratee) {
+	public void setDecoratee(CollectionStrategyDecoratableInterface decoratee) {
 		errorIfPropertySetAfterBeanConfigured("decoratee");
 		this.decoratee = decoratee;
 	}
@@ -224,5 +252,65 @@ public abstract class AbstractCollectionStrategyDecorator implements CollectionS
 	 */
 	protected void errorIfPropertySetAfterBeanConfigured(String description) {
 		//if (propertiesSet) throw new IllegalAccessError("Attempt to set property " + description  + " in bean "+ getName() + "after Bean configured!");
+	}
+
+	/*
+	 * Default implementations of the "raw" functions called above. All overrides of these functions MUST call on to the decoratee. For prepareForCollection(),
+	 * the call to the decoratee should normally be the last statement in the function; for completeCollection(), atCommandFailure() & stop(), it should
+	 * normally be the first.
+	 */
+	protected void rawPrepareForCollection(double collectionTime, int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
+		getDecoratee().prepareForCollection(collectionTime, numberImagesPerCollection, scanInfo);
+	}
+
+	protected void rawPrepareForCollection(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
+		getDecoratee().prepareForCollection(numberImagesPerCollection, scanInfo);
+	}
+
+	protected void rawCompleteCollection() throws Exception {
+		getDecoratee().completeCollection();
+	}
+
+	protected void rawAtCommandFailure() throws Exception {
+		getDecoratee().atCommandFailure();
+	}
+
+	protected void rawStop() throws Exception {
+		getDecoratee().stop();
+	}
+
+	/**
+	 * If prepareCollection() has been called by another decorator, the calling decorator will already have caused this one to save its state, and will have set
+	 * suppressSave. In this case, just reset the flag. Otherwise, cascade saving the state and suppress saving in all decoratees.
+	 */
+	private void beforePreparation() throws Exception {
+		if (suppressSave) {
+			suppressSave = false;
+		} else {
+			saveState();
+			getDecoratee().setSuppressSave();
+		}
+	}
+
+	/**
+	 * We want to restore all state after all other closing-down tasks have completed, so suppress restoring of state in all
+	 */
+	private void beforeCompletion() {
+		if (!suppressRestore) {
+			getDecoratee().setSuppressRestore();
+		}
+	}
+
+	/**
+	 * Another decorator may be in control of restoring the state, so check the flag before restoring.
+	 *
+	 * @throws Exception
+	 */
+	private void afterCompletion() throws Exception {
+		if (suppressRestore) {
+			suppressRestore = false;
+		} else {
+			restoreState();
+		}
 	}
 }

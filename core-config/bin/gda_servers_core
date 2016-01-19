@@ -7,6 +7,11 @@ if [[ "${GDA_MODE}" == "live" && "${CONTROL_MACHINE_NAME}" != "$(uname -n)" ]]; 
         bashlog error "gda_servers_core" "Internal error: remote startup loop detected"
         exit 2
     fi
+    # The name generated for GDA_LOG_FILE ends with a timestamp
+    # When starting in live mode, two filenames are generated (one on workstation, one on control machine by userid gda2)
+    # Ensure that at least one second passes before we generate a new name on the control machine, to ensure uniqueness
+    # This is required because the two files are created by different users, and a name collision results in permissions problems.
+	sleep 1
 
     # Validate environment variables
     for env_var_name in CONTROL_MACHINE_USER CONTROL_MACHINE_NAME CONTROL_MACHINE_SSHKEY_LOC; do
