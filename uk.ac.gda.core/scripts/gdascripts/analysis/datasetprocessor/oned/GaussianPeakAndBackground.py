@@ -23,6 +23,7 @@ class _GaussianPeak(XYDataSetFunction):
 		funcs = getFitFunctions(self.offset)
 		initial = gaussianInitialParameters(x, y, offset=self.offset)
 		fitResult_p = dnp.fit.fit(funcs, x, y, initial, bounds=gaussianBounds(x, y, offset=self.offset), optimizer='global')
+		initial = gaussianInitialParameters(x, y, negative_peak=True, offset=self.offset)
 		fitResult_n = dnp.fit.fit(funcs, x, y, initial, bounds=gaussianBounds(x, y, negative_peak=True, offset=self.offset), optimizer='global')
 		return fitResult_p if fitResult_p.residual < fitResult_n.residual else fitResult_n
 
@@ -51,8 +52,9 @@ class GaussianPeak(_GaussianPeak):
 		return {'pos': peak, 'top': top, 'fwhm': fwhm, 'residual': residual}
 
 
-def gaussianInitialParameters(x, y, offset=False):
-	initialParameters = [x.mean(), x.ptp()*.5, x.ptp()*y.ptp()]
+def gaussianInitialParameters(x, y, negative_peak=False, offset=False):
+	area = x.ptp() * y.ptp()
+	initialParameters = [x.mean(), x.ptp()*.5, -area if negative_peak else area]
 	if offset:
 		initialParameters += [y.mean()]
 	return initialParameters
@@ -65,7 +67,8 @@ def getFitFunctions(offset):
 
 def gaussianBounds(x, y, negative_peak=False, offset=False):
 	bounds = [(x.min(), x.max()), (0, x.ptp())]
-	bounds += [(x.ptp()*y.ptp()*-1, 0, x.ptp()*y.ptp())[negative_peak:negative_peak+2]]
+	area = x.ptp() * y.ptp()
+	bounds.append((-area, 0) if negative_peak else (0,area))
 	if offset:
 		bounds += [(y.min(), y.max())]
 	return bounds
