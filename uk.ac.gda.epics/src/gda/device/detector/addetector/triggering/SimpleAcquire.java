@@ -22,9 +22,12 @@ import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.ImageMode;
 import gda.scan.ScanInformation;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SimpleAcquire extends AbstractADTriggeringStrategy {
 
+	private static final Logger logger = LoggerFactory.getLogger(SimpleAcquire.class);
 
 	public SimpleAcquire(ADBase adBase, double readoutTime) {
 		setAdBase(adBase);
@@ -44,6 +47,11 @@ public class SimpleAcquire extends AbstractADTriggeringStrategy {
 
 	@Override
 	public void collectData() throws Exception {
+		final short detectorState = getAdBase().getDetectorStateLastMonitoredValue();
+		logger.debug("Detector state before triggering acquisition: " + detectorState);
+		if (detectorState == 9) { // Disconnected
+			throw new IllegalStateException("Epics reports detector is disconnected. Cannot not trigger acquisition.");
+		}
 		getAdBase().startAcquiring();
 	}
 

@@ -586,6 +586,11 @@ public interface ADBase extends ADCommon {
 	/**
 	 *
 	 */
+	short getDetectorStateLastMonitoredValue() throws Exception;
+
+	/**
+	 *
+	 */
 	short getArrayCallbacks() throws Exception;
 
 	/**

@@ -32,6 +32,7 @@ import gda.device.detector.areadetector.v17.ImageMode;
 import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.epics.LazyPVFactory;
 import gda.epics.PV;
+import gda.epics.ReadOnlyPV;
 import gda.epics.connection.EpicsController;
 import gda.epics.interfaces.ADBaseType;
 import gda.factory.FactoryException;
@@ -111,7 +112,9 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 
 	private PV<Integer> pvDetectorState_RBV;
 
-	private Map<Short, gda.device.detector.areadetector.v17.NDPluginBase.DataType> dataTypeRBV_Map;
+	private Map<Short, NDPluginBase.DataType> dataTypeRBV_Map;
+
+	private ReadOnlyPV<Short> detectorStatePV = null;
 
 	/**
 	*
@@ -246,7 +249,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	*
 	*/
 	@Override
-	public gda.device.detector.areadetector.v17.NDPluginBase.DataType getDataType_RBV2() throws Exception {
+	public NDPluginBase.DataType getDataType_RBV2() throws Exception {
 		try {
 			Channel channel;
 			if (config != null) {
@@ -265,9 +268,10 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 		}
 	}
 
-	private Map<Short, gda.device.detector.areadetector.v17.NDPluginBase.DataType> createDataTypeMap(Channel channel) throws TimeoutException, CAException, InterruptedException,
+	private Map<Short, NDPluginBase.DataType> createDataTypeMap(Channel channel) throws TimeoutException, CAException,
+			InterruptedException,
 			Exception {
-		Map<Short, gda.device.detector.areadetector.v17.NDPluginBase.DataType> map = new HashMap<Short, gda.device.detector.areadetector.v17.NDPluginBase.DataType>();
+		Map<Short, NDPluginBase.DataType> map = new HashMap<Short, NDPluginBase.DataType>();
 		String [] labels = EPICS_CONTROLLER.cagetLabels(channel);
 		for(int i=0; i< labels.length; i++){
 			String label = labels[i].toUpperCase();
@@ -1523,6 +1527,16 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getDetectorState_RBV", ex);
 			throw ex;
 		}
+	}
+
+	@Override
+	public short getDetectorStateLastMonitoredValue() throws Exception {
+		if (detectorStatePV == null) {
+			final String fullPVName = (config == null) ? genenerateFullPvName(DetectorState_RBV) : config.getDetectorState_RBV().getPv();
+			detectorStatePV = LazyPVFactory.newReadOnlyShortPV(fullPVName);
+			detectorStatePV.setValueMonitoring(true);
+		}
+		return detectorStatePV.getLast();
 	}
 
 	/**

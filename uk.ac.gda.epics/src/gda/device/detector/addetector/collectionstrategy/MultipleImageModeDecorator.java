@@ -35,9 +35,9 @@ public class MultipleImageModeDecorator extends AbstractADCollectionStrategyDeco
 	// NXCollectionStrategyPlugin interface
 
 	@Override
-	public void prepareForCollection(double collectionTime, int numberImagesPerCollection, ScanInformation scanInfo)
+	protected void rawPrepareForCollection(double collectionTime, int numberImagesPerCollection, ScanInformation scanInfo)
 			throws Exception {
-		logger.trace("prepareForCollection({}, {}, {})", collectionTime, numberImagesPerCollection, scanInfo);
+		logger.trace("rawPrepareForCollection({}, {}, {})", collectionTime, numberImagesPerCollection, scanInfo);
 
 		if (getAdBase().getNumImages() != numberImagesPerCollection) {
 			//adBase.stopAcquiring(); // Do we need to stop it to set number of images?

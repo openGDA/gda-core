@@ -47,7 +47,7 @@ public final class UnsynchronisedExternalShutterDecorator extends AbstractCollec
 	 */
 
 	@Override
-	public void prepareForCollection(double collectionTime, int numImages, ScanInformation scanInfo) throws Exception {
+	protected void rawPrepareForCollection(double collectionTime, int numImages, ScanInformation scanInfo) throws Exception {
 		getDecoratee().prepareForCollection(collectionTime + collectionExtensionTimeS, numImages, scanInfo);
 	}
 

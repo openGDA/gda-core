@@ -20,7 +20,6 @@ package gda.device.detector.addetector.collectionstrategy;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
-import gda.device.detector.addetector.triggering.SimpleAcquire;
 import gda.device.detector.addetector.triggering.UnsynchronisedExternalShutterNXCollectionStrategy;
 
 import java.util.List;
@@ -30,20 +29,20 @@ import org.junit.Test;
 
 public class AbstractCollectionStrategyDecoratorTest {
 
-	private SimpleAcquire mockSimpleAcquire;
+	private SoftwareStartStop mockSoftwareStartStop;
 	private UnsynchronisedExternalShutterDecorator unsynchronisedExternalShutterDecorator;
 	private MerlinColourModeDecorator merlinColourModeDecorator;
 
 	@Before
 	public void setUp() {
-		mockSimpleAcquire = mock(SimpleAcquire.class);
+		mockSoftwareStartStop = mock(SoftwareStartStop.class);
 		merlinColourModeDecorator = new MerlinColourModeDecorator();
 		unsynchronisedExternalShutterDecorator = new UnsynchronisedExternalShutterDecorator();
 	}
 
 	@Test
 	public void expectEmptyListWithNoIncompatibleDecorators() throws Exception {
-		merlinColourModeDecorator.setDecoratee(mockSimpleAcquire);
+		merlinColourModeDecorator.setDecoratee(mockSoftwareStartStop);
 		merlinColourModeDecorator.afterPropertiesSet();
 		List<UnsynchronisedExternalShutterNXCollectionStrategy> unsynchronisedExternalShutterNXCollectionStrategies =
 				merlinColourModeDecorator.getDecorateesOfType(UnsynchronisedExternalShutterNXCollectionStrategy.class);
@@ -53,7 +52,7 @@ public class AbstractCollectionStrategyDecoratorTest {
 
 	@Test
 	public void expectCorrectSizeListOnCompatibleInnerDecorator() throws Exception {
-		unsynchronisedExternalShutterDecorator.setDecoratee(mockSimpleAcquire);
+		unsynchronisedExternalShutterDecorator.setDecoratee(mockSoftwareStartStop);
 		unsynchronisedExternalShutterDecorator.afterPropertiesSet();
 		merlinColourModeDecorator.setDecoratee(unsynchronisedExternalShutterDecorator);
 		merlinColourModeDecorator.afterPropertiesSet();
@@ -65,7 +64,7 @@ public class AbstractCollectionStrategyDecoratorTest {
 
 	@Test
 	public void expectCorrectSizeListOnCompatibleOuterDecorator() throws Exception {
-		merlinColourModeDecorator.setDecoratee(mockSimpleAcquire);
+		merlinColourModeDecorator.setDecoratee(mockSoftwareStartStop);
 		merlinColourModeDecorator.afterPropertiesSet();
 		unsynchronisedExternalShutterDecorator.setDecoratee(merlinColourModeDecorator);
 		unsynchronisedExternalShutterDecorator.afterPropertiesSet();

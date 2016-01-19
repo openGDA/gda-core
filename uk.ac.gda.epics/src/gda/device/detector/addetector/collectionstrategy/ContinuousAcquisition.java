@@ -48,9 +48,8 @@ public class ContinuousAcquisition extends AbstractADCollectionStrategy {
 	// NXCollectionStrategyPlugin interface
 
 	@Override
-	public void prepareForCollection(double collectionTime, int numberImagesPerCollection, ScanInformation scanInfo)
-			throws Exception {
-		logger.trace("prepareForCollection({}, {}, {})", collectionTime, numberImagesPerCollection, scanInfo);
+	protected void rawPrepareForCollection(double collectionTime, int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
+		logger.trace("rawPrepareForCollection({}, {}, {})", collectionTime, numberImagesPerCollection, scanInfo);
 
 		getAdBase().setImageModeWait(ImageMode.CONTINUOUS);
 		if (getAdBase().getStatus() != Detector.BUSY) {
@@ -76,17 +75,17 @@ public class ContinuousAcquisition extends AbstractADCollectionStrategy {
 	}
 
 	@Override
-	public void completeCollection() throws Exception {
+	protected void rawCompleteCollection() throws Exception {
 		// Do nothing, the detector should not be stopped.
 	}
 
 	@Override
-	public void atCommandFailure() throws Exception {
+	public void rawAtCommandFailure() throws Exception {
 		completeCollection();
 	}
 
 	@Override
-	public void stop() throws Exception {
+	public void rawStop() throws Exception {
 		completeCollection();
 	}
 

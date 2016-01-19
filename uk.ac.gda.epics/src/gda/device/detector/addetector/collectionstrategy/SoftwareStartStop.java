@@ -25,11 +25,11 @@ import org.slf4j.LoggerFactory;
  * This Collection strategy can be used where the acquisition must be started during collectData() and stopped during
  * completeCollection().
  *
- * This strategy does not set the Trigger Mode, so should be wrapped with a {@link TriggerModeDecorator} as appropriate (use 
+ * This strategy does not set the Trigger Mode, so should be wrapped with a {@link TriggerModeDecorator} as appropriate (use
  * {@link InternalTriggerModeDecorator} for the equivalent of the old SingleExposureStandard with the default internal trigger mode).
  *
  * This strategy does not set the Image Mode, so should be wrapped with an ImageModeDecorator as appropriate (use
- * {@link SingleImageModeDecorator} for the equivalent of the old SimpleAcquire or SingleExposureStandard). 
+ * {@link SingleImageModeDecorator} for the equivalent of the old SimpleAcquire or SingleExposureStandard).
  *
  * Note, this collection strategy ignores the now deprecated NXCollectionStrategyPlugin.configureAcquireAndPeriodTimes method,
  * so support for AbstractADTriggeringStrategy properties such as accumulation Mode and readoutTime will have to be implemented
@@ -38,6 +38,10 @@ import org.slf4j.LoggerFactory;
 public class SoftwareStartStop extends AbstractADCollectionStrategy {
 
 	private static final Logger logger = LoggerFactory.getLogger(SoftwareStartStop.class);
+
+	private boolean restoreAcquireState = false;
+
+	private int savedAcquireState;
 
 	// NXCollectionStrategyPlugin interface
 
@@ -53,17 +57,47 @@ public class SoftwareStartStop extends AbstractADCollectionStrategy {
 	}
 
 	@Override
-	public void completeCollection() throws Exception {
+	protected void rawCompleteCollection() throws Exception {
 		getAdBase().stopAcquiring();
 	}
 
 	@Override
-	public void atCommandFailure() throws Exception {
+	public void rawAtCommandFailure() throws Exception {
 		completeCollection();
 	}
 
 	@Override
-	public void stop() throws Exception {
+	public void rawStop() throws Exception {
 		completeCollection();
+	}
+
+	// CollectionStrategyBeanInterface interface
+
+	@Override
+	public void saveState() throws Exception {
+		if (restoreAcquireState) {
+			savedAcquireState = getAdBase().getAcquireState();
+		}
+	}
+
+	@Override
+	public void restoreState() throws Exception {
+		if (restoreAcquireState) {
+			if (savedAcquireState == 1) {
+				getAdBase().startAcquiring();
+			} else {
+				getAdBase().stopAcquiring();
+			}
+		}
+	}
+
+	// Class properties
+
+	public boolean getRestoreAcquireState() {
+		return restoreAcquireState;
+	}
+
+	public void setRestoreAcquireState(boolean restoreAcquireState) {
+		this.restoreAcquireState = restoreAcquireState;
 	}
 }
