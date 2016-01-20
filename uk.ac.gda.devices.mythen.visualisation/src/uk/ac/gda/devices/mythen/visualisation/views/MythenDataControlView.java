@@ -18,8 +18,6 @@
 
 package uk.ac.gda.devices.mythen.visualisation.views;
 
-import gda.device.detector.mythen.data.MythenDataFileUtils;
-
 import java.io.File;
 import java.util.List;
 import java.util.Vector;
@@ -46,6 +44,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
+import gda.device.detector.mythen.data.MythenDataFileUtils;
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBeanException;
@@ -297,16 +296,9 @@ public class MythenDataControlView extends ViewPart {
 		ensureMythenPlotViewIsOpen();
 		PlotView plotView = getPlotView();
 
-		// Set plot mode of plot view
-		try {
-			plotView.updatePlotMode(GuiPlotMode.ONED);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
 		AxisMapBean amb = new AxisMapBean();
 
-		DataBean dataBean = new DataBean();
+		DataBean dataBean = new DataBean(GuiPlotMode.ONED);
 
 		for (IDataset d : datasets) {
 			DatasetWithAxisInformation axisData = new DatasetWithAxisInformation();
@@ -337,17 +329,17 @@ public class MythenDataControlView extends ViewPart {
 		// Bin & restrict data
 		data = MythenDataFileUtils.binMythenData(data, binSize);
 		data = MythenDataFileUtils.getDataSubset(data, minAngle, maxAngle);
-		
+
 		IDataset dataset = new DoubleDataset(data.length, data[0].length);
-		
+
 		// Build DataSet
 		for (int i = 0; i < data.length; i++) {
 			for (int j = 0; j < data[i].length; j++) {
 				dataset.set(data[i][j][1], i, j);
 			}
 		}
-		
-		
+
+
 //		// Build DataSet
 //		double[][] two_d_data = new double[data.length][];
 //		for (int i = 0; i < data.length; i++) {
@@ -396,7 +388,7 @@ public class MythenDataControlView extends ViewPart {
 	/**
 	 * Given a 2D array of {@code double}s, and a column <em>n</em>, returns the <em>n</em>th 'column' from that array -
 	 * i.e. a 1D array consisting of the <em>n</em>th value from each row.
-	 * 
+	 *
 	 * @param data
 	 *            a 2D array of data
 	 * @param column
