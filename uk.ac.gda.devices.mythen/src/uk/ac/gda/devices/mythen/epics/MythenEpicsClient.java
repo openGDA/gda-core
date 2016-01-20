@@ -487,6 +487,9 @@ public class MythenEpicsClient implements MythenClient, InitializingBean {
 	public void setTriggerMode(int value) throws Exception {
 		adbase.setTriggerMode(value);
 	}
+	public void setImageMode(int value) throws Exception {
+		adbase.setImageMode(value);
+	}
 	public void setExposure(double exposureTime) throws Exception {
 		adbase.setAcquireTime(exposureTime);
 	}
