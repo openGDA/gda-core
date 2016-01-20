@@ -28,9 +28,7 @@ import gda.device.currentamplifier.EpicsCurrAmpSingle;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
-import gda.jython.Jython;
 import gda.jython.JythonServerFacade;
-import gda.jython.ScriptBase;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 
@@ -68,7 +66,7 @@ public class IonChamberBeamMonitor extends MonitorBase implements Monitor, Scann
 	/**
 	 * switch for monitor on/off bl#2342 bug
 	 */
-	private volatile boolean monitorOn = true;
+	private volatile boolean monitorOn = false;
 
 	/**
 	 * internal flag to identify scan paused by this object
@@ -205,44 +203,28 @@ public class IonChamberBeamMonitor extends MonitorBase implements Monitor, Scann
 	@Override
 	public void run() {
 		while (monitorOn) {
-			if (!(aboveThreshold(getCurrentValue()))) {
-				if (JythonServerFacade.getInstance().getScanStatus() == Jython.RUNNING) {
+			boolean aboveThreshold = aboveThreshold(getCurrentValue());
+			if (!aboveThreshold && !pausedByBeamMonitor) {
+				if (!InterfaceProvider.getJythonServerStatusProvider().getJythonServerStatus().areScriptAndScanIdle()) {
 					// only pause if scan running and value fall below the threshold
-					JythonServerFacade.getInstance().pauseCurrentScan();
+					InterfaceProvider.getCurrentScanController().pauseCurrentScan();
+					InterfaceProvider.getScriptController().pauseCurrentScript();
 					pausedByBeamMonitor = true;
-					JythonServerFacade.getInstance().print("SCAN PAUSED - NO BEAM ON SAMPLE. ");
-					logger.warn("SCAN PAUSED WAITING FOR BEAM ON SAMPLE.");
-				}
-				if (JythonServerFacade.getInstance().getScriptStatus() == Jython.RUNNING) {
-					// only pause if script running and value fall below the threshold
-					JythonServerFacade.getInstance().pauseCurrentScript();
-					JythonServerFacade.getInstance().setScriptStatus(Jython.PAUSED);
-					ScriptBase.paused = true;
-					pausedByBeamMonitor = true;
-					JythonServerFacade.getInstance().print("SCRIPT PAUSED - NO BEAM ON SAMPLE. ");
-					logger.warn("SCRIPT PAUSED WAITING FOR BEAM ON SAMPLE.");
-
+					JythonServerFacade.getInstance().print("Data collection PAUSED - NO BEAM ON SAMPLE. ");
+					logger.warn("Data Collection PAUSED WAITING FOR BEAM ON SAMPLE.");
 				}
 			} else {
 				if (pausedByBeamMonitor) {
-					if (JythonServerFacade.getInstance().getScanStatus() == Jython.PAUSED) {
+					if (InterfaceProvider.getJythonServerStatusProvider().getJythonServerStatus().isScriptOrScanPaused()) {
 						// only restart or resume scan if paused by this beam monitor, manual pause excluded
 						if (LocalProperties.check("gda.device.monitor.resumeScan", true)) {
-							JythonServerFacade.getInstance().resumeCurrentScan();
+							InterfaceProvider.getCurrentScanController().resumeCurrentScan();
 						} else {
-							JythonServerFacade.getInstance().restartCurrentScan();
+							InterfaceProvider.getCurrentScanController().restartCurrentScan();
 						}
-						JythonServerFacade.getInstance().print("Beam is back, resume or restart scan.");
+						InterfaceProvider.getScriptController().resumeCurrentScript();
+						JythonServerFacade.getInstance().print("Beam is back, resume or restart data collection.");
 						logger.info("Beam is back, resume or restart scan.");
-						pausedByBeamMonitor = false;
-					}
-					if (JythonServerFacade.getInstance().getScriptStatus() == Jython.PAUSED) {
-						// only resume if paused by this beam monitor, manual pause excluded
-						JythonServerFacade.getInstance().resumeCurrentScript();
-						JythonServerFacade.getInstance().setScriptStatus(Jython.RUNNING);
-						ScriptBase.paused = false;
-						JythonServerFacade.getInstance().print("Beam is back, resume script running.");
-						logger.info("Beam is back, resume script running.");
 						pausedByBeamMonitor = false;
 					}
 				}
@@ -262,7 +244,7 @@ public class IonChamberBeamMonitor extends MonitorBase implements Monitor, Scann
 
 	/**
 	 * {@inheritDoc}a given number (the default is 5) consecutive
-	 *
+	 * 
 	 * @see gda.observable.IObserver#update(java.lang.Object, java.lang.Object)
 	 */
 	@Override
@@ -285,7 +267,7 @@ public class IonChamberBeamMonitor extends MonitorBase implements Monitor, Scann
 
 	/**
 	 * checks beam monitor flag
-	 *
+	 * 
 	 * @return boolean
 	 */
 	@Override
@@ -295,7 +277,7 @@ public class IonChamberBeamMonitor extends MonitorBase implements Monitor, Scann
 
 	/**
 	 * set beam monitor flag
-	 *
+	 * 
 	 * @param monitorOn
 	 */
 	public void setMonitorOn(boolean monitorOn) {
@@ -380,7 +362,7 @@ public class IonChamberBeamMonitor extends MonitorBase implements Monitor, Scann
 
 	/**
 	 * gets monitor name
-	 *
+	 * 
 	 * @return monitor name
 	 */
 	public String getMonitorName() {
@@ -389,7 +371,7 @@ public class IonChamberBeamMonitor extends MonitorBase implements Monitor, Scann
 
 	/**
 	 * sets monitor name
-	 *
+	 * 
 	 * @param monitorName
 	 */
 	public void setMonitorName(String monitorName) {
@@ -398,7 +380,7 @@ public class IonChamberBeamMonitor extends MonitorBase implements Monitor, Scann
 
 	/**
 	 * gets the current amplifier object
-	 *
+	 * 
 	 * @return the current amplifier object
 	 */
 	public CurrentAmplifier getMonitor() {
@@ -407,7 +389,7 @@ public class IonChamberBeamMonitor extends MonitorBase implements Monitor, Scann
 
 	/**
 	 * sets the current amplifier object
-	 *
+	 * 
 	 * @param monitor
 	 */
 	public void setMonitor(CurrentAmplifier monitor) {
@@ -431,7 +413,7 @@ public class IonChamberBeamMonitor extends MonitorBase implements Monitor, Scann
 
 	/**
 	 * Returns the current value of this monitor.
-	 *
+	 * 
 	 * @return the current value
 	 */
 	public double getCurrentValue() {
