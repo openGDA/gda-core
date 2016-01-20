@@ -276,9 +276,9 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 			plottedSoFar = dataPoint.getCurrentPointNumber();
 			lastDataPoint = dataPoint;
 
-			// only update plot every 500ms
+			// only update plot every 2000ms
 			long now = System.currentTimeMillis();
-			if (now - lastTimePlotWasUpdate > 500) {
+			if (now - lastTimePlotWasUpdate > 2000) {
 				displayPlot(selectedElement, selectedChannel);
 				lastTimePlotWasUpdate = now;
 			}
