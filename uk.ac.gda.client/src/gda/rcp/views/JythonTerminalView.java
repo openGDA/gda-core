@@ -938,6 +938,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IAllScanDa
 					Thread.sleep(50);
 				} catch (InterruptedException e) {
 					outputBufferUpdated = true;
+					logger.warn("UpdateRunner. Swallowed InterruptedException: " , e);
 				}
 			}
 		}
