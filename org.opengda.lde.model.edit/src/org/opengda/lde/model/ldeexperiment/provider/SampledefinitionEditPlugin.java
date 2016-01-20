@@ -85,5 +85,5 @@ public final class SampledefinitionEditPlugin extends EMFPlugin {
 			plugin = this;
 		}
 	}
-
+ 
 }

@@ -13,9 +13,7 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage;
-
 import org.opengda.lde.utils.LDEResourceUtil;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 /**
@@ -46,7 +44,7 @@ public class SampleGroupViewContentProvider implements IStructuredContentProvide
 				if (notification.getFeature() != null && !notification.getFeature().equals("null") && notification.getNotifier() != null
 						&& !notification.getFeature().equals(LDEExperimentsPackage.eINSTANCE.getSample_Status())) {
 
-					viewer.refresh();
+//					viewer.refresh();
 					Table table = ((TableViewer) viewer).getTable();
 					int itemCount = table.getItemCount();
 					if (notification.getEventType() == Notification.ADD) {

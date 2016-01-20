@@ -1,4 +1,22 @@
 /**
+ * Copyright ©2015 Diamond Light Source Ltd
+ * 
+ * This file is part of GDA.
+ *  
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ * 
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ * 
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * Contributors:
+ * 	Fajin Yuan
  */
 package org.opengda.lde.model.ldeexperiment.presentation;
 
@@ -17,6 +35,7 @@ import org.eclipse.emf.edit.ui.action.EditingDomainActionBarContributor;
 import org.eclipse.emf.edit.ui.action.LoadResourceAction;
 import org.eclipse.emf.edit.ui.action.ValidateAction;
 
+import org.eclipse.emf.edit.ui.provider.DiagnosticDecorator;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IAction;
@@ -34,10 +53,15 @@ import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.Viewer;
 
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PartInitException;
+import org.opengda.lde.model.ldeexperiment.Cell;
+import org.opengda.lde.model.ldeexperiment.Experiment;
+import org.opengda.lde.model.ldeexperiment.Sample;
+import org.opengda.lde.model.ldeexperiment.Stage;
 
 /**
  * This is the action bar contributor for the LDEExperiments model editor.
@@ -152,6 +176,7 @@ public class LDEExperimentsActionBarContributor
 		super(ADDITIONS_LAST_STYLE);
 		loadResourceAction = new LoadResourceAction();
 		validateAction = new ValidateAction();
+		liveValidationAction = new DiagnosticDecorator.LiveValidator.LiveValidationAction(SampledefinitionEditorPlugin.getPlugin().getDialogSettings());
 		controlAction = new ControlAction();
 	}
 
@@ -292,14 +317,37 @@ public class LDEExperimentsActionBarContributor
 	 * This generates a {@link org.eclipse.emf.edit.ui.action.CreateChildAction} for each object in <code>descriptors</code>,
 	 * and returns the collection of these actions.
 	 * <!-- begin-user-doc -->
+	 * Disable create child action when the number of children reaches the limit set in parent node.
 	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	protected Collection<IAction> generateCreateChildActions(Collection<?> descriptors, ISelection selection) {
 		Collection<IAction> actions = new ArrayList<IAction>();
 		if (descriptors != null) {
+			boolean enabled = true;
+			if (selection instanceof StructuredSelection) {
+				Object firstElement = ((StructuredSelection)selection).getFirstElement();
+				if (firstElement instanceof Experiment) {
+					Experiment experiment=(Experiment) firstElement;
+					if (experiment.getStage().size()>=experiment.getNumberOfStages()) {
+						enabled=false;
+					}
+				} else if (firstElement instanceof Stage) {
+					Stage stage=(Stage) firstElement;
+					if (stage.getCell().size()>=stage.getNumberOfCells()) {
+						enabled=false;
+					}
+				} else if (firstElement instanceof Cell) {
+					Cell cell=(Cell) firstElement;
+					if (cell.getSample().size()>=cell.getNumberOfSamples()) {
+						enabled=false;
+					}
+				}
+			}
 			for (Object descriptor : descriptors) {
-				actions.add(new CreateChildAction(activeEditorPart, selection, descriptor));
+				CreateChildAction e = new CreateChildAction(activeEditorPart, selection, descriptor);
+				e.setEnabled(enabled);
+				actions.add(e);
 			}
 		}
 		return actions;
@@ -309,14 +357,37 @@ public class LDEExperimentsActionBarContributor
 	 * This generates a {@link org.eclipse.emf.edit.ui.action.CreateSiblingAction} for each object in <code>descriptors</code>,
 	 * and returns the collection of these actions.
 	 * <!-- begin-user-doc -->
+	 * Disable create sibling action when the number of siblings reaches the limit set in parent node.
 	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	protected Collection<IAction> generateCreateSiblingActions(Collection<?> descriptors, ISelection selection) {
 		Collection<IAction> actions = new ArrayList<IAction>();
 		if (descriptors != null) {
+			boolean enabled = true;
+			if (selection instanceof StructuredSelection) {
+				Object firstElement = ((StructuredSelection)selection).getFirstElement();
+				if (firstElement instanceof Stage) {
+					Experiment experiment=((Stage) firstElement).getExperiment();
+					if (experiment.getStage().size()>=experiment.getNumberOfStages()) {
+						enabled=false;
+					}
+				} else if (firstElement instanceof Cell) {
+					Stage stage=((Cell) firstElement).getStage();
+					if (stage.getCell().size()>=stage.getNumberOfCells()) {
+						enabled=false;
+					}
+				} else if (firstElement instanceof Sample) {
+					Cell cell=((Sample) firstElement).getCell();
+					if (cell.getSample().size()>=cell.getNumberOfSamples()) {
+						enabled=false;
+					}
+				}
+			}
 			for (Object descriptor : descriptors) {
-				actions.add(new CreateSiblingAction(activeEditorPart, selection, descriptor));
+				CreateSiblingAction e = new CreateSiblingAction(activeEditorPart, selection, descriptor);
+				e.setEnabled(enabled);
+				actions.add(e);
 			}
 		}
 		return actions;

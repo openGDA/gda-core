@@ -19,6 +19,7 @@ import org.eclipse.emf.edit.provider.IItemLabelProvider;
 import org.eclipse.emf.edit.provider.IItemPropertySource;
 import org.eclipse.emf.edit.provider.INotifyChangedListener;
 import org.eclipse.emf.edit.provider.IStructuredItemContentProvider;
+import org.eclipse.emf.edit.provider.ITableItemLabelProvider;
 import org.eclipse.emf.edit.provider.ITreeItemContentProvider;
 
 import org.opengda.lde.model.ldeexperiment.util.LDEExperimentsAdapterFactory;
@@ -69,6 +70,7 @@ public class LDEExperimentsItemProviderAdapterFactory extends LDEExperimentsAdap
 		supportedTypes.add(ITreeItemContentProvider.class);
 		supportedTypes.add(IItemLabelProvider.class);
 		supportedTypes.add(IItemPropertySource.class);
+		supportedTypes.add(ITableItemLabelProvider.class);
 	}
 
 	/**
@@ -95,26 +97,72 @@ public class LDEExperimentsItemProviderAdapterFactory extends LDEExperimentsAdap
 	}
 
 	/**
-	 * This keeps track of the one adapter used for all {@link org.opengda.lde.model.ldeexperiment.SampleList} instances.
+	 * This keeps track of the one adapter used for all {@link org.opengda.lde.model.ldeexperiment.Experiment} instances.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	protected SampleListItemProvider sampleListItemProvider;
+	protected ExperimentItemProvider experimentItemProvider;
 
 	/**
-	 * This creates an adapter for a {@link org.opengda.lde.model.ldeexperiment.SampleList}.
+	 * This creates an adapter for a {@link org.opengda.lde.model.ldeexperiment.Experiment}.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
 	@Override
-	public Adapter createSampleListAdapter() {
-		if (sampleListItemProvider == null) {
-			sampleListItemProvider = new SampleListItemProvider(this);
+	public Adapter createExperimentAdapter() {
+		if (experimentItemProvider == null) {
+			experimentItemProvider = new ExperimentItemProvider(this);
 		}
 
-		return sampleListItemProvider;
+		return experimentItemProvider;
+	}
+
+	/**
+	 * This keeps track of the one adapter used for all {@link org.opengda.lde.model.ldeexperiment.Stage} instances.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected StageItemProvider stageItemProvider;
+
+	/**
+	 * This creates an adapter for a {@link org.opengda.lde.model.ldeexperiment.Stage}.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public Adapter createStageAdapter() {
+		if (stageItemProvider == null) {
+			stageItemProvider = new StageItemProvider(this);
+		}
+
+		return stageItemProvider;
+	}
+
+	/**
+	 * This keeps track of the one adapter used for all {@link org.opengda.lde.model.ldeexperiment.Cell} instances.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected CellItemProvider cellItemProvider;
+
+	/**
+	 * This creates an adapter for a {@link org.opengda.lde.model.ldeexperiment.Cell}.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public Adapter createCellAdapter() {
+		if (cellItemProvider == null) {
+			cellItemProvider = new CellItemProvider(this);
+		}
+
+		return cellItemProvider;
 	}
 
 	/**
@@ -246,7 +294,9 @@ public class LDEExperimentsItemProviderAdapterFactory extends LDEExperimentsAdap
 	@Override
 	public void dispose() {
 		if (experimentDefinitionItemProvider != null) experimentDefinitionItemProvider.dispose();
-		if (sampleListItemProvider != null) sampleListItemProvider.dispose();
+		if (experimentItemProvider != null) experimentItemProvider.dispose();
+		if (stageItemProvider != null) stageItemProvider.dispose();
+		if (cellItemProvider != null) cellItemProvider.dispose();
 		if (sampleItemProvider != null) sampleItemProvider.dispose();
 	}
 

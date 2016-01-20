@@ -1,17 +1,45 @@
+/*******************************************************************************
+ * Copyright © 2009, 2014 Diamond Light Source Ltd
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Contributors:
+ * 	Diamond Light Source Ltd
+ *******************************************************************************/
 /**
  */
 package org.opengda.lde.model.ldeexperiment.impl;
+
+import java.text.ParsePosition;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
-
 import org.eclipse.emf.ecore.impl.EFactoryImpl;
-
 import org.eclipse.emf.ecore.plugin.EcorePlugin;
-
-import org.opengda.lde.model.ldeexperiment.*;
+import org.opengda.lde.model.ldeexperiment.Cell;
+import org.opengda.lde.model.ldeexperiment.Experiment;
+import org.opengda.lde.model.ldeexperiment.ExperimentDefinition;
+import org.opengda.lde.model.ldeexperiment.LDEExperimentsFactory;
+import org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage;
+import org.opengda.lde.model.ldeexperiment.STATUS;
+import org.opengda.lde.model.ldeexperiment.Sample;
+import org.opengda.lde.model.ldeexperiment.Stage;
 
 /**
  * <!-- begin-user-doc -->
@@ -58,7 +86,9 @@ public class LDEExperimentsFactoryImpl extends EFactoryImpl implements LDEExperi
 	public EObject create(EClass eClass) {
 		switch (eClass.getClassifierID()) {
 			case LDEExperimentsPackage.EXPERIMENT_DEFINITION: return createExperimentDefinition();
-			case LDEExperimentsPackage.SAMPLE_LIST: return createSampleList();
+			case LDEExperimentsPackage.EXPERIMENT: return createExperiment();
+			case LDEExperimentsPackage.STAGE: return createStage();
+			case LDEExperimentsPackage.CELL: return createCell();
 			case LDEExperimentsPackage.SAMPLE: return createSample();
 			default:
 				throw new IllegalArgumentException("The class '" + eClass.getName() + "' is not a valid classifier");
@@ -75,6 +105,12 @@ public class LDEExperimentsFactoryImpl extends EFactoryImpl implements LDEExperi
 		switch (eDataType.getClassifierID()) {
 			case LDEExperimentsPackage.STATUS:
 				return createSTATUSFromString(eDataType, initialValue);
+			case LDEExperimentsPackage.STAGE_ID_STRING:
+				return createStageIDStringFromString(eDataType, initialValue);
+			case LDEExperimentsPackage.DATE:
+				return createDateFromString(eDataType, initialValue);
+			case LDEExperimentsPackage.CALIBRANT_NAME_STRING:
+				return createCalibrantNameStringFromString(eDataType, initialValue);
 			default:
 				throw new IllegalArgumentException("The datatype '" + eDataType.getName() + "' is not a valid classifier");
 		}
@@ -90,6 +126,12 @@ public class LDEExperimentsFactoryImpl extends EFactoryImpl implements LDEExperi
 		switch (eDataType.getClassifierID()) {
 			case LDEExperimentsPackage.STATUS:
 				return convertSTATUSToString(eDataType, instanceValue);
+			case LDEExperimentsPackage.STAGE_ID_STRING:
+				return convertStageIDStringToString(eDataType, instanceValue);
+			case LDEExperimentsPackage.DATE:
+				return convertDateToString(eDataType, instanceValue);
+			case LDEExperimentsPackage.CALIBRANT_NAME_STRING:
+				return convertCalibrantNameStringToString(eDataType, instanceValue);
 			default:
 				throw new IllegalArgumentException("The datatype '" + eDataType.getName() + "' is not a valid classifier");
 		}
@@ -112,9 +154,31 @@ public class LDEExperimentsFactoryImpl extends EFactoryImpl implements LDEExperi
 	 * @generated
 	 */
 	@Override
-	public SampleList createSampleList() {
-		SampleListImpl sampleList = new SampleListImpl();
-		return sampleList;
+	public Experiment createExperiment() {
+		ExperimentImpl experiment = new ExperimentImpl();
+		return experiment;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public Stage createStage() {
+		StageImpl stage = new StageImpl();
+		return stage;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public Cell createCell() {
+		CellImpl cell = new CellImpl();
+		return cell;
 	}
 
 	/**
@@ -146,6 +210,69 @@ public class LDEExperimentsFactoryImpl extends EFactoryImpl implements LDEExperi
 	 */
 	public String convertSTATUSToString(EDataType eDataType, Object instanceValue) {
 		return instanceValue == null ? null : instanceValue.toString();
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public String createStageIDStringFromString(EDataType eDataType, String initialValue) {
+		return (String)super.createFromString(eDataType, initialValue);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public String convertStageIDStringToString(EDataType eDataType, Object instanceValue) {
+		return super.convertToString(eDataType, instanceValue);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public Date createDateFromString(EDataType eDataType, String initialValue) {
+		if (initialValue==null) return null;
+		SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+		ParsePosition position= new ParsePosition(0);
+		Date result=format.parse(initialValue, position);
+		if (position.getIndex()==0) {
+			throw new IllegalArgumentException("Date must be of format dd/MM/yyyy");
+		}
+		return result;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public String convertDateToString(EDataType eDataType, Object instanceValue) {
+		if (instanceValue==null) return null;
+		SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+		return format.format((Date)instanceValue);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public String createCalibrantNameStringFromString(EDataType eDataType, String initialValue) {
+		return ((String)super.createFromString(eDataType, initialValue)).replace(' ', '-');
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public String convertCalibrantNameStringToString(EDataType eDataType, Object instanceValue) {
+		return super.convertToString(eDataType, instanceValue).replace('-', ' ');
 	}
 
 	/**

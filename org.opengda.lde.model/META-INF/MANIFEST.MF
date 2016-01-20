@@ -4,6 +4,7 @@ Bundle-Name: %pluginName
 Bundle-SymbolicName: org.opengda.lde.model;singleton:=true
 Bundle-Version: 0.1.0.qualifier
 Bundle-ClassPath: .
+Bundle-Activator: org.opengda.lde.model.ldeexperiment.impl.SampledefinitionModelPlugin$Implementation
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7

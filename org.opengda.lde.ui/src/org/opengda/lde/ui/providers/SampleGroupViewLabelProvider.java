@@ -1,6 +1,6 @@
 package org.opengda.lde.ui.providers;
 
-import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.jface.viewers.ITableColorProvider;
@@ -12,6 +12,9 @@ import org.opengda.lde.model.ldeexperiment.STATUS;
 import org.opengda.lde.model.ldeexperiment.Sample;
 import org.opengda.lde.ui.Activator;
 import org.opengda.lde.ui.ImageConstants;
+
+import com.google.common.base.Joiner;
+
 
 public class SampleGroupViewLabelProvider extends LabelProvider implements
 		ITableLabelProvider, ITableColorProvider {
@@ -72,18 +75,6 @@ public class SampleGroupViewLabelProvider extends LabelProvider implements
 				return "";
 			case SampleTableConstants.COL_SAMPLE_NAME:
 				return sample.getName();
-			case SampleTableConstants.COL_CELL_ID:
-				return sample.getCellID();
-			case SampleTableConstants.COL_VISIT_ID:
-				return sample.getVisitID();
-			case SampleTableConstants.COL_CALIBRANT_NAME:
-				return sample.getCalibrant();
-			case SampleTableConstants.COL_CALIBRANT_X:
-				return String.valueOf(sample.getCalibrant_x());
-			case SampleTableConstants.COL_CALIBRANT_Y:
-				return String.valueOf(sample.getCalibrant_y());
-			case SampleTableConstants.COL_CALIBRANT_EXPOSURE:
-				return String.valueOf(sample.getCalibrant_exposure());
 			case SampleTableConstants.COL_SAMPLE_X_START:
 				return String.valueOf(sample.getSample_x_start());
 			case SampleTableConstants.COL_SAMPLE_X_STOP:
@@ -98,26 +89,44 @@ public class SampleGroupViewLabelProvider extends LabelProvider implements
 				return String.valueOf(sample.getSample_y_step());
 			case SampleTableConstants.COL_SAMPLE_EXPOSURE:
 				return String.valueOf(sample.getSample_exposure());
-			case SampleTableConstants.COL_DETECTOR_X:
-				return String.valueOf(sample.getDetector_x());
-			case SampleTableConstants.COL_DETECTOR_Y:
-				return String.valueOf(sample.getDetector_y());
-			case SampleTableConstants.COL_DETECTOR_Z:
-				return String.valueOf(sample.getDetector_z());
-			case SampleTableConstants.COL_EMAIL:
-				return sample.getEmail();
-			case SampleTableConstants.COL_START_DATE:
-				return DateFormat.getInstance().format(sample.getStartDate());
-			case SampleTableConstants.COL_END_DATE:
-				return DateFormat.getInstance().format(sample.getEndDate());
 			case SampleTableConstants.COL_COMMAND:
 				return sample.getCommand();
 			case SampleTableConstants.COL_COMMENT:
 				return sample.getComment();
-			case SampleTableConstants.COL_MAIL_COUNT:
-				return Integer.toString(sample.getMailCount());
-			case SampleTableConstants.COL_DATA_FILE_COUNT:
-				return Integer.toString(sample.getDataFileCount());
+			case SampleTableConstants.COL_DATA_FILE:
+				return sample.getDataFilePath();
+			case SampleTableConstants.COL_VISIT_ID:
+				return sample.getCell().getVisitID();
+			case SampleTableConstants.COL_CELL_ID:
+				return sample.getCell().getCellID();
+			case SampleTableConstants.COL_CALIBRANT_NAME:
+				return sample.getCell().getCalibrant();
+			case SampleTableConstants.COL_CALIBRANT_X:
+				return String.valueOf(sample.getCell().getCalibrant_x());
+			case SampleTableConstants.COL_CALIBRANT_Y:
+				return String.valueOf(sample.getCell().getCalibrant_y());
+			case SampleTableConstants.COL_CALIBRANT_EXPOSURE:
+				return String.valueOf(sample.getCell().getCalibrant_exposure());
+			case SampleTableConstants.COL_SPIN:
+				return sample.getCell().isSpin() ? "true" : "false";
+			case SampleTableConstants.COL_ENV_SCANNABLE_NAMES:
+				return Joiner.on(",").join(sample.getCell().getEnvScannableNames());
+			case SampleTableConstants.COL_EMAIL:
+				return Joiner.on(",").join(sample.getCell().getEmail());
+			case SampleTableConstants.COL_START_DATE:
+				return new SimpleDateFormat("dd/MM/yyyy").format(sample.getCell().getStartDate());
+			case SampleTableConstants.COL_END_DATE:
+				return new SimpleDateFormat("dd/MM/yyyy").format(sample.getCell().getEndDate());
+			case SampleTableConstants.COL_CALIBRATION_FILE:
+				return sample.getCalibrationFilePath();
+			case SampleTableConstants.COL_STAGE_ID:
+				return sample.getCell().getStage().getStageID();
+			case SampleTableConstants.COL_DETECTOR_X:
+				return String.valueOf(sample.getCell().getStage().getDetector_x());
+			case SampleTableConstants.COL_DETECTOR_Y:
+				return String.valueOf(sample.getCell().getStage().getDetector_y());
+			case SampleTableConstants.COL_DETECTOR_Z:
+				return String.valueOf(sample.getCell().getStage().getDetector_z());
 			}
 		}
 		return null;

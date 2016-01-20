@@ -8,26 +8,33 @@ import gda.device.DeviceException;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.edit.domain.EditingDomain;
+import org.opengda.lde.Activator;
+import org.opengda.lde.model.ldeexperiment.Cell;
+import org.opengda.lde.model.ldeexperiment.Experiment;
 import org.opengda.lde.model.ldeexperiment.ExperimentDefinition;
 import org.opengda.lde.model.ldeexperiment.LDEExperimentsFactory;
 import org.opengda.lde.model.ldeexperiment.Sample;
-import org.opengda.lde.model.ldeexperiment.SampleList;
-import org.opengda.lde.Activator;
+import org.opengda.lde.model.ldeexperiment.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class LDEResourceUtil {
 	private final Logger logger = LoggerFactory.getLogger(LDEResourceUtil.class);
-	String defaultFilename = "operationtable.lde";
+	String defaultFilename = "newsamples.lde";
 
 	/**
 	 * returns the default filename. The returned value depends on java
@@ -82,7 +89,6 @@ public class LDEResourceUtil {
 			// set the original value back for other processing
 			metadata.setMetadataValue("subdirectory", metadataValue);
 		} catch (DeviceException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return dir;
@@ -116,7 +122,7 @@ public class LDEResourceUtil {
 	/**
 	 * return the resource. The filename for this resource can be set in Spring object configuration property. 
 	 * If not set in Spring configuration, it is built using GDA property {@link gda.configuration.properties.LocalProperties.GDA_DATAWRITER_DIR}
-	 * or {@code gda.data.scan.datawriter.datadir} and the default file name {@code user.seq}. If this property is not set this sequence file will
+	 * or {@code gda.data.scan.datawriter.datadir} and the default file name {@code newsamples.lde}. If this property is not set this sequence file will
 	 * be created at {@code user.home}
 	 * 
 	 * @return
@@ -131,7 +137,7 @@ public class LDEResourceUtil {
 		File ldeFile = new File(fileName);
 		if (!ldeFile.exists()) {
 			ldeFile.createNewFile();
-			createSampleList();
+			createExperiments();
 		}
 		URI fileURI = URI.createFileURI(fileName);
 		return resourceSet.getResource(fileURI, true);
@@ -145,31 +151,12 @@ public class LDEResourceUtil {
 		return resourceSet;
 	}
 
-	/**
-	 * return the list of samples contained in a sample group or list or an empty list.
-	 * 
-	 * @return
-	 * @throws Exception
-	 */
-	public List<Sample> getSamples() throws Exception {
-
-		SampleList samples = getSampleList();
-		if (samples != null) {
-			return samples.getSamples();
-		}
-		return Collections.emptyList();
-	}
-
-	public List<Sample> getSamples(String filename) throws Exception {
+	public List<Experiment> getExperiments(String filename) throws Exception {
 		setFileName(filename);
-		SampleList samples = getSampleList();
-		if (samples != null) {
-			return samples.getSamples();
-		}
-		return Collections.emptyList();
+		return getExperiments();
 	}
 
-	public SampleList createSampleList() throws Exception {
+	public List<Experiment> createExperiments() throws Exception {
 		if (fileName == null || fileName.isEmpty()) {
 			fileName=getDefaultDirectory()+File.separator+getDefaultFilename();
 		}
@@ -177,10 +164,14 @@ public class LDEResourceUtil {
 		final Resource newResource = getResourceSet().createResource(URI.createFileURI(fileName));
 		final ExperimentDefinition root = LDEExperimentsFactory.eINSTANCE.createExperimentDefinition();
 
-		SampleList samplelist = LDEExperimentsFactory.eINSTANCE.createSampleList();
+		Experiment experiment = LDEExperimentsFactory.eINSTANCE.createExperiment();
+		Stage stage = LDEExperimentsFactory.eINSTANCE.createStage();
+		experiment.getStage().add(stage);
+		Cell cell = LDEExperimentsFactory.eINSTANCE.createCell();
+		stage.getCell().add(cell);
 		Sample sample=LDEExperimentsFactory.eINSTANCE.createSample();
-		samplelist.getSamples().add(sample);
-		root.setSamplelist(samplelist);
+		cell.getSample().add(sample);
+		root.getExperiment().add(experiment);
 		newResource.getContents().add(root);
 
 		// use Transaction
@@ -201,22 +192,21 @@ public class LDEResourceUtil {
 			e.printStackTrace();
 		}
 
-		return getSampleList();
+		return getExperiments();
 	}
 
-	public SampleList getSampleList() throws Exception {
+	public List<Experiment> getExperiments() throws Exception {
 		Resource res = getResource();
 		if (res != null) {
 			List<EObject> contents = res.getContents();
 			EObject eobj = contents.get(0);
 			if (eobj instanceof ExperimentDefinition) {
 				ExperimentDefinition root = (ExperimentDefinition) eobj;
-				return root.getSamplelist();
+				return root.getExperiment();
 			}
 		}
-		return null;
+		return Collections.emptyList();
 	}
-
 
 	public Resource getResource(String fileName) throws Exception {
 		ResourceSet resourceSet = getResourceSet();
@@ -228,23 +218,32 @@ public class LDEResourceUtil {
 		return null;
 	}
 
-
-
-	public SampleList getSampleList(Resource res) throws Exception {
+	public List<Experiment> getExperiments(Resource res) throws Exception {
 		if (res != null) {
 			List<EObject> contents = res.getContents();
 			EObject eobj = contents.get(0);
 			if (eobj instanceof ExperimentDefinition) {
 				ExperimentDefinition root = (ExperimentDefinition) eobj;
-				return root.getSamplelist();
+				return root.getExperiment();
 			}
 		}
-		return null;
+		return Collections.emptyList();
 	}
-
-	public List<Sample> getSamples(SampleList samplelist) throws Exception {
-		if (samplelist != null) {
-			return samplelist.getSamples();
+	public List<Stage> getStages(Experiment experiment) throws Exception {
+		if (experiment != null) {
+			return experiment.getStage();
+		}
+		return Collections.emptyList();
+	}
+	public List<Cell> getCells(Stage stage) throws Exception {
+		if (stage != null) {
+			return stage.getCell();
+		}
+		return Collections.emptyList();
+	}
+	public List<Sample> getSamples(Cell cell) throws Exception {
+		if (cell != null) {
+			return cell.getSample();
 		}
 		return Collections.emptyList();
 	}
@@ -264,7 +263,68 @@ public class LDEResourceUtil {
 		}
 	}
 
-	public EditingDomain getEditingDomain() throws Exception {
+	public EditingDomain getEditingDomain() {
 		return Activator.getDefault().getSampleGroupEditingDomain();
+	}
+	
+	public Map<String, Sample> getSamples(String filename) throws Exception {
+		Map<String, Sample> samples=new HashMap<String, Sample>();
+		List<Experiment> experiments = getExperiments(filename);
+		for (Experiment experiment : experiments) {
+			for (Stage stage :experiment.getStage()) {
+				for (Cell cell : stage.getCell()) {
+					for (Sample sample : cell.getSample()) {
+						samples.put(sample.getSampleID(), sample);
+					}
+				}
+			}
+		}
+		return Collections.unmodifiableMap(samples);
+	}
+	
+	public Map<String, Stage> getStages(String filename) throws Exception {
+		Map<String, Stage> stages=new HashMap<String, Stage>();
+		List<Experiment> experiments = getExperiments(filename);
+		for (Experiment experiment : experiments) {
+			for (Stage stage : experiment.getStage()) {
+				stages.put(stage.getStageID(), stage);
+			}
+		}
+		return Collections.unmodifiableMap(stages);
+	}
+	
+	public Map<String, Cell> getCells(String filename) throws Exception {
+		Map<String, Cell> cells=new HashMap<String, Cell>();
+		List<Experiment> experiments = getExperiments(filename);
+		for (Experiment experiment : experiments) {
+			for (Stage stage : experiment.getStage()) {
+				for (Cell cell : stage.getCell()) {
+					cells.put(cell.getCellID(), cell);
+				}
+			}
+		}
+		return Collections.unmodifiableMap(cells);
+	}
+	
+	public List<Sample>  getSamples() throws Exception {
+		List<Sample> samples=new ArrayList<Sample>();
+		for (Sample sample : getSamples(getFileName()).values()) {
+			samples.add(sample);
+		}
+		return samples;
+	}
+	public List<Stage> getStages() throws Exception {
+		List<Stage> stages=new ArrayList<Stage>();
+		for (Stage stage : getStages(getFileName()).values()) {
+			stages.add(stage);
+		}
+		return stages;
+	}
+	public List<Cell> getCells() throws Exception {
+		List<Cell> cells=new ArrayList<Cell>();
+		for (Cell cell : getCells(getFileName()).values()) {
+			cells.add(cell);
+		}
+		return cells;
 	}
 }

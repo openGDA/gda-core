@@ -1,9 +1,30 @@
+/*******************************************************************************
+ * Copyright © 2009, 2014 Diamond Light Source Ltd
+ *
+ * This file is part of GDA.
+ *  
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Contributors:
+ * 	Diamond Light Source Ltd
+ *******************************************************************************/
 /**
  */
 package org.opengda.lde.model.ldeexperiment;
 
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EEnum;
 import org.eclipse.emf.ecore.EOperation;
 import org.eclipse.emf.ecore.EPackage;
@@ -69,13 +90,13 @@ public interface LDEExperimentsPackage extends EPackage {
 	int EXPERIMENT_DEFINITION = 0;
 
 	/**
-	 * The feature id for the '<em><b>Samplelist</b></em>' containment reference.
+	 * The feature id for the '<em><b>Experiment</b></em>' containment reference list.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int EXPERIMENT_DEFINITION__SAMPLELIST = 0;
+	int EXPERIMENT_DEFINITION__EXPERIMENT = 0;
 
 	/**
 	 * The number of structural features of the '<em>Experiment Definition</em>' class.
@@ -87,50 +108,394 @@ public interface LDEExperimentsPackage extends EPackage {
 	int EXPERIMENT_DEFINITION_FEATURE_COUNT = 1;
 
 	/**
+	 * The operation id for the '<em>Get Experiment</em>' operation.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int EXPERIMENT_DEFINITION___GET_EXPERIMENT__STRING = 0;
+
+	/**
 	 * The number of operations of the '<em>Experiment Definition</em>' class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int EXPERIMENT_DEFINITION_OPERATION_COUNT = 0;
+	int EXPERIMENT_DEFINITION_OPERATION_COUNT = 1;
 
 	/**
-	 * The meta object id for the '{@link org.opengda.lde.model.ldeexperiment.impl.SampleListImpl <em>Sample List</em>}' class.
+	 * The meta object id for the '{@link org.opengda.lde.model.ldeexperiment.impl.ExperimentImpl <em>Experiment</em>}' class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see org.opengda.lde.model.ldeexperiment.impl.SampleListImpl
-	 * @see org.opengda.lde.model.ldeexperiment.impl.LDEExperimentsPackageImpl#getSampleList()
+	 * @see org.opengda.lde.model.ldeexperiment.impl.ExperimentImpl
+	 * @see org.opengda.lde.model.ldeexperiment.impl.LDEExperimentsPackageImpl#getExperiment()
 	 * @generated
 	 */
-	int SAMPLE_LIST = 1;
+	int EXPERIMENT = 1;
 
 	/**
-	 * The feature id for the '<em><b>Filename</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int SAMPLE_LIST__FILENAME = 0;
-
-	/**
-	 * The feature id for the '<em><b>Samples</b></em>' containment reference list.
+	 * The feature id for the '<em><b>Name</b></em>' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE_LIST__SAMPLES = 1;
+	int EXPERIMENT__NAME = 0;
 
 	/**
-	 * The number of structural features of the '<em>Sample List</em>' class.
+	 * The feature id for the '<em><b>Stage</b></em>' containment reference list.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE_LIST_FEATURE_COUNT = 2;
+	int EXPERIMENT__STAGE = 1;
+
+	/**
+	 * The feature id for the '<em><b>Description</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int EXPERIMENT__DESCRIPTION = 2;
+
+	/**
+	 * The feature id for the '<em><b>Number Of Stages</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int EXPERIMENT__NUMBER_OF_STAGES = 3;
+
+	/**
+	 * The number of structural features of the '<em>Experiment</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int EXPERIMENT_FEATURE_COUNT = 4;
+
+	/**
+	 * The operation id for the '<em>Get Stage By ID</em>' operation.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int EXPERIMENT___GET_STAGE_BY_ID__STRING = 0;
+
+	/**
+	 * The number of operations of the '<em>Experiment</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int EXPERIMENT_OPERATION_COUNT = 1;
+
+	/**
+	 * The meta object id for the '{@link org.opengda.lde.model.ldeexperiment.impl.StageImpl <em>Stage</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see org.opengda.lde.model.ldeexperiment.impl.StageImpl
+	 * @see org.opengda.lde.model.ldeexperiment.impl.LDEExperimentsPackageImpl#getStage()
+	 * @generated
+	 */
+	int STAGE = 2;
+
+	/**
+	 * The feature id for the '<em><b>Stage ID</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int STAGE__STAGE_ID = 0;
+
+	/**
+	 * The feature id for the '<em><b>Experiment</b></em>' container reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int STAGE__EXPERIMENT = 1;
+
+	/**
+	 * The feature id for the '<em><b>Cell</b></em>' containment reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int STAGE__CELL = 2;
+
+	/**
+	 * The feature id for the '<em><b>Detector x</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int STAGE__DETECTOR_X = 3;
+
+	/**
+	 * The feature id for the '<em><b>Detector y</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int STAGE__DETECTOR_Y = 4;
+
+	/**
+	 * The feature id for the '<em><b>Detector z</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int STAGE__DETECTOR_Z = 5;
+
+	/**
+	 * The feature id for the '<em><b>Camera x</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int STAGE__CAMERA_X = 6;
+
+	/**
+	 * The feature id for the '<em><b>Camera y</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int STAGE__CAMERA_Y = 7;
+
+	/**
+	 * The feature id for the '<em><b>Camera z</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int STAGE__CAMERA_Z = 8;
+
+	/**
+	 * The feature id for the '<em><b>Number Of Cells</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int STAGE__NUMBER_OF_CELLS = 9;
+
+	/**
+	 * The number of structural features of the '<em>Stage</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int STAGE_FEATURE_COUNT = 10;
+
+	/**
+	 * The operation id for the '<em>Get Cell By ID</em>' operation.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int STAGE___GET_CELL_BY_ID__STRING = 0;
+
+	/**
+	 * The operation id for the '<em>Has ID</em>' operation.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int STAGE___HAS_ID__DIAGNOSTICCHAIN_MAP = 1;
+
+	/**
+	 * The number of operations of the '<em>Stage</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int STAGE_OPERATION_COUNT = 2;
+
+	/**
+	 * The meta object id for the '{@link org.opengda.lde.model.ldeexperiment.impl.CellImpl <em>Cell</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see org.opengda.lde.model.ldeexperiment.impl.CellImpl
+	 * @see org.opengda.lde.model.ldeexperiment.impl.LDEExperimentsPackageImpl#getCell()
+	 * @generated
+	 */
+	int CELL = 3;
+
+	/**
+	 * The feature id for the '<em><b>Cell ID</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int CELL__CELL_ID = 0;
+
+	/**
+	 * The feature id for the '<em><b>Stage</b></em>' container reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int CELL__STAGE = 1;
+
+	/**
+	 * The feature id for the '<em><b>Sample</b></em>' containment reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int CELL__SAMPLE = 2;
+
+	/**
+	 * The feature id for the '<em><b>Visit ID</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int CELL__VISIT_ID = 3;
+
+	/**
+	 * The feature id for the '<em><b>Name</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int CELL__NAME = 4;
+
+	/**
+	 * The feature id for the '<em><b>Calibrant</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int CELL__CALIBRANT = 5;
+
+	/**
+	 * The feature id for the '<em><b>Calibrant x</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int CELL__CALIBRANT_X = 6;
+
+	/**
+	 * The feature id for the '<em><b>Calibrant y</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int CELL__CALIBRANT_Y = 7;
+
+	/**
+	 * The feature id for the '<em><b>Calibrant exposure</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int CELL__CALIBRANT_EXPOSURE = 8;
+
+	/**
+	 * The feature id for the '<em><b>Spin</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int CELL__SPIN = 9;
+
+	/**
+	 * The feature id for the '<em><b>Env Scannable Names</b></em>' attribute list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int CELL__ENV_SCANNABLE_NAMES = 10;
+
+	/**
+	 * The feature id for the '<em><b>Number Of Samples</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int CELL__NUMBER_OF_SAMPLES = 11;
+
+	/**
+	 * The feature id for the '<em><b>Email</b></em>' attribute list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int CELL__EMAIL = 12;
+
+	/**
+	 * The feature id for the '<em><b>Start Date</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int CELL__START_DATE = 13;
+
+	/**
+	 * The feature id for the '<em><b>End Date</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int CELL__END_DATE = 14;
+
+	/**
+	 * The feature id for the '<em><b>Enable Auto Email</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int CELL__ENABLE_AUTO_EMAIL = 15;
+
+	/**
+	 * The number of structural features of the '<em>Cell</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int CELL_FEATURE_COUNT = 16;
 
 	/**
 	 * The operation id for the '<em>Get Sample By Id</em>' operation.
@@ -139,7 +504,7 @@ public interface LDEExperimentsPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE_LIST___GET_SAMPLE_BY_ID__STRING = 0;
+	int CELL___GET_SAMPLE_BY_ID__STRING = 0;
 
 	/**
 	 * The operation id for the '<em>Get Sample By Name</em>' operation.
@@ -148,16 +513,34 @@ public interface LDEExperimentsPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE_LIST___GET_SAMPLE_BY_NAME__STRING = 1;
+	int CELL___GET_SAMPLE_BY_NAME__STRING = 1;
 
 	/**
-	 * The number of operations of the '<em>Sample List</em>' class.
+	 * The operation id for the '<em>Has Cell ID</em>' operation.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE_LIST_OPERATION_COUNT = 2;
+	int CELL___HAS_CELL_ID__DIAGNOSTICCHAIN_MAP = 2;
+
+	/**
+	 * The operation id for the '<em>Has Visit ID</em>' operation.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int CELL___HAS_VISIT_ID__DIAGNOSTICCHAIN_MAP = 3;
+
+	/**
+	 * The number of operations of the '<em>Cell</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int CELL_OPERATION_COUNT = 4;
 
 	/**
 	 * The meta object id for the '{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl <em>Sample</em>}' class.
@@ -167,16 +550,16 @@ public interface LDEExperimentsPackage extends EPackage {
 	 * @see org.opengda.lde.model.ldeexperiment.impl.LDEExperimentsPackageImpl#getSample()
 	 * @generated
 	 */
-	int SAMPLE = 2;
+	int SAMPLE = 4;
 
 	/**
-	 * The feature id for the '<em><b>Sample ID</b></em>' attribute.
+	 * The feature id for the '<em><b>Cell</b></em>' container reference.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE__SAMPLE_ID = 0;
+	int SAMPLE__CELL = 0;
 
 	/**
 	 * The feature id for the '<em><b>Status</b></em>' attribute.
@@ -206,58 +589,13 @@ public interface LDEExperimentsPackage extends EPackage {
 	int SAMPLE__NAME = 3;
 
 	/**
-	 * The feature id for the '<em><b>Cell ID</b></em>' attribute.
+	 * The feature id for the '<em><b>Sample ID</b></em>' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE__CELL_ID = 4;
-
-	/**
-	 * The feature id for the '<em><b>Visit ID</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int SAMPLE__VISIT_ID = 5;
-
-	/**
-	 * The feature id for the '<em><b>Calibrant</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int SAMPLE__CALIBRANT = 6;
-
-	/**
-	 * The feature id for the '<em><b>Calibrant x</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int SAMPLE__CALIBRANT_X = 7;
-
-	/**
-	 * The feature id for the '<em><b>Calibrant y</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int SAMPLE__CALIBRANT_Y = 8;
-
-	/**
-	 * The feature id for the '<em><b>Calibrant exposure</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int SAMPLE__CALIBRANT_EXPOSURE = 9;
+	int SAMPLE__SAMPLE_ID = 4;
 
 	/**
 	 * The feature id for the '<em><b>Sample xstart</b></em>' attribute.
@@ -266,7 +604,7 @@ public interface LDEExperimentsPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE__SAMPLE_XSTART = 10;
+	int SAMPLE__SAMPLE_XSTART = 5;
 
 	/**
 	 * The feature id for the '<em><b>Sample xstop</b></em>' attribute.
@@ -275,7 +613,7 @@ public interface LDEExperimentsPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE__SAMPLE_XSTOP = 11;
+	int SAMPLE__SAMPLE_XSTOP = 6;
 
 	/**
 	 * The feature id for the '<em><b>Sample xstep</b></em>' attribute.
@@ -284,7 +622,7 @@ public interface LDEExperimentsPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE__SAMPLE_XSTEP = 12;
+	int SAMPLE__SAMPLE_XSTEP = 7;
 
 	/**
 	 * The feature id for the '<em><b>Sample ystart</b></em>' attribute.
@@ -293,7 +631,7 @@ public interface LDEExperimentsPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE__SAMPLE_YSTART = 13;
+	int SAMPLE__SAMPLE_YSTART = 8;
 
 	/**
 	 * The feature id for the '<em><b>Sample ystop</b></em>' attribute.
@@ -302,7 +640,7 @@ public interface LDEExperimentsPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE__SAMPLE_YSTOP = 14;
+	int SAMPLE__SAMPLE_YSTOP = 9;
 
 	/**
 	 * The feature id for the '<em><b>Sample ystep</b></em>' attribute.
@@ -311,7 +649,7 @@ public interface LDEExperimentsPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE__SAMPLE_YSTEP = 15;
+	int SAMPLE__SAMPLE_YSTEP = 10;
 
 	/**
 	 * The feature id for the '<em><b>Sample exposure</b></em>' attribute.
@@ -320,61 +658,7 @@ public interface LDEExperimentsPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE__SAMPLE_EXPOSURE = 16;
-
-	/**
-	 * The feature id for the '<em><b>Detector x</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int SAMPLE__DETECTOR_X = 17;
-
-	/**
-	 * The feature id for the '<em><b>Detector y</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int SAMPLE__DETECTOR_Y = 18;
-
-	/**
-	 * The feature id for the '<em><b>Detector z</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int SAMPLE__DETECTOR_Z = 19;
-
-	/**
-	 * The feature id for the '<em><b>Email</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int SAMPLE__EMAIL = 20;
-
-	/**
-	 * The feature id for the '<em><b>Start Date</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int SAMPLE__START_DATE = 21;
-
-	/**
-	 * The feature id for the '<em><b>End Date</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int SAMPLE__END_DATE = 22;
+	int SAMPLE__SAMPLE_EXPOSURE = 11;
 
 	/**
 	 * The feature id for the '<em><b>Command</b></em>' attribute.
@@ -383,25 +667,7 @@ public interface LDEExperimentsPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE__COMMAND = 23;
-
-	/**
-	 * The feature id for the '<em><b>Mail Count</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int SAMPLE__MAIL_COUNT = 24;
-
-	/**
-	 * The feature id for the '<em><b>Data File Count</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int SAMPLE__DATA_FILE_COUNT = 25;
+	int SAMPLE__COMMAND = 12;
 
 	/**
 	 * The feature id for the '<em><b>Comment</b></em>' attribute.
@@ -410,7 +676,16 @@ public interface LDEExperimentsPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE__COMMENT = 26;
+	int SAMPLE__COMMENT = 13;
+
+	/**
+	 * The feature id for the '<em><b>Calibration File Path</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SAMPLE__CALIBRATION_FILE_PATH = 14;
 
 	/**
 	 * The feature id for the '<em><b>Data File Path</b></em>' attribute.
@@ -419,7 +694,7 @@ public interface LDEExperimentsPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE__DATA_FILE_PATH = 27;
+	int SAMPLE__DATA_FILE_PATH = 15;
 
 	/**
 	 * The number of structural features of the '<em>Sample</em>' class.
@@ -428,7 +703,7 @@ public interface LDEExperimentsPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE_FEATURE_COUNT = 28;
+	int SAMPLE_FEATURE_COUNT = 16;
 
 	/**
 	 * The number of operations of the '<em>Sample</em>' class.
@@ -447,7 +722,40 @@ public interface LDEExperimentsPackage extends EPackage {
 	 * @see org.opengda.lde.model.ldeexperiment.impl.LDEExperimentsPackageImpl#getSTATUS()
 	 * @generated
 	 */
-	int STATUS = 3;
+	int STATUS = 5;
+
+
+	/**
+	 * The meta object id for the '<em>Stage ID String</em>' data type.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see java.lang.String
+	 * @see org.opengda.lde.model.ldeexperiment.impl.LDEExperimentsPackageImpl#getStageIDString()
+	 * @generated
+	 */
+	int STAGE_ID_STRING = 6;
+
+
+	/**
+	 * The meta object id for the '<em>Date</em>' data type.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see java.util.Date
+	 * @see org.opengda.lde.model.ldeexperiment.impl.LDEExperimentsPackageImpl#getDate()
+	 * @generated
+	 */
+	int DATE = 7;
+
+
+	/**
+	 * The meta object id for the '<em>Calibrant Name String</em>' data type.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see java.lang.String
+	 * @see org.opengda.lde.model.ldeexperiment.impl.LDEExperimentsPackageImpl#getCalibrantNameString()
+	 * @generated
+	 */
+	int CALIBRANT_NAME_STRING = 8;
 
 
 	/**
@@ -461,67 +769,455 @@ public interface LDEExperimentsPackage extends EPackage {
 	EClass getExperimentDefinition();
 
 	/**
-	 * Returns the meta object for the containment reference '{@link org.opengda.lde.model.ldeexperiment.ExperimentDefinition#getSamplelist <em>Samplelist</em>}'.
+	 * Returns the meta object for the containment reference list '{@link org.opengda.lde.model.ldeexperiment.ExperimentDefinition#getExperiment <em>Experiment</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return the meta object for the containment reference '<em>Samplelist</em>'.
-	 * @see org.opengda.lde.model.ldeexperiment.ExperimentDefinition#getSamplelist()
+	 * @return the meta object for the containment reference list '<em>Experiment</em>'.
+	 * @see org.opengda.lde.model.ldeexperiment.ExperimentDefinition#getExperiment()
 	 * @see #getExperimentDefinition()
 	 * @generated
 	 */
-	EReference getExperimentDefinition_Samplelist();
+	EReference getExperimentDefinition_Experiment();
 
 	/**
-	 * Returns the meta object for class '{@link org.opengda.lde.model.ldeexperiment.SampleList <em>Sample List</em>}'.
+	 * Returns the meta object for the '{@link org.opengda.lde.model.ldeexperiment.ExperimentDefinition#getExperiment(java.lang.String) <em>Get Experiment</em>}' operation.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return the meta object for class '<em>Sample List</em>'.
-	 * @see org.opengda.lde.model.ldeexperiment.SampleList
+	 * @return the meta object for the '<em>Get Experiment</em>' operation.
+	 * @see org.opengda.lde.model.ldeexperiment.ExperimentDefinition#getExperiment(java.lang.String)
 	 * @generated
 	 */
-	EClass getSampleList();
+	EOperation getExperimentDefinition__GetExperiment__String();
 
 	/**
-	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.SampleList#getFilename <em>Filename</em>}'.
+	 * Returns the meta object for class '{@link org.opengda.lde.model.ldeexperiment.Experiment <em>Experiment</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Filename</em>'.
-	 * @see org.opengda.lde.model.ldeexperiment.SampleList#getFilename()
-	 * @see #getSampleList()
+	 * @return the meta object for class '<em>Experiment</em>'.
+	 * @see org.opengda.lde.model.ldeexperiment.Experiment
 	 * @generated
 	 */
-	EAttribute getSampleList_Filename();
+	EClass getExperiment();
 
 	/**
-	 * Returns the meta object for the containment reference list '{@link org.opengda.lde.model.ldeexperiment.SampleList#getSamples <em>Samples</em>}'.
+	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Experiment#getName <em>Name</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return the meta object for the containment reference list '<em>Samples</em>'.
-	 * @see org.opengda.lde.model.ldeexperiment.SampleList#getSamples()
-	 * @see #getSampleList()
+	 * @return the meta object for the attribute '<em>Name</em>'.
+	 * @see org.opengda.lde.model.ldeexperiment.Experiment#getName()
+	 * @see #getExperiment()
 	 * @generated
 	 */
-	EReference getSampleList_Samples();
+	EAttribute getExperiment_Name();
 
 	/**
-	 * Returns the meta object for the '{@link org.opengda.lde.model.ldeexperiment.SampleList#getSampleById(java.lang.String) <em>Get Sample By Id</em>}' operation.
+	 * Returns the meta object for the containment reference list '{@link org.opengda.lde.model.ldeexperiment.Experiment#getStage <em>Stage</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference list '<em>Stage</em>'.
+	 * @see org.opengda.lde.model.ldeexperiment.Experiment#getStage()
+	 * @see #getExperiment()
+	 * @generated
+	 */
+	EReference getExperiment_Stage();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Experiment#getDescription <em>Description</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Description</em>'.
+	 * @see org.opengda.lde.model.ldeexperiment.Experiment#getDescription()
+	 * @see #getExperiment()
+	 * @generated
+	 */
+	EAttribute getExperiment_Description();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Experiment#getNumberOfStages <em>Number Of Stages</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Number Of Stages</em>'.
+	 * @see org.opengda.lde.model.ldeexperiment.Experiment#getNumberOfStages()
+	 * @see #getExperiment()
+	 * @generated
+	 */
+	EAttribute getExperiment_NumberOfStages();
+
+	/**
+	 * Returns the meta object for the '{@link org.opengda.lde.model.ldeexperiment.Experiment#getStageByID(java.lang.String) <em>Get Stage By ID</em>}' operation.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the '<em>Get Stage By ID</em>' operation.
+	 * @see org.opengda.lde.model.ldeexperiment.Experiment#getStageByID(java.lang.String)
+	 * @generated
+	 */
+	EOperation getExperiment__GetStageByID__String();
+
+	/**
+	 * Returns the meta object for class '{@link org.opengda.lde.model.ldeexperiment.Stage <em>Stage</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Stage</em>'.
+	 * @see org.opengda.lde.model.ldeexperiment.Stage
+	 * @generated
+	 */
+	EClass getStage();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Stage#getStageID <em>Stage ID</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Stage ID</em>'.
+	 * @see org.opengda.lde.model.ldeexperiment.Stage#getStageID()
+	 * @see #getStage()
+	 * @generated
+	 */
+	EAttribute getStage_StageID();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Stage#getDetector_x <em>Detector x</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Detector x</em>'.
+	 * @see org.opengda.lde.model.ldeexperiment.Stage#getDetector_x()
+	 * @see #getStage()
+	 * @generated
+	 */
+	EAttribute getStage_Detector_x();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Stage#getDetector_y <em>Detector y</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Detector y</em>'.
+	 * @see org.opengda.lde.model.ldeexperiment.Stage#getDetector_y()
+	 * @see #getStage()
+	 * @generated
+	 */
+	EAttribute getStage_Detector_y();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Stage#getDetector_z <em>Detector z</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Detector z</em>'.
+	 * @see org.opengda.lde.model.ldeexperiment.Stage#getDetector_z()
+	 * @see #getStage()
+	 * @generated
+	 */
+	EAttribute getStage_Detector_z();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Stage#getCamera_x <em>Camera x</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Camera x</em>'.
+	 * @see org.opengda.lde.model.ldeexperiment.Stage#getCamera_x()
+	 * @see #getStage()
+	 * @generated
+	 */
+	EAttribute getStage_Camera_x();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Stage#getCamera_y <em>Camera y</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Camera y</em>'.
+	 * @see org.opengda.lde.model.ldeexperiment.Stage#getCamera_y()
+	 * @see #getStage()
+	 * @generated
+	 */
+	EAttribute getStage_Camera_y();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Stage#getCamera_z <em>Camera z</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Camera z</em>'.
+	 * @see org.opengda.lde.model.ldeexperiment.Stage#getCamera_z()
+	 * @see #getStage()
+	 * @generated
+	 */
+	EAttribute getStage_Camera_z();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Stage#getNumberOfCells <em>Number Of Cells</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Number Of Cells</em>'.
+	 * @see org.opengda.lde.model.ldeexperiment.Stage#getNumberOfCells()
+	 * @see #getStage()
+	 * @generated
+	 */
+	EAttribute getStage_NumberOfCells();
+
+	/**
+	 * Returns the meta object for the container reference '{@link org.opengda.lde.model.ldeexperiment.Stage#getExperiment <em>Experiment</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the container reference '<em>Experiment</em>'.
+	 * @see org.opengda.lde.model.ldeexperiment.Stage#getExperiment()
+	 * @see #getStage()
+	 * @generated
+	 */
+	EReference getStage_Experiment();
+
+	/**
+	 * Returns the meta object for the containment reference list '{@link org.opengda.lde.model.ldeexperiment.Stage#getCell <em>Cell</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference list '<em>Cell</em>'.
+	 * @see org.opengda.lde.model.ldeexperiment.Stage#getCell()
+	 * @see #getStage()
+	 * @generated
+	 */
+	EReference getStage_Cell();
+
+	/**
+	 * Returns the meta object for the '{@link org.opengda.lde.model.ldeexperiment.Stage#getCellByID(java.lang.String) <em>Get Cell By ID</em>}' operation.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the '<em>Get Cell By ID</em>' operation.
+	 * @see org.opengda.lde.model.ldeexperiment.Stage#getCellByID(java.lang.String)
+	 * @generated
+	 */
+	EOperation getStage__GetCellByID__String();
+
+	/**
+	 * Returns the meta object for the '{@link org.opengda.lde.model.ldeexperiment.Stage#hasID(org.eclipse.emf.common.util.DiagnosticChain, java.util.Map) <em>Has ID</em>}' operation.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the '<em>Has ID</em>' operation.
+	 * @see org.opengda.lde.model.ldeexperiment.Stage#hasID(org.eclipse.emf.common.util.DiagnosticChain, java.util.Map)
+	 * @generated
+	 */
+	EOperation getStage__HasID__DiagnosticChain_Map();
+
+	/**
+	 * Returns the meta object for class '{@link org.opengda.lde.model.ldeexperiment.Cell <em>Cell</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Cell</em>'.
+	 * @see org.opengda.lde.model.ldeexperiment.Cell
+	 * @generated
+	 */
+	EClass getCell();
+
+	/**
+	 * Returns the meta object for the container reference '{@link org.opengda.lde.model.ldeexperiment.Cell#getStage <em>Stage</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the container reference '<em>Stage</em>'.
+	 * @see org.opengda.lde.model.ldeexperiment.Cell#getStage()
+	 * @see #getCell()
+	 * @generated
+	 */
+	EReference getCell_Stage();
+
+	/**
+	 * Returns the meta object for the containment reference list '{@link org.opengda.lde.model.ldeexperiment.Cell#getSample <em>Sample</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference list '<em>Sample</em>'.
+	 * @see org.opengda.lde.model.ldeexperiment.Cell#getSample()
+	 * @see #getCell()
+	 * @generated
+	 */
+	EReference getCell_Sample();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Cell#getCellID <em>Cell ID</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Cell ID</em>'.
+	 * @see org.opengda.lde.model.ldeexperiment.Cell#getCellID()
+	 * @see #getCell()
+	 * @generated
+	 */
+	EAttribute getCell_CellID();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Cell#getName <em>Name</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Name</em>'.
+	 * @see org.opengda.lde.model.ldeexperiment.Cell#getName()
+	 * @see #getCell()
+	 * @generated
+	 */
+	EAttribute getCell_Name();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Cell#getVisitID <em>Visit ID</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Visit ID</em>'.
+	 * @see org.opengda.lde.model.ldeexperiment.Cell#getVisitID()
+	 * @see #getCell()
+	 * @generated
+	 */
+	EAttribute getCell_VisitID();
+
+	/**
+	 * Returns the meta object for the attribute list '{@link org.opengda.lde.model.ldeexperiment.Cell#getEmail <em>Email</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute list '<em>Email</em>'.
+	 * @see org.opengda.lde.model.ldeexperiment.Cell#getEmail()
+	 * @see #getCell()
+	 * @generated
+	 */
+	EAttribute getCell_Email();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Cell#getStartDate <em>Start Date</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Start Date</em>'.
+	 * @see org.opengda.lde.model.ldeexperiment.Cell#getStartDate()
+	 * @see #getCell()
+	 * @generated
+	 */
+	EAttribute getCell_StartDate();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Cell#getEndDate <em>End Date</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>End Date</em>'.
+	 * @see org.opengda.lde.model.ldeexperiment.Cell#getEndDate()
+	 * @see #getCell()
+	 * @generated
+	 */
+	EAttribute getCell_EndDate();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Cell#isEnableAutoEmail <em>Enable Auto Email</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Enable Auto Email</em>'.
+	 * @see org.opengda.lde.model.ldeexperiment.Cell#isEnableAutoEmail()
+	 * @see #getCell()
+	 * @generated
+	 */
+	EAttribute getCell_EnableAutoEmail();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Cell#getCalibrant <em>Calibrant</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Calibrant</em>'.
+	 * @see org.opengda.lde.model.ldeexperiment.Cell#getCalibrant()
+	 * @see #getCell()
+	 * @generated
+	 */
+	EAttribute getCell_Calibrant();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Cell#getCalibrant_x <em>Calibrant x</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Calibrant x</em>'.
+	 * @see org.opengda.lde.model.ldeexperiment.Cell#getCalibrant_x()
+	 * @see #getCell()
+	 * @generated
+	 */
+	EAttribute getCell_Calibrant_x();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Cell#getCalibrant_y <em>Calibrant y</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Calibrant y</em>'.
+	 * @see org.opengda.lde.model.ldeexperiment.Cell#getCalibrant_y()
+	 * @see #getCell()
+	 * @generated
+	 */
+	EAttribute getCell_Calibrant_y();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Cell#getCalibrant_exposure <em>Calibrant exposure</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Calibrant exposure</em>'.
+	 * @see org.opengda.lde.model.ldeexperiment.Cell#getCalibrant_exposure()
+	 * @see #getCell()
+	 * @generated
+	 */
+	EAttribute getCell_Calibrant_exposure();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Cell#isSpin <em>Spin</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Spin</em>'.
+	 * @see org.opengda.lde.model.ldeexperiment.Cell#isSpin()
+	 * @see #getCell()
+	 * @generated
+	 */
+	EAttribute getCell_Spin();
+
+	/**
+	 * Returns the meta object for the attribute list '{@link org.opengda.lde.model.ldeexperiment.Cell#getEnvScannableNames <em>Env Scannable Names</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute list '<em>Env Scannable Names</em>'.
+	 * @see org.opengda.lde.model.ldeexperiment.Cell#getEnvScannableNames()
+	 * @see #getCell()
+	 * @generated
+	 */
+	EAttribute getCell_EnvScannableNames();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Cell#getNumberOfSamples <em>Number Of Samples</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Number Of Samples</em>'.
+	 * @see org.opengda.lde.model.ldeexperiment.Cell#getNumberOfSamples()
+	 * @see #getCell()
+	 * @generated
+	 */
+	EAttribute getCell_NumberOfSamples();
+
+	/**
+	 * Returns the meta object for the '{@link org.opengda.lde.model.ldeexperiment.Cell#getSampleById(java.lang.String) <em>Get Sample By Id</em>}' operation.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @return the meta object for the '<em>Get Sample By Id</em>' operation.
-	 * @see org.opengda.lde.model.ldeexperiment.SampleList#getSampleById(java.lang.String)
+	 * @see org.opengda.lde.model.ldeexperiment.Cell#getSampleById(java.lang.String)
 	 * @generated
 	 */
-	EOperation getSampleList__GetSampleById__String();
+	EOperation getCell__GetSampleById__String();
 
 	/**
-	 * Returns the meta object for the '{@link org.opengda.lde.model.ldeexperiment.SampleList#getSampleByName(java.lang.String) <em>Get Sample By Name</em>}' operation.
+	 * Returns the meta object for the '{@link org.opengda.lde.model.ldeexperiment.Cell#getSampleByName(java.lang.String) <em>Get Sample By Name</em>}' operation.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @return the meta object for the '<em>Get Sample By Name</em>' operation.
-	 * @see org.opengda.lde.model.ldeexperiment.SampleList#getSampleByName(java.lang.String)
+	 * @see org.opengda.lde.model.ldeexperiment.Cell#getSampleByName(java.lang.String)
 	 * @generated
 	 */
-	EOperation getSampleList__GetSampleByName__String();
+	EOperation getCell__GetSampleByName__String();
+
+	/**
+	 * Returns the meta object for the '{@link org.opengda.lde.model.ldeexperiment.Cell#hasCellID(org.eclipse.emf.common.util.DiagnosticChain, java.util.Map) <em>Has Cell ID</em>}' operation.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the '<em>Has Cell ID</em>' operation.
+	 * @see org.opengda.lde.model.ldeexperiment.Cell#hasCellID(org.eclipse.emf.common.util.DiagnosticChain, java.util.Map)
+	 * @generated
+	 */
+	EOperation getCell__HasCellID__DiagnosticChain_Map();
+
+	/**
+	 * Returns the meta object for the '{@link org.opengda.lde.model.ldeexperiment.Cell#hasVisitID(org.eclipse.emf.common.util.DiagnosticChain, java.util.Map) <em>Has Visit ID</em>}' operation.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the '<em>Has Visit ID</em>' operation.
+	 * @see org.opengda.lde.model.ldeexperiment.Cell#hasVisitID(org.eclipse.emf.common.util.DiagnosticChain, java.util.Map)
+	 * @generated
+	 */
+	EOperation getCell__HasVisitID__DiagnosticChain_Map();
 
 	/**
 	 * Returns the meta object for class '{@link org.opengda.lde.model.ldeexperiment.Sample <em>Sample</em>}'.
@@ -532,6 +1228,17 @@ public interface LDEExperimentsPackage extends EPackage {
 	 * @generated
 	 */
 	EClass getSample();
+
+	/**
+	 * Returns the meta object for the container reference '{@link org.opengda.lde.model.ldeexperiment.Sample#getCell <em>Cell</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the container reference '<em>Cell</em>'.
+	 * @see org.opengda.lde.model.ldeexperiment.Sample#getCell()
+	 * @see #getSample()
+	 * @generated
+	 */
+	EReference getSample_Cell();
 
 	/**
 	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Sample#getSampleID <em>Sample ID</em>}'.
@@ -576,72 +1283,6 @@ public interface LDEExperimentsPackage extends EPackage {
 	 * @generated
 	 */
 	EAttribute getSample_Name();
-
-	/**
-	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Sample#getCellID <em>Cell ID</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Cell ID</em>'.
-	 * @see org.opengda.lde.model.ldeexperiment.Sample#getCellID()
-	 * @see #getSample()
-	 * @generated
-	 */
-	EAttribute getSample_CellID();
-
-	/**
-	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Sample#getVisitID <em>Visit ID</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Visit ID</em>'.
-	 * @see org.opengda.lde.model.ldeexperiment.Sample#getVisitID()
-	 * @see #getSample()
-	 * @generated
-	 */
-	EAttribute getSample_VisitID();
-
-	/**
-	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Sample#getCalibrant <em>Calibrant</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Calibrant</em>'.
-	 * @see org.opengda.lde.model.ldeexperiment.Sample#getCalibrant()
-	 * @see #getSample()
-	 * @generated
-	 */
-	EAttribute getSample_Calibrant();
-
-	/**
-	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Sample#getCalibrant_x <em>Calibrant x</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Calibrant x</em>'.
-	 * @see org.opengda.lde.model.ldeexperiment.Sample#getCalibrant_x()
-	 * @see #getSample()
-	 * @generated
-	 */
-	EAttribute getSample_Calibrant_x();
-
-	/**
-	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Sample#getCalibrant_y <em>Calibrant y</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Calibrant y</em>'.
-	 * @see org.opengda.lde.model.ldeexperiment.Sample#getCalibrant_y()
-	 * @see #getSample()
-	 * @generated
-	 */
-	EAttribute getSample_Calibrant_y();
-
-	/**
-	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Sample#getCalibrant_exposure <em>Calibrant exposure</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Calibrant exposure</em>'.
-	 * @see org.opengda.lde.model.ldeexperiment.Sample#getCalibrant_exposure()
-	 * @see #getSample()
-	 * @generated
-	 */
-	EAttribute getSample_Calibrant_exposure();
 
 	/**
 	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Sample#getSample_x_start <em>Sample xstart</em>}'.
@@ -721,72 +1362,6 @@ public interface LDEExperimentsPackage extends EPackage {
 	EAttribute getSample_Sample_exposure();
 
 	/**
-	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Sample#getDetector_x <em>Detector x</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Detector x</em>'.
-	 * @see org.opengda.lde.model.ldeexperiment.Sample#getDetector_x()
-	 * @see #getSample()
-	 * @generated
-	 */
-	EAttribute getSample_Detector_x();
-
-	/**
-	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Sample#getDetector_y <em>Detector y</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Detector y</em>'.
-	 * @see org.opengda.lde.model.ldeexperiment.Sample#getDetector_y()
-	 * @see #getSample()
-	 * @generated
-	 */
-	EAttribute getSample_Detector_y();
-
-	/**
-	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Sample#getDetector_z <em>Detector z</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Detector z</em>'.
-	 * @see org.opengda.lde.model.ldeexperiment.Sample#getDetector_z()
-	 * @see #getSample()
-	 * @generated
-	 */
-	EAttribute getSample_Detector_z();
-
-	/**
-	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Sample#getEmail <em>Email</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Email</em>'.
-	 * @see org.opengda.lde.model.ldeexperiment.Sample#getEmail()
-	 * @see #getSample()
-	 * @generated
-	 */
-	EAttribute getSample_Email();
-
-	/**
-	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Sample#getStartDate <em>Start Date</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Start Date</em>'.
-	 * @see org.opengda.lde.model.ldeexperiment.Sample#getStartDate()
-	 * @see #getSample()
-	 * @generated
-	 */
-	EAttribute getSample_StartDate();
-
-	/**
-	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Sample#getEndDate <em>End Date</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>End Date</em>'.
-	 * @see org.opengda.lde.model.ldeexperiment.Sample#getEndDate()
-	 * @see #getSample()
-	 * @generated
-	 */
-	EAttribute getSample_EndDate();
-
-	/**
 	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Sample#getCommand <em>Command</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -798,28 +1373,6 @@ public interface LDEExperimentsPackage extends EPackage {
 	EAttribute getSample_Command();
 
 	/**
-	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Sample#getMailCount <em>Mail Count</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Mail Count</em>'.
-	 * @see org.opengda.lde.model.ldeexperiment.Sample#getMailCount()
-	 * @see #getSample()
-	 * @generated
-	 */
-	EAttribute getSample_MailCount();
-
-	/**
-	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Sample#getDataFileCount <em>Data File Count</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Data File Count</em>'.
-	 * @see org.opengda.lde.model.ldeexperiment.Sample#getDataFileCount()
-	 * @see #getSample()
-	 * @generated
-	 */
-	EAttribute getSample_DataFileCount();
-
-	/**
 	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Sample#getComment <em>Comment</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -829,6 +1382,17 @@ public interface LDEExperimentsPackage extends EPackage {
 	 * @generated
 	 */
 	EAttribute getSample_Comment();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Sample#getCalibrationFilePath <em>Calibration File Path</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Calibration File Path</em>'.
+	 * @see org.opengda.lde.model.ldeexperiment.Sample#getCalibrationFilePath()
+	 * @see #getSample()
+	 * @generated
+	 */
+	EAttribute getSample_CalibrationFilePath();
 
 	/**
 	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Sample#getDataFilePath <em>Data File Path</em>}'.
@@ -850,6 +1414,41 @@ public interface LDEExperimentsPackage extends EPackage {
 	 * @generated
 	 */
 	EEnum getSTATUS();
+
+	/**
+	 * Returns the meta object for data type '{@link java.lang.String <em>Stage ID String</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for data type '<em>Stage ID String</em>'.
+	 * @see java.lang.String
+	 * @model instanceClass="java.lang.String"
+	 *        extendedMetaData="enumeration='LS1 LS2 MS1 MS2 MS3 MS4 SS1 SS2 SS3 SS4 SS5 SS6 ROBOT'"
+	 * @generated
+	 */
+	EDataType getStageIDString();
+
+	/**
+	 * Returns the meta object for data type '{@link java.util.Date <em>Date</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for data type '<em>Date</em>'.
+	 * @see java.util.Date
+	 * @model instanceClass="java.util.Date"
+	 * @generated
+	 */
+	EDataType getDate();
+
+	/**
+	 * Returns the meta object for data type '{@link java.lang.String <em>Calibrant Name String</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for data type '<em>Calibrant Name String</em>'.
+	 * @see java.lang.String
+	 * @model instanceClass="java.lang.String"
+	 *        extendedMetaData="enumeration='Si(NIST-SRM-640c) CeO2(NIST-SRM-674b)'"
+	 * @generated
+	 */
+	EDataType getCalibrantNameString();
 
 	/**
 	 * Returns the factory that creates the instances of the model.
@@ -885,38 +1484,314 @@ public interface LDEExperimentsPackage extends EPackage {
 		EClass EXPERIMENT_DEFINITION = eINSTANCE.getExperimentDefinition();
 
 		/**
-		 * The meta object literal for the '<em><b>Samplelist</b></em>' containment reference feature.
+		 * The meta object literal for the '<em><b>Experiment</b></em>' containment reference list feature.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
 		 * @generated
 		 */
-		EReference EXPERIMENT_DEFINITION__SAMPLELIST = eINSTANCE.getExperimentDefinition_Samplelist();
+		EReference EXPERIMENT_DEFINITION__EXPERIMENT = eINSTANCE.getExperimentDefinition_Experiment();
 
 		/**
-		 * The meta object literal for the '{@link org.opengda.lde.model.ldeexperiment.impl.SampleListImpl <em>Sample List</em>}' class.
+		 * The meta object literal for the '<em><b>Get Experiment</b></em>' operation.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
-		 * @see org.opengda.lde.model.ldeexperiment.impl.SampleListImpl
-		 * @see org.opengda.lde.model.ldeexperiment.impl.LDEExperimentsPackageImpl#getSampleList()
 		 * @generated
 		 */
-		EClass SAMPLE_LIST = eINSTANCE.getSampleList();
+		EOperation EXPERIMENT_DEFINITION___GET_EXPERIMENT__STRING = eINSTANCE.getExperimentDefinition__GetExperiment__String();
 
 		/**
-		 * The meta object literal for the '<em><b>Filename</b></em>' attribute feature.
+		 * The meta object literal for the '{@link org.opengda.lde.model.ldeexperiment.impl.ExperimentImpl <em>Experiment</em>}' class.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
+		 * @see org.opengda.lde.model.ldeexperiment.impl.ExperimentImpl
+		 * @see org.opengda.lde.model.ldeexperiment.impl.LDEExperimentsPackageImpl#getExperiment()
 		 * @generated
 		 */
-		EAttribute SAMPLE_LIST__FILENAME = eINSTANCE.getSampleList_Filename();
+		EClass EXPERIMENT = eINSTANCE.getExperiment();
 
 		/**
-		 * The meta object literal for the '<em><b>Samples</b></em>' containment reference list feature.
+		 * The meta object literal for the '<em><b>Name</b></em>' attribute feature.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
 		 * @generated
 		 */
-		EReference SAMPLE_LIST__SAMPLES = eINSTANCE.getSampleList_Samples();
+		EAttribute EXPERIMENT__NAME = eINSTANCE.getExperiment_Name();
+
+		/**
+		 * The meta object literal for the '<em><b>Stage</b></em>' containment reference list feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EReference EXPERIMENT__STAGE = eINSTANCE.getExperiment_Stage();
+
+		/**
+		 * The meta object literal for the '<em><b>Description</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute EXPERIMENT__DESCRIPTION = eINSTANCE.getExperiment_Description();
+
+		/**
+		 * The meta object literal for the '<em><b>Number Of Stages</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute EXPERIMENT__NUMBER_OF_STAGES = eINSTANCE.getExperiment_NumberOfStages();
+
+		/**
+		 * The meta object literal for the '<em><b>Get Stage By ID</b></em>' operation.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EOperation EXPERIMENT___GET_STAGE_BY_ID__STRING = eINSTANCE.getExperiment__GetStageByID__String();
+
+		/**
+		 * The meta object literal for the '{@link org.opengda.lde.model.ldeexperiment.impl.StageImpl <em>Stage</em>}' class.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @see org.opengda.lde.model.ldeexperiment.impl.StageImpl
+		 * @see org.opengda.lde.model.ldeexperiment.impl.LDEExperimentsPackageImpl#getStage()
+		 * @generated
+		 */
+		EClass STAGE = eINSTANCE.getStage();
+
+		/**
+		 * The meta object literal for the '<em><b>Stage ID</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute STAGE__STAGE_ID = eINSTANCE.getStage_StageID();
+
+		/**
+		 * The meta object literal for the '<em><b>Detector x</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute STAGE__DETECTOR_X = eINSTANCE.getStage_Detector_x();
+
+		/**
+		 * The meta object literal for the '<em><b>Detector y</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute STAGE__DETECTOR_Y = eINSTANCE.getStage_Detector_y();
+
+		/**
+		 * The meta object literal for the '<em><b>Detector z</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute STAGE__DETECTOR_Z = eINSTANCE.getStage_Detector_z();
+
+		/**
+		 * The meta object literal for the '<em><b>Camera x</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute STAGE__CAMERA_X = eINSTANCE.getStage_Camera_x();
+
+		/**
+		 * The meta object literal for the '<em><b>Camera y</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute STAGE__CAMERA_Y = eINSTANCE.getStage_Camera_y();
+
+		/**
+		 * The meta object literal for the '<em><b>Camera z</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute STAGE__CAMERA_Z = eINSTANCE.getStage_Camera_z();
+
+		/**
+		 * The meta object literal for the '<em><b>Number Of Cells</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute STAGE__NUMBER_OF_CELLS = eINSTANCE.getStage_NumberOfCells();
+
+		/**
+		 * The meta object literal for the '<em><b>Experiment</b></em>' container reference feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EReference STAGE__EXPERIMENT = eINSTANCE.getStage_Experiment();
+
+		/**
+		 * The meta object literal for the '<em><b>Cell</b></em>' containment reference list feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EReference STAGE__CELL = eINSTANCE.getStage_Cell();
+
+		/**
+		 * The meta object literal for the '<em><b>Get Cell By ID</b></em>' operation.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EOperation STAGE___GET_CELL_BY_ID__STRING = eINSTANCE.getStage__GetCellByID__String();
+
+		/**
+		 * The meta object literal for the '<em><b>Has ID</b></em>' operation.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EOperation STAGE___HAS_ID__DIAGNOSTICCHAIN_MAP = eINSTANCE.getStage__HasID__DiagnosticChain_Map();
+
+		/**
+		 * The meta object literal for the '{@link org.opengda.lde.model.ldeexperiment.impl.CellImpl <em>Cell</em>}' class.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @see org.opengda.lde.model.ldeexperiment.impl.CellImpl
+		 * @see org.opengda.lde.model.ldeexperiment.impl.LDEExperimentsPackageImpl#getCell()
+		 * @generated
+		 */
+		EClass CELL = eINSTANCE.getCell();
+
+		/**
+		 * The meta object literal for the '<em><b>Stage</b></em>' container reference feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EReference CELL__STAGE = eINSTANCE.getCell_Stage();
+
+		/**
+		 * The meta object literal for the '<em><b>Sample</b></em>' containment reference list feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EReference CELL__SAMPLE = eINSTANCE.getCell_Sample();
+
+		/**
+		 * The meta object literal for the '<em><b>Cell ID</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute CELL__CELL_ID = eINSTANCE.getCell_CellID();
+
+		/**
+		 * The meta object literal for the '<em><b>Name</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute CELL__NAME = eINSTANCE.getCell_Name();
+
+		/**
+		 * The meta object literal for the '<em><b>Visit ID</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute CELL__VISIT_ID = eINSTANCE.getCell_VisitID();
+
+		/**
+		 * The meta object literal for the '<em><b>Email</b></em>' attribute list feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute CELL__EMAIL = eINSTANCE.getCell_Email();
+
+		/**
+		 * The meta object literal for the '<em><b>Start Date</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute CELL__START_DATE = eINSTANCE.getCell_StartDate();
+
+		/**
+		 * The meta object literal for the '<em><b>End Date</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute CELL__END_DATE = eINSTANCE.getCell_EndDate();
+
+		/**
+		 * The meta object literal for the '<em><b>Enable Auto Email</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute CELL__ENABLE_AUTO_EMAIL = eINSTANCE.getCell_EnableAutoEmail();
+
+		/**
+		 * The meta object literal for the '<em><b>Calibrant</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute CELL__CALIBRANT = eINSTANCE.getCell_Calibrant();
+
+		/**
+		 * The meta object literal for the '<em><b>Calibrant x</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute CELL__CALIBRANT_X = eINSTANCE.getCell_Calibrant_x();
+
+		/**
+		 * The meta object literal for the '<em><b>Calibrant y</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute CELL__CALIBRANT_Y = eINSTANCE.getCell_Calibrant_y();
+
+		/**
+		 * The meta object literal for the '<em><b>Calibrant exposure</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute CELL__CALIBRANT_EXPOSURE = eINSTANCE.getCell_Calibrant_exposure();
+
+		/**
+		 * The meta object literal for the '<em><b>Spin</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute CELL__SPIN = eINSTANCE.getCell_Spin();
+
+		/**
+		 * The meta object literal for the '<em><b>Env Scannable Names</b></em>' attribute list feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute CELL__ENV_SCANNABLE_NAMES = eINSTANCE.getCell_EnvScannableNames();
+
+		/**
+		 * The meta object literal for the '<em><b>Number Of Samples</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute CELL__NUMBER_OF_SAMPLES = eINSTANCE.getCell_NumberOfSamples();
 
 		/**
 		 * The meta object literal for the '<em><b>Get Sample By Id</b></em>' operation.
@@ -924,7 +1799,7 @@ public interface LDEExperimentsPackage extends EPackage {
 		 * <!-- end-user-doc -->
 		 * @generated
 		 */
-		EOperation SAMPLE_LIST___GET_SAMPLE_BY_ID__STRING = eINSTANCE.getSampleList__GetSampleById__String();
+		EOperation CELL___GET_SAMPLE_BY_ID__STRING = eINSTANCE.getCell__GetSampleById__String();
 
 		/**
 		 * The meta object literal for the '<em><b>Get Sample By Name</b></em>' operation.
@@ -932,7 +1807,23 @@ public interface LDEExperimentsPackage extends EPackage {
 		 * <!-- end-user-doc -->
 		 * @generated
 		 */
-		EOperation SAMPLE_LIST___GET_SAMPLE_BY_NAME__STRING = eINSTANCE.getSampleList__GetSampleByName__String();
+		EOperation CELL___GET_SAMPLE_BY_NAME__STRING = eINSTANCE.getCell__GetSampleByName__String();
+
+		/**
+		 * The meta object literal for the '<em><b>Has Cell ID</b></em>' operation.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EOperation CELL___HAS_CELL_ID__DIAGNOSTICCHAIN_MAP = eINSTANCE.getCell__HasCellID__DiagnosticChain_Map();
+
+		/**
+		 * The meta object literal for the '<em><b>Has Visit ID</b></em>' operation.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EOperation CELL___HAS_VISIT_ID__DIAGNOSTICCHAIN_MAP = eINSTANCE.getCell__HasVisitID__DiagnosticChain_Map();
 
 		/**
 		 * The meta object literal for the '{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl <em>Sample</em>}' class.
@@ -943,6 +1834,14 @@ public interface LDEExperimentsPackage extends EPackage {
 		 * @generated
 		 */
 		EClass SAMPLE = eINSTANCE.getSample();
+
+		/**
+		 * The meta object literal for the '<em><b>Cell</b></em>' container reference feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EReference SAMPLE__CELL = eINSTANCE.getSample_Cell();
 
 		/**
 		 * The meta object literal for the '<em><b>Sample ID</b></em>' attribute feature.
@@ -975,54 +1874,6 @@ public interface LDEExperimentsPackage extends EPackage {
 		 * @generated
 		 */
 		EAttribute SAMPLE__NAME = eINSTANCE.getSample_Name();
-
-		/**
-		 * The meta object literal for the '<em><b>Cell ID</b></em>' attribute feature.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated
-		 */
-		EAttribute SAMPLE__CELL_ID = eINSTANCE.getSample_CellID();
-
-		/**
-		 * The meta object literal for the '<em><b>Visit ID</b></em>' attribute feature.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated
-		 */
-		EAttribute SAMPLE__VISIT_ID = eINSTANCE.getSample_VisitID();
-
-		/**
-		 * The meta object literal for the '<em><b>Calibrant</b></em>' attribute feature.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated
-		 */
-		EAttribute SAMPLE__CALIBRANT = eINSTANCE.getSample_Calibrant();
-
-		/**
-		 * The meta object literal for the '<em><b>Calibrant x</b></em>' attribute feature.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated
-		 */
-		EAttribute SAMPLE__CALIBRANT_X = eINSTANCE.getSample_Calibrant_x();
-
-		/**
-		 * The meta object literal for the '<em><b>Calibrant y</b></em>' attribute feature.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated
-		 */
-		EAttribute SAMPLE__CALIBRANT_Y = eINSTANCE.getSample_Calibrant_y();
-
-		/**
-		 * The meta object literal for the '<em><b>Calibrant exposure</b></em>' attribute feature.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated
-		 */
-		EAttribute SAMPLE__CALIBRANT_EXPOSURE = eINSTANCE.getSample_Calibrant_exposure();
 
 		/**
 		 * The meta object literal for the '<em><b>Sample xstart</b></em>' attribute feature.
@@ -1081,54 +1932,6 @@ public interface LDEExperimentsPackage extends EPackage {
 		EAttribute SAMPLE__SAMPLE_EXPOSURE = eINSTANCE.getSample_Sample_exposure();
 
 		/**
-		 * The meta object literal for the '<em><b>Detector x</b></em>' attribute feature.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated
-		 */
-		EAttribute SAMPLE__DETECTOR_X = eINSTANCE.getSample_Detector_x();
-
-		/**
-		 * The meta object literal for the '<em><b>Detector y</b></em>' attribute feature.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated
-		 */
-		EAttribute SAMPLE__DETECTOR_Y = eINSTANCE.getSample_Detector_y();
-
-		/**
-		 * The meta object literal for the '<em><b>Detector z</b></em>' attribute feature.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated
-		 */
-		EAttribute SAMPLE__DETECTOR_Z = eINSTANCE.getSample_Detector_z();
-
-		/**
-		 * The meta object literal for the '<em><b>Email</b></em>' attribute feature.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated
-		 */
-		EAttribute SAMPLE__EMAIL = eINSTANCE.getSample_Email();
-
-		/**
-		 * The meta object literal for the '<em><b>Start Date</b></em>' attribute feature.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated
-		 */
-		EAttribute SAMPLE__START_DATE = eINSTANCE.getSample_StartDate();
-
-		/**
-		 * The meta object literal for the '<em><b>End Date</b></em>' attribute feature.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated
-		 */
-		EAttribute SAMPLE__END_DATE = eINSTANCE.getSample_EndDate();
-
-		/**
 		 * The meta object literal for the '<em><b>Command</b></em>' attribute feature.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
@@ -1137,28 +1940,20 @@ public interface LDEExperimentsPackage extends EPackage {
 		EAttribute SAMPLE__COMMAND = eINSTANCE.getSample_Command();
 
 		/**
-		 * The meta object literal for the '<em><b>Mail Count</b></em>' attribute feature.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated
-		 */
-		EAttribute SAMPLE__MAIL_COUNT = eINSTANCE.getSample_MailCount();
-
-		/**
-		 * The meta object literal for the '<em><b>Data File Count</b></em>' attribute feature.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated
-		 */
-		EAttribute SAMPLE__DATA_FILE_COUNT = eINSTANCE.getSample_DataFileCount();
-
-		/**
 		 * The meta object literal for the '<em><b>Comment</b></em>' attribute feature.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
 		 * @generated
 		 */
 		EAttribute SAMPLE__COMMENT = eINSTANCE.getSample_Comment();
+
+		/**
+		 * The meta object literal for the '<em><b>Calibration File Path</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute SAMPLE__CALIBRATION_FILE_PATH = eINSTANCE.getSample_CalibrationFilePath();
 
 		/**
 		 * The meta object literal for the '<em><b>Data File Path</b></em>' attribute feature.
@@ -1177,6 +1972,36 @@ public interface LDEExperimentsPackage extends EPackage {
 		 * @generated
 		 */
 		EEnum STATUS = eINSTANCE.getSTATUS();
+
+		/**
+		 * The meta object literal for the '<em>Stage ID String</em>' data type.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @see java.lang.String
+		 * @see org.opengda.lde.model.ldeexperiment.impl.LDEExperimentsPackageImpl#getStageIDString()
+		 * @generated
+		 */
+		EDataType STAGE_ID_STRING = eINSTANCE.getStageIDString();
+
+		/**
+		 * The meta object literal for the '<em>Date</em>' data type.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @see java.util.Date
+		 * @see org.opengda.lde.model.ldeexperiment.impl.LDEExperimentsPackageImpl#getDate()
+		 * @generated
+		 */
+		EDataType DATE = eINSTANCE.getDate();
+
+		/**
+		 * The meta object literal for the '<em>Calibrant Name String</em>' data type.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @see java.lang.String
+		 * @see org.opengda.lde.model.ldeexperiment.impl.LDEExperimentsPackageImpl#getCalibrantNameString()
+		 * @generated
+		 */
+		EDataType CALIBRANT_NAME_STRING = eINSTANCE.getCalibrantNameString();
 
 	}
 
