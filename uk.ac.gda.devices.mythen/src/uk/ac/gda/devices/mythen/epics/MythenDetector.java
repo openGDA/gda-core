@@ -55,17 +55,17 @@ public class MythenDetector extends MythenDetectorImpl implements IMythenDetecto
 	public MythenDetector() {
 		
 	}
+
 	@Override
 	public void configure() throws FactoryException {
-		if (!isConfigured()) {
-			super.configure();
-			try { // default configuration for software triggered acquisition
-//				configureDetectorForAutoModeAcquisition();
-				setConfigured(true);
-			} catch (Exception e) {
-				logger.error("Failed to configure detector parameters", e);
-				throw new FactoryException("Failed to configure detector parameters", e);
-			}
+		// Do not check if configured here as we allow user to manually configure this detector after Changes at EPICS level
+		super.configure();
+		try { // default configuration for software triggered acquisition
+			configureDetectorForAutoModeAcquisition();
+			setConfigured(true);
+		} catch (Exception e) {
+			logger.error("Failed to configure detector parameters", e);
+			throw new FactoryException("Failed to configure detector parameters", e);
 		}
 	}
 
@@ -76,6 +76,7 @@ public class MythenDetector extends MythenDetectorImpl implements IMythenDetecto
 	private void configureDetectorForAutoModeAcquisition() throws IOException, Exception {
 		// fixed/shared file writer parameters
 		setFileTemplate("%s_%d"); // name convention 
+		setImageMode(0);
 		enableAutoIncrement();
 		enableAutoSave();
 		setNumCycles(1);
@@ -139,7 +140,10 @@ public class MythenDetector extends MythenDetectorImpl implements IMythenDetecto
 	public void setCollectionTime(double collectionTime) throws DeviceException {
 		super.setCollectionTime(collectionTime);
 		try {
-			setExposureTime(collectionTime);
+			if (!isBusy()) {
+				//if set exposure time while detector is busy, mythen will fail to trigger mode ?.
+				setExposureTime(collectionTime);
+			}
 		} catch (Exception e) {
 			logger.error("failed to set exposure time", e);
 			throw new DeviceException("failed to set exposure time",e);
@@ -218,11 +222,11 @@ public class MythenDetector extends MythenDetectorImpl implements IMythenDetecto
 		// check if Mythen created raw data file successfully or not
 		double timer=System.currentTimeMillis();
 		double timerElapsed=0.0;
-		while (!rawFile.exists() && timerElapsed < collectionTime*1000) { //checking for maximum of the collection time
+		while (!rawFile.exists() && timerElapsed*1000 < collectionTime) { //checking for maximum of the collection time
 			Sleep.sleep(100);
 			timerElapsed=System.currentTimeMillis()-timer;
 		}
-		if (timerElapsed>= collectionTime*1000) {
+		if (timerElapsed*1000>= collectionTime) {
 			// failed to create raw data after exposure time, then return no further process of raw data.
 			print("Detector "+ getName()+" failed to create RAW data file "+rawFile.getAbsolutePath());
 			return;
@@ -422,6 +426,26 @@ public class MythenDetector extends MythenDetectorImpl implements IMythenDetecto
 		beforeCollectData(collectionNumber);
 		_acquire(TriggerMode.GATING, 1, numFrames, 0.0, numGates, scanNumber, getDataDirectory(), collectionNumber, 0.0, false);
 	}
+	/**
+	 * gated multiple or single frame collection - one frame per file, numGates per frame - where GDA controls the collection
+	 * number increment. This acquisition does not wait for data correction and angular conversion to complete before return.
+	 * 
+	 * @param numFrames
+	 * @param numGates
+	 * @param scanNumber
+	 * @param collectionNumber
+	 * @throws DeviceException
+	 */
+	public void gated4TimeResolvedExperiment(int numberCycles, int numFrames, int numGates, long scanNumber, int collectionNumber) throws DeviceException {
+		// must set scanNumber when operate outside GDA Scan command, e.g. in a for loop. This is normally set
+		// atScanStart() in a scan
+		this.scanNumber = scanNumber;
+		// must set collection number when operate outside GDA Scan command, e.g. in a for loop. This is normally
+		// initialised atScanStart() in a scan
+		this.collectionNumber = collectionNumber;
+		beforeCollectData(collectionNumber);
+		_acquire(TriggerMode.GATING, numberCycles, numFrames, 0.0, numGates, scanNumber, getDataDirectory(), collectionNumber, 0.0, true);
+	}
 	
 	private void _acquire(TriggerMode trigger, final int numCycles, final int numFrames, double delayTime,
 			int numGates, long scanNumber, final File dataDirectory, int collectionNumber, double exposureTime, boolean waitForDataCorrection)
@@ -437,26 +461,28 @@ public class MythenDetector extends MythenDetectorImpl implements IMythenDetecto
 		}
 
 		// This is the prefix for all the raw/processed files
-		final String prefix = String.format("%d-mythen", scanNumber);
+		final String prefix = String.format("%d-mythen-%d", scanNumber, collectionNumber);
 
 		updateDeltaPosition();
-
+		//Need to cache delta position for these collections
+		print("delta captured = "+delta);
+		final double delta2 = delta;
 		// configure detector
 		logger.info("Configure detector");
 		try {
 			// file saving options
 			setFileTemplate("%s_%d"); // name convention
-			if (collectionNumber < 0) {
+//			if (collectionNumber < 0) {
 				// using EPICS file numbering system
 				enableAutoIncrement();
 				enableAutoSave();
 				setNextFileNumber(1); //starting index number
-			} else {
-				// set our own file number
-				disableAutoIncrement();
-				disableAutoSave();
-				setNextFileNumber(collectionNumber);
-			}
+//			} else {
+//				// set our own file number
+//				disableAutoIncrement();
+//				disableAutoSave();
+//				setNextFileNumber(collectionNumber);
+//			}
 			resetArrayCounter();
 			// disable data correction - so we only want .raw data from the detector
 			disableDataCorrection();
@@ -465,6 +491,11 @@ public class MythenDetector extends MythenDetectorImpl implements IMythenDetecto
 			setFileName(prefix);
 			setTriggerMode(trigger.ordinal());
 			setNumCycles(numCycles);
+			if (numCycles>1) {
+				setImageMode(ImageMode.MULTIPLE.ordinal());
+			} else {
+				setImageMode(ImageMode.SINGLE.ordinal());				
+			}
 			setNumFrames(numFrames);
 			setDelayTime(delayTime);
 			setNumGates(numGates);
@@ -482,16 +513,19 @@ public class MythenDetector extends MythenDetectorImpl implements IMythenDetecto
 		} else if (trigger == TriggerMode.TRIGGERRED_GATING) {
 			print("Waiting for both trigger_in and gate_in signals ...");
 		}
+
+
 		startWait();
 
 		// process data
 		logger.info("Processing data");
+		print("Processing data");
 		Thread processing = new Thread(new Runnable() { // post process raw data so it does not block acquisition
 
 					@Override
 					public void run() {
 						logger.info("Processing data");
-						afterCollectData(numCycles, numFrames, dataDirectory, filenameTemplate, prefix);
+						afterCollectData(numCycles, numFrames, dataDirectory, filenameTemplate, prefix, delta2);
 					}
 				}, "DataProcessing");
 		processing.start();
@@ -501,20 +535,22 @@ public class MythenDetector extends MythenDetectorImpl implements IMythenDetecto
 				Sleep.sleep(100);
 			}
 		}
+		status = IDLE;
 		print("Acquisition completed.");
 		logger.info("Finished");
 	}
 
-	private void afterCollectData(int numCycles, int numFrames, File dataDirectory, final String filenameTemplate,final String prefix) {
+	private void afterCollectData(int numCycles, int numFrames, File dataDirectory, final String filenameTemplate,final String prefix, double deltaPosition) {
 		print("Performe data corrections in 'DataProcessing' thread ...");
 		for (int cycle = 1; cycle <= numCycles; cycle++) {
 			File rawFile;
 			if (numFrames > 1) {
-				for (int frame = 1; frame <= numFrames; frame++) {
+				for (int frame = 0; frame < numFrames; frame++) {
 					//filename convention 'prefix_f%d_index.raw' for multiple frames acquisition
-					rawFile = new File(dataDirectory, String.format(filenameTemplate, prefix, frame, cycle, "raw"));
+					rawFile = new File(dataDirectory, String.format(filenameTemplate, prefix, frame, cycle, "raw")); //"%s_f%d_%d.%s";
 					MythenRawDataset rawData = new MythenRawDataset(rawFile);
-					MythenProcessedDataset processedData = dataConverter.process(rawData, delta);
+//					print("deltaPosition used for correction 1 : "+deltaPosition);
+					MythenProcessedDataset processedData = dataConverter.process(rawData, deltaPosition);
 					File processedFile = new File(dataDirectory, String.format(filenameTemplate, prefix, frame, cycle, "dat"));
 					processedDataArchievalAndPlot(cycle, rawFile, processedData, processedFile);
 				}
@@ -522,14 +558,14 @@ public class MythenDetector extends MythenDetectorImpl implements IMythenDetecto
 				//filename convention 'prefix_index.raw' for single frame acquisition
 				rawFile = new File(dataDirectory, String.format(filenameTemplate, prefix, cycle, "raw"));
 				MythenRawDataset rawData = new MythenRawDataset(rawFile);
-				MythenProcessedDataset processedData = dataConverter.process(rawData, delta);
+//				print("deltaPosition used for correction 2 : "+deltaPosition);
+				MythenProcessedDataset processedData = dataConverter.process(rawData, deltaPosition);
 				File processedFile = new File(dataDirectory, String.format(filenameTemplate, prefix, cycle, "dat"));
 				processedDataArchievalAndPlot(cycle, rawFile, processedData, processedFile);
 			}
 		}
 		print("Data correction and angular conversion completed.");
 	}
-
 	/**
 	 * @param cycle
 	 * @param rawFile
@@ -590,6 +626,10 @@ public class MythenDetector extends MythenDetectorImpl implements IMythenDetecto
 	@Override
 	public void setTriggerMode(int value) throws Exception {
 		getMythenClient().setTriggerMode(value);
+	}
+
+	public void setImageMode(int value) throws Exception {
+		getMythenClient().setImageMode(value);
 	}
 	@Override
 	public void setThreshold(double energy) throws Exception {
