@@ -155,4 +155,8 @@ public interface NDFileHDF5 {
 	void setBoundaryAlign(int boundaryAlign) throws Exception;
 	int getBoundaryAlign() throws Exception;
 
+	int getAttrByDim() throws Exception;
+
+	void setAttrByDim(int attrByDim) throws Exception;
+
 }

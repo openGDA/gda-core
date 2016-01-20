@@ -136,6 +136,10 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements F
 
 	private boolean storeAttr=false;
 
+	private boolean attrByDim = false;
+
+	private boolean attrByDimSupported = false;
+
 	private boolean storePerform=false;
 
 	private boolean alreadyPrepared=false;
@@ -203,6 +207,22 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements F
 		this.storeAttr = storeAttr;
 	}
 
+	public boolean isAttrByDim() {
+		return attrByDim;
+	}
+
+	public void setAttrByDim(boolean attrByDim) {
+		this.attrByDim = attrByDim;
+	}
+
+	public boolean isAttrByDimSupported() {
+		return attrByDimSupported;
+	}
+
+	public void setAttrByDimSupported(boolean attrByDimSupported) {
+		this.attrByDimSupported = attrByDimSupported;
+	}
+
 	public boolean isStorePerform() {
 		return storePerform;
 	}
@@ -226,6 +246,9 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements F
 		getNdFile().getPluginBase().setBlockingCallbacks(blocking ? 1:0); //use camera memory
 		getNdFileHDF5().setStoreAttr(storeAttr? 1:0);
 		getNdFileHDF5().setStorePerform(storePerform?1:0);
+		// save attributes with correct dimensions, add this option as not available in all beamlines yet
+		if (isAttrByDimSupported())
+			getNdFileHDF5().setAttrByDim(attrByDim ? 1 : 0);
 		if( lazyOpen)
 			getNdFileHDF5().setLazyOpen(true);
 		if( boundaryAlign != null)

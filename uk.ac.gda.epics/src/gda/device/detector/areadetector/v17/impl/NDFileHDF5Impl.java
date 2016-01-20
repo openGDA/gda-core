@@ -174,6 +174,10 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 
 	private static final String BoundaryAlign_RBV = "BoundaryAlign_RBV";
 
+	private static final String AttrByDim_RBV = "DimAttDatasets_RBV";
+
+	private static final String AttrByDim = "DimAttDatasets";
+
 	@Override
 	public int getNumRowChunks() throws Exception {
 		try {
@@ -1040,4 +1044,25 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 		if (id == null) id = basePVName;
 		return id;
 	}
+
+	@Override
+	public int getAttrByDim() throws Exception {
+		try {
+			return EPICS_CONTROLLER.cagetInt(getChannel(AttrByDim_RBV));
+		} catch (Exception ex) {
+			logger.warn("Cannot getAttrByDim", ex);
+			throw ex;
+		}
+	}
+
+	@Override
+	public void setAttrByDim(int attrByDim) throws Exception {
+		try {
+			EPICS_CONTROLLER.caput(getChannel(AttrByDim), attrByDim);
+		} catch (Exception ex) {
+			logger.warn("Cannot setAttrByDim", ex);
+			throw ex;
+		}
+	}
+
 }
