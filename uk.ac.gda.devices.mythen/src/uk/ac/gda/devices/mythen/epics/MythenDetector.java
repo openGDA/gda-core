@@ -44,7 +44,7 @@ import uk.ac.gda.devices.mythen.epics.MythenEpicsClient.Setting;
  * Mythen detector (version 3) that uses EPICS client to acquire data from the detector. 
  * Note that Mythen 3 API is different from Mythen 2 API so this class is not backward compatible.
  */
-public class MythenDetector extends MythenDetectorImpl {
+public class MythenDetector extends MythenDetectorImpl implements IMythenDetector {
 	
 	private static final Logger logger = LoggerFactory.getLogger(MythenDetector.class);
 	
@@ -134,6 +134,7 @@ public class MythenDetector extends MythenDetectorImpl {
 			throw new DeviceException("Failed to set data output parameters.",e);
 		}		
 	}
+	
 	@Override
 	public void setCollectionTime(double collectionTime) throws DeviceException {
 		super.setCollectionTime(collectionTime);
@@ -163,6 +164,7 @@ public class MythenDetector extends MythenDetectorImpl {
 	protected String getBaseFilename() {
 		return String.format("%d-mythen", this.scanNumber);
 	}
+	
 	@Override
 	public String buildFilename(String s, FileType type) {
 		final String suffix = (type == FileType.PROCESSED) ? "dat" : "raw";
@@ -247,6 +249,7 @@ public class MythenDetector extends MythenDetectorImpl {
 		}
 		super.stop();
 	}
+	
 	@Override
 	public Object readout() throws DeviceException {
 		String filename = processedFile.getName();
@@ -271,8 +274,8 @@ public class MythenDetector extends MythenDetectorImpl {
 	 * @param delayAfterFrames - redundant input kept only for backward compatibility.
 	 * @throws DeviceException
 	 */
-	@Deprecated 
 	@Override
+	@Deprecated 
 	public void multi(int numFrames, double delayTime, double exposureTime, double delayAfterFrames)
 			throws DeviceException {
 		_multi(TriggerMode.AUTO, 1, numFrames, delayTime, 1, exposureTime);
@@ -285,6 +288,7 @@ public class MythenDetector extends MythenDetectorImpl {
 	 * @param exposureTime
 	 * @throws DeviceException
 	 */
+	@Override
 	public void multi(int numFrames, double delayTime, double exposureTime) throws DeviceException {
 		_multi(TriggerMode.AUTO, 1, numFrames, delayTime, 1, exposureTime);
 	}
@@ -308,6 +312,7 @@ public class MythenDetector extends MythenDetectorImpl {
 	 * @param exposureTime
 	 * @throws DeviceException
 	 */
+	@Override
 	public void cmulti(int numCycles, int numFrames, double delayTime, double exposureTime) throws DeviceException {
 		_multi(TriggerMode.TRIGGER, numCycles, numFrames, delayTime, 1, exposureTime);
 	}
@@ -373,7 +378,8 @@ public class MythenDetector extends MythenDetectorImpl {
 	 * @param dataDirectory the data directory to save data to
 	 * @param collectionNumber the index number for this acquisition - if <0 Mythen detector controls the frame number increment starting from 1.
 	 * @throws DeviceException
-	 */	@Override
+	 */	
+	@Override
 	public void gated(int numFrames, int numGates, long scanNumber, File dataDirectory, int collectionNumber) throws DeviceException {
 		_acquire(TriggerMode.GATING, 1, numFrames, 0, numGates, scanNumber, dataDirectory, collectionNumber, 0.0, true);
 	}
@@ -552,196 +558,260 @@ public class MythenDetector extends MythenDetectorImpl {
 		throw new RuntimeException("Mythen 2 method - not supported in Mythen 3 any more");
 	}
 
+	@Override
 	public MythenEpicsClient getMythenClient() {
 		return mythenClient;
 	}
 
+	@Override
 	public void setMythenClient(MythenEpicsClient mythenClient) {
 		this.mythenClient = mythenClient;
 	}
+	@Override
 	public void autoMode() throws Exception {
 		getMythenClient().autoMode();
 	}
+	@Override
 	public void triggerMode() throws Exception {
 		getMythenClient().triggerMode();
 	}
+	@Override
 	public void gatingMode() throws Exception {
 		getMythenClient().gatingMode();
 	}
+	@Override
 	public void ro_TriggerMode() throws Exception {
 		getMythenClient().ro_TriggerMode();
 	}
+	@Override
 	public void triggerredGatingMode() throws Exception {
 		getMythenClient().triggerredGatingMode();
 	}
+	@Override
 	public void setTriggerMode(int value) throws Exception {
 		getMythenClient().setTriggerMode(value);
 	}
+	@Override
 	public void setThreshold(double energy) throws Exception {
 		getMythenClient().setThresholdEnergy(energy);
 	}
+	@Override
 	public double getThreshold() throws Exception {
 		return getMythenClient().getThresholdEnergy();
 	}
+	@Override
 	public void setBeamEnergy(double energy) throws Exception {
 		getMythenClient().setBeamEnergy(energy);
 	}
+	@Override
 	public double getBeamEnergy() throws Exception {
 		return getMythenClient().getsetBeamEnergy();
 	}
+	@Override
 	public void standard() throws Exception {
 		getMythenClient().setSetting(Setting.standard);
 	}
+	@Override
 	public void fast() throws Exception {
 		getMythenClient().setSetting(Setting.fast);
 	}
+	@Override
 	public void highgain() throws Exception {
 		getMythenClient().setSetting(Setting.highgain);
 	}
+	@Override
 	public void setBitDepth(int bitDepth) throws Exception {
 		getMythenClient().setBitDepth(bitDepth);
 	}
+	@Override
 	public int getBitDepth() throws Exception {
 		return getMythenClient().getBitDepth();
 	}
+	@Override
 	public void setNumCycles(int value) throws Exception {
 		getMythenClient().setNumCycles(value);
 	}
+	@Override
 	public int getNumCycles() throws Exception {
 		return getMythenClient().getNumCycles();
 	}
+	@Override
 	public void setNumFrames(int value) throws Exception {
 		getMythenClient().setNumFrames(value);
 	}
+	@Override
 	public int getNumFrames() throws Exception {
 		return getMythenClient().getNumFrames();
 	}
+	@Override
 	public void setNumGates(int value) throws Exception {
 		getMythenClient().setNumGates(value);
 	}
+	@Override
 	public int getNumGates() throws Exception {
 		return getMythenClient().getNumGates();
 	}
+	@Override
 	public void setDelayTime(double value) throws Exception {
 		getMythenClient().setDelayTime(value);
 	}
+	@Override
 	public double getDelayTime() throws Exception {
 		return getMythenClient().getDelayTime();
 	}
+	@Override
 	public void setFilePath(String value) throws IOException {
 		getMythenClient().setFilePath(value);
 	}
+	@Override
 	public String getFilePath() throws Exception {
 		return getMythenClient().getFilePath();
 	}
+	@Override
 	public void setFileName(String value) throws IOException {
 		getMythenClient().setFileName(value);
 	}
+	@Override
 	public String getFileName() throws Exception {
 		return getMythenClient().getFileName();
 	}
+	@Override
 	public void setNextFileNumber(int value) throws IOException {
 		getMythenClient().setNextFileNumber(value);
 	}
+	@Override
 	public int getNextFileNumber() throws Exception {
 		return getMythenClient().getNextFileNumber();
 	}
+	@Override
 	public void enableAutoIncrement() throws IOException {
 		getMythenClient().enableAutoIncrement();
 	}
+	@Override
 	public void disableAutoIncrement() throws IOException {
 		getMythenClient().disableAutoIncrement();
 	}
+	@Override
 	public boolean isAutoIncrement() throws IOException {
 		return getMythenClient().isAutoIncrement();
 	}
+	@Override
 	public void enableAutoSave() throws IOException {
 		getMythenClient().enableAutoSave();
 	}
+	@Override
 	public void disableAutoSave() throws IOException {
 		getMythenClient().disableAutoSave();
 	}
+	@Override
 	public boolean isAutoSave() throws IOException {
 		return getMythenClient().isAutoSave();
 	}
+	@Override
 	public void setFileTemplate(String value) throws IOException {
 		getMythenClient().setFileTemplate(value);
 	}
+	@Override
 	public String getFileTemplate() throws Exception {
 		return getMythenClient().getFileTemplate();
 	}
+	@Override
 	public String getFullFileName() throws Exception {
 		return getMythenClient().getFullFilename();
 	}
+	@Override
 	public void setFlatFieldPath(String value) throws IOException {
 		getMythenClient().setFlatFieldPath(value);
 	}
+	@Override
 	public String getFlatFieldPath() throws Exception {
 		return getMythenClient().getFlatFieldPath();
 	}
+	@Override
 	public void setFlatFieldFile(String value) throws IOException {
 		getMythenClient().setFlatFieldFile(value);
 	}
+	@Override
 	public String getFlatFieldFile() throws Exception {
 		return getMythenClient().getFlatFieldFile();
 	}
+	@Override
 	public void enableFlatFieldCorrection() throws IOException {
 		getMythenClient().enableFlatFieldCorrection();
 	}
+	@Override
 	public void disableFlatFieldCorrection() throws IOException {
 		getMythenClient().disableFlatFieldCorrection();
 	}
+	@Override
 	public boolean isFlatFieldCorrected() throws IOException {
 		return getMythenClient().isFlatFieldCorrected();
 	}
+	@Override
 	public void enableCountRateCorrection() throws IOException {
 		getMythenClient().enableCountRateCorrection();
 	}
+	@Override
 	public void disableCountRateCorrection() throws IOException {
 		getMythenClient().disableCountRateCorrection();
 	}
+	@Override
 	public boolean isCountRateCorrected() throws IOException {
 		return getMythenClient().isCountRateCorrected();
 	}
+	@Override
 	public void enableBadChannelCorrection() throws IOException {
 		getMythenClient().enableBadChannelCorrection();
 	}
+	@Override
 	public void disableBadChannelCorrection() throws IOException {
 		getMythenClient().disableBadChannelCorrection();
 	}
+	@Override
 	public boolean isBadChannelCorrected() throws IOException {
 		return getMythenClient().isBadChannelCorrected();
 	}
+	@Override
 	public void enableAngularConversion() throws IOException {
 		getMythenClient().enableAngularConversion();
 	}
+	@Override
 	public void disableAngularConversion() throws IOException {
 		getMythenClient().disableAngularConversion();
 	}
+	@Override
 	public boolean isAngularConversionEnabled() throws IOException {
 		return getMythenClient().isAngularConversionEnabled();
 	}
+	@Override
 	public void setConfigFile(String value) throws IOException {
 		getMythenClient().setConfigFile(value);
 	}
+	@Override
 	public void loadConfigFile() throws IOException {
 		getMythenClient().loadConfigFile();
 	}
+	@Override
 	public void saveConfigFile() throws IOException {
 		getMythenClient().saveConfigFile();
 	}
+	@Override
 	public void setExposureTime(double exposureTime) throws Exception {
 		getMythenClient().setExposure(exposureTime);
 	}
+	@Override
 	public double getExposureTime() throws Exception {
 		return getMythenClient().getExposure();
 	}
+	@Override
 	public void setAcquirePeriod(double acquireperiod) throws Exception {
 		getMythenClient().setAcquirePeriod(acquireperiod);
 	}
+	@Override
 	public double getAcquirePeriod() throws Exception {
 		return getMythenClient().getAcquirePeriod();
 	}
+	@Override
 	public void startWait() throws DeviceException {
 		getMythenClient().startWait();
 	}
@@ -749,18 +819,22 @@ public class MythenDetector extends MythenDetectorImpl {
 		getMythenClient().resetArrayCounter();
 	}
 
+	@Override
 	public ArrayList<File> getProcessedDataFilesForThisScan() {
 		return processedDataFilesForScan;
 	}
 
+	@Override
 	public int getNumberOfModules() {
 		return numberOfModules;
 	}
 
+	@Override
 	public List<DataProcessingTask> getProcessingTasks() {
 		return processingTasks;
 	}
 
+	@Override
 	public void setProcessingTasks(List<DataProcessingTask> processingTasks) {
 		this.processingTasks = processingTasks;
 	}

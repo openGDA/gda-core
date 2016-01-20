@@ -1,5 +1,7 @@
 package uk.ac.gda.epics.client.mythen.views;
 
+import gda.device.Scannable;
+
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
@@ -8,9 +10,9 @@ import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsByteArrayAsStringDataListener;
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsDoubleDataListener;
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsEnumDataListener;
-import uk.ac.gda.client.hrpd.typedpvscannables.EpicsEnumPVScannable;
 
 
 /**
@@ -33,8 +35,10 @@ public class LivePlotView extends ViewPart {
 
 	private EpicsDoubleDataListener exposureTimeListener;
 	private EpicsDoubleDataListener timeRemainingListener;
-	private EpicsEnumPVScannable stopScannable;
+	private EpicsByteArrayAsStringDataListener messageListener;
+	private Scannable stopScannable;
 	private String taskName;
+
 
 
 	public LivePlotView() {
@@ -59,6 +63,7 @@ public class LivePlotView extends ViewPart {
 			plotComposite.setStartListener(getStartListener());
 			plotComposite.setExposureTimeListener(getExposureTimeListener());
 			plotComposite.setTimeRemainingListener(getTimeRemainingListener());
+			plotComposite.setMessageListener(getMessageListener());
 			plotComposite.setStopScannable(getStopScannable());
 			plotComposite.setTaskName(getTaskName());
 			plotComposite.initialise();
@@ -104,11 +109,11 @@ public class LivePlotView extends ViewPart {
 		this.epicsProgressMonitor = epicsProgressMonitor;
 	}
 
-	public EpicsEnumPVScannable getStopScannable() {
+	public Scannable getStopScannable() {
 		return stopScannable;
 	}
 
-	public void setStopScannable(EpicsEnumPVScannable stopScannable) {
+	public void setStopScannable(Scannable stopScannable) {
 		this.stopScannable = stopScannable;
 	}
 
@@ -150,6 +155,14 @@ public class LivePlotView extends ViewPart {
 
 	public void setTaskName(String taskName) {
 		this.taskName = taskName;
+	}
+
+	public EpicsByteArrayAsStringDataListener getMessageListener() {
+		return messageListener;
+	}
+
+	public void setMessageListener(EpicsByteArrayAsStringDataListener messageListener) {
+		this.messageListener = messageListener;
 	}
 
 }

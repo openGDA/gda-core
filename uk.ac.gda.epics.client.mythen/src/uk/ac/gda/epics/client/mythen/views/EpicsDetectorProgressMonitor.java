@@ -18,34 +18,40 @@
 
 package uk.ac.gda.epics.client.mythen.views;
 
-import gda.device.DeviceException;
-import gda.observable.IObserver;
-
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-
-import org.eclipse.jface.wizard.ProgressMonitorPart;
+import org.eclipse.jface.dialogs.ProgressIndicator;
+import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsDoubleDataListener;
+import gda.device.DeviceException;
+import gda.device.Scannable;
+import gda.observable.IObserver;
+import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsByteArrayAsStringDataListener;
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsEnumDataListener;
-import uk.ac.gda.client.hrpd.typedpvscannables.EpicsEnumPVScannable;
 /**
  * A progress monitor composite for monitoring and reporting an EPICS area detector acquiring progress.
  * 
  * The actual monitor process is started by trigger from EPICS detector's 'start' PV. The monitor
  * provides a label displaying the task name, and a progress indicator to show progress.
  * 
+ * As the EPICS area detector does not implement the real time remaining PV, the progress indicator uses
+ * indeterminate Progress Bar in this case.
+ * 
  * <p>
  * To use this class, one must provide:
  * <li> an EPICS detector start listener using <code>setStartListener(EpicsIntegerDataListener)</code> and add an instance of this class as observer of it;</li>
- * <li> an EPICS detector exposure time listener using <code>setExposureTimeListener(EpicsDoubleDataListener)</code> which must be configured to poll;</li>
- * <li> an EPICS detector time remaining listener using <code>setTimeRemainingListener(EpicsDoubleDataListener)</code> which must be configured to poll;</li>
+ * <li> an EPICS detector status message listener using <code>setMessageListener(EpicsStringDataListener)</code> which must be configured to poll;</li>
  * <li> a STOP scannable using <code>setStopScannable(EpicsScannable)</code> to support CANCEL operation;</li>
  * <li> a task name using <code>setTaskName(String)</code>.
  * </p>
@@ -57,93 +63,152 @@ public class EpicsDetectorProgressMonitor extends Composite implements IObserver
 	private static final Logger logger = LoggerFactory.getLogger(EpicsDetectorProgressMonitor.class);
 	//Spring configurable properties
 	private EpicsEnumDataListener startListener;
-	private EpicsDoubleDataListener exposureTimeListener;
-	private EpicsDoubleDataListener timeRemainingListener;
-	private EpicsEnumPVScannable stopScannable;  
+	private EpicsByteArrayAsStringDataListener messageListener; // optional, must handle null
+	private Scannable stopScannable;  
+	private Button stopButton;
+
+	// The progress monitor
+	private ProgressIndicator progressIndicator;
 	private String taskName;
+	private Label fLabel;
 	
-	private ProgressMonitorPart monitor;
-	
-	private ExecutorService executor;
-	
-	public EpicsDetectorProgressMonitor(Composite parent, int style) {
+	public EpicsDetectorProgressMonitor(Composite parent, int style, boolean allowStopButton) {
 		super(parent, style);
-		monitor=new ProgressMonitorPart(parent, null, true);
+		
+		GridLayout layout = new GridLayout();
+		layout.marginHeight = 0;
+		layout.marginWidth = 0;
+		layout.verticalSpacing = 0;
+		layout.horizontalSpacing = 0;
+		this.setLayout(layout);
+
+		// Build the separator line
+		Label separator = new Label(this, SWT.HORIZONTAL | SWT.SEPARATOR);
+		separator.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		// Insert a progress monitor
+		Composite progressMonitor=new Composite(this, SWT.NONE);
+		GridData data = new GridData (SWT.FILL, SWT.CENTER, true, false);
+		progressMonitor.setLayoutData(data);
+		progressMonitor.setLayout(new GridLayout(2, false));
+		
+		progressIndicator=new ProgressIndicator(progressMonitor);
+        GridData gd = new GridData();
+        gd.horizontalAlignment = GridData.FILL;
+        gd.grabExcessHorizontalSpace = true;
+        gd.grabExcessVerticalSpace = false;
+    	gd.verticalAlignment = GridData.CENTER;
+//    	gd.heightHint = progressIndicatorHeight;
+        if (allowStopButton) {
+        	gd.horizontalSpan=1;
+        } else {
+        	gd.horizontalSpan=2;
+        }
+        progressIndicator.setLayoutData(gd);
+        if (allowStopButton) {
+        	stopButton=createCancelButton(progressMonitor);
+        }
+        
+        fLabel = new Label(this, SWT.LEFT);
+        fLabel.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, false, 2, 1));
 	}
 	
+	private Button createCancelButton(Composite parent) {
+		Button button = new Button(parent, SWT.PUSH);
+		button.addSelectionListener(listener);
+    	final Image stopImage = ImageDescriptor.createFromFile(
+    			EpicsDetectorProgressMonitor.class, "icons/stop.gif").createImage(getDisplay()); //$NON-NLS-1$
+    	button.setImage(stopImage);
+    	button.setCursor( getDisplay().getSystemCursor(SWT.CURSOR_ARROW));
+    	button.addDisposeListener(new DisposeListener() {
+    		@Override
+			public void widgetDisposed(DisposeEvent e) {
+    			stopImage.dispose();
+    		}
+    	});
+    	button.setEnabled(false);
+		button.setToolTipText("Cancel current cvscan"); //$NON-NLS-1$
+		return button;
+	}
+	
+	SelectionAdapter listener = new SelectionAdapter() {
+		@Override
+		public void widgetSelected(SelectionEvent e) {
+			try {
+				if (getStopScannable() != null) {
+					getStopScannable().stop();
+				}
+				if (stopButton != null) {
+					stopButton.setEnabled(false);
+				}
+			} catch (DeviceException e1) {
+				logger.error("Failed to stop EPICS operation.", e1);
+			} finally {
+				// on cancel operation, must finish beginTask
+				progressIndicator.done();
+			}
+		}
+	};
 	public void initialise() {
 		if (getStartListener()!=null) {
 			getStartListener().addIObserver(this);
 		} else {
 			throw new IllegalStateException("Detector start listener is required, but not set.");
 		}
-		executor= Executors.newSingleThreadExecutor();
+		if (getMessageListener()!=null) {
+			getMessageListener().addIObserver(this);
+		} else {
+			throw new IllegalStateException("Detector start listener is required, but not set.");
+		}
+		fLabel.setText(getTaskName() + ": "+getMessageListener().getValue());
 	}
 	
 	@Override
 	public void dispose() {
-		executor.shutdown();
-		try {
-			boolean terminated = executor.awaitTermination(30, TimeUnit.SECONDS);
-			if (!terminated) {
-				throw new TimeoutException("failed to terminate executor in time.");
-			}
-		} catch (InterruptedException | TimeoutException e) {
-			logger.error("EPICS detector monitor failed in executor shutdown.", e);
-			throw new RuntimeException("EPICS detector monitor fail in executor shutdown.", e);
-		}
 		if (getStartListener()!=null) {
 			getStartListener().deleteIObserver(this);
 		}
+		if (getMessageListener()!=null) {
+			getMessageListener().deleteIObserver(this);
+		}
 		super.dispose();
 	}
-	//using Callable instead of Runnable as progress cancel is expected to throw InterruptedException.
-	Callable<Object> callable=new Callable<Object>() {
-		
-		@Override
-		public Object call() throws Exception {
-			try {
-				int totalWork = (int) (getExposureTimeListener().getValue()*1000);
-				//when exposure time less than 1 second, do not show progress.
-				if (totalWork<1000) return null; 
-				monitor.beginTask(getTaskName(), totalWork);
-				int lastWorkedTo = 0;
-				int work = totalWork-(int) (getTimeRemainingListener().getValue()*1000);
-				while (work < totalWork) {
-					if (monitor.isCanceled()) {
-						if (getStopScannable() != null) {
-							try {
-								getStopScannable().moveTo(0);
-							} catch (DeviceException e) {
-								logger.error("Failed to stop EPICS operation.", e);
-							}
-						}
-						throw new InterruptedException(getTaskName() + " is aborted by progress cancel operation.");
-					}
-					if (work != lastWorkedTo) {
-						monitor.worked(work - lastWorkedTo);
-						lastWorkedTo = work;
-					}
-					Thread.sleep(1000);
-					work = totalWork-(int) (getTimeRemainingListener().getValue()*1000);
-				}
-			} finally {
-				monitor.done();
-			}
-			return null;
-		}
-	};
+
 
 	public void setTaskName(String taskName) {
 		this.taskName = taskName;
 	}
 
 	@Override
-	public void update(Object source, Object arg) {
-		if (source==getStartListener() && arg instanceof Integer) {
-			if (((Integer)arg).intValue()==1) {
-				executor.submit(callable);
+	public void update(Object source, final Object arg) {
+		if (source==getStartListener() && arg instanceof Short) {
+			if (((Short)arg).intValue()==1) {
+				getDisplay().asyncExec(new Runnable() {
+					
+					@Override
+					public void run() {
+						progressIndicator.beginAnimatedTask();
+						stopButton.setEnabled(true);
+					}
+				});
+			} else if (((Short)arg).intValue()==0) {
+				getDisplay().asyncExec(new Runnable() {
+					
+					@Override
+					public void run() {
+						progressIndicator.done();	
+						stopButton.setEnabled(false);
+					}
+				});
 			}
+		} else if (source == messageListener && arg instanceof String) {
+			getDisplay().asyncExec(new Runnable() {
+				
+				@Override
+				public void run() {
+					fLabel.setText(getTaskName()+ ": " +arg.toString());
+				}
+			});
 		}
 	}
 
@@ -151,28 +216,12 @@ public class EpicsDetectorProgressMonitor extends Composite implements IObserver
 		return this.taskName;
 	}
 
-	public EpicsEnumPVScannable getStopScannable() {
+	public Scannable getStopScannable() {
 		return stopScannable;
 	}
 
-	public void setStopScannable(EpicsEnumPVScannable stopScannable) {
+	public void setStopScannable(Scannable stopScannable) {
 		this.stopScannable = stopScannable;
-	}
-
-	public EpicsDoubleDataListener getExposureTimeListener() {
-		return exposureTimeListener;
-	}
-
-	public void setExposureTimeListener(EpicsDoubleDataListener exposureTimeListener) {
-		this.exposureTimeListener = exposureTimeListener;
-	}
-
-	public EpicsDoubleDataListener getTimeRemainingListener() {
-		return timeRemainingListener;
-	}
-
-	public void setTimeRemainingListener(EpicsDoubleDataListener timeRemainingListener) {
-		this.timeRemainingListener = timeRemainingListener;
 	}
 
 	public EpicsEnumDataListener getStartListener() {
@@ -181,5 +230,13 @@ public class EpicsDetectorProgressMonitor extends Composite implements IObserver
 
 	public void setStartListener(EpicsEnumDataListener startListener) {
 		this.startListener = startListener;
+	}
+
+	public EpicsByteArrayAsStringDataListener getMessageListener() {
+		return messageListener;
+	}
+
+	public void setMessageListener(EpicsByteArrayAsStringDataListener messageListener) {
+		this.messageListener = messageListener;
 	}
 }

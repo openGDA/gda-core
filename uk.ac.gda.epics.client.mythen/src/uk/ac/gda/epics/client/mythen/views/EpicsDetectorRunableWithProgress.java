@@ -18,8 +18,6 @@
 
 package uk.ac.gda.epics.client.mythen.views;
 
-import gda.device.DeviceException;
-
 import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -30,8 +28,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
+import gda.device.DeviceException;
+import gda.device.Scannable;
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsDoubleDataListener;
-import uk.ac.gda.client.hrpd.typedpvscannables.EpicsEnumPVScannable;
 
 /**
  * An implementation of <code>IRunnableWithProgress</code> interface whose instances 
@@ -86,7 +85,7 @@ public class EpicsDetectorRunableWithProgress implements IRunnableWithProgress, 
 	private EpicsDoubleDataListener exposureTimeListener;
 	private EpicsDoubleDataListener timeRemainingListener;
 	private String epicsProcessName; //task name
-	private EpicsEnumPVScannable stopScannable;
+	private Scannable stopScannable;
 	
 	public EpicsDetectorRunableWithProgress() {
 	}
@@ -104,7 +103,7 @@ public class EpicsDetectorRunableWithProgress implements IRunnableWithProgress, 
 				if (monitor.isCanceled()) {
 					if (getStopScannable() != null) {
 						try {
-							getStopScannable().moveTo(0);
+							getStopScannable().stop();
 						} catch (DeviceException e) {
 							logger.error("Failed to stop EPICS operation.", e);
 						}
@@ -157,11 +156,11 @@ public class EpicsDetectorRunableWithProgress implements IRunnableWithProgress, 
 		this.timeRemainingListener = timeRemainingListener;
 	}
 
-	public EpicsEnumPVScannable getStopScannable() {
+	public Scannable getStopScannable() {
 		return stopScannable;
 	}
 
-	public void setStopScannable(EpicsEnumPVScannable stopScannable) {
+	public void setStopScannable(Scannable stopScannable) {
 		this.stopScannable = stopScannable;
 	}
 }

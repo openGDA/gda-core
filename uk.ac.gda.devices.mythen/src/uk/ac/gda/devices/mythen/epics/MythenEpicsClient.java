@@ -461,7 +461,7 @@ public class MythenEpicsClient implements MythenClient, InitializingBean {
 	 */
 	public void startWait() throws DeviceException {
 		try {
-			adbase.startAcquiringSynchronously();
+			adbase.startAcquiringWait();
 		} catch (Exception e) {
 			logger.error("Start acquisition failed", e);
 			throw new DeviceException("Start acquisition failed", e);

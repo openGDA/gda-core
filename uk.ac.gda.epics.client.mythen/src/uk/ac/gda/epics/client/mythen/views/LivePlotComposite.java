@@ -18,12 +18,12 @@
 
 package uk.ac.gda.epics.client.mythen.views;
 
+import gda.device.Scannable;
 import gda.device.detector.mythen.data.MythenDataFileUtils;
 import gda.factory.Finder;
 import gda.jython.scriptcontroller.Scriptcontroller;
 import gda.observable.IObserver;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -32,12 +32,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.io.FilenameUtils;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlotType;
 import org.eclipse.dawnsci.plotting.api.PlottingFactory;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.swt.SWT;
@@ -46,14 +46,16 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IViewPart;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.progress.IProgressService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsByteArrayAsStringDataListener;
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsDoubleDataListener;
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsEnumDataListener;
-import uk.ac.gda.client.hrpd.typedpvscannables.EpicsEnumPVScannable;
 import uk.ac.gda.devices.mythen.visualisation.event.PlotDataFileEvent;
 
 /**
@@ -82,7 +84,8 @@ public class LivePlotComposite extends Composite implements IObserver {
 	private EpicsDetectorProgressMonitor progressMonitor;
 	private EpicsDoubleDataListener exposureTimeListener;
 	private EpicsDoubleDataListener timeRemainingListener;
-	private EpicsEnumPVScannable stopScannable; 
+	private EpicsByteArrayAsStringDataListener messageListener;
+	private Scannable stopScannable; 
 	private String taskName;
 
 	public LivePlotComposite(IWorkbenchPart part, Composite parent, int style) throws Exception {
@@ -116,12 +119,8 @@ public class LivePlotComposite extends Composite implements IObserver {
 		progressComposite.setLayoutData(data);
 		progressComposite.setLayout(new FillLayout());
 		progressComposite.setBackground(ColorConstants.cyan);
-		progressMonitor=new EpicsDetectorProgressMonitor(progressComposite, SWT.None);
-		progressMonitor.setStartListener(getStartListener());
-		progressMonitor.setExposureTimeListener(getExposureTimeListener());
-		progressMonitor.setTimeRemainingListener(getTimeRemainingListener());
-		progressMonitor.setStopScannable(getStopScannable());
-		progressMonitor.setTaskName(getTaskName());
+		progressMonitor=new EpicsDetectorProgressMonitor(progressComposite, SWT.None, true);
+
 	}
 
 	public void initialise() {
@@ -144,6 +143,10 @@ public class LivePlotComposite extends Composite implements IObserver {
 		if (getStartListener()!=null) {
 			getStartListener().addIObserver(this);
 		}
+		progressMonitor.setStartListener(getStartListener());
+		progressMonitor.setMessageListener(getMessageListener());
+		progressMonitor.setStopScannable(getStopScannable());
+		progressMonitor.setTaskName(getTaskName());
 		progressMonitor.initialise();
 	}
 
@@ -200,25 +203,32 @@ public class LivePlotComposite extends Composite implements IObserver {
 		final int numChannels = data.length;
 		double[] angles = new double[numChannels];
 		double[] counts = new double[numChannels];
-		double[] errors = new double[numChannels];
+//		double[] errors = new double[numChannels];
 		for (int i = 0; i < numChannels; i++) {
 			angles[i] = data[i][0];
 			counts[i] = data[i][1];
-			errors[i] = data[i][2];
+//			errors[i] = data[i][2];
 		}
 		DoubleDataset x = new DoubleDataset(angles);
 		DoubleDataset y = new DoubleDataset(counts);
-		DoubleDataset error = new DoubleDataset(errors);
-		y.setError(error);
+//		DoubleDataset error = new DoubleDataset(errors);
+//		y.setError(error);
+		x.setName("delta (deg)");
 		y.setName(FilenameUtils.getName(filename));
 		if (clearFirst) {
 			plotDatasets.clear();
 			plottingSystem.clear();
 		}
 		plotDatasets.add(y);
+		openView();
 		plottingSystem.createPlot1D(x, plotDatasets, PLOT_TITLE, new NullProgressMonitor());
 	}
 
+	private void openView() {
+		IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+		page.activate(this.workbenchpart);
+	}
+	
 	public String getPlotName() {
 		return plotName;
 	}
@@ -256,15 +266,20 @@ public class LivePlotComposite extends Composite implements IObserver {
 				}
 			};
 			executor.execute(command);
-		} else if (source==getStartListener() && arg instanceof Short) {
-			if (((Short)arg).shortValue()==1 && getEpicsProgressMonitor() != null) {
-				try { 
-					IProgressService service = (IProgressService) workbenchpart.getSite().getService(IProgressService.class);
-					service.run(true, true, getEpicsProgressMonitor());
-				} catch (InvocationTargetException | InterruptedException e) {
-					logger.error("Fail to start progress service.", e);
-				}
-			}
+		} else if (source == getStartListener() && arg instanceof Short) {
+//			if (((Short) arg).shortValue() == 1	&& getEpicsProgressMonitor() != null) {
+//				final IProgressService service = (IProgressService) workbenchpart.getSite().getService(IProgressService.class);
+//				getDisplay().asyncExec(new Runnable() {
+//					public void run() {
+//						try {
+//							service.run(true, true, getEpicsProgressMonitor());
+//						} catch (InvocationTargetException
+//								| InterruptedException e) {
+//							logger.error("Fail to start progress service.", e);
+//						}
+//					}
+//				});
+//			}
 		}
 	}
 
@@ -292,11 +307,11 @@ public class LivePlotComposite extends Composite implements IObserver {
 		this.startListener = startListener;
 	}
 
-	public EpicsEnumPVScannable getStopScannable() {
+	public Scannable getStopScannable() {
 		return stopScannable;
 	}
 
-	public void setStopScannable(EpicsEnumPVScannable stopScannable) {
+	public void setStopScannable(Scannable stopScannable) {
 		this.stopScannable = stopScannable;
 	}
 
@@ -322,6 +337,14 @@ public class LivePlotComposite extends Composite implements IObserver {
 
 	public void setTaskName(String taskName) {
 		this.taskName = taskName;
+	}
+
+	public EpicsByteArrayAsStringDataListener getMessageListener() {
+		return messageListener;
+	}
+
+	public void setMessageListener(EpicsByteArrayAsStringDataListener messageListener) {
+		this.messageListener = messageListener;
 	}
 
 }
