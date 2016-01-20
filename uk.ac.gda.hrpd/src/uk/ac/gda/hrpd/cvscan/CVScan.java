@@ -252,6 +252,10 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 			} else {
 				throw new DeviceException("EpicsCVScan object is not defined.");
 			}
+			// need to clear the list of future when finished
+			if (!list.isEmpty()) {
+				list.clear();
+			}
 			return FilenameUtils.getName(datafile);
 		}
 		return getFilename();
@@ -307,6 +311,9 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 		} catch (InterruptedException |java.util.concurrent.TimeoutException e) {
 			logger.error("Data saving executor failed in shutdown.", e);
 			throw new DeviceException("Data saving executor failed in shutdown.", e);
+		}
+		if (!list.isEmpty()) {
+			list.clear();
 		}
 		if (controller != null) {
 			controller.deleteIObserver(this);
@@ -629,8 +636,8 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 			logger.error(getName() + " cannot get raw two-theta positions data from " + controller.getName(), e1);
 			throw new Exception(getName() + " cannot get raw two-theta positions data from " + controller.getName(), e1);
 		}
-
-		int[][] data = new int[2 * EpicsMcsSis3820.MAX_NUMBER_MCA][controller.getTotalNumberOfPulses()];
+		//TODO where the 2nd parameter set???
+		int[][] data = new int[2 * EpicsMcsSis3820.MAX_NUMBER_MCA][actualpulses];
 		// retrieve the count data from detectors
 		InterfaceProvider.getTerminalPrinter().print("reading raw data from detectors");
 		for (int i = 0; i < mcsDetectors.size(); i++) {

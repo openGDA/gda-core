@@ -208,9 +208,10 @@ public class EpicsCVscanDataWriter implements DataWriter, Findable, Configurable
 		JythonServerFacade.getInstance().print("Number of raw data points : " + rows);
 		JythonServerFacade.getInstance().print(
 				"Writing raw data to file: " + file.getAbsolutePath() + ", Please wait ...");
+		FileWriter filewriter=null;
 		try {
 
-			FileWriter filewriter = new FileWriter(file);
+			filewriter = new FileWriter(file);
 			writeHeader(filewriter);
 
 			for (i = 0; i < rows; i++) {
@@ -218,6 +219,11 @@ public class EpicsCVscanDataWriter implements DataWriter, Findable, Configurable
 					datapoint += path1[i] + delimiter;
 				}
 				for (int j = 0; j < numberOfDetectors; j++) {
+					if (i>data[j].length) {
+						// prevent ArrayIndexOutOfBoundsException
+						logger.warn("Something went wrong in raw data readout from scaler channels: number of rows or pluses is not equal to the data dimension per channel. So no RAW data file is written.");
+						break;
+					}
 					datapoint += data[j][i] + delimiter;
 				}
 				datapoint = datapoint.trim() + "\n";
@@ -239,7 +245,6 @@ public class EpicsCVscanDataWriter implements DataWriter, Findable, Configurable
 			}
 			// Print informational message to console.
 			JythonServerFacade.getInstance().print("Writing data to file: " + file.getAbsolutePath() + " completed");
-
 		}
 		return file.getAbsolutePath();
 	}
