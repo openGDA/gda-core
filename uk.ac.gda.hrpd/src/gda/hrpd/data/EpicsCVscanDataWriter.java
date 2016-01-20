@@ -205,7 +205,7 @@ public class EpicsCVscanDataWriter implements DataWriter, Findable, Configurable
 		int i = 0;
 
 		getParentScannablesPositions(parentScannables);
-		JythonServerFacade.getInstance().print("Number of data points : " + rows);
+		JythonServerFacade.getInstance().print("Number of raw data points : " + rows);
 		JythonServerFacade.getInstance().print(
 				"Writing raw data to file: " + file.getAbsolutePath() + ", Please wait ...");
 		try {
@@ -256,7 +256,7 @@ public class EpicsCVscanDataWriter implements DataWriter, Findable, Configurable
 		int i = 0;
 		getParentScannablesPositions(parentScannables);
 
-		JythonServerFacade.getInstance().print("Number of data points : " + rows);
+		JythonServerFacade.getInstance().print("Number of rebinned data points : " + rows);
 		JythonServerFacade.getInstance().print(
 				"Starting write rebinned data to file: " + file.getAbsolutePath());
 		try {

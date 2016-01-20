@@ -18,6 +18,7 @@
 
 package uk.ac.gda.client.hrpd.viewfactories;
 
+import gda.device.Scannable;
 import gda.rcp.views.FindableExecutableExtension;
 
 import java.util.ArrayList;
@@ -35,7 +36,6 @@ import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsDoubleDataArrayListener;
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsEnumDataListener;
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsIntegerDataListener;
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsStringDataListener;
-import uk.ac.gda.client.hrpd.typedpvscannables.EpicsEnumPVScannable;
 import uk.ac.gda.client.hrpd.views.LivePlotView;
 /**
  * a factory for creating a {@link LivePlotView} instance. 
@@ -132,7 +132,8 @@ public class LivePlotViewFactory implements FindableExecutableExtension {
 	private EpicsIntegerDataListener totalWorkListener;
 	private EpicsIntegerDataListener workListener;
 	private EpicsStringDataListener messageListener;
-	private EpicsEnumPVScannable stopScannable;	
+	private String taskName;
+	private Scannable stopScannable;	
 
 	@Override
 	public void setName(String name) {
@@ -164,6 +165,7 @@ public class LivePlotViewFactory implements FindableExecutableExtension {
 		liveplotview.setTotalWorkListener(getTotalWorkListener());
 		liveplotview.setWorkListener(getWorkListener());
 		liveplotview.setMessageListener(getMessageListener());
+		liveplotview.setTaskName(getTaskName());
 		liveplotview.setStopScannable(getStopScannable());
 		
 		return liveplotview;
@@ -300,11 +302,11 @@ public class LivePlotViewFactory implements FindableExecutableExtension {
 		this.messageListener = messageListener;
 	}
 
-	public EpicsEnumPVScannable getStopScannable() {
+	public Scannable getStopScannable() {
 		return stopScannable;
 	}
 
-	public void setStopScannable(EpicsEnumPVScannable stopScannable) {
+	public void setStopScannable(Scannable stopScannable) {
 		this.stopScannable = stopScannable;
 	}
 
@@ -322,5 +324,13 @@ public class LivePlotViewFactory implements FindableExecutableExtension {
 
 	public void setDetectorStateToRunProgressService(String detectorStateToRunProgressService) {
 		this.detectorStateToRunProgressService = detectorStateToRunProgressService;
+	}
+
+	public String getTaskName() {
+		return taskName;
+	}
+
+	public void setTaskName(String taskName) {
+		this.taskName = taskName;
 	}
 }

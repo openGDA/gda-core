@@ -28,7 +28,7 @@ import gda.scan.Scan.ScanStatus;
 
 public class ScanStatusProvider implements IScanStatusProvider {
 
-	private ScanStatus status;
+	private ScanStatus status=ScanStatus.NOTSTARTED;
 	private static final Logger logger=LoggerFactory.getLogger(ScanStatusProvider.class);
 
 	@Override
