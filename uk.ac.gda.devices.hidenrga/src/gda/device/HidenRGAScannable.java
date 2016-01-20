@@ -112,7 +112,8 @@ public class HidenRGAScannable extends ScannableBase implements IObserver, Hiden
 						lastScanCycleUsed = lastScanCycleSeen;
 					}
 					if (messageToAppend != null) {
-						buffer.write(String.format("# %s\n", messageToAppend));
+						buffer.write(messageToAppend);
+						buffer.flush();
 						messageToAppend = null;
 					}
 					sleep();
@@ -190,6 +191,7 @@ public class HidenRGAScannable extends ScannableBase implements IObserver, Hiden
 			header.append("\n");
 
 			buffer.write(header.toString());
+			buffer.flush();
 		}
 
 		private void recordNewEntry(BufferedWriter buffer) throws DeviceException, IOException {
@@ -259,6 +261,7 @@ public class HidenRGAScannable extends ScannableBase implements IObserver, Hiden
 			lineToWrite.append("\n");
 
 			buffer.write(lineToWrite.toString());
+			buffer.flush();
 		}
 
 		public void stopWriting() {
@@ -529,8 +532,13 @@ public class HidenRGAScannable extends ScannableBase implements IObserver, Hiden
 	 * @param message
 	 */
 	public void addToOutputFile(String message) {
+		String formattedMessage = String.format("# %s\n", message);
 		if (isRecording()) {
-			messageToAppend = message;
+			if (messageToAppend == null) {
+				messageToAppend = formattedMessage;
+			} else {
+				messageToAppend += formattedMessage;
+			}
 		} else {
 			logger.warn("RGA is not recording a file, could not append message '{}'", message);
 		}
