@@ -1124,10 +1124,10 @@
               class="uk.ac.gda.client.scripting.ReloadScriptActionDelegate"
               icon="icons/script_lightning.png"
               id="uk.ac.gda.pydev.reloadScript"
-              label="Reload"
+              label="Import/Reload"
               style="push"
               toolbarPath="Normal/additions"
-              tooltip="Reloads the script in the GDA Server.">
+              tooltip="Import or Reload the script in the GDA Server.">
         </action>
         <action
               class="uk.ac.gda.client.scripting.RunScriptActionDelegate"

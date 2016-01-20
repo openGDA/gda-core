@@ -18,9 +18,6 @@
 
 package uk.ac.gda.client.scripting;
 
-import gda.jython.ICommandRunner;
-import gda.jython.InterfaceProvider;
-
 import java.io.File;
 
 import org.eclipse.jface.action.IAction;
@@ -29,11 +26,15 @@ import org.eclipse.ui.IEditorActionDelegate;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 
+import gda.jython.ICommandRunner;
+import gda.jython.InterfaceProvider;
 import uk.ac.gda.common.rcp.util.EclipseUtils;
 
 public class ReloadScriptActionDelegate implements IEditorActionDelegate {
 
 	private IEditorPart ePart;
+	private ICommandRunner commandRunner = InterfaceProvider.getCommandRunner();
+
 	@Override
 	public void setActiveEditor(IAction action, IEditorPart targetEditor) {
 		if (targetEditor != null){
@@ -43,16 +44,35 @@ public class ReloadScriptActionDelegate implements IEditorActionDelegate {
 
 	@Override
 	public void run(IAction action) {
-		ICommandRunner commandRunner = InterfaceProvider.getCommandRunner();
 		if (ePart != null){
-			final IEditorInput input = ePart.getEditorInput();
-
-			final File fileToRun = EclipseUtils.getFile(input);
-			final String name = fileToRun.getName();
-			final String module = name.substring(0, name.indexOf('.'));
-			commandRunner.evaluateCommand("reload(" + module + ")");
-
+			String module = getModuleName();
+			if (isImported(module)) {
+				reloadModule(module);
+			} else {
+				importModule(module);
+			}
 		}
+	}
+
+	private String getModuleName() {
+		final IEditorInput input = ePart.getEditorInput();
+		final File fileToRun = EclipseUtils.getFile(input);
+		final String name = fileToRun.getName();
+		return name.substring(0, name.lastIndexOf('.'));
+	}
+
+	private boolean isImported(String module) {
+		return commandRunner.evaluateCommand("'" + module + "' in sys.modules.keys()").equals("True");
+	}
+
+	private void reloadModule(String module) {
+		commandRunner.runCommand("print 'reloading " + module + "'");
+		commandRunner.evaluateCommand("reload(" + module + ")");
+	}
+
+	private void importModule(String module) {
+		commandRunner.runCommand("print 'importing " + module + "'");
+		commandRunner.runCommand("import " + module);
 	}
 
 	@Override
