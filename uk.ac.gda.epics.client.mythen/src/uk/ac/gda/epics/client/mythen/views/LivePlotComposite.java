@@ -18,12 +18,6 @@
 
 package uk.ac.gda.epics.client.mythen.views;
 
-import gda.device.Scannable;
-import gda.device.detector.mythen.data.MythenDataFileUtils;
-import gda.factory.Finder;
-import gda.jython.scriptcontroller.Scriptcontroller;
-import gda.observable.IObserver;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -53,6 +47,11 @@ import org.eclipse.ui.progress.IProgressService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.Scannable;
+import gda.device.detector.mythen.data.MythenDataFileUtils;
+import gda.factory.Finder;
+import gda.jython.scriptcontroller.Scriptcontroller;
+import gda.observable.IObserver;
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsByteArrayAsStringDataListener;
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsDoubleDataListener;
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsEnumDataListener;
@@ -131,7 +130,7 @@ public class LivePlotComposite extends Composite implements IObserver {
 			if (eventAdmin != null) {
 				eventAdmin.addIObserver(this); // observe server mythen detector task processes 
 				logger.debug("Data filename observer added via script controller {}", getEventAdminName());
-				executor=Executors.newSingleThreadExecutor();
+				executor=Executors.newFixedThreadPool(1);
 			} else {
 				logger.debug("Cannot find the script controller {} to add data filename observer",
 						getEventAdminName());
@@ -220,7 +219,7 @@ public class LivePlotComposite extends Composite implements IObserver {
 			plottingSystem.clear();
 		}
 		plotDatasets.add(y);
-		openView();
+//		openView();
 		plottingSystem.createPlot1D(x, plotDatasets, PLOT_TITLE, new NullProgressMonitor());
 	}
 
