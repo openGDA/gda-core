@@ -1121,7 +1121,7 @@
            id="uk.ac.gda.pydev.editorContributions"
            targetID="org.python.pydev.editor.PythonEditor">
         <action
-              class="uk.ac.gda.client.scripting.ReloadScriptActionDelegate"
+              class="uk.ac.gda.client.scripting.ImportOrReloadScriptActionDelegate"
               icon="icons/script_lightning.png"
               id="uk.ac.gda.pydev.reloadScript"
               label="Import/Reload"
