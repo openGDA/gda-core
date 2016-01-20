@@ -2,23 +2,6 @@ package org.opengda.detector.electronanalyser.nxdetector;
 
 import static gda.jython.InterfaceProvider.getCurrentScanInformationHolder;
 import static gda.jython.InterfaceProvider.getTerminalPrinter;
-
-import java.io.File;
-import java.io.IOException;
-import java.sql.Timestamp;
-import java.util.Collections;
-
-import org.apache.commons.io.FilenameUtils;
-import org.eclipse.emf.ecore.resource.Resource;
-import org.opengda.detector.electronanalyser.event.ScanEndEvent;
-import org.opengda.detector.electronanalyser.event.ScanPointStartEvent;
-import org.opengda.detector.electronanalyser.event.ScanStartEvent;
-import org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence;
-import org.opengda.detector.electronanalyser.utils.RegionDefinitionResourceUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
-
 import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
 import gda.data.PathConstructor;
@@ -36,7 +19,22 @@ import gda.factory.corba.util.CorbaImplClass;
 import gda.jython.accesscontrol.MethodAccessProtected;
 import gda.jython.scriptcontroller.ScriptControllerBase;
 import gda.jython.scriptcontroller.Scriptcontroller;
-import gda.util.Sleep;
+
+import java.io.File;
+import java.io.IOException;
+import java.sql.Timestamp;
+import java.util.Collections;
+
+import org.apache.commons.io.FilenameUtils;
+import org.eclipse.emf.ecore.resource.Resource;
+import org.opengda.detector.electronanalyser.event.ScanEndEvent;
+import org.opengda.detector.electronanalyser.event.ScanPointStartEvent;
+import org.opengda.detector.electronanalyser.event.ScanStartEvent;
+import org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence;
+import org.opengda.detector.electronanalyser.utils.RegionDefinitionResourceUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
 /**
  * a container class for VGScienta Electron Analyser, which takes a sequence file
  * defining a list of regions as input and collect analyser data - image, spectrum and external IO data -
@@ -162,7 +160,13 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 		collectionStrategy.setScanDataPoint(0);
 		print("=== Collect data starts at "+new Timestamp(new java.util.Date().getTime()).toString()+" ===");
 		collectData();
-		Sleep.sleep(1000);
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			// Reinterupt this thread and log it
+			logger.warn("Caught InterruptedException. Resetting thread to interupted", e);
+			Thread.currentThread().interrupt();
+		}
 		print("=== Collect data ends at "+new Timestamp(new java.util.Date().getTime()).toString()+" ===");
 	}
 	private void print(String message) {

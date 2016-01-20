@@ -1,5 +1,23 @@
 package org.opengda.detector.electronanalyser.nxdetector;
 
+import gda.data.nexus.tree.INexusTree;
+import gda.device.Detector;
+import gda.device.DeviceException;
+import gda.device.Scannable;
+import gda.device.detector.areadetector.v17.ADBase;
+import gda.device.detector.areadetector.v17.ImageMode;
+import gda.device.detector.areadetector.v17.NDPluginBase;
+import gda.device.detector.areadetector.v17.NDStats;
+import gda.device.detector.nxdata.NXDetectorDataAppender;
+import gda.device.detector.nxdetector.NXCollectionStrategyPlugin;
+import gda.device.detector.nxdetector.NXFileWriterPlugin;
+import gda.jython.scriptcontroller.ScriptControllerBase;
+import gda.jython.scriptcontroller.Scriptcontroller;
+import gda.observable.IObservable;
+import gda.observable.IObserver;
+import gda.observable.ObservableComponent;
+import gda.scan.ScanInformation;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -21,25 +39,6 @@ import org.opengda.detector.electronanalyser.nxdetector.NexusDataWriterExtension
 import org.opengda.detector.electronanalyser.server.VGScientaAnalyser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import gda.data.nexus.tree.INexusTree;
-import gda.device.Detector;
-import gda.device.DeviceException;
-import gda.device.Scannable;
-import gda.device.detector.areadetector.v17.ADBase;
-import gda.device.detector.areadetector.v17.ImageMode;
-import gda.device.detector.areadetector.v17.NDPluginBase;
-import gda.device.detector.areadetector.v17.NDStats;
-import gda.device.detector.nxdata.NXDetectorDataAppender;
-import gda.device.detector.nxdetector.NXCollectionStrategyPlugin;
-import gda.device.detector.nxdetector.NXFileWriterPlugin;
-import gda.jython.scriptcontroller.ScriptControllerBase;
-import gda.jython.scriptcontroller.Scriptcontroller;
-import gda.observable.IObservable;
-import gda.observable.IObserver;
-import gda.observable.ObservableComponent;
-import gda.scan.ScanInformation;
-import gda.util.Sleep;
 
 public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXFileWriterPlugin,IObservable{
 	private static final Logger logger = LoggerFactory.getLogger(EW4000CollectionStrategy.class);
@@ -117,11 +116,12 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 	private Vector<Double> totalIntensity=new Vector<Double>();
 
 	private boolean stillHaveDataToWrite=false;
-	protected void beforeCollectData() {
+
+	protected void beforeCollectData() throws InterruptedException {
 		busy.getAndSet(true);
 		scanDatapoint.incrementAndGet();
 		while (!called){
-			Sleep.sleep(100);
+			Thread.sleep(100);
 		}
 		called=false;
 		if (!regionDataList.isEmpty()) {
@@ -143,7 +143,7 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 						i++;
 						try {
 							configureAnalyser(region);
-							Sleep.sleep(1000);
+							Thread.sleep(1000);
 							lastregion=region;
 							if (!isSingleDataFile()) {
 								NexusFile file = nexusDataWriter.getNXFile(region.getName(), scanDatapoint.get());
@@ -169,7 +169,7 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 								((ScriptControllerBase)getScriptcontroller()).update(getScriptcontroller(), new RegionStatusEvent(region.getRegionId(), STATUS.RUNNING,i));
 							}
 							getAnalyser().collectData();
-							Sleep.sleep(1000);
+							Thread.sleep(1000);
 							getAnalyser().waitWhileBusy();
 							if (!isSingleDataFile()) {
 								getAnalyser().writeOut(scanDatapoint.get());
@@ -399,7 +399,7 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 	@Override
 	public void waitWhileBusy() throws InterruptedException, Exception {
 		while (getStatus()==Detector.BUSY){
-			Sleep.sleep(500);
+			Thread.sleep(500);
 		}
 	}
 
