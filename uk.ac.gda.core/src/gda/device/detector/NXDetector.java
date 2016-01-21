@@ -32,7 +32,6 @@ import gda.device.detector.nxdetector.NXPlugin;
 import gda.device.detector.nxdetector.NXPluginBase;
 import gda.device.detector.nxdetector.NonAsynchronousNXPlugin;
 import gda.device.detector.nxdetector.plugin.PositionQueue;
-import gda.device.scannable.PositionCallableProvider;
 import gda.device.scannable.PositionInputStream;
 import gda.device.scannable.PositionInputStreamCombiner;
 import gda.device.scannable.PositionStreamIndexer;
@@ -58,8 +57,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
-public class NXDetector extends DetectorBase implements InitializingBean, NexusDetector,
-		PositionCallableProvider<NexusTreeProvider> {
+public class NXDetector extends DetectorBase implements InitializingBean, NXPluginDetector {
 	private static final Logger logger = LoggerFactory.getLogger(NXDetector.class);
 
 	protected static final String UNSUPPORTED_PART_OF_SCANNABLE_INTERFACE = "ADDetector does not support operation through its Scannable interface. Do not use pos until pos supports detectors as Detectors rather than Scannables";
@@ -131,6 +129,7 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 		}
 	}
 
+	@Override
 	public void setCollectionStrategy(NXCollectionStrategyPlugin collectionStrategy) {
 		if (namesOf(getAdditionalPluginList()).contains(collectionStrategy.getName())) {
 			throw new IllegalArgumentException("The configured collectionStrategy named '" + collectionStrategy.getName()
@@ -144,6 +143,7 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 	 *
 	 * @param additionalPluginList
 	 */
+	@Override
 	public void setAdditionalPluginList(List<NXPluginBase> additionalPluginList) {
 		if ((getCollectionStrategy() != null)
 				&& (namesOf(additionalPluginList).contains(getCollectionStrategy().getName()))) {
@@ -163,10 +163,12 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 		}
 	}
 
+	@Override
 	public NXCollectionStrategyPlugin getCollectionStrategy() {
 		return collectionStrategy;
 	}
 
+	@Override
 	public List<NXPluginBase> getAdditionalPluginList() {
 		return additionalPluginList;
 	}
@@ -174,6 +176,7 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 	/**
 	 * Return all plugins: collection-strategy and then additional plugins
 	 */
+	@Override
 	public List<NXPluginBase> getPluginList() {
 		List<NXPluginBase> allPlugins = new ArrayList<NXPluginBase>();
 		allPlugins.add(getCollectionStrategy());
@@ -184,6 +187,7 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 	/**
 	 * Return map of all plugins: collection-strategy and then additional plugins
 	 */
+	@Override
 	public Map<String, NXPluginBase> getPluginMap() {
 		Map<String, NXPluginBase> pluginMap = new HashMap<String, NXPluginBase>(additionalPluginMap);
 		if (getCollectionStrategy() != null) {
