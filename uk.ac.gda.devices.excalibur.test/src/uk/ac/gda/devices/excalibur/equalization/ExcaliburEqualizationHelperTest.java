@@ -19,22 +19,21 @@
 package uk.ac.gda.devices.excalibur.equalization;
 
 import static org.junit.Assert.assertEquals;
-import gda.TestHelpers;
 
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.Vector;
 
-import junit.framework.Assert;
-
+import org.eclipse.dawnsci.analysis.api.fitting.functions.IPeak;
 import org.eclipse.dawnsci.analysis.dataset.impl.ShortDataset;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import gda.TestHelpers;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.CompositeFunction;
-import uk.ac.diamond.scisoft.analysis.fitting.functions.IPeak;
 import uk.ac.gda.analysis.hdf5.HDF5HelperLocations;
 import uk.ac.gda.analysis.hdf5.Hdf5Helper;
 import uk.ac.gda.analysis.hdf5.Hdf5HelperData;
@@ -113,22 +112,22 @@ public class ExcaliburEqualizationHelperTest {
 		int sizeOfSlice = 50; //slice in 3rd dimension x or y axis of image
 
 		String scanFilename = TestFileFolder + "ExcaliburEqualizationHelperTest/12998.nxs";
-		
+
 		String groupName = "entry1/excalibur_summary_ad";
 		String dataSetNameThreshold0 = "threshold0";
 		String dataSetNameDetector = "data";
-		
-		
+
+
 		Hdf5HelperData threshold0Vals = Hdf5Helper.getInstance().readDataSetAll(scanFilename, groupName,
 				dataSetNameThreshold0, true);
 		double[] tmp = (double[]) threshold0Vals.data;
 		short[] threshold0ValsAsInt = new short[tmp.length];
 		for (int i = 0; i < tmp.length; i++) {
 			threshold0ValsAsInt[i] = (short) tmp[i];
-		}		
-		
-		
-		
+		}
+
+
+
 		long before = System.currentTimeMillis();
 		Hdf5HelperData hd = ExcaliburEqualizationHelper.getInstance().getThresholdFromScanData(threshold, sizeOfSlice, scanFilename, groupName, threshold0ValsAsInt,
 				dataSetNameDetector);
@@ -144,12 +143,12 @@ public class ExcaliburEqualizationHelperTest {
 
 	@Test
 	public void testGetConfigFromThresholdResponse() throws Exception{
-		
+
 		String testScratchDirectoryName = TestHelpers.setUpTest(ExcaliburEqualizationHelperTest.class,
 				"testGetConfigFromThresholdResponse", true);
 
 		ExcaliburEqualizationHelper equalizationHelper = ExcaliburEqualizationHelper.getInstance();
-		HDF5HelperLocations equalisationLocation = equalizationHelper.getEqualisationLocation();	
+		HDF5HelperLocations equalisationLocation = equalizationHelper.getEqualisationLocation();
 
 		final int numPixels = 10;
 		double[] slopes = new double[numPixels];
@@ -163,14 +162,14 @@ public class ExcaliburEqualizationHelperTest {
 		Hdf5HelperData hd = new Hdf5HelperData(new long[] { numPixels}, slopes);
 		String thresholdResponseFilename = testScratchDirectoryName + "/response.hdf";
 		Hdf5Helper.getInstance().writeToFileSimple(hd, thresholdResponseFilename, equalisationLocation, ExcaliburEqualizationHelper.THRESHOLD_RESPONSE_SLOPES_DATASET);
-		
+
 		hd = new Hdf5HelperData(new long[] { numPixels}, offset);
 		Hdf5Helper.getInstance().writeToFileSimple(hd, thresholdResponseFilename, equalisationLocation, ExcaliburEqualizationHelper.THRESHOLD_RESPONSE_OFFSETS_DATASET);
-		
+
 		hd = new Hdf5HelperData(new long[] { numPixels}, fitok);
 		Hdf5Helper.getInstance().writeToFileSimple(hd, thresholdResponseFilename, equalisationLocation, ExcaliburEqualizationHelper.THRESHOLD_RESPONSE_FITOK_DATASET);
 
-		
+
 		double thresholdTarget=10;
 		Hdf5HelperData response = equalizationHelper.getThresholdFromThresholdResponseFile(thresholdResponseFilename, thresholdTarget);
 		Assert.assertEquals(numPixels, ((short[])response.data).length);
@@ -195,17 +194,17 @@ public class ExcaliburEqualizationHelperTest {
 			Hdf5HelperData data2 = new Hdf5HelperData(dims, data);
 			String fileName = testScratchDirectoryName + "/" + i + ".hdf";
 			hdf.writeToFileSimple(data2,fileName , equalisationLocation, ExcaliburEqualizationHelper.THRESHOLD_DATASET);
-			
+
 			Hdf5HelperData thresholdAttr = new Hdf5HelperData(i*2);
-			hdf.writeAttribute(fileName, Hdf5Helper.TYPE.DATASET, edgeThresholdLocation, 
+			hdf.writeAttribute(fileName, Hdf5Helper.TYPE.DATASET, edgeThresholdLocation,
 					ExcaliburEqualizationHelper.THRESHOLDABNVAL_ATTR, thresholdAttr );
 			fileNames.add(fileName);
 		}
 		ExcaliburEqualizationHelper excalibur = ExcaliburEqualizationHelper.getInstance();
 		excalibur.combineThresholdsFromThresholdFiles(fileNames,  testScratchDirectoryName + "/combined.hdf", false);
-		
+
 	}
-	
+
 	@Test
 	public void testFitGaussianSingleGaussian() throws Exception{
 		ExcaliburEqualizationHelper equalizationHelper = ExcaliburEqualizationHelper.getInstance();
@@ -221,12 +220,12 @@ public class ExcaliburEqualizationHelperTest {
 			}
 		}
 		ShortDataset shortDataset = new ShortDataset(data, height, width);
-		double[][] population = equalizationHelper.createBinnedPopulation( shortDataset);		
+		double[][] population = equalizationHelper.createBinnedPopulation( shortDataset);
 		CompositeFunction aPeak = equalizationHelper.fitGaussianToBinnedPopulation(population[0], population[1]);
 		Assert.assertEquals(2.4*gaussianWidth, aPeak.getPeak(0).getFWHM(), 1.0);
 		Assert.assertEquals(mean, aPeak.getPeak(0).getPosition(), .1);
 	}
-	
+
 	@Test
 	public void testgetChipEdgeThreshold() throws Exception{
 		String testScratchDirectoryName = TestHelpers.setUpTest(ExcaliburEqualizationHelperTest.class,
@@ -261,18 +260,18 @@ public class ExcaliburEqualizationHelperTest {
 				offset[0] = ChipSet.getChipTopPixel(ih);
 				offset[1] = ChipSet.getChipLeftPixel(iw);
 				Hdf5Helper hdf = Hdf5Helper.getInstance();
-				hdf.writeToFile(hData, fileName, equalisationLocation, ExcaliburEqualizationHelper.THRESHOLD_DATASET, 
+				hdf.writeToFile(hData, fileName, equalisationLocation, ExcaliburEqualizationHelper.THRESHOLD_DATASET,
 						chunk_dims, extendible, offset);
-				
+
 			}
 		}
-		
+
 		//indicate all chips are present
 		boolean [] chipPresent = new boolean[numChipsDown*numChipsAcross];
 		Arrays.fill(chipPresent, true);
 		equalisation.addChipPopulationsToThresholdFile(fileName, numChipsDown, numChipsAcross, chipPresent, fileName);
 
-		
+
 		ChipAveragedResult[] chipEdgeThreshold = equalisation.getChipAveragedThresholdFromThresholdFile(fileName, numChipsDown, numChipsAcross, chipPresent);
 		for( int ih =0; ih < numChipsDown; ih++){
 			for( int iw =0; iw < numChipsAcross; iw++){
@@ -300,12 +299,12 @@ public class ExcaliburEqualizationHelperTest {
 					Assert.assertEquals(mean, chipEdgeThreshold[index].function.getPeak(0).getPosition(), 0.3);
 					Assert.assertEquals(2.4*gaussianWidth, chipEdgeThreshold[index].function.getPeak(0).getFWHM(), 0.1);
 				}
-			} 
+			}
 		}
 	}
-	
 
-	
+
+
 	/**
 	 * Check that use of iterators means that we cover all pixels and the index returned takes account fo spaces between chips
 	 */
