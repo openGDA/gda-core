@@ -1,5 +1,20 @@
 package org.opengda.lde.scannables;
 
+import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
+import org.apache.commons.collections4.map.HashedMap;
+import org.apache.commons.io.FilenameUtils;
+import org.opengda.lde.events.DataReductionFailedEvent;
+import org.opengda.lde.events.DataReductionWarnEvent;
+import org.opengda.lde.events.NewDataFileEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
 import gda.device.Scannable;
@@ -17,21 +32,6 @@ import gda.jython.scriptcontroller.Scriptcontroller;
 import gda.observable.IObserver;
 import gda.util.OSCommandRunner;
 import gda.util.Sleep;
-
-import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
-import org.apache.commons.collections4.map.HashedMap;
-import org.apache.commons.io.FilenameUtils;
-import org.opengda.lde.events.DataReductionFailedEvent;
-import org.opengda.lde.events.DataReductionWarnEvent;
-import org.opengda.lde.events.NewDataFileEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @CorbaAdapterClass(ScannableAdapter.class)
 @CorbaImplClass(ScannableImpl.class)
@@ -154,9 +154,6 @@ public class DataReductionScannable extends DummyScannable implements Scannable,
 					result=submit.get();
 					logger.info(result);
 					InterfaceProvider.getTerminalPrinter().print(result);
-					if (isCalibrant()) {
-						setCalibrant(false);
-					}
 				} catch (InterruptedException e) {
 					logger.error("Data reduction process is interrupted.", e);
 					InterfaceProvider.getTerminalPrinter().print("Data reduction process is interrupted.");
