@@ -28,6 +28,7 @@ import java.util.List;
 import org.dawnsci.plotting.jreality.overlay.Overlay1DConsumer;
 import org.dawnsci.plotting.jreality.tool.AreaSelectEvent;
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
+import org.eclipse.dawnsci.analysis.api.fitting.functions.IPeak;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
@@ -56,10 +57,8 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 import uk.ac.diamond.scisoft.analysis.diffraction.DSpacing;
 import uk.ac.diamond.scisoft.analysis.fitting.Generic1DFitter;
-import uk.ac.diamond.scisoft.analysis.fitting.functions.APeak;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.CompositeFunction;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.Gaussian;
-import uk.ac.diamond.scisoft.analysis.fitting.functions.IPeak;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.IdentifiedPeak;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.Lorentzian;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.PearsonVII;
@@ -67,6 +66,7 @@ import uk.ac.diamond.scisoft.analysis.fitting.functions.PseudoVoigt;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlottingMode;
 import uk.ac.diamond.scisoft.analysis.roi.ROIProfile;
+
 @Deprecated
 public class DiffractionViewerSpotFit extends Composite implements Overlay1DConsumer {
 
@@ -348,11 +348,11 @@ public class DiffractionViewerSpotFit extends Composite implements Overlay1DCons
 	/**
 	 * Since no longer peak fitting then this method is non longer required
 	 */
-	private void plotFittedCurves(List<APeak> fitterCurves, Dataset dataSets) {
+	private void plotFittedCurves(List<? extends IPeak> fitterCurves, Dataset dataSets) {
 		ArrayList<Dataset> plottingData = new ArrayList<Dataset>();
 		CompositeFunction compFunc = new CompositeFunction();
 		if (!fitterCurves.isEmpty()) {
-			for (APeak fp : fitterCurves) {
+			for (IPeak fp : fitterCurves) {
 				compFunc.addFunction(fp);
 			}
 			plottingData.add(dataSets);

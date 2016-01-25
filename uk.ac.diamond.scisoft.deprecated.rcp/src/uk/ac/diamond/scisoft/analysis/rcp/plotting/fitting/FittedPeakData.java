@@ -19,17 +19,17 @@ package uk.ac.diamond.scisoft.analysis.rcp.plotting.fitting;
 import java.awt.Color;
 
 import org.dawb.common.ui.plot.roi.data.IRowData;
+import org.eclipse.dawnsci.analysis.api.fitting.functions.IPeak;
 import org.eclipse.swt.graphics.RGB;
 
-import uk.ac.diamond.scisoft.analysis.fitting.functions.APeak;
 @Deprecated
 public class FittedPeakData implements IRowData {
 
-	private APeak fittedPeak;
+	private IPeak fittedPeak;
 	private Color peakColour;
 	private boolean plot = true;
 	
-	public FittedPeakData(APeak peak, Color colour) {
+	public FittedPeakData(IPeak peak, Color colour) {
 		fittedPeak = peak;
 		peakColour = colour;
 	}
@@ -52,7 +52,7 @@ public class FittedPeakData implements IRowData {
 		this.peakColour = peakColour;
 	}
 
-	public APeak getFittedPeak() {
+	public IPeak getFittedPeak() {
 		return fittedPeak;
 	}
 
