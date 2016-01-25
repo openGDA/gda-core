@@ -5,6 +5,6 @@ Bundle-SymbolicName: uk.ac.gda.example.test;singleton:=true
 Bundle-Version: 8.52.0.qualifier
 Bundle-Vendor: Diamond Light Source
 Fragment-Host: uk.ac.gda.example;bundle-version="1.0.0"
-Require-Bundle: org.junit;bundle-version="[4.10.0,5.0.0)"
+Require-Bundle: org.junit;bundle-version="[4.12.0,5.0.0)"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
