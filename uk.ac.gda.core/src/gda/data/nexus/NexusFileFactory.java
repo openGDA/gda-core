@@ -52,7 +52,7 @@ public class NexusFileFactory {
 	 * @return NexusFile
 	 * @throws Exception
 	 */
-	public static NexusFile createFile(String fileUrl, boolean instrumentFileApi) throws Exception {
+	public static NexusFile createFile(String fileUrl, boolean instrumentFileApi, boolean swmrEnabled) throws Exception {
 
 		File f = new File(fileUrl);
 		File fparent = new File(f.getParent());
@@ -60,7 +60,7 @@ public class NexusFileFactory {
 			fparent.mkdirs();
 		}
 		logger.debug("Creating HDF5 format NeXus file.");
-		NexusFile nf = NexusFileHDF5.createNexusFile(fileUrl);
+		NexusFile nf = NexusFileHDF5.createNexusFile(fileUrl, swmrEnabled);
 		nf.setDebug(instrumentFileApi);
 
 		// For now we will assume that all the NeXus files have a single
@@ -77,5 +77,9 @@ public class NexusFileFactory {
 
 		// Return a reference to the file which is ready for use.
 		return nf;
+	}
+
+	public static NexusFile createFile(String fileUrl, boolean instrumentFileApi) throws Exception {
+		return createFile(fileUrl, instrumentFileApi, false);
 	}
 }

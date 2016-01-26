@@ -1,4 +1,4 @@
-from org.eclipse.dawnsci.analysis.dataset.impl import DoubleDataset
+from org.eclipse.dawnsci.analysis.dataset.impl import DoubleDataset, Maths
 class DatasetShapeRenderer(object):
 	
 	def __init__(self):
@@ -29,7 +29,8 @@ class DatasetShapeRenderer(object):
 		a = targetDataset.max()
 		b = targetDataset.min()
 		image = self.renderShapes(targetDataset)
-		return targetDataset.iadd(image.imultiply(b - (a - b)))
+		image.imultiply(b - (a - b))
+		return Maths.add(targetDataset, image)
 
 
 class ShapePainter(object):

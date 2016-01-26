@@ -44,6 +44,7 @@ import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
 import org.eclipse.dawnsci.analysis.api.tree.Node;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
+import org.eclipse.dawnsci.hdf5.nexus.NexusFileHDF5;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusUtils;
@@ -98,6 +99,13 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 	 * files will be named (e.g.) {@code "i23-999.nxs"} instead of just {@code "999.nxs"}
 	 */
 	public static final String GDA_NEXUS_BEAMLINE_PREFIX = "gda.nexus.beamlinePrefix";
+
+	/**
+	 * Property to enable swmr writing for the nexus scan file.
+	 * SWMR mode will be enabled before the first scan point is written into the file, after the initial structure is set up
+	 * The structure of the file cannot change after we enter SWMR mode.
+	 */
+	public static final String GDA_NEXUS_SWMR = "gda.nexus.writeSwmr";
 
 	static final int MAX_DATAFILENAME = 255;
 
@@ -391,6 +399,9 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 				dataDimPrefix = new int[scanDimensions.length];
 				Arrays.fill(dataDimPrefix, 1);
 				this.prepareFileAndStructure();
+				if (file instanceof NexusFileHDF5 && LocalProperties.check(GDA_NEXUS_SWMR, false)) {
+					((NexusFileHDF5) file).activateSwmrMode();
+				}
 				firstData = false;
 			}
 		} finally {
@@ -1378,7 +1389,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 	 * @throws Exception
 	 */
 	protected NexusFile createFile() throws Exception {
-		return NexusFileFactory.createFile(nexusFileUrl, LocalProperties.check(GDA_NEXUS_INSTRUMENT_API));
+		return NexusFileFactory.createFile(nexusFileUrl, LocalProperties.check(GDA_NEXUS_INSTRUMENT_API), LocalProperties.check(GDA_NEXUS_SWMR));
 	}
 
 	/**
