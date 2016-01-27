@@ -19,15 +19,14 @@
 package uk.ac.gda.beamline.synoptics.views;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlotType;
 import org.eclipse.dawnsci.plotting.api.PlottingFactory;
+import org.eclipse.dawnsci.plotting.api.trace.IImageTrace;
 import org.eclipse.dawnsci.plotting.api.trace.ILineTrace;
-import org.eclipse.dawnsci.plotting.api.trace.ITrace;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
@@ -65,66 +64,66 @@ public class DetectorFilePlotView extends ViewPart {
 		}
 	}
 
-	private ILineTrace lineTrace;
 	ArrayList<IDataset> plotDataSets = new ArrayList<IDataset>();
 	IDataset xAxisDataset;
-	List<ITrace> lineTraces = null;
-	ITrace imageTrace;
 	PlotType currentPlotType=PlotType.XY;
+	private boolean first;
 
-	public void updatePlot(final IProgressMonitor monitor, IDataset xvalues, IDataset yvalues, final String title,
+	public void updatePlot(final IProgressMonitor monitor, final IDataset xData, final IDataset yData, final String title,
 			final String xAxisName, final String yAxisName, boolean newPlot, PlotType plotType) {
 		if (newPlot) {
 			plottingSystem.reset();//clear();
-			plotDataSets.clear();
+			first=true;
 		} 
 		if (currentPlotType!=plotType) {
-			plottingSystem.clear();
+//			plottingSystem.clear();
 			currentPlotType=plotType;
+			plottingSystem.setPlotType(plotType);
 		}
-		// To support PlotType changes without data file changes.
-		if (xvalues!=null) { 
-			xAxisDataset=xvalues;
-		}
-		if (yvalues != null) {
-			plotDataSets.add(yvalues);
-		}
-		plottingSystem.setPlotType(plotType);
+
 		if (plotType == PlotType.XY || plotType == PlotType.XY_STACKED || plotType == PlotType.XY_STACKED_3D) {
-			lineTraces = plottingSystem.updatePlot1D(xAxisDataset, plotDataSets,  monitor);
+			
 			if (!Display.getDefault().isDisposed()) {
 				Display.getDefault().asyncExec(new Runnable() {
 
 					@Override
 					public void run() {
-						if (lineTraces != null && !lineTraces.isEmpty() && lineTraces.size() == 1) {
+						final ILineTrace lineTrace = plottingSystem.createLineTrace(yData.getName());
+						lineTrace.setData(xData, yData);
+						plottingSystem.addTrace(lineTrace);
+						if (first) {
 							plottingSystem.setShowLegend(true);
 							plottingSystem.setTitle(title);
-							ITrace iTrace = lineTraces.get(0);
-							if (iTrace instanceof ILineTrace) {
-								lineTrace = (ILineTrace) iTrace;
-								lineTrace.setTraceColor(ColorConstants.blue);
-							} 
+							lineTrace.setTraceColor(ColorConstants.blue);
 							plottingSystem.getSelectedYAxis().setTitle(xAxisName);
 							plottingSystem.getSelectedYAxis().setTitle(yAxisName);
+							first=false;
 						}
-						// plottingSystem.autoscaleAxes();
+//						plottingSystem.repaint(true);
+						plottingSystem.repaint();
 					}
 				});
 			}
 		} else {
-			imageTrace = plottingSystem.updatePlot2D(xvalues, plotDataSets, monitor);
 			if (!Display.getDefault().isDisposed()) {
 				Display.getDefault().asyncExec(new Runnable() {
 
 					@Override
 					public void run() {
-
-						if (imageTrace != null) {
+						IImageTrace imageTrace = plottingSystem.createImageTrace(yData.getName());
+						imageTrace.setMax(yData.max(null));
+						imageTrace.setMin(yData.min(null));
+						imageTrace.setMask(null);
+						imageTrace.setData(xData, null, false);
+						plottingSystem.addTrace(imageTrace);
+						
+						if (first) {
 							// plottingSystem.setShowLegend(true);
 							plottingSystem.setTitle(title);
+							first=false;
 						}
-						// plottingSystem.autoscaleAxes();
+//						 plottingSystem.repaint(true);
+						 plottingSystem.repaint();
 					}
 				});
 			}

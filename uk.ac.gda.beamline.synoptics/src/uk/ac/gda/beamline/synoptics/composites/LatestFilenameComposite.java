@@ -329,6 +329,7 @@ class LatestFilenameComposite extends Composite {
 		// plot - checked - clear first, unchecked - plot over
 		newPlotButton = new Button(group, SWT.CHECK);
 		newPlotButton.setToolTipText("clear first?");
+		newPlotButton.setSelection(true);// default to checked - always clear first.
 		GridDataFactory.fillDefaults().grab(false, false).applyTo(newPlotButton);
 
 		plotTypes = new Combo(group, SWT.DROP_DOWN | SWT.READ_ONLY);
@@ -427,6 +428,12 @@ class LatestFilenameComposite extends Composite {
 	}
 
 	protected void processFilenameEntered() {
+		if (fileProcessor instanceof PlotConfigurable) {
+			((PlotConfigurable) fileProcessor).setNewPlot(newPlotButton.getSelection());
+			((PlotConfigurable) fileProcessor).setPlotType(PlotType.values()[plotTypes.getSelectionIndex()]);
+		}
+		fileProcessor.processFile(fileNameText.getText().trim());
+		
 		int findTextIndex = -1;
 		if (detectorCombo.getSelectionIndex() == 0) {
 			findTextIndex = findTextIndex(dirWatcher.getDataFileCollected());
@@ -435,7 +442,7 @@ class LatestFilenameComposite extends Composite {
 		}
 		if (findTextIndex == -1)
 			return;
-		setSelectedIndex(findTextIndex);
+		updateIndexText(findTextIndex);
 	}
 
 	private int findTextIndex(List<FileObject> dataFileCollected) {
@@ -527,6 +534,12 @@ class LatestFilenameComposite extends Composite {
 	}
 
 	void setSelectedIndex(int selected) {
+		updateIndexText(selected);
+		processSelectedIndex();
+		enableBtns();
+	}
+
+	private void updateIndexText(int selected) {
 		lastSelectedIndex = selected;
 		int newLength = Integer.toString(selected).length();
 		int currentLength = textIndex.getText().length();
@@ -536,8 +549,6 @@ class LatestFilenameComposite extends Composite {
 
 		if (forceLayout)
 			EclipseWidgetUtils.forceLayoutOfTopParent(LatestFilenameComposite.this);
-		processSelectedIndex();
-		enableBtns();
 	}
 
 	int getSelectedIndex() {
