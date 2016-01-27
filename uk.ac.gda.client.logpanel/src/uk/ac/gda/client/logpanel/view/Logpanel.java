@@ -618,18 +618,29 @@ public class Logpanel extends Composite {
 		 * @param matching
 		 */
 		public void setMatching(String matching) {
+			pattern = createPattern(matching);
+		}
+
+		private Pattern createPattern(String matching) {
+
+			matching = matching.trim();
+			if (matching.isEmpty()) {
+				return null;
+			}
+
+			Pattern pattern;
 			String regex = ".*" + matching + ".*"; // ensure any value can be used for matching doesn't cause problems with non-nested'|'
 			try {
+				int flags = Pattern.DOTALL;
 				if (isCaseInsensitive) {
-					pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE); // UNICODE_CASE essential
+					flags |= Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE; // UNICODE_CASE essential
 				}
-				else {
-					pattern = Pattern.compile(regex);
-				}
+				pattern = Pattern.compile(regex, flags);
 			}
 			catch (PatternSyntaxException e) {
 				pattern = null;
 			}
+			return pattern;
 		}
 		@Override
 		public boolean select(Viewer viewer, Object parentElement, Object element) {
