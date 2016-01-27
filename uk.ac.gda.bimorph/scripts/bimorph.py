@@ -283,29 +283,25 @@ class RunOptimisation:
         print "__________________________________________________________________________________________________________________"
         print "        current voltages         |           calculated voltages           |        summed voltages to be set"
         print "_________________________________|_________________________________________|______________________________________"
-        
+
         bm_voltage = 0;
 
         useableOutput = [] #Can be copied from the terminal to where the voltages need to be input
         offset_shown = not self.auto_offset
         for voltage in voltages:
-            frontBracket = str(voltage).index('[')
-            endBracket = str(voltage).index(']')
-            current = self.bm_voltages[bm_voltage] 
-            correction = str(voltage)[frontBracket+1:endBracket]
-            sum = str(current+float(correction))
-            gap = 26-len(str(current))
-            gap2 = 34-len(str(correction))
+            current = self.bm_voltages[bm_voltage]
+            correction = voltage[0]
+            voltage_sum = current + correction
             if not offset_shown:
-                print "                                 |    ", correction, " - offset", " "*(gap2-10), "|    "
+                print "  {:20}  |  {:< 11.1f} - offset  |".format("", correction)
                 offset_shown=True
             else:
-                print "    ", current,  " "*gap, "|    ", correction,  " "*gap2, "|    ", sum
-                bm_voltage+=1
-                useableOutput.append(current+float(correction))
-        
+                print "  {:< 20.1f}  |  {:< 20.1f}  |  {:< 20.1f}".format(current, correction, voltage_sum)
+                bm_voltage += 1
+                useableOutput.append(voltage_sum)
+
         print "\nTo be set:"
-        print ",".join(["%.1f" % sum for sum in useableOutput])
+        print ",".join(["%.1f" % v_sum for v_sum in useableOutput])
 
 class BimorphMirror:
     def __init__(self, numberOfElectrodes, maxSafeVoltage,
