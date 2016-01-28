@@ -23,6 +23,10 @@ import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
 /**
  * A dummy detector which must be set up with references to two Scannables representing X and Y positions. When used in a step scan, this detector generates a
  * value of 0 if the point (x, y) is in the Mandelbrot set, and greater than zero otherwise.
@@ -47,6 +51,7 @@ public class DummyMandelbrotMappingDetector extends DetectorBase implements Nexu
 	// Internal state
 	private volatile int status = IDLE;
 	private volatile NXDetectorData data;
+	private ExecutorService executor;
 
 	// Configurable fields
 	private Scannable xPos;
@@ -90,7 +95,11 @@ public class DummyMandelbrotMappingDetector extends DetectorBase implements Nexu
 
 	@Override
 	public NexusTreeProvider readout() throws DeviceException {
-		return data;
+		if (status == IDLE) {
+			return data;
+		}
+		// readout() was called too soon, or perhaps there was an error in the calculation thread
+		throw new DeviceException("Detector is not ready to readout yet");
 	}
 
 	@Override
@@ -99,27 +108,72 @@ public class DummyMandelbrotMappingDetector extends DetectorBase implements Nexu
 	}
 
 	@Override
+	public void atScanStart() throws DeviceException {
+		executor = Executors.newSingleThreadExecutor();
+		status = IDLE;
+	}
+
+	@Override
+	public void atScanEnd() throws DeviceException {
+		executor.shutdownNow();
+		try {
+			if (executor.awaitTermination(1, TimeUnit.SECONDS)) {
+				// Executor finished cleanly
+				executor = null;
+			} else {
+				throw new DeviceException("Timed out waiting for executor to terminate");
+			}
+		} catch (InterruptedException e) {
+			throw new DeviceException("Interrupted while waiting for executor to terminate", e);
+		}
+	}
+
+	@Override
 	public void collectData() throws DeviceException {
+
+		if (status != IDLE) {
+			throw new DeviceException("Detector is not ready to collect data");
+		}
 		status = BUSY;
 
+		final long startTime = System.nanoTime();
+		final long targetDuration = (long) getCollectionTime() * 1000000000; // nanoseconds
 		final double a = ((Double) xPos.getPosition()).doubleValue();
 		final double b = ((Double) yPos.getPosition()).doubleValue();
 
-		double value = mandelbrot(a, b);
+		executor.execute(new Runnable() {
+			@Override
+			public void run() {
 
-		data = new NXDetectorData(this);
-		data.addData(getName(), VALUE_NAME, new NexusGroupData(value));
-		data.setPlottableValue(VALUE_NAME, Double.valueOf(value));
+				double value = mandelbrot(a, b);
 
-		if (outputDimensions == OutputDimensions.ONE_D) {
-			double[] juliaSetLine = calculateJuliaSetLine(a, b, 0.0, 0.0, MAX_X, POINTS);
-			data.addData(getName(), "data", new NexusGroupData(juliaSetLine), null, Integer.valueOf(1));
-		} else if (outputDimensions == OutputDimensions.TWO_D) {
-			double[][] juliaSet = calculateJuliaSet(a, b, COLUMNS, ROWS);
-			data.addData(getName(), "data", new NexusGroupData(juliaSet), null, Integer.valueOf(1));
-		}
+				data = new NXDetectorData(DummyMandelbrotMappingDetector.this);
+				data.addData(getName(), VALUE_NAME, new NexusGroupData(value));
+				data.setPlottableValue(VALUE_NAME, Double.valueOf(value));
 
-		status = IDLE;
+				if (outputDimensions == OutputDimensions.ONE_D) {
+					double[] juliaSetLine = calculateJuliaSetLine(a, b, 0.0, 0.0, MAX_X, POINTS);
+					data.addData(getName(), "data", new NexusGroupData(juliaSetLine), null, Integer.valueOf(1));
+				} else if (outputDimensions == OutputDimensions.TWO_D) {
+					double[][] juliaSet = calculateJuliaSet(a, b, COLUMNS, ROWS);
+					data.addData(getName(), "data", new NexusGroupData(juliaSet), null, Integer.valueOf(1));
+				}
+
+				long currentTime = System.nanoTime();
+				long duration = currentTime - startTime;
+				if (duration < targetDuration) {
+					long millisToWait = (targetDuration - duration) / 1000000;
+					try {
+						Thread.sleep(millisToWait);
+					} catch (InterruptedException e) {
+						// No cleanup needed since this task is about to finish; just restore interrupted status
+						Thread.currentThread().interrupt();
+					}
+				}
+
+				status = IDLE;
+			}
+		});
 	}
 
 	/**
