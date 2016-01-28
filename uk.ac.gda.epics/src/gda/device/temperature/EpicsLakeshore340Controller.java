@@ -75,9 +75,15 @@ public class EpicsLakeshore340Controller extends DeviceBase implements Configura
 	 */
 	private Channel krdg3 = null;
 	/**
-	 * current temperature - KRDG0
+	 * Channel 0 temp
 	 */
-	private Channel temp = null;
+	private Channel krdg0 = null;
+
+	/**
+	 * Channel to use for readback
+	 */
+	private int readbackChannel = 0;
+
 	/**
 	 * target temperature
 	 */
@@ -123,6 +129,9 @@ public class EpicsLakeshore340Controller extends DeviceBase implements Configura
 	@Override
 	public void configure() throws FactoryException {
 		if (!configured) {
+			if (readbackChannel < 0 || readbackChannel > 3) {
+				throw new FactoryException("Readback channel must be between 0 and 3 inclusive.");
+			}
 			// EPICS interface version 2 for phase II beamlines.
 			if (getDeviceName() != null) {
 				Lakeshore340Type config;
@@ -174,11 +183,11 @@ public class EpicsLakeshore340Controller extends DeviceBase implements Configura
 	 */
 	private void createChannelAccess(Lakeshore340Type config) throws FactoryException {
 		try {
-			temp = channelManager.createChannel(config.getKRDG0().getPv(), ctl, false);
 			targettemp = channelManager.createChannel(config.getSETP_S().getPv(), false);
-			krdg1 = channelManager.createChannel(config.getKRDG1().getPv(), false);
-			krdg2 = channelManager.createChannel(config.getKRDG2().getPv(), false);
-			krdg3 = channelManager.createChannel(config.getKRDG3().getPv(), false);
+			krdg0 = channelManager.createChannel(config.getKRDG0().getPv(), readbackChannel == 0 ? ctl : null, false);
+			krdg1 = channelManager.createChannel(config.getKRDG1().getPv(), readbackChannel == 1 ? ctl : null, false);
+			krdg2 = channelManager.createChannel(config.getKRDG2().getPv(), readbackChannel == 2 ? ctl : null, false);
+			krdg3 = channelManager.createChannel(config.getKRDG3().getPv(), readbackChannel == 3 ? ctl : null, false);
 			disable = channelManager.createChannel(config.getDISABLE().getPv(), connlist, false);
 			// acknowledge that creation phase is completed
 			channelManager.creationPhaseCompleted();
@@ -224,13 +233,34 @@ public class EpicsLakeshore340Controller extends DeviceBase implements Configura
 	 * @throws DeviceException
 	 */
 	public double getTemp() throws DeviceException {
+		switch (readbackChannel) {
+		case 0:
+			return getChannel0Temp();
+		case 1:
+			return getChannel1Temp();
+		case 2:
+			return getChannel2Temp();
+		case 3:
+			return getChannel3Temp();
+		default:
+			throw new IllegalStateException("Unknown channel specified");
+		}
+	}
+
+	/**
+	 * gets channel 0 temperature
+	 *
+	 * @return channel 0 temperature
+	 * @throws DeviceException
+	 */
+	public double getChannel0Temp() throws DeviceException {
 		if (connState.equals("Disabled")) {
 			throw new IllegalStateException("The device " + getName() + " is not connected.");
 		}
 		try {
-			return controller.cagetDouble(temp);
+			return controller.cagetDouble(krdg0);
 		} catch (Throwable e) {
-			throw new DeviceException("failed to get current temperature.", e);
+			throw new DeviceException("failed to get channel 0 temperature.", e);
 		}
 	}
 
@@ -445,5 +475,16 @@ public class EpicsLakeshore340Controller extends DeviceBase implements Configura
 		} catch (Throwable e) {
 			throw new DeviceException("failed to get from DISABLE PV.", e);
 		}
+	}
+
+	public int getReadbackChannel() {
+		return readbackChannel;
+	}
+
+	public void setReadbackChannel(int readbackChannel) {
+		if (configured) {
+			throw new IllegalStateException("Cannot change readback channel once configured");
+		}
+		this.readbackChannel = readbackChannel;
 	}
 }
