@@ -131,6 +131,9 @@ public class DummyMandelbrotMappingDetector extends DetectorBase implements Nexu
 	@Override
 	public void collectData() throws DeviceException {
 
+		if (executor == null) {
+			throw new DeviceException("This detector must be used in a scan");
+		}
 		if (status != IDLE) {
 			throw new DeviceException("Detector is not ready to collect data");
 		}
