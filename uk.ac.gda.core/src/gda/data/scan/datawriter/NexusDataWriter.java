@@ -639,51 +639,37 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 							tree.isPointDependent() ? scanDimensions : null, sdims);
 					lazy.setMaxShape(dataDimMake);
 
-					if (sdims.length > 1) {
-						int[] chunks = Arrays.copyOf(dataDimMake, dataDimMake.length);
-						for (int i = 0; i < chunks.length; i++) {
-							if (chunks[i] == -1) chunks[i] = 1;
-						}
-						if (sds.chunkDimensions != null && sds.chunkDimensions.length <= chunks.length) {
-							int lendiff = chunks.length - sds.chunkDimensions.length;
-							for (int i = 0; i < sds.chunkDimensions.length; i++) {
-								chunks[i+lendiff] = dataDimMake[i+lendiff] == -1 ? sds.chunkDimensions[i] : Math.min(sds.chunkDimensions[i], chunks[i+lendiff]);
-							}
-						}
-						lazy.setChunking(chunks);
-						int compression = sds.compressionType != null ? sds.compressionType : NexusFile.COMPRESSION_LZW_L1;
-						data = file.createData(group, lazy, compression);
-					} else if (sdims.length == 1) {
-						int dataByteSize = AbstractDataset.getItemsize(sds.getDtype());
-						if (dataByteSize <= 0) {
-							dataByteSize = 4;
-						}
-						int[] dimensions;
-						int[] initialChunks = null;
-						if (sdims[0] == 1) {
-							// just writing single (zero-dim) values per point, so dimensions are scan dimensions
-							dimensions = scanDimensions;
-						} else {
-							// scan dimensions come first, append our dimension
-							initialChunks = new int[scanDimensions.length + 1];
-							Arrays.fill(initialChunks, -1);
-							if (sds.chunkDimensions != null) {
-								initialChunks[initialChunks.length - 1] = sds.chunkDimensions[0];
-							}
-							dimensions = Arrays.copyOf(scanDimensions, scanDimensions.length + 1);
-							dimensions[dimensions.length - 1] = sdims[0];
-						}
-						int[] chunks = NexusUtils.estimateChunking(dimensions, dataByteSize, initialChunks);
-						int[] maxshape = lazy.getMaxShape();
-						for (int i = 0; i < maxshape.length; i++) {
-							// chunk length in a dimension cannot exceed the upper bound for a dataset in that dimension
-							chunks[i] = maxshape[i] > 0 && maxshape[i] < chunks[i] ? maxshape[i] : chunks[i];
-						}
-						lazy.setChunking(chunks);
-						data = file.createData(group, lazy);
+					int[] dimensions;
+					int compression = NexusFile.COMPRESSION_NONE;
+					if (sdims.length == 1 && sdims[0] == 1) {
+						// zero-dim data (single value per point), so dimensions are scan dimensions
+						dimensions = scanDimensions;
+						// do not compress such simple data by default
+						compression = sds.compressionType != null ? sds.compressionType : NexusFile.COMPRESSION_NONE;
 					} else {
-						data = file.createData(group, lazy);
+						dimensions = Arrays.copyOf(scanDimensions, scanDimensions.length + sdims.length);
+						System.arraycopy(sdims, 0, dimensions, scanDimensions.length, sdims.length);
+						compression = sds.compressionType != null ? sds.compressionType : NexusFile.COMPRESSION_LZW_L1;
 					}
+					int[] specifiedChunkDims = new int[dimensions.length];
+					Arrays.fill(specifiedChunkDims, -1);
+					if (sds.chunkDimensions != null) {
+						System.arraycopy(sds.chunkDimensions, 0, specifiedChunkDims, scanDimensions.length, sds.chunkDimensions.length);
+					}
+					int dataByteSize = AbstractDataset.getItemsize(sds.getDtype());
+					if (dataByteSize <= 0) {
+						// TODO: Fix for string types, particularly fixed length strings
+						dataByteSize = 4;
+					}
+					int[] chunk = NexusUtils.estimateChunking(dimensions, dataByteSize, specifiedChunkDims);
+					int[] maxshape = lazy.getMaxShape();
+					for (int i = 0; i < maxshape.length; i++) {
+						// chunk length in a given dimension should not exceed the upper bound of the dataset
+						chunk[i] = maxshape[i] > 0 && maxshape[i] < chunk[i] ? maxshape[i] : chunk[i];
+					}
+					lazy.setChunking(chunk);
+					// TODO: only enable compression if the chunk size makes it worthwhile
+					data = file.createData(group, lazy, compression);
 
 					if (!tree.isPointDependent()) {
 						int[] dataStartPos = generateDataStartPos(null, sdims);
