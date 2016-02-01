@@ -21,67 +21,76 @@ package uk.ac.gda.server.ncd.optimiser;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
-/**
- * 	# find base line
-	# find excursions from base line and back
-	# count if reasonable number, redo with refined criteria if necessary
-	# find longest regular spacing and reject points not on it
-	# return
- */
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
+import org.eclipse.dawnsci.analysis.dataset.roi.ROIList;
+import org.eclipse.dawnsci.analysis.dataset.roi.XAxisLineBoxROI;
+import org.eclipse.dawnsci.analysis.dataset.roi.XAxisLineBoxROIList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import uk.ac.diamond.scisoft.analysis.SDAPlotter;
+import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
+import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
+
 public class LadderSampleFinder {
-	
+	private static final Logger logger = LoggerFactory.getLogger(LadderSampleFinder.class);
+
 	private List<Point> points;
 	private String plotPanel;
+	private double peakHeight = 0.5;
+	private double minWidth = 0;
+
+	public LadderSampleFinder() {
+	}
+
+	public LadderSampleFinder(String plotPanel) {
+		this.plotPanel = plotPanel;
+	}
 
 	public void setPlotPanel(String plotPanel) {
 		this.plotPanel = plotPanel;
 	}
-	
-	public List<Double> process(double[] x, double[] y) {
-		setPoints(x,y);
-		int[] normal = getNormalisedArray(); 
-		List<Peak> peaks = getAllPeaks(normal);
-		List<Double> regularPositions = getRegularPeakPositions(peaks);
-		
-		return validPeakList(regularPositions, peaks);
+
+	public void setPeakHeight(double peakHeight) {
+		this.peakHeight = peakHeight;
 	}
-	
+
+	public void setMinWidth(double width) {
+		this.minWidth = width;
+	}
+
+	public List<Double> process(double[] x, double[] y) {
+		setPoints(x, y);
+		int[] normal = getNormalisedArray();
+		List<Double> peaks = getAllPeaks(normal);
+		if (plotPanel != null && plotPanel.length() > 0) {
+			logger.debug("Plotting found features on plot: '{}'", plotPanel);
+			plotResults(peaks, x, y);
+		}
+		return peaks;
+	}
+
 	private void setPoints(double[] x, double[] y) {
 		if (x.length != y.length) {
-			throw new IllegalArgumentException("Arrays not equal lengths");
+			throw new IllegalArgumentException("Arrays not equal length");
 		}
-		points = new ArrayList<LadderSampleFinder.Point>();
+		points = new ArrayList<Point>();
 		for (int i = 0; i < y.length; i++) {
 			points.add(new Point(x[i], y[i]));
 		}
 		Collections.sort(points);
 	}
-	
-	private double maxY() {
-		double max = Double.MIN_VALUE;
-		for (Point p : points) {
-			max = Math.max(max, p.y);
-		}
-		return max;
-	}
-	
-	private double minY() {
-		double min = Double.MAX_VALUE;
-		for (Point p : points) {
-			min = Math.min(min, p.y);
-		}
-		return min;
-	}
-	
+
 	private int[] getNormalisedArray() {
 		int len = points.size();
-		double base = findBaseValue();
-		double halfSD = 0.5 * findSD();
+		DescriptiveStatistics ds = getStatistics();
+		double base = ds.getPercentile(50);
+		double halfSD = peakHeight * ds.getStandardDeviation();
 		int[] normal = new int[len];
 		for (int i = 0; i < len; i++) {
-			if (Math.abs(points.get(i).y - base) < Math.abs(halfSD)) {
+			if (Math.abs(points.get(i).y - base) < halfSD) {
 				normal[i] = 0;
 			} else {
 				normal[i] = 1;
@@ -89,123 +98,62 @@ public class LadderSampleFinder {
 		}
 		return normal;
 	}
-	
-	private double findBaseValue() {
-		double span = maxY() - minY();
-		double step = span / 100;
-		
-		DescriptiveStatistics ds = new DescriptiveStatistics();
-		for (Point p : points) {
-			ds.addValue(Math.round(p.y / step)*step);
-		}
-		return ds.getPercentile(50);
-	}
 
-	private double findSD() {
+	private DescriptiveStatistics getStatistics() {
 		DescriptiveStatistics ds = new DescriptiveStatistics();
 		for (Point p : points) {
 			ds.addValue(p.y);
 		}
-		return ds.getStandardDeviation();
+		return ds;
 	}
-	
-	private List<Peak> getAllPeaks(int[] normal) {
-		List<Peak> peaks = new ArrayList<Peak>();
-		int peakStart = 0;
+
+	private List<Double> getAllPeaks(int[] normal) {
+		List<Double> peaks = new ArrayList<Double>();
+		if (normal.length == 0) {
+			return peaks;
+		}
+		int lastBase = -1;
+		int lastValue = normal[0];
+
 		for (int i = 0; i < normal.length; i++) {
-			if (peakStart == i && normal[i] == 0) { //base line
-				peakStart++;
-			} else if (peakStart < i && normal[i] == 0) { //end of peak
-				int end = i - 1;
-				int peakCentre = end - (end - peakStart)/2;
-				peaks.add(new Peak(points.get(peakStart), points.get(end), points.get(peakCentre)));
-				peakStart = i + 1;
+			int current = normal[i];
+			if (current > lastValue) {
+				//start of peak
+				lastBase = i-1;
+			} else if (current < lastValue) {
+				//end of peak
+				if (lastBase > -1) {
+					double width = points.get(i).x - points.get(lastBase).x;
+					if (minWidth == 0 || width > minWidth) {// ignore outliers
+						int pC = (i + lastBase) / 2;
+						peaks.add(points.get(pC).x);
+					}
+				}
 			}
+			lastValue = current;
 		}
 		return peaks;
 	}
-	
-	private List<Double> getRegularPeakPositions(List<Peak> peaks) {
-		double spacing = findMedianGap(peaks);
-		double[] optimised = optimiseSpacing(peaks, spacing);
-		int basePos = (int) optimised[0];
-		spacing = optimised[1];
-		Peak basePeak = peaks.get(basePos);
-		
-		List<Double> regularPeakPositions = calculateRegularPeaks(basePeak, spacing, peaks.get(0).left.x, peaks.get(peaks.size() - 1).right.x);
 
-		return regularPeakPositions;
-	}
-	
-	private double findMedianGap(List<Peak> peaks) {
-		DescriptiveStatistics ds = new DescriptiveStatistics();
-		Peak prev = peaks.get(0);
-		for (int gap = 0; gap < peaks.size() - 1; gap++) {
-			Peak peak = peaks.get(gap+1);
-			ds.addValue(peak.centre.x - prev.centre.x);
-			prev = peak;
-		}
-		return ds.getPercentile(50);
-	}
-	
-	private double[] optimiseSpacing(List<Peak> peaks, double spacing) {
-		double variation = spacing * 0.2; //ARGH MAGIC NUMBERS
-		double spacingStep = spacing * 0.01;
-		double lowerSpacingBound = spacing - variation;
-		double upperSpacingBound = spacing + variation;
-		int optimalBase = 0;
-		double optimalSpacing = 0;
-		double minimumError = Double.MAX_VALUE;
-		for (spacing = lowerSpacingBound; Math.abs(spacing) < Math.abs(upperSpacingBound); spacing += spacingStep) {
-			for (int i = 0; i < peaks.size(); i++) {
-				double offset = peaks.get(i).centre.x;
-				double sum = 0;
-				for (int j = 0; j < peaks.size(); j++) {
-					double error = Math.abs((j - i) * spacing - peaks.get(j).centre.x + offset);
-					sum += error;
-				}
-				if (sum < minimumError) {
-					minimumError = sum;
-					optimalBase = i;
-					optimalSpacing = spacing;
-				}
+	private void plotResults(List<Double> features, double[] x, double[] y) {
+		try {
+			SDAPlotter.clearPlot(plotPanel);
+			SDAPlotter.plot(plotPanel, new DoubleDataset(x), new DoubleDataset(y));
+			GuiBean guiBean = SDAPlotter.getGuiBean(plotPanel);
+			ROIList<XAxisLineBoxROI> list = new XAxisLineBoxROIList();
+			int i = 0;
+			for (Double feature : features) {
+				XAxisLineBoxROI roi = new XAxisLineBoxROI(feature, 0, 0, 0, 0);
+				roi.setName("feature-" + i++);
+				list.add(roi);
 			}
+			guiBean.put(GuiParameters.ROIDATALIST, list);
+			SDAPlotter.setGuiBean(plotPanel, guiBean);
+		} catch (Exception e) {
+			logger.error("Failed to plot features", e);
 		}
-		return new double[] {optimalBase, optimalSpacing};
 	}
-	
-	private List<Double> calculateRegularPeaks(Peak basePeak, double spacing, double lowerLimit, double upperLimit) {
-		List<Double> regularPeaks = new ArrayList<Double>();
-//		double lowerLimit = points.get(0).x;
-//		double upperLimit = points.get(points.size() - 1).x;
-		int count = (int) ((upperLimit - lowerLimit) / spacing);
-		
-		for (int i = -count; i < count; i++) {
-			double newPeak = basePeak.centre.x - i * spacing;
-			if (newPeak > lowerLimit && newPeak < upperLimit) {
-				regularPeaks.add(newPeak);
-			}
-		}
-		return regularPeaks;
-	}
-	
-	private List<Double> validPeakList(List<Double> regularPeaks, List<Peak> peaks) {
-		Collections.sort(regularPeaks);
-		int i = 0;
-		for (int j = 0; j < regularPeaks.size(); j++) {
-			double d = regularPeaks.get(j);
-			while (i <  peaks.size() - 1 && peaks.get(i).right.x < d) {
-				i++;
-			}
-			Peak peak = peaks.get(i);
-			if (d > peak.left.x) {
-				regularPeaks.set(j, peak.centre.x);
-			}
-		}
-		
-		return regularPeaks;
-	}
-	
+
 	private class Point implements Comparable<Point> {
 		double x;
 		double y;
@@ -216,25 +164,6 @@ public class LadderSampleFinder {
 		@Override
 		public int compareTo(Point o) {
 			return ((Double)x).compareTo(o.x);
-		}
-	}
-	
-	private class Peak implements Comparable<Peak> {
-		Point left;
-		Point right;
-		Point centre;
-		Peak(Point l, Point r, Point c) {
-			left = l;
-			right = r;
-			centre = c;
-		}
-		@Override
-		public int compareTo(Peak o) {
-			return ((Double)centre.x).compareTo(o.centre.x);
-		}
-		@Override
-		public String toString() {
-			return String.format("%.1f",centre.x);
 		}
 	}
 }
