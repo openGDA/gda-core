@@ -71,7 +71,7 @@ public class V17NDFileHDF5FactoryBean extends V17FactoryBeanBase<NDFileHDF5>{
 
 	@Override
 	public Class<?> getObjectType() {
-		return bean.getClass();
+		return bean != null ? bean.getClass() : null;
 	}
 
 	@Override

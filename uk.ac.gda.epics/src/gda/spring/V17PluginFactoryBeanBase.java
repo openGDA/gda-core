@@ -54,7 +54,7 @@ abstract public  class  V17PluginFactoryBeanBase <T> extends V17FactoryBeanBase<
 
 	@Override
 	public Class<?> getObjectType() {
-		return bean.getClass();
+		return bean != null ? bean.getClass() : null;
 	}
 
 	@Override

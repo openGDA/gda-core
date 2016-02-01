@@ -47,7 +47,7 @@ abstract public  class  V17FactoryBeanBase <T> implements FactoryBean<T>, Initia
 
 	@Override
 	public Class<?> getObjectType() {
-		return bean.getClass();
+		return bean != null ? bean.getClass() : null;
 	}
 
 	@Override
