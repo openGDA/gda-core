@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.beans.DetectorROI;
+import uk.ac.gda.devices.detector.xspress3.ReadyForNextRow;
 import uk.ac.gda.devices.detector.xspress3.TRIGGER_MODE;
 import uk.ac.gda.devices.detector.xspress3.Xspress3Controller;
 
@@ -483,19 +484,6 @@ public class DummyXspress3Controller implements Xspress3Controller, Findable, Co
 		return name;
 	}
 
-//	@Override
-//	public void setHDFFileDimensions(int[] dimensions) throws DeviceException {
-//		if (dimensions.length > 3) {
-//			throw new DeviceException("Cannot write more than 3 dimensions in the HDF5 plugin!");
-//		}
-//		fileDimensions = dimensions;
-//	}
-//
-//	@Override
-//	public int[] getHDFFileDimensions() throws DeviceException {
-//		return fileDimensions;
-//	}
-
 	@Override
 	public void setHDFFileAutoIncrement(boolean b) {
 		// do nothing in this sim
@@ -553,5 +541,44 @@ public class DummyXspress3Controller implements Xspress3Controller, Findable, Co
 	@Override
 	public int getMcaSize() {
 		return MCA_SIZE;
+	}
+
+	@Override
+	public int getTotalHDFFramesAvailable() throws DeviceException {
+		return numFramesToAcquire;
+	}
+
+	@Override
+	public void setHDFAttributes(boolean b) throws DeviceException {
+		// do nothing in this sim
+	}
+
+	@Override
+	public void setHDFPerformance(boolean b) throws DeviceException {
+		// do nothing in this sim
+	}
+
+	@Override
+	public void setHDFNumFramesChunks(int i) throws DeviceException {
+		// do nothing in this sim
+	}
+
+	@Override
+	public int monitorUpdateArraysAvailableFrame(int desiredPoint) throws DeviceException {
+		return numFramesToAcquire;
+	}
+
+	@Override
+	public void setPointsPerRow(Integer pointsPerRow) throws DeviceException {
+	}
+
+	@Override
+	public ReadyForNextRow monitorReadyForNextRow(ReadyForNextRow readyForNextRow) throws DeviceException {
+		return readyForNextRow;
+	}
+
+	@Override
+	public int monitorSavingFile(int status) throws DeviceException {
+		return 1;
 	}
 }

@@ -22,6 +22,7 @@ import gda.epics.LazyPVFactory;
 import gda.epics.PV;
 import gda.epics.ReadOnlyPV;
 import gda.factory.FactoryException;
+import uk.ac.gda.devices.detector.xspress3.ReadyForNextRow;
 import uk.ac.gda.devices.detector.xspress3.TRIGGER_MODE;
 
 public class EpicsXspress3ControllerPvProvider {
@@ -37,6 +38,8 @@ public class EpicsXspress3ControllerPvProvider {
 	private static String ACQUIRE_SUFFIX = ":Acquire";
 	private static String ERASE_SUFFIX = ":ERASE";
 	private static String RESET_SUFFIX = ":RESET";
+	private static String POINTS_PER_ROW_SUFFIX = ":PointsPerRow";
+	private static String READY_FOR_NEXT_ROW_SUFFIX = ":ReadyForNextRow_RBV";
 	private static String NUM_IMAGES_SUFFIX = ":NumImages";
 	private static String NUM_IMAGES_RBV_SUFFIX = ":NumImages_RBV";
 	private static String ROI_CALC_SUFFIX = ":CTRL_MCA_ROI";
@@ -49,6 +52,10 @@ public class EpicsXspress3ControllerPvProvider {
 	private static String FRAMES_AVAILABLE_SUFFIX = ":ArrayCounter_RBV";
 	private static String BUSY_SUFFIX = ":Acquire_RBV";
 	private static String UPDATEARRAYS_SUFFIX = ":UPDATE";
+	// Added a PV to make sure that the arrays have ben updated before to readout, this PV should be used only for step scans because the update of this PV is
+	// only done every
+	// 10 ms (check Adam)
+	private static String UPDATEARRAYS_FRAME_NUMBER_SUFFIX = ":AVAILABLE_FRAME";
 
 	// System Configuration
 	private static String MAX_FRAMES_SUFFIX = ":NUM_FRAMES_CONFIG_RBV";
@@ -69,12 +76,17 @@ public class EpicsXspress3ControllerPvProvider {
 	private static String NEXT_FILENUMBER = ":HDF5:FileNumber";
 	private static String FILE_AUTOINCREMENT = ":HDF5:AutoIncrement";
 	private static String FILE_NUMCAPTURE = ":HDF5:NumCapture";
+	private static String FILE_NUMCAPTURE_RBV = ":HDF5:NumCapture_RBV";
 	private static String FULLFILENAME = ":HDF5:FullFileName_RBV";
 
 	private static String EXTRA_DIMS = ":HDF5:NumExtraDims";
 	private static String EXTRA_DIM_N = ":HDF5:ExtraDimSizeN";
-	private static String EXTRA_DIM_X= ":HDF5:ExtraDimSizeX";
+	private static String EXTRA_DIM_X = ":HDF5:ExtraDimSizeX";
 	private static String EXTRA_DIM_Y = ":HDF5:ExtraDimSizeY";
+
+	private static String FILE_ATTR = ":HDF5:StoreAttr";
+	private static String FILE_PERFORM = ":HDF5:StorePerform";
+	private static String FILE_NUMFRAMESCHUNKS = ":HDF5:NumFramesChunks";
 
 	// All Element Sum File creation PVs
 //	private static String ALL_EL_STARTSTOP_FILE_WRITING = ":ALLEL:HDF5:Capture";
@@ -151,6 +163,9 @@ public class EpicsXspress3ControllerPvProvider {
 	protected PV<ERASE_STATE> pvErase;
 	protected PV<Integer> pvReset;
 	protected PV<Integer> pvUpdate;
+	protected PV<Integer> pvUpdateArraysAvailableFrame;
+	protected PV<Integer> pvPointsPerRow;
+	protected ReadOnlyPV<ReadyForNextRow> pvReadyForNextRow;
 	protected PV<Integer> pvSetNumImages;
 	protected ReadOnlyPV<Integer> pvGetNumImages;
 	protected PV<UPDATE_CTRL> pvSetRoiCalc;
@@ -218,22 +233,27 @@ public class EpicsXspress3ControllerPvProvider {
 	protected PV<Integer> pvExtraDimY;
 	protected PV<Boolean> pvHDFAutoIncrement;
 	protected PV<Integer> pvHDFNumCapture;
+	protected PV<Integer> pvHDFNumCaptureRBV;
 	protected ReadOnlyPV<String> pvHDFFullFileName;
 
-//	protected PV<CAPTURE_CTRL_RBV> pvAllElementSumStartStopFileWriting;
-//	protected ReadOnlyPV<CAPTURE_CTRL_RBV> pvAllElementSumIsFileWriting;
-//	protected ReadOnlyPV<Integer> pvAllElementSumGetFileWritingStatus;
-//	protected PV<String> pvAllElementSumSetFilePath;
-//	protected ReadOnlyPV<String> pvAllElementSumGetFilePath;
-//	protected PV<String> pvAllElementSumSetFilePrefix;
-//	protected ReadOnlyPV<String> pvAllElementSumGetFilePrefix;
-//	protected PV<Integer> pvAllElementSumNextFileNumber;
-//	protected PV<Integer> pvAllElementSumExtraDimensions;
-//	protected PV<Integer> pvAllElementSumExtraDimN;
-//	protected PV<Integer> pvAllElementSumExtraDimX;
-//	protected PV<Integer> pvAllElementSumExtraDimY;
-//	protected PV<Boolean> pvAllElementSumHDFAutoIncrement;
-//	protected PV<Integer> pvAllElementSumHDFNumCapture;
+	protected PV<Boolean> pvHDFAttributes;
+	protected PV<Boolean> pvHDFPerformance;
+	protected PV<Integer> pvHDFNumFramesChunks;
+
+	// protected PV<CAPTURE_CTRL_RBV> pvAllElementSumStartStopFileWriting;
+	// protected ReadOnlyPV<CAPTURE_CTRL_RBV> pvAllElementSumIsFileWriting;
+	// protected ReadOnlyPV<Integer> pvAllElementSumGetFileWritingStatus;
+	// protected PV<String> pvAllElementSumSetFilePath;
+	// protected ReadOnlyPV<String> pvAllElementSumGetFilePath;
+	// protected PV<String> pvAllElementSumSetFilePrefix;
+	// protected ReadOnlyPV<String> pvAllElementSumGetFilePrefix;
+	// protected PV<Integer> pvAllElementSumNextFileNumber;
+	// protected PV<Integer> pvAllElementSumExtraDimensions;
+	// protected PV<Integer> pvAllElementSumExtraDimN;
+	// protected PV<Integer> pvAllElementSumExtraDimX;
+	// protected PV<Integer> pvAllElementSumExtraDimY;
+	// protected PV<Boolean> pvAllElementSumHDFAutoIncrement;
+	// protected PV<Integer> pvAllElementSumHDFNumCapture;
 
 	public EpicsXspress3ControllerPvProvider(String epicsTemplate, int numberOfDetectorChannels) throws FactoryException {
 		this.numberOfDetectorChannels = numberOfDetectorChannels;
@@ -253,22 +273,25 @@ public class EpicsXspress3ControllerPvProvider {
 	}
 
 	private void createControlPVs() {
-		 pvAcquire = LazyPVFactory.newEnumPV(generatePVName(ACQUIRE_SUFFIX),ACQUIRE_STATE.class);
-		 pvErase = LazyPVFactory.newEnumPV(generatePVName(ERASE_SUFFIX), ERASE_STATE.class);
-		 pvReset = LazyPVFactory.newIntegerPV(generatePVName(RESET_SUFFIX));
-		 pvUpdate = LazyPVFactory.newIntegerPV(generatePVName(UPDATEARRAYS_SUFFIX));
-		 pvSetNumImages = LazyPVFactory.newIntegerPV(generatePVName(NUM_IMAGES_SUFFIX));
-		 pvGetNumImages = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(NUM_IMAGES_RBV_SUFFIX));
-		 pvSetRoiCalc  = LazyPVFactory.newEnumPV(generatePVName(ROI_CALC_SUFFIX),UPDATE_CTRL.class);
-		 pvGetRoiCalc = LazyPVFactory.newReadOnlyEnumPV(generatePVName(ROI_CALC_RBV_SUFFIX),UPDATE_RBV.class);
-		 pvSetTrigMode = LazyPVFactory.newEnumPV(generatePVName(TRIG_MODE_SUFFIX), TRIGGER_MODE.class);
-		 pvGetTrigMode = LazyPVFactory.newReadOnlyEnumPV(generatePVName(TRIG_MODE_RBV_SUFFIX), TRIGGER_MODE.class);
-		 pvGetStatusMsg = LazyPVFactory.newReadOnlyStringFromWaveformPV(generatePVName(STATUS_MSG_SUFFIX));
-		 pvGetState = LazyPVFactory.newReadOnlyEnumPV(generatePVName(STATUS_RBV_SUFFIX),XSPRESS3_EPICS_STATUS.class);
-		 pvGetNumFramesPerReadout = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(FRAMES_PER_READ_SUFFIX));
-		 pvGetNumFramesAvailableToReadout = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(FRAMES_AVAILABLE_SUFFIX));
-		 pvIsBusy = LazyPVFactory.newReadOnlyBooleanFromIntegerPV(generatePVName(BUSY_SUFFIX));
-		 pvIsConnected = LazyPVFactory.newReadOnlyEnumPV(generatePVName(CONNECTION_STATUS), CONNECTION_STATE.class);
+		pvAcquire = LazyPVFactory.newEnumPV(generatePVName(ACQUIRE_SUFFIX), ACQUIRE_STATE.class);
+		pvErase = LazyPVFactory.newEnumPV(generatePVName(ERASE_SUFFIX), ERASE_STATE.class);
+		pvReset = LazyPVFactory.newIntegerPV(generatePVName(RESET_SUFFIX));
+		pvUpdate = LazyPVFactory.newIntegerPV(generatePVName(UPDATEARRAYS_SUFFIX));
+		pvUpdateArraysAvailableFrame = LazyPVFactory.newIntegerPV(generatePVName(UPDATEARRAYS_FRAME_NUMBER_SUFFIX));
+		pvPointsPerRow = LazyPVFactory.newIntegerPV(generatePVName(POINTS_PER_ROW_SUFFIX));
+		pvReadyForNextRow = LazyPVFactory.newEnumPV(generatePVName(READY_FOR_NEXT_ROW_SUFFIX), ReadyForNextRow.class);
+		pvSetNumImages = LazyPVFactory.newIntegerPV(generatePVName(NUM_IMAGES_SUFFIX));
+		pvGetNumImages = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(NUM_IMAGES_RBV_SUFFIX));
+		pvSetRoiCalc = LazyPVFactory.newEnumPV(generatePVName(ROI_CALC_SUFFIX), UPDATE_CTRL.class);
+		pvGetRoiCalc = LazyPVFactory.newReadOnlyEnumPV(generatePVName(ROI_CALC_RBV_SUFFIX), UPDATE_RBV.class);
+		pvSetTrigMode = LazyPVFactory.newEnumPV(generatePVName(TRIG_MODE_SUFFIX), TRIGGER_MODE.class);
+		pvGetTrigMode = LazyPVFactory.newReadOnlyEnumPV(generatePVName(TRIG_MODE_RBV_SUFFIX), TRIGGER_MODE.class);
+		pvGetStatusMsg = LazyPVFactory.newReadOnlyStringFromWaveformPV(generatePVName(STATUS_MSG_SUFFIX));
+		pvGetState = LazyPVFactory.newReadOnlyEnumPV(generatePVName(STATUS_RBV_SUFFIX), XSPRESS3_EPICS_STATUS.class);
+		pvGetNumFramesPerReadout = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(FRAMES_PER_READ_SUFFIX));
+		pvGetNumFramesAvailableToReadout = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(FRAMES_AVAILABLE_SUFFIX));
+		pvIsBusy = LazyPVFactory.newReadOnlyBooleanFromIntegerPV(generatePVName(BUSY_SUFFIX));
+		pvIsConnected = LazyPVFactory.newReadOnlyEnumPV(generatePVName(CONNECTION_STATUS), CONNECTION_STATE.class);
 	}
 
 	private void createFileWritingPVs() {
@@ -281,6 +304,10 @@ public class EpicsXspress3ControllerPvProvider {
 		pvNextFileNumber = LazyPVFactory.newIntegerPV(generatePVName(NEXT_FILENUMBER));
 		pvHDFAutoIncrement = LazyPVFactory.newBooleanFromEnumPV(generatePVName(FILE_AUTOINCREMENT));
 		pvHDFNumCapture = LazyPVFactory.newIntegerPV(generatePVName(FILE_NUMCAPTURE));
+		pvHDFNumCaptureRBV = LazyPVFactory.newIntegerPV(generatePVName(FILE_NUMCAPTURE_RBV));
+		pvHDFAttributes = LazyPVFactory.newBooleanFromEnumPV(generatePVName(FILE_ATTR));
+		pvHDFPerformance = LazyPVFactory.newBooleanFromEnumPV(generatePVName(FILE_PERFORM));
+		pvHDFNumFramesChunks = LazyPVFactory.newIntegerPV(generatePVName(FILE_NUMFRAMESCHUNKS));
 
 		pvHDFFullFileName = LazyPVFactory.newReadOnlyStringFromWaveformPV(generatePVName(FULLFILENAME));
 		pvExtraDimensions = LazyPVFactory.newIntegerPV(generatePVName(EXTRA_DIMS));
@@ -309,7 +336,7 @@ public class EpicsXspress3ControllerPvProvider {
 		pvGetMaxFrames = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(MAX_FRAMES_SUFFIX));
 		pvGetMCASize = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(MCA_SIZE_SUFFIX));
 		pvGetMaxNumChannels = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(MAX_NUM_CHANNELS));
-		
+
 		pvsChannelEnable = new PV[numberOfDetectorChannels];
 		for (int channel = 1; channel <= numberOfDetectorChannels; channel++) {
 			pvsChannelEnable[channel - 1] = LazyPVFactory.newEnumPV(generatePVName(CHANNEL_ENABLE_TEMPLATE, channel),

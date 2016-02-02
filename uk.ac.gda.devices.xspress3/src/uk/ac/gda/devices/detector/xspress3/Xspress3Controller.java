@@ -286,4 +286,20 @@ public interface Xspress3Controller extends Findable{
 	public int getNumberOfRois();
 
 	public int getMcaSize();
+
+	public int getTotalHDFFramesAvailable() throws DeviceException;
+
+	public void setHDFAttributes(boolean b) throws DeviceException;
+
+	public void setHDFPerformance(boolean b) throws DeviceException;
+
+	public void setHDFNumFramesChunks(int i) throws DeviceException;
+
+	public void setPointsPerRow(Integer pointsPerRow) throws DeviceException;
+
+	public int monitorUpdateArraysAvailableFrame(int desiredPoint) throws DeviceException;
+
+	public ReadyForNextRow monitorReadyForNextRow(ReadyForNextRow readyForNextRow) throws DeviceException;
+
+	public int monitorSavingFile(int status) throws DeviceException;
 }

@@ -20,6 +20,7 @@ package uk.ac.gda.devices.detector.xspress3.controllerimpl;
 
 import gda.device.Detector;
 import gda.device.DeviceException;
+import gda.device.zebra.GreaterThanOrEqualTo;
 import gda.epics.ReadOnlyPV;
 import gda.factory.Configurable;
 import gda.factory.FactoryException;
@@ -31,6 +32,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.gda.devices.detector.xspress3.ReadyForNextRow;
 import uk.ac.gda.devices.detector.xspress3.TRIGGER_MODE;
 import uk.ac.gda.devices.detector.xspress3.Xspress3Controller;
 
@@ -50,6 +52,8 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 	private static final int NUMBER_ROIs = 10; // fixed for the moment, but will could be changed in the future as this is an EPICS-level calculation
 	private static final int MCA_SIZE = 4096; // fixed for the moment, but will could be changed in the future as this is an EPICS-level calculation
 
+	private static final double TIMEOUTS_MONITORING = 60;
+
 	private String epicsTemplate;
 
 	private EpicsXspress3ControllerPvProvider pvProvider;
@@ -61,6 +65,8 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 //	private int[] dimensionsOfLastFile;
 
 	private int numberOfDetectorChannels = 4;
+
+	private boolean epicsVersion2 = false;
 
 	@Override
 	public void configure() throws FactoryException {
@@ -96,6 +102,7 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 	 */
 	@Override
 	public int getNumberOfChannels() {
+		// should be returned by EPICs or it will slow down scan?
 		return numberOfDetectorChannels;
 	}
 
@@ -185,6 +192,15 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 			pvProvider.pvSetNumImages.putWait(numFrames);
 		} catch (IOException e) {
 			throw new DeviceException("IOException while resetting", e);
+		}
+	}
+
+	@Override
+	public void setPointsPerRow(Integer pointsPerRow) throws DeviceException {
+		try {
+			pvProvider.pvPointsPerRow.putWait(pointsPerRow);
+		} catch (IOException e) {
+			throw new DeviceException("IOException while setting points perRow", e);
 		}
 	}
 
@@ -305,6 +321,15 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 	public int getTotalFramesAvailable() throws DeviceException {
 		try {
 			return pvProvider.pvGetNumFramesAvailableToReadout.get();
+		} catch (IOException e) {
+			throw new DeviceException("IOException while number of frames available", e);
+		}
+	}
+
+	@Override
+	public int getTotalHDFFramesAvailable() throws DeviceException {
+		try {
+			return pvProvider.pvHDFNumCaptureRBV.get();
 		} catch (IOException e) {
 			throw new DeviceException("IOException while number of frames available", e);
 		}
@@ -455,8 +480,12 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 
 	@Override
 	public double[][] readoutDTCorrectedLatestMCA(int startChannel, int finalChannel) throws DeviceException {
+		// With the PV frame_available that checked if all arrays have been updated and returned the current frame updated
+		// no need to call updateArrays()
+		// updateArrays();
 
-		updateArrays();
+		if (!epicsVersion2)
+			updateArrays();
 
 		double[][] mcas = new double[finalChannel - startChannel + 1][];
 		for (int i = startChannel; i <= finalChannel; i++) {
@@ -475,8 +504,8 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 		try {
 			pvProvider.pvUpdate.putWait(1);
 			maxNumChannels = pvProvider.pvGetMaxNumChannels.get();
-			// With the EPICs upgrade, it seems that the update arrays does not work as 
-			// before and we miss some points. The work around here is to update 
+			// With the EPICs upgrade, it seems that the update arrays does not work as
+			// before and we miss some points. The work around here is to update
 			// SCA5 array individually for each channel
 			for (int i = 0; i < maxNumChannels; i++) {
 				pvProvider.pvsSCA5UpdateArrays[i].putWait(UPDATE_CTRL.Enable);
@@ -729,47 +758,40 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 		}
 	}
 
-//	@Override
-//	public void setHDFFileDimensions(int[] dimensions) throws DeviceException {
-//		if (dimensions.length > 3) {
-//			throw new DeviceException("Cannot write more than 3 dimensions in the HDF5 plugin!");
-//		}
-//		try {
-//			switch (dimensions.length) {
-//			case 0:
-//			case 1:
-//				pvProvider.pvExtraDimensions.putNoWait(0);
-//				break;
-//			case 2:
-//				pvProvider.pvExtraDimensions.putNoWait(1);
-//				pvProvider.pvExtraDimN.putNoWait(dimensions[0]);
-//				pvProvider.pvExtraDimX.putNoWait(dimensions[1]);
-//				break;
-//			case 3:
-//				pvProvider.pvExtraDimensions.putNoWait(2);
-//				pvProvider.pvExtraDimN.putNoWait(dimensions[0]);
-//				pvProvider.pvExtraDimX.putNoWait(dimensions[1]);
-//				pvProvider.pvExtraDimY.putNoWait(dimensions[2]);
-//				break;
-//			}
-//		} catch (IOException e) {
-//			throw new DeviceException("IOException while getting file number", e);
-//		}
-//		dimensionsOfLastFile = dimensions;
-//	}
-//
-//	@Override
-//	public int[] getHDFFileDimensions() throws DeviceException {
-//		return dimensionsOfLastFile;
-//	}
 
 	@Override
 	public void setHDFFileAutoIncrement(boolean b) throws DeviceException {
 		try {
-			pvProvider.pvHDFAutoIncrement.putNoWait(true);
-//			pvProvider.pvAllElementSumHDFAutoIncrement.putNoWait(true);
+			pvProvider.pvHDFAutoIncrement.putNoWait(b);
 		} catch (IOException e) {
 			throw new DeviceException("IOException while setting auto increment", e);
+		}
+	}
+
+	@Override
+	public void setHDFAttributes(boolean b) throws DeviceException {
+		try {
+			pvProvider.pvHDFAttributes.putNoWait(b);
+		} catch (IOException e) {
+			throw new DeviceException("IOException while setting auto increment", e);
+		}
+	}
+
+	@Override
+	public void setHDFPerformance(boolean b) throws DeviceException {
+		try {
+			pvProvider.pvHDFPerformance.putNoWait(b);
+		} catch (IOException e) {
+			throw new DeviceException("IOException while setting auto increment", e);
+		}
+	}
+
+	@Override
+	public void setHDFNumFramesChunks(int i) throws DeviceException {
+		try {
+			pvProvider.pvHDFNumFramesChunks.putNoWait(i);
+		} catch (IOException e) {
+			throw new DeviceException("IOException while setting num HDF frames to acquire", e);
 		}
 	}
 
@@ -777,7 +799,6 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 	public void setHDFNumFramesToAcquire(int i) throws DeviceException {
 		try {
 			pvProvider.pvHDFNumCapture.putNoWait(i);
-//			pvProvider.pvAllElementSumHDFNumCapture.putNoWait(i);
 		} catch (IOException e) {
 			throw new DeviceException("IOException while setting num HDF frames to acquire", e);
 		}
@@ -813,6 +834,52 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 
 	@Override
 	public int getMcaSize() {
+		// maybe should returned what is given by EPICS?
 		return MCA_SIZE;
 	}
+
+	@Override
+	public int monitorUpdateArraysAvailableFrame(int desiredPoint) throws DeviceException {
+		int numPointsAvailable = 0;
+		try {
+			numPointsAvailable = pvProvider.pvUpdateArraysAvailableFrame.waitForValue(new GreaterThanOrEqualTo(desiredPoint), TIMEOUTS_MONITORING);
+		} catch (Exception e) {
+			throw new DeviceException("Problem while waiting for point: " + desiredPoint, e);
+		}
+
+		return numPointsAvailable;
+	}
+
+	@Override
+	public int monitorSavingFile(int status) throws DeviceException {
+		int newStatus = 0;
+		try {
+			newStatus = pvProvider.pvUpdateArraysAvailableFrame.waitForValue(new GreaterThanOrEqualTo(status), TIMEOUTS_MONITORING);
+		} catch (Exception e) {
+			throw new DeviceException("Problem while waiting for saving file: " + newStatus, e);
+		}
+
+		return newStatus;
+	}
+
+	@Override
+	public ReadyForNextRow monitorReadyForNextRow(ReadyForNextRow readyForNextRow) throws DeviceException {
+		ReadyForNextRow isReadyForNextRow;
+		try {
+			isReadyForNextRow = pvProvider.pvReadyForNextRow.waitForValue(new ReadyForNextRowPredicate(readyForNextRow), TIMEOUTS_MONITORING);
+		} catch (Exception e) {
+			throw new DeviceException("Problem while waiting for ready for next row: " + readyForNextRow, e);
+		}
+
+		return isReadyForNextRow;
+	}
+
+	public boolean isEpicsVersion2() {
+		return epicsVersion2;
+	}
+
+	public void setEpicsVersion2(boolean epicsVersion2) {
+		this.epicsVersion2 = epicsVersion2;
+	}
+
 }
