@@ -125,8 +125,8 @@ public class LadderSampleFinder {
 				if (lastBase > -1) {
 					double width = points.get(i).x - points.get(lastBase).x;
 					if (minWidth == 0 || width > minWidth) {// ignore outliers
-						int pC = (i + lastBase) / 2;
-						peaks.add(points.get(pC).x);
+						double centre = (points.get(lastBase).x + points.get(i).x) / 2;
+						peaks.add(centre);
 					}
 				}
 			}
