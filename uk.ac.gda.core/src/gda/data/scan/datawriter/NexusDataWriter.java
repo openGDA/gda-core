@@ -42,6 +42,7 @@ import org.eclipse.dawnsci.analysis.api.dataset.SliceND;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
 import org.eclipse.dawnsci.analysis.api.tree.Node;
+import org.eclipse.dawnsci.analysis.dataset.impl.AbstractDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFileHDF5;
@@ -652,6 +653,34 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 						lazy.setChunking(chunks);
 						int compression = sds.compressionType != null ? sds.compressionType : NexusFile.COMPRESSION_LZW_L1;
 						data = file.createData(group, lazy, compression);
+					} else if (sdims.length == 1) {
+						int dataByteSize = AbstractDataset.getItemsize(sds.getDtype());
+						if (dataByteSize <= 0) {
+							dataByteSize = 4;
+						}
+						int[] dimensions;
+						int[] initialChunks = null;
+						if (sdims[0] == 1) {
+							// just writing single (zero-dim) values per point, so dimensions are scan dimensions
+							dimensions = scanDimensions;
+						} else {
+							// scan dimensions come first, append our dimension
+							initialChunks = new int[scanDimensions.length + 1];
+							Arrays.fill(initialChunks, -1);
+							if (sds.chunkDimensions != null) {
+								initialChunks[initialChunks.length - 1] = sds.chunkDimensions[0];
+							}
+							dimensions = Arrays.copyOf(scanDimensions, scanDimensions.length + 1);
+							dimensions[dimensions.length - 1] = sdims[0];
+						}
+						int[] chunks = NexusUtils.estimateChunking(dimensions, dataByteSize, initialChunks);
+						int[] maxshape = lazy.getMaxShape();
+						for (int i = 0; i < maxshape.length; i++) {
+							// chunk length in a dimension cannot exceed the upper bound for a dataset in that dimension
+							chunks[i] = maxshape[i] > 0 && maxshape[i] < chunks[i] ? maxshape[i] : chunks[i];
+						}
+						lazy.setChunking(chunks);
+						data = file.createData(group, lazy);
 					} else {
 						data = file.createData(group, lazy);
 					}
