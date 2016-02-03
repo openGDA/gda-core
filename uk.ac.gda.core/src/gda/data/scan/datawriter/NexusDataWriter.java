@@ -656,17 +656,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 					if (sds.chunkDimensions != null) {
 						System.arraycopy(sds.chunkDimensions, 0, specifiedChunkDims, scanDimensions.length, sds.chunkDimensions.length);
 					}
-					int dataByteSize = AbstractDataset.getItemsize(sds.getDtype());
-					if (dataByteSize <= 0) {
-						// TODO: Fix for string types, particularly fixed length strings
-						dataByteSize = 4;
-					}
-					int[] chunk = NexusUtils.estimateChunking(dimensions, dataByteSize, specifiedChunkDims);
-					int[] maxshape = lazy.getMaxShape();
-					for (int i = 0; i < maxshape.length; i++) {
-						// chunk length in a given dimension should not exceed the upper bound of the dataset
-						chunk[i] = maxshape[i] > 0 && maxshape[i] < chunk[i] ? maxshape[i] : chunk[i];
-					}
+					int[] chunk = calculateChunking(dimensions, specifiedChunkDims, lazy.getMaxShape(), sds.getDtype());
 					lazy.setChunking(chunk);
 					// TODO: only enable compression if the chunk size makes it worthwhile
 					data = file.createData(group, lazy, compression);
@@ -1222,6 +1212,8 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 		int[] dataDim = generateDataDim(true, scanDimensions, null);
 
 		ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset("file_name", Dataset.STRING, dataDim, null, null);
+		int[] chunk = calculateChunking(scanDimensions, null, lazy.getMaxShape(), Dataset.STRING);
+		lazy.setChunking(chunk);
 		file.createData(g, lazy);
 
 		// FIXME this data group does not contain detector data,
@@ -1726,5 +1718,37 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 		} else {
 			NexusDataWriter.metadataScannablesPerDetector = metadataScannablesPerDetector;
 		}
+	}
+
+	private int[] calculateChunking(int[] dims, int[] fixedDims, int[] maxShape, int dType) {
+		int[] chunk;
+		if (dType == Dataset.STRING && LocalProperties.check(GDA_NEXUS_SWMR, false)) {
+			/*
+			 * Hack to work around a bug in the HDF5 library. The bug is that small-ish chunk sizes for datasets of fixed length strings are stored incorrectly
+			 * and result in a corrupted file. Only occurs when the libver flags are set to latest. The provided chunking here may not be ideal or even good for
+			 * performance, but it's better than crashing or silently creating an unreadable dataset.
+			 */
+			// TODO: Remove when the bug is fixed in HDF5 library
+			chunk = new int[dims.length];
+			if (chunk.length == 1) {
+				chunk[0] = 1024;
+			} else {
+				Arrays.fill(chunk, 1);
+				chunk[chunk.length - 1] = 256;
+				chunk[chunk.length - 2] = 4;
+			}
+		} else {
+			int dataByteSize = AbstractDataset.getItemsize(dType);
+			if (dataByteSize <= 0) {
+				// TODO: Fix for string types, particularly fixed length strings
+				dataByteSize = 4;
+			}
+			chunk = NexusUtils.estimateChunking(dims, dataByteSize, fixedDims);
+			for (int i = 0; i < maxShape.length; i++) {
+				// chunk length in a given dimension should not exceed the upper bound of the dataset
+				chunk[i] = maxShape[i] > 0 && maxShape[i] < chunk[i] ? maxShape[i] : chunk[i];
+			}
+		}
+		return chunk;
 	}
 }
