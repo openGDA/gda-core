@@ -18,6 +18,7 @@
 
 package uk.ac.gda.beans.exafs.i20;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
 import org.apache.commons.beanutils.BeanUtils;
@@ -25,7 +26,7 @@ import org.apache.commons.lang.ArrayUtils;
 
 import uk.ac.gda.util.beans.xml.XMLRichBean;
 
-public class MicroreactorParameters implements XMLRichBean {
+public class MicroreactorParameters implements Serializable, XMLRichBean {
 	private int gas0Rate = 0;
 	private int gas1Rate = 0;
 	private int gas2Rate = 0;
