@@ -6,7 +6,8 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Diamond Light Source
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Eclipse-RegisterBuddy: uk.ac.gda.core
-Import-Package: org.eclipse.core.runtime,
+Import-Package: javax.jms,
+ org.eclipse.core.runtime,
  org.eclipse.swt,
  org.eclipse.swt.layout,
  org.eclipse.swt.widgets,
