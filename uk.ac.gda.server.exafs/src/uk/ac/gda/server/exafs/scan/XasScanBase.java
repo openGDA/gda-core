@@ -333,6 +333,7 @@ public abstract class XasScanBase implements XasScan {
 	protected void resetHeader() {
 		// datawriterconfig.setHeader(original_header);
 		outputPreparer.resetNexusStaticMetadataList();
+		metashop.clear();
 	}
 
 	protected Detector[] createDetArray(String[] names) throws Exception {

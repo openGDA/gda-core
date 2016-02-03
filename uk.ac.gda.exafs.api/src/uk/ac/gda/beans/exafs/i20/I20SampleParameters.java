@@ -56,6 +56,20 @@ public class I20SampleParameters implements Serializable, ISampleParameters {
 		XMLHelpers.writeToXML(mappingURL, sampleParameters, filename);
 	}
 
+	/**
+	 * Method required to use with BeanUI. Called using reflection.
+	 */
+	public void clear() {
+		if (descriptions != null)
+			descriptions.clear();
+		if (customParameters != null)
+			customParameters.clear();
+		if (customXYZParameters != null)
+			customXYZParameters.clear();
+		if (roomTemperatureParameters != null)
+			roomTemperatureParameters.clear();
+	}
+
 	public I20SampleParameters() {
 		descriptions = new ArrayList<String>(7);
 		customParameters = new ArrayList<CustomParameter>(7);
