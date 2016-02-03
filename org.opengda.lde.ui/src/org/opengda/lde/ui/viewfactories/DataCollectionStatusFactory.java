@@ -18,7 +18,7 @@
 
 package org.opengda.lde.ui.viewfactories;
 
-import javax.jms.IllegalStateException;
+import gda.rcp.views.FindableExecutableExtension;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
@@ -26,8 +26,6 @@ import org.opengda.lde.ui.views.DataCollectionStatus;
 import org.opengda.lde.utils.LDEResourceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import gda.rcp.views.FindableExecutableExtension;
 
 /**
  * Factory method that create the View object
