@@ -42,6 +42,7 @@ import org.eclipse.dawnsci.analysis.api.dataset.SliceND;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
 import org.eclipse.dawnsci.analysis.api.tree.Node;
+import org.eclipse.dawnsci.analysis.dataset.impl.AbstractDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFileHDF5;
@@ -638,23 +639,27 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 							tree.isPointDependent() ? scanDimensions : null, sdims);
 					lazy.setMaxShape(dataDimMake);
 
-					if (sdims.length > 1) {
-						int[] chunks = Arrays.copyOf(dataDimMake, dataDimMake.length);
-						for (int i = 0; i < chunks.length; i++) {
-							if (chunks[i] == -1) chunks[i] = 1;
-						}
-						if (sds.chunkDimensions != null && sds.chunkDimensions.length <= chunks.length) {
-							int lendiff = chunks.length - sds.chunkDimensions.length;
-							for (int i = 0; i < sds.chunkDimensions.length; i++) {
-								chunks[i+lendiff] = dataDimMake[i+lendiff] == -1 ? sds.chunkDimensions[i] : Math.min(sds.chunkDimensions[i], chunks[i+lendiff]);
-							}
-						}
-						lazy.setChunking(chunks);
-						int compression = sds.compressionType != null ? sds.compressionType : NexusFile.COMPRESSION_LZW_L1;
-						data = file.createData(group, lazy, compression);
+					int[] dimensions;
+					int compression = NexusFile.COMPRESSION_NONE;
+					if (sdims.length == 1 && sdims[0] == 1) {
+						// zero-dim data (single value per point), so dimensions are scan dimensions
+						dimensions = scanDimensions;
+						// do not compress such simple data by default
+						compression = sds.compressionType != null ? sds.compressionType : NexusFile.COMPRESSION_NONE;
 					} else {
-						data = file.createData(group, lazy);
+						dimensions = Arrays.copyOf(scanDimensions, scanDimensions.length + sdims.length);
+						System.arraycopy(sdims, 0, dimensions, scanDimensions.length, sdims.length);
+						compression = sds.compressionType != null ? sds.compressionType : NexusFile.COMPRESSION_LZW_L1;
 					}
+					int[] specifiedChunkDims = new int[dimensions.length];
+					Arrays.fill(specifiedChunkDims, -1);
+					if (sds.chunkDimensions != null) {
+						System.arraycopy(sds.chunkDimensions, 0, specifiedChunkDims, scanDimensions.length, sds.chunkDimensions.length);
+					}
+					int[] chunk = calculateChunking(dimensions, specifiedChunkDims, lazy.getMaxShape(), sds.getDtype());
+					lazy.setChunking(chunk);
+					// TODO: only enable compression if the chunk size makes it worthwhile
+					data = file.createData(group, lazy, compression);
 
 					if (!tree.isPointDependent()) {
 						int[] dataStartPos = generateDataStartPos(null, sdims);
@@ -1207,6 +1212,8 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 		int[] dataDim = generateDataDim(true, scanDimensions, null);
 
 		ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset("file_name", Dataset.STRING, dataDim, null, null);
+		int[] chunk = calculateChunking(scanDimensions, null, lazy.getMaxShape(), Dataset.STRING);
+		lazy.setChunking(chunk);
 		file.createData(g, lazy);
 
 		// FIXME this data group does not contain detector data,
@@ -1711,5 +1718,37 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 		} else {
 			NexusDataWriter.metadataScannablesPerDetector = metadataScannablesPerDetector;
 		}
+	}
+
+	private int[] calculateChunking(int[] dims, int[] fixedDims, int[] maxShape, int dType) {
+		int[] chunk;
+		if (dType == Dataset.STRING && LocalProperties.check(GDA_NEXUS_SWMR, false)) {
+			/*
+			 * Hack to work around a bug in the HDF5 library. The bug is that small-ish chunk sizes for datasets of fixed length strings are stored incorrectly
+			 * and result in a corrupted file. Only occurs when the libver flags are set to latest. The provided chunking here may not be ideal or even good for
+			 * performance, but it's better than crashing or silently creating an unreadable dataset.
+			 */
+			// TODO: Remove when the bug is fixed in HDF5 library
+			chunk = new int[dims.length];
+			if (chunk.length == 1) {
+				chunk[0] = 1024;
+			} else {
+				Arrays.fill(chunk, 1);
+				chunk[chunk.length - 1] = 256;
+				chunk[chunk.length - 2] = 4;
+			}
+		} else {
+			int dataByteSize = AbstractDataset.getItemsize(dType);
+			if (dataByteSize <= 0) {
+				// TODO: Fix for string types, particularly fixed length strings
+				dataByteSize = 4;
+			}
+			chunk = NexusUtils.estimateChunking(dims, dataByteSize, fixedDims);
+			for (int i = 0; i < maxShape.length; i++) {
+				// chunk length in a given dimension should not exceed the upper bound of the dataset
+				chunk[i] = maxShape[i] > 0 && maxShape[i] < chunk[i] ? maxShape[i] : chunk[i];
+			}
+		}
+		return chunk;
 	}
 }
