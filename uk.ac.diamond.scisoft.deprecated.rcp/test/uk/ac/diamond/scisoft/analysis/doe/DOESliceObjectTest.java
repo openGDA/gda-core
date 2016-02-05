@@ -1,4 +1,4 @@
-/*
+/*-
  * Copyright 2012 Diamond Light Source Ltd.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,8 +18,7 @@ package uk.ac.diamond.scisoft.analysis.doe;
 
 import java.util.List;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
 
 import uk.ac.diamond.scisoft.analysis.rcp.views.nexus.DimsData;
