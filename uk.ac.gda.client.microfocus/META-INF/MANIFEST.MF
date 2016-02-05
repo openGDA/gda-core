@@ -41,8 +41,6 @@ Require-Bundle: org.eclipse.ui;bundle-version="3.5.1",
  org.eclipse.dawnsci.hdf5;bundle-version="1.3.0",
  uk.ac.diamond.daq.microfocus.api
 Export-Package: uk.ac.gda.client.microfocus.controller,
- uk.ac.gda.client.microfocus.scan,
- uk.ac.gda.client.microfocus.scan.datawriter,
  uk.ac.gda.client.microfocus.ui,
  uk.ac.gda.client.microfocus.ui.commands,
  uk.ac.gda.client.microfocus.ui.editors,

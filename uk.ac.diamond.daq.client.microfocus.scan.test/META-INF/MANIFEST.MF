@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Microfocus Scan Test
+Bundle-SymbolicName: uk.ac.diamond.daq.client.microfocus.scan.test
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: Diamond Light Source
+Fragment-Host: uk.ac.diamond.daq.client.microfocus.scan;bundle-version="1.0.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: org.junit;bundle-version="4.12.0",
+ uk.ac.gda.test.helpers;bundle-version="1.0.0",
+ org.mockito.mockito-core;bundle-version="1.10.19",
+ uk.ac.diamond.org.powermock;bundle-version="1.6.4",
+ org.eclipse.richbeans.reflection;bundle-version="1.0.0",
+ javassist;bundle-version="3.20.0"
+Import-Package: org.aspectj.util

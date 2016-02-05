@@ -1,0 +1,76 @@
+<project name="plugin-uk.ac.gda.client.microfocus.test" basedir=".">
+
+	<dirname property="plugin.basedir" file="${ant.file}" />
+	<pathconvert property="workspace.loc" setonempty="false">
+		<regexpmapper from="(.*)_git/.+" to="\1"/>
+		<path><pathelement location="${plugin.basedir}" /></path>
+	</pathconvert>
+	<fail message="ERROR: Could not determine workspace.loc" unless="workspace.loc" />
+	<property name="workspace.git.loc" value="${workspace.loc}_git" />
+	<import file="${workspace.git.loc}/diamond-releng.git/diamond.releng.tools/ant-headless/common.ant" />
+
+	<!-- ====================================================================
+		   JUnit tests
+		 ==================================================================== -->
+
+	<import file="${workspace.git.loc}/diamond-releng.git/diamond.releng.tools/ant-headless/test-common.ant" />
+	<target name="junit-tests" depends="set-test-base-GDA">
+		<junit-call description="${ant.project.name} Java JUnit tests">
+			<formatter type="xml" />
+			<classpath>
+				<pathelement location="${junitjar.loc}" />
+				<pathelement location="${jythonjar.loc}"/>
+				<path refid="libs.jars.path" />
+				<pathelement location="${plugin.basedir}/bin" />
+				<pathelement location="${workspace.git.loc}/diamond-releng.git/diamond.releng.tools/logging" />  <!-- to pick up logback-test.xml -->
+				<pathelement location="${workspace.git.loc}/gda-common.git/uk.ac.gda.test.helpers/bin" />
+				<pathelement location="${plugin.host.basedir}/bin" />
+				<pathelement location="${workspace.git.loc}/gda-common.git/uk.ac.gda.common/bin" />
+				<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.api/bin" />
+				<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.core/classes/main" />
+				<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.core/classes/test" />
+				<pathelement location="${workspace.git.loc}/gda-nexus.git/uk.ac.gda.nexus/bin" />
+				<pathelement location="${workspace.git.loc}/gda-nexus.git/uk.ac.gda.nexus/jars/*" />
+				<pathelement location="${workspace.git.loc}/dawnsci.git/org.eclipse.dawnsci.analysis.api/bin" />
+				<pathelement location="${workspace.git.loc}/richbeans.git/org.eclipse.richbeans.api/bin" />
+				<pathelement location="${workspace.git.loc}/richbeans.git/org.eclipse.richbeans.reflection/bin" />
+				<pathelement location="${workspace.git.loc}/richbeans.git/org.eclipse.richbeans.xml/bin" />
+				<pathelement location="${workspace.git.loc}/scisoft-core.git/uk.ac.diamond.scisoft.analysis/bin" />
+				<pathelement location="${workspace.git.loc}/dawnsci.git/org.eclipse.dawnsci.analysis.dataset/bin" />
+				<pathelement location="${workspace.git.loc}/dawnsci.git/org.eclipse.dawnsci.analysis.tree/bin" />
+				<pathelement location="${workspace.git.loc}/dawnsci.git/org.eclipse.dawnsci.nexus/bin" />
+				<pathelement location="${workspace.git.loc}/scisoft-core.git/uk.ac.diamond.scisoft.analysis.plotserver/bin" />
+				<pathelement location="${workspace.git.loc}/scisoft-core.git/uk.ac.diamond.scisoft.analysis.xmlrpc/bin" />
+				<pathelement location="${workspace.git.loc}/scisoft-core.git/uk.ac.diamond.scisoft.deprecated/bin" />
+				<pathelement location="${workspace.git.loc}/dawn-common.git/org.dawb.common.util/bin" />
+				<pathelement location="${workspace.git.loc}/dawn-ui.git/org.dawnsci.common.widgets/bin" />
+				<pathelement location="${workspace.git.loc}/gda-xas-core.git/uk.ac.diamond.daq.microfocus.api/bin" />
+				<pathelement location="${workspace.git.loc}/gda-xas-core.git/uk.ac.diamond.daq.client.microfocus.scan/bin" />
+				<pathelement location="${workspace.git.loc}/gda-xas-core.git/uk.ac.gda.server.exafs/bin" />
+				<pathelement location="${workspace.git.loc}/gda-xas-core.git/uk.ac.gda.server.exafs.epics/bin" />
+				<pathelement location="${workspace.git.loc}/gda-xas-core.git/uk.ac.gda.devices.xspress2/bin" />
+				<pathelement location="${workspace.git.loc}/gda-xas-core.git/uk.ac.gda.devices.xspress3/bin" />
+				<pathelement location="${workspace.git.loc}/gda-xas-core.git/uk.ac.gda.exafs.api/bin" />
+				<pathelement location="${workspace.git.loc}/gda-xas-core.git/uk.ac.gda.exafs.datawriter/bin" />			
+				<pathelement location="${workspace.git.loc}/gda-diamond.git/uk.ac.gda.dls/bin" />
+				<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.client/bin" />
+				<pathelement location="${workspace.git.loc}/gda-epics.git/uk.ac.gda.epics/bin" />
+				<pathelement location="${workspace.git.loc}/gda-epics.git/uk.ac.gda.epics/jars/*" />
+				<pathelement location="${workspace.git.loc}/diamond-springframework.git/uk.ac.diamond.org.springframework/jars/*" />
+				<path refid="tp.slf4j.path" />  <!-- ensure that required org.slf4j.LoggerFactory appears first in classpath -->
+				<path refid="tp.jcl-over-slf4j.path" />  <!-- ensure that matching imp appears first in classpath -->
+				<path refid="tp.path" />  <!-- target platform -->
+				<pathelement location="${workspace.git.loc}/dawn-third.git/ncsa.hdf/bin" />
+				<pathelement location="${workspace.git.loc}/dawn-third.git/ncsa.hdf/jars/*" />
+				<pathelement location="${workspace.git.loc}/dawnsci.git/org.eclipse.dawnsci.hdf5/bin" />
+			</classpath>
+			<batchtest todir="@{report.dir}">
+				<fileset dir="${plugin.basedir}/src">
+					<include name="**/*Test.java" />
+					<exclude name="**/*PluginTest.java" />
+				</fileset>
+			</batchtest>
+		</junit-call>
+	</target>
+
+</project>

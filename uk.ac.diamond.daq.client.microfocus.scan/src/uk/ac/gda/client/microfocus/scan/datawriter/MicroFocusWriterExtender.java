@@ -58,8 +58,6 @@ import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.vortex.Xspress3Parameters;
 import uk.ac.gda.beans.xspress.XspressDetector;
 import uk.ac.gda.beans.xspress.XspressParameters;
-import uk.ac.gda.client.microfocus.util.MicroFocusNexusPlotter;
-import uk.ac.gda.client.microfocus.views.scan.MapPlotView;
 import uk.ac.gda.devices.detector.xspress3.Xspress3;
 import uk.ac.gda.devices.detector.xspress3.Xspress3BufferedDetector;
 import uk.ac.gda.util.beans.xml.XMLRichBean;
@@ -486,7 +484,8 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 		// create these at every point using the latest arrays, as these will be updated as the map progresses
 		Dataset xDataset = DatasetFactory.createFromObject(xValues);
 		Dataset yDataset = DatasetFactory.createFromObject(yValues);
-		SDAPlotter.imagePlot(MapPlotView.NAME, xDataset, yDataset, dataSet);
+		// SDAPlotter.imagePlot(MapPlotView.NAME, xDataset, yDataset, dataSet); TODO: Find a better way to get the name that doesn't introduce dependency
+		SDAPlotter.imagePlot("MapPlot", xDataset, yDataset, dataSet);
 	}
 
 	/**
@@ -533,7 +532,8 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 			if (slice != null) {
 				IDataset sqSlice = slice.squeeze();
 				try {
-					SDAPlotter.plot(MicroFocusNexusPlotter.MCA_PLOTTER, sqSlice);
+					// SDAPlotter.plot(MicroFocusNexusPlotter.MCA_PLOTTER, sqSlice); TODO: Find a better way to get the name that doesn't introduce dependency
+					SDAPlotter.plot("MCA Plot", sqSlice);
 				} catch (DeviceException e) {
 					logger.error("Unable to plot the spectrum for " + x + " " + y, e);
 					throw new Exception("Unable to plot the spectrum for " + x + " " + y, e);

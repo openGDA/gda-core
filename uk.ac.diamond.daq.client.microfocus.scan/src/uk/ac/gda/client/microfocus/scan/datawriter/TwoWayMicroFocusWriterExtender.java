@@ -22,7 +22,7 @@ import java.io.IOException;
 
 import gda.device.Detector;
 import gda.scan.IScanDataPoint;
-import uk.ac.gda.client.microfocus.util.RandomLineFileWriter;
+import uk.ac.gda.client.microfocus.scan.util.RandomLineFileWriter;
 import uk.ac.gda.util.beans.xml.XMLRichBean;
 
 public class TwoWayMicroFocusWriterExtender extends MicroFocusWriterExtender {
