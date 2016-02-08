@@ -26,6 +26,6 @@ public class ConfigureAcquireTimeDecorator extends AbstractADCollectionStrategyD
 	protected void rawPrepareForCollection(double collectionTime, int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
 		getAdBase().setAcquireTime(collectionTime);
 
-		super.prepareForCollection(collectionTime, numberImagesPerCollection, scanInfo);
+		getDecoratee().prepareForCollection(collectionTime, numberImagesPerCollection, scanInfo);
 	}
 }
