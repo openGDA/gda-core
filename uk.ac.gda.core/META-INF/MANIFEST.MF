@@ -195,3 +195,4 @@ Import-Package: javax.jms,
  org.osgi.framework;version="1.7.0",
  org.slf4j;version="[1.7.6,1.7.7)"
 Bundle-ActivationPolicy: lazy
+Service-Component: OSGI-INF/*.xml
