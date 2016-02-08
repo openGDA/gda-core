@@ -17,3 +17,4 @@ Import-Package: gda.factory,
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Export-Package: uk.ac.gda.eventbus;version="8.44.0",
  uk.ac.gda.eventbus.connection;version="8.44.0"
+Service-Component: OSGI-INF/component.xml
