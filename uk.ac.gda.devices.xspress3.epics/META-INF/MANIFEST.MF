@@ -15,3 +15,6 @@ Require-Bundle: uk.ac.gda.core;bundle-version="8.42.0",
  uk.ac.diamond.org.springframework;bundle-version="4.0.6"
 Export-Package: uk.ac.gda.devices.detector.xspress3.controllerimpl
 Bundle-Vendor: Diamond Light Source
+Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework, uk.ac.gda.core
+Import-Package: net.sf.cglib.core,
+ net.sf.cglib.proxy
