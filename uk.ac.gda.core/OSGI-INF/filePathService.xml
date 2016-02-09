@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="File Path Service">
+   <implementation class="uk.ac.diamond.daq.scanning.FilePathService"/>
+   <service>
+      <provide interface="org.eclipse.scanning.api.scan.IFilePathService"/>
+   </service>
+</scr:component>
