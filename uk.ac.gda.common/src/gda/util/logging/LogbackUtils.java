@@ -361,4 +361,12 @@ public class LogbackUtils {
 		}
 	}
 
+	/**
+	 * Workaround bug in Logback 1.1.1 that is fixed in 1.1.3: DASCTEST-337
+	 */
+	public static void stopLoggerContext() {
+		LoggerContext context = getLoggerContext();
+		context.stop();
+	}
+
 }
