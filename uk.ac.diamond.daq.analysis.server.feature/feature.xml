@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="uk.ac.diamond.daq.analysis.server.feature"
+      label="Analysis Server Components Feature"
+      version="1.0.0.qualifier"
+      provider-name="Diamond Light Source Ltd">
+
+   <description url="http://www.example.com/description">
+      Server side components used in data analysis.
+   </description>
+
+   <copyright url="http://www.example.com/copyright">
+      Copyright (c) 2011, 2015 Diamond Light Source Ltd.
+   </copyright>
+
+   <license url="http://www.eclipse.org/legal/epl-v10.html">
+      Copyright (c) 2011, 2015 Diamond Light Source Ltd.
+All rights reserved. This program and the accompanying materials
+are made available under the terms of the Eclipse Public License
+v1.0
+which accompanies this distribution, and is available at
+http://www.eclipse.org/legal/epl-v10.html
+   </license>
+
+   <includes
+         id="uk.ac.diamond.daq.core.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.platform"
+         version="0.0.0"/>
+
+   <includes
+         id="uk.ac.diamond.daq.thirdparty.xml.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="uk.ac.diamond.daq.thirdparty.test.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="uk.ac.diamond.daq.thirdparty.rpc.feature"
+         version="0.0.0"/>
+
+   <plugin
+         id="uk.ac.diamond.scisoft.analysis"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="uk.ac.diamond.scisoft.analysis.plotserver"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="uk.ac.diamond.scisoft.analysis.xmlrpc"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="uk.ac.gda.analysis"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+</feature>

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="uk.ac.diamond.daq.dawnsci.analysis.feature"
+      label="Dawnsci Analysis Feature"
+      version="1.0.0.qualifier"
+      provider-name="Diamond Light Source Ltd">
+
+   <description url="http://www.example.com/description">
+      Components of the Dawn Platform used in Data Analysis.
+   </description>
+
+   <copyright url="http://www.example.com/copyright">
+      Copyright (c) 2011, 2015 Diamond Light Source Ltd.
+   </copyright>
+
+   <license url="http://www.eclipse.org/legal/epl-v10.html">
+      Copyright (c) 2011, 2015 Diamond Light Source Ltd.
+All rights reserved. This program and the accompanying materials
+are made available under the terms of the Eclipse Public License
+v1.0
+which accompanies this distribution, and is available at
+http://www.eclipse.org/legal/epl-v10.html
+   </license>
+
+   <includes
+         id="uk.ac.diamond.daq.thirdparty.computation.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="uk.ac.diamond.daq.thirdparty.apachecommons.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="uk.ac.diamond.daq.thirdparty.logging.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.e4.rcp"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.emf.common"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.emf.ecore"
+         version="0.0.0"/>
+
+   <includes
+         id="uk.ac.diamond.daq.eclipse.legacy.feature"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.eclipse.dawnsci.analysis.api"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.dawnsci.analysis.dataset"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.eclipse.dawnsci.analysis.tree"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.dawnsci.hdf5"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.dawnsci.nexus"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+</feature>

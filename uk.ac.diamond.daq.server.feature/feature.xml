@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="uk.ac.diamond.daq.server.feature"
+      label="Main Data Acquisition Server Feature"
+      version="1.0.0.qualifier"
+      provider-name="Diamond Light Source">
+
+   <description url="http://www.example.com/description">
+      The top-level Data Acquisition System feature that pull in all other required features required to make the OSGi server along with the uk.ac.diamond.daq.server, uk.ac.diamond.daq.server.configuration and uk.ac.gda.example.server plugins. This is the only feature that should be required by the server product definition.
+   </description>
+
+   <copyright url="http://www.example.com/copyright">
+      Copyright (c) 2011, 2015 Diamond Light Source Ltd.
+   </copyright>
+
+   <license url="http://www.eclipse.org/legal/epl-v10.html">
+      Copyright (c) 2011, 2015 Diamond Light Source Ltd.
+All rights reserved. This program and the accompanying materials
+are made available under the terms of the Eclipse Public License
+v1.0
+which accompanies this distribution, and is available at
+http://www.eclipse.org/legal/epl-v10.html
+   </license>
+
+   <includes
+         id="uk.ac.diamond.daq.analysis.server.feature"
+         version="0.0.0"
+         name="Analysis Server Components"/>
+
+   <includes
+         id="uk.ac.diamond.daq.arpes.server.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="uk.ac.diamond.daq.scisoftpy.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="uk.ac.diamond.daq.xas.server.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.scanning.feature"
+         version="0.0.0"/>
+
+   <plugin
+         id="uk.ac.diamond.daq.server"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="uk.ac.diamond.daq.server.configuration"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="uk.ac.gda.example.server"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="uk.ac.gda.epics"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+</feature>

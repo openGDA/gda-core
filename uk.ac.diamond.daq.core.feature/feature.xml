@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="uk.ac.diamond.daq.core.feature"
+      label="Core Data Acquisition Feature"
+      version="1.0.0.qualifier"
+      provider-name="Diamond Light Source Ltd">
+
+   <description url="http://www.example.com/description">
+      Core Server components of the Data Acquisition Platform.
+   </description>
+
+   <copyright url="http://www.example.com/copyright">
+      Copyright (c) 2011, 2015 Diamond Light Source Ltd.
+   </copyright>
+
+   <license url="http://www.eclipse.org/legal/epl-v10.html">
+      Copyright (c) 2011, 2015 Diamond Light Source Ltd.
+All rights reserved. This program and the accompanying materials
+are made available under the terms of the Eclipse Public License
+v1.0
+which accompanies this distribution, and is available at
+http://www.eclipse.org/legal/epl-v10.html
+   </license>
+
+   <includes
+         id="uk.ac.diamond.daq.common.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="uk.ac.diamond.daq.dawnsci.analysis.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="uk.ac.diamond.daq.deprecated.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="uk.ac.diamond.daq.thirdparty.utils.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="uk.ac.diamond.daq.thirdparty.network.feature"
+         version="0.0.0"/>
+
+   <plugin
+         id="uk.ac.diamond.jython"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="uk.ac.diamond.org.jacorb"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="uk.ac.gda.api"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="uk.ac.gda.core"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="uk.ac.gda.nexus"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+</feature>
