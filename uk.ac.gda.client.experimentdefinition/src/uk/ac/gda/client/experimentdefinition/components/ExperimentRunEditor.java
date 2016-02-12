@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.dawnsci.common.widgets.celleditor.SpinnerCellEditor;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.runtime.Assert;
@@ -48,6 +47,7 @@ import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.TextCellEditor;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.window.ToolTip;
+import org.eclipse.richbeans.widgets.cell.SpinnerCellEditor;
 import org.eclipse.richbeans.xml.cell.XMLChooserEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
