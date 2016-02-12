@@ -20,12 +20,61 @@ package gda.device.detector.addetector.collectionstrategy;
 
 import gda.scan.ScanInformation;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class ConfigureAcquireTimeDecorator extends AbstractADCollectionStrategyDecorator {
+
+	private static final Logger logger = LoggerFactory.getLogger(ConfigureAcquireTimeDecorator.class);
+
+	private boolean restoreAcquireTime = false;
+
+	private double acquireTime;
+
+	// NXCollectionStrategyPlugin interface
 
 	@Override
 	protected void rawPrepareForCollection(double collectionTime, int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
+		logger.trace("rawPrepareForCollection({}, {}, {}) called", collectionTime, numberImagesPerCollection, scanInfo);
 		getAdBase().setAcquireTime(collectionTime);
 
 		getDecoratee().prepareForCollection(collectionTime, numberImagesPerCollection, scanInfo);
+	}
+
+	// CollectionStrategyDecoratableInterface interface
+
+	@Override
+	public void saveState() throws Exception {
+		logger.trace("saveState() called, restoreAcquireTime={}", restoreAcquireTime);
+		getDecoratee().saveState();
+		if (restoreAcquireTime) {
+			acquireTime = getAdBase().getAcquireTime();
+			logger.debug("Saved State now acquireTime={}", acquireTime);
+		}
+	}
+
+	@Override
+	public void restoreState() throws Exception {
+		logger.trace("restoreState() called, restoreAcquireTime={}, acquireTime={}", restoreAcquireTime, acquireTime);
+		if (restoreAcquireTime) {
+			final int acquireStatus = getAdBase().getAcquireState(); // TODO: Not all detectors need detector to be stopped to set time
+			getAdBase().stopAcquiring();
+			getAdBase().setAcquireTime(acquireTime);
+			if (acquireStatus == 1) {
+				getAdBase().startAcquiring();
+			}
+			logger.debug("Restored state to acquireTime={} (stop/restart={})", acquireTime, acquireStatus);
+		}
+		getDecoratee().restoreState();
+	}
+
+	// Class properties
+
+	public boolean getRestoreAcquireTime() {
+		return restoreAcquireTime;
+	}
+
+	public void setRestoreAcquireTime(boolean restoreAcquireTime) {
+		this.restoreAcquireTime = restoreAcquireTime;
 	}
 }
