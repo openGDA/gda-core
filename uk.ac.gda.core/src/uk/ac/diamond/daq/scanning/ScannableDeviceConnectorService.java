@@ -40,11 +40,19 @@ public class ScannableDeviceConnectorService implements IDeviceConnectorService 
 
 		if (scannables == null)
 			scannables = new HashMap<>(31);
-		if (scannables.containsKey(name))
-			return (IScannable<T>) scannables.get(name);
+
+		if (scannables.containsKey(name)) {
+			IScannable<T> scannable = (IScannable<T>) scannables.get(name);
+			if (scannable == null)
+				throw new ScanningException("Cannot find scannable with name " + name);
+			return scannable;
+		}
 
 		Finder finder = Finder.getInstance();
 		Scannable scannable = finder.find(name);
+
+		if (scannable == null)
+			throw new ScanningException("Cannot find scannable with name " + name);
 
 		IScannable<T> s = (IScannable<T>) new ScannableNexusWrapper(scannable);
 		scannables.put(name, s);
