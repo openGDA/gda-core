@@ -42,7 +42,7 @@ public class FilePathService implements IFilePathService {
 		// FIXME This service works for mapping but
 		// requires more thought for other config(s)
 	    String dir = PathConstructor.createFromDefaultProperty();
-		int num = tracker.getCurrentFileNumber();
+		int num = tracker.incrementNumber();
 		return dir + "/" + num + ".nxs";
 	}
 
