@@ -80,6 +80,8 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 
 	int pointBeingPrepared = 0;
 
+	// interface ConstantVelocityMoveController2
+
 	@Override
 	public void resetPointBeingPrepared() {
 		pointBeingPrepared = 0;
@@ -90,6 +92,8 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 		logger.trace("getPointBeingPrepared() returning {}", pointBeingPrepared);
 		return pointBeingPrepared;
 	}
+
+	// interface ContinuousMoveController
 
 	@SuppressWarnings("unused")
 	@Override
@@ -429,7 +433,6 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 			}
 			return null;
 		}
-
 	}
 
 	private FutureTask<Void> moveFuture;
@@ -487,6 +490,8 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 		points = null;
 	}
 
+	// interface HardwareTriggerProvider
+
 	@Override
 	public void setTriggerPeriod(double seconds) throws DeviceException {
 		logger.info("setTriggerPeriod({})", seconds);
@@ -511,10 +516,14 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 		return (getNumberTriggers() == 0) ? 0 : triggerPeriod * (getNumberTriggers() - 1);
 	}
 
+	// interface Configurable
+
 	@Override
 	public void configure() throws FactoryException {
 		logger.info("configure");
 	}
+
+	// interface ConstantVelocityMoveController
 
 	@Override
 	public void setStart(double start) throws DeviceException {
@@ -549,6 +558,8 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 		return step;
 	}
 
+	// Class functions
+
 	// copied from EpicsTrajectoryMoveControllerAdapter - need a base class
 	List<Double> points = null;
 
@@ -570,7 +581,6 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 		return points.get(points.size() - 1);
 	}
 
-
 	public Zebra getZebra() {
 		return zebra;
 	}
@@ -579,8 +589,6 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 		logger.trace("setZebra({})", zebra);
 		this.zebra = zebra;
 	}
-
-
 
 	public ScannableMotor getScannableMotor() {
 		return scannableMotor;
@@ -601,11 +609,15 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 		setScannableMotor(zebraMotorInfoProvider.getActualScannableMotor());
 	}
 
+	// interface InitializingBean
+
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		if (zebra == null)
 			throw new Exception("zebra is not set");
 	}
+
+	// Class functions
 
 	int numPosCallableReturned = 0;
 
@@ -620,7 +632,6 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 	private boolean operatingContinously=false;
 
 	private Collection<HardwareTriggeredDetector> detectors;
-
 
 	public PositionStreamIndexer<Double> getPositionSteamIndexer(int index) {
 		logger.trace("getPositionSteamIndexer({})", index);
@@ -638,7 +649,6 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 			if( timeSeriesCollection == null)
 				timeSeriesCollection = new Vector<ZebraCaptureInputStreamCollection>();
 			
-				
 			ZebraCaptureInputStreamCollection sc = new ZebraCaptureInputStreamCollection(zebra.getNumberOfPointsDownloadedPV(), rdDblArrayPV);
 			lastImageNumberStreamIndexer[index] = new PositionStreamIndexer<Double>(sc);
 			timeSeriesCollection.add(sc);
@@ -647,7 +657,8 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 		return lastImageNumberStreamIndexer[index];
 	}
 
-	
+	// interface Scannable
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public void atScanLineStart() throws DeviceException {
@@ -691,15 +702,21 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 		return false;
 	}
 
+	// interface PositionCallableProvider<T>
+
 	@Override
 	public Callable<Double> getPositionCallable() throws DeviceException {
 		return getPositionSteamIndexer(10).getNamedPositionCallable(getExtraNames()[0], 1);
 	}
 
+	// class ScannableBase
+
 	@Override
 	public Object rawGetPosition() throws DeviceException {
 		return 0.; // getPositionCallable will be called during the scan
 	}
+
+	// interface ContinuouslyScannableViaController
 
 	@Override
 	public void setOperatingContinuously(boolean b) throws DeviceException {
@@ -730,10 +747,11 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 		return cs;
 	}
 
+	// interface ConstantVelocityMoveController2
+
 	@Override
 	public void setScannableToMove(Collection<ContinuouslyScannableViaController> scannablesToMove) {
 		logger.trace("setScannableToMove({})", scannablesToMove);
-//		this.scannablesToMove = scannablesToMove;
 		ContinuouslyScannableViaController[] array = scannablesToMove.toArray(new ContinuouslyScannableViaController[]{});
 		ContinuouslyScannableViaController continuouslyScannableViaController = array[0];
 		if( ! (continuouslyScannableViaController instanceof ZebraMotorInfoProvider))
@@ -746,6 +764,8 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 		logger.trace("setDetectors({})", detectors);
 		this.detectors = detectors;
 	}
+
+	// Class functions
 
 	/**
 	 * Set the minimum allowable acceleration distance. If this value is less than distanceToAccToVelocity at the

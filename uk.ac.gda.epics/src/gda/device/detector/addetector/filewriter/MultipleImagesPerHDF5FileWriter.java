@@ -60,12 +60,12 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements N
 
 	private boolean firstReadoutInScan;
 	
-	@Override
+	@Override // interface NXPluginBase
 	public String getName() {
 		return "hdfwriter"; // TODO: Multiple filewriters require different names.
 	}
 	
-	@Override
+	@Override // class FileWriterBase
 	public void setNdFile(NDFile ndFile) {
 		throw new RuntimeException("Configure ndFileHDF5 instead of ndFile");
 	}
@@ -103,7 +103,7 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements N
 		this.framesFlush = framesFlush;
 	}
 
-	@Override
+	@Override // interface InitializingBean
 	public void afterPropertiesSet() throws Exception {
 		if (ndFileHDF5 == null)
 			throw new IllegalStateException("ndFileHDF5 is null");
@@ -213,7 +213,7 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements N
 		this.storePerform = storePerform;
 	}
 
-	@Override
+	@Override // interface NXPluginBase
 	public void prepareForCollection(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
 		logger.trace("prepareForCollection({}, {})", numberImagesPerCollection, scanInfo);
 
@@ -339,7 +339,7 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements N
 	
 	
 	
-	@Override
+	@Override // class FileWriterBase
 	public void disableFileWriting() throws Exception {
 		getNdFile().getPluginBase().disableCallbacks();
 		getNdFile().getPluginBase().setBlockingCallbacks((short) 0);
@@ -347,7 +347,7 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements N
 	}
 	
 	
-	@Override
+	@Override // interface NXPluginBase
 	public void completeCollection() throws Exception{
 		logger.trace("completeCollection()");
 
@@ -372,12 +372,12 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements N
 			throw new DeviceException("sorry, we missed some frames");
 	}
 	
-	@Override
+	@Override // interface NXFileWriterPlugin
 	public boolean appendsFilepathStrings() {
 		return false;
 	}
 
-	@Override
+	@Override // interface NXPluginBase
 	public void stop() throws Exception {
 		alreadyPrepared=false;
 		if(!isEnabled())
@@ -386,7 +386,7 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements N
 		
 	}
 
-	@Override
+	@Override // interface NXPluginBase
 	public void atCommandFailure() throws Exception {
 		alreadyPrepared=false;
 		if(!isEnabled())
@@ -394,17 +394,17 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements N
 		stop();
 	}
 	
-	@Override
+	@Override // interface NXPluginBase
 	public List<String> getInputStreamNames() {
 		return Arrays.asList();
 	}
 
-	@Override
+	@Override // interface NXPluginBase
 	public List<String> getInputStreamFormats() {
 		return Arrays.asList();
 	}
 
-	@Override
+	@Override // interface PositionInputStream<T>
 	public Vector<NXDetectorDataAppender> read(int maxToRead) throws NoSuchElementException, InterruptedException,
 			DeviceException {
 		NXDetectorDataAppender dataAppender;
