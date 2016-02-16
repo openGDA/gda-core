@@ -48,6 +48,9 @@ public class MsgBusTest {
 
 	@AfterClass
 	public static void tearDownClass() {
+
+//		shutdown(); // can break subsequent test classes
+
 		// Undo setting of embedded broker URL from setUpClass.
 		LocalProperties.set(BROKER_URL_PROPERTY, "");
 	}
@@ -61,8 +64,8 @@ public class MsgBusTest {
 		/**
 		 * Should be the only code outside @Before/@After that sets lastPublished.
 		 */
-		@Subscribe public void setLastPublished(Object/*IdentifiableMessage*/ message) {
-			lastPublished = message;
+		@Subscribe public void setLastPublished(Object/*IdentifiableMessage*/ msg) {
+			lastPublished = msg;
 		}
 	}
 
@@ -114,9 +117,6 @@ public class MsgBusTest {
 		// Assert lastPublished was at least set to something that was not null by setsLastPublished.
 		assertNotNull(actual);
 
-		System.out.println(expected);
-		System.out.println(actual);
-
 		// And two IdentifiableMsg instances having the same random UUID is almost impossible.
 		assertTrue(expected.uuid.equals(actual.uuid));
 
@@ -130,6 +130,7 @@ public class MsgBusTest {
 		// It's all good.
 	}
 
+	@SuppressWarnings("cast")
 	@Test
 	public void testMsgSerializable() {
 		@SuppressWarnings("serial")
