@@ -176,7 +176,9 @@ public class LinkContributionItem extends ContributionItem {
 	}
 
 	public void setBackground(Color background) {
-		link.setBackground(background);
+		if (link != null && !link.isDisposed()) {
+			link.setBackground(background);
+		}
 	}
 
 	private void updateManager() {
