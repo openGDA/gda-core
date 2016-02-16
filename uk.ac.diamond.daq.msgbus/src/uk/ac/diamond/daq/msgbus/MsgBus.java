@@ -20,7 +20,6 @@ package uk.ac.diamond.daq.msgbus;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Sets.newHashSet;
-import gda.configuration.properties.LocalProperties;
 
 import java.io.Serializable;
 import java.lang.management.ManagementFactory;
@@ -40,17 +39,23 @@ import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
 import javax.jms.ObjectMessage;
 import javax.jms.Session;
+import javax.jms.TextMessage;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Supplier;
 import com.google.common.eventbus.AsyncEventBus;
 import com.google.common.eventbus.DeadEvent;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.eventbus.SubscriberExceptionContext;
 import com.google.common.eventbus.SubscriberExceptionHandler;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+import gda.configuration.properties.LocalProperties;
 
 /**
  * Eagerly-initialised singleton (per-process but linked by JMS destination).
@@ -132,7 +137,7 @@ public enum MsgBus {
 			// All published messages will be sent to all topic consumers,
 			// i.e. MsgBus instances, including this
 			session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-			String topic = MsgBus.class.getName();
+			String topic = MsgBus.class.getName(); //FIXME something shorter like GDA:MsgBus
 			Destination destination = session.createTopic(topic);
 
 			// Sending
@@ -203,6 +208,40 @@ public enum MsgBus {
 		//TODO make into an abstract class that contains UUID
 	}
 
+	public static void publishAsJson(Serializable msg) { //TODO enforce Msg?
+		if (msg == null) throw new IllegalArgumentException("attempt to publish null caught");
+		INSTANCE._publishAsJson(msg);
+	}
+
+	private void _publishAsJson(Serializable msg) {
+		//FIXME same problem and fix as described in _publish
+		try {
+			logger.debug("publishing {} as JSON:", msg);
+			String json = gson.get().toJson(msg);
+			logger.trace(json);
+			final TextMessage message = session.createTextMessage(json);
+			message.setStringProperty("className", msg.getClass().getCanonicalName());
+			producer.send(message);
+		} catch (JMSException e) {
+			logger.error("JMSException while publishing {}", msg, e);
+		}
+	}
+
+	private Supplier<Gson> gson =
+//		Suppliers.memoize(
+			new Supplier<Gson>() {
+				@Override
+				public Gson get() {
+					return new GsonBuilder()
+						.registerTypeAdapterFactory(OptionalTypeAdapter.FACTORY)
+						.setPrettyPrinting()
+						.serializeSpecialFloatingPointValues() // handle Infinity
+						.create();
+				}
+			}
+//		)
+	;
+
 	/**
 	 * Send a Msg object to all consumers of topic,
 	 * i.e. each process's MsgBus singleton,
@@ -223,7 +262,7 @@ public enum MsgBus {
 		// posted on this EventBus in a [Concurrent]HashSet and NOT publish this msg arg if the set contains it.
 		try {
 			logger.debug("publishing {}", msg);
-			final ObjectMessage message = session.createObjectMessage((Serializable) msg);
+			final ObjectMessage message = session.createObjectMessage(msg);
 			producer.send(message);
 		} catch (JMSException e) {
 			logger.error("JMSException while publishing {}", msg, e);
@@ -236,24 +275,33 @@ public enum MsgBus {
 	//private final MessageListener postsPublished = new MessageListener() {
 	private class PostsPublished implements MessageListener {
 		@Override public void onMessage(Message message) {
-			//TODO handle other Message types
-			if (message instanceof ObjectMessage) {
-				try {
-					final Serializable msg = ((ObjectMessage) message).getObject();
-					if (msg == null) {
-						logger.warn("discarding null msg"); // almost definitely not published by MsgBus
-						return;
-					}
-					else {
-						logger.trace("posting published {}", msg);
-						INSTANCE._post(msg);
-					}
-				} catch (JMSException e) {
-					logger.error("could not deserialize msg object from ActiveMQ message", e);
+			try {
+				Object msg = null;
+				if (message instanceof ObjectMessage) {
+					msg = ((ObjectMessage) message).getObject();
 				}
+				else if (message instanceof TextMessage) {
+					final String json = ((TextMessage) message).getText();
+					try {
+						Class<?> clazz = Class.forName(message.getStringProperty("className"));
+						msg = gson.get().fromJson(json, clazz);
+						logger.debug("successfully deserialized JSON based on className metadata", msg);
+					} catch (ClassNotFoundException e) {
+						logger.info("failed to deserialize JSON TextMessage to Object; try adding className metadata", msg);
+						msg = json;
+					}
+				}
+				if (msg == null) {
+					logger.warn("discarding null msg"); // almost definitely not published by MsgBus
+					return;
+				}
+				logger.trace("posting published {}", msg);
+				INSTANCE._post(msg);
+			} catch (JMSException e) {
+				logger.error("could not deserialize msg object from ActiveMQ message", e);
 			}
 		}
-	};
+	}
 
 	/**
 	 * Register subscriber object to receive deserialized msg objects
@@ -350,6 +398,10 @@ public enum MsgBus {
 //		}
 
 		logger.debug("stopped");
+	}
+
+	public static void main(String[] args) {
+		// empty main to enable Eclipse's Export to Runnable JAR for hands-on Jython tests
 	}
 
 }
