@@ -21,10 +21,15 @@ package gda.device.detector.addetector.collectionstrategy;
 import gda.device.detector.areadetector.v17.ImageMode;
 import gda.scan.ScanInformation;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Configure image mode as Single.
  */
 public class SingleImageModeDecorator extends AbstractADCollectionStrategyDecorator {
+
+	private static final Logger logger = LoggerFactory.getLogger(SingleImageModeDecorator.class);
 
 	private boolean restoreNumImagesAndImageMode = false;
 
@@ -35,23 +40,27 @@ public class SingleImageModeDecorator extends AbstractADCollectionStrategyDecora
 
 	@Override
 	public void saveState() throws Exception {
+		logger.trace("saveState() called, restoreNumImagesAndImageMode={}", restoreNumImagesAndImageMode);
 		getDecoratee().saveState();
 		if (restoreNumImagesAndImageMode) {
 			savedNumImages = getAdBase().getNumImages();
 			savedImageMode = getAdBase().getImageMode();
+			logger.debug("Saved State now savedNumImages={}, savedImageMode={}", savedNumImages, savedImageMode);
 		}
 	}
 
 	@Override
 	public void restoreState() throws Exception {
+		logger.trace("restoreState() called, restoreNumImagesAndImageMode={}", restoreNumImagesAndImageMode);
 		if (restoreNumImagesAndImageMode) {
-			final int acquireStatus = getAdBase().getAcquireState();
+			final int acquireStatus = getAdBase().getAcquireState(); // TODO: Not all detectors need detector to be stopped to set NumImages or ImageMode
 			getAdBase().stopAcquiring();
 			getAdBase().setNumImages(savedNumImages);
 			getAdBase().setImageMode(savedImageMode);
 			if (acquireStatus == 1) {
 				getAdBase().startAcquiring();
 			}
+			logger.debug("Restored state to savedNumImages={}, savedImageMode={} (stop/restart={})", savedNumImages, savedImageMode, acquireStatus);
 		}
 		getDecoratee().restoreState();
 	}
@@ -61,6 +70,7 @@ public class SingleImageModeDecorator extends AbstractADCollectionStrategyDecora
 	@Override
 	protected void rawPrepareForCollection(double collectionTime, int numberImagesPerCollection, ScanInformation scanInfo)
 			throws Exception {
+		logger.trace("rawPrepareForCollection({}, {}, {}) called", collectionTime, numberImagesPerCollection, scanInfo);
 		if (numberImagesPerCollection != 1) {
 			throw new IllegalArgumentException("This single exposure triggering strategy expects to expose only 1 image");
 		}
