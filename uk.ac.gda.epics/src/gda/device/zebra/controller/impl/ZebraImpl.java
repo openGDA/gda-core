@@ -294,13 +294,14 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 
 	@Override
 	public void pcArm() throws Exception {
-		dev.getPVInteger(sysResetProc).putWait(1); // TODO: Do we really need to RESET before each Arm?
+		logger.trace("pcArm()...");
+		//reset(); // Before re-enabling this, please leave a note here explaining why it was re-enabled.
 		dev.getPVInteger(PCArm).putWait(1);
-		try {
-			Thread.sleep(2000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
+		while (!isPCArmed()) {
+			logger.info("Zebra not yet armed, waiting...");
+			Thread.sleep(100);
 		}
+		logger.trace("...pcArm()");
 	}
 
 	@Override
@@ -616,8 +617,11 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 		return ((sysStatPvValue & (1<<inputNumber)) > 0);
 	}
 
+	@Override
 	public void reset() throws IOException {
+		logger.trace("reset()...");
 		dev.getPVInteger(sysResetProc).putWait(1);
+		logger.trace("...reset()");
 	}
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
