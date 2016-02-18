@@ -480,9 +480,9 @@ Additional Ant tasks for Buckminster build. Based on http://www.ralfebert.de/blo
 			<fileset dir="${ws_git.rel.path}/gda-xas-core.git/uk.ac.gda.server.exafs/scripts"/>
 		</copy>
 		
-		<mkdir dir="${install.git.path}/gda-incubation"/>
-		<copy todir="${install.git.path}/gda-incubation/mapping-config">
-			<fileset dir="${ws_git.rel.path}/gda-incubation/mapping-config"/>
+		<mkdir dir="${install.git.path}/gda-incubation.git"/>
+		<copy todir="${install.git.path}/gda-incubation.git/mapping-config">
+			<fileset dir="${ws_git.rel.path}/gda-incubation.git/mapping-config"/>
 		</copy>	
 		
         <echo>
