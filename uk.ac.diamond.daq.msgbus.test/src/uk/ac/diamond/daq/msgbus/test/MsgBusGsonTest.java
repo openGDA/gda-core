@@ -1,3 +1,21 @@
+/*-
+ * Copyright © 2016 Diamond Light Source Ltd.
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package uk.ac.diamond.daq.msgbus.test;
 
 import static org.junit.Assert.assertFalse;
@@ -18,7 +36,7 @@ import org.junit.Test;
 
 import com.google.common.eventbus.Subscribe;
 
-public class MsgBusJsonTest {
+public class MsgBusGsonTest {
 
 	@BeforeClass
 	public static void setUpClass() {
@@ -41,7 +59,7 @@ public class MsgBusJsonTest {
 		LocalProperties.set(BROKER_URL_PROPERTY, "");
 	}
 
-	private TestJsonMsg lastPublished = null;
+	private TestMsg lastPublished = null;
 
 	/**
 	 * Should contain the only code outside @Before/@After that sets lastPublished.
@@ -50,7 +68,7 @@ public class MsgBusJsonTest {
 		/**
 		 * Should be the only code outside @Before/@After that sets lastPublished.
 		 */
-		@Subscribe public void setLastPublished(TestJsonMsg msg) {
+		@Subscribe public void setLastPublished(TestMsg msg) {
 			lastPublished = msg;
 		}
 	}
@@ -73,7 +91,7 @@ public class MsgBusJsonTest {
 		subscribe(setsLastPublished);
 
 		// Our publication.
-		final TestJsonMsg expected = new TestJsonMsg("7", 1);
+		final TestMsg expected = new TestMsg("7", 1);
 
 		// Must not be null.
 		assertNotNull(expected);
@@ -87,13 +105,13 @@ public class MsgBusJsonTest {
 		// Tidy up.
 		unsubscribe(setsLastPublished);
 
-		TestJsonMsg actual = lastPublished;
+		TestMsg actual = lastPublished;
 
 		// Assert lastPublished was at least set to something that was not null by setsLastPublished.
 		assertNotNull(actual);
 
-		// And two instances having the same random UUID is almost impossible.
-		assertTrue(expected.uuid.equals(actual.uuid));
+		// And two instances having the same id is almost impossible.
+		assertTrue(expected.mid == actual.mid);
 
 		// IdentifiableMsg does not implement equals.
 		// But if it were to then two instances with equal UUIDs should be equal.

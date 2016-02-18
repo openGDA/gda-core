@@ -20,10 +20,12 @@ package uk.ac.diamond.daq.msgbus;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Sets.newHashSet;
+import gda.configuration.properties.LocalProperties;
 
 import java.io.Serializable;
 import java.lang.management.ManagementFactory;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -54,8 +56,6 @@ import com.google.common.eventbus.SubscriberExceptionContext;
 import com.google.common.eventbus.SubscriberExceptionHandler;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
-import gda.configuration.properties.LocalProperties;
 
 /**
  * Eagerly-initialised singleton (per-process but linked by JMS destination).
@@ -149,7 +149,7 @@ public enum MsgBus {
 			consumer.setMessageListener(new PostsPublished()); // deliver
 			logger.info("receiving published msgs on topic {}", topic); // explain
 
-			addShutdownHook();
+//			addShutdownHook(); // creates exceptions in JUnit tests
 		}
 		catch (JMSException e) {
 			logger.error("problem instantiating MsgBus singleton", e);
@@ -204,9 +204,27 @@ public enum MsgBus {
 	 *
 	 * Consistent usage should help others find and reuse your Msg sub-types.
 	 */
-	public static interface Msg extends Serializable {
-		//TODO make into an abstract class that contains UUID
+	public static abstract class Msg implements Serializable {
+
+		private static final long serialVersionUID = -4027759110290406614L;
+
+		transient private final UUID id = UUID.randomUUID();
+
+		/**
+		 * Message ID, unique to inheriting instances.
+		 */
+		public final long mid = id.getMostSignificantBits();
+
+		/**
+		 * Correlation ID, for matching responses to requests.
+		 */
+		public final long cid = id.getLeastSignificantBits();
+
 	}
+//	/**
+//	 * Convenience class allowing import static ...MsgBus.*; of Serializable.
+//	 */
+//	public static abstract class Msg extends uk.ac.diamond.daq.msgbus.Msg {}
 
 	public static void publishAsJson(Serializable msg) { //TODO enforce Msg?
 		if (msg == null) throw new IllegalArgumentException("attempt to publish null caught");
@@ -218,9 +236,11 @@ public enum MsgBus {
 		try {
 			logger.debug("publishing {} as JSON:", msg);
 			String json = gson.get().toJson(msg);
-			logger.trace(json);
+			logger.debug(json);
 			final TextMessage message = session.createTextMessage(json);
-			message.setStringProperty("className", msg.getClass().getCanonicalName());
+			final String className = msg.getClass().getCanonicalName();
+			logger.debug("setting string property = {}", className);
+			message.setStringProperty("className", className);
 			producer.send(message);
 		} catch (JMSException e) {
 			logger.error("JMSException while publishing {}", msg, e);
@@ -279,21 +299,33 @@ public enum MsgBus {
 				Object msg = null;
 				if (message instanceof ObjectMessage) {
 					msg = ((ObjectMessage) message).getObject();
-				}
-				else if (message instanceof TextMessage) {
-					final String json = ((TextMessage) message).getText();
-					try {
-						Class<?> clazz = Class.forName(message.getStringProperty("className"));
-						msg = gson.get().fromJson(json, clazz);
-						logger.debug("successfully deserialized JSON based on className metadata", msg);
-					} catch (ClassNotFoundException e) {
-						logger.info("failed to deserialize JSON TextMessage to Object; try adding className metadata", msg);
-						msg = json;
+					if (msg == null) {
+						logger.warn("discarding object: null"); // almost definitely not published by MsgBus
+						return;
 					}
 				}
-				if (msg == null) {
-					logger.warn("discarding null msg"); // almost definitely not published by MsgBus
-					return;
+				else if (message instanceof TextMessage) {
+					final String text = ((TextMessage) message).getText();
+					final String className = message.getStringProperty("className");
+					if (className == null) {
+						logger.info("missing string property 'className' for text message");
+						logger.info("cannot recreate object from text without class information");
+						logger.warn("discarding text:\n{}", text);
+						return;
+					}
+					else{
+						logger.info("trying to recreate {} object from text message", className);
+						try {
+							Class<?> clazz = Class.forName(className);
+							logger.info("loaded Class {}", clazz.getCanonicalName());
+							msg = gson.get().fromJson(text, clazz);
+							logger.info("successfully recreated {}", msg);
+						} catch (ClassNotFoundException e) {
+							logger.error("failed to recreate object from text message");
+							logger.warn("discarding text:\n{}", text);
+							return;
+						}
+					}
 				}
 				logger.trace("posting published {}", msg);
 				INSTANCE._post(msg);
@@ -360,10 +392,6 @@ public enum MsgBus {
 				logger.warn("unhandled event type {} posted by: {}", d.getEvent().getClass().getName(), d.getSource());
 			}
 		}
-	}
-
-	public static void shutdown() {
-		INSTANCE._shutdown();
 	}
 
 	public void _shutdown() {

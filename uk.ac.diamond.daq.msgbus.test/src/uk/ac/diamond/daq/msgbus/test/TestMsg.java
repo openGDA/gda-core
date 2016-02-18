@@ -22,17 +22,18 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import uk.ac.diamond.daq.msgbus.MsgBus.Msg;
 
-public class TestJsonMsg implements Msg {
-	public final UUID uuid = UUID.randomUUID();
+/**
+ * Class.findClass had trouble loading this as an inner class...
+ */
+public class TestMsg extends Msg {
 	public final String s;
 	public final int i;
 	public final List<Float> fs;
 	public final Map<String,Object> map;
-	public TestJsonMsg(String s, int i) {
+	public TestMsg(String s, int i) {
 		this.s = s;
 		this.i = i;
 		this.fs = Arrays.asList(0.1f, 0.2f);

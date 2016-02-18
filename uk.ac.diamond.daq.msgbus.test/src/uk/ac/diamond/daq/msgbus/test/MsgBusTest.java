@@ -1,3 +1,21 @@
+/*-
+ * Copyright © 2016 Diamond Light Source Ltd.
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package uk.ac.diamond.daq.msgbus.test;
 
 import static org.junit.Assert.assertFalse;
@@ -12,7 +30,6 @@ import static uk.ac.diamond.daq.msgbus.MsgBus.unsubscribe;
 import gda.configuration.properties.LocalProperties;
 
 import java.io.Serializable;
-import java.util.UUID;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -64,7 +81,7 @@ public class MsgBusTest {
 		/**
 		 * Should be the only code outside @Before/@After that sets lastPublished.
 		 */
-		@Subscribe public void setLastPublished(Object/*IdentifiableMessage*/ msg) {
+		@Subscribe public void setLastPublished(Object msg) {
 			lastPublished = msg;
 		}
 	}
@@ -79,16 +96,6 @@ public class MsgBusTest {
 		lastPublished = null;
 	}
 
-	/**
-	 * Has a randomly generated UUID.
-	 *
-	 * Does not implement equals.
-	 */
-	@SuppressWarnings("serial")
-	static class IdentifiableMsg implements Msg {
-		public final UUID uuid = UUID.randomUUID();
-	}
-
 	@Test
 	public void testPublishSubscribe() throws InterruptedException {
 
@@ -97,7 +104,7 @@ public class MsgBusTest {
 		subscribe(setsLastPublished);
 
 		// Our publication.
-		final IdentifiableMsg expected = new IdentifiableMsg();
+		final TestMsg expected = new TestMsg("Eleventy", 1);
 
 		// Must not be null.
 		assertNotNull(expected);
@@ -111,16 +118,16 @@ public class MsgBusTest {
 		// Tidy up.
 		unsubscribe(setsLastPublished);
 
-		// Should throw a ClassCastException if lastPublished not set to an IdentifiableMsg by setsLastPublished.
-		IdentifiableMsg actual = (IdentifiableMsg) lastPublished;
+		// Should throw a ClassCastException if lastPublished not set to an TestMsg by setsLastPublished.
+		TestMsg actual = (TestMsg) lastPublished;
 
 		// Assert lastPublished was at least set to something that was not null by setsLastPublished.
 		assertNotNull(actual);
 
-		// And two IdentifiableMsg instances having the same random UUID is almost impossible.
-		assertTrue(expected.uuid.equals(actual.uuid));
+		// And two TestMsg instances having the same random UUID is almost impossible.
+		assertTrue(expected.mid == actual.mid);
 
-		// IdentifiableMsg does not implement equals.
+		// TestMsg does not implement equals.
 		// But if it were to then two instances with equal UUIDs should be equal.
 		assertFalse(expected.equals(actual));
 
@@ -134,7 +141,7 @@ public class MsgBusTest {
 	@Test
 	public void testMsgSerializable() {
 		@SuppressWarnings("serial")
-		final class ShouldBeSerializable implements Msg {
+		final class ShouldBeSerializable extends Msg {
 			// empty (and suppressing "serial" warnings
 		}
 		assertTrue(new ShouldBeSerializable() instanceof Serializable);
