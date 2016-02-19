@@ -68,7 +68,7 @@ This extension point is for use by plugins implementing a beamline-specific impl
                   
                </documentation>
                <appinfo>
-                  <meta.attribute kind="java" basedOn=":uk.ac.gda.richbeans.beans.IExperimentObjectManager"/>
+                  <meta.attribute kind="java" basedOn=":uk.ac.gda.client.experimentdefinition.IExperimentObjectManager"/>
                </appinfo>
             </annotation>
          </attribute>

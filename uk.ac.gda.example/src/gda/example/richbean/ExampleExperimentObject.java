@@ -22,11 +22,17 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 
 import uk.ac.gda.client.experimentdefinition.ExperimentObject;
+import uk.ac.gda.client.experimentdefinition.IXMLCommandHandler;
 import uk.ac.gda.client.experimentdefinition.ui.handlers.XMLCommandHandler;
 
 public class ExampleExperimentObject extends ExperimentObject {
 
 	public static final String SCANBEANTYPE = "Scan";
+
+	@Override
+	public void createFilesFromTemplates(IXMLCommandHandler xmlCH) {
+		// temporary ruse to all stage checkin of changes
+	}
 
 	@Override
 	public void createFilesFromTemplates() {

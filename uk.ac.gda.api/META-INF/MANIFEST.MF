@@ -100,12 +100,14 @@ Export-Package: gda.analysis.numerical.optimization.optimizers,
  gda.util.lookupFileWriter.corba,
  uk.ac.diamond.scisoft.analysis.plotserver.corba,
  uk.ac.gda.api.scan,
- uk.ac.gda.api.virtualaxis
+ uk.ac.gda.api.virtualaxis,
+ uk.ac.gda.client.experimentdefinition
 Require-Bundle: uk.ac.gda.common;bundle-version="1.0.0",
  uk.ac.diamond.org.jscience;bundle-version="[2.0.2,3.0.0)",
  uk.ac.gda.nexus;bundle-version="1.0.0",
  uk.ac.diamond.jython;bundle-version="[2.5.3,3.0.0)",
- org.apache.commons.beanutils;bundle-version="[1.9.1,1.9.2)"
+ org.apache.commons.beanutils;bundle-version="[1.9.1,1.9.2)",
+ org.eclipse.core.resources
 Bundle-ClassPath: jars/gda-corba.jar,
  .
 Bundle-Vendor: Diamond Light Source
