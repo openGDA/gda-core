@@ -40,6 +40,7 @@ import uk.ac.gda.beans.exafs.XesScanParameters;
 import uk.ac.gda.beans.microfocus.MicroFocusScanParameters;
 import uk.ac.gda.client.experimentdefinition.ExperimentObject;
 import uk.ac.gda.client.experimentdefinition.IExperimentObject;
+import uk.ac.gda.client.experimentdefinition.IXMLCommandHandler;
 import uk.ac.gda.client.experimentdefinition.ui.handlers.XMLCommandHandler;
 import uk.ac.gda.util.beans.BeansFactory;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
@@ -55,6 +56,11 @@ public class ScanObject extends ExperimentObject implements IExperimentObject {
 	public static final String OUTPUTBEANTYPE = "Output";
 	public static final String SAMPLEBEANTYPE = "Sample";
 	public static final String SCANBEANTYPE = "Scan";
+
+	@Override
+	public void createFilesFromTemplates(IXMLCommandHandler xmlCH) {
+		// temporary ruse to all stage checkin of changes
+	}
 
 	@Override
 	public void createFilesFromTemplates() {
