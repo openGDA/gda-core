@@ -19,7 +19,9 @@ Require-Bundle: org.eclipse.core.runtime,
  uk.ac.diamond.org.nfunk.jep;bundle-version="2.4.1",
  slf4j.api,
  uk.ac.gda.core;bundle-version="8.42.0",
- uk.ac.gda.analysis
+ uk.ac.gda.analysis,
+ org.eclipse.core.resources,
+ org.eclipse.richbeans.reflection
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Eclipse-RegisterBuddy: uk.ac.gda.common, uk.ac.gda.core, uk.ac.gda.client
@@ -28,6 +30,7 @@ Export-Package: gda.device.detector,
  gda.device.detector.countertimer,
  gda.device.scannable,
  gda.jython.scriptcontroller.logging,
+ uk.ac.gda.exafs.ui.data,
  uk.ac.gda.server.exafs,
  uk.ac.gda.server.exafs.scan,
  uk.ac.gda.server.exafs.scan.iterators,
