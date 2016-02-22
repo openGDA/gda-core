@@ -18,6 +18,7 @@
 
 package gda.device.scannable;
 
+import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
 import gda.jython.IAllScanDataPointsObserver;
 import gda.jython.IScanDataPointProvider;
@@ -89,6 +90,20 @@ public class TwoDScanPlotter extends ScannableBase implements IAllScanDataPoints
 		}
 
 		return new DoubleDataset(values);
+	}
+
+	@Override
+	public void atScanEnd() throws DeviceException {
+		if (LocalProperties.check("gda.scan.endscan.neworder", false)) {
+			try {
+				// try to plot any points that have been buffered
+				plot();
+			} catch (Exception e) {
+			}
+			deregisterAsScanDataPointObserver();
+		} else {
+			logger.warn("Cannot safely deregister at scan end if property gda.scan.endscan.neworder is not true.");
+		}
 	}
 
 	@Override
