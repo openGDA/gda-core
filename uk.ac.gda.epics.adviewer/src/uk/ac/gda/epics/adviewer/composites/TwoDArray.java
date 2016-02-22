@@ -18,11 +18,6 @@
 
 package uk.ac.gda.epics.adviewer.composites;
 
-import gda.device.detector.areadetector.v17.NDPluginBase;
-import gda.device.detector.areadetector.v17.NDROI;
-import gda.observable.Observable;
-import gda.observable.Observer;
-
 import java.io.File;
 import java.lang.reflect.Array;
 import java.util.Arrays;
@@ -40,7 +35,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
-import org.eclipse.dawnsci.analysis.api.dataset.Slice;
 import org.eclipse.dawnsci.analysis.dataset.impl.ByteDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
@@ -87,6 +81,10 @@ import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.detector.areadetector.v17.NDPluginBase;
+import gda.device.detector.areadetector.v17.NDROI;
+import gda.observable.Observable;
+import gda.observable.Observer;
 import uk.ac.diamond.scisoft.analysis.dataset.function.Histogram;
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
@@ -625,7 +623,7 @@ public class TwoDArray extends Composite {
 						if (dsName.equals("A-B")) continue;
 
 						ILazyDataset lazy = new H5LazyDataset(reader, fullPath);
-						Dataset store = DatasetUtils.convertToDataset(lazy.getSlice((Slice) null));
+						Dataset store = DatasetUtils.sliceAndConvertLazyDataset(lazy);
 						store.setName(dsName);
 						setupStores(dsName, store);
 					}
