@@ -41,6 +41,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.client.experimentdefinition.components.ExperimentObjectListener;
+import uk.ac.gda.client.experimentdefinition.ui.handlers.XMLCommandHandler;
 import uk.ac.gda.common.rcp.util.EclipseUtils;
 
 /**
@@ -137,7 +138,7 @@ public abstract class ExperimentObjectManager implements IExperimentObjectManage
 		final IExperimentObject ob = createNewExperimentObject();
 		ob.setMultiScanName(this.getName());
 		ob.setFolder(getContainingFolder());
-		ob.createFilesFromTemplates();
+		ob.createFilesFromTemplates(new XMLCommandHandler());
 		ob.setRunName(scanName);
 		lines.add(ob);
 		write();
@@ -150,7 +151,7 @@ public abstract class ExperimentObjectManager implements IExperimentObjectManage
 		final IExperimentObject ob = createNewExperimentObject();
 		ob.setMultiScanName(this.getName());
 		ob.setFolder(getContainingFolder());
-		ob.createFilesFromTemplates();
+		ob.createFilesFromTemplates(new XMLCommandHandler());
 		ob.setRunName("Scan_"+(index+1));
 		lines.add(index, ob);
 		write();

@@ -33,12 +33,9 @@ import uk.ac.gda.util.beans.xml.XMLRichBean;
 public interface IExperimentObject extends Serializable{
 
 	/**
-	 * Should only be called on a freshly instantiated object. This copies xml files from the templates folder into the
-	 * correct folder for this ExperimentObject using the names of the files which this object has been gievn.
+	 * Should only be called on a freshly instantiated object. This copies xml files from the templates folder into the correct folder for this ExperimentObject
+	 * using the names of the files which this object has been given.
 	 */
-
-	public void createFilesFromTemplates();
-
 	public void createFilesFromTemplates(IXMLCommandHandler xmlCH);
 
 	/**

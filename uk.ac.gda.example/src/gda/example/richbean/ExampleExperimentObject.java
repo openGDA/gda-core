@@ -23,7 +23,6 @@ import org.eclipse.core.resources.IFolder;
 
 import uk.ac.gda.client.experimentdefinition.ExperimentObject;
 import uk.ac.gda.client.experimentdefinition.IXMLCommandHandler;
-import uk.ac.gda.client.experimentdefinition.ui.handlers.XMLCommandHandler;
 
 public class ExampleExperimentObject extends ExperimentObject {
 
@@ -31,13 +30,7 @@ public class ExampleExperimentObject extends ExperimentObject {
 
 	@Override
 	public void createFilesFromTemplates(IXMLCommandHandler xmlCH) {
-		// temporary ruse to all stage checkin of changes
-	}
-
-	@Override
-	public void createFilesFromTemplates() {
 		final IFolder folder = getFolder();
-		XMLCommandHandler xmlCH = new XMLCommandHandler();
 
 		// just one file in each experiment at the moment
 		IFile scanFile = xmlCH.doTemplateCopy(folder, "ExampleExpt_Parameters.xml");

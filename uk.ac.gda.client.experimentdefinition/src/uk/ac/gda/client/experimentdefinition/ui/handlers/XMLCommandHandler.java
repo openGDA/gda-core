@@ -36,13 +36,14 @@ import org.slf4j.LoggerFactory;
 import uk.ac.gda.client.experimentdefinition.ExperimentBeanManager;
 import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
 import uk.ac.gda.client.experimentdefinition.IExperimentBeanDescription;
+import uk.ac.gda.client.experimentdefinition.IXMLCommandHandler;
 import uk.ac.gda.client.experimentdefinition.components.ExperimentFolderEditor;
 import uk.ac.gda.common.rcp.util.EclipseUtils;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 import uk.ac.gda.util.beans.xml.XMLRichBean;
 import uk.ac.gda.util.io.FileUtils;
 
-public class XMLCommandHandler extends AbstractExperimentCommandHandler {
+public class XMLCommandHandler extends AbstractExperimentCommandHandler implements IXMLCommandHandler {
 
 	private final static Logger logger = LoggerFactory.getLogger(XMLCommandHandler.class);
 
@@ -82,6 +83,7 @@ public class XMLCommandHandler extends AbstractExperimentCommandHandler {
 		throw new RuntimeException("Command ID '" + id + "' not found in ExafsBeanManager");
 	}
 
+	@Override
 	public Object doCopyAndSelection() {
 
 		final IFolder runFolder = getEditorManager().getSelectedFolder();
@@ -90,6 +92,7 @@ public class XMLCommandHandler extends AbstractExperimentCommandHandler {
 		return to.getName();
 	}
 
+	@Override
 	public IFile doCopy(final IFile to) {
 		if (to.exists())
 			return to;
@@ -100,6 +103,7 @@ public class XMLCommandHandler extends AbstractExperimentCommandHandler {
 	 * @param runFolder
 	 * @return name copied.
 	 */
+	@Override
 	public IFile doCopy(final IFolder runFolder) {
 		final File to = FileUtils.getUnique(runFolder.getLocation().toFile(), templateFileName, "xml");
 		return doCopy(runFolder, runFolder.getFile(to.getName()));
@@ -153,6 +157,7 @@ public class XMLCommandHandler extends AbstractExperimentCommandHandler {
 		return doCopy(runFolder, to, template);
 	}
 
+	@Override
 	public IFile doTemplateCopy(final IFolder runFolder, String fromFileName) {
 		File template = new File(ExperimentFactory.getTemplatesFolderPath() + fromFileName);
 		if (!template.exists()) {
@@ -189,6 +194,7 @@ public class XMLCommandHandler extends AbstractExperimentCommandHandler {
 //
 //	}
 
+	@Override
 	public File getTemplatePath() {
 		return new File(ExperimentFactory.getTemplatesFolderPath() + templateFileName + ".xml");
 	}
@@ -196,6 +202,7 @@ public class XMLCommandHandler extends AbstractExperimentCommandHandler {
 	/**
 	 * @return Returns the templateFileName.
 	 */
+	@Override
 	public String getTemplateFileName() {
 		return templateFileName + ".xml";
 	}
@@ -204,6 +211,7 @@ public class XMLCommandHandler extends AbstractExperimentCommandHandler {
 	 * @return bean
 	 * @throws Exception
 	 */
+	@Override
 	public XMLRichBean getTemplateParameters() throws Exception {
 		return XMLHelpers.getBean(getTemplatePath());
 	}
