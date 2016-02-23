@@ -20,6 +20,7 @@ package gda.device.detector.areadetector.v17.impl;
 
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
+import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.detector.areadetector.IPVProvider;
 import gda.device.detector.areadetector.v17.ADDriverPilatus;
@@ -31,14 +32,34 @@ import gda.epics.interfaces.ADPilatusType;
 import gda.epics.interfaces.ElementType;
 import gda.factory.FactoryException;
 import gda.observable.Predicate;
+import gov.aps.jca.CAStatus;
+import gov.aps.jca.Channel;
+import gov.aps.jca.event.PutEvent;
+import gov.aps.jca.event.PutListener;
 
 import java.io.IOException;
 
+import org.python.modules.synchronize;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
 public class ADDriverPilatusImpl implements ADDriverPilatus, InitializingBean {
+
+	public class SoftTriggerCallbackListener implements PutListener {
+		@Override
+		public void putCompleted(PutEvent event) {
+			if (event.getStatus() != CAStatus.NORMAL) {
+				logger.error("Put failed. Channel {} : Status {}",
+						((Channel) event.getSource()).getName(),
+						event.getStatus());
+				setSoftTriggerStatus(Detector.FAULT);
+				return;
+			}
+			logger.info("Soft Trigger request completed: {} called back", ((Channel) event.getSource()).getName());
+			setSoftTriggerStatus(Detector.IDLE);
+		}
+	}
 
 	static final Logger logger = LoggerFactory.getLogger(ADDriverPilatusImpl.class);
 
@@ -49,6 +70,10 @@ public class ADDriverPilatusImpl implements ADDriverPilatus, InitializingBean {
 	private ADPilatusType config;
 
 	private String deviceName;
+
+	private volatile int softTriggerStatus = Detector.IDLE;
+
+	private Object softTriggerStatusMonitor = new Object();
 
 	// PVs
 
@@ -78,6 +103,9 @@ public class ADDriverPilatusImpl implements ADDriverPilatus, InitializingBean {
 
 	private ReadOnlyPV<Boolean> pvFlatFieldValid;
 
+	private PV<Integer> pvSoftTrigger;
+
+	private SoftTriggerCallbackListener softTriggerCallbackListener = new SoftTriggerCallbackListener();
 
 	public void setDeviceName(String deviceName) throws FactoryException {
 		this.deviceName = deviceName;
@@ -167,6 +195,9 @@ public class ADDriverPilatusImpl implements ADDriverPilatus, InitializingBean {
 
 		pvFlatFieldValid = LazyPVFactory.newReadOnlyBooleanFromIntegerPV((config == null) ?
 				fullname("FlatFieldValid"): getRoPvName(config.getFlatFieldValid()));
+
+		//TODO: handle ADPilatusType (the config the other pvs use)
+		pvSoftTrigger = LazyPVFactory.newIntegerPV(fullname(SoftTrigger));
 	}
 
 
@@ -346,5 +377,42 @@ public class ADDriverPilatusImpl implements ADDriverPilatus, InitializingBean {
 		}
 	}
 
+	@Override
+	public void sendSoftTrigger() throws Exception {
+		logger.trace("Sending soft trigger: {} called.", SoftTrigger);
+		try {
+			setSoftTriggerStatus(Detector.BUSY);
+			pvSoftTrigger.putNoWait(1, softTriggerCallbackListener);
+		} catch (Exception e) {
+			setSoftTriggerStatus(Detector.IDLE);
+			logger.error("Exception sending soft trigger");
+			throw e;
+		}
+	}
 
+	@Override
+	public void waitForSoftTriggerCallback() throws InterruptedException {
+		synchronized (softTriggerStatusMonitor) {
+			try {
+				while (softTriggerStatus == Detector.BUSY) {
+					softTriggerStatusMonitor.wait(1000);
+				}
+			} finally {
+				if (softTriggerStatus != Detector.IDLE) {
+					setSoftTriggerStatus(Detector.IDLE);
+				}
+			}
+		}
+	}
+
+	public int getSoftTriggerStatus() {
+		return softTriggerStatus;
+	}
+
+	public void setSoftTriggerStatus(int softTriggerStatus) {
+		synchronized (softTriggerStatusMonitor) {
+			this.softTriggerStatus = softTriggerStatus;
+			softTriggerStatusMonitor.notifyAll();
+		}
+	}
 }
