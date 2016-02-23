@@ -210,7 +210,7 @@ class GdaLauncher:
 where task can be:
  nameserver    logserver     eventserver   objectserver
  servers
- logpanel
+ logpanel (old Swing)    gdalogpanel (new RCP)
  namemanager
  client        rcpclient"""
 
@@ -280,8 +280,8 @@ where task can be:
 		self.parser.add_option_group(group)
 
 		self.server_tasks = ["logserver", "nameserver", "eventserver", "objectserver", "servers"]
-		self.client_tasks = ["logpanel", "namemanager", "client", "rcpclient", "userpermissions"]
-		self.single_processes = ["logserver", "nameserver", "eventserver", "objectserver", "logpanel", "namemanager", "client"]
+		self.client_tasks = ["gdalogpanel", "logpanel", "namemanager", "client", "rcpclient", "userpermissions"]
+		self.single_processes = ["logserver", "nameserver", "eventserver", "objectserver", "gdalogpanel", "logpanel", "namemanager", "client"]
 
 
 	def mainline(self, argv):
@@ -356,6 +356,8 @@ where task can be:
 		pids = []
 		if self.task == "logpanel":
 			pids.append(self.log_panel(debug_opts=debug_opts))
+		elif self.task == "gdalogpanel":
+			pids.append(self.gdalogpanel(debug_opts=debug_opts))
 		elif self.task.find("logserver") >= 0:
 			pids.append(self.log_server(debug_opts=debug_opts))
 		elif self.task.find("nameserver") >= 0:
@@ -1163,6 +1165,19 @@ where task can be:
 		
 		vmargs = self.addOptionalVMArgs(vmargs)
 		return self.stop_start_java(class_path, class_name , vmargs=vmargs, debug_opts=debug_opts)
+
+	def gdalogpanel(self, debug_opts=None):
+		vmargs = (
+					"-Dgda.install.workspace.loc=" + self.gda_install_workspace_loc,
+					"-Dgda.install.git.loc=" + self.gda_install_git_loc,
+					"-Dgda.config=" + self.options.gda_config,
+				)
+		vmargs = self.addOptionalVMArgs(vmargs)
+		gdalogpanel_script = "/dls_sw/apps/gdalogpanel/bin/gdalogpanel"
+		if not os.path.exists(gdalogpanel_script):
+			self.logger.critical('Attempting to run gdalogpanel script that does not exist: "%s"' % (gdalogpanel_script,))
+			sys.exit(1)
+		return self.stop_start_process(gdalogpanel_script, prevmargs=(), vmargs=vmargs, debug_opts=debug_opts)
 
 	def log_server(self, debug_opts=None):
 		class_name = "gda.util.LogServer"

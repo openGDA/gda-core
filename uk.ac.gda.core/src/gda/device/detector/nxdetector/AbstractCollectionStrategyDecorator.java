@@ -190,15 +190,19 @@ public abstract class AbstractCollectionStrategyDecorator extends CollectionStra
 		getDecoratee().setSuppressRestore();
 	}
 
-	/*
-	 * Default implementations of save/restore functions. All overrides of these functions MUST call on to the decoratee. For saveState(), the call to the
-	 * decoratee should normally be the first statement in the function; for restoreState(), it should normally be the last.
+	/**
+	 * Default implementation of saveState called by final beforePreparation. An override of this function MUST call on to the decoratee. The call to the
+	 * decoratee SHOULD be the first statement in the function.
 	 */
 	@Override
 	public void saveState() throws Exception {
 		getDecoratee().saveState();
 	}
 
+	/**
+	 * Default implementation of restoreState called by final afterCompletion. An override of this function MUST call on to the decoratee. The call to the
+	 * decoratee SHOULD be the last statement in the function.
+	 */
 	@Override
 	public void restoreState() throws Exception {
 		getDecoratee().restoreState();
@@ -254,27 +258,42 @@ public abstract class AbstractCollectionStrategyDecorator extends CollectionStra
 		//if (propertiesSet) throw new IllegalAccessError("Attempt to set property " + description  + " in bean "+ getName() + "after Bean configured!");
 	}
 
-	/*
-	 * Default implementations of the "raw" functions called above. All overrides of these functions MUST call on to the decoratee. For prepareForCollection(),
-	 * the call to the decoratee should normally be the last statement in the function; for completeCollection(), atCommandFailure() & stop(), it should
-	 * normally be the first.
+	/**
+	 * Default implementation of rawPrepareForCollection called by final prepareForCollection. An override of this function MUST call on to the decoratee. The
+	 * call to the decoratee SHOULD be the last statement in the function.
 	 */
 	protected void rawPrepareForCollection(double collectionTime, int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
 		getDecoratee().prepareForCollection(collectionTime, numberImagesPerCollection, scanInfo);
 	}
 
+	/**
+	 * Default implementation of rawPrepareForCollection called by final prepareForCollection. An override of this function MUST call on to the decoratee. The
+	 * call to the decoratee SHOULD be the last statement in the function.
+	 */
 	protected void rawPrepareForCollection(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
 		getDecoratee().prepareForCollection(numberImagesPerCollection, scanInfo);
 	}
 
+	/**
+	 * Default implementation of rawCompleteCollection called by final completeCollection An override of this function MUST call on to the decoratee. The call
+	 * to the decoratee SHOULD be the first statement in the function.
+	 */
 	protected void rawCompleteCollection() throws Exception {
 		getDecoratee().completeCollection();
 	}
 
+	/**
+	 * Default implementation of rawAtCommandFailure called by final atCommandFailure An override of this function MUST call on to the decoratee. The call to
+	 * the decoratee SHOULD be the first statement in the function.
+	 */
 	protected void rawAtCommandFailure() throws Exception {
 		getDecoratee().atCommandFailure();
 	}
 
+	/**
+	 * Default implementation of rawStop called by final stop An override of this function MUST call on to the decoratee. The call to the decoratee SHOULD be
+	 * the first statement in the function.
+	 */
 	protected void rawStop() throws Exception {
 		getDecoratee().stop();
 	}

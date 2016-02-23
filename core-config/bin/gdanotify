@@ -1,0 +1,30 @@
+#!/usr/bin/expect
+# Turn off display to stdout
+log_user 0
+#If it all goes pear shaped the script will timeout after 20 seconds.
+set timeout 1
+#First argument is assigned to the variable text
+set host [lindex $argv 0]
+set port [lindex $argv 1]
+set text [lindex $argv 2]
+#This spawns the telnet program and connects it to the variable name
+spawn telnet $host $port 
+expect {
+	">>> " {send "print '*'*80\r"}
+    -re "Connection refused" {puts "Host error -> $expect_out(buffer)";exit}
+    -re "Connection closed"  {puts "Host error -> $expect_out(buffer)";exit}
+    -re "no address.*" {puts "Host error -> $expect_out(buffer)";exit}
+    timeout {puts "Timeout error. Is device down or unreachable?? ssh_expect";exit}
+}
+expect ">>> "
+send "print '* Notification from $env(USER) on $env(HOSTNAME)'\r"
+expect ">>> "
+send "print '*'*80\r"
+expect ">>> "
+send "print '$text'\r"
+expect ">>> "
+send "print '*'*80\r"
+expect ">>> "
+send \x1d
+expect "telnet>"
+send "quit\r"

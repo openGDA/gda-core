@@ -18,7 +18,6 @@
 
 package gda.data.scan.datawriter.scannablewriter;
 
-import gda.configuration.properties.LocalProperties;
 import gda.data.scan.datawriter.SelfCreatingLink;
 
 import java.util.Collection;
@@ -59,20 +58,7 @@ public class StringComponentWriter extends DefaultComponentWriter {
 
 		ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset(name, Dataset.STRING, dim, null, null);
 		GroupNode lGroup = file.getGroup(aPath.substring(0, aPath.length() - name.length()), true);
-		int[] chunk;
-		if (LocalProperties.check("gda.nexus.writeSwmr", false)) {
-			// Temporary hack to avoid HDF5 bug
-			chunk = new int[scanDims.length];
-			if (scanDims.length == 1) {
-				chunk[0] = 1024;
-			} else {
-				chunk[chunk.length - 1] = 256;
-				chunk[chunk.length - 2] = 4;
-			}
-		} else {
-			chunk = NexusUtils.estimateChunking(scanDims, 8);
-		}
-		lazy.setChunking(chunk);
+		lazy.setChunking(NexusUtils.estimateChunking(scanDims, 8));
 		DataNode data = file.createData(lGroup, lazy);
 
 		int[] sstart = nulldimfordim(dim);

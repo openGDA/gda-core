@@ -22,7 +22,6 @@ package gda.jython.socket;
 import gda.jython.JythonServerFacade;
 import gda.jython.Terminal;
 import gda.scan.ScanDataPoint;
-import gda.util.Sleep;
 import gda.util.Version;
 
 import java.io.IOException;
@@ -110,7 +109,11 @@ public abstract class ServerThread extends Thread implements Terminal, SessionCl
 			logger.error("Unable to create thread to listen to client", e);
 		}
 		// Give server a chance to setup up things, so this message gets to the peer too
-		Sleep.sleep(100);
+		try {
+			Thread.sleep(100);
+		} catch (InterruptedException ex) {
+			logger.error("InterruptedException while waiting 100ms to give the server a chance to set things up.", ex);
+		}
 	}
 
 	@Override

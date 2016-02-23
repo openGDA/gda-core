@@ -46,6 +46,7 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.databinding.viewers.ObservableListTreeContentProvider;
 import org.eclipse.jface.databinding.viewers.ViewersObservables;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.CheckStateChangedEvent;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
@@ -383,6 +384,11 @@ public class ScanDataPlotterComposite extends ResourceComposite {
 					menuMgr.add(new Action("Remove All") {
 						@Override
 						public void run() {
+							// Check with user for confirmation - to prevent accidently removing all the plots.
+							boolean reallyRemoveAll = MessageDialog.openQuestion(Display.getCurrent().getActiveShell(), "Remove all plots",
+									"Do you really want to remove all the plots ?");
+							if ( !reallyRemoveAll )
+								return;
 							for(Object obj : rootDataNode.getChildren()) {
 								Node nodeToRemove = (Node) obj;
 								if (dataTreeViewer.getChecked(nodeToRemove)) {
