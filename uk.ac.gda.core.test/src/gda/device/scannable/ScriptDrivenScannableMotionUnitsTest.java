@@ -32,6 +32,32 @@ import java.io.File;
 import org.junit.Before;
 import org.junit.Test;
 
+/**
+ * The way that these tests work, with a custom implementation of {@code ICommandRunner}, is quite sneaky. So here's
+ * some explanation:
+ * 
+ * <p>Usually a {@code ScriptDrivenScannableMotionUnits} ({@code SDSMU}) object works like this:
+ * <ul>
+ * <li>The {@code commandFormat} would be something like {@code "SCANNABLENAME(%5.5g)"}.</li>
+ * <li>Both {@code SDSMU.moveTo} and {@code SDSMU.asynchronousMoveTo} build a command by calling {@code String.format}
+ *     with the {@code commandFormat} and {@code position},
+ *   resulting in something like {@code "SCANNABLENAME(12.34)"}.</li>
+ * <li>{@code SDSMU.moveTo} calls {@code commandRunner.evaluateCommand} to execute that command, and expects the
+ *     response to be an empty string or {@code "None"}.</li>
+ * <li>{@code SDSMU.asynchronousMoveTo} calls {@code commandRunner.runCommand} to execute the command, and doesn't wait
+ *     for anything.</li>
+ * </ul>
+ * 
+ * <p>For this test, the {@code commandFormat} is set to {@code "%5.5g"}.
+ * <ul>
+ * <li>The commands built by {@code SDSMU} are therefore just numbers, e.g. {@code "12.34"}.</li>
+ * <li>The custom implementations of {@code evaluateCommand} and {@code runCommand} both expect to get just a
+ *     number.</li>
+ * <li>Both methods then call {@code moveTo} on the underlying motor with that numerical position.</li>
+ * <li>{@code evaluateCommand} returns an empty string, to make {@code SDSMU.moveTo} think that no error has
+ *     occurred.</li>
+ * </ul>
+ */
 public class ScriptDrivenScannableMotionUnitsTest {
 
 	ScannableMotor scannableMotor;
@@ -133,7 +159,8 @@ public class ScriptDrivenScannableMotionUnitsTest {
 
 	@Test
 	public void testAsynchronousMoveTo() throws DeviceException, InterruptedException {
-		scannableUnderTest.asynchronousMoveTo(new Double[]{1.0d, 2.0d});
+		scannableUnderTest.moveTo(0);
+		scannableUnderTest.asynchronousMoveTo(1.0d);
 		Thread.sleep(50);
 		assertTrue(scannableUnderTest.isBusy());
 		assertEquals(ScannableStatus.BUSY, status.getStatus());
@@ -150,7 +177,7 @@ public class ScriptDrivenScannableMotionUnitsTest {
 
 	@Test
 	public void testAsynchronousMoveToOutsideLimits() throws DeviceException {
-		scannableUnderTest.asynchronousMoveTo(new Double[]{-1.0d, 2.0d});
+		scannableUnderTest.asynchronousMoveTo(-1.0d);
 	}
 
 
