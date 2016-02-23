@@ -36,11 +36,11 @@ public class SoftTriggeredPilatus extends SimpleAcquire {
 
 	@Override
 	public void prepareForCollection(double collectionTime, int numImages, ScanInformation scanInfo) throws Exception {
-		enableOrDisableCallbacks();
 		if (numImages != 1) {
 			throw new IllegalArgumentException("This software triggered strategy only expects one image per point");
 		}
 		configureAcquireAndPeriodTimes(collectionTime);
+		getAdBase().setArrayCallbacks(1); // this strategy always requires array callbacks
 		getAdBase().setNumImages(scanInfo.getNumberOfPoints());
 		getAdBase().setImageMode(ImageMode.SINGLE.ordinal());
 		getAdBase().setTriggerMode(PilatusTriggerMode.SOFTWARE_TRIGGER.ordinal());
