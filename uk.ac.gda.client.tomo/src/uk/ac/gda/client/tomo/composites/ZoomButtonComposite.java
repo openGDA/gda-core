@@ -21,8 +21,6 @@ package uk.ac.gda.client.tomo.composites;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.jms.IllegalStateException;
-
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.draw2d.geometry.Dimension;
 import org.eclipse.jface.dialogs.MessageDialog;
