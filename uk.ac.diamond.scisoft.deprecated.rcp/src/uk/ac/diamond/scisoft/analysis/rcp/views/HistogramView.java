@@ -35,7 +35,7 @@ import org.dawnsci.plotting.jreality.tool.AreaSelectEvent;
 import org.eclipse.dawnsci.analysis.api.downsample.DownsampleMode;
 import org.eclipse.dawnsci.analysis.dataset.function.Downsample;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.Stats;
 import org.eclipse.dawnsci.plotting.api.jreality.core.AxisMode;
@@ -689,7 +689,7 @@ public class HistogramView extends ViewPart implements SelectionListener,
 			logger.warn("Number of stored histograms is over expected levels, now at {}",histograms.size());
 		}
 		
-		xAxis.setValues(DatasetUtils.linSpace(min, max, Math.max(1,histogram.getSize()+1), Dataset.FLOAT64));
+		xAxis.setValues(DatasetFactory.createLinearSpace(min, max, Math.max(1,histogram.getSize()+1), Dataset.FLOAT64));
 		histogramPlotter.setXAxisValues(xAxis, 1);
 		generateHistogramUpdate();
 		updateChannelGraphs();
