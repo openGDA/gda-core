@@ -18,8 +18,6 @@
 
 package org.opengda.lde.ui.viewfactories;
 
-import javax.jms.IllegalStateException;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.opengda.lde.ui.views.SampleGroupView;
