@@ -24,6 +24,7 @@ import java.util.List;
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
 import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 
 import uk.ac.gda.beans.DetectorROI;
@@ -54,16 +55,10 @@ public class MapCache {
 	public double[] getSpectrum(int detectorNo, int x, int y) {
 
 		int mcaSize = allMCAs.getShape()[3];
-		Dataset mcaDataset = (Dataset) allMCAs.getSlice(new int[]{y,x,detectorNo,0},new int[]{y+1,x+1,detectorNo+1,mcaSize},new int[]{1,1,1,1});
-		if (mcaDataset.getDtype() == Dataset.FLOAT){
-			return ((DoubleDataset)mcaDataset).getData();
-		}
-
-		double[] data = new double[mcaSize];
-		for (int i = 0; i < mcaSize; i++) {
-			data[i] = mcaDataset.getDouble(0,0,0,i);
-		}
-		return data;
+		DoubleDataset mcaDataset = (DoubleDataset) DatasetUtils.cast(
+				allMCAs.getSlice(new int[] { y, x, detectorNo, 0 }, new int[] { y + 1, x + 1, detectorNo + 1, mcaSize }, new int[] { 1, 1, 1, 1 }),
+				Dataset.FLOAT64);
+		return mcaDataset.getData();
 	}
 
 

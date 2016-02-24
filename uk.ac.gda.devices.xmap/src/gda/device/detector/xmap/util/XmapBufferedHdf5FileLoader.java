@@ -21,6 +21,7 @@ package gda.device.detector.xmap.util;
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,8 +56,8 @@ public class XmapBufferedHdf5FileLoader implements XmapFileLoader {
 		int numberOfDetectorElements = lazyDataset.getShape()[1];
 		IDataset slice = lazyDataset.getSlice(new int[] { dataPointNumber, 0, 0 }, new int[] { dataPointNumber + 1,
 				numberOfDetectorElements, channelNumbers }, new int[] { 1, 1, 1 });
-		ILazyDataset sqSlice = slice.squeeze();
-		int[] data = (int[]) ((Dataset) sqSlice).getBuffer();
+		IDataset sqSlice = slice.squeeze();
+		int[] data = (int[]) DatasetUtils.cast(sqSlice, Dataset.INT32).getBuffer();
 		short allData[][] = new short[numberOfDetectorElements][channelNumbers];
 		for (int i = 0; i < numberOfDetectorElements; i++) {
 			for (int j = 0; j < channelNumbers; j++) {
@@ -84,8 +85,8 @@ public class XmapBufferedHdf5FileLoader implements XmapFileLoader {
 		}
 		IDataset slice = lazyDataset.getSlice(new int[] { fromDataPointNumber, 0, 0 }, new int[] { toDataPointNumber,
 				numberOfDetectorElements, channelNumbers }, new int[] { 1, 1, 1 });
-		ILazyDataset sqSlice = slice.squeeze();
-		int[] data = (int[]) ((Dataset) sqSlice).getBuffer();
+		IDataset sqSlice = slice.squeeze();
+		int[] data = (int[]) DatasetUtils.cast(sqSlice, Dataset.INT32).getBuffer();
 		int noDataPtsToRead = (toDataPointNumber - fromDataPointNumber) + 1;
 		short allData[][][] = new short[noDataPtsToRead][numberOfDetectorElements][channelNumbers];
 		for (int k = 0; k < noDataPtsToRead; k++) {
@@ -108,8 +109,8 @@ public class XmapBufferedHdf5FileLoader implements XmapFileLoader {
 		lazyDataset = dataHolder.getLazyDataset("/entry/instrument/detector/NDAttributes/triggers_ch_" + element);
 		IDataset slice = lazyDataset.getSlice(new int[] { dataPointNumber }, new int[] { dataPointNumber + 1 },
 				new int[] { 1 });
-		ILazyDataset sqSlice = slice.squeeze();
-		long[] trigger = (long[]) ((Dataset) sqSlice).getBuffer();
+		IDataset sqSlice = slice.squeeze();
+		long[] trigger = (long[]) DatasetUtils.cast(sqSlice, Dataset.INT64).getBuffer();
 		return trigger[0];
 	}
 
@@ -118,8 +119,8 @@ public class XmapBufferedHdf5FileLoader implements XmapFileLoader {
 		lazyDataset = dataHolder.getLazyDataset("/entry/instrument/detector/NDAttributes/real_time_ch_" + element);
 		IDataset slice = lazyDataset.getSlice(new int[] { dataPointNumber }, new int[] { dataPointNumber + 1 },
 				new int[] { 1 });
-		ILazyDataset sqSlice = slice.squeeze();
-		double[] realtime = (double[]) ((Dataset) sqSlice).getBuffer();
+		IDataset sqSlice = slice.squeeze();
+		double[] realtime = (double[]) DatasetUtils.cast(sqSlice, Dataset.FLOAT64).getBuffer();
 		return realtime[0];
 	}
 
@@ -129,8 +130,8 @@ public class XmapBufferedHdf5FileLoader implements XmapFileLoader {
 				+ element);
 		IDataset slice = lazyDataset.getSlice(new int[] { dataPointNumber }, new int[] { dataPointNumber + 1 },
 				new int[] { 1 });
-		ILazyDataset sqSlice = slice.squeeze();
-		double[] livetime = (double[]) ((Dataset) sqSlice).getBuffer();
+		IDataset sqSlice = slice.squeeze();
+		double[] livetime = (double[]) DatasetUtils.cast(sqSlice, Dataset.FLOAT64).getBuffer();
 		return livetime[0];
 	}
 
@@ -139,8 +140,8 @@ public class XmapBufferedHdf5FileLoader implements XmapFileLoader {
 		lazyDataset = dataHolder.getLazyDataset("/entry/instrument/detector/NDAttributes/events_ch_" + element);
 		IDataset slice = lazyDataset.getSlice(new int[] { dataPointNumber }, new int[] { dataPointNumber + 1 },
 				new int[] { 1 });
-		ILazyDataset sqSlice = slice.squeeze();
-		long[] events = (long[]) ((Dataset) sqSlice).getBuffer();
+		IDataset sqSlice = slice.squeeze();
+		long[] events = (long[]) DatasetUtils.cast(sqSlice, Dataset.INT64).getBuffer();
 		return events[0];
 	}
 

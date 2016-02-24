@@ -23,8 +23,8 @@ import java.util.Hashtable;
 import java.util.List;
 
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
-import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,8 +67,7 @@ public class ScalerMFMappableDataProvider extends MicroFocusMappableDataProvider
 						+ selectedElement);
 			IDataset slice = lazyDataset.getSlice(new int[] { 0, 0 }, new int[] { yAxisLengthFromFile,
 					xAxisLengthFromFile }, new int[] { 1, 1 });
-			ILazyDataset sqSlice = slice.squeeze();
-			data = (double[]) ((Dataset) sqSlice).getBuffer();
+			data = (double[]) DatasetUtils.cast(slice, Dataset.FLOAT64).getBuffer();
 			detectorData.put(selectedElement, data);
 		} else {
 			data = detectorData.get(selectedElement);

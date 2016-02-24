@@ -25,8 +25,8 @@ import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
-import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +41,7 @@ public class XspressMFMappableDataProvider extends MicroFocusMappableDataProvide
 	public XspressMFMappableDataProvider() {
 		super();
 	}
-	
+
 	private static final String[] detectorNames = new String[]{"xspress2system", "raster_xspress"};
 
 	private int numberOfdetectorElements;
@@ -65,7 +65,7 @@ public class XspressMFMappableDataProvider extends MicroFocusMappableDataProvide
 		double[][] mapData = new double[yarray.length][xarray.length];
 		Integer selectedElementIndex = roiNameMap.get(selectedElement);
 		DetectorROI roi=  elementRois[selectedChannel].get(selectedElementIndex);
-		
+
 		double[][][] mcas = getMCAMapFromFile(selectedChannel);
 		for (int i = 0; i < yAxisLengthFromFile; i++) {
 			for (int j = 0; j < xAxisLengthFromFile; j++) {
@@ -79,12 +79,12 @@ public class XspressMFMappableDataProvider extends MicroFocusMappableDataProvide
 		}
 		return mapData;
 	}
-	
+
 	private double[][][] getMCAMapFromFile(int channel) {
 		IDataset slice = lazyDataset.getSlice(new int[] { 0, 0, channel, 0 }, new int[] { yAxisLengthFromFile, xAxisLengthFromFile,
 				channel+1, 4096 }, new int[] { 1, 1, 1, 1 });
-		ILazyDataset sqSlice = slice.squeeze();
-		double[] data = (double[]) ((Dataset) sqSlice).getBuffer();
+		IDataset sqSlice = slice.squeeze();
+		double[] data = (double[]) DatasetUtils.cast(sqSlice, Dataset.FLOAT64).getBuffer();
 		int dim[] = sqSlice.getShape();
 		return packto4D(data, dim[0], dim[1], dim[2]);
 	}
@@ -161,8 +161,8 @@ public class XspressMFMappableDataProvider extends MicroFocusMappableDataProvide
 		if (slice == null){
 			return null; // we are out of the limits
 		}
-		ILazyDataset sqSlice = slice.squeeze();
-		return (double[]) ((Dataset) sqSlice).getBuffer();
+		IDataset sqSlice = slice.squeeze();
+		return (double[]) DatasetUtils.cast(sqSlice, Dataset.FLOAT64).getBuffer();
 	}
 
 	@Override
