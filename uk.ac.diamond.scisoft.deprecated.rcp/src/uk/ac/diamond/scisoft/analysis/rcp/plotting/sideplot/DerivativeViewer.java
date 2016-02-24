@@ -28,6 +28,7 @@ import org.dawnsci.plotting.jreality.print.PlotExportUtil;
 import org.dawnsci.plotting.jreality.tool.AreaSelectEvent;
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
 import org.eclipse.dawnsci.analysis.dataset.impl.Maths;
 import org.eclipse.dawnsci.plotting.api.jreality.core.AxisMode;
 import org.eclipse.dawnsci.plotting.api.jreality.impl.PlotException;
@@ -198,8 +199,8 @@ public class DerivativeViewer extends SidePlot implements Overlay1DConsumer, Plo
 		final Collection<Dataset> dervs = new ArrayList<Dataset>(ys.size());
 		for (int i = 0; i < ys.size(); i++) {
 			final Dataset x    = xValues.get(i).toDataset();
-			final Dataset y    = (Dataset)ys.get(i);
-			Dataset derv = (Dataset)ys.get(i);
+			final Dataset y    = DatasetUtils.convertToDataset(ys.get(i));
+			Dataset derv = y;
 			for (int di = 0; di < derivative; di++) { 
 				derv = Maths.derivative(x, derv, derivative);
 			}
@@ -232,8 +233,8 @@ public class DerivativeViewer extends SidePlot implements Overlay1DConsumer, Plo
 		final Collection<Dataset> dervs = new ArrayList<Dataset>(ys.size());
 		for (int i = 0; i < ys.size(); i++) {
 			final Dataset x    = xValues.get(i).toDataset();
-			final Dataset y    = (Dataset)ys.get(i);
-			Dataset derv = (Dataset)ys.get(i);
+			final Dataset y    = DatasetUtils.convertToDataset(ys.get(i));
+			Dataset derv = y;
 			for (int di = 0; di < derivative; di++) { 
 				derv = Maths.derivative(x, derv, derivative);
 			}

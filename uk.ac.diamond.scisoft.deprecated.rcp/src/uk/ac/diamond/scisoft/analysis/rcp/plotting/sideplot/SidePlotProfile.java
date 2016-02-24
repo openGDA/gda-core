@@ -691,7 +691,7 @@ public abstract class SidePlotProfile extends SidePlot implements Overlay2DConsu
 			shape[0] = (int) subFactor;
 			shape[1] = (int) subFactor;
 			Downsample map = new Downsample(DownsampleMode.MAXIMUM, shape);
-			subData = (Dataset)map.value(data).get(0);
+			subData = map.value(data).get(0);
 		} else {
 			subData = null;
 		}
