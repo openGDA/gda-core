@@ -24,7 +24,7 @@ import junit.framework.Assert;
 import org.eclipse.dawnsci.analysis.api.io.IDataHolder;
 import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -74,7 +74,7 @@ public class RawOutputTest {
 	@Test
 	public void testSaveFile() throws ScanFileHolderException {
 		DataHolder dh = new DataHolder();
-		data = DatasetUtils.linSpace(0, 5760000, range, Dataset.FLOAT64);
+		data = DatasetFactory.createLinearSpace(0, 5760000, range, Dataset.FLOAT64);
 		data.setShape(sizex, sizey);
 		try {
 			dh.addDataset("testing data", data);
