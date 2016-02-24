@@ -24,7 +24,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
-import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
 import org.eclipse.dawnsci.analysis.api.io.IDataHolder;
 import org.eclipse.dawnsci.analysis.api.io.IFileLoader;
 import org.eclipse.dawnsci.analysis.api.io.IFileSaver;
@@ -188,20 +187,13 @@ public class ScanFileHolder implements Serializable, IScanFileHolder {
 
 	@Override
 	public Dataset getAxis(String axisName) throws IllegalArgumentException {
-		try {
-			Dataset a = DatasetUtils.convertToDataset(holder.getDataset(axisName));
-			if (a != null) {
-				return a;
-			}
-		} catch (Exception e) {
-			ILazyDataset l = holder.getLazyDataset(axisName);
-			return DatasetUtils.convertToDataset(l.getSlice());
+		Dataset a = DatasetUtils.sliceAndConvertLazyDataset(holder.getLazyDataset(axisName));
+		if (a == null) {
+			String msg = "Axis name " + axisName + " not recognised. Available axes: " + Arrays.toString(getHeadings());
+			logger.error(msg);
+			throw new IllegalArgumentException(msg);
 		}
-
-		String msg = "Axis name " + axisName + " not recognised. Available axes: " + Arrays.toString(getHeadings());
-		logger.error(msg);
-		throw new IllegalArgumentException(msg);
-
+		return a;
 	}
 
 	@Override
