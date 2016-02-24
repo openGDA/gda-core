@@ -18,11 +18,6 @@
 
 package org.opengda.lde.ui.views;
 
-import gda.factory.Finder;
-import gda.jython.scriptcontroller.Scriptcontroller;
-import gda.observable.IObserver;
-import gda.util.Sleep;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,8 +25,8 @@ import java.util.List;
 import org.apache.commons.io.FilenameUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.api.io.IDataHolder;
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlotType;
 import org.eclipse.dawnsci.plotting.api.PlottingFactory;
@@ -52,10 +47,14 @@ import org.opengda.lde.utils.LDEResourceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.factory.Finder;
+import gda.jython.scriptcontroller.Scriptcontroller;
+import gda.observable.IObserver;
+import gda.util.Sleep;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 
 /**
- * a composite to plot reduced data from data file triggered by data reduction process event {@link NewDataFileEvent}. 
+ * a composite to plot reduced data from data file triggered by data reduction process event {@link NewDataFileEvent}.
  */
 public class ReducedDataPlotComposite extends Composite implements IObserver {
 
@@ -64,7 +63,7 @@ public class ReducedDataPlotComposite extends Composite implements IObserver {
 	private static final String SPECTRUM_PLOT = "Pattern";
 	private IPlottingSystem plottingSystem;
 	private ILineTrace profileLineTrace;
-	
+
 	private Scriptcontroller eventAdmin;
 	private String eventAdminName;
 	private String plotName;
@@ -157,14 +156,14 @@ public class ReducedDataPlotComposite extends Composite implements IObserver {
 			throw new IllegalArgumentException(e.getMessage(), e);
 		}
 		String[] names = dataHolder.getNames();
-		Dataset xAxis=(Dataset) dataHolder.getDataset(0);
+		IDataset xAxis = dataHolder.getDataset(0);
 		xAxis.setName(names[0]);
-		Dataset yds=(Dataset) dataHolder.getDataset(1);
+		IDataset yds = dataHolder.getDataset(1);
 		yds.setName(names[1]);
 //		Dataset error=(Dataset) dataHolder.getDataset(2);
 //		error.setName(names[2]);
 //		yds.setError(error);
-		ArrayList<Dataset> plotDataSets = new ArrayList<Dataset>();
+		ArrayList<IDataset> plotDataSets = new ArrayList<IDataset>();
 		plotDataSets.add(yds);
 		plottingSystem.clear();
 		final List<ITrace> profileLineTraces = plottingSystem.createPlot1D(xAxis, plotDataSets, monitor);
@@ -192,7 +191,7 @@ public class ReducedDataPlotComposite extends Composite implements IObserver {
 			if (arg instanceof NewDataFileEvent) {
 
 				Display.getDefault().asyncExec(new Runnable() {
-					
+
 
 					@Override
 					public void run() {
