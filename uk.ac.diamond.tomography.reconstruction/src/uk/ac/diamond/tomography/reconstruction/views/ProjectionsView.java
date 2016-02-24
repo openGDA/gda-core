@@ -26,11 +26,11 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
 import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlotType;
 import org.eclipse.dawnsci.plotting.api.PlottingFactory;
@@ -286,8 +286,8 @@ public class ProjectionsView extends BaseTomoReconPart implements ISelectionList
 				if (dataset != null) {
 					int[] shape = dataset.getShape();
 					shape[0] = position + 1;
-					IDataset slice = dataset.getSlice(new int[] { position, 0, 0 }, shape, new int[] { 1, 1, 1 });
-					datasetToPlot = (Dataset) slice.squeeze();
+					Dataset slice = DatasetUtils.convertToDataset(dataset.getSlice(new int[] { position, 0, 0 }, shape, new int[] { 1, 1, 1 }));
+					datasetToPlot = slice.squeeze();
 
 					getViewSite().getShell().getDisplay().asyncExec(new Runnable() {
 						@Override
@@ -309,7 +309,7 @@ public class ProjectionsView extends BaseTomoReconPart implements ISelectionList
 				} else {
 					 showErrorMessage(ERR_TITLE_DISPLAYING_PROJECTIONS, new IllegalArgumentException(
 					 ERR_MESSAGE_UNABLE_TO_FIND_DATASET));
-					
+
 				}
 				monitor.done();
 				return Status.OK_STATUS;
