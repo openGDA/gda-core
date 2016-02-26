@@ -631,7 +631,6 @@
          point="org.eclipse.ui.editors">
       <editor
             class="uk.ac.gda.exafs.ui.XasScanParametersEditor"
-            contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
             default="true"
             icon="icons/XasParametersIcon.png"
             id="uk.ac.gda.exafs.ui.XasScanParametersEditor"
@@ -642,7 +641,6 @@
       </editor>
       <editor
             class="uk.ac.gda.exafs.ui.XanesScanParametersEditor"
-            contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
             default="true"
             icon="icons/XanesParametersIcon.png"
             id="uk.ac.gda.exafs.ui.XanesScanParametersEditor"
@@ -653,7 +651,6 @@
       </editor>
       <editor
             class="uk.ac.gda.exafs.ui.editors.detectors.Xspress2ParametersEditor"
-            contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
             default="true"
             icon="icons/page_refresh.png"
             id="uk.ac.gda.exafs.ui.Xspress2ParametersEditor"
@@ -664,7 +661,6 @@
       </editor>
       <editor
             class="uk.ac.gda.exafs.ui.detector.vortex.VortexParametersEditor"
-            contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
             default="true"
             icon="icons/page_refresh.png"
             id="uk.ac.gda.exafs.ui.VortexParametersEditor"
@@ -675,7 +671,6 @@
       </editor>
       <editor
             class="uk.ac.gda.exafs.ui.editors.detectors.Xspress3ParametersEditor"
-            contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
             default="false"
             icon="icons/page_refresh.png"
             id="uk.ac.gda.exafs.ui.Xspress3ParametersEditor"
