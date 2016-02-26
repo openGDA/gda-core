@@ -18,6 +18,13 @@
 
 package gda.util;
 
+import gda.jscience.physics.quantities.BraggAngle;
+import gda.jscience.physics.quantities.PhotonEnergy;
+import gda.jscience.physics.quantities.Vector;
+import gda.jscience.physics.quantities.WaveVector;
+import gda.jscience.physics.quantities.Wavelength;
+import gda.jscience.physics.units.NonSIext;
+
 import org.jscience.physics.quantities.Angle;
 import org.jscience.physics.quantities.Energy;
 import org.jscience.physics.quantities.Length;
@@ -27,12 +34,6 @@ import org.jscience.physics.units.SI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.jscience.physics.quantities.BraggAngle;
-import gda.jscience.physics.quantities.PhotonEnergy;
-import gda.jscience.physics.quantities.Vector;
-import gda.jscience.physics.quantities.WaveVector;
-import gda.jscience.physics.quantities.Wavelength;
-import gda.jscience.physics.units.NonSIext;
 
 /**
  * A class to convert between the various units used in XAFS
@@ -230,7 +231,7 @@ public class Converter {
 				value = waveVector.to(NonSIext.PER_ANGSTROM).getAmount();
 			}
 		} else if (convertFromUnit.equals(PERANGSTROM)) {
-			Vector v = Quantity.valueOf(value, NonSIext.PER_ANGSTROM);
+			Quantity v = Quantity.valueOf(value, NonSIext.PER_ANGSTROM);
 			Energy energy = PhotonEnergy.photonEnergyOf(edgeEnergy, v);
 			if (convertToUnit.equals(EV)) {
 				value = energy.to(NonSI.ELECTRON_VOLT).getAmount();
