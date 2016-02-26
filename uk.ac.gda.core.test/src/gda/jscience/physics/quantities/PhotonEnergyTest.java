@@ -96,8 +96,7 @@ public class PhotonEnergyTest {
 
 	/**
 	 * Test method for
-	 * {@link gda.jscience.physics.quantities.PhotonEnergy#photonEnergyOf(org.jscience.physics.quantities.Energy, gda.jscience.physics.quantities.Vector)}
-	 * .
+	 * {@link gda.jscience.physics.quantities.PhotonEnergy#photonEnergyOf(org.jscience.physics.quantities.Quantity, org.jscience.physics.quantities.Quantity)} .
 	 */
 	@Test
 	public void testPhotonEnergyOfEnergyVector() {

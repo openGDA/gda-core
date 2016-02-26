@@ -55,7 +55,7 @@ public class PhotonEnergy extends Energy {
 	// //////////////////
 	/**
 	 * Returns the {@link PhotonEnergy} for the specified X-Ray wavelength.
-	 * 
+	 *
 	 * @param wavelength
 	 *            Wavelength the specified X-Ray wavelength.
 	 * @return PhotonEnergy the energy of the photon.
@@ -70,7 +70,7 @@ public class PhotonEnergy extends Energy {
 
 	/**
 	 * Returns the {@link PhotonEnergy} for the specified Bragg Angle of the crystal.
-	 * 
+	 *
 	 * @param braggAngle
 	 *            Angle the Bragg angle of the crystal.
 	 * @param twoD
@@ -88,12 +88,12 @@ public class PhotonEnergy extends Energy {
 
 	/**
 	 * Returns the {@link PhotonEnergy} for the specified edge.
-	 * 
+	 *
 	 * @param edge
 	 * @param k
 	 * @return PhotonEnergy the energy of the photon from the crystal.
 	 */
-	public static Energy photonEnergyOf(Energy edge, Vector k) {
+	public static Energy photonEnergyOf(Quantity edge, Quantity k) {
 		if (edge != null && k != null && edge.isGreaterThan(Energy.ZERO) && k.isGreaterThan(Vector.ZERO)) {
 			Quantity hBarSquared = Constants.hBar.times(Constants.hBar);
 			Quantity electronMassTimesTwo = Constants.me.times(2.0);
@@ -106,7 +106,7 @@ public class PhotonEnergy extends Energy {
 
 	/**
 	 * Returns the {@link PhotonEnergy} for the specified edge.
-	 * 
+	 *
 	 * @param edge
 	 * @param value
 	 * @return PhotonEnergy the energy of the photon from the crystal.
