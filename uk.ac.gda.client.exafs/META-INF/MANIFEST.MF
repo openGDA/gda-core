@@ -77,7 +77,9 @@ Require-Bundle: uk.ac.gda.exafs.api;bundle-version="1.0.0",
  org.eclipse.richbeans.widgets;bundle-version="1.0.0",
  org.eclipse.richbeans.xml;bundle-version="1.0.0",
  org.eclipse.richbeans.widgets.file;bundle-version="1.0.0",
- org.eclipse.richbeans.reflection;bundle-version="1.0.0"
+ org.eclipse.richbeans.reflection;bundle-version="1.0.0",
+ uk.ac.gda.server.exafs,
+ org.eclipse.equinox.preferences;bundle-version="3.5.300"
 Export-Package: com.swtdesigner,
  gda.exafs.scan,
  uk.ac.gda.client.exafs,

@@ -28,6 +28,8 @@ import gda.rcp.GDAClientActivator;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,12 +41,14 @@ import uk.ac.gda.client.experimentdefinition.IExperimentObjectManager;
 import uk.ac.gda.exafs.ExafsActivator;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 import uk.ac.gda.preferences.PreferenceConstants;
+import uk.ac.gda.server.exafs.scan.ScanType;
 
 public final class ScanObjectManager extends ExperimentObjectManager implements IExperimentObjectManager, IObserver {
 	private static IScanParameters currentScan;
 	private static IDetectorParameters currentDetectorParameters;
 	private static LoggingScriptController messageController;
 	private static final Logger logger = LoggerFactory.getLogger(ScanObjectManager.class);
+	private static final IEclipsePreferences serverPrefs = InstanceScope.INSTANCE.getNode("uk.ac.gda.server.exafs");;
 
 	public ScanObjectManager() {
 		String controllers = GDAClientActivator.getDefault().getPreferenceStore().getString(PreferenceConstants.GDA_LOGGINGSCRIPTCONTROLLERS);
@@ -80,6 +84,7 @@ public final class ScanObjectManager extends ExperimentObjectManager implements 
 
 	public static void setXESOnlyMode(boolean onlyXESScans) {
 		ExafsActivator.getDefault().getPreferenceStore().setValue(ExafsPreferenceConstants.XES_MODE_ENABLED, onlyXESScans);
+		serverPrefs.putBoolean(ScanType.XES_ONLY.toString(), onlyXESScans);
 	}
 
 	public static boolean isQEXAFSDefaultScanType() {
@@ -88,6 +93,7 @@ public final class ScanObjectManager extends ExperimentObjectManager implements 
 
 	public static void setQEXAFSDefaultScanType(boolean qexafsIsDefault) {
 		ExafsActivator.getDefault().getPreferenceStore().setValue(ExafsPreferenceConstants.QEXAFS_IS_DEFAULT_SCAN_TYPE, qexafsIsDefault);
+		serverPrefs.putBoolean(ScanType.QEXAFS_DEFAULT.toString(), qexafsIsDefault);
 	}
 
 	/**
