@@ -429,10 +429,6 @@ Additional Ant tasks for Buckminster build. Based on http://www.ralfebert.de/blo
 		<replace file="${install.path}/gda-server.ini" token="${workspace_loc:uk.ac.diamond.org.springframework/jars}" value="./ext/jars" />
     	<unjar src="${spring.jar.path}" dest="${install.path}/ext"></unjar>
 
-    	<!-- Add the internal; gda-server link to the current install -->
-    	<symlink action="delete" link="${internal.symlink.to.product.location}"/>
-        <symlink link="${internal.symlink.to.product.location}" resource="${destination.directory.name}"/>
-
     	<!-- Add the links to cope with hard coded paths in the codebase -->
     	<mkdir dir="${install.path}/dls-root/workspace"/>
     	<mkdir dir="${install.git.path}/gda-core.git/uk.ac.gda.core/classes"/>
