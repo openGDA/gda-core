@@ -18,14 +18,14 @@
 
 package gda.data.scan.datawriter;
 
+import gda.data.fileregistrar.FileRegistrarHelper;
+import gda.scan.IScanDataPoint;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import gda.data.fileregistrar.FileRegistrarHelper;
-import gda.scan.IScanDataPoint;
 
 /**
  * Write to an Xas and a Nexus file simultaneously
@@ -53,9 +53,9 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements Configura
 
 	private void storeFilenamesWithRegistar() {
 		if (ascii != null)
-			FileRegistrarHelper.registerFiles(new String[] { ascii.fileUrl});
+			FileRegistrarHelper.registerFiles(new String[] { ascii.getCurrentFileName() });
 		if (nexus != null)
-			FileRegistrarHelper.registerFiles(new String[] { nexus.dataDir +  nexus.nexusFileName});
+			FileRegistrarHelper.registerFiles(new String[] { nexus.getDataDir() + nexus.getNexusFileName() });
 	}
 
 	@Override
