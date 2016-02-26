@@ -92,7 +92,7 @@ public abstract class IncrementalFile extends DataWriterBase implements DataWrit
 	/**
 	 * Close down the file.
 	 */
-	void destroy() {
+	public void destroy() {
 		this.releaseFile();
 	}
 
@@ -100,7 +100,7 @@ public abstract class IncrementalFile extends DataWriterBase implements DataWrit
 	 * Open files and writes out headers.
 	 * @throws Exception
 	 */
-	void prepareForCollection() throws Exception {
+	public void prepareForCollection() throws Exception {
 		createNextFile();
 		if (file != null) {
 			writeHeader();

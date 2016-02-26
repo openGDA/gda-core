@@ -19,6 +19,29 @@
 
 package gda.data.scan.datawriter;
 
+import gda.configuration.properties.LocalProperties;
+import gda.data.NumTracker;
+import gda.data.PathConstructor;
+import gda.data.metadata.GDAMetadataProvider;
+import gda.data.metadata.Metadata;
+import gda.data.nexus.INeXusInfoWriteable;
+import gda.data.nexus.NexusFileFactory;
+import gda.data.nexus.extractor.NexusExtractor;
+import gda.data.nexus.extractor.NexusGroupData;
+import gda.data.nexus.tree.INexusTree;
+import gda.data.nexus.tree.NexusTreeAppender;
+import gda.data.nexus.tree.NexusTreeNode;
+import gda.data.nexus.tree.NexusTreeProvider;
+import gda.data.scan.datawriter.scannablewriter.ScannableWriter;
+import gda.device.Detector;
+import gda.device.DeviceException;
+import gda.device.Scannable;
+import gda.device.detector.NexusDetector;
+import gda.device.scannable.ScannableUtils;
+import gda.factory.Finder;
+import gda.jython.InterfaceProvider;
+import gda.scan.IScanDataPoint;
+
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Array;
@@ -53,29 +76,6 @@ import org.python.core.PyList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
-
-import gda.configuration.properties.LocalProperties;
-import gda.data.NumTracker;
-import gda.data.PathConstructor;
-import gda.data.metadata.GDAMetadataProvider;
-import gda.data.metadata.Metadata;
-import gda.data.nexus.INeXusInfoWriteable;
-import gda.data.nexus.NexusFileFactory;
-import gda.data.nexus.extractor.NexusExtractor;
-import gda.data.nexus.extractor.NexusGroupData;
-import gda.data.nexus.tree.INexusTree;
-import gda.data.nexus.tree.NexusTreeAppender;
-import gda.data.nexus.tree.NexusTreeNode;
-import gda.data.nexus.tree.NexusTreeProvider;
-import gda.data.scan.datawriter.scannablewriter.ScannableWriter;
-import gda.device.Detector;
-import gda.device.DeviceException;
-import gda.device.Scannable;
-import gda.device.detector.NexusDetector;
-import gda.device.scannable.ScannableUtils;
-import gda.factory.Finder;
-import gda.jython.InterfaceProvider;
-import gda.scan.IScanDataPoint;
 
 /**
  * DataWriter that outputs NeXus files and optionally a SRS/Text file as well.
@@ -1729,5 +1729,9 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 		} else {
 			NexusDataWriter.metadataScannablesPerDetector = metadataScannablesPerDetector;
 		}
+	}
+
+	public String getNexusFileName() {
+		return nexusFileName;
 	}
 }
