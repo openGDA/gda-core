@@ -4,6 +4,8 @@ import static com.google.common.collect.ObjectArrays.concat;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -32,6 +34,7 @@ import com.google.common.base.CaseFormat;
 
 public enum ConfigurationDefaults {
 	// Default values not subject to overriding
+	EMPTY(""),
 	DEPLOY_TYPE("1"),
 	MAX_PERM_SIZE("1024m"),
 	JAVA_OPTS("-Dgda.deploytype=1 -XX:MaxPermSize=1024m"),	
@@ -53,14 +56,14 @@ public enum ConfigurationDefaults {
 	PROFILE("main"),
 	APP_PROFILE(getFromApplicationArgsWithDefault(PROFILE, "-p")),
 	
-	GDA_WORKSPACE_PARENT(WORKSPACE_ROOT_LOCATION + "/.."),
+	GDA_WORKSPACE_PARENT(Paths.get(WORKSPACE_ROOT_LOCATION.value).getParent().toString()),
 	APP_WORKSPACE_PARENT(getHierarchicalValueWithDefault(GDA_WORKSPACE_PARENT)),
 	
 	GDA_WORKSPACE_GIT_NAME("workspace_git"),
 	APP_WORKSPACE_GIT_NAME(getHierarchicalValueWithDefault(GDA_WORKSPACE_GIT_NAME)),
 	
 	GDA_INSTANCE_CONFIG_rel(combine(APP_WORKSPACE_GIT_NAME, LAYOUT_DETAILS.value.split(",")[1])),
-	APP_INSTANCE_CONFIG_rel(getHierarchicalValueWithDefault(GDA_INSTANCE_CONFIG_rel)),
+	APP_INSTANCE_CONFIG_rel(getFromConfigPathOverrideWithDefault(getHierarchicalValueWithDefault(GDA_INSTANCE_CONFIG_rel))),
 	
 	APP_GROUP_NAME(APP_INSTANCE_CONFIG_rel.value.contains("gda-mt.git") ? "mt-config" : "nogroup"),
 	GDA_GROUP_CONFIG_rel(APP_INSTANCE_CONFIG_rel + "/../" + APP_GROUP_NAME),
@@ -94,7 +97,6 @@ public enum ConfigurationDefaults {
 	APP_GROUP_CONFIG(combine(APP_WORKSPACE_PARENT, APP_GROUP_CONFIG_rel)),
 	
 	GDA_CONFIG(APP_INSTANCE_CONFIG.value),
-	APP_CONFIG(getHierarchicalValueWithDefault(GDA_CONFIG)),
 	
 	GDA_SPRING_XML_FILE_PATHS(combine(combine(APP_INSTANCE_CONFIG, "servers"), combine (APP_PROFILE_MODE, "server.xml"))),
 	APP_SPRING_XML_FILE_PATHS(getFromApplicationArgsWithDefault(GDA_SPRING_XML_FILE_PATHS, "-f")),
@@ -118,7 +120,7 @@ public enum ConfigurationDefaults {
 	
 	private static final String[] BASIC_VM_ARGS =  new String[]{"-Dgda.install.workspace.loc=" + combine(APP_WORKSPACE_PARENT, "workspace"),
 																"-Dgda.install.git.loc=" + APP_WORKSPACE_GIT,
-																"-Dgda.config=" + APP_CONFIG};
+																"-Dgda.config=" + APP_INSTANCE_CONFIG};
 	
 	// N.B. this follows what the gda script calls the 'STANDARD' layout also mode is currently opposite of script default (live)
 	private static final String[] OPTIONAL_VM_ARGS = concat(initialiseOptions(),  new String[]{"-Dgda.mode=" + APP_MODE,
@@ -220,6 +222,16 @@ public enum ConfigurationDefaults {
 			}			
 		}
 		return instance.value;
+	}
+	
+	private static String getFromConfigPathOverrideWithDefault(final String defaultValue) {
+		final String configOverride = getFromApplicationArgsWithDefault(EMPTY, "-config");
+		if(configOverride.isEmpty()) {
+			return defaultValue;
+		}
+		final Path workspaceParent = Paths.get(APP_WORKSPACE_PARENT.value);
+		final Path override = Paths.get(configOverride);
+		return workspaceParent.relativize(override).toString();
 	}
 	
 	private static String[] standardBasicArgs() {
