@@ -22,7 +22,6 @@ import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.ContinuousParameters;
 import gda.device.DeviceException;
 import gda.device.detector.BufferedDetector;
-import gda.device.detector.DetectorBase;
 import gda.device.detector.NXDetectorData;
 import gda.device.detector.NexusDetector;
 import gda.factory.FactoryException;
@@ -36,7 +35,7 @@ import uk.ac.gda.devices.detector.xspress3.fullCalculations.Xspress3WithFullCalc
  * other beamlines that are using Xspress3.
  */
 
-public class Xspress3BufferedDetectorv2 extends DetectorBase implements BufferedDetector, NexusDetector, FluorescenceDetector, Xspress3 {
+public class Xspress3BufferedDetectorv2 extends Xspress3BufferedDetector implements BufferedDetector, NexusDetector, FluorescenceDetector, Xspress3 {
 
 	private Xspress3 xspress3Detector;
 	private ContinuousParameters parameters;
@@ -143,18 +142,22 @@ public class Xspress3BufferedDetectorv2 extends DetectorBase implements Buffered
 		return 500;
 	}
 
+	@Override
 	public TRIGGER_MODE getTriggerModeWhenInContinuousScan() {
 		return triggerModeWhenInContinuousScan;
 	}
 
+	@Override
 	public void setTriggerModeWhenInContinuousScan(TRIGGER_MODE triggerModeWhenInContinuousScan) {
 		this.triggerModeWhenInContinuousScan = triggerModeWhenInContinuousScan;
 	}
 
+	@Override
 	public Xspress3 getXspress3Detector() {
 		return xspress3Detector;
 	}
 
+	@Override
 	public void setXspress3Detector(Xspress3 xspress3Detector) {
 		this.xspress3Detector = xspress3Detector;
 	}
