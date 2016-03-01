@@ -356,11 +356,7 @@ public class ListenerDispatcher implements Findable, IObserver, Configurable, IA
 					INexusTree type = branch.getChildNode("sas_type", NexusExtractor.SDSClassName);
 					if (type != null) {
 						String typeStr = null;
-						try {
-							typeStr = new String((byte[]) type.getData().getBuffer(), "UTF-8");
-						} catch (UnsupportedEncodingException e) {
-							//
-						}
+						typeStr = ((String[]) type.getData().getBuffer())[0];
 						for (String allowed : NcdDetectorSystem.detectorTypes) {
 							if (allowed.equals(typeStr)) {
 								detNames.add(branch.getName());
