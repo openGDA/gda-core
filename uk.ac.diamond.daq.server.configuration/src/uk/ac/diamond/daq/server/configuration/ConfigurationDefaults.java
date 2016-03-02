@@ -109,7 +109,7 @@ public enum ConfigurationDefaults {
 	APP_BASE_SERVER_CLASSPATH(combine(APP_WORKSPACE_PARENT, "workspace/tp/plugins/*:")
 							+ combine(APP_WORKSPACE_PARENT, "../plugins/*:")
 							+ combine(APP_WORKSPACE_GIT, "diamond-springframework.git/uk.ac.diamond.org.springframework/jars/*:")
-							+ combine(APP_WORKSPACE_PARENT, "../ext/jars/*:")
+							+ combine(APP_WORKSPACE_PARENT, "../plugins/uk.ac.diamond.org.springframework/jars/*:")
 							+ combine(APP_WORKSPACE_GIT, "gda-common.git/uk.ac.gda.common/bin:")
 							+ combine(APP_WORKSPACE_GIT, "gda-core.git/uk.ac.gda.api/bin:")
 							+ combine(APP_WORKSPACE_GIT, "gda-core.git/uk.ac.gda.core/classes/main")),

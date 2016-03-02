@@ -117,9 +117,6 @@ Additional Ant tasks for Buckminster build. Based on http://www.ralfebert.de/blo
             <param name="setup.directory.name" value="${destination}" />
             <param name="setup.directory.delete.previous" value="true" />
         </antcall>
-        <antcall target="setup.directory">
-            <param name="setup.directory.name" value="${destination}/ext" />
-        </antcall>
     </target>
 
     <target name="install-product" depends="get-product-description, make_product_dir">
@@ -403,12 +400,11 @@ Additional Ant tasks for Buckminster build. Based on http://www.ralfebert.de/blo
     	<dirset  dir="${plugins.path}" id="jacorbDirId" >
     		<include name="uk.ac.diamond.org.jacorb_*"/>
     	</dirset>
-    	<property name= "jacorb.dir.name" refid= "jacorbDirId" />
-    	<fileset  dir="${plugins.path}" id="springJarId" >
-    		<include name="uk.ac.diamond.org.springframework_*.jar"/>
-    	</fileset>
-    	<property name= "spring.jar.name" refid= "springJarId" />
-		<property.expand property="spring.jar.path" definition="${plugins.path}/${spring.jar.name}"/>
+    	<property name= "jacorb.dir.name" refid= "jacorbDirId" />    	
+		<dirset  dir="${plugins.path}" id="springDirId" >
+    		<include name="uk.ac.diamond.org.springframework_*"/>
+    	</dirset>
+    	<property name= "spring.dir.name" refid= "springDirId" />
 	</target>
 
     <!-- ====================================================================== -->
@@ -422,12 +418,9 @@ Additional Ant tasks for Buckminster build. Based on http://www.ralfebert.de/blo
     	<!-- Links for sub process classpath entries -->
     	<property.expand property="core.link" definition="../../../../../plugins/${core.dir.name}"/>
     	<property.expand property="jacorb.link" definition="${plugins.path}/uk.ac.diamond.org.jacorb"/>
+		<property.expand property="spring.framework.link" definition="${plugins.path}/uk.ac.diamond.org.springframework"/>
     	<property.expand property="jython.link" definition="../../../plugins/${jython.dir.name}"/>
 		<property.expand property="scisoftpy.link" definition="../../../../plugins/${scisoftpy.dir.name}"/>
-
-    	<!-- Add the reference to the expanded Spring jars directory -->
-		<replace file="${install.path}/gda-server.ini" token="${workspace_loc:uk.ac.diamond.org.springframework/jars}" value="./ext/jars" />
-    	<unjar src="${spring.jar.path}" dest="${install.path}/ext"></unjar>
 
     	<!-- Add the links to cope with hard coded paths in the codebase -->
     	<mkdir dir="${install.path}/dls-root/workspace"/>
@@ -441,6 +434,7 @@ Additional Ant tasks for Buckminster build. Based on http://www.ralfebert.de/blo
     	<symlink link="${install.git.path}/scisoft-core.git/uk.ac.diamond.scisoft.python/src" resource="${scisoftpy.link}" />
 
     	<symlink link="${jacorb.link}" resource="${jacorb.dir.name}" />
+		<symlink link="${spring.framework.link}" resource="${spring.dir.name}" />
 
 		<!-- Copy across the config and script directories -->
 		<copy todir="${install.git.path}/gda-core.git/core-config">
