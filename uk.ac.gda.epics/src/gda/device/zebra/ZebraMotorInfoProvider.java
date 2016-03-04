@@ -18,7 +18,7 @@
 
 package gda.device.zebra;
 
-import gda.device.scannable.ScannableMotor;
+import gda.device.IScannableMotor;
 
 /**
  * Interface used to get information between to setup a Zebra
@@ -39,7 +39,7 @@ public interface ZebraMotorInfoProvider {
 	 * @return The actual ScannableMotor that will be moved during the scan
 	 *
 	 */
-	ScannableMotor getActualScannableMotor();
+	IScannableMotor getActualScannableMotor();
 
 	/**
 	 * @return True if getExposureStep represents the size of the step of the motor to move during exposure.

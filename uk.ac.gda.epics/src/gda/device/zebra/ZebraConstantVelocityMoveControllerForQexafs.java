@@ -19,6 +19,7 @@
 package gda.device.zebra;
 import gda.device.Detector;
 import gda.device.DeviceException;
+import gda.device.IScannableMotor;
 import gda.device.Scannable;
 import gda.device.continuouscontroller.ConstantVelocityMoveController2;
 import gda.device.continuouscontroller.ContinuousMoveController;
@@ -29,7 +30,6 @@ import gda.device.detector.nxdetector.NXCollectionStrategyPlugin;
 import gda.device.scannable.ContinuouslyScannableViaController;
 import gda.device.scannable.PositionCallableProvider;
 import gda.device.scannable.PositionStreamIndexer;
-import gda.device.scannable.ScannableMotor;
 import gda.device.zebra.controller.Zebra;
 import gda.factory.FactoryException;
 import gda.observable.IObserver;
@@ -50,7 +50,7 @@ public class ZebraConstantVelocityMoveControllerForQexafs implements Scannable,
 
 	private String name;
 	private ZebraConstantVelocityMoveController zebraController;
-	private ScannableMotor scannableMotorToMove;
+	private IScannableMotor scannableMotorToMove;
 	private double requiredScannableMotorSpeed;
 	private double requiredBraggSpeed;
 	private double pcPulseStepRBV;
@@ -136,7 +136,7 @@ public class ZebraConstantVelocityMoveControllerForQexafs implements Scannable,
 	}
 	*/
 
-	public ScannableMotor getScannableMotor() {
+	public IScannableMotor getScannableMotor() {
 		return zebraController.getScannableMotor();
 	}
 
@@ -320,7 +320,7 @@ public class ZebraConstantVelocityMoveControllerForQexafs implements Scannable,
 					// Note that we need to read back values relating to time, so that the we calculate dependent values based on the
 					// actual values in use rather than the values we asked for.
 					final double pcPulseStepRBVRaw= zebra.getPCPulseStepRBV();
-					zebraController.checkRBV(pcPulseStepRaw, pcPulseStepRBVRaw, 0.0001, "pcPulseStep");
+				zebraController.checkRBV(pcPulseStepRaw, pcPulseStepRBVRaw, 0.0001, "pcPulseStep");
 					pcPulseStepRBV = pcPulseStepRBVRaw/timeUnitConversion;
 
 					logger.info("pcPulseStepRaw="+pcPulseStepRaw+" exposureStep="+exposureStep+" requiredSpeed="+requiredBraggSpeed);
@@ -435,7 +435,7 @@ public class ZebraConstantVelocityMoveControllerForQexafs implements Scannable,
 	}
 
 
-	public double getAccelerationDistance(double requiredSpeed,ScannableMotor scannableMotor,double minimumAccelerationDistance) throws DeviceException{
+	public double getAccelerationDistance(double requiredSpeed, IScannableMotor scannableMotor, double minimumAccelerationDistance) throws DeviceException {
 		double minimumAccelerationTime = Double.MAX_VALUE;
 		double accelerationDistance = getZebraMotorInfoProvider().distanceToAccToVelocity(requiredSpeed);
 		logger.info("accelerationDistance=" + accelerationDistance + " minimumAccelerationDistance=" + minimumAccelerationDistance);

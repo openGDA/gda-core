@@ -20,6 +20,7 @@ package gda.device.zebra;
 
 import gda.device.Detector;
 import gda.device.DeviceException;
+import gda.device.IScannableMotor;
 import gda.device.Scannable;
 import gda.device.continuouscontroller.ConstantVelocityMoveController2;
 import gda.device.continuouscontroller.ContinuousMoveController;
@@ -32,7 +33,6 @@ import gda.device.scannable.ContinuouslyScannableViaController;
 import gda.device.scannable.PositionCallableProvider;
 import gda.device.scannable.PositionStreamIndexer;
 import gda.device.scannable.ScannableBase;
-import gda.device.scannable.ScannableMotor;
 import gda.device.scannable.ScannableUtils;
 import gda.device.scannable.VariableCollectionTimeDetector;
 import gda.device.zebra.controller.Zebra;
@@ -57,7 +57,7 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 
 	Zebra zebra;
 
-	ScannableMotor scannableMotor;
+	IScannableMotor scannableMotor;
 	ZebraMotorInfoProvider zebraMotorInfoProvider;
 
 	protected double pcGateWidthRBV;
@@ -612,11 +612,11 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 		this.zebra = zebra;
 	}
 
-	public ScannableMotor getScannableMotor() {
+	public IScannableMotor getScannableMotor() {
 		return scannableMotor;
 	}
 
-	public void setScannableMotor(ScannableMotor scannableMotor) {
+	public void setScannableMotor(IScannableMotor scannableMotor) {
 		logger.trace("setScannableMotor({})", scannableMotor);
 		this.scannableMotor = scannableMotor;
 	}
