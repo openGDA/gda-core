@@ -2,7 +2,6 @@ from gdascripts.scannable.detector.ProcessingDetectorWrapper import ProcessingDe
 from gdascripts.scannable.detector.DetectorDataProcessor import DetectorDataProcessor, DetectorDataProcessorWithRoi
 from gdascripts.analysis.datasetprocessor.twod.TwodGaussianPeak import TwodGaussianPeak
 from gdascripts.analysis.datasetprocessor.twod.SumMaxPositionAndValue import SumMaxPositionAndValue
-from gda.analysis.io import ConvertedTIFFImageLoader
 from gdascripts.scannable.detector.dummy.focused_beam_dataset import CreateImageReadingDummyDetector
 
 f = DummyPD("f")

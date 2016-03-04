@@ -1,15 +1,7 @@
 
 from gda.analysis.io import JPEGLoader, TIFFImageLoader
 from uk.ac.diamond.scisoft.analysis.io import PilatusEdfLoader
-from org.eclipse.dawnsci.analysis.api.io import ScanFileHolderException
 
-try:
-# TODO remove all references to ConvertedTIFFImageLoader as it simply inherits
-# from TIFFImageLoader without any additional functionality
-# Also remove reference in project to gda.dls
-	from gda.analysis.io import ConvertedTIFFImageLoader 
-except ImportError:
-	ConvertedTIFFImageLoader = None
 from gda.analysis import ScanFileHolder
 
 FILELOADERS={
@@ -25,21 +17,5 @@ def loadImageIntoSFH(path, iFileLoader=None):
 		iFileLoader = FILELOADERS[path.split('.')[-1].upper()]
 #	print "loadIntoSfh loading: %s using %s" % (path, str(iFileLoader))
 	sfh = ScanFileHolder()
-	if ConvertedTIFFImageLoader is not None and iFileLoader is ConvertedTIFFImageLoader:
-		# This requires a special call
-		sfh.load(iFileLoader(path, 'uint16', 'none'))  # Bodge to work with xray eye
-	else:	
-		if iFileLoader is TIFFImageLoader:
-			# We have a backup loader for TIFF loading
-			try:
-				sfh.load(iFileLoader(path))
-			except ScanFileHolderException, e:
-				# Try the converted tiff loader instead
-				if ConvertedTIFFImageLoader is not None:
-					sfh.load(ConvertedTIFFImageLoader(path, 'uint16', 'none'))
-				else:
-					raise e
-		else:
-			# No backup loader required	
-			sfh.load(iFileLoader(path))
+	sfh.load(iFileLoader(path))
 	return sfh
