@@ -27,6 +27,7 @@ import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -34,6 +35,7 @@ import org.junit.Test;
  */
 public class StepperTest {
 
+	@Ignore("2016-03-04 This is not really a test so shouldn't be included in automated test runs")
 	@Test
 	public final void testStepper() {
 		Display display = new Display();
@@ -69,6 +71,7 @@ public class StepperTest {
 		display.dispose();
 	}
 
+	@Ignore("2016-03-04 This is not really a test so shouldn't be included in automated test runs")
 	@Test
 	public final void testStepperWithLabels() {
 		Display display = new Display();

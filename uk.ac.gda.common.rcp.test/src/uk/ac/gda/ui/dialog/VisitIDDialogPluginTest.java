@@ -28,7 +28,7 @@ import org.junit.Test;
 /**
  * Not ready for including in a test suite yet!
  */
-public class VisitIDDialogTest {
+public class VisitIDDialogPluginTest {
 	private VisitIDDialog visitDialog;
 
 	@Before
