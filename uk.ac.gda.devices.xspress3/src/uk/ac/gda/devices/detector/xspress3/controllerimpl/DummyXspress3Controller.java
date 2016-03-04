@@ -33,8 +33,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.beans.DetectorROI;
+import uk.ac.gda.devices.detector.xspress3.CAPTURE_MODE;
 import uk.ac.gda.devices.detector.xspress3.ReadyForNextRow;
 import uk.ac.gda.devices.detector.xspress3.TRIGGER_MODE;
+import uk.ac.gda.devices.detector.xspress3.UPDATE_CTRL;
 import uk.ac.gda.devices.detector.xspress3.Xspress3Controller;
 
 /**
@@ -578,7 +580,16 @@ public class DummyXspress3Controller implements Xspress3Controller, Findable, Co
 	}
 
 	@Override
-	public int monitorSavingFile(int status) throws DeviceException {
-		return 1;
+	public void setFileEnableCallBacks(UPDATE_CTRL callback) throws DeviceException {
+
 	}
+
+	@Override
+	public void setFileCaptureMode(CAPTURE_MODE captureMode) throws DeviceException {
+	}
+
+	@Override
+	public void setFileArrayCounter(int arrayCounter) throws DeviceException {
+	}
+
 }

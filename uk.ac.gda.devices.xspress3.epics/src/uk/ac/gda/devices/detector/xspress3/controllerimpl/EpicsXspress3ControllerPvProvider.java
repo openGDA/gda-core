@@ -22,8 +22,10 @@ import gda.epics.LazyPVFactory;
 import gda.epics.PV;
 import gda.epics.ReadOnlyPV;
 import gda.factory.FactoryException;
+import uk.ac.gda.devices.detector.xspress3.CAPTURE_MODE;
 import uk.ac.gda.devices.detector.xspress3.ReadyForNextRow;
 import uk.ac.gda.devices.detector.xspress3.TRIGGER_MODE;
+import uk.ac.gda.devices.detector.xspress3.UPDATE_CTRL;
 
 public class EpicsXspress3ControllerPvProvider {
 
@@ -63,7 +65,11 @@ public class EpicsXspress3ControllerPvProvider {
 	private static String CONNECTION_STATUS = ":CONNECTED";
 	private static String MAX_NUM_CHANNELS = ":MAX_NUM_CHANNELS_RBV";
 
+
 	// File creation PVs
+	private static String FILE_ENABLE_CALLBACKS = ":HDF5:EnableCallbacks";
+	private static String FILE_ARRAY_COUNTER = ":HDF5:ArrayCounter";
+	private static String FILE_CAPTURE_MODE = ":HDF5:FileWriteMode";
 	private static String STARTSTOP_FILE_WRITING = ":HDF5:Capture";
 	private static String FILE_WRITING_RBV = ":HDF5:Capture_RBV";
 
@@ -84,42 +90,10 @@ public class EpicsXspress3ControllerPvProvider {
 	private static String EXTRA_DIM_X = ":HDF5:ExtraDimSizeX";
 	private static String EXTRA_DIM_Y = ":HDF5:ExtraDimSizeY";
 
+	// File performance PVs
 	private static String FILE_ATTR = ":HDF5:StoreAttr";
 	private static String FILE_PERFORM = ":HDF5:StorePerform";
 	private static String FILE_NUMFRAMESCHUNKS = ":HDF5:NumFramesChunks";
-
-	// All Element Sum File creation PVs
-//	private static String ALL_EL_STARTSTOP_FILE_WRITING = ":ALLEL:HDF5:Capture";
-//	private static String ALL_EL_FILE_WRITING_RBV = ":ALLEL:HDF5:Capture_RBV";
-//
-//	private static String ALL_EL_FILE_PATH = ":ALLEL:HDF5:FilePath";
-//	private static String ALL_EL_FILE_PATH_RBV = ":ALLEL:HDF5:FilePath_RBV";
-//
-//	private static String ALL_EL_FILE_PREFIX = ":ALLEL:HDF5:FileName";
-//	private static String ALL_EL_FILE_PREFIX_RBV = ":ALLEL:HDF5:FileName_RBV";
-//
-//	private static String ALL_EL_NEXT_FILENUMBER = ":ALLEL:HDF5:FileNumber";
-//	private static String ALL_EL_FILE_AUTOINCREMENT = ":ALLEL:HDF5:AutoIncrement";
-//	private static String ALL_EL_FILE_NUMCAPTURE = ":ALLEL:HDF5:NumCapture";
-//
-//	private static String ALL_EL_EXTRA_DIMS = ":ALLEL:HDF5:NumExtraDims";
-//	private static String ALL_EL_EXTRA_DIM_N = ":ALLEL:HDF5:ExtraDimSizeN";
-//	private static String ALL_EL_EXTRA_DIM_X= ":ALLEL:HDF5:ExtraDimSizeX";
-//	private static String ALL_EL_EXTRA_DIM_Y = ":ALLEL:HDF5:ExtraDimSizeY";
-
-
-
-
-	// Display Updates
-//	private static String SCALER_UPDATE_SUFFIX = ":CTRL_DATA_UPDATE";
-//	private static String SCALER_UPDATE_RBV_SUFFIX = ":CTRL_DATA_UPDATE_RBV";
-//	private static String SCALER_UPDATE_PERIOD_SUFFIX = ":CTRL_DATA_UPDATE_PERIOD";
-//	private static String MCA_UPDATE_SUFFIX = ":CTRL_MCA_UPDATE";
-//	private static String MCA_UPDATE_RBV_SUFFIX = ":CTRL_MCA_UPDATE_RBV";
-//	private static String MCA_UPDATE_PERIOD_SUFFIX = ":CTRL_MCA_UPDATE_PERIOD";
-//	private static String SCA_UPDATE_SUFFIX = ":CTRL_SCA_UPDATE";
-//	private static String SCA_UPDATE_RBV_SUFFIX = ":CTRL_SCA_UPDATE_RBV";
-//	private static String SCA_UPDATE_PERIOD_SUFFIX = ":CTRL_SCA_UPDATE_PERIOD";
 
 	// MCA and ROI
 	private static String ROI_LOW_BIN_TEMPLATE = ":C%1d_MCA_ROI%1d_LLM";  // channel (1-8),ROI (1-4)
@@ -181,15 +155,6 @@ public class EpicsXspress3ControllerPvProvider {
 	protected ReadOnlyPV<Integer> pvGetMaxFrames;
 	protected ReadOnlyPV<Integer> pvGetMCASize;
 	protected ReadOnlyPV<Integer> pvGetMaxNumChannels;
-//	protected PV<UPDATE_CTRL> pvSetScalerUpdate;
-//	protected ReadOnlyPV<UPDATE_RBV> pvGetScalerUpdate;
-//	protected PV<Integer> pvScalerUpdatePeriod;
-//	protected PV<UPDATE_CTRL> pvSetMCAUpdate;
-//	protected ReadOnlyPV<UPDATE_RBV> pvGetMCAUpdate;
-//	protected PV<Integer> pvMCAUpdatePeriod;
-//	protected PV<UPDATE_CTRL> pvSetSCAROIUpdate;
-//	protected ReadOnlyPV<UPDATE_RBV> pvGetSCAROIUpdate;
-//	protected PV<Integer> pvSCAROIUpdatePeriod;
 	protected PV<UPDATE_RBV>[] pvsChannelEnable;
 	protected ReadOnlyPV<Double[]>[] pvsScalerWindow1;
 	protected PV<UPDATE_CTRL>[] pvsSCA5UpdateArrays;
@@ -219,6 +184,9 @@ public class EpicsXspress3ControllerPvProvider {
 	protected ReadOnlyPV<Double>[][] pvsLatestROI;  // [roi][channel]
 	protected ReadOnlyPV<Double[]>[][] pvsROIs;   //[roi][channel]
 
+	protected PV<Integer> pvSetFileArrayCounter;
+	protected PV<UPDATE_CTRL> pvSetFileEnableCallbacks;
+	protected PV<CAPTURE_MODE> pvSetFileCaptureMode;
 	protected PV<CAPTURE_CTRL_RBV> pvStartStopFileWriting;
 	protected ReadOnlyPV<CAPTURE_CTRL_RBV> pvIsFileWriting;
 	protected ReadOnlyPV<Integer> pvGetFileWritingStatus;
@@ -239,21 +207,6 @@ public class EpicsXspress3ControllerPvProvider {
 	protected PV<Boolean> pvHDFAttributes;
 	protected PV<Boolean> pvHDFPerformance;
 	protected PV<Integer> pvHDFNumFramesChunks;
-
-	// protected PV<CAPTURE_CTRL_RBV> pvAllElementSumStartStopFileWriting;
-	// protected ReadOnlyPV<CAPTURE_CTRL_RBV> pvAllElementSumIsFileWriting;
-	// protected ReadOnlyPV<Integer> pvAllElementSumGetFileWritingStatus;
-	// protected PV<String> pvAllElementSumSetFilePath;
-	// protected ReadOnlyPV<String> pvAllElementSumGetFilePath;
-	// protected PV<String> pvAllElementSumSetFilePrefix;
-	// protected ReadOnlyPV<String> pvAllElementSumGetFilePrefix;
-	// protected PV<Integer> pvAllElementSumNextFileNumber;
-	// protected PV<Integer> pvAllElementSumExtraDimensions;
-	// protected PV<Integer> pvAllElementSumExtraDimN;
-	// protected PV<Integer> pvAllElementSumExtraDimX;
-	// protected PV<Integer> pvAllElementSumExtraDimY;
-	// protected PV<Boolean> pvAllElementSumHDFAutoIncrement;
-	// protected PV<Integer> pvAllElementSumHDFNumCapture;
 
 	public EpicsXspress3ControllerPvProvider(String epicsTemplate, int numberOfDetectorChannels) throws FactoryException {
 		this.numberOfDetectorChannels = numberOfDetectorChannels;
@@ -295,6 +248,9 @@ public class EpicsXspress3ControllerPvProvider {
 	}
 
 	private void createFileWritingPVs() {
+		pvSetFileEnableCallbacks = LazyPVFactory.newEnumPV(generatePVName(FILE_ENABLE_CALLBACKS), UPDATE_CTRL.class);
+		pvSetFileArrayCounter = LazyPVFactory.newIntegerPV(generatePVName(FILE_ARRAY_COUNTER));
+		pvSetFileCaptureMode = LazyPVFactory.newEnumPV(generatePVName(FILE_CAPTURE_MODE), CAPTURE_MODE.class);
 		pvStartStopFileWriting =  LazyPVFactory.newEnumPV(generatePVName(STARTSTOP_FILE_WRITING),CAPTURE_CTRL_RBV.class);
 		pvIsFileWriting = LazyPVFactory.newReadOnlyEnumPV(generatePVName(FILE_WRITING_RBV),CAPTURE_CTRL_RBV.class);
 		pvSetFilePath = LazyPVFactory.newStringFromWaveformPV(generatePVName(FILE_PATH));
@@ -314,21 +270,6 @@ public class EpicsXspress3ControllerPvProvider {
 		pvExtraDimN = LazyPVFactory.newIntegerPV(generatePVName(EXTRA_DIM_N));
 		pvExtraDimX = LazyPVFactory.newIntegerPV(generatePVName(EXTRA_DIM_X));
 		pvExtraDimY = LazyPVFactory.newIntegerPV(generatePVName(EXTRA_DIM_Y));
-
-//		pvAllElementSumStartStopFileWriting =  LazyPVFactory.newEnumPV(generatePVName(ALL_EL_STARTSTOP_FILE_WRITING),CAPTURE_CTRL_RBV.class);
-//		pvAllElementSumIsFileWriting = LazyPVFactory.newReadOnlyEnumPV(generatePVName(ALL_EL_FILE_WRITING_RBV),CAPTURE_CTRL_RBV.class);
-//		pvAllElementSumSetFilePath = LazyPVFactory.newStringFromWaveformPV(generatePVName(ALL_EL_FILE_PATH));
-//		pvAllElementSumGetFilePath = LazyPVFactory.newReadOnlyStringFromWaveformPV(generatePVName(ALL_EL_FILE_PATH_RBV));
-//		pvAllElementSumSetFilePrefix = LazyPVFactory.newStringFromWaveformPV(generatePVName(ALL_EL_FILE_PREFIX));
-//		pvAllElementSumGetFilePrefix = LazyPVFactory.newReadOnlyStringFromWaveformPV(generatePVName(ALL_EL_FILE_PREFIX_RBV));
-//		pvAllElementSumNextFileNumber = LazyPVFactory.newIntegerPV(generatePVName(ALL_EL_NEXT_FILENUMBER));
-//		pvAllElementSumHDFAutoIncrement = LazyPVFactory.newBooleanFromEnumPV(generatePVName(ALL_EL_FILE_AUTOINCREMENT));
-//		pvAllElementSumHDFNumCapture = LazyPVFactory.newIntegerPV(generatePVName(ALL_EL_FILE_NUMCAPTURE));
-//		pvAllElementSumExtraDimensions = LazyPVFactory.newIntegerPV(generatePVName(ALL_EL_EXTRA_DIMS));
-//		pvAllElementSumExtraDimN = LazyPVFactory.newIntegerPV(generatePVName(ALL_EL_EXTRA_DIM_N));
-//		pvAllElementSumExtraDimX = LazyPVFactory.newIntegerPV(generatePVName(ALL_EL_EXTRA_DIM_X));
-//		pvAllElementSumExtraDimY = LazyPVFactory.newIntegerPV(generatePVName(ALL_EL_EXTRA_DIM_Y));
-
 	}
 
 	@SuppressWarnings("unchecked")
@@ -342,25 +283,6 @@ public class EpicsXspress3ControllerPvProvider {
 			pvsChannelEnable[channel - 1] = LazyPVFactory.newEnumPV(generatePVName(CHANNEL_ENABLE_TEMPLATE, channel),
 					UPDATE_RBV.class);
 		}
-
-		// pvSetScalerUpdate =
-		// LazyPVFactory.newEnumPV(generatePVName(SCALER_UPDATE_SUFFIX),UPDATE_CTRL.class);
-		// pvGetScalerUpdate =
-		// LazyPVFactory.newReadOnlyEnumPV(generatePVName(SCALER_UPDATE_RBV_SUFFIX),UPDATE_RBV.class);
-		// pvScalerUpdatePeriod =
-		// LazyPVFactory.newIntegerPV(generatePVName(SCALER_UPDATE_PERIOD_SUFFIX));
-		// pvSetMCAUpdate =
-		// LazyPVFactory.newEnumPV(generatePVName(MCA_UPDATE_SUFFIX),UPDATE_CTRL.class);
-		// pvGetMCAUpdate =
-		// LazyPVFactory.newReadOnlyEnumPV(generatePVName(MCA_UPDATE_RBV_SUFFIX),UPDATE_RBV.class);
-		// pvMCAUpdatePeriod =
-		// LazyPVFactory.newIntegerPV(generatePVName(MCA_UPDATE_PERIOD_SUFFIX));
-		// pvSetSCAROIUpdate =
-		// LazyPVFactory.newEnumPV(generatePVName(SCA_UPDATE_SUFFIX),UPDATE_CTRL.class);
-		// pvGetSCAROIUpdate =
-		// LazyPVFactory.newReadOnlyEnumPV(generatePVName(SCA_UPDATE_RBV_SUFFIX),UPDATE_RBV.class);
-		// pvSCAROIUpdatePeriod =
-		// LazyPVFactory.newIntegerPV(generatePVName(SCA_UPDATE_PERIOD_SUFFIX));
 	}
 
 	@SuppressWarnings("unchecked")

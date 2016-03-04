@@ -25,7 +25,9 @@ import gda.scan.ScanInformation;
 
 import java.io.File;
 
+import uk.ac.gda.devices.detector.xspress3.CAPTURE_MODE;
 import uk.ac.gda.devices.detector.xspress3.ReadyForNextRow;
+import uk.ac.gda.devices.detector.xspress3.UPDATE_CTRL;
 import uk.ac.gda.devices.detector.xspress3.Xspress3Controller;
 
 /* This class is used for testing Xspress3 v2 and will replace in the long run Xspress3ScanOperations. A new class was needed in order not to interfere with
@@ -92,9 +94,13 @@ public class Xspress3ScanOperationsv2 {
 	 * Must be called after currentScanNumber updated SR it seems that from scanBase the prepareForCollection for detectors is called after prepareScanNumber
 	 */
 	private void prepareFileWriting(int[] numDimensions) throws DeviceException {
-
+		// make sure that the callback is enable before to start a scan otherwise no data can be saved in the HDF5 file.
+		controller.setFileEnableCallBacks(UPDATE_CTRL.Enable);
+		// make sure that the Capture Mode is et to Stream otherwise the scan file
+		controller.setFileCaptureMode(CAPTURE_MODE.Stream);
+		// make sure that it sets otherwise if Array counter is always adding and not resetting EPICs could failed
+		controller.setFileArrayCounter(0);
 		String scanNumber = Long.toString(currentScanNumber);
-
 		// /dls/iXX/20XX/cm1234-5/tmp/xspress3/12345/0.hdf
 		String filePath = PathConstructor.createFromRCPProperties();
 		filePath += "tmp" + File.separator + detectorName + File.separator + scanNumber;

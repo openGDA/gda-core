@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2016 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -16,9 +16,8 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.devices.detector.xspress3.controllerimpl;
+package uk.ac.gda.devices.detector.xspress3;
 
-public enum UPDATE_CTRL {
-	Disable,
-	Enable
+public enum CAPTURE_MODE {
+	Single, Capture, Stream
 }

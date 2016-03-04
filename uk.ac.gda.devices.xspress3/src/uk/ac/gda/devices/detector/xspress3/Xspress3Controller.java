@@ -23,30 +23,22 @@ import gda.factory.FactoryException;
 import gda.factory.Findable;
 
 /**
- * Xspress3 is a generic electronic readout chain for up to 8 MCAs. Data is held
- * in memory in 'frames' and can be randomly accessed.
+ * Xspress3 is a generic electronic readout chain for up to 8 MCAs. Data is held in memory in 'frames' and can be randomly accessed.
  * <p>
- * It does not provide timing control and this must be provided externally and a
- * gate signal given to the Xspress3 box. So this class must always be used in
+ * It does not provide timing control and this must be provided externally and a gate signal given to the Xspress3 box. So this class must always be used in
  * conjunction with something which provides that timing e.g. TFG.
  * <p>
- * Direct readout is provided by an EPICS layer. The EPICS writes HDF5 files
- * which hold scaler, ROI, MCA and deadtime data. A maximum of 4 ROI are
- * available (sofwtare ROI in the EPICS layer), and 2 windows are available in
- * the scalers (Xspress3 defined).
+ * Direct readout is provided by an EPICS layer. The EPICS writes HDF5 files which hold scaler, ROI, MCA and deadtime data. A maximum of 4 ROI are available
+ * (sofwtare ROI in the EPICS layer), and 2 windows are available in the scalers (Xspress3 defined).
  * <p>
- * The EPICS layer provides access to the scaler, ROI, and progress information.
- * It also provides the 'latest' MCA data for online visualisation, although
- * access to this data would not be quick enough for full data reduction /
- * analysis purposes.
+ * The EPICS layer provides access to the scaler, ROI, and progress information. It also provides the 'latest' MCA data for online visualisation, although
+ * access to this data would not be quick enough for full data reduction / analysis purposes.
  * <p>
  * This class is the GDA interface to the EPICS Xspress3 template.
  * <p>
- * In GDA, arrays are zero based. In EPICS, arrays are 1 based. So input
- * parameters to this interface, and results from this interface are all zero
- * based.
+ * In GDA, arrays are zero based. In EPICS, arrays are 1 based. So input parameters to this interface, and results from this interface are all zero based.
  */
-public interface Xspress3Controller extends Findable{
+public interface Xspress3Controller extends Findable {
 
 	// from acquisition control and status panel
 	public void doStart() throws DeviceException;
@@ -60,10 +52,6 @@ public interface Xspress3Controller extends Findable{
 	public boolean isSavingFiles() throws DeviceException;
 
 	public void setSavingFiles(Boolean saveFiles) throws DeviceException;
-
-//	public void setHDFFileDimensions(int[] dimensions) throws DeviceException;
-//
-//	public int[] getHDFFileDimensions() throws DeviceException;
 
 	public void setHDFFileAutoIncrement(boolean b) throws DeviceException;
 
@@ -87,15 +75,13 @@ public interface Xspress3Controller extends Findable{
 	public String getStatusMessage() throws DeviceException;
 
 	/**
-	 * @return - matches values in the Detector interface getStatus().
-	 *         {@link #Detector.getStatus()}
+	 * @return - matches values in the Detector interface getStatus(). {@link #Detector.getStatus()}
 	 * @throws DeviceException
 	 */
 	public int getStatus() throws DeviceException;
 
 	/**
-	 * @return - the total number of frames of data available in memory for
-	 *         reading out.
+	 * @return - the total number of frames of data available in memory for reading out.
 	 * @throws DeviceException
 	 */
 	public int getTotalFramesAvailable() throws DeviceException; // ?
@@ -109,8 +95,7 @@ public interface Xspress3Controller extends Findable{
 	/**
 	 * Dead-time corrected in-window scaler counts, for window 1
 	 * <p>
-	 * Use the value from {@link #getNumFramesAvailable()} to know what frames
-	 * will have valid data in
+	 * Use the value from {@link #getNumFramesAvailable()} to know what frames will have valid data in
 	 *
 	 * @param startFrame
 	 * @param finalFrame
@@ -118,14 +103,12 @@ public interface Xspress3Controller extends Findable{
 	 * @param finalChannel
 	 * @return Double[frame][channel]
 	 */
-	public Double[][] readoutDTCorrectedSCA1(int startFrame, int finalFrame, int startChannel, int finalChannel)
-			throws DeviceException;
+	public Double[][] readoutDTCorrectedSCA1(int startFrame, int finalFrame, int startChannel, int finalChannel) throws DeviceException;
 
 	/**
 	 * Dead-time corrected in-window scaler counts, for window 2
 	 * <p>
-	 * Use the value from {@link #getNumFramesAvailable()} to know what frames
-	 * will have valid data in
+	 * Use the value from {@link #getNumFramesAvailable()} to know what frames will have valid data in
 	 *
 	 * @param startFrame
 	 * @param finalFrame
@@ -133,43 +116,36 @@ public interface Xspress3Controller extends Findable{
 	 * @param finalChannel
 	 * @return Double[frame][channel]
 	 */
-	public Double[][] readoutDTCorrectedSCA2(int startFrame, int finalFrame, int startChannel, int finalChannel)
-			throws DeviceException;
+	public Double[][] readoutDTCorrectedSCA2(int startFrame, int finalFrame, int startChannel, int finalChannel) throws DeviceException;
 
 	/**
 	 * Array of scaler stats.
 	 * <p>
-	 * Use the value from {@link #getNumFramesAvailable()} to know what frames
-	 * will have valid data in
+	 * Use the value from {@link #getNumFramesAvailable()} to know what frames will have valid data in
 	 *
 	 * @param startFrame
 	 * @param finalFrame
 	 * @param startChannel
 	 * @param finalChannel
-	 * @return int[frame][channel][time,reset ticks, reset counts,all events,
-	 *         all goodEvents, pileup counts]
+	 * @return int[frame][channel][time,reset ticks, reset counts,all events, all goodEvents, pileup counts]
 	 */
-	public Integer[][][] readoutScalerValues(int startFrame, int finalFrame, int startChannel, int finalChannel)
-			throws DeviceException;
+	public Integer[][][] readoutScalerValues(int startFrame, int finalFrame, int startChannel, int finalChannel) throws DeviceException;
 
 	/**
 	 * The dead-time parameters
 	 * <p>
-	 * Use the value from {@link #getNumFramesAvailable()} to know what frames
-	 * will have valid data in
+	 * Use the value from {@link #getNumFramesAvailable()} to know what frames will have valid data in
 	 *
 	 * @param startChannel
 	 * @param finalChannel
-	 * @return int[channel][allGoodGradient,allGoodOffset,inWindowGradient,
-	 *         inWindowOffset]
+	 * @return int[channel][allGoodGradient,allGoodOffset,inWindowGradient, inWindowOffset]
 	 */
 	public Integer[][] readoutDTCParameters(int startChannel, int finalChannel) throws DeviceException;
 
 	/**
 	 * The deadtime corrected number of counts in each ROI.
 	 * <p>
-	 * Use the value from {@link #getNumFramesAvailable()} to know what frames
-	 * will have valid data in
+	 * Use the value from {@link #getNumFramesAvailable()} to know what frames will have valid data in
 	 *
 	 * @param startFrame
 	 * @param finalFrame
@@ -177,12 +153,10 @@ public interface Xspress3Controller extends Findable{
 	 * @param finalChannel
 	 * @return Double[frame][detector channel][ROIs]
 	 */
-	public Double[][][] readoutDTCorrectedROI(int startFrame, int finalFrame, int startChannel, int finalChannel)
-			throws DeviceException;
+	public Double[][][] readoutDTCorrectedROI(int startFrame, int finalFrame, int startChannel, int finalChannel) throws DeviceException;
 
 	/**
-	 * @return the number of roi which will be read out by the
-	 *         readoutDTCorrectedROI method.
+	 * @return the number of roi which will be read out by the readoutDTCorrectedROI method.
 	 */
 	public int getNumberROIToRead();
 
@@ -195,11 +169,9 @@ public interface Xspress3Controller extends Findable{
 	public void setNumberROIToRead(int numRoiToRead) throws IllegalArgumentException;
 
 	/**
-	 * The latest available MCA in the record. When running a series of time
-	 * frames, there is no guarentee how up to date this is.
+	 * The latest available MCA in the record. When running a series of time frames, there is no guarentee how up to date this is.
 	 * <p>
-	 * This is only for indicating the quality of the MCA rather than returning
-	 * a specific MCA spectrum.
+	 * This is only for indicating the quality of the MCA rather than returning a specific MCA spectrum.
 	 * <p>
 	 * The MCA will be written to file by the underlying EPICS.
 	 *
@@ -301,5 +273,11 @@ public interface Xspress3Controller extends Findable{
 
 	public ReadyForNextRow monitorReadyForNextRow(ReadyForNextRow readyForNextRow) throws DeviceException;
 
-	public int monitorSavingFile(int status) throws DeviceException;
+	public void setFileEnableCallBacks(UPDATE_CTRL callback) throws DeviceException;
+
+	public void setFileCaptureMode(CAPTURE_MODE captureMode) throws DeviceException;
+
+	public void setFileArrayCounter(int arrayCounter) throws DeviceException;
+
 }
+

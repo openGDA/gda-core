@@ -221,18 +221,24 @@ public class Xspress3DataOperationsv2 {
 		INexusTree detTree = thisFrame.getDetTree(detectorName);
 
 		// add the FF (sum over all rois, over all channels)
-		thisFrame.addData(detTree, sumLabel, new NexusGroupData(theFF), unitsLabel, 1);
+		NXDetectorData.addData(detTree, sumLabel, new NexusGroupData(theFF), unitsLabel, 1);
 
 		// add rois
 		for (int roi = 0; roi < numRois; roi++) {
-			thisFrame.addData(detTree, rois[roi].getRoiName(), new NexusGroupData(roiValues[roi]), unitsLabel, 2);
+			NexusGroupData roiData = new NexusGroupData(roiValues[roi]);
+			roiData.chunkDimensions = new int[] { roiValues[roi].length };
+			NXDetectorData.addData(detTree, rois[roi].getRoiName(), roiData, unitsLabel, 2);
 		}
 
 		// add MCAs
-		thisFrame.addData(detTree, mcaLabel, new NexusGroupData(mcasFromFile), unitsLabel, 2);
+		NexusGroupData mcaData = new NexusGroupData(mcasFromFile);
+		mcaData.chunkDimensions = new int[] { mcasFromFile.length, mcasFromFile[0].length };
+		NXDetectorData.addData(detTree, mcaLabel, mcaData, unitsLabel, 2);
 
 		// add all element sum
-		thisFrame.addData(detTree, allElementSumLabel, new NexusGroupData(allElementSum), unitsLabel, 2);
+		NexusGroupData sumData = new NexusGroupData(allElementSum);
+		sumData.chunkDimensions = new int[] { allElementSum.length };
+		NXDetectorData.addData(detTree, allElementSumLabel, sumData, unitsLabel, 2);
 
 		// add plottable values
 		int index = 0;
@@ -261,9 +267,6 @@ public class Xspress3DataOperationsv2 {
 		int numFramesAvailable;
 		int driverNumFramesAvailable = 0;
 		if (readDataFromFile) {
-			int hdfStatus = controller.monitorSavingFile(0);
-			if (hdfStatus == 1)
-				throw new DeviceException("HDF file writer plugin is still saving file!");
 			numFramesAvailable = controller.getTotalHDFFramesAvailable();
 			driverNumFramesAvailable = controller.getTotalFramesAvailable();
 			logger.info("controller.getTotalHDFFramesAvailable():" + controller.getTotalHDFFramesAvailable());

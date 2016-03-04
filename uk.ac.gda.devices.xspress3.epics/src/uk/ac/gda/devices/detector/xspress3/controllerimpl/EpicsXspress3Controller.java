@@ -32,8 +32,10 @@ import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.gda.devices.detector.xspress3.CAPTURE_MODE;
 import uk.ac.gda.devices.detector.xspress3.ReadyForNextRow;
 import uk.ac.gda.devices.detector.xspress3.TRIGGER_MODE;
+import uk.ac.gda.devices.detector.xspress3.UPDATE_CTRL;
 import uk.ac.gda.devices.detector.xspress3.Xspress3Controller;
 
 /**
@@ -245,6 +247,35 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 			return pvProvider.pvGetTrigMode.get();
 		} catch (IOException e) {
 			throw new DeviceException("IOException while getting trigger mode", e);
+		}
+	}
+
+	@Override
+	public void setFileEnableCallBacks(UPDATE_CTRL callback) throws DeviceException {
+		try {
+			pvProvider.pvSetFileEnableCallbacks.putWait(callback);
+		} catch (IOException e) {
+			throw new DeviceException("IOException while setting File EnableCallbacks", e);
+		}
+
+	}
+
+	@Override
+	public void setFileCaptureMode(CAPTURE_MODE captureMode) throws DeviceException {
+		try {
+			pvProvider.pvSetFileCaptureMode.putWait(captureMode);
+		} catch (IOException e) {
+			throw new DeviceException("IOException while setting File Capture Mode", e);
+		}
+
+	}
+
+	@Override
+	public void setFileArrayCounter(int arrayCounter) throws DeviceException {
+		try {
+			pvProvider.pvSetFileArrayCounter.putWait(arrayCounter);
+		} catch (IOException e) {
+			throw new DeviceException("IOException while setting File array counter", e);
 		}
 	}
 
@@ -850,17 +881,6 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 		return numPointsAvailable;
 	}
 
-	@Override
-	public int monitorSavingFile(int status) throws DeviceException {
-		int newStatus = 0;
-		try {
-			newStatus = pvProvider.pvUpdateArraysAvailableFrame.waitForValue(new GreaterThanOrEqualTo(status), TIMEOUTS_MONITORING);
-		} catch (Exception e) {
-			throw new DeviceException("Problem while waiting for saving file: " + newStatus, e);
-		}
-
-		return newStatus;
-	}
 
 	@Override
 	public ReadyForNextRow monitorReadyForNextRow(ReadyForNextRow readyForNextRow) throws DeviceException {
