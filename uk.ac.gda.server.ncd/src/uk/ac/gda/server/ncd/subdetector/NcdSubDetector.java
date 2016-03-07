@@ -72,7 +72,6 @@ public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
 			return;
 		try {
 			configuration = LocalParameters.getXMLConfiguration(this.getClass().getCanonicalName()+":"+getName());
-			configuration.load();
 			for (Iterator iterator = configuration.getKeys(); iterator.hasNext();) {
 				String name = (String) iterator.next();
 				if (attributeMap.containsKey(name))
