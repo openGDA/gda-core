@@ -19,7 +19,6 @@ Starts the server as an Eclipse OSGI application
       <programArgs>--launcher.appendVmargs
       </programArgs>
       <vmArgs>-Dosgi.gda.application=true
--Djava.ext.dirs=${workspace_loc:uk.ac.diamond.org.springframework/jars}
       </vmArgs>
       <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
       </vmArgsMac>
