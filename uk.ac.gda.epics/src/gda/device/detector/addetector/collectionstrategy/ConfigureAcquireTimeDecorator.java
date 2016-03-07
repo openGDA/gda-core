@@ -29,7 +29,7 @@ public class ConfigureAcquireTimeDecorator extends AbstractADCollectionStrategyD
 
 	private boolean restoreAcquireTime = false;
 
-	private double acquireTime;
+	private double acquireTimeSaved;
 
 	// NXCollectionStrategyPlugin interface
 
@@ -48,22 +48,22 @@ public class ConfigureAcquireTimeDecorator extends AbstractADCollectionStrategyD
 		logger.trace("saveState() called, restoreAcquireTime={}", restoreAcquireTime);
 		getDecoratee().saveState();
 		if (restoreAcquireTime) {
-			acquireTime = getAdBase().getAcquireTime();
-			logger.debug("Saved State now acquireTime={}", acquireTime);
+			acquireTimeSaved = getAdBase().getAcquireTime();
+			logger.debug("Saved State now acquireTimeSaved={}", acquireTimeSaved);
 		}
 	}
 
 	@Override
 	public void restoreState() throws Exception {
-		logger.trace("restoreState() called, restoreAcquireTime={}, acquireTime={}", restoreAcquireTime, acquireTime);
+		logger.trace("restoreState() called, restoreAcquireTime={}, acquireTimeSaved={}", restoreAcquireTime, acquireTimeSaved);
 		if (restoreAcquireTime) {
 			final int acquireStatus = getAdBase().getAcquireState(); // TODO: Not all detectors need detector to be stopped to set time
 			getAdBase().stopAcquiring();
-			getAdBase().setAcquireTime(acquireTime);
+			getAdBase().setAcquireTime(acquireTimeSaved);
 			if (acquireStatus == 1) {
 				getAdBase().startAcquiring();
 			}
-			logger.debug("Restored state to acquireTime={} (stop/restart={})", acquireTime, acquireStatus);
+			logger.debug("Restored state to acquireTimeSaved={} (stop/restart={})", acquireTimeSaved, acquireStatus);
 		}
 		getDecoratee().restoreState();
 	}
