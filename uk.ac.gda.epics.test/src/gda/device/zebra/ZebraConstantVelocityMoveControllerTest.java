@@ -167,8 +167,8 @@ public class ZebraConstantVelocityMoveControllerTest {
 
 	@Test
 	public void testGetPcCaptureBitField() {
-		assertEquals(1, controller.getPcCaptureBitField(0));
-		assertEquals(2, controller.getPcCaptureBitField(1));
+		assertEquals(1, ZebraConstantVelocityMoveController.getPcCaptureBitField(0));
+		assertEquals(2, ZebraConstantVelocityMoveController.getPcCaptureBitField(1));
 	}
 
 	@Test

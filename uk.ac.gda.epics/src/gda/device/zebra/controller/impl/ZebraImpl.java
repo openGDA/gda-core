@@ -41,96 +41,96 @@ import com.google.common.base.Preconditions;
 public class ZebraImpl implements Zebra, Findable, InitializingBean {
 
 	private static final Logger logger = LoggerFactory.getLogger(ZebraImpl.class);
-	String name="zebra";
+	private String name="zebra";
 
-	final public static int SysSignalMin = 0;
-	final public static int SysSignalMax = 63;
+	private static final int SysSignalMin = 0;
+	private static final int SysSignalMax = 63;
 
-	final public static String connected = "CONNECTED";
-	final public static String store = "STORE";
-	final public static String sysReset = "SYS_RESET";
-	final public static String sysResetProc = "SYS_RESET.PROC";
-	final public static String sysVer = "SYS_VER";
-	final public static String sysStat1Lo = "SYS_STAT1LO";
-	final public static String sysStat1Hi = "SYS_STAT1HI";
-	final public static String sysStat1 = "SYS_STAT1";
-	final public static String sysStat2Lo = "SYS_STAT2LO";
-	final public static String sysStat2Hi = "SYS_STAT2HI";
-	final public static String sysStat2 = "SYS_STAT2";
-	final public static String sysErrState = "SYS_STATERR";
+	private static final String connected = "CONNECTED";
+	private static final String store = "STORE";
+	private static final String sysReset = "SYS_RESET";
+	private static final String sysResetProc = "SYS_RESET.PROC";
+	private static final String sysVer = "SYS_VER";
+	private static final String sysStat1Lo = "SYS_STAT1LO";
+	private static final String sysStat1Hi = "SYS_STAT1HI";
+	private static final String sysStat1 = "SYS_STAT1";
+	private static final String sysStat2Lo = "SYS_STAT2LO";
+	private static final String sysStat2Hi = "SYS_STAT2HI";
+	private static final String sysStat2 = "SYS_STAT2";
+	private static final String sysErrState = "SYS_STATERR";
 
-	final public static String PCSource = "PC_ENC";
-	final public static String PCTimeUnits = "PC_TSPRE";
-	final public static String PCTimeUnits_ms = "ms";
-	final public static String PCTimeUnits_s = "s";
+	private static final String PCSource = "PC_ENC";
+	private static final String PCTimeUnits = "PC_TSPRE";
+	private static final String PCTimeUnits_ms = "ms";
+	private static final String PCTimeUnits_s = "s";
 
-	final public static String PCArmSource = "PC_ARM_SEL";
-	final public static String PCArm = "PC_ARM";
-	final public static String PCDisArm = "PC_DISARM";
-	final public static String PCArmOut = "PC_ARM_OUT";
-	final public static String PCArmSourceSoft = "Soft";
-	final public static String PCArmSourceExternal = "External";
-	final public static String PCDir = "PC_DIR";
+	private static final String PCArmSource = "PC_ARM_SEL";
+	private static final String PCArm = "PC_ARM";
+	private static final String PCDisArm = "PC_DISARM";
+	private static final String PCArmOut = "PC_ARM_OUT";
+	private static final String PCArmSourceSoft = "Soft";
+	private static final String PCArmSourceExternal = "External";
+	private static final String PCDir = "PC_DIR";
 
-	final public static double PCGateStartMin = -214881.9984;
-	final public static double PCGateStartMax =  214881.9984;
-	final public static double PCGateWidthMin =       0.0000;
-	final public static double PCGateWidthMax =  214881.9984;
-	final public static double PCGateStepMin =       0.0000;
-	final public static double PCGateStepMax =  214881.9984;
-	final public static int PCGateNumberOfGatesMin = 0;
-	final public static int PCGateNumberOfGatesMax = 2147483647;
+	private static final double PCGateStartMin = -214881.9984;
+	private static final double PCGateStartMax =  214881.9984;
+	private static final double PCGateWidthMin =       0.0000;
+	private static final double PCGateWidthMax =  214881.9984;
+	private static final double PCGateStepMin =       0.0000;
+	private static final double PCGateStepMax =   214881.9984;
+	private static final int PCGateNumberOfGatesMin = 0;
+	private static final int PCGateNumberOfGatesMax = 2147483647;
 
-	final public static String PCGateSource = "PC_GATE_SEL";
-	final public static String PCGateStart = "PC_GATE_START";
-	final public static String PCGateWidth = "PC_GATE_WID";
-	final public static String PCGateNumberOfGates = "PC_GATE_NGATE";
-	final public static String PCGateStep = "PC_GATE_STEP";
-	final public static String PCGateStatus = "PC_GATE_OUT";
+	private static final String PCGateSource = "PC_GATE_SEL";
+	private static final String PCGateStart = "PC_GATE_START";
+	private static final String PCGateWidth = "PC_GATE_WID";
+	private static final String PCGateNumberOfGates = "PC_GATE_NGATE";
+	private static final String PCGateStep = "PC_GATE_STEP";
+	private static final String PCGateStatus = "PC_GATE_OUT";
 
-	final public static double PCPulseDelayMin =       0.0000;
-	final public static double PCPulseDelayMax =  214881.9984;
-	final public static double PCPulseWidthMin =       0.0000;
-	final public static double PCPulseWidthMax =  214881.9984;
-	final public static double PCPulseStepMin  =       0.0016;
-	final public static double PCPulseStepMax  =  214881.9984;
+	private static final double PCPulseDelayMin =       0.0000;
+	private static final double PCPulseDelayMax =  214881.9984;
+	private static final double PCPulseWidthMin =       0.0000;
+	private static final double PCPulseWidthMax =  214881.9984;
+	private static final double PCPulseStepMin  =       0.0016;
+	private static final double PCPulseStepMax  =  214881.9984;
 
-	final public static String PCPulseSource = "PC_PULSE_SEL";
-	final public static String PCPulseDelay = "PC_PULSE_DLY";
-	final public static String PCPulseStart = "PC_PULSE_START";
-	final public static String PCPulseWidth = "PC_PULSE_WID";
-	final public static String PCPulseStep = "PC_PULSE_STEP";
-	final public static String PCPulseStatus = "PC_PULSE_OUT";
+	private static final String PCPulseSource = "PC_PULSE_SEL";
+	private static final String PCPulseDelay = "PC_PULSE_DLY";
+	private static final String PCPulseStart = "PC_PULSE_START";
+	private static final String PCPulseWidth = "PC_PULSE_WID";
+	private static final String PCPulseStep = "PC_PULSE_STEP";
+	private static final String PCPulseStatus = "PC_PULSE_OUT";
 
-	final public static int PCPulsePulseMaxMin = 0;
-	final public static int PCPulsePulseMaxMax = 2147483647;
+	private static final int PCPulsePulseMaxMin = 0;
+	private static final int PCPulsePulseMaxMax = 2147483647;
 
-	public static final String PCCaptureBitField = "PC_BIT_CAP";
-	public static final String PCEnc = "PC_ENC";
-	public static final String PCEnc1Aval = "PC_ENC1";
-	public static final String PCTime = "PC_TIME";
-	public static final String PCNumberOfPointsCaptured = "PC_NUM_CAP";
-	public static final String PCNumberOfPointsDownloaded = "PC_NUM_DOWN";
-	public static final String PCPulseStepRBV = "PC_PULSE_STEP:RBV";
-	public static final String PCPulseWidthRBV = "PC_PULSE_WID:RBV";
-	public static final String PCPulseDelayRBV = "PC_PULSE_DLY:RBV";
-	final public static String PCGateStartRBV = "PC_GATE_START:RBV";
-	final public static String PCGateWidthRBV = "PC_GATE_WID:RBV";
-	final public static String PCTimeUnit = "PC_TSPRE";
+	private static final String PCCaptureBitField = "PC_BIT_CAP";
+	private static final String PCEnc = "PC_ENC";
+	private static final String PCEnc1Aval = "PC_ENC1";
+	private static final String PCTime = "PC_TIME";
+	private static final String PCNumberOfPointsCaptured = "PC_NUM_CAP";
+	private static final String PCNumberOfPointsDownloaded = "PC_NUM_DOWN";
+	private static final String PCPulseStepRBV = "PC_PULSE_STEP:RBV";
+	private static final String PCPulseWidthRBV = "PC_PULSE_WID:RBV";
+	private static final String PCPulseDelayRBV = "PC_PULSE_DLY:RBV";
+	private static final String PCGateStartRBV = "PC_GATE_START:RBV";
+	private static final String PCGateWidthRBV = "PC_GATE_WID:RBV";
+	private static final String PCTimeUnit = "PC_TSPRE";
 	private static final String PCPulseMax = "PC_PULSE_MAX";
-	public static final String PCArmInput="PC_ARM_INP";
+	private static final String PCArmInput="PC_ARM_INP";
 
 	private static final String SYS_SOFT_IN_PV = "SOFT_IN";
 
-	final public static double PulseDelayMin = 0.0001;
-	final public static double PulseDelayMax = 6.5535;
+	private static final double PulseDelayMin = 0.0001;
+	private static final double PulseDelayMax = 6.5535;
 
-	final public static double PulseWidthMin = 0.0001;
-	final public static double PulseWidthMax = 6.5535;
+	private static final double PulseWidthMin = 0.0001;
+	private static final double PulseWidthMax = 6.5535;
 
-	String zebraPrefix;
+	private String zebraPrefix;
 
-	CachedLazyPVFactory dev;
+	private CachedLazyPVFactory pvFactory;
 	private boolean useAvalField=false;
 
 	public boolean isUseAvalField() {
@@ -151,87 +151,87 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 				val == PC_PULSE_SOURCE_TIME ||
 				val == PC_PULSE_SOURCE_EXTERNAL);
 
-		dev.getIntegerPVValueCache(PCPulseSource).putWait(val);
+		pvFactory.getIntegerPVValueCache(PCPulseSource).putWait(val);
 	}
 
 	@Override
 	public int getPCPulseSource() throws Exception {
-		return dev.getIntegerPVValueCache(PCPulseSource).get();
+		return pvFactory.getIntegerPVValueCache(PCPulseSource).get();
 	}
 
 	@Override
 	public void setPCPulseDelay(double val) throws Exception {
 		assert (PCPulseDelayMin <= val && val <= PCPulseDelayMax);
-		dev.getDoublePVValueCache(PCPulseDelayRBV).resetCache();
-		dev.getDoublePVValueCache(PCPulseDelay).putWait(val);
+		pvFactory.getDoublePVValueCache(PCPulseDelayRBV).resetCache();
+		pvFactory.getDoublePVValueCache(PCPulseDelay).putWait(val);
 	}
 
 	@Override
 	public double getPCPulseDelay() throws Exception {
-		return dev.getDoublePVValueCache(PCPulseDelay).get();
+		return pvFactory.getDoublePVValueCache(PCPulseDelay).get();
 	}
 
 	@Override
 	public double getPCPulseDelayRBV() throws Exception {
-		return dev.getDoublePVValueCache(PCPulseDelayRBV).get();
+		return pvFactory.getDoublePVValueCache(PCPulseDelayRBV).get();
 	}
 
 	@Override
 	public void setPCPulseStart(double val) throws Exception {
-		dev.getDoublePVValueCache(PCPulseStart).putWait(val);
+		pvFactory.getDoublePVValueCache(PCPulseStart).putWait(val);
 	}
 
 	@Override
 	public double getPCPulseStart() throws Exception {
-		return dev.getDoublePVValueCache(PCPulseStart).get();
+		return pvFactory.getDoublePVValueCache(PCPulseStart).get();
 	}
 	@Override
 	public double getPCPulseStartRBV() throws Exception {
-		return dev.getDoublePVValueCache(PCPulseStart).get();
+		return pvFactory.getDoublePVValueCache(PCPulseStart).get();
 	}
 
 	@Override
 	public void setPCPulseWidth(double val) throws Exception {
 		assert (PCPulseWidthMin <= val && val <= PCPulseWidthMax);
 		// TODO: PULSE_STEP *must* be bigger than PULSE_WID so warn here if it isn't!
-		dev.getDoublePVValueCache(PCPulseWidthRBV).resetCache();
-		dev.getDoublePVValueCache(PCPulseWidth).putWait(val);
+		pvFactory.getDoublePVValueCache(PCPulseWidthRBV).resetCache();
+		pvFactory.getDoublePVValueCache(PCPulseWidth).putWait(val);
 	}
 
 	@Override
 	public double getPCPulseWidth() throws Exception {
-		return dev.getDoublePVValueCache(PCPulseWidth).get();
+		return pvFactory.getDoublePVValueCache(PCPulseWidth).get();
 	}
 	@Override
 	public double getPCPulseWidthRBV() throws Exception {
-		return dev.getDoublePVValueCache(PCPulseWidthRBV).get();
+		return pvFactory.getDoublePVValueCache(PCPulseWidthRBV).get();
 	}
 
 	@Override
 	public void setPCPulseStep(double val) throws Exception {
 		assert (PCPulseStepMin <= val && val <= PCPulseStepMax);
-		dev.getDoublePVValueCache(PCPulseStepRBV).resetCache();
-		dev.getDoublePVValueCache(PCPulseStep).putWait(val);
+		pvFactory.getDoublePVValueCache(PCPulseStepRBV).resetCache();
+		pvFactory.getDoublePVValueCache(PCPulseStep).putWait(val);
 	}
 
 	@Override
 	public double getPCPulseStep() throws Exception {
-		return dev.getDoublePVValueCache(PCPulseStep).get();
+		return pvFactory.getDoublePVValueCache(PCPulseStep).get();
 	}
 	@Override
 	public double getPCPulseStepRBV() throws Exception {
-		return dev.getDoublePVValueCache(PCPulseStepRBV).get();
+		return pvFactory.getDoublePVValueCache(PCPulseStepRBV).get();
 	}
 
 	@Override
 	public int getPCPulseMax() throws Exception {
-		return dev.getIntegerPVValueCache(PCPulseMax).get();
+		return pvFactory.getIntegerPVValueCache(PCPulseMax).get();
 	}
 
 	@Override
 	public void setPCPulseMax(int val) throws Exception {
 		assert (PCPulsePulseMaxMin <= val && val <= PCPulsePulseMaxMax);
-		dev.getIntegerPVValueCache(PCPulseMax).putWait(val);
+		pvFactory.getIntegerPVValueCache(PCPulseMax).putWait(val);
 	}
 
 	@Override
@@ -240,73 +240,73 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 				val == PC_GATE_SOURCE_TIME ||
 				val == PC_GATE_SOURCE_EXTERNAL);
 
-		dev.getIntegerPVValueCache(PCGateSource).putWait(val);
+		pvFactory.getIntegerPVValueCache(PCGateSource).putWait(val);
 	}
 
 	@Override
 	public int getPCGateSource() throws Exception {
-		return dev.getPVInteger(PCGateSource).get();
+		return pvFactory.getPVInteger(PCGateSource).get();
 	}
 
 	@Override
 	public void setPCGateStart(double val) throws Exception {
 		assert (PCGateStartMin <= val && val <= PCGateStartMax);
-		dev.getDoublePVValueCache(PCGateStartRBV).resetCache();
-		dev.getDoublePVValueCache(PCGateStart).putWait(val);
+		pvFactory.getDoublePVValueCache(PCGateStartRBV).resetCache();
+		pvFactory.getDoublePVValueCache(PCGateStart).putWait(val);
 	}
 
 	@Override
 	public double getPCGateStart() throws Exception {
-		return dev.getDoublePVValueCache(PCGateStart).get();
+		return pvFactory.getDoublePVValueCache(PCGateStart).get();
 	}
 	@Override
 	public double getPCGateStartRBV() throws Exception {
-		return dev.getDoublePVValueCache(PCGateStartRBV).get();
+		return pvFactory.getDoublePVValueCache(PCGateStartRBV).get();
 	}
 
 	@Override
 	public void setPCGateWidth(double val) throws Exception {
 		assert (PCGateWidthMin <= val && val <= PCGateWidthMax);
-		dev.getDoublePVValueCache(PCGateWidthRBV).resetCache();
-		dev.getDoublePVValueCache(PCGateWidth).putWait(val);
+		pvFactory.getDoublePVValueCache(PCGateWidthRBV).resetCache();
+		pvFactory.getDoublePVValueCache(PCGateWidth).putWait(val);
 	}
 
 	@Override
 	public double getPCGateWidth() throws Exception {
-		return dev.getDoublePVValueCache(PCGateWidth).get();
+		return pvFactory.getDoublePVValueCache(PCGateWidth).get();
 	}
 	@Override
 	public double getPCGateWidthRBV() throws Exception {
-		return dev.getDoublePVValueCache(PCGateWidthRBV).get();
+		return pvFactory.getDoublePVValueCache(PCGateWidthRBV).get();
 	}
 
 	@Override
 	public void setPCGateStep(double val) throws Exception {
 		assert (PCGateStepMin <= val && val <= PCGateStepMax);
-		dev.getDoublePVValueCache(PCGateStep).putWait(val);
+		pvFactory.getDoublePVValueCache(PCGateStep).putWait(val);
 	}
 
 	@Override
 	public double getPCGateStep() throws Exception {
-		return dev.getDoublePVValueCache(PCGateStep).get();
+		return pvFactory.getDoublePVValueCache(PCGateStep).get();
 	}
 
 	@Override
 	public void setPCArmSource(int val) throws Exception {
 		assert (val == PC_ARM_SOURCE_SOFT ||
 				val == PC_ARM_SOURCE_EXTERNAL);
-		dev.getIntegerPVValueCache(PCArmSource).putWait(val);
+		pvFactory.getIntegerPVValueCache(PCArmSource).putWait(val);
 	}
 
 	@Override
 	public int getPCArmSource() throws Exception {
-		return dev.getIntegerPVValueCache(PCArmSource).get();
+		return pvFactory.getIntegerPVValueCache(PCArmSource).get();
 	}
 
 	@Override
 	public void pcArm() throws Exception {
-		dev.getPVInteger(sysResetProc).putWait(1); // TODO: Do we really need to RESET before each Arm?
-		dev.getPVInteger(PCArm).putWait(1);
+		pvFactory.getPVInteger(sysResetProc).putWait(1); // TODO: Do we really need to RESET before each Arm?
+		pvFactory.getPVInteger(PCArm).putWait(1);
 		try {
 			Thread.sleep(2000);
 		} catch (InterruptedException e) {
@@ -316,22 +316,22 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 
 	@Override
 	public void pcDisarm() throws Exception {
-		dev.getPVInteger(PCDisArm).putWait(1,5);
+		pvFactory.getPVInteger(PCDisArm).putWait(1,5);
 	}
 
 	@Override
 	public boolean isPCArmed() throws Exception {
-		return dev.getPVInteger(PCArmOut).get() == 1;
+		return pvFactory.getPVInteger(PCArmOut).get() == 1;
 	}
 
 	@Override
 	public void setPCCaptureBitField(int val) throws Exception {
-		dev.getIntegerPVValueCache(PCCaptureBitField).putWait(val);
+		pvFactory.getIntegerPVValueCache(PCCaptureBitField).putWait(val);
 	}
 
 	@Override
 	public int getPCCaptureBitField() throws Exception {
-		return dev.getIntegerPVValueCache(PCCaptureBitField).get();
+		return pvFactory.getIntegerPVValueCache(PCCaptureBitField).get();
 	}
 
 	@Override
@@ -341,12 +341,12 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 				val == PC_ENC_ENC3 ||
 				val == PC_ENC_ENC4 ||
 				val == PC_ENC_ENCSUM);
-		dev.getIntegerPVValueCache(PCEnc).putWait(val);
+		pvFactory.getIntegerPVValueCache(PCEnc).putWait(val);
 	}
 
 	@Override
 	public int getPCEnc() throws Exception {
-		return dev.getIntegerPVValueCache(PCEnc).get();
+		return pvFactory.getIntegerPVValueCache(PCEnc).get();
 	}
 
 	@Override
@@ -354,35 +354,35 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 		assert (val == PC_TIMEUNIT_10SEC ||
 				val == PC_TIMEUNIT_SEC ||
 				val == PC_TIMEUNIT_MS);
-		dev.getIntegerPVValueCache(PCTimeUnit).putWait(val);
+		pvFactory.getIntegerPVValueCache(PCTimeUnit).putWait(val);
 	}
 
 	@Override
 	public int getPCTimeUnit() throws Exception {
-		return dev.getIntegerPVValueCache(PCTimeUnit).get();
+		return pvFactory.getIntegerPVValueCache(PCTimeUnit).get();
 	}
 
 	@Override
 	public void setPCGateNumberOfGates(int val) throws Exception {
 		assert (PCGateNumberOfGatesMin <= val && val <= PCGateNumberOfGatesMax);
-		dev.getIntegerPVValueCache(PCGateNumberOfGates).putWait(val);
+		pvFactory.getIntegerPVValueCache(PCGateNumberOfGates).putWait(val);
 	}
 
 	@Override
 	public int getPCGateNumberOfGates() throws Exception {
-		return dev.getIntegerPVValueCache(PCGateNumberOfGates).get();
+		return pvFactory.getIntegerPVValueCache(PCGateNumberOfGates).get();
 	}
 
 	@Override
 	public void setPCNumberOfPointsCaptured(int val) throws Exception {
 		// TODO: Is this really supposed to be settable? If so, what range is acceptable?
 		//assert (PCNumberOfPointsCapturedMin <= val && val <= PCNumberOfPointsCapturedMax);
-		dev.getIntegerPVValueCache(PCNumberOfPointsCaptured).putWait(val);
+		pvFactory.getIntegerPVValueCache(PCNumberOfPointsCaptured).putWait(val);
 	}
 
 	@Override
 	public int getPCNumberOfPointsCaptured() throws Exception {
-		return dev.getIntegerPVValueCache(PCNumberOfPointsCaptured).get();
+		return pvFactory.getIntegerPVValueCache(PCNumberOfPointsCaptured).get();
 	}
 
 	public String getZebraPrefix() {
@@ -399,57 +399,57 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 			throw new Exception("name is not set");
 		if (zebraPrefix == null || zebraPrefix.isEmpty())
 			throw new Exception("zebraPrefix is not set");
-		dev = new CachedLazyPVFactory(zebraPrefix);
+		pvFactory = new CachedLazyPVFactory(zebraPrefix);
 	}
 
 	@Override
 	public ReadOnlyPV<Double[]> getEnc1AvalPV() {
-		return dev.getReadOnlyPVDoubleArray(useAvalField? PCEnc1Aval + ".AVAL": PCEnc1Aval);
+		return pvFactory.getReadOnlyPVDoubleArray(useAvalField? PCEnc1Aval + ".AVAL": PCEnc1Aval);
 	}
 
 	@Override
 	public ReadOnlyPV<Integer> getNumberOfPointsCapturedPV() {
-		return dev.getReadOnlyPVInteger(PCNumberOfPointsCaptured);
+		return pvFactory.getReadOnlyPVInteger(PCNumberOfPointsCaptured);
 	}
 
 	@Override
 	public ReadOnlyPV<Integer> getNumberOfPointsDownloadedPV() {
-		return dev.getReadOnlyPVInteger(PCNumberOfPointsDownloaded);
+		return pvFactory.getReadOnlyPVInteger(PCNumberOfPointsDownloaded);
 	}
 
 	@Override
 	public ReadOnlyPV<Double[]> getPCTimePV() {
-		return dev.getReadOnlyPVDoubleArray(PCTime);
+		return pvFactory.getReadOnlyPVDoubleArray(PCTime);
 	}
 
 	@Override
 	public void setPCDir(int val) throws Exception {
 		assert (val == PC_DIR_POSITIVE ||
 				val == PC_DIR_NEGATIVE);
-		dev.getIntegerPVValueCache(PCDir).putWait(val);
+		pvFactory.getIntegerPVValueCache(PCDir).putWait(val);
 	}
 
 	@Override
 	public int getPCDir() throws Exception {
-		return dev.getIntegerPVValueCache(PCDir).get();
+		return pvFactory.getIntegerPVValueCache(PCDir).get();
 	}
 
 	@Override
 	public void setPulseInput(int pulseId, int inputSignal) throws Exception {
 		assert(SysSignalMin <= inputSignal && inputSignal <= SysSignalMax);
-		dev.getIntegerPVValueCache("PULSE"+pulseId+"_INP").putWait(inputSignal);
+		pvFactory.getIntegerPVValueCache("PULSE"+pulseId+"_INP").putWait(inputSignal);
 	}
 
 	@Override
 	public void setPulseDelay(int pulseId, double delay) throws Exception {
 		assert (PulseDelayMin <= delay && delay <= PulseDelayMax);
-		dev.getDoublePVValueCache("PULSE"+pulseId +"_DLY").putWait(delay);
+		pvFactory.getDoublePVValueCache("PULSE"+pulseId +"_DLY").putWait(delay);
 	}
 
 	@Override
 	public void setPulseWidth(int pulseId, double width) throws Exception {
 		assert (PulseWidthMin <= width && width <= PulseWidthMax);
-		dev.getDoublePVValueCache("PULSE"+pulseId +"_WID").putWait(width);
+		pvFactory.getDoublePVValueCache("PULSE"+pulseId +"_WID").putWait(width);
 	}
 
 	@Override
@@ -457,7 +457,7 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 		assert (timeunit == PULSE_TIMEUNIT_10SEC ||
 				timeunit == PULSE_TIMEUNIT_SEC ||
 				timeunit == PULSE_TIMEUNIT_MS);
-		dev.getIntegerPVValueCache("PULSE"+pulseId+"_PRE").putWait(timeunit);
+		pvFactory.getIntegerPVValueCache("PULSE"+pulseId+"_PRE").putWait(timeunit);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -465,14 +465,14 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 	@Override
 	public void setOutTTL(int outId, int outputSignal) throws Exception {
 		assert(SysSignalMin <= outputSignal && outputSignal <= SysSignalMax);
-		dev.getIntegerPVValueCache("OUT"+outId+"_TTL").putWait(outputSignal);
+		pvFactory.getIntegerPVValueCache("OUT"+outId+"_TTL").putWait(outputSignal);
 	}
 
 	@Override
 	public boolean getTtlOutputState(int output) throws IOException {
 		Preconditions.checkArgument(1 <= output && output <= 4);
 		final String pvSuffix = String.format("OUT%d_TTL:STA", output);
-		final PV<Integer> pv = dev.getPVInteger(pvSuffix);
+		final PV<Integer> pv = pvFactory.getPVInteger(pvSuffix);
 		final int value = pv.get();
 		return (value == 1);
 	}
@@ -489,7 +489,7 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 		if (afterUnderscoreId > 0) {
 			pvSuffix += afterUnderscoreId;
 		}
-		dev.getIntegerPVValueCache(pvSuffix).putWait(val);
+		pvFactory.getIntegerPVValueCache(pvSuffix).putWait(val);
 	}
 
 
@@ -505,7 +505,7 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 
 	@Override
 	public void setPCArmInput(int input) throws Exception {
-		dev.getIntegerPVValueCache(PCArmInput).putWait(input);
+		pvFactory.getIntegerPVValueCache(PCArmInput).putWait(input);
 
 	}
 
@@ -514,7 +514,7 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 	public void encCopyMotorPosToZebra(int posNum) throws Exception {
 		Preconditions.checkArgument(1 <= posNum && posNum <= 4, "posNum must be between 1 and 4 inclusive");
 		final String pvSuffix = String.format("M%d:SETPOS.PROC", posNum);
-		final PV<Integer> pv = dev.getPVInteger(pvSuffix);
+		final PV<Integer> pv = pvFactory.getPVInteger(pvSuffix);
 		pv.putWait(1);
 	}
 
@@ -531,13 +531,13 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 		return softInputObservable;
 	}
 
-	int lastSoftInputsValue;
+	private int lastSoftInputsValue;
 
 	private final Lock softInputsLock = new ReentrantLock();
 
 	private void startMonitoringSoftInputs() {
 
-		final PV<Integer> pv = dev.getPVInteger(SYS_SOFT_IN_PV);
+		final PV<Integer> pv = pvFactory.getPVInteger(SYS_SOFT_IN_PV);
 
 		try {
 			lastSoftInputsValue = pv.get();
@@ -579,14 +579,14 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 
 	@Override
 	public boolean isSoftInputSet(int inputNumber) throws IOException {
-		final PV<Integer> pv = dev.getPVInteger(SYS_SOFT_IN_PV);
+		final PV<Integer> pv = pvFactory.getPVInteger(SYS_SOFT_IN_PV);
 		final int softInputPvValue = pv.get();
 		return isSoftInputSet(softInputPvValue, inputNumber);
 	}
 
 	@Override
 	public void setSoftInput(int inputNumber, boolean set) throws IOException {
-		final PV<Integer> pv = dev.getPVInteger(SYS_SOFT_IN_PV);
+		final PV<Integer> pv = pvFactory.getPVInteger(SYS_SOFT_IN_PV);
 		final int oldValue = pv.get();
 		final int bit = 1<<(inputNumber-1);
 		final int newValue = set ? (oldValue | bit) : (oldValue & ~bit);
@@ -610,7 +610,7 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 			logger.error(err);
 			throw new IllegalArgumentException(err);
 		}
-		final PV<Integer> pv = dev.getPVInteger(inPV);
+		final PV<Integer> pv = pvFactory.getPVInteger(inPV);
 		final int sysStatPvValue = pv.get();
 		logger.info("Zebra '" + this.name + "': isSysStatSet(" + sysStat + ") " + inPV + " = " + sysStatPvValue);
 		return isSysStatSet(sysStatPvValue, sysStat);
@@ -622,7 +622,7 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 
 	@Override
 	public void reset() throws IOException {
-		dev.getPVInteger(sysResetProc).putWait(1);
+		pvFactory.getPVInteger(sysResetProc).putWait(1);
 	}
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
