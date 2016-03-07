@@ -1,5 +1,5 @@
 from TwodDataSetProcessor import TwodDataSetProcessor
-
+from org.slf4j import LoggerFactory
 
 class SumMaxPositionAndValue(TwodDataSetProcessor):
 	def __init__(self, name='max',
@@ -8,10 +8,13 @@ class SumMaxPositionAndValue(TwodDataSetProcessor):
 				 keyylabel='maxy', 
 				 formatString='Maximum value found to be at %f,%f (maxx,maxy) was %f (maxval). Sum was %f (sum)'
 				 ):
+		self.logger = LoggerFactory.getLogger("SumMaxPositionAndValue:%s" % name)
 		TwodDataSetProcessor.__init__(self, name, labelList, keyxlabel, keyylabel, formatString)
 	
 	def _process(self, ds, dsxaxis, dsyaxis):
-		dsysize, dsxsize = ds.shape
+		self.logger.trace("_process({}, {}, {}) shape={}, getElementsPerItem={} Dtype={}", [
+			ds, dsxaxis, dsyaxis, ds.shape, ds.getElementsPerItem(), ds.getDtype()])
+		#dsysize, dsxsize = ds.shape
 		#assert(dsyaxis==dsysize)		
 		#assert(dsxaxis==dsxsize)
 		#assert(dsyaxis is None)		# STUB

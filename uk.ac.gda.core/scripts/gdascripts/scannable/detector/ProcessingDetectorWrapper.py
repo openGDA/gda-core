@@ -1,5 +1,6 @@
 from uk.ac.diamond.scisoft.analysis import SDAPlotter
 from org.eclipse.dawnsci.analysis.dataset.impl import DoubleDataset
+from org.slf4j import LoggerFactory
 from gda.device import DetectorSnapper, DeviceException
 
 try:
@@ -111,6 +112,7 @@ class ProcessingDetectorWrapper(PseudoDevice, PositionCallableProvider):
 				panel_name_rcp=None,
 				return_performance_metrics=False):
 				
+		self.logger = LoggerFactory.getLogger("ProcessingDetectorWrapper:%s" % name)
 	
 		self._setDetector(detector)
 		self.processors = processors
@@ -187,7 +189,7 @@ class ProcessingDetectorWrapper(PseudoDevice, PositionCallableProvider):
 	def atScanStart(self):
 		try:
 			if self.det.tifwriter.isWaitForFileArrival():
-				print "Warning: ProcessignDetectorWrapper is slower if waitForFileArrival on tifwriter is True"
+				print "Warning: ProcessingDetectorWrapper is slower if waitForFileArrival on tifwriter is True"
 		except AttributeError:
 			pass
 		self.det.atScanStart()
@@ -313,6 +315,7 @@ class ProcessingDetectorWrapper(PseudoDevice, PositionCallableProvider):
 				#if relative path then we have to assume it's from the data directory
 				path = gda.data.PathConstructor.createFromDefaultProperty() + "/" + path
 			self.datasetProvider = LazyDataSetProvider(path, self.iFileLoader, self.fileLoadTimout, self.printNfsTimes, wait_for_exposure_callable)
+			self.logger.debug("datasetProvider is {}", self.datasetProvider)
 		
 		if self.det.createsOwnFiles():
 			path = self.getFilepath()
@@ -323,6 +326,7 @@ class ProcessingDetectorWrapper(PseudoDevice, PositionCallableProvider):
 			dataset = self._readout()
 			if isinstance(dataset, gda.device.detector.NXDetectorDataWithFilepathForSrs):
 				path = dataset.getFilepath()
+				self.logger.debug("dataset is NXDetectorDataWithFilepathForSrs: {}", dataset)
 				createDatasetProvider(path)
 				return
 			elif isinstance(dataset, gda.device.detector.NXDetectorData):
@@ -330,7 +334,11 @@ class ProcessingDetectorWrapper(PseudoDevice, PositionCallableProvider):
 				dataset = DoubleDataset(data.getBuffer())
 				dataset.setShape(data.dimensions)
 				dataset.squeeze()
+				self.logger.debug("dataset is NXDetectorData: {}", dataset)
+			else:
+				self.logger.debug("dataset is neither: {}", dataset)
 			self.datasetProvider = BasicDataSetProvider(dataset)
+			self.logger.debug("datasetProvider is {}", self.datasetProvider)
 	
 	def replacePartOfPath(self, path):
 		if self.toreplace != None and self.replacement != None:

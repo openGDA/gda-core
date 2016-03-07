@@ -68,6 +68,8 @@ class LinePainter(ShapePainter):
 				dataset.set(1, (y, x))
 		return dataset
 
+	def __repr__(self):
+		return "LinePainter(%d, %d, %d, %d)" % (self.y1, self.x1, self.y2, self.x2)
 
 class RectPainter(ShapePainter):
 	def __init__(self, y1, x1, y2, x2):
@@ -81,3 +83,6 @@ class RectPainter(ShapePainter):
 		for line in self.lines:
 			line.paint(dataset)
 		return dataset
+
+	def __repr__(self):
+		return "RectPainter(%r)" % (self.lines)
