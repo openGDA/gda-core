@@ -109,13 +109,20 @@ public class GdaRmiServiceExporter implements InitializingBean {
 		serviceExporter.setService(getService());
 		serviceExporter.setServiceName(getServiceName());
 		serviceExporter.setServiceInterface(getServiceInterface());
-		serviceExporter.afterPropertiesSet();
-
+		// Substitute my class loader so that we can see the Spring Jars to get the exported beans
+		ClassLoader tccl = Thread.currentThread().getContextClassLoader();
 		try {
-			setupEventDispatch();
-			logger.debug("Service " + getServiceName() + " exported");
-		} catch (Exception e) {
-			throw new RemoteException("Unable to export service", e);
+			Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
+			serviceExporter.afterPropertiesSet();
+
+			try {
+				setupEventDispatch();
+				logger.debug("Service " + getServiceName() + " exported");
+			} catch (Exception e) {
+				throw new RemoteException("Unable to export service", e);
+			}
+		} finally {
+			Thread.currentThread().setContextClassLoader(tccl);
 		}
 	}
 

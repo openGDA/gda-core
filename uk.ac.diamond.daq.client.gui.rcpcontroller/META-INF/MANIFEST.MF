@@ -6,7 +6,8 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Diamond Light Source
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: uk.ac.gda.common;bundle-version="1.2.0",
- uk.ac.gda.api;bundle-version="8.52.0"
+ uk.ac.gda.api;bundle-version="8.52.0",
+ uk.ac.gda.core;bundle-version="9.0.0"
 Export-Package: gda.gui
 Eclipse-RegisterBuddy: uk.ac.gda.core, uk.ac.diamond.org.springframework
 Import-Package: net.sf.cglib.core,
