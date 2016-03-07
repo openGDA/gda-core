@@ -47,5 +47,9 @@ public class RealPositionCallable implements Callable<Double>, Serializable {
 
     }
 
+	@Override
+	public String toString() {
+		return "RealPositionCallable [index=" + index + "]";
+	}
 
 }
