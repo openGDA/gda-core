@@ -87,11 +87,11 @@ public class NcdXmapDetector extends NcdSubDetector  {
 		int count = 0;
 		while (xmapcontroller.getStatus() != Detector.BUSY) {
 			if (count > 20) 
-				throw new DeviceException("detector does not act on start request");
+				throw new DeviceException(getName() + " - detector does not act on start request");
 			try {
 				Thread.sleep(50);
 			} catch (InterruptedException e) {
-				throw new DeviceException("Interrupted while waiting for detector to become busy.");
+				throw new DeviceException(getName() + " - Interrupted while waiting for detector to become busy.");
 			}
 		}
 	}
@@ -125,7 +125,7 @@ public class NcdXmapDetector extends NcdSubDetector  {
 		if (xmapControllerName == null) throw new FactoryException("no controller defined");
 		if (xmapcontroller == null) {
 			if ((xmapcontroller = (XmapController) Finder.getInstance().find(xmapControllerName)) != null)
-				logger.debug("controller {} found", xmapControllerName);
+				logger.debug("{} - controller {} found", getName(), xmapControllerName);
 			else {
 				logger.error("EpicsXmapController {} not found", xmapControllerName);
 				throw new FactoryException("EpicsXmapController " + xmapControllerName + " not found");

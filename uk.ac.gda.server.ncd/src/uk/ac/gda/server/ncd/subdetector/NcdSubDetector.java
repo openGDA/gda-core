@@ -88,12 +88,12 @@ public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
 					}
 					attributeMap.put(name, property);
 				} catch (Exception e) {
-					logger.info("Error restoring attribute "+name+" for detector "+getName());
+					logger.info("Error restoring attribute '{}' for detector {}", name, getName());
 				}
 			}
 			configuration.setAutoSave(true);
 		} catch (Exception e) {
-			logger.error("error restoring attributes from LocalParameters", e);
+			logger.error("{} - error restoring attributes from LocalParameters", getName(), e);
 		}
 	}
 	
@@ -334,7 +334,7 @@ public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
 
 					detTree.addChildNode(type_node);
 				} catch (Exception e) {
-					logger.warn("Error writing metadata " + label + ": ", e);
+					logger.warn("{} - Error writing metadata {}: ", getName(), label, e);
 				}
 			}
 		}
@@ -348,29 +348,30 @@ public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
 		}
 		String maskFile = maskFileInfo.getSaxsDetectorInfoPath();
 		if (maskFile == null || maskFile.isEmpty()) {
-			logger.info("Not including mask data. No mask file set");
+			logger.info("{} - Not including mask data. No mask file set", getName());
 			return;
 		}
 		if (!new File(maskFile).exists()) {
-			logger.error("Could not include mask data. {} does not exist", maskFile);
+			logger.error("{} - Could not include mask data. {} does not exist", getName(), maskFile);
+			JythonServerFacade.getInstance().print(String.format("%s - mask file '%s' does not exist", getName(), maskFile));
 			return;
 		}
 		TreeFile tree;
 		try {
 			tree = new HDF5Loader(maskFile).loadTree();
 			if (tree.findNodeLink("/entry/mask/mask") == null) {
-				logger.error("Mask file does not contain mask");
+				logger.error("{} - Mask file does not contain mask ({})", getName(), maskFile);
 				return;
 			}
 		} catch (ScanFileHolderException sfhe) {
-			logger.error("Could not open mask file tree");
+			logger.error("{} - Could not open mask file tree ({})", getName(), maskFile);
 			return;
 		}
 		try {
 			nxdata.addExternalFileLink("detector", "pixel_mask","nxfile://" +  maskFile + "#entry/mask/mask", false, true);
-			logger.info("Linked mask file {}", maskFile);
+			logger.info("{} - Linked mask file {}", getName(), maskFile);
 		} catch (Exception e) {
-			logger.error("Could not link external mask", e);
+			logger.error("{} - Could not link external mask", getName(), e);
 		}
 	}
 
@@ -397,9 +398,9 @@ public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
 		} catch (Exception e) {
 			//
 		}
-		logger.error("cannot set mask due to dimensions problem");
+		logger.error("{} - cannot set mask due to dimensions problem", getName());
 	}
-	
+
 	@Override
 	public void atScanStart() throws DeviceException {
 	}

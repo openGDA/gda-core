@@ -138,7 +138,7 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 		try {
 			int state = getStatus();
 			if (state != Detector.IDLE) {
-				throw new DeviceException(String.format("detector must be IDLE, but current state is %d", state));
+				throw new DeviceException(String.format("%s - detector must be IDLE, but current state is %d", getName(), state));
 			}
 			controller.acquire();
 
@@ -146,18 +146,18 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 			int grain = 25;
 			for (int i = 0; i < totalmillis / grain; i++) {
 				if (controller.isArmed()) {
-					logger.debug(String.format("Was armed after %d ms.", i * grain));
+					logger.debug("{} - Was armed after {} ms.", getName(), i * grain);
 					return;
 				}
 				Thread.sleep(grain);
 			}
 
-			throw new DeviceException("Timeout waiting for triggers to be armed.");
+			throw new DeviceException(getName() + " - Timeout waiting for triggers to be armed.");
 		} catch (DeviceException de) {
 			// if proper type just rethrow
 			throw de;
 		} catch (Exception e) {
-			throw new DeviceException("error starting acquire", e);
+			throw new DeviceException(getName() + " - error starting acquire", e);
 		}
 	}
 
@@ -166,7 +166,7 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 		try {
 			controller.stop();
 		} catch (Exception e) {
-			throw new DeviceException("Cannot stop detector", e);
+			throw new DeviceException(getName() + " - Cannot stop detector", e);
 		}
 	}
 
@@ -267,7 +267,7 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 			Dataset ds = new FloatDataset(data, dims);
 			return ds;
 		} catch (Exception e) {
-			throw new DeviceException("error reading last array", e);
+			throw new DeviceException(getName() + " - error reading last array", e);
 		}
 	}
 
@@ -299,7 +299,7 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 	 */
 	@Override
 	public void atScanStart() throws DeviceException {
-		logger.debug("scan start");
+		logger.debug("{} - scan start", getName());
 		if (tfgMisconfigurationException != null)
 			throw tfgMisconfigurationException;
 
@@ -328,7 +328,7 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 
 	@Override
 	public void atScanEnd() throws DeviceException {
-		logger.debug("scan end");
+		logger.debug("{} - scan end", getName());
 		try {
 			controller.stopAcquiringWithTimeout();
 			controller.endRecording();
@@ -344,7 +344,7 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 			try {
 				FileRegistrarHelper.registerFile(filename);
 			} catch (Exception e) {
-				logger.warn("error getting file name for archiving from "+getName(), e);
+				logger.warn("error getting file name for archiving from {}", getName(), e);
 			}
 		}
 	}
@@ -362,19 +362,19 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 					for(NXDetectorDataAppender appender : appenderlist)
 						appender.appendTo(dataTree, getTreeName());
 				} catch (Exception e) {
-					throw new DeviceException("error reading nxplugin "+nxpi.getName(), e);
-				} 
+					throw new DeviceException(getName() + " - error reading nxplugin " + nxpi.getName(), e);
+				}
 			}
 		}
 		// delay returning from that method until area detector had a chance to read in all files
 		// not pretty, but best solution I can come up with now.
 		// there should be some getstatus or are you ready call
 		controller.waitForReady();
-		
+
 		if (getStatus() == Detector.FAULT)
-			throw new DeviceException("Detetor in fault while reading");
-		
-		logger.info("we think we are ready for the next acquisition now.");
+			throw new DeviceException(getName() + " - Detector in fault while reading");
+
+		logger.info("{} - we think we are ready for the next acquisition now.", getName());
 	}
 
 	public List<NXPlugin> getNxplugins() {
