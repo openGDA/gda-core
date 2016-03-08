@@ -145,6 +145,10 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 		this.useAvalField = useAvalField;
 	}
 
+	public void setPvFactory(CachedLazyPVFactory pvFactory) {
+		this.pvFactory = pvFactory;
+	}
+
 	@Override
 	public void setPCPulseSource(int val) throws Exception {
 		assert (val == PC_PULSE_SOURCE_POSITION ||
@@ -399,7 +403,9 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 			throw new Exception("name is not set");
 		if (zebraPrefix == null || zebraPrefix.isEmpty())
 			throw new Exception("zebraPrefix is not set");
-		pvFactory = new CachedLazyPVFactory(zebraPrefix);
+		if (pvFactory == null) {
+			pvFactory = new CachedLazyPVFactory(zebraPrefix);
+		}
 	}
 
 	@Override
