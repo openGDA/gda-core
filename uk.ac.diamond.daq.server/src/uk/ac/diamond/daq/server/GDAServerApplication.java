@@ -1,11 +1,13 @@
 package uk.ac.diamond.daq.server;
 
 import gda.util.ObjectServer;
+import gda.util.SpringObjectServer;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
@@ -87,16 +89,27 @@ public class GDAServerApplication implements IApplication {
 	public void stop() {
 		logger.info("GDA application stopping");
 		if (objectServers.size() > 0) {
+
+			// Shutdown using the SpringObjectServer shutdown which waits for Corba unbind
+			// TODO: Refactor command class so we can lose the cast
 			for (Map.Entry<String, ObjectServer> entry : objectServers.entrySet()) {
-				entry.getValue().shutdown();
+				((SpringObjectServer)entry.getValue()).shutdown();
 			}
 			objectServers.clear();
 		}
-		shutdownLatch.countDown();
+
 		for (Map.Entry<ServerType, Process> process : processes.entrySet()) {
-			process.getValue().destroy();
+			logger.info("{} Server shutting down", process.getKey());
+			try {
+				process.getValue().destroyForcibly().waitFor(20, TimeUnit.MILLISECONDS);
+			} catch (InterruptedException e) {
+				logger.error("Shutdown of {} interrupted, check for orphaned process", process.getKey());
+				e.printStackTrace();
+				Thread.currentThread().interrupt();
+			}
 		}
 		processes.clear();
+		shutdownLatch.countDown();
 	}
 	
 	/**
@@ -110,7 +123,7 @@ public class GDAServerApplication implements IApplication {
 		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {			
 			@Override
 			public void run() {
-				stop();				
+				stop();
 			}
 		}));
 		shutdownLatch.await();
