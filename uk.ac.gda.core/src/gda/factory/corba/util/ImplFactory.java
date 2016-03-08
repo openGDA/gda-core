@@ -42,6 +42,8 @@ public abstract class ImplFactory {
 	private NetService netService;
 	private HashMap<String, CorbaBoundObject> store = new LinkedHashMap<String, CorbaBoundObject>();
 
+	private volatile boolean isShuttingDown = false;
+
 	public ImplFactory(NetService netService) {
 		this.netService = netService;
 	}
@@ -152,6 +154,7 @@ public abstract class ImplFactory {
 	 * Shuts down this ImplFactory, unregistering names from CORBA.
 	 */
 	public void shutdown() {
+		isShuttingDown = true;
 		logger.info("Shutting down " + this);
 		Set<String> names = store.keySet();
 		for (String name : names) {
@@ -162,6 +165,16 @@ public abstract class ImplFactory {
 				// Deliberately do nothing. Its only cleaning up where possible.
 			}
 		}
+		isShuttingDown = false;
+	}
+
+	/**
+	 * Allows collaborators to monitor the volatile isShuttingDown flag which is true whilst objects are being unbound from the Name Server.
+	 *
+	 * @return The status of the flag
+	 */
+	public boolean isShuttingDown() {
+		return isShuttingDown;
 	}
 }
 
