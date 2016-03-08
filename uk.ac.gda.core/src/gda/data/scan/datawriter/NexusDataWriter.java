@@ -657,7 +657,9 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 					}
 					int[] specifiedChunkDims = new int[dimensions.length];
 					Arrays.fill(specifiedChunkDims, -1);
-					if (sds.chunkDimensions != null) {
+					// ignore any specified chunking for zero-dim data
+					// we've reduced the data dimensions to the scan dimensions so chunk based on that only
+					if (sds.chunkDimensions != null && !(sdims.length == 1 && sdims[0] == 1)) {
 						System.arraycopy(sds.chunkDimensions, 0, specifiedChunkDims, scanDimensions.length, sds.chunkDimensions.length);
 					}
 					int dataByteSize = AbstractDataset.getItemsize(sds.getDtype());
