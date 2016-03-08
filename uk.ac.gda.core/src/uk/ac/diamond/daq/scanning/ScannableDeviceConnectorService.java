@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.scanning.api.IScannable;
-import org.eclipse.scanning.api.ScannableModel;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.IDeviceConnectorService;
 import org.eclipse.scanning.api.scan.ScanningException;
@@ -92,12 +91,6 @@ public class ScannableDeviceConnectorService implements IDeviceConnectorService 
 		@Override
 		public void setPosition(Object value, IPosition position) throws Exception {
 			delegate.moveTo(position);
-		}
-
-		@Override
-		public void configure(ScannableModel model) throws ScanningException {
-			// TODO Auto-generated method stub
-
 		}
 	}
 

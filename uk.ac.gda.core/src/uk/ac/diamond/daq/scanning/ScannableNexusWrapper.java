@@ -17,12 +17,10 @@ import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.builder.DelegateNexusProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.scanning.api.IScannable;
-import org.eclipse.scanning.api.ScannableModel;
 import org.eclipse.scanning.api.points.IPosition;
-import org.eclipse.scanning.api.scan.ScanningException;
 
 /**
- * Class provides aq default implementation which will write any GDA8 scannable to NeXus
+ * Class provides a default implementation which will write any GDA8 scannable to NeXus
  *
  * @author Matthew Gerring
  */
@@ -40,7 +38,6 @@ class ScannableNexusWrapper implements IScannable<Object>, INexusDevice<NXpositi
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public NexusObjectProvider<NXpositioner> getNexusProvider(NexusScanInfo info) {
 		return new DelegateNexusProvider<NXpositioner>(scannable.getName(), NexusBaseClass.NX_POSITIONER, NXpositioner.NX_VALUE, info, this);
 	}
@@ -78,11 +75,6 @@ class ScannableNexusWrapper implements IScannable<Object>, INexusDevice<NXpositi
 	@Override
 	public void setName(String name) {
 		scannable.setName(name);
-	}
-
-	@Override
-	public void configure(ScannableModel model) throws ScanningException {
-		// Nothing to do, scannable in GDA-8 does not support configure.
 	}
 
 	@Override
