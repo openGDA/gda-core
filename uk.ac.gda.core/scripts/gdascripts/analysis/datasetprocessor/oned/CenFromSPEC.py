@@ -1,5 +1,4 @@
 from XYDataSetProcessor import XYDataSetFunction
-from gda.analysis import ScanFileHolder
 import math
 
 def interp(xlist, fractional_index):
@@ -27,23 +26,16 @@ class CenFromSPEC(XYDataSetFunction):
 		XYDataSetFunction.__init__(self, name, labelList,'cen', formatString)
 	
 	def _process(self,xDataSet, yDataSet):
-		
-		xlist = list(xDataSet.getBuffer())
-		ylist = list(yDataSet.getBuffer())		
-		
-		height = max(ylist)
-		index_max_val = ylist.index(height)
-		
-		counts_left = sum(ylist[:index_max_val]) + height / 2.
-		index_left_edge = index_max_val - (counts_left / height)
-		pos_left_edge = interp(xlist, index_left_edge)
+		height = yDataSet.max()
+		height_idx = yDataSet.argmax()
+		left_counts = yDataSet[:height_idx].sum() + height / 2.0
+		left_edge_idx = height_idx - (left_counts / height)
+		left_edge_pos = interp(xDataSet, left_edge_idx)
+		right_counts = yDataSet[height_idx + 1:].sum() + height / 2.0
+		right_edge_idx = height_idx + (right_counts / height)
+		right_edge_pos = interp(xDataSet, right_edge_idx)
 
-		counts_right = sum(ylist[index_max_val+1:]) + height / 2.
-		index_right_edge = index_max_val + (counts_right / height)		
-		pos_right_edge = interp(xlist, index_right_edge)
-
-		cen = (pos_left_edge + pos_right_edge) /2. 
-
-		width = pos_right_edge - pos_left_edge
-
+		cen = (left_edge_pos + right_edge_pos) / 2.0
+		width = right_edge_pos - left_edge_pos
 		return cen, height, width
+

@@ -55,7 +55,7 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 	/**
 	 * String to use in getAttribute to get the motor name
 	 */
-	public static final String MOTOR_NAME = "motorName";
+	private static final String MOTOR_NAME = "motorName";
 
 	/**
 	 * Name of java property which when set true causes the upper & lower gda limits to be set from the motor limits if
@@ -109,6 +109,7 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 	 * @param motor
 	 *            the motor
 	 */
+	@Override
 	public void setMotor(Motor motor) {
 		this.motor = motor;
 		if (motorLimitsComponent == null)
@@ -116,11 +117,12 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 	}
 
 	/**
-	 * Method required by scripts which need to access the real motor at times. Before the script could get the motor
+	 * COPY_MOTOR_LIMITS_INTO_SCANNABLE_LIMITS Method required by scripts which need to access the real motor at times. Before the script could get the motor
 	 * name but now that the motor may be set by spring, scripts cannot get the underlying motor.
 	 *
 	 * @return Motor
 	 */
+	@Override
 	public Motor getMotor() {
 		return motor;
 	}
@@ -202,6 +204,7 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 	/**
 	 * @return Returns the motorName.
 	 */
+	@Override
 	public String getMotorName() {
 		return motorName;
 	}
@@ -210,11 +213,12 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 	 * @param motorName
 	 *            The motorName to set.
 	 */
+	@Override
 	public void setMotorName(String motorName) {
 		this.motorName = motorName;
 	}
 
-	Object isBusyAndMovetoLock = new Object();
+	private final Object isBusyAndMovetoLock = new Object();
 
 	private boolean demand_msg_shown = false;
 
@@ -282,7 +286,7 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 	 *
 	 * @throws DeviceException
 	 */
-	public Object rawGetDemandPosition() throws DeviceException {
+	protected Object rawGetDemandPosition() throws DeviceException {
 
 		double currentInternalPosition = (Double) rawGetPosition();
 
@@ -331,6 +335,7 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 	 *
 	 * @throws DeviceException
 	 */
+	@Override
 	public void setPosition(Object position) throws DeviceException {
 		if (isBusy()) {
 			throw new DeviceException("Motor is moving! Cannot set position");
@@ -344,17 +349,16 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 	 *
 	 * @throws DeviceException
 	 */
-	public Object getDemandPosition() throws DeviceException {
+	protected Object getDemandPosition() throws DeviceException {
 		return internalToExternal(rawGetDemandPosition());
 	}
 
-	public Object getActualPosition() throws DeviceException {
+	protected Object getActualPosition() throws DeviceException {
 		return internalToExternal(rawGetPosition());
 	}
 
 	/**
-	 * Return true if motor is busy. Throw an exception if the motor is in a FAULT state and
-	 * {@link #isIsBusyThrowingExceptionWhenMotorGoesIntoFault()} is true.
+	 * Return true if motor is busy. Throw an exception if the motor is in a FAULT state and isIsBusyThrowingExceptionWhenMotorGoesIntoFault() is true.
 	 */
 	@Override
 	public boolean isBusy() throws DeviceException {
@@ -412,6 +416,7 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 	 * @return limit in external representation
 	 * @throws DeviceException
 	 */
+	@Override
 	public Double getLowerMotorLimit() throws DeviceException {
 		if (motorLimitsComponent == null) {
 			throw new DeviceException(
@@ -431,6 +436,7 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 	 * @return limit in external representation
 	 * @throws DeviceException
 	 */
+	@Override
 	public Double getUpperMotorLimit() throws DeviceException {
 		if (motorLimitsComponent == null) {
 			throw new DeviceException(
@@ -450,6 +456,7 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 	 * @return the highest minimum limit, or null if neither are set.
 	 * @throws DeviceException
 	 */
+	@Override
 	public Double getLowerInnerLimit() throws DeviceException {
 
 		Double lowerGdaLimit = (getLowerGdaLimits() == null) ? null : getLowerGdaLimits()[0];
@@ -469,6 +476,7 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 	 * @return the lowest maximum limit, or null if neither are set.
 	 * @throws DeviceException
 	 */
+	@Override
 	public Double getUpperInnerLimit() throws DeviceException {
 
 		Double upperGdaLimit = (getUpperGdaLimits() == null) ? null : getUpperGdaLimits()[0];
@@ -561,6 +569,7 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 	 *            in the motor's units
 	 * @throws DeviceException
 	 */
+	@Override
 	public void setSpeed(double theSpeed) throws DeviceException {
 		try {
 			if (this.motor != null) {
@@ -575,6 +584,7 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 	/**
 	 * Returns this motor's time to velocity.
 	 */
+	@Override
 	public double getTimeToVelocity() throws DeviceException {
 		try {
 			return motor.getTimeToVelocity();
@@ -587,6 +597,7 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 	/**
 	 * Sets this motor's time to velocity.
 	 */
+	@Override
 	public void setTimeToVelocity(double timeToVelocity) throws DeviceException {
 		try {
 			motor.setTimeToVelocity(timeToVelocity);
@@ -659,11 +670,11 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 		this.isBusyThrowsExceptionWhenMotorGoesIntoFault = isBusyThrowsExceptionWhenMotorGoesIntoFault;
 	}
 
-	public boolean isIsBusyThrowingExceptionWhenMotorGoesIntoFault() {
+	private boolean isIsBusyThrowingExceptionWhenMotorGoesIntoFault() {
 		return isBusyThrowsExceptionWhenMotorGoesIntoFault;
 	}
 
-	public boolean isLogMoveRequestsWithInfo() {
+	private boolean isLogMoveRequestsWithInfo() {
 		return logMoveRequestsWithInfo;
 	}
 
@@ -723,4 +734,15 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 		return motor.getUserOffset();
 	}
 
+	// ----------------------------------------------------------------------------------------------
+
+	// Access to private methods for testing
+
+	Object rawGetDemandPositionForTesting() throws DeviceException {
+		return rawGetDemandPosition();
+	}
+
+	Object getDemandPositionForTesting() throws DeviceException {
+		return getDemandPosition();
+	}
 }

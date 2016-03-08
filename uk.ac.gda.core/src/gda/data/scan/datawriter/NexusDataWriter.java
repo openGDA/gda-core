@@ -647,13 +647,19 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 						// do not compress such simple data by default
 						compression = sds.compressionType != null ? sds.compressionType : NexusFile.COMPRESSION_NONE;
 					} else {
-						dimensions = Arrays.copyOf(scanDimensions, scanDimensions.length + sdims.length);
-						System.arraycopy(sdims, 0, dimensions, scanDimensions.length, sdims.length);
+						if (!tree.isPointDependent()) {
+							dimensions = Arrays.copyOf(dataDimMake, dataDimMake.length);
+						} else {
+							dimensions = Arrays.copyOf(scanDimensions, scanDimensions.length + sdims.length);
+							System.arraycopy(sdims, 0, dimensions, scanDimensions.length, sdims.length);
+						}
 						compression = sds.compressionType != null ? sds.compressionType : NexusFile.COMPRESSION_LZW_L1;
 					}
 					int[] specifiedChunkDims = new int[dimensions.length];
 					Arrays.fill(specifiedChunkDims, -1);
-					if (sds.chunkDimensions != null) {
+					// ignore any specified chunking for zero-dim data
+					// we've reduced the data dimensions to the scan dimensions so chunk based on that only
+					if (sds.chunkDimensions != null && !(sdims.length == 1 && sdims[0] == 1)) {
 						System.arraycopy(sds.chunkDimensions, 0, specifiedChunkDims, scanDimensions.length, sds.chunkDimensions.length);
 					}
 					int dataByteSize = AbstractDataset.getItemsize(sds.getDtype());

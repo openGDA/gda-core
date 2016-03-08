@@ -496,13 +496,23 @@ public class JythonTerminalView extends ViewPart implements Runnable, IAllScanDa
 				// reset the cmdHistory pointer if we just added a new line
 				cmdHistory_index = cmdHistory.size();
 				runFromHistory = false;
-				PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+
+				class InputClearTask implements Runnable {
+					final String command;
+
+					InputClearTask(String command) {
+						this.command = command;
+					}
+
 					@Override
 					public void run() {
-						// clear the command-line
-						txtInput.setText("");
+						// clear the command-line if it has not been changed
+						if (command.equals(txtInput.getText())) {
+							txtInput.setText("");
+						}
 					}
-				});
+				}
+				PlatformUI.getWorkbench().getDisplay().asyncExec(new InputClearTask(typedCmd));
 			}
 		}
 		// if we are part way through a multi-line command
