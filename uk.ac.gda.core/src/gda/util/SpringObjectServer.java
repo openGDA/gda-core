@@ -27,6 +27,7 @@ import gda.factory.FactoryBase;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
 import gda.factory.corba.util.AdapterFactory;
+import gda.factory.corba.util.ImplFactory;
 import gda.spring.SpringApplicationContextBasedObjectFactory;
 
 import java.io.File;
@@ -44,6 +45,7 @@ import org.springframework.util.StringUtils;
 public class SpringObjectServer extends ObjectServer {
 
 	private static final Logger logger = LoggerFactory.getLogger(SpringObjectServer.class);
+	private static final int SHUTDOWN_TIMEOUT = 2000;
 
 	boolean allowExceptionInConfigure=LocalProperties.check(FactoryBase.GDA_FACTORY_ALLOW_EXCEPTION_IN_CONFIGURE);
 
@@ -72,6 +74,26 @@ public class SpringObjectServer extends ObjectServer {
 		applicationContext = new FileSystemXmlApplicationContext(new String[] {configLocation}, false);
 		applicationContext.setAllowBeanDefinitionOverriding(false);
 		applicationContext.refresh();
+	}
+
+	@Override
+	public void shutdown() {
+		super.shutdown();
+
+		// Get the root ImplFactory Bean started by Jacorb/Spring by name
+		ImplFactory root = applicationContext.getBean("ImplFactory#0", ImplFactory.class);
+		if (root != null) {
+			long start = System.currentTimeMillis();
+			while (root.isShuttingDown() && (System.currentTimeMillis() - start) < SHUTDOWN_TIMEOUT) {
+				try {
+					Thread.sleep(50);
+				} catch (InterruptedException e) {
+					logger.error("SpringObjectServer was interrupted while waiting for the root ImplFactory to shut down", e);
+					Thread.currentThread().interrupt();
+					break;
+				}
+			}
+		}
 	}
 
 	@Override
