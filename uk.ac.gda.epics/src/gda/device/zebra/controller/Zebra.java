@@ -142,7 +142,10 @@ public interface Zebra {
 
 	int getPCEnc() throws Exception;
 
+	@Deprecated
 	ReadOnlyPV<Double[]> getEnc1AvalPV();
+
+	ReadOnlyPV<Double[]> getEncPV(int encoder);
 
 	ReadOnlyPV<Integer> getNumberOfPointsCapturedPV();
 

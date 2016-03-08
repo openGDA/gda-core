@@ -408,9 +408,33 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 		}
 	}
 
+	@Deprecated
 	@Override
 	public ReadOnlyPV<Double[]> getEnc1AvalPV() {
 		return pvFactory.getReadOnlyPVDoubleArray(useAvalField? PCEnc1Aval + ".AVAL": PCEnc1Aval);
+	}
+
+	@Override
+	public ReadOnlyPV<Double[]> getEncPV(int encoder) {
+		String pcEnc;
+		switch (encoder) {
+		case Zebra.PC_ENC_ENC1:
+			pcEnc = "PC_ENC1";
+			break;
+		case Zebra.PC_ENC_ENC2:
+			pcEnc = "PC_ENC2";
+			break;
+		case Zebra.PC_ENC_ENC3:
+			pcEnc = "PC_ENC3";
+			break;
+		case Zebra.PC_ENC_ENC4:
+			pcEnc = "PC_ENC4";
+			break;
+		default:
+			pcEnc = "PC_ENC1";
+			break;
+		}
+		return pvFactory.getReadOnlyPVDoubleArray(pcEnc);
 	}
 
 	@Override

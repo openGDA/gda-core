@@ -26,8 +26,8 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import gda.device.zebra.controller.Zebra;
 import gda.epics.CachedLazyPVFactory;
-import gda.epics.PVValueCache;
 import gda.epics.ReadOnlyPV;
 
 import org.junit.Before;
@@ -43,24 +43,11 @@ public class ZebraImplTest {
 	private ZebraImpl zebraImpl;
 	private CachedLazyPVFactory pvFactory;
 	private ReadOnlyPV<Double[]> mockPV;
-	private PVValueCache<Integer> valueCache0;
-	private PVValueCache<Integer> valueCache1;
-	private PVValueCache<Integer> valueCache2;
 
 	@SuppressWarnings("unchecked")
 	@Before
 	public void setUp() throws Exception {
 		mockPV = mock(ReadOnlyPV.class);
-
-		valueCache0 = mock(PVValueCache.class);
-		when(valueCache0.get()).thenReturn(0);
-
-		valueCache1 = mock(PVValueCache.class);
-		when(valueCache1.get()).thenReturn(1);
-
-		valueCache2 = mock(PVValueCache.class);
-		when(valueCache2.get()).thenReturn(2);
-
 		pvFactory = mock(CachedLazyPVFactory.class);
 		when(pvFactory.getReadOnlyPVDoubleArray(anyString())).thenReturn(mockPV);
 
@@ -113,44 +100,58 @@ public class ZebraImplTest {
 		}
 	}
 
+	// getEnc1AvalPV() always returns the first encoder
+
 	@Test
-	public void testGetEnc1AvalPVEnc1() throws Exception {
-		// Simulate PC encoding of 0 (= PC_ENC_ENC1)
-		when(pvFactory.getIntegerPVValueCache("PC_ENC")).thenReturn(valueCache0);
+	public void testGetEnc1AvalPVEnc1() {
 		ReadOnlyPV<Double[]> result = zebraImpl.getEnc1AvalPV();
 		verify(pvFactory).getReadOnlyPVDoubleArray("PC_ENC1");
 		assertEquals(mockPV, result);
 	}
 
 	@Test
-	public void testGetEnc1AvalPVEnc1UseAval() throws Exception {
-		// Simulate PC encoding of 0 (= PC_ENC_ENC1)
-		when(pvFactory.getIntegerPVValueCache("PC_ENC")).thenReturn(valueCache0);
+	public void testGetEnc1AvalPVEnc1UseAval() {
 		zebraImpl.setUseAvalField(true);
 		ReadOnlyPV<Double[]> result = zebraImpl.getEnc1AvalPV();
 		verify(pvFactory).getReadOnlyPVDoubleArray("PC_ENC1.AVAL");
 		assertEquals(mockPV, result);
 	}
 
-	// At the moment, getEnc1AvalPV() always returns the encoding PC_ENC1
-	// This will be changed in a future update.
-
 	@Test
-	public void testGetEnc1AvalPVEnc2() throws Exception {
-		// Simulate PC encoding of 1 (= PC_ENC_ENC2)
-		when(pvFactory.getIntegerPVValueCache("PC_ENC")).thenReturn(valueCache1);
+	public void testGetEnc1AvalPVEnc2() {
 		ReadOnlyPV<Double[]> result = zebraImpl.getEnc1AvalPV();
 		verify(pvFactory).getReadOnlyPVDoubleArray("PC_ENC1");
 		assertEquals(mockPV, result);
 	}
 
 	@Test
-	public void testGetEnc1AvalPVEnc3UseAval() throws Exception {
-		// Simulate PC encoding of 2 (= PC_ENC_ENC3)
-		when(pvFactory.getIntegerPVValueCache("PC_ENC")).thenReturn(valueCache2);
+	public void testGetEnc1AvalPVEnc3UseAval() {
 		zebraImpl.setUseAvalField(true);
 		ReadOnlyPV<Double[]> result = zebraImpl.getEnc1AvalPV();
 		verify(pvFactory).getReadOnlyPVDoubleArray("PC_ENC1.AVAL");
+		assertEquals(mockPV, result);
+	}
+
+	// getEncPV() returns the encoder corresponding to the parameter passed to it
+
+	@Test
+	public void testGetEncPVEnc1() {
+		ReadOnlyPV<Double[]> result = zebraImpl.getEncPV(Zebra.PC_ENC_ENC1);
+		verify(pvFactory).getReadOnlyPVDoubleArray("PC_ENC1");
+		assertEquals(mockPV, result);
+	}
+
+	@Test
+	public void testGetEncPVEnc2() {
+		ReadOnlyPV<Double[]> result = zebraImpl.getEncPV(Zebra.PC_ENC_ENC2);
+		verify(pvFactory).getReadOnlyPVDoubleArray("PC_ENC2");
+		assertEquals(mockPV, result);
+	}
+
+	@Test
+	public void testGetEncPVEnc3() {
+		ReadOnlyPV<Double[]> result = zebraImpl.getEncPV(Zebra.PC_ENC_ENC3);
+		verify(pvFactory).getReadOnlyPVDoubleArray("PC_ENC3");
 		assertEquals(mockPV, result);
 	}
 }

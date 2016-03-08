@@ -653,14 +653,16 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 		logger.trace("getPositionSteamIndexer({})", index);
 		if( lastImageNumberStreamIndexer[index] == null){
 			logger.info("Creating lastImageNumberStreamIndexer " + index);
-			ReadOnlyPV<Double[]> rdDblArrayPV = zebra.getEnc1AvalPV();
-			switch(index){
+			ReadOnlyPV<Double[]> rdDblArrayPV;
+			switch (index) {
 			case 0:
-				rdDblArrayPV = zebra.getEnc1AvalPV();
+				rdDblArrayPV = zebra.getEncPV(zebraMotorInfoProvider.getPcEnc());
 				break;
 			case 10:
 				rdDblArrayPV = zebra.getPCTimePV();
 				break;
+			default:
+				throw new UnsupportedOperationException("Index " + index + " not supported, use 0 or 10");
 			}
 			if( timeSeriesCollection == null)
 				timeSeriesCollection = new Vector<ZebraCaptureInputStreamCollection>();

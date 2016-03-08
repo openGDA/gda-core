@@ -288,9 +288,15 @@ public class ZebraDummy implements Zebra, Findable, InitializingBean {
 		return pcEnc;
 	}
 
+	@Deprecated
 	@Override
 	public ReadOnlyPV<Double[]> getEnc1AvalPV() {
 		return new DummyReadOnlyPV<Double[]>(ZEBRA_PV, new Double[] { 1.0, 1.3, 1.7 });
+	}
+
+	@Override
+	public ReadOnlyPV<Double[]> getEncPV(int encoder) {
+		return new DummyReadOnlyPV<Double[]>(ZEBRA_PV, new Double[] { 2.0, 2.3, 2.7 });
 	}
 
 	@Override
