@@ -20,7 +20,7 @@ import org.junit.Test;
 import uk.ac.gda.test.helpers.swt.SWTTestBase;
 
 /**
- * Test to confirm that the copied Metawidget annotations in org.eclipse.scanning.api are interpreted correctly.
+ * Test to confirm that the copied annotations in org.eclipse.scanning.api.annotation are interpreted correctly.
  * <p>
  * This needs to be run as a plugin test with org.eclipse.richbeans.generator and org.eclipse.scanning.api bundles
  * included.
