@@ -647,8 +647,12 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 						// do not compress such simple data by default
 						compression = sds.compressionType != null ? sds.compressionType : NexusFile.COMPRESSION_NONE;
 					} else {
-						dimensions = Arrays.copyOf(scanDimensions, scanDimensions.length + sdims.length);
-						System.arraycopy(sdims, 0, dimensions, scanDimensions.length, sdims.length);
+						if (!tree.isPointDependent()) {
+							dimensions = Arrays.copyOf(dataDimMake, dataDimMake.length);
+						} else {
+							dimensions = Arrays.copyOf(scanDimensions, scanDimensions.length + sdims.length);
+							System.arraycopy(sdims, 0, dimensions, scanDimensions.length, sdims.length);
+						}
 						compression = sds.compressionType != null ? sds.compressionType : NexusFile.COMPRESSION_LZW_L1;
 					}
 					int[] specifiedChunkDims = new int[dimensions.length];
