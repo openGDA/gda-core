@@ -20,6 +20,9 @@ package gda.device.detector.addetector.collectionstrategy;
 
 import gda.scan.ScanInformation;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Configure trigger mode.
  *
@@ -29,6 +32,8 @@ import gda.scan.ScanInformation;
  * {@link InternalTriggerModeDecorator}
  */
 public class TriggerModeDecorator extends AbstractADCollectionStrategyDecorator {
+
+	private static final Logger logger = LoggerFactory.getLogger(TriggerModeDecorator.class);
 
 	private boolean restoreTriggerMode = false;
 	private int savedTriggerMode;
@@ -40,6 +45,7 @@ public class TriggerModeDecorator extends AbstractADCollectionStrategyDecorator 
 
 	@Override
 	protected void rawPrepareForCollection(double collectionTime, int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
+		logger.trace("rawPrepareForCollection({}, {}, {}) called", collectionTime, numberImagesPerCollection, scanInfo);
 		getAdBase().setTriggerMode(triggerMode);
 		getDecoratee().prepareForCollection(collectionTime, numberImagesPerCollection, scanInfo);
 	}
@@ -48,16 +54,21 @@ public class TriggerModeDecorator extends AbstractADCollectionStrategyDecorator 
 
 	@Override
 	public void saveState() throws Exception {
+		logger.trace("saveState() called, restoreNumImagesAndImageMode={}", restoreTriggerMode);
 		getDecoratee().saveState();
 		if (restoreTriggerMode) {
 			savedTriggerMode = getAdBase().getTriggerMode();
+			logger.debug("Saved State now savedTriggerMode={}", savedTriggerMode);
 		}
 	}
 
 	@Override
 	public void restoreState() throws Exception {
+		logger.trace("restoreState() called, restoreTriggerMode={}, savedTriggerMode={}", restoreTriggerMode, savedTriggerMode);
 		if (restoreTriggerMode) {
+			// TODO: Some detectors need detector to be stopped to set TriggerMode
 			getAdBase().setTriggerMode(savedTriggerMode);
+			logger.debug("Restored state to savedTriggerMode={} (stop/restart=NA)", savedTriggerMode);
 		}
 		getDecoratee().restoreState();
 	}
