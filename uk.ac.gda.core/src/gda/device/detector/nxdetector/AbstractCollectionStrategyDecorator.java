@@ -26,6 +26,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /** This class provides a base class from which Collection Strategy Decorators can be derived.
  *  it allows decorators to only override the functions they need to override.
  *
@@ -36,6 +39,8 @@ import java.util.NoSuchElementException;
  *  decorator class from being instantiated, but allows any or all methods to be overwritten.
  */
 public abstract class AbstractCollectionStrategyDecorator extends CollectionStrategyDecoratableBase {
+
+	private static final Logger logger = LoggerFactory.getLogger(AbstractCollectionStrategyDecorator.class);
 
 	private CollectionStrategyDecoratableInterface decoratee;
 	private boolean propertiesSet = false;
@@ -60,6 +65,7 @@ public abstract class AbstractCollectionStrategyDecorator extends CollectionStra
 
 	@Override
 	public final void prepareForCollection(double collectionTime, int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
+		logger.trace("prepareForCollection({}, {}, {}) called", collectionTime, numberImagesPerCollection, scanInfo);
 		beforePreparation();
 		rawPrepareForCollection(collectionTime, numberImagesPerCollection, scanInfo);
 	}
@@ -113,6 +119,7 @@ public abstract class AbstractCollectionStrategyDecorator extends CollectionStra
 
 	@Override
 	public final void prepareForCollection(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
+		logger.trace("prepareForCollection({}, {}) called", numberImagesPerCollection, scanInfo);
 		beforePreparation();
 		rawPrepareForCollection(numberImagesPerCollection, scanInfo);
 	}
@@ -131,6 +138,7 @@ public abstract class AbstractCollectionStrategyDecorator extends CollectionStra
 
 	@Override
 	public final void completeCollection() throws Exception {
+		logger.trace("completeCollection() called");
 		beforeCompletion();
 		rawCompleteCollection();
 		afterCompletion();
@@ -138,6 +146,7 @@ public abstract class AbstractCollectionStrategyDecorator extends CollectionStra
 
 	@Override
 	public final void atCommandFailure() throws Exception {
+		logger.trace("atCommandFailure() called");
 		beforeCompletion();
 		rawAtCommandFailure();
 		afterCompletion();
@@ -145,6 +154,7 @@ public abstract class AbstractCollectionStrategyDecorator extends CollectionStra
 
 	@Override
 	public final void stop() throws Exception {
+		logger.trace("stop() called");
 		beforeCompletion();
 		rawStop();
 		afterCompletion();
@@ -180,12 +190,14 @@ public abstract class AbstractCollectionStrategyDecorator extends CollectionStra
 
 	@Override
 	public final void setSuppressSave() {
+		logger.trace("setSuppressSave() called");
 		suppressSave = true;
 		getDecoratee().setSuppressSave();
 	}
 
 	@Override
 	public final void setSuppressRestore() {
+		logger.trace("setSuppressRestore() called");
 		suppressRestore = true;
 		getDecoratee().setSuppressRestore();
 	}
