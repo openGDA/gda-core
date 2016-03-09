@@ -490,6 +490,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 			ILazyWriteableDataset lazy;
 			if (d == null) {
 				lazy = NexusUtils.createLazyWriteableDataset("data", Dataset.FLOAT64, dimArray, null ,null);
+				lazy.setFillValue(getFillValue(Dataset.FLOAT64));
 				d = file.createData(g, lazy);
 			} else {
 				lazy = d.getWriteableDataset();
@@ -675,6 +676,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 					}
 					lazy.setChunking(chunk);
 					// TODO: only enable compression if the chunk size makes it worthwhile
+					lazy.setFillValue(getFillValue(sds.getDtype()));
 					data = file.createData(group, lazy, compression);
 
 					if (!tree.isPointDependent()) {
@@ -1031,6 +1033,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 					// dimension)
 					int[] chunking = NexusUtils.estimateChunking(scanDimensions, 8);
 					ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset(element, Dataset.FLOAT64, dataDim, null, chunking);
+					lazy.setFillValue(getFillValue(Dataset.FLOAT64));
 					DataNode data = file.createData(g, lazy);
 
 					// Get a link ID to this data set.
@@ -1059,6 +1062,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 					// Create the data array (with an unlimited scan
 					// dimension)
 					ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset(element, Dataset.FLOAT64, dataDim, null, null);
+					lazy.setFillValue(getFillValue(Dataset.FLOAT64));
 					DataNode data = file.createData(g, lazy);
 
 					// Get a link ID to this data set.
@@ -1297,6 +1301,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 			for (String extra : detector.getExtraNames()) {
 
 				ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset(extra, Dataset.FLOAT64, dataDim, null, null);
+				lazy.setFillValue(getFillValue(Dataset.FLOAT64));
 				DataNode data = file.createData(group, lazy);
 
 				NexusUtils.writeStringAttribute(file, data, "local_name", String.format("%s.%s", detectorName, extra));
@@ -1325,6 +1330,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 
 			// make the data array to store the data...
 			ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset("data", dtype, dataDim, null, null);
+			lazy.setFillValue(getFillValue(dtype));
 			DataNode data = file.createData(group, lazy);
 			NexusUtils.writeStringAttribute(file, data, "local_name", String.format("%s.%s", detectorName, detectorName));
 
@@ -1739,5 +1745,28 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 
 	public String getNexusFileName() {
 		return nexusFileName;
+	}
+
+	private static Object getFillValue(int dtype) {
+		switch (dtype) {
+		case Dataset.FLOAT64: {
+			String floatFill = LocalProperties.get("gda.nexus.floatfillvalue", "nan");
+			return floatFill.equalsIgnoreCase("nan") ? Double.NaN : Double.parseDouble(floatFill);
+		}
+		case Dataset.FLOAT32: {
+			String floatFill = LocalProperties.get("gda.nexus.floatfillvalue", "nan");
+			return floatFill.equalsIgnoreCase("nan") ? Float.NaN : Float.parseFloat(floatFill);
+		}
+		case Dataset.INT8:
+			return (byte) 0;
+		case Dataset.INT16:
+			return (short) 0;
+		case Dataset.INT32:
+			return 0;
+		case Dataset.INT64:
+			return (long) 0;
+		default:
+			return null;
+		}
 	}
 }

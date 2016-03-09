@@ -18,6 +18,7 @@
 
 package gda.data.scan.datawriter.scannablewriter;
 
+import gda.configuration.properties.LocalProperties;
 import gda.data.scan.datawriter.SelfCreatingLink;
 
 import java.util.Collection;
@@ -74,6 +75,8 @@ public class NumberComponentWriter extends DefaultComponentWriter {
 		final int[] makedatadim = makedatadimfordim(dim);
 		final int[] initialdims = new int[makedatadim.length];
 		ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset(name, Dataset.FLOAT64, initialdims, makedatadim, null);
+		String fillValue = LocalProperties.get("gda.nexus.floatfillvalue", "nan");
+		lazy.setFillValue(fillValue.equalsIgnoreCase("nan") ? Double.NaN : Double.parseDouble(fillValue));
 		lazy.setChunking(chunkfordim(dim, 8));
 		GroupNode lGroup = file.getGroup(aPath.substring(0, aPath.length() - name.length()), true);
 		data = file.createData(lGroup, lazy);
