@@ -251,7 +251,6 @@ public class PCOTFGTrigger extends SimpleAcquire {
 		}
 		// open the shutter
 		openShutter(true);
-		logger.error("etg.cont");
 		etfg.cont();
 		collectingData = true;
 		expectedExposureEndTime = System.currentTimeMillis() + (long) (collectionTime * 1000.);
