@@ -8,7 +8,6 @@ This section lists people who have contributed in some way (code, design, docume
 .. acks::
 
    * Contributors to the most recent release
-      * Jun Aishima
       * Mark Basham
       * Kristian Benning
       * Jonathan Blakes
@@ -17,6 +16,7 @@ This section lists people who have contributed in some way (code, design, docume
       * Matthew Dickie
       * Silvia da Graca Ramos
       * Baha El Kassaby
+      * Richard Fearn
       * Jacob Filik
       * Matthew Gerring
       * Markus Gerstel
@@ -24,13 +24,11 @@ This section lists people who have contributed in some way (code, design, docume
       * Paul Hathaway
       * Peter Holloway
       * Anthony Hull
-      * Michael Kleyn
       * Karl Levik
       * Charles Mita
       * James Mudd
       * Colin Palmer
       * Keith Ralphs
-      * Deepa Rethinam
       * Chris Sharpe
       * Rob Walton
       * Kaz Wanelik
@@ -39,6 +37,7 @@ This section lists people who have contributed in some way (code, design, docume
       * Fajin Yuan
 
    * Past contributors
+      * Jun Aishima
       * Alun Ashton
       * Simon Berriman
       * Oliver Buckley
@@ -46,9 +45,9 @@ This section lists people who have contributed in some way (code, design, docume
       * Josephine Chan
       * Chris Coles
       * Joachim Diepstraten
-      * Richard Fearn
       * Paul Gibbons
       * Jonah Graham
+      * Michael Kleyn
       * Phyo Kyaw
       * Graham Lee
       * Conor Lehane
@@ -58,6 +57,7 @@ This section lists people who have contributed in some way (code, design, docume
       * William Newell
       * Bill Pulford
       * Xiaoxu Ren (Eric)
+      * Deepa Rethinam
       * Tobias Richter
       * Irakli Sikharulidze
       * Duncan Sneddon

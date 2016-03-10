@@ -1,8 +1,17 @@
-GDA 8.52  (expected release: Mar/2016)
-======================================
+GDA 9.0 and GDA 8.52  (expected release: Mar/2016)
+==================================================
 
 User Highlights
 ---------------
+
+Development of GDA has been split into 2 streams.
+
+GDA 9 is the starting point for various architectural changes to the product.
+
+* For users, the most immediate visible change is that the GDA client is now based on the Eclipse 4 framework.
+* For developers, the GDA server is now based on OSGI services. 
+
+GDA 8 will continue to be supported for some time, but the focus of development is GDA 9.
 
 New Features
 ~~~~~~~~~~~~
