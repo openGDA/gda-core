@@ -40,5 +40,5 @@ Export-Package: gda.rcp.ncd.perspectives,
  gda.rcp.ncd.views
 Import-Package: org.apache.commons.lang,
  org.dawb.common.services,
- org.slf4j;version="[1.7.6,1.7.7)"
+ org.slf4j;version="[1.7.2,2.0.0)"
 Service-Component: OSGI-INF/*.xml
