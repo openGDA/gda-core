@@ -26,8 +26,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.scanning.api.IScannable;
+import org.eclipse.scanning.api.device.IDeviceConnectorService;
 import org.eclipse.scanning.api.points.IPosition;
-import org.eclipse.scanning.api.scan.IDeviceConnectorService;
 import org.eclipse.scanning.api.scan.ScanningException;
 
 public class ScannableDeviceConnectorService implements IDeviceConnectorService {
