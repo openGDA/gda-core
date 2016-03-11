@@ -18,17 +18,13 @@
 
 package gda.util.logging;
 
-import java.util.List;
+import junit.framework.TestCase;
 
 import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.Appender;
-import ch.qos.logback.core.ConsoleAppender;
-import junit.framework.TestCase;
 
 public class LogbackUtilsTest extends TestCase {
 
@@ -57,33 +53,5 @@ public class LogbackUtilsTest extends TestCase {
 			assertEquals(0, LogbackUtils.getAppendersForLogger(logger).size());
 		}
 	}
-
-	public void testResetLoggingToDefaultConfiguration() {
-		LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
-
-		// This creates a couple of extra loggers besides the root logger...
-		LoggerFactory.getLogger("xxx.yyy");
-		// ...so there should be at least 3
-		assertTrue(loggerContext.getLoggerList().size() >= 3);
-
-		// Resetting the logging system to the default configuration shouldn't remove existing loggers...
-		LogbackUtils.resetLoggingToDefaultConfiguration();
-		// ...so there should still be at least 3
-		assertTrue(loggerContext.getLoggerList().size() >= 3);
-
-		// Except for the root logger, none of the loggers should have any appenders, or a level
-		for (Logger logger : loggerContext.getLoggerList()) {
-			final List<Appender<ILoggingEvent>> appenders = LogbackUtils.getAppendersForLogger(logger);
-			if (logger.getName().equals(ROOT_LOGGER_NAME)) {
-				assertEquals(Level.DEBUG, logger.getLevel());
-				assertEquals(1, appenders.size());
-				assertEquals(ConsoleAppender.class, appenders.get(0).getClass());
-			} else {
-				assertNull(logger.getLevel());
-				assertEquals(0, appenders.size());
-			}
-		}
-	}
-
 
 }
