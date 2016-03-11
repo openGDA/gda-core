@@ -49,7 +49,7 @@ Export-Package: uk.ac.gda.devices.bssc,
  uk.ac.gda.devices.bssc.ui
 Import-Package: org.dawnsci.plotting.tools.profile,
  org.dawnsci.plotting.views,
- org.slf4j;version="[1.7.6,1.7.7)"
+ org.slf4j;version="[1.7.2,2.0.0)"
 Eclipse-RegisterBuddy: uk.ac.gda.core
 Bundle-ClassPath: jars/BSSC.jar,
  jars/JLib.jar,
