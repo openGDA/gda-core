@@ -41,4 +41,4 @@ Export-Package: uk.ac.gda.server.ncd,
  uk.ac.gda.server.ncd.subdetector.corba.impl
 Eclipse-RegisterBuddy: uk.ac.gda.core
 Import-Package: Jama,
- org.slf4j;version="[1.7.6,1.7.7)"
+ org.slf4j;version="[1.7.2,2.0.0)"
