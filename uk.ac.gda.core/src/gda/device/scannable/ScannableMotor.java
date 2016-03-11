@@ -733,16 +733,4 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 	public double getUserOffset() throws DeviceException {
 		return motor.getUserOffset();
 	}
-
-	// ----------------------------------------------------------------------------------------------
-
-	// Access to private methods for testing
-
-	Object rawGetDemandPositionForTesting() throws DeviceException {
-		return rawGetDemandPosition();
-	}
-
-	Object getDemandPositionForTesting() throws DeviceException {
-		return getDemandPosition();
-	}
 }
