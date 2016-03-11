@@ -41,7 +41,7 @@ Export-Package: uk.ac.gda.arpes.beans;uses:="uk.ac.gda.beans",
 Bundle-Vendor: Diamond Light Source
 Import-Package: org.eclipse.ui.intro.config,
  org.jscience.physics.quantities;version="2.0.2",
- org.slf4j;version="[1.7.6,1.7.7)",
+ org.slf4j;version="[1.7.2,2.0.0)",
  org.springframework.beans;version="3.0.4",
  org.springframework.beans.factory;version="3.0.4",
  org.springframework.beans.factory.support;version="3.0.4",
