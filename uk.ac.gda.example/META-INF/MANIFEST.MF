@@ -52,4 +52,4 @@ Import-Package: org.eclipse.core.databinding,
  org.eclipse.jface.databinding.util,
  org.eclipse.jface.databinding.viewers,
  org.eclipse.jface.databinding.wizard,
- org.slf4j;version="[1.7.6,1.7.7)"
+ org.slf4j;version="[1.7.2,2.0.0)"

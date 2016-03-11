@@ -112,7 +112,7 @@ Bundle-Vendor: Diamond Light Source
 Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy: uk.ac.gda.core, uk.ac.gda.libs
 Eclipse-BuddyPolicy: registered
-Import-Package: org.slf4j;version="[1.7.6,1.7.7)",
+Import-Package: org.slf4j;version="[1.7.2,2.0.0)",
  org.springframework.beans.factory;version="3.0.4",
  org.springframework.beans.factory.config;version="3.0.4",
  org.springframework.beans.factory.xml;version="3.0.4",
