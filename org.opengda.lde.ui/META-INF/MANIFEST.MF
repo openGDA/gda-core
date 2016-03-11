@@ -54,7 +54,7 @@ Import-Package: com.google.common.base;version="16.0.1",
  org.eclipse.search.ui,
  org.opengda.lde.events,
  org.opengda.lde.utils,
- org.slf4j,
+ org.slf4j;version="[1.7.2,2.0.0)",
  org.springframework.beans.factory
 Export-Package: org.opengda.lde.ui,
  org.opengda.lde.ui.providers,
