@@ -8,29 +8,26 @@ SLOW_FILE_WARNING_PERIOD = 5
 
 def tryToLoadDataset(path, iFileLoader):
 	# Return None if the dataset could not be loaded for any reason
-	
+	logger = LoggerFactory.getLogger("DatasetProvider.tryToLoadDataset")
+
 	if not os.path.exists(path):
+		logger.info('Path {} does not exist, returning None', path)
 		return None
 
 	try:
-		""" If we have got to here then we have already confirmed that the file exists, so
-		    touching the file just means that we can't tell when it was last written to!
-		    This makes debugging file writing & permissions problems *much* more difficult.
-		os.system("touch %s" % path)
-		    TODO: Remove this entirely unless someone can provide a compelling reason to retain it.
-		"""
 		dataset = loadImageIntoSFH(path, iFileLoader)[0] # a dataset
 		if not len(dataset.shape) == 2:
-			LoggerFactory.getLogger("DatasetProvider.tryToLoadDataset").error('Expected 2 dimensions but found %r when sanity checking image %r using loader %r' % (dataset.shape, path, iFileLoader))
+			logger.error('Expected 2 dimensions but found %r when sanity checking image %r using loader %r' % (dataset.shape, path, iFileLoader))
 			print "*" * 80
 			print "DatasetProvider.tryToLoadDataset got a dataset with ", dataset.shape, " dimensions."
 			print "The analysis code will try again to load the image, and unless it times out everything is *OKAY*"
 			print "Please call DASC support to report this (tricky to track down) bug"
 			print "*" * 80
 			return None
+		logger.debug('Returning dataset {} from path {}', dataset, path)
 		return dataset
 	except:
-		LoggerFactory.getLogger("DatasetProvider.tryToLoadDataset").error('Error loading or sanity checking image %r using loader %r :\n %s' % (path, iFileLoader, ''.join(traceback.format_exception(*sys.exc_info()))))
+		logger.error('Error loading or sanity checking image %r using loader %r :\n %s' % (path, iFileLoader, ''.join(traceback.format_exception(*sys.exc_info()))))
 		return None
 
 
@@ -59,6 +56,7 @@ class LazyDataSetProvider(DataSetProvider):
 	'''
 
 	def __init__(self, path, iFileLoader=None, fileLoadTimout=None, printNfsTimes=False, wait_for_exposure_callable=None):
+		self.logger = LoggerFactory.getLogger("LazyDataSetProvider:%s" % path)
 		self.path = path
 		self.iFileLoader = iFileLoader
 		self.fileLoadTimout = fileLoadTimout
@@ -70,6 +68,7 @@ class LazyDataSetProvider(DataSetProvider):
 
 	def getDataset(self, retryUntilTimeout = True):
 		self.configure(retryUntilTimeout)
+		self.logger.debug("getDataset(): dataset {}", self.dataset)
 		return self.dataset
 
 	def configure(self, retryUntilTimeout = True):
@@ -96,12 +95,14 @@ class LazyDataSetProvider(DataSetProvider):
 		dataset = tryToLoadDataset(self.path, self.iFileLoader)
 		
 		if dataset is not None:
+			self.logger.debug("__keepTryingToLoadDataset(): dataset {}", dataset)
 			return dataset
 		
 		# Keep trying
 		while dataset is None:
 			if time.clock() > nextWarnTime:
 				print "Waiting for file %s, %i/%is" % (self.path, nextWarnTime - firstTryTime, self.fileLoadTimout)
+				self.logger.info("Waiting for file {}, {}/{}", self.path, nextWarnTime - firstTryTime, self.fileLoadTimout)
 				nextWarnTime = time.clock() + SLOW_FILE_WARNING_PERIOD
 			# pause() # Removed as this occasionaly interrupted for a reason I failed to trace (for a month!)
 			if time.clock() - firstTryTime > self.fileLoadTimout:
