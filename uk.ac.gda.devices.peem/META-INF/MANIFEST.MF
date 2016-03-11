@@ -36,4 +36,4 @@ Bundle-ClassPath: .,
  jars/peem-1.0.jar,
  jars/gda_peem-corba.jar
 Bundle-Vendor: Diamond Light Source
-Import-Package: org.slf4j;version="[1.7.6,1.7.7)"
+Import-Package: org.slf4j;version="[1.7.2,2.0.0)"
