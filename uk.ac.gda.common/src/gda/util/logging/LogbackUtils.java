@@ -18,6 +18,8 @@
 
 package gda.util.logging;
 
+import gda.configuration.properties.LocalProperties;
+
 import java.net.URL;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -26,7 +28,6 @@ import java.util.List;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
-import ch.qos.logback.classic.BasicConfigurator;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
@@ -36,7 +37,6 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.util.Duration;
-import gda.configuration.properties.LocalProperties;
 
 /**
  * Utility methods for Logback.
@@ -94,35 +94,6 @@ public class LogbackUtils {
 	 */
 	public static void resetLogging() {
 		resetLogging(getLoggerContext());
-	}
-
-	/**
-	 * Resets the specified Logback logger context to the default configuration. This causes the following to happen:
-	 *
-	 * <ul>
-	 * <li>All appenders are removed from any loggers that have been created. (Loggers are created when they are
-	 * configured or used from code.)</li>
-	 * <li>Existing loggers are retained, but their levels are cleared.</li>
-	 * <li>A single (console) appender is added to the root logger.
-	 * </ul>
-	 */
-	public static void resetLoggingToDefaultConfiguration(LoggerContext loggerContext) {
-		loggerContext.reset();
-		BasicConfigurator.configure(loggerContext);
-	}
-
-	/**
-	 * Resets the default Logback logger context to the default configuration. This causes the following to happen:
-	 *
-	 * <ul>
-	 * <li>All appenders are removed from any loggers that have been created. (Loggers are created when they are
-	 * configured or used from code.)</li>
-	 * <li>Existing loggers are retained, but their levels are cleared.</li>
-	 * <li>A single (console) appender is added to the root logger.
-	 * </ul>
-	 */
-	public static void resetLoggingToDefaultConfiguration() {
-		resetLoggingToDefaultConfiguration(getLoggerContext());
 	}
 
 	/**
