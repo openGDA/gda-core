@@ -35,9 +35,8 @@ Export-Package: gda.device,
  gda.device.scannable
 Import-Package: net.sf.cglib.core,
  net.sf.cglib.proxy,
- org.slf4j;version="[1.7.6,1.7.7)"
+ org.slf4j;version="[1.7.2,2.0.0)"
 Bundle-ClassPath: jars/TangORB-7.0.3.jar,
  .
 Bundle-Vendor: ESRF & Daresbury
 Eclipse-RegisterBuddy: uk.ac.gda.core, uk.ac.diamond.org.springframework
-
