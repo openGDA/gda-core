@@ -214,6 +214,11 @@ public class CoordinatedScannableGroup extends ScannableGroup implements ICoordi
 	// Delegate to coordinatedScannableComponent
 
 	@Override
+	public void atLevelMoveStart() {
+		// Do Nothing - override default behaviour to prevent targeting on a full group move
+	}
+
+	@Override
 	public void addChildToMove(ICoordinatedChildScannable element) {
 		coordinatedScannableComponent.addChildToMove(element);
 	}
