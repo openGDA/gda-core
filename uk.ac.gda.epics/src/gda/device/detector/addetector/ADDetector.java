@@ -797,7 +797,9 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 			throws Exception, DeviceException {
 		NexusGroupData ngd = ArrayData.readArrayData(ndArray);
 		ngd.isDetectorEntryData = true;
-		ngd.chunkDimensions = dataChunking;
+		if (dataChunking != null) {
+			ngd.chunkDimensions = dataChunking;
+		}
 		data.addData(detectorName, "data", ngd, null, 1);
 	}
 
