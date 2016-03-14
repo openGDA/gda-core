@@ -6,13 +6,13 @@ Bundle-Version: 9.0.0.qualifier
 Bundle-Vendor: Diamond Light Source
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: com.google.guava;bundle-version="[16.0.0,17.0.0)",
- ch.qos.logback.classic;bundle-version="[1.1.1,1.1.2)",
- ch.qos.logback.core;bundle-version="[1.1.1,1.1.2)",
+ ch.qos.logback.classic;bundle-version="[1.0.7,2.0.0)",
+ ch.qos.logback.core;bundle-version="[1.0.7,2.0.0)",
  uk.ac.gda.eventbus.api
 Import-Package: gda.factory,
  javax.jms,
  org.apache.activemq,
- org.slf4j;version="[1.7.6,1.7.7)",
+ org.slf4j;version="[1.7.2,2.0.0)",
  org.springframework.beans.factory;version="3.2.9.RELEASE"
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Export-Package: uk.ac.gda.eventbus;version="8.44.0",

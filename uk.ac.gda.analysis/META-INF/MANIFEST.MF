@@ -68,5 +68,5 @@ Eclipse-RegisterBuddy: uk.ac.gda.libs, uk.ac.diamond.scisoft.analysis,
 Eclipse-BuddyPolicy: registered
 Import-Package: net.sf.cglib.core,
  net.sf.cglib.proxy,
- org.slf4j;version="[1.7.6,1.7.7)",
+ org.slf4j;version="[1.7.2,2.0.0)",
  org.springframework.beans.factory;version="3.0.4"

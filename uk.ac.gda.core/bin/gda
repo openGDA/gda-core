@@ -822,12 +822,18 @@ where task can be:
 			self.append_plugin_and_dependencies_to_class_path_and_library_path("uk.ac.gda.core")
 			cspec_path = os.path.join(self.options.gda_config, "buckminster.cspec")
 			if os.path.exists(cspec_path):
+				self.logger.trace("parsing %s" % cspec_path)
 				doc = minidom.parse(cspec_path)
 				for entry in doc.getElementsByTagName('cs:dependency'):
-					if entry.getAttribute('componentType') == "osgi.bundle":
+					if entry.getAttribute('componentType') != "osgi.bundle":
+						self.logger.trace("ignoring non osgi.bundle: %s %s" % (entry.getAttribute('name'), entry.getAttribute('componentType')))
+					else:
 						dependent = entry.getAttribute('name')
 						if not ((self.task in self.server_tasks) and (dependent in self.server_dependents_to_ignore)):
 							self.append_plugin_and_dependencies_to_class_path_and_library_path(dependent)
+						else:
+							self.logger.trace("ignoring %s as it is in %r and %r is in %r" % (
+								dependent, self.server_dependents_to_ignore, self.task, self.server_tasks))
 
 		# add any classes and jars from the configuration
 		config_classes = abspath(self.options.gda_config, "classes")
@@ -885,6 +891,7 @@ where task can be:
 
 		self.logger.trace("append_plugin_and_dependencies_to_class_path_and_library_path called for: %s" % (dependent,))
 		if dependent in self.dependents_already_processed:
+			self.logger.trace("%s already processed" % dependent)
 			return
 		self.dependents_already_processed.append(dependent)
 
@@ -896,6 +903,7 @@ where task can be:
 
 		location = self.plugin_location.get(dependent)
 		if location:
+			self.logger.trace("Looking for dependencies on %r in %r" % (dependent, location))
 			# handle a regular (non-target-platform plugin)
 			self.append_single_plugin_to_class_path_and_library_path(location)
 			self.plugin_parser.setup(location)
@@ -915,6 +923,7 @@ where task can be:
 				# 2.0.2 (bundle name uk.ac.diamond.org.jscience) must appear before 4.3.1 (bundle name uk.ac.diamond.org.jscience4)
 				# so if we are adding jscience4, first add jscience (the code makes sure that we never add anything twice)
 				self.append_plugin_and_dependencies_to_class_path_and_library_path('uk.ac.diamond.org.jscience')
+			self.logger.trace("Looking for jars related to %s" % dependent)
 			# look up a jar in tp/plugins
 			jarPaths = glob.glob(os.path.join(self.tp, "plugins", dependent + "_*.jar"))  # use * in place of version numbers
 			if len(jarPaths) > 1:
