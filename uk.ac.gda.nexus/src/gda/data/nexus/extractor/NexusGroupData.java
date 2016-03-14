@@ -86,11 +86,22 @@ public class NexusGroupData implements Serializable {
 	 * @param dimensions
 	 * @param dtype dataset type specified for output
 	 * @param data
+	 * @param chunkDimensions
 	 */
-	NexusGroupData(int[] dimensions, int dtype, Serializable data) {
+	NexusGroupData(int[] dimensions, int dtype, Serializable data, int[] chunkDimensions) {
 		this.dimensions = dimensions;
 		this.dtype = dtype;
 		this.data = data;
+		this.chunkDimensions = chunkDimensions;
+	}
+
+	/**
+	 * @param dimensions
+	 * @param dtype dataset type specified for output
+	 * @param data
+	 */
+	NexusGroupData(int[] dimensions, int dtype, Serializable data) {
+		this(dimensions, dtype, data, calcChunksFromType(dimensions, dtype));
 	}
 
 	/**
@@ -140,6 +151,7 @@ public class NexusGroupData implements Serializable {
 			dtype = -1;
 			throw new IllegalArgumentException("Serializable must be an array");
 		}
+		this.chunkDimensions = calcChunksFromType(dimensions, dtype);
 	}
 
 	/**
@@ -865,5 +877,48 @@ public class NexusGroupData implements Serializable {
 		} else if (!Arrays.deepEquals(new Object[] { data }, new Object[] { other.data }))
 			return false;
 		return true;
+	}
+
+	private static int[] calcChunksFromType(int[] dims, int dtype) {
+		switch (dtype) {
+		case Dataset.INT8:
+		case Dataset.INT16:
+		case Dataset.INT32:
+		case Dataset.INT64:
+		case Dataset.FLOAT32:
+		case Dataset.FLOAT64:
+		case Dataset.BOOL: {
+			int size = AbstractDataset.getItemsize(dtype);
+			return calcChunks(dims, size);
+		}
+		default:
+			return null;
+		}
+	}
+
+	private static int[] calcChunks(int[] dims, int size) {
+		final int target = 1024 * 1024;
+		int[] chunk = dims.clone();
+		long chunkSize = size;
+		for (int d : chunk) {
+			chunkSize *= d;
+		}
+		outerloop:
+		for (int i = 0; i < chunk.length; i++) {
+			while (chunk[i] > 1) {
+				if (chunkSize > target) {
+					// we want to round up the division to avoid extra chunks being
+					// required to store tiny remnants of data
+					chunk[i] = (int) Math.ceil(chunk[i] / 2.0);
+					chunkSize = size;
+					for (int d : chunk) {
+						chunkSize *= d;
+					}
+				} else {
+					break outerloop;
+				}
+			}
+		}
+		return chunk;
 	}
 }
