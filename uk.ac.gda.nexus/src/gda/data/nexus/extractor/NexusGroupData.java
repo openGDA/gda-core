@@ -86,11 +86,22 @@ public class NexusGroupData implements Serializable {
 	 * @param dimensions
 	 * @param dtype dataset type specified for output
 	 * @param data
+	 * @param chunkDimensions
 	 */
-	NexusGroupData(int[] dimensions, int dtype, Serializable data) {
+	NexusGroupData(int[] dimensions, int dtype, Serializable data, int[] chunkDimensions) {
 		this.dimensions = dimensions;
 		this.dtype = dtype;
 		this.data = data;
+		this.chunkDimensions = chunkDimensions;
+	}
+
+	/**
+	 * @param dimensions
+	 * @param dtype dataset type specified for output
+	 * @param data
+	 */
+	NexusGroupData(int[] dimensions, int dtype, Serializable data) {
+		this(dimensions, dtype, data, calcChunksFromType(dimensions, dtype));
 	}
 
 	/**
@@ -98,9 +109,7 @@ public class NexusGroupData implements Serializable {
 	 * @param clazz
 	 */
 	NexusGroupData(int[] dimensions, Class<?> clazz) {
-		this.dimensions = dimensions;
-		dtype = AbstractDataset.getDTypeFromClass(clazz);
-		this.data = null;
+		this(dimensions, AbstractDataset.getDTypeFromClass(clazz), null);
 	}
 
 	/**
@@ -142,6 +151,7 @@ public class NexusGroupData implements Serializable {
 			dtype = -1;
 			throw new IllegalArgumentException("Serializable must be an array");
 		}
+		this.chunkDimensions = calcChunksFromType(dimensions, dtype);
 	}
 
 	/**
@@ -269,9 +279,7 @@ public class NexusGroupData implements Serializable {
 	}
 
 	public NexusGroupData(int[] dims, byte... b) {
-		dimensions = dims;
-		data = b;
-		dtype = Dataset.INT8;
+		this(dims, Dataset.INT8, b);
 	}
 
 	public NexusGroupData(short... s) {
@@ -279,15 +287,11 @@ public class NexusGroupData implements Serializable {
 	}
 
 	public NexusGroupData(int[] dims, short... s) {
-		dimensions = dims;
-		data = s;
-		dtype = Dataset.INT16;
+		this(dims, Dataset.INT16, s);
 	}
 
 	public NexusGroupData(short[][] s) {
-		dimensions = AbstractDataset.getShapeFromObject(s);
-		data = s;
-		dtype = Dataset.INT16;
+		this(AbstractDataset.getShapeFromObject(s), Dataset.INT16, s);
 	}
 
 	public NexusGroupData(int i) {
@@ -299,21 +303,15 @@ public class NexusGroupData implements Serializable {
 	}
 
 	public NexusGroupData(int[] dims, int... i) {
-		dimensions = dims;
-		data = i;
-		dtype = Dataset.INT32;
+		this(dims, Dataset.INT32, i);
 	}
 
 	public NexusGroupData(int[][] i) {
-		dimensions = AbstractDataset.getShapeFromObject(i);
-		data = i;
-		dtype = Dataset.INT32;
+		this(AbstractDataset.getShapeFromObject(i), Dataset.INT32, i);
 	}
 
 	public NexusGroupData(int[][][] i) {
-		dimensions = AbstractDataset.getShapeFromObject(i);
-		data = i;
-		dtype = Dataset.INT32;
+		this(AbstractDataset.getShapeFromObject(i), Dataset.INT32, i);
 	}
 
 	public NexusGroupData(long... l) {
@@ -321,9 +319,7 @@ public class NexusGroupData implements Serializable {
 	}
 
 	public NexusGroupData(int[] dims, long... l) {
-		dimensions = dims;
-		data = l;
-		dtype = Dataset.INT64;
+		this(dims, Dataset.INT64, l);
 	}
 
 	public NexusGroupData(boolean b) {
@@ -335,9 +331,7 @@ public class NexusGroupData implements Serializable {
 	}
 
 	public NexusGroupData(int[] dims, float... f) {
-		dimensions = dims;
-		data = f;
-		dtype = Dataset.FLOAT32;
+		this(dims, Dataset.FLOAT32, f);
 	}
 
 	public NexusGroupData(double... d) {
@@ -345,21 +339,15 @@ public class NexusGroupData implements Serializable {
 	}
 
 	public NexusGroupData(int[] dims, double... d) {
-		dimensions = dims;
-		data = d;
-		dtype = Dataset.FLOAT64;
+		this(dims, Dataset.FLOAT64, d);
 	}
 
 	public NexusGroupData(double[][] d) {
-		dimensions = AbstractDataset.getShapeFromObject(d);
-		data = d;
-		dtype = Dataset.FLOAT64;
+		this(AbstractDataset.getShapeFromObject(d), Dataset.FLOAT64, d);
 	}
 
 	public NexusGroupData(double[][][] d) {
-		dimensions = AbstractDataset.getShapeFromObject(d);
-		data = d;
-		dtype = Dataset.FLOAT64;
+		this(AbstractDataset.getShapeFromObject(d), Dataset.FLOAT64, d);
 	}
 
 	/**
@@ -889,5 +877,48 @@ public class NexusGroupData implements Serializable {
 		} else if (!Arrays.deepEquals(new Object[] { data }, new Object[] { other.data }))
 			return false;
 		return true;
+	}
+
+	private static int[] calcChunksFromType(int[] dims, int dtype) {
+		switch (dtype) {
+		case Dataset.INT8:
+		case Dataset.INT16:
+		case Dataset.INT32:
+		case Dataset.INT64:
+		case Dataset.FLOAT32:
+		case Dataset.FLOAT64:
+		case Dataset.BOOL: {
+			int size = AbstractDataset.getItemsize(dtype);
+			return calcChunks(dims, size);
+		}
+		default:
+			return null;
+		}
+	}
+
+	private static int[] calcChunks(int[] dims, int size) {
+		final int target = 1024 * 1024;
+		int[] chunk = dims.clone();
+		long chunkSize = size;
+		for (int d : chunk) {
+			chunkSize *= d;
+		}
+		outerloop:
+		for (int i = 0; i < chunk.length; i++) {
+			while (chunk[i] > 1) {
+				if (chunkSize > target) {
+					// we want to round up the division to avoid extra chunks being
+					// required to store tiny remnants of data
+					chunk[i] = (int) Math.ceil(chunk[i] / 2.0);
+					chunkSize = size;
+					for (int d : chunk) {
+						chunkSize *= d;
+					}
+				} else {
+					break outerloop;
+				}
+			}
+		}
+		return chunk;
 	}
 }
