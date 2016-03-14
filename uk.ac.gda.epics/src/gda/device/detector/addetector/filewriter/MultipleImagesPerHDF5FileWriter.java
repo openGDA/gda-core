@@ -438,6 +438,7 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements F
 	@Override
 	public Vector<NXDetectorDataAppender> read(int maxToRead) throws NoSuchElementException, InterruptedException,
 			DeviceException {
+		logger.trace("read({}), firstReadoutInScan={}, numCaptured={}, numToBeCaptured={}", maxToRead, firstReadoutInScan, numCaptured, numToBeCaptured);
 		NXDetectorDataAppender dataAppender;
 		//wait until the NumCaptured_RBV is equal to or exceeds maxToRead.
 		if (isEnabled()) {
@@ -457,6 +458,7 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements F
 			dataAppender = new NXDetectorDataNullAppender();
 			numToBeCaptured++;
 		}
+		logger.debug("firstReadoutInScan={}, numCaptured={}, numToBeCaptured={}", firstReadoutInScan, numCaptured, numToBeCaptured);
 		while( numCaptured< numToBeCaptured){
 			try {
 				getNdFile().getPluginBase().checkDroppedFrames();

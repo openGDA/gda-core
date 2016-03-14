@@ -27,6 +27,7 @@ import gda.device.DeviceException;
  */
 public interface ADDriverPilatus {
 
+	public final static String SoftTrigger = "SoftTrigger";
 
 	enum PilatusTriggerMode {
 		/**
@@ -48,7 +49,11 @@ public interface ADDriverPilatus {
 		/**
 		 * Collect images as fast as exposure time and readout permit, images written to a temporary file
 		 */
-		ALIGNMENT
+		ALIGNMENT,
+		/**
+		 * Use separate PV to trigger acquisitions with callback when detector is ready to acquire next image.
+		 */
+		SOFTWARE_TRIGGER
 	}
 
 	enum Gain {
@@ -189,4 +194,7 @@ public interface ADDriverPilatus {
 
 	void reset() throws DeviceException;
 
+	void sendSoftTrigger() throws Exception;
+
+	void waitForSoftTriggerCallback() throws InterruptedException;
 }

@@ -20,32 +20,100 @@ package gda.device.zebra.controller.impl;
 
 import gda.device.zebra.controller.SoftInputChangedEvent;
 import gda.device.zebra.controller.Zebra;
+import gda.epics.DummyReadOnlyPV;
 import gda.epics.ReadOnlyPV;
 import gda.factory.Findable;
 import gda.observable.Observable;
+import gda.observable.Observer;
+import gda.observable.Predicate;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
+
 public class ZebraDummy implements Zebra, Findable, InitializingBean {
 
-	private static final Logger logger = LoggerFactory.getLogger(ZebraImpl.class);
+	private static final Logger logger = LoggerFactory.getLogger(ZebraDummy.class);
 
-	@Override
-	public void afterPropertiesSet() throws Exception {
-		// TODO Auto-generated method stub
+	private static final String ZEBRA_PV = "ZEBRA:DUMMY:PV";
 
+	private String name;
+	private double pcPulseDelay;
+	private double pcPulseWidth;
+	private double pcPulseStep;
+	private int pcPulseSource;
+	private int pcGateSource;
+	private double pcGateStart;
+	private double pcGateWidth;
+	private double pcGateStep;
+	private int pcGateNumberOfGates;
+	private int pcArmSource;
+	private boolean pcArmed;
+	private int pcCaptureBitField;
+	private int pcEnc;
+	private int pcNumberOfPointsCaptured;
+	private int pcTimeUnit;
+	private int pcPulseMax;
+	private int pcDir;
+	private double pcPulseStart;
+
+	private Map<Integer, Integer> pulseInputs = new HashMap<>();
+	private Map<Integer, Double> pulseDelays = new HashMap<>();
+	private Map<Integer, Double> pulseWidths = new HashMap<>();
+	private Map<Integer, Integer> pulseTimeUnits = new HashMap<>();
+	private Map<Integer, Integer> outTTLs = new HashMap<>();
+	private Map<Integer, Boolean> ttlOutputStates = new HashMap<>();
+	private Map<Integer, Boolean> softInputSet = new HashMap<>();
+
+	//----------------------------------------------------------------------------------------------------
+
+	private void initialise() {
+		name = "ZebraDummy";
+		pcPulseDelay = 0;
+		pcPulseWidth = 0;
+		pcPulseStep = 0;
+		pcPulseSource = Zebra.PC_PULSE_SOURCE_POSITION;
+		pcGateSource = Zebra.PC_GATE_SOURCE_POSITION;
+		pcGateStart = 0;
+		pcGateWidth = 0;
+		pcGateStep = 0;
+		pcGateNumberOfGates = 0;
+		pcArmSource = Zebra.PC_ARM_SOURCE_EXTERNAL;
+		pcArmed = false;
+		pcCaptureBitField = 0;
+		pcEnc = Zebra.PC_ENC_ENC1;
+		pcNumberOfPointsCaptured = 0;
+		pcTimeUnit = Zebra.PC_TIMEUNIT_SEC;
+		pcPulseMax = 0;
+		pcDir = 0;
+		pulseInputs.clear();
+		pulseDelays.clear();
+		pulseWidths.clear();
+		pulseTimeUnits.clear();
+		outTTLs.clear();
+		ttlOutputStates.clear();
+		softInputSet.clear();
 	}
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//Findable method implementations
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	//Set and get the bean name
-	private String name;
+	public ZebraDummy() {
+		initialise();
+	}
 
+	// -----------------------------------------------------------------------------------------------------------------
+	// InitialisingBean interface
+	// -----------------------------------------------------------------------------------------------------------------
+	@Override
+	public void afterPropertiesSet() throws Exception {
+	}
+
+	// -----------------------------------------------------------------------------------------------------------------
+	// Findable interface
+	// -----------------------------------------------------------------------------------------------------------------
 	@Override
 	public void setName(String name) {
 		this.name = name;
@@ -54,352 +122,318 @@ public class ZebraDummy implements Zebra, Findable, InitializingBean {
 	public String getName() {
 		return name;
 	}
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	@SuppressWarnings("unused")
-	public void encCopyMotorPosToZebra(int posNum) throws Exception {
-	}
 
+	// -----------------------------------------------------------------------------------------------------------------
+	// Zebra interface
+	// -----------------------------------------------------------------------------------------------------------------
 	@Override
 	public double getPCPulseDelay() throws Exception {
-		// TODO Auto-generated method stub
-		return 0;
+		return pcPulseDelay;
 	}
 
 	@Override
 	public double getPCPulseDelayRBV() throws Exception {
-		// TODO Auto-generated method stub
-		return 0;
+		return pcPulseDelay;
 	}
 
 	@Override
 	public void setPCPulseDelay(double delay) throws Exception {
-		// TODO Auto-generated method stub
-
+		pcPulseDelay = delay;
 	}
 
 	@Override
 	public double getPCPulseWidth() throws Exception {
-		// TODO Auto-generated method stub
-		return 0;
+		return pcPulseWidth;
 	}
 
 	@Override
 	public double getPCPulseWidthRBV() throws Exception {
-		// TODO Auto-generated method stub
-		return 0;
+		return pcPulseWidth;
 	}
 
 	@Override
 	public void setPCPulseWidth(double width) throws Exception {
-		// TODO Auto-generated method stub
-
+		pcPulseWidth = width;
 	}
 
 	@Override
 	public double getPCPulseStep() throws Exception {
-		// TODO Auto-generated method stub
-		return 0;
+		return pcPulseStep;
 	}
 
 	@Override
 	public double getPCPulseStepRBV() throws Exception {
-		// TODO Auto-generated method stub
-		return 0;
+		return pcPulseStep;
 	}
 
 	@Override
 	public void setPCPulseStep(double step) throws Exception {
-		// TODO Auto-generated method stub
-
+		pcPulseStep = step;
 	}
 
 	@Override
 	public void setPCPulseSource(int ordinal) throws Exception {
-		// TODO Auto-generated method stub
-
+		pcPulseSource = ordinal;
 	}
 
 	@Override
 	public int getPCPulseSource() throws Exception, Exception {
-		// TODO Auto-generated method stub
-		return 0;
+		return pcPulseSource;
 	}
 
 	@Override
 	public int getPCGateSource() throws Exception, Exception {
-		// TODO Auto-generated method stub
-		return 0;
+		return pcGateSource;
 	}
 
 	@Override
 	public void setPCGateSource(int ordinal) throws Exception {
-		// TODO Auto-generated method stub
-
+		pcGateSource = ordinal;
 	}
 
 	@Override
 	public double getPCGateStart() throws Exception {
-		// TODO Auto-generated method stub
-		return 0;
+		return pcGateStart;
 	}
 
 	@Override
 	public double getPCGateStartRBV() throws Exception {
-		// TODO Auto-generated method stub
-		return 0;
+		return pcGateStart;
 	}
 
 	@Override
 	public double getPCGateWidth() throws Exception {
-		// TODO Auto-generated method stub
-		return 0;
+		return pcGateWidth;
 	}
 
 	@Override
 	public int getPCGateNumberOfGates() throws Exception {
-		// TODO Auto-generated method stub
-		return 0;
+		return pcGateNumberOfGates;
 	}
 
 	@Override
 	public double getPCGateStep() throws Exception {
-		// TODO Auto-generated method stub
-		return 0;
+		return pcGateStep;
 	}
 
 	@Override
 	public void setPCGateStart(double start) throws Exception {
-		// TODO Auto-generated method stub
-
+		pcGateStart = start;
 	}
 
 	@Override
 	public void setPCGateWidth(double width) throws Exception {
-		// TODO Auto-generated method stub
-
+		pcGateWidth = width;
 	}
 
 	@Override
 	public double getPCGateWidthRBV() throws Exception {
-		// TODO Auto-generated method stub
-		return 0;
+		return pcGateWidth;
 	}
 
 	@Override
 	public void setPCGateNumberOfGates(int numberOfGates) throws Exception {
-		// TODO Auto-generated method stub
-
+		pcGateNumberOfGates = numberOfGates;
 	}
 
 	@Override
 	public void setPCGateStep(double step) throws Exception {
-		// TODO Auto-generated method stub
-
+		pcGateStep = step;
 	}
 
 	@Override
 	public int getPCArmSource() throws Exception {
-		return 0;
+		return pcArmSource;
 	}
 
 	@Override
 	public void setPCArmSource(int ordinal) throws Exception {
-		// TODO Auto-generated method stub
-
+		pcArmSource = ordinal;
 	}
 
 	@Override
 	public boolean isPCArmed() throws Exception {
-		return false;
+		return pcArmed;
 	}
 
 	@Override
 	public void pcArm() throws Exception {
 		logger.info("Arm Zebra Box");
-
+		pcArmed = true;
 	}
 
 	@Override
 	public void pcDisarm() throws Exception {
 		logger.info("Dis-Arm Zebra Box");
-
+		pcArmed = false;
 	}
 
 	@Override
 	public void setPCCaptureBitField(int val) throws Exception {
-		// TODO Auto-generated method stub
-
+		pcCaptureBitField = val;
 	}
 
 	@Override
 	public int getPCCaptureBitField() throws Exception {
-		return 0;
+		return pcCaptureBitField;
 	}
 
 	@Override
 	public void setPCEnc(int val) throws Exception {
-		// TODO Auto-generated method stub
-
+		pcEnc = val;
 	}
 
 	@Override
 	public int getPCEnc() throws Exception {
-		// TODO Auto-generated method stub
-		return 0;
+		return pcEnc;
+	}
+
+	@Deprecated
+	@Override
+	public ReadOnlyPV<Double[]> getEnc1AvalPV() {
+		return new DummyReadOnlyPV<Double[]>(ZEBRA_PV, new Double[] { 1.0, 1.3, 1.7 });
 	}
 
 	@Override
-	public ReadOnlyPV<Double[]> getEnc1AvalPV() {
-		// TODO Auto-generated method stub
-		return null;
+	public ReadOnlyPV<Double[]> getEncPV(int encoder) {
+		return new DummyReadOnlyPV<Double[]>(ZEBRA_PV, new Double[] { 2.0, 2.3, 2.7 });
 	}
 
 	@Override
 	public ReadOnlyPV<Integer> getNumberOfPointsCapturedPV() {
-		// TODO Auto-generated method stub
-		return null;
+		return new DummyReadOnlyPV<Integer>(ZEBRA_PV, 42);
 	}
 
 	@Override
 	public void setPCNumberOfPointsCaptured(int val) throws Exception {
-		// TODO Auto-generated method stub
-
+		pcNumberOfPointsCaptured = val;
 	}
 
 	@Override
 	public int getPCNumberOfPointsCaptured() throws Exception {
-		// TODO Auto-generated method stub
-		return 0;
+		return pcNumberOfPointsCaptured;
 	}
 
 	@Override
 	public void setPCTimeUnit(int i) throws Exception {
-		// TODO Auto-generated method stub
-
+		pcTimeUnit = i;
 	}
 
 	@Override
 	public int getPCTimeUnit() throws Exception {
-		// TODO Auto-generated method stub
-		return 0;
+		return pcTimeUnit;
 	}
 
 	@Override
 	public void setPCPulseMax(int numberTriggers) throws Exception {
-		// TODO Auto-generated method stub
-
+		pcPulseMax = numberTriggers;
 	}
 
 	@Override
 	public int getPCPulseMax() throws Exception, Exception {
-		// TODO Auto-generated method stub
-		return 0;
+		return pcPulseMax;
 	}
 
 	@Override
 	public ReadOnlyPV<Integer> getNumberOfPointsDownloadedPV() {
-		// TODO Auto-generated method stub
-		return null;
+		return new DummyReadOnlyPV<Integer>(ZEBRA_PV, 33);
 	}
 
 	@Override
 	public ReadOnlyPV<Double[]> getPCTimePV() {
-		// TODO Auto-generated method stub
-		return null;
+		return new DummyReadOnlyPV<Double[]>(ZEBRA_PV, new Double[] { 3.5, 4.6, 7.3 });
 	}
 
 	@Override
 	public void setPCDir(int i) throws Exception {
-		// TODO Auto-generated method stub
-
+		pcDir = i;
 	}
 
 	@Override
 	public int getPCDir() throws Exception {
-		// TODO Auto-generated method stub
-		return 0;
+		return pcDir;
 	}
 
 	@Override
 	public void setPulseInput(int pulseId, int input) throws Exception {
-		// TODO Auto-generated method stub
-
+		pulseInputs.put(pulseId, input);
 	}
 
 	@Override
 	public void setPulseDelay(int pulseId, double delay) throws Exception {
-		// TODO Auto-generated method stub
-
+		pulseDelays.put(pulseId, delay);
 	}
 
 	@Override
 	public void setPulseWidth(int pulseId, double width) throws Exception {
-		// TODO Auto-generated method stub
-
+		pulseWidths.put(pulseId, width);
 	}
 
 	@Override
 	public void setPulseTimeUnit(int pulseId, int timeunit) throws Exception {
-		// TODO Auto-generated method stub
-
+		pulseTimeUnits.put(pulseId, timeunit);
 	}
 
 	@Override
 	public void setOutTTL(int outId, int val) throws Exception {
-		// TODO Auto-generated method stub
-
+		outTTLs.put(outId, val);
 	}
 
 	@Override
 	public boolean getTtlOutputState(int output) throws IOException {
-		// TODO Auto-generated method stub
-		return false;
+		final Boolean result = ttlOutputStates.get(output);
+		return (result == null) ? false : true;
 	}
 
 	@Override
 	public void setPCArmInput(int input) throws Exception {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public boolean isSoftInputSet(int inputNumber) throws IOException {
-		// TODO Auto-generated method stub
-		return false;
+		final Boolean set = softInputSet.get(inputNumber);
+		return (set == null) ? false : set;
 	}
 
 	@Override
 	public void setSoftInput(int inputNumber, boolean set) throws IOException {
-		// TODO Auto-generated method stub
-
+		softInputSet.put(inputNumber, set);
 	}
 
 	@Override
 	public Observable<SoftInputChangedEvent> getSoftInputObservable() {
-		// TODO Auto-generated method stub
-		return null;
+		return new Observable<SoftInputChangedEvent>() {
+			@Override
+			public void addObserver(Observer<SoftInputChangedEvent> observer) throws Exception {
+			}
+
+			@Override
+			public void addObserver(Observer<SoftInputChangedEvent> observer, Predicate<SoftInputChangedEvent> predicate) throws Exception {
+			}
+
+			@Override
+			public void removeObserver(Observer<SoftInputChangedEvent> observer) {
+			}
+		};
 	}
 
 	@Override
 	public void reset() throws IOException {
-		// TODO Auto-generated method stub
+		initialise();
 	}
 
 	@Override
 	public void setPCPulseStart(double val) throws Exception {
-		// TODO Auto-generated method stub
-
+		pcPulseStart = val;
 	}
 
 	@Override
 	public double getPCPulseStart() throws Exception {
-		// TODO Auto-generated method stub
-		return 0;
+		return pcPulseStart;
 	}
 
 	@Override
 	public double getPCPulseStartRBV() throws Exception {
-		// TODO Auto-generated method stub
-		return 0;
+		return pcPulseStart;
 	}
 }

@@ -47,6 +47,7 @@ public class SoftwareStartStop extends AbstractADCollectionStrategy {
 
 	@Override
 	public void collectData() throws Exception {
+		logger.trace("collectData() called, restoreAcquireState={}", restoreAcquireState);
 		getAdBase().startAcquiring();
 	}
 
@@ -58,16 +59,19 @@ public class SoftwareStartStop extends AbstractADCollectionStrategy {
 
 	@Override
 	protected void rawCompleteCollection() throws Exception {
+		logger.trace("rawCompleteCollection() called, restoreAcquireState={}", restoreAcquireState);
 		getAdBase().stopAcquiring();
 	}
 
 	@Override
 	public void rawAtCommandFailure() throws Exception {
+		logger.trace("rawAtCommandFailure() called, restoreAcquireState={}", restoreAcquireState);
 		completeCollection();
 	}
 
 	@Override
 	public void rawStop() throws Exception {
+		logger.trace("rawStop() called, restoreAcquireState={}", restoreAcquireState);
 		completeCollection();
 	}
 
@@ -75,19 +79,23 @@ public class SoftwareStartStop extends AbstractADCollectionStrategy {
 
 	@Override
 	public void saveState() throws Exception {
+		logger.trace("saveState() called, restoreAcquireState={}", restoreAcquireState);
 		if (restoreAcquireState) {
 			savedAcquireState = getAdBase().getAcquireState();
+			logger.debug("Saved state now savedAcquireState={}", savedAcquireState);
 		}
 	}
 
 	@Override
 	public void restoreState() throws Exception {
+		logger.trace("restoreState() called, restoreAcquireState={}, savedAcquireState={}", restoreAcquireState, savedAcquireState);
 		if (restoreAcquireState) {
 			if (savedAcquireState == 1) {
 				getAdBase().startAcquiring();
 			} else {
 				getAdBase().stopAcquiring();
 			}
+			logger.debug("Restored state to savedAcquireState={})", savedAcquireState);
 		}
 	}
 
