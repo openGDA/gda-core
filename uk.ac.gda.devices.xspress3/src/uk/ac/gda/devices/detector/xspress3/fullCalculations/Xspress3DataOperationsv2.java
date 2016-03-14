@@ -89,15 +89,17 @@ public class Xspress3DataOperationsv2 {
 			enableEpicsMcaStorage();
 		}
 		lineNumber = 0;
+		framesRead = 0;
 	}
 
-	public void atScanLineStart() throws DeviceException {
+	public void atScanLineStart() {
 		lineNumber++;
-		framesRead = 0;
+		if (readDataFromFile)
+			framesRead = 0;
 		reader = null;
 	}
 
-	public void atPointEnd() throws DeviceException {
+	public void atPointEnd() {
 		framesRead++;
 	}
 
