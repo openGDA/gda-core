@@ -45,6 +45,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.wb.swt.SWTResourceManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -92,6 +93,9 @@ public class NudgePositionerComposite extends Composite {
 	 */
 	public NudgePositionerComposite(Composite parent, int style) {
 		super(parent, style);
+
+		parent.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
+		parent.setBackgroundMode(SWT.INHERIT_FORCE);
 
 		// Setup layout
 		GridLayout gridLayout = new GridLayout(3, false);
