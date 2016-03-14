@@ -21,7 +21,7 @@ import com.google.common.base.CaseFormat;
  * i.e. inside eclipse or by directly executing gda-server from the command line.
  * If the various normally set environment variables or system properties are present they will 
  * be used, otherwise the default value defined here will be substituted. All enum values starting with APP_
- * represent the final composite values resulting from this process  
+ * represent the final composite values resulting from this process used to start the various servers. 
  * Also includes methods to build the standard form of the various server start commands.
  * 
  * As an enum, the instances of this become available in the static loading phase
@@ -37,14 +37,18 @@ public enum ConfigurationDefaults {
 	EMPTY(""),
 	DEPLOY_TYPE("1"),
 	MAX_PERM_SIZE("1024m"),
-	JAVA_OPTS("-Dgda.deploytype=1 -XX:MaxPermSize=1024m"),	
+	JAVA_OPTS("-Dgda.deploytype=1 -XX:MaxPermSize=1024m"),
+	EXPECTED_P2_PROFILE("GDA-server"),
+	INI_FILE_PROFILE_PROPERTY("eclipse.p2.profile"),
+	INI_FILE_INSTALL_AREA_PROPERTY("osgi.install.area"),
+	EXPORTED_PRODUCT_ROOT("dls-root"),
 	LOG_SERVER_CLASS("gda.util.LogServer"),	
 	NAME_SERVER_CLASS("org.jacorb.naming.NameServer"),
 	NAME_SERVER_CLASSPATH_rel("diamond-jacorb.git/uk.ac.diamond.org.jacorb/jars/*"),
 	NAME_SERVER_PORT("6700"),
 	CHANNEL_SERVER_CLASS("gda.factory.corba.util.ChannelServer"),
 	OBJECT_SERVER_CLASS("gda.util.ObjectServer"),
-	WORKSPACE_ROOT_LOCATION(ResourcesPlugin.getWorkspace().getRoot().getLocation().toString()),
+	WORKSPACE_LOCATION(ResourcesPlugin.getWorkspace().getRoot().getLocation().toString()),	// read in from -data option
 
 	// Default values with their corresponding override that are use to assemble later values
 	BEAMLINE("example"),
@@ -54,10 +58,10 @@ public enum ConfigurationDefaults {
 	LAYOUT(LAYOUT_DETAILS.value.split(",")[0].toUpperCase()),
 	
 	PROFILE("main"),
-	APP_PROFILE(getFromApplicationArgsWithDefault(PROFILE, "-p")),
+	APP_PROFILE(getFromApplicationArgsUsingKeySetWithDefault(PROFILE, "-p")),
 	
-	GDA_WORKSPACE_PARENT(Paths.get(WORKSPACE_ROOT_LOCATION.value).getParent().toString()),
-	APP_WORKSPACE_PARENT(getHierarchicalValueWithDefault(GDA_WORKSPACE_PARENT)),
+	GDA_WORKSPACE_PARENT(Paths.get(WORKSPACE_LOCATION.value).getParent().toString()),		// Default
+	APP_PATHS_ROOT(choosePathsRoot()),
 	
 	GDA_WORKSPACE_GIT_NAME("workspace_git"),
 	APP_WORKSPACE_GIT_NAME(getHierarchicalValueWithDefault(GDA_WORKSPACE_GIT_NAME)),
@@ -90,35 +94,35 @@ public enum ConfigurationDefaults {
 	APP_DATA(getHierarchicalValueWithDefault(GDA_DATA, GDA_DATADIR)),
 
 	// Derived Composite values that include any defaults
-	APP_WORKSPACE_GIT(combine(APP_WORKSPACE_PARENT, APP_WORKSPACE_GIT_NAME)),
-	APP_INSTANCE_CONFIG(combine(APP_WORKSPACE_PARENT, APP_INSTANCE_CONFIG_rel)),
-	APP_CORE_CONFIG(combine(APP_WORKSPACE_PARENT, APP_CORE_CONFIG_rel)),
-	APP_FACILITY_CONFIG(combine(APP_WORKSPACE_PARENT, APP_FACILITY_CONFIG_rel)),
-	APP_GROUP_CONFIG(combine(APP_WORKSPACE_PARENT, APP_GROUP_CONFIG_rel)),
+	APP_WORKSPACE_GIT(combine(APP_PATHS_ROOT, APP_WORKSPACE_GIT_NAME)),
+	APP_INSTANCE_CONFIG(combine(APP_PATHS_ROOT, APP_INSTANCE_CONFIG_rel)),
+	APP_CORE_CONFIG(combine(APP_PATHS_ROOT, APP_CORE_CONFIG_rel)),
+	APP_FACILITY_CONFIG(combine(APP_PATHS_ROOT, APP_FACILITY_CONFIG_rel)),
+	APP_GROUP_CONFIG(combine(APP_PATHS_ROOT, APP_GROUP_CONFIG_rel)),
 	
 	GDA_CONFIG(APP_INSTANCE_CONFIG.value),
 	
 	GDA_SPRING_XML_FILE_PATHS(combine(combine(APP_INSTANCE_CONFIG, "servers"), combine (APP_PROFILE_MODE, "server.xml"))),
-	APP_SPRING_XML_FILE_PATHS(getFromApplicationArgsWithDefault(GDA_SPRING_XML_FILE_PATHS, "-f")),
+	APP_SPRING_XML_FILE_PATHS(getFromApplicationArgsUsingKeySetWithDefault(GDA_SPRING_XML_FILE_PATHS, "-f")),
 
 	APP_PROPERTIES_FILE(combine(combine(APP_INSTANCE_CONFIG, "properties"), combine(APP_MODE, APP_MODE + "_instance_java.properties"))),
 	APP_JCA_LIBRARY_FILE(combine(combine(APP_INSTANCE_CONFIG, "properties"), combine(APP_MODE, "JCALibrary.properties"))),
 	
 	JACORB_CONFIG_DIR(combine(combine(APP_INSTANCE_CONFIG, "properties"), combine(APP_MODE, "jacorb"))),
 	APP_JACORB_VM_ARGS("-Djacorb.config.dir=" + getSystemPropertyWithDefault(JACORB_CONFIG_DIR)),
-	APP_BASE_SERVER_CLASSPATH(combine(APP_WORKSPACE_PARENT, "workspace/tp/plugins/*:")
-							+ combine(APP_WORKSPACE_PARENT, "../plugins/*:")
+	APP_BASE_SERVER_CLASSPATH(combine(APP_PATHS_ROOT, "workspace/tp/plugins/*:")
+							+ combine(APP_PATHS_ROOT, "../plugins/*:")
 							+ combine(APP_WORKSPACE_GIT, "diamond-springframework.git/uk.ac.diamond.org.springframework/jars/*:")
-							+ combine(APP_WORKSPACE_PARENT, "../plugins/uk.ac.diamond.org.springframework/jars/*:")
+							+ combine(APP_PATHS_ROOT, "../plugins/uk.ac.diamond.org.springframework/jars/*:")
 							+ combine(APP_WORKSPACE_GIT, "gda-common.git/uk.ac.gda.common/bin:")
 							+ combine(APP_WORKSPACE_GIT, "gda-core.git/uk.ac.gda.api/bin:")
 							+ combine(APP_WORKSPACE_GIT, "gda-core.git/uk.ac.gda.core/classes/main")),
-	APP_CORBA_CLASSPATH(combine(APP_WORKSPACE_PARENT, "../plugins/uk.ac.diamond.org.jacorb/jars/*:") 
+	APP_CORBA_CLASSPATH(combine(APP_PATHS_ROOT, "../plugins/uk.ac.diamond.org.jacorb/jars/*:") 
 							+ combine(APP_WORKSPACE_GIT, NAME_SERVER_CLASSPATH_rel));
 
 	private static final String[] APP_JAVA_OPTS = JAVA_OPTS.value.split(" ");
 	
-	private static final String[] BASIC_VM_ARGS =  new String[]{"-Dgda.install.workspace.loc=" + combine(APP_WORKSPACE_PARENT, "workspace"),
+	private static final String[] BASIC_VM_ARGS =  new String[]{"-Dgda.install.workspace.loc=" + combine(APP_PATHS_ROOT, "workspace"),
 																"-Dgda.install.git.loc=" + APP_WORKSPACE_GIT,
 																"-Dgda.config=" + APP_INSTANCE_CONFIG};
 	
@@ -145,11 +149,10 @@ public enum ConfigurationDefaults {
 	}	
 	
 	/**
-	 * Assemble the default values for the Objects Server startup args and system properties. These would normally be set by the startup
+	 * Assemble the default values for the Objects Server startup args and system properties. These would previously be set by the startup
 	 * scripts or explicitly from the command line. If not, this method will set them based on the default values above.
 	 */
 	public static void initialiseObjectServerEnvironment() {
-		System.out.println("Workspace Root: " + WORKSPACE_ROOT_LOCATION);
 		final String[] basicArgs = concat(concat(standardBasicArgs(), APP_JACORB_VM_ARGS.value), OBJECT_SERVER_VM_ARGS, String.class);
 		final String[] optionalArgs = concat(OPTIONAL_VM_ARGS, "-Djava.awt.headless=true");
 		final String[] vmArgs =  concat(basicArgs, optionalArgs, String.class);
@@ -214,24 +217,64 @@ public enum ConfigurationDefaults {
 		return getSystemPropertyWithDefault(propInstance, getEnvVarWithDefault(envInstance));
 	}
 	
-	private static String getFromApplicationArgsWithDefault(final ConfigurationDefaults instance, final String key) {
+	/**
+	 * Retrieve the value of a command line argument corresponding to a set of equivalent but alternative keys e.g. -c and --config
+	 *  
+	 * @param defaultInstanceValue	The default value to return if none of the keys were specified as a command line arg. 
+	 * @param keys					The set of keys to look for
+	 * @return						The value of the keyed parameter or EMPTY (i.e. "")
+	 */
+	private static String getFromApplicationArgsUsingKeySetWithDefault(final ConfigurationDefaults defaultInstanceValue, final String... keys) {
 		final String[] applicationArgs = Platform.getApplicationArgs();
-		for (int i = 0; i < applicationArgs.length; i += 2) {
-			if (applicationArgs[i].equals(key) &&  applicationArgs.length > i + 1) {
-				return applicationArgs[i + 1];
-			}			
+		for (String key : keys) {
+			for (int i = 0; i < applicationArgs.length; i += 2) {
+				if (applicationArgs[i].equals(key) &&  applicationArgs.length > i + 1) {
+					return applicationArgs[i + 1];
+				}			
+			}
 		}
-		return instance.value;
+		return defaultInstanceValue.value;
 	}
 	
+	/**
+	 * Allows an external configuration directory location to be set independent of the workspace and the
+	 * application root path (parent of workspace if running in Eclipse, <install_dir>/dls_root otherwise)
+	 * 
+	 * @param defaultValue	The default config path to be used if the configuration override arg is not set
+	 * @return				The specified override or the supplied default value.
+	 */
 	private static String getFromConfigPathOverrideWithDefault(final String defaultValue) {
-		final String configOverride = getFromApplicationArgsWithDefault(EMPTY, "-config");
+		final String configOverride = getFromApplicationArgsUsingKeySetWithDefault(EMPTY, "-c", "--config");
 		if(configOverride.isEmpty()) {
 			return defaultValue;
 		}
-		final Path workspaceParent = Paths.get(APP_WORKSPACE_PARENT.value);
+		final Path pathsRoot = Paths.get(APP_PATHS_ROOT.value);
 		final Path override = Paths.get(configOverride);
-		return workspaceParent.relativize(override).toString();
+		return pathsRoot.relativize(override).toString();
+	}
+	
+	/**
+	 * Check if the server is running from an exported product or within eclipse and 
+	 * return the correct application root path as appropriate. The p2 profile
+	 * property in the ini file will only be set for the exported product.
+	 *  
+	 * @return	The root path from which to calculate all others relating to startup
+	 */
+	
+	private static String choosePathsRoot() {
+		if (EXPECTED_P2_PROFILE.value.equalsIgnoreCase(System.getProperty(INI_FILE_PROFILE_PROPERTY.value))) {
+			String installLocation = System.getProperty(INI_FILE_INSTALL_AREA_PROPERTY.value);
+			if (!StringUtils.hasText(installLocation)) {
+				throw new IllegalArgumentException(
+						"The " + INI_FILE_INSTALL_AREA_PROPERTY + " property in the eclipse config.ini file is null or empty; server cannot start");
+			}
+			if (installLocation.startsWith("file:")) {
+				installLocation = installLocation.substring(5);
+			}
+			return combine(installLocation, EXPORTED_PRODUCT_ROOT.value);
+		} else {
+			return getHierarchicalValueWithDefault(GDA_WORKSPACE_PARENT);
+		}		
 	}
 	
 	private static String[] standardBasicArgs() {
@@ -253,7 +296,7 @@ public enum ConfigurationDefaults {
 	}
 
 	/**
-	 * Initialise the components of the optional args that truly are option i.e. aren't
+	 * Initialise the components of the optional args that truly are optional i.e. aren't
 	 * currently defaulted by the gda python script if they haven't been specified
 	 * 
 	 * @return a zero to 3 length array of those args that have been specified
@@ -273,7 +316,7 @@ public enum ConfigurationDefaults {
 	}
 	
 	/**
-	 * Load the configuration layout properties from the default cfg file
+	 * Load the configuration layout properties from the default beamline cfg file (beamlineLayouts.cfg)
 	 * 
 	 * @return the comma separated pair of the config layout scheme and default config relative path
 	 * @throws the Runtime IllegalArgumentException if the file cannot be loaded or it the loaded string is badly formed 
