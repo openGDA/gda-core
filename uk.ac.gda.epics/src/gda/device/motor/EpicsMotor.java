@@ -586,9 +586,9 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 	 */
 	protected MotorStatus checkStatus() throws MotorException {
 		MotorStatus status = getStatus();
-		logger.debug("checking status " + status);
+		logger.trace("checking status {}", status);
 		if (status == MotorStatus.UNKNOWN || status == MotorStatus.FAULT) {
-			logger.debug("throwing motor excetion for " + MotorStatus.FAULT);
+			logger.error("throwing motor exception for {} or {}", MotorStatus.UNKNOWN, MotorStatus.FAULT);
 			throw new MotorException(MotorStatus.FAULT, "getStatus returned " + status.toString());
 		}
 		return status;
@@ -705,9 +705,7 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 	 */
 	void changeStatusAndNotify(MotorStatus newStatus, STATUSCHANGE_REASON reason) throws MotorException {
 		try {
-			logger.debug("Motor - " + getName() + " changeStatusAndNotify started." + ". newStatus = "
-					+ (newStatus != null ? newStatus.toString() : "null") + ". reason = "
-					+ (reason != null ? reasonAsString(reason) : "null"));
+			logger.trace("Motor - {} changeStatusAndNotify started.. newStatus = {}. reason = {}", getName(), newStatus, reason);
 			switch (reason) {
 			case INITIALISE:
 				set_motorStatus(MotorStatus.READY);
@@ -773,7 +771,7 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 					if (newStatus != null && !newStatus.equals(get_motorStatus())) {
 						set_motorStatus(newStatus);
 						notifyIObservers(EpicsMotor.this, MotorEvent.REFRESH);
-						logger.debug("Epics Motor " + getName() + " notyfying NEWSTATUS " + get_motorStatus());
+						logger.trace("Epics Motor {} notifying NEWSTATUS {}", getName(), get_motorStatus());
 					}
 				}
 				break;
@@ -783,7 +781,7 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 		} catch (Exception ex) {
 			throw new MotorException(get_motorStatus(), "Error in changeStatusAndNotify", ex);
 		} finally {
-			logger.debug("Motor - " + getName() + " changeStatusAndNotify complete");
+			logger.trace("Motor - {} changeStatusAndNotify complete", getName());
 		}
 	}
 
@@ -1187,7 +1185,7 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 	private MotorStatus getMotorStatusFromMSTAValue(double msta) {
 		MotorStatus status = MotorStatus.UNKNOWN;
 		long lmsta = (long) msta;
-		logger.debug("status string from motor  = {}", Long.toHexString(lmsta));
+		logger.trace("status string from motor  = {}", Long.toHexString(lmsta));
 		if ((lmsta & MSTA_FAULT) != 0 || (lmsta & MSTA_FOLLOWING_ERROR) != 0 || (lmsta & MSTA_COMMS_ERROR) != 0) {
 			status = MotorStatus.FAULT;
 			if (!lastMotorStatus.equals(status))
