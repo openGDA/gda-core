@@ -385,8 +385,8 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 		} else {
 			super.waitWhileBusy();
 		}
-
-		logger.debug("{}: waiting complete >>", getName());
+		logger.debug("{}: waiting complete >> motor position={}, motor status={}, lastDemandedInternalPosition={}, returnDemandPosition={}",
+				getName(), this.motor.getPosition(), this.motor.getStatus(), lastDemandedInternalPosition, returnDemandPosition);
 	}
 
 	private void raiseExceptionIfInFault() throws MotorException {
