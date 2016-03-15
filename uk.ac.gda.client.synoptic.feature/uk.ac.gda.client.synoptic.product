@@ -22,10 +22,10 @@ The GDA project is an open-source framework for creating customised data acquisi
 -Dgda.install.git.loc=${project_loc:uk.ac.gda.core/}/../..
 -Dgda.config=${project_loc:i20-config}
 -Djava.library.path=${project_loc:uk.ac.gda.nexus}/lib/linux-x86_64
--Dgda.propertiesFile=${project_loc:i20-config}/properties/dummy/synoptic.properties
--Djacorb.config.dir=${project_loc:i20-config}/jacorb/dummy
--Dgov.aps.jca.JCALibrary.properties=${project_loc:i20-config}/jca/dummy/JCALibrary.properties
--Dgda.mode=dummy
+-Dgda.propertiesFile=${project_loc:i20-config}/properties/live/synoptic.properties
+-Djacorb.config.dir=${project_loc:i20-config}/jacorb/live
+-Dgov.aps.jca.JCALibrary.properties=${project_loc:i20-config}/jca/live/JCALibrary.properties
+-Dgda.mode=live
 -Dgda.client.jython.automatic.interpreter=1
 -Duk.ac.diamond.scisoft.analysis.analysisrpcserverprovider.disable=true
 -XX:+DisableExplicitGC
@@ -80,3 +80,4 @@ with GDA. If not, see &lt;http://www.gnu.org/licenses/&gt;.
 
 
 </product>
+

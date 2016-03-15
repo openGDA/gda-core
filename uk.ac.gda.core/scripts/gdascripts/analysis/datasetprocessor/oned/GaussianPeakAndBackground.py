@@ -78,5 +78,6 @@ def toDnpArrays(*args):
 
 def plotGaussian(x, fitResult, plotPanel):
 	plotData = fitResult.makeplotdata()
+	dnp.plot.clear(plotPanel)
 	dnp.plot.line(x, toDnpArrays(plotData[0], plotData[1], plotData[2], plotData[3]),
 							name=plotPanel)
