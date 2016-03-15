@@ -20,7 +20,7 @@ Export-Package: gda.device.detector;uses:="gda.factory,gda.observable",
  uk.ac.gda.beans.xspress;uses:="uk.ac.gda.beans.exafs,uk.ac.gda.beans,gda.device",
  uk.ac.gda.devices.detector;uses:="gda.device"
 Require-Bundle: uk.ac.gda.common,
- slf4j.api;bundle-version="1.7.6",
+ slf4j.api;bundle-version="[1.7.2,2.0.0)",
  uk.ac.gda.api;bundle-version="8.42.0",
  uk.ac.diamond.jython,
  org.apache.commons.lang,
