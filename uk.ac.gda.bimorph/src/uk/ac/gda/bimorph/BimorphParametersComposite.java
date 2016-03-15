@@ -18,13 +18,6 @@
 
 package uk.ac.gda.bimorph;
 
-import gda.data.NumTracker;
-import gda.data.metadata.GDAMetadataProvider;
-import gda.device.DeviceException;
-import gda.jython.JythonServerFacade;
-
-import java.io.IOException;
-
 import org.eclipse.richbeans.api.event.ValueEvent;
 import org.eclipse.richbeans.api.event.ValueListener;
 import org.eclipse.richbeans.widgets.FieldComposite;
@@ -42,6 +35,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+
+import gda.jython.InterfaceProvider;
+import gda.jython.JythonServerFacade;
 
 public final class BimorphParametersComposite extends Composite {
 	private FieldComposite slitSizeScannable;
@@ -332,28 +328,7 @@ public final class BimorphParametersComposite extends Composite {
 	}
 
 	private int determineCurrentScanFileNumber(){
-		int currentScanNumber = 0;
-		JythonServerFacade.getInstance().runCommand("from gda.data import NumTracker");
-		String scannumberProperty = JythonServerFacade.getInstance().evaluateCommand("LocalProperties.check(\"gda.scan.sets.scannumber\")");
-		//String scannumberProperty = LocalProperties.get("gda.scan.sets.scannumber", "False");
-		if(scannumberProperty.equals("True")){
-			try {
-				NumTracker numTracker = new NumTracker("scanbase_numtracker");
-				currentScanNumber = numTracker.getCurrentFileNumber();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		else{
-			try {
-				NumTracker numTracker = new NumTracker(GDAMetadataProvider.getInstance().getMetadataValue("instrument", "gda.instrument", "tmp"));
-				currentScanNumber = numTracker.getCurrentFileNumber();
-			} catch (IOException e) {
-				e.printStackTrace();
-			} catch (DeviceException e) {
-				e.printStackTrace();
-			}
-		}
+		int currentScanNumber = InterfaceProvider.getScanDataPointProvider().getLastScanDataPoint().getScanIdentifier();
 		return currentScanNumber;
 	}
 	
