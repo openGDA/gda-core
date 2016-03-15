@@ -385,8 +385,8 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 		} else {
 			super.waitWhileBusy();
 		}
-
-		logger.debug("{}: waiting complete >>", getName());
+		logger.debug("{}: waiting complete >> motor position={}, motor status={}, lastDemandedInternalPosition={}, returnDemandPosition={}",
+				getName(), this.motor.getPosition(), this.motor.getStatus(), lastDemandedInternalPosition, returnDemandPosition);
 	}
 
 	private void raiseExceptionIfInFault() throws MotorException {
@@ -732,17 +732,5 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 	@Override
 	public double getUserOffset() throws DeviceException {
 		return motor.getUserOffset();
-	}
-
-	// ----------------------------------------------------------------------------------------------
-
-	// Access to private methods for testing
-
-	Object rawGetDemandPositionForTesting() throws DeviceException {
-		return rawGetDemandPosition();
-	}
-
-	Object getDemandPositionForTesting() throws DeviceException {
-		return getDemandPosition();
 	}
 }
