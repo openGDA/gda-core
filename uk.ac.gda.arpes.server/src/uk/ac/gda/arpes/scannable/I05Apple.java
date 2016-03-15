@@ -123,11 +123,11 @@ public class I05Apple extends ScannableMotionBase {
 		Quadrant qd3 = new Quadrant(-1, -1);
 		Quadrant qd4 = new Quadrant(1, -1);
 
-		public int qsign(double x) { // include 0 as part of positive Quadrant
+		private int qsign(double x) { // include 0 as part of positive Quadrant
 			return Math.signum(x) >= 0.0 ? 1 : -1;
 		}
 
-		public boolean phaseSide(double xa, double xb, int side) { // include 0 as part of both phase half-space sides
+		private boolean phaseSide(double xa, double xb, int side) { // include 0 as part of both phase half-space sides
 			boolean res;
 			if ((Math.signum(xa) == side && Math.signum(xb) == side) || (Math.signum(xa) == side && xb == 0.0) || (Math.signum(xb) == side && xa == 0.0)) {
 				res = true;
@@ -146,7 +146,7 @@ public class I05Apple extends ScannableMotionBase {
 			logger.info("Highest point of rectangles tower=" + towerTop);
 		}
 
-		public List<Line2D> splitMoveAtZeroPhase(Line2D ln) {
+		private List<Line2D> splitMoveAtZeroPhase(Line2D ln) {
 			// small performance optimisation: cross zero line near Gap(=Y) start and end points
 
 			Point2D zcp = new Point2D.Double(0.0, Math.max(towerTop, (ln.getP1().getY() + ln.getP2().getY()) / 2.0)); // cross at average Y
@@ -156,7 +156,7 @@ public class I05Apple extends ScannableMotionBase {
 			return linePair;
 		}
 
-		public List<PGMove> getGapPhaseOrder(Line2D ln, int recDepth) {
+		protected List<PGMove> getGapPhaseOrder(Line2D ln, int recDepth) {
 
 			logger.info("Computing Phase-Gap trajectory: for" + ln.getP1() + "--->" + ln.getP2());
 
@@ -236,17 +236,6 @@ public class I05Apple extends ScannableMotionBase {
 		}
 	}
 
-	protected static Point2D[] trajectoryToPointArray(List<PGMove> traj) {
-		Point2D lastPoint = traj.get(0).moveVector.getP1();
-		List<Point2D> result = new ArrayList<Point2D>();
-		result.add(lastPoint);
-		for (PGMove line2d : traj) {
-			lastPoint = line2d.moveVector.getP2();
-			result.add(lastPoint);
-		}
-		return result.toArray(new Point2D[] {});
-	}
-
 	/**
 	 * This function checks that the phase axis are at the same value to within phaseTolerance.
 	 * <p>
@@ -255,7 +244,7 @@ public class I05Apple extends ScannableMotionBase {
 	 *
 	 * @throws DeviceException
 	 */
-	public void checkPhases() throws DeviceException {
+	private void checkPhases() throws DeviceException {
 		double upperPhasePos = (double) upperPhaseScannable.getPosition();
 		double lowerPhasePos = (double) lowerPhaseScannable.getPosition();
 		if (Math.abs(upperPhasePos - lowerPhasePos) > phaseTolerance) {
@@ -266,7 +255,7 @@ public class I05Apple extends ScannableMotionBase {
 		return;
 	}
 
-	public double findEnergyForCircularGap(double gap) {
+	private double findEnergyForCircularGap(double gap) {
 		PolynomialFunction poly = circularGapPolynomial.add(new PolynomialFunction(new double[] { -gap }));
 		poly = poly.multiply(poly);
 		UnivariateOptimizer optimizer = new BrentOptimizer(1e-6, 1e-4);
@@ -277,7 +266,7 @@ public class I05Apple extends ScannableMotionBase {
 		return pointValuePair.getPoint();
 	}
 
-	public double getPhaseForGap(double gap, String polarisation) throws DeviceException {
+	protected double getPhaseForGap(double gap, String polarisation) throws DeviceException {
 		if (HORIZONTAL.equalsIgnoreCase(polarisation))
 			return 0;
 		if (VERTICAL.equalsIgnoreCase(polarisation))
@@ -303,8 +292,8 @@ public class I05Apple extends ScannableMotionBase {
 			return circularGapPolynomial.value(energy);
 		throw new DeviceException("unknown or unconfigured polarisation demanded");
 	}
-
-	public void combinedMove(double newenergy, String newpol) throws DeviceException {
+	
+	private void combinedMove(double newenergy, String newpol) throws DeviceException {
 		checkPhases();
 
 		double currentPhase = (Double) lowerPhaseScannable.getPosition();
@@ -434,7 +423,6 @@ public class I05Apple extends ScannableMotionBase {
 		return gapScannable.isBusy() || upperPhaseScannable.isBusy() || lowerPhaseScannable.isBusy();
 	}
 
-	@SuppressWarnings("rawtypes")
 	@Override
 	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
 		if (position instanceof Number) {
@@ -443,8 +431,8 @@ public class I05Apple extends ScannableMotionBase {
 		}
 		double energy;
 		String pol = null;
-		if (position instanceof List)
-			position = ((List) position).toArray();
+		if (position instanceof List<?>)
+			position = ((List<?>) position).toArray();
 		try {
 			Object[] arr = (Object[]) position;
 			if (arr[0] instanceof Number)
