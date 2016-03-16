@@ -18,10 +18,6 @@
 
 package uk.ac.gda.arpes.scannable;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Vector;
-
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.ScannableBase;
@@ -30,12 +26,15 @@ import gda.device.scannable.corba.impl.ScannableImpl;
 import gda.factory.FactoryException;
 import gda.factory.corba.util.CorbaAdapterClass;
 import gda.factory.corba.util.CorbaImplClass;
+import gda.observable.IObserver;
 
 /**
- * This is a compound scannable that operates on a bragg (wavelength determining) scannable and a
- * number of other scannables (id_gap, detector thresholds, etc.)
- *
- * It is also used as metadata provider for images plotted
+ * This is a simple scannable to allow the PGM and ID to be moved to a new energy, (specified in eV) together, as is the
+ * typical requirement of users. This scannable will report busy when either the PGM or ID report busy. This scannable
+ * will pass through updates received from the PGM. This scannable does not implement it's own limits but if the ID or
+ * PGM can't deliver the requested settings they will throw causing this device to throw.
+ * 
+ * @author James Mudd
  */
 @CorbaAdapterClass(ScannableAdapter.class)
 @CorbaImplClass(ScannableImpl.class)
@@ -43,89 +42,56 @@ public class EnergyScannable extends ScannableBase {
 
 	private Scannable pgm;
 	private I05Apple id;
-	private Collection<Scannable> scannables = new Vector<Scannable>();
+	private IObserver iobserver = new IObserver() {
+
+		@Override
+		public void update(Object source, Object arg) {
+			// When this object receives updates forward them on.
+			notifyIObservers(source, arg);
+		}
+	};
 
 	@Override
 	public void configure() throws FactoryException {
-		setInputNames(new String[] {getName()});
-		setupExtraNames();
-	}
+		super.configure();
 
-	private void setupExtraNames() {
-		Vector<String> en = new Vector<String>();
-		Vector<String> of = new Vector<String>();
-		of.add("%5.3f"); //us - pgm
-		of.add("%s"); //id (polarisation)
-		en.add("polarisation");
-		of.add("%5.3f"); //id (gap)
-		en.add("gap");
-		of.add("%5.3f"); //id (phase)
-		en.add("phase");
-		for (Scannable s : scannables) {
-			en.add(s.getName());
-			of.add("%5.3f");
-		}
-		setExtraNames(en.toArray(new String[]{}));
-		setOutputFormat(of.toArray(new String[]{}));
+		// Make this device observe the PGM so it will fire events when the PGM starts moving.
+		pgm.addIObserver(iobserver);
 	}
 
 	@Override
 	public boolean isBusy() throws DeviceException {
+		// If either the PGM or the ID is busy this device is also busy.
 		if (pgm.isBusy() || id.isBusy()) {
 			return true;
-		}
-		for(Scannable s : scannables) {
-			if (s.isBusy()) {
-				return true;
-			}
 		}
 		return false;
 	}
 
 	@Override
-	public void asynchronousMoveTo(Object position) throws DeviceException {
-		Double energy;
-		String polarisation = null;
+	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
+		double energy;
 
 		if (position instanceof Number) {
 			energy = ((Number) position).doubleValue();
 		} else {
-			if (position instanceof List)
-				position = ((List) position).toArray();
-			try {
-				Object[] arr = (Object []) position;
-				if (arr[0] instanceof Number)
-					energy = ((Number) arr[0]).doubleValue();
-				else
-					energy = Double.parseDouble(arr[0].toString());
-				if (arr[1] != null)
-					polarisation = arr[1].toString();
-			} catch (Exception e) {
-				throw new DeviceException("expecting number energy and string polarisation");
-			}
+			throw new DeviceException("Expecting energy in eV");
 		}
 
+		// Move the ID first. If it can't deliver the required settings it will throw and neither the PGM
+		// or the ID will be moved.
+
+		// Move the ID to the new gap, leave phase unchanged (pass null).
+		id.asynchronousMoveTo(new Object[] { energy, null });
+
+		// Move the PGM to the new energy
 		pgm.asynchronousMoveTo(energy);
-		id.asynchronousMoveTo(new Object[] {energy, polarisation});
-		for(Scannable s : scannables) {
-			s.asynchronousMoveTo(energy);
-		}
 	}
 
 	@Override
-	public Object getPosition() throws DeviceException {
-		Object[] pos = new Object[scannables.size()+4];
-		pos[0] = pgm.getPosition();
-		Object[] idposition = (Object[]) id.getPosition();
-		pos[1] = idposition[1];
-		pos[2] = idposition[0];
-		pos[3] = idposition[2];
-		int i = 3;
-		for (Scannable s : scannables) {
-			i++;
-			pos[i] = s.getPosition();
-		}
-		return pos;
+	public Object rawGetPosition() throws DeviceException {
+		// For the energy just return the PGM position which really defines the energy.
+		return pgm.getPosition();
 	}
 
 	public Scannable getPgm() {
@@ -144,15 +110,4 @@ public class EnergyScannable extends ScannableBase {
 		this.id = id;
 	}
 
-	public void addScannable(Scannable s) {
-		if (!scannables.contains(s)) {
-			scannables.add(s);
-			setupExtraNames();
-		}
-	}
-
-	public void removeScannable(Scannable s) {
-		scannables.remove(s);
-		setupExtraNames();
-	}
 }
