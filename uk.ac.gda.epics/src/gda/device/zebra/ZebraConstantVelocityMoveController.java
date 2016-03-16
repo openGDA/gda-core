@@ -81,9 +81,12 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 		setOutputFormat(new String[]{"%5.5g"});
 	}
 
+	// interface ConstantVelocityMoveController2
+
 	/**
 	 * This method should not be necessary. We have added it so that the scannable giving this controller to a scan
 	 * can reset it to a known state. We hope this help us work around numerous hard to track down issues.
+
 	 * @throws DeviceException
 	 */
 	@Deprecated
@@ -108,28 +111,24 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 		return pointBeingPrepared;
 	}
 
+	// interface ContinuousMoveController
 
 	@SuppressWarnings("unused")
 	@Override
 	public void prepareForMove() throws DeviceException, InterruptedException {
 		logger.info("prepareForMove() pointBeingPrepared={}", pointBeingPrepared);
 		try {
-			zebra.reset(); // Doing a reset does appear to disarm the zebra before we check it, so we don't need to explicitly
-			// disarm. We probably don't need to check either, but to verify that we will leave the check and log message in.
-
-			/* Note that a disarm and waiting for the zebra to no longer be disarmed is not enough. The zebra box will
-			 * stay armed internally and since a recent zebra support module update, will error when position compare
-			 * parameters are set.
-			 *
-			 * Even if the zebra is saying it is disarmed and you wait 10000ms, you still get this problem.
+			/* Since we shouldn't attempt set up the next point until the current one is finished, wait for the
+			 * Zebra to become disarmed.
 			 */
-			//zebra.pcDisarm();
-			//if we want to check it is disarmed we will need to wait >2s as that is the zebra bus update period
 			while (zebra.isPCArmed()) {
-				logger.info("Zebra already armed, waiting for disarm...");
-				Thread.sleep(10000); // 1000ms did not prevent the problem with pcDisarm(), 10000ms is enough with reset() though!
+				logger.info("Zebra not yet disarmed, waiting for disarm...");
+				Thread.sleep(100);
 			}
-			// TODO: Remove the above code block and comments once we have demonstrated that it is never called.
+			/* Previously we did a reset on every call to prepareForMove to ensure that the Zebra box was always
+			 * disarmed before the first point in a scan, this resulted in unnecessary delays however, and is now
+			 * taken care of by a reset in atScanStart, so it should never be necessary here.
+			 */
 
 			//sources must be set first
 			zebra.setPCArmSource(Zebra.PC_ARM_SOURCE_SOFT);
@@ -507,6 +506,8 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 		points = null;
 	}
 
+	// interface HardwareTriggerProvider
+
 	@Override
 	public void setTriggerPeriod(double seconds) throws DeviceException {
 		logger.info("setTriggerPeriod({})", seconds);
@@ -535,10 +536,14 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 		return (getNumberTriggers() == 0) ? 0 : triggerPeriod * (getNumberTriggers() - 1);
 	}
 
+	// interface Configurable
+
 	@Override
 	public void configure() throws FactoryException {
 		logger.info("configure");
 	}
+
+	// interface ConstantVelocityMoveController
 
 	@Override
 	public void setStart(double start) throws DeviceException {
@@ -573,6 +578,8 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 		return step;
 	}
 
+	// Class functions
+
 	// copied from EpicsTrajectoryMoveControllerAdapter - need a base class
 	private List<Double> points = null;
 
@@ -602,7 +609,6 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 		return points.get(points.size() - 1);
 	}
 
-
 	public Zebra getZebra() {
 		return zebra;
 	}
@@ -631,11 +637,15 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 		setScannableMotor(zebraMotorInfoProvider.getActualScannableMotor());
 	}
 
+	// interface InitializingBean
+
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		if (zebra == null)
 			throw new Exception("zebra is not set");
 	}
+
+	// Class functions
 
 	private double pcPulseDelayRBV;
 
@@ -674,6 +684,22 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 		return lastImageNumberStreamIndexer[index];
 	}
 
+	// interface Scannable
+
+	@Override
+	public void atScanStart() throws DeviceException {
+		logger.trace("atScanStart()...");
+		try {
+			/* Ensure that the zebra is reset and thus disarmed before the first point in a scan so we don't have to
+			 * call reset in every prepareForMove call.
+			 */
+			zebra.reset();
+		} catch (IOException e) {
+			throw new DeviceException(e.getMessage(), e);
+		}
+		super.atScanStart();
+		logger.trace("...atScanStart()");
+	}
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -717,15 +743,21 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 		return false;
 	}
 
+	// interface PositionCallableProvider<T>
+
 	@Override
 	public Callable<Double> getPositionCallable() throws DeviceException {
 		return getPositionSteamIndexer(10).getNamedPositionCallable(getExtraNames()[0], 1);
 	}
 
+	// class ScannableBase
+
 	@Override
 	public Object rawGetPosition() throws DeviceException {
 		return 0.; // getPositionCallable will be called during the scan
 	}
+
+	// interface ContinuouslyScannableViaController
 
 	@Override
 	public void setOperatingContinuously(boolean b) throws DeviceException {
@@ -756,10 +788,11 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 		return cs;
 	}
 
+	// interface ConstantVelocityMoveController2
+
 	@Override
 	public void setScannableToMove(Collection<ContinuouslyScannableViaController> scannablesToMove) {
 		logger.trace("setScannableToMove({})", scannablesToMove);
-//		this.scannablesToMove = scannablesToMove;
 		ContinuouslyScannableViaController[] array = scannablesToMove.toArray(new ContinuouslyScannableViaController[]{});
 		ContinuouslyScannableViaController continuouslyScannableViaController = array[0];
 		if( ! (continuouslyScannableViaController instanceof ZebraMotorInfoProvider))
@@ -772,6 +805,8 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 		logger.trace("setDetectors({})", detectors);
 		this.detectors = detectors;
 	}
+
+	// Class functions
 
 	public Collection<HardwareTriggeredDetector> getDetectors()  {
 		return detectors;

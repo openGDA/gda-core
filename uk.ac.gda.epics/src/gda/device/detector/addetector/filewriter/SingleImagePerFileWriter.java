@@ -199,6 +199,7 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 
 	@Override
 	public void prepareForCollection(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
+		logger.trace("prepareForCollection({}, {})", numberImagesPerCollection, scanInfo);
 
 		if (!isEnabled())
 			return;
@@ -250,6 +251,7 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 		}
 		firstReadoutInScan = true;
 		alreadyPrepared=true;
+		logger.trace("...prepareForCollection()");
 	}
 
 	private void addPathTemplateToMetadata() {
@@ -322,6 +324,8 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 
 	@Override
 	public void completeCollection() throws Exception {
+		logger.trace("completeCollection()");
+
 		alreadyPrepared=false;
 		if (!isEnabled())
 			return;
@@ -331,6 +335,8 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 			waitForFile(lastExpectedFullFilepath);
 		}
 		disableFileWriting();
+
+		logger.trace("...completeCollection()");
 	}
 
 	@Override
