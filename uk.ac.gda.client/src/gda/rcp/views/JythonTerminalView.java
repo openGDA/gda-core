@@ -47,6 +47,7 @@ import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -70,7 +71,6 @@ import gda.configuration.properties.LocalProperties;
 import gda.jython.IJythonContext;
 import gda.jython.IScanDataPointObserver;
 import gda.jython.Jython;
-import gda.jython.JythonServer;
 import gda.jython.JythonServerFacade;
 import gda.jython.Terminal;
 import gda.rcp.GDAClientActivator;
@@ -242,12 +242,7 @@ public class JythonTerminalView extends ViewPart implements IScanDataPointObserv
 				txtInput.setFont(font);
 				txtInput.setTabs(tabSize);
 				txtInput.addListener(SWT.DefaultSelection, e -> textInputActionPerformed());
-				txtInput.addKeyListener(new KeyAdapter() {
-					@Override
-					public void keyPressed(KeyEvent e) {
-						handleTxtInputKeyEvent(e);
-					}
-				});
+				txtInput.addKeyListener(new JythonTextHandler());
 				txtInput.addTraverseListener(e -> {
 						e.doit = false;
 						if (e.detail == SWT.TRAVERSE_TAB_PREVIOUS) {
@@ -526,56 +521,6 @@ public class JythonTerminalView extends ViewPart implements IScanDataPointObserv
 			commandFileName = null;
 		}
 
-	}
-
-	private void handleTxtInputKeyEvent(KeyEvent e) {
-		// when up or down arrows pressed, scroll through vector of commands
-		// down arrow
-		if (e.keyCode == SWT.ARROW_DOWN) {
-			runFromHistory = false;
-			if (cmdHistoryIndex < cmdHistory.size() - 1) {
-				cmdHistoryIndex++;
-				txtInput.setText(cmdHistory.get(cmdHistoryIndex));
-				moveCaretToEnd();
-			}
-			// if at end of array then dont move index pointer but add a
-			// blank
-			// string
-			else if (cmdHistoryIndex == cmdHistory.size() - 1) {
-				cmdHistoryIndex++;
-				txtInput.setText("");
-			}
-		}
-		// up arrow
-		else if (e.keyCode == SWT.ARROW_UP) {
-			if (runFromHistory) {
-				runFromHistory = false;
-			} else if (cmdHistoryIndex > 0) {
-				cmdHistoryIndex--;
-			}
-			if (!cmdHistory.isEmpty()) {
-				txtInput.setText(cmdHistory.get(cmdHistoryIndex));
-				moveCaretToEnd();
-			}
-		}
-		// Ctrl-U clears the text box
-		else if (e.stateMask == SWT.CTRL && e.keyCode == 'u') {
-			txtInput.setText("");
-		}
-
-		else if (e.stateMask == SWT.CTRL && (e.keyCode == 'd' || e.keyCode == 'z')) {
-			txtInput.setText("");
-			currentCmd = "";
-			String currentPrompt = txtPrompt.getText();
-			if (currentPrompt.equals(RAW_INPUT_PROMPT)) {
-				// JythonServer is waiting for input - send null char to end interrupt
-				jsf.setRawInput(JythonServer.NULL);
-			} else {
-				txtPrompt.setText(NORMAL_PROMPT);
-				appendOutput("KeyboardInterrupt");
-				appendOutput(">>> \n");
-			}
-		}
 	}
 
 	private void textInputActionPerformed() {
@@ -974,6 +919,110 @@ public class JythonTerminalView extends ViewPart implements IScanDataPointObserv
 		super.dispose();
 	}
 
+	private class JythonTextHandler extends KeyAdapter {
+		private final Pattern WORD_SPLIT = Pattern.compile("(?=[A-Z\\(\\)\\[\\]_])|(?<=\\s|\\.)(?!\\.|\\s)");
+		private String prefix = "";
+		private String suffix = "";
+		private String first = "";
+		private String last = "";
+		private int caretPosition = 0;
+
+		private void updateStrings() {
+			String current = txtInput.getText();
+			caretPosition = txtInput.getCaretPosition();
+			prefix = current.substring(0, caretPosition);
+			suffix = current.substring(caretPosition);
+			first = WORD_SPLIT.split(suffix,0)[0];
+			String[] prefSplits = WORD_SPLIT.split(prefix, 0);
+			last = prefSplits[prefSplits.length - 1];
+			prefix = prefix.substring(0, prefix.length() - last.length());
+			suffix = suffix.substring(first.length());
+		}
+
+		private int getSelectionAnchor() {
+			Point selection = txtInput.getSelection();
+			return selection.x == caretPosition ? selection.y : selection.x;
+		}
+
+		@Override
+		public void keyPressed(KeyEvent e) {
+			// when up or down arrows pressed scroll through vector of commands
+			if (e.keyCode == SWT.ARROW_DOWN) {
+				runFromHistory = false;
+				if (cmdHistoryIndex < cmdHistory.size() - 1) {
+					cmdHistoryIndex++;
+					txtInput.setText(cmdHistory.get(cmdHistoryIndex));
+					moveCaretToEnd();
+				}
+				// if at end of array then don't move index pointer but add a blank string
+				else if (cmdHistoryIndex == cmdHistory.size() - 1) {
+					cmdHistoryIndex++;
+					txtInput.setText("");
+				}
+			} else if (e.keyCode == SWT.ARROW_UP) {
+				if (runFromHistory) {
+					runFromHistory = false;
+				} else if (cmdHistoryIndex > 0) {
+					cmdHistoryIndex--;
+				}
+				if (cmdHistory.size() != 0) {
+					txtInput.setText(cmdHistory.get(cmdHistoryIndex));
+					moveCaretToEnd();
+				}
+			} else if (e.stateMask == SWT.CTRL) {
+				updateStrings();
+				switch (e.keyCode) {
+				case 'u':
+					// Ctrl-u clears the text box
+					txtInput.setText("");
+					break;
+				case 'd':
+				case 'z':
+					// Ideally Ctrl-c would cancel the current command but this is mapped to copy. Ctrl-z (sigstop) and Ctrl-d (EOF)
+					// are nearly relevant enough
+					txtInput.setText("");
+					currentCmd = "";
+					txtPrompt.setText(NORMAL_PROMPT);
+					appendOutput("KeyboardInterrupt");
+					appendOutput(NORMAL_PROMPT);
+					break;
+				case SWT.BS:
+					e.doit = false;
+					txtInput.setText(prefix + first + suffix);
+					txtInput.setSelection(caretPosition - last.length());
+					break;
+				case SWT.DEL:
+					e.doit = false;
+					txtInput.setText(prefix + last + suffix);
+					txtInput.setSelection(caretPosition);
+					break;
+				case SWT.ARROW_RIGHT:
+					e.doit = false;
+					txtInput.setSelection(caretPosition + first.length());
+					break;
+				case SWT.ARROW_LEFT:
+					e.doit = false;
+					txtInput.setSelection(caretPosition - last.length());
+					break;
+				}
+			} else if (e.stateMask == (SWT.CTRL | SWT.SHIFT)) {
+				updateStrings();
+				int anchor;
+				switch (e.keyCode) {
+				case SWT.ARROW_RIGHT:
+					e.doit = false;
+					anchor = getSelectionAnchor();
+					txtInput.setSelection(anchor, caretPosition + first.length());
+					break;
+				case SWT.ARROW_LEFT:
+					e.doit = false;
+					anchor = getSelectionAnchor();
+					txtInput.setSelection(anchor, caretPosition - last.length());
+					break;
+				}
+			}
+		}
+	}
 	/**
 	 * This is used to update the UI from the outputBuffer
 	 */
