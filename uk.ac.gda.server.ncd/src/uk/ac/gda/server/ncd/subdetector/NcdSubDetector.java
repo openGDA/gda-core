@@ -18,6 +18,26 @@
 
 package uk.ac.gda.server.ncd.subdetector;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.configuration.FileConfiguration;
+import org.apache.commons.lang.ArrayUtils;
+import org.eclipse.dawnsci.analysis.api.diffraction.DetectorProperties;
+import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
+import org.eclipse.dawnsci.analysis.api.tree.DataNode;
+import org.eclipse.dawnsci.analysis.api.tree.NodeLink;
+import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
@@ -29,28 +49,9 @@ import gda.device.Timer;
 import gda.device.detector.DataDimension;
 import gda.device.detector.NXDetectorData;
 import gda.factory.FactoryException;
-import gda.factory.Finder;
+import gda.jython.JythonServerFacade;
 import gda.util.persistence.LocalParameters;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.configuration.FileConfiguration;
-import org.apache.commons.lang.ArrayUtils;
-import org.eclipse.dawnsci.analysis.api.diffraction.DetectorProperties;
-import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
-import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
-import uk.ac.gda.server.ncd.beans.StoredDetectorInfo;
 import uk.ac.gda.server.ncd.detectorsystem.NcdDetectorSystem;
 
 public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
@@ -111,7 +112,7 @@ public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
 		}
 		return getName();
 	}
-	
+
 	@Override
 	public void configure() throws FactoryException {
 		if (detector != null) {
@@ -314,12 +315,16 @@ public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
 			int[] devicedims = getDataDimensions();
 			ngd = new NexusGroupData(new int[] { devicedims[0], devicedims[1] }, mask.getData());
 			nxdata.addData(getName() + "mask", ngd, null, null);
-		} else {
-			if (getDetectorType().equals("SAXS")) {
-				linkMaskFile(nxdata);
-			}
 		}
-		
+		String maskFile = (String) getAttribute("maskFile");
+		if (maskFile != null) {
+			linkMaskFile(nxdata, maskFile);
+		}
+		String calibration = (String) getAttribute("calibrationFile");
+		if (calibration != null && !calibration.isEmpty()) {
+			linkCalibrationFile(nxdata, calibration);
+		}
+
 		for (String label : new String[] { "distance", "beam_center_x", "beam_center_y", "scaling_factor" }) {
 			if (attributeMap.containsKey(label)) {
 				try {
@@ -340,38 +345,72 @@ public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
 		}
 	}
 
-	private void linkMaskFile(NXDetectorData nxdata) {
-		StoredDetectorInfo maskFileInfo = Finder.getInstance().find("detectorInfoPath");
-		if (maskFileInfo == null) {
-			logger.error("Could not include mask file, detectorInfoPath could not be found");
-			return;
-		}
-		String maskFile = maskFileInfo.getSaxsDetectorInfoPath();
-		if (maskFile == null || maskFile.isEmpty()) {
+	private void linkMaskFile(NXDetectorData nxdata, String filePath) {
+		if (filePath == null || filePath.isEmpty()) {
 			logger.info("{} - Not including mask data. No mask file set", getName());
 			return;
 		}
-		if (!new File(maskFile).exists()) {
-			logger.error("{} - Could not include mask data. {} does not exist", getName(), maskFile);
-			JythonServerFacade.getInstance().print(String.format("%s - mask file '%s' does not exist", getName(), maskFile));
+		if (!new File(filePath).exists()) {
+			logger.error("{} - Could not include mask data. {} does not exist", getName(), filePath);
+			JythonServerFacade.getInstance().print(String.format("%s - mask file '%s' does not exist", getName(), filePath));
 			return;
 		}
 		TreeFile tree;
 		try {
-			tree = new HDF5Loader(maskFile).loadTree();
-			if (tree.findNodeLink("/entry/mask/mask") == null) {
-				logger.error("{} - Mask file does not contain mask ({})", getName(), maskFile);
+			tree = new HDF5Loader(filePath).loadTree();
+			NodeLink maskNode = tree.findNodeLink("/entry/mask/mask");
+			if (maskNode == null) {
+				logger.error("{} - Mask file does not contain mask", getName());
 				return;
+			} else {
+				long[] dims = ((DataNode) maskNode.getDestination()).getMaxShape();
+				int[] detDims = getDataDimensions();
+				if (dims[0] != detDims[0] || dims[1] != detDims[1]) {
+					logger.error("{} - Mask dimensions not equal to detector dimensions", getName());
+					JythonServerFacade.getInstance()
+							.print(String.format("%s - mask wrong dimension (%s instead of %s)", getName(), Arrays.toString(dims), Arrays.toString(detDims)));
+					return;
+				}
 			}
 		} catch (ScanFileHolderException sfhe) {
-			logger.error("{} - Could not open mask file tree ({})", getName(), maskFile);
+			logger.error("{} - Could not open mask file tree ({})", getName(), filePath);
+			return;
+		} catch (DeviceException e) {
+			logger.error("{} - Could not read detector dimensions", getName(), e);
 			return;
 		}
 		try {
-			nxdata.addExternalFileLink("detector", "pixel_mask","nxfile://" +  maskFile + "#entry/mask/mask", false, true);
-			logger.info("{} - Linked mask file {}", getName(), maskFile);
+			nxdata.addExternalFileLink(getTreeName(), "pixel_mask", "nxfile://" + filePath + "#entry/mask/mask", false, true);
+			logger.info("{} - Linked mask file {}", getName(), filePath);
 		} catch (Exception e) {
 			logger.error("{} - Could not link external mask", getName(), e);
+		}
+	}
+
+	private void linkCalibrationFile(NXDetectorData nxdata, String filePath) {
+		if (filePath == null || filePath.isEmpty()) {
+			logger.info("{} - Not including calibration data. No calibration file set", getName());
+			return;
+		}
+		if (!new File(filePath).exists()) {
+			logger.error("{} - Could not include calibration data. {} does not exist", getName(), filePath);
+			JythonServerFacade.getInstance().print(String.format("%s - calibration file '%s' does not exist", getName(), filePath));
+			return;
+		}
+		try {
+			new HDF5Loader(filePath).loadFile();
+		} catch (ScanFileHolderException sfhe) {
+			logger.error("{} - Could not open calibration file tree", getName(), sfhe);
+			return;
+		}
+		try {
+			NexusGroupData ngd = new NexusGroupData("nxfile://" + filePath + "#entry/");
+			ngd.isDetectorEntryData = true;
+			NexusTreeNode type_node = new NexusTreeNode("calibration", NexusExtractor.ExternalSDSLink, null, ngd);
+			nxdata.getDetTree(getTreeName()).addChildNode(type_node);
+			logger.info("{} - Linked calibration file {}", getName(), filePath);
+		} catch (Exception e) {
+			logger.error("{} - Could not link external calibration", getName(), e);
 		}
 	}
 
