@@ -85,7 +85,7 @@ public class NcdPilatusDetector extends NcdSubDetector implements LastImageProvi
 			NexusUtils.addToAugmentPath(path, "detector", NexusExtractor.NXDetectorClassName);
 			group = file.getGroup(path.toString(), true);
 		} catch (Exception e) {
-			logger.error("Unable to create nexus file " + nexusFileUrl);
+			logger.error("{} - Unable to create nexus file {}", getName(), nexusFileUrl);
 		}
 	}
 
@@ -94,7 +94,7 @@ public class NcdPilatusDetector extends NcdSubDetector implements LastImageProvi
 		try {
 			file.close();
 		} catch (NexusException e) {
-			logger.error("Error closing hdf5 file "+ nexusFileUrl + " : " + e.getMessage());
+			logger.error("{} - Error closing hdf5 file {}", getName(), nexusFileUrl, e);
 		}
 	}
 
@@ -129,7 +129,7 @@ public class NcdPilatusDetector extends NcdSubDetector implements LastImageProvi
 			}
 			scanDataPoint++;
 		} catch (Exception e) {
-			logger.error("Error writing hdf5 file "+ nexusFileUrl + " : " + e.getMessage());
+			logger.error("{} - Error writing hdf5 file '{}'", getName(), nexusFileUrl, e);
 		}
 	}
 
@@ -161,9 +161,7 @@ public class NcdPilatusDetector extends NcdSubDetector implements LastImageProvi
 			}
 			nexusFileUrl = dataDir + nexusFileName;
 		} catch (Exception ex) {
-			String error = "Failed to create file (" + nexusFileUrl;
-			error += ")";
-			logger.error(error, ex);
+			logger.error("{} - Failed to create file ({})", getName(), nexusFileUrl, ex);
 		}
 		return nexusFileUrl;
 	}
