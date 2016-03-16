@@ -641,12 +641,15 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 
 					int[] dimensions;
 					int compression = NexusFile.COMPRESSION_NONE;
+					boolean requiresChunking = false;
 					if (sdims.length == 1 && sdims[0] == 1) {
 						// zero-dim data (single value per point), so dimensions are scan dimensions
 						dimensions = tree.isPointDependent() ? scanDimensions : new int[] { 1 };
+						requiresChunking = tree.isPointDependent();
 						// do not compress such simple data by default
 						compression = sds.compressionType != null ? sds.compressionType : NexusFile.COMPRESSION_NONE;
 					} else {
+						requiresChunking = true;
 						if (!tree.isPointDependent()) {
 							dimensions = Arrays.copyOf(dataDimMake, dataDimMake.length);
 						} else {
@@ -655,25 +658,27 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 						}
 						compression = sds.compressionType != null ? sds.compressionType : NexusFile.COMPRESSION_LZW_L1;
 					}
-					int[] specifiedChunkDims = new int[dimensions.length];
-					Arrays.fill(specifiedChunkDims, -1);
-					// ignore any specified chunking for zero-dim data
-					// we've reduced the data dimensions to the scan dimensions so chunk based on that only
-					if (sds.chunkDimensions != null && !(sdims.length == 1 && sdims[0] == 1)) {
-						System.arraycopy(sds.chunkDimensions, 0, specifiedChunkDims, scanDimensions.length, sds.chunkDimensions.length);
+					if (requiresChunking) {
+						int[] specifiedChunkDims = new int[dimensions.length];
+						Arrays.fill(specifiedChunkDims, -1);
+						// ignore any specified chunking for zero-dim data
+						// we've reduced the data dimensions to the scan dimensions so chunk based on that only
+						if (sds.chunkDimensions != null && !(sdims.length == 1 && sdims[0] == 1)) {
+							System.arraycopy(sds.chunkDimensions, 0, specifiedChunkDims, scanDimensions.length, sds.chunkDimensions.length);
+						}
+						int dataByteSize = AbstractDataset.getItemsize(sds.getDtype());
+						if (dataByteSize <= 0) {
+							// TODO: Fix for string types, particularly fixed length strings
+							dataByteSize = 4;
+						}
+						int[] chunk = NexusUtils.estimateChunking(dimensions, dataByteSize, specifiedChunkDims);
+						int[] maxshape = lazy.getMaxShape();
+						for (int i = 0; i < maxshape.length; i++) {
+							// chunk length in a given dimension should not exceed the upper bound of the dataset
+							chunk[i] = maxshape[i] > 0 && maxshape[i] < chunk[i] ? maxshape[i] : chunk[i];
+						}
+						lazy.setChunking(chunk);
 					}
-					int dataByteSize = AbstractDataset.getItemsize(sds.getDtype());
-					if (dataByteSize <= 0) {
-						// TODO: Fix for string types, particularly fixed length strings
-						dataByteSize = 4;
-					}
-					int[] chunk = NexusUtils.estimateChunking(dimensions, dataByteSize, specifiedChunkDims);
-					int[] maxshape = lazy.getMaxShape();
-					for (int i = 0; i < maxshape.length; i++) {
-						// chunk length in a given dimension should not exceed the upper bound of the dataset
-						chunk[i] = maxshape[i] > 0 && maxshape[i] < chunk[i] ? maxshape[i] : chunk[i];
-					}
-					lazy.setChunking(chunk);
 					// TODO: only enable compression if the chunk size makes it worthwhile
 					data = file.createData(group, lazy, compression);
 
