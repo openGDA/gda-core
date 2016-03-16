@@ -643,7 +643,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 					int compression = NexusFile.COMPRESSION_NONE;
 					if (sdims.length == 1 && sdims[0] == 1) {
 						// zero-dim data (single value per point), so dimensions are scan dimensions
-						dimensions = scanDimensions;
+						dimensions = tree.isPointDependent() ? scanDimensions : new int[] { 1 };
 						// do not compress such simple data by default
 						compression = sds.compressionType != null ? sds.compressionType : NexusFile.COMPRESSION_NONE;
 					} else {
