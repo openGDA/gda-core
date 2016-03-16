@@ -133,18 +133,21 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 	private CachedLazyPVFactory pvFactory;
 	private boolean useAvalField=false;
 
-	public boolean isUseAvalField() {
-		return useAvalField;
-	}
-
 	/**
 	 *
 	 * @param useAvalField if true the captured ENC1 values are stored in .AVAL field ( original IOC interface). Default is false
 	 */
+	@Override
 	public void setUseAvalField(boolean useAvalField) {
 		this.useAvalField = useAvalField;
 	}
 
+	@Override
+	public boolean isUseAvalField() {
+		return useAvalField;
+	}
+
+	@Override
 	public void setPvFactory(CachedLazyPVFactory pvFactory) {
 		this.pvFactory = pvFactory;
 	}
@@ -389,10 +392,12 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 		return pvFactory.getIntegerPVValueCache(PCNumberOfPointsCaptured).get();
 	}
 
+	@Override
 	public String getZebraPrefix() {
 		return zebraPrefix;
 	}
 
+	@Override
 	public void setZebraPrefix(String zebraPrefix) {
 		this.zebraPrefix = zebraPrefix;
 	}
@@ -509,6 +514,7 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+	@Override
 	public void setValue(String beforeUnderscore, int beforeUnderscoreId, String afterUnderscore, int afterUnderscoreId,int val) throws Exception {
 		String pvSuffix = beforeUnderscore;
 		if (beforeUnderscoreId > 0) {
@@ -541,6 +547,7 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+	@Override
 	public void encCopyMotorPosToZebra(int posNum) throws Exception {
 		Preconditions.checkArgument(1 <= posNum && posNum <= 4, "posNum must be between 1 and 4 inclusive");
 		final String pvSuffix = String.format("M%d:SETPOS.PROC", posNum);
