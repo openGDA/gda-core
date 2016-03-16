@@ -889,36 +889,10 @@ public class NexusGroupData implements Serializable {
 		case Dataset.FLOAT64:
 		case Dataset.BOOL: {
 			int size = AbstractDataset.getItemsize(dtype);
-			return calcChunks(dims, size);
+			return NexusUtils.estimateChunking(dims, size, null, NexusUtils.ChunkingStrategy.SKEW_LAST);
 		}
 		default:
 			return null;
 		}
-	}
-
-	private static int[] calcChunks(int[] dims, int size) {
-		final int target = 1024 * 1024;
-		int[] chunk = dims.clone();
-		long chunkSize = size;
-		for (int d : chunk) {
-			chunkSize *= d;
-		}
-		outerloop:
-		for (int i = 0; i < chunk.length; i++) {
-			while (chunk[i] > 1) {
-				if (chunkSize > target) {
-					// we want to round up the division to avoid extra chunks being
-					// required to store tiny remnants of data
-					chunk[i] = (int) Math.ceil(chunk[i] / 2.0);
-					chunkSize = size;
-					for (int d : chunk) {
-						chunkSize *= d;
-					}
-				} else {
-					break outerloop;
-				}
-			}
-		}
-		return chunk;
 	}
 }
