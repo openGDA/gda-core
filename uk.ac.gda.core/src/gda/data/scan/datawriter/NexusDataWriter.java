@@ -659,12 +659,28 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 						compression = sds.compressionType != null ? sds.compressionType : NexusFile.COMPRESSION_LZW_L1;
 					}
 					if (requiresChunking) {
-						int[] specifiedChunkDims = new int[dimensions.length];
-						Arrays.fill(specifiedChunkDims, -1);
-						// ignore any specified chunking for zero-dim data
-						// we've reduced the data dimensions to the scan dimensions so chunk based on that only
-						if (sds.chunkDimensions != null && !(sdims.length == 1 && sdims[0] == 1)) {
-							System.arraycopy(sds.chunkDimensions, 0, specifiedChunkDims, scanDimensions.length, sds.chunkDimensions.length);
+						int[] specifiedChunkDims;
+						if (!tree.isPointDependent()) {
+							// not point dependent so use dataset chunking
+							if (sds.chunkDimensions != null) {
+								specifiedChunkDims = sds.chunkDimensions.clone();
+							} else { // No chunking set on the dataset so fill with -1 to estimate automatically
+								specifiedChunkDims = new int[sds.dimensions.length];
+								Arrays.fill(specifiedChunkDims, -1);
+							}
+						} else if (!(sdims.length == 1 && sdims[0] == 1)) {
+							// point dependent, non-zero-dim data
+							// extend chunk to include scan dimensions
+							specifiedChunkDims = new int[dimensions.length];
+							Arrays.fill(specifiedChunkDims, -1);
+							if (sds.chunkDimensions != null) {
+								System.arraycopy(sds.chunkDimensions, 0, specifiedChunkDims, scanDimensions.length, sds.chunkDimensions.length);
+							}
+						} else {
+							// zero-dim, point dependent data
+							// chunk rank matches scan rank (dimensions have been reduced to scan dimensions)
+							specifiedChunkDims = new int[scanDimensions.length];
+							Arrays.fill(specifiedChunkDims, -1);
 						}
 						int dataByteSize = AbstractDataset.getItemsize(sds.getDtype());
 						if (dataByteSize <= 0) {
