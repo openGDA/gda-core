@@ -19,7 +19,7 @@ class ARPESMonitor:
         # Set exposures to 1 and change to continuous acquisition
         self.scienta.getAdBase().setNumExposures(1)
         self.scienta.getAdBase().setImageModeWait(ImageMode.CONTINUOUS)
-        sleep(0.1) # Allow time for values to be set
+        sleep(0.25) # Allow time for values to be set
 
     def start(self):
         self.configure()

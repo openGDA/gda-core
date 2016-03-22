@@ -49,7 +49,6 @@ class AnalyserLiveDataDispatcher implements MonitorListener, Configurable, Finda
 	private String arrayPV, frameNumberPV;
 	private long oldNumber = -1;
 	private Channel arrayChannel;
-	private long sleeptime = 1000;
 
 	private ThreadPoolExecutor executor;
 
@@ -94,7 +93,7 @@ class AnalyserLiveDataDispatcher implements MonitorListener, Configurable, Finda
 	@Override
 	public void monitorChanged(MonitorEvent arg0) {
 		try {
-			logger.debug("might soon be sending some thing to plot "+plotName+" with axes from "+analyser.getName()+" because of "+arg0.toString());
+			logger.trace("might soon be sending some thing to plot " + plotName + " with axes from " + analyser.getName() + " because of " + arg0.toString());
 
 			int newvalue =((gov.aps.jca.dbr.INT) arg0.getDBR().convert(DBRType.INT)).getIntValue()[0];
 
@@ -104,15 +103,13 @@ class AnalyserLiveDataDispatcher implements MonitorListener, Configurable, Finda
 						@Override
 						public void run() {
 							try {
-								Thread.sleep(50);
 								plotNewArray();
-								Thread.sleep(sleeptime);
 							} catch (Exception e) {
 								logger.error("exception caught preparing analyser live plot", e);
 							}
 						}
 					});
-					logger.debug("plot jobs for "+plotName+" queued successfully");
+					logger.trace("plot jobs for " + plotName + " queued successfully");
 				} catch (RejectedExecutionException ree) {
 					logger.debug("plot jobs for "+plotName+" are queueing up, as expected in certain circumstances, so this one got skipped");
 				}
@@ -128,7 +125,7 @@ class AnalyserLiveDataDispatcher implements MonitorListener, Configurable, Finda
 		int[] dims = new int[] {x, y};
 		int arraysize = dims[0]*dims[1];
 		if (arraysize < 1) return null;
-		logger.info("about to get array for "+plotName);
+		logger.trace("about to get array for " + plotName);
 //		double[] value = (double[]) arrayChannel.get(arraysize).getValue();
 //		return new DoubleDataset(value, dims);
 		float[] array = epicsController.cagetFloatArray(arrayChannel, arraysize);
@@ -160,7 +157,7 @@ class AnalyserLiveDataDispatcher implements MonitorListener, Configurable, Finda
 			return;
 		if (ds.max().intValue() <= 0)
 			logger.warn("something fishy - no positive values in sight");
-		logger.debug("dispatching plot to "+plotName);
+		logger.trace("dispatching plot to " + plotName);
 		SDAPlotter.imagePlot(plotName, xAxis, yAxis, ds);
 	}
 
@@ -180,11 +177,4 @@ class AnalyserLiveDataDispatcher implements MonitorListener, Configurable, Finda
 		this.frameNumberPV = frameNumberPV;
 	}
 
-	public long getSleeptime() {
-		return sleeptime;
-	}
-
-	public void setSleeptime(long sleeptime) {
-		this.sleeptime = sleeptime;
-	}
 }
