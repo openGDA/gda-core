@@ -18,14 +18,13 @@
 
 package uk.ac.gda.epics.adviewer;
 
-import gda.rcp.util.OSGIServiceRegister;
-
 import java.util.Dictionary;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
+import gda.rcp.util.OSGIServiceRegister;
 import uk.ac.gda.epics.adviewer.views.ADUtils;
 import uk.ac.gda.util.dictionary.MapBasedDictionary;
 
@@ -61,8 +60,7 @@ public class ADControllerFactory {
 		OSGIServiceRegister modelReg = new OSGIServiceRegister();
 		modelReg.setClass(ADController.class);
 		modelReg.setService(impl);
-		@SuppressWarnings("unchecked")
-		Dictionary<String, String> properties = new MapBasedDictionary();
+		Dictionary<String, String> properties = new MapBasedDictionary<>();
 		properties.put(Activator.SERVICE_NAME, serviceName);
 		modelReg.setProperties(properties);
 		modelReg.afterPropertiesSet();
