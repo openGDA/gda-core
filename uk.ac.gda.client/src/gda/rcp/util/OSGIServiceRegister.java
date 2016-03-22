@@ -18,14 +18,14 @@
 
 package gda.rcp.util;
 
-import gda.rcp.GDAClientActivator;
-
 import java.util.Dictionary;
 
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
+
+import gda.rcp.GDAClientActivator;
 
 /**
  * Registers the specified service object with the specified properties
@@ -39,8 +39,7 @@ public class OSGIServiceRegister implements InitializingBean{
 	/**
 	 * @param clazz The class name under which the service can be located.
 	 */
-	@SuppressWarnings("rawtypes")
-	public void setClass(Class clazz) {
+	public void setClass(Class<?> clazz) {
 		this.className = clazz.getName();
 	}
 

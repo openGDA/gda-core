@@ -18,23 +18,6 @@
 
 package gda.rcp.views;
 
-import gda.configuration.properties.LocalProperties;
-import gda.jython.IAllScanDataPointsObserver;
-import gda.jython.IJythonContext;
-import gda.jython.Jython;
-import gda.jython.JythonServerFacade;
-import gda.jython.Terminal;
-import gda.jython.gui.JythonGuiConstants;
-import gda.rcp.GDAClientActivator;
-import gda.rcp.util.ScanDataPointFormatterUtils;
-import gda.rcp.views.dashboard.DashboardView;
-import gda.rcp.views.dashboard.SimpleScannableObject;
-import gda.scan.IScanDataPoint;
-import gda.scan.Scan;
-import gda.scan.ScanDataPointFormatter;
-import gda.scan.ScanEvent;
-import gda.util.PropertyUtils;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -79,11 +62,27 @@ import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.swtdesigner.SWTResourceManager;
+
+import gda.configuration.properties.LocalProperties;
+import gda.jython.IAllScanDataPointsObserver;
+import gda.jython.IJythonContext;
+import gda.jython.Jython;
+import gda.jython.JythonServerFacade;
+import gda.jython.Terminal;
+import gda.jython.gui.JythonGuiConstants;
+import gda.rcp.GDAClientActivator;
+import gda.rcp.util.ScanDataPointFormatterUtils;
+import gda.rcp.views.dashboard.DashboardView;
+import gda.rcp.views.dashboard.SimpleScannableObject;
+import gda.scan.IScanDataPoint;
+import gda.scan.Scan;
+import gda.scan.ScanDataPointFormatter;
+import gda.scan.ScanEvent;
+import gda.util.PropertyUtils;
 import uk.ac.gda.ClientManager;
 import uk.ac.gda.client.HelpHandler;
 import uk.ac.gda.menu.JythonControlsFactory;
-
-import com.swtdesigner.SWTResourceManager;
 
 /**
  * Design to look and act like a command terminal for the GDA Jython Interpreter. NOTE: Currently this class does not
@@ -171,9 +170,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IAllScanDa
 			jsf.addIObserver(this);
 		}
 
-		Object namedService = GDAClientActivator.getNamedService(HelpHandler.class, null);
-		if( namedService != null)
-			helpHandler = (HelpHandler)namedService;
+		helpHandler = GDAClientActivator.getNamedService(HelpHandler.class, null);
 
 		fetchOldHistory();
 

@@ -18,9 +18,6 @@
 
 package uk.ac.gda.example.rcpexample;
 
-import gda.rcp.GDAClientActivator;
-import gda.rcp.util.OSGIServiceRegister;
-
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
@@ -34,6 +31,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.part.ViewPart;
 
+import gda.rcp.GDAClientActivator;
+import gda.rcp.util.OSGIServiceRegister;
 import uk.ac.gda.client.composites.MotorPositionEditorControl;
 import uk.ac.gda.client.observablemodels.ScannableWrapper;
 import uk.ac.gda.ui.components.NumberEditorControl;
@@ -81,7 +80,7 @@ public class MVCExampleView extends ViewPart {
 			// logger.error("TODO put description of error here", e1);
 		}
 
-		model = (IMVCExampleModel) GDAClientActivator.getNamedService(IMVCExampleModel.class, null);
+		model = GDAClientActivator.getNamedService(IMVCExampleModel.class, null);
 
 		toolkit = new FormToolkit(parent.getDisplay());
 		Composite cmpRoot = toolkit.createComposite(parent);

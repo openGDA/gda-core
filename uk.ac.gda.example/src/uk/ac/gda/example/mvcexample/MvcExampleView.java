@@ -18,8 +18,6 @@
 
 package uk.ac.gda.example.mvcexample;
 
-import gda.rcp.GDAClientActivator;
-
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.core.databinding.observable.list.IObservableList;
@@ -45,6 +43,7 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.part.ViewPart;
 
+import gda.rcp.GDAClientActivator;
 import uk.ac.gda.client.composites.MotorPositionEditorControl;
 import uk.ac.gda.client.observablemodels.ScannableWrapper;
 import uk.ac.gda.common.rcp.jface.viewers.ObservableMapCellControlProvider;
@@ -86,7 +85,7 @@ public class MvcExampleView extends ViewPart {
 	@Override
 	public void createPartControl(Composite parent) {
 
-		model = (MvcExampleModel) GDAClientActivator.getNamedService(MvcExampleModel.class, null);
+		model = GDAClientActivator.getNamedService(MvcExampleModel.class, null);
 		Object elementType = model.getItems().getElementType();
 		if (!elementType.equals(MvcExampleItem.class))
 			throw new RuntimeException("model is invalid. elementType = " + elementType);

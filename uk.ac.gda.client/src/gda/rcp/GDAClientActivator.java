@@ -18,8 +18,6 @@
 
 package gda.rcp;
 
-import gda.rcp.util.UIScanDataPointEventService;
-
 import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -32,6 +30,7 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
+import gda.rcp.util.UIScanDataPointEventService;
 import uk.ac.gda.common.rcp.NamedServiceProvider;
 
 /**
@@ -143,8 +142,8 @@ public class GDAClientActivator extends AbstractUIPlugin {
 
 	private static NamedServiceProvider namedServiceProvider;
 
-	public static Object getNamedService(@SuppressWarnings("rawtypes") Class clzz, final String name) {
-		if(namedServiceProvider == null){
+	public static <T> T getNamedService(Class<T> clzz, final String name) {
+		if (namedServiceProvider == null) {
 			namedServiceProvider = new NamedServiceProvider(plugin.context);
 		}
 		return namedServiceProvider.getNamedService(clzz, "SERVICE_NAME", name);
