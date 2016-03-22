@@ -112,6 +112,10 @@ public class IonChamberParameters  implements Serializable{
 		this.channel = channel;
 	}
 
+	public void setChannel(String channelString) {
+		this.channel = Integer.valueOf(channelString);
+	}
+
 	public String getCurrentAmplifierName() {
 		return currentAmplifierName;
 	}
@@ -172,6 +176,9 @@ public class IonChamberParameters  implements Serializable{
 		this.pressure = pressure;
 	}
 
+	public void setPressure(String pressureString) {
+		this.pressure = Double.valueOf(pressureString);
+	}
 
 	public void setAutoFillGas(Boolean automaticallyFillGas) {
 		this.autoFillGas = automaticallyFillGas;
