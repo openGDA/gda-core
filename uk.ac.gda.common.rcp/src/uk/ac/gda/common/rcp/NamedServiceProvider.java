@@ -30,10 +30,10 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
 /*
  * A class that can be used by an Activator to provide support for services. Particularly useful
  * when selecting a service from a collection of services based on the String value of a property.
- * 
+ *
  * namedServiceProvider = new NamedServiceProvider(bundleContext);
  * namedServiceProvider.getNamedService(clzz, "SERVICE_NAME", name);
- * 
+ *
  * in bundle stop call namedServiceProvider.close()
  */
 public class NamedServiceProvider {
@@ -46,10 +46,9 @@ public class NamedServiceProvider {
 			throw new IllegalStateException("BundleContext is null");
 	}
 
-	@SuppressWarnings("rawtypes")
 	public void close() {
 		if( !serviceTrackers.isEmpty()){
-			for (Entry<String, ServiceTracker> st : serviceTrackers.entrySet()) {
+			for (Entry<String, ServiceTracker<?, ?>> st : serviceTrackers.entrySet()) {
 				st.getValue().close();
 			}
 			serviceTrackers.clear();
@@ -57,42 +56,40 @@ public class NamedServiceProvider {
 		bundleContext = null;
 	}
 
-	@SuppressWarnings({ "rawtypes" })
-	Map<String, ServiceTracker> serviceTrackers = new HashMap<String, ServiceTracker>();
+	Map<String, ServiceTracker<?, ?>> serviceTrackers = new HashMap<String, ServiceTracker<?, ?>>();
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public Object getNamedService(Class clzz, final String propertyKey, final String name) {
+	public <T> T getNamedService(Class<T> clzz, final String propertyKey, final String name) {
 		if (bundleContext == null)
 			throw new IllegalStateException("BundleContext is null");
-		ServiceTracker tracker = null;
 		boolean checkName = name !=null && !name.isEmpty();
 		String serviceClassAndName = clzz.getName();
 		if(checkName){
 			serviceClassAndName += (":" + propertyKey + ":" + name);
 		}
-		tracker = serviceTrackers.get(serviceClassAndName);
+		@SuppressWarnings("unchecked")
+		ServiceTracker<T, T> tracker = (ServiceTracker<T, T>) serviceTrackers.get(serviceClassAndName);
 		if (tracker == null) {
-			ServiceTrackerCustomizer<Object, Object> customizer=  null;
+			ServiceTrackerCustomizer<T, T> customizer = null;
 			if( checkName){
-				customizer = new ServiceTrackerCustomizer<Object, Object>() {
-	
+				customizer = new ServiceTrackerCustomizer<T, T>() {
+
 					@Override
-					public Object addingService(ServiceReference<Object> reference) {
+					public T addingService(ServiceReference<T> reference) {
 						if (reference.getProperty(propertyKey).equals(name))
 							return bundleContext.getService(reference);
 						return null;
 					}
-	
+
 					@Override
-					public void modifiedService(ServiceReference<Object> reference, Object service) {
+					public void modifiedService(ServiceReference<T> reference, T service) {
 					}
-	
+
 					@Override
-					public void removedService(ServiceReference<Object> reference, Object service) {
+					public void removedService(ServiceReference<T> reference, T service) {
 					}
 				};
 			}
-			tracker = new ServiceTracker(bundleContext, clzz.getName(), customizer);
+			tracker = new ServiceTracker<T, T>(bundleContext, clzz.getName(), customizer);
 			tracker.open(true);
 			serviceTrackers.put(serviceClassAndName, tracker);
 		}
