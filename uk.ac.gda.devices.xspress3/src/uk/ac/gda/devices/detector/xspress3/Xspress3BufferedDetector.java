@@ -41,9 +41,11 @@ import uk.ac.gda.devices.detector.xspress3.fullCalculations.Xspress3WithFullCalc
 public class Xspress3BufferedDetector extends DetectorBase implements BufferedDetector, NexusDetector,
 		FluorescenceDetector, Xspress3 {
 
-	private Xspress3 xspress3Detector;
-	private ContinuousParameters parameters;
-	private boolean isContinuousModeOn;
+	// for now these 3 attributes need to be protected in order to be used in Xspress3BufferedDetectorv2 when all Xspress3 will change
+	// version this will need to be updated
+	protected Xspress3 xspress3Detector;
+	protected ContinuousParameters parameters;
+	protected boolean isContinuousModeOn;
 	private TRIGGER_MODE triggerModeWhenInContinuousScan = TRIGGER_MODE.TTl_Veto_Only;
 
 	@Override
