@@ -18,6 +18,7 @@
 
 package gda.device.scannable;
 
+import gda.configuration.properties.LocalProperties;
 import gda.device.ContinuousParameters;
 import gda.device.DeviceException;
 import gda.factory.FactoryException;
@@ -53,6 +54,11 @@ public class EpicsSingleTrajectoryScannable extends ScannableMotionUnitsBase imp
 	private int mode;
 	protected boolean trajectoryBuildDone;
 
+	/**
+	 * Property to enable/disable readback from EPICs trajectory scan controller. On I18, the readback causes a lot f issues so it was disabled permanently.
+	 */
+	public static final String GDA_SINGLETRAJECTORY_READBACK = "gda.epics.singleTrajectory.readBack";
+
 	@Override
 	public void configure() throws FactoryException {
 		tracController.addIObserver(this);
@@ -63,17 +69,18 @@ public class EpicsSingleTrajectoryScannable extends ScannableMotionUnitsBase imp
 	public void continuousMoveComplete() throws DeviceException {
 		try {
 			if (tracController.getExecuteStatus() != ExecuteStatus.ABORT) {
-				tracController.read();
-				double waitedSoFar = 0.0;
-				while (tracController.isReading() && waitedSoFar < (readTimeout * 1000)) {
-					Thread.sleep(1000);
-					waitedSoFar += 1000.0;
-				}
-				// check the read status from the controller
-				if (tracController.getReadStatus() != ReadStatus.SUCCESS) {
-					trajectoryBuildDone = false;
-					throw new DeviceException(
-							"Exception while waiting for the the Trajectory Scan Controller to complete read out");
+				if (LocalProperties.check(GDA_SINGLETRAJECTORY_READBACK, true)) {
+					tracController.read();
+					double waitedSoFar = 0.0;
+					while (tracController.isReading() && waitedSoFar < (readTimeout * 1000)) {
+						Thread.sleep(1000);
+						waitedSoFar += 1000.0;
+					}
+					// check the read status from the controller
+					if (tracController.getReadStatus() != ReadStatus.SUCCESS) {
+						trajectoryBuildDone = false;
+						throw new DeviceException("Exception while waiting for the the Trajectory Scan Controller to complete read out");
+					}
 				}
 				actualPulses = tracController.getActualPulses();
 			}
