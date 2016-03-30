@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><cs:cspec xmlns:cs="http://www.eclipse.org/buckminster/CSpec-1.0" name="p45-config" componentType="buckminster" version="1.0.0">
     <cs:dependencies>
         <cs:dependency name="dls-config" componentType="buckminster"/>
-        <cs:dependency name="ncsa.hdf" componentType="osgi.bundle"/>
+        <cs:dependency name="hdf.hdf5lib" componentType="osgi.bundle"/>
         <cs:dependency name="uk.ac.diamond.daq.beamline.p45.site" componentType="eclipse.feature"/>
         <cs:dependency name="uk.ac.diamond.daq.server.site" componentType="eclipse.feature"/>
         <cs:dependency name="uk.ac.diamond.scisoft.analysis" componentType="osgi.bundle"/>

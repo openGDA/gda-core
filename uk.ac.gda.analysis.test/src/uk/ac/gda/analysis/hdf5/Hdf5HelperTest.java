@@ -29,9 +29,9 @@ import org.junit.Test;
 
 import gda.TestHelpers;
 import gda.util.TestUtils;
+import hdf.object.Datatype;
+import hdf.object.h5.H5Datatype;
 import junit.framework.Assert;
-import ncsa.hdf.object.Datatype;
-import ncsa.hdf.object.h5.H5Datatype;
 import uk.ac.gda.analysis.hdf5.Hdf5Helper.TYPE;
 
 /**

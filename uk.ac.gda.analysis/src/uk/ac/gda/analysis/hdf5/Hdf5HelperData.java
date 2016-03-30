@@ -20,10 +20,10 @@ package uk.ac.gda.analysis.hdf5;
 
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 
-import ncsa.hdf.hdf5lib.H5;
-import ncsa.hdf.hdf5lib.HDF5Constants;
-import ncsa.hdf.hdf5lib.exceptions.HDF5LibraryException;
-import ncsa.hdf.object.h5.H5Datatype;
+import hdf.hdf5lib.H5;
+import hdf.hdf5lib.HDF5Constants;
+import hdf.hdf5lib.exceptions.HDF5LibraryException;
+import hdf.object.h5.H5Datatype;
 
 public class Hdf5HelperData {
 

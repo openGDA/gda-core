@@ -38,7 +38,8 @@
 				<pathelement location="${workspace.git.loc}/scisoft-core.git/uk.ac.diamond.scisoft.deprecated/bin" />
 				<pathelement location="${workspace.git.loc}/dawn-common.git/org.dawb.common.util/bin" />
 				<pathelement location="${workspace.git.loc}/gda-nexus.git/uk.ac.gda.nexus/bin" />
-				<pathelement location="${workspace.git.loc}/dawn-third.git/ncsa.hdf/bin" />
+				<pathelement location="${workspace.git.loc}/dawn-hdf.git/hdf.hdf5lib/bin" />
+				<pathelement location="${workspace.git.loc}/dawn-hdf.git/hdf.object/bin" />
 				<pathelement location="${workspace.git.loc}/scisoft-cbflib.git/uk.ac.diamond.CBFlib/bin" />
 				<pathelement location="${workspace.git.loc}/scisoft-cbflib.git/uk.ac.diamond.CBFlib/jars/*" />
 				<pathelement location="${workspace.git.loc}/diamond-springframework.git/uk.ac.diamond.org.springframework/jars/*" />
@@ -46,7 +47,6 @@
 				<path refid="tp.jcl-over-slf4j.path" />  <!-- ensure that matching imp appears first in classpath -->
 				<path refid="tp.hamcrest.path" />  <!-- ensure that latest version appears first in classpath -->
 				<path refid="tp.path" />  <!-- target platform -->
-				<pathelement location="${workspace.git.loc}/dawn-third.git/ncsa.hdf/bin" />
 				<path refid="libs.jars.path" />
 			</classpath>
 			<batchtest todir="@{report.dir}">

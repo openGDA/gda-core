@@ -30,8 +30,8 @@ import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ncsa.hdf.hdf5lib.H5;
-import ncsa.hdf.hdf5lib.HDF5Constants;
+import hdf.hdf5lib.H5;
+import hdf.hdf5lib.HDF5Constants;
 
 /**
  * Class used to create additional links in a nexus file.
