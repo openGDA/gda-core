@@ -1159,6 +1159,8 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 	 *
 	 * @param properties
 	 *            boolean if true appears on menu
+	 * @param copy
+	 *            boolean if true appears on menu
 	 * @param save
 	 *            boolean if true appears on menu
 	 * @param print
@@ -1168,9 +1170,9 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 	 * @return the popup menu
 	 */
 	@Override
-	protected JPopupMenu createPopupMenu(boolean properties, boolean save, boolean print, boolean zoom) {
+	protected JPopupMenu createPopupMenu(boolean properties, boolean copy, boolean save, boolean print, boolean zoom) {
 		// Create the popup without the zooming parts
-		JPopupMenu jpm = super.createPopupMenu(properties, false, print, false);
+		JPopupMenu jpm = super.createPopupMenu(properties, copy, false, print, false);
 
 		// as the save function on the chartpanel doesn't remember its location,
 		// we shall remove it and and create a new save option
@@ -1393,6 +1395,12 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 
 		return jpm;
+	}
+
+	@Override
+	// This override doesn't strictly need to exist, but it's a little insulation against changes in the base class
+	protected JPopupMenu createPopupMenu(boolean properties, boolean save, boolean print, boolean zoom) {
+		return createPopupMenu(properties, false, save, print, zoom);
 	}
 
 	// this is called later in constructor
