@@ -18,56 +18,15 @@
 
 package gda.rcp.util;
 
-import java.util.Dictionary;
-
-import org.osgi.framework.BundleContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
-
-import gda.rcp.GDAClientActivator;
 
 /**
- * Registers the specified service object with the specified properties
- * under the specified class name with the Framework.
+ * This class has been kept so existing usages in Spring configs continue to work.
+ * <p>
+ * New code or configs should use gda.util.osgi.OSGiServiceRegister (in uk.ac.gda.core) instead.
  *
+ * @deprecated Use gda.util.osgi.OSGiServiceRegister instead
  */
-public class OSGIServiceRegister implements InitializingBean{
-	private static final Logger logger = LoggerFactory.getLogger(OSGIServiceRegister.class);
-	private String className;
-
-	/**
-	 * @param clazz The class name under which the service can be located.
-	 */
-	public void setClass(Class<?> clazz) {
-		this.className = clazz.getName();
-	}
-
-	private Object service;
-
-	/**
-	 *
-	 * @param service The service object or a <code>ServiceFactory</code> object
-	 */
-	public void setService(Object service) {
-		this.service = service;
-	}
-
-	private Dictionary<String, ?> properties;
-
-	/**
-	 *
-	 * @param properties The properties for this service
-	 */
-	public void setProperties(Dictionary<String, ?> properties) {
-		this.properties = properties;
-	}
-
-	@Override
-	public void afterPropertiesSet() throws Exception {
-		BundleContext bundleContext = GDAClientActivator.getBundleContext();
-		bundleContext.registerService(className, service, properties);
-		logger.debug("Registered  " + service + " as service " + className);
-	}
-
+@Deprecated
+public class OSGIServiceRegister extends gda.util.osgi.OSGiServiceRegister {
+	// deliberately empty
 }

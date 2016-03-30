@@ -179,6 +179,7 @@ Export-Package: gda.beamline.beam,
  gda.util.exafs,
  gda.util.findableHashtable,
  gda.util.findableHashtable.corba.impl,
+ gda.util.osgi,
  gda.util.persistence,
  gda.util.persistence.entity,
  gda.util.simpleServlet,
@@ -202,3 +203,4 @@ Import-Package: javax.jms,
  org.slf4j;version="[1.7.2,2.0.0)"
 Bundle-ActivationPolicy: lazy
 Service-Component: OSGI-INF/*.xml
+Bundle-Activator: uk.ac.gda.core.GDACoreActivator
