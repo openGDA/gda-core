@@ -9,7 +9,6 @@ package uk.ac.gda.tomography.scan.impl;
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EPackage;
-
 import org.eclipse.emf.ecore.impl.EPackageImpl;
 
 import uk.ac.gda.tomography.scan.Parameters;
@@ -58,7 +57,7 @@ public class ScanPackageImpl extends EPackageImpl implements ScanPackage {
 
 	/**
 	 * Creates, registers, and initializes the <b>Package</b> for this model, and for any others upon which it depends.
-	 * 
+	 *
 	 * <p>This method is used to initialize {@link ScanPackage#eINSTANCE} when that field is accessed.
 	 * Clients should not invoke it directly. Instead, they should simply access that field to obtain the package.
 	 * <!-- begin-user-doc -->
@@ -234,6 +233,21 @@ public class ScanPackageImpl extends EPackageImpl implements ScanPackage {
 		return (EAttribute) parametersEClass.getEStructuralFeatures().get(12);
 	}
 
+	@Override
+	public EAttribute getParameters_ExtraFlatsAtEnd() {
+		return (EAttribute) parametersEClass.getEStructuralFeatures().get(13);
+	}
+
+	@Override
+	public EAttribute getParameters_NumFlyScans() {
+		return (EAttribute) parametersEClass.getEStructuralFeatures().get(14);
+	}
+
+	@Override
+	public EAttribute getParameters_FlyScanDelay() {
+		return (EAttribute) parametersEClass.getEStructuralFeatures().get(15);
+	}
+
 	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -278,6 +292,9 @@ public class ScanPackageImpl extends EPackageImpl implements ScanPackage {
 		createEAttribute(parametersEClass, PARAMETERS__MIN_I);
 		createEAttribute(parametersEClass, PARAMETERS__TITLE);
 		createEAttribute(parametersEClass, PARAMETERS__FLY_SCAN);
+		createEAttribute(parametersEClass, PARAMETERS__EXTRA_FLATS_AT_END);
+		createEAttribute(parametersEClass, PARAMETERS__NUM_FLY_SCANS);
+		createEAttribute(parametersEClass, PARAMETERS__FLY_SCAN_DELAY);
 	}
 
 	/**
@@ -367,6 +384,19 @@ public class ScanPackageImpl extends EPackageImpl implements ScanPackage {
 				getParameters_FlyScan(),
 				ecorePackage.getEBoolean(),
 				"flyScan", "false", 1, 1, Parameters.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED); //$NON-NLS-1$ //$NON-NLS-2$
+		initEAttribute(
+				getParameters_ExtraFlatsAtEnd(),
+				ecorePackage.getEBoolean(),
+				"extraFlatsAtEnd", "false", 1, 1, Parameters.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(
+				getParameters_NumFlyScans(),
+				ecorePackage.getEInt(),
+				"numFlyScans", "1", 1, 1, Parameters.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(
+				getParameters_FlyScanDelay(),
+				ecorePackage.getEDouble(),
+				"flyScanDelay", "0.", 1, 1, Parameters.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED,
+				IS_ORDERED);
 
 		// Create resource
 		createResource(eNS_URI);
