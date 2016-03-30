@@ -24,7 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
-import gda.rcp.util.OSGIServiceRegister;
+import gda.util.osgi.OSGiServiceRegister;
 import uk.ac.gda.epics.adviewer.views.ADUtils;
 import uk.ac.gda.util.dictionary.MapBasedDictionary;
 
@@ -57,7 +57,7 @@ public class ADControllerFactory {
 		}
 		DynamicADControllerImpl impl = new DynamicADControllerImpl(serviceName, detectorName, ADUtils.getPVFromPVServiceName(serviceName), adPVSuffixes);
 
-		OSGIServiceRegister modelReg = new OSGIServiceRegister();
+		OSGiServiceRegister modelReg = new OSGiServiceRegister();
 		modelReg.setClass(ADController.class);
 		modelReg.setService(impl);
 		Dictionary<String, String> properties = new MapBasedDictionary<>();
