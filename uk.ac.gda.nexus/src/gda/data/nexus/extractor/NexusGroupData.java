@@ -171,10 +171,11 @@ public class NexusGroupData implements Serializable {
 	}
 
 	/**
-	 * TODO replace with ncsa.hdf.object.Dataset#stringToByte
-	 * Makes fixed size byte array
+	 * TODO replace with hdf.object.Dataset#stringToByte Makes fixed size byte array
+	 * 
 	 * @param text
-	 * @param maxLength maximum encoded length in bytes of each string
+	 * @param maxLength
+	 *            maximum encoded length in bytes of each string
 	 * @return serializable
 	 */
 	private static Serializable makeBytes(String[] text, int maxLength) {
