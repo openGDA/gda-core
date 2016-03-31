@@ -126,7 +126,7 @@ public class DummyDAServer extends DAServer {
 		Object rc = -1;
 		// set fail true for the next command only (for JUNIT tests)
 		// return in this block of code otherwise fail will be reset to false
-		logger.info("DAServer command: " + command);
+		logger.debug("DAServer command: " + command);
 		if (command.startsWith("Fail")) {
 			fail = true;
 			return 0;
@@ -356,6 +356,7 @@ public class DummyDAServer extends DAServer {
 			rc = (fail) ? -1 : currentCycleNumber;
 		} else if (command.contains("tfg start")) {
 			// generate dummy data
+			stopRun = false;
 			timeFrameGenerator.start();
 			currentState = "RUNNING";
 			rc = (fail) ? -1 : 0;
@@ -637,7 +638,7 @@ public class DummyDAServer extends DAServer {
 							currentFrameNumber++;
 							if (stopRun)
 								throw new InterruptedException("Stopping run");
-							if (frameSet.getLivePause() == 1) {
+							if (frameSet.getLivePause() > 0) {
 								try {
 									currentState = "PAUSED";
 									wait();
