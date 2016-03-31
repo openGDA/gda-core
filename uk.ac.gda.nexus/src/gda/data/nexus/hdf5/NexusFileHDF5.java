@@ -384,9 +384,8 @@ public class NexusFileHDF5 implements NexusFile {
 						H5.H5Aopen_by_idx(fileId, path, HDF5Constants.H5_INDEX_NAME, HDF5Constants.H5_ITER_INC, i,
 								HDF5Constants.H5P_DEFAULT, HDF5Constants.H5P_DEFAULT))) {
 					long attrId = attrResource.getResource();
-					String[] name = new String[1];
-					H5.H5Aget_name(attrId, name);
-					if (node.containsAttribute(name[0])) {
+					String name = H5.H5Aget_name(attrId);
+					if (node.containsAttribute(name)) {
 						//we don't need to read an attribute we already have
 						continue;
 					}
@@ -396,7 +395,7 @@ public class NexusFileHDF5 implements NexusFile {
 						final long spaceId = spaceResource.getResource();
 						final long nativeTypeId = nativeTypeResource.getResource();
 						final int dataclass = H5.H5Tget_class(nativeTypeId);
-						final int datatypeSize = H5.H5Tget_size(nativeTypeId);
+						final int datatypeSize = (int) H5.H5Tget_size(nativeTypeId);
 						if (dataclass == HDF5Constants.H5T_STRING) {
 							datasetType = Dataset.STRING;
 						} else {
@@ -443,7 +442,7 @@ public class NexusFileHDF5 implements NexusFile {
 							Serializable buffer = dataset.getBuffer();
 							H5.H5Aread(attrId, nativeTypeId, buffer);
 						}
-						dataset.setName(name[0]);
+						dataset.setName(name);
 						node.addAttribute(createAttribute(dataset));
 					}
 				}
@@ -469,7 +468,7 @@ public class NexusFileHDF5 implements NexusFile {
 							HDF5Constants.H5_ITER_INC, i, HDF5Constants.H5P_DEFAULT);
 					if (linkInfo.type == HDF5Constants.H5L_TYPE_EXTERNAL) {
 						String[] value = new String[2];
-						H5.H5Lget_val(objId, linkName, value, HDF5Constants.H5P_DEFAULT);
+						H5.H5Lget_value(objId, linkName, value, HDF5Constants.H5P_DEFAULT);
 						String extFilePath = value[1];
 						if (!new File(extFilePath).exists()) {
 							//TODO: cache "lazy" node
@@ -616,7 +615,7 @@ public class NexusFileHDF5 implements NexusFile {
 				H5L_info_t linkInfo = (H5.H5Lget_info(fileId, path, HDF5Constants.H5P_DEFAULT));
 				if (linkInfo.type == HDF5Constants.H5L_TYPE_SOFT) {
 					String[] name = new String[2];
-					H5.H5Lget_val(fileId, path, name, HDF5Constants.H5P_DEFAULT);
+					H5.H5Lget_value(fileId, path, name, HDF5Constants.H5P_DEFAULT);
 					path = name[0];
 					if (!group.containsGroupNode(parsedNode.name)) {
 						NodeData linkedNode = getGroupNode(path, false);
@@ -974,7 +973,7 @@ public class NexusFileHDF5 implements NexusFile {
 				//chunks == null check is unnecessary, but compiler warns otherwise
 				if (!Arrays.equals(shape, maxShape) && (recalcChunks || chunks == null || chunks[chunks.length - 1] == 1)) {
 					logger.warn("Inappropriate chunking requested for {}; attempting to estimate suitable chunking.", name);
-					chunks = estimateChunking(shape, maxShape, H5.H5Tget_size(hdfDatatypeId));
+					chunks = estimateChunking(shape, maxShape, (int) H5.H5Tget_size(hdfDatatypeId));
 					iChunks = longArrayToIntArray(chunks);
 					data.setChunking(iChunks);
 				}
@@ -1101,7 +1100,7 @@ public class NexusFileHDF5 implements NexusFile {
 					final long dataId = hdfDataset.getResource();
 					if (stringDataset) {
 						String[] strings = (String[])DatasetUtils.serializeDataset(data);
-						H5.H5DwriteString(dataId, datatypeId, HDF5Constants.H5S_ALL, HDF5Constants.H5S_ALL, HDF5Constants.H5P_DEFAULT, strings);
+						H5.H5Dwrite_VLStrings(dataId, datatypeId, HDF5Constants.H5S_ALL, HDF5Constants.H5S_ALL, HDF5Constants.H5P_DEFAULT, strings);
 					} else {
 						Serializable buffer = DatasetUtils.serializeDataset(data);
 						H5.H5Dwrite(dataId, datatypeId, HDF5Constants.H5S_ALL, HDF5Constants.H5S_ALL, HDF5Constants.H5P_DEFAULT, buffer);
@@ -1431,7 +1430,7 @@ public class NexusFileHDF5 implements NexusFile {
 					HDF5Constants.H5F_OBJ_DATATYPE |
 					HDF5Constants.H5F_OBJ_GROUP |
 					HDF5Constants.H5F_OBJ_LOCAL;
-			int openObjectCount = H5.H5Fget_obj_count(fileId, typeIdentifier);
+			int openObjectCount = (int) H5.H5Fget_obj_count(fileId, typeIdentifier);
 			if (openObjectCount > 0) {
 				logger.debug("Trying to close hdf5 file with open objects");
 				long[] openIds = new long[openObjectCount];
@@ -1448,7 +1447,7 @@ public class NexusFileHDF5 implements NexusFile {
 			}
 			//try attributes
 			typeIdentifier = HDF5Constants.H5F_OBJ_ATTR | HDF5Constants.H5F_OBJ_LOCAL;
-			openObjectCount = H5.H5Fget_obj_count(fileId, typeIdentifier);
+			openObjectCount = (int) H5.H5Fget_obj_count(fileId, typeIdentifier);
 			if (openObjectCount > 0) {
 				logger.debug("Trying to close hdf5 file with open attributes");
 				long[] attrIds = new long[openObjectCount];
@@ -1537,7 +1536,7 @@ public class NexusFileHDF5 implements NexusFile {
 			H5L_info_t linkInfo = H5.H5Lget_info(fileId, path, HDF5Constants.H5P_DEFAULT);
 			if (linkInfo.type == HDF5Constants.H5L_TYPE_SOFT) {
 				String[] name = new String[2];
-				H5.H5Lget_val(fileId, path, name, HDF5Constants.H5P_DEFAULT);
+				H5.H5Lget_value(fileId, path, name, HDF5Constants.H5P_DEFAULT);
 				return getLinkTarget(name[0]);
 			} else if (linkInfo.type == HDF5Constants.H5L_TYPE_HARD) {
 				return linkInfo.address_val_size;
