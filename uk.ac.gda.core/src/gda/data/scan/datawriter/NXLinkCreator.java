@@ -80,7 +80,7 @@ public class NXLinkCreator {
 
 						String oname = groupName;
 						String[] linkName = new String[2]; // file name and file path
-						H5.H5Lget_val(gid, oname, linkName, HDF5Constants.H5P_DEFAULT);
+						H5.H5Lget_value(gid, oname, linkName, HDF5Constants.H5P_DEFAULT);
 
 						String linkInfo = "nxfile://";
 						linkInfo += linkName[1] + "#" + linkName[0];

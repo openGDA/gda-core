@@ -643,7 +643,7 @@ public class Hdf5Helper {
 			int sdim = -1;
 			filetypeId = H5.H5Aget_type(attributeId);
 
-			sdim = H5.H5Tget_size(filetypeId);
+			sdim = (int) H5.H5Tget_size(filetypeId);
 			sdim++; // Make room for null terminator
 
 			// Get dataspace and allocate memory for read buffer.
