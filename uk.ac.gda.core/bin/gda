@@ -235,7 +235,8 @@ where task can be:
 
 		group = OptionGroup(self.parser, "Actions")
 		group.add_option("--version", dest="version", action="store_true", default=False, help="display GDA version")
-		group.add_option("--restart", "--start", dest="start", action="store_true", help="(re)start the process; does --stop first (default)")
+		group.add_option("--restart", dest="restart", action="store_true", help="restart the process; equivalent to --stop --start (default)")
+		group.add_option("--start", dest="start", action="store_true", help="start the process")
 		group.add_option("--stop", dest="stop", action="store_true", help="stop the process")
 		
 		self.parser.add_option_group(group)
@@ -451,12 +452,12 @@ where task can be:
 				sys.exit(1)
 
 		# if start/stop/restart not specified, default is to restart
-		if self.options.start == None and self.options.stop == None:
-			self.options.start = True
+		if self.options.start == None and self.options.stop == None and self.options.restart == None:
+			self.options.restart = True
 
-		# start implies stop and start
-		if self.options.start:
-			self.options.stop = True
+		# restart implies stop and start
+		if self.options.restart:
+			self.options.start = self.options.stop = True
 
 		if self.options.version:
 			return
