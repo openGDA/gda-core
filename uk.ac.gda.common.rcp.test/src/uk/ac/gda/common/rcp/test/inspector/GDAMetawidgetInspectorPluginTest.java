@@ -43,14 +43,14 @@ public class GDAMetawidgetInspectorPluginTest extends SWTTestBase {
 	public void setUp() throws Exception {
 
 		BoundingBox box = new BoundingBox();
-		box.setxStart(-4.0);
-		box.setyStart(2.5);
-		box.setWidth(6.0);
-		box.setHeight(5.1);
+		box.setFastAxisStart(-4.0);
+		box.setSlowAxisStart(2.5);
+		box.setFastAxisLength(6.0);
+		box.setSlowAxisLength(5.1);
 
 		gridModel = new GridModel();
-		gridModel.setRows(5);
-		gridModel.setColumns(6);
+		gridModel.setSlowAxisPoints(5);
+		gridModel.setFastAxisPoints(6);
 		gridModel.setBoundingBox(box);
 
 		metawidget = (Composite) guiGenerator.generateGui(gridModel, shell);
@@ -81,20 +81,20 @@ public class GDAMetawidgetInspectorPluginTest extends SWTTestBase {
 	}
 
 	@Test
-	public void testRowsFieldIsSpinner() throws Exception {
-		Control control = getControl("rows");
+	public void testFastAxisPointsFieldIsSpinner() throws Exception {
+		Control control = getControl("fastAxisPoints");
 		assertThat(control, is(instanceOf(Spinner.class)));
 	}
 
 	@Test
-	public void testRowsFieldInitialValue() throws Exception {
-		Control control = getControl("rows");
-		assertThat(((Spinner) control).getSelection(), is(equalTo(gridModel.getRows())));
+	public void testFastAxisPointsFieldInitialValue() throws Exception {
+		Control control = getControl("fastAxisPoints");
+		assertThat(((Spinner) control).getSelection(), is(equalTo(gridModel.getFastAxisPoints())));
 	}
 
 	@Test
-	public void testRowsFieldMinimumValue() throws Exception {
-		Control control = getControl("rows");
+	public void testFastAxisPointsFieldMinimumValue() throws Exception {
+		Control control = getControl("fastAxisPoints");
 		assertThat(((Spinner) control).getMinimum(), is(equalTo(1)));
 	}
 
