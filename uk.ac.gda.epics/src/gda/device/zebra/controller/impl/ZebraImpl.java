@@ -18,16 +18,6 @@
 
 package gda.device.zebra.controller.impl;
 
-import gda.device.zebra.controller.SoftInputChangedEvent;
-import gda.device.zebra.controller.Zebra;
-import gda.epics.CachedLazyPVFactory;
-import gda.epics.PV;
-import gda.epics.ReadOnlyPV;
-import gda.factory.Findable;
-import gda.observable.Observable;
-import gda.observable.ObservableUtil;
-import gda.observable.Observer;
-
 import java.io.IOException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -37,6 +27,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
 import com.google.common.base.Preconditions;
+
+import gda.device.zebra.controller.SoftInputChangedEvent;
+import gda.device.zebra.controller.Zebra;
+import gda.epics.CachedLazyPVFactory;
+import gda.epics.PV;
+import gda.epics.ReadOnlyPV;
+import gda.factory.Findable;
+import gda.observable.Observable;
+import gda.observable.ObservableUtil;
+import gda.observable.Observer;
 
 public class ZebraImpl implements Zebra, Findable, InitializingBean {
 
@@ -314,6 +314,7 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 	public void pcArm() throws Exception {
 		logger.trace("pcArm()...");
 		//reset(); // Before re-enabling this, please leave a note here explaining why it was re-enabled.
+		pvFactory.getPVInteger(PCArm).putWait(1);
 		while (!isPCArmed()) {
 			logger.info("Zebra not yet armed, waiting...");
 			Thread.sleep(100);
