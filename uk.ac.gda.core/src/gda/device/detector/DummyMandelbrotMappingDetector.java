@@ -42,11 +42,11 @@ public class DummyMandelbrotMappingDetector extends DetectorBase implements Nexu
 	// Constants
 	private static final int MAX_ITERATIONS = 500;
 	private static final double ESCAPE_RADIUS = 10.0;
-	private static final int COLUMNS = 301;
-	private static final int ROWS = 241;
-	private static final int POINTS = 1000;
-	private static final double MAX_X = 1.5;
-	private static final double MAX_Y = 1.2;
+	private static final int COLUMNS = 301; // for the 2D Julia dataset
+	private static final int ROWS = 241; // for the 2D Julia dataset
+	private static final int POINTS = 1000; // for the 1D Julia dataset
+	private static final double MAX_REAL_COORDINATE = 1.5; // for the 1D and 2D Julia datasets
+	private static final double MAX_IMAGINARY_COORDINATE = 1.2; // for the 2D Julia dataset
 
 	// Internal state
 	private volatile int status = IDLE;
@@ -54,8 +54,8 @@ public class DummyMandelbrotMappingDetector extends DetectorBase implements Nexu
 	private ExecutorService executor;
 
 	// Configurable fields
-	private Scannable xPos;
-	private Scannable yPos;
+	private Scannable realAxisPositioner;
+	private Scannable imaginaryAxisPositioner;
 	private OutputDimensions outputDimensions = OutputDimensions.TWO_D;
 
 	public DummyMandelbrotMappingDetector() {
@@ -65,12 +65,12 @@ public class DummyMandelbrotMappingDetector extends DetectorBase implements Nexu
 		setOutputFormat(new String[] { "%s" });
 	}
 
-	public void setxPos(Scannable xPos) {
-		this.xPos = xPos;
+	public void setRealAxisPositioner(Scannable xPos) {
+		this.realAxisPositioner = xPos;
 	}
 
-	public void setyPos(Scannable yPos) {
-		this.yPos = yPos;
+	public void setImaginaryAxisPositioner(Scannable yPos) {
+		this.imaginaryAxisPositioner = yPos;
 	}
 
 	public void setOutputDimensions(OutputDimensions outputDimensions) {
@@ -141,8 +141,8 @@ public class DummyMandelbrotMappingDetector extends DetectorBase implements Nexu
 
 		final long startTime = System.nanoTime();
 		final long targetDuration = (long) getCollectionTime() * 1000000000; // nanoseconds
-		final double a = ((Double) xPos.getPosition()).doubleValue();
-		final double b = ((Double) yPos.getPosition()).doubleValue();
+		final double a = ((Double) realAxisPositioner.getPosition()).doubleValue();
+		final double b = ((Double) imaginaryAxisPositioner.getPosition()).doubleValue();
 
 		executor.execute(new Runnable() {
 			@Override
@@ -155,7 +155,7 @@ public class DummyMandelbrotMappingDetector extends DetectorBase implements Nexu
 				data.setPlottableValue(VALUE_NAME, Double.valueOf(value));
 
 				if (outputDimensions == OutputDimensions.ONE_D) {
-					double[] juliaSetLine = calculateJuliaSetLine(a, b, 0.0, 0.0, MAX_X, POINTS);
+					double[] juliaSetLine = calculateJuliaSetLine(a, b, 0.0, 0.0, MAX_REAL_COORDINATE, POINTS);
 					data.addData(getName(), "data", new NexusGroupData(juliaSetLine), null, Integer.valueOf(1));
 				} else if (outputDimensions == OutputDimensions.TWO_D) {
 					double[][] juliaSet = calculateJuliaSet(a, b, COLUMNS, ROWS);
@@ -183,10 +183,10 @@ public class DummyMandelbrotMappingDetector extends DetectorBase implements Nexu
 	 * Fill a Julia set around the origin for the value C = a + bi
 	 */
 	private double[][] calculateJuliaSet(final double a, final double b, int columns, int rows) {
-		final double xStart = -MAX_X;
-		final double xStop = MAX_X;
-		final double yStart = -MAX_Y;
-		final double yStop = MAX_Y;
+		final double xStart = -MAX_REAL_COORDINATE;
+		final double xStop = MAX_REAL_COORDINATE;
+		final double yStart = -MAX_IMAGINARY_COORDINATE;
+		final double yStop = MAX_IMAGINARY_COORDINATE;
 		final double yStep = (yStop - yStart) / (rows - 1);
 		double y;
 		double[][] juliaSet = new double[rows][columns];
