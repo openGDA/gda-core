@@ -79,7 +79,7 @@ public class DummyMandelbrotMappingDetectorTest {
 
 	@Test
 	public void isBusyShouldReturnTrueUntilCollectionTimeHasElapsed() throws Exception {
-		detector.setCollectionTime(1.0);
+		detector.setCollectionTime(0.9);
 		assertThat(detector.isBusy(), is(false));
 		detector.collectData();
 		assertThat(detector.isBusy(), is(true));
@@ -87,7 +87,7 @@ public class DummyMandelbrotMappingDetectorTest {
 		assertThat(detector.isBusy(), is(true));
 		Thread.sleep(500);
 		assertThat(detector.isBusy(), is(true));
-		Thread.sleep(500);
+		Thread.sleep(400);
 		assertThat(detector.isBusy(), is(false));
 	}
 

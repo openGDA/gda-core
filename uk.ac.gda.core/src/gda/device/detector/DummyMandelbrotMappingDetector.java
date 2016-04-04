@@ -140,7 +140,7 @@ public class DummyMandelbrotMappingDetector extends DetectorBase implements Nexu
 		status = BUSY;
 
 		final long startTime = System.nanoTime();
-		final long targetDuration = (long) getCollectionTime() * 1000000000; // nanoseconds
+		final long targetDuration = (long) (getCollectionTime() * 1000000000.0); // nanoseconds
 		final double a = ((Double) realAxisPositioner.getPosition()).doubleValue();
 		final double b = ((Double) imaginaryAxisPositioner.getPosition()).doubleValue();
 
