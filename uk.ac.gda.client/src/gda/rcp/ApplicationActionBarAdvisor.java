@@ -775,6 +775,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
         menu.add(getCopyItem());
         menu.add(getPasteItem());
         menu.add(new GroupMarker(IWorkbenchActionConstants.CUT_EXT));
+        menu.add(new GroupMarker(IWorkbenchActionConstants.FIND_EXT));
         menu.add(new Separator());
 
         menu.add(getDeleteItem());
