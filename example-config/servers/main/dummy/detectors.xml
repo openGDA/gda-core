@@ -34,14 +34,14 @@
 	</bean>
 
 	<bean id="dummyMandelbrotMappingDetector1D" class="gda.device.detector.DummyMandelbrotMappingDetector">
-		<property name="xPos" ref="stage_x" />
-		<property name="yPos" ref="stage_y" />
+		<property name="realAxisPositioner" ref="stage_x" />
+		<property name="imaginaryAxisPositioner" ref="stage_y" />
 		<property name="outputDimensions" value="ONE_D" />
 	</bean>
 
 	<bean id="dummyMandelbrotMappingDetector2D" class="gda.device.detector.DummyMandelbrotMappingDetector">
-		<property name="xPos" ref="stage_x" />
-		<property name="yPos" ref="stage_y" />
+		<property name="realAxisPositioner" ref="stage_x" />
+		<property name="imaginaryAxisPositioner" ref="stage_y" />
 		<property name="outputDimensions" value="TWO_D" />
 	</bean>
 

@@ -37,15 +37,16 @@ public class DummyMandelbrotMappingDetectorTest {
 	public void setUp() throws Exception {
 		detector = new DummyMandelbrotMappingDetector();
 
-		DummyScannable xMotor = new DummyScannable();
-		xMotor.rawAsynchronousMoveTo(-0.9);
-		xMotor.setIncrement(0.1);
-		DummyScannable yMotor = new DummyScannable();
-		yMotor.rawAsynchronousMoveTo(0.3);
-		yMotor.setIncrement(0.0);
+		DummyScannable realAxisPositioner = new DummyScannable();
+		realAxisPositioner.rawAsynchronousMoveTo(-0.9);
+		realAxisPositioner.setIncrement(0.1);
 
-		detector.setxPos(xMotor);
-		detector.setyPos(yMotor);
+		DummyScannable imaginaryAxisPositioner = new DummyScannable();
+		imaginaryAxisPositioner.rawAsynchronousMoveTo(0.3);
+		imaginaryAxisPositioner.setIncrement(0.0);
+
+		detector.setRealAxisPositioner(realAxisPositioner);
+		detector.setImaginaryAxisPositioner(imaginaryAxisPositioner);
 		detector.setCollectionTime(0.1);
 		detector.atScanStart();
 	}
