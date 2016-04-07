@@ -88,7 +88,7 @@ public class OutputPreparerTest {
 
 			assertTrue(metashop.getMetaScannables().contains(mocked_sxcryo_scannable));
 
-			impl.resetNexusStaticMetadataList();
+			impl.resetStaticMetadataList();
 
 			assertTrue(!metashop.getMetaScannables().contains(mocked_sxcryo_scannable));
 

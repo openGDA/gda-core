@@ -332,7 +332,7 @@ public abstract class XasScanBase implements XasScan {
 
 	protected void resetHeader() {
 		// datawriterconfig.setHeader(original_header);
-		outputPreparer.resetNexusStaticMetadataList();
+		outputPreparer.resetStaticMetadataList();
 		metashop.clear();
 	}
 
