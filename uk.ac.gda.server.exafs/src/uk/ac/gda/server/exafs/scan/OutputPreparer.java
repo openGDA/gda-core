@@ -44,7 +44,7 @@ public interface OutputPreparer {
 
 	ScanPlotSettings getPlotSettings();
 
-	void resetNexusStaticMetadataList();
+	void resetStaticMetadataList();
 
 	AsciiDataWriterConfiguration getAsciiDataWriterConfig(IScanParameters scanBean);
 
