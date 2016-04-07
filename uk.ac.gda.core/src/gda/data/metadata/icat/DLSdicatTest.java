@@ -29,10 +29,16 @@ public class DLSdicatTest {
 	public static void main(String[] args) throws Exception {
 		
 		// You'll want to change these
-		final String username = "qny31541";
 		for (String instrument : new String[] {"i02", "i03", "i04", "i04-1", "i23", "i24"}) {
 			
-			System.setProperty(LocalProperties.GDA_PROPERTIES_FILE, "src/gda/data/metadata/icat/DLSdicatTest.properties");
+			final String username = String.format("%suser", instrument);
+			
+			final String gdaDirectory = String.format("/dls_sw/%s/software/gda", instrument);
+			final String gdaConfig = String.format("%s/config", gdaDirectory);
+			
+			System.setProperty(LocalProperties.GDA_GIT_LOC, String.format("%s/workspace_git", gdaDirectory));
+			System.setProperty(LocalProperties.GDA_CONFIG, gdaConfig);
+			System.setProperty(LocalProperties.GDA_PROPERTIES_FILE, String.format("%s/properties/live/java.properties", gdaConfig));
 			
 			final DLSdicat dicat = new DLSdicat();
 			dicat.setInstrumentName(instrument);
