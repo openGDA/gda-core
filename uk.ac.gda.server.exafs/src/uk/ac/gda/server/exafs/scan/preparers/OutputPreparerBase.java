@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.nfunk.jep.ParseException;
 import org.springframework.beans.factory.InitializingBean;
 
 import gda.data.metadata.NXMetaDataProvider;
@@ -30,6 +31,7 @@ import gda.data.scan.datawriter.AsciiDataWriterConfiguration;
 import gda.data.scan.datawriter.AsciiMetadataConfig;
 import gda.device.DeviceException;
 import gda.device.Scannable;
+import gda.device.scannable.JEPScannable;
 import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanPlotSettings;
@@ -38,15 +40,17 @@ import uk.ac.gda.beans.exafs.IOutputParameters;
 import uk.ac.gda.beans.exafs.ISampleParameters;
 import uk.ac.gda.beans.exafs.IScanParameters;
 import uk.ac.gda.beans.exafs.MetadataParameters;
+import uk.ac.gda.beans.exafs.SignalParameters;
 import uk.ac.gda.server.exafs.scan.OutputPreparer;
 
 public abstract class OutputPreparerBase implements OutputPreparer, InitializingBean {
 
 	private AsciiDataWriterConfiguration datawriterconfig;
 	private NXMetaDataProvider metashop;
-	private Set<String> scannablesAddedToMetadata = new HashSet<String>();
+	private Set<Scannable> scannablesAddedToMetadata = new HashSet<Scannable>();
 	// Metadata set provided by OutputParameter bean and written into the ASCII header
 	private Set<AsciiMetadataConfig> asciiMetadataList = new HashSet<AsciiMetadataConfig>();
+	private Set<Scannable> scannablesToBeAddedAsColumnInDataFile = new HashSet<Scannable>();
 
 	public OutputPreparerBase() {
 	}
@@ -85,9 +89,22 @@ public abstract class OutputPreparerBase implements OutputPreparer, Initializing
 	@Override
 	public void configure(IOutputParameters outputParameters, IScanParameters scanBean, IDetectorParameters detectorBean, ISampleParameters sampleParameters)
 			throws DeviceException {
-		List<MetadataParameters> metadata = outputParameters.getMetadataList();
-		ArrayList<AsciiMetadataConfig> header = datawriterconfig.getHeader();
 
+		List<MetadataParameters> metadata = outputParameters.getMetadataList();
+		addMetadata(metadata);
+
+		List<SignalParameters> signalList = outputParameters.getSignalList();
+
+		try {
+			setScannablesToBeAddedAsColumnInDataFile(signalList);
+		} catch (ParseException e) {
+			throw new DeviceException("Problem getting the scannables To be added as column in Nexus and Ascii file.");
+		}
+
+	}
+
+	private void addMetadata(List<MetadataParameters> metadata) {
+		ArrayList<AsciiMetadataConfig> header = datawriterconfig.getHeader();
 		for (MetadataParameters parameter : metadata) {
 			String scannableName = parameter.getScannableName();
 			Scannable scannable = retriveScannable(scannableName);
@@ -96,7 +113,7 @@ public abstract class OutputPreparerBase implements OutputPreparer, Initializing
 				addOneMetadataElementToNexus(scannable);
 				// add metadata to the ASCII file
 				addOneMetadataElementToAscii(scannable, header);
-				scannablesAddedToMetadata.add(scannableName);
+				scannablesAddedToMetadata.add(scannable);
 			}
 		}
 		datawriterconfig.setHeader(header);
@@ -138,6 +155,10 @@ public abstract class OutputPreparerBase implements OutputPreparer, Initializing
 		return datawriterconfig;
 	}
 
+	// need to reset at the end of tne scan instead of the beginning of the next scan otherwise if we run a scan
+	// through the jython console it will take the metadata from the previous scan (as the datawriter configuration
+	// will stay in memory.
+
 	@Override
 	public void resetStaticMetadataList() {
 		resetNexusStaticMetadataList();
@@ -146,8 +167,7 @@ public abstract class OutputPreparerBase implements OutputPreparer, Initializing
 	}
 
 	private void resetNexusStaticMetadataList() {
-		for (String scannableName : scannablesAddedToMetadata) {
-			Scannable scannable = retriveScannable(scannableName);
+		for (Scannable scannable : scannablesAddedToMetadata) {
 			if (scannable != null) {
 				metashop.remove(scannable);
 			}
@@ -156,9 +176,8 @@ public abstract class OutputPreparerBase implements OutputPreparer, Initializing
 
 	private void resetAsciiStaticMetadataList() {
 		ArrayList<AsciiMetadataConfig> header = datawriterconfig.getHeader();
-		for (AsciiMetadataConfig asciiMetadata : asciiMetadataList) {
-			header.remove(asciiMetadata);
-		}
+		if (!asciiMetadataList.isEmpty())
+			header.removeAll(asciiMetadataList);
 		datawriterconfig.setHeader(header);
 		asciiMetadataList.clear();
 	}
@@ -167,4 +186,28 @@ public abstract class OutputPreparerBase implements OutputPreparer, Initializing
 	public ScanPlotSettings getPlotSettings() {
 		return null;
 	}
+
+	private void setScannablesToBeAddedAsColumnInDataFile(List<SignalParameters> signalList) throws ParseException {
+		//make sure that the previous list has been cleared
+		String dataFormat;
+		scannablesToBeAddedAsColumnInDataFile.clear();
+		for (SignalParameters signal:signalList){
+			dataFormat = "%6." + signal.getDecimalPlaces() + "g";
+			signalParametersValidator(signal);
+			Scannable scannable = JEPScannable.createJEPScannable(signal.getLabel(), signal.getScannableName(), dataFormat, signal.getName(),
+					signal.getExpression());
+			scannablesToBeAddedAsColumnInDataFile.add(scannable);
+		}
+	}
+
+	@Override
+	public Set<Scannable> getScannablesToBeAddedAsColumnInDataFile() {
+		return scannablesToBeAddedAsColumnInDataFile;
+	}
+
+	private void signalParametersValidator(SignalParameters signal) {
+		if (signal.getExpression().equals(""))
+			signal.setExpression(null);
+	}
+
 }

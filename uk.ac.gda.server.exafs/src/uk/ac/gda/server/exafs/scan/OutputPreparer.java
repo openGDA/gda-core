@@ -18,8 +18,11 @@
 
 package uk.ac.gda.server.exafs.scan;
 
+import java.util.Set;
+
 import gda.data.scan.datawriter.AsciiDataWriterConfiguration;
 import gda.device.DeviceException;
+import gda.device.Scannable;
 import gda.scan.ScanPlotSettings;
 import uk.ac.gda.beans.exafs.IDetectorParameters;
 import uk.ac.gda.beans.exafs.IOutputParameters;
@@ -47,5 +50,7 @@ public interface OutputPreparer {
 	void resetStaticMetadataList();
 
 	AsciiDataWriterConfiguration getAsciiDataWriterConfig(IScanParameters scanBean);
+
+	Set<Scannable> getScannablesToBeAddedAsColumnInDataFile();
 
 }
