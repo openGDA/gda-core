@@ -18,6 +18,20 @@
 
 package uk.ac.gda.server.exafs.scan;
 
+import java.io.File;
+import java.io.StringWriter;
+import java.lang.reflect.Field;
+import java.net.URL;
+import java.util.List;
+import java.util.Set;
+
+import org.apache.commons.lang.ArrayUtils;
+import org.python.core.PyInteger;
+import org.python.core.PyObject;
+import org.python.core.PySequence;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.configuration.properties.LocalProperties;
 import gda.data.metadata.NXMetaDataProvider;
 import gda.data.scan.datawriter.AsciiDataWriterConfiguration;
@@ -27,6 +41,7 @@ import gda.data.scan.datawriter.DefaultDataWriterFactory;
 import gda.data.scan.datawriter.NexusDataWriter;
 import gda.data.scan.datawriter.XasAsciiNexusDataWriter;
 import gda.device.Detector;
+import gda.device.Scannable;
 import gda.exafs.scan.RepetitionsProperties;
 import gda.exafs.scan.ScanStartedMessage;
 import gda.jython.InterfaceProvider;
@@ -43,20 +58,6 @@ import gda.scan.ConcurrentScan;
 import gda.scan.Scan;
 import gda.scan.ScanInterruptedException;
 import gda.scan.ScanPlotSettings;
-
-import java.io.File;
-import java.io.StringWriter;
-import java.lang.reflect.Field;
-import java.net.URL;
-import java.util.List;
-
-import org.apache.commons.lang.ArrayUtils;
-import org.python.core.PyInteger;
-import org.python.core.PyObject;
-import org.python.core.PySequence;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import uk.ac.gda.beans.exafs.DetectorGroup;
 import uk.ac.gda.beans.exafs.FluorescenceParameters;
 import uk.ac.gda.beans.exafs.IDetectorConfigurationParameters;
@@ -255,6 +256,9 @@ public abstract class XasScanBase implements XasScan {
 
 		XasProgressUpdater loggingbean = new XasProgressUpdater(loggingScriptController, logmsg, timeRepetitionsStarted);
 		scanArgs = ArrayUtils.add(scanArgs, loggingbean);
+		Set<Scannable> scannablesToBeAddedAsColumnInDataFile = outputPreparer.getScannablesToBeAddedAsColumnInDataFile();
+		if (!scannablesToBeAddedAsColumnInDataFile.isEmpty())
+			scanArgs = ArrayUtils.addAll(scanArgs, scannablesToBeAddedAsColumnInDataFile.toArray());
 		ConcurrentScan theScan = ScannableCommands.createConcurrentScan(scanArgs);
 		setUpDataWriter(theScan, sampleName, descriptions);
 
