@@ -18,6 +18,7 @@
 
 package uk.ac.gda.server.exafs.scan.preparers;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -26,6 +27,7 @@ import org.springframework.beans.factory.InitializingBean;
 
 import gda.data.metadata.NXMetaDataProvider;
 import gda.data.scan.datawriter.AsciiDataWriterConfiguration;
+import gda.data.scan.datawriter.AsciiMetadataConfig;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.factory.Finder;
@@ -43,6 +45,8 @@ public abstract class OutputPreparerBase implements OutputPreparer, Initializing
 	private AsciiDataWriterConfiguration datawriterconfig;
 	private NXMetaDataProvider metashop;
 	private Set<String> scannablesAddedToMetadata = new HashSet<String>();
+	// Metadata set provided by OutputParameter bean and written into the ASCII header
+	private Set<AsciiMetadataConfig> asciiMetadataList = new HashSet<AsciiMetadataConfig>();
 
 	public OutputPreparerBase() {
 	}
@@ -82,16 +86,35 @@ public abstract class OutputPreparerBase implements OutputPreparer, Initializing
 	public void configure(IOutputParameters outputParameters, IScanParameters scanBean, IDetectorParameters detectorBean, ISampleParameters sampleParameters)
 			throws DeviceException {
 		List<MetadataParameters> metadata = outputParameters.getMetadataList();
+		ArrayList<AsciiMetadataConfig> header = datawriterconfig.getHeader();
+
 		for (MetadataParameters parameter : metadata) {
 			String scannableName = parameter.getScannableName();
-			if (!metashop.containsKey(scannableName)) {
-				Scannable scannable= retriveScannable(scannableName);
-				if (scannable!= null){
-					metashop.add(scannable);
-					scannablesAddedToMetadata.add(scannableName);
-				}
+			Scannable scannable = retriveScannable(scannableName);
+			if (scannable != null) {
+				// add metadata to the Nexus file
+				addOneMetadataElementToNexus(scannable);
+				// add metadata to the ASCII file
+				addOneMetadataElementToAscii(scannable, header);
+				scannablesAddedToMetadata.add(scannableName);
 			}
 		}
+		datawriterconfig.setHeader(header);
+	}
+
+	private void addOneMetadataElementToNexus(Scannable scannable) {
+		if (!metashop.containsKey(scannable.getName()))
+			metashop.add(scannable);
+	}
+
+	private List<AsciiMetadataConfig> addOneMetadataElementToAscii(Scannable scannable, List<AsciiMetadataConfig> header) {
+		AsciiMetadataConfig asciiConfig = new AsciiMetadataConfig();
+		asciiConfig.setLabel(scannable.getName() + ": %4.1f");
+		Scannable[] labels = { scannable };
+		asciiConfig.setLabelValues(labels);
+		header.add(asciiConfig);
+		asciiMetadataList.add(asciiConfig);
+		return header;
 	}
 
 	private Scannable retriveScannable(String scannableName){
@@ -116,14 +139,28 @@ public abstract class OutputPreparerBase implements OutputPreparer, Initializing
 	}
 
 	@Override
-	public void resetNexusStaticMetadataList() {
+	public void resetStaticMetadataList() {
+		resetNexusStaticMetadataList();
+		resetAsciiStaticMetadataList();
+		scannablesAddedToMetadata.clear();
+	}
+
+	private void resetNexusStaticMetadataList() {
 		for (String scannableName : scannablesAddedToMetadata) {
 			Scannable scannable = retriveScannable(scannableName);
 			if (scannable != null) {
 				metashop.remove(scannable);
 			}
 		}
-		scannablesAddedToMetadata.clear();
+	}
+
+	private void resetAsciiStaticMetadataList() {
+		ArrayList<AsciiMetadataConfig> header = datawriterconfig.getHeader();
+		for (AsciiMetadataConfig asciiMetadata : asciiMetadataList) {
+			header.remove(asciiMetadata);
+		}
+		datawriterconfig.setHeader(header);
+		asciiMetadataList.clear();
 	}
 
 	@Override
