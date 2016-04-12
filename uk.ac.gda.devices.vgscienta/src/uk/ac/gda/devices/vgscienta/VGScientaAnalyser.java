@@ -133,6 +133,7 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 			getNdProc().setFilterType(2);
 			getNdProc().setNumFilter(1000000);
 			getNdProc().getPluginBase().enableCallbacks();
+			getNdProc().setDataTypeOut(NDProcess.DatatypeOut_Float32);
 
 			setExtraNames(new String[] {"cps"});
 
