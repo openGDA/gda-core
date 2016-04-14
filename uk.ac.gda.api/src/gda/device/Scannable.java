@@ -18,6 +18,9 @@
 
 package gda.device;
 
+import java.util.Collections;
+import java.util.Set;
+
 import gda.jython.accesscontrol.MethodAccessProtected;
 
 /**
@@ -294,5 +297,73 @@ public interface Scannable extends Device {
 	 * @return string
 	 */
 	public String toFormattedString();
+
+	/**
+	 * Sets the scan attribute with the given name to the given value. A scan attribute is an attribute that should be written into the scan output (e.g. a
+	 * NeXus file).
+	 * The type of the value can be:<ul>
+	 *   <li>a dataset;</li>
+	 *   <li>a primitive type supported by datasets;</li>
+	 *   <li>an array whose component type that is supported by datasets;</li>
+	 *   <li>a list whose element type is supported by datasets.</li>
+	 * </ul>
+	 *
+	 * <p>
+	 * <em>Note: this is a temporary mechanism to allow GDA8 devices to work with the new
+	 * scanning framework</em>
+	 *
+	 * @param attributeName
+	 *            attribute name
+	 * @param value
+	 *            value of attribute
+	 * @throws DeviceException
+	 *             if the attribute could not be set for any reason
+	 */
+	@SuppressWarnings("unused")
+	public default void setScanMetadataAttribute(String attributeName, Object value) throws DeviceException {
+		// default implementation: do nothing
+	}
+
+	/**
+	 * Returns the value of the scan attribute, or <code>null</code> if no such attribute exists (or if the value of the attribute is <code>null</code>)
+	 * The type of the value returned can be:<ul>
+	 *   <li>a dataset;</li>
+	 *   <li>a primitive type supported by datasets;</li>
+	 *   <li>an array whose component type that is supported by datasets;</li>
+	 *   <li>a list whose element type is supported by datasets.</li>
+	 * </ul>
+	 *
+	 * <p>
+	 * <em>Note: this is a temporary mechanism to allow GDA8 devices to work with the new
+	 * scanning framework</em>
+	 *
+	 * @param attributeName
+	 *            the name of the attribute
+	 * @throws DeviceException
+	 *             if the value of the attribute could not be retrieved for any reason
+	 */
+	@SuppressWarnings("unused")
+	public default Object getScanMetadataAttribute(String attributeName) throws DeviceException {
+		// default implementation: return null
+		return null;
+	}
+
+	/**
+	 * Returns the name of the scan attributes. These are the attributes that should be written
+	 * into the scan output (e.g. a NeXus file).
+	 *
+	 * <p>
+	 * <em>Note: this is a temporary mechanism to allow GDA8 devices to work with the new
+	 * scanning framework</em>
+	 *
+	 * @return names of scan attributes
+	 * @throws DeviceException
+	 *             if the names of the scan attributes could not be retrieved for any reason
+	 */
+	@SuppressWarnings("unused")
+	public default Set<String> getScanMetadataAttributeNames() throws DeviceException {
+		// default implementation: return empty set
+		return Collections.emptySet();
+	}
 
 }

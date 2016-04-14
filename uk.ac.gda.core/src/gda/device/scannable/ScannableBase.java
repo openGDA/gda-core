@@ -19,15 +19,11 @@
 package gda.device.scannable;
 
 import static java.lang.String.format;
-import gda.configuration.properties.LocalProperties;
-import gda.device.Device;
-import gda.device.DeviceBase;
-import gda.device.DeviceException;
-import gda.device.Scannable;
-import gda.factory.FactoryException;
-import gda.jython.accesscontrol.MethodAccessProtected;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 import org.python.core.Py;
 import org.python.core.PyArray;
@@ -41,6 +37,14 @@ import org.python.core.PySlice;
 import org.python.core.PyString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.configuration.properties.LocalProperties;
+import gda.device.Device;
+import gda.device.DeviceBase;
+import gda.device.DeviceException;
+import gda.device.Scannable;
+import gda.factory.FactoryException;
+import gda.jython.accesscontrol.MethodAccessProtected;
 
 /**
  * A base implementation for a {@link Scannable} {@link Device}.
@@ -136,6 +140,12 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 	 * Array of strings which specify the format to output when getting the position of this Scannable.
 	 */
 	protected String[] outputFormat = new String[] { "%5.5g" };
+
+	/**
+	 * Map of scan attribute names to values. Scan attributes are attributes that should be written to the scan output (e.g. NeXus file). Note that some
+	 * subclasses may wish to override getScanAttributeValue() to return additional values other than the ones
+	 */
+	private final Map<String, Object> scanMetadataAttributes = new HashMap<>();
 
 	/**
 	 * Empty default implementation for Scannables.
@@ -570,6 +580,41 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 		return java.util.Arrays.equals(posToTestAsArray, posAsArray);
 
 
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * Sets the entry for this attribute name in the map. Subclasses may override.
+	 */
+	@Override
+	public void setScanMetadataAttribute(String attributeName, Object value) throws DeviceException {
+		scanMetadataAttributes.put(attributeName, value);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * Sets the entry for this attribute name in the map. Subclasses may override.
+	 */
+	@Override
+	public Object getScanMetadataAttribute(String attributeName) throws DeviceException {
+		Object value = scanMetadataAttributes.get(attributeName);
+		if (value == null) {
+			logger.debug(getName() + ".getScanMetadataAttribute - unable to get value for " + attributeName);
+		}
+
+		return value;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * Sets the entry for this attribute name in the map. Subclasses may override.
+	 */
+	@Override
+	public Set<String> getScanMetadataAttributeNames() throws DeviceException {
+		return scanMetadataAttributes.keySet();
 	}
 
 	// methods which are not operated by scans, but make interaction with
