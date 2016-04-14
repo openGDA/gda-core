@@ -20,10 +20,10 @@
 package gda.factory;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,15 +49,15 @@ public class Finder {
 
 	private static final Logger logger = LoggerFactory.getLogger(Finder.class);
 
-	private static Finder instance;
+	private static final Finder instance = new Finder();
 
-	private static Vector<Factory> factories;
+	private final List<Factory> factories;
 
 	/**
 	 * Constructs a new Finder and initialises its list of factories which will be used to search for objects.
 	 */
 	private Finder() {
-		factories = new Vector<Factory>();
+		factories = Collections.synchronizedList(new ArrayList<Factory>());
 	}
 
 	/**
@@ -67,11 +67,14 @@ public class Finder {
 	 *
 	 * @return the instance of finder.
 	 */
-	public synchronized static Finder getInstance() {
-		if( instance == null){
-			instance = new Finder();
-		}
+	public static Finder getInstance() {
 		return instance;
+	}
+
+	private Iterable<Factory> getCopyOfFactories() {
+		// using a copy prevent ConcurrentModificationException if the list of factories
+		// is modified during iteration
+		return new ArrayList<Factory>(factories);
 	}
 
 	/**
@@ -85,7 +88,7 @@ public class Finder {
 	@SuppressWarnings("unchecked")
 	public <T extends Findable> T find(String name) {
 		T findable = null;
-		for (Factory factory : factories) {
+		for (Factory factory : getCopyOfFactories()) {
 			try {
 				if ((findable = (T) factory.getFindable(name)) != null) {
 					break;
@@ -108,7 +111,7 @@ public class Finder {
 	 */
 	public <T extends Findable> T findNoWarn(String name) {
 		T findable = null;
-		for (Factory factory : factories) {
+		for (Factory factory : getCopyOfFactories()) {
 			try {
 				if ((findable = factory.getFindable(name)) != null) {
 					break;
@@ -130,7 +133,7 @@ public class Finder {
 	 */
 	public <T extends Findable> T findLocal(String name) {
 		T findable = null;
-		for (Factory factory : factories) {
+		for (Factory factory : getCopyOfFactories()) {
 			if (!factory.isLocal()) {
 				continue;
 			}
@@ -152,7 +155,7 @@ public class Finder {
 	 *            the factory to add to the list.
 	 */
 	public void addFactory(Factory factory) {
-		factories.addElement(factory);
+		factories.add(factory);
 	}
 
 	public void removeAllFactories(){
@@ -239,7 +242,7 @@ public class Finder {
 
 		ArrayList<Findable> objectRefs = new ArrayList<Findable>();
 		// loop through all factories
-		for (Factory factory : factories) {
+		for (Factory factory : getCopyOfFactories()) {
 
 			if (localObjectsOnly && !factory.isLocal()){
 				continue;
@@ -318,7 +321,7 @@ public class Finder {
 	 */
 	private ArrayList<Findable> listAllObjects() {
 		ArrayList<Findable> allFindables = new ArrayList<Findable>();
-		for (Factory factory : factories) {
+		for (Factory factory : getCopyOfFactories()) {
 			allFindables.addAll(factory.getFindables());
 		}
 		return allFindables;
@@ -334,7 +337,7 @@ public class Finder {
 	 */
 	public <T extends Findable> Map<String, T> getFindablesOfType(Class<T> clazz) {
 		Map<String, T> findables = new HashMap<String, T>();
-		for (Factory factory : factories) {
+		for (Factory factory : getCopyOfFactories()) {
 			for (Findable findable : factory.getFindables()) {
 				if (clazz.isAssignableFrom(findable.getClass())) {
 					findables.put(findable.getName(), clazz.cast(findable));
@@ -353,7 +356,7 @@ public class Finder {
 	 */
 	public <T extends Findable> List<T> listFindablesOfType(Class<T> clazz) {
 		List<T> findables = new ArrayList<T>();
-		for (Factory factory : factories) {
+		for (Factory factory : getCopyOfFactories()) {
 			for (Findable findable : factory.getFindables()) {
 				if (clazz.isAssignableFrom(findable.getClass())) {
 					findables.add(clazz.cast(findable));
@@ -363,11 +366,4 @@ public class Finder {
 		return findables;
 	}
 
-	/**
-	 * Remove all entries from the factory list.To be used with care!
-	 * Primarily used to tidy up in test cases.
-	 */
-	public void clear() {
-		instance = null;
-	}
 }

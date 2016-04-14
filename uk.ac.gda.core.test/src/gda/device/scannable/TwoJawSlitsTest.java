@@ -59,7 +59,7 @@ public class TwoJawSlitsTest {
 	@Before
 	public void setUp() throws Exception {
 		factory = new ObjectFactory();
-		Finder.getInstance().clear();
+		Finder.getInstance().removeAllFactories();
 		Finder finder = Finder.getInstance();
 		finder.addFactory(factory);
 

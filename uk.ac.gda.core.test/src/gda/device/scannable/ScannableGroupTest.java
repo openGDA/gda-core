@@ -61,7 +61,7 @@ public class ScannableGroupTest extends TestCase {
 		factory.addFindable(s1);
 		factory.addFindable(s2);
 
-		Finder.getInstance().clear();
+		Finder.getInstance().removeAllFactories();
 		Finder.getInstance().addFactory(factory);
 	}
 
