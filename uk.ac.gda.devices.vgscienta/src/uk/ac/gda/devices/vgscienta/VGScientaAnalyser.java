@@ -18,6 +18,13 @@
 
 package uk.ac.gda.devices.vgscienta;
 
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.cosylab.epics.caj.CAJChannel;
+
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
@@ -41,16 +48,7 @@ import gda.observable.IObserver;
 import gov.aps.jca.dbr.DBR_Enum;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
-
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
-import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import uk.ac.diamond.scisoft.analysis.roi.ROIProfile;
-
-import com.cosylab.epics.caj.CAJChannel;
 
 @CorbaAdapterClass(DeviceAdapter.class)
 @CorbaImplClass(DeviceImpl.class)
@@ -135,6 +133,7 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 			getNdProc().setFilterType(2);
 			getNdProc().setNumFilter(1000000);
 			getNdProc().getPluginBase().enableCallbacks();
+			getNdProc().setDataTypeOut(NDProcess.DatatypeOut_Float32);
 
 			setExtraNames(new String[] {"cps"});
 
@@ -313,8 +312,7 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 		data.addData(getName(), "time_per_channel", new NexusGroupData(acquireTime_RBV), "s", null, null, true);
 
 		// Get the dataset as doubles
-		NexusGroupData groupData = data.getData(getName(), "data", NexusExtractor.SDSClassName).asDouble();
-		Dataset dataset = new DoubleDataset((double[]) groupData.getBuffer(), groupData.dimensions);
+		Dataset dataset = data.getData(getName(), "data", NexusExtractor.SDSClassName).asDouble().toDataset();
 
 		// Calculate the total CPS in the ROI if it exists otherwise over the whole image
 		double sum;
