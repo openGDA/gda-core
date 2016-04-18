@@ -18,15 +18,15 @@
 
 package uk.ac.gda.devices.detector.xspress3.fullCalculations;
 
+import java.io.File;
+
 import gda.data.PathConstructor;
 import gda.device.DeviceException;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanInformation;
-
-import java.io.File;
-
 import uk.ac.gda.devices.detector.xspress3.CAPTURE_MODE;
 import uk.ac.gda.devices.detector.xspress3.ReadyForNextRow;
+import uk.ac.gda.devices.detector.xspress3.TRIGGER_MODE;
 import uk.ac.gda.devices.detector.xspress3.UPDATE_CTRL;
 import uk.ac.gda.devices.detector.xspress3.Xspress3Controller;
 
@@ -43,6 +43,11 @@ public class Xspress3ScanOperationsv2 {
 	private boolean readDataFromFile;
 	private int lengthOfEachScanLine;
 	private int lineNumber;
+	private static final int MONITOR_FILE_TIMEOUT = 60000;
+	// Chunk size is typically 1 MB
+	private static final int CHUNK_SIZE = 1024 * 1024;
+	// Data Type is Float64 so take 8 bytes
+	private static final int DATA_TYPE_SIZE = 8;
 
 	public Xspress3ScanOperationsv2(Xspress3Controller controller, String detectorName) {
 		this.controller = controller;
@@ -58,11 +63,14 @@ public class Xspress3ScanOperationsv2 {
 
 		int numDimensions = currentscan.getDimensions().length;
 		lengthOfEachScanLine = currentscan.getDimensions()[numDimensions - 1];
+		controller.doStop();
 		// to improve performance start acquisition at the start of the map and then wait for triggers
 		// to be more generic replace by the total size of the scan
 		int totalNumberOfPointsInScan = currentscan.getNumberOfPoints();
 		setNumberOfFramesToCollect(totalNumberOfPointsInScan);
-		controller.doStop();
+		// When restarting EPICs IOC the trigger mode is set by default to Internal and the scan fails.
+		// In future if needed instead of being hardcoded can give the choice to user to choose the trigger mode.
+		controller.setTriggerMode(TRIGGER_MODE.TTl_Veto_Only);
 
 		if (readDataFromFile) {
 			prepareFileWriting(currentDimensions);
@@ -75,8 +83,7 @@ public class Xspress3ScanOperationsv2 {
 		ReadyForNextRow isReadyForNextRow;
 		lineNumber++;
 		if (lineNumber > 1) {
-			// we suppose that each line has the same number of points, does not need to set again the number of frames in the file writer
-			controller.setSavingFiles(readDataFromFile);
+			savingHDFFiles();
 		}
 		isReadyForNextRow = controller.monitorReadyForNextRow(ReadyForNextRow.YES);
 		if (isReadyForNextRow != ReadyForNextRow.YES) {
@@ -114,16 +121,13 @@ public class Xspress3ScanOperationsv2 {
 		controller.setNextFileNumber(0);
 		controller.setHDFAttributes(false);
 		controller.setHDFPerformance(false);
-		// Chunk size is typically 1 MB
-		final int chunkSize = 1024 * 1024;
-		// Data Type is Float64 so take 98 bytes
-		final int dataTypeSize = 8;
-		int framesPerChunk = (chunkSize / (controller.getNumberOfChannels() * controller.getMcaSize() * dataTypeSize));
+
+		int framesPerChunk = (CHUNK_SIZE / (controller.getNumberOfChannels() * controller.getMcaSize() * DATA_TYPE_SIZE));
 		controller.setHDFNumFramesChunks(framesPerChunk);
 		controller.setHDFFileAutoIncrement(true);
 		controller.setHDFNumFramesToAcquire(lengthOfEachScanLine);
 		controller.setNextFileNumber(0);
-		controller.setSavingFiles(readDataFromFile);
+		savingHDFFiles();
 	}
 
 	private void setNumberOfFramesToCollect(int numberOfFramesToCollect) throws DeviceException {
@@ -134,5 +138,20 @@ public class Xspress3ScanOperationsv2 {
 	public void clearAndStart() throws DeviceException {
 		controller.doErase();
 		controller.doStart();
+	}
+
+	private void savingHDFFiles() throws DeviceException {
+		// we suppose that each line has the same number of points, does not need to set again the number of frames in the file writer
+		controller.setSavingFiles(readDataFromFile);
+		// check if the EPICS HDF file writer is ready
+		if (readDataFromFile) {
+			long startTime = System.currentTimeMillis();
+			long timeForFileWriterToBePrepared = 0L;
+			while (!controller.isSavingFiles()) {
+				timeForFileWriterToBePrepared = System.currentTimeMillis() - startTime;
+				if (timeForFileWriterToBePrepared > MONITOR_FILE_TIMEOUT)
+					throw new DeviceException("Timeout monitoring Xspress3 CAPTURE_RBV PV.");
+			}
+		}
 	}
 }

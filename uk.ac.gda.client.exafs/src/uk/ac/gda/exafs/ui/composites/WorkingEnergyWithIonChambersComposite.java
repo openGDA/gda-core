@@ -80,7 +80,6 @@ public class WorkingEnergyWithIonChambersComposite extends WorkingEnergyComposit
 		ionChamberParameters.setEditorClass(IonChamberParameters.class);
 		ionChamberParameters.setActiveMode(ActiveMode.ACTIVE_ONLY);
 		ionChamberParameters.setNameField("name");
-		ionChamberParameters.setAdditionalFields(new String[] { "Gain", "GasType", "pressure" });
 		ionChamberParameters.setMinItems(3);
 		ionChamberParameters.setMaxItems(3);
 		ionChamberParameters.setListHeight(75);

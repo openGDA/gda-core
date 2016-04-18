@@ -82,7 +82,7 @@ public class EpicsXspress3ControllerPvProvider {
 	private static String NEXT_FILENUMBER = ":HDF5:FileNumber";
 	private static String FILE_AUTOINCREMENT = ":HDF5:AutoIncrement";
 	private static String FILE_NUMCAPTURE = ":HDF5:NumCapture";
-	private static String FILE_NUMCAPTURE_RBV = ":HDF5:NumCapture_RBV";
+	private static String FILE_NUMCAPTURED_RBV = ":HDF5:NumCaptured_RBV";
 	private static String FULLFILENAME = ":HDF5:FullFileName_RBV";
 
 	private static String EXTRA_DIMS = ":HDF5:NumExtraDims";
@@ -260,7 +260,7 @@ public class EpicsXspress3ControllerPvProvider {
 		pvNextFileNumber = LazyPVFactory.newIntegerPV(generatePVName(NEXT_FILENUMBER));
 		pvHDFAutoIncrement = LazyPVFactory.newBooleanFromEnumPV(generatePVName(FILE_AUTOINCREMENT));
 		pvHDFNumCapture = LazyPVFactory.newIntegerPV(generatePVName(FILE_NUMCAPTURE));
-		pvHDFNumCaptureRBV = LazyPVFactory.newIntegerPV(generatePVName(FILE_NUMCAPTURE_RBV));
+		pvHDFNumCaptureRBV = LazyPVFactory.newIntegerPV(generatePVName(FILE_NUMCAPTURED_RBV));
 		pvHDFAttributes = LazyPVFactory.newBooleanFromEnumPV(generatePVName(FILE_ATTR));
 		pvHDFPerformance = LazyPVFactory.newBooleanFromEnumPV(generatePVName(FILE_PERFORM));
 		pvHDFNumFramesChunks = LazyPVFactory.newIntegerPV(generatePVName(FILE_NUMFRAMESCHUNKS));

@@ -18,14 +18,6 @@
 
 package uk.ac.gda.devices.detector.xspress3.fullCalculations;
 
-import gda.data.nexus.extractor.NexusGroupData;
-import gda.data.nexus.tree.INexusTree;
-import gda.data.nexus.tree.NexusTreeProvider;
-import gda.device.DeviceException;
-import gda.device.Timer;
-import gda.device.detector.NXDetectorData;
-import gda.factory.Finder;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,6 +25,13 @@ import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.data.nexus.extractor.NexusGroupData;
+import gda.data.nexus.tree.INexusTree;
+import gda.data.nexus.tree.NexusTreeProvider;
+import gda.device.DeviceException;
+import gda.device.Timer;
+import gda.device.detector.NXDetectorData;
+import gda.factory.Finder;
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.vortex.Xspress3Parameters;
@@ -227,20 +226,14 @@ public class Xspress3DataOperationsv2 {
 
 		// add rois
 		for (int roi = 0; roi < numRois; roi++) {
-			NexusGroupData roiData = new NexusGroupData(roiValues[roi]);
-			roiData.chunkDimensions = new int[] { roiValues[roi].length };
-			NXDetectorData.addData(detTree, rois[roi].getRoiName(), roiData, unitsLabel, 2);
+			NXDetectorData.addData(detTree, rois[roi].getRoiName(), new NexusGroupData(roiValues[roi]), unitsLabel, 2);
 		}
 
 		// add MCAs
-		NexusGroupData mcaData = new NexusGroupData(mcasFromFile);
-		mcaData.chunkDimensions = new int[] { mcasFromFile.length, mcasFromFile[0].length };
-		NXDetectorData.addData(detTree, mcaLabel, mcaData, unitsLabel, 2);
+		NXDetectorData.addData(detTree, mcaLabel, new NexusGroupData(mcasFromFile), unitsLabel, 2);
 
 		// add all element sum
-		NexusGroupData sumData = new NexusGroupData(allElementSum);
-		sumData.chunkDimensions = new int[] { allElementSum.length };
-		NXDetectorData.addData(detTree, allElementSumLabel, sumData, unitsLabel, 2);
+		NXDetectorData.addData(detTree, allElementSumLabel, new NexusGroupData(allElementSum), unitsLabel, 2);
 
 		// add plottable values
 		int index = 0;
