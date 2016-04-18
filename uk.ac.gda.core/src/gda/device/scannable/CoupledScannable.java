@@ -108,6 +108,8 @@ public class CoupledScannable extends ScannableMotionUnitsBase implements IObser
 				logger.error("Error setting the hardware units", e);
 			}
 		}
+
+		setConfigured(true);
 	}
 
 	/**
