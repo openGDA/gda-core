@@ -18,6 +18,12 @@
 
 package gda.device.temperature;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
 import gda.device.detector.areadetector.IPVProvider;
 import gda.device.scannable.ScannableBase;
@@ -25,12 +31,6 @@ import gda.device.scannable.ScannableUtils;
 import gda.epics.connection.EpicsController;
 import gda.factory.FactoryException;
 import gov.aps.jca.Channel;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A class for controlling a Lakeshore 336 temperature controller through the EPICS interface.
@@ -349,7 +349,7 @@ public class EpicsLakeshore336 extends ScannableBase {
 	 * @see #disableRamping()
 	 * @see #setRampRate(double)
 	 */
-	public Double getCurrentDemandTemperature() throws DeviceException {
+	public double getCurrentDemandTemperature() throws DeviceException {
 		try {
 			return EPICS_CONTROLLER.cagetDouble(getChannel(LOOP_DEMAND_RBV, activeOutput));
 		} catch (Exception e) {
@@ -369,7 +369,7 @@ public class EpicsLakeshore336 extends ScannableBase {
 	 * @see #disableRamping()
 	 * @see #setRampRate(double)
 	 */
-	public Double getTargetDemandTemperature() throws DeviceException {
+	public double getTargetDemandTemperature() throws DeviceException {
 		try {
 			return EPICS_CONTROLLER.cagetDouble(getChannel(LOOP_DEMAND, activeOutput));
 		} catch (Exception e) {
@@ -579,14 +579,14 @@ public class EpicsLakeshore336 extends ScannableBase {
 	}
 
 	/**
-	 * Private method for consistency of EPICS communication but there are enable and disable methods for a better interface.
+	 * Enables or disables ramping for the currently active output.
 	 *
 	 * @param rampEnabled
 	 * @throws DeviceException
 	 * @see #enableRamping()
 	 * @see #disableRamping()
 	 */
-	private void setRampEnabled(boolean rampEnabled) throws DeviceException {
+	public void setRampEnabled(boolean rampEnabled) throws DeviceException {
 		try {
 			logger.info("Setting ramping to {} for output loop {}", rampEnabled, activeOutput);
 			EPICS_CONTROLLER.caputWait(getChannel(LOOP_RAMP_ENABLE, activeOutput), rampEnabled ? 1 : 0);
@@ -618,7 +618,7 @@ public class EpicsLakeshore336 extends ScannableBase {
 	}
 
 	/**
-	 * Switches ramping on for the default output.
+	 * Switches ramping on for the current active output.
 	 *
 	 * @throws DeviceException
 	 * @see #disableRamping()
@@ -628,7 +628,7 @@ public class EpicsLakeshore336 extends ScannableBase {
 	}
 
 	/**
-	 * Switches ramping off for the default output.
+	 * Switches ramping off for the current active output.
 	 *
 	 * @throws DeviceException
 	 * @see #enableRamping()
