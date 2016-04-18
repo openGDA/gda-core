@@ -18,16 +18,6 @@
 
 package gda.device.zebra.controller.impl;
 
-import gda.device.zebra.controller.SoftInputChangedEvent;
-import gda.device.zebra.controller.Zebra;
-import gda.epics.CachedLazyPVFactory;
-import gda.epics.PV;
-import gda.epics.ReadOnlyPV;
-import gda.factory.Findable;
-import gda.observable.Observable;
-import gda.observable.ObservableUtil;
-import gda.observable.Observer;
-
 import java.io.IOException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -37,6 +27,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
 import com.google.common.base.Preconditions;
+
+import gda.device.zebra.controller.SoftInputChangedEvent;
+import gda.device.zebra.controller.Zebra;
+import gda.epics.CachedLazyPVFactory;
+import gda.epics.PV;
+import gda.epics.ReadOnlyPV;
+import gda.factory.Findable;
+import gda.observable.Observable;
+import gda.observable.ObservableUtil;
+import gda.observable.Observer;
 
 public class ZebraImpl implements Zebra, Findable, InitializingBean {
 
@@ -133,18 +133,21 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 	private CachedLazyPVFactory pvFactory;
 	private boolean useAvalField=false;
 
-	public boolean isUseAvalField() {
-		return useAvalField;
-	}
-
 	/**
 	 *
 	 * @param useAvalField if true the captured ENC1 values are stored in .AVAL field ( original IOC interface). Default is false
 	 */
+	@Override
 	public void setUseAvalField(boolean useAvalField) {
 		this.useAvalField = useAvalField;
 	}
 
+	@Override
+	public boolean isUseAvalField() {
+		return useAvalField;
+	}
+
+	@Override
 	public void setPvFactory(CachedLazyPVFactory pvFactory) {
 		this.pvFactory = pvFactory;
 	}
@@ -311,6 +314,7 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 	public void pcArm() throws Exception {
 		logger.trace("pcArm()...");
 		//reset(); // Before re-enabling this, please leave a note here explaining why it was re-enabled.
+		pvFactory.getPVInteger(PCArm).putWait(1);
 		while (!isPCArmed()) {
 			logger.info("Zebra not yet armed, waiting...");
 			Thread.sleep(100);
@@ -389,10 +393,12 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 		return pvFactory.getIntegerPVValueCache(PCNumberOfPointsCaptured).get();
 	}
 
+	@Override
 	public String getZebraPrefix() {
 		return zebraPrefix;
 	}
 
+	@Override
 	public void setZebraPrefix(String zebraPrefix) {
 		this.zebraPrefix = zebraPrefix;
 	}
@@ -509,6 +515,7 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+	@Override
 	public void setValue(String beforeUnderscore, int beforeUnderscoreId, String afterUnderscore, int afterUnderscoreId,int val) throws Exception {
 		String pvSuffix = beforeUnderscore;
 		if (beforeUnderscoreId > 0) {
@@ -541,6 +548,7 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+	@Override
 	public void encCopyMotorPosToZebra(int posNum) throws Exception {
 		Preconditions.checkArgument(1 <= posNum && posNum <= 4, "posNum must be between 1 and 4 inclusive");
 		final String pvSuffix = String.format("M%d:SETPOS.PROC", posNum);

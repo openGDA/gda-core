@@ -18,6 +18,7 @@
 
 package gda.device.zebra.controller;
 
+import gda.epics.CachedLazyPVFactory;
 import gda.epics.ReadOnlyPV;
 import gda.observable.Observable;
 
@@ -61,6 +62,12 @@ public interface Zebra {
 	final public static int PULSE_TIMEUNIT_10SEC = 2;
 	final public static int PULSE_TIMEUNIT_SEC = 1;
 	final public static int PULSE_TIMEUNIT_MS = 0;
+
+	void setUseAvalField(boolean useAvalField);
+
+	boolean isUseAvalField();
+
+	void setPvFactory(CachedLazyPVFactory pvFactory);
 
 	double getPCPulseDelay() throws Exception;
 
@@ -153,6 +160,10 @@ public interface Zebra {
 
 	int getPCNumberOfPointsCaptured() throws Exception;
 
+	String getZebraPrefix();
+
+	void setZebraPrefix(String zebraPrefix);
+
 	/**
 	 * @param i should be PC_TIMEUNIT_SEC or PC_TIMEUNIT_MS
 	 * @throws Exception
@@ -186,7 +197,9 @@ public interface Zebra {
 	/**
 	 * Returns the state of the specified TTL output.
 	 */
-	public boolean getTtlOutputState(int output) throws IOException;
+	boolean getTtlOutputState(int output) throws IOException;
+
+	void setValue(String beforeUnderscore, int beforeUnderscoreId, String afterUnderscore, int afterUnderscoreId, int val) throws Exception;
 
 	void setPCArmInput(int input) throws Exception;
 
@@ -204,6 +217,8 @@ public interface Zebra {
 	 * Returns an {@link Observable} that can be used to receive events about changes to soft inputs.
 	 */
 	public Observable<SoftInputChangedEvent> getSoftInputObservable();
+
+	void encCopyMotorPosToZebra(int posNum) throws Exception;
 
 	/**
 	 * Reset the zebra box and all internal counters.

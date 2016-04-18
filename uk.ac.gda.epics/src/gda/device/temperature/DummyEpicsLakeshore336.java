@@ -18,15 +18,15 @@
 
 package gda.device.temperature;
 
-import gda.device.DeviceException;
-import gda.device.scannable.ScannableBase;
-import gda.device.scannable.ScannableUtils;
-import gda.factory.FactoryException;
-
 import java.util.Random;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.device.DeviceException;
+import gda.device.scannable.ScannableBase;
+import gda.device.scannable.ScannableUtils;
+import gda.factory.FactoryException;
 
 /**
  * A Dummy version of the class for controlling a Lakeshore 336 temperature controller through the EPICS interface.
@@ -294,7 +294,7 @@ public class DummyEpicsLakeshore336 extends ScannableBase {
 	 * @see #disableRamping()
 	 * @see #setRampRate(double)
 	 */
-	public Double getCurrentDemandTemperature() throws DeviceException {
+	public double getCurrentDemandTemperature() throws DeviceException {
 		try {
 			return demandTemperaure;
 		} catch (Exception e) {
@@ -314,7 +314,7 @@ public class DummyEpicsLakeshore336 extends ScannableBase {
 	 * @see #disableRamping()
 	 * @see #setRampRate(double)
 	 */
-	public Double getTargetDemandTemperature() throws DeviceException {
+	public double getTargetDemandTemperature() throws DeviceException {
 		try {
 			return demandTemperaure;
 		} catch (Exception e) {
@@ -524,14 +524,14 @@ public class DummyEpicsLakeshore336 extends ScannableBase {
 	}
 
 	/**
-	 * Private method for consistency of EPICS communication but there are enable and disable methods for a better interface.
+	 * Enables or disables ramping for the currently active output.
 	 *
 	 * @param rampEnabled
 	 * @throws DeviceException
 	 * @see #enableRamping()
 	 * @see #disableRamping()
 	 */
-	private void setRampEnabled(boolean rampEnabled) throws DeviceException {
+	public void setRampEnabled(boolean rampEnabled) throws DeviceException {
 		try {
 			logger.info("Setting ramping to {} for output loop {}", rampEnabled, activeOutput);
 			this.rampEnabled = rampEnabled;
@@ -558,7 +558,7 @@ public class DummyEpicsLakeshore336 extends ScannableBase {
 	}
 
 	/**
-	 * Switches ramping on for the default output.
+	 * Switches ramping on for the currently active output.
 	 *
 	 * @throws DeviceException
 	 * @see #disableRamping()
@@ -568,7 +568,7 @@ public class DummyEpicsLakeshore336 extends ScannableBase {
 	}
 
 	/**
-	 * Switches ramping off for the default output.
+	 * Switches ramping off for the currently active output.
 	 *
 	 * @throws DeviceException
 	 * @see #enableRamping()

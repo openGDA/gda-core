@@ -20,6 +20,7 @@ package gda.device.zebra.controller.impl;
 
 import gda.device.zebra.controller.SoftInputChangedEvent;
 import gda.device.zebra.controller.Zebra;
+import gda.epics.CachedLazyPVFactory;
 import gda.epics.DummyReadOnlyPV;
 import gda.epics.ReadOnlyPV;
 import gda.factory.Findable;
@@ -61,6 +62,9 @@ public class ZebraDummy implements Zebra, Findable, InitializingBean {
 	private int pcPulseMax;
 	private int pcDir;
 	private double pcPulseStart;
+	private boolean useAvalField;
+	private CachedLazyPVFactory pvFactory;
+	private String zebraPrefix;
 
 	private Map<Integer, Integer> pulseInputs = new HashMap<>();
 	private Map<Integer, Double> pulseDelays = new HashMap<>();
@@ -435,5 +439,38 @@ public class ZebraDummy implements Zebra, Findable, InitializingBean {
 	@Override
 	public double getPCPulseStartRBV() throws Exception {
 		return pcPulseStart;
+	}
+
+	@Override
+	public void setUseAvalField(boolean useAvalField) {
+		this.useAvalField = useAvalField;
+	}
+
+	@Override
+	public boolean isUseAvalField() {
+		return useAvalField;
+	}
+
+	@Override
+	public void setPvFactory(CachedLazyPVFactory pvFactory) {
+		this.pvFactory = pvFactory;
+	}
+
+	@Override
+	public String getZebraPrefix() {
+		return zebraPrefix;
+	}
+
+	@Override
+	public void setZebraPrefix(String zebraPrefix) {
+		this.zebraPrefix = zebraPrefix;
+	}
+
+	@Override
+	public void setValue(String beforeUnderscore, int beforeUnderscoreId, String afterUnderscore, int afterUnderscoreId, int val) throws Exception {
+	}
+
+	@Override
+	public void encCopyMotorPosToZebra(int posNum) throws Exception {
 	}
 }

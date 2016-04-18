@@ -36,7 +36,7 @@ public class DummyReadOnlyPV<T> implements ReadOnlyPV<T> {
 	private Set<MonitorListener> monitorListeners = new HashSet<>();
 	private boolean valueMonitoring = false;
 	private String pvName;
-	private T value;
+	protected T value;
 
 	public DummyReadOnlyPV(final String pvName, final T value) {
 		this.pvName = pvName;
