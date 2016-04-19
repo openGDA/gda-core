@@ -324,6 +324,7 @@ public class LocalProperties {
 
 	private static final String GDA_SCAN_SETS_SCANNUMBER = "gda.scan.sets.scannumber";
 
+	public static final String GDA_ACTIVEMQ_BROKER_URI = "gda.activemq.broker.uri";
 
 
 	public static boolean isScanSetsScanNumber(){
