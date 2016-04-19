@@ -32,20 +32,24 @@ public class SmHorCalculator implements IVirtualAxisCombinedCalculator {
 		double smy = values.get(1);
 		double smazimuth = Math.toRadians(values.get(2));
 
-		return smy * Math.sin(smazimuth) + smx * Math.cos(smazimuth);
+		return smx * Math.cos(smazimuth) + smy * Math.sin(smazimuth);
 	}
 
 	@Override
-	public List<Double> getDemands(Double value, List<Double> values) {
+	public List<Double> getDemands(Double smhor, List<Double> values) {
 
 		double smx = values.get(0);
 		double smy = values.get(1);
-		final double smazimuth = values.get(2); // Don't change azimuth
-		final double deltaSmVert = value - getRBV(values);
+		final double smazimuth = Math.toRadians(values.get(2));
+		
+		// Find smvert
+		double smvert = smy * Math.cos(smazimuth) - smx * Math.sin(smazimuth);
+		
+		// Calculate the smx and smy positions
+		smx = -1 * smvert * Math.sin(smazimuth) + smhor * Math.cos(smazimuth);
+		smy = smvert * Math.cos(smazimuth) + smhor * Math.sin(smazimuth);
 
-		smy += deltaSmVert * Math.sin(Math.toRadians(smazimuth));
-		smx += deltaSmVert * Math.cos(Math.toRadians(smazimuth));
-
-		return Arrays.asList(new Double[] { smx, smy, smazimuth });
+		// Only return the values to move order must match values order
+		return Arrays.asList(new Double[] { smx, smy });
 	}
 }

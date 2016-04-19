@@ -36,16 +36,20 @@ public class SmPerpCalculator implements IVirtualAxisCombinedCalculator {
 	}
 
 	@Override
-	public List<Double> getDemands(Double value, List<Double> values) {
+	public List<Double> getDemands(Double smperp, List<Double> values) {
 
 		double smz = values.get(0);
 		double smhor = values.get(1);
-		final double smpolar = values.get(2);
-		final double deltaSmLong = value - getRBV(values);
+		final double smpolar = Math.toRadians(values.get(2));
+		
+		// Find smlong
+		double smlong = smz * Math.cos(smpolar) - smhor * Math.sin(smpolar);
+		
+		// Calculate the smhor and smz positions
+		smhor = -1 * smlong * Math.sin(smpolar) + smperp * Math.cos(smpolar);
+		smz = smlong * Math.cos(smpolar) + smperp * Math.sin(smpolar);
 
-		smz += deltaSmLong * Math.sin(Math.toRadians(smpolar));
-		smhor += deltaSmLong * Math.cos(Math.toRadians(smpolar));
-
-		return Arrays.asList(new Double[] { smz, smhor, smpolar });
+		// Only return the values to move order must match values order
+		return Arrays.asList(new Double[] { smz, smhor });
 	}
 }
