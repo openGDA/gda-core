@@ -30,7 +30,6 @@
 				<pathelement location="${workspace.git.loc}/gda-common.git/uk.ac.gda.common/bin" />
 				<pathelement location="${workspace.git.loc}/gda-common.git/uk.ac.gda.common.rcp/bin" />
 				<pathelement location="${workspace.git.loc}/gda-nexus.git/uk.ac.gda.nexus/bin" />
-				<pathelement location="${workspace.git.loc}/gda-nexus.git/uk.ac.gda.nexus/jars/*" />
 				<pathelement location="${workspace.git.loc}/dawnsci.git/org.eclipse.dawnsci.nexus/bin" />
 				<pathelement location="${workspace.git.loc}/dawnsci.git/org.eclipse.dawnsci.analysis.api/bin" />
 				<pathelement location="${workspace.git.loc}/scisoft-core.git/uk.ac.diamond.scisoft.analysis/bin" />
@@ -51,7 +50,6 @@
 				<pathelement path="${workspace.loc}/tp/plugins/uk.ac.diamond.org.jscience_2.0.2.jar" />  <!-- ensure that 2.0.2 appears first in classpath -->
 				<path refid="tp.path" />  <!-- target platform -->
 				<pathelement location="${workspace.git.loc}/dawn-third.git/ncsa.hdf/bin" />
-				<pathelement location="${workspace.git.loc}/dawn-third.git/ncsa.hdf/jars/*" />
 				<path refid="libs.jars.path" />
 			</classpath>
 		</jython-call>
