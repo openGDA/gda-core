@@ -200,6 +200,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: javax.jms,
  org.apache.commons.collections.map,
  org.eclipse.core.runtime;version="3.4.0",
+ org.eclipse.dawnsci.remotedataset.server,
  org.osgi.framework;version="1.7.0",
  org.slf4j;version="[1.7.2,2.0.0)"
 Bundle-ActivationPolicy: lazy
