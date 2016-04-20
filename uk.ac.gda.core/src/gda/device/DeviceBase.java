@@ -19,17 +19,20 @@
 
 package gda.device;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.factory.ConditionallyConfigurable;
 import gda.factory.FactoryException;
 import gda.factory.Localizable;
 import gda.jython.accesscontrol.MethodAccessProtected;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
-
-import java.util.Hashtable;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 /**
  * A base implementation for all devices
  */
@@ -47,7 +50,7 @@ public abstract class DeviceBase implements Device, ConditionallyConfigurable, L
 
 	private ObservableComponent observableComponent = new ObservableComponent();
 
-	private Hashtable<String, Object> hashtable = new Hashtable<String, Object>(3);
+	private Map<String, Object> attributes = new Hashtable<>();
 
 	protected boolean configured = false;
 
@@ -157,12 +160,12 @@ public abstract class DeviceBase implements Device, ConditionallyConfigurable, L
 	@Override
 	@MethodAccessProtected(isProtected=true)
 	public void setAttribute(String attributeName, Object value) throws DeviceException {
-		hashtable.put(attributeName, value);
+		attributes.put(attributeName, value);
 	}
 
 	@Override
 	public Object getAttribute(String attributeName) throws DeviceException {
-		Object val = hashtable.get(attributeName);
+		Object val = attributes.get(attributeName);
 		if (val == null) {
 			logger.debug(getName() + ".getAttribute - unable to get value for " + attributeName);
 		}

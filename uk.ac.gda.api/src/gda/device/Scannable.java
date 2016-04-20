@@ -33,6 +33,13 @@ public interface Scannable extends Device {
 	Object DEFAULT_INPUT_NAME = "value";
 
 	/**
+	 * When a {@link Scannable} is used in a GDA9 scan, the value of the scan attribute
+	 * (as returned by {@link #getScanMetadataAttribute(String)} is used to determine the
+	 * NeXus base class to use for the NeXus object for this scannable.
+	 */
+	String ATTR_NX_CLASS = "NXclass";
+
+	/**
 	 * Returns the current position of the Scannable. Called by ConcurentScan at the end of the point. 
 	 * 
 	 * @return Current position with an element for each input and extra field. null if their are no fields.
