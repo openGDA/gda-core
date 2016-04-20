@@ -161,6 +161,20 @@
             name="Data Plot"
             restorable="true">
       </view>
+      <view
+            allowMultiple="true"
+            class="uk.ac.gda.client.liveplot.mjpeg.LiveMjpegPlot"
+            id="uk.ac.gda.client.liveplot.mjpeg.LiveMJPEGView"
+            name="Live MJPEG Plot"
+            restorable="true">
+      </view>
+      <view
+            allowMultiple="true"
+            class="uk.ac.gda.client.livecontrol.LiveControlsView"
+            id="uk.ac.gda.client.livecontrol.LiveControlsView"
+            name="Live Controls"
+            restorable="true">
+      </view>
    </extension>
    
  

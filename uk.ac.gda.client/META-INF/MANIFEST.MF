@@ -120,3 +120,4 @@ Import-Package: com.google.gson.annotations;version="2.2.4",
  org.springframework.beans.factory;version="3.0.4",
  org.springframework.context;version="3.0.4",
  org.springframework.util;version="3.0.4"
+Service-Component: OSGI-INF/*.xml
