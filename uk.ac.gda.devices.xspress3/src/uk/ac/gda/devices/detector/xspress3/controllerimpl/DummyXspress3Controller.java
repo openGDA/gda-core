@@ -18,6 +18,11 @@
 
 package uk.ac.gda.devices.detector.xspress3.controllerimpl;
 
+import java.util.Random;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Timer;
@@ -26,12 +31,6 @@ import gda.device.timer.Tfg;
 import gda.factory.Configurable;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
-
-import java.util.Random;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.devices.detector.xspress3.CAPTURE_MODE;
 import uk.ac.gda.devices.detector.xspress3.ReadyForNextRow;
@@ -590,6 +589,11 @@ public class DummyXspress3Controller implements Xspress3Controller, Findable, Co
 
 	@Override
 	public void setFileArrayCounter(int arrayCounter) throws DeviceException {
+	}
+
+	@Override
+	public void setHDFLazyOpen(boolean b) throws DeviceException {
+
 	}
 
 }

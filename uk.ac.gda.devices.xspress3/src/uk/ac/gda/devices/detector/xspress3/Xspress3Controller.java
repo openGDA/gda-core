@@ -267,6 +267,8 @@ public interface Xspress3Controller extends Findable {
 
 	public void setHDFNumFramesChunks(int i) throws DeviceException;
 
+	public void setHDFLazyOpen(boolean b) throws DeviceException;
+
 	public void setPointsPerRow(Integer pointsPerRow) throws DeviceException;
 
 	public int monitorUpdateArraysAvailableFrame(int desiredPoint) throws DeviceException;
