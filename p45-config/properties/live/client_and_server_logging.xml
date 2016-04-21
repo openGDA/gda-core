@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration debug="true"> <!-- Add debug="true" in here to log logback configuration -->
+
+<include file="${gda.config}/properties/_common/client_and_server_logging.xml"/>
+
+    <root>
+        <level value="INFO"/>
+        <appender-ref ref="SOCKET"/>
+    </root>
+    
+    <logger name="gda.factory">
+        <level value="INFO"/>
+    </logger>
+   
+       <logger name="gda.device.corba.impl">
+        <level value="INFO"/>
+    </logger>
+
+    <logger name="gda.device.detector.areadetector">
+        <level value="ALL"/>
+    </logger>
+
+    <logger name="gda.epics.connection.EpicsController">
+        <level value="INFO"/>
+    </logger>
+
+    <logger name="gda.jython.corba.impl.JythonImpl">
+        <level value="INFO"/>
+    </logger>
+
+    <logger name="gda.device.detector.mar345">
+        <level value="INFO"/>
+    </logger>
+
+    <logger name="gda.device.zebra.ZebraConstantVelocityMoveController">
+        <level value="DEBUG"/>
+    </logger>
+
+    <logger name="gda.epics.LazyPVFactory">
+        <level value="DEBUG"/>
+    </logger>
+   
+   
+</configuration>

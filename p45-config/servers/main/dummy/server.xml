@@ -1,0 +1,16 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd" >
+
+	<!--for an 'empty' configuration, remove the imports below, and the other xml files and directories inside the xml/server directory-->
+	<import resource="detectors.xml" />
+	<import resource="mapping_motors.xml"/>
+	
+	<!-- To enable use of a simulated AD uncomment this import and set the WORKSTATION environment variable to your workstation name -->
+	<!-- 	<import resource="adsim.xml"/> -->
+
+	<!-- Do not remove anything below here -->
+	<import resource="file:${gda.config}/servers/main/_common/server.xml" />
+
+</beans>

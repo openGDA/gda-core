@@ -1,0 +1,92 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:corba="http://www.diamond.ac.uk/schema/gda/corba"
+	xmlns:gda="http://www.diamond.ac.uk/schema/gda/gda"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+	http://www.diamond.ac.uk/schema/gda/corba
+	http://www.diamond.ac.uk/schema/gda/corba/gda-corba-1.0.xsd
+	http://www.diamond.ac.uk/schema/gda/gda
+	http://www.diamond.ac.uk/schema/gda/gda/gda-gda-1.1.xsd" >
+
+	<bean
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list value-type="java.lang.String">
+				<value>file:${gda.config}/properties/${gda.mode}/${gda.mode}_instance_java.properties</value>
+				<value>file:${gda.config}/properties/_common/common_instance_java.properties</value>
+				<value>file:${gda.facility.dir}/properties/${gda.mode}/${gda.mode}_facility_java.properties</value>
+				<value>file:${gda.facility.dir}/properties/_common/common_facility_java.properties</value>
+			</list>
+		</property>
+	</bean>
+	
+
+	<bean class="gda.spring.FindableNameSetterPostProcessor" />
+
+	<bean id="GDAMetadata" class="gda.data.metadata.GdaMetadata"/>
+	<bean id="GDAHashtable" class="gda.util.findableHashtable.FindableHashtable" />
+
+	<!--  object to provide recording of metadata in Nexus files -->
+	<bean id="metashop" class="gda.data.metadata.NXMetaDataProvider">
+		<property name="name" value="metashop"/>
+	</bean>
+
+	<!-- This can't be replaced with gda:rmi-export as it doesn't yet handle plain objects retrieved via SpEL -->
+	<bean class="uk.ac.gda.remoting.server.GdaRmiServiceExporter">
+		<property name="serviceName" value="gda/ScanDataPointServer" />
+		<property name="service" value="#{ T(gda.scan.ScanDataPointServer).getInstance() }" />
+		<property name="serviceInterface" value="gda.scan.IScanDataPointServer" />
+	</bean>
+
+	<bean id="plot_server" class="uk.ac.diamond.scisoft.analysis.plotserver.PlotServerBase"/>
+
+	<gda:rmi-export
+		service="plot_server"
+		serviceName="gda/plotserver"
+		serviceInterface="uk.ac.diamond.scisoft.analysis.PlotServer" />
+
+	<import resource="command_queue_processor.xml"/>
+	<import resource="jython_server_facade.xml" />
+	<import resource="mapping_stage.xml"/>
+	<import resource="mandelbrot_detectors.xml"/>
+
+	<!-- Data Server -->
+	<bean id="dataServer" class="org.eclipse.dawnsci.remotedataset.server.DataServer" init-method="start">
+		<property name="port" value="8690" />
+	</bean>
+
+	<!-- This starts a scanServlet which handles new style scan requests arriving over ActiveMQ -->
+	<bean id="scanServlet" class="org.eclipse.scanning.server.servlet.ScanServlet" init-method="connect">
+		<property name="broker" value="${gda.activemq.broker.uri}" />
+	</bean>
+
+	<!-- Start a ScanRequestPreprocessor, which can add information to or otherwise modify
+		scan requests arriving from the client before they are run by the scan servlet -->
+	<bean id="scanRequestPreprocessor" class="uk.ac.diamond.daq.mapping.impl.MappingStagePreprocessor">
+		<property name="activeFastScanAxis" value="stage_x" />
+		<property name="activeSlowScanAxis" value="stage_y" />
+	</bean>
+	<!-- Preprocessors must be registered as OSGi services to be used by the scan servlet -->
+	<bean class="gda.util.osgi.OSGiServiceRegister">
+		<property name="class" value="org.eclipse.scanning.api.scan.process.IPreprocessor" />
+		<property name="service" ref="scanRequestPreprocessor" />
+	</bean>
+
+	<!-- Start a MandelbrotPreprocessor which will set the axis names used for positioning -->
+	<bean id="mandelbrotPreprocessor" class="uk.ac.diamond.daq.mapping.impl.MandelbrotPreprocessor">
+		<property name="realAxisName" value="stage_x" />
+		<property name="imaginaryAxisName" value="stage_y" />
+	</bean>
+	<!-- Preprocessors must be registered as OSGi services to be used by the scan servlet -->
+	<bean class="gda.util.osgi.OSGiServiceRegister">
+		<property name="class" value="org.eclipse.scanning.api.scan.process.IPreprocessor" />
+		<property name="service" ref="mandelbrotPreprocessor" />
+	</bean>
+
+	<!-- To enable use of a simulated AD uncomment this import and set the WORKSTATION environment variable to your workstation name -->
+	<!-- <import resource="simulated_area_detector.xml"/> -->
+
+	<corba:export namespace="${gda.beamline.name}" />
+
+</beans>

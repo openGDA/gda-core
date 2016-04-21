@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="Toggle Fill Mapping Region">
+   <implementation class="uk.ac.diamond.daq.mapping.ui.experiment.ToggleFillMappingRegion"/>
+   <reference bind="setPlottingController" cardinality="1..1" interface="uk.ac.diamond.daq.mapping.ui.experiment.PlottingController" name="PlottingController" policy="static"/>
+</scr:component>

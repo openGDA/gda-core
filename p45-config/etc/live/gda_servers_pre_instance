@@ -1,0 +1,2 @@
+# Always run on local machine - but this needs to be a machine on the controls dev network to have access to the mapping test rig PVs
+export CONTROL_MACHINE_NAME=$(uname -n)

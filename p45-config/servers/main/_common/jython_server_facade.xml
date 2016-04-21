@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="jythonServerFacade" class="gda.jython.JythonServerFacade">
+		<constructor-arg ref="command_server" />
+	</bean>
+
+	<bean id="command_server" class="gda.jython.JythonServer">
+		<property name="jythonScriptPaths">
+			<bean class="gda.jython.ScriptPaths">
+				<property name="projects">
+					<list>
+						<bean class="gda.jython.ScriptProject">
+							<property name="path" value="${gda.config}/scripts" />
+							<property name="name" value="Scripts: Config" />
+							<property name="type" value="CONFIG" />
+						</bean>
+						<bean class="gda.jython.ScriptProject">
+							<property name="path" value="${gda.install.git.loc}/gda-core.git/uk.ac.gda.core/scripts" />
+							<property name="name" value="Scripts: Core" />
+							<property name="type" value="CORE" />
+						</bean>
+						<bean class="gda.jython.ScriptProject">
+							<property name="path" value="${gda.install.git.loc}/daq-eclipse.git/org.eclipse.scanning.command/scripts" />
+							<property name="name" value="Scripts: Core (Mapping)" />
+							<property name="type" value="CORE" />
+						</bean>
+						<bean class="gda.jython.ScriptProject">
+							<property name="path" value="${gda.install.git.loc}/gda-epics.git/uk.ac.gda.epics/scripts" />
+							<property name="name" value="Scripts: Epics" />
+							<property name="type" value="CORE" />
+						</bean>
+					</list>
+				</property>
+				<property name="startupScript" value="${gda.config}/scripts/localStation.py" />
+			</bean>
+		</property>
+		<property name="gdaVarDirectory" value="${gda.var}" />
+		<property name="cacheDirectory" value="${gda.var}/jythonCache" />
+		<property name="remotePort" value="9999" />
+	</bean>
+
+	<bean id="terminallog_path_provider" class="gda.data.ObservablePathConstructor">
+		<property name="template"
+			value="${gda.data}/gdaterminal.log" />
+		<property name="gdaMetadata" ref="GDAMetadata" />
+		<property name="local" value="true" />
+	</bean>
+
+	<bean id="terminal_logger" class="gda.jython.logger.RedirectableFileLogger">
+		<constructor-arg ref="terminallog_path_provider" />
+	</bean>
+	<bean class="gda.jython.logger.OutputTerminalAdapter">
+		<constructor-arg ref="jythonServerFacade" />
+		<constructor-arg ref="terminal_logger" />
+	</bean>
+	<bean class="gda.jython.logger.InputTerminalAdapter">
+		<constructor-arg ref="command_server" />
+		<constructor-arg ref="terminal_logger" />
+	</bean>
+	<bean class="gda.jython.logger.ScanDataPointAdapter">
+		<constructor-arg ref="jythonServerFacade" />
+		<constructor-arg ref="terminal_logger" />
+	</bean>
+	<bean class="gda.jython.logger.BatonChangedAdapter">
+		<constructor-arg ref="jythonServerFacade" />
+		<constructor-arg ref="terminal_logger" />
+	</bean>
+
+</beans>

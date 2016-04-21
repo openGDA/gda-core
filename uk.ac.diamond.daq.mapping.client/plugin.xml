@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="uk.ac.diamond.daq.mapping.ui.experiment.MappingPerspective"
+            id="uk.ac.diamond.daq.mapping.ui.experiment.MappingPerspective"
+            name="Mapping">
+      </perspective>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <e4view
+            class="uk.ac.diamond.daq.mapping.ui.experiment.MappingExperimentView"
+            id="uk.ac.diamond.daq.mapping.ui.experiment.mappingExperimentView"
+            name="Mapping Experiment Setup"
+            restorable="true">
+      </e4view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="uk.ac.diamond.daq.mapping.ui.experiment.ShowHideMappingRegion"
+            id="uk.ac.diamond.daq.mapping.ui.command.showHideMappingRegion"
+            name="Show/Hide Mapping Region">
+      </command>
+      <command
+            defaultHandler="uk.ac.diamond.daq.mapping.ui.experiment.ToggleFillMappingRegion"
+            id="uk.ac.diamond.daq.mapping.ui.command.toggleFillMappingRegion"
+            name="Toggle Mapping Region FIll">
+      </command>
+      <command
+            defaultHandler="uk.ac.diamond.daq.mapping.ui.experiment.ShowHideMappingPath"
+            id="uk.ac.diamond.daq.mapping.ui.command.showHideMappingPath"
+            name="Show/Hide Mapping Path">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.dawnsci.plotting.api.plottingAction">
+      <plotting_action
+            action_type="TOOLBAR"
+            command_id="uk.ac.diamond.daq.mapping.ui.command.showHideMappingRegion"
+            icon="icons/Show_Hide_Mapping_Region_16.png"
+            id="uk.ac.diamond.daq.mapping.ui.plotting_action1"
+            plot_name="Map">
+      </plotting_action>
+      <plotting_action
+            action_type="TOOLBAR"
+            command_id="uk.ac.diamond.daq.mapping.ui.command.toggleFillMappingRegion"
+            icon="icons/Fill_Mapping_Region_16.png"
+            id="uk.ac.diamond.daq.mapping.ui.plotting_action2"
+            plot_name="Map">
+      </plotting_action>
+      <plotting_action
+            action_type="TOOLBAR"
+            command_id="uk.ac.diamond.daq.mapping.ui.command.showHideMappingPath"
+            icon="icons/Show_Hide_Path_16.png"
+            id="uk.ac.diamond.daq.mapping.ui.plotting_action4"
+            plot_name="Map">
+      </plotting_action>
+   </extension>
+
+</plugin>

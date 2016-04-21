@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Api
+Bundle-SymbolicName: uk.ac.diamond.daq.mapping.api
+Bundle-Version: 1.0.0.qualifier
+Require-Bundle: org.eclipse.scanning.api;bundle-version="1.0.0",
+ org.eclipse.dawnsci.analysis.api
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy
+Export-Package: uk.ac.diamond.daq.mapping.api;uses:="org.osgi.framework,org.eclipse.dawnsci.plotting.api.region"

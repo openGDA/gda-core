@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" deactivate="dispose" name="Mapping Plotting Controller">
+   <implementation class="uk.ac.diamond.daq.mapping.ui.experiment.PlottingController"/>
+   <service>
+      <provide interface="uk.ac.diamond.daq.mapping.ui.experiment.PlottingController"/>
+   </service>
+   <reference bind="setPlottingService" cardinality="1..1" interface="org.eclipse.dawnsci.plotting.api.IPlottingService" name="IPlottingService" policy="static"/>
+</scr:component>

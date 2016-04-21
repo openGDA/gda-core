@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<included>
+
+    <!--  the include statement in the following java.properties file is not read so you need to reference both -->
+    <property file="${gda.config}/properties/${gda.mode}/${gda.mode}_instance_java.properties" />
+    <property file="${gda.config}/properties/_common/common_instance_java.properties" />
+
+    <!-- The logServer.xml files define which messages are sent to the logging system appenders. -->
+    <!-- Levels: ALL TRACE DEBUG INFO WARN ERROR FATAL OFF -->
+
+    <appender name="ServerDebugFILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>${gda.logs.dir}/gda_server.log</File>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <FileNamePattern>${gda.logs.dir}/gda_server.%d{yyyy-MM-dd}.log.gz</FileNamePattern>
+        </rollingPolicy>
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>%d %-5level ["logserver.xml"%property{HOSTNAME}/%property{GDA_SOURCE}/%property{JVMNAME}] %logger - %m%n%rEx</pattern>
+        </layout>
+    </appender>
+
+    <appender name="LogServer" class="ch.qos.logback.classic.net.server.ServerSocketAppender">
+        <port>${gda.logserver.out.port}</port>
+        <!-- 02/12/2014 KrisB - The Log Panel currently can't take a pattern option -->
+    </appender>
+    
+
+</included>

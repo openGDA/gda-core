@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<included>
+
+    <!-- The include statement in the following java.properties file is not read so you need to reference both -->
+    <property file="${gda.config}/properties/${gda.mode}/${gda.mode}_instance_java.properties" />
+    <property file="${gda.config}/properties/_common/common_instance_java.properties" />
+
+    <!-- include file is relative to the application directory -->
+
+    <!-- address where the messages from Object Servers send to - the LogServer-->
+    <appender name="SOCKET" class="ch.qos.logback.classic.net.SocketAppender">
+        <RemoteHost>${gda.logserver.host}</RemoteHost>
+        <Port>${gda.server.logging.port}</Port>
+        <ReconnectionDelay>10000</ReconnectionDelay>
+        <IncludeCallerData>true</IncludeCallerData>
+    </appender>
+    
+    <logger name="org.eclipse.jetty" level="INFO"/>
+
+</included>

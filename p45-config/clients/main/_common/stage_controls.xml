@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean name="controlSet" class="uk.ac.gda.client.livecontrol.ControlSet">
+		<property name="controls">
+			<list>
+				<ref bean="stage_x_control" />
+				<ref bean="stage_y_control" />
+				<ref bean="stage_z_control" />
+			</list>
+		</property>
+	</bean>
+
+	<bean id="stage_x_control" class="uk.ac.gda.client.livecontrol.Control">
+		<property name="displayName" value="Stage X" />
+		<property name="group" value="Translations" />
+		<property name="scannableName" value="stage_x" />
+		<property name="increment" value="0.1" />
+	</bean>
+
+	<bean id="stage_y_control" class="uk.ac.gda.client.livecontrol.Control">
+		<property name="displayName" value="Stage Y" />
+		<property name="scannableName" value="stage_y" />
+		<property name="group" value="Translations" />
+		<property name="increment" value="0.1" />
+	</bean>
+
+	<bean id="stage_z_control" class="uk.ac.gda.client.livecontrol.Control">
+		<property name="displayName" value="Stage Z" />
+		<property name="scannableName" value="stage_z" />
+		<property name="group" value="Translations" />
+		<property name="increment" value="0.1" />
+	</bean>
+
+</beans>

@@ -1,0 +1,18 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans-2.5.xsd" >
+
+	<bean id="dummyMandelbrotMappingDetector1D" class="gda.device.detector.DummyMandelbrotMappingDetector">
+		<property name="realAxisPositioner" ref="stage_x" />
+		<property name="imaginaryAxisPositioner" ref="stage_y" />
+		<property name="outputDimensions" value="ONE_D" />
+	</bean>
+
+	<bean id="dummyMandelbrotMappingDetector2D" class="gda.device.detector.DummyMandelbrotMappingDetector">
+		<property name="realAxisPositioner" ref="stage_x" />
+		<property name="imaginaryAxisPositioner" ref="stage_y" />
+		<property name="outputDimensions" value="TWO_D" />
+	</bean>
+
+</beans>

@@ -1,0 +1,36 @@
+# Modified version of dls-config/bin/gda_setup_consolelog_facility to put live logs in the workspace parent directory
+
+# Parameter 1 is the console log folder name - {servers|client|logpanel}
+LOGNAME=gda_$1_output
+bashlog debug "gda_setup_consolelog_instance" "Entered"
+
+if [ $# -ne 1 ] ; then
+  bashlog error "gda_setup_consolelog_instance" "Only one parameter accepted by $0: $@"
+  exit 1 
+fi
+bashlog debug "gda_setup_consolelog_instance" "Parameters: $@"
+
+# Define GDA_LOGS_DIR
+if [ "${GDA_MODE}" == "live" ]; then
+    export GDA_LOGS_DIR=${GDA_WORKSPACE_PARENT}/gda_logs_live
+else
+    export GDA_LOGS_DIR=${GDA_WORKSPACE_PARENT}/gda_logs_non_live
+fi
+bashlog debug "gda_setup_consolelog_instance" "set \${GDA_LOGS_DIR}=${GDA_LOGS_DIR}"
+
+export GDA_LOG_FILE=${GDA_LOGS_DIR}/$LOGNAME/${LOGNAME}_`date +%F-%T`.txt
+consolelogfile_dir=$(dirname ${GDA_LOG_FILE})
+consolelogfile_name=$(basename ${GDA_LOG_FILE})
+
+# Create the parent directory for the console log file, and create an (initially empty) logfile
+if [[ ! -d "${consolelogfile_dir}" ]]; then
+    bashlog info "gda_setup_consolelog_instance" "issuing: mkdir -pv -m 777 ${consolelogfile_dir}"
+    mkdir -pv -m 777 ${consolelogfile_dir}/
+fi
+
+bashlog debug "gda_setup_consolelog_instance" "Writing console log to $GDA_LOG_FILE"
+touch $GDA_LOG_FILE
+[ -h $GDA_LOGS_DIR/$LOGNAME.txt ] && rm $GDA_LOGS_DIR/$LOGNAME.txt
+ln -s $GDA_LOG_FILE $GDA_LOGS_DIR/$LOGNAME.txt
+
+bashlog debug "gda_setup_consolelog_instance" "Exited"
