@@ -251,11 +251,12 @@ Using a standard RMI exporter/proxy
 
 For newly-written objects, RMI can be used to make those objects available over the network.
 
-Spring's
+The GDA encapsulation of Spring's
 `RmiServiceExporter <http://static.springsource.org/spring/docs/2.5.x/api/org/springframework/remoting/rmi/RmiServiceExporter.html>`_
-can be used on the server side to make an object remotely available. It must be told which object is being exported,
-the name to export the object with, and the *service interface* - the interface defining the methods that should be available to
-clients. For example:
+, ``uk.ac.gda.remoting.server.GdaRmiServiceExporter``, should be used on the server side to make an object remotely available. It must be told 
+which object is being exported, the name to export the object with, and the *service interface* - the interface defining the methods 
+that should be available to clients (do not try to use the plain Spring ``RmiServiceExporter`` or you will get class loading errors). 
+For example:
 
 ::
 
@@ -265,13 +266,14 @@ clients. For example:
   </bean>
 
   <!-- See below for a more concise way of doing this -->
-  <bean class="org.springframework.remoting.rmi.RmiServiceExporter">
+  <bean class="uk.ac.gda.remoting.server.GdaRmiServiceExporter">
       <property name="serviceName" value="gda/ProsilicaServer" />
       <property name="service" ref="prosilica_server" />
       <property name="serviceInterface" value="gda.images.camera.prosilica.server.ProsilicaImageServer" />
   </bean>
 
-The following XML shortcut can be used instead of the full bean definition shown above:
+The following XML shortcut can be used instead of the full bean definition shown above provided that the ``service`` parameter is a reference 
+to an existing Spring bean:
 
 ::
 
@@ -345,6 +347,10 @@ implements ``IObservable``, for two reasons:
   object generates will not be propagated to the client.
 * On the client, a remote method invocation will be performed for *every* method in an object's service interface -
   including the ``IObservable`` methods, which will not work.
+
+Additionally, from GDA 9.0 onwards ``RmiServiceExporter`` will not succeed in loading the server bean classes under OSGi 
+and so is not suitable for use in the server at all. As a result, from GDA 9.0, the ``<gda:rmi-export />`` XML tag 
+exclusively uses ``GdaRmiServiceExporter``.
 
 To export an object that generates events, the ``GdaRmiServiceExporter`` and ``GdaRmiProxyFactoryBean`` classes should
 be used instead of ``RmiServiceExporter`` and ``RmiProxyFactoryBean`` respectively.

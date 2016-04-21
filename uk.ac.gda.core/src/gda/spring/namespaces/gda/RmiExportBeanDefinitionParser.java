@@ -31,6 +31,11 @@ import uk.ac.gda.remoting.server.GdaRmiServiceExporter;
 
 /**
  * Spring {@link BeanDefinitionParser} for the {@code rmi-export} element.
+ *
+ * This now always uses GdaRmiServiceExporter from GDA 9 onwards as it is
+ * required to correctly load the Spring beans to be exported - the contained
+ * Spring {@link RmiServiceExporter}'s Classloader cannot see the beans under OSGi
+ *
  */
 public class RmiExportBeanDefinitionParser implements BeanDefinitionParser {
 
@@ -48,7 +53,7 @@ public class RmiExportBeanDefinitionParser implements BeanDefinitionParser {
 		}
 
 		AbstractBeanDefinition beanDef = new GenericBeanDefinition();
-		beanDef.setBeanClass(events ? GdaRmiServiceExporter.class : RmiServiceExporter.class);
+		beanDef.setBeanClass(GdaRmiServiceExporter.class);
 		beanDef.getPropertyValues().addPropertyValue("service", new RuntimeBeanReference(service));
 		beanDef.getPropertyValues().addPropertyValue("serviceName", serviceName);
 		beanDef.getPropertyValues().addPropertyValue("serviceInterface", serviceInterface);
@@ -58,7 +63,7 @@ public class RmiExportBeanDefinitionParser implements BeanDefinitionParser {
 		String beanName;
 		while (true) {
 			counter++;
-			beanName = "RmiExporter#" + counter;
+			beanName = "GDARmiExporter#" + counter;
 			if (!registry.containsBeanDefinition(beanName)) {
 				break;
 			}
