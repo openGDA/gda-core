@@ -18,6 +18,18 @@
 
 package gda.device.zebra;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Vector;
+import java.util.concurrent.Callable;
+import java.util.concurrent.FutureTask;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.IScannableMotor;
@@ -38,18 +50,6 @@ import gda.device.scannable.VariableCollectionTimeDetector;
 import gda.device.zebra.controller.Zebra;
 import gda.epics.ReadOnlyPV;
 import gda.factory.FactoryException;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Vector;
-import java.util.concurrent.Callable;
-import java.util.concurrent.FutureTask;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 
 public class ZebraConstantVelocityMoveController extends ScannableBase implements ConstantVelocityMoveController2,
 						PositionCallableProvider<Double>, ContinuouslyScannableViaController, InitializingBean {
@@ -663,17 +663,8 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 		logger.trace("getPositionSteamIndexer({})", index);
 		if( lastImageNumberStreamIndexer[index] == null){
 			logger.info("Creating lastImageNumberStreamIndexer " + index);
-			ReadOnlyPV<Double[]> rdDblArrayPV;
-			switch (index) {
-			case 0:
-				rdDblArrayPV = zebra.getEncPV(zebraMotorInfoProvider.getPcEnc());
-				break;
-			case 10:
-				rdDblArrayPV = zebra.getPCTimePV();
-				break;
-			default:
-				throw new UnsupportedOperationException("Index " + index + " not supported, use 0 or 10");
-			}
+			final ReadOnlyPV<Double[]> rdDblArrayPV = getEncoderPV(index);
+
 			if( timeSeriesCollection == null)
 				timeSeriesCollection = new Vector<ZebraCaptureInputStreamCollection>();
 
@@ -682,6 +673,26 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 			timeSeriesCollection.add(sc);
 		}
 		return lastImageNumberStreamIndexer[index];
+	}
+
+	private ReadOnlyPV<Double[]> getEncoderPV(int index) {
+		try {
+			switch (index) {
+			case 0:
+			case 1:
+			case 2:
+			case 3:
+				return zebra.getEncPV(index);
+			case 10:
+				return zebra.getPCTimePV();
+			default:
+				logger.warn("Encoder index " + index + " not supported: using default");
+				return zebra.getEncPV(Zebra.PC_ENC_ENC1);
+			}
+		} catch (Exception ex) {
+			logger.warn("Exception getting PC encoder, using default. " + ex.getMessage());
+			return zebra.getEncPV(Zebra.PC_ENC_ENC1);
+		}
 	}
 
 	// interface Scannable
