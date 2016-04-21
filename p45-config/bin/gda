@@ -9,7 +9,7 @@ set -o errexit  # Turn on errexit
 # Define this instance's group, facility and core
 export    GDA_WORKSPACE_PARENT=$(readlink -f ${here_dir}/../../../..)
         GDA_WORKSPACE_GIT_NAME=$(basename $(readlink -f ${here_dir}/../../..))  # will normally be "workspace_git", will always end with "_git". Not exporting as only used in this script
-export GDA_INSTANCE_CONFIG_rel=${GDA_WORKSPACE_GIT_NAME}/gda-incubation.git/p45-config
+export GDA_INSTANCE_CONFIG_rel=${GDA_WORKSPACE_GIT_NAME}/gda-core.git/p45-config
 export    GDA_GROUP_CONFIG_rel=${GDA_WORKSPACE_GIT_NAME}/gda-core.git/no-group
 export GDA_FACILITY_CONFIG_rel=${GDA_WORKSPACE_GIT_NAME}/gda-diamond.git/dls-config
 export     GDA_CORE_CONFIG_rel=${GDA_WORKSPACE_GIT_NAME}/gda-core.git/core-config
