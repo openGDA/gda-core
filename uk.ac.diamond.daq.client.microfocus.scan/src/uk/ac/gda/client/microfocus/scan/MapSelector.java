@@ -18,16 +18,16 @@
 
 package uk.ac.gda.client.microfocus.scan;
 
-import gda.device.Scannable;
-import gda.device.detector.countertimer.BufferedScaler;
-import gda.device.scannable.ContinuouslyScannable;
-import gda.device.scannable.RealPositionReader;
-import gda.jython.InterfaceProvider;
-
 import org.python.core.PyInteger;
 import org.python.core.PyObject;
 import org.python.core.PySequence;
 
+import gda.device.Scannable;
+import gda.device.detector.countertimer.BufferedScaler;
+import gda.device.scannable.ContinuouslyScannable;
+import gda.device.scannable.I18SingleTrajectoryScannable;
+import gda.device.scannable.RealPositionReader;
+import gda.jython.InterfaceProvider;
 import uk.ac.gda.beans.microfocus.MicroFocusScanParameters;
 import uk.ac.gda.client.microfocus.scan.datawriter.MicroFocusWriterExtender;
 import uk.ac.gda.server.exafs.scan.preparers.I18BeamlinePreparer;
@@ -107,10 +107,19 @@ public class MapSelector {
 
 	public void enableFasterRaster() {
 		raster_mode = faster_raster;
+		setStageMotorToBidirectional(stage1TrajMotor, true);
+		setStageMotorToBidirectional(stage3TrajMotor, true);
 	}
 
 	public void disableFasterRaster() {
 		raster_mode = raster;
+		setStageMotorToBidirectional(stage1TrajMotor, false);
+		setStageMotorToBidirectional(stage3TrajMotor, false);
+	}
+
+	private void setStageMotorToBidirectional(ContinuouslyScannable stageTrajMotor, boolean isBidirectional) {
+		if (stageTrajMotor instanceof I18SingleTrajectoryScannable)
+			((I18SingleTrajectoryScannable) stageTrajMotor).setBidirectional(isBidirectional);
 	}
 
 	public void setStage(int stageNumber) {
@@ -131,9 +140,9 @@ public class MapSelector {
 			raster.setPositionReader(stage1PositionReader);
 			faster_raster.setTrajectoryMotor(stage1TrajMotor);
 			faster_raster.setPositionReader(stage1PositionReader);
-			
+
 //			ionChambers.setTtlSocket(1);
-			
+
 			break;
 		case 3:
 			non_raster.setxScan(stage3X);
@@ -145,12 +154,12 @@ public class MapSelector {
 			faster_raster.setxScan(stage3X);
 			faster_raster.setyScan(stage3Y);
 			faster_raster.setzScan(stage3Z);
-			
+
 			raster.setTrajectoryMotor(stage3TrajMotor);
 			raster.setPositionReader(stage3PositionReader);
 			faster_raster.setTrajectoryMotor(stage3TrajMotor);
 			faster_raster.setPositionReader(stage3PositionReader);
-			
+
 //			ionChambers.setTtlSocket(1);
 
 			break;

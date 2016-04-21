@@ -121,6 +121,7 @@ public class Xspress3ScanOperationsv2 {
 		controller.setNextFileNumber(0);
 		controller.setHDFAttributes(false);
 		controller.setHDFPerformance(false);
+		controller.setHDFLazyOpen(true);
 
 		int framesPerChunk = (CHUNK_SIZE / (controller.getNumberOfChannels() * controller.getMcaSize() * DATA_TYPE_SIZE));
 		controller.setHDFNumFramesChunks(framesPerChunk);

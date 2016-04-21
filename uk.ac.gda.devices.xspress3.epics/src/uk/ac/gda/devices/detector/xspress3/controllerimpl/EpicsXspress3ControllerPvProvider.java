@@ -94,7 +94,7 @@ public class EpicsXspress3ControllerPvProvider {
 	private static String FILE_ATTR = ":HDF5:StoreAttr";
 	private static String FILE_PERFORM = ":HDF5:StorePerform";
 	private static String FILE_NUMFRAMESCHUNKS = ":HDF5:NumFramesChunks";
-
+	private static String FILE_LAZYOPEN = ":HDF5:LazyOpen";
 	// MCA and ROI
 	private static String ROI_LOW_BIN_TEMPLATE = ":C%1d_MCA_ROI%1d_LLM";  // channel (1-8),ROI (1-4)
 	private static String ROI_HIGH_BIN_TEMPLATE = ":C%1d_MCA_ROI%1d_HLM";// channel (1-8),ROI (1-4)
@@ -207,6 +207,7 @@ public class EpicsXspress3ControllerPvProvider {
 	protected PV<Boolean> pvHDFAttributes;
 	protected PV<Boolean> pvHDFPerformance;
 	protected PV<Integer> pvHDFNumFramesChunks;
+	protected PV<Boolean> pvHDFLazyOpen;
 
 	public EpicsXspress3ControllerPvProvider(String epicsTemplate, int numberOfDetectorChannels) throws FactoryException {
 		this.numberOfDetectorChannels = numberOfDetectorChannels;
@@ -264,6 +265,7 @@ public class EpicsXspress3ControllerPvProvider {
 		pvHDFAttributes = LazyPVFactory.newBooleanFromEnumPV(generatePVName(FILE_ATTR));
 		pvHDFPerformance = LazyPVFactory.newBooleanFromEnumPV(generatePVName(FILE_PERFORM));
 		pvHDFNumFramesChunks = LazyPVFactory.newIntegerPV(generatePVName(FILE_NUMFRAMESCHUNKS));
+		pvHDFLazyOpen = LazyPVFactory.newBooleanFromEnumPV(generatePVName(FILE_LAZYOPEN));
 
 		pvHDFFullFileName = LazyPVFactory.newReadOnlyStringFromWaveformPV(generatePVName(FULLFILENAME));
 		pvExtraDimensions = LazyPVFactory.newIntegerPV(generatePVName(EXTRA_DIMS));

@@ -18,6 +18,12 @@
 
 package uk.ac.gda.devices.detector.xspress3.controllerimpl;
 
+import java.io.IOException;
+
+import org.apache.commons.lang.ArrayUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.zebra.GreaterThanOrEqualTo;
@@ -25,13 +31,6 @@ import gda.epics.ReadOnlyPV;
 import gda.factory.Configurable;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
-
-import java.io.IOException;
-
-import org.apache.commons.lang.ArrayUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import uk.ac.gda.devices.detector.xspress3.CAPTURE_MODE;
 import uk.ac.gda.devices.detector.xspress3.ReadyForNextRow;
 import uk.ac.gda.devices.detector.xspress3.TRIGGER_MODE;
@@ -812,6 +811,15 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 	public void setHDFPerformance(boolean b) throws DeviceException {
 		try {
 			pvProvider.pvHDFPerformance.putNoWait(b);
+		} catch (IOException e) {
+			throw new DeviceException("IOException while setting auto increment", e);
+		}
+	}
+
+	@Override
+	public void setHDFLazyOpen(boolean b) throws DeviceException {
+		try {
+			pvProvider.pvHDFLazyOpen.putNoWait(b);
 		} catch (IOException e) {
 			throw new DeviceException("IOException while setting auto increment", e);
 		}
