@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Synoptic
 Bundle-SymbolicName: uk.ac.gda.client.synoptic;singleton:=true
-Bundle-Version: 8.52.0.qualifier
+Bundle-Version: 8.54.0.qualifier
 Bundle-Activator: uk.ac.gda.client.synoptic.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,

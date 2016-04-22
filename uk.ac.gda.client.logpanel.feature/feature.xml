@@ -2,7 +2,7 @@
 <feature
       id="uk.ac.gda.client.logpanel.feature"
       label="Logpanel_feature"
-      version="8.52.0.qualifier"
+      version="8.54.0.qualifier"
       provider-name="Diamond Light Source">
 
    <description url="http://www.example.com/description">
