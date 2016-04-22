@@ -95,7 +95,8 @@ public class ObservableComponent implements IObservable, IIsBeingObserved {
 
 		for (IObserver anIObserver : observers) {
 			try {
-				anIObserver.update(theObserved, changeCode);
+				sendEventToObserver(anIObserver, theObserved, changeCode);
+
 			} catch (Exception ex) {
 				logger.error("swallowing exception {}", ex.toString());
 				
@@ -120,6 +121,10 @@ public class ObservableComponent implements IObservable, IIsBeingObserved {
 				}
 			}
 		}
+	}
+
+	protected void sendEventToObserver(IObserver anIObserver, Object theObserved, Object changeCode) {
+		anIObserver.update(theObserved, changeCode);
 	}
 
 	@Override
