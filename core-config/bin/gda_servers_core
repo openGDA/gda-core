@@ -1,7 +1,27 @@
 bashlog debug "gda_servers_core" "Entered"
+TARGET=""
+DEBUG=""
+
+# read the GDA9 specific params
+for word in "$@"; do
+    case $word in
+        --devel|--release|--snapshot)
+            TARGET=${word}
+            ;;
+        --debug)
+            DEBUG=${word}
+            ;;
+        *)
+            continue
+            ;;
+    esac
+done
 
 if [[ "${GDA_MODE}" == "live" && "${CONTROL_MACHINE_NAME}" != "$(uname -n)" ]]; then
     # This section runs when in live mode when not on the control machine
+    # i.e. it initiates the ssh tunnel to call remotestartupscript.sh on the control machine.
+    # This will throw away the environment built up so far, and then go back through beamline's
+    # gda bash script, rebuilding the environment and then sending execution through the else below.
 
     if [[ -n "${GDA_IN_REMOTE_STARTUP-}" ]]; then
         bashlog error "gda_servers_core" "Internal error: remote startup loop detected"
@@ -53,7 +73,7 @@ if [[ "${GDA_MODE}" == "live" && "${CONTROL_MACHINE_NAME}" != "$(uname -n)" ]]; 
       bashlog warn "gda_servers_core" "Public key file $CONTROL_MACHINE_PUBKEY_FILE doesn't exist and no CONTROL_MACHINE_PUBKEY defined!"
     fi
 
-    ssh -T -o BatchMode=yes -i ${CONTROL_MACHINE_SSHKEY_LOC} ${CONTROL_MACHINE_USER}@${CONTROL_MACHINE_NAME} ${GDA_OPERATION} &
+    ssh -T -o BatchMode=yes -i ${CONTROL_MACHINE_SSHKEY_LOC} ${CONTROL_MACHINE_USER}@${CONTROL_MACHINE_NAME} ${GDA_OPERATION} ${TARGET} ${DEBUG} &
     export SERVERS_SSH_PID=$!
     # Due to the problem with ssh where remotestartupscript.sh completes, but
     # ssh doesn't return, we run ssh in background but record its PID in
@@ -66,6 +86,8 @@ if [[ "${GDA_MODE}" == "live" && "${CONTROL_MACHINE_NAME}" != "$(uname -n)" ]]; 
 
 else
     # This runs when live on the control machine or in any mode other than live
+    # i.e. when starting in live from a beamline workstation, execution will eventually come
+    # through here when it has been through the ssh tunnel loop.
 
     echo
     case "${GDA_OPERATION,,}" in
@@ -88,13 +110,17 @@ else
     umask 0002
     # This should fix a problem where sub-directories created in a visit folder end up
     # with a different mask to the default.
-    GDA_CORE_SCRIPT=$(readlink -f ${GDA_WORKSPACE_PARENT}/${GDA_CORE_CONFIG_rel}/../uk.ac.gda.core/bin/gda)
+    GDA_TARGET_SCRIPT=$(readlink -f ${GDA_WORKSPACE_PARENT}/${GDA_CORE_CONFIG_rel}/bin/gda_target.sh)
 
     export JAVA_OPTS="-Dgda.deploytype=1 -XX:MaxPermSize=1024m" # Seems to fix the reset_namespace problem
-    GDA_CORE_SCRIPT_OPTIONS="${GDA_CORE_SCRIPT_OPTIONS-} --verbose --headless --debug --debugport=8001 --mode=$GDA_MODE --vardir=${GDA_VAR} $@"
 
-    bashlog debug "gda_servers_core" "Starting ${GDA_CORE_SCRIPT} ${GDA_CORE_SCRIPT_OPTIONS}"
-    nohup                                      ${GDA_CORE_SCRIPT} ${GDA_CORE_SCRIPT_OPTIONS} >> ${GDA_LOG_FILE}  2>&1 &
+    if [[ -n ${DEBUG-} ]]; then
+    	echo "Awaiting debugger connection on port 8000"
+    fi
+
+    bashlog debug "gda_servers_core" "Starting ${GDA_TARGET_SCRIPT}  ${GDA_OPERATION} ${TARGET} ${DEBUG}"
+    nohup ${GDA_TARGET_SCRIPT} ${GDA_OPERATION} ${TARGET} ${DEBUG} >> ${GDA_LOG_FILE}  2>&1 &
+
 
     if [[ ${GDA_OPERATION,,} != "stop" ]]; then
         # Starting; wait for the startup file to be created so that any
