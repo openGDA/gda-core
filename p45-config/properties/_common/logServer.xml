@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <included>
 
-    <!--  the include statement in the following java.properties file is not read so you need to reference both -->
-    <property file="${gda.config}/properties/${gda.mode}/${gda.mode}_instance_java.properties" />
-    <property file="${gda.config}/properties/_common/common_instance_java.properties" />
+    <!-- Include the standard set of properties files via the XML definition in dls-config -->
+    <include file="${gda.facility.dir}/logging/logging_properties.xml"/>
 
     <!-- The logServer.xml files define which messages are sent to the logging system appenders. -->
     <!-- Levels: ALL TRACE DEBUG INFO WARN ERROR FATAL OFF -->
