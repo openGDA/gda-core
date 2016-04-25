@@ -204,30 +204,11 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 	}
 
 	public double[] getEnergyAxis() throws Exception {
-		double start, step;
-		int length, startChannel = 0;
-		if (controller.getAcquisitionMode().equalsIgnoreCase("Fixed")) {
-			int pass = controller.getPassEnergy().intValue();
-			start = controller.getCentreEnergy() - (getCapabilities().getEnergyWidthForPass(pass) / 2);
-			step = getCapabilities().getEnergyStepForPass(pass) / 1000.0;
-			length = getAdBase().getSizeX_RBV();
-			startChannel = getAdBase().getMinX_RBV()-1; //TODO check if -1 required
-		} else {
-			start = controller.getStartEnergy();
-			step = controller.getEnergyStep();
-			length = getNumberOfSweeptSteps();
-		}
-
-		double[] axis = new double[length];
-		for (int j = 0; j < length; j++) {
-			axis[j] = start + (j+startChannel) * step;
-		}
-		return axis;
+		return controller.getEnergyAxis();
 	}
 
 	public double[] getAngleAxis() throws Exception {
-		return getCapabilities().getAngleAxis(controller.getLensMode(), getAdBase().getMinY_RBV()-1, //TODO check if -1 required
-				getAdBase().getSizeY_RBV());
+		return controller.getYAxis();
 	}
 
 	@Override
