@@ -53,15 +53,7 @@ public class MappingScanNewStyleEventObserver implements IScanListener {
 
 	private static final String NEXUS_PREFIX = "/entry/instrument/";
 
-	/**
-	 * Property for setting where there is a dataserver running that can access the SWMR files and provide remote datasets
-	 */
-	public static final String GDA_DATASERVER_HOST = "gda.dataserver.host";
 
-	/**
-	 * Property for setting which port has a dataserver running that can access the SWMR files and provide remote datasets
-	 */
-	public static final String GDA_DATASERVER_PORT = "gda.dataserver.port";
 
 	public void bindIEventService(IEventService eventService) {
 		logger.debug("bindIEventService called with {}", eventService.toString());
@@ -183,16 +175,16 @@ public class MappingScanNewStyleEventObserver implements IScanListener {
 		if (liveFile) {
 			// Check if the required properties are set
 			// FIXME There is a issue here that OSGi starts services before the properties are loaded so you don't get them
-			if (LocalProperties.get(GDA_DATASERVER_HOST) == null || LocalProperties.getAsInt(GDA_DATASERVER_PORT) == null) {
-				logger.error("Properties {} or {} are not set not live data can be provided!", GDA_DATASERVER_HOST, GDA_DATASERVER_PORT);
+			if (LocalProperties.get(LocalProperties.GDA_DATASERVER_HOST) == null || LocalProperties.getAsInt(LocalProperties.GDA_DATASERVER_PORT) == null) {
+				logger.error("Properties {} or {} are not set not live data can be provided!", LocalProperties.GDA_DATASERVER_HOST, LocalProperties.GDA_DATASERVER_PORT);
 			}
 			// else { // FIXME this else should handle the case where the properties are available
 			// Create the LiveDataBean
 			LiveDataBean liveDataBean = new LiveDataBean();
 
 			// TODO have coded defaults here which will work for testing but they should be removed
-			liveDataBean.setHost(LocalProperties.get(GDA_DATASERVER_HOST, "localhost"));
-			liveDataBean.setPort(LocalProperties.getAsInt(GDA_DATASERVER_PORT, 8690));
+			liveDataBean.setHost(LocalProperties.get(LocalProperties.GDA_DATASERVER_HOST, "localhost"));
+			liveDataBean.setPort(LocalProperties.getAsInt(LocalProperties.GDA_DATASERVER_PORT, 8690));
 			mappedDataFileBean.setLiveBean(liveDataBean);
 			// }
 		}
