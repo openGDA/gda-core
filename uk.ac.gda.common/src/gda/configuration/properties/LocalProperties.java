@@ -334,6 +334,16 @@ public class LocalProperties {
 		LocalProperties.set(LocalProperties.GDA_SCAN_SETS_SCANNUMBER, Boolean.toString(enable));
 	}
 
+	/**
+	 * Property for setting where there is a dataserver running that can access the SWMR files and provide remote datasets
+	 */
+	public static final String GDA_DATASERVER_HOST = "gda.dataserver.host";
+
+	/**
+	 * Property for setting which port has a dataserver running that can access the SWMR files and provide remote datasets
+	 */
+	public static final String GDA_DATASERVER_PORT = "gda.dataserver.port";
+
 
 	// create Jakarta properties handler object
 	// README - The JakartaPropertiesConfig class automatically picks up
