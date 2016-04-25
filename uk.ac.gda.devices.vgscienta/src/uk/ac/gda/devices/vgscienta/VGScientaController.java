@@ -58,8 +58,15 @@ public class VGScientaController implements Configurable {
 	public static final String SLICE = "SLICES";
 	public static final String SLICE_RBV = "SLICES_RBV";
 	public static final String ZERO_SUPPLIES = "ZERO_SUPPLIES";
+	public static final String TOTAL_DATA_POINTS = "TOTAL_DATA_POINTS_RBV";
 	public static final String TOTAL_POINTS_ITERATION_RBV = "TOTAL_POINTS_ITERATION_RBV";
 	public static final String TOTAL_LEAD_POINTS_RBV = "TOTAL_LEAD_POINTS_RBV";
+	public static final String ENERGY_UNITS_RBV = "X_UNITS_RBV";
+	public static final String Y_UNITS_RBV = "Y_UNITS_RBV";
+	public static final String INTENSITY_UNITS_RBV = "I_UNITS_RBV";
+	public static final String ENERGY_SCALE_RBV = "X_SCALE_RBV";
+	public static final String Y_SCALE_RBV = "Y_SCALE_RBV";
+
 	/**
 	 * Map that stores the channel against the PV name
 	 */
@@ -218,5 +225,29 @@ public class VGScientaController implements Configurable {
 
 	public int getSweepSteps() throws Exception {
 		return EPICS_CONTROLLER.cagetInt(getChannel(TOTAL_POINTS_ITERATION_RBV))-EPICS_CONTROLLER.cagetInt(getChannel(TOTAL_LEAD_POINTS_RBV));
+	}
+
+	public double[] getEnergyAxis() throws Exception {
+		return EPICS_CONTROLLER.cagetDoubleArray(getChannel(ENERGY_SCALE_RBV), getEnergyChannels());
+	}
+
+	public String getEnergyUnits() throws Exception {
+		return EPICS_CONTROLLER.cagetString(getChannel(ENERGY_UNITS_RBV));
+	}
+
+	public double[] getYAxis() throws Exception {
+		return EPICS_CONTROLLER.cagetDoubleArray(getChannel(Y_SCALE_RBV), getSlice());
+	}
+
+	public String getYUnits() throws Exception {
+		return EPICS_CONTROLLER.cagetString(getChannel(Y_UNITS_RBV));
+	}
+
+	public String getIntensityUnits() throws Exception {
+		return EPICS_CONTROLLER.cagetString(getChannel(INTENSITY_UNITS_RBV));
+	}
+
+	public Integer getEnergyChannels() throws Exception {
+		return EPICS_CONTROLLER.cagetInt(getChannel(TOTAL_DATA_POINTS));
 	}
 }
