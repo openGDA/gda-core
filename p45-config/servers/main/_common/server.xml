@@ -53,7 +53,7 @@
 
 	<!-- Data Server -->
 	<bean id="dataServer" class="org.eclipse.dawnsci.remotedataset.server.DataServer" init-method="start">
-		<property name="port" value="8690" />
+		<property name="port" value="${gda.dataserver.port}" />
 	</bean>
 
 	<!-- This starts a scanServlet which handles new style scan requests arriving over ActiveMQ -->
