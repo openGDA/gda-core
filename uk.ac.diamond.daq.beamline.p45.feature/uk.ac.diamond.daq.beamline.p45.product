@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product name="GDA Test Rig P45" uid="uk.ac.diamond.daq.beamline.p45.product" id="uk.ac.diamond.daq.beamline.p45.product" application="uk.ac.gda.client.application" version="9.1.0" useFeatures="true" includeLaunchers="true">
+
+   <aboutInfo>
+      <image path="/uk.ac.gda.core/icons/GDAlogos/GDALogo128.png"/>
+      <text>
+         GDA P45 Example Client
+
+The GDA project is an open-source framework for creating customised data acquisition software for science facilities such as neutron and x-ray sources. The software is Java/Eclipse-based, free and released under the GPLv3.
+
+It is based on the Generic Data Acquisition (GDA) software developed at Diamond Light Source. The GDA was initially developed at SRS Daresbury but since 2003 it has been adopted by Diamond Light Source who took over as the principal developer. The team at Diamond have developed the GDA for the majority of Diamond beamlines across all the scientific techniques at Diamond. GDA is the evolution of that project and is intended to be applicable for any beamline on any synchrotron facility.
+
+See &lt;http://www.opengda.org/&gt;
+      </text>
+   </aboutInfo>
+
+   <configIni use="default">
+   </configIni>
+
+   <launcherArgs>
+      <vmArgs>-Dorg.eclipse.swt.internal.gtk.cairoGraphics=false
+-Dorg.eclipse.swt.internal.gtk.useCairo=false
+-Dgda.root=${project_loc:uk.ac.gda.core}/../
+-Dgda.config=${project_loc:p45-config}
+-Dgda.install.git.loc=${workspace_loc}/../workspace_git
+-Dgda.logs.dir=${workspace_loc}/../logs
+-Dgda.instance.dir=${project_loc:p45-config}
+-Dgda.facility.dir=${project_loc:dls-config}
+-Dgda.core.dir=${project_loc:core-config}
+-Djava.library.path=${workspace_loc}/plugins/uk.ac.gda.nexus/lib/${target.os}-${target.arch}
+-Dgda.propertiesFile=${project_loc:p45-config}/properties/dummy/dummy_instance_java.properties
+-Djacorb.config.dir=${project_loc:p45-config}/properties/dummy/jacorb
+-Dgov.aps.jca.JCALibrary.properties=${project_loc:p45-config}/properties/dummy/JCALibrary.properties
+-Dgda.mode=live
+-Xms512m
+-Xmx2048m
+      </vmArgs>
+      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
+      </vmArgsMac>
+   </launcherArgs>
+
+   <windowImages i16="/uk.ac.gda.core/icons/GDAlogos/GDALogo16.png" i32="/uk.ac.gda.core/icons/GDAlogos/GDALogo32.png" i48="/uk.ac.gda.core/icons/GDAlogos/GDALogo48.png" i64="/uk.ac.gda.core/icons/GDAlogos/GDALogo64.png" i128="/uk.ac.gda.core/icons/GDAlogos/GDALogo128.png"/>
+
+   <splash
+      location="uk.ac.gda.client" />
+   <launcher name="gda-p45">
+      <linux icon="/uk.ac.gda.core/icons/GDAlogos/GDALogo48.xpm"/>
+      <solaris/>
+      <win useIco="false">
+         <bmp/>
+      </win>
+   </launcher>
+
+   <intro introId="uk.ac.gda.client.intro"/>
+
+   <vm>
+   </vm>
+
+   <license>
+        <url>http://www.gnu.org/licenses/</url>
+        <text>
+   Copyright © 2012 Diamond Light Source Ltd.
+
+GDA is free software: you can redistribute it and/or modify it under the
+terms of the GNU General Public License version 3 as published by the Free
+Software Foundation.
+
+GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+details.
+
+You should have received a copy of the GNU General Public License along
+with GDA. If not, see &lt;http://www.gnu.org/licenses/&gt;.
+         </text>
+   </license>
+
+   <plugins>
+   </plugins>
+
+   <features>
+      <feature id="uk.ac.diamond.daq.beamline.p45.feature" version="9.1.0.qualifier"/>
+   </features>
+
+   <configurations>
+      <plugin id="org.dawnsci.plotting.services" autoStart="true" startLevel="2" />
+   </configurations>
+
+   <preferencesInfo>
+      <targetfile overwrite="false"/>
+   </preferencesInfo>
+
+   <cssInfo>
+   </cssInfo>
+
+</product>
