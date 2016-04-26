@@ -1,9 +1,12 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:gda="http://www.diamond.ac.uk/schema/gda/gda"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
                            http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd
                            http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
-                           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd" >
+                           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+                           http://www.diamond.ac.uk/schema/gda/gda
+                           http://www.diamond.ac.uk/schema/gda/gda/gda-gda-1.1.xsd" >
 
 	<!-- objects that are used in the model accessed by the Model View Controller Example view -->
 	
@@ -20,9 +23,8 @@
 		<property name="upperGdaLimits" value="200."/> -->
 	</bean>
 	
-	<bean class="uk.ac.gda.remoting.server.GdaRmiServiceExporter">
-		<property name="serviceName" value="gda/mvcExampleScannableMotor" />
-		<property name="service" ref="mvcExampleScannableMotor" />
-		<property name="serviceInterface" value="gda.device.ScannableMotionUnits" />
-	</bean>		
+	<gda:rmi-export
+		service="mvcExampleScannableMotor"
+		serviceName="gda/mvcExampleScannableMotor"
+		serviceInterface="gda.device.ScannableMotionUnits" />		
 </beans>

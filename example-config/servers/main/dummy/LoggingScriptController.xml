@@ -1,12 +1,15 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
 	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:gda="http://www.diamond.ac.uk/schema/gda/gda"
 	xmlns:corba="http://www.diamond.ac.uk/schema/gda/corba"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
 	http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd
 	http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
 	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
-	http://www.diamond.ac.uk/schema/gda/corba http://www.diamond.ac.uk/schema/gda/corba/gda-corba-1.0.xsd">
+	http://www.diamond.ac.uk/schema/gda/corba http://www.diamond.ac.uk/schema/gda/corba/gda-corba-1.0.xsd
+	http://www.diamond.ac.uk/schema/gda/gda
+	http://www.diamond.ac.uk/schema/gda/gda/gda-gda-1.1.xsd">
 
 	<!-- ScriptControllers are distributed objects which act as middle-men between 
 		Jython scripts and the GUI. GUI parts can register themselves as observers 
@@ -28,11 +31,10 @@
 <!-- 		<property name="local" value="true"/> -->
 <!-- 	</bean> -->
 
-<!-- 	<bean class="uk.ac.gda.remoting.server.GdaRmiServiceExporter"> -->
-<!-- 		<property name="serviceName" value="gda/MyLoggingScriptController" /> -->
-<!-- 		<property name="service" ref="MyLoggingScriptController" /> -->
-<!-- 		<property name="serviceInterface" -->
-<!-- 			value="gda.jython.scriptcontroller.logging.ILoggingScriptController" /> -->
+<!-- 	<gda:rmi-export -->
+<!-- 		service="MyLoggingScriptController" -->
+<!-- 		serviceName="gda/MyLoggingScriptController" -->
+<!-- 		serviceInterface="gda.jython.scriptcontroller.logging.ILoggingScriptController" /> -->
 <!-- 	</bean> -->
 
 	<bean id="MyOtherLoggingScriptController"
@@ -43,12 +45,8 @@
 		<property name="local" value="true"/>
 	</bean>
 
-	<bean class="uk.ac.gda.remoting.server.GdaRmiServiceExporter">
-		<property name="serviceName" value="gda/MyOtherLoggingScriptController" />
-		<property name="service" ref="MyOtherLoggingScriptController" />
-		<property name="serviceInterface"
-			value="gda.jython.scriptcontroller.logging.ILoggingScriptController" />
-	</bean>
-
-
+	<gda:rmi-export
+		service="MyOtherLoggingScriptController"
+		serviceName="gda/MyOtherLoggingScriptController"
+		serviceInterface="gda.jython.scriptcontroller.logging.ILoggingScriptController" />
 </beans>
