@@ -2,7 +2,7 @@
     <cs:dependencies>
         <cs:dependency name="dls-config" componentType="buckminster"/>
         <cs:dependency name="ncsa.hdf" componentType="osgi.bundle"/>
-        <cs:dependency name="uk.ac.diamond.daq.mapping.example.site" componentType="eclipse.feature"/>
+        <cs:dependency name="uk.ac.diamond.daq.beamline.p45.site" componentType="eclipse.feature"/>
         <cs:dependency name="uk.ac.diamond.daq.server.site" componentType="eclipse.feature"/>
         <cs:dependency name="uk.ac.diamond.scisoft.analysis" componentType="osgi.bundle"/>
         <cs:dependency name="uk.ac.diamond.scisoft.python" componentType="osgi.bundle"/>

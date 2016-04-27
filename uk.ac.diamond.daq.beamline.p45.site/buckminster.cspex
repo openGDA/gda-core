@@ -21,12 +21,12 @@
                 <property key="product.os" value="linux" />
                 <property key="product.ws" value="gtk" />
                 <property key="product.arch" value="x86" />
-                <property key="profile" value="GDA-example" />
-                <property key="iu" value="uk.ac.diamond.daq.mapping.example.product" />
+                <property key="profile" value="GDA-p45" />
+                <property key="iu" value="uk.ac.diamond.daq.beamline.p45.product" />
             </properties>
             <prerequisites>
                 <attribute name="create.product.setup" />
-                <attribute name="manifest" alias="manifest" component="uk.ac.diamond.daq.mapping.ui.feature" />
+                <attribute name="manifest" alias="manifest" component="uk.ac.diamond.daq.beamline.p45.feature" />
                 <attribute name="site.p2" alias="repository" />
             </prerequisites>
             <products alias="destination.parent"
@@ -43,12 +43,12 @@
                 <property key="product.os" value="linux" />
                 <property key="product.ws" value="gtk" />
                 <property key="product.arch" value="x86_64" />
-                <property key="profile" value="GDA-example" />
-                <property key="iu" value="uk.ac.diamond.daq.mapping.example.product" />
+                <property key="profile" value="GDA-p45" />
+                <property key="iu" value="uk.ac.diamond.daq.beamline.p45.product" />
             </properties>
             <prerequisites>
                 <attribute name="create.product.setup" />
-                <attribute name="manifest" alias="manifest" component="uk.ac.diamond.daq.mapping.ui.feature" />
+                <attribute name="manifest" alias="manifest" component="uk.ac.diamond.daq.beamline.p45.feature" />
                 <attribute name="site.p2" alias="repository" />
             </prerequisites>
             <products alias="destination.parent"
@@ -65,12 +65,12 @@
                 <property key="product.os" value="linux" />
                 <property key="product.ws" value="gtk" />
                 <property key="product.arch" value="x86_64" />
-                <property key="profile" value="GDA-example" />
-                <property key="iu" value="uk.ac.diamond.daq.mapping.example.product" />
+                <property key="profile" value="GDA-p45" />
+                <property key="iu" value="uk.ac.diamond.daq.beamline.p45.product" />
             </properties>
             <prerequisites>
                 <attribute name="create.product.setup" />
-                <attribute name="manifest" alias="manifest" component="uk.ac.diamond.daq.mapping.ui.feature" />
+                <attribute name="manifest" alias="manifest" component="uk.ac.diamond.daq.beamline.p45.feature" />
                 <attribute name="site.p2" alias="repository" />
             </prerequisites>
             <products alias="destination.parent"
@@ -87,12 +87,12 @@
                 <property key="product.os" value="win32" />
                 <property key="product.ws" value="win32" />
                 <property key="product.arch" value="x86" />
-                <property key="profile" value="GDA-example" />
-                <property key="iu" value="uk.ac.diamond.daq.mapping.example.product" />
+                <property key="profile" value="GDA-p45" />
+                <property key="iu" value="uk.ac.diamond.daq.beamline.p45.product" />
             </properties>
             <prerequisites>
                 <attribute name="create.product.setup" />
-                <attribute name="manifest" alias="manifest" component="uk.ac.diamond.daq.mapping.ui.feature" />
+                <attribute name="manifest" alias="manifest" component="uk.ac.diamond.daq.beamline.p45.feature" />
                 <attribute name="site.p2" alias="repository" />
             </prerequisites>
             <products alias="destination.parent"
@@ -109,12 +109,12 @@
                 <property key="product.os" value="win32" />
                 <property key="product.ws" value="win32" />
                 <property key="product.arch" value="x86_64" />
-                <property key="profile" value="GDA-example" />
-                <property key="iu" value="uk.ac.diamond.daq.mapping.example.product" />
+                <property key="profile" value="GDA-p45" />
+                <property key="iu" value="uk.ac.diamond.daq.beamline.p45.product" />
             </properties>
             <prerequisites>
                 <attribute name="create.product.setup" />
-                <attribute name="manifest" alias="manifest" component="uk.ac.diamond.daq.mapping.ui.feature" />
+                <attribute name="manifest" alias="manifest" component="uk.ac.diamond.daq.beamline.p45.feature" />
                 <attribute name="site.p2" alias="repository" />
             </prerequisites>
             <products alias="destination.parent"
@@ -131,12 +131,12 @@
                 <property key="product.os" value="macosx" />
                 <property key="product.ws" value="cocoa" />
                 <property key="product.arch" value="x86_64" />
-                <property key="profile" value="GDA-example" />
-                <property key="iu" value="uk.ac.diamond.daq.mapping.example.product" />
+                <property key="profile" value="GDA-p45" />
+                <property key="iu" value="uk.ac.diamond.daq.beamline.p45.product" />
             </properties>
             <prerequisites>
                 <attribute name="create.product.setup" />
-                <attribute name="manifest" alias="manifest" component="uk.ac.diamond.daq.mapping.ui.feature" />
+                <attribute name="manifest" alias="manifest" component="uk.ac.diamond.daq.beamline.p45.feature" />
                 <attribute name="site.p2" alias="repository" />
             </prerequisites>
             <products alias="destination.parent"
@@ -153,12 +153,12 @@
                 <property key="product.os" value="linux" />
                 <property key="product.ws" value="gtk" />
                 <property key="product.arch" value="x86" />
-                <property key="profile" value="GDA-example" />
-                <property key="iu" value="uk.ac.diamond.daq.mapping.example.product" />
+                <property key="profile" value="GDA-p45" />
+                <property key="iu" value="uk.ac.diamond.daq.beamline.p45.product" />
             </properties>
             <prerequisites>
                 <attribute name="create.product.setup" />
-                <attribute name="manifest" alias="manifest" component="uk.ac.diamond.daq.mapping.ui.feature" />
+                <attribute name="manifest" alias="manifest" component="uk.ac.diamond.daq.beamline.p45.feature" />
                 <attribute name="site.p2" alias="repository" />
             </prerequisites>
             <products alias="destination.parent"
@@ -175,12 +175,12 @@
                 <property key="product.os" value="linux" />
                 <property key="product.ws" value="gtk" />
                 <property key="product.arch" value="x86_64" />
-                <property key="profile" value="GDA-example" />
-                <property key="iu" value="uk.ac.diamond.daq.mapping.example.product" />
+                <property key="profile" value="GDA-p45" />
+                <property key="iu" value="uk.ac.diamond.daq.beamline.p45.product" />
             </properties>
             <prerequisites>
                 <attribute name="create.product.setup" />
-                <attribute name="manifest" alias="manifest" component="uk.ac.diamond.daq.mapping.ui.feature" />
+                <attribute name="manifest" alias="manifest" component="uk.ac.diamond.daq.beamline.p45.feature" />
                 <attribute name="site.p2" alias="repository" />
             </prerequisites>
             <products alias="destination.parent"
@@ -197,12 +197,12 @@
                 <property key="product.os" value="win32" />
                 <property key="product.ws" value="win32" />
                 <property key="product.arch" value="x86" />
-                <property key="profile" value="GDA-example" />
-                <property key="iu" value="uk.ac.diamond.daq.mapping.example.product" />
+                <property key="profile" value="GDA-p45" />
+                <property key="iu" value="uk.ac.diamond.daq.beamline.p45.product" />
             </properties>
             <prerequisites>
                 <attribute name="create.product.setup" />
-                <attribute name="manifest" alias="manifest" component="uk.ac.diamond.daq.mapping.ui.feature" />
+                <attribute name="manifest" alias="manifest" component="uk.ac.diamond.daq.beamline.p45.feature" />
                 <attribute name="site.p2" alias="repository" />
             </prerequisites>
             <products alias="destination.parent"
@@ -220,12 +220,12 @@
                 <property key="product.os" value="win32" />
                 <property key="product.ws" value="win32" />
                 <property key="product.arch" value="x86_64" />
-                <property key="profile" value="GDA-example" />
-                <property key="iu" value="uk.ac.diamond.daq.mapping.example.product" />
+                <property key="profile" value="GDA-p45" />
+                <property key="iu" value="uk.ac.diamond.daq.beamline.p45.product" />
             </properties>
             <prerequisites>
                 <attribute name="create.product.setup" />
-                <attribute name="manifest" alias="manifest" component="uk.ac.diamond.daq.mapping.ui.feature" />
+                <attribute name="manifest" alias="manifest" component="uk.ac.diamond.daq.beamline.p45.feature" />
                 <attribute name="site.p2" alias="repository" />
             </prerequisites>
             <products alias="destination.parent"
@@ -243,12 +243,12 @@
                 <property key="product.os" value="macosx" />
                 <property key="product.ws" value="cocoa" />
                 <property key="product.arch" value="x86_64" />
-                <property key="profile" value="GDA-example" />
-                <property key="iu" value="uk.ac.diamond.daq.mapping.example.product" />
+                <property key="profile" value="GDA-p45" />
+                <property key="iu" value="uk.ac.diamond.daq.beamline.p45.product" />
             </properties>
             <prerequisites>
                 <attribute name="create.product.setup" />
-                <attribute name="manifest" alias="manifest" component="uk.ac.diamond.daq.mapping.ui.feature" />
+                <attribute name="manifest" alias="manifest" component="uk.ac.diamond.daq.beamline.p45.feature" />
                 <attribute name="site.p2" alias="repository" />
             </prerequisites>
             <products alias="destination.parent"

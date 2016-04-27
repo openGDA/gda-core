@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         id="product"
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="uk.ac.gda.client.application"
+            description="A GDA client for the mapping test rig, aka beamline P45"
+            name="GDA Test Rig P45">
+         <property
+               name="windowImages"
+               value="platform:/plugin/uk.ac.gda.core/icons/GDAlogos/GDALogo16.png,platform:/plugin/uk.ac.gda.core/icons/GDAlogos/GDALogo32.png,platform:/plugin/uk.ac.gda.core/icons/GDAlogos/GDALogo48.png,platform:/plugin/uk.ac.gda.core/icons/GDAlogos/GDALogo64.png,platform:/plugin/uk.ac.gda.core/icons/GDAlogos/GDALogo128.png">
+         </property>
+         <property
+               name="aboutText"
+               value="GDA P45 Example Client&#x0A;&#x0A;The GDA project is an open-source framework for creating customised data acquisition software for science facilities such as neutron and x-ray sources. The software is Java/Eclipse-based, free and released under the GPLv3.&#x0A;&#x0A;It is based on the Generic Data Acquisition (GDA) software developed at Diamond Light Source. The GDA was initially developed at SRS Daresbury but since 2003 it has been adopted by Diamond Light Source who took over as the principal developer. The team at Diamond have developed the GDA for the majority of Diamond beamlines across all the scientific techniques at Diamond. GDA is the evolution of that project and is intended to be applicable for any beamline on any synchrotron facility.&#x0A;&#x0A;See &lt;http://www.opengda.org/&gt;">
+         </property>
+         <property
+               name="aboutImage"
+               value="platform:/plugin/uk.ac.gda.core/icons/GDAlogos/GDALogo128.png">
+         </property>
+         <property
+               name="appName"
+               value="GDA Test Rig P45">
+         </property>
+      </product>
+   </extension>
+
+</plugin>

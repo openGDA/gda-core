@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Test rig beamline P45
+Bundle-SymbolicName: uk.ac.diamond.daq.beamline.p45;singleton:=true
+Bundle-Version: 9.1.0.qualifier
+Bundle-Vendor: Diamond Light Source
+Require-Bundle: org.eclipse.equinox.app
