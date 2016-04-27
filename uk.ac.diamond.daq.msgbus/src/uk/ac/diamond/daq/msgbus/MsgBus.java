@@ -67,8 +67,6 @@ public enum MsgBus {
 
 	private final Logger logger = LoggerFactory.getLogger(MsgBus.class.getSimpleName()+"/"+ManagementFactory.getRuntimeMXBean().getName()); // static precluded by use in constructor (of enum)
 
-	public static final String BROKER_REQUIRED_PROPERTY = "msgbus.broker.require";
-
 	/**
 	 * Use Guava [Async]EventBus to provide typed msg delivery WITHIN THIS PROCESS ONLY
 	 * (and null-safe management of subscriptions)
@@ -135,9 +133,7 @@ public enum MsgBus {
 		}
 		catch (JMSException e) {
 			logger.error("problem instantiating MsgBus singleton", e);
-			if (LocalProperties.check(BROKER_REQUIRED_PROPERTY, true)) {
-				throw new ExceptionInInitializerError(e);
-			}
+			throw new ExceptionInInitializerError(e);
 		}
 	}
 
