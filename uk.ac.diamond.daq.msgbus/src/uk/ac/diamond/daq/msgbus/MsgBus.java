@@ -100,11 +100,11 @@ public enum MsgBus {
 	 */
 	private MsgBus() {
 
-		threadPool = Executors.newCachedThreadPool();
-		eventBus = new AsyncEventBus(threadPool, subscriberExceptionHandler);
-//		eventBus = new EventBus(subscriberExceptionHandler);
-
 		try {
+			threadPool = Executors.newCachedThreadPool();
+			eventBus = new AsyncEventBus(threadPool, subscriberExceptionHandler);
+//			eventBus = new EventBus(subscriberExceptionHandler);
+
 			// Connection
 			final String brokerUri = LocalProperties.getActiveMQBrokerURI();
 			logger.debug("connecting to ActiveMQ broker {}", brokerUri);
@@ -131,7 +131,7 @@ public enum MsgBus {
 
 //			addShutdownHook(); // creates exceptions in JUnit tests
 		}
-		catch (JMSException e) {
+		catch (Exception e) {
 			logger.error("problem instantiating MsgBus singleton", e);
 			throw new ExceptionInInitializerError(e);
 		}
