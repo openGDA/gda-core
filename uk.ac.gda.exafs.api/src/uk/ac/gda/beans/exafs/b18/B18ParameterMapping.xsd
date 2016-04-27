@@ -23,6 +23,9 @@
  					</xsd:simpleType>
  				</xsd:element>
  				
+ 				<xsd:element name="selectedSampleStage" type="xsd:string"
+					maxOccurs="unbounded" minOccurs="0" />
+					
  				<xsd:element name="temperaturecontrol" maxOccurs="1" minOccurs="1">
  					<xsd:simpleType>
  						<xsd:restriction base="xsd:string">

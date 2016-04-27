@@ -19,6 +19,7 @@
 package uk.ac.gda.exafs.ui;
 
 import java.net.URL;
+import java.util.List;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -40,10 +41,13 @@ import org.eclipse.swt.custom.StackLayout;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.ui.forms.events.ExpansionAdapter;
 import org.eclipse.ui.forms.events.ExpansionEvent;
 import org.eclipse.ui.forms.widgets.ExpandableComposite;
@@ -76,6 +80,7 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 	private FieldComposite description2;
 	private ComboWrapper stage;
 	private ComboWrapper sampleEnvironment;
+	private List<String> selectedSampleStages;
 
 	private XYThetaStageComposite xythetaStageParameters;
 	private UserStageComposite userStageComposite;
@@ -184,25 +189,19 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 		wheelExpandableComposite.setText("Sample Wheel");
 		wheelExpandableComposite.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
 
-		createStage();
+		// createStage();
+		createStageShowAll();
+
 		// stage
-		ExpansionAdapter stageExpansionListener = new ExpansionAdapter() {
-			@Override
-			public void expansionStateChanged(ExpansionEvent e) {
-				if (!stage.getValue().toString().equals("none"))
-					sampleStageExpandableComposite.setExpanded(true);
-				GridUtils.layoutFull(sampleStageExpandableComposite);
-				refreshScrolledContentsSize();
-				linkuiForDynamicLoading(false);
-			}
-		};
+		ExpansionAdapter stageExpansionListener = getStageExpansionListener();
+
 		sampleStageExpandableComposite.addExpansionListener(stageExpansionListener);
 
-		if (!bean.getStage().toString().equals("none")) {
-			sampleStageExpandableComposite.setExpanded(true);
-			linkuiForDynamicLoading(false);
-			updateStageType();
-		}
+//		if (!bean.getStage().toString().equals("none")) {
+//			sampleStageExpandableComposite.setExpanded(true);
+//			linkuiForDynamicLoading(false);
+//			updateStageType();
+//		}
 
 		createTemp();
 
@@ -247,6 +246,24 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 		refreshScrolledContentsSize();
 	}
 
+	private ExpansionAdapter getStageExpansionListener() {
+		ExpansionAdapter extAdapter = new ExpansionAdapter() {
+			@Override
+			public void expansionStateChanged(ExpansionEvent e) {
+				// if (!sampleEnvironment.getValue().toString().equals("none"))
+				// layout the expanded composite first...
+				ExpandableComposite comp = (ExpandableComposite) e.getSource();
+				GridUtils.layoutFull(comp);
+				// Layout the sample stage composite...
+				sampleStageExpandableComposite.setExpanded(true);
+				GridUtils.layoutFull(sampleStageExpandableComposite);
+				refreshScrolledContentsSize();
+				linkuiForDynamicLoading(false);
+			}
+		};
+		return extAdapter;
+	}
+
 	private void refreshScrolledContentsSize() {
 		scrolledComposite.setContent(scrolledContents);
 		scrolledComposite.setMinSize(scrolledContents.computeSize(SWT.DEFAULT, SWT.DEFAULT));
@@ -259,6 +276,139 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 			controller.switchState(true);
 		} catch (Exception e) {
 			logger.error("Cannot save bean!", e);
+		}
+	}
+
+	private ExpandableComposite addExpandableComposite( Composite parent, String label ) {
+		ExpandableComposite expandableComposite = new ExpandableComposite(parent, SWT.NONE);
+		expandableComposite.setText(label);
+		expandableComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 2, 2));
+		return expandableComposite;
+	}
+
+	private Group addGroup(Composite parent) {
+		Group group = new Group(parent, SWT.SHADOW_NONE);
+		group.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, false, 1, 1));
+		GridLayout gridLayout = new GridLayout();
+		gridLayout.numColumns = 1;
+		group.setLayout(gridLayout);
+		return group;
+	}
+
+	/**
+	 * Add button to parent composite to control 'used' status of sample stage.
+	 * @param parent
+	 * @param stageType
+	 * @return
+	 */
+	private Button addSampleStageIsActiveButton( Composite parent , final SAMPLESTAGE_TYPE stageType ) {
+		final Button sampleStageSelected = new Button(parent, SWT.CHECK); // add checkbox
+		sampleStageSelected.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 2));
+		sampleStageSelected.setText("Use sample stage");
+		sampleStageSelected.setVisible( true );
+
+		// Set checked status to correct value
+		if ( selectedSampleStages.contains( stageType.getTypeString() ) )
+			sampleStageSelected.setSelection( true );
+		else
+			sampleStageSelected.setSelection( false );
+
+		sampleStageSelected.addListener(SWT.Selection, new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				// Update (string) list of selected sample stages
+				if ( sampleStageSelected.getSelection() == true ) {
+					selectedSampleStages.add( stageType.getTypeString() );
+				} else
+					while( selectedSampleStages.remove(stageType.getTypeString()) ); // remove all occurrences from list
+
+				System.out.printf("Sample stage (type %s) selected = %d\n", stageType.getTypeString(), sampleStageSelected.getSelection() == true ? 1:0);
+				int count=0;
+				for( String stage : selectedSampleStages ) {
+					System.out.printf("%d : %s\n",count++, stage );
+				};
+				// update model with new list
+				bean.setSelectedSampleStages(selectedSampleStages);
+
+				// Notify editor that change has occurred (so the file can be saved after checkbox status changes)
+				ValueEvent evt = new ValueEvent(sampleStageSelected, sampleStageSelected.getText() );
+				valueChangePerformed(evt);
+			}
+		});
+
+		return sampleStageSelected;
+	}
+
+	private void setupExpandableComposite( ExpandableComposite expandableComposite, Composite childComposite, final SAMPLESTAGE_TYPE stageType) {
+		expandableComposite.setClient( childComposite );
+		expandableComposite.setExpanded(false);
+		ExpansionAdapter expansionListener = getStageExpansionListener();
+		expandableComposite.addExpansionListener( expansionListener );
+		GridUtils.layoutFull(expandableComposite);
+		// Expand composite if stage is selected
+		if ( selectedSampleStages.contains( stageType.getTypeString() ) )
+				expandableComposite.setExpanded( true );
+	}
+
+	/**
+	 * New sample stage selection widget to allow multiple stages to be selected and used in a scan.
+	 * @since 27/4/2016
+	 */
+	private void createStageShowAll() {
+		if (stageComp == null) {
+
+			selectedSampleStages =  this.bean.getSelectedSampleStages();
+
+			stageComp = new Composite(sampleStageExpandableComposite, SWT.NONE);
+			GridLayout gridLayout_2 = new GridLayout();
+			gridLayout_2.numColumns = 1;
+			stageComp.setLayout(gridLayout_2);
+
+			grpStage = new Group(stageComp, SWT.NONE);
+			grpStage.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, false, 1, 1));
+			GridLayout gridLayout = new GridLayout();
+			gridLayout.numColumns = 1;
+			grpStage.setLayout(gridLayout);
+
+
+			ExpandableComposite expComp = addExpandableComposite( grpStage, "xy theta stage" );
+			Group grp = addGroup( expComp );
+			addSampleStageIsActiveButton(grp, SAMPLESTAGE_TYPE.XY_THETA);
+			xythetaStageParameters = new XYThetaStageComposite(grp, SWT.NONE, "sam2x", "sam2y", "sam2rot");
+			xythetaStageParameters.setEditorClass(XYThetaStageParameters.class);
+			setupExpandableComposite( expComp, grp , SAMPLESTAGE_TYPE.XY_THETA );
+
+
+			expComp = addExpandableComposite( grpStage, "ln2 cryostage");
+			grp = addGroup( expComp );
+			addSampleStageIsActiveButton(grp, SAMPLESTAGE_TYPE.LN2_CRYO);
+			ln2CryoStageComposite = new LN2CryoStageComposite(grp, SWT.NONE, bean );
+			ln2CryoStageComposite.setEditorClass(LN2CryoStageParameters.class);
+			setupExpandableComposite( expComp, grp, SAMPLESTAGE_TYPE.LN2_CRYO);
+
+
+			expComp = addExpandableComposite( grpStage, "sx cryostage");
+			grp = addGroup( expComp );
+			addSampleStageIsActiveButton(grp, SAMPLESTAGE_TYPE.SX_CRYO);
+			sxCryoStageComposite = new SXCryoStageComposite(grp, SWT.NONE, bean);
+			sxCryoStageComposite.setEditorClass(SXCryoStageParameters.class);
+			sxCryoStageComposite.setActiveMode(ActiveMode.ACTIVE_ONLY);
+			setupExpandableComposite( expComp, grp, SAMPLESTAGE_TYPE.SX_CRYO);
+
+
+			expComp = addExpandableComposite( grpStage, "user stage");
+			grp = addGroup( expComp );
+			addSampleStageIsActiveButton(grp, SAMPLESTAGE_TYPE.USER);
+			userStageComposite = new UserStageComposite(grp, SWT.NONE, "user2", "user4", "user5", "user6", "user7", "user8");
+			userStageComposite.setEditorClass(UserStageParameters.class);
+			userStageComposite.setActiveMode(ActiveMode.ACTIVE_ONLY);
+			setupExpandableComposite( expComp, grp, SAMPLESTAGE_TYPE.USER);
+
+			sampleStageExpandableComposite.setClient(stageComp);
+
+			if ( selectedSampleStages != null && selectedSampleStages.size() > 0 )
+				sampleStageExpandableComposite.setExpanded(true);
+
 		}
 	}
 
@@ -297,6 +447,7 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 			xythetaStageParameters.setVisible(true);
 			xythetaStageParameters.setEditorClass(XYThetaStageParameters.class);
 			xythetaStageParameters.setActiveMode(ActiveMode.ACTIVE_ONLY);
+
 
 			ln2CryoStageComposite = new LN2CryoStageComposite(grpStageParameters, SWT.NONE, bean);
 			ln2CryoStageComposite.setVisible(true);
@@ -472,6 +623,20 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 		}
 	}
 
+	private enum SAMPLESTAGE_TYPE {
+		XY_THETA("xythetastage"), LN2_CRYO("ln2cryostage"), SX_CRYO("sxcryostage"), USER("userstage");
+		private String typeString;
+		SAMPLESTAGE_TYPE(String typeString) {
+			this.setTypeString(typeString);
+		}
+		public String getTypeString() {
+			return typeString;
+		}
+		public void setTypeString(String typeString) {
+			this.typeString = typeString;
+		}
+	};
+
 	private void updateStageType() {
 		switch (stage.getSelectionIndex()) {
 		case 0:
@@ -533,6 +698,10 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 
 	public FieldComposite getStage() {
 		return stage;
+	}
+
+	public List<String> getSelectedSampleStages() {
+		return selectedSampleStages;
 	}
 
 	public XYThetaStageComposite getXYThetaStageParameters() {
