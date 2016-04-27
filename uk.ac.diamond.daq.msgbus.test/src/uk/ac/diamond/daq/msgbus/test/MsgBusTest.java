@@ -35,8 +35,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import uk.ac.diamond.daq.msgbus.MsgBus.Msg;
-
 import com.google.common.eventbus.Subscribe;
 
 import gda.configuration.properties.LocalProperties;
@@ -139,11 +137,7 @@ public class MsgBusTest {
 	@SuppressWarnings("cast")
 	@Test
 	public void testMsgSerializable() {
-		@SuppressWarnings("serial")
-		final class ShouldBeSerializable extends Msg {
-			// empty (and suppressing "serial" warnings
-		}
-		assertTrue(new ShouldBeSerializable() instanceof Serializable);
+		assertTrue(new TestMsg("a", 0) instanceof Serializable);
 	}
 
 	/**
