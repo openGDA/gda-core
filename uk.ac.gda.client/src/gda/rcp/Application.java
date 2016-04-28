@@ -81,7 +81,6 @@ public class Application implements IApplication {
 			// encapsulated in their own method.
 
 			LogbackUtils.configureLoggingForClientProcess("rcp");
-			LogbackUtils.configureLoggingForClientBeagle();
 
 			authenticateUser(display);
 
