@@ -4,7 +4,8 @@
 	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd" >
 
 	<!--for an 'empty' configuration, remove the imports below, and the other xml files and directories inside the xml/server directory-->
-	<import resource="detectors.xml" />
+	<import resource="det.xml" />
+	<import resource="mic.xml" />
 	<import resource="mapping_motors.xml"/>
 
 <!-- do not remove anything below here -->
