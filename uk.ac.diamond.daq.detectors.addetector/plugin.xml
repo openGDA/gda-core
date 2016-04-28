@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.scanning.api.device">
+      <device
+            class="uk.ac.diamond.daq.devices.areadetector.AreaDetectorRunnableDevice"
+            description="An area detector implementation which obtains the data from EPICS and GDA writes it into the HDF file"
+            icon="icons/camera.png"
+            id="uk.ac.diamond.daq.devices.areadetector"
+            label="Area Detector"
+            model="uk.ac.diamond.daq.detectors.addetector.api.AreaDetectorRunnableDeviceModel"
+            name="Area Detector">
+      </device>
+      <device
+            class="uk.ac.diamond.daq.devices.areadetector.AreaDetectorWritingFilesRunnableDevice"
+            description="An area detector implementation which uses the HDF plugin to write the files itself."
+            icon="icons/camera_writing.png"
+            id="uk.ac.diamond.daq.devices.areadetector.filewriting"
+            label="Area Detector Writing Files"
+            model="uk.ac.diamond.daq.detectors.addetector.api.AreaDetectorWritingFilesRunnableDeviceModel"
+            name="Area Detector Writing Files">
+      </device>
+   </extension>
+
+</plugin>
