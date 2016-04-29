@@ -29,11 +29,10 @@ See &lt;http://www.opengda.org/&gt;
 -Dgda.instance.dir=${project_loc:p45-config}
 -Dgda.facility.dir=${project_loc:dls-config}
 -Dgda.core.dir=${project_loc:core-config}
--Djava.library.path=${workspace_loc}/plugins/uk.ac.gda.nexus/lib/${target.os}-${target.arch}
 -Dgda.propertiesFile=${project_loc:p45-config}/properties/dummy/dummy_instance_java.properties
 -Djacorb.config.dir=${project_loc:p45-config}/properties/dummy/jacorb
 -Dgov.aps.jca.JCALibrary.properties=${project_loc:p45-config}/properties/dummy/JCALibrary.properties
--Dgda.mode=live
+-Dgda.mode=dummy
 -Xms512m
 -Xmx2048m
       </vmArgs>
