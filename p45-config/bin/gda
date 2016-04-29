@@ -6,6 +6,20 @@ here_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 set -o nounset  # Turn on nounset
 set -o errexit  # Turn on errexit
 
+# Careful use of parameter expansion replacement formats to check for empty or null $BEAMLINE and give a useful error message
+if [[ "${BEAMLINE:-}" != "p45" ]]; then
+    if [[ "${BEAMLINE:+set}" == "set" ]]; then
+        error_message="set to \"${BEAMLINE}\""
+    elif [[ "${BEAMLINE+empty}" == "empty" ]]; then
+        error_message="empty"
+    else
+        error_message="not set"
+    fi
+    echo >&2 "Failed to run GDA for the testing beamline P45 - the BEAMLINE environment variable is ${error_message}"
+    echo >&2 "BEAMLINE must be set to \"p45\" to work with this GDA configuration"
+    exit 1
+fi
+
 # Define this instance's group, facility and core
 export    GDA_WORKSPACE_PARENT=$(readlink -f ${here_dir}/../../../..)
         GDA_WORKSPACE_GIT_NAME=$(basename $(readlink -f ${here_dir}/../../..))  # will normally be "workspace_git", will always end with "_git". Not exporting as only used in this script
