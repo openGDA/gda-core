@@ -31,7 +31,7 @@
 
    <includes
          id="org.python.pydev.feature"
-         version="3.6.0.201406232321"/>
+         version="0.0.0"/>
 
    <includes
          id="org.dawnsci.plotting.feature"
