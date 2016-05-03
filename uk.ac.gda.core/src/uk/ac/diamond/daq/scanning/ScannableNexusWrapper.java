@@ -1,9 +1,5 @@
 package uk.ac.diamond.daq.scanning;
 
-import gda.device.Scannable;
-import gda.device.scannable.ScannableBase;
-import gda.device.scannable.ScannableMotor;
-
 import org.eclipse.dawnsci.analysis.api.dataset.Dtype;
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyWriteableDataset;
@@ -18,6 +14,8 @@ import org.eclipse.dawnsci.nexus.builder.DelegateNexusProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.points.IPosition;
+
+import gda.device.Scannable;
 
 /**
  * Class provides a default implementation which will write any GDA8 scannable to NeXus
@@ -90,13 +88,11 @@ class ScannableNexusWrapper implements IScannable<Object>, INexusDevice<NXpositi
 	@Override
 	public void setPosition(Object value, IPosition position) throws Exception {
 
+		// Move the scannable blocks until completed
 		scannable.moveTo(value);
 
-		double pos = ((ScannableMotor) scannable).getMotor().getPosition();
-		Object external = ((ScannableBase) scannable).internalToExternal(pos);
-
 		if (position != null)
-			write(value, external, position);
+			write(value, scannable.getPosition(), position);
 	}
 
 	private void write(Object demand, Object actual, IPosition loc) throws Exception {
