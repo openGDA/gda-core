@@ -18,16 +18,6 @@
 
 package gda.device.scannable;
 
-import gda.device.Detector;
-import gda.device.DeviceException;
-import gda.device.Monitor;
-import gda.device.Scannable;
-import gda.device.ScannableMotion;
-import gda.device.ScannableMotionUnits;
-import gda.device.scannable.scannablegroup.IScannableGroup;
-import gda.factory.Finder;
-import gda.util.QuantityFactory;
-
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -45,6 +35,16 @@ import org.python.core.PyNone;
 import org.python.core.PyObject;
 import org.python.core.PySequence;
 import org.python.core.PyString;
+
+import gda.device.Detector;
+import gda.device.DeviceException;
+import gda.device.Monitor;
+import gda.device.Scannable;
+import gda.device.ScannableMotion;
+import gda.device.ScannableMotionUnits;
+import gda.device.scannable.scannablegroup.IScannableGroup;
+import gda.factory.Finder;
+import gda.util.QuantityFactory;
 
 /**
  * A collection of tools for Scannables and packages which use them
@@ -177,8 +177,8 @@ public abstract class ScannableUtils {
 	 */
 	public static String getFormattedPosition(Object position, Scannable scannable, String[] unitStringArray,
 			Double[] offsetArray) throws DeviceException {
-		if (position == null & scannable.getInputNames().length == 0 & scannable.getExtraNames().length == 0
-				& scannable.getOutputFormat().length == 0) {
+		if (position == null && scannable.getInputNames().length == 0 && scannable.getExtraNames().length == 0
+				&& scannable.getOutputFormat().length == 0) {
 			return scannable.getName() + " : ---";
 		}
 		String output = scannable.getName() + " : ";
