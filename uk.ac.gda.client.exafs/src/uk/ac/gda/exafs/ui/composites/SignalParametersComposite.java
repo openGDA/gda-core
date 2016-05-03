@@ -18,8 +18,6 @@
 
 package uk.ac.gda.exafs.ui.composites;
 
-import gda.device.Scannable;
-
 import java.util.regex.Pattern;
 
 import org.eclipse.jface.layout.GridDataFactory;
@@ -38,6 +36,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
+import gda.device.Scannable;
 import uk.ac.gda.beans.exafs.SignalParameters;
 import uk.ac.gda.components.wrappers.FindableNameWrapper;
 
@@ -92,7 +91,7 @@ public class SignalParametersComposite extends Composite {
 
 		Label nameLabel = new Label(this, SWT.NONE);
 		nameLabel.setToolTipText("Optional parameter to say variable name to extract from scannable. If scannable name should be evaluated directly, leave blank.");
-		nameLabel.setText("Variable Name*");
+		nameLabel.setText("Function Name*");
 
 		name = new TextWrapper(this, SWT.BORDER);
 		name.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
