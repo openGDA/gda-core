@@ -449,6 +449,12 @@ Additional Ant tasks for Buckminster build. Based on http://www.ralfebert.de/blo
 		<copy todir="${install.git.path}/gda-diamond.git/dls-config">
 			<fileset dir="${ws_git.rel.path}/gda-diamond.git/dls-config"/>
 		</copy>
+		<copy todir="${install.git.path}/diffcalc.git/scripts">
+			<fileset dir="${ws_git.rel.path}/diffcalc.git/scripts"/>
+		</copy>
+		<copy todir="${install.git.path}/gda-dls-excalibur.git/uk.ac.gda.devices.excalibur/scripts">
+			<fileset dir="${ws_git.rel.path}/gda-dls-excalibur.git/uk.ac.gda.devices.excalibur/scripts"/>
+		</copy>
 		<copy todir="${install.git.path}/gda-epics.git/uk.ac.gda.epics/scripts">
 			<fileset dir="${ws_git.rel.path}/gda-epics.git/uk.ac.gda.epics/scripts"/>
 		</copy>
