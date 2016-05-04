@@ -18,9 +18,6 @@
 
 package gda.rcp.console;
 
-import gda.jython.JythonServerFacade;
-import gda.jython.Terminal;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -46,6 +43,9 @@ import org.python.pydev.shared_interactive_console.console.IScriptConsoleCommuni
 import org.python.pydev.shared_interactive_console.console.InterpreterResponse;
 import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
+
+import gda.jython.JythonServerFacade;
+import gda.jython.Terminal;
 
 public class GDACorbaConsoleCommunication implements IScriptConsoleCommunication, Terminal {
 
@@ -100,8 +100,7 @@ public class GDACorbaConsoleCommunication implements IScriptConsoleCommunication
 		commandInProgress += "\n" + command;
 
 		boolean needMore = commandserver.runsource(commandInProgress, "JythonTerminal");
-		// InterpreterResponse x = new InterpreterResponse(newData, "", needMore, false);
-		InterpreterResponse x = new InterpreterResponse("", "", needMore, false);
+		InterpreterResponse x = new InterpreterResponse(needMore, false);
 		newData = "";
 
 		/* if we don't need anymore, the command is done, so start fresh */
@@ -223,8 +222,7 @@ public class GDACorbaConsoleCommunication implements IScriptConsoleCommunication
 	}
 
 	@Override
-	public void execInterpreter(String command, ICallback<Object, InterpreterResponse> arg1,
-			ICallback<Object, Tuple<String, String>> arg2) {
+	public void execInterpreter(String command, ICallback<Object, InterpreterResponse> arg1) {
 
 		/*
 		 * append the newest "bit" to the command in progress. This is different than how execInterpreter in
@@ -236,8 +234,7 @@ public class GDACorbaConsoleCommunication implements IScriptConsoleCommunication
 		commandInProgress += "\n" + command;
 
 		boolean needMore = commandserver.runsource(commandInProgress, "JythonTerminal");
-		// InterpreterResponse x = new InterpreterResponse(newData, "", needMore, false);
-		InterpreterResponse x = new InterpreterResponse("", "", needMore, false);
+		InterpreterResponse x = new InterpreterResponse(needMore, false);
 		newData = "";
 
 		/* if we don't need anymore, the command is done, so start fresh */
@@ -249,6 +246,23 @@ public class GDACorbaConsoleCommunication implements IScriptConsoleCommunication
 
 	@Override
 	public void linkWithDebugSelection(boolean arg0) {
-		//not sure what to do here so provide default implementation
+		// not sure what to do here so provide default implementation
+	}
+
+	@Override
+	public void setOnContentsReceivedCallback(ICallback<Object, Tuple<String, String>> onContentsReceived) {
+		// do nothing as this callback was not used in the previous version of #execInterpreter anyway
+	}
+
+	@Override
+	public void interrupt() {
+		commandserver.abortCommands();
+	}
+
+	@Override
+	public boolean isConnected() {
+		// Always return false here, to try and fail safe. This seems to be related to debugging for backwards
+		// compatibility and the only caller will return null when this returns false.
+		return false;
 	}
 }
