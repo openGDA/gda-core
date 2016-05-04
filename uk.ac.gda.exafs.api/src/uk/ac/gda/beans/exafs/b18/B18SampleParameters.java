@@ -20,6 +20,7 @@ package uk.ac.gda.beans.exafs.b18;
 
 import java.io.Serializable;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -46,6 +47,8 @@ public class B18SampleParameters implements Serializable, ISampleParameters {
 	String description1 = "";
 	String description2 = "";
 	String stage = "none";
+	List<String> selectedSampleStages = new ArrayList<String>();
+
 	String temperatureControl = "none";
 	XYThetaStageParameters xythetaParameters = new XYThetaStageParameters();
 	LN2CryoStageParameters ln2CryoStageParameters = new LN2CryoStageParameters();
@@ -65,17 +68,18 @@ public class B18SampleParameters implements Serializable, ISampleParameters {
 		result = prime * result + ((description1 == null) ? 0 : description1.hashCode());
 		result = prime * result + ((description2 == null) ? 0 : description2.hashCode());
 		result = prime * result + ((furnaceParameters == null) ? 0 : furnaceParameters.hashCode());
+		result = prime * result + ((lakeshoreParameters == null) ? 0 : lakeshoreParameters.hashCode());
 		result = prime * result + ((lheParameters == null) ? 0 : lheParameters.hashCode());
+		result = prime * result + ((ln2CryoStageParameters == null) ? 0 : ln2CryoStageParameters.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + ((sampleWheelParameters == null) ? 0 : sampleWheelParameters.hashCode());
+		result = prime * result + ((selectedSampleStages == null) ? 0 : selectedSampleStages.hashCode());
 		result = prime * result + (shouldValidate ? 1231 : 1237);
 		result = prime * result + ((stage == null) ? 0 : stage.hashCode());
-		result = prime * result + ((temperatureControl == null) ? 0 : temperatureControl.hashCode());
-		result = prime * result + ((xythetaParameters == null) ? 0 : xythetaParameters.hashCode());
-		result = prime * result + ((userStageParameters == null) ? 0 : userStageParameters.hashCode());
-		result = prime * result + ((lakeshoreParameters == null) ? 0 : lakeshoreParameters.hashCode());
-		result = prime * result + ((ln2CryoStageParameters == null) ? 0 : ln2CryoStageParameters.hashCode());
 		result = prime * result + ((sxCryoStageParameters == null) ? 0 : sxCryoStageParameters.hashCode());
-		result = prime * result + ((sampleWheelParameters == null) ? 0 : sampleWheelParameters.hashCode());
+		result = prime * result + ((temperatureControl == null) ? 0 : temperatureControl.hashCode());
+		result = prime * result + ((userStageParameters == null) ? 0 : userStageParameters.hashCode());
+		result = prime * result + ((xythetaParameters == null) ? 0 : xythetaParameters.hashCode());
 		return result;
 	}
 
@@ -103,15 +107,35 @@ public class B18SampleParameters implements Serializable, ISampleParameters {
 				return false;
 		} else if (!furnaceParameters.equals(other.furnaceParameters))
 			return false;
+		if (lakeshoreParameters == null) {
+			if (other.lakeshoreParameters != null)
+				return false;
+		} else if (!lakeshoreParameters.equals(other.lakeshoreParameters))
+			return false;
 		if (lheParameters == null) {
 			if (other.lheParameters != null)
 				return false;
 		} else if (!lheParameters.equals(other.lheParameters))
 			return false;
+		if (ln2CryoStageParameters == null) {
+			if (other.ln2CryoStageParameters != null)
+				return false;
+		} else if (!ln2CryoStageParameters.equals(other.ln2CryoStageParameters))
+			return false;
 		if (name == null) {
 			if (other.name != null)
 				return false;
 		} else if (!name.equals(other.name))
+			return false;
+		if (sampleWheelParameters == null) {
+			if (other.sampleWheelParameters != null)
+				return false;
+		} else if (!sampleWheelParameters.equals(other.sampleWheelParameters))
+			return false;
+		if (selectedSampleStages == null) {
+			if (other.selectedSampleStages != null)
+				return false;
+		} else if (!selectedSampleStages.equals(other.selectedSampleStages))
 			return false;
 		if (shouldValidate != other.shouldValidate)
 			return false;
@@ -120,37 +144,25 @@ public class B18SampleParameters implements Serializable, ISampleParameters {
 				return false;
 		} else if (!stage.equals(other.stage))
 			return false;
+		if (sxCryoStageParameters == null) {
+			if (other.sxCryoStageParameters != null)
+				return false;
+		} else if (!sxCryoStageParameters.equals(other.sxCryoStageParameters))
+			return false;
 		if (temperatureControl == null) {
 			if (other.temperatureControl != null)
 				return false;
 		} else if (!temperatureControl.equals(other.temperatureControl))
-			return false;
-		if (xythetaParameters == null) {
-			if (other.xythetaParameters != null)
-				return false;
-		} else if (!xythetaParameters.equals(other.xythetaParameters))
 			return false;
 		if (userStageParameters == null) {
 			if (other.userStageParameters != null)
 				return false;
 		} else if (!userStageParameters.equals(other.userStageParameters))
 			return false;
-		if (ln2CryoStageParameters == null) {
-			if (other.ln2CryoStageParameters != null)
+		if (xythetaParameters == null) {
+			if (other.xythetaParameters != null)
 				return false;
-		} else if (!ln2CryoStageParameters.equals(other.ln2CryoStageParameters))
-			return false;
-		if (sxCryoStageParameters == null) {
-			if (other.sxCryoStageParameters != null)
-				return false;
-		} else if (!sxCryoStageParameters.equals(other.sxCryoStageParameters))
-			return false;
-		if (lakeshoreParameters == null) {
-			if (other.lakeshoreParameters != null)
-				return false;
-		} else if (!lakeshoreParameters.equals(other.lakeshoreParameters))
-			return false;
-		else if (!sampleWheelParameters.equals(other.sampleWheelParameters))
+		} else if (!xythetaParameters.equals(other.xythetaParameters))
 			return false;
 		return true;
 	}
@@ -252,6 +264,18 @@ public class B18SampleParameters implements Serializable, ISampleParameters {
 		this.stage = stage;
 	}
 
+	public List<String> getSelectedSampleStages() {
+		return selectedSampleStages;
+	}
+
+	public void setSelectedSampleStages(List<String> selectedStages) {
+		this.selectedSampleStages = selectedStages;
+	}
+
+	public void addSelectedSampleStage(String stage) {
+		this.selectedSampleStages.add( stage );
+	}
+
 	public LakeshoreParameters getLakeshoreParameters() {
 		return lakeshoreParameters;
 	}
@@ -271,5 +295,9 @@ public class B18SampleParameters implements Serializable, ISampleParameters {
 
 	public void setSampleWheelParameters(SampleWheelParameters sampleWheelParameters) {
 		this.sampleWheelParameters = sampleWheelParameters;
+	}
+
+	public void clear() {
+		selectedSampleStages.clear();
 	}
 }
