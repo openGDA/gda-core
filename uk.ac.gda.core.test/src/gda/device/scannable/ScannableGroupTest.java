@@ -342,6 +342,35 @@ public class ScannableGroupTest extends TestCase {
 		assertArraysEqual(new Object[] {10., 20., 10., 3., .901}, position);
 	}
 
+	@Test
+	public void testToFormattedStringNoErrors() {
+		final Scannable s1 = new DummyScannable("s1");
+		final Scannable s2 = new DummyScannable("s2");
+		final ScannableGroup group = new ScannableGroup("sg1", new Scannable[] { s1, s2 });
+		final String expectedResult = "sg1 ::\n  s1 : 0.0000 (-1.7977e+308:1.7977e+308)\n  s2 : 0.0000 (-1.7977e+308:1.7977e+308)";
+
+		final String result = group.toFormattedString();
+		assertEquals(expectedResult, result);
+	}
+
+	@Test
+	public void testToFormattedStringWithError() {
+		// In the event of an exception in one scannable, the ScannableGroup should show the value as dashes
+		// and continue with the remaining scannables.
+		final Scannable s1 = new DummyScannable("s1") {
+			@Override
+			public String toFormattedString() {
+				throw new RuntimeException("failure in toFormattedString()");
+			}
+		};
+		final Scannable s2 = new DummyScannable("s2");
+		final ScannableGroup group = new ScannableGroup("sg1", new Scannable[] { s1, s2 });
+		final String expectedResult = "sg1 ::\n  s1 : n/a\n  s2 : 0.0000 (-1.7977e+308:1.7977e+308)";
+
+		final String result = group.toFormattedString();
+		assertEquals(expectedResult, result);
+	}
+
 	private ScannableGroup createAndCheckScannableGroupContaining(Scannable... scannables) throws Exception {
 		ScannableGroup sg = new ScannableGroup();
 		sg.setGroupMembers(new ArrayList<Scannable>(Arrays.asList(scannables)));
