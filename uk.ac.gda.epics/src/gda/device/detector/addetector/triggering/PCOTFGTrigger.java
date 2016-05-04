@@ -18,6 +18,9 @@
 
 package gda.device.detector.addetector.triggering;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.detector.areadetector.v17.ADBase;
@@ -32,9 +35,6 @@ import gda.scan.ScanInformation;
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /*
  * Class of detector  to drive the PCO4000 camera using a TFG2
@@ -150,6 +150,11 @@ public class PCOTFGTrigger extends SimpleAcquire {
 
 	public void setTimeStamp(Integer timeStamp) {
 		this.timeStamp = timeStamp;
+	}
+	@Override
+	public void stop() throws Exception {
+		etfg.stop();
+		super.stop();
 	}
 
 	@Override
