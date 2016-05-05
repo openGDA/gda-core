@@ -2,17 +2,20 @@
 
 <included>
 
-    <!-- Include the standard set of properties files via the XML definition in dls-config -->
-    <include file="${gda.facility.dir}/logging/logging_properties.xml"/>
+	<!-- Include the standard set of properties files via the XML definition in dls-config -->
+	<include file="${gda.facility.dir}/logging/logging_properties.xml" />
 
-    <!-- address where the messages from Object Servers send to - the LogServer-->
-    <appender name="SOCKET" class="ch.qos.logback.classic.net.SocketAppender">
-        <RemoteHost>${gda.logserver.host}</RemoteHost>
-        <Port>${gda.server.logging.port}</Port>
-        <ReconnectionDelay>10000</ReconnectionDelay>
-        <IncludeCallerData>true</IncludeCallerData>
-    </appender>
+	<!-- address where the messages from Object Servers send to - the LogServer -->
+	<appender name="SOCKET" class="ch.qos.logback.classic.net.SocketAppender">
+		<RemoteHost>${gda.logserver.host}</RemoteHost>
+		<Port>${gda.server.logging.port}</Port>
+		<ReconnectionDelay>10000</ReconnectionDelay>
+		<IncludeCallerData>true</IncludeCallerData>
+	</appender>
 
-    <logger name="org.eclipse.jetty" level="INFO"/>
+	<logger name="org.eclipse.jetty" level="INFO" />
+
+	<!-- Try to shut down Logback cleanly -->
+	<shutdownHook />
 
 </included>
