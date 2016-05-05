@@ -2,9 +2,10 @@ package uk.ac.diamond.daq.mapping.path;
 
 import java.util.Iterator;
 
+import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.Point;
 
-class LissajousIterator implements Iterator<Point> {
+class LissajousIterator implements Iterator<IPosition> {
 
 	private LissajousModel model;
 	private double theta;

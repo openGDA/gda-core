@@ -21,7 +21,7 @@ package uk.ac.diamond.daq.mapping.ui.experiment;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.scanning.api.points.Point;
+import org.eclipse.scanning.api.points.IPosition;
 
 /**
  * Simple class to hold information about a scan path
@@ -31,7 +31,7 @@ class PathInfo {
 	double smallestXStep = Double.MAX_VALUE;
 	double smallestYStep = Double.MAX_VALUE;
 	double smallestAbsStep = Double.MAX_VALUE;
-	List<Point> points = new ArrayList<>();
+	List<IPosition> points = new ArrayList<>();
 
 	private String pointCountFormat = "%,d";
 	private String doubleFormat = "%.4g";
@@ -51,14 +51,14 @@ class PathInfo {
 	double[] getXCoordinates() {
 		double[] xCoords = new double[points.size()];
 		for (int index = 0; index < points.size(); index++) {
-			xCoords[index] = points.get(index).getX();
+			xCoords[index] = points.get(index).getValue("X");
 		}
 		return xCoords;
 	}
 	double[] getYCoordinates() {
 		double[] yCoords = new double[points.size()];
 		for (int index = 0; index < points.size(); index++) {
-			yCoords[index] = points.get(index).getY();
+			yCoords[index] = points.get(index).getValue("Y");
 		}
 		return yCoords;
 	}

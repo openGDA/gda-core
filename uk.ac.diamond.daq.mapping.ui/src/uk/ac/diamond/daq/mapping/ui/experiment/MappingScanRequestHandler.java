@@ -18,8 +18,6 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
-import gda.jython.InterfaceProvider;
-
 import java.util.List;
 
 import org.eclipse.scanning.api.event.EventException;
@@ -27,13 +25,14 @@ import org.eclipse.scanning.api.event.core.IConsumerProcess;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
-import org.eclipse.scanning.api.points.Point;
+import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.GridModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.points.models.RasterModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.jython.InterfaceProvider;
 import uk.ac.diamond.daq.mapping.api.IDetectorModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegion;
@@ -147,9 +146,9 @@ public class MappingScanRequestHandler implements IConsumerProcess<MappingExperi
 			// Not a rectangle - allow the scan path to generate a list of points from the ROI
 			String scanMotorCommand = XY_GROUP_NAME + " tuple(["; // use tuple keyword to allow one-element lists to work
 			try {
-				Iterable<Point> pointIterable = pointGeneratorFactory.createGenerator(scanPath, mapRegion.getRegion().toROI());
-				for (Point point : pointIterable) {
-					scanMotorCommand += "(" + point.getX() + ", " + point.getY() + "), ";
+				Iterable<IPosition> pointIterable = pointGeneratorFactory.createGenerator(scanPath, mapRegion.getRegion().toROI());
+				for (IPosition point : pointIterable) {
+					scanMotorCommand += "(" + point.get("X") + ", " + point.get("Y") + "), ";
 				}
 			} catch (GeneratorException e) {
 				logger.error("Error creating point generator", e);

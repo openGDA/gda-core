@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 
+import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.Point;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.junit.Before;
@@ -33,7 +34,7 @@ public class LissajousTest {
 	public void testLissajousNoROI() throws Exception {
 
 		// Get the point list
-		List<Point> pointList = generator.createPoints();
+		List<IPosition> pointList = generator.createPoints();
 
 		assertEquals(503, pointList.size());
 

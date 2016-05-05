@@ -3,9 +3,10 @@ package uk.ac.diamond.daq.mapping.path;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.Point;
 
-class SpiralIterator implements Iterator<Point> {
+class SpiralIterator implements Iterator<IPosition> {
 
 	// Constant parameters
 	private final SpiralGenerator gen;

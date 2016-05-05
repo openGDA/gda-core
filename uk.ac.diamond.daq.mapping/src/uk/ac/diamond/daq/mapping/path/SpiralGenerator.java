@@ -3,13 +3,13 @@ package uk.ac.diamond.daq.mapping.path;
 import java.util.Iterator;
 
 import org.eclipse.scanning.api.points.AbstractGenerator;
-import org.eclipse.scanning.api.points.Point;
+import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.PointsValidationException;
 
-public class SpiralGenerator extends AbstractGenerator<SpiralModel, Point> {
+public class SpiralGenerator extends AbstractGenerator<SpiralModel> {
 
 	@Override
-	public Iterator<Point> iteratorFromValidModel() {
+	public Iterator<IPosition> iteratorFromValidModel() {
 		return new SpiralIterator(this);
 	}
 
