@@ -223,6 +223,7 @@ public class DLSdicat extends IcatBase {
 				return resultSet.getString(1);
 			return null;
 		} catch (Exception e) {
+			logger.error("Unable to retrieve visits from database", e);
 			return "";
 		} finally {
 			if (resultSet != null && !resultSet.isClosed()) {

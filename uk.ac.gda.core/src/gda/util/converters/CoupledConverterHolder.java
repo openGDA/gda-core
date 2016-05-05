@@ -209,8 +209,8 @@ public final class CoupledConverterHolder implements IReloadableQuantitiesConver
 	public String toString() {
 		// Do not call getConverter as toString should not change the state of
 		// the class
-		return "CoupledQuantitiesConverter using source converter name " + getSourceConverterName().toString()
-				+ " and target converter " + getTargetConverterName().toString() + ". Constructed converter is "
+		return "CoupledQuantitiesConverter using source converter name " + getSourceConverterName()
+				+ " and target converter " + getTargetConverterName() + ". Constructed converter is "
 				+ ((converter != null) ? converter.toString() : " - converter not yet loaded");
 	}
 
