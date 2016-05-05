@@ -326,6 +326,35 @@ public class LocalProperties {
 
 	public static final String GDA_ACTIVEMQ_BROKER_URI = "gda.activemq.broker.uri";
 
+	public static String getActiveMQBrokerURI() {
+		return get(GDA_ACTIVEMQ_BROKER_URI,
+				String.format("failover:(tcp://%s:%d)?startupMaxReconnectAttempts=3",
+						get("gda.server.host", "localhost"),
+						61616));
+	}
+
+	public static void setActiveMQBrokerURI(final String brokerURI) {
+		set(GDA_ACTIVEMQ_BROKER_URI, brokerURI);
+	}
+
+	/**
+	 * Use to undo {@link LocalProperties#forceActiveMQEmbeddedBroker()} between unit tests
+	 * i.e. call from @org.junit.AfterClass annotated tearDownClass method.
+	 */
+	public static void unsetActiveMQBrokerURI() {
+		setActiveMQBrokerURI(null);
+	}
+
+	/**
+	 * For <a href="http://activemq.apache.org/how-to-unit-test-jms-code.html"/>unit tests</a>
+	 * i.e. call from @org.junit.BeforeClass annotated setUpClass method.
+	 * Undo with {@link LocalProperties#unsetActiveMQBrokerURI()}
+	 * (or {@link LocalProperties#setActiveMQBrokerURI(String)}).
+	 */
+	public static void forceActiveMQEmbeddedBroker() {
+		setActiveMQBrokerURI("vm://localhost?broker.persistent=false");
+	}
+
 
 	public static boolean isScanSetsScanNumber(){
 		return LocalProperties.check(LocalProperties.GDA_SCAN_SETS_SCANNUMBER);
