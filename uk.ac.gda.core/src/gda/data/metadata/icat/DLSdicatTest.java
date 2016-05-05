@@ -28,24 +28,29 @@ public class DLSdicatTest {
 
 	public static void main(String[] args) throws Exception {
 
+		System.setProperty("logback.configurationFile", DLSdicatTest.class.getResource("logback-DLSdicatTest.xml").getFile());
+
 		// You'll want to change these
-		final String username = "qny31541";
 		for (String instrument : new String[] {"i02", "i03", "i04", "i04-1", "i23", "i24"}) {
 
-			System.setProperty(LocalProperties.GDA_PROPERTIES_FILE, "src/gda/data/metadata/icat/DLSdicatTest.properties");
+			final String username = String.format("%suser", instrument);
+
+			final String gdaDirectory = String.format("/dls_sw/%s/software/gda", instrument);
+			final String gdaConfig = String.format("%s/config", gdaDirectory);
+
+			System.setProperty(LocalProperties.GDA_GIT_LOC, String.format("%s/workspace_git", gdaDirectory));
+			System.setProperty(LocalProperties.GDA_CONFIG, gdaConfig);
+			System.setProperty(LocalProperties.GDA_PROPERTIES_FILE, String.format("%s/properties/live/java.properties", gdaConfig));
 
 			final DLSdicat dicat = new DLSdicat();
 			dicat.setInstrumentName(instrument);
 
 			final VisitEntry[] visits = dicat.getMyValidVisits(username);
 
-			if (visits.length == 0) {
-				System.out.println("No visits.");
-			} else {
-				System.out.printf("%d visit(s):%n", visits.length);
-				for (VisitEntry visit : visits) {
-					System.out.printf("\t%s\t%s%n", visit.getVisitID(), visit.getTitle());
-				}
+			final int count = visits.length;
+			System.out.printf("%d visit%s on %s for %s%s%n", count, (count == 1 ? "" : "s"), instrument, username, (count == 0 ? "" : ":"));
+			for (VisitEntry visit : visits) {
+				System.out.printf("\t%s\t%s%n", visit.getVisitID(), visit.getTitle());
 			}
 		}
 	}

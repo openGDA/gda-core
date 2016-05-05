@@ -20,7 +20,6 @@ package uk.ac.diamond.daq.msgbus;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Sets.newHashSet;
-import gda.configuration.properties.LocalProperties;
 
 import java.io.Serializable;
 import java.lang.management.ManagementFactory;
@@ -57,6 +56,8 @@ import com.google.common.eventbus.SubscriberExceptionHandler;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import gda.configuration.properties.LocalProperties;
+
 /**
  * Eagerly-initialised singleton (per-process but linked by JMS destination).
  *
@@ -67,25 +68,6 @@ public enum MsgBus {
 	private final Logger logger = LoggerFactory.getLogger(MsgBus.class.getSimpleName()+"/"+ManagementFactory.getRuntimeMXBean().getName()); // static precluded by use in constructor (of enum)
 
 	public static final String BROKER_REQUIRED_PROPERTY = "msgbus.broker.require";
-
-	public static final String BROKER_URL_PROPERTY = "msgbus.broker.url";
-	public static final String BROKER_URL_FALLBACK_PROPERTY = "broker.url"; //TODO change to "msgbus.broker.url.fallback"
-	public static final String BROKER_URL_FALLBACK_DEFAULT_PROPERTY = "msgbus.broker.url.fallback.default";
-	public static final String BROKER_URL_FALLBACK_DEFAULT = "tcp://localhost:61616";
-	private String getBrokerUrl() {
-		logger.trace("BROKER_URL_PROPERTY = {}", BROKER_URL_PROPERTY);
-		logger.trace("BROKER_URL_FALLBACK_PROPERTY = {}", BROKER_URL_FALLBACK_PROPERTY);
-		logger.trace("BROKER_URL_FALLBACK_DEFAULT_PROPERTY = {}", BROKER_URL_FALLBACK_DEFAULT_PROPERTY);
-		final String brokerUrlDefaultFallback = LocalProperties.get(BROKER_URL_FALLBACK_DEFAULT_PROPERTY, BROKER_URL_FALLBACK_DEFAULT);
-		logger.trace("brokerUrlDefaultFallback = {}", brokerUrlDefaultFallback);
-		String brokerUrl =
-				LocalProperties.get(BROKER_URL_PROPERTY,
-						LocalProperties.get(BROKER_URL_FALLBACK_PROPERTY,
-								LocalProperties.get(BROKER_URL_FALLBACK_DEFAULT_PROPERTY,
-										brokerUrlDefaultFallback)));
-		logger.trace("brokerUrl = {}", brokerUrl);
-		return brokerUrl;
-	}
 
 	/**
 	 * Use Guava [Async]EventBus to provide typed msg delivery WITHIN THIS PROCESS ONLY
@@ -126,9 +108,9 @@ public enum MsgBus {
 
 		try {
 			// Connection
-			final String brokerUrl = getBrokerUrl();
-			logger.debug("connecting to ActiveMQ broker {}", brokerUrl);
-			final ConnectionFactory connectionFactory = new ActiveMQConnectionFactory(brokerUrl);
+			final String brokerUri = LocalProperties.getActiveMQBrokerURI();
+			logger.debug("connecting to ActiveMQ broker {}", brokerUri);
+			final ConnectionFactory connectionFactory = new ActiveMQConnectionFactory(brokerUri);
 			connection = connectionFactory.createConnection();
 //			connection.setClientID("TODO");
 			connection.start();

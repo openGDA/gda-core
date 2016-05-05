@@ -215,6 +215,7 @@ public class DLSdicat extends IcatBase {
 					"inner join icatdls42.instrument ins on i.instrument_id = ins.id "+
 					"inner join icatdls42.shift s on s.investigation_id = i.id "+
 					"where i.visit_id like ? and ins.name = ? and systimestamp > s.startdate "+
+					"and ( s.\"COMMENT\" <> 'Cancelled'  or s.\"COMMENT\" is NULL ) " +
 					"order by s.startdate DESC ) v2 where rownum <=1");
 			statement.setString(1, visitPrefix);
 			statement.setString(2, getInstrumentName());

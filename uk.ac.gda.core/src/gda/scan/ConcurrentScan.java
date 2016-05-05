@@ -19,14 +19,6 @@
 
 package gda.scan;
 
-import gda.configuration.properties.LocalProperties;
-import gda.device.Detector;
-import gda.device.DeviceException;
-import gda.device.Scannable;
-import gda.device.scannable.ScannableUtils;
-import gda.jython.InterfaceProvider;
-import gda.jython.commands.ScannableCommands;
-
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -40,6 +32,14 @@ import org.python.core.PyException;
 import org.python.core.PyTuple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.configuration.properties.LocalProperties;
+import gda.device.Detector;
+import gda.device.DeviceException;
+import gda.device.Scannable;
+import gda.device.scannable.ScannableUtils;
+import gda.jython.InterfaceProvider;
+import gda.jython.commands.ScannableCommands;
 
 /**
  * Similar to 'scan' in CLAM (but order of arguments not the same). This moves several scannable objects simultaneously,
@@ -115,6 +115,13 @@ public class ConcurrentScan extends ConcurrentScanChild implements Scan {
 	 * attribute to allow scannables to return to their original positions after a scan
 	 */
 	boolean returnScannablesToOrginalPositions = false;
+
+	/**
+	 * control whether EventType.UPDATED events are sent during scanning This is here to handle a particular issue with some scans (notably
+	 * ConstantVelocityScanLine), where update messages from "dummy" pre-scans can swamp the GUI. Scans for which an issue can set this property false to
+	 * suppress these messages. This is not a particularly nice solution, but the problem will disappear when the new scanning mechanism is active.
+	 */
+	boolean sendUpdateEvents = true;
 
 	private HashMap<Scannable, Object> scannablesOriginalPositions = new HashMap<Scannable, Object>();
 
@@ -410,7 +417,9 @@ public class ConcurrentScan extends ConcurrentScanChild implements Scan {
 
 				readDevicesAndPublishScanDataPoint();
 				callAtPointEndHooks();
-				sendScanEvent(ScanEvent.EventType.UPDATED);
+				if (sendUpdateEvents) {
+					sendScanEvent(ScanEvent.EventType.UPDATED);
+				}
 
 				checkThreadInterrupted();
 				waitIfPaused();
@@ -456,7 +465,9 @@ public class ConcurrentScan extends ConcurrentScanChild implements Scan {
 					readDevicesAndPublishScanDataPoint();
 					checkThreadInterrupted();
 					callAtPointEndHooks();
-					sendScanEvent(ScanEvent.EventType.UPDATED);
+					if (sendUpdateEvents) {
+						sendScanEvent(ScanEvent.EventType.UPDATED);
+					}
 				} else {
 					ScanObject principleScanObject = this.allScanObjects.get(0);
 					principleScanObject.scannable.atLevelStart();
@@ -736,9 +747,12 @@ public class ConcurrentScan extends ConcurrentScanChild implements Scan {
 	public void setReturnScannablesToOrginalPositions(boolean returnScannablesToOrginalPositions) {
 		this.returnScannablesToOrginalPositions = returnScannablesToOrginalPositions;
 	}
+
+	public boolean isSendUpdateEvents() {
+		return sendUpdateEvents;
+	}
+
+	public void setSendUpdateEvents(boolean sendUpdateEvents) {
+		this.sendUpdateEvents = sendUpdateEvents;
+	}
 }
-
-
-
-
-

@@ -22,12 +22,10 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
-import static uk.ac.diamond.daq.msgbus.MsgBus.BROKER_URL_PROPERTY;
 import static uk.ac.diamond.daq.msgbus.MsgBus.post;
 import static uk.ac.diamond.daq.msgbus.MsgBus.publish;
 import static uk.ac.diamond.daq.msgbus.MsgBus.subscribe;
 import static uk.ac.diamond.daq.msgbus.MsgBus.unsubscribe;
-import gda.configuration.properties.LocalProperties;
 
 import java.io.Serializable;
 
@@ -40,6 +38,8 @@ import org.junit.Test;
 import uk.ac.diamond.daq.msgbus.MsgBus.Msg;
 
 import com.google.common.eventbus.Subscribe;
+
+import gda.configuration.properties.LocalProperties;
 
 /**
  * Test methods for {@link uk.ac.diamond.daq.msgbus.MsgBus}.
@@ -57,9 +57,8 @@ public class MsgBusTest {
 		assertFalse(LocalProperties.isDummyModeEnabled());
 
 		// Must use embedded ActiveMQ broker for JUnit tests.
-		LocalProperties.set(BROKER_URL_PROPERTY, "vm://localhost?broker.persistent=false"); // http://activemq.apache.org/how-to-unit-test-jms-code.html
-		// Disable setting of MsgBus.BROKER_URL_PROPERTY above to use
-		// MsgBus.getBrokerUrlFallbackDefault(), with e.g.
+		LocalProperties.forceActiveMQEmbeddedBroker();
+		// Disable setting of broker URI property above to use with local broker outside process, e.g.:
 		// module load activemq; activemq start
 	}
 
@@ -69,7 +68,7 @@ public class MsgBusTest {
 //		shutdown(); // can break subsequent test classes
 
 		// Undo setting of embedded broker URL from setUpClass.
-		LocalProperties.set(BROKER_URL_PROPERTY, "");
+		LocalProperties.unsetActiveMQBrokerURI();
 	}
 
 	private Object lastPublished = null;

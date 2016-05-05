@@ -18,16 +18,6 @@
 
 package gda.device.scannable.scannablegroup;
 
-import gda.device.DeviceException;
-import gda.device.Scannable;
-import gda.device.scannable.PositionConvertorFunctions;
-import gda.device.scannable.ScannableBase;
-import gda.device.scannable.ScannableUtils;
-import gda.factory.Configurable;
-import gda.factory.FactoryException;
-import gda.factory.Finder;
-import gda.observable.IObserver;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
@@ -40,6 +30,16 @@ import org.python.core.Py;
 import org.python.core.PyString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.device.DeviceException;
+import gda.device.Scannable;
+import gda.device.scannable.PositionConvertorFunctions;
+import gda.device.scannable.ScannableBase;
+import gda.device.scannable.ScannableUtils;
+import gda.factory.Configurable;
+import gda.factory.FactoryException;
+import gda.factory.Finder;
+import gda.observable.IObserver;
 
 /**
  * A logical group of scannables
@@ -376,7 +376,13 @@ public class ScannableGroup extends ScannableBase implements Configurable, IScan
 		StringBuilder positionString = new StringBuilder(getName());
 		positionString.append(" ::");
 		for (Scannable s : getGroupMembers()) {
-			String pos = s.toFormattedString();
+			String pos = null;
+			try {
+				pos = s.toFormattedString();
+			} catch (Exception ex) {
+				logger.error("Error formatting device position for " + s.getName(), ex);
+				pos = s.getName() + ": n/a";
+			}
 			for (String line : pos.split("\n")) {
 				positionString.append('\n');
 				positionString.append(INDENT);
