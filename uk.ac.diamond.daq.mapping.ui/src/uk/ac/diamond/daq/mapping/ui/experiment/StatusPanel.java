@@ -53,7 +53,7 @@ class StatusPanel extends Composite {
 			firstLine = message;
 			secondLine = "";
 		} else {
-			firstLine = "Map points: ";
+			firstLine = "2D map points: ";
 			secondLine = "Smallest steps: ";
 			if (pathInfo != null) {
 				firstLine += pathInfo.getFormattedPointCount();
@@ -62,7 +62,7 @@ class StatusPanel extends Composite {
 							PathInfoCalculatorJob.MAX_POINTS_IN_ROI);
 				}
 				double totalTime = mappingExperimentView.getPointExposureTime() * pathInfo.pointCount;
-				firstLine += String.format("    Total exposure time: %02.0f:%02.0f:%02.0f",
+				firstLine += String.format("    Exposure time: %02.0f:%02.0f:%02.0f",
 						Math.floor(totalTime / 3600.0),
 						Math.floor((totalTime % 3600.0) / 60.0),
 						totalTime % 60.0);
