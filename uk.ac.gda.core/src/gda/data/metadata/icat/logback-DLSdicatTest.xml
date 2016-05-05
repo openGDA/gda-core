@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration>
+
+	<appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%date %-5level %logger - %m%n%rEx</pattern>
+		</encoder>
+	</appender>
+
+	<root level="INFO">
+		<appender-ref ref="Console" />
+	</root>
+
+	<logger name="gda.data.metadata.icat.DLSdicat" level="INFO" />
+
+</configuration>
