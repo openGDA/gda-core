@@ -1,13 +1,17 @@
 #!/bin/bash
 # This script is invoked when the gda_servers_core script has been run locally or has been traversed a
-# second time as a result of starting the gda on the control machine from another machine via the ssh tunnel
+# second time as a result of starting the gda on the control machine from another machine via the ssh tunnel.
+
+# It starts the gda-server target that has been selected by the gda_server_target_select.sh script earlier in
+# the startup loop. It can also be used interactively to start a particular server target on demand; enter
+# gda_server_target_launch.sh --help (-h) for details. For a full overview of GDA9 startup see
+# http://confluence.diamond.ac.uk/display/CT/Deployment%2C+Target+Selection+and+Startup.
 
 MY_PATH=$(readlink -e ${BASH_SOURCE[0]})
 MY_WORKSPACE_PARENT=${MY_PATH%%/workspace_git*}
-DLS_CONFIG_SCRIPTS="$MY_WORKSPACE_PARENT/workspace_git/gda-diamond.git/dls-config/bin"
 
-LATCH_SCRIPT="$DLS_CONFIG_SCRIPTS/latch.sh"
-RELEASE_VERSION_SCRIPT="$DLS_CONFIG_SCRIPTS/read_release_version.sh"
+LATCH_SCRIPT="$( dirname $MY_PATH )/latch.sh"
+RELEASE_VERSION_SCRIPT="$( dirname $MY_PATH )/read_release_version.sh"
 
 # light red text
 function lr {
@@ -37,7 +41,7 @@ BEAMLINE     The beamline identifier e.g. i18
 
 OPERATIONS:
 
-start		Launch a new gda-server process without checking if on already exists
+start		Launch a new gda-server process without checking if one already exists
 stop		Kill the currently running gda-server and its associated processes
 restart		stop followed by start (the default)
 
@@ -56,11 +60,11 @@ N.B. the release, snapshot and devel options are mutually exclusive and will be 
 
 EXAMPLES:
 
-    remotestartupscript.sh
+    gda_server_target_launch.sh
 
         This will restart the latched version of the GDA server (defaults to released).
 
-    remotestartupscript.sh start --devel --debug
+    gda_server_target_launch.sh start --devel --debug
 
         This will initialise the server build last exported from the beamline workspace in debug mode an wait for connection on port 8000 before proceeding
 
@@ -177,6 +181,6 @@ COMMAND="gda-server -data $USER_WORKSPACE -configuration $ECLIPSE_RUNTIME_CONFIG
 
 # and execute it retaining stdin
 echo "Starting the GDA Server at $SERVER_INSTALL_PATH/gda-server"
+echo $COMMAND
 $COMMAND &
-
 
