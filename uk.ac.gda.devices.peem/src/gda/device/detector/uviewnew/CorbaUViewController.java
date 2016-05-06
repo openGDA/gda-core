@@ -146,4 +146,46 @@ public class CorbaUViewController implements UViewController {
 		// TODO Auto-generated method stub
 	}
 
+	@Override
+	public void activateROI(RegionOfInterest roi) throws DeviceException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void deactivateROI(RegionOfInterest roi) throws DeviceException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean isROIActive(RegionOfInterest roi) throws DeviceException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public int getPixelClock() throws DeviceException {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public int getTriggerMode() throws DeviceException {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void setCameraADC(int adc) throws DeviceException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public int getCameraADC() throws DeviceException {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
 }

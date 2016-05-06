@@ -91,7 +91,9 @@ public class TcpUViewController implements UViewController {
 	public GrayAdjustment getGrayAdjustment() throws DeviceException {
 		return grayAdjust(false);
 	}
-
+	/**
+	 * hard coded to only return UNCOMPRESSED data without Embedded ASCII Data
+	 */
 	@Override
 	public ImageData getImageData() throws DeviceException {
 		int height, width;
@@ -164,8 +166,8 @@ public class TcpUViewController implements UViewController {
 	}
 
 	@Override
-	public boolean getNewImageReady() {
-		throw new UnsupportedOperationException();
+	public boolean getNewImageReady() throws DeviceException {
+		return "1".equals(socket.send("nir"));
 	}
 
 	@Override
@@ -239,13 +241,38 @@ public class TcpUViewController implements UViewController {
 	@Override
 	public void defineRoi(final RegionOfInterest roi) throws DeviceException {
 		Rectangle region = roi.getRegion();
-		String cmd = String.format("itd %d 0 %d %d %d %d", roi.id, region.x, region.y, region.width, region.height);
+		String cmd = String.format("itd %d 0 %d %d %d %d", roi.id, region.x, region.y, region.width, region.height, '0');
+		String reply = socket.send(cmd);
+		if ( !reply.equals("0")) {
+			throw new DeviceException("Invalid result from TCP socket: " + reply);
+		}
+	}
+	@Override
+	public void activateROI(final RegionOfInterest roi) throws DeviceException {
+		Rectangle region = roi.getRegion();
+		String cmd = String.format("itd %d 0 %d %d %d %d %c", roi.id, region.x, region.y, region.width, region.height, 'a');
 		String reply = socket.send(cmd);
 		if ( !reply.equals("0")) {
 			throw new DeviceException("Invalid result from TCP socket: " + reply);
 		}
 	}
 	
+	@Override
+	public void deactivateROI(final RegionOfInterest roi) throws DeviceException {
+		Rectangle region = roi.getRegion();
+		String cmd = String.format("itd %d 0 %d %d %d %d %c", roi.id, region.x, region.y, region.width, region.height, 'd');
+		String reply = socket.send(cmd);
+		if ( !reply.equals("0")) {
+			throw new DeviceException("Invalid result from TCP socket: " + reply);
+		}
+	}
+	@Override
+	public boolean isROIActive(final RegionOfInterest roi) throws DeviceException {
+		Rectangle region = roi.getRegion();
+		String cmd = String.format("itd %d 0 %d %d %d %d %c", roi.id, region.x, region.y, region.width, region.height, '6');
+		String reply = socket.send(cmd);
+		return reply.equals("1");
+	}
 	@Override
 	public double getRoiData(final int roiId) throws DeviceException {
 		String cmd = "roi " + roiId;
@@ -289,15 +316,44 @@ public class TcpUViewController implements UViewController {
 	}
 	
 	@Override
+	public int getPixelClock() throws DeviceException {
+		String cmd = "spx";
+		return Integer.parseInt(socket.send(cmd));
+	}
+	
+	@Override
 	public void setTriggerMode(int mode) throws DeviceException {
-		if (mode < 0 || mode > 1) {
-			throw new DeviceException("Invalid trigger mode settings; valid settings are 0 and 1");
+		if (mode < 0 || mode > 3) {
+			throw new DeviceException("Invalid trigger mode settings; valid settings are 0, 1, 2 and 3");
 		}
 		String cmd = "str " + mode;
 		String reply = socket.send(cmd);
 		if ( !reply.equals("0") ) {
 			throw new DeviceException("Unexpected response from TCP socket: '" + reply + "'");
 		}
+	}
+	@Override
+	public int getTriggerMode() throws DeviceException {
+		String cmd = "str";
+		return Integer.parseInt(socket.send(cmd));
+	}
+
+	@Override
+	public void setCameraADC(int adc) throws DeviceException {
+		if (adc < 1 || adc > 2) {
+			throw new DeviceException("Invalid trigger mode settings; valid settings are 1 and 2");
+		}
+		String cmd = "adc " + adc;
+		String reply = socket.send(cmd);
+		if ( !reply.equals("0") ) {
+			throw new DeviceException("Unexpected response from TCP socket: '" + reply + "'");
+		}
+	}
+
+	@Override
+	public int getCameraADC() throws DeviceException {
+		String cmd = "adc";
+		return Integer.parseInt(socket.send(cmd));
 	}
 
 }

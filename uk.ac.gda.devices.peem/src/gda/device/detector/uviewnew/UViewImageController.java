@@ -300,8 +300,9 @@ public class UViewImageController extends Observable implements Runnable {
 
 	/**
 	 * @return boolean true if image ready
+	 * @throws DeviceException 
 	 */
-	public boolean isImageReady() {
+	public boolean isImageReady() throws DeviceException {
 		boolean imageReady = uvc.isImageReady();
 		if (imageReady) {
 			logger.debug("UView image data is ready for collection.");

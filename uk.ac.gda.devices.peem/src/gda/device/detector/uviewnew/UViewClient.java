@@ -22,6 +22,7 @@ package gda.device.detector.uviewnew;
 // CORBA Studbs
 // import java.awt.image.*;
 import gda.device.DeviceException;
+import gda.device.UViewNew;
 import gda.device.detector.uviewnew.UViewController.GrayAdjustment;
 import gda.device.detector.uviewnew.UViewController.ImageData;
 import gda.device.detector.uviewnew.UViewController.ImageFile;
@@ -635,12 +636,13 @@ public class UViewClient {
 	
 	
 	/**
-	 * Invoke the CORBA Client stubs to check if new image is ready when "continuous acquisition" is ON
+	 * check if new image is ready when "continuous acquisition" is ON
 	 * 
 	 * @return boolean true if image ready
+	 * @throws DeviceException 
 	 */
-	public boolean isImageReady() {
-		return msImpl.GetNewImageReady();
+	public boolean isImageReady() throws DeviceException {
+		return controller.getNewImageReady();
 	}
 
 	/**
@@ -722,7 +724,15 @@ public class UViewClient {
 		*/
 		controller.defineRoi(new RegionOfInterest(x, y, width, height, id));
 	}
-
+	public void activateROI(RegionOfInterest roi) throws DeviceException {
+		controller.activateROI(roi);
+	}
+	public void deactivateROI(RegionOfInterest roi) throws DeviceException {
+		controller.deactivateROI(roi);
+	}
+	public boolean isROIActive(RegionOfInterest roi) throws DeviceException {
+		return controller.isROIActive(roi);
+	}
 	/**
 	 * Return the normalised intensity in a specified ROI, which is identified by the id parameter
 	 * 
@@ -757,8 +767,20 @@ public class UViewClient {
 	public void setPixelClock( int MHz) throws DeviceException{
 		controller.setPixelClock( MHz );
 	}
+	public int getPixelClock() throws DeviceException{
+		return controller.getPixelClock();
+	}
 
 	public void setTriggerMode(int mode) throws DeviceException {
 		controller.setTriggerMode(mode);
+	}
+	public int getTriggerMode() throws DeviceException {
+		return controller.getTriggerMode();
+	}
+	public void setCameraADC(int adc) throws DeviceException {
+		controller.setCameraADC(adc);
+	}
+	public int getCameraADC() throws DeviceException {
+		return controller.getCameraADC();
 	}
 }

@@ -25,6 +25,7 @@ import gda.device.UViewNew;
 import gda.device.detector.DetectorBase;
 import gda.device.detector.uviewnew.UViewController.ImageFile.ImageContentsType;
 import gda.device.detector.uviewnew.UViewController.ImageFile.ImageFormat;
+import gda.device.detector.uviewnew.UViewController.RegionOfInterest;
 
 import java.awt.Rectangle;
 import java.util.Hashtable;
@@ -271,6 +272,29 @@ public class UViewImageDetector extends DetectorBase implements UViewNew {
 		notifyROIChange(nameROI);
 		return idROI;
 	}
+	public void activateROI(String nameROI) throws DeviceException {
+		UViewImageROI uviroi=hashROIs.get(nameROI);
+		if (uviroi!= null) {
+			uic.uvc.activateROI(new RegionOfInterest(uviroi.getROI(), uviroi.getID()));
+		} else {
+			throw new DeviceException("Regin of interest '"+nameROI+"' is not defined.");
+		}
+	}
+	public void deactivateROI(String nameROI) throws DeviceException {
+		UViewImageROI uviroi=hashROIs.get(nameROI);
+		if (uviroi!= null) {
+			uic.uvc.deactivateROI(new RegionOfInterest(uviroi.getROI(), uviroi.getID()));
+		} else {
+			throw new DeviceException("Regin of interest '"+nameROI+"' is not defined.");
+		}
+	}
+	public boolean isROIActive(String nameROI) throws DeviceException {
+		UViewImageROI uviroi=hashROIs.get(nameROI);
+		if (uviroi!= null) {
+			return uic.uvc.isROIActive(new RegionOfInterest(uviroi.getROI(), uviroi.getID()));
+		} 
+		throw new DeviceException("Regin of interest '"+nameROI+"' is not defined.");
+	}
 
 	public UViewImageROI getROI(String nameROI) {
 		return hashROIs.get(nameROI);
@@ -345,10 +369,15 @@ public class UViewImageDetector extends DetectorBase implements UViewNew {
 	public void setPixelClock(int MHz) throws DeviceException {
 		uic.uvc.setPixelClock(MHz);
 	}
-
+	public int getPixelClock() throws DeviceException {
+		return uic.uvc.getPixelClock();
+	}
+	
 	public enum TriggerMode {
 		AUTO,
-		SOFT
+		SOFT,
+		EXT_EXP_START,
+		EXT_EXP_CNTRL
 	}
 
 	public void setTriggerMode(TriggerMode mode) throws DeviceException {
@@ -360,7 +389,35 @@ public class UViewImageDetector extends DetectorBase implements UViewNew {
 		case SOFT:
 			triggerMode = 1;
 			break;
+		case EXT_EXP_START:
+			triggerMode=2;
+			break;
+		case EXT_EXP_CNTRL:
+			triggerMode=3;
+			break;
 		}
 		uic.uvc.setTriggerMode(triggerMode);
+	}
+	public TriggerMode getTriggerMode() throws DeviceException {
+		int triggerMode = uic.uvc.getTriggerMode();
+		switch (triggerMode) {
+		case 0:
+			return TriggerMode.AUTO;
+		case 1:
+			return TriggerMode.SOFT;
+		case 2:
+			return TriggerMode.EXT_EXP_START;
+		case 3:
+			return TriggerMode.EXT_EXP_CNTRL;
+		default:
+			throw new DeviceException("Unknow U-View Trigger Mode: "+triggerMode);
+		}
+	}
+	
+	public void setCameraADC(int adc) throws DeviceException {
+		uic.uvc.setCameraADC(adc);
+	}
+	public int getCameraADC() throws DeviceException {
+		return uic.uvc.getCameraADC();
 	}
 }

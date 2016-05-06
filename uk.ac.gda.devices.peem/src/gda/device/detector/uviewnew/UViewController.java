@@ -173,7 +173,7 @@ public interface UViewController {
 	public int getFrameAverage() throws DeviceException;
 	public void setFrameAverage(int newAveraging) throws DeviceException;
 
-	public boolean getNewImageReady();
+	public boolean getNewImageReady() throws DeviceException;
 
 	public boolean getAcquisitionInProgress() throws DeviceException;
 	public void setAcquisitionInProgess(boolean newAcqusitionStatus) throws DeviceException;
@@ -183,9 +183,17 @@ public interface UViewController {
 	public void exportImage(final ImageFile fileDetails) throws DeviceException;
 
 	public void defineRoi(final RegionOfInterest roi) throws DeviceException;
+	void activateROI(RegionOfInterest roi) throws DeviceException;
+	void deactivateROI(RegionOfInterest roi) throws DeviceException;
+	boolean isROIActive(RegionOfInterest roi) throws DeviceException;
 	public double getRoiData(int roiId) throws DeviceException;
 
 	public void setPixelClock(int MHz) throws DeviceException;
+	public int getPixelClock() throws DeviceException;
 
 	public void setTriggerMode(int mode) throws DeviceException;
+	public int getTriggerMode() throws DeviceException;
+
+	public void setCameraADC(int adc) throws DeviceException;
+	public int getCameraADC() throws DeviceException;
 }

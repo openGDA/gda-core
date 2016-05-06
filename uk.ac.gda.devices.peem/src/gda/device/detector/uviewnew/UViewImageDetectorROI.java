@@ -49,6 +49,9 @@ public class UViewImageDetectorROI extends DetectorBase implements UViewROINew {
 	String boundaryColor = null;
 
 	private UViewImageDetector uvid = null;
+	public UViewImageDetector getUViewImageDetector() {
+		return uvid;
+	}
 
 	Rectangle bgRect = new Rectangle(0, 0, 512, 512);
 
