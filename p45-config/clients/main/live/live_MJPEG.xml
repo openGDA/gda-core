@@ -5,12 +5,14 @@
 
 	<bean id="mic_cam" class="uk.ac.gda.client.liveplot.mjpeg.CameraConfiguration">
 		<property name="displayName" value="Microscope" />
-		<property name="url" value="http://pc0086.cs.diamond.ac.uk:8090/MIC.MJPG.mjpg" />
+		<property name="url" value="http://p45-control.diamond.ac.uk:8090/MIC.MJPG.mjpg" />
+		<property name="sleepTime" value="5" />
 	</bean>
 
 	<bean id="det_cam" class="uk.ac.gda.client.liveplot.mjpeg.CameraConfiguration">
 		<property name="displayName" value="Spectrum" />
-		<property name="url" value="http://pc0086.cs.diamond.ac.uk:8090/DET.MJPG.mjpg" />
+		<property name="url" value="http://p45-control.diamond.ac.uk:8090/DET.MJPG.mjpg" />
+		<property name="sleepTime" value="5" />
 	</bean>
 
 </beans>
