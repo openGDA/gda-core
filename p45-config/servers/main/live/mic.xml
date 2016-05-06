@@ -60,5 +60,13 @@
 		<property name="ndArray" ref="mic_ndarray" />
 		<property name="fileWriter" ref="mic_hdf5_writer" />
 	</bean>
+	
+	<bean id="mic_gain" class="gda.device.scannable.PVScannable" >
+		<property name="pvName" value="LAB-MO-MAP-01:MIC:DET:Gain" />
+	</bean>
+	
+	<bean id="mic_exposure" class="gda.device.scannable.PVScannable" >
+		<property name="pvName" value="LAB-MO-MAP-01:MIC:DET:AcquireTime" />
+	</bean>
 
 </beans>

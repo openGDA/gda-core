@@ -9,6 +9,8 @@
 				<ref bean="stage_x_control" />
 				<ref bean="stage_y_control" />
 				<ref bean="stage_z_control" />
+				<ref bean="gain_control"/>
+				<ref bean="exposure_control"/>
 			</list>
 		</property>
 	</bean>
@@ -31,6 +33,20 @@
 		<property name="displayName" value="Stage Z" />
 		<property name="scannableName" value="stage_z" />
 		<property name="group" value="Translations" />
+		<property name="increment" value="0.1" />
+	</bean>
+	
+	<bean id="gain_control" class="uk.ac.gda.client.livecontrol.Control">
+		<property name="displayName" value="MIC Gain" />
+		<property name="scannableName" value="mic_gain" />
+		<property name="group" value="Camera Controls" />
+		<property name="increment" value="1" />
+	</bean>
+	
+	<bean id="exposure_control" class="uk.ac.gda.client.livecontrol.Control">
+		<property name="displayName" value="MIC Exposure" />
+		<property name="scannableName" value="mic_exposure" />
+		<property name="group" value="Camera Controls" />
 		<property name="increment" value="0.1" />
 	</bean>
 
