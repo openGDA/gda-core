@@ -13,10 +13,10 @@
 		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 		<property name="locations">
 			<list value-type="java.lang.String">
-				<value>file:${gda.config}/properties/${gda.mode}/${gda.mode}_instance_java.properties</value>
-				<value>file:${gda.config}/properties/_common/common_instance_java.properties</value>
-				<value>file:${gda.facility.dir}/properties/${gda.mode}/${gda.mode}_facility_java.properties</value>
 				<value>file:${gda.facility.dir}/properties/_common/common_facility_java.properties</value>
+				<value>file:${gda.facility.dir}/properties/${gda.mode}/${gda.mode}_facility_java.properties</value>
+				<value>file:${gda.config}/properties/_common/common_instance_java.properties</value>
+				<value>file:${gda.config}/properties/${gda.mode}/${gda.mode}_instance_java.properties</value>
 			</list>
 		</property>
 	</bean>
