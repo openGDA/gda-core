@@ -18,8 +18,6 @@
 
 package uk.ac.gda.client.liveplot;
 
-import gda.rcp.GDAClientActivator;
-
 import java.awt.Color;
 import java.util.Vector;
 
@@ -32,11 +30,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
+import gda.rcp.GDAClientActivator;
 import uk.ac.gda.preferences.PreferenceConstants;
 
 public class LineAppearanceProvider {
 
 	private static final Logger logger = LoggerFactory.getLogger(LineAppearanceProvider.class);
+	private boolean showErrorBar = false;
 
 	public LineAppearanceProvider() {
 		GDAClientActivator.getDefault().getPreferenceStore().addPropertyChangeListener(new IPropertyChangeListener() {
@@ -59,6 +59,9 @@ public class LineAppearanceProvider {
 							logger.warn("Unable to get Integer from " + sValue, e);
 						}
 					}
+				} else if (event.getProperty().equals(PreferenceConstants.GDA_CLIENT_PLOT_ERRORBAR)) {
+					if (newValue instanceof Boolean)
+						refreshLineErrorBar((Boolean) newValue);
 				}
 			}
 		});
@@ -66,6 +69,12 @@ public class LineAppearanceProvider {
 		refreshLineStyles(preferenceStore.getString(PreferenceConstants.GDA_CLIENT_PLOT_LINESTYLES));
 		refreshColors(preferenceStore.getString(PreferenceConstants.GDA_CLIENT_PLOT_COLORS));
 		refreshLineWidth(preferenceStore.getInt(PreferenceConstants.GDA_CLIENT_PLOT_LINEWIDTH));
+		refreshLineErrorBar(preferenceStore.getBoolean(PreferenceConstants.GDA_CLIENT_PLOT_ERRORBAR));
+
+	}
+
+	private void refreshLineErrorBar(boolean boolean1) {
+		showErrorBar = boolean1;
 
 	}
 
@@ -149,6 +158,10 @@ public class LineAppearanceProvider {
 
 	public Plot1DStyles getStyle(int nr) {
 		return styles != null ? styles[nr % styles.length] : PlotColorUtility.getDefaultStyle(nr);
+	}
+
+	public boolean showErrorBar() {
+		return showErrorBar;
 	}
 
 }

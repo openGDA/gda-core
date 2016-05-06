@@ -63,6 +63,11 @@ public class PreferenceConstants {
 	public static final String GDA_CLIENT_PLOT_LINESTYLES = "gda.client.plot.linestyles";
 
 	/**
+	 * Boolean value to control whether Error Bar is shown in plot or not. Default is False
+	 */
+	public static final String GDA_CLIENT_PLOT_ERRORBAR = "gda.client.plot.errorbar";
+
+	/**
 	 * Name of preference to set TRUE if project referring to the folder where data is written to by scans is to be
 	 * created on startup. Default is TRUE
 	 */
