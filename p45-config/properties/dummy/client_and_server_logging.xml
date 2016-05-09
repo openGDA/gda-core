@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<configuration debug="true"> <!-- Add debug="true" in here to log logback configuration -->
+<configuration scan="true" scanPeriod="10 seconds" debug="true"> <!-- Add debug="true" in here to log logback configuration -->
 
-<include file="${gda.config}/properties/_common/client_and_server_logging.xml"/>
+	<include file="${gda.config}/properties/_common/client_and_server_logging.xml" />
 
-    <root>
-        <level value="DEBUG"/>
-        <appender-ref ref="SOCKET"/>
-    </root>
+	<root>
+		<level value="DEBUG" />
+		<appender-ref ref="SOCKET" />
+	</root>
 
 </configuration>
