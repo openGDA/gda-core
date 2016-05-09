@@ -18,8 +18,6 @@
 
 package uk.ac.gda.exafs.ui.composites;
 
-import gda.configuration.properties.LocalProperties;
-
 import java.io.File;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -43,6 +41,7 @@ import org.eclipse.swt.widgets.Link;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
 import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.exafs.XanesScanParameters;
 import uk.ac.gda.beans.exafs.XasScanParameters;
@@ -69,7 +68,7 @@ public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite
 	private boolean autoChangeFluorescenceFile = LocalProperties.check("gda.microfocus.exafs.autoChangeFluorescenceFile");
 	private IBeanController control;
 
-	public FluorescenceComposite(Composite parent, int style, boolean includeVortex, boolean includeGermanium, boolean includeXspress3,
+	public FluorescenceComposite(Composite parent, int style, boolean includeVortex, boolean includeGermanium, boolean includeXspress3, boolean includeMedipix,
 			DetectorParameters abean, final IBeanController control) {
 		super(parent, style, abean);
 		this.control = control;
@@ -95,6 +94,9 @@ public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite
 		}
 		if (includeXspress3){
 			items = (String[]) ArrayUtils.add(items, "Xspress3");
+		}
+		if (includeMedipix) {
+			items = (String[]) ArrayUtils.add(items, "Medipix");
 		}
 
 		this.detectorType = new RadioWrapper(confComp, SWT.NONE, items);

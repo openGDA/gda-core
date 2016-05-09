@@ -6,6 +6,7 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Diamond Light Source
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: gda.device.corba,
+ gda.device.detector.nxdetector.roi,
  gda.jscience.physics.quantities,
  gda.util.exafs,
  org.apache.commons.collections,

@@ -29,7 +29,10 @@ public class XesScanParameters implements Serializable, IScanParameters {
 
 	static public final URL schemaURL = XesScanParameters.class.getResource("ExafsParameterMapping.xsd");
 
-	public static String[] LOOPOPTIONS = new String[] { "Ef outer, E0 inner", "E0 outer, Ef inner" };
+	public static final String EF_OUTER_MONO_INNER = "Ef outer, E0 inner";
+	public static final String MONO_OUTER_EF_INNER = "E0 outer, Ef inner";
+
+	public static String[] LOOPOPTIONS = new String[] { EF_OUTER_MONO_INNER, MONO_OUTER_EF_INNER };
 
 	// The types of scan performed under XES
 	public static final int SCAN_XES_FIXED_MONO = 1;

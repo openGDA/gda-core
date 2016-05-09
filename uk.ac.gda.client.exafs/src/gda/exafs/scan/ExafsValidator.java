@@ -18,19 +18,21 @@
 
 package gda.exafs.scan;
 
-import gda.configuration.properties.LocalProperties;
-import gda.device.Scannable;
-import gda.factory.Findable;
-import gda.factory.Finder;
-import gda.util.Element;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import org.nfunk.jep.JEP;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
+import gda.device.Scannable;
+import gda.device.detector.nxdetector.roi.PlotServerROISelectionProvider;
+import gda.factory.Findable;
+import gda.factory.Finder;
+import gda.util.Element;
 import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.exafs.IDetectorParameters;
 import uk.ac.gda.beans.exafs.IOutputParameters;
@@ -55,6 +57,8 @@ public abstract class ExafsValidator extends AbstractValidator {
 			'>', '|', '\"', ':', '@', '!', '$', '#', '%', '&', '(', ')' };
 
 	protected ScanObject bean;
+
+	private static final Logger logger = LoggerFactory.getLogger(ExafsValidator.class);
 
 	public List<InvalidBeanMessage> validateIOutputParameters(IOutputParameters iOutputParams) {
 
@@ -160,8 +164,26 @@ public abstract class ExafsValidator extends AbstractValidator {
 				errors.add(new InvalidBeanMessage("Fluorescence detector XML configuration file not specified!"));
 			}
 		} else if (iDetectorParams.getExperimentType().equalsIgnoreCase(DetectorParameters.XES_TYPE)) {
-			if (iDetectorParams.getXesParameters().getConfigFileName() == null
+
+			if (iDetectorParams.getXesParameters().getDetectorType().equals("Medipix")) {
+				// See if ROI is set for medipix and set warning message if needed. imh 2/2/2016
+				// Works well but not from built client, causes errors :
+				// java.lang.NoClassDefFoundError: gda/device/detector/nxdetector/roi/PlotServerROISelectionProvider
+				// Caused by: java.lang.ClassNotFoundException: gda.device.detector.nxdetector.roi.PlotServerROISelectionProvider
+				// Dependency issue?!
+
+				try {
+					PlotServerROISelectionProvider roiProvider = new PlotServerROISelectionProvider("medipix", 1);
+					if (roiProvider.getRoi(0) == null)
+						errors.add(new InvalidBeanMessage("\nMedipix does not have any ROIs set\n"));
+				} catch (Exception e1) {
+					errors.add(new InvalidBeanMessage("Problem getting Medipix ROI information"));
+					logger.info(e1.toString());
+				}
+
+			} else if (iDetectorParams.getXesParameters().getConfigFileName() == null
 					|| iDetectorParams.getXesParameters().getConfigFileName().isEmpty()) {
+				// Display warning only if not using Medipix - since this is not currently configured using an xml file. imh 1/2/2016
 				errors.add(new InvalidBeanMessage("Fluorescence detector XML configuration file not specified!"));
 			}
 		}

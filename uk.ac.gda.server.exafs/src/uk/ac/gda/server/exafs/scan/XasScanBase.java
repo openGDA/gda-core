@@ -602,8 +602,13 @@ public abstract class XasScanBase implements XasScan {
 		if (exptType.equalsIgnoreCase("fluorescence")) {
 			detectorGroupName = detectorBean.getFluorescenceParameters().getDetectorType();
 		} else if (exptType.equalsIgnoreCase("xes")) {
-			detectorGroupName = "xes";
-		} else {
+			if (detectorBean.getXesParameters().getDetectorType().equals(FluorescenceParameters.MEDIPIX_DET_TYPE)) {
+				detectorGroupName = "xes_medipix";
+			} else {
+				detectorGroupName = "xes";
+			}
+		}
+		else {
 			detectorGroupName = detectorBean.getTransmissionParameters().getDetectorType();
 		}
 
