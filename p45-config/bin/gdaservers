@@ -1,0 +1,30 @@
+#!/bin/bash
+# The local gda script is required to be on the path until the Diamond Launcher scripts in
+# /dls_sw/prod/etc/Launcher/startgda* use the standard startup commands, and
+# this cannot be done until all beamlines use the standard startup commands.
+
+# Via the standard scripts, invoke the command in gda2's ~/.ssh/authorisekeys file
+# on the control machine passing the supplied option params (to support --debug etc.)
+# 
+# Since GDA 9 the gdaservers script allows selection and latching of the server target to start
+# see http://confluence.diamond.ac.uk/display/CT/Deployment%2C+Target+Selection+and+Startup for details
+# this is achieved via the gda_server_target_select.sh script.
+#
+# Entering gdaservers --help (-h) will give details of the options available (also via gda_server_target_select.sh).
+
+
+# Get the parent dir of the workspace this script is in
+#
+MY_PATH=$(readlink -e ${BASH_SOURCE[0]})
+MY_WORKSPACE_PARENT=${MY_PATH%%/workspace_git*}
+
+CORE_SCRIPTS="$MY_WORKSPACE_PARENT/workspace_git/gda-core.git/core-config/bin"
+
+# Manage the target selection, populating $operation and $ARGS vaiables in the process (because using 'source')
+#
+source "$CORE_SCRIPTS/gda_server_target_select.sh"
+
+# invoke the remote startup script from the control machine passing through the composite args
+#
+#
+gda $operation servers $ARGS
