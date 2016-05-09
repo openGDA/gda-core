@@ -53,7 +53,7 @@ public class VisitIDDialog extends Dialog {
 	 * @param parent
 	 */
 	public VisitIDDialog(Display parent, String[][] visits) {
-		super(new Shell(parent));
+		super(parent.getActiveShell());
 		this.visits = visits;
 	}
 	
