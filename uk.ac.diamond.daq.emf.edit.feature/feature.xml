@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="uk.ac.diamond.daq.imaging.server.feature"
-      label="Imaging Server Components Feature"
-      version="9.0.0.qualifier"
-      provider-name="Diamond Light Source">
+      id="uk.ac.diamond.daq.emf.edit.feature"
+      label="Feature"
+      version="1.0.0.qualifier">
 
    <description url="http://www.example.com/description">
-      Feature to include those features used by Imaging beamlines.
+      [Enter Feature Description here.]
    </description>
 
    <copyright url="http://www.example.com/copyright">
@@ -17,26 +16,29 @@
       [Enter License Description here.]
    </license>
 
-   <includes
-         id="uk.ac.diamond.daq.emf.edit.feature"
-         version="0.0.0"/>
-
    <plugin
-         id="org.gda.tango"
+         id="org.eclipse.emf.edit"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="uk.ac.gda.devices.excalibur"
+         id="org.eclipse.emf.transaction"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="uk.ac.gda.tomography"
+         id="org.eclipse.emf.validation"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.emf.workspace"
          download-size="0"
          install-size="0"
          version="0.0.0"
