@@ -524,11 +524,6 @@ public class FindableProcessorQueue implements IFindableQueueProcessor, Runnable
 		return queue.addToTail(provider);
 	}
 
-	@Override
-	public String getLogFilePath() {
-		throw new UnsupportedOperationException(String.format("%s no longer writes its own file", getClass().getSimpleName()));
-	}
-
 	/**
 	 * @param logFilePath The logFilePath to set.
 	 */
