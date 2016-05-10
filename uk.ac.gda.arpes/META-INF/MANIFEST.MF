@@ -11,44 +11,19 @@ Require-Bundle: org.eclipse.ui,
  uk.ac.gda.common.rcp;bundle-version="1.0.0",
  uk.ac.gda.common,
  uk.ac.gda.api,
- uk.ac.gda.core,
- uk.ac.gda.epics,
- uk.ac.diamond.scisoft.analysis.rcp;bundle-version="1.2.0",
- uk.ac.gda.nexus;bundle-version="1.0.0",
- uk.ac.diamond.scisoft.analysis;bundle-version="1.2.0",
  uk.ac.gda.devices.vgscienta;bundle-version="1.0.0",
- uk.ac.diamond.scisoft.analysis.plotserver;bundle-version="1.0.0",
- org.eclipse.dawnsci.nexus;bundle-version="1.0.0",
- org.eclipse.dawnsci.hdf5;bundle-version="1.2.0",
- ncsa.hdf,
- org.dawnsci.common.widgets;bundle-version="1.2.0",
- org.apache.commons.math3;bundle-version="[3.2.0,4.0.0)",
- org.apache.commons.lang;bundle-version="2.6.0",
  org.eclipse.richbeans.widgets;bundle-version="1.0.0",
- org.eclipse.richbeans.xml;bundle-version="1.0.0"
+ org.eclipse.richbeans.xml;bundle-version="1.0.0",
+ uk.ac.gda.arpes.server;bundle-version="1.0.0",
+ uk.ac.diamond.scisoft.analysis.rcp;bundle-version="1.3.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Export-Package: uk.ac.gda.arpes.beans;uses:="uk.ac.gda.beans",
- uk.ac.gda.arpes.ui;
-  uses:="uk.ac.gda.richbeans.xml,
-   uk.ac.gda.richbeans.editors,
-   uk.ac.gda.richbeans.beans,
-   uk.ac.gda.richbeans.components,
-   org.eclipse.ui,
-   uk.ac.gda.richbeans.event,
-   org.eclipse.swt.widgets",
- uk.ac.gda.arpes.ui.views;uses:="org.eclipse.ui.part,org.eclipse.swt.widgets,gda.observable"
 Bundle-Vendor: Diamond Light Source
-Import-Package: org.eclipse.ui.intro.config,
- org.jscience.physics.quantities;version="2.0.2",
- org.slf4j;version="[1.7.2,2.0.0)",
- org.springframework.beans;version="3.0.4",
- org.springframework.beans.factory;version="3.0.4",
- org.springframework.beans.factory.support;version="3.0.4",
- org.springframework.beans.factory.xml;version="3.0.4",
- org.springframework.context;version="3.0.4",
- org.springframework.core;version="3.0.4",
- org.springframework.util;version="3.0.4"
+Import-Package: org.slf4j;version="[1.7.2,2.0.0)"
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework, 
  uk.ac.gda.api,
  uk.ac.gda.core
+Export-Package: uk.ac.gda.arpes.ui,
+ uk.ac.gda.arpes.ui.views,
+ uk.ac.gda.arpes.widgets,
+ uk.ac.gda.arpes.wizards
