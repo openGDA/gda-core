@@ -18,11 +18,8 @@
 
 package gda.commandqueue;
 
-import gda.TestHelpers;
 import gda.commandqueue.Processor.STATE;
 import gda.observable.IObserver;
-
-import java.io.File;
 
 import junit.framework.Assert;
 
@@ -46,10 +43,8 @@ public class FindableProcessorQueueTest implements IObserver {
 	Processor processor;
 	Queue queue;
 
-	public void setUp(String testName) throws Exception {
-		String testScratchDirectoryName = TestHelpers.setUpTest(FindableProcessorQueueTest.class, testName, true);
+	public void setUp(@SuppressWarnings("unused") String testName) throws Exception {
 		FindableProcessorQueue simpleProcessor = new FindableProcessorQueue();
-		simpleProcessor.setLogFilePath(testScratchDirectoryName + File.separator + "commandQueue.log");
 		simpleProcessor.setStartImmediately(false);
 		simpleProcessor.afterPropertiesSet();
 		processor = simpleProcessor;
