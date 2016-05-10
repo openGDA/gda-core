@@ -113,6 +113,10 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 	@Override
 	public void initialize(IWorkbenchConfigurer configurer) {
 
+		// Prevent PyDev popping up a funding appeal dialog box on first use
+		// Diamond Light Source is already a Gold Sponsor of PyDev (via dawnsci)
+		System.setProperty("pydev.funding.hide", "true");
+
 		/*
 		 * Called to enable alternative content on navigators.
 		 */
