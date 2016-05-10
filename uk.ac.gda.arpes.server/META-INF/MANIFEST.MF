@@ -10,7 +10,7 @@ Bundle-Name: ARPES Server Components Plug-in
 Bundle-SymbolicName: uk.ac.gda.arpes.server
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Diamond Light Source Ltd
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.apache.commons.lang;bundle-version="2.6.0",
  org.apache.commons.math3;bundle-version="[3.2.0,4.0.0)",
  uk.ac.gda.api;bundle-version="8.50.0",
