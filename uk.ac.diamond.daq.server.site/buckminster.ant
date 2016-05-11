@@ -465,8 +465,8 @@ Additional Ant tasks for Buckminster build. Based on http://www.ralfebert.de/blo
 		<copy todir="${install.git.path}/gda-pes.git/i05-1-config">
 			<fileset dir="${ws_git.rel.path}/gda-pes.git/i05-1-config"/>
 		</copy>
-		<copy todir="${install.git.path}/gda-pes.git/uk.ac.gda.arpes/scripts">
-			<fileset dir="${ws_git.rel.path}/gda-pes.git/uk.ac.gda.arpes/scripts"/>
+		<copy todir="${install.git.path}/gda-pes.git/uk.ac.gda.arpes.server/scripts">
+			<fileset dir="${ws_git.rel.path}/gda-pes.git/uk.ac.gda.arpes.server/scripts"/>
 		</copy>
 		<!-- XAS folders -->
 		<copy todir="${install.git.path}/gda-dls-beamlines-xas.git/i18">
