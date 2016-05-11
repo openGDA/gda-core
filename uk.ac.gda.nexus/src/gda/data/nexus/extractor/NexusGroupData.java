@@ -66,7 +66,7 @@ public class NexusGroupData implements Serializable {
 	/**
 	 * Flag to indicate that when writing this value to a file the entry is to linked to the NXEntry/NXDetector section as a variable of the scan
 	 */
-	public boolean isDetectorEntryData = true;
+	public boolean isDetectorEntryData = false;
 
 	private boolean isUnsigned = false;
 
