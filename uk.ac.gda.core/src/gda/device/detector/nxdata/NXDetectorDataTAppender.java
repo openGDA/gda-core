@@ -73,10 +73,10 @@ public class NXDetectorDataTAppender <T extends Number> implements NXDetectorDat
 			}
 			if( t instanceof Double){
 				data.setPlottableValue(name, (Double)t);
-				valdata = data.addData(detectorName, name, new NexusGroupData((Double) t), unit, null);
+				valdata = data.addData(detectorName, name, new NexusGroupData((Double) t), unit, null, null, true);
 			} else if( t instanceof Integer){
 				data.setPlottableValue(name, ((Integer)t).doubleValue());
-				valdata = data.addData(detectorName, name, new NexusGroupData((Integer) t), unit, null);
+				valdata = data.addData(detectorName, name, new NexusGroupData((Integer) t), unit, null, null, true);
 			}
 			if(valdata ==null)
 				throw new RuntimeException("Only Double or Integer currently supported by NXDetectorDataTAppender");
