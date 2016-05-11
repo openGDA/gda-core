@@ -39,6 +39,7 @@ public class LissajousTest {
 		assertEquals(503, pointList.size());
 
 		// Test a few points
+		// TODO check x and y index values - currently these are not tested by AbstractPosition.equals()
 		assertEquals(new Point(-1, -8.5, -1, 9.0), pointList.get(0));
 		assertEquals(new Point(-1, -9.938386411994712, -1, 7.6306447247905425), pointList.get(100));
 		assertEquals(new Point(-1, -7.524568239764414, -1, 5.358881285320901), pointList.get(300));

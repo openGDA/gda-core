@@ -27,6 +27,8 @@ class LissajousIterator implements Iterator<IPosition> {
 
 		if (pointsSoFar >= model.getPoints()) return false;
 
+		// TODO replace recursion with a simple loop (more like the SpiralIterator)
+		// (The recursion can lead to a StackOverflowError if many successive points are excluded from the scan by an ROI)
 		if (!gen.containsPoint(pos[1], pos[2])) {
 			this.theta = t;
 			return hasNext();
@@ -62,8 +64,15 @@ class LissajousIterator implements Iterator<IPosition> {
 
 		if (gen.containsPoint(x, y)) {
 			pointsSoFar++;
-			return new Point(model.getFastAxisName(), -1, x, model.getSlowAxisName(), -1, y);
+			// Ideally, we would create a point with two position coordinates (for X and Y motor positions) but only one
+			// index (for the position along the spiral). Because IPosition requires an index for each named axis, we set
+			// the X index to the "real" index, and the Y index to 0. This will lead to a scan file with the positions
+			// written in a block of size 1 x n, rather than a stack of size n, which currently cannot be visualised
+			// properly but is the closest approximation available to the correct structure.
+			return new Point(model.getFastAxisName(), pointsSoFar, x, model.getSlowAxisName(), 0, y);
 		} else {
+			// TODO replace recursion with a simple loop (more like the SpiralIterator)
+			// (The recursion can lead to a StackOverflowError if many successive points are excluded from the scan by an ROI)
 			return next();
 		}
 	}

@@ -81,7 +81,12 @@ class SpiralIterator implements Iterator<IPosition> {
 		currentPosition = nextPosition;
 		nextPosition = null;
 
-		return new Point(xName, -1, currentPosition.x, yName, -1, currentPosition.y);
+		// Ideally, we would create a point with two position coordinates (for X and Y motor positions) but only one
+		// index (for the position along the spiral). Because IPosition requires an index for each named axis, we set
+		// the X index to the "real" index, and the Y index to 0. This will lead to a scan file with the positions
+		// written in a block of size 1 x n, rather than a stack of size n, which currently cannot be visualised
+		// properly but is the closest approximation available to the correct structure.
+		return new Point(xName, currentPosition.n, currentPosition.x, yName, 0, currentPosition.y);
 	}
 
 	// For points algorithm, see /dls_sw/i13-1/scripts/Ptycholib/scan_functions.py#spiral_scan_ROI_positions()
