@@ -42,7 +42,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.eventbus.api.IGDAEventBus;
-import ch.qos.logback.classic.Level;
 
 import com.google.common.base.Objects;
 import com.google.common.eventbus.DeadEvent;
@@ -74,6 +73,7 @@ public class GDAEventBus extends EventBus implements IGDAEventBus {
 	public static final Logger logger = LoggerFactory.getLogger(GDAEventBus.class);
 
 	private static GDAEventBus INSTANCE;
+
 	/**
 	 * @return singleton shared by objects of the same classloader
 	 */
@@ -125,10 +125,6 @@ public class GDAEventBus extends EventBus implements IGDAEventBus {
 
 	public GDAEventBus(String identifier, ConnectionFactory connectionFactory, String destinationName, boolean isDestinationTopicElseQueue) {
 		this(identifier);
-
-		// publish(Serializable event) { producer.send(ObjectMessage message) }
-
-		// ConsumerMessageListener.onMessage(Message message) { post(((ObjectMessage) message).getObject()) }
 
 		// create JMS components for forwarding GDAEventBus events to ActiveMQ
 		// adapted from HelloWorld{Producer,Consumer} here: http://activemq.apache.org/hello-world.html
@@ -186,9 +182,6 @@ public class GDAEventBus extends EventBus implements IGDAEventBus {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see uk.ac.gda.eventbus.IGDAEventBus#post(java.lang.Object)
-	 */
 	@Override
 	public void post(Object event) {
 		logger.debug("posting event: {}", event);
@@ -210,26 +203,17 @@ public class GDAEventBus extends EventBus implements IGDAEventBus {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see uk.ac.gda.eventbus.IGDAEventBus#identifier()
-	 */
 	@Override
 	public String identifier() {
 		return this.identifier;
 //		return delegate.identifier(); // only available in Guava > 16
 	}
 
-	/* (non-Javadoc)
-	 * @see uk.ac.gda.eventbus.IGDAEventBus#register(java.lang.Object)
-	 */
 	@Override
 	public void register(Object handler) {
 		delegate.register(handler);
 	}
 
-	/* (non-Javadoc)
-	 * @see uk.ac.gda.eventbus.IGDAEventBus#unregister(java.lang.Object)
-	 */
 	@Override
 	public void unregister(Object handler) {
 		delegate.unregister(handler);

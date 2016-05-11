@@ -60,49 +60,31 @@ public abstract class GDAMessage implements Serializable, IGDAMessage {
 		this.message = message;
 	}
 
-	/* (non-Javadoc)
-	 * @see uk.ac.gda.eventbus.api.message.IGDAMessage#getCategory()
-	 */
 	@Override
 	public GDAMessageCategory getCategory() {
 		return category;
 	}
 
-	/* (non-Javadoc)
-	 * @see uk.ac.gda.eventbus.api.message.IGDAMessage#getMessage()
-	 */
 	@Override
 	public String getMessage() {
 		return message;
 	}
 
-	/* (non-Javadoc)
-	 * @see uk.ac.gda.eventbus.api.message.IGDAMessage#getSourceToken()
-	 */
 	@Override
 	public Optional<?> getSourceToken() {
 		return sourceToken;
 	}
 
-	/* (non-Javadoc)
-	 * @see uk.ac.gda.eventbus.api.message.IGDAMessage#setCategory(uk.ac.gda.eventbus.api.message.GDAMessageCategory)
-	 */
 	@Override
 	public void setCategory(GDAMessageCategory category) {
 		this.category = category;
 	}
 
-	/* (non-Javadoc)
-	 * @see uk.ac.gda.eventbus.api.message.IGDAMessage#setMessage(java.lang.String)
-	 */
 	@Override
 	public void setMessage(String message) {
 		this.message = message;
 	}
 
-	/* (non-Javadoc)
-	 * @see uk.ac.gda.eventbus.api.message.IGDAMessage#setSourceToken(java.lang.Object)
-	 */
 	@Override
 	public void setSourceToken(Object sourceToken) {
 		this.sourceToken = Optional.of(sourceToken);
