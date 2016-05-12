@@ -37,12 +37,10 @@ import javax.jms.MessageProducer;
 import javax.jms.ObjectMessage;
 import javax.jms.Session;
 
-import org.apache.activemq.ActiveMQConnectionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.eventbus.api.IGDAEventBus;
-import ch.qos.logback.classic.Level;
 
 import com.google.common.base.Objects;
 import com.google.common.eventbus.DeadEvent;
@@ -74,6 +72,7 @@ public class GDAEventBus extends EventBus implements IGDAEventBus {
 	public static final Logger logger = LoggerFactory.getLogger(GDAEventBus.class);
 
 	private static GDAEventBus INSTANCE;
+
 	/**
 	 * @return singleton shared by objects of the same classloader
 	 */
@@ -125,10 +124,6 @@ public class GDAEventBus extends EventBus implements IGDAEventBus {
 
 	public GDAEventBus(String identifier, ConnectionFactory connectionFactory, String destinationName, boolean isDestinationTopicElseQueue) {
 		this(identifier);
-
-		// publish(Serializable event) { producer.send(ObjectMessage message) }
-
-		// ConsumerMessageListener.onMessage(Message message) { post(((ObjectMessage) message).getObject()) }
 
 		// create JMS components for forwarding GDAEventBus events to ActiveMQ
 		// adapted from HelloWorld{Producer,Consumer} here: http://activemq.apache.org/hello-world.html
@@ -186,9 +181,6 @@ public class GDAEventBus extends EventBus implements IGDAEventBus {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see uk.ac.gda.eventbus.IGDAEventBus#post(java.lang.Object)
-	 */
 	@Override
 	public void post(Object event) {
 		logger.debug("posting event: {}", event);
@@ -210,26 +202,17 @@ public class GDAEventBus extends EventBus implements IGDAEventBus {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see uk.ac.gda.eventbus.IGDAEventBus#identifier()
-	 */
 	@Override
 	public String identifier() {
 		return this.identifier;
 //		return delegate.identifier(); // only available in Guava > 16
 	}
 
-	/* (non-Javadoc)
-	 * @see uk.ac.gda.eventbus.IGDAEventBus#register(java.lang.Object)
-	 */
 	@Override
 	public void register(Object handler) {
 		delegate.register(handler);
 	}
 
-	/* (non-Javadoc)
-	 * @see uk.ac.gda.eventbus.IGDAEventBus#unregister(java.lang.Object)
-	 */
 	@Override
 	public void unregister(Object handler) {
 		delegate.unregister(handler);
@@ -241,60 +224,6 @@ public class GDAEventBus extends EventBus implements IGDAEventBus {
 			.addValue(identifier)
 			.toString();
 //		return delegate.toString(); // does the same but with MoreObjects in Guava > 16
-	}
-
-	@SuppressWarnings("unused")
-	private static void example() {
-		GDAEventBus bus = new GDAEventBus(); // identifier "default"
-
-		// Simple handlers might be anonymous sub types of Object
-		bus.register(new Object() {
-			@Subscribe
-			public void openingGambit(String s) {
-				logger.info("read " + (s.trim().split("\\s").length == 1 ? "single " : "multi-") + "word String: \"{}\"", s);
-			}
-		});
-
-		// Subscribers to Object will receive any (and all!) events
-		class AnyEventHandler {
-			@Subscribe
-			public void anyAndAll(Object o) {
-				logger.debug("saw {}: {}", o.getClass().getName(), o.toString());
-			}
-		}
-
-		// Handlers can subscribe to multiple event types/subtypes
-		class NumericEventHandler<T> { // parameterised for demonstration purposes
-			@Subscribe
-			public void lessThanZero(Integer i) {
-				logger.info("determined Integer to be " + (i < 0 ? "negative" : "positive") + ": {}", i);
-			}
-			@Subscribe
-			public void lessThanZero(Double d) {
-				logger.info("determined Double to be " + (d < 0 ? "negative" : "positive") + ": {}", d);
-			}
-			@Subscribe
-			public void whichClass(T n) { // https://github.com/google/guava/issues/1549 ?
-				logger.debug("passed object of type " + n.getClass().getName() + ": {}", n);
-			}
-		}
-
-		// Instantiate super type handlers as needed for debugging
-		final AnyEventHandler anyEventHandler = new AnyEventHandler();
-		bus.register(anyEventHandler);
-		// but keep a reference for when you are done
-		bus.unregister(anyEventHandler);
-
-		// DefaultDeadEventHandler receives events without subscribers
-		bus.register(new DefaultDeadEventHandler(logger));
-
-		// Having left generic handlers until it was unavoidable...
-		bus.register(new NumericEventHandler<Number>());
-
-		// Let's test
-		bus.post(1);
-		bus.post(-2.0);
-		bus.post("Three little birds");
 	}
 
 	/**
@@ -314,48 +243,6 @@ public class GDAEventBus extends EventBus implements IGDAEventBus {
 			if (!ignored.contains(d.getEvent().getClass()))
 				logger.warn("unhandled event type {} posted by: {}", d.getEvent().getClass().getName(), d.getSource());
 		}
-	}
-
-
-	public static void main(String[] args) throws Exception {
-//		((ch.qos.logback.classic.Logger) LoggerFactory.getLogger("org.apache.activemq.transport")).setLevel(Level.INFO);
-//		((ch.qos.logback.classic.Logger) logger).setLevel(Level.INFO);
-//		example();
-		testActiveMq();
-	}
-
-	private static void testActiveMq() throws InterruptedException, JMSException {
-
-		// create
-		ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
-		GDAEventBus eventBus1 = new GDAEventBus("eventBus1", connectionFactory);
-		GDAEventBus eventBus2 = new GDAEventBus("eventBus2", connectionFactory);
-//		eventBus2 = eventBus1; // can be the same!
-
-		// ready
-		Object handler = new Object() {
-			@Subscribe
-			public void print(Object event) {
-				logger.debug("received event: {}", event);
-				System.out.println(event);
-			}
-		};
-
-		// set
-		eventBus1.register(handler);
-		eventBus2.register(handler);
-
-		// go
-		eventBus1.post("String from eventBus1");
-		eventBus2.publish("String from eventBus2");
-		eventBus1.publish(1);
-		eventBus2.post(2);
-
-		// wait expectantly
-		Thread.sleep(3000);
-
-		eventBus1.cleanUp();
-		eventBus2.cleanUp();
 	}
 
 	public void cleanUp/*closeConnection*/() throws JMSException {
