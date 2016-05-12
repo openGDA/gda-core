@@ -64,7 +64,9 @@ public enum ConfigurationDefaults {
 	GDA_WORKSPACE_PARENT(Paths.get(WORKSPACE_LOCATION.value).getParent().toString()),		// Default
 	APP_PATHS_ROOT(choosePathsRoot()),
 
-	GDA_WORKSPACE_GIT_NAME("workspace_git"),
+	GDA_WORKSPACE_NAME("workspace"),
+	APP_WORKSPACE_NAME(getHierarchicalValueWithDefault(GDA_WORKSPACE_NAME)),
+	GDA_WORKSPACE_GIT_NAME(APP_WORKSPACE_NAME+"_git"),
 	APP_WORKSPACE_GIT_NAME(getHierarchicalValueWithDefault(GDA_WORKSPACE_GIT_NAME)),
 
 	GDA_INSTANCE_CONFIG_rel(combine(APP_WORKSPACE_GIT_NAME, LAYOUT_DETAILS.value.split(",")[1])),
@@ -112,14 +114,14 @@ public enum ConfigurationDefaults {
 
 	JACORB_CONFIG_DIR(combine(combine(APP_INSTANCE_CONFIG, "properties"), combine(APP_MODE, "jacorb"))),
 	APP_JACORB_VM_ARGS("-Djacorb.config.dir=" + getSystemPropertyWithDefault(JACORB_CONFIG_DIR)),
-	APP_BASE_SERVER_CLASSPATH(combine(APP_PATHS_ROOT, "workspace/tp/plugins/*:")
-							+ combine(APP_PATHS_ROOT, "../plugins/*:")
-							+ combine(APP_WORKSPACE_GIT, "diamond-springframework.git/uk.ac.diamond.org.springframework/jars/*:")
-							+ combine(APP_PATHS_ROOT, "../plugins/uk.ac.diamond.org.springframework/jars/*:")
-							+ combine(APP_WORKSPACE_GIT, "gda-common.git/uk.ac.gda.common/bin:")
-							+ combine(APP_WORKSPACE_GIT, "gda-core.git/uk.ac.gda.api/bin:")
+	APP_BASE_SERVER_CLASSPATH(combine(APP_PATHS_ROOT, APP_WORKSPACE_NAME+"/tp/plugins/*"+File.pathSeparatorChar)
+							+ combine(APP_PATHS_ROOT, "../plugins/*"+File.pathSeparatorChar)
+							+ combine(APP_WORKSPACE_GIT, "diamond-springframework.git/uk.ac.diamond.org.springframework/jars/*"+File.pathSeparatorChar)
+							+ combine(APP_PATHS_ROOT, "../plugins/uk.ac.diamond.org.springframework/jars/*"+File.pathSeparatorChar)
+							+ combine(APP_WORKSPACE_GIT, "gda-common.git/uk.ac.gda.common/bin"+File.pathSeparatorChar)
+							+ combine(APP_WORKSPACE_GIT, "gda-core.git/uk.ac.gda.api/bin"+File.pathSeparatorChar)
 							+ combine(APP_WORKSPACE_GIT, "gda-core.git/uk.ac.gda.core/classes/main")),
-	APP_CORBA_CLASSPATH(combine(APP_PATHS_ROOT, "../plugins/uk.ac.diamond.org.jacorb/jars/*:") 
+	APP_CORBA_CLASSPATH(combine(APP_PATHS_ROOT, "../plugins/uk.ac.diamond.org.jacorb/jars/*"+File.pathSeparatorChar) 
 							+ combine(APP_WORKSPACE_GIT, NAME_SERVER_CLASSPATH_rel));
 
 	private static final String[] APP_JAVA_OPTS = JAVA_OPTS.value.split(" ");

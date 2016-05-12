@@ -2,6 +2,7 @@ package uk.ac.diamond.daq.server.configuration.services;
 
 import static uk.ac.diamond.daq.server.configuration.ConfigurationDefaults.*;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,7 +27,7 @@ public class BasicConfigurationService implements IGDAConfigurationService {
 
 		commands.put(ServerType.NAME, new SubProcessCommand(buildNameServerCommand(), APP_CORBA_CLASSPATH));
 		commands.put(ServerType.LOG, new SubProcessCommand(buildLogServerCommand((String[])null), APP_BASE_SERVER_CLASSPATH));
-		commands.put(ServerType.EVENT, new SubProcessCommand(buildChannelServerCommand((String[])null), APP_BASE_SERVER_CLASSPATH + ":" + APP_CORBA_CLASSPATH));
+		commands.put(ServerType.EVENT, new SubProcessCommand(buildChannelServerCommand((String[])null), APP_BASE_SERVER_CLASSPATH + File.pathSeparator + APP_CORBA_CLASSPATH));
 
 		final String[] profiles = APP_PROFILES.toString().split(",");
 		final String[] springPathsStrings = APP_SPRING_XML_FILE_PATHS.toString().split(",");
