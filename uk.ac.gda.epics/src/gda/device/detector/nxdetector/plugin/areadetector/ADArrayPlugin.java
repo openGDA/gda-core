@@ -183,6 +183,7 @@ class NXDetectorDataArrayAppender implements NXDetectorDataAppender {
 	@Override
 	public void appendTo(NXDetectorData data, String detectorName) throws DeviceException{
 		try {
+			arrayData.isDetectorEntryData = true;
 			data.addData(detectorName, "data", arrayData, null, 1);
 			if (firstReadoutInScan) {
 				// TODO add sensible axes
