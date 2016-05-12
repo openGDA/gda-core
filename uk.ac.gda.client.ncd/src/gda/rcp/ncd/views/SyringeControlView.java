@@ -23,6 +23,8 @@ import java.util.List;
 import org.eclipse.core.runtime.ISafeRunnable;
 import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
@@ -221,6 +223,23 @@ public class SyringeControlView extends ViewPart implements IObserver {
 		Preferences preferences = InstanceScope.INSTANCE.getNode(ID);
 		Preferences pref = preferences.node("stopCommand");
 		stopAction = pref.get("stopCommand", "");
+		IToolBarManager bars = getViewSite().getActionBars().getToolBarManager();
+		bars.add(new Action("Refill", Activator.getImageDescriptor("icons/syringe_small.png")) {
+			@Override
+			public void run() {
+				refill();
+			}
+			@Override
+			public String getToolTipText() {
+				return "Set the volume of selected syringe";
+			}
+		});
+		bars.add(new Action("Stop command", Activator.getImageDescriptor("icons/stop_command_small.png")) {
+			@Override
+			public void run() {
+				setStop();
+			}
+		});
 	}
 
 	private void update() {
