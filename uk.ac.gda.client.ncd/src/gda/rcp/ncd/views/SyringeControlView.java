@@ -109,7 +109,6 @@ public class SyringeControlView extends ViewPart implements IObserver {
 					logger.error("Error stopping the syringe", t);
 					UIHelper.showError("Error stopping the syringe", t.getMessage());
 				}
-
 			}
 		}
 	};
@@ -176,6 +175,7 @@ public class SyringeControlView extends ViewPart implements IObserver {
 	public void createPartControl(final Composite parent) {
 		parent.setLayout(new GridLayout(5, false));
 		statusLabel = new Label(parent, SWT.NONE);
+		statusLabel.setText("");
 		statusLabel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 4, 1));
 		bar = new ProgressBar(parent, SWT.SMOOTH | SWT.HORIZONTAL);
 		bar.setMaximum(100);
@@ -209,7 +209,7 @@ public class SyringeControlView extends ViewPart implements IObserver {
 		stopButton.addSelectionListener(stopListener);
 
 		if (pumps.isEmpty()) {
-			pumpChoice.setText("No syringe pumps found");
+			statusLabel.setText("No syringe pumps found");
 			pumpChoice.setEnabled(false);
 		} else {
 			for (Syringe sp : pumps) {
@@ -227,12 +227,17 @@ public class SyringeControlView extends ViewPart implements IObserver {
 		if (current != null) {
 			current.deleteIObserver(this);
 		}
-		Syringe sp = pumps.get(pumpChoice.getSelectionIndex());
-		current = sp;
-		current.addIObserver(this);
+		int choice = pumpChoice.getSelectionIndex();
+		if (choice >= 0) {
+			Syringe sp = pumps.get(choice);
+			current = sp;
+			current.addIObserver(this);
+		} else {
+			current = null;
+		}
 		if (current.isEnabled()) {
 			bar.setEnabled(true);
-			bar.setMaximum((int) sp.getCapacity());
+			bar.setMaximum((int) current.getCapacity());
 			try {
 				double vol = current.getVolume();
 				volumeRemaining.setText(String.format("%.4f", vol));
@@ -258,6 +263,10 @@ public class SyringeControlView extends ViewPart implements IObserver {
 	}
 
 	public void refill() {
+		if (current == null) {
+			UIHelper.showError("No syringe selected", "Syringe not selected or no syringes available");
+			return;
+		}
 		InputDialog newVolume = new InputDialog(Display.getDefault().getShells()[0], "New Volume", "Enter new volume", "", null);
 		newVolume.open();
 		if (newVolume.getReturnCode() == Window.OK) {
@@ -268,7 +277,11 @@ public class SyringeControlView extends ViewPart implements IObserver {
 				UIHelper.showError("Invalid volume", "Volume must be numeric value");
 			} catch (DeviceException de) {
 				UIHelper.showError("Could not set volume", de.getMessage());
-				logger.error("Could not set volume", de);
+				if (current.isEnabled()) {
+					logger.error("Could not set volume", de);
+				} else {
+					logger.info("Not setting volume for disabled syringe");
+				}
 			}
 		}
 	}
