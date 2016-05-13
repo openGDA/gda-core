@@ -164,6 +164,7 @@
       <view
             allowMultiple="true"
             class="uk.ac.gda.client.liveplot.mjpeg.LiveMjpegPlot"
+            icon="icons/media-player-phone-horizontal.png"
             id="uk.ac.gda.client.liveplot.mjpeg.LiveMJPEGView"
             name="Live MJPEG Plot"
             restorable="true">
@@ -171,6 +172,7 @@
       <view
             allowMultiple="true"
             class="uk.ac.gda.client.livecontrol.LiveControlsView"
+            icon="icons/ui-slider-050.png"
             id="uk.ac.gda.client.livecontrol.LiveControlsView"
             name="Live Controls"
             restorable="true">
