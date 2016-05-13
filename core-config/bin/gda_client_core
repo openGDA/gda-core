@@ -43,6 +43,6 @@ if [[ "$PARAMS" == *"client"* ]]; then
         PARAMS="${PARAMS/client/}"
 fi
 
-${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel}/bin/gdaclient --log --keep --nohup $GDA_LOG_FILE $*
+${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel}/bin/gdaclient --log --keep --nohup $GDA_LOG_FILE $PARAMS
 
 bashlog debug "gda_client_core" "Exited"
