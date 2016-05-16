@@ -36,5 +36,4 @@ public interface Processor extends IObservable{
 	public void stopAfterCurrent() throws Exception;
 	public STATE getState();
 	public ProcessorCurrentItem getCurrentItem()  throws Exception;
-	public String getLogFilePath();
 }

@@ -18,38 +18,24 @@
 
 package gda.commandqueue;
 
-import gda.TestHelpers;
 import gda.commandqueue.Processor.STATE;
 import gda.observable.IObserver;
 
-import java.io.File;
-
 import junit.framework.Assert;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 
 public class FindableProcessorQueueTest implements IObserver {
 
 	static final long MAX_TIMEOUT_MS = 500;
 
-	@BeforeClass
-	public static void setUpBeforeClass() {
-	}
-
-	@AfterClass
-	public static void tearDownAfterClass() {
-	}
-
 	Processor processor;
 	Queue queue;
 
-	public void setUp(String testName) throws Exception {
-		String testScratchDirectoryName = TestHelpers.setUpTest(FindableProcessorQueueTest.class, testName, true);
+	@Before
+	public void setUp() throws Exception {
 		FindableProcessorQueue simpleProcessor = new FindableProcessorQueue();
-		simpleProcessor.setLogFilePath(testScratchDirectoryName + File.separator + "commandQueue.log");
 		simpleProcessor.setStartImmediately(false);
 		simpleProcessor.afterPropertiesSet();
 		processor = simpleProcessor;
@@ -57,13 +43,8 @@ public class FindableProcessorQueueTest implements IObserver {
 		simpleProcessor.setQueue(queue);
 	}
 
-	@After
-	public void tearDown() {
-	}
-
 	@Test
 	public void testPause() throws Exception {
-		setUp("testPause");
 		TestCommand pauseCommand = new TestCommand(processor,MAX_TIMEOUT_MS);
 		pauseCommand.pause=true;
 		queue.addToTail(pauseCommand);
@@ -77,7 +58,6 @@ public class FindableProcessorQueueTest implements IObserver {
 
 	@Test
 	public void testException() throws Exception {
-		setUp("testException");
 		TestCommand throwExceptionCommand = new TestCommand(processor,MAX_TIMEOUT_MS);
 		throwExceptionCommand.throwException=true;
 		throwExceptionCommand.setDescription("testException");
@@ -89,7 +69,6 @@ public class FindableProcessorQueueTest implements IObserver {
 
 	@Test
 	public void testSkip() throws Exception {
-		setUp("testSkip");
 		TestCommand skipCommand = new TestCommand(processor,MAX_TIMEOUT_MS);
 		skipCommand.skip=true;
 		queue.addToTail(skipCommand);
@@ -106,8 +85,6 @@ public class FindableProcessorQueueTest implements IObserver {
 
 	@Test
 	public void testStartWithQueueEmpty() throws Exception {
-		setUp("testStartWithQueueEmpty");
-		processor.addIObserver(this);
 		processor.start(MAX_TIMEOUT_MS);
 		TestCommand command = new TestCommand(processor,MAX_TIMEOUT_MS, 0);
 		command.addIObserver(new IObserver() {
@@ -125,8 +102,6 @@ public class FindableProcessorQueueTest implements IObserver {
 
 	@Test
 	public void testStartWithQueueNonEmpty() throws Exception {
-		setUp("testStartWithQueueNonEmpty");
-		processor.addIObserver(this);
 		TestCommand command = new TestCommand(processor,MAX_TIMEOUT_MS, 0);
 		queue.addToTail(command);
 		processor.start(MAX_TIMEOUT_MS);
@@ -137,7 +112,7 @@ public class FindableProcessorQueueTest implements IObserver {
 
 	@Test
 	public void testStop() throws Exception {
-		setUp("testStop");
+		state = STATE.UNKNOWN;
 		processor.addIObserver(this);
 		processor.start(MAX_TIMEOUT_MS);
 		processor.stop(MAX_TIMEOUT_MS);
@@ -146,7 +121,7 @@ public class FindableProcessorQueueTest implements IObserver {
 		Assert.assertEquals(STATE.WAITING_START, state);
 	}
 
-	STATE state = STATE.UNKNOWN;
+	STATE state;
 	@Override
 	public void update(Object source, Object arg) {
 		if( source == processor && arg instanceof Processor.STATE)

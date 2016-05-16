@@ -21,12 +21,7 @@ package gda.commandqueue;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.PrintWriter;
-import java.text.SimpleDateFormat;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.TimeoutException;
@@ -34,7 +29,6 @@ import java.util.concurrent.TimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.util.StringUtils;
 
 /**
  * FindableProcessorQueue implements Processor and Queue
@@ -99,8 +93,6 @@ public class FindableProcessorQueue implements IFindableQueueProcessor, Runnable
 	boolean pauseWhenQueueEmpty = false;
 
 	boolean startImmediately=false;
-
-	private PrintWriter writer;
 
 	public void setQueue(Queue queue) {
 		if(this.queue != null)
@@ -182,8 +174,6 @@ public class FindableProcessorQueue implements IFindableQueueProcessor, Runnable
 
 	@Override
 	public void start(long timeout_ms) throws Exception {
-		if(writer == null)
-			throw new Exception("Writer not set");
 		//if manager thread does not exist then create
 		//if it does exist set volatile started flag and notify watchers ( which could be the manager thread
 		if(managerThread == null ){
@@ -370,13 +360,6 @@ public class FindableProcessorQueue implements IFindableQueueProcessor, Runnable
 		}
 	}
 
-	private String getDateTime() {
-		String dateformat = "EEE, d MMM yyyy HH:mm:ss z";
-		SimpleDateFormat formatter = new SimpleDateFormat(dateformat);
-		Date now = new Date();
-		return formatter.format(now);
-	}
-
 	private Command.STATE getCmdBeingProcessedState() {
 		try {
 			return cmdBeingProcessed == null ? Command.STATE.COMPLETED: cmdBeingProcessed.getState();
@@ -541,18 +524,13 @@ public class FindableProcessorQueue implements IFindableQueueProcessor, Runnable
 		return queue.addToTail(provider);
 	}
 
-	String logFilePath;
-
-	@Override
-	public String getLogFilePath() {
-		return logFilePath;
-	}
-
 	/**
 	 * @param logFilePath The logFilePath to set.
 	 */
-	public void setLogFilePath(String logFilePath) {
-		this.logFilePath = logFilePath;
+	public void setLogFilePath(@SuppressWarnings("unused") String logFilePath) {
+		final String className = getClass().getSimpleName();
+		logger.warn(String.format("Please remove the 'logFilePath' property from your %s bean definition - it is no longer used", className));
+		logger.warn(String.format("%s now logs using an SLF4J logger, instead of writing its own file", className));
 	}
 
 	public boolean isPauseWhenQueueEmpty() {
@@ -569,8 +547,7 @@ public class FindableProcessorQueue implements IFindableQueueProcessor, Runnable
 	}
 
 	private void log(String msg){
-		writer.println(getDateTime() + ": " + msg);
-		writer.flush();
+		logger.debug(msg);
 	}
 
 	private void log(CommandProgress p){
@@ -585,15 +562,6 @@ public class FindableProcessorQueue implements IFindableQueueProcessor, Runnable
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		if( !StringUtils.hasText(logFilePath)){
-			throw new Exception("logFilePath is null or empty");
-		}
-
-		File logFile  = new File(logFilePath);
-		File parentDir = logFile.getParentFile();
-		parentDir.mkdirs();
-
-		writer = new PrintWriter(new FileWriter(logFilePath, true));
 		if( startImmediately)
 			start(5000);
 	}
