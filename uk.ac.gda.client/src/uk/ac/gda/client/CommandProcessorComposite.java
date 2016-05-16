@@ -26,8 +26,6 @@ import gda.commandqueue.QueueChangeEvent;
 import gda.observable.IObserver;
 import gda.rcp.GDAClientActivator;
 
-import java.io.File;
-
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.dialogs.InputDialog;
@@ -50,16 +48,13 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ProgressBar;
-import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IViewSite;
-import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.services.IServiceLocator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.rcp.views.AsciiTextView;
 import uk.ac.gda.common.rcp.util.EclipseWidgetUtils;
 import uk.ac.gda.menu.JythonControlsFactory;
 import uk.ac.gda.preferences.PreferenceConstants;
@@ -84,7 +79,6 @@ public class CommandProcessorComposite extends Composite {
 	private Action btnStopAfterCurrent;
 	private Action btnStop;
 	private Action btnAddToQueue;
-	private Action btnShowLog;
 	IWorkbenchPartSite iWorkbenchPartSite;
 	protected String lastAddedCommand = "";
 	private ImageDescriptor pauseImage;
@@ -106,7 +100,6 @@ public class CommandProcessorComposite extends Composite {
 		runImage = GDAClientActivator.getImageDescriptor("icons/control_play_blue.png");
 		final ImageDescriptor stopImage = GDAClientActivator.getImageDescriptor("icons/delete.png");
 		final ImageDescriptor addImage = GDAClientActivator.getImageDescriptor("icons/add.png");
-		final ImageDescriptor showLogImage = GDAClientActivator.getImageDescriptor("icons/book_open.png");
 
 
 		createComponents();
@@ -202,33 +195,6 @@ public class CommandProcessorComposite extends Composite {
 		btnAddToQueue.setImageDescriptor(addImage);
 		toolBarManager.add(btnAddToQueue);
 
-		btnShowLog = new Action(null, SWT.NONE) {
-			@Override
-			public void run() {
-				iWorkbenchPartSite.getShell().getDisplay().asyncExec(new Runnable() {
-
-					@Override
-					public void run() {
-						File file = new File(processor.getLogFilePath());
-						IWorkbenchPage page = iWorkbenchPartSite.getPage();
-						if (page != null) {
-							final AsciiTextView view = (AsciiTextView) getView(AsciiTextView.ID, page, true);
-							if (view == null) {
-								logger.error("Unable to open view " + AsciiTextView.ID);
-								return;
-							}
-							view.load(file);
-							page.activate(view);
-							view.setFocus();
-						}
-					}
-				});
-			}
-		};
-		btnShowLog.setToolTipText("Show the Log File");
-		btnShowLog.setId(CommandQueueViewFactory.ID + ".showlog");
-		btnShowLog.setImageDescriptor(showLogImage);
-		toolBarManager.add(btnShowLog);
 		toolBarManager.update(true);
 
 		txtCurrentDescription.setText("Description");
@@ -339,20 +305,6 @@ public class CommandProcessorComposite extends Composite {
 					new Event());
 		} catch (Exception e) {
 			logger.error("Error executing command " + commandId, e);
-		}
-	}
-
-	private IViewPart getView(String id, IWorkbenchPage page, boolean openView) {
-		try {
-			IViewPart part = page.findView(id);
-			if (part != null)
-				return part;
-			if (openView) {
-				return page.showView(id);
-			}
-			return null;
-		} catch (Exception ne) {
-			return null;
 		}
 	}
 
