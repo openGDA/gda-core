@@ -234,6 +234,9 @@ class ScanDataProcessorResult(object):
 
 		# Get the x dataset from the file
 		dsx = getDatasetFromLoadedFile(lastScanFile, xname)
+		decreasing = dsx[0] > dsx[-1]
+		#dnp.interp only works on increasing datasets
+		dsx = dnp.array(dsx[::-1,...]) if decreasing else dsx
 
 		# Check if the x value is inside the x range of the scan
 		feature_inside_scan_data = dsx.min() <= xvalue <= dsx.max()
@@ -255,6 +258,8 @@ class ScanDataProcessorResult(object):
 							# xvalue is the position of the feature against the x scannable
 							# dsx is the array of the x values
 							# dsfield is the array of the other scannable positions
+							if decreasing:
+								dsfield = dsfield[::-1,...]
 							value = dnp.interp(xvalue, dsx, dsfield)
 						else: # feature not inside scan
 							if scn_fieldname == xname:

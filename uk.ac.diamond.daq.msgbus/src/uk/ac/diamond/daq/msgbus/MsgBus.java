@@ -220,7 +220,7 @@ public enum MsgBus {
 			String json = gson.get().toJson(msg);
 			logger.debug(json);
 			final TextMessage message = session.createTextMessage(json);
-			final String className = msg.getClass().getCanonicalName();
+			final String className = msg.getClass().getName();
 			logger.debug("setting string property = {}", className);
 			message.setStringProperty("className", className);
 			producer.send(message);
