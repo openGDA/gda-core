@@ -27,7 +27,7 @@ export GDA_INSTANCE_CONFIG_rel=${GDA_WORKSPACE_GIT_NAME}/gda-core.git/p45-config
 export    GDA_GROUP_CONFIG_rel=${GDA_WORKSPACE_GIT_NAME}/gda-core.git/no-group
 export GDA_FACILITY_CONFIG_rel=${GDA_WORKSPACE_GIT_NAME}/gda-diamond.git/dls-config
 export     GDA_CORE_CONFIG_rel=${GDA_WORKSPACE_GIT_NAME}/gda-core.git/core-config
-export              GDA_CLIENT=$GDA_WORKSPACE_PARENT/client/gda-p45
+export              GDA_CLIENT=${GDA_WORKSPACE_PARENT}/client/gda-p45
 # Define a display name for use in messages
 export GDA_INSTANCE_NAME=p45
 
