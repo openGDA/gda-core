@@ -53,12 +53,25 @@ import gda.factory.FactoryException;
 
 public class ZebraConstantVelocityMoveController extends ScannableBase implements ConstantVelocityMoveController2,
 						PositionCallableProvider<Double>, ContinuouslyScannableViaController, InitializingBean {
+
+	// This is the minimum pulse width on any time unit range
+	private static final double MIN_PC_PULSE_WIDTH = 0.0001;
+
+	private static final double DEFAULT_PC_PULSE_GATE_TRIM = 0.0002;
+
 	private static final Logger logger = LoggerFactory.getLogger(ZebraConstantVelocityMoveController.class);
 
 	private Zebra zebra;
 
 	private IScannableMotor scannableMotor;
 	private ZebraMotorInfoProvider zebraMotorInfoProvider;
+
+	// Pulse width: if set, this will be interpreted as seconds
+	private double pcPulseTriggerWidth = 0;
+
+	// Amount to trim pulse width relative to the gate width.
+	// TODO: Set to zero when the bug in zebra with PC_PULSE_WID == PC_PULSE_STEP is fixed.
+	private double pcPulseGateTrim = DEFAULT_PC_PULSE_GATE_TRIM;
 
 	protected double pcGateWidthRBV;
 
@@ -283,11 +296,9 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 
 				double pcPulseWidthRaw;
 				if ( !isPcPulseGateNotTrigger() ) {
-					pcPulseWidthRaw =0.0001; // This is the minimum on any time unit range
+					pcPulseWidthRaw = Math.max(pcPulseTriggerWidth * timeUnitConversion, MIN_PC_PULSE_WIDTH);
 				} else {
-					//pcPulseWidthRaw=maxCollectionTimeFromDetectors*timeUnitConversion;
-					// TODO: Remove offset when the bug in zebra with PC_PULSE_WID == PC_PULSE_STEP is fixed.
-					pcPulseWidthRaw=maxCollectionTimeFromDetectors*timeUnitConversion-0.0002;
+					pcPulseWidthRaw = maxCollectionTimeFromDetectors * timeUnitConversion - pcPulseGateTrim;
 				}
 				logger.info("isPcPulseGateNotTrigger="+isPcPulseGateNotTrigger()+", maxCollectionTimeFromDetectors="+
 						maxCollectionTimeFromDetectors+", pcPulseWidthRaw="+pcPulseWidthRaw);
@@ -858,6 +869,22 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 
 	public void setScannableMotorEndPosition(double scannableMotorEndPosition) {
 		this.scannableMotorEndPosition = scannableMotorEndPosition;
+	}
+
+	public double getPcPulseTriggerWidth() {
+		return pcPulseTriggerWidth;
+	}
+
+	public void setPcPulseTriggerWidth(double pcPulseTriggerWidth) {
+		this.pcPulseTriggerWidth = pcPulseTriggerWidth;
+	}
+
+	public double getPcPulseGateTrim() {
+		return pcPulseGateTrim;
+	}
+
+	public void setPcPulseGateTrim(double pcPulseGateTrim) {
+		this.pcPulseGateTrim = pcPulseGateTrim;
 	}
 
 }
