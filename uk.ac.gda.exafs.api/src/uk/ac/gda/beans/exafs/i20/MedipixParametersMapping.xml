@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapping>
+
+	<class name="uk.ac.gda.beans.DetectorROI">
+		<map-to xml="DetectorROI"/>
+		<field name="roiName" type="string">
+			<bind-xml name="roiName" node="element"/>
+		</field>
+		<field name="roiStart" type="integer">
+			<bind-xml name="roiStart" node="element"/>
+		</field>
+		<field name="roiEnd" type="integer">
+			<bind-xml name="roiEnd" node="element"/>
+		</field>
+	</class>
+
+	<class name="uk.ac.gda.beans.exafs.i20.ROIRegion">
+		<map-to xml="ROIRegion"/>
+		<field name="roiName" type="string">
+			<bind-xml name="roiName" node="element"/>
+		</field>
+		<field name="xRoi" type="uk.ac.gda.beans.DetectorROI">
+			<bind-xml name="xRoi" node="element"/>
+		</field>
+		<field name="yRoi" type="uk.ac.gda.beans.DetectorROI">
+			<bind-xml name="yRoi" node="element"/>
+		</field>
+	</class>
+
+	<class name="uk.ac.gda.beans.exafs.i20.MedipixParameters">
+		<map-to xml="MedipixParameters"/>
+		<field name="roiRegion" type="uk.ac.gda.beans.exafs.i20.ROIRegion"
+			collection="collection" set-method="addRegion" get-method="getRegionList">
+			<bind-xml name="roiRegion" node="element"/>
+		</field>
+	</class>
+
+</mapping>
