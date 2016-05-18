@@ -65,6 +65,7 @@ public final class ARPESScanBeanUIEditor extends RichBeanEditorPart {
 
 	@Override
 	public void setFocus() {
+		beanComposite.setFocus();
 	}
 
 	public IFieldWidget getLensMode() {

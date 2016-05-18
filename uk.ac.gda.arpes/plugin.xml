@@ -16,6 +16,7 @@
     <editor
           class="uk.ac.gda.arpes.ui.ARPESScanBeanEditor"
           default="true"
+          extensions="arpes"
           icon="icons/anaico.png"
           id="uk.ac.gda.arpes.beans.ARPESScanBeanEditor"
           name="ARPES Scan Editor">
