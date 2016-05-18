@@ -364,7 +364,7 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 	public boolean isBusy() throws DeviceException {
 		try {
 			if (isIsBusyThrowingExceptionWhenMotorGoesIntoFault()) {
-				raiseExceptionIfInFault();
+				raiseExceptionIfInFault("isBusy()");
 			}
 			int currentStatus = this.motor.getStatus().value();
 			return currentStatus == MotorStatus._BUSY;
@@ -375,25 +375,37 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 
 	@Override
 	public void waitWhileBusy() throws DeviceException, InterruptedException {
-		logger.debug("{}: start waiting <<", getName());
+		logger.debug("{}: start waiting << instanceof BlockingMotor = {}, pollBlockingMotorsStatus = {}",
+				getName(), getMotor() instanceof BlockingMotor, pollBlockingMotorsStatus);
 
 		if ((getMotor() instanceof BlockingMotor) && (!pollBlockingMotorsStatus)) {
 			((BlockingMotor) motor).waitWhileStatusBusy();
+
+			logger.debug("{}: isIsBusyThrowingExceptionWhenMotorGoesIntoFault() = {}",
+					getName(), isIsBusyThrowingExceptionWhenMotorGoesIntoFault());
 			if (isIsBusyThrowingExceptionWhenMotorGoesIntoFault()) {
-				raiseExceptionIfInFault();
+				raiseExceptionIfInFault("waitWhileBusy()");
 			}
 		} else {
 			super.waitWhileBusy();
 		}
 		logger.debug("{}: waiting complete >> motor position={}, motor status={}, lastDemandedInternalPosition={}, returnDemandPosition={}",
 				getName(), this.motor.getPosition(), this.motor.getStatus(), lastDemandedInternalPosition, returnDemandPosition);
+		// Belt and braces...
+		if (motor.getStatus() != MotorStatus.READY) {
+			if (isIsBusyThrowingExceptionWhenMotorGoesIntoFault()) {
+				raiseExceptionIfInFault("waitWhileBusy() again");
+			} else {
+				logger.warn("Motor {} exiting waitWhileBusy() but status = {}", getName(), motor.getStatus());
+			}
+		}
 	}
 
-	private void raiseExceptionIfInFault() throws MotorException {
+	private void raiseExceptionIfInFault(String caller) throws MotorException {
 		if ((motor.getStatus() == MotorStatus.FAULT) || (motor.getStatus() == MotorStatus.UPPERLIMIT)
 				|| (motor.getStatus() == MotorStatus.LOWERLIMIT)
 				|| (motor.getStatus() == MotorStatus.SOFTLIMITVIOLATION))
-			throw new MotorException(motor.getStatus(), "\nDuring " + getName() + ".isBusy() EPICS Motor was found in "
+			throw new MotorException(motor.getStatus(), "\nDuring " + getName() + "." + caller + " EPICS Motor was found in "
 					+ motor.getStatus() + " status. Please check EPICS Screen.");
 	}
 
@@ -667,6 +679,8 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 	}
 
 	public void setIsBusyThrowsExceptionWhenMotorGoesIntoFault(boolean isBusyThrowsExceptionWhenMotorGoesIntoFault) {
+		logger.trace("setIsBusyThrowsExceptionWhenMotorGoesIntoFault({}) was {}", isBusyThrowsExceptionWhenMotorGoesIntoFault,
+				this.isBusyThrowsExceptionWhenMotorGoesIntoFault);
 		this.isBusyThrowsExceptionWhenMotorGoesIntoFault = isBusyThrowsExceptionWhenMotorGoesIntoFault;
 	}
 
