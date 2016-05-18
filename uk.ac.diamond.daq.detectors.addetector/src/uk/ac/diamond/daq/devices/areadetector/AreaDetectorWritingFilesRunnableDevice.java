@@ -155,7 +155,7 @@ public class AreaDetectorWritingFilesRunnableDevice
 		nexusProvider.setExternalDatasetRank(NXdetector.NX_DATA, info.getRank() + 2);
 
 		// Add an additional NXData for the stats total
-		nexusProvider.addAdditionalPrimaryDataField(FIELD_NAME_STATS_TOTAL);
+		nexusProvider.addAdditionalPrimaryDataFieldName(FIELD_NAME_STATS_TOTAL);
 		nexusProvider.setExternalDatasetRank(FIELD_NAME_STATS_TOTAL, info.getRank());
 
 		return nexusProvider;

@@ -95,13 +95,10 @@ public class AreaDetectorRunnableDevice extends AbstractRunnableDevice<AreaDetec
 		DelegateNexusProvider<NXdetector> nexusProvider = new DelegateNexusProvider<NXdetector>(
 				getName(), NexusBaseClass.NX_DETECTOR, info, this);
 
-		// Add all fields for any NXdata groups that this device creates
-		nexusProvider.setDataFields(NXdetector.NX_DATA, FIELD_NAME_TOTAL);
-
 		// "data" is the name of the primary data field (i.e. the 'signal' field of the default NXdata)
-		nexusProvider.setPrimaryDataField(NXdetector.NX_DATA);
+		nexusProvider.setPrimaryDataFieldName(NXdetector.NX_DATA);
 		// An additional NXdata group with "total" as the signal to hold the total data
-		nexusProvider.addAdditionalPrimaryDataField(FIELD_NAME_TOTAL);
+		nexusProvider.addAdditionalPrimaryDataFieldName(FIELD_NAME_TOTAL);
 
 		return nexusProvider;
 	}
