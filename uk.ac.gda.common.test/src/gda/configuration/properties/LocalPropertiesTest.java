@@ -85,8 +85,18 @@ public class LocalPropertiesTest {
 	@Test
 	public void testGetAsInt() {
 		LocalProperties.set(LocalPropertiesTest.TEST, "1");
-		assertEquals(1, LocalProperties.getAsInt(LocalPropertiesTest.TEST).intValue());
-		assertEquals(2, LocalProperties.getAsInt("not a property", 2).intValue());
+		assertEquals(1, LocalProperties.getAsInt(LocalPropertiesTest.TEST));
+		assertEquals(2, LocalProperties.getAsInt("not a property", 2));
 	}
 
+	@Test(expected = NullPointerException.class)
+	public void testGetAsIntThrowsNPEWhenPropertyIsUndefined() {
+		LocalProperties.getAsInt("not a property");
+	}
+
+	@Test(expected = NumberFormatException.class)
+	public void testGetAsIntThrowsNumberFormatExceptionWhenPropertyIsNotANumber() {
+		LocalProperties.set(LocalPropertiesTest.TEST, "not a number");
+		LocalProperties.getAsInt(LocalPropertiesTest.TEST);
+	}
 }

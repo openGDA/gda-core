@@ -721,23 +721,48 @@ public class LocalProperties {
 	}
 
 	/**
+	 * Get the value of the named property as an <code>int</code> value.
+	 * <p>
+	 * This method will throw NullPointerException if the property is undefined. To avoid this, call {@link
+	 * #getAsInt(String, int)} instead.
+	 *
 	 * @param propertyName
-	 * @return Value of a property as an integer
+	 *            the property to find
+	 * @return the value of the named property, as an int
+	 * @throws NullPointerException
+	 *             if the named property is not defined
+	 * @throws NumberFormatException
+	 *             if the named property is defined but cannot be parsed as an int
 	 */
-	public static Integer getAsInt(String propertyName) {
+	public static int getAsInt(String propertyName) {
 		String s = get(propertyName);
-		return s != null ? Integer.valueOf(s) : null;
+		if (s != null) {
+			return Integer.valueOf(s).intValue();
+		}
+		String message = "Property " + propertyName + " is not defined";
+		logger.error(message);
+		// This method used to return Integer, not int (despite the name!)
+		// In all uses of the method, though, the result was assigned directly to an int without null checking, which
+		// would throw a NullPointerException if the Integer value was null. Therefore, if the property is not defined,
+		// we now throw an NPE to ensure behaviour remains the same.
+		throw new NullPointerException(message);
 	}
 
 	/**
+	 * Get the value of the named property as an <code>int</code> value. If the property is not defined, the given
+	 * default value is returned.
+	 *
 	 * @param propertyName
+	 *            the property to find
 	 * @param defaultValue
-	 *            - value to return if the propertyName does not exist
-	 * @return Value of a property as an integer
+	 *            the value to return if the propertyName is not defined
+	 * @return the value of the named property, as an int
+	 * @throws NumberFormatException
+	 *             if the named property is defined but cannot be parsed as an int
 	 */
-	public static Integer getAsInt(String propertyName, Integer defaultValue) {
+	public static int getAsInt(String propertyName, int defaultValue) {
 		String s = get(propertyName);
-		return s != null ? Integer.valueOf(s) : defaultValue;
+		return s != null ? Integer.valueOf(s).intValue() : defaultValue;
 	}
 
 	public static boolean contains(String propertyName) {
