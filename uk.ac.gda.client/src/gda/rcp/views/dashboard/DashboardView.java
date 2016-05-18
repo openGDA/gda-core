@@ -335,6 +335,15 @@ public final class DashboardView extends ViewPart implements ServerObjectListene
 			toAdd.addServerObjectListener(this);
 			serverViewer.refresh();
 			((DoubleClickModifier) serverViewer.getCellModifier()).setEnabled(true);
+			if (toAdd instanceof SimpleScannableObject) {
+				// Do not edit the name in the Dashboard if one is provided
+				SimpleScannableObject scannable = (SimpleScannableObject) toAdd;
+				String name = scannable.getScannableName();
+				if (name != null && name != "") {
+					return;
+				}
+			}
+			// Start editing if no name is provided (case if the "Add Scannable" button is pressed)
 			serverViewer.editElement(toAdd, 0);
 
 		} catch (Exception ne) {
