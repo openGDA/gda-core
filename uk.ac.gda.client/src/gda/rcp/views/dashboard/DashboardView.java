@@ -109,7 +109,10 @@ public final class DashboardView extends ViewPart {
 			data.add(sso);
 			serverViewer.refresh();
 			((DoubleClickModifier) serverViewer.getCellModifier()).setEnabled(true);
-			serverViewer.editElement(sso, 0);
+			String name = sso.getScannableName();
+			if (name == null || name == "") {
+				serverViewer.editElement(sso, 0);
+			}
 		} catch (Exception ne) {
 			logger.error("Cannot add object", ne);
 		}
