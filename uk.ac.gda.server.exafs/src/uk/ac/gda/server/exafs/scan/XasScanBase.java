@@ -240,13 +240,13 @@ public abstract class XasScanBase implements XasScan {
 	// Runs a single energy (XAS/XANES) scan once the beamline and sample environment has been set up
 	private void doSingleScan(String sampleName, List<String> descriptions, XasLoggingMessage logmsg) throws Exception {
 
-		runScript(outputBean.getBeforeScriptName());
+		runScriptOrCommand(outputBean.getBeforeScriptName());
 
 		runDetectorAndOutputPreparers();
 
 		createAndRunScan(sampleName, descriptions, logmsg);
 
-		runScript(outputBean.getAfterScriptName());
+		runScriptOrCommand(outputBean.getAfterScriptName());
 	}
 
 	protected void createAndRunScan(String sampleName, List<String> descriptions, XasLoggingMessage logmsg)
@@ -380,6 +380,24 @@ public abstract class XasScanBase implements XasScan {
 		detectorPreparer.configure(scanBean, detectorBean, outputBean, experimentFullPath);
 		samplePreparer.configure(scanBean, sampleBean);
 		outputPreparer.configure(outputBean, scanBean, detectorBean, sampleBean);
+	}
+
+	/**
+	 * Run Jython script or execute command on Jython console : Run script if corresponding file exists, otherwise run string as command on Jython console
+	 *
+	 * @param scriptNameOrCommand Name of Jython script or command
+	 * @throws Exception
+	 * @since 15/4/2016
+	 */
+	private void runScriptOrCommand(String scriptNameOrCommand) throws Exception {
+		if ( scriptNameOrCommand == null || scriptNameOrCommand.isEmpty() )
+			return;
+		File scriptFile = new File(scriptNameOrCommand);
+		if (scriptFile.isFile())
+			runScript(scriptNameOrCommand);
+		else {
+			InterfaceProvider.getCommandRunner().runCommand(scriptNameOrCommand);
+		}
 	}
 
 	private void runScript(String scriptName) throws Exception {
@@ -584,8 +602,13 @@ public abstract class XasScanBase implements XasScan {
 		if (exptType.equalsIgnoreCase("fluorescence")) {
 			detectorGroupName = detectorBean.getFluorescenceParameters().getDetectorType();
 		} else if (exptType.equalsIgnoreCase("xes")) {
-			detectorGroupName = "xes";
-		} else {
+			if (detectorBean.getXesParameters().getDetectorType().equals(FluorescenceParameters.MEDIPIX_DET_TYPE)) {
+				detectorGroupName = "xes_medipix";
+			} else {
+				detectorGroupName = "xes";
+			}
+		}
+		else {
 			detectorGroupName = detectorBean.getTransmissionParameters().getDetectorType();
 		}
 

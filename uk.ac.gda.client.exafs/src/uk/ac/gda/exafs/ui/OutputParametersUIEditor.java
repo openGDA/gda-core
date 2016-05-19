@@ -18,8 +18,6 @@
 
 package uk.ac.gda.exafs.ui;
 
-import gda.jython.JythonServerFacade;
-
 import java.net.URL;
 import java.util.List;
 
@@ -41,6 +39,7 @@ import org.eclipse.ui.forms.events.ExpansionAdapter;
 import org.eclipse.ui.forms.events.ExpansionEvent;
 import org.eclipse.ui.forms.widgets.ExpandableComposite;
 
+import gda.jython.JythonServerFacade;
 import uk.ac.gda.beans.exafs.MetadataParameters;
 import uk.ac.gda.beans.exafs.OutputParameters;
 import uk.ac.gda.beans.exafs.SignalParameters;
@@ -230,7 +229,7 @@ public class OutputParametersUIEditor extends RichBeanEditorPart {
 
 	private void createScripts(Composite composite){
 		jythonExpandableComposite = new ExpandableComposite(composite, SWT.NONE);
-		jythonExpandableComposite.setText("Run scripts before and after a scan");
+		jythonExpandableComposite.setText("Run commands/scripts before and after a scan");
 		jythonExpandableComposite.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
 
 		final Composite jythonComp = new Composite(jythonExpandableComposite, SWT.NONE);
@@ -249,12 +248,12 @@ public class OutputParametersUIEditor extends RichBeanEditorPart {
 		jythonScriptGroup.setLayout(gridLayout);
 
 		Label beforeScriptNameLabel = new Label(jythonScriptGroup, SWT.NONE);
-		beforeScriptNameLabel.setToolTipText("A Jython script to run immediately before each scan");
-		beforeScriptNameLabel.setText("Before Scan Script Name");
+		beforeScriptNameLabel.setToolTipText("Jython commands/script to run immediately before each scan");
+		beforeScriptNameLabel.setText("Before Scan Command/Script Name");
 
 		beforeScanscriptName = new TextWrapper(jythonScriptGroup, SWT.BORDER);
 		beforeScanscriptName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		beforeScanscriptName.setTextType(TextWrapper.TEXT_TYPE.FILENAME);
+		beforeScanscriptName.setTextType(TextWrapper.TEXT_TYPE.FREE_TXT);
 
 		Button beforeScanscriptButton = new Button(jythonScriptGroup, SWT.PUSH);
 		beforeScanscriptButton.setText("...");
@@ -275,12 +274,12 @@ public class OutputParametersUIEditor extends RichBeanEditorPart {
 		});
 
 		Label afterScriptNameLabel = new Label(jythonScriptGroup, SWT.NONE);
-		afterScriptNameLabel.setToolTipText("A Jython script to run immediately after each scan");
-		afterScriptNameLabel.setText("After Scan Script Name");
+		afterScriptNameLabel.setToolTipText("Jython commands/script to run immediately after each scan");
+		afterScriptNameLabel.setText("After Scan Command/Script Name");
 
 		afterScanscriptName = new TextWrapper(jythonScriptGroup, SWT.BORDER);
 		afterScanscriptName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		afterScanscriptName.setTextType(TextWrapper.TEXT_TYPE.FILENAME);
+		afterScanscriptName.setTextType(TextWrapper.TEXT_TYPE.FREE_TXT);
 
 		Button afterScanscriptButton = new Button(jythonScriptGroup, SWT.PUSH);
 		afterScanscriptButton.setText("...");

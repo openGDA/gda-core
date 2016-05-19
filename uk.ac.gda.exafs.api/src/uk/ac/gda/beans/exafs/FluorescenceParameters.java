@@ -31,6 +31,7 @@ public class FluorescenceParameters  implements IExperimentDetectorParameters, S
 	public static final String GERMANIUM_DET_TYPE = "Germanium";
 	public static final String SILICON_DET_TYPE = "Silicon"; // for Xia Xmap - Vortex
 	public static final String XSPRESS3_DET_TYPE = "Xspress3"; // For Xspress3 - Vortex
+	public static final String MEDIPIX_DET_TYPE = "Medipix";
 
 	private String configFileName;
 	private List<IonChamberParameters> ionChamberParameters;

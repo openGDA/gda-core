@@ -291,4 +291,12 @@ public class XanesScanParameters implements Serializable, IScanParameters {
 		this.shouldValidate = shouldValidate;
 	}
 
+	/**
+	 * Method required to use with BeanUI. Called using reflection.
+	 */
+	public void clear() {
+		if (regions != null)
+			regions.clear();
+	}
+
 }

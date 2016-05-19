@@ -35,7 +35,7 @@ public class DetectorParameters implements Serializable, IDetectorParameters {
 	static public final String TRANSMISSION_TYPE = "Transmission";
 	static public final String FLUORESCENCE_TYPE = "Fluorescence";
 	static public final String SOFTXRAYS_TYPE = "soft x-rays";
-	static public final String XES_TYPE = "xes";
+	static public final String XES_TYPE = "XES";
 
 	private List<DetectorGroup> detectorGroups;
 	private String experimentType;
