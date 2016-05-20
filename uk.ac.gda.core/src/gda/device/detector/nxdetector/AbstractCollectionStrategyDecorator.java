@@ -18,16 +18,16 @@
 
 package gda.device.detector.nxdetector;
 
-import gda.device.DeviceException;
-import gda.device.detector.nxdata.NXDetectorDataAppender;
-import gda.scan.ScanInformation;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.device.DeviceException;
+import gda.device.detector.nxdata.NXDetectorDataAppender;
+import gda.scan.ScanInformation;
 
 /** This class provides a base class from which Collection Strategy Decorators can be derived.
  *  it allows decorators to only override the functions they need to override.
@@ -57,7 +57,6 @@ public abstract class AbstractCollectionStrategyDecorator extends CollectionStra
 		return getDecoratee().getAcquirePeriod();
 	}
 
-	@Deprecated
 	@Override
 	public void configureAcquireAndPeriodTimes(double collectionTime) throws Exception {
 		getDecoratee().configureAcquireAndPeriodTimes(collectionTime);
