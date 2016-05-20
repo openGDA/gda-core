@@ -18,15 +18,12 @@
 
 package uk.ac.gda.client;
 
-import gda.TestHelpers;
 import gda.commandqueue.CommandQueue;
 import gda.commandqueue.FindableProcessorQueue;
 import gda.commandqueue.Processor;
 import gda.commandqueue.Queue;
 import gda.commandqueue.TestCommand;
 import gda.rcp.util.OSGIServiceRegister;
-
-import java.io.File;
 
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -58,16 +55,12 @@ public class CommandQueueViewPluginTest {
 	public static void tearDownAfterClass() {
 	}
 
-	private String scratchFolder;
-
 	/**
 	 * @throws java.lang.Exception
 	 */
 	@Before
 	public void setUp() throws Exception {
-		scratchFolder=TestHelpers.setUpTest(CommandQueueViewPluginTest.class, "setUp", true);
 		FindableProcessorQueue simpleProcessor = new FindableProcessorQueue();
-		simpleProcessor.setLogFilePath(scratchFolder + File.separator + "commandQueue.log");
 		simpleProcessor.setStartImmediately(false);
 		simpleProcessor.afterPropertiesSet();
 

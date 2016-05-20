@@ -706,6 +706,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IAllScanDa
 				logger.error("Failed to get DashboardView", e);
 			}
 			txtInput.setText("");
+			txtInput.setFocus();
 		}
 		else if ((helpHandler != null) && (parts[0].toLowerCase().compareTo("help") == 0)) {
 			boolean handled = false;

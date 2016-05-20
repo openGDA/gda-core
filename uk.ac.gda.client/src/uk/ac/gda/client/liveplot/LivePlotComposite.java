@@ -18,18 +18,6 @@
 
 package uk.ac.gda.client.liveplot;
 
-import gda.gui.scanplot.ScanDataPointPlotter;
-import gda.plots.Marker;
-import gda.plots.ScanLine;
-import gda.plots.ScanPair;
-import gda.plots.Type;
-import gda.plots.UpdatePlotQueue;
-import gda.plots.XYDataHandler;
-import gda.rcp.GDAClientActivator;
-import gda.scan.AxisSpec;
-import gda.scan.IScanDataPoint;
-import gda.util.FileUtil;
-
 import java.awt.Color;
 import java.io.File;
 import java.io.FileInputStream;
@@ -41,6 +29,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.text.NumberFormat;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Vector;
 
@@ -94,6 +83,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
+import gda.gui.scanplot.ScanDataPointPlotter;
+import gda.plots.Marker;
+import gda.plots.ScanLine;
+import gda.plots.ScanPair;
+import gda.plots.Type;
+import gda.plots.UpdatePlotQueue;
+import gda.plots.XYDataHandler;
+import gda.rcp.GDAClientActivator;
+import gda.scan.AxisSpec;
+import gda.scan.IScanDataPoint;
+import gda.util.FileUtil;
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 import uk.ac.diamond.scisoft.analysis.plotclient.ScriptingConnection;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotAppearanceDialog;
@@ -312,6 +312,7 @@ public class LivePlotComposite extends Composite {
 		sashForm = new SashForm(this, SWT.HORIZONTAL);
 		sashForm.setLayout(new FillLayout());
 		plotView = new SubLivePlotView(parentPart, sashForm, SWT.NONE, archiveFolder);
+		plotView.showErrorBar(lineAppearanceProvider.showErrorBar());
 		legend = new LiveLegend(sashForm, SWT.NONE, plotView);
 		showLegend(true);
 		sashForm.setWeights(WEIGHTS_NORMAL);
@@ -552,6 +553,16 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 		if( plottingSystem != null){
 			scriptingConnection = new ScriptingConnection(partName);
 			scriptingConnection.setPlottingSystem(plottingSystem);
+		}
+	}
+
+	public void showErrorBar(boolean b) {
+
+		Collection<ITrace> traces = plottingSystem.getTraces();
+		for (ITrace trace : traces) {
+			if (trace instanceof ILineTrace) {
+				((ILineTrace) trace).setErrorBarEnabled(b);
+			}
 		}
 	}
 
