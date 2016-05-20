@@ -56,6 +56,11 @@
 		<property name="port" value="${gda.dataserver.port}" />
 	</bean>
 
+	<!-- Device Servlet -->
+	<bean id="deviceServlet" class="org.eclipse.scanning.server.servlet.DeviceServlet" init-method="connect">
+		<property name="broker" value="${gda.activemq.broker.uri}" />
+	</bean>
+
 	<!-- This starts a scanServlet which handles new style scan requests arriving over ActiveMQ -->
 	<bean id="scanServlet" class="org.eclipse.scanning.server.servlet.ScanServlet" init-method="connect">
 		<property name="broker" value="${gda.activemq.broker.uri}" />
