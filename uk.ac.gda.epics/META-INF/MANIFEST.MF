@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Epics Plug-in
-Bundle-SymbolicName: uk.ac.gda.epics
+Bundle-SymbolicName: uk.ac.gda.epics;singleton:=true
 Bundle-Version: 1.0.0
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: uk.ac.gda.common;bundle-version="1.0.0",
@@ -17,7 +17,8 @@ Require-Bundle: uk.ac.gda.common;bundle-version="1.0.0",
  org.apache.commons.io;bundle-version="[2.4.0,2.5.0)",
  org.apache.commons.lang;bundle-version="[2.6.0,2.7.0)",
  com.google.guava;bundle-version="[16.0.0,17.0.0)",
- org.eclipse.dawnsci.nexus;bundle-version="1.0.0"
+ org.eclipse.dawnsci.nexus;bundle-version="1.0.0",
+ uk.ac.diamond.daq.jython.api;bundle-version="1.0.0"
 Export-Package: com.cosylab.epics.caj,
  com.cosylab.epics.caj.cas,
  com.cosylab.epics.caj.cas.handlers,
