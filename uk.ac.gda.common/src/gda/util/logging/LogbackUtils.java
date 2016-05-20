@@ -32,7 +32,6 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.classic.net.SocketAppender;
-import ch.qos.logback.classic.net.SocketReceiver;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.joran.spi.JoranException;
@@ -220,44 +219,6 @@ public class LogbackUtils {
 	public static final String GDA_LOGSERVER_OUT_PORT = "gda.logserver.out.port";
 
 	public static final int GDA_LOGSERVER_OUT_PORT_DEFAULT = 6750;
-
-	/**
-	 * Configures forwarding of logging events from log server to Beagle plugin view in own context.
-	 */
-	public static void configureLoggingForClientBeagle() {
-		final String logServerHost = LocalProperties.get(GDA_LOGSERVER_HOST);
-		final int logServerOutPort = LocalProperties.getInt(GDA_LOGSERVER_OUT_PORT, GDA_LOGSERVER_OUT_PORT_DEFAULT);
-
-		if (logServerHost != null) {
-
-			// in Logback-beagle forwarding context
-			LoggerContext beagleForwardingContext = new LoggerContext();
-			beagleForwardingContext.setName("beagleForwarding");
-
-			// receive from log server ServerSocketAppender
-			SocketReceiver receiver = new SocketReceiver();
-			receiver.setContext(beagleForwardingContext);
-			receiver.setRemoteHost(logServerHost);
-			receiver.setPort(logServerOutPort);
-
-			// append to Beagle plugin view
-			SocketAppender beagleAppender = new SocketAppender();
-			beagleAppender.setContext(beagleForwardingContext);
-			beagleAppender.setRemoteHost("localhost");
-			beagleAppender.setPort(4321);
-			beagleAppender.setReconnectionDelay(Duration.buildBySeconds(10));
-
-			beagleForwardingContext.register(receiver);
-			beagleForwardingContext.register(beagleAppender);
-
-			Logger rootLogger = beagleForwardingContext.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME);
-			rootLogger.addAppender(beagleAppender);
-
-			receiver.start();
-			beagleAppender.start();
-			beagleForwardingContext.start();
-		}
-	}
 
 	/**
 	 * Configures Logback for either a server- or client-side process, using a default configuration file, followed by
