@@ -25,10 +25,11 @@
 				<pathelement location="${plugin.basedir}/bin" />
 				<pathelement location="${plugin.host.basedir}/bin" />
 				<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.core/classes/main" />
-				<pathelement location="${workspace.git.loc}/daq-eclipse.git/uk.ac.diamond.org.apache.activemq/jars/*" />
+				<pathelement location="${workspace.git.loc}/daq-eclipse.git/uk.ac.diamond.org.apache.activemq" />
 				<pathelement location="${workspace.git.loc}/gda-common.git/uk.ac.gda.common/bin" />
 				<pathelement location="${workspace.git.loc}/gda-common.git/uk.ac.gda.test.helpers/bin" />
 				<pathelement location="${workspace.git.loc}/diamond-springframework.git/uk.ac.diamond.org.springframework/jars/*" />
+				<path refid="tp.hamcrest.path" />  <!-- ensure that latest version appears first in classpath -->
 				<path refid="tp.path" /> <!-- target platform -->
 			</classpath>
 			<batchtest todir="@{report.dir}">
