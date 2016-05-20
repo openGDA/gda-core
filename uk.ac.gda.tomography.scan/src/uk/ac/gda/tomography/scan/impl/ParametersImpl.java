@@ -7,9 +7,7 @@
 package uk.ac.gda.tomography.scan.impl;
 
 import org.eclipse.emf.common.notify.Notification;
-
 import org.eclipse.emf.ecore.EClass;
-
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
 import org.eclipse.emf.ecore.impl.EObjectImpl;
 
@@ -36,6 +34,9 @@ import uk.ac.gda.tomography.scan.ScanPackage;
  *   <li>{@link uk.ac.gda.tomography.scan.impl.ParametersImpl#getMinI <em>Min I</em>}</li>
  *   <li>{@link uk.ac.gda.tomography.scan.impl.ParametersImpl#getTitle <em>Title</em>}</li>
  *   <li>{@link uk.ac.gda.tomography.scan.impl.ParametersImpl#isFlyScan <em>Fly Scan</em>}</li>
+ *   <li>{@link uk.ac.gda.tomography.scan.impl.ParametersImpl#getExtraFlatsAtEnd <em>Extra Flats at End</em>}</li>
+ *   <li>{@link uk.ac.gda.tomography.scan.impl.ParametersImpl#getNumFlyScans <em>Number of Fly Scans</em>}</li>
+ *   <li>{@link uk.ac.gda.tomography.scan.impl.ParametersImpl#getFlyScanDelay <em>Fly Scan Delay</em>}</li>
  * </ul>
  * </p>
  *
@@ -301,6 +302,67 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 	 * @ordered
 	 */
 	protected boolean flyScan = FLY_SCAN_EDEFAULT;
+
+	/**
+	 * The default value of the '{@link #getExtraFlatsAtEnd() <em>Extra Flats at End</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getExtraFlatsAtEnd()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final boolean EXTRA_FLATS_AT_END_EDEFAULT = false;
+
+	/**
+	 * The cached value of the '{@link #getExtraFlatsAtEnd() <em>Extra Flats at End</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getExtraFlatsAtEnd()
+	 * @generated
+	 * @ordered
+	 */
+	protected boolean extraFlatsAtEnd = EXTRA_FLATS_AT_END_EDEFAULT;
+
+	/**
+	 * The default value of the '{@link #getNumFlyScans() <em>Number of Fly Scans</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getNumFlyScans()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final int NUM_FLY_SCANS_EDEFAULT = 1;
+
+	/**
+	 * The cached value of the '{@link #getNumFlyScans() <em>Number of Fly Scans</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getNumFlyScans()
+	 * @generated
+	 * @ordered
+	 */
+	protected int numFlyScans = NUM_FLY_SCANS_EDEFAULT;
+
+	/**
+	 * The default value of the '{@link #getFlyScanDelay() <em>Fly Scan Delay</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getFlyScanDelay()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final double FLY_SCAN_DELAY_EDEFAULT = 0.0;
+
+
+	/**
+	 * The cached value of the '{@link #getFlyScanDelay() <em>Fly Scan Delay</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getFlyScanDelay()
+	 * @generated
+	 * @ordered
+	 */
+	protected double flyScanDelay = FLY_SCAN_DELAY_EDEFAULT;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -640,6 +702,51 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 					ScanPackage.PARAMETERS__FLY_SCAN, oldFlyScan, flyScan));
 	}
 
+	@Override
+	public boolean getExtraFlatsAtEnd() {
+		return extraFlatsAtEnd;
+	}
+
+	@Override
+	public void setExtraFlatsAtEnd(boolean value) {
+		boolean oldExtraFlatsAtEnd = extraFlatsAtEnd;
+		extraFlatsAtEnd = value;
+		if (eNotificationRequired()) {
+			eNotify(new ENotificationImpl(this, Notification.SET,
+					ScanPackage.PARAMETERS__EXTRA_FLATS_AT_END, oldExtraFlatsAtEnd, extraFlatsAtEnd));
+		}
+	}
+
+	@Override
+	public int getNumFlyScans() {
+		return numFlyScans;
+	}
+
+	@Override
+	public void setNumFlyScans(int value) {
+		int oldNumFlyScans = numFlyScans;
+		numFlyScans = value;
+		if (eNotificationRequired()) {
+			eNotify(new ENotificationImpl(this, Notification.SET,
+					ScanPackage.PARAMETERS__NUM_FLY_SCANS, oldNumFlyScans, numFlyScans));
+		}
+	}
+
+	@Override
+	public double getFlyScanDelay() {
+		return flyScanDelay;
+	}
+
+	@Override
+	public void setFlyScanDelay(double value) {
+		double oldFlyScanDelay = flyScanDelay;
+		flyScanDelay = value;
+		if (eNotificationRequired()) {
+			eNotify(new ENotificationImpl(this, Notification.SET,
+					ScanPackage.PARAMETERS__FLY_SCAN_DELAY, oldFlyScanDelay, flyScanDelay));
+		}
+	}
+
 	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -674,6 +781,12 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 			return getTitle();
 		case ScanPackage.PARAMETERS__FLY_SCAN:
 			return isFlyScan();
+		case ScanPackage.PARAMETERS__EXTRA_FLATS_AT_END:
+			return getExtraFlatsAtEnd();
+		case ScanPackage.PARAMETERS__NUM_FLY_SCANS:
+			return getNumFlyScans();
+		case ScanPackage.PARAMETERS__FLY_SCAN_DELAY:
+			return getFlyScanDelay();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -724,6 +837,15 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 			return;
 		case ScanPackage.PARAMETERS__FLY_SCAN:
 			setFlyScan((Boolean) newValue);
+			return;
+		case ScanPackage.PARAMETERS__EXTRA_FLATS_AT_END:
+			setExtraFlatsAtEnd((Boolean) newValue);
+			return;
+		case ScanPackage.PARAMETERS__NUM_FLY_SCANS:
+			setNumFlyScans((Integer) newValue);
+			return;
+		case ScanPackage.PARAMETERS__FLY_SCAN_DELAY:
+			setFlyScanDelay((Double) newValue);
 			return;
 		}
 		super.eSet(featureID, newValue);
@@ -776,6 +898,15 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 		case ScanPackage.PARAMETERS__FLY_SCAN:
 			setFlyScan(FLY_SCAN_EDEFAULT);
 			return;
+		case ScanPackage.PARAMETERS__EXTRA_FLATS_AT_END:
+			setExtraFlatsAtEnd(EXTRA_FLATS_AT_END_EDEFAULT);
+			return;
+		case ScanPackage.PARAMETERS__NUM_FLY_SCANS:
+			setNumFlyScans(NUM_FLY_SCANS_EDEFAULT);
+			return;
+		case ScanPackage.PARAMETERS__FLY_SCAN_DELAY:
+			setFlyScanDelay(FLY_SCAN_DELAY_EDEFAULT);
+			return;
 		}
 		super.eUnset(featureID);
 	}
@@ -815,6 +946,12 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 					.equals(title);
 		case ScanPackage.PARAMETERS__FLY_SCAN:
 			return flyScan != FLY_SCAN_EDEFAULT;
+		case ScanPackage.PARAMETERS__EXTRA_FLATS_AT_END:
+			return extraFlatsAtEnd != EXTRA_FLATS_AT_END_EDEFAULT;
+		case ScanPackage.PARAMETERS__NUM_FLY_SCANS:
+			return numFlyScans != NUM_FLY_SCANS_EDEFAULT;
+		case ScanPackage.PARAMETERS__FLY_SCAN_DELAY:
+			return flyScanDelay != FLY_SCAN_DELAY_EDEFAULT;
 		}
 		return super.eIsSet(featureID);
 	}
@@ -856,6 +993,12 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 		result.append(title);
 		result.append(", flyScan: "); //$NON-NLS-1$
 		result.append(flyScan);
+		result.append(", extraFlatsAtEnd: ");
+		result.append(extraFlatsAtEnd);
+		result.append(", numFlyScans: ");
+		result.append(numFlyScans);
+		result.append(", flyScanDelay: ");
+		result.append(flyScanDelay);
 		result.append(')');
 		return result.toString();
 	}

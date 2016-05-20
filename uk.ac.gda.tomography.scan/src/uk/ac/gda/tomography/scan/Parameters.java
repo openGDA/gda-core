@@ -198,7 +198,7 @@ public interface Parameters extends EObject {
 	/**
 	 * @model required="true" default="-1." unsettable="false"
 	 * 
-	 * @return minimum value of ion chamber current required to take an image (default is -1 . A negative value means that the value is not checked )
+	 * @return minimum value of ion chamber current required to take an image (default is -1) . A negative value means that the value is not checked )
 	 */
 	double getMinI();
 
@@ -229,4 +229,45 @@ public interface Parameters extends EObject {
 	 */
 	void setFlyScan(boolean value);
 
+	/**
+	 * @model required="true" default="false" unsettable="false"
+	 * @return True if we should collect additional flat images at the end of a tomography scan
+	 */
+	boolean getExtraFlatsAtEnd();
+
+	/**
+	 * Sets the value of the '{@link uk.ac.gda.tomography.scan.Parameters#getExtraFlatsAtEnd <em>Extra Flats at End</em>}' attribute.
+	 *
+	 * @param value
+	 *            the new value of the '<em>Extra Flats at End</em>' attribute.
+	 */
+	void setExtraFlatsAtEnd(boolean value);
+
+	/**
+	 * @model required="true" default="false" unsettable="false"
+	 * @return number of fly scans to run (default is 1)
+	 */
+	int getNumFlyScans();
+
+	/**
+	 * Sets the value of the '{@link uk.ac.gda.tomography.scan.Parameters#getNumFlyScans <em>Number of Fly Scans</em>}' attribute.
+	 *
+	 * @param value
+	 *            the new value of the '<em>Number of Fly Scans</em>' attribute.
+	 */
+	void setNumFlyScans(int value);
+
+	/**
+	 * @model required="true" default="false" unsettable="false"
+	 * @return delay (in seconds) between each fly scan
+	 */
+	double getFlyScanDelay();
+
+	/**
+	 * Sets the value of the '{@link uk.ac.gda.tomography.scan.Parameters#getFlyScanDelay <em>Delay Between Scans</em>}' attribute.
+	 *
+	 * @param value
+	 *            the new value of the '<em>Delay Between Scans</em>' attribute.
+	 */
+	void setFlyScanDelay(double value);
 }

@@ -187,13 +187,42 @@ public interface ScanPackage extends EPackage {
 	int PARAMETERS__FLY_SCAN = 12;
 
 	/**
-	 * The number of structural features of the '<em>Parameters</em>' class.
+	 * The feature id for the '<em><b>Extra Flats at End</b></em>' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
+	 *
 	 * @generated
 	 * @ordered
 	 */
-	int PARAMETERS_FEATURE_COUNT = 13;
+	int PARAMETERS__EXTRA_FLATS_AT_END = 13;
+
+	/**
+	 * The feature id for the '<em><b>Number of Fly Scans</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 *
+	 * @generated
+	 * @ordered
+	 */
+	int PARAMETERS__NUM_FLY_SCANS = 14;
+
+	/**
+	 * The feature id for the '<em><b>Delay Between Scans</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 *
+	 * @generated
+	 * @ordered
+	 */
+	int PARAMETERS__FLY_SCAN_DELAY = 15;
+
+	/**
+	 * The number of structural features of the '<em>Parameters</em>' class. <!-- begin-user-doc --> <!-- end-user-doc -->
+	 *
+	 * @generated
+	 * @ordered
+	 */
+	int PARAMETERS_FEATURE_COUNT = 16;
 
 	/**
 	 * Returns the meta object for class '{@link uk.ac.gda.tomography.scan.Parameters <em>Parameters</em>}'.
@@ -347,6 +376,21 @@ public interface ScanPackage extends EPackage {
 	 * @generated
 	 */
 	EAttribute getParameters_FlyScan();
+
+	/**
+	 * Returns the meta object for the attribute '{@link uk.ac.gda.tomography.scan.Parameters#getExtraFlatsAtEnd <em>Extra Flats At End</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 *
+	 * @return the meta object for the attribute '<em>Extra Flats At End</em>'.
+	 * @see uk.ac.gda.tomography.scan.Parameters#isFlyScan()
+	 * @see #getParameters()
+	 */
+	EAttribute getParameters_ExtraFlatsAtEnd();
+
+	EAttribute getParameters_NumFlyScans();
+
+	EAttribute getParameters_FlyScanDelay();
 
 	/**
 	 * Returns the factory that creates the instances of the model.

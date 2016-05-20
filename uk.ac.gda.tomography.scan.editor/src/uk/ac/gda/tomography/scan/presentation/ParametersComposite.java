@@ -65,6 +65,9 @@ public class ParametersComposite extends Composite {
 	private Text outBeamX;
 	private Text minI;
 	private Button flyscan;
+	private Button extraFlatsAtEnd;
+	private Text numFlyScans;
+	private Text flyScanDelay;
 
 	public ParametersComposite(Composite parent) {
 		super(parent, SWT.NONE);
@@ -77,7 +80,7 @@ public class ParametersComposite extends Composite {
 		formLayout.marginHeight = 5;
 		formLayout.marginBottom = 5;
 		setLayout(formLayout);
-		
+
 		Label lblTopTitle = new Label(this, SWT.WRAP);
 		lblTopTitle.setFont(SWTResourceManager.getFont("Sans", 12, SWT.NORMAL));
 		lblTopTitle.setAlignment(SWT.CENTER);
@@ -87,7 +90,7 @@ public class ParametersComposite extends Composite {
 		fd_lblTitle.left = new FormAttachment(0);
 		lblTopTitle.setLayoutData(fd_lblTitle);
 		lblTopTitle.setText("Tomography Scan Parameters");
-		
+
 		Group miscGroup = new Group(this, SWT.NONE);
 		FormData fd_miscGroup = new FormData();
 		fd_miscGroup.top = new FormAttachment(lblTopTitle);
@@ -96,29 +99,29 @@ public class ParametersComposite extends Composite {
 		miscGroup.setLayoutData(fd_miscGroup);
 		miscGroup.setLayout(new GridLayout(2, false));
 
-		
-		
+
+
 		Label lblTitle = new Label(miscGroup, SWT.NONE);
 		lblTitle.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblTitle.setText("Title");
-		
+
 		title = new Text(miscGroup, SWT.BORDER);
 		title.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
-		
+
 		Label lblExposures = new Label(miscGroup, SWT.NONE);
 		lblExposures.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblExposures.setText("Exposure/s");
-		
+
 		exposure = new Text(miscGroup, SWT.BORDER);
 		exposure.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 
 		Label lblMinI = new Label(miscGroup, SWT.NONE);
 		lblMinI.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblMinI.setText("Min. i");
-		
+
 		minI = new Text(miscGroup, SWT.BORDER);
 		minI.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		
+
 		Group motorGroup = new Group(this, SWT.NONE);
 		motorGroup.setText("Sample Positions");
 		FormData fd_motorGroup = new FormData();
@@ -131,17 +134,17 @@ public class ParametersComposite extends Composite {
 		Label lblInBeamX = new Label(motorGroup, SWT.NONE);
 		lblInBeamX.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblInBeamX.setText("In Beam X");
-		
+
 		inBeamX = new Text(motorGroup, SWT.BORDER);
 		inBeamX.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		
+
 		Label lblOutOfBeam = new Label(motorGroup, SWT.NONE);
 		lblOutOfBeam.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblOutOfBeam.setText("Out of Beam X");
-		
+
 		outBeamX = new Text(motorGroup, SWT.BORDER);
 		outBeamX.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		
+
 		Group rotationAngleGroup = new Group(this, SWT.NONE);
 		FormData fd_rotationAngleGroup = new FormData();
 		fd_rotationAngleGroup.top = new FormAttachment(motorGroup);
@@ -150,14 +153,14 @@ public class ParametersComposite extends Composite {
 		rotationAngleGroup.setLayoutData(fd_rotationAngleGroup);
 		rotationAngleGroup.setText("Rotation Angle");
 		rotationAngleGroup.setLayout(new GridLayout(2, false));
-		
-		
+
+
 		Label lblStart = new Label(rotationAngleGroup, SWT.NONE);
 		lblStart.setText("Start");
 		lblStart.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		start = new Text(rotationAngleGroup, SWT.BORDER);
 		start.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		
+
 		Label lblStop = new Label(rotationAngleGroup, SWT.NONE);
 		lblStop.setText("Stop");
 		lblStop.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -169,8 +172,8 @@ public class ParametersComposite extends Composite {
 		lblStep.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		step = new Text(rotationAngleGroup, SWT.BORDER);
 		step.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		
-		
+
+
 		flyscan = new Button(this, SWT.CHECK);
 		FormData fd_flyscan = new FormData();
 		fd_flyscan.top = new FormAttachment(rotationAngleGroup);
@@ -178,8 +181,8 @@ public class ParametersComposite extends Composite {
 		fd_flyscan.left = new FormAttachment(0);
 		flyscan.setLayoutData(fd_flyscan);
 		flyscan.setText("Fly Scan");
-		flyscan.setToolTipText("The scan can be performe as a step scan or flyscan");
-		
+		flyscan.setToolTipText("The scan can be performed as a step scan or fly scan");
+
 		Group grpDarksFlats = new Group(this, SWT.NONE);
 		grpDarksFlats.setLayout(new GridLayout(2, false));
 		FormData fd_grpDarksFlats = new FormData();
@@ -187,41 +190,69 @@ public class ParametersComposite extends Composite {
 		fd_grpDarksFlats.right = new FormAttachment(100);
 		fd_grpDarksFlats.left = new FormAttachment(0);
 		grpDarksFlats.setLayoutData(fd_grpDarksFlats);
-		grpDarksFlats.setText("Darks & Flats");
-		
+		grpDarksFlats.setText("Darks && Flats");
+
 		Label lblImagesperDark = new Label(grpDarksFlats, SWT.NONE);
 		lblImagesperDark.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblImagesperDark.setText("Images Per Dark");
-		
+		lblImagesperDark.setText("Images per Dark");
+
 		imagesPerDark = new Text(grpDarksFlats, SWT.BORDER);
 		imagesPerDark.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		
+
 		Label lblStepsPerDark = new Label(grpDarksFlats, SWT.NONE);
 		lblStepsPerDark.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblStepsPerDark.setText("Steps Per Dark");
-		
+		lblStepsPerDark.setText("Steps per Dark");
+
 		darkFieldInterval = new Text(grpDarksFlats, SWT.BORDER);
 		darkFieldInterval.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		
+
 		Label lblImagesPerFlat = new Label(grpDarksFlats, SWT.NONE);
 		lblImagesPerFlat.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblImagesPerFlat.setText("Images Per Flat");
-		
+		lblImagesPerFlat.setText("Images per Flat");
+
 		imagesPerFlat = new Text(grpDarksFlats, SWT.BORDER);
 		imagesPerFlat.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		
+
 		Label lblStepsPerFlat = new Label(grpDarksFlats, SWT.NONE);
 		lblStepsPerFlat.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblStepsPerFlat.setText("Steps per Flat");
-		
+
 		flatFieldInterval = new Text(grpDarksFlats, SWT.BORDER);
 		flatFieldInterval.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		
+
+		extraFlatsAtEnd = new Button(grpDarksFlats, SWT.CHECK);
+		extraFlatsAtEnd.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1));
+		extraFlatsAtEnd.setText("Extra Flats at End");
+		extraFlatsAtEnd.setToolTipText("Collect additional flat images at end of scan");
+
+		Group grpMultipleFlyScans = new Group(this, SWT.NONE);
+		grpMultipleFlyScans.setLayout(new GridLayout(2, false));
+		FormData fd_grpMultipleFlyScans = new FormData();
+		fd_grpMultipleFlyScans.top = new FormAttachment(grpDarksFlats);
+		fd_grpMultipleFlyScans.right = new FormAttachment(100);
+		fd_grpMultipleFlyScans.left = new FormAttachment(0);
+		grpMultipleFlyScans.setLayoutData(fd_grpMultipleFlyScans);
+		grpMultipleFlyScans.setText("Multiple Fly Scans");
+
+		Label lblNumFlyScans = new Label(grpMultipleFlyScans, SWT.NONE);
+		lblNumFlyScans.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lblNumFlyScans.setText("Number of Fly Scans");
+
+		numFlyScans = new Text(grpMultipleFlyScans, SWT.BORDER);
+		numFlyScans.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+
+		Label lblFlyScanDelay = new Label(grpMultipleFlyScans, SWT.NONE);
+		lblFlyScanDelay.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lblFlyScanDelay.setText("Delay Between Scans/s");
+
+		flyScanDelay = new Text(grpMultipleFlyScans, SWT.BORDER);
+		flyScanDelay.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		flyScanDelay.setToolTipText("Delay in seconds between multiple fly scans");
 
 		addTextToTextListeners(title, ScanPackage.eINSTANCE.getParameters_Title());
 		addTextToDoubleListeners(exposure, ScanPackage.eINSTANCE.getParameters_ExposureTime());
 		addTextToDoubleListeners(minI, ScanPackage.eINSTANCE.getParameters_MinI());
-		
+
 		addTextToDoubleListeners(inBeamX, ScanPackage.eINSTANCE.getParameters_InBeamPosition());
 		addTextToDoubleListeners(outBeamX, ScanPackage.eINSTANCE.getParameters_OutOfBeamPosition());
 
@@ -229,15 +260,19 @@ public class ParametersComposite extends Composite {
 		addTextToIntegerListeners(darkFieldInterval, ScanPackage.eINSTANCE.getParameters_DarkFieldInterval());
 		addTextToIntegerListeners(imagesPerFlat, ScanPackage.eINSTANCE.getParameters_ImagesPerFlat());
 		addTextToIntegerListeners(flatFieldInterval, ScanPackage.eINSTANCE.getParameters_FlatFieldInterval());
-		
+
 		addTextToDoubleListeners(start, ScanPackage.eINSTANCE.getParameters_Start());
 		addTextToDoubleListeners(stop, ScanPackage.eINSTANCE.getParameters_Stop());
 		addTextToDoubleListeners(step, ScanPackage.eINSTANCE.getParameters_Step());
-		
-		addButtonSelectionListeners(flyscan, ScanPackage.eINSTANCE.getParameters_FlyScan());		
-		
+
+		addButtonSelectionListeners(flyscan, ScanPackage.eINSTANCE.getParameters_FlyScan());
+		addButtonSelectionListeners(extraFlatsAtEnd, ScanPackage.eINSTANCE.getParameters_ExtraFlatsAtEnd());
+
+		addTextToIntegerListeners(numFlyScans, ScanPackage.eINSTANCE.getParameters_NumFlyScans());
+		addTextToDoubleListeners(flyScanDelay, ScanPackage.eINSTANCE.getParameters_FlyScanDelay());
+
 		addDisposeListener(new DisposeListener() {
-			
+
 			@Override
 			public void widgetDisposed(DisposeEvent e) {
 				if( editingDomain != null){
@@ -252,7 +287,7 @@ public class ParametersComposite extends Composite {
 			}
 		});
 	}
-	
+
 	private void addButtonSelectionListeners(final Button btn, final EAttribute eAttribute) {
 		btn.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -260,9 +295,9 @@ public class ParametersComposite extends Composite {
 				addModelUpdateCommand(eAttribute,btn.getSelection());
 			}
 		});
-		
+
 		btn.addFocusListener(new FocusAdapter() {
-			
+
 			@Override
 			public void focusLost(FocusEvent e) {
 				addModelUpdateCommand(eAttribute,btn.getSelection());
@@ -270,7 +305,7 @@ public class ParametersComposite extends Composite {
 		});
 	}
 
-	
+
 	private void addTextToDoubleListeners(final Text text, final EAttribute eAttribute) {
 		text.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -278,9 +313,9 @@ public class ParametersComposite extends Composite {
 				addModelUpdateCommand(eAttribute,Double.valueOf(text.getText()));
 			}
 		});
-		
+
 		text.addFocusListener(new FocusAdapter() {
-			
+
 			@Override
 			public void focusLost(FocusEvent e) {
 				addModelUpdateCommand(eAttribute,Double.valueOf(text.getText()));
@@ -295,16 +330,16 @@ public class ParametersComposite extends Composite {
 				addModelUpdateCommand(eAttribute,text.getText());
 			}
 		});
-		
+
 		text.addFocusListener(new FocusAdapter() {
-			
+
 			@Override
 			public void focusLost(FocusEvent e) {
 				addModelUpdateCommand(eAttribute,text.getText());
 			}
 		});
 	}
-	
+
 	private void addTextToIntegerListeners(final Text text, final EAttribute eAttribute) {
 		text.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -312,9 +347,9 @@ public class ParametersComposite extends Composite {
 				addModelUpdateCommand(eAttribute,Integer.valueOf(text.getText()));
 			}
 		});
-		
+
 		text.addFocusListener(new FocusAdapter() {
-			
+
 			@Override
 			public void focusLost(FocusEvent e) {
 				addModelUpdateCommand(eAttribute,Integer.valueOf(text.getText()));
@@ -350,14 +385,18 @@ public class ParametersComposite extends Composite {
 
 		outBeamX.setText(Double.toString(x.getOutOfBeamPosition()));
 		inBeamX.setText(Double.toString(x.getInBeamPosition()));
-		
+
 		imagesPerDark.setText(Integer.toString(x.getImagesPerDark()));
 		darkFieldInterval.setText(Integer.toString(x.getDarkFieldInterval()));
 		imagesPerFlat.setText(Integer.toString(x.getImagesPerFlat()));
 		flatFieldInterval.setText(Integer.toString(x.getFlatFieldInterval()));
-		
+
 		flyscan.setSelection(x.isFlyScan());
-		
+		extraFlatsAtEnd.setSelection(x.getExtraFlatsAtEnd());
+
+		numFlyScans.setText(Integer.toString(x.getNumFlyScans()));
+		flyScanDelay.setText(Double.toString(x.getFlyScanDelay()));
+
 		adapter = new EContentAdapter() {
 
 			@Override
@@ -394,17 +433,19 @@ public class ParametersComposite extends Composite {
 							flatFieldInterval.setText(Integer.toString(parameters.getFlatFieldInterval()));
 						} else if( feature.equals(ScanPackage.eINSTANCE.getParameters_FlyScan())){
 							flyscan.setSelection(parameters.isFlyScan());
+						} else if (feature.equals(ScanPackage.eINSTANCE.getParameters_ExtraFlatsAtEnd())) {
+							extraFlatsAtEnd.setSelection(parameters.getExtraFlatsAtEnd());
+						} else if (feature.equals(ScanPackage.eINSTANCE.getParameters_NumFlyScans())) {
+							numFlyScans.setText(Integer.toString(parameters.getNumFlyScans()));
+						} else if (feature.equals(ScanPackage.eINSTANCE.getParameters_FlyScanDelay())) {
+							flyScanDelay.setText(Double.toString(parameters.getFlyScanDelay()));
 						}
 					}
-						
+
 				}
 			}
 		};
 		resource.eAdapters().add(adapter);
 
-/*		ScanItemProviderAdapterFactory factory = new ScanItemProviderAdapterFactory();
-		IItemLabelProvider adapt = (IItemLabelProvider)factory.adapt(x, IItemLabelProvider.class);
-		adapt.
-*/		
 	}
 }
