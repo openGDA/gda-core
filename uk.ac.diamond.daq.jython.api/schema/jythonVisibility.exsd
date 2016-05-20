@@ -1,0 +1,100 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Schema file written by PDE -->
+<schema targetNamespace="uk.ac.diamond.daq.jython.api" xmlns="http://www.w3.org/2001/XMLSchema">
+<annotation>
+      <appinfo>
+         <meta.schema plugin="uk.ac.diamond.daq.jython.api" id="jythonVisibility" name="Jython Visibility"/>
+      </appinfo>
+      <documentation>
+         Extension point allows listing of all the packages in a bundle to be included in its Jython API. Also Python source folders to be made available on all beamlines may be specified.
+      </documentation>
+   </annotation>
+
+   <element name="extension">
+      <annotation>
+         <appinfo>
+            <meta.element />
+         </appinfo>
+      </annotation>
+      <complexType>
+         <sequence>
+            <element ref="included_java_package" minOccurs="0" maxOccurs="unbounded"/>
+            <element ref="script_source_location" minOccurs="0" maxOccurs="unbounded"/>
+         </sequence>
+         <attribute name="point" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="id" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="name" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+               <appinfo>
+                  <meta.attribute translatable="true"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="script_source_location">
+      <annotation>
+         <documentation>
+            Identifies locations that contain Python/Jython source code that should form part of the Jython API from this or other bundles.
+         </documentation>
+      </annotation>
+      <complexType>
+         <attribute name="folder" type="string" use="required">
+            <annotation>
+               <documentation>
+                  A folder path relative to the [WORKSPACE_NAME]_git folder. Normally specifying a folder within this bundle containing Python Source that should form part of the Jython API, though any relative path that is valid within the built product will do. This allows specification of script paths in third party bundles.
+               </documentation>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="included_java_package">
+      <complexType>
+         <attribute name="package" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="bundle" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <annotation>
+      <appinfo>
+         <meta.section type="since"/>
+      </appinfo>
+      <documentation>
+         Solstice:Hydrogen (V9.1)
+      </documentation>
+   </annotation>
+
+
+
+
+
+</schema>

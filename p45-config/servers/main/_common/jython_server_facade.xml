@@ -19,23 +19,8 @@
 							<property name="type" value="CONFIG" />
 						</bean>
 						<bean class="gda.jython.ScriptProject">
-							<property name="path" value="${gda.install.git.loc}/gda-core.git/uk.ac.gda.core/scripts" />
-							<property name="name" value="Scripts: Core" />
-							<property name="type" value="CORE" />
-						</bean>
-						<bean class="gda.jython.ScriptProject">
 							<property name="path" value="${gda.install.git.loc}/daq-eclipse.git/org.eclipse.scanning.command/scripts" />
 							<property name="name" value="Scripts: Core (Mapping)" />
-							<property name="type" value="CORE" />
-						</bean>
-						<bean class="gda.jython.ScriptProject">
-							<property name="path" value="${gda.install.git.loc}/gda-epics.git/uk.ac.gda.epics/scripts" />
-							<property name="name" value="Scripts: Epics" />
-							<property name="type" value="CORE" />
-						</bean>
-						<bean class="gda.jython.ScriptProject">
-							<property name="path" value="${gda.install.git.loc}/scisoft-core.git/uk.ac.diamond.scisoft.python/src" />
-							<property name="name" value="Scripts: Scisoft" />
 							<property name="type" value="CORE" />
 						</bean>
 					</list>
