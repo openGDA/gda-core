@@ -18,8 +18,6 @@
 
 package uk.ac.gda.epics.adviewer.views;
 
-import gda.device.detector.nxdetector.roi.PlotServerROISelectionProvider;
-
 import java.util.List;
 import java.util.Vector;
 
@@ -38,6 +36,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.StringUtils;
 
+import gda.device.detector.nxdetector.roi.PlotServerROISelectionProvider;
 import uk.ac.gda.epics.adviewer.ADController;
 import uk.ac.gda.epics.adviewer.ADControllerFactory;
 import uk.ac.gda.epics.adviewer.Activator;
@@ -50,6 +49,7 @@ public class TwoDArrayView extends ViewPart implements InitializingBean {
 
 	private static final Logger logger = LoggerFactory.getLogger(TwoDArrayView.class);
 	private TwoDArray twoDArray;
+
 	private ADController adController;
 	private IPartListener2 partListener;
 	private PlottingSystemIRegionPlotServerConnector plotServerConnector;
@@ -214,6 +214,10 @@ public class TwoDArrayView extends ViewPart implements InitializingBean {
 			return this.twoDArray.getPlottingSystem();
 		}
 		return super.getAdapter(clazz);
+	}
+
+	public TwoDArray getTwoDArray() {
+		return twoDArray;
 	}
 
 }

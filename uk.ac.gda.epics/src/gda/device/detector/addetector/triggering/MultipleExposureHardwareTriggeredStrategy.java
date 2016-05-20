@@ -18,13 +18,17 @@
 
 package gda.device.detector.addetector.triggering;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import gda.device.DeviceException;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.ADBase.StandardTriggerMode;
 import gda.device.detector.areadetector.v17.ImageMode;
+import gda.device.detector.countertimer.TfgScalerWithFrames;
+import gda.factory.Finder;
 import gda.scan.ScanInformation;
-
-import java.util.ArrayList;
 
 public class MultipleExposureHardwareTriggeredStrategy extends SimpleAcquire {
 
@@ -36,12 +40,65 @@ public class MultipleExposureHardwareTriggeredStrategy extends SimpleAcquire {
 
 	@Override
 	public void prepareForCollection(double collectionTime, int numImages, ScanInformation scanInfo) throws Exception {
+		getAdBase().stopAcquiring(); // Stop acquiring first (in case live mode is already be running).
 		enableOrDisableCallbacks();
+		setTimeFrames(scanInfo); // set time frames for I1 and ionchambers
 		configureAcquireAndPeriodTimes(collectionTime);
 		configureTriggerMode();
 		getAdBase().setImageModeWait(ImageMode.MULTIPLE);
-		getAdBase().setNumImages(scanInfo.getDimensions()[0]);
+		getAdBase().setNumImages(getTotalNumberScanImages(scanInfo));
 		getAdBase().startAcquiring();
+	}
+
+	/**
+	 * Return total number of images in scan (also works for multi-dimensional/nested scans)
+	 *
+	 * @param scanInfo
+	 * @return Total number of images
+	 * @since 11/11/2015
+	 *
+	 */
+	private int getTotalNumberScanImages(ScanInformation scanInfo) {
+		int dimensions[] = scanInfo.getDimensions();
+		int numImages = 1;
+		for (int i = 0; i < dimensions.length; i++)
+			numImages *= dimensions[i];
+		return numImages;
+	}
+
+	/**
+	 * Set frame times for ionchambers and I1 so that Medipix collection of each frame is triggered correctly. (Important for command line scans when
+	 * I1.setTimes has not explicitly been called before scan start).
+	 *
+	 * @param scanInfo
+	 * @throws DeviceException
+	 * @since 11/11/2015
+	 *
+	 */
+	private void setTimeFrames(ScanInformation scanInfo) throws DeviceException {
+		// Names of tfgScalers we want to try and set the time frames for
+		List<String> tfgScalerNameList = Arrays.asList("ionchambers", "I1");
+
+		String detectorNames[] = scanInfo.getDetectorNames();
+		for (int i = 0; i < detectorNames.length; i++) {
+
+			// Get ref to TfgScaler object from detector name
+			TfgScalerWithFrames tfgScaler = null;
+			if (tfgScalerNameList.contains(detectorNames[i])) {
+				tfgScaler = (TfgScalerWithFrames) Finder.getInstance().find(detectorNames[i]);
+			}
+
+			// Set TfgScaler frame times. NB. Don't do this if frame times have already been
+			// set explicitly. e.g. by a script or for scan started from the command queue.
+			if (tfgScaler != null && tfgScaler.getTimes() == null) {
+				double collectionTime = tfgScaler.getCollectionTime();
+				int numImages = getTotalNumberScanImages(scanInfo);
+				Double times[] = new Double[numImages];
+				Arrays.fill(times, collectionTime); // each frame has same duration...
+				tfgScaler.clearFrameSets();
+				tfgScaler.setTimes(times);
+			}
+		}
 	}
 
 	@Override
@@ -82,5 +139,15 @@ public class MultipleExposureHardwareTriggeredStrategy extends SimpleAcquire {
 	@Override
 	public boolean requiresAsynchronousPlugins() {
 		return true;
+	}
+
+	/**
+	 * @since 6/11/2015
+	 */
+	@Override
+	public void completeCollection() throws Exception {
+		getAdBase().stopAcquiring();
+		// Trigger mode needs to be set back to internal so that live mode can be started correctly from GUI at end of scan
+		getAdBase().setTriggerMode(StandardTriggerMode.INTERNAL.ordinal());
 	}
 }
