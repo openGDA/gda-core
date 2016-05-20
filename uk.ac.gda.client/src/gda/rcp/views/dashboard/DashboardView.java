@@ -179,7 +179,8 @@ public final class DashboardView extends ViewPart {
 				try {
 					final SimpleScannableObject ob = (SimpleScannableObject) ((IStructuredSelection) serverViewer
 							.getSelection()).getFirstElement();
-					ob.setScannableName((String) value);
+					int idx = data.indexOf(ob);
+					data.set(idx, new SimpleScannableObject((String) value));
 
 				} catch (Exception e) {
 					logger.error("Cannot set " + property, e);
