@@ -53,10 +53,10 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.mapping.api.IDetectorModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
+import uk.ac.diamond.daq.mapping.api.IMappingExperimentBeanProvider;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
 import uk.ac.diamond.daq.mapping.api.IScanPathModelWrapper;
 import uk.ac.diamond.daq.mapping.api.MappingExperimentStatusBean;
-import uk.ac.diamond.daq.mapping.impl.ExampleMappingExperimentBean;
 
 /**
  * An E4-style POJO class for the mapping experiment view. This allows all dependencies to be injected (currently by a ViewPart instance until we have
@@ -163,8 +163,14 @@ public class MappingExperimentView {
 		}
 	}
 
-	public MappingExperimentView() {
-		this.experimentBean = new ExampleMappingExperimentBean();
+	@Inject
+	public MappingExperimentView(IMappingExperimentBeanProvider beanProvider) {
+		if (beanProvider != null) {
+			experimentBean = beanProvider.getMappingExperimentBean();
+		} else {
+			experimentBean = null;
+			logger.error("A mapping experiment bean provider is required - check Spring and OSGi configuration");
+		}
 	}
 
 	@PostConstruct

@@ -16,23 +16,9 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.mapping.impl;
+package uk.ac.diamond.daq.mapping.api;
 
-import org.eclipse.scanning.api.points.models.IScanPathModel;
+public interface IMappingExperimentBeanProvider {
 
-import uk.ac.diamond.daq.mapping.api.IScanPathModelWrapper;
-
-public class ScanPathModelWrapper extends ScanModelWrapper<IScanPathModel> implements IScanPathModelWrapper {
-
-	/**
-	 * No-arg constructor for use by Spring
-	 */
-	public ScanPathModelWrapper() {
-		super();
-	}
-
-	public ScanPathModelWrapper(String name, IScanPathModel model, boolean includeInScan) {
-		super(name, model, includeInScan);
-	}
-
+	public IMappingExperimentBean getMappingExperimentBean();
 }

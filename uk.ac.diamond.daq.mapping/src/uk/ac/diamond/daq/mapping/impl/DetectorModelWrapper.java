@@ -24,6 +24,13 @@ import uk.ac.diamond.daq.mapping.api.IDetectorModelWrapper;
 
 public class DetectorModelWrapper extends ScanModelWrapper<IDetectorModel> implements IDetectorModelWrapper {
 
+	/**
+	 * No-arg constructor for use by Spring
+	 */
+	public DetectorModelWrapper() {
+		super();
+	}
+
 	public DetectorModelWrapper(String name, IDetectorModel model) {
 		super(name, model);
 	}

@@ -18,21 +18,19 @@
 
 package uk.ac.diamond.daq.mapping.impl;
 
-import org.eclipse.scanning.api.points.models.IScanPathModel;
+import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
+import uk.ac.diamond.daq.mapping.api.IMappingExperimentBeanProvider;
 
-import uk.ac.diamond.daq.mapping.api.IScanPathModelWrapper;
+public class MappingExperimentBeanProvider implements IMappingExperimentBeanProvider {
 
-public class ScanPathModelWrapper extends ScanModelWrapper<IScanPathModel> implements IScanPathModelWrapper {
+	MappingExperimentBean mappingExperimentBean;
 
-	/**
-	 * No-arg constructor for use by Spring
-	 */
-	public ScanPathModelWrapper() {
-		super();
+	@Override
+	public IMappingExperimentBean getMappingExperimentBean() {
+		return mappingExperimentBean;
 	}
 
-	public ScanPathModelWrapper(String name, IScanPathModel model, boolean includeInScan) {
-		super(name, model, includeInScan);
+	public void setMappingExperimentBean(MappingExperimentBean bean) {
+		this.mappingExperimentBean = bean;
 	}
-
 }
