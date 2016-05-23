@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="GDA Logpanel" id="uk.ac.gda.client.logpanel.product" application="uk.ac.gda.client.logpanel.application" version="9.0.0" useFeatures="true" includeLaunchers="true">
+<product name="GDA Logpanel" id="uk.ac.gda.client.logpanel.product" application="uk.ac.gda.client.logpanel.application" version="9.1.0" useFeatures="true" includeLaunchers="true">
 
    <configIni use="default">
    </configIni>
