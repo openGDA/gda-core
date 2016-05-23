@@ -249,6 +249,13 @@ public class ZebraDummy implements Zebra, Findable, InitializingBean {
 	}
 
 	@Override
+	public ReadOnlyPV<Double[]> getPcCapturePV(int capture) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Deprecated
+	@Override
 	public ReadOnlyPV<Double[]> getEnc1AvalPV() {
 		// TODO Auto-generated method stub
 		return null;

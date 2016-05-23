@@ -109,6 +109,7 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 	public static final String PCCaptureBitField = "PC_BIT_CAP";
 	public static final String PCEnc = "PC_ENC";
 	public static final String PCEnc1Aval = "PC_ENC1";
+	public static final String[] PCCapture = {"PC_ENC1", "PC_ENC2", "PC_ENC3", "PC_ENC4", "PC_SYS1", "PC_SYS2", "PC_DIV1", "PC_DIV2", "PC_DIV3", "PC_DIV4", "PC_TIME"};
 	public static final String PCTime = "PC_TIME";
 	public static final String PCNumberOfPointsCaptured = "PC_NUM_CAP";
 	public static final String PCNumberOfPointsDownloaded = "PC_NUM_DOWN";
@@ -132,11 +133,11 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 	String zebraPrefix;
 
 	CachedLazyPVFactory dev;
-	
-	
-	
+
+	@Deprecated
 	private boolean useAvalField=false;
-	
+
+	@Deprecated
 	public boolean isUseAvalField() {
 		return useAvalField;
 	}
@@ -145,6 +146,7 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 	 * 
 	 * @param useAvalField if true the captured ENC1 values are stored in .AVAL field ( original IOC interface). Default is false
 	 */
+	@Deprecated
 	public void setUseAvalField(boolean useAvalField) {
 		this.useAvalField = useAvalField;
 	}
@@ -393,6 +395,13 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 		dev = new CachedLazyPVFactory(zebraPrefix);
 	}
 
+	@Override
+	public ReadOnlyPV<Double[]> getPcCapturePV(int capture) {
+		Preconditions.checkArgument(0 <= capture && capture <= 10, "capture=%i, must be between 0 and 10 inclusive", capture);
+		return dev.getReadOnlyPVDoubleArray(PCCapture[capture]);
+	}
+
+	@Deprecated
 	@Override
 	public ReadOnlyPV<Double[]> getEnc1AvalPV() {
 		return dev.getReadOnlyPVDoubleArray(useAvalField? PCEnc1Aval + ".AVAL": PCEnc1Aval);

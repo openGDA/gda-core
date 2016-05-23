@@ -31,6 +31,7 @@ import gda.device.detector.nxdetector.NXCollectionStrategyPlugin;
 import gda.device.scannable.ContinuouslyScannableViaController;
 import gda.device.scannable.PositionCallableProvider;
 import gda.device.scannable.PositionStreamIndexer;
+import gda.device.scannable.PositionStreamIndexerProvider;
 import gda.device.scannable.ScannableBase;
 import gda.device.scannable.ScannableMotor;
 import gda.device.scannable.ScannableUtils;
@@ -52,7 +53,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
 public class ZebraConstantVelocityMoveController extends ScannableBase implements ConstantVelocityMoveController2, 
-						PositionCallableProvider<Double>, ContinuouslyScannableViaController, InitializingBean {
+						PositionCallableProvider<Double>, PositionStreamIndexerProvider<Double>,
+						ContinuouslyScannableViaController, InitializingBean {
 	private static final Logger logger = LoggerFactory.getLogger(ZebraConstantVelocityMoveController.class);
 
 	Zebra zebra;
@@ -104,13 +106,19 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 			/* Since we shouldn't attempt set up the next point until the current one is finished, wait for the
 			 * Zebra to become disarmed.
 			 */
+			int waitingForDisarm = 1;
 			while (zebra.isPCArmed()) {
-				logger.info("Zebra not yet disarmed, waiting for disarm...");
+				logger.info("Zebra not yet disarmed, waiting for disarm... ({})", waitingForDisarm);
+				if (waitingForDisarm % 10 == 0) zebra.reset();
 				Thread.sleep(100);
+				waitingForDisarm++;
 			}
 			/* Previously we did a reset on every call to prepareForMove to ensure that the Zebra box was always
 			 * disarmed before the first point in a scan, this resulted in unnecessary delays however, and is now
-			 * taken care of by a reset in atScanStart, so it should never be necessary here.
+			 * taken care of by a reset in atScanStart, so it should never be necessary here, in normal operation.
+			 * 
+			 * Unfortunately, if the motor never reaches the gate end, maybe because the motor controller stopped
+			 * within the dead zone, then a single reset doesn't appear to be enough, so we need to keep retrying.
 			 */
 
 			//sources must be set first
@@ -119,7 +127,12 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 
 			//set motor before setting gates and pulse parameters
 			int pcEnc = zebraMotorInfoProvider.getPcEnc();
-			int pcCaptureBitField = 1 << pcEnc;
+			int checkPcCaptureBitField = 1 << pcEnc;
+			if ((pcCaptureBitField & checkPcCaptureBitField) == 0) {
+				logger.warn("Mismatch between motor encoder {} and capture listeners {}",
+						checkPcCaptureBitField, pcCaptureBitField);
+				pcCaptureBitField |= checkPcCaptureBitField; // Ensure motor encoder included for debugging
+			}
 			zebra.setPCCaptureBitField(pcCaptureBitField);
 			logger.debug("pcEnc={}, pcCaptureBitField={}, step={}", pcEnc, pcCaptureBitField, step);
 			zebra.setPCEnc(pcEnc); // Default is Zebra.PC_ENC_ENC1
@@ -437,8 +450,10 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 	private double step;
 	private double start;
 
+	private final int PRIMARY_INDEXERS=10;
+	private final int SECONDARY_INDEXERS=10;
 	@SuppressWarnings("unchecked")
-	public PositionStreamIndexer<Double> lastImageNumberStreamIndexer[] = new PositionStreamIndexer[11];
+	public PositionStreamIndexer<Double> lastImageNumberStreamIndexer[] = new PositionStreamIndexer[PRIMARY_INDEXERS+SECONDARY_INDEXERS+1];
 
 	@Override
 	public void startMove() throws DeviceException {
@@ -615,7 +630,7 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 
 	// Class functions
 
-	int numPosCallableReturned = 0;
+	int pcCaptureBitField=0;
 
 	private double pcPulseDelayRBV;
 
@@ -629,19 +644,30 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 
 	private Collection<HardwareTriggeredDetector> detectors;
 
+	// interface PositionStreamIndexerProvider
+
+	/** Get a PositionStreamIndexer for a Zebra position capture stream.
+	 *
+	 * Since each stream can only be used once, allow secondary clients to
+	 * access copies of position streams by using an offset on the index.
+	 *
+	 * Indices 0 to 4 are ENC1-4, 6 to 9 are DIV1-4 and 10 is Capture time.
+	 * Primary indices 0 to 10 are mapped onto secondary indices 11 to 21.
+	 */
+	@Override
 	public PositionStreamIndexer<Double> getPositionSteamIndexer(int index) {
 		logger.trace("getPositionSteamIndexer({})", index);
+
+		int bitFieldIndex = index <= PRIMARY_INDEXERS ? index : index - SECONDARY_INDEXERS - 1;
+
+		if (bitFieldIndex < 10) { // There is no bit for Time, since it is always enabled
+			logger.debug("bitFieldIndex={}, pcCaptureBitField={} ...", bitFieldIndex, pcCaptureBitField);
+			pcCaptureBitField |= 1 << index;
+			logger.debug("...bitFieldIndex={}, pcCaptureBitField={}, step={}", bitFieldIndex, pcCaptureBitField);
+		}
 		if( lastImageNumberStreamIndexer[index] == null){
 			logger.info("Creating lastImageNumberStreamIndexer " + index);
-			ReadOnlyPV<Double[]> rdDblArrayPV = zebra.getEnc1AvalPV();
-			switch(index){
-			case 0:
-				rdDblArrayPV = zebra.getEnc1AvalPV();
-				break;
-			case 10:
-				rdDblArrayPV = zebra.getPCTimePV();
-				break;
-			}
+			ReadOnlyPV<Double[]> rdDblArrayPV = zebra.getPcCapturePV(index);
 			if( timeSeriesCollection == null)
 				timeSeriesCollection = new Vector<ZebraCaptureInputStreamCollection>();
 			
@@ -649,7 +675,6 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 			lastImageNumberStreamIndexer[index] = new PositionStreamIndexer<Double>(sc);
 			timeSeriesCollection.add(sc);
 		}
-		numPosCallableReturned++;
 		return lastImageNumberStreamIndexer[index];
 	}
 
@@ -674,10 +699,10 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 	@Override
 	public void atScanLineStart() throws DeviceException {
 		logger.trace("atScanLineStart()");
-		lastImageNumberStreamIndexer = new PositionStreamIndexer[11];
+		lastImageNumberStreamIndexer = new PositionStreamIndexer[PRIMARY_INDEXERS+SECONDARY_INDEXERS+1];
 		timeSeriesCollection = null;
 		moveFuture=null;
-		numPosCallableReturned=0;
+		pcCaptureBitField=0;
 	}
 
 	@Override
