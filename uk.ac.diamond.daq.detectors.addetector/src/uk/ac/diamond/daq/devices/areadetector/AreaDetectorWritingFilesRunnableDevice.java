@@ -151,12 +151,18 @@ public class AreaDetectorWritingFilesRunnableDevice
 		DelegateNexusProvider<NXdetector> nexusProvider = new DelegateNexusProvider<NXdetector>(getName(),
 				NexusBaseClass.NX_DETECTOR, info, this);
 
-		// Set the rank to allow the NXdata to be setup. Add 2 as AD returns 2D data
-		nexusProvider.setExternalDatasetRank(NXdetector.NX_DATA, info.getRank() + 2);
+		int scanRank = info.getRank();
+
+		// Set the external file written by this detector which will be linked to
+		nexusProvider.setExternalFileName(fileName);
+
+		// Setup the primary NXdata. Add 2 to the scan rank as AD returns 2D data
+		nexusProvider.setPrimaryDataFieldName(NXdetector.NX_DATA);
+		nexusProvider.setExternalDatasetRank(NXdetector.NX_DATA, scanRank + 2);
 
 		// Add an additional NXData for the stats total
 		nexusProvider.addAdditionalPrimaryDataFieldName(FIELD_NAME_STATS_TOTAL);
-		nexusProvider.setExternalDatasetRank(FIELD_NAME_STATS_TOTAL, info.getRank());
+		nexusProvider.setExternalDatasetRank(FIELD_NAME_STATS_TOTAL, scanRank);
 
 		return nexusProvider;
 	}
@@ -168,6 +174,7 @@ public class AreaDetectorWritingFilesRunnableDevice
 
 		// The link is relative and relies on the AD file and the NeXus being in the same directory
 		nxDetector.addExternalLink(NXdetector.NX_DATA, fileName, PATH_TO_DATA_NODE);
+
 		// Add the link for the total
 		nxDetector.addExternalLink(FIELD_NAME_STATS_TOTAL, fileName, PATH_TO_STATS_TOTAL_NODE);
 
