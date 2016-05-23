@@ -24,13 +24,6 @@ import uk.ac.diamond.daq.mapping.api.IScanPathModelWrapper;
 
 public class ScanPathModelWrapper extends ScanModelWrapper<IScanPathModel> implements IScanPathModelWrapper {
 
-	/**
-	 * No-arg constructor for use by Spring
-	 */
-	public ScanPathModelWrapper() {
-		super();
-	}
-
 	public ScanPathModelWrapper(String name, IScanPathModel model, boolean includeInScan) {
 		super(name, model, includeInScan);
 	}

@@ -27,13 +27,6 @@ public abstract class ScanModelWrapper<T> {
 	private boolean includeInScan;
 	private T model;
 
-	public ScanModelWrapper() {
-	}
-
-	public ScanModelWrapper(String name, T model) {
-		this(name, model, true);
-	}
-
 	public ScanModelWrapper(String name, T model, boolean includeInScan) {
 		this.name = name;
 		this.model = model;

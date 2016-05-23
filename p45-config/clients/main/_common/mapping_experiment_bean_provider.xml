@@ -7,31 +7,34 @@
 		<property name="detectorParameters">
 			<list>
 				<bean class="uk.ac.diamond.daq.mapping.impl.DetectorModelWrapper">
-					<property name="name" value="Mandelbrot Detector" />
-					<property name="model">
+					<constructor-arg name="name" value="Mandelbrot Detector" />
+					<constructor-arg name="model">
 						<bean class="org.eclipse.scanning.example.detector.MandelbrotModel">
 							<property name="realAxisName" value="stage_x" />
 							<property name="imaginaryAxisName" value="stage_y" />
 						</bean>
-					</property>
+					</constructor-arg>
+					<constructor-arg name="includeInScan" value="false" />
 				</bean>
 				<bean class="uk.ac.diamond.daq.mapping.impl.DetectorModelWrapper">
-					<property name="name" value="Microscope" />
-					<property name="model">
+					<constructor-arg name="name" value="Microscope" />
+					<constructor-arg name="model">
 						<bean class="uk.ac.diamond.daq.detectors.addetector.api.AreaDetectorRunnableDeviceModel">
 							<property name="name" value="mic" />
 							<property name="exposureTime" value="0.002" />
 						</bean>
-					</property>
+					</constructor-arg>
+					<constructor-arg name="includeInScan" value="false" />
 				</bean>
 				<bean class="uk.ac.diamond.daq.mapping.impl.DetectorModelWrapper">
-					<property name="name" value="Spectrum" />
-					<property name="model">
+					<constructor-arg name="name" value="Spectrum" />
+					<constructor-arg name="model">
 						<bean class="uk.ac.diamond.daq.detectors.addetector.api.AreaDetectorRunnableDeviceModel">
 							<property name="name" value="det" />
 							<property name="exposureTime" value="0.1" />
 						</bean>
-					</property>
+					</constructor-arg>
+					<constructor-arg name="includeInScan" value="false" />
 				</bean>
 			</list>
 		</property>
@@ -40,7 +43,9 @@
 				<property name="outerScannables">
 					<list>
 						<bean class="uk.ac.diamond.daq.mapping.impl.ScanPathModelWrapper">
-							<property name="name" value="stage_z" />
+							<constructor-arg name="name" value="stage_z" />
+							<constructor-arg name="model"><null /></constructor-arg>
+							<constructor-arg name="includeInScan" value="false" />
 						</bean>
 					</list>
 				</property>
