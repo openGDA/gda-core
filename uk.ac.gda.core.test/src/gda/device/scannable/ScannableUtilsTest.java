@@ -19,6 +19,7 @@
 
 package gda.device.scannable;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -392,5 +393,24 @@ public class ScannableUtilsTest {
 
 		// ...and the getExtraNamesFormats call should succeed
 		ScannableUtils.getExtraNamesFormats(s);
+	}
+
+	@Test
+	public void testSerializationOfScannableSnapshot() throws Exception {
+		when(vectorscn.getPosition()).thenReturn(new Double[] {0., 12., 100., -1.});
+		when(vectorscn.getOutputFormat()).thenReturn(new String[] {"%5.5g", "%5.5g", "%5.5g", "%5.5g"});
+		when(vectorscn.getExtraNames()).thenReturn(new String[] {"test"});
+		when(vectorscn.isBusy()).thenReturn(true);
+
+		ScannableSnapshot in = new ScannableSnapshot(vectorscn);
+		String b64 = ScannableUtils.getSerializedScannableSnapshot(vectorscn);
+		ScannableSnapshot out = ScannableUtils.deserializeScannableSnapshot(b64);
+		assertEquals(in.name, out.name);
+		assertEquals(in.busy, out.busy);
+		assertArrayEquals(in.inputNames, out.inputNames);
+		assertArrayEquals(in.extraNames, out.extraNames);
+		assertArrayEquals(in.outputFormat, out.outputFormat);
+		assertArrayEquals(in.units, out.units);
+		assertArrayEquals((Object[]) in.lastPosition, (Object[]) out.lastPosition);
 	}
 }
