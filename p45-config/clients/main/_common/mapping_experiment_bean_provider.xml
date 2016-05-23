@@ -9,7 +9,10 @@
 				<bean class="uk.ac.diamond.daq.mapping.impl.DetectorModelWrapper">
 					<property name="name" value="Mandelbrot Detector" />
 					<property name="model">
-						<bean class="org.eclipse.scanning.example.detector.MandelbrotModel" />
+						<bean class="org.eclipse.scanning.example.detector.MandelbrotModel">
+							<property name="realAxisName" value="stage_x" />
+							<property name="imaginaryAxisName" value="stage_y" />
+						</bean>
 					</property>
 				</bean>
 				<bean class="uk.ac.diamond.daq.mapping.impl.DetectorModelWrapper">

@@ -78,17 +78,6 @@
 		<property name="service" ref="scanRequestPreprocessor" />
 	</bean>
 
-	<!-- Start a MandelbrotPreprocessor which will set the axis names used for positioning -->
-	<bean id="mandelbrotPreprocessor" class="uk.ac.diamond.daq.mapping.impl.MandelbrotPreprocessor">
-		<property name="realAxisName" value="stage_x" />
-		<property name="imaginaryAxisName" value="stage_y" />
-	</bean>
-	<!-- Preprocessors must be registered as OSGi services to be used by the scan servlet -->
-	<bean class="gda.util.osgi.OSGiServiceRegister">
-		<property name="class" value="org.eclipse.scanning.api.scan.process.IPreprocessor" />
-		<property name="service" ref="mandelbrotPreprocessor" />
-	</bean>
-
 	<!-- To enable use of a simulated AD uncomment this import and set the WORKSTATION environment variable to your workstation name -->
 	<!-- <import resource="simulated_area_detector.xml"/> -->
 
