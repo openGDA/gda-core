@@ -36,7 +36,7 @@
 			</list>
 		</property>
 		<property name="scanDefinition">
-			<bean class="uk.ac.diamond.daq.mapping.impl.ExampleScanDefinition">
+			<bean class="uk.ac.diamond.daq.mapping.impl.MappingScanDefinition">
 				<property name="outerScannables">
 					<list>
 						<bean class="uk.ac.diamond.daq.mapping.impl.ScanPathModelWrapper">

@@ -18,38 +18,45 @@
 
 package uk.ac.diamond.daq.mapping.impl;
 
-import java.util.List;
+import org.eclipse.scanning.api.points.models.IScanPathModel;
 
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegion;
-import uk.ac.diamond.daq.mapping.api.IScanDefinition;
-import uk.ac.diamond.daq.mapping.api.IScanPathModelWrapper;
+import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
 
-public class ExampleScanDefinition implements IScanDefinition {
+public class MappingScanRegion implements IMappingScanRegion {
 
-	private IMappingScanRegion mappingScanRegion;
-	private List<IScanPathModelWrapper> outerScannables;
+	private IMappingScanRegionShape region;
+	private IScanPathModel scanPath;
 
-	public ExampleScanDefinition() {
-		mappingScanRegion = new ExampleMappingScanRegion();
+	// private IDataset regionContext;
+
+	@Override
+	public IMappingScanRegionShape getRegion() {
+		return region;
 	}
 
 	@Override
-	public IMappingScanRegion getMappingScanRegion() {
-		return mappingScanRegion;
+	public void setRegion(IMappingScanRegionShape region) {
+		this.region = region;
 	}
 
 	@Override
-	public void setMappingScanRegion(IMappingScanRegion mappingScanRegion) {
-		this.mappingScanRegion = mappingScanRegion;
+	public IScanPathModel getScanPath() {
+		return scanPath;
 	}
 
 	@Override
-	public List<IScanPathModelWrapper> getOuterScannables() {
-		return outerScannables;
+	public void setScanPath(IScanPathModel scanPath) {
+		this.scanPath = scanPath;
 	}
 
-	@Override
-	public void setOuterScannables(List<IScanPathModelWrapper> outerScannables) {
-		this.outerScannables = outerScannables;
-	}
+	// @Override
+	// public IDataset getRegionContext() {
+	// return regionContext;
+	// }
+	//
+	// @Override
+	// public void setRegionContext(IDataset regionContext) {
+	// this.regionContext = regionContext;
+	// }
 }
