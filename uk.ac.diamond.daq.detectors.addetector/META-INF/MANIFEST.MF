@@ -14,3 +14,4 @@ Require-Bundle: org.eclipse.scanning.api;bundle-version="1.0.0",
  uk.ac.gda.nexus;bundle-version="1.0.0",
  uk.ac.diamond.daq.detectors.addetector.api;bundle-version="1.0.0"
 Import-Package: org.springframework.beans.factory;version="4.0.6.RELEASE"
+Export-Package: uk.ac.diamond.daq.devices.areadetector
