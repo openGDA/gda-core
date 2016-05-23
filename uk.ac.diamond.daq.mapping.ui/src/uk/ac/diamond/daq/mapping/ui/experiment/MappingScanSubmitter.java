@@ -20,6 +20,8 @@ package uk.ac.diamond.daq.mapping.ui.experiment;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.event.EventException;
@@ -27,12 +29,14 @@ import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.core.ISubmitter;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
+import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.mapping.api.IDetectorModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegion;
+import uk.ac.diamond.daq.mapping.api.IScanPathModelWrapper;
 import uk.ac.diamond.daq.mapping.api.MappingExperimentStatusBean;
 
 public class MappingScanSubmitter {
@@ -89,8 +93,16 @@ public class MappingScanSubmitter {
 		ScanRequest<IROI> req = new ScanRequest<IROI>();
 		scanBean.setScanRequest(req);
 
+		List<IScanPathModel> models = new ArrayList<>();
+		for (IScanPathModelWrapper scanPathModelWrapper : eBean.getMappingExperimentBean().getScanDefinition().getOuterScannables()) {
+			if (scanPathModelWrapper.isIncludeInScan()) {
+				models.add(scanPathModelWrapper.getModel());
+			}
+		}
+
 		IMappingScanRegion scanRegion = eBean.getMappingExperimentBean().getScanDefinition().getMappingScanRegion();
-		req.setModels(scanRegion.getScanPath());
+		models.add(scanRegion.getScanPath());
+		req.setModels(models);
 		req.putRegion(scanRegion.getScanPath().getUniqueKey(), scanRegion.getRegion().toROI());
 
 		for (IDetectorModelWrapper detectorWrapper : eBean.getMappingExperimentBean().getDetectorParameters()) {
