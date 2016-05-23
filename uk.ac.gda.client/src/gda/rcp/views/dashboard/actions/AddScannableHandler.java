@@ -25,7 +25,6 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.ui.PlatformUI;
 
 import gda.rcp.views.dashboard.DashboardView;
-import gda.rcp.views.dashboard.SimpleScannableObject;
 
 /**
  * Adds a scannable to the Dashboard
@@ -39,7 +38,7 @@ public class AddScannableHandler extends AbstractHandler {
 		DashboardView dashboard = (DashboardView)PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActivePart();
 		if (dashboard==null) return Boolean.FALSE;
 
-		dashboard.addServerObject(new SimpleScannableObject());
+		dashboard.addNewServerObject();
 
 		return Boolean.TRUE;
 	}

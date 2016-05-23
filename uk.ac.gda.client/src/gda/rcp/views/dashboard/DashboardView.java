@@ -72,12 +72,12 @@ public final class DashboardView extends ViewPart {
 
 		@Override
 		public String getText(Object element) {
-			final SimpleScannableObject ob = (SimpleScannableObject) element;
+			final ScannableObject ob = (ScannableObject) element;
 			switch (column) {
 			case 0:
-				return ob.getScannableName();
+				return ob.getName();
 			case 1:
-				return ob.getFormattedLastPosition();
+				return ob.getOutput();
 			default:
 				return "";
 			}
@@ -85,7 +85,7 @@ public final class DashboardView extends ViewPart {
 
 		@Override
 		public String getToolTipText(Object element) {
-			final SimpleScannableObject serverOb = (SimpleScannableObject) element;
+			final ScannableObject serverOb = (ScannableObject) element;
 			return serverOb.getToolTip();
 		}
 	}
@@ -98,24 +98,32 @@ public final class DashboardView extends ViewPart {
 
 	private TableViewer serverViewer;
 
-	private List<SimpleScannableObject> data;
+	private List<ScannableObject> data;
 
 	private Thread updater;
 
 	protected int sleeptime;
 
-	public void addServerObject(SimpleScannableObject sso) {
+	public void addServerObject(ScannableObject sso) {
 		try {
 			data.add(sso);
 			serverViewer.refresh();
 			((DoubleClickModifier) serverViewer.getCellModifier()).setEnabled(true);
-			String name = sso.getScannableName();
+			String name = sso.getName();
 			if (name == null || name == "") {
 				serverViewer.editElement(sso, 0);
 			}
 		} catch (Exception ne) {
 			logger.error("Cannot add object", ne);
 		}
+	}
+
+	public void addNewServerObject() {
+		ScannableObject sso = new ScannableObject("");
+		data.add(sso);
+		serverViewer.refresh();
+		((DoubleClickModifier) serverViewer.getCellModifier()).setEnabled(true);
+		serverViewer.editElement(sso, 0);
 	}
 
 	public void clearSelectedObjects() {
@@ -164,23 +172,23 @@ public final class DashboardView extends ViewPart {
 			public boolean canModify(Object element, String property) {
 				if (!enabled)
 					return false;
-				return (element instanceof SimpleScannableObject) && "Object Name".equalsIgnoreCase(property);
+				return (element instanceof ScannableObject) && "Object Name".equalsIgnoreCase(property);
 			}
 
 			@Override
 			public Object getValue(Object element, String property) {
 				// NOTE: Only works for scannables right now which have one name
-				final String name = ((SimpleScannableObject) element).getScannableName();
+				final String name = ((ScannableObject) element).getName();
 				return name != null ? name : "";
 			}
 
 			@Override
 			public void modify(Object item, String property, Object value) {
 				try {
-					final SimpleScannableObject ob = (SimpleScannableObject) ((IStructuredSelection) serverViewer
+					final ScannableObject ob = (ScannableObject) ((IStructuredSelection) serverViewer
 							.getSelection()).getFirstElement();
 					int idx = data.indexOf(ob);
-					data.set(idx, new SimpleScannableObject((String) value));
+					data.set(idx, new ScannableObject((String) value));
 
 				} catch (Exception e) {
 					logger.error("Cannot set " + property, e);
@@ -278,7 +286,7 @@ public final class DashboardView extends ViewPart {
 
 	public void deleteSelectedObject() {
 		try {
-			final SimpleScannableObject ob = (SimpleScannableObject) ((IStructuredSelection) serverViewer.getSelection())
+			final ScannableObject ob = (ScannableObject) ((IStructuredSelection) serverViewer.getSelection())
 					.getFirstElement();
 			data.remove(ob);
 			serverViewer.refresh();
@@ -288,13 +296,13 @@ public final class DashboardView extends ViewPart {
 	}
 
 	@SuppressWarnings("unchecked")
-	private List<SimpleScannableObject> getDataFromXML(String textData) throws UnsupportedEncodingException {
+	private List<ScannableObject> getDataFromXML(String textData) throws UnsupportedEncodingException {
 
 		if (textData == null)
 			return null;
 		final ByteArrayInputStream stream = new ByteArrayInputStream(textData.getBytes("UTF-8"));
 		XMLDecoder d = new XMLDecoder(new BufferedInputStream(stream));
-		final List<SimpleScannableObject> data = (List<SimpleScannableObject>) d.readObject();
+		final List<ScannableObject> data = (List<ScannableObject>) d.readObject();
 		d.close();
 		return data;
 	}
@@ -302,16 +310,16 @@ public final class DashboardView extends ViewPart {
 	/**
 	 * Called to get the default list of things to monitor.
 	 */
-	protected List<SimpleScannableObject> getDefaultServerObjects() throws Exception {
+	protected List<ScannableObject> getDefaultServerObjects() throws Exception {
 
-		final List<SimpleScannableObject> data = new ArrayList<SimpleScannableObject>(5);
+		final List<ScannableObject> data = new ArrayList<ScannableObject>(5);
 
 		IConfigurationElement[] config = Platform.getExtensionRegistry().getConfigurationElementsFor(
 				"uk.ac.gda.client.dashboard.objects");
 
 		for (IConfigurationElement e : config) {
 			final String name = e.getAttribute("name");
-			final SimpleScannableObject ob = new SimpleScannableObject(name);
+			final ScannableObject ob = new ScannableObject(name);
 			ob.setToolTip(e.getAttribute("tooltip"));
 
 			data.add(ob);
@@ -320,7 +328,7 @@ public final class DashboardView extends ViewPart {
 		return data;
 	}
 
-	private String getXMLFromData(final List<SimpleScannableObject> data) throws Exception {
+	private String getXMLFromData(final List<ScannableObject> data) throws Exception {
 
 		final ByteArrayOutputStream stream = new ByteArrayOutputStream();
 		XMLEncoder e = new XMLEncoder(new BufferedOutputStream(stream));
@@ -356,7 +364,7 @@ public final class DashboardView extends ViewPart {
 		if (pos < 0 || pos > this.data.size() - 1)
 			return;
 
-		final SimpleScannableObject o = data.remove(sel);
+		final ScannableObject o = data.remove(sel);
 		data.add(pos, o);
 
 		serverViewer.refresh();
@@ -370,7 +378,7 @@ public final class DashboardView extends ViewPart {
 			return;
 
 		try {
-			for (SimpleScannableObject sso : data) {
+			for (ScannableObject sso : data) {
 				sso.refresh();
 			}
 			Display.getDefault().syncExec(new Runnable() {
