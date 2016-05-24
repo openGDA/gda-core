@@ -460,8 +460,11 @@ Additional Ant tasks for Buckminster build. Based on http://www.ralfebert.de/blo
 		<copy todir="${install.git.path}/gda-dls-excalibur.git/uk.ac.gda.devices.excalibur/scripts">
 			<fileset dir="${ws_git.rel.path}/gda-dls-excalibur.git/uk.ac.gda.devices.excalibur/scripts"/>
 		</copy>
-		<copy todir="${install.git.path}/gda-epics.git/uk.ac.gda.epics/scripts">
-			<fileset dir="${ws_git.rel.path}/gda-epics.git/uk.ac.gda.epics/scripts"/>
+		<copy todir="${install.git.path}/gda-epics.git/uk.ac.gda.epics">
+			<fileset dir="${ws_git.rel.path}/gda-epics.git/uk.ac.gda.epics">
+				<include name="schema/*"/>
+				<include name="scripts/*"/>
+			</fileset>
 		</copy>
 		<copy todir="${install.git.path}/daq-eclipse.git/org.eclipse.scanning.command/scripts">
 			<fileset dir="${ws_git.rel.path}/daq-eclipse.git/org.eclipse.scanning.command/scripts"/>
