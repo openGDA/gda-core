@@ -160,9 +160,9 @@ public class AreaDetectorWritingFilesRunnableDevice
 		nexusProvider.setPrimaryDataFieldName(NXdetector.NX_DATA);
 		nexusProvider.setExternalDatasetRank(NXdetector.NX_DATA, scanRank + 2);
 
-		// Add an additional NXData for the stats total
+		// Add an additional NXData for the stats total. This is also scanRank + 2 as AD writes [y,x,1,1]
 		nexusProvider.addAdditionalPrimaryDataFieldName(FIELD_NAME_STATS_TOTAL);
-		nexusProvider.setExternalDatasetRank(FIELD_NAME_STATS_TOTAL, scanRank);
+		nexusProvider.setExternalDatasetRank(FIELD_NAME_STATS_TOTAL, scanRank + 2);
 
 		return nexusProvider;
 	}
