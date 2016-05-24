@@ -217,6 +217,11 @@ public class MappingExperimentView {
 		statusPanel = new StatusPanel(parent, SWT.NONE, this);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(statusPanel);
 
+		if (experimentBean == null) {
+			statusPanel.setMessage("Error getting mapping experiment definition");
+			return;
+		}
+
 		// Make a custom section for handling the mapping region
 		regionAndPathComposite = new Composite(parent, SWT.NONE);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(regionAndPathComposite);
