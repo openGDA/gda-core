@@ -1,4 +1,4 @@
-package uk.ac.diamond.daq.devices.areadetector;
+package uk.ac.diamond.daq.detectors.addetector;
 
 import java.io.File;
 

@@ -4,7 +4,7 @@
    <extension
          point="org.eclipse.scanning.api.device">
       <device
-            class="uk.ac.diamond.daq.devices.areadetector.AreaDetectorRunnableDevice"
+            class="uk.ac.diamond.daq.detectors.addetector.AreaDetectorRunnableDevice"
             description="An area detector implementation which obtains the data from EPICS and GDA writes it into the HDF file"
             icon="icons/camera.png"
             id="uk.ac.diamond.daq.devices.areadetector"
@@ -13,7 +13,7 @@
             name="Area Detector">
       </device>
       <device
-            class="uk.ac.diamond.daq.devices.areadetector.AreaDetectorWritingFilesRunnableDevice"
+            class="uk.ac.diamond.daq.detectors.addetector.AreaDetectorWritingFilesRunnableDevice"
             description="An area detector implementation which uses the HDF plugin to write the files itself."
             icon="icons/camera_writing.png"
             id="uk.ac.diamond.daq.devices.areadetector.filewriting"

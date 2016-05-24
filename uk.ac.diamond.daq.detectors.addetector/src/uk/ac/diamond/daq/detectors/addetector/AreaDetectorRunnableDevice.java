@@ -1,4 +1,4 @@
-package uk.ac.diamond.daq.devices.areadetector;
+package uk.ac.diamond.daq.detectors.addetector;
 
 import org.eclipse.dawnsci.analysis.api.dataset.Dtype;
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyWriteableDataset;
