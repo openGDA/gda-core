@@ -84,6 +84,7 @@ public class ODCCDOverflow extends ODCCDSingleExposure {
 			ensureDirectoryExists(unixFilename);
 
 			int intensity_integral=0;
+			// TODO: Work out how to use i0Monitor to get intensity_integral here.
 			String parameters = geometryParameters()+" "+fileParameters(isDarkSubtraction())+" "+intensity_integral+" "+collectionTime+" "+getBinning();
 
 			if (fast) { // TODO: Is this reliable? Is exposure.getPosition always correct value in collectData?

@@ -29,6 +29,7 @@ import gda.device.detector.nxdetector.NXFileWriterPlugin;
 import gda.device.detector.nxdetector.NXFileWriterWithTemplate;
 import gda.device.detector.odccd.ODCCDController;
 import gda.device.scannable.ContinuouslyScannableViaController;
+import gda.device.scannable.PositionStreamIndexerProvider;
 import gda.device.scannable.ScannableMotor;
 import gda.scan.ScanInformation;
 
@@ -43,6 +44,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.concurrent.Callable;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -70,6 +72,7 @@ public class ODCCDSingleExposure implements CollectionStrategyBeanInterface, NXF
 	private ContinuouslyScannableViaController dynamicThetaAxis;
 	private ContinuouslyScannableViaController dynamicTwothetaAxis;
 	private ContinuouslyScannableViaController dynamicGammaAxis;
+	private ContinuouslyScannableViaController i0Monitor;
 	private ScannableMotor staticPhiAxis;
 	private ScannableMotor staticKappaAxis;
 	private ScannableMotor staticThetaAxis;
@@ -103,7 +106,7 @@ public class ODCCDSingleExposure implements CollectionStrategyBeanInterface, NXF
 	protected int elementsRead;
 	protected int elementsRequested;
 	protected AxisConfiguration phi, kappa, omega, twotheta, gamma, ddist;
-	//protected dynamicAxis;
+	Callable<Double> i0MonitorCallable = null;
 
 	/* CollectionStrategyBeanInterface methods */
 
@@ -170,6 +173,23 @@ public class ODCCDSingleExposure implements CollectionStrategyBeanInterface, NXF
 	@Override
 	public void collectData() throws Exception {
 		logger.trace("collectData() collectionTime={} stack trace {}", collectionTime, Arrays.toString(Thread.currentThread().getStackTrace()));
+
+		if (i0Monitor != null) {
+			if (i0MonitorCallable != null) {
+				logger.error("i0MonitorCallable for {} should be null at this point! {}", i0Monitor.getName(), i0MonitorCallable);
+			}
+			PositionStreamIndexerProvider<Double> i0MonitorPSIP = null;
+			try {
+				//@SuppressWarnings("unchecked")
+				i0MonitorPSIP= (PositionStreamIndexerProvider<Double>) i0Monitor.getContinuousMoveController();
+			} catch (Exception e) {
+				logger.error("i0Monitor {} defined, but it's move controller does not support PositionStreamIndexerProvider<Double> interface.", i0Monitor.getName(), e);
+			}
+			if (i0MonitorPSIP != null) {
+				i0MonitorCallable = i0MonitorPSIP.getPositionSteamIndexer(7+11).getNamedPositionCallable(i0Monitor.getName(),1);
+			}
+			logger.info("i0MonitorCallable for {} is now {}", i0Monitor.getName(), i0MonitorCallable);
+		}
 		// call smi_exps1_atlas <1. binning> <2. timeout>
 		odccd.runScript("call smi_exps1_atlas " + binning + " " + collectionTime);
 		collecting = true;
@@ -212,7 +232,9 @@ public class ODCCDSingleExposure implements CollectionStrategyBeanInterface, NXF
 					0 0 0
 					0 2 1
 			 */
-			int intensity_integral=0;
+			// Here we rely on i0MonitorCallable having been called in collectData() to set us up for this image only!
+			// As such, this will almost certainly only work for Single Exposure collections.
+			int intensity_integral = i0MonitorCallable == null ? 0 : (int)Math.round(i0MonitorCallable.call());
 			saveImage(odccdfilename, geometryParameters()+" "+fileParameters(darkSubtraction)+" "+intensity_integral+" "+collectionTime+" "+binning);
 			unixFilenames.add(unixfilename);
 			collecting = false;
@@ -691,6 +713,14 @@ public class ODCCDSingleExposure implements CollectionStrategyBeanInterface, NXF
 
 	public void setDynamicGammaAxis(ContinuouslyScannableViaController gammaAxis) {
 		this.dynamicGammaAxis = gammaAxis;
+	}
+
+	public ContinuouslyScannableViaController getI0Monitor() {
+		return i0Monitor;
+	}
+
+	public void setI0Monitor(ContinuouslyScannableViaController i0Monitor) {
+		this.i0Monitor = i0Monitor;
 	}
 
 	public ScannableMotor getStaticPhiAxis() {
