@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="mapping_region_manager" class="uk.ac.diamond.daq.mapping.region.MappingRegionManager">
+		<property name="regions">
+			<list>
+				<bean class="uk.ac.diamond.daq.mapping.region.RectangularMappingRegion" />
+				<bean class="uk.ac.diamond.daq.mapping.region.CircularMappingRegion" />
+				<bean class="uk.ac.diamond.daq.mapping.region.PolygonMappingRegion" />
+				<bean class="uk.ac.diamond.daq.mapping.region.LineMappingRegion" />
+				<bean class="uk.ac.diamond.daq.mapping.region.PointMappingRegion" />
+			</list>
+		</property>
+		<property name="twoDPaths">
+			<list>
+				<bean class="org.eclipse.scanning.api.points.models.GridModel" />
+				<bean class="org.eclipse.scanning.api.points.models.RasterModel" />
+				<bean class="uk.ac.diamond.daq.mapping.path.SpiralModel" />
+				<bean class="uk.ac.diamond.daq.mapping.path.LissajousModel" />
+			</list>
+		</property>
+		<property name="oneDPaths">
+			<list>
+				<bean class="org.eclipse.scanning.api.points.models.OneDEqualSpacingModel" />
+				<bean class="org.eclipse.scanning.api.points.models.OneDStepModel" />
+			</list>
+		</property>
+		<property name="zeroDPaths">
+			<list>
+				<bean class="org.eclipse.scanning.api.points.models.SinglePointModel" />
+			</list>
+		</property>
+	</bean>
+
+	<!-- Register the mapping region manager as an OSGi service -->
+	<bean class="gda.util.osgi.OSGiServiceRegister">
+		<property name="class" value="uk.ac.diamond.daq.mapping.api.IMappingRegionManager" />
+		<property name="service" ref="mapping_region_manager" />
+	</bean>
+
+</beans>

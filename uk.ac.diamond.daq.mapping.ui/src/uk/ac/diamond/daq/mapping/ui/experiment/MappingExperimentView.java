@@ -54,6 +54,7 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.daq.mapping.api.IDetectorModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBeanProvider;
+import uk.ac.diamond.daq.mapping.api.IMappingRegionManager;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
 import uk.ac.diamond.daq.mapping.api.IScanPathModelWrapper;
 import uk.ac.diamond.daq.mapping.api.MappingExperimentStatusBean;
@@ -68,12 +69,10 @@ public class MappingExperimentView {
 	private class RegionSelectorListener implements ISelectionChangedListener {
 
 		private final ComboViewer pathSelector;
-		private final MappingRegionManager mappingRegionManager;
 		private final PropertyChangeListener regionBeanPropertyChangeListener;
 
-		private RegionSelectorListener(ComboViewer pathSelector, MappingRegionManager mappingRegionManager) {
+		private RegionSelectorListener(ComboViewer pathSelector) {
 			this.pathSelector = pathSelector;
-			this.mappingRegionManager = mappingRegionManager;
 			this.regionBeanPropertyChangeListener = new PropertyChangeListener() {
 				@Override
 				public void propertyChange(PropertyChangeEvent evt) {
@@ -142,6 +141,8 @@ public class MappingExperimentView {
 
 	@Inject
 	private PlottingController plotter;
+	@Inject
+	private IMappingRegionManager mappingRegionManager;
 	@Inject
 	private IGuiGeneratorService guiGenerator;
 	@Inject
@@ -261,13 +262,11 @@ public class MappingExperimentView {
 			}
 		});
 
-		MappingRegionManager mappingRegionManager = new MappingRegionManager();
-
 		regionSelector.setContentProvider(ArrayContentProvider.getInstance());
 		List<IMappingScanRegionShape> regionList = mappingRegionManager.getRegions();
 		regionSelector.setInput(regionList.toArray());
 
-		regionSelector.addSelectionChangedListener(new RegionSelectorListener(pathSelector, mappingRegionManager));
+		regionSelector.addSelectionChangedListener(new RegionSelectorListener(pathSelector));
 
 		pathSelector.setContentProvider(ArrayContentProvider.getInstance());
 		pathSelector.setLabelProvider(new LabelProvider() {

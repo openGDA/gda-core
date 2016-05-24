@@ -1,9 +1,10 @@
-package uk.ac.diamond.daq.mapping.ui.experiment;
+package uk.ac.diamond.daq.mapping.region;
 
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.scanning.api.points.models.GridModel;
@@ -19,14 +20,12 @@ import org.junit.Test;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
 import uk.ac.diamond.daq.mapping.path.LissajousModel;
 import uk.ac.diamond.daq.mapping.path.SpiralModel;
-import uk.ac.diamond.daq.mapping.region.CircularMappingRegion;
-import uk.ac.diamond.daq.mapping.region.LineMappingRegion;
-import uk.ac.diamond.daq.mapping.region.PointMappingRegion;
-import uk.ac.diamond.daq.mapping.region.PolygonMappingRegion;
-import uk.ac.diamond.daq.mapping.region.RectangularMappingRegion;
 
 public class MappingRegionManagerTest {
 
+	private IMappingScanRegionShape[] regions = new IMappingScanRegionShape[] { new RectangularMappingRegion(),
+			new CircularMappingRegion(), new LineMappingRegion(), new PointMappingRegion(),
+			new PolygonMappingRegion() };
 	private IScanPathModel[] twoDPaths = new IScanPathModel[] { new GridModel(), new RasterModel(), new SpiralModel(),
 			new LissajousModel() };
 	private IScanPathModel[] oneDPaths = new IScanPathModel[] { new OneDEqualSpacingModel(), new OneDStepModel() };
@@ -37,9 +36,10 @@ public class MappingRegionManagerTest {
 	@Before
 	public void setUp() {
 		mappingRegionManager = new MappingRegionManager();
-		twoDPaths = mappingRegionManager.twoDPaths.toArray(new IScanPathModel[0]);
-		oneDPaths = mappingRegionManager.oneDPaths.toArray(new IScanPathModel[0]);
-		zeroDPaths = mappingRegionManager.zeroDPaths.toArray(new IScanPathModel[0]);
+		mappingRegionManager.setRegions(Arrays.asList(regions));
+		mappingRegionManager.setTwoDPaths(Arrays.asList(twoDPaths));
+		mappingRegionManager.setOneDPaths(Arrays.asList(oneDPaths));
+		mappingRegionManager.setZeroDPaths(Arrays.asList(zeroDPaths));
 	}
 
 	@After
@@ -49,11 +49,9 @@ public class MappingRegionManagerTest {
 
 	@Test
 	public void getRegionsShouldReturnAllKnownRegionTypes() throws Exception {
-		IMappingScanRegionShape[] expectedRegions = new IMappingScanRegionShape[] { new RectangularMappingRegion(), new CircularMappingRegion(),
-				new LineMappingRegion(), new PointMappingRegion(), new PolygonMappingRegion() };
-		List<IMappingScanRegionShape> regions = mappingRegionManager.getRegions();
-		assertThat("All region types should be returned", regions, hasItems(expectedRegions));
-		assertEquals("No extra region types should be returned", regions.size(), expectedRegions.length);
+		List<IMappingScanRegionShape> actualRegions = mappingRegionManager.getRegions();
+		assertThat("All region types should be returned", actualRegions, hasItems(regions));
+		assertEquals("No extra region types should be returned", actualRegions.size(), regions.length);
 	}
 
 	@Test
