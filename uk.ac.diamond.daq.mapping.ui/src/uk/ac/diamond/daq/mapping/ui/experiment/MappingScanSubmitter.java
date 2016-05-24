@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
+import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.core.ISubmitter;
@@ -69,9 +70,8 @@ public class MappingScanSubmitter {
 	private ISubmitter<ScanBean> createScanSubmitter() {
 		if (eventService != null) {
 			try {
-				// FIXME These hard coded URIs need replacing somehow
-				URI queueServerURI = new URI(LocalProperties.get(LocalProperties.GDA_ACTIVEMQ_BROKER_URI, ""));
-				return eventService.createSubmitter(queueServerURI, IEventService.SUBMISSION_QUEUE);
+				URI queueServerURI = new URI(LocalProperties.getActiveMQBrokerURI());
+				return eventService.createSubmitter(queueServerURI, EventConstants.SUBMISSION_QUEUE);
 
 			} catch (URISyntaxException e) {
 				logger.error("URI syntax problem", e);
