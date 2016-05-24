@@ -16,7 +16,7 @@
 		<property name="motor" ref="stage_y_motor" />
 	</bean>
 
-	<bean id="stage_z" class="gda.device.scannable.ScannableMotorWithDemandPosition">
+	<bean id="stage_z" class="gda.device.scannable.ScannableMotor">
 		<property name="motor" ref="stage_z_motor" />
 	</bean>
 
