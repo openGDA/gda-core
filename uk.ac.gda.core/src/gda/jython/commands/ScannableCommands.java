@@ -164,19 +164,17 @@ public class ScannableCommands {
 							try {
 								scn1.waitWhileBusy();
 							} catch (Exception e) {
-								logger.error("Exception occured while waiting for " + scn1.getName()
-										+ " to complete move: ", e.getMessage());
+								logger.error("Exception occured while waiting for {} to complete move:", scn1.getName(), e);
 								// cause future passes through the loop to stop Scannables
 								exceptionCaughtWhileWaitingOnIsBusy = e;
 							}
 						} else {
 							// stop any motors that may be still moving
 							try {
-								logger.info("Stopping " + scn1.getName() + " due to problem moving previous scannable.");
+								logger.info("Stopping {} due to problem moving previous scannable.", scn1.getName());
 								scn1.stop();
 							} catch (DeviceException e) {
-								logger.error("Caught exception while stopping " + scn1.getName() + ": "
-										+ e.getMessage());
+								logger.error("Caught exception while stopping {}: ", scn1.getName(), e);
 							}
 						}
 					}
@@ -270,7 +268,7 @@ public class ScannableCommands {
 			} catch (Exception e) {
 				// print out exception, but carry on in this method
 				// to report final positions
-				logger.info("Exception while waiting for move to finish: " + e.getMessage());
+				logger.info("Exception while waiting for move '{}' to finish: ", jythonCommand, e);
 			}
 
 			String output = "Move completed:  ";
@@ -376,10 +374,10 @@ public class ScannableCommands {
 					}
 				} catch (PyException e) {
 					InterfaceProvider.getTerminalPrinter().print(objName);
-					logger.warn("Exception while getting position of " + objName + " : " + e.toString());
+					logger.warn("PyException while getting position of {} : ", objName, e);
 				} catch (Exception e) {
 					InterfaceProvider.getTerminalPrinter().print(objName);
-					logger.warn("Exception while getting position of " + objName + " : " + e.getMessage());
+					logger.warn("Exception while getting position of {} : ", objName, e);
 				}
 			}
 		} finally {
@@ -508,7 +506,7 @@ public class ScannableCommands {
 			} catch (Exception e) {
 				// print out exception, but carry on in this method
 				// to report final positions
-				logger.info("Exception while waiting for move to finish: " + e.getMessage());
+				logger.info("Exception while waiting for move '{}' to finish: ", jythonCommand, e);
 			}
 
 			String output = "Relative move completed:  ";
