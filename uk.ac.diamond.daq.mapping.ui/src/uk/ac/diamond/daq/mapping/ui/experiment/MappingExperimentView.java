@@ -320,72 +320,76 @@ public class MappingExperimentView {
 			dataBindingContext.updateTargets();
 		});
 
-		// TODO handle outer scannables properly
-		Composite otherScanAxesComposite = new Composite(parent, SWT.NONE);
-		GridDataFactory.fillDefaults().grab(true, false).applyTo(otherScanAxesComposite);
-		final int axesColumns = 2;
-		GridLayoutFactory.swtDefaults().numColumns(axesColumns).spacing(8, 5).applyTo(otherScanAxesComposite);
-		GridDataFactory.fillDefaults().span(axesColumns, 1).grab(true, false)
-				.applyTo(new Label(otherScanAxesComposite, SWT.SEPARATOR | SWT.HORIZONTAL));
-		Label otherScanAxesLabel = new Label(otherScanAxesComposite, SWT.NONE);
-		otherScanAxesLabel.setText("Other Scan Axes");
-		GridDataFactory.fillDefaults().span(axesColumns, 1).applyTo(otherScanAxesLabel);
-		for (IScanPathModelWrapper scannableAxisParameters : experimentBean.getScanDefinition().getOuterScannables()) {
-			Button checkBox = new Button(otherScanAxesComposite, SWT.CHECK);
-			checkBox.setText(scannableAxisParameters.getName());
-			IObservableValue checkBoxValue = WidgetProperties.selection().observe(checkBox);
-			IObservableValue activeValue = PojoProperties.value("includeInScan").observe(scannableAxisParameters);
-			dataBindingContext.bindValue(checkBoxValue, activeValue);
+		// Add the list of outer scannables, if any
+		List<IScanPathModelWrapper> outerScannables = experimentBean.getScanDefinition().getOuterScannables();
+		if (outerScannables != null && !outerScannables.isEmpty()) {
+			Composite otherScanAxesComposite = new Composite(parent, SWT.NONE);
+			GridDataFactory.fillDefaults().grab(true, false).applyTo(otherScanAxesComposite);
+			final int axesColumns = 2;
+			GridLayoutFactory.swtDefaults().numColumns(axesColumns).spacing(8, 5).applyTo(otherScanAxesComposite);
+			GridDataFactory.fillDefaults().span(axesColumns, 1).grab(true, false)
+					.applyTo(new Label(otherScanAxesComposite, SWT.SEPARATOR | SWT.HORIZONTAL));
+			Label otherScanAxesLabel = new Label(otherScanAxesComposite, SWT.NONE);
+			otherScanAxesLabel.setText("Other Scan Axes");
+			GridDataFactory.fillDefaults().span(axesColumns, 1).applyTo(otherScanAxesLabel);
+			for (IScanPathModelWrapper scannableAxisParameters : outerScannables) {
+				Button checkBox = new Button(otherScanAxesComposite, SWT.CHECK);
+				checkBox.setText(scannableAxisParameters.getName());
+				IObservableValue checkBoxValue = WidgetProperties.selection().observe(checkBox);
+				IObservableValue activeValue = PojoProperties.value("includeInScan").observe(scannableAxisParameters);
+				dataBindingContext.bindValue(checkBoxValue, activeValue);
 
-			// FIXME make a proper widget for this?
-			Text axisText = new Text(otherScanAxesComposite, SWT.BORDER);
-			axisText.setToolTipText("<start stop step> or <pos1,pos2,pos3,pos4...>");
-			GridDataFactory.fillDefaults().grab(true, false).applyTo(axisText);
-			IObservableValue axisTextValue = WidgetProperties.text(SWT.Modify).observe(axisText);
-			IObservableValue axisValue = PojoProperties.value("model").observe(scannableAxisParameters);
-			UpdateValueStrategy axisTextToModelStrategy = new UpdateValueStrategy();
-			axisTextToModelStrategy.setConverter(new Converter(String.class, IScanPathModel.class) {
-				@Override
-				public Object convert(Object fromObject) {
-					try {
-						String text = (String) fromObject;
-						String[] startStopStep = text.split(" ");
-						if (startStopStep.length == 3) {
-							StepModel stepModel = new StepModel();
-							stepModel.setName(scannableAxisParameters.getName());
-							stepModel.setStart(Double.parseDouble(startStopStep[0]));
-							stepModel.setStop(Double.parseDouble(startStopStep[1]));
-							stepModel.setStep(Double.parseDouble(startStopStep[2]));
-							return stepModel;
-						} else {
-							String[] strings = text.split(",");
-							double[] positions = new double[strings.length];
-							for (int index = 0; index < strings.length; index++) {
-								positions[index] = Double.parseDouble(strings[index]);
+				// FIXME make a proper widget for this?
+				Text axisText = new Text(otherScanAxesComposite, SWT.BORDER);
+				axisText.setToolTipText("<start stop step> or <pos1,pos2,pos3,pos4...>");
+				GridDataFactory.fillDefaults().grab(true, false).applyTo(axisText);
+				IObservableValue axisTextValue = WidgetProperties.text(SWT.Modify).observe(axisText);
+				IObservableValue axisValue = PojoProperties.value("model").observe(scannableAxisParameters);
+				UpdateValueStrategy axisTextToModelStrategy = new UpdateValueStrategy();
+				axisTextToModelStrategy.setConverter(new Converter(String.class, IScanPathModel.class) {
+					@Override
+					public Object convert(Object fromObject) {
+						try {
+							String text = (String) fromObject;
+							String[] startStopStep = text.split(" ");
+							if (startStopStep.length == 3) {
+								StepModel stepModel = new StepModel();
+								stepModel.setName(scannableAxisParameters.getName());
+								stepModel.setStart(Double.parseDouble(startStopStep[0]));
+								stepModel.setStop(Double.parseDouble(startStopStep[1]));
+								stepModel.setStep(Double.parseDouble(startStopStep[2]));
+								return stepModel;
+							} else {
+								String[] strings = text.split(",");
+								double[] positions = new double[strings.length];
+								for (int index = 0; index < strings.length; index++) {
+									positions[index] = Double.parseDouble(strings[index]);
+								}
+								ArrayModel arrayModel = new ArrayModel();
+								arrayModel.setName(scannableAxisParameters.getName());
+								arrayModel.setPositions(positions);
+								return arrayModel;
 							}
-							ArrayModel arrayModel = new ArrayModel();
-							arrayModel.setName(scannableAxisParameters.getName());
-							arrayModel.setPositions(positions);
-							return arrayModel;
+						} catch (NumberFormatException nfe) {
+							return null;
 						}
-					} catch (NumberFormatException nfe) {
-						return null;
 					}
-				}
-			});
-			axisTextToModelStrategy.setBeforeSetValidator(value -> {
-				if (value instanceof IScanPathModel) {
-					return ValidationStatus.ok();
-				}
-				String message = "Text is incorrectly formatted";
-				if (scannableAxisParameters.isIncludeInScan()) {
-					return ValidationStatus.error(message);
-				} else {
-					return ValidationStatus.warning(message);
-				}
-			});
-			Binding bindValue = dataBindingContext.bindValue(axisTextValue, axisValue, axisTextToModelStrategy, new UpdateValueStrategy());
-			ControlDecorationSupport.create(bindValue, SWT.LEFT | SWT.TOP);
+				});
+				axisTextToModelStrategy.setBeforeSetValidator(value -> {
+					if (value instanceof IScanPathModel) {
+						return ValidationStatus.ok();
+					}
+					String message = "Text is incorrectly formatted";
+					if (scannableAxisParameters.isIncludeInScan()) {
+						return ValidationStatus.error(message);
+					} else {
+						return ValidationStatus.warning(message);
+					}
+				});
+				Binding bindValue = dataBindingContext.bindValue(axisTextValue, axisValue, axisTextToModelStrategy,
+						new UpdateValueStrategy());
+				ControlDecorationSupport.create(bindValue, SWT.LEFT | SWT.TOP);
+			}
 		}
 
 		Composite detectorsComposite = new Composite(parent, SWT.NONE);
