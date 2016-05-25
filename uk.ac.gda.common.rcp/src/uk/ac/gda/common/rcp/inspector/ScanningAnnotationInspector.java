@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.eclipse.scanning.api.annotation.MaximumValue;
 import org.eclipse.scanning.api.annotation.MinimumValue;
+import org.eclipse.scanning.api.annotation.UiTooltip;
 import org.eclipse.scanning.api.annotation.Units;
 import org.metawidget.inspector.impl.BaseObjectInspector;
 import org.metawidget.inspector.impl.propertystyle.Property;
@@ -27,6 +28,7 @@ public class ScanningAnnotationInspector extends BaseObjectInspector {
 	public static final String MINIMUM_VALUE = "minimumValue";
 	public static final String MAXIMUM_VALUE = "maximumValue";
 	public static final String UNITS = "units";
+	public static final String TOOLTIP = "tooltip";
 
 	@Override
 	protected Map<String, String> inspectProperty(Property property) throws Exception {
@@ -48,6 +50,12 @@ public class ScanningAnnotationInspector extends BaseObjectInspector {
 		Units units = property.getAnnotation(Units.class);
 		if (units != null) {
 			attributes.put(UNITS, units.value());
+		}
+
+		// Check the tooltip annotation
+		UiTooltip tooltip = property.getAnnotation(UiTooltip.class);
+		if (tooltip != null) {
+			attributes.put(TOOLTIP, tooltip.value());
 		}
 
 		return attributes;
