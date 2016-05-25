@@ -51,14 +51,14 @@ class PathInfo {
 	double[] getXCoordinates() {
 		double[] xCoords = new double[points.size()];
 		for (int index = 0; index < points.size(); index++) {
-			xCoords[index] = points.get(index).getValue("X");
+			xCoords[index] = points.get(index).getValue("x");
 		}
 		return xCoords;
 	}
 	double[] getYCoordinates() {
 		double[] yCoords = new double[points.size()];
 		for (int index = 0; index < points.size(); index++) {
-			yCoords[index] = points.get(index).getValue("Y");
+			yCoords[index] = points.get(index).getValue("y");
 		}
 		return yCoords;
 	}
