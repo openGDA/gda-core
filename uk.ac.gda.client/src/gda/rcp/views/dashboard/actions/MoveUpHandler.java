@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2012 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -18,17 +18,13 @@
 
 package gda.rcp.views.dashboard.actions;
 
-import gda.rcp.views.dashboard.DashboardView;
-
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.ui.PlatformUI;
 
+import gda.rcp.views.dashboard.DashboardView;
 
-/**
- *
- */
 public class MoveUpHandler extends AbstractHandler {
 
 	@Override
@@ -41,5 +37,4 @@ public class MoveUpHandler extends AbstractHandler {
 
 		return Boolean.TRUE;
 	}
-
 }

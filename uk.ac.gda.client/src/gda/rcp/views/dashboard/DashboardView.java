@@ -18,8 +18,6 @@
 
 package gda.rcp.views.dashboard;
 
-import gda.rcp.GDAClientActivator;
-
 import java.beans.XMLDecoder;
 import java.beans.XMLEncoder;
 import java.io.BufferedInputStream;
@@ -27,16 +25,11 @@ import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.IConfigurationElement;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.util.IPropertyChangeListener;
@@ -56,6 +49,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IViewSite;
@@ -64,30 +58,151 @@ import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.preferences.PreferenceConstants;
+import gda.rcp.GDAClientActivator;
 import uk.ac.gda.ui.modifiers.DoubleClickModifier;
 
-/**
- * Additions: Use TreeViewer to display the scannables in their scannable groups. An action to add all scannables.
- */
-public final class DashboardView extends ViewPart implements ServerObjectListener {
+public final class DashboardView extends ViewPart {
+
+	private class TableLabelProvider extends ColumnLabelProvider {
+		private int column;
+
+		TableLabelProvider(int col) {
+			this.column = col;
+		}
+
+		@Override
+		public String getText(Object element) {
+			final ScannableObject ob = (ScannableObject) element;
+			switch (column) {
+			case 0:
+				return ob.getName();
+			case 1:
+				return ob.getOutput();
+			default:
+				return "";
+			}
+		}
+
+		@Override
+		public String getToolTipText(Object element) {
+			final ScannableObject serverOb = (ScannableObject) element;
+			return serverOb.getToolTip();
+		}
+	}
 
 	private static final Logger logger = LoggerFactory.getLogger(DashboardView.class);
 
-	/**
-	 *
-	 */
 	public static final String ID = "uk.ac.gda.exafs.ui.dashboardView"; //$NON-NLS-1$
+
+	public static final String FREQUENCY_LABEL = "update_frequency";
 
 	private TableViewer serverViewer;
 
-	private TableViewerColumn maxColumn, minColumn, desColumn;
+	private List<ScannableObject> data;
 
-	/**
-	 * Create contents of the view part
-	 *
-	 * @param parent
-	 */
+	private Thread updater;
+
+	protected int sleeptime;
+
+	public void addServerObject(ScannableObject sso) {
+		try {
+			data.add(sso);
+			serverViewer.refresh();
+			((DoubleClickModifier) serverViewer.getCellModifier()).setEnabled(true);
+			String name = sso.getName();
+			if (name == null || name == "") {
+				serverViewer.editElement(sso, 0);
+			}
+		} catch (Exception ne) {
+			logger.error("Cannot add object", ne);
+		}
+	}
+
+	public void addNewServerObject() {
+		ScannableObject sso = new ScannableObject("");
+		data.add(sso);
+		serverViewer.refresh();
+		((DoubleClickModifier) serverViewer.getCellModifier()).setEnabled(true);
+		serverViewer.editElement(sso, 0);
+	}
+
+	public void clearSelectedObjects() {
+		final boolean ok = MessageDialog.openConfirm(getSite().getShell(), "Please confirm clear",
+				"Would you like to clear all monitored objects?");
+		if (!ok)
+			return;
+		try {
+			data.clear();
+			serverViewer.refresh();
+		} catch (Exception ne) {
+			logger.error("Cannot clear objects", ne);
+		}
+	}
+
+	private CellEditor[] createCellEditors(final TableViewer tableViewer) {
+		CellEditor[] editors = new CellEditor[1];
+		TextCellEditor nameEd = new TextCellEditor(tableViewer.getTable());
+		((Text) nameEd.getControl()).setTextLimit(60);
+		// NOTE Must not add verify listener - it breaks things.
+		editors[0] = nameEd;
+
+		return editors;
+	}
+
+	private void createContentProvider() {
+		serverViewer.setContentProvider(new IStructuredContentProvider() {
+			@Override
+			public void dispose() {
+			}
+
+			@Override
+			public Object[] getElements(Object inputElement) {
+				return data.toArray(); // Does not happen that often and list not large
+			}
+
+			@Override
+			public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+			}
+		});
+	}
+
+	private ICellModifier createModifier(final TableViewer tableViewer) {
+		return new DoubleClickModifier(tableViewer) {
+			@Override
+			public boolean canModify(Object element, String property) {
+				if (!enabled)
+					return false;
+				return (element instanceof ScannableObject) && "Object Name".equalsIgnoreCase(property);
+			}
+
+			@Override
+			public Object getValue(Object element, String property) {
+				// NOTE: Only works for scannables right now which have one name
+				final String name = ((ScannableObject) element).getName();
+				return name != null ? name : "";
+			}
+
+			@Override
+			public void modify(Object item, String property, Object value) {
+				try {
+					final ScannableObject ob = (ScannableObject) ((IStructuredSelection) serverViewer
+							.getSelection()).getFirstElement();
+					if (!ob.getName().equals(value)) {
+						int idx = data.indexOf(ob);
+						data.set(idx, new ScannableObject((String) value));
+					}
+
+				} catch (Exception e) {
+					logger.error("Cannot set " + property, e);
+
+				} finally {
+					setEnabled(false);
+				}
+				serverViewer.refresh();
+			}
+		};
+	}
+
 	@Override
 	public void createPartControl(Composite parent) {
 
@@ -115,21 +230,6 @@ public final class DashboardView extends ViewPart implements ServerObjectListene
 		value.getColumn().setWidth(150);
 		value.setLabelProvider(new TableLabelProvider(1));
 
-		this.minColumn = new TableViewerColumn(serverViewer, SWT.NONE);
-		minColumn.getColumn().setText("Minimum");
-		minColumn.getColumn().setWidth(150);
-		minColumn.setLabelProvider(new TableLabelProvider(2));
-
-		this.maxColumn = new TableViewerColumn(serverViewer, SWT.NONE);
-		maxColumn.getColumn().setText("Maximum");
-		maxColumn.getColumn().setWidth(150);
-		maxColumn.setLabelProvider(new TableLabelProvider(3));
-
-		this.desColumn = new TableViewerColumn(serverViewer, SWT.NONE);
-		desColumn.getColumn().setText("Description");
-		desColumn.getColumn().setWidth(150);
-		desColumn.setLabelProvider(new TableLabelProvider(4));
-
 		serverViewer.setColumnProperties(new String[] { "Object Name", "Object Value" });
 		serverViewer.setCellEditors(createCellEditors(serverViewer));
 		serverViewer.setCellModifier(createModifier(serverViewer));
@@ -143,46 +243,41 @@ public final class DashboardView extends ViewPart implements ServerObjectListene
 
 			@Override
 			public void propertyChange(PropertyChangeEvent event) {
-				if (event.getProperty().equals(PreferenceConstants.DASHBOARD_FORMAT)) {
-					serverViewer.refresh();
-				} else if (event.getProperty().equals(PreferenceConstants.DASHBOARD_BOUNDS)) {
-					updateBoundsColumns();
-				} else if (event.getProperty().equals(PreferenceConstants.DASHBOARD_DESCRIPTION)) {
-					updateDummyColumn();
+				if (event.getProperty().equals(FREQUENCY_LABEL)) {
+					updateSleepTime();
 				}
 			}
 		});
 
-		updateBoundsColumns();
-		updateDummyColumn();
-	}
+		updateSleepTime();
 
-	private void updateBoundsColumns() {
-		final boolean isVis = GDAClientActivator.getDefault().getPreferenceStore()
-				.getBoolean(PreferenceConstants.DASHBOARD_BOUNDS);
-		if (!isVis) {
-			maxColumn.getColumn().setWidth(0);
-			maxColumn.getColumn().setResizable(false);
-			minColumn.getColumn().setWidth(0);
-			minColumn.getColumn().setResizable(false);
-		} else {
-			maxColumn.getColumn().setWidth(150);
-			maxColumn.getColumn().setResizable(true);
-			minColumn.getColumn().setWidth(150);
-			minColumn.getColumn().setResizable(true);
+		if (updater == null || !updater.isAlive()) {
+			updater = new Thread(new Runnable() {
+
+				@Override
+				public void run() {
+					while (true) {
+						if (serverViewer.getControl().isDisposed()) {
+							logger.info("Dashboard disposed. Stopping dashboard update thread");
+							break;
+						}
+						refresh();
+						try {
+							Thread.sleep(sleeptime*1000-100);
+						} catch (InterruptedException e) {
+							logger.info("Dashboard update thread interupted. Stopping dashboard update thread", e);
+							break;
+						}
+					}
+				}
+			});
+			updater.start();
 		}
 	}
 
-	private void updateDummyColumn() {
-		final boolean isVis = GDAClientActivator.getDefault().getPreferenceStore()
-				.getBoolean(PreferenceConstants.DASHBOARD_DESCRIPTION);
-		if (!isVis) {
-			desColumn.getColumn().setWidth(0);
-			desColumn.getColumn().setResizable(false);
-		} else {
-			desColumn.getColumn().setWidth(150);
-			desColumn.getColumn().setResizable(true);
-		}
+	private void updateSleepTime() {
+		int delay = GDAClientActivator.getDefault().getPreferenceStore().getInt(FREQUENCY_LABEL);
+		sleeptime = delay == 0 ? 2 : delay;
 	}
 
 	private void createRightClickMenu() {
@@ -191,119 +286,51 @@ public final class DashboardView extends ViewPart implements ServerObjectListene
 		getSite().registerContextMenu(menuManager, serverViewer);
 	}
 
-	private CellEditor[] createCellEditors(final TableViewer tableViewer) {
-		CellEditor[] editors = new CellEditor[1];
-		TextCellEditor nameEd = new TextCellEditor(tableViewer.getTable());
-		((Text) nameEd.getControl()).setTextLimit(60);
-		// NOTE Must not add verify listener - it breaks things.
-		editors[0] = nameEd;
-
-		return editors;
-	}
-
-	private ICellModifier createModifier(final TableViewer tableViewer) {
-		return new DoubleClickModifier(tableViewer) {
-			@Override
-			public boolean canModify(Object element, String property) {
-				if (!enabled)
-					return false;
-				return (element instanceof SimpleScannableObject) && "Object Name".equalsIgnoreCase(property);
-			}
-
-			@Override
-			public Object getValue(Object element, String property) {
-				// NOTE: Only works for scannables right now which have one name
-				final String name = ((SimpleScannableObject) element).getScannableName();
-				return name != null ? name : "";
-			}
-
-			@Override
-			public void modify(Object item, String property, Object value) {
-				try {
-					final SimpleScannableObject ob = (SimpleScannableObject) ((IStructuredSelection) serverViewer
-							.getSelection()).getFirstElement();
-					ob.setScannableName((String) value);
-					ob.connect();
-
-				} catch (Exception e) {
-					logger.error("Cannot set " + property, e);
-
-				} finally {
-					setEnabled(false);
-				}
-				serverViewer.refresh();
-			}
-		};
-	}
-
-	private List<ServerObject> data;
-
-	@Override
-	public void init(IViewSite site, IMemento memento) throws PartInitException {
-		super.init(site);
-
+	public void deleteSelectedObject() {
 		try {
-			if (memento != null)
-				this.data = getDataFromXML(memento.getTextData());
-			if (data == null)
-				this.data = getDefaultServerObjects();
-			connect();
-		} catch (Exception ne) {
-			throw new PartInitException(ne.getMessage());
-		}
-	}
-
-	private void connect() {
-		// connect to objects in a separate thread
-		Job job = new Job("Connecting dashboard to objects...") {
-			@Override
-			protected IStatus run(IProgressMonitor monitor) {
-				for (ServerObject serverObject : data) {
-					try {
-						serverObject.connect();
-					} catch (Exception e) {
-						logger.debug("Dashboard view error while trying to connect", e);
-					} finally {
-						serverObject.addServerObjectListener(DashboardView.this);
-					}
-				}
-				return Status.OK_STATUS;
-			}
-		};
-		job.setUser(false);
-		job.schedule();
-	}
-
-	private void disconnect() {
-		for (ServerObject serverObject : data)
-			serverObject.disconnect();
-		for (ServerObject o : data) {
-			o.removeServerObjectListener(this);
-		}
-	}
-
-	@Override
-	public void saveState(IMemento memento) {
-		try {
-			memento.putTextData(getXMLFromData(data));
-		} catch (Exception e) {
-			logger.error("Cannot save plot bean", e);
+			final ScannableObject ob = (ScannableObject) ((IStructuredSelection) serverViewer.getSelection())
+					.getFirstElement();
+			data.remove(ob);
+			serverViewer.refresh();
+		} catch (Exception ignored) {
+			// Might be nothing selected.
 		}
 	}
 
 	@SuppressWarnings("unchecked")
-	private List<ServerObject> getDataFromXML(String textData) throws UnsupportedEncodingException {
+	private List<ScannableObject> getDataFromXML(String textData) throws UnsupportedEncodingException {
 
 		if (textData == null)
 			return null;
 		final ByteArrayInputStream stream = new ByteArrayInputStream(textData.getBytes("UTF-8"));
 		XMLDecoder d = new XMLDecoder(new BufferedInputStream(stream));
-		final List<ServerObject> data = (List<ServerObject>) d.readObject();
+		final List<ScannableObject> data = (List<ScannableObject>) d.readObject();
 		d.close();
 		return data;
 	}
 
-	private String getXMLFromData(final List<ServerObject> data) throws Exception {
+	/**
+	 * Called to get the default list of things to monitor.
+	 */
+	protected List<ScannableObject> getDefaultServerObjects() throws Exception {
+
+		final List<ScannableObject> data = new ArrayList<ScannableObject>(5);
+
+		IConfigurationElement[] config = Platform.getExtensionRegistry().getConfigurationElementsFor(
+				"uk.ac.gda.client.dashboard.objects");
+
+		for (IConfigurationElement e : config) {
+			final String name = e.getAttribute("name");
+			final ScannableObject ob = new ScannableObject(name);
+			ob.setToolTip(e.getAttribute("tooltip"));
+
+			data.add(ob);
+		}
+
+		return data;
+	}
+
+	private String getXMLFromData(final List<ScannableObject> data) throws Exception {
 
 		final ByteArrayOutputStream stream = new ByteArrayOutputStream();
 		XMLEncoder e = new XMLEncoder(new BufferedOutputStream(stream));
@@ -314,84 +341,16 @@ public final class DashboardView extends ViewPart implements ServerObjectListene
 	}
 
 	@Override
-	public void serverObjectChangePerformed(ServerObjectEvent evt) {
-		if (serverViewer.getTable().isDisposed())
-			return;// Important can be called from timer thread.
-		if (serverViewer.isCellEditorActive())
-			return;
-		final ServerObject ob = (ServerObject) evt.getSource();
-		serverViewer.update(ob, null);
-	}
+	public void init(IViewSite site, IMemento memento) throws PartInitException {
+		super.init(site);
 
-	/**
-	 * Add an object to listen to.
-	 *
-	 * @param toAdd
-	 */
-	public void addServerObject(final ServerObject toAdd) {
 		try {
-			toAdd.connect();
-			data.add(toAdd);
-			toAdd.addServerObjectListener(this);
-			serverViewer.refresh();
-			((DoubleClickModifier) serverViewer.getCellModifier()).setEnabled(true);
-			if (toAdd instanceof SimpleScannableObject) {
-				// Do not edit the name in the Dashboard if one is provided
-				SimpleScannableObject scannable = (SimpleScannableObject) toAdd;
-				String name = scannable.getScannableName();
-				if (name != null && name != "") {
-					return;
-				}
-			}
-			// Start editing if no name is provided (case if the "Add Scannable" button is pressed)
-			serverViewer.editElement(toAdd, 0);
-
+			if (memento != null)
+				this.data = getDataFromXML(memento.getTextData());
+			if (data == null)
+				this.data = getDefaultServerObjects();
 		} catch (Exception ne) {
-			logger.error("Cannot add object", ne);
-		}
-	}
-
-	/**
-	 *
-	 */
-	public void deleteSelectedObject() {
-		try {
-			final ServerObject ob = (ServerObject) ((IStructuredSelection) serverViewer.getSelection())
-					.getFirstElement();
-			data.remove(ob); // NOTE the equals method of ServerObject simply looks at the label.
-			ob.disconnect();
-			serverViewer.refresh();
-		} catch (Exception ignored) {
-			// Might be nothing selected.
-		}
-	}
-
-	/**
-	 * Used when user has too many scannables and would like to reset the view.
-	 */
-	public void resetSelectedObjects() {
-		try {
-			disconnect();
-			data.clear();
-			data.addAll(getDefaultServerObjects());
-			connect();
-			serverViewer.refresh();
-		} catch (Exception ne) {
-			logger.error("Cannot reset objects", ne);
-		}
-	}
-
-	/**
-	 * Called to refresh all the values in the table.
-	 */
-	public void refresh() {
-		try {
-			disconnect();
-			ServerObject.cancelTimer();
-			connect();
-			serverViewer.refresh();
-		} catch (Exception ne) {
-			logger.error("Cannot refresh objects", ne);
+			throw new PartInitException(ne.getMessage());
 		}
 	}
 
@@ -407,105 +366,56 @@ public final class DashboardView extends ViewPart implements ServerObjectListene
 		if (pos < 0 || pos > this.data.size() - 1)
 			return;
 
-		final ServerObject o = data.remove(sel);
+		final ScannableObject o = data.remove(sel);
 		data.add(pos, o);
 
 		serverViewer.refresh();
 	}
 
 	/**
-	 *
+	 * Called to refresh all the values in the table.
 	 */
-	public void clearSelectedObjects() {
-		final boolean ok = MessageDialog.openConfirm(getSite().getShell(), "Please confirm clear",
-				"Would you like to clear all monitored objects?");
-		if (!ok)
+	public void refresh() {
+		if (serverViewer.getControl().isDisposed())
 			return;
+
 		try {
-			disconnect();
+			for (ScannableObject sso : data) {
+				sso.refresh();
+			}
+			Display.getDefault().syncExec(new Runnable() {
+
+				@Override
+				public void run() {
+					if (!serverViewer.isCellEditorActive())
+						serverViewer.refresh();
+				}
+			});
+		} catch (Exception ne) {
+			logger.error("Cannot refresh objects", ne);
+		}
+	}
+
+	/**
+	 * Used when user has too many scannables and would like to reset the view.
+	 */
+	public void resetSelectedObjects() {
+		try {
 			data.clear();
+			data.addAll(getDefaultServerObjects());
 			serverViewer.refresh();
 		} catch (Exception ne) {
-			logger.error("Cannot clear objects", ne);
+			logger.error("Cannot reset objects", ne);
 		}
 	}
 
-	private class TableLabelProvider extends ColumnLabelProvider {
-		private int column;
-
-		TableLabelProvider(int col) {
-			this.column = col;
+	@Override
+	public void saveState(IMemento memento) {
+		try {
+			memento.putTextData(getXMLFromData(data));
+		} catch (Exception e) {
+			logger.error("Cannot save plot bean", e);
 		}
-
-		@Override
-		public String getText(Object element) {
-			final ServerObject ob = (ServerObject) element;
-			switch (column) {
-			case 0:
-				return ob.getLabel();
-			case 1:
-				return formatValue(ob.getValue(), ob.getUnit());
-			case 2:
-				return formatValue(ob.getMinimum(), ob.getUnit());
-			case 3:
-				return formatValue(ob.getMaximum(), ob.getUnit());
-			case 4:
-				return ob.getDescription();
-			default:
-				return "";
-			}
-		}
-
-		private String formatValue(final Object valueOriginal, final String unit) {
-			Object value = valueOriginal;
-			if (value != null) {
-				try {
-					final double dblValue = value instanceof Double ? (Double) value : Double.parseDouble(value
-							.toString());
-					final String formatString = GDAClientActivator.getDefault().getPreferenceStore()
-							.getString(PreferenceConstants.DASHBOARD_FORMAT);
-					DecimalFormat format = new DecimalFormat(formatString);
-					value = format.format(dblValue);
-				} catch (Exception ignored) {
-					value = valueOriginal;
-				}
-			}
-			if (value != null && unit != null && !unit.equals("None")){
-				return value + " " + unit;
-			}
-			if (value != null){
-				return value + "";
-			}
-			return "";
-		}
-
-		@Override
-		public String getToolTipText(Object element) {
-			final ServerObject serverOb = (ServerObject) element;
-			if (serverOb.isError())
-				return "Cannot locate scannable '" + serverOb.getLabel() + "'.";
-			if (column == 4) {
-				return serverOb.getClassName();
-			}
-			return serverOb.getTooltip();
-		}
-	}
-
-	private void createContentProvider() {
-		serverViewer.setContentProvider(new IStructuredContentProvider() {
-			@Override
-			public void dispose() {
-			}
-
-			@Override
-			public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-			}
-
-			@Override
-			public Object[] getElements(Object inputElement) {
-				return data.toArray(); // Does not happen that often and list not large
-			}
-		});
 	}
 
 	@Override
@@ -513,26 +423,4 @@ public final class DashboardView extends ViewPart implements ServerObjectListene
 		if (this.serverViewer != null)
 			serverViewer.getControl().setFocus();
 	}
-
-	/**
-	 * Called to get the default list of things to monitor.
-	 */
-	protected List<ServerObject> getDefaultServerObjects() throws Exception {
-
-		final List<ServerObject> data = new ArrayList<ServerObject>(5);
-
-		IConfigurationElement[] config = Platform.getExtensionRegistry().getConfigurationElementsFor(
-				"uk.ac.gda.client.dashboard.objects");
-
-		for (IConfigurationElement e : config) {
-			final String name = e.getAttribute("name");
-			final SimpleScannableObject ob = new SimpleScannableObject(name);
-			ob.setTooltip(e.getAttribute("tooltip"));
-
-			data.add(ob);
-		}
-
-		return data;
-	}
-
 }

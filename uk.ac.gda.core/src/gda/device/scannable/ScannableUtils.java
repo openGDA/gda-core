@@ -18,9 +18,14 @@
 
 package gda.device.scannable;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
 import java.util.Vector;
 
@@ -979,5 +984,34 @@ public abstract class ScannableUtils {
 
 	public static String prettyPrintScannableGroup(IScannableGroup args) {
 		return args.toFormattedString();
+	}
+
+	/**
+	 * Serializes and encodes into Base64 a snapshot of a scannable
+	 * @param scn
+	 * @return Base64 encoded ScannableSnapshot
+	 * @throws Exception
+	 */
+	public static String getSerializedScannableSnapshot(Scannable scn) throws Exception {
+		// We don't want to serialize the whole scannable - only the relevant information about it
+		// Don't want to send information we don't care about (references to motors etc)
+		ScannableSnapshot si = new ScannableSnapshot(scn);
+		ByteArrayOutputStream bstream = new ByteArrayOutputStream();
+		ObjectOutputStream ostream = new ObjectOutputStream(bstream);
+		ostream.writeObject(si);
+		ostream.close();
+		return Base64.getEncoder().encodeToString(bstream.toByteArray());
+	}
+
+	/**
+	 * Deserializes a Base64 encoded ScannableSnapshot
+	 * @param serialized
+	 * @return Deserialized snapshot
+	 * @throws Exception
+	 */
+	public static ScannableSnapshot deserializeScannableSnapshot(String serialized) throws Exception {
+		ByteArrayInputStream bstream = new ByteArrayInputStream(Base64.getDecoder().decode(serialized));
+		ObjectInputStream ostream = new ObjectInputStream(bstream);
+		return (ScannableSnapshot) ostream.readObject();
 	}
 }

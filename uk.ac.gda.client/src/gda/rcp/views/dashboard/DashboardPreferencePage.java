@@ -18,72 +18,31 @@
 
 package gda.rcp.views.dashboard;
 
-import gda.rcp.GDAClientActivator;
-
-import java.text.DecimalFormat;
-
-import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
-import org.eclipse.jface.preference.StringFieldEditor;
+import org.eclipse.jface.preference.IntegerFieldEditor;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
-import uk.ac.gda.preferences.PreferenceConstants;
+import gda.rcp.GDAClientActivator;
 
-/**
- *
- */
 public class DashboardPreferencePage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
-	/**
-	 *
-	 */
 	public static final String ID = "uk.ac.gda.client.dashboardPreferences";
 
-	private StringFieldEditor formatFieldEditor;
-
-	/**
-	 *
-	 */
 	public DashboardPreferencePage() {
 		super(GRID);
 		setPreferenceStore(GDAClientActivator.getDefault().getPreferenceStore());
-		setDescription("Preferences for the dashboard view such as the format for the values and bounds and visibility controls.");
+		setDescription("Preferences for the polling dashboard view such as the update frequency.");
 	}
 
 	@Override
 	protected void createFieldEditors() {
-		formatFieldEditor = new StringFieldEditor(PreferenceConstants.DASHBOARD_FORMAT, "Dashboard number format", getFieldEditorParent());
+		final IntegerFieldEditor formatFieldEditor = new IntegerFieldEditor(DashboardView.FREQUENCY_LABEL, "Update frequency in seconds", getFieldEditorParent());
+		formatFieldEditor.setValidRange(1, 300);
 		addField(formatFieldEditor);
-
-		final BooleanFieldEditor showBounds = new BooleanFieldEditor(PreferenceConstants.DASHBOARD_BOUNDS, "Show bounds", getFieldEditorParent());
-		addField(showBounds);
-
-		final BooleanFieldEditor showDes = new BooleanFieldEditor(PreferenceConstants.DASHBOARD_DESCRIPTION, "Show description", getFieldEditorParent());
-		addField(showDes);
-	}
-
-	@Override
-	protected void checkState() {
-		super.checkState();
-
-		try {
-			DecimalFormat format = new DecimalFormat(formatFieldEditor.getStringValue());
-			format.format(100.001);
-		} catch (IllegalArgumentException ne) {
-			setErrorMessage("The format '"+formatFieldEditor.getStringValue()+"' is not valid.");
-			setValid(false);
-			return;
-		}
-
-		setErrorMessage(null);
-		setValid(true);
-
 	}
 
 	@Override
 	public void init(IWorkbench workbench) {
-
 	}
-
 }

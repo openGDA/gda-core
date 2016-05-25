@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2012 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -18,8 +18,6 @@
 
 package gda.rcp.views.dashboard.actions;
 
-import gda.rcp.views.dashboard.DashboardPreferencePage;
-
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -27,17 +25,15 @@ import org.eclipse.jface.preference.PreferenceDialog;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 
-/**
- *
- */
+import gda.rcp.views.dashboard.DashboardPreferencePage;
+
 public class DashboardPreferencesAction extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		PreferenceDialog pref = PreferencesUtil.createPreferenceDialogOn(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
                                  DashboardPreferencePage.ID, null, null);
-         if (pref != null)pref.open();
+         if (pref != null) pref.open();
 		return Boolean.TRUE;
 	}
-
 }

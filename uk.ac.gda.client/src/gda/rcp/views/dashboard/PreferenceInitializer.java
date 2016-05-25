@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2012 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -18,12 +18,14 @@
 
 package gda.rcp.views.dashboard;
 
-/**
- *
- */
-public interface ServerObjectListener {
-	/**
-	 * @param evt
-	 */
-	void serverObjectChangePerformed(ServerObjectEvent evt);
+import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
+
+import gda.rcp.GDAClientActivator;
+
+public class PreferenceInitializer extends AbstractPreferenceInitializer {
+
+	@Override
+	public void initializeDefaultPreferences() {
+		GDAClientActivator.getDefault().getPreferenceStore().setDefault(DashboardView.FREQUENCY_LABEL, 2);
+	}
 }

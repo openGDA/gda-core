@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2012 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -18,28 +18,20 @@
 
 package gda.rcp.views.dashboard.actions;
 
-import gda.rcp.views.dashboard.DashboardView;
-
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.core.commands.IHandler;
 import org.eclipse.ui.PlatformUI;
 
+import gda.rcp.views.dashboard.DashboardView;
 
-/**
- *
- */
-public class RefreshDashHandler extends AbstractHandler {
-
+public class RefreshDashHandler extends AbstractHandler implements IHandler {
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		// Get current dashboard view.
 		DashboardView dashboard = (DashboardView)PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActivePart();
 		if (dashboard==null) return Boolean.FALSE;
-
 		dashboard.refresh();
-
 		return Boolean.TRUE;
 	}
-
 }
