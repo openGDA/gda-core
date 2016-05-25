@@ -14,7 +14,7 @@
 		<property name="pluginBase">
 			<bean class="gda.device.detector.areadetector.v17.impl.NDPluginBaseImpl">
 				<property name="basePVName" value="${WORKSTATION}-AD-SIM-01:STAT:" />
-				<property name="initialArrayPort" value="ADSIM.CAM" />
+				<property name="initialArrayPort" value="CAM.CAM" />
 			</bean>
 		</property>
 	</bean>
@@ -24,7 +24,7 @@
 		<property name="pluginBase">
 			<bean class="gda.device.detector.areadetector.v17.impl.NDPluginBaseImpl">
 				<property name="basePVName" value="${WORKSTATION}-AD-SIM-01:ARR:" />
-				<property name="initialArrayPort" value="ADSIM.CAM" />
+				<property name="initialArrayPort" value="CAM.CAM" />
 			</bean>
 		</property>
 	</bean>
@@ -34,7 +34,7 @@
 		<property name="pluginBase">
 			<bean class="gda.device.detector.areadetector.v17.impl.NDPluginBaseImpl">
 				<property name="basePVName" value="${WORKSTATION}-AD-SIM-01:HDF5:" />
-				<property name="initialArrayPort" value="ADSIM.stat" />
+				<property name="initialArrayPort" value="CAM.stat" />
 			</bean>
 		</property>
 		<!-- These arguments are here to please Spring -->
