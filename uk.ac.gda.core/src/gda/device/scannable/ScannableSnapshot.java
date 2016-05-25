@@ -23,6 +23,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.python.core.Py;
+import org.python.core.PySequenceList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.Scannable;
 import gda.device.ScannableMotionUnits;
 import gda.device.scannable.scannablegroup.ScannableGroup;
@@ -40,6 +45,8 @@ public class ScannableSnapshot implements Serializable {
 	public final String[] units;
 	public final Object lastPosition;
 	public final boolean busy;
+
+	private static final Logger logger = LoggerFactory.getLogger(ScannableSnapshot.class);
 
 	public ScannableSnapshot(Scannable scn) {
 		this.name = scn.getName();
@@ -62,7 +69,17 @@ public class ScannableSnapshot implements Serializable {
 		} catch (Exception e) {
 			// still want a valid "snapshot" of a scannable even if we can't get a position
 		}
-		this.lastPosition = position;
+		if (position instanceof PySequenceList) {
+			Object p = ((PySequenceList) position).__tojava__(Object[].class);
+			if (p == Py.NoConversion) {
+				logger.error(String.format("Could not convert %s position to Object[]", name));
+				this.lastPosition = null;
+			} else {
+				this.lastPosition = p;
+			}
+		} else {
+			this.lastPosition = position;
+		}
 		boolean busy = false;
 		try {
 			busy = scn.isBusy();
