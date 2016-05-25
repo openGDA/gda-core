@@ -486,7 +486,15 @@ Additional Ant tasks for Buckminster build. Based on http://www.ralfebert.de/blo
 		<copy todir="${install.git.path}/gda-xas-core.git/uk.ac.gda.server.exafs/scripts">
 			<fileset dir="${ws_git.rel.path}/gda-xas-core.git/uk.ac.gda.server.exafs/scripts"/>
 		</copy>
-
+		<!-- MT beamline folders -->
+		<copy todir="${install.git.path}/gda-mt.git/configurations/mt-config">
+			<fileset dir="${ws_git.rel.path}/gda-mt.git/configurations/mt-config"/>
+		</copy>
+		<!-- I15-1 beamline folders -->
+		<copy todir="${install.git.path}/gda-mt.git/configurations/i15-1-config">
+			<fileset dir="${ws_git.rel.path}/gda-mt.git/configurations/i15-1-config"/>
+		</copy>
+		<!-- Test beamline folders -->
 		<copy todir="${install.git.path}/gda-core.git/p45-config">
 			<fileset dir="${ws_git.rel.path}/gda-core.git/p45-config"/>
 		</copy>	
