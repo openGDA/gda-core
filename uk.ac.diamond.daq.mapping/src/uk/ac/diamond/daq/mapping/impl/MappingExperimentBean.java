@@ -20,6 +20,7 @@ public class MappingExperimentBean implements IMappingExperimentBean {
 	public MappingExperimentBean() {
 		sampleMetadata = new ExampleSampleMetadata();
 		beamlineConfiguration = new ExampleBeamlineConfigurationImpl();
+		scanDefinition = new MappingScanDefinition();
 	}
 
 	@Override
