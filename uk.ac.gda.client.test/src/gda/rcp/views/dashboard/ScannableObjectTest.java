@@ -81,6 +81,21 @@ public class ScannableObjectTest {
 	}
 
 	@Test
+	public void testScannableInputNameNotName() throws Exception {
+		Scannable m = Mockito.mock(Scannable.class);
+		when(m.getName()).thenReturn("name");
+		when(m.getInputNames()).thenReturn(new String[] {"input_name"});
+		when(m.getExtraNames()).thenReturn(new String[] {});
+		when(m.getOutputFormat()).thenReturn(new String[] {"%5.5g"});
+		when(m.getPosition()).thenReturn(12.0);
+		ScannableSnapshot si = new ScannableSnapshot(m);
+		DummySnapshotProvider p = new DummySnapshotProvider(si);
+		ScannableObject so = new ScannableObject("name", p);
+		so.refresh();
+		assertEquals("input_name: 12.000", so.getOutput());
+	}
+
+	@Test
 	public void testMultipleNamesScannableOutput() throws Exception {
 		Scannable m = Mockito.mock(Scannable.class);
 		when(m.getInputNames()).thenReturn(new String[] {"name1", "name2"});

@@ -66,6 +66,8 @@ public class ScannableObject {
 			} else if (si.extraNames.length == 0 && si.inputNames.length == 1 && si.inputNames[0].equals(name)) {
 				// a single value only - do not bother printing any names
 				output = String.format(si.outputFormat[0], si.lastPosition) + " " + si.units[0];
+			} else if (si.extraNames.length == 0 && si.inputNames.length == 1) {
+				output = String.format("%s: " + si.outputFormat[0], si.inputNames[0], si.lastPosition) + " " + si.units[0];
 			} else {
 				// TODO: Units will not be displayed correctly in a scannable group
 				// where members have multiple input or any extra names
