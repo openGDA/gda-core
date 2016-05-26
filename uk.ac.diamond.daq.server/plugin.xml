@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
-   <extension-point id="uk.ac.diamond.daq.jython.visible_packages" name="GDA Jython Visible Packages" schema="schema/uk.ac.diamond.daq.jython.visible_packages.exsd"/>
 
    <extension
          id="application"
@@ -44,12 +43,6 @@
                value="platform:/plugin/uk.ac.gda.core/icons/GDAlogos/GDALogo16.png,platform:/plugin/uk.ac.gda.core/icons/GDAlogos/GDALogo32.png,platform:/plugin/uk.ac.gda.core/icons/GDAlogos/GDALogo48.png,platform:/plugin/uk.ac.gda.core/icons/GDAlogos/GDALogo64.png,platform:/plugin/uk.ac.gda.core/icons/GDAlogos/GDALogo128.png">
          </property>
       </product>
-   </extension>
-   <extension
-         point="uk.ac.diamond.daq.jython.visible_packages">
-      <visible_package
-            package="gda.device">
-      </visible_package>
    </extension>
 
 </plugin>
