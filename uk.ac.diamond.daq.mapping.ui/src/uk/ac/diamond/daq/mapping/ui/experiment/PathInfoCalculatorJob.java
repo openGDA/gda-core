@@ -73,8 +73,8 @@ class PathInfoCalculatorJob extends Job {
 				pathInfo.pointCount++;
 
 				if (pathInfo.pointCount > 1) {
-					double thisXStep = Math.abs(point.getValue("X") - lastX);
-					double thisYStep = Math.abs(point.getValue("Y") - lastY);
+					double thisXStep = Math.abs(point.getValue("x") - lastX);
+					double thisYStep = Math.abs(point.getValue("y") - lastY);
 					double thisAbsStep = Math.sqrt(Math.pow(thisXStep, 2) + Math.pow(thisYStep, 2));
 					if (thisXStep > 0) {
 						pathInfo.smallestXStep = Math.min(pathInfo.smallestXStep, thisXStep);
@@ -85,8 +85,8 @@ class PathInfoCalculatorJob extends Job {
 					pathInfo.smallestAbsStep = Math.min(pathInfo.smallestAbsStep, thisAbsStep);
 				}
 
-				lastX = point.getValue("X");
-				lastY = point.getValue("Y");
+				lastX = point.getValue("x");
+				lastY = point.getValue("y");
 				if (pathInfo.points.size() <= MAX_POINTS_IN_ROI) {
 					pathInfo.points.add(point);
 				}

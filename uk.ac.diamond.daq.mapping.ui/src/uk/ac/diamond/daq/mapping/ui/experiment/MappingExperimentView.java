@@ -41,8 +41,10 @@ import org.eclipse.scanning.api.points.models.ArrayModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.points.models.StepModel;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
@@ -212,10 +214,19 @@ public class MappingExperimentView {
 	private void createViewControls(Composite parent) {
 		logger.trace("Starting to build the mapping experiment view");
 
-		GridLayoutFactory.fillDefaults().numColumns(1).spacing(0, 0).applyTo(parent);
+		parent.setLayout(new FillLayout());
+		parent.setBackgroundMode(SWT.INHERIT_FORCE); // stop the ScrolledComposite being grey regardless of theme colour
+		final ScrolledComposite scrolledComposite = new ScrolledComposite(parent, SWT.H_SCROLL | SWT.V_SCROLL);
+		scrolledComposite.setExpandHorizontal(true);
+		scrolledComposite.setExpandVertical(true);
+
+		final Composite mainComposite = new Composite(scrolledComposite, SWT.NONE);
+		scrolledComposite.setContent(mainComposite);
+
+		GridLayoutFactory.fillDefaults().numColumns(1).spacing(0, 0).applyTo(mainComposite);
 
 		// Make the status bar label
-		statusPanel = new StatusPanel(parent, SWT.NONE, this);
+		statusPanel = new StatusPanel(mainComposite, SWT.NONE, this);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(statusPanel);
 
 		if (experimentBean == null) {
@@ -224,9 +235,15 @@ public class MappingExperimentView {
 		}
 
 		// Make a custom section for handling the mapping region
-		regionAndPathComposite = new Composite(parent, SWT.NONE);
+		regionAndPathComposite = new Composite(mainComposite, SWT.NONE);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(regionAndPathComposite);
 		GridLayoutFactory.fillDefaults().numColumns(2).spacing(0, 0).applyTo(regionAndPathComposite);
+
+		// Add a listener to update the scrolled composite when the region and path composite changes
+		// This will set the initial size as well when the region and path composite is first drawn
+		regionAndPathComposite.addListener(SWT.Resize, event -> {
+			scrolledComposite.setMinSize(mainComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+		});
 
 		// Prepare a grid data factory for controls which will need to grab space horizontally
 		GridDataFactory horizontalGrabGridData = GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false);
@@ -301,7 +318,7 @@ public class MappingExperimentView {
 
 		final DataBindingContext dataBindingContext = new DataBindingContext();
 
-		Composite essentialParametersComposite = new Composite(parent, SWT.NONE);
+		Composite essentialParametersComposite = new Composite(mainComposite, SWT.NONE);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(essentialParametersComposite);
 		GridLayoutFactory.swtDefaults().numColumns(3).applyTo(essentialParametersComposite);
 		// FIXME not good to be hard-coding things here to look like the GUI generator - can we auto-generate these fields?
@@ -320,75 +337,79 @@ public class MappingExperimentView {
 			dataBindingContext.updateTargets();
 		});
 
-		// TODO handle outer scannables properly
-		Composite otherScanAxesComposite = new Composite(parent, SWT.NONE);
-		GridDataFactory.fillDefaults().grab(true, false).applyTo(otherScanAxesComposite);
-		final int axesColumns = 2;
-		GridLayoutFactory.swtDefaults().numColumns(axesColumns).spacing(8, 5).applyTo(otherScanAxesComposite);
-		GridDataFactory.fillDefaults().span(axesColumns, 1).grab(true, false)
-				.applyTo(new Label(otherScanAxesComposite, SWT.SEPARATOR | SWT.HORIZONTAL));
-		Label otherScanAxesLabel = new Label(otherScanAxesComposite, SWT.NONE);
-		otherScanAxesLabel.setText("Other Scan Axes");
-		GridDataFactory.fillDefaults().span(axesColumns, 1).applyTo(otherScanAxesLabel);
-		for (IScanPathModelWrapper scannableAxisParameters : experimentBean.getScanDefinition().getOuterScannables()) {
-			Button checkBox = new Button(otherScanAxesComposite, SWT.CHECK);
-			checkBox.setText(scannableAxisParameters.getName());
-			IObservableValue checkBoxValue = WidgetProperties.selection().observe(checkBox);
-			IObservableValue activeValue = PojoProperties.value("includeInScan").observe(scannableAxisParameters);
-			dataBindingContext.bindValue(checkBoxValue, activeValue);
+		// Add the list of outer scannables, if any
+		List<IScanPathModelWrapper> outerScannables = experimentBean.getScanDefinition().getOuterScannables();
+		if (outerScannables != null && !outerScannables.isEmpty()) {
+			Composite otherScanAxesComposite = new Composite(mainComposite, SWT.NONE);
+			GridDataFactory.fillDefaults().grab(true, false).applyTo(otherScanAxesComposite);
+			final int axesColumns = 2;
+			GridLayoutFactory.swtDefaults().numColumns(axesColumns).spacing(8, 5).applyTo(otherScanAxesComposite);
+			GridDataFactory.fillDefaults().span(axesColumns, 1).grab(true, false)
+					.applyTo(new Label(otherScanAxesComposite, SWT.SEPARATOR | SWT.HORIZONTAL));
+			Label otherScanAxesLabel = new Label(otherScanAxesComposite, SWT.NONE);
+			otherScanAxesLabel.setText("Other Scan Axes");
+			GridDataFactory.fillDefaults().span(axesColumns, 1).applyTo(otherScanAxesLabel);
+			for (IScanPathModelWrapper scannableAxisParameters : outerScannables) {
+				Button checkBox = new Button(otherScanAxesComposite, SWT.CHECK);
+				checkBox.setText(scannableAxisParameters.getName());
+				IObservableValue checkBoxValue = WidgetProperties.selection().observe(checkBox);
+				IObservableValue activeValue = PojoProperties.value("includeInScan").observe(scannableAxisParameters);
+				dataBindingContext.bindValue(checkBoxValue, activeValue);
 
-			// FIXME make a proper widget for this?
-			Text axisText = new Text(otherScanAxesComposite, SWT.BORDER);
-			axisText.setToolTipText("<start stop step> or <pos1,pos2,pos3,pos4...>");
-			GridDataFactory.fillDefaults().grab(true, false).applyTo(axisText);
-			IObservableValue axisTextValue = WidgetProperties.text(SWT.Modify).observe(axisText);
-			IObservableValue axisValue = PojoProperties.value("model").observe(scannableAxisParameters);
-			UpdateValueStrategy axisTextToModelStrategy = new UpdateValueStrategy();
-			axisTextToModelStrategy.setConverter(new Converter(String.class, IScanPathModel.class) {
-				@Override
-				public Object convert(Object fromObject) {
-					try {
-						String text = (String) fromObject;
-						String[] startStopStep = text.split(" ");
-						if (startStopStep.length == 3) {
-							StepModel stepModel = new StepModel();
-							stepModel.setName(scannableAxisParameters.getName());
-							stepModel.setStart(Double.parseDouble(startStopStep[0]));
-							stepModel.setStop(Double.parseDouble(startStopStep[1]));
-							stepModel.setStep(Double.parseDouble(startStopStep[2]));
-							return stepModel;
-						} else {
-							String[] strings = text.split(",");
-							double[] positions = new double[strings.length];
-							for (int index = 0; index < strings.length; index++) {
-								positions[index] = Double.parseDouble(strings[index]);
+				// FIXME make a proper widget for this?
+				Text axisText = new Text(otherScanAxesComposite, SWT.BORDER);
+				axisText.setToolTipText("<start stop step> or <pos1,pos2,pos3,pos4...>");
+				GridDataFactory.fillDefaults().grab(true, false).applyTo(axisText);
+				IObservableValue axisTextValue = WidgetProperties.text(SWT.Modify).observe(axisText);
+				IObservableValue axisValue = PojoProperties.value("model").observe(scannableAxisParameters);
+				UpdateValueStrategy axisTextToModelStrategy = new UpdateValueStrategy();
+				axisTextToModelStrategy.setConverter(new Converter(String.class, IScanPathModel.class) {
+					@Override
+					public Object convert(Object fromObject) {
+						try {
+							String text = (String) fromObject;
+							String[] startStopStep = text.split(" ");
+							if (startStopStep.length == 3) {
+								StepModel stepModel = new StepModel();
+								stepModel.setName(scannableAxisParameters.getName());
+								stepModel.setStart(Double.parseDouble(startStopStep[0]));
+								stepModel.setStop(Double.parseDouble(startStopStep[1]));
+								stepModel.setStep(Double.parseDouble(startStopStep[2]));
+								return stepModel;
+							} else {
+								String[] strings = text.split(",");
+								double[] positions = new double[strings.length];
+								for (int index = 0; index < strings.length; index++) {
+									positions[index] = Double.parseDouble(strings[index]);
+								}
+								ArrayModel arrayModel = new ArrayModel();
+								arrayModel.setName(scannableAxisParameters.getName());
+								arrayModel.setPositions(positions);
+								return arrayModel;
 							}
-							ArrayModel arrayModel = new ArrayModel();
-							arrayModel.setName(scannableAxisParameters.getName());
-							arrayModel.setPositions(positions);
-							return arrayModel;
+						} catch (NumberFormatException nfe) {
+							return null;
 						}
-					} catch (NumberFormatException nfe) {
-						return null;
 					}
-				}
-			});
-			axisTextToModelStrategy.setBeforeSetValidator(value -> {
-				if (value instanceof IScanPathModel) {
-					return ValidationStatus.ok();
-				}
-				String message = "Text is incorrectly formatted";
-				if (scannableAxisParameters.isIncludeInScan()) {
-					return ValidationStatus.error(message);
-				} else {
-					return ValidationStatus.warning(message);
-				}
-			});
-			Binding bindValue = dataBindingContext.bindValue(axisTextValue, axisValue, axisTextToModelStrategy, new UpdateValueStrategy());
-			ControlDecorationSupport.create(bindValue, SWT.LEFT | SWT.TOP);
+				});
+				axisTextToModelStrategy.setBeforeSetValidator(value -> {
+					if (value instanceof IScanPathModel) {
+						return ValidationStatus.ok();
+					}
+					String message = "Text is incorrectly formatted";
+					if (scannableAxisParameters.isIncludeInScan()) {
+						return ValidationStatus.error(message);
+					} else {
+						return ValidationStatus.warning(message);
+					}
+				});
+				Binding bindValue = dataBindingContext.bindValue(axisTextValue, axisValue, axisTextToModelStrategy,
+						new UpdateValueStrategy());
+				ControlDecorationSupport.create(bindValue, SWT.LEFT | SWT.TOP);
+			}
 		}
 
-		Composite detectorsComposite = new Composite(parent, SWT.NONE);
+		Composite detectorsComposite = new Composite(mainComposite, SWT.NONE);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(detectorsComposite);
 		final int detectorsColumns = 3;
 		GridLayoutFactory.swtDefaults().numColumns(detectorsColumns).applyTo(detectorsComposite);
@@ -422,7 +443,7 @@ public class MappingExperimentView {
 			});
 		}
 
-		Composite validateScanSomposite = new Composite(parent, SWT.NONE);
+		Composite validateScanSomposite = new Composite(mainComposite, SWT.NONE);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.BOTTOM).applyTo(validateScanSomposite);
 		GridLayoutFactory.swtDefaults().numColumns(4).applyTo(validateScanSomposite);
 
@@ -496,7 +517,7 @@ public class MappingExperimentView {
 		Object scanPath = experimentBean.getScanDefinition().getMappingScanRegion().getScanPath();
 		pathComposite = (Composite) guiGenerator.generateGui(scanPath, regionAndPathComposite);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).applyTo(pathComposite);
-		regionAndPathComposite.layout(true, true);
+		regionAndPathComposite.getParent().layout(true, true);
 	}
 
 	private void updatePoints() {

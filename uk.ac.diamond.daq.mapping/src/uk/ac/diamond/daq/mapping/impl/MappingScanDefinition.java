@@ -18,6 +18,7 @@
 
 package uk.ac.diamond.daq.mapping.impl;
 
+import java.util.Collections;
 import java.util.List;
 
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegion;
@@ -31,6 +32,7 @@ public class MappingScanDefinition implements IScanDefinition {
 
 	public MappingScanDefinition() {
 		mappingScanRegion = new MappingScanRegion();
+		outerScannables = Collections.emptyList();
 	}
 
 	@Override
