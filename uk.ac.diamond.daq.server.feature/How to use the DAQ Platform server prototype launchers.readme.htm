@@ -1,0 +1,56 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+
+<title>DAQ Platform Server launcher prototypes</title>
+<style type="text/css">
+  body {
+    size: 8.5in 11.0in;
+    margin: 0.25in 0.5in 0.25in 0.5in;
+    tab-interval: 0.5in;
+    }
+  p {  	
+    margin-left: auto;
+    margin-top:  0.5em;
+    margin-bottom: 0.5em;
+    }
+  p.list {
+  	margin-left: 0.5in;
+    margin-top:  0.05em;
+    margin-bottom: 0.05em;
+    }
+  </style>
+
+</head>
+
+<body lang="EN-US">
+
+<h2>DAQ Platform Server launcher prototypes</h2>
+
+<p>The uk.ac.diamond.server.feature plugin contains two GDA 9 server launcher prototypes (dummy and live) that are intended to allow 
+you to create your own local versions for the beamlines you support, without them all ending up getting checked into git with multiple
+variants of the required list of plugins. The prototypes <i>will</i> start the server for the EXAMPLE beamline, but are only intended as 
+starting points for creating real beamline launchers. As the set of plugins that define the GDA 9 server evolves they will be kept in 
+step so that they can always be used to generate beamline specific launchers for the current build.</p>
+
+<h3>Creating Local Beamline specific launchers</h3>
+
+
+<p To create a beamline launcher do the following:</p>
+
+<ul>
+	<li>Make a copy of the launcher for the mode you want (dummy or live) either in the Navigator/PackageExplorer or via the Run 
+	Configurations dialog.</li>
+	<li>Edit the copy  you just made in the Run Configurations dialog giving it an appropriate name and press Apply.</li>
+	<li>Select the Environment tab and define the BEAMLINE environment variable with the required value, then press Apply.</li>
+	<li>Select the Common tab and set the Save location to Local and press Apply. This will save your version under the workspace folder 
+	rather than the workspace_git one, isolating it from git but keeping it part of your local workspace.</li>
+</ul>
+
+<p>You can now use your new launcher and modify its settings/plugin content without affecting anyone else. If you do some development that 
+will require new plugins to be added to the main product definition, simply add them (or the feature containing them) to the server's feature.xml 
+definition and the Core Team will update the launcher prototypes as part of the Gerrit submission review process.</p>
+
+
+
+
+</body></html>
