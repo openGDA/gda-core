@@ -143,7 +143,23 @@ public interface NDFileHDF5 {
 
 	String getArrayPort() throws Exception ;
 
-	void setLazyOpen(boolean open) throws Exception;
+	/**
+	 * Lazy open specifies if the file will be created when capture is started or if it will be created when the first frame arrives at the HDF5 writer. If true
+	 * the file will only be created when the first frame is written.
+	 *
+	 * @param lazyOpen
+	 *            True to enable lazy open
+	 * @throws Exception
+	 */
+	void setLazyOpen(boolean lazyOpen) throws Exception;
+
+	/**
+	 * Lazy open specifies if the file will be created when capture is started or if it will be created when the first frame arrives at the HDF5 writer. If true
+	 * the file will only be created when the first frame is written.
+	 *
+	 * @return True if lazy open is enabled
+	 * @throws Exception
+	 */
 	boolean isLazyOpen() throws Exception;
 
 
