@@ -189,4 +189,12 @@ public interface NDFileHDF5 {
 	 */
 	void setStoreAttributesByDimension(boolean storeAttributesByDimension) throws Exception;
 
+	/**
+	 * Single Writer Multiple Reader SWMR is a technology to allow HDF5 files to be read while they are still being written.
+	 *
+	 * @return True if SWMR is supported
+	 * @throws Exception
+	 */
+	boolean isSWMRSupported() throws Exception;
+
 }

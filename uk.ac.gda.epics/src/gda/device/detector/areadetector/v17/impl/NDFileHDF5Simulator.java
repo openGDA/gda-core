@@ -350,4 +350,10 @@ public class NDFileHDF5Simulator implements NDFileHDF5 {
 	public void setStoreAttributesByDimension(boolean storeAttributesByDimension) throws Exception {
 		// No-op
 	}
+
+	@Override
+	public boolean isSWMRSupported() throws Exception {
+		// Simulation doesn't support SWMR
+		return false;
+	}
 }

@@ -178,6 +178,8 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 
 	private static final String AttrByDim = "DimAttDatasets";
 
+	private static final String IS_SWMR_SUPPORTED_RBV = "SWMRSupported_RBV";
+
 	@Override
 	public int getNumRowChunks() throws Exception {
 		try {
@@ -1067,6 +1069,21 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 		} catch (Exception ex) {
 			logger.warn("Cannot setAttrByDim", ex);
 			throw ex;
+		}
+	}
+
+	@Override
+	public boolean isSWMRSupported() throws Exception {
+		try {
+			String value = EPICS_CONTROLLER.cagetString(getChannel(IS_SWMR_SUPPORTED_RBV));
+			if (value.equalsIgnoreCase("Supported")) {
+				return true;
+			} else {
+				return false;
+			}
+		} catch (Exception e) {
+			logger.warn("Exception while getting is SWMR supported");
+			throw e;
 		}
 	}
 
