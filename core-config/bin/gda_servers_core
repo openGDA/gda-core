@@ -112,7 +112,7 @@ else
     # with a different mask to the default.
     GDA_TARGET_SCRIPT=$(readlink -f ${GDA_WORKSPACE_PARENT}/${GDA_CORE_CONFIG_rel}/bin/gda_server_target_launch.sh)
 
-    export JAVA_OPTS="-Dgda.deploytype=1 -XX:MaxPermSize=1024m" # Seems to fix the reset_namespace problem
+    export JAVA_OPTS="-Dgda.deploytype=1" # Seems to fix the reset_namespace problem
 
     if [[ -n ${DEBUG-} ]]; then
     	echo "Awaiting debugger connection on port 8000"
