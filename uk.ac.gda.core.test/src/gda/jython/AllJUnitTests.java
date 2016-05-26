@@ -32,6 +32,7 @@ import org.junit.runners.Suite;
 	gda.jython.authoriser.FileAuthoriserTest.class,
 	gda.jython.batoncontrol.BatonManagerTest.class,
 	gda.jython.ScriptPathsTest.class,
+	gda.jython.GDAJythonClassloaderTest.class,
 	gda.jython.logger.BatonChangedLoggerAdapterTest.class,
 	gda.jython.logger.ScanDataPointLoggerAdapterTest.class,
 	gda.jython.logger.RedirectableFileLoggerTest.class,

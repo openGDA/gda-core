@@ -18,8 +18,6 @@
 
 package gda.server;
 
-import gda.jython.GDAJythonClassLoader;
-
 import java.util.HashSet;
 import java.util.Set;
 
@@ -36,6 +34,8 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.python.util.jython;
+
+import gda.jython.GDAJythonClassLoader;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -151,7 +151,10 @@ public class Activator extends Plugin {
 		// Instead we have to create a class via the right classloader
 		ClassLoader cl = (new jython()).getClass().getClassLoader();
 
-		GDAJythonClassLoader.initialize(cl, visiblePackages, false);
+		// TODO
+		//********* This entire project is about to be deleted as it is never used, this change is only here so
+		//********* that it compiles with the new GDAJythonClassloader
+		GDAJythonClassLoader.initialize(new Bundle[]{}, new HashSet<String>(), new HashSet<String>() );
 	}
 
 	private void processXJythonDirective(Set<String> visiblePackages, Bundle bundle)

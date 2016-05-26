@@ -71,6 +71,10 @@ public class ScriptPaths {
 		this.projects = projects;
 	}
 
+	public List<ScriptProject> getProjects() {
+		return projects;
+	}
+
 	/**
 	 * The script that should be executed to initialise the Jython namespace.
 	 * @return The full path to a Jython script.
@@ -141,5 +145,15 @@ public class ScriptPaths {
 
 	ScriptProject getProject(int index) {
 		return projects.get(index);
+	}
+
+	/**
+	 * Merge the incoming {@link ScriptPaths} object with this one resulting in its
+	 * projects also being referenced by this object's projects collection
+	 *
+	 * @param scriptPaths
+	 */
+	void merge(final ScriptPaths scriptPaths) {
+		this.projects.addAll(scriptPaths.getProjects());
 	}
 }

@@ -33,6 +33,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Properties;
 import java.util.Set;
 
@@ -199,6 +200,16 @@ public class GDAJythonInterpreter extends ObservableComponent {
 				PySystemState.add_package(string);
 			}
 
+			// Add the paths for the standard script folders to the existing _jythonScriptPaths
+			int index= 1;
+			for (final String pathFragment : classLoader.getStandardFolders()) {
+				final String folderPath = LocalProperties.getParentGitDir() + pathFragment;
+				final File file = new File(folderPath);
+				if (file.exists() && file.isDirectory()) {
+					final ScriptProject scriptProject = new ScriptProject(folderPath, "Scripts: Std" + index++, ScriptProjectType.CORE);
+					_jythonScriptPaths.merge(new ScriptPaths(Arrays.asList(scriptProject)));
+				}
+			}
 		} else {
 			logger.info("initialising Jython engine...");
 			// initialise interpreter first //TODO: Docs say this should only be run once
