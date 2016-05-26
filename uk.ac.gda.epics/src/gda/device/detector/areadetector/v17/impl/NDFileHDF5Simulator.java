@@ -18,10 +18,10 @@
 
 package gda.device.detector.areadetector.v17.impl;
 
+import java.util.Vector;
+
 import gda.device.detector.areadetector.v17.NDFile;
 import gda.device.detector.areadetector.v17.NDFileHDF5;
-
-import java.util.Vector;
 
 /**
  * Simulation of NDFileHDF5
@@ -342,11 +342,12 @@ public class NDFileHDF5Simulator implements NDFileHDF5 {
 	}
 
 	@Override
-	public int getAttrByDim() throws Exception {
-		return 0;
+	public boolean isStoreAttributesByDimension() throws Exception {
+		return false;
 	}
 
 	@Override
-	public void setAttrByDim(int attrByDim) throws Exception {
+	public void setStoreAttributesByDimension(boolean storeAttributesByDimension) throws Exception {
+		// No-op
 	}
 }

@@ -18,6 +18,14 @@
 
 package gda.device.detector.areadetector.v17.impl;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Vector;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.device.detector.areadetector.IPVProvider;
@@ -29,14 +37,6 @@ import gda.factory.FactoryException;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Vector;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 
 public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 	/* Note  NDFileHDF5Impl doesn't extend NDBaseImpl since it 'contains an' NDFile rather than being an NDFile. */
@@ -1046,9 +1046,14 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 	}
 
 	@Override
-	public int getAttrByDim() throws Exception {
+	public boolean isStoreAttributesByDimension() throws Exception {
 		try {
-			return EPICS_CONTROLLER.cagetInt(getChannel(AttrByDim_RBV));
+			int value = EPICS_CONTROLLER.cagetInt(getChannel(AttrByDim_RBV));
+			if (value == 1) {
+				return true;
+			} else {
+				return false;
+			}
 		} catch (Exception ex) {
 			logger.warn("Cannot getAttrByDim", ex);
 			throw ex;
@@ -1056,9 +1061,9 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 	}
 
 	@Override
-	public void setAttrByDim(int attrByDim) throws Exception {
+	public void setStoreAttributesByDimension(boolean storeAttributesByDimension) throws Exception {
 		try {
-			EPICS_CONTROLLER.caput(getChannel(AttrByDim), attrByDim);
+			EPICS_CONTROLLER.caput(getChannel(AttrByDim), storeAttributesByDimension ? 1 : 0);
 		} catch (Exception ex) {
 			logger.warn("Cannot setAttrByDim", ex);
 			throw ex;

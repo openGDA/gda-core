@@ -18,6 +18,16 @@
 
 package gda.device.detector.addetector.filewriter;
 
+import java.io.File;
+import java.util.Arrays;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Vector;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
+
 import gda.data.fileregistrar.FileRegistrarHelper;
 import gda.device.DeviceException;
 import gda.device.detector.NXDetectorData;
@@ -31,16 +41,6 @@ import gda.device.detector.nxdetector.FrameCountingNXPlugin;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanInformation;
 import gov.aps.jca.TimeoutException;
-
-import java.io.File;
-import java.util.Arrays;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Vector;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.util.StringUtils;
 
 public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements FrameCountingNXPlugin {
 
@@ -250,7 +250,7 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements F
 		getNdFileHDF5().setStorePerform(storePerform?1:0);
 		// save attributes with correct dimensions, add this option as not available in all beamlines yet
 		if (isAttrByDimSupported())
-			getNdFileHDF5().setAttrByDim(attrByDim ? 1 : 0);
+			getNdFileHDF5().setStoreAttributesByDimension(attrByDim);
 		if( lazyOpen)
 			getNdFileHDF5().setLazyOpen(true);
 		if( boundaryAlign != null)

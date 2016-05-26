@@ -155,8 +155,22 @@ public interface NDFileHDF5 {
 	void setBoundaryAlign(int boundaryAlign) throws Exception;
 	int getBoundaryAlign() throws Exception;
 
-	int getAttrByDim() throws Exception;
+	/**
+	 * If true the NDAttributes written to the HDF5 file by Area Detector will be written with the same dimensions as the frames but with a frame size of [1,
+	 * 1]. So a 10x12 scan will result in attributes written as [10, 12, 1, 1]. If false the attributes will be unrolled in to a 1D dataset.
+	 *
+	 * @return True if attributes will be stored by dimension
+	 * @throws Exception
+	 */
+	boolean isStoreAttributesByDimension() throws Exception;
 
-	void setAttrByDim(int attrByDim) throws Exception;
+	/**
+	 * If true the NDAttributes written to the HDF5 file by Area Detector will be written with the same dimensions as the frames but with a frame size of [1,
+	 * 1]. So a 10x12 scan will result in attributes written as [10, 12, 1, 1]. If false the attributes will be unrolled in to a 1D dataset.
+	 *
+	 * @param storeAttributesByDimension
+	 * @throws Exception
+	 */
+	void setStoreAttributesByDimension(boolean storeAttributesByDimension) throws Exception;
 
 }
