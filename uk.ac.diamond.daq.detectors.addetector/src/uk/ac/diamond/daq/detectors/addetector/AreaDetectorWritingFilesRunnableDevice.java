@@ -100,7 +100,7 @@ public class AreaDetectorWritingFilesRunnableDevice
 
 			// Store attributes allows stats output to be written to file
 			ndFileHDF5.setStoreAttr(1);
-			ndFileHDF5.setAttrByDim(1);
+			ndFileHDF5.setStoreAttributesByDimension(true);
 			// Lazy open must be true so that the file doesn't exist when the link is made
 			// Also it allows the first frame received to be used to setup the dimensions
 			ndFileHDF5.setLazyOpen(true);
