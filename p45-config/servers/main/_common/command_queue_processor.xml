@@ -12,8 +12,6 @@
 	<bean id="commandQueueProcessor" class="gda.commandqueue.FindableProcessorQueue">
 		<property name="queue" ref="commandQueue" />
 		<property name="startImmediately" value="true"/>
-		<!-- logFilePath property to be removed once commit fd889d3c5fe2683a2eca7cf0c92271e5783b6d8c is merged into master -->
-		<property name="logFilePath" value="${gda.logs.dir}/commandQueueProcessor.log"/>
 	</bean>
 
 	<gda:rmi-export
