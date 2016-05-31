@@ -2,9 +2,7 @@ package uk.ac.diamond.daq.server;
 
 import gda.jython.GDAJythonClassLoader;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.eclipse.core.runtime.IConfigurationElement;
@@ -25,12 +23,14 @@ public class GDAServerActivator extends Plugin {
 	public static final String PLUGIN_ID = "uk.ac.diamond.daq.server";
 
 	// Extension point element and attribute names
-	private static final String JYTHON_VISIBILITY = "uk.ac.diamond.daq.jython.api.jythonVisibility";
-	private static final String JYTHON_INCLUDED_PACKAGE = "included_java_package";
+	private static final String JYTHON_VISIBILE_PACKAGES = "uk.ac.diamond.daq.jython.api.visiblePackages";
+	private static final String JYTHON_SCRIPT_LOCATIONS = "uk.ac.diamond.daq.jython.api.scriptLocations";
+	private static final String PACKAGES = "packages";
 	private static final String PACKAGE = "package";
-	private static final String JYTHON_SOURCE_LOCATION = "script_source_location";
+	private static final String LOCATION = "location";
 	private static final String FOLDER= "folder";
 	private static final String BUNDLE= "bundle";
+	private static final String NAME= "name";
 
 	// The shared instance
 	private static GDAServerActivator plugin;
@@ -92,23 +92,40 @@ public class GDAServerActivator extends Plugin {
 		final Set<String> jythonSourceFolderNames = new HashSet<>();
 		final Set<String> jythonIncludedPackagesNames = new HashSet<String>();
 
-		final IExtensionPoint jythonVisibility = Platform. getExtensionRegistry().getExtensionPoint(JYTHON_VISIBILITY);
+		final IExtensionPoint jythonVisibility = Platform. getExtensionRegistry().getExtensionPoint(JYTHON_VISIBILE_PACKAGES);
 		if (jythonVisibility != null) {
-			final IExtension[] extensions = jythonVisibility.getExtensions();
-			for(IExtension extension : extensions) {
+			for(IExtension extension : jythonVisibility.getExtensions()) {
 				final String contributorName = extension.getContributor().getName();
-				for(IConfigurationElement configElement : extension.getConfigurationElements()) {
-					if (configElement.getName().equals(JYTHON_INCLUDED_PACKAGE)) {
-						final String packageName = configElement.getAttribute(PACKAGE);
-						final String bundleName = configElement.getAttribute(BUNDLE);
+				String bundleName = null;
+				IConfigurationElement[] pkgElements = new IConfigurationElement[]{};
+				
+				// Read optional 'bundle' and mandatory 'packages' elements first
+				for(IConfigurationElement element : extension.getConfigurationElements()) {
+					if (element.getName().equals(BUNDLE)) {
+						bundleName = element.getAttribute(NAME);
+					} else if (element.getName().equals(PACKAGES)) {
+						pkgElements = element.getChildren();
+					}
+				}
+				// Then process the packages using the bundle or contributor name as appropriate 
+				for(IConfigurationElement pkgElement : pkgElements) {
+					if (pkgElement.getName().equals(PACKAGE)) {
+						final String packageName = pkgElement.getAttribute(NAME);
 						jythonIncludedPackagesNames.add((bundleName != null ? bundleName.trim() : contributorName) + ":" + packageName.trim());
-					} else if (configElement.getName().equals(JYTHON_SOURCE_LOCATION)) {
-						jythonSourceFolderNames.add(configElement.getAttribute(FOLDER));
 					}
 				}
 			}
 		}
-
+		final IExtensionPoint jythonScriptLocations = Platform. getExtensionRegistry().getExtensionPoint(JYTHON_SCRIPT_LOCATIONS);
+		if (jythonScriptLocations != null) {
+			for(IExtension extension : jythonScriptLocations.getExtensions()) {
+				for(IConfigurationElement element : extension.getConfigurationElements()) {
+					if (element.getName().equals(LOCATION)) {
+						jythonSourceFolderNames.add(element.getAttribute(FOLDER));
+					}
+				}
+			}
+		}
 		GDAJythonClassLoader.initialize(context.getBundles(), jythonSourceFolderNames, jythonIncludedPackagesNames);
 	}
 }
