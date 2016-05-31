@@ -4,11 +4,10 @@ import java.io.File;
 
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXdetector;
-import org.eclipse.dawnsci.nexus.NexusBaseClass;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
-import org.eclipse.dawnsci.nexus.builder.DelegateNexusProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
+import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
 import org.eclipse.scanning.api.device.AbstractRunnableDevice;
 import org.eclipse.scanning.api.device.IWritableDetector;
 import org.eclipse.scanning.api.event.scan.DeviceState;
@@ -147,11 +146,12 @@ public class AreaDetectorWritingFilesRunnableDevice
 	}
 
 	@Override
-	public NexusObjectProvider<NXdetector> getNexusProvider(NexusScanInfo info) {
-		DelegateNexusProvider<NXdetector> nexusProvider = new DelegateNexusProvider<NXdetector>(getName(),
-				NexusBaseClass.NX_DETECTOR, info, this);
+	public NexusObjectProvider<NXdetector> getNexusProvider(NexusScanInfo scanInfo) {
+		NXdetector detector = createNexusObject(scanInfo);
+		NexusObjectWrapper<NXdetector> nexusProvider = new NexusObjectWrapper<NXdetector>(
+				getName(), detector);
 
-		int scanRank = info.getRank();
+		int scanRank = scanInfo.getRank();
 
 		// Set the external file written by this detector which will be linked to
 		nexusProvider.setExternalFileName(fileName);
@@ -167,10 +167,9 @@ public class AreaDetectorWritingFilesRunnableDevice
 		return nexusProvider;
 	}
 
-	@Override
-	public NXdetector createNexusObject(NexusNodeFactory nodeFactory, NexusScanInfo scanInfo) {
+	public NXdetector createNexusObject(NexusScanInfo scanInfo) {
 
-		final NXdetector nxDetector = nodeFactory.createNXdetector();
+		final NXdetector nxDetector = NexusNodeFactory.createNXdetector();
 
 		// The link is relative and relies on the AD file and the NeXus being in the same directory
 		nxDetector.addExternalLink(NXdetector.NX_DATA, fileName, PATH_TO_DATA_NODE);

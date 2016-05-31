@@ -7,11 +7,10 @@ import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXdetector;
-import org.eclipse.dawnsci.nexus.NexusBaseClass;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
-import org.eclipse.dawnsci.nexus.builder.DelegateNexusProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
+import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
 import org.eclipse.scanning.api.device.AbstractRunnableDevice;
 import org.eclipse.scanning.api.device.IWritableDetector;
 import org.eclipse.scanning.api.event.scan.DeviceState;
@@ -92,8 +91,9 @@ public class AreaDetectorRunnableDevice extends AbstractRunnableDevice<AreaDetec
 
 	@Override
 	public NexusObjectProvider<NXdetector> getNexusProvider(NexusScanInfo info) {
-		DelegateNexusProvider<NXdetector> nexusProvider = new DelegateNexusProvider<NXdetector>(
-				getName(), NexusBaseClass.NX_DETECTOR, info, this);
+		NXdetector detector = createNexusObject(info);
+		NexusObjectWrapper<NXdetector> nexusProvider = new NexusObjectWrapper<NXdetector>(
+				getName(), detector);
 
 		// "data" is the name of the primary data field (i.e. the 'signal' field of the default NXdata)
 		nexusProvider.setPrimaryDataFieldName(NXdetector.NX_DATA);
@@ -103,10 +103,9 @@ public class AreaDetectorRunnableDevice extends AbstractRunnableDevice<AreaDetec
 		return nexusProvider;
 	}
 
-	@Override
-	public NXdetector createNexusObject(NexusNodeFactory nodeFactory, NexusScanInfo scanInfo) {
+	public NXdetector createNexusObject(NexusScanInfo scanInfo) {
 
-		final NXdetector nxDetector = nodeFactory.createNXdetector();
+		final NXdetector nxDetector = NexusNodeFactory.createNXdetector();
 
 		// We add 2 to the scan rank to include the image
 		data = nxDetector.initializeLazyDataset(NXdetector.NX_DATA, scanInfo.getRank() + 2, convertDataType(dataType));

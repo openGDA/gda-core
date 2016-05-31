@@ -7,11 +7,11 @@ import org.eclipse.dawnsci.analysis.api.dataset.SliceND;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXpositioner;
-import org.eclipse.dawnsci.nexus.NexusBaseClass;
+import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
-import org.eclipse.dawnsci.nexus.builder.DelegateNexusProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
+import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.points.IPosition;
 
@@ -36,14 +36,20 @@ class ScannableNexusWrapper implements IScannable<Object>, INexusDevice<NXpositi
 	}
 
 	@Override
-	public NexusObjectProvider<NXpositioner> getNexusProvider(NexusScanInfo info) {
-		return new DelegateNexusProvider<NXpositioner>(scannable.getName(), NexusBaseClass.NX_POSITIONER, NXpositioner.NX_VALUE, info, this);
+	public NexusObjectProvider<NXpositioner> getNexusProvider(NexusScanInfo info) throws NexusException {
+		NXpositioner nexusObject = createNexusObject(info);
+		NexusObjectWrapper<NXpositioner> nexusDelegate = new NexusObjectWrapper<>(
+				scannable.getName(), nexusObject, NXpositioner.NX_VALUE);
+		if (info.isScannable(getName())) {
+			nexusDelegate.setDefaultAxisDataFieldName(NXpositioner.NX_TARGET_VALUE);
+		}
+
+		return nexusDelegate;
 	}
 
-	@Override
-	public NXpositioner createNexusObject(NexusNodeFactory nodeFactory, NexusScanInfo info) {
+	public NXpositioner createNexusObject(NexusScanInfo info) throws NexusException {
 
-		final NXpositioner positioner = nodeFactory.createNXpositioner();
+		final NXpositioner positioner = NexusNodeFactory.createNXpositioner();
 		positioner.setNameScalar(scannable.getName());
 
 		this.lzDemand = positioner.initializeLazyDataset(FIELD_NAME_DEMAND_VALUE, 1, Dtype.FLOAT64);
