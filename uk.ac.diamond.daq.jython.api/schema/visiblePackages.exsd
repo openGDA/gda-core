@@ -1,0 +1,140 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Schema file written by PDE -->
+<schema targetNamespace="uk.ac.diamond.daq.jython.api" xmlns="http://www.w3.org/2001/XMLSchema">
+<annotation>
+      <appinfo>
+         <meta.schema plugin="uk.ac.diamond.daq.jython.api" id="visiblePackages" name="Visible Java Packages"/>
+      </appinfo>
+      <documentation>
+         Extension point allows listing of all the packages in a bundle to be included in its Jython API. Normally it is not necessary to specify the bundle if the packages belong to the bundle using the extension point. If the package(s) are in other bundles, the owning bundle name will be needed.
+      </documentation>
+   </annotation>
+
+   <element name="extension">
+      <annotation>
+         <appinfo>
+            <meta.element />
+         </appinfo>
+      </annotation>
+      <complexType>
+         <sequence>
+            <element ref="bundle" minOccurs="0" maxOccurs="1"/>
+            <element ref="packages"/>
+         </sequence>
+         <attribute name="point" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="id" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="name" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+               <appinfo>
+                  <meta.attribute translatable="true"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="package">
+      <annotation>
+         <documentation>
+            A package that is to be marked as part of the standard Jython API for the specified bundle.
+         </documentation>
+      </annotation>
+      <complexType>
+         <attribute name="name" type="string" use="required">
+            <annotation>
+               <documentation>
+                  The full package name
+               </documentation>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="bundle">
+      <annotation>
+         <documentation>
+            The bundle that owns the packages identified in this extension. This can be omitted to indicate that it is the current bundle.
+         </documentation>
+      </annotation>
+      <complexType>
+         <attribute name="name" type="string" use="required">
+            <annotation>
+               <documentation>
+                  The full name of the bundle.
+               </documentation>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="packages">
+      <annotation>
+         <documentation>
+            The set of packages to be marked as part of the the plugin&apos;s standard Jython API.
+         </documentation>
+      </annotation>
+      <complexType>
+         <sequence>
+            <element ref="package" minOccurs="1" maxOccurs="unbounded"/>
+         </sequence>
+      </complexType>
+   </element>
+
+   <annotation>
+      <appinfo>
+         <meta.section type="since"/>
+      </appinfo>
+      <documentation>
+         Solstice:Hydrogen (V9.1)
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appinfo>
+         <meta.section type="examples"/>
+      </appinfo>
+      <documentation>
+         &lt;extension
+         point=&quot;uk.ac.diamond.daq.jython.api.visiblePackages&quot;&gt;
+      &lt;bundle
+            name=&quot;uk.ac.gda.diamond.scisoft.python&quot;&gt;
+      &lt;/bundle&gt;
+         &lt;packages&gt;
+            &lt;package
+               name=&quot;uk.ac.gda.diamond.scisoft.python&quot;&gt;
+            &lt;/package&gt;
+      &lt;/packages&gt;
+   &lt;/extension&gt;
+   
+or 
+
+   &lt;extension
+         point=&quot;uk.ac.diamond.daq.jython.api.visiblePackages&quot;&gt;
+       &lt;packages&gt;
+         &lt;package
+            name=&quot;gda.beamline.beam&quot;&gt;
+         &lt;/package&gt;
+      &lt;/packages&gt;
+   &lt;/extension&gt;
+      </documentation>
+   </annotation>
+
+
+
+
+</schema>

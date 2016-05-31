@@ -3,10 +3,10 @@
 <schema targetNamespace="uk.ac.diamond.daq.jython.api" xmlns="http://www.w3.org/2001/XMLSchema">
 <annotation>
       <appinfo>
-         <meta.schema plugin="uk.ac.diamond.daq.jython.api" id="jythonVisibility" name="Jython Visibility"/>
+         <meta.schema plugin="uk.ac.diamond.daq.jython.api" id="scriptLocations" name="Jython Script Locations"/>
       </appinfo>
       <documentation>
-         Extension point allows listing of all the packages in a bundle to be included in its Jython API. Also Python source folders to be made available on all beamlines may be specified.
+         Use this to specify a set of Python source folders to be made available on all beamlines using the same format as the Script Projects in Spring i.e. path relative to workspace_git.
       </documentation>
    </annotation>
 
@@ -15,11 +15,13 @@
          <appinfo>
             <meta.element />
          </appinfo>
+         <documentation>
+            A set of locations identifying one of more root folders for sets of Python scripts.
+         </documentation>
       </annotation>
       <complexType>
          <sequence>
-            <element ref="included_java_package" minOccurs="0" maxOccurs="unbounded"/>
-            <element ref="script_source_location" minOccurs="0" maxOccurs="unbounded"/>
+            <element ref="location" minOccurs="1" maxOccurs="unbounded"/>
          </sequence>
          <attribute name="point" type="string" use="required">
             <annotation>
@@ -48,36 +50,17 @@
       </complexType>
    </element>
 
-   <element name="script_source_location">
+   <element name="location">
       <annotation>
          <documentation>
-            Identifies locations that contain Python/Jython source code that should form part of the Jython API from this or other bundles.
+            A location of a particular set of Python scripts identifying a &apos;root&apos; folder for a set of related scripts. Use a new location for each related set of scripts.
          </documentation>
       </annotation>
       <complexType>
          <attribute name="folder" type="string" use="required">
             <annotation>
                <documentation>
-                  A folder path relative to the [WORKSPACE_NAME]_git folder. Normally specifying a folder within this bundle containing Python Source that should form part of the Jython API, though any relative path that is valid within the built product will do. This allows specification of script paths in third party bundles.
-               </documentation>
-            </annotation>
-         </attribute>
-      </complexType>
-   </element>
-
-   <element name="included_java_package">
-      <complexType>
-         <attribute name="package" type="string" use="required">
-            <annotation>
-               <documentation>
-                  
-               </documentation>
-            </annotation>
-         </attribute>
-         <attribute name="bundle" type="string">
-            <annotation>
-               <documentation>
-                  
+                  A folder relative to workspace_git under which Python source scripts can be found. The scripts can be in the specified folder or its sub-folders
                </documentation>
             </annotation>
          </attribute>
@@ -93,8 +76,37 @@
       </documentation>
    </annotation>
 
+   <annotation>
+      <appinfo>
+         <meta.section type="examples"/>
+      </appinfo>
+      <documentation>
+         &lt;extension
+         point=&quot;uk.ac.diamond.daq.jython.api.scriptLocations&quot;&gt;
+      &lt;location
+            folder=&quot;gda-epics.git/uk.ac.gda.epics/scripts&quot;&gt;
+      &lt;/location&gt;
+   &lt;/extension&gt;
+      </documentation>
+   </annotation>
 
+   <annotation>
+      <appinfo>
+         <meta.section type="apiinfo"/>
+      </appinfo>
+      <documentation>
+         [Enter API information here.]
+      </documentation>
+   </annotation>
 
+   <annotation>
+      <appinfo>
+         <meta.section type="implementation"/>
+      </appinfo>
+      <documentation>
+         [Enter information about supplied implementation of this extension point.]
+      </documentation>
+   </annotation>
 
 
 </schema>

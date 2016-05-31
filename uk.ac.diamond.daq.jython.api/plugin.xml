@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
-   <extension-point id="jythonVisibility" name="Jython Visibility" schema="schema/jythonVisibility.exsd"/>
+   <extension-point id="visiblePackages" name="Visible Java Packages" schema="schema/visiblePackages.exsd"/>
+   <extension-point id="scriptLocations" name="Jython Script Locations" schema="schema/scriptLocations.exsd"/>
 
 </plugin>
