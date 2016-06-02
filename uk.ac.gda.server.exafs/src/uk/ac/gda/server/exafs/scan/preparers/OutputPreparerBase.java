@@ -18,6 +18,7 @@
 
 package uk.ac.gda.server.exafs.scan.preparers;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -44,7 +45,6 @@ import uk.ac.gda.beans.exafs.SignalParameters;
 import uk.ac.gda.server.exafs.scan.OutputPreparer;
 
 public abstract class OutputPreparerBase implements OutputPreparer, InitializingBean {
-
 	private AsciiDataWriterConfiguration datawriterconfig;
 	private NXMetaDataProvider metashop;
 	private Set<Scannable> scannablesAddedToMetadata = new HashSet<Scannable>();
@@ -94,11 +94,10 @@ public abstract class OutputPreparerBase implements OutputPreparer, Initializing
 		addMetadata(metadata);
 
 		List<SignalParameters> signalList = outputParameters.getSignalList();
-
 		try {
 			setScannablesToBeAddedAsColumnInDataFile(signalList);
 		} catch (ParseException e) {
-			throw new DeviceException("Problem getting the scannables To be added as column in Nexus and Ascii file.");
+			throw new DeviceException("Problem getting the scannables To be added as column in Nexus and Ascii file.", e);
 		}
 
 	}
@@ -107,7 +106,7 @@ public abstract class OutputPreparerBase implements OutputPreparer, Initializing
 		ArrayList<AsciiMetadataConfig> header = datawriterconfig.getHeader();
 		for (MetadataParameters parameter : metadata) {
 			String scannableName = parameter.getScannableName();
-			Scannable scannable = retriveScannable(scannableName);
+			Scannable scannable = retrieveScannable(scannableName);
 			if (scannable != null) {
 				// add metadata to the Nexus file
 				addOneMetadataElementToNexus(scannable);
@@ -134,7 +133,7 @@ public abstract class OutputPreparerBase implements OutputPreparer, Initializing
 		return header;
 	}
 
-	private Scannable retriveScannable(String scannableName){
+	private Scannable retrieveScannable(String scannableName) {
 		Scannable scannableFromFinder = Finder.getInstance().find(scannableName);
 		if (scannableFromFinder!= null){
 			return scannableFromFinder;
@@ -193,21 +192,23 @@ public abstract class OutputPreparerBase implements OutputPreparer, Initializing
 		scannablesToBeAddedAsColumnInDataFile.clear();
 		for (SignalParameters signal:signalList){
 			dataFormat = "%6." + signal.getDecimalPlaces() + "g";
-			signalParametersValidator(signal);
-			Scannable scannable = JEPScannable.createJEPScannable(signal.getLabel(), signal.getScannableName(), dataFormat, signal.getName(),
+			// check that the scannable exists
+			Object scannable = InterfaceProvider.getJythonNamespace().getFromJythonNamespace(
+					signal.getScannableName());
+			if (scannable == null || !(scannable instanceof Scannable)) {
+				throw new ParseException(MessageFormat.format("The scannable ''{0}'' does not exist",
+						signal.getScannableName()));
+			}
+			// create the JEP scannable
+			Scannable jepScannable = JEPScannable.createJEPScannable(signal.getLabel(), signal.getScannableName(), dataFormat, signal.getName(),
 					signal.getExpression());
-			scannablesToBeAddedAsColumnInDataFile.add(scannable);
+			scannablesToBeAddedAsColumnInDataFile.add(jepScannable);
 		}
 	}
 
 	@Override
 	public Set<Scannable> getScannablesToBeAddedAsColumnInDataFile() {
 		return scannablesToBeAddedAsColumnInDataFile;
-	}
-
-	private void signalParametersValidator(SignalParameters signal) {
-		if (signal.getExpression().equals(""))
-			signal.setExpression(null);
 	}
 
 }
