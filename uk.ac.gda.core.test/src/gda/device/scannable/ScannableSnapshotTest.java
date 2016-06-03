@@ -23,6 +23,11 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.python.core.PyFloat;
+import org.python.core.PyList;
+import org.python.core.PyObject;
+import org.python.core.PyString;
+import org.python.core.PyTuple;
 
 import gda.device.Scannable;
 import gda.device.ScannableMotionUnits;
@@ -84,5 +89,29 @@ public class ScannableSnapshotTest {
 		assertArrayEquals(new String[] {"", "mm", "mm"}, s.units);
 		assertEquals(true, s.busy);
 		assertArrayEquals(new Object[] {1, 100, 0, "test"}, (Object[]) s.lastPosition);
+	}
+
+	@Test
+	public void testJythonScannableInitialization() throws Exception {
+		PyFloat flt = new PyFloat(100.);
+		PyString str = new PyString("test");
+		PyList listOutput = new PyList(new PyObject[] {flt, str});
+		Scannable jscn = generateMockScannable(
+				"jscn", new String[] {"in"}, new String[] {"extra"}, new String[] {"%5.5g", "%s"}, false, "", listOutput);
+		ScannableSnapshot s = new ScannableSnapshot(jscn);
+		assertEquals("jscn", s.name);
+		assertArrayEquals(new String[] {"in"}, s.inputNames);
+		assertArrayEquals(new String[] {"extra"}, s.extraNames);
+		assertArrayEquals(new String[] {"%5.5g", "%s"}, s.outputFormat);
+		assertArrayEquals(new String[] {"", ""}, s.units);
+		assertEquals(false, s.busy);
+		assertArrayEquals(new Object[] {100., "test"}, (Object[]) s.lastPosition);
+
+		PyTuple tupleOutput = new PyTuple(new PyObject[] {flt, str});
+		jscn = generateMockScannable(
+				"jscn", new String[] {"in"}, new String[] {"extra"}, new String[] {"%5.5g", "%s"}, false, "", tupleOutput);
+		s = new ScannableSnapshot(jscn);
+		assertArrayEquals(new Object[] {100., "test"}, (Object[]) s.lastPosition);
+
 	}
 }
