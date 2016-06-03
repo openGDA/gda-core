@@ -66,7 +66,7 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		if (controller == null) {
-			throw new IllegalArgumentException("controller needs to be set");
+			throw new IllegalArgumentException(getName() + " - controller needs to be set");
 		}
 	}
 
@@ -78,7 +78,7 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 			controller.setTriggerMode(1); // ext enable
 			controller.setDelay(0);
 		} catch (Exception e) {
-			throw new FactoryException("error setting up area detector", e);
+			throw new FactoryException(getName() + " - error setting up area detector", e);
 		}
 	}
 
@@ -95,7 +95,7 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 			return new int[] { controller.getAreaDetector().getArraySizeY_RBV(),
 					controller.getAreaDetector().getArraySizeX_RBV() };
 		} catch (Exception e) {
-			throw new DeviceException("failed to get image dimension", e);
+			throw new DeviceException(getName() + " - failed to get image dimension", e);
 		}
 	}
 
@@ -114,7 +114,7 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 			return state;
 
 		} catch (Exception e) {
-			throw new DeviceException("Failure to read status", e);
+			throw new DeviceException(getName() + " - Failure to read status", e);
 		}
 	}
 
@@ -313,16 +313,16 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 					nxpi.prepareForLine();
 				}
 			}
-	} catch (Exception e) {
-		throw new DeviceException("error setting up nxplugins", e);
-	}
-			try {
+		} catch (Exception e) {
+			throw new DeviceException(getName() + " - error setting up nxplugins", e);
+		}
+		try {
 			controller.setScanDimensions(scanInformation.getDimensions());
 			setupFilename();
 			controller.resetCounters();
 			controller.startRecording();
 		} catch (Exception e) {
-			throw new DeviceException("error setting up data recording to HDF5", e);
+			throw new DeviceException(getName() + " - error setting up data recording to HDF5", e);
 		}
 	}
 
@@ -339,7 +339,7 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 				}
 			}
 		} catch (Exception e) {
-			throw new DeviceException("error finalising data acquitision/writing", e);
+			throw new DeviceException(getName() + " - error finalising data acquitision/writing", e);
 		} finally {
 			try {
 				FileRegistrarHelper.registerFile(filename);
