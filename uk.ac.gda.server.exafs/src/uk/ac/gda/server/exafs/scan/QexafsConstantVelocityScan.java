@@ -18,6 +18,8 @@
 
 package uk.ac.gda.server.exafs.scan;
 
+import java.util.List;
+
 import gda.device.detector.HardwareTriggeredNXDetector;
 import gda.device.scannable.ContinuouslyScannableViaController;
 import gda.exafs.scan.ScanStartedMessage;
@@ -27,9 +29,6 @@ import gda.jython.scriptcontroller.event.ScriptProgressEvent;
 import gda.jython.scriptcontroller.logging.XasLoggingMessage;
 import gda.jython.scriptcontroller.logging.XasProgressUpdater;
 import gda.scan.ConstantVelocityScanLine;
-
-import java.util.List;
-
 import uk.ac.gda.beans.exafs.QEXAFSParameters;
 
 public class QexafsConstantVelocityScan extends EnergyScan {
@@ -82,6 +81,7 @@ public class QexafsConstantVelocityScan extends EnergyScan {
 		// parse arguments for ConstantVelocityScan
 		Object[] args = parseArguments();
 		ConstantVelocityScanLine thisscan = new ConstantVelocityScanLine(args);
+		thisscan.setSendUpdateEvents(false);
 		thisscan = (ConstantVelocityScanLine) setUpDataWriter(thisscan, sampleBean.getName(), sampleBean.getDescriptions());
 
 		loggingScriptController.update(null, new ScanCreationEvent(thisscan.getName()));
