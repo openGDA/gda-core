@@ -7,7 +7,7 @@ Comment: **********************************************************************
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: ARPES Server Components Plug-in
-Bundle-SymbolicName: uk.ac.gda.arpes.server
+Bundle-SymbolicName: uk.ac.gda.arpes.server;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Diamond Light Source Ltd
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
@@ -18,7 +18,8 @@ Require-Bundle: org.apache.commons.lang;bundle-version="2.6.0",
  uk.ac.gda.common;bundle-version="1.2.0",
  uk.ac.gda.epics;bundle-version="1.0.0",
  uk.ac.diamond.scisoft.analysis;bundle-version="1.3.0",
- org.eclipse.dawnsci.nexus;bundle-version="1.0.0"
+ org.eclipse.dawnsci.nexus;bundle-version="1.0.0",
+ uk.ac.diamond.daq.jython.api;bundle-version="1.0.0"
 Import-Package: net.sf.cglib.core,
  net.sf.cglib.proxy,
  org.jscience.physics.quantities;version="2.0.2",
