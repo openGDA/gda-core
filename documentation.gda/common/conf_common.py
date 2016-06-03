@@ -41,7 +41,7 @@ needs_sphinx = '1.0'
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.extlinks', 'sphinx.ext.intersphinx', 'sphinx.ext.todo', 'sphinx.ext.pngmath', 'sphinx.ext.ifconfig']
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.extlinks', 'sphinx.ext.intersphinx', 'sphinx.ext.todo', 'sphinx.ext.imgmath', 'sphinx.ext.ifconfig']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -111,10 +111,10 @@ pygments_style = 'sphinx'
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
-html_theme_options = {
-'sidebarbgcolor'  : '#f2f2f2',
-'sidebartextcolor': '#444a95',
-'sidebarlinkcolor': '#0b0f40',
+html_theme_options = { # only for classic?
+#'sidebarbgcolor'  : '#f2f2f2',
+#'sidebartextcolor': '#444a95',
+#'sidebarlinkcolor': '#0b0f40',
 }
 
 # Add any paths that contain custom themes here, relative to this directory.
@@ -224,6 +224,7 @@ latex_documents = []
 # If false, no module index is generated.
 #latex_domain_indices = True
 
+latex_additional_files = [os.path.abspath(os.path.join( os.path.dirname(conf_common_path), 'anyfontsize.sty')),]
 
 # -- Options for manual page output --------------------------------------------
 
