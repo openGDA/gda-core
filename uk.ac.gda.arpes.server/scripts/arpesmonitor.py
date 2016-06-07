@@ -26,5 +26,6 @@ class ARPESMonitor:
         self.scienta.getAdBase().startAcquiring()
 
     def stop(self):
-        self.scienta.getAdBase().stopAcquiring()
+        # Zero supplies includes stopping the analyser
+        self.scienta.zeroSupplies()
 #am=ARPESMonitor()
