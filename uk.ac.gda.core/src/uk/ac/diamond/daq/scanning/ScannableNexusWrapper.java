@@ -14,6 +14,8 @@ import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.points.IPosition;
+import org.eclipse.scanning.api.scan.rank.IScanRankService;
+import org.eclipse.scanning.api.scan.rank.IScanSlice;
 
 import gda.device.Scannable;
 
@@ -107,7 +109,8 @@ class ScannableNexusWrapper implements IScannable<Object>, INexusDevice<NXpositi
 		if (actual!=null) {
 			// write actual position
 			final IDataset newActualPositionData = DatasetFactory.createFromObject(actual);
-			SliceND sliceND = NexusScanInfo.createLocation(lzValue, loc.getNames(), loc.getIndices());
+			IScanSlice scanSlice = IScanRankService.getScanRankService().createScanSlice(loc);
+			SliceND sliceND = new SliceND(lzValue.getShape(), lzValue.getMaxShape(), scanSlice.getStart(), scanSlice.getStop(), scanSlice.getStep());
 			lzValue.setSlice(null, newActualPositionData, sliceND);
 		}
 
