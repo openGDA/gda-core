@@ -16,6 +16,8 @@ import org.eclipse.scanning.api.device.IWritableDetector;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.ScanningException;
+import org.eclipse.scanning.api.scan.rank.IScanRankService;
+import org.eclipse.scanning.api.scan.rank.IScanSlice;
 
 import gda.device.detector.EpicsAreaDetectorConstants.TriggerMode;
 import gda.device.detector.addetector.ADDetector;
@@ -128,10 +130,12 @@ public class AreaDetectorRunnableDevice extends AbstractRunnableDevice<AreaDetec
 			// Create a dataset from the data
 			DoubleDataset dataset = DoubleDataset.createFromObject(image);
 			// Write the image data
-			SliceND sliceND = NexusScanInfo.createLocation(data, pos.getNames(), pos.getIndices(), dataDimensions);
+			IScanSlice scanSlice = IScanRankService.getScanRankService().createScanSlice(pos, dataDimensions);
+			SliceND sliceND = new SliceND(data.getShape(), data.getMaxShape(), scanSlice.getStart(), scanSlice.getStop(), scanSlice.getStep());
 			data.setSlice(null, dataset, sliceND);
 			// Write the total data
-			sliceND = NexusScanInfo.createLocation(total, pos.getNames(), pos.getIndices());
+			scanSlice = IScanRankService.getScanRankService().createScanSlice(pos);
+			sliceND = new SliceND(total.getShape(), total.getMaxShape(), scanSlice.getStart(), scanSlice.getStop(), scanSlice.getStep());
 			total.setSlice(null, DoubleDataset.createFromObject(dataset.sum()), sliceND);
 		} catch (Exception e) {
 			setDeviceState(DeviceState.FAULT);
