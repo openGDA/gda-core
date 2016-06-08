@@ -136,7 +136,7 @@ public class GDAJythonClassLoader extends ClassLoader {
 		if (StringUtils.isBlank(name))
 			throw new ClassNotFoundException(name);
 
-		Class<?> class1 = findLoadedClass(name);
+		Class<?> class1 = findLoadedClass(name);		// check we don't already have it
 		if (class1 == null) {
 			final Map<Bundle, Boolean> matchingBundles = getMatchingBundlesForName(name);
 			final Set<Bundle> searchBundles = matchingBundles != null ? matchingBundles.keySet() : ALL_BUNDLES;
@@ -153,9 +153,10 @@ public class GDAJythonClassLoader extends ClassLoader {
 					continue;
 				}
 			}
+			// If the requested class is not visible to the GDA Jython Class Loader, delegate up
+			class1 = super.loadClass(name);
 		}
-		// If the requested class is not visible to the GDA Jython Class Loader, delegate up
-		return super.loadClass(name);
+		return class1;
 	}
 
 	/**
