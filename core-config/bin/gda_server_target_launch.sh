@@ -103,7 +103,7 @@ ECLIPSE_RUNTIME_CONFIG_PARENT=~/scratch/gda_server_eclipse_configurations
 [ -d $ECLIPSE_RUNTIME_CONFIG_PARENT ] || mkdir -m 777 $ECLIPSE_RUNTIME_CONFIG_PARENT
 
 # Initialise the beamline specific config
-BEAMLINE_CONFIG="/dls_sw/$BEAMLINE/software/gda/config"
+BEAMLINE_CONFIG="$GDA_WORKSPACE_PARENT/$GDA_INSTANCE_CONFIG_rel"
 
 # Determine the required server application install location an add it to the path:
 #
