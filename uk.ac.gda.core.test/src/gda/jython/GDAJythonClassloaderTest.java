@@ -25,7 +25,6 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.osgi.framework.Constants.EXPORT_PACKAGE;
@@ -143,12 +142,16 @@ public class GDAJythonClassloaderTest {
 	}
 
 	@Test(expected=ClassNotFoundException.class)
-	public void loadingUnknownClassNameThrowsExceptionTryingEachBundle() throws Exception {
+	public void loadingUnknownClassNameThrowsExceptionWithoutTryingAnyBundle() throws Exception {
 		GDAJythonClassLoader loader = new GDAJythonClassLoader();
-		loader.loadClass(BAD_CLASS_NAME);
-		verify(bundles[0], times(1)).loadClass(BAD_CLASS_NAME);
-		verify(bundles[1], times(1)).loadClass(BAD_CLASS_NAME);
-		verify(bundles[2], times(1)).loadClass(BAD_CLASS_NAME);
+		try {
+			loader.loadClass(BAD_CLASS_NAME);
+		} catch (Exception e) {
+			verify(bundles[0], never()).loadClass(BAD_CLASS_NAME);
+			verify(bundles[1], never()).loadClass(BAD_CLASS_NAME);
+			verify(bundles[2], never()).loadClass(BAD_CLASS_NAME);
+			throw e;
+		}
 	}
 
 	@Test
