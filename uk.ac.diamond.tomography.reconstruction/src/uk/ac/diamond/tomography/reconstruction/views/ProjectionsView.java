@@ -26,6 +26,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.dawnsci.analysis.api.dataset.DatasetException;
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
 import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
@@ -286,25 +287,31 @@ public class ProjectionsView extends BaseTomoReconPart implements ISelectionList
 				if (dataset != null) {
 					int[] shape = dataset.getShape();
 					shape[0] = position + 1;
-					Dataset slice = DatasetUtils.convertToDataset(dataset.getSlice(new int[] { position, 0, 0 }, shape, new int[] { 1, 1, 1 }));
-					datasetToPlot = slice.squeeze();
+					Dataset slice = null;
+					try {
+						slice = DatasetUtils.convertToDataset(dataset.getSlice(new int[] { position, 0, 0 }, shape, new int[] { 1, 1, 1 }));
+					} catch (DatasetException e) {
+						logger.error("Could not get data from lazy dataset", e);
+					}
 
-					getViewSite().getShell().getDisplay().asyncExec(new Runnable() {
-						@Override
-						public void run() {
-							plottingSystem.updatePlot2D(datasetToPlot, null, new NullProgressMonitor());
-							fileName.setText(nexusFile.getLocation().toOSString());
-							//
-							for (ITrace trace : plottingSystem.getTraces()) {
-								if (trace instanceof IImageTrace) {
-									IImageTrace imageTrace = (IImageTrace) trace;
-									final IPaletteService service = (IPaletteService) PlatformUI.getWorkbench()
-											.getService(IPaletteService.class);
-									imageTrace.setPaletteData(service.getDirectPaletteData(""));
+					if (slice != null) {
+						datasetToPlot = slice.squeeze();
+						getViewSite().getShell().getDisplay().asyncExec(new Runnable() {
+							@Override
+							public void run() {
+								plottingSystem.updatePlot2D(datasetToPlot, null, new NullProgressMonitor());
+								fileName.setText(nexusFile.getLocation().toOSString());
+								//
+								for (ITrace trace : plottingSystem.getTraces()) {
+									if (trace instanceof IImageTrace) {
+										IImageTrace imageTrace = (IImageTrace) trace;
+										final IPaletteService service = (IPaletteService) PlatformUI.getWorkbench().getService(IPaletteService.class);
+										imageTrace.setPaletteData(service.getDirectPaletteData(""));
+									}
 								}
 							}
-						}
-					});
+						});
+					}
 					logger.debug(dataset.getName());
 				} else {
 					 showErrorMessage(ERR_TITLE_DISPLAYING_PROJECTIONS, new IllegalArgumentException(
