@@ -18,6 +18,7 @@
 
 package uk.ac.gda.arpes.beans;
 
+import org.eclipse.dawnsci.analysis.api.dataset.DatasetException;
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.Slice;
@@ -74,7 +75,7 @@ public class ScanBeanFromNeXusFile {
 		short passe = (short) ((IDataset)pe).getInt(0);
 		bean.setPassEnergy(passe);
 	}
-	private static void setEnergies(ARPESScanBean bean, ILazyDataset lazyenergies) {
+	private static void setEnergies(ARPESScanBean bean, ILazyDataset lazyenergies) throws DatasetException {
 		IDataset energies = lazyenergies.getSlice((Slice) null);
 		double start = energies.getDouble(0);
 		bean.setStartEnergy(start);
@@ -85,12 +86,12 @@ public class ScanBeanFromNeXusFile {
 			bean.setStepEnergy(step*1000);
 		}
 	}
-	private static void setTimePerStep(ARPESScanBean bean, ILazyDataset tps) {
+	private static void setTimePerStep(ARPESScanBean bean, ILazyDataset tps) throws DatasetException {
 		IDataset energies = tps.getSlice((Slice) null);
 		double start = energies.getDouble(0);
 		bean.setTimePerStep(start);
 	}
-	private static void setIterations(ARPESScanBean bean, ILazyDataset iter) {
+	private static void setIterations(ARPESScanBean bean, ILazyDataset iter) throws DatasetException {
 		IntegerDataset energies = (IntegerDataset) iter.getSlice((Slice) null);
 		int start = ((Double) energies.mean()).intValue();
 		bean.setIterations((short) start);
