@@ -22,6 +22,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Iterator;
 
+import org.eclipse.dawnsci.analysis.api.dataset.DatasetException;
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.SliceND;
 import org.eclipse.dawnsci.analysis.api.monitor.IMonitor;
@@ -147,7 +148,11 @@ final public class NexusExtractor implements INexusDataGetter {
 		int[] shape = l.getShape();
 		NexusGroupData n;
 		if (getData) {
-			n = NexusGroupData.createFromDataset(l.getSlice());
+			try {
+				n = NexusGroupData.createFromDataset(l.getSlice());
+			} catch (DatasetException e) {
+				throw new NexusException("Could not get data from lazy dataset", e);
+			}
 		} else {
 			n = new NexusGroupData(shape, l.elementClass());
 			if (d.isString()) {
@@ -504,7 +509,11 @@ class SimpleExtractor {
 			slice = SliceND.createSlice(lazy, null, null);
 		}
 
-		return NexusGroupData.createFromDataset(lazy.getSlice(slice));
+		try {
+			return NexusGroupData.createFromDataset(lazy.getSlice(slice));
+		} catch (DatasetException e) {
+			throw new NexusException("Could not get data from lazy dataset", e);
+		}
 	}
 
 	protected final NexusGroupData getData() throws NexusException {
