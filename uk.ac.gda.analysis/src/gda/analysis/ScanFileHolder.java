@@ -23,6 +23,7 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 
+import org.eclipse.dawnsci.analysis.api.dataset.DatasetException;
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.api.io.IDataHolder;
 import org.eclipse.dawnsci.analysis.api.io.IFileLoader;
@@ -187,7 +188,12 @@ public class ScanFileHolder implements Serializable, IScanFileHolder {
 
 	@Override
 	public Dataset getAxis(String axisName) throws IllegalArgumentException {
-		Dataset a = DatasetUtils.sliceAndConvertLazyDataset(holder.getLazyDataset(axisName));
+		Dataset a;
+		try {
+			a = DatasetUtils.sliceAndConvertLazyDataset(holder.getLazyDataset(axisName));
+		} catch (DatasetException e) {
+			throw new  IllegalArgumentException("Could not get data from lazy dataset named " + axisName, e);
+		}
 		if (a == null) {
 			String msg = "Axis name " + axisName + " not recognised. Available axes: " + Arrays.toString(getHeadings());
 			logger.error(msg);

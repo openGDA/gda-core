@@ -18,10 +18,11 @@
 
 package uk.ac.gda.analysis.hdf5;
 
+import java.io.IOException;
+
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.SliceND;
 import org.eclipse.dawnsci.analysis.api.io.ILazyLoader;
-import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
 import org.eclipse.dawnsci.analysis.api.monitor.IMonitor;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.LazyDataset;
@@ -67,7 +68,7 @@ public class Hdf5HelperLazyLoader implements ILazyLoader {
 	}
 
 	@Override
-	public Dataset getDataset(IMonitor mon, SliceND slice) throws ScanFileHolderException {
+	public Dataset getDataset(IMonitor mon, SliceND slice) throws IOException {
 		try {
 			checkConfigured();
 			int rank = slice.getSourceShape().length;
@@ -85,7 +86,7 @@ public class Hdf5HelperLazyLoader implements ILazyLoader {
 			Object data2 = Hdf5Helper.getInstance().readDataSet(fileName, groupName, dataSetName, sstart, sstride, dsize, null, null, dsize, helperData.native_type, null, true).data;
 			return HDF5Utils.createDataset(data2, shape, dtype, extend);
 		} catch (Exception e) {
-			throw new ScanFileHolderException("Error reading from " + fileName,e);
+			throw new IOException("Error reading from " + fileName,e);
 		}
 	}
 
