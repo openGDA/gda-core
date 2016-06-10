@@ -18,6 +18,7 @@
 
 package uk.ac.gda.devices.excalibur.equalization;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -251,11 +252,12 @@ class Chip {
 	public long getPixelsPerRow(){
 		return chipSet.pixelsPerRow;
 	}
-	public IDataset getDataset(ILazyLoader loader) throws Exception{
+
+	public IDataset getDataset(ILazyLoader loader) throws IOException {
 		return getDataset(loader,0);
 	}
-	
-	public IDataset getDataset(ILazyLoader loader, int length3d) throws Exception{
+
+	public IDataset getDataset(ILazyLoader loader, int length3d) throws IOException {
 		int dim = length3d == 0? 2  : 3;
 		int[] start = new int[dim]; 
 		int[] stop = new int[dim]; 
