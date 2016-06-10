@@ -46,7 +46,6 @@ public class XmapBufferedHdf5FileLoader implements XmapFileLoader {
 		hdf5Loader = new HDF5Loader(fileName);
 		dataHolder = hdf5Loader.loadFile();
 		lazyDataset = dataHolder.getLazyDataset("/entry/instrument/detector/data");
-
 	}
 
 	@Override
@@ -54,8 +53,14 @@ public class XmapBufferedHdf5FileLoader implements XmapFileLoader {
 		lazyDataset = dataHolder.getLazyDataset("/entry/instrument/detector/data");
 		int channelNumbers = lazyDataset.getShape()[2];
 		int numberOfDetectorElements = lazyDataset.getShape()[1];
-		IDataset slice = lazyDataset.getSlice(new int[] { dataPointNumber, 0, 0 }, new int[] { dataPointNumber + 1,
-				numberOfDetectorElements, channelNumbers }, new int[] { 1, 1, 1 });
+		IDataset slice;
+		try {
+			slice = lazyDataset.getSlice(new int[] { dataPointNumber, 0, 0 }, new int[] { dataPointNumber + 1,
+					numberOfDetectorElements, channelNumbers }, new int[] { 1, 1, 1 });
+		} catch (Exception e) {
+			logger.error("Could not get data from lazy dataset", e);
+			return null;
+		}
 		IDataset sqSlice = slice.squeeze();
 		int[] data = (int[]) DatasetUtils.cast(sqSlice, Dataset.INT32).getBuffer();
 		short allData[][] = new short[numberOfDetectorElements][channelNumbers];
@@ -106,43 +111,34 @@ public class XmapBufferedHdf5FileLoader implements XmapFileLoader {
 
 	@Override
 	public double getTrigger(int dataPointNumber, int element) {
-		lazyDataset = dataHolder.getLazyDataset("/entry/instrument/detector/NDAttributes/triggers_ch_" + element);
-		IDataset slice = lazyDataset.getSlice(new int[] { dataPointNumber }, new int[] { dataPointNumber + 1 },
-				new int[] { 1 });
-		IDataset sqSlice = slice.squeeze();
-		long[] trigger = (long[]) DatasetUtils.cast(sqSlice, Dataset.INT64).getBuffer();
-		return trigger[0];
+		return getDouble("/entry/instrument/detector/NDAttributes/triggers_ch_" + element, dataPointNumber);
 	}
 
 	@Override
 	public double getRealTime(int dataPointNumber, int element) {
-		lazyDataset = dataHolder.getLazyDataset("/entry/instrument/detector/NDAttributes/real_time_ch_" + element);
-		IDataset slice = lazyDataset.getSlice(new int[] { dataPointNumber }, new int[] { dataPointNumber + 1 },
-				new int[] { 1 });
-		IDataset sqSlice = slice.squeeze();
-		double[] realtime = (double[]) DatasetUtils.cast(sqSlice, Dataset.FLOAT64).getBuffer();
-		return realtime[0];
+		return getDouble("/entry/instrument/detector/NDAttributes/real_time_ch_" + element, dataPointNumber);
 	}
 
 	@Override
 	public double getLiveTime(int dataPointNumber, int element) {
-		lazyDataset = dataHolder.getLazyDataset("/entry/instrument/detector/NDAttributes/trigger_live_time_ch_"
-				+ element);
-		IDataset slice = lazyDataset.getSlice(new int[] { dataPointNumber }, new int[] { dataPointNumber + 1 },
-				new int[] { 1 });
-		IDataset sqSlice = slice.squeeze();
-		double[] livetime = (double[]) DatasetUtils.cast(sqSlice, Dataset.FLOAT64).getBuffer();
-		return livetime[0];
+		return getDouble("/entry/instrument/detector/NDAttributes/trigger_live_time_ch_" + element, dataPointNumber);
 	}
 
 	@Override
 	public double getEvents(int dataPointNumber, int element) {
-		lazyDataset = dataHolder.getLazyDataset("/entry/instrument/detector/NDAttributes/events_ch_" + element);
-		IDataset slice = lazyDataset.getSlice(new int[] { dataPointNumber }, new int[] { dataPointNumber + 1 },
-				new int[] { 1 });
-		IDataset sqSlice = slice.squeeze();
-		long[] events = (long[]) DatasetUtils.cast(sqSlice, Dataset.INT64).getBuffer();
-		return events[0];
+		return getDouble("/entry/instrument/detector/NDAttributes/events_ch_" + element, dataPointNumber);
 	}
 
+	private double getDouble(String dataPath, int dataPointNumber) {
+		lazyDataset = dataHolder.getLazyDataset(dataPath);
+		IDataset slice;
+		try {
+			slice = lazyDataset.getSlice(new int[] { dataPointNumber }, new int[] { dataPointNumber + 1 },
+					new int[] { 1 });
+		} catch (Exception e) {
+			logger.error("Could not get data from lazy dataset", e);
+			return Double.NaN;
+		}
+		return slice.getDouble(0);
+	}
 }

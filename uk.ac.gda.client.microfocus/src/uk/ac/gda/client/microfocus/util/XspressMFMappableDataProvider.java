@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.eclipse.dawnsci.analysis.api.dataset.DatasetException;
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
@@ -60,7 +61,7 @@ public class XspressMFMappableDataProvider extends MicroFocusMappableDataProvide
 	}
 
 	@Override
-	public double[][] constructMappableData() {
+	public double[][] constructMappableData() throws DatasetException {
 		logger.debug("getting data for " + selectedElement + " channel " + selectedChannel);
 		double[][] mapData = new double[yarray.length][xarray.length];
 		Integer selectedElementIndex = roiNameMap.get(selectedElement);
@@ -80,7 +81,7 @@ public class XspressMFMappableDataProvider extends MicroFocusMappableDataProvide
 		return mapData;
 	}
 
-	private double[][][] getMCAMapFromFile(int channel) {
+	private double[][][] getMCAMapFromFile(int channel) throws DatasetException {
 		IDataset slice = lazyDataset.getSlice(new int[] { 0, 0, channel, 0 }, new int[] { yAxisLengthFromFile, xAxisLengthFromFile,
 				channel+1, 4096 }, new int[] { 1, 1, 1, 1 });
 		IDataset sqSlice = slice.squeeze();
@@ -148,7 +149,7 @@ public class XspressMFMappableDataProvider extends MicroFocusMappableDataProvide
 	}
 
 	@Override
-	public double[] getSpectrum(int detectorNo, int x, int y) {
+	public double[] getSpectrum(int detectorNo, int x, int y) throws DatasetException {
 		int spectrumLength = maxSpectrumLengthForViewing;
 		if (lazyDataset != null) {
 			int shape[] = lazyDataset.getShape();

@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.eclipse.dawnsci.analysis.api.dataset.DatasetException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +36,7 @@ import uk.ac.gda.util.beans.xml.XMLRichBean;
 public class VortexMFMappableDataProvider extends MicroFocusMappableDataProvider {
 
 	private static final Logger logger = LoggerFactory.getLogger(VortexMFMappableDataProvider.class);
-	
+
 	private static final String[] detectorNames = new String[]{"xmapMca"};
 
 	private int numberOfdetectorElements;
@@ -66,7 +67,7 @@ public class VortexMFMappableDataProvider extends MicroFocusMappableDataProvider
 	}
 
 	@Override
-	public double[][] constructMappableData() {
+	public double[][] constructMappableData() throws DatasetException {
 
 		logger.debug("getting data for " + selectedElement);
 		if (mapCache == null) {
@@ -99,7 +100,7 @@ public class VortexMFMappableDataProvider extends MicroFocusMappableDataProvider
 	}
 
 	@Override
-	public double[] getSpectrum(int detectorNo, int x, int y) {
+	public double[] getSpectrum(int detectorNo, int x, int y) throws DatasetException {
 
 		if (mapCache == null) {
 			lazyDataset = dataHolder.getLazyDataset("/entry1/instrument/" + detectorNames[0] + "/fullSpectrum");

@@ -22,6 +22,7 @@ import java.io.File;
 import java.util.Hashtable;
 import java.util.List;
 
+import org.eclipse.dawnsci.analysis.api.dataset.DatasetException;
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
@@ -54,7 +55,7 @@ public class ScalerMFMappableDataProvider extends MicroFocusMappableDataProvider
 	}
 
 	@Override
-	public double[][] constructMappableData() {
+	public double[][] constructMappableData() throws DatasetException {
 
 		double[][] mapData = new double[yAxisLengthFromFile][xAxisLengthFromFile];
 		// HashMap<String, Serializable> map = mainTree.getAttributes();

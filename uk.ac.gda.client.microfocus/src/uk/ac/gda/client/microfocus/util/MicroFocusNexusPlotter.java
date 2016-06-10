@@ -18,6 +18,7 @@
 
 package uk.ac.gda.client.microfocus.util;
 
+import org.eclipse.dawnsci.analysis.api.dataset.DatasetException;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
@@ -78,7 +79,11 @@ public class MicroFocusNexusPlotter {
 							.getActiveWorkbenchWindow().getActivePage().findView(ExafsSelectionView.ID);
 					selectionView.setSelectedPoint(xyz);
 
-					plotSpectrum(xArrayIndex, yArrayIndex);
+					try {
+						plotSpectrum(xArrayIndex, yArrayIndex);
+					} catch (DatasetException e) {
+						logger.error("Problem constructing mappable data", e);
+					}
 				}
 			}
 
@@ -171,7 +176,7 @@ public class MicroFocusNexusPlotter {
 	/*
 	 * For use after the map has been updated
 	 */
-	private void updateSpectrum() {
+	private void updateSpectrum() throws DatasetException {
 		if (lastLCoordinatePlotted != null && lastMCoordinatePlotted != null) {
 			plotSpectrum(lastLCoordinatePlotted, lastMCoordinatePlotted);
 		}
@@ -183,7 +188,13 @@ public class MicroFocusNexusPlotter {
 		dataProvider.setSelectedElement(elementName);
 		dataProvider.setSelectedChannel(selectedChannel);
 
-		double[][] mapData = dataProvider.constructMappableData();
+		double[][] mapData;
+		try {
+			mapData = dataProvider.constructMappableData();
+		} catch (DatasetException e1) {
+			logger.error("Problem constructing mappable data", e1);
+			return;
+		}
 		final Dataset plotSet = DatasetFactory.createFromObject(mapData);
 
 		Double[] xData = dataProvider.getXarray();
@@ -209,7 +220,7 @@ public class MicroFocusNexusPlotter {
 	/*
 	 * Display the MCA of the selected point. The x(l) and y(m) values are the data array indexes, not data values.
 	 */
-	private void plotSpectrum(final int xPixel, final int yPixel) {
+	private void plotSpectrum(final int xPixel, final int yPixel) throws DatasetException {
 
 		if (dataProvider != null) {
 

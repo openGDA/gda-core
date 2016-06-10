@@ -21,6 +21,7 @@ package uk.ac.gda.client.microfocus.util;
 import java.util.HashMap;
 import java.util.List;
 
+import org.eclipse.dawnsci.analysis.api.dataset.DatasetException;
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
@@ -40,7 +41,7 @@ public class MapCache {
 	private HashMap<String, Integer> roiNameMap;
 	private ILazyDataset allMCAs;  // four dimensional dataset as collected: y,x,detector channel, MCA spectrum
 
-	public MapCache(HashMap<String, Integer> roiNameMap, List<? extends DetectorROI>[] elementRois, ILazyDataset lazyDataset) {
+	public MapCache(HashMap<String, Integer> roiNameMap, List<? extends DetectorROI>[] elementRois, ILazyDataset lazyDataset) throws DatasetException {
 
 		this.roiNameMap = roiNameMap;
 		this.allMCAs = lazyDataset;
@@ -52,7 +53,7 @@ public class MapCache {
 		return mapdata[elementIndex][channel];
 	}
 
-	public double[] getSpectrum(int detectorNo, int x, int y) {
+	public double[] getSpectrum(int detectorNo, int x, int y) throws DatasetException {
 
 		int mcaSize = allMCAs.getShape()[3];
 		DoubleDataset mcaDataset = (DoubleDataset) DatasetUtils.cast(
@@ -62,7 +63,7 @@ public class MapCache {
 	}
 
 
-	private double[][][] getAllMCAForOneLine(int y) {
+	private double[][][] getAllMCAForOneLine(int y) throws DatasetException {
 		IDataset pointData = allMCAs.getSlice(new int[]{y,0,0,0},new int[]{y+1,allMCAs.getShape()[1],allMCAs.getShape()[2],allMCAs.getShape()[3]},null);
 
 		int numberXPixels = pointData.getShape()[1];
@@ -83,7 +84,7 @@ public class MapCache {
 
 	}
 
-	private void deriveMapData(List<? extends DetectorROI>[] elementRois) {
+	private void deriveMapData(List<? extends DetectorROI>[] elementRois) throws DatasetException {
 
 		int shape[] = allMCAs.getShape();
 		int numY = shape[0];

@@ -21,6 +21,7 @@ package uk.ac.gda.client.microfocus.util;
 import java.util.ArrayList;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.eclipse.dawnsci.analysis.api.dataset.DatasetException;
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
@@ -74,11 +75,11 @@ public abstract class MicroFocusMappableDataProvider {
 
 	public abstract String[] getElementNames();
 
-	public abstract double[][] constructMappableData();
+	public abstract double[][] constructMappableData() throws DatasetException;
 
 	public abstract void loadBean();
 
-	public abstract double[] getSpectrum(int channelNum, int xPixel, int yPixel);
+	public abstract double[] getSpectrum(int channelNum, int xPixel, int yPixel) throws DatasetException;
 
 	public abstract void loadBean(XMLRichBean bean);
 
@@ -181,7 +182,7 @@ public abstract class MicroFocusMappableDataProvider {
 		return yscannableDS;
 	}
 
-	private void extractItData(String names) {
+	private void extractItData(String names) throws DatasetException {
 		if (names.contains("/entry1/counterTimer01/It")) {
 			ILazyDataset itDS = dataHolder.getLazyDataset("/entry1/counterTimer01/It");
 			itdata = DatasetUtils.convertToDataset(getDatasetFromLazyDataset(itDS));
@@ -200,7 +201,7 @@ public abstract class MicroFocusMappableDataProvider {
 		}
 	}
 
-	private void extractI0Data(String names) {
+	private void extractI0Data(String names) throws DatasetException {
 		if (names.contains("/entry1/counterTimer01/I0")) {
 			ILazyDataset i0DS = dataHolder.getLazyDataset("/entry1/counterTimer01/I0");
 			i0data = DatasetUtils.convertToDataset(getDatasetFromLazyDataset(i0DS));
@@ -249,7 +250,7 @@ public abstract class MicroFocusMappableDataProvider {
 		return xscannableDS;
 	}
 
-	protected IDataset getDatasetFromLazyDataset(ILazyDataset xscannableDS) {
+	protected IDataset getDatasetFromLazyDataset(ILazyDataset xscannableDS) throws DatasetException {
 		int shape[] = xscannableDS.getShape();
 		int startShape[] = new int[shape.length];
 		int step[] = new int[shape.length];

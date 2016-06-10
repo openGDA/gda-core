@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.eclipse.dawnsci.analysis.api.dataset.DatasetException;
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.AggregateDataset;
 import org.slf4j.Logger;
@@ -59,7 +60,11 @@ public class Xspress3MFMappableDataProvider extends MicroFocusMappableDataProvid
 	@Override
 	public void loadData(String fileName) {
 		super.loadData(fileName);
-		fillCache();
+		try {
+			fillCache();
+		} catch (DatasetException e) {
+			logger.error("Problem filling cache", e);
+		}
 	}
 
 	@Override
@@ -68,7 +73,7 @@ public class Xspress3MFMappableDataProvider extends MicroFocusMappableDataProvid
 		return mapCache.getMap(selectedElement, selectedChannel);
 	}
 
-	protected void fillCache() {
+	protected void fillCache() throws DatasetException {
 		// when GDA writes all the MCAs to the Nexus file
 		lazyDataset = dataHolder.getLazyDataset("/entry1/instrument/" + detectorNames[0] + "/MCAs");
 		if (lazyDataset == null){
@@ -121,7 +126,7 @@ public class Xspress3MFMappableDataProvider extends MicroFocusMappableDataProvid
 	}
 
 	@Override
-	public double[] getSpectrum(int detectorNo, int x, int y) {
+	public double[] getSpectrum(int detectorNo, int x, int y) throws DatasetException {
 		return mapCache.getSpectrum(detectorNo, x, y);
 	}
 
