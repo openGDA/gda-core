@@ -32,6 +32,7 @@ Export-Package: gda.device,
  gda.device.frelon.impl,
  gda.device.lima,
  gda.device.lima.impl,
+ gda.device.maxipix2,
  gda.device.scannable
 Import-Package: net.sf.cglib.core,
  net.sf.cglib.proxy,
