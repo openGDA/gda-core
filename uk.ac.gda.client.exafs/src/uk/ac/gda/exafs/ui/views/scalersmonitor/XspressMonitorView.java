@@ -37,8 +37,6 @@ import gda.configuration.properties.LocalProperties;
 import gda.device.CounterTimer;
 import gda.device.DeviceException;
 import gda.factory.Finder;
-import gda.jython.Jython;
-import gda.jython.JythonServerFacade;
 import uk.ac.gda.beans.xspress.XspressDetector;
 
 public class XspressMonitorView extends MonitorViewBase {
@@ -183,8 +181,9 @@ public class XspressMonitorView extends MonitorViewBase {
 			ionchambers = (CounterTimer) Finder.getInstance().find(ionchambersName);
 		}
 
-		// only collect new data outside of scans else will readout the last data collected
-		if (JythonServerFacade.getInstance().getScanStatus() == Jython.IDLE && !xspress.isBusy()
+		// Check to make sure that no scan or script is currently running before reading from detectors
+		// to avoid indadvertently interfering with data collection.
+		if ( !getScriptOrScanIsRunning() && !xspress.isBusy()
 				&& !ionchambers.isBusy()) {
 			xspress.collectData();
 			ionchambers.setCollectionTime(collectionTime);
