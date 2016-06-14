@@ -490,6 +490,10 @@ Additional Ant tasks for Buckminster build. Based on http://www.ralfebert.de/blo
 		<copy todir="${install.git.path}/gda-mt.git/configurations/mt-config">
 			<fileset dir="${ws_git.rel.path}/gda-mt.git/configurations/mt-config"/>
 		</copy>
+		<!-- I13-1 beamline folders -->
+		<copy todir="${install.git.path}/gda-dls-beamlines-i13x.git/i13j">
+			<fileset dir="${ws_git.rel.path}/gda-dls-beamlines-i13x.git/i13j"/>
+		</copy>
 		<!-- I15 beamline folders -->
 		<copy todir="${install.git.path}/gda-mt.git/configurations/i15-config">
 			<fileset dir="${ws_git.rel.path}/gda-mt.git/configurations/i15-config"/>
