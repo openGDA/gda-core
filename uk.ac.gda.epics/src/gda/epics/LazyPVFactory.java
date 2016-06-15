@@ -285,6 +285,13 @@ public class LazyPVFactory {
 		return new ReadOnly<String>(newStringFromWaveformPV(pvName));
 	}
 
+	public static ReadOnlyPV<String> newReadOnlyStringFromEnumPV(String pvName) {
+		final LazyPV<String> pv = new LazyPV<String>(EPICS_CONTROLLER, pvName, String.class);
+		pv.setShowTypeMismatchWarnings(false);
+		final ReadOnly<String> readOnlyPv = new ReadOnly<String>(pv);
+		return readOnlyPv;
+	}
+
 	public static ReadOnlyPV<Byte[]> newReadOnlyByteArrayPV(String pvName) {
 		return new ReadOnly<Byte[]>(newByteArrayPV(pvName));
 	}
