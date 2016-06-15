@@ -349,4 +349,9 @@ public class NDFileHDF5Simulator implements NDFileHDF5 {
 	@Override
 	public void setAttrByDim(int attrByDim) throws Exception {
 	}
+
+	@Override
+	public void setExtraDimensions(int[] actualDims) throws Exception {
+
+	}
 }

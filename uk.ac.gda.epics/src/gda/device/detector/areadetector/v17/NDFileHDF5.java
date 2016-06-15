@@ -159,4 +159,6 @@ public interface NDFileHDF5 {
 
 	void setAttrByDim(int attrByDim) throws Exception;
 
+	void setExtraDimensions(int[] actualDims) throws Exception;
+
 }

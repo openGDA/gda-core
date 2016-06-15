@@ -306,21 +306,7 @@ public class MultipleImagesPerParallelHDF5FileWriter extends FileWriterBase impl
 			actualDims = Arrays.copyOf(dimensions, dimensions.length+1);
 			actualDims[dimensions.length] = numberImagesPerCollection;
 		}
-/*		if( actualDims.length > 3)
-			throw new Exception("Maximum dimensions for storing in hdf is currently 3. Value specified = " + actualDims.length);
-		if( actualDims.length==1 ){
-			getNdFilePHDF5().setNumExtraDims(0);
-		} else	if( actualDims.length==2 ){
-			getNdFileHDF5().setNumExtraDims(1);
-			getNdFileHDF5().setExtraDimSizeN(actualDims[1]);
-			getNdFileHDF5().setExtraDimSizeX(actualDims[0]);
-		} else	if( actualDims.length==3 ){
-			getNdFileHDF5().setNumExtraDims(2);
-			getNdFileHDF5().setExtraDimSizeN(actualDims[2]);
-			getNdFileHDF5().setExtraDimSizeX(actualDims[1]);
-			getNdFileHDF5().setExtraDimSizeY(actualDims[0]);
-		}
-*/		int numberOfAcquires=1;
+		int numberOfAcquires = 1;
 		for( int dim : actualDims ){
 			numberOfAcquires *= dim;
 		}
