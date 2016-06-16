@@ -274,7 +274,7 @@ public class ScannableGroup extends ScannableBase implements Configurable, IScan
 
 	}
 
-	private Vector<Object[]> extractPositionsFromObject(Object position) throws DeviceException {
+	protected Vector<Object[]> extractPositionsFromObject(Object position) throws DeviceException {
 		// map object to an array of doubles
 		int inputLength = 0;
 		for (Scannable member : groupMembers) {
