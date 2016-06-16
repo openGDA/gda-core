@@ -26,7 +26,7 @@ import org.springframework.util.StringUtils;
 
 /**
  * A {@link PropertyEditor} for 2D double arrays. Strings must be in the format
- * <code>{{1,2,3},{4,5,6},{7,8,9}}</code>.
+ * <code>{{1,2,3},{4,5,6},{7,8,9}}</code> or <code>{{1;2;3};{4;5;6};{7;8;9}}</code>.
  */
 public class TwoDDoubleArrayPropertyEditor extends PropertyEditorSupport {
 
@@ -36,6 +36,9 @@ public class TwoDDoubleArrayPropertyEditor extends PropertyEditorSupport {
 			try {
 				// remove spaces
 				text = text.replace(" ", "");
+
+				// workaround for GDA-2492 - can't use commas in property values
+				text = text.replace(";", ",");
 
 				String[] rows = text.split("\\},\\{");
 				double[][] values = new double[rows.length][];

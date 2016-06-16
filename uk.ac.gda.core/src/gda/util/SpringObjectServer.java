@@ -70,6 +70,7 @@ public class SpringObjectServer extends ObjectServer {
 		super(xmlFile, localObjectsOnly);
 		final String configLocation = "file:" + xmlFile.getAbsolutePath();
 		applicationContext = new FileSystemXmlApplicationContext(new String[] {configLocation}, false);
+		applicationContext.getEnvironment().getPropertySources().addFirst(new LocalPropertiesPropertySource());
 		applicationContext.setAllowBeanDefinitionOverriding(false);
 		applicationContext.refresh();
 	}

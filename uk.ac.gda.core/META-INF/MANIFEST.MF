@@ -190,6 +190,7 @@ Bundle-Vendor: Diamond Light Source
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: javax.jms,
  org.apache.commons.collections.map,
+ org.apache.commons.logging,
  org.eclipse.core.runtime;version="3.4.0",
  org.osgi.framework;version="1.7.0",
  org.slf4j;version="[1.7.2,2.0.0)"

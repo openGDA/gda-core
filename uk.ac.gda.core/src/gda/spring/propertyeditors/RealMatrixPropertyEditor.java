@@ -27,7 +27,7 @@ import org.apache.commons.math.linear.RealMatrix;
 
 /**
  * A {@link PropertyEditor} for matrices. Strings must be in the format
- * <code>{{1,2,3},{4,5,6},{7,8,9}}</code>.
+ * <code>{{1,2,3},{4,5,6},{7,8,9}}</code> or <code>{{1;2;3};{4;5;6};{7;8;9}}</code>.
  */
 public class RealMatrixPropertyEditor extends PropertyEditorSupport {
 
