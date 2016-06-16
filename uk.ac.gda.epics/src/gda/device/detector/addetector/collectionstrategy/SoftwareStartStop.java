@@ -21,8 +21,6 @@ package gda.device.detector.addetector.collectionstrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.scan.ScanInformation;
-
 /**
  * This Collection strategy can be used where the acquisition must be started during collectData() and stopped during
  * completeCollection().
@@ -51,15 +49,6 @@ public class SoftwareStartStop extends AbstractADCollectionStrategy {
 	public void collectData() throws Exception {
 		logger.trace("collectData() called, restoreAcquireState={}", restoreAcquireState);
 		getAdBase().startAcquiring();
-	}
-
-	@Override
-	protected void rawPrepareForCollection(double collectionTime, int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
-		getAdBase().stopAcquiring();
-		configureAcquireAndPeriodTimes(collectionTime);
-		if (numberImagesPerCollection > 0)
-			getAdBase().setNumImages(numberImagesPerCollection);
-		super.rawPrepareForCollection(collectionTime, numberImagesPerCollection, scanInfo);
 	}
 
 	@Override
