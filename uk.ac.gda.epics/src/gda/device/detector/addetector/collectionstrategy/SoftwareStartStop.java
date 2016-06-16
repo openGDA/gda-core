@@ -31,6 +31,9 @@ import org.slf4j.LoggerFactory;
  * This strategy does not set the Image Mode, so should be wrapped with an ImageModeDecorator as appropriate (use
  * {@link SingleImageModeDecorator} for the equivalent of the old SimpleAcquire or SingleExposureStandard).
  *
+ * This strategy does not set the acquire time, so should be wrapped with a {@link ConfigureAcquireTimeDecorator} to behave
+ * like the old SimpleAcquire or SingleExposureStandard collection strategies.
+ *
  * Note, this collection strategy ignores the now deprecated NXCollectionStrategyPlugin.configureAcquireAndPeriodTimes method,
  * so support for AbstractADTriggeringStrategy properties such as accumulation Mode and readoutTime will have to be implemented
  * by decorators.
