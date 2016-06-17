@@ -24,6 +24,7 @@ import static org.junit.Assert.assertNull;
 
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
+import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.GridModel;
 import org.eclipse.scanning.api.scan.process.IPreprocessor;
 import org.eclipse.scanning.server.servlet.ScanServlet;
@@ -76,7 +77,7 @@ public class PreprocessorPluginTest {
 		GridModel gridModel = new GridModel();
 		gridModel.setFastAxisName("stage_x");
 		gridModel.setSlowAxisName("stage_y");
-		scanRequest.setModels(gridModel);
+		scanRequest.setCompoundModel(new CompoundModel(gridModel));
 
 		ScanBean scanBean = new ScanBean();
 		scanBean.setName("PreprocessorPluginTest scan");

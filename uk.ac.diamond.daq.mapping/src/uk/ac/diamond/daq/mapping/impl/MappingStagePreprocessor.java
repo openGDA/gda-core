@@ -18,9 +18,13 @@
 
 package uk.ac.diamond.daq.mapping.impl;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.models.AbstractBoundingBoxModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
+import org.eclipse.scanning.api.points.models.ScanRegion;
 import org.eclipse.scanning.api.scan.process.IPreprocessor;
 import org.eclipse.scanning.api.scan.process.ProcessingException;
 
@@ -67,13 +71,21 @@ public class MappingStagePreprocessor implements IPreprocessor, Findable {
 	@Override
 	public <T> ScanRequest<T> preprocess(ScanRequest<T> req) throws ProcessingException {
 
-		for (IScanPathModel model : req.getModels()) {
+		for (IScanPathModel model : req.getCompoundModel().getModels()) {
 			if (model instanceof AbstractBoundingBoxModel) {
 				AbstractBoundingBoxModel boxModel = (AbstractBoundingBoxModel) model;
 				boxModel.setFastAxisName(activeFastScanAxis);
 				boxModel.setSlowAxisName(activeSlowScanAxis);
 			}
 		}
+
+		// Tom's new design for malcolm requires each region to declare the correct
+		// axes it acts over.
+		List<String> axisNames = Arrays.asList(activeFastScanAxis, activeSlowScanAxis);
+		for (ScanRegion<?> region : req.getCompoundModel().getRegions()) {
+			region.setScannables(axisNames);
+		}
+
 
 		return req;
 	}

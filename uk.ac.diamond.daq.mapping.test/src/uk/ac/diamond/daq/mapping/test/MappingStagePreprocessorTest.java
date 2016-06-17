@@ -22,6 +22,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
 import org.eclipse.scanning.api.event.scan.ScanRequest;
+import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.GridModel;
 import org.junit.After;
 import org.junit.Before;
@@ -54,14 +55,13 @@ public class MappingStagePreprocessorTest {
 		GridModel gridModel = new GridModel();
 		gridModel.setFastAxisName("stage_x");
 		gridModel.setSlowAxisName("stage_y");
-		scanRequest.setModels(gridModel);
+		scanRequest.setCompoundModel(new CompoundModel(gridModel));
 
 		ScanRequest<?> expectedScanRequest = new ScanRequest<>();
 		GridModel expectedModel = new GridModel();
 		expectedModel.setFastAxisName(CONFIGURED_FAST_AXIS_NAME);
 		expectedModel.setSlowAxisName(CONFIGURED_SLOW_AXIS_NAME);
-		expectedModel.setUniqueKey(gridModel.getUniqueKey()); // to make the models equal except for axis names
-		expectedScanRequest.setModels(expectedModel);
+		expectedScanRequest.setCompoundModel(new CompoundModel(expectedModel));
 
 		// Before preprocessing the scan requests should be different
 		assertNotEquals(expectedScanRequest, scanRequest);
