@@ -636,8 +636,26 @@ public class ScannableNexusWrapperTest {
 		Set<String> metadataScannableNames = scanModel.getMetadataScannables().stream().map(
 				ms -> ms.getName()).collect(Collectors.toSet());
 
+		Set<String> expectedMetadataScannableNames = new HashSet<>(legacyMetadataScannables);
+		Set<String> scannableNamesToCheck = new HashSet<>(expectedMetadataScannableNames);
+		do {
+			Set<String> addedScannableNames = new HashSet<>();
+			for (String metadataScannableName : scannableNamesToCheck) {
+				Collection<String> reqdScannableNames = locationMap.get(metadataScannableName).getPrerequisiteScannableNames();
+				if (reqdScannableNames != null && !reqdScannableNames.isEmpty()) {
+					for (String reqdScannableName : reqdScannableNames) {
+						if (!expectedMetadataScannableNames.contains(reqdScannableName)) {
+							expectedMetadataScannableNames.add(reqdScannableName);
+							addedScannableNames.add(reqdScannableName);
+						}
+					}
+				}
+			}
+			scannableNamesToCheck = addedScannableNames;
+		} while (!scannableNamesToCheck.isEmpty());
+
 		// check the metadata scannables specified in the legacy spring config are present
-		for (String legacyMetadataScannableName : legacyMetadataScannables) {
+		for (String legacyMetadataScannableName : expectedMetadataScannableNames) {
 			assertTrue(legacyMetadataScannableName, metadataScannableNames.contains(legacyMetadataScannableName));
 		}
 
