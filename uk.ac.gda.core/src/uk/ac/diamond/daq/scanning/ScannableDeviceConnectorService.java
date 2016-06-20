@@ -112,7 +112,7 @@ public class ScannableDeviceConnectorService implements IDeviceConnectorService 
 		// if not, see if we can find it using the Finder mechanism
 		Scannable scannable = null;
 		Finder finder = Finder.getInstance();
-		Findable found = finder.find(name);
+		Findable found = finder.findNoWarn(name);
 		if (found instanceof Scannable) {
 			scannable = (Scannable) found;
 		}
