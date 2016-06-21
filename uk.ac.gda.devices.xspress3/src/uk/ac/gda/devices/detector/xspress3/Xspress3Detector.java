@@ -47,7 +47,6 @@ import uk.ac.gda.util.beans.xml.XMLHelpers;
  * By passive I mean that the Xspress3 is an externally triggered system and this class does not cover how the triggers are generated. This class sets up the
  * Xspress3 time frames and reads out the data.
  *
- * @see uk.ac.gda.devices.detector.xspress#Xspress3System
  * @author rjw82
  */
 public class Xspress3Detector extends DetectorBase implements Xspress3 {
@@ -266,7 +265,6 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 
 		// read out FFs from sca5
 		Double[][] FFs_sca5 = controller.readoutDTCorrectedSCA1(firstFrame, lastFrame, firstChannelToRead, finalChannelToRead);
-		Double[][] FFs_sca6 = controller.readoutDTCorrectedSCA2(firstFrame, lastFrame, firstChannelToRead, finalChannelToRead);
 		double[][] FFs = new double[numFramesRead][numberOfChannelsToRead];
 		for (int frame = 0; frame < numFramesRead; frame++) {
 			for (int channel = 0; channel < numberOfChannelsToRead; channel++) {
@@ -434,7 +432,6 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 	/**
 	 * @param time
 	 *            - milliseconds
-	 * @return
 	 * @throws DeviceException
 	 */
 	@Override
@@ -449,7 +446,6 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 	/**
 	 * @param time
 	 *            - milliseconds
-	 * @return
 	 * @throws DeviceException
 	 */
 	@Override
@@ -690,7 +686,6 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 	 * be no need to put MCA data in different files and Nexus nodes.
 	 *
 	 * @param rowNumber
-	 * @return
 	 */
 	public static String getNameOfRowSubNode(int rowNumber) {
 		return "mcas_row_" + String.format("%04d", rowNumber);
