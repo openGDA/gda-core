@@ -169,6 +169,16 @@ if [[ "$ARGS_IN" != *" start"* ]]; then
 		$(kill "$RUNNING_SERVER_PID")
 		sleep 10
 	fi
+	# this should also have got rid of the Log, Channel and Name Server, but just in case:
+	SERVER_PIDS=$(ps -ef | grep [D]gda.deploytype | awk '{ print $2 }')
+	if [[ -n "$SERVER_PIDS" ]]; then
+		pid_array=($SERVER_PIDS)
+		for pid in "${pid_array[@]}"
+		do
+			$(kill "$pid")
+		done
+	fi
+
 	if [[ "$ARGS_IN" == *"stop"* ]]; then
 		exit 0
 	fi
