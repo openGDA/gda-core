@@ -37,8 +37,7 @@ public enum ConfigurationDefaults {
 	// Default values not subject to overriding
 	EMPTY(""),
 	DEPLOY_TYPE("1"),
-	MAX_PERM_SIZE("1024m"),
-	JAVA_OPTS("-Dgda.deploytype=1 -XX:MaxPermSize=1024m"),
+	JAVA_OPTS("-Dgda.deploytype=1"),
 	EXPECTED_P2_PROFILE("GDA-server"),
 	INI_FILE_PROFILE_PROPERTY("eclipse.p2.profile"),
 	INI_FILE_INSTALL_AREA_PROPERTY("osgi.install.area"),
