@@ -19,14 +19,15 @@
 
 package gda.device.enumpositioner;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Vector;
+
 import gda.device.DeviceException;
 import gda.device.EditableEnumPositioner;
 import gda.device.EnumPositionerStatus;
 import gda.device.Scannable;
 import gda.device.scannable.ScannablePositionChangeEvent;
-
-import java.util.ArrayList;
-import java.util.Vector;
 
 /**
  * A dummy class implementing the EnumPositioner for testing.
@@ -61,9 +62,9 @@ public class DummyEnumPositioner extends EnumPositionerBase implements EditableE
 	}
 
 	/**
-	 * @return ArrayList<String> the positions this device can move to.
+	 * @return List<String> the positions this device can move to.
 	 */
-	public ArrayList<String> getPositionArrayList() {
+	public List<String> getPositionArrayList() {
 		ArrayList<String> array = new ArrayList<String>();
 
 		for (String position : positions) {
@@ -72,7 +73,7 @@ public class DummyEnumPositioner extends EnumPositionerBase implements EditableE
 		return array;
 	}
 
-	public void setPositions(ArrayList<String> positionsArray ) {
+	public void setPositions(List<String> positionsArray ) {
 		Vector<String> array = new Vector<String>();
 		for (String position : positionsArray) {
 			array.add(position);
