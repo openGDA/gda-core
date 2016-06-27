@@ -496,8 +496,8 @@ public class Logpanel extends Composite {
 	private void addEvent(ILoggingEvent loggingEvent) {
 		Level level = loggingEvent.getLevel();
 		levelCounts.put(level, levelCounts.get(level) + 1);
-		input.add(loggingEvent); // must run in UI thread
 		latestLoggingEvent = loggingEvent;
+		input.add(loggingEvent); // must run in UI thread
 	}
 
 	private void removeEvent(ILoggingEvent loggingEvent) {
