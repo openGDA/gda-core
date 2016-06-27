@@ -73,6 +73,7 @@ import ch.qos.logback.core.AppenderBase;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
+import com.google.common.base.Optional;
 import com.google.common.base.Splitter;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.ImmutableBiMap;
@@ -342,17 +343,21 @@ public class Logpanel extends Composite {
 
 	protected static boolean appendNewLineToLatest = true;
 
-	public String getLatestMessage() {
+	private Optional<String> getLatestMessage() {
 //		String latestMessage = layoutMessage(loggingEvents.get(loggingEvents.size()-1)).trim();
-		if (latestLoggingEvent == null) return "null";
+		if (latestLoggingEvent == null) return Optional.absent();
 		String latestMessage = layoutMessage(latestLoggingEvent).trim();
-		if (appendNewLineToLatest) return latestMessage + NEW_LINE;
-		return latestMessage;
+		if (appendNewLineToLatest) latestMessage = latestMessage + NEW_LINE;
+		return Optional.of(latestMessage);
 	}
 
-	public String getLatestMessageFirstLine() {
-		List<String> lines = newLineSplitter.splitToList(getLatestMessage());
-		return lines.get(0);
+	public Optional<String> getLatestMessageFirstLine() {
+		final Optional<String> latestMessage = getLatestMessage();
+		if (!latestMessage.isPresent()) {
+			return Optional.absent();
+		}
+		List<String> lines = newLineSplitter.splitToList(latestMessage.get());
+		return Optional.of(lines.get(0));
 	}
 
 

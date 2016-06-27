@@ -34,6 +34,8 @@ import org.eclipse.ui.handlers.IHandlerActivation;
 import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.part.ViewPart;
 
+import com.google.common.base.Optional;
+
 import uk.ac.gda.client.logpanel.commands.CopyToClipboardHandler;
 
 public class LogpanelView extends ViewPart {
@@ -69,8 +71,14 @@ public class LogpanelView extends ViewPart {
 		input.addListChangeListener(new IListChangeListener() {
 			@Override
 			public void handleListChange(ListChangeEvent event) {
-				if (!input.isEmpty()) statusLineManager.setMessage("Latest: " + logpanel.getLatestMessageFirstLine());
-				else statusLineManager.setMessage(defaultMessage);
+				String message = defaultMessage;
+				if (!input.isEmpty()) {
+					Optional<String> firstLineOfLatestMessage = logpanel.getLatestMessageFirstLine();
+					if (firstLineOfLatestMessage.isPresent()) {
+						message = "Latest: " + firstLineOfLatestMessage.get();
+					}
+				}
+				statusLineManager.setMessage(message);
 			}
 		});
 	}
