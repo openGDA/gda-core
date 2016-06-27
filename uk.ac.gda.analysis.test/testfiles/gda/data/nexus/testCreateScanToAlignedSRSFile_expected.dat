@@ -1,5 +1,5 @@
  &SRS
- SRSRUN=1,SRSDAT=200011,SRSTIM=000,
+ SRSRUN=1,SRSDAT=20000101,SRSTIM=000000,
  SRSSTN='null',SRSPRJ='null    ',SRSEXP='null    ',
  SRSTLE='                                                            ',
  SRSCN1='        ',SRSCN2='        ',SRSCN3='        ',
