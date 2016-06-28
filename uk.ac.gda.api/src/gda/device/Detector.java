@@ -85,8 +85,8 @@ public interface Detector extends Scannable {
 	 * getDataDimensions and getExtraNames.
 	 * <p> 
 	 * If {@link LocalProperties#GDA_SCAN_CONCURRENTSCAN_READOUT_CONCURRENTLY} is true then motors may be moved while the detector
-	 * readouts. The value returned <b>must</b> not be effected by any concurrent motor or shutter movements. See {@link #waitWhileBusy()
-	 * and (@link ConcurrentScan}. Readout must block until the detector is ready to respond quickly to {@link #collectData()} again.
+	 * readouts. The value returned <b>must</b> not be effected by any concurrent motor or shutter movements. See {@link #waitWhileBusy()}
+	 * and {@code ConcurrentScan}. Readout must block until the detector is ready to respond quickly to {@link #collectData()} again.
 	 * 
 	 * @return the data collected
 	 * @throws DeviceException
