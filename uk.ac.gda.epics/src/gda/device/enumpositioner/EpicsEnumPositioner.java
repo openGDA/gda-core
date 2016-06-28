@@ -18,6 +18,11 @@
 
 package gda.device.enumpositioner;
 
+import java.util.HashSet;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
 import gda.device.EnumPositioner;
 import gda.device.EnumPositionerStatus;
@@ -35,11 +40,6 @@ import gov.aps.jca.event.ConnectionEvent;
 import gov.aps.jca.event.ConnectionListener;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
-
-import java.util.HashSet;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Driver class for Epics Positioners
@@ -120,24 +120,10 @@ public class EpicsEnumPositioner extends EnumPositionerBase implements EnumPosit
 
 			// get the list of positions from the SELECT record and fill the
 			// positions attribute
-			String[] channelNames = new String[12];
-			channelNames[0] = "ZRST";
-			channelNames[1] = "ONST";
-			channelNames[2] = "TWST";
-			channelNames[3] = "THST";
-			channelNames[4] = "FRST";
-			channelNames[5] = "FVST";
-			channelNames[6] = "SXST";
-			channelNames[7] = "SVST";
-			channelNames[8] = "EIST";
-			channelNames[9] = "NIST";
-			channelNames[10] = "TEST";
-			channelNames[11] = "ELST";
-
 			// loop over the pv's in the record
 			for (int i = 0; i < 12; i++) {
 				try {
-					Channel thisStringChannel = controller.createChannel(pvBase + ":SELECT." + channelNames[i]);
+					Channel thisStringChannel = controller.createChannel(pvBase + ":SELECT." + EpicsEnumConstants.CHANNEL_NAMES[i]);
 					String positionName = controller.cagetString(thisStringChannel);
 					controller.destroy(thisStringChannel);
 

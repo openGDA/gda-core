@@ -18,14 +18,14 @@
 
 package gda.device.enumpositioner;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
 import gda.device.EditableEnumPositioner;
 import gda.factory.FactoryException;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Version of EpicsPositionerCallback which enables the GDA user to edit the names of the positions in the positioner.
@@ -34,16 +34,14 @@ public class EpicsEditablePositionerCallback extends EpicsPositionerCallback imp
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsEditablePositionerCallback.class);
 
-	final String[] epicsnamelist = { ".ZRST", ".ONST", ".TWST", ".THST", ".FRST", ".FVST", ".SXST", ".SVST", ".EIST",
-			".NIST", ".TEST", ".ELST", ".TVST", ".TTST", ".FTST", ".FFST" };
-	private String[] recordNames = new String[epicsnamelist.length];
-	private Channel[] namesChannels = new Channel[epicsnamelist.length];
+	private String[] recordNames = new String[EpicsEnumConstants.CHANNEL_NAMES.length];
+	private Channel[] namesChannels = new Channel[EpicsEnumConstants.CHANNEL_NAMES.length];
 
 	@Override
 	protected void setRecordNamesUsingBasePv(String recordName) {
 
-		for (int i = 0; i < epicsnamelist.length; i++) {
-			recordNames[i] = recordName + ":SELECT" + epicsnamelist[i];
+		for (int i = 0; i < EpicsEnumConstants.CHANNEL_NAMES.length; i++) {
+			recordNames[i] = recordName + ":SELECT." + EpicsEnumConstants.CHANNEL_NAMES[i];
 		}
 
 		super.setRecordNamesUsingBasePv(recordName);
@@ -53,7 +51,7 @@ public class EpicsEditablePositionerCallback extends EpicsPositionerCallback imp
 	@Override
 	protected void createChannelAccess() throws FactoryException {
 
-		for (int i = 0; i < epicsnamelist.length; i++) {
+		for (int i = 0; i < EpicsEnumConstants.CHANNEL_NAMES.length; i++) {
 			try {
 				namesChannels[i] = channelManager.createChannel(recordNames[i], false);
 			} catch (CAException e) {
