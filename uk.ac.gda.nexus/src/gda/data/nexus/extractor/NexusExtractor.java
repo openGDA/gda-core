@@ -154,7 +154,7 @@ final public class NexusExtractor implements INexusDataGetter {
 				throw new NexusException("Could not get data from lazy dataset", e);
 			}
 		} else {
-			n = new NexusGroupData(shape, l.elementClass());
+			n = new NexusGroupData(shape, l.getElementClass());
 			if (d.isString()) {
 				n.setMaxStringLength(d.getMaxStringLength());
 			}
