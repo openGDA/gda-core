@@ -344,7 +344,6 @@ public class Logpanel extends Composite {
 	protected static boolean appendNewLineToLatest = true;
 
 	private Optional<String> getLatestMessage() {
-//		String latestMessage = layoutMessage(loggingEvents.get(loggingEvents.size()-1)).trim();
 		if (latestLoggingEvent == null) return Optional.absent();
 		String latestMessage = layoutMessage(latestLoggingEvent).trim();
 		if (appendNewLineToLatest) latestMessage = latestMessage + NEW_LINE;
