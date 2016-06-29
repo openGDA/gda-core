@@ -18,6 +18,10 @@
 
 package gda.device.enumpositioner;
 
+import org.apache.commons.lang.ArrayUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
 import gda.device.EnumPositioner;
 import gda.device.EnumPositionerStatus;
@@ -27,10 +31,6 @@ import gda.epics.connection.EpicsController;
 import gov.aps.jca.Channel;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
-
-import org.apache.commons.lang.ArrayUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Control devices using the Epics Valve/Shutter template.
@@ -81,15 +81,9 @@ public class EpicsValve extends ValveBase implements EnumPositioner, MonitorList
 				// create required channel monitors
 				controller.setMonitor(currentStatusChnl, this, EpicsController.MonitorType.STS);
 
-				// fill the commands array
-				String[] channelNames = new String[3];
-				channelNames[0] = "ZRST";
-				channelNames[1] = "ONST";
-				channelNames[2] = "TWST";
-
 				// loop over the pv's in the record
 				for (int i = 0; i < 3; i++) {
-					Channel thisStringChannel = controller.createChannel(templateName + ":CON." + channelNames[i]);
+					Channel thisStringChannel = controller.createChannel(templateName + ":CON." + EpicsEnumConstants.CHANNEL_NAMES[i]);
 					String positionName = controller.cagetString(thisStringChannel);
 					thisStringChannel.destroy();
 

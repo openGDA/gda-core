@@ -18,8 +18,12 @@
 
 package gda.device.currentamplifier;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
 import gda.device.Scannable;
+import gda.device.enumpositioner.EpicsEnumConstants;
 import gda.device.scannable.ScannableBase;
 import gda.device.scannable.corba.impl.ScannableAdapter;
 import gda.device.scannable.corba.impl.ScannableImpl;
@@ -31,16 +35,12 @@ import gda.observable.IObserver;
 import gov.aps.jca.CAException;
 import gov.aps.jca.TimeoutException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 @CorbaAdapterClass(ScannableAdapter.class)
 @CorbaImplClass(ScannableImpl.class)
 public class EpicsCurrAmpGain extends ScannableBase implements Scannable, Findable, IObserver {
 
-	private Object pvName;
+	private String pvName;
 	private CAClient ca_client = new CAClient();
-	String[] epicsnamelist = {".ZRST", ".ONST", ".TWST", ".THST", ".FRST", ".FVST", ".SXST", ".SVST", ".EIST", ".NIST", ".TEST", ".ELST", ".TVST", ".TTST", ".FFST"};
 	private static final Logger logger = LoggerFactory.getLogger(EpicsCurrAmpGain.class);
 //	private boolean busy;
 
@@ -53,7 +53,7 @@ public class EpicsCurrAmpGain extends ScannableBase implements Scannable, Findab
 	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
 		try {
 //			busy=true;
-			ca_client.caput((String) pvName, Double.parseDouble(position.toString())-3);
+			ca_client.caput(pvName, Double.parseDouble(position.toString()) - 3);
 			notifyIObservers(this, "");
 //			busy=false;
 		} catch (Exception e) {
@@ -66,7 +66,7 @@ public class EpicsCurrAmpGain extends ScannableBase implements Scannable, Findab
 	@Override
 	public Object rawGetPosition() throws DeviceException {
 		try {
-			return int2str(Integer.parseInt(ca_client.caget((String) pvName)));
+			return int2str(Integer.parseInt(ca_client.caget(pvName)));
 		} catch (CAException e) {
 			logger.error("CAException", e);
 		} catch (TimeoutException e) {
@@ -80,10 +80,10 @@ public class EpicsCurrAmpGain extends ScannableBase implements Scannable, Findab
 	}
 
 	public String int2str(int num){
-		for(int i=0;i<epicsnamelist.length;i++){
+		for (int i = 0; i < EpicsEnumConstants.CHANNEL_NAMES.length; i++) {
 			if(num==i)
 				try {
-					String pv = (String)pvName+epicsnamelist[i];
+					String pv = String.format("%s.%s", pvName, EpicsEnumConstants.CHANNEL_NAMES[i]);
 					return ca_client.caget(pv);
 				} catch (CAException e) {
 					logger.error("CAException", e);
@@ -96,11 +96,11 @@ public class EpicsCurrAmpGain extends ScannableBase implements Scannable, Findab
 		return null;
 	}
 
-	public Object getPvName() {
+	public String getPvName() {
 		return pvName;
 	}
 
-	public void setPvName(Object pvName) {
+	public void setPvName(String pvName) {
 		this.pvName = pvName;
 	}
 
