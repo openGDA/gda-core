@@ -23,6 +23,7 @@ import java.util.Vector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.enumpositioner.EpicsEnumConstants;
 import gda.epics.connection.EpicsController;
 import gda.factory.Configurable;
 import gda.factory.FactoryException;
@@ -49,23 +50,9 @@ public class I05_1EntranceSlit implements EntranceSlitInformationProvider, Confi
 	public void configure() throws FactoryException {
 		epicsController = EpicsController.getInstance();
 		try {
-			String[] channelNames = new String[12];
-			channelNames[0] = "ZRST";
-			channelNames[1] = "ONST";
-			channelNames[2] = "TWST";
-			channelNames[3] = "THST";
-			channelNames[4] = "FRST";
-			channelNames[5] = "FVST";
-			channelNames[6] = "SXST";
-			channelNames[7] = "SVST";
-			channelNames[8] = "EIST";
-			channelNames[9] = "NIST";
-			channelNames[10] = "TEST";
-			channelNames[11] = "ELST";
-
 			// loop over the pv's in the record
 			for (int i = 0; i < 12; i++) {
-				Channel thisStringChannel = epicsController.createChannel(labelPV + "." + channelNames[i]);
+				Channel thisStringChannel = epicsController.createChannel(labelPV + "." + EpicsEnumConstants.CHANNEL_NAMES[i]);
 				String positionName = epicsController.cagetString(thisStringChannel);
 				epicsController.destroy(thisStringChannel);
 				positions.add(positionName);
