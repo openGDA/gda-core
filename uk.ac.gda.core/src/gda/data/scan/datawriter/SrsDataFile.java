@@ -167,9 +167,8 @@ public class SrsDataFile extends IncrementalFile {
 			} catch (Exception e) {
 				logger.error("Error getting fileNumber", e);
 			}
-			String line = " SRSRUN=" + fileNumber + ",SRSDAT=" + String.valueOf(year) + String.valueOf(month)
-					+ String.valueOf(day) + ",SRSTIM=" + String.valueOf(hour) + String.valueOf(minute)
-					+ String.valueOf(second) + ",\n";
+			String line = String.format(" SRSRUN=%d,SRSDAT=%04d%02d%02d,SRSTIM=%02d%02d%02d,\n",
+					fileNumber, year, month, day, hour, minute, second);
 
 			file.write(line);
 
