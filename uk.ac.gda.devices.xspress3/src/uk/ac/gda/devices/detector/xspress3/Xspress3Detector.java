@@ -103,13 +103,21 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 
 	@Override
 	public void atScanStart() throws DeviceException {
-		int lengthOfEachScanLine = calculateNumberOfFramesToCollect();
-		setNumberOfFramesToCollect(lengthOfEachScanLine);
+		setNumberOfFramesToCollectBasedOnCurrentlyRunningScan();
 		stop();
 		prepareFileWriting();
 	}
 
-	protected int calculateNumberOfFramesToCollect() {
+	private void setNumberOfFramesToCollectBasedOnCurrentlyRunningScan() throws DeviceException {
+		int lengthOfEachScanLine = getLengthOfEachScanLine();
+		// Length of -1 indicates a MultiRegionScan is running. Don't set the number of frames
+		// in this case; assume something else is setting this correctly
+		if (lengthOfEachScanLine != -1) {
+			setNumberOfFramesToCollect(lengthOfEachScanLine);
+		}
+	}
+
+	private int getLengthOfEachScanLine() {
 		ScanInformation currentscan = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation();
 		currentScanNumber = currentscan.getScanNumber();
 		int numDimensions = currentscan.getDimensions().length;
