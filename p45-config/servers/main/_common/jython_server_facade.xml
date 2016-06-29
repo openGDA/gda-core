@@ -30,7 +30,7 @@
 		</property>
 		<property name="gdaVarDirectory" value="${gda.var}" />
 		<property name="cacheDirectory" value="${gda.var}/jythonCache" />
-		<property name="remotePort" value="9999" />
+		<property name="remotePort" value="${gda.jython.socket}" />
 	</bean>
 
 	<bean id="terminallog_path_provider" class="gda.data.ObservablePathConstructor">
