@@ -7,70 +7,13 @@
 		<constructor-arg ref="command_server" />
 	</bean>
 
-
-<!-- 	<bean id="user_script_project" class="gda.jython.ScriptProject"> -->
-<!-- 		<constructor-arg index="0" value="${gda.config}/users/scripts" /> -->
-<!-- 		<constructor-arg index="1" value="Scripts: User" /> -->
-<!-- 		<constructor-arg index="2" type="gda.jython.ScriptProjectType" -->
-<!-- 			value="USER" /> -->
-<!-- 	</bean> -->
-
-<!-- 	<bean id="configuration_script_project" class="gda.jython.ScriptProject"> -->
-<!-- 		<constructor-arg index="0" value="${gda.config}/scripts" /> -->
-<!-- 		<constructor-arg index="1" value="Scripts: Config" /> -->
-<!-- 		<constructor-arg index="2" type="gda.jython.ScriptProjectType" -->
-<!-- 			value="CONFIG" /> -->
-<!-- 	</bean> -->
-
-<!-- 	<bean id="core_script_project" class="gda.jython.ScriptProject"> -->
-<!-- 		<constructor-arg index="0" -->
-<!-- 			value="${gda.install.git.loc}/gda-core.git/uk.ac.gda.core/scripts" /> -->
-<!-- 		<constructor-arg index="1" value="Scripts: Core" /> -->
-<!-- 		<constructor-arg index="2" type="gda.jython.ScriptProjectType" -->
-<!-- 			value="CORE" /> -->
-<!-- 	</bean> -->
-<!-- 	<bean id="epics_script_project" class="gda.jython.ScriptProject"> -->
-<!-- 		<constructor-arg index="0" -->
-<!-- 			value="${gda.install.git.loc}/gda-epics.git/uk.ac.gda.epics/scripts" /> -->
-<!-- 		<constructor-arg index="1" value="Scripts: Core" /> -->
-<!-- 		<constructor-arg index="2" type="gda.jython.ScriptProjectType" -->
-<!-- 			value="CORE" /> -->
-<!-- 	</bean> -->
-<!-- 	<bean id="scisoft_script_project" class="gda.jython.ScriptProject"> -->
-<!-- 		<constructor-arg index="0" -->
-<!-- 			value="${gda.install.git.loc}/scisoft-core.git/uk.ac.diamond.scisoft.python/src" /> -->
-<!-- 		<constructor-arg index="1" value="Scripts: Core" /> -->
-<!-- 		<constructor-arg index="2" type="gda.jython.ScriptProjectType" -->
-<!-- 			value="CORE" /> -->
-<!-- 	</bean> -->
-
-<!-- 	<bean id="script_paths" class="gda.jython.ScriptPaths"> -->
-<!-- 		<property name="projects"> -->
-<!-- 			<list> -->
-<!-- 				<ref local="user_script_project" /> -->
-<!-- 				<ref local="configuration_script_project" /> -->
-<!-- 				<ref local="core_script_project" /> -->
-<!-- 				<ref local="epics_script_project" /> -->
-<!-- 				<ref local="scisoft_script_project" /> -->
-<!-- 			</list> -->
-<!-- 		</property> -->
-<!-- 		<property name="startupScript" value="${gda.config}/scripts/localStation.py" /> -->
-<!-- 	</bean> -->
-
-<!-- 	<bean id="command_server" class="gda.jython.JythonServer"> -->
-<!-- 		<property name="jythonScriptPaths" ref="script_paths" /> -->
-<!-- 		<property name="gdaVarDirectory" value="${gda.var}" /> -->
-<!-- 		<property name="cacheDirectory" value="${gda.var}/jythonCache" /> -->
-<!-- 		<property name="remotePort" value="9999" /> -->
-<!-- 	</bean> -->
-
 	<bean id="command_server" class="gda.jython.JythonServer">
 		<property name="jythonScriptPaths">
 			<bean class="gda.jython.ScriptPaths">
 				<property name="projects">
 					<list>
 						<bean class="gda.jython.ScriptProject">
-							 <property name="path" value="${gda.config}/users/scripts" /> 
+							<property name="path" value="${gda.config}/users/scripts" />
 							<property name="name" value="Scripts: User" />
 							<property name="type" value="USER" />
 						</bean>
@@ -78,16 +21,6 @@
 							<property name="path" value="${gda.config}/scripts" />
 							<property name="name" value="Scripts: Config" />
 							<property name="type" value="CONFIG" />
-						</bean>
-						<bean class="gda.jython.ScriptProject">
-							<property name="path" value="${gda.install.git.loc}/gda-core.git/uk.ac.gda.core/scripts" />
-							<property name="name" value="Scripts: Core" />
-							<property name="type" value="CORE" />
-						</bean>
-						<bean class="gda.jython.ScriptProject">
-							<property name="path" value="${gda.install.git.loc}/gda-epics.git/uk.ac.gda.epics/scripts" />
-							<property name="name" value="Scripts: Epics" />
-							<property name="type" value="CORE" />
 						</bean>
 					</list>
 				</property>
@@ -101,8 +34,7 @@
 
 
 	<bean id="terminallog_path_provider" class="gda.data.ObservablePathConstructor">
-		<property name="template"
-			value="${gda.data}/gdaterminal.log" />
+		<property name="template" value="${gda.data}/gdaterminal.log" />
 		<property name="gdaMetadata" ref="GDAMetadata" />
 		<property name="local" value="true" />
 	</bean>
