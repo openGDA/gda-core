@@ -559,5 +559,17 @@
 			<bind-xml name="xspressSaveRawSpectrum" node="element" />
 		</field>
 	</class>
+
+	<class name="uk.ac.gda.beans.exafs.IonChambersBean">
+		<map-to xml="IonChambersBean" />
+		<field name="energy" type="double">
+			<bind-xml name="energy" node="element" />
+		</field>
+		<field name="ionChambers" type="uk.ac.gda.beans.exafs.IonChamberParameters"
+			collection="collection" set-method="addIonChamber" get-method="getIonChambers">
+			<bind-xml name="ionChambers" node="element" />
+		</field>
+	</class>
+
 </mapping>
-	
+

@@ -593,4 +593,15 @@
 		</xsd:complexType>
 	</xsd:element>
 
+	<xsd:element name="IonChambersBean">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="energy" type="xsd:double" maxOccurs="1"
+					minOccurs="1" />
+				<xsd:element name="ionChambers" type="ionChamberType"
+					maxOccurs="unbounded" minOccurs="0" />
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
 </xsd:schema>
