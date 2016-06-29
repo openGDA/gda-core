@@ -103,7 +103,7 @@ public class SectorIntegration extends ReductionDetectorBase {
 			uk.ac.diamond.scisoft.ncd.core.SectorIntegration sec = new uk.ac.diamond.scisoft.ncd.core.SectorIntegration();
 			sec.setROI(roi);
 			sec.setFast(true);
-			sec.setAreaData(ROIProfile.area(Arrays.copyOfRange(parentdata.getShape(),1,3), parentdata.getDtype(), mask, roi, true, true, true));
+			sec.setAreaData(ROIProfile.area(Arrays.copyOfRange(parentdata.getShape(),1,3), parentdata.getDType(), mask, roi, true, true, true));
 			Dataset[] mydata = sec.process(parentdata, frames, maskUsed);
 			myazdata = mydata[0];
 			myraddata = mydata[1];
