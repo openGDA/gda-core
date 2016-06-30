@@ -377,7 +377,7 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements EnumPo
 			}
 			if (statusPvIndicatesPositionOnly) {
 				// See GDA-5822 - wait for status positions field being initialised before calling getPosition().
-				while (statuspositions.size() < value) {
+				while (statuspositions.size() < value + 1) {
 					Sleep.sleep(100);
 				}
 				notifyIObservers(EpicsPneumaticCallback.this,
