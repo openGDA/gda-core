@@ -1,19 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<included>
+<configuration scan="true" scanPeriod="10 seconds" debug="true"> <!-- Add debug="true" in here to log logback configuration -->
 
-    <!-- The include statement in the following java.properties file is not read so you need to reference both -->
-    <property file="${gda.config}/properties/${gda.mode}/${gda.mode}_instance_java.properties" />
-    <property file="${gda.config}/properties/_common/common_instance_java.properties" />
+	<!-- Standard shared logging configuration used by the GDA server and client. This file is used by both live
+		and dummy logging configurations. In general we try and send all logging messages from the client and server
+		to the log server, which can then filter messages if necessary. The only reason to filter messages at this
+		point would be performance problems. See logServer.xml for examples of how to adjust the settings if necessary.  -->
 
-    <!-- include file is relative to the application directory -->
+	<!-- The include statement in the following java.properties file is not read so you need to reference both -->
+	<property file="${gda.config}/properties/${gda.mode}/${gda.mode}_instance_java.properties" />
+	<property file="${gda.config}/properties/_common/common_instance_java.properties" />
 
-    <!-- address where the messages from Object Servers send to - the LogServer-->
-    <appender name="SOCKET" class="ch.qos.logback.classic.net.SocketAppender">
-        <RemoteHost>${gda.logserver.host}</RemoteHost>
-        <Port>${gda.server.logging.port}</Port>
-        <ReconnectionDelay>10000</ReconnectionDelay>
-        <IncludeCallerData>true</IncludeCallerData>
-    </appender>
+	<!-- address where the messages from Object Servers send to - the LogServer -->
+	<appender name="SOCKET" class="ch.qos.logback.classic.net.SocketAppender">
+		<RemoteHost>${gda.logserver.host}</RemoteHost>
+		<Port>${gda.server.logging.port}</Port>
+		<ReconnectionDelay>10000</ReconnectionDelay>
+		<IncludeCallerData>true</IncludeCallerData>
+	</appender>
 
-</included>
+	<!-- Send all logging messages to the log server by default -->
+	<root>
+		<level value="ALL" />
+		<appender-ref ref="SOCKET" />
+	</root>
+
+</configuration>

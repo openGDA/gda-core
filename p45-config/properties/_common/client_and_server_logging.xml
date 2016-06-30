@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<included>
+<configuration scan="true" scanPeriod="10 seconds" debug="true"> <!-- Add debug="true" in here to log logback configuration -->
+
+	<!-- Standard shared logging configuration used by the GDA server and client. This file is used by both live
+		and dummy logging configurations. In general we try and send all logging messages from the client and server
+		to the log server, which can then filter messages if necessary. The only reason to filter messages at this
+		point would be performance problems. See logServer.xml for examples of how to adjust the settings if necessary.  -->
 
 	<!-- Include the standard set of properties files via the XML definition in dls-config -->
 	<include file="${gda.facility.dir}/logging/logging_properties.xml" />
@@ -13,9 +18,10 @@
 		<IncludeCallerData>true</IncludeCallerData>
 	</appender>
 
-	<logger name="org.eclipse.jetty" level="INFO" />
+	<!-- Send all logging messages to the log server by default -->
+	<root>
+		<level value="ALL" />
+		<appender-ref ref="SOCKET" />
+	</root>
 
-	<!-- Try to shut down Logback cleanly -->
-	<shutdownHook />
-
-</included>
+</configuration>

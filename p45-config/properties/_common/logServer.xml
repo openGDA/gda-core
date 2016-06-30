@@ -1,28 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<included>
+
+<configuration scan="true" scanPeriod="10 seconds" debug="true"> <!-- Add debug="true" in here to log logback configuration -->
+
+	<!-- Standard shared logging configuration for the GDA log server. This file is included by both live
+		and dummy logging configurations. -->
 
 	<!-- Include the standard set of properties files via the XML definition in dls-config -->
 	<include file="${gda.facility.dir}/logging/logging_properties.xml" />
 
-	<!-- The logServer.xml files define which messages are sent to the logging system appenders. -->
-	<!-- Levels: ALL TRACE DEBUG INFO WARN ERROR FATAL OFF -->
-
-	<appender name="ServerDebugFILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+	<appender name="LogFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<File>${gda.logs.dir}/gda_server.log</File>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 			<FileNamePattern>${gda.logs.dir}/gda_server.%d{yyyy-MM-dd}.log.gz</FileNamePattern>
 		</rollingPolicy>
 		<layout class="ch.qos.logback.classic.PatternLayout">
-			<pattern>%d %-5level ["logserver.xml"%property{HOSTNAME}/%property{GDA_SOURCE}/%property{JVMNAME}] %logger - %m%n%rEx</pattern>
+			<pattern>%d %-5level [%property{HOSTNAME}/%property{GDA_SOURCE}/%property{JVMNAME}] %logger - %m%n%rEx</pattern>
 		</layout>
 	</appender>
 
-	<appender name="LogServer" class="ch.qos.logback.classic.net.server.ServerSocketAppender">
+	<appender name="ServerSocket" class="ch.qos.logback.classic.net.server.ServerSocketAppender">
 		<port>${gda.logserver.out.port}</port>
 		<!-- 02/12/2014 KrisB - The Log Panel currently can't take a pattern option -->
+		<!-- Limits the messages sent to log panels to the default messages shown. 
+			If you want to see DEBUG or TRACE messages in the log panel, set level to 
+			DEBUG or ALL -->
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+			<level>INFO</level>
+		</filter>
 	</appender>
 
-	<!-- Try to shut down Logback cleanly -->
-	<shutdownHook />
+	<!-- The root appender. By default we log all messages, but the server socket appender filters some out to avoid
+		overloading the log panel. If the log file is recording too many events then the root logger level could be
+		adjusted, a filter added to the log file appender, or logging levels for specific packages or classes can be
+		set by additional named loggers. -->
+	<!-- Levels: ALL TRACE DEBUG INFO WARN ERROR FATAL OFF -->
+	<root>
+		<level value="ALL" />
+		<appender-ref ref="ServerSocket" /> <!-- For the log panel -->
+		<appender-ref ref="LogFile" />
+	</root>
 
-</included>
+	<!-- Jetty is very noisy at DEBUG level, filter those messages out -->
+	<logger name="org.eclipse.jetty" level="INFO" />
+
+	<!-- Also filter noisy GDA packages -->
+	<logger name="gda.device.corba.impl" level="INFO" />
+
+</configuration>
