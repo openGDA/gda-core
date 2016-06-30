@@ -15,7 +15,6 @@
 	<bean id="commandQueueProcessor" class="gda.commandqueue.FindableProcessorQueue">
 		<property name="queue" ref="commandQueue" />
 		<property name="startImmediately" value="true"/>
-		<property name="logFilePath" value="${gda.var}/commandQueueProcessor.log"/>		
 	</bean>
 	
 	<gda:rmi-export
