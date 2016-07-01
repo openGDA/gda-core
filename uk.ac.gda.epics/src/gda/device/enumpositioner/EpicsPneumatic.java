@@ -266,12 +266,12 @@ public class EpicsPneumatic extends EnumPositionerBase implements EnumPositioner
 	 * @see gda.device.enumpositioner.EnumPositionerBase#getPositions()
 	 */
 	@Override
-	public String[] getPositions() {
+	public String[] getPositions() throws DeviceException {
 		String[] positionLabels = new String[positions.size()];
 		try {
 			positionLabels = controller.cagetLabels(control);
 		} catch (Exception e) {
-			// ignore
+			throw new DeviceException(getName() + " exception in getPositions", e);
 		}
 		return positionLabels;
 	}
@@ -292,7 +292,7 @@ public class EpicsPneumatic extends EnumPositionerBase implements EnumPositioner
 	}
 
 	@Override
-	public void initializationCompleted() {
+	public void initializationCompleted() throws DeviceException {
 		String[] position = getPositions();
 		String[] statusposition = getStatusPositions();
 		for (int i = 0; i < position.length; i++) {
