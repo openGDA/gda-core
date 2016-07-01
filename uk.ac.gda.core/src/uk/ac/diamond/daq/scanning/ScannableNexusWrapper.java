@@ -8,7 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.dawnsci.analysis.api.dataset.Dtype;
+import org.eclipse.dawnsci.analysis.api.dataset.DType;
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyWriteableDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.SliceND;
@@ -280,7 +280,7 @@ class ScannableNexusWrapper<N extends NXobject> implements IScannable<Object>, I
 				// order of entries in that map corresponds to elements in getPositionArray, which
 				// does not include the demand value
 				demandValueDataset = createLazyWritableDataset(nexusObject, FIELD_NAME_VALUE_DEMAND,
-						Dtype.FLOAT64, 1, new int[] { 1 });
+						DType.FLOAT64, 1, new int[] { 1 });
 				nexusObject.setAttribute(FIELD_NAME_VALUE_DEMAND, ATTR_NAME_LOCAL_NAME,
 						getName() + "." + FIELD_NAME_VALUE_DEMAND);
 			}

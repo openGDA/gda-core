@@ -84,7 +84,7 @@ public class Hdf5HelperData {
 	}
 
 	private static long getH5DataType(Dataset ads) {
-		int dtype = ads.getDtype();
+		int dtype = ads.getDType();
 		switch (dtype) {
 		case Dataset.BOOL:
 			throw new IllegalArgumentException("BOOL not yet supported");

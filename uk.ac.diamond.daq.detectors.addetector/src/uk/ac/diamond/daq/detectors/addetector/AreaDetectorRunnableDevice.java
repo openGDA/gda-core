@@ -1,6 +1,6 @@
 package uk.ac.diamond.daq.detectors.addetector;
 
-import org.eclipse.dawnsci.analysis.api.dataset.Dtype;
+import org.eclipse.dawnsci.analysis.api.dataset.DType;
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyWriteableDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.SliceND;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
@@ -152,24 +152,24 @@ public class AreaDetectorRunnableDevice extends AbstractRunnableDevice<AreaDetec
 		switch (epicsType) {
 		// Unsigned could overflow signed so return one type bigger
 		case UINT8:
-			return Dtype.INT16;
+			return DType.INT16;
 		case UINT16:
-			return Dtype.INT32;
+			return DType.INT32;
 		case UINT32:
-			return Dtype.INT64;
+			return DType.INT64;
 		case INT8:
-			return Dtype.INT8;
+			return DType.INT8;
 		case INT16:
-			return Dtype.INT16;
+			return DType.INT16;
 		case INT32:
-			return Dtype.INT32;
+			return DType.INT32;
 		case FLOAT32:
-			return Dtype.FLOAT32;
+			return DType.FLOAT32;
 		case FLOAT64:
-			return Dtype.FLOAT64;
+			return DType.FLOAT64;
 		default:
 			// If somehow not matched return float 64 to be safe (e.g. new values added to enum)
-			return Dtype.FLOAT64;
+			return DType.FLOAT64;
 		}
 	}
 

@@ -755,7 +755,7 @@ public class ScannableNexusWrapperTest {
 			assertArrayEquals(new int[] { 1 }, shape);
 			Object expectedValue = attributeScannable.getScanMetadataAttribute(attrName);
 			assertEquals(AbstractDataset.getDTypeFromObject(expectedValue),
-					((Dataset) dataset).getDtype());
+					((Dataset) dataset).getDType());
 			assertEquals(expectedValue, dataset.getObject(0));
 		}
 	}
