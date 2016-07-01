@@ -19,6 +19,12 @@
 
 package gda.device.detector.xspress;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.configuration.properties.LocalProperties;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
@@ -27,13 +33,6 @@ import gda.device.detector.xspress.xspress2data.Xspress2Controller;
 import gda.device.detector.xspress.xspress2data.Xspress2CurrentSettings;
 import gda.device.detector.xspress.xspress2data.Xspress2NexusTreeProvider;
 import gda.factory.FactoryException;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.vortex.DetectorDeadTimeElement;
 import uk.ac.gda.beans.vortex.DetectorElement;
@@ -876,6 +875,7 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 	public void applyConfigurationParameters(
 			FluorescenceDetectorParameters parameters) throws Exception {
 		settings.setXspressParameters((XspressParameters) parameters);
+		controller.configure();
 		// if mode override is set as a property ignore all the parameter file settings
 		if (modeOverride) {
 			settings.getParameters().setReadoutMode(READOUT_MCA);

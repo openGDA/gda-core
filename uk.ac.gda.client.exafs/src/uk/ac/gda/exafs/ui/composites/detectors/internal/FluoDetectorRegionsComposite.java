@@ -32,9 +32,11 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 
-import uk.ac.gda.beans.DetectorROI;
-
 import com.swtdesigner.SWTResourceManager;
+
+import uk.ac.gda.beans.DetectorROI;
+import uk.ac.gda.beans.xspress.XspressDetector;
+import uk.ac.gda.common.rcp.util.GridUtils;
 
 public class FluoDetectorRegionsComposite extends Composite {
 
@@ -43,6 +45,9 @@ public class FluoDetectorRegionsComposite extends Composite {
 	private BooleanWrapper applyToAllCheckbox;
 	private VerticalListEditor regionList;
 	private FluoDetectorROIComposite detectorROIComposite;
+	private FluoDetectorWindowComposite detectorWindowComposite;
+	private Composite regionComposite;
+	private String readoutMode;
 
 	public FluoDetectorRegionsComposite(Composite parent, int style,
 			final FluoDetectorElementsComposite elementsComposite) {
@@ -86,6 +91,11 @@ public class FluoDetectorRegionsComposite extends Composite {
 		regionList.setVisible(true);
 		regionList.setEnabled(true);
 		detectorROIComposite.setVisible(true);
+
+		// Add controls to edit the scaler window values
+		detectorWindowComposite = new FluoDetectorWindowComposite( parent, SWT.NONE);
+		GridDataFactory.fillDefaults().span(2, 1).grab(true, false).applyTo(detectorWindowComposite);
+
 	}
 
 	/*
@@ -105,7 +115,10 @@ public class FluoDetectorRegionsComposite extends Composite {
 	}
 
 	public BooleanWrapper getApplyToAllCheckbox() {
-		return applyToAllCheckbox;
+		if ( getReadoutModeIsRoi() )
+			return applyToAllCheckbox;
+		else
+			return detectorWindowComposite.getApplyToAllCheckbox();
 	}
 
 	public ListEditor getRegionList() {
@@ -120,7 +133,43 @@ public class FluoDetectorRegionsComposite extends Composite {
 		return detectorROIComposite.getRoiStart();
 	}
 
+	public boolean getReadoutModeIsRoi() {
+		return XspressDetector.READOUT_ROIS.equals(readoutMode);
+	}
+
 	public NumberBox getRoiEnd() {
 		return detectorROIComposite.getRoiEnd();
 	}
+
+	public NumberBox getWindowStart() {
+		return detectorWindowComposite.getWindowStart();
+	}
+
+	public NumberBox getWindowEnd() {
+		return detectorWindowComposite.getWindowEnd();
+	}
+
+	/**
+	 * Hide/show ROI and scaler window gui elements as appropriate for given readout mode.
+	 * @param readoutMode
+	 */
+	public void updateControlVisibility(String readoutMode) {
+		this.readoutMode = readoutMode;
+		boolean showRoiControls, showWindowControls;
+		if ( readoutMode.equals( XspressDetector.READOUT_ROIS ) ) {
+			showRoiControls = true; showWindowControls = false;
+		} else {
+			showRoiControls = false; showWindowControls = true;
+		}
+
+		GridUtils.startMultiLayout(getParent());
+		try {
+			GridUtils.setVisibleAndLayout(this, showRoiControls);
+			GridUtils.setVisibleAndLayout(detectorWindowComposite, showWindowControls);
+		} finally {
+			GridUtils.endMultiLayout();
+		}
+		applyToAllCheckbox.setVisible(true);
+	}
+
 }
