@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration scan="true" scanPeriod="10 seconds" debug="true"> <!-- Add debug="true" in here to log logback configuration -->
+
+	<!-- Standard shared logging configuration for the GDA log server. -->
+
+	<!-- In general you should just use this default log server configuration. If you really need to customise your log
+		server setup you should copy this file as a template and keep the "include" line below. You will also need to
+		override the gda.logserver.xml property to point to your customised configuration file. -->
+
+	<!-- Include the standard properties files and appenders -->
+	<include file="${gda.core.dir}/properties/core_log_server.xml" />
+
+	<!-- The root appender. By default we log all messages, but the log panel appender filters some out to avoid
+		overloading the log panel. If the log file is recording too many events then there are three possible
+		solutions:
+			1. set individual logging levels for specific packages or classes (as done below)
+				NOTE: Before using the logging system to filter out messages from a noisy class, consider editing the
+				class itself to improve how it logs its activity.
+			2. adjust the root logger level
+			3. add a filter to the log file appender -->
+	<!-- Levels: ALL TRACE DEBUG INFO WARN ERROR FATAL OFF -->
+	<root>
+		<level value="ALL" />
+		<appender-ref ref="LogPanel" /> <!-- For the log panel -->
+		<appender-ref ref="LogFile" />
+	</root>
+
+	<!-- Jetty is very noisy at DEBUG level, filter those messages out -->
+	<logger name="org.eclipse.jetty" level="INFO" />
+
+	<!-- Also filter noisy GDA packages -->
+	<logger name="gda.device.corba.impl" level="INFO" />
+
+</configuration>

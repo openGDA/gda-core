@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<included>
+
+	<!-- This file should generally not be included directly. Include core_log_server.xml or
+		core_client_and_server_logging.xml in your configuration instead. -->
+
+	<!-- Include all standard property files because the log server does not follow "include" instructions -->
+	<!-- They are included in reverse order compared to the way LocalProperties reads them, because LocalProperties
+		keeps the first value set for a given property but Logback uses the last value -->
+	<!-- Missing files will cause Logback to produce ERROR messages but these can be safely ignored -->
+	<property file="${gda.core.dir}/properties/core_java.properties" />
+	<property file="${gda.facility.dir}/properties/_common/common_facility_java.properties" />
+	<property file="${gda.facility.dir}/properties/${gda.mode}/${gda.mode}_facility_java.properties" />
+	<property file="${gda.group.dir}/properties/_common/common_family_java.properties" />
+	<property file="${gda.group.dir}/properties/${gda.mode}/${gda.mode}_family_java.properties" />
+	<property file="${gda.config}/properties/_common/common_instance_java.properties" />
+	<property file="${gda.config}/properties/${gda.mode}/${gda.mode}_instance_java.properties" />
+
+</included>

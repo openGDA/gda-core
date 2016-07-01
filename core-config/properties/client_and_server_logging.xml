@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration scan="true" scanPeriod="10 seconds" debug="true"> <!-- Add debug="true" in here to log logback configuration -->
+
+	<!-- Standard shared logging configuration used by the GDA server and client. -->
+
+	<!-- In general you should just use this default logging configuration. If you really need to customise your
+		logging setup you should copy this file as a template and keep the "include" line below. You will also need to
+		override the gda.server.logging.xml property to point to your customised configuration file. -->
+
+	<!-- Include the standard properties files and appenders -->
+	<include file="${gda.core.dir}/properties/core_client_and_server_logging.xml" />
+
+	<!-- Send all logging messages to the log server by default. In general we try and send all logging messages from
+		the client and server to the log server, which can then filter messages if necessary. The only reason to filter
+		messages at this point would be performance problems - see log_server.xml for examples of how to adjust the
+		logging levels if necessary. NOTE: Before using the logging system to filter out messages from a noisy class,
+		consider editing the class itself to improve how it logs its activity. -->
+	<root>
+		<level value="ALL" />
+		<appender-ref ref="LogServer" />
+	</root>
+
+</configuration>
