@@ -20,6 +20,7 @@ package gda.exafs.mucal;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +40,53 @@ public class PressureCalculation {
 
 	private final static Logger logger = LoggerFactory.getLogger(PressureCalculation.class);
 
+	/** Run mucal code and return absorption coefficient for element of given atomic number at specified photon energy
+	 * Refactored from PressureCalculation.getPressure(...) function.
+	 *
+	 * @param atomicNumber
+	 * @param workingEnergyKev [keV]
+	 * @return Absorption coefficient [cm2/g]
+	 * @throws Exception
+	 * @since 23/6/2016
+	 */
+	public static double getAbsorptionCoeff( int atomicNumber, double workingEnergyKev ) throws Exception {
+
+		if (!OSUtils.isLinuxOS())
+			throw new Exception("PressureCalculation currently only runs on linux.");
+		// If removing the isLinuxOS restriction, also remove it from DetectorParametersTest.java in plugin uk.ac.gda.client.exafs.test
+		if (LocalProperties.getConfigDir()==null)
+			throw new Exception("The 'gda.config' variable must be set and your configuration must have the 'bin/mucal.bin' file - see the I20 config.");
+
+		String mucalExecutablePath  = LocalProperties.getConfigDir()+"/bin/mucal.bin";
+
+		if (!(new File(mucalExecutablePath)).exists()) {
+			String missingMucalMessage = "Could not find mucal code in expected location : "+mucalExecutablePath;
+			logger.warn(missingMucalMessage);
+			throw new Exception(missingMucalMessage);
+		}
+
+		String [] inputs = new String[]{ String.valueOf(workingEnergyKev), String.valueOf(atomicNumber) };
+		logger.debug("Running mucal :  atomic number = "+atomicNumber+" , working energy = "+workingEnergyKev+" keV ");
+
+		OSCommandRunner osRunner = new OSCommandRunner(Arrays.asList(new String[]{mucalExecutablePath}), true, inputs, null);
+
+		// When error there is only one line.
+		List<String> commandOutput = osRunner.getOutputLines();
+		if (commandOutput == null || !(commandOutput.size()>=13)) {
+			logger.warn("The mucal code did not run correctly.");
+		}
+		if (osRunner.exception!=null)
+			throw osRunner.exception;
+
+		String gasAbLine = commandOutput.get(12).trim();
+
+		double muA = Double.parseDouble(gasAbLine.split("\\s+")[2]);
+		logger.debug("mucal absorption coefficient = "+muA+" cm2/g");
+
+		return muA;
+	}
 	/**
+	 * Run mucal code and return gas pressure for given set of IonChamberParameters
 	 *
 	 * @param bean
 	 * @return the pressure calculated, null if the software mucal is not available.
@@ -48,60 +95,43 @@ public class PressureCalculation {
 	public static PressureBean getPressure(final IonChamberParameters bean) throws Exception {
 		if(!bean.isUseGasProperties())
 			throw new Exception("Gas parameters are not available to calculate pressure");
-		if (!OSUtils.isLinuxOS())
-			throw new Exception("PressureCalculation currently only runs on linux.");
-		// If removing the isLinuxOS restriction, also remove it from DetectorParametersTest.java in plugin uk.ac.gda.client.exafs.test
-		if (LocalProperties.getConfigDir()==null)
-			throw new Exception("The 'gda.config' variable must be set and your configuration must have the 'bin/mucal.bin' file - see the I20 config.");
 
 		PressureBean ret = new PressureBean();
 
-		// First run mucal to get the absorption.
-		String mucal  = LocalProperties.getConfigDir()+"/bin/mucal.bin";
-		if (!(new File(mucal)).exists())
-			return null;
-
-		String [] inputs = new String[]{getWorkingEnergyInKev(bean), getGasAtomicNumber(bean)};
-		OSCommandRunner osRunner = new OSCommandRunner(Arrays.asList(new String[]{mucal}), true, inputs, null);
-
-		// When error there is only one line.
-		if (osRunner.getOutputLines() == null || !(osRunner.getOutputLines().size()>=13)) {
-			logger.warn("The mucal code did not run on this operating system. Cannot validate pressure values from bean.");
-			return ret;
-		}
-		String gasAbLine = osRunner.getOutputLines().get(12);
-
-		double muA = Double.parseDouble(gasAbLine.split("    ")[1]);
-
-		if (osRunner.exception!=null) throw osRunner.exception;
-		logger.debug("The gas absorption is '"+muA+"'.");
+		double muA = getAbsorptionCoeff( getGasAtomicNumber(bean), getWorkingEnergyInKev(bean) );
 
 		String symbol = bean.getGasType();
-		double ABS    = 1-(bean.getPercentAbsorption())/100d;
-		double t      = bean.getIonChamberLength();
+		double transmission    = 1-(bean.getPercentAbsorption())/100d;
+		double chamberLength      = bean.getIonChamberLength(); // chamber length [cm]
 		double pA = Double.NaN;
 		double pB = Double.NaN;
 
 		String[] errorMessageText = null;
 		if ("He".equals(symbol)) {
-			pA = -1d*Math.log(ABS)/(muA*t);
+			pA = -1d*Math.log(transmission)/(muA*chamberLength);
 			errorMessageText = checkPressure(pA, muA, "He");
 			if (pA<0)
 				pA = 0;
 			ret.setPressure(pA);
+			logger.debug("Pressure : "+bean.getGasType()+" = "+pA+" bar" );
+
 		} else {
-			inputs    = new String[]{getWorkingEnergyInKev(bean), getHeliumAtomicNumber()};
-			osRunner  = new OSCommandRunner(Arrays.asList(new String[]{mucal}), true, inputs, null);
-			if (osRunner.exception!=null)
-				throw osRunner.exception;
-			gasAbLine = osRunner.getOutputLines().get(12);
 
 			double muB = muA;
-			muA = Double.parseDouble(gasAbLine.split("    ")[1]);
-			double pT  = bean.getTotalPressure();
-			double muT = -1*Math.log(ABS)/t;
+			muA = getAbsorptionCoeff( getHeliumAtomicNumber(), getWorkingEnergyInKev(bean) );
+			double muT = -1*Math.log(transmission)/chamberLength; // total absorption coeff required to get user specified transmission
+			double pT  = bean.getTotalPressure(); // total pressure in ion chamber (bars)
 
-			pB = (muT- (muA*pT)) / (muB - muA);
+			/* Calculate density of specified gas (rhoB), from total absorption and density (muT, rhoT) and absorption coeff for each gas (muA, muB) :
+			 	mu = absorption coefficient [cm2/g], rho = mass density [g/cm3]:
+			 		 		muT*rhoT	= muA*rhoA + muB*rhoB
+			 		sub. for rhoA using : rhoA = rhoT - rhoB (i.e. total mass density) :
+				 						= muA*(rhoT-rhoB) + muB*rhoB
+						rhoT*(muT- muA)	= rhoB*(muB - muA)
+		 		->				   rhoB	= rhoT*(muT - muA)/ (muB - muA)
+			*/
+
+			pB = pT*(muT - muA)/(muB - muA);
 			pA = pT-pB;
 
 			if (Math.abs(muB-muA)<Double.parseDouble("1e-7"))
@@ -116,6 +146,8 @@ public class PressureCalculation {
 			if (pB<0)
 				pB = 0;
 			ret.setPressure(pB);
+
+			logger.debug("Pressures : "+bean.getGasType()+" = "+pB+" bar, He = "+pA+" bar" );
 		}
 
 		if (errorMessageText!=null) {
@@ -142,18 +174,18 @@ public class PressureCalculation {
 		return null;
 	}
 
-	private static String getWorkingEnergyInKev(final IonChamberParameters bean) {
+	private static double getWorkingEnergyInKev(final IonChamberParameters bean) {
 		final Double value = bean.getWorkingEnergy();
-		return ""+(value/1000.0d);
+		return (value/1000.0d);
 	}
 
-	private static String getGasAtomicNumber(final IonChamberParameters bean) {
+	private static int getGasAtomicNumber(final IonChamberParameters bean) {
 		final String symbol = bean.getGasType();
-		return Element.getElement(symbol).getAtomicNumber()+"";
+		return Element.getElement(symbol).getAtomicNumber();
 	}
 
-	private static String getHeliumAtomicNumber() {
-		return Element.getElement("He").getAtomicNumber()+"";
+	private static int getHeliumAtomicNumber() {
+		return Element.getElement("He").getAtomicNumber();
 	}
 
 }

@@ -20,7 +20,6 @@ package uk.ac.gda.exafs.ui.ionchambers;
 
 import java.io.File;
 
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IWorkbenchPart;
@@ -29,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
+import uk.ac.gda.beans.exafs.IonChambersBean;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 public class IonChambersView extends ViewPart {
@@ -47,11 +47,11 @@ public class IonChambersView extends ViewPart {
 		@Override
 		public void partDeactivated(IWorkbenchPart part) {
 			if(part instanceof IonChambersView){
-			try {
-				bean.setLog(ionChamber.getLog().getText());
-				XMLHelpers.writeToXML(IonChamberBean.mappingURL, bean, path);
-			} catch (Exception e) {
-			}
+				try {
+					XMLHelpers.writeToXML(IonChambersBean.mappingURL, bean, path);
+				} catch (Exception e) {
+					logger.error("Problem writing settings to xml file "+path+" : "+e.getMessage() );
+				}
 			}
 		}
 		@Override
@@ -66,10 +66,10 @@ public class IonChambersView extends ViewPart {
 		path = LocalProperties.getConfigDir() + File.separator+ "templates" + File.separator+ "ionChambers.xml";
         try {
 			bean = (IonChambersBean) XMLHelpers.createFromXML(IonChambersBean.mappingURL, IonChambersBean.class, IonChambersBean.schemaURL, path);
-		} catch (Exception e) {
+        } catch (Exception e) {
 			logger.error("Could not load xml " + path + " into bean", e);
 		}
-		ionChamber = new IonChamber(parent, SWT.NONE, false, bean);
+		ionChamber = new IonChamber(parent, bean);
 		getSite().getPage().addPartListener(partListener);
 	}
 

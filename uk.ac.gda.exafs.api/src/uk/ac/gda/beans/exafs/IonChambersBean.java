@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.exafs.ui.ionchambers;
+package uk.ac.gda.beans.exafs;
 
 import java.io.Serializable;
 import java.net.URL;
@@ -24,30 +24,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class IonChambersBean implements Serializable {
-	static public final URL mappingURL = IonChambersBean.class.getResource("ionChamberMapping.xml");
-	static public final URL schemaURL = IonChambersBean.class.getResource("ionChamberMapping.xsd");
-	private String log;
+	static public final URL mappingURL = DetectorParameters.class.getResource("ExafsParameterMapping.xml");
+	static public final URL schemaURL = DetectorParameters.class.getResource("ExafsParameterMapping.xsd");
+
 	private double energy;
-	private List<IonChamberBean> ionChambers;
+	private List<IonChamberParameters> ionChambers;
 
 	public IonChambersBean(){
-		log="";
 		energy=0;
-		ionChambers = new ArrayList<IonChamberBean>(50);
+		ionChambers = new ArrayList<IonChamberParameters>();
 	}
 
 	public void clear(){
-		log="";
 		energy=0;
 		ionChambers.clear();
-	}
-
-	public String getLog() {
-		return log;
-	}
-
-	public void setLog(String log) {
-		this.log = log;
 	}
 
 	public double getEnergy() {
@@ -58,15 +48,15 @@ public class IonChambersBean implements Serializable {
 		this.energy = energy;
 	}
 
-	public List<IonChamberBean> getIonChambers() {
+	public List<IonChamberParameters> getIonChambers() {
 		return ionChambers;
 	}
 
-	public void setIonChambers(List<IonChamberBean> ionChambers) {
+	public void setIonChambers(List<IonChamberParameters> ionChambers) {
 		this.ionChambers = ionChambers;
 	}
 
-	public void addIonChamber(IonChamberBean ionChamber) {
+	public void addIonChamber(IonChamberParameters ionChamber) {
 		ionChambers.add(ionChamber);
 	}
 
