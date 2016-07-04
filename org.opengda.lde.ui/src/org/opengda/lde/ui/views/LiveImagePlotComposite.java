@@ -18,25 +18,12 @@
 
 package org.opengda.lde.ui.views;
 
-import gda.device.DeviceException;
-import gda.epics.connection.EpicsChannelManager;
-import gda.epics.connection.EpicsController.MonitorType;
-import gda.epics.connection.InitializationListener;
-import gov.aps.jca.CAException;
-import gov.aps.jca.Channel;
-import gov.aps.jca.TimeoutException;
-import gov.aps.jca.dbr.DBR;
-import gov.aps.jca.dbr.DBR_Double;
-import gov.aps.jca.dbr.DBR_Int;
-import gov.aps.jca.event.MonitorEvent;
-import gov.aps.jca.event.MonitorListener;
-
 import java.util.Arrays;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlotType;
 import org.eclipse.dawnsci.plotting.api.PlottingFactory;
@@ -51,6 +38,19 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.DeviceException;
+import gda.epics.connection.EpicsChannelManager;
+import gda.epics.connection.EpicsController.MonitorType;
+import gda.epics.connection.InitializationListener;
+import gov.aps.jca.CAException;
+import gov.aps.jca.Channel;
+import gov.aps.jca.TimeoutException;
+import gov.aps.jca.dbr.DBR;
+import gov.aps.jca.dbr.DBR_Double;
+import gov.aps.jca.dbr.DBR_Int;
+import gov.aps.jca.event.MonitorEvent;
+import gov.aps.jca.event.MonitorListener;
+
 /**
  * Monitor and plotting live image data from the electron analyser.
  */
@@ -64,18 +64,18 @@ public class LiveImagePlotComposite extends Composite implements InitializationL
 	private String arrayEnablePV;
 	private String xSizePV;
 	private String ySizePV;
-	
+
 	private EpicsChannelManager controller;
 	private int xDimension;
 	private int yDimension;
 	private IPlottingSystem plottingSystem;
-	
+
 	private String plotName;
 
 	private ImageDataListener dataListener;
 	private XSizeListener xSizeListener;
 	private YSizeListener ySizeListener;
-	
+
 	@SuppressWarnings("unused")
 	private Channel dataChannel;
 	@SuppressWarnings("unused")
@@ -234,7 +234,7 @@ public class LiveImagePlotComposite extends Composite implements InitializationL
 			}
 			double[] values = Arrays.copyOf(value, arraysize);
 //			logger.warn("image size = {}", values.length);
-			final Dataset ds = new DoubleDataset(values, dims);
+			final Dataset ds = DatasetFactory.createFromObject(values, dims);
 			ds.setName("Intensity");
 			plottingSystem.clear();
 			plottingSystem.createPlot2D(ds, null, monitor);
@@ -292,7 +292,7 @@ public class LiveImagePlotComposite extends Composite implements InitializationL
 
 	public void setArrayEnablePV(String arrayEnablePV) {
 		this.arrayEnablePV=arrayEnablePV;
-		
+
 	}
 
 	public String getxSizePV() {
