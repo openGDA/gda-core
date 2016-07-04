@@ -18,11 +18,12 @@
 
 package gda.device.detector.mythen.tasks;
 
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
+import org.springframework.beans.factory.InitializingBean;
+
 import gda.analysis.Plotter;
 import gda.device.detector.mythen.data.MythenProcessedDataset;
-
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
-import org.springframework.beans.factory.InitializingBean;
 
 /**
  * An {@link AtPointEndTask} which plots the last frame in each scan.
@@ -30,39 +31,39 @@ import org.springframework.beans.factory.InitializingBean;
 public class PlotLastPointTask implements AtPointEndTask, InitializingBean {
 
 	private String panelName;
-	
+
 	public void setPanelName(String panelName) {
 		this.panelName = panelName;
 	}
-	
+
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		if (panelName == null) {
 			throw new IllegalStateException("You have not specified which panel the data should be plotted in");
 		}
 	}
-	
+
 	@Override
 	public void run(String filename, MythenProcessedDataset processedData) {
 		double[] angles = processedData.getAngleArray();
 		double[] counts = processedData.getCountArray();
-		
-		DoubleDataset channelsDataset = new DoubleDataset(angles);
+
+		Dataset channelsDataset = DatasetFactory.createFromObject(angles);
 		channelsDataset.setName("angle");
-		DoubleDataset countsDataset = new DoubleDataset(counts);
+		Dataset countsDataset = DatasetFactory.createFromObject(counts);
 		countsDataset.setName(filename);
-		
+
 		Plotter.plot(panelName, channelsDataset, countsDataset);
 	}
-	
+
 	@Override
 	public void run(String filename, MythenProcessedDataset processedData, boolean clearFirst) {
 		double[] angles = processedData.getAngleArray();
 		double[] counts = processedData.getCountArray();
 
-		DoubleDataset channelsDataset = new DoubleDataset(angles);
+		Dataset channelsDataset = DatasetFactory.createFromObject(angles);
 		channelsDataset.setName("angle");
-		DoubleDataset countsDataset = new DoubleDataset(counts);
+		Dataset countsDataset = DatasetFactory.createFromObject(counts);
 		countsDataset.setName(filename);
 		if (clearFirst) {
 			Plotter.plot(panelName, channelsDataset, countsDataset);

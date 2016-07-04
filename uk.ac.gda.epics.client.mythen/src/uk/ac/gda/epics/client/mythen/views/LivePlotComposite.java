@@ -28,7 +28,7 @@ import java.util.concurrent.TimeoutException;
 import org.apache.commons.io.FilenameUtils;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlotType;
 import org.eclipse.dawnsci.plotting.api.PlottingFactory;
@@ -59,9 +59,9 @@ import uk.ac.gda.devices.mythen.visualisation.event.PlotDataFileEvent;
 
 /**
  * Live plot composite for plotting detector data from the data file collected by a server collection process.
- * An instance of this class must be add as an observer of the server process, e.g. a detector that produces 
+ * An instance of this class must be add as an observer of the server process, e.g. a detector that produces
  * the data file and handle the plot of data from the data file on notification from the server.
- * 
+ *
  * It may also <b>OPTIONAL</b> be wired up with an instance of {@link EpicsDetectorRunableWithProgress}
  * to display detector acquiring progress on the status bar using {@link IProgressService} interface.
  */
@@ -79,19 +79,19 @@ public class LivePlotComposite extends Composite implements IObserver {
 												// CORBArise this class.
 	private IPlottingSystem plottingSystem;
 	private ExecutorService executor;
-	
+
 	private EpicsDetectorProgressMonitor progressMonitor;
 	private EpicsDoubleDataListener exposureTimeListener;
 	private EpicsDoubleDataListener timeRemainingListener;
 	private EpicsByteArrayAsStringDataListener messageListener;
-	private Scannable stopScannable; 
+	private Scannable stopScannable;
 	private String taskName;
 
 	public LivePlotComposite(IWorkbenchPart part, Composite parent, int style) throws Exception {
 		super(parent, style);
 		this.workbenchpart=part;
 		this.setBackground(ColorConstants.white);
-		
+
 		GridLayout gridLayout = new GridLayout ();
 		gridLayout.marginWidth = 0;
 		gridLayout.marginHeight = 0;
@@ -99,7 +99,7 @@ public class LivePlotComposite extends Composite implements IObserver {
 		gridLayout.verticalSpacing = 0;
 		this.setLayout (gridLayout);
 
-		
+
 		Composite plotComposite = new Composite(this, SWT.None);
 		GridData data = new GridData (SWT.FILL, SWT.FILL, true, true);
 		plotComposite.setLayoutData(data);
@@ -112,7 +112,7 @@ public class LivePlotComposite extends Composite implements IObserver {
 		plottingSystem.getSelectedXAxis().setFormatPattern("###.###");
 		plottingSystem.setShowLegend(true);
 		plottingSystem.getSelectedXAxis().setRange(getxAxisMin(), getxAxisMax());
-		
+
 		Composite progressComposite=new Composite(this, SWT.None);
 		data = new GridData (SWT.FILL, SWT.CENTER, true, false);
 		progressComposite.setLayoutData(data);
@@ -128,7 +128,7 @@ public class LivePlotComposite extends Composite implements IObserver {
 			// optional file name observing
 			eventAdmin = Finder.getInstance().find(getEventAdminName());
 			if (eventAdmin != null) {
-				eventAdmin.addIObserver(this); // observe server mythen detector task processes 
+				eventAdmin.addIObserver(this); // observe server mythen detector task processes
 				logger.debug("Data filename observer added via script controller {}", getEventAdminName());
 				executor=Executors.newFixedThreadPool(1);
 			} else {
@@ -163,7 +163,7 @@ public class LivePlotComposite extends Composite implements IObserver {
 			} catch (InterruptedException | TimeoutException e) {
 				logger.error("Unable to plot data", e);
 				throw new RuntimeException("Unable to plot data from data file.", e);
-			} 
+			}
 		}
 		if (getStartListener()!=null) {
 			getStartListener().deleteIObserver(this);
@@ -208,9 +208,9 @@ public class LivePlotComposite extends Composite implements IObserver {
 			counts[i] = data[i][1];
 //			errors[i] = data[i][2];
 		}
-		DoubleDataset x = new DoubleDataset(angles);
-		DoubleDataset y = new DoubleDataset(counts);
-//		DoubleDataset error = new DoubleDataset(errors);
+		Dataset x = DatasetFactory.createFromObject(angles);
+		Dataset y = DatasetFactory.createFromObject(counts);
+		// Dataset error = DatasetFactory.createFromObject(errors);
 //		y.setError(error);
 		x.setName("delta (deg)");
 		y.setName(FilenameUtils.getName(filename));
@@ -227,7 +227,7 @@ public class LivePlotComposite extends Composite implements IObserver {
 		IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 		page.activate(this.workbenchpart);
 	}
-	
+
 	public String getPlotName() {
 		return plotName;
 	}
@@ -258,7 +258,7 @@ public class LivePlotComposite extends Composite implements IObserver {
 			final String filename = ((PlotDataFileEvent) arg).getFilename();
 			final boolean clearFirst = ((PlotDataFileEvent) arg).isClearFirst();
 			Runnable command = new Runnable() {
-				
+
 				@Override
 				public void run() {
 					plotData(filename, clearFirst);

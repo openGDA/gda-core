@@ -24,6 +24,7 @@ import java.util.Vector;
 
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -267,7 +268,7 @@ public class MythenDataControlView extends ViewPart {
 		List<IDataset> datasets = new Vector<IDataset>();
 		for (int i = 0; i < data.length; i++) {
 			double[] dataSubset = column(data[i], 1);
-			IDataset dataset = new DoubleDataset(dataSubset);
+			IDataset dataset = DatasetFactory.createFromObject(dataSubset);
 			dataset.setName("data");
 			datasets.add(dataset);
 		}
@@ -280,7 +281,7 @@ public class MythenDataControlView extends ViewPart {
 		if (useChannel) {
 			// Build channel axis dataset
 			channels = column(data[0], 3);
-			channelsDataset = new DoubleDataset(channels);
+			channelsDataset = DatasetFactory.createFromObject(channels);
 			channelsDataset.setName("channel");
 		}
 
@@ -288,7 +289,7 @@ public class MythenDataControlView extends ViewPart {
 			// Build angle axis dataset
 
 			angles = column(data[0], 0);
-			anglesDataset = new DoubleDataset(angles);
+			anglesDataset = DatasetFactory.createFromObject(angles);
 			anglesDataset.setName("angle");
 		}
 
@@ -330,7 +331,7 @@ public class MythenDataControlView extends ViewPart {
 		data = MythenDataFileUtils.binMythenData(data, binSize);
 		data = MythenDataFileUtils.getDataSubset(data, minAngle, maxAngle);
 
-		IDataset dataset = new DoubleDataset(data.length, data[0].length);
+		IDataset dataset = DatasetFactory.zeros(DoubleDataset.class, data.length, data[0].length);
 
 		// Build DataSet
 		for (int i = 0; i < data.length; i++) {
@@ -349,7 +350,7 @@ public class MythenDataControlView extends ViewPart {
 
 		// Build angle axis dataset
 		double[] angles = column(data[0], 0);
-		IDataset anglesDataset = new DoubleDataset(angles);
+		IDataset anglesDataset = DatasetFactory.createFromObject(angles);
 		anglesDataset.setName("angle");
 
 		// Open plot view, if not already open

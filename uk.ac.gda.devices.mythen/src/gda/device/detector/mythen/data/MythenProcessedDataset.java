@@ -30,6 +30,7 @@ import java.util.Vector;
 
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 
 /**
@@ -41,17 +42,17 @@ public class MythenProcessedDataset {
 
 	/**
 	 * Creates a new processed dataset containing the supplied data.
-	 * 
+	 *
 	 * @param lines the processed data
 	 */
 	public MythenProcessedDataset(List<MythenProcessedData> lines) {
 		this.lines = lines;
 	}
-	
+
 	/**
 	 * Loads the specified Mythen {@code .dat} file. It is assumed that the
 	 * file contains three columns - angle, count and error.
-	 * 
+	 *
 	 * @param file the file to load
 	 */
 	public MythenProcessedDataset(File file) {
@@ -72,25 +73,25 @@ public class MythenProcessedDataset {
 					MythenProcessedData data = new MythenProcessedData(angle, count, error);
 					lines.add(data);
 				}
-				
+
 			}
 		} catch (IOException e) {
 			throw new RuntimeException("Couldn't read Mythen data file " + file, e);
 		}
 	}
-	
+
 	/**
 	 * Returns the lines in this dataset.
-	 * 
+	 *
 	 * @return the lines
 	 */
 	public List<MythenProcessedData> getLines() {
 		return Collections.unmodifiableList(lines);
 	}
-	
+
 	/**
 	 * Saves the data to the specified file.
-	 * 
+	 *
 	 * @param file the file to save the data to
 	 */
 	public void save(File file, boolean hasChannelInfo) {
@@ -101,7 +102,7 @@ public class MythenProcessedDataset {
 				for (MythenProcessedData line : lines) {
 					pw.printf("%f %d %d\n", line.getAngle(), line.getCount(), line.getError());
 				}
-				
+
 			} else {
 				pw.printf("%s\n", "&SRS");
 				pw.printf("%s\n", "&END");
@@ -115,11 +116,11 @@ public class MythenProcessedDataset {
 			throw new RuntimeException("Could not save data to " + file, ioe);
 		}
 	}
-	
+
 	/**
 	 * Converts this dataset to a 2D {@code double} array, where each row of the
 	 * array contains the angle and count.
-	 * 
+	 *
 	 * @return a {@code double} array
 	 */
 	public double[][] toDoubleArray() {
@@ -130,10 +131,10 @@ public class MythenProcessedDataset {
 		}
 		return data;
 	}
-	
+
 	/**
 	 * Returns a {@code double} array of the angles in this dataset.
-	 * 
+	 *
 	 * @return array of angles
 	 */
 	public double[] getAngleArray() {
@@ -144,10 +145,10 @@ public class MythenProcessedDataset {
 		}
 		return data;
 	}
-	
+
 	/**
 	 * Returns a {@code double} array of the counts in this dataset.
-	 * 
+	 *
 	 * @return array of counts
 	 */
 	public double[] getCountArray() {
@@ -158,39 +159,39 @@ public class MythenProcessedDataset {
 		}
 		return data;
 	}
-	
+
 	/**
 	 * Returns a {@link DoubleDataset} containing the angles in this dataset.
-	 * 
+	 *
 	 * @return a {@link DoubleDataset} of angles
 	 */
 	public DoubleDataset getAngleDataSet() {
-		DoubleDataset ds =  new DoubleDataset(getAngleArray());
+		DoubleDataset ds = DatasetFactory.createFromObject(DoubleDataset.class, getAngleArray());
 		ds.setName("angle");
 		return ds;
 	}
 	/**
 	 * Returns a {@link IDataset} containing the angles in this dataset.
-	 * 
+	 *
 	 * @return a {@link IDataset} of angles
 	 */
 	public Dataset getAngleDataset() {
-		DoubleDataset dataset = new DoubleDataset(getAngleArray());
+		Dataset dataset = DatasetFactory.createFromObject(getAngleArray());
 		dataset.setName("angle");
 		return dataset;
 	}
 	/**
 	 * Returns a {@link DoubleDataset} containing the counts in this dataset.
-	 * 
+	 *
 	 * @return a {@link DoubleDataset} of counts
 	 */
 	public DoubleDataset getCountDataSet() {
-		DoubleDataset ds =  new DoubleDataset(getCountArray());
+		DoubleDataset ds = DatasetFactory.createFromObject(DoubleDataset.class, getCountArray());
 		ds.setName("count");
 		return ds;
 	}
 	public Dataset getCountDataset() {
-		DoubleDataset dataset = new DoubleDataset(getCountArray());
+		Dataset dataset = DatasetFactory.createFromObject(getCountArray());
 		dataset.setName("counts");
 		return dataset;
 	}
