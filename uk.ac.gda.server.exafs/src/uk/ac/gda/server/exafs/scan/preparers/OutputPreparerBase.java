@@ -206,7 +206,7 @@ public abstract class OutputPreparerBase implements OutputPreparer, Initializing
 	}
 
 	private void signalParametersValidator(SignalParameters signal) {
-		if (signal.getExpression().equals(""))
+		if (signal.getExpression() == null || signal.getExpression().equals(""))
 			signal.setExpression(null);
 	}
 
