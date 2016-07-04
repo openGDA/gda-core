@@ -28,7 +28,7 @@ import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.analysis.dataset.impl.IntegerDataset;
 import org.eclipse.dawnsci.analysis.dataset.roi.EllipticalFitROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.PolygonalROI;
@@ -154,7 +154,7 @@ public class TomoPlotComposite extends Composite {
 
 		/**
 		 * Informs the listener when the profile line is moved to a certain location
-		 * 
+		 *
 		 * @param xVal
 		 *            - value to which the profile mouse has been moved to
 		 * @param intensity
@@ -164,7 +164,7 @@ public class TomoPlotComposite extends Composite {
 
 		/**
 		 * Informs the listener when the histogram roi is changed.
-		 * 
+		 *
 		 * @param minValue
 		 * @param maxValue
 		 * @param factor
@@ -181,7 +181,7 @@ public class TomoPlotComposite extends Composite {
 
 		/**
 		 * Informs listeners that the log button has been pressed.
-		 * 
+		 *
 		 * @param isSwitchedOn
 		 * @throws Exception
 		 */
@@ -495,9 +495,9 @@ public class TomoPlotComposite extends Composite {
 				final DoublePointList line2 = tiltPoints.getLine2();
 
 				if (line2 != null) {
-					DoubleDataset y3 = new DoubleDataset(line2.getYDoubleArray());
+					Dataset y3 = DatasetFactory.createFromObject(line2.getYDoubleArray());
 					y3.setName("Line1");
-					DoubleDataset x3 = new DoubleDataset(line2.getXDoubleArray());
+					Dataset x3 = DatasetFactory.createFromObject(line2.getXDoubleArray());
 					ArrayList<Dataset> singletonList = new ArrayList<Dataset>(1);
 					singletonList.add(y3);
 					plottingSystem.updatePlot1D(x3, singletonList, progress);
@@ -510,9 +510,9 @@ public class TomoPlotComposite extends Composite {
 						if (centers1Trace != null) {
 							plottingSystem.removeTrace(centers1Trace);
 						}
-						DoubleDataset centers1Yds = new DoubleDataset(centers1.getYDoubleArray());
+						Dataset centers1Yds = DatasetFactory.createFromObject(centers1.getYDoubleArray());
 						centers1Yds.setName("Before Alignment");
-						DoubleDataset centers1Xds = new DoubleDataset(centers1.getXDoubleArray());
+						Dataset centers1Xds = DatasetFactory.createFromObject(centers1.getXDoubleArray());
 						ArrayList<Dataset> dsList = new ArrayList<Dataset>();
 						dsList.add(centers1Yds);
 						centers1Yds.setName("Before Alignment");
@@ -530,9 +530,9 @@ public class TomoPlotComposite extends Composite {
 						centers2Trace = plottingSystem.createLineTrace("After Alignment");
 						centers2Trace.setUserTrace(true);
 						centers2Trace.setVisible(true);
-						DoubleDataset centers2Yds = new DoubleDataset(centers2.getYDoubleArray());
+						Dataset centers2Yds = DatasetFactory.createFromObject(centers2.getYDoubleArray());
 						centers2Yds.setName("After Alignment");
-						DoubleDataset centers2Xds = new DoubleDataset(centers2.getXDoubleArray());
+						Dataset centers2Xds = DatasetFactory.createFromObject(centers2.getXDoubleArray());
 						ArrayList<Dataset> dsList = new ArrayList<Dataset>();
 						dsList.add(centers2Yds);
 						List<ITrace> traces2 = plottingSystem.updatePlot1D(centers2Xds, dsList, progress);
@@ -596,7 +596,7 @@ public class TomoPlotComposite extends Composite {
 
 	/**
 	 * Updates the histogram data for stream
-	 * 
+	 *
 	 * @param histogramFromStats
 	 */
 	public void updateHistogramData(final double[] histogramFromStats) {
@@ -635,12 +635,12 @@ public class TomoPlotComposite extends Composite {
 						}
 					}
 
-					DoubleDataset ds = new DoubleDataset(subarray, 1024);
+					Dataset ds = DatasetFactory.createFromObject(subarray);
 
 					int min = 0;
 					ds.setName(HISTOGRAM_DATASET_lbl);
 
-					IntegerDataset xaxisRange = IntegerDataset.createRange(min, 65536, 64);
+					IntegerDataset xaxisRange = DatasetFactory.createRange(IntegerDataset.class, min, 65536, 64);
 					xaxisRange.setName(INTENSITIES_lbl);
 
 					if (histogramTrace == null) {
@@ -673,7 +673,7 @@ public class TomoPlotComposite extends Composite {
 
 	/**
 	 * Update histogram data for single.
-	 * 
+	 *
 	 * @param imageData
 	 */
 	public void updateHistogramData(final ImageData imageData) {
@@ -727,7 +727,7 @@ public class TomoPlotComposite extends Composite {
 
 					}
 
-					IDataset ds = new IntegerDataset(intensities, imgD.width, imgD.height);
+					IDataset ds = DatasetFactory.createFromObject(intensities, imgD.width, imgD.height);
 
 					int max = ds.max().intValue();
 					int min = ds.min().intValue();
@@ -748,12 +748,12 @@ public class TomoPlotComposite extends Composite {
 								}
 								count++;
 							}
-							histogramDs = new DoubleDataset(logData, shape);
+							histogramDs = DatasetFactory.createFromObject(logData);
 						}
 
 					}
 
-					IntegerDataset xaxisRange = IntegerDataset.createRange(min, max, 255);
+					IntegerDataset xaxisRange = DatasetFactory.createRange(IntegerDataset.class, min, max, 255);
 					xaxisRange.setName(INTENSITIES_lbl);
 
 					if (histogramTrace == null) {
@@ -779,7 +779,7 @@ public class TomoPlotComposite extends Composite {
 
 	/**
 	 * Removes other regions than the one provided.
-	 * 
+	 *
 	 * @param regionName
 	 */
 	private void removeOtherRegions(String... regionName) {
