@@ -26,7 +26,7 @@ import java.util.Vector;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -112,7 +112,7 @@ public class PVArrayPlugin extends NullNXPlugin {
 			Integer numElements = dataPointsPV.get();
 			logger.debug("Number of data points in the spectrum {}", numElements);
 			data = ArrayUtils.toPrimitive(pv.get(numElements));
-			ds = new DoubleDataset(data, new int[] {data.length});
+			ds = DatasetFactory.createFromObject(data);
 			logger.debug("Spectrum length: {}", data.length);
 			ds.setName(getName());
 		} catch (IOException e) {

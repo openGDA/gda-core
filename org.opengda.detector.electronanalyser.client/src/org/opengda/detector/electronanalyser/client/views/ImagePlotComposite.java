@@ -24,7 +24,7 @@ import java.util.Arrays;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.plotting.api.PlotType;
 import org.eclipse.dawnsci.plotting.api.PlottingFactory;
 import org.eclipse.draw2d.ColorConstants;
@@ -97,7 +97,7 @@ public class ImagePlotComposite extends EpicsArrayPlotComposite {
 				return;
 			}
 			double[] values = Arrays.copyOf(value, arraysize);
-			dataset = new DoubleDataset(values, dims);
+			dataset = DatasetFactory.createFromObject(values, dims);
 			dataset.setName("");
 			plottingSystem.createPlot2D(dataset, axes, monitor);
 			plottingSystem.setKeepAspect(false);
@@ -118,7 +118,7 @@ public class ImagePlotComposite extends EpicsArrayPlotComposite {
 	}
 
 	private Dataset createYAxis() {
-		DoubleDataset yAxis = new DoubleDataset(ydata, new int[] { ydata.length });
+		Dataset yAxis = DatasetFactory.createFromObject(ydata);
 		try {
 			if ("Transmission".equalsIgnoreCase(getAnalyser().getLensMode())) {
 				yAxis.setName("pixel");

@@ -24,8 +24,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.FloatDataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -127,21 +126,21 @@ class AnalyserLiveDataDispatcher implements MonitorListener, Configurable, Finda
 		if (arraysize < 1) return null;
 		logger.trace("about to get array for " + plotName);
 //		double[] value = (double[]) arrayChannel.get(arraysize).getValue();
-//		return new DoubleDataset(value, dims);
+		// return DatasetFactory.createFromObject(DoubleDataset.class, value, dims);
 		float[] array = epicsController.cagetFloatArray(arrayChannel, arraysize);
-		return new FloatDataset(array, dims);
+		return DatasetFactory.createFromObject(array, dims);
 	}
 
 	protected Dataset getXAxis() throws Exception {
 		double[] xdata = analyser.getEnergyAxis();
-		DoubleDataset xAxis = new DoubleDataset(xdata, new int[] { xdata.length });
+		Dataset xAxis = DatasetFactory.createFromObject(xdata);
 		xAxis.setName("energies (eV)");
 		return xAxis;
 	}
 
 	protected Dataset getYAxis() throws Exception {
 		double[] ydata = analyser.getAngleAxis();
-		DoubleDataset yAxis = new DoubleDataset(ydata, new int[] { ydata.length });
+		Dataset yAxis = DatasetFactory.createFromObject(ydata);
 		if ("Transmission".equalsIgnoreCase(analyser.getLensMode())) {
 			yAxis.setName("location (mm)");
 		} else

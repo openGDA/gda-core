@@ -3,7 +3,7 @@ package org.opengda.detector.electronanalyser.client.views;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.trace.ILineTrace;
 import org.eclipse.swt.widgets.Composite;
@@ -151,7 +151,7 @@ public class EpicsArrayPlotComposite extends Composite implements Initialization
 	}
 
 	private Dataset createXAxis() {
-		Dataset xAxis = new DoubleDataset(xdata, new int[] { xdata.length });
+		Dataset xAxis = DatasetFactory.createFromObject(xdata);
 		if (isDisplayBindingEnergy()) {
 			xAxis.setName("Binding Energies (eV)");
 		} else {

@@ -25,8 +25,8 @@ import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 import org.eclipse.dawnsci.plotting.api.PlotType;
 import org.eclipse.dawnsci.plotting.api.PlottingFactory;
 import org.eclipse.dawnsci.plotting.api.trace.ILineTrace;
@@ -209,7 +209,7 @@ public class SpectrumPlotComposite extends EpicsArrayPlotComposite {
 
 		ArrayList<Dataset> plotDataSets = new ArrayList<Dataset>();
 		double[] data = ArrayUtils.subarray(value, 0, xdata.length);
-		dataset = new DoubleDataset(data, new int[] { data.length });
+		dataset = DatasetFactory.createFromObject(data);
 		dataset.setName("Intensity (counts)");
 		plotDataSets.add(dataset);
 		final List<ITrace> profileLineTraces = plottingSystem.createPlot1D(xAxis, plotDataSets, monitor);

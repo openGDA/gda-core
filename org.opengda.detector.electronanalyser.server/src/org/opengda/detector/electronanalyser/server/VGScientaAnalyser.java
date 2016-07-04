@@ -18,6 +18,19 @@
 
 package org.opengda.detector.electronanalyser.server;
 
+import java.util.Arrays;
+
+import org.eclipse.dawnsci.analysis.api.dataset.ILazyWriteableDataset;
+import org.eclipse.dawnsci.analysis.api.dataset.SliceND;
+import org.eclipse.dawnsci.analysis.api.tree.DataNode;
+import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
+import org.eclipse.dawnsci.nexus.NexusFile;
+import org.eclipse.dawnsci.nexus.NexusUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
@@ -33,20 +46,6 @@ import gda.factory.corba.util.CorbaAdapterClass;
 import gda.factory.corba.util.CorbaImplClass;
 import gov.aps.jca.CAException;
 import gov.aps.jca.TimeoutException;
-
-import java.util.Arrays;
-
-import org.eclipse.dawnsci.analysis.api.dataset.ILazyWriteableDataset;
-import org.eclipse.dawnsci.analysis.api.dataset.SliceND;
-import org.eclipse.dawnsci.analysis.api.tree.DataNode;
-import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
-import org.eclipse.dawnsci.nexus.NexusFile;
-import org.eclipse.dawnsci.nexus.NexusUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @CorbaAdapterClass(DeviceAdapter.class)
 @CorbaImplClass(DeviceImpl.class)
@@ -417,7 +416,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 			NexusTreeNode spectrum_data_node=new NexusTreeNode("spectrum_data", NexusExtractor.SDSClassName, null,spectrum_data);
 			spectrum_data_node.setIsPointDependent(true);
 			regionNode.addChildNode(spectrum_data_node);
-			this.totalIntensity=(Double) new DoubleDataset(s).sum();
+			this.totalIntensity = (Double) DatasetFactory.createFromObject(s).sum();
 		} catch (Exception e) {
 			logger.error("Failed to get spectrum data from EPICS analyser. ",e);
 		}

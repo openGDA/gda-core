@@ -18,15 +18,6 @@
 
 package org.opengda.detector.electronanalyser.client.views;
 
-import gda.device.detector.areadetector.v17.ADBase;
-import gda.epics.connection.EpicsController.MonitorType;
-import gov.aps.jca.CAException;
-import gov.aps.jca.Channel;
-import gov.aps.jca.dbr.DBR;
-import gov.aps.jca.dbr.DBR_Double;
-import gov.aps.jca.event.MonitorEvent;
-import gov.aps.jca.event.MonitorListener;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -34,7 +25,7 @@ import java.util.List;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.plotting.api.PlotType;
 import org.eclipse.dawnsci.plotting.api.PlottingFactory;
 import org.eclipse.dawnsci.plotting.api.trace.ILineTrace;
@@ -56,6 +47,15 @@ import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.device.detector.areadetector.v17.ADBase;
+import gda.epics.connection.EpicsController.MonitorType;
+import gov.aps.jca.CAException;
+import gov.aps.jca.Channel;
+import gov.aps.jca.dbr.DBR;
+import gov.aps.jca.dbr.DBR_Double;
+import gov.aps.jca.event.MonitorEvent;
+import gov.aps.jca.event.MonitorListener;
 
 public class SlicesPlotComposite extends EpicsArrayPlotComposite {
 
@@ -226,7 +226,7 @@ public class SlicesPlotComposite extends EpicsArrayPlotComposite {
 				return;
 			}
 			double[] values = Arrays.copyOf(value, arraysize);
-			final Dataset ds = new DoubleDataset(values, dims);
+			final Dataset ds = DatasetFactory.createFromObject(values, dims);
 
 			ArrayList<Dataset> plotDataSets = new ArrayList<Dataset>();
 			if (selectedSlice>sliceControl.getMaximum()) selectedSlice=1;

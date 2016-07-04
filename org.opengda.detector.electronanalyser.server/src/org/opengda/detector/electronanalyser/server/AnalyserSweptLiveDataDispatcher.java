@@ -21,7 +21,7 @@ package org.opengda.detector.electronanalyser.server;
 import java.util.Arrays;
 
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,12 +88,12 @@ class AnalyserSweptLiveDataDispatcher implements MonitorListener, Configurable, 
 			int arraysize = dims[0]*dims[1];
 			if (arraysize < 1) return;
 			value = Arrays.copyOf(value, arraysize);
-			Dataset ds = new DoubleDataset(value, dims);
+			Dataset ds = DatasetFactory.createFromObject(value, dims);
 
 			double[] xdata = analyser.getEnergyAxis();
 			double[] ydata = analyser.getAngleAxis();
-			DoubleDataset xAxis = new DoubleDataset(xdata, new int[] { xdata.length });
-			DoubleDataset yAxis = new DoubleDataset(ydata, new int[] { ydata.length });
+			Dataset xAxis = DatasetFactory.createFromObject(xdata);
+			Dataset yAxis = DatasetFactory.createFromObject(ydata);
 			xAxis.setName("energies (eV)");
 			if ("Transmission".equalsIgnoreCase(analyser.getLensMode())) {
 				yAxis.setName("location (mm)");
