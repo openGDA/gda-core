@@ -19,6 +19,11 @@
 
 package gda.device.detector.mythen;
 
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.data.NumTracker;
 import gda.data.metadata.GDAMetadataProvider;
 import gda.data.metadata.Metadata;
@@ -31,12 +36,6 @@ import gda.device.detector.pilatus.TangoLimaDetector;
 import gda.factory.FactoryException;
 import gda.factory.corba.util.CorbaAdapterClass;
 import gda.factory.corba.util.CorbaImplClass;
-
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 
 /**
@@ -186,7 +185,7 @@ public class TangoMythenDetector extends TangoLimaDetector implements Runnable {
 		try {
 			double[] data = (double[])readLastImage();
 			int[] dims = getDataDimensions();
-			DoubleDataset ds = new DoubleDataset(data, dims);
+			Dataset ds = DatasetFactory.createFromObject(data, dims);
 			ds.setName("Mythen");
 			plotData(plotPanelName, ds);
 		} catch (Exception e) {

@@ -18,6 +18,10 @@
 
 package gda.device.lima.impl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+
 import fr.esrf.Tango.DevError;
 import fr.esrf.Tango.DevFailed;
 import fr.esrf.Tango.ErrSeverity;
@@ -30,10 +34,6 @@ import gda.device.lima.LimaCCD;
 import gda.device.lima.LimaFlip;
 import gda.device.lima.LimaROIInt;
 import gda.device.lima.LimaSavingHeaderDelimiter;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 
 public class LimaCCDImpl extends BaseImpl implements LimaCCD, InitializingBean {
 
@@ -784,11 +784,7 @@ public class LimaCCDImpl extends BaseImpl implements LimaCCD, InitializingBean {
 		argin.insert(imageNumber);
 		DeviceData argout = getTangoDeviceProxy().command_inout(COMMAND_GET_IMAGE, argin);
 		return argout.extractByteArray();
-		/*
-		 * int width = 516; int height = 516; int n = 0; short[] shortData = new short[width * height * 1]; for (int j =
-		 * 0; j < byteData.length; j += 2, n++) { shortData[n] = (short) (((byteData[j + 1] & 0xff) << 8) | (byteData[j]
-		 * & 0xff)); } return new ShortDataset(shortData, width, height);
-		 */}
+	}
 
 	@Override
 	public void closeShutterManual() throws DevFailed {
