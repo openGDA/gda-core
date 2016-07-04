@@ -20,9 +20,8 @@ package uk.ac.gda.exafs.ui.plot;
 
 import java.util.ArrayList;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.plotting.api.jreality.core.AxisMode;
 
 import gda.rcp.views.scan.AbstractCachedScanPlotView;
@@ -110,9 +109,7 @@ public class LnI0ItScanPlotView extends AbstractCachedScanPlotView {
 
 	@Override
 	protected IPlotData getY(IScanDataPoint... points) {
-		Double[] values = cachedY.toArray(new Double[]{});
-		double[] primitiveValues = ArrayUtils.toPrimitive(values, values.length);
-		Dataset yValues = new DoubleDataset(primitiveValues,primitiveValues.length);
+		Dataset yValues = DatasetFactory.createFromList(cachedY);
 		yValues.setName(getYAxisName());
 		return new DataSetPlotData(getYAxisName(), yValues);
 	}

@@ -18,6 +18,7 @@
 
 package uk.ac.gda.exafs.ui.views.scalersmonitor;
 
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlottingFactory;
@@ -249,7 +250,7 @@ public abstract class MonitorViewBase extends ViewPart implements Runnable, IPar
 	 * @return DoubleDataset
 	 */
 	protected DoubleDataset createFullRangeDataset(double maxValue) {
-		return new DoubleDataset(new double[] { 0, maxValue });
+		return DatasetFactory.createFromObject(DoubleDataset.class, new double[] { 0, maxValue });
 	}
 
 	public void setRunMonitoring(boolean runMonitoring) {

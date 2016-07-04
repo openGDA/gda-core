@@ -20,7 +20,6 @@ package uk.ac.gda.exafs.ui.views.scalersmonitor;
 
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 import org.eclipse.dawnsci.plotting.api.PlotType;
 import org.eclipse.dawnsci.plotting.api.axis.IAxis;
 import org.eclipse.dawnsci.plotting.api.trace.ILineTrace;
@@ -132,10 +131,10 @@ public class XmapMonitorView extends MonitorViewBase {
 			dts[element] = dts[element];
 		}
 
-		Dataset dsRates = new DoubleDataset(rates);
+		Dataset dsRates = DatasetFactory.createFromObject(rates);
 		dsRates.setName("Rates (Hz)");
 
-		Dataset dsDeadTime = new DoubleDataset(dts);
+		Dataset dsDeadTime = DatasetFactory.createFromObject(dts);
 		dsDeadTime.setName("Deadtime (%)");
 
 		Dataset x = DatasetFactory.createRange(numElements, Dataset.FLOAT32);

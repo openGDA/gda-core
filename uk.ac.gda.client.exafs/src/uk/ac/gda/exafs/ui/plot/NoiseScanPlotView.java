@@ -60,7 +60,7 @@ public class NoiseScanPlotView extends ExafsScanPlotView {
 			int windowSize = preferences.getInt(XafsPreferences.NOISE_WINDOW);
 			int polyOrder = preferences.getInt(XafsPreferences.NOISE_ORDER);
 			final Dataset medi = xafsFittingUtils.getPolynomialSmoothed(energy, lnI0It, windowSize, polyOrder);
-			final Dataset noise = (new DoubleDataset(lnI0It)).isubtract(medi);
+			final Dataset noise = lnI0It.copy(DoubleDataset.class).isubtract(medi);
 			noise.setName(getYAxisName());
 			return new DataSetPlotData(getYAxisName(), noise);
 		} catch (Exception e) {

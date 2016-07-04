@@ -18,12 +18,6 @@
 
 package uk.ac.gda.exafs.ui.detector;
 
-import gda.device.Detector;
-import gda.device.detector.FluorescentDetectorConfiguration;
-import gda.factory.Finder;
-import gda.jython.scriptcontroller.corba.impl.ScriptcontrollerAdapter;
-import gda.observable.IObserver;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -44,7 +38,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.dawnsci.plotting.api.jreality.util.PlotColorUtility;
 import org.eclipse.dawnsci.plotting.api.region.IROIListener;
@@ -80,6 +74,13 @@ import org.eclipse.ui.progress.IProgressService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.swtdesigner.SWTResourceManager;
+
+import gda.device.Detector;
+import gda.device.detector.FluorescentDetectorConfiguration;
+import gda.factory.Finder;
+import gda.jython.scriptcontroller.corba.impl.ScriptcontrollerAdapter;
+import gda.observable.IObserver;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.SashFormPlotComposite;
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.ElementCountsData;
@@ -95,8 +96,6 @@ import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 import uk.ac.gda.richbeans.editors.DirtyContainer;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 import uk.ac.gda.util.beans.BeansFactory;
-
-import com.swtdesigner.SWTResourceManager;
 
 /**
  * Class to contain plotting which some detector editors require.
@@ -826,14 +825,14 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 
 		final List<Dataset> ret = new ArrayList<Dataset>(7);
 		if (ielement < 0 || detectorData == null) {
-			DoubleDataset ds = new DoubleDataset(new double[] { 0d });
+			Dataset ds = DatasetFactory.createFromObject(new double[] { 0d });
 			ret.add(ds);
 			return ret;
 		}
 
 		final double[][] data = detectorData[ielement];
 		for (int i = 0; i < data.length; i++) {
-			DoubleDataset ds = new DoubleDataset(data[i]);
+			Dataset ds = DatasetFactory.createFromObject(data[i]);
 			ret.add(ds);
 		}
 		return ret;

@@ -18,13 +18,6 @@
 
 package uk.ac.gda.exafs.ui.detector.xspress;
 
-import gda.configuration.properties.LocalProperties;
-import gda.data.NumTracker;
-import gda.data.PathConstructor;
-import gda.device.DeviceException;
-import gda.factory.Finder;
-import gda.jython.accesscontrol.AccessDeniedException;
-
 import java.awt.Color;
 import java.io.BufferedReader;
 import java.io.File;
@@ -43,7 +36,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -74,6 +67,15 @@ import org.eclipse.swt.widgets.Listener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.swtdesigner.ResourceManager;
+import com.swtdesigner.SWTResourceManager;
+
+import gda.configuration.properties.LocalProperties;
+import gda.data.NumTracker;
+import gda.data.PathConstructor;
+import gda.device.DeviceException;
+import gda.factory.Finder;
+import gda.jython.accesscontrol.AccessDeniedException;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.SashFormPlotComposite;
 import uk.ac.gda.beans.ElementCountsData;
 import uk.ac.gda.beans.exafs.DetectorParameters;
@@ -96,9 +98,6 @@ import uk.ac.gda.exafs.ui.detector.IDetectorROICompositeFactory;
 import uk.ac.gda.exafs.ui.detector.XspressROIComposite;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 import uk.ac.gda.richbeans.editors.DirtyContainer;
-
-import com.swtdesigner.ResourceManager;
-import com.swtdesigner.SWTResourceManager;
 
 /**
  *
@@ -910,7 +909,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		final double[][] elementData = detectorData[ielement];
 		for (int resGrade = 0; resGrade < elementData.length; resGrade++) {
 			// must pass by value as we are going to do some maths on it!!!
-			Dataset d = new DoubleDataset(Arrays.copyOf(elementData[resGrade],elementData[resGrade].length));
+			Dataset d = DatasetFactory.createFromObject(Arrays.copyOf(elementData[resGrade],elementData[resGrade].length));
 			if (!ret.isEmpty()) {
 				final Dataset p = ret.get(resGrade - 1);
 				d.iadd(p);

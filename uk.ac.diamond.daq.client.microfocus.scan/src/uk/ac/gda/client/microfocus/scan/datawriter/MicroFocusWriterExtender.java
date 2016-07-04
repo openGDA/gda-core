@@ -18,17 +18,6 @@
 
 package uk.ac.gda.client.microfocus.scan.datawriter;
 
-import gda.data.nexus.extractor.NexusGroupData;
-import gda.data.scan.datawriter.DataWriterExtenderBase;
-import gda.data.scan.datawriter.IDataWriterExtender;
-import gda.device.Detector;
-import gda.device.DeviceException;
-import gda.device.detector.BufferedDetector;
-import gda.device.detector.NXDetectorData;
-import gda.device.detector.countertimer.TfgScaler;
-import gda.device.detector.xspress.Xspress2BufferedDetector;
-import gda.scan.IScanDataPoint;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -43,13 +32,22 @@ import java.util.Vector;
 import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.AbstractDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.data.nexus.extractor.NexusGroupData;
+import gda.data.scan.datawriter.DataWriterExtenderBase;
+import gda.data.scan.datawriter.IDataWriterExtender;
+import gda.device.Detector;
+import gda.device.DeviceException;
+import gda.device.detector.BufferedDetector;
+import gda.device.detector.NXDetectorData;
+import gda.device.detector.countertimer.TfgScaler;
+import gda.device.detector.xspress.Xspress2BufferedDetector;
+import gda.scan.IScanDataPoint;
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
@@ -525,7 +523,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 				} catch (Exception ignore) {
 					// absorb the exception here as if the MCA does not exist then it will probably be because the row
 					// has not completed so the MCA are not available yet.
-					slice = AbstractDataset.zeros(new int[] { 4096 }, Dataset.ARRAYINT64);
+					slice = DatasetFactory.zeros(new int[] { 4096 }, Dataset.ARRAYINT64);
 				}
 			}
 
@@ -551,7 +549,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 		this.setSelectedElement(selectedElement);
 		this.setSelectedChannel(detectorChannel);
 
-		DoubleDataset dataSetToDisplay = new DoubleDataset(numberOfYPoints, numberOfXPoints);
+		DoubleDataset dataSetToDisplay = DatasetFactory.zeros(DoubleDataset.class, numberOfYPoints, numberOfXPoints);
 		dataSetToDisplay.fill(Double.NaN);
 
 		// nothing selected yet

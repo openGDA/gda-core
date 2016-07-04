@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -237,12 +238,7 @@ public class MicroFocusNexusReader {
 
 	public void plotElement(String elementName, @SuppressWarnings("unused") String fileName) {
 		double[][] mapData = constructMappableData(elementName);
-		DoubleDataset plotSet = new DoubleDataset(mapData.length, mapData[0].length);
-		for (int iIndex = 0; iIndex < mapData.length; iIndex++){
-			for (int jIndex = 0; jIndex < mapData[0].length; iIndex++){
-				plotSet.set(mapData[iIndex][jIndex], iIndex, jIndex);
-			}
-		}
+		DoubleDataset plotSet = DatasetFactory.createFromObject(DoubleDataset.class, mapData);
 		try {
 			SDAPlotter.imagePlot(plottingWindowName, plotSet);
 		} catch (Exception e) {

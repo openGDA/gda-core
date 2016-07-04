@@ -18,14 +18,6 @@
 
 package uk.ac.gda.exafs.ui;
 
-import gda.configuration.properties.LocalProperties;
-import gda.exafs.scan.ExafsScanPointCreator;
-import gda.exafs.scan.ExafsScanPointCreatorException;
-import gda.exafs.scan.ExafsTimeEstimator;
-import gda.exafs.scan.XanesScanPointCreator;
-import gda.jython.JythonServerFacade;
-import gda.util.exafs.Element;
-
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.text.DateFormat;
@@ -42,7 +34,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.analysis.dataset.impl.IntegerDataset;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlotType;
@@ -77,6 +69,13 @@ import org.python.core.PyObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
+import gda.exafs.scan.ExafsScanPointCreator;
+import gda.exafs.scan.ExafsScanPointCreatorException;
+import gda.exafs.scan.ExafsTimeEstimator;
+import gda.exafs.scan.XanesScanPointCreator;
+import gda.jython.JythonServerFacade;
+import gda.util.exafs.Element;
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 import uk.ac.gda.beans.exafs.XanesScanParameters;
 import uk.ac.gda.beans.exafs.XasScanParameters;
@@ -567,8 +566,8 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 		}
 
 		public void createTrace() {
-			IntegerDataset x = IntegerDataset.createRange(5);
-			IntegerDataset y = IntegerDataset.createRange(5);
+			IntegerDataset x = DatasetFactory.createRange(IntegerDataset.class, 5);
+			IntegerDataset y = DatasetFactory.createRange(IntegerDataset.class, 5);
 			x.setName("Energy (eV)");
 			y.setName("\u0394E (eV)");
 			List<ITrace> traces = plottingsystem.createPlot1D(x, Arrays.asList(new Dataset[] { y }), null);
@@ -605,8 +604,8 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 					previousEnergy = energy;
 				}
 				y[0] = y[1];
-				final DoubleDataset xDataSet = new DoubleDataset(x, x.length);
-				final DoubleDataset yDataSet = new DoubleDataset(y, y.length);
+				final Dataset xDataSet = DatasetFactory.createFromObject(x);
+				final Dataset yDataSet = DatasetFactory.createFromObject(y);
 				xDataSet.setName("Energy (eV)");
 				yDataSet.setName("\u0394E (eV)");
 				Display.getDefault().syncExec(new Runnable() {

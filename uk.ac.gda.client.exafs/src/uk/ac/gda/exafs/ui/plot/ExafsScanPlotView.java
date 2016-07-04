@@ -20,9 +20,8 @@ package uk.ac.gda.exafs.ui.plot;
 
 import java.util.ArrayList;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
@@ -236,9 +235,7 @@ abstract class ExafsScanPlotView extends AbstractCachedScanPlotView {
 
 	@Override
 	protected IPlotData getX(IScanDataPoint... points) {
-		Double[] values = cachedX.toArray(new Double[]{});
-		double[] primitiveValues = ArrayUtils.toPrimitive(values, values.length);
-		Dataset xValues = new DoubleDataset(primitiveValues,primitiveValues.length);
+		Dataset xValues = DatasetFactory.createFromList(cachedX);
 		xValues.setName(getXAxisName());
 		return new DataSetPlotData(getXAxisName(), xValues);
 	}
