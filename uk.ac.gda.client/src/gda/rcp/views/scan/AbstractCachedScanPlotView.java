@@ -18,17 +18,16 @@
 
 package gda.rcp.views.scan;
 
-import gda.rcp.util.ScanDataPointEvent;
-import gda.scan.IScanDataPoint;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.ui.PlatformUI;
 
+import gda.rcp.util.ScanDataPointEvent;
+import gda.scan.IScanDataPoint;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.DataSetPlotData;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.IPlotData;
 
@@ -192,7 +191,7 @@ public abstract class AbstractCachedScanPlotView extends AbstractScanPlotView im
 
 		Double[] values = cachedX.toArray(new Double[]{});
 		double[] primitiveValues = ArrayUtils.toPrimitive(values, values.length);
-		Dataset xValues = new DoubleDataset(primitiveValues,primitiveValues.length);
+		Dataset xValues = DatasetFactory.createFromObject(primitiveValues);
 		xValues.setName(getXAxisName());
 		return new DataSetPlotData(getXAxisName(), xValues);
 	}

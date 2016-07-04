@@ -1,6 +1,6 @@
 from gdascripts.analysis.datasetprocessor.oned.CenFromSPEC import CenFromSPEC, interp
 
-from org.eclipse.dawnsci.analysis.dataset.impl import DoubleDataset
+from org.eclipse.dawnsci.analysis.dataset.impl import DatasetFactory
 
 
 import unittest
@@ -23,32 +23,32 @@ class TestCOM(unittest.TestCase):
 	
 	def setUp(self):
 		self.p = CenFromSPEC() # -> cen, height, width
-		self.x = DoubleDataset.array([10.,11.,12.,13.,14.,15.,16.,17.,18.,19.])
+		self.x = DatasetFactory.createFromObject([10.,11.,12.,13.,14.,15.,16.,17.,18.,19.])
 		self.l = [0, 10, 20, 30, 40]
 		
 	def test_process_ones(self):
-		y = DoubleDataset.array([0, 0, 1, 1.000000001, 1, 1, 1, 0, 0, 0])
+		y = DatasetFactory.createFromObject([0, 0, 1, 1.000000001, 1, 1, 1, 0, 0, 0])
 		cen, height, width = self.p._process(self.x, y)
 		self.assertAlmostEqual(cen, 14)
 		self.assertAlmostEqual(height, 1.000000001)
 		self.assertAlmostEqual(width, 5)
 
 	def test_process_ones_max_at_left_edge(self):
-		y = DoubleDataset.array([1.000000001, 1, 1, 0, 0, 0, 0, 0, 0, 0])
+		y = DatasetFactory.createFromObject([1.000000001, 1, 1, 0, 0, 0, 0, 0, 0, 0])
 		cen, height, width = self.p._process(self.x, y)
 		self.assertAlmostEqual(cen, 11)
 		self.assertAlmostEqual(height, 1.000000001)
 		self.assertAlmostEqual(width, 3)
 
 	def test_process_ones_max_at_right_edge(self):
-		y = DoubleDataset.array([0, 0, 0, 0, 0, 0, 0, 1, 1, 1.000000001])
+		y = DatasetFactory.createFromObject([0, 0, 0, 0, 0, 0, 0, 1, 1, 1.000000001])
 		cen, height, width = self.p._process(self.x, y)
 		self.assertAlmostEqual(cen, 18)
 		self.assertAlmostEqual(height, 1.000000001)
 		self.assertAlmostEqual(width, 3)
 
 	def test_process(self):
-		y = DoubleDataset.array([0, 0, 1, 1.000000001, 1, 1, 0, 1, 0, 0])
+		y = DatasetFactory.createFromObject([0, 0, 1, 1.000000001, 1, 1, 0, 1, 0, 0])
 		cen, height, width = self.p._process(self.x, y)
 		self.assertAlmostEqual(cen, 14)
 		self.assertAlmostEqual(height, 1.000000001)

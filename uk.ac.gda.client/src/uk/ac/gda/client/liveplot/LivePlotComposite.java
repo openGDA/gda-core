@@ -36,6 +36,7 @@ import java.util.Vector;
 import javax.swing.tree.TreePath;
 
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlotType;
@@ -406,8 +407,8 @@ public class LivePlotComposite extends Composite {
 						 * we do not want to unarchive the data is it is not visible so we make the system create a
 						 * dummy line and then change it to archive state by setting archivefilename
 						 */
-						int linenum = plotter.addData(scanIdentifier, dataFileName, stepIds, new DoubleDataset(1),
-							new DoubleDataset(1), xAxisHeader, yAxisHeader, false, false, axisSpec);
+						int linenum = plotter.addData(scanIdentifier, dataFileName, stepIds, DatasetFactory.zeros(DoubleDataset.class, 1),
+							DatasetFactory.zeros(DoubleDataset.class, 1), xAxisHeader, yAxisHeader, false, false, axisSpec);
 						plotView.getXYData(linenum).setArchiveFilename(scan.getArchiveFilename());//we need to set to archiveFilename in scan as currently equal to null
 						plotView.getXYData(linenum).setArchive(null);
 					}
@@ -1154,9 +1155,9 @@ class LiveData {
 					}
 				}
 			}
-			DoubleDataset dds = new DoubleDataset(ydata);
+			DoubleDataset dds = DatasetFactory.createFromObject(DoubleDataset.class, ydata);
 			dds.setName(name);
-			archive.setData(new AxisValues(xdata), new DoubleDataset(ydata));
+			archive.setData(new AxisValues(xdata), DatasetFactory.createFromObject(DoubleDataset.class, ydata));
 			number = archive.getxAxis().size();
 		}
 	}
@@ -1230,7 +1231,7 @@ class LiveData {
 		Color color = getLineColor(this.yLabel, which);
 		Plot1DAppearance appearance = new Plot1DAppearance(color,
 				LivePlotComposite.getStyle(which), LivePlotComposite.getLineWidth(), name);
-		archive = new LiveDataArchive(appearance, new DoubleDataset(1), new AxisValues());
+		archive = new LiveDataArchive(appearance, DatasetFactory.zeros(DoubleDataset.class, 1), new AxisValues());
 		archiveFilename=null;
 	}
 
@@ -1360,7 +1361,7 @@ class LiveData {
 		}
 
 		// create new AxisValues and DataSet
-		final DoubleDataset yds = new DoubleDataset(yvals_new);
+		final DoubleDataset yds = DatasetFactory.createFromObject(DoubleDataset.class, yvals_new);
 		yds.setName(name);
 		archive.setData(new AxisValues(xvals_new), yds);
 		number = xvals_new.length;

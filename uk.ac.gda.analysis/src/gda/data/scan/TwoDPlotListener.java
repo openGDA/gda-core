@@ -18,16 +18,16 @@
 
 package gda.data.scan;
 
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
+import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.data.scan.datawriter.DataWriterExtenderBase;
 import gda.data.scan.datawriter.IDataWriterExtender;
 import gda.jython.InterfaceProvider;
 import gda.scan.IScanDataPoint;
 import gda.scan.ScanInformation;
-
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 
 public class TwoDPlotListener extends DataWriterExtenderBase {
@@ -56,11 +56,11 @@ public class TwoDPlotListener extends DataWriterExtenderBase {
 				dimensions = scanInformation.getDimensions();
 				if (dimensions.length != 2)
 					return;
-				xaxis = new DoubleDataset(dimensions[0]);
+				xaxis = DatasetFactory.zeros(DoubleDataset.class, dimensions[0]);
 				xaxis.setName(dataPoint.getScannableHeader()[0]);
-				yaxis = new DoubleDataset(dimensions[1]);
+				yaxis = DatasetFactory.zeros(DoubleDataset.class, dimensions[1]);
 				yaxis.setName(dataPoint.getScannableHeader()[1]);
-				ds = new DoubleDataset(dimensions[1], dimensions[0]);
+				ds = DatasetFactory.zeros(DoubleDataset.class, dimensions[1], dimensions[0]);
 				ds.fill(Double.NaN); // Initialise dataset with NaN so auto histogramming will work.
 			}
 

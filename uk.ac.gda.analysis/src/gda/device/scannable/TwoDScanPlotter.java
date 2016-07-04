@@ -18,18 +18,18 @@
 
 package gda.device.scannable;
 
+import org.apache.commons.lang.ArrayUtils;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
+import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
 import gda.jython.IAllScanDataPointsObserver;
 import gda.jython.IScanDataPointProvider;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanDataPoint;
-
-import org.apache.commons.lang.ArrayUtils;
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 
 /**
@@ -89,7 +89,7 @@ public class TwoDScanPlotter extends ScannableBase implements IAllScanDataPoints
 			ArrayUtils.reverse(values);
 		}
 
-		return new DoubleDataset(values);
+		return DatasetFactory.createFromObject(DoubleDataset.class, values);
 	}
 
 	@Override
@@ -159,7 +159,7 @@ public class TwoDScanPlotter extends ScannableBase implements IAllScanDataPoints
 
 		// if the first point, then create empty datasets
 		if (intensity == null) {
-			intensity = new DoubleDataset(sdp.getScanDimensions()[0], sdp.getScanDimensions()[1]);
+			intensity = DatasetFactory.zeros(DoubleDataset.class, sdp.getScanDimensions()[0], sdp.getScanDimensions()[1]);
 			// Fill with NaN to allow auto histogramming to work. Otherwise values are zero.
 			intensity.fill(Double.NaN);
 

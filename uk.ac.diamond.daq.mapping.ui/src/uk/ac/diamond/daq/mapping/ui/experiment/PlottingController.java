@@ -19,7 +19,7 @@
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.plotting.api.IPlottingService;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlotType;
@@ -227,8 +227,8 @@ public class PlottingController {
 			pathTrace.setVisible(scanPathVisible);
 
 			// Get the point coordinates from the last path info and add them to the trace
-			IDataset xData = new DoubleDataset(lastPathInfo.getXCoordinates());
-			IDataset yData = new DoubleDataset(lastPathInfo.getYCoordinates());
+			IDataset xData = DatasetFactory.createFromObject(lastPathInfo.getXCoordinates());
+			IDataset yData = DatasetFactory.createFromObject(lastPathInfo.getYCoordinates());
 			pathTrace.setData(xData, yData);
 			mapPlottingSystem.addTrace(pathTrace);
 			mapPlottingSystem.setPlotType(PlotType.IMAGE);
