@@ -18,6 +18,14 @@
 
 package uk.ac.gda.server.ncd.subdetector;
 
+import java.util.List;
+
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+
 import gda.data.NumTracker;
 import gda.data.PathConstructor;
 import gda.data.fileregistrar.FileRegistrarHelper;
@@ -33,15 +41,6 @@ import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
 import gda.observable.IObserver;
 import gda.scan.ScanInformation;
-
-import java.util.List;
-
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.FloatDataset;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
-
 import uk.ac.gda.server.ncd.pilatus.PilatusADController;
 
 /**
@@ -57,7 +56,7 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 	protected DeviceException tfgMisconfigurationException = new DeviceException("Triggering not set up");
 	private String filename = "/dev/null";
 	private List<NXPlugin> nxplugins;
-	
+
 	@Override
 	public void clear() throws DeviceException {
 		// we are clear
@@ -221,9 +220,9 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 		longestWait = longestWait / 1000;
 
 		tfgMisconfigurationException = checkTiming(shortestFrame, longestFrame, shortestWait, longestWait);
-		if (tfgMisconfigurationException != null) 
+		if (tfgMisconfigurationException != null)
 			return;
-		
+
 		try {
 			controller.setExposures(1);
 			controller.setNumImages(framecount);
@@ -234,7 +233,7 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 			logger.error("error setting up acqusition on area detector for " + getName(), e);
 		}
 	}
-	
+
 	@SuppressWarnings("unused")
 	protected DeviceException checkTiming(double shortestFrame, double longestFrame, double shortestWait, double longestWait) {
 
@@ -264,7 +263,7 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 			float[] data;
 			data = controller.getCurrentArray();
 			int[] dims = getDataDimensions();
-			Dataset ds = new FloatDataset(data, dims);
+			Dataset ds = DatasetFactory.createFromObject(data, dims);
 			return ds;
 		} catch (Exception e) {
 			throw new DeviceException(getName() + " - error reading last array", e);
@@ -354,7 +353,7 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 		dataTree.addScanFileLink(getTreeName(), "nxfile://" + filename + "#entry/instrument/detector/data");
 
 		addMetadata(dataTree);
-		
+
 		if (nxplugins != null) {
 			for (NXPlugin nxpi: nxplugins) {
 				try {

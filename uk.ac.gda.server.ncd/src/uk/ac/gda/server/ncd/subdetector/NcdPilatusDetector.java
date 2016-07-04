@@ -26,7 +26,6 @@ import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFileHDF5;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusFile;
@@ -55,7 +54,7 @@ public class NcdPilatusDetector extends NcdSubDetector implements LastImageProvi
 	public Dataset readLastImage() throws DeviceException {
 		double[] data = (double[])detector.getAttribute("ReadLastImage");
 		int[] dims = getDataDimensions();
-		DoubleDataset ds = new DoubleDataset(data, dims);
+		Dataset ds = DatasetFactory.createFromObject(data, dims);
 		return ds;
 	}
 

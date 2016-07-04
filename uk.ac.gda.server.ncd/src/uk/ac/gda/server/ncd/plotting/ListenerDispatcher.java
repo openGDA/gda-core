@@ -18,6 +18,20 @@
 
 package uk.ac.gda.server.ncd.plotting;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
+import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.IndexIterator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
@@ -31,21 +45,6 @@ import gda.jython.IAllScanDataPointsObserver;
 import gda.jython.InterfaceProvider;
 import gda.observable.IObserver;
 import gda.scan.ScanDataPoint;
-
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.IndexIterator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 import uk.ac.diamond.scisoft.analysis.io.DiffractionMetadata;
 import uk.ac.gda.server.ncd.detectorsystem.NcdDetectorSystem;
@@ -80,7 +79,7 @@ public class ListenerDispatcher implements Findable, IObserver, Configurable, IA
 	private int currentFrame = 0;
 	private boolean detectorLive = false;
 	private Map<String, RequestObject> wishList = new HashMap<String, RequestObject>();
-	
+
 	private EnergyScannable energyScannable = null;
 
 	public ListenerDispatcher() {
@@ -159,7 +158,7 @@ public class ListenerDispatcher implements Findable, IObserver, Configurable, IA
 						if (sub instanceof NcdWireDetector) {
 							double[] data = ((NcdWireDetector) sub).read(frame);
 							int[] dims = sub.getDataDimensions();
-							ds = new DoubleDataset(data, dims);
+							ds = DatasetFactory.createFromObject(data, dims);
 							ds.setName(String.format("%s frame %d of %d", type, frame + 1, det.getNumberOfFrames()));
 
 							/*
@@ -216,7 +215,7 @@ public class ListenerDispatcher implements Findable, IObserver, Configurable, IA
 		}
 
 		lastFrame = currentFrameUFC;
-		
+
 		if (!rateCollection.isEmpty()) {
 			logger.debug("dispatching a detector rate");
 			Runnable anotherUpdate = new Runnable() {
@@ -244,7 +243,7 @@ public class ListenerDispatcher implements Findable, IObserver, Configurable, IA
 		if (!detspec2maskedval.containsKey(detspec)) {
 			// issue bogus values in new threads that might come in here later until we fix it at the end of this if
 			detspec2maskedval.put(detspec, 0f);
-			
+
 			Double maskedval = new Double(0);
 			double val = 0;
 
@@ -351,7 +350,7 @@ public class ListenerDispatcher implements Findable, IObserver, Configurable, IA
 			for (INexusTree branch : savedTree) {
 				if (branch.getNxClass().equals(NexusExtractor.NXDetectorClassName)) {
 					INexusTree dataNode = branch.getChildNode("data", NexusExtractor.SDSClassName);
-					if (dataNode == null) 
+					if (dataNode == null)
 						continue;
 					INexusTree type = branch.getChildNode("sas_type", NexusExtractor.SDSClassName);
 					if (type != null) {

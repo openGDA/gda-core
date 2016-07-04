@@ -18,6 +18,14 @@
 
 package uk.ac.gda.server.ncd.subdetector;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.lang.ArrayUtils;
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
+import org.eclipse.dawnsci.analysis.dataset.impl.FloatDataset;
+
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
@@ -28,26 +36,19 @@ import gda.device.detector.DataDimension;
 import gda.device.detector.NXDetectorData;
 import gda.factory.Finder;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.commons.lang.ArrayUtils;
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.FloatDataset;
-
 public class NcdMarDetector extends NcdSubDetector implements LastImageProvider {
 
 	String marName;
 	private final int[] dims = new int[] { 2048, 1024, 512 };
 	private FloatDataset lastData;
-	
+
 	@Override
 	public void configure(){
 		if (detector == null && marName != null)
 			detector = (Detector) Finder.getInstance().find(marName);
 	}
-	
-	
+
+
 	@Override
 	public List<DataDimension> getSupportedDimensions() throws DeviceException {
         ArrayList<DataDimension> supportedDimensions = new ArrayList<DataDimension>();
@@ -62,7 +63,7 @@ public class NcdMarDetector extends NcdSubDetector implements LastImageProvider 
 		int mode = 2048/detectorSize[0]*2;
 		detector.setAttribute("binning mode", mode);
 	}
-	
+
 	@Override
 	public int[] getDataDimensions() throws DeviceException {
 		if (detector == null) {
@@ -76,12 +77,12 @@ public class NcdMarDetector extends NcdSubDetector implements LastImageProvider 
 		int[] datadims = getDataDimensions();
 		float[] data = (float[]) detector.readout();
 
-		lastData = new FloatDataset(data, datadims);
-		
+		lastData = DatasetFactory.createFromObject(FloatDataset.class, data, datadims);
+
 		NexusGroupData ngd = new NexusGroupData(ArrayUtils.add(datadims, 0, 1), data);
 		ngd.isDetectorEntryData = true;
 		dataTree.addData(getName(), ngd, "counts", 1);
-		
+
 		addMetadata(dataTree);
 	}
 
@@ -99,22 +100,22 @@ public class NcdMarDetector extends NcdSubDetector implements LastImageProvider 
 
 			detTree.addChildNode(type_node);
 		}
-		
+
 		if (getPixelSize() != 0.0) {
 			ngd = new NexusGroupData(getPixelSize());
 			ngd.isDetectorEntryData = false;
-			
-			
+
+
 			for(String label: new String[]{"x_pixel_size", "y_pixel_size"}) {
 				NexusTreeNode type_node = new NexusTreeNode(label, NexusExtractor.SDSClassName, null, ngd);
 				type_node.setIsPointDependent(false);
 				type_node.addChildNode(new NexusTreeNode("units", NexusExtractor.AttrClassName, type_node, new NexusGroupData("m")));
-	
+
 				detTree.addChildNode(type_node);
 			}
 		}
 	}
-	
+
 	public String getMarName() {
 		return marName;
 	}
@@ -122,7 +123,7 @@ public class NcdMarDetector extends NcdSubDetector implements LastImageProvider 
 	public void setMarName(String marName) {
 		this.marName = marName;
 	}
-	
+
 	@Override
 	public double getPixelSize() throws DeviceException {
 		return pixelSize / getDataDimensions()[0];
