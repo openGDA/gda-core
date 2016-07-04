@@ -18,6 +18,15 @@
 
 package gda.hrpd.pmac;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Map;
+
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.analysis.Plotter;
 import gda.configuration.properties.LocalProperties;
 import gda.device.Detector;
@@ -36,15 +45,6 @@ import gda.jython.Jython;
 import gda.jython.JythonServerFacade;
 import gda.observable.IObserver;
 import gov.aps.jca.CAException;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Map;
-
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 
 public class CVScan extends ScannableMotionBase implements IObserver {
@@ -347,7 +347,7 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 
 	/**
 	 * gets current CVScan profile
-	 * 
+	 *
 	 * @return CVScan profile name
 	 * @throws DeviceException
 	 */
@@ -357,9 +357,9 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 
 	/**
 	 * list CVScan profile available
-	 * 
+	 *
 	 * @return list of Profiles
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public ArrayList<String> getAvailableCVScanProfiles() throws InterruptedException {
 		profiles = new ArrayList<String>();
@@ -372,9 +372,9 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 
 	/**
 	 * reset the controller busy status to false if and only if locked to true.
-	 * 
+	 *
 	 * @throws CAException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public void reset() throws CAException, InterruptedException {
 		controller.setBusy(false);
@@ -388,7 +388,7 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 
 	/**
 	 * set the start position of the 2nd motor in current CVScan Profile.
-	 * 
+	 *
 	 * @param position
 	 * @throws DeviceException
 	 */
@@ -412,7 +412,7 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 
 	/**
 	 * get the start position of the 2nd motor in the current CVScan Profile
-	 * 
+	 *
 	 * @return start position of 2nd motor
 	 * @throws DeviceException
 	 */
@@ -431,7 +431,7 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 
 	/**
 	 * get the scan range of the 2nd motor in the current CVScan Profile.
-	 * 
+	 *
 	 * @return scan range of 2nf motor
 	 * @throws DeviceException
 	 */
@@ -450,7 +450,7 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 
 	/**
 	 * set the scan range of 2nd motor in the current CVScan Profile.
-	 * 
+	 *
 	 * @param position
 	 * @throws DeviceException
 	 */
@@ -608,14 +608,14 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 		}
 		rebinfilename = getDataWriter().addRebinnedData(rebinnedfile, numberOfElements, scannables, rebinned2theta,
 				rebinnedCounts, rebinnedCountErrors, totaltime, monitorAverage);
-		DoubleDataset counts = new DoubleDataset(rebinnedCounts);
+		Dataset counts = DatasetFactory.createFromObject(rebinnedCounts);
 		counts.setName(getFilename());
 		try {
-			SDAPlotter.plot(getPlotPanelName(), new DoubleDataset(rebinned2theta), counts);
+			SDAPlotter.plot(getPlotPanelName(), DatasetFactory.createFromObject(rebinned2theta), counts);
 		} catch (Exception e) {
 			logger.error("MAC detector rebinned data plot failed.", e);
 		}
-		Plotter.plot(getPlotPanelName(), new DoubleDataset(rebinned2theta), counts);
+		Plotter.plot(getPlotPanelName(), DatasetFactory.createFromObject(rebinned2theta), counts);
 
 		return rebinfilename;
 	}
@@ -763,7 +763,7 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 	/**
 	 * used to add scannables to cvscan which are passed to the MAC data writer to capture their values as metadata in
 	 * the header.
-	 * 
+	 *
 	 * @param scannableList
 	 */
 	public void addScannables(ArrayList<Scannable> scannableList) {

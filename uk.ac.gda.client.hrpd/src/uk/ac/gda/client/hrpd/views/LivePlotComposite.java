@@ -18,19 +18,13 @@
 
 package uk.ac.gda.client.hrpd.views;
 
-import gda.data.NumTracker;
-import gda.device.Scannable;
-import gda.factory.Finder;
-import gda.jython.scriptcontroller.Scriptcontroller;
-import gda.observable.IObserver;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlotType;
 import org.eclipse.dawnsci.plotting.api.PlottingFactory;
@@ -52,6 +46,13 @@ import org.javatuples.Triplet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Joiner;
+
+import gda.data.NumTracker;
+import gda.device.Scannable;
+import gda.factory.Finder;
+import gda.jython.scriptcontroller.Scriptcontroller;
+import gda.observable.IObserver;
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsDoubleDataArrayListener;
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsEnumDataListener;
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsIntegerDataListener;
@@ -59,32 +60,30 @@ import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsStringDataListener;
 import uk.ac.gda.hrpd.cvscan.EpicsCVScanState;
 import uk.ac.gda.hrpd.cvscan.event.FileNumberEvent;
 
-import com.google.common.base.Joiner;
-
 /**
- * Live plot composite for plotting detector data while acquiring. It is capable of plotting <b>multiple</b> traces of data from 
- * specified EPICS data listeners of {@link EpicsDoubleDataArrayListener} type. 
- * 
- * All traces are updated at the same time in the plot triggered by another PV listener of 
- * {@link EpicsIntegerDataListener} type signalling all traces are updated in the data listener list. 
- * 
+ * Live plot composite for plotting detector data while acquiring. It is capable of plotting <b>multiple</b> traces of data from
+ * specified EPICS data listeners of {@link EpicsDoubleDataArrayListener} type.
+ *
+ * All traces are updated at the same time in the plot triggered by another PV listener of
+ * {@link EpicsIntegerDataListener} type signalling all traces are updated in the data listener list.
+ *
  * It also provides <b>option</b> to plot the final reduced data at end of a collection. The available of this
- * reduced data is signalled by the detector state {@link EpicsCVScanState#Flyback} if reduced data listener exists. 
+ * reduced data is signalled by the detector state {@link EpicsCVScanState#Flyback} if reduced data listener exists.
  * <p>
- * <li>view name is configurable using <code>setPlotName(String)</code> method;</li> 
- * <li>X-axis limits are configurable using <code>setxAxisMin(double)</code> (defualt 0.0) and 
+ * <li>view name is configurable using <code>setPlotName(String)</code> method;</li>
+ * <li>X-axis limits are configurable using <code>setxAxisMin(double)</code> (defualt 0.0) and
  * <code>setxAxisMax(double)</code> (default 150.0);</li>
  * <li><b>MUST</b>specify live traces using <code>setLiveDataListeners(List)</code> list of {@link Triplet} of {@link String} trace name,
- * {@link EpicsDoubleDataArrayListener} x dataset, and {@link EpicsDoubleDataArrayListener} y dataset;</li> 
- * <li><b>MUST</b> specify live plot update control using <code>setDataUpdatedListener(EpicsIntegerDataListener)</code>;</li> 
- * <li>Specify <b>OPTIONAL</b> reduced dataset using <code>setFinalDataListener(Triplet)</code> of 
- * {@link EpicsDoubleDataArrayListener} x dataset, * {@link EpicsDoubleDataArrayListener} y dataset, 
- * and {@link EpicsDoubleDataArrayListener} error dataset</li> 
- * <li>specify <b>OPTIONAL</b> reduced data plotting using <code>setDetectorStateListener(EpicsEnumDataListener)</code>;</li> 
- * <li>Specify <b>OPTIONAL</b> data filename observer using <code>setDataFilenameObserverName(String)</code> 
+ * {@link EpicsDoubleDataArrayListener} x dataset, and {@link EpicsDoubleDataArrayListener} y dataset;</li>
+ * <li><b>MUST</b> specify live plot update control using <code>setDataUpdatedListener(EpicsIntegerDataListener)</code>;</li>
+ * <li>Specify <b>OPTIONAL</b> reduced dataset using <code>setFinalDataListener(Triplet)</code> of
+ * {@link EpicsDoubleDataArrayListener} x dataset, * {@link EpicsDoubleDataArrayListener} y dataset,
+ * and {@link EpicsDoubleDataArrayListener} error dataset</li>
+ * <li>specify <b>OPTIONAL</b> reduced data plotting using <code>setDetectorStateListener(EpicsEnumDataListener)</code>;</li>
+ * <li>Specify <b>OPTIONAL</b> data filename observer using <code>setDataFilenameObserverName(String)</code>
  * to handle data file name changed event {@link FileNumberEvent} from an {@link Scriptcontroller} instance on the server
  * for title/legend display if required;</li>
- * <li><b>OPTIONAL</b> special data trimming or truncation also available for trace named 'mac1' to filter-out unwanted data using 
+ * <li><b>OPTIONAL</b> special data trimming or truncation also available for trace named 'mac1' to filter-out unwanted data using
  * <code>setLowDataBound(int)</code> and <code>setHighDataBound(int)</code> methods;</li>
  * <li><b>OPTIONAL</b> EPICS progress monitor to be displayed on the status bar using {@link IProgressService} interface.</li>
  * </p>
@@ -95,7 +94,7 @@ public class LivePlotComposite extends Composite implements IObserver {
 	private String plotName = "DetectorData";
 	private double xAxisMin = 0.000;
 	private double xAxisMax = 150.000;
-	
+
 	private List<Triplet<String, EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener>> liveDataListeners = new ArrayList<Triplet<String, EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener>>();
 	private EpicsIntegerDataListener dataUpdatedListener;
 
@@ -119,7 +118,7 @@ public class LivePlotComposite extends Composite implements IObserver {
 	private EpicsIntegerDataListener workListener;
 	private EpicsStringDataListener messageListener;
 	private String taskName;
-	private Scannable stopScannable;	
+	private Scannable stopScannable;
 
 	public LivePlotComposite(IWorkbenchPart part, Composite parent, int style) throws Exception {
 		super(parent, style);
@@ -146,7 +145,7 @@ public class LivePlotComposite extends Composite implements IObserver {
 		plottingSystem.setShowLegend(true);
 		plottingSystem.getSelectedXAxis().setRange(getxAxisMin(), getxAxisMax());
 		plottingSystem.getSelectedXAxis().setTitle("tth (deg)");
-		
+
 		Composite progressComposite=new Composite(this, SWT.None);
 		data = new GridData (SWT.FILL, SWT.CENTER, true, false);
 		progressComposite.setLayoutData(data);
@@ -189,7 +188,7 @@ public class LivePlotComposite extends Composite implements IObserver {
 	public void dispose() {
 		// clean up resources used.
 		if (scriptController != null) {
-			scriptController.deleteIObserver(this); 
+			scriptController.deleteIObserver(this);
 			logger.debug("Data filename observer removed from {}", getDataFilenameObserverName());
 		} else {
 			logger.debug("Cannot find the script controller {} to remove data filename observer",
@@ -269,12 +268,12 @@ public class LivePlotComposite extends Composite implements IObserver {
 							EpicsDoubleDataArrayListener y = listener.getValue2();
 							ILineTrace trace = listener.getValue3();
 							if (traceName.equalsIgnoreCase("mac1")) {
-								trace.setData(new DoubleDataset(x.getValue()).getSlice(new int[] { getLowDataBound() },
+								trace.setData(DatasetFactory.createFromObject(x.getValue()).getSlice(new int[] { getLowDataBound() },
 										new int[] { getHighDataBound() }, null).flatten(),
-										new DoubleDataset(y.getValue()).getSlice(new int[] { getLowDataBound() },
+										DatasetFactory.createFromObject(y.getValue()).getSlice(new int[] { getLowDataBound() },
 												new int[] { getHighDataBound() }, null).flatten());
 							} else {
-								trace.setData(new DoubleDataset(x.getValue()), new DoubleDataset(y.getValue()));
+								trace.setData(DatasetFactory.createFromObject(x.getValue()), DatasetFactory.createFromObject(y.getValue()));
 							}
 
 						}
@@ -295,9 +294,9 @@ public class LivePlotComposite extends Composite implements IObserver {
 					boolean visible = LivePlotComposite.this.isVisible();
 					if (visible) {
 						plottingSystem.clear();
-						DoubleDataset x = new DoubleDataset(getFinalDataListener().getValue0().getValue());
-						DoubleDataset y = new DoubleDataset(getFinalDataListener().getValue1().getValue());
-//						DoubleDataset error = new DoubleDataset(getFinalDataListener().getValue2().getValue());
+						Dataset x = DatasetFactory.createFromObject(getFinalDataListener().getValue0().getValue());
+						Dataset y = DatasetFactory.createFromObject(getFinalDataListener().getValue1().getValue());
+						// Dataset error = DatasetFactory.createFromObject(getFinalDataListener().getValue2().getValue());
 //						y.setError(error);
 						x.setName("tth (deg)");
 						y.setName(datafilename);

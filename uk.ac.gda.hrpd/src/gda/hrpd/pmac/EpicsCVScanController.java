@@ -18,6 +18,14 @@
 
 package gda.hrpd.pmac;
 
+import java.util.Vector;
+
+import org.apache.commons.lang.ArrayUtils;
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.analysis.Plotter;
 import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceBase;
@@ -41,14 +49,6 @@ import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 import gov.aps.jca.event.PutEvent;
 import gov.aps.jca.event.PutListener;
-
-import java.util.Vector;
-
-import org.apache.commons.lang.ArrayUtils;
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 
 public class EpicsCVScanController extends DeviceBase implements InitializationListener, Configurable, Findable {
@@ -253,11 +253,11 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 
 	/**
 	 * gets the total time of the constant velocity scan.
-	 * 
+	 *
 	 * @return total time in seconds
 	 * @throws TimeoutException
 	 * @throws CAException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public double getTime() throws TimeoutException, CAException, InterruptedException {
 		return controller.cagetDouble(timechannel);
@@ -265,11 +265,11 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 
 	/**
 	 * sets the total time for the constant velocity scan.
-	 * 
+	 *
 	 * @param time
 	 *            in seconds
 	 * @throws CAException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public void setTime(double time) throws CAException, InterruptedException {
 		controller.caput(timechannel, time);
@@ -277,7 +277,7 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 
 	/**
 	 * gets the motor components that participate the subsequent constant velocity scan.
-	 * 
+	 *
 	 * @return String motor names
 	 * @throws DeviceException
 	 */
@@ -293,10 +293,10 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 
 	/**
 	 * sets the motor components that participate the subsequent constant velocity scan.
-	 * 
+	 *
 	 * @param profile
 	 * @throws DeviceException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public void setProfile(String profile) throws DeviceException, InterruptedException {
 		if (profiles.contains(profile)) {
@@ -329,11 +329,11 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 
 	/**
 	 * gets the scan start position of 2nd motor that participating the constant velocity scan of two-theta.
-	 * 
+	 *
 	 * @return the 2nd motor scan range.
 	 * @throws TimeoutException
 	 * @throws CAException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public double get2ndMotorStartPosition() throws TimeoutException, CAException, InterruptedException {
 		return controller.cagetDouble(mstart);
@@ -341,10 +341,10 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 
 	/**
 	 * sets the scan start position of 2nd motor that participating the constant velocity scan of two-theta.
-	 * 
+	 *
 	 * @param position
 	 * @throws CAException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public void set2ndMotorStartPosition(double position) throws CAException, InterruptedException {
 		controller.caput(mstart, position);
@@ -352,11 +352,11 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 
 	/**
 	 * gets the scan range of 2nd motor that participating the constant velocity scan of two-theta.
-	 * 
+	 *
 	 * @return the 2nd motor scan range.
 	 * @throws TimeoutException
 	 * @throws CAException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public double get2ndMotorScanRange() throws TimeoutException, CAException, InterruptedException {
 		return controller.cagetDouble(mrange);
@@ -364,10 +364,10 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 
 	/**
 	 * sets the scan range of 2nd motor that participating the constant velocity scan of two-theta.
-	 * 
+	 *
 	 * @param position
 	 * @throws CAException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public void set2ndMotorScanRange(double position) throws CAException, InterruptedException {
 		controller.caput(mrange, position);
@@ -377,9 +377,9 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 	 * starts, restarts, or resume the constant velocity scan. The scan only starts when its current state is in one of
 	 * the following modes: Done, Aborted, or Paused. This is done to ensure the EPICS "Start" is never being called
 	 * more than once during a constant velocity scan.
-	 * 
+	 *
 	 * @throws CAException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public void start() throws CAException, InterruptedException {
 		if (currentstate == CurrentState.Done || currentstate == CurrentState.Aborted
@@ -397,9 +397,9 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 
 	/**
 	 * pauses current constant velocity scan.
-	 * 
+	 *
 	 * @throws CAException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public void pause() throws CAException, InterruptedException {
 		controller.caput(pause, 1, pausecallbacklistener);
@@ -408,9 +408,9 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 
 	/**
 	 * aborts current constant velocity scan.
-	 * 
+	 *
 	 * @throws CAException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public void abort() throws CAException, InterruptedException {
 		controller.caput(abort, 1, abortcallbacklistener);
@@ -419,11 +419,11 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 
 	/**
 	 * pulls the current state of the CVScan from EPICS and update cached {@link #currentstate}.
-	 * 
+	 *
 	 * @return the current state
 	 * @throws TimeoutException
 	 * @throws CAException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public CurrentState getCurrentState() throws TimeoutException, CAException, InterruptedException {
 		short value = controller.cagetEnum(currentstatechannel);
@@ -453,11 +453,11 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 
 	/**
 	 * pulls the status message from EPICS and update cached {@link #message} value
-	 * 
+	 *
 	 * @return the status message as String
 	 * @throws TimeoutException
 	 * @throws CAException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public String getStatusMessage() throws TimeoutException, CAException, InterruptedException {
 		return message = controller.cagetString(statusmessagechannel);
@@ -465,11 +465,11 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 
 	/**
 	 * pulls the number of pulse done from EPICS and update cached {@link #numberofpulsedone} value
-	 * 
+	 *
 	 * @return the status message as String
 	 * @throws TimeoutException
 	 * @throws CAException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public int getNumberOfPulsesDone() throws TimeoutException, CAException, InterruptedException {
 		return numberofpulsedone = controller.cagetInt(pulsesnumberdonechannel);
@@ -477,11 +477,11 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 
 	/**
 	 * pulls the total number of pulse from EPICS and update cached {@link #totalnumberofpulse} value
-	 * 
+	 *
 	 * @return the status message as String
 	 * @throws TimeoutException
 	 * @throws CAException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public int getTotalNumberPulses() throws TimeoutException, CAException, InterruptedException {
 		return totalnumberofpulse = controller.cagetInt(puslestotalnumberchannel);
@@ -490,11 +490,11 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 	/****************** Access CVScan data *****************************/
 	/**
 	 * gets the raw two-theta position where scalers/detectors are triggered.
-	 * 
+	 *
 	 * @return two-theta positions
 	 * @throws TimeoutException
 	 * @throws CAException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public double[] getRaw2ThetaPositions() throws TimeoutException, CAException, InterruptedException {
 		return controller.cagetDoubleArray(rawx);
@@ -650,7 +650,7 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 
 	/**
 	 * return the latest status message that updated from EPICS
-	 * 
+	 *
 	 * @return the cached {@link #message}
 	 */
 	public String getMessage() {
@@ -659,7 +659,7 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 
 	/**
 	 * returns the latest current state that updated from EPICS
-	 * 
+	 *
 	 * @return the cached {@link #currentstate}
 	 */
 	public CurrentState getState() {
@@ -668,7 +668,7 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 
 	/**
 	 * returns the latest number of pulses completed that updated from EPICS
-	 * 
+	 *
 	 * @return the cached {@link #numberofpulsedone}
 	 */
 	public int getNumberOfPulseDone() {
@@ -677,7 +677,7 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 
 	/**
 	 * returns the latest total number of pulses in this CVScan that updated from EPICS
-	 * 
+	 *
 	 * @return the cached {@link #totalnumberofpulse}
 	 */
 	public int getTotalNumberOfPulses() {
@@ -835,7 +835,7 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 		String filePrefix = null;
 		String fileSuffix = null;
 		boolean first=true;
-		
+
 		@Override
 		public void monitorChanged(MonitorEvent arg0) {
 			if (first) {
@@ -865,7 +865,7 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 					// logger.info("Count size {}", y.length);
 				}
 				if (x != null && y != null) {
-					DoubleDataset yds = new DoubleDataset(y);
+					Dataset yds = DatasetFactory.createFromObject(y);
 					if (legend == null) {
 						filePrefix = LocalProperties.get("gda.data.file.prefix", "");
 						fileSuffix = LocalProperties.get("gda.data.file.suffix", "-mac");
@@ -874,11 +874,11 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 					}
 					yds.setName(legend);
 					try {
-						SDAPlotter.plot(getPlotPanelName(), new DoubleDataset(x), yds);
+						SDAPlotter.plot(getPlotPanelName(), DatasetFactory.createFromObject(x), yds);
 					} catch (Exception e) {
 						logger.error("MAC detector data live plot failed.", e);
 					}
-					Plotter.plot(getPlotPanelName(), new DoubleDataset(x), yds);
+					Plotter.plot(getPlotPanelName(), DatasetFactory.createFromObject(x), yds);
 				}
 			} else {
 				logger.error("{} : PulseDoneListener expect Integer type but got {} type.", getName(), dbr.getType());
