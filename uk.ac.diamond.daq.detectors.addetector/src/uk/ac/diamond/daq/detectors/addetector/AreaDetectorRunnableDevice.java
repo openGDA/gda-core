@@ -1,9 +1,7 @@
 package uk.ac.diamond.daq.detectors.addetector;
 
-import org.eclipse.dawnsci.analysis.api.dataset.DType;
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyWriteableDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.SliceND;
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXdetector;
@@ -112,7 +110,7 @@ public class AreaDetectorRunnableDevice extends AbstractRunnableDevice<AreaDetec
 		// We add 2 to the scan rank to include the image
 		data = nxDetector.initializeLazyDataset(NXdetector.NX_DATA, scanInfo.getRank() + 2, convertDataType(dataType));
 		// The total should just have the rank of the scan
-		total = nxDetector.initializeLazyDataset(FIELD_NAME_TOTAL, scanInfo.getRank(), Dataset.FLOAT64);
+		total = nxDetector.initializeLazyDataset(FIELD_NAME_TOTAL, scanInfo.getRank(), Double.class);
 
 		// Set the chunking
 		data.setChunking(scanInfo.createChunk(dataDimensions));
@@ -148,28 +146,28 @@ public class AreaDetectorRunnableDevice extends AbstractRunnableDevice<AreaDetec
 		return true;
 	}
 
-	private int convertDataType(DataType epicsType) {
+	private Class<?> convertDataType(DataType epicsType) {
 		switch (epicsType) {
 		// Unsigned could overflow signed so return one type bigger
 		case UINT8:
-			return DType.INT16;
+			return Short.class;
 		case UINT16:
-			return DType.INT32;
+			return Integer.class;
 		case UINT32:
-			return DType.INT64;
+			return Long.class;
 		case INT8:
-			return DType.INT8;
+			return Byte.class;
 		case INT16:
-			return DType.INT16;
+			return Short.class;
 		case INT32:
-			return DType.INT32;
+			return Integer.class;
 		case FLOAT32:
-			return DType.FLOAT32;
+			return Float.class;
 		case FLOAT64:
-			return DType.FLOAT64;
+			return Double.class;
 		default:
 			// If somehow not matched return float 64 to be safe (e.g. new values added to enum)
-			return DType.FLOAT64;
+			return Double.class;
 		}
 	}
 

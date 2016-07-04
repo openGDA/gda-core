@@ -8,13 +8,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.dawnsci.analysis.api.dataset.DType;
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyWriteableDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.SliceND;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
-import org.eclipse.dawnsci.analysis.dataset.impl.AbstractDataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXobject;
@@ -280,7 +277,7 @@ class ScannableNexusWrapper<N extends NXobject> implements IScannable<Object>, I
 				// order of entries in that map corresponds to elements in getPositionArray, which
 				// does not include the demand value
 				demandValueDataset = createLazyWritableDataset(nexusObject, FIELD_NAME_VALUE_DEMAND,
-						DType.FLOAT64, 1, new int[] { 1 });
+						Double.class, 1, new int[] { 1 });
 				nexusObject.setAttribute(FIELD_NAME_VALUE_DEMAND, ATTR_NAME_LOCAL_NAME,
 						getName() + "." + FIELD_NAME_VALUE_DEMAND);
 			}
@@ -299,9 +296,8 @@ class ScannableNexusWrapper<N extends NXobject> implements IScannable<Object>, I
 				nexusObject.setField(fieldName, value);
 			} else {
 				// create a lazy writable dataset of the appropriate type
-				final int dType = AbstractDataset.getDTypeFromObject(value);
 				writableDatasets.put(fieldName,
-						createLazyWritableDataset(nexusObject, fieldName, dType, scanRank, chunks));
+						createLazyWritableDataset(nexusObject, fieldName, value.getClass(), scanRank, chunks));
 			}
 			// set 'local_name' attribute
 			nexusObject.setAttribute(fieldName, ATTR_NAME_LOCAL_NAME, getName() + "." + fieldName);
@@ -309,38 +305,34 @@ class ScannableNexusWrapper<N extends NXobject> implements IScannable<Object>, I
 	}
 
 	private ILazyWriteableDataset createLazyWritableDataset(final N nexusObject, String fieldName,
-			int dType, final int rank, final int[] chunking) {
+			Class<?> clazz, final int rank, final int[] chunking) {
 		// create a lazy writable dataset with the given name and same rank as the scan
 		// (here the value is just used to get the dataset type, the scan hasn't started yet)
 		ILazyWriteableDataset lazyWritableDataset = nexusObject.initializeLazyDataset(
-				fieldName, rank, dType);
-		lazyWritableDataset.setFillValue(getFillValue(dType));
+				fieldName, rank, clazz);
+		lazyWritableDataset.setFillValue(getFillValue(clazz));
 		lazyWritableDataset.setChunking(chunking);
 
 		return lazyWritableDataset;
 	}
 
-	private static Object getFillValue(int dtype) {
-		switch (dtype) {
-		case Dataset.FLOAT64: {
+	private static Object getFillValue(Class<?> clazz) {
+		if (clazz.equals(Double.class)) {
 			String floatFill = LocalProperties.get("gda.nexus.floatfillvalue", "nan");
 			return floatFill.equalsIgnoreCase("nan") ? Double.NaN : Double.parseDouble(floatFill);
-		}
-		case Dataset.FLOAT32: {
+		} else if (clazz.equals(Float.class)) {
 			String floatFill = LocalProperties.get("gda.nexus.floatfillvalue", "nan");
 			return floatFill.equalsIgnoreCase("nan") ? Float.NaN : Float.parseFloat(floatFill);
-		}
-		case Dataset.INT8:
+		} else if (clazz.equals(Byte.class)) {
 			return (byte) 0;
-		case Dataset.INT16:
+		} else if (clazz.equals(Short.class)) {
 			return (short) 0;
-		case Dataset.INT32:
+		} else if (clazz.equals(Integer.class)) {
 			return 0;
-		case Dataset.INT64:
+		} else if (clazz.equals(Long.class)) {
 			return (long) 0;
-		default:
-			return null;
 		}
+		return null;
 	}
 
 	/**
