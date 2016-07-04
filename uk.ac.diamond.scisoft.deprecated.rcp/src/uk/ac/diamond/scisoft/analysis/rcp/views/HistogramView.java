@@ -611,10 +611,10 @@ public class HistogramView extends ViewPart implements SelectionListener,
 		
 		double maxValue = histograms.get(0).max().doubleValue();
 		int currentSize = histograms.get(0).getSize();
-		DoubleDataset redChannel = new DoubleDataset(currentSize);
-		DoubleDataset greenChannel = new DoubleDataset(currentSize);
-		DoubleDataset blueChannel = new DoubleDataset(currentSize);
-		DoubleDataset alphaChannel = new DoubleDataset(currentSize);
+		DoubleDataset redChannel = DatasetFactory.zeros(DoubleDataset.class, currentSize);
+		DoubleDataset greenChannel = DatasetFactory.zeros(DoubleDataset.class, currentSize);
+		DoubleDataset blueChannel = DatasetFactory.zeros(DoubleDataset.class, currentSize);
+		DoubleDataset alphaChannel = DatasetFactory.zeros(DoubleDataset.class, currentSize);
 		for (int i = 0; i < currentSize; i++) {
 			double value = i / (double) currentSize;
 			double redvalue = redFunc.getPoint(value);

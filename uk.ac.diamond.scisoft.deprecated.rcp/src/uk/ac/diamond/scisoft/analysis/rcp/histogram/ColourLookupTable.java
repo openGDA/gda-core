@@ -18,6 +18,7 @@ package uk.ac.diamond.scisoft.analysis.rcp.histogram;
 
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
 import org.eclipse.dawnsci.analysis.dataset.impl.IndexIterator;
 import org.eclipse.dawnsci.analysis.dataset.impl.RGBDataset;
@@ -122,7 +123,7 @@ public class ColourLookupTable {
 			boolean inverseRed, boolean inverseGreen, boolean inverseBlue, double minValue,
 			double maxValue, boolean useLogarithmic) {
 		int[] shape = data.getShape();
-		RGBDataset image = new RGBDataset(shape);
+		RGBDataset image = DatasetFactory.zeros(RGBDataset.class, shape);
 		if (useLogarithmic) {
 			ScalingUtility.setSmallLogFlag(false);
 			minValue = ScalingUtility.valueScaler(minValue, ScaleType.LN);

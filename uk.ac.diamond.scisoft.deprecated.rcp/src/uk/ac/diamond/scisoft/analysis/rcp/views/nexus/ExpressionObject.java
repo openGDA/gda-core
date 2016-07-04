@@ -23,6 +23,7 @@ import java.util.List;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 import org.nfunk.jep.JEP;
 import org.nfunk.jep.ParseException;
@@ -147,7 +148,7 @@ public class ExpressionObject {
 		
 		if (dataSet!=null) return dataSet;
 		
-	    if (expression==null||provider==null) return new DoubleDataset();
+	    if (expression==null||provider==null) return DatasetFactory.zeros(DoubleDataset.class, null);
 		
 		final List<Dataset> refs = getVariables(monitor);
 		final double[]       data = new double[refs.get(0).getSize()];
@@ -160,7 +161,7 @@ public class ExpressionObject {
 			data[i] = jepParser.getValue();
 		}
 		
-		this.dataSet = new DoubleDataset(data);
+		this.dataSet = DatasetFactory.createFromObject(data);
 		dataSet.setName(getExpression());
 		return this.dataSet;
 	}

@@ -26,6 +26,7 @@ import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
 import org.eclipse.dawnsci.analysis.api.io.IDataHolder;
 import org.eclipse.dawnsci.analysis.api.io.SliceObject;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.analysis.dataset.impl.IntegerDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -145,7 +146,7 @@ public class SliceUtils {
 	public static Dataset createAxisDataset(int size) {
 		final int[] data = new int[size];
 		for (int i = 0; i < data.length; i++) data[i] = i;
-		IntegerDataset ret = new IntegerDataset(data, size);
+		IntegerDataset ret = DatasetFactory.createFromObject(IntegerDataset.class, data, size);
 		return ret;
 	}
 

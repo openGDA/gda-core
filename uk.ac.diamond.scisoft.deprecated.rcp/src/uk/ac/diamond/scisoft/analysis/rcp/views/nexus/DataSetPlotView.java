@@ -39,6 +39,7 @@ import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
 import org.eclipse.dawnsci.analysis.api.metadata.IMetadata;
 import org.eclipse.dawnsci.analysis.api.monitor.IMonitor;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
@@ -91,6 +92,8 @@ import org.eclipse.ui.progress.IProgressService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.swtdesigner.ResourceManager;
+
 import uk.ac.diamond.scisoft.analysis.deprecated.rcp.Activator;
 import uk.ac.diamond.scisoft.analysis.io.DataSetProvider;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
@@ -103,8 +106,6 @@ import uk.ac.diamond.scisoft.analysis.rcp.util.PlotUtils;
 import uk.ac.diamond.scisoft.analysis.rcp.util.SDAUtils;
 import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
 import uk.ac.gda.ui.modifiers.DoubleClickModifier;
-
-import com.swtdesigner.ResourceManager;
 
 /**
  * This view can view and plot any file. It is most efficient if the Loader that LoaderFactory
@@ -698,7 +699,7 @@ public class DataSetPlotView extends ViewPart implements ICheckStateListener, Da
 
 		if (ys.isEmpty()) {
 			ys.add(x);
-			x = DoubleDataset.createRange(ys.get(0).getSize());
+			x = DatasetFactory.createRange(DoubleDataset.class, ys.get(0).getSize());
 			x.setName("Index");
 		}
 
@@ -813,7 +814,7 @@ public class DataSetPlotView extends ViewPart implements ICheckStateListener, Da
 			} catch (Exception e) {
 				// valid, user can enter an invalid expression. In this case
 				// it colours red but does not stop them from using the view.
-				return new DoubleDataset();
+				return DatasetFactory.zeros(DoubleDataset.class, null);
 			}
 		}
 		return getDataSet(object, monitor);

@@ -142,7 +142,7 @@ public class TransferFunctionView extends HistogramView implements Overlay1DCons
 			AbstractMapFunction blueFunc = GlobalColourMaps.mappingFunctions.get(cmbBlueColour
 					.getSelectionIndex());
 			AbstractMapFunction alphaFunc = GlobalColourMaps.mappingFunctions.get(cmbAlpha.getSelectionIndex());
-			DoubleDataset redTransfer = new DoubleDataset(256);
+			DoubleDataset redTransfer = DatasetFactory.zeros(DoubleDataset.class, 256);
 			for (int i = 0; i < min; i++) {
 				double value = redFunc.mapFunction(0.0);
 				if (curRedInverse)
@@ -164,7 +164,7 @@ public class TransferFunctionView extends HistogramView implements Overlay1DCons
 				redTransfer.set(value,i);
 			}
 			
-			DoubleDataset greenTransfer = new DoubleDataset(256);
+			DoubleDataset greenTransfer = DatasetFactory.zeros(DoubleDataset.class, 256);
 			for (int i = 0; i < min; i++) {
 				double value = greenFunc.mapFunction(0.0);
 				if (curGreenInverse)
@@ -187,7 +187,7 @@ public class TransferFunctionView extends HistogramView implements Overlay1DCons
 				greenTransfer.set(value,i);
 			}
 			
-			DoubleDataset blueTransfer = new DoubleDataset(256);
+			DoubleDataset blueTransfer = DatasetFactory.zeros(DoubleDataset.class, 256);
 			for (int i = 0; i < min; i++) {
 				double value = blueFunc.mapFunction(0.0);
 				if (curBlueInverse)
@@ -210,7 +210,7 @@ public class TransferFunctionView extends HistogramView implements Overlay1DCons
 				blueTransfer.set(value,i);
 			}
 			
-			DoubleDataset alphaTransfer = new DoubleDataset(256);
+			DoubleDataset alphaTransfer = DatasetFactory.zeros(DoubleDataset.class, 256);
 			for (int i = 0; i < min; i++) {
 				double value = alphaFunc.mapFunction(0.0);
 				if (curAlphaInverse)

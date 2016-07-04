@@ -26,6 +26,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.dawnsci.analysis.api.monitor.IMonitor;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 
 import uk.ac.diamond.scisoft.analysis.io.DataSetProvider;
@@ -56,7 +57,7 @@ public class ComparisonPlotUtils {
 		
 		if (ys.isEmpty()) {
 			ys.add(x);
-			x = DoubleDataset.createRange(ys.get(0).getSize());
+			x = DatasetFactory.createRange(DoubleDataset.class, ys.get(0).getSize());
 			x.setName("Index");
 		}
 
@@ -110,7 +111,7 @@ public class ComparisonPlotUtils {
 					try {
 						return (Dataset)LoaderFactory.getDataSet(file.getAbsolutePath(), name, monitor);
 					} catch (Exception e) {
-						return new DoubleDataset();
+						return DatasetFactory.zeros(DoubleDataset.class, null);
 					}
 				}
 

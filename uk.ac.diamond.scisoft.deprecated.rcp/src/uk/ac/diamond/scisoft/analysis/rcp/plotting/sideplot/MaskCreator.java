@@ -21,6 +21,7 @@ import java.util.Arrays;
 import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.dawnsci.analysis.dataset.impl.BooleanDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
 import org.eclipse.dawnsci.analysis.dataset.impl.IndexIterator;
 import org.eclipse.dawnsci.analysis.dataset.roi.MaskingBean;
@@ -259,7 +260,7 @@ public class MaskCreator extends SidePlot implements Overlay2DConsumer {
 	public void imageStart(IImagePositionEvent event) {
 		save();
 		if (maskDataSet == null || !maskDataSet.isCompatibleWith(mainDataSet)) {
-			maskDataSet = new BooleanDataset(mainDataSet.getShape());
+			maskDataSet = DatasetFactory.zeros(BooleanDataset.class, mainDataSet.getShape());
 			maskDataSet.setName("mask");
 			maskDataSet.fill(true);
 		}
@@ -443,7 +444,7 @@ public class MaskCreator extends SidePlot implements Overlay2DConsumer {
 		final int[] pos = bogusIterator.getPos();
 		
 		if (maskDataSet == null || !maskDataSet.isCompatibleWith(mainDataSet)) {
-			maskDataSet = new BooleanDataset(mainDataSet.getShape());
+			maskDataSet = DatasetFactory.zeros(BooleanDataset.class, mainDataSet.getShape());
 			maskDataSet.setName("mask");
 			maskDataSet.fill(true);
 		}
