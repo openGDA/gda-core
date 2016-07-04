@@ -18,10 +18,6 @@
 
 package uk.ac.gda.epics.adviewer.composites;
 
-import gda.device.detector.areadetector.v17.NDStats;
-import gda.observable.Observable;
-import gda.observable.Observer;
-
 import org.eclipse.core.commands.Command;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.IParameter;
@@ -33,7 +29,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.dawnsci.analysis.api.dataset.Slice;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlotType;
@@ -70,6 +66,9 @@ import org.eclipse.ui.handlers.IHandlerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.detector.areadetector.v17.NDStats;
+import gda.observable.Observable;
+import gda.observable.Observer;
 import uk.ac.gda.epics.adviewer.ADController;
 import uk.ac.gda.epics.adviewer.Ids;
 
@@ -83,7 +82,7 @@ public class Histogram extends Composite {
 	private IPlottingSystem plottingSystem;
 
 	private ILineTrace histogramTrace = null;
-	private DoubleDataset histogramXAxisRange = null;
+	private Dataset histogramXAxisRange = null;
 	private Observable<Integer> statsArrayCounterObservable;
 	private Observer<Integer> statsArrayCounterObserver, statsArrayCounterObserverStats;
 
@@ -418,7 +417,7 @@ public class Histogram extends Composite {
 			for (int i = 1; i < histSize; i++) {
 				range[i] = range[i - 1] + step;
 			}
-			histogramXAxisRange = new DoubleDataset(range);
+			histogramXAxisRange = DatasetFactory.createFromObject(range);
 			histogramXAxisRange.setName("Counts");
 			if (statsArrayCounterObservable == null) {
 				statsArrayCounterObservable = config.getImageNDStats().getPluginBase().createArrayCounterObservable();
@@ -467,7 +466,7 @@ public class Histogram extends Composite {
 										logger.error("Length of histogram does not match histSize");
 										return Status.OK_STATUS;
 									}
-									DoubleDataset ds = new DoubleDataset(histogram_RBV);
+									Dataset ds = DatasetFactory.createFromObject(histogram_RBV);
 									Number max = ds.max();
 									int numItemsToShow=histogram_RBV.length;
 									for( int i=numItemsToShow; i>0;i-- ){

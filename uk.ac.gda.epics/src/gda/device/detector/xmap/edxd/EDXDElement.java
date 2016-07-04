@@ -18,20 +18,20 @@
 
 package gda.device.detector.xmap.edxd;
 
+import java.util.Arrays;
+
+import org.eclipse.dawnsci.analysis.api.tree.Node;
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
+import org.eclipse.dawnsci.nexus.NexusException;
+import org.eclipse.dawnsci.nexus.NexusFile;
+
 import gda.data.nexus.INeXusInfoWriteable;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.device.DeviceException;
 import gda.device.detector.DetectorBase;
 import gda.device.epicsdevice.FindableEpicsDevice;
 import gda.device.epicsdevice.ReturnType;
-
-import java.util.Arrays;
-
-import org.eclipse.dawnsci.analysis.api.tree.Node;
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
-import org.eclipse.dawnsci.nexus.NexusException;
-import org.eclipse.dawnsci.nexus.NexusFile;
-
 import uk.ac.diamond.scisoft.analysis.fitting.Fitter;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.CompositeFunction;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.Quadratic;
@@ -516,8 +516,8 @@ public class EDXDElement extends DetectorBase implements INeXusInfoWriteable {
 	 * @throws Exception
 	 */
 	public void fitPolynomialToEnergyData(double[] actual, double[] reported) throws Exception {
-		DoubleDataset act = new DoubleDataset(actual);
-		DoubleDataset rep = new DoubleDataset(reported);
+		Dataset act = DatasetFactory.createFromObject(actual);
+		Dataset rep = DatasetFactory.createFromObject(reported);
 
 		double[] initial = {0.0,1.0,0.0};
 		CompositeFunction out = Fitter.fit(rep, act, new LeastSquares(0.0),new Quadratic(initial));

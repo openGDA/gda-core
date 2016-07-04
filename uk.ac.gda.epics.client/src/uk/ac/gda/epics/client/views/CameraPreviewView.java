@@ -18,15 +18,12 @@
 
 package uk.ac.gda.epics.client.views;
 
-import gda.device.DeviceException;
-import gda.images.camera.ImageListener;
-import gda.images.camera.MotionJpegOverHttpReceiverSwt;
-
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import org.eclipse.dawnsci.analysis.dataset.impl.IntegerDataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.resource.FontRegistry;
@@ -64,6 +61,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
+import gda.device.DeviceException;
+import gda.images.camera.ImageListener;
+import gda.images.camera.MotionJpegOverHttpReceiverSwt;
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 import uk.ac.diamond.scisoft.analysis.rcp.views.SidePlotView;
 import uk.ac.gda.client.viewer.IColourChangeListener;
@@ -277,7 +277,7 @@ public class CameraPreviewView extends ViewPart implements InitializingBean {
 			} catch (Exception e) {
 				logger.error("Problem getting array data", e);
 			}
-			IntegerDataset integerDS = new IntegerDataset(arrayDataForROI, endY - startY, endX - startX);
+			Dataset integerDS = DatasetFactory.createFromObject(arrayDataForROI, endY - startY, endX - startX);
 			try {
 				SDAPlotter.imagePlot(subsamplePlotViewName, integerDS);
 				// Open the subsample plot view id.

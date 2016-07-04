@@ -18,6 +18,16 @@
 
 package gda.device.detector.addetector;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
+import org.eclipse.dawnsci.analysis.dataset.impl.IntegerDataset;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
@@ -36,15 +46,6 @@ import gda.device.detector.areadetector.v17.NDOverlay;
 import gda.epics.connection.EpicsController;
 import gda.factory.FactoryException;
 import gov.aps.jca.Channel;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.eclipse.dawnsci.analysis.dataset.impl.IntegerDataset;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 
 /**
  * we assume the camera is in constant acquire mode, so we can just grab an image from the array plugin
@@ -329,7 +330,7 @@ public class ADCameraDetector extends DetectorBase implements InitializingBean, 
 			int[] shape = getDataDimensions();
 			if (arrayData.length > shape[0]*shape[1])
 				arrayData = Arrays.copyOf(arrayData, shape[0] * shape[1]);
-			IntegerDataset image = new IntegerDataset(arrayData, shape);
+			IntegerDataset image = DatasetFactory.createFromObject(IntegerDataset.class, arrayData, shape);
 			return image;
 		} catch (Exception e) {
 			throw new DeviceException("error reading image", e);

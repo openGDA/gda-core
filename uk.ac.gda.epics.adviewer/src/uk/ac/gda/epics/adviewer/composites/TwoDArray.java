@@ -19,7 +19,6 @@
 package uk.ac.gda.epics.adviewer.composites;
 
 import java.io.File;
-import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -35,15 +34,11 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.ByteDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
 import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.FloatDataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.IntegerDataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.LongDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.Maths;
-import org.eclipse.dawnsci.analysis.dataset.impl.ShortDataset;
 import org.eclipse.dawnsci.hdf.object.HierarchicalDataFactory;
 import org.eclipse.dawnsci.hdf.object.HierarchicalDataFileUtils;
 import org.eclipse.dawnsci.hdf.object.IHierarchicalDataFile;
@@ -378,7 +373,7 @@ public class TwoDArray extends Composite {
 		Dataset storeB = stores.get("B");
 		stores.remove("A-B");
 		if (storeA != null && storeB != null && Arrays.equals(storeA.getShape(), storeB.getShape())) {
-			DoubleDataset storeAMinusB = new DoubleDataset(Maths.subtract(storeA, storeB));
+			DoubleDataset storeAMinusB = Maths.subtract(storeA, storeB).cast(DoubleDataset.class);
 			storeAMinusB.setName("A-B");
 			stores.put("A-B", storeAMinusB);
 		}
@@ -724,23 +719,7 @@ public class TwoDArray extends Composite {
 				imageData = config.getImageData();
 				imageData.toString();
 				if (imageData.data.getClass().isArray()) {
-					Object object = Array.get(imageData.data, 0);
-					if (object instanceof Short) {
-						ads = new ShortDataset((short[]) (imageData.data), imageData.dimensions);
-					} else if (object instanceof Double) {
-						ads = new DoubleDataset((double[]) (imageData.data), imageData.dimensions);
-					} else if (object instanceof Long) {
-						ads = new LongDataset((long[]) (imageData.data), imageData.dimensions);
-					} else if (object instanceof Byte) {
-						ads = new ByteDataset((byte[]) (imageData.data), imageData.dimensions);
-					} else if (object instanceof Float) {
-						ads = new FloatDataset((float[]) (imageData.data), imageData.dimensions);
-					} else if (object instanceof Integer) {
-						ads = new IntegerDataset((int[]) (imageData.data), imageData.dimensions);
-					} else {
-						throw new IllegalArgumentException("Type of data not recognised: "
-								+ object.getClass().getName());
-					}
+					ads = DatasetFactory.createFromObject(imageData.data, imageData.dimensions);
 					ads.setName(arrayCounter.toString());
 					Dataset dsToShow = null;
 					String explanation = "";
@@ -762,7 +741,7 @@ public class TwoDArray extends Composite {
 								if (Arrays.equals(store.getShape(), ads.getShape())) {
 									boolean isOver = showIndex == OptionIndex.I_OVER_B;
 									if( isOver){
-										DoubleDataset doubleDataset = new DoubleDataset(store);
+										DoubleDataset doubleDataset = store.cast(DoubleDataset.class);
 										dsToShow = Maths.divide(ads,doubleDataset );
 									} else {
 										dsToShow = Maths.subtract(ads,store);
@@ -788,8 +767,8 @@ public class TwoDArray extends Composite {
 								if (Arrays.equals(store.getShape(), ads.getShape())) {
 									boolean isOver = showIndex == OptionIndex.I_OVER_A;
 									if( isOver){
-										DoubleDataset doubleDataset = new DoubleDataset(store);
-										dsToShow = Maths.divide(ads,doubleDataset );
+										DoubleDataset doubleDataset = store.cast(DoubleDataset.class);
+										dsToShow = Maths.divide(ads, doubleDataset);
 									} else {
 										dsToShow = Maths.subtract(ads,store);
 									}
@@ -808,7 +787,7 @@ public class TwoDArray extends Composite {
 						Dataset storeB = stores.get("B");
 						DoubleDataset storeA_B = (DoubleDataset) stores.get("A-B");
 						if (storeB != null && storeA_B != null && Arrays.equals(storeB.getShape(), ads.getShape())) {
-							DoubleDataset ds = new DoubleDataset(Maths.subtract(ads, storeB));
+							DoubleDataset ds = Maths.subtract(ads, storeB).cast(DoubleDataset.class);
 							dsToShow = Maths.dividez(ds, storeA_B);
 							dsToShow.setName("(" + ads.getName() + "-B)/(A-B)");
 						} else {
@@ -818,7 +797,7 @@ public class TwoDArray extends Composite {
 					}
 					}
 					if (dsToShow == null) {
-						dsToShow = new IntegerDataset(new int[] { 0, 0, 0, 0 }, 2, 2);
+						dsToShow = DatasetFactory.createFromObject(new int[] { 0, 0, 0, 0 }, 2, 2);
 						dsToShow.setName("Invalid selection:" + explanation);
 					}
 					nonNullDSToPlot = dsToShow;

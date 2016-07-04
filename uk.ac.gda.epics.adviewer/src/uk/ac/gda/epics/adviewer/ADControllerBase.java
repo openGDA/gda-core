@@ -18,6 +18,14 @@
 
 package uk.ac.gda.epics.adviewer;
 
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
+import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
+import org.eclipse.jface.resource.ImageDescriptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.util.StringUtils;
+
 import gda.device.DeviceException;
 import gda.device.detector.areadetector.v17.FfmpegStream;
 import gda.device.detector.areadetector.v17.ImageMode;
@@ -27,13 +35,6 @@ import gda.device.detector.areadetector.v17.impl.NDUtils;
 import gda.jython.InterfaceProvider;
 import gda.observable.Observable;
 import gda.observable.Observer;
-
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
-import org.eclipse.jface.resource.ImageDescriptor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.util.StringUtils;
 
 public abstract class ADControllerBase implements ADController, InitializingBean {
 	static final Logger logger = LoggerFactory.getLogger(ADControllerBase.class);
@@ -270,7 +271,7 @@ public abstract class ADControllerBase implements ADController, InitializingBean
 		for (int i = 1; i < histSize; i++) {
 			range[i] = range[i - 1] + step;
 		}
-		final DoubleDataset xData = new DoubleDataset(range);
+		final DoubleDataset xData = DatasetFactory.createFromObject(DoubleDataset.class, range);
 
 		final boolean wasEnabled = getImageNDStats().getPluginBase().isCallbacksEnabled_RBV();
 		final short histogramWasComputed = getImageNDStats().getComputeHistogram_RBV();
@@ -306,7 +307,7 @@ public abstract class ADControllerBase implements ADController, InitializingBean
 					}
 					double min = 0.;
 					double max = getImageMax();
-					DoubleDataset ds = new DoubleDataset(yData);
+					DoubleDataset ds = DatasetFactory.createFromObject(DoubleDataset.class, yData);
 					int j = getPosToIncludeFractionOfPopulation(ds, range_max);
 					if (j >= 0) {
 						max = xData.getDouble(j);
