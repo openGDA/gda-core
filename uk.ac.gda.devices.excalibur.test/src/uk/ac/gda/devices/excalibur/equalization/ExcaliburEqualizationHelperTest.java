@@ -26,6 +26,7 @@ import java.util.Random;
 import java.util.Vector;
 
 import org.eclipse.dawnsci.analysis.api.fitting.functions.IPeak;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.analysis.dataset.impl.ShortDataset;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -219,7 +220,7 @@ public class ExcaliburEqualizationHelperTest {
 				data[ih*width + iw] = (short)(mean + gaussianWidth*r.nextGaussian()+0.5);
 			}
 		}
-		ShortDataset shortDataset = new ShortDataset(data, height, width);
+		ShortDataset shortDataset = DatasetFactory.createFromObject(ShortDataset.class, data, height, width);
 		double[][] population = equalizationHelper.createBinnedPopulation( shortDataset);
 		CompositeFunction aPeak = equalizationHelper.fitGaussianToBinnedPopulation(population[0], population[1]);
 		Assert.assertEquals(2.4*gaussianWidth, aPeak.getPeak(0).getFWHM(), 1.0);
