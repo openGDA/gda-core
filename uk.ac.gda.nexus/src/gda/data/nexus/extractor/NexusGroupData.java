@@ -658,7 +658,7 @@ public class NexusGroupData implements Serializable {
 	 * @return dataset
 	 */
 	public Dataset toDataset(boolean keepBitWidth) {
-		Dataset dataset = DatasetFactory.createFromObject(getBuffer(), dtype);
+		Dataset dataset = DatasetFactory.createFromObject(dtype, getBuffer());
 		if (!keepBitWidth && isUnsigned) {
 			dataset = DatasetUtils.makeUnsigned(dataset);
 		}

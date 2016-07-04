@@ -21,6 +21,7 @@ package gda.data.nexus.extractor;
 
 import org.eclipse.dawnsci.analysis.dataset.impl.AbstractDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.analysis.dataset.impl.StringDataset;
 import org.junit.Assert;
 import org.junit.Test;
@@ -45,8 +46,7 @@ public class NexusGroupDataTest {
 	@Test
 	public void testStrings() {
 
-		StringDataset strings = new StringDataset(new String[] {"Hello", "world", "!", "How", "are", "you?"}, 2, 3);
-
+		StringDataset strings = DatasetFactory.createFromObject(StringDataset.class, new String[] { "Hello", "world", "!", "How", "are", "you?" }, 2, 3);
 		NexusGroupData ngd = NexusGroupData.createFromDataset(strings);
 
 		ngd.setMaxStringLength(40);
