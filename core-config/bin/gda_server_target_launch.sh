@@ -110,8 +110,8 @@ BEAMLINE_CONFIG="$GDA_WORKSPACE_PARENT/$GDA_INSTANCE_CONFIG_rel"
 # Default: used the current latched version
 #
 if [[ "$ARGS_IN" != *"devel"* ]] && [[ "$ARGS_IN" != *"release"* ]] && [[ "$ARGS_IN" != *"snapshot"* ]]; then
-	module load gda-server/$BEAMLINE
 	$LATCH_SCRIPT                                              # record the current latched state in the log
+	export PATH="$MY_WORKSPACE_PARENT/launch:${PATH}"
 
 # One-time run options:
 #
