@@ -26,6 +26,7 @@ import java.util.Arrays;
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyWriteableDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.AbstractDataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DTypeUtils;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
@@ -109,7 +110,7 @@ public class NexusGroupData implements Serializable {
 	 * @param clazz
 	 */
 	NexusGroupData(int[] dimensions, Class<?> clazz) {
-		this(dimensions, AbstractDataset.getDTypeFromClass(clazz), null);
+		this(dimensions, DTypeUtils.getDTypeFromClass(clazz), null);
 	}
 
 	/**
@@ -889,7 +890,7 @@ public class NexusGroupData implements Serializable {
 		case Dataset.FLOAT32:
 		case Dataset.FLOAT64:
 		case Dataset.BOOL: {
-			int size = AbstractDataset.getItemsize(dtype);
+			int size = DTypeUtils.getItemBytes(dtype);
 			return NexusUtils.estimateChunking(dims, size, null, NexusUtils.ChunkingStrategy.SKEW_LAST);
 		}
 		default:
