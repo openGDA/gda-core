@@ -18,10 +18,10 @@
 
 package gda.data.scan.datawriter;
 
-import gda.configuration.properties.LocalProperties;
-
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
+
+import gda.configuration.properties.LocalProperties;
 
 
 /**

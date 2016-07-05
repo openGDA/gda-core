@@ -18,8 +18,6 @@
 
 package uk.ac.gda.exafs.ui.composites;
 
-import gda.jython.JythonServerFacade;
-
 import org.eclipse.richbeans.api.event.ValueEvent;
 import org.eclipse.richbeans.api.event.ValueListener;
 import org.eclipse.richbeans.widgets.FieldBeanComposite;
@@ -36,6 +34,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
+import gda.jython.JythonServerFacade;
 import uk.ac.gda.beans.exafs.b18.B18SampleParameters;
 
 /**
@@ -175,9 +174,12 @@ public final class SampleWheelParametersComposite extends FieldBeanComposite {
 	}
 
 	private int findFilterIndex(String name) {
-		for (int i = 0; i < getFilters().length; i++)
-			if (getFilters()[i].equals(name))
+		// Store filterlist at start to improve efficiency... imh 3/6/2016
+		String [] filterList = getFilters();
+		for (int i = 0; i < filterList.length; i++) {
+			if (filterList[i].equals(name))
 				return i;
+	        }
 		return -1;
 	}
 
