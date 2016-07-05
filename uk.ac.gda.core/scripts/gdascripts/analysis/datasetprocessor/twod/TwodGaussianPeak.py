@@ -34,7 +34,7 @@ class TwodGaussianPeak(TwodDataSetProcessor):
 		TwodDataSetProcessor.__init__(self, name, labelList, keyxlabel, keyylabel, formatString)
 		self.maxwidth = None
 		
-	def _process(self, ds, xoffset=0, yoffset=0, Dataset=DoubleDataset):###dsxaxis, dsyaxis):
+	def _process(self, ds, xoffset=0, yoffset=0):###dsxaxis, dsyaxis):
 ##		assert(dsyaxis is None)		# STUB
 ##		assert(dsxaxis is None)		# STUB
 		
