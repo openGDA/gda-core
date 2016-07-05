@@ -22,6 +22,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.data.NumTracker;
 import gda.data.PathConstructor;
 import gda.data.nexus.extractor.NexusGroupData;
@@ -50,6 +53,9 @@ import uk.ac.gda.util.beans.xml.XMLHelpers;
  * @author rjw82
  */
 public class Xspress3Detector extends DetectorBase implements Xspress3 {
+
+	private static final Logger logger = LoggerFactory.getLogger(Xspress3Detector.class);
+
 	private static final int MCA_SIZE = 4096;
 	public static final String ALL_ELEMENT_SUM_LABEL = "AllElementSum_";
 	public static int SUM_ALL_ROI = 0;
@@ -208,6 +214,39 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 		// triggered by the TFG, so always return idle and let whatever other
 		// Detector object driving the TFG to control the status
 		return Detector.IDLE;
+	}
+
+	public void waitUntilDetectorStateIsBusy(long timeout) throws DeviceException {
+		final long startTime = System.currentTimeMillis();
+		while (true) {
+			if (controller.getStatus() == Detector.BUSY) {
+				logger.info("Detector is ready for triggering");
+				break;
+			}
+			final long elapsedTime = (System.currentTimeMillis() - startTime);
+			if (elapsedTime > timeout) {
+				throw new DeviceException(String.format("Detector was not ready for triggering after %d ms", timeout));
+			}
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				throw new DeviceException("Interrupted while waiting for detector to be busy", e);
+			}
+		}
+	}
+
+	public void waitUntilDetectorStateIsNotBusy() throws DeviceException {
+		while (true) {
+			if (controller.getStatus() != Detector.BUSY) {
+				logger.info("Detector is not busy");
+				break;
+			}
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				throw new DeviceException("Interrupted while waiting for detector to not be busy", e);
+			}
+		}
 	}
 
 	@Override
