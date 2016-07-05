@@ -65,7 +65,7 @@ import org.eclipse.dawnsci.analysis.api.dataset.SliceND;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
 import org.eclipse.dawnsci.analysis.api.tree.Node;
-import org.eclipse.dawnsci.analysis.dataset.impl.AbstractDataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DTypeUtils;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFileHDF5;
@@ -683,7 +683,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 							specifiedChunkDims = new int[scanDimensions.length];
 							Arrays.fill(specifiedChunkDims, -1);
 						}
-						int dataByteSize = AbstractDataset.getItemsize(sds.getDtype());
+						int dataByteSize = DTypeUtils.getItemBytes(sds.getDtype());
 						if (dataByteSize <= 0) {
 							// TODO: Fix for string types, particularly fixed length strings
 							dataByteSize = 4;

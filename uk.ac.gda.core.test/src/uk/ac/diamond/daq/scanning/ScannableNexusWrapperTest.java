@@ -60,7 +60,7 @@ import org.eclipse.dawnsci.analysis.api.tree.Attribute;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
 import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
-import org.eclipse.dawnsci.analysis.dataset.impl.AbstractDataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DTypeUtils;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFileFactoryHDF5;
 import org.eclipse.dawnsci.json.MarshallerService;
@@ -754,7 +754,7 @@ public class ScannableNexusWrapperTest {
 			int[] shape = dataset.getShape();
 			assertArrayEquals(new int[] { 1 }, shape);
 			Object expectedValue = attributeScannable.getScanMetadataAttribute(attrName);
-			assertEquals(AbstractDataset.getDTypeFromObject(expectedValue),
+			assertEquals(DTypeUtils.getDTypeFromObject(expectedValue),
 					((Dataset) dataset).getDType());
 			assertEquals(expectedValue, dataset.getObject(0));
 		}
