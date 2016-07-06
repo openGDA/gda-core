@@ -1,14 +1,14 @@
 package uk.ac.diamond.daq.detectors.vgscienta.electronanalyser;
 
-import org.eclipse.dawnsci.analysis.api.dataset.ILazyWriteableDataset;
-import org.eclipse.dawnsci.analysis.api.dataset.SliceND;
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
+import org.eclipse.january.dataset.Dataset;
+import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.january.dataset.ILazyWriteableDataset;
+import org.eclipse.january.dataset.SliceND;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.ScanningException;
@@ -147,9 +147,9 @@ public class ElectronAnalyserRunnableDevice extends AreaDetectorWritingFilesRunn
 		}
 
 		// FIXME These should be read from the device in the first call to write once EPICS allows it.
-		energyAxis = nxDetector.initializeLazyDataset(ENERGIES_ENTRY_NAME, 1, Dataset.FLOAT64);
+		energyAxis = nxDetector.initializeLazyDataset(ENERGIES_ENTRY_NAME, 1, Double.class);
 		nxDetector.setAttribute(ENERGIES_ENTRY_NAME, "units", "eV");
-		yAxis = nxDetector.initializeLazyDataset(ANGLES_ENTRY_NAME, 1, Dataset.FLOAT64);
+		yAxis = nxDetector.initializeLazyDataset(ANGLES_ENTRY_NAME, 1, Double.class);
 		if (electronAnalyserModel.getLensMode() == DA30LensMode.TRANSMISSION) {
 			nxDetector.setAttribute(ANGLES_ENTRY_NAME, "units", "mm");
 		} else {

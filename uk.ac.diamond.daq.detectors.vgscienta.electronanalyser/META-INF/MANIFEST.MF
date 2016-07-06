@@ -10,9 +10,9 @@ Require-Bundle: org.eclipse.scanning.api,
  uk.ac.gda.devices.vgscienta,
  uk.ac.gda.api,
  uk.ac.gda.epics,
+ org.eclipse.january;bundle-version="1.0.0",
  org.eclipse.dawnsci.analysis.api,
  uk.ac.diamond.daq.detectors.vgscienta.electronanalyser.api,
- org.eclipse.dawnsci.analysis.dataset,
  uk.ac.diamond.daq.detectors.addetector.api,
  uk.ac.diamond.daq.detectors.addetector
 Export-Package: uk.ac.diamond.daq.detectors.vgscienta.electronanalyser
