@@ -6,6 +6,7 @@ Bundle-Version: 1.2.0.qualifier
 Bundle-Activator: uk.ac.gda.devices.cirrus.Activator
 Require-Bundle: org.eclipse.core.runtime,
  uk.ac.diamond.CBFlib;bundle-version="1.0.0",
+ org.eclipse.january;bundle-version="1.0.0",
  org.eclipse.dawnsci.analysis.api;bundle-version="1.0.0",
  uk.ac.gda.core;bundle-version="1.0.0",
  uk.ac.gda.libs;bundle-version="1.0.0",
