@@ -84,7 +84,7 @@ public class Activator extends AbstractUIPlugin implements BundleActivator {
 
 	/**
 	 * Returns the shared instance
-	 * 
+	 *
 	 * @return the shared instance
 	 */
 	public static Activator getDefault() {
