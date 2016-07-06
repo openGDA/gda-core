@@ -4,8 +4,8 @@ import os.path
 import jarray
 from java.util import Arrays
 from gda.data.nexus import NexusUtils
-from org.eclipse.dawnsci.analysis.dataset.impl import Dataset, DatasetFactory
-from org.eclipse.dawnsci.analysis.api.dataset import SliceND
+from org.eclipse.january.dataset import Dataset, DatasetFactory
+from org.eclipse.january.dataset import SliceND
 
 TestFileFolder = "test-scratch/gda/data/nexus/GdaNexusTestFiles";
 class NexusFileTest(unittest.TestCase):

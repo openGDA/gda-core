@@ -18,7 +18,7 @@
 
 package uk.ac.gda.analysis.hdf5;
 
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.january.dataset.Dataset;
 
 import hdf.hdf5lib.H5;
 import hdf.hdf5lib.HDF5Constants;

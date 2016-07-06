@@ -1,8 +1,6 @@
 from TwodDataSetProcessor import TwodDataSetProcessor
 from TwodGaussianPeak import TwodGaussianPeak
 
-from org.eclipse.dawnsci.analysis.dataset.impl import DoubleDataset
-
 LABELLIST = (
 			'background',
 			'peakx_raw',

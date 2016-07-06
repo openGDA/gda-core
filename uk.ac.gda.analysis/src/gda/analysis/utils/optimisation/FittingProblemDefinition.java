@@ -19,7 +19,7 @@
 package gda.analysis.utils.optimisation;
 
 import org.eclipse.dawnsci.analysis.api.fitting.functions.IFunction;
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
+import org.eclipse.january.dataset.DoubleDataset;
 
 /**
  * This implementation is for fitting 1d data to a composite function

@@ -26,7 +26,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.january.dataset.Dataset;
 
 public class DatasetStats extends DataSetProcessorBase {
 

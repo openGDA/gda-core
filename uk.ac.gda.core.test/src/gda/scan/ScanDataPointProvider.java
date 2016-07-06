@@ -18,12 +18,12 @@
 
 package gda.scan;
 
+import org.eclipse.january.dataset.Dataset;
+
 import gda.TestHelpers;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.device.Detector;
 import gda.device.Scannable;
-
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 
 public class ScanDataPointProvider {
 	ScanDataPoint[] points;

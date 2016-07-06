@@ -26,8 +26,8 @@ import gda.data.nexus.tree.NexusTreeNodeSelection;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.dawnsci.analysis.api.monitor.IMonitor;
 import org.eclipse.dawnsci.nexus.NexusException;
+import org.eclipse.january.IMonitor;
 
 /**
  * This duplicates static methods to allow direct access to the methods from this class.

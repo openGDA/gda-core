@@ -16,9 +16,9 @@ from gda.analysis import ScanFileHolder
 
 
 from uk.ac.diamond.scisoft.analysis import SDAPlotter;
-from org.eclipse.dawnsci.analysis.dataset.impl import DoubleDataset;
 
 from gdascripts.scannable.detector.ZipImageProducer import ZipImageProducerClass;
+from org.eclipse.january.dataset import DatasetUtils
 
 FILELOADERS={
 			'TIF'  : TIFFImageLoader,
@@ -128,7 +128,7 @@ class DummyAreaDetectorClass(DetectorBase):
 
 		if self.panel:
 			if self.logScale:
-				SDAPlotter.imagePlot(self.panel, DatasetMaths.lognorm(dataset)); #For RCP GUI
+				SDAPlotter.imagePlot(self.panel, DatasetUtils.lognorm(dataset)); #For RCP GUI
 			else:
 				SDAPlotter.imagePlot(self.panel, dataset); #For RCP GUI
 		else:

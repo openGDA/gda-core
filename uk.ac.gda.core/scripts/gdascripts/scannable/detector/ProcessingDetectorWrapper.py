@@ -1,5 +1,5 @@
 from uk.ac.diamond.scisoft.analysis import SDAPlotter
-from org.eclipse.dawnsci.analysis.dataset.impl import DoubleDataset
+from org.eclipse.january.dataset import DatasetFactory
 from org.slf4j import LoggerFactory
 from gda.device import DetectorSnapper, DeviceException
 
@@ -331,7 +331,7 @@ class ProcessingDetectorWrapper(PseudoDevice, PositionCallableProvider):
 				return
 			elif isinstance(dataset, gda.device.detector.NXDetectorData):
 				data = dataset.getNexusTree().getChildNode(1).getChildNode(1).getData()
-				dataset = DoubleDataset(data.getBuffer())
+				dataset = DatasetFactory.createFromObject(data.getBuffer())
 				dataset.setShape(data.dimensions)
 				dataset.squeeze()
 				self.logger.debug("dataset is NXDetectorData: {}", dataset)

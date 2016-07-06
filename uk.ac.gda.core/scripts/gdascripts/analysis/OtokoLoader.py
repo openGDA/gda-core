@@ -1,6 +1,6 @@
 from gda.analysis.io import IFileLoader
 from uk.ac.diamond.scisoft.analysis.io import DataHolder
-from org.eclipse.dawnsci.analysis.dataset.impl import DoubleDataset
+from org.eclipse.january.dataset import DoubleDataset, DatasetFactory
 from struct import unpack
 import re
 import os
@@ -122,12 +122,12 @@ class OtokoLoader(IFileLoader):
 				endstr="<"
 			for i in range(thing["frames"]):
 				list=unpack(endstr+size.__str__()+'f', file.read(size*4))
-				if thing["x"] <= 1:
-					self.result.addDataSet(thing["name"]+i.__str__(), DoubleDataset(os.path.basename(thing["filename"])+" frame "+i.__str__(),list))
-				elif thing["y"] <= 1:
-					self.result.addDataSet(thing["name"]+i.__str__(), DoubleDataset(os.path.basename(thing["filename"])+" frame "+i.__str__(),list))
-				else:
-					self.result.addDataSet(thing["name"]+i.__str__(), DoubleDataset(os.path.basename(thing["filename"])+" frame "+i.__str__(),thing["x"],thing["y"],list))
+				ds = DatasetFactory.createFromObject(list)
+				
+				if thing["x"] > 1 and thing["y"] > 1:
+					ds.setShape(thing["x"], thing["y"])
+				ds.setName(os.path.basename(thing["filename"])+" frame "+i.__str__())
+				self.result.addDataSet(thing["name"]+i.__str__(), ds)
 			file.close()
 			self.detectors[thing["name"]]=thing["frames"]
 		except IOError, message:
@@ -147,12 +147,11 @@ class OtokoLoader(IFileLoader):
 				# little endian/intel
 				endstr="<"
 			list=unpack(endstr+size.__str__()+'f', file.read(size*4))
-			if thing["x"] <= 1:
-				self.result.addDataSet(thing["name"], DoubleDataset(os.path.basename(thing["filename"])+" all frames",list))
-			elif thing["frames"] <= 1:
-				self.result.addDataSet(thing["name"], DoubleDataset(os.path.basename(thing["filename"])+" all frames",list))
-			else:
-				self.result.addDataSet(thing["name"], DoubleDataset(os.path.basename(thing["filename"])+" all frames",thing["x"],thing["frames"],list))
+			ds = DatasetFactory.createFromObject(list)
+			if thing["x"] > 1 and thing["frames"] > 1:
+				ds.setShape(thing["x"], thing["frames"])
+			ds.setName(os.path.basename(thing["filename"])+" all frames")
+			self.result.addDataSet(thing["name"], ds)
 			file.close()
 			self.detectors[thing["name"]]=thing["frames"]
 		except IOError, message:

@@ -2,20 +2,20 @@ from gdascripts.scannable.ScanFileHolderScannable import ScanFileHolderScannable
 	SFHInterpolatorWithHashAccess, quantise
 from gdascripts.scannable.ScanFileHolderScannable import SFHInterpolator
 from gda.analysis import ScanFileHolder
-from org.eclipse.dawnsci.analysis.dataset.impl import DoubleDataset
+from org.eclipse.january.dataset import DatasetFactory
 
 
 import unittest
 
 
-def createSFH(DataSet=DoubleDataset):
+def createSFH():
 
 	result = ScanFileHolder()
-	result.addDataSet('i1', DataSet.array([0,1,2,3,4,5,6,7,8,9]))
-	result.addDataSet('i2', DataSet.array([0,10,20,30,40,50,60,70,80,90]))
-	result.addDataSet('e1', DataSet.array([0,.1,.2,.3,.4,.5,.3,.2,.1,0]))
-# 	result.addDataSet('e2', DataSet.array([0,.1,.2,.3,.4,.5,.3,.2,.1,0])+100)	
-	result.addDataSet('e2', DataSet.array([100.,100.1,100.2,100.3,100.4,100.5,100.3,100.2,100.1,100.]))	
+	result.addDataSet('i1', DatasetFactory.createFromObject([0,1,2,3,4,5,6,7,8,9]))
+	result.addDataSet('i2', DatasetFactory.createFromObject([0,10,20,30,40,50,60,70,80,90]))
+	result.addDataSet('e1', DatasetFactory.createFromObject([0,.1,.2,.3,.4,.5,.3,.2,.1,0]))
+# 	result.addDataSet('e2', DatasetFactory.createFromObject([0,.1,.2,.3,.4,.5,.3,.2,.1,0])+100)	
+	result.addDataSet('e2', DatasetFactory.createFromObject([100.,100.1,100.2,100.3,100.4,100.5,100.3,100.2,100.1,100.]))	
 	return result
 
 
@@ -49,11 +49,11 @@ class TestSFHInterpolatorWithHashAccess(TestSFHInterpolator):
 
 class TestSFHInterpolatorWithHashAccessProperly(unittest.TestCase):
 
-	def setUp(self, DataSet=DoubleDataset):
+	def setUp(self):
 		sfh = ScanFileHolder()
-		sfh.addDataSet('i1', DataSet.array([10,10,10, 20,20,20, 30,30,30]))
-		sfh.addDataSet('i2', DataSet.array([1,2,3, 1,2,3, 1,2,3]))
-		sfh.addDataSet('e1', DataSet.array([0,.1,.2,.3,.4,.5,.6, .7, .8, .9]))
+		sfh.addDataSet('i1', DatasetFactory.createFromObject([10,10,10, 20,20,20, 30,30,30]))
+		sfh.addDataSet('i2', DatasetFactory.createFromObject([1,2,3, 1,2,3, 1,2,3]))
+		sfh.addDataSet('e1', DatasetFactory.createFromObject([0,.1,.2,.3,.4,.5,.6, .7, .8, .9]))
 		self.sfhi = SFHInterpolatorWithHashAccess(sfh, {'i1':1, 'i2':1}, ('i1','i2'))
 
 	def test__init__(self):
@@ -66,22 +66,22 @@ class TestSFHInterpolatorWithHashAccessProperly(unittest.TestCase):
 		self.assertEquals(quantise(1.5, 1) ,2.)
 		self.assertEquals(quantise(1.1234, .1) ,1.1)
 		
-	def testWithWoblyData(self, DataSet=DoubleDataset):
+	def testWithWoblyData(self):
 		sfh = ScanFileHolder()
-		sfh.addDataSet('i1', DataSet.array([10.1,10.4,9.6, 20.1,20.2,19.9, 30,30,30]))
-		sfh.addDataSet('i2', DataSet.array([1.09,1.99,3, 1.01,2.099,3, 1,2,3]))
-		sfh.addDataSet('e1', DataSet.array([0,.1,.2,.3,.4,.5,.6, .7, .8, .9]))
+		sfh.addDataSet('i1', DatasetFactory.createFromObject([10.1,10.4,9.6, 20.1,20.2,19.9, 30,30,30]))
+		sfh.addDataSet('i2', DatasetFactory.createFromObject([1.09,1.99,3, 1.01,2.099,3, 1,2,3]))
+		sfh.addDataSet('e1', DatasetFactory.createFromObject([0,.1,.2,.3,.4,.5,.6, .7, .8, .9]))
 		self.sfhi = SFHInterpolatorWithHashAccess(sfh, {'i1':10, 'i2':0.2}, ('i1','i2'))
 		self.assertEquals(self.sfhi.lookupDict, {10.0: {3.0: 2, 2.0: 1, 1.0: 0}, 20.0: {3.0: 5, 2.0: 4, 1.0: 3}, 30.0: {3.0: 8, 2.0: 7, 1.0: 6}})
 
 
 class TestScanFileHolderScannable(unittest.TestCase):
 	
-	def setUp(self, DataSet=DoubleDataset):
+	def setUp(self):
 		sfh = ScanFileHolder()
-		sfh.addDataSet('i1', DataSet.array([10.1,10.4,9.6, 20.1,20.2,19.9, 30,30,30]))
-		sfh.addDataSet('i2', DataSet.array([1.09,1.99,3, 1.01,2.099,3, 1,2,3]))
-		sfh.addDataSet('e1', DataSet.array([0,.1,.2,.3,.4,.5,.6, .7, .8, .9]))
+		sfh.addDataSet('i1', DatasetFactory.createFromObject([10.1,10.4,9.6, 20.1,20.2,19.9, 30,30,30]))
+		sfh.addDataSet('i2', DatasetFactory.createFromObject([1.09,1.99,3, 1.01,2.099,3, 1,2,3]))
+		sfh.addDataSet('e1', DatasetFactory.createFromObject([0,.1,.2,.3,.4,.5,.6, .7, .8, .9]))
 		self.sfhi = SFHInterpolatorWithHashAccess(sfh, {'i1':10, 'i2':0.2}, ('i1','i2'))
 
 		self.sfhs = ScanFileHolderScannable('sfhs', sfh, ('i1','i2'), ('e1',), {'i1':10, 'i2':0.2})

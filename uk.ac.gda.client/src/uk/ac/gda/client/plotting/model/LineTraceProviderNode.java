@@ -18,9 +18,9 @@
 
 package uk.ac.gda.client.plotting.model;
 
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 import org.eclipse.dawnsci.plotting.api.trace.ILineTrace.PointStyle;
 import org.eclipse.dawnsci.plotting.api.trace.ILineTrace.TraceType;
+import org.eclipse.january.dataset.DoubleDataset;
 
 import uk.ac.gda.beans.ObservableModel;
 

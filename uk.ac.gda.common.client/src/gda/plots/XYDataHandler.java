@@ -25,7 +25,7 @@ import java.awt.Color;
 import java.io.IOException;
 import java.text.NumberFormat;
 
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
+import org.eclipse.january.dataset.DoubleDataset;
 import org.jfree.data.Range;
 
 public interface XYDataHandler {

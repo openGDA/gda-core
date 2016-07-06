@@ -26,7 +26,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Vector;
 
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.january.dataset.Dataset;
 
 /**
  * Extracts dataset from NexusTreeprovider and passes to processors

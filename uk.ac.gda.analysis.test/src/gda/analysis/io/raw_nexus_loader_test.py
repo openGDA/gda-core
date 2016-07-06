@@ -6,8 +6,8 @@ import jarray
 from gda.analysis import ScanFileHolder #@UnresolvedImport
 from gda.analysis.io import AsciiScanFileHolderSaver, SimpleNexusSaver, SRSLoader #@UnresolvedImport
 from gda.data.nexus import NexusUtils
-from org.eclipse.dawnsci.analysis.dataset.impl import Dataset, DatasetFactory
-from org.eclipse.dawnsci.analysis.api.dataset import SliceND
+from org.eclipse.january.dataset import Dataset, DatasetFactory
+from org.eclipse.january.dataset import SliceND
 from java.util import Arrays
 from gda.jython import InterfaceProvider #@UnresolvedImport
 from gda.jython import MockJythonServerFacade #@UnresolvedImport

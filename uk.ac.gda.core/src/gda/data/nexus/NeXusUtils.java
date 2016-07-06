@@ -31,11 +31,11 @@ import gda.util.Version;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import org.eclipse.dawnsci.analysis.api.dataset.ILazyWriteableDataset;
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusUtils;
+import org.eclipse.january.dataset.ILazyWriteableDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

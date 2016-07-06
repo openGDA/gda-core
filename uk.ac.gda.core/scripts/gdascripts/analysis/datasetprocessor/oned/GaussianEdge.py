@@ -1,6 +1,6 @@
 from XYDataSetProcessor import XYDataSetFunction
 from gdascripts.analysis.datasetprocessor.oned.GaussianPeakAndBackground import  GaussianPeak
-from org.eclipse.dawnsci.analysis.dataset.impl import Maths
+from org.eclipse.january.dataset import Maths
 
 class GaussianEdge(XYDataSetFunction):
 

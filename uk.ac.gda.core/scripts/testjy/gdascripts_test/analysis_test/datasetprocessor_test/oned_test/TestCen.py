@@ -1,6 +1,6 @@
 from gdascripts.analysis.datasetprocessor.oned.CenFromSPEC import CenFromSPEC, interp
 
-from org.eclipse.dawnsci.analysis.dataset.impl import DatasetFactory
+from org.eclipse.january.dataset import DatasetFactory
 
 
 import unittest

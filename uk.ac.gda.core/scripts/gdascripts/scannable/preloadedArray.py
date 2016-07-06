@@ -1,5 +1,5 @@
 from gda.device.scannable import PseudoDevice
-from org.eclipse.dawnsci.analysis.dataset.impl import DoubleDataset
+from org.eclipse.january.dataset import DatasetFactory
 
 
 try:
@@ -70,11 +70,11 @@ class PreloadedArray(PseudoDevice):
 			result.append(self.getColumn(column)[self.index])
 		return result
 	
-	def plotAxisToDataVectorPlot(self, plotName, xColumnName, yColumnName, DataSet=DoubleDataset):
+	def plotAxisToDataVectorPlot(self, plotName, xColumnName, yColumnName):
 		print "plotAxisToDataVectorPlot", plotName, xColumnName, yColumnName
-		xdataset = DataSet.array(self.getColumn(xColumnName))
+		xdataset = DatasetFactory.createFromObject(self.getColumn(xColumnName))
 		xdataset.setName(xColumnName)
-		ydataset = DataSet.array(self.getColumn(yColumnName))
+		ydataset = DatasetFactory.createFromObject(self.getColumn(yColumnName))
 		ydataset.setName(yColumnName)
 		if plotName is not None:	
 			Plotter.plot(plotName ,xdataset, [ydataset])

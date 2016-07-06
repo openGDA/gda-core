@@ -1,6 +1,5 @@
 from TestProcessingDetectorWrapper import MockDetectorDataProcessor
-from org.eclipse.dawnsci.analysis.dataset.impl import DoubleDataset
-from org.eclipse.dawnsci.analysis.dataset.impl import DatasetUtils
+from org.eclipse.january.dataset import DatasetUtils, DatasetFactory
 from gdascripts.scannable.detector.DatasetShapeRenderer import DatasetShapeRenderer, LinePainter, RectPainter
 import unittest
 
@@ -13,7 +12,7 @@ class TestLinePainter(unittest.TestCase):
 		
 	def testPainter(self):
 		line = LinePainter(0, 0 , 0, 1)
-		ds = line.paint(DoubleDataset([2, 3]))
+		ds = line.paint(DatasetFactory.zeros(2, 3))
 		expected = [
 				[1., 1., 0.],
 				[0., 0., 0.]]
@@ -26,7 +25,7 @@ class TestRectPainter(unittest.TestCase):
 		
 	def testPainter(self):
 		rect = RectPainter(1, 1, 3, 4)
-		ds = rect.paint(DoubleDataset([4, 5]))
+		ds = rect.paint(DatasetFactory.zeros(4, 5))
 		expected = [
 				[0., 0., 0., 0., 0.],
 				[0., 1., 1., 1., 1.],
@@ -64,7 +63,7 @@ class TestDatasetShapeRenderer(unittest.TestCase):
 	
 	def testRenderShapes(self):
 		self.testAddShape()
-		ds = DoubleDataset([4, 5])
+		ds = DatasetFactory.zeros(4, 5)
 		result = self.renderer.renderShapes(ds)
 		expected = [
 				[1., 1., 0., 0., 0.],
@@ -75,7 +74,7 @@ class TestDatasetShapeRenderer(unittest.TestCase):
 	
 	def testRenderShapesOntoDataset(self):
 		self.testAddShape()
-		ds = DoubleDataset([4, 5])
+		ds = DatasetFactory.zeros(4, 5)
 		ds.set(10, (2, 2))
 		result = self.renderer.renderShapesOntoDataset(ds)
 		expected = [

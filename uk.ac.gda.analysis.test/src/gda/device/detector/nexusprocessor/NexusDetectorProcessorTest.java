@@ -29,8 +29,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
 
-import org.eclipse.dawnsci.analysis.api.dataset.Slice;
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.january.dataset.Dataset;
+import org.eclipse.january.dataset.Slice;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

@@ -23,8 +23,8 @@ import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.core.databinding.observable.list.IObservableList;
-import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
+import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.january.dataset.DoubleDataset;
 import org.eclipse.swt.widgets.Display;
 
 public class ScanDataItemNode extends LineTraceProviderNode {

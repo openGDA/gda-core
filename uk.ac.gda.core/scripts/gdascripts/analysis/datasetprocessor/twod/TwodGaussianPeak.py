@@ -5,7 +5,7 @@ from uk.ac.diamond.scisoft.analysis.fitting.functions import Gaussian, Offset
 from uk.ac.diamond.scisoft.analysis.optimize import GeneticAlg
 from uk.ac.diamond.scisoft.analysis.fitting import Fitter 
 
-from org.eclipse.dawnsci.analysis.dataset.impl import DatasetFactory
+from org.eclipse.january.dataset import DatasetFactory
 
 from math import pi
 import java.lang.IllegalArgumentException

@@ -5,7 +5,7 @@ from java.util.concurrent import Callable
 from gdascripts.scannable.detector.DatasetShapeRenderer import RectPainter
 from org.eclipse.dawnsci.analysis.api.io import ScanFileHolderException
 from gda.device.detector.hardwaretriggerable import HardwareTriggerableDetector
-from org.eclipse.dawnsci.analysis.api.dataset import Slice
+from org.eclipse.january.dataset import Slice
 
 class DetectorDataProcessorPositionCallable(Callable):
 	

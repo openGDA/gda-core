@@ -22,8 +22,8 @@ import gda.factory.Findable;
 
 import java.util.Arrays;
 
-import org.eclipse.dawnsci.analysis.api.dataset.Slice;
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.january.dataset.Dataset;
+import org.eclipse.january.dataset.Slice;
 
 public class DatasetCreatorFromROI implements DatasetCreator, Findable {
 

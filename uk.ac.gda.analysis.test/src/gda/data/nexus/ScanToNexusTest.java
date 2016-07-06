@@ -50,7 +50,7 @@ import java.util.LinkedList;
 
 import junit.framework.Assert;
 
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.january.dataset.Dataset;
 import org.junit.Before;
 import org.junit.Test;
 

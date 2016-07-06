@@ -1,4 +1,4 @@
-from org.eclipse.dawnsci.analysis.dataset.impl import DoubleDataset, Maths
+from org.eclipse.january.dataset import DatasetFactory, Maths, Dataset
 class DatasetShapeRenderer(object):
 	
 	def __init__(self):
@@ -17,7 +17,8 @@ class DatasetShapeRenderer(object):
 		
 	def renderShapes(self, targetDataset):
 		# Make a blank data set
-		image = DoubleDataset(targetDataset.getShape())
+		# beware bizarre Jython bug where it cannot call correct method with only a shape argument
+		image = DatasetFactory.zeros(targetDataset.getShape(), Dataset.FLOAT64) 
 		for shapeDict in self.shapesToPaint.values():
 			for shape in shapeDict.values():
 				image = shape.paint(image)

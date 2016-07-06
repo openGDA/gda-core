@@ -13,8 +13,8 @@ class SumMaxPositionAndValue(TwodDataSetProcessor):
 		TwodDataSetProcessor.__init__(self, name, labelList, keyxlabel, keyylabel, formatString)
 	
 	def _process(self, ds, dsxaxis, dsyaxis):
-		self.logger.trace("_process({}, {}, {}) shape={}, getElementsPerItem={} Dtype={}", [
-			ds, dsxaxis, dsyaxis, ds.shape, ds.getElementsPerItem(), ds.getDtype()])
+		self.logger.trace("_process({}, {}, {}) shape={}, getElementsPerItem={} DType={}", [
+			ds, dsxaxis, dsyaxis, ds.shape, ds.getElementsPerItem(), ds.getDType()])
 		#dsysize, dsxsize = ds.shape
 		#assert(dsyaxis==dsysize)		
 		#assert(dsxaxis==dsxsize)

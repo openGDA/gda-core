@@ -22,8 +22,8 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Vector;
 
-import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
-import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
+import org.eclipse.january.dataset.IDataset;
+import org.eclipse.january.dataset.ILazyDataset;
 import org.junit.BeforeClass;
 import org.junit.Test;
 

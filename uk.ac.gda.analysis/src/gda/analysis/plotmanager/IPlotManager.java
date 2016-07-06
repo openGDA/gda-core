@@ -19,13 +19,13 @@
 
 package gda.analysis.plotmanager;
 
+import org.eclipse.january.dataset.Dataset;
+
 import gda.device.Device;
 import gda.factory.Configurable;
 import gda.factory.Findable;
 import gda.factory.Localizable;
 import gda.observable.IObservable;
-
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 
 /**
  * IPlotManager Interface

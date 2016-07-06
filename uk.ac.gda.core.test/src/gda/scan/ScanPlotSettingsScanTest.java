@@ -19,13 +19,15 @@
 package gda.scan;
 
 import static org.junit.Assert.assertEquals;
+
+import org.eclipse.january.dataset.Dataset;
+
 import gda.TestHelpers;
 import gda.configuration.properties.LocalProperties;
 import gda.device.Detector;
 import gda.device.Scannable;
 import gda.jython.commands.ScannableCommands;
 
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

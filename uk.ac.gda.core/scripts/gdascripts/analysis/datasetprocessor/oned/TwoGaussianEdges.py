@@ -1,5 +1,5 @@
 from XYDataSetProcessor import XYDataSetFunction
-from org.eclipse.dawnsci.analysis.dataset.impl import Maths
+from org.eclipse.january.dataset import Maths
 import scisoftpy as dnp
 
 

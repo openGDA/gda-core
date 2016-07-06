@@ -22,7 +22,7 @@ import gda.device.detector.GDANexusDetectorData;
 
 import java.util.Collection;
 
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.january.dataset.Dataset;
 
 /**
  * interface for processing a dataset. Process method returns <code>ProcessorResults</code> if extraNames or
