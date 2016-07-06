@@ -18,12 +18,12 @@
 
 package gda.device.detector.areadetector;
 
+import org.eclipse.january.dataset.DoubleDataset;
+
 import gda.factory.Configurable;
 import gda.factory.Localizable;
 import gov.aps.jca.CAException;
 import gov.aps.jca.TimeoutException;
-
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 
 public interface EPICSAreaDetectorImage extends Localizable, Configurable {
 

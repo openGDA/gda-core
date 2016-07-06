@@ -22,9 +22,9 @@ import gda.images.camera.ImageListener;
 import gda.images.camera.VideoReceiver;
 
 import org.dawnsci.plotting.services.util.SWTImageUtils;
-import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.draw2d.IFigure;
+import org.eclipse.january.dataset.Dataset;
+import org.eclipse.january.dataset.IDataset;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;

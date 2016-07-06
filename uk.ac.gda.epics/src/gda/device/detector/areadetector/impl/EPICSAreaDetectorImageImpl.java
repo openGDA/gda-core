@@ -18,8 +18,8 @@
 
 package gda.device.detector.areadetector.impl;
 
-import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
+import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.january.dataset.DoubleDataset;
 
 import gda.device.detector.areadetector.EPICSAreaDetectorImage;
 import gda.epics.connection.EpicsChannelManager;
