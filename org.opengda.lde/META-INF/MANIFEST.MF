@@ -11,6 +11,7 @@ Require-Bundle: uk.ac.gda.core;bundle-version="8.42.0",
  org.opengda.lde.model.edit;bundle-version="1.0.0",
  uk.ac.gda.api;bundle-version="8.42.0",
  uk.ac.gda.epics;bundle-version="1.0.0",
+ org.eclipse.january;bundle-version="1.0.0",
  org.eclipse.dawnsci.analysis.api;bundle-version="1.0.0",
  org.eclipse.dawnsci.nexus;bundle-version="1.0.0",
  com.google.guava
