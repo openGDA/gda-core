@@ -25,9 +25,9 @@ import java.util.List;
 
 import org.dawnsci.plotting.jreality.print.PlotExportUtil;
 import org.dawnsci.plotting.jreality.tick.TickFormatting;
-import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.plotting.api.jreality.impl.PlotException;
+import org.eclipse.january.dataset.Dataset;
+import org.eclipse.january.dataset.IDataset;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;

@@ -25,12 +25,12 @@ import java.util.List;
 
 import org.dawnsci.plotting.jreality.tool.PlotActionComplexEvent;
 import org.dawnsci.plotting.jreality.tool.PlotActionEvent;
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.plotting.api.jreality.core.AxisMode;
 import org.eclipse.dawnsci.plotting.api.jreality.impl.Plot1DAppearance;
 import org.eclipse.dawnsci.plotting.api.jreality.impl.Plot1DGraphTable;
 import org.eclipse.dawnsci.plotting.api.jreality.impl.PlotException;
 import org.eclipse.dawnsci.plotting.api.jreality.util.PlotColorUtility;
+import org.eclipse.january.dataset.Dataset;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IStatusLineManager;

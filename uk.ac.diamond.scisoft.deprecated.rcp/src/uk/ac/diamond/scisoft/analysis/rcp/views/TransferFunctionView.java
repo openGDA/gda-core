@@ -24,14 +24,14 @@ import java.util.LinkedList;
 
 import org.dawnsci.plotting.jreality.overlay.Overlay1DConsumer;
 import org.dawnsci.plotting.jreality.tool.AreaSelectEvent;
-import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 import org.eclipse.dawnsci.plotting.api.jreality.overlay.Overlay1DProvider;
 import org.eclipse.dawnsci.plotting.api.jreality.overlay.OverlayProvider;
 import org.eclipse.dawnsci.plotting.api.jreality.overlay.OverlayType;
 import org.eclipse.dawnsci.plotting.api.jreality.overlay.primitives.PrimitiveType;
+import org.eclipse.january.dataset.Dataset;
+import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.january.dataset.DoubleDataset;
+import org.eclipse.january.dataset.IDataset;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;

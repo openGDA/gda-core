@@ -34,11 +34,11 @@ import java.util.HashSet;
 import java.util.Map;
 
 import org.dawb.common.util.list.PrimitiveArrayEncoder;
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.plotting.api.jreality.core.AxisMode;
 import org.eclipse.dawnsci.plotting.api.jreality.impl.Plot1DAppearance;
 import org.eclipse.dawnsci.plotting.api.jreality.impl.Plot1DStyles;
 import org.eclipse.dawnsci.plotting.api.jreality.impl.PlotException;
+import org.eclipse.january.dataset.Dataset;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IToolBarManager;

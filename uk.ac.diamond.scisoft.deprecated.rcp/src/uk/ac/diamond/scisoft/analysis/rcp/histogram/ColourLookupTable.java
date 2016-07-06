@@ -16,15 +16,15 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.histogram;
 
-import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
-import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
-import org.eclipse.dawnsci.analysis.dataset.impl.IndexIterator;
-import org.eclipse.dawnsci.analysis.dataset.impl.RGBDataset;
 import org.eclipse.dawnsci.plotting.api.jreality.core.ScaleType;
 import org.eclipse.dawnsci.plotting.api.jreality.data.ColourImageData;
 import org.eclipse.dawnsci.plotting.api.jreality.util.ScalingUtility;
+import org.eclipse.january.dataset.Dataset;
+import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.january.dataset.DatasetUtils;
+import org.eclipse.january.dataset.IDataset;
+import org.eclipse.january.dataset.IndexIterator;
+import org.eclipse.january.dataset.RGBDataset;
 
 import uk.ac.diamond.scisoft.analysis.histogram.functions.AbstractMapFunction;
 

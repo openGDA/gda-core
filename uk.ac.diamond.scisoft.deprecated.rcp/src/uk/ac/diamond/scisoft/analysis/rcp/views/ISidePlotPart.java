@@ -16,7 +16,7 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.views;
 
-import org.eclipse.dawnsci.analysis.api.dataset.IMetadataProvider;
+import org.eclipse.january.dataset.IMetadataProvider;
 import org.eclipse.ui.IWorkbenchPart;
 
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
