@@ -18,12 +18,12 @@
 
 package uk.ac.gda.client.microfocus.util;
 
-import org.eclipse.dawnsci.analysis.api.dataset.DatasetException;
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.axis.ClickEvent;
 import org.eclipse.dawnsci.plotting.api.axis.IClickListener;
+import org.eclipse.january.dataset.Dataset;
+import org.eclipse.january.dataset.DatasetException;
+import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;

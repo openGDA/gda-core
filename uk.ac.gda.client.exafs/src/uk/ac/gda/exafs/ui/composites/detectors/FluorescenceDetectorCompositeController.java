@@ -34,11 +34,11 @@ import java.util.Date;
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.dawnsci.plotting.api.region.IROIListener;
 import org.eclipse.dawnsci.plotting.api.region.ROIEvent;
+import org.eclipse.january.dataset.Dataset;
+import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.util.IPropertyChangeListener;

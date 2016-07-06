@@ -20,9 +20,9 @@ package uk.ac.gda.exafs.ui.composites.detectors;
 
 import java.text.NumberFormat;
 
-import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.dawnsci.plotting.api.region.IROIListener;
+import org.eclipse.january.dataset.IDataset;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.richbeans.api.widget.IFieldWidget;
 import org.eclipse.richbeans.widgets.selector.BeanSelectionListener;

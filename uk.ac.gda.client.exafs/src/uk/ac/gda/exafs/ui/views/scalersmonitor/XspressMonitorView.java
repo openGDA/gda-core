@@ -19,12 +19,12 @@
 package uk.ac.gda.exafs.ui.views.scalersmonitor;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.plotting.api.PlotType;
 import org.eclipse.dawnsci.plotting.api.axis.IAxis;
 import org.eclipse.dawnsci.plotting.api.trace.ILineTrace;
 import org.eclipse.dawnsci.plotting.api.trace.ILineTrace.TraceType;
+import org.eclipse.january.dataset.Dataset;
+import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.GridData;

@@ -23,9 +23,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.eclipse.dawnsci.analysis.api.dataset.DatasetException;
-import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.AggregateDataset;
+import org.eclipse.january.dataset.AggregateDataset;
+import org.eclipse.january.dataset.DatasetException;
+import org.eclipse.january.dataset.ILazyDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

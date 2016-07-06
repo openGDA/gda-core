@@ -24,8 +24,6 @@ import java.util.Date;
 import java.util.List;
 
 import org.dawb.common.ui.widgets.ActionBarWrapper;
-import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlotType;
 import org.eclipse.dawnsci.plotting.api.PlottingFactory;
@@ -33,6 +31,8 @@ import org.eclipse.dawnsci.plotting.api.region.IROIListener;
 import org.eclipse.dawnsci.plotting.api.region.IRegion;
 import org.eclipse.dawnsci.plotting.api.region.IRegion.RegionType;
 import org.eclipse.dawnsci.plotting.api.tool.IToolPage.ToolPageRole;
+import org.eclipse.january.dataset.Dataset;
+import org.eclipse.january.dataset.IDataset;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.layout.GridData;

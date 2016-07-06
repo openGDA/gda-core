@@ -30,11 +30,11 @@ import java.util.StringTokenizer;
 import java.util.Vector;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
-import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
+import org.eclipse.january.dataset.Dataset;
+import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.january.dataset.DoubleDataset;
+import org.eclipse.january.dataset.IDataset;
+import org.eclipse.january.dataset.ILazyDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

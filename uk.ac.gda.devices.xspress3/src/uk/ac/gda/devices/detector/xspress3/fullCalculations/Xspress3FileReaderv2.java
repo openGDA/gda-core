@@ -21,8 +21,8 @@ package uk.ac.gda.devices.detector.xspress3.fullCalculations;
 import java.util.Arrays;
 
 import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.hdf5.HDF5Utils;
+import org.eclipse.january.dataset.Dataset;
 
 /* This class is used for testing Xspress3 v2 and will replace in the long run Xspress3FileReader. A new class was needed in order not to interfere with
  * other beamlines that are using Xspress3. With SWMR, we probably do not need this class anymore.

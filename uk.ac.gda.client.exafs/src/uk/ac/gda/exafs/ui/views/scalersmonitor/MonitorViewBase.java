@@ -18,10 +18,10 @@
 
 package uk.ac.gda.exafs.ui.views.scalersmonitor;
 
-import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlottingFactory;
+import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.january.dataset.DoubleDataset;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.dialogs.MessageDialog;

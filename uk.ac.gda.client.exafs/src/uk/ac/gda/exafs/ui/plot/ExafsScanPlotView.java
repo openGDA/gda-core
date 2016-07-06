@@ -20,8 +20,8 @@ package uk.ac.gda.exafs.ui.plot;
 
 import java.util.ArrayList;
 
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
+import org.eclipse.january.dataset.Dataset;
+import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;

@@ -24,10 +24,10 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.eclipse.dawnsci.analysis.api.dataset.DatasetException;
-import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
+import org.eclipse.january.dataset.Dataset;
+import org.eclipse.january.dataset.DatasetException;
+import org.eclipse.january.dataset.DatasetUtils;
+import org.eclipse.january.dataset.IDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

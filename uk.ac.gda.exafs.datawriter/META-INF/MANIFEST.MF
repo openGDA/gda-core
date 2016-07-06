@@ -8,6 +8,7 @@ Require-Bundle: uk.ac.gda.core,
  uk.ac.gda.common,
  uk.ac.gda.exafs.api;bundle-version="1.0.0",
  uk.ac.gda.devices.xspress2;bundle-version="1.0.0",
+ org.eclipse.january;bundle-version="1.0.0",
  org.eclipse.dawnsci.analysis.api;bundle-version="1.0.0",
  org.eclipse.dawnsci.nexus;bundle-version="1.0.0",
  org.eclipse.dawnsci.analysis.dataset;bundle-version="1.0.0"
