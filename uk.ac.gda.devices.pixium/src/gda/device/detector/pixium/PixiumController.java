@@ -46,7 +46,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Vector;
 
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
+import org.eclipse.january.dataset.DoubleDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
