@@ -18,8 +18,8 @@
 
 package gda.device.detector.mythen.tasks;
 
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
+import org.eclipse.january.dataset.Dataset;
+import org.eclipse.january.dataset.DatasetFactory;
 import org.springframework.beans.factory.InitializingBean;
 
 import gda.analysis.Plotter;

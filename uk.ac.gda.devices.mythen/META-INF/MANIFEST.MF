@@ -12,6 +12,7 @@ Export-Package: gda.device.detector,
  gda.device.detector.mythen.tasks,
  uk.ac.gda.devices.mythen.epics
 Require-Bundle: uk.ac.gda.core,
+ org.eclipse.january;bundle-version="1.0.0",
  uk.ac.diamond.scisoft.analysis;bundle-version="1.0.0",
  uk.ac.gda.common,
  uk.ac.gda.nexus,
