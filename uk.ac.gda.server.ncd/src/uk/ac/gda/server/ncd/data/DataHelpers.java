@@ -18,11 +18,11 @@
 
 package uk.ac.gda.server.ncd.data;
 
+import org.eclipse.january.dataset.IDataset;
+
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.device.detector.NXDetectorData;
-
-import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 
 public class DataHelpers {
 

@@ -23,10 +23,10 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
-import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.analysis.dataset.roi.ROIList;
 import org.eclipse.dawnsci.analysis.dataset.roi.XAxisLineBoxROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.XAxisLineBoxROIList;
+import org.eclipse.january.dataset.DatasetFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
