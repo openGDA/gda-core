@@ -22,10 +22,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Iterator;
 
-import org.eclipse.dawnsci.analysis.api.dataset.DatasetException;
-import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
-import org.eclipse.dawnsci.analysis.api.dataset.SliceND;
-import org.eclipse.dawnsci.analysis.api.monitor.IMonitor;
 import org.eclipse.dawnsci.analysis.api.tree.Attribute;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
@@ -35,6 +31,10 @@ import org.eclipse.dawnsci.analysis.api.tree.Tree;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFileHDF5;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusFile;
+import org.eclipse.january.IMonitor;
+import org.eclipse.january.dataset.DatasetException;
+import org.eclipse.january.dataset.ILazyDataset;
+import org.eclipse.january.dataset.SliceND;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

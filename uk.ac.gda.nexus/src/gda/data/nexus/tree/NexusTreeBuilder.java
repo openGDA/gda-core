@@ -32,8 +32,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
-import org.eclipse.dawnsci.analysis.api.monitor.IMonitor;
 import org.eclipse.dawnsci.nexus.NexusException;
+import org.eclipse.january.IMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 /**

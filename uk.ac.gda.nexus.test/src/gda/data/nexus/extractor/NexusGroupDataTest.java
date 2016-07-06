@@ -19,10 +19,10 @@
 package gda.data.nexus.extractor;
 
 
-import org.eclipse.dawnsci.analysis.dataset.impl.AbstractDataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
-import org.eclipse.dawnsci.analysis.dataset.impl.StringDataset;
+import org.eclipse.january.dataset.AbstractDataset;
+import org.eclipse.january.dataset.Dataset;
+import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.january.dataset.StringDataset;
 import org.junit.Assert;
 import org.junit.Test;
 

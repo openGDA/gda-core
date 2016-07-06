@@ -20,12 +20,12 @@ package gda.data.nexus;
 
 import static org.junit.Assert.assertEquals;
 
-import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFileHDF5;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusUtils;
+import org.eclipse.january.dataset.IDataset;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
