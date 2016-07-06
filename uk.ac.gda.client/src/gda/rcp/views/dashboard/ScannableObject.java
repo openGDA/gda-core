@@ -19,8 +19,6 @@
 package gda.rcp.views.dashboard;
 
 import gda.device.scannable.ScannableSnapshot;
-import gda.device.scannable.ScannableUtils;
-import gda.jython.JythonServerFacade;
 
 public class ScannableObject {
 
@@ -28,10 +26,12 @@ public class ScannableObject {
 	private String output;
 	private String toolTip;
 	private boolean valid;
+	private ScannableSnapshotProvider snapshotProvider;
 
-	public ScannableObject(String name) {
+	public ScannableObject(String name, ScannableSnapshotProvider snapshotProvider) {
 		this.name = name;
 		valid = true;
+		this.snapshotProvider = snapshotProvider;
 	}
 
 	public String getName() {
@@ -56,9 +56,7 @@ public class ScannableObject {
 		}
 		ScannableSnapshot si = null;
 		try {
-			String serialized = JythonServerFacade.getInstance().evaluateCommand(
-					"gda.device.scannable.ScannableUtils.getSerializedScannableSnapshot(" + name + ")");
-			si = ScannableUtils.deserializeScannableSnapshot(serialized);
+			si = snapshotProvider.getSnapshot(name);
 		} catch (Exception e) {
 		}
 		if (si != null) {
