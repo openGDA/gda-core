@@ -67,6 +67,8 @@ public class ScannableObject {
 				// a single value only - do not bother printing any names
 				output = String.format(si.outputFormat[0], si.lastPosition) + " " + si.units[0];
 			} else {
+				// TODO: Units will not be displayed correctly in a scannable group
+				// where members have multiple input or any extra names
 				int length = Math.max(si.outputFormat.length, si.inputNames.length + si.extraNames.length);
 				String[] names = new String[length];
 				String[] formats = new String[length];
@@ -94,6 +96,7 @@ public class ScannableObject {
 				}
 				output = sb.toString();
 			}
+			output = output.trim();
 		} else {
 			valid = false;
 			output = "unavailable";
