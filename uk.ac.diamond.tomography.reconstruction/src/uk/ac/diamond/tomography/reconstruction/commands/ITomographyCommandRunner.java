@@ -21,7 +21,7 @@ package uk.ac.diamond.tomography.reconstruction.commands;
 import java.io.File;
 import java.util.List;
 
-import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
+import org.eclipse.january.dataset.IDataset;
 
 public interface ITomographyCommandRunner {
 

@@ -17,7 +17,7 @@
  */
 package uk.ac.diamond.tomography.reconstruction.views;
 
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.january.dataset.Dataset;
 import org.eclipse.jface.viewers.ISelection;
 
 public class ProjectionSliceSelection implements ISelection {

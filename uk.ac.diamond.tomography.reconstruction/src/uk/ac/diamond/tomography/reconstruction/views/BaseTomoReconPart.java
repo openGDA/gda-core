@@ -19,8 +19,8 @@
 package uk.ac.diamond.tomography.reconstruction.views;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
 import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
+import org.eclipse.january.dataset.ILazyDataset;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IPartListener2;
