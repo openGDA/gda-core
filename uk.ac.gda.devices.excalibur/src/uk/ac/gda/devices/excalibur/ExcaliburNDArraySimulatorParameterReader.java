@@ -28,7 +28,7 @@ import gda.device.detector.nexusprocessor.DataSetProcessorBase;
 
 import java.util.Collection;
 
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.january.dataset.Dataset;
 import org.springframework.beans.factory.InitializingBean;
 
 public class ExcaliburNDArraySimulatorParameterReader extends DataSetProcessorBase implements InitializingBean {

@@ -26,8 +26,8 @@ import java.util.Random;
 import java.util.Vector;
 
 import org.eclipse.dawnsci.analysis.api.fitting.functions.IPeak;
-import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
-import org.eclipse.dawnsci.analysis.dataset.impl.ShortDataset;
+import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.january.dataset.ShortDataset;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Ignore;

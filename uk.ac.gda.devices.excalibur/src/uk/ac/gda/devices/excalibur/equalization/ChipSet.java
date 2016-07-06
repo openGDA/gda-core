@@ -24,9 +24,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
-import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
-import org.eclipse.dawnsci.analysis.api.dataset.SliceND;
-import org.eclipse.dawnsci.analysis.api.io.ILazyLoader;
+import org.eclipse.january.dataset.IDataset;
+import org.eclipse.january.dataset.SliceND;
+import org.eclipse.january.io.ILazyLoader;
 
 /**
  * Class used in manipulating data  in arrays that is from an array of chips
