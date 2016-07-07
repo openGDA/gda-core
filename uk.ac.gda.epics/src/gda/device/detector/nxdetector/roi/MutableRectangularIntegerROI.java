@@ -49,6 +49,10 @@ public class MutableRectangularIntegerROI implements Findable, RectangularROI<In
 	private Integer xsize;
 	private Integer ysize;
 
+	public MutableRectangularIntegerROI() {
+		// No arg constructor
+	}
+
 	@Override
 	public String getName() {
 		return name;
