@@ -20,7 +20,6 @@ package uk.ac.diamond.daq.mapping.ui.experiment;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Arrays;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.event.EventConstants;
@@ -36,7 +35,6 @@ import org.slf4j.LoggerFactory;
 import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.mapping.api.IDetectorModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegion;
-import uk.ac.diamond.daq.mapping.api.IScanPathModelWrapper;
 import uk.ac.diamond.daq.mapping.api.MappingExperimentStatusBean;
 
 public class MappingScanSubmitter {
@@ -93,13 +91,14 @@ public class MappingScanSubmitter {
 		scanBean.setScanRequest(req);
 
 		IMappingScanRegion scanRegion = eBean.getMappingExperimentBean().getScanDefinition().getMappingScanRegion();
-		IROI roi = scanRegion.getRegion().toROI();
-		CompoundModel cmodel = new CompoundModel();
-		for (IScanPathModelWrapper scanPathModelWrapper : eBean.getMappingExperimentBean().getScanDefinition().getOuterScannables()) {
-			if (scanPathModelWrapper.isIncludeInScan()) {
-				cmodel.addData(scanPathModelWrapper.getModel(), Arrays.asList(roi));
-			}
-		}
+		CompoundModel cmodel = new CompoundModel(scanRegion.getScanPath(), scanRegion.getRegion().toROI());
+		// FIXME Outer scannables are not supported in the new compound model way yet!
+//		for (IScanPathModelWrapper scanPathModelWrapper : eBean.getMappingExperimentBean().getScanDefinition().getOuterScannables()) {
+//			if (scanPathModelWrapper.isIncludeInScan()) {
+//				cmodel.addData(scanPathModelWrapper.getModel(), Arrays.asList(roi));
+//			}
+//		}
+
 		req.setCompoundModel(cmodel);
 
 		for (IDetectorModelWrapper detectorWrapper : eBean.getMappingExperimentBean().getDetectorParameters()) {
