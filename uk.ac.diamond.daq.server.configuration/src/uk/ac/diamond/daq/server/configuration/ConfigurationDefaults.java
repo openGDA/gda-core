@@ -353,7 +353,10 @@ public enum ConfigurationDefaults {
 				throw new IllegalArgumentException("Beamline config layout property invalid");
 			}
 		} catch (IOException e) {
-			throw new IllegalArgumentException("Beamline config layout file cannot be loaded");
+			throw new IllegalArgumentException("Beamline config layout file cannot be loaded", e);
+		} catch (Exception e) {
+			throw new IllegalArgumentException("Unable to look up '" + APP_BEAMLINE.value + 
+					"' from " + BEAMLINE_LAYOUTS.value, e);
 		}
 		return layoutDetails;
 	}
