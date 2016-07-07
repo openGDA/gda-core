@@ -18,16 +18,16 @@
 
 package gda.device.detector.addetector.collectionstrategy;
 
-import gda.device.detector.areadetector.v17.ImageMode;
-import gda.scan.ScanInformation;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.device.detector.areadetector.v17.ImageMode;
+import gda.scan.ScanInformation;
 
 /**
  * This class causes the decorated collection strategy to request the detector collects multiple images.
  */
-public class MultipleImageModeDecorator extends AbstractADCollectionStrategyDecorator {
+public class MultipleImageModeDecorator extends SingleImageModeDecorator {
 
 	// Instance variables
 	private static final Logger logger = LoggerFactory.getLogger(MultipleImageModeDecorator.class);
