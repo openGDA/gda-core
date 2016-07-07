@@ -39,11 +39,11 @@ public class MultipleImageModeDecorator extends AbstractADCollectionStrategyDeco
 			throws Exception {
 		logger.trace("rawPrepareForCollection({}, {}, {})", collectionTime, numberImagesPerCollection, scanInfo);
 
-		if (getAdBase().getNumImages() != numberImagesPerCollection) {
-			//adBase.stopAcquiring(); // Do we need to stop it to set number of images?
-			getAdBase().setNumImages(numberImagesPerCollection);
-			getAdBase().setImageModeWait(numberImagesPerCollection > 1 ? ImageMode.MULTIPLE : ImageMode.SINGLE);
-		}
+		// Set number of images
+		getAdBase().setNumImages(numberImagesPerCollection);
+		// Set mode to multiple
+		getAdBase().setImageModeWait(ImageMode.MULTIPLE);
+
 		getDecoratee().prepareForCollection(collectionTime, numberImagesPerCollection, scanInfo);
 	}
 }
