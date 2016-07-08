@@ -135,6 +135,39 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements EnumPo
 		setAllPVsSet(true);
 	}
 
+	private String basePV;
+
+	public String getPvBase() {
+		return basePV;
+	}
+
+	public void setPvBase(String basePV) {
+		this.basePV = basePV;
+		setPvNames(basePV);
+	}
+
+	/**
+	 * Sets the control PV used by this object.
+	 *
+	 * @param controlPv
+	 *            the control PV
+	 */
+	public void setControlPv(String controlPv) {
+		this.controlPv = controlPv;
+		setAllPVsSet(statusPv != null);
+	}
+
+	/**
+	 * Sets the status PV used by this object.
+	 *
+	 * @param statusPv
+	 *            the status PV
+	 */
+	public void setStatusPv(String statusPv) {
+		this.statusPv = statusPv;
+		setAllPVsSet(controlPv != null);
+	}
+
 	@Override
 	public void configure() throws FactoryException {
 		if (!configured) {
@@ -194,39 +227,6 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements EnumPo
 		status = channelManager.createChannel(statusPv, statusMonitor, false);
 		channelManager.creationPhaseCompleted();
 		channelManager.tryInitialize(100);
-	}
-
-	private String basePV;
-
-	public String getPvBase() {
-		return basePV;
-	}
-
-	public void setPvBase(String basePV) {
-		this.basePV = basePV;
-		setPvNames(basePV);
-	}
-
-	/**
-	 * Sets the control PV used by this object.
-	 *
-	 * @param controlPv
-	 *            the control PV
-	 */
-	public void setControlPv(String controlPv) {
-		this.controlPv = controlPv;
-		setAllPVsSet(statusPv != null);
-	}
-
-	/**
-	 * Sets the status PV used by this object.
-	 *
-	 * @param statusPv
-	 *            the status PV
-	 */
-	public void setStatusPv(String statusPv) {
-		this.statusPv = statusPv;
-		setAllPVsSet(controlPv != null);
 	}
 
 	/**
