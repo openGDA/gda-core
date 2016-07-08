@@ -54,6 +54,7 @@ import org.slf4j.LoggerFactory;
  * This class maps onto the EPICS PneumaticCallback template.
  */
 public class EpicsPneumaticCallback extends EnumPositionerBase implements EnumPositioner, InitializationListener {
+
 	private static final Logger logger = LoggerFactory.getLogger(EpicsPneumaticCallback.class);
 
 	private String epicsRecordName;
@@ -65,6 +66,7 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements EnumPo
 	private EpicsChannelManager channelManager;
 
 	private String controlPv;
+
 	private String statusPv;
 
 	private Channel control = null;
@@ -107,16 +109,15 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements EnumPo
 		pcl = new PutCallbackListener();
 	}
 
-	// method to support Phase I beamlines EPICS interface
 	private void setPvNames(String recordName) {
 		controlPv = recordName + ":CON";
 		statusPv = recordName + ":STA";
 		setAllPVsSet(true);
 	}
 
-	public void setPvNames(PneumaticCallbackType conf) {
-		controlPv = conf.getCONTROL().getPv();
-		statusPv = conf.getSTA().getPv();
+	public void setPvNames(PneumaticCallbackType config) {
+		controlPv = config.getCONTROL().getPv();
+		statusPv = config.getSTA().getPv();
 		setAllPVsSet(true);
 	}
 
@@ -172,13 +173,12 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements EnumPo
 	public void configure() throws FactoryException {
 		if (!configured) {
 			if (!isAllPVsSet()) {
-				String recordName;
 				// EPICS interface version 2 for phase I beamlines + I22
 				if (getEpicsRecordName() != null) {
 					EpicsRecord epicsRecord;
 
 					if ((epicsRecord = (EpicsRecord) Finder.getInstance().find(epicsRecordName)) != null) {
-						recordName = epicsRecord.getEpicsDeviceName();
+						String recordName = epicsRecord.getEpicsDeviceName();
 						setPvNames(recordName);
 					} else {
 						logger.error("Epics Record " + epicsRecordName + " not found");
@@ -199,8 +199,7 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements EnumPo
 									Xml.pneumaticCallback_type_name, deviceName);
 							setPvNames(device);
 						} catch (Exception ex) {
-							logger.error(
-									"Can NOT find EPICS configuration for scaler " + getDeviceName() + "."
+							logger.error("Can NOT find EPICS configuration for scaler " + getDeviceName() + "."
 											+ e.getMessage(), ex);
 						}
 					}
@@ -212,6 +211,7 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements EnumPo
 					throw new FactoryException("Missing EPICS interface configuration for the motor " + getName());
 				}
 			}
+
 			try {
 				createChannelAccess();
 			} catch (CAException e) {
@@ -320,7 +320,6 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements EnumPo
 	 * gets the available positions from this device.
 	 *
 	 * @return the available positions from this device.
-	 * @throws DeviceException
 	 */
 	@Override
 	public String[] getPositions() throws DeviceException {
@@ -335,7 +334,6 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements EnumPo
 	 * gets the available status positions from this device.
 	 *
 	 * @return the available status positions from this device.
-	 * @throws DeviceException
 	 */
 	public String[] getStatusPositions() throws DeviceException {
 		try {
