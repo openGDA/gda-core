@@ -115,9 +115,23 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements EnumPo
 		pcl = new PutCallbackListener();
 	}
 
+	// method to support Phase I beamlines EPICS interface
+	private void setPvNames(String recordName) {
+		controlPv = recordName + ":CON";
+		statusPv = recordName + ":STA";
+		setAllPVsSet(true);
+	}
+
 	public void setPvNames(PneumaticCallbackType conf) {
 		controlPv = conf.getCONTROL().getPv();
 		statusPv = conf.getSTA().getPv();
+		setAllPVsSet(true);
+	}
+
+	// method supporting EpicsDevice interface
+	private void setPvNames(gda.epics.interfaceSpec.Device device) {
+		controlPv = device.getField("CONTROL").getPV();
+		statusPv = device.getField("STA").getPV();
 		setAllPVsSet(true);
 	}
 
@@ -182,13 +196,6 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements EnumPo
 		channelManager.tryInitialize(100);
 	}
 
-	// method to support Phase I beamlines EPICS interface
-	private void setPvNames(String recordName) {
-		controlPv = recordName + ":CON";
-		statusPv = recordName + ":STA";
-		setAllPVsSet(true);
-	}
-
 	private String basePV;
 
 	public String getPvBase() {
@@ -220,13 +227,6 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements EnumPo
 	public void setStatusPv(String statusPv) {
 		this.statusPv = statusPv;
 		setAllPVsSet(controlPv != null);
-	}
-
-	// method supporting EpicsDevice interface
-	private void setPvNames(gda.epics.interfaceSpec.Device device) {
-		controlPv = device.getField("CONTROL").getPV();
-		statusPv = device.getField("STA").getPV();
-		setAllPVsSet(true);
 	}
 
 	/**

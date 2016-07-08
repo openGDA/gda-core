@@ -83,6 +83,21 @@ public class EpicsPneumatic extends EnumPositionerBase implements EnumPositioner
 		statusMonitor = new StatusMonitorListener();
 	}
 
+	private void setPvNames(String recordName) {
+		controlPv = recordName + ":CON";
+		statusPv = recordName + ":STA";
+	}
+
+	private void setPvNames(PneumaticType config) {
+		controlPv = config.getCONTROL().getPv();
+		statusPv = config.getSTA().getPv();
+	}
+
+	private void setPvNames(gda.epics.interfaceSpec.Device device) {
+		controlPv = device.getField("CONTROL").getPV();
+		statusPv = device.getField("STA").getPV();
+	}
+
 	/**
 	 * Sets the PV name that this object will link to. The control and status PVs will be formed by appending ":CON" and
 	 * ":STA" to the specified PV name. If these names are not correct the control/status PVs can be set separately.
@@ -172,21 +187,6 @@ public class EpicsPneumatic extends EnumPositionerBase implements EnumPositioner
 		status = channelManager.createChannel(statusPv, statusMonitor, false);
 		channelManager.creationPhaseCompleted();
 		channelManager.tryInitialize(100);
-	}
-
-	private void setPvNames(PneumaticType config) {
-		controlPv = config.getCONTROL().getPv();
-		statusPv = config.getSTA().getPv();
-	}
-
-	private void setPvNames(String recordName) {
-		controlPv = recordName + ":CON";
-		statusPv = recordName + ":STA";
-	}
-
-	private void setPvNames(gda.epics.interfaceSpec.Device device) {
-		controlPv = device.getField("CONTROL").getPV();
-		statusPv = device.getField("STA").getPV();
 	}
 
 	/**
