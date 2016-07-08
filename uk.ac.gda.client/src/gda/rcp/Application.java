@@ -18,25 +18,6 @@
 
 package gda.rcp;
 
-import gda.configuration.properties.LocalProperties;
-import gda.data.PathConstructor;
-import gda.data.metadata.VisitEntry;
-import gda.data.metadata.icat.IcatProvider;
-import gda.factory.FactoryException;
-import gda.factory.Finder;
-import gda.factory.ObjectFactory;
-import gda.factory.corba.util.AdapterFactory;
-import gda.factory.corba.util.NetService;
-import gda.jython.InterfaceProvider;
-import gda.jython.authenticator.Authenticator;
-import gda.jython.authenticator.UserAuthentication;
-import gda.jython.authoriser.AuthoriserProvider;
-import gda.rcp.util.UIScanDataPointEventService;
-import gda.util.ElogEntry;
-import gda.util.ObjectServer;
-import gda.util.SpringObjectServer;
-import gda.util.logging.LogbackUtils;
-
 import java.io.File;
 import java.net.URL;
 import java.util.HashMap;
@@ -56,6 +37,24 @@ import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
+import gda.data.PathConstructor;
+import gda.data.metadata.VisitEntry;
+import gda.data.metadata.icat.IcatProvider;
+import gda.factory.FactoryException;
+import gda.factory.Finder;
+import gda.factory.ObjectFactory;
+import gda.factory.corba.util.AdapterFactory;
+import gda.factory.corba.util.NetService;
+import gda.jython.InterfaceProvider;
+import gda.jython.authenticator.Authenticator;
+import gda.jython.authenticator.UserAuthentication;
+import gda.jython.authoriser.AuthoriserProvider;
+import gda.rcp.util.UIScanDataPointEventService;
+import gda.util.ElogEntry;
+import gda.util.ObjectServer;
+import gda.util.SpringObjectServer;
+import gda.util.logging.LogbackUtils;
 import uk.ac.gda.preferences.PreferenceConstants;
 import uk.ac.gda.richbeans.BeansFactoryInit;
 import uk.ac.gda.ui.dialog.AuthenticationDialog;
@@ -140,22 +139,23 @@ public class Application implements IApplication {
 		} catch (Throwable ne) {
 			logger.error("Cannot start client", ne);
 			String problem = ne.getMessage();
-			String resolution = "Please contact your GDA support representative.";
+			String resolution = "The usual remedy is to reset the GDA client workspace. If there is no option to reset"
+					+ " the workspace when starting the GDA client from the Diamond Launcher, you should be able to run"
+					+ " either 'gda client --reset' or 'gdaclient --reset' from a terminal window.";
+			// TODO: Remove reference to 'gdaclient --reset' when all configs have been standardised.
 			if (problem.contains("Could not initialise NetService: org.omg.CORBA.TRANSIENT")) {
-				resolution = "It is likely that the server hardware has been updated and GDA server has not been started since. "
-						+ "The usual remedy is to Restart GDA Server from the panel (or 'gdaservers' in a terminal)."
-						+ "\n\nIf the problem cannot be remedied, please contact your GDA support representative.";
+				resolution = "The GDA client cannot connect to the GDA servers, so it is likely that the GDA servers are not running."
+						+ "\n\nThe usual remedy is to Restart GDA Servers from the Diamond Launcher before restarting the GDA client.";
 			}
 			else if (problem.contains("NetService: init org.omg.CORBA.ORBPackage.InvalidName")) {
-				resolution = "It is likely that the existing workspace is incompatible with an updated client. "
-						+ "The usual remedy is to start GDA client from a terminal with 'gdaclient --reset'."
-						+ "\n\nIf the problem cannot be remedied, please contact your GDA support representative.";
+				resolution = "It is likely that the existing workspace is incompatible with an updated client.\n\n" + resolution;
 			}
 			MessageDialog
 			.openError(
 					new Shell(display),
 					"Cannot Start Client",
-					"The GDA Client cannot start.\n\n'" + problem + "'\n\n" + resolution);
+					"The GDA Client cannot start.\n\n'" + problem + "'\n\n" + resolution
+					+ "\n\nIf the problem persists, please contact your GDA support representative.");
 			return EXIT_OK;
 
 		} finally {
