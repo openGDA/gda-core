@@ -67,14 +67,6 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements EnumPo
 	private String controlPv;
 	private String statusPv;
 
-	public String getControlPv() {
-		return controlPv;
-	}
-
-	public String getStatusPv() {
-		return statusPv;
-	}
-
 	private Channel control = null;
 
 	private Channel status;
@@ -157,6 +149,10 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements EnumPo
 		setAllPVsSet(statusPv != null);
 	}
 
+	public String getControlPv() {
+		return controlPv;
+	}
+
 	/**
 	 * Sets the status PV used by this object.
 	 *
@@ -166,6 +162,10 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements EnumPo
 	public void setStatusPv(String statusPv) {
 		this.statusPv = statusPv;
 		setAllPVsSet(controlPv != null);
+	}
+
+	public String getStatusPv() {
+		return statusPv;
 	}
 
 	@Override
