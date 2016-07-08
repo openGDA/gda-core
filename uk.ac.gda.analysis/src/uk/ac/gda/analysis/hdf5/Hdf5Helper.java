@@ -299,7 +299,7 @@ public class Hdf5Helper {
 	public Dataset createDataSet(Hdf5HelperData hData, boolean extend) throws NullPointerException {
 		int datatypeClass = hData.h5Datatype.getDatatypeClass();
 		int datatypeSize = (int) hData.h5Datatype.getDatatypeSize();
-		int dtype = HDF5Utils.getDtype(datatypeClass, datatypeSize);
+		int dtype = HDF5Utils.getDType(datatypeClass, datatypeSize);
 		int dims[] = new int[hData.dims.length];
 		for (int i = 0; i < hData.dims.length; i++)
 			dims[i] = (int) hData.dims[i];

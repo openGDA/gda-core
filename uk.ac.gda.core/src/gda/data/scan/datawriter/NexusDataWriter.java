@@ -683,7 +683,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 							specifiedChunkDims = new int[scanDimensions.length];
 							Arrays.fill(specifiedChunkDims, -1);
 						}
-						int dataByteSize = DTypeUtils.getItemBytes(sds.getDtype());
+						int dataByteSize = DTypeUtils.getItemBytes(sds.getDType());
 						if (dataByteSize <= 0) {
 							// TODO: Fix for string types, particularly fixed length strings
 							dataByteSize = 4;
@@ -697,7 +697,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 						lazy.setChunking(chunk);
 					}
 					// TODO: only enable compression if the chunk size makes it worthwhile
-					lazy.setFillValue(getFillValue(sds.getDtype()));
+					lazy.setFillValue(getFillValue(sds.getDType()));
 					data = file.createData(group, lazy, compression);
 
 					if (!tree.isPointDependent()) {
