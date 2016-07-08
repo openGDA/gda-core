@@ -248,6 +248,11 @@ public class ScanPackageImpl extends EPackageImpl implements ScanPackage {
 		return (EAttribute) parametersEClass.getEStructuralFeatures().get(15);
 	}
 
+	@Override
+	public EAttribute getParameters_ApproxCentreOfRotation() {
+		return (EAttribute) parametersEClass.getEStructuralFeatures().get(16);
+	}
+
 	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -295,6 +300,7 @@ public class ScanPackageImpl extends EPackageImpl implements ScanPackage {
 		createEAttribute(parametersEClass, PARAMETERS__EXTRA_FLATS_AT_END);
 		createEAttribute(parametersEClass, PARAMETERS__NUM_FLY_SCANS);
 		createEAttribute(parametersEClass, PARAMETERS__FLY_SCAN_DELAY);
+		createEAttribute(parametersEClass, PARAMETERS__APPROX_CENTRE_OF_ROTATION);
 	}
 
 	/**
@@ -397,6 +403,11 @@ public class ScanPackageImpl extends EPackageImpl implements ScanPackage {
 				ecorePackage.getEDouble(),
 				"flyScanDelay", "0.", 1, 1, Parameters.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED,
 				IS_ORDERED);
+		initEAttribute(
+				getParameters_ApproxCentreOfRotation(),
+				ecorePackage.getEInt(),
+				"approxCentreOfRotation", "null", 1, 1, Parameters.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+
 
 		// Create resource
 		createResource(eNS_URI);

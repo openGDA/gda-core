@@ -217,12 +217,22 @@ public interface ScanPackage extends EPackage {
 	int PARAMETERS__FLY_SCAN_DELAY = 15;
 
 	/**
+	 * The feature id for the '<em><b>Approximate centre of rotation</b></em>' attribute.<br>
+	 * <!-- begin-user-doc --><br>
+	 * <!-- end-user-doc -->
+	 *
+	 * @generated
+	 * @ordered
+	 */
+	int PARAMETERS__APPROX_CENTRE_OF_ROTATION = 16;
+
+	/**
 	 * The number of structural features of the '<em>Parameters</em>' class. <!-- begin-user-doc --> <!-- end-user-doc -->
 	 *
 	 * @generated
 	 * @ordered
 	 */
-	int PARAMETERS_FEATURE_COUNT = 16;
+	int PARAMETERS_FEATURE_COUNT = 17;
 
 	/**
 	 * Returns the meta object for class '{@link uk.ac.gda.tomography.scan.Parameters <em>Parameters</em>}'.
@@ -378,24 +388,54 @@ public interface ScanPackage extends EPackage {
 	EAttribute getParameters_FlyScan();
 
 	/**
-	 * Returns the meta object for the attribute '{@link uk.ac.gda.tomography.scan.Parameters#getExtraFlatsAtEnd <em>Extra Flats At End</em>}'.
-	 * <!-- begin-user-doc -->
+	 * Returns the meta object for the attribute '{@link uk.ac.gda.tomography.scan.Parameters#getExtraFlatsAtEnd <em>Extra Flats At End</em>}'.<br>
+	 * <!-- begin-user-doc --><br>
 	 * <!-- end-user-doc -->
 	 *
 	 * @return the meta object for the attribute '<em>Extra Flats At End</em>'.
-	 * @see uk.ac.gda.tomography.scan.Parameters#isFlyScan()
+	 * @see uk.ac.gda.tomography.scan.Parameters#getExtraFlatsAtEnd()
 	 * @see #getParameters()
 	 */
 	EAttribute getParameters_ExtraFlatsAtEnd();
 
+	/**
+	 * Returns the meta object for the attribute '{@link uk.ac.gda.tomography.scan.Parameters#getNumFlyScans <em>Number of Fly Scans</em>}'.<br>
+	 * <!-- begin-user-doc --><br>
+	 * <!-- end-user-doc -->
+	 *
+	 * @return the meta object for the attribute '<em>Number of Fly Scans</em>'.
+	 * @see uk.ac.gda.tomography.scan.Parameters#getNumFlyScans()
+	 * @see #getParameters()
+	 */
 	EAttribute getParameters_NumFlyScans();
 
+	/**
+	 * Returns the meta object for the attribute '{@link uk.ac.gda.tomography.scan.Parameters#getFlyScanDelay <em>Delay Between Scans</em>}'.<br>
+	 * <!-- begin-user-doc --><br>
+	 * <!-- end-user-doc -->
+	 *
+	 * @return the meta object for the attribute '<em>Delay Between Scans</em>'.
+	 * @see uk.ac.gda.tomography.scan.Parameters#getFlyScanDelay()
+	 * @see #getParameters()
+	 */
 	EAttribute getParameters_FlyScanDelay();
 
 	/**
-	 * Returns the factory that creates the instances of the model.
-	 * <!-- begin-user-doc -->
+	 * Returns the meta object for the attribute '{@link uk.ac.gda.tomography.scan.Parameters#getApproxCentreOfRotation <em>Approximate centre of rotation</em>}
+	 * '.
+	 * <p>
+	 * <!-- begin-user-doc --><br>
 	 * <!-- end-user-doc -->
+	 *
+	 * @return the meta object for the attribute '<em>Approximate centre of rotation</em>'.
+	 * @see uk.ac.gda.tomography.scan.Parameters#getApproxCentreOfRotation()
+	 * @see #getParameters()
+	 */
+	EAttribute getParameters_ApproxCentreOfRotation();
+
+	/**
+	 * Returns the factory that creates the instances of the model. <!-- begin-user-doc --> <!-- end-user-doc -->
+	 *
 	 * @return the factory that creates the instances of the model.
 	 * @generated
 	 */
