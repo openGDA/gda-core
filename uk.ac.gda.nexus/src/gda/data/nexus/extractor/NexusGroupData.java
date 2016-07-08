@@ -676,7 +676,7 @@ public class NexusGroupData implements Serializable {
 	/**
 	 * @return dataset type
 	 */
-	public int getDtype() {
+	public int getDType() {
 		return dtype;
 	}
 
