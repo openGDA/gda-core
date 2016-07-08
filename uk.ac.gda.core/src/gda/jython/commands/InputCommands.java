@@ -21,23 +21,10 @@ package gda.jython.commands;
 import gda.factory.Finder;
 import gda.jython.JythonServer;
 
-import org.python.core.PyString;
-
 /**
  * InputCommands
  */
 public class InputCommands {
-	/**
-	 * For use within scripts to request input from the Jython terminal
-	 *
-	 * @param promptString
-	 * @return Object
-	 * @throws InterruptedException
-	 */
-	public static Object requestInput(PyString promptString) throws InterruptedException {
-		return requestInput(promptString);
-	}
-
 	/**
 	 * For use within scripts to request input from the Jython terminal
 	 *
