@@ -64,10 +64,6 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements EnumPo
 
 	private EpicsChannelManager channelManager;
 
-	private Channel control = null;
-
-	private Channel status;
-
 	private String controlPv;
 	private String statusPv;
 
@@ -78,6 +74,10 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements EnumPo
 	public String getStatusPv() {
 		return statusPv;
 	}
+
+	private Channel control = null;
+
+	private Channel status;
 
 	private boolean allPVsSet = false;
 
