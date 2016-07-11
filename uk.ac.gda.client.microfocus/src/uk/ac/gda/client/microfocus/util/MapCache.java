@@ -21,8 +21,8 @@ package uk.ac.gda.client.microfocus.util;
 import java.util.HashMap;
 import java.util.List;
 
+import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.Dataset;
-import org.eclipse.january.dataset.DatasetException;
 import org.eclipse.january.dataset.DatasetUtils;
 import org.eclipse.january.dataset.DoubleDataset;
 import org.eclipse.january.dataset.IDataset;

@@ -23,8 +23,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.AggregateDataset;
-import org.eclipse.january.dataset.DatasetException;
 import org.eclipse.january.dataset.ILazyDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
