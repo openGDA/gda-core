@@ -111,7 +111,9 @@ public class DataSetComparisionDialog extends Dialog {
 			label.setLayoutData(gridData);
 		}
 		
-		dataSetPlotView.setMetaData(new Metadata(getNames()));
+		IMetadata md = new Metadata();
+		md.addNames(getNames());
+		dataSetPlotView.setMetaData(md);
 		dataSetPlotView.createPartControl(container);
 
 		if (isAllDataSets) {
@@ -127,7 +129,9 @@ public class DataSetComparisionDialog extends Dialog {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				isAllDataSets = btnShowAllData.getSelection();
-				dataSetPlotView.setMetaData(new Metadata(getNames()));
+				IMetadata md = new Metadata();
+				md.addNames(getNames());
+				dataSetPlotView.setMetaData(md);
 				dataSetPlotView.refresh();
 			}
 		});
