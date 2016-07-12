@@ -20,7 +20,7 @@ package uk.ac.gda.arpes.scannable;
 
 import gda.device.DeviceException;
 import gda.device.ScannableMotion;
-import gda.device.scannable.ScannableMotionBase;
+import gda.device.scannable.ScannableBase;
 import gda.epics.connection.EpicsController;
 import gda.factory.FactoryException;
 import gov.aps.jca.CAException;
@@ -49,7 +49,7 @@ import org.slf4j.LoggerFactory;
  * <p>
  * Circular polarisation we have the top phase positive for right circular
  */
-public class I05Apple extends ScannableMotionBase {
+public class I05Apple extends ScannableBase {
 
 	public final static String VERTICAL = "LV";
 	public final static String HORIZONTAL = "LH";
