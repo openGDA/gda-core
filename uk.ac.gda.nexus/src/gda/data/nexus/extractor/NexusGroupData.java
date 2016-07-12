@@ -25,13 +25,13 @@ import java.util.Arrays;
 
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusUtils;
-import org.eclipse.january.dataset.AbstractDataset;
 import org.eclipse.january.dataset.DTypeUtils;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.DatasetUtils;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.ILazyWriteableDataset;
+import org.eclipse.january.dataset.ShapeUtils;
 
 /**
  * Data class that is returned by first class Nexus aware detectors
@@ -293,7 +293,7 @@ public class NexusGroupData implements Serializable {
 	}
 
 	public NexusGroupData(short[][] s) {
-		this(AbstractDataset.getShapeFromObject(s), Dataset.INT16, s);
+		this(ShapeUtils.getShapeFromObject(s), Dataset.INT16, s);
 	}
 
 	public NexusGroupData(int i) {
@@ -309,11 +309,11 @@ public class NexusGroupData implements Serializable {
 	}
 
 	public NexusGroupData(int[][] i) {
-		this(AbstractDataset.getShapeFromObject(i), Dataset.INT32, i);
+		this(ShapeUtils.getShapeFromObject(i), Dataset.INT32, i);
 	}
 
 	public NexusGroupData(int[][][] i) {
-		this(AbstractDataset.getShapeFromObject(i), Dataset.INT32, i);
+		this(ShapeUtils.getShapeFromObject(i), Dataset.INT32, i);
 	}
 
 	public NexusGroupData(long... l) {
@@ -345,11 +345,11 @@ public class NexusGroupData implements Serializable {
 	}
 
 	public NexusGroupData(double[][] d) {
-		this(AbstractDataset.getShapeFromObject(d), Dataset.FLOAT64, d);
+		this(ShapeUtils.getShapeFromObject(d), Dataset.FLOAT64, d);
 	}
 
 	public NexusGroupData(double[][][] d) {
-		this(AbstractDataset.getShapeFromObject(d), Dataset.FLOAT64, d);
+		this(ShapeUtils.getShapeFromObject(d), Dataset.FLOAT64, d);
 	}
 
 	/**

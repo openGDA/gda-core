@@ -19,9 +19,9 @@
 package gda.data.nexus.extractor;
 
 
-import org.eclipse.january.dataset.AbstractDataset;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.january.dataset.ShapeUtils;
 import org.eclipse.january.dataset.StringDataset;
 import org.junit.Assert;
 import org.junit.Test;
@@ -30,17 +30,17 @@ public class NexusGroupDataTest {
 
 	@Test
 	public void testShapes() {
-		Assert.assertArrayEquals(new int[0], AbstractDataset.getShapeFromObject(null));
+		Assert.assertArrayEquals(new int[0], ShapeUtils.getShapeFromObject(null));
 
-		Assert.assertArrayEquals(new int[] {0}, AbstractDataset.getShapeFromObject(new int[]{}));
-		Assert.assertArrayEquals(new int[] {0}, AbstractDataset.getShapeFromObject(new double[]{}));
+		Assert.assertArrayEquals(new int[] {0}, ShapeUtils.getShapeFromObject(new int[]{}));
+		Assert.assertArrayEquals(new int[] {0}, ShapeUtils.getShapeFromObject(new double[]{}));
 
-		Assert.assertArrayEquals(new int[] {2}, AbstractDataset.getShapeFromObject(new int[]{2, 3}));
+		Assert.assertArrayEquals(new int[] {2}, ShapeUtils.getShapeFromObject(new int[]{2, 3}));
 
-		Assert.assertArrayEquals(new int[] {2, 3}, AbstractDataset.getShapeFromObject(new int[][]{{2,}, {3, 4, 5}}));
+		Assert.assertArrayEquals(new int[] {2, 3}, ShapeUtils.getShapeFromObject(new int[][]{{2,}, {3, 4, 5}}));
 
 		int[][][] obj = new int[][][] { { {2}, {3, 4}, {4} }, {{1, 2, 3}, {5, 6, 7, 8}} };
-		Assert.assertArrayEquals(new int[] {2, 3, 4}, AbstractDataset.getShapeFromObject(obj));
+		Assert.assertArrayEquals(new int[] {2, 3, 4}, ShapeUtils.getShapeFromObject(obj));
 	}
 
 	@Test
