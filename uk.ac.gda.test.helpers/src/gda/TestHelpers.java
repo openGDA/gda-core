@@ -48,9 +48,9 @@ import org.eclipse.dawnsci.analysis.api.tree.Attribute;
 import org.eclipse.dawnsci.analysis.api.tree.Node;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusFile;
-import org.eclipse.january.dataset.AbstractDataset;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.january.dataset.ShapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -152,7 +152,7 @@ public class TestHelpers {
 
 	public static NexusGroupData createTestNexusGroupData(int[] shape, int dtype,
 			boolean useSuperToString) {
-		int size = AbstractDataset.calcSize(shape);
+		int size = ShapeUtils.calcSize(shape);
 		Dataset dataset = DatasetFactory.createRange(size, dtype);
 		dataset.setShape(shape);
 		NexusGroupData ngd = new Data(dataset, useSuperToString);
