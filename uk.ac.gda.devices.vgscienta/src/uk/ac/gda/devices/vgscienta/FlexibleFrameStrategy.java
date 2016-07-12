@@ -19,6 +19,9 @@
 package uk.ac.gda.devices.vgscienta;
 
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
 import gda.device.detector.addetector.triggering.SimpleAcquire;
 import gda.device.detector.areadetector.v17.ADBase;
@@ -34,11 +37,11 @@ import gov.aps.jca.dbr.DBR_Int;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class FlexibleFrameStrategy extends SimpleAcquire implements MonitorListener, IObservable {
-	static final Logger logger = LoggerFactory.getLogger(FlexibleFrameStrategy.class);
+	private static final long PROCESSING_WAIT_TIME_MS = 25;
+	private static final int PROCESSING_TIMEOUT_MS = 15000; // 15 secs
+
+	private static final Logger logger = LoggerFactory.getLogger(FlexibleFrameStrategy.class);
 
 	private ObservableComponent oc = new ObservableComponent();
 
@@ -60,13 +63,16 @@ public class FlexibleFrameStrategy extends SimpleAcquire implements MonitorListe
 
 	@Override
 	public void collectData() throws Exception {
+		logger.trace("collectData called");
 		getAdBase().setArrayCounter(0);
 		proc.getPluginBase().setArrayCounter(0);
 		proc.setResetFilter(1);
+		logger.debug("Reset IOC counters and recursive filter");
 		currentFrame = 0;
 		highestFrame = 0;
 		wethinkweareincharge = true;
 		interactWithDeviceIfRequired();
+		logger.debug("Start acquiring");
 		getAdBase().startAcquiring();
 	}
 
@@ -76,7 +82,7 @@ public class FlexibleFrameStrategy extends SimpleAcquire implements MonitorListe
 			if (arg0.getDBR() instanceof DBR_Int) {
 				currentFrame = ((DBR_Int) arg0.getDBR()).getIntValue()[0];
 				interactWithDeviceIfRequired();
-				logger.debug(String.format("processed updates for frame %d.",currentFrame));
+				logger.debug("Processed updates for frame {}.", currentFrame);
 			}
 		}
 	}
@@ -102,6 +108,7 @@ public class FlexibleFrameStrategy extends SimpleAcquire implements MonitorListe
 
 	@Override
 	public void completeCollection() throws Exception {
+		logger.trace("completeCollection called");
 		if (!wethinkweareincharge)
 			return;
 		wethinkweareincharge = false;
@@ -119,6 +126,7 @@ public class FlexibleFrameStrategy extends SimpleAcquire implements MonitorListe
 	}
 
 	public void setMaxNumberOfFrames(int maxNumberOfFrames) {
+		logger.trace("setMaxNumberOfFrames called with {} frames", maxNumberOfFrames);
 		if (maxNumberOfFrames < 1)
 			throw new IllegalArgumentException("must collect at least one frame");
 		// Catch the equal case as it can cause problems if a frame completes while changing iterations
@@ -166,26 +174,35 @@ public class FlexibleFrameStrategy extends SimpleAcquire implements MonitorListe
 
 	@Override
 	public void waitWhileBusy() throws InterruptedException, DeviceException {
+		logger.trace("waitWhileBusy called");
+		// Wait for IOC acquire to call back
 		super.waitWhileBusy();
 		// at this point we should be stopped, but might not have processed the last frame/sweep
 		if (currentFrame > highestFrame)
 			highestFrame = currentFrame;
 		try {
-			int number = 0;
+			int timeoutCounter = 0;
+			// Check if the expected number of frames have been processed yet
 			while(proc.getNumFiltered_RBV() < highestFrame || proc.getPluginBase().getArrayCounter_RBV() < highestFrame) {
-				Thread.sleep(25);
-				logger.debug(String.format("waiting (%d)",number));
-				if (number++ > 40*30) {
-					throw new DeviceException("timout waiting for IOC processing");
+				// Log the current status so we can try to debug why we are here
+				logger.debug("Waiting for IOC processing: highestFrame={},  numFilter={}, arrayCounterRBV={}", highestFrame, proc.getNumFiltered_RBV(),
+						proc.getPluginBase().getArrayCounter_RBV());
+				logger.debug("Waiting for IOC processing: number={}, time={} ms", timeoutCounter, timeoutCounter * PROCESSING_WAIT_TIME_MS);
+				// Check if timeout is exceeded
+				if (timeoutCounter * PROCESSING_WAIT_TIME_MS > PROCESSING_TIMEOUT_MS) {
+					logger.error("Timout ({} ms) waiting for IOC processing", PROCESSING_TIMEOUT_MS);
+					throw new DeviceException(String.format("Timout (%d ms) waiting for IOC processing", PROCESSING_TIMEOUT_MS));
 				}
+				// Increment timeout counter
+				timeoutCounter++;
+				// Wait for some time before checking again
+				Thread.sleep(PROCESSING_WAIT_TIME_MS);
 			}
-			logger.info(String.format("At the end of waiting we have: highestFrame: %d,  numFilter %d, arrayCounterRBV %d", highestFrame, proc.getNumFiltered_RBV(), proc.getPluginBase().getArrayCounter_RBV()));
-		} catch (InterruptedException e) {
-			throw e;
-		} catch (DeviceException e) {
-			throw e;
+			logger.debug("At the end of waiting we have: highestFrame={},  numFilter={}, arrayCounterRBV={}", highestFrame, proc.getNumFiltered_RBV(),
+					proc.getPluginBase().getArrayCounter_RBV());
+			logger.info("IOC Processing complete. (Waited for {} ms)", PROCESSING_WAIT_TIME_MS * timeoutCounter);
 		} catch (Exception e) {
-			throw new DeviceException("error waiting for IOC processing", e);
+			throw new DeviceException("Error waiting for IOC processing", e);
 		}
 	}
 }
