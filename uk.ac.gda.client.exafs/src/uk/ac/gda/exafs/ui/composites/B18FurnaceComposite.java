@@ -18,8 +18,6 @@
 
 package uk.ac.gda.exafs.ui.composites;
 
-import gda.jython.JythonServerFacade;
-
 import org.eclipse.richbeans.widgets.FieldBeanComposite;
 import org.eclipse.richbeans.widgets.FieldComposite;
 import org.eclipse.richbeans.widgets.scalebox.ScaleBox;
@@ -32,7 +30,10 @@ import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.jython.JythonServerFacade;
+
 public class B18FurnaceComposite extends FieldBeanComposite {
+	private final Logger logger = LoggerFactory.getLogger(B18FurnaceComposite.class);
 	private ScaleBox temperature;
 	private ScaleBox tolerance;
 	private ScaleBox time;
@@ -86,6 +87,14 @@ public class B18FurnaceComposite extends FieldBeanComposite {
 	}
 
 	public void setMotorLimits(String motorName, ScaleBox box) throws Exception {
+		// Check to see if furnace is initialised before trying to get limits 
+		// - to avoid slow gui due to timeout from missing Epics PVs. imh 24/5/2016
+		String confString = JythonServerFacade.getInstance().evaluateCommand(motorName + ".isConfigured()");
+		if (!confString.equals("True")) {
+			logger.warn("Unable to get limits for " + motorName + " ");
+			return;
+		}
+
 		String lowerLimit = JythonServerFacade.getInstance().evaluateCommand(motorName + ".getLowerLimit()");
 		String upperLimit = JythonServerFacade.getInstance().evaluateCommand(motorName + ".getUpperLimit()");
 		if (!lowerLimit.equals("None") && !lowerLimit.isEmpty())

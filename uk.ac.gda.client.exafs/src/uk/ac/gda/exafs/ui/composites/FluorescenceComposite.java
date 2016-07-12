@@ -18,9 +18,9 @@
 
 package uk.ac.gda.exafs.ui.composites;
 
-import gda.configuration.properties.LocalProperties;
-
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.core.resources.IFile;
@@ -43,9 +43,12 @@ import org.eclipse.swt.widgets.Link;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
 import uk.ac.gda.beans.exafs.DetectorParameters;
+import uk.ac.gda.beans.exafs.FluorescenceParameters;
 import uk.ac.gda.beans.exafs.XanesScanParameters;
 import uk.ac.gda.beans.exafs.XasScanParameters;
+import uk.ac.gda.beans.exafs.i20.MedipixParameters;
 import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.beans.vortex.Xspress3Parameters;
 import uk.ac.gda.beans.xspress.XspressParameters;
@@ -68,8 +71,10 @@ public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite
 	private boolean fileNameChangeRequired = false;
 	private boolean autoChangeFluorescenceFile = LocalProperties.check("gda.microfocus.exafs.autoChangeFluorescenceFile");
 	private IBeanController control;
+	private Map<String,String> detectorNameToParamTypeMap;
+	private Map<String,Class> detectorNameToClassMap;
 
-	public FluorescenceComposite(Composite parent, int style, boolean includeVortex, boolean includeGermanium, boolean includeXspress3,
+	public FluorescenceComposite(Composite parent, int style, boolean includeVortex, boolean includeGermanium, boolean includeXspress3, boolean includeMedipix,
 			DetectorParameters abean, final IBeanController control) {
 		super(parent, style, abean);
 		this.control = control;
@@ -88,13 +93,16 @@ public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite
 
 		String[] items = new String[]{};
 		if (includeVortex){
-			items = (String[]) ArrayUtils.add(items, "Silicon");
+			items = (String[]) ArrayUtils.add(items, FluorescenceParameters.SILICON_DET_TYPE);
 		}
 		if (includeGermanium){
-			items = (String[]) ArrayUtils.add(items, "Germanium");
+			items = (String[]) ArrayUtils.add(items, FluorescenceParameters.GERMANIUM_DET_TYPE);
 		}
 		if (includeXspress3){
-			items = (String[]) ArrayUtils.add(items, "Xspress3");
+			items = (String[]) ArrayUtils.add(items, FluorescenceParameters.XSPRESS3_DET_TYPE);
+		}
+		if (includeMedipix) {
+			items = (String[]) ArrayUtils.add(items, FluorescenceParameters.MEDIPIX_DET_TYPE);
 		}
 
 		this.detectorType = new RadioWrapper(confComp, SWT.NONE, items);
@@ -128,11 +136,13 @@ public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite
 				try {
 					configFileName.setError(false, null);
 					if (BeansFactory.isBean(file, XspressParameters.class))
-						detectorType.setValue("Germanium");
+						detectorType.setValue(FluorescenceParameters.GERMANIUM_DET_TYPE);
 					else if (BeansFactory.isBean(file, VortexParameters.class))
-						detectorType.setValue("Silicon");
+						detectorType.setValue(FluorescenceParameters.SILICON_DET_TYPE);
 					else if (BeansFactory.isBean(file, Xspress3Parameters.class))
-						detectorType.setValue("Xspress3");
+						detectorType.setValue(FluorescenceParameters.XSPRESS3_DET_TYPE);
+					else if (BeansFactory.isBean(file, MedipixParameters.class))
+						detectorType.setValue(FluorescenceParameters.MEDIPIX_DET_TYPE);
 					else {
 						configFileName.setError(true, "File chosen is not of a detector type.");
 						detectorType.clear();
@@ -148,31 +158,19 @@ public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite
 		configure = new Link(confComp, SWT.NONE);
 		configure.setText("<a>Configure</a>");
 		configure.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
+
+		setupDetectorNameMaps();
+
 		configureAction = new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				Object value = detectorType.getValue();
-				if (value.equals("Germanium")) {
-					try {
-						// NOTE Currently editing local file.
-						checkConfigFile("Germanium");
-					} catch (Exception e1) {
-						logger.error("Cannot open xspress parameters.", e1);
-					}
-				} else if (value.equals("Silicon")) {
-					try {
-						// NOTE Currently editing local file.
-						checkConfigFile("Silicon");
-					} catch (Exception e1) {
-						logger.error("Cannot open vortex parameters.", e1);
-					}
-				} else if (value.equals("Xspress3")) {
-					try {
-						// NOTE Currently editing local file.
-						checkConfigFile("Xspress3");
-					} catch (Exception e1) {
-						logger.error("Cannot open Xspress3 parameters.", e1);
-					}
+				String detectorNameString =  (String) detectorType.getValue();
+				String paramTypeString = detectorNameToParamTypeMap.get(detectorNameString);
+				try {
+					// NOTE Currently editing local file.
+					checkConfigFile(detectorNameString);
+				} catch (Exception e1) {
+					logger.error("Cannot open "+paramTypeString+" parameters.", e1);
 				}
 			}
 		};
@@ -203,6 +201,25 @@ public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite
 			createEdgeEnergy(top, control);
 		}
 		createIonChamberSection(abean, control);
+	}
+
+	/**
+	 * Setup maps between detector names and corresponding parameter type and java class.
+	 *
+	 * @since 18/5/2016
+	 */
+	private void setupDetectorNameMaps() {
+		detectorNameToParamTypeMap = new HashMap<String, String>();
+		detectorNameToParamTypeMap.put(FluorescenceParameters.GERMANIUM_DET_TYPE, "Xspress");
+		detectorNameToParamTypeMap.put(FluorescenceParameters.SILICON_DET_TYPE, "Vortex");
+		detectorNameToParamTypeMap.put(FluorescenceParameters.XSPRESS3_DET_TYPE, "Xspress3");
+		detectorNameToParamTypeMap.put(FluorescenceParameters.MEDIPIX_DET_TYPE, "Medipix");
+
+		detectorNameToClassMap = new HashMap<String, Class>();
+		detectorNameToClassMap.put(FluorescenceParameters.GERMANIUM_DET_TYPE, XspressParameters.class);
+		detectorNameToClassMap.put(FluorescenceParameters.SILICON_DET_TYPE, VortexParameters.class);
+		detectorNameToClassMap.put(FluorescenceParameters.XSPRESS3_DET_TYPE, Xspress3Parameters.class);
+		detectorNameToClassMap.put(FluorescenceParameters.MEDIPIX_DET_TYPE, MedipixParameters.class);
 	}
 
 	@Override
@@ -266,11 +283,11 @@ public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite
 							edge = control.getBeanField("Edge", XanesScanParameters.class).getValue().toString();
 						}
 
-						if (value.equals("Silicon")) {
+						if (value.equals(FluorescenceParameters.SILICON_DET_TYPE)) {
 							configFileName.setText("Vortex_Parameters" + element + "_" + edge + ".xml");
-						} else if (value.equals("Germanium")) {
+						} else if (value.equals(FluorescenceParameters.GERMANIUM_DET_TYPE)) {
 							configFileName.setText("Xspress_Parameters" + element + "_" + edge + ".xml");
-						} else if (value.equals("Xspress3")) {
+						} else if (value.equals(FluorescenceParameters.XSPRESS3_DET_TYPE)) {
 							configFileName.setText("Xspress3_Parameters" + element + "_" + edge + ".xml");
 						}
 					} else {
@@ -301,14 +318,13 @@ public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite
 		IFile configFile = dir.getFile(configFileName.getText());
 		final XMLCommandHandler xmlCommandHandler;
 
-		if (detectorType.equals("Germanium"))
-			xmlCommandHandler = ExperimentBeanManager.INSTANCE.getXmlCommandHandler(XspressParameters.class);
-		else if (detectorType.equals("Silicon"))
-			xmlCommandHandler = ExperimentBeanManager.INSTANCE.getXmlCommandHandler(VortexParameters.class);
-		else if (detectorType.equals("Xspress3"))
-			xmlCommandHandler = ExperimentBeanManager.INSTANCE.getXmlCommandHandler(Xspress3Parameters.class);
-		else
+		// Lookup xml handler for detector type (both class and handler will be null if detector type is not found)
+		Class detectorClassType = detectorNameToClassMap.get(detectorType);
+		xmlCommandHandler = ExperimentBeanManager.INSTANCE.getXmlCommandHandler(detectorClassType);
+
+		if ( xmlCommandHandler == null )
 			throw new ClassNotFoundException("XmlCommandHandler not found");
+
 		IFile returnFromTemplate = null;
 		if (!configFile.exists()) {
 			if (checkTemplate && !configFileName.getText().isEmpty())

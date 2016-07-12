@@ -18,14 +18,6 @@
 
 package uk.ac.gda.exafs.ui.composites;
 
-import gda.configuration.properties.LocalProperties;
-import gda.device.CurrentAmplifier;
-import gda.device.DeviceException;
-import gda.device.Scannable;
-import gda.exafs.mucal.PressureBean;
-import gda.exafs.mucal.PressureCalculation;
-import gda.factory.Finder;
-
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -33,9 +25,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.richbeans.api.binding.IBeanController;
@@ -63,7 +52,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
@@ -75,6 +63,10 @@ import org.eclipse.ui.progress.IProgressService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
+import gda.device.CurrentAmplifier;
+import gda.exafs.mucal.PressureBean;
+import gda.exafs.mucal.PressureCalculation;
 import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.exafs.FluorescenceParameters;
 import uk.ac.gda.beans.exafs.IonChamberParameters;
@@ -83,6 +75,7 @@ import uk.ac.gda.common.rcp.util.GridUtils;
 import uk.ac.gda.components.wrappers.FindableNameWrapper;
 import uk.ac.gda.exafs.ExafsActivator;
 import uk.ac.gda.exafs.ui.dialogs.GainWizard;
+import uk.ac.gda.exafs.ui.ionchambers.GasFill;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 import uk.ac.gda.exafs.util.GainCalculation;
 
@@ -232,99 +225,20 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 
 				@Override
 				public void widgetSelected(SelectionEvent e) {
-
-					String ionc_name = name.getValue().toString();
-					String purge_pressure = "25.0";
-					String purge_period = "120.0";
-					String gas_fill1_pressure_mbar = Double.toString(Double.parseDouble(pressure.getValue().toString()) * 1000);
-					String gas_fill1_period = Double.toString(Double.parseDouble(gas_fill1_period_box.getValue()
-							.toString()));
-					Double totalPressureDbl = Double.parseDouble(totalPressure.getValue().toString());
-					String gas_fill2_pressure = Double.toString(totalPressureDbl * 1000.0);
-					String gas_fill2_period = Double.toString(Double.parseDouble(gas_fill2_period_box.getValue()
-							.toString()));
-					String gas_select = gasType.getValue().toString();
-					String gas_select_val = "-1";
-
-					if (flush.getValue())
-						flushString = "True";
-					else
-						flushString = "False";
-
-					if (gas_select.equals("Kr"))
-						gas_select_val = "0";
-					else if (gas_select.equals("N"))
-						gas_select_val = "1";
-					else if (gas_select.equals("Ar"))
-						gas_select_val = "2";
-
-					final ArrayList<String> args = new ArrayList<String>();
-					args.add(purge_pressure);
-					args.add(purge_period);
-					args.add(gas_fill1_pressure_mbar);
-					args.add(gas_fill1_period);
-					args.add(gas_fill2_pressure);
-					args.add(gas_fill2_period);
-					args.add(gas_select_val);
-					args.add(flushString);
-
-
-					final Scannable gasInjector;
-
-					if (ionc_name.equalsIgnoreCase("I0")){
-						gasInjector = Finder.getInstance().find("ionc1_gas_injector");
-					} else if (ionc_name.equalsIgnoreCase("It")){
-						gasInjector = Finder.getInstance().find("ionc2_gas_injector");
-					} else if (ionc_name.equalsIgnoreCase("Iref")){
-						gasInjector = Finder.getInstance().find("ionc3_gas_injector");
-					} else {
-						gasInjector = null;
-					}
-
-					if (gasInjector != null) {
-
-						Job job = new Job("Filling gas rig " + ionc_name) {
-							@Override
-							protected IStatus run(IProgressMonitor monitor) {
-								try {
-									Display.getDefault().asyncExec(new Runnable() {
-
-										@Override
-										public void run() {
-											fillGasButton.setEnabled(false);
-										}
-									});
-									gasInjector.moveTo(args);
-								} catch (Exception e1) {
-									logger.error("Exception operating a gas injector from the UI", e1);
-									return Status.CANCEL_STATUS;
-								} finally {
-									Display.getDefault().asyncExec(new Runnable() {
-
-										@Override
-										public void run() {
-											fillGasButton.setEnabled(true);
-										}
-									});
-								}
-								return Status.OK_STATUS;
-							}
-
-							@Override
-							protected void canceling() {
-								try {
-									gasInjector.stop();
-								} catch (DeviceException e) {
-									logger.error("Exception whilst aborting a gas injector", e);
-								}
-							}
-
-						};
-						job.setUser(true);
-						job.schedule();
-					}
+					//  Create new parameters object using currently set parameters from gui
+					IonChamberParameters chamberParams = new IonChamberParameters();
+					chamberParams.setName( (String) name.getValue() );
+					chamberParams.setPressure( Double.parseDouble(pressure.getValue()) );
+					chamberParams.setGas_fill1_period_box( Double.parseDouble(gas_fill1_period_box.getValue().toString()) );
+					chamberParams.setTotalPressure( Double.parseDouble(totalPressure.getValue().toString()) );
+					chamberParams.setGas_fill2_period_box( Double.parseDouble(gas_fill2_period_box.getValue().toString()) );
+					chamberParams.setGasType( gasType.getValue().toString() );
+					chamberParams.setFlush( flush.getValue() );
+					// Run gas fill
+					GasFill.runGasFill( chamberParams, fillGasButton);
 				}
-			});
+			} );
+
 		}
 	}
 

@@ -679,6 +679,17 @@
                contentTypeId="uk.ac.diamond.gda.client.exafs.getXspress3Content">
          </contentTypeBinding>
       </editor>
+      <editor
+            class="uk.ac.gda.exafs.ui.detector.medipix.MedipixParametersEditor"
+            contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
+            default="false"
+            icon="icons/page_refresh.png"
+            id="uk.ac.gda.exafs.ui.MedipixParametersEditor"
+            name="Medipix Parameters">
+         <contentTypeBinding
+               contentTypeId="uk.ac.diamond.gda.client.exafs.getXspress3Content">
+         </contentTypeBinding>
+      </editor>
     </extension>
 
    <extension

@@ -27,10 +27,10 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
-public class VoltageSupply extends Composite{
+public class VoltageSupplyComposite extends Composite{
 	private Text text;
 
-	public VoltageSupply(Composite parent, int style) {
+	public VoltageSupplyComposite(Composite parent, int style) {
 		super(parent, style);
 		GridLayout gridLayout = new GridLayout(1, false);
 		gridLayout.verticalSpacing = 0;

@@ -37,8 +37,6 @@ import gda.device.CounterTimer;
 import gda.device.DeviceException;
 import gda.device.XmapDetector;
 import gda.factory.Finder;
-import gda.jython.Jython;
-import gda.jython.JythonServerFacade;
 
 public class XmapMonitorView extends MonitorViewBase {
 
@@ -193,8 +191,9 @@ public class XmapMonitorView extends MonitorViewBase {
 		String ionchambersName = LocalProperties.get("gda.exafs.ionchambersName", "counterTimer01");
 		CounterTimer ionchambers = (CounterTimer) Finder.getInstance().find(ionchambersName);
 
-		// only collect new data outside of scans else will readout the last data collected
-		if (JythonServerFacade.getInstance().getScanStatus() == Jython.IDLE && !xmap.isBusy() && !ionchambers.isBusy()) {
+		// Check to make sure that no scan or script is currently running before reading from detectors
+		// to avoid indadvertently interfering with data collection.
+		if ( getScriptOrScanIsRunning() && !xmap.isBusy() && !ionchambers.isBusy() ){
 			xmap.collectData();
 			ionchambers.setCollectionTime(1);
 			ionchambers.collectData();

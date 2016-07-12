@@ -18,13 +18,6 @@
 
 package uk.ac.gda.exafs.ui.views.scalersmonitor;
 
-import gda.device.DeviceException;
-import gda.jython.Jython;
-import gda.jython.JythonServerFacade;
-import gda.jython.JythonServerStatus;
-import gda.observable.IObserver;
-import gda.rcp.GDAClientActivator;
-
 import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlottingFactory;
@@ -43,6 +36,12 @@ import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.DeviceException;
+import gda.jython.Jython;
+import gda.jython.JythonServerFacade;
+import gda.jython.JythonServerStatus;
+import gda.observable.IObserver;
+import gda.rcp.GDAClientActivator;
 import uk.ac.gda.client.CommandQueueViewFactory;
 
 /**
@@ -53,7 +52,7 @@ import uk.ac.gda.client.CommandQueueViewFactory;
 public abstract class MonitorViewBase extends ViewPart implements Runnable, IPartListener2, IObserver {
 
 	protected static final Logger logger = LoggerFactory.getLogger(MonitorViewBase.class);
-	protected final String ALREADY_RUNNING_MSG = "Scan and/or detectors already running.";
+	protected final String ALREADY_RUNNING_MSG = "Scan/script and/or detectors already running.";
 
 	protected volatile boolean runMonitoring = false;
 
@@ -157,6 +156,15 @@ public abstract class MonitorViewBase extends ViewPart implements Runnable, IPar
 		manager.add(btnRunPause);
 	}
 
+	/*
+	 * Check to see if a scan or script is running.
+	 * @since 20/5/2016
+	 */
+	public boolean getScriptOrScanIsRunning() {
+		return JythonServerFacade.getInstance().getScanStatus() != Jython.IDLE ||
+			   JythonServerFacade.getInstance().getScriptStatus() != Jython.IDLE;
+	}
+
 	@Override
 	public void run() {
 		while (keepOnTrucking) {
@@ -182,7 +190,7 @@ public abstract class MonitorViewBase extends ViewPart implements Runnable, IPar
 					logger.trace("reading from fluo detector");
 					xspressStats = getFluoDetectorCountRatesAndDeadTimes();
 				} catch (final Exception e1) {
-					logger.debug("getFluoDetectorCountRatesAndDeadTimes exception" + e1.getMessage());
+					logger.debug("getFluoDetectorCountRatesAndDeadTimes exception" + e1.getMessage() + " stopping collection of detector rates.");
 					setRunMonitoring(false);
 					final String errorMessage = " view will have to stop collecting.\nError occurred while getting detector values: "
 												+ e1.getMessage();
