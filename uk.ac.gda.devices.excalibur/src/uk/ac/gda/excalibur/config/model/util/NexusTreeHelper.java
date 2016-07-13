@@ -358,14 +358,14 @@ public class NexusTreeHelper {
 			nxfem.addChildNode(new NexusTreeNode(EXCONF_PKG.getReadoutNodeFemModel_DacSense().getName(),
 					NexusExtractor.SDSClassName, nxfem, new NexusGroupData(fem.getDacSense())));
 
-			addChipRegNode(nxfem, fem.getMpxiiiChipReg1(), CHIP_REG1);
-			addChipRegNode(nxfem, fem.getMpxiiiChipReg2(), CHIP_REG2);
-			addChipRegNode(nxfem, fem.getMpxiiiChipReg3(), CHIP_REG3);
-			addChipRegNode(nxfem, fem.getMpxiiiChipReg4(), CHIP_REG4);
-			addChipRegNode(nxfem, fem.getMpxiiiChipReg5(), CHIP_REG5);
-			addChipRegNode(nxfem, fem.getMpxiiiChipReg6(), CHIP_REG6);
-			addChipRegNode(nxfem, fem.getMpxiiiChipReg7(), CHIP_REG7);
-			addChipRegNode(nxfem, fem.getMpxiiiChipReg8(), CHIP_REG8);
+			//addChipRegNode(nxfem, fem.getMpxiiiChipReg1(), CHIP_REG1);	// kw thu 17 dec 2015
+			//addChipRegNode(nxfem, fem.getMpxiiiChipReg2(), CHIP_REG2);
+			//addChipRegNode(nxfem, fem.getMpxiiiChipReg3(), CHIP_REG3);
+			//addChipRegNode(nxfem, fem.getMpxiiiChipReg4(), CHIP_REG4);
+			//addChipRegNode(nxfem, fem.getMpxiiiChipReg5(), CHIP_REG5);
+			//addChipRegNode(nxfem, fem.getMpxiiiChipReg6(), CHIP_REG6);
+			//addChipRegNode(nxfem, fem.getMpxiiiChipReg7(), CHIP_REG7);
+			//addChipRegNode(nxfem, fem.getMpxiiiChipReg8(), CHIP_REG8);
 
 			nxnode.addChildNode(nxfem);
 
