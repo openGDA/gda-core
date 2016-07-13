@@ -21,8 +21,6 @@ package gda.device.detector.addetector.collectionstrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.scan.ScanInformation;
-
 /**
  * This Collection strategy can be used where the acquisition must be started during collectData() and stopped during
  * completeCollection().
@@ -32,6 +30,9 @@ import gda.scan.ScanInformation;
  *
  * This strategy does not set the Image Mode, so should be wrapped with an ImageModeDecorator as appropriate (use
  * {@link SingleImageModeDecorator} for the equivalent of the old SimpleAcquire or SingleExposureStandard).
+ *
+ * This strategy does not set the acquire time, so should be wrapped with a {@link ConfigureAcquireTimeDecorator} to behave
+ * like the old SimpleAcquire or SingleExposureStandard collection strategies.
  *
  * Note, this collection strategy ignores the now deprecated NXCollectionStrategyPlugin.configureAcquireAndPeriodTimes method,
  * so support for AbstractADTriggeringStrategy properties such as accumulation Mode and readoutTime will have to be implemented
@@ -51,15 +52,6 @@ public class SoftwareStartStop extends AbstractADCollectionStrategy {
 	public void collectData() throws Exception {
 		logger.trace("collectData() called, restoreAcquireState={}", restoreAcquireState);
 		getAdBase().startAcquiring();
-	}
-
-	@Override
-	protected void rawPrepareForCollection(double collectionTime, int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
-		getAdBase().stopAcquiring();
-		configureAcquireAndPeriodTimes(collectionTime);
-		if (numberImagesPerCollection > 0)
-			getAdBase().setNumImages(numberImagesPerCollection);
-		super.rawPrepareForCollection(collectionTime, numberImagesPerCollection, scanInfo);
 	}
 
 	@Override
