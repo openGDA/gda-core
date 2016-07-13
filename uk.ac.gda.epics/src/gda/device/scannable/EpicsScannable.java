@@ -18,6 +18,14 @@
 
 package gda.device.scannable;
 
+import java.io.Serializable;
+
+import org.jscience.physics.quantities.Quantity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.util.StringUtils;
+
 import gda.device.DeviceException;
 import gda.device.epicsdevice.EpicsDBR;
 import gda.epics.PVProvider;
@@ -43,22 +51,15 @@ import gov.aps.jca.event.MonitorListener;
 import gov.aps.jca.event.PutEvent;
 import gov.aps.jca.event.PutListener;
 
-import java.io.Serializable;
-
-import org.jscience.physics.quantities.Quantity;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.util.StringUtils;
-
-/* EpicsScannable is a ScannableMotionUnits implementation giving access to a PV
- * The class is for local use only as sending monitor events from EPICS over Corba
- * can be very ineffecient
- *
- * To use with an ENUM it may be useful to set getAsString as true, and set hasUnits=false
- *
- * The connection to the channel is only first made when access to the PV is required
- *
+/**
+ * EpicsScannable is a ScannableMotionUnits implementation giving access to a PV.
+ * <p>
+ * The class is for local use only as sending monitor events from EPICS over Corba can be very inefficient.
+ * <p>
+ * To use with an ENUM it may be useful to set getAsString=true, and set hasUnits=false.
+ * <p>
+ * The connection to the channel is only first made when access to the PV is required.
+ * <p>
  * The monitor is only set on the channel if the class is being observed.
  */
 public class EpicsScannable extends ScannableMotionUnitsBase implements InitializingBean{
