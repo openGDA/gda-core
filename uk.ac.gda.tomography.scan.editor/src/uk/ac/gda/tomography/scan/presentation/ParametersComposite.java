@@ -68,6 +68,7 @@ public class ParametersComposite extends Composite {
 	private Button extraFlatsAtEnd;
 	private Text numFlyScans;
 	private Text flyScanDelay;
+	private Text approxCentreOfRotation;
 
 	public ParametersComposite(Composite parent) {
 		super(parent, SWT.NONE);
@@ -173,20 +174,10 @@ public class ParametersComposite extends Composite {
 		step = new Text(rotationAngleGroup, SWT.BORDER);
 		step.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 
-
-		flyscan = new Button(this, SWT.CHECK);
-		FormData fd_flyscan = new FormData();
-		fd_flyscan.top = new FormAttachment(rotationAngleGroup);
-		fd_flyscan.right = new FormAttachment(100);
-		fd_flyscan.left = new FormAttachment(0);
-		flyscan.setLayoutData(fd_flyscan);
-		flyscan.setText("Fly Scan");
-		flyscan.setToolTipText("The scan can be performed as a step scan or fly scan");
-
 		Group grpDarksFlats = new Group(this, SWT.NONE);
 		grpDarksFlats.setLayout(new GridLayout(2, false));
 		FormData fd_grpDarksFlats = new FormData();
-		fd_grpDarksFlats.top = new FormAttachment(flyscan);
+		fd_grpDarksFlats.top = new FormAttachment(rotationAngleGroup);
 		fd_grpDarksFlats.right = new FormAttachment(100);
 		fd_grpDarksFlats.left = new FormAttachment(0);
 		grpDarksFlats.setLayoutData(fd_grpDarksFlats);
@@ -220,15 +211,29 @@ public class ParametersComposite extends Composite {
 		flatFieldInterval = new Text(grpDarksFlats, SWT.BORDER);
 		flatFieldInterval.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 
-		extraFlatsAtEnd = new Button(grpDarksFlats, SWT.CHECK);
-		extraFlatsAtEnd.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1));
+		Group grpFlyScan = new Group(this, SWT.NONE);
+		grpFlyScan.setLayout(new GridLayout(2, false));
+		FormData fd_grpFlyScan = new FormData();
+		fd_grpFlyScan.top = new FormAttachment(grpDarksFlats);
+		fd_grpFlyScan.right = new FormAttachment(100);
+		fd_grpFlyScan.left = new FormAttachment(0);
+		grpFlyScan.setLayoutData(fd_grpFlyScan);
+		grpFlyScan.setText("Fly Scan");
+
+		flyscan = new Button(grpFlyScan, SWT.CHECK);
+		flyscan.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
+		flyscan.setText("Fly Scan");
+		flyscan.setToolTipText("The scan can be performed as a step scan or fly scan");
+
+		extraFlatsAtEnd = new Button(grpFlyScan, SWT.CHECK);
+		extraFlatsAtEnd.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
 		extraFlatsAtEnd.setText("Extra Flats at End");
 		extraFlatsAtEnd.setToolTipText("Collect additional flat images at end of scan");
 
 		Group grpMultipleFlyScans = new Group(this, SWT.NONE);
 		grpMultipleFlyScans.setLayout(new GridLayout(2, false));
 		FormData fd_grpMultipleFlyScans = new FormData();
-		fd_grpMultipleFlyScans.top = new FormAttachment(grpDarksFlats);
+		fd_grpMultipleFlyScans.top = new FormAttachment(grpFlyScan);
 		fd_grpMultipleFlyScans.right = new FormAttachment(100);
 		fd_grpMultipleFlyScans.left = new FormAttachment(0);
 		grpMultipleFlyScans.setLayoutData(fd_grpMultipleFlyScans);
@@ -248,6 +253,25 @@ public class ParametersComposite extends Composite {
 		flyScanDelay = new Text(grpMultipleFlyScans, SWT.BORDER);
 		flyScanDelay.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		flyScanDelay.setToolTipText("Delay in seconds between multiple fly scans");
+
+		Group grpReconstruction = new Group(this, SWT.NONE);
+		grpReconstruction.setLayout(new GridLayout(2, false));
+		FormData fd_grpReconstruction = new FormData();
+		fd_grpReconstruction.top = new FormAttachment(grpMultipleFlyScans);
+		fd_grpReconstruction.right = new FormAttachment(100);
+		fd_grpReconstruction.left = new FormAttachment(0);
+		grpReconstruction.setLayoutData(fd_grpReconstruction);
+		grpReconstruction.setText("Reconstruction");
+
+		Label lblApproxCentreOfRotation = new Label(grpReconstruction, SWT.NONE);
+		lblApproxCentreOfRotation.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lblApproxCentreOfRotation.setText("Approx. centre of rotation/px");
+
+		approxCentreOfRotation = new Text(grpReconstruction, SWT.BORDER);
+		approxCentreOfRotation.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		approxCentreOfRotation.setToolTipText("Approximate centre of rotation (pixel)");
+
+		// -----------------------------------------------------------------------------------
 
 		addTextToTextListeners(title, ScanPackage.eINSTANCE.getParameters_Title());
 		addTextToDoubleListeners(exposure, ScanPackage.eINSTANCE.getParameters_ExposureTime());
@@ -270,6 +294,8 @@ public class ParametersComposite extends Composite {
 
 		addTextToIntegerListeners(numFlyScans, ScanPackage.eINSTANCE.getParameters_NumFlyScans());
 		addTextToDoubleListeners(flyScanDelay, ScanPackage.eINSTANCE.getParameters_FlyScanDelay());
+
+		addTextToIntegerListeners(approxCentreOfRotation, ScanPackage.eINSTANCE.getParameters_ApproxCentreOfRotation());
 
 		addDisposeListener(new DisposeListener() {
 
@@ -397,6 +423,10 @@ public class ParametersComposite extends Composite {
 		numFlyScans.setText(Integer.toString(x.getNumFlyScans()));
 		flyScanDelay.setText(Double.toString(x.getFlyScanDelay()));
 
+		if (x.getApproxCentreOfRotation() != null) {
+			approxCentreOfRotation.setText(Integer.toString(x.getApproxCentreOfRotation()));
+		}
+
 		adapter = new EContentAdapter() {
 
 			@Override
@@ -439,6 +469,8 @@ public class ParametersComposite extends Composite {
 							numFlyScans.setText(Integer.toString(parameters.getNumFlyScans()));
 						} else if (feature.equals(ScanPackage.eINSTANCE.getParameters_FlyScanDelay())) {
 							flyScanDelay.setText(Double.toString(parameters.getFlyScanDelay()));
+						} else if (feature.equals(ScanPackage.eINSTANCE.getParameters_ApproxCentreOfRotation())) {
+							approxCentreOfRotation.setText(Integer.toString(parameters.getApproxCentreOfRotation()));
 						}
 					}
 

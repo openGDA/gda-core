@@ -4,13 +4,13 @@ import org.eclipse.emf.ecore.EObject;
 
 /**
  * @model
- * 
+ *
  */
 public interface Parameters extends EObject {
 
 	/**
 	 * @model required="true" unsettable="false" default="Unknown"
-	 * 
+	 *
 	 * @return the title of the scan
 	 */
 	String getTitle();
@@ -27,7 +27,7 @@ public interface Parameters extends EObject {
 
 	/**
 	 * @model required="true" unsettable="false" default="0."
-	 * 
+	 *
 	 * @return Position of X motor when sample is in the beam. In mm
 	 */
 	double getInBeamPosition();
@@ -44,7 +44,7 @@ public interface Parameters extends EObject {
 
 	/**
 	 * @model required="true" unsettable="false" default="0."
-	 * 
+	 *
 	 * @return Position of X motor when sample is out of the beam - used to take a flat image. In mm
 	 */
 	double getOutOfBeamPosition();
@@ -61,7 +61,7 @@ public interface Parameters extends EObject {
 
 	/**
 	 * @model required="true" default="1.0" unsettable="false"
-	 * 
+	 *
 	 * @return Exposure Time in s
 	 */
 	double getExposureTime();
@@ -78,7 +78,7 @@ public interface Parameters extends EObject {
 
 	/**
 	 * @model required="true" default="0." unsettable="false"
-	 * 
+	 *
 	 * @return First rotation angle . In degrees
 	 */
 	double getStart();
@@ -95,7 +95,7 @@ public interface Parameters extends EObject {
 
 	/**
 	 * @model required="true" default="180." unsettable="false"
-	 * 
+	 *
 	 * @return Last rotation angle . In degrees
 	 */
 	double getStop();
@@ -112,7 +112,7 @@ public interface Parameters extends EObject {
 
 	/**
 	 * @model required="true" default=".1" unsettable="false"
-	 * 
+	 *
 	 * @return Rotation step size (default = 0.1). In degrees
 	 */
 	double getStep();
@@ -129,7 +129,7 @@ public interface Parameters extends EObject {
 
 	/**
 	 * @model required="true" default="0" unsettable="false"
-	 * 
+	 *
 	 * @return number of projections between each dark field. Note that a dark is always taken at the start and end of a tomogram (default=0)
 	 */
 	int getDarkFieldInterval();
@@ -146,7 +146,7 @@ public interface Parameters extends EObject {
 
 	/**
 	 * @model required="true" default="0" unsettable="false"
-	 * 
+	 *
 	 * @return number of projections between each flat field. Note that a dark is always taken at the start and end of a tomogram (default=0.)
 	 */
 	int getFlatFieldInterval();
@@ -163,7 +163,7 @@ public interface Parameters extends EObject {
 
 	/**
 	 * @model required="true" default="1" unsettable="false"
-	 * 
+	 *
 	 * @return number of images to be taken for each dark default=1
 	 */
 	int getImagesPerDark();
@@ -180,7 +180,7 @@ public interface Parameters extends EObject {
 
 	/**
 	 * @model required="true" default="1" unsettable="false"
-	 * 
+	 *
 	 * @return number of images to be taken for each flat
 	 */
 	int getImagesPerFlat();
@@ -197,7 +197,7 @@ public interface Parameters extends EObject {
 
 	/**
 	 * @model required="true" default="-1." unsettable="false"
-	 * 
+	 *
 	 * @return minimum value of ion chamber current required to take an image (default is -1) . A negative value means that the value is not checked )
 	 */
 	double getMinI();
@@ -214,7 +214,7 @@ public interface Parameters extends EObject {
 
 	/**
 	 * @model required="true" default="false" unsettable="false"
-	 * 
+	 *
 	 * @return True if the scan is to be a flyscan
 	 */
 	boolean isFlyScan();
@@ -270,4 +270,18 @@ public interface Parameters extends EObject {
 	 *            the new value of the '<em>Delay Between Scans</em>' attribute.
 	 */
 	void setFlyScanDelay(double value);
+
+	/**
+	 * @model required="true" default="false" unsettable="false"
+	 * @return approximate centre of rotation (default is null)
+	 */
+	Integer getApproxCentreOfRotation();
+
+	/**
+	 * Sets the value of the '{@link uk.ac.gda.tomography.scan.Parameters#getApproxCentreOfRotation <em>Approximate centre of rotation</em>}' attribute.
+	 *
+	 * @param value
+	 *            the new value of the '<em>Approximate centre of rotation</em>' attribute.
+	 */
+	void setApproxCentreOfRotation(Integer value);
 }
