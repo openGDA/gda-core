@@ -15,28 +15,27 @@ import uk.ac.gda.tomography.scan.Parameters;
 import uk.ac.gda.tomography.scan.ScanPackage;
 
 /**
- * <!-- begin-user-doc -->
- * An implementation of the model object '<em><b>Parameters</b></em>'.
- * <!-- end-user-doc -->
+ * <!-- begin-user-doc --> An implementation of the model object '<em><b>Parameters</b></em>'. <!-- end-user-doc -->
  * <p>
  * The following features are implemented:
  * <ul>
- *   <li>{@link uk.ac.gda.tomography.scan.impl.ParametersImpl#getInBeamPosition <em>In Beam Position</em>}</li>
- *   <li>{@link uk.ac.gda.tomography.scan.impl.ParametersImpl#getOutOfBeamPosition <em>Out Of Beam Position</em>}</li>
- *   <li>{@link uk.ac.gda.tomography.scan.impl.ParametersImpl#getExposureTime <em>Exposure Time</em>}</li>
- *   <li>{@link uk.ac.gda.tomography.scan.impl.ParametersImpl#getStart <em>Start</em>}</li>
- *   <li>{@link uk.ac.gda.tomography.scan.impl.ParametersImpl#getStop <em>Stop</em>}</li>
- *   <li>{@link uk.ac.gda.tomography.scan.impl.ParametersImpl#getStep <em>Step</em>}</li>
- *   <li>{@link uk.ac.gda.tomography.scan.impl.ParametersImpl#getDarkFieldInterval <em>Dark Field Interval</em>}</li>
- *   <li>{@link uk.ac.gda.tomography.scan.impl.ParametersImpl#getFlatFieldInterval <em>Flat Field Interval</em>}</li>
- *   <li>{@link uk.ac.gda.tomography.scan.impl.ParametersImpl#getImagesPerDark <em>Images Per Dark</em>}</li>
- *   <li>{@link uk.ac.gda.tomography.scan.impl.ParametersImpl#getImagesPerFlat <em>Images Per Flat</em>}</li>
- *   <li>{@link uk.ac.gda.tomography.scan.impl.ParametersImpl#getMinI <em>Min I</em>}</li>
- *   <li>{@link uk.ac.gda.tomography.scan.impl.ParametersImpl#getTitle <em>Title</em>}</li>
- *   <li>{@link uk.ac.gda.tomography.scan.impl.ParametersImpl#isFlyScan <em>Fly Scan</em>}</li>
- *   <li>{@link uk.ac.gda.tomography.scan.impl.ParametersImpl#getExtraFlatsAtEnd <em>Extra Flats at End</em>}</li>
- *   <li>{@link uk.ac.gda.tomography.scan.impl.ParametersImpl#getNumFlyScans <em>Number of Fly Scans</em>}</li>
- *   <li>{@link uk.ac.gda.tomography.scan.impl.ParametersImpl#getFlyScanDelay <em>Fly Scan Delay</em>}</li>
+ * <li>{@link uk.ac.gda.tomography.scan.impl.ParametersImpl#getInBeamPosition <em>In Beam Position</em>}</li>
+ * <li>{@link uk.ac.gda.tomography.scan.impl.ParametersImpl#getOutOfBeamPosition <em>Out Of Beam Position</em>}</li>
+ * <li>{@link uk.ac.gda.tomography.scan.impl.ParametersImpl#getExposureTime <em>Exposure Time</em>}</li>
+ * <li>{@link uk.ac.gda.tomography.scan.impl.ParametersImpl#getStart <em>Start</em>}</li>
+ * <li>{@link uk.ac.gda.tomography.scan.impl.ParametersImpl#getStop <em>Stop</em>}</li>
+ * <li>{@link uk.ac.gda.tomography.scan.impl.ParametersImpl#getStep <em>Step</em>}</li>
+ * <li>{@link uk.ac.gda.tomography.scan.impl.ParametersImpl#getDarkFieldInterval <em>Dark Field Interval</em>}</li>
+ * <li>{@link uk.ac.gda.tomography.scan.impl.ParametersImpl#getFlatFieldInterval <em>Flat Field Interval</em>}</li>
+ * <li>{@link uk.ac.gda.tomography.scan.impl.ParametersImpl#getImagesPerDark <em>Images Per Dark</em>}</li>
+ * <li>{@link uk.ac.gda.tomography.scan.impl.ParametersImpl#getImagesPerFlat <em>Images Per Flat</em>}</li>
+ * <li>{@link uk.ac.gda.tomography.scan.impl.ParametersImpl#getMinI <em>Min I</em>}</li>
+ * <li>{@link uk.ac.gda.tomography.scan.impl.ParametersImpl#getTitle <em>Title</em>}</li>
+ * <li>{@link uk.ac.gda.tomography.scan.impl.ParametersImpl#isFlyScan <em>Fly Scan</em>}</li>
+ * <li>{@link uk.ac.gda.tomography.scan.impl.ParametersImpl#getExtraFlatsAtEnd <em>Extra Flats at End</em>}</li>
+ * <li>{@link uk.ac.gda.tomography.scan.impl.ParametersImpl#getNumFlyScans <em>Number of Fly Scans</em>}</li>
+ * <li>{@link uk.ac.gda.tomography.scan.impl.ParametersImpl#getFlyScanDelay <em>Fly Scan Delay</em>}</li>
+ * <li>{@link uk.ac.gda.tomography.scan.impl.ParametersImpl#getApproxCentreOfRotation <em>Approximate centre of rotation</em>}</li>
  * </ul>
  * </p>
  *
@@ -363,6 +362,26 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 	 * @ordered
 	 */
 	protected double flyScanDelay = FLY_SCAN_DELAY_EDEFAULT;
+
+	/**
+	 * The default value of the '{@link #getApproxCentreOfRotation() <em>Approximate centre of rotation</em>}' attribute. <!-- begin-user-doc --> <!--
+	 * end-user-doc -->
+	 *
+	 * @see #getApproxCentreOfRotation()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final Integer APPROX_CENTRE_OF_ROTATION_EDEFAULT = null;
+
+	/**
+	 * The cached value of the '{@link #getApproxCentreOfRotation() <em>Approximate centre of rotation</em>}' attribute. <!-- begin-user-doc --> <!--
+	 * end-user-doc -->
+	 *
+	 * @see #getApproxCentreOfRotation()
+	 * @generated
+	 * @ordered
+	 */
+	protected Integer approxCentreOfRotation = APPROX_CENTRE_OF_ROTATION_EDEFAULT;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -747,6 +766,21 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 		}
 	}
 
+	@Override
+	public Integer getApproxCentreOfRotation() {
+		return approxCentreOfRotation;
+	}
+
+	@Override
+	public void setApproxCentreOfRotation(Integer value) {
+		Integer oldApproxCentreOfRotation = approxCentreOfRotation;
+		approxCentreOfRotation = value;
+		if (eNotificationRequired()) {
+			eNotify(new ENotificationImpl(this, Notification.SET, ScanPackage.PARAMETERS__APPROX_CENTRE_OF_ROTATION, oldApproxCentreOfRotation,
+					approxCentreOfRotation));
+		}
+	}
+
 	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -787,6 +821,8 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 			return getNumFlyScans();
 		case ScanPackage.PARAMETERS__FLY_SCAN_DELAY:
 			return getFlyScanDelay();
+		case ScanPackage.PARAMETERS__APPROX_CENTRE_OF_ROTATION:
+			return getApproxCentreOfRotation();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -846,6 +882,9 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 			return;
 		case ScanPackage.PARAMETERS__FLY_SCAN_DELAY:
 			setFlyScanDelay((Double) newValue);
+			return;
+		case ScanPackage.PARAMETERS__APPROX_CENTRE_OF_ROTATION:
+			setApproxCentreOfRotation((Integer) newValue);
 			return;
 		}
 		super.eSet(featureID, newValue);
@@ -907,6 +946,9 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 		case ScanPackage.PARAMETERS__FLY_SCAN_DELAY:
 			setFlyScanDelay(FLY_SCAN_DELAY_EDEFAULT);
 			return;
+		case ScanPackage.PARAMETERS__APPROX_CENTRE_OF_ROTATION:
+			setApproxCentreOfRotation(APPROX_CENTRE_OF_ROTATION_EDEFAULT);
+			return;
 		}
 		super.eUnset(featureID);
 	}
@@ -952,6 +994,8 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 			return numFlyScans != NUM_FLY_SCANS_EDEFAULT;
 		case ScanPackage.PARAMETERS__FLY_SCAN_DELAY:
 			return flyScanDelay != FLY_SCAN_DELAY_EDEFAULT;
+		case ScanPackage.PARAMETERS__APPROX_CENTRE_OF_ROTATION:
+			return approxCentreOfRotation != APPROX_CENTRE_OF_ROTATION_EDEFAULT;
 		}
 		return super.eIsSet(featureID);
 	}
@@ -999,6 +1043,8 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 		result.append(numFlyScans);
 		result.append(", flyScanDelay: ");
 		result.append(flyScanDelay);
+		result.append(", approxCentreOfRotation: ");
+		result.append(approxCentreOfRotation);
 		result.append(')');
 		return result.toString();
 	}
