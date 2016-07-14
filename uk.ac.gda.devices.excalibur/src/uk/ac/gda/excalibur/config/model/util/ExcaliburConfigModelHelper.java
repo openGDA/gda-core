@@ -224,19 +224,19 @@ public class ExcaliburConfigModelHelper {
 		//chipRegModel.setAnper(getAnperModel(chip.getAnper()));	// kw 30 June 2015 
 		chipRegModel.setPixel(getPixelModel(chip.getPixel()));
 		chipRegModel.setChipDisable(!chip.isChipEnabled());
-		chipRegModel.setDacIntoMpx(chip.getDacIntoMpx());
-		chipRegModel.setDacOutFromMpx(chip.getDacOutFromMpx());
+		//chipRegModel.setDacIntoMpx(chip.getDacIntoMpx());			// kw thu 17 dec 2015
+		//chipRegModel.setDacOutFromMpx(chip.getDacOutFromMpx());	// kw thu 17 dec 2015
 
 		return chipRegModel;
 	}
 
 	private PixelModel getPixelModel(ChipPixel pixel) throws Exception {
 		PixelModel pixelModel = ExcaliburConfigFactory.eINSTANCE.createPixelModel();
-		pixelModel.setGainMode(Arrays.copyOf(pixel.getGainMode(), pixel.getGainMode().length));
+		//pixelModel.setGainMode(Arrays.copyOf(pixel.getGainMode(), pixel.getGainMode().length));			// kw thu 17 dec 2015
 		pixelModel.setMask(Arrays.copyOf(pixel.getMask(), pixel.getMask().length));
 		pixelModel.setTest(Arrays.copyOf(pixel.getTest(), pixel.getTest().length));
-		pixelModel.setThresholdA(Arrays.copyOf(pixel.getThresholdA(), pixel.getThresholdA().length));
-		pixelModel.setThresholdB(Arrays.copyOf(pixel.getThresholdB(), pixel.getThresholdB().length));
+		//pixelModel.setThresholdA(Arrays.copyOf(pixel.getThresholdA(), pixel.getThresholdA().length));		// kw thu 17 dec 2015
+		//pixelModel.setThresholdB(Arrays.copyOf(pixel.getThresholdB(), pixel.getThresholdB().length));		// kw thu 17 dec 2015
 		return pixelModel;
 	}
 
@@ -309,14 +309,14 @@ public class ExcaliburConfigModelHelper {
 						//detectorNode.setDacExternal(modelReadoutNodeFem.getDacExternal()); // kw 30 June 2015
 						//detectorNode.setDacSense(modelReadoutNodeFem.getDacSense()); // kw 30 June 2015
 						
-						setDetectorChipReg(detectorNode.getMpxiiiChipReg1(), modelReadoutNodeFem.getMpxiiiChipReg1());
-						setDetectorChipReg(detectorNode.getMpxiiiChipReg2(), modelReadoutNodeFem.getMpxiiiChipReg2());
-						setDetectorChipReg(detectorNode.getMpxiiiChipReg3(), modelReadoutNodeFem.getMpxiiiChipReg3());
-						setDetectorChipReg(detectorNode.getMpxiiiChipReg4(), modelReadoutNodeFem.getMpxiiiChipReg4());
-						setDetectorChipReg(detectorNode.getMpxiiiChipReg5(), modelReadoutNodeFem.getMpxiiiChipReg5());
-						setDetectorChipReg(detectorNode.getMpxiiiChipReg6(), modelReadoutNodeFem.getMpxiiiChipReg6());
-						setDetectorChipReg(detectorNode.getMpxiiiChipReg7(), modelReadoutNodeFem.getMpxiiiChipReg7());
-						setDetectorChipReg(detectorNode.getMpxiiiChipReg8(), modelReadoutNodeFem.getMpxiiiChipReg8());
+						//setDetectorChipReg(detectorNode.getMpxiiiChipReg1(), modelReadoutNodeFem.getMpxiiiChipReg1());	// kw thu 17 dec 2015
+						//setDetectorChipReg(detectorNode.getMpxiiiChipReg2(), modelReadoutNodeFem.getMpxiiiChipReg2());
+						//setDetectorChipReg(detectorNode.getMpxiiiChipReg3(), modelReadoutNodeFem.getMpxiiiChipReg3());
+						//setDetectorChipReg(detectorNode.getMpxiiiChipReg4(), modelReadoutNodeFem.getMpxiiiChipReg4());
+						//setDetectorChipReg(detectorNode.getMpxiiiChipReg5(), modelReadoutNodeFem.getMpxiiiChipReg5());
+						//setDetectorChipReg(detectorNode.getMpxiiiChipReg6(), modelReadoutNodeFem.getMpxiiiChipReg6());
+						//setDetectorChipReg(detectorNode.getMpxiiiChipReg7(), modelReadoutNodeFem.getMpxiiiChipReg7());
+						//setDetectorChipReg(detectorNode.getMpxiiiChipReg8(), modelReadoutNodeFem.getMpxiiiChipReg8());
 					} catch(Exception ex){
 						sendToExcaliburException = ex;
 					}

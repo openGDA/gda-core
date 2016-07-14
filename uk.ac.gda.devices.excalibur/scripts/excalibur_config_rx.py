@@ -8,12 +8,14 @@ configurator.setup()
 
 '''
 import sys
+import time
 from gda.factory import Finder
 from gdascripts.messages import handle_messages
 from gda.scan import RepeatScan
 import recordConfig
 from gda.configuration.properties import LocalProperties
 from gdascripts.parameters import beamline_parameters
+from epics_scripts.pv_scannable_utils import caput, caget
 
 def _getTestPattern(on=True):
     if not on:
@@ -109,7 +111,7 @@ def loadDefaultConfig():
     config_filepath = LocalProperties.getVarDir() + "excalibur_default_calibration.excaliburconfig"
     handle_messages.log(None,"Loading default config from " + `config_filepath`)
     time.sleep(2) #slow things done to avoid problems
-    recordConfig.sendConfigInFileToDetector(config_filepath)
+    #recordConfig.sendConfigInFileToDetector(config_filepath)        # kw thu 17 dec 2015
     time.sleep(2) #slow things done to avoid problems
     setOperationModeToNormal(dev) #sendConfigInFileToDetector may have changed readout node states
 
@@ -195,13 +197,13 @@ def switch_on():
     det.pluginList[1].enabled=False #turn off file saving as it will fail due to uninitialised PHDF5 plugin
     try:
         scan=RepeatScan.create_repscan([1, det, .01])
-        #scan.runScan()
+        scan.runScan()
     finally:
         det.pluginList[1].enabled=True #turn on file saving
 
-    #loadDefaultConfig() #kw 30 June 2015
-    dev.set('1:FEM:GainMode',0) #Super High #kw 30 June 2015
-
+    loadDefaultConfig() #kw 30 June 2015
+    #dev.set('1:FEM:GainMode',0) #Super High #kw 30 June 2015
+    #dev.set('CONFIG:ACQUIRE:GainMode',1)    # 1 is for High Gain Mode kw 18 dec
 
     #measureTestPattern() #kw 30 June 2015
     
@@ -275,7 +277,7 @@ def set_threshold_from_energy(energy, dryRun=False):
     where offsets and gradients are from from 2 csv files in LocalProperties.getVarDir(), threhold0_energy_offsets.csv and threhold0_energy_gradients.csv
     
     The nth line in a csv file contains the values for the 8 chips in the nth readoutNode
-    """
+    
     
     config= Finder.getInstance().find("excalibur_config")
     nodes = config.get("readoutFems")
@@ -292,6 +294,10 @@ def set_threshold_from_energy(energy, dryRun=False):
                 print "%d %d=%d" %(readoutNode, chip, threshold0)
             else:
                 nodes[readoutNode].getIndexedMpxiiiChipReg(chip).anper.setThreshold0(threshold0)    
+    """
+    if energy < 3.5:
+        print("WARNING: optimal energy threshold should normally be set to half of the beam energy, but some noise will appear below energy threshold of 3.5 keV!")
+    caput("BL13J-EA-EXCBR-01:CONFIG:ACQUIRE:EnergyThreshold",energy)
 
 
 class ExcaliburConfigurator():
@@ -352,7 +358,7 @@ class ExcaliburConfigurator():
         self.configFem.setNumExposures(1)
         self.configFem.setArrayCounter(1)
         self.configFem.setArrayCounter(0)
-        self.configFem.setChipEnable([1 for x in range(48)])
+        #self.configFem.setChipEnable([1 for x in range(48)])    #kw Thu 17 Dec 2015 (pv removed)
         
     def do_hklimits(self): 
         print "New hklimits"
@@ -402,7 +408,7 @@ class ExcaliburConfigurator():
         self.dev.set('1:HK:P1V8_VMON_A.LOW', 1.7)
         self.dev.set('1:HK:P1V8_VMON_B.HIGH', 2.0)      #1.9) #kw 30 June 2015
         self.dev.set('1:HK:P1V8_VMON_B.LOW', 1.7)
-        self.dev.set('1:HK:MOLY_TEMPERATURE.HIGH', 39.0) #37.0) #kw 14 Aug 2015 #35.0) #kw 30 June 2015
+        self.dev.set('1:HK:MOLY_TEMPERATURE.HIGH', 40.0) #37.0) #kw 14 Aug 2015 #35.0) #kw 30 June 2015 # changed from 39 to 40 on 21 Dec 2015
         self.dev.set('1:HK:MOLY_TEMPERATURE.LOW', 0.0)
         self.dev.set('1:HK:LOCAL_TEMP.HIGH', 45.0)
         self.dev.set('1:HK:LOCAL_TEMP.LOW', 0.0)
@@ -494,3 +500,29 @@ class ExcaliburConfigurator():
 #        self.configPhdf.setStorePerform(0)
         self.configPhdfBase.setNDArrayPort(self.get_output_port())
         self.configPhdfBase.enableCallbacks()
+
+
+def setExcaliburRXGainMode(mode_string, wait_secs=15):
+    pvExcaliburRXGainMode = "BL13J-EA-EXCBR-01:CONFIG:ACQUIRE:GainMode"
+    if mode_string in ("Super High", "High", "Low", "Super Low"):
+        caput(pvExcaliburRXGainMode, mode_string)
+        time.sleep(wait_secs)
+    else:
+        print "Invalid Gain Mode = %s" %(mode_string)
+    
+def getExcaliburRXGainMode():
+    pvExcaliburRXGainMode = "BL13J-EA-EXCBR-01:CONFIG:ACQUIRE:GainMode"
+    return caget(pvExcaliburRXGainMode)
+    
+    
+def setExcaliburRXOperationMode(mode_string, wait_secs=15):
+    pvExcaliburRXOperationMode = "BL13J-EA-EXCBR-01:CONFIG:ACQUIRE:OperationMode"
+    if mode_string in ("Normal", "Burst", "DAC Scan"):
+        caput(pvExcaliburRXOperationMode, mode_string)
+        time.sleep(wait_secs)
+    else:
+        print "Invalid Operation Mode = %s" %(mode_string)
+    
+def getExcaliburRXOperationMode():
+    pvExcaliburRXOperationMode = "BL13J-EA-EXCBR-01:CONFIG:ACQUIRE:OperationMode"
+    return caget(pvExcaliburRXOperationMode)
