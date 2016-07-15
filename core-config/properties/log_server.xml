@@ -29,6 +29,9 @@
 	<!-- Jetty is very noisy at DEBUG level, filter those messages out -->
 	<logger name="org.eclipse.jetty" level="INFO" />
 
+	<!-- The HDF5 library is very noisy at TRACE level -->
+	<logger name="hdf.hdf5lib" level="DEBUG" />
+
 	<!-- Also filter noisy GDA packages -->
 	<logger name="gda.device.corba.impl" level="INFO" />
 
