@@ -26,6 +26,9 @@ import org.eclipse.scanning.api.event.status.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.jython.JythonServerFacade;
+import gda.observable.IObserver;
+
 /**
  * Implementation of {@link IConsumerProcess} for running a {@link Command}. This
  * allows a command for the old command queue to be run on the new GDA9 queue.
@@ -34,43 +37,109 @@ public class CommandProcess extends AbstractPausableProcess<CommandBean> {
 
 	private static final Logger logger = LoggerFactory.getLogger(CommandProcess.class);
 
+	private final Command command;
+
 	protected CommandProcess(CommandBean bean, IPublisher<CommandBean> publisher) {
 		super(bean, publisher);
+		command = bean.getCommand();
+		setBeanStatus(Status.QUEUED);
+		broadcast(bean);
+	}
+
+	private Status getPreRequestStatus() {
+		// when doPause, doResume or doTerminate are called the current bean status is expected
+		// to be a request status, e.g. REQUEST_PAUSE. In this case, we need to get the
+		// previous state of the bean to see if we actually are currently paused or terminated, etc.
+		Status status = bean.getStatus();
+		if (status.isRequest()) {
+			status = bean.getPreviousStatus();
+		}
+
+		return status;
 	}
 
 	@Override
 	protected void doPause() throws Exception {
-		bean.getCommand().pause();
+		Status status = getPreRequestStatus();
+		if (status.isFinal() || status.isPaused()) {
+			logger.error("Cannot pause scan {}, status is {}", bean.getName(), bean.getStatus());
+		} else {
+			command.pause();
+		}
 	}
 
 	@Override
 	protected void doResume() throws Exception {
-		bean.getCommand().resume();
+		Status status = getPreRequestStatus();
+		if (!status.isPaused()) {
+			logger.error("Cannot resume scan {}, status is {}", bean.getName(), bean.getStatus());
+		} else {
+			command.resume();
+		}
 	}
 
 	@Override
 	protected void doTerminate() throws Exception {
-		bean.getCommand().abort();
+		Status status = getPreRequestStatus();
+		if (status.isFinal()) {
+			logger.error("Cannot terminate scan {}, status is {}", bean.getName(), bean.getStatus());
+		} else {
+			JythonServerFacade.getInstance().requestFinishEarly();
+		}
+	}
+
+	private void setBeanStatus(Status status) {
+		bean.setPreviousStatus(bean.getStatus());
+		bean.setStatus(status);
+	}
+
+	private void updateProgress(CommandProgress progress) {
+		bean.setPercentComplete(progress.getPercentDone());
+		broadcast(bean);
 	}
 
 	@Override
 	public void execute() throws EventException, InterruptedException {
-		final Command command = bean.getCommand();
+		// an IObserver to listen for progress, i.e. percentComplete
+		final IObserver progressObserver = new IObserver() {
+
+			@Override
+			public void update(Object source, Object arg) {
+				if (arg instanceof CommandProgress) {
+					updateProgress((CommandProgress) arg);
+				}
+			}
+		};
+
+		command.addIObserver(progressObserver);
 		try {
-			command.run();
-			bean.setPreviousStatus(Status.RUNNING);
-			bean.setStatus(Status.COMPLETE);
-			bean.setPercentComplete(100);
+			// broadcast the bean for the start of the scan
+			setBeanStatus(Status.RUNNING);
+			bean.setPercentComplete(0);
 			broadcast(bean);
+
+			// run the command - this is the method that performs the scan
+			command.run();
+
+			// broadcast the bean for the end of the scan
+			if (!bean.getStatus().isTerminated()) {
+				setBeanStatus(Status.COMPLETE);
+				bean.setPercentComplete(100);
+				broadcast(bean);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.error("Cannot execute command " + command);
-			bean.setPreviousStatus(Status.RUNNING);
-			bean.setStatus(Status.FAILED);
+
+			// broadcast the bean for a failed scan
+			setBeanStatus(Status.FAILED);
+			bean.setPercentComplete(100);
 			bean.setMessage(e.getMessage());
 			broadcast(bean);
 
 			throw new EventException(e);
+		} finally {
+			command.deleteIObserver(progressObserver);
 		}
 	}
 
