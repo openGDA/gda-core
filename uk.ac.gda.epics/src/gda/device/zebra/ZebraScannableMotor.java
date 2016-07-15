@@ -18,16 +18,16 @@
 
 package gda.device.zebra;
 
+import java.util.concurrent.Callable;
+
+import org.springframework.beans.factory.InitializingBean;
+
 import gda.device.DeviceException;
 import gda.device.continuouscontroller.ContinuousMoveController;
 import gda.device.scannable.ContinuouslyScannableViaController;
 import gda.device.scannable.PositionCallableProvider;
 import gda.device.scannable.PositionConvertorFunctions;
 import gda.device.scannable.ScannableMotor;
-
-import java.util.concurrent.Callable;
-
-import org.springframework.beans.factory.InitializingBean;
 
 /**
  * Class to use with ZebraConstantVelocityMoveController and ConstantVelocityScanLine to perform flyscans
@@ -89,7 +89,7 @@ public class ZebraScannableMotor extends ScannableMotor implements ContinuouslyS
 	public Object getPosition() throws DeviceException {
 		//TODO this will not be called as we have getPositionCallable so getLastPointAdded is not required not addPoint
 		Object[] pos = (Object[]) internalToExternal(new Double[]{continuousMoveController.getLastPointAdded()});
-		if (pos == null) {
+		if (pos == null || pos[0] == null) {
 			// First point is in process of being added
 			return super.getPosition();
 		}
@@ -174,7 +174,7 @@ public class ZebraScannableMotor extends ScannableMotor implements ContinuouslyS
 	@Override
 	public void atScanStart() throws DeviceException {
 		// Due to the fragility of ZebraConstantVelocityMoveController and particulary the life cycle of
-		// its parts which read out time series arrays: here we will clear these so that controller this 
+		// its parts which read out time series arrays: here we will clear these so that controller this
 		//ZebraScannableMotor returns is fit to be used by the scan.
 		continuousMoveController.prepareControllerToBeUsedForUpcomingScan();
 	}
