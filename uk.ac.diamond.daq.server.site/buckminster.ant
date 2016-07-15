@@ -502,6 +502,16 @@ Additional Ant tasks for Buckminster build. Based on http://www.ralfebert.de/blo
 		<copy todir="${install.git.path}/gda-mt.git/configurations/i15-1-config">
 			<fileset dir="${ws_git.rel.path}/gda-mt.git/configurations/i15-1-config"/>
 		</copy>
+		<!-- i02-2 VMXI beamline folders -->
+		<copy todir="${install.git.path}/gda-mx.git/configurations/i02-2-config">
+			<fileset dir="${ws_git.rel.path}/gda-mx.git/configurations/i02-2-config"/>
+		</copy>
+		<copy todir="${install.git.path}/gda-mx.git/configurations/mx-config">
+			<fileset dir="${ws_git.rel.path}/gda-mx.git/configurations/mx-config"/>
+		</copy>
+		<copy todir="${install.git.path}/gda-bimorph.git/uk.ac.gda.bimorph/scripts">
+			<fileset dir="${ws_git.rel.path}/gda-bimorph.git/uk.ac.gda.bimorph/scripts"/>
+		</copy>
 		<!-- Test beamline folders -->
 		<copy todir="${install.git.path}/gda-core.git/p45-config">
 			<fileset dir="${ws_git.rel.path}/gda-core.git/p45-config"/>
