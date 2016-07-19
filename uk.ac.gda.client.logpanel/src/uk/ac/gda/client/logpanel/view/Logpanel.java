@@ -563,6 +563,7 @@ public class Logpanel extends Composite {
 
 	private class ILoggingEventLabelProvider extends LabelProvider implements ITableLabelProvider, ITableColorProvider, ITableFontProvider {
 
+		Color traceForeground = display.getSystemColor(SWT.COLOR_DARK_GREEN);
 		Color debugForeground = display.getSystemColor(SWT.COLOR_DARK_GRAY);
 		Color errorForeground = display.getSystemColor(SWT.COLOR_WHITE);
 		Color errorBackground = display.getSystemColor(SWT.COLOR_DARK_RED);
@@ -592,6 +593,8 @@ public class Logpanel extends Composite {
 				return errorForeground;
 			else if (level == Level.DEBUG)
 				return debugForeground;
+			else if (level == Level.TRACE)
+				return traceForeground;
 			return null;
 		}
 		@Override
