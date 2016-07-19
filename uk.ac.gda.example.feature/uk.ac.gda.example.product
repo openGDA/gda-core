@@ -24,6 +24,7 @@ See &lt;http://www.opengda.org/&gt;
 -Dorg.eclipse.swt.internal.gtk.useCairo=false
 -Dgda.root=${project_loc:uk.ac.gda.core}/../
 -Dgda.config=${project_loc:example-config}
+-Dgda.core.dir=${project_loc:core-config}
 -Djava.library.path=${workspace_loc}/plugins/uk.ac.gda.nexus/lib/${target.os}-${target.arch}
 -Dgda.propertiesFile=${project_loc:example-config}/properties/dummy/dummy_instance_java.properties
 -Djacorb.config.dir=${project_loc:example-config}/properties/dummy/jacorb
