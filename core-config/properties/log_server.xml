@@ -26,6 +26,7 @@
 		<appender-ref ref="LogFile" />
 	</root>
 
+	<!-- Here we filter logging for everyone -->
 	<!-- Jetty is very noisy at DEBUG level, filter those messages out -->
 	<logger name="org.eclipse.jetty" level="INFO" />
 
@@ -34,5 +35,8 @@
 
 	<!-- Also filter noisy GDA packages -->
 	<logger name="gda.device.corba.impl" level="INFO" />
+
+	<!-- If this file exists it allows you to customise logging levels for each config -->
+	<include file="${gda.config}/properties/_common/logging_customisation.xml" />
 
 </configuration>
