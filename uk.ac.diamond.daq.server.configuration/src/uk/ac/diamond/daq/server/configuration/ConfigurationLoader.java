@@ -9,7 +9,7 @@ import org.osgi.service.component.ComponentContext;
 
 /**
  * Component to selectively load the correct configuration service implementation based on the config layout associated
- * with the beamline being started. The config layout is looked up by {@link ConfigurationDefaults}.from the beamline.cfg file
+ * with the beamline being started. The config layout is looked up by {@link ConfigurationDefaults}.from the beamlineLayouts.cfg file
  * 
  * @author fri44821
  *
