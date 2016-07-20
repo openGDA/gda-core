@@ -20,25 +20,26 @@ package uk.ac.gda.server.ncd.data;
 
 import java.io.IOException;
 
-import gda.factory.Findable;
+import gda.util.OSCommandRunner;
+import gda.util.OSCommandRunner.LOGOPTION;
 
-public abstract class ProcessingRunner implements Findable {
-
-	private String name;
-
-	public abstract void triggerProcessing(String... args) throws IOException;
-
-	public void __call__(String... args) throws IOException {
-		triggerProcessing(args);
-	}
+public class AutoProcessingRunner extends ProcessingRunner {
+	private String scriptPath;
 	@Override
-	public void setName(String name) {
-		this.name = name;
+	public void triggerProcessing(String... args) throws IOException {
+		if (args.length != 1) {
+			throw new IllegalArgumentException("Single argument required for autoprocessing");
+		}
+		if (getScriptPath() == null || getScriptPath().isEmpty()) {
+			throw new IllegalStateException("No script set");
+		}
+		OSCommandRunner.runNoWait(new String[] { scriptPath, args[0] }, LOGOPTION.ONLY_ON_ERROR, null);
 	}
-
-	@Override
-	public String getName() {
-		return name;
+	public String getScriptPath() {
+		return scriptPath;
+	}
+	public void setScriptPath(String scriptPath) {
+		this.scriptPath = scriptPath;
 	}
 
 }
