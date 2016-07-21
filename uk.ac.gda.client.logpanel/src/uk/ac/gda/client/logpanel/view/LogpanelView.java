@@ -20,9 +20,6 @@ package uk.ac.gda.client.logpanel.view;
 
 import org.eclipse.core.commands.Command;
 import org.eclipse.core.commands.IHandler;
-import org.eclipse.core.databinding.observable.list.IListChangeListener;
-import org.eclipse.core.databinding.observable.list.IObservableList;
-import org.eclipse.core.databinding.observable.list.ListChangeEvent;
 import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -34,9 +31,8 @@ import org.eclipse.ui.handlers.IHandlerActivation;
 import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.part.ViewPart;
 
-import com.google.common.base.Optional;
-
 import uk.ac.gda.client.logpanel.commands.CopyToClipboardHandler;
+import uk.ac.gda.client.logpanel.view.Logpanel.LatestMessageListener;
 
 public class LogpanelView extends ViewPart {
 
@@ -67,18 +63,15 @@ public class LogpanelView extends ViewPart {
 		final String defaultMessage = "Configured to receive messages from log server " + logpanel.getLogServerAddress();
 		statusLineManager.setMessage(defaultMessage);
 		if (!setStatusToLatestMessageFirstLine) return;
-		final IObservableList input = logpanel.getInput();
-		input.addListChangeListener(new IListChangeListener() {
+
+		logpanel.addLatestMessageListener(new LatestMessageListener() {
 			@Override
-			public void handleListChange(ListChangeEvent event) {
-				String message = defaultMessage;
-				if (!input.isEmpty()) {
-					Optional<String> firstLineOfLatestMessage = logpanel.getLatestMessageFirstLine();
-					if (firstLineOfLatestMessage.isPresent()) {
-						message = "Latest: " + firstLineOfLatestMessage.get();
-					}
+			public void updateLatestMessage(String latestMessage) {
+				if (latestMessage != null && latestMessage.length() > 0) {
+					statusLineManager.setMessage(latestMessage);
+				} else {
+					statusLineManager.setMessage(defaultMessage);
 				}
-				statusLineManager.setMessage(message);
 			}
 		});
 	}

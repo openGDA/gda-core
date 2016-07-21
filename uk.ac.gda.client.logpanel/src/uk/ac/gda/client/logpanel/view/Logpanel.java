@@ -18,19 +18,18 @@
 
 package uk.ac.gda.client.logpanel.view;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-import org.eclipse.core.databinding.observable.list.IObservableList;
-import org.eclipse.core.databinding.property.Properties;
-import org.eclipse.jface.databinding.viewers.ObservableListContentProvider;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITableColorProvider;
@@ -234,12 +233,12 @@ public class Logpanel extends Composite {
 
 	private boolean expireByPriority = false;
 
-	public boolean getExpireOldestChecked() {
+	public boolean getExpireByPriorityChecked() {
 		return expireByPriority;
 	}
 
-	public void setExpireOldestChecked(final boolean isChecked) {
-		scrollLockChecked = isChecked;
+	public void setExpireByPriorityChecked(final boolean isChecked) {
+		expireByPriority = isChecked;
 	}
 
 	/**
@@ -411,29 +410,17 @@ public class Logpanel extends Composite {
 	 */
 	private List<ILoggingEvent> loggingEvents = new LinkedList<ILoggingEvent>();
 
-	/**
-	 * Bridge between logging events buffer and viewer in GUI
-	 *
-	 * Must be mutated in UI thread.
-	 */
-	final IObservableList input = Properties.selfList(ILoggingEvent.class).observe(loggingEvents);	// wrap a writable list into an IObservableList: http://www.vogella.com/tutorials/EclipseDataBinding/article.html#jfacedb_viewer
-	public IObservableList getInput() {
-		return input;
-	}
+	private ILoggingEvent latestLoggingEvent = null;
 
-	private static Map<Level, Integer> levelCounts = new LinkedHashMap<Level, Integer>() {
-		{
-			put(Level.TRACE, 0);
-			put(Level.DEBUG, 0);
-			put(Level.INFO, 0);
-			put(Level.WARN, 0);
-			put(Level.ERROR, 0);
-		}
-	};
+	private static final List<Level> LEVELS = Arrays.asList(
+			Level.TRACE,
+			Level.DEBUG,
+			Level.INFO,
+			Level.WARN,
+			Level.ERROR);
 
 	private class LoggingEventBuffer implements Runnable {
 
-		private LinkedList<ILoggingEvent> allLoggingEvents = new LinkedList<>();
 		private List<ILoggingEvent> newEventQueue = new LinkedList<ILoggingEvent>();
 
 		public synchronized void addLoggingEvent(ILoggingEvent loggingEvent) {
@@ -446,14 +433,14 @@ public class Logpanel extends Composite {
 
 		@Override
 		public synchronized void run() {
-			allLoggingEvents.addAll(newEventQueue);
+			loggingEvents.addAll(newEventQueue);
 			newEventQueue.clear();
 
-			// don't exceed maxSize
+			// don't exceed MAX_SIZE
 			if (expireByPriority) {
-				for (Level level : levelCounts.keySet()) {
-					Iterator<ILoggingEvent> loggingEventIterator = allLoggingEvents.iterator();
-					while (loggingEventIterator.hasNext() && allLoggingEvents.size() > MAX_SIZE) {
+				for (Level level : LEVELS) {
+					Iterator<ILoggingEvent> loggingEventIterator = loggingEvents.iterator();
+					while (loggingEventIterator.hasNext() && loggingEvents.size() > MAX_SIZE) {
 						ILoggingEvent loggingEvent = loggingEventIterator.next();
 						if (loggingEvent.getLevel().equals(level)) {
 							loggingEventIterator.remove();
@@ -461,31 +448,77 @@ public class Logpanel extends Composite {
 					}
 				}
 			} else {
-				int numberToRemove = allLoggingEvents.size() - MAX_SIZE;
+				int numberToRemove = loggingEvents.size() - MAX_SIZE;
 				if (numberToRemove > 0) {
-					allLoggingEvents.subList(0, numberToRemove).clear();
+					loggingEvents.subList(0, numberToRemove).clear();
 				}
 			}
 
-			input.clear();
-			input.addAll(allLoggingEvents);
-			latestLoggingEvent = allLoggingEvents.getLast();
-			revealLatestUnlessScrollLockChecked();
+			viewer.refresh();
+
+			updateLatestLoggingEvent(loggingEvents.get(loggingEvents.size() - 1));
 		}
 	}
 
 	private LoggingEventBuffer loggingEventBuffer;
 
 	/**
-	 * TODO
-	 *
-	 * @param loggingEvent
+	 * Add a logging event to the log panel. Need not be called in the UI thread.
+	 * <p>
+	 * 2nd most important method after connectToLogServer which creates the Appender that calls it.
 	 */
 	protected void addLoggingEvent(final ILoggingEvent loggingEvent) {
 		loggingEventBuffer.addLoggingEvent(loggingEvent);
 	}
 
-	ILoggingEvent latestLoggingEvent = null;
+	/**
+	 * Clear all messages from the log panel
+	 */
+	public void clear() {
+		loggingEvents.clear();
+		display.asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				loggingEvents.clear();
+				viewer.refresh();
+				updateLatestLoggingEvent(null);
+			}
+		});
+	}
+
+	/**
+	 * Must be called in UI thread.
+	 */
+	private void updateLatestLoggingEvent(ILoggingEvent loggingEvent) {
+		latestLoggingEvent = loggingEvent;
+		revealLatestUnlessScrollLockChecked();
+		notifyLatestMessageListeners();
+	}
+
+	interface LatestMessageListener {
+		void updateLatestMessage(String latestMessage);
+	}
+
+	private Set<LatestMessageListener> latestMessageListeners = new HashSet<>();
+
+	public void addLatestMessageListener(LatestMessageListener latestMessageListener) {
+		latestMessageListeners.add(latestMessageListener);
+	}
+
+	public void removeLatestMessageListener(LatestMessageListener latestMessageListener) {
+		latestMessageListeners.remove(latestMessageListener);
+	}
+
+	private void notifyLatestMessageListeners() {
+		String message = null;
+		Optional<String> firstLineOfLatestMessage = getLatestMessageFirstLine();
+		if (firstLineOfLatestMessage.isPresent()) {
+			message = "Latest: " + firstLineOfLatestMessage.get();
+		}
+		for (LatestMessageListener latestMessageListener : latestMessageListeners) {
+			latestMessageListener.updateLatestMessage(message);
+		}
+	}
 
 	// widgets
 
@@ -748,9 +781,9 @@ public class Logpanel extends Composite {
 		// 1-column table of log messages
 		viewer = new TableViewer(this, SWT.BORDER | SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
 		viewer.setLabelProvider(new ILoggingEventLabelProvider());
-		viewer.setContentProvider(new ObservableListContentProvider());
+		viewer.setContentProvider(new ArrayContentProvider());
 //		viewer.setUseHashlookup(true); //TODO test for possible speedup and increased memory usage
-		viewer.setInput(input);
+		viewer.setInput(loggingEvents);
 
 		matchingFilter = new MatchingFilter();
 		viewer.addFilter(matchingFilter);
@@ -813,7 +846,7 @@ public class Logpanel extends Composite {
 		clearButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				input.clear();
+				Logpanel.this.clear();
 			}
 		});
 		return clearButton;

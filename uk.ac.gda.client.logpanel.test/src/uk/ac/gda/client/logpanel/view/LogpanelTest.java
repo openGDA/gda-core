@@ -5,15 +5,12 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
-import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.swt.SWT;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Marker;
 
@@ -30,25 +27,6 @@ public class LogpanelTest extends SWTTestBase {
 
 	private Logpanel logpanel;
 
-	@BeforeClass
-	public static void initializeRealm() {
-		class TestingRealm extends Realm {
-
-			public TestingRealm() {
-				super();
-				Realm.setDefault(this);
-			}
-
-			@Override
-			public boolean isCurrent() {
-				// Would probably be quite dangerous outside a limited testing context!
-				return true;
-			}
-		}
-		@SuppressWarnings("unused")
-		Realm testingRealm = new TestingRealm();
-	}
-
 	@Before
 	public void setUp() throws Exception {
 		logpanel = new Logpanel(shell, SWT.NONE);
@@ -64,11 +42,11 @@ public class LogpanelTest extends SWTTestBase {
 
 	@Test
 	public void loggingEventShouldBeAddedToLoggingEventsList() throws Exception {
-		List<?> loggingEvents = logpanel.getInput();
-		int originalSize = loggingEvents.size();
+		int originalSize = logpanel.getViewer().getTable().getItemCount();
 		logpanel.addLoggingEvent(new TestLoggingEvent(Level.INFO));
 		flushUIEventQueue();
-		assertThat(loggingEvents.size(), is(equalTo(originalSize + 1)));
+		int newSize = logpanel.getViewer().getTable().getItemCount();
+		assertThat(newSize, is(equalTo(originalSize + 1)));
 	}
 
 	// Add @Test annotation manually to run the performance tests

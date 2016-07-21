@@ -46,7 +46,7 @@ public class ClearHandler extends AbstractHandler implements IHandler {
 			clear = (returnCode == SWT.OK);
 		}
 		if (clear) {
-			logpanel.getInput().clear();
+			logpanel.clear();
 		}
 		return null;
 	}
