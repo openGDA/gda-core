@@ -36,6 +36,13 @@ public class CommandBean extends StatusBean {
 	}
 
 	@Override
+	public void merge(StatusBean with) {
+		super.merge(with);
+		// other bean must be a command bean
+		this.command = ((CommandBean) with).command;
+	}
+
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();

@@ -111,8 +111,9 @@ public class CommandProcess extends AbstractPausableProcess<CommandBean> {
 			}
 		};
 
-		command.addIObserver(progressObserver);
 		try {
+			command.addIObserver(progressObserver);
+
 			// broadcast the bean for the start of the scan
 			setBeanStatus(Status.RUNNING);
 			bean.setPercentComplete(0);
