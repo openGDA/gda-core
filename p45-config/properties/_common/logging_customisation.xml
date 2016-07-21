@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- This is intended as an example file to show how the logging levels can 
+	be customised at the instance config level -->
+
+<included>
+
+	<logger name="uk.ac.diamond.scisoft.analysis.io.NexusTreeUtils" level="ERROR" />
+
+</included>

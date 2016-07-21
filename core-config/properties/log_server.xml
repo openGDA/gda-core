@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<configuration scan="true" scanPeriod="10 seconds" debug="true"> <!-- Add debug="true" in here to log logback configuration -->
+<!-- scan=true allows this file to be modified live to change the logging configuration -->
+<!-- debug="true" logs the logback configuration -->
+<configuration scan="true" scanPeriod="10 seconds" debug="true">
 
 	<!-- Standard shared logging configuration for the GDA log server. -->
 
@@ -8,8 +10,29 @@
 		server setup you should copy this file as a template and keep the "include" line below. You will also need to
 		override the gda.logserver.xml property to point to your customised configuration file. -->
 
-	<!-- Include the standard properties files and appenders -->
-	<include file="${gda.core.dir}/properties/core_log_server.xml" />
+	<!-- Include the standard set of properties files -->
+	<include file="${gda.core.dir}/properties/logging_properties_includes.xml" />
+
+	<!-- http://logback.qos.ch/manual/appenders.html#RollingFileAppender -->
+	<appender name="LogFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${gda.logs.dir}/gda_server.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${gda.logs.dir}/gda_server.%d{yyyy-MM-dd}.log.gz</fileNamePattern>
+		</rollingPolicy>
+		<encoder>
+			<pattern>%d %-5level [%property{HOSTNAME}/%property{GDA_SOURCE}/%property{JVMNAME}] %logger - %m%n%rEx</pattern>
+		</encoder>
+	</appender>
+
+	<!-- http://logback.qos.ch/manual/appenders.html#serverSocketAppender -->
+	<appender name="LogPanel" class="ch.qos.logback.classic.net.server.ServerSocketAppender">
+		<port>${gda.logserver.out.port}</port>
+		<!-- Filter out DEBUG and TRACE messages to avoid overloading the log panel. If the log panel's performance is
+			improved so it can handle a higher volume of messages this filter can be removed. -->
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+			<level>INFO</level>
+		</filter>
+	</appender>
 
 	<!-- The root appender. By default we log all messages, but the log panel appender filters some out to avoid
 		overloading the log panel. If the log file is recording too many events then there are three possible
@@ -25,18 +48,5 @@
 		<appender-ref ref="LogPanel" /> <!-- For the log panel -->
 		<appender-ref ref="LogFile" />
 	</root>
-
-	<!-- Here we filter logging for everyone -->
-	<!-- Jetty is very noisy at DEBUG level, filter those messages out -->
-	<logger name="org.eclipse.jetty" level="INFO" />
-
-	<!-- The HDF5 library is very noisy at TRACE level -->
-	<logger name="hdf.hdf5lib" level="DEBUG" />
-
-	<!-- Also filter noisy GDA packages -->
-	<logger name="gda.device.corba.impl" level="INFO" />
-
-	<!-- If this file exists it allows you to customise logging levels for each config -->
-	<include file="${gda.config}/properties/_common/logging_customisation.xml" />
 
 </configuration>
