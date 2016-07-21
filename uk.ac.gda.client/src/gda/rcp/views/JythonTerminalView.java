@@ -40,9 +40,10 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Vector;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -836,8 +837,13 @@ public class JythonTerminalView extends ViewPart implements Runnable, IAllScanDa
 
 	private String determineOutputFileName() {
 		String terminalOutputDirName = getTerminalOutputDirName();
-
-		return findNextFileInSequence(terminalOutputDirName, "terminal_output", ".txt");
+		terminalOutputDirName = terminalOutputDirName.replaceAll("/$", ""); // strip leading / to avoid dir//file
+		
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss");
+		String timestamp = sdf.format(new Date());
+		
+		String filename = String.format("%s/terminal_output_%s.txt", terminalOutputDirName, timestamp);
+		return filename;
 	}
 
 	String getTerminalOutputDirName() {
@@ -853,62 +859,6 @@ public class JythonTerminalView extends ViewPart implements Runnable, IAllScanDa
 			terminalOutputDirName += System.getProperty("file.separator");
 		}
 		return terminalOutputDirName;
-	}
-
-	/**
-	 * Given a file name pattern and a folder, return a file name in the folder that is unique and related to any
-	 * existing file names via an incremental index. So if you ask for the prefix "foo", suffix ".txt", and nothing
-	 * already exists, you would get the name "foo_1.txt". Then "foo_2.txt", and so on.
-	 *
-	 * @note There's a clear time-of-checking-time-of-use vulnerability. An attacker can arrange the source folder such
-	 *       that this code returns a name of the attacker's choosing, which can then be used to perform truncation
-	 *       attacks. I haven't (yet) addressed that.
-	 * @param terminalOutputDirName
-	 *            The folder where the file should be located.
-	 * @param fileNamePrefix
-	 *            The start of the target file's name.
-	 * @param fileNameSuffix
-	 *            The end of the target file's name.
-	 * @return A path to a file that didn't exist when this method was called.
-	 */
-	String findNextFileInSequence(String terminalOutputDirName, final String fileNamePrefix, final String fileNameSuffix) {
-		// filter to use when looking in the user script directory
-		FilenameFilter filter = new FilenameFilter() {
-			@Override
-			public boolean accept(File dir, String name) {
-				return name.startsWith(fileNamePrefix) && name.endsWith(fileNameSuffix);
-			}
-		};
-
-		// look through this directory for existing files
-		File userScriptsDirectory = new File(terminalOutputDirName);
-		String[] files = userScriptsDirectory.list(filter);
-		int maxValue = 0;
-
-		// determine the highest existing file of the format:
-		// terminal_output_XX.txt
-		for (String fileName : files) {
-			String whatsLeft = fileName.substring(15);
-			whatsLeft = whatsLeft.substring(0, whatsLeft.lastIndexOf("."));
-
-			if (whatsLeft.length() > 0) {
-				int value = Integer.parseInt(whatsLeft.substring(1));
-
-				if (value > maxValue) {
-					maxValue = value;
-				}
-			}
-		}
-
-		// determine the file name to use
-		String filename;
-		terminalOutputDirName = terminalOutputDirName.replaceAll("/$", ""); // strip leading / to avoid dir//file
-		if (maxValue == 0) {
-			filename = terminalOutputDirName + File.separator + fileNamePrefix + "_1.txt";
-		} else {
-			filename = terminalOutputDirName + File.separator + fileNamePrefix + "_" + (maxValue + 1) + ".txt";
-		}
-		return filename;
 	}
 
 	private void addCommandToHistory(String newCommand) {

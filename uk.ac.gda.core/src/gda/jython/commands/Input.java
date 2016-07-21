@@ -18,23 +18,10 @@
 
 package gda.jython.commands;
 
-import org.python.core.PyString;
-
 /**
  * Input Class - Deprecated. Use InputCommands instead. But used in Scripts so must remain until all scripts are changed.
  */
 public class Input {
-	/**
-	 * For use within scripts to request input from the Jython terminal
-	 *
-	 * @param promptString
-	 * @return Object
-	 * @throws InterruptedException
-	 */
-	public static Object requestInput(PyString promptString) throws InterruptedException {
-		return InputCommands.requestInput(promptString);
-	}
-
 	/**
 	 * For use within scripts to request input from the Jython terminal
 	 *

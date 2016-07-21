@@ -21,7 +21,6 @@ package gda.rcp.views;
 import gda.configuration.properties.LocalProperties;
 
 import java.io.File;
-import java.io.IOException;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -80,21 +79,6 @@ public class JythonTerminalViewTest {
 	@Test
 	public void testInstantiation() {
 		Assert.assertNotNull(terminalView);
-	}
-
-	@Test
-	public void testTerminalOutputFileWhenNoFilesExistHasIndex1() {
-		Assert.assertEquals("files/terminal_output_1.txt", terminalView.findNextFileInSequence(testPath, "terminal_output", ".txt"));
-	}
-
-	@Test
-	public void testTerminalOutputFileWhenFile1ExistsHasIndex2() throws IOException {
-		File firstFile = new File(testDir, "terminal_output_1.txt");
-		if(!(firstFile.createNewFile())) {
-			Assert.assertTrue(false);
-		}
-		Assert.assertEquals("files/terminal_output_2.txt", terminalView.findNextFileInSequence(testPath, "terminal_output", ".txt"));
-		firstFile.delete();
 	}
 
 	@Test
