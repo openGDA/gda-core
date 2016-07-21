@@ -79,7 +79,7 @@ public class LogpanelTest extends SWTTestBase {
 	}
 
 	private void runPerformanceTest() throws Exception {
-		final int messagesToSend = 10000;
+		final int messagesToSend = 200000;
 		for (int messages = 1; messages <= messagesToSend; messages++) {
 			if (messages % 200 == 0) {
 				logpanel.addLoggingEvent(new TestLoggingEvent(Level.WARN));

@@ -400,10 +400,14 @@ public class Logpanel extends Composite {
 	// logging events buffering
 
 	/**
-	 * Maximum size to which loggingEvents is allowed to grow before eviction
-	 * of earliest events occurs.
+	 * Maximum number of events to display in the viewer
 	 */
-	protected static final int MAX_SIZE = 6666; // Windows XP widget handles limit ~10,000? //TODO property
+	private static final int MAX_VIEWER_LIST_SIZE = 6666; // Windows XP widget handles limit ~10,000? //TODO property
+
+	/**
+	 * Maximum number of events to keep in memory
+	 */
+	protected static final int MAX_EVENT_LIST_SIZE = 100000;
 
 	/**
 	 * Collection of logging events received since connectToLogServer ran for the first time.
@@ -440,7 +444,7 @@ public class Logpanel extends Composite {
 			if (expireByPriority) {
 				for (Level level : LEVELS) {
 					Iterator<ILoggingEvent> loggingEventIterator = loggingEvents.iterator();
-					while (loggingEventIterator.hasNext() && loggingEvents.size() > MAX_SIZE) {
+					while (loggingEventIterator.hasNext() && loggingEvents.size() > MAX_EVENT_LIST_SIZE) {
 						ILoggingEvent loggingEvent = loggingEventIterator.next();
 						if (loggingEvent.getLevel().equals(level)) {
 							loggingEventIterator.remove();
@@ -448,7 +452,7 @@ public class Logpanel extends Composite {
 					}
 				}
 			} else {
-				int numberToRemove = loggingEvents.size() - MAX_SIZE;
+				int numberToRemove = loggingEvents.size() - MAX_EVENT_LIST_SIZE;
 				if (numberToRemove > 0) {
 					loggingEvents.subList(0, numberToRemove).clear();
 				}
@@ -720,6 +724,31 @@ public class Logpanel extends Composite {
 
 	private MinLogLevelFilter minLogLevelFilter;
 
+	class MaxListSizeFilter extends ViewerFilter {
+
+		private final int maxListSize;
+
+		public MaxListSizeFilter(int maxListSize) {
+			super();
+			this.maxListSize = maxListSize;
+		}
+
+		@Override
+		public Object[] filter(Viewer viewer, Object parent, Object[] elements) {
+			if (elements.length <= maxListSize) {
+				return elements;
+			} else {
+				Object[] result = new Object[maxListSize];
+				System.arraycopy(elements, elements.length - maxListSize, result, 0, maxListSize);
+				return result;
+			}
+		}
+
+		@Override
+		public boolean select(Viewer viewer, Object parentElement, Object element) {
+			return true;
+		}
+	}
 
 	public Logpanel(Composite parent, int style) {
 		super(parent, style);
@@ -791,6 +820,7 @@ public class Logpanel extends Composite {
 		minLogLevelFilter = new MinLogLevelFilter();
 		viewer.addFilter(minLogLevelFilter);
 
+		viewer.addFilter(new MaxListSizeFilter(MAX_VIEWER_LIST_SIZE));
 
 		// copy selection to X buffer when Copy command not explicitly invocation by user
 		// do not copy to clipboard automatically as this can overwrite it's contents
