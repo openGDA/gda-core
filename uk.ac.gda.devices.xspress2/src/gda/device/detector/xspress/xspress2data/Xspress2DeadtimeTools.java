@@ -79,7 +79,7 @@ public class Xspress2DeadtimeTools {
 		return detectorDte.getProcessDeadTimeInWindow() + grad * deadtimeEnergy;
 	}
 
-	/*
+	/**
 	 * Documentation from William Helsby is available to explain the maths in this method
 	 * @param all
 	 * @param reset

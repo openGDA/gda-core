@@ -102,7 +102,8 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 			throw new FactoryException("resGrade " + settings.getParameters().getResGrade() + " is not an acceptable string");
 		}
 
-		controller.configure();
+		if ( controller != null )
+			controller.configure();
 
 		configured = true;
 	}
@@ -126,25 +127,17 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 		xspressParameters.addDetectorElement(new DetectorElement("Element6", 6, 34, 2439, false, regions));
 		xspressParameters.addDetectorElement(new DetectorElement("Element7", 7, 31, 2126, false, regions));
 		xspressParameters.addDetectorElement(new DetectorElement("Element8", 8, 31, 2126, false, regions));
-		xspressDeadTimeParameters.addDetectorDeadTimeElement(new DetectorDeadTimeElement("Elemen0", 0, 3.4E-7, 0.0,
-				3.4E-7));
-		xspressDeadTimeParameters.addDetectorDeadTimeElement(new DetectorDeadTimeElement("Elemen1", 1, 3.8E-7, 0.0,
-				3.8E-7));
-		xspressDeadTimeParameters.addDetectorDeadTimeElement(new DetectorDeadTimeElement("Elemen2", 2, 3.7E-7, 0.0,
-				3.7E-7));
-		xspressDeadTimeParameters.addDetectorDeadTimeElement(new DetectorDeadTimeElement("Elemen3", 3, 3.0E-7, 0.0,
-				3.0E-7));
-		xspressDeadTimeParameters.addDetectorDeadTimeElement(new DetectorDeadTimeElement("Elemen4", 4, 3.4E-7, 0.0,
-				3.4E-7));
-		xspressDeadTimeParameters.addDetectorDeadTimeElement(new DetectorDeadTimeElement("Elemen5", 5, 3.5E-7, 0.0,
-				3.5E-7));
-		xspressDeadTimeParameters.addDetectorDeadTimeElement(new DetectorDeadTimeElement("Elemen6", 6, 3.3E-7, 0.0,
-				3.3E-7));
-		xspressDeadTimeParameters.addDetectorDeadTimeElement(new DetectorDeadTimeElement("Elemen7", 7, 3.0E-7, 0.0,
-				3.0E-7));
-		xspressDeadTimeParameters.addDetectorDeadTimeElement(new DetectorDeadTimeElement("Elemen8", 8, 3.3E-7, 0.0,
-				3.3E-7));
+		xspressDeadTimeParameters.addDetectorDeadTimeElement(new DetectorDeadTimeElement("Elemen0", 0, 3.4E-9, 1.7e-7, 3.4E-7));
+		xspressDeadTimeParameters.addDetectorDeadTimeElement(new DetectorDeadTimeElement("Elemen1", 1, 3.8E-9, 1.6e-7, 3.8E-7));
+		xspressDeadTimeParameters.addDetectorDeadTimeElement(new DetectorDeadTimeElement("Elemen2", 2, 3.7E-9, 1.6e-7, 3.7E-7));
+		xspressDeadTimeParameters.addDetectorDeadTimeElement(new DetectorDeadTimeElement("Elemen3", 3, 3.0E-9, 1.6e-7, 3.0E-7));
+		xspressDeadTimeParameters.addDetectorDeadTimeElement(new DetectorDeadTimeElement("Elemen4", 4, 3.4E-9, 1.7e-7, 3.4E-7));
+		xspressDeadTimeParameters.addDetectorDeadTimeElement(new DetectorDeadTimeElement("Elemen5", 5, 3.5E-9, 1.8e-7, 3.5E-7));
+		xspressDeadTimeParameters.addDetectorDeadTimeElement(new DetectorDeadTimeElement("Elemen6", 6, 3.3E-9, 1.7e-7, 3.3E-7));
+		xspressDeadTimeParameters.addDetectorDeadTimeElement(new DetectorDeadTimeElement("Elemen7", 7, 3.0E-9, 1.5e-7, 3.0E-7));
+		xspressDeadTimeParameters.addDetectorDeadTimeElement(new DetectorDeadTimeElement("Elemen8", 8, 3.3E-9, 1.7e-7, 3.3E-7));
 		settings.setXspressParameters(xspressParameters);
+		xspress2SystemData.setDeadTimeParameters(xspressDeadTimeParameters);
 	}
 
 	@Override
@@ -589,23 +582,27 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 	public NexusTreeProvider[] readout(String detectorName, int startFrame, int finalFrame) throws DeviceException {
 		int numberOfFrames = finalFrame - startFrame + 1;
 
+		String readoutMode = settings.getParameters().getReadoutMode();
+
 		int[] rawHardwareScalerData = controller.readoutHardwareScalers(startFrame, numberOfFrames);
 
-		if (settings.getParameters().getReadoutMode().equals(XspressDetector.READOUT_SCALERONLY)) {
+		if (readoutMode.equals(XspressDetector.READOUT_SCALERONLY)) {
 			return xspress2SystemData.unpackScalerData(detectorName, numberOfFrames, rawHardwareScalerData);
 		}
 
-		int[] mcaData = controller.readoutMca(startFrame, numberOfFrames, getCurrentMCASize());
-		double[][] scalerDataUsingMCAMemory = xspress2SystemData.readoutScalerDataUsingMCAMemory(detectorName, numberOfFrames,
-				rawHardwareScalerData, mcaData, true, controller.getI0());
+		int[] rawMcaData = controller.readoutMca(startFrame, numberOfFrames, getCurrentMCASize());
 
-		if (settings.getParameters().getReadoutMode().equals(XspressDetector.READOUT_ROIS)) {
-			return xspress2SystemData.readoutROIData(detectorName, numberOfFrames, rawHardwareScalerData, mcaData,
-					scalerDataUsingMCAMemory);
+		if (readoutMode.equals(XspressDetector.READOUT_ROIS)) {
+
+			double[][] scalerDataUsingMCAMemory = xspress2SystemData.readoutScalerDataUsingMCAMemory(detectorName, numberOfFrames,
+				rawHardwareScalerData, rawMcaData, true, controller.getI0());
+
+			return xspress2SystemData.readoutROIData(detectorName, numberOfFrames, rawHardwareScalerData, rawMcaData, scalerDataUsingMCAMemory);
 		}
 
 		// else read out full mca, which is deadtime corrected using the hardware scalers
-		return xspress2SystemData.readoutFullMCA(detectorName, numberOfFrames, rawHardwareScalerData, mcaData, scalerDataUsingMCAMemory);
+		return xspress2SystemData.readoutFullMCA(detectorName, numberOfFrames, rawHardwareScalerData, rawMcaData);
+
 	}
 
 	@Override

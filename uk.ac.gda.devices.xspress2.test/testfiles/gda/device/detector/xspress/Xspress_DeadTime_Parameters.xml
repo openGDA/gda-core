@@ -3,64 +3,64 @@
     <DetectorDeadTimeElement>
         <name>Element0</name>
         <number>0</number>
-        <processDeadTimeAllEventGradient>3.4E-7</processDeadTimeAllEventGradient>
-        <processDeadTimeAllEventOffset>0.0</processDeadTimeAllEventOffset>
+        <processDeadTimeAllEventGradient>3.4E-9</processDeadTimeAllEventGradient>
+        <processDeadTimeAllEventOffset>1.7e-7</processDeadTimeAllEventOffset>
         <processDeadTimeInWindow>3.4E-7</processDeadTimeInWindow>
     </DetectorDeadTimeElement>
     <DetectorDeadTimeElement>
         <name>Element1</name>
         <number>1</number> 
-        <processDeadTimeAllEventGradient>3.8E-7</processDeadTimeAllEventGradient>
-        <processDeadTimeAllEventOffset>0.0</processDeadTimeAllEventOffset>
+        <processDeadTimeAllEventGradient>3.8E-9</processDeadTimeAllEventGradient>
+        <processDeadTimeAllEventOffset>1.6e-7</processDeadTimeAllEventOffset>
         <processDeadTimeInWindow>3.8E-7</processDeadTimeInWindow>
     </DetectorDeadTimeElement>
     <DetectorDeadTimeElement>
         <name>Element2</name>
         <number>2</number>
-        <processDeadTimeAllEventGradient>3.7E-7</processDeadTimeAllEventGradient>
-        <processDeadTimeAllEventOffset>0.0</processDeadTimeAllEventOffset>
+        <processDeadTimeAllEventGradient>3.7E-9</processDeadTimeAllEventGradient>
+        <processDeadTimeAllEventOffset>1.6e-7</processDeadTimeAllEventOffset>
         <processDeadTimeInWindow>3.7E-7</processDeadTimeInWindow>
     </DetectorDeadTimeElement>
     <DetectorDeadTimeElement>
         <name>Element3</name>
         <number>3</number>
-        <processDeadTimeAllEventGradient>3.0E-7</processDeadTimeAllEventGradient>
-        <processDeadTimeAllEventOffset>0.0</processDeadTimeAllEventOffset>
+        <processDeadTimeAllEventGradient>3.0E-9</processDeadTimeAllEventGradient>
+        <processDeadTimeAllEventOffset>1.6e-7</processDeadTimeAllEventOffset>
         <processDeadTimeInWindow>3.0E-7</processDeadTimeInWindow>
     </DetectorDeadTimeElement>
     <DetectorDeadTimeElement>
         <name>Element4</name>
         <number>4</number>
-        <processDeadTimeAllEventGradient>3.4E-7</processDeadTimeAllEventGradient>
-        <processDeadTimeAllEventOffset>0.0</processDeadTimeAllEventOffset>
+        <processDeadTimeAllEventGradient>3.4E-9</processDeadTimeAllEventGradient>
+        <processDeadTimeAllEventOffset>1.7e-7</processDeadTimeAllEventOffset>
         <processDeadTimeInWindow>3.4E-7</processDeadTimeInWindow>
     </DetectorDeadTimeElement>
     <DetectorDeadTimeElement>
         <name>Element5</name>
         <number>5</number>
-        <processDeadTimeAllEventGradient>3.5E-7</processDeadTimeAllEventGradient>
-        <processDeadTimeAllEventOffset>0.0</processDeadTimeAllEventOffset>
+        <processDeadTimeAllEventGradient>3.5E-9</processDeadTimeAllEventGradient>
+        <processDeadTimeAllEventOffset>1.8e-7</processDeadTimeAllEventOffset>
         <processDeadTimeInWindow>3.5E-7</processDeadTimeInWindow>
     </DetectorDeadTimeElement>
     <DetectorDeadTimeElement>
         <name>Element6</name>
         <number>6</number>
-        <processDeadTimeAllEventGradient>3.3E-7</processDeadTimeAllEventGradient>
-        <processDeadTimeAllEventOffset>0.0</processDeadTimeAllEventOffset>
+        <processDeadTimeAllEventGradient>3.3E-9</processDeadTimeAllEventGradient>
+        <processDeadTimeAllEventOffset>1.7e-7</processDeadTimeAllEventOffset>
         <processDeadTimeInWindow>3.3E-7</processDeadTimeInWindow>
     </DetectorDeadTimeElement>
     <DetectorDeadTimeElement>
         <name>Element7</name>
         <number>7</number>
-        <processDeadTimeAllEventGradient>3.0E-7</processDeadTimeAllEventGradient>
-        <processDeadTimeAllEventOffset>0.0</processDeadTimeAllEventOffset>
+        <processDeadTimeAllEventGradient>3.0E-9</processDeadTimeAllEventGradient>
+        <processDeadTimeAllEventOffset>1.5e-7</processDeadTimeAllEventOffset>
         <processDeadTimeInWindow>3.0E-7</processDeadTimeInWindow>
     </DetectorDeadTimeElement>
     <DetectorDeadTimeElement>
         <name>Element8</name>
         <number>8</number>
-        <processDeadTimeAllEventGradient>3.3E-7</processDeadTimeAllEventGradient>
-        <processDeadTimeAllEventOffset>0.0</processDeadTimeAllEventOffset>
+        <processDeadTimeAllEventGradient>3.3E-9</processDeadTimeAllEventGradient>
+        <processDeadTimeAllEventOffset>1.7e-7</processDeadTimeAllEventOffset>
         <processDeadTimeInWindow>3.3E-7</processDeadTimeInWindow>
     </DetectorDeadTimeElement>   
 </XspressDeadTimeParameters>
