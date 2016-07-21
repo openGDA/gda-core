@@ -96,6 +96,8 @@ public class LogpanelTest extends SWTTestBase {
 		System.out.println("Testing with min log level ALL");
 		logpanel.setMinLogLevel(Level.ALL);
 		runPerformanceTest();
+		runPerformanceTest();
+		runPerformanceTest();
 	}
 
 	private void runPerformanceTest() throws Exception {
@@ -109,9 +111,6 @@ public class LogpanelTest extends SWTTestBase {
 				logpanel.addLoggingEvent(new TestLoggingEvent(Level.DEBUG));
 			}
 		}
-
-		// Give time for the logpanel update thread to update the viewer
-		Thread.sleep(100);
 
 		final long startTime = System.currentTimeMillis();
 		int uiEvents = flushUIEventQueue();

@@ -18,9 +18,7 @@
 
 package uk.ac.gda.client.logpanel.view;
 
-import gda.configuration.properties.LocalProperties;
-import gda.util.logging.LogbackUtils;
-
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -63,14 +61,6 @@ import org.eclipse.swt.widgets.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.PatternLayout;
-import ch.qos.logback.classic.net.SocketReceiver;
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.Appender;
-import ch.qos.logback.core.AppenderBase;
-
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
@@ -79,6 +69,16 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.PatternLayout;
+import ch.qos.logback.classic.net.SocketReceiver;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.Appender;
+import ch.qos.logback.core.AppenderBase;
+import gda.configuration.properties.LocalProperties;
+import gda.util.logging.LogbackUtils;
 
 public class Logpanel extends Composite {
 
@@ -153,8 +153,6 @@ public class Logpanel extends Composite {
 			@Override
 			protected void append(final ILoggingEvent loggingEvent) {
 				addLoggingEvent(loggingEvent);
-				// both of these methods run all or part in UI thread
-				revealLatestUnlessScrollLockChecked();
 			}
 		};
 		loggingEventsAppender.setContext(logpanelContext);
@@ -406,7 +404,7 @@ public class Logpanel extends Composite {
 	 * Maximum size to which loggingEvents is allowed to grow before eviction
 	 * of earliest events occurs.
 	 */
-	protected static int maxSize = 6666; // Windows XP widget handles limit ~10,000? //TODO property
+	protected static final int MAX_SIZE = 6666; // Windows XP widget handles limit ~10,000? //TODO property
 
 	/**
 	 * Collection of logging events received since connectToLogServer ran for the first time.
@@ -433,81 +431,61 @@ public class Logpanel extends Composite {
 		}
 	};
 
-	/**
-	 * Updates TableViewer's IObservableList input in UI thread
-	 *
-	 * 2nd most important method after connectToLogServer which
-	 * creates the Appender that calls it.
-	 */
-	protected void addLoggingEvent(final ILoggingEvent loggingEvent) {
-		display.asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				// don't exceed maxSize
-				if (input.size() == maxSize) {
-					if (expireByPriority) {
-						removeLeastImportantEvent();
-					} else {
-						removeEvent(0);
+	private class LoggingEventBuffer implements Runnable {
+
+		private LinkedList<ILoggingEvent> allLoggingEvents = new LinkedList<>();
+		private List<ILoggingEvent> newEventQueue = new LinkedList<ILoggingEvent>();
+
+		public synchronized void addLoggingEvent(ILoggingEvent loggingEvent) {
+			// Only schedule a run() invocation if the new event queue is empty
+			if (newEventQueue.isEmpty()) {
+				display.asyncExec(this);
+			}
+			newEventQueue.add(loggingEvent);
+		}
+
+		@Override
+		public synchronized void run() {
+			allLoggingEvents.addAll(newEventQueue);
+			newEventQueue.clear();
+
+			// don't exceed maxSize
+			if (expireByPriority) {
+				for (Level level : levelCounts.keySet()) {
+					Iterator<ILoggingEvent> loggingEventIterator = allLoggingEvents.iterator();
+					while (loggingEventIterator.hasNext() && allLoggingEvents.size() > MAX_SIZE) {
+						ILoggingEvent loggingEvent = loggingEventIterator.next();
+						if (loggingEvent.getLevel().equals(level)) {
+							loggingEventIterator.remove();
+						}
 					}
 				}
-				//TODO here would be suitable when switching pattern layout to re-layout past events too
-				addEvent(loggingEvent);
+			} else {
+				int numberToRemove = allLoggingEvents.size() - MAX_SIZE;
+				if (numberToRemove > 0) {
+					allLoggingEvents.subList(0, numberToRemove).clear();
+				}
 			}
-		});
-		revealLatestUnlessScrollLockChecked();
+
+			input.clear();
+			input.addAll(allLoggingEvents);
+			latestLoggingEvent = allLoggingEvents.getLast();
+			revealLatestUnlessScrollLockChecked();
+		}
+	}
+
+	private LoggingEventBuffer loggingEventBuffer;
+
+	/**
+	 * TODO
+	 *
+	 * @param loggingEvent
+	 */
+	protected void addLoggingEvent(final ILoggingEvent loggingEvent) {
+		loggingEventBuffer.addLoggingEvent(loggingEvent);
 	}
 
 	ILoggingEvent latestLoggingEvent = null;
-
-	private void removeLeastImportantEvent() {
-		// Instead of removing the first element, remove the first element of this level
-		for (Level level : levelCounts.keySet()) {
-			if (levelCounts.get(level) > (maxSize / levelCounts.size())) {
-				removeFirstEventOf(level);
-				return;
-			}
-		} // If we didn't find a suitable over full log level, just remove the oldest entry
-		removeEvent(0);
-		logger.warn("Removing first 2 elements (to make space for this one), couldn't find a logger with more than {} level counts: {}",
-				(maxSize / levelCounts.size()), levelCounts);
-		removeEvent(0);
-	}
-
-	private void removeFirstEventOf(Level level) {
-		for (Object entry : input) {
-			ILoggingEvent loggingEvent = (ILoggingEvent) entry;
-			if (loggingEvent.getLevel() == level) {
-				removeEvent(loggingEvent);
-				return;
-			}
-		} // If we didn't find a log entry, just remove the first entry
-		removeEvent(0);
-		logger.error("Removing first 2 elements (to make space for this one), couldn't find a {} log entry, should be {} level counts: {}", level,
-				levelCounts.get(level), levelCounts);
-		removeEvent(0);
-	}
-
-	private ILoggingEvent getEvent(int index) {
-		return (ILoggingEvent) (input.get(index));
-	}
-
-	private void addEvent(ILoggingEvent loggingEvent) {
-		Level level = loggingEvent.getLevel();
-		levelCounts.put(level, levelCounts.get(level) + 1);
-		latestLoggingEvent = loggingEvent;
-		input.add(loggingEvent); // must run in UI thread
-	}
-
-	private void removeEvent(ILoggingEvent loggingEvent) {
-		Level level = loggingEvent.getLevel();
-		levelCounts.put(level, levelCounts.get(level) - 1);
-		input.remove(loggingEvent); // must run in UI thread
-	}
-
-	private void removeEvent(int index) {
-		removeEvent(getEvent(index));
-	}
 
 	// widgets
 
@@ -519,16 +497,14 @@ public class Logpanel extends Composite {
 
 	//TODO implement "Clear previous messages" in TableViewer row's (actually cell) popup menu
 
+	/**
+	 * Must be run in the UI thread
+	 */
 	public void revealLatestUnlessScrollLockChecked() {
-		display.asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				if (scrollLockChecked || latestLoggingEvent == null ||
-						viewer == null || viewer.getControl() == null || viewer.getControl().isDisposed())
-					return;
-				viewer.reveal(latestLoggingEvent); // must run in UI thread
-			}
-		});
+		if (scrollLockChecked || latestLoggingEvent == null || viewer == null || viewer.getControl() == null
+				|| viewer.getControl().isDisposed())
+			return;
+		viewer.reveal(latestLoggingEvent); // must run in UI thread
 	}
 
 	private boolean scrollLockChecked = false;
@@ -537,7 +513,12 @@ public class Logpanel extends Composite {
 	}
 	public void setScrollLockChecked(final boolean isChecked) {
 		scrollLockChecked = isChecked;
-		revealLatestUnlessScrollLockChecked(); // runs in its own UI thread
+		display.asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				revealLatestUnlessScrollLockChecked();
+			}
+		});
 	}
 
 
@@ -807,6 +788,8 @@ public class Logpanel extends Composite {
 		//createScrollLockCheckBox(this);
 		//createClearButton(this);
 		//createCopyButton(this);
+
+		loggingEventBuffer = new LoggingEventBuffer();
 	}
 
 	// controls for Logpanel behaviour outside LogpanelView
