@@ -120,11 +120,6 @@ public class Logpanel extends Composite {
 		setLogServerHost(logServerHost);
 		setLogServerOutPort(logServerOutPort);
 
-		//FIXME temp while developing pattern layout switching UI, possible redundant to reset()
-		if (logpanelContext != null) {
-			logpanelContext.stop();
-		}
-
 		// setup clean logger context
 		LoggerContext logpanelContext = (LoggerContext) LoggerFactory.getILoggerFactory();
 		logpanelContext.reset();
@@ -203,9 +198,8 @@ public class Logpanel extends Composite {
 					messagePattern = detailPatternLayout;
 					button.setText("Detail pattern layout");
 				}
-
-				//FIXME small hack to reconfigure LoggerContext
-				connectToLogServer();
+				patternLayout.setPattern(messagePattern);
+				patternLayout.start();
 
 				viewer.refresh();
 			}
