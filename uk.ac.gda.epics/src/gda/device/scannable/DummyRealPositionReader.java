@@ -18,12 +18,12 @@
 
 package gda.device.scannable;
 
-import gda.factory.Findable;
+import gda.device.DeviceException;
 
 /**
  * For offline configurations where a RealPositionReader is added to scans to include the position in the data files.
  */
-public class DummyRealPositionReader implements RealPositionReader, Findable {
+public class DummyRealPositionReader extends ScannableMotionUnitsBase implements RealPositionReader {
 
 	private String name;
 
@@ -40,5 +40,10 @@ public class DummyRealPositionReader implements RealPositionReader, Findable {
 	@Override
 	public String getName() {
 		return name;
+	}
+
+	@Override
+	public Object rawGetPosition() throws DeviceException {
+		return Integer.valueOf(0);
 	}
 }
