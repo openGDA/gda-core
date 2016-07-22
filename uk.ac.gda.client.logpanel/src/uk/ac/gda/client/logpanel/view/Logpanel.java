@@ -755,8 +755,6 @@ public class Logpanel extends Composite {
 
 		final int numColumns = 5;
 
-		connectToLogServer();
-
 		// display copyable path to gda logs dir
 		String logsDir = LocalProperties.get(LocalProperties.GDA_LOGS_DIR/*, "/tmp/gda/i23/logs"*/);
 		if (logsDir != null) {
@@ -853,6 +851,8 @@ public class Logpanel extends Composite {
 		//createCopyButton(this);
 
 		loggingEventBuffer = new LoggingEventBuffer();
+
+		connectToLogServer();
 	}
 
 	// controls for Logpanel behaviour outside LogpanelView
