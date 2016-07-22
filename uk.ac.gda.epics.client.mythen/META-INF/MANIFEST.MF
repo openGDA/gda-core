@@ -24,7 +24,6 @@ Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: gda.observable,
  org.apache.commons.io,
- org.eclipse.january;bundle-version="1.0.0",
  org.eclipse.dawnsci.analysis.api,
  org.eclipse.debug.ui,
  org.eclipse.search.ui,
