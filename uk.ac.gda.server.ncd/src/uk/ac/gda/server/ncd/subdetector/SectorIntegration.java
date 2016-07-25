@@ -25,10 +25,10 @@ import gda.device.detector.NXDetectorData;
 
 import java.util.Arrays;
 
-import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
 import org.eclipse.dawnsci.analysis.dataset.roi.SectorROI;
+import org.eclipse.january.dataset.Dataset;
+import org.eclipse.january.dataset.DatasetUtils;
+import org.eclipse.january.dataset.IDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -103,7 +103,7 @@ public class SectorIntegration extends ReductionDetectorBase {
 			uk.ac.diamond.scisoft.ncd.core.SectorIntegration sec = new uk.ac.diamond.scisoft.ncd.core.SectorIntegration();
 			sec.setROI(roi);
 			sec.setFast(true);
-			sec.setAreaData(ROIProfile.area(Arrays.copyOfRange(parentdata.getShape(),1,3), parentdata.getDtype(), mask, roi, true, true, true));
+			sec.setAreaData(ROIProfile.area(Arrays.copyOfRange(parentdata.getShape(),1,3), parentdata.getDType(), mask, roi, true, true, true));
 			Dataset[] mydata = sec.process(parentdata, frames, maskUsed);
 			myazdata = mydata[0];
 			myraddata = mydata[1];

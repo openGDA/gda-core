@@ -18,7 +18,7 @@
 
 package uk.ac.gda.server.ncd.subdetector;
 
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.january.dataset.Dataset;
 
 import gda.device.DeviceException;
 

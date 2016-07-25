@@ -23,10 +23,10 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 import org.eclipse.dawnsci.analysis.dataset.roi.ROIList;
 import org.eclipse.dawnsci.analysis.dataset.roi.XAxisLineBoxROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.XAxisLineBoxROIList;
+import org.eclipse.january.dataset.DatasetFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -138,7 +138,7 @@ public class LadderSampleFinder {
 	private void plotResults(List<Double> features, double[] x, double[] y) {
 		try {
 			SDAPlotter.clearPlot(plotPanel);
-			SDAPlotter.plot(plotPanel, new DoubleDataset(x), new DoubleDataset(y));
+			SDAPlotter.plot(plotPanel, DatasetFactory.createFromObject(x), DatasetFactory.createFromObject(y));
 			GuiBean guiBean = SDAPlotter.getGuiBean(plotPanel);
 			ROIList<XAxisLineBoxROI> list = new XAxisLineBoxROIList();
 			int i = 0;

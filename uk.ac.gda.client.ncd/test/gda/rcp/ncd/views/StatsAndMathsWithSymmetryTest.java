@@ -18,15 +18,17 @@
 
 package gda.rcp.ncd.views;
 
-import static org.junit.Assert.*;
-import junitparams.JUnitParamsRunner;
-import junitparams.Parameters;
-import gda.rcp.ncd.views.StatsAndMathsWithSymmetry;
-import gda.rcp.ncd.views.StatsAndMathsWithSymmetry.DatasetWithCentre;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
-import org.eclipse.dawnsci.analysis.dataset.impl.IntegerDataset;
+import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.january.dataset.IntegerDataset;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import gda.rcp.ncd.views.StatsAndMathsWithSymmetry.DatasetWithCentre;
+import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
 
 @RunWith(JUnitParamsRunner.class)
 public class StatsAndMathsWithSymmetryTest {
@@ -62,7 +64,7 @@ public class StatsAndMathsWithSymmetryTest {
 		StatsAndMathsWithSymmetry samws = new StatsAndMathsWithSymmetry();
 		assertEquals(label+" failed", result, samws.getFlippedOffsetInNewDataset(len, centre));
 	}
-	
+
 	@Test
 	@Parameters({
 		"begin, 10 , 0, 20",
@@ -77,15 +79,15 @@ public class StatsAndMathsWithSymmetryTest {
 		StatsAndMathsWithSymmetry samws = new StatsAndMathsWithSymmetry();
 		assertEquals(label+" failed", result, samws.getNewLength(len, centre));
 	}
-	
+
 	@Test
 	public void testgetUpDown() {
 		StatsAndMathsWithSymmetry samws = new StatsAndMathsWithSymmetry();
-		DatasetWithCentre dwc = samws.new DatasetWithCentre(0.5, 1.5, 
-						new IntegerDataset(new int[] {
-				0, 1, 
-				2, 0, 
-				1, 3 
+		DatasetWithCentre dwc = samws.new DatasetWithCentre(0.5, 1.5,
+				DatasetFactory.createFromObject(new int[] {
+				0, 1,
+				2, 0,
+				1, 3
 						}, 3, 2));
 		DatasetWithCentre upDown = samws.getUpDown(dwc);
 		assertEquals("x center", 0.5, upDown.x, 0.001);
@@ -93,19 +95,19 @@ public class StatsAndMathsWithSymmetryTest {
 		assertArrayEquals("data", new int[] {3,2}, upDown.dataset.getShape());
 		assertArrayEquals("data", new int[] {
 				1, 4,
-				4, 0, 
+				4, 0,
 				1, 4
 											}, ((IntegerDataset) upDown.dataset).getData());
 	}
-	
+
 	@Test
 	public void testgetLR() {
 		StatsAndMathsWithSymmetry samws = new StatsAndMathsWithSymmetry();
-		DatasetWithCentre dwc = samws.new DatasetWithCentre(0.5, 1.5, 
-						new IntegerDataset(new int[] {
-				0, 1, 
-				2, 0, 
-				1, 3 
+		DatasetWithCentre dwc = samws.new DatasetWithCentre(0.5, 1.5,
+				DatasetFactory.createFromObject(new int[] {
+				0, 1,
+				2, 0,
+				1, 3
 						}, 3, 2));
 		DatasetWithCentre leftRight = samws.getLeftRight(dwc);
 		assertEquals("x center", 1.5, leftRight.x, 0.001);
@@ -117,14 +119,14 @@ public class StatsAndMathsWithSymmetryTest {
 				3, 2, 3
 											}, ((IntegerDataset) leftRight.dataset).getData());
 	}
-	
-	
+
+
 	@Test
 	public void testgetLongLR() {
 		StatsAndMathsWithSymmetry samws = new StatsAndMathsWithSymmetry();
-		DatasetWithCentre dwc = samws.new DatasetWithCentre(3.5, 0.5, 
-						new IntegerDataset(new int[] {
-				7, 1, 0, 4, 3 
+		DatasetWithCentre dwc = samws.new DatasetWithCentre(3.5, 0.5,
+				DatasetFactory.createFromObject(new int[] {
+				7, 1, 0, 4, 3
 						}, 1, 5));
 		DatasetWithCentre leftRight = samws.getLeftRight(dwc);
 		assertEquals("x center", 3.5, leftRight.x, 0.001);
@@ -134,13 +136,13 @@ public class StatsAndMathsWithSymmetryTest {
 				7, 1, 3, 8, 3, 1, 7
 											}, ((IntegerDataset) leftRight.dataset).getData());
 	}
-	
+
 	@Test
 	public void testgetLongUD() {
 		StatsAndMathsWithSymmetry samws = new StatsAndMathsWithSymmetry();
-		DatasetWithCentre dwc = samws.new DatasetWithCentre(0.5, 3.5, 
-						new IntegerDataset(new int[] {
-				7, 1, 0, 4, 3 
+		DatasetWithCentre dwc = samws.new DatasetWithCentre(0.5, 3.5,
+				DatasetFactory.createFromObject(new int[] {
+				7, 1, 0, 4, 3
 						}, 5, 1));
 		DatasetWithCentre upDown = samws.getUpDown(dwc);
 		assertEquals("x center", 0.5, upDown.x, 0.001);
