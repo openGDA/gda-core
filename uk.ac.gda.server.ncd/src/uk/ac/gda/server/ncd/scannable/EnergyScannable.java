@@ -22,6 +22,8 @@ import java.util.Collection;
 import java.util.Vector;
 
 import org.eclipse.dawnsci.analysis.api.diffraction.DiffractionCrystalEnvironment;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
 import gda.device.Scannable;
@@ -31,28 +33,30 @@ import gda.device.scannable.corba.impl.ScannableImpl;
 import gda.factory.FactoryException;
 import gda.factory.corba.util.CorbaAdapterClass;
 import gda.factory.corba.util.CorbaImplClass;
+import gda.jython.InterfaceProvider;
 import gda.observable.IObserver;
 
 /**
  * This is a compound scannable that operates on a bragg (wavelength determining) scannable and a
  * number of other scannables (id_gap, detector thresholds, etc.)
- * 
- * It is also used as metadata provider for images plotted 
+ *
+ * It is also used as metadata provider for images plotted
  */
 @CorbaAdapterClass(ScannableAdapter.class)
 @CorbaImplClass(ScannableImpl.class)
 public class EnergyScannable extends ScannableBase implements IObserver {
 
+	private static final Logger logger = LoggerFactory.getLogger(EnergyScannable.class);
 	private Scannable bragg;
 	private Collection<Scannable> scannables = new Vector<Scannable>();
 	private DiffractionCrystalEnvironment dce = null;
-	
+
 	@Override
 	public void configure() throws FactoryException {
 		setInputNames(new String[] {getName()});
 		setupExtraNames();
 	}
-			
+
 	private void setupExtraNames() {
 		Vector<String> en = new Vector<String>();
 		Vector<String> of = new Vector<String>();
@@ -79,16 +83,21 @@ public class EnergyScannable extends ScannableBase implements IObserver {
 		}
 		return false;
 	}
-	
+
 	@Override
 	public void asynchronousMoveTo(Object externalPosition) throws DeviceException {
 		dce = null;
 		bragg.asynchronousMoveTo(externalPosition);
 		for(Scannable s : scannables) {
-			s.asynchronousMoveTo(externalPosition);
+			try {
+				s.asynchronousMoveTo(externalPosition);
+			} catch (DeviceException de) {
+				InterfaceProvider.getTerminalPrinter().print(String.format("Could not move %s to %s (%s)", s.getName(), externalPosition, de.getMessage()));
+				logger.warn("Could not move scannable {} to {}", s.getName(), externalPosition, de);
+			}
 		}
 	}
-	
+
 	@Override
 	public Object getPosition() throws DeviceException {
 		Object[] pos = new Object[scannables.size()+1];
@@ -96,18 +105,23 @@ public class EnergyScannable extends ScannableBase implements IObserver {
 		pos[i] = bragg.getPosition();
 		for (Scannable s : scannables) {
 			i++;
-			pos[i] = s.getPosition();
+			try {
+				pos[i] = s.getPosition();
+			} catch (DeviceException de) {
+				logger.warn("Can't access scannable {}", s.getName(), de);
+				pos[i] = Double.NaN;
+			}
 		}
 		return pos;
 	}
-	
+
 	public void addScannable(Scannable s) {
 		if (!scannables.contains(s)) {
 			scannables.add(s);
 			setupExtraNames();
 		}
 	}
-	
+
 	public void removeScannable(Scannable s) {
 		scannables.remove(s);
 		setupExtraNames();
@@ -117,14 +131,14 @@ public class EnergyScannable extends ScannableBase implements IObserver {
 		scannables.clear();
 		setupExtraNames();
 	}
-	
+
 	public Scannable getBragg() {
 		return bragg;
 	}
 
 	/**
 	 * this bragg scannable is expected to work in keV and return double value only
-	 *  
+	 *
 	 * @param bragg
 	 */
 	public void setBragg(Scannable bragg) {
@@ -133,13 +147,13 @@ public class EnergyScannable extends ScannableBase implements IObserver {
 		this.bragg = bragg;
 		this.bragg.addIObserver(this);
 	}
-	
+
 	public DiffractionCrystalEnvironment getDiffractionCrystalEnvironment() throws DeviceException {
 		if (dce == null) {
 			dce = new DiffractionCrystalEnvironment(getBraggWavelength());
 		}
 		return dce;
-		
+
 	}
 
 	public double getBraggWavelength() throws DeviceException {
