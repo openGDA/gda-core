@@ -18,11 +18,11 @@ Require-Bundle: org.eclipse.ui,
  uk.ac.diamond.org.springframework,
  uk.ac.gda.common,
  uk.ac.diamond.jython;bundle-version="2.5.3",
+ org.eclipse.january;bundle-version="1.0.0",
  org.eclipse.dawnsci.analysis.api
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Import-Package: org.apache.commons.io,
- org.eclipse.dawnsci.analysis.api.dataset,
  org.slf4j,
  org.springframework.beans.factory;version="3.2.2.RELEASE"
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
