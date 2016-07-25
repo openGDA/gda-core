@@ -29,6 +29,7 @@ import org.python.core.PyInteger;
 import org.python.core.PyList;
 import org.python.core.PyObject;
 import org.python.core.PySequence;
+import org.python.core.PyString;
 
 /**
  * Class to implement ScannableGetPosition from the object returned from a monitor
@@ -73,6 +74,11 @@ public class ScannableGetPositionWrapper implements ScannableGetPosition
 		Object [] elements = new Object[]{scannableGetPositionVal};
 		if(scannableGetPositionVal instanceof Object[]){
 			elements = (Object [])scannableGetPositionVal;
+		} else if (scannableGetPositionVal instanceof PyString){
+			// should remain only element
+			// and not be decomposed into an array of characters
+			// if treated as a PySequence
+			elements[0] = scannableGetPositionVal;
 		} else if( scannableGetPositionVal instanceof PySequence){
 			PySequence seq = (PySequence)scannableGetPositionVal;
 			int len = seq.__len__();
