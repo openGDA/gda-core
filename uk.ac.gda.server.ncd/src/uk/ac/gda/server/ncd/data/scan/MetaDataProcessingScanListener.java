@@ -40,10 +40,10 @@ public class MetaDataProcessingScanListener extends DataProcessingScanListenerBa
 			values.add(entry.getMetadataValue());
 		}
 		try {
-			logger.info("Processing running with '{}'", values);
+			logger.info("{} - Processing running with '{}'", getName(), values);
 			runner.triggerProcessing(values.toArray(new String[] {}));
 		} catch (IOException e) {
-			logger.error("Couldn't run data reduction/processing", e);
+			logger.error("{} - Couldn't run data reduction/processing", getName(), e);
 		}
 	}
 }

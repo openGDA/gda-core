@@ -90,7 +90,7 @@ public abstract class DataProcessingScanListenerBase extends DataWriterExtenderB
 	public void completeCollection(IDataWriterExtender parent) {
 		try {
 			super.completeCollection(parent);
-			if (!enabled) {
+			if (!enabled || filepath == null) {
 				return;
 			}
 			scanInformation = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation();
