@@ -18,23 +18,24 @@
 
 package gda.device.detector.areadetector.v17.impl;
 
-import gda.configuration.epics.ConfigurationNotFoundException;
-import gda.configuration.epics.Configurator;
-import gda.device.detector.areadetector.IPVProvider;
-import gda.device.detector.areadetector.v17.NDArray;
-import gda.epics.connection.EpicsController;
-import gda.epics.interfaces.NDStdArraysType;
-import gda.factory.FactoryException;
-import gov.aps.jca.CAException;
-import gov.aps.jca.Channel;
-import gov.aps.jca.TimeoutException;
-
 import java.util.HashMap;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
+
+import gda.configuration.epics.ConfigurationNotFoundException;
+import gda.configuration.epics.Configurator;
+import gda.device.detector.areadetector.IPVProvider;
+import gda.device.detector.areadetector.v17.NDArray;
+import gda.device.detector.areadetector.v17.NDPluginBase.DataType;
+import gda.epics.connection.EpicsController;
+import gda.epics.interfaces.NDStdArraysType;
+import gda.factory.FactoryException;
+import gov.aps.jca.CAException;
+import gov.aps.jca.Channel;
+import gov.aps.jca.TimeoutException;
 
 public class NDArrayImpl extends NDBaseImpl implements NDArray, InitializingBean {
 
@@ -309,6 +310,24 @@ public class NDArrayImpl extends NDBaseImpl implements NDArray, InitializingBean
 		} catch (Exception ex) {
 			logger.warn("problem in getFloatArrayData()", ex);
 			throw ex;
+		}
+	}
+
+	@Override
+	public DataType getDataType() throws Exception {
+		String label = null;
+		try {
+			label = EPICS_CONTROLLER.cagetString(getChannel(DATA_TYPE_RBV));
+		} catch (Exception e) {
+			logger.error("Failed to get data type from EPICS", e);
+			throw e;
+		}
+
+		try {
+			return DataType.valueOf(label.toUpperCase());
+		} catch (IllegalArgumentException e) {
+			logger.error("Data type returned from EPICS was not matched.", e);
+			throw e;
 		}
 	}
 

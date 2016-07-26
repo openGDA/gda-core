@@ -22,6 +22,7 @@ import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.detector.areadetector.v17.NDArray;
 import gda.device.detector.areadetector.v17.NDPluginBase;
+import gda.device.detector.areadetector.v17.NDPluginBase.DataType;
 import gda.device.scannable.ScannableBase;
 import gda.device.scannable.ScannableUtils;
 import gda.factory.FactoryException;
@@ -254,6 +255,11 @@ public class NDArraySimulator extends NDBaseImpl implements NDArray {
 	@Override
 	public Object getImageData(int expectedNumPixels) throws Exception {
 		return null;
+	}
+
+	@Override
+	public DataType getDataType() throws Exception {
+		return DataType.FLOAT64;
 	}
 
 }

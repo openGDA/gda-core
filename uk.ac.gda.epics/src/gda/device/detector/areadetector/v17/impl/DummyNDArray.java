@@ -19,6 +19,7 @@
 package gda.device.detector.areadetector.v17.impl;
 
 import gda.device.detector.areadetector.v17.NDArray;
+import gda.device.detector.areadetector.v17.NDPluginBase.DataType;
 
 /*
  * class that returns data from a file rather than EPICS.
@@ -89,6 +90,12 @@ public class DummyNDArray extends NDBaseImpl implements NDArray {
 	@Override
 	public double[] getDoubleArrayData() throws Exception {
 		return doubleArrayData;
+	}
+
+	@Override
+	public DataType getDataType() throws Exception {
+		// Dummy returns float 64
+		return DataType.FLOAT64;
 	}
 
 }

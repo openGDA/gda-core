@@ -18,13 +18,15 @@
 
 package gda.device.detector.areadetector.v17;
 
+import gda.device.detector.areadetector.v17.NDPluginBase.DataType;
 
 /**
  * Interface that corresponds to the 'arr' plugin on the edm screen.
  */
 public interface NDArray extends GetPluginBaseAvailable {
 
-	static final String ARRAY_DATA = "ArrayData";
+	public static final String ARRAY_DATA = "ArrayData";
+	public static final String DATA_TYPE_RBV = "DataType_RBV";
 
 	short[] getShortArrayData(int numberOfElements) throws Exception;
 
@@ -45,4 +47,12 @@ public interface NDArray extends GetPluginBaseAvailable {
 	byte[] getByteArrayData() throws Exception;
 
 	Object getImageData(int expectedNumPixels) throws Exception;
+
+	/**
+	 * Get the data type of the last frame which reached the array plugin.
+	 *
+	 * @return the data type
+	 * @throws Exception
+	 */
+	DataType getDataType() throws Exception;
 }
