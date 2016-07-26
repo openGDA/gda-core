@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.scanning.api.IScannable;
-import org.eclipse.scanning.api.device.IDeviceConnectorService;
+import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.ScanningException;
 
@@ -39,11 +39,11 @@ import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
 
 /**
- * Implementation of {@link IDeviceConnectorService} for GDA8 devices.
+ * Implementation of {@link IScannableDeviceService} for GDA8 devices.
  * {@link #getScannable(String)} using {@link Finder} to find {@link Findable}
  * @author Matthew Gerring, Matthew Dickie
  */
-public class ScannableDeviceConnectorService implements IDeviceConnectorService {
+public class ScannableDeviceConnectorService implements IScannableDeviceService {
 
 	/**
 	 * A simple class to adapt an GDA8 {@link Scannable} to the {@link IScannable} API.

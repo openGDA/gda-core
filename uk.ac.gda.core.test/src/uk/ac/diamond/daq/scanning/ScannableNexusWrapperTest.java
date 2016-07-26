@@ -78,10 +78,10 @@ import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.device.AbstractRunnableDevice;
-import org.eclipse.scanning.api.device.IDeviceConnectorService;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IRunnableEventDevice;
+import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.device.IWritableDetector;
 import org.eclipse.scanning.api.device.models.ProcessingModel;
 import org.eclipse.scanning.api.event.IEventService;
@@ -290,7 +290,7 @@ public class ScannableNexusWrapperTest {
 
 	public static final String TEST_CONFIG_FILE_PATH =
 	"testfiles/gda/scanning/ScannableNexusWrapperTest/testdatawriter.xml";
-	protected static IDeviceConnectorService connector;
+	protected static IScannableDeviceService connector;
 	protected static IRunnableDeviceService  dservice;
 	protected static IPointGeneratorService  gservice;
 	protected static INexusFileFactory       fileFactory;
