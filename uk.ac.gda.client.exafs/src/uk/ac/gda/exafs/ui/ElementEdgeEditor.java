@@ -404,7 +404,7 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 			List<PyObject[]> points = getScanPoints(updateFromUIAndReturnEditingBean());
 			if (points == null || points.isEmpty())
 				throw new Exception("Cannot esitmate points!");
-			if(estimatePointsLabel!=null){
+			if(estimatePointsLabel!=null && !estimatePointsLabel.isDisposed()){
 				estimatePointsLabel.setText(points.size() + " points");
 				estimatePointsLabel.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_BLACK));
 			}
@@ -412,26 +412,26 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 			Date date = new Date(time);
 			DateFormat format = DateFormat.getTimeInstance(DateFormat.MEDIUM, Locale.UK);
 			format.setCalendar(Calendar.getInstance(TimeZone.getTimeZone("GMT")));
-			if(estimateTimeLabel!=null){
+			if(estimateTimeLabel!=null && !estimateTimeLabel.isDisposed()){
 				estimateTimeLabel.setText(format.format(date));
 				estimateTimeLabel.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_BLACK));
 			}
 		} catch(ExafsScanPointCreatorException e){
-			if(estimatePointsLabel!=null){
+			if(estimatePointsLabel!=null && !estimatePointsLabel.isDisposed()){
 				estimatePointsLabel.setText(e.getMessage());
 				estimatePointsLabel.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_RED));
 			}
-			if(estimateTimeLabel!=null){
+			if(estimateTimeLabel!=null && !estimateTimeLabel.isDisposed()){
 				estimateTimeLabel.setText(e.getMessage());
 				estimateTimeLabel.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_RED));
 			}
 		}catch (Exception ne) {
-			if(estimatePointsLabel!=null)
+			if(estimatePointsLabel!=null && !estimatePointsLabel.isDisposed())
 				estimatePointsLabel.setText("-");
-			if(estimateTimeLabel!=null)
+			if(estimateTimeLabel!=null && !estimateTimeLabel.isDisposed())
 				estimateTimeLabel.setText("-");
 		}
-		if(expandContainer!=null)
+		if(expandContainer!=null && !expandContainer.isDisposed())
 			expandContainer.layout();
 	}
 
