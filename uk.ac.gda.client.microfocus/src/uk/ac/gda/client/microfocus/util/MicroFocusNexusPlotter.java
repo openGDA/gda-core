@@ -77,7 +77,9 @@ public class MicroFocusNexusPlotter {
 
 					ExafsSelectionView selectionView = (ExafsSelectionView) PlatformUI.getWorkbench()
 							.getActiveWorkbenchWindow().getActivePage().findView(ExafsSelectionView.ID);
-					selectionView.setSelectedPoint(xyz);
+					if (selectionView != null) {
+						selectionView.setSelectedPoint(xyz);
+					}
 
 					try {
 						plotSpectrum(xArrayIndex, yArrayIndex);
