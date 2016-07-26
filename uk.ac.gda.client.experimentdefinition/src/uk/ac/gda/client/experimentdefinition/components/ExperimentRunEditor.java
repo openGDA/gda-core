@@ -67,6 +67,8 @@ import org.eclipse.ui.part.EditorPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.swtdesigner.SWTResourceManager;
+
 import uk.ac.gda.client.experimentdefinition.ExperimentBeanManager;
 import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
 import uk.ac.gda.client.experimentdefinition.ExperimentObjectEvent;
@@ -75,8 +77,6 @@ import uk.ac.gda.client.experimentdefinition.IExperimentObject;
 import uk.ac.gda.client.experimentdefinition.IExperimentObjectManager;
 import uk.ac.gda.common.rcp.CommonRCPActivator;
 import uk.ac.gda.ui.modifiers.DoubleClickModifier;
-
-import com.swtdesigner.SWTResourceManager;
 
 /**
  * <link>http://www.eclipse.org/articles/Article-Table-viewer/table_viewer.html</link>
@@ -591,7 +591,8 @@ public class ExperimentRunEditor extends EditorPart implements ExperimentObjectL
 	}
 
 	public boolean isFocus() {
-		return tableViewer.getTable().isFocusControl();
+		return tableViewer != null && !tableViewer.getTable().isDisposed() &&
+				tableViewer.getTable().isFocusControl();
 	}
 
 }
