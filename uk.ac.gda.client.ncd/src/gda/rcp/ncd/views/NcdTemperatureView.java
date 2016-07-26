@@ -18,19 +18,6 @@
 
 package gda.rcp.ncd.views;
 
-import gda.configuration.properties.LocalProperties;
-import gda.device.DeviceException;
-import gda.device.Temperature;
-import gda.device.TemperatureRamp;
-import gda.device.TemperatureStatus;
-import gda.device.Timer;
-import gda.device.TimerStatus;
-import gda.device.timer.FrameSet;
-import gda.factory.FactoryException;
-import gda.factory.Finder;
-import gda.observable.IObserver;
-import gda.rcp.ncd.NcdController;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,7 +36,7 @@ import org.eclipse.dawnsci.plotting.api.jreality.overlay.Overlay1DProvider;
 import org.eclipse.dawnsci.plotting.api.jreality.overlay.OverlayProvider;
 import org.eclipse.dawnsci.plotting.api.jreality.overlay.OverlayType;
 import org.eclipse.dawnsci.plotting.api.jreality.overlay.primitives.PrimitiveType;
-import org.eclipse.january.dataset.DoubleDataset;
+import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
@@ -88,14 +75,26 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.swtdesigner.SWTResourceManager;
+
+import gda.configuration.properties.LocalProperties;
+import gda.device.DeviceException;
+import gda.device.Temperature;
+import gda.device.TemperatureRamp;
+import gda.device.TemperatureStatus;
+import gda.device.Timer;
+import gda.device.TimerStatus;
+import gda.device.timer.FrameSet;
+import gda.factory.FactoryException;
+import gda.factory.Finder;
+import gda.observable.IObserver;
+import gda.rcp.ncd.NcdController;
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlottingMode;
 import uk.ac.gda.server.ncd.beans.TemperatureProfileParameters;
 import uk.ac.gda.server.ncd.detectorsystem.NcdDetectorSystem;
 import uk.ac.gda.server.ncd.subdetector.INcdSubDetector;
-
-import com.swtdesigner.SWTResourceManager;
 
 public class NcdTemperatureView extends ViewPart implements IObserver {
 	public NcdTemperatureView() {
@@ -149,7 +148,7 @@ public class NcdTemperatureView extends ViewPart implements IObserver {
 	private String subDetector;
 	private Timer tfg;
 	private boolean rampsLoaded = false;
-	
+
 	@Override
 	public void createPartControl(Composite parent) {
 
@@ -183,7 +182,7 @@ public class NcdTemperatureView extends ViewPart implements IObserver {
 			statusField.setForeground(SWTResourceManager.getColor(SWT.COLOR_GREEN));
 			statusField.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		}
-		
+
 		Composite composite2 = new Composite(composite, SWT.NONE);
 		composite2.setLayout(new GridLayout(10, false));
 		composite2.setLayoutData(new GridData(SWT.NONE, SWT.NONE, false, false));
@@ -236,19 +235,19 @@ public class NcdTemperatureView extends ViewPart implements IObserver {
 			});
 
 			Label label1 = new Label(composite2, SWT.NONE);
-			label1.setText("Upper Limit");		
+			label1.setText("Upper Limit");
 
 			upperLimit = new Text(composite2, SWT.BORDER);
-		
+
 			Label label2 = new Label(composite2, SWT.NONE);
 			label2.setText("Lower Limit");
-		
+
 			lowerLimit = new Text(composite2, SWT.BORDER);
-		
+
 			Label label3 = new Label(composite2, SWT.NONE);
 			label3.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 			label3.setText("Start TFG at ramp");
-		
+
 			startRamp = new Text(composite2, SWT.BORDER);
 			startRamp.setText("0");
 			startRamp.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -256,8 +255,8 @@ public class NcdTemperatureView extends ViewPart implements IObserver {
 
 			pumpSpeedLabel = new Label(composite2, SWT.NONE);
 			pumpSpeedLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-			pumpSpeedLabel.setText("Pump Speed");			
-			pumpSpeedLabel.setEnabled(false);			
+			pumpSpeedLabel.setText("Pump Speed");
+			pumpSpeedLabel.setEnabled(false);
 
 			pumpSpeed = new Spinner(composite2, SWT.BORDER);
 			pumpSpeed.setPageIncrement(1);
@@ -294,7 +293,7 @@ public class NcdTemperatureView extends ViewPart implements IObserver {
 					}
 				}
 			});
-			
+
 			autoButton = new Button(composite2, SWT.RADIO);
 			autoButton.setSelection(true);
 			autoButton.setText("Auto");
@@ -311,11 +310,11 @@ public class NcdTemperatureView extends ViewPart implements IObserver {
 					}
 				}
 			});
-		
+
 			Label label4 = new Label(composite2, SWT.NONE);
 			label4.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 			label4.setText("SetPoint");
-		
+
 			setField = new Text(composite2, SWT.BORDER);
 			setButton = new Button(composite2, SWT.NONE);
 			setButton.setText("Set");
@@ -344,7 +343,7 @@ public class NcdTemperatureView extends ViewPart implements IObserver {
 		createTableViewer();
 		// createDefaultProfile();
 		// The input for the table viewer is the instance of
-		
+
 		Composite composite4 = new Composite(composite, SWT.NONE);
 		composite4.setLayout(new GridLayout(1, false));
 		composite4.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
@@ -368,7 +367,7 @@ public class NcdTemperatureView extends ViewPart implements IObserver {
 		updatePlot();
 		createActions();
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	private void updatePlot() {
 		if (profileData == null) {
@@ -383,7 +382,7 @@ public class NcdTemperatureView extends ViewPart implements IObserver {
 		}
 		List<FrameSet> frameSetList = null;
 		ArrayList<Double> frameTimeList = new ArrayList<Double>();
-		
+
 		double t = 0.0;
 		timeData.add(t);
 		double startTemperature = 0.0;
@@ -408,14 +407,14 @@ public class NcdTemperatureView extends ViewPart implements IObserver {
 			}
 		}
 		axisMaximum = t;
-			
+
 		try {
 			if (plotList == null) {
 				plotList = new ArrayList<IDataset>();
 			} else {
 				plotList.clear();
 			}
-			plotList.add(DoubleDataset.createFromObject(profileData.toArray()));
+			plotList.add(DatasetFactory.createFromList(profileData));
 			if (axisList == null) {
 				axisList = new ArrayList<AxisValues>();
 			} else {
@@ -430,18 +429,18 @@ public class NcdTemperatureView extends ViewPart implements IObserver {
 			} else {
 				xData.clear();
 				temperatureData.clear();
-				dscData.clear();				
+				dscData.clear();
 			}
 
 			xData.add(0.0);
 //			temperatureData.add(rampList.get(0).getStartTemperature());
 			temperatureData.add(startTemperature);
-			plotList.add(DoubleDataset.createFromObject(temperatureData.toArray()));
+			plotList.add(DatasetFactory.createFromList(temperatureData));
 			axisList.add(new AxisValues(xData));
 
 //			dscData.add(rampList.get(0).getStartTemperature());
 			dscData.add(startTemperature);
-			plotList.add(DoubleDataset.createFromObject(dscData.toArray()));
+			plotList.add(DatasetFactory.createFromList(dscData));
 			axisList.add(new AxisValues(xData));
 
 			Plot1DGraphTable legend = plotter.getColourTable();
@@ -471,7 +470,7 @@ public class NcdTemperatureView extends ViewPart implements IObserver {
 			if (frameMarkerOverlay != null) {
 				plotter.unRegisterOverlay(frameMarkerOverlay);
 				frameMarkerOverlay.setXValues(frameTimeList);
-				frameMarkerOverlay.setY((DoubleDataset) plotList.get(0));
+				frameMarkerOverlay.setY(plotList.get(0));
 				plotter.registerOverlay(frameMarkerOverlay);
 			}
 		} catch (PlotException e) {
@@ -563,7 +562,7 @@ public class NcdTemperatureView extends ViewPart implements IObserver {
 
 		TemperatureRamp newramp = ramp.copy();
 //		newramp.setStartTemperature(ramp.getEndTemperature());
-		rampList.add(index, newramp);		
+		rampList.add(index, newramp);
 		// re-oder the ramp numbering
 		int rampNumber = 0;
 		for (TemperatureRamp rmp : rampList) {
@@ -677,7 +676,7 @@ public class NcdTemperatureView extends ViewPart implements IObserver {
 //							index++;
 //							previousRamp = rmp;
 //						}
-//					}						
+//					}
 //					updatePlot();
 //					break;
 				case ENDTEMP:
@@ -822,7 +821,7 @@ public class NcdTemperatureView extends ViewPart implements IObserver {
 					return;
 
 				try {
-					TemperatureProfileParameters temperatureProfileParameters = 
+					TemperatureProfileParameters temperatureProfileParameters =
 						TemperatureProfileParameters.createFromXML(path);
 					rampList.clear();
 					rampList = temperatureProfileParameters.getTemperatureRampList();
@@ -862,12 +861,12 @@ public class NcdTemperatureView extends ViewPart implements IObserver {
 				"icons/configure.png"));
 		return configureAction;
 	}
-	
+
 	public IAction getConnectAction(final ViewPart view) {
 		IAction connectAction = new Action("",IAction.AS_CHECK_BOX) {
 			@Override
 			public void run() {
-				
+
 				try {
 					if (this.isChecked()) {
 						connect();
@@ -914,7 +913,7 @@ public class NcdTemperatureView extends ViewPart implements IObserver {
 				"icons/control_play_blue.png"));
 		return startAction;
 	}
-	
+
 	public IAction getHoldAction(final ViewPart view) {
 		IAction holdAction = new Action() {
 			@Override
@@ -962,7 +961,7 @@ public class NcdTemperatureView extends ViewPart implements IObserver {
 				"icons/control_stop_blue.png"));
 		return stopAction;
 	}
-	
+
 	public IAction getInsertRampAction(final ViewPart view) {
 		IAction insertRampAction = new Action() {
 			@Override
@@ -1023,7 +1022,7 @@ public class NcdTemperatureView extends ViewPart implements IObserver {
 		public void run() {
 			if (arg != null && iObservable instanceof Timer && !(arg instanceof TimerStatus)) {
 				updatePlot();
-			}			
+			}
 			if (arg != null && arg instanceof TemperatureStatus) {
 				TemperatureStatus status = (TemperatureStatus) arg;
 				String textValue = String.format("%.2f", status.getCurrentTemperature());
@@ -1064,10 +1063,10 @@ public class NcdTemperatureView extends ViewPart implements IObserver {
 						}
 						try {
 							System.out.println("temp " + temperatureData.get(temperatureData.size()-1) + " axis value " + xData.get(xData.size()-1));
-							plotter.replaceAPlot(DoubleDataset.createFromObject(temperatureData), new AxisValues(xData), 1);
-							plotter.replaceAPlot(DoubleDataset.createFromObject(dscData), new AxisValues(xData), 2);
+							plotter.replaceAPlot(DatasetFactory.createFromList(temperatureData), new AxisValues(xData), 1);
+							plotter.replaceAPlot(DatasetFactory.createFromList(dscData), new AxisValues(xData), 2);
 							if (xValue > axisMaximum) {
-								plotter.replaceAPlot(DoubleDataset.createFromObject(profileData), new AxisValues(timeData), 0);
+								plotter.replaceAPlot(DatasetFactory.createFromList(profileData), new AxisValues(timeData), 0);
 								if (frameMarkerOverlay != null) {
 									plotter.unRegisterOverlay(frameMarkerOverlay);
 									plotter.registerOverlay(frameMarkerOverlay);
@@ -1176,14 +1175,14 @@ public class NcdTemperatureView extends ViewPart implements IObserver {
 			logger.error("Error closing temperature " + getName());
 		}
 	}
-	
+
 	private void setPumpSpeedControls(boolean enabled) {
 		pumpSpeedLabel.setEnabled(enabled);
 		pumpSpeed.setEnabled(enabled);
 		autoButton.setEnabled(enabled);
 		manualButton.setEnabled(enabled);
 	}
-	
+
 	private String getName() {
 		return name;
 	}
@@ -1192,7 +1191,7 @@ public class NcdTemperatureView extends ViewPart implements IObserver {
 
 		private List<Double> xValues;
 		private java.awt.Color[] colours;
-		private DoubleDataset y;
+		private IDataset y;
 
 		public FrameMarkerOverlay(Display display, final java.awt.Color[] colours) {
 			super(display);
@@ -1208,7 +1207,7 @@ public class NcdTemperatureView extends ViewPart implements IObserver {
 			return lines;
 		}
 
-		public void setY(final DoubleDataset y) {
+		public void setY(final IDataset y) {
 			this.y = y;
 		}
 
