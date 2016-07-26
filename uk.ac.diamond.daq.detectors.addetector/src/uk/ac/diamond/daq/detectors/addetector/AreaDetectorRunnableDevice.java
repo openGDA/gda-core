@@ -6,7 +6,8 @@ import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
-import org.eclipse.january.dataset.DoubleDataset;
+import org.eclipse.january.dataset.Dataset;
+import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.ILazyWriteableDataset;
 import org.eclipse.january.dataset.SliceND;
 import org.eclipse.scanning.api.device.AbstractRunnableDevice;
@@ -126,7 +127,7 @@ public class AreaDetectorRunnableDevice extends AbstractRunnableDevice<AreaDetec
 			Object image = detector.getNdArray().getImageData(dataDimensions[0] * dataDimensions[1]);
 
 			// Create a dataset from the data
-			DoubleDataset dataset = DoubleDataset.createFromObject(image);
+			Dataset dataset = DatasetFactory.createFromObject(image);
 			// Write the image data
 			IScanSlice scanSlice = IScanRankService.getScanRankService().createScanSlice(pos, dataDimensions);
 			SliceND sliceND = new SliceND(data.getShape(), data.getMaxShape(), scanSlice.getStart(), scanSlice.getStop(), scanSlice.getStep());
@@ -134,7 +135,7 @@ public class AreaDetectorRunnableDevice extends AbstractRunnableDevice<AreaDetec
 			// Write the total data
 			scanSlice = IScanRankService.getScanRankService().createScanSlice(pos);
 			sliceND = new SliceND(total.getShape(), total.getMaxShape(), scanSlice.getStart(), scanSlice.getStop(), scanSlice.getStep());
-			total.setSlice(null, DoubleDataset.createFromObject(dataset.sum()), sliceND);
+			total.setSlice(null, DatasetFactory.createFromObject(dataset.sum()), sliceND);
 		} catch (Exception e) {
 			setDeviceState(DeviceState.FAULT);
 			throw new ScanningException("Getting the data from the detector failed", e);
