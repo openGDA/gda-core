@@ -74,7 +74,7 @@ public class AreaDetectorRunnableDevice extends AbstractRunnableDevice<AreaDetec
 			dataDimensions[0] = detector.getAdBase().getSizeY_RBV();
 			dataDimensions[1] = detector.getAdBase().getSizeX_RBV();
 			// Get the dataType to expect
-			dataType = detector.getAdBase().getDataType_RBV2();
+			dataType = detector.getNdArray().getDataType();
 
 			// Set the exposure time
 			detector.getAdBase().setAcquireTime(model.getExposureTime());
