@@ -224,12 +224,12 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 			if (incrementalSleepTime == 0)
 				incrementalSleepTime = 1;
 
-			logger.debug("DummyMotor speed is: " + speed + " steps per second");
-			logger.debug("DummyMotor total move is: " + (targetPosition - currentPosition) + " steps");
-			logger.debug("DummyMotor move ought to take: " + totalExpectedMoveTime + " seconds");
-			logger.debug("DummyMotor number of numberOfIncrements: " + numberOfIncrements);
-			logger.debug("DummyMotor incrementalSleepTime is: " + incrementalSleepTime + "milliseconds");
-			logger.debug("DummyMotor expected total time for this move: "
+			logger.trace("DummyMotor speed is: " + speed + " steps per second");
+			logger.trace("DummyMotor total move is: " + (targetPosition - currentPosition) + " steps");
+			logger.trace("DummyMotor move ought to take: " + totalExpectedMoveTime + " seconds");
+			logger.trace("DummyMotor number of numberOfIncrements: " + numberOfIncrements);
+			logger.trace("DummyMotor incrementalSleepTime is: " + incrementalSleepTime + "milliseconds");
+			logger.trace("DummyMotor expected total time for this move: "
 					+ Math.abs(incrementalSleepTime * numberOfIncrements / 1000.0) + "s");
 
 			motorMoving = true;
@@ -282,14 +282,14 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 	 * <p>This property can be used in Spring configuration to define what the
 	 * initial position of the motor should be after the motor object has been
 	 * configured.
-	 * 
+	 *
 	 * <p>However if a different position has previously been saved to file,
 	 * the motor will instead be at that position after it has been configured.
-	 * 
+	 *
 	 * <p>In other words: at configuration time, a previously-saved position
 	 * takes precedence over the initial position set using the
 	 * {@code position} property.
-	 * 
+	 *
 	 * @param newPosition
 	 *            the current position
 	 */
@@ -448,16 +448,16 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 
 					// Wait for the incrementalSleepTime
 					try {
-						logger.debug("DummyMotor " + getName() + " incremental wait starting");
+						logger.trace("DummyMotor " + getName() + " incremental wait starting");
 						wait(incrementalSleepTime);
-						logger.debug("DummyMotor " + getName() + " incremental wait over");
+						logger.trace("DummyMotor " + getName() + " incremental wait over");
 					} catch (InterruptedException ex) {
 						logger.error("DummyMotor " + getName() + " InterruptedException in incremental wait");
 					}
 
 					// Increment the position
 					currentPosition += positionIncrement;
-					logger.debug("DummyMotor " + getName() + " position is now " + currentPosition);
+					logger.trace("DummyMotor " + getName() + " position is now " + currentPosition);
 				}
 
 				// This is the else for the if (simulatedMoveRequired). This
@@ -485,7 +485,8 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 			if (status == MotorStatus._BUSY)
 				status = MotorStatus._READY;
 
-			logger.debug("dummy motor" + this.getName() + " status now " + status);
+			logger.debug("Dummy motor {} finished moving at position {}; status now {}",
+					this.getName(), currentPosition, MotorStatus.from_int(status));
 
 			// Switch off the moving flags
 			simulatedMoveRequired = false;
