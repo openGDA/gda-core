@@ -51,7 +51,7 @@ public class GDAJythonClassLoader extends ClassLoader {
 	// exception. The scanning command package actually leads to a Jython conflict since it has an embedded version 2.7
 	// of Jython whereas the rest of the product uses version 2.5. Once we have migrated the target platform to version
 	// 2.7 it can be removed from the list.
-	private static String SKIPPED_BUNDLES = "org.eclipse.debug.ui, org.eclipse.help.ui, org.eclipse.scanning.command";
+	private static String SKIPPED_BUNDLES = "org.eclipse.debug.ui, org.eclipse.help.ui, org.eclipse.scanning.command, org.python.pydev.jython";
 
 	/**
 	 * Use the return value of this function to get all the packages available to Jython. Call PySystemState.add_package
