@@ -470,50 +470,52 @@ Additional Ant tasks for Buckminster build. Based on http://www.ralfebert.de/blo
 			<fileset dir="${ws_git.rel.path}/daq-eclipse.git/org.eclipse.scanning.command/scripts"/>
 		</copy>
 		<!-- PES folders -->
-		<copy todir="${install.git.path}/gda-pes.git/i05-1-config">
+		<!-- failonerror="false" is used here so that you can build the server wihtout having to have all
+			the configs in your workspace. This measure should be temporary once dls-root is removed-->
+		<copy todir="${install.git.path}/gda-pes.git/i05-1-config" failonerror="false">
 			<fileset dir="${ws_git.rel.path}/gda-pes.git/i05-1-config"/>
 		</copy>
-		<copy todir="${install.git.path}/gda-pes.git/uk.ac.gda.arpes.server/scripts">
+		<copy todir="${install.git.path}/gda-pes.git/uk.ac.gda.arpes.server/scripts" failonerror="false">
 			<fileset dir="${ws_git.rel.path}/gda-pes.git/uk.ac.gda.arpes.server/scripts"/>
 		</copy>
 		<!-- XAS folders -->
-		<copy todir="${install.git.path}/gda-dls-beamlines-xas.git/i18">
+		<copy todir="${install.git.path}/gda-dls-beamlines-xas.git/i18" failonerror="false">
 			<fileset dir="${ws_git.rel.path}/gda-dls-beamlines-xas.git/i18"/>
 		</copy>
-		<copy todir="${install.git.path}/gda-xas-core.git/uk.ac.gda.client.microfocus/scripts">
+		<copy todir="${install.git.path}/gda-xas-core.git/uk.ac.gda.client.microfocus/scripts" failonerror="false">
 			<fileset dir="${ws_git.rel.path}/gda-xas-core.git/uk.ac.gda.client.microfocus/scripts"/>
 		</copy>
-		<copy todir="${install.git.path}/gda-xas-core.git/uk.ac.gda.server.exafs/scripts">
+		<copy todir="${install.git.path}/gda-xas-core.git/uk.ac.gda.server.exafs/scripts" failonerror="false">
 			<fileset dir="${ws_git.rel.path}/gda-xas-core.git/uk.ac.gda.server.exafs/scripts"/>
 		</copy>
 		<!-- MT beamline folders -->
-		<copy todir="${install.git.path}/gda-mt.git/configurations/mt-config">
+		<copy todir="${install.git.path}/gda-mt.git/configurations/mt-config" failonerror="false">
 			<fileset dir="${ws_git.rel.path}/gda-mt.git/configurations/mt-config"/>
 		</copy>
 		<!-- I13-1 beamline folders -->
-		<copy todir="${install.git.path}/gda-dls-beamlines-i13x.git/i13j">
+		<copy todir="${install.git.path}/gda-dls-beamlines-i13x.git/i13j" failonerror="false">
 			<fileset dir="${ws_git.rel.path}/gda-dls-beamlines-i13x.git/i13j"/>
 		</copy>
 		<!-- I15 beamline folders -->
-		<copy todir="${install.git.path}/gda-mt.git/configurations/i15-config">
+		<copy todir="${install.git.path}/gda-mt.git/configurations/i15-config" failonerror="false">
 			<fileset dir="${ws_git.rel.path}/gda-mt.git/configurations/i15-config"/>
 		</copy>
 		<!-- I15-1 beamline folders -->
-		<copy todir="${install.git.path}/gda-mt.git/configurations/i15-1-config">
+		<copy todir="${install.git.path}/gda-mt.git/configurations/i15-1-config" failonerror="false">
 			<fileset dir="${ws_git.rel.path}/gda-mt.git/configurations/i15-1-config"/>
 		</copy>
 		<!-- i02-2 VMXI beamline folders -->
-		<copy todir="${install.git.path}/gda-mx.git/configurations/i02-2-config">
+		<copy todir="${install.git.path}/gda-mx.git/configurations/i02-2-config" failonerror="false">
 			<fileset dir="${ws_git.rel.path}/gda-mx.git/configurations/i02-2-config"/>
 		</copy>
-		<copy todir="${install.git.path}/gda-mx.git/configurations/mx-config">
+		<copy todir="${install.git.path}/gda-mx.git/configurations/mx-config" failonerror="false">
 			<fileset dir="${ws_git.rel.path}/gda-mx.git/configurations/mx-config"/>
 		</copy>
-		<copy todir="${install.git.path}/gda-bimorph.git/uk.ac.gda.bimorph/scripts">
+		<copy todir="${install.git.path}/gda-bimorph.git/uk.ac.gda.bimorph/scripts" failonerror="false">
 			<fileset dir="${ws_git.rel.path}/gda-bimorph.git/uk.ac.gda.bimorph/scripts"/>
 		</copy>
 		<!-- Test beamline folders -->
-		<copy todir="${install.git.path}/gda-core.git/p45-config">
+		<copy todir="${install.git.path}/gda-core.git/p45-config" failonerror="false">
 			<fileset dir="${ws_git.rel.path}/gda-core.git/p45-config"/>
 		</copy>	
 		
