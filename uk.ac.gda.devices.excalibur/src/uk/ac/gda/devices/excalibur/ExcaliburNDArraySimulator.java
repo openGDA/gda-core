@@ -1,15 +1,16 @@
 package uk.ac.gda.devices.excalibur;
 
-import gda.device.Scannable;
-import gda.device.detector.areadetector.v17.NDArray;
-import gda.device.detector.areadetector.v17.impl.NDBaseImpl;
-import gda.device.scannable.ScannableUtils;
-
 import java.util.List;
 import java.util.Random;
 
 import org.apache.commons.math.distribution.NormalDistribution;
 import org.apache.commons.math.distribution.NormalDistributionImpl;
+
+import gda.device.Scannable;
+import gda.device.detector.areadetector.v17.NDArray;
+import gda.device.detector.areadetector.v17.NDPluginBase.DataType;
+import gda.device.detector.areadetector.v17.impl.NDBaseImpl;
+import gda.device.scannable.ScannableUtils;
 
 
 public class ExcaliburNDArraySimulator extends NDBaseImpl implements NDArray {
@@ -255,6 +256,11 @@ public class ExcaliburNDArraySimulator extends NDBaseImpl implements NDArray {
 	@Override
 	public double[] getDoubleArrayData() throws Exception {
 		throw new UnsupportedOperationException("Only getIntArrayData is supported");
+	}
+
+	@Override
+	public DataType getDataType() throws Exception {
+		return DataType.INT32;
 	}
 
 
