@@ -18,6 +18,12 @@
 
 package gda.device.enumpositioner;
 
+import java.util.Vector;
+
+import org.python.core.PyException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.device.DeviceException;
@@ -39,15 +45,12 @@ import gov.aps.jca.dbr.DBR_Enum;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 
-import java.util.Vector;
-
-import org.python.core.PyException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * This class maps onto the EPICS Pneumatic template.
+ *
+ * @deprecated Replace with {@link EpicsPneumaticCallback}
  */
+@Deprecated
 public class EpicsPneumatic extends EnumPositionerBase implements EnumPositioner, InitializationListener {
 	private static final Logger logger = LoggerFactory.getLogger(EpicsPneumatic.class);
 
@@ -81,6 +84,7 @@ public class EpicsPneumatic extends EnumPositionerBase implements EnumPositioner
 		channelManager = new EpicsChannelManager(this);
 		controller = EpicsController.getInstance();
 		statusMonitor = new StatusMonitorListener();
+		logger.warn("EpicsPneumatic is deprecated, it should be replaced with EpicsPneumaticCallback");
 	}
 
 	/**
