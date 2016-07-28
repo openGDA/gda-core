@@ -41,6 +41,7 @@ public class FluoDetectorAcquireComposite extends Composite {
 	private Button acquireButton;
 	private Button autoSaveCheckBox;
 	private Button liveCheckBox;
+	private Button applySettingsButton;
 
 	public FluoDetectorAcquireComposite(Composite composite, int style) {
 		super(composite, style);
@@ -81,6 +82,10 @@ public class FluoDetectorAcquireComposite extends Composite {
 
 		liveCheckBox = new Button(acquireGroup, SWT.CHECK);
 		liveCheckBox.setText("Live");
+
+		applySettingsButton = new Button(acquireGroup, SWT.NONE);
+		applySettingsButton.setText("Apply settings");
+		applySettingsButton.setToolTipText("Apply current settings to detector.");
 	}
 
 	private void setAcquireImageToSnapshot() {
@@ -151,5 +156,9 @@ public class FluoDetectorAcquireComposite extends Composite {
 
 	public Button getLiveCheckBox() {
 		return liveCheckBox;
+	}
+
+	public Button getApplySettingsButton() {
+		return applySettingsButton;
 	}
 }

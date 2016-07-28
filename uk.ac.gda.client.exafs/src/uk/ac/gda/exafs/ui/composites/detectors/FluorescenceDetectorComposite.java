@@ -24,9 +24,12 @@ import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.dawnsci.plotting.api.region.IROIListener;
 import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.richbeans.api.event.ValueAdapter;
 import org.eclipse.richbeans.api.widget.IFieldWidget;
 import org.eclipse.richbeans.widgets.selector.BeanSelectionListener;
 import org.eclipse.richbeans.widgets.selector.ListEditor;
+import org.eclipse.richbeans.widgets.wrappers.BooleanWrapper;
+import org.eclipse.richbeans.widgets.wrappers.ComboWrapper;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
@@ -38,9 +41,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.SashFormPlotComposite;
+import uk.ac.gda.beans.vortex.Xspress3Parameters;
+import uk.ac.gda.beans.xspress.XspressParameters;
+import uk.ac.gda.common.rcp.util.GridUtils;
+import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
 import uk.ac.gda.exafs.ui.composites.detectors.internal.FluoDetectorAcquireComposite;
 import uk.ac.gda.exafs.ui.composites.detectors.internal.FluoDetectorCountsComposite;
 import uk.ac.gda.exafs.ui.composites.detectors.internal.FluoDetectorElementsComposite;
+import uk.ac.gda.exafs.ui.composites.detectors.internal.FluoDetectorOutputPreferenceComposite;
+import uk.ac.gda.exafs.ui.composites.detectors.internal.FluoDetectorReadoutModeComposite;
 import uk.ac.gda.exafs.ui.composites.detectors.internal.FluoDetectorRegionsComposite;
 
 /**
@@ -51,11 +60,15 @@ public class FluorescenceDetectorComposite extends Composite {
 	private static final Logger logger = LoggerFactory.getLogger(FluorescenceDetectorComposite.class);
 
 	private SashFormPlotComposite sashFormPlot;
+	private FluoDetectorReadoutModeComposite readoutModeComposite;
 	private FluoDetectorAcquireComposite acquireComposite;
 	private FluoDetectorElementsComposite elementsComposite;
 	private FluoDetectorCountsComposite countsComposite;
 	private FluoDetectorRegionsComposite regionsComposite;
+	private FluoDetectorOutputPreferenceComposite outputPrefComposite;
 	private int mcaSize;
+
+
 
 	/**
 	 * Create a new FluorescenceDetectorComposite. After the relevant values are available, this should be followed by calls to setDetectorElementListSize()
@@ -86,6 +99,9 @@ public class FluorescenceDetectorComposite extends Composite {
 
 			GridDataFactory horizontalGrabGridData = GridDataFactory.fillDefaults().grab(true, false);
 
+			readoutModeComposite = new FluoDetectorReadoutModeComposite(sashFormPlot.getLeft(), SWT.NONE);
+			horizontalGrabGridData.applyTo(readoutModeComposite);
+
 			acquireComposite = new FluoDetectorAcquireComposite(sashFormPlot.getLeft(), SWT.NONE);
 			horizontalGrabGridData.applyTo(acquireComposite);
 
@@ -98,6 +114,9 @@ public class FluorescenceDetectorComposite extends Composite {
 			regionsComposite = new FluoDetectorRegionsComposite(sashFormPlot.getLeft(), SWT.NONE, elementsComposite);
 			horizontalGrabGridData.applyTo(regionsComposite);
 
+			outputPrefComposite = new FluoDetectorOutputPreferenceComposite(sashFormPlot.getLeft(), SWT.NONE );
+			horizontalGrabGridData.applyTo(outputPrefComposite);
+
 			sashFormPlot.computeSizes();
 
 		} catch (Exception ex) {
@@ -106,6 +125,94 @@ public class FluorescenceDetectorComposite extends Composite {
 			Label errorMessageLabel = new Label(this, SWT.NONE);
 			errorMessageLabel.setText("Error - see log for details");
 		}
+	}
+
+
+	/**
+	 * @return the start value of window for currently-selected element
+	 */
+	public int getWindowStart() {
+		return (int) regionsComposite.getWindowStart().getNumericValue();
+	}
+
+	/**
+	 * Set the start value of window for the currently-selected element
+	 *
+	 * @param windowStart
+	 */
+	public void setWindowStart(int windowStart) {
+		regionsComposite.getWindowStart().setIntegerValue(windowStart);
+	}
+
+	/**
+	 * @return the end value of window for currently-selected element
+	 */
+	public int getWindowEnd() {
+		return (int) regionsComposite.getWindowEnd().getNumericValue();
+	}
+
+	/**
+	 * Set the end value of window for the currently-selected element
+	 *
+	 * @param windowEnd
+	 */
+	public void setWindowEnd(int windowEnd) {
+		regionsComposite.getWindowEnd().setIntegerValue(windowEnd);
+	}
+
+	/**
+	 * For access by BeanUI only. This name must match the field name in XspressParameters.
+	 */
+	public BooleanWrapper getOnlyShowFF() {
+		return outputPrefComposite.getOnlyShowFF();
+	}
+
+	/**
+	 * For access by BeanUI only. This name must match the field name in XspressParameters.
+	 */
+	public BooleanWrapper getShowDTRawValues() {
+		return outputPrefComposite.getShowDTRawValues();
+	}
+
+	/**
+	 * For access by BeanUI only. This name must match the field name in Vortex/XspressParameters.
+	 */
+	public BooleanWrapper getSaveRawSpectrum() {
+		return outputPrefComposite.getSaveRawSpectrum();
+	}
+
+	public void addReadoutModeListener(ValueAdapter listener) {
+		readoutModeComposite.getReadoutCombo().addValueListener(listener);
+	}
+
+	/**
+	 * Set readout mode of the detector
+	 *
+	 * @param readoutMode
+	 */
+	public void setReadoutMode( String readoutMode ) {
+		readoutModeComposite.setReadoutMode(readoutMode);
+	}
+
+	/**
+	 * For access by BeanUI only. This name must match the field name in XspressParameters.
+	 */
+	public ComboWrapper getReadoutMode() {
+		return readoutModeComposite.getReadoutCombo();
+	}
+
+	/**
+	 * For access by BeanUI only. This name must match the field name in XspressParameters.
+	 */
+	public ComboWrapper getResGrade() {
+		return readoutModeComposite.getResolutionGradeCombo();
+	}
+
+	/**
+	 * For access by BeanUI only. This name must match the field name in XspressParameters.
+	 */
+	public ComboWrapper getRegionType() {
+		return readoutModeComposite.getRegionTypeCombo();
 	}
 
 	/**
@@ -126,6 +233,7 @@ public class FluorescenceDetectorComposite extends Composite {
 	public void setMCASize(int mcaSize) {
 		this.mcaSize = mcaSize;
 		regionsComposite.getRoiEnd().setMaximum(mcaSize);
+		regionsComposite.getWindowEnd().setMaximum(mcaSize);
 	}
 
 	/**
@@ -226,6 +334,15 @@ public class FluorescenceDetectorComposite extends Composite {
 	 */
 	public void addAcquireButtonListener(SelectionListener listener) {
 		acquireComposite.getAcquireButton().addSelectionListener(listener);
+	}
+
+	/**
+	 * Add a listener which will be notified when the 'Apply settings' button is pressed
+	 *
+	 * @param listener
+	 */
+	public void addApplySettingsButtonListener(SelectionListener listener) {
+		acquireComposite.getApplySettingsButton().addSelectionListener(listener);
 	}
 
 	/**
@@ -356,12 +473,17 @@ public class FluorescenceDetectorComposite extends Composite {
 		regionsComposite.getRoiEnd().setIntegerValue(regionEnd);
 	}
 
+	public boolean getReadoutModeIsRoi() {
+		return regionsComposite.getReadoutModeIsRoi();
+	}
+
 	/**
 	 * Update the region on the plot from the current settings in the UI
 	 */
 	public void updatePlottedRegionFromUI() {
-		int start = getRegionStart();
-		int end = getRegionEnd();
+		boolean editingRoi = regionsComposite.getReadoutModeIsRoi();
+		int start = editingRoi ? getRegionStart(): getWindowStart();
+		int end = editingRoi ? getRegionEnd(): getWindowEnd();
 		sashFormPlot.getRegionOnDisplay().setROI(new RectangularROI(start, 0, end - start, 0, 0));
 		sashFormPlot.getRegionOnDisplay().repaint();
 	}
@@ -456,4 +578,52 @@ public class FluorescenceDetectorComposite extends Composite {
 		sashFormPlot.setDatasets(dataset);
 		sashFormPlot.plotData();
 	}
+
+	/**
+	 *  Hide/show output option checboxes for detector type.
+	 *
+	 * @param detectorParams
+	 * @since 1/7/2016
+	 */
+	public void setOutputOptions(FluorescenceDetectorParameters detectorParams ) {
+		boolean enableFFDTButtons = true;
+		if ( detectorParams instanceof Xspress3Parameters ) {
+			enableFFDTButtons = false;
+		}
+		GridUtils.setVisibleAndLayout(outputPrefComposite.getOnlyShowFF(), enableFFDTButtons );
+		GridUtils.setVisibleAndLayout(outputPrefComposite.getShowDTRawValues(), enableFFDTButtons );
+	}
+
+	/**
+	 * Setup GUI for specified readout mode of detector.
+	 * i.e. shows/hides different parts of GUI as appropriate for XSpress2/3
+	 * This function is called during initial setup of GUI, using settings from Xml file.
+	 *
+	 * @parameter detectorParams
+	 * @since 1/7/2016
+	 */
+	public void setReadoutModeOptions(FluorescenceDetectorParameters detectorParams) {
+		if ( detectorParams instanceof XspressParameters ) {
+			XspressParameters xspressParams = (XspressParameters) detectorParams;
+			readoutModeComposite.setReadoutMode( xspressParams.getReadoutMode() );
+			regionsComposite.updateControlVisibility( xspressParams.getReadoutMode() );
+		} else if ( detectorParams instanceof Xspress3Parameters ) {
+			// Xspress3 gui is for 'region of interest' only...
+			readoutModeComposite.setReadoutMode( XspressParameters.READOUT_MODE_REGIONSOFINTEREST  );
+			regionsComposite.updateControlVisibility( XspressParameters.READOUT_MODE_REGIONSOFINTEREST );
+			readoutModeComposite.getReadoutCombo().setEnabled(false);
+			// Remove resolution grade controls
+			readoutModeComposite.showResGradeRegionControls(false);
+		}
+	}
+
+	/**
+	 * Update 'Readout Mode' controls : hide/show resolution grade combo boxes for currently selected readout mode
+	 *
+	 */
+	public void updateRoiWindowSettings() {
+		String readoutMode = readoutModeComposite.getReadoutMode();
+		regionsComposite.updateControlVisibility( readoutMode );
+	}
+
 }
