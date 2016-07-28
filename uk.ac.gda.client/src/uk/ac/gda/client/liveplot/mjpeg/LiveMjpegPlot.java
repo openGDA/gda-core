@@ -18,8 +18,6 @@
 
 package uk.ac.gda.client.liveplot.mjpeg;
 
-import gda.factory.Finder;
-
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
@@ -36,11 +34,10 @@ import org.eclipse.dawnsci.plotting.api.axis.IAxis;
 import org.eclipse.dawnsci.plotting.api.tool.IToolPage.ToolPageRole;
 import org.eclipse.dawnsci.plotting.api.trace.IImageTrace;
 import org.eclipse.dawnsci.plotting.api.trace.IImageTrace.DownsampleType;
+import org.eclipse.dawnsci.plotting.api.trace.ITrace;
 import org.eclipse.january.dataset.DataEvent;
 import org.eclipse.january.dataset.IDataListener;
-import org.eclipse.january.dataset.IDataset;
-import org.eclipse.january.dataset.IRemoteDataset;
-import org.eclipse.dawnsci.plotting.api.trace.ITrace;
+import org.eclipse.january.dataset.IDatasetConnector;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -56,6 +53,8 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.factory.Finder;
 
 /**
  * A RCP view for connecting to and displaying a live MJPEG stream. The intension is to provide a easy way for camera to be integrated into GDA.
@@ -86,7 +85,7 @@ public class LiveMjpegPlot extends ViewPart {
 
 	private IPlottingSystem<Composite> plottingSystem;
 
-	private IRemoteDataset stream;
+	private IDatasetConnector stream;
 	private IDataListener shapeListener;
 
 	@Override
@@ -219,7 +218,7 @@ public class LiveMjpegPlot extends ViewPart {
 		getViewSite().getActionBars().updateActionBars();
 
 		// Try and make the stream run faster
-		ITrace trace = plottingSystem.createPlot2D((IDataset) stream, null, null);
+		ITrace trace = plottingSystem.createPlot2D(stream.getSlice(), null, null);
 		final IImageTrace iTrace = (IImageTrace) trace;
 		iTrace.setDownsampleType(DownsampleType.POINT);
 		iTrace.setRescaleHistogram(false);
