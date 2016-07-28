@@ -19,8 +19,6 @@
 package gda.rcp.views.dashboard;
 
 import gda.device.scannable.ScannableSnapshot;
-import gda.device.scannable.ScannableUtils;
-import gda.jython.JythonServerFacade;
 
 public class ScannableObject {
 
@@ -28,10 +26,12 @@ public class ScannableObject {
 	private String output;
 	private String toolTip;
 	private boolean valid;
+	private ScannableSnapshotProvider snapshotProvider;
 
-	public ScannableObject(String name) {
+	public ScannableObject(String name, ScannableSnapshotProvider snapshotProvider) {
 		this.name = name;
 		valid = true;
+		this.snapshotProvider = snapshotProvider;
 	}
 
 	public String getName() {
@@ -56,19 +56,23 @@ public class ScannableObject {
 		}
 		ScannableSnapshot si = null;
 		try {
-			String serialized = JythonServerFacade.getInstance().evaluateCommand(
-					"gda.device.scannable.ScannableUtils.getSerializedScannableSnapshot(" + name + ")");
-			si = ScannableUtils.deserializeScannableSnapshot(serialized);
+			si = snapshotProvider.getSnapshot(name);
 		} catch (Exception e) {
 		}
 		if (si != null) {
 			if (si.lastPosition == null) {
 				output = "";
 				return;
-			} else if (si.extraNames.length == 0 && si.inputNames.length == 1 && si.inputNames[0].equals(name)) {
-				// a single value only - do not bother printing any names
-				output = String.format(si.outputFormat[0], si.lastPosition) + " " + si.units[0];
+			} else if (si.extraNames.length + si.inputNames.length == 1) {
+				String n = si.inputNames.length > 0 ? si.inputNames[0] : si.extraNames[0];
+				if (n == name) {
+					output = String.format(si.outputFormat[0], si.lastPosition) + " " + si.units[0];
+				} else {
+					output = String.format("%s: " + si.outputFormat[0], n, si.lastPosition) + " " + si.units[0];
+				}
 			} else {
+				// TODO: Units will not be displayed correctly in a scannable group
+				// where members have multiple input or any extra names
 				int length = Math.max(si.outputFormat.length, si.inputNames.length + si.extraNames.length);
 				String[] names = new String[length];
 				String[] formats = new String[length];
@@ -96,6 +100,7 @@ public class ScannableObject {
 				}
 				output = sb.toString();
 			}
+			output = output.trim();
 		} else {
 			valid = false;
 			output = "unavailable";
