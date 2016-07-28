@@ -27,11 +27,6 @@
 	<!-- http://logback.qos.ch/manual/appenders.html#serverSocketAppender -->
 	<appender name="LogPanel" class="ch.qos.logback.classic.net.server.ServerSocketAppender">
 		<port>${gda.logserver.out.port}</port>
-		<!-- Filter out DEBUG and TRACE messages to avoid overloading the log panel. If the log panel's performance is
-			improved so it can handle a higher volume of messages this filter can be removed. -->
-		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-			<level>INFO</level>
-		</filter>
 	</appender>
 
 	<!-- The root appender. By default we log all messages, but the log panel appender filters some out to avoid
