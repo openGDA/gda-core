@@ -38,6 +38,8 @@
 	<logger name="org.eclipse.jetty" level="INFO" />
 	<!-- Also filter noisy GDA packages (NOTE: These could be edited and improved)-->
 	<logger name="gda.device.corba.impl" level="INFO" />
+	<!-- At DEBUG level activemq logs a message every 10 secs to reassure you its still working -->
+	<logger name="org.apache.activemq.transport.AbstractInactivityMonitor" level="INFO" />
 
 	<!-- If this file exists it allows you to customise logging levels for each config -->
 	<include file="${gda.config}/properties/_common/logging_customisation.xml" />
