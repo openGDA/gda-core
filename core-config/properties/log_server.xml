@@ -43,5 +43,8 @@
 		<appender-ref ref="LogPanel" /> <!-- For the log panel -->
 		<appender-ref ref="LogFile" />
 	</root>
+	
+	<!-- If this file exists, it allows facilites to customise logging -->
+	<include file="${gda.facility.dir}/properties/_common/log_server_customisation.xml" />
 
 </configuration>
