@@ -156,10 +156,14 @@ public class DummyMandelbrotMappingDetector extends DetectorBase implements Nexu
 
 				if (outputDimensions == OutputDimensions.ONE_D) {
 					double[] juliaSetLine = calculateJuliaSetLine(a, b, 0.0, 0.0, MAX_REAL_COORDINATE, POINTS);
-					data.addData(getName(), "data", new NexusGroupData(juliaSetLine), null, Integer.valueOf(1));
+					NexusGroupData ngd = new NexusGroupData(juliaSetLine);
+					ngd.isDetectorEntryData = true;
+					data.addData(getName(), "data", ngd, null, Integer.valueOf(1));
 				} else if (outputDimensions == OutputDimensions.TWO_D) {
 					double[][] juliaSet = calculateJuliaSet(a, b, COLUMNS, ROWS);
-					data.addData(getName(), "data", new NexusGroupData(juliaSet), null, Integer.valueOf(1));
+					NexusGroupData ngd = new NexusGroupData(juliaSet);
+					ngd.isDetectorEntryData = true;
+					data.addData(getName(), "data", ngd, null, Integer.valueOf(1));
 				}
 
 				long currentTime = System.nanoTime();
