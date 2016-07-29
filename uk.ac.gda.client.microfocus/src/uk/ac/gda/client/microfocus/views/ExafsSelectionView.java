@@ -63,6 +63,7 @@ public class ExafsSelectionView extends ViewPart {
 		grid.numColumns = 2;
 		GridData gridData;
 		exafsRunComp.setLayout(grid);
+
 		Label pointLabel = new Label(exafsRunComp, SWT.LEFT);
 		pointLabel.setText("Selected Point");
 		pointText = new Text(exafsRunComp, SWT.BORDER | SWT.READ_ONLY | SWT.RIGHT);
@@ -70,6 +71,7 @@ public class ExafsSelectionView extends ViewPart {
 		gridData.horizontalAlignment = GridData.FILL;
 		gridData.grabExcessHorizontalSpace = true;
 		pointText.setLayoutData(gridData);
+
 		Label scanNameLabel = new Label(exafsRunComp, SWT.LEFT);
 		scanNameLabel.setText("Scan Name");
 		multiScanNameText = new Text(exafsRunComp, SWT.BORDER | SWT.RIGHT);
@@ -77,23 +79,27 @@ public class ExafsSelectionView extends ViewPart {
 		gridData.horizontalAlignment = GridData.FILL;
 		gridData.grabExcessHorizontalSpace = true;
 		multiScanNameText.setLayoutData(gridData);
-		Label label = new Label(exafsRunComp, SWT.SEPARATOR | SWT.HORIZONTAL);
-		label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
+
+		Label availableScansLabel = new Label(exafsRunComp, SWT.SEPARATOR | SWT.HORIZONTAL);
+		availableScansLabel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
 		// new Label(exafsRunComp, SWT.NONE);
 		Label availableExafsLabel = new Label(exafsRunComp, SWT.LEFT);
 		availableExafsLabel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1));
 		availableExafsLabel.setText("Available Exafs Scans");
+
+		// List of scans to select
 		exafsScanList = new List(exafsRunComp, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL);
 		// exafsScanList.setS
 		gridData = new GridData();
 		gridData.horizontalSpan = 2;
-		gridData.heightHint = 125;
+		gridData.heightHint = exafsScanList.getItemHeight() * 2;
 		gridData.horizontalAlignment = GridData.FILL;
+		gridData.verticalAlignment = GridData.FILL;
 		gridData.grabExcessHorizontalSpace = true;
+		gridData.grabExcessVerticalSpace = true;
 		exafsScanList.setLayoutData(gridData);
 		populateExafsScanList();
-		@SuppressWarnings("unused")
-		Label label2 = new Label(exafsRunComp, SWT.NONE);
+
 		Label selectedExafsLabel = new Label(exafsRunComp, SWT.LEFT);
 		selectedExafsLabel.setText("Selected Scans");
 		gridData = new GridData();
@@ -101,11 +107,14 @@ public class ExafsSelectionView extends ViewPart {
 		gridData.horizontalAlignment = GridData.FILL;
 		gridData.grabExcessHorizontalSpace = true;
 		selectedExafsLabel.setLayoutData(gridData);
+
+		// List of selected scans
 		selectedScanList = new List(exafsRunComp, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL);
 		gridData = new GridData();
 		gridData.horizontalSpan = 2;
-		gridData.heightHint = 179;
+		gridData.heightHint = selectedScanList.getItemHeight() * 2;
 		gridData.horizontalAlignment = GridData.FILL;
+		gridData.verticalAlignment = GridData.FILL;
 		gridData.grabExcessHorizontalSpace = true;
 		gridData.grabExcessVerticalSpace = true;
 		selectedScanList.setLayoutData(gridData);
