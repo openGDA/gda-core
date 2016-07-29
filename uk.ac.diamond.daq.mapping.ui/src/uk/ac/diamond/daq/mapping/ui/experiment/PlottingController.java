@@ -21,27 +21,20 @@ package uk.ac.diamond.daq.mapping.ui.experiment;
 import org.eclipse.dawnsci.plotting.api.IPlottingService;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlotType;
-import org.eclipse.dawnsci.plotting.api.axis.ClickEvent;
-import org.eclipse.dawnsci.plotting.api.axis.IClickListener;
 import org.eclipse.dawnsci.plotting.api.region.IROIListener;
 import org.eclipse.dawnsci.plotting.api.region.IRegion;
 import org.eclipse.dawnsci.plotting.api.region.IRegion.RegionType;
 import org.eclipse.dawnsci.plotting.api.region.ROIEvent;
 import org.eclipse.dawnsci.plotting.api.trace.ILineTrace;
 import org.eclipse.dawnsci.plotting.api.trace.ILineTrace.PointStyle;
+import org.eclipse.dawnsci.plotting.api.trace.ITrace;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.IDataset;
-import org.eclipse.dawnsci.plotting.api.trace.ITrace;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.jython.JythonServerFacade;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
 
 public class PlottingController {
@@ -59,9 +52,6 @@ public class PlottingController {
 
 	private volatile boolean scanPathVisible = true;
 	private volatile boolean updatingROIFromRegion = false;
-
-	private double xClickLocation;
-	private double yClickLocation;
 
 	public void setPlottingService (IPlottingService plottingService) {
 		this.plottingService = plottingService;
@@ -86,25 +76,6 @@ public class PlottingController {
 			return;
 		}
 
-		// Add listener to plot to allow go here functionality
-		mapPlottingSystem.addClickListener(new IClickListener() {
-
-			@Override
-			public void doubleClickPerformed(ClickEvent evt) {
-				// TODO Decide on the best behaviour is double clicking to move desirable?
-				xClickLocation = evt.getxValue();
-				yClickLocation = evt.getyValue();
-				moveTo(xClickLocation, yClickLocation);
-			}
-
-			@Override
-			public void clickPerformed(ClickEvent evt) {
-				// Cache the click location so it can be used by a menu item once we have it
-				xClickLocation = evt.getxValue();
-				yClickLocation = evt.getyValue();
-			}
-		});
-
 		// These colours all look reasonable, should test them on various maps and see
 		// (They come from IRegion or ColorConstants)
 		// Color darkCyan = new Color(null, 0, 128, 128);
@@ -115,38 +86,6 @@ public class PlottingController {
 		// Color blue = new Color(null, 0, 0, 255);
 		mappingRegionColour = new Color(null, 255, 196, 0); // orange
 		scanPathColour = new Color(null, 160, 32, 240); // purple
-	}
-
-	// FIXME This should be replaced by a method using the messaging to ask the server for a move.
-	@Deprecated
-	private void moveTo(double xLocation, double yLocation) {
-		// Dialog to confirm move
-		// TODO Should be able to get this via injection in e4
-		Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-
-		// create a dialog with ok and cancel buttons and a question icon
-		MessageBox dialog = new MessageBox(shell, SWT.ICON_QUESTION | SWT.OK | SWT.CANCEL);
-		dialog.setText("Go Here?");
-		dialog.setMessage("Do you want to move the stage to:\n"
-				+ MappingScanRequestHandler.X_AXIS_NAME + " = " + xLocation +"\n"
-				+ MappingScanRequestHandler.Y_AXIS_NAME + " = " + yLocation);
-
-		// Open dialog and await user selection
-		int returnCode = dialog.open();
-		// If user chose to cancel return without moving
-		if (returnCode == SWT.CANCEL) return;
-
-		// Get the Jython Server facade to do the move
-		// FIXME This should be replaced by a activeMQ message to move once that is available
-		JythonServerFacade jsf = JythonServerFacade.getInstance();
-
-		// Do move
-		// Move x
-		String command = MappingScanRequestHandler.X_AXIS_NAME + ".asynchronousMoveTo(" + xLocation + ")";
-		jsf.runCommand(command);
-		// Move y
-		command = MappingScanRequestHandler.Y_AXIS_NAME + ".asynchronousMoveTo(" + yLocation + ")";
-		jsf.runCommand(command);
 	}
 
 	void updatePlotRegionFrom(IMappingScanRegionShape scanRegion) {
