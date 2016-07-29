@@ -35,9 +35,8 @@ import uk.ac.diamond.daq.detectors.addetector.api.AreaDetectorWritingFilesRunnab
  *
  * @author James Mudd
  */
-public class AreaDetectorWritingFilesRunnableDevice
-		extends AbstractRunnableDevice<AreaDetectorWritingFilesRunnableDeviceModel> implements
-		IWritableDetector<AreaDetectorWritingFilesRunnableDeviceModel>, INexusDevice<NXdetector> {
+public class AreaDetectorWritingFilesRunnableDevice<T extends AreaDetectorWritingFilesRunnableDeviceModel>
+		extends AbstractRunnableDevice<T> implements IWritableDetector<T>, INexusDevice<NXdetector> {
 
 	// This is the path within the HDF5 file that the AD writes to the data block
 	private static final String PATH_TO_DATA_NODE = "/entry/instrument/detector/data";
@@ -61,7 +60,7 @@ public class AreaDetectorWritingFilesRunnableDevice
 	}
 
 	@Override
-	public void configure(AreaDetectorWritingFilesRunnableDeviceModel model) throws ScanningException {
+	public void configure(T model) throws ScanningException {
 		setDeviceState(DeviceState.CONFIGURING);
 
 		try {
