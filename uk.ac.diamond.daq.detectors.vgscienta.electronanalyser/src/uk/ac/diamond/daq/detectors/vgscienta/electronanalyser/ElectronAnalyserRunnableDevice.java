@@ -1,7 +1,6 @@
 package uk.ac.diamond.daq.detectors.vgscienta.electronanalyser;
 
 import org.eclipse.dawnsci.nexus.NXdetector;
-import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
@@ -33,7 +32,7 @@ import uk.ac.gda.devices.vgscienta.VGScientaAnalyser;
  *
  * @author James Mudd
  */
-public class ElectronAnalyserRunnableDevice extends AreaDetectorWritingFilesRunnableDevice {
+public class ElectronAnalyserRunnableDevice extends AreaDetectorWritingFilesRunnableDevice<ElectronAnalyserRunnableDeviceModel> {
 
 	private static final Logger logger = LoggerFactory.getLogger(ElectronAnalyserRunnableDevice.class);
 
@@ -41,13 +40,11 @@ public class ElectronAnalyserRunnableDevice extends AreaDetectorWritingFilesRunn
 	private static final String ENERGIES_ENTRY_NAME = "energies";
 
 	private VGScientaAnalyser analyser;
-	private ElectronAnalyserRunnableDeviceModel electronAnalyserModel;
 	private ILazyWriteableDataset energyAxis;
 	private ILazyWriteableDataset yAxis;
 
+	@Override
 	public void configure(ElectronAnalyserRunnableDeviceModel model) throws ScanningException {
-
-		this.electronAnalyserModel = model;
 
 		// Setup the underlying area detector the same
 		super.configure(model);
@@ -91,23 +88,10 @@ public class ElectronAnalyserRunnableDevice extends AreaDetectorWritingFilesRunn
 	@Override
 	public NexusObjectProvider<NXdetector> getNexusProvider(NexusScanInfo info) {
 
-		NXdetector detector = createNexusObject(info);
-		final NexusObjectWrapper<NXdetector> nexusProvider =  new NexusObjectWrapper<>(getName(), detector);
+		NexusObjectProvider<NXdetector> nexusProvider = super.getNexusProvider(info);
 
-		int scanRank = info.getRank();
-
-		// Add the additional axis to the detector image
-		nexusProvider.addAxisDataFieldForPrimaryDataField(ANGLES_ENTRY_NAME, NXdetector.NX_DATA, scanRank);
-		nexusProvider.addAxisDataFieldForPrimaryDataField(ENERGIES_ENTRY_NAME, NXdetector.NX_DATA, scanRank + 1);
-
-		return nexusProvider;
-	}
-
-	@Override
-	public NXdetector createNexusObject(NexusScanInfo scanInfo) {
-
-		// Call the super class for most of the setup
-		final NXdetector nxDetector = NexusNodeFactory.createNXdetector();
+		// Get the nxDetector back because we want to add metadata.
+		NXdetector nxDetector = nexusProvider.getNexusObject();
 
 		// Write detector metadata
 		try {
@@ -150,13 +134,23 @@ public class ElectronAnalyserRunnableDevice extends AreaDetectorWritingFilesRunn
 		energyAxis = nxDetector.initializeLazyDataset(ENERGIES_ENTRY_NAME, 1, Double.class);
 		nxDetector.setAttribute(ENERGIES_ENTRY_NAME, "units", "eV");
 		yAxis = nxDetector.initializeLazyDataset(ANGLES_ENTRY_NAME, 1, Double.class);
-		if (electronAnalyserModel.getLensMode() == DA30LensMode.TRANSMISSION) {
+		if (getModel().getLensMode() == DA30LensMode.TRANSMISSION) {
 			nxDetector.setAttribute(ANGLES_ENTRY_NAME, "units", "mm");
 		} else {
 			nxDetector.setAttribute(ANGLES_ENTRY_NAME, "units", "deg");
 		}
 
-		return nxDetector;
+		int scanRank = info.getRank();
+
+		// Get the NexusOjbectWrapper wrapping the detector
+		NexusObjectWrapper<NXdetector> nexusObjectWrapper = new NexusObjectWrapper<NXdetector>(
+				getName(), nxDetector);
+
+		// Add the additional axis to the detector image
+		nexusObjectWrapper.addAxisDataFieldForPrimaryDataField(ANGLES_ENTRY_NAME, NXdetector.NX_DATA, scanRank);
+		nexusObjectWrapper.addAxisDataFieldForPrimaryDataField(ENERGIES_ENTRY_NAME, NXdetector.NX_DATA, scanRank + 1);
+
+		return nexusObjectWrapper;
 	}
 
 	@Override
