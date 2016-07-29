@@ -94,10 +94,17 @@ public class ScannableSnapshot implements Serializable {
 		for (Scannable scn : grp.getGroupMembers()) {
 			if (scn instanceof ScannableMotionUnits) {
 				units.add(((ScannableMotionUnits) scn).getUserUnits());
+				for (int i = 1; i < scn.getInputNames().length + scn.getExtraNames().length; i++) {
+					// getUserUnits() only provides the unit for the first input name
+					// we have to add blank units for the other input and extra names
+					units.add("");
+				}
 			} else if (scn instanceof ScannableGroup) {
 				units.addAll(getUnitsOfGroup((ScannableGroup)scn));
 			} else {
-				units.add("");
+				for (int i = 0; i < scn.getInputNames().length + scn.getExtraNames().length; i++) {
+					units.add("");
+				}
 			}
 		}
 		return units;

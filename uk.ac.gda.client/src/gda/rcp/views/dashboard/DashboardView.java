@@ -119,7 +119,7 @@ public final class DashboardView extends ViewPart {
 	}
 
 	public void addNewServerObject() {
-		ScannableObject sso = new ScannableObject("");
+		ScannableObject sso = new ScannableObject("", new JythonSnapshotProvider());
 		data.add(sso);
 		serverViewer.refresh();
 		((DoubleClickModifier) serverViewer.getCellModifier()).setEnabled(true);
@@ -189,7 +189,7 @@ public final class DashboardView extends ViewPart {
 							.getSelection()).getFirstElement();
 					if (!ob.getName().equals(value)) {
 						int idx = data.indexOf(ob);
-						data.set(idx, new ScannableObject((String) value));
+						data.set(idx, new ScannableObject((String) value, new JythonSnapshotProvider()));
 					}
 
 				} catch (Exception e) {
@@ -321,7 +321,7 @@ public final class DashboardView extends ViewPart {
 
 		for (IConfigurationElement e : config) {
 			final String name = e.getAttribute("name");
-			final ScannableObject ob = new ScannableObject(name);
+			final ScannableObject ob = new ScannableObject(name, new JythonSnapshotProvider());
 			ob.setToolTip(e.getAttribute("tooltip"));
 
 			data.add(ob);

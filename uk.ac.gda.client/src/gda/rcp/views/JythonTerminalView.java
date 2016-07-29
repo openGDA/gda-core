@@ -75,6 +75,7 @@ import gda.jython.gui.JythonGuiConstants;
 import gda.rcp.GDAClientActivator;
 import gda.rcp.util.ScanDataPointFormatterUtils;
 import gda.rcp.views.dashboard.DashboardView;
+import gda.rcp.views.dashboard.JythonSnapshotProvider;
 import gda.rcp.views.dashboard.ScannableObject;
 import gda.scan.IScanDataPoint;
 import gda.scan.Scan;
@@ -699,7 +700,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IAllScanDa
 					showView(DashboardView.ID);
 				if (parts.length > 1) {
 					for (int i = 1; i < parts.length; ++i) {
-						dashboard.addServerObject(new ScannableObject(parts[i]));
+						dashboard.addServerObject(new ScannableObject(parts[i], new JythonSnapshotProvider()));
 					}
 				}
 				addCommandToHistory(inputText);

@@ -86,7 +86,7 @@ public class ScannableSnapshotTest {
 		assertArrayEquals(new String[] {"scn", "mot1", "mot2"}, s.inputNames);
 		assertArrayEquals(new String[] {"extra"}, s.extraNames);
 		assertArrayEquals(new String[] {"%d", "%5.5d", "%5.5d", "%s"}, s.outputFormat);
-		assertArrayEquals(new String[] {"", "mm", "mm"}, s.units);
+		assertArrayEquals(new String[] {"", "", "mm", "mm"}, s.units);
 		assertEquals(true, s.busy);
 		assertArrayEquals(new Object[] {1, 100, 0, "test"}, (Object[]) s.lastPosition);
 	}
