@@ -35,9 +35,8 @@ import uk.ac.diamond.daq.detectors.addetector.api.AreaDetectorWritingFilesRunnab
  *
  * @author James Mudd
  */
-public class AreaDetectorWritingFilesRunnableDevice
-		extends AbstractRunnableDevice<AreaDetectorWritingFilesRunnableDeviceModel> implements
-		IWritableDetector<AreaDetectorWritingFilesRunnableDeviceModel>, INexusDevice<NXdetector> {
+public class AreaDetectorWritingFilesRunnableDevice<T extends AreaDetectorWritingFilesRunnableDeviceModel>
+		extends AbstractRunnableDevice<T> implements IWritableDetector<T>, INexusDevice<NXdetector> {
 
 	// This is the path within the HDF5 file that the AD writes to the data block
 	private static final String PATH_TO_DATA_NODE = "/entry/instrument/detector/data";
@@ -61,7 +60,7 @@ public class AreaDetectorWritingFilesRunnableDevice
 	}
 
 	@Override
-	public void configure(AreaDetectorWritingFilesRunnableDeviceModel model) throws ScanningException {
+	public void configure(T model) throws ScanningException {
 		setDeviceState(DeviceState.CONFIGURING);
 
 		try {
@@ -147,28 +146,6 @@ public class AreaDetectorWritingFilesRunnableDevice
 
 	@Override
 	public NexusObjectProvider<NXdetector> getNexusProvider(NexusScanInfo scanInfo) {
-		NXdetector detector = createNexusObject(scanInfo);
-		NexusObjectWrapper<NXdetector> nexusProvider = new NexusObjectWrapper<NXdetector>(
-				getName(), detector);
-
-		int scanRank = scanInfo.getRank();
-
-		// Set the external file written by this detector which will be linked to
-		nexusProvider.setExternalFileName(fileName);
-
-		// Setup the primary NXdata. Add 2 to the scan rank as AD returns 2D data
-		nexusProvider.setPrimaryDataFieldName(NXdetector.NX_DATA);
-		nexusProvider.setExternalDatasetRank(NXdetector.NX_DATA, scanRank + 2);
-
-		// Add an additional NXData for the stats total. This is also scanRank + 2 as AD writes [y,x,1,1]
-		nexusProvider.addAdditionalPrimaryDataFieldName(FIELD_NAME_STATS_TOTAL);
-		nexusProvider.setExternalDatasetRank(FIELD_NAME_STATS_TOTAL, scanRank + 2);
-
-		return nexusProvider;
-	}
-
-	public NXdetector createNexusObject(NexusScanInfo scanInfo) {
-
 		final NXdetector nxDetector = NexusNodeFactory.createNXdetector();
 
 		// The link is relative and relies on the AD file and the NeXus being in the same directory
@@ -177,7 +154,24 @@ public class AreaDetectorWritingFilesRunnableDevice
 		// Add the link for the total
 		nxDetector.addExternalLink(FIELD_NAME_STATS_TOTAL, fileName, PATH_TO_STATS_TOTAL_NODE);
 
-		return nxDetector;
+		// Get the NexusOjbectWrapper wrapping the detector
+		NexusObjectWrapper<NXdetector> nexusObjectWrapper = new NexusObjectWrapper<NXdetector>(
+				getName(), nxDetector);
+
+		int scanRank = scanInfo.getRank();
+
+		// Set the external file written by this detector which will be linked to
+		nexusObjectWrapper.setExternalFileName(fileName);
+
+		// Setup the primary NXdata. Add 2 to the scan rank as AD returns 2D data
+		nexusObjectWrapper.setPrimaryDataFieldName(NXdetector.NX_DATA);
+		nexusObjectWrapper.setExternalDatasetRank(NXdetector.NX_DATA, scanRank + 2);
+
+		// Add an additional NXData for the stats total. This is also scanRank + 2 as AD writes [y,x,1,1]
+		nexusObjectWrapper.addAdditionalPrimaryDataFieldName(FIELD_NAME_STATS_TOTAL);
+		nexusObjectWrapper.setExternalDatasetRank(FIELD_NAME_STATS_TOTAL, scanRank + 2);
+
+		return nexusObjectWrapper;
 	}
 
 	@Override
