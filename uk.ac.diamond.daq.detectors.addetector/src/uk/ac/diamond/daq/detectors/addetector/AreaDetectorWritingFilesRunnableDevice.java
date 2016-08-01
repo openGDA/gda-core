@@ -146,28 +146,6 @@ public class AreaDetectorWritingFilesRunnableDevice<T extends AreaDetectorWritin
 
 	@Override
 	public NexusObjectProvider<NXdetector> getNexusProvider(NexusScanInfo scanInfo) {
-		NXdetector detector = createNexusObject(scanInfo);
-		NexusObjectWrapper<NXdetector> nexusProvider = new NexusObjectWrapper<NXdetector>(
-				getName(), detector);
-
-		int scanRank = scanInfo.getRank();
-
-		// Set the external file written by this detector which will be linked to
-		nexusProvider.setExternalFileName(fileName);
-
-		// Setup the primary NXdata. Add 2 to the scan rank as AD returns 2D data
-		nexusProvider.setPrimaryDataFieldName(NXdetector.NX_DATA);
-		nexusProvider.setExternalDatasetRank(NXdetector.NX_DATA, scanRank + 2);
-
-		// Add an additional NXData for the stats total. This is also scanRank + 2 as AD writes [y,x,1,1]
-		nexusProvider.addAdditionalPrimaryDataFieldName(FIELD_NAME_STATS_TOTAL);
-		nexusProvider.setExternalDatasetRank(FIELD_NAME_STATS_TOTAL, scanRank + 2);
-
-		return nexusProvider;
-	}
-
-	public NXdetector createNexusObject(NexusScanInfo scanInfo) {
-
 		final NXdetector nxDetector = NexusNodeFactory.createNXdetector();
 
 		// The link is relative and relies on the AD file and the NeXus being in the same directory
@@ -176,7 +154,24 @@ public class AreaDetectorWritingFilesRunnableDevice<T extends AreaDetectorWritin
 		// Add the link for the total
 		nxDetector.addExternalLink(FIELD_NAME_STATS_TOTAL, fileName, PATH_TO_STATS_TOTAL_NODE);
 
-		return nxDetector;
+		// Get the NexusOjbectWrapper wrapping the detector
+		NexusObjectWrapper<NXdetector> nexusObjectWrapper = new NexusObjectWrapper<NXdetector>(
+				getName(), nxDetector);
+
+		int scanRank = scanInfo.getRank();
+
+		// Set the external file written by this detector which will be linked to
+		nexusObjectWrapper.setExternalFileName(fileName);
+
+		// Setup the primary NXdata. Add 2 to the scan rank as AD returns 2D data
+		nexusObjectWrapper.setPrimaryDataFieldName(NXdetector.NX_DATA);
+		nexusObjectWrapper.setExternalDatasetRank(NXdetector.NX_DATA, scanRank + 2);
+
+		// Add an additional NXData for the stats total. This is also scanRank + 2 as AD writes [y,x,1,1]
+		nexusObjectWrapper.addAdditionalPrimaryDataFieldName(FIELD_NAME_STATS_TOTAL);
+		nexusObjectWrapper.setExternalDatasetRank(FIELD_NAME_STATS_TOTAL, scanRank + 2);
+
+		return nexusObjectWrapper;
 	}
 
 	@Override
