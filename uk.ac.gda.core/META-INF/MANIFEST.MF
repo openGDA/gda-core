@@ -4,7 +4,7 @@ Bundle-Name: uk.ac.gda.core plugin
 Bundle-SymbolicName: uk.ac.gda.core;singleton:=true
 Bundle-Version: 9.1.0.qualifier
 Require-Bundle: uk.ac.diamond.org.jacorb;bundle-version="2.2.0",
- com.springsource.org.aopalliance,
+ org.aopalliance,
  javax.servlet;bundle-version="2.5.0",
  uk.ac.gda.libs,
  uk.ac.gda.common,
