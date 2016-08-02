@@ -37,6 +37,7 @@ import org.eclipse.dawnsci.plotting.api.trace.IImageTrace.DownsampleType;
 import org.eclipse.dawnsci.plotting.api.trace.ITrace;
 import org.eclipse.january.dataset.DataEvent;
 import org.eclipse.january.dataset.IDataListener;
+import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.IDatasetConnector;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.swt.SWT;
@@ -218,7 +219,12 @@ public class LiveMjpegPlot extends ViewPart {
 		getViewSite().getActionBars().updateActionBars();
 
 		// Try and make the stream run faster
-		ITrace trace = plottingSystem.createPlot2D(stream.getSlice(), null, null);
+		IDataset image = stream.getSlice();
+		if (image.getShape()==null || image.getShape().length==0) {
+			throw new IllegalArgumentException("There is no data to prepare, is the device turned on?");
+		}
+
+		ITrace trace = plottingSystem.createPlot2D(image, null, null);
 		final IImageTrace iTrace = (IImageTrace) trace;
 		iTrace.setDownsampleType(DownsampleType.POINT);
 		iTrace.setRescaleHistogram(false);
