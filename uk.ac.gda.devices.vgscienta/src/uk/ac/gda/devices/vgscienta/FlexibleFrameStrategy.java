@@ -48,7 +48,7 @@ public class FlexibleFrameStrategy extends SimpleAcquire implements MonitorListe
 	private int maxNumberOfFrames = 1;
 	private int currentFrame = -1;
 	private int highestFrame = 0;
-	private boolean wethinkweareincharge = false;
+	private volatile boolean wethinkweareincharge = false;
 
 	private NDProcess proc;
 	private EpicsController epicsController;
@@ -177,6 +177,16 @@ public class FlexibleFrameStrategy extends SimpleAcquire implements MonitorListe
 		logger.trace("waitWhileBusy called");
 		// Wait for IOC acquire to call back
 		super.waitWhileBusy();
+
+		// If we are not in charge at this point just return. Means collectData() hasn't been called yet
+		// This is called during moving to the next point and if we are not in charge we don't want to wait for processing as were not sure it will ever happen.
+		// This fixes the configure only bug I05-29
+		if (!wethinkweareincharge) {
+			logger.trace("waitWhileBusy called while we are not in charge so return");
+			return;
+		}
+
+		logger.trace("Starting to wait for processing...");
 		// at this point we should be stopped, but might not have processed the last frame/sweep
 		if (currentFrame > highestFrame)
 			highestFrame = currentFrame;
