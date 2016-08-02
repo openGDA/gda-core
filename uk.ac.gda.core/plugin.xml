@@ -474,5 +474,16 @@
       </location>
    </extension>
 
+   <extension
+         point="org.eclipse.dawnsci.analysis.api.marshaller">
+      <marshaller
+            class="uk.ac.gda.core.experimentdefinition.json.mixin.CommandMarshaller"
+            id="uk.ac.gda.core.experimentdefinition.json.mixin.commandMarshaller">
+      </marshaller>
+      <marshaller
+            class="uk.ac.gda.core.experimentdefinition.json.mixin.ExperimentCommandMarshaller"
+            id="uk.ac.gda.core.experimentdefinition.json.mixin.experimentCommandMarshaller">
+      </marshaller>
+   </extension>
 
 </plugin>

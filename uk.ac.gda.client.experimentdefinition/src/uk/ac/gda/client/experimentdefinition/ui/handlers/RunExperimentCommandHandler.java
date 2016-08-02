@@ -103,16 +103,20 @@ public class RunExperimentCommandHandler extends AbstractExperimentCommandHandle
 			}
 		}
 
-		ExperimentCommandProvider command;
+		ExperimentCommandProvider commandProvider;
 		try {
-			command = new ExperimentCommandProvider(ob);
+			commandProvider = new ExperimentCommandProvider(ob);
 		} catch (Exception e) {
 			logger.error("Exception creating ExperimentCommandProvider." + e.getMessage());
 			throw new ExecutionException("Exception creating ExperimentCommandProvider.", e);
 		}
 
+		submitCommandToQueue(commandProvider);
+	}
+
+	protected void submitCommandToQueue(ExperimentCommandProvider commandProvider) throws ExecutionException {
 		try {
-			CommandQueueViewFactory.getQueue().addToTail(command);
+			CommandQueueViewFactory.getQueue().addToTail(commandProvider);
 		} catch (Exception e) {
 			logger.error("Exception adding ExperimentCommandProvider to CommandQueue." + e.getMessage());
 			throw new ExecutionException("Exception adding ExperimentCommandProvider to CommandQueue.", e);
