@@ -18,8 +18,6 @@
 
 package uk.ac.gda.client.experimentdefinition;
 
-import gda.rcp.Application;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -69,6 +67,7 @@ import org.eclipse.ui.part.FileEditorInput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.rcp.Application;
 import uk.ac.gda.ClientManager;
 import uk.ac.gda.client.experimentdefinition.components.ExperimentExperimentView;
 import uk.ac.gda.client.experimentdefinition.components.ExperimentFolderEditor;
@@ -292,13 +291,12 @@ public class ExperimentEditorManager implements IExperimentEditorManager {
 
 	@Override
 	public ExperimentFolderEditor getActiveFolderEditor() {
-		try {
-			final IWorkbenchPage page = getActivePage();
-			ExperimentFolderEditor ed = (ExperimentFolderEditor) page.getActiveEditor();
-			return ed.isFocus() || (getViewer() != null && getViewer().isFocus()) ? ed : null;
-		} catch (Throwable ne) {
-			return null;
+		final IWorkbenchPage page = getActivePage();
+		ExperimentFolderEditor editor = (ExperimentFolderEditor) page.getActiveEditor();
+		if ((editor != null && editor.isFocus()) || (getViewer() != null && getViewer().isFocus())) {
+			return editor;
 		}
+		return null;
 	}
 
 	protected IWorkbenchPage getActivePage() {
@@ -307,13 +305,12 @@ public class ExperimentEditorManager implements IExperimentEditorManager {
 
 	@Override
 	public ExperimentRunEditor getActiveRunEditor() {
-		try {
-			final IWorkbenchPage page = getActivePage();
-			ExperimentRunEditor ed = (ExperimentRunEditor) page.getActiveEditor();
-			return ed.isFocus() ? ed : null;
-		} catch (Throwable ne) {
-			return null;
+		final IWorkbenchPage page = getActivePage();
+		ExperimentRunEditor editor = (ExperimentRunEditor) page.getActiveEditor();
+		if (editor != null && editor.isFocus()) {
+			return editor;
 		}
+		return null;
 	}
 
 	@Override
