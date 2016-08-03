@@ -291,10 +291,11 @@ public class ExperimentEditorManager implements IExperimentEditorManager {
 
 	@Override
 	public ExperimentFolderEditor getActiveFolderEditor() {
-		final IWorkbenchPage page = getActivePage();
-		ExperimentFolderEditor editor = (ExperimentFolderEditor) page.getActiveEditor();
-		if ((editor != null && editor.isFocus()) || (getViewer() != null && getViewer().isFocus())) {
-			return editor;
+		final IEditorPart editor = getActivePage().getActiveEditor();
+
+		if (editor instanceof ExperimentFolderEditor && ((ExperimentFolderEditor) editor).isFocus()
+			|| (getViewer() != null && getViewer().isFocus())) {
+			return (ExperimentFolderEditor) editor;
 		}
 		return null;
 	}
@@ -305,10 +306,9 @@ public class ExperimentEditorManager implements IExperimentEditorManager {
 
 	@Override
 	public ExperimentRunEditor getActiveRunEditor() {
-		final IWorkbenchPage page = getActivePage();
-		ExperimentRunEditor editor = (ExperimentRunEditor) page.getActiveEditor();
-		if (editor != null && editor.isFocus()) {
-			return editor;
+		final IEditorPart editor = getActivePage().getActiveEditor();
+		if (editor instanceof ExperimentRunEditor && ((ExperimentRunEditor) editor).isFocus()) {
+			return (ExperimentRunEditor) editor;
 		}
 		return null;
 	}
