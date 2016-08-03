@@ -52,6 +52,7 @@ import gov.aps.jca.event.MonitorListener;
  */
 @Deprecated
 public class EpicsPneumatic extends EnumPositionerBase implements EnumPositioner, InitializationListener {
+
 	private static final Logger logger = LoggerFactory.getLogger(EpicsPneumatic.class);
 
 	private String epicsRecordName;
@@ -85,6 +86,22 @@ public class EpicsPneumatic extends EnumPositionerBase implements EnumPositioner
 		controller = EpicsController.getInstance();
 		statusMonitor = new StatusMonitorListener();
 		logger.warn("EpicsPneumatic is deprecated, it should be replaced with EpicsPneumaticCallback");
+	}
+
+	private void setPvNames(String recordName) {
+		controlPv = recordName + ":CON";
+		statusPv = recordName + ":STA";
+	}
+
+	private void setPvNames(PneumaticType config) {
+		controlPv = config.getCONTROL().getPv();
+		statusPv = config.getSTA().getPv();
+	}
+
+	// method supporting EpicsDevice interface
+	private void setPvNames(gda.epics.interfaceSpec.Device device) {
+		controlPv = device.getField("CONTROL").getPV();
+		statusPv = device.getField("STA").getPV();
 	}
 
 	/**
@@ -129,7 +146,8 @@ public class EpicsPneumatic extends EnumPositionerBase implements EnumPositioner
 					EpicsRecord epicsRecord;
 
 					if ((epicsRecord = (EpicsRecord) Finder.getInstance().findNoWarn(epicsRecordName)) != null) {
-						setPvNames(epicsRecord.getEpicsDeviceName());
+						String recordName = epicsRecord.getEpicsDeviceName();
+						setPvNames(recordName);
 					} else {
 						setPvNames(epicsRecordName);
 					}
@@ -178,21 +196,6 @@ public class EpicsPneumatic extends EnumPositionerBase implements EnumPositioner
 		channelManager.tryInitialize(100);
 	}
 
-	private void setPvNames(PneumaticType config) {
-		controlPv = config.getCONTROL().getPv();
-		statusPv = config.getSTA().getPv();
-	}
-
-	private void setPvNames(String recordName) {
-		controlPv = recordName + ":CON";
-		statusPv = recordName + ":STA";
-	}
-
-	private void setPvNames(gda.epics.interfaceSpec.Device device) {
-		controlPv = device.getField("CONTROL").getPV();
-		statusPv = device.getField("STA").getPV();
-	}
-
 	/**
 	 * gets the current status position of this device.
 	 *
@@ -222,8 +225,8 @@ public class EpicsPneumatic extends EnumPositionerBase implements EnumPositioner
 	 */
 	public EnumPositionerStatus getPositionerStatus() throws DeviceException {
 		try {
-			short test = controller.cagetEnum(status);
-			String statusString = statuspositions.get(test);
+			short statusValue = controller.cagetEnum(status);
+			String statusString = statuspositions.get(statusValue);
 			// first check if its moving
 			if (statusString.equals("Opening") || statusString.equals("Closing")) {
 				return EnumPositionerStatus.MOVING;
@@ -265,19 +268,17 @@ public class EpicsPneumatic extends EnumPositionerBase implements EnumPositioner
 	}
 
 	/**
-	 * gets the available positions from this device. {@inheritDoc}
+	 * gets the available positions from this device.
 	 *
-	 * @see gda.device.enumpositioner.EnumPositionerBase#getPositions()
+	 * @return the available positions from this device.
 	 */
 	@Override
-	public String[] getPositions() {
-		String[] positionLabels = new String[positions.size()];
+	public String[] getPositions() throws DeviceException {
 		try {
-			positionLabels = controller.cagetLabels(control);
+			return controller.cagetLabels(control);
 		} catch (Exception e) {
-			// ignore
+			throw new DeviceException(getName() + " exception in getPositions", e);
 		}
-		return positionLabels;
 	}
 
 	/**
@@ -296,7 +297,7 @@ public class EpicsPneumatic extends EnumPositionerBase implements EnumPositioner
 	}
 
 	@Override
-	public void initializationCompleted() {
+	public void initializationCompleted() throws DeviceException {
 		String[] position = getPositions();
 		String[] statusposition = getStatusPositions();
 		for (int i = 0; i < position.length; i++) {
@@ -336,12 +337,8 @@ public class EpicsPneumatic extends EnumPositionerBase implements EnumPositioner
 					positionerStatus = EnumPositionerStatus.MOVING;
 				}
 			}
-			notifyObservers(positionerStatus);
+			notifyIObservers(this, positionerStatus);
 		}
-	}
-
-	private void notifyObservers(EnumPositionerStatus positionerStatus) {
-		notifyIObservers(this, positionerStatus);
 	}
 
 	/**
