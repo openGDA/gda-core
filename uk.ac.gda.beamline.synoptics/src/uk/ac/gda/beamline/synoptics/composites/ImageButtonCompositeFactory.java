@@ -1,5 +1,22 @@
 package uk.ac.gda.beamline.synoptics.composites;
 
+import org.eclipse.core.commands.Command;
+import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.widgets.Canvas;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.commands.ICommandService;
+import org.eclipse.ui.handlers.IHandlerService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+
 /*-
  * Copyright © 2011 Diamond Light Source Ltd.
  *
@@ -19,24 +36,6 @@ package uk.ac.gda.beamline.synoptics.composites;
  */
 
 import gda.rcp.views.CompositeFactory;
-
-import org.eclipse.core.commands.Command;
-import org.eclipse.jface.layout.GridDataFactory;
-import org.eclipse.jface.layout.GridLayoutFactory;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.MouseAdapter;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.widgets.Canvas;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Group;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.commands.ICommandService;
-import org.eclipse.ui.handlers.IHandlerService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
-
 import uk.ac.gda.beamline.synoptics.Activator;
 
 public class ImageButtonCompositeFactory implements CompositeFactory, InitializingBean {
@@ -101,18 +100,15 @@ class ImageButtonComposite extends Composite {
 			String label, String tooltip, String imagePath,	final String actionId) {
 		super(parent, style);
 
-		GridDataFactory.fillDefaults().applyTo(this);
-		GridLayoutFactory.swtDefaults().numColumns(1).applyTo(this);
+		GridDataFactory.fillDefaults().grab(true, true).applyTo(this);
+		GridLayoutFactory.fillDefaults().numColumns(1).applyTo(this);
 
 		Group grp = new Group(this, style);
-		GridDataFactory.fillDefaults().applyTo(grp);
+		GridDataFactory.fillDefaults().grab(true, true).applyTo(grp);
 		GridLayoutFactory.swtDefaults().numColumns(1).applyTo(grp);
 		grp.setText(label);
 
-		// display.getSystemColor(SWT.COLOR_DARK_RED));
-
 		canvas = new Canvas(grp, SWT.NONE);
-		//grp.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_BLACK));
 		GridData gridData = new GridData(GridData.HORIZONTAL_ALIGN_FILL,GridData.VERTICAL_ALIGN_FILL, true,true);
 		gridData.widthHint = 80;
 		gridData.heightHint = 73;
