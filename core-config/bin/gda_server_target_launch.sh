@@ -228,9 +228,13 @@ else
     log_error_to_startup_file_and_exit "No valid start/restart/stop option specified"
 fi
 
+if [[ -z "${GDA_PROFILES:-}" ]]; then
+	GDA_PROFILES=main
+fi
+
 # now we must be restarting or starting only
 # Assemble the command string
-COMMAND="gda-server -data $USER_WORKSPACE -configuration $ECLIPSE_RUNTIME_CONFIG -c $BEAMLINE_CONFIG -vmArgs $vm_args"
+COMMAND="gda-server -data $USER_WORKSPACE -configuration $ECLIPSE_RUNTIME_CONFIG -c $BEAMLINE_CONFIG -p $GDA_PROFILES -vmArgs $vm_args"
 
 # and execute it retaining stdin
 echo "Starting the GDA Server at $SERVER_INSTALL_PATH/gda-server"
