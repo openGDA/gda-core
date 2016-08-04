@@ -80,7 +80,7 @@ with GDA. If not, see &lt;http://www.gnu.org/licenses/&gt;.
    </plugins>
 
    <features>
-      <feature id="uk.ac.diamond.daq.beamline.p45.feature" version="9.1.0.qualifier"/>
+      <feature id="uk.ac.diamond.daq.beamline.p45.feature"/>
    </features>
 
    <configurations>
