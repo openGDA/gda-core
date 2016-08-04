@@ -79,6 +79,22 @@ public class MappingScanSubmitter {
 	}
 
 	public void submitScan(IMappingExperimentBean mappingExperimentBean) throws EventException {
+		ScanBean scanBean = convertToScanBean(mappingExperimentBean);
+		submitter.submit(scanBean);
+	}
+
+	/**
+	 * Convert an IMappingExperimentBean to a ScanBean.
+	 * <p>
+	 * This will include setting the mapping scan axes with the names from the mapping axis manager.
+	 * <p>
+	 * This method is made <code>public</code> to allow testing.
+	 *
+	 * @param mappingExperimentBean
+	 *            the IMappingExperimentBean to be converted
+	 * @return the ScanBean
+	 */
+	public ScanBean convertToScanBean(IMappingExperimentBean mappingExperimentBean) {
 
 		ScanBean scanBean = new ScanBean();
 		String sampleName = mappingExperimentBean.getSampleMetadata().getSampleName();
@@ -119,6 +135,6 @@ public class MappingScanSubmitter {
 			}
 		}
 
-		submitter.submit(scanBean);
+		return scanBean;
 	}
 }
