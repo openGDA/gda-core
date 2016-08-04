@@ -41,23 +41,15 @@ public class MappingScanSubmitter {
 
 	private static final Logger logger = LoggerFactory.getLogger(MappingScanSubmitter.class);
 
-	private static IEventService eventService;
+	private IEventService eventService;
 
 	private ISubmitter<ScanBean> submitter;
 
 	/**
 	 * Only for use by Equinox DS or in unit tests!
-	 *
-	 * @param service
 	 */
-	public synchronized void setEventService(IEventService service) {
+	public void setEventService(IEventService service) {
 		eventService = service;
-	}
-
-	public synchronized void unsetEventService(IEventService service) {
-		if (eventService == service) {
-			eventService = null;
-		}
 	}
 
 	public void init() {

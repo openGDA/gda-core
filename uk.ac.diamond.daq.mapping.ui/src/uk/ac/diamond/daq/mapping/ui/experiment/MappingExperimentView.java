@@ -146,6 +146,8 @@ public class MappingExperimentView {
 	@Inject
 	private IMappingRegionManager mappingRegionManager;
 	@Inject
+	private MappingScanSubmitter scanSubmitter;
+	@Inject
 	private IGuiGeneratorService guiGenerator;
 	@Inject
 	private IEclipseContext injectionContext;
@@ -450,18 +452,13 @@ public class MappingExperimentView {
 		Button scanButton = new Button(validateScanSomposite, SWT.NONE);
 		scanButton.setText("Scan!");
 		scanButton.addSelectionListener(new SelectionAdapter() {
-			MappingScanSubmitter submitter;
 			@Override
 			public void widgetSelected(SelectionEvent event) {
-				if (submitter == null) {
-					submitter = new MappingScanSubmitter();
-					submitter.init();
-				}
 				try {
 					MappingExperimentStatusBean experimentStatusBean = new MappingExperimentStatusBean();
 					experimentStatusBean.setMappingExperimentBean(experimentBean);
 					System.out.println(experimentStatusBean);
-					submitter.submitScan(experimentStatusBean);
+					scanSubmitter.submitScan(experimentStatusBean);
 				} catch (Exception e) {
 					logger.warn("Scan submission failed", e);
 				}
