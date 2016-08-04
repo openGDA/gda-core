@@ -1,6 +1,6 @@
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
-import org.eclipse.scanning.api.event.IEventService;
+import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.event.ui.view.StatusQueueView;
 import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
@@ -48,9 +48,9 @@ public class MappingPerspective implements IPerspectiveFactory {
 		String queueViewId = StatusQueueView.createId(LocalProperties.get(LocalProperties.GDA_ACTIVEMQ_BROKER_URI, ""),
 				"org.eclipse.scanning.api",
 				"org.eclipse.scanning.api.event.scan.ScanBean",
-				IEventService.STATUS_SET,
-				IEventService.STATUS_TOPIC,
-				IEventService.SUBMISSION_QUEUE);
+				EventConstants.STATUS_SET,
+				EventConstants.STATUS_TOPIC,
+				EventConstants.SUBMISSION_QUEUE);
 
 		queueViewId = queueViewId + "partName=Queue";
 		folderLayout.addView(queueViewId);
