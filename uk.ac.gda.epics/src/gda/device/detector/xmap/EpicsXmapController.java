@@ -18,6 +18,7 @@
 
 package gda.device.detector.xmap;
 
+import gda.device.Detector;
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.device.detector.xmap.edxd.EDXDElement;
@@ -49,7 +50,15 @@ public class EpicsXmapController extends DeviceBase implements XmapController, I
 
 	@Override
 	public void update(Object theObserved, Object changeCode) {
-		//TODO status update needs to be made
+		if (theObserved == edxdController) {
+			Integer status = (Integer) changeCode; // a ClassCastException here would imply a change in EDXD{,Mapping}Controller implementation
+			if (status == Detector.IDLE) {
+				//TODO status update needs to be made
+			}
+			else if (status == Detector.BUSY) {
+				//TODO status update needs to be made
+			}
+		}
 	}
 
 	@Override

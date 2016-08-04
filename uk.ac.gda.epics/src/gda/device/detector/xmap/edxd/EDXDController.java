@@ -131,7 +131,7 @@ public class EDXDController extends DetectorBase implements Configurable {
 		configure();
 	}
 
-	protected int getStatusObject() {
+	protected Integer getStatusObject() {
 		return isBusy ? Detector.BUSY : Detector.IDLE;
 	}
 
