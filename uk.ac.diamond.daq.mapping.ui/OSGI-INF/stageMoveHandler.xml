@@ -5,4 +5,5 @@
       <provide interface="org.osgi.service.event.EventHandler"/>
    </service>
    <property name="event.topics" type="String" value="org/dawnsci/mapping/ui/mapview/click"/>
+   <reference bind="setMappingAxisManager" cardinality="1..1" interface="uk.ac.diamond.daq.mapping.api.IMappingAxisManager" name="IMappingAxisManager" policy="static"/>
 </scr:component>

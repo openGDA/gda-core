@@ -30,10 +30,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.jython.JythonServerFacade;
+import uk.ac.diamond.daq.mapping.api.IMappingAxisManager;
 
 public class StageMoveHandler implements EventHandler {
 
 	private static final Logger logger = LoggerFactory.getLogger(StageMoveHandler.class);
+
+	private IMappingAxisManager mappingAxisManager;
+
+	public void setMappingAxisManager(IMappingAxisManager mappingAxisManager) {
+		this.mappingAxisManager = mappingAxisManager;
+	}
 
 	@Override
 	public void handleEvent(Event event) {
@@ -64,8 +71,8 @@ public class StageMoveHandler implements EventHandler {
 		MessageBox dialog = new MessageBox(shell, SWT.ICON_QUESTION | SWT.OK | SWT.CANCEL);
 		dialog.setText("Go Here?");
 		dialog.setMessage("Do you want to move the stage to:\n"
-				+ MappingScanRequestHandler.X_AXIS_NAME + " = " + xLocation +"\n"
-				+ MappingScanRequestHandler.Y_AXIS_NAME + " = " + yLocation);
+				+ mappingAxisManager.getActiveFastScanAxis() + " = " + xLocation +"\n"
+				+ mappingAxisManager.getActiveSlowScanAxis() + " = " + yLocation);
 
 		// Open dialog and await user selection
 		int returnCode = dialog.open();
@@ -78,10 +85,10 @@ public class StageMoveHandler implements EventHandler {
 
 		// Do move
 		// Move x
-		String command = MappingScanRequestHandler.X_AXIS_NAME + ".asynchronousMoveTo(" + xLocation + ")";
+		String command = mappingAxisManager.getActiveFastScanAxis() + ".asynchronousMoveTo(" + xLocation + ")";
 		jsf.runCommand(command);
 		// Move y
-		command = MappingScanRequestHandler.Y_AXIS_NAME + ".asynchronousMoveTo(" + yLocation + ")";
+		command = mappingAxisManager.getActiveSlowScanAxis() + ".asynchronousMoveTo(" + yLocation + ")";
 		jsf.runCommand(command);
 	}
 
