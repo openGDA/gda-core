@@ -86,28 +86,18 @@ public class SwtImagePositionTool {
 	}
 
 	public void activate(MouseEvent event, int imgOffsetX, int imgOffsetY, float zoomLevel) {
-		double viewPos[] = {event.x, event.y };
-		int imagePos[] = getImagePosHelper(event, imgOffsetX, imgOffsetY, zoomLevel);
-		int zoomedViewPos[] = getZoomedPosHelper(event, zoomLevel);
-
-		short flags = getFlagsHelper(event);
-
-
-		for (ListenerPair pair : listeners) {
-			SwtHitTestCalculator calculator = null;
-			if (pair.provider != null) {
-				calculator = new SwtHitTestCalculator(pair.provider, zoomedViewPos[0], zoomedViewPos[1]);
-			}
-			IImagePositionEvent imageEvent = new SwtImagePositionEvent(viewPos, imagePos, flags, Mode.START, calculator);
-			pair.listener.imageStart(imageEvent);
-		}
+		handleStartOrEndEvent(event, imgOffsetX, imgOffsetY, zoomLevel, Mode.START);
 	}
 
 	public void deactivate(MouseEvent event, int imgOffsetX, int imgOffsetY, float zoomLevel) {
+		handleStartOrEndEvent(event, imgOffsetX, imgOffsetY, zoomLevel, Mode.END);
+	}
+
+	private void handleStartOrEndEvent(MouseEvent event, int imgOffsetX, int imgOffsetY, float zoomLevel, Mode mode) {
 		double viewPos[] = {event.x, event.y };
+		int imagePos[] = getImagePosHelper(event, imgOffsetX, imgOffsetY, zoomLevel);
 		int zoomedViewPos[] = getZoomedPosHelper(event, zoomLevel);
 
-		int imagePos[] = getImagePosHelper(event, imgOffsetX, imgOffsetY, zoomLevel);
 		short flags = getFlagsHelper(event);
 
 		for (ListenerPair pair : listeners) {
@@ -115,8 +105,15 @@ public class SwtImagePositionTool {
 			if (pair.provider != null) {
 				calculator = new SwtHitTestCalculator(pair.provider, zoomedViewPos[0], zoomedViewPos[1]);
 			}
-			IImagePositionEvent imageEvent = new SwtImagePositionEvent(viewPos, imagePos, flags, Mode.END, calculator);
-			pair.listener.imageFinished(imageEvent);
+			IImagePositionEvent imageEvent = new SwtImagePositionEvent(viewPos, imagePos, flags, mode, calculator);
+
+			if (mode == Mode.START) {
+				pair.listener.imageStart(imageEvent);
+			}
+
+			else if (mode == Mode.END) {
+				pair.listener.imageFinished(imageEvent);
+			}
 		}
 	}
 
