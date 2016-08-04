@@ -58,18 +58,6 @@
 		<property name="broker" value="${gda.activemq.broker.uri}" />
 	</bean>
 
-	<!-- Start a ScanRequestPreprocessor, which can add information to or otherwise modify
-		scan requests arriving from the client before they are run by the scan servlet -->
-	<bean id="scanRequestPreprocessor" class="uk.ac.diamond.daq.mapping.impl.MappingStagePreprocessor">
-		<property name="activeFastScanAxis" value="stage_x" />
-		<property name="activeSlowScanAxis" value="stage_y" />
-	</bean>
-	<!-- Preprocessors must be registered as OSGi services to be used by the scan servlet -->
-	<bean class="gda.util.osgi.OSGiServiceRegister">
-		<property name="class" value="org.eclipse.scanning.api.scan.process.IPreprocessor" />
-		<property name="service" ref="scanRequestPreprocessor" />
-	</bean>
-
 	<!-- To enable use of a simulated AD uncomment this import and set the WORKSTATION environment variable to your workstation name -->
 	<!-- <import resource="simulated_area_detector.xml"/> -->
 

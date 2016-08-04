@@ -22,6 +22,7 @@
 	<import resource="stage_controls.xml"/>
 	<import resource="mapping_experiment_bean_provider.xml"/>
 	<import resource="mapping_region_manager.xml"/>
+	<import resource="mapping_axis_manager.xml"/>
 
 	<bean id="ScanDataPointServer" class="uk.ac.gda.remoting.client.GdaRmiProxyFactoryBean">
 		<property name="serviceUrl" value="${gda.rmi.prefix}ScanDataPointServer" />
