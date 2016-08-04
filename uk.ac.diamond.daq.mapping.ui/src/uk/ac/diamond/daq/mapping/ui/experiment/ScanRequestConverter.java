@@ -28,18 +28,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.mapping.api.IDetectorModelWrapper;
-import uk.ac.diamond.daq.mapping.api.IMappingAxisManager;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegion;
+import uk.ac.diamond.daq.mapping.impl.MappingStageInfo;
 
 public class ScanRequestConverter {
 
 	private static final Logger logger = LoggerFactory.getLogger(ScanRequestConverter.class);
 
-	private IMappingAxisManager mappingAxisManager;
+	private MappingStageInfo mappingStageInfo;
 
-	public void setMappingAxisManager(IMappingAxisManager mappingAxisManager) {
-		this.mappingAxisManager = mappingAxisManager;
+	public void setMappingStageInfo(MappingStageInfo mappingStageInfo) {
+		this.mappingStageInfo = mappingStageInfo;
 	}
 
 	/**
@@ -67,12 +67,12 @@ public class ScanRequestConverter {
 
 		IMappingScanRegion scanRegion = mappingExperimentBean.getScanDefinition().getMappingScanRegion();
 
-		if (mappingAxisManager != null) {
+		if (mappingStageInfo != null) {
 			IScanPathModel scanPath = scanRegion.getScanPath();
 			if (scanPath instanceof AbstractBoundingBoxModel) {
 				AbstractBoundingBoxModel boxModel = (AbstractBoundingBoxModel) scanPath;
-				boxModel.setFastAxisName(mappingAxisManager.getActiveFastScanAxis());
-				boxModel.setSlowAxisName(mappingAxisManager.getActiveSlowScanAxis());
+				boxModel.setFastAxisName(mappingStageInfo.getActiveFastScanAxis());
+				boxModel.setSlowAxisName(mappingStageInfo.getActiveSlowScanAxis());
 			}
 		} else {
 			logger.warn("No mapping axis manager is set - the scan request will use default axis names!");

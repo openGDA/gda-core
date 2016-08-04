@@ -144,6 +144,8 @@ public class MappingExperimentView {
 	@Inject
 	private PlottingController plotter;
 	@Inject
+	private BeamPositionPlotter beamPositionPlotter;
+	@Inject
 	private IMappingRegionManager mappingRegionManager;
 	@Inject
 	private ScanRequestConverter scanRequestConverter;
@@ -183,6 +185,11 @@ public class MappingExperimentView {
 	@PostConstruct
 	public void createView(Composite parent) {
 
+		// It'd really be better if the beam position plotter could initialise itself when the map plot view was
+		// created, but there doesn't seem to be a good way to hook into that, so we use the creation of the GUI
+		// elements for this view as a proxy since it happens at around the same time.
+		beamPositionPlotter.init();
+
 		pathCalculationJob = ContextInjectionFactory.make(PathInfoCalculatorJob.class, injectionContext);
 		pathCalculationJob.addJobChangeListener(new JobChangeAdapter() {
 			@Override
@@ -213,6 +220,7 @@ public class MappingExperimentView {
 	@PreDestroy
 	public void dispose() {
 		plotter.dispose();
+		beamPositionPlotter.dispose();
 	}
 
 	private void createViewControls(Composite parent) {

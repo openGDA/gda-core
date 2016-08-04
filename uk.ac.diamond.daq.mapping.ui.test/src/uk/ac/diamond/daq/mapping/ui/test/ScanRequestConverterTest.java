@@ -39,7 +39,7 @@ import org.junit.Test;
 
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
 import uk.ac.diamond.daq.mapping.impl.DetectorModelWrapper;
-import uk.ac.diamond.daq.mapping.impl.MappingAxisManager;
+import uk.ac.diamond.daq.mapping.impl.MappingStageInfo;
 import uk.ac.diamond.daq.mapping.impl.MappingExperimentBean;
 import uk.ac.diamond.daq.mapping.region.RectangularMappingRegion;
 import uk.ac.diamond.daq.mapping.ui.experiment.ScanRequestConverter;
@@ -50,18 +50,18 @@ public class ScanRequestConverterTest {
 	private static final String Y_AXIS_NAME = "testing_stage_y";
 
 	private ScanRequestConverter scanRequestConverter;
-	private MappingAxisManager mappingAxisManager;
+	private MappingStageInfo mappingStageInfo;
 	private MappingExperimentBean experimentBean;
 	private GridModel scanPath;
 
 	@Before
 	public void setUp() throws Exception {
-		mappingAxisManager = new MappingAxisManager();
-		mappingAxisManager.setActiveFastScanAxis(X_AXIS_NAME);
-		mappingAxisManager.setActiveSlowScanAxis(Y_AXIS_NAME);
+		mappingStageInfo = new MappingStageInfo();
+		mappingStageInfo.setActiveFastScanAxis(X_AXIS_NAME);
+		mappingStageInfo.setActiveSlowScanAxis(Y_AXIS_NAME);
 
 		scanRequestConverter = new ScanRequestConverter();
-		scanRequestConverter.setMappingAxisManager(mappingAxisManager);
+		scanRequestConverter.setMappingStageInfo(mappingStageInfo);
 
 		// Set up the experiment bean with some sensible defaults
 		experimentBean = new MappingExperimentBean();
@@ -77,7 +77,7 @@ public class ScanRequestConverterTest {
 
 	@After
 	public void tearDown() throws Exception {
-		mappingAxisManager = null;
+		mappingStageInfo = null;
 		scanRequestConverter = null;
 	}
 

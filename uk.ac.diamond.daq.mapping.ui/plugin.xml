@@ -19,6 +19,12 @@
             name="Mapping Experiment Setup"
             restorable="true">
       </e4view>
+      <e4view
+            class="uk.ac.diamond.daq.mapping.ui.experiment.StageManagerView"
+            id="uk.ac.diamond.daq.mapping.ui.experiment.stageManagerView"
+            name="Mapping Stage Manager"
+            restorable="true">
+      </e4view>
    </extension>
    <extension
          point="org.eclipse.ui.commands">
@@ -37,6 +43,11 @@
             id="uk.ac.diamond.daq.mapping.ui.command.showHideMappingPath"
             name="Show/Hide Mapping Path">
       </command>
+      <command
+            defaultHandler="uk.ac.diamond.daq.mapping.ui.experiment.ShowHideBeamPosition"
+            id="uk.ac.diamond.daq.mapping.ui.command.showHideBeamPosition"
+            name="Show/Hide Beam Position">
+      </command>
    </extension>
    <extension
          point="org.eclipse.dawnsci.plotting.api.plottingAction">
@@ -44,21 +55,27 @@
             action_type="TOOLBAR"
             command_id="uk.ac.diamond.daq.mapping.ui.command.showHideMappingRegion"
             icon="icons/Show_Hide_Mapping_Region_16.png"
-            id="uk.ac.diamond.daq.mapping.ui.plotting_action1"
+            id="uk.ac.diamond.daq.mapping.ui.showHideMappingRegionAction"
             plot_name="Map">
       </plotting_action>
       <plotting_action
             action_type="TOOLBAR"
             command_id="uk.ac.diamond.daq.mapping.ui.command.toggleFillMappingRegion"
             icon="icons/Fill_Mapping_Region_16.png"
-            id="uk.ac.diamond.daq.mapping.ui.plotting_action2"
+            id="uk.ac.diamond.daq.mapping.ui.toggleFillMappingRegionAction"
             plot_name="Map">
       </plotting_action>
       <plotting_action
             action_type="TOOLBAR"
             command_id="uk.ac.diamond.daq.mapping.ui.command.showHideMappingPath"
             icon="icons/Show_Hide_Path_16.png"
-            id="uk.ac.diamond.daq.mapping.ui.plotting_action4"
+            id="uk.ac.diamond.daq.mapping.ui.showHideMappingPathAction"
+            plot_name="Map">
+      </plotting_action>
+      <plotting_action
+            action_type="TOOLBAR"
+            command_id="uk.ac.diamond.daq.mapping.ui.command.showHideBeamPosition"
+            id="uk.ac.diamond.daq.mapping.ui.showHideBeamPositionAction"
             plot_name="Map">
       </plotting_action>
    </extension>

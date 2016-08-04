@@ -38,6 +38,8 @@ public class MappingPerspective implements IPerspectiveFactory {
 		vLayout = layout.getViewLayout("uk.ac.diamond.daq.mapping.ui.experiment.mappingExperimentView");
 		vLayout.setCloseable(false);
 
+		mappingParams.addView("uk.ac.diamond.daq.mapping.ui.experiment.stageManagerView");
+
 		IFolderLayout dataoutLayout = layout.createFolder("spectrum", IPageLayout.BOTTOM, 0.5f, "map");
 		dataoutLayout.addView("org.dawnsci.mapping.ui.spectrumview");
 		vLayout = layout.getViewLayout("org.dawnsci.mapping.ui.spectrumview");

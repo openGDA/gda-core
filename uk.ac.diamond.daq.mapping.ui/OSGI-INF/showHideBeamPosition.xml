@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="Show Hide Beam Position">
+   <implementation class="uk.ac.diamond.daq.mapping.ui.experiment.ShowHideBeamPosition"/>
+   <reference bind="setBeamPositionPlotter" cardinality="1..1" interface="uk.ac.diamond.daq.mapping.ui.experiment.BeamPositionPlotter" name="BeamPositionPlotter" policy="static"/>
+</scr:component>

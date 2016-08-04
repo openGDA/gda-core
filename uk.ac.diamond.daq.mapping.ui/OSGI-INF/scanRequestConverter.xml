@@ -4,5 +4,5 @@
    <service>
       <provide interface="uk.ac.diamond.daq.mapping.ui.experiment.ScanRequestConverter"/>
    </service>
-   <reference bind="setMappingAxisManager" cardinality="1..1" interface="uk.ac.diamond.daq.mapping.api.IMappingAxisManager" name="IMappingAxisManager" policy="static"/>
+   <reference bind="setMappingStageInfo" cardinality="1..1" interface="uk.ac.diamond.daq.mapping.impl.MappingStageInfo" name="MappingStageInfo" policy="static"/>
 </scr:component>

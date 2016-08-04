@@ -15,8 +15,12 @@
 		</property>
 		<property name="twoDPaths">
 			<list>
-				<bean class="org.eclipse.scanning.api.points.models.GridModel" />
-				<bean class="org.eclipse.scanning.api.points.models.RasterModel" />
+				<bean class="org.eclipse.scanning.api.points.models.GridModel">
+					<property name="snake" value="true" />
+				</bean>
+				<bean class="org.eclipse.scanning.api.points.models.RasterModel">
+					<property name="snake" value="true" />
+				</bean>
 				<bean class="uk.ac.diamond.daq.mapping.path.SpiralModel" />
 				<bean class="uk.ac.diamond.daq.mapping.path.LissajousModel" />
 				<bean class="org.eclipse.scanning.api.points.models.RandomOffsetGridModel" />

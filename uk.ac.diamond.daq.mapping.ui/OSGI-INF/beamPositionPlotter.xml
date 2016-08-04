@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" deactivate="dispose" name="Beam Position Plotter">
+   <implementation class="uk.ac.diamond.daq.mapping.ui.experiment.BeamPositionPlotter"/>
+   <service>
+      <provide interface="uk.ac.diamond.daq.mapping.ui.experiment.BeamPositionPlotter"/>
+   </service>
+   <reference bind="setPlottingService" cardinality="1..1" interface="org.eclipse.dawnsci.plotting.api.IPlottingService" name="IPlottingService" policy="static"/>
+   <reference bind="setMappingStageInfo" cardinality="1..1" interface="uk.ac.diamond.daq.mapping.impl.MappingStageInfo" name="MappingStageInfo" policy="static"/>
+</scr:component>
