@@ -48,6 +48,11 @@ public class EpicsXmapController extends DeviceBase implements XmapController, I
 	}
 
 	@Override
+	public void update(Object theObserved, Object changeCode) {
+		//TODO status update needs to be made
+	}
+
+	@Override
 	public void clearAndStart() throws DeviceException {
 		edxdController.setResume(false);
 		edxdController.start();
@@ -307,11 +312,6 @@ public class EpicsXmapController extends DeviceBase implements XmapController, I
 	@Override
 	public int getEvents(final int mcaNumber) throws DeviceException {
 		return edxdController.getEvents(mcaNumber);
-	}
-
-	@Override
-	public void update(Object theObserved, Object changeCode) {
-		// TODO status update needs to be made
 	}
 
 	@Override
