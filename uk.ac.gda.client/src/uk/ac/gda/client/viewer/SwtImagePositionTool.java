@@ -85,10 +85,10 @@ public class SwtImagePositionTool {
 		return zoomedPostition;
 	}
 
-	public void activate(MouseEvent event, int dbx, int dby, float zoomLevel) {
-		double pos[] = {event.x, event.y };
-		int imagePos[] = getImagePosHelper(event, dbx, dby, zoomLevel);
-		int zoomedPos[] = getZoomedPosHelper(event, zoomLevel);
+	public void activate(MouseEvent event, int imgOffsetX, int imgOffsetY, float zoomLevel) {
+		double viewPos[] = {event.x, event.y };
+		int imagePos[] = getImagePosHelper(event, imgOffsetX, imgOffsetY, zoomLevel);
+		int zoomedViewPos[] = getZoomedPosHelper(event, zoomLevel);
 
 		short flags = getFlagsHelper(event);
 
@@ -96,80 +96,81 @@ public class SwtImagePositionTool {
 		for (ListenerPair pair : listeners) {
 			SwtHitTestCalculator calculator = null;
 			if (pair.provider != null) {
-				calculator = new SwtHitTestCalculator(pair.provider, zoomedPos[0], zoomedPos[1]);
+				calculator = new SwtHitTestCalculator(pair.provider, zoomedViewPos[0], zoomedViewPos[1]);
 			}
-			IImagePositionEvent imageEvent = new SwtImagePositionEvent(pos, imagePos, flags, Mode.START, calculator);
+			IImagePositionEvent imageEvent = new SwtImagePositionEvent(viewPos, imagePos, flags, Mode.START, calculator);
 			pair.listener.imageStart(imageEvent);
 		}
 	}
 
-	public void deactivate(MouseEvent event, int dbx, int dby, float zoomLevel) {
-		double pos[] = {event.x, event.y };
-		int zoomedPos[] = getZoomedPosHelper(event, zoomLevel);
+	public void deactivate(MouseEvent event, int imgOffsetX, int imgOffsetY, float zoomLevel) {
+		double viewPos[] = {event.x, event.y };
+		int zoomedViewPos[] = getZoomedPosHelper(event, zoomLevel);
 
-		int imagePos[] = getImagePosHelper(event, dbx, dby, zoomLevel);
+		int imagePos[] = getImagePosHelper(event, imgOffsetX, imgOffsetY, zoomLevel);
 		short flags = getFlagsHelper(event);
 
 		for (ListenerPair pair : listeners) {
 			SwtHitTestCalculator calculator = null;
 			if (pair.provider != null) {
-				calculator = new SwtHitTestCalculator(pair.provider, zoomedPos[0], zoomedPos[1]);
+				calculator = new SwtHitTestCalculator(pair.provider, zoomedViewPos[0], zoomedViewPos[1]);
 			}
-			IImagePositionEvent imageEvent = new SwtImagePositionEvent(pos, imagePos, flags, Mode.END, calculator);
+			IImagePositionEvent imageEvent = new SwtImagePositionEvent(viewPos, imagePos, flags, Mode.END, calculator);
 			pair.listener.imageFinished(imageEvent);
 		}
 	}
 
 	private static final boolean DEBUG = false;
 
-	public void perform(MouseEvent event, int dbx, int dby, float zoomLevel) {
+	public void perform(MouseEvent event, int imgOffsetX, int imgOffsetY, float zoomLevel) {
 
 		// Terminology:
+		//
+		//  * View: displays the canvas at different (digital) zoom levels. The amount of canvas it shows varies
+		//    depending on the digital zoom level.
 		//
 		//  * Canvas: the stuff actually being drawn in the view. This changes size when the digital zoom (scroll
 		//    wheel) is used.
 		//
 		//  * Image: this is part of the canvas. Also affected by the digital zoom.
-		//
-		//  * View: displays the canvas at different (digital) zoom levels. The amount of canvas it shows varies
-		//    depending on the digital zoom level.
 
 		// Parameters:
 		//
 		//  * event contains the coordinates of the mouse in the view, in screen pixels. Top left is (0, 0).
 		//
-		//  * dbx/dby give the image's offset from the top left of the view, in canvas pixels (not screen pixels).
+		//  * imgOffsetX/imgOffsetY give the image's offset from the top left of the view, in canvas pixels
+		//    (not screen pixels).
 		//
-		//  * zoomLevel is the *digital* zoom level. It's (view size ÷ visible canvas size): as you zoom out, the
-		//    visible canvas gets larger, so the zoom level gets smaller.
+		//  * zoomLevel is the *digital* zoom level. It's (view size ÷ visible canvas size): as you zoom out, more
+		//    canvas becomes visible, so the zoom level gets smaller.
 
-		// pos is the position of the mouse within the *view*, in view/screen pixels. Top left of the view is (0, 0).
-		double pos[] = {event.x, event.y };
+		// viewPos is the position of the mouse within the *view*, in view/screen pixels. Top left of the view is (0, 0).
+		double viewPos[] = {event.x, event.y };
 
 		// imagePos is the position of the mouse within the *image*, in canvas/image pixels. Top left of the image is
-		// (0, 0). Bottom right will be the 'real' size of the image.
-		int imagePos[] = getImagePosHelper(event, dbx, dby, zoomLevel);
+		// (0, 0). If the mouse is over the bottom right of the image, imagePos will be the 'real' size of the image.
+		int imagePos[] = getImagePosHelper(event, imgOffsetX, imgOffsetY, zoomLevel);
 
-		// zoomedPos is the position of the mouse within the view, in canvas/image pixels. Top left of the view is
-		// (0, 0). (Similar to pos, but in canvas/image pixels, not view/screen pixels.)
-		int zoomedPos[] = getZoomedPosHelper(event, zoomLevel);
+		// zoomedViewPos is the position of the mouse within the view, in canvas/image pixels. Top left of the view is
+		// (0, 0). (Similar to viewPos, but in canvas/image pixels, not view/screen pixels.)
+		int zoomedViewPos[] = getZoomedPosHelper(event, zoomLevel);
 
 		if (DEBUG) {
-			System.out.printf("perform:    %-25s%-20s%-20s%-30s%-30s%n",
-				String.format("pos=(%.1f, %.1f)", pos[0], pos[1]),
-				String.format("db=(%d, %d)", dbx, dby),
+			System.out.printf("perform:    %-24s  %-26s  %s  %-23s  %-26s%n",
+				String.format("viewPos=(%.1f, %.1f)", viewPos[0], viewPos[1]),
+				String.format("imageOffset=(%d, %d)", imgOffsetX, imgOffsetY),
 				String.format("zoomLevel=%.3f", zoomLevel),
 				String.format("imagePos=%s", Arrays.toString(imagePos)),
-				String.format("zoomedPos=%s", Arrays.toString(zoomedPos))
+				String.format("zoomedViewPos=%s", Arrays.toString(zoomedViewPos))
 			);
 		}
 
 		for (ListenerPair pair : listeners) {
 			SwtHitTestCalculator calculator = null;
 			if (pair.provider != null) {
-				calculator = new SwtHitTestCalculator(pair.provider, zoomedPos[0], zoomedPos[1]);
+				calculator = new SwtHitTestCalculator(pair.provider, zoomedViewPos[0], zoomedViewPos[1]);
 			}
-			IImagePositionEvent iEvent = new SwtImagePositionEvent(pos, imagePos, calculator);
+			IImagePositionEvent iEvent = new SwtImagePositionEvent(viewPos, imagePos, calculator);
 			pair.listener.imageDragged(iEvent);
 		}
 	}
