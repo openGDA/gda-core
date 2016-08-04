@@ -28,12 +28,15 @@ import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.core.ISubmitter;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
+import org.eclipse.scanning.api.points.models.AbstractBoundingBoxModel;
 import org.eclipse.scanning.api.points.models.CompoundModel;
+import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.mapping.api.IDetectorModelWrapper;
+import uk.ac.diamond.daq.mapping.api.IMappingAxisManager;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegion;
 import uk.ac.diamond.daq.mapping.api.MappingExperimentStatusBean;
 
@@ -42,6 +45,7 @@ public class MappingScanSubmitter {
 	private static final Logger logger = LoggerFactory.getLogger(MappingScanSubmitter.class);
 
 	private IEventService eventService;
+	private IMappingAxisManager mappingAxisManager;
 
 	private ISubmitter<ScanBean> submitter;
 
@@ -50,6 +54,10 @@ public class MappingScanSubmitter {
 	 */
 	public void setEventService(IEventService service) {
 		eventService = service;
+	}
+
+	public void setMappingAxisManager(IMappingAxisManager mappingAxisManager) {
+		this.mappingAxisManager = mappingAxisManager;
 	}
 
 	public void init() {
@@ -83,6 +91,18 @@ public class MappingScanSubmitter {
 		scanBean.setScanRequest(req);
 
 		IMappingScanRegion scanRegion = eBean.getMappingExperimentBean().getScanDefinition().getMappingScanRegion();
+
+		if (mappingAxisManager != null) {
+			IScanPathModel scanPath = scanRegion.getScanPath();
+			if (scanPath instanceof AbstractBoundingBoxModel) {
+				AbstractBoundingBoxModel boxModel = (AbstractBoundingBoxModel) scanPath;
+				boxModel.setFastAxisName(mappingAxisManager.getActiveFastScanAxis());
+				boxModel.setSlowAxisName(mappingAxisManager.getActiveSlowScanAxis());
+			}
+		} else {
+			logger.warn("No mapping axis manager is set - the scan request will use default axis names!");
+		}
+
 		CompoundModel cmodel = new CompoundModel(scanRegion.getScanPath(), scanRegion.getRegion().toROI());
 		// FIXME Outer scannables are not supported in the new compound model way yet!
 //		for (IScanPathModelWrapper scanPathModelWrapper : eBean.getMappingExperimentBean().getScanDefinition().getOuterScannables()) {

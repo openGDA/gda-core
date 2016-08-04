@@ -28,6 +28,7 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.e4.core.services.events.IEventBroker;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
+import org.eclipse.scanning.api.points.Point;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
@@ -66,15 +67,16 @@ class PathInfoCalculatorJob extends Job {
 			final Iterable<IPosition> pointIterable = pointGeneratorFactory.createGenerator(scanPathModel, scanRegion.toROI());
 			double lastX = Double.NaN;
 			double lastY = Double.NaN;
-			for (IPosition point : pointIterable) {
+			for (IPosition iPosition : pointIterable) {
+				Point point = (Point) iPosition;
 				if (monitor.isCanceled()) {
 					return Status.CANCEL_STATUS;
 				}
 				pathInfo.pointCount++;
 
 				if (pathInfo.pointCount > 1) {
-					double thisXStep = Math.abs(point.getValue("x") - lastX);
-					double thisYStep = Math.abs(point.getValue("y") - lastY);
+					double thisXStep = Math.abs(point.getX() - lastX);
+					double thisYStep = Math.abs(point.getY() - lastY);
 					double thisAbsStep = Math.sqrt(Math.pow(thisXStep, 2) + Math.pow(thisYStep, 2));
 					if (thisXStep > 0) {
 						pathInfo.smallestXStep = Math.min(pathInfo.smallestXStep, thisXStep);
@@ -85,8 +87,8 @@ class PathInfoCalculatorJob extends Job {
 					pathInfo.smallestAbsStep = Math.min(pathInfo.smallestAbsStep, thisAbsStep);
 				}
 
-				lastX = point.getValue("x");
-				lastY = point.getValue("y");
+				lastX = point.getX();
+				lastY = point.getY();
 				if (pathInfo.points.size() <= MAX_POINTS_IN_ROI) {
 					pathInfo.points.add(point);
 				}
