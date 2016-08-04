@@ -30,6 +30,9 @@ import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Each EDXDMappingElement wraps an EpicsMCASimple instance.
+ */
 public class EDXDMappingElement extends EDXDElement implements INeXusInfoWriteable {
 	private static final String MCA = "MCA";
 	private int maxROIs = 32;
