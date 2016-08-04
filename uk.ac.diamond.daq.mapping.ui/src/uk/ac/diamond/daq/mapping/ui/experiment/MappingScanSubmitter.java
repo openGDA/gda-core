@@ -37,8 +37,8 @@ import org.slf4j.LoggerFactory;
 import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.mapping.api.IDetectorModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IMappingAxisManager;
+import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegion;
-import uk.ac.diamond.daq.mapping.api.MappingExperimentStatusBean;
 
 public class MappingScanSubmitter {
 
@@ -78,19 +78,19 @@ public class MappingScanSubmitter {
 		throw new NullPointerException("Event service is not set - check OSGi settings");
 	}
 
-	public void submitScan(MappingExperimentStatusBean eBean) throws EventException {
+	public void submitScan(IMappingExperimentBean mappingExperimentBean) throws EventException {
 
 		ScanBean scanBean = new ScanBean();
-		String sampleName = eBean.getMappingExperimentBean().getSampleMetadata().getSampleName();
+		String sampleName = mappingExperimentBean.getSampleMetadata().getSampleName();
 		if (sampleName == null || sampleName.length() == 0) {
 			sampleName = "unknown sample";
 		}
-		String pathName = eBean.getMappingExperimentBean().getScanDefinition().getMappingScanRegion().getScanPath().getName();
+		String pathName = mappingExperimentBean.getScanDefinition().getMappingScanRegion().getScanPath().getName();
 		scanBean.setName(String.format("%s - %s Scan", sampleName, pathName));
 		ScanRequest<IROI> req = new ScanRequest<IROI>();
 		scanBean.setScanRequest(req);
 
-		IMappingScanRegion scanRegion = eBean.getMappingExperimentBean().getScanDefinition().getMappingScanRegion();
+		IMappingScanRegion scanRegion = mappingExperimentBean.getScanDefinition().getMappingScanRegion();
 
 		if (mappingAxisManager != null) {
 			IScanPathModel scanPath = scanRegion.getScanPath();
@@ -113,7 +113,7 @@ public class MappingScanSubmitter {
 
 		req.setCompoundModel(cmodel);
 
-		for (IDetectorModelWrapper detectorWrapper : eBean.getMappingExperimentBean().getDetectorParameters()) {
+		for (IDetectorModelWrapper detectorWrapper : mappingExperimentBean.getDetectorParameters()) {
 			if (detectorWrapper.isIncludeInScan()) {
 				req.putDetector(detectorWrapper.getName(), detectorWrapper.getModel());
 			}

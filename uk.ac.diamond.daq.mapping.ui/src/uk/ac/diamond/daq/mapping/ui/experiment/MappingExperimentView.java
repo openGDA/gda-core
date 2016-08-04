@@ -59,7 +59,6 @@ import uk.ac.diamond.daq.mapping.api.IMappingExperimentBeanProvider;
 import uk.ac.diamond.daq.mapping.api.IMappingRegionManager;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
 import uk.ac.diamond.daq.mapping.api.IScanPathModelWrapper;
-import uk.ac.diamond.daq.mapping.api.MappingExperimentStatusBean;
 
 /**
  * An E4-style POJO class for the mapping experiment view. This allows all dependencies to be injected (currently by a ViewPart instance until we have
@@ -455,10 +454,7 @@ public class MappingExperimentView {
 			@Override
 			public void widgetSelected(SelectionEvent event) {
 				try {
-					MappingExperimentStatusBean experimentStatusBean = new MappingExperimentStatusBean();
-					experimentStatusBean.setMappingExperimentBean(experimentBean);
-					System.out.println(experimentStatusBean);
-					scanSubmitter.submitScan(experimentStatusBean);
+					scanSubmitter.submitScan(experimentBean);
 				} catch (Exception e) {
 					logger.warn("Scan submission failed", e);
 				}
