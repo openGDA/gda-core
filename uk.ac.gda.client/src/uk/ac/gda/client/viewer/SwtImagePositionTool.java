@@ -155,7 +155,7 @@ public class SwtImagePositionTool {
 		int zoomedPos[] = getZoomedPosHelper(event, zoomLevel);
 
 		if (DEBUG) {
-			System.out.printf("perform:    %-25s%-20s%-20s%s%n",
+			System.out.printf("perform:    %-25s%-20s%-20s%-30s%-30s%n",
 				String.format("pos=(%.1f, %.1f)", pos[0], pos[1]),
 				String.format("db=(%d, %d)", dbx, dby),
 				String.format("zoomLevel=%.3f", zoomLevel),
