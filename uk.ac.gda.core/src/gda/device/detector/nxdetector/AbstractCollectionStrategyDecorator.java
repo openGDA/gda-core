@@ -18,16 +18,16 @@
 
 package gda.device.detector.nxdetector;
 
-import gda.device.DeviceException;
-import gda.device.detector.nxdata.NXDetectorDataAppender;
-import gda.scan.ScanInformation;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.device.DeviceException;
+import gda.device.detector.nxdata.NXDetectorDataAppender;
+import gda.scan.ScanInformation;
 
 /** This class provides a base class from which Collection Strategy Decorators can be derived.
  *  it allows decorators to only override the functions they need to override.
@@ -65,7 +65,7 @@ public abstract class AbstractCollectionStrategyDecorator extends CollectionStra
 
 	@Override
 	public final void prepareForCollection(double collectionTime, int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
-		logger.trace("prepareForCollection({}, {}, {}) called", collectionTime, numberImagesPerCollection, scanInfo);
+		logger.trace("{}.prepareForCollection({}, {}, {}) called", this.getClass().getSimpleName(), collectionTime, numberImagesPerCollection, scanInfo);
 		beforePreparation();
 		rawPrepareForCollection(collectionTime, numberImagesPerCollection, scanInfo);
 	}
@@ -119,7 +119,7 @@ public abstract class AbstractCollectionStrategyDecorator extends CollectionStra
 
 	@Override
 	public final void prepareForCollection(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
-		logger.trace("prepareForCollection({}, {}) called", numberImagesPerCollection, scanInfo);
+		logger.trace("{}.prepareForCollection({}, {}) called", this.getClass().getSimpleName(), numberImagesPerCollection, scanInfo);
 		beforePreparation();
 		rawPrepareForCollection(numberImagesPerCollection, scanInfo);
 	}
@@ -138,7 +138,7 @@ public abstract class AbstractCollectionStrategyDecorator extends CollectionStra
 
 	@Override
 	public final void completeCollection() throws Exception {
-		logger.trace("completeCollection() called");
+		logger.trace("{}.completeCollection() called", this.getClass().getSimpleName());
 		beforeCompletion();
 		rawCompleteCollection();
 		afterCompletion();
@@ -146,7 +146,7 @@ public abstract class AbstractCollectionStrategyDecorator extends CollectionStra
 
 	@Override
 	public final void atCommandFailure() throws Exception {
-		logger.trace("atCommandFailure() called");
+		logger.trace("{}.atCommandFailure() called", this.getClass().getSimpleName());
 		beforeCompletion();
 		rawAtCommandFailure();
 		afterCompletion();
@@ -154,7 +154,7 @@ public abstract class AbstractCollectionStrategyDecorator extends CollectionStra
 
 	@Override
 	public final void stop() throws Exception {
-		logger.trace("stop() called");
+		logger.trace("{}.stop() called", this.getClass().getSimpleName());
 		beforeCompletion();
 		rawStop();
 		afterCompletion();
@@ -190,14 +190,14 @@ public abstract class AbstractCollectionStrategyDecorator extends CollectionStra
 
 	@Override
 	public final void setSuppressSave() {
-		logger.trace("setSuppressSave() called");
+		logger.trace("{}.setSuppressSave() called", this.getClass().getSimpleName());
 		suppressSave = true;
 		getDecoratee().setSuppressSave();
 	}
 
 	@Override
 	public final void setSuppressRestore() {
-		logger.trace("setSuppressRestore() called");
+		logger.trace("{}.setSuppressRestore() called", this.getClass().getSimpleName());
 		suppressRestore = true;
 		getDecoratee().setSuppressRestore();
 	}

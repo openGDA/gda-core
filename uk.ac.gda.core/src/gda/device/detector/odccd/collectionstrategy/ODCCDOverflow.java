@@ -18,11 +18,6 @@
 
 package gda.device.detector.odccd.collectionstrategy;
 
-import gda.data.PathConstructor;
-import gda.device.detector.nxdata.NXDetectorDataAppender;
-import gda.device.detector.nxdata.NXDetectorDataFileAppenderForSrs;
-import gda.scan.ScanInformation;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,6 +25,11 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.data.PathConstructor;
+import gda.device.detector.nxdata.NXDetectorDataAppender;
+import gda.device.detector.nxdata.NXDetectorDataFileAppenderForSrs;
+import gda.scan.ScanInformation;
 
 public class ODCCDOverflow extends ODCCDSingleExposure {
 
@@ -45,34 +45,26 @@ public class ODCCDOverflow extends ODCCDSingleExposure {
 	private static final Logger logger = LoggerFactory.getLogger(ODCCDOverflow.class);
 	private List<String> fastFilenames;
 	private List<String> finalFilenames;
-	protected int fastFilenamesRead;
+	private int fastFilenamesRead;
 
 	/* NXCollectionStrategyPlugin methods */
 
 	@Override
 	public void prepareForCollection(double collectionTime, int numberImagesPerCollection, ScanInformation scanInfo)
 			throws Exception {
-		logger.trace("prepareForCollection({}, {}, {}) called", collectionTime, numberImagesPerCollection, scanInfo);
+		logger.trace("prepareForCollection() called");
 		super.prepareForCollection(collectionTime, numberImagesPerCollection, scanInfo);
-		if (scanInfo == null) {
-			logger.info("...prepareForCollection() null scanInfo! Returning...");
-			return;
-		}
+		if (scanInfo == null) return;
 		fastFilenames = new ArrayList<String>();
 		finalFilenames = new ArrayList<String>();
 		fastFilenamesRead = 0;
 	}
 
-	/**
-	 * @see gda.device.Detector#waitWhileBusy()
-	 */
 	@Override
-	public void waitWhileBusy() throws InterruptedException, Exception {
-		logger.trace("waitWhileBusy() called, collecting={} fastFilenames.size()={}, unixfilenames.size()={} stack trace {}",
-				collecting, fastFilenames.size(), unixFilenames.size(), Arrays.toString(Thread.currentThread().getStackTrace()));
-
-		if (collecting) {
-			waitForImageTaken();
+	protected void saveImage() {
+		try {
+			logger.trace("saveImage() called, status={} fastFilenames.size()={}, unixfilenames.size()={} stack trace {}",
+				getStatus(), fastFilenames.size(), unixFilenames.size(), Arrays.toString(Thread.currentThread().getStackTrace()));
 
 			boolean fast = (fastFilenames.size() == unixFilenames.size());
 
@@ -83,29 +75,42 @@ public class ODCCDOverflow extends ODCCDSingleExposure {
 
 			ensureDirectoryExists(unixFilename);
 
-			int intensity_integral=0;
-			// TODO: Work out how to use i0Monitor to get intensity_integral here.
+			// Here we rely on i0MonitorCallable having been called in collectData() to set us up for this image only!
+			// As such, this will almost certainly only work for Single Exposure collections.
+			final int intensity_integral = i0MonitorCallable == null ? 0 : (int)Math.round(i0MonitorCallable.call());
+
 			String parameters = geometryParameters()+" "+fileParameters(isDarkSubtraction())+" "+intensity_integral+" "+collectionTime+" "+getBinning();
 
 			if (fast) { // TODO: Is this reliable? Is exposure.getPosition always correct value in collectData?
 				logger.debug("Saving fast image to {}", unixFilename);
-				saveImageOverflow(odccdFilename, parameters+overflowParameters(multifactor, "", "", experimentName));
-				fastFilenames.add(unixFilename);
+				try {
+					saveImage(odccdFilename, parameters+overflowParameters(multifactor, "", "", experimentName));
+					fastFilenames.add(unixFilename);
+				} catch (Exception e) {
+					logger.error("saveImage() failed saving fast image.", e);
+					unixFilenames.add(null);
+				}
 			} else if (fastFilenames.size() > unixFilenames.size()) {
 				String runfileOdccdFilename = getOdccdFilePath(runfileName);
 				String finalUnixFilename = String.format("%s/spool/%s/frames/%s_%d_%d.img", PathConstructor.createFromDefaultProperty(),
 						experimentName, experimentName, finalFileSequenceNumber, unixFilenames.size()+1);
 				String finalOdccdFilename = getOdccdFilePath(finalUnixFilename);
 				logger.debug("Saving slow image to {} & final image to {} ", unixFilename, finalUnixFilename);
-				saveImageOverflow(odccdFilename, parameters+overflowParameters(1, finalOdccdFilename, runfileOdccdFilename, experimentName));
-				unixFilenames.add(unixFilename);
-				finalFilenames.add(finalUnixFilename);
+				try {
+					saveImage(odccdFilename, parameters+overflowParameters(1, finalOdccdFilename, runfileOdccdFilename, experimentName));
+					unixFilenames.add(unixFilename);
+					finalFilenames.add(finalUnixFilename);
+				} catch (Exception e) {
+					logger.error("saveImage() failed saving full and final images.", e);
+					unixFilenames.add(null);
+					finalFilenames.add(null);
+				}
 			} else {
 				throw new RuntimeException("Trying to take the slow image before the fast image has been taken!");
 			}
-			collecting = false;
+		} catch (Exception e) {
+			logger.error("saveImage() failed.", e);
 		}
-		logger.trace("...waitWhileBusy()");
 	}
 
 	private String overflowParameters(int multifactor, String final_filename, String run_filename, String experiment_name) {
@@ -114,7 +119,7 @@ public class ODCCDOverflow extends ODCCDSingleExposure {
 		return String.format(" 220000 %d \"%s\" \"%s\" \"%s\"", multifactor, final_filename, run_filename, experiment_name);
 	}
 
-	private void saveImageOverflow(String odccdfilename, String parameters) throws IOException {
+	private void saveImage(String odccdfilename, String parameters) throws IOException {
 		/* call smi_exps2b_atlas <1. filename> <2. phiStart> <3. phiStop> <4. phiVel>
 				<5. kappaStart> <6. kappaStop> <7. kappaVel>
 				<8. omegaStart> <9. omegaStop> <10. omegaVel>
@@ -128,9 +133,9 @@ public class ODCCDOverflow extends ODCCDSingleExposure {
 				<28. detector maxval> <29. multifactor>
 				<30. final filename> <31. run filename> <32. experiment name>
 		*/
-		odccd.runScript("call smi_exps2b_atlas \"" + odccdfilename + "\" " + parameters);
+		getOdccd().runScript("call smi_exps2b_atlas \"" + odccdfilename + "\" " + parameters);
 		logger.trace("Waiting for api:IMAGE EXPORTED");
-		odccd.readInputUntil("api:IMAGE EXPORTED");
+		getOdccd().readInputUntil("api:IMAGE EXPORTED");
 	}
 
 	/* PositionInputStream<NXDetectorDataAppender> methods */

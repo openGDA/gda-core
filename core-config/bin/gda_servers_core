@@ -83,6 +83,7 @@ if [[ "${GDA_MODE}" == "live" && "${CONTROL_MACHINE_NAME}" != "$(uname -n)" ]]; 
     # due to network filesystem issues, waiting for the file client side is
     # *much* less responsive but should start the client eventually, even if
     # ssh hangs.
+    bashlog debug "gda_servers_core" "SERVERS_SSH_PID=$SERVERS_SSH_PID"
 
 else
     # This runs when live on the control machine or in any mode other than live
