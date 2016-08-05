@@ -18,14 +18,7 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
-import org.eclipse.scanning.api.event.EventConstants;
-import org.eclipse.scanning.api.event.EventException;
-import org.eclipse.scanning.api.event.IEventService;
-import org.eclipse.scanning.api.event.core.ISubmitter;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.models.AbstractBoundingBoxModel;
@@ -34,53 +27,19 @@ import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.mapping.api.IDetectorModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IMappingAxisManager;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegion;
 
-public class MappingScanSubmitter {
+public class ScanRequestConverter {
 
-	private static final Logger logger = LoggerFactory.getLogger(MappingScanSubmitter.class);
+	private static final Logger logger = LoggerFactory.getLogger(ScanRequestConverter.class);
 
-	private IEventService eventService;
 	private IMappingAxisManager mappingAxisManager;
-
-	private ISubmitter<ScanBean> submitter;
-
-	/**
-	 * Only for use by Equinox DS or in unit tests!
-	 */
-	public void setEventService(IEventService service) {
-		eventService = service;
-	}
 
 	public void setMappingAxisManager(IMappingAxisManager mappingAxisManager) {
 		this.mappingAxisManager = mappingAxisManager;
-	}
-
-	public void init() {
-		submitter = createScanSubmitter();
-	}
-
-	private ISubmitter<ScanBean> createScanSubmitter() {
-		if (eventService != null) {
-			try {
-				URI queueServerURI = new URI(LocalProperties.getActiveMQBrokerURI());
-				return eventService.createSubmitter(queueServerURI, EventConstants.SUBMISSION_QUEUE);
-
-			} catch (URISyntaxException e) {
-				logger.error("URI syntax problem", e);
-				throw new RuntimeException(e);
-			}
-		}
-		throw new NullPointerException("Event service is not set - check OSGi settings");
-	}
-
-	public void submitScan(IMappingExperimentBean mappingExperimentBean) throws EventException {
-		ScanBean scanBean = convertToScanBean(mappingExperimentBean);
-		submitter.submit(scanBean);
 	}
 
 	/**

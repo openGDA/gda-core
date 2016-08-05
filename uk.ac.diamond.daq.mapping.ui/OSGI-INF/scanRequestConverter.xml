@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="Scan Request Converter">
+   <implementation class="uk.ac.diamond.daq.mapping.ui.experiment.ScanRequestConverter"/>
+   <service>
+      <provide interface="uk.ac.diamond.daq.mapping.ui.experiment.ScanRequestConverter"/>
+   </service>
+   <reference bind="setMappingAxisManager" cardinality="1..1" interface="uk.ac.diamond.daq.mapping.api.IMappingAxisManager" name="IMappingAxisManager" policy="static"/>
+</scr:component>

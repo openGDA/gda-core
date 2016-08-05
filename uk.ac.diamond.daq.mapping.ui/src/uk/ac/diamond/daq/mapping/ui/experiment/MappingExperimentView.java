@@ -37,6 +37,7 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.richbeans.api.generator.IGuiGeneratorService;
+import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.points.models.ArrayModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.points.models.StepModel;
@@ -145,7 +146,9 @@ public class MappingExperimentView {
 	@Inject
 	private IMappingRegionManager mappingRegionManager;
 	@Inject
-	private MappingScanSubmitter scanSubmitter;
+	private ScanRequestConverter scanRequestConverter;
+	@Inject
+	private ScanBeanSubmitter scanSubmitter;
 	@Inject
 	private IGuiGeneratorService guiGenerator;
 	@Inject
@@ -449,12 +452,13 @@ public class MappingExperimentView {
 		GridLayoutFactory.swtDefaults().numColumns(4).applyTo(validateScanSomposite);
 
 		Button scanButton = new Button(validateScanSomposite, SWT.NONE);
-		scanButton.setText("Scan!");
+		scanButton.setText("Queue Scan");
 		scanButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent event) {
 				try {
-					scanSubmitter.submitScan(experimentBean);
+					ScanBean scanBean = scanRequestConverter.convertToScanBean(experimentBean);
+					scanSubmitter.submitScan(scanBean);
 				} catch (Exception e) {
 					logger.warn("Scan submission failed", e);
 				}

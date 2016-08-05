@@ -42,14 +42,14 @@ import uk.ac.diamond.daq.mapping.impl.DetectorModelWrapper;
 import uk.ac.diamond.daq.mapping.impl.MappingAxisManager;
 import uk.ac.diamond.daq.mapping.impl.MappingExperimentBean;
 import uk.ac.diamond.daq.mapping.region.RectangularMappingRegion;
-import uk.ac.diamond.daq.mapping.ui.experiment.MappingScanSubmitter;
+import uk.ac.diamond.daq.mapping.ui.experiment.ScanRequestConverter;
 
-public class MappingScanSubmitterTest {
+public class ScanRequestConverterTest {
 
 	private static final String X_AXIS_NAME = "testing_stage_x";
 	private static final String Y_AXIS_NAME = "testing_stage_y";
 
-	private MappingScanSubmitter mappingScanSubmitter;
+	private ScanRequestConverter scanRequestConverter;
 	private MappingAxisManager mappingAxisManager;
 	private MappingExperimentBean experimentBean;
 	private GridModel scanPath;
@@ -60,8 +60,8 @@ public class MappingScanSubmitterTest {
 		mappingAxisManager.setActiveFastScanAxis(X_AXIS_NAME);
 		mappingAxisManager.setActiveSlowScanAxis(Y_AXIS_NAME);
 
-		mappingScanSubmitter = new MappingScanSubmitter();
-		mappingScanSubmitter.setMappingAxisManager(mappingAxisManager);
+		scanRequestConverter = new ScanRequestConverter();
+		scanRequestConverter.setMappingAxisManager(mappingAxisManager);
 
 		// Set up the experiment bean with some sensible defaults
 		experimentBean = new MappingExperimentBean();
@@ -78,7 +78,7 @@ public class MappingScanSubmitterTest {
 	@After
 	public void tearDown() throws Exception {
 		mappingAxisManager = null;
-		mappingScanSubmitter = null;
+		scanRequestConverter = null;
 	}
 
 	@Test
@@ -87,7 +87,7 @@ public class MappingScanSubmitterTest {
 		IDetectorModel detModel = new MandelbrotModel();
 		experimentBean.setDetectorParameters(Arrays.asList(new DetectorModelWrapper(detName, detModel, true)));
 
-		ScanBean scanBean = mappingScanSubmitter.convertToScanBean(experimentBean);
+		ScanBean scanBean = scanRequestConverter.convertToScanBean(experimentBean);
 		ScanRequest<?> scanRequest = scanBean.getScanRequest();
 
 		assertEquals(scanRequest.getDetectors().get(detName), detModel);
@@ -99,7 +99,7 @@ public class MappingScanSubmitterTest {
 		IDetectorModel detModel = new MandelbrotModel();
 		experimentBean.setDetectorParameters(Arrays.asList(new DetectorModelWrapper(detName, detModel, false)));
 
-		ScanBean scanBean = mappingScanSubmitter.convertToScanBean(experimentBean);
+		ScanBean scanBean = scanRequestConverter.convertToScanBean(experimentBean);
 		ScanRequest<?> scanRequest = scanBean.getScanRequest();
 
 		// This test relies on the implementation of ScanRequest, which lazily initialises its detectors field only
@@ -110,7 +110,7 @@ public class MappingScanSubmitterTest {
 
 	@Test
 	public void testScanPathIsIncluded() {
-		ScanBean scanBean = mappingScanSubmitter.convertToScanBean(experimentBean);
+		ScanBean scanBean = scanRequestConverter.convertToScanBean(experimentBean);
 		ScanRequest<?> scanRequest = scanBean.getScanRequest();
 
 		assertEquals(scanRequest.getCompoundModel().getModels().get(0), scanPath);
@@ -121,7 +121,7 @@ public class MappingScanSubmitterTest {
 		assertThat(scanPath.getFastAxisName(), is(not(equalTo(X_AXIS_NAME))));
 		assertThat(scanPath.getSlowAxisName(), is(not(equalTo(Y_AXIS_NAME))));
 
-		mappingScanSubmitter.convertToScanBean(experimentBean);
+		scanRequestConverter.convertToScanBean(experimentBean);
 
 		assertThat(scanPath.getFastAxisName(), is(equalTo(X_AXIS_NAME)));
 		assertThat(scanPath.getSlowAxisName(), is(equalTo(Y_AXIS_NAME)));
