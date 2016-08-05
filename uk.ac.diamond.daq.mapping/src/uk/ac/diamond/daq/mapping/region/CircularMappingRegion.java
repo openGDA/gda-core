@@ -35,7 +35,6 @@ public class CircularMappingRegion implements IMappingScanRegionShape {
 	private double yCenter = 0;
 	private double radius = 1;
 	private String name = "Circle";
-	private final RegionType regionType = RegionType.CIRCLE;
 
 	private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
@@ -119,7 +118,7 @@ public class CircularMappingRegion implements IMappingScanRegionShape {
 
 	@Override
 	public String whichPlottingRegionType() {
-		return regionType.toString();
+		return RegionType.CIRCLE.toString();
 	}
 
 	@Override

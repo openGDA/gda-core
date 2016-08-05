@@ -39,9 +39,11 @@ public class SpiralTest {
 		assertEquals(20, pointList.size());
 
 		// Test a few points
-		// TODO check x and y index values - currently these are not tested by AbstractPosition.equals()
-		assertEquals(new Point(-1, -8.5, -1, 7.0), pointList.get(0));
-		assertEquals(new Point(-1, -8.63948222773063, -1, 7.9671992383675), pointList.get(3));
-		assertEquals(new Point(-1, -6.494089475201543, -1, 7.866585979150157), pointList.get(15));
+		int pointNumber = 0;
+		assertEquals(new Point(pointNumber, -8.5, 0, 7.0), pointList.get(pointNumber));
+		pointNumber = 3;
+		assertEquals(new Point(pointNumber, -8.63948222773063, 0, 7.9671992383675), pointList.get(pointNumber));
+		pointNumber = 15;
+		assertEquals(new Point(pointNumber, -6.494089475201543, 0, 7.866585979150157), pointList.get(pointNumber));
 	}
 }
