@@ -18,18 +18,25 @@
 
 package uk.ac.gda.client;
 
-import gda.commandqueue.Processor;
-import gda.commandqueue.Queue;
-import gda.rcp.GDAClientActivator;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IExecutableExtensionFactory;
+import org.eclipse.scanning.api.event.EventConstants;
+import org.eclipse.scanning.event.ui.view.EventConnectionView;
+import org.eclipse.scanning.event.ui.view.StatusQueueView;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.osgi.util.tracker.ServiceTracker;
 
+import gda.commandqueue.Processor;
+import gda.commandqueue.Queue;
+import gda.configuration.properties.LocalProperties;
+import gda.rcp.GDAClientActivator;
+
 public class CommandQueueViewFactory implements IExecutableExtensionFactory {
+
 	public static final String ID = "uk.ac.gda.client.CommandQueueViewFactory";
+
+	public static final String GDA_USE_STATUS_QUEUE_VIEW = "gda.client.useStatusQueueView";
 
 	static Processor processor;
 	static Queue queue;
@@ -84,10 +91,31 @@ public class CommandQueueViewFactory implements IExecutableExtensionFactory {
 
 	@Override
 	public Object create() throws CoreException {
-		CommandQueueView view = new CommandQueueView();
-		view.setProcessor(getProcessor());
-		view.setQueue(getQueue());
-		return view;
+		if (LocalProperties.check(GDA_USE_STATUS_QUEUE_VIEW, false)) {
+			// use the new GDA9 StatusQueueView
+			String queueViewPropertiesId = createStatusQueuePropertiesString();
+			StatusQueueView statusQueueView = new StatusQueueView();
+			statusQueueView.setIdProperties(queueViewPropertiesId);
+			return statusQueueView;
+		} else {
+			// use the old CommandQueueView
+			CommandQueueView commandQueueView = new CommandQueueView();
+			commandQueueView.setProcessor(getProcessor());
+			commandQueueView.setQueue(getQueue());
+			return commandQueueView;
+		}
+	}
+
+	private String createStatusQueuePropertiesString() {
+		String activeMqUri = LocalProperties.get(LocalProperties.GDA_ACTIVEMQ_BROKER_URI, "");
+		String queueViewPropertiesId = EventConnectionView.createSecondaryId(activeMqUri,
+				"org.eclipse.scanning.api",
+				"org.eclipse.scanning.api.event.status.StatusBean",
+				EventConstants.STATUS_SET,
+				EventConstants.STATUS_TOPIC,
+				EventConstants.SUBMISSION_QUEUE);
+		queueViewPropertiesId = queueViewPropertiesId + "partName=Queue";
+		return queueViewPropertiesId;
 	}
 
 
