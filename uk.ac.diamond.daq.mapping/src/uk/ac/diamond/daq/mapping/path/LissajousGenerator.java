@@ -15,7 +15,7 @@ public class LissajousGenerator extends AbstractGenerator<LissajousModel> {
 
 	@Override
 	protected void validateModel() {
-		if (model.getPoints() < 1) throw new PointsValidationException("Must have one or more points in model!");
+		if (model.getPoints() < 1) throw new PointsValidationException("Must have one or more points in model!", model, "points");
 	}
 
 // Original implementation of createPoints() TODO delete this
