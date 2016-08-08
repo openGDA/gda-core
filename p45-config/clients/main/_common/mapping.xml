@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<description>
+		This file contains all of the client-side objects needed for the Mapping perspective to work correctly.
+
+		In general it should be possible to keep all of these objects in the common config, but if some mode-specific
+		changes are needed (for example, different detectors available in dummy and live) then some or all of them
+		can be moved to the dummy and live configs instead.
+
+		If copying this file for a new beamline, the parts to edit are:
+			- the contents of the "detectorParameters" and "outerScannables" lists
+			- the default mapping axis motor names
+			- the "regions" list if you want to restrict the choices available to the user
+	</description>
+
+	<!-- Stage axis names defined as String beans for convenience and to avoid repetition of the same literal value -->
+	<bean id="x_axis_name" class="java.lang.String" factory-method="valueOf"><constructor-arg value="stage_x"/></bean>
+	<bean id="y_axis_name" class="java.lang.String" factory-method="valueOf"><constructor-arg value="stage_y"/></bean>
+
+	<!-- The mapping experiment bean provides the options and defaults used for setting up new mapping experiments -->
+	<bean id="mapping_experiment_bean" class="uk.ac.diamond.daq.mapping.impl.MappingExperimentBean">
+		<property name="detectorParameters">
+			<list>
+				<bean class="uk.ac.diamond.daq.mapping.impl.DetectorModelWrapper">
+					<constructor-arg name="name" value="Mandelbrot Detector" />
+					<constructor-arg name="model">
+						<bean class="org.eclipse.scanning.example.detector.MandelbrotModel">
+							<property name="realAxisName" ref="x_axis_name" />
+							<property name="imaginaryAxisName" ref="y_axis_name" />
+						</bean>
+					</constructor-arg>
+					<constructor-arg name="includeInScan" value="false" />
+				</bean>
+				<bean class="uk.ac.diamond.daq.mapping.impl.DetectorModelWrapper">
+					<constructor-arg name="name" value="Microscope" />
+					<constructor-arg name="model">
+						<bean class="uk.ac.diamond.daq.detectors.addetector.api.AreaDetectorRunnableDeviceModel">
+							<property name="name" value="mic" />
+							<property name="exposureTime" value="0.002" />
+						</bean>
+					</constructor-arg>
+					<constructor-arg name="includeInScan" value="false" />
+				</bean>
+				<bean class="uk.ac.diamond.daq.mapping.impl.DetectorModelWrapper">
+					<constructor-arg name="name" value="Spectrum" />
+					<constructor-arg name="model">
+						<bean class="uk.ac.diamond.daq.detectors.addetector.api.AreaDetectorRunnableDeviceModel">
+							<property name="name" value="det" />
+							<property name="exposureTime" value="0.1" />
+						</bean>
+					</constructor-arg>
+					<constructor-arg name="includeInScan" value="false" />
+				</bean>
+			</list>
+		</property>
+		<property name="scanDefinition">
+			<bean class="uk.ac.diamond.daq.mapping.impl.MappingScanDefinition">
+				<property name="outerScannables">
+					<list>
+						<bean class="uk.ac.diamond.daq.mapping.impl.ScanPathModelWrapper">
+							<constructor-arg name="name" value="stage_z" />
+							<constructor-arg name="model"><null /></constructor-arg>
+							<constructor-arg name="includeInScan" value="false" />
+						</bean>
+					</list>
+				</property>
+			</bean>
+		</property>
+	</bean>
+	<!-- Create a mapping experiment bean provider and register it as an OSGi service -->
+	<bean class="gda.util.osgi.OSGiServiceRegister">
+		<property name="class" value="uk.ac.diamond.daq.mapping.api.IMappingExperimentBeanProvider" />
+		<property name="service">
+			<bean id="mapping_experiment_bean_provider" class="uk.ac.diamond.daq.mapping.impl.MappingExperimentBeanProvider">
+				<property name="mappingExperimentBean" ref="mapping_experiment_bean" />
+			</bean>
+		</property>
+	</bean>
+
+	<!-- The mapping stage info object encapsulates the current choice of motors used for mapping experiments, and
+	     includes a beam size field which is used when showing the current beam position on the map plot -->
+	<bean id="mapping_stage_info" class="uk.ac.diamond.daq.mapping.impl.MappingStageInfo">
+		<property name="activeFastScanAxis" ref="x_axis_name" />
+		<property name="activeSlowScanAxis" ref="y_axis_name" />
+		<property name="beamSize" value="0.1" />
+	</bean>
+	<!-- Register the mapping stage info bean as an OSGi service -->
+	<bean class="gda.util.osgi.OSGiServiceRegister">
+		<property name="class" value="uk.ac.diamond.daq.mapping.impl.MappingStageInfo" />
+		<property name="service" ref="mapping_stage_info" />
+	</bean>
+
+	<!-- The mapping region manager lists the choice of available region types and scan paths which are presented to
+	     the user in the mapping experiment view -->
+	<bean id="mapping_region_manager" class="uk.ac.diamond.daq.mapping.region.MappingRegionManager">
+		<property name="regions">
+			<list>
+				<bean class="uk.ac.diamond.daq.mapping.region.RectangularMappingRegion" />
+				<bean class="uk.ac.diamond.daq.mapping.region.CircularMappingRegion" />
+				<bean class="uk.ac.diamond.daq.mapping.region.PolygonMappingRegion" />
+				<bean class="uk.ac.diamond.daq.mapping.region.LineMappingRegion" />
+				<bean class="uk.ac.diamond.daq.mapping.region.PointMappingRegion" />
+			</list>
+		</property>
+		<property name="twoDPaths">
+			<list>
+				<bean class="org.eclipse.scanning.api.points.models.GridModel">
+					<property name="snake" value="true" />
+				</bean>
+				<bean class="org.eclipse.scanning.api.points.models.RasterModel">
+					<property name="snake" value="true" />
+				</bean>
+				<bean class="uk.ac.diamond.daq.mapping.path.SpiralModel" />
+				<bean class="uk.ac.diamond.daq.mapping.path.LissajousModel" />
+				<bean class="org.eclipse.scanning.api.points.models.RandomOffsetGridModel" />
+			</list>
+		</property>
+		<property name="oneDPaths">
+			<list>
+				<bean class="org.eclipse.scanning.api.points.models.OneDEqualSpacingModel" />
+				<bean class="org.eclipse.scanning.api.points.models.OneDStepModel" />
+			</list>
+		</property>
+		<property name="zeroDPaths">
+			<list>
+				<bean class="org.eclipse.scanning.api.points.models.SinglePointModel" />
+			</list>
+		</property>
+	</bean>
+	<!-- Register the mapping region manager as an OSGi service -->
+	<bean class="gda.util.osgi.OSGiServiceRegister">
+		<property name="class" value="uk.ac.diamond.daq.mapping.api.IMappingRegionManager" />
+		<property name="service" ref="mapping_region_manager" />
+	</bean>
+
+</beans>
