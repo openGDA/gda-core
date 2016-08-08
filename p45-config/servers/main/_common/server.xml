@@ -42,21 +42,7 @@
 	<import resource="jython_server_facade.xml" />
 	<import resource="mapping_stage.xml"/>
 	<import resource="mandelbrot_detectors.xml"/>
-
-	<!-- Data Server -->
-	<bean id="dataServer" class="org.eclipse.dawnsci.remotedataset.server.DataServer" init-method="start">
-		<property name="port" value="${gda.dataserver.port}" />
-	</bean>
-
-	<!-- Device Servlet -->
-	<bean id="deviceServlet" class="org.eclipse.scanning.server.servlet.DeviceServlet" init-method="connect">
-		<property name="broker" value="${gda.activemq.broker.uri}" />
-	</bean>
-
-	<!-- This starts a scanServlet which handles new style scan requests arriving over ActiveMQ -->
-	<bean id="scanServlet" class="org.eclipse.scanning.server.servlet.ScanServlet" init-method="connect">
-		<property name="broker" value="${gda.activemq.broker.uri}" />
-	</bean>
+	<import resource="new_scanning.xml"/>
 
 	<!-- To enable use of a simulated AD uncomment this import and set the WORKSTATION environment variable to your workstation name -->
 	<!-- <import resource="simulated_area_detector.xml"/> -->

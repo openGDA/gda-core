@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<description>
+		This file contains objects which are required to use the new GDA Solstice / Eclipse Scanning scanning system.
+	</description>
+
+	<!-- Data Server -->
+	<bean id="dataServer" class="org.eclipse.dawnsci.remotedataset.server.DataServer" init-method="start">
+		<property name="port" value="${gda.dataserver.port}" />
+	</bean>
+
+	<!-- Device Servlet -->
+	<bean id="deviceServlet" class="org.eclipse.scanning.server.servlet.DeviceServlet" init-method="connect">
+		<property name="broker" value="${gda.activemq.broker.uri}" />
+	</bean>
+
+	<!-- This starts a scanServlet which handles new style scan requests arriving over ActiveMQ -->
+	<bean id="scanServlet" class="org.eclipse.scanning.server.servlet.ScanServlet" init-method="connect">
+		<property name="broker" value="${gda.activemq.broker.uri}" />
+	</bean>
+
+</beans>
