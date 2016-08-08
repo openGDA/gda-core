@@ -28,7 +28,7 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.e4.core.services.events.IEventBroker;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
-import org.eclipse.scanning.api.points.Point;
+import org.eclipse.scanning.api.points.models.AbstractBoundingBoxModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
@@ -63,20 +63,26 @@ class PathInfoCalculatorJob extends Job {
 	public IStatus run(IProgressMonitor monitor) {
 		monitor.beginTask("Calculating points for scan path", IProgressMonitor.UNKNOWN);
 		PathInfo pathInfo = new PathInfo();
+		String xAxisName = "x";
+		String yAxisName = "y";
+		if (scanPathModel instanceof AbstractBoundingBoxModel) {
+			AbstractBoundingBoxModel boxModel = (AbstractBoundingBoxModel) scanPathModel;
+			xAxisName = boxModel.getFastAxisName();
+			yAxisName = boxModel.getSlowAxisName();
+		}
 		try {
 			final Iterable<IPosition> pointIterable = pointGeneratorFactory.createGenerator(scanPathModel, scanRegion.toROI());
 			double lastX = Double.NaN;
 			double lastY = Double.NaN;
-			for (IPosition iPosition : pointIterable) {
-				Point point = (Point) iPosition;
+			for (IPosition point : pointIterable) {
 				if (monitor.isCanceled()) {
 					return Status.CANCEL_STATUS;
 				}
 				pathInfo.pointCount++;
 
 				if (pathInfo.pointCount > 1) {
-					double thisXStep = Math.abs(point.getX() - lastX);
-					double thisYStep = Math.abs(point.getY() - lastY);
+					double thisXStep = Math.abs(point.getValue(xAxisName) - lastX);
+					double thisYStep = Math.abs(point.getValue(yAxisName) - lastY);
 					double thisAbsStep = Math.sqrt(Math.pow(thisXStep, 2) + Math.pow(thisYStep, 2));
 					if (thisXStep > 0) {
 						pathInfo.smallestXStep = Math.min(pathInfo.smallestXStep, thisXStep);
@@ -87,10 +93,11 @@ class PathInfoCalculatorJob extends Job {
 					pathInfo.smallestAbsStep = Math.min(pathInfo.smallestAbsStep, thisAbsStep);
 				}
 
-				lastX = point.getX();
-				lastY = point.getY();
-				if (pathInfo.points.size() <= MAX_POINTS_IN_ROI) {
-					pathInfo.points.add(point);
+				lastX = point.getValue(xAxisName);
+				lastY = point.getValue(yAxisName);
+				if (pathInfo.xCoordinates.size() <= MAX_POINTS_IN_ROI) {
+					pathInfo.xCoordinates.add(Double.valueOf(lastX));
+					pathInfo.yCoordinates.add(Double.valueOf(lastY));
 				}
 			}
 			monitor.done();
