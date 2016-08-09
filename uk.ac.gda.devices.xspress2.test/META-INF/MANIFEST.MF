@@ -11,3 +11,6 @@ Require-Bundle: org.junit;bundle-version="[4.10.0,5.0.0)",
  uk.ac.diamond.org.powermock;bundle-version="1.5.1",
  org.objenesis;bundle-version="[2.1.0,3.0.0)",
  uk.ac.gda.test.helpers;bundle-version="1.0.0"
+Import-Package: gda.device.detector.nexusprocessor,
+ gda.device.detector.xspress.xspress2data,
+ org.eclipse.dawnsci.analysis.dataset.impl
