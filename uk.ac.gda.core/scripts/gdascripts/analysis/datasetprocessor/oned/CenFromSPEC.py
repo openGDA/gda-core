@@ -28,8 +28,8 @@ class CenFromSPEC(XYDataSetFunction):
 	
 	def _process(self,xDataSet, yDataSet):
 		
-		xlist = list(xDataSet.getBuffer())
-		ylist = list(yDataSet.getBuffer())		
+		xlist = list(xDataSet.data)
+		ylist = list(yDataSet.data)
 		
 		height = max(ylist)
 		index_max_val = ylist.index(height)
