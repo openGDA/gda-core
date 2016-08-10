@@ -84,7 +84,7 @@ public class DLSdicat extends IcatBase {
 		return TITLE_QUERY;
 	}
 
-	protected String getUsefulVisits(String user) throws Exception {
+	protected List<String> getUsefulVisits(String user) throws Exception {
 		ResultSet resultSet = null;
 		Connection connection = null;
 		PreparedStatement prepared = null;
@@ -151,8 +151,7 @@ public class DLSdicat extends IcatBase {
 			}
 		}
 
-		Joiner joiner = Joiner.on(", ");
-		return joiner.join(value);
+		return value;
 	}
 
 	protected String getTitleForVisit(String visitID) throws Exception {
@@ -196,8 +195,10 @@ public class DLSdicat extends IcatBase {
 
 	@Override
 	protected String getValue(String visitIDFilter, String userNameFilter, String accessName) throws Exception {
-		if (VISIT_QUERY.equals(accessName))
-			return getUsefulVisits(userNameFilter);
+		if (VISIT_QUERY.equals(accessName)) {
+			final List<String> visits = getUsefulVisits(userNameFilter);
+			return Joiner.on(", ").join(visits);
+		}
 		if (TITLE_QUERY.equals(accessName))
 			return getTitleForVisit(visitIDFilter);
 		throw new IllegalArgumentException("unknown query request");
