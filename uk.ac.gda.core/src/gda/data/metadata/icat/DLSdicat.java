@@ -86,14 +86,35 @@ public class DLSdicat extends IcatBase {
 	}
 
 	protected List<String> getUsefulVisits(String user) throws Exception {
-		ResultSet resultSet = null;
 		Connection connection = null;
+		try {
+			connection = connectToDatabase();
+			final List<String> visits = getVisitsForUser(connection, user);
+			return visits;
+		} catch (Exception e) {
+			throw new Exception("Processing or reading data from dicat database", e);
+		} finally {
+			closeConnection(connection);
+		}
+	}
+
+	protected void closeConnection(Connection connection) {
+		if (connection != null) {
+			try {
+				connection.close();
+			} catch (SQLException e) {
+				logger.error("error closing database connection", e);
+			}
+		}
+	}
+
+	protected List<String> getVisitsForUser(Connection connection, String user) throws Exception {
+		ResultSet resultSet = null;
+
 		PreparedStatement prepared = null;
 		List<String> value;
 
 		try {
-			connection = connectToDatabase();
-
 			prepared = connection.prepareStatement("select lower(visit_id) from icatdls42.investigation i "+
 						"inner join icatdls42.instrument ins on i.instrument_id = ins.id "+
 						"inner join icatdls42.shift s on s.investigation_id = i.id "+
@@ -125,8 +146,6 @@ public class DLSdicat extends IcatBase {
 				}
 			}
 
-		} catch (Exception e) {
-			throw new Exception("Processing or reading data from dicat database", e);
 		} finally {
 			if (resultSet != null && !resultSet.isClosed()) {
 				try {
@@ -138,12 +157,6 @@ public class DLSdicat extends IcatBase {
 			if (prepared != null && !prepared.isClosed()) {
 				try {
 					prepared.close();
-				} catch (SQLException e) {
-					logger.error("error closing database connection", e);
-				}
-			}if (connection != null) {
-				try {
-					connection.close();
 				} catch (SQLException e) {
 					logger.error("error closing database connection", e);
 				}
