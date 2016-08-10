@@ -89,8 +89,20 @@ public class DLSdicat extends IcatBase {
 		Connection connection = null;
 		try {
 			connection = connectToDatabase();
+
 			final List<String> visits = getVisitsForUser(connection, user);
+
+			// append to the list extra options if local staff
+			if (AuthoriserProvider.getAuthoriser().isLocalStaff(user)) {
+				// allow beamline staff to use the current visit ID
+				for (String visitPrefix : new String[] {"CM", "NR"}) {
+					final Optional<String> extraVisit = getLatestVisitWithPrefix(connection, visitPrefix);
+					visits.addAll(extraVisit.asSet());
+				}
+			}
+
 			return visits;
+
 		} catch (Exception e) {
 			throw new Exception("Processing or reading data from dicat database", e);
 		} finally {
@@ -136,15 +148,6 @@ public class DLSdicat extends IcatBase {
 			resultSet = prepared.executeQuery();
 
 			value = concatenateResultSet(resultSet);
-
-			// append to the list extra options if local staff
-			if (AuthoriserProvider.getAuthoriser().isLocalStaff(user)) {
-				// allow beamline staff to use the current visit ID
-				for (String visitPrefix : new String[] {"CM", "NR"}) {
-					final Optional<String> extraVisit = getLatestVisitWithPrefix(connection, visitPrefix);
-					value.addAll(extraVisit.asSet());
-				}
-			}
 
 		} finally {
 			if (resultSet != null && !resultSet.isClosed()) {
