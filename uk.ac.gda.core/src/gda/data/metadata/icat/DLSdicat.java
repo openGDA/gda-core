@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Optional;
 
 /**
  * The Icat which talks to the Diamond ICAT database.
@@ -119,10 +120,8 @@ public class DLSdicat extends IcatBase {
 			if (AuthoriserProvider.getAuthoriser().isLocalStaff(user)) {
 				// allow beamline staff to use the current visit ID
 				for (String visitPrefix : new String[] {"CM", "NR"}) {
-					String currentVisitID = getLatestVisitWithPrefix(connection, visitPrefix);
-					if (currentVisitID != null && !currentVisitID.isEmpty()) {
-						value.add(currentVisitID);
-					}
+					final Optional<String> extraVisit = getLatestVisitWithPrefix(connection, visitPrefix);
+					value.addAll(extraVisit.asSet());
 				}
 			}
 
@@ -204,7 +203,7 @@ public class DLSdicat extends IcatBase {
 		throw new IllegalArgumentException("unknown query request");
 	}
 
-	private String getLatestVisitWithPrefix(Connection connection, String visitPrefix) throws SQLException {
+	private Optional<String> getLatestVisitWithPrefix(Connection connection, String visitPrefix) throws SQLException {
 
 		visitPrefix += "%";
 
@@ -221,12 +220,16 @@ public class DLSdicat extends IcatBase {
 			statement.setString(1, visitPrefix);
 			statement.setString(2, getInstrumentName());
 			resultSet = statement.executeQuery();
-			if (resultSet.next())
-				return resultSet.getString(1);
-			return null;
+			if (resultSet.next()) {
+				final String visit = resultSet.getString(1);
+				if (!visit.isEmpty()) {
+					return Optional.of(visit);
+				}
+			}
+			return Optional.absent();
 		} catch (Exception e) {
 			logger.error("Unable to retrieve visits from database", e);
-			return "";
+			return Optional.absent();
 		} finally {
 			if (resultSet != null && !resultSet.isClosed()) {
 				try {
