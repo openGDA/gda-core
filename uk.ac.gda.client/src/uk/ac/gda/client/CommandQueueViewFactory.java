@@ -42,6 +42,7 @@ public class CommandQueueViewFactory implements IExecutableExtensionFactory {
 	static Queue queue;
 	static Boolean openProcessorServiceAlreadyAttempted = false;
 	static Boolean openQueueServiceAlreadyAttempted = false;
+	static Boolean usingNewQueue = null;
 
 
 	/**
@@ -64,6 +65,10 @@ public class CommandQueueViewFactory implements IExecutableExtensionFactory {
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static Queue getQueue() {
+		if (usingNewQueue()) {
+			return null;
+		}
+
 		if( queue == null && !openQueueServiceAlreadyAttempted){
 			openQueueServiceAlreadyAttempted = true;
 			ServiceTracker queueTracker;
@@ -83,15 +88,24 @@ public class CommandQueueViewFactory implements IExecutableExtensionFactory {
 		}
 
 	}
+	public static boolean usingNewQueue() {
+		if (usingNewQueue == null) {
+			usingNewQueue = new Boolean(LocalProperties.check(GDA_USE_STATUS_QUEUE_VIEW));
+		}
+		return usingNewQueue;
+	}
+
 	public CommandQueueViewFactory() {
-		if( getProcessor() == null || getQueue() == null){
-			throw new IllegalStateException("Unable to find processor or queue");
+		if (!usingNewQueue()) {
+			if( getProcessor() == null || getQueue() == null){
+				throw new IllegalStateException("Unable to find processor or queue");
+			}
 		}
 	}
 
 	@Override
 	public Object create() throws CoreException {
-		if (LocalProperties.check(GDA_USE_STATUS_QUEUE_VIEW, false)) {
+		if (usingNewQueue()) {
 			// use the new GDA9 StatusQueueView
 			String queueViewPropertiesId = createStatusQueuePropertiesString();
 			StatusQueueView statusQueueView = new StatusQueueView();
