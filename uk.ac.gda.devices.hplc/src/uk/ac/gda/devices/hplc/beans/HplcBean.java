@@ -4,10 +4,10 @@ import java.util.Map;
 
 import gda.jython.InterfaceProvider;
 import gda.jython.batoncontrol.ClientDetails;
-import uk.ac.gda.beans.IRichBean;
 import uk.ac.gda.devices.hatsaxs.beans.LocationBean;
+import uk.ac.gda.util.beans.xml.XMLRichBean;
 
-public class HplcBean implements IRichBean {
+public class HplcBean implements XMLRichBean {
 
 	private static final long serialVersionUID = 2999210681645575696L;
 	public static final String DEFAULT_HPLC_MODE = "HPLC";
@@ -110,9 +110,7 @@ public class HplcBean implements IRichBean {
 		this.mode = mode;
 	}
 
-	@Override
 	public void clear() {
-		// TODO Auto-generated method stub
 
 	}
 

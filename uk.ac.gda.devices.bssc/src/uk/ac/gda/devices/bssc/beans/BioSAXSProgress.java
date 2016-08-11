@@ -11,16 +11,14 @@ public class BioSAXSProgress extends ObservableModel implements ISAXSProgress {
 	private String sampleName;
 	private ISpyBStatusInfo collectionStatusInfo;
 	private ISpyBStatusInfo reductionStatusInfo;
-	private ISpyBStatusInfo analysisStatusInfo;
 
 	public BioSAXSProgress(long experimentId, long dataCollectionId, String sampleName, ISpyBStatusInfo collectionStatusInfo,
-			ISpyBStatusInfo reductionStatusInfo, ISpyBStatusInfo analysisStatusInfo) {
+			ISpyBStatusInfo reductionStatusInfo) {
 		this.experimentId = experimentId;
 		this.dataCollectionId = dataCollectionId;
 		this.sampleName = sampleName;
 		this.collectionStatusInfo = collectionStatusInfo;
 		this.reductionStatusInfo = reductionStatusInfo;
-		this.analysisStatusInfo = analysisStatusInfo;
 	}
 
 	@Override
@@ -66,12 +64,6 @@ public class BioSAXSProgress extends ObservableModel implements ISAXSProgress {
 	}
 
 	@Override
-	public void setAnalysisStatusInfo(ISpyBStatusInfo analysisStatusInfo) {
-		firePropertyChange(ISAXSProgress.ANALYSIS_STATUS_INFO, this.analysisStatusInfo,
-				this.analysisStatusInfo = analysisStatusInfo);
-	}
-
-	@Override
 	public ISpyBStatusInfo getCollectionStatusInfo() {
 		return collectionStatusInfo;
 	}
@@ -81,12 +73,6 @@ public class BioSAXSProgress extends ObservableModel implements ISAXSProgress {
 		return reductionStatusInfo;
 	}
 	
-	@Override
-	public ISpyBStatusInfo getAnalysisStatusInfo()
-	{
-		return analysisStatusInfo;
-	}
-
 	@Override
 	public List<String> getCollectionFileNames() {
 		return collectionStatusInfo.getFileNames();

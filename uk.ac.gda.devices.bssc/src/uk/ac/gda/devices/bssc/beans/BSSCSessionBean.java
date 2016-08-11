@@ -21,12 +21,12 @@ package uk.ac.gda.devices.bssc.beans;
 import java.net.URL;
 import java.util.List;
 
-import uk.ac.gda.beans.IRichBean;
+import uk.ac.gda.util.beans.xml.XMLRichBean;
 import uk.ac.gda.devices.hatsaxs.beans.LocationBean;
 import uk.ac.gda.devices.hatsaxs.beans.PlateConfig;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
-public class BSSCSessionBean implements IRichBean{
+public class BSSCSessionBean implements XMLRichBean{
 
 	static public final URL mappingURL = BSSCSessionBean.class.getResource("BSSCMapping.xml");
 	static public final URL schemaURL  = BSSCSessionBean.class.getResource("BSSCMapping.xsd");
@@ -73,7 +73,6 @@ public class BSSCSessionBean implements IRichBean{
 		}
 	}
 
-	@Override
 	public void clear() {
 		measurements = null;
 	}

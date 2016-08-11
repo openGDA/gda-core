@@ -121,6 +121,7 @@ public class BSSCScannable extends ScannableBase {
 			return cachedPosition;
 		} catch (BaseException e) {
 			if (LocalProperties.get("gda.instrument").equals("ncd")) {
+				//running in sim mode => no sample changer
 				if (getExtraNames().length == 3) {
 					return new double[] {0,0,0};
 				}

@@ -18,10 +18,9 @@
 
 package uk.ac.gda.devices.hatsaxs;
 
-import java.io.File;
-
 import gda.configuration.properties.LocalProperties;
 import gda.data.PathConstructor;
+import java.io.File;
 
 public class HatsaxsUtils {
 

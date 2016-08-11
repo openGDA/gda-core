@@ -18,9 +18,9 @@
 
 package uk.ac.gda.devices.hatsaxs.beans;
 
-import uk.ac.gda.beans.IRichBean;
+import uk.ac.gda.util.beans.xml.XMLRichBean;
 
-public class LocationBean implements IRichBean {
+public class LocationBean implements XMLRichBean {
 	
 	private static final long serialVersionUID = 4468559432687294813L;
 
@@ -123,7 +123,6 @@ public class LocationBean implements IRichBean {
 		return String.format("%3s %c %2d", platestr, row, column);
 	}
 
-	@Override
 	public void clear() {	}
 	
 	@Override

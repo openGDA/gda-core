@@ -27,10 +27,10 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import uk.ac.gda.beans.IRichBean;
+import uk.ac.gda.util.beans.xml.XMLRichBean;
 import uk.ac.gda.devices.hatsaxs.beans.LocationBean;
 
-public class TitrationBean implements IRichBean {
+public class TitrationBean implements XMLRichBean {
 	
 	public enum Viscosity {
 		LOW("low", "l"),
@@ -242,8 +242,5 @@ public class TitrationBean implements IRichBean {
 	}
 	public void setKey(String key) {
 		this.key = key.toLowerCase();
-	}
-	@Override
-	public void clear() {
 	}
 }

@@ -109,12 +109,6 @@
            name="Reduced Data"
            restorable="true">
      </view>
-     <view
-           class="uk.ac.gda.devices.bssc.views.BioSAXSAnalysisResultPlotView"
-           id="uk.ac.gda.devices.bssc.views.BioSAXSAnalysisResultPlotView"
-           name="Analysis Result"
-           restorable="true">
-     </view>
   </extension>
   <extension
         point="org.eclipse.ui.menus">

@@ -137,15 +137,13 @@ public class BioSAXSProgressController implements IObservable, Configurable {
 				String sampleName = saxsDataCollection.getSampleName();
 				ISpyBStatusInfo collectionStatusInfo = saxsDataCollection.getCollectionStatus();
 				ISpyBStatusInfo reductionStatusInfo = saxsDataCollection.getReductionStatus();
-				ISpyBStatusInfo analysisStatusInfo = saxsDataCollection.getAnalysisStatus();
 
 				ISAXSProgress progress = getProgressItemFromModel(bioSAXSProgressModel, dataCollectionId);
 				if (progress != null) {
-					updateModel(progress, collectionStatusInfo, reductionStatusInfo, analysisStatusInfo);
+					updateModel(progress, collectionStatusInfo, reductionStatusInfo);
 				} else {
 					
-					addToModel(experimentId, dataCollectionId, sampleName, collectionStatusInfo, reductionStatusInfo,
-							analysisStatusInfo);
+					addToModel(experimentId, dataCollectionId, sampleName, collectionStatusInfo, reductionStatusInfo);
 				}
 			}
 		}
@@ -159,14 +157,13 @@ public class BioSAXSProgressController implements IObservable, Configurable {
 			final long experimentId = dataCollection.getExperimentId();
 			final ISpyBStatusInfo collectionStatusInfo = bioSAXSISPyB.getDataCollectionStatus(dataCollectionId);
 			final ISpyBStatusInfo reductionStatusInfo = bioSAXSISPyB.getDataReductionStatus(dataCollectionId);
-			final ISpyBStatusInfo analysisStatusInfo = bioSAXSISPyB.getDataAnalysisStatus(dataCollectionId);
 
 			ISAXSProgress progress = getProgressItemFromModel(bioSAXSProgressModel, dataCollectionId);
 			if (progress != null) {
-				updateModel(progress, collectionStatusInfo, reductionStatusInfo, analysisStatusInfo);
+				updateModel(progress, collectionStatusInfo, reductionStatusInfo);
 			} else {
 				addToModel(experimentId, dataCollectionId, dataCollection.getSampleName(), collectionStatusInfo,
-						reductionStatusInfo, analysisStatusInfo);
+						reductionStatusInfo);
 			}
 
 			scrollToUpdatedItem();
@@ -176,22 +173,19 @@ public class BioSAXSProgressController implements IObservable, Configurable {
 		}
 	}
 	
-	private void updateModel(ISAXSProgress progress, ISpyBStatusInfo collectionStatusInfo, ISpyBStatusInfo reductionStatusInfo, ISpyBStatusInfo analysisStatusInfo) {
+	private void updateModel(ISAXSProgress progress, ISpyBStatusInfo collectionStatusInfo, ISpyBStatusInfo reductionStatusInfo) {
 		progress.setCollectionStatusInfo(collectionStatusInfo);
 		progress.setReductionStatusInfo(reductionStatusInfo);
-		progress.setAnalysisStatusInfo(analysisStatusInfo);
 
 		scrollToUpdatedItem();
 	}
 
 	private void addToModel(long experimentId, long dataCollectionId, String sampleName,
-			ISpyBStatusInfo collectionStatusInfo, ISpyBStatusInfo reductionStatusInfo,
-			ISpyBStatusInfo analysisStatusInfo) {
+			ISpyBStatusInfo collectionStatusInfo, ISpyBStatusInfo reductionStatusInfo) {
 		final ISAXSProgress progress = new BioSAXSProgress(experimentId, dataCollectionId, sampleName,
-				collectionStatusInfo, reductionStatusInfo, analysisStatusInfo);
+				collectionStatusInfo, reductionStatusInfo);
 		progress.setCollectionStatusInfo(collectionStatusInfo);
 		progress.setReductionStatusInfo(reductionStatusInfo);
-		progress.setAnalysisStatusInfo(analysisStatusInfo);
 
 		bioSAXSProgressModel.add(progress);
 

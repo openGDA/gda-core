@@ -26,7 +26,6 @@ public interface ISAXSProgress {
 	public static final String SAMPLE_NAME = "sampleName";
 	public static final String COLLECTION_STATUS_INFO = "collectionStatusInfo";
 	public static final String REDUCTION_STATUS_INFO = "reductionStatusInfo";
-	public static final String ANALYSIS_STATUS_INFO = "analysisStatusInfo";
 
 	public void setExperimentId(long id);
 	
@@ -43,14 +42,10 @@ public interface ISAXSProgress {
 	public void setCollectionStatusInfo(ISpyBStatusInfo collectionStatusInfo);
 
 	public void setReductionStatusInfo(ISpyBStatusInfo reductionStatusInfo);
-
-	public void setAnalysisStatusInfo(ISpyBStatusInfo analysisStatusInfo);
 	
 	public ISpyBStatusInfo getCollectionStatusInfo();
 
 	public ISpyBStatusInfo getReductionStatusInfo();
-	
-	public ISpyBStatusInfo getAnalysisStatusInfo();
 	
 	public List<String> getCollectionFileNames();
 }

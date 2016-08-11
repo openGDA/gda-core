@@ -22,10 +22,8 @@ public interface ISAXSDataCollection {
 	public static final String SAMPLE_NAME = "sampleName";
 	public static final String COLLECTION_STATUS = "collectionStatus";
 	public static final String REDUCTION_STATUS = "reductionStatus";
-	public static final String ANALYSIS_STATUS = "analysisStatus";
 	public static final String COLLECTION_PROGRESS = "collectionProgress";
 	public static final String REDUCTION_PROGRESS = "reductionProgress";
-	public static final String ANALYSIS_PROGRESS = "analysisProgress";
 
 	public void setSampleName(String sampleName);
 
@@ -35,14 +33,10 @@ public interface ISAXSDataCollection {
 
 	public ISpyBStatusInfo getReductionStatus();
 
-	public ISpyBStatusInfo getAnalysisStatus();
-
 	public void setCollectionStatus(ISpyBStatusInfo collectionStatus);
 
 	public void setReductionStatus(ISpyBStatusInfo reductionStatus);
 	
-	public void setAnalysisStatus(ISpyBStatusInfo analysisStatus);
-
 	public long getBlSessionId();
 
 	public void setBlSessionId(long blSessionId);
