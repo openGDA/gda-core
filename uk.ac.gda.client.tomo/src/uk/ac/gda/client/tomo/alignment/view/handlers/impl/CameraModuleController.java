@@ -117,7 +117,7 @@ public class CameraModuleController implements InitializingBean, ICameraModuleCo
 		}
 		tomoScriptController.deleteIObserver(observer);
 		if (exceptions[0] != null) {
-			throw new IllegalStateException(exceptions[0].message.toString());
+			throw new IllegalStateException(exceptions[0].getMessage().toString());
 		}
 		if (tries > 1000) {
 			throw new IllegalStateException("Cannot find module and timed out");

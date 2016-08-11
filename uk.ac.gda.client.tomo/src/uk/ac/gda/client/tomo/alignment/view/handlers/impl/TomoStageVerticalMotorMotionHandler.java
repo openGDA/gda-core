@@ -58,8 +58,8 @@ public class TomoStageVerticalMotorMotionHandler implements IVerticalMotorMotion
 			public void update(Object source, Object arg) {
 
 				if (arg instanceof PyBaseException) {
-					logger.error("Error:{}", ((PyBaseException) arg).message);
-					exString[0] = ((PyBaseException) arg).message.toString();
+					logger.error("Error:{}", ((PyBaseException) arg).getMessage());
+					exString[0] = ((PyBaseException) arg).getMessage().toString();
 					isComplete[0] = true;
 				} else {
 					String msg = arg.toString();
