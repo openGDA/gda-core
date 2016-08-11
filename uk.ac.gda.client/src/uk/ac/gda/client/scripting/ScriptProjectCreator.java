@@ -115,7 +115,7 @@ public class ScriptProjectCreator implements IStartup {
 		if (!isInterpreter(monitor)) {
 
 			// Code copies from Pydev when the user chooses a Jython interpreter - these are the defaults.
-			final String interpreterPath = BundleUtils.getBundleLocation("uk.ac.diamond.jython").getAbsolutePath()+File.separator+"jython2.5";
+			final String interpreterPath = BundleUtils.getBundleLocation("uk.ac.diamond.jython").getAbsolutePath()+File.separator+"jython2.7";
 			final String executable = interpreterPath + File.separator+"jython.jar";
 			if( !(new File(executable)).exists())
 				throw new Exception("Jython jar not found  :" + executable);

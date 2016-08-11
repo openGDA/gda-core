@@ -74,7 +74,7 @@ import uk.ac.gda.common.rcp.util.EclipseUtils;
  */
 public class GDAJythonInterpreter extends ObservableComponent {
 	private static final Logger logger = LoggerFactory.getLogger(GDAJythonInterpreter.class);
-	private static final String JYTHON_VERSION = "2.5";
+	private static final String JYTHON_VERSION = "2.7";
 	private static final String JYTHON_BUNDLE_PATH = "uk.ac.diamond.jython/jython%s";
 	private static final String UTF_8 = "UTF-8";
 	private static final Properties sysProps;

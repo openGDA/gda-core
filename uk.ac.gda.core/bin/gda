@@ -789,12 +789,12 @@ where task can be:
 			self.append_to_library_path(plugin_lib)
 
 		location = self.plugin_location["uk.ac.diamond.jython"]
-		jythonJarPath = os.path.join(location, "jython2.5", "jython.jar")
+		jythonJarPath = os.path.join(location, "jython2.7", "jython.jar")
 		if not os.path.exists(jythonJarPath):
 			self.logger.critical("Jython  %s does not exist" % (jythonJarPath,))
 			sys.exit(1)
 						
-		self.append_to_class_path(os.path.join(location, "jython2.5", "jython.jar"))
+		self.append_to_class_path(os.path.join(location, "jython2.7", "jython.jar"))
 		if not self.options.smart:
 			# be dumb - just add in all projects, plus tp/various
 			location = self.plugin_location["uk.ac.gda.libs"]
@@ -815,7 +815,6 @@ where task can be:
 		else:
 			location = self.plugin_location["uk.ac.gda.libs"]
 			self.append_to_class_path(os.path.join(location, "*"))
-# 			self.append_to_class_path( os.path.join(location, "jython2.5.1","jython.jar") )
 
 			# be smart - just add plugins listed as dependencies in the CSpec for the GDA configuration
 			self.plugin_parser = PluginData(self.options.lib_subdir)  # for extracting information from a plugin manifest
