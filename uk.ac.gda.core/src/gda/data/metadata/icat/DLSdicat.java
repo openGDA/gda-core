@@ -28,6 +28,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -267,25 +268,26 @@ public class DLSdicat extends IcatBase {
 		Connection connection = null;
 		Class.forName("oracle.jdbc.driver.OracleDriver").newInstance();
 
-		java.util.Properties info = new java.util.Properties();
+		final String username = getMandatoryProperty(USER_PROP, "username");
+		final String password = getMandatoryProperty(PASSWORD_PROP, "password");
+		final String url = getMandatoryProperty(URL_PROP, "URL");
 
-		final String username = LocalProperties.get(USER_PROP);
-		if (username == null) {
-			throw new RuntimeException("DiCAT username not set. Have you set the " + USER_PROP + " property?");
-		}
-
-		final String password = LocalProperties.get(PASSWORD_PROP);
-		if (password == null) {
-			throw new RuntimeException("DiCAT password not set. Have you set the " + PASSWORD_PROP + " property?");
-		}
-
+		Properties info = new Properties();
 		info.put ("user", username);
 		info.put ("password", password);
 		info.put ("oracle.jdbc.timezoneAsRegion", "false");
 
-		connection = DriverManager.getConnection(LocalProperties.get(URL_PROP), info);
+		connection = DriverManager.getConnection(url, info);
 		logger.info("Successfully connected to DiCat, using " + LocalProperties.get(URL_PROP));
 		return connection;
+	}
+
+	protected static String getMandatoryProperty(String propertyName, String name) {
+		final String value = LocalProperties.get(propertyName);
+		if (value == null) {
+			throw new RuntimeException(String.format("ICAT %s not set. Have you set the %s property?", name, propertyName));
+		}
+		return value;
 	}
 
 	private List<String> concatenateResultSet(ResultSet resultSet) throws SQLException {
