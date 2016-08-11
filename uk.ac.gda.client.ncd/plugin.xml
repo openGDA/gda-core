@@ -21,7 +21,7 @@
       <perspective
             class="gda.rcp.ncd.perspectives.SaxsProcessingPerspective"
             id="gda.rcp.ncd.perspectives.SaxsProcessingPerspective"
-            name="Saxs Processing">
+            name="Saxs Calibration">
       </perspective>
       <perspective
             class="gda.rcp.ncd.perspectives.WaxsPerspective"
@@ -250,14 +250,6 @@
       </extension>
       <extension
             point="org.eclipse.dawnsci.plotting.api.toolPageAction">
-         <tool_page_action
-               action_type="TOOLBAR"
-               command_id="uk.ac.gda.client.ncd.updatescanmaskfile"
-               icon="icons/save.png"
-               id="uk.ac.gda.client.ncd.scanmaskfileupdater"
-               label="Use Current Mask"
-               tool_id="org.dawb.workbench.plotting.tools.maskingTool">
-         </tool_page_action>
          <tool_page_action
                action_type="TOOLBAR"
                command_id="uk.ac.gda.client.ncd.gridrefreshimage"

@@ -25,7 +25,6 @@ import gda.device.detector.NXDetectorData;
 
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.FloatDataset;
-import org.nexusformat.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,7 +66,7 @@ public class DetectorResponse extends ReductionDetectorBase {
 			dr.setResponse(response);
 			
 			float[] mydata = dr.process(parentngd.getBuffer(), frames, parentngd.dimensions);
-			NexusGroupData myngd = new NexusGroupData(parentngd.dimensions, NexusFile.NX_FLOAT32, mydata);
+			NexusGroupData myngd = new NexusGroupData(parentngd.dimensions, mydata);
 			nxdata.addData(getName(), myngd, "1", 1);
 			addQAxis(nxdata, parentngd.dimensions.length);
 

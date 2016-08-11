@@ -18,6 +18,26 @@
 
 package uk.ac.gda.server.ncd.subdetector;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.configuration.FileConfiguration;
+import org.apache.commons.lang.ArrayUtils;
+import org.eclipse.dawnsci.analysis.api.diffraction.DetectorProperties;
+import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
+import org.eclipse.dawnsci.analysis.api.tree.DataNode;
+import org.eclipse.dawnsci.analysis.api.tree.NodeLink;
+import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
@@ -29,23 +49,9 @@ import gda.device.Timer;
 import gda.device.detector.DataDimension;
 import gda.device.detector.NXDetectorData;
 import gda.factory.FactoryException;
+import gda.jython.JythonServerFacade;
 import gda.util.persistence.LocalParameters;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.configuration.FileConfiguration;
-import org.apache.commons.lang.ArrayUtils;
-import org.eclipse.dawnsci.analysis.api.diffraction.DetectorProperties;
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
-import org.nexusformat.NexusFile;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
 import uk.ac.gda.server.ncd.detectorsystem.NcdDetectorSystem;
 
 public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
@@ -67,7 +73,6 @@ public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
 			return;
 		try {
 			configuration = LocalParameters.getXMLConfiguration(this.getClass().getCanonicalName()+":"+getName());
-			configuration.load();
 			for (Iterator iterator = configuration.getKeys(); iterator.hasNext();) {
 				String name = (String) iterator.next();
 				if (attributeMap.containsKey(name))
@@ -84,12 +89,12 @@ public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
 					}
 					attributeMap.put(name, property);
 				} catch (Exception e) {
-					logger.info("Error restoring attribute "+name+" for detector "+getName());
+					logger.info("Error restoring attribute '{}' for detector {}", name, getName());
 				}
 			}
 			configuration.setAutoSave(true);
 		} catch (Exception e) {
-			logger.error("error restoring attributes from LocalParameters", e);
+			logger.error("{} - error restoring attributes from LocalParameters", getName(), e);
 		}
 	}
 	
@@ -107,7 +112,7 @@ public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
 		}
 		return getName();
 	}
-	
+
 	@Override
 	public void configure() throws FactoryException {
 		if (detector != null) {
@@ -241,15 +246,15 @@ public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
 		if (data instanceof NexusGroupData) {
 			ngd = (NexusGroupData) data;
 		} else if (data instanceof double[]) {
-			ngd = new NexusGroupData(datadims, NexusFile.NX_FLOAT64, (double[]) data);
+			ngd = new NexusGroupData(datadims, (double[]) data);
 		} else if (data instanceof float[]) {
-			ngd = new NexusGroupData(datadims, NexusFile.NX_FLOAT32, (float[]) data);
+			ngd = new NexusGroupData(datadims, (float[]) data);
 		} else if (data instanceof int[]) {
-			ngd = new NexusGroupData(datadims, NexusFile.NX_INT32, (int[]) data);
+			ngd = new NexusGroupData(datadims, (int[]) data);
 		} else if (data instanceof short[]) {
-			ngd = new NexusGroupData(datadims, NexusFile.NX_INT16, (short[]) data);
+			ngd = new NexusGroupData(datadims, (short[]) data);
 		} else if (data instanceof byte[]) {
-			ngd = new NexusGroupData(datadims, NexusFile.NX_INT8, (byte[]) data);
+			ngd = new NexusGroupData(datadims, (byte[]) data);
 		} else {
 			throw new DeviceException("Detector readout type not supported: " + data);
 		}
@@ -293,7 +298,7 @@ public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
 		}
 
 		if (getPixelSize() != 0.0) {
-			ngd = new NexusGroupData(new int[] { 1 }, NexusFile.NX_FLOAT64, new double[] { getPixelSize() });
+			ngd = new NexusGroupData(getPixelSize());
 			ngd.isDetectorEntryData = false;
 
 			for (String label : new String[] { "x_pixel_size", "y_pixel_size" }) {
@@ -308,16 +313,23 @@ public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
 
 		if (mask != null) {
 			int[] devicedims = getDataDimensions();
-			ngd = new NexusGroupData(new int[] { devicedims[0], devicedims[1] }, NexusFile.NX_FLOAT64, mask.getData());
+			ngd = new NexusGroupData(new int[] { devicedims[0], devicedims[1] }, mask.getData());
 			nxdata.addData(getName() + "mask", ngd, null, null);
 		}
-		
-		for (String label : new String[] { "distance", "beam_center_x", "beam_center_y" }) {
+		String maskFile = (String) getAttribute("maskFile");
+		if (maskFile != null) {
+			linkMaskFile(nxdata, maskFile);
+		}
+		String calibration = (String) getAttribute("calibrationFile");
+		if (calibration != null && !calibration.isEmpty()) {
+			linkCalibrationFile(nxdata, calibration);
+		}
+
+		for (String label : new String[] { "distance", "beam_center_x", "beam_center_y", "scaling_factor" }) {
 			if (attributeMap.containsKey(label)) {
 				try {
-					ngd = new NexusGroupData(new int[] { 1 }, NexusFile.NX_FLOAT64,
-							new double[] { (Double) attributeMap.get(label) });
-					ngd.isDetectorEntryData = false;
+					ngd = new NexusGroupData((Double) attributeMap.get(label));
+					ngd.isDetectorEntryData = "scaling_factor".equals(label);
 
 					NexusTreeNode type_node = new NexusTreeNode(label, NexusExtractor.SDSClassName, null, ngd);
 					type_node.setIsPointDependent(false);
@@ -327,9 +339,78 @@ public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
 
 					detTree.addChildNode(type_node);
 				} catch (Exception e) {
-					logger.warn("Error writing metadata " + label + ": ", e);
+					logger.warn("{} - Error writing metadata {}: ", getName(), label, e);
 				}
 			}
+		}
+	}
+
+	private void linkMaskFile(NXDetectorData nxdata, String filePath) {
+		if (filePath == null || filePath.isEmpty()) {
+			logger.info("{} - Not including mask data. No mask file set", getName());
+			return;
+		}
+		if (!new File(filePath).exists()) {
+			logger.error("{} - Could not include mask data. {} does not exist", getName(), filePath);
+			JythonServerFacade.getInstance().print(String.format("%s - mask file '%s' does not exist", getName(), filePath));
+			return;
+		}
+		TreeFile tree;
+		try {
+			tree = new HDF5Loader(filePath).loadTree();
+			NodeLink maskNode = tree.findNodeLink("/entry/mask/mask");
+			if (maskNode == null) {
+				logger.error("{} - Mask file does not contain mask", getName());
+				return;
+			} else {
+				long[] dims = ((DataNode) maskNode.getDestination()).getMaxShape();
+				int[] detDims = getDataDimensions();
+				if (dims[0] != detDims[0] || dims[1] != detDims[1]) {
+					logger.error("{} - Mask dimensions not equal to detector dimensions", getName());
+					JythonServerFacade.getInstance()
+							.print(String.format("%s - mask wrong dimension (%s instead of %s)", getName(), Arrays.toString(dims), Arrays.toString(detDims)));
+					return;
+				}
+			}
+		} catch (ScanFileHolderException sfhe) {
+			logger.error("{} - Could not open mask file tree ({})", getName(), filePath);
+			return;
+		} catch (DeviceException e) {
+			logger.error("{} - Could not read detector dimensions", getName(), e);
+			return;
+		}
+		try {
+			nxdata.addExternalFileLink(getTreeName(), "pixel_mask", "nxfile://" + filePath + "#entry/mask/mask", false, true);
+			logger.info("{} - Linked mask file {}", getName(), filePath);
+		} catch (Exception e) {
+			logger.error("{} - Could not link external mask", getName(), e);
+		}
+	}
+
+	private void linkCalibrationFile(NXDetectorData nxdata, String filePath) {
+		if (filePath == null || filePath.isEmpty()) {
+			logger.info("{} - Not including calibration data. No calibration file set", getName());
+			return;
+		}
+		if (!new File(filePath).exists()) {
+			logger.error("{} - Could not include calibration data. {} does not exist", getName(), filePath);
+			JythonServerFacade.getInstance().print(String.format("%s - calibration file '%s' does not exist", getName(), filePath));
+			return;
+		}
+		try {
+			new HDF5Loader(filePath).loadFile();
+		} catch (ScanFileHolderException sfhe) {
+			logger.error("{} - Could not open calibration file tree", getName(), sfhe);
+			return;
+		}
+		try {
+			NexusGroupData ngd = new NexusGroupData("nxfile://" + filePath + "#entry/");
+			ngd.isDetectorEntryData = true;
+			NexusTreeNode type_node = new NexusTreeNode("calibration", NexusExtractor.ExternalSDSLink, null, ngd);
+			nxdata.getDetTree(getTreeName()).addChildNode(type_node);
+			logger.info("{} - Linked calibration file {}", getName(), filePath);
+		} catch (Exception e) {
+			logger.error("{} - Could not link external calibration", getName(), e);
 		}
 	}
 
@@ -356,9 +437,9 @@ public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
 		} catch (Exception e) {
 			//
 		}
-		logger.error("cannot set mask due to dimensions problem");
+		logger.error("{} - cannot set mask due to dimensions problem", getName());
 	}
-	
+
 	@Override
 	public void atScanStart() throws DeviceException {
 	}

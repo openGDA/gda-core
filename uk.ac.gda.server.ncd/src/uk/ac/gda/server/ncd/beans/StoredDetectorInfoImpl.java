@@ -91,6 +91,9 @@ public class StoredDetectorInfoImpl implements StoredDetectorInfo, IObserver {
 				logger.error("Could not close loadDetectorMaskFile fileStreams", e);
 			}
 		}
+		if (found == null || found.equals("")) {
+			return null;
+		}
 		return new File(found);
 	}
 
@@ -106,7 +109,7 @@ public class StoredDetectorInfoImpl implements StoredDetectorInfo, IObserver {
 	}
 
 	private void updateSaxsDetectorInfo() {
-		if (saxsDetectorInfo.exists()) {
+		if (saxsDetectorInfo != null && saxsDetectorInfo.exists()) {
 			logger.debug("Copying saxs Detector Info to new data directory");
 			String newPath = getNewFilePath(saxsDetectorInfo);
 			File newFile = new File(newPath);
@@ -120,7 +123,7 @@ public class StoredDetectorInfoImpl implements StoredDetectorInfo, IObserver {
 	}
 
 	private void updateDataCalibrationReductionSetup() {
-		if (dataCalibrationReductionSetup.exists()) {
+		if (dataCalibrationReductionSetup != null && dataCalibrationReductionSetup.exists()) {
 			String newPath = getNewFilePath(dataCalibrationReductionSetup);
 			File newFile = new File(newPath);
 			copyFile(dataCalibrationReductionSetup, newFile);
@@ -128,7 +131,7 @@ public class StoredDetectorInfoImpl implements StoredDetectorInfo, IObserver {
 			storeFileLocation(dataCalibrationReductionSetup, REDUCTION_SETUP_STORAGE);
 		} else {
 			logger.debug("Calibration and reduction info file does not exist");
-			setDataCalibrationReductionSetupPath("");
+			clearDataCalibrationReductionSetupPath();
 		}
 	}
 
@@ -147,7 +150,7 @@ public class StoredDetectorInfoImpl implements StoredDetectorInfo, IObserver {
 	private void storeFileLocation(File file, String saveAsFile) {
 		FileOutputStream fileOut = null;
 		ObjectOutputStream objOut = null;
-		String pathToSave = file.getPath();
+		String pathToSave = file == null ? "" : file.getPath();
 		try {
 			fileOut = new FileOutputStream(saveAsFile);
 			objOut = new ObjectOutputStream(fileOut);
@@ -168,11 +171,11 @@ public class StoredDetectorInfoImpl implements StoredDetectorInfo, IObserver {
 	
 	@Override
 	public String getSaxsDetectorInfoPath() {
-		return saxsDetectorInfo.getPath();
+		return saxsDetectorInfo == null ? "" : saxsDetectorInfo.getPath();
 	}
 
 	@Override
-	public boolean setSaxsDetectorInfoPath(String filePath) {
+	public void setSaxsDetectorInfoPath(String filePath) {
 		File newFile = new File(filePath);
 		if (newFile.exists()) {
 			if (!(newFile.getParentFile().equals(new File(PathConstructor.createFromDefaultProperty())))) {
@@ -184,36 +187,34 @@ public class StoredDetectorInfoImpl implements StoredDetectorInfo, IObserver {
 			}
 		} else {
 			logger.error("new file does not exist");
-			return false;
+			throw new IllegalArgumentException("New file does not exist");
 		}
 		logger.debug("saxsDetectorInfoPath is: {}", getSaxsDetectorInfoPath());
 		storeFileLocation(saxsDetectorInfo, DETECTOR_MASK_STORAGE);
-		return true;
 	}
 
 	@Override
 	public String getDataCalibrationReductionSetupPath() {
-		return dataCalibrationReductionSetup.getPath();
+		return dataCalibrationReductionSetup == null ? "" : dataCalibrationReductionSetup.getPath();
 	}
 
 	@Override
-	public boolean setDataCalibrationReductionSetupPath(String filePath) {
+	public void setDataCalibrationReductionSetupPath(String filePath) {
 		File newFile = new File(filePath);
 		if (newFile.exists()) {
 			if (!(newFile.getParentFile().equals(new File(PathConstructor.createFromDefaultProperty())))) {
 				File timeStamped = new File(PathConstructor.createFromDefaultProperty() + "/" + timeStamped("ReductionAndCalibration") + ".xml");
 				copyFile(newFile, timeStamped);
-				this.dataCalibrationReductionSetup = timeStamped;
+				dataCalibrationReductionSetup = timeStamped;
 			} else {
-				this.dataCalibrationReductionSetup = newFile;
+				dataCalibrationReductionSetup = newFile;
 			}
 		} else {
 			logger.error("new file does not exist");
-			return false;
+			throw new IllegalArgumentException("New file does not exist");
 		}
 		logger.debug("dataCalibrationReductionSetupPath is: {}", filePath);
 		storeFileLocation(dataCalibrationReductionSetup, REDUCTION_SETUP_STORAGE);
-		return true;
 	}
 	
 	@Override
@@ -230,5 +231,17 @@ public class StoredDetectorInfoImpl implements StoredDetectorInfo, IObserver {
 		Date now = new Date();
 		SimpleDateFormat sdf = new SimpleDateFormat("-yyyyMMdd-HHmmss");
 		return toStamp + sdf.format(now);
+	}
+
+	@Override
+	public void clearSaxsDetectorInfoPath() {
+		saxsDetectorInfo = null;
+		storeFileLocation(null, DETECTOR_MASK_STORAGE);
+	}
+
+	@Override
+	public void clearDataCalibrationReductionSetupPath() {
+		dataCalibrationReductionSetup = null;
+		storeFileLocation(null, REDUCTION_SETUP_STORAGE);
 	}
 }

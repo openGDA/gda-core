@@ -18,6 +18,7 @@
 
 package uk.ac.gda.server.ncd.subdetector;
 
+import gda.data.nexus.extractor.NexusGroupData;
 import gda.device.DeviceException;
 import gda.device.detector.DataDimension;
 import gda.device.detector.NXDetectorData;
@@ -28,7 +29,6 @@ import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
 
-import uk.ac.diamond.scisoft.analysis.dataset.Nexus;
 import uk.ac.gda.server.ncd.detectorsystem.NcdDetectorSystem;
 
 public class ReductionDetectorBase  extends NcdSubDetector {
@@ -94,7 +94,7 @@ public class ReductionDetectorBase  extends NcdSubDetector {
 	
 	protected void addQAxis(NXDetectorData nxdata, int axisValue) {
 		if (qAxis != null) {
-			nxdata.addAxis(getName(), "q", Nexus.createNexusGroupData(qAxis), axisValue, 1, "nm^{-1}", false);
+			nxdata.addAxis(getName(), "q", NexusGroupData.createFromDataset(qAxis), axisValue, 1, "nm^{-1}", false);
 		}
 	}
 }

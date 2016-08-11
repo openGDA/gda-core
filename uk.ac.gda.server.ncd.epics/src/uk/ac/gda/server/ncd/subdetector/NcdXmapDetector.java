@@ -30,7 +30,6 @@ import gda.factory.Finder;
 
 import java.util.List;
 
-import org.nexusformat.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,11 +87,11 @@ public class NcdXmapDetector extends NcdSubDetector  {
 		int count = 0;
 		while (xmapcontroller.getStatus() != Detector.BUSY) {
 			if (count > 20) 
-				throw new DeviceException("detector does not act on start request");
+				throw new DeviceException(getName() + " - detector does not act on start request");
 			try {
 				Thread.sleep(50);
 			} catch (InterruptedException e) {
-				throw new DeviceException("Interrupted while waiting for detector to become busy.");
+				throw new DeviceException(getName() + " - Interrupted while waiting for detector to become busy.");
 			}
 		}
 	}
@@ -107,14 +106,14 @@ public class NcdXmapDetector extends NcdSubDetector  {
 		xmapcontroller.stop();
 		int[][] detectorData = xmapcontroller.getData();
 		
-		NexusGroupData ngd = new NexusGroupData(new int[]{detectorData[0].length}, NexusFile.NX_INT32, detectorData[0]);
+		NexusGroupData ngd = new NexusGroupData(detectorData[0]);
 		ngd.isDetectorEntryData = true;
 		dataTree.addData(getTreeName(), ngd, "counts", 1);
 
 		if (xmapcontroller instanceof EpicsXmapController) {
 			EpicsXmapController emc = (EpicsXmapController) xmapcontroller;
 			double[] energyaxis = emc.getEnergyBins()[0];
-			NexusGroupData angd = new NexusGroupData(new int[]{energyaxis.length}, NexusFile.NX_FLOAT64, energyaxis);
+			NexusGroupData angd = new NexusGroupData(energyaxis);
 			dataTree.addAxis(getTreeName(), "energy", angd, 1, 1, "keV", false);
 		}
 		
@@ -126,7 +125,7 @@ public class NcdXmapDetector extends NcdSubDetector  {
 		if (xmapControllerName == null) throw new FactoryException("no controller defined");
 		if (xmapcontroller == null) {
 			if ((xmapcontroller = (XmapController) Finder.getInstance().find(xmapControllerName)) != null)
-				logger.debug("controller {} found", xmapControllerName);
+				logger.debug("{} - controller {} found", getName(), xmapControllerName);
 			else {
 				logger.error("EpicsXmapController {} not found", xmapControllerName);
 				throw new FactoryException("EpicsXmapController " + xmapControllerName + " not found");

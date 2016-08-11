@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2016 Diamond Light Source Ltd.
+ * Copyright © 2014 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -16,29 +16,15 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.server.ncd.data;
+package uk.ac.gda.server.ncd.plotting;
 
-import java.io.IOException;
+import java.io.Serializable;
 
-import gda.factory.Findable;
-
-public abstract class ProcessingRunner implements Findable {
-
-	private String name;
-
-	public abstract void triggerProcessing(String... args) throws IOException;
-
-	public void __call__(String... args) throws IOException {
-		triggerProcessing(args);
+public class NormalisationUpdate implements Serializable {
+	public NormalisationUpdate(String name, float f) {
+		detName = name;
+		counts = f;
 	}
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	@Override
-	public String getName() {
-		return name;
-	}
-
+	public String detName;
+	public double counts;
 }

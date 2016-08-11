@@ -18,11 +18,15 @@
 
 package uk.ac.gda.server.ncd.beans;
 
+import java.io.IOException;
+
 import gda.factory.Findable;
 
 public interface StoredDetectorInfo extends Findable {
-	boolean setSaxsDetectorInfoPath(String filePath);
+	void setSaxsDetectorInfoPath(String filePath) throws IOException;
 	String getSaxsDetectorInfoPath();
-	boolean setDataCalibrationReductionSetupPath(String filePath);
+	void setDataCalibrationReductionSetupPath(String filePath) throws IOException;
 	String getDataCalibrationReductionSetupPath();
+	void clearSaxsDetectorInfoPath();
+	void clearDataCalibrationReductionSetupPath();
 }

@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2014 Diamond Light Source Ltd.
+ * Copyright © 2016 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -18,31 +18,42 @@
 
 package uk.ac.gda.server.ncd.data.scan;
 
-import java.io.IOException;
 import java.util.Arrays;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.server.ncd.data.ProcessingRunner;
-import gda.data.metadata.StoredScanMetadataEntry;
 import gda.data.scan.datawriter.DataWriter;
 import gda.data.scan.datawriter.DataWriterExtenderBase;
 import gda.data.scan.datawriter.IDataWriterExtender;
 import gda.device.Scannable;
-import gda.factory.Finder;
+import gda.factory.Findable;
 import gda.jython.InterfaceProvider;
 import gda.scan.IScanDataPoint;
 import gda.scan.ScanInformation;
+import uk.ac.gda.server.ncd.data.ProcessingRunner;
 
-public class DataProcessingScanListener extends DataWriterExtenderBase {
-	private static final Logger logger = LoggerFactory.getLogger(DataProcessingScanListener.class);
+public abstract class DataProcessingScanListenerBase extends DataWriterExtenderBase implements Findable {
+
+	protected static final Logger logger = LoggerFactory.getLogger(DataProcessingScanListenerBase.class);
+	protected Scannable detector;
+	protected ProcessingRunner runner;
+	protected String filepath;
+	private String name;
+	boolean enabled = false;
 	private ScanInformation scanInformation;
-	private Scannable detector;
-	private ProcessingRunner runner;
-	private String filepath;
-	StoredScanMetadataEntry background;
-	StoredScanMetadataEntry collectionId;
+
+	public DataProcessingScanListenerBase() {
+		super();
+	}
+
+	public boolean isEnabled() {
+		return enabled;
+	}
+
+	public void setEnabled(boolean enable) {
+		this.enabled = enable;
+	}
 
 	public Scannable getDetector() {
 		return detector;
@@ -50,22 +61,6 @@ public class DataProcessingScanListener extends DataWriterExtenderBase {
 
 	public ProcessingRunner getRunner() {
 		return runner;
-	}
-
-	public StoredScanMetadataEntry getBackground() {
-		return background;
-	}
-
-	public StoredScanMetadataEntry getCollectionId() {
-		return collectionId;
-	}
-
-	public void setBackground(StoredScanMetadataEntry background) {
-		this.background = background;
-	}
-
-	public void setCollectionId(StoredScanMetadataEntry collectionId) {
-		this.collectionId = collectionId;
 	}
 
 	@Override
@@ -93,25 +88,43 @@ public class DataProcessingScanListener extends DataWriterExtenderBase {
 
 	@Override
 	public void completeCollection(IDataWriterExtender parent) {
-		super.completeCollection(parent);
 		try {
-			scanInformation = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation();
-		
-			String[] detectors = scanInformation.getDetectorNames();
-			if (Arrays.asList(detectors).contains(detector.getName())) {
-				String backgroundPath = background.getMetadataValue();
-				String collection = collectionId.getMetadataValue();
-	
-				try {
-					logger.info("Processing running with '{}', background '{}' and id '{}'", filepath, backgroundPath, collection);
-					runner.triggerProcessing(filepath, backgroundPath, collection);
-				} catch (IOException e) {
-					logger.error("Couldn't run data reduction/processing", e);
-				}
+			super.completeCollection(parent);
+			if (!enabled || filepath == null) {
+				return;
 			}
+			scanInformation = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation();
+			String[] detectors = scanInformation.getDetectorNames();
+
+			if (detector == null || Arrays.asList(detectors).contains(detector.getName())) {
+				doProcessing();
+			}
+		} catch (Exception e) { // catch them all - prevent scans failing
+			logger.error("Failed to complete data processing", e);
 		} finally {
 			scanInformation = null;
 			filepath = null;
 		}
+	}
+
+	protected abstract void doProcessing();
+
+	@Override
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	@Override
+	public String getName() {
+		return name;
+	}
+
+	@Override
+	public String toString() {
+		return String.format("%s: %s", name, enabled ? "enabled" : "disabled");
+	}
+
+	public void __call__(boolean enable) {
+		setEnabled(enable);
 	}
 }

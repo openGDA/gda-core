@@ -28,7 +28,6 @@ import gda.device.detector.NXDetectorData;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.nexusformat.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,8 +66,7 @@ public class NcdTimesDetector extends NcdWireDetector {
 
 		for (String info : timeinfo.keySet()) {
 			int where = timeinfo.get(info);
-			NexusGroupData data_sds = new NexusGroupData(new int[] { frames }, NexusFile.NX_FLOAT32, 
-					readFloat(0, where, 0, 1, 1, frames));
+			NexusGroupData data_sds = new NexusGroupData(readFloat(0, where, 0, 1, 1, frames));
 			NexusTreeNode data = new NexusTreeNode(info, NexusExtractor.SDSClassName, null, data_sds);
 			data.setIsPointDependent(true);
 			data.addChildNode(new NexusTreeNode("units", NexusExtractor.AttrClassName, data,
@@ -94,7 +92,7 @@ public class NcdTimesDetector extends NcdWireDetector {
 			}
 		}
 		
-		NexusGroupData ngd = new NexusGroupData(new int[] { frames, 8 }, NexusFile.NX_FLOAT32, cooked);
+		NexusGroupData ngd = new NexusGroupData(new int[] { frames, 8 }, cooked);
 		ngd.isDetectorEntryData = false;
 		nxdata.addData(getName(), ngd, "s", 1);
 

@@ -18,14 +18,13 @@
 
 package uk.ac.gda.server.ncd.subdetector;
 
-import java.util.Arrays;
-
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.device.DeviceException;
 import gda.device.detector.NXDetectorData;
 
-import org.nexusformat.NexusFile;
+import java.util.Arrays;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +49,7 @@ public class Average extends ReductionDetectorBase {
 			float[] mydata = average.process(parentngd.getBuffer(), parentngd.dimensions);
 			
 			int[] imagedim = Arrays.copyOfRange(parentngd.dimensions, 1, parentngd.dimensions.length);
-			NexusGroupData myngd = new NexusGroupData(imagedim, NexusFile.NX_FLOAT32, mydata);
+			NexusGroupData myngd = new NexusGroupData(imagedim, mydata);
 			nxdata.addData(getTreeName(), myngd, "1", 1);
 			addQAxis(nxdata, parentngd.dimensions.length - 1);
 

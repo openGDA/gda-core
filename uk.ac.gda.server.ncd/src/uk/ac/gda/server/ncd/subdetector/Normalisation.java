@@ -18,14 +18,13 @@
 
 package uk.ac.gda.server.ncd.subdetector;
 
-import org.nexusformat.NexusFile;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.device.DeviceException;
 import gda.device.detector.NXDetectorData;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Normalize the data of a detector by a calibration channel 
@@ -85,7 +84,7 @@ public class Normalisation extends ReductionDetectorBase {
 			nm.setCalibChannel(calibChannel);
 			nm.setNormvalue(normvalue);
 			float[] mydata = nm.process(parentngd.getBuffer(), calibngd.getBuffer(), frames, parentngd.dimensions, calibngd.dimensions);
-			NexusGroupData myngd = new NexusGroupData(parentngd.dimensions, NexusFile.NX_FLOAT32, mydata);
+			NexusGroupData myngd = new NexusGroupData(parentngd.dimensions, mydata);
 			myngd.isDetectorEntryData = true;
 			nxdata.addData(getName(), myngd, "1", 1);
 			addQAxis(nxdata, parentngd.dimensions.length);

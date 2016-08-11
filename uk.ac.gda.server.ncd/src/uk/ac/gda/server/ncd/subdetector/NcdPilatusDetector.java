@@ -18,33 +18,38 @@
 
 package uk.ac.gda.server.ncd.subdetector;
 
-import gda.device.DeviceException;
-import gda.device.DeviceBase;
+import java.io.File;
+
+import org.eclipse.dawnsci.analysis.api.dataset.ILazyWriteableDataset;
+import org.eclipse.dawnsci.analysis.api.dataset.SliceND;
+import org.eclipse.dawnsci.analysis.api.tree.DataNode;
+import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
+import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
+import org.eclipse.dawnsci.hdf5.nexus.NexusFileHDF5;
+import org.eclipse.dawnsci.nexus.NexusException;
+import org.eclipse.dawnsci.nexus.NexusFile;
+import org.eclipse.dawnsci.nexus.NexusUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.data.NumTracker;
 import gda.data.PathConstructor;
 import gda.data.metadata.GDAMetadataProvider;
 import gda.data.metadata.Metadata;
-import gda.data.nexus.NexusFileWrapper;
+import gda.data.nexus.extractor.NexusExtractor;
+import gda.device.DeviceBase;
+import gda.device.DeviceException;
 import gda.device.detector.NXDetectorData;
-
-import java.io.File;
-
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
-//import org.nexusformat.NXlink;
-import org.nexusformat.NeXusFileInterface;
-import org.nexusformat.NexusException;
-import org.nexusformat.NexusFile;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class NcdPilatusDetector extends NcdSubDetector implements LastImageProvider {
 	private static final Logger logger = LoggerFactory.getLogger(NcdPilatusDetector.class);
 	private String nexusFileUrl = null;
 	private String nexusFileName;
-	private NeXusFileInterface file;
-	private NexusFileWrapper nfw;
+	private NexusFile file;
 	private int scanDataPoint;
+	private GroupNode group;
 
 	@Override
 	public Dataset readLastImage() throws DeviceException {
@@ -73,54 +78,58 @@ public class NcdPilatusDetector extends NcdSubDetector implements LastImageProvi
 		detector.atScanStart();
 		try {
 			scanDataPoint = 0;
-			file = new NexusFile(setupNexusFile(getDetectorType().toLowerCase()), NexusFile.NXACC_CREATE5);
-			nfw = new NexusFileWrapper(file);
-			nfw.makegroup("entry", "NXentry");
-			nfw.opengroup("entry", "NXentry");
-			nfw.makegroup("instrument", "NXinstrument");
-			nfw.opengroup("instrument", "NXinstrument");
-			nfw.makegroup("detector", "NXdetector");
-			nfw.opengroup("detector", "NXdetector");
+			file = NexusFileHDF5.createNexusFile(setupNexusFile(getDetectorType().toLowerCase()));
+			file.setDebug(true);
+			StringBuilder path = NexusUtils.addToAugmentPath(new StringBuilder(), "entry", NexusExtractor.NXEntryClassName);
+			NexusUtils.addToAugmentPath(path, "instrument", NexusExtractor.NXInstrumentClassName);
+			NexusUtils.addToAugmentPath(path, "detector", NexusExtractor.NXDetectorClassName);
+			group = file.getGroup(path.toString(), true);
 		} catch (Exception e) {
-			logger.error("Unable to create nexus file " + nexusFileUrl);
+			logger.error("{} - Unable to create nexus file {}", getName(), nexusFileUrl);
 		}
 	}
 
 	@Override
 	public void atScanEnd() throws DeviceException {
 		try {
-			nfw.closedata(); // Close data
-			nfw.closegroup(); // Close NXdetector
-			nfw.closegroup(); // close NXinstrument
-			nfw.closegroup(); // Close NXentry
-			nfw.close();
+			file.close();
 		} catch (NexusException e) {
-			logger.error("Error closing hdf5 file "+ nexusFileUrl + " : " + e.getMessage());
-		} 
+			logger.error("{} - Error closing hdf5 file {}", getName(), nexusFileUrl, e);
+		}
 	}
-	
+
 	private void writeSubFile(int frames) {
 		try {
 			int[] dims = detector.getDataDimensions();
-			int[] datadims = new int[] {NexusFile.NX_UNLIMITED , frames, dims[0], dims[1] };
+			int[] datadims = new int[] {ILazyWriteableDataset.UNLIMITED , frames, dims[0], dims[1] };
 			// Open data array.
 			int rank = datadims.length;
+			int[] slabdatadims = new int[] { 1, 1, dims[0], dims[1] };
+
+			ILazyWriteableDataset lazy;
+			DataNode data;
 			if (scanDataPoint == 0) {
-				nfw.makedata("data", NexusFile.NX_INT32, rank, datadims);
-				nfw.opendata("data");
+				lazy = NexusUtils.createLazyWriteableDataset("data", Dataset.INT32, slabdatadims, datadims, slabdatadims);
+				data = file.createData(group, lazy);
+			} else {
+				data = file.getData(group, "data");
+				lazy = data.getWriteableDataset();
 			}
 			int[] startPos = new int[rank];
-			int[] slabdatadims = new int[] { 1, 1, dims[0], dims[1] };
+			int[] stop = slabdatadims.clone();
 
 			for (int i = 0; i < frames; i++) {
 				startPos[0] = scanDataPoint;
+				stop[0] = startPos[0] + 1;
 				startPos[1] = i;
+				stop[1] = startPos[1] + 1;
 				detector.setAttribute("ImageToReadout", (scanDataPoint*frames + i));
-				nfw.putslab(detector.readout(), startPos, slabdatadims);
+				Dataset d = DatasetFactory.createFromObject(detector.readout()).reshape(slabdatadims);
+				lazy.setSlice(null, d, SliceND.createSlice(lazy, startPos, stop));
 			}
 			scanDataPoint++;
 		} catch (Exception e) {
-			logger.error("Error writing hdf5 file "+ nexusFileUrl + " : " + e.getMessage());
+			logger.error("{} - Error writing hdf5 file '{}'", getName(), nexusFileUrl, e);
 		}
 	}
 
@@ -152,13 +161,11 @@ public class NcdPilatusDetector extends NcdSubDetector implements LastImageProvi
 			}
 			nexusFileUrl = dataDir + nexusFileName;
 		} catch (Exception ex) {
-			String error = "Failed to create file (" + nexusFileUrl;
-			error += ")";
-			logger.error(error, ex);
+			logger.error("{} - Failed to create file ({})", getName(), nexusFileUrl, ex);
 		}
 		return nexusFileUrl;
 	}
-	
+
 	public boolean isDetectorConfigured() {
 		boolean reply;
 		reply = ((DeviceBase)detector).isConfigured();

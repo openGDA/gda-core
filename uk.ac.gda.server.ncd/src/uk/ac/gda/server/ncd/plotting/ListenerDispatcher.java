@@ -33,7 +33,6 @@ import gda.observable.IObserver;
 import gda.scan.ScanDataPoint;
 
 import java.io.UnsupportedEncodingException;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -53,6 +52,7 @@ import uk.ac.gda.server.ncd.detectorsystem.NcdDetectorSystem;
 import uk.ac.gda.server.ncd.scannable.EnergyScannable;
 import uk.ac.gda.server.ncd.subdetector.INcdSubDetector;
 import uk.ac.gda.server.ncd.subdetector.LastImageProvider;
+import uk.ac.gda.server.ncd.subdetector.NcdScalerDetector;
 import uk.ac.gda.server.ncd.subdetector.NcdWireDetector;
 
 /**
@@ -132,13 +132,14 @@ public class ListenerDispatcher implements Findable, IObserver, Configurable, IA
 	}
 
 	private void updateFrameClients(int lastFrameUFC, int currentFrameUFC) {
+		logger.trace("updateFrameClients: last: {}, current: {}", lastFrameUFC, currentFrameUFC);
 		int frame = lastFrameUFC;
 		if (frame > 0) {
 			frame--;
 		}
 
 		float countingTime = 1;
-		final Collection<DetectorRates> rateCollection = new ArrayList<DetectorRates>(2);
+		final Collection<Object> rateCollection = new ArrayList<Object>(4);
 
 		try {
 			for (INcdSubDetector sub : det.getDetectors()) {
@@ -199,6 +200,14 @@ public class ListenerDispatcher implements Findable, IObserver, Configurable, IA
 							}
 							break;
 						}
+					}
+				}
+				if (sub instanceof NcdScalerDetector) {
+					NcdScalerDetector nsd = ((NcdScalerDetector)sub);
+					float[] data = nsd.readFloat(frame+1);
+					logger.debug("data: {}, length: {}", data, data.length);
+					if (data.length > 0) {
+						rateCollection.add(new NormalisationUpdate(nsd.getName(), data[frame]/countingTime));
 					}
 				}
 			}
@@ -293,36 +302,7 @@ public class ListenerDispatcher implements Findable, IObserver, Configurable, IA
 	}
 
 	private static DoubleDataset getDSfromNGD(NexusGroupData ngd, String name) {
-		Object data = ngd.getBuffer();
-		int[] dim = ngd.dimensions;
-
-		double[] array;
-
-		if (data instanceof float[]) {
-			float[] fdata = (float[]) data;
-			array = new double[fdata.length];
-			for (int i = 0; i < fdata.length; i++) {
-				array[i] = fdata[i];
-			}
-		} else if (data instanceof int[]) {
-			int[] idata = (int[]) data;
-			array = new double[idata.length];
-			for (int i = 0; i < idata.length; i++) {
-				array[i] = idata[i];
-			}
-		} else if (data instanceof byte[]) {
-			ByteBuffer bb = ByteBuffer.wrap((byte[]) data);
-			int len = ((byte[]) data).length / 4;
-			array = new double[len];
-			for (int i = 0; i < len; i++) {
-				array[i] = bb.getInt();
-			}
-		} else {
-			// fingers crossed
-			array = (double[]) data;
-		}
-
-		DoubleDataset ds = new DoubleDataset(array, dim);
+		DoubleDataset ds = (DoubleDataset) ngd.toDataset().cast(Dataset.FLOAT64);
 		ds.setName(name);
 		return ds;
 	}
@@ -376,11 +356,7 @@ public class ListenerDispatcher implements Findable, IObserver, Configurable, IA
 					INexusTree type = branch.getChildNode("sas_type", NexusExtractor.SDSClassName);
 					if (type != null) {
 						String typeStr = null;
-						try {
-							typeStr = new String((byte[]) type.getData().getBuffer(), "UTF-8");
-						} catch (UnsupportedEncodingException e) {
-							//
-						}
+						typeStr = ((String[]) type.getData().getBuffer())[0];
 						for (String allowed : NcdDetectorSystem.detectorTypes) {
 							if (allowed.equals(typeStr)) {
 								detNames.add(branch.getName());
@@ -412,13 +388,8 @@ public class ListenerDispatcher implements Findable, IObserver, Configurable, IA
 		for (INexusTree branch : nexusTree) {
 			if (branch.getNxClass().equals(NexusExtractor.NXDetectorClassName)) {
 				INexusTree type = branch.getChildNode("sas_type", NexusExtractor.SDSClassName);
-				if (type != null) {
-					String typeStr = null;
-					try {
-						typeStr = new String((byte[]) type.getData().getBuffer(), "UTF-8");
-					} catch (UnsupportedEncodingException e) {
-						//
-					}
+				if (type != null && type.getData().isChar()) {
+					String typeStr = ((String[]) type.getData().getBuffer())[0];
 
 					for (String allowed : NcdDetectorSystem.detectorTypes) {
 						if (allowed.equals(typeStr)) {

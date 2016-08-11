@@ -18,6 +18,8 @@
 
 package gda.swing.ncd;
 
+import gda.configuration.properties.LocalProperties;
+
 /**
  * A class to implement a time frame group
  */
@@ -63,8 +65,8 @@ public class TimeFrameGroup2 {
 		runUnit   = TimeFrameTableModel2.displayUnits[3];
 		waitPause = TimeFrameTableModel2.displayPause[1];
 		runPause  = TimeFrameTableModel2.displayPause[1];
-		waitPulse = "00000000";
-		runPulse  = "11111111";
+		waitPulse = LocalProperties.get("gda.ncd.defaultWaitPulse", "00000000");
+		runPulse  = LocalProperties.get("gda.ncd.defaultRunPulse", "11111111");
 	}
 
 	/**

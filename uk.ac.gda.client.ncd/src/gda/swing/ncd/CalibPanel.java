@@ -44,7 +44,6 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.server.ncd.detectorsystem.NcdDetectorSystem;
 import uk.ac.gda.server.ncd.subdetector.INcdSubDetector;
-import uk.ac.gda.server.ncd.subdetector.NcdSubDetector;
 import uk.ac.gda.server.ncd.subdetector.NcdWireDetector;
 
 /**

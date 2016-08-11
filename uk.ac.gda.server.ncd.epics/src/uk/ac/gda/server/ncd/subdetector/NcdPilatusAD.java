@@ -66,7 +66,7 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		if (controller == null) {
-			throw new IllegalArgumentException("controller needs to be set");
+			throw new IllegalArgumentException(getName() + " - controller needs to be set");
 		}
 	}
 
@@ -78,7 +78,7 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 			controller.setTriggerMode(1); // ext enable
 			controller.setDelay(0);
 		} catch (Exception e) {
-			throw new FactoryException("error setting up area detector", e);
+			throw new FactoryException(getName() + " - error setting up area detector", e);
 		}
 	}
 
@@ -95,7 +95,7 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 			return new int[] { controller.getAreaDetector().getArraySizeY_RBV(),
 					controller.getAreaDetector().getArraySizeX_RBV() };
 		} catch (Exception e) {
-			throw new DeviceException("failed to get image dimension", e);
+			throw new DeviceException(getName() + " - failed to get image dimension", e);
 		}
 	}
 
@@ -114,7 +114,7 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 			return state;
 
 		} catch (Exception e) {
-			throw new DeviceException("Failure to read status", e);
+			throw new DeviceException(getName() + " - Failure to read status", e);
 		}
 	}
 
@@ -138,7 +138,7 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 		try {
 			int state = getStatus();
 			if (state != Detector.IDLE) {
-				throw new DeviceException(String.format("detector must be IDLE, but current state is %d", state));
+				throw new DeviceException(String.format("%s - detector must be IDLE, but current state is %d", getName(), state));
 			}
 			controller.acquire();
 
@@ -146,18 +146,18 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 			int grain = 25;
 			for (int i = 0; i < totalmillis / grain; i++) {
 				if (controller.isArmed()) {
-					logger.debug(String.format("Was armed after %d ms.", i * grain));
+					logger.debug("{} - Was armed after {} ms.", getName(), i * grain);
 					return;
 				}
 				Thread.sleep(grain);
 			}
 
-			throw new DeviceException("Timeout waiting for triggers to be armed.");
+			throw new DeviceException(getName() + " - Timeout waiting for triggers to be armed.");
 		} catch (DeviceException de) {
 			// if proper type just rethrow
 			throw de;
 		} catch (Exception e) {
-			throw new DeviceException("error starting acquire", e);
+			throw new DeviceException(getName() + " - error starting acquire", e);
 		}
 	}
 
@@ -166,7 +166,7 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 		try {
 			controller.stop();
 		} catch (Exception e) {
-			throw new DeviceException("Cannot stop detector", e);
+			throw new DeviceException(getName() + " - Cannot stop detector", e);
 		}
 	}
 
@@ -267,7 +267,7 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 			Dataset ds = new FloatDataset(data, dims);
 			return ds;
 		} catch (Exception e) {
-			throw new DeviceException("error reading last array", e);
+			throw new DeviceException(getName() + " - error reading last array", e);
 		}
 	}
 
@@ -299,7 +299,7 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 	 */
 	@Override
 	public void atScanStart() throws DeviceException {
-		logger.debug("scan start");
+		logger.debug("{} - scan start", getName());
 		if (tfgMisconfigurationException != null)
 			throw tfgMisconfigurationException;
 
@@ -313,22 +313,22 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 					nxpi.prepareForLine();
 				}
 			}
-	} catch (Exception e) {
-		throw new DeviceException("error setting up nxplugins", e);
-	}
-			try {
+		} catch (Exception e) {
+			throw new DeviceException(getName() + " - error setting up nxplugins", e);
+		}
+		try {
 			controller.setScanDimensions(scanInformation.getDimensions());
 			setupFilename();
 			controller.resetCounters();
 			controller.startRecording();
 		} catch (Exception e) {
-			throw new DeviceException("error setting up data recording to HDF5", e);
+			throw new DeviceException(getName() + " - error setting up data recording to HDF5", e);
 		}
 	}
 
 	@Override
 	public void atScanEnd() throws DeviceException {
-		logger.debug("scan end");
+		logger.debug("{} - scan end", getName());
 		try {
 			controller.stopAcquiringWithTimeout();
 			controller.endRecording();
@@ -339,12 +339,12 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 				}
 			}
 		} catch (Exception e) {
-			throw new DeviceException("error finalising data acquitision/writing", e);
+			throw new DeviceException(getName() + " - error finalising data acquitision/writing", e);
 		} finally {
 			try {
 				FileRegistrarHelper.registerFile(filename);
 			} catch (Exception e) {
-				logger.warn("error getting file name for archiving from "+getName(), e);
+				logger.warn("error getting file name for archiving from {}", getName(), e);
 			}
 		}
 	}
@@ -362,19 +362,19 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 					for(NXDetectorDataAppender appender : appenderlist)
 						appender.appendTo(dataTree, getTreeName());
 				} catch (Exception e) {
-					throw new DeviceException("error reading nxplugin "+nxpi.getName(), e);
-				} 
+					throw new DeviceException(getName() + " - error reading nxplugin " + nxpi.getName(), e);
+				}
 			}
 		}
 		// delay returning from that method until area detector had a chance to read in all files
 		// not pretty, but best solution I can come up with now.
 		// there should be some getstatus or are you ready call
 		controller.waitForReady();
-		
+
 		if (getStatus() == Detector.FAULT)
-			throw new DeviceException("Detetor in fault while reading");
-		
-		logger.info("we think we are ready for the next acquisition now.");
+			throw new DeviceException(getName() + " - Detector in fault while reading");
+
+		logger.info("{} - we think we are ready for the next acquisition now.", getName());
 	}
 
 	public List<NXPlugin> getNxplugins() {
