@@ -171,20 +171,29 @@ public class DLSdicat extends IcatBase {
 	}
 
 	protected String getTitleForVisit(String visitID) throws Exception {
-		ResultSet resultSet = null;
 		Connection connection = null;
+		try {
+			connection = connectToDatabase();
+			final String title = getTitleForVisitUsingConnection(visitID, connection);
+			return title;
+		} catch (Exception e) {
+			throw new Exception("Processing or reading data from dicat database", e);
+		} finally {
+			closeConnection(connection);
+		}
+	}
+
+	protected String getTitleForVisitUsingConnection(String visitID, Connection connection) throws Exception {
+		ResultSet resultSet = null;
 		PreparedStatement prepared = null;
 
 		try {
-			connection = connectToDatabase();
 			prepared = connection.prepareStatement("select title from icatdls42.investigation i where lower(i.visit_id) = ? ");
 			prepared.setString(1, visitID);
 			resultSet = prepared.executeQuery();
 			if (resultSet.next())
 				return resultSet.getString("title");
 			return null;
-		} catch (Exception e) {
-			throw new Exception("Processing or reading data from dicat database", e);
 		} finally {
 			if (resultSet != null && !resultSet.isClosed()) {
 				try {
@@ -196,12 +205,6 @@ public class DLSdicat extends IcatBase {
 			if (prepared != null && !prepared.isClosed()) {
 				try {
 					prepared.close();
-				} catch (SQLException e) {
-					logger.error("error closing database connection", e);
-				}
-			}if (connection != null) {
-				try {
-					connection.close();
 				} catch (SQLException e) {
 					logger.error("error closing database connection", e);
 				}
