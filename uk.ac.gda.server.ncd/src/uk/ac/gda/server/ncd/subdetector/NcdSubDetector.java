@@ -69,25 +69,32 @@ public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
 	protected FileConfiguration configuration;
 
 	protected void restoreAttributeMap() {
-		if (configuration != null)
+		if (configuration != null) {
 			return;
+		}
+		logger.trace("{} - configuration null - reloading", getName());
 		try {
 			configuration = LocalParameters.getXMLConfiguration(this.getClass().getCanonicalName()+":"+getName());
 			for (Iterator iterator = configuration.getKeys(); iterator.hasNext();) {
 				String name = (String) iterator.next();
-				if (attributeMap.containsKey(name))
+				if (attributeMap.containsKey(name)) {
+					logger.trace("{}.restore - {} already in map, ignoring later value ({})", getName(), name, attributeMap.get(name));
 					continue; // don't overwrite
+				}
 				try {
 					Object property = configuration.getProperty(name);
 					if (property instanceof List) { // I get doubles I put in back in lists...
 						property = ((List) property).get(0);
+						logger.trace("{}.restore - {} returned list ({}) - using first value", getName(), name, property);
 					}
 					try {
 						property = Double.parseDouble(property.toString());
+						logger.trace("{}.restore - {} converted to double", getName(), name);
 					} catch (Exception e) {
 						// was worth a try (literally)
 					}
 					attributeMap.put(name, property);
+					logger.trace("{}.restoring - {}: {}", getName(), name, configuration.getString(name));
 				} catch (Exception e) {
 					logger.info("Error restoring attribute '{}' for detector {}", name, getName());
 				}
@@ -97,7 +104,7 @@ public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
 			logger.error("{} - error restoring attributes from LocalParameters", getName(), e);
 		}
 	}
-	
+
 	public Detector getDetector() {
 		return detector;
 	}
@@ -211,28 +218,45 @@ public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
 	@Override
 	public void setAttribute(String attributeName, Object value) throws DeviceException {
 		dp = null;
+		logger.trace("{}.setAttribute - Setting {} to '{}'", getName(), attributeName, value);
 		restoreAttributeMap();
+		logger.trace("{}.setAttribute - Attribute map restored", getName());
 		if (descriptionLabel.equals(attributeName)) {
+			logger.trace("{}.setAttribute - Setting {} - not using xml", getName(), descriptionLabel);
 			description = (String) value;
 		} else if (value != null) {
 			attributeMap.put(attributeName, value);
 			if (configuration != null)
+				logger.trace("{}.setAttribute - setting xml {} to {}", getName(), attributeName, value);
 				configuration.setProperty(attributeName, value);
 		} else if (attributeMap.containsKey(attributeName)) {
+			logger.trace("{}.setAttribute - value is null, removing {} from attributes", getName(), attributeName);
 			attributeMap.remove(attributeName);
 			if (configuration != null)
+				logger.trace("{} - value is null, removing from xml configuration", getName());
 				configuration.clearProperty(attributeName);
 		}
+		logger.trace("{}.setAttribute - After set {} is {} in map, {} in configuration", getName(),
+				attributeName,
+				attributeMap.getOrDefault(attributeName, null),
+				configuration == null ? "n/a" : configuration.getProperty(attributeName));
 	}
 
 	@Override
 	public Object getAttribute(String attributeName) throws DeviceException {
+		logger.trace("{}.getAttribute - getting {}", getName(), attributeName);
 		restoreAttributeMap();
 		if (descriptionLabel.equals(attributeName)) {
 			return description;
 		} else if (attributeMap.containsKey(attributeName)) {
-			return attributeMap.get(attributeName);
+			Object value = attributeMap.get(attributeName);
+			logger.trace("{}.getAttribute - in map returning {}", getName(), value);
+			logger.trace("{}.getAttribute - not using value in xml ({})",
+					getName(),
+					configuration == null ? "n/a" : configuration.getProperty(attributeName));
+			return value;
 		}
+		logger.trace("{}.getAttribute - {} not present, returning null", getName(), attributeName);
 		return null;
 	}
 
@@ -276,7 +300,7 @@ public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
 
 			detTree.addChildNode(type_node);
 		}
-		
+
 		if (getDetectorType() != null) {
 			ngd = new NexusGroupData(getDetectorType());
 			ngd.isDetectorEntryData = false;
