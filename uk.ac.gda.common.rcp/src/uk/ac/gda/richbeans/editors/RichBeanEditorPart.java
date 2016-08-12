@@ -135,6 +135,9 @@ public abstract class RichBeanEditorPart extends EditorPart implements ValueList
 
 	protected void createDataBindingController() {
 		IBeanService service = ServiceGrabber.getBeanService();
+		if (service == null) {
+			throw new IllegalStateException("BeanService is not available");
+		}
 		this.controller = service.createController(getEditorUI(), this.editingBean);
 	}
 
@@ -315,7 +318,11 @@ public abstract class RichBeanEditorPart extends EditorPart implements ValueList
 	}
 
 	private void updateOtherBeanFromUi(Object otherBean) throws Exception {
-		ServiceGrabber.getBeanService().createController(getEditorUI(), otherBean).uiToBean();
+		IBeanService service = ServiceGrabber.getBeanService();
+		if (service == null) {
+			throw new IllegalStateException("BeanService not available");
+		}
+		service.createController(getEditorUI(), otherBean).uiToBean();
 	}
 
 	@Override
