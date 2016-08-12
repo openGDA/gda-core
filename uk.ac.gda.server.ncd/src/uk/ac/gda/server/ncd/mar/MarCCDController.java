@@ -19,7 +19,6 @@
 package uk.ac.gda.server.ncd.mar;
 
 import gda.device.DeviceException;
-import gda.util.UsesProperties;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -40,7 +39,7 @@ import org.slf4j.LoggerFactory;
  * Implements socket commands to marccd software. Documented in "Appendix 3: the Remote Mode of marccd", v 0.10.17.
  * Other changes have been made to the API, up to v 0.19.
  */
-public class MarCCDController extends Observable implements UsesProperties {
+public class MarCCDController extends Observable {
 
 	private static final Logger logger = LoggerFactory.getLogger(MarCCDController.class);
 
