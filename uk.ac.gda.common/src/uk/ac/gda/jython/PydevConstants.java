@@ -26,5 +26,5 @@ public class PydevConstants {
 	 * The name of the interpreter to be created and added to projects in workspace that
 	 * have Pydev nature.
 	 */
-	public static final String INTERPRETER_NAME = "Jython2.5";
+	public static final String INTERPRETER_NAME = "Jython2.7";
 }
