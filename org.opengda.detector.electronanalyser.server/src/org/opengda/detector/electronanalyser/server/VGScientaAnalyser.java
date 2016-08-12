@@ -46,6 +46,7 @@ import gda.factory.corba.util.CorbaAdapterClass;
 import gda.factory.corba.util.CorbaImplClass;
 import gov.aps.jca.CAException;
 import gov.aps.jca.TimeoutException;
+import uk.ac.gda.devices.vgscienta.VGScientaController;
 
 @CorbaAdapterClass(DeviceAdapter.class)
 @CorbaImplClass(DeviceImpl.class)
@@ -686,7 +687,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 		getAdBase().setMinY(region[1]);
 		getAdBase().setSizeX(region[2]);
 		getAdBase().setSizeY(region[3]);
-		controller.setSlice(region[3]);
+		controller.setSlices(region[3]);
 		getAdBase().setImageMode(0);
 		getAdBase().setTriggerMode(0);
 	}
@@ -734,7 +735,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 	}
 	@Override
 	public void setNumberInterations(int value, double timeout) throws Exception {
-		getAdBase().setNumExposures(value, timeout);
+		getAdBase().setNumExposures(value);
 	}
 
 	@Override
@@ -807,7 +808,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 	}
 	@Override
 	public void setLensMode(String value, double timeout) throws Exception {
-		controller.setLensMode(value, timeout);
+		controller.setLensMode(value);
 	}
 	@Override
 	public String getLensMode() throws Exception {
@@ -819,7 +820,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 	}
 	@Override
 	public void setAcquisitionMode(String value, double timeout) throws Exception {
-		controller.setAcquisitionMode(value, timeout);
+		controller.setAcquisitionMode(value);
 	}
 
 	@Override
@@ -832,7 +833,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 	}
 	@Override
 	public void setEnergyMode(String value, double timeout) throws Exception {
-		controller.setEnergyMode(value, timeout);
+		controller.setEnergyMode(value);
 	}
 
 	@Override
@@ -846,7 +847,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 	}
 	@Override
 	public void setDetectorMode(String value, double timeout) throws Exception {
-		controller.setDetectorMode(value,timeout);
+		controller.setDetectorMode(value);
 	}
 	@Override
 	public String getDetectorMode() throws Exception {
@@ -869,7 +870,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 
 	@Override
 	public void setPassEnergy(Integer value, double timeout) throws Exception {
-		controller.setPassEnergy(value, timeout);
+		controller.setPassEnergy(value);
 	}
 	@Override
 	public Integer getPassEnergy() throws Exception {
@@ -883,7 +884,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 
 	@Override
 	public void setStartEnergy(Double value, double timeout) throws Exception {
-		controller.setStartEnergy(value, timeout);
+		controller.setStartEnergy(value);
 	}
 	@Override
 	public Double getStartEnergy() throws Exception {
@@ -897,7 +898,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 
 	@Override
 	public void setCentreEnergy(Double value, double timeout) throws Exception {
-		controller.setCentreEnergy(value, timeout);
+		controller.setCentreEnergy(value);
 	}
 	@Override
 	public Double getCentreEnergy() throws Exception {
@@ -911,7 +912,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 
 	@Override
 	public void setEndEnergy(Double value, double timeout) throws Exception {
-		controller.setEndEnergy(value, timeout);
+		controller.setEndEnergy(value);
 	}
 	@Override
 	public Double getEndEnergy() throws Exception {
@@ -924,7 +925,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 	}
 	@Override
 	public void setEnergyStep(Double value, double timeout) throws Exception {
-		controller.setEnergyStep(value, timeout);
+		controller.setEnergyStep(value);
 	}
 	@Override
 	public Double getEnergyStep() throws Exception {
@@ -942,23 +943,23 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 
 	@Override
 	public void setStepTime(double value) throws Exception {
-		controller.setStepTime(value);
+		controller.setExposureTime(value);
 	}
 	@Override
 	public void setStepTime(double value, double timeout) throws Exception {
-		controller.setStepTime(value, timeout);
+		controller.setExposureTime(value);
 	}
 	@Override
 	public double getStepTime() throws Exception {
-		return controller.getStepTime();
+		return controller.getExposureTime();
 	}
 	@Override
 	public void setSlices(int value) throws Exception {
-		controller.setSlice(value);
+		controller.setSlices(value);
 	}
 	@Override
 	public void setSlices(int value, double timeout) throws Exception {
-		controller.setSlice(value, timeout);
+		controller.setSlices(value);
 	}
 	@Override
 	public int getSlices() throws Exception {
@@ -1013,12 +1014,12 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 
 	@Override
 	public String[] getPassENergies() throws DeviceException {
-		return controller.getPassEnergies();
+		return controller.getPassEnergies().toArray(new String[0]);
 	}
 
 	@Override
 	public String[] getLensModes() throws DeviceException {
-		return controller.getLensModes();
+		return controller.getLensModes().toArray(new String[0]);
 	}
 	@Override
 	public String[] getElementSet() throws DeviceException {

@@ -18,7 +18,8 @@ Require-Bundle: uk.ac.gda.epics,
  uk.ac.gda.libs;bundle-version="1.0.0",
  uk.ac.diamond.scisoft.analysis.plotserver;bundle-version="1.0.0",
  org.eclipse.dawnsci.nexus;bundle-version="1.0.0",
- org.eclipse.dawnsci.hdf5;bundle-version="1.2.0"
+ org.eclipse.dawnsci.hdf5;bundle-version="1.2.0",
+ uk.ac.gda.devices.vgscienta;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Import-Package: org.slf4j;version="[1.7.2,2.0.0)",
  org.springframework.beans.factory;version="3.0.4"

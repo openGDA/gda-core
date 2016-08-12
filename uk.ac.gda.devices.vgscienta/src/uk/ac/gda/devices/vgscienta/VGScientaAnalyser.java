@@ -200,7 +200,7 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 	}
 
 	public int getNumberOfSweeptSteps() throws Exception {
-		return controller.getSweepSteps();
+		return controller.getEnergyChannels();
 	}
 
 	public double[] getEnergyAxis() throws Exception {
@@ -330,7 +330,7 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 		getAdBase().setMinY(region[1]);
 		getAdBase().setSizeX(region[2]);
 		getAdBase().setSizeY(region[3]);
-		controller.setSlice(region[3]);
+		controller.setSlices(region[3]);
 		getAdBase().setImageMode(0);
 		getAdBase().setTriggerMode(0);
 	}
