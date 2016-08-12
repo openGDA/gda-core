@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2015 Diamond Light Source Ltd.
+ * Copyright © 2016 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -25,39 +25,39 @@ import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.ScannableMotionUnits;
 
-public class BeforeAfterScannable extends ScannableMotionUnitsWrapper {
-	
+public class BeforeAfterScannable extends ScannableMotionUnitsBase {
+
 	private static final Logger logger = LoggerFactory.getLogger(BeforeAfterScannable.class);
-	
-	Scannable beforeAfter;
-	Object before;
-	Object after;
-	
-	public BeforeAfterScannable(ScannableMotionUnits delegate, 
+
+	protected Scannable delegate;
+	protected Scannable beforeAfter;
+	protected Object before;
+	protected Object after;
+
+	public BeforeAfterScannable(ScannableMotionUnits delegate,
 			Scannable beforeAfter, Object before, Object after) {
-		setDelegate(delegate);
+		this.delegate = delegate;
 		this.beforeAfter = beforeAfter;
 		this.before = before;
 		this.after = after;
 	}
 
 	@Override
-	public void asynchronousMoveTo(Object position) throws DeviceException {
-		
-		logger.debug("before: {}({})", beforeAfter.getName(), before);
+	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
+
+		logger.debug("moving {} to {} before", beforeAfter.getName(), before);
 		beforeAfter.moveTo(before);
-		
-		try {
-			Thread.sleep(500);
-		} catch (InterruptedException e) {
-			logger.error("sleep before move interrupted", e);
-		}
-		
-		logger.debug("move: {}({})", getName(), position);
-		getDelegate().moveTo(position);
-		
-		logger.debug("after: {}({})", beforeAfter.getName(), after);
+
+		logger.debug("moving {} to {}", delegate.getName(), position);
+		delegate.moveTo(position);
+
+		logger.debug("moving {} to {} after", beforeAfter.getName(), after);
 		beforeAfter.moveTo(after);
+	}
+
+	@Override
+	public boolean isBusy() throws DeviceException {
+		return delegate.isBusy() || beforeAfter.isBusy();
 	}
 
 }
