@@ -18,30 +18,58 @@
 
 package uk.ac.gda.client.experimentdefinition.ui.handlers;
 
+import java.util.stream.Collectors;
+
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.scanning.api.event.EventException;
+import org.eclipse.scanning.event.ui.view.StatusQueueView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.commandqueue.Command;
 import gda.commandqueue.CommandBean;
+import gda.commandqueue.CommandQueue;
+import gda.commandqueue.ExperimentCommandBean;
+import uk.ac.gda.client.CommandQueueView;
+import uk.ac.gda.client.experimentdefinition.IExperimentObject;
 
+/**
+ * Extends {@link RunExperimentCommandHandler} to override {@link #submitCommandToQueue(ExperimentCommandProvider)}
+ * to place an {@link ExperimentCommandBean} on the new ActiveMQ based queue (so that it is
+ * shown in the {@link StatusQueueView}), instead of the old {@link CommandQueue} (shown in the
+ * {@link CommandQueueView}).
+ */
 public class RunExperimentNewQueueCommandHandler extends RunExperimentCommandHandler {
 	private static final Logger logger = LoggerFactory.getLogger(RunExperimentNewQueueCommandHandler.class);
 
-	private CommandBeanSubmitter submitter;
+	private CommandBeanSubmitter submitter = null;
 
 	@Override
 	protected void submitCommandToQueue(ExperimentCommandProvider commandProvider) throws ExecutionException {
+		// create the command bean
 		final Command command = commandProvider.getCommand();
+		CommandBean bean = createCommandBean(command);
 
+		// submit the bean
+		try {
+			getSubmitter().submitScan(bean);
+		} catch (EventException e) {
+			logger.error("Exception adding ExperimentCommandProvider to queue." + e.getMessage());
+			throw new ExecutionException("Exception adding ExperimentCommandProvider to queue.", e);
+		}
+	}
+
+	private CommandBeanSubmitter getSubmitter() {
 		if (submitter == null) {
 			submitter = new CommandBeanSubmitter();
 			submitter.init();
 		}
 
-		// create the command bean
-		CommandBean bean = new CommandBean();
+		return submitter;
+	}
+
+	private CommandBean createCommandBean(final Command command) {
+		ExperimentCommandBean bean = new ExperimentCommandBean();
 		bean.setCommand(command);
 		String description = "Unknown command";
 		try {
@@ -51,15 +79,16 @@ public class RunExperimentNewQueueCommandHandler extends RunExperimentCommandHan
 		}
 		bean.setName(description);
 		bean.setCommand(command);
-		// TODO set other fields?
 
-		// submit the bean
-		try {
-			submitter.submitScan(bean);
-		} catch (EventException e) {
-			logger.error("Exception adding ExperimentCommandProvider to queue." + e.getMessage());
-			throw new ExecutionException("Exception adding ExperimentCommandProvider to queue.", e);
-		}
+		// The experiment object doesn't get serialized (as it's not easily serialisable to json)
+		// so instead we put the important properties into the bean
+		IExperimentObject experimentObj = ((ExperimentCommand) command).getExperimentObject();
+		bean.setFolderPath(experimentObj.getFolder().getFullPath().toString());
+		bean.setMultiScanName(experimentObj.getMultiScanName());
+		bean.setRunName(experimentObj.getRunName());
+		bean.setFiles(experimentObj.getFiles().stream().map(
+				file -> file.getFullPath().toString()).collect(Collectors.toList()));
+		return bean;
 	}
 
 }

@@ -18,8 +18,6 @@
 
 package uk.ac.gda.client.experimentdefinition;
 
-import gda.configuration.properties.LocalProperties;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -35,6 +33,7 @@ import org.eclipse.core.runtime.Platform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
 import uk.ac.gda.beans.validation.AbstractValidator;
 import uk.ac.gda.client.experimentdefinition.components.ExperimentObjectListener;
 
@@ -242,7 +241,7 @@ public class ExperimentFactory {
 		return createExperimentObjectMananger(file);
 	}
 
-	protected static IExperimentObjectManager getManager(final IFolder folder, String multiScanName) {
+	public static IExperimentObjectManager getManager(final IFolder folder, String multiScanName) {
 		if (!folder.exists()) {
 			logger.warn("folder " + folder.getName() + " does not exist");
 			return null;

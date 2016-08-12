@@ -906,4 +906,9 @@
             name="Import existing XML files into project">
       </wizard>
    </extension>
+
+   <extension point="org.eclipse.scanning.api.modifyHandler">
+      <modifyHandler class="uk.ac.gda.client.experimentdefinition.ui.handlers.EditExperimentHandler"/>
+   </extension>
+   
 </plugin>

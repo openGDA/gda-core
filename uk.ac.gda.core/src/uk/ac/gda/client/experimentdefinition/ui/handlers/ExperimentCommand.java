@@ -18,16 +18,15 @@
 
 package uk.ac.gda.client.experimentdefinition.ui.handlers;
 
+import java.io.Serializable;
+
+import org.springframework.util.StringUtils;
+
 import gda.commandqueue.CommandDetails;
 import gda.commandqueue.CommandSummary;
 import gda.commandqueue.JythonScriptFileRunnerCommand;
 import gda.commandqueue.SimpleCommandDetailsPath;
 import gda.commandqueue.SimpleCommandSummary;
-
-import java.io.Serializable;
-
-import org.springframework.util.StringUtils;
-
 import uk.ac.gda.client.experimentdefinition.IExperimentObject;
 
 public class ExperimentCommand extends JythonScriptFileRunnerCommand implements Serializable {
@@ -78,4 +77,9 @@ public class ExperimentCommand extends JythonScriptFileRunnerCommand implements 
 	public CommandDetails getDetails() throws Exception {
 		return new SimpleCommandDetailsPath(getDescription(), scriptFile);
 	}
+
+	public IExperimentObject getExperimentObject() {
+		return experimentObject;
+	}
+
 }

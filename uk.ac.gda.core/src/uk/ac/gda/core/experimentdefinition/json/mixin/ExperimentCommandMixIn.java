@@ -19,6 +19,7 @@
 package uk.ac.gda.core.experimentdefinition.json.mixin;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import uk.ac.gda.client.experimentdefinition.IExperimentObject;
@@ -35,5 +36,7 @@ public abstract class ExperimentCommandMixIn {
 			@JsonProperty("scriptFile") String scriptFile) {
 		// do nothing
 	}
+
+	@JsonIgnore abstract String getExperimentObject();
 
 }
