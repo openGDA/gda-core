@@ -704,4 +704,8 @@
       </bean>
    </extension>
 
+   <extension point="org.eclipse.scanning.api.resultsHandler">
+      <resultsHandler class="uk.ac.gda.exafs.ui.actions.OpenResultsHandler"/>
+   </extension>
+
 </plugin>

@@ -150,4 +150,8 @@
       </handler>
    </extension>
 
+   <extension point="org.eclipse.scanning.api.resultsHandler">
+      <resultsHandler class="uk.ac.gda.client.microfocus.ui.commands.OpenResultsHandler"/>
+   </extension>
+
 </plugin>
