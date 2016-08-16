@@ -16,10 +16,6 @@ public interface Xspress3 extends FluorescenceDetector, NexusDetector {
 
 	/**
 	 * Perform a 'snapshot' data collection and return the MCAs. No file writing is involved.
-	 *
-	 * @param time
-	 * @return
-	 * @throws DeviceException
 	 */
 	@Deprecated
 	public int[][] getMCData(double time) throws DeviceException;

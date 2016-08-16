@@ -80,12 +80,12 @@ public class Xspress3DataOperations {
 		}
 	}
 
-	public void atScanLineStart() throws DeviceException {
+	public void atScanLineStart() {
 		framesRead = 0;
 		reader = null;
 	}
 
-	public void atPointEnd() throws DeviceException {
+	public void atPointEnd() {
 		framesRead++;
 	}
 
@@ -188,9 +188,9 @@ public class Xspress3DataOperations {
 		} catch (InterruptedException e) {
 			throw new DeviceException("InterruptedException during readout.");
 		}
-		
+
 		// ...but what about the sanity check above?? This should prevent the race condition
-		
+
 		return readoutLatestFrame(detectorName);
 	}
 
@@ -248,18 +248,18 @@ public class Xspress3DataOperations {
 		INexusTree detTree = thisFrame.getDetTree(detectorName);
 
 		// add the FF (sum over all rois, over all channels)
-		thisFrame.addData(detTree, sumLabel, new NexusGroupData(theFF), unitsLabel, 1);
+		NXDetectorData.addData(detTree, sumLabel, new NexusGroupData(theFF), unitsLabel, 1);
 
 		// add rois
 		for (int roi = 0; roi < numRois; roi++) {
-			thisFrame.addData(detTree, rois[roi].getRoiName(), new NexusGroupData(roiValues[roi]), unitsLabel, 2);
+			NXDetectorData.addData(detTree, rois[roi].getRoiName(), new NexusGroupData(roiValues[roi]), unitsLabel, 2);
 		}
 
 		// add MCAs
-		thisFrame.addData(detTree, mcaLabel, new NexusGroupData(mcasFromFile), unitsLabel, 2);
+		NXDetectorData.addData(detTree, mcaLabel, new NexusGroupData(mcasFromFile), unitsLabel, 2);
 
 		// add all element sum
-		thisFrame.addData(detTree, allElementSumLabel, new NexusGroupData(allElementSum), unitsLabel, 2);
+		NXDetectorData.addData(detTree, allElementSumLabel, new NexusGroupData(allElementSum), unitsLabel, 2);
 
 		// add plottable values
 		int index = 0;
@@ -292,7 +292,7 @@ public class Xspress3DataOperations {
 		}
 
 		try {
-			extractMCAsFromFile(controller.getFullFileName(), firstFrame, lastFrame);
+			extractMCAsFromFile(controller.getFullFileName());
 			int numFrames = lastFrame - firstFrame + 1;
 			NXDetectorData[] frames = new NXDetectorData[numFrames];
 			for (int frame = 0; frame < numFrames; frame++) {
@@ -306,7 +306,7 @@ public class Xspress3DataOperations {
 		}
 	}
 
-	private void extractMCAsFromFile(String filename, int firstFrame, int lastFrame) throws NexusException,
+	private void extractMCAsFromFile(String filename) throws NexusException,
 			NexusExtractorException {
 		if (reader == null) {
 			reader = new Xspress3FileReader(filename, controller.getNumberOfChannels(), controller.getMcaSize());
@@ -351,7 +351,6 @@ public class Xspress3DataOperations {
 	/**
 	 * @param time
 	 *            - milliseconds
-	 * @return
 	 * @throws DeviceException
 	 */
 	@Deprecated

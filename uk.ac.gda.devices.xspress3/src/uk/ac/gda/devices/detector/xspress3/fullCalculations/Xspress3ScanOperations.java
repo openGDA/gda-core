@@ -52,7 +52,7 @@ public class Xspress3ScanOperations {
 		controller.doStop();
 
 		if (readDataFromFile) {
-			prepareFileWriting(currentDimensions);
+			prepareFileWriting();
 		}
 	}
 
@@ -62,14 +62,14 @@ public class Xspress3ScanOperations {
 		controller.doStart();
 	}
 
-	public void atScanEnd() throws DeviceException {
+	public void atScanEnd() {
 		currentScanNumber = -1;
 	}
 
 	/*
 	 * Must be called after currentScanNumber updated
 	 */
-	private void prepareFileWriting(int[] numDimensions) throws DeviceException {
+	private void prepareFileWriting() throws DeviceException {
 
 		String scanNumber = Long.toString(currentScanNumber);
 

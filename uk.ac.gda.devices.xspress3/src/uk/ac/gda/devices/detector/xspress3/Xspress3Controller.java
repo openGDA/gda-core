@@ -109,7 +109,7 @@ public interface Xspress3Controller extends Findable{
 	/**
 	 * Dead-time corrected in-window scaler counts, for window 1
 	 * <p>
-	 * Use the value from {@link #getNumFramesAvailable()} to know what frames
+	 * Use the value from {@link #getTotalFramesAvailable()} to know what frames
 	 * will have valid data in
 	 *
 	 * @param startFrame
@@ -124,7 +124,7 @@ public interface Xspress3Controller extends Findable{
 	/**
 	 * Dead-time corrected in-window scaler counts, for window 2
 	 * <p>
-	 * Use the value from {@link #getNumFramesAvailable()} to know what frames
+	 * Use the value from {@link #getTotalFramesAvailable()} to know what frames
 	 * will have valid data in
 	 *
 	 * @param startFrame
@@ -139,7 +139,7 @@ public interface Xspress3Controller extends Findable{
 	/**
 	 * Array of scaler stats.
 	 * <p>
-	 * Use the value from {@link #getNumFramesAvailable()} to know what frames
+	 * Use the value from {@link #getTotalFramesAvailable()} to know what frames
 	 * will have valid data in
 	 *
 	 * @param startFrame
@@ -155,7 +155,7 @@ public interface Xspress3Controller extends Findable{
 	/**
 	 * The dead-time parameters
 	 * <p>
-	 * Use the value from {@link #getNumFramesAvailable()} to know what frames
+	 * Use the value from {@link #getTotalFramesAvailable()} to know what frames
 	 * will have valid data in
 	 *
 	 * @param startChannel
@@ -168,7 +168,7 @@ public interface Xspress3Controller extends Findable{
 	/**
 	 * The deadtime corrected number of counts in each ROI.
 	 * <p>
-	 * Use the value from {@link #getNumFramesAvailable()} to know what frames
+	 * Use the value from {@link #getTotalFramesAvailable()} to know what frames
 	 * will have valid data in
 	 *
 	 * @param startFrame
@@ -187,8 +187,6 @@ public interface Xspress3Controller extends Findable{
 	public int getNumberROIToRead();
 
 	/**
-	 * @param numRoiToRead
-	 * @return
 	 * @throws IllegalArgumentException
 	 *             - if the value given is too high for the implementation
 	 */

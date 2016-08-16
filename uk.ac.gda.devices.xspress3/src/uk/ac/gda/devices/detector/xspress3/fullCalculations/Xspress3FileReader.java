@@ -36,7 +36,7 @@ public class Xspress3FileReader {
 	private int mcaSize;
 	private double[][][] theData = null; // [frame][element][mcaChannel]
 
-	public Xspress3FileReader(String filename, int numberOfDetectorElements, int mcaSize) throws NexusException {
+	public Xspress3FileReader(String filename, int numberOfDetectorElements, int mcaSize) {
 		this.url = filename;
 		this.numberOfDetectorElements = numberOfDetectorElements;
 		this.mcaSize = mcaSize;
@@ -81,9 +81,6 @@ public class Xspress3FileReader {
 
 	/**
 	 * Assumes {@link #readFile()} has been called and returned normally.
-	 *
-	 * @param frameNumber
-	 * @return
 	 */
 	public double[][] getFrame(int frameNumber) {
 		return theData[frameNumber];

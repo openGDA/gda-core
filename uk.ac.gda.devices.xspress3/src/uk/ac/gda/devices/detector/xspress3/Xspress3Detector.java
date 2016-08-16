@@ -22,6 +22,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.data.NumTracker;
 import gda.data.PathConstructor;
 import gda.data.nexus.extractor.NexusGroupData;
@@ -47,10 +50,12 @@ import uk.ac.gda.util.beans.xml.XMLHelpers;
  * By passive I mean that the Xspress3 is an externally triggered system and this class does not cover how the triggers are generated. This class sets up the
  * Xspress3 time frames and reads out the data.
  *
- * @see uk.ac.gda.devices.detector.xspress#Xspress3System
  * @author rjw82
  */
 public class Xspress3Detector extends DetectorBase implements Xspress3 {
+
+	private static final Logger logger = LoggerFactory.getLogger(Xspress3Detector.class);
+
 	private static final int MCA_SIZE = 4096;
 	public static final String ALL_ELEMENT_SUM_LABEL = "AllElementSum_";
 	public static int SUM_ALL_ROI = 0;
@@ -104,13 +109,26 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 
 	@Override
 	public void atScanStart() throws DeviceException {
+		setNumberOfFramesToCollectBasedOnCurrentlyRunningScan();
+		stop();
+		prepareFileWriting();
+	}
+
+	private void setNumberOfFramesToCollectBasedOnCurrentlyRunningScan() throws DeviceException {
+		int lengthOfEachScanLine = getLengthOfEachScanLine();
+		// Length of -1 indicates a MultiRegionScan is running. Don't set the number of frames
+		// in this case; assume something else is setting this correctly
+		if (lengthOfEachScanLine != -1) {
+			setNumberOfFramesToCollect(lengthOfEachScanLine);
+		}
+	}
+
+	private int getLengthOfEachScanLine() {
 		ScanInformation currentscan = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation();
 		currentScanNumber = currentscan.getScanNumber();
 		int numDimensions = currentscan.getDimensions().length;
 		int lengthOfEachScanLine = currentscan.getDimensions()[numDimensions - 1];
-		setNumberOfFramesToCollect(lengthOfEachScanLine);
-		stop();
-		prepareFileWriting();
+		return lengthOfEachScanLine;
 	}
 
 	@Override
@@ -198,6 +216,39 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 		return Detector.IDLE;
 	}
 
+	public void waitUntilDetectorStateIsBusy(long timeout) throws DeviceException {
+		final long startTime = System.currentTimeMillis();
+		while (true) {
+			if (controller.getStatus() == Detector.BUSY) {
+				logger.info("Detector is ready for triggering");
+				break;
+			}
+			final long elapsedTime = (System.currentTimeMillis() - startTime);
+			if (elapsedTime > timeout) {
+				throw new DeviceException(String.format("Detector was not ready for triggering after %d ms", timeout));
+			}
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				throw new DeviceException("Interrupted while waiting for detector to be busy", e);
+			}
+		}
+	}
+
+	public void waitUntilDetectorStateIsNotBusy() throws DeviceException {
+		while (true) {
+			if (controller.getStatus() != Detector.BUSY) {
+				logger.info("Detector is not busy");
+				break;
+			}
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				throw new DeviceException("Interrupted while waiting for detector to not be busy", e);
+			}
+		}
+	}
+
 	@Override
 	public boolean createsOwnFiles() throws DeviceException {
 		return false; // false as this will return data for the GDA to write
@@ -266,7 +317,6 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 
 		// read out FFs from sca5
 		Double[][] FFs_sca5 = controller.readoutDTCorrectedSCA1(firstFrame, lastFrame, firstChannelToRead, finalChannelToRead);
-		Double[][] FFs_sca6 = controller.readoutDTCorrectedSCA2(firstFrame, lastFrame, firstChannelToRead, finalChannelToRead);
 		double[][] FFs = new double[numFramesRead][numberOfChannelsToRead];
 		for (int frame = 0; frame < numFramesRead; frame++) {
 			for (int channel = 0; channel < numberOfChannelsToRead; channel++) {
@@ -434,7 +484,6 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 	/**
 	 * @param time
 	 *            - milliseconds
-	 * @return
 	 * @throws DeviceException
 	 */
 	@Override
@@ -449,7 +498,6 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 	/**
 	 * @param time
 	 *            - milliseconds
-	 * @return
 	 * @throws DeviceException
 	 */
 	@Override
@@ -690,7 +738,6 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 	 * be no need to put MCA data in different files and Nexus nodes.
 	 *
 	 * @param rowNumber
-	 * @return
 	 */
 	public static String getNameOfRowSubNode(int rowNumber) {
 		return "mcas_row_" + String.format("%04d", rowNumber);
