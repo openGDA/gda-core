@@ -113,12 +113,10 @@ public abstract class FrameCaptureTask<E> implements Runnable {
 					receiveImages();
 				} catch(SocketTimeoutException e){
 					if (acceptReadTimeout){
-						logger.debug("SocketTimeOutException ",e);
+						logger.debug("Ignoring SocketTimeOutException");
 					} else {
 						throw e;
 					}
-				} catch(Throwable th){
-					throw th;
 				}
 			}
 		} catch (Throwable e) {
