@@ -1,10 +1,11 @@
-from gda.commandqueue import JythonScriptProgressProvider
-from gda.data.metadata import GDAMetadataProvider
+import time
+
 import gda.factory.Finder
 import gda.jython.commands.ScannableCommands
-import sys
-import time
+from org.slf4j import LoggerFactory
 import uk.ac.gda.arpes.beans.ARPESScanBean
+
+logger = LoggerFactory.getLogger(__name__ + '.py')
 
 class ARPESRun:
 
@@ -14,20 +15,15 @@ class ARPESRun:
         self.progresscounter = 0
         self.totalSteps = 3
         self.lastreportedmeasurement = None
-
-    def reportProgress(self, message):
-        self.progresscounter += 1
-        if self.totalSteps < self.progresscounter:
-            self.totalSteps = self.progresscounter
-            print "max progress steps: %d" % self.totalSteps
-        JythonScriptProgressProvider.sendProgress(100.0 * self.progresscounter / self.totalSteps, "%s  (%3.1f%% done)" % (message, 100.0 * self.progresscounter / self.totalSteps))
+        logger.debug('Initialised ARPESRun with file: ' + beanFile)
 
     def checkDevice(self):
         # The idea of this method it to check that the analyser is ready to be configured or
         # acquired from.
         # Check if analyser is acquiring if so stop it.
         if(self.scienta.adBase.getDetectorState_RBV() == 1):
-            print "Analyser was acquiring stop it"
+            logger.warn("Analyser was acquiring. Stopping it.")
+            print "Analyser was acquiring. Stopping it."
             self.scienta.adBase.stopAcquiring()
             time.sleep(1.5)
         # Now check for other cases such as the error state and try to recover to idle.
@@ -35,7 +31,8 @@ class ARPESRun:
         # can eventually be fixed on the EPICS IOC end.
         # Check if analyser is in any state except idle and try to get into idle state
         if(self.scienta.adBase.getDetectorState_RBV() != 0):
-            print "Analyser not in idle state"
+            logger.error("Analyser was not in idle state - Trying to recover...")
+            print "Analyser was not in idle state - Trying to recover..."
             # Change to single frame mode
             self.scienta.adBase.setImageMode(0)
             # Set short acquire time
@@ -45,25 +42,17 @@ class ARPESRun:
             time.sleep(1.5)
             # Check i recovering has worked if not tell users
             if(self.scienta.adBase.getDetectorState_RBV() != 0):
+                logger.error("Analyser recovery failed, check EPICS!")
                 print "Analyser is still not ready check EPICS!"
             else:
-               print "Recovered to idle state. Analyser is ready"
+                logger.info("Analyser was recovered to idle state.")
+                print "Analyser was recovered to idle state."
         else:
+            logger.debug("Analyser is ready")
             print "Analyser is ready"
 
-    def setStorageTemperature(self):
-        self.monitorAsynchronousMethod(self.bssc.waitTemperatureSample(self.bean.getSampleStorageTemperature()))
-        # pass
-
-    def setExposureTemperature(self, temperature):
-        self.monitorAsynchronousMethod(self.bssc.waitTemperatureSEU((temperature)))
-        # pass
-
-    def setTitle(self, title):
-        GDAMetadataProvider.getInstance().setMetadataValue("title", title)
 
     def run(self):
-        self.reportProgress("Initialising")
         # Check the analyser is ready to be setup
         self.checkDevice()
         # Set the pass energy
@@ -85,11 +74,9 @@ class ARPESRun:
 
         # Check if its configure only
         if self.bean.isConfigureOnly():
-            self.reportProgress("Setting Up Analyser")
+            logger.info("(Config only) Analyser is set up!")
             print "(Config only) Analyser is set up!"
-            self.reportProgress("Finalising")
         else:  # not configure only run staticscan
-            print "Analyser is set up!"
-            self.reportProgress("Running Acquisition")
+            logger.info("Analyser is set up! Running scan...")
+            print "Analyser is set up! Running scan..."
             gda.jython.commands.ScannableCommands.staticscan([self.scienta])
-            self.reportProgress("Finalising")
