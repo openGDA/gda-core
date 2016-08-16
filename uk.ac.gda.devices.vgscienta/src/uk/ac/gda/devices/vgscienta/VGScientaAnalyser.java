@@ -444,8 +444,7 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 	}
 
 	public void zeroSupplies() throws Exception {
-		getAdBase().stopAcquiring();//Acquisition must be stopped before zeroing supplies.
-		Thread.sleep(250);//Pause before zeroing supplies as there is a possible race condition between stopping acquisition and zeroing supplies.
+		// zeroSupplies also cause the acquisition to stop
 		controller.zeroSupplies();
 	}
 

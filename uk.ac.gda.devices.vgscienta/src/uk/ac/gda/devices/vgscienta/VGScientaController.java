@@ -215,7 +215,6 @@ public class VGScientaController implements Configurable {
 	public void zeroSupplies() throws Exception {
 		try {
 			EPICS_CONTROLLER.caputWait(getChannel(ZERO_SUPPLIES), 1);
-			EPICS_CONTROLLER.caput(getChannel(ZERO_SUPPLIES), 0);
 			logger.debug("looks like we successfully set the volates to zero");
 		} catch (Exception e) {
 			logger.error("exception received while zeroing voltages: ", e);
