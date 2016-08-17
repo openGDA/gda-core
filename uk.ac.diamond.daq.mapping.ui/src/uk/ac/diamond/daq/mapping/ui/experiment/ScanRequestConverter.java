@@ -24,12 +24,15 @@ import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.models.AbstractBoundingBoxModel;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
+import org.eclipse.scanning.api.script.ScriptLanguage;
+import org.eclipse.scanning.api.script.ScriptRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.mapping.api.IDetectorModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegion;
+import uk.ac.diamond.daq.mapping.api.IScriptFiles;
 import uk.ac.diamond.daq.mapping.impl.MappingStageInfo;
 
 public class ScanRequestConverter {
@@ -94,6 +97,24 @@ public class ScanRequestConverter {
 			}
 		}
 
+		if (mappingExperimentBean.getScriptFiles() != null) {
+			IScriptFiles scriptFiles = mappingExperimentBean.getScriptFiles();
+			req.setBefore(getScriptRequest(scriptFiles.getBeforeScanScript()));
+			req.setAfter(getScriptRequest(scriptFiles.getAfterScanScript()));
+		}
+
 		return scanBean;
 	}
+
+	private ScriptRequest getScriptRequest(String scriptFile) {
+		if (scriptFile == null || scriptFile.isEmpty()) {
+			return null;
+		}
+
+		final ScriptRequest scriptRequest = new ScriptRequest();
+		scriptRequest.setLanguage(ScriptLanguage.SPEC_PASTICHE);
+		scriptRequest.setFile(scriptFile);
+		return scriptRequest;
+	}
+
 }

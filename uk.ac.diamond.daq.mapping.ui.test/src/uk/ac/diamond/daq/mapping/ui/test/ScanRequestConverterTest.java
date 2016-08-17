@@ -18,9 +18,11 @@
 
 package uk.ac.diamond.daq.mapping.ui.test;
 
+import static org.eclipse.scanning.api.script.ScriptLanguage.SPEC_PASTICHE;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
@@ -32,15 +34,18 @@ import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.models.GridModel;
+import org.eclipse.scanning.api.script.ScriptRequest;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
+import uk.ac.diamond.daq.mapping.api.IScriptFiles;
 import uk.ac.diamond.daq.mapping.impl.DetectorModelWrapper;
-import uk.ac.diamond.daq.mapping.impl.MappingStageInfo;
 import uk.ac.diamond.daq.mapping.impl.MappingExperimentBean;
+import uk.ac.diamond.daq.mapping.impl.MappingStageInfo;
+import uk.ac.diamond.daq.mapping.impl.ScriptFiles;
 import uk.ac.diamond.daq.mapping.region.RectangularMappingRegion;
 import uk.ac.diamond.daq.mapping.ui.experiment.ScanRequestConverter;
 
@@ -125,6 +130,26 @@ public class ScanRequestConverterTest {
 
 		assertThat(scanPath.getFastAxisName(), is(equalTo(X_AXIS_NAME)));
 		assertThat(scanPath.getSlowAxisName(), is(equalTo(Y_AXIS_NAME)));
+	}
+
+	@Test
+	public void testScriptFilesIncludedCorrectly() {
+		IScriptFiles scriptFiles = new ScriptFiles();
+		experimentBean.setScriptFiles(scriptFiles);
+		scriptFiles.setBeforeScanScript("/tmp/before.py");
+		scriptFiles.setAfterScanScript("/tmp/after.py");
+
+		ScanBean scanBean = scanRequestConverter.convertToScanBean(experimentBean);
+
+		ScanRequest<?> scanRequest = scanBean.getScanRequest();
+		ScriptRequest beforeScriptReq = scanRequest.getBefore();
+		assertThat(beforeScriptReq, is(notNullValue()));
+		assertThat(beforeScriptReq.getLanguage(), is(SPEC_PASTICHE));
+		assertThat(beforeScriptReq.getFile(), is(equalTo("/tmp/before.py")));
+		ScriptRequest afterScriptReq = scanRequest.getAfter();
+		assertThat(afterScriptReq, is(notNullValue()));
+		assertThat(afterScriptReq.getLanguage(), is(SPEC_PASTICHE));
+		assertThat(afterScriptReq.getFile(), is(equalTo("/tmp/after.py")));
 	}
 
 }

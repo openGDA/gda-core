@@ -455,6 +455,25 @@ public class MappingExperimentView {
 			});
 		}
 
+		if (experimentBean.getScriptFiles() != null) {
+			// script files section only shown if bean is null. Create an empty script files bean
+			// in your spring configuration to allow script files to be set
+			Composite scriptsComposite = new Composite(mainComposite, SWT.NONE);
+			GridDataFactory.fillDefaults().grab(true, false).applyTo(scriptsComposite);
+			final int scriptsColumns = 2;
+			GridLayoutFactory.swtDefaults().numColumns(scriptsColumns).applyTo(scriptsComposite);
+			GridDataFactory.fillDefaults().span(scriptsColumns, 1).grab(true, false)
+					.applyTo(new Label(scriptsComposite, SWT.SEPARATOR | SWT.HORIZONTAL));
+			Label scriptsLabel = new Label(scriptsComposite, SWT.NONE);
+			scriptsLabel.setText("Scripts");
+			GridDataFactory.fillDefaults().span(scriptsColumns, 1).applyTo(scriptsLabel);
+			Button editScriptsButton = new Button(scriptsComposite, SWT.PUSH);
+			editScriptsButton.setText("Select Script Files");
+			editScriptsButton.addListener(SWT.Selection, event -> {
+				showDialogToEdit(experimentBean.getScriptFiles(), "Select Script Files");
+			});
+		}
+
 		Composite validateScanSomposite = new Composite(mainComposite, SWT.NONE);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.BOTTOM).applyTo(validateScanSomposite);
 		GridLayoutFactory.swtDefaults().numColumns(4).applyTo(validateScanSomposite);
