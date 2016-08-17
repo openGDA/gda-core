@@ -151,7 +151,6 @@ public class GeneralCommands {
 			availableInterfaces.remove("Closeable");
 			availableInterfaces.remove("Flushable");
 			availableInterfaces.remove("RobotListener");
-			availableInterfaces.remove("UsesProperties");
 			availableInterfaces.remove("Observer");
 			availableInterfaces.remove("IIsBeingObserved");
 			availableInterfaces.remove("Metadata");
