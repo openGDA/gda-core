@@ -25,10 +25,6 @@
   </extension>
   <extension
         point="org.eclipse.ui.newWizards">
-     <category
-           id="uk.ac.gda.devices.bssc"
-           name="Experiment">
-     </category>
      <wizard
            category="uk.ac.gda.devices.bssc"
            class="uk.ac.gda.devices.bssc.wizards.BSSCSessionWizard"
@@ -138,7 +134,7 @@
            allPopups="false"
            locationURI="toolbar:org.eclipse.ui.main.toolbar">
         <toolbar
-              id="uk.ac.gda.devices.bssc.toolbar1">
+              id="uk.ac.gda.devices.bssc.BsscCommands">
            <command
                  commandId="uk.ac.gda.devices.bssc.LoadExperiment"
                  icon="icons/well.png"
@@ -146,11 +142,11 @@
                  mode="FORCE_TEXT"
                  style="push">
                        <visibleWhen
-        checkEnabled="false">
-        <reference
-          definitionId="uk.ac.gda.devices.bssc.perspectives.isBioSAXSPerspectiveDefinition">
-        </reference>
-      </visibleWhen>
+					        checkEnabled="false">
+					        <reference
+					          definitionId="uk.ac.gda.devices.bssc.perspectives.isBioSAXSPerspectiveDefinition">
+					        </reference>
+					      </visibleWhen>
            </command>
         </toolbar>
      </menuContribution>
