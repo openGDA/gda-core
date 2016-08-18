@@ -50,6 +50,7 @@ import org.eclipse.draw2d.geometry.Dimension;
 import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.PointList;
 import org.eclipse.draw2d.geometry.Rectangle;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
@@ -361,6 +362,18 @@ public class SWT2DOverlayProvider implements Overlay2DProvider {
 	@Override
 	public void setLineThickness(int primID, double thickness) {
 		throw new UnsupportedOperationException("Unsupported/implemented for SWT 2D Provider, please implement if needed");
+	}
+
+	@Override
+	public boolean setCustomLineStyle(int primID, float[] dash) {
+		final IFigure figure = figures.get(primID);
+		if (figure instanceof Shape) {
+			final Shape shape = (Shape) figure;
+			shape.setLineStyle(SWT.LINE_CUSTOM);
+			shape.setLineDash(dash);
+			return true;
+		}
+		return false;
 	}
 
 	@Override
