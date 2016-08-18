@@ -24,13 +24,13 @@
             name="Spectrum"
             restorable="true">
       </view>
-      <view
+      <!-- <view
             category="org.opengda.detector.electronanalyser.client.ses"
             class="gda.rcp.views.ViewFactory:externalioviewfactory"
             id="org.opengda.detector.electronanalyser.client.views.externalioview"
             name="External IO"
             restorable="true">
-      </view>
+      </view> -->
       <view
             category="org.opengda.detector.electronanalyser.client.ses"
             class="gda.rcp.views.ViewFactory:imageviewfactory"
@@ -38,13 +38,13 @@
             name="Image"
             restorable="true">
       </view>
-      <view
+      <!-- <view
             category="org.opengda.detector.electronanalyser.client.ses"
             class="gda.rcp.views.ViewFactory:slicesviewfactory"
             id="org.opengda.detector.electronanalyser.client.views.slicesview"
             name="Slices"
             restorable="true">
-      </view>
+      </view> -->
       <view
             category="org.opengda.detector.electronanalyser.client.ses"
             class="gda.rcp.views.ViewFactory:progressviewfactory"
