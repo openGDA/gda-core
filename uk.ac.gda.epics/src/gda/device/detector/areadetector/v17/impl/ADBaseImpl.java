@@ -18,6 +18,14 @@
 
 package gda.device.detector.areadetector.v17.impl;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.util.StringUtils;
+
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.configuration.epics.EpicsConfiguration;
@@ -45,14 +53,6 @@ import gov.aps.jca.TimeoutException;
 import gov.aps.jca.event.PutEvent;
 import gov.aps.jca.event.PutListener;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.util.StringUtils;
-
 public class ADBaseImpl implements InitializingBean, ADBase {
 
 	public class StartPutListener implements PutListener {
@@ -70,7 +70,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	}
 
 	// Setup the logging facilities
-	static final Logger logger = LoggerFactory.getLogger(ADBaseImpl.class);
+	private static final Logger logger = LoggerFactory.getLogger(ADBaseImpl.class);
 
 	protected final static EpicsController EPICS_CONTROLLER = EpicsController.getInstance();
 
@@ -127,7 +127,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.caget(getChannel(PortName_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getPortName_RBV", ex);
+			logger.warn("Cannot getPortName_RBV", ex);
 			throw ex;
 		}
 	}
@@ -143,7 +143,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.caget(getChannel(Manufacturer_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getManufacturer_RBV", ex);
+			logger.warn("Cannot getManufacturer_RBV", ex);
 			throw ex;
 		}
 	}
@@ -159,7 +159,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.caget(getChannel(Model_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getModel_RBV", ex);
+			logger.warn("Cannot getModel_RBV", ex);
 			throw ex;
 		}
 	}
@@ -175,7 +175,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(MaxSizeX_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getMaxSizeX_RBV", ex);
+			logger.warn("Cannot getMaxSizeX_RBV", ex);
 			throw ex;
 		}
 	}
@@ -191,7 +191,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(MaxSizeY_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getMaxSizeY_RBV", ex);
+			logger.warn("Cannot getMaxSizeY_RBV", ex);
 			throw ex;
 		}
 	}
@@ -207,7 +207,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(DataType));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getDataType", ex);
+			logger.warn("Cannot getDataType", ex);
 			throw ex;
 		}
 	}
@@ -224,7 +224,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 				EPICS_CONTROLLER.caput(getChannel(DataType), datatype);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot setDataType", ex);
+			logger.warn("Cannot setDataType", ex);
 			throw ex;
 		}
 	}
@@ -240,7 +240,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(DataType_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getDataType_RBV", ex);
+			logger.warn("Cannot getDataType_RBV", ex);
 			throw ex;
 		}
 	}
@@ -263,7 +263,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return dataTypeRBV_Map.get(val);
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getDataType_RBV", ex);
+			logger.warn("Cannot getDataType_RBV", ex);
 			throw ex;
 		}
 	}
@@ -319,7 +319,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ColorMode));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getColorMode", ex);
+			logger.warn("Cannot getColorMode", ex);
 			throw ex;
 		}
 	}
@@ -336,7 +336,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 				EPICS_CONTROLLER.caput(getChannel(ColorMode), colormode);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot setColorMode", ex);
+			logger.warn("Cannot setColorMode", ex);
 			throw ex;
 		}
 	}
@@ -352,7 +352,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ColorMode_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getColorMode_RBV", ex);
+			logger.warn("Cannot getColorMode_RBV", ex);
 			throw ex;
 		}
 	}
@@ -368,7 +368,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(BinX));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getBinX", ex);
+			logger.warn("Cannot getBinX", ex);
 			throw ex;
 		}
 	}
@@ -385,7 +385,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 				EPICS_CONTROLLER.caput(getChannel(BinX), binx);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot setBinX", ex);
+			logger.warn("Cannot setBinX", ex);
 			throw ex;
 		}
 	}
@@ -401,7 +401,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(BinX_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getBinX_RBV", ex);
+			logger.warn("Cannot getBinX_RBV", ex);
 			throw ex;
 		}
 	}
@@ -417,7 +417,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(BinY));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getBinY", ex);
+			logger.warn("Cannot getBinY", ex);
 			throw ex;
 		}
 	}
@@ -434,7 +434,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 				EPICS_CONTROLLER.caput(getChannel(BinY), biny);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot setBinY", ex);
+			logger.warn("Cannot setBinY", ex);
 			throw ex;
 		}
 	}
@@ -450,7 +450,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(BinY_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getBinY_RBV", ex);
+			logger.warn("Cannot getBinY_RBV", ex);
 			throw ex;
 		}
 	}
@@ -466,7 +466,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(MinX));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getMinX", ex);
+			logger.warn("Cannot getMinX", ex);
 			throw ex;
 		}
 	}
@@ -483,7 +483,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 				EPICS_CONTROLLER.caput(getChannel(MinX), minx);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot setMinX", ex);
+			logger.warn("Cannot setMinX", ex);
 			throw ex;
 		}
 	}
@@ -497,7 +497,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 				EPICS_CONTROLLER.caputWait(getChannel(MinX), minx, timeout);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot setMinX", ex);
+			logger.warn("Cannot setMinX", ex);
 			throw ex;
 		}
 	}
@@ -513,7 +513,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(MinX_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getMinX_RBV", ex);
+			logger.warn("Cannot getMinX_RBV", ex);
 			throw ex;
 		}
 	}
@@ -529,7 +529,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(MinY));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getMinY", ex);
+			logger.warn("Cannot getMinY", ex);
 			throw ex;
 		}
 	}
@@ -546,7 +546,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 				EPICS_CONTROLLER.caput(getChannel(MinY), miny);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot setMinY", ex);
+			logger.warn("Cannot setMinY", ex);
 			throw ex;
 		}
 	}
@@ -559,7 +559,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 				EPICS_CONTROLLER.caputWait(getChannel(MinY), miny,timeout);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot setMinY", ex);
+			logger.warn("Cannot setMinY", ex);
 			throw ex;
 		}
 	}
@@ -575,7 +575,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(MinY_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getMinY_RBV", ex);
+			logger.warn("Cannot getMinY_RBV", ex);
 			throw ex;
 		}
 	}
@@ -591,7 +591,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeX));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getSizeX", ex);
+			logger.warn("Cannot getSizeX", ex);
 			throw ex;
 		}
 	}
@@ -608,7 +608,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 				EPICS_CONTROLLER.caput(getChannel(SizeX), sizex);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot setSizeX", ex);
+			logger.warn("Cannot setSizeX", ex);
 			throw ex;
 		}
 	}
@@ -624,7 +624,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 				EPICS_CONTROLLER.caputWait(getChannel(SizeX), sizex, timeout);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot setSizeX", ex);
+			logger.warn("Cannot setSizeX", ex);
 			throw ex;
 		}
 	}
@@ -640,7 +640,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeX_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getSizeX_RBV", ex);
+			logger.warn("Cannot getSizeX_RBV", ex);
 			throw ex;
 		}
 	}
@@ -656,7 +656,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeY));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getSizeY", ex);
+			logger.warn("Cannot getSizeY", ex);
 			throw ex;
 		}
 	}
@@ -673,7 +673,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 				EPICS_CONTROLLER.caput(getChannel(SizeY), sizey);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot setSizeY", ex);
+			logger.warn("Cannot setSizeY", ex);
 			throw ex;
 		}
 	}
@@ -689,7 +689,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 				EPICS_CONTROLLER.caputWait(getChannel(SizeY), sizey, timeout);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot setSizeY", ex);
+			logger.warn("Cannot setSizeY", ex);
 			throw ex;
 		}
 	}
@@ -705,7 +705,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeY_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getSizeY_RBV", ex);
+			logger.warn("Cannot getSizeY_RBV", ex);
 			throw ex;
 		}
 	}
@@ -721,7 +721,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ReverseX));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getReverseX", ex);
+			logger.warn("Cannot getReverseX", ex);
 			throw ex;
 		}
 	}
@@ -738,7 +738,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 				EPICS_CONTROLLER.caput(getChannel(ReverseX), reversex);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot setReverseX", ex);
+			logger.warn("Cannot setReverseX", ex);
 			throw ex;
 		}
 	}
@@ -754,7 +754,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ReverseX_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getReverseX_RBV", ex);
+			logger.warn("Cannot getReverseX_RBV", ex);
 			throw ex;
 		}
 	}
@@ -770,7 +770,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ReverseY));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getReverseY", ex);
+			logger.warn("Cannot getReverseY", ex);
 			throw ex;
 		}
 	}
@@ -787,7 +787,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 				EPICS_CONTROLLER.caput(getChannel(ReverseY), reversey);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot setReverseY", ex);
+			logger.warn("Cannot setReverseY", ex);
 			throw ex;
 		}
 	}
@@ -803,7 +803,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ReverseY_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getReverseY_RBV", ex);
+			logger.warn("Cannot getReverseY_RBV", ex);
 			throw ex;
 		}
 	}
@@ -819,7 +819,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(ArraySizeX_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getArraySizeX_RBV", ex);
+			logger.warn("Cannot getArraySizeX_RBV", ex);
 			throw ex;
 		}
 	}
@@ -835,7 +835,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(ArraySizeY_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getArraySizeY_RBV", ex);
+			logger.warn("Cannot getArraySizeY_RBV", ex);
 			throw ex;
 		}
 	}
@@ -851,7 +851,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(ArraySizeZ_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getArraySizeZ_RBV", ex);
+			logger.warn("Cannot getArraySizeZ_RBV", ex);
 			throw ex;
 		}
 	}
@@ -867,7 +867,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(ArraySize_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getArraySize_RBV", ex);
+			logger.warn("Cannot getArraySize_RBV", ex);
 			throw ex;
 		}
 	}
@@ -883,7 +883,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(AcquireTime));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getAcquireTime", ex);
+			logger.warn("Cannot getAcquireTime", ex);
 			throw ex;
 		}
 	}
@@ -902,7 +902,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 				EPICS_CONTROLLER.caputWait(getChannel(AcquireTime), acquiretime);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot setAcquireTime", ex);
+			logger.warn("Cannot setAcquireTime", ex);
 			throw ex;
 		}
 	}
@@ -918,7 +918,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(AcquireTime_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getAcquireTime_RBV", ex);
+			logger.warn("Cannot getAcquireTime_RBV", ex);
 			throw ex;
 		}
 	}
@@ -934,7 +934,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(AcquirePeriod));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getAcquirePeriod", ex);
+			logger.warn("Cannot getAcquirePeriod", ex);
 			throw ex;
 		}
 	}
@@ -952,7 +952,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 				EPICS_CONTROLLER.caputWait(getChannel(AcquirePeriod), acquireperiod);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot setAcquirePeriod", ex);
+			logger.warn("Cannot setAcquirePeriod", ex);
 			throw ex;
 		}
 	}
@@ -968,7 +968,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(AcquirePeriod_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getAcquirePeriod_RBV", ex);
+			logger.warn("Cannot getAcquirePeriod_RBV", ex);
 			throw ex;
 		}
 	}
@@ -984,7 +984,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(TimeRemaining_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getTimeRemaining_RBV", ex);
+			logger.warn("Cannot getTimeRemaining_RBV", ex);
 			throw ex;
 		}
 	}
@@ -1000,7 +1000,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(Gain));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getGain", ex);
+			logger.warn("Cannot getGain", ex);
 			throw ex;
 		}
 	}
@@ -1017,7 +1017,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 				EPICS_CONTROLLER.caput(getChannel(Gain), gain);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot setGain", ex);
+			logger.warn("Cannot setGain", ex);
 			throw ex;
 		}
 	}
@@ -1033,7 +1033,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(Gain_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getGain_RBV", ex);
+			logger.warn("Cannot getGain_RBV", ex);
 			throw ex;
 		}
 	}
@@ -1049,7 +1049,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(FrameType));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getFrameType", ex);
+			logger.warn("Cannot getFrameType", ex);
 			throw ex;
 		}
 	}
@@ -1066,7 +1066,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 				EPICS_CONTROLLER.caput(getChannel(FrameType), frametype);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot setFrameType", ex);
+			logger.warn("Cannot setFrameType", ex);
 			throw ex;
 		}
 	}
@@ -1082,7 +1082,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(FrameType_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getFrameType_RBV", ex);
+			logger.warn("Cannot getFrameType_RBV", ex);
 			throw ex;
 		}
 	}
@@ -1098,7 +1098,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ImageMode));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getImageMode", ex);
+			logger.warn("Cannot getImageMode", ex);
 			throw ex;
 		}
 	}
@@ -1115,7 +1115,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 				EPICS_CONTROLLER.caput(getChannel(ImageMode), imagemode);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot setImageMode", ex);
+			logger.warn("Cannot setImageMode", ex);
 			throw ex;
 		}
 	}
@@ -1129,7 +1129,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 				EPICS_CONTROLLER.caputWait(getChannel(ImageMode), imagemode.ordinal());
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot setImageMode", ex);
+			logger.warn("Cannot setImageMode", ex);
 			throw ex;
 		}
 	}
@@ -1145,7 +1145,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ImageMode_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getImageMode_RBV", ex);
+			logger.warn("Cannot getImageMode_RBV", ex);
 			throw ex;
 		}
 	}
@@ -1161,7 +1161,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(TriggerMode));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getTriggerMode", ex);
+			logger.warn("Cannot getTriggerMode", ex);
 			throw ex;
 		}
 	}
@@ -1178,7 +1178,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 				EPICS_CONTROLLER.caputWait(getChannel(TriggerMode), triggermode);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot setTriggerMode", ex);
+			logger.warn("Cannot setTriggerMode", ex);
 			throw ex;
 		}
 	}
@@ -1194,7 +1194,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(TriggerMode_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getTriggerMode_RBV", ex);
+			logger.warn("Cannot getTriggerMode_RBV", ex);
 			throw ex;
 		}
 	}
@@ -1210,7 +1210,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(NumExposures));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getNumExposures", ex);
+			logger.warn("Cannot getNumExposures", ex);
 			throw ex;
 		}
 	}
@@ -1227,7 +1227,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 				EPICS_CONTROLLER.caputWait(getChannel(NumExposures), numexposures);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot setNumExposures", ex);
+			logger.warn("Cannot setNumExposures", ex);
 			throw ex;
 		}
 	}
@@ -1244,7 +1244,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 				EPICS_CONTROLLER.caputWait(getChannel(NumExposures), numexposures, timeout);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot setNumExposures", ex);
+			logger.warn("Cannot setNumExposures", ex);
 			throw ex;
 		}
 	}
@@ -1259,7 +1259,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(NumExposures_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getNumExposures_RBV", ex);
+			logger.warn("Cannot getNumExposures_RBV", ex);
 			throw ex;
 		}
 	}
@@ -1275,7 +1275,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(NumExposuresCounter_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getNumExposuresCounter_RBV", ex);
+			logger.warn("Cannot getNumExposuresCounter_RBV", ex);
 			throw ex;
 		}
 	}
@@ -1291,7 +1291,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(NumImages));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getNumImages", ex);
+			logger.warn("Cannot getNumImages", ex);
 			throw ex;
 		}
 	}
@@ -1308,7 +1308,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 				EPICS_CONTROLLER.caputWait(getChannel(NumImages), numimages);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot setNumImages", ex);
+			logger.warn("Cannot setNumImages", ex);
 			throw ex;
 		}
 	}
@@ -1324,7 +1324,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(NumImages_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getNumImages_RBV", ex);
+			logger.warn("Cannot getNumImages_RBV", ex);
 			throw ex;
 		}
 	}
@@ -1340,7 +1340,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(NumImagesCounter_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getNumImagesCounter_RBV", ex);
+			logger.warn("Cannot getNumImagesCounter_RBV", ex);
 			throw ex;
 		}
 	}
@@ -1356,7 +1356,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(Acquire));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getAcquireState", ex);
+			logger.warn("Cannot getAcquireState", ex);
 			throw ex;
 		}
 	}
@@ -1441,7 +1441,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.caget(getChannel(Acquire_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getAcquire_RBV", ex);
+			logger.warn("Cannot getAcquire_RBV", ex);
 			throw ex;
 		}
 	}
@@ -1457,7 +1457,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(ArrayCounter));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getArrayCounter", ex);
+			logger.warn("Cannot getArrayCounter", ex);
 			throw ex;
 		}
 	}
@@ -1474,7 +1474,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 				EPICS_CONTROLLER.caputWait(getChannel(ArrayCounter), arraycounter);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot setArrayCounter", ex);
+			logger.warn("Cannot setArrayCounter", ex);
 			throw ex;
 		}
 	}
@@ -1490,7 +1490,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(ArrayCounter_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getArrayCounter_RBV", ex);
+			logger.warn("Cannot getArrayCounter_RBV", ex);
 			throw ex;
 		}
 	}
@@ -1506,7 +1506,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(ArrayRate_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getArrayRate_RBV", ex);
+			logger.warn("Cannot getArrayRate_RBV", ex);
 			throw ex;
 		}
 	}
@@ -1524,7 +1524,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(DetectorState_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getDetectorState_RBV", ex);
+			logger.warn("Cannot getDetectorState_RBV", ex);
 			throw ex;
 		}
 	}
@@ -1550,7 +1550,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ArrayCallbacks));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getArrayCallbacks", ex);
+			logger.warn("Cannot getArrayCallbacks", ex);
 			throw ex;
 		}
 	}
@@ -1567,7 +1567,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 				EPICS_CONTROLLER.caputWait(getChannel(ArrayCallbacks), arraycallbacks);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot setArrayCallbacks", ex);
+			logger.warn("Cannot setArrayCallbacks", ex);
 			throw ex;
 		}
 	}
@@ -1583,7 +1583,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ArrayCallbacks_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getArrayCallbacks_RBV", ex);
+			logger.warn("Cannot getArrayCallbacks_RBV", ex);
 			throw ex;
 		}
 	}
@@ -1600,7 +1600,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return new String(EPICS_CONTROLLER.cagetByteArray(getChannel(NDAttributesFile))).trim();
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getNDAttributesFile", ex);
+			logger.warn("Cannot getNDAttributesFile", ex);
 			throw ex;
 		}
 	}
@@ -1618,7 +1618,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 				EPICS_CONTROLLER.caput(getChannel(NDAttributesFile), (ndattributesfile + '\0').getBytes());
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot setNDAttributesFile", ex);
+			logger.warn("Cannot setNDAttributesFile", ex);
 			throw ex;
 		}
 	}
@@ -1635,7 +1635,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return new String(EPICS_CONTROLLER.cagetByteArray(getChannel(StatusMessage_RBV))).trim();
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getStatusMessage_RBV", ex);
+			logger.warn("Cannot getStatusMessage_RBV", ex);
 			throw ex;
 		}
 	}
@@ -1652,7 +1652,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return new String(EPICS_CONTROLLER.cagetByteArray(getChannel(StringToServer_RBV))).trim();
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getStringToServer_RBV", ex);
+			logger.warn("Cannot getStringToServer_RBV", ex);
 			throw ex;
 		}
 	}
@@ -1669,7 +1669,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return new String(EPICS_CONTROLLER.cagetByteArray(getChannel(StringFromServer_RBV))).trim();
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getStringFromServer_RBV", ex);
+			logger.warn("Cannot getStringFromServer_RBV", ex);
 			throw ex;
 		}
 	}
@@ -1685,7 +1685,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ReadStatus));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getReadStatus", ex);
+			logger.warn("Cannot getReadStatus", ex);
 			throw ex;
 		}
 	}
@@ -1702,7 +1702,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 				EPICS_CONTROLLER.caput(getChannel(ReadStatus), readstatus);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot setReadStatus", ex);
+			logger.warn("Cannot setReadStatus", ex);
 			throw ex;
 		}
 	}
@@ -1718,7 +1718,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ShutterMode));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getShutterMode", ex);
+			logger.warn("Cannot getShutterMode", ex);
 			throw ex;
 		}
 	}
@@ -1735,7 +1735,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 				EPICS_CONTROLLER.caput(getChannel(ShutterMode), shuttermode);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot setShutterMode", ex);
+			logger.warn("Cannot setShutterMode", ex);
 			throw ex;
 		}
 	}
@@ -1751,7 +1751,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ShutterMode_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getShutterMode_RBV", ex);
+			logger.warn("Cannot getShutterMode_RBV", ex);
 			throw ex;
 		}
 	}
@@ -1767,7 +1767,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ShutterControl));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getShutterControl", ex);
+			logger.warn("Cannot getShutterControl", ex);
 			throw ex;
 		}
 	}
@@ -1784,7 +1784,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 				EPICS_CONTROLLER.caput(getChannel(ShutterControl), shuttercontrol);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot setShutterControl", ex);
+			logger.warn("Cannot setShutterControl", ex);
 			throw ex;
 		}
 	}
@@ -1800,7 +1800,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ShutterControl_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getShutterControl_RBV", ex);
+			logger.warn("Cannot getShutterControl_RBV", ex);
 			throw ex;
 		}
 	}
@@ -1816,7 +1816,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ShutterStatus_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getShutterStatus_RBV", ex);
+			logger.warn("Cannot getShutterStatus_RBV", ex);
 			throw ex;
 		}
 	}
@@ -1832,7 +1832,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(ShutterOpenDelay));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getShutterOpenDelay", ex);
+			logger.warn("Cannot getShutterOpenDelay", ex);
 			throw ex;
 		}
 	}
@@ -1849,7 +1849,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 				EPICS_CONTROLLER.caput(getChannel(ShutterOpenDelay), shutteropendelay);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot setShutterOpenDelay", ex);
+			logger.warn("Cannot setShutterOpenDelay", ex);
 			throw ex;
 		}
 	}
@@ -1865,7 +1865,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(ShutterOpenDelay_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getShutterOpenDelay_RBV", ex);
+			logger.warn("Cannot getShutterOpenDelay_RBV", ex);
 			throw ex;
 		}
 	}
@@ -1881,7 +1881,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(ShutterCloseDelay));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getShutterCloseDelay", ex);
+			logger.warn("Cannot getShutterCloseDelay", ex);
 			throw ex;
 		}
 	}
@@ -1898,7 +1898,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 				EPICS_CONTROLLER.caput(getChannel(ShutterCloseDelay), shutterclosedelay);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot setShutterCloseDelay", ex);
+			logger.warn("Cannot setShutterCloseDelay", ex);
 			throw ex;
 		}
 	}
@@ -1914,7 +1914,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(ShutterCloseDelay_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getShutterCloseDelay_RBV", ex);
+			logger.warn("Cannot getShutterCloseDelay_RBV", ex);
 			throw ex;
 		}
 	}
@@ -1930,7 +1930,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.caget(getChannel(ShutterOpenEPICSPV_ELEMENTNAME, ShutterOpenEPICSPV_PVPOSTFIX));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getShutterOpenEPICSPV", ex);
+			logger.warn("Cannot getShutterOpenEPICSPV", ex);
 			throw ex;
 		}
 	}
@@ -1949,7 +1949,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 						shutteropenepicspv);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot setShutterOpenEPICSPV", ex);
+			logger.warn("Cannot setShutterOpenEPICSPV", ex);
 			throw ex;
 		}
 	}
@@ -1965,7 +1965,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.caget(getChannel(ShutterOpenEPICSCmd_ElEMENTNAME, ShutterOpenEPICSCmd_PVPOSTFIX));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getShutterOpenEPICSCmd", ex);
+			logger.warn("Cannot getShutterOpenEPICSCmd", ex);
 			throw ex;
 		}
 	}
@@ -1984,7 +1984,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 						shutteropenepicscmd);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot setShutterOpenEPICSCmd", ex);
+			logger.warn("Cannot setShutterOpenEPICSCmd", ex);
 			throw ex;
 		}
 	}
@@ -2000,7 +2000,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.caget(getChannel(ShutterCloseEPICSPV_ELEMENTNAME, ShutterCloseEPICSPV_PVPOSTFIX));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getShutterCloseEPICSPV", ex);
+			logger.warn("Cannot getShutterCloseEPICSPV", ex);
 			throw ex;
 		}
 	}
@@ -2018,7 +2018,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 						shuttercloseepicspv);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot setShutterCloseEPICSPV", ex);
+			logger.warn("Cannot setShutterCloseEPICSPV", ex);
 			throw ex;
 		}
 	}
@@ -2034,7 +2034,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.caget(getChannel(ShutterCloseEPICSCmd_ELEMENTNAME, ShutterCloseEPICSCmd_PVPOSTFIX));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getShutterCloseEPICSCmd", ex);
+			logger.warn("Cannot getShutterCloseEPICSCmd", ex);
 			throw ex;
 		}
 	}
@@ -2052,7 +2052,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 						shuttercloseepicscmd);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot setShutterCloseEPICSCmd", ex);
+			logger.warn("Cannot setShutterCloseEPICSCmd", ex);
 			throw ex;
 		}
 	}
@@ -2068,7 +2068,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ShutterStatusEPICS_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getShutterStatusEPICS_RBV", ex);
+			logger.warn("Cannot getShutterStatusEPICS_RBV", ex);
 			throw ex;
 		}
 	}
@@ -2084,7 +2084,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.caget(getChannel(ShutterStatusEPICSPV_ELEMENTNAME, ShutterStatusEPICSPV_PVPOSTFIX));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getShutterStatusEPICSPV", ex);
+			logger.warn("Cannot getShutterStatusEPICSPV", ex);
 			throw ex;
 		}
 	}
@@ -2101,7 +2101,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			return EPICS_CONTROLLER.caget(getChannel(ShutterStatusEPICSCloseVal_ELEMENTNAME,
 					ShutterStatusEPICSCloseVal_PVPOSTFIX));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getShutterStatusEPICSCloseVal", ex);
+			logger.warn("Cannot getShutterStatusEPICSCloseVal", ex);
 			throw ex;
 		}
 	}
@@ -2118,7 +2118,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			return EPICS_CONTROLLER.caget(getChannel(ShutterStatusEPICSOpenVal_ELEMENTNAME,
 					ShutterStatusEPICSOpenVal_PVPOSTFIX));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getShutterStatusEPICSOpenVal", ex);
+			logger.warn("Cannot getShutterStatusEPICSOpenVal", ex);
 			throw ex;
 		}
 	}
@@ -2134,7 +2134,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(Temperature));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getTemperature", ex);
+			logger.warn("Cannot getTemperature", ex);
 			throw ex;
 		}
 	}
@@ -2151,7 +2151,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 				EPICS_CONTROLLER.caput(getChannel(Temperature), temperature);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot setTemperature", ex);
+			logger.warn("Cannot setTemperature", ex);
 			throw ex;
 		}
 	}
@@ -2167,7 +2167,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(Temperature_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getTemperature_RBV", ex);
+			logger.warn("Cannot getTemperature_RBV", ex);
 			throw ex;
 		}
 	}
@@ -2213,7 +2213,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			String fullPvName = genenerateFullPvName(pvElementName, args);
 			return createChannel(fullPvName);
 		} catch (Exception exception) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Problem getting channel", exception);
+			logger.warn("Problem getting channel", exception);
 			throw exception;
 		}
 	}
@@ -2242,10 +2242,10 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			try {
 				channel = EPICS_CONTROLLER.createChannel(fullPvName);
 			} catch (CAException cae) {
-				logger.warn("g.d.d.a.v.i.ADBaseImpl-> Problem creating channel", cae);
+				logger.warn("Problem creating channel", cae);
 				throw cae;
 			} catch (TimeoutException te) {
-				logger.warn("g.d.d.a.v.i.ADBaseImpl-> Problem creating channel", te);
+				logger.warn("Problem creating channel", te);
 				throw te;
 
 			}
@@ -2554,7 +2554,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 				EPICS_CONTROLLER.caput(getChannel(ImageMode), imagemode.ordinal());
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot setImageMode", ex);
+			logger.warn("Cannot setImageMode", ex);
 			throw ex;
 		}
 
@@ -2568,7 +2568,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 				EPICS_CONTROLLER.caput(getChannel(ImageMode), imagemode.ordinal(), timeout);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot setImageMode", ex);
+			logger.warn("Cannot setImageMode", ex);
 			throw ex;
 		}
 
