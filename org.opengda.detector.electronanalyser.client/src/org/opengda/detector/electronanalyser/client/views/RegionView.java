@@ -593,11 +593,6 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		});
 		btnPulseMode.setText("Pulse Counting");
 
-		Label horizontalSeparator = new Label(rootComposite, SWT.SEPARATOR | SWT.HORIZONTAL);
-		GridData gd_label = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_label.widthHint = 450;
-		horizontalSeparator.setLayoutData(gd_label);
-
 		Group grpProgress = new Group(rootComposite, SWT.NONE);
 		grpProgress.setText("Progress");
 		grpProgress.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
