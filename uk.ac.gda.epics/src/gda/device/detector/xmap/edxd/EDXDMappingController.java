@@ -33,7 +33,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This class describes the EDXD detector on I12, it is made up of 24 subdetectors
+ * This class describes the EDXD detector on I12, it is made up of 24 subdetectors:
+ * EDXDMappingElement instances, each wrapping an EpicsMCASimple instance.
  */
 public class EDXDMappingController extends EDXDController implements Configurable {
 
