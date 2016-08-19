@@ -9,6 +9,7 @@ import uk.ac.diamond.daq.mapping.api.IDetectorModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.api.ISampleMetadata;
 import uk.ac.diamond.daq.mapping.api.IScanDefinition;
+import uk.ac.diamond.daq.mapping.api.IScriptFiles;
 
 public class MappingExperimentBean implements IMappingExperimentBean {
 
@@ -16,6 +17,7 @@ public class MappingExperimentBean implements IMappingExperimentBean {
 	private List<IDetectorModelWrapper> detectorParameters;
 	private ExampleBeamlineConfigurationImpl beamlineConfiguration;
 	private IScanDefinition scanDefinition;
+	private IScriptFiles scriptFiles;
 
 	public MappingExperimentBean() {
 		sampleMetadata = new ExampleSampleMetadata();
@@ -72,5 +74,15 @@ public class MappingExperimentBean implements IMappingExperimentBean {
 	@Override
 	public void setPostProcessingConfiguration(List<IOperationModel> postProcessingConfiguration) {
 		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public IScriptFiles getScriptFiles() {
+		return scriptFiles;
+	}
+
+	@Override
+	public void setScriptFiles(IScriptFiles scriptFiles) {
+		this.scriptFiles = scriptFiles;
 	}
 }

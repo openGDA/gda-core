@@ -103,4 +103,18 @@ public interface IMappingExperimentBean {
 	 */
 	public void setPostProcessingConfiguration(List<IOperationModel> postProcessingConfiguration);
 
+	/**
+	 * Gets the script files to run before and after the mapping scan. Can be <code>null</code>
+	 * to indicate no scripts should be run.
+	 * @return script files
+	 */
+	public IScriptFiles getScriptFiles();
+
+	/**
+	 * Sets the script files to run before and after the mapping scan. Can be <code>null</code>
+	 * to indicate no scripts should be run.
+	 * @param scriptFiles script files
+	 */
+	public void setScriptFiles(IScriptFiles scriptFiles);
+
 }
