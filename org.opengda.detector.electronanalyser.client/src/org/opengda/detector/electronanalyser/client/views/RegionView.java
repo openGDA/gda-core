@@ -70,6 +70,7 @@ import org.slf4j.LoggerFactory;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.ScannableStatus;
+import gda.device.scannable.corba.impl.ScannableAdapter;
 import gda.factory.Finder;
 import gda.observable.IObserver;
 
@@ -1468,25 +1469,6 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		}
 	}
 
-	private void updateXRaySourceEnergies() {
-		if (dcmenergy != null) {
-			try {
-				hardXRayEnergy = (double) dcmenergy.getPosition() * 1000; // eV
-			} catch (DeviceException e) {
-				logger.error("Cannot get X-ray energy from DCM.", e);
-			}
-		}
-		txtHardEnergy.setText(String.format("%.4f", hardXRayEnergy));
-		if (pgmenergy != null) {
-			try {
-				softXRayEnergy = (double) pgmenergy.getPosition();
-			} catch (DeviceException e) {
-				logger.error("Cannot get X-ray energy from PGM.", e);
-			}
-		}
-		txtSoftEnergy.setText(String.format("%.4f", softXRayEnergy));
-	}
-
 	@Override
 	public void addSelectionChangedListener(ISelectionChangedListener listener) {
 		selectionChangedListeners.add(listener);
@@ -1550,31 +1532,57 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 
 	@Override
 	public void update(Object source, Object arg) {
-		if (source == dcmenergy && arg instanceof ScannableStatus) {
-			if (((ScannableStatus) arg).getStatus() == ScannableStatus.IDLE) {
-				try {
-					hardXRayEnergy = (double) dcmenergy.getPosition() * 1000; // eV
-				} catch (DeviceException e) {
-					logger.error("Cannot get X-ray energy from DCM.", e);
-				}
-				if (btnHard.getSelection()) {
-					excitationEnergy = hardXRayEnergy;
-				}
-				txtHardEnergy.setText(String.format("%.4f", hardXRayEnergy));
-			}
+		// If the update is not from a ScannableAdapter and of type ScannableStatus return
+		if (!(source instanceof ScannableAdapter) || !(arg instanceof ScannableStatus)) {
+			return;
 		}
-		if (source == pgmenergy && arg instanceof ScannableStatus) {
-			if (((ScannableStatus) arg).getStatus() == ScannableStatus.IDLE) {
-				try {
-					softXRayEnergy = (double) pgmenergy.getPosition();
-				} catch (DeviceException e) {
-					logger.error("Cannot get X-ray energy from PGM.", e);
-				}
-				if (btnSoft.getSelection()) {
-					excitationEnergy = softXRayEnergy;
-				}
-				txtSoftEnergy.setText(String.format("%.4f", softXRayEnergy));
+		// Cast the update
+		ScannableAdapter adaptor = (ScannableAdapter) source;
+		ScannableStatus status = (ScannableStatus) arg;
+
+		// Check if any move has just completed. If not return
+		if (status.getStatus() != ScannableStatus.IDLE) {
+			return;
+		}
+
+		// Check if update is from dcm or pgm and cached values in fields
+		if (adaptor.getName().equals("dcmenergy")) {
+			try {
+				hardXRayEnergy = (double) dcmenergy.getPosition() * 1000; // eV
+				logger.debug("Got new hard xray energy: {} eV", hardXRayEnergy);
+			} catch (DeviceException e) {
+				logger.error("Cannot get X-ray energy from DCM.", e);
 			}
+
+		}
+		if (adaptor.getName().equals("pgmenergy")) {
+			try {
+				softXRayEnergy = (double) pgmenergy.getPosition();
+				logger.debug("Got new soft xray energy: {} eV", softXRayEnergy);
+			} catch (DeviceException e) {
+				logger.error("Cannot get X-ray energy from PGM.", e);
+			}
+
+		}
+
+		// Update the GUI in UI thread
+		Display display = getViewSite().getShell().getDisplay();
+		if (!display.isDisposed()) {
+			display.asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					txtHardEnergy.setText(String.format("%.4f", hardXRayEnergy));
+					txtSoftEnergy.setText(String.format("%.4f", softXRayEnergy));
+					if (btnHard.getSelection()) {
+						excitationEnergy = hardXRayEnergy;
+					}
+
+					if (btnSoft.getSelection()) {
+						excitationEnergy = softXRayEnergy;
+					}
+				}
+			});
+
 		}
 	}
 
