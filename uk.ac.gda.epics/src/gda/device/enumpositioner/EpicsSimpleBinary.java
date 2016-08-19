@@ -18,13 +18,17 @@
 
 package gda.device.enumpositioner;
 
+import org.apache.commons.lang.ArrayUtils;
+import org.python.core.PyString;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.device.DeviceException;
 import gda.device.EnumPositioner;
 import gda.device.EnumPositionerStatus;
 import gda.device.Scannable;
-import gda.device.scannable.ScannableBase;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.EpicsController.MonitorType;
@@ -42,18 +46,13 @@ import gov.aps.jca.event.MonitorListener;
 import gov.aps.jca.event.PutEvent;
 import gov.aps.jca.event.PutListener;
 
-import org.apache.commons.lang.ArrayUtils;
-import org.python.core.PyString;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * Similar to EpicsValve, except looks at a single pv which can only have positions 0 or 1, and uses the values "Out"
  * and "In" externally for those positions.
  * <p>
  * EpicsValve should be used if the device uses the proper Epics Valve/Shutter template
  */
-public class EpicsSimpleBinary extends ScannableBase implements EnumPositioner, MonitorListener, Scannable,
+public class EpicsSimpleBinary extends EnumPositionerBase implements EnumPositioner, MonitorListener, Scannable,
 		InitializationListener {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsSimpleBinary.class);
@@ -187,17 +186,17 @@ public class EpicsSimpleBinary extends ScannableBase implements EnumPositioner, 
 	 * The defaults are { "Out", "In" }. Use this method to override.
 	 *
 	 * @param newPositions
-	 * @throws DeviceException
 	 */
-	public void setPositions(String[] newPositions) throws DeviceException {
+	@Override
+	public void setPositions(String[] newPositions) {
 
 		if (newPositions.length != 2) {
-			throw new DeviceException("Positions array must have 2 elements");
+			throw new IllegalArgumentException("Positions array must have 2 elements");
 		}
 
 		if (newPositions[0] == null || newPositions[1] == null || newPositions[0].isEmpty()
 				|| newPositions[1].isEmpty()) {
-			throw new DeviceException("Positions array cannot have empty elements");
+			throw new IllegalArgumentException("Positions array cannot have empty elements");
 		}
 
 		positions = newPositions;
