@@ -80,7 +80,7 @@ public class SequenceViewLabelProvider extends LabelProvider implements ITableLa
 			case SequenceTableConstants.COL_X_RAY_SOURCE:
 				if (isSourceSelectable()) {
 					if (region.getExcitationEnergy() < xRaySourceEnergyLimit) {
-						logger.warn("excitation energy {}, limit {}",region.getExcitationEnergy(), xRaySourceEnergyLimit );
+						logger.debug("excitation energy {}, limit {}", region.getExcitationEnergy(), xRaySourceEnergyLimit);
 						return "Soft";
 					}
 					return "Hard";
