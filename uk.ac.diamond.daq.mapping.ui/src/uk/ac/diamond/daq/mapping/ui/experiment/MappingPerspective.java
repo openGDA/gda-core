@@ -49,7 +49,7 @@ public class MappingPerspective implements IPerspectiveFactory {
 		folderLayout.addView("gda.rcp.jythonterminalview");
 		String queueViewId = StatusQueueView.createId(LocalProperties.get(LocalProperties.GDA_ACTIVEMQ_BROKER_URI, ""),
 				"org.eclipse.scanning.api",
-				"org.eclipse.scanning.api.event.scan.ScanBean",
+				"org.eclipse.scanning.api.event.status.StatusBean",
 				EventConstants.STATUS_SET,
 				EventConstants.STATUS_TOPIC,
 				EventConstants.SUBMISSION_QUEUE);
