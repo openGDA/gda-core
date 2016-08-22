@@ -158,7 +158,7 @@ public class EpicsArrayPlotComposite extends Composite implements Initialization
 		}
 		// Create a dataset of the axis
 		Dataset xAxis = new DoubleDataset(xdata, new int[] { xdata.length });
-		if (isDisplayBindingEnergy()) {
+		if (isDisplayInBindingEnergy()) {
 			// Convert to binding energy
 			xdata = convertToBindingEnergy(xdata);
 			xAxis.setName("Binding Energies (eV)");
@@ -239,7 +239,8 @@ public class EpicsArrayPlotComposite extends Composite implements Initialization
 		this.displayBindingEnergy=b;
 	}
 
-	public boolean isDisplayBindingEnergy() {
+	@Override
+	public boolean isDisplayInBindingEnergy() {
 		return displayBindingEnergy;
 	}
 
