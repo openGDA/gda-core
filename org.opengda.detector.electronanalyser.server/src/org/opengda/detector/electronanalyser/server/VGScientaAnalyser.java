@@ -18,6 +18,20 @@
 
 package org.opengda.detector.electronanalyser.server;
 
+import java.util.Arrays;
+
+import org.eclipse.dawnsci.analysis.api.dataset.ILazyWriteableDataset;
+import org.eclipse.dawnsci.analysis.api.dataset.SliceND;
+import org.eclipse.dawnsci.analysis.api.tree.DataNode;
+import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
+import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
+import org.eclipse.dawnsci.nexus.NexusFile;
+import org.eclipse.dawnsci.nexus.NexusUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
@@ -33,20 +47,6 @@ import gda.factory.corba.util.CorbaAdapterClass;
 import gda.factory.corba.util.CorbaImplClass;
 import gov.aps.jca.CAException;
 import gov.aps.jca.TimeoutException;
-
-import java.util.Arrays;
-
-import org.eclipse.dawnsci.analysis.api.dataset.ILazyWriteableDataset;
-import org.eclipse.dawnsci.analysis.api.dataset.SliceND;
-import org.eclipse.dawnsci.analysis.api.tree.DataNode;
-import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
-import org.eclipse.dawnsci.nexus.NexusFile;
-import org.eclipse.dawnsci.nexus.NexusUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @CorbaAdapterClass(DeviceAdapter.class)
 @CorbaImplClass(DeviceImpl.class)
@@ -665,10 +665,13 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 		return controller.getExtIO(i);
 	}
 
-	public double[] getSpectrum(int i) throws TimeoutException, CAException, InterruptedException, Exception {
+	@Override
+	public double[] getSpectrum(int i) throws Exception {
 		return controller.getSpectrum(i);
 	}
-	public double[] getImage(int i) throws TimeoutException, CAException, InterruptedException, Exception {
+
+	@Override
+	public double[] getImage(int i) throws Exception {
 		return controller.getImage(i);
 	}
 
@@ -1062,5 +1065,10 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 
 	public Double getTotalIntensity() {
 		return totalIntensity;
+	}
+
+	@Override
+	public double[] getExtIO(int length) throws Exception {
+		return controller.getExtIO(length);
 	}
 }

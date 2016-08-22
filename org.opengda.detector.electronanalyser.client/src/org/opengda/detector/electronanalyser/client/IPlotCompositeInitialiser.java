@@ -6,7 +6,9 @@ public interface IPlotCompositeInitialiser {
 
 	public void setAnalyser(IVGScientaAnalyser analyser);
 
-	public void setArrayPV(String arrayPV);
+	public void setUpdatePV(String updatePV);
+
+	public void setUpdatesPerSecond(double updatesPerSecond);
 
 	public void initialise();
 

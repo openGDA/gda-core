@@ -14,7 +14,7 @@ public class SlicesViewFactory implements FindableExecutableExtension {
 	private String viewPartName;
 	private String name;
 	private IVGScientaAnalyser analyser;
-	private String arrayPV;
+	private String updatePV;
 
 	@Override
 	public Object create() throws CoreException {
@@ -25,8 +25,8 @@ public class SlicesViewFactory implements FindableExecutableExtension {
 			slicesView.setAnalyser(analyser);
 		}
 
-		if (arrayPV != null) {
-				slicesView.setArrayPV(arrayPV);
+		if (updatePV != null) {
+			slicesView.setUpdatePV(updatePV);
 		}
 		return slicesView;
 	}
@@ -71,12 +71,12 @@ public class SlicesViewFactory implements FindableExecutableExtension {
 		this.viewPartName = viewPartName;
 	}
 
-	public String getArrayPV() {
-		return arrayPV;
+	public String getUpdatePV() {
+		return updatePV;
 	}
 
-	public void setArrayPV(String arrayPV) {
-		this.arrayPV = arrayPV;
+	public void setUpdatePV(String updatePV) {
+		this.updatePV = updatePV;
 	}
 
 }

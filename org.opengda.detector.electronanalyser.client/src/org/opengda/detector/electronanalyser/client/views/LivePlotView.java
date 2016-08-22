@@ -23,13 +23,15 @@ import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
 public abstract class LivePlotView extends ViewPart {
 
 	private IVGScientaAnalyser analyser;
-	private String arrayPV;
+	private String updatePV;
 	private Action kinetic;
 	private Action binding;
+	private double updatesPerSecond;
 
 	protected void configureAndInitialisePlotComposite(IPlotCompositeInitialiser plotComposite) {
 		plotComposite.setAnalyser(getAnalyser());
-		plotComposite.setArrayPV(getArrayPV());
+		plotComposite.setUpdatePV(getUpdatePV());
+		plotComposite.setUpdatesPerSecond(getUpdatesPerSecond());
 		plotComposite.initialise();
 	}
 
@@ -149,11 +151,20 @@ public abstract class LivePlotView extends ViewPart {
 
 	}
 
-	public String getArrayPV() {
-		return arrayPV;
+	public void setUpdatePV(String updatePV) {
+		this.updatePV = updatePV;
 	}
 
-	public void setArrayPV(String arrayPV) {
-		this.arrayPV = arrayPV;
+	public String getUpdatePV() {
+		return updatePV;
 	}
+
+	public double getUpdatesPerSecond() {
+		return updatesPerSecond;
+	}
+
+	public void setUpdatesPerSecond(double updatesPerSecond) {
+		this.updatesPerSecond = updatesPerSecond;
+	}
+
 }

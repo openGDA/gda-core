@@ -21,7 +21,6 @@ package org.opengda.detector.electronanalyser.client.views;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
@@ -203,31 +202,38 @@ public class SpectrumPlotComposite extends EpicsArrayPlotComposite {
 			});
 		}
 	}
+
 	@Override
-	protected void updatePlot(final IProgressMonitor monitor, double[] value) {
-		super.updatePlot(monitor, value);
+	protected void updatePlot(final IProgressMonitor monitor) {
+		super.updatePlot(monitor);
 
 		ArrayList<Dataset> plotDataSets = new ArrayList<Dataset>();
-		double[] data = ArrayUtils.subarray(value, 0, xdata.length);
-		dataset = new DoubleDataset(data, new int[] { data.length });
-		dataset.setName("Intensity (counts)");
-		plotDataSets.add(dataset);
-		final List<ITrace> profileLineTraces = plottingSystem.createPlot1D(xAxis, plotDataSets, monitor);
-		if (!getDisplay().isDisposed()) {
-			getDisplay().asyncExec(new Runnable() {
-				@Override
-				public void run() {
 
-					if (isNewRegion() && !profileLineTraces.isEmpty()) {
-						plottingSystem.setShowLegend(false);
-						// plottingSystem.getSelectedYAxis().setTitle(dataset.getName());
-						plottingSystem.setTitle("");
-						profileLineTrace = (ILineTrace) profileLineTraces.get(0);
-						profileLineTrace.setTraceColor(ColorConstants.blue);
-						setNewRegion(false);
+		try {
+			// Get the spectrum from analyser
+			double[] data = analyser.getSpectrum(xdata.length);
+			dataset = new DoubleDataset(data, new int[] { data.length });
+			dataset.setName("Intensity (counts)");
+			plotDataSets.add(dataset);
+			final List<ITrace> profileLineTraces = plottingSystem.createPlot1D(xAxis, plotDataSets, monitor);
+			if (!getDisplay().isDisposed()) {
+				getDisplay().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+
+						if (isNewRegion() && !profileLineTraces.isEmpty()) {
+							plottingSystem.setShowLegend(false);
+							// plottingSystem.getSelectedYAxis().setTitle(dataset.getName());
+							plottingSystem.setTitle("");
+							profileLineTrace = (ILineTrace) profileLineTraces.get(0);
+							profileLineTrace.setTraceColor(ColorConstants.blue);
+							setNewRegion(false);
+						}
 					}
-				}
-			});
+				});
+			}
+		} catch (Exception e) {
+			logger.error("Error getting spectrum from anlyser", e);
 		}
 	}
 

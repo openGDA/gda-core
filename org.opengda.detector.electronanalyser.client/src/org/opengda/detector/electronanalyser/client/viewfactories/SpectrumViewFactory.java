@@ -14,7 +14,9 @@ public class SpectrumViewFactory implements FindableExecutableExtension {
 	private String viewPartName;
 	private String name;
 	private IVGScientaAnalyser analyser;
-	private String arrayPV;
+	private String updatePV;
+	private double updatesPerSecond = 0; // Initialise to 0 if set it will be different.
+
 	@Override
 	public Object create() throws CoreException {
 		logger.info("Creating Spectrum plot view");
@@ -22,7 +24,12 @@ public class SpectrumViewFactory implements FindableExecutableExtension {
 		spectrumView.setViewPartName(viewPartName);
 		if (analyser != null) {
 			spectrumView.setAnalyser(analyser);
-			spectrumView.setArrayPV(arrayPV);
+		}
+		if (updatePV != null) {
+			spectrumView.setUpdatePV(updatePV);
+		}
+		if (updatesPerSecond != 0) {
+			spectrumView.setUpdatesPerSecond(updatesPerSecond);
 		}
 
 		return spectrumView;
@@ -68,12 +75,19 @@ public class SpectrumViewFactory implements FindableExecutableExtension {
 		this.viewPartName = viewPartName;
 	}
 
-	public String getArrayPV() {
-		return arrayPV;
+	public String getUpdatePV() {
+		return updatePV;
 	}
 
-	public void setArrayPV(String arrayPV) {
-		this.arrayPV = arrayPV;
+	public void setUpdatePV(String updatePV) {
+		this.updatePV = updatePV;
 	}
 
+	public double getUpdatesPerSecond() {
+		return updatesPerSecond;
+	}
+
+	public void setUpdatesPerSecond(double updatesPerSecond) {
+		this.updatesPerSecond = updatesPerSecond;
+	}
 }

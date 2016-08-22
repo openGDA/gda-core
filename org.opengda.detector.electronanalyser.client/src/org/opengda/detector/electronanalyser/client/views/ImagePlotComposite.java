@@ -19,7 +19,6 @@
 package org.opengda.detector.electronanalyser.client.views;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -78,8 +77,9 @@ public class ImagePlotComposite extends EpicsArrayPlotComposite {
 	}
 
 	@Override
-	protected void updatePlot(IProgressMonitor monitor, double[] value) {
-		super.updatePlot(monitor, value);
+	protected void updatePlot(IProgressMonitor monitor) {
+
+		super.updatePlot(monitor);
 //		if (isNewRegion()) {
 			ydata = getYData();
 			yAxis = createYAxis();
@@ -92,12 +92,13 @@ public class ImagePlotComposite extends EpicsArrayPlotComposite {
 			int length = xdata.clone().length;
 			int slices = getAnalyser().getSlices();
 			int[] dims = new int[] { slices, length };
+			// Get the image data from the analyser
+			double[] value = analyser.getImage(dims[0] * dims[1]);
 			int arraysize = dims[0] * dims[1];
 			if (arraysize < 1) {
 				return;
 			}
-			double[] values = Arrays.copyOf(value, arraysize);
-			dataset = new DoubleDataset(values, dims);
+			dataset = new DoubleDataset(value, dims);
 			dataset.setName("");
 			plottingSystem.createPlot2D(dataset, axes, monitor);
 			plottingSystem.setKeepAspect(false);
