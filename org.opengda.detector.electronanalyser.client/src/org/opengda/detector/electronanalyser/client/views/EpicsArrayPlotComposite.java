@@ -143,7 +143,6 @@ public class EpicsArrayPlotComposite extends Composite implements Initialization
 	 * The override method must call this method first to set X-Axis.
 	 */
 	protected void updatePlot(final IProgressMonitor monitor, double[] value) {
-		xdata = getXData();
 		xAxis = createXAxis();
 		plottingSystem.clear();
 		plottingSystem.reset();
@@ -151,8 +150,17 @@ public class EpicsArrayPlotComposite extends Composite implements Initialization
 	}
 
 	private Dataset createXAxis() {
+		// Get the axis data from the analyser
+		try {
+			xdata = getAnalyser().getEnergyAxis();
+		} catch (Exception e) {
+			logger.error("Cannot get energy axis fron the analyser", e);
+		}
+		// Create a dataset of the axis
 		Dataset xAxis = new DoubleDataset(xdata, new int[] { xdata.length });
 		if (isDisplayBindingEnergy()) {
+			// Convert to binding energy
+			xdata = convertToBindingEnergy(xdata);
 			xAxis.setName("Binding Energies (eV)");
 		} else {
 			xAxis.setName("Kinetic Energies (eV)");
@@ -160,18 +168,6 @@ public class EpicsArrayPlotComposite extends Composite implements Initialization
 		return xAxis;
 	}
 
-	private double[] getXData() {
-		double[] xdata=null;
-		try {
-			xdata = getAnalyser().getEnergyAxis();
-			if (isDisplayBindingEnergy()) {
-				xdata=convertToBindingEnergy(xdata);
-			}
-		} catch (Exception e) {
-			logger.error("cannot get enegery axis fron the analyser", e);
-		}
-		return xdata;
-	}
 	/**
 	 * subclass must override this method to provide actual data and plotting.
 	 * The override method must call this method first to set X-Axis.
@@ -179,7 +175,6 @@ public class EpicsArrayPlotComposite extends Composite implements Initialization
 	@Override
 	public void updatePlot() {
 		if (xdata==null) return;
-		xdata=convertToBindingEnergy(xdata);
 		xAxis = createXAxis();
 		plottingSystem.clear();
 		plottingSystem.reset();
