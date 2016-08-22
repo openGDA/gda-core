@@ -165,7 +165,7 @@ public class EpicsArrayPlotComposite extends Composite implements Initialization
 		try {
 			xdata = getAnalyser().getEnergyAxis();
 			if (isDisplayBindingEnergy()) {
-				xdata=convertToBindingENergy(xdata);
+				xdata=convertToBindingEnergy(xdata);
 			}
 		} catch (Exception e) {
 			logger.error("cannot get enegery axis fron the analyser", e);
@@ -179,7 +179,7 @@ public class EpicsArrayPlotComposite extends Composite implements Initialization
 	@Override
 	public void updatePlot() {
 		if (xdata==null) return;
-		xdata=convertToBindingENergy(xdata);
+		xdata=convertToBindingEnergy(xdata);
 		xAxis = createXAxis();
 		plottingSystem.clear();
 		plottingSystem.reset();
@@ -227,14 +227,14 @@ public class EpicsArrayPlotComposite extends Composite implements Initialization
 		}
 	}
 
-	private double[] convertToBindingENergy(double[] xdata) {
+	private double[] convertToBindingEnergy(double[] xdata) {
 		try {
 			double excitationEnergy = getAnalyser().getExcitationEnergy();
 			for (int i = 0; i < xdata.length; i++) {
 				xdata[i] = excitationEnergy - xdata[i];
 			}
 		} catch (Exception e) {
-			logger.error("cannot get enegery axis fron the analyser", e);
+			logger.error("cannot get energy axis from the analyser", e);
 		}
 		return xdata;
 	}
