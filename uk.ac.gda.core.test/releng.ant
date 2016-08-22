@@ -66,9 +66,11 @@
 				<path refid="tp.path" />  <!-- target platform -->
 				<path refid="libs.jars.path" />
 			</classpath>
+			<!-- DAQ-275 run ScannableNexusWrapperTest separately (default forkmode=perBatch), since otherwise it fails due to earlier Jython-related tests not cleaning up -->
 			<batchtest todir="@{report.dir}">
 				<fileset dir="${plugin.basedir}/src">
 					<include name="**/*Test.java" />
+					<exclude name="**/ScannableNexusWrapperTest.java" />
 					<exclude name="**/*PluginTest.java" />
 					<!--the excludes below are temporary -->
 					<exclude name="**/EditPermissionsTest.java" />
@@ -91,6 +93,11 @@
 					<exclude name="**/AboutTest.java" />
 					<exclude name="**/util/LocalPropertiesTest.java" /> <!-- there is also a LocalPropertiesTest in gda/configuration/properties-->
 					<exclude name="**/OSCommandRunnerTest.java" />
+				</fileset>
+			</batchtest>
+			<batchtest todir="@{report.dir}">
+				<fileset dir="${plugin.basedir}/src">
+					<include name="**/ScannableNexusWrapperTest.java" />
 				</fileset>
 			</batchtest>
 		</junit-call>
