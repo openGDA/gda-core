@@ -33,7 +33,7 @@ public class EpicsArrayPlotComposite extends Composite implements Initialization
 	private static final Logger logger = LoggerFactory.getLogger(EpicsArrayPlotComposite.class);
 	protected String arrayPV;
 	protected IVGScientaAnalyser analyser;
-	protected IPlottingSystem plottingSystem;
+	protected IPlottingSystem<Composite> plottingSystem;
 	protected ILineTrace profileLineTrace;
 	protected DataListener dataListener;
 	protected Channel dataChannel;
@@ -89,7 +89,7 @@ public class EpicsArrayPlotComposite extends Composite implements Initialization
 	@Override
 	public void dispose() {
 			if (!plottingSystem.isDisposed()) {
-				plottingSystem.clear();
+				plottingSystem.dispose();
 			}
 			//comment out see BLIX-144 for info.
 	//		dataChannel.dispose();
