@@ -1,18 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
-   <extension
-         point="org.eclipse.scanning.api.generator">
-      <generator
-            class="uk.ac.diamond.daq.mapping.path.LissajousGenerator"
-            id="uk.ac.diamond.daq.mapping.path.LissajousGenerator"
-            model="uk.ac.diamond.daq.mapping.path.LissajousModel">
-      </generator>
-      <generator
-            class="uk.ac.diamond.daq.mapping.path.SpiralGenerator"
-            id="uk.ac.diamond.daq.mapping.path.SpiralGenerator"
-            model="uk.ac.diamond.daq.mapping.path.SpiralModel">
-      </generator>
-   </extension>
+
 
 </plugin>

@@ -15,7 +15,6 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: uk.ac.diamond.daq.mapping.i05_1,
  uk.ac.diamond.daq.mapping.impl,
- uk.ac.diamond.daq.mapping.path,
  uk.ac.diamond.daq.mapping.region
 Import-Package: org.springframework.beans.factory;version="4.0.6.RELEASE"
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
