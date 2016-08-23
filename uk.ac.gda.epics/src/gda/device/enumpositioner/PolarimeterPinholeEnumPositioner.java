@@ -18,7 +18,11 @@
 
 package gda.device.enumpositioner;
 
+import java.util.ArrayList;
+import java.util.Vector;
+
 import gda.device.DeviceException;
+import gda.device.scannable.IPolarimeterPinholeEnumPositioner;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.InitializationListener;
@@ -27,15 +31,12 @@ import gda.factory.FactoryException;
 import gda.factory.Finder;
 import gov.aps.jca.Channel;
 
-import java.util.ArrayList;
-import java.util.Vector;
-
 /**
  * A class implementing the EnumPositioner for a combined pinhole/flux monitor
  * present on multilayer polarimeter end station.
  */
 public class PolarimeterPinholeEnumPositioner extends EpicsPositioner implements
-		InitializationListener {
+		InitializationListener, IPolarimeterPinholeEnumPositioner {
 
 	protected String fluxMonitorChannelLabel = null;
 	protected Vector<String> positionValues = new Vector<String>();
@@ -94,6 +95,7 @@ public class PolarimeterPinholeEnumPositioner extends EpicsPositioner implements
 	 * @param value
 	 * @throws DeviceException
 	 */
+	@Override
 	public void setPositionValue(String position, String value) throws DeviceException {
 
 		EpicsRecord epicsRecord = (EpicsRecord) Finder.getInstance().find(
@@ -126,6 +128,7 @@ public class PolarimeterPinholeEnumPositioner extends EpicsPositioner implements
 	 *
 	 * @return monitorLabel
 	 */
+	@Override
 	public String getFluxMonitorChannelLabel() {
 		return this.fluxMonitorChannelLabel;
 	}
@@ -135,6 +138,7 @@ public class PolarimeterPinholeEnumPositioner extends EpicsPositioner implements
 	 *
 	 * @param monitorLabel
 	 */
+	@Override
 	public void setFluxMonitorChannelLabel(String monitorLabel) {
 		this.fluxMonitorChannelLabel = monitorLabel;
 	}
@@ -144,6 +148,7 @@ public class PolarimeterPinholeEnumPositioner extends EpicsPositioner implements
 	 *
 	 * @return numberPinholes
 	 */
+	@Override
 	public int getNumPinholes() {
 		return this.numberPinholes;
 	}
@@ -153,6 +158,7 @@ public class PolarimeterPinholeEnumPositioner extends EpicsPositioner implements
 	 *
 	 * @param numPinholes
 	 */
+	@Override
 	public void setNumPinholes(int numPinholes) {
 		this.numberPinholes = numPinholes;
 	}
@@ -162,6 +168,7 @@ public class PolarimeterPinholeEnumPositioner extends EpicsPositioner implements
 	 *
 	 * @param position
 	 */
+	@Override
 	public void addPosition(String position) {
 		if (!positions.contains(position)) {
 			positions.add(position);
@@ -173,6 +180,7 @@ public class PolarimeterPinholeEnumPositioner extends EpicsPositioner implements
 	 *
 	 * @param value
 	 */
+	@Override
 	public void addValue(String value) {
 		if (!positionValues.contains(value)) {
 			positionValues.add(value);
@@ -184,6 +192,7 @@ public class PolarimeterPinholeEnumPositioner extends EpicsPositioner implements
 	 *
 	 * @param values the values
 	 */
+	@Override
 	public void setValues(Vector<String> values) {
 		this.positionValues = new Vector<String>();
 		for (String value : values) {
@@ -196,6 +205,7 @@ public class PolarimeterPinholeEnumPositioner extends EpicsPositioner implements
 	 *
 	 * @return ArrayList<String> the values this device can move to.
 	 */
+	@Override
 	public ArrayList<String> getValueArrayList() {
 		ArrayList<String> array = new ArrayList<String>();
 
@@ -210,6 +220,7 @@ public class PolarimeterPinholeEnumPositioner extends EpicsPositioner implements
 	 *
 	 * @return ArrayList<String> the positions this device can move to.
 	 */
+	@Override
 	public ArrayList<String> getPositionArrayList() {
 		ArrayList<String> array = new ArrayList<String>();
 		// Returns empty array as positions are picked up from the EPICS
@@ -222,6 +233,7 @@ public class PolarimeterPinholeEnumPositioner extends EpicsPositioner implements
 	 *
 	 * @param label
 	 */
+	@Override
 	public void addLabel(String label) {
 		if (!labels.contains(label)) {
 			labels.add(label);
@@ -233,6 +245,7 @@ public class PolarimeterPinholeEnumPositioner extends EpicsPositioner implements
 	 *
 	 * @param labels the labels
 	 */
+	@Override
 	public void setLabels(Vector<String> labels) {
 		this.labels = new Vector<String>();
 		for (String label : labels) {
@@ -244,6 +257,7 @@ public class PolarimeterPinholeEnumPositioner extends EpicsPositioner implements
 	 * @return ArrayList<String> the labels to display which this device can
 	 *         move to.
 	 */
+	@Override
 	public ArrayList<String> getLabelArrayList() {
 		ArrayList<String> array = new ArrayList<String>();
 
