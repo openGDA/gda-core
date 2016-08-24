@@ -18,15 +18,16 @@
 
 package gda.device.enumpositioner;
 
+import java.util.Arrays;
+import java.util.List;
+
 import gda.device.DeviceException;
-import gda.device.scannable.ScannableBase;
+import gda.device.EnumPositionerStatus;
+import gda.device.scannable.ScannablePositionChangeEvent;
 import gda.device.scannable.corba.impl.ScannableAdapter;
 import gda.device.scannable.corba.impl.ScannableImpl;
 import gda.factory.corba.util.CorbaAdapterClass;
 import gda.factory.corba.util.CorbaImplClass;
-
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * A dummy fast shutter. The status of the shutter (as read using {@link #getPosition()}) is always "Open" or "Closed",
@@ -35,7 +36,7 @@ import java.util.List;
  */
 @CorbaImplClass(ScannableImpl.class)
 @CorbaAdapterClass(ScannableAdapter.class)
-public class DummyFastShutter extends ScannableBase {
+public class DummyFastShutter extends EnumPositionerBase {
 
 	private boolean shutterOpen;
 
@@ -48,7 +49,7 @@ public class DummyFastShutter extends ScannableBase {
 
 	@Override
 	public String checkPositionValid(Object illDefinedPosObject) {
-		if (VALID_POSITIONS.contains(illDefinedPosObject)){
+		if (VALID_POSITIONS.contains(illDefinedPosObject)) {
 			return null;
 		}
 
@@ -65,11 +66,22 @@ public class DummyFastShutter extends ScannableBase {
 		} else if (position.equals("Close")) {
 			shutterOpen = false;
 		}
+		notifyIObservers(this, new ScannablePositionChangeEvent(position.toString()));
 	}
 
 	@Override
 	public boolean isBusy() throws DeviceException {
 		return false;
+	}
+
+	@Override
+	public String[] getPositions() throws DeviceException {
+		return VALID_POSITIONS.toArray(new String[3]);
+	}
+
+	@Override
+	public EnumPositionerStatus getStatus() throws DeviceException {
+		return EnumPositionerStatus.IDLE;
 	}
 
 }

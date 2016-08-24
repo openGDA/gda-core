@@ -64,20 +64,11 @@ public class DummyEnumPositioner extends EnumPositionerBase implements EditableE
 	 * @return ArrayList<String> the positions this device can move to.
 	 */
 	public ArrayList<String> getPositionArrayList() {
-		ArrayList<String> array = new ArrayList<String>();
-
-		for (String position : positions) {
-			array.add(position);
-		}
-		return array;
+		return new ArrayList<String>(positions);
 	}
 
 	public void setPositions(ArrayList<String> positionsArray ) {
-		Vector<String> array = new Vector<String>();
-		for (String position : positionsArray) {
-			array.add(position);
-		}
-		this.positions = array;
+		this.positions = new Vector<String>(positionsArray);
 	}
 
 	@Override

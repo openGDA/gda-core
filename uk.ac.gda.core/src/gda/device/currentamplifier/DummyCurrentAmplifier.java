@@ -27,17 +27,23 @@ import gda.device.DeviceException;
 public class DummyCurrentAmplifier extends CurrentAmplifierBase{
 	private volatile String gain = "";
 	private volatile String gainUnit = "";
+	private double current = 0;
+	private String mode;
 
 	@Override
 	public void setName(String name){
 		super.setName(name);
 		this.inputNames = new String[]{name};
-
 	}
 
 	@Override
 	public double getCurrent() throws DeviceException {
-		return 0;
+		return current ;
+	}
+
+	public void setCurrent(double current) {
+		this.current = current;
+		notifyIObservers(this, current);
 	}
 
 	@Override
@@ -52,12 +58,12 @@ public class DummyCurrentAmplifier extends CurrentAmplifierBase{
 
 	@Override
 	public String getMode() throws DeviceException {
-		return null;
+		return mode;
 	}
 
 	@Override
 	public Status getStatus() throws DeviceException {
-		return null;
+		return Status.NORMAL;
 	}
 
 	@Override
@@ -72,10 +78,10 @@ public class DummyCurrentAmplifier extends CurrentAmplifierBase{
 
 	@Override
 	public void setMode(String mode) throws DeviceException {
+		this.mode = mode;
 	}
 
 	@Override
 	public void listGains() throws DeviceException {
 	}
-
 }
