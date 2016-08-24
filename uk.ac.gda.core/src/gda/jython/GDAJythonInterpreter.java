@@ -31,11 +31,17 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.io.Writer;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.python.core.Py;
 import org.python.core.PyException;
@@ -183,21 +189,34 @@ public class GDAJythonInterpreter extends ObservableComponent {
 		// The GDA Class Loader is for OSGi server. If not using OSGI and the new
 		// services, the startup sequence is unchanged
 		if (GDAJythonClassLoader.useGDAClassLoader()) {
-			logger.info("adding GDA packages to Jython path...");
-			GDAJythonClassLoader classLoader = new GDAJythonClassLoader();
+			logger.info("adding GDA package locations to Jython path...");
+			final GDAJythonClassLoader classLoader = new GDAJythonClassLoader();
 
 			// initialise interpreter first //TODO: Docs say this should only be run once
-			PySystemState.initialize(System.getProperties(), gdaCustomProperties, argv, classLoader);
+			// Enclose in a try/catch so that any underlying Jython errors are not lost to the log.
+			final Properties sysProps = System.getProperties();
+			try {
+				PySystemState.initialize(sysProps, gdaCustomProperties, argv, classLoader);
+			} catch (Exception e) {
+				if (e instanceof PyException) {
+					logger.error("Jython initialisation problem: " + e);     // Since PyException puts message in value member
+				} else {
+					logger.error("Jython initialisation problem: ", e);
+				}
+				throw e;
+			}
 
-			// In an OSGi environment Jython's normal automatic way of
+			// In an OSGi environment Jython's normal CLASSPATH based automatic way of
 			// discovering which packages are available in the JVM does not
 			// work. Therefore to support "from XXXX import *" Jython has to be
-			// told about the packages. This is done with add_package, which is
-			// the same function as would have been called automatically for
+			// told about the bundle locations. This is done with add_classdir/add_jar,
+			// which are the same functions as would have been called automatically for
 			// all the packages Jython auto-discovered.
-			Set<String> jythonPackages = classLoader.getJythonPackages();
-			for (String string : jythonPackages) {
-				PySystemState.add_package(string);
+
+			if (Boolean.valueOf(sysProps.getProperty("gda.eclipse.launch"))) {
+				iterateWorkspace(classLoader);
+			} else {
+				iteratePluginsDirectory(sysProps.getProperty("osgi.syspath"));
 			}
 
 			// Add the paths for the standard script folders to the existing _jythonScriptPaths
@@ -228,6 +247,104 @@ public class GDAJythonInterpreter extends ObservableComponent {
 		// force it to be the main module with proper name
 		PyModule mod = imp.addModule("__main__");
 		this.interp.setLocals(mod.__dict__);
+	}
+
+	/**
+	 * Retrieve the set of server plugin directories when running from the eclipse workspace and register
+	 * them with Jython as sources for full package import.
+	 *
+	 * @param classLoader	The class loader being used by the interpreter to allow non-server bundle filtering
+	 */
+	private void iterateWorkspace(final GDAJythonClassLoader classLoader) {
+		logger.info("Retrieving eclipse workspace server plugin paths for Jython");
+
+		final String unwanted = "^.*?(.feature|.releng|.test|.site|.git).*$";
+		final File workspaceGit = new File(System.getProperties().getProperty("gda.install.git.loc"));
+
+		final File[]repoDirectories = workspaceGit.listFiles(f -> f.isDirectory() && f.getName().endsWith(".git"));
+		for (File repoDir : repoDirectories) {
+			// cope with 'group' repos that have their plugins in a 'plugins' sub directory
+			final Path pluginsDir = Paths.get(repoDir.getAbsolutePath(), "plugins");
+			if (Files.isDirectory(pluginsDir)) {
+				repoDir = pluginsDir.toFile();
+			}
+			// filter 'non-bundle' and test directories
+			final File[]pluginDirectories = repoDir.listFiles(f -> f.isDirectory() && f.getName().contains(".") && !f.getName().matches(unwanted));
+
+			// Store only the paths for directories corresponding to server plugins from the workspace via isMappedBundle
+			Arrays.stream(pluginDirectories).filter(dir -> classLoader.isMappedBundle(dir.getName()))
+                                            .map(dir-> Paths.get(dir.getAbsolutePath(), getCorrectClassFilesLocation(dir)))
+                                            .forEach(classesPath -> PySystemState.add_classdir(classesPath.toString()));
+		}
+	}
+
+	/**
+	 * Deal with the gda.core bin directory anomaly until we can get rid of the gda python script and make it consistent
+	 *
+	 * @param dir		The File object corresponding to a workspace plugin dir
+	 * @return			classes/main for gda.core, "bin" for everything else
+	 */
+	private String getCorrectClassFilesLocation(final File dir) {
+		return dir.getName().equals("uk.ac.gda.core") ? "classes" + File.separatorChar + "main" : "bin";
+	}
+
+	/**
+	 * Retrieve the set of plugin directories when running from the exported product and
+	 * register them with Jython as sources for full package import filtering out TP plugins.
+	 * If parsing the artifacts.xml file fails an error is logged but execution will proceed
+	 * without further restricting the plugins that will allow import *.
+	 *
+	 * @param osgiSysPath	The path to the plugins directory in the exported product
+	 */
+	private void iteratePluginsDirectory(final String osgiSysPath) {
+		logger.info("Retrieving server product plugin paths for Jython");
+
+		// Read in the target platform plugin names so that they can be skipped
+		final Set<String> unwanted = new HashSet<>();
+		try (Stream<String> stream = Files.lines(Paths.get(osgiSysPath, "..", "configuration", "target_platform_artifacts.xml"))) {
+			stream.forEach(line -> {
+				if (line.contains(" classifier='osgi.bundle'")) {
+					unwanted.add(getTPArtifactAttributeValue(line, "id") + "_" + getTPArtifactAttributeValue(line, "version"));
+					}
+				});
+		} catch (IOException | UncheckedIOException e) {
+			logger.error("Unable to successfully read target platform artifacts file, import * will not be fully restricted", e);
+		}
+		// Initialise the Jython registry skipping target platform bundles.
+		// The 'from xx import *' syntax will be supported for the remaining bundles
+		for(File file : new File(osgiSysPath).listFiles()) {
+			String name = file .getName();
+			if (name.endsWith(".jar")) {
+				name = name.substring(0, name.indexOf(".jar"));
+			}
+			if (!unwanted.contains(name)) {
+				if (file.isDirectory()) {
+					PySystemState.add_classdir(file.getAbsolutePath());
+				} else {
+					PySystemState.packageManager.addJar(file.getAbsolutePath(), false);
+				}
+			}
+		}
+	}
+
+	/**
+	 * Extract the value of an attribute from one of the artifact tags read in from the target platform
+	 * artifact.xml file.
+	 *
+	 * @param artifactTag		The artifact tag string
+	 * @param attributeName		The name of the attribute whose value it to be retrieved
+	 * @return					The value requested if found successfully
+	 * @throws					UncheckedIOException if the attribute name or its terminating quote cannot be found
+	 */
+	private String getTPArtifactAttributeValue(final String artifactTag, final String attributeName) throws UncheckedIOException {
+		final String match = " " + attributeName + "='";
+		final int matchLength = match.length();
+		final int from = artifactTag.indexOf(match) + matchLength;	// indexOf will return -1 if not found in which case from will be < matchLength
+		final int to = artifactTag.indexOf("'", from);
+		if (from < matchLength || to == -1) {
+			throw new UncheckedIOException(new IOException("Cannot read " + attributeName + " in artifact tag of target_platform_artifacts.xml file"));
+		}
+		return artifactTag.substring(from, to);
 	}
 
 	private void fakeSysExecutable(PySystemState sys) {

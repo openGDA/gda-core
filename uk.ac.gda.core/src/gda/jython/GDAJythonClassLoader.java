@@ -64,6 +64,16 @@ public class GDAJythonClassLoader extends ClassLoader {
 	}
 
 	/**
+	 * Tests whether the specified bundle is mapped by the server to allow non-server bundles
+	 * to be filtered out when initialising the Jython Interpreter
+	 * @param bundleName		Name of the bundle to be checked
+	 * @return					true if the bundle is part of the servers's OSGi namespace
+	 */
+	public boolean isMappedBundle(final String bundleName) {
+		return ALL_BUNDLES.stream().anyMatch(bundle -> bundle.getSymbolicName().equals(bundleName));
+	}
+
+	/**
 	 * Determines whether the combination of a package and its owning bundle is included in the supported Jython API
 	 * returning an Optional of the boolean result.
 	 *
