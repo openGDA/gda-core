@@ -507,14 +507,14 @@ public class ScannableMotorTest {
 	}
 
 	@Test
-	public void testAsyncronousMoveToExceptionIfMoving() throws Exception {
+	public void testAsynchronousMoveToExceptionIfMoving() throws Exception {
 		when(motor.getStatus()).thenReturn(MotorStatus.BUSY);
 
 		try {
 			sm.asynchronousMoveTo(50);
 			fail("DeviceExcetion expected.");
 		} catch (DeviceException e) {
-			assertEquals("Problem triggering sm move to 50: The motor sm was already busy so could not be moved", e.getMessage());
+			assertEquals("Problem triggering sm move to 50: The scannable motor sm (null) was already busy so could not be moved", e.getMessage());
 		}
 	}
 
