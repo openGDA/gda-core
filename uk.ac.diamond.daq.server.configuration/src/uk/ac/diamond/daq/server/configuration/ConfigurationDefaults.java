@@ -175,6 +175,7 @@ public enum ConfigurationDefaults {
 
 	public static String[] buildNameServerCommand() {
 		final String[] vmArgs = new String[]{APP_JACORB_VM_ARGS.value,
+										"-Dgda.install.workspace.loc=" + combine(APP_PATHS_ROOT, "workspace"),
 										"-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB",
 										"-Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton",
 										"-DOAPort=" + getHierarchicalValueWithDefault(NAME_SERVER_PORT)};
@@ -277,12 +278,15 @@ public enum ConfigurationDefaults {
 	/**
 	 * Check if the server is running from an exported product or within eclipse and
 	 * return the correct application root path as appropriate. The p2 profile
-	 * property in the ini file will only be set for the exported product.
+	 * property in the ini file will only be set for the exported product. Set a 
+	 * System Property so that the rest of the application can easily find this out.
 	 *
 	 * @return	The root path from which to calculate all others relating to startup
 	 */
 
 	private static String choosePathsRoot() {
+		String eclipseLaunch = "false";
+		final StringBuilder root = new StringBuilder();
 		if (EXPECTED_P2_PROFILE.value.equalsIgnoreCase(System.getProperty(INI_FILE_PROFILE_PROPERTY.value))) {
 			String installLocation = System.getProperty(INI_FILE_INSTALL_AREA_PROPERTY.value);
 			if (StringUtils.isBlank(installLocation)) {
@@ -292,10 +296,13 @@ public enum ConfigurationDefaults {
 			if (installLocation.startsWith("file:")) {
 				installLocation = installLocation.substring(5);
 			}
-			return combine(installLocation, EXPORTED_PRODUCT_ROOT.value);
+			root.append(combine(installLocation, EXPORTED_PRODUCT_ROOT.value));
 		} else {
-			return getHierarchicalValueWithDefault(GDA_WORKSPACE_PARENT);
-		}		
+			eclipseLaunch = "true";
+			root.append(getHierarchicalValueWithDefault(GDA_WORKSPACE_PARENT));
+		}
+		System.getProperties().setProperty("gda.eclipse.launch", eclipseLaunch);
+		return root.toString();
 	}
 
 	private static String[] standardBasicArgs() {
