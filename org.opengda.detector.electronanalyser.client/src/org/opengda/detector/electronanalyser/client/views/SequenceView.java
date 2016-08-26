@@ -666,7 +666,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		};
 		copyAction.setText("Copy");
 		copyAction.setImageDescriptor(ElectronAnalyserClientPlugin.getDefault().getImageRegistry().getDescriptor(ImageConstants.ICON_COPY_EDIT));
-		copyAction.setToolTipText("Copy selected sample");
+		copyAction.setToolTipText("Copy selected region");
 
 		deleteAction = new Action() {
 
@@ -690,7 +690,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		};
 		deleteAction.setText("Delete");
 		deleteAction.setImageDescriptor(ElectronAnalyserClientPlugin.getDefault().getImageRegistry().getDescriptor(ImageConstants.ICON_DELETE_OBJ));
-		deleteAction.setToolTipText("Delete selected sample");
+		deleteAction.setToolTipText("Delete selected region");
 
 		undoAction = new Action() {
 
