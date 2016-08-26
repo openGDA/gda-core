@@ -221,17 +221,6 @@
                id="org.eclipse.ui.file.savesequence"
                label="Save"
                style="push">
-            <visibleWhen
-                  checkEnabled="true">
-               <or>
-                  <instanceof
-                        value="org.opengda.detector.electronanalyser.client.views.RegionView">
-                  </instanceof>
-                  <instanceof
-                        value="org.opengda.detector.electronanalyser.client.views.SequenceView">
-                  </instanceof>
-               </or>
-            </visibleWhen>
          </command>
          <command
                commandId="org.eclipse.ui.file.saveAs"
