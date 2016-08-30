@@ -18,6 +18,12 @@
 
 package gda.device.motor;
 
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.configuration.epics.EpicsConfiguration;
@@ -27,7 +33,6 @@ import gda.device.MotorException;
 import gda.device.MotorProperties.MotorEvent;
 import gda.device.MotorProperties.MotorProperty;
 import gda.device.MotorStatus;
-import gda.device.motor.EpicsMotor.STATUSCHANGE_REASON;
 import gda.device.scannable.MotorUnitStringSupplier;
 import gda.epics.AccessControl;
 import gda.epics.connection.CompoundDataTypeHandler;
@@ -65,14 +70,6 @@ import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 import gov.aps.jca.event.PutEvent;
 import gov.aps.jca.event.PutListener;
-
-import java.util.Iterator;
-import java.util.Vector;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * EpicsMotor implements GDA Motor interface and provide mapping from GDA interface to EPICS motor record. Note only
@@ -1758,104 +1755,4 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 			configure();
 		}
 	}
-}
-
-class MoveEventQueue implements Runnable {
-	private static final Logger logger = LoggerFactory.getLogger(MoveEventQueue.class);
-	Vector<MoveEvent> items = new Vector<MoveEvent>();
-	private final MoveEvent[] itemsToBeHandledType = new MoveEvent[0];
-	private boolean killed = false;
-	private Thread thread = null;
-
-	public void addMoveCompleteEvent(EpicsMotor motor, MotorStatus newStatus, EpicsMotor.STATUSCHANGE_REASON reason)
-			throws MotorException {
-		synchronized (items) {
-			logger.debug("Motor - " + motor.getName() + " addMoveCompleteEvent." + ". newStatus = "
-					+ (newStatus != null ? newStatus.toString() : "null") + ". reason = "
-					+ (reason != null ? EpicsMotor.reasonAsString(reason) : "null"));
-			/*
-			 * If reason = MOVETO then we need to perform the actual move now in the calling thread so that exceptions
-			 * can be passed back to the caller. We set status here to busy so that any DMOV =1 events that happen
-			 * between now and the caput callback do not cause the positioner to unlock early. Note that the positioner
-			 * is locked by the calling thread so no DMOV events can change status until this thread releases the lock.
-			 */
-			if (reason == EpicsMotor.STATUSCHANGE_REASON.MOVETO) {
-				motor.changeStatusAndNotify(MotorStatus.BUSY, EpicsMotor.STATUSCHANGE_REASON.START_MOVETO);
-			}
-			/*
-			 * only add if an item for the same motor and status does not already exist
-			 */
-			boolean add = true;
-			Iterator<MoveEvent> iter = items.iterator();
-			while (iter.hasNext()) {
-				MoveEvent item = iter.next();
-				if (item.motor == motor && item.reason == reason) {
-					// status is unknown if CAPUT_MOVECOMPLETE_IN_ERROR
-					if (reason != STATUSCHANGE_REASON.CAPUT_MOVECOMPLETE_IN_ERROR) {
-						if ((item.newStatus == null && newStatus == null)
-								|| (item.newStatus != null && newStatus != null && item.newStatus.equals(newStatus))) {
-							add = false;
-							break;
-						}
-					}
-				}
-			}
-			if (add) {
-				items.add(new MoveEvent(motor, newStatus, reason));
-				if (thread == null) {
-					thread = uk.ac.gda.util.ThreadManager.getThread(this);
-					thread.start();
-				}
-				items.notifyAll();
-			}
-		}
-	}
-
-	public void dispose() {
-		killed = true;
-	}
-
-	@Override
-	public void run() {
-		while (!killed) {
-			try {
-				MoveEvent[] itemsToBeHandled = null;
-				synchronized (items) {
-					if (!killed && items.isEmpty())
-						items.wait();
-					if (!items.isEmpty()) {
-						itemsToBeHandled = items.toArray(itemsToBeHandledType);
-						items.clear();
-					}
-				}
-				if (itemsToBeHandled != null) {
-					int numItems = itemsToBeHandled.length;
-					for (int index = 0; index < numItems; index++) {
-						try {
-							MoveEvent item = itemsToBeHandled[index];
-							item.motor.changeStatusAndNotify(item.newStatus, item.reason);
-						} catch (Exception ex) {
-							exceptionUtils.logException(logger, "changeStatusAndNotify exception", ex);
-						}
-					}
-				}
-			} catch (Throwable th) {
-				exceptionUtils.logException(logger, "EpicsMotor.MoveCompleteEventQueue run exception ", th);
-			}
-		}
-	}
-
-}
-
-class MoveEvent {
-	final MotorStatus newStatus;
-	final EpicsMotor motor;
-	final EpicsMotor.STATUSCHANGE_REASON reason;
-
-	MoveEvent(EpicsMotor motor, MotorStatus newStatus, EpicsMotor.STATUSCHANGE_REASON reason) {
-		this.motor = motor;
-		this.newStatus = newStatus;
-		this.reason = reason;
-	}
-
 }
