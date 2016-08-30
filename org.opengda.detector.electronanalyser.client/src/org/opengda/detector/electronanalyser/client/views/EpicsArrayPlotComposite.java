@@ -2,9 +2,11 @@ package org.opengda.detector.electronanalyser.client.views;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
+import org.eclipse.dawnsci.plotting.api.axis.IAxis;
 import org.eclipse.dawnsci.plotting.api.trace.ILineTrace;
 import org.eclipse.swt.widgets.Composite;
 import org.opengda.detector.electronanalyser.client.IEnergyAxis;
@@ -45,8 +47,8 @@ public class EpicsArrayPlotComposite extends Composite implements Initialization
 	protected Dataset dataset;
 	protected double[] xdata = null;
 	private boolean newRegion = true;
-	private boolean displayBindingEnergy = false;
-	protected Dataset xAxis;
+	private volatile boolean displayBindingEnergy = false;
+	protected IDataset xAxis;
 	private RateLimiter rateLimiter;
 	private double updatesPerSecond = 5; // Hz, the fastest the plots will try to update
 
@@ -96,23 +98,11 @@ public class EpicsArrayPlotComposite extends Composite implements Initialization
 			if (!plottingSystem.isDisposed()) {
 				plottingSystem.dispose();
 			}
-			//comment out see BLIX-144 for info.
-	//		dataChannel.dispose();
-	//		startChannel.dispose();
+		// comment out see BLIX-144 for info.
+		// dataChannel.dispose();
+		// startChannel.dispose();
 			super.dispose();
 		}
-
-	public void clearPlots() {
-		getDisplay().syncExec(new Runnable() {
-
-			@Override
-			public void run() {
-				plottingSystem.setTitle("");
-				plottingSystem.reset();
-			}
-		});
-
-	}
 
 	private class UpdateListener implements MonitorListener {
 
@@ -134,8 +124,8 @@ public class EpicsArrayPlotComposite extends Composite implements Initialization
 			}
 			// Check if we can update without exceeding the update rate
 			if (rateLimiter.tryAcquire()) {
-				// Do update in UI thread
 				if (!getDisplay().isDisposed()) {
+					// Do update in UI thread
 					getDisplay().asyncExec(new Runnable() {
 						@Override
 						public void run() {
@@ -155,14 +145,11 @@ public class EpicsArrayPlotComposite extends Composite implements Initialization
 	 * subclass must override this method to provide actual data and plotting.
 	 * The override method must call this method first to set X-Axis.
 	 */
-	protected void updatePlot(final IProgressMonitor monitor) {
+	protected synchronized void updatePlot(final IProgressMonitor monitor) {
 		xAxis = createXAxis();
-		plottingSystem.clear();
-		plottingSystem.reset();
-		plottingSystem.getSelectedXAxis().setRange(xdata[0], xdata[xdata.length-1]);
 	}
 
-	private Dataset createXAxis() {
+	private synchronized IDataset createXAxis() {
 		// Get the axis data from the analyser
 		try {
 			xdata = getAnalyser().getEnergyAxis();
@@ -186,12 +173,16 @@ public class EpicsArrayPlotComposite extends Composite implements Initialization
 	 * The override method must call this method first to set X-Axis.
 	 */
 	@Override
-	public void updatePlot() {
-		if (xdata==null) return;
+	public synchronized void updatePlot() {
 		xAxis = createXAxis();
-		plottingSystem.clear();
-		plottingSystem.reset();
-		plottingSystem.getSelectedXAxis().setRange(xdata[0], xdata[xdata.length-1]);
+	}
+
+	protected synchronized void reverseXAxis() {
+		IAxis xAxis = plottingSystem.getSelectedXAxis();
+		// Flip the direction of the x axis
+		double upper = xAxis.getUpper();
+		double lower = xAxis.getLower();
+		xAxis.setRange(Math.max(lower, upper), Math.min(lower, upper));
 	}
 
 	public IVGScientaAnalyser getAnalyser() {
@@ -233,7 +224,7 @@ public class EpicsArrayPlotComposite extends Composite implements Initialization
 				xdata[i] = excitationEnergy - xdata[i];
 			}
 		} catch (Exception e) {
-			logger.error("cannot get energy axis from the analyser", e);
+			logger.error("Cannot get excitation energy from the analyser", e);
 		}
 		return xdata;
 	}
