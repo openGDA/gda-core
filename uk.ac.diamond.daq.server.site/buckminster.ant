@@ -436,6 +436,11 @@ Additional Ant tasks for Buckminster build. Based on http://www.ralfebert.de/blo
     	<symlink link="${jacorb.link}" resource="${jacorb.dir.name}" />
 		<symlink link="${spring.framework.link}" resource="${spring.dir.name}" />
 
+		<!-- Copy list of target platform bundles -->
+		<copy tofile="${install.path}/configuration/target_platform_artifacts.xml">
+			<fileset file="${workspace.root}/tp/artifacts.xml"></fileset>
+		</copy>
+
 		<!-- Copy across the config and script directories -->
 		<copy todir="${install.git.path}/gda-core.git/core-config">
 			<fileset dir="${ws_git.rel.path}/gda-core.git/core-config"/>
