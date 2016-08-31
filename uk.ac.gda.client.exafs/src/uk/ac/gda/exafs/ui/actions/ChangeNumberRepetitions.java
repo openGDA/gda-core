@@ -31,6 +31,8 @@ import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
+import uk.ac.gda.client.CommandQueueViewFactory;
 import uk.ac.gda.exafs.ui.dialogs.ChangeNumberRepetitionsDialog;
 
 public class ChangeNumberRepetitions extends AbstractHandler implements IWorkbenchWindowActionDelegate,
@@ -44,6 +46,12 @@ public class ChangeNumberRepetitions extends AbstractHandler implements IWorkben
 
 	@Override
 	public void selectionChanged(IAction action, ISelection selection) {
+	}
+
+	@Override
+	public boolean isEnabled() {
+		// this action is disabled if we're using the StatusQueueView
+		return super.isEnabled() && !LocalProperties.check(CommandQueueViewFactory.GDA_USE_STATUS_QUEUE_VIEW);
 	}
 
 	@Override

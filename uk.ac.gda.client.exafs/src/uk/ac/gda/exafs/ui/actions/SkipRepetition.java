@@ -30,8 +30,10 @@ import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
 import gda.exafs.scan.RepetitionsProperties;
 import gda.jython.InterfaceProvider;
+import uk.ac.gda.client.CommandQueueViewFactory;
 
 public class SkipRepetition extends AbstractHandler implements IWorkbenchWindowActionDelegate, IEditorActionDelegate {
 
@@ -43,6 +45,12 @@ public class SkipRepetition extends AbstractHandler implements IWorkbenchWindowA
 
 	@Override
 	public void selectionChanged(IAction arg0, ISelection arg1) {
+	}
+
+	@Override
+	public boolean isEnabled() {
+		// this action is disabled if we're using the StatusQueueView
+		return super.isEnabled() && !LocalProperties.check(CommandQueueViewFactory.GDA_USE_STATUS_QUEUE_VIEW);
 	}
 
 	@Override

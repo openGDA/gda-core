@@ -327,6 +327,7 @@
                label="Skip current repetition"
                style="push"
                tooltip="Skips the current repetition and moves on to the next one">
+            <visibleWhen checkEnabled="true"/>
          </command>
          <command
                commandId="uk.ac.gda.client.exafs.pauseAfterRepetition"
@@ -334,12 +335,14 @@
                label="Pause scan after repetition"
                style="push"
                tooltip="Pauses the current scan once the current repetition has completed">
+            <visibleWhen checkEnabled="true"/>
          </command>
          <command
                commandId="uk.ac.gda.client.exafs.changenumberRepetitions"
                icon="icons/table_edit.png"
                label="Edit number of repetitions"
                style="push">
+            <visibleWhen checkEnabled="true"/>
          </command>
          <command
                commandId="uk.ac.gda.client.exafs.switchToPlotPerspective"
