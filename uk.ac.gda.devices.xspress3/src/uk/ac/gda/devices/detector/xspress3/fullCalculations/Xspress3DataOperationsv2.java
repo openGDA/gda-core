@@ -318,6 +318,10 @@ public class Xspress3DataOperationsv2 {
 	}
 
 	public String[] getExtraNames() {
+		if (rois == null || controller == null) {
+			return new String[] { "FF" };
+		}
+
 		int numExtraNames = (rois.length * controller.getNumberOfChannels()) + 1;
 		String[] extraNames = new String[numExtraNames];
 		int index = 0;
