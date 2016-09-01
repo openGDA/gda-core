@@ -18,25 +18,6 @@
 
 package gda.rcp;
 
-import gda.configuration.properties.LocalProperties;
-import gda.data.PathConstructor;
-import gda.data.metadata.VisitEntry;
-import gda.data.metadata.icat.IcatProvider;
-import gda.factory.FactoryException;
-import gda.factory.Finder;
-import gda.factory.ObjectFactory;
-import gda.factory.corba.util.AdapterFactory;
-import gda.factory.corba.util.NetService;
-import gda.jython.InterfaceProvider;
-import gda.jython.authenticator.Authenticator;
-import gda.jython.authenticator.UserAuthentication;
-import gda.jython.authoriser.AuthoriserProvider;
-import gda.rcp.util.UIScanDataPointEventService;
-import gda.util.ElogEntry;
-import gda.util.ObjectServer;
-import gda.util.SpringObjectServer;
-import gda.util.logging.LogbackUtils;
-
 import java.io.File;
 import java.net.URL;
 import java.util.HashMap;
@@ -56,6 +37,24 @@ import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
+import gda.data.PathConstructor;
+import gda.data.metadata.VisitEntry;
+import gda.data.metadata.icat.IcatProvider;
+import gda.factory.FactoryException;
+import gda.factory.Finder;
+import gda.factory.ObjectFactory;
+import gda.factory.corba.util.AdapterFactory;
+import gda.factory.corba.util.NetService;
+import gda.jython.InterfaceProvider;
+import gda.jython.authenticator.Authenticator;
+import gda.jython.authenticator.UserAuthentication;
+import gda.jython.authoriser.AuthoriserProvider;
+import gda.rcp.util.UIScanDataPointEventService;
+import gda.util.ElogEntry;
+import gda.util.ObjectServer;
+import gda.util.SpringObjectServer;
+import gda.util.logging.LogbackUtils;
 import uk.ac.gda.preferences.PreferenceConstants;
 import uk.ac.gda.richbeans.BeansFactoryInit;
 import uk.ac.gda.ui.dialog.AuthenticationDialog;
@@ -176,7 +175,7 @@ public class Application implements IApplication {
 	 * issues if this is done before the workbench is created.
 	 */
 	private void fixVisitID() {
-		logger.info("User " + UserAuthentication.getUsername() + " running GDA client using visit " + LocalProperties.get(LocalProperties.RCP_APP_VISIT));
+		logger.info("User '{}' running GDA client using visit '{}'", UserAuthentication.getUsername(), LocalProperties.get(LocalProperties.RCP_APP_VISIT));
 		InterfaceProvider.getBatonStateProvider().changeVisitID(LocalProperties.get(LocalProperties.RCP_APP_VISIT));
 	}
 
@@ -190,21 +189,36 @@ public class Application implements IApplication {
 
 	}
 
-	/*
-	 * sets the chosenVisit attribute to the default visit  java property
+	/**
+	 * Sets the property {@link LocalProperties#RCP_APP_VISIT} to the default visit given by property
+	 * {@link LocalProperties#GDA_DEF_VISIT} or to {@link LocalProperties#DEFAULT_VISIT} if the property is not set. It
+	 * logs the result.
 	 */
 	private void setToDefaultVisit() {
-		//TODO show popup explaining that DICAT may be down and that it will use 0-0 unless local contact sets defVisit to correct value and add them to the $BEAMLINE-config/xml/beamlinestaff.xml
-		LocalProperties.set(LocalProperties.RCP_APP_VISIT,LocalProperties.get("gda.defVisit", "0-0"));
+		// TODO show popup explaining that ICAT may be down and that it will use 0-0 unless local contact sets defVisit
+		// to correct value and add them to the $BEAMLINE-config/xml/beamlinestaff.xml
+
+		// Get the default visit defaulting to LocalProperties.DEFAULT_VISIT if not defined
+		final String defaultVisit = LocalProperties.get(LocalProperties.GDA_DEF_VISIT, LocalProperties.DEFAULT_VISIT);
+
+		// Check if the default visit property is set for better logging
+		if (LocalProperties.contains(LocalProperties.GDA_DEF_VISIT)) {
+			logger.info("Defaulting to visit '{}' defined by property '{}'", defaultVisit, LocalProperties.GDA_DEF_VISIT);
+		} else { // The default visit property is NOT set
+			logger.info("Defaulting to visit '{}' the property '{}' is NOT set", defaultVisit, LocalProperties.GDA_DEF_VISIT);
+		}
+
+		// Set the RCP visit property
+		LocalProperties.set(LocalProperties.RCP_APP_VISIT, defaultVisit);
 	}
 
-	/*
+	/**
 	 * only sets the private chosenVisit attribute
 	 */
 	private int identifyVisitID(Display display) throws Exception {
 
 		if (!IcatProvider.getInstance().icatInUse()) {
-			logger.info("Icat database not in use. Using the default visit defined by property " + LocalProperties.GDA_DEF_VISIT);
+			logger.info("Icat database not in use.");
 			setToDefaultVisit();
 			return 1;
 		}
@@ -215,7 +229,7 @@ public class Application implements IApplication {
 		try {
 			visits = IcatProvider.getInstance().getMyValidVisits(user);
 		} catch (Exception e) {
-			logger.info(e.getMessage() + " - using default visit defined by property " + LocalProperties.GDA_DEF_VISIT, e);
+			logger.error("Error retrieving visits from database.", e);
 			setToDefaultVisit();
 			return 1;
 		}
@@ -233,13 +247,10 @@ public class Application implements IApplication {
 		// if no valid visit ID then do same as the cancel button
 		if (visits == null || visits.length == 0) {
 			if (!isStaff) {
-				logger
-						.info("No visits found for user " + user
-								+ " at this time on this beamline. GUI will not start.");
+				logger.info("No visits found for user '{}' at this time on this beamline. GUI will not start.", user);
 				return EXIT_OK;
 			}
-			logger.info("No visits found for user " + user
-					+ " at this time on this beamline. Will use default visit as ID listed as a member of staff.");
+			logger.info("No visits found for user '{}' at this time on this beamline. Will use default visit as ID listed as a member of staff.", user);
 			setToDefaultVisit();
 		} else if (visits.length == 1) {
 			LocalProperties.set(LocalProperties.RCP_APP_VISIT,visits[0].getVisitID());
@@ -409,7 +420,7 @@ public class Application implements IApplication {
 					throw new Exception("Workspace has already been set when trying to set visit based workspace location.");
 				}
 
-				logger.info("Workspace instance location has been set with -data command line argument to " + instanceLocation.getURL());
+				logger.info("Workspace instance location has been set with -data command line argument to '{}'", instanceLocation.getURL());
 				// for correct reporting further on
 				url = instanceLocation.getURL();
 			}
@@ -418,7 +429,7 @@ public class Application implements IApplication {
 			throw new Exception(msg, e);
 		}
 		if (instanceLocation.lock()) {
-			logger.info("Workspace set to " + url);
+			logger.info("Workspace set to '{}'", url);
 		} else {
 			throw new Exception("Workspace at " + url + " is locked.\n Is another instance of GDA already running?");
 		}
