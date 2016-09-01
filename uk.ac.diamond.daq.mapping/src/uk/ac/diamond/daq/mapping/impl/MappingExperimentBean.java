@@ -1,10 +1,10 @@
 package uk.ac.diamond.daq.mapping.impl;
 
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.dawnsci.analysis.api.processing.model.IOperationModel;
 
-import uk.ac.diamond.daq.mapping.api.IBeamlineConfiguration;
 import uk.ac.diamond.daq.mapping.api.IDetectorModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.api.ISampleMetadata;
@@ -14,14 +14,13 @@ import uk.ac.diamond.daq.mapping.api.IScriptFiles;
 public class MappingExperimentBean implements IMappingExperimentBean {
 
 	private ExampleSampleMetadata sampleMetadata;
-	private List<IDetectorModelWrapper> detectorParameters;
-	private ExampleBeamlineConfigurationImpl beamlineConfiguration;
+	private List<IDetectorModelWrapper> detectorParameters = null;
+	private Map<String, Object> beamlineConfiguration = null;
 	private IScanDefinition scanDefinition;
-	private IScriptFiles scriptFiles;
+	private IScriptFiles scriptFiles = null;
 
 	public MappingExperimentBean() {
 		sampleMetadata = new ExampleSampleMetadata();
-		beamlineConfiguration = new ExampleBeamlineConfigurationImpl();
 		scanDefinition = new MappingScanDefinition();
 	}
 
@@ -56,13 +55,13 @@ public class MappingExperimentBean implements IMappingExperimentBean {
 	}
 
 	@Override
-	public ExampleBeamlineConfigurationImpl getBeamlineConfiguration() {
+	public Map<String, Object> getBeamlineConfiguration() {
 		return beamlineConfiguration;
 	}
 
 	@Override
-	public void setBeamlineConfiguration(IBeamlineConfiguration beamlineConfiguration) {
-		this.beamlineConfiguration = (ExampleBeamlineConfigurationImpl) beamlineConfiguration;
+	public void setBeamlineConfiguration(Map<String, Object> beamlineConfiguration) {
+		this.beamlineConfiguration = beamlineConfiguration;
 	}
 
 	@Override

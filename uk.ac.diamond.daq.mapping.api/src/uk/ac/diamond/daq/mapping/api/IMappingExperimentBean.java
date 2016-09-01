@@ -19,6 +19,7 @@
 package uk.ac.diamond.daq.mapping.api;
 
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.dawnsci.analysis.api.processing.model.IOperationModel;
 
@@ -75,17 +76,19 @@ public interface IMappingExperimentBean {
 
 	/**
 	 * Gets the beamline configuration to be used in the mapping scan. e.g. monochromator energy, slit size, attenuation, ID gap, mirror positions ...
+	 * This is a map from name to value and is the start position that these scannables should be set to before a scan.
 	 *
 	 * @return beamlineConfiguration
 	 */
-	public IBeamlineConfiguration getBeamlineConfiguration();
+	public Map<String, Object> getBeamlineConfiguration();
 
 	/**
 	 * Sets the beamline configuration to be used in the mapping scan. e.g. monochromator energy, slit size, attenuation, ID gap, mirror positions ...
+	 * This is a map from name to value and is the start position that these scannables should be set to before a scan.
 	 *
 	 * @param beamlineConfiguration
 	 */
-	public void setBeamlineConfiguration(IBeamlineConfiguration beamlineConfiguration);
+	public void setBeamlineConfiguration(Map<String, Object> beamlineConfiguration);
 
 	/**
 	 * Gets the post processing steps to be run live as part of the mapping scan (online analysis). A <code>List</code> to allow multiple processing steps to be
