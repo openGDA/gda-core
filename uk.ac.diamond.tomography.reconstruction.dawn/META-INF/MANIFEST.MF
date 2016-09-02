@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Dawn
+Bundle-SymbolicName: uk.ac.diamond.tomography.reconstruction.dawn;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: uk.ac.diamond.tomography.reconstruction.dawn.Activator
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.dawnsci.webintro,
+ org.dawb.common.ui
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy

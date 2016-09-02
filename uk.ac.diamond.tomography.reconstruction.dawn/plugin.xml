@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.dawnsci.webintro.item">
+      <introCategory
+            category_id="science_tomography"
+            icon="icons/tomo_intro.jpg"
+            id="org.dawnsci.webintro.category.tomography"
+            name="Tomography"
+            ordering="1"
+            parent_id="science">
+      </introCategory>
+      <introAction
+            class="uk.ac.diamond.tomography.reconstruction.dawn.TomoPerspectiveLaunch"
+            description="Launch the Tomo Reconstruction perspective"
+            icon="icons/TOMO_intro.png"
+            id="uk.ac.diamond.tomography.reconstruction.introAction1"
+            name="Tomo Reconstruction"
+            parent_id="science_tomography">
+      </introAction>
+   </extension>
+
+</plugin>
