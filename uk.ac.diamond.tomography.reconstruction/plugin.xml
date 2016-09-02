@@ -306,23 +306,6 @@
       </category>
    </extension>
    <extension
-         point="org.dawnsci.introRegister">
-      <introPageRegister
-            class="uk.ac.diamond.tomography.reconstruction.TomoPerspectiveLaunch"
-            description="Tools to reconstruct NeXus tomography data"
-            icon="icons/TOMO_intro.png"
-            id="uk.ac.diamond.tomography.reconstruction.intropage"
-            name="(Pre-release) Tomography Reconstruction">
-      </introPageRegister>
-   </extension>
-   <extension
-         point="org.eclipse.ui.intro.configExtension">
-      <configExtension
-            configId="org.dawnsci.intro.universalConfig"
-            content="intro/introContribution.xml">
-      </configExtension>
-   </extension>
-   <extension
          point="uk.ac.diamond.tomography.reconstruction.commandrunner">
       <command_runner
             class="uk.ac.diamond.tomography.reconstruction.commands.TestCommandRunner"
@@ -370,5 +353,5 @@
                toolbarPath="tools/additions">
          </action>
       </actionSet>
-   </extension>   
+   </extension>
 </plugin>
