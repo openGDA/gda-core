@@ -1,15 +1,14 @@
 package uk.ac.gda.tomography.scan.editor;
 
-import gda.commandqueue.JythonCommandCommandProvider;
-import gda.configuration.properties.LocalProperties;
-import gda.util.FileUtil;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import org.eclipse.emf.common.command.BasicCommandStack;
 import org.eclipse.emf.common.util.URI;
@@ -28,8 +27,15 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.PlatformUI;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import gda.commandqueue.JythonCommandCommandProvider;
+import gda.configuration.properties.LocalProperties;
+import gda.util.FileUtil;
 import uk.ac.gda.client.CommandQueueViewFactory;
 import uk.ac.gda.tomography.scan.Parameters;
 import uk.ac.gda.tomography.scan.ScanFactory;
@@ -38,11 +44,13 @@ import uk.ac.gda.tomography.scan.presentation.ScanEditorPlugin;
 import uk.ac.gda.tomography.scan.provider.ScanItemProviderAdapterFactory;
 
 public class ScanParameterDialog extends Dialog {
+
+	private static final Logger logger = LoggerFactory.getLogger(ScanParameterDialog.class);
+
 	private AdapterFactoryEditingDomain editingDomain;
+
 	public ScanParameterDialog(Shell parentShell) {
 		super(parentShell);
-
-	
 	}
 
 	@Override
@@ -93,7 +101,7 @@ public class ScanParameterDialog extends Dialog {
 		return cmp;
 	}
 
-	static String getDefaultScanParameterFilePath() {
+	private static String getDefaultScanParameterFilePath() {
 		String string = ScanEditorPlugin.getPlugin()
 				.getPreferenceStore()
 				.getString("DefaultScanParametersFilename");
@@ -115,8 +123,7 @@ public class ScanParameterDialog extends Dialog {
 	protected void okPressed() {
 		OutputStream os;
 		try {
-			
-			final String uniqueFilename = ScanParameterView.getUniqueFilename("TomoScan", ".scan");
+			final String uniqueFilename = getUniqueFilename("TomoScan", ".scan");
 			final File gridScanFileWithTime = new File(LocalProperties.getVarDir(), uniqueFilename);
 			Resource resource = editingDomain.getResourceSet()
 					.getResources().get(0);
@@ -129,17 +136,30 @@ public class ScanParameterDialog extends Dialog {
 			String defaultScanParametersFilePath = getDefaultScanParameterFilePath();
 			if( !defaultScanParametersFilePath.isEmpty())
 				FileUtil.copy(gridScanFileWithTime.getAbsolutePath(), defaultScanParametersFilePath);
-			
+
 			String command = "tomographyScan.ProcessScanParameters('" + gridScanFileWithTime.getAbsolutePath() + "')";
 			String jobLabel = "TomoScan Scan: "+x.getTitle();
-			
+
 			CommandQueueViewFactory.getQueue().addToTail(new JythonCommandCommandProvider(command, jobLabel, gridScanFileWithTime.getAbsolutePath()));
 			CommandQueueViewFactory.showView();
 
 		} catch (Exception e1) {
-			ScanParameterView.reportErrorToUserAndLog("Error submitting tomoscan to queue", e1);
+			reportErrorToUserAndLog("Error submitting tomoscan to queue", e1);
 		}
 		super.okPressed();
 	}
 
+	private static void reportErrorToUserAndLog(String s, Throwable th) {
+		logger.error(s, th);
+		MessageBox messageBox = new MessageBox(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), SWT.ICON_ERROR);
+		messageBox.setMessage(s + ":" + th.getMessage());
+		messageBox.open();
+	}
+
+	private static String getUniqueFilename(String prefix, String suffix) {
+		final UUID uuid = UUID.randomUUID();
+		final String uuidWithoutHyphens = uuid.toString().replace("-", "");
+		final String timeString = (new SimpleDateFormat("yyyyMMdd-HHmmss")).format(new Date());
+		return String.format("%s-%s-%s%s", prefix, timeString, uuidWithoutHyphens, suffix);
+	}
 }

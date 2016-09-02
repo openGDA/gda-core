@@ -31,15 +31,5 @@
             contributorClass="uk.ac.gda.tomography.scan.presentation.ScanActionBarContributor">
       </editor>
    </extension>
-   <extension
-         point="org.eclipse.ui.views">
-      <view
-            class="uk.ac.gda.tomography.scan.editor.ScanParameterView"
-            icon="icons/full/obj16/ScanModelFile.gif"
-            id="uk.ac.gda.tomography.scan.editor.ScanParameterView"
-            name="Tomography Scan Parameters"
-            restorable="true">
-      </view>
-   </extension>
 
 </plugin>
