@@ -24,7 +24,7 @@ import gda.data.metadata.VisitEntry;
 /**
  * This isn't a unit test but is designed to let you interrogate DiCAT to find visits.
  */
-public class DLSdicatTest {
+public class IcatTest {
 
 	public static void main(String[] args) throws Exception {
 
@@ -34,10 +34,10 @@ public class DLSdicatTest {
 
 			System.setProperty(LocalProperties.GDA_PROPERTIES_FILE, "src/gda/data/metadata/icat/DLSdicatTest.properties");
 
-			final DLSdicat dicat = new DLSdicat();
-			dicat.setInstrumentName(instrument);
+			final IcatBase icat = (IcatBase) IcatProvider.getInstance();
+			icat.setInstrumentName(instrument);
 
-			final VisitEntry[] visits = dicat.getMyValidVisits(username);
+			final VisitEntry[] visits = icat.getMyValidVisits(username);
 
 			if (visits.length == 0) {
 				System.out.println("No visits.");
