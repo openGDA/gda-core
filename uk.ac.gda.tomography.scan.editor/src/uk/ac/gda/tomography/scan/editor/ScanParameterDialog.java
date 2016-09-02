@@ -4,6 +4,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -46,6 +49,7 @@ import uk.ac.gda.tomography.scan.provider.ScanItemProviderAdapterFactory;
 public class ScanParameterDialog extends Dialog {
 
 	private static final Logger logger = LoggerFactory.getLogger(ScanParameterDialog.class);
+	private static final String TOMOSCAN_DIRECTORY = "tomoScan";
 
 	private AdapterFactoryEditingDomain editingDomain;
 
@@ -121,24 +125,30 @@ public class ScanParameterDialog extends Dialog {
 
 	@Override
 	protected void okPressed() {
-		OutputStream os;
 		try {
+			// Create output directory if necessary
+			final Path scanFileDirectory = Paths.get(LocalProperties.getVarDir(), TOMOSCAN_DIRECTORY);
+			Files.createDirectories(scanFileDirectory);
+
 			final String uniqueFilename = getUniqueFilename("TomoScan", ".scan");
-			final File gridScanFileWithTime = new File(LocalProperties.getVarDir(), uniqueFilename);
-			Resource resource = editingDomain.getResourceSet()
-					.getResources().get(0);
-			Parameters x = (Parameters) (resource.getContents().get(0));
-			os = new FileOutputStream(gridScanFileWithTime);
-			Map<String, Boolean> options = new HashMap<String,Boolean >();
+			final File gridScanFileWithTime = new File(scanFileDirectory.toString(), uniqueFilename);
+
+			final Resource resource = editingDomain.getResourceSet().getResources().get(0);
+			final Parameters x = (Parameters) (resource.getContents().get(0));
+			final OutputStream os = new FileOutputStream(gridScanFileWithTime);
+			final Map<String, Boolean> options = new HashMap<String, Boolean>();
+
 			options.put(XMLResource.OPTION_KEEP_DEFAULT_CONTENT, true);
 			resource.save(os, options);
 			os.close();
-			String defaultScanParametersFilePath = getDefaultScanParameterFilePath();
-			if( !defaultScanParametersFilePath.isEmpty())
-				FileUtil.copy(gridScanFileWithTime.getAbsolutePath(), defaultScanParametersFilePath);
 
-			String command = "tomographyScan.ProcessScanParameters('" + gridScanFileWithTime.getAbsolutePath() + "')";
-			String jobLabel = "TomoScan Scan: "+x.getTitle();
+			final String defaultScanParametersFilePath = getDefaultScanParameterFilePath();
+			if (!defaultScanParametersFilePath.isEmpty()) {
+				FileUtil.copy(gridScanFileWithTime.getAbsolutePath(), defaultScanParametersFilePath);
+			}
+
+			final String command = "tomographyScan.ProcessScanParameters('" + gridScanFileWithTime.getAbsolutePath() + "')";
+			final String jobLabel = "TomoScan Scan: " + x.getTitle();
 
 			CommandQueueViewFactory.getQueue().addToTail(new JythonCommandCommandProvider(command, jobLabel, gridScanFileWithTime.getAbsolutePath()));
 			CommandQueueViewFactory.showView();
