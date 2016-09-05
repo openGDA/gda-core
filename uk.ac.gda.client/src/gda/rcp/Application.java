@@ -85,7 +85,7 @@ public class Application implements IApplication {
 
 			// get access to distributed metadata object needed for identifying Visit
 			ObjectFactory objectFactory = new ObjectFactory();
-			objectFactory.setName(LocalProperties.get("gda.factory.factoryName"));
+			objectFactory.setName(LocalProperties.get(LocalProperties.GDA_FACTORY_NAME));
 			Finder finder = Finder.getInstance();
 			finder.addFactory(objectFactory);
 			NetService netService = NetService.getInstance();
