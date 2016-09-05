@@ -21,9 +21,9 @@ package uk.ac.gda.client.liveplot.mjpeg;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.eclipse.dawnsci.analysis.api.io.IRemoteDatasetService;
 import org.eclipse.dawnsci.plotting.api.IPlotActionSystem;
@@ -108,7 +108,7 @@ public class LiveMjpegPlot extends ViewPart {
 		} else {
 			// Find all the implemented cameras
 			List<CameraConfiguration> cameras = Finder.getInstance().listFindablesOfType(CameraConfiguration.class);
-			final Map<String, CameraConfiguration> cameraMap = new HashMap<String, CameraConfiguration>();
+			final Map<String, CameraConfiguration> cameraMap = new TreeMap<String, CameraConfiguration>();
 			for (CameraConfiguration camConfig : cameras) {
 				if (camConfig.getDisplayName() != null) {
 					cameraMap.put(camConfig.getDisplayName(), camConfig);
@@ -116,7 +116,6 @@ public class LiveMjpegPlot extends ViewPart {
 					logger.warn("No display name was set for camera id: {}. Using id instead", camConfig.getName());
 					cameraMap.put(camConfig.getName(), camConfig);
 				}
-
 			}
 			if (!cameraMap.isEmpty()) {
 				logger.debug("Found {} cameras", cameras.size());
@@ -170,6 +169,13 @@ public class LiveMjpegPlot extends ViewPart {
 		if (camConfig == null) {
 			displayAndLogError(parent, "Camera configuration could not be found for the specified camera ID");
 			return;
+		}
+
+		// Do some things to make the UI a bit more friendly
+		if (camConfig.getDisplayName() != null) {
+			setPartName(camConfig.getDisplayName());
+		} else {
+			setPartName(camConfig.getName());
 		}
 
 		URL url;
@@ -232,13 +238,6 @@ public class LiveMjpegPlot extends ViewPart {
 		plottingSystem.setKeepAspect(true);
 		// Disable auto rescale as the live stream is constantly refreshing
 		plottingSystem.setRescale(false);
-
-		// Do some things to make the UI a bit more friendly
-		if (camConfig.getDisplayName() != null) {
-			setPartName(camConfig.getDisplayName());
-		} else {
-			setPartName(camConfig.getName());
-		}
 
 		shapeListener = new IDataListener() {
 			int[] oldShape;
