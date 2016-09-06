@@ -18,9 +18,6 @@
 
 package uk.ac.gda.epics.adviewer.composites;
 
-import gda.observable.Observable;
-import gda.observable.Observer;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -41,10 +38,12 @@ import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.observable.Observable;
+import gda.observable.Observer;
 import uk.ac.gda.epics.adviewer.ADController;
 
 public class CameraStatus extends Composite {
-	static final Logger logger = LoggerFactory.getLogger(CameraStatus.class);
+	private static final Logger logger = LoggerFactory.getLogger(CameraStatus.class);
 	private Label lblAcquireState;
 	private StandardBox acquireTimeBox;
 	private Observable<Short> stateObservable;
@@ -53,6 +52,7 @@ public class CameraStatus extends Composite {
 	private Observer<Double> timeObserver;
 	private Button btnStart;
 	private Button btnStop;
+	private Label lblCameraModel;
 
 	public CameraStatus(Composite parent, int style) {
 		super(parent, style);
@@ -62,25 +62,29 @@ public class CameraStatus extends Composite {
 		group.setText("Camera");
 		group.setLayout(new GridLayout(3, false));
 
-		btnStart = new Button(group, SWT.NONE);
+		lblCameraModel = new Label(group, SWT.NONE);
+		lblCameraModel.setText("camera model");
+		lblCameraModel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 3, 1));
 
-		btnStart.setLayoutData(new GridData(SWT.RIGHT, SWT.TOP, false, false, 1, 1));
+		btnStart = new Button(group, SWT.NONE);
+		btnStart.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		btnStart.setText("Start");
 
 		btnStop = new Button(group, SWT.NONE);
+		btnStop.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		btnStop.setText("Stop");
 
-
 		lblAcquireState = new Label(group, SWT.NONE);
+		lblAcquireState.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		lblAcquireState.setText("acquireState");
 
 		acquireTimeBox = new StandardBox(group, SWT.NONE);
-		acquireTimeBox.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 3, 1));
-		acquireTimeBox.setLabelWidth(60);
+		acquireTimeBox.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 3, 1));
+		acquireTimeBox.setLabelWidth(70);
 		acquireTimeBox.setActive(true);
 		acquireTimeBox.setUnit("s");
 		acquireTimeBox.setNumericValue(10.0);
-		acquireTimeBox.setLabel("Exp.Time");
+		acquireTimeBox.setLabel("Exp.Time ");
 		acquireTimeBox.setToolTipText("Exposure time in seconds");
 		acquireTimeBox.setDecimalPlaces(3);
 
@@ -107,7 +111,7 @@ public class CameraStatus extends Composite {
 					@Override
 					public void run() {
 						boolean acquisitionStopped = arg == 0;
-						lblAcquireState.setText(acquisitionStopped ? "Stopped   ": "Acq.");
+						lblAcquireState.setText(acquisitionStopped ? "Stopped": "Acquiring");
 						btnStart.setEnabled(true);
 					}
 				});
@@ -169,6 +173,8 @@ public class CameraStatus extends Composite {
 			}
 		});
 		acquireTimeBox.on();
+
+		lblCameraModel.setText(adController.getAdBase().getModel_RBV());
 	}
 
 }

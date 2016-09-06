@@ -18,11 +18,6 @@
 
 package uk.ac.gda.epics.adviewer.composites;
 
-import gda.images.camera.DummySwtVideoReceiver;
-import gda.images.camera.MotionJpegOverHttpReceiverSwt;
-import gda.images.camera.VideoReceiver;
-import gda.observable.Observable;
-
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -57,6 +52,10 @@ import org.eclipse.swt.widgets.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.images.camera.DummySwtVideoReceiver;
+import gda.images.camera.MotionJpegOverHttpReceiverSwt;
+import gda.images.camera.VideoReceiver;
+import gda.observable.Observable;
 import uk.ac.gda.client.viewer.SWT2DOverlayProvider;
 import uk.ac.gda.epics.adviewer.ADController;
 import uk.ac.gda.epics.adviewer.composites.imageviewer.NewImageListener;
@@ -100,7 +99,7 @@ public class MJPeg extends Composite {
 
 		cameraStatus = new CameraStatus(left, SWT.NONE);
 		GridData gd_cameraStatus = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_cameraStatus.widthHint = 153;
+		gd_cameraStatus.widthHint = 200;
 		cameraStatus.setLayoutData(gd_cameraStatus);
 
 		Group stateGroup = new Group(left, SWT.NONE);
