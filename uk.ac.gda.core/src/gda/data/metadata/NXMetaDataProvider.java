@@ -554,48 +554,6 @@ public class NXMetaDataProvider implements NexusTreeAppender, Map<String, Object
 		dynamicScannables.remove(name);
 	}
 
-	public void createMetaScannableMap() throws DeviceException {
-		//for (Scannable scn : metaScannables) {
-		List<Scannable> metaScannableList = new Vector<Scannable>();
-		Set<String> metaScannableSet = NexusDataWriter.getMetadatascannables();
-		for (String scannableName : metaScannableSet) {
-			Scannable scannable = (Scannable) InterfaceProvider.getJythonNamespace().getFromJythonNamespace(scannableName);
-			metaScannableList.add(scannable);
-		}
-		for (Scannable scn : metaScannableList) {
-			List<ScannableMetaEntry> metas = new Vector<ScannableMetaEntry>();
-
-			List<String> scnNames = new Vector<String>();
-
-			int len = scn.getInputNames().length;
-			String[] inputNames = scn.getInputNames();
-			for (int i = 0; i < len; i++) {
-				scnNames.add(inputNames[i]);
-			}
-
-			len = scn.getExtraNames().length;
-			String[] extraNames = scn.getExtraNames();
-			for (int i = 0; i < len; i++) {
-				scnNames.add(extraNames[i]);
-			}
-
-			List<String> scnFormats = new Vector<String>();
-			len = scn.getOutputFormat().length;
-			String[] outFormats = scn.getOutputFormat();
-			for (int i = 0; i < len; i++) {
-				scnFormats.add(outFormats[i]);
-			}
-
-			String[] formattedCurrentPositionArray = ScannableUtils.getFormattedCurrentPositionArray(scn);
-
-			List<String> scannableFieldNames = getScannableFieldNames(scn);
-
-			for (int i = 0; i < scannableFieldNames.size(); i++) {
-				metas.add(new ScannableMetaEntry(scannableFieldNames.get(i), formattedCurrentPositionArray[i]));
-			}
-
-		}
-	}
 
 	public Map<String, Object> createMetaScannableMap(Scannable scn) throws DeviceException {
 		Map<String, Object> metaScannableMapObj = new HashMap<String, Object>();
