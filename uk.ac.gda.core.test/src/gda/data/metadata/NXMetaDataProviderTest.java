@@ -1541,4 +1541,35 @@ public class NXMetaDataProviderTest {
 		// test
 		Assert.assertEquals(expected, actual);
 	}
+
+	@Test
+	public void testDynamicMetadataScannables() throws Exception {
+		Scannable scn1 = MockFactory.createMockScannable("scn1",
+				new String[] { "in_1" },
+				new String[] {},
+				new String[] { "%1.1f" },
+				0,
+				0.0);
+		Scannable scn2 = MockFactory.createMockScannable("scn1",
+				new String[] { "in_1" },
+				new String[] {},
+				new String[] { "%1.1f" },
+				0,
+				0.0);
+		HashSet<String> initial = new HashSet<String>();
+		initial.add(scn1.getName());
+		// FIXME: should not be reaching into NexusDataWriter at all
+		NexusDataWriter.setMetadatascannables(initial);
+
+		NXMetaDataProvider provider = new NXMetaDataProvider();
+		provider.add(scn2);
+		HashSet<String> expectedScannables = new HashSet<String>();
+		expectedScannables.add(scn1.getName());
+		expectedScannables.add(scn2.getName());
+		Assert.assertEquals(expectedScannables, NexusDataWriter.getMetadatascannables());
+
+		provider.clearDynamicScannableMetadata();
+		expectedScannables.remove(scn2.getName());
+		Assert.assertEquals(expectedScannables, NexusDataWriter.getMetadatascannables());
+	}
 }
