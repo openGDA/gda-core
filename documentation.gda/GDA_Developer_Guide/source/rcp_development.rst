@@ -85,7 +85,7 @@ In the client, use the Finder as it would be exported using CORBA:
 
 .. code-block:: java
 
-   controller = Finder.getInstance().find(“MyScriptController”)
+   controller = Finder.getInstance().find("MyScriptController")
    controller.update("MyScript","<message you want to send>")
 
 See the exampleScriptControllerScript.py and the configuration file scriptController.xml for a running example in the example-config.
@@ -113,7 +113,7 @@ To drive the Command Queue from the UI, create Command object using a CommandPro
 .. code-block:: java
 
    JythonCommandCommandProvider command = 
-      new JythonCommandCommandProvider(”<command to run>”,”<command to display>”,null)
+      new JythonCommandCommandProvider("<command to run>","<command to display>",null)
 
 
 Then add the command to the queue using the CommandQueueViewFactory:

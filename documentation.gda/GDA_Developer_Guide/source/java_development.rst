@@ -271,7 +271,7 @@ as a constructor argument:
 
 .. code-block:: xml
 
-   <bean id='scannableGaussian2>
+   <bean id='scannableGaussian2'>
       <property name='name' value='scannableGassian2'/>
       <constructor-arg ref='testGaussian'/>
    </bean>
