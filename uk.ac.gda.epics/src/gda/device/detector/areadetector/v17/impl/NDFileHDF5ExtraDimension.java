@@ -99,7 +99,7 @@ public class NDFileHDF5ExtraDimension extends NDFileHDF5Impl {
 	public void setExtraDimensions(int[] actualDims) throws Exception {
 		setNumExtraDims(actualDims.length - 1);
 		for (int i = 0; i < actualDims.length; i++) {
-			setExtraDimSize(i, actualDims[i]);
+			setExtraDimSize(actualDims.length - 1 - i, actualDims[i]);
 		}
 	}
 
