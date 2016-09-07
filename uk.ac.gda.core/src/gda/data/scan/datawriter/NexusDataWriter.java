@@ -373,8 +373,18 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 
 	private INexusTree beforeScanMetaData;
 
+	// Performance instrumentation logging the total time spent writing
+	private long totalWritingTime;
+
 	@Override
 	public void addData(IScanDataPoint dataPoint) throws Exception {
+		// Some performance instrumentation
+		long startTime = System.nanoTime(); // Get the time starting to write the point
+		// If this is the start of a new scan reset the performance instrumentation
+		if (scanPointNumber == -1) {
+			totalWritingTime = 0;
+		}
+
 		thisPoint = dataPoint;
 		scanPointNumber++;
 
@@ -447,6 +457,10 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 //				logger.error("exception received from DataWriterBase.addData(...)", e);
 //			}
 		}
+
+		// Finished addData do performance instrumentations
+		long finishTime = System.nanoTime();
+		totalWritingTime += finishTime - startTime;
 	}
 
 	/*
@@ -859,6 +873,10 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 	public void completeCollection() throws Exception {
 		releaseFile();
 		super.completeCollection();
+		int numberOfPoints = scanPointNumber + 1;
+		// Log the performance info. Convert ns into ms, and report per point to make comparable
+		logger.info("Writting {} points to NeXus took an average of {} ms per point", numberOfPoints,
+				(totalWritingTime / 1.0E6) / numberOfPoints);
 	}
 
 	/**
