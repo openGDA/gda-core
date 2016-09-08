@@ -56,6 +56,11 @@ public class BeforeAfterScannable extends ScannableMotionUnitsBase {
 	}
 
 	@Override
+	public Object rawGetPosition() throws DeviceException {
+		return delegate.getPosition();
+	}
+
+	@Override
 	public boolean isBusy() throws DeviceException {
 		return delegate.isBusy() || beforeAfter.isBusy();
 	}
