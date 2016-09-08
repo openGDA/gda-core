@@ -54,6 +54,8 @@ public class Version {
 	 */
 	public static void main(String args[]) {
 		final Logger logger = LoggerFactory.getLogger(Version.class);
-		logger.debug("GDA version " + RELEASE_VER);
+		logger.info("GDA version: {} ", getRelease());
+		// Also get as numeric to check
+		logger.info("GDA numeric version: {}", getReleaseNumber());
 	}
 }
