@@ -93,7 +93,7 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 	private double[][] theData;
 	private String plotTitle;
 	private boolean applyParametersBeforeAcquire = false;
-	private boolean continuousAquire;
+	private volatile boolean continuousAquire; // changed to volatile, so changes to it are noticed by different threads
 	private boolean updatingRoiPlotFromUI;
 	private boolean updatingRoiUIFromPlot;
 
@@ -363,6 +363,9 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 			fluorescenceDetectorComposite.setPlotTitle(plotTitle);
 			fluorescenceDetectorComposite.plotDataset(dataset);
 
+			if (fluorescenceDetectorComposite.getAutoScaleOnAcquire())
+				fluorescenceDetectorComposite.autoscaleAxes();
+
 			calculateAndDisplayCountTotals();
 		}
 	}
@@ -523,7 +526,6 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 
 			updatePlotTitle();
 			replot();
-			fluorescenceDetectorComposite.autoscaleAxes();
 
 			if (monitor != null) {
 				monitor.worked(1);
