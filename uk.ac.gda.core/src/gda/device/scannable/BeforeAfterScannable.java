@@ -18,6 +18,8 @@
 
 package gda.device.scannable;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,13 +48,26 @@ public class BeforeAfterScannable extends ScannableMotionUnitsBase {
 	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
 
 		logger.debug("moving {} to {} before", beforeAfter.getName(), before);
-		beforeAfter.moveTo(before);
+		beforeAfter.moveTo(before); // moveTo internally calls waitWhileBusy
 
-		logger.debug("moving {} to {}", delegate.getName(), position);
-		delegate.moveTo(position);
+		try {
+			// in case beforeAfter.waitWhileBusy returns before finished moving
+			Thread.sleep(delayBeforeMovingDelegate);
 
-		logger.debug("moving {} to {} after", beforeAfter.getName(), after);
-		beforeAfter.moveTo(after);
+			logger.debug("moving {} to {}", delegate.getName(), position);
+			delegate.moveTo(position);
+
+			logger.debug("moving {} to {} after", beforeAfter.getName(), after);
+			beforeAfter.moveTo(after);
+		}
+		catch (InterruptedException e) {
+			// Restore the interrupted status
+			Thread.currentThread().interrupt();
+
+			// For compatibility with ScannableBase.moveTo:
+			// convert to a device exception
+			throw new DeviceException(e.getMessage(), e.getCause());
+		}
 	}
 
 	@Override
@@ -63,6 +78,22 @@ public class BeforeAfterScannable extends ScannableMotionUnitsBase {
 	@Override
 	public boolean isBusy() throws DeviceException {
 		return delegate.isBusy() || beforeAfter.isBusy();
+	}
+
+	///////////////////////////////////////////////////////////////////////////
+
+	private long delayBeforeMovingDelegate = 0;
+
+	public long getDelayBeforeMovingDelegate() {
+		return delayBeforeMovingDelegate;
+	}
+
+	/**
+	 * Minimum time to wait between initial move of 'beforeAfter' and before moving 'delegate'.
+	 */
+	public void setDelayBeforeMovingDelegate(long milliseconds) {
+		checkArgument(milliseconds >= 0, "milliseconds must be a positive integer");
+		delayBeforeMovingDelegate = milliseconds;
 	}
 
 }
