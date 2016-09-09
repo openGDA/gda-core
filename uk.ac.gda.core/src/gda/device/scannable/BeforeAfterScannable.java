@@ -47,17 +47,17 @@ public class BeforeAfterScannable extends ScannableMotionUnitsBase {
 	@Override
 	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
 
-		logger.debug("moving {} to {} before", beforeAfter.getName(), before);
+		logger.trace("moving {} to {} before", beforeAfter.getName(), before);
 		beforeAfter.moveTo(before); // moveTo internally calls waitWhileBusy
 
 		try {
 			// in case beforeAfter.waitWhileBusy returns before finished moving
 			Thread.sleep(delayBeforeMovingDelegate);
 
-			logger.debug("moving {} to {}", delegate.getName(), position);
+			logger.trace("moving {} to {}", delegate.getName(), position);
 			delegate.moveTo(position);
 
-			logger.debug("moving {} to {} after", beforeAfter.getName(), after);
+			logger.trace("moving {} to {} after", beforeAfter.getName(), after);
 			beforeAfter.moveTo(after);
 		}
 		catch (InterruptedException e) {

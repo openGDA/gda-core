@@ -47,13 +47,13 @@ public class BeforeCheckScannable extends ScannableMotionUnitsBase {
 	 */
 	@Override
 	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
-		logger.debug("checking {} at {} before moving {} to {}", beforeCheck.getName(), before, delegate.getName(), position);
+		logger.trace("checking {} at {} before moving {} to {}", beforeCheck.getName(), before, delegate.getName(), position);
 		try {
 			checkState(beforeCheck.isAt(before),
 					"%s must be at %s before moving %s",
 							beforeCheck.getName(), before, delegate.getName());
 			// state OK so move delegate
-			logger.debug("moving {} to {}", delegate.getName(), position);
+			logger.trace("moving {} to {}", delegate.getName(), position);
 			delegate.moveTo(position);
 		}
 		catch (IllegalStateException e) {
