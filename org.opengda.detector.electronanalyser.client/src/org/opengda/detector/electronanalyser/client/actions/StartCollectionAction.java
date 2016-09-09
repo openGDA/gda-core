@@ -23,6 +23,9 @@ public class StartCollectionAction extends AbstractHandler implements IHandler {
 
 		logger.info("Running command: {}", command);
 
+		// Print the command to the console to make the history consistent
+		InterfaceProvider.getTerminalPrinter().print(command);
+
 		// Run the command in Jython
 		InterfaceProvider.getCommandRunner().runCommand(command);
 
