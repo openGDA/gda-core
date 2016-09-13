@@ -29,10 +29,13 @@ import static org.junit.Assert.assertThat;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
+import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.GridModel;
 import org.eclipse.scanning.api.script.ScriptRequest;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
@@ -150,6 +153,24 @@ public class ScanRequestConverterTest {
 		assertThat(afterScriptReq, is(notNullValue()));
 		assertThat(afterScriptReq.getLanguage(), is(SPEC_PASTICHE));
 		assertThat(afterScriptReq.getFile(), is(equalTo("/tmp/after.py")));
+	}
+
+	@Test
+	public void testBeamlineConfigurationIncludedCorrectly() {
+		Map<String, Object> beamlineConfiguration = new HashMap<>();
+		beamlineConfiguration.put("energy", 2675.3);
+		beamlineConfiguration.put("attenuator_pos", "Gap");
+		beamlineConfiguration.put("kb_mirror_pos", 7.0);
+		experimentBean.setBeamlineConfiguration(beamlineConfiguration);
+
+		ScanBean scanBean = scanRequestConverter.convertToScanBean(experimentBean);
+
+		ScanRequest<?> scanRequest = scanBean.getScanRequest();
+		IPosition startPos = scanRequest.getStart();
+		assertThat(startPos.getNames().size(), is(3));
+		assertThat(startPos.get("energy"), is(2675.3));
+		assertThat(startPos.get("attenuator_pos"), is("Gap"));
+		assertThat(startPos.get("kb_mirror_pos"), is(7.0));
 	}
 
 }

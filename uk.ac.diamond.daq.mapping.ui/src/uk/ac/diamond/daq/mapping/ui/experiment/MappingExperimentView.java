@@ -2,6 +2,8 @@ package uk.ac.diamond.daq.mapping.ui.experiment;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -36,7 +38,11 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.jface.window.Window;
 import org.eclipse.richbeans.api.generator.IGuiGeneratorService;
+import org.eclipse.scanning.api.device.IScannableDeviceService;
+import org.eclipse.scanning.api.event.EventException;
+import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.points.models.ArrayModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
@@ -54,6 +60,7 @@ import org.eclipse.swt.widgets.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.mapping.api.IDetectorModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBeanProvider;
@@ -154,6 +161,10 @@ public class MappingExperimentView {
 	@Inject
 	private IGuiGeneratorService guiGenerator;
 	@Inject
+	private IEventService eventService;
+	@Inject
+	private IScannableDeviceService scannableDeviceService;
+	@Inject
 	private IEclipseContext injectionContext;
 	@Inject
 	private UISynchronize uiSync;
@@ -182,8 +193,12 @@ public class MappingExperimentView {
 		}
 	}
 
+
 	@PostConstruct
-	public void createView(Composite parent) {
+	public void createView(Composite parent) throws EventException, URISyntaxException {
+		// TODO: can this be injected correctly?
+		final String jmsUri = LocalProperties.get("gda.activemq.broker.uri"); // gda specific!
+		scannableDeviceService = eventService.createRemoteService(new URI(jmsUri), IScannableDeviceService.class);
 
 		// It'd really be better if the beam position plotter could initialise itself when the map plot view was
 		// created, but there doesn't seem to be a good way to hook into that, so we use the creation of the GUI
@@ -474,6 +489,21 @@ public class MappingExperimentView {
 			});
 		}
 
+		// TODO: do we really need a new composite just to hold a button? Should the section
+		// only contain the button?
+		Composite beamlineConfigComposite = new Composite(mainComposite, SWT.NONE);
+		GridDataFactory.fillDefaults().grab(true, false).applyTo(beamlineConfigComposite);
+		final int configColumns = 2;
+		GridLayoutFactory.swtDefaults().numColumns(configColumns).applyTo(beamlineConfigComposite);
+		GridDataFactory.fillDefaults().span(configColumns, 1).grab(true, false)
+				.applyTo(new Label(beamlineConfigComposite, SWT.SEPARATOR | SWT.HORIZONTAL));
+		Label beamlineConfigLabel = new Label(beamlineConfigComposite, SWT.NONE);
+		beamlineConfigLabel.setText("Beamline Configuration");
+		GridDataFactory.fillDefaults().span(configColumns, 1).applyTo(beamlineConfigLabel);
+		Button editBeamlineConfigButton = new Button(beamlineConfigComposite, SWT.PUSH);
+		editBeamlineConfigButton.setText("Configure Beamline");
+		editBeamlineConfigButton.addListener(SWT.Selection, event -> editBeamlineConfiguration());
+
 		Composite validateScanSomposite = new Composite(mainComposite, SWT.NONE);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.BOTTOM).applyTo(validateScanSomposite);
 		GridLayoutFactory.swtDefaults().numColumns(4).applyTo(validateScanSomposite);
@@ -495,8 +525,22 @@ public class MappingExperimentView {
 		logger.trace("Finished building the mapping experiment view");
 	}
 
+	private Shell getShell() {
+		return (Shell) injectionContext.get(IServiceConstants.ACTIVE_SHELL);
+	}
+
 	private void showDialogToEdit(Object bean, String title) {
-		guiGenerator.openDialog(bean, (Shell) injectionContext.get(IServiceConstants.ACTIVE_SHELL), title);
+		guiGenerator.openDialog(bean, getShell(), title);
+	}
+
+	private void editBeamlineConfiguration() {
+		EditBeamlineConfigurationDialog dialog =
+				new EditBeamlineConfigurationDialog(getShell(), scannableDeviceService);
+		dialog.setInitialBeamlineConfiguration(experimentBean.getBeamlineConfiguration());
+		dialog.create();
+		if (dialog.open() == Window.OK) {
+			experimentBean.setBeamlineConfiguration(dialog.getModifiedBeamlineConfiguration());
+		}
 	}
 
 	private void changePath(IScanPathModel newPath) {
