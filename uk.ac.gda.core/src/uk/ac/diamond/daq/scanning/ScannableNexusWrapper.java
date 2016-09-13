@@ -25,6 +25,7 @@ import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.ILazyWriteableDataset;
 import org.eclipse.january.dataset.SliceND;
 import org.eclipse.scanning.api.IScannable;
+import org.eclipse.scanning.api.annotation.scan.ScanFinally;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.rank.IScanRankService;
@@ -37,14 +38,17 @@ import gda.data.scan.datawriter.NexusDataWriter;
 import gda.data.scan.datawriter.scannablewriter.ScannableWriter;
 import gda.data.scan.datawriter.scannablewriter.SingleScannableWriter;
 import gda.device.DeviceException;
+import gda.device.EnumPositioner;
 import gda.device.Scannable;
+import gda.device.ScannableMotion;
+import gda.device.ScannableMotionUnits;
 
 /**
  * Class provides a default implementation which will write any GDA8 scannable to NeXus
  *
  * @author Matthew Gerring, Matthew Dickie
  */
-class ScannableNexusWrapper<N extends NXobject> implements IScannable<Object>, INexusDevice<N> {
+public class ScannableNexusWrapper<N extends NXobject> implements IScannable<Object>, INexusDevice<N> {
 
 	/**
 	 * The name of the 'scannables' collection. This collection contains all wrapped GDA8
@@ -112,7 +116,6 @@ class ScannableNexusWrapper<N extends NXobject> implements IScannable<Object>, I
 
 	ScannableNexusWrapper(Scannable scannable) {
 		this.scannable = scannable;
-		this.fieldNames = calculateFieldNames();
 	}
 
 	protected List<String> calculateFieldNames() {
@@ -134,15 +137,35 @@ class ScannableNexusWrapper<N extends NXobject> implements IScannable<Object>, I
 		return fieldNames;
 	}
 
-	public List<String> getFieldNames() {
+	/**
+	 * Get the field names for the wrapped {@link Scannable}. These are calculated by
+	 * concatenating the names returned by {@link Scannable#getInputNames()}
+	 * and {@link Scannable#getExtraNames()}.
+	 * <p>
+	 * This method caches the names. To discard the cache and recalculate the names call this
+	 * method with <code>true</code> for the parameter <code>recalculate</code>. This should
+	 * be done the first time this method in invoked for a new scan as the scannable may have
+	 * been reconfigured between scans.
+	 *
+	 * @param recalculate <code>true</code> to recalculate the names, <code>false</code> to
+	 *    use the cached names from the last time they were calculated
+	 * @return the field names for the wrapped scannable
+	 */
+	public List<String> getFieldNames(boolean recalculate) {
+		// field names should not be cached between scans as the wrapped scannable
+		// may have been reconfigured
+		if (fieldNames == null || recalculate) {
+			fieldNames = calculateFieldNames();
+		}
+
 		return fieldNames;
 	}
 
 	@Override
 	public NexusObjectProvider<N> getNexusProvider(NexusScanInfo info) throws NexusException {
 		nexusObject = createNexusObject(info);
-		String defaultDataField = scannable.getInputNames().length > 0 ?
-				fieldNames.get(0) : null;
+		List<String> fieldNames = getFieldNames(true); // recalculate field names for new scan
+		String defaultDataField = scannable.getInputNames().length > 0 ? fieldNames.get(0) : null;
 		NexusObjectWrapper<N> nexusDelegate = new NexusObjectWrapper<>(
 						scannable.getName(), nexusObject, defaultDataField);
 		if (info.getScanRole(getName()) == ScanRole.SCANNABLE) {
@@ -226,10 +249,51 @@ class ScannableNexusWrapper<N extends NXobject> implements IScannable<Object>, I
 	}
 
 	@Override
+	public String getUnit() {
+		if (scannable instanceof ScannableMotionUnits) {
+			return ((ScannableMotionUnits) scannable).getUserUnits();
+		}
+
+		return null;
+	}
+
+	@Override
+	public Object getMaximum() {
+		if (scannable instanceof ScannableMotion) {
+			// return upper limit for first input name
+			final Double[] upperLimits = ((ScannableMotion) scannable).getUpperGdaLimits();
+			if (upperLimits != null) {
+				return upperLimits[0];
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public Object getMinimum() {
+		if (scannable instanceof ScannableMotion) {
+			// return lower limit for first input name
+			final Double[] lowerLimits = ((ScannableMotion) scannable).getLowerGdaLimits();
+			if (lowerLimits != null) {
+				return lowerLimits[0];
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public String[] getPermittedValues() throws Exception {
+		if (scannable instanceof EnumPositioner) {
+			return ((EnumPositioner) scannable).getPositions();
+		}
+		return null;
+	}
+
+	@Override
 	public void setPosition(Object value, IPosition scanPosition) throws Exception {
 		scannable.moveTo(value);
 
-		if (scanPosition != null) {
+		if (scanPosition != null && shouldWritePosition()) {
 			write(value, getPositionArray(), scanPosition);
 		}
 	}
@@ -285,6 +349,7 @@ class ScannableNexusWrapper<N extends NXobject> implements IScannable<Object>, I
 		}
 
 		// create the dataset for each field
+		final List<String> fieldNames = getFieldNames(false);
 		for (int i = 0; i < fieldNames.size(); i++) {
 			String fieldName = fieldNames.get(i);
 			if (fieldName.equals(getName()) && nexusObject.getNexusBaseClass() == NexusBaseClass.NX_POSITIONER) {
@@ -411,7 +476,7 @@ class ScannableNexusWrapper<N extends NXobject> implements IScannable<Object>, I
 	 * @return
 	 */
 	private SliceND getSliceForPosition(IPosition pos) {
-		String firstFieldName = getFieldNames().get(0);
+		String firstFieldName = getFieldNames(false).get(0);
 		ILazyWriteableDataset dataset = writableDatasets.get(firstFieldName);
 		IScanSlice scanSlice = IScanRankService.getScanRankService().createScanSlice(pos);
 
@@ -456,6 +521,15 @@ class ScannableNexusWrapper<N extends NXobject> implements IScannable<Object>, I
 			final IDataset newDemandPositionData = DatasetFactory.createFromObject(demandPosition);
 			demandValueDataset.setSlice(null, newDemandPositionData, startPos, stopPos, null);
 		}
+	}
+
+	private boolean shouldWritePosition() {
+		return writableDatasets != null;
+	}
+
+	@ScanFinally
+	public void scanFinally() {
+		writableDatasets = null;
 	}
 
 	/**
