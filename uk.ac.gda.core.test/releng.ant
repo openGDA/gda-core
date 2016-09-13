@@ -66,11 +66,11 @@
 				<path refid="tp.path" />  <!-- target platform -->
 				<path refid="libs.jars.path" />
 			</classpath>
-			<!-- DAQ-275 run ScannableNexusWrapperTest separately (default forkmode=perBatch), since otherwise it fails due to earlier Jython-related tests not cleaning up -->
+			<!-- DAQ-275 run ScannableNexusWrapperScanTest separately (default forkmode=perBatch), since otherwise it fails due to earlier Jython-related tests not cleaning up -->
 			<batchtest todir="@{report.dir}">
 				<fileset dir="${plugin.basedir}/src">
 					<include name="**/*Test.java" />
-					<exclude name="**/ScannableNexusWrapperTest.java" />
+					<exclude name="**/ScannableNexusWrapperScanTest.java" />
 					<exclude name="**/*PluginTest.java" />
 					<!--the excludes below are temporary -->
 					<exclude name="**/EditPermissionsTest.java" />
@@ -97,7 +97,7 @@
 			</batchtest>
 			<batchtest todir="@{report.dir}">
 				<fileset dir="${plugin.basedir}/src">
-					<include name="**/ScannableNexusWrapperTest.java" />
+					<include name="**/ScannableNexusWrapperScanTest.java" />
 				</fileset>
 			</batchtest>
 		</junit-call>
