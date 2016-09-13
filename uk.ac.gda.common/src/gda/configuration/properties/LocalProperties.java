@@ -231,6 +231,11 @@ public class LocalProperties {
 	public static final String GDA_DEF_VISIT = "gda.defVisit";
 
 	/**
+	 * This is the default visit that will be used if no default visit is specified by the {@link #GDA_DEF_VISIT} property.
+	 */
+	public static final String DEFAULT_VISIT = "0-0";
+
+	/**
 	 * The visit which the current RCP application is running under. This should NOT be set in a java.properties file
 	 * but set at runtime once the RCP process has identified which value it wishes to use.
 	 * <p>
