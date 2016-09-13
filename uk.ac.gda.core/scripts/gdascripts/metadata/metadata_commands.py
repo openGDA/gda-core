@@ -50,24 +50,9 @@ def meta_rm(farg, *vargs):
 
 def meta_clear_alldynamical():
     metashop = Finder.getInstance().find("metashop")
-    
-    if metashop == None:
+    if metashop is None:
         return
-    
-    # clear scannables
-    #metashop.getMetaScannables().clear()    
-    allMetaScannableList = metashop.getMetaScannables()
-    for s in allMetaScannableList:
-        metashop.remove(s)
-    # clear non-scannables
-    metashop.clear()
-    staticLocationMap = NexusDataWriter.getLocationmap()
-    staticMetaScannableList = []
-    for k in staticLocationMap.keySet():
-        staticMetaScannableList.append(k)
-        #print "key = " , k
-    NexusDataWriter.setMetadatascannables(HashSet(staticMetaScannableList))
+    metashop.clearDynamicScannableMetadata()
     return metashop.list(False)
-    
 
 

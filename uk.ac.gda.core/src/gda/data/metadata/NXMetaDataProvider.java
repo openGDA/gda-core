@@ -113,6 +113,7 @@ public class NXMetaDataProvider implements NexusTreeAppender, Map<String, Object
 
 	private boolean withScannables = false;
 
+	private Collection<String> dynamicScannables = new Vector<String>();
 
 	private static final Logger logger = LoggerFactory.getLogger(NXMetaDataProvider.class);
 
@@ -189,6 +190,17 @@ public class NXMetaDataProvider implements NexusTreeAppender, Map<String, Object
 		formattingMap.put("llIntArrayFormat", defaultFormattingMap.get("LL_INT_ARRAY_FORMAT"));
 
 		//modifyFormattingMap(defaultFormattingMap);
+	}
+
+	/**
+	 * Removes all scannables added with NXMetaDataProvider.add(..).
+	 * Does not restore anything that was removed or overwritten.
+	 */
+	public void clearDynamicScannableMetadata() {
+		for (String name : dynamicScannables) {
+			NexusDataWriter.getMetadatascannables().remove(name);
+		}
+		dynamicScannables.clear();
 	}
 
 	public String listAsString(String fmt, String delimiter) {
@@ -329,6 +341,7 @@ public class NXMetaDataProvider implements NexusTreeAppender, Map<String, Object
 	public void setMetaScannables(List<Scannable> metaScannables) {
 		//this.metaScannables.addAll(metaScannables);
 		for (Scannable scn : metaScannables) {
+			// FIXME: why is NXMetaDataProvider is fiddling with NexusDataWriter?
 			NexusDataWriter.getMetadatascannables().add(scn.getName());
 		}
 	}
@@ -517,6 +530,7 @@ public class NXMetaDataProvider implements NexusTreeAppender, Map<String, Object
 		while (NexusDataWriter.getMetadatascannables().contains(scannableName)) {
 			NexusDataWriter.getMetadatascannables().remove(scannableName);
 		}
+		dynamicScannables.add(scannableName);
 		NexusDataWriter.getMetadatascannables().add(scannableName);
 	}
 
@@ -533,53 +547,13 @@ public class NXMetaDataProvider implements NexusTreeAppender, Map<String, Object
 	}
 
 	public void remove(Scannable scannable) {
-		logger.debug("remove called on scannable = " + scannable.getName());
+		String name = scannable.getName();
+		logger.debug("remove called on scannable = " + name);
 		//metaScannables.remove(scannable);
-		NexusDataWriter.getMetadatascannables().remove(scannable.getName());
+		NexusDataWriter.getMetadatascannables().remove(name);
+		dynamicScannables.remove(name);
 	}
 
-	public void createMetaScannableMap() throws DeviceException {
-		//for (Scannable scn : metaScannables) {
-		List<Scannable> metaScannableList = new Vector<Scannable>();
-		Set<String> metaScannableSet = NexusDataWriter.getMetadatascannables();
-		for (String scannableName : metaScannableSet) {
-			Scannable scannable = (Scannable) InterfaceProvider.getJythonNamespace().getFromJythonNamespace(scannableName);
-			metaScannableList.add(scannable);
-		}
-		for (Scannable scn : metaScannableList) {
-			List<ScannableMetaEntry> metas = new Vector<ScannableMetaEntry>();
-
-			List<String> scnNames = new Vector<String>();
-
-			int len = scn.getInputNames().length;
-			String[] inputNames = scn.getInputNames();
-			for (int i = 0; i < len; i++) {
-				scnNames.add(inputNames[i]);
-			}
-
-			len = scn.getExtraNames().length;
-			String[] extraNames = scn.getExtraNames();
-			for (int i = 0; i < len; i++) {
-				scnNames.add(extraNames[i]);
-			}
-
-			List<String> scnFormats = new Vector<String>();
-			len = scn.getOutputFormat().length;
-			String[] outFormats = scn.getOutputFormat();
-			for (int i = 0; i < len; i++) {
-				scnFormats.add(outFormats[i]);
-			}
-
-			String[] formattedCurrentPositionArray = ScannableUtils.getFormattedCurrentPositionArray(scn);
-
-			List<String> scannableFieldNames = getScannableFieldNames(scn);
-
-			for (int i = 0; i < scannableFieldNames.size(); i++) {
-				metas.add(new ScannableMetaEntry(scannableFieldNames.get(i), formattedCurrentPositionArray[i]));
-			}
-
-		}
-	}
 
 	public Map<String, Object> createMetaScannableMap(Scannable scn) throws DeviceException {
 		Map<String, Object> metaScannableMapObj = new HashMap<String, Object>();

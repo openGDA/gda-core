@@ -19,29 +19,22 @@
 
 package gda.device.currentamplifier;
 
-import gda.device.CurrentAmplifier;
-import gda.device.DeviceException;
-import gda.device.Scannable;
-import gda.device.scannable.ScannableBase;
-
 import java.util.Vector;
 
 import org.python.core.PyString;
 
+import gda.device.CurrentAmplifier;
+import gda.device.DeviceException;
+import gda.device.scannable.ScannableBase;
+
 /**
- * Base class for the EnumPositioner interface
+ * Base class for the CurrentAmplifier interface
  */
-public abstract class CurrentAmplifierBase extends ScannableBase implements CurrentAmplifier, Scannable {
+public abstract class CurrentAmplifierBase extends ScannableBase implements CurrentAmplifier {
 
 	protected Vector<String> gainPositions = new Vector<String>();
 	protected Vector<String> gainUnits = new Vector<String>();
 	protected Vector<String> modePositions = new Vector<String>();
-
-	/**
-	 * sets the OutputFormat
-	 */
-	public CurrentAmplifierBase() {
-	}
 
 	@Override
 	public String[] getGainPositions() throws DeviceException {

@@ -241,7 +241,6 @@ public class PolarimeterTranslator extends TranslatorBase
 	                     + "None=availableInterfaces.remove(\"Closeable\");"
 	                     + "None=availableInterfaces.remove(\"Flushable\");"
 	                     + "None=availableInterfaces.remove(\"RobotListener\");"
-	                     + "None=availableInterfaces.remove(\"UsesProperties\");"
 	                     + "None=availableInterfaces.remove(\"Observer\");"
 	                     + "ArrayListPrinter(availableInterfaces)";
 	            }

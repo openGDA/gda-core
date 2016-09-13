@@ -19,15 +19,6 @@
 
 package gda.data.nexus;
 
-import gda.configuration.properties.LocalProperties;
-import gda.data.NumTracker;
-import gda.data.metadata.GDAMetadataProvider;
-import gda.data.metadata.Metadata;
-import gda.data.nexus.extractor.NexusExtractor;
-import gda.device.Detector;
-import gda.device.DeviceException;
-import gda.util.Version;
-
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -38,6 +29,15 @@ import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.eclipse.january.dataset.ILazyWriteableDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.configuration.properties.LocalProperties;
+import gda.data.NumTracker;
+import gda.data.metadata.GDAMetadataProvider;
+import gda.data.metadata.Metadata;
+import gda.data.nexus.extractor.NexusExtractor;
+import gda.device.Detector;
+import gda.device.DeviceException;
+import gda.util.Version;
 
 /**
  * Utility methods for dealing with NeXus files.
@@ -311,13 +311,17 @@ public class NeXusUtils {
 			group = file.getGroup(group, "monochromator", "NXmonochromator", true);
 
 			try {
-				if (metadata.getMetadataValue("instrument.monochromator.name") != null)
+				String name = metadata.getMetadataValue("instrument.monochromator.name");
+				if (name != null && !name.isEmpty()) {
 					NexusUtils.writeString(file, group, "name", metadata.getMetadataValue("instrument.monochromator.name"));
-				if (metadata.getMetadataValue("instrument.monochromator.energy") != null) {
-					NexusUtils.writeDouble(file, group, "energy", Double.parseDouble(metadata.getMetadataValue("instrument.monochromator.energy")), "keV");
 				}
-				if (metadata.getMetadataValue("instrument.monochromator.wavelength") != null) {
-					NexusUtils.writeDouble(file, group, "wavelength", Double.parseDouble(metadata.getMetadataValue("instrument.monochromator.wavelength")), "Angstrom");
+				String energy = metadata.getMetadataValue("instrument.monochromator.energy");
+				if (energy != null && !energy.isEmpty()) {
+					NexusUtils.writeDouble(file, group, "energy", Double.parseDouble(energy), "keV");
+				}
+				String wavelength = metadata.getMetadataValue("instrument.monochromator.wavelength");
+				if (wavelength != null && !wavelength.isEmpty()) {
+					NexusUtils.writeDouble(file, group, "wavelength", Double.parseDouble(wavelength), "Angstrom");
 				}
 
 			} catch (DeviceException e) {
@@ -364,7 +368,7 @@ public class NeXusUtils {
 
 			try {
 				String gap = metadata.getMetadataValue("instrument.insertion_device.gap");
-				if (gap != null) {
+				if (gap != null && !gap.isEmpty()) {
 					NexusUtils.writeDouble(file, group, "gap", Double.parseDouble(gap), "mm");
 				}
 			} catch (DeviceException e) {

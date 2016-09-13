@@ -40,6 +40,7 @@ public class DummyNamedEnumPositioner extends DummyEnumPositioner implements Nam
 
 	private String currentPositionName = "";
 	private String startPositionName;
+	protected HashMap<String, Object> positionsMap = new HashMap<String, Object>();
 
 	@Override
 	public void configure() {
@@ -53,7 +54,6 @@ public class DummyNamedEnumPositioner extends DummyEnumPositioner implements Nam
 		}
 	}
 
-	protected HashMap<String, Double> positionsMap = new HashMap<String, Double>();
 
 	public ArrayList<String> getPositionNameArrayList() {
 		ArrayList<String> positionNamearray = new ArrayList<String>();
@@ -68,15 +68,15 @@ public class DummyNamedEnumPositioner extends DummyEnumPositioner implements Nam
 	public ArrayList<String> getPositionArrayList() {
 		ArrayList<String> positionArray = new ArrayList<String>();
 
-		ArrayList<Double> values = (ArrayList<Double>) positionsMap.values();
-		for (Double value : values) {
+		ArrayList<Object> values = (ArrayList<Object>) positionsMap.values();
+		for (Object value : values) {
 			positionArray.add(value.toString());
 		}
 		return positionArray;
 	}
 
-	public void setValues(Map<String, Double> values) {
-		for (Entry<String, Double> entry : values.entrySet()) {
+	public void setValues(Map<String, Object> values) {
+		for (Entry<String, Object> entry : values.entrySet()) {
 			positionsMap.put(entry.getKey(), entry.getValue());
 			positions.add(entry.getKey());
 		}
@@ -104,7 +104,7 @@ public class DummyNamedEnumPositioner extends DummyEnumPositioner implements Nam
 			if( !currentPositionName.equals(positionString)){
 				currentPositionName = positionString;
 				this.notifyIObservers(this, currentPositionName);
-				this.notifyIObservers(this, new ScannablePositionChangeEvent(currentPositionName));
+				this.notifyIObservers(this, new ScannablePositionChangeEvent(getPosition()));
 			}
 			return;
 		}
