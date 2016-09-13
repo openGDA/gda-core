@@ -18,9 +18,10 @@
 
 package gda.scan;
 
-import gda.scan.Scan.ScanStatus;
-
+import java.io.File;
 import java.io.Serializable;
+
+import gda.scan.Scan.ScanStatus;
 
 /**
  * The latest information about the current scan, to be broadcast via JythonServer (i.e. InterfaceProvider) to
@@ -66,7 +67,7 @@ public class ScanEvent implements Serializable {
 
 	/**
 	 * For the ApplicationActionBarAdvisor
-	 * 
+	 *
 	 * @return String
 	 */
 	public String toProgressString() {
@@ -108,12 +109,23 @@ public class ScanEvent implements Serializable {
 	}
 
 	private String getScanCompletedMessagePrefix() {
-		return "No Scan running. Last scan (#" + latestInformation.getScanNumber() + ")";
+		String output = "No scan running. ";
+		String fileName = latestInformation.getFilename();
+		if (fileName != null && !fileName.isEmpty()) {
+			File file = new File(fileName);
+			output += "Last scan '" + file.getName() + "'";
+		}
+		return output;
 	}
 
 	private String addScanRunningOutput() {
-		String output;
-		output = "Scan running (" + (currentPointNumber + 1) + "/" + latestInformation.getNumberOfPoints() + ")";
+		String output = "Scan ";
+		String fileName = latestInformation.getFilename();
+		if (fileName != null && !fileName.isEmpty()) {
+			File file = new File(fileName);
+			output += "'" + file.getName() + "' ";
+		}
+		output += "running (" + (currentPointNumber + 1) + "/" + latestInformation.getNumberOfPoints() + ")";
 		output = addDimensionToProgressString(output);
 		return output;
 	}
@@ -127,7 +139,7 @@ public class ScanEvent implements Serializable {
 
 	/**
 	 * For the Command Queue progress bar
-	 * 
+	 *
 	 * @return String
 	 */
 	public String toShortProgressString() {

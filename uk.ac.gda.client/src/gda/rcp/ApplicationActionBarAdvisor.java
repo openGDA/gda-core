@@ -18,22 +18,6 @@
 
 package gda.rcp;
 
-import gda.commandqueue.Processor;
-import gda.commandqueue.ProcessorCurrentItem;
-import gda.commandqueue.Queue;
-import gda.configuration.properties.LocalProperties;
-import gda.jython.IJythonServerStatusObserver;
-import gda.jython.InterfaceProvider;
-import gda.jython.Jython;
-import gda.jython.JythonServerStatus;
-import gda.jython.authenticator.UserAuthentication;
-import gda.jython.batoncontrol.BatonLeaseRenewRequest;
-import gda.jython.batoncontrol.ClientDetails;
-import gda.observable.IObserver;
-import gda.rcp.views.GdaImages;
-import gda.scan.Scan;
-import gda.scan.ScanEvent;
-
 import org.eclipse.core.runtime.IExtension;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
@@ -77,6 +61,21 @@ import org.eclipse.ui.texteditor.StatusLineContributionItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.commandqueue.Processor;
+import gda.commandqueue.ProcessorCurrentItem;
+import gda.commandqueue.Queue;
+import gda.configuration.properties.LocalProperties;
+import gda.jython.IJythonServerStatusObserver;
+import gda.jython.InterfaceProvider;
+import gda.jython.Jython;
+import gda.jython.JythonServerStatus;
+import gda.jython.authenticator.UserAuthentication;
+import gda.jython.batoncontrol.BatonLeaseRenewRequest;
+import gda.jython.batoncontrol.ClientDetails;
+import gda.observable.IObserver;
+import gda.rcp.views.GdaImages;
+import gda.scan.Scan;
+import gda.scan.ScanEvent;
 import uk.ac.gda.client.CommandQueueViewFactory;
 import uk.ac.gda.ui.status.LinkContributionItem;
 import uk.ac.gda.views.baton.BatonView;
@@ -574,7 +573,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 			break;
 		case COMPLETED_OKAY:
 		default:
-			setStatusLineText(status, "No Scan running", null);
+			setStatusLineText(status, message, null);
 			break;
 		}
 	}
