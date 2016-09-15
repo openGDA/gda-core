@@ -626,4 +626,12 @@ public class FluorescenceDetectorComposite extends Composite {
 		regionsComposite.updateControlVisibility( readoutMode );
 	}
 
+	/**
+	 * @return true if 'autoscale on acquire' checkbox is checked.
+	 * @since 8/9/2016
+	 */
+	public boolean getAutoScaleOnAcquire() {
+		return acquireComposite.getAutoScaleOnAcquireCheckBox().getSelection();
+	}
+
 }
