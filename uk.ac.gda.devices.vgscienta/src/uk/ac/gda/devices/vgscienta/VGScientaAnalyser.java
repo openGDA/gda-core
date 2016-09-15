@@ -35,6 +35,7 @@ import gda.device.Scannable;
 import gda.device.corba.impl.DeviceAdapter;
 import gda.device.corba.impl.DeviceImpl;
 import gda.device.detector.NXDetectorData;
+import gda.device.detector.addetector.ADDetector;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.NDProcess;
 import gda.device.detector.areadetector.v17.impl.ADBaseImpl;
@@ -52,13 +53,14 @@ import uk.ac.diamond.scisoft.analysis.roi.ROIProfile;
 
 @CorbaAdapterClass(DeviceAdapter.class)
 @CorbaImplClass(DeviceImpl.class)
-public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector implements MonitorListener, FlexibleFrameDetector, IObserver {
+public class VGScientaAnalyser extends ADDetector implements MonitorListener, FlexibleFrameDetector, IObserver, IVGScientaAnalyserRMI {
 	private static final Logger logger = LoggerFactory.getLogger(VGScientaAnalyser.class);
 
 	protected boolean inScan = false;
 
 	private VGScientaController controller;
 	private AnalyserCapabilties ac;
+	private VGScientaAnalyserEnergyRange energyRange;
 	private int[] fixedModeRegion;
 	private EpicsController epicsController;
 
@@ -533,5 +535,14 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 
 	public Scannable getCentreEnergyScannable() {
 		return centre_energy;
+	}
+
+	@Override
+	public VGScientaAnalyserEnergyRange getEnergyRange() {
+		return energyRange;
+	}
+
+	public void setEnergyRange(VGScientaAnalyserEnergyRange energyRange) {
+		this.energyRange = energyRange;
 	}
 }

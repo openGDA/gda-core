@@ -49,13 +49,14 @@ import uk.ac.diamond.scisoft.analysis.roi.ROIProfile;
 
 @CorbaAdapterClass(DeviceAdapter.class)
 @CorbaImplClass(DeviceImpl.class)
-public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListener {
+public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListener, IVGScientaAnalyserRMI {
 	private static final Logger logger = LoggerFactory.getLogger(VGScientaAnalyserCamOnly.class);
 
 	protected boolean inScan = false;
 
 	private VGScientaController controller;
 	private AnalyserCapabilties ac;
+	private VGScientaAnalyserEnergyRange energyRange;
 	private int[] fixedModeRegion;
 
 	public final static MotorStatus stopped = MotorStatus.READY;
@@ -556,6 +557,15 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 			acquisitonsCompleted += 1;
 			timeSpentWithEpicsAcquiring += colllectionEndTime - collectionStartTime;
 		}
+	}
+
+	@Override
+	public VGScientaAnalyserEnergyRange getEnergyRange() {
+		return energyRange;
+	}
+
+	public void setEnergyRange(VGScientaAnalyserEnergyRange energyRange) {
+		this.energyRange = energyRange;
 	}
 
 }
