@@ -41,6 +41,8 @@ public class FluoDetectorAcquireComposite extends Composite {
 	private Button acquireButton;
 	private Button autoSaveCheckBox;
 	private Button liveCheckBox;
+	private Button applySettingsButton;
+	private Button autoScaleOnAcquireCheckBox;
 
 	public FluoDetectorAcquireComposite(Composite composite, int style) {
 		super(composite, style);
@@ -67,9 +69,11 @@ public class FluoDetectorAcquireComposite extends Composite {
 		saveButton.setText("Save");
 
 		autoSaveCheckBox = new Button(acquireGroup, SWT.CHECK);
+		GridDataFactory.swtDefaults().applyTo(autoSaveCheckBox);
 		autoSaveCheckBox.setText("Save on Acquire");
 
 		acquireButton = new Button(acquireGroup, SWT.NONE);
+		GridDataFactory.swtDefaults().applyTo(acquireButton);
 		setAcquireImageToSnapshot();
 		acquireButton.setText("Acquire");
 
@@ -80,7 +84,18 @@ public class FluoDetectorAcquireComposite extends Composite {
 		acquireTime.setUnit("ms");
 
 		liveCheckBox = new Button(acquireGroup, SWT.CHECK);
+		GridDataFactory.swtDefaults().applyTo(liveCheckBox);
 		liveCheckBox.setText("Live");
+
+		applySettingsButton = new Button(acquireGroup, SWT.NONE);
+		GridDataFactory.swtDefaults().span(2, 1).applyTo(applySettingsButton);
+		applySettingsButton.setText("Apply settings");
+		applySettingsButton.setToolTipText("Apply current settings to detector.");
+
+		autoScaleOnAcquireCheckBox = new Button(acquireGroup, SWT.CHECK);
+		GridDataFactory.swtDefaults().applyTo(autoScaleOnAcquireCheckBox);
+		autoScaleOnAcquireCheckBox.setText("Rescale on Acquire");
+		autoScaleOnAcquireCheckBox.setToolTipText("Rescale the plot after each spectrum has been acquired.");
 	}
 
 	private void setAcquireImageToSnapshot() {
@@ -151,5 +166,13 @@ public class FluoDetectorAcquireComposite extends Composite {
 
 	public Button getLiveCheckBox() {
 		return liveCheckBox;
+	}
+
+	public Button getApplySettingsButton() {
+		return applySettingsButton;
+	}
+
+	public Button getAutoScaleOnAcquireCheckBox() {
+		return autoScaleOnAcquireCheckBox;
 	}
 }

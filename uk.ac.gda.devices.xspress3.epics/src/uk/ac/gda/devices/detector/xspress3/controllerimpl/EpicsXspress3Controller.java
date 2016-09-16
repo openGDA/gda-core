@@ -98,8 +98,6 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 
 	/**
 	 * Used to derive the available PVs.
-	 *
-	 * @return
 	 */
 	@Override
 	public int getNumberOfChannels() {

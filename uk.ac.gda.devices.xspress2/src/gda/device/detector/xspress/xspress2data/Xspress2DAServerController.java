@@ -52,8 +52,12 @@ public class Xspress2DAServerController implements Xspress2Controller {
 	public void configure() throws FactoryException {
 		// If everything has been found send the format, region of interest,
 		// windows & open commands.
-		if (!configured && tfg != null && (daServer != null)) {
+
+		// Don't check for !configured here - we may want to configure several times with different settings.
+		if (tfg != null && (daServer != null)) {
+
 			try {
+				configureDetectorFromParameters(); // 8.41-xas version does this here as well (to first clear and set rois, windows) - really needed?
 				close();
 				doStartupScript();
 				doFormatRunCommand(determineNumberOfBits());
@@ -276,6 +280,29 @@ public class Xspress2DAServerController implements Xspress2Controller {
 			throw new DeviceException(command + " failed");
 		}
 	}
+	/**
+	 * Create a valid string to use for setting resolution threshold;
+	 * Returns original string if resolution grade is not for setting resolution threshold mode (i.e. NONE or ALLGRADES).
+	 * @param resThresholdString
+	 * @return
+	 */
+	private String makeValidResThresholdString( String resThresholdString ) throws DeviceException {
+		if ( resThresholdString !=null && resThresholdString.startsWith(ResGrades.THRESHOLD) ) {
+			// Try to extract resolution threshold value from resolution grade string
+			try {
+				String [] splitString = resThresholdString.split(" ");
+				String resGradeValString = splitString[ splitString.length-1 ];
+				Double resThresholdValue = Double.parseDouble(resGradeValString);
+				resThresholdString = splitString[0] + " " + resThresholdValue.toString();
+			}
+			catch( Exception ex ) {
+				String message = "Problem parsing resolution grade value from string '"+resThresholdString+"'";
+				logger.error(message, ex);
+				throw new DeviceException(message, ex);
+			}
+		}
+		return resThresholdString;
+	}
 
 	/**
 	 * execute the startup script on da.server
@@ -292,6 +319,8 @@ public class Xspress2DAServerController implements Xspress2Controller {
 				if (!settings.getParameters().getReadoutMode().equals(XspressDetector.READOUT_ROIS)) {
 					newResGrade = ResGrades.NONE;
 				}
+				newResGrade = makeValidResThresholdString(newResGrade);
+
 				startupScript = "xspress2 format-run 'xsp1' " + newResGrade;
 				if ((obj = daServer.sendCommand(startupScript)) == null) {
 					throw new DeviceException("Null reply received from daserver during " + startupScript);
@@ -315,6 +344,8 @@ public class Xspress2DAServerController implements Xspress2Controller {
 		if (!settings.getParameters().getReadoutMode().equals(XspressDetector.READOUT_ROIS)) {
 			newResGrade = ResGrades.NONE;
 		}
+		newResGrade = makeValidResThresholdString(newResGrade);
+
 		String formatCommand = "xspress2 format-run " + xspressSystemName + " " + numberOfBits + " " + newResGrade;
 		if (daServer != null && daServer.isConnected()) {
 			Integer numFrames = ((Integer) daServer.sendCommand(formatCommand)).intValue();

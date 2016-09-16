@@ -161,8 +161,6 @@ public interface Xspress3Controller extends Findable {
 	public int getNumberROIToRead();
 
 	/**
-	 * @param numRoiToRead
-	 * @return
 	 * @throws IllegalArgumentException
 	 *             - if the value given is too high for the implementation
 	 */
@@ -282,4 +280,3 @@ public interface Xspress3Controller extends Findable {
 	public void setFileArrayCounter(int arrayCounter) throws DeviceException;
 
 }
-

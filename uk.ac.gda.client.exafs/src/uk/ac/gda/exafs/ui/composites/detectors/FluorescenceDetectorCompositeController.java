@@ -18,13 +18,6 @@
 
 package uk.ac.gda.exafs.ui.composites.detectors;
 
-import gda.configuration.properties.LocalProperties;
-import gda.data.NumTracker;
-import gda.data.PathConstructor;
-import gda.device.DeviceException;
-import gda.factory.Findable;
-import gda.factory.Finder;
-
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -46,6 +39,7 @@ import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.richbeans.api.binding.IBeanController;
 import org.eclipse.richbeans.api.binding.IBeanService;
+import org.eclipse.richbeans.api.event.ValueAdapter;
 import org.eclipse.richbeans.api.event.ValueEvent;
 import org.eclipse.richbeans.api.event.ValueListener;
 import org.eclipse.richbeans.widgets.selector.BeanSelectionEvent;
@@ -59,9 +53,16 @@ import org.eclipse.ui.progress.IProgressService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
+import gda.data.NumTracker;
+import gda.data.PathConstructor;
+import gda.device.DeviceException;
+import gda.factory.Findable;
+import gda.factory.Finder;
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.exafs.IDetectorElement;
 import uk.ac.gda.beans.vortex.DetectorElement;
+import uk.ac.gda.beans.xspress.XspressDetector;
 import uk.ac.gda.devices.detector.FluorescenceDetector;
 import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
 import uk.ac.gda.exafs.ExafsActivator;
@@ -92,7 +93,7 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 	private double[][] theData;
 	private String plotTitle;
 	private boolean applyParametersBeforeAcquire = false;
-	private boolean continuousAquire;
+	private volatile boolean continuousAquire; // changed to volatile, so changes to it are noticed by different threads
 	private boolean updatingRoiPlotFromUI;
 	private boolean updatingRoiUIFromPlot;
 
@@ -197,6 +198,8 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 		fluorescenceDetectorComposite.setDetectorElementListSize(theDetector.getNumberOfElements());
 		fluorescenceDetectorComposite.setMCASize(theDetector.getMCASize());
 		fluorescenceDetectorComposite.setMaxNumberOfRois(theDetector.getMaxNumberOfRois());
+		fluorescenceDetectorComposite.setOutputOptions( detectorParameters );
+		fluorescenceDetectorComposite.setReadoutModeOptions( detectorParameters );
 
 		// Add listeners
 		try {
@@ -237,6 +240,13 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 			}
 		});
 
+		fluorescenceDetectorComposite.addApplySettingsButtonListener( new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent event) {
+					applyConfigurationToDetector();
+			}
+		});
+
 		fluorescenceDetectorComposite.addContinuousModeButtonListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent event) {
@@ -257,6 +267,14 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 				dialog.open();
 			}
 		});
+
+		// Listener for readout mode combo
+		fluorescenceDetectorComposite.addReadoutModeListener(new ValueAdapter("readoutModeListener") {
+			@Override
+			public void valueChangePerformed(ValueEvent e) {
+				fluorescenceDetectorComposite.updateRoiWindowSettings();
+			}
+		} );
 
 		ExafsActivator.getDefault().getPreferenceStore().addPropertyChangeListener(new IPropertyChangeListener() {
 			@Override
@@ -344,6 +362,9 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 
 			fluorescenceDetectorComposite.setPlotTitle(plotTitle);
 			fluorescenceDetectorComposite.plotDataset(dataset);
+
+			if (fluorescenceDetectorComposite.getAutoScaleOnAcquire())
+				fluorescenceDetectorComposite.autoscaleAxes();
 
 			calculateAndDisplayCountTotals();
 		}
@@ -505,7 +526,6 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 
 			updatePlotTitle();
 			replot();
-			fluorescenceDetectorComposite.autoscaleAxes();
 
 			if (monitor != null) {
 				monitor.worked(1);
@@ -646,7 +666,12 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 		updateBeanFromUI();
 
 		if (fluorescenceDetectorComposite.isApplyRoisToAllElements()) {
-			applyCurrentRegionsToAllElements();
+			// Apply current window range or ROI to all elements, depending on current readout mode.
+			String readoutMode = fluorescenceDetectorComposite.getReadoutMode().getValue().toString();
+			if ( XspressDetector.READOUT_ROIS.equals(readoutMode) )
+				applyCurrentRegionsToAllElements();
+			else
+				applyCurrentWindowToAllElements();
 		}
 
 		calculateAndDisplayCountTotals(); // might want to only update the changed totals to speed up UI?
@@ -658,6 +683,27 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 		}
 	}
 
+	/**
+	 * Apply window parameters of current detector element to all elements
+	 *
+	 */
+	private void applyCurrentWindowToAllElements() {
+		final int currentElementNumber = getCurrentlySelectedElementNumber();
+		int windowStart = detectorParameters.getDetector(currentElementNumber).getWindowStart();
+		int windowEnd = detectorParameters.getDetector(currentElementNumber).getWindowEnd();
+
+		List<DetectorElement> elements = new ArrayList<DetectorElement>(detectorParameters.getDetectorList());
+		// Do not overwrite the regions of the current element - this is important to avoid synchronisation issues with updates from the UI
+		elements.remove(currentElementNumber);
+
+		for (DetectorElement element : elements) {
+			element.setWindow(windowStart, windowEnd);
+		}
+	}
+
+	/**
+	 * Apply list of ROI parameters of current detector element to all elements
+	 */
 	private void applyCurrentRegionsToAllElements() {
 		final int currentElementNumber = getCurrentlySelectedElementNumber();
 		List<DetectorROI> regionsToCopy = detectorParameters.getDetector(currentElementNumber).getRegionList();
@@ -720,8 +766,14 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 			updatingRoiUIFromPlot = true;
 			int start = (int) ((RectangularROI) event.getROI()).getPoint()[0];
 			int end = (int) ((RectangularROI) event.getROI()).getEndPoint()[0];
-			fluorescenceDetectorComposite.setRegionStart(start);
-			fluorescenceDetectorComposite.setRegionEnd(end);
+			if (fluorescenceDetectorComposite.getReadoutModeIsRoi()) {
+				fluorescenceDetectorComposite.setRegionStart(start);
+				fluorescenceDetectorComposite.setRegionEnd(end);
+			} else {
+				fluorescenceDetectorComposite.setWindowStart(start);
+				fluorescenceDetectorComposite.setWindowEnd(end);
+			}
+
 			updatingRoiUIFromPlot = false;
 		}
 	}

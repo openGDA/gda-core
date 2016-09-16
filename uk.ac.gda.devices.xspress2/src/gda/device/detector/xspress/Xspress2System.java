@@ -599,7 +599,7 @@ public class Xspress2System extends XspressSystem implements NexusDetector, Xspr
 		}
 
 		// else read out full mca, which is deadtime corrected using the hardware scalers
-		return xspress2SystemData.readoutFullMCA(getName(), numberOfFrames, rawHardwareScalerData, mcaData, scalerDataUsingMCAMemory);
+		return xspress2SystemData.readoutFullMCA(getName(), numberOfFrames, rawHardwareScalerData, mcaData );
 	}
 
 	@Override

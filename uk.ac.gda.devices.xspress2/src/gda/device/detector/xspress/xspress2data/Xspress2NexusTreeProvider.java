@@ -1,17 +1,16 @@
 package gda.device.detector.xspress.xspress2data;
 
-import gda.data.nexus.extractor.NexusGroupData;
-import gda.data.nexus.tree.INexusTree;
-import gda.data.nexus.tree.NexusTreeProvider;
-import gda.device.detector.NXDetectorData;
-import gda.device.detector.xspress.Xspress2Detector;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Vector;
 
 import org.apache.commons.lang.ArrayUtils;
 
+import gda.data.nexus.extractor.NexusGroupData;
+import gda.data.nexus.tree.INexusTree;
+import gda.data.nexus.tree.NexusTreeProvider;
+import gda.device.detector.NXDetectorData;
+import gda.device.detector.xspress.Xspress2Detector;
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.xspress.XspressDeadTimeParameters;
@@ -201,34 +200,33 @@ public class Xspress2NexusTreeProvider {
 		return convertedData;
 	}
 
-	public NexusTreeProvider[] readoutFullMCA(String detectorName, int numberOfFrames, int[] rawscalerData, int[] mcaData,
-			double[][] scalerData) {
+	public NexusTreeProvider[] readoutFullMCA(String detectorName, int numberOfFrames, int[] rawScalerData, int[] rawMcaData ) {
 		NexusTreeProvider[] results = new NexusTreeProvider[numberOfFrames];
 
-		int[][] unpackedScalerData = unpackRawScalerDataToFrames(rawscalerData, numberOfFrames);
+		int[][] unpackedScalerData = unpackRawScalerDataToFrames(rawScalerData, numberOfFrames);
 
-		int[][][][] data = unpackRawDataTo4D(mcaData, numberOfFrames, 1, currentSettings.getMcaSize(),
-				currentSettings.getNumberOfDetectors());
+		int[][][][] unpackedMcaData = unpackRawDataTo4D(rawMcaData, numberOfFrames, 1, currentSettings.getMcaSize(), currentSettings.getNumberOfDetectors());
 
-		for (int frame = 0; frame < numberOfFrames; frame++) {
-			NXDetectorData thisFrame = new NXDetectorData(currentSettings.getExtraNames(),
-					currentSettings.getOutputFormat(), detectorName);
+		for (int frameIndex = 0; frameIndex < numberOfFrames; frameIndex++) {
+
+			double[] deadtimeCorrectionFactors =  determineDeadtimeCorrectionFactors(unpackedScalerData[frameIndex]);
+			double[][][] correctedMCAArrays = correctMCAArrays(unpackedMcaData[frameIndex], deadtimeCorrectionFactors);
+
+			NXDetectorData thisFrame = new NXDetectorData(currentSettings.getExtraNames(), currentSettings.getOutputFormat(), detectorName);
 			INexusTree detTree = thisFrame.getDetTree(detectorName);
-			double[] deadtimeCorrectionFactors =  determineDeadtimeCorrectionFactors(unpackedScalerData[frame]);
-
-			double[][][] correctedMCAArrays = correctMCAArrays(data[frame], deadtimeCorrectionFactors);
 
 			// add all MCA data in bulk
 			if (currentSettings.isAlwaysRecordRawMCAs() || currentSettings.getParameters().isSaveRawSpectrum()) {
-				int[][] raw_mcasSingleResGrade = removeSingleDimensionFromArray(data[frame]);
+				int[][] raw_mcasSingleResGrade = removeSingleDimensionFromArray(unpackedMcaData[frameIndex]);
 				NXDetectorData.addData(detTree, "MCAs", new NexusGroupData(raw_mcasSingleResGrade), "counts", 1);
-
 			} else {
 				double[][] mcasSingleResGrade = removeSingleDimensionFromArray(correctedMCAArrays);
 				NXDetectorData.addData(detTree, "MCAs", new NexusGroupData(mcasSingleResGrade), "counts", 1);
 			}
+
 			// add all in-window scaler counts in bulk
-			NXDetectorData.addData(detTree, "scalers", new NexusGroupData(scalerData[frame]), "counts", 1);
+			double [][] deadtimeCorrectedScalerData = readoutScalerDataUsingScalerMemory(numberOfFrames, rawScalerData, true);
+			NXDetectorData.addData(detTree, "scalers", new NexusGroupData(deadtimeCorrectedScalerData[frameIndex]), "counts", 1);
 
 			// optionally create a sum of all MCAs together
 			if (currentSettings.isSumAllElementData()) {
@@ -239,12 +237,11 @@ public class Xspress2NexusTreeProvider {
 						summation[i] += out[0][i];
 					}
 				}
-				NXDetectorData.addData(detTree, "allElementSum", new NexusGroupData(summation),
-						"counts", 1);
+				NXDetectorData.addData(detTree, "allElementSum", new NexusGroupData(summation), "counts", 1);
 			}
 
-			thisFrame = addExtraInformationToNexusTree(detectorName, unpackedScalerData, scalerData, frame, thisFrame, detTree);
-			results[frame] = thisFrame;
+			thisFrame = addExtraInformationToNexusTree(detectorName, unpackedScalerData, deadtimeCorrectedScalerData, frameIndex, thisFrame, detTree);
+			results[frameIndex] = thisFrame;
 		}
 		return results;
 	}
@@ -316,12 +313,16 @@ public class Xspress2NexusTreeProvider {
 
 		for (int frame = 0; frame < numFrames; frame++) {
 			double[] deadtimeCorrectionFactors =  determineDeadtimeCorrectionFactors(unpackedScalerData[frame]);
-			scalerData[frame] = new double[0];
+
+			// allocate space in frame for corrected scaler values for all elements :
+			int numElements = currentSettings.getNumberOfDetectors();
+			scalerData[frame] = new double[numElements];
+
 			int counter = 2;
-			for (int element = 0; element < currentSettings.getNumberOfDetectors(); element++) {
+			for (int element = 0; element < numElements; element++) {
 				if (!currentSettings.isDetectorExcluded(element))
-					scalerData[frame] = ArrayUtils.add(scalerData[frame], unpackedScalerData[frame][counter]
-							* deadtimeCorrectionFactors[element]);
+					scalerData[frame][element] = unpackedScalerData[frame][counter]*deadtimeCorrectionFactors[element];
+
 				counter += 4;
 			}
 			double ff = 0;

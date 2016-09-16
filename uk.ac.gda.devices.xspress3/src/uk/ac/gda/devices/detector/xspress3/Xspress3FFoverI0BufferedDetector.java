@@ -18,8 +18,6 @@
 
 package uk.ac.gda.devices.detector.xspress3;
 
-import org.apache.commons.lang.ArrayUtils;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,7 +57,7 @@ public class Xspress3FFoverI0BufferedDetector extends DetectorBase implements Bu
 			throws DeviceException {
 
 		double[][] scalerFrames = (double[][]) qscaler.readFrames(startFrame, finalFrame);
-		NexusTreeProvider[] expressFrames = (NexusTreeProvider[]) qxspress.readFrames(startFrame, finalFrame);
+		NexusTreeProvider[] expressFrames = qxspress.readFrames(startFrame, finalFrame);
 
 		Double[] ffio = new Double[finalFrame - startFrame + 1];
 

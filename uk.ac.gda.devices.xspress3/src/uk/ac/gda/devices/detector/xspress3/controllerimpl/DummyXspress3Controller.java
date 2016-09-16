@@ -146,7 +146,7 @@ public class DummyXspress3Controller implements Xspress3Controller, Findable, Co
 		}
 	}
 
-	private void close() throws DeviceException {
+	private void close() {
 		if (mcaHandle >= 0 && daServer != null && daServer.isConnected()) {
 			daServer.sendCommand("close " + mcaHandle);
 			mcaHandle = -1;
@@ -449,7 +449,7 @@ public class DummyXspress3Controller implements Xspress3Controller, Findable, Co
 		for (int chan = 0; chan < numChannels; chan++) {
 			for (int mcaChan = 0; mcaChan < 4096; mcaChan++) {
 				if (isChannelEnabled(chan)) {
-					results[chan][mcaChan] = (double) generator.nextInt(new Double(1000.0).intValue() * 10000);
+					results[chan][mcaChan] = generator.nextInt(new Double(1000.0).intValue() * 10000);
 				} else {
 					results[chan][mcaChan] = 0.0;
 				}
