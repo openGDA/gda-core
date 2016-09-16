@@ -18,9 +18,9 @@
 
 package uk.ac.gda.arpes.ui;
 
-import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.TreeMap;
+import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -58,47 +58,54 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.Scannable;
 import gda.factory.Finder;
-import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerFacade;
 import gda.observable.IObserver;
 import uk.ac.gda.arpes.beans.ARPESScanBean;
 import uk.ac.gda.arpes.beans.ScanBeanFromNeXusFile;
-import uk.ac.gda.devices.vgscienta.AnalyserCapabilties;
+import uk.ac.gda.devices.vgscienta.IVGScientaAnalyserRMI;
+import uk.ac.gda.devices.vgscienta.VGScientaAnalyserEnergyRange;
 import uk.ac.gda.richbeans.editors.DirtyContainer;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 
 public final class ARPESScanBeanComposite extends Composite implements ValueListener {
 	private static final Logger logger = LoggerFactory.getLogger(ARPESScanBeanComposite.class);
 
-	private AnalyserCapabilties capabilities;
-	private Label lblpsuMode;
-	private Label psuMode;
-	private Label lblLensMode;
+	// Information from the analyser to make the GUI responsive
+	private final IVGScientaAnalyserRMI analyser;
+	private final VGScientaAnalyserEnergyRange energyRange;
+	private final double energyStepPerPixel;
+	private final double maxKE;
+	private final int fixedModeEnergyChannels;
+	private final int sweptModeEnergyChannels;
+
+	// GUI Items
+	private final Label lblpsuMode;
+	private final Label psuMode;
+	private final Label lblLensMode;
 	private final ComboWrapper lensMode;
-	private Label lblPassEnergy;
+	private final Label lblPassEnergy;
 	private final ComboWrapper passEnergy;
-	private Label lblStartEnergy;
+	private final Label lblStartEnergy;
 	private final NumberBox startEnergy;
-	private Label lblEndEnergy;
+	private final Label lblEndEnergy;
 	private final NumberBox endEnergy;
-	private Label lblStepEnergy;
+	private final Label lblStepEnergy;
 	private final NumberBox stepEnergy;
-	private Label lblTimePerStep;
+	private final Label lblTimePerStep;
 	private final NumberBox timePerStep;
-	private Label lblIterations;
+	private final Label lblIterations;
 	private final NumberBox iterations;
-	private Label lblSweptMode;
+	private final Label lblSweptMode;
 	private final RadioWrapper sweptMode;
-	private Label lblCenterEnergy;
+	private final Label lblCenterEnergy;
 	private final NumberBox centreEnergy;
-	private Label lblEnergyWidth;
+	private final Label lblEnergyWidth;
 	private final NumberBox energyWidth;
-	private Label lblConfigureOnly;
+	private final Label lblConfigureOnly;
 	private final BooleanWrapper configureOnly;
-
-	private Label lblEstimatedTime;
-	private Label estimatedTime;
-
+	private final String[] lensModes;
+	private final Label lblEstimatedTime;
+	private final Label estimatedTime;
 
 	public ARPESScanBeanComposite(final Composite parent, int style, final RichBeanEditorPart editor) {
 		super(parent, style);
@@ -106,9 +113,20 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		//Switch off undoing as it doesn't work when box values are programmatically updated
 		editor.setUndoStackActive(false);
 
-		// Load the analyser capabilities
-		capabilities = (AnalyserCapabilties) Finder.getInstance()
-				.listAllLocalObjects(AnalyserCapabilties.class.getCanonicalName()).get(0);
+		// Get the energy range from the analyser this will now be local don't need to keep making calls over RMI
+		analyser = Finder.getInstance().find("analyserRmi");
+		energyRange = analyser.getEnergyRange();
+		// Find all the lens modes
+		lensModes = energyRange.getAllLensModes().toArray(new String[0]);
+		// Get the energy step per pixel
+		energyStepPerPixel = analyser.getEnergyStepPerPixel();
+		// Get the fall-back max KE
+		maxKE = analyser.getMaxKE();
+		// Get the number of energy channels in fixed mode
+		fixedModeEnergyChannels = analyser.getFixedModeEnergyChannels();
+		// Get the number of energy channels in swept mode
+		sweptModeEnergyChannels = analyser.getSweptModeEnergyChannels();
+
 
 		// Make a 2 column grid layout
 		GridLayout gridLayout = new GridLayout(2, false);
@@ -200,7 +218,8 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		GridData gd_lensMode = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_lensMode.widthHint = 200;
 		lensMode.setLayoutData(gd_lensMode);
-		lensMode.setItems(capabilities.getLensModes());
+		lensMode.setItems(lensModes);
+		lensMode.select(0); // Select the first option so when the GUI draws it can be looked up
 		lensMode.addValueListener(this);
 
 		// Pass energy
@@ -367,49 +386,57 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 	}
 
 	private void updatePsuMode() {
-		String newPsuMode = InterfaceProvider.getCommandRunner().evaluateCommand("psu_mode()").trim();
+		try {
+		String newPsuMode = analyser.getPsuMode();
 		if (!newPsuMode.equals(psuMode.getText())){
 			//If PSU mode has changed update GUI
 			logger.info("PSU mode change detected! New PSU mode = " + newPsuMode);
 			psuMode.setText(newPsuMode);
 			updatePassEnergy();
 		}
+		}
+		catch (Exception e) {
+			logger.error("Error getting the PSU mode", e);
+		}
 	}
 
 	// Sets the available pass energies from the analyser capabilities + PSU mode
 	private void updatePassEnergy() {
-		Comparator<String> passEComparator = new Comparator<String>() {
-			@Override
-			public int compare(String o1, String o2) {
-				return Integer.valueOf(o1.substring(0, o1.lastIndexOf(" "))).compareTo(Integer.valueOf(o2.substring(0, o2.lastIndexOf(" "))));
-			}
-		};
-		Map<String, Integer> passMap = new TreeMap<String, Integer>(passEComparator);
-		for (int s : capabilities.getPassEnergies()) {
-			passMap.put(String.format("%d eV", s), s);
+		int i = lensMode.getSelectionIndex();
+
+		Set<Integer> passEnergies = null;
+		try {
+			passEnergies = energyRange.getPassEnergies(psuMode.getText(), lensModes[i]);
 		}
-		// Remove Pass energies from drop down not possible with current psu_mode
-		if (psuMode.getText().equals("High Pass (XPS)")) {
-			passMap.remove("1 eV"); // PE=1 eV not possible in High Pass
-			passMap.remove("2 eV"); // PE=2 eV not possible in High Pass
+		catch (IllegalArgumentException e) {
+			logger.error("Error in providing pass energies. Not all pass energies available are valid!", e);
+			// Just show all available pass energies
+			passEnergies = energyRange.getAllPassEnergies();
 		}
-		else if (psuMode.getText().equals("Low Pass (UPS)")) {
-			passMap.remove("50 eV"); // PE=50 eV not possible in Low Pass
-			passMap.remove("100 eV"); // PE=100 eV not possible in Low Pass
-		}
-		else {
-			logger.error("Failed to match psu_mode! Not all pass energies avaliable are valid!");
+
+		Map<String, Integer> passMap = new LinkedHashMap<String, Integer>();
+		for (Integer passEnergy : passEnergies) {
+			passMap.put(passEnergy.toString() + " eV", passEnergy);
 		}
 		passEnergy.setItems(passMap);
 	}
 
-	private double determineMinimumStepEnergy(double passEnergy) {
-		return capabilities.getEnergyStepForPass(determinePassEnergyIndex((int) (passEnergy)));
+	private double determineMinimumStepEnergy(int passEnergy) {
+		return energyStepPerPixel * passEnergy;
 	}
 
 	private void updateMinimumStepEnergy() {
-		double passEnergyVal = Double.parseDouble(passEnergy.getValue().toString());
-		stepEnergy.setMinimum(determineMinimumStepEnergy(passEnergyVal));
+		int passEnergyInt = Integer.parseInt(passEnergy.getValue().toString());
+		stepEnergy.setMinimum(determineMinimumStepEnergy(passEnergyInt));
+	}
+
+	private double determineFixedModeEnergyWidth(int passEnergy) {
+		// convert meV to eV
+		return determineMinimumStepEnergy(passEnergy) * fixedModeEnergyChannels / 1000;
+	}
+
+	private int getSelectedPassEnergy(){
+		return Integer.parseInt(passEnergy.getValue().toString());
 	}
 
 	// This calculates the acquisition time excluding dead time (i.e. shortest possible)
@@ -427,7 +454,7 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 					double startEnergyVal = startEnergy.getNumericValue();
 					double endEnergyVal = endEnergy.getNumericValue();
 					double stepEnergyVal = stepEnergy.getNumericValue();
-					double passEnergyVal = Double.parseDouble(passEnergy.getValue().toString());
+					int passEnergyVal = getSelectedPassEnergy();
 					estimatedTimeSecs = numberOfIterations * calculateSweptTime(stepTime, startEnergyVal, endEnergyVal, stepEnergyVal, passEnergyVal);
 				} else { // Fixed mode
 					estimatedTimeSecs = numberOfIterations * stepTime;
@@ -449,17 +476,12 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		return hours + ":" + minsString + ":" + secsString;
 	}
 
-	private double calculateSweptTime(double stepTime, double startEn, double endEn, double stepEnergyVal, double passEnergyVal) {
+	private double calculateSweptTime(double stepTime, double startEn, double endEn, double stepEnergyVal, int passEnergyVal) {
 		// returns sweptTime estimate in milliseconds
-		// Analyser is only visible via Finder as cast to Device, so get jython to dig out the region instead
-		String sweptRegEmin = InterfaceProvider.getCommandRunner().evaluateCommand("analyser.getSweptModeRegion()[0]").trim(); // typically = 55
-		String sweptRegEmax = InterfaceProvider.getCommandRunner().evaluateCommand("analyser.getSweptModeRegion()[2]").trim(); // typically = 905
-
-		double numberOfDetectorPoints = Integer.parseInt(sweptRegEmax) - Integer.parseInt(sweptRegEmin);
 		double minStepEnergyValEv = determineMinimumStepEnergy(passEnergyVal) / 1000; // convert from meV to eV
 		double stepEnergyValEv = stepEnergyVal / 1000;                                // convert from meV to eV
 		double energyRangeEv   = Math.abs(startEn - endEn);
-		return  (stepTime * (numberOfDetectorPoints * minStepEnergyValEv + energyRangeEv) / stepEnergyValEv);
+		return  (stepTime * (sweptModeEnergyChannels * minStepEnergyValEv + energyRangeEv) / stepEnergyValEv);
 	}
 
 	protected String getOurJythonCommand(final RichBeanEditorPart editor) {
@@ -515,12 +537,12 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 
 		if (e.getFieldName().equals("passEnergy")) {
 			if (!isSwept()) {// Fixed mode
-				energyWidth.setValue(capabilities.getEnergyWidthForPass(((Number) passEnergy.getValue()).intValue()));
+				energyWidth.setValue(determineFixedModeEnergyWidth(getSelectedPassEnergy()));
 				startEnergy.setValue(((Number) centreEnergy.getValue()).doubleValue()
 						- ((Number) energyWidth.getValue()).doubleValue() / 2.0);
 				endEnergy.setValue(((Number) centreEnergy.getValue()).doubleValue()
 						+ ((Number) energyWidth.getValue()).doubleValue() / 2.0);
-				stepEnergy.setValue(capabilities.getEnergyStepForPass(((Number) passEnergy.getValue()).intValue()));
+				stepEnergy.setValue(determineMinimumStepEnergy(getSelectedPassEnergy()));
 			}
 		}
 
@@ -549,12 +571,12 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 				endEnergy.removeValueListener(this);
 				stepEnergy.removeValueListener(this);
 				// Update values as appropriate for fixed mode
-				energyWidth.setValue(capabilities.getEnergyWidthForPass(((Number) passEnergy.getValue()).intValue()));
+				energyWidth.setValue(determineFixedModeEnergyWidth(getSelectedPassEnergy()));
 				startEnergy.setValue(((Number) centreEnergy.getValue()).doubleValue()
 						- ((Number) energyWidth.getValue()).doubleValue() / 2.0);
 				endEnergy.setValue(((Number) centreEnergy.getValue()).doubleValue()
 						+ ((Number) energyWidth.getValue()).doubleValue() / 2.0);
-				stepEnergy.setValue(capabilities.getEnergyStepForPass(((Number) passEnergy.getValue()).intValue()));
+				stepEnergy.setValue(determineMinimumStepEnergy(getSelectedPassEnergy()));
 			}
 		}
 
@@ -581,20 +603,19 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 	}
 
 	private void updateEnergyLimits() {
-		int lens = lensMode.getSelectionIndex();
-		int passEnergyVal = Integer.parseInt(passEnergy.getValue().toString());
+		String psuModeString = psuMode.getText();
+		String lensModeString = lensModes[lensMode.getSelectionIndex()];
+		int passEnergyInt = Integer.parseInt(passEnergy.getValue().toString());
 
-		//String psu_mode = InterfaceProvider.getCommandRunner().evaluateCommand("psu_mode()");
-		String psu_mode = psuMode.getText();
-		int[] energyRange;
-		if (psu_mode.equals("High Pass (XPS)")) {
-			energyRange = getHighPassEnergyRange(lens, passEnergyVal);
-		} else { // Low Pass (UPS) or unknown!
-			energyRange = getLowPassEnergyRange(lens, passEnergyVal);
+		double min = 0;
+		double max = maxKE;
+		try {
+			min = energyRange.getMinKE(psuModeString, lensModeString, passEnergyInt);
+			max = energyRange.getMaxKE(psuModeString, lensModeString, passEnergyInt);
 		}
-
-		int min = energyRange[0];
-		int max = energyRange[1];
+		catch (IllegalArgumentException e) {
+			logger.error("Error calculating energy limits. Setting defualts min: {} max {}", min, max, e);
+		}
 
 		if (isSwept()) { // Swept mode
 			startEnergy.setMinimum(min);
@@ -651,130 +672,17 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 			stepEnergy.removeValueListener(this);
 			// Calculate values to rebuild the editor fully these fields should not be listened to otherwise will fire
 			// another updates
-			energyWidth.setValue(capabilities.getEnergyWidthForPass(((Number) passEnergy.getValue()).intValue()));
+			energyWidth.setValue(determineFixedModeEnergyWidth(getSelectedPassEnergy()));
 			startEnergy.setValue(((Number) centreEnergy.getValue()).doubleValue()
 					- ((Number) energyWidth.getValue()).doubleValue() / 2.0);
 			endEnergy.setValue(((Number) centreEnergy.getValue()).doubleValue()
 					+ ((Number) energyWidth.getValue()).doubleValue() / 2.0);
-			stepEnergy.setValue(capabilities.getEnergyStepForPass(((Number) passEnergy.getValue()).intValue()));
+			stepEnergy.setValue(determineMinimumStepEnergy(getSelectedPassEnergy()));
 
 		}
 		updatePsuMode();
 		updateEnergyLimits();
 		updateEstimatedTime();
-	}
-
-	private int determinePassEnergyIndex(int passEnergy) {
-		int passEnergyIndex = 0;
-		switch (passEnergy) {
-		case 1:
-			passEnergyIndex = 0;
-			break;
-		case 2:
-			passEnergyIndex = 1;
-			break;
-		case 5:
-			passEnergyIndex = 2;
-			break;
-		case 10:
-			passEnergyIndex = 3;
-			break;
-		case 20:
-			passEnergyIndex = 4;
-			break;
-		case 50:
-			passEnergyIndex = 5;
-			break;
-		case 100:
-			passEnergyIndex = 6;
-			break;
-		}
-		return passEnergyIndex;
-	}
-
-	// -1 represents none
-	// index 0,1,2,3,4,5,6 relates to pass energies 1,2,5,10,20,50,100
-	// lens modes: 0:transmission
-	// 1:angular7NF
-	// 2:angular14
-	// 3:angular14SmallSpot
-	// 4:angular30
-	// 5:angular30SmallSpot
-
-	private int[] getLowPassEnergyRange(int lens, int passEnergy) {
-		int[] minEnergies = new int[7];
-		int[] maxEnegies = new int[7];
-		switch (lens) {
-		case 0: // trans correct 23-2-15 JJM
-			minEnergies = new int[] { 1, 0, 1, 2, 5, -1, -1 };
-			maxEnegies = new int[] { 32, 64, 116, 121, 131, -1, -1 };
-			break;
-		case 1: // ang 7 correct 23-2-15 JJM
-			minEnergies = new int[] { 1, 1, 3, 12, 12, -1, -1 };
-			maxEnegies = new int[] { 38, 76, 116, 121, 131, -1, -1 };
-			break;
-		case 2: // ang 14 correct 23-2-15 JJM
-			minEnergies = new int[] { 1, 1, 2, 5, 10, -1, -1 };
-			maxEnegies = new int[] { 38, 76, 116, 121, 131, -1, -1 };
-			break;
-		case 3: // ang 14 small correct 23-2-15 JJM
-			minEnergies = new int[] { 1, 1, 1, 2, 2, -1, -1 };
-			maxEnegies = new int[] { 10, 19, 48, 95, 67, -1, -1 };
-			break;
-		case 4: // ang 30 correct 23-2-15 JJM
-			minEnergies = new int[] { 1, 1, 2, 4, 7, -1, -1 };
-			maxEnegies = new int[] { 23, 45, 113, 121, 131, -1, -1 };
-			break;
-		case 5: // ang 30 small correct 23-2-15 JJM
-			minEnergies = new int[] { 1, 1, 1, 1, 1, -1, -1 };
-			maxEnegies = new int[] { 8, 24, 60, 120, 88, -1, -1 };
-			break;
-		}
-		int passEnergyIndex = determinePassEnergyIndex(passEnergy);
-		return new int[] { minEnergies[passEnergyIndex], maxEnegies[passEnergyIndex] };
-	}
-
-	// -1 represents none
-	// index 0,1,2,3,4,5,6 relates to pass energies 1,2,5,10,20,50,100
-
-	// lens modes: 0:transmission
-	// 1:angular7NF
-	// 2:angular14
-	// 3:angular14SmallSpot
-	// 4:angular30
-	// 5:angular30SmallSpot
-
-	private int[] getHighPassEnergyRange(int lens, int passEnergy) {
-		int[] minEnergies = new int[7];
-		int[] maxEnegies = new int[7];
-		switch (lens) {
-		case 0: // transmission correct 23-2-15 JJM
-			minEnergies = new int[] { -1, -1, 1, 2, 5, 12, 25 };
-			maxEnegies = new int[] { -1, -1, 160, 320, 640, 1407, 1305 };
-			break;
-		case 1: // ang 7 correct 23-2-15 JJM
-			minEnergies = new int[] { -1, -1, 3, 12, 12, 30, 59 };
-			maxEnegies = new int[] { -1, -1, 190, 761, 761, 369, 216 };
-			break;
-		case 2: // ang 14 correct 23-2-15 JJM
-			minEnergies = new int[] { -1, -1, 2, 5, 10, 25, 50 };
-			maxEnegies = new int[] { -1, -1, 190, 381, 761, 1234, 1467 };
-			break;
-		case 3: // ang 14 small correct 23-2-15 JJM
-			minEnergies = new int[] { -1, -1, 1, 2, 2, 6, 12 };
-			maxEnegies = new int[] { -1, -1, 48, 95, 190, 182, 149 };
-			break;
-		case 4: // ang 30 correct 23-2-15 JJM
-			minEnergies = new int[] { -1, -1, 2, 4, 7, 18, 35 };
-			maxEnegies = new int[] { -1, -1, 113, 226, 453, 800, 1037 };
-			break;
-		case 5: // ang 30 small correct 23-2-15 JJM
-			minEnergies = new int[] { -1, -1, 1, 1, 1, 3, 6 };
-			maxEnegies = new int[] { -1, -1, 60, 120, 240, 248, 172 };
-			break;
-		}
-		int passEnergyIndex = determinePassEnergyIndex(passEnergy);
-		return new int[] { minEnergies[passEnergyIndex], maxEnegies[passEnergyIndex] };
 	}
 
 	public static void setDropTarget(final Composite parent, final Shell shell, final RichBeanEditorPart editor) {

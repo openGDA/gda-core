@@ -55,7 +55,6 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 	protected boolean inScan = false;
 
 	private VGScientaController controller;
-	private AnalyserCapabilties ac;
 	private VGScientaAnalyserEnergyRange energyRange;
 	private int[] fixedModeRegion;
 
@@ -74,6 +73,23 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 
 	private double acquireTimeRBV;
 	private int[] dataShape;
+
+	/**
+	 * This is the energy covered by one pixel in pass energy 1 in meV
+	 * <p>
+	 * To find the energy step per pixel this value should be multiplied by the pass energy. To find the fixed mode energy width this value should be multiplied
+	 * by the pass energy and the number of energy channels.
+	 * <p>
+	 * This should be set equal to the value used in SES which can be found in: Calibration -> Detector -> Energy Scale [meV/channel]
+	 * <p>
+	 * This value should <b>not</b> be used to calculate energy scales.
+	 */
+	private double energyStepPerPixel = 0;
+
+	/**
+	 * This is the fall-back maximum kinetic energy (KE) if the energyRange object can't provide a correct energy range
+	 */
+	private double maxKE = 1000.0;
 
 	final public Scannable centre_energy = new ScannableBase() {
 
@@ -129,14 +145,6 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 	public void configure() throws FactoryException {
 		super.configure();
 		setExtraNames(new String[] {"cps"});
-	}
-
-	public AnalyserCapabilties getCapabilities() {
-		return ac;
-	}
-
-	public void setCapabilities(AnalyserCapabilties ac) {
-		this.ac = ac;
 	}
 
 	public VGScientaController getController() {
@@ -394,10 +402,12 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 			getAdBase().startAcquiring();
 	}
 
+	@Override
 	public String getLensMode() throws Exception {
 		return controller.getLensMode();
 	}
 
+	@Override
 	public String getPsuMode() throws Exception {
 		return controller.getPsuMode();
 	}
@@ -568,4 +578,31 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 		this.energyRange = energyRange;
 	}
 
+	@Override
+	public double getEnergyStepPerPixel() {
+		return energyStepPerPixel;
+	}
+
+	public void setEnergyStepPerPixel(double energyStepPerPixel) {
+		this.energyStepPerPixel = energyStepPerPixel;
+	}
+
+	@Override
+	public double getMaxKE() {
+		return maxKE;
+	}
+
+	public void setMaxKE(double maxKE) {
+		this.maxKE = maxKE;
+	}
+
+	@Override
+	public int getFixedModeEnergyChannels() {
+		return fixedModeRegion[2];
+	}
+
+	@Override
+	public int getSweptModeEnergyChannels() {
+		return sweptModeRegion[2];
+	}
 }

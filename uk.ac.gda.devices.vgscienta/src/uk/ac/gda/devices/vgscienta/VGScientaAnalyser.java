@@ -59,10 +59,26 @@ public class VGScientaAnalyser extends ADDetector implements MonitorListener, Fl
 	protected boolean inScan = false;
 
 	private VGScientaController controller;
-	private AnalyserCapabilties ac;
 	private VGScientaAnalyserEnergyRange energyRange;
 	private int[] fixedModeRegion;
 	private EpicsController epicsController;
+
+	/**
+	 * This is the energy covered by one pixel in pass energy 1 in meV
+	 * <p>
+	 * To find the energy step per pixel this value should be multiplied by the pass energy. To find the fixed mode energy width this value should be multiplied
+	 * by the pass energy and the number of energy channels.
+	 * <p>
+	 * This should be set equal to the value used in SES which can be found in: Calibration -> Detector -> Energy Scale [meV/channel]
+	 * <p>
+	 * This value should <b>not</b> be used to calculate energy scales.
+	 */
+	private double energyStepPerPixel = 0;
+
+	/**
+	 * This is the fall-back maximum kinetic energy (KE) if the energyRange object can't provide a correct energy range
+	 */
+	private double maxKE = 1000.0;
 
 	private NDProcess ndProc;
 
@@ -151,14 +167,6 @@ public class VGScientaAnalyser extends ADDetector implements MonitorListener, Fl
 		} catch (Exception e) {
 			throw new FactoryException("error setting up areadetector and related listeners ", e);
 		}
-	}
-
-	public AnalyserCapabilties getCapabilities() {
-		return ac;
-	}
-
-	public void setCapabilities(AnalyserCapabilties ac) {
-		this.ac = ac;
 	}
 
 	public VGScientaController getController() {
@@ -387,10 +395,13 @@ public class VGScientaAnalyser extends ADDetector implements MonitorListener, Fl
 			getAdBase().startAcquiring();
 	}
 
+	@Override
 	public String getLensMode() throws Exception {
 		return controller.getLensMode();
 	}
-	public String getPsuMode()  throws Exception {
+
+	@Override
+	public String getPsuMode() throws Exception {
 		return controller.getPsuMode();
 	}
 	public void setPassEnergy(Integer value) throws Exception {
@@ -545,4 +556,33 @@ public class VGScientaAnalyser extends ADDetector implements MonitorListener, Fl
 	public void setEnergyRange(VGScientaAnalyserEnergyRange energyRange) {
 		this.energyRange = energyRange;
 	}
+
+	@Override
+	public double getEnergyStepPerPixel() {
+		return energyStepPerPixel;
+	}
+
+	public void setEnergyStepPerPixel(double energyStepPerPixel) {
+		this.energyStepPerPixel = energyStepPerPixel;
+	}
+
+	@Override
+	public double getMaxKE() {
+		return maxKE;
+	}
+
+	public void setMaxKE(double maxKE) {
+		this.maxKE = maxKE;
+	}
+
+	@Override
+	public int getFixedModeEnergyChannels() {
+		return fixedModeRegion[2];
+	}
+
+	@Override
+	public int getSweptModeEnergyChannels() {
+		return sweptModeRegion[2];
+	}
+
 }

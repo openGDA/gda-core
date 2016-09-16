@@ -31,4 +31,49 @@ public interface IVGScientaAnalyserRMI extends Device {
 
 	VGScientaAnalyserEnergyRange getEnergyRange();
 
+	/**
+	 * This is the energy covered by one pixel in pass energy = 1 in meV
+	 * <p>
+	 * To find the energy step per pixel this value should be multiplied by the pass energy. To find the fixed mode energy width this value should be multiplied
+	 * by the pass energy and the number of energy channels.
+	 * <p>
+	 * This value should <b>not</b> be used to calculate energy scales.
+	 */
+	double getEnergyStepPerPixel();
+
+	/**
+	 * This is the fall-back maximum kinetic energy (KE) if the energyRange object can't provide a correct energy range
+	 */
+	double getMaxKE();
+
+	/**
+	 * This gets the number of energy channels in the fixed mode region, to allow the fixed mode energy width to be calculated.
+	 *
+	 * @return The number of energy channels in fixed mode
+	 */
+	int getFixedModeEnergyChannels();
+
+	/**
+	 * This gets the number of energy channels in the swept mode region, to allow the swept mode energy steps including pre-scan to be calculated
+	 *
+	 * @return The number of energy channels in swept mode
+	 */
+	int getSweptModeEnergyChannels();
+
+	/**
+	 * Gets the current PSU mode. (Also known as element set)
+	 *
+	 * @return The current power supply mode
+	 * @throws Exception If there is a problem with the EPICS communication
+	 */
+	String getPsuMode() throws Exception;
+
+	/**
+	 * Gets the current lens mode.
+	 *
+	 * @return The current lens mode
+	 * @throws Exception If there is a problem with the EPICS communication
+	 */
+	String getLensMode() throws Exception;
+
 }
