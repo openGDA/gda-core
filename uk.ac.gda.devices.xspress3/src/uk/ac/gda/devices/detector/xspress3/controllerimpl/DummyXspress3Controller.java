@@ -130,7 +130,7 @@ public class DummyXspress3Controller implements Xspress3Controller, Findable, Co
 					if (mcaHandle < 0) {
 						throw new DeviceException("Failed to create the mca handle");
 					}
-					logger.info("Xspress2System: open() using mcaHandle " + mcaHandle);
+					logger.debug("Xspress2System: open() using mcaHandle " + mcaHandle);
 				}
 			}
 
@@ -140,7 +140,7 @@ public class DummyXspress3Controller implements Xspress3Controller, Findable, Co
 					if (scalerHandle < 0) {
 						throw new DeviceException("Failed to create the scaler handle");
 					}
-					logger.info("Xspress2System: open() using scalerHandle " + scalerHandle);
+					logger.debug("Xspress2System: open() using scalerHandle " + scalerHandle);
 				}
 			}
 		}
