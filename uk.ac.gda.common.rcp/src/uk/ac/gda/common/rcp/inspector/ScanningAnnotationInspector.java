@@ -1,10 +1,13 @@
 package uk.ac.gda.common.rcp.inspector;
 
+import static org.metawidget.inspector.InspectionResultConstants.TRUE;
+
 import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.scanning.api.annotation.MaximumValue;
 import org.eclipse.scanning.api.annotation.MinimumValue;
+import org.eclipse.scanning.api.annotation.UiFilename;
 import org.eclipse.scanning.api.annotation.UiTooltip;
 import org.eclipse.scanning.api.annotation.Units;
 import org.metawidget.inspector.impl.BaseObjectInspector;
@@ -29,6 +32,7 @@ public class ScanningAnnotationInspector extends BaseObjectInspector {
 	public static final String MAXIMUM_VALUE = "maximumValue";
 	public static final String UNITS = "units";
 	public static final String TOOLTIP = "tooltip";
+	public static final String FILENAME = "filename";
 
 	@Override
 	protected Map<String, String> inspectProperty(Property property) throws Exception {
@@ -56,6 +60,12 @@ public class ScanningAnnotationInspector extends BaseObjectInspector {
 		UiTooltip tooltip = property.getAnnotation(UiTooltip.class);
 		if (tooltip != null) {
 			attributes.put(TOOLTIP, tooltip.value());
+		}
+
+		// Check the filename annotation
+		UiFilename filename = property.getAnnotation(UiFilename.class);
+		if (filename != null) {
+			attributes.put(FILENAME, TRUE);
 		}
 
 		return attributes;
