@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.client.microfocus.util;
+package uk.ac.gda.client.microfocus.scan.util;
 
 import gda.device.Scannable;
 import gda.device.scannable.ScannableUtils;
