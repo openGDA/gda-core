@@ -8,7 +8,7 @@ Bundle-Vendor: Diamond Light Source Ltd
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  uk.ac.gda.epics,
- com.springsource.org.apache.commons.vfs,
+ org.apache.commons.vfs,
  uk.ac.gda.core,
  uk.ac.gda.api,
  uk.ac.gda.common.rcp,
