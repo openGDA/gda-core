@@ -487,8 +487,8 @@ Additional Ant tasks for Buckminster build. Based on http://www.ralfebert.de/blo
 		<copy todir="${install.git.path}/gda-dls-beamlines-xas.git/i18" failonerror="false">
 			<fileset dir="${ws_git.rel.path}/gda-dls-beamlines-xas.git/i18"/>
 		</copy>
-		<copy todir="${install.git.path}/gda-xas-core.git/uk.ac.gda.client.microfocus/scripts" failonerror="false">
-			<fileset dir="${ws_git.rel.path}/gda-xas-core.git/uk.ac.gda.client.microfocus/scripts"/>
+		<copy todir="${install.git.path}/gda-xas-core.git/uk.ac.diamond.daq.client.microfocus.scan/scripts" failonerror="false">
+			<fileset dir="${ws_git.rel.path}/gda-xas-core.git/uk.ac.diamond.daq.client.microfocus.scan/scripts"/>
 		</copy>
 		<copy todir="${install.git.path}/gda-xas-core.git/uk.ac.gda.server.exafs/scripts" failonerror="false">
 			<fileset dir="${ws_git.rel.path}/gda-xas-core.git/uk.ac.gda.server.exafs/scripts"/>
