@@ -106,7 +106,7 @@ Require-Bundle: uk.ac.gda.common;bundle-version="1.0.0",
  uk.ac.diamond.org.jscience;bundle-version="[2.0.2,3.0.0)",
  uk.ac.gda.nexus;bundle-version="1.0.0",
  uk.ac.diamond.jython;bundle-version="[2.5.3,3.0.0)",
- org.apache.commons.beanutils;bundle-version="[1.9.1,1.9.2)",
+ org.apache.commons.beanutils;bundle-version="1.9.1",
  org.eclipse.core.resources
 Bundle-ClassPath: jars/gda-corba.jar,
  .
