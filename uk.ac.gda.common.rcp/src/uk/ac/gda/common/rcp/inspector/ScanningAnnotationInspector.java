@@ -11,11 +11,11 @@ import org.metawidget.inspector.impl.BaseObjectInspector;
 import org.metawidget.inspector.impl.propertystyle.Property;
 
 /**
- * This inspector is a copy of RichbeansAnnotationsInspector (in org.eclipse.richbeans.generator) which inspects some
+ * This inspector is a copy of RichbeansAnnotationsInspector (in uk.ac.diamond.daq.guigenerator) which inspects some
  * annotations defined in org.eclipse.scanning.api.annotation.
  * <p>
  * This means the @MinimumValue, @MaximumValue and @Units annotations can be used in any code which depends on
- * org.eclipse.scanning.api without depending on org.eclipse.richbeans.generator.
+ * org.eclipse.scanning.api without depending on uk.ac.diamond.daq.guigenerator.
  *
  * @author James Mudd
  * @author Colin Palmer

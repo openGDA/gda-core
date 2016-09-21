@@ -22,7 +22,7 @@ import uk.ac.gda.test.helpers.swt.SWTTestBase;
 /**
  * Test to confirm that the copied annotations in org.eclipse.scanning.api.annotation are interpreted correctly.
  * <p>
- * This needs to be run as a plugin test with org.eclipse.richbeans.generator and org.eclipse.scanning.api bundles
+ * This needs to be run as a plugin test with uk.ac.diamond.daq.guigenerator and org.eclipse.scanning.api bundles
  * included.
  */
 public class GDAMetawidgetInspectorPluginTest extends SWTTestBase {
