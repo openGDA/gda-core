@@ -389,10 +389,6 @@ Additional Ant tasks for Buckminster build. Based on http://www.ralfebert.de/blo
     		<include name="uk.ac.gda.core_*"/>
     	</dirset>
     	<property name= "core.dir.name" refid= "coreDirId" />
-    	<dirset  dir="${plugins.path}" id="jythonDirId" >
-    		<include name="uk.ac.diamond.jython_*"/>
-    	</dirset>
-    	<property name= "jython.dir.name" refid= "jythonDirId" />
     	<dirset  dir="${plugins.path}" id="scisoftpyDirId" >
     		<include name="uk.ac.diamond.scisoft.python_*"/>
     	</dirset>
@@ -400,7 +396,7 @@ Additional Ant tasks for Buckminster build. Based on http://www.ralfebert.de/blo
     	<dirset  dir="${plugins.path}" id="jacorbDirId" >
     		<include name="uk.ac.diamond.org.jacorb_*"/>
     	</dirset>
-    	<property name= "jacorb.dir.name" refid= "jacorbDirId" />    	
+    	<property name= "jacorb.dir.name" refid= "jacorbDirId" />
 		<dirset  dir="${plugins.path}" id="springDirId" >
     		<include name="uk.ac.diamond.org.springframework_*"/>
     	</dirset>
@@ -419,16 +415,12 @@ Additional Ant tasks for Buckminster build. Based on http://www.ralfebert.de/blo
     	<property.expand property="core.link" definition="../../../../../plugins/${core.dir.name}"/>
     	<property.expand property="jacorb.link" definition="${plugins.path}/uk.ac.diamond.org.jacorb"/>
 		<property.expand property="spring.framework.link" definition="${plugins.path}/uk.ac.diamond.org.springframework"/>
-    	<property.expand property="jython.link" definition="../../../plugins/${jython.dir.name}"/>
 		<property.expand property="scisoftpy.link" definition="../../../../plugins/${scisoftpy.dir.name}"/>
 
     	<!-- Add the links to cope with hard coded paths in the codebase -->
     	<mkdir dir="${install.path}/dls-root/workspace"/>
     	<mkdir dir="${install.git.path}/gda-core.git/uk.ac.gda.core/classes"/>
     	<symlink link="${install.git.path}/gda-core.git/uk.ac.gda.core/classes/main" resource="${core.link}" />
-
-    	<mkdir dir="${install.git.path}/diamond-jython.git"/>
-    	<symlink link="${install.git.path}/diamond-jython.git/uk.ac.diamond.jython" resource="${jython.link}" />
 
     	<mkdir dir="${install.git.path}/scisoft-core.git/uk.ac.diamond.scisoft.python"/>
     	<symlink link="${install.git.path}/scisoft-core.git/uk.ac.diamond.scisoft.python/src" resource="${scisoftpy.link}" />
@@ -445,9 +437,6 @@ Additional Ant tasks for Buckminster build. Based on http://www.ralfebert.de/blo
 		<copy todir="${install.git.path}/gda-core.git/core-config">
 			<fileset dir="${ws_git.rel.path}/gda-core.git/core-config"/>
 		</copy>
-		<copy todir="${install.git.path}/gda-core.git/uk.ac.gda.core/scripts">
-			<fileset dir="${ws_git.rel.path}/gda-core.git/uk.ac.gda.core/scripts"/>
-		</copy>		
 		<copy todir="${install.git.path}/gda-core.git/example-config">
 			<fileset dir="${ws_git.rel.path}/gda-core.git/example-config"/>
 		</copy>
@@ -468,7 +457,6 @@ Additional Ant tasks for Buckminster build. Based on http://www.ralfebert.de/blo
 		<copy todir="${install.git.path}/gda-epics.git/uk.ac.gda.epics">
 			<fileset dir="${ws_git.rel.path}/gda-epics.git/uk.ac.gda.epics">
 				<include name="schema/*"/>
-				<include name="scripts/**"/>
 			</fileset>
 		</copy>
 		<copy todir="${install.git.path}/daq-eclipse.git/org.eclipse.scanning.command/scripts">
@@ -479,9 +467,6 @@ Additional Ant tasks for Buckminster build. Based on http://www.ralfebert.de/blo
 			the configs in your workspace. This measure should be temporary once dls-root is removed-->
 		<copy todir="${install.git.path}/gda-pes.git/i05-1-config" failonerror="false">
 			<fileset dir="${ws_git.rel.path}/gda-pes.git/i05-1-config"/>
-		</copy>
-		<copy todir="${install.git.path}/gda-pes.git/uk.ac.gda.arpes.server/scripts" failonerror="false">
-			<fileset dir="${ws_git.rel.path}/gda-pes.git/uk.ac.gda.arpes.server/scripts"/>
 		</copy>
 		<!-- XAS folders -->
 		<copy todir="${install.git.path}/gda-dls-beamlines-xas.git/i18" failonerror="false">
@@ -528,6 +513,14 @@ Additional Ant tasks for Buckminster build. Based on http://www.ralfebert.de/blo
 == Product has been built in ${destination} ==
         </echo>
     </target>
+	
+	<target name="create.development-product" depends="create.product">
+		<!-- execute the python script to scan for scriptlocation exetnsion points,
+		build the correct version paths to delete and replace them with links -->
+		<exec executable="python" failonerror="true">
+			<arg line="devlinks.py ${plugins.path}"/>
+		</exec>
+	</target>
 
     <target name="_symlink.check.params">
         <fail message="create.product-with.symlink called, but symlink.to.product.location not set" unless="symlink.to.product.location" />
@@ -538,8 +531,19 @@ Additional Ant tasks for Buckminster build. Based on http://www.ralfebert.de/blo
     <target name="remove_previous_product_symlink" depends="create.product, _symlink.check.params">
         <symlink action="delete" link="${symlink.to.product.location}"/>
     </target>
+	
+    <target name="remove_previous_development-product_symlink" depends="create.development-product, _symlink.check.params">
+        <symlink action="delete" link="${symlink.to.product.location}"/>
+    </target>
 
     <target name="create.product-with.symlink" depends="remove_previous_product_symlink">
+        <symlink link="${symlink.to.product.location}" resource="${symlink.to.product.target}"/>
+        <echo>
+== Symlink to product created (or changed) at ${symlink.to.product.location} --> ${symlink.to.product.target} ==
+        </echo>
+    </target>
+	
+    <target name="create.development-product-with.symlink" depends="remove_previous_development-product_symlink">
         <symlink link="${symlink.to.product.location}" resource="${symlink.to.product.target}"/>
         <echo>
 == Symlink to product created (or changed) at ${symlink.to.product.location} --> ${symlink.to.product.target} ==
