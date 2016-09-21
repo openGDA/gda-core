@@ -467,10 +467,10 @@
    <extension
          point="uk.ac.diamond.daq.jython.api.scriptLocations">
       <location
-            folder="gda-core.git/uk.ac.gda.core/scripts">
+            folder="uk.ac.gda.core/scripts">
       </location>
       <location
-            folder="scisoft-core.git/uk.ac.diamond.scisoft.python/src">
+            folder="uk.ac.diamond.scisoft.python/src">
       </location>
    </extension>
 
