@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<inspection-result xmlns="http://metawidget.org/inspection-result"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://metawidget.org/inspection-result http://metawidget.org/xsd/inspection-result-1.0.xsd"
+	version="1.0">
+
+	<!-- These TestBean fields are used in unit tests to check that this XML metadata file is correctly interpreted.
+		Be careful changing them! -->
+	<entity type="uk.ac.diamond.daq.guigenerator.test.TestBean">
+		<property name="hiddenStringField" hidden="true" />
+		<property name="stringField" required="true" />
+		<property name="stringFieldWithGetterOnly" />
+		<property name="uiReadOnlyStringField" />
+		<property name="intField" />
+	</entity>
+
+	<entity type="org.eclipse.scanning.api.points.models.GridModel">
+		<property name="name" hidden="true" no-setter="true" type="java.lang.String" />
+		<property name="fastAxisPoints" type="int" />
+		<property name="slowAxisPoints" type="int" />
+		<property name="snake" type="boolean" />
+	</entity>
+
+	<entity type="org.eclipse.scanning.api.points.models.RasterModel">
+		<property name="name" hidden="true" no-setter="true" type="java.lang.String" />
+		<property name="fastAxisStep" type="double" />
+		<property name="slowAxisStep" type="double" />
+		<property name="snake" type="boolean" />
+	</entity>
+
+	<entity type="uk.ac.diamond.daq.mapping.path.LissajousModel">
+		<property name="name" hidden="true" no-setter="true" type="java.lang.String" />
+		<property name="a" type="double" />
+		<property name="b" type="double" />
+		<property name="delta" type="double" />
+		<property name="thetaStep" type="double" />
+		<property name="points" type="int" />
+	</entity>
+	
+	<entity type="uk.ac.diamond.daq.mapping.path.SpiralModel">
+		<property name="name" hidden="true" no-setter="true" type="java.lang.String" />
+		<property name="scale" type="double" />
+	</entity>
+
+	<entity type="org.eclipse.scanning.api.points.models.OneDEqualSpacingModel">
+		<property name="name" hidden="true" no-setter="true" type="java.lang.String" />
+		<property name="points" type="int" />
+	</entity>
+
+	<entity type="org.eclipse.scanning.api.points.models.OneDStepModel">
+		<property name="name" hidden="true" no-setter="true" type="java.lang.String" />
+		<property name="step" type="double" />
+	</entity>
+
+	<entity type="org.eclipse.scanning.api.points.models.SinglePointModel">
+		<property name="uniqueKey" hidden="true" type="java.lang.String" />
+		<property name="name" hidden="true" no-setter="true" type="java.lang.String" />
+		<property name="x" hidden="true" read-only="true" type="double" /> <!-- Maybe this should be hidden instead of read-only -->
+		<property name="y" hidden="true" read-only="true" type="double" /> <!-- Maybe this should be hidden instead of read-only -->
+	</entity>
+
+</inspection-result>

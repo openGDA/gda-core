@@ -1,0 +1,7 @@
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="Metawidget Annotation Inspector">
+   <implementation class="org.metawidget.inspector.annotation.MetawidgetAnnotationInspector"/>
+   <service>
+      <provide interface="org.metawidget.inspector.iface.DomInspector"/>
+   </service>
+   
+</scr:component>

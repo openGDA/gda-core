@@ -1,0 +1,8 @@
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="GUI Generator Service">
+   <implementation class="uk.ac.diamond.daq.guigenerator.GuiGeneratorService"/>
+   <service>
+      <provide interface="org.eclipse.richbeans.api.generator.IGuiGeneratorService"/>
+   </service>
+   <reference bind="addDomInspector" cardinality="0..n" interface="org.metawidget.inspector.iface.DomInspector" name="DomInspector" policy="dynamic" unbind="removeDomInspector"/>
+   
+</scr:component>
