@@ -3,10 +3,22 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
+	<description>
+		To use the Simulated Area detector in dummy mode:
+			1) Launch the Utilities > GDA SWMR AreaDetector Simulation
+				on the local machine and start the IOC.
+			2) If you want to use an Area detector on another machine, or
+				you are also launching the GDA servers, export the
+				WORKSTATION environment variable with the short name for
+				the machine the Simulation IOC is running on.
+	</description>
+
 	<bean id="mic_cam" class="uk.ac.gda.client.liveplot.mjpeg.CameraConfiguration">
 		<property name="displayName" value="Simulated Area Detector" />
-		<!-- This need to have the URL changed for the current PC. Its only for testing -->
-		<property name="url" value="http://ws141.diamond.ac.uk:8080/ADSIM.mjpg.mjpg" />
+		<!-- Use the WORKSTATION environment variable if set, otherwise use HOSTNAME -->
+		<property name="url" value="http://${WORKSTATION:${HOSTNAME}}:8080/CAM.mjpg.mjpg" />
 	</bean>
 
+	<!-- "det" is a GDA detector Simulator in dummy mode, so there is no "det_cam" area detector and
+		 thus no mjpg url to connect to  -->
 </beans>
