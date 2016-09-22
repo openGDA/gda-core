@@ -19,11 +19,16 @@
 
 package gda.configuration.properties;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
@@ -411,10 +416,52 @@ public class LocalProperties {
 				} catch (ConfigurationException ex) {
 					throw new IllegalArgumentException("Error loading " + propertiesFile, ex);
 				}
+
+				// We attempt to set all the properties loaded into System properties
+				// This allows properties to be loaded from any bundle without making
+				// a dependency on this bundle. However if this fails in any way then
+				// it is a non-fatal error. This means that any bundle in any project may
+				// check GDA properties without making dependencies. This is desirable for
+				// instance with DAWN so that its bundles may contain specific code for
+				// GDA configuration without making a hard dependency on LocalProperties
+				try {
+					Properties props = loadProperties(propertiesFile);
+					for (Object okey : props.keySet()) {
+						String key   = (String)okey;
+						String value = propConfig.getString(key, null);
+						if (value!=null) System.setProperty("GDA/" + key, value);
+						// We preface with "GDA/" which should mean that no system
+						// property is affected and also if System properties are dumped,
+						// they can be filtered to remove GDA ones.
+					}
+				} catch (Throwable ne) {
+					logger.trace("Cannot parse to system properties: "+propertiesFile, ne);
+				}
 			}
 		}
 
 	}
+
+	private final static Properties loadProperties(final String path) throws IOException {
+		final File file                  = new File(path);
+		return loadProperties(file);
+	}
+	private final static Properties loadProperties(final File file) throws IOException {
+		if (!file.exists()) return new Properties();
+		return loadProperties(new FileInputStream(file));
+	}
+	private final static Properties loadProperties(final InputStream stream) throws IOException {
+
+		final Properties fileProps       = new Properties();
+		try {
+			final BufferedInputStream in     = new BufferedInputStream(stream);
+			fileProps.load(in);
+		} finally {
+			stream.close();
+		}
+		return fileProps;
+	}
+
 
 	public static void dumpProperties() {
 		propConfig.dumpProperties();
