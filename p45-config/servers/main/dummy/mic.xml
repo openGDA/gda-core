@@ -64,7 +64,7 @@
 		<property name="setFileNameAndNumber" value="true" />
 	</bean>
 
-	<bean id="adsim" class="gda.device.detector.addetector.ADDetector">
+	<bean id="mic" class="gda.device.detector.addetector.ADDetector">
 		<property name="adBase" ref="adsim_adbase" />
 		<property name="ndFile" ref="adsim_ndfile" />
 		<property name="ndArray" ref="adsim_ndarray" />
