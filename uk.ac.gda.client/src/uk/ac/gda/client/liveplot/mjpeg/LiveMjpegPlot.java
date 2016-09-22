@@ -34,10 +34,8 @@ import org.eclipse.dawnsci.plotting.api.axis.IAxis;
 import org.eclipse.dawnsci.plotting.api.tool.IToolPage.ToolPageRole;
 import org.eclipse.dawnsci.plotting.api.trace.IImageTrace;
 import org.eclipse.dawnsci.plotting.api.trace.IImageTrace.DownsampleType;
-import org.eclipse.dawnsci.plotting.api.trace.ITrace;
 import org.eclipse.january.dataset.DataEvent;
 import org.eclipse.january.dataset.IDataListener;
-import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.IDatasetConnector;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.swt.SWT;
@@ -224,14 +222,11 @@ public class LiveMjpegPlot extends ViewPart {
 		plotActionSystem.fillPrintActions(toolBarManager);
 		getViewSite().getActionBars().updateActionBars();
 
+		final IImageTrace iTrace = plottingSystem.createImageTrace("MJPEG stream trace");
+		// Attach the IDatasetConnector of the Mjpeg stream to the trace.
+		iTrace.setDynamicData(stream);
+		plottingSystem.addTrace(iTrace);
 		// Try and make the stream run faster
-		IDataset image = stream.getSlice();
-		if (image.getShape()==null || image.getShape().length==0) {
-			throw new IllegalArgumentException("There is no data to prepare, is the device turned on?");
-		}
-
-		ITrace trace = plottingSystem.createPlot2D(image, null, null);
-		final IImageTrace iTrace = (IImageTrace) trace;
 		iTrace.setDownsampleType(DownsampleType.POINT);
 		iTrace.setRescaleHistogram(false);
 		// Fix the aspect ratio as is typically required for visible cameras
