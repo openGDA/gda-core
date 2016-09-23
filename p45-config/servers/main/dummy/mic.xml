@@ -5,6 +5,16 @@
 	http://www.diamond.ac.uk/schema/gda/gda http://www.diamond.ac.uk/schema/gda/gda/gda-gda-1.0.xsd
 	http://www.diamond.ac.uk/schema/gda/corba http://www.diamond.ac.uk/schema/gda/corba/gda-corba-1.0.xsd">
 
+	<description>
+		To use the Simulated Area detector in dummy mode:
+			1) Launch the Utilities > GDA SWMR AreaDetector Simulation
+				and start the IOC.
+			2) export the WORKSTATION environment variable with the short name for
+				the machine the Simulation IOC is running on (e.g. ws123).
+			3) Uncomment the include for this file in ./server.xml and launch
+				the GDA servers.
+	</description>
+
 	<bean id="adsim_adbase" class="gda.device.detector.areadetector.v17.impl.ADBaseImpl">
 		<property name="basePVName" value="${WORKSTATION}-AD-SIM-01:CAM:" />
 	</bean>
@@ -64,7 +74,7 @@
 		<property name="setFileNameAndNumber" value="true" />
 	</bean>
 
-	<bean id="adsim" class="gda.device.detector.addetector.ADDetector">
+	<bean id="mic" class="gda.device.detector.addetector.ADDetector">
 		<property name="adBase" ref="adsim_adbase" />
 		<property name="ndFile" ref="adsim_ndfile" />
 		<property name="ndArray" ref="adsim_ndarray" />
