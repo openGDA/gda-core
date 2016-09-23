@@ -24,13 +24,13 @@
             name="Spectrum"
             restorable="true">
       </view>
-      <view
+      <!-- <view
             category="org.opengda.detector.electronanalyser.client.ses"
             class="gda.rcp.views.ViewFactory:externalioviewfactory"
             id="org.opengda.detector.electronanalyser.client.views.externalioview"
             name="External IO"
             restorable="true">
-      </view>
+      </view> -->
       <view
             category="org.opengda.detector.electronanalyser.client.ses"
             class="gda.rcp.views.ViewFactory:imageviewfactory"
@@ -38,13 +38,13 @@
             name="Image"
             restorable="true">
       </view>
-      <view
+      <!-- <view
             category="org.opengda.detector.electronanalyser.client.ses"
             class="gda.rcp.views.ViewFactory:slicesviewfactory"
             id="org.opengda.detector.electronanalyser.client.views.slicesview"
             name="Slices"
             restorable="true">
-      </view>
+      </view> -->
       <view
             category="org.opengda.detector.electronanalyser.client.ses"
             class="gda.rcp.views.ViewFactory:progressviewfactory"
@@ -105,6 +105,11 @@
             id="org.opengda.detector.electronanalyser.client.plotlayoutdopdown"
             name="Drop">
       </command>
+      <command
+            description="Command to clipboard"
+            id="org.opengda.detector.electronanalyser.client.commandToClipboard"
+            name="Command to clipboard">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.menus">
@@ -145,13 +150,20 @@
                name="org.opengda.detector.electronanalyser.client.separator1"
                visible="true">
          </separator>
-         <!--command
+         <command
                commandId="org.opengda.detector.electronanalyser.client.startcollection"
                icon="icons/run_exc.gif"
                label="Start"
                style="push"
-               tooltip="Start collecting active regions in this sequence">
-         </command-->
+               tooltip="Save sequence and start it running">
+         </command>
+         <command
+               commandId="org.opengda.detector.electronanalyser.client.commandToClipboard"
+               icon="icons/runToClipboard.png"
+               label="Command to clipboard"
+               style="push"
+               tooltip="Save the sequence and copy the command to the clipboard">
+         </command>
          <!--command
                commandId="org.opengda.detector.electronanalyser.client.stopcollection"
                icon="icons/stop.gif"
@@ -159,18 +171,25 @@
                label="Stop"
                style="push"
                tooltip="Stop current data collection">
-         </command-->
+         </command> -->
       </menuContribution>
       <menuContribution
             allPopups="false"
             locationURI="toolbar:org.opengda.detector.electronanalyser.client.sequenceeditor">
-         <!--command
+         <command
                commandId="org.opengda.detector.electronanalyser.client.startcollection"
                icon="icons/run_exc.gif"
                label="Start"
                style="push"
-               tooltip="Start collecting active regions in this sequence">
-         </command-->
+               tooltip="Save sequence and start it running">
+         </command>
+         <command
+               commandId="org.opengda.detector.electronanalyser.client.commandToClipboard"
+               icon="icons/runToClipboard.png"
+               label="Command to clipboard"
+               style="push"
+               tooltip="Save the sequence and copy the command to the clipboard">
+         </command>
          <!--command
                commandId="org.opengda.detector.electronanalyser.client.stopcollection"
                icon="icons/stop.gif"
@@ -202,17 +221,6 @@
                id="org.eclipse.ui.file.savesequence"
                label="Save"
                style="push">
-            <visibleWhen
-                  checkEnabled="true">
-               <or>
-                  <instanceof
-                        value="org.opengda.detector.electronanalyser.client.views.RegionView">
-                  </instanceof>
-                  <instanceof
-                        value="org.opengda.detector.electronanalyser.client.views.SequenceView">
-                  </instanceof>
-               </or>
-            </visibleWhen>
          </command>
          <command
                commandId="org.eclipse.ui.file.saveAs"
@@ -342,6 +350,10 @@
       <handler
             class="org.opengda.detector.electronanalyser.client.actions.StopCollectionAction"
             commandId="org.opengda.detector.electronanalyser.client.stopcollection">
+      </handler>
+      <handler
+            class="org.opengda.detector.electronanalyser.client.actions.CommandToClipboardAction"
+            commandId="org.opengda.detector.electronanalyser.client.commandToClipboard">
       </handler>
    </extension>
    <extension

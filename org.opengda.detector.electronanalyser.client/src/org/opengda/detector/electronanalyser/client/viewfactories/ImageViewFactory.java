@@ -14,7 +14,9 @@ public class ImageViewFactory implements FindableExecutableExtension {
 	private String viewPartName;
 	private String name;
 	private IVGScientaAnalyser analyser;
-	private String arrayPV;
+	private String updatePV;
+	private double updatesPerSecond = 0; // Initialise to 0 if set it will be different.
+
 	@Override
 	public Object create() throws CoreException {
 		logger.info("Creating image plot view");
@@ -23,8 +25,11 @@ public class ImageViewFactory implements FindableExecutableExtension {
 		if (analyser != null) {
 			imageView.setAnalyser(analyser);
 		}
-		if (arrayPV != null) {
-			imageView.setArrayPV(arrayPV);
+		if (updatePV != null) {
+			imageView.setUpdatePV(updatePV);
+		}
+		if (updatesPerSecond != 0) {
+			imageView.setUpdatesPerSecond(updatesPerSecond);
 		}
 
 		return imageView;
@@ -70,12 +75,20 @@ public class ImageViewFactory implements FindableExecutableExtension {
 		this.viewPartName = viewPartName;
 	}
 
-	public String getArrayPV() {
-		return arrayPV;
+	public String getUpdatePV() {
+		return updatePV;
 	}
 
-	public void setArrayPV(String arrayPV) {
-		this.arrayPV = arrayPV;
+	public void setUpdatePV(String updatePV) {
+		this.updatePV = updatePV;
+	}
+
+	public double getUpdatesPerSecond() {
+		return updatesPerSecond;
+	}
+
+	public void setUpdatesPerSecond(double updatesPerSecond) {
+		this.updatesPerSecond = updatesPerSecond;
 	}
 
 }

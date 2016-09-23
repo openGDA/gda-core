@@ -19,7 +19,6 @@
 package org.opengda.detector.electronanalyser.client.views;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -28,6 +27,7 @@ import org.eclipse.dawnsci.plotting.api.PlottingFactory;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.january.dataset.IDataset;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
@@ -48,6 +48,8 @@ public class ImagePlotComposite extends EpicsArrayPlotComposite {
 	private static final String IMAGE_PLOT = "Image plot";
 	double[] ydata = null;
 	private Dataset yAxis;
+
+	private final ArrayList<IDataset> axes = new ArrayList<>();
 
 	/**
 	 * @param parent
@@ -78,43 +80,39 @@ public class ImagePlotComposite extends EpicsArrayPlotComposite {
 	}
 
 	@Override
-	protected void updatePlot(IProgressMonitor monitor, double[] value) {
-		super.updatePlot(monitor, value);
-//		if (isNewRegion()) {
-			ydata = getYData();
-			yAxis = createYAxis();
-//			setNewRegion(false);
-//		}
-		ArrayList<Dataset> axes = new ArrayList<Dataset>();
-		axes.add(xAxis);
-		axes.add(yAxis);
+	protected void updatePlot(IProgressMonitor monitor) {
+
+		super.updatePlot(monitor);
+		ydata = getYData();
+		yAxis = createYAxis();
+
 		try {
 			int length = xdata.clone().length;
 			int slices = getAnalyser().getSlices();
 			int[] dims = new int[] { slices, length };
+			// Get the image data from the analyser
+			double[] value = analyser.getImage(dims[0] * dims[1]);
 			int arraysize = dims[0] * dims[1];
 			if (arraysize < 1) {
 				return;
 			}
-			double[] values = Arrays.copyOf(value, arraysize);
-			dataset = DatasetFactory.createFromObject(values, dims);
+			dataset = DatasetFactory.createFromObject(value, dims);
 			dataset.setName("");
-			plottingSystem.createPlot2D(dataset, axes, monitor);
-			plottingSystem.setKeepAspect(false);
 		} catch (Exception e) {
 			logger.error("exception caught preparing analyser live image plot", e);
 		}
+		updatePlot();
 	}
 
 	@Override
 	public void updatePlot() {
 		if (xdata==null) return;
 		super.updatePlot();
-		ArrayList<Dataset> axes = new ArrayList<Dataset>();
+		axes.clear();
 		axes.add(xAxis);
 		axes.add(yAxis);
-		plottingSystem.setKeepAspect(false);
-		plottingSystem.createPlot2D(dataset, axes, new NullProgressMonitor());
+		plottingSystem.updatePlot2D(dataset, axes, new NullProgressMonitor());
+		plottingSystem.repaint(false);
 	}
 
 	private Dataset createYAxis() {

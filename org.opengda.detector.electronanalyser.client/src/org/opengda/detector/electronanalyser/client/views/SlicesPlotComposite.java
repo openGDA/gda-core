@@ -114,13 +114,13 @@ public class SlicesPlotComposite extends EpicsArrayPlotComposite {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				selectedSlice = sliceControl.getSelection();
-				updatePlot(new NullProgressMonitor(), value);
+				updatePlot(new NullProgressMonitor());
 			}
 
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
 				selectedSlice = sliceControl.getSelection();
-				updatePlot(new NullProgressMonitor(), value);
+				updatePlot(new NullProgressMonitor());
 			}
 		});
 
@@ -149,7 +149,7 @@ public class SlicesPlotComposite extends EpicsArrayPlotComposite {
 	 */
 	@Override
 	public void initialise() {
-		if (getAnalyser() == null || getArrayPV() == null) {
+		if (getAnalyser() == null || getUpdatePV() == null) {
 			throw new IllegalStateException("required parameters for 'analyser' and/or 'arrayPV' are missing.");
 		}
 		dataListener = new DataListener();
@@ -160,15 +160,15 @@ public class SlicesPlotComposite extends EpicsArrayPlotComposite {
 		if (!channelCreatedForSlices) {
 			first = true;
 			try {
-				dataChannel = controller.createChannel(arrayPV,dataListener, MonitorType.NATIVE, false);
-				String[] split = getArrayPV().split(":");
+				updateChannel = controller.createChannel(updatePV,dataListener, MonitorType.NATIVE, false);
+				String[] split = getUpdatePV().split(":");
 				startChannel = controller.createChannel(split[0] + ":" + split[1] + ":" + ADBase.Acquire, this, MonitorType.NATIVE, false);
 				controller.creationPhaseCompleted();
 				controller.tryInitialize(100);
-				logger.debug("Data channel {} is created", dataChannel.getName());
+				logger.debug("Data channel {} is created", updateChannel.getName());
 				channelCreatedForSlices = true;
 			} catch (CAException e) {
-				logger.error("Failed to create channel {}", dataChannel.getName());
+				logger.error("Failed to create channel {}", updateChannel.getName());
 			}
 		}
 	}
@@ -203,7 +203,7 @@ public class SlicesPlotComposite extends EpicsArrayPlotComposite {
 								value = ((DBR_Double) dbr).getDoubleValue();
 								dataslices.clear();
 							}
-							updatePlot(new NullProgressMonitor(), value);
+						updatePlot(new NullProgressMonitor());
 						}
 //					}
 				});
@@ -212,10 +212,11 @@ public class SlicesPlotComposite extends EpicsArrayPlotComposite {
 	}
 	ArrayList<Dataset> dataslices=new ArrayList<Dataset>();
 	@Override
-	protected void updatePlot(IProgressMonitor monitor, double[] value) {
-		super.updatePlot(monitor, value);
-		this.value=value;
+	protected void updatePlot(IProgressMonitor monitor) {
+		super.updatePlot(monitor);
 		try {
+
+
 			int	slices = getAnalyser().getSlices();
 			sliceControl.setMaximum(slices);
 			sliceControl.setEnabled(true);
@@ -225,6 +226,8 @@ public class SlicesPlotComposite extends EpicsArrayPlotComposite {
 			if (arraysize < 1) {
 				return;
 			}
+			// Get the image data from the analyser
+			value = analyser.getController().getImage(arraysize);
 			double[] values = Arrays.copyOf(value, arraysize);
 			final Dataset ds = DatasetFactory.createFromObject(values, dims);
 

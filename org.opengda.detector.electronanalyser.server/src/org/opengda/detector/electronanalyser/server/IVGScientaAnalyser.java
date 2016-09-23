@@ -162,5 +162,10 @@ public interface IVGScientaAnalyser extends Findable {
 
 	public abstract String[] getElementSet() throws DeviceException;
 
+	public abstract double[] getExtIO(int length) throws Exception;
+
+	public abstract double[] getImage(int i) throws Exception;
+
+	public abstract double[] getSpectrum(int length) throws Exception;
 
 }

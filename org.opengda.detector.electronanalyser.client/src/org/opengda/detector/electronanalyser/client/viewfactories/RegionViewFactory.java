@@ -27,7 +27,7 @@ import org.opengda.detector.electronanalyser.utils.RegionDefinitionResourceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.device.scannable.ScannableMotor;
+import gda.device.Scannable;
 import gda.rcp.views.FindableExecutableExtension;
 
 /**
@@ -40,8 +40,8 @@ public class RegionViewFactory implements FindableExecutableExtension {
 	private String name;
 	private RegionDefinitionResourceUtil regionDefinitionResourceUtil;
 	private Camera camera;
-	private ScannableMotor dcmenergy;
-	private ScannableMotor pgmenergy;
+	private Scannable dcmenergy;
+	private Scannable pgmenergy;
 	private IVGScientaAnalyser analyser;
 
 	private String currentIterationRemainingTimePV;
@@ -121,16 +121,19 @@ public class RegionViewFactory implements FindableExecutableExtension {
 	}
 
 
-	public void setDcmEnergy(ScannableMotor energy) {
+	public void setDcmEnergy(Scannable energy) {
 		this.dcmenergy=energy;
 	}
-	public ScannableMotor getDcmEnergy() {
+
+	public Scannable getDcmEnergy() {
 		return this.dcmenergy;
 	}
-	public void setPgmEnergy(ScannableMotor energy) {
+
+	public void setPgmEnergy(Scannable energy) {
 		this.pgmenergy=energy;
 	}
-	public ScannableMotor getPgmEnergy() {
+
+	public Scannable getPgmEnergy() {
 		return this.pgmenergy;
 	}
 

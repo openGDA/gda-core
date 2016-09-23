@@ -665,10 +665,13 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 		return controller.getExtIO(i);
 	}
 
-	public double[] getSpectrum(int i) throws TimeoutException, CAException, InterruptedException, Exception {
+	@Override
+	public double[] getSpectrum(int i) throws Exception {
 		return controller.getSpectrum(i);
 	}
-	public double[] getImage(int i) throws TimeoutException, CAException, InterruptedException, Exception {
+
+	@Override
+	public double[] getImage(int i) throws Exception {
 		return controller.getImage(i);
 	}
 
@@ -1062,5 +1065,10 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 
 	public Double getTotalIntensity() {
 		return totalIntensity;
+	}
+
+	@Override
+	public double[] getExtIO(int length) throws Exception {
+		return controller.getExtIO(length);
 	}
 }

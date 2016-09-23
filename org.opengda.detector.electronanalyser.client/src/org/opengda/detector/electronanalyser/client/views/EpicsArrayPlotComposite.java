@@ -3,9 +3,11 @@ package org.opengda.detector.electronanalyser.client.views;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
+import org.eclipse.dawnsci.plotting.api.axis.IAxis;
 import org.eclipse.dawnsci.plotting.api.trace.ILineTrace;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.january.dataset.IDataset;
 import org.eclipse.swt.widgets.Composite;
 import org.opengda.detector.electronanalyser.client.IEnergyAxis;
 import org.opengda.detector.electronanalyser.client.IPlotCompositeInitialiser;
@@ -14,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.cosylab.epics.caj.CAJChannel;
+import com.google.common.util.concurrent.RateLimiter;
 
 import gda.device.DeviceException;
 import gda.device.detector.areadetector.v17.ADBase;
@@ -28,15 +31,15 @@ import gov.aps.jca.dbr.DBR_Double;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 
-public class EpicsArrayPlotComposite extends Composite implements InitializationListener, MonitorListener, IEnergyAxis,IPlotCompositeInitialiser {
+public class EpicsArrayPlotComposite extends Composite implements InitializationListener, MonitorListener, IEnergyAxis, IPlotCompositeInitialiser {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsArrayPlotComposite.class);
-	protected String arrayPV;
+	protected String updatePV;
 	protected IVGScientaAnalyser analyser;
-	protected IPlottingSystem plottingSystem;
+	protected IPlottingSystem<Composite> plottingSystem;
 	protected ILineTrace profileLineTrace;
-	protected DataListener dataListener;
-	protected Channel dataChannel;
+	protected UpdateListener updateListener;
+	protected Channel updateChannel;
 	protected EpicsChannelManager controller;
 	protected boolean first = false;
 	protected Channel startChannel;
@@ -44,8 +47,10 @@ public class EpicsArrayPlotComposite extends Composite implements Initialization
 	protected Dataset dataset;
 	protected double[] xdata = null;
 	private boolean newRegion = true;
-	private boolean displayBindingEnergy = false;
-	protected Dataset xAxis;
+	private volatile boolean displayBindingEnergy = false;
+	protected IDataset xAxis;
+	private RateLimiter rateLimiter;
+	private double updatesPerSecond = 5; // Hz, the fastest the plots will try to update
 
 	public EpicsArrayPlotComposite(Composite parent, int style) {
 		super(parent, style);
@@ -54,26 +59,28 @@ public class EpicsArrayPlotComposite extends Composite implements Initialization
 
 	@Override
 	public void initialise() {
-		if (getAnalyser() == null || getArrayPV() == null) {
+		if (getAnalyser() == null || getUpdatePV() == null) {
 			throw new IllegalStateException("required parameters for 'analyser' and/or 'arrayPV' are missing.");
 		}
-		dataListener = new DataListener();
+		updateListener = new UpdateListener();
 		createChannels();
+		// Initialise the rate limiter
+		rateLimiter = RateLimiter.create(updatesPerSecond);
 	}
 
 	private void createChannels() {
 		if (!channelCreated) {
 			first = true;
 			try {
-				dataChannel = controller.createChannel(arrayPV,dataListener, MonitorType.NATIVE, false);
-				String[] split = getArrayPV().split(":");
+				updateChannel = controller.createChannel(updatePV, updateListener, MonitorType.NATIVE, false);
+				String[] split = getUpdatePV().split(":");
 				startChannel = controller.createChannel(split[0] + ":" + split[1] + ":" + ADBase.Acquire, this, MonitorType.NATIVE, false);
 				controller.creationPhaseCompleted();
 				controller.tryInitialize(100);
-				logger.debug("Data channel {} is created", dataChannel.getName());
+				logger.debug("Data channel {} is created", updateChannel.getName());
 				channelCreated = true;
 			} catch (CAException e) {
-				logger.error("Failed to create channel {}", dataChannel.getName());
+				logger.error("Failed to create channel {}", updateChannel.getName());
 			}
 		}
 	}
@@ -89,70 +96,71 @@ public class EpicsArrayPlotComposite extends Composite implements Initialization
 	@Override
 	public void dispose() {
 			if (!plottingSystem.isDisposed()) {
-				plottingSystem.clear();
+				plottingSystem.dispose();
 			}
-			//comment out see BLIX-144 for info.
-	//		dataChannel.dispose();
-	//		startChannel.dispose();
+		// comment out see BLIX-144 for info.
+		// dataChannel.dispose();
+		// startChannel.dispose();
 			super.dispose();
 		}
 
-	public void clearPlots() {
-		getDisplay().syncExec(new Runnable() {
-
-			@Override
-			public void run() {
-				plottingSystem.setTitle("");
-				plottingSystem.reset();
-			}
-		});
-
-	}
-
-	protected class DataListener implements MonitorListener {
+	private class UpdateListener implements MonitorListener {
 
 		@Override
 		public void monitorChanged(final MonitorEvent arg0) {
 			if (first) {
 				first = false;
-				logger.debug("Monitor listener is added to channel {}.", ((Channel)arg0.getSource()).getName());
+				logger.debug("Monitor listener is added to channel {}.", ((Channel) arg0.getSource()).getName());
 				return;
 			}
 
-			if (!getDisplay().isDisposed()) {
-				getDisplay().asyncExec(new Runnable() {
+			DBR dbr = arg0.getDBR();
+			final long value = Math.round((((DBR_Double) dbr).getDoubleValue()[0]));
 
-					@Override
-					public void run() {
-//						boolean visible = EpicsArrayPlotComposite.this.isVisible();
-//						if (visible) {
-							DBR dbr = arg0.getDBR();
-							double[] value = null;
-							if (dbr.isDOUBLE()) {
-								value = ((DBR_Double) dbr).getDoubleValue();
-							}
-							updatePlot(new NullProgressMonitor(), value);
-//						}
-					}
-				});
+			// Check if we are in the prescan.
+			if (value < 1) {
+				logger.trace("Update ignored: In prescan");
+				return;
+			}
+			// Check if we can update without exceeding the update rate
+			if (rateLimiter.tryAcquire()) {
+				if (!getDisplay().isDisposed()) {
+					// Do update in UI thread
+					getDisplay().asyncExec(new Runnable() {
+						@Override
+						public void run() {
+							logger.trace("Doing update for point: {}", value);
+							updatePlot(new NullProgressMonitor());
+						}
+
+					});
+				}
+			} else {
+				logger.trace("Update ignored: Update rate in excess of limit");
 			}
 		}
 	}
+
 	/**
 	 * subclass must override this method to provide actual data and plotting.
 	 * The override method must call this method first to set X-Axis.
 	 */
-	protected void updatePlot(final IProgressMonitor monitor, double[] value) {
-		xdata = getXData();
+	protected synchronized void updatePlot(final IProgressMonitor monitor) {
 		xAxis = createXAxis();
-		plottingSystem.clear();
-		plottingSystem.reset();
-		plottingSystem.getSelectedXAxis().setRange(xdata[0], xdata[xdata.length-1]);
 	}
 
-	private Dataset createXAxis() {
+	private synchronized IDataset createXAxis() {
+		// Get the axis data from the analyser
+		try {
+			xdata = getAnalyser().getEnergyAxis();
+		} catch (Exception e) {
+			logger.error("Cannot get energy axis fron the analyser", e);
+		}
+		// Create a dataset of the axis
 		Dataset xAxis = DatasetFactory.createFromObject(xdata);
-		if (isDisplayBindingEnergy()) {
+		if (isDisplayInBindingEnergy()) {
+			// Convert to binding energy
+			xdata = convertToBindingEnergy(xdata);
 			xAxis.setName("Binding Energies (eV)");
 		} else {
 			xAxis.setName("Kinetic Energies (eV)");
@@ -160,30 +168,21 @@ public class EpicsArrayPlotComposite extends Composite implements Initialization
 		return xAxis;
 	}
 
-	private double[] getXData() {
-		double[] xdata=null;
-		try {
-			xdata = getAnalyser().getEnergyAxis();
-			if (isDisplayBindingEnergy()) {
-				xdata=convertToBindingENergy(xdata);
-			}
-		} catch (Exception e) {
-			logger.error("cannot get enegery axis fron the analyser", e);
-		}
-		return xdata;
-	}
 	/**
 	 * subclass must override this method to provide actual data and plotting.
 	 * The override method must call this method first to set X-Axis.
 	 */
 	@Override
-	public void updatePlot() {
-		if (xdata==null) return;
-		xdata=convertToBindingENergy(xdata);
+	public synchronized void updatePlot() {
 		xAxis = createXAxis();
-		plottingSystem.clear();
-		plottingSystem.reset();
-		plottingSystem.getSelectedXAxis().setRange(xdata[0], xdata[xdata.length-1]);
+	}
+
+	protected synchronized void reverseXAxis() {
+		IAxis xAxis = plottingSystem.getSelectedXAxis();
+		// Flip the direction of the x axis
+		double upper = xAxis.getUpper();
+		double lower = xAxis.getLower();
+		xAxis.setRange(Math.max(lower, upper), Math.min(lower, upper));
 	}
 
 	public IVGScientaAnalyser getAnalyser() {
@@ -195,19 +194,10 @@ public class EpicsArrayPlotComposite extends Composite implements Initialization
 		this.analyser = analyser;
 	}
 
-	public String getArrayPV() {
-		return arrayPV;
-	}
-
-	@Override
-	public void setArrayPV(String arrayPV) {
-		this.arrayPV = arrayPV;
-	}
-
 	@Override
 	public void initializationCompleted() throws InterruptedException,
 			DeviceException, TimeoutException, CAException {
-				logger.info("EPICS Channel {} initialisation completed!", dataChannel.getName());
+				logger.info("EPICS Channel {} initialisation completed!", updateChannel.getName());
 
 			}
 
@@ -227,14 +217,14 @@ public class EpicsArrayPlotComposite extends Composite implements Initialization
 		}
 	}
 
-	private double[] convertToBindingENergy(double[] xdata) {
+	private double[] convertToBindingEnergy(double[] xdata) {
 		try {
 			double excitationEnergy = getAnalyser().getExcitationEnergy();
 			for (int i = 0; i < xdata.length; i++) {
 				xdata[i] = excitationEnergy - xdata[i];
 			}
 		} catch (Exception e) {
-			logger.error("cannot get enegery axis fron the analyser", e);
+			logger.error("Cannot get excitation energy from the analyser", e);
 		}
 		return xdata;
 	}
@@ -244,8 +234,26 @@ public class EpicsArrayPlotComposite extends Composite implements Initialization
 		this.displayBindingEnergy=b;
 	}
 
-	public boolean isDisplayBindingEnergy() {
+	@Override
+	public boolean isDisplayInBindingEnergy() {
 		return displayBindingEnergy;
 	}
 
+	public String getUpdatePV() {
+		return updatePV;
+	}
+
+	@Override
+	public void setUpdatePV(String updatePV) {
+		this.updatePV = updatePV;
+	}
+
+	public double getUpdatesPerSecond() {
+		return updatesPerSecond;
+	}
+
+	@Override
+	public void setUpdatesPerSecond(double updatesPerSecond) {
+		this.updatesPerSecond = updatesPerSecond;
+	}
 }

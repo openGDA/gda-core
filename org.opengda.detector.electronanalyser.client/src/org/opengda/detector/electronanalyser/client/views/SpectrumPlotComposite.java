@@ -21,17 +21,15 @@ package org.opengda.detector.electronanalyser.client.views;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.dawnsci.plotting.api.PlotType;
 import org.eclipse.dawnsci.plotting.api.PlottingFactory;
-import org.eclipse.dawnsci.plotting.api.trace.ILineTrace;
-import org.eclipse.dawnsci.plotting.api.trace.ITrace;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.DatasetUtils;
+import org.eclipse.january.dataset.IDataset;
 import org.eclipse.jface.resource.FontRegistry;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.FontData;
@@ -98,8 +96,10 @@ public class SpectrumPlotComposite extends EpicsArrayPlotComposite {
 		plottingSystem.createPlotPart(plotComposite, "Spectrum", part instanceof IViewPart ? ((IViewPart) part).getViewSite().getActionBars() : null,
 				PlotType.XY_STACKED, part);
 		plottingSystem.setTitle(SPECTRUM_PLOT);
-		plottingSystem.getSelectedYAxis().setFormatPattern("######.#");
 		plottingSystem.getSelectedXAxis().setFormatPattern("#####.#");
+		plottingSystem.getSelectedXAxis().setAxisAutoscaleTight(true);
+		plottingSystem.getSelectedYAxis().setTitle("Counts (a.u.)");
+		plottingSystem.setShowLegend(false);
 
 		statsComposite = new Composite(this, SWT.None);
 		statsComposite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
@@ -203,44 +203,43 @@ public class SpectrumPlotComposite extends EpicsArrayPlotComposite {
 			});
 		}
 	}
-	@Override
-	protected void updatePlot(final IProgressMonitor monitor, double[] value) {
-		super.updatePlot(monitor, value);
 
-		ArrayList<Dataset> plotDataSets = new ArrayList<Dataset>();
-		double[] data = ArrayUtils.subarray(value, 0, xdata.length);
-		dataset = DatasetFactory.createFromObject(data);
-		dataset.setName("Intensity (counts)");
-		plotDataSets.add(dataset);
-		final List<ITrace> profileLineTraces = plottingSystem.createPlot1D(xAxis, plotDataSets, monitor);
-		if (!getDisplay().isDisposed()) {
-			getDisplay().asyncExec(new Runnable() {
-				@Override
-				public void run() {
-
-					if (isNewRegion() && !profileLineTraces.isEmpty()) {
-						plottingSystem.setShowLegend(false);
-						// plottingSystem.getSelectedYAxis().setTitle(dataset.getName());
-						plottingSystem.setTitle("");
-						profileLineTrace = (ILineTrace) profileLineTraces.get(0);
-						profileLineTrace.setTraceColor(ColorConstants.blue);
-						setNewRegion(false);
-					}
-				}
-			});
-		}
-	}
+	final ArrayList<IDataset> plotDataSets = new ArrayList<>();
 
 	@Override
-	public void updatePlot() {
-		if (xdata==null) return;
+	protected synchronized void updatePlot(final IProgressMonitor monitor) {
+		// Call super to setup x axis
 		super.updatePlot();
-		ArrayList<Dataset> plotDataSets = new ArrayList<Dataset>();
-		plotDataSets.add(dataset);
-		plottingSystem.createPlot1D(xAxis, plotDataSets, new NullProgressMonitor());
+		try {
+			// Get the spectrum from analyser
+			double[] data = analyser.getSpectrum(xdata.length);
+			// Make dataset
+			dataset = DatasetFactory.createFromObject(data);
+			dataset.setName("Intensity (counts)");
+
+		} catch (Exception e) {
+			logger.error("Error getting spectrum from analyser", e);
+		}
+		updatePlot();
 	}
 
-	public void updateStat() {
+	@Override
+	public synchronized void updatePlot() {
+		super.updatePlot();
+		plotDataSets.clear();
+		plotDataSets.add(dataset);
+
+		plottingSystem.reset();
+		plottingSystem.getSelectedYAxis().setTitle("Counts (a.u.)");
+		plottingSystem.createPlot1D(xAxis, plotDataSets, new NullProgressMonitor());
+
+		if (plottingSystem.isRescale() && isDisplayInBindingEnergy()) {
+			reverseXAxis();
+		}
+		plottingSystem.repaint(false);
+	}
+
+	public synchronized void updateStat() {
 		if (dataset==null) return;
 		if (xdata!=null) setPositionValue(xdata[dataset.argMax()]);
 		setHeightValue(dataset.max().intValue());

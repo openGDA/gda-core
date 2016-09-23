@@ -12,7 +12,7 @@ import gda.rcp.views.FindableExecutableExtension;
 public class ExternalIOViewFactory implements FindableExecutableExtension {
 	private static final Logger logger=LoggerFactory.getLogger(ExternalIOViewFactory.class);
 	private String viewPartName;
-	private String arrayPV;
+	private String updatePV;
 	private String name;
 	private IVGScientaAnalyser analyser;
 	@Override
@@ -23,8 +23,8 @@ public class ExternalIOViewFactory implements FindableExecutableExtension {
 		if (analyser != null) {
 			externalIOView.setAnalyser(analyser);
 		}
-		if (arrayPV != null) {
-			externalIOView.setArrayPV(arrayPV);
+		if (updatePV != null) {
+			externalIOView.setUpdatePV(updatePV);
 		}
 
 		return externalIOView;
@@ -70,12 +70,12 @@ public class ExternalIOViewFactory implements FindableExecutableExtension {
 		this.viewPartName = viewPartName;
 	}
 
-	public String getArrayPV() {
-		return arrayPV;
+	public String getUpdatePV() {
+		return updatePV;
 	}
 
-	public void setArrayPV(String arrayPV) {
-		this.arrayPV = arrayPV;
+	public void setUpdatePV(String updatePV) {
+		this.updatePV = updatePV;
 	}
 
 }
