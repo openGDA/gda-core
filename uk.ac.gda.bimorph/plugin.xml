@@ -29,4 +29,10 @@
       </bean>
       
   </extension>
+   <extension
+         point="uk.ac.diamond.daq.jython.api.scriptLocations">
+      <location
+            folder="uk.ac.gda.bimorph/scripts">
+      </location>
+   </extension>
 </plugin>
