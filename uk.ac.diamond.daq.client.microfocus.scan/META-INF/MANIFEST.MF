@@ -25,7 +25,8 @@ Require-Bundle: uk.ac.gda.api;bundle-version="8.52.0",
  uk.ac.gda.devices.xspress2;bundle-version="1.0.0",
  uk.ac.gda.devices.xspress3;bundle-version="1.0.0",
  uk.ac.diamond.daq.beamline.i18.controls;bundle-version="1.0.0",
- uk.ac.diamond.jython;bundle-version="2.5.3"
+ uk.ac.diamond.jython;bundle-version="2.5.3",
+ uk.ac.diamond.daq.jython.api;bundle-version="1.0.0"
 Import-Package: net.sf.cglib.core,
  net.sf.cglib.proxy,
  org.apache.commons.lang;version="2.6.0",
