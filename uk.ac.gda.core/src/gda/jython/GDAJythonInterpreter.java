@@ -33,6 +33,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.io.Writer;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -43,6 +44,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import org.eclipse.core.runtime.FileLocator;
 import org.python.core.Py;
 import org.python.core.PyException;
 import org.python.core.PyModule;
@@ -68,6 +70,8 @@ import org.springframework.util.StringUtils;
  */
 public class GDAJythonInterpreter extends ObservableComponent {
 	private static final Logger logger = LoggerFactory.getLogger(GDAJythonInterpreter.class);
+	private static final String JYTHON_VERSION = "2.5";
+	private static final String JYTHON_PLATFORM_URL = "platform:/plugin/uk.ac.diamond.jython/jython%s";
 
 	// the Jython interpreter
 	private InteractiveConsole interp;
@@ -157,14 +161,20 @@ public class GDAJythonInterpreter extends ObservableComponent {
 		Properties gdaCustomProperties = new Properties();
 		gdaCustomProperties.setProperty("python.console.encoding", "UTF-8");
 		gdaCustomProperties.setProperty("python.cachedir", cacheDir.getAbsolutePath());
-		String jythonRoot = LocalProperties.getParentGitDir() + "diamond-jython.git/uk.ac.diamond.jython/jython2.5/";
 
-		if( !(new File(jythonRoot)).exists())
-			throw new RuntimeException("Jython root not found  :" + jythonRoot);
-
-		// something sets path to jython lib already!
-		// gdaCustomProperties.setProperty("python.path", jythonRoot + "Lib");
-		gdaCustomProperties.setProperty("python.home", jythonRoot);
+		try {
+			URL jythonRootURL = FileLocator.find(new URL(String.format(JYTHON_PLATFORM_URL, JYTHON_VERSION)));
+			if (jythonRootURL == null) {
+				throw new RuntimeException("Jython bundle not found");
+			}
+			jythonRootURL = FileLocator.toFileURL(jythonRootURL);							// if no corresponding file path can be found, no conversion will
+			final File jythonRoot = Paths.get(jythonRootURL.getPath()).toFile();			// happen meaning jythonRoot will not exist resulting in an exception
+			if( !(jythonRoot).exists())
+				throw new RuntimeException("Jython root not found  :" + jythonRoot.getAbsolutePath());
+			gdaCustomProperties.setProperty("python.home", jythonRoot.getAbsolutePath());
+		} catch (IOException e) {
+			throw new RuntimeException("Jython bundle not found", e);
+		}
 
 		if (LocalProperties.check("python.options.showJavaExceptions", false)) {
 			gdaCustomProperties.setProperty("python.options.showJavaExceptions", "true");
@@ -209,24 +219,45 @@ public class GDAJythonInterpreter extends ObservableComponent {
 			// In an OSGi environment Jython's normal CLASSPATH based automatic way of
 			// discovering which packages are available in the JVM does not
 			// work. Therefore to support "from XXXX import *" Jython has to be
-			// told about the bundle locations. This is done with add_classdir/add_jar,
-			// which are the same functions as would have been called automatically for
-			// all the packages Jython auto-discovered.
-
-			if (Boolean.valueOf(sysProps.getProperty("gda.eclipse.launch"))) {
+			// told about the bundle locations.
+			final boolean eclipseLaunch = Boolean.valueOf(sysProps.getProperty("gda.eclipse.launch"));
+			final String bundlesRoot;
+			if (eclipseLaunch) {
+				bundlesRoot = LocalProperties.get(LocalProperties.GDA_GIT_LOC);
 				iterateWorkspace(classLoader);
 			} else {
-				iteratePluginsDirectory(sysProps.getProperty("osgi.syspath"));
+				bundlesRoot = sysProps.getProperty("osgi.syspath");
+				iteratePluginsDirectory(bundlesRoot);
 			}
-
 			// Add the paths for the standard script folders to the existing _jythonScriptPaths
+			// (the instance config scripts folder is handled elsewhere)
 			int index= 1;
-			for (final String pathFragment : classLoader.getStandardFolders()) {
-				final String folderPath = LocalProperties.getParentGitDir() + pathFragment;
-				final File file = new File(folderPath);
-				if (file.exists() && file.isDirectory()) {
-					final ScriptProject scriptProject = new ScriptProject(folderPath, "Scripts: Std" + index++, ScriptProjectType.CORE);
-					_jythonScriptPaths.merge(new ScriptPaths(Arrays.asList(scriptProject)));
+			for (String pathFragment : classLoader.getStandardFolders()) {
+				if (pathFragment.endsWith(File.separator)) {
+					pathFragment = pathFragment.substring(0, pathFragment.length() -1);
+				}
+				File scriptFolder = Paths.get(bundlesRoot,  pathFragment).toFile();				// Default to non-plugin folder under workspace_git
+				String frag = pathFragment;
+				URL scriptFolderURL = null;
+				try {
+					while (scriptFolderURL == null && frag.contains(File.separator)) {
+						scriptFolderURL = FileLocator.find(new URL(String.format("platform:/plugin/%s", frag)));
+						frag = frag.substring(frag.indexOf(File.separator) + 1);
+					}
+					if (scriptFolderURL != null) {
+						scriptFolderURL = FileLocator.toFileURL(scriptFolderURL);
+						scriptFolder = Paths.get(scriptFolderURL.getPath()).toFile();
+					} else if (!eclipseLaunch) {
+						scriptFolder = Paths.get(bundlesRoot, "..", "utilities", pathFragment).toFile();	// Add in non-plugin folder offset for exported product
+					}
+					if (scriptFolder.exists() && scriptFolder.isDirectory()) {
+						final ScriptProject scriptProject = new ScriptProject(scriptFolder.getAbsolutePath(), "Scripts: Std" + index++, ScriptProjectType.CORE);
+						_jythonScriptPaths.merge(new ScriptPaths(Arrays.asList(scriptProject)));
+					} else {
+						throw new IOException(String.format("Script folder %s does not exist", scriptFolder));
+					}
+				} catch (IOException e) {
+					logger.error(String.format("Unable to locate plugin for script location %s, these scripts will not be accessible", pathFragment), e);
 				}
 			}
 		} else {
