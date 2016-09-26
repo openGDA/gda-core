@@ -389,10 +389,6 @@ Additional Ant tasks for Buckminster build. Based on http://www.ralfebert.de/blo
     		<include name="uk.ac.gda.core_*"/>
     	</dirset>
     	<property name= "core.dir.name" refid= "coreDirId" />
-    	<dirset  dir="${plugins.path}" id="scisoftpyDirId" >
-    		<include name="uk.ac.diamond.scisoft.python_*"/>
-    	</dirset>
-    	<property name= "scisoftpy.dir.name" refid= "scisoftpyDirId" />
     	<dirset  dir="${plugins.path}" id="jacorbDirId" >
     		<include name="uk.ac.diamond.org.jacorb_*"/>
     	</dirset>
@@ -415,16 +411,11 @@ Additional Ant tasks for Buckminster build. Based on http://www.ralfebert.de/blo
     	<property.expand property="core.link" definition="../../../../../plugins/${core.dir.name}"/>
     	<property.expand property="jacorb.link" definition="${plugins.path}/uk.ac.diamond.org.jacorb"/>
 		<property.expand property="spring.framework.link" definition="${plugins.path}/uk.ac.diamond.org.springframework"/>
-		<property.expand property="scisoftpy.link" definition="../../../../plugins/${scisoftpy.dir.name}"/>
 
     	<!-- Add the links to cope with hard coded paths in the codebase -->
     	<mkdir dir="${install.path}/dls-root/workspace"/>
     	<mkdir dir="${install.git.path}/gda-core.git/uk.ac.gda.core/classes"/>
     	<symlink link="${install.git.path}/gda-core.git/uk.ac.gda.core/classes/main" resource="${core.link}" />
-
-    	<mkdir dir="${install.git.path}/scisoft-core.git/uk.ac.diamond.scisoft.python"/>
-    	<symlink link="${install.git.path}/scisoft-core.git/uk.ac.diamond.scisoft.python/src" resource="${scisoftpy.link}" />
-
     	<symlink link="${jacorb.link}" resource="${jacorb.dir.name}" />
 		<symlink link="${spring.framework.link}" resource="${spring.dir.name}" />
 
@@ -433,7 +424,7 @@ Additional Ant tasks for Buckminster build. Based on http://www.ralfebert.de/blo
 			<fileset file="${workspace.root}/tp/artifacts.xml"></fileset>
 		</copy>
 
-		<!-- Copy across the config and script directories -->
+		<!-- Copy across the config and diffcalc directories -->
 		<copy todir="${install.git.path}/gda-core.git/core-config">
 			<fileset dir="${ws_git.rel.path}/gda-core.git/core-config"/>
 		</copy>
@@ -443,16 +434,13 @@ Additional Ant tasks for Buckminster build. Based on http://www.ralfebert.de/blo
 		<copy todir="${install.git.path}/gda-diamond.git/dls-config">
 			<fileset dir="${ws_git.rel.path}/gda-diamond.git/dls-config"/>
 		</copy>
-		<copy todir="${install.git.path}/diffcalc.git">
+		<copy todir="${install.path}/utilities/diffcalc.git">
 			<fileset dir="${ws_git.rel.path}/diffcalc.git">
 				<exclude name="buckminster.*"/>
 				<exclude name="*.pyc"/>
 				<exclude name=".*"/>
 				<exclude name=".*/*"/>
 			</fileset>
-		</copy>
-		<copy todir="${install.git.path}/gda-dls-excalibur.git/uk.ac.gda.devices.excalibur/scripts">
-			<fileset dir="${ws_git.rel.path}/gda-dls-excalibur.git/uk.ac.gda.devices.excalibur/scripts"/>
 		</copy>
 		<copy todir="${install.git.path}/gda-epics.git/uk.ac.gda.epics">
 			<fileset dir="${ws_git.rel.path}/gda-epics.git/uk.ac.gda.epics">
@@ -471,12 +459,6 @@ Additional Ant tasks for Buckminster build. Based on http://www.ralfebert.de/blo
 		<!-- XAS folders -->
 		<copy todir="${install.git.path}/gda-dls-beamlines-xas.git/i18" failonerror="false">
 			<fileset dir="${ws_git.rel.path}/gda-dls-beamlines-xas.git/i18"/>
-		</copy>
-		<copy todir="${install.git.path}/gda-xas-core.git/uk.ac.diamond.daq.client.microfocus.scan/scripts" failonerror="false">
-			<fileset dir="${ws_git.rel.path}/gda-xas-core.git/uk.ac.diamond.daq.client.microfocus.scan/scripts"/>
-		</copy>
-		<copy todir="${install.git.path}/gda-xas-core.git/uk.ac.gda.server.exafs/scripts" failonerror="false">
-			<fileset dir="${ws_git.rel.path}/gda-xas-core.git/uk.ac.gda.server.exafs/scripts"/>
 		</copy>
 		<!-- MT beamline folders -->
 		<copy todir="${install.git.path}/gda-mt.git/configurations/mt-config" failonerror="false">
@@ -501,19 +483,16 @@ Additional Ant tasks for Buckminster build. Based on http://www.ralfebert.de/blo
 		<copy todir="${install.git.path}/gda-mx.git/configurations/mx-config" failonerror="false">
 			<fileset dir="${ws_git.rel.path}/gda-mx.git/configurations/mx-config"/>
 		</copy>
-		<copy todir="${install.git.path}/gda-bimorph.git/uk.ac.gda.bimorph/scripts" failonerror="false">
-			<fileset dir="${ws_git.rel.path}/gda-bimorph.git/uk.ac.gda.bimorph/scripts"/>
-		</copy>
 		<!-- Test beamline folders -->
 		<copy todir="${install.git.path}/gda-core.git/p45-config" failonerror="false">
 			<fileset dir="${ws_git.rel.path}/gda-core.git/p45-config"/>
 		</copy>	
-		
+
         <echo>
 == Product has been built in ${destination} ==
         </echo>
     </target>
-	
+
 	<target name="create.development-product" depends="create.product">
 		<!-- execute the python script to scan for scriptlocation exetnsion points,
 		build the correct version paths to delete and replace them with links -->
@@ -531,7 +510,7 @@ Additional Ant tasks for Buckminster build. Based on http://www.ralfebert.de/blo
     <target name="remove_previous_product_symlink" depends="create.product, _symlink.check.params">
         <symlink action="delete" link="${symlink.to.product.location}"/>
     </target>
-	
+
     <target name="remove_previous_development-product_symlink" depends="create.development-product, _symlink.check.params">
         <symlink action="delete" link="${symlink.to.product.location}"/>
     </target>
@@ -542,7 +521,7 @@ Additional Ant tasks for Buckminster build. Based on http://www.ralfebert.de/blo
 == Symlink to product created (or changed) at ${symlink.to.product.location} --> ${symlink.to.product.target} ==
         </echo>
     </target>
-	
+
     <target name="create.development-product-with.symlink" depends="remove_previous_development-product_symlink">
         <symlink link="${symlink.to.product.location}" resource="${symlink.to.product.target}"/>
         <echo>

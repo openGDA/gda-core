@@ -51,18 +51,25 @@ the script folder is specified by depth whilst root specifies whether it is belo
 the plugins or utilities folder."""
 
 def write_link(root, path, exported_path, depth):
-    target_test = up_one * 2 + path                                             # make the basic workspace script folder path relative to here
+    target_match = up_one * 2 + path                                            # make the matcher for the basic workspace script folder path relative to here
+    target_test = glob.glob(target_match)                                       # resolve any wildcards, e.g. to include the git repo name for plugins
+    if len(target_test) == 0:
+        print "ERROR: could not find {0} in workspace, this script folder will be in the exported product".format(path)     # handle missing plugins
+
+    target_test = target_test[0]                                                # get the matching entry
     if os.path.exists(target_test) and os.path.isdir(target_test):              # so its existence can be checked
-        path_offset = up_one * depth +  up_one                                  # calculate the offset from the exported script folder's parent to the git parent
-        ws_git_name = os.path.basename(os.path.realpath(up_one * 2)) + os.sep   # read the name of the git parent
-        link_target = path_offset + ws_git_name + path                          # build the equivalent relative path from the exported plugin folder
+        path_offset = up_one * (depth + 2)                                      # calculate the offset from the exported script folder's parent to the git parent
+        ws_git_name = os.path.basename(os.path.realpath(up_one * 2)) + os.sep   # read the name of the git repositories parent
+        link_target = path_offset + ws_git_name + target_test[6:]               # build the equivalent relative path from the exported plugin folder
         lfrom = os.path.join(root, exported_path)                               # build the full path of the exported script folder/link
 
         shutil.rmtree(lfrom, True)                                              # remove the exported script folder and its subfolders
         if os.path.islink(lfrom):                                               # in case it wasn't there get rid of any links that might be instead:
              os.remove(lfrom)
         os.symlink(link_target, lfrom)                                          # make the replacement symlink
-
+        print "\nLink written from: {0}\n             to:   {1}".format(lfrom, link_target)
+    else:
+        print "ERROR: could not find {0} in workspace, this script folder will be in the exported product".format(target_test[6:])     # handle bad path resolution
 
 if len(sys.argv) != 2:                                                          # script name plus plugins path
     print "ERROR: plugins.dir argument must be supplied"
@@ -75,7 +82,6 @@ roots = [plugins_folder, plugins_folder + os.sep + up_one + "utilities"]
 process = subprocess.Popen('grep -Rl --include="plugin.xml" "jython.api.scriptLocations" ' + 2 * up_one, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
 stdout, stderr = process.communicate()
 plugins_file_list = stdout.split('\n')
-
 
 """ Iterate over the plugin list building the required links to link back
 from the exported product's plugin/utilities folder to the relevant script folder,
@@ -91,14 +97,15 @@ for plugin_file in plugins_file_list:
         for workspace_script_folder_path in workspace_script_folder_paths:
             tokens = workspace_script_folder_path.split(os.sep)
             for root in roots:
-                if root == plugins_folder and len(tokens) > 1:                                      # for plugins, token[0] is XX_git and token[1] is the plugin name
-                    path_matcher = os.path.join(root, tokens[1] + "_*")                             # build matcher for versioned plugin path from the plugin name
+                if root == plugins_folder and len(tokens) > 1:                                      # for plugins, token[0] is the plugin name
+                    path_matcher = os.path.join(root, tokens[0] + "_*")                             # build matcher for versioned plugin path from the plugin name
                     versioned_list = glob.glob(path_matcher)                                        # and get a list of matching folders (will match 0 or 1)
                     if len(versioned_list) > 0:
                         versioned = versioned_list[0]                                               # resolve the path of the exported versioned folder
-                        tokens[1] = versioned.split(os.sep)[-1]                                     # use the last path element to replace the unversioned folder name
-                        product_versioned_script_folder = str(os.path.join(*tokens[1:]))            # create the new relative path by chopping off the git repo
+                        tokens[0] = versioned.split(os.sep)[-1]                                     # use the last path element to replace the unversioned folder name
+                        product_versioned_script_folder = str(os.path.join(*tokens[:]))             # create the new relative path.
+                        workspace_script_folder_path = "*" + os.sep + workspace_script_folder_path  # Add prefix to allow matching of the git repository
 
                         write_link(root, workspace_script_folder_path, product_versioned_script_folder, len(tokens))
                 elif os.path.exists(os.path.join(root, workspace_script_folder_path)):
-                    write_link(root, workspace_script_folder_path, workspace_script_folder_path, len(tokens) + 1)
+                    write_link(root, workspace_script_folder_path, workspace_script_folder_path, len(tokens))
