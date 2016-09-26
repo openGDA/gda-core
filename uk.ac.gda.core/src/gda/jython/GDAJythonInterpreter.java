@@ -509,6 +509,9 @@ public class GDAJythonInterpreter extends ObservableComponent {
 
 				this.interp.runsource("from PySrc._completer import Completer");
 				this.interp.runsource("completer = Completer(locals(), globals())");
+
+				// scisoftpy
+				this.interp.runsource("import scisoftpy as dnp");
 				// inform translator what the built-in commands are by
 				// aliasing them -- i.e. reserved words
 				this.exec("alias ls");
