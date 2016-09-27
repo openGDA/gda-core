@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.StringTokenizer;
@@ -425,17 +426,18 @@ public class LocalProperties {
 				// instance with DAWN so that its bundles may contain specific code for
 				// GDA configuration without making a hard dependency on LocalProperties
 				try {
-					Properties props = loadProperties(propertiesFile);
-					for (Object okey : props.keySet()) {
-						String key   = (String)okey;
+					for (Iterator<String> it = propConfig.getKeys(); it.hasNext();) {
+						String key   = it.next();
 						String value = propConfig.getString(key, null);
-						if (value!=null) System.setProperty("GDA/" + key, value);
+						if (System.getProperty(key)==null && value!=null) {
+							System.setProperty("GDA/" + key, value);
+						}
 						// We preface with "GDA/" which should mean that no system
 						// property is affected and also if System properties are dumped,
 						// they can be filtered to remove GDA ones.
 					}
-				} catch (Throwable ne) {
-					logger.trace("Cannot parse to system properties: "+propertiesFile, ne);
+				} catch (Exception ne) {
+					logger.error("Cannot parse to system properties: {}", propertiesFile, ne);
 				}
 			}
 		}
@@ -452,12 +454,9 @@ public class LocalProperties {
 	}
 	private final static Properties loadProperties(final InputStream stream) throws IOException {
 
-		final Properties fileProps       = new Properties();
-		try {
-			final BufferedInputStream in     = new BufferedInputStream(stream);
+		final Properties fileProps = new Properties();
+		try (final BufferedInputStream in = new BufferedInputStream(stream)){
 			fileProps.load(in);
-		} finally {
-			stream.close();
 		}
 		return fileProps;
 	}

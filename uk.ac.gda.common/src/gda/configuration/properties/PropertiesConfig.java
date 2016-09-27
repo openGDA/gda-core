@@ -20,6 +20,7 @@
 package gda.configuration.properties;
 
 import java.net.URL;
+import java.util.Iterator;
 
 import org.apache.commons.configuration.ConfigurationException;
 
@@ -27,6 +28,13 @@ import org.apache.commons.configuration.ConfigurationException;
  * PropertiesConfig Interface to abstract the user of properties data source from the underlying implementation.
  */
 public interface PropertiesConfig {
+
+	/**
+	 *
+	 * @return all the property keys
+	 */
+	public Iterator<String> getKeys();
+
 	/**
 	 * Load in property information from a data source.
 	 *

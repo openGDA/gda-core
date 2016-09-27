@@ -88,6 +88,11 @@ public class JakartaPropertiesConfig implements PropertiesConfig {
 		configMap.put("system", sysConfig);
 	}
 
+	@Override
+	public Iterator<String> getKeys() {
+		return config.getKeys();
+	}
+
 	/**
 	 * Remove all cached property information and reload system properties. User must reload any required property data
 	 * sources.
