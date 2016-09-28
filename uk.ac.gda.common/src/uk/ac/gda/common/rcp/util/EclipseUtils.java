@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -75,7 +76,7 @@ public class EclipseUtils {
 
 	/**
 	 * Get the file path from a FileStoreEditorInput
-	 * 
+	 *
 	 * @param fileInput
 	 * @return URI or null
 	 */
@@ -83,12 +84,12 @@ public class EclipseUtils {
 		if (fileInput instanceof IURIEditorInput) {
 			URI uri = ((IURIEditorInput)fileInput).getURI();
 			return uri;
-		} 
+		}
 		return null;
 	}
 
 	/**
-	 * 
+	 *
 	 * @param fileInput
 	 * @return File or null
 	 */
@@ -98,7 +99,7 @@ public class EclipseUtils {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param fileInput
 	 * @return path or null
 	 */
@@ -120,7 +121,7 @@ public class EclipseUtils {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param input
 	 * @return file name or null
 	 */
@@ -130,7 +131,7 @@ public class EclipseUtils {
 	}
 
 	/**
-	 * @param bundleUrl 
+	 * @param bundleUrl
 	 * @return bundleUrl
 	 */
 	public static URL getAbsoluteUrl(final URL bundleUrl) {
@@ -140,10 +141,10 @@ public class EclipseUtils {
 				return FileLocator.resolve(bundleUrl);
 			} catch (IOException e) {
 				return bundleUrl;
-	        } 
+	        }
 		return bundleUrl;
 	}
-	
+
 	/**
 	 * Gets the page, even during startup.
 	 * @return the page
@@ -153,7 +154,7 @@ public class EclipseUtils {
 		if (activePage!=null) return activePage;
 		return EclipseUtils.getDefaultPage();
 	}
-	
+
 	/**
 	 * @return IWorkbenchPage
 	 */
@@ -164,7 +165,7 @@ public class EclipseUtils {
 		if (window==null) return null;
 		return window.getActivePage();
 	}
-	
+
 	/**
 	 * @return IWorkbenchPage
 	 */
@@ -173,7 +174,7 @@ public class EclipseUtils {
 		return page.getActiveEditor();
 	}
 
-	
+
 	/**
 	 * @return IWorkbenchPage
 	 */
@@ -182,7 +183,7 @@ public class EclipseUtils {
 		if (bench==null) return null;
 		final IWorkbenchWindow[] windows = bench.getWorkbenchWindows();
 		if (windows==null) return null;
-		
+
 		return windows[0].getActivePage();
 	}
 
@@ -190,7 +191,7 @@ public class EclipseUtils {
 	/**
 	 * Returns a URLResolver to transform bundle urls
 	 * to absolute.
-	 * 
+	 *
 	 * @return URLResolver
 	 */
 	public static URLResolver getUrlResolver() {
@@ -207,42 +208,42 @@ public class EclipseUtils {
 	 * Declare a builder id in a project, this is then called to build it.
 	 * @param project
 	 * @param id
-	 * @throws CoreException 
+	 * @throws CoreException
 	 */
 	public static void addBuilderToProject(IProject project, String id, IProgressMonitor monitor) throws CoreException {
-		
+
 		if (!project.isOpen()) return;
-		
+
 		IProjectDescription des = project.getDescription();
-		
+
 		ICommand[] cmds = des.getBuildSpec();
 		for( ICommand cmd : cmds){
 			if (cmd.getBuilderName().equals(id)) return;
 		}
-		
+
 		ICommand com = des.newCommand();
 		com.setBuilderName(id);
 		List<ICommand> coms = new ArrayList<ICommand>(cmds.length+1);
 		coms.addAll(Arrays.asList(cmds));
 		coms.add(com);
-		
+
 		des.setBuildSpec(coms.toArray(new ICommand[0]));
-		
+
 		project.setDescription(des, monitor);
 	}
 
 	/**
-	 * 
+	 *
 	 * @param project
 	 * @param id
 	 * @throws CoreException
 	 */
 	public static void removeBuilderFromProject(IProject project, String id, IProgressMonitor monitor) throws CoreException {
-		
+
 		if (!project.isOpen()) return;
-		
+
 		IProjectDescription des = project.getDescription();
-		
+
 		ICommand[] cmds = des.getBuildSpec();
 		Vector<ICommand> newCmds = new Vector<ICommand>();
 		for( ICommand cmd : cmds){
@@ -250,20 +251,20 @@ public class EclipseUtils {
 				newCmds.add(cmd);
 		}
 		des.setBuildSpec(newCmds.toArray(new ICommand[0]));
-		
+
 		project.setDescription(des, monitor);
 	}
-	
+
 	/**
 	 * Checks of the id passed in == the current perspectives.
 	 * @param id
 	 * @return true if is
 	 */
 	public static boolean isActivePerspective(final String id) {
-		
+
 		final IWorkbenchPage page = getActivePage();
 		if (page==null) return false;
-		
+
 		try {
 			return id.equals(page.getPerspective().getId());
 		} catch (Exception ignored) {
@@ -273,7 +274,7 @@ public class EclipseUtils {
 
 	/**
 	 * Process UI input but do not return for the specified time interval.
-	 * 
+	 *
 	 * @param waitTimeMillis
 	 *            the number of milliseconds
 	 */
@@ -283,7 +284,7 @@ public class EclipseUtils {
 
 	/**
 	 * Process UI input but do not return for the specified time interval.
-	 * 
+	 *
 	 * @param waitTimeMillis
 	 *            the number of milliseconds
 	 * @param returnInsteadOfSleep
@@ -330,10 +331,10 @@ public class EclipseUtils {
 			}
 		}
 	}
-	
+
 	/**
 	 * Perform like a normal {@link Thread#join(long)} but process UI events while waiting for join
-	 * 
+	 *
 	 * @param thread
 	 *            Thread to "join" on
 	 * @param waitTimeMillis
@@ -374,14 +375,14 @@ public class EclipseUtils {
 
 		return getUniqueFile(file, null, extension);
 	}
-	
+
 	/**
 	 * Gets a unique file. The file must have a parent of IFolder.
 	 * @param file
 	 * @return new file, not created.
 	 */
 	public static IFile getUniqueFile(IFile file, final String conjunctive, final String extension) {
-		
+
 		final String name = file.getName();
 		final Matcher matcher = Pattern.compile("(.+)(\\d+)\\."+extension, Pattern.CASE_INSENSITIVE).matcher(name);
 		int start   = 0;
@@ -390,11 +391,11 @@ public class EclipseUtils {
 			frag  = matcher.group(1);
 			start = Integer.parseInt(matcher.group(2));
 		}
-		
+
 		if (conjunctive!=null) {
 			frag = frag+conjunctive;
 		}
-		
+
 		// First try without a start position
 		final IContainer parent = file.getParent();
 		final IFile newFile;
@@ -406,11 +407,11 @@ public class EclipseUtils {
 			newFile = null;
 		}
 		if (newFile!=null&&!newFile.exists()) return newFile;
-		
+
 		return getUniqueFile(parent, frag, ++start, extension);
 	}
-	
-	
+
+
 	public static IFile getUniqueFile(IContainer parent, String filename, final String extension){
 		final Matcher matcher = Pattern.compile("(.+)(\\d+)\\."+extension, Pattern.CASE_INSENSITIVE).matcher(filename);
 		int start   = 0;
@@ -448,10 +449,10 @@ public class EclipseUtils {
 			frag  = matcher.group(1);
 			start = Integer.parseInt(matcher.group(2));
 		}
-		
+
 		return getUnique(res.getParent(), frag, ++start);
 	}
-	
+
 	private static String getUnique(IContainer parent, String frag, int start) {
 		final IFile file;
 		final IFolder folder;
@@ -468,12 +469,12 @@ public class EclipseUtils {
 		return getUnique(parent, frag, ++start);
 	}
 
-	
+
 	// Source code and JavaDoc adapted from org.eclipse.ui.internal.util.Util.getAdapter
 	/**
 	 * If it is possible to adapt the given object to the given type, this
 	 * returns the adapter. Performs the following checks:
-	 * 
+	 *
 	 * <ol>
 	 * <li>Returns <code>sourceObject</code> if it is an instance of the
 	 * adapter type.</li>
@@ -481,9 +482,9 @@ public class EclipseUtils {
 	 * <li>If sourceObject is not an instance of PlatformObject (which would have
 	 * already done so), the adapter manager is queried for adapters</li>
 	 * </ol>
-	 * 
+	 *
 	 * Otherwise returns null.
-	 * 
+	 *
 	 * @param sourceObject
 	 *            object to adapt, or null
 	 * @param adapterType
@@ -499,7 +500,7 @@ public class EclipseUtils {
 	    if (adapterType.isInstance(sourceObject)) {
 	        return sourceObject;
 	    }
-	
+
 	    return ResourceUtil.getAdapter(sourceObject, adapterType, true);
 	}
 
@@ -509,7 +510,7 @@ public class EclipseUtils {
 	 * @throws PartInitException
 	 */
 	public static IEditorPart openEditor(IFile file) throws PartInitException {
-		
+
 		final IWorkbenchPage page = EclipseUtils.getActivePage();
 		IEditorDescriptor desc = PlatformUI.getWorkbench().getEditorRegistry().getDefaultEditor(file.getName());
         if (desc == null) desc =  PlatformUI.getWorkbench().getEditorRegistry().getDefaultEditor(file.getName()+".txt");
@@ -522,7 +523,7 @@ public class EclipseUtils {
 	 * @throws PartInitException
 	 */
 	public static IEditorPart openExternalEditor(String filename) throws PartInitException {
-		
+
 		final IWorkbenchPage page = EclipseUtils.getActivePage();
 		IEditorDescriptor desc = PlatformUI.getWorkbench().getEditorRegistry().getDefaultEditor(filename);
         if (desc == null) desc =  PlatformUI.getWorkbench().getEditorRegistry().getDefaultEditor(filename+".txt");
@@ -534,10 +535,10 @@ public class EclipseUtils {
 	 * Returns the active project based on active selection
 	 */
 	public static IProject getActiveProject() {
-		
+
 		final IWorkbenchPage page = EclipseUtils.getActivePage();
 		if (page==null) return null;
-		
+
 		final IEditorPart activeEditor = page.getActiveEditor();
 		if (activeEditor!=null) {
 			final IEditorInput input = activeEditor.getEditorInput();
@@ -545,21 +546,21 @@ public class EclipseUtils {
 				return ((FileEditorInput)input).getFile().getProject();
 			}
 		}
-		
+
 		final ISelectionService service = page.getWorkbenchWindow().getSelectionService();
 		final ISelection        sel     = service.getSelection();
 		if (!(sel instanceof IStructuredSelection)) return null;
-		
+
 		final IStructuredSelection ss = (IStructuredSelection) sel;
 		final Object          element = ss.getFirstElement();
 		if (element instanceof IResource) return ((IResource)element).getProject();
-		
+
 		if (!(element instanceof IAdaptable)) return null;
 		IAdaptable adaptable = (IAdaptable)element;
 		Object adapter = adaptable.getAdapter(IResource.class);
 		return  ((IResource)adapter).getProject();
 	}
-	
+
 	/**
 	 * Activate the view @ID if it exists, nothing if it does not
 	 */
@@ -579,17 +580,17 @@ public class EclipseUtils {
 		}
 	}
 
-	
+
 	/**
 	 * Thread Safe. This is a hard busy setter - it overrides everything and sets everything busy.
-	 * 
+	 *
 	 * Always use with try, finally. Only use when you are sure that there is no other alternative.
 	 * For instance @see Job class.
-	 * 
+	 *
 	 * @param isBusy
 	 */
 	public static void setBusy(final boolean isBusy) {
-		
+
 		final Display display = PlatformUI.getWorkbench().getDisplay();
 		if (display==null || display.isDisposed()) return;
 
@@ -609,7 +610,7 @@ public class EclipseUtils {
 			}
 		});
 	}
-	
+
 	public static IViewPart findView(String id) {
 		IViewPart view = null;
 		IWorkbench wb = PlatformUI.getWorkbench();
@@ -623,6 +624,50 @@ public class EclipseUtils {
 		}
 		return null;
 	}
+
+	/**
+	 * Retrieves a File object embodying the absolute path of a file within a bundle from the active Equinox context
+	 * based on a partial path identifying the bundle and the relative path of the file within it. For instance to get
+	 * the target.txt file within the org.example bundle,  the path would be of the form org.example/target.txt. This
+	 * allows correct paths to be retrieved regardless of whether the application was started from eclipse or an exported
+	 * product build.
+	 *
+	 * @param bundleFilePath	The path that identifies the bundle and the required file within it
+	 * @return					The corresponding File object resolved from the active Equinox context
+	 * @throws IOException		If the resolved file does not exist or cannot be resolved in the first place
+	 */
+	public static File resolveBundleFile(final String bundleFilePath) throws IOException {
+		URL fileURL = FileLocator.find(new URL(String.format("platform:/plugin/%s", bundleFilePath)));
+		if (fileURL != null) {
+			fileURL = FileLocator.toFileURL(fileURL);                               // if no corresponding file URL can be found, no conversion will
+			final File file = Paths.get(fileURL.getPath()).toFile();                // happen meaning file will not exist resulting in an exception
+			if( !(file).exists()) {
+				throw new IOException(String.format("Resolved bundle file path %s does not exist for %s.", file.getAbsolutePath(), bundleFilePath));
+			}
+			return file;
+		}
+		throw new IOException(String.format("Bundle file path %s not found", bundleFilePath));
+	}
+
+	/**
+	 * Retrieves a File object embodying the absolute path of a folder within a bundle from the active Equinox context
+	 * based on a partial path identifying the bundle and the relative path of the folder within it. For instance to get
+	 * the target folder within the org.example bundle, the path would be of the form org.example/target. This allows
+	 * correct paths to be retrieved regardless of whether the application was started from eclipse or an exported
+	 * product build.
+	 *
+	 * @param bundleFolderPath	The path that identifies the bundle and the required folder within it
+	 * @return					The corresponding File object resolved from the active Equinox context
+	 * @throws IOException		If the resolved folder is not actually a folder (i.e. it is some other type of file)
+	 * 							or does not exist or cannot be resolved in the first place
+	 */
+	public static File resolveBundleFolderFile(final String bundleFolderPath) throws IOException {
+		File folder = resolveBundleFile(bundleFolderPath);
+		if (!folder.isDirectory()) {
+			throw new IOException(String.format("Resolved bundle folder path %s for %s is not a folder.", folder.getAbsolutePath(), bundleFolderPath));
+		}
+		return folder;
+	}
 }
 
-	
+
