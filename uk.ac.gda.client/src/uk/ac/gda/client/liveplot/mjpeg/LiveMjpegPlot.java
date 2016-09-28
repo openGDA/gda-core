@@ -56,7 +56,8 @@ import org.slf4j.LoggerFactory;
 import gda.factory.Finder;
 
 /**
- * A RCP view for connecting to and displaying a live MJPEG stream. The intension is to provide a easy way for camera to be integrated into GDA.
+ * A RCP view for connecting to and displaying a live MJPEG stream. The intension is to provide a easy way for cameras
+ * to be integrated into GDA.
  *
  * @author James Mudd
  */
@@ -71,6 +72,8 @@ public class LiveMjpegPlot extends ViewPart {
 
 	private static IPlottingService plottingService;
 	private static IRemoteDatasetService remoteDatasetService;
+
+	private long frameCounter = 0;
 
 	public synchronized void setPlottingService(IPlottingService plottingService) {
 		logger.debug("Plotting service set by call to: {}", this);
@@ -212,7 +215,15 @@ public class LiveMjpegPlot extends ViewPart {
 		for (IAxis axis : plottingSystem.getAxes()) {
 			axis.setVisible(false);
 		}
-		plottingSystem.setTitle(cameraId);
+
+		// Get the camera name to use for the GUI
+		final String cameraName;
+		if (camConfig.getDisplayName() != null) {
+			cameraName = camConfig.getDisplayName();
+		} else {
+			cameraName = cameraId;
+		}
+		plottingSystem.setTitle(cameraName);
 
 		// Add useful plotting system actions
 		IToolBarManager toolBarManager = getViewSite().getActionBars().getToolBarManager();
@@ -244,11 +255,22 @@ public class LiveMjpegPlot extends ViewPart {
 					PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 						@Override
 						public void run() {
-							plottingSystem.autoscaleAxes();
-							iTrace.rehistogram();
+							if (plottingSystem != null) {
+								plottingSystem.autoscaleAxes();
+								iTrace.rehistogram();
+							}
 						}
 					});
 				}
+				// Update the frame count in the UI thread
+				PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						if (plottingSystem != null) {
+							plottingSystem.setTitle(cameraName + " - Frame: " + Long.toString(frameCounter++));
+						}
+					}
+				});
 			}
 		};
 		stream.addDataListener(shapeListener);
