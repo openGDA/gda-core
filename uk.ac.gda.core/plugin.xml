@@ -472,6 +472,9 @@
       <location
             folder="uk.ac.diamond.scisoft.python/src">
       </location>
+      <location
+            folder="diffcalc.git">
+      </location>
    </extension>
 
    <extension
