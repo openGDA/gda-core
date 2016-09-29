@@ -74,7 +74,6 @@ public abstract class EnumPositionerBase extends ScannableBase implements EnumPo
 
 	@Override
 	public boolean isBusy() throws DeviceException {
-//		return true;
 		try {
 			return this.getStatus() == EnumPositionerStatus.MOVING;
 		} catch (DeviceException e) {
