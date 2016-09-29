@@ -16,6 +16,7 @@ import org.eclipse.dawnsci.nexus.NexusBaseClass;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
+import org.eclipse.dawnsci.nexus.NexusScanInfo.ScanRole;
 import org.eclipse.dawnsci.nexus.builder.CustomNexusEntryModification;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
@@ -144,7 +145,7 @@ class ScannableNexusWrapper<N extends NXobject> implements IScannable<Object>, I
 				fieldNames.get(0) : null;
 		NexusObjectWrapper<N> nexusDelegate = new NexusObjectWrapper<>(
 						scannable.getName(), nexusObject, defaultDataField);
-		if (info.isScannable(getName())) {
+		if (info.getScanRole(getName()) == ScanRole.SCANNABLE) {
 			nexusDelegate.setDefaultAxisDataFieldName(FIELD_NAME_VALUE_DEMAND);
 		}
 		if (hasLocationMapEntry()) {
@@ -268,11 +269,11 @@ class ScannableNexusWrapper<N extends NXobject> implements IScannable<Object>, I
 		final int scanRank = info.getRank();
 		final int[] chunks = info.createChunk(1); // TODO Might be slow, need to check this
 
-		boolean isMetadataScannable = info.isMetadataScannable(getName());
-		if (!isMetadataScannable) {
+		final ScanRole role = info.getScanRole(getName());
+		if (role != ScanRole.METADATA) {
 			// cache the lazy writeable datasets we create so we can write to them later
 			writableDatasets = new LinkedHashMap<>();
-			if (info.isScannable(getName())) {
+			if (role == ScanRole.SCANNABLE) {
 				// create the 'value_demand' dataset (can't use writeableDatasets map as the
 				// order of entries in that map corresponds to elements in getPositionArray, which
 				// does not include the demand value
@@ -291,7 +292,7 @@ class ScannableNexusWrapper<N extends NXobject> implements IScannable<Object>, I
 			}
 
 			final Object value = positionArray[i];
-			if (isMetadataScannable) {
+			if (role == ScanRole.METADATA) {
 				// simply set the field to the current value
 				nexusObject.setField(fieldName, value);
 			} else {
