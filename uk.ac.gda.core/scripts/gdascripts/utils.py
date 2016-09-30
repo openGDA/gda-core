@@ -50,6 +50,14 @@ def caput(pvstring,value):
 	cli.caput(value)
 	cli.clearup()
 	
+def cagetArray(pvstring):
+	cli=CAClient(pvstring)
+	cli.configure()
+	out=cli.cagetArrayDouble()
+	cli.clearup()
+	return out
+	
+	
 def caput_wait(pvstring, value, timeout=10):
 	cli=CAClient(pvstring)
 	cli.configure()
