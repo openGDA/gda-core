@@ -106,6 +106,8 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 	private IWorkbenchAction saveAllAction;
 	private IWorkbenchAction saveAsAction;
 
+	private IWorkbenchAction printAction;
+
 	private IWorkbenchAction newWindowAction;
 	private IWorkbenchAction newEditorAction;
 
@@ -224,6 +226,9 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 
 		saveAllAction = ActionFactory.SAVE_ALL.create(window);
 		register(saveAllAction);
+
+		printAction = ActionFactory.PRINT.create(window);
+		register(printAction);
 
 		exitAction = ActionFactory.QUIT.create(window);
 		register(exitAction);
@@ -698,10 +703,10 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		// menu.add(getRefreshItem());
 		//
 		// menu.add(new GroupMarker(IWorkbenchActionConstants.SAVE_EXT));
-		// menu.add(new Separator());
-		// menu.add(getPrintItem());
-		// menu.add(new GroupMarker(IWorkbenchActionConstants.PRINT_EXT));
-		// menu.add(new Separator());
+		menu.add(new Separator());
+		menu.add(printAction);
+		menu.add(new GroupMarker(IWorkbenchActionConstants.PRINT_EXT));
+		menu.add(new Separator());
 		// menu.add(openWorkspaceAction);
 		// menu.add(new GroupMarker(IWorkbenchActionConstants.OPEN_EXT));
 		// menu.add(new Separator());
