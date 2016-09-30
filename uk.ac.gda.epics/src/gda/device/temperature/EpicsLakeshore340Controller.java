@@ -18,6 +18,9 @@
 
 package gda.device.temperature;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.configuration.epics.EpicsConfiguration;
@@ -36,9 +39,6 @@ import gov.aps.jca.dbr.DBR_Double;
 import gov.aps.jca.dbr.DBR_Enum;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This class is designed to support Oxford Cryostream 700 and Phenix Crystat .
@@ -62,6 +62,11 @@ public class EpicsLakeshore340Controller extends DeviceBase implements Configura
 	 *
 	 */
 	public final double MIN_RAMP_RATE = 2.0; // K/min
+
+	/**
+	 * Channel 0 temp
+	 */
+	private Channel krdg0 = null;
 	/**
 	 * Channel 1 temp
 	 */
@@ -174,7 +179,7 @@ public class EpicsLakeshore340Controller extends DeviceBase implements Configura
 	 */
 	private void createChannelAccess(Lakeshore340Type config) throws FactoryException {
 		try {
-			temp = channelManager.createChannel(config.getKRDG0().getPv(), ctl, false);
+			temp = krdg0 = channelManager.createChannel(config.getKRDG0().getPv(), ctl, false);
 			targettemp = channelManager.createChannel(config.getSETP_S().getPv(), false);
 			krdg1 = channelManager.createChannel(config.getKRDG1().getPv(), false);
 			krdg2 = channelManager.createChannel(config.getKRDG2().getPv(), false);
@@ -231,6 +236,49 @@ public class EpicsLakeshore340Controller extends DeviceBase implements Configura
 			return controller.cagetDouble(temp);
 		} catch (Throwable e) {
 			throw new DeviceException("failed to get current temperature.", e);
+		}
+	}
+
+	public void setReadbackChannel(int ch) throws DeviceException {
+		if (ch == 0) {
+			temp = krdg0;
+		} else if (ch == 1) {
+			temp = krdg1;
+		} else if (ch == 2) {
+			temp = krdg2;
+		} else if (ch == 3) {
+			temp = krdg3;
+		} else {
+			throw new DeviceException("Channel number must be one of 0, 1, 2, and 3");
+		}
+	}
+
+	public int getReadbackChannel() {
+		if (temp == krdg0) {
+			return 0;
+		} else if (temp == krdg1) {
+			return 1;
+		} else if (temp == krdg2) {
+			return 2;
+		} else if (temp == krdg3) {
+			return 3;
+		}
+		return 0;
+	}
+	/**
+	 * gets channel 1 temperature
+	 *
+	 * @return channel 1 temperature
+	 * @throws DeviceException
+	 */
+	public double getChannel0Temp() throws DeviceException {
+		if (connState.equals("Disabled")) {
+			throw new IllegalStateException("The device " + getName() + " is not connected.");
+		}
+		try {
+			return controller.cagetDouble(krdg0);
+		} catch (Throwable e) {
+			throw new DeviceException("failed to get channel 0 temperature.", e);
 		}
 	}
 
