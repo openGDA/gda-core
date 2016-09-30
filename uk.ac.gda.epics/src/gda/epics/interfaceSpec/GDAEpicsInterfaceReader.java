@@ -20,9 +20,11 @@ package gda.epics.interfaceSpec;
 
 import gda.configuration.epics.Configurator;
 import gda.configuration.properties.LocalProperties;
+import uk.ac.gda.common.rcp.util.EclipseUtils;
 
 import java.util.List;
 import java.util.Vector;
+import java.io.IOException;
 
 /**
  * GDAEpicsInterfaceReader Class
@@ -32,11 +34,19 @@ public class GDAEpicsInterfaceReader {
 	 *  Name of schema used to validate Configurator.INTERFACE_CONFIGURATION_XML_KEY
 	 */
 	public static final String GDA_EPICS_INTERFACE_SCHEMA = "gda.epics.interface.schema";
-	public static final String DEFAULT_GDA_EPICS_INTERFACE_SCHEMA = LocalProperties.getParentGitDir()
-			+ "gda-epics.git/uk.ac.gda.epics/schema/genericBeamlineSchema.xsd";
+	public static final String DEFAULT_GDA_EPICS_INTERFACE_SCHEMA = getDefaultSchemaPath();
+
 	private Reader uncheckedReader = null;
 	private Reader checkedReader = null;
 	private static GDAEpicsInterfaceReader instance;
+
+	private static String getDefaultSchemaPath() {
+		try {
+			return EclipseUtils.resolveBundleFile("uk.ac.gda.epics/schema/genericBeamlineSchema.xsd").getAbsolutePath();
+		} catch (IOException e) {
+			throw new RuntimeException("Epics default schema missing", e);
+		}
+	}
 
 	private static GDAEpicsInterfaceReader getInstance() throws InterfaceException {
 		if (instance == null) {
