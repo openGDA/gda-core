@@ -18,10 +18,12 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
+import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.scanning.api.event.scan.ScanBean;
+import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -50,19 +52,34 @@ public class SubmitScanSection extends AbstractMappingSection {
 		Button scanButton = new Button(submitScanComposite, SWT.NONE);
 		scanButton.setText("Queue Scan");
 
-		final ScanRequestConverter converter = context.get(ScanRequestConverter.class);
 		final ScanBeanSubmitter submitter = context.get(ScanBeanSubmitter.class);
 		scanButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent event) {
 				try {
-					ScanBean scanBean = converter.convertToScanBean(mappingBean);
+					ScanBean scanBean = createScanBean();
 					submitter.submitScan(scanBean);
 				} catch (Exception e) {
 					logger.warn("Scan submission failed", e);
 				}
 			}
 		});
+	}
+
+
+	private ScanBean createScanBean() {
+		ScanBean scanBean = new ScanBean();
+		String sampleName = mappingBean.getSampleMetadata().getSampleName();
+		if (sampleName == null || sampleName.length() == 0) {
+			sampleName = "unknown sample";
+		}
+		String pathName = mappingBean.getScanDefinition().getMappingScanRegion().getScanPath().getName();
+		scanBean.setName(String.format("%s - %s Scan", sampleName, pathName));
+
+		final ScanRequestConverter converter = context.get(ScanRequestConverter.class);
+		ScanRequest<IROI> scanRequest = converter.convertToScanRequest(mappingBean);
+		scanBean.setScanRequest(scanRequest);
+		return scanBean;
 	}
 
 }

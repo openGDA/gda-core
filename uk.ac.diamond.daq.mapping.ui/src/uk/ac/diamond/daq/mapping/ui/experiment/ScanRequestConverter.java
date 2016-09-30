@@ -21,7 +21,6 @@ package uk.ac.diamond.daq.mapping.ui.experiment;
 import java.util.Map;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
-import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.MapPosition;
 import org.eclipse.scanning.api.points.models.AbstractBoundingBoxModel;
@@ -49,7 +48,7 @@ public class ScanRequestConverter {
 	}
 
 	/**
-	 * Convert an IMappingExperimentBean to a ScanBean.
+	 * Convert an IMappingExperimentBean to a ScanRequest.
 	 * <p>
 	 * This will include setting the mapping scan axes with the names from the mapping axis manager.
 	 * <p>
@@ -57,19 +56,10 @@ public class ScanRequestConverter {
 	 *
 	 * @param mappingExperimentBean
 	 *            the IMappingExperimentBean to be converted
-	 * @return the ScanBean
+	 * @return the ScanRequest
 	 */
-	public ScanBean convertToScanBean(IMappingExperimentBean mappingExperimentBean) {
-
-		ScanBean scanBean = new ScanBean();
-		String sampleName = mappingExperimentBean.getSampleMetadata().getSampleName();
-		if (sampleName == null || sampleName.length() == 0) {
-			sampleName = "unknown sample";
-		}
-		String pathName = mappingExperimentBean.getScanDefinition().getMappingScanRegion().getScanPath().getName();
-		scanBean.setName(String.format("%s - %s Scan", sampleName, pathName));
-		ScanRequest<IROI> req = new ScanRequest<IROI>();
-		scanBean.setScanRequest(req);
+	public ScanRequest<IROI> convertToScanRequest(IMappingExperimentBean mappingExperimentBean) {
+		ScanRequest<IROI> scanRequest = new ScanRequest<IROI>();
 
 		IMappingScanRegion scanRegion = mappingExperimentBean.getScanDefinition().getMappingScanRegion();
 
@@ -92,29 +82,29 @@ public class ScanRequestConverter {
 //			}
 //		}
 
-		req.setCompoundModel(cmodel);
+		scanRequest.setCompoundModel(cmodel);
 
 		// set the beamline start position
 		Map<String, Object> beamlineConfiguration = mappingExperimentBean.getBeamlineConfiguration();
 		if (beamlineConfiguration != null) {
-			req.setStart(new MapPosition(beamlineConfiguration));
+			scanRequest.setStart(new MapPosition(beamlineConfiguration));
 		}
 
 		// add the required detectors to the scan
 		for (IDetectorModelWrapper detectorWrapper : mappingExperimentBean.getDetectorParameters()) {
 			if (detectorWrapper.isIncludeInScan()) {
-				req.putDetector(detectorWrapper.getName(), detectorWrapper.getModel());
+				scanRequest.putDetector(detectorWrapper.getName(), detectorWrapper.getModel());
 			}
 		}
 
 		// set the scripts to run before and after the scan if any
 		if (mappingExperimentBean.getScriptFiles() != null) {
 			IScriptFiles scriptFiles = mappingExperimentBean.getScriptFiles();
-			req.setBefore(getScriptRequest(scriptFiles.getBeforeScanScript()));
-			req.setAfter(getScriptRequest(scriptFiles.getAfterScanScript()));
+			scanRequest.setBefore(getScriptRequest(scriptFiles.getBeforeScanScript()));
+			scanRequest.setAfter(getScriptRequest(scriptFiles.getAfterScanScript()));
 		}
 
-		return scanBean;
+		return scanRequest;
 	}
 
 	private ScriptRequest getScriptRequest(String scriptFile) {

@@ -33,7 +33,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.scanning.api.device.models.IDetectorModel;
-import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.GridModel;
@@ -95,8 +94,7 @@ public class ScanRequestConverterTest {
 		IDetectorModel detModel = new MandelbrotModel();
 		experimentBean.setDetectorParameters(Arrays.asList(new DetectorModelWrapper(detName, detModel, true)));
 
-		ScanBean scanBean = scanRequestConverter.convertToScanBean(experimentBean);
-		ScanRequest<?> scanRequest = scanBean.getScanRequest();
+		ScanRequest<?> scanRequest = scanRequestConverter.convertToScanRequest(experimentBean);
 
 		assertEquals(scanRequest.getDetectors().get(detName), detModel);
 	}
@@ -107,8 +105,7 @@ public class ScanRequestConverterTest {
 		IDetectorModel detModel = new MandelbrotModel();
 		experimentBean.setDetectorParameters(Arrays.asList(new DetectorModelWrapper(detName, detModel, false)));
 
-		ScanBean scanBean = scanRequestConverter.convertToScanBean(experimentBean);
-		ScanRequest<?> scanRequest = scanBean.getScanRequest();
+		ScanRequest<?> scanRequest = scanRequestConverter.convertToScanRequest(experimentBean);
 
 		// This test relies on the implementation of ScanRequest, which lazily initialises its detectors field only
 		// when a detector is added. If this fails in future because getDetectors() returns an empty map, this test
@@ -118,8 +115,7 @@ public class ScanRequestConverterTest {
 
 	@Test
 	public void testScanPathIsIncluded() {
-		ScanBean scanBean = scanRequestConverter.convertToScanBean(experimentBean);
-		ScanRequest<?> scanRequest = scanBean.getScanRequest();
+		ScanRequest<?> scanRequest = scanRequestConverter.convertToScanRequest(experimentBean);
 
 		assertEquals(scanRequest.getCompoundModel().getModels().get(0), scanPath);
 	}
@@ -129,7 +125,7 @@ public class ScanRequestConverterTest {
 		assertThat(scanPath.getFastAxisName(), is(not(equalTo(X_AXIS_NAME))));
 		assertThat(scanPath.getSlowAxisName(), is(not(equalTo(Y_AXIS_NAME))));
 
-		scanRequestConverter.convertToScanBean(experimentBean);
+		scanRequestConverter.convertToScanRequest(experimentBean);
 
 		assertThat(scanPath.getFastAxisName(), is(equalTo(X_AXIS_NAME)));
 		assertThat(scanPath.getSlowAxisName(), is(equalTo(Y_AXIS_NAME)));
@@ -142,9 +138,8 @@ public class ScanRequestConverterTest {
 		scriptFiles.setBeforeScanScript("/tmp/before.py");
 		scriptFiles.setAfterScanScript("/tmp/after.py");
 
-		ScanBean scanBean = scanRequestConverter.convertToScanBean(experimentBean);
+		ScanRequest<?> scanRequest = scanRequestConverter.convertToScanRequest(experimentBean);
 
-		ScanRequest<?> scanRequest = scanBean.getScanRequest();
 		ScriptRequest beforeScriptReq = scanRequest.getBefore();
 		assertThat(beforeScriptReq, is(notNullValue()));
 		assertThat(beforeScriptReq.getLanguage(), is(SPEC_PASTICHE));
@@ -163,9 +158,8 @@ public class ScanRequestConverterTest {
 		beamlineConfiguration.put("kb_mirror_pos", 7.0);
 		experimentBean.setBeamlineConfiguration(beamlineConfiguration);
 
-		ScanBean scanBean = scanRequestConverter.convertToScanBean(experimentBean);
+		ScanRequest<?> scanRequest = scanRequestConverter.convertToScanRequest(experimentBean);
 
-		ScanRequest<?> scanRequest = scanBean.getScanRequest();
 		IPosition startPos = scanRequest.getStart();
 		assertThat(startPos.getNames().size(), is(3));
 		assertThat(startPos.get("energy"), is(2675.3));

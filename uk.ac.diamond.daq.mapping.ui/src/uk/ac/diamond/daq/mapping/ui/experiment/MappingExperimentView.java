@@ -7,12 +7,14 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.e4.core.di.annotations.Optional;
 import org.eclipse.e4.ui.di.Focus;
 import org.eclipse.e4.ui.di.UIEventTopic;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.layout.FillLayout;
@@ -29,7 +31,7 @@ import uk.ac.diamond.daq.mapping.api.IMappingExperimentBeanProvider;
  * annotation-based injection available). Ideally that would make this class unit-testable, but usage of the GuiGeneratorService is currently too extensive to
  * allow easy mocking, and the real service cannot be obtained without breaking encapsulation or running in an OSGi framework.
  */
-public class MappingExperimentView {
+public class MappingExperimentView implements IAdaptable {
 
 	private static final Logger logger = LoggerFactory.getLogger(MappingExperimentView.class);
 
@@ -43,6 +45,8 @@ public class MappingExperimentView {
 	private BeamPositionPlotter beamPositionPlotter;
 	@Inject
 	private IEclipseContext injectionContext;
+	@Inject
+	private ScanRequestConverter scanRequestConverter;
 
 	private ScrolledComposite scrolledComposite;
 
@@ -167,6 +171,17 @@ public class MappingExperimentView {
 
 	protected void recalculateMinimumSize() {
 		scrolledComposite.setMinSize(mainComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+	}
+
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T> T getAdapter(Class<T> adapter) {
+		if (adapter == ScanRequest.class) {
+			return (T) scanRequestConverter.convertToScanRequest(experimentBean);
+		}
+
+		return null;
 	}
 
 }
