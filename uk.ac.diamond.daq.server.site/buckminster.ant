@@ -414,8 +414,6 @@ Additional Ant tasks for Buckminster build. Based on http://www.ralfebert.de/blo
 
     	<!-- Add the links to cope with hard coded paths in the codebase -->
     	<mkdir dir="${install.path}/dls-root/workspace"/>
-    	<mkdir dir="${install.git.path}/gda-core.git/uk.ac.gda.core/classes"/>
-    	<symlink link="${install.git.path}/gda-core.git/uk.ac.gda.core/classes/main" resource="${core.link}" />
     	<symlink link="${jacorb.link}" resource="${jacorb.dir.name}" />
 		<symlink link="${spring.framework.link}" resource="${spring.dir.name}" />
 
@@ -440,11 +438,6 @@ Additional Ant tasks for Buckminster build. Based on http://www.ralfebert.de/blo
 				<exclude name="*.pyc"/>
 				<exclude name=".*"/>
 				<exclude name=".*/*"/>
-			</fileset>
-		</copy>
-		<copy todir="${install.git.path}/gda-epics.git/uk.ac.gda.epics">
-			<fileset dir="${ws_git.rel.path}/gda-epics.git/uk.ac.gda.epics">
-				<include name="schema/*"/>
 			</fileset>
 		</copy>
 		<copy todir="${install.git.path}/daq-eclipse.git/org.eclipse.scanning.command/scripts">

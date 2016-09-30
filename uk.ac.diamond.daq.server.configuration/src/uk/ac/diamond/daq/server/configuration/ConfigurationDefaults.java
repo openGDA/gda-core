@@ -44,7 +44,6 @@ public enum ConfigurationDefaults {
 	EXPORTED_PRODUCT_ROOT("dls-root"),
 	LOG_SERVER_CLASS("gda.util.LogServer"),
 	NAME_SERVER_CLASS("org.jacorb.naming.NameServer"),
-	NAME_SERVER_CLASSPATH_rel("diamond-jacorb.git/uk.ac.diamond.org.jacorb/jars/*"),
 	NAME_SERVER_PORT("6700"),
 	CHANNEL_SERVER_CLASS("gda.factory.corba.util.ChannelServer"),
 	OBJECT_SERVER_CLASS("gda.util.ObjectServer"),
@@ -112,16 +111,7 @@ public enum ConfigurationDefaults {
 	APP_JCA_LIBRARY_FILE(combine(combine(APP_INSTANCE_CONFIG, "properties"), combine(APP_MODE, "JCALibrary.properties"))),
 
 	JACORB_CONFIG_DIR(combine(combine(APP_INSTANCE_CONFIG, "properties"), combine(APP_MODE, "jacorb"))),
-	APP_JACORB_VM_ARGS("-Djacorb.config.dir=" + getSystemPropertyWithDefault(JACORB_CONFIG_DIR)),
-	APP_BASE_SERVER_CLASSPATH(combine(APP_PATHS_ROOT, APP_WORKSPACE_NAME+"/tp/plugins/*"+File.pathSeparatorChar)
-							+ combine(APP_PATHS_ROOT, "../plugins/*"+File.pathSeparatorChar)
-							+ combine(APP_WORKSPACE_GIT, "diamond-springframework.git/uk.ac.diamond.org.springframework/jars/*"+File.pathSeparatorChar)
-							+ combine(APP_PATHS_ROOT, "../plugins/uk.ac.diamond.org.springframework/jars/*"+File.pathSeparatorChar)
-							+ combine(APP_WORKSPACE_GIT, "gda-common.git/uk.ac.gda.common/bin"+File.pathSeparatorChar)
-							+ combine(APP_WORKSPACE_GIT, "gda-core.git/uk.ac.gda.api/bin"+File.pathSeparatorChar)
-							+ combine(APP_WORKSPACE_GIT, "gda-core.git/uk.ac.gda.core/classes/main")),
-	APP_CORBA_CLASSPATH(combine(APP_PATHS_ROOT, "../plugins/uk.ac.diamond.org.jacorb/jars/*"+File.pathSeparatorChar) 
-							+ combine(APP_WORKSPACE_GIT, NAME_SERVER_CLASSPATH_rel));
+	APP_JACORB_VM_ARGS("-Djacorb.config.dir=" + getSystemPropertyWithDefault(JACORB_CONFIG_DIR));
 
 	private static final String[] APP_JAVA_OPTS = JAVA_OPTS.value.split(" ");
 

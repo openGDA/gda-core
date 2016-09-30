@@ -5,7 +5,8 @@ Bundle-SymbolicName: uk.ac.diamond.daq.server.configuration;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: uk.ac.diamond.daq.server.configuration.ConfigurationServiceActivator
 Require-Bundle: org.eclipse.core.runtime,
- uk.ac.gda.core;bundle-version="8.50.0"
+ uk.ac.gda.core;bundle-version="8.50.0",
+ uk.ac.gda.common;bundle-version="1.2.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Service-Component: OSGI-INF/services/*.xml, OSGI-INF/*.xml
