@@ -539,7 +539,6 @@ public abstract class RichBeanMultiPageEditorPart extends MultiPageEditorPart im
 			richBeanEditor.dispose();
 			richBeanEditor = null;
 		}
-
 		super.dispose();
 	}
 }
