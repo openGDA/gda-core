@@ -18,11 +18,6 @@
 							<property name="name" value="Scripts: Config" />
 							<property name="type" value="CONFIG" />
 						</bean>
-						<bean class="gda.jython.ScriptProject">
-							<property name="path" value="${gda.install.git.loc}/daq-eclipse.git/org.eclipse.scanning.command/scripts" />
-							<property name="name" value="Scripts: Core (Mapping)" />
-							<property name="type" value="CORE" />
-						</bean>
 					</list>
 				</property>
 				<property name="startupScript" value="${gda.config}/scripts/localStation.py" />

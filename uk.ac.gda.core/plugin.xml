@@ -475,6 +475,9 @@
       <location
             folder="diffcalc.git">
       </location>
+      <location
+            folder="org.eclipse.scanning.command/scripts">
+      </location>
    </extension>
 
    <extension
