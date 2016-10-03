@@ -18,6 +18,11 @@
 
 package gda.device.detector.nxdetector.plugin.areadetector;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.NoSuchElementException;
+
 import gda.device.DeviceException;
 import gda.device.detector.areadetector.v18.NDStatsPVs.BasicStat;
 import gda.device.detector.areadetector.v18.NDStatsPVs.CentroidStat;
@@ -33,11 +38,6 @@ import gda.device.detector.nxdetector.roi.SimpleRectangularROIProvider;
 import gda.device.scannable.PositionInputStream;
 import gda.device.scannable.PositionInputStreamCombiner;
 import gda.scan.ScanInformation;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.NoSuchElementException;
 
 /**
  * Enabled if any stats are enabled. If stats are enabled an ROI must have been set. The names of the specidfied roi and
@@ -147,6 +147,10 @@ public class ADRoiStatsPair implements NXPlugin, RectangularROIProvider<Integer>
 	@Override
 	public String getName() {
 		return name;
+	}
+
+	public String getRoiInputPort() {
+		return roiInputPort;
 	}
 
 	@Override
