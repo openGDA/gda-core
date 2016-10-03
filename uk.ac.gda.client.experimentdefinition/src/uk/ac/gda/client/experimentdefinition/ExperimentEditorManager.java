@@ -293,8 +293,8 @@ public class ExperimentEditorManager implements IExperimentEditorManager {
 	public ExperimentFolderEditor getActiveFolderEditor() {
 		final IEditorPart editor = getActivePage().getActiveEditor();
 
-		if (editor instanceof ExperimentFolderEditor && ((ExperimentFolderEditor) editor).isFocus()
-			|| (getViewer() != null && getViewer().isFocus())) {
+		if (editor instanceof ExperimentFolderEditor &&
+				(((ExperimentFolderEditor) editor).isFocus() || (getViewer() != null && getViewer().isFocus()))) {
 			return (ExperimentFolderEditor) editor;
 		}
 		return null;
