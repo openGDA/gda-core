@@ -14,6 +14,7 @@ import org.eclipse.richbeans.api.generator.RichbeansAnnotations.MaximumValue;
 import org.eclipse.richbeans.api.generator.RichbeansAnnotations.MinimumValue;
 import org.eclipse.richbeans.api.generator.RichbeansAnnotations.RowDeleteAction;
 import org.eclipse.richbeans.api.generator.RichbeansAnnotations.UiAction;
+import org.eclipse.richbeans.api.generator.RichbeansAnnotations.UiFilename;
 import org.eclipse.richbeans.api.generator.RichbeansAnnotations.UiHidden;
 import org.eclipse.richbeans.api.generator.RichbeansAnnotations.UiReadOnly;
 import org.eclipse.richbeans.api.generator.RichbeansAnnotations.UiTooltip;
@@ -42,6 +43,7 @@ public class RichbeansAnnotationsInspector extends BaseObjectInspector {
 	public static final String DELETE_METHOD = "deleteMethod";
 	public static final String HIDDEN = "hidden";
 	public static final String ACTION = "action";
+	public static final String FILENAME = "filename";
 
 	public RichbeansAnnotationsInspector() {
 		super(config());
@@ -64,6 +66,7 @@ public class RichbeansAnnotationsInspector extends BaseObjectInspector {
 		attributes.putAll(setValueAttribute(RowDeleteAction.class, RowDeleteAction::value, DELETE_METHOD, property));
 		attributes.putAll(setBooleanValue(UiHidden.class, HIDDEN, property));
 		attributes.putAll(setBooleanValue(UiReadOnly.class, READ_ONLY, property));
+		attributes.putAll(setBooleanValue(UiFilename.class, FILENAME, property));
 
 		return attributes;
 	}

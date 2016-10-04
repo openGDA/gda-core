@@ -29,9 +29,12 @@ public class GuiGeneratorService implements IGuiGeneratorService {
 	private static final ReadOnlyWidgetBuilder READ_ONLY_WIDGET_BUILDER = new ReadOnlyWidgetBuilder();
 	private static final TableWidgetBuilder TABLE_WIDGET_BUILDER = new TableWidgetBuilder();
 	private static final SwtWidgetBuilder SWT_WIDGET_BUILDER = new SwtWidgetBuilder();
+	private static final FileChooserWidgetBuilder FILE_CHOOSER_WIDGET_BUILDER = new FileChooserWidgetBuilder();
 	@SuppressWarnings("unchecked") // we know the generic array created in setWidgetBuilders() is type-safe
-	private static final CompositeWidgetBuilderConfig<Control, SwtMetawidget> COMPOSITE_WIDGET_BUILDER_CONFIG = new CompositeWidgetBuilderConfig<Control, SwtMetawidget>()
-			.setWidgetBuilders(OVERRIDDEN_WIDGET_BUILDER, READ_ONLY_WIDGET_BUILDER, TABLE_WIDGET_BUILDER, SWT_WIDGET_BUILDER);
+	private static final CompositeWidgetBuilderConfig<Control, SwtMetawidget> COMPOSITE_WIDGET_BUILDER_CONFIG =
+			new CompositeWidgetBuilderConfig<Control, SwtMetawidget>().setWidgetBuilders(
+					OVERRIDDEN_WIDGET_BUILDER, READ_ONLY_WIDGET_BUILDER, TABLE_WIDGET_BUILDER,
+					FILE_CHOOSER_WIDGET_BUILDER, SWT_WIDGET_BUILDER);
 	private static final CompositeWidgetBuilder<Control, SwtMetawidget> COMPOSITE_WIDGET_BUILDER = new CompositeWidgetBuilder<>(COMPOSITE_WIDGET_BUILDER_CONFIG);
 
 	private static final ComboLabelWidgetProcessor COMBO_LABEL_PROCESSOR = new ComboLabelWidgetProcessor();
