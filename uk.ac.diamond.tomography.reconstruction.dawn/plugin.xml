@@ -3,14 +3,6 @@
 <plugin>
    <extension
          point="org.dawnsci.webintro.item">
-      <introCategory
-            category_id="science_tomography"
-            icon="icons/tomo_intro.jpg"
-            id="org.dawnsci.webintro.category.tomography"
-            name="Tomography"
-            ordering="1"
-            parent_id="science">
-      </introCategory>
       <introAction
             class="uk.ac.diamond.tomography.reconstruction.dawn.TomoPerspectiveLaunch"
             description="Launch the Tomo Reconstruction perspective"
