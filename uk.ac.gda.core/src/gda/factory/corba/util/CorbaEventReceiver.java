@@ -19,11 +19,10 @@
 
 package gda.factory.corba.util;
 
-import gda.configuration.properties.LocalProperties;
-import gda.util.LoggingConstants;
-
 import java.util.List;
+import java.util.Set;
 import java.util.Vector;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;
@@ -36,13 +35,17 @@ import org.omg.CosEventComm.PushConsumerPOA;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
+import gda.factory.corba.EventHeader;
+import gda.util.LoggingConstants;
+
 /**
  * An event receiver class for the event service.
  */
 public class CorbaEventReceiver extends PushConsumerPOA implements EventReceiver {
 	private static final Logger logger = LoggerFactory.getLogger(CorbaEventReceiver.class);
 
-	private Vector<Subscription> subscriptions = new Vector<Subscription>();
+	private final Set<Subscription> subscriptions = new CopyOnWriteArraySet<>();
 
 	private ConsumerAdmin consumerAdmin;
 
@@ -97,10 +100,7 @@ public class CorbaEventReceiver extends PushConsumerPOA implements EventReceiver
 	public void subscribe(EventSubscriber subscriber, Filter filter) {
 		Subscription subscription = new Subscription(subscriber, filter);
 
-		if (!subscriptions.contains(subscription)) {
-			subscriptions.addElement(subscription);
-			// logger.debug(FINEST, "Added subscriber {}" ,subscriber);
-		}
+		subscriptions.add(subscription);
 	}
 
 	/**
@@ -113,7 +113,8 @@ public class CorbaEventReceiver extends PushConsumerPOA implements EventReceiver
 	 */
 	public void unsubscribe(EventSubscriber subscriber, Filter filter) {
 		Subscription subscription = new Subscription(subscriber, filter);
-		subscriptions.removeElement(subscription);
+		// FIXME don't think this will actually work remove uses equals which should never be true because you have just made a new Subscription
+		subscriptions.remove(subscription);
 	}
 
 	@Override
@@ -129,23 +130,18 @@ public class CorbaEventReceiver extends PushConsumerPOA implements EventReceiver
 	}
 
 	void pushNow(TimedStructuredEvent event) {
-		try {
-			if (subscriptions != null) {
-				// turned into old style for loop to avoid ConcurrentModification exceptions which prevent rest of loop
-				// being operated on
-				// for (Subscription subscription : subscriptions) {
-				for (int i = 0; i < subscriptions.size(); i++) {
-					Subscription subscription = subscriptions.get(i);
-					if( subscription.accept(event) == Filter.ACCEPTANCE.EXCLUSIVE)
-						break;
-				}
+		for (Subscription subscription : subscriptions) {
+			try {
+				if (subscription.accept(event) == Filter.ACCEPTANCE.EXCLUSIVE)
+					break; // The event has been handled by this subscription so stop trying others
+			} catch (Exception e) {
+				EventHeader header = event.getHeader();
+				logger.error("Error pushing event (source={}, type={})", header.eventName, header.typeName, e);
 			}
-		} catch (Throwable e) {
-			logger.error(String.format("Error pushing event (source=%s, type=%s)", event.getHeader().eventName, event.getHeader().typeName), e);
 		}
-
 	}
 }
+
 
 /**
  * Queue for handling Corba events
