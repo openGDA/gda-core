@@ -19,22 +19,22 @@
 
 package gda.observable;
 
-import java.util.Vector;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A Component that may be used by Observable objects to maintain its list of IObservers
- * DO NOT synchronize the methods of this class as doing so in the past led to deadlocks when used with DOFS and AbosulteMove objects
+ * A Component that may be used by Observable objects to maintain its list of IObservers DO NOT synchronize the methods of this class as doing so in the past
+ * led to deadlocks when used with DOFS and AbosulteMove objects
  */
 public class ObservableComponent implements IObservable, IIsBeingObserved {
-	private Vector<IObserver> myIObservers = new Vector<IObserver>();
+	private final Set<IObserver> myIObservers = new CopyOnWriteArraySet<>();
 	private static final Logger logger = LoggerFactory.getLogger(ObservableComponent.class);
 
 	/**
-	 * Add an observer to the list of observers providing that the list does not already contain an instance of the
-	 * observer on it. {@inheritDoc}
+	 * Add an observer to the list of observers providing that the list does not already contain an instance of the observer on it. {@inheritDoc}
 	 *
 	 * @param anIObserver
 	 *            the observer
@@ -42,12 +42,10 @@ public class ObservableComponent implements IObservable, IIsBeingObserved {
 	 */
 	@Override
 	public void addIObserver(IObserver anIObserver) {
-		if( anIObserver  == null)
+		if (anIObserver == null) {
 			return;
-		synchronized(myIObservers){
-			if (!myIObservers.contains(anIObserver))
-				myIObservers.addElement(anIObserver);
 		}
+		myIObservers.add(anIObserver);
 	}
 
 	/**
@@ -59,11 +57,10 @@ public class ObservableComponent implements IObservable, IIsBeingObserved {
 	 */
 	@Override
 	public void deleteIObserver(IObserver anIObserver) {
-		if( anIObserver  == null)
+		if (anIObserver == null) {
 			return;
-		synchronized(myIObservers){
-			myIObservers.removeElement(anIObserver);
 		}
+		myIObservers.remove(anIObserver);
 	}
 
 	/**
@@ -73,14 +70,11 @@ public class ObservableComponent implements IObservable, IIsBeingObserved {
 	 */
 	@Override
 	public void deleteIObservers() {
-		synchronized(myIObservers){
-			myIObservers.removeAllElements();
-		}
+		myIObservers.clear();
 	}
 
 	/**
-	 * Notify all observers on the list of the requested change,
-	 * swallowing any exceptions to ensure all observers are updated.
+	 * Notify all observers on the list of the requested change, swallowing any exceptions to ensure all observers are updated.
 	 *
 	 * @param theObserved
 	 *            the observed component
@@ -88,37 +82,25 @@ public class ObservableComponent implements IObservable, IIsBeingObserved {
 	 *            the data to be sent to the observer.
 	 */
 	public void notifyIObservers(Object theObserved, Object changeCode) {
-		IObserver[] observers;
-		synchronized(myIObservers){
-			observers = myIObservers.toArray(new IObserver[0]);
-		}
-
-		for (IObserver anIObserver : observers) {
+		for (IObserver anIObserver : myIObservers) {
 			try {
 				sendEventToObserver(anIObserver, theObserved, changeCode);
 
 			} catch (Exception ex) {
-				logger.error("swallowing exception {}", ex.toString());
-				
+				// Don't log the full stack trace to keep the log tidier, full trace is in debug if enabled
+				logger.error("swallowing exception: {}", ex.toString());
+
 				/*
-				 * Try to log something useful about the args of update
-				 * which caused the exception to be thrown, but beware:
-				 * ServerSideEventDispatcher.update details how calling
-				 * toString (including via {} in logger) on Scannables
-				 * can cause deadlocks...so just use class names to
-				 * describe problem.
+				 * Try to log something useful about the args of update which caused the exception to be thrown, but beware: ServerSideEventDispatcher.update
+				 * details how calling toString (including via {} in logger) on Scannables can cause deadlocks...so just use class names to describe problem.
 				 */
 				final String anIObserverDescription = anIObserver == null ? "null" : anIObserver.getClass().getName();
 				final String theObservedDescription = theObserved == null ? "null" : theObserved.getClass().getName();
-				
+
 				if (logger.isDebugEnabled()) {
 					logger.debug("triggered by {}.update({}, {})", anIObserverDescription, theObservedDescription, changeCode, ex);
 				}
-				
-				if (theObserved == null) { //TODO remove in GDA 9
-					logger.warn("GDA-6190 subsequent observers now being notified when 1st argument of "
-							+ "update is null: {}.update({}, {})", anIObserverDescription, theObservedDescription, changeCode);
-				}
+
 			}
 		}
 	}
