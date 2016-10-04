@@ -19,9 +19,9 @@
 
 package gda.factory.corba.util;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.Vector;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.omg.CORBA.Any;
@@ -150,27 +150,25 @@ class PushEventQueue implements Runnable {
 
 	public static final String GDA_EVENTRECEIVER_QUEUE_LENGTH_CHECK = "gda.eventreceiver.queue.length.check";
 
-
 	private static final Logger logger = LoggerFactory.getLogger(PushEventQueue.class);
 
-	Vector<TimedAny> items = new Vector<TimedAny>();
-	private boolean killed = false;
-	private Thread thread = null;
-	private static final Object lock = new Object();
+	private final List<TimedAny> items = new ArrayList<TimedAny>();
+	private volatile boolean killed = false;
+	private final Thread thread;
+	private final int chkLengthLimit = LocalProperties.getInt(GDA_EVENTRECEIVER_QUEUE_LENGTH_CHECK, 100);
 
 	CorbaEventReceiver receiver;
 	PushEventQueue(CorbaEventReceiver receiver){
 		this.receiver = receiver;
+		// Setup the receiver thread
+		thread = uk.ac.gda.util.ThreadManager.getThread(this, "EventReceiver:PushEventQueue");
+		thread.start();
 	}
 
 	public void addEvent(Any any){
-		synchronized (lock) {
+		synchronized (items) {
 			items.add(new TimedAny(any, System.currentTimeMillis()));
-			if (thread == null) {
-				thread = uk.ac.gda.util.ThreadManager.getThread(this, "EventReceiver:PushEventQueue");
-				thread.start();
-			}
-			lock.notifyAll();
+			items.notifyAll();
 		}
 	}
 
@@ -179,19 +177,21 @@ class PushEventQueue implements Runnable {
 	}
 	@Override
 	public void run() {
-		Integer chkLengthLimit = LocalProperties.getInt(GDA_EVENTRECEIVER_QUEUE_LENGTH_CHECK, 100);
 		List<TimedStructuredEvent> lastItemsHandled = null;
 		while (!killed) {
 			try {
-				Vector<TimedAny> itemsToBeHandled = null;
-				synchronized (lock) {
-					if (!killed && items.isEmpty())
-						lock.wait();
-					itemsToBeHandled = items;
-					items = new Vector<TimedAny>();
+				List<TimedAny> itemsToBeHandled = null;
+				synchronized (items) {
+					if (!killed && items.isEmpty()) {
+						items.wait();
+					}
+					// Copy the items list into the itemsToBeHandled list
+					itemsToBeHandled = new ArrayList<TimedAny>(items);
+					// Empty the items list
+					items.clear();
 				}
 
-				List<TimedStructuredEvent> newEvents = new Vector<TimedStructuredEvent>();
+				List<TimedStructuredEvent> newEvents = new ArrayList<TimedStructuredEvent>();
 				for (TimedAny e : itemsToBeHandled) {
 					if (e.isStructuredEvent()) {
 						try {
