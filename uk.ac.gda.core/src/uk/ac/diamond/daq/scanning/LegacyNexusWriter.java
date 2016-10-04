@@ -74,7 +74,7 @@ class LegacyNexusWriter<N extends NXobject> implements CustomNexusEntryModificat
 		String[] units = scannableWriter.getUnits();
 
 		// relies on predictable iteration order of LinkedHashMap
-		Iterator<String> fieldNameIter = scannableNexusWrapper.getFieldNames(true).iterator();
+		Iterator<String> fieldNameIter = scannableNexusWrapper.getOutputFieldNames().iterator();
 		for (int i = 0; i < paths.length; i++) {
 			final String fieldName = fieldNameIter.next();
 			String fieldUnits = (units != null && units.length > i) ? units[i] : null;

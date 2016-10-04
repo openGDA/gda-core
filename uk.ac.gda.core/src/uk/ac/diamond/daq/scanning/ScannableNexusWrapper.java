@@ -78,6 +78,12 @@ public class ScannableNexusWrapper<N extends NXobject> implements IScannable<Obj
 	 */
 	public static final String ATTR_NAME_LOCAL_NAME = "local_name";
 
+	public static final String ATTR_NAME_GDA_SCANNABLE_NAME = "gda_scannable_name";
+
+	public static final String ATTR_NAME_GDA_SCAN_ROLE = "gda_scan_role";
+
+	public static final String ATTR_NAME_GDA_FIELD_NAME = "gda_field_name";
+
 	/**
 	 * The attribute name 'units'.
 	 */
@@ -104,11 +110,13 @@ public class ScannableNexusWrapper<N extends NXobject> implements IScannable<Obj
 	 */
 	private LinkedHashMap<String, ILazyWriteableDataset> writableDatasets;
 
+	private List<String> inputFieldNames = null;
+
 	/**
 	 * A list of the <em>destination</em> field names for each field of the position
 	 * array as returned by {@link #getPositionArray()}.
 	 */
-	private List<String> fieldNames = null;
+	private List<String> outputFieldNames = null;
 
 	/**
 	 * The Nexus object created.
@@ -130,54 +138,32 @@ public class ScannableNexusWrapper<N extends NXobject> implements IScannable<Obj
 		this.positionDelegate = new PositionDelegate();
 	}
 
-	protected List<String> calculateFieldNames() {
-		String[] inputNames = scannable.getInputNames();
-		String[] extraNames = scannable.getExtraNames();
-		fieldNames = new ArrayList<>(inputNames.length + extraNames.length);
-		fieldNames.addAll(Arrays.asList(inputNames));
-		fieldNames.addAll(Arrays.asList(extraNames));
+	protected void calculateFieldNames() {
+		final String[] inputNames = scannable.getInputNames();
+		final String[] extraNames = scannable.getExtraNames();
+		inputFieldNames = new ArrayList<>(inputNames.length + extraNames.length);
+		inputFieldNames.addAll(Arrays.asList(inputNames));
+		inputFieldNames.addAll(Arrays.asList(extraNames));
+
+		outputFieldNames = new ArrayList<>(inputFieldNames);
 
 		// if we create a positioner, and the scannable has a field with the same name as the scannable itself,
 		// then this field should be written to the field name 'value' as specified by the NXDL base class
 		// definition for NXpositioner
 		final String scannableName = scannable.getName();
-		if (getNexusBaseClass() == NexusBaseClass.NX_POSITIONER && fieldNames.contains(scannableName)) {
-			int index = fieldNames.indexOf(scannableName);
-			fieldNames.set(index, NXpositioner.NX_VALUE);
+		if (getNexusBaseClass() == NexusBaseClass.NX_POSITIONER && outputFieldNames.contains(scannableName)) {
+			int index = outputFieldNames.indexOf(scannableName);
+			outputFieldNames.set(index, NXpositioner.NX_VALUE);
 		}
-
-		return fieldNames;
-	}
-
-	/**
-	 * Get the field names for the wrapped {@link Scannable}. These are calculated by
-	 * concatenating the names returned by {@link Scannable#getInputNames()}
-	 * and {@link Scannable#getExtraNames()}.
-	 * <p>
-	 * This method caches the names. To discard the cache and recalculate the names call this
-	 * method with <code>true</code> for the parameter <code>recalculate</code>. This should
-	 * be done the first time this method in invoked for a new scan as the scannable may have
-	 * been reconfigured between scans.
-	 *
-	 * @param recalculate <code>true</code> to recalculate the names, <code>false</code> to
-	 *    use the cached names from the last time they were calculated
-	 * @return the field names for the wrapped scannable
-	 */
-	public List<String> getFieldNames(boolean recalculate) {
-		// field names should not be cached between scans as the wrapped scannable
-		// may have been reconfigured
-		if (fieldNames == null || recalculate) {
-			fieldNames = calculateFieldNames();
-		}
-
-		return fieldNames;
 	}
 
 	@Override
 	public NexusObjectProvider<N> getNexusProvider(NexusScanInfo info) throws NexusException {
+		calculateFieldNames();
+
 		nexusObject = createNexusObject(info);
-		List<String> fieldNames = getFieldNames(true); // recalculate field names for new scan
-		String defaultDataField = scannable.getInputNames().length > 0 ? fieldNames.get(0) : null;
+
+		String defaultDataField = outputFieldNames.size() > 0 ? outputFieldNames.get(0) : null;
 		NexusObjectWrapper<N> nexusDelegate = new NexusObjectWrapper<>(
 						scannable.getName(), nexusObject, defaultDataField);
 		if (info.getScanRole(getName()) == ScanRole.SCANNABLE) {
@@ -195,10 +181,16 @@ public class ScannableNexusWrapper<N extends NXobject> implements IScannable<Obj
 	}
 
 	private N createNexusObject(NexusScanInfo info) throws NexusException {
-		NexusBaseClass nexusBaseClass = getNexusBaseClass();
+		final NexusBaseClass nexusBaseClass = getNexusBaseClass();
+		final String scannableName = scannable.getName();
+
 		@SuppressWarnings("unchecked")
-		N nexusObject = (N) NexusNodeFactory.createNXobjectForClass(nexusBaseClass);
-		nexusObject.setField(FIELD_NAME_NAME, scannable.getName());
+		final N nexusObject = (N) NexusNodeFactory.createNXobjectForClass(nexusBaseClass);
+		nexusObject.setField(FIELD_NAME_NAME, scannableName);
+		// Attributes to identify the GD8 scannable so that the nexus file can be reverse engineered
+		nexusObject.setAttribute(null, ATTR_NAME_GDA_SCANNABLE_NAME, scannableName);
+		nexusObject.setAttribute(null, ATTR_NAME_GDA_SCAN_ROLE,
+				info.getScanRole(scannableName).toString().toLowerCase());
 
 		// add fields for attributes, e.g. name, description (a.k.a. metadata)
 		registerAttributes(nexusObject);
@@ -317,6 +309,22 @@ public class ScannableNexusWrapper<N extends NXobject> implements IScannable<Obj
 		return null;
 	}
 
+	public List<String> getInputFieldNames() {
+		if (inputFieldNames == null) {
+			calculateFieldNames();
+		}
+
+		return inputFieldNames;
+	}
+
+	public List<String> getOutputFieldNames() {
+		if (outputFieldNames == null) {
+			calculateFieldNames();
+		}
+
+		return outputFieldNames;
+	}
+
 	private NexusBaseClass getNexusBaseClass() {
 		try {
 			Object nxClass = scannable.getScanMetadataAttribute(Scannable.ATTR_NX_CLASS);
@@ -368,24 +376,26 @@ public class ScannableNexusWrapper<N extends NXobject> implements IScannable<Obj
 		}
 
 		// create the dataset for each field
-		final List<String> fieldNames = getFieldNames(false);
-		for (int i = 0; i < fieldNames.size(); i++) {
-			String fieldName = fieldNames.get(i);
-			if (fieldName.equals(getName()) && nexusObject.getNexusBaseClass() == NexusBaseClass.NX_POSITIONER) {
-				fieldName = NXpositioner.NX_VALUE;
-			}
-
+		final List<String> inputFieldNames = getInputFieldNames();
+		final List<String> outputFieldNames = getOutputFieldNames();
+		for (int i = 0; i < outputFieldNames.size(); i++) {
+			final String inputFieldName = inputFieldNames.get(i);
+			final String outputFieldName = outputFieldNames.get(i);
 			final Object value = positionArray[i];
 			if (role == ScanRole.METADATA) {
 				// simply set the field to the current value
-				nexusObject.setField(fieldName, value);
+				nexusObject.setField(outputFieldName, value);
 			} else {
-				// create a lazy writable dataset of the appropriate type
-				writableDatasets.put(fieldName,
-						createLazyWritableDataset(nexusObject, fieldName, value.getClass(), scanRank, chunks));
+				// otherwise create a lazy writable dataset of the appropriate type
+				final ILazyWriteableDataset dataset = createLazyWritableDataset(nexusObject,
+						outputFieldName, value.getClass(), scanRank, chunks);
+				writableDatasets.put(outputFieldName, dataset);
 			}
+
 			// set 'local_name' attribute
-			nexusObject.setAttribute(fieldName, ATTR_NAME_LOCAL_NAME, getName() + "." + fieldName);
+			nexusObject.setAttribute(outputFieldName, ATTR_NAME_LOCAL_NAME, getName() + "." + outputFieldName);
+			// set field name attribute so we can recreate the scannable position from the nexus file
+			nexusObject.setAttribute(outputFieldName, ATTR_NAME_GDA_FIELD_NAME, inputFieldName);
 		}
 	}
 
@@ -495,7 +505,7 @@ public class ScannableNexusWrapper<N extends NXobject> implements IScannable<Obj
 	 * @return
 	 */
 	private SliceND getSliceForPosition(IPosition pos) {
-		String firstFieldName = getFieldNames(false).get(0);
+		String firstFieldName = getOutputFieldNames().get(0);
 		ILazyWriteableDataset dataset = writableDatasets.get(firstFieldName);
 		IScanSlice scanSlice = IScanRankService.getScanRankService().createScanSlice(pos);
 
@@ -549,6 +559,8 @@ public class ScannableNexusWrapper<N extends NXobject> implements IScannable<Obj
 	@ScanFinally
 	public void scanFinally() {
 		writableDatasets = null;
+		inputFieldNames = null;
+		outputFieldNames = null;
 	}
 
 	/**

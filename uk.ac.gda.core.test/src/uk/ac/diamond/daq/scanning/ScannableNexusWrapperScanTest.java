@@ -28,6 +28,10 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
+import static uk.ac.diamond.daq.scanning.ScannableNexusWrapper.ATTR_NAME_GDA_FIELD_NAME;
+import static uk.ac.diamond.daq.scanning.ScannableNexusWrapper.ATTR_NAME_GDA_SCANNABLE_NAME;
+import static uk.ac.diamond.daq.scanning.ScannableNexusWrapper.ATTR_NAME_GDA_SCAN_ROLE;
+import static uk.ac.diamond.daq.scanning.ScannableNexusWrapper.ATTR_NAME_LOCAL_NAME;
 import static uk.ac.diamond.daq.scanning.ScannableNexusWrapper.COLLECTION_NAME_SCANNABLES;
 import static uk.ac.diamond.daq.scanning.ScannableNexusWrapper.FIELD_NAME_VALUE_SET;
 
@@ -71,6 +75,7 @@ import org.eclipse.dawnsci.nexus.NXpositioner;
 import org.eclipse.dawnsci.nexus.NXroot;
 import org.eclipse.dawnsci.nexus.NexusBaseClass;
 import org.eclipse.dawnsci.nexus.NexusFile;
+import org.eclipse.dawnsci.nexus.NexusScanInfo.ScanRole;
 import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.eclipse.dawnsci.nexus.builder.impl.DefaultNexusBuilderFactory;
 import org.eclipse.january.dataset.DTypeUtils;
@@ -137,10 +142,10 @@ import uk.ac.diamond.daq.activemq.connector.ActivemqConnectorService;
 import uk.ac.diamond.scisoft.analysis.io.LoaderServiceImpl;
 
 /**
- * Runs a test scan using {@link ScannableNexusWrapper}s wrapping dummy GDA8 scannables.
- * In particular tests that it correctly uses the legacy spring configuration. This is done by
+ * Test {@link ScannableNexusWrapper}. In particular tests that it
+ * correctly uses the legacy spring configuration. This is done by
  * setting {@link NexusDataWriter#setMetadatascannables(Set)} and
- * {@link NexusDataWriter#setLocationmap(Map)}, usually set in the spring configuration.
+ * {@link NexusDataWriter#setLocationmap(Map)}.
  *
  * Additionally includes a test that {@link ScannableNexusWrapper}
  * adds attributes contributed using {@link Scannable#setScanMetadataAttribute(String, Object)}
@@ -289,7 +294,7 @@ public class ScannableNexusWrapperScanTest {
 	}
 
 	public static final String TEST_CONFIG_FILE_PATH =
-	"testfiles/gda/scanning/ScannableNexusWrapperScanTest/testdatawriter.xml";
+			"testfiles/gda/scanning/ScannableNexusWrapperScanTest/testdatawriter.xml";
 	protected static IScannableDeviceService connector;
 	protected static IRunnableDeviceService  dservice;
 	protected static IPointGeneratorService  gservice;
@@ -413,7 +418,7 @@ public class ScannableNexusWrapperScanTest {
 	}
 
 	@Test
-	public void testLegacyDeviceSupport() throws Exception {
+	public void testNexusScannableWrapperScan() throws Exception {
 		int[] shape = new int[] { 8, 5 };
 		IRunnableDevice<ScanModel> scanner = createGridScan(detector, shape);
 		scanner.run(null);
@@ -572,6 +577,14 @@ public class ScannableNexusWrapperScanTest {
 
 			assertNotNull(positioner);
 
+			assertEquals(0, positioner.getNumberOfGroupNodes());
+			assertEquals(3, positioner.getNumberOfAttributes()); // NXclass, gda_scannable_name, gda_scan_role
+
+			assertEquals(scannableName, positioner.getNameScalar());
+			assertEquals(scannableName, positioner.getAttrString(null, ATTR_NAME_GDA_SCANNABLE_NAME));
+			assertEquals(ScanRole.SCANNABLE.toString().toLowerCase(),
+					positioner.getAttrString(null, ATTR_NAME_GDA_SCAN_ROLE));
+
 			// Demand values should be 1D
 			dataNode = positioner.getDataNode(FIELD_NAME_VALUE_SET);
 			dataset = dataNode.getDataset().getSlice();
@@ -596,32 +609,49 @@ public class ScannableNexusWrapperScanTest {
 
 			// Actual values should be scanD
 			Scannable legacyScannable = Finder.getInstance().find(scannableName);
-			String[] valueFieldNames = legacyScannable.getInputNames();
-			if (valueFieldNames[0].equals(scannableName)) {
-				valueFieldNames[0] = NXpositioner.NX_VALUE;
+			List<String> inputFieldNames = new ArrayList<>();
+			inputFieldNames.addAll(Arrays.asList(legacyScannable.getInputNames()));
+			inputFieldNames.addAll(Arrays.asList(legacyScannable.getExtraNames()));
+			List<String> outputFieldNames = new ArrayList<>(inputFieldNames);
+			if (outputFieldNames.contains(scannableName)) {
+				outputFieldNames.set(outputFieldNames.indexOf(scannableName), NXpositioner.NX_VALUE);
 			}
 
-			for (int fieldIndex = 0; fieldIndex < valueFieldNames.length; fieldIndex++) {
-				final String valueFieldName = valueFieldNames[fieldIndex];
+			// check the number of data nodes, num fields of legacy scannable + name + demand_value
+			assertEquals(outputFieldNames.size() + 2, positioner.getNumberOfDataNodes());
+
+			for (int fieldIndex = 0; fieldIndex < outputFieldNames.size(); fieldIndex++) {
+				final String valueFieldName = outputFieldNames.get(fieldIndex);
 				dataNode = positioner.getDataNode(valueFieldName);
+
+				assertEquals(valueFieldName, positioner.getAttrString(valueFieldName, ATTR_NAME_LOCAL_NAME),
+						scannableName + "." + valueFieldName);
+				assertEquals(valueFieldName, positioner.getAttrString(valueFieldName, ATTR_NAME_GDA_FIELD_NAME),
+						inputFieldNames.get(fieldIndex));
+
 				dataset = dataNode.getDataset().getSlice();
 				shape = dataset.getShape();
 				assertArrayEquals(sizes, shape);
 
-				nxDataFieldName = scannableName + "_" + valueFieldName;
-				assertSame(dataNode, nxData.getDataNode(nxDataFieldName));
-				assertIndices(nxData, nxDataFieldName, defaultDimensionMappings);
-//				assertTarget(nxData, nxDataFieldName, rootNode,
-//						"/entry/instrument/" + scannableName + "/" + valueFieldName);
+				if (fieldIndex == 0) {
+					// currently only the first field of a Scannable is linked to from an NXdata group,
+					// this is probably incorrect, see JIRA DAQ-311
+					nxDataFieldName = scannableName + "_" + valueFieldName;
+					assertSame(dataNode, nxData.getDataNode(nxDataFieldName));
+					assertIndices(nxData, nxDataFieldName, defaultDimensionMappings);
+					assertTarget(nxData, nxDataFieldName, rootNode,
+							"/entry/instrument/" + (inLocationMap ? COLLECTION_NAME_SCANNABLES + "/" : "") +
+							scannableName + "/" + valueFieldName);
 
-				if (paths != null && paths.length > fieldIndex) {
-					// check the same datanode can also be found at the path for this fieldname in the location map
-					assertSame(dataNode, getDataNode(entry, paths[fieldIndex]));
-					if (units != null && units.length > fieldIndex) {
-						// check the units attribute has been written according to the location map
-						Attribute unitsAttribute = dataNode.getAttribute("units");
-						assertNotNull(unitsAttribute);
-						assertEquals(units[fieldIndex], unitsAttribute.getFirstElement());
+					if (paths != null && paths.length > fieldIndex) {
+						// check the same datanode can also be found at the path for this fieldname in the location map
+						assertSame(dataNode, getDataNode(entry, paths[fieldIndex]));
+						if (units != null && units.length > fieldIndex) {
+							// check the units attribute has been written according to the location map
+							Attribute unitsAttribute = dataNode.getAttribute("units");
+							assertNotNull(unitsAttribute);
+							assertEquals(units[fieldIndex], unitsAttribute.getFirstElement());
+						}
 					}
 				}
 			}
@@ -662,13 +692,7 @@ public class ScannableNexusWrapperScanTest {
 		// check each metadata scannable has been written correctly
 		for (String metadataScannableName : metadataScannableNames) {
 			Scannable scannable = Finder.getInstance().find(metadataScannableName);
-			NXobject nexusObject;
-			String nexusBaseClass = (String) scannable.getScanMetadataAttribute(Scannable.ATTR_NX_CLASS);
-			if (nexusBaseClass == null) {
-				nexusObject = instrument.getPositioner(metadataScannableName);
-			} else {
-				nexusObject = (NXobject) instrument.getGroupNode(metadataScannableName);
-			}
+			NXobject nexusObject = (NXobject) instrument.getGroupNode(metadataScannableName);
 
 			if (locationMap.containsKey(metadataScannableName)) {
 				// if there is an entry in the location map for this group, the nexus object
@@ -680,7 +704,11 @@ public class ScannableNexusWrapperScanTest {
 				nexusObject = (NXobject) scannablesCollection.getGroupNode(metadataScannableName);
 			}
 
+			// Check that the nexus object is of the expected base class
 			assertNotNull(nexusObject);
+			String expectedNexusBaseClass = (String) scannable.getScanMetadataAttribute(Scannable.ATTR_NX_CLASS);
+			assertEquals(expectedNexusBaseClass == null ? "NXpositioner" : expectedNexusBaseClass,
+					nexusObject.getNexusBaseClass().toString());
 
 			if (metadataScannableName.equals("sample_name")) {
 				assertEquals("test sample", nexusObject.getString("name"));
@@ -688,15 +716,21 @@ public class ScannableNexusWrapperScanTest {
 				assertEquals(metadataScannableName, nexusObject.getString("name"));
 			}
 
-			Scannable legacyScannable = Finder.getInstance().find(metadataScannableName);
-			String[] valueFieldNames = (String[]) ArrayUtils.addAll(
-					legacyScannable.getInputNames(), legacyScannable.getExtraNames());
+			assertEquals(0, nexusObject.getNumberOfGroupNodes());
+			assertEquals(3, nexusObject.getNumberOfAttributes());
+
+			assertEquals(metadataScannableName, nexusObject.getAttrString(null, ATTR_NAME_GDA_SCANNABLE_NAME));
+			assertEquals(ScanRole.METADATA.toString().toLowerCase(),
+					nexusObject.getAttrString(null, ATTR_NAME_GDA_SCAN_ROLE));
+
+			final String[] valueFieldNames = (String[]) ArrayUtils.addAll(
+					scannable.getInputNames(), scannable.getExtraNames());
 			if (nexusObject.getNexusBaseClass() == NexusBaseClass.NX_POSITIONER &&
-					valueFieldNames[0] == legacyScannable.getName()) {
+					valueFieldNames[0] == scannable.getName()) {
 				valueFieldNames[0] = NXpositioner.NX_VALUE;
 			}
 
-			Object[] positionArray = getPositionArray(legacyScannable);
+			final Object[] positionArray = getPositionArray(scannable);
 			String[] paths = null;
 			String[] units = null;
 			Collection<String> prerequisiteScannableNames = Collections.emptyList();
@@ -823,8 +857,7 @@ public class ScannableNexusWrapperScanTest {
 		gmodel.setSlowAxisPoints(size[size.length-2]);
 		gmodel.setBoundingBox(new BoundingBox(0,0,3,3));
 
-		IPointGenerator<?> grid = gservice.createGenerator(gmodel);
-		IPointGenerator<?>[] gens = new IPointGenerator<?>[size.length - 1];
+		IPointGenerator<?> gen = gservice.createGenerator(gmodel);
 
 		// We add the outer scans, if any
 		if (size.length > 2) {
@@ -836,11 +869,9 @@ public class ScannableNexusWrapperScanTest {
 					model = new StepModel("neXusScannable" + (dim+1), 10, 20, 30); // Will generate one value at 10
 				}
 				final IPointGenerator<?> step = gservice.createGenerator(model);
-				gens[dim] = step;
+				gen = gservice.createCompoundGenerator(step, gen);
 			}
 		}
-		gens[size.length - 2] = grid;
-		IPointGenerator<?> gen = gservice.createCompoundGenerator(gens);
 
 		// Create the model for a scan
 		final ScanModel scanModel = new ScanModel();
