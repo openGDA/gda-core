@@ -371,17 +371,19 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 	 * @generated
 	 * @ordered
 	 */
-	protected static final Integer APPROX_CENTRE_OF_ROTATION_EDEFAULT = null;
+	protected static final String APPROX_CENTRE_OF_ROTATION_EDEFAULT = "";
 
 	/**
-	 * The cached value of the '{@link #getApproxCentreOfRotation() <em>Approximate centre of rotation</em>}' attribute. <!-- begin-user-doc --> <!--
-	 * end-user-doc -->
+	 * The cached value of the '{@link #getApproxCentreOfRotation() <em>Approximate centre of rotation</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * The value is passed as a String, an empty string meaning that the (device dependent) system default should be taken.
+	 * <!-- end-user-doc -->
 	 *
 	 * @see #getApproxCentreOfRotation()
 	 * @generated
 	 * @ordered
 	 */
-	protected Integer approxCentreOfRotation = APPROX_CENTRE_OF_ROTATION_EDEFAULT;
+	protected String approxCentreOfRotation = APPROX_CENTRE_OF_ROTATION_EDEFAULT;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -767,13 +769,13 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 	}
 
 	@Override
-	public Integer getApproxCentreOfRotation() {
+	public String getApproxCentreOfRotation() {
 		return approxCentreOfRotation;
 	}
 
 	@Override
-	public void setApproxCentreOfRotation(Integer value) {
-		Integer oldApproxCentreOfRotation = approxCentreOfRotation;
+	public void setApproxCentreOfRotation(String value) {
+		String oldApproxCentreOfRotation = approxCentreOfRotation;
 		approxCentreOfRotation = value;
 		if (eNotificationRequired()) {
 			eNotify(new ENotificationImpl(this, Notification.SET, ScanPackage.PARAMETERS__APPROX_CENTRE_OF_ROTATION, oldApproxCentreOfRotation,
@@ -884,7 +886,7 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 			setFlyScanDelay((Double) newValue);
 			return;
 		case ScanPackage.PARAMETERS__APPROX_CENTRE_OF_ROTATION:
-			setApproxCentreOfRotation((Integer) newValue);
+			setApproxCentreOfRotation((String) newValue);
 			return;
 		}
 		super.eSet(featureID, newValue);

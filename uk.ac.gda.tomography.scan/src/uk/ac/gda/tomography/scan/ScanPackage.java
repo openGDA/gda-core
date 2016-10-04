@@ -575,6 +575,13 @@ public interface ScanPackage extends EPackage {
 		 */
 		EAttribute PARAMETERS__FLY_SCAN = eINSTANCE.getParameters_FlyScan();
 
+		/**
+		 * The meta object literal for the '<em><b>Approx. centre of rotation</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute PARAMETERS__APPROX_CENTRE_OF_ROTATION = eINSTANCE.getParameters_ApproxCentreOfRotation();
 	}
 
 } //ScanPackage

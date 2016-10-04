@@ -275,7 +275,7 @@ public interface Parameters extends EObject {
 	 * @model required="true" default="false" unsettable="false"
 	 * @return approximate centre of rotation (default is null)
 	 */
-	Integer getApproxCentreOfRotation();
+	String getApproxCentreOfRotation();
 
 	/**
 	 * Sets the value of the '{@link uk.ac.gda.tomography.scan.Parameters#getApproxCentreOfRotation <em>Approximate centre of rotation</em>}' attribute.
@@ -283,5 +283,5 @@ public interface Parameters extends EObject {
 	 * @param value
 	 *            the new value of the '<em>Approximate centre of rotation</em>' attribute.
 	 */
-	void setApproxCentreOfRotation(Integer value);
+	void setApproxCentreOfRotation(String value);
 }

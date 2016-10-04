@@ -110,7 +110,7 @@ public class ScanPackageImpl extends EPackageImpl implements ScanPackage {
 	 */
 	@Override
 	public EAttribute getParameters_InBeamPosition() {
-		return (EAttribute) parametersEClass.getEStructuralFeatures().get(0);
+		return (EAttribute) parametersEClass.getEStructuralFeatures().get(ScanPackage.PARAMETERS__IN_BEAM_POSITION);
 	}
 
 	/**
@@ -120,7 +120,7 @@ public class ScanPackageImpl extends EPackageImpl implements ScanPackage {
 	 */
 	@Override
 	public EAttribute getParameters_OutOfBeamPosition() {
-		return (EAttribute) parametersEClass.getEStructuralFeatures().get(1);
+		return (EAttribute) parametersEClass.getEStructuralFeatures().get(ScanPackage.PARAMETERS__OUT_OF_BEAM_POSITION);
 	}
 
 	/**
@@ -130,7 +130,7 @@ public class ScanPackageImpl extends EPackageImpl implements ScanPackage {
 	 */
 	@Override
 	public EAttribute getParameters_ExposureTime() {
-		return (EAttribute) parametersEClass.getEStructuralFeatures().get(2);
+		return (EAttribute) parametersEClass.getEStructuralFeatures().get(ScanPackage.PARAMETERS__EXPOSURE_TIME);
 	}
 
 	/**
@@ -140,7 +140,7 @@ public class ScanPackageImpl extends EPackageImpl implements ScanPackage {
 	 */
 	@Override
 	public EAttribute getParameters_Start() {
-		return (EAttribute) parametersEClass.getEStructuralFeatures().get(3);
+		return (EAttribute) parametersEClass.getEStructuralFeatures().get(ScanPackage.PARAMETERS__START);
 	}
 
 	/**
@@ -150,7 +150,7 @@ public class ScanPackageImpl extends EPackageImpl implements ScanPackage {
 	 */
 	@Override
 	public EAttribute getParameters_Stop() {
-		return (EAttribute) parametersEClass.getEStructuralFeatures().get(4);
+		return (EAttribute) parametersEClass.getEStructuralFeatures().get(ScanPackage.PARAMETERS__STOP);
 	}
 
 	/**
@@ -160,7 +160,7 @@ public class ScanPackageImpl extends EPackageImpl implements ScanPackage {
 	 */
 	@Override
 	public EAttribute getParameters_Step() {
-		return (EAttribute) parametersEClass.getEStructuralFeatures().get(5);
+		return (EAttribute) parametersEClass.getEStructuralFeatures().get(ScanPackage.PARAMETERS__STEP);
 	}
 
 	/**
@@ -170,7 +170,7 @@ public class ScanPackageImpl extends EPackageImpl implements ScanPackage {
 	 */
 	@Override
 	public EAttribute getParameters_DarkFieldInterval() {
-		return (EAttribute) parametersEClass.getEStructuralFeatures().get(6);
+		return (EAttribute) parametersEClass.getEStructuralFeatures().get(ScanPackage.PARAMETERS__DARK_FIELD_INTERVAL);
 	}
 
 	/**
@@ -180,7 +180,7 @@ public class ScanPackageImpl extends EPackageImpl implements ScanPackage {
 	 */
 	@Override
 	public EAttribute getParameters_FlatFieldInterval() {
-		return (EAttribute) parametersEClass.getEStructuralFeatures().get(7);
+		return (EAttribute) parametersEClass.getEStructuralFeatures().get(ScanPackage.PARAMETERS__FLAT_FIELD_INTERVAL);
 	}
 
 	/**
@@ -190,7 +190,7 @@ public class ScanPackageImpl extends EPackageImpl implements ScanPackage {
 	 */
 	@Override
 	public EAttribute getParameters_ImagesPerDark() {
-		return (EAttribute) parametersEClass.getEStructuralFeatures().get(8);
+		return (EAttribute) parametersEClass.getEStructuralFeatures().get(ScanPackage.PARAMETERS__IMAGES_PER_DARK);
 	}
 
 	/**
@@ -200,7 +200,7 @@ public class ScanPackageImpl extends EPackageImpl implements ScanPackage {
 	 */
 	@Override
 	public EAttribute getParameters_ImagesPerFlat() {
-		return (EAttribute) parametersEClass.getEStructuralFeatures().get(9);
+		return (EAttribute) parametersEClass.getEStructuralFeatures().get(ScanPackage.PARAMETERS__IMAGES_PER_FLAT);
 	}
 
 	/**
@@ -210,7 +210,7 @@ public class ScanPackageImpl extends EPackageImpl implements ScanPackage {
 	 */
 	@Override
 	public EAttribute getParameters_MinI() {
-		return (EAttribute) parametersEClass.getEStructuralFeatures().get(10);
+		return (EAttribute) parametersEClass.getEStructuralFeatures().get(ScanPackage.PARAMETERS__MIN_I);
 	}
 
 	/**
@@ -220,7 +220,7 @@ public class ScanPackageImpl extends EPackageImpl implements ScanPackage {
 	 */
 	@Override
 	public EAttribute getParameters_Title() {
-		return (EAttribute) parametersEClass.getEStructuralFeatures().get(11);
+		return (EAttribute) parametersEClass.getEStructuralFeatures().get(ScanPackage.PARAMETERS__TITLE);
 	}
 
 	/**
@@ -230,27 +230,27 @@ public class ScanPackageImpl extends EPackageImpl implements ScanPackage {
 	 */
 	@Override
 	public EAttribute getParameters_FlyScan() {
-		return (EAttribute) parametersEClass.getEStructuralFeatures().get(12);
+		return (EAttribute) parametersEClass.getEStructuralFeatures().get(ScanPackage.PARAMETERS__FLY_SCAN);
 	}
 
 	@Override
 	public EAttribute getParameters_ExtraFlatsAtEnd() {
-		return (EAttribute) parametersEClass.getEStructuralFeatures().get(13);
+		return (EAttribute) parametersEClass.getEStructuralFeatures().get(ScanPackage.PARAMETERS__EXTRA_FLATS_AT_END);
 	}
 
 	@Override
 	public EAttribute getParameters_NumFlyScans() {
-		return (EAttribute) parametersEClass.getEStructuralFeatures().get(14);
+		return (EAttribute) parametersEClass.getEStructuralFeatures().get(ScanPackage.PARAMETERS__NUM_FLY_SCANS);
 	}
 
 	@Override
 	public EAttribute getParameters_FlyScanDelay() {
-		return (EAttribute) parametersEClass.getEStructuralFeatures().get(15);
+		return (EAttribute) parametersEClass.getEStructuralFeatures().get(ScanPackage.PARAMETERS__FLY_SCAN_DELAY);
 	}
 
 	@Override
 	public EAttribute getParameters_ApproxCentreOfRotation() {
-		return (EAttribute) parametersEClass.getEStructuralFeatures().get(16);
+		return (EAttribute) parametersEClass.getEStructuralFeatures().get(ScanPackage.PARAMETERS__APPROX_CENTRE_OF_ROTATION);
 	}
 
 	/**
@@ -405,8 +405,8 @@ public class ScanPackageImpl extends EPackageImpl implements ScanPackage {
 				IS_ORDERED);
 		initEAttribute(
 				getParameters_ApproxCentreOfRotation(),
-				ecorePackage.getEInt(),
-				"approxCentreOfRotation", "null", 1, 1, Parameters.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+				ecorePackage.getEString(),
+				"approxCentreOfRotation", "", 1, 1, Parameters.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 
 		// Create resource

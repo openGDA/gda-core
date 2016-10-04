@@ -295,7 +295,7 @@ public class ParametersComposite extends Composite {
 		addTextToIntegerListeners(numFlyScans, ScanPackage.eINSTANCE.getParameters_NumFlyScans());
 		addTextToDoubleListeners(flyScanDelay, ScanPackage.eINSTANCE.getParameters_FlyScanDelay());
 
-		addTextToIntegerListeners(approxCentreOfRotation, ScanPackage.eINSTANCE.getParameters_ApproxCentreOfRotation());
+		addTextToTextListeners(approxCentreOfRotation, ScanPackage.eINSTANCE.getParameters_ApproxCentreOfRotation());
 
 		addDisposeListener(new DisposeListener() {
 
@@ -423,9 +423,7 @@ public class ParametersComposite extends Composite {
 		numFlyScans.setText(Integer.toString(x.getNumFlyScans()));
 		flyScanDelay.setText(Double.toString(x.getFlyScanDelay()));
 
-		if (x.getApproxCentreOfRotation() != null) {
-			approxCentreOfRotation.setText(Integer.toString(x.getApproxCentreOfRotation()));
-		}
+		approxCentreOfRotation.setText(x.getApproxCentreOfRotation());
 
 		adapter = new EContentAdapter() {
 
@@ -470,7 +468,7 @@ public class ParametersComposite extends Composite {
 						} else if (feature.equals(ScanPackage.eINSTANCE.getParameters_FlyScanDelay())) {
 							flyScanDelay.setText(Double.toString(parameters.getFlyScanDelay()));
 						} else if (feature.equals(ScanPackage.eINSTANCE.getParameters_ApproxCentreOfRotation())) {
-							approxCentreOfRotation.setText(Integer.toString(parameters.getApproxCentreOfRotation()));
+							approxCentreOfRotation.setText(parameters.getApproxCentreOfRotation());
 						}
 					}
 
