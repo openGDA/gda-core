@@ -18,6 +18,24 @@
 
 package gda.device.detector.odccd.collectionstrategy;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.attribute.AclFileAttributeView;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.data.PathConstructor;
 import gda.device.Detector;
 import gda.device.DeviceException;
@@ -32,24 +50,6 @@ import gda.device.scannable.ContinuouslyScannableViaController;
 import gda.device.scannable.PositionStreamIndexerProvider;
 import gda.device.scannable.ScannableMotor;
 import gda.scan.ScanInformation;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.attribute.AclFileAttributeView;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.concurrent.Callable;
-
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import uk.ac.gda.util.FilePathConverter;
 
 /**
@@ -64,7 +64,7 @@ import uk.ac.gda.util.FilePathConverter;
 public class ODCCDSingleExposure implements CollectionStrategyBeanInterface, NXFileWriterPlugin, NXFileWriterWithTemplate {
 
 	/* Class properties */
-	protected ODCCDController odccd;
+	private ODCCDController odccd;
 	private String host;
 	private FilePathConverter filePathConverter;
 	private ContinuouslyScannableViaController dynamicPhiAxis;
@@ -72,7 +72,7 @@ public class ODCCDSingleExposure implements CollectionStrategyBeanInterface, NXF
 	private ContinuouslyScannableViaController dynamicThetaAxis;
 	private ContinuouslyScannableViaController dynamicTwothetaAxis;
 	private ContinuouslyScannableViaController dynamicGammaAxis;
-	private ContinuouslyScannableViaController i0Monitor;
+	private PositionStreamIndexerProvider<Double> i0Monitor;
 	private ScannableMotor staticPhiAxis;
 	private ScannableMotor staticKappaAxis;
 	private ScannableMotor staticThetaAxis;
@@ -80,6 +80,7 @@ public class ODCCDSingleExposure implements CollectionStrategyBeanInterface, NXF
 	private ScannableMotor staticGammaAxis;
 	private ScannableMotor staticDdistAxis;
 	private int binning;
+	private int i0MonitorPcCapture=0;
 	private boolean darkSubtraction;
 	private boolean apply_repair_correction=true, poly_mscalar=false, unwarp=false, flood_poly=false;
 	private boolean export_all_intermediate_images=false, export_compressed=true; // (1=true, 0=false)
@@ -101,12 +102,14 @@ public class ODCCDSingleExposure implements CollectionStrategyBeanInterface, NXF
 	private ScanInformation scanInfo;
 
 	protected double collectionTime;
-	protected boolean collecting = false;
+	private AcquireImageAsync acquireImageAsync = null;
+	private final AtomicInteger status = new AtomicInteger(Detector.IDLE);
+
 	protected List<String> unixFilenames;
 	protected int elementsRead;
-	protected int elementsRequested;
-	protected AxisConfiguration phi, kappa, omega, twotheta, gamma, ddist;
-	Callable<Double> i0MonitorCallable = null;
+	private int elementsRequested;
+	private AxisConfiguration phi, kappa, omega, twotheta, gamma, ddist;
+	protected Callable<Double> i0MonitorCallable = null;
 
 	/* CollectionStrategyBeanInterface methods */
 
@@ -142,7 +145,7 @@ public class ODCCDSingleExposure implements CollectionStrategyBeanInterface, NXF
 		}
 		// TODO: Is this valid in every case?
 		if (scanInfo == null) {
-			logger.info("...prepareForCollection() null scanInfo! Returning...");
+			logger.debug("...prepareForCollection() null scanInfo! Returning...");
 			return;
 		}
 		if (this.scanInfo != null) {
@@ -171,35 +174,27 @@ public class ODCCDSingleExposure implements CollectionStrategyBeanInterface, NXF
 	 * @see gda.device.Detector#collectData()
 	 */
 	@Override
-	public void collectData() throws Exception {
-		logger.trace("collectData() collectionTime={} stack trace {}", collectionTime, Arrays.toString(Thread.currentThread().getStackTrace()));
-
-		if (i0Monitor != null) {
-			if (i0MonitorCallable != null) {
-				logger.error("i0MonitorCallable for {} should be null at this point! {}", i0Monitor.getName(), i0MonitorCallable);
-			}
-			PositionStreamIndexerProvider<Double> i0MonitorPSIP = null;
-			try {
-				//@SuppressWarnings("unchecked")
-				i0MonitorPSIP= (PositionStreamIndexerProvider<Double>) i0Monitor.getContinuousMoveController();
-			} catch (Exception e) {
-				logger.error("i0Monitor {} defined, but it's move controller does not support PositionStreamIndexerProvider<Double> interface.", i0Monitor.getName(), e);
-			}
-			if (i0MonitorPSIP != null) {
-				i0MonitorCallable = i0MonitorPSIP.getPositionSteamIndexer(7+11).getNamedPositionCallable(i0Monitor.getName(),1);
-			}
-			logger.info("i0MonitorCallable for {} is now {}", i0Monitor.getName(), i0MonitorCallable);
-		}
-		// call smi_exps1_atlas <1. binning> <2. timeout>
-		odccd.runScript("call smi_exps1_atlas " + binning + " " + collectionTime);
-		collecting = true;
+	public final void collectData() throws Exception {
+		logger.trace("collectData() collectionTime={} acquireImageAsync={} stack trace {}", collectionTime, acquireImageAsync, Arrays.toString(Thread.currentThread().getStackTrace()));
+		// Start thread
+		setStatus(Detector.BUSY);
+		acquireImageAsync = new AcquireImageAsync();
+		acquireImageAsync.start();
 		logger.trace("...collectData()");
 	}
 
 	@Override
-	public int getStatus() throws Exception {
-		logger.trace("getStatus() called, collecting={}", collecting);
-		return collecting ? Detector.BUSY : Detector.IDLE ;
+	public int getStatus() {
+		final int status = this.status.get();
+		logger.trace("getStatus() called, returning {}", status);
+		return status;
+	}
+
+	private void setStatus(int newValue) {
+		synchronized (status) {
+			status.set(newValue);
+			status.notifyAll();
+		}
 	}
 
 	/**
@@ -207,9 +202,42 @@ public class ODCCDSingleExposure implements CollectionStrategyBeanInterface, NXF
 	 */
 	@Override
 	public void waitWhileBusy() throws InterruptedException, Exception {
-		logger.trace("waitWhileBusy() called, collecting={} stack trace {}", collecting, Arrays.toString(Thread.currentThread().getStackTrace()));
-		if (collecting) {
-			waitForImageTaken();
+		logger.trace("waitWhileBusy() called, status={} stack trace {}", status, Arrays.toString(Thread.currentThread().getStackTrace()));
+		synchronized (status) {
+			try {
+				while (status.get() == Detector.BUSY) {
+					status.wait(60000);
+					if (status.get() == Detector.BUSY) {
+						logger.warn("waitWhileBusy() waiting for 1 minute");
+					}
+				}
+			} finally {
+				//if interrupted clear the status state as the IOC may have crashed
+				if ( status.get() != Detector.IDLE) {
+					setStatus(Detector.IDLE);
+					logger.warn("waitWhileBusy() status set to IDLE");
+				}
+			}
+		}
+		logger.trace("...waitWhileBusy()");
+	}
+
+	private void acquireImage() {
+		logger.trace("aquireImage()... binning {}, collectionTime {}", binning, collectionTime);
+		// call smi_exps1_atlas <1. binning> <2. timeout>
+		odccd.runScript("call smi_exps1_atlas " + binning + " " + collectionTime);
+		logger.trace("Waiting for api:IMAGE TAKEN");
+		try {
+			odccd.readInputUntil("api:IMAGE TAKEN");
+		} catch (IOException e) {
+			logger.error("acquireImage() failed.", e);
+		}
+	}
+
+	protected void saveImage() {
+		try {
+			logger.trace("saveImage() called, status={}, unixfilenames.size()={}, stack trace {}",
+					getStatus(), unixFilenames.size(), Arrays.toString(Thread.currentThread().getStackTrace()));
 
 			String unixfilename = getUnixFilename("");
 			logger.trace("Image taken, saving to {}", unixfilename);
@@ -217,6 +245,10 @@ public class ODCCDSingleExposure implements CollectionStrategyBeanInterface, NXF
 			logger.trace("using the windows filename {}", odccdfilename);
 
 			ensureDirectoryExists(unixfilename);
+
+			logger.trace("getting intensity_integral for {}...", i0MonitorPcCapture);
+			final int intensity_integral = i0MonitorCallable == null ? 0 : (int)Math.round(i0MonitorCallable.call());
+			logger.trace("...intensity_integral {}", intensity_integral);
 
 			/*  call smi_exps2_atlas <1. filename> <2. phiStart> <3. phiStop> <4. phiVel> <5. kappaStart> <6. kappaStop> <7. kappaVel>
 					<8. omegaStart> <9. omegaStop> <10. omegaVel> <11. twothetaStart> <12. twothetaStop> <13. twothetaVel>
@@ -232,19 +264,12 @@ public class ODCCDSingleExposure implements CollectionStrategyBeanInterface, NXF
 					0 0 0
 					0 2 1
 			 */
-			// Here we rely on i0MonitorCallable having been called in collectData() to set us up for this image only!
-			// As such, this will almost certainly only work for Single Exposure collections.
-			int intensity_integral = i0MonitorCallable == null ? 0 : (int)Math.round(i0MonitorCallable.call());
 			saveImage(odccdfilename, geometryParameters()+" "+fileParameters(darkSubtraction)+" "+intensity_integral+" "+collectionTime+" "+binning);
 			unixFilenames.add(unixfilename);
-			collecting = false;
+		} catch (Exception e) {
+			logger.error("saveImage() failed.", e);
+			unixFilenames.add(null);
 		}
-		logger.trace("...waitWhileBusy()");
-	}
-
-	protected void waitForImageTaken() throws IOException {
-		logger.trace("Waiting for api:IMAGE TAKEN");
-		odccd.readInputUntil("api:IMAGE TAKEN");
 	}
 
 	protected String getUnixFilename(String fileNameTemplatePrefix) {
@@ -363,7 +388,7 @@ public class ODCCDSingleExposure implements CollectionStrategyBeanInterface, NXF
 		public final double vel;
 	}
 
-	protected void saveImage(String odccdfilename, String parameters) throws IOException {
+	private void saveImage(String odccdfilename, String parameters) throws IOException {
 		/*  call smi_exps2_atlas <1. filename> <2. phiStart> <3. phiStop> <4. phiVel> <5. kappaStart> <6. kappaStop> <7. kappaVel>
 				<8. omegaStart> <9. omegaStop> <10. omegaVel> <11. twothetaStart> <12. twothetaStop> <13. twothetaVel>
 				<14. gammaStart> <15. gammaStop> <16. gammaVel> <17. detector distance>
@@ -420,7 +445,15 @@ public class ODCCDSingleExposure implements CollectionStrategyBeanInterface, NXF
 
 	@Override
 	public void prepareForLine() throws Exception {
-		logger.warn("prepareForLine() called!");
+		logger.warn("prepareForLine()");
+		// Set up any assigned i0 monitor now, so it gets started at the correct time.
+		if (i0Monitor != null) {
+			if (i0MonitorCallable != null) {
+				logger.error("i0MonitorCallable for {} should be null at this point!", i0MonitorCallable);
+			}
+			i0MonitorCallable = i0Monitor.getPositionSteamIndexer(i0MonitorPcCapture).getNamedPositionCallable("ODCCD.i0Monitor",1);
+			logger.info("i0MonitorCallable for {} is now {}", i0MonitorPcCapture, i0MonitorCallable);
+		}
 	}
 
 	@Override
@@ -436,7 +469,7 @@ public class ODCCDSingleExposure implements CollectionStrategyBeanInterface, NXF
 		} catch (Exception ex) {
 			logger.error("odccd.logout() failed. "+ connectionProblem + " on {}", host, ex);
 		} finally {
-			collecting = false;
+			setStatus(Detector.IDLE);
 			logger.trace("...completeCollection()");
 		}
 	}
@@ -479,8 +512,8 @@ public class ODCCDSingleExposure implements CollectionStrategyBeanInterface, NXF
 	@Override
 	public List<NXDetectorDataAppender> read(int maxToRead) throws NoSuchElementException, InterruptedException, DeviceException {
 		logger.trace("read({}) stack trace {}", maxToRead, Arrays.toString(Thread.currentThread().getStackTrace()));
-		logger.trace("elementsRead = {}, elementsRequested={}, filenames = {}, collecting = {}",
-					elementsRead, elementsRequested, unixFilenames, collecting);
+		logger.trace("elementsRead = {}, elementsRequested {}, status {}, filenames {}",
+					elementsRead, elementsRequested, status, unixFilenames);
 		long sleep_time_ms = Math.max(200, millisFromSeconds(collectionTime)); // Poll at no more than 5Hz
 		long new_element_timeout_ms = millisFromSeconds(collectionTime*timeoutCollectionTimeMultiplier + timeoutCollectionTimeOffset);
 		// A new element timeout of collectionTime + 50 seconds does not always seem to be enough. If darks are being subtracted, then the
@@ -514,9 +547,9 @@ public class ODCCDSingleExposure implements CollectionStrategyBeanInterface, NXF
 		List<NXDetectorDataAppender> appenders = new ArrayList<>();
 
 		if (maxToRead > Integer.MAX_VALUE - elementsRead) {
-			maxToRead -= elementsRead;
-		} // TODO: Does ^^^^ fix maxToRead+elementsRead wrapping and becoming negative VVVVVVVVV
-
+			maxToRead = Integer.MAX_VALUE - elementsRead;
+			logger.trace("Limited maxToRead to {} so that it doesn't wrap and become negative when we add elementsRead {}", maxToRead, elementsRead);
+		} // :
 		List<String> filenamesSubset = unixFilenames.subList(elementsRead, Math.min(maxToRead+elementsRead,
 				unixFilenames.size()));
 		// TODO: Does subList cope with from and to being the same?
@@ -626,6 +659,17 @@ public class ODCCDSingleExposure implements CollectionStrategyBeanInterface, NXF
 		}
 	}
 
+	/* Inner classes */
+
+	private class AcquireImageAsync extends Thread {
+		@Override
+		public void run() {
+			acquireImage();
+			setStatus(Detector.IDLE);
+			saveImage();
+		}
+	}
+
 	/* Helper functions */
 
 	public String getOdccdFilePath(String unixfilepath){
@@ -715,11 +759,11 @@ public class ODCCDSingleExposure implements CollectionStrategyBeanInterface, NXF
 		this.dynamicGammaAxis = gammaAxis;
 	}
 
-	public ContinuouslyScannableViaController getI0Monitor() {
+	public PositionStreamIndexerProvider<Double> getI0Monitor() {
 		return i0Monitor;
 	}
 
-	public void setI0Monitor(ContinuouslyScannableViaController i0Monitor) {
+	public void setI0Monitor(PositionStreamIndexerProvider<Double> i0Monitor) {
 		this.i0Monitor = i0Monitor;
 	}
 
@@ -780,6 +824,14 @@ public class ODCCDSingleExposure implements CollectionStrategyBeanInterface, NXF
 			throw new IllegalArgumentException("binning ("+binning+") must be between 1 and 3.");
 		}
 		this.binning = binning;
+	}
+
+	public int getI0MonitorPcCapture() {
+		return i0MonitorPcCapture;
+	}
+
+	public void setI0MonitorPcCapture(int i0MonitorPcCapture) {
+		this.i0MonitorPcCapture = i0MonitorPcCapture;
 	}
 
 	public boolean isDarkSubtraction() {

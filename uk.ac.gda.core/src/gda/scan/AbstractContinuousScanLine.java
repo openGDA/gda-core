@@ -18,16 +18,6 @@
 
 package gda.scan;
 
-import gda.device.Detector;
-import gda.device.DeviceException;
-import gda.device.Scannable;
-import gda.device.continuouscontroller.ContinuousMoveController;
-import gda.device.continuouscontroller.HardwareTriggerProvider;
-import gda.device.detector.hardwaretriggerable.HardwareTriggerableDetector;
-import gda.device.detector.hardwaretriggerable.HardwareTriggeredDetector;
-import gda.device.scannable.ContinuouslyScannableViaController;
-import gda.jython.InterfaceProvider;
-
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -41,6 +31,16 @@ import java.util.concurrent.FutureTask;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.device.Detector;
+import gda.device.DeviceException;
+import gda.device.Scannable;
+import gda.device.continuouscontroller.ContinuousMoveController;
+import gda.device.continuouscontroller.HardwareTriggerProvider;
+import gda.device.detector.hardwaretriggerable.HardwareTriggerableDetector;
+import gda.device.detector.hardwaretriggerable.HardwareTriggeredDetector;
+import gda.device.scannable.ContinuouslyScannableViaController;
+import gda.jython.InterfaceProvider;
 
 /**
  *
@@ -270,7 +270,7 @@ public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 	abstract protected void configureControllerPositions(boolean detectorsIntegrateBetweenTriggers) throws DeviceException, InterruptedException, Exception;
 
 	final protected double extractCommonCollectionTimeFromDetectors() throws DeviceException {
-		logger.trace("extractCommonCollectionTimeFromDetectors()"); 
+		logger.trace("extractCommonCollectionTimeFromDetectors()");
 		HardwareTriggeredDetector firstDetector = detectors.get(0);
 		double period = firstDetector.getCollectionTime();
 		if(firstDetector instanceof DetectorWithReadoutTime){

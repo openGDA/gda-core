@@ -19,6 +19,10 @@
 package gda.scan;
 
 import static gda.jython.InterfaceProvider.getTerminalPrinter;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Scannable;
@@ -26,9 +30,6 @@ import gda.device.continuouscontroller.ConstantVelocityMoveController;
 import gda.device.continuouscontroller.ConstantVelocityMoveController2;
 import gda.device.scannable.ContinuouslyScannableViaController;
 import gda.device.scannable.PositionConvertorFunctions;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ConstantVelocityScanLine extends AbstractContinuousScanLine {
 
@@ -58,11 +59,11 @@ public class ConstantVelocityScanLine extends AbstractContinuousScanLine {
 
 		for (int i = argIndex; i < args.length; i++) {
 
-			if (args[i] instanceof ContinuouslyScannableViaController) {
-				allowDetectorCollectionTime = false;
-
-			} else if (args[i] instanceof Detector) {
+			if (args[i] instanceof Detector) {
 				allowDetectorCollectionTime = true;
+
+			} else if (args[i] instanceof ContinuouslyScannableViaController) {
+				allowDetectorCollectionTime = false;
 
 			} else if (isZeroInputExtraNamesScannable(args[i])) {
 				allowDetectorCollectionTime = false;
