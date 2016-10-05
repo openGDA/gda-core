@@ -76,13 +76,6 @@
          version="0.0.0"/>
 
    <plugin
-         id="org.eclipse.richbeans.generator"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="org.dawnsci.mapping.ui"
          download-size="0"
          install-size="0"
@@ -175,6 +168,13 @@
 
    <plugin
          id="org.dawnsci.processing.ui"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="uk.ac.diamond.daq.guigenerator"
          download-size="0"
          install-size="0"
          version="0.0.0"
