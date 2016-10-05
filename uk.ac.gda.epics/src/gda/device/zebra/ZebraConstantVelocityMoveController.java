@@ -59,7 +59,7 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 	// This is the minimum pulse width on any time unit range
 	private static final double MIN_PC_PULSE_WIDTH = 0.0001;
 
-	private static final double DEFAULT_PC_PULSE_GATE_TRIM = 0.0002;
+	public static final double DEFAULT_PC_PULSE_GATE_TRIM = 0.0002;
 
 	private static final Logger logger = LoggerFactory.getLogger(ZebraConstantVelocityMoveController.class);
 
@@ -88,6 +88,8 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 	private double minimumAccelerationDistance = 0.5; // If this changes, change the setMinimumAccelerationDistance javadoc.
 
 	private double scannableMotorEndPosition;
+
+	private Collection<ZebraMonitorController> triggeredControllers = new Vector<ZebraMonitorController>();
 
 	public ZebraConstantVelocityMoveController() {
 		super();
@@ -131,7 +133,8 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 	@SuppressWarnings("unused")
 	@Override
 	public void prepareForMove() throws DeviceException, InterruptedException {
-		logger.info("prepareForMove() pointBeingPrepared={}", pointBeingPrepared);
+		logger.info("prepareForMove() pointBeingPrepared={}, operatingContinously={}",
+										pointBeingPrepared, operatingContinously);
 		try {
 			/* Since we shouldn't attempt set up the next point until the current one is finished, wait for the
 			 * Zebra to become disarmed.
@@ -178,62 +181,13 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 					throw new IllegalStateException("PC_PULSE_SOURCE_POSITION is not yet tested");
 				break;
 			case Zebra.PC_PULSE_SOURCE_TIME:
-				double maxCollectionTimeFromDetectors = 0.;
-				double minCollectionTimeFromDetectors = Double.MAX_VALUE;
-				double minimumAccelerationTime = Double.MAX_VALUE;
-
-				for( Detector det : detectors){
-					double collectionTime;
-					if (det instanceof VariableCollectionTimeDetector) {
-						collectionTime = ((VariableCollectionTimeDetector)det).getCollectionTimeProfile()[pointBeingPrepared];
-					} else {
-						collectionTime = det.getCollectionTime();
-					}
-					maxCollectionTimeFromDetectors = Math.max(maxCollectionTimeFromDetectors, collectionTime);
-					minCollectionTimeFromDetectors = Math.min(minCollectionTimeFromDetectors, collectionTime);
-
-					if (det instanceof NXDetector) {
-						NXDetector nxdet = (NXDetector) det;
-						NXCollectionStrategyPlugin nxcs = nxdet.getCollectionStrategy();
-						// If the collection strategy is decorated, iterate over all UnsynchronisedExternalShutterNXCollectionStrategy
-						if (nxcs instanceof AbstractCollectionStrategyDecorator) {
-							for (UnsynchronisedExternalShutterNXCollectionStrategy ues:
-									((AbstractCollectionStrategyDecorator) nxcs).getDecorateesOfType(
-											UnsynchronisedExternalShutterNXCollectionStrategy.class)) {
-								double newMinimumAccelerationTime = ues.getCollectionExtensionTimeS();
-								minimumAccelerationTime = Math.min(minimumAccelerationTime, newMinimumAccelerationTime);
-								logger.info("Detector " + det.getName() + " returned newMinimumAccelerationTime=" +
-										newMinimumAccelerationTime + " so minimumAccelerationTime now " + minimumAccelerationTime +
-										" (" + ues.getClass().getName() + ")");
-							}
-						}
-					} else {
-						logger.info("Detector " + det.getName() + " is not an NXdetector! " + det.getClass().getName());
-					}
-				}
-				if( Math.abs(minCollectionTimeFromDetectors-maxCollectionTimeFromDetectors) > 1e-8){
-					/*
-					 * To support 2 collection times we need to use the pulse block to offset the triggers from the
-					 * main PC pulse used by the det with the longest collection time. The offset is half the difference in the collection
-					 * times each from the start
-					 */
-					throw new IllegalArgumentException("ZebraConstantVelocityMoveController cannot handle 2 collection times");
-				}
-				logger.trace("prepareForMove() maxCollectionTimeFromDetectors={}", maxCollectionTimeFromDetectors);
-				double timeUnitConversion;
-
-				// Maximise the resolution of the timing by selecting the fastest timebase for the maximum collection time.
-				if (maxCollectionTimeFromDetectors > 200000) {
-					throw new IllegalArgumentException("ZebraConstantVelocityMoveController cannot handle collection times over 200000 seconds");
-				}
-				// Note that max gate width is 214881.9984, so max collection time is 214s at ms resolution, or 59d at s resolution.
-				if (maxCollectionTimeFromDetectors > 214 /* Using 20 rather 214 makes it faster to test the switchover. */ ) {
-					zebra.setPCTimeUnit(Zebra.PC_TIMEUNIT_SEC);
-					timeUnitConversion = 1;
-				} else {
-					zebra.setPCTimeUnit(Zebra.PC_TIMEUNIT_MS);
-					timeUnitConversion = 1000;
-				}
+				final MaxCollectionTimeAndMinAccelerationTime maxCollectionTimeAndMinAccelerationTime =
+					getMaxCollectionTimeAndMinAccelerationTimeFromDetectors(detectors, pointBeingPrepared);
+				final double maxCollectionTimeFromDetectors = maxCollectionTimeAndMinAccelerationTime.maxCollectionTimeFromDetectors;
+				final double minimumAccelerationTime = maxCollectionTimeAndMinAccelerationTime.minimumAccelerationTime;
+				logger.trace("prepareForMove() maxCollectionTimeFromDetectors={}, minimumAccelerationTime={}",
+												maxCollectionTimeFromDetectors, minimumAccelerationTime);
+				final double timeUnitConversion = getTimeUnitConversionAndSetTimeUnit(maxCollectionTimeFromDetectors, zebra);
 				/**
 				 * There are 2 modes of operation:
 				 * a)The exposure time of the detector and the distance between pulses are given.
@@ -267,6 +221,7 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 				}
 				zebra.setPCPulseStep(pcPulseStepRaw);
 				Thread.sleep(1); // TODO: Remove when the bug in zebra RBV handling is fixed.
+				// Tried removing, failure example: i15 2016-07-12 19:21:37,661
 				// Note that we need to read back values relating to time, so that the we calculate dependent values based on the
 				// actual values in use rather than the values we asked for.
 				final double pcPulseStepRBVRaw= zebra.getPCPulseStepRBV();
@@ -369,6 +324,10 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 			int numberTriggers = getNumberTriggers();
 			zebra.setPCPulseMax(numberTriggers);
 
+			for (ZebraMonitorController triggeredController : triggeredControllers) {
+				triggeredController.prepareForMove();
+			}
+
 			setupGateAndArm(pcGateStart,pcGateWidth, step, gateWidthTime );
 
 			if( timeSeriesCollection != null){
@@ -381,6 +340,78 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 		} catch (Exception e) {
 			logger.error("Error in prepareForMove() of {}", getName(), e);
 			throw new DeviceException("Error arming the zebra: "+e.getMessage(), e);
+		}
+	}
+
+	public static class MaxCollectionTimeAndMinAccelerationTime {
+		public double maxCollectionTimeFromDetectors;
+		public double minimumAccelerationTime;
+
+		public MaxCollectionTimeAndMinAccelerationTime(double maxCollectionTimeFromDetectors, double minimumAccelerationTime) {
+			super();
+			this.maxCollectionTimeFromDetectors = maxCollectionTimeFromDetectors;
+			this.minimumAccelerationTime = minimumAccelerationTime;
+		}
+	}
+
+	public static MaxCollectionTimeAndMinAccelerationTime getMaxCollectionTimeAndMinAccelerationTimeFromDetectors(
+			Collection<HardwareTriggeredDetector> detectors, int pointBeingPrepared ) throws DeviceException {
+		double maxCollectionTimeFromDetectors = 0.;
+		double minCollectionTimeFromDetectors = Double.MAX_VALUE;
+		double minimumAccelerationTime = Double.MAX_VALUE;
+
+		for( Detector det : detectors){
+			double collectionTime;
+			if (det instanceof VariableCollectionTimeDetector) {
+				collectionTime = ((VariableCollectionTimeDetector)det).getCollectionTimeProfile()[pointBeingPrepared];
+			} else {
+				collectionTime = det.getCollectionTime();
+			}
+			maxCollectionTimeFromDetectors = Math.max(maxCollectionTimeFromDetectors, collectionTime);
+			minCollectionTimeFromDetectors = Math.min(minCollectionTimeFromDetectors, collectionTime);
+
+			if (det instanceof NXDetector) {
+				NXDetector nxdet = (NXDetector) det;
+				NXCollectionStrategyPlugin nxcs = nxdet.getCollectionStrategy();
+				// If the collection strategy is decorated, iterate over all UnsynchronisedExternalShutterNXCollectionStrategy
+				if (nxcs instanceof AbstractCollectionStrategyDecorator) {
+					for (UnsynchronisedExternalShutterNXCollectionStrategy ues:
+							((AbstractCollectionStrategyDecorator) nxcs).getDecorateesOfType(
+									UnsynchronisedExternalShutterNXCollectionStrategy.class)) {
+						double newMinimumAccelerationTime = ues.getCollectionExtensionTimeS();
+						minimumAccelerationTime = Math.min(minimumAccelerationTime, newMinimumAccelerationTime);
+						logger.info("Detector " + det.getName() + " returned newMinimumAccelerationTime=" +
+								newMinimumAccelerationTime + " so minimumAccelerationTime now " + minimumAccelerationTime +
+								" (" + ues.getClass().getName() + ")");
+					}
+				}
+			} else {
+				logger.info("Detector " + det.getName() + " is not an NXdetector! " + det.getClass().getName());
+			}
+		}
+		if( Math.abs(minCollectionTimeFromDetectors-maxCollectionTimeFromDetectors) > 1e-8){
+			/*
+			 * To support 2 collection times we need to use the pulse block to offset the triggers from the
+			 * main PC pulse used by the det with the longest collection time. The offset is half the difference in the collection
+			 * times each from the start
+			 */
+			throw new IllegalArgumentException("ZebraConstantVelocityMoveController cannot handle 2 collection times");
+		}
+		return new MaxCollectionTimeAndMinAccelerationTime(maxCollectionTimeFromDetectors, minimumAccelerationTime);
+	}
+
+	public static double getTimeUnitConversionAndSetTimeUnit(double maxCollectionTimeFromDetectors, Zebra zebra) throws Exception {
+		// Maximise the resolution of the timing by selecting the fastest timebase for the maximum collection time.
+		if (maxCollectionTimeFromDetectors > 200000) {
+			throw new IllegalArgumentException("ZebraConstantVelocityMoveController cannot handle collection times over 200000 seconds");
+		}
+		// Note that max gate width is 214881.9984, so max collection time is 214s at ms resolution, or 59d at s resolution.
+		if (maxCollectionTimeFromDetectors > 214 /* Using 20 rather 214 makes it faster to test the switchover. */ ) {
+			zebra.setPCTimeUnit(Zebra.PC_TIMEUNIT_SEC);
+			return 1;
+		} else {
+			zebra.setPCTimeUnit(Zebra.PC_TIMEUNIT_MS);
+			return 1000;
 		}
 	}
 
@@ -421,7 +452,7 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 		zebra.pcArm();
 	}
 
-	protected static void checkRBV(double raw, double RBVRaw, double tolerance, String desc) {
+	public static void checkRBV(double raw, double RBVRaw, double tolerance, String desc) {
 		double rawDiff = Math.abs(raw - RBVRaw);
 		if (rawDiff > tolerance) {
 			throw new IllegalStateException("ZebraConstantVelocityMoveController: Wrote "+raw+" to "+desc+" but read back "+RBVRaw+" (diff="+rawDiff+")");
@@ -476,8 +507,8 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 	private double step;
 	private double start;
 
-	private final int PRIMARY_INDEXERS=10;
-	private final int SECONDARY_INDEXERS=10;
+	public static final int PRIMARY_INDEXERS=10;
+	public static final int SECONDARY_INDEXERS=10;
 	@SuppressWarnings("unchecked")
 	private PositionStreamIndexer<Double> lastImageNumberStreamIndexer[] = new PositionStreamIndexer[PRIMARY_INDEXERS+SECONDARY_INDEXERS+1];
 
@@ -498,7 +529,7 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 
 	@Override
 	public void waitWhileMoving() throws DeviceException, InterruptedException {
-		logger.trace("waitWhileMoving, moveFuture={}", moveFuture);
+		logger.trace("waitWhileMoving()... moveFuture={}", moveFuture);
 		if (moveFuture == null) {
 			return;
 		}
@@ -523,11 +554,14 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 
 	@Override
 	public void stopAndReset() throws DeviceException, InterruptedException {
-		logger.info("stopAndReset");
+		logger.info("stopAndReset()");
 		try {
 			zebra.reset();
 		} catch (IOException e) {
-			throw new DeviceException("problem resetng EPICS zebra", e);
+			throw new DeviceException("problem resetting EPICS zebra", e);
+		}
+		for (ZebraMonitorController triggeredController : triggeredControllers) {
+			triggeredController.stopAndReset();
 		}
 		points = null;
 	}
@@ -547,18 +581,18 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 
 	@Override
 	public int getNumberTriggers() {
-		logger.info("getNumberTriggers");
+		logger.info("getNumberTriggers() operatingContinously={}", operatingContinously);
 		try {
 			return ScannableUtils.getNumberSteps(scannableMotor, new Double(start),new Double(end),new Double(step))+1;
 		} catch (Exception e) {
-			logger.error("Error getting number of triggers", e);
+			logger.error("Error getting number of triggers, scannableMotor={}, start={}, end={}, step={}", scannableMotor, start, end, step, e);
 			return 0;
 		}
 	}
 
 	@Override
 	public double getTotalTime() throws DeviceException {
-		logger.info("getTotalTime");
+		logger.info("getTotalTime()");
 		return (getNumberTriggers() == 0) ? 0 : triggerPeriod * (getNumberTriggers() - 1);
 	}
 
@@ -566,7 +600,7 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 
 	@Override
 	public void configure() throws FactoryException {
-		logger.info("configure");
+		logger.info("configure()");
 	}
 
 	// interface ConstantVelocityMoveController
@@ -616,6 +650,7 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 	}
 
 	public void setTimeSeriesCollection(List<ZebraCaptureInputStreamCollection> timeSeriesCollection) {
+		logger.trace("setTimeSeriesCollection({})", timeSeriesCollection);
 		this.timeSeriesCollection = timeSeriesCollection;
 	}
 
@@ -698,47 +733,31 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 	 */
 	@Override
 	public PositionStreamIndexer<Double> getPositionSteamIndexer(int index) {
-		logger.trace("getPositionSteamIndexer({})", index);
+		logger.trace("getPositionSteamIndexer({})... pointBeingPrepared={}", index, pointBeingPrepared);
 
-		int bitFieldIndex = index <= PRIMARY_INDEXERS ? index : index - SECONDARY_INDEXERS - 1;
+		final int pcCaptureIndex = index <= PRIMARY_INDEXERS ? index : index - PRIMARY_INDEXERS - 1;
 
-		if (bitFieldIndex < 10) { // There is no bit for Time, since it is always enabled
-			logger.debug("bitFieldIndex={}, pcCaptureBitField={} ...", bitFieldIndex, pcCaptureBitField);
-			pcCaptureBitField |= 1 << index;
-			logger.debug("...bitFieldIndex={}, pcCaptureBitField={}, step={}", bitFieldIndex, pcCaptureBitField);
+		if (pcCaptureIndex < 10) { // There is no bit for Time, since it is always enabled
+			logger.debug("|= pcCaptureIndex={}, pcCaptureBitField={} ...", pcCaptureIndex, pcCaptureBitField);
+			pcCaptureBitField |= 1 << pcCaptureIndex;
+			logger.debug("...pcCaptureIndex={}, pcCaptureBitField={}", pcCaptureIndex, pcCaptureBitField);
 		}
 		if( lastImageNumberStreamIndexer[index] == null){
-			logger.info("Creating lastImageNumberStreamIndexer " + index);
-			final ReadOnlyPV<Double[]> rdDblArrayPV = zebra.getPcCapturePV(index);
+			logger.info("Creating lastImageNumberStreamIndexer[{}] using PCCapturePV({})", index, pcCaptureIndex);
+			final ReadOnlyPV<Double[]> rdDblArrayPV = zebra.getPcCapturePV(pcCaptureIndex);
 
-			if( timeSeriesCollection == null)
+			if( timeSeriesCollection == null) {
 				timeSeriesCollection = new Vector<ZebraCaptureInputStreamCollection>();
+				logger.trace("getPositionSteamIndexer() New timeSeriesCollection");
+			}
 
 			ZebraCaptureInputStreamCollection sc = new ZebraCaptureInputStreamCollection(zebra.getNumberOfPointsDownloadedPV(), rdDblArrayPV);
 			lastImageNumberStreamIndexer[index] = new PositionStreamIndexer<Double>(sc);
 			timeSeriesCollection.add(sc);
+			logger.trace("timeSeriesCollection now {}", timeSeriesCollection);
 		}
+		logger.trace("...getPositionSteamIndexer({}) returning {}", index, lastImageNumberStreamIndexer[index]);
 		return lastImageNumberStreamIndexer[index];
-	}
-
-	private ReadOnlyPV<Double[]> getEncoderPV(int index) {
-		try {
-			switch (index) {
-			case 0:
-			case 1:
-			case 2:
-			case 3:
-				return zebra.getEncPV(index);
-			case 10:
-				return zebra.getPCTimePV();
-			default:
-				logger.warn("Encoder index " + index + " not supported: using default");
-				return zebra.getEncPV(Zebra.PC_ENC_ENC1);
-			}
-		} catch (Exception ex) {
-			logger.warn("Exception getting PC encoder, using default. " + ex.getMessage());
-			return zebra.getEncPV(Zebra.PC_ENC_ENC1);
-		}
 	}
 
 	// interface Scannable
@@ -755,6 +774,9 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 			throw new DeviceException(e.getMessage(), e);
 		}
 		super.atScanStart();
+		for (ZebraMonitorController triggeredController : triggeredControllers) {
+			triggeredController.atScanStart();
+		}
 		logger.trace("...atScanStart()");
 	}
 
@@ -764,13 +786,21 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 		logger.trace("atScanLineStart()");
 		lastImageNumberStreamIndexer = new PositionStreamIndexer[PRIMARY_INDEXERS+SECONDARY_INDEXERS+1];
 		timeSeriesCollection = null;
+		logger.trace("atScanLineStart() Reset timeSeriesCollection");
 		moveFuture=null;
 		pcCaptureBitField=0;
+		for (ZebraMonitorController triggeredController : triggeredControllers) {
+			triggeredController.atScanLineStart();
+		}
 	}
 
 	@Override
 	public void atScanLineEnd() throws DeviceException {
 		timeSeriesCollection = null;
+		logger.trace("atScanLineEnd() Reset timeSeriesCollection");
+		for (ZebraMonitorController triggeredController : triggeredControllers) {
+			triggeredController.atScanLineEnd();
+		}
 	}
 
 	@Override
@@ -787,6 +817,10 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 		if(!done)
 			throw new DeviceException("stop called before all callables have been processed");
 		timeSeriesCollection = null;
+		logger.trace("stop() Reset timeSeriesCollection");
+		for (ZebraMonitorController triggeredController : triggeredControllers) {
+			triggeredController.stop();
+		}
 	}
 
 	@Override
@@ -794,6 +828,9 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 		logger.trace("atCommandFailure() pointBeingPrepared={}", pointBeingPrepared);
 		pointBeingPrepared=0;
 		super.atCommandFailure();
+		for (ZebraMonitorController triggeredController : triggeredControllers) {
+			triggeredController.atCommandFailure();
+		}
 	}
 
 	@Override
@@ -812,6 +849,7 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 
 	@Override
 	public Object rawGetPosition() throws DeviceException {
+		logger.trace("rawGetPosition() returning 0.");
 		return 0.; // getPositionCallable will be called during the scan
 	}
 
@@ -923,4 +961,11 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 		this.pcPulseGateTrim = pcPulseGateTrim;
 	}
 
+	public Collection<ZebraMonitorController> getTriggeredControllers() {
+		return triggeredControllers;
+	}
+
+	public void setTriggeredControllers(Collection<ZebraMonitorController> triggeredControllers) {
+		this.triggeredControllers = triggeredControllers;
+	}
 }
