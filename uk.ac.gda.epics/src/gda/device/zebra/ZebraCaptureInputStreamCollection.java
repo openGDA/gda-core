@@ -1,17 +1,16 @@
 package gda.device.zebra;
 
+import gda.device.DeviceException;
+import gda.device.scannable.PositionInputStream;
+import gda.epics.ReadOnlyPV;
+
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import gda.device.DeviceException;
-import gda.device.scannable.PositionInputStream;
-import gda.epics.ReadOnlyPV;
 
 /**
  * Represents a single one-off collection from an Epics time series array, or arrays that hang off the same
@@ -46,8 +45,6 @@ class ZebraCaptureInputStreamCollection implements PositionInputStream<Double> {
 	}
 
 	public void start(int numPointsToCollect) throws IOException {
-		logger.trace("@{}.start({}) stack trace {}", Integer.toHexString(hashCode()),
-				numPointsToCollect, Arrays.toString(Thread.currentThread().getStackTrace()));
 		this.numPointsToCollect = numPointsToCollect;
 		numDownloadedPV.setValueMonitoring(true);
 		numPointsReturned=0;
@@ -81,14 +78,10 @@ class ZebraCaptureInputStreamCollection implements PositionInputStream<Double> {
 	private void tidyup() throws IOException {
 		numDownloadedPV.setValueMonitoring(false);
 		numPointsReturned = 0;
-		logger.trace("@{}.tidyup() Reset numPointsReturned, stack trace {}", Integer.toHexString(hashCode()),
-				Arrays.toString(Thread.currentThread().getStackTrace()));
 	}
 
 	@Override
 	public List<Double> read(int maxToRead) throws NoSuchElementException, InterruptedException, DeviceException {
-		logger.trace("@{}.read({}) started {}, stack trace {}", Integer.toHexString(hashCode()),
-				maxToRead, started, Arrays.toString(Thread.currentThread().getStackTrace()));
 		while(!started){
 			Thread.sleep(1000);
 		}
@@ -100,10 +93,12 @@ class ZebraCaptureInputStreamCollection implements PositionInputStream<Double> {
 		int numPointsAvailable=0;
 		try {
 			//numDownloadedPV.setValueMonitoring(true);
-			final int numDownloaded = numDownloadedPV.get(); // force numDownloadedPV to go and get a new value
-			logger.info("{} numDownloadedPV: {}, desiredPoint {}", numDownloadedPV.getPvName(), numDownloaded, desiredPoint);
+			logger.info("**numDownloadedPV: " + numDownloadedPV.get());  // force numDownloadedPV to go and get a new value
+			logger.info("**desiredPoint " + desiredPoint);
 			numPointsAvailable = numDownloadedPV.waitForValue(new GreaterThanOrEqualTo(desiredPoint), -1);
-			logger.info("{} numPointsAvailable: {} Finished waiting", numDownloadedPV.getPvName(), numPointsAvailable);
+			logger.info("**numPointsAvailable: " + numPointsAvailable);
+
+			logger.info("**** Finished waiting");
 		} catch (InterruptedException e) {
 			throw new InterruptedException("Interupted while waiting for point: " + desiredPoint);
 		} catch (Exception e) {
@@ -122,11 +117,11 @@ class ZebraCaptureInputStreamCollection implements PositionInputStream<Double> {
 		} catch (IOException e) {
 			throw new DeviceException(e);
 		}
+//		System.out.println("read maxToRead="+maxToRead);
 		for (int i = 0; i < numNewPoints; i++) {
 			pointList.add(completeArray[numPointsReturned + i]);
 //			System.out.println("point read = " +completeArray[numPointsReturned + i]);
 		}
-		logger.trace("{} pointList: {}", tsArrayPV.getPvName(), pointList);
 
 		numPointsReturned = numPointsAvailable;
 		//The zebra may generate more points than expected so warn but finish
@@ -141,4 +136,6 @@ class ZebraCaptureInputStreamCollection implements PositionInputStream<Double> {
 		}
 		return pointList;
 	}
+
+
 }
