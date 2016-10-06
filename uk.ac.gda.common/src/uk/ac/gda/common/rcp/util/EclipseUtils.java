@@ -636,11 +636,15 @@ public class EclipseUtils {
 	 * @return					The corresponding File object resolved from the active Equinox context
 	 * @throws IOException		If the resolved file does not exist or cannot be resolved in the first place
 	 */
-	public static File resolveBundleFile(final String bundleFilePath) throws IOException {
+	public static File resolveBundleFile(String bundleFilePath) throws IOException {
+		bundleFilePath = bundleFilePath.replace('\\', '/');
 		URL fileURL = FileLocator.find(new URL(String.format("platform:/plugin/%s", bundleFilePath)));
 		if (fileURL != null) {
-			fileURL = FileLocator.toFileURL(fileURL);                               // if no corresponding file URL can be found, no conversion will
-			final File file = Paths.get(fileURL.getPath()).toFile();                // happen meaning file will not exist resulting in an exception
+			fileURL = FileLocator.toFileURL(fileURL);
+			String path = fileURL.getPath();
+			if (path.toLowerCase().startsWith("file:/")) path = path.substring(6); // if no corresponding file URL can be found, no conversion will
+			if (path.matches("\\/[A-Z]{1}:\\/.+")) path = path.substring(1); // Have to remove / on windows.
+			final File file = Paths.get(path).toFile();                // happen meaning file will not exist resulting in an exception
 			if( !(file).exists()) {
 				throw new IOException(String.format("Resolved bundle file path %s does not exist for %s.", file.getAbsolutePath(), bundleFilePath));
 			}
