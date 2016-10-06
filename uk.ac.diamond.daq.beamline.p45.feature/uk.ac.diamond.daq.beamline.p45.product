@@ -22,6 +22,7 @@ See &lt;http://www.opengda.org/&gt;
    <launcherArgs>
       <vmArgs>-Dorg.eclipse.swt.internal.gtk.cairoGraphics=false
 -Dorg.eclipse.swt.internal.gtk.useCairo=false
+-Dosgi.framework.extensions=org.eclipse.fx.osgi
 -Dgda.root=${project_loc:uk.ac.gda.core}/../
 -Dgda.config=${project_loc:p45-config}
 -Dgda.install.git.loc=${workspace_loc}/../workspace_git
