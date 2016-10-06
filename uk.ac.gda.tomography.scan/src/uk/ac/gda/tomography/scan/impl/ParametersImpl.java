@@ -36,6 +36,14 @@ import uk.ac.gda.tomography.scan.ScanPackage;
  * <li>{@link uk.ac.gda.tomography.scan.impl.ParametersImpl#getNumFlyScans <em>Number of Fly Scans</em>}</li>
  * <li>{@link uk.ac.gda.tomography.scan.impl.ParametersImpl#getFlyScanDelay <em>Fly Scan Delay</em>}</li>
  * <li>{@link uk.ac.gda.tomography.scan.impl.ParametersImpl#getApproxCentreOfRotation <em>Approximate centre of rotation</em>}</li>
+ * <li>{@link uk.ac.gda.tomography.scan.impl.ParametersImpl#getDetectorToSampleDistance <em>Detector to sample distance</em>}</li>
+ * <li>{@link uk.ac.gda.tomography.scan.impl.ParametersImpl#getDetectorToSampleDistanceUnits <em>Detector to sample distance units</em>}</li>
+ * <li>{@link uk.ac.gda.tomography.scan.impl.ParametersImpl#getXPixelSize <em>x pixel size</em>}</li>
+ * <li>{@link uk.ac.gda.tomography.scan.impl.ParametersImpl#getXPixelSizeUnits <em>x pixel size units</em>}</li>
+ * <li>{@link uk.ac.gda.tomography.scan.impl.ParametersImpl#getYPixelSize <em>y pixel size</em>}</li>
+ * <li>{@link uk.ac.gda.tomography.scan.impl.ParametersImpl#getYPixelSizeUnits <em>y pixel size units</em>}</li>
+ * <li>{@link uk.ac.gda.tomography.scan.impl.ParametersImpl#getRotationStage <em>Rotation stage</em>}</li>
+ * <li>{@link uk.ac.gda.tomography.scan.impl.ParametersImpl#getLinearStage <em>Linear stage</em>}</li>
  * </ul>
  * </p>
  *
@@ -384,6 +392,183 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 	 * @ordered
 	 */
 	protected String approxCentreOfRotation = APPROX_CENTRE_OF_ROTATION_EDEFAULT;
+
+	/**
+	 * The default value of the '{@link #getDetectorToSampleDistance() <em>Detector to sample distance</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 *
+	 * @see #getDetectorToSampleDistance()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final String DETECTOR_TO_SAMPLE_DISTANCE_EDEFAULT = "";
+
+	/**
+	 * The cached value of the '{@link #getApproxCentreOfRotation() <em>Approximate centre of rotation</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * The value is passed as a String, an empty string meaning that the (device dependent) system default should be taken.
+	 * <!-- end-user-doc -->
+	 *
+	 * @see #getApproxCentreOfRotation()
+	 * @generated
+	 * @ordered
+	 */
+	protected String detectorToSampleDistance = DETECTOR_TO_SAMPLE_DISTANCE_EDEFAULT;
+
+	/**
+	 * The default value of the '{@link #getDetectorToSampleDistance() <em>Detector to sample distance</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 *
+	 * @see #getDetectorToSampleDistance()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final String DETECTOR_TO_SAMPLE_DISTANCE_UNITS_EDEFAULT = "";
+
+	/**
+	 * The cached value of the '{@link #getApproxCentreOfRotation() <em>Approximate centre of rotation</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 *
+	 * @see #getApproxCentreOfRotation()
+	 * @generated
+	 * @ordered
+	 */
+	protected String detectorToSampleDistanceUnits = DETECTOR_TO_SAMPLE_DISTANCE_UNITS_EDEFAULT;
+
+	/**
+	 * The default value of the '{@link #getXPixelSize() <em>x pixel size</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 *
+	 * @see #getXPixelSize()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final String X_PIXEL_SIZE_EDEFAULT = "";
+
+	/**
+	 * The cached value of the '{@link #getXPixelSize() <em>x pixel size</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 *
+	 * @see #getXPixelSize()
+	 * @generated
+	 * @ordered
+	 */
+	protected String xPixelSize = X_PIXEL_SIZE_EDEFAULT;
+
+	/**
+	 * The default value of the '{@link #getXPixelSizeUnits() <em>x pixel size units</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 *
+	 * @see #getXPixelSizeUnits()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final String X_PIXEL_SIZE_UNITS_EDEFAULT = "";
+
+	/**
+	 * The cached value of the '{@link #getXPixelSizeUnits() <em>x pixel size units</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 *
+	 * @see #getXPixelSizeUnits()
+	 * @generated
+	 * @ordered
+	 */
+	protected String xPixelSizeUnits = X_PIXEL_SIZE_UNITS_EDEFAULT;
+
+	/**
+	 * The default value of the '{@link #getYPixelSize() <em>x pixel size</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 *
+	 * @see #getYPixelSize()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final String Y_PIXEL_SIZE_EDEFAULT = "";
+
+	/**
+	 * The cached value of the '{@link #getYPixelSize() <em>x pixel size</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 *
+	 * @see #getYPixelSize()
+	 * @generated
+	 * @ordered
+	 */
+	protected String yPixelSize = Y_PIXEL_SIZE_EDEFAULT;
+
+	/**
+	 * The default value of the '{@link #getYPixelSizeUnits() <em>x pixel size units</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 *
+	 * @see #getYPixelSizeUnits()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final String Y_PIXEL_SIZE_UNITS_EDEFAULT = "";
+
+	/**
+	 * The cached value of the '{@link #getYPixelSizeUnits() <em>x pixel size units</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 *
+	 * @see #getYPixelSizeUnits()
+	 * @generated
+	 * @ordered
+	 */
+	protected String yPixelSizeUnits = Y_PIXEL_SIZE_UNITS_EDEFAULT;
+
+	/**
+	 * The default value of the '{@link #getRotationStage() <em>Rotation stage</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 *
+	 * @see #getRotationStage()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final String ROTATION_STAGE_EDEFAULT = "";
+
+	/**
+	 * The cached value of the '{@link #getRotationStage() <em>Rotation stage</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 *
+	 * @see #getRotationStage()
+	 * @generated
+	 * @ordered
+	 */
+	protected String rotationStage = ROTATION_STAGE_EDEFAULT;
+
+	/**
+	 * The default value of the '{@link #getLinearStage() <em>Linear stage</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 *
+	 * @see #getLinearStage()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final String LINEAR_STAGE_EDEFAULT = "";
+
+	/**
+	 * The cached value of the '{@link #getLinearStage() <em>Linear stage</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 *
+	 * @see #getLinearStage()
+	 * @generated
+	 * @ordered
+	 */
+	protected String linearStage = LINEAR_STAGE_EDEFAULT;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -783,6 +968,125 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 		}
 	}
 
+	@Override
+	public String getDetectorToSampleDistance() {
+		return detectorToSampleDistance;
+	}
+
+	@Override
+	public void setDetectorToSampleDistance(String value) {
+		final String oldDetectorToSampleDistance = detectorToSampleDistance;
+		detectorToSampleDistance = value;
+		if (eNotificationRequired()) {
+			eNotify(new ENotificationImpl(this, Notification.SET, ScanPackage.PARAMETERS__DETECTOR_TO_SAMPLE_DISTANCE, oldDetectorToSampleDistance, value));
+		}
+	}
+
+	@Override
+	public String getDetectorToSampleDistanceUnits() {
+		return detectorToSampleDistanceUnits;
+	}
+
+	@Override
+	public void setDetectorToSampleDistanceUnits(String value) {
+		final String oldDetectorToSampleDistanceUnits = detectorToSampleDistanceUnits;
+		detectorToSampleDistanceUnits = value;
+		if (eNotificationRequired()) {
+			eNotify(new ENotificationImpl(this, Notification.SET, ScanPackage.PARAMETERS__DETECTOR_TO_SAMPLE_DISTANCE_UNITS,
+					oldDetectorToSampleDistanceUnits, value));
+		}
+	}
+
+	@Override
+	public String getXPixelSize() {
+		return xPixelSize;
+	}
+
+	@Override
+	public void setXPixelSize(String value) {
+		final String oldXPixelSize = xPixelSize;
+		xPixelSize = value;
+		if (eNotificationRequired()) {
+			eNotify(new ENotificationImpl(this, Notification.SET, ScanPackage.PARAMETERS__X_PIXEL_SIZE,
+					oldXPixelSize, value));
+		}
+	}
+
+	@Override
+	public String getXPixelSizeUnits() {
+		return xPixelSizeUnits;
+	}
+
+	@Override
+	public void setXPixelSizeUnits(String value) {
+		final String oldXPixelSizeUnits = xPixelSizeUnits;
+		xPixelSizeUnits = value;
+		if (eNotificationRequired()) {
+			eNotify(new ENotificationImpl(this, Notification.SET, ScanPackage.PARAMETERS__X_PIXEL_SIZE_UNITS,
+					oldXPixelSizeUnits, value));
+		}
+	}
+
+	@Override
+	public String getYPixelSize() {
+		return yPixelSize;
+	}
+
+	@Override
+	public void setYPixelSize(String value) {
+		final String oldYPixelSize = yPixelSize;
+		yPixelSize = value;
+		if (eNotificationRequired()) {
+			eNotify(new ENotificationImpl(this, Notification.SET, ScanPackage.PARAMETERS__Y_PIXEL_SIZE,
+					oldYPixelSize, value));
+		}
+	}
+
+	@Override
+	public String getYPixelSizeUnits() {
+		return yPixelSizeUnits;
+	}
+
+	@Override
+	public void setYPixelSizeUnits(String value) {
+		final String oldYPixelSizeUnits = yPixelSizeUnits;
+		yPixelSizeUnits = value;
+		if (eNotificationRequired()) {
+			eNotify(new ENotificationImpl(this, Notification.SET, ScanPackage.PARAMETERS__Y_PIXEL_SIZE_UNITS,
+					oldYPixelSizeUnits, value));
+		}
+	}
+
+	@Override
+	public String getRotationStage() {
+		return rotationStage;
+	}
+
+	@Override
+	public void setRotationStage(String value) {
+		final String oldRotationStage = rotationStage;
+		rotationStage = value;
+		if (eNotificationRequired()) {
+			eNotify(new ENotificationImpl(this, Notification.SET, ScanPackage.PARAMETERS__ROTATION_STAGE,
+					oldRotationStage, value));
+		}
+	}
+
+	@Override
+	public String getLinearStage() {
+		return linearStage;
+	}
+
+	@Override
+	public void setLinearStage(String value) {
+		final String oldLinearStage = linearStage;
+		linearStage = value;
+		if (eNotificationRequired()) {
+			eNotify(new ENotificationImpl(this, Notification.SET, ScanPackage.PARAMETERS__LINEAR_STAGE,
+					oldLinearStage, value));
+		}
+	}
+
 	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -825,6 +1129,22 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 			return getFlyScanDelay();
 		case ScanPackage.PARAMETERS__APPROX_CENTRE_OF_ROTATION:
 			return getApproxCentreOfRotation();
+		case ScanPackage.PARAMETERS__DETECTOR_TO_SAMPLE_DISTANCE:
+			return getDetectorToSampleDistance();
+		case ScanPackage.PARAMETERS__DETECTOR_TO_SAMPLE_DISTANCE_UNITS:
+			return getDetectorToSampleDistanceUnits();
+		case ScanPackage.PARAMETERS__X_PIXEL_SIZE:
+			return getXPixelSize();
+		case ScanPackage.PARAMETERS__X_PIXEL_SIZE_UNITS:
+			return getXPixelSizeUnits();
+		case ScanPackage.PARAMETERS__Y_PIXEL_SIZE:
+			return getYPixelSize();
+		case ScanPackage.PARAMETERS__Y_PIXEL_SIZE_UNITS:
+			return getYPixelSizeUnits();
+		case ScanPackage.PARAMETERS__ROTATION_STAGE:
+			return getRotationStage();
+		case ScanPackage.PARAMETERS__LINEAR_STAGE:
+			return getLinearStage();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -887,6 +1207,30 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 			return;
 		case ScanPackage.PARAMETERS__APPROX_CENTRE_OF_ROTATION:
 			setApproxCentreOfRotation((String) newValue);
+			return;
+		case ScanPackage.PARAMETERS__DETECTOR_TO_SAMPLE_DISTANCE:
+			setDetectorToSampleDistance((String) newValue);
+			return;
+		case ScanPackage.PARAMETERS__DETECTOR_TO_SAMPLE_DISTANCE_UNITS:
+			setDetectorToSampleDistanceUnits((String) newValue);
+			return;
+		case ScanPackage.PARAMETERS__X_PIXEL_SIZE:
+			setXPixelSize((String) newValue);
+			return;
+		case ScanPackage.PARAMETERS__X_PIXEL_SIZE_UNITS:
+			setXPixelSizeUnits((String) newValue);
+			return;
+		case ScanPackage.PARAMETERS__Y_PIXEL_SIZE:
+			setYPixelSize((String) newValue);
+			return;
+		case ScanPackage.PARAMETERS__Y_PIXEL_SIZE_UNITS:
+			setYPixelSizeUnits((String) newValue);
+			return;
+		case ScanPackage.PARAMETERS__ROTATION_STAGE:
+			setRotationStage((String) newValue);
+			return;
+		case ScanPackage.PARAMETERS__LINEAR_STAGE:
+			setLinearStage((String) newValue);
 			return;
 		}
 		super.eSet(featureID, newValue);
@@ -951,6 +1295,30 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 		case ScanPackage.PARAMETERS__APPROX_CENTRE_OF_ROTATION:
 			setApproxCentreOfRotation(APPROX_CENTRE_OF_ROTATION_EDEFAULT);
 			return;
+		case ScanPackage.PARAMETERS__DETECTOR_TO_SAMPLE_DISTANCE:
+			setDetectorToSampleDistance(DETECTOR_TO_SAMPLE_DISTANCE_EDEFAULT);
+			return;
+		case ScanPackage.PARAMETERS__DETECTOR_TO_SAMPLE_DISTANCE_UNITS:
+			setDetectorToSampleDistanceUnits(DETECTOR_TO_SAMPLE_DISTANCE_UNITS_EDEFAULT);
+			return;
+		case ScanPackage.PARAMETERS__X_PIXEL_SIZE:
+			setXPixelSize(X_PIXEL_SIZE_EDEFAULT);
+			return;
+		case ScanPackage.PARAMETERS__X_PIXEL_SIZE_UNITS:
+			setXPixelSizeUnits(X_PIXEL_SIZE_UNITS_EDEFAULT);
+			return;
+		case ScanPackage.PARAMETERS__Y_PIXEL_SIZE:
+			setYPixelSize(Y_PIXEL_SIZE_EDEFAULT);
+			return;
+		case ScanPackage.PARAMETERS__Y_PIXEL_SIZE_UNITS:
+			setYPixelSizeUnits(Y_PIXEL_SIZE_UNITS_EDEFAULT);
+			return;
+		case ScanPackage.PARAMETERS__ROTATION_STAGE:
+			setRotationStage(ROTATION_STAGE_EDEFAULT);
+			return;
+		case ScanPackage.PARAMETERS__LINEAR_STAGE:
+			setLinearStage(LINEAR_STAGE_EDEFAULT);
+			return;
 		}
 		super.eUnset(featureID);
 	}
@@ -998,6 +1366,22 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 			return flyScanDelay != FLY_SCAN_DELAY_EDEFAULT;
 		case ScanPackage.PARAMETERS__APPROX_CENTRE_OF_ROTATION:
 			return approxCentreOfRotation != APPROX_CENTRE_OF_ROTATION_EDEFAULT;
+		case ScanPackage.PARAMETERS__DETECTOR_TO_SAMPLE_DISTANCE:
+			return detectorToSampleDistance != DETECTOR_TO_SAMPLE_DISTANCE_EDEFAULT;
+		case ScanPackage.PARAMETERS__DETECTOR_TO_SAMPLE_DISTANCE_UNITS:
+			return detectorToSampleDistanceUnits != DETECTOR_TO_SAMPLE_DISTANCE_UNITS_EDEFAULT;
+		case ScanPackage.PARAMETERS__X_PIXEL_SIZE:
+			return xPixelSize != X_PIXEL_SIZE_EDEFAULT;
+		case ScanPackage.PARAMETERS__X_PIXEL_SIZE_UNITS:
+			return xPixelSizeUnits != X_PIXEL_SIZE_UNITS_EDEFAULT;
+		case ScanPackage.PARAMETERS__Y_PIXEL_SIZE:
+			return yPixelSize != Y_PIXEL_SIZE_EDEFAULT;
+		case ScanPackage.PARAMETERS__Y_PIXEL_SIZE_UNITS:
+			return yPixelSizeUnits != Y_PIXEL_SIZE_UNITS_EDEFAULT;
+		case ScanPackage.PARAMETERS__ROTATION_STAGE:
+			return rotationStage != ROTATION_STAGE_EDEFAULT;
+		case ScanPackage.PARAMETERS__LINEAR_STAGE:
+			return linearStage != LINEAR_STAGE_EDEFAULT;
 		}
 		return super.eIsSet(featureID);
 	}
@@ -1047,7 +1431,24 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 		result.append(flyScanDelay);
 		result.append(", approxCentreOfRotation: ");
 		result.append(approxCentreOfRotation);
+		result.append(", detectorToSampleDistance: ");
+		result.append(detectorToSampleDistance);
+		result.append(", detectorToSampleDistanceUnits: ");
+		result.append(detectorToSampleDistanceUnits);
+		result.append(", xPixelSize: ");
+		result.append(xPixelSize);
+		result.append(", xPixelSizeUnits: ");
+		result.append(xPixelSizeUnits);
+		result.append(", yPixelSize: ");
+		result.append(yPixelSize);
+		result.append(", yPixelSizeUnits: ");
+		result.append(yPixelSizeUnits);
+		result.append(", rotationStage: ");
+		result.append(rotationStage);
+		result.append(", linearStage: ");
+		result.append(linearStage);
 		result.append(')');
+
 		return result.toString();
 	}
 

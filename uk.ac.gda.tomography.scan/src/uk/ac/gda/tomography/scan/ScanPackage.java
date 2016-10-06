@@ -227,12 +227,92 @@ public interface ScanPackage extends EPackage {
 	int PARAMETERS__APPROX_CENTRE_OF_ROTATION = 16;
 
 	/**
+	 * The feature id for the '<em><b>Detector to sample distance</b></em>' attribute.<br>
+	 * <!-- begin-user-doc --><br>
+	 * <!-- end-user-doc -->
+	 *
+	 * @generated
+	 * @ordered
+	 */
+	int PARAMETERS__DETECTOR_TO_SAMPLE_DISTANCE = 17;
+
+	/**
+	 * The feature id for the '<em><b>Detector to sample distance units</b></em>' attribute.<br>
+	 * <!-- begin-user-doc --><br>
+	 * <!-- end-user-doc -->
+	 *
+	 * @generated
+	 * @ordered
+	 */
+	int PARAMETERS__DETECTOR_TO_SAMPLE_DISTANCE_UNITS = 18;
+
+	/**
+	 * The feature id for the '<em><b>x pixel size</b></em>' attribute.<br>
+	 * <!-- begin-user-doc --><br>
+	 * <!-- end-user-doc -->
+	 *
+	 * @generated
+	 * @ordered
+	 */
+	int PARAMETERS__X_PIXEL_SIZE = 19;
+
+	/**
+	 * The feature id for the '<em><b>x pixel size</b></em>' attribute.<br>
+	 * <!-- begin-user-doc --><br>
+	 * <!-- end-user-doc -->
+	 *
+	 * @generated
+	 * @ordered
+	 */
+	int PARAMETERS__X_PIXEL_SIZE_UNITS = 20;
+
+	/**
+	 * The feature id for the '<em><b>y pixel size</b></em>' attribute.<br>
+	 * <!-- begin-user-doc --><br>
+	 * <!-- end-user-doc -->
+	 *
+	 * @generated
+	 * @ordered
+	 */
+	int PARAMETERS__Y_PIXEL_SIZE = 21;
+
+	/**
+	 * The feature id for the '<em><b>y pixel size units</b></em>' attribute.<br>
+	 * <!-- begin-user-doc --><br>
+	 * <!-- end-user-doc -->
+	 *
+	 * @generated
+	 * @ordered
+	 */
+	int PARAMETERS__Y_PIXEL_SIZE_UNITS = 22;
+
+	/**
+	 * The feature id for the '<em><b>Rotation stage</b></em>' attribute.<br>
+	 * <!-- begin-user-doc --><br>
+	 * <!-- end-user-doc -->
+	 *
+	 * @generated
+	 * @ordered
+	 */
+	int PARAMETERS__ROTATION_STAGE = 23;
+
+	/**
+	 * The feature id for the '<em><b>Linear stage</b></em>' attribute.<br>
+	 * <!-- begin-user-doc --><br>
+	 * <!-- end-user-doc -->
+	 *
+	 * @generated
+	 * @ordered
+	 */
+	int PARAMETERS__LINEAR_STAGE = 24;
+
+	/**
 	 * The number of structural features of the '<em>Parameters</em>' class. <!-- begin-user-doc --> <!-- end-user-doc -->
 	 *
 	 * @generated
 	 * @ordered
 	 */
-	int PARAMETERS_FEATURE_COUNT = 17;
+	int PARAMETERS_FEATURE_COUNT = 25;
 
 	/**
 	 * Returns the meta object for class '{@link uk.ac.gda.tomography.scan.Parameters <em>Parameters</em>}'.
@@ -434,6 +514,110 @@ public interface ScanPackage extends EPackage {
 	EAttribute getParameters_ApproxCentreOfRotation();
 
 	/**
+	 * Returns the meta object for the attribute '{@link uk.ac.gda.tomography.scan.Parameters#getDetectorToSampleDistance <em>Detector to sample distance</em>}
+	 * '.
+	 * <p>
+	 * <!-- begin-user-doc --><br>
+	 * <!-- end-user-doc -->
+	 *
+	 * @return the meta object for the attribute '<em>Detector to sample distance</em>'.
+	 * @see uk.ac.gda.tomography.scan.Parameters#getDetectorToSampleDistance()
+	 * @see #getParameters()
+	 */
+	EAttribute getParameters_DetectorToSampleDistance();
+
+	/**
+	 * Returns the meta object for the attribute '{@link uk.ac.gda.tomography.scan.Parameters#getDetectorToSampleDistanceUnits <em>Detector to sample distance units</em>}
+	 * '.
+	 * <p>
+	 * <!-- begin-user-doc --><br>
+	 * <!-- end-user-doc -->
+	 *
+	 * @return the meta object for the attribute '<em>Detector to sample distance units</em>'.
+	 * @see uk.ac.gda.tomography.scan.Parameters#getDetectorToSampleDistanceUnits()
+	 * @see #getParameters()
+	 */
+	EAttribute getParameters_DetectorToSampleDistanceUnits();
+
+	/**
+	 * Returns the meta object for the attribute '{@link uk.ac.gda.tomography.scan.Parameters#getXPixelSize <em>x pixel size</em>}
+	 * '.
+	 * <p>
+	 * <!-- begin-user-doc --><br>
+	 * <!-- end-user-doc -->
+	 *
+	 * @return the meta object for the attribute '<em>x pixel size</em>'.
+	 * @see uk.ac.gda.tomography.scan.Parameters#getXPixelSize()
+	 * @see #getParameters()
+	 */
+	EAttribute getParameters_XPixelSize();
+
+	/**
+	 * Returns the meta object for the attribute '{@link uk.ac.gda.tomography.scan.Parameters#getXPixelSizeUnits <em>x pixel size units</em>}
+	 * '.
+	 * <p>
+	 * <!-- begin-user-doc --><br>
+	 * <!-- end-user-doc -->
+	 *
+	 * @return the meta object for the attribute '<em>x pixel size units</em>'.
+	 * @see uk.ac.gda.tomography.scan.Parameters#getXPixelSizeUnits()
+	 * @see #getParameters()
+	 */
+	EAttribute getParameters_XPixelSizeUnits();
+
+	/**
+	 * Returns the meta object for the attribute '{@link uk.ac.gda.tomography.scan.Parameters#getYPixelSize <em>y pixel size</em>}
+	 * '.
+	 * <p>
+	 * <!-- begin-user-doc --><br>
+	 * <!-- end-user-doc -->
+	 *
+	 * @return the meta object for the attribute '<em>y pixel size</em>'.
+	 * @see uk.ac.gda.tomography.scan.Parameters#getYPixelSize()
+	 * @see #getParameters()
+	 */
+	EAttribute getParameters_YPixelSize();
+
+	/**
+	 * Returns the meta object for the attribute '{@link uk.ac.gda.tomography.scan.Parameters#getYPixelSizeUnits <em>y pixel size units</em>}
+	 * '.
+	 * <p>
+	 * <!-- begin-user-doc --><br>
+	 * <!-- end-user-doc -->
+	 *
+	 * @return the meta object for the attribute '<em>y pixel size units</em>'.
+	 * @see uk.ac.gda.tomography.scan.Parameters#getYPixelSizeUnits()
+	 * @see #getParameters()
+	 */
+	EAttribute getParameters_YPixelSizeUnits();
+
+	/**
+	 * Returns the meta object for the attribute '{@link uk.ac.gda.tomography.scan.Parameters#getRotationStage <em>Rotation stage</em>}
+	 * '.
+	 * <p>
+	 * <!-- begin-user-doc --><br>
+	 * <!-- end-user-doc -->
+	 *
+	 * @return the meta object for the attribute '<em>Rotation stage</em>'.
+	 * @see uk.ac.gda.tomography.scan.Parameters#getRotationStage()
+	 * @see #getParameters()
+	 */
+	EAttribute getParameters_RotationStage();
+
+	/**
+	 * Returns the meta object for the attribute '{@link uk.ac.gda.tomography.scan.Parameters#getLinearStage <em>Linear stage</em>}
+	 * '.
+	 * <p>
+	 * <!-- begin-user-doc --><br>
+	 * <!-- end-user-doc -->
+	 *
+	 * @return the meta object for the attribute '<em>Linear stage</em>'.
+	 * @see uk.ac.gda.tomography.scan.Parameters#getLinearStage()
+	 * @see #getParameters()
+	 */
+	EAttribute getParameters_LinearStage();
+
+	/**
 	 * Returns the factory that creates the instances of the model. <!-- begin-user-doc --> <!-- end-user-doc -->
 	 *
 	 * @return the factory that creates the instances of the model.
@@ -582,6 +766,70 @@ public interface ScanPackage extends EPackage {
 		 * @generated
 		 */
 		EAttribute PARAMETERS__APPROX_CENTRE_OF_ROTATION = eINSTANCE.getParameters_ApproxCentreOfRotation();
+
+		/**
+		 * The meta object literal for the '<em><b>Detector to sample distance</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute PARAMETERS__DETECTOR_TO_SAMPLE_DISTANCE = eINSTANCE.getParameters_DetectorToSampleDistance();
+
+		/**
+		 * The meta object literal for the '<em><b>Detector to sample distance units</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute PARAMETERS__DETECTOR_TO_SAMPLE_DISTANCE_UNITS = eINSTANCE.getParameters_DetectorToSampleDistanceUnits();
+
+		/**
+		 * The meta object literal for the '<em><b>x pixel size</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute PARAMETERS__X_PIXEL_SIZE = eINSTANCE.getParameters_XPixelSize();
+
+		/**
+		 * The meta object literal for the '<em><b>x pixel size units</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute PARAMETERS__X_PIXEL_SIZE_UNITS = eINSTANCE.getParameters_XPixelSizeUnits();
+
+		/**
+		 * The meta object literal for the '<em><b>y pixel size</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute PARAMETERS__Y_PIXEL_SIZE = eINSTANCE.getParameters_YPixelSize();
+
+		/**
+		 * The meta object literal for the '<em><b>y pixel size units</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute PARAMETERS__Y_PIXEL_SIZE_UNITS = eINSTANCE.getParameters_YPixelSizeUnits();
+
+		/**
+		 * The meta object literal for the '<em><b>Rotation stage</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute PARAMETERS__ROTATION_STAGE = eINSTANCE.getParameters_RotationStage();
+
+		/**
+		 * The meta object literal for the '<em><b>Linear stage</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute PARAMETERS__LINEAR_STAGE = eINSTANCE.getParameters_LinearStage();
 	}
 
 } //ScanPackage

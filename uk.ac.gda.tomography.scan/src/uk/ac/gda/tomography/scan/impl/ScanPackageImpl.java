@@ -253,6 +253,47 @@ public class ScanPackageImpl extends EPackageImpl implements ScanPackage {
 		return (EAttribute) parametersEClass.getEStructuralFeatures().get(ScanPackage.PARAMETERS__APPROX_CENTRE_OF_ROTATION);
 	}
 
+
+	@Override
+	public EAttribute getParameters_DetectorToSampleDistance() {
+		return (EAttribute) parametersEClass.getEStructuralFeatures().get(ScanPackage.PARAMETERS__DETECTOR_TO_SAMPLE_DISTANCE);
+	}
+
+	@Override
+	public EAttribute getParameters_DetectorToSampleDistanceUnits() {
+		return (EAttribute) parametersEClass.getEStructuralFeatures().get(ScanPackage.PARAMETERS__DETECTOR_TO_SAMPLE_DISTANCE_UNITS);
+	}
+
+	@Override
+	public EAttribute getParameters_XPixelSize() {
+		return (EAttribute) parametersEClass.getEStructuralFeatures().get(ScanPackage.PARAMETERS__X_PIXEL_SIZE);
+	}
+
+	@Override
+	public EAttribute getParameters_XPixelSizeUnits() {
+		return (EAttribute) parametersEClass.getEStructuralFeatures().get(ScanPackage.PARAMETERS__X_PIXEL_SIZE_UNITS);
+	}
+
+	@Override
+	public EAttribute getParameters_YPixelSize() {
+		return (EAttribute) parametersEClass.getEStructuralFeatures().get(ScanPackage.PARAMETERS__Y_PIXEL_SIZE);
+	}
+
+	@Override
+	public EAttribute getParameters_YPixelSizeUnits() {
+		return (EAttribute) parametersEClass.getEStructuralFeatures().get(ScanPackage.PARAMETERS__Y_PIXEL_SIZE_UNITS);
+	}
+
+	@Override
+	public EAttribute getParameters_RotationStage() {
+		return (EAttribute) parametersEClass.getEStructuralFeatures().get(ScanPackage.PARAMETERS__ROTATION_STAGE);
+	}
+
+	@Override
+	public EAttribute getParameters_LinearStage() {
+		return (EAttribute) parametersEClass.getEStructuralFeatures().get(ScanPackage.PARAMETERS__LINEAR_STAGE);
+	}
+
 	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -301,6 +342,14 @@ public class ScanPackageImpl extends EPackageImpl implements ScanPackage {
 		createEAttribute(parametersEClass, PARAMETERS__NUM_FLY_SCANS);
 		createEAttribute(parametersEClass, PARAMETERS__FLY_SCAN_DELAY);
 		createEAttribute(parametersEClass, PARAMETERS__APPROX_CENTRE_OF_ROTATION);
+		createEAttribute(parametersEClass, PARAMETERS__DETECTOR_TO_SAMPLE_DISTANCE);
+		createEAttribute(parametersEClass, PARAMETERS__DETECTOR_TO_SAMPLE_DISTANCE_UNITS);
+		createEAttribute(parametersEClass, PARAMETERS__X_PIXEL_SIZE);
+		createEAttribute(parametersEClass, PARAMETERS__X_PIXEL_SIZE_UNITS);
+		createEAttribute(parametersEClass, PARAMETERS__Y_PIXEL_SIZE);
+		createEAttribute(parametersEClass, PARAMETERS__Y_PIXEL_SIZE_UNITS);
+		createEAttribute(parametersEClass, PARAMETERS__ROTATION_STAGE);
+		createEAttribute(parametersEClass, PARAMETERS__LINEAR_STAGE);
 	}
 
 	/**
@@ -407,7 +456,38 @@ public class ScanPackageImpl extends EPackageImpl implements ScanPackage {
 				getParameters_ApproxCentreOfRotation(),
 				ecorePackage.getEString(),
 				"approxCentreOfRotation", "", 1, 1, Parameters.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-
+		initEAttribute(
+				getParameters_DetectorToSampleDistance(),
+				ecorePackage.getEString(),
+				"detectorToSampleDistance", "", 1, 1, Parameters.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(
+				getParameters_DetectorToSampleDistanceUnits(),
+				ecorePackage.getEString(),
+				"detectorToSampleDistanceUnits", "", 1, 1, Parameters.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(
+				getParameters_XPixelSize(),
+				ecorePackage.getEString(),
+				"xPixelSize", "", 1, 1, Parameters.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(
+				getParameters_XPixelSizeUnits(),
+				ecorePackage.getEString(),
+				"xPixelSizeUnits", "", 1, 1, Parameters.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(
+				getParameters_YPixelSize(),
+				ecorePackage.getEString(),
+				"yPixelSize", "", 1, 1, Parameters.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(
+				getParameters_YPixelSizeUnits(),
+				ecorePackage.getEString(),
+				"yPixelSizeUnits", "", 1, 1, Parameters.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(
+				getParameters_RotationStage(),
+				ecorePackage.getEString(),
+				"rotationStage", "", 1, 1, Parameters.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(
+				getParameters_LinearStage(),
+				ecorePackage.getEString(),
+				"linearStage", "", 1, 1, Parameters.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		// Create resource
 		createResource(eNS_URI);

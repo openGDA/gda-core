@@ -284,4 +284,117 @@ public interface Parameters extends EObject {
 	 *            the new value of the '<em>Approximate centre of rotation</em>' attribute.
 	 */
 	void setApproxCentreOfRotation(String value);
+
+	/**
+	 * @model required="true" default="false" unsettable="false"
+	 * @return detector to sample distance (default is null)
+	 */
+	String getDetectorToSampleDistance();
+
+	/**
+	 * Sets the value of the '{@link uk.ac.gda.tomography.scan.Parameters#getDetectorToSampleDistance <em>Detector to sample distance</em>}' attribute.
+	 *
+	 * @param value
+	 *            the new value of the '<em>Detector to sample distance</em>' attribute.
+	 */
+	void setDetectorToSampleDistance(String value);
+
+	/**
+	 * @model required="true" default="false" unsettable="false"
+	 * @return detector to sample distance units (default is null)
+	 */
+	String getDetectorToSampleDistanceUnits();
+
+	/**
+	 * Sets the value of the '{@link uk.ac.gda.tomography.scan.Parameters#getDetectorToSampleDistanceUnits <em>Detector to sample distance</em>}' attribute.
+	 *
+	 * @param value
+	 *            the new value of the '<em>Detector to sample distance</em>' attribute.
+	 */
+	void setDetectorToSampleDistanceUnits(String value);
+
+	/**
+	 * @model required="true" default="false" unsettable="false"
+	 * @return x pixel size (default is null)
+	 */
+	String getXPixelSize();
+
+	/**
+	 * Sets the value of the '{@link uk.ac.gda.tomography.scan.Parameters#getXPixelSize <em>x pixel size</em>}' attribute.
+	 *
+	 * @param value
+	 *            the new value of the '<em>x pixel size</em>' attribute.
+	 */
+	void setXPixelSize(String value);
+
+	/**
+	 * @model required="true" default="false" unsettable="false"
+	 * @return x pixel size units (default is null)
+	 */
+	String getXPixelSizeUnits();
+
+	/**
+	 * Sets the value of the '{@link uk.ac.gda.tomography.scan.Parameters#getXPixelSizeUnits <em>x pixel size units</em>}' attribute.
+	 *
+	 * @param value
+	 *            the new value of the '<em>x pixel size units</em>' attribute.
+	 */
+	void setXPixelSizeUnits(String value);
+
+	/**
+	 * @model required="true" default="false" unsettable="false"
+	 * @return y pixel size (default is null)
+	 */
+	String getYPixelSize();
+
+	/**
+	 * Sets the value of the '{@link uk.ac.gda.tomography.scan.Parameters#getYPixelSize <em>y pixel size</em>}' attribute.
+	 *
+	 * @param value
+	 *            the new value of the '<em>y pixel size</em>' attribute.
+	 */
+	void setYPixelSize(String value);
+
+	/**
+	 * @model required="true" default="false" unsettable="false"
+	 * @return y pixel size (default is null)
+	 */
+	String getYPixelSizeUnits();
+
+	/**
+	 * Sets the value of the '{@link uk.ac.gda.tomography.scan.Parameters#getYPixelSizeUnits <em>y pixel size units</em>}' attribute.
+	 *
+	 * @param value
+	 *            the new value of the '<em>y pixel size units</em>' attribute.
+	 */
+	void setYPixelSizeUnits(String value);
+
+	/**
+	 * @model required="true" default="false" unsettable="false"
+	 * @return rotation stage (default is null)
+	 */
+	String getRotationStage();
+
+	/**
+	 * Sets the value of the '{@link uk.ac.gda.tomography.scan.Parameters#getRotationStage <em>Rotation stage</em>}' attribute.
+	 *
+	 * @param value
+	 *            the new value of the '<em>Rotation stage</em>' attribute.
+	 */
+	void setRotationStage(String value);
+
+	/**
+	 * @model required="true" default="false" unsettable="false"
+	 * @return linear stage (default is null)
+	 */
+	String getLinearStage();
+
+	/**
+	 * Sets the value of the '{@link uk.ac.gda.tomography.scan.Parameters#getLinearStage <em>Linear stage</em>}' attribute.
+	 *
+	 * @param value
+	 *            the new value of the '<em>Linear stage</em>' attribute.
+	 */
+	void setLinearStage(String value);
+
 }
