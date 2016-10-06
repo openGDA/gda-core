@@ -8,10 +8,13 @@ import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
+import org.eclipse.scanning.api.annotation.scan.PostConfigure;
+import org.eclipse.scanning.api.annotation.scan.PreConfigure;
 import org.eclipse.scanning.api.device.AbstractRunnableDevice;
 import org.eclipse.scanning.api.device.IWritableDetector;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.points.IPosition;
+import org.eclipse.scanning.api.scan.ScanInformation;
 import org.eclipse.scanning.api.scan.ScanningException;
 
 import gda.device.DeviceException;
@@ -57,6 +60,13 @@ public class AreaDetectorWritingFilesRunnableDevice<T extends AreaDetectorWritin
 			throw new ScanningException("Acquiring from detector failed", e);
 		}
 		setDeviceState(DeviceState.READY);
+	}
+
+	private ScanInformation information;
+
+	@PreConfigure
+	public void preConfigure(ScanInformation info) {
+		this.information = info;
 	}
 
 	@Override
@@ -106,8 +116,8 @@ public class AreaDetectorWritingFilesRunnableDevice<T extends AreaDetectorWritin
 
 			// FIXME This only handles raster type scans (not snake) and ones in a line square or cube.
 			// Think the solution is to use the POS plugin to tell AD in advance where the frames are going
-			int[] scanShape = getBean().getShape();
-			switch (scanShape.length) {
+			int[] scanShape = information.getShape();
+			switch (information.getRank()) {
 			case 1: // 1D Scan
 				ndFileHDF5.setNumExtraDims(0); // 1D scan so no extra dims
 				ndFileHDF5.setNumCapture(scanShape[0]);
@@ -142,6 +152,11 @@ public class AreaDetectorWritingFilesRunnableDevice<T extends AreaDetectorWritin
 
 		// Setup the underlying area detector the same
 		super.configure(model);
+	}
+
+	@PostConfigure
+	public void postConfigure() {
+		this.information = null; // Just to avoid memory leaks
 	}
 
 	@Override
