@@ -23,7 +23,7 @@ import uk.ac.diamond.daq.mapping.api.IMappingExperimentBeanProvider;
 
 public class MappingExperimentBeanProvider implements IMappingExperimentBeanProvider {
 
-	MappingExperimentBean mappingExperimentBean;
+	private MappingExperimentBean mappingExperimentBean;
 
 	@Override
 	public IMappingExperimentBean getMappingExperimentBean() {

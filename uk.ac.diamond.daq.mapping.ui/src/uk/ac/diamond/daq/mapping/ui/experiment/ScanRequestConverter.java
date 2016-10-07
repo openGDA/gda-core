@@ -18,9 +18,12 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
+import java.util.Map;
+
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
+import org.eclipse.scanning.api.points.MapPosition;
 import org.eclipse.scanning.api.points.models.AbstractBoundingBoxModel;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
@@ -91,12 +94,20 @@ public class ScanRequestConverter {
 
 		req.setCompoundModel(cmodel);
 
+		// set the beamline start position
+		Map<String, Object> beamlineConfiguration = mappingExperimentBean.getBeamlineConfiguration();
+		if (beamlineConfiguration != null) {
+			req.setStart(new MapPosition(beamlineConfiguration));
+		}
+
+		// add the required detectors to the scan
 		for (IDetectorModelWrapper detectorWrapper : mappingExperimentBean.getDetectorParameters()) {
 			if (detectorWrapper.isIncludeInScan()) {
 				req.putDetector(detectorWrapper.getName(), detectorWrapper.getModel());
 			}
 		}
 
+		// set the scripts to run before and after the scan if any
 		if (mappingExperimentBean.getScriptFiles() != null) {
 			IScriptFiles scriptFiles = mappingExperimentBean.getScriptFiles();
 			req.setBefore(getScriptRequest(scriptFiles.getBeforeScanScript()));
