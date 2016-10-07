@@ -356,4 +356,9 @@ public class NDFileHDF5Simulator implements NDFileHDF5 {
 		// Simulation doesn't support SWMR
 		return false;
 	}
+
+	@Override
+	public void setExtraDimensions(int[] actualDims) throws Exception {
+
+	}
 }

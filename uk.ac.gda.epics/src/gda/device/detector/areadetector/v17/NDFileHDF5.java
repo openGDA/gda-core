@@ -197,4 +197,6 @@ public interface NDFileHDF5 {
 	 */
 	boolean isSWMRSupported() throws Exception;
 
+	void setExtraDimensions(int[] actualDims) throws Exception;
+
 }

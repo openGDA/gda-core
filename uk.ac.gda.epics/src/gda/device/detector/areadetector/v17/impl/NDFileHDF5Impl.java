@@ -1087,4 +1087,24 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 		}
 	}
 
+	@Override
+	public void setExtraDimensions(int[] actualDims) throws Exception {
+		if (actualDims.length > 3) {
+			logger.error("Current version of AreaDetector doesn't support >3 dimensions.");
+			logger.info("If new version of AD is available use NDFileHDF5ExtraDimension instead");
+			throw new IllegalArgumentException("Maximum dimensions for storing in hdf is currently 3. Value specified = " + actualDims.length);
+		}
+		if (actualDims.length == 1) {
+			setNumExtraDims(0);
+		} else if (actualDims.length == 2) {
+			setNumExtraDims(1);
+			setExtraDimSizeN(actualDims[1]);
+			setExtraDimSizeX(actualDims[0]);
+		} else if (actualDims.length == 3) {
+			setNumExtraDims(2);
+			setExtraDimSizeN(actualDims[2]);
+			setExtraDimSizeX(actualDims[1]);
+			setExtraDimSizeY(actualDims[0]);
+		}
+	}
 }
