@@ -1,72 +1,28 @@
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 
-import org.eclipse.core.databinding.Binding;
-import org.eclipse.core.databinding.DataBindingContext;
-import org.eclipse.core.databinding.UpdateValueStrategy;
-import org.eclipse.core.databinding.beans.PojoProperties;
-import org.eclipse.core.databinding.conversion.Converter;
-import org.eclipse.core.databinding.observable.value.IObservableValue;
-import org.eclipse.core.databinding.validation.ValidationStatus;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.jobs.IJobChangeEvent;
-import org.eclipse.core.runtime.jobs.JobChangeAdapter;
-import org.eclipse.e4.core.contexts.ContextInjectionFactory;
 import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.e4.core.di.annotations.Optional;
 import org.eclipse.e4.ui.di.Focus;
 import org.eclipse.e4.ui.di.UIEventTopic;
-import org.eclipse.e4.ui.di.UISynchronize;
-import org.eclipse.e4.ui.services.IServiceConstants;
-import org.eclipse.jface.databinding.fieldassist.ControlDecorationSupport;
-import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
-import org.eclipse.jface.viewers.ArrayContentProvider;
-import org.eclipse.jface.viewers.ComboViewer;
-import org.eclipse.jface.viewers.ISelectionChangedListener;
-import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.jface.viewers.LabelProvider;
-import org.eclipse.jface.viewers.SelectionChangedEvent;
-import org.eclipse.jface.viewers.StructuredSelection;
-import org.eclipse.jface.window.Window;
-import org.eclipse.richbeans.api.generator.IGuiGeneratorService;
-import org.eclipse.scanning.api.device.IScannableDeviceService;
-import org.eclipse.scanning.api.event.EventException;
-import org.eclipse.scanning.api.event.IEventService;
-import org.eclipse.scanning.api.event.scan.ScanBean;
-import org.eclipse.scanning.api.points.models.ArrayModel;
-import org.eclipse.scanning.api.points.models.IScanPathModel;
-import org.eclipse.scanning.api.points.models.StepModel;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.mapping.api.IDetectorModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBeanProvider;
-import uk.ac.diamond.daq.mapping.api.IMappingRegionManager;
-import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
-import uk.ac.diamond.daq.mapping.api.IScanPathModelWrapper;
 
 /**
  * An E4-style POJO class for the mapping experiment view. This allows all dependencies to be injected (currently by a ViewPart instance until we have
@@ -75,113 +31,24 @@ import uk.ac.diamond.daq.mapping.api.IScanPathModelWrapper;
  */
 public class MappingExperimentView {
 
-	private class RegionSelectorListener implements ISelectionChangedListener {
-
-		private final ComboViewer pathSelector;
-		private final PropertyChangeListener regionBeanPropertyChangeListener;
-
-		private RegionSelectorListener(ComboViewer pathSelector) {
-			this.pathSelector = pathSelector;
-			this.regionBeanPropertyChangeListener = new PropertyChangeListener() {
-				@Override
-				public void propertyChange(PropertyChangeEvent evt) {
-					plotter.updatePlotRegionFrom(scanRegion);
-					updatePoints();
-				}
-			};
-		}
-
-		@Override
-		public void selectionChanged(SelectionChangedEvent event) {
-			logger.debug("Region selection event: {}", event);
-
-			// Get the new selection.
-			IStructuredSelection selection = (IStructuredSelection) event.getSelection();
-			IMappingScanRegionShape selectedRegion = (IMappingScanRegionShape) selection.getFirstElement();
-
-			changeRegion(selectedRegion);
-		}
-
-		private void changeRegion(IMappingScanRegionShape newRegion) {
-			// We're going to replace the scan region with a new one
-			// If the existing one is non-null, remove the property change listener from it
-			if (scanRegion != null) {
-				scanRegion.removePropertyChangeListener(regionBeanPropertyChangeListener);
-			}
-
-			// Set the new scan region
-			scanRegion = newRegion;
-			experimentBean.getScanDefinition().getMappingScanRegion().setRegion(scanRegion);
-
-			// Update the path selector with paths valid for the new region type
-			// (The listener on the path selector will take care of propagating the change appropriately, and updating the GUI)
-			// Do this before starting drawing the region (+ path ) with the plotting system because changing path after breaks the region drawing
-			List<IScanPathModel> scanPathList = mappingRegionManager.getValidPaths(scanRegion);
-			pathSelector.setInput(scanPathList);
-			if (scanPathList.contains(scanPathModel)) {
-				pathSelector.setSelection(new StructuredSelection(scanPathModel), true);
-			} else if (scanPathList.size() > 0) {
-				// Select the first path by default
-				pathSelector.setSelection(new StructuredSelection(scanPathList.get(0)), true);
-			} else {
-				pathSelector.setSelection(StructuredSelection.EMPTY, true);
-			}
-
-			// If new scan region is non-null, add it to the plot and add the property change listener
-			if (scanRegion != null) {
-				plotter.createNewPlotRegion(scanRegion);
-				scanRegion.addPropertyChangeListener(regionBeanPropertyChangeListener);
-			}
-		}
-	}
-
 	private static final Logger logger = LoggerFactory.getLogger(MappingExperimentView.class);
 
 	private final IMappingExperimentBean experimentBean;
 
-	private Composite regionAndPathComposite;
-	private Composite regionComposite;
-	private Composite pathComposite;
 	private StatusPanel statusPanel;
-
-	private IMappingScanRegionShape scanRegion = null;
-	private IScanPathModel scanPathModel = null;
-	private PathInfoCalculatorJob pathCalculationJob;
 
 	@Inject
 	private PlottingController plotter;
 	@Inject
 	private BeamPositionPlotter beamPositionPlotter;
 	@Inject
-	private IMappingRegionManager mappingRegionManager;
-	@Inject
-	private ScanRequestConverter scanRequestConverter;
-	@Inject
-	private ScanBeanSubmitter scanSubmitter;
-	@Inject
-	private IGuiGeneratorService guiGenerator;
-	@Inject
-	private IEventService eventService;
-	@Inject
-	private IScannableDeviceService scannableDeviceService;
-	@Inject
 	private IEclipseContext injectionContext;
-	@Inject
-	private UISynchronize uiSync;
 
-	private final PropertyChangeListener pathBeanPropertyChangeListener = new PropertyChangeListener() {
-		@Override
-		public void propertyChange(PropertyChangeEvent evt) {
-			updatePoints();
-		}
-	};
+	private ScrolledComposite scrolledComposite;
 
-	@Focus
-	public void setFocus() {
-		if (regionAndPathComposite != null) {
-			regionAndPathComposite.setFocus();
-		}
-	}
+	private RegionAndPathSection regionAndPathSection;
+
+	private Composite mainComposite;
 
 	@Inject
 	public MappingExperimentView(IMappingExperimentBeanProvider beanProvider) {
@@ -193,43 +60,34 @@ public class MappingExperimentView {
 		}
 	}
 
+	@Focus
+	public void setFocus() {
+		if (regionAndPathSection != null) {
+			regionAndPathSection.setFocus();
+		}
+	}
 
 	@PostConstruct
-	public void createView(Composite parent) throws EventException, URISyntaxException {
-		// TODO: can this be injected correctly?
-		final String jmsUri = LocalProperties.get("gda.activemq.broker.uri"); // gda specific!
-		scannableDeviceService = eventService.createRemoteService(new URI(jmsUri), IScannableDeviceService.class);
-
+	public void createView(Composite parent) {
 		// It'd really be better if the beam position plotter could initialise itself when the map plot view was
 		// created, but there doesn't seem to be a good way to hook into that, so we use the creation of the GUI
 		// elements for this view as a proxy since it happens at around the same time.
 		beamPositionPlotter.init();
 
-		pathCalculationJob = ContextInjectionFactory.make(PathInfoCalculatorJob.class, injectionContext);
-		pathCalculationJob.addJobChangeListener(new JobChangeAdapter() {
-			@Override
-			public void running(IJobChangeEvent event) {
-				uiSync.asyncExec(() -> {
-					statusPanel.setMessage("Scan path calculation in progress");
-					plotter.removePath();
-				});
-			}
-			@Override
-			public void done(final IJobChangeEvent event) {
-				uiSync.asyncExec(() -> {
-					IStatus result = event.getResult();
-					if (result.getSeverity() == IStatus.CANCEL) {
-						statusPanel.setMessage("Scan path calculation was cancelled");
-					} else if (!result.isOK()) {
-						statusPanel.setMessage("Error in scan path calculation - see log for details");
-						logger.warn("Error in scan path calculation", result.getException());
-					}
-					// else, calculation completed normally and the status text will be updated from the new PathInfo
-				});
-			}
-		});
+		logger.trace("Starting to build the mapping experiment view");
 
-		createViewControls(parent);
+		mainComposite = createMainComposite(parent);
+		// Make the status bar label
+		createStatusPanel(mainComposite);
+		if (experimentBean == null) {
+			logger.error("Error getting mapping configuration, no mapping bean set");
+		} else {
+			// create the controls for sections that should be shown
+			final List<AbstractMappingSection> sections = createSections();
+			sections.stream().filter(s -> s.shouldShow()).forEach(s -> s.createControls(mainComposite));
+		}
+
+		logger.trace("Finished building the mapping experiment view");
 	}
 
 	@PreDestroy
@@ -238,12 +96,31 @@ public class MappingExperimentView {
 		beamPositionPlotter.dispose();
 	}
 
-	private void createViewControls(Composite parent) {
-		logger.trace("Starting to build the mapping experiment view");
+	private List<AbstractMappingSection> createSections() {
+		List<AbstractMappingSection> sections = new ArrayList<>(10);
+		// a section for beamline config a.k.a. start position
+		sections.add(new BeamlineConfigurationSection(this, injectionContext));
+		// a section for choosing before/after scripts
+		sections.add(new ScriptFilesSection(this, injectionContext));
+		// add the list of outer scannables, if any
+		sections.add(new OuterScannablesSection(this, injectionContext));
+		// a section to choose and setup the detectors to include in the scan
+		sections.add(new DetectorsSection(this, injectionContext));
+		// a section for the scan region and paths
+		regionAndPathSection = new RegionAndPathSection(this, injectionContext);
+		sections.add(regionAndPathSection);
+		// a section for essential parameters, e.g. sample name
+		sections.add(new EssentialParametersSection(this, injectionContext));
+		// the 'submit scan' button
+		sections.add(new SubmitScanSection(this, injectionContext));
 
+		return sections;
+	}
+
+	private Composite createMainComposite(Composite parent) {
 		parent.setLayout(new FillLayout());
 		parent.setBackgroundMode(SWT.INHERIT_FORCE); // stop the ScrolledComposite being grey regardless of theme colour
-		final ScrolledComposite scrolledComposite = new ScrolledComposite(parent, SWT.H_SCROLL | SWT.V_SCROLL);
+		scrolledComposite = new ScrolledComposite(parent, SWT.H_SCROLL | SWT.V_SCROLL);
 		scrolledComposite.setExpandHorizontal(true);
 		scrolledComposite.setExpandVertical(true);
 
@@ -251,349 +128,15 @@ public class MappingExperimentView {
 		scrolledComposite.setContent(mainComposite);
 
 		GridLayoutFactory.fillDefaults().numColumns(1).spacing(0, 0).applyTo(mainComposite);
+		return mainComposite;
+	}
 
-		// Make the status bar label
+	private void createStatusPanel(final Composite mainComposite) {
 		statusPanel = new StatusPanel(mainComposite, SWT.NONE, this);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(statusPanel);
 
 		if (experimentBean == null) {
 			statusPanel.setMessage("Error getting mapping experiment definition");
-			return;
-		}
-
-		// Make a custom section for handling the mapping region
-		regionAndPathComposite = new Composite(mainComposite, SWT.NONE);
-		GridDataFactory.fillDefaults().grab(true, false).applyTo(regionAndPathComposite);
-		GridLayoutFactory.fillDefaults().numColumns(2).spacing(0, 0).applyTo(regionAndPathComposite);
-
-		// Add a listener to update the scrolled composite when the region and path composite changes
-		// This will set the initial size as well when the region and path composite is first drawn
-		regionAndPathComposite.addListener(SWT.Resize, event -> {
-			scrolledComposite.setMinSize(mainComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
-		});
-
-		// Prepare a grid data factory for controls which will need to grab space horizontally
-		GridDataFactory horizontalGrabGridData = GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false);
-
-		// Make the region selection
-		Composite regionComposite = new Composite(regionAndPathComposite, SWT.NONE);
-		horizontalGrabGridData.applyTo(regionComposite);
-		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(regionComposite);
-		Label regionLabel = new Label(regionComposite, SWT.NONE);
-		regionLabel.setText("Region shape:");
-		ComboViewer regionSelector = new ComboViewer(regionComposite);
-		horizontalGrabGridData.applyTo(regionSelector.getControl());
-		regionSelector.getCombo().setToolTipText("Select a scan region shape. The shape can then be drawn on the map, or you can type numbers below.");
-
-		// Make the path selection
-		Composite pathComposite = new Composite(regionAndPathComposite, SWT.NONE);
-		horizontalGrabGridData.applyTo(pathComposite);
-		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(pathComposite);
-		Label pathLabel = new Label(pathComposite, SWT.NONE);
-		pathLabel.setText("Scan path:");
-		final ComboViewer pathSelector = new ComboViewer(pathComposite);
-		horizontalGrabGridData.applyTo(pathSelector.getControl());
-
-		// Add logic
-		regionSelector.setLabelProvider(new LabelProvider() {
-			@Override
-			public String getText(Object element) {
-				if (element instanceof IMappingScanRegionShape) {
-					IMappingScanRegionShape mappingRegion = (IMappingScanRegionShape) element;
-					return mappingRegion.getName();
-				}
-				return super.getText(element);
-			}
-		});
-
-		regionSelector.setContentProvider(ArrayContentProvider.getInstance());
-		List<IMappingScanRegionShape> regionList = mappingRegionManager.getRegions();
-		regionSelector.setInput(regionList.toArray());
-
-		regionSelector.addSelectionChangedListener(new RegionSelectorListener(pathSelector));
-
-		pathSelector.setContentProvider(ArrayContentProvider.getInstance());
-		pathSelector.setLabelProvider(new LabelProvider() {
-			@Override
-			public String getText(Object element) {
-				if (element instanceof IScanPathModel) {
-					IScanPathModel scanPath = (IScanPathModel) element;
-					return scanPath.getName();
-				}
-				return super.getText(element);
-			}
-		});
-
-		pathSelector.addSelectionChangedListener(new ISelectionChangedListener() {
-			@Override
-			public void selectionChanged(SelectionChangedEvent event) {
-				logger.debug("Path selection event: {}", event);
-
-				// Get the new selection.
-				IStructuredSelection selection = (IStructuredSelection) event.getSelection();
-				IScanPathModel selectedPath = (IScanPathModel) selection.getFirstElement();
-				changePath(selectedPath);
-			}
-		});
-
-		// Setting the first region will trigger the listeners to update the mapping section and point count
-		regionSelector.setSelection(new StructuredSelection(regionList.get(0)), true);
-
-		// Plot the scan region. This will cancel the region drawing event in the plotting system to avoid user confusion at startup
-		// TODO check if this is the preferred behaviour, or better to leave the drawing event active
-		plotter.updatePlotRegionFrom(scanRegion);
-
-		final DataBindingContext dataBindingContext = new DataBindingContext();
-
-		Composite essentialParametersComposite = new Composite(mainComposite, SWT.NONE);
-		GridDataFactory.fillDefaults().grab(true, false).applyTo(essentialParametersComposite);
-		GridLayoutFactory.swtDefaults().numColumns(3).applyTo(essentialParametersComposite);
-		// FIXME not good to be hard-coding things here to look like the GUI generator - can we auto-generate these fields?
-		Label sampleNameLabel = new Label(essentialParametersComposite, SWT.NONE);
-		sampleNameLabel.setText("Sample Name:");
-		Text sampleNameText = new Text(essentialParametersComposite, SWT.BORDER);
-		GridDataFactory.fillDefaults().grab(true, false).applyTo(sampleNameText);
-		IObservableValue sampleNameTextValue = WidgetProperties.text(SWT.Modify).observe(sampleNameText);
-		IObservableValue sampleNameModelValue = PojoProperties.value("sampleName").observe(experimentBean.getSampleMetadata());
-		dataBindingContext.bindValue(sampleNameTextValue, sampleNameModelValue);
-		Button editMetadataButton = new Button(essentialParametersComposite, SWT.PUSH);
-		editMetadataButton.setText("Edit metadata");
-		editMetadataButton.addListener(SWT.Selection, event -> {
-			showDialogToEdit(experimentBean.getSampleMetadata(), "Sample Metadata");
-			// Ensure that any changes to metadata in the dialog are reflected in the main GUI
-			dataBindingContext.updateTargets();
-		});
-
-		// Add the list of outer scannables, if any
-		List<IScanPathModelWrapper> outerScannables = experimentBean.getScanDefinition().getOuterScannables();
-		if (outerScannables != null && !outerScannables.isEmpty()) {
-			Composite otherScanAxesComposite = new Composite(mainComposite, SWT.NONE);
-			GridDataFactory.fillDefaults().grab(true, false).applyTo(otherScanAxesComposite);
-			final int axesColumns = 2;
-			GridLayoutFactory.swtDefaults().numColumns(axesColumns).spacing(8, 5).applyTo(otherScanAxesComposite);
-			GridDataFactory.fillDefaults().span(axesColumns, 1).grab(true, false)
-					.applyTo(new Label(otherScanAxesComposite, SWT.SEPARATOR | SWT.HORIZONTAL));
-			Label otherScanAxesLabel = new Label(otherScanAxesComposite, SWT.NONE);
-			otherScanAxesLabel.setText("Other Scan Axes");
-			GridDataFactory.fillDefaults().span(axesColumns, 1).applyTo(otherScanAxesLabel);
-			for (IScanPathModelWrapper scannableAxisParameters : outerScannables) {
-				Button checkBox = new Button(otherScanAxesComposite, SWT.CHECK);
-				checkBox.setText(scannableAxisParameters.getName());
-				IObservableValue checkBoxValue = WidgetProperties.selection().observe(checkBox);
-				IObservableValue activeValue = PojoProperties.value("includeInScan").observe(scannableAxisParameters);
-				dataBindingContext.bindValue(checkBoxValue, activeValue);
-
-				// FIXME make a proper widget for this?
-				Text axisText = new Text(otherScanAxesComposite, SWT.BORDER);
-				axisText.setToolTipText("<start stop step> or <pos1,pos2,pos3,pos4...>");
-				GridDataFactory.fillDefaults().grab(true, false).applyTo(axisText);
-				IObservableValue axisTextValue = WidgetProperties.text(SWT.Modify).observe(axisText);
-				IObservableValue axisValue = PojoProperties.value("model").observe(scannableAxisParameters);
-				UpdateValueStrategy axisTextToModelStrategy = new UpdateValueStrategy();
-				axisTextToModelStrategy.setConverter(new Converter(String.class, IScanPathModel.class) {
-					@Override
-					public Object convert(Object fromObject) {
-						try {
-							String text = (String) fromObject;
-							String[] startStopStep = text.split(" ");
-							if (startStopStep.length == 3) {
-								StepModel stepModel = new StepModel();
-								stepModel.setName(scannableAxisParameters.getName());
-								stepModel.setStart(Double.parseDouble(startStopStep[0]));
-								stepModel.setStop(Double.parseDouble(startStopStep[1]));
-								stepModel.setStep(Double.parseDouble(startStopStep[2]));
-								return stepModel;
-							} else {
-								String[] strings = text.split(",");
-								double[] positions = new double[strings.length];
-								for (int index = 0; index < strings.length; index++) {
-									positions[index] = Double.parseDouble(strings[index]);
-								}
-								ArrayModel arrayModel = new ArrayModel();
-								arrayModel.setName(scannableAxisParameters.getName());
-								arrayModel.setPositions(positions);
-								return arrayModel;
-							}
-						} catch (NumberFormatException nfe) {
-							return null;
-						}
-					}
-				});
-				axisTextToModelStrategy.setBeforeSetValidator(value -> {
-					if (value instanceof IScanPathModel) {
-						return ValidationStatus.ok();
-					}
-					String message = "Text is incorrectly formatted";
-					if (scannableAxisParameters.isIncludeInScan()) {
-						return ValidationStatus.error(message);
-					} else {
-						return ValidationStatus.warning(message);
-					}
-				});
-				Binding bindValue = dataBindingContext.bindValue(axisTextValue, axisValue, axisTextToModelStrategy,
-						new UpdateValueStrategy());
-				ControlDecorationSupport.create(bindValue, SWT.LEFT | SWT.TOP);
-			}
-		}
-
-		Composite detectorsComposite = new Composite(mainComposite, SWT.NONE);
-		GridDataFactory.fillDefaults().grab(true, false).applyTo(detectorsComposite);
-		final int detectorsColumns = 3;
-		GridLayoutFactory.swtDefaults().numColumns(detectorsColumns).applyTo(detectorsComposite);
-		GridDataFactory.fillDefaults().span(detectorsColumns, 1).grab(true, false)
-				.applyTo(new Label(detectorsComposite, SWT.SEPARATOR | SWT.HORIZONTAL));
-		Label detectorsLabel = new Label(detectorsComposite, SWT.NONE);
-		detectorsLabel.setText("Detectors");
-		GridDataFactory.fillDefaults().span(detectorsColumns, 1).applyTo(detectorsLabel);
-		for (IDetectorModelWrapper detectorParameters : experimentBean.getDetectorParameters()) {
-			Button checkBox = new Button(detectorsComposite, SWT.CHECK);
-			checkBox.setText(detectorParameters.getName());
-			IObservableValue checkBoxValue = WidgetProperties.selection().observe(checkBox);
-			IObservableValue activeValue = PojoProperties.value("includeInScan").observe(detectorParameters);
-			dataBindingContext.bindValue(checkBoxValue, activeValue);
-			checkBox.addListener(SWT.Selection, event -> {
-				statusPanel.updateStatusLabel();
-			});
-			Text exposureTimeText = new Text(detectorsComposite, SWT.BORDER);
-			GridDataFactory.fillDefaults().grab(true, false).applyTo(exposureTimeText);
-			IObservableValue exposureTextValue = WidgetProperties.text(SWT.Modify).observe(exposureTimeText);
-			IObservableValue exposureTimeValue = PojoProperties.value("exposureTime").observe(detectorParameters.getModel());
-			dataBindingContext.bindValue(exposureTextValue, exposureTimeValue);
-			exposureTimeText.addListener(SWT.Modify, event -> {
-				statusPanel.updateStatusLabel();
-			});
-			Button configButton = new Button(detectorsComposite, SWT.PUSH);
-			configButton.setText("Edit parameters");
-			configButton.addListener(SWT.Selection, event -> {
-				showDialogToEdit(detectorParameters.getModel(), detectorParameters.getName() + " Parameters");
-				dataBindingContext.updateTargets();
-			});
-		}
-
-		if (experimentBean.getScriptFiles() != null) {
-			// script files section only shown if bean is null. Create an empty script files bean
-			// in your spring configuration to allow script files to be set
-			Composite scriptsComposite = new Composite(mainComposite, SWT.NONE);
-			GridDataFactory.fillDefaults().grab(true, false).applyTo(scriptsComposite);
-			final int scriptsColumns = 2;
-			GridLayoutFactory.swtDefaults().numColumns(scriptsColumns).applyTo(scriptsComposite);
-			GridDataFactory.fillDefaults().span(scriptsColumns, 1).grab(true, false)
-					.applyTo(new Label(scriptsComposite, SWT.SEPARATOR | SWT.HORIZONTAL));
-			Label scriptsLabel = new Label(scriptsComposite, SWT.NONE);
-			scriptsLabel.setText("Scripts");
-			GridDataFactory.fillDefaults().span(scriptsColumns, 1).applyTo(scriptsLabel);
-			Button editScriptsButton = new Button(scriptsComposite, SWT.PUSH);
-			editScriptsButton.setText("Select Script Files");
-			editScriptsButton.addListener(SWT.Selection, event -> {
-				showDialogToEdit(experimentBean.getScriptFiles(), "Select Script Files");
-			});
-		}
-
-		// TODO: do we really need a new composite just to hold a button? Should the section
-		// only contain the button?
-		Composite beamlineConfigComposite = new Composite(mainComposite, SWT.NONE);
-		GridDataFactory.fillDefaults().grab(true, false).applyTo(beamlineConfigComposite);
-		final int configColumns = 2;
-		GridLayoutFactory.swtDefaults().numColumns(configColumns).applyTo(beamlineConfigComposite);
-		GridDataFactory.fillDefaults().span(configColumns, 1).grab(true, false)
-				.applyTo(new Label(beamlineConfigComposite, SWT.SEPARATOR | SWT.HORIZONTAL));
-		Label beamlineConfigLabel = new Label(beamlineConfigComposite, SWT.NONE);
-		beamlineConfigLabel.setText("Beamline Configuration");
-		GridDataFactory.fillDefaults().span(configColumns, 1).applyTo(beamlineConfigLabel);
-		Button editBeamlineConfigButton = new Button(beamlineConfigComposite, SWT.PUSH);
-		editBeamlineConfigButton.setText("Configure Beamline");
-		editBeamlineConfigButton.addListener(SWT.Selection, event -> editBeamlineConfiguration());
-
-		Composite validateScanSomposite = new Composite(mainComposite, SWT.NONE);
-		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.BOTTOM).applyTo(validateScanSomposite);
-		GridLayoutFactory.swtDefaults().numColumns(4).applyTo(validateScanSomposite);
-
-		Button scanButton = new Button(validateScanSomposite, SWT.NONE);
-		scanButton.setText("Queue Scan");
-		scanButton.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent event) {
-				try {
-					ScanBean scanBean = scanRequestConverter.convertToScanBean(experimentBean);
-					scanSubmitter.submitScan(scanBean);
-				} catch (Exception e) {
-					logger.warn("Scan submission failed", e);
-				}
-			}
-		});
-
-		logger.trace("Finished building the mapping experiment view");
-	}
-
-	private Shell getShell() {
-		return (Shell) injectionContext.get(IServiceConstants.ACTIVE_SHELL);
-	}
-
-	private void showDialogToEdit(Object bean, String title) {
-		guiGenerator.openDialog(bean, getShell(), title);
-	}
-
-	private void editBeamlineConfiguration() {
-		EditBeamlineConfigurationDialog dialog =
-				new EditBeamlineConfigurationDialog(getShell(), scannableDeviceService);
-		dialog.setInitialBeamlineConfiguration(experimentBean.getBeamlineConfiguration());
-		dialog.create();
-		if (dialog.open() == Window.OK) {
-			experimentBean.setBeamlineConfiguration(dialog.getModifiedBeamlineConfiguration());
-		}
-	}
-
-	private void changePath(IScanPathModel newPath) {
-		logger.debug("Changing path to {}", newPath);
-
-		// We're going to replace the scan path with a new one
-		// If the existing one is non-null, remove the property change listener from it
-		if (scanPathModel != null) {
-			scanPathModel.removePropertyChangeListener(pathBeanPropertyChangeListener);
-		}
-
-		// Set the new scan path. If non-null, add the property change listener
-		scanPathModel = newPath;
-		experimentBean.getScanDefinition().getMappingScanRegion().setScanPath(scanPathModel);
-		if (scanPathModel != null) {
-			scanPathModel.addPropertyChangeListener(pathBeanPropertyChangeListener);
-		}
-
-		// Update the GUI to reflect the path changes
-		rebuildMappingSection();
-		updatePoints();
-	}
-
-	/**
-	 * Call this to rebuild the mapping section. Only required when the underlying beans are swapped.
-	 */
-	private void rebuildMappingSection() {
-		// Remove the old controls
-		if (regionComposite != null) {
-			regionComposite.dispose();
-			regionComposite = null;
-		}
-		if (pathComposite != null) {
-			pathComposite.dispose();
-			pathComposite = null;
-		}
-		// Scan Region
-		Object mappingScanRegion = experimentBean.getScanDefinition().getMappingScanRegion().getRegion();
-		regionComposite = (Composite) guiGenerator.generateGui(mappingScanRegion, regionAndPathComposite);
-		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).applyTo(regionComposite);
-		// Scan Path
-		Object scanPath = experimentBean.getScanDefinition().getMappingScanRegion().getScanPath();
-		pathComposite = (Composite) guiGenerator.generateGui(scanPath, regionAndPathComposite);
-		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).applyTo(pathComposite);
-		regionAndPathComposite.getParent().layout(true, true);
-	}
-
-	private void updatePoints() {
-		pathCalculationJob.cancel();
-		if (scanPathModel != null && scanRegion != null) {
-			pathCalculationJob.setScanPathModel(scanPathModel);
-			pathCalculationJob.setScanRegion(scanRegion);
-			pathCalculationJob.schedule();
 		}
 	}
 
@@ -613,4 +156,17 @@ public class MappingExperimentView {
 		}
 		return exposure;
 	}
+
+	protected IMappingExperimentBean getBean() {
+		return experimentBean;
+	}
+
+	protected StatusPanel getStatusPanel() {
+		return statusPanel;
+	}
+
+	protected void recalculateMinimumSize() {
+		scrolledComposite.setMinSize(mainComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+	}
+
 }
