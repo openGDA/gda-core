@@ -390,6 +390,19 @@ public final class DashboardView extends ViewPart {
 		}
 	}
 
+	/**
+	 * Used to reset the state of the currently monitored scannables
+	 * e.g. after a reset_namespace has replaced Jython scannables
+	 */
+	public void resetCurrentObjects() {
+		for (int i = 0; i < data.size(); i++) {
+			ScannableObject old = data.get(i);
+			ScannableObject so = new ScannableObject(old.getName(), new JythonSnapshotProvider());
+			so.setToolTip(old.getToolTip());
+			data.set(i, so);
+		}
+	}
+
 	@Override
 	public void saveState(IMemento memento) {
 		for (ScannableObject so : data) {

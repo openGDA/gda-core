@@ -31,7 +31,7 @@ public class RefreshDashHandler extends AbstractHandler implements IHandler {
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		DashboardView dashboard = (DashboardView)PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActivePart();
 		if (dashboard==null) return Boolean.FALSE;
-		dashboard.refresh();
+		dashboard.resetCurrentObjects();
 		return Boolean.TRUE;
 	}
 }
