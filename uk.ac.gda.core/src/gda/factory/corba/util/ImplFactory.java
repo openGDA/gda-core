@@ -28,7 +28,6 @@ import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.lang.ClassUtils;
 import org.omg.PortableServer.POA;
@@ -153,18 +152,22 @@ public abstract class ImplFactory {
 	 */
 	public void shutdown() {
 		logger.info("Shutting down {}", this);
-		Set<String> names = store.keySet();
-		for (String name : names) {
-			final CorbaBoundObject boundObj = store.get(name);
-			try {
-				netService.unbind(name, boundObj.type);
-			} catch (FactoryException e) {
-				// Deliberately do nothing. Its only cleaning up where possible.
+		try {
+			String[] names = store.keySet().toArray(new String[store.keySet().size()]);
+			for (String name : names) {
+				final CorbaBoundObject boundObj = store.get(name);
+				try {
+					netService.unbind(name, boundObj.type);
+				} catch (FactoryException e) {
+					// Deliberately do nothing. Its only cleaning up where possible.
+				}
 			}
+			// Clear the name store to avoid exceptions which can be thrown if this method is called again after CORBA has
+			// been shut down.
+			store.clear();
+		} catch (Exception ne) {
+			logger.error("Cannot exit store", ne);
 		}
-		// Clear the name store to avoid exceptions which can be thrown if this method is called again after CORBA has
-		// been shut down.
-		store.clear();
 	}
 }
 
