@@ -66,6 +66,7 @@ import org.eclipse.ui.ide.FileStoreEditorInput;
 import org.eclipse.ui.ide.ResourceUtil;
 import org.eclipse.ui.part.FileEditorInput;
 
+import uk.ac.gda.util.OSUtils;
 import uk.ac.gda.util.beans.xml.URLResolver;
 
 /**
@@ -625,6 +626,41 @@ public class EclipseUtils {
 		return null;
 	}
 
+	public static final String URI_SEPARATOR = "/";
+	public static final String PLATFORM_BUNDLE_PREFIX = "platform:/plugin/%s";
+
+	/**
+	 * Removes the leading / from file path strings of the form "/α:/<some_path>" (where α is a windows drive letter)
+	 * which are returned by the FileLocator.toFileURL method on Windows boxes.
+	 *
+	 * @param filePath		A file path string
+	 * @return				The adjusted string, if running on a windows box otherwise filePath unchanged
+	 */
+	private static String sanitizeForWindows(final String filePath) {
+		return (OSUtils.isWindowsOS() && filePath.matches("/[a-zA-Z]{1}:/.*")) ? filePath.substring(1) : filePath;
+	}
+
+	/**
+	 * Retrieves the file corresponding to an Eclipse OSGi Bundle Entry URL referencing a file within the bundle,
+	 * such as is returned by the FileLocator.find method. The corresponding file path is resolved and adjusted for
+	 * the leading slash before the drive letter in windows if necessary.
+	 *
+	 * @param fileURL			An Eclipse OSGi format Bundle Entry URL
+	 * @return					The corresponding File object if it exists
+	 * @throws IOException		If the resolved path or supplied URL is invalid
+	 */
+	public static File resolveFileFromPlatformURL(final URL fileURL) throws IOException {
+		if (!fileURL.toExternalForm().contains("bundleentry://")) {
+			throw new IOException(String.format("The supplied URL %s is invalid", fileURL));
+		}
+		final String filePath = sanitizeForWindows(FileLocator.toFileURL(fileURL).getPath());        // if no corresponding file URL can be found, no conversion will
+		final File file = Paths.get(filePath).toFile();                                              // happen meaning file will not exist resulting in an exception
+		if( !(file).exists()) {
+			throw new IOException(String.format("Resolved bundle file path %s does not exist for %s.", file.getAbsolutePath(), filePath));
+		}
+		return file;
+	}
+
 	/**
 	 * Retrieves a File object embodying the absolute path of a file within a bundle from the active Equinox context
 	 * based on a partial path identifying the bundle and the relative path of the file within it. For instance to get
@@ -637,18 +673,10 @@ public class EclipseUtils {
 	 * @throws IOException		If the resolved file does not exist or cannot be resolved in the first place
 	 */
 	public static File resolveBundleFile(String bundleFilePath) throws IOException {
-		bundleFilePath = bundleFilePath.replace('\\', '/');
-		URL fileURL = FileLocator.find(new URL(String.format("platform:/plugin/%s", bundleFilePath)));
+		bundleFilePath = bundleFilePath.replace("\\", URI_SEPARATOR);
+		final URL fileURL = FileLocator.find(new URL(String.format(PLATFORM_BUNDLE_PREFIX, bundleFilePath)));
 		if (fileURL != null) {
-			fileURL = FileLocator.toFileURL(fileURL);
-			String path = fileURL.getPath();
-			if (path.toLowerCase().startsWith("file:/")) path = path.substring(6); // if no corresponding file URL can be found, no conversion will
-			if (path.matches("\\/[A-Z]{1}:\\/.+")) path = path.substring(1); // Have to remove / on windows.
-			final File file = Paths.get(path).toFile();                // happen meaning file will not exist resulting in an exception
-			if( !(file).exists()) {
-				throw new IOException(String.format("Resolved bundle file path %s does not exist for %s.", file.getAbsolutePath(), bundleFilePath));
-			}
-			return file;
+			return resolveFileFromPlatformURL(fileURL);
 		}
 		throw new IOException(String.format("Bundle file path %s not found", bundleFilePath));
 	}
@@ -666,7 +694,7 @@ public class EclipseUtils {
 	 * 							or does not exist or cannot be resolved in the first place
 	 */
 	public static File resolveBundleFolderFile(final String bundleFolderPath) throws IOException {
-		File folder = resolveBundleFile(bundleFolderPath);
+		final File folder = resolveBundleFile(bundleFolderPath);
 		if (!folder.isDirectory()) {
 			throw new IOException(String.format("Resolved bundle folder path %s for %s is not a folder.", folder.getAbsolutePath(), bundleFolderPath));
 		}
