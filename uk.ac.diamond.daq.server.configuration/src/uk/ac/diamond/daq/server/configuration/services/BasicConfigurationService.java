@@ -1,6 +1,7 @@
 package uk.ac.diamond.daq.server.configuration.services;
 
 import static uk.ac.diamond.daq.server.configuration.ConfigurationDefaults.*;
+import static uk.ac.gda.common.rcp.util.EclipseUtils.URI_SEPARATOR;
 
 import java.io.File;
 import java.io.IOException;
@@ -42,7 +43,7 @@ public class BasicConfigurationService implements IGDAConfigurationService {
 		} catch (IOException e) {
 			throw new RuntimeException("Could not locate subprocess server classpath component:", e);
 		}
-		final String[] profiles = APP_PROFILES.toString().split(",");
+		final String[] profiles = getProfiles();
 		final String[] springPathsStrings = APP_SPRING_XML_FILE_PATHS.toString().split(",");
 
 		// check they're both the same length
@@ -72,7 +73,7 @@ public class BasicConfigurationService implements IGDAConfigurationService {
 				final String[] elements = (bundlePath.contains("uk.ac.gda.core")) ?
 						new String[] {bundlePath, "classes", "main"} :
 						new String[] {bundlePath, "bin"};
-				bundlePath = String.join(File.separator, elements);
+				bundlePath = String.join(URI_SEPARATOR, elements);
 			}
 			return EclipseUtils.resolveBundleFolderFile(bundlePath).getAbsolutePath();
 		}
@@ -85,7 +86,7 @@ public class BasicConfigurationService implements IGDAConfigurationService {
 
 	@Override
 	public String[] getProfiles() {
-		return new String[] {"main"};    // Will need to change for multiple object servers
+		return APP_PROFILES.toString().split(",");
 	}
 
 	@Override
