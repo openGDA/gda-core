@@ -18,6 +18,9 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
@@ -26,6 +29,7 @@ import org.eclipse.scanning.api.points.MapPosition;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.IBoundingBoxModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
+import org.eclipse.scanning.api.points.models.ScanRegion;
 import org.eclipse.scanning.api.script.ScriptLanguage;
 import org.eclipse.scanning.api.script.ScriptRequest;
 import org.slf4j.Logger;
@@ -34,6 +38,7 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.daq.mapping.api.IDetectorModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegion;
+import uk.ac.diamond.daq.mapping.api.IScanPathModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IScriptFiles;
 import uk.ac.diamond.daq.mapping.impl.MappingStageInfo;
 
@@ -61,28 +66,70 @@ public class ScanRequestConverter {
 	public ScanRequest<IROI> convertToScanRequest(IMappingExperimentBean mappingExperimentBean) {
 		ScanRequest<IROI> scanRequest = new ScanRequest<IROI>();
 
-		IMappingScanRegion scanRegion = mappingExperimentBean.getScanDefinition().getMappingScanRegion();
+		final IMappingScanRegion scanRegion = mappingExperimentBean.getScanDefinition().getMappingScanRegion();
+		final IScanPathModel scanPath = scanRegion.getScanPath();
 
+		final String fastAxis;
+		final String slowAxis;
 		if (mappingStageInfo != null) {
-			IScanPathModel scanPath = scanRegion.getScanPath();
+			fastAxis = mappingStageInfo.getActiveFastScanAxis();
+			slowAxis = mappingStageInfo.getActiveSlowScanAxis();
+			// Change the axis on the scanPathModel
 			if (scanPath instanceof IBoundingBoxModel) {
 				IBoundingBoxModel boxModel = (IBoundingBoxModel) scanPath;
-				boxModel.setFastAxisName(mappingStageInfo.getActiveFastScanAxis());
-				boxModel.setSlowAxisName(mappingStageInfo.getActiveSlowScanAxis());
+				boxModel.setFastAxisName(fastAxis);
+				boxModel.setSlowAxisName(slowAxis);
+			} else {
+				final String message = "Could not set fast and slow axis!";
+				logger.error(message);
+				throw new RuntimeException(message);
 			}
+
 		} else {
 			logger.warn("No mapping axis manager is set - the scan request will use default axis names!");
+
+			if (scanPath instanceof IBoundingBoxModel) {
+				IBoundingBoxModel boxModel = (IBoundingBoxModel) scanPath;
+				fastAxis = boxModel.getFastAxisName();
+				slowAxis = boxModel.getSlowAxisName();
+			} else {
+				final String message = "Could not determine fast and slow axis!";
+				logger.error(message);
+				throw new RuntimeException(message);
+			}
 		}
 
-		CompoundModel cmodel = new CompoundModel(scanRegion.getScanPath(), scanRegion.getRegion().toROI());
-		// FIXME Outer scannables are not supported in the new compound model way yet!
-//		for (IScanPathModelWrapper scanPathModelWrapper : eBean.getMappingExperimentBean().getScanDefinition().getOuterScannables()) {
-//			if (scanPathModelWrapper.isIncludeInScan()) {
-//				cmodel.addData(scanPathModelWrapper.getModel(), Arrays.asList(roi));
-//			}
-//		}
+		// Build the list of models for the scan
+		final List<IScanPathModel> models = new ArrayList<>();
+		// If there are outer scannables to be included, add them to the list
+		// TODO currently there is no support for outer scannables ROIs
+		for (IScanPathModelWrapper scanPathModelWrapper : mappingExperimentBean.getScanDefinition()
+				.getOuterScannables()) {
+			if (scanPathModelWrapper.isIncludeInScan()) {
+				final IScanPathModel model = scanPathModelWrapper.getModel();
+				if (model == null) {
+					logger.warn("Outer scannables contained a null model for: {}. It wont be included in the scan!",
+							scanPathModelWrapper.getName());
+				} else {
+					models.add(model);
+				}
+			}
+		}
 
-		scanRequest.setCompoundModel(cmodel);
+		// Add the actual map path model last, it's the inner most model
+		models.add(scanRegion.getScanPath());
+
+		// Convert the list of models into a compound model
+		final CompoundModel<IROI> compoundModel = new CompoundModel<>(models);
+
+		// Add the ROI for the mapping region
+		ScanRegion<IROI> region = new ScanRegion<IROI>(scanRegion.getRegion().toROI(), slowAxis, fastAxis);
+
+		// Convert to a List of ScanRegion<IROI> containing one item to avoid unsafe varargs warning
+		compoundModel.setRegions(Arrays.asList(region));
+
+		// Set the model on the scan request
+		scanRequest.setCompoundModel(compoundModel);
 
 		// set the beamline start position
 		Map<String, Object> beamlineConfiguration = mappingExperimentBean.getBeamlineConfiguration();

@@ -28,14 +28,19 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.GridModel;
+import org.eclipse.scanning.api.points.models.IScanPathModel;
+import org.eclipse.scanning.api.points.models.ScanRegion;
+import org.eclipse.scanning.api.points.models.StepModel;
 import org.eclipse.scanning.api.script.ScriptRequest;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.junit.After;
@@ -43,10 +48,12 @@ import org.junit.Before;
 import org.junit.Test;
 
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
+import uk.ac.diamond.daq.mapping.api.IScanPathModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IScriptFiles;
 import uk.ac.diamond.daq.mapping.impl.DetectorModelWrapper;
 import uk.ac.diamond.daq.mapping.impl.MappingExperimentBean;
 import uk.ac.diamond.daq.mapping.impl.MappingStageInfo;
+import uk.ac.diamond.daq.mapping.impl.ScanPathModelWrapper;
 import uk.ac.diamond.daq.mapping.impl.ScriptFiles;
 import uk.ac.diamond.daq.mapping.region.RectangularMappingRegion;
 import uk.ac.diamond.daq.mapping.ui.experiment.ScanRequestConverter;
@@ -55,6 +62,7 @@ public class ScanRequestConverterTest {
 
 	private static final String X_AXIS_NAME = "testing_stage_x";
 	private static final String Y_AXIS_NAME = "testing_stage_y";
+	private static final String Z_AXIS_NAME = "testing_z_axis";
 
 	private ScanRequestConverter scanRequestConverter;
 	private MappingStageInfo mappingStageInfo;
@@ -165,6 +173,45 @@ public class ScanRequestConverterTest {
 		assertThat(startPos.get("energy"), is(2675.3));
 		assertThat(startPos.get("attenuator_pos"), is("Gap"));
 		assertThat(startPos.get("kb_mirror_pos"), is(7.0));
+	}
+
+	@Test
+	public void testRoiAxisNamesAreSet() throws Exception {
+		ScanRequest<?> scanRequest = scanRequestConverter.convertToScanRequest(experimentBean);
+
+		Collection<ScanRegion<?>> regions = scanRequest.getCompoundModel().getRegions();
+
+		// Ensure only on region
+		assertThat(regions.size(), is(equalTo(1)));
+
+		for (ScanRegion<?> scanRegion : regions) {
+			List<String> scannables = scanRegion.getScannables();
+			assertThat(scannables.get(0), is(equalTo(Y_AXIS_NAME)));
+			assertThat(scannables.get(1), is(equalTo(X_AXIS_NAME)));
+		}
+	}
+
+	@Test
+	public void testOuterScannableIsSet() throws Exception {
+
+		IScanPathModel outerModel = new StepModel(Z_AXIS_NAME, -3, 2, 0.5);
+		List<IScanPathModelWrapper> outerScannables = Arrays.asList(new ScanPathModelWrapper("z", outerModel, true));
+
+		experimentBean.getScanDefinition().setOuterScannables(outerScannables);
+
+		// Get the scan request
+		ScanRequest<?> scanRequest = scanRequestConverter.convertToScanRequest(experimentBean);
+
+		// Check there are now 2 models the outer z StepModel and the inner Grid model
+		assertThat(scanRequest.getCompoundModel().getModels().size(), is(equalTo(2)));
+
+		StepModel recoveredOuterModel = (StepModel) scanRequest.getCompoundModel().getModels().get(0);
+
+		// Check the outer scannable model is first in the list
+		assertThat(recoveredOuterModel, is(outerModel));
+
+		// Check it has the correct axis name
+		assertThat(recoveredOuterModel.getName(), is(Z_AXIS_NAME));
 	}
 
 }
