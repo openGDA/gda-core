@@ -12,16 +12,19 @@
 	<bean id="stage_x_motor" class="gda.device.motor.DummyMotor">
 		<property name="speed" value="100" />
 		<property name="timeToVelocity" value="0.01" />
+		<property name="unitString" value="mm"/>
 	</bean>
 
 	<bean id="stage_y_motor" class="gda.device.motor.DummyMotor">
 		<property name="speed" value="100" />
 		<property name="timeToVelocity" value="0.01" />
+		<property name="unitString" value="mm"/>
 	</bean>
 
 	<bean id="stage_z_motor" class="gda.device.motor.DummyMotor">
 		<property name="speed" value="100" />
 		<property name="timeToVelocity" value="0.01" />
+		<property name="unitString" value="mm"/>
 	</bean>
 
 </beans>
