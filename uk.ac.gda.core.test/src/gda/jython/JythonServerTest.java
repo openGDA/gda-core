@@ -22,12 +22,6 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import gda.device.Motor;
-import gda.device.MotorException;
-import gda.factory.Factory;
-import gda.factory.FactoryException;
-import gda.factory.Findable;
-import gda.factory.Finder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,6 +34,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+
+import gda.device.Motor;
+import gda.device.MotorException;
+import gda.factory.Factory;
+import gda.factory.FactoryException;
+import gda.factory.Findable;
+import gda.factory.Finder;
 
 public class JythonServerTest {
 	private JythonServer jythonServer;
@@ -104,6 +105,12 @@ public class JythonServerTest {
 		Motor mockMotor1 = mock(Motor.class);
 		Motor mockMotor2 = mock(Motor.class);
 		Motor mockMotor3 = mock(Motor.class);
+
+		// Set the motor names as they are requested by the finder
+		when(mockMotor1.getName()).thenReturn("motor1");
+		when(mockMotor2.getName()).thenReturn("motor2");
+		when(mockMotor3.getName()).thenReturn("motor3");
+
 		when(factory.getFindables()).thenReturn(Arrays.asList((Findable)mockMotor1, (Findable)mockMotor2, (Findable)mockMotor3));
 		Finder.getInstance().addFactory(factory );
 
@@ -121,7 +128,11 @@ public class JythonServerTest {
 		Motor mockMotor2 = mock(Motor.class);
 		Motor mockMotor3 = mock(Motor.class);
 
+		// Set the motor names as they are requested by the finder
 		when(mockMotor1.getName()).thenReturn("disconnected_motor");
+		when(mockMotor2.getName()).thenReturn("motor2");
+		when(mockMotor3.getName()).thenReturn("motor3");
+
 		class BeSlowAndThenFailAnswer implements Answer<Void> {
 			@Override
 			public Void answer(InvocationOnMock invocation) throws Throwable {

@@ -400,18 +400,7 @@ public class Finder {
 	 * @return a list of matching {@code Findable}s
 	 */
 	private <T extends Findable> List<T> listFindablesOfType(Class<T> clazz, boolean local) {
-		List<T> findables = new ArrayList<T>();
-		for (Factory factory : getCopyOfFactories()) {
-			if (local && !factory.isLocal()) {
-				continue;
-			}
-			for (Findable findable : factory.getFindables()) {
-				if (clazz.isAssignableFrom(findable.getClass())) {
-					findables.add(clazz.cast(findable));
-				}
-			}
-		}
-		return findables;
+		return new ArrayList<T>(getFindablesOfType(clazz, local).values());
 	}
 
 }
