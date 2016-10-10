@@ -19,17 +19,17 @@
 
 package gda.spring;
 
-import gda.factory.Factory;
-import gda.factory.FactoryBase;
-import gda.factory.FactoryException;
-import gda.factory.Findable;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
 import org.springframework.context.ApplicationContext;
+
+import gda.factory.Factory;
+import gda.factory.FactoryBase;
+import gda.factory.FactoryException;
+import gda.factory.Findable;
 
 /**
  * A GDA {@link Factory} that wraps a Spring {@link ApplicationContext},
@@ -75,10 +75,8 @@ public class SpringApplicationContextBasedObjectFactory extends FactoryBase {
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T extends Findable> T getFindable(String name) throws FactoryException {
-		if (applicationContext.containsBean(name)) {
-			return (T) applicationContext.getBean(name);
-		}
-		return null;
+		final Map<String, Findable> findables = applicationContext.getBeansOfType(Findable.class);
+		return (T) findables.get(name);
 	}
 
 	@Override
