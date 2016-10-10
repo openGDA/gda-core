@@ -170,6 +170,7 @@ public class RegionAndPathSection extends AbstractMappingSection {
 
 	@Override
 	public void createControls(Composite parent) {
+		// Make a custom section for handling the mapping region
 		regionAndPathComposite = new Composite(parent, SWT.NONE);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(regionAndPathComposite);
 		GridLayoutFactory.fillDefaults().numColumns(2).spacing(0, 0).applyTo(regionAndPathComposite);
@@ -183,22 +184,23 @@ public class RegionAndPathSection extends AbstractMappingSection {
 		// Prepare a grid data factory for controls which will need to grab space horizontally
 		GridDataFactory horizontalGrabGridData = GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false);
 
-		regionComposite = new Composite(regionAndPathComposite, SWT.NONE);
-		horizontalGrabGridData.applyTo(regionComposite);
-		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(regionComposite);
-		Label regionLabel = new Label(regionComposite, SWT.NONE);
+		// Make the region selection
+		Composite regionComboComposite = new Composite(regionAndPathComposite, SWT.NONE);
+		horizontalGrabGridData.applyTo(regionComboComposite);
+		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(regionComboComposite);
+		Label regionLabel = new Label(regionComboComposite, SWT.NONE);
 		regionLabel.setText("Region shape:");
-		ComboViewer regionSelector = new ComboViewer(regionComposite);
+		ComboViewer regionSelector = new ComboViewer(regionComboComposite);
 		horizontalGrabGridData.applyTo(regionSelector.getControl());
 		regionSelector.getCombo().setToolTipText("Select a scan region shape. The shape can then be drawn on the map, or you can type numbers below.");
 
 		// Make the path selection
-		pathComposite = new Composite(regionAndPathComposite, SWT.NONE);
-		horizontalGrabGridData.applyTo(pathComposite);
-		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(pathComposite);
-		Label pathLabel = new Label(pathComposite, SWT.NONE);
+		Composite pathComboComposite = new Composite(regionAndPathComposite, SWT.NONE);
+		horizontalGrabGridData.applyTo(pathComboComposite);
+		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(pathComboComposite);
+		Label pathLabel = new Label(pathComboComposite, SWT.NONE);
 		pathLabel.setText("Scan path:");
-		final ComboViewer pathSelector = new ComboViewer(pathComposite);
+		final ComboViewer pathSelector = new ComboViewer(pathComboComposite);
 		horizontalGrabGridData.applyTo(pathSelector.getControl());
 
 		// Add logic
