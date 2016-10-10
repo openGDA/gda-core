@@ -19,6 +19,13 @@
 package gda.scan;
 
 import static gda.scan.ScanDataPoint.handleZeroInputExtraNameDevice;
+
+import java.util.Date;
+import java.util.HashMap;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.ContinuousParameters;
 import gda.device.Detector;
 import gda.device.DeviceException;
@@ -27,12 +34,6 @@ import gda.device.detector.BufferedDetector;
 import gda.device.scannable.ContinuouslyScannable;
 import gda.device.scannable.ScannableUtils;
 import gda.jython.InterfaceProvider;
-
-import java.util.Date;
-import java.util.HashMap;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Performs a continuous scan using Histogram detectors. NOTE: bypasses the ScanDataPointPipeline mechanism.
@@ -422,6 +423,14 @@ public class ContinuousScan extends ConcurrentScanChild {
 	 */
 	public void setBiDirectional(boolean biDirectional) {
 		this.biDirectional = biDirectional;
+	}
+
+	public ContinuouslyScannable getScanAxis() {
+		return qscanAxis;
+	}
+
+	public BufferedDetector[] getScanDetectors() {
+		return qscanDetectors;
 	}
 }
 

@@ -65,7 +65,7 @@ public class ScannableObject {
 				return;
 			} else if (si.extraNames.length + si.inputNames.length == 1) {
 				String n = si.inputNames.length > 0 ? si.inputNames[0] : si.extraNames[0];
-				if (n == name) {
+				if (n.equals(name)) {
 					output = String.format(si.outputFormat[0], si.lastPosition) + " " + si.units[0];
 				} else {
 					output = String.format("%s: " + si.outputFormat[0], n, si.lastPosition) + " " + si.units[0];
