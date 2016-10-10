@@ -19,6 +19,9 @@
 
 package gda.jython;
 
+import static uk.ac.gda.common.rcp.util.EclipseUtils.PLATFORM_BUNDLE_PREFIX;
+import static uk.ac.gda.common.rcp.util.EclipseUtils.URI_SEPARATOR;
+
 import gda.configuration.properties.LocalProperties;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
@@ -26,6 +29,7 @@ import gda.factory.Finder;
 import gda.jython.translator.Translator;
 import gda.observable.ObservableComponent;
 import gda.util.exceptionUtils;
+import uk.ac.gda.common.rcp.util.EclipseUtils;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -71,7 +75,7 @@ import org.springframework.util.StringUtils;
 public class GDAJythonInterpreter extends ObservableComponent {
 	private static final Logger logger = LoggerFactory.getLogger(GDAJythonInterpreter.class);
 	private static final String JYTHON_VERSION = "2.5";
-	private static final String JYTHON_PLATFORM_URL = "platform:/plugin/uk.ac.diamond.jython/jython%s";
+	private static final String JYTHON_BUNDLE_PATH = "uk.ac.diamond.jython/jython%s";
 
 	// the Jython interpreter
 	private InteractiveConsole interp;
@@ -163,14 +167,7 @@ public class GDAJythonInterpreter extends ObservableComponent {
 		gdaCustomProperties.setProperty("python.cachedir", cacheDir.getAbsolutePath());
 
 		try {
-			URL jythonRootURL = FileLocator.find(new URL(String.format(JYTHON_PLATFORM_URL, JYTHON_VERSION)));
-			if (jythonRootURL == null) {
-				throw new RuntimeException("Jython bundle not found");
-			}
-			jythonRootURL = FileLocator.toFileURL(jythonRootURL);							// if no corresponding file path can be found, no conversion will
-			final File jythonRoot = Paths.get(jythonRootURL.getPath()).toFile();			// happen meaning jythonRoot will not exist resulting in an exception
-			if( !(jythonRoot).exists())
-				throw new RuntimeException("Jython root not found  :" + jythonRoot.getAbsolutePath());
+			final File jythonRoot = EclipseUtils.resolveBundleFolderFile(String.format(JYTHON_BUNDLE_PATH, JYTHON_VERSION));
 			gdaCustomProperties.setProperty("python.home", jythonRoot.getAbsolutePath());
 		} catch (IOException e) {
 			throw new RuntimeException("Jython bundle not found", e);
@@ -233,20 +230,19 @@ public class GDAJythonInterpreter extends ObservableComponent {
 			// (the instance config scripts folder is handled elsewhere)
 			int index= 1;
 			for (String pathFragment : classLoader.getStandardFolders()) {
-				if (pathFragment.endsWith(File.separator)) {
+				if (pathFragment.endsWith(URI_SEPARATOR)) {
 					pathFragment = pathFragment.substring(0, pathFragment.length() -1);
 				}
 				File scriptFolder = Paths.get(bundlesRoot,  pathFragment).toFile();				// Default to non-plugin folder under workspace_git
 				String frag = pathFragment;
 				URL scriptFolderURL = null;
 				try {
-					while (scriptFolderURL == null && frag.contains(File.separator)) {
-						scriptFolderURL = FileLocator.find(new URL(String.format("platform:/plugin/%s", frag)));
-						frag = frag.substring(frag.indexOf(File.separator) + 1);
+					while (scriptFolderURL == null && frag.contains(URI_SEPARATOR)) {
+						scriptFolderURL = FileLocator.find(new URL(String.format(PLATFORM_BUNDLE_PREFIX, frag)));
+						frag = frag.substring(frag.indexOf(URI_SEPARATOR) + 1);
 					}
 					if (scriptFolderURL != null) {
-						scriptFolderURL = FileLocator.toFileURL(scriptFolderURL);
-						scriptFolder = Paths.get(scriptFolderURL.getPath()).toFile();
+						scriptFolder = EclipseUtils.resolveFileFromPlatformURL(scriptFolderURL);
 					} else if (!eclipseLaunch) {
 						scriptFolder = Paths.get(bundlesRoot, "..", "utilities", pathFragment).toFile();	// Add in non-plugin folder offset for exported product
 					}
