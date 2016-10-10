@@ -85,23 +85,13 @@ public class Finder {
 	 *            object to find.
 	 * @return object of type {@link gda.factory.Findable}.
 	 */
-	@SuppressWarnings("unchecked")
 	public <T extends Findable> T find(String name) {
-		T findable = null;
-		for (Factory factory : getCopyOfFactories()) {
-			try {
-				if ((findable = (T) factory.getFindable(name)) != null) {
-					break;
-				}
-			} catch (FactoryException e) {
-				logger.warn("FactoryException looking for "+name,e);
-			}
-		}
-		return findable;
+		return findObjectByName(name, false, true);
 	}
 
 	/**
 	 * Return a named object from any of the factories known to the finder.
+	 * Do not warn if there is a FactoryException
 	 *
 	 * @param <T>
 	 *            class of Object being returned
@@ -110,17 +100,7 @@ public class Finder {
 	 * @return object of type {@link gda.factory.Findable}.
 	 */
 	public <T extends Findable> T findNoWarn(String name) {
-		T findable = null;
-		for (Factory factory : getCopyOfFactories()) {
-			try {
-				if ((findable = factory.getFindable(name)) != null) {
-					break;
-				}
-			} catch (FactoryException e) {
-				// Don't issue a warning message.
-			}
-		}
-		return findable;
+		return findObjectByName(name, false, false);
 	}
 
 	/**
@@ -132,9 +112,21 @@ public class Finder {
 	 * @return the findable object
 	 */
 	public <T extends Findable> T findLocal(String name) {
+		return findObjectByName(name, true, true);
+	}
+
+	/**
+	 * Find an instance of an object given its name
+	 *
+	 * @param name The name of the object to find
+	 * @param local True if only local objects are to be found
+	 * @param warn True to log a warning message in the case of a FactoryException
+	 * @return the findable object
+	 */
+	private <T extends Findable> T findObjectByName(String name, boolean local, boolean warn) {
 		T findable = null;
 		for (Factory factory : getCopyOfFactories()) {
-			if (!factory.isLocal()) {
+			if (local && !factory.isLocal()) {
 				continue;
 			}
 			try {
@@ -142,11 +134,14 @@ public class Finder {
 					break;
 				}
 			} catch (FactoryException e) {
-				logger.warn("FactoryException locally looking for "+name,e);
+				if (warn) {
+					logger.warn("FactoryException locally looking for "+name,e);
+				}
 			}
 		}
 		return findable;
 	}
+
 
 	/**
 	 * Adds a factory to the list of searchable factories known by the Finder.
@@ -328,7 +323,7 @@ public class Finder {
 	}
 
 	/**
-	 * Returns a map of all {@link Findable} objects of the given type
+	 * Returns a map of all {@link Findable} objects (local & remote) of the given type
 	 *
 	 * @param <T>
 	 * @param clazz
@@ -336,8 +331,34 @@ public class Finder {
 	 * @return a map of matching {@code Findable}s, with the object names as keys and the objects as values
 	 */
 	public <T extends Findable> Map<String, T> getFindablesOfType(Class<T> clazz) {
+		return getFindablesOfType(clazz, false);
+	}
+
+	/**
+	 * Returns a map of all local {@link Findable} objects of the given type
+	 *
+	 * @param clazz
+	 *            the class or interface to match
+	 * @return a map of matching {@code Findable}s, with the object names as keys and the objects as values
+	 */
+	public <T extends Findable> Map<String, T> getLocalFindablesOfType(Class<T> clazz) {
+		return getFindablesOfType(clazz, true);
+	}
+
+	/**
+	 * Returns a map of all {@link Findable} objects of the given type
+	 *
+	 * @param clazz
+	 *            the class or interface to match
+	 * @param local True if only local objects are to be returned
+	 * @return a map of matching {@code Findable}s, with the object names as keys and the objects as values
+	 */
+	private <T extends Findable> Map<String, T> getFindablesOfType(Class<T> clazz, boolean local) {
 		Map<String, T> findables = new HashMap<String, T>();
 		for (Factory factory : getCopyOfFactories()) {
+			if (local && !factory.isLocal()) {
+				continue;
+			}
 			for (Findable findable : factory.getFindables()) {
 				if (clazz.isAssignableFrom(findable.getClass())) {
 					findables.put(findable.getName(), clazz.cast(findable));
@@ -348,15 +369,40 @@ public class Finder {
 	}
 
 	/**
-	 * Returns a list of all {@link Findable} objects of the given type
+	 * Returns a list of all {@link Findable} objects (local & remote) of the given type
 	 *
 	 * @param clazz
 	 *            the class or interface to match
 	 * @return a list of matching {@code Findable}s
 	 */
 	public <T extends Findable> List<T> listFindablesOfType(Class<T> clazz) {
+		return listFindablesOfType(clazz, false);
+	}
+
+	/**
+	 * Returns a list of all local {@link Findable} objects of the given type
+	 *
+	 * @param clazz
+	 *            the class or interface to match
+	 * @return a list of matching {@code Findable}s
+	 */
+	public <T extends Findable> List<T> listLocalFindablesOfType(Class<T> clazz) {
+		return listFindablesOfType(clazz, true);
+	}
+
+	/**
+	 * Returns a list of all {@link Findable} objects of the given type
+	 *
+	 * @param clazz
+	 *            the class or interface to match
+	 * @return a list of matching {@code Findable}s
+	 */
+	private <T extends Findable> List<T> listFindablesOfType(Class<T> clazz, boolean local) {
 		List<T> findables = new ArrayList<T>();
 		for (Factory factory : getCopyOfFactories()) {
+			if (local && !factory.isLocal()) {
+				continue;
+			}
 			for (Findable findable : factory.getFindables()) {
 				if (clazz.isAssignableFrom(findable.getClass())) {
 					findables.add(clazz.cast(findable));
