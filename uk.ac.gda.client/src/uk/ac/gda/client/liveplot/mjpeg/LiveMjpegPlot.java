@@ -108,7 +108,7 @@ public class LiveMjpegPlot extends ViewPart {
 			createLivePlot(parent, getViewSite().getSecondaryId());
 		} else {
 			// Find all the implemented cameras
-			List<CameraConfiguration> cameras = Finder.getInstance().listFindablesOfType(CameraConfiguration.class);
+			List<CameraConfiguration> cameras = Finder.getInstance().listLocalFindablesOfType(CameraConfiguration.class);
 			final Map<String, CameraConfiguration> cameraMap = new TreeMap<String, CameraConfiguration>();
 			for (CameraConfiguration camConfig : cameras) {
 				if (camConfig.getDisplayName() != null) {
