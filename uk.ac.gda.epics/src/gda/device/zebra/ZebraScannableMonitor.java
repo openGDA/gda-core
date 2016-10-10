@@ -32,22 +32,14 @@ import gda.device.scannable.ScannableBase;
 import gda.factory.FactoryException;
 
 /**
- * Class to use with ZebraMonitorController and ConstantVelocityScanLine to monitor flyscans
- * on a Zebra triggered by a ZebraConstantVelocityMoveController as a scannable.
+ * Class to use with ZebraConstantVelocityMoveController and ConstantVelocityScanLine to monitor flyscans
  */
-public class ZebraScannableMonitor extends ScannableBase implements ContinuouslyScannableViaController,
-																	PositionCallableProvider<Double>, InitializingBean {
-
+public class ZebraScannableMonitor extends ScannableBase implements ContinuouslyScannableViaController, PositionCallableProvider<Double>, InitializingBean {
 	private static final Logger logger = LoggerFactory.getLogger(ZebraScannableMonitor.class);
-
-	private ZebraMonitorController zebraMonitorController;
+	private ZebraConstantVelocityMoveController continuousMoveController;
 	private int pcCapture=0;
 
 	// Class properties
-
-	public void setZebraMonitorController(ZebraMonitorController continuousMoveController) {
-		this.zebraMonitorController = continuousMoveController;
-	}
 
 	public int getPcCapture() {
 		return pcCapture;
@@ -57,11 +49,11 @@ public class ZebraScannableMonitor extends ScannableBase implements Continuously
 		this.pcCapture = pcCapture;
 	}
 
-	// implement ContinuouslyScannableViaController
+	// implements ContinuouslyScannableViaController
 
 	@Override
 	public void setOperatingContinuously(boolean b) throws DeviceException {
-		logger.debug("setOperatingContinuously({}) ignored, always operating continuously", b);
+		logger.debug("setOperatingContinuously({}) ignored, always operating continuously");
 	}
 
 	@Override
@@ -71,18 +63,21 @@ public class ZebraScannableMonitor extends ScannableBase implements Continuously
 
 	@Override
 	public ContinuousMoveController getContinuousMoveController() {
-		return zebraMonitorController.getContinuousMoveController();
+		return continuousMoveController;
+	}
+
+	public void setZebraConstantVelocityMoveController(ZebraConstantVelocityMoveController continuousMoveController) {
+		this.continuousMoveController = continuousMoveController;
 	}
 
 	@Override
 	public void setContinuousMoveController(ContinuousMoveController continuousMoveController) {
-		logger.trace("setContinuousMoveController({})", continuousMoveController);
 		try {
 			ZebraConstantVelocityMoveController zebraController = (ZebraConstantVelocityMoveController) continuousMoveController;
-			if (this.zebraMonitorController.getZebraCVMoveController().getZebra() != zebraController.getZebra()) {
-				throw new IllegalArgumentException("ZebraConstantVelocityMoveController "+continuousMoveController.getName()+" uses a different zebra to the already configured "+this.zebraMonitorController.getZebraCVMoveController().getName());
+			if (this.continuousMoveController.getZebra() != zebraController.getZebra()) {
+				throw new IllegalArgumentException("ZebraConstantVelocityMoveController "+continuousMoveController.getName()+" uses a different zebra to the already configured "+this.continuousMoveController.getName());
 			}
-			this.zebraMonitorController.setZebraCVMoveController(zebraController);
+			this.continuousMoveController = zebraController;
 		} catch (Exception e) {
 			throw new IllegalArgumentException("setContinuousMoveController("+continuousMoveController.getName()+") is not a ZebraConstantVelocityMoveController required for "+getName(), e);
 		}
@@ -92,7 +87,7 @@ public class ZebraScannableMonitor extends ScannableBase implements Continuously
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		if( zebraMonitorController == null){
+		if( continuousMoveController == null){
 			throw new Exception("continuousMoveController == null");
 		}
 	}
@@ -101,8 +96,7 @@ public class ZebraScannableMonitor extends ScannableBase implements Continuously
 
 	@Override
 	public Callable<Double> getPositionCallable() throws DeviceException {
-		logger.trace("getPositionCallable() for {}", getPcCapture());
-		return zebraMonitorController.getPositionSteamIndexer(getPcCapture()).getNamedPositionCallable(getName(),1);
+		return continuousMoveController.getPositionSteamIndexer(getPcCapture()).getNamedPositionCallable(getName(),1);
 	}
 
 	// Scannable
@@ -132,4 +126,11 @@ public class ZebraScannableMonitor extends ScannableBase implements Continuously
 		logger.warn("rawGetPosition() should not be called during continuous operation.");
 		return 0.;
 	}
+
+	/*
+	@Override
+	public void waitWhileBusy() throws DeviceException, InterruptedException {
+		return; //this is never busy as it does not talk to hardware
+	}
+*/
 }

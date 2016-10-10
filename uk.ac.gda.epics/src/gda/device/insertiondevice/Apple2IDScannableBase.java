@@ -77,4 +77,8 @@ public abstract class Apple2IDScannableBase extends ScannableBase implements Ini
 	public void setController(IApple2ID controller) {
 		this.controller = controller;
 	}
+
+	public IApple2ID getController() {
+		return controller;
+	}
 }

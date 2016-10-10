@@ -18,12 +18,6 @@
 
 package gda.device.zebra;
 
-import java.util.concurrent.Callable;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
-
 import gda.device.DeviceException;
 import gda.device.continuouscontroller.ContinuousMoveController;
 import gda.device.scannable.ContinuouslyScannableViaController;
@@ -31,14 +25,17 @@ import gda.device.scannable.PositionCallableProvider;
 import gda.device.scannable.PositionConvertorFunctions;
 import gda.device.scannable.ScannableMotor;
 
+import java.util.concurrent.Callable;
+
+import org.springframework.beans.factory.InitializingBean;
+
 /**
  * Class to use with ZebraConstantVelocityMoveController and ConstantVelocityScanLine to perform flyscans
  *
  *
  */
-public class ZebraScannableMotor extends ScannableMotor implements ContinuouslyScannableViaController, ZebraMotorInfoProvider,
-																	PositionCallableProvider<Double>, InitializingBean {
-	private static final Logger logger = LoggerFactory.getLogger(ZebraScannableMotor.class);
+public class ZebraScannableMotor extends ScannableMotor implements ContinuouslyScannableViaController, ZebraMotorInfoProvider, PositionCallableProvider<Double>, InitializingBean{
+//	private static final Logger logger = LoggerFactory.getLogger(ZebraScannableMotor.class);
 	private ZebraConstantVelocityMoveController continuousMoveController;
 	private double scurveTimeToVelocity=.03;//default set to rotation stage on I13
 	private int pcEnc=0;
@@ -46,7 +43,7 @@ public class ZebraScannableMotor extends ScannableMotor implements ContinuouslyS
 
 	@Override
 	public void setOperatingContinuously(boolean b) throws DeviceException {
-		logger.debug("setOperatingContinuously({}) ignored, always operating continuously", b);
+		//do nothing - always operating Continuously
 	}
 
 	@Override
@@ -65,7 +62,6 @@ public class ZebraScannableMotor extends ScannableMotor implements ContinuouslyS
 
 	@Override
 	public void setContinuousMoveController(ContinuousMoveController continuousMoveController) {
-		logger.trace("setContinuousMoveController({})", continuousMoveController);
 		try {
 			ZebraConstantVelocityMoveController zebraController = (ZebraConstantVelocityMoveController) continuousMoveController;
 			if (this.continuousMoveController.getZebra() != zebraController.getZebra()) {
@@ -87,10 +83,8 @@ public class ZebraScannableMotor extends ScannableMotor implements ContinuouslyS
 	// Scannable //
 	@Override
 	public void asynchronousMoveTo(Object position) throws DeviceException {
-		logger.trace("asynchronousMoveTo({})", position);
 		continuousMoveController.addPoint(PositionConvertorFunctions.toDouble(externalToInternal(position)));
 	}
-
 	@Override
 	public Object getPosition() throws DeviceException {
 		//TODO this will not be called as we have getPositionCallable so getLastPointAdded is not required not addPoint
@@ -111,6 +105,7 @@ public class ZebraScannableMotor extends ScannableMotor implements ContinuouslyS
 	public void waitWhileBusy() throws DeviceException, InterruptedException {
 		return; //this is never busy as it does not talk to hardware
 	}
+
 
 	/**
 	 *
@@ -133,9 +128,9 @@ public class ZebraScannableMotor extends ScannableMotor implements ContinuouslyS
 	 * motor in EPICS (Time to Velocity)
 	 */
 	public void setScurveTimeToVelocity(double scurveTimeToVelocity) {
-		logger.trace("setScurveTimeToVelocity({})", scurveTimeToVelocity);
 		this.scurveTimeToVelocity = scurveTimeToVelocity;
 	}
+
 
 	@Override
 	public int getPcEnc() {
@@ -164,7 +159,6 @@ public class ZebraScannableMotor extends ScannableMotor implements ContinuouslyS
 	}
 
 	public void setExposureStep(double exposureStep) {
-		logger.trace("setExposureStep({})", exposureStep);
 		this.exposureStep = exposureStep;
 	}
 
@@ -174,16 +168,15 @@ public class ZebraScannableMotor extends ScannableMotor implements ContinuouslyS
 	}
 
 	public void setExposureStepDefined(boolean exposureStepDefined) {
-		logger.trace("setExposureStepDefined({})", exposureStepDefined);
 		this.exposureStepDefined = exposureStepDefined;
 	}
 
 	@Override
 	public void atScanStart() throws DeviceException {
-		logger.trace("atScanStart()");
-		// Due to the fragility of ZebraConstantVelocityMoveController and particularly the life cycle of
-		// its parts which read out time series arrays: here we will clear these so that controller this
+		// Due to the fragility of ZebraConstantVelocityMoveController and particulary the life cycle of
+		// its parts which read out time series arrays: here we will clear these so that controller this 
 		//ZebraScannableMotor returns is fit to be used by the scan.
 		continuousMoveController.prepareControllerToBeUsedForUpcomingScan();
 	}
+
 }

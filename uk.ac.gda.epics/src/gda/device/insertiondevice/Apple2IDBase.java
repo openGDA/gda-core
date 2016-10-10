@@ -34,16 +34,10 @@ import gda.device.MotorProperties.MotorEvent;
  * It allows you to specify the ID gap and the position of the four phase motors and ensures that moves are made safely. Scannables can be built on top of this
  * to allow the user to specify position in terms of, for example, gap & polarisation or energy & polarisation.
  * <p>
- * This version expects as input an array of elements (all expressed in mm):<br>
- * [&lt;gap&gt;, &lt;top outer motor position&gt;, &lt;top inner motor position&gt;, &lt;bottom outer motor position&gt;, &lt;bottom inner motor position&gt;]
+ * This version expects as input of {@link Apple2IDPosition} type.
  * <p>
- * The ID handles four polarisation modes: <br>
- * LH (horizontal)<br>
- * C (circular)<br>
- * L1 (linear 1)<br>
- * L2 (linear 2)
- * <p>
- * LH is in fact a special case of C with all motor positions equal to 0.
+ * The ID handles six polarisation modes described in {@link Apple2IDPolarisationMode} <br>
+ * LH is in fact a special case of Circular Mode with all motor positions equal to 0.
  * <p>
  * Moves between different modes must be made via LH: this class takes care of this requirement.
  */
@@ -53,17 +47,13 @@ public abstract class Apple2IDBase extends DeviceBase implements IApple2ID {
 
 	protected static final String GAP_AND_PHASE_MODE = "GAP AND PHASE";
 
-	// Polarisation mode: see above
-	private enum PolarisationMode {
-		LH, C, L1, L2, UNKNOWN
-	}
-
 	protected enum IDMotor {
 		GAP, TOP_OUTER, TOP_INNER, BOTTOM_OUTER, BOTTOM_INNER
 	}
 
 	private double maxPhaseMotorPos = 28.0;
 	private double minGapPos = 20.0;
+	private double maxGapPos = 100.0;
 
 	// Tolerance on position of individual motors
 	private double motorPositionTolerance = 0.012;
@@ -94,8 +84,8 @@ public abstract class Apple2IDBase extends DeviceBase implements IApple2ID {
 		}
 
 		// Check that requested motor positions constitute a valid polarisation mode
-		final PolarisationMode requestedMode = getPolarisationMode(position);
-		if (requestedMode == PolarisationMode.UNKNOWN) {
+		final Apple2IDPolarisationMode requestedMode = getPolarisationMode(position);
+		if (requestedMode == Apple2IDPolarisationMode.UNKNOWN) {
 			throw new DeviceException("Illegal combination of phase motor positions requested");
 		}
 
@@ -113,17 +103,17 @@ public abstract class Apple2IDBase extends DeviceBase implements IApple2ID {
 		// Get current polarisation mode
 		final Apple2IDPosition currentPosition = new Apple2IDPosition(getMotorPosition(IDMotor.GAP), getMotorPosition(IDMotor.TOP_OUTER), getMotorPosition(IDMotor.TOP_INNER),
 				getMotorPosition(IDMotor.BOTTOM_OUTER), getMotorPosition(IDMotor.BOTTOM_INNER));
-		final PolarisationMode currentMode = getPolarisationMode(currentPosition);
+		final Apple2IDPolarisationMode currentMode = getPolarisationMode(currentPosition);
 
 		// Set up move(s)
 		// If we are moving between different modes, we need to move via horizontal
 		pendingMoves.clear();
-		if (requestedMode != currentMode && currentMode != PolarisationMode.LH) {
+		if (requestedMode != currentMode && currentMode != Apple2IDPolarisationMode.LH) {
 			pendingMoves.add(new Apple2IDPosition(position.gap, 0, 0, 0, 0));
 		}
 
 		// Now add a move to the requested mode, unless it is LH, in which case we are already there or have just added a move there.
-		if (requestedMode != PolarisationMode.LH) {
+		if (requestedMode != Apple2IDPolarisationMode.LH) {
 			pendingMoves.add(position.clone());
 		}
 
@@ -146,7 +136,7 @@ public abstract class Apple2IDBase extends DeviceBase implements IApple2ID {
 
 	@Override
 	public boolean motorPositionsEqual(final double a, final double b) {
-		return Math.abs(a - b) < motorPositionTolerance;
+		return Math.abs(a - b) < getMotorPositionTolerance();
 	}
 
 	/**
@@ -173,22 +163,32 @@ public abstract class Apple2IDBase extends DeviceBase implements IApple2ID {
 		}
 	}
 
-	private PolarisationMode getPolarisationMode(Apple2IDPosition position) {
+	@Override
+	public Apple2IDPolarisationMode getPolarisationMode(Apple2IDPosition position) {
 
-		if (motorPositionsEqual(position.topOuterPos, 0) && motorPositionsEqual(position.topInnerPos, 0) && motorPositionsEqual(position.bottomOuterPos, 0)
-				&& motorPositionsEqual(position.bottomInnerPos, 0)) {
-			return PolarisationMode.LH;
+		if (motorPositionsEqual(position.topOuterPos, 0.0) && motorPositionsEqual(position.topInnerPos, 0.0)
+				&& motorPositionsEqual(position.bottomOuterPos, 0.0) && motorPositionsEqual(position.bottomInnerPos, 0.0)) {
+			return Apple2IDPolarisationMode.LH;
 		}
-		if (motorPositionsEqual(position.topOuterPos, position.bottomInnerPos) && motorPositionsEqual(position.topInnerPos, 0) && motorPositionsEqual(position.bottomOuterPos, 0)) {
-			return PolarisationMode.C;
+		if (motorPositionsEqual(position.topOuterPos, getMaxPhaseMotorPos()) && motorPositionsEqual(position.topInnerPos, 0)
+				&& motorPositionsEqual(position.bottomOuterPos, 0) && motorPositionsEqual(position.bottomInnerPos, getMaxPhaseMotorPos())) {
+			return Apple2IDPolarisationMode.LV;
+		}
+		if (motorPositionsEqual(position.topOuterPos, position.bottomInnerPos) && position.topOuterPos > 0 && motorPositionsEqual(position.topInnerPos, 0)
+				&& motorPositionsEqual(position.bottomOuterPos, 0)) {
+			return Apple2IDPolarisationMode.CR;
+		}
+		if (motorPositionsEqual(position.topOuterPos, position.bottomInnerPos) && position.topOuterPos < 0 && motorPositionsEqual(position.topInnerPos, 0)
+				&& motorPositionsEqual(position.bottomOuterPos, 0)) {
+			return Apple2IDPolarisationMode.CL;
 		}
 		if (motorPositionsEqual(position.topOuterPos, -position.bottomInnerPos) && motorPositionsEqual(position.topInnerPos, 0) && motorPositionsEqual(position.bottomOuterPos, 0)) {
-			return PolarisationMode.L1;
+			return Apple2IDPolarisationMode.LAP;
 		}
 		if (motorPositionsEqual(position.topInnerPos, -position.bottomOuterPos) && motorPositionsEqual(position.topOuterPos, 0) && motorPositionsEqual(position.bottomInnerPos, 0)) {
-			return PolarisationMode.L2;
+			return Apple2IDPolarisationMode.LAN;
 		}
-		return PolarisationMode.UNKNOWN;
+		return Apple2IDPolarisationMode.UNKNOWN;
 	}
 
 	// (Abstract) class methods
@@ -213,6 +213,14 @@ public abstract class Apple2IDBase extends DeviceBase implements IApple2ID {
 
 	public void setMinGapPos(double minGapPos) {
 		this.minGapPos = minGapPos;
+	}
+
+	public double getMaxGapPos() {
+		return maxGapPos;
+	}
+
+	public void setMaxGapPos(double maxGapPos) {
+		this.maxGapPos = maxGapPos;
 	}
 
 	public double getMotorPositionTolerance() {

@@ -18,14 +18,6 @@
 
 package gda.device.detector.areadetector.v17.impl;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.util.StringUtils;
-
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.configuration.epics.EpicsConfiguration;
@@ -52,6 +44,14 @@ import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
 import gov.aps.jca.event.PutEvent;
 import gov.aps.jca.event.PutListener;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.util.StringUtils;
 
 public class ADBaseImpl implements InitializingBean, ADBase {
 

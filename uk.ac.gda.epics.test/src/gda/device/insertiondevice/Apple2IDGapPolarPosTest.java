@@ -21,6 +21,7 @@ package gda.device.insertiondevice;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyDouble;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -31,29 +32,23 @@ import java.util.Arrays;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import gda.device.DeviceException;
 
 public class Apple2IDGapPolarPosTest {
 
-	private IApple2ID controller;
+	private Apple2IDBase controller;
 	private Apple2IDGapPolarPos scannable;
 
 	@Before
 	public void setUp() throws DeviceException {
-		controller = mock(IApple2ID.class);
+		controller = mock(Apple2IDBase.class);
 		when(controller.getIDMode()).thenReturn("GAP AND PHASE");
 		when(controller.isEnabled()).thenReturn(true);
 		when(controller.getMaxPhaseMotorPos()).thenReturn(30.0);
-		when(controller.motorPositionsEqual(anyDouble(), anyDouble())).thenAnswer(new Answer<Boolean>() {
-			@Override
-			public Boolean answer(InvocationOnMock invocation) throws Throwable {
-				Object[] args = invocation.getArguments();
-				return args[0].equals(args[1]);
-			}
-		});
+		when(controller.getMotorPositionTolerance()).thenReturn(0.012);
+		when(controller.motorPositionsEqual(anyDouble(), anyDouble())).thenCallRealMethod();
+		when(controller.getPolarisationMode(any(Apple2IDPosition.class))).thenCallRealMethod();
 
 		scannable = new Apple2IDGapPolarPos();
 		scannable.setController(controller);
@@ -66,17 +61,17 @@ public class Apple2IDGapPolarPosTest {
 
 	@Test(expected = DeviceException.class)
 	public void testNotEnoughElementsInPosition() throws DeviceException {
-		scannable.rawAsynchronousMoveTo(new ArrayList<Object>(Arrays.asList(24, "C")));
+		scannable.rawAsynchronousMoveTo(new ArrayList<Object>(Arrays.asList(24, "CR")));
 	}
 
 	@Test(expected = NumberFormatException.class)
 	public void testInvalidGap() throws DeviceException {
-		scannable.rawAsynchronousMoveTo(new ArrayList<Object>(Arrays.asList("GAP", "C", 15)));
+		scannable.rawAsynchronousMoveTo(new ArrayList<Object>(Arrays.asList("GAP", "CR", 15)));
 	}
 
 	@Test(expected = NumberFormatException.class)
 	public void testInvalidMotorPosition() throws DeviceException {
-		scannable.rawAsynchronousMoveTo(new ArrayList<Object>(Arrays.asList(24, "C", "POS")));
+		scannable.rawAsynchronousMoveTo(new ArrayList<Object>(Arrays.asList(24, "CR", "POS")));
 	}
 
 	@Test(expected = DeviceException.class)
@@ -86,7 +81,7 @@ public class Apple2IDGapPolarPosTest {
 
 	@Test
 	public void testMoveToCircular() throws DeviceException, InterruptedException {
-		scannable.rawAsynchronousMoveTo(new ArrayList<Object>(Arrays.asList(24, "C", 15)));
+		scannable.rawAsynchronousMoveTo(new ArrayList<Object>(Arrays.asList(24, "CR", 15)));
 		while (scannable.isBusy()) {
 			Thread.sleep(10);
 		}
@@ -95,7 +90,7 @@ public class Apple2IDGapPolarPosTest {
 
 	@Test
 	public void testMoveToLinear1() throws DeviceException, InterruptedException {
-		scannable.rawAsynchronousMoveTo(new ArrayList<Object>(Arrays.asList(24, "L1", 15)));
+		scannable.rawAsynchronousMoveTo(new ArrayList<Object>(Arrays.asList(24, "LAP", 15)));
 		while (scannable.isBusy()) {
 			Thread.sleep(10);
 		}
@@ -104,7 +99,7 @@ public class Apple2IDGapPolarPosTest {
 
 	@Test
 	public void testMoveToLinear2() throws DeviceException, InterruptedException {
-		scannable.rawAsynchronousMoveTo(new ArrayList<Object>(Arrays.asList(24, "L2", 15)));
+		scannable.rawAsynchronousMoveTo(new ArrayList<Object>(Arrays.asList(24, "LAN", 15)));
 		while (scannable.isBusy()) {
 			Thread.sleep(10);
 		}
@@ -131,21 +126,21 @@ public class Apple2IDGapPolarPosTest {
 	public void testRawGetPositionCircular() throws DeviceException {
 		when(controller.getPosition()).thenReturn(new Apple2IDPosition(37, 23, 0, 0, 23));
 		Object result = scannable.rawGetPosition();
-		checkPositionResult(result, 37, "C", 23, "GAP AND PHASE", true, 23, 0, 0, 23);
+		checkPositionResult(result, 37, "CR", 23, "GAP AND PHASE", true, 23, 0, 0, 23);
 	}
 
 	@Test
 	public void testRawGetPositionLinear1() throws DeviceException {
 		when(controller.getPosition()).thenReturn(new Apple2IDPosition(37, 23, 0, 0, -23));
 		Object result = scannable.rawGetPosition();
-		checkPositionResult(result, 37, "L1", 23, "GAP AND PHASE", true, 23, 0, 0, -23);
+		checkPositionResult(result, 37, "LAP", 23, "GAP AND PHASE", true, 23, 0, 0, -23);
 	}
 
 	@Test
 	public void testRawGetPositionLinear2() throws DeviceException {
 		when(controller.getPosition()).thenReturn(new Apple2IDPosition(37, 0, 23, -23, 0));
 		Object result = scannable.rawGetPosition();
-		checkPositionResult(result, 37, "L2", 23, "GAP AND PHASE", true, 0, 23, -23, 0);
+		checkPositionResult(result, 37, "LAN", 23, "GAP AND PHASE", true, 0, 23, -23, 0);
 	}
 
 	@Test

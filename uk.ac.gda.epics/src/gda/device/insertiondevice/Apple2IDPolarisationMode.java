@@ -18,25 +18,17 @@
 
 package gda.device.insertiondevice;
 
-import gda.device.DeviceException;
-import gda.factory.Configurable;
-import gda.observable.IObservable;
-
-public interface IApple2ID extends Configurable, IObservable {
-
-	void asynchronousMoveTo(Apple2IDPosition position) throws DeviceException;
-
-	boolean isBusy();
-
-	Apple2IDPosition getPosition() throws DeviceException;
-
-	String getIDMode() throws DeviceException;
-
-	boolean isEnabled() throws DeviceException;
-
-	double getMaxPhaseMotorPos();
-
-	boolean motorPositionsEqual(final double a, final double b);
-
-	Apple2IDPolarisationMode getPolarisationMode(Apple2IDPosition position);
+/**
+ * Define the polarisation modes as specified by Scientists.
+ *
+ * @see "http://confluence.diamond.ac.uk/display/I21/Insertion+device"
+ */
+public enum Apple2IDPolarisationMode {
+	LH, // Linear Horizontal Mode
+	LV, // Linear Vertical Mode
+	CR, // Circular Right Mode
+	CL, // Circular Left Mode
+	LAP, // Linear Angular Positive
+	LAN, // Linear Angular Negative
+	UNKNOWN
 }
