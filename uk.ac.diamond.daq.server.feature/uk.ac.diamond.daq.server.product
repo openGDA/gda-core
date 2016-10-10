@@ -18,6 +18,7 @@ Starts the server as an Eclipse OSGI application
    <launcherArgs>
       <programArgs>--launcher.suppressErrors
 --launcher.appendVmargs
+-console
       </programArgs>
       <vmArgs>-Dosgi.gda.application=true
       </vmArgs>
