@@ -24,6 +24,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
@@ -73,7 +74,9 @@ public abstract class DlsIcatBase extends IcatBase {
 		}
 		if (TITLE_QUERY.equals(accessName))
 			return getTitleForVisit(visitIDFilter);
-		throw new IllegalArgumentException("unknown query request");
+		throw new IllegalArgumentException(String.format(
+			"unknown query request: visitIDFilter=%s, userNameFilter=%s, accessName=%s",
+			StringUtils.quote(visitIDFilter), StringUtils.quote(userNameFilter), StringUtils.quote(accessName)));
 	}
 
 	protected List<String> getUsefulVisits(String user) throws Exception {

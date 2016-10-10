@@ -24,11 +24,11 @@ import gda.data.metadata.VisitEntry;
 /**
  * This isn't a unit test but is designed to let you interrogate DiCAT to find visits.
  */
-public class DLSdicatTest {
+public class IcatTest {
 
 	public static void main(String[] args) throws Exception {
 
-		System.setProperty("logback.configurationFile", DLSdicatTest.class.getResource("logback-DLSdicatTest.xml").getFile());
+		System.setProperty("logback.configurationFile", IcatTest.class.getResource("logback-IcatTest.xml").getFile());
 
 		// You'll want to change these
 		for (String instrument : new String[] {"i02", "i03", "i04", "i04-1", "i23", "i24"}) {
@@ -42,10 +42,10 @@ public class DLSdicatTest {
 			System.setProperty(LocalProperties.GDA_CONFIG, gdaConfig);
 			System.setProperty(LocalProperties.GDA_PROPERTIES_FILE, String.format("%s/properties/live/java.properties", gdaConfig));
 
-			final DLSdicat dicat = new DLSdicat();
-			dicat.setInstrumentName(instrument);
+			final IcatBase icat = (IcatBase) IcatProvider.getInstance();
+			icat.setInstrumentName(instrument);
 
-			final VisitEntry[] visits = dicat.getMyValidVisits(username);
+			final VisitEntry[] visits = icat.getMyValidVisits(username);
 
 			final int count = visits.length;
 			System.out.printf("%d visit%s on %s for %s%s%n", count, (count == 1 ? "" : "s"), instrument, username, (count == 0 ? "" : ":"));
