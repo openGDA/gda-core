@@ -46,8 +46,6 @@ public class BeamlineConfigurationSection extends AbstractMappingSection {
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(beamlineConfigComposite);
 		final int configColumns = 2;
 		GridLayoutFactory.swtDefaults().numColumns(configColumns).applyTo(beamlineConfigComposite);
-//		GridDataFactory.fillDefaults().span(configColumns, 1).grab(true, false)
-//				.applyTo(new Label(beamlineConfigComposite, SWT.SEPARATOR | SWT.HORIZONTAL));
 		Label beamlineConfigLabel = new Label(beamlineConfigComposite, SWT.NONE);
 		beamlineConfigLabel.setText("Beamline Configuration");
 		GridDataFactory.fillDefaults().span(configColumns, 1).applyTo(beamlineConfigLabel);

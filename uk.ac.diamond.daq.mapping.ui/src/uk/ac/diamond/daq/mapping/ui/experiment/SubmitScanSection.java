@@ -66,6 +66,10 @@ public class SubmitScanSection extends AbstractMappingSection {
 		});
 	}
 
+	@Override
+	public boolean createSeparator() {
+		return false;
+	}
 
 	private ScanBean createScanBean() {
 		ScanBean scanBean = new ScanBean();

@@ -19,6 +19,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,10 +89,26 @@ public class MappingExperimentView implements IAdaptable {
 		} else {
 			// create the controls for sections that should be shown
 			final List<AbstractMappingSection> sections = createSections();
-			sections.stream().filter(s -> s.shouldShow()).forEach(s -> s.createControls(mainComposite));
+			boolean isFirst = true;
+			for (AbstractMappingSection section : sections) {
+				if (section.shouldShow()) {
+					createSectionControls(section, !isFirst && section.createSeparator());
+					isFirst = false;
+				}
+			}
 		}
 
 		logger.trace("Finished building the mapping experiment view");
+	}
+
+	private void createSectionControls(AbstractMappingSection section, boolean createSeparator) {
+		if (createSeparator) {
+			// create separator
+			GridDataFactory.fillDefaults().span(2, 1).grab(true, false).applyTo(
+					new Label(mainComposite, SWT.SEPARATOR | SWT.HORIZONTAL));
+		}
+
+		section.createControls(mainComposite);
 	}
 
 	@PreDestroy

@@ -50,8 +50,6 @@ public class DetectorsSection extends AbstractMappingSection {
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(detectorsComposite);
 		final int detectorsColumns = 3;
 		GridLayoutFactory.swtDefaults().numColumns(detectorsColumns).applyTo(detectorsComposite);
-		GridDataFactory.fillDefaults().span(detectorsColumns, 1).grab(true, false)
-				.applyTo(new Label(detectorsComposite, SWT.SEPARATOR | SWT.HORIZONTAL));
 		Label detectorsLabel = new Label(detectorsComposite, SWT.NONE);
 		detectorsLabel.setText("Detectors");
 		GridDataFactory.fillDefaults().span(detectorsColumns, 1).applyTo(detectorsLabel);

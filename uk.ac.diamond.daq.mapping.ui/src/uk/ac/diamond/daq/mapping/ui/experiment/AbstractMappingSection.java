@@ -39,6 +39,10 @@ public abstract class AbstractMappingSection {
 		return true;
 	}
 
+	public boolean createSeparator() {
+		return true;
+	}
+
 	public abstract void createControls(Composite parent);
 
 	protected void updateStatusLabel() {

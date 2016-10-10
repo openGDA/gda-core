@@ -65,8 +65,6 @@ class OuterScannablesSection extends AbstractMappingSection {
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(otherScanAxesComposite);
 		final int axesColumns = 2;
 		GridLayoutFactory.swtDefaults().numColumns(axesColumns).spacing(8, 5).applyTo(otherScanAxesComposite);
-		GridDataFactory.fillDefaults().span(axesColumns, 1).grab(true, false)
-				.applyTo(new Label(otherScanAxesComposite, SWT.SEPARATOR | SWT.HORIZONTAL));
 		Label otherScanAxesLabel = new Label(otherScanAxesComposite, SWT.NONE);
 		otherScanAxesLabel.setText("Other Scan Axes");
 		GridDataFactory.fillDefaults().span(axesColumns, 1).applyTo(otherScanAxesLabel);
