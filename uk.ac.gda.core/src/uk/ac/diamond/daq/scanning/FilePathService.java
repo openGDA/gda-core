@@ -18,27 +18,32 @@
 
 package uk.ac.diamond.daq.scanning;
 
-import gda.configuration.properties.LocalProperties;
-import gda.data.NumTracker;
-import gda.data.PathConstructor;
-
 import java.io.IOException;
 
 import org.eclipse.scanning.api.scan.IFilePathService;
+
+import gda.configuration.properties.LocalProperties;
+import gda.data.NumTracker;
+import gda.data.PathConstructor;
 
 /**
  * Implementation of the {@link IFilePathService} which determines the next path to write to.
  */
 public class FilePathService implements IFilePathService {
 
+	private static final String TEMP_DIR_NAME = "tmp";
+	private static final String PROCESSED_DIR_NAME = "processed";
+
 	private static NumTracker tracker;
+
+	private String lastPath = null;
 
 	public FilePathService() {
 		// Must have constructor that does no work
 	}
 
 	@Override
-	public String nextPath() throws IOException {
+	public synchronized String getNextPath() throws IOException {
 
 		if (tracker == null) {
 			// Make a NumTracker using the property gda.data.numtracker.extension
@@ -57,7 +62,33 @@ public class FilePathService implements IFilePathService {
 		String filename = LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME, "base") + "-" + fileNumber + ".nxs";
 
 		// Return the full file path
-		return dir + "/" + filename;
+		String path = dir + "/" + filename;
+		lastPath = path;
+
+		return path;
+	}
+
+	@Override
+	public String getMostRecentPath() {
+		if (lastPath == null) { // Should always be called after getNextPath() for that scan
+			throw new IllegalStateException("No previous path.");
+		}
+
+		return lastPath;
+	}
+
+	@Override
+	public String getTempDir() {
+		// Get the current visit directory and append /tmp.
+		// TODO This currently doesn't support sub directories under the visit e.g. /sample1/
+		return PathConstructor.createFromDefaultProperty() + "/" + TEMP_DIR_NAME;
+	}
+
+	@Override
+	public String getProcessedFilesDir() {
+		// Get the current visit directory and append /processed.
+		// TODO This currently doesn't support sub directories under the visit e.g. /sample1/
+		return PathConstructor.createFromDefaultProperty() + "/" + PROCESSED_DIR_NAME;
 	}
 
 }
