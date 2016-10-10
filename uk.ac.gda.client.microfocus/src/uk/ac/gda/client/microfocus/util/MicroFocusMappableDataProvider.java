@@ -156,6 +156,15 @@ public abstract class MicroFocusMappableDataProvider {
 
 	private ILazyDataset extractZScannableData(String names) {
 		ILazyDataset zscannableDS = null;
+
+		// If there are multiple table 3 y values, this must have been a table 3 map.
+		// Therefore, in that case, we are interested in the table 3 z value.
+		if (names.contains("/entry1/instrument/Stage3/table_y")) {
+			ILazyDataset stage3yscannableDS = dataHolder.getLazyDataset("/entry1/instrument/Stage3/table_y");
+			if (stage3yscannableDS.getSize() > 1 && names.contains("/entry1/instrument/Stage3/table_z"))
+				return dataHolder.getLazyDataset("/entry1/instrument/Stage3/table_z");
+		}
+
 		if (names.contains("/entry1/instrument/sc_sample_z/sc_sample_z"))
 			zscannableDS = dataHolder.getLazyDataset("/entry1/instrument/sc_sample_z/sc_sample_z");
 		else if (names.contains("/entry1/instrument/Sample_Stage/sc_sample_z"))
@@ -164,6 +173,7 @@ public abstract class MicroFocusMappableDataProvider {
 			zscannableDS = dataHolder.getLazyDataset("/entry1/instrument/table_z/table_z");
 		else if (names.contains("/entry1/instrument/SampleMotors/" + zScannableName))
 			zscannableDS = dataHolder.getLazyDataset("/entry1/instrument/SampleMotors/" + zScannableName);
+
 		return zscannableDS;
 	}
 
@@ -179,6 +189,20 @@ public abstract class MicroFocusMappableDataProvider {
 			yscannableDS = dataHolder.getLazyDataset("/entry1/instrument/table_y/table_y");
 		else if (names.contains("/entry1/instrument/SampleMotors/" + yScannableName))
 			yscannableDS = dataHolder.getLazyDataset("/entry1/instrument/SampleMotors/" + yScannableName);
+
+		if (names.contains("/entry1/instrument/Stage3/table_y")) {
+			ILazyDataset table3yscannableDS = dataHolder.getLazyDataset("/entry1/instrument/Stage3/table_y");
+			// Perhaps we ought to return the table 3 dataset. Let's see...
+			if (yscannableDS == null)
+				return table3yscannableDS;
+			if (yscannableDS.getSize() == 1 && table3yscannableDS.getSize() > 1) {
+				// The table 1 dataset contains a single value (i.e. is a zero-dimensional array)
+				// but the table 3 dataset contains many values. Therefore we suspect that we are
+				// interested in the table 3 dataset rather than the table 1 dataset.
+				return table3yscannableDS;
+			}
+		}
+
 		return yscannableDS;
 	}
 
@@ -247,6 +271,20 @@ public abstract class MicroFocusMappableDataProvider {
 			else if (names.contains("/entry1/instrument/SampleMotors/" + xScannableName))
 				xscannableDS = dataHolder.getLazyDataset("/entry1/instrument/SampleMotors/" + xScannableName);
 		}
+
+		if (names.contains("/entry1/instrument/Stage3/table_x")) {
+			ILazyDataset table3xscannableDS = dataHolder.getLazyDataset("/entry1/instrument/Stage3/table_x");
+			// Perhaps we ought to return the table 3 dataset. Let's see...
+			if (xscannableDS == null)
+				return table3xscannableDS;
+			if (xscannableDS.getSize() == 1 && table3xscannableDS.getSize() > 1) {
+				// The table 1 dataset contains a single value (i.e. is a zero-dimensional array)
+				// but the table 3 dataset contains many values. Therefore we suspect that we are
+				// interested in the table 3 dataset rather than the table 1 dataset.
+				return table3xscannableDS;
+			}
+		}
+
 		return xscannableDS;
 	}
 
