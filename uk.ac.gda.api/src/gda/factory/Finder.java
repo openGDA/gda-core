@@ -391,10 +391,12 @@ public class Finder {
 	}
 
 	/**
-	 * Returns a list of all {@link Findable} objects of the given type
+	 * Returns a list of all {@link Findable} objects of the given type.
 	 *
 	 * @param clazz
 	 *            the class or interface to match
+	 * @param local
+	 *            True to only search local factories
 	 * @return a list of matching {@code Findable}s
 	 */
 	private <T extends Findable> List<T> listFindablesOfType(Class<T> clazz, boolean local) {
