@@ -2,6 +2,9 @@
 
 # Expects a parameter line that can be passed on to the gda python script
 
+set -o nounset  # Turn on nounset
+set -o errexit  # Turn on errexit
+
 if [[ $# > 0 && ( $1 == -v || $1 == --verbose ) ]] ; then
 	export GDA_DEBUG=TRUE
 	shift
@@ -11,10 +14,10 @@ fi
 bashlog debug "gda_core" "Start of gda_core script"
 
 # If the supported components or options change, both the help text and gda_core_completion script should be updated to match.
- 
+
 function gda_core_help {
 	cat 1>&2 <<EOF
-Usage: $(basename "$0") [-v|-verbose] [OPTION]... COMPONENT 
+Usage: $(basename "$0") [-v|-verbose] [OPTION]... COMPONENT
 
 Start the specified GDA component, where COMPONENT can be
     logpanel|servers|client
@@ -32,13 +35,19 @@ Optional Environment variables:
     GDA_DEBUG                Display debug messages on the console if defined.
 
 OPTIONS:
+
  -v --verbose   Turns on verbose logging even if GDA_DEBUG is not defined.
     --restart   Stop and restart component (default)
     --start     Start component
     --stop      Stop component
     --mode=     Specify a mode (default to GDA_MODE if set, dummy otherwise)
+    --help      Display this help text and exit.
     -*          Other options will be passed to the gda_*_core scripts and then
-                on to the core python gda script.
+                on to the gda server target launch script.
+
+SERVER ONLY:
+-d --debug      Start the server in debug mode but do not wait for connection
+-b --debug-wait Start the server in debug mode waiting for a connection on port 8000
 
 EXAMPLES:
 
@@ -80,7 +89,7 @@ unset GDA_OPERATION GDA_COMPONENT
 for word in "$@"; do
     if [[ "${word}" == --help ]]; then
         gda_core_help
-        #exit 1
+        exit 0
     elif [[ "${word}" == --mode=* ]]; then
         export GDA_MODE=${word:7}
     fi

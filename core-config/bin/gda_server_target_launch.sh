@@ -2,20 +2,9 @@
 # This script is invoked when the gda_servers_core script has been run locally or has been traversed a
 # second time as a result of starting the gda on the control machine from another machine via the ssh tunnel.
 
-# It starts the gda-server target that has been selected by the gda_server_target_select.sh script earlier in
-# the startup loop. For a full overview of GDA9 startup see
-# http://confluence.diamond.ac.uk/display/CT/Deployment%2C+Target+Selection+and+Startup.
-#
-# N.B. in the near term (from 10/08/16) the target selection mechanism will be retired in favour of separate
-# deployments for release/snapshot of development server targets. 
+# It starts the gda-server pointed to by the server link under GDA_WORKSPACE_PARENT.
 
 . ${GDA_WORKSPACE_PARENT}/${GDA_CORE_CONFIG_rel}/bin/bashlog_function
-
-MY_PATH=$(readlink -e ${BASH_SOURCE[0]})
-MY_WORKSPACE_PARENT=${MY_PATH%%/workspace_git*}
-
-LATCH_SCRIPT="$( dirname $MY_PATH )/latch.sh"
-RELEASE_VERSION_SCRIPT="$( dirname $MY_PATH )/read_release_version.sh"
 
 # light red text
 function lr {
@@ -40,7 +29,7 @@ else
     ARGS_IN="$@"
 fi
 
-VALID_OPTIONS="|--devel|--debug|--release|--snapshot|--latch|"
+VALID_OPTIONS="--debug|--debug-wait|"
 for word in $ARGS_IN; do
     if [[ "sword" == "--"* ]] && [[ "$VALID_OPTIONS" != *"|$word|"* ]]; then
         err_msg_exit "'$word' is not a valid option"
@@ -55,55 +44,22 @@ ECLIPSE_RUNTIME_CONFIG_PARENT=~/scratch/gda_server_eclipse_configurations
 [ -d $ECLIPSE_RUNTIME_CONFIG_PARENT ] || mkdir -m 777 $ECLIPSE_RUNTIME_CONFIG_PARENT
 
 # Initialise the beamline specific config
-BEAMLINE_CONFIG="$GDA_WORKSPACE_PARENT/$GDA_INSTANCE_CONFIG_rel"
+BEAMLINE_CONFIG="$GDA_WORKSPACE_PARENT/${GDA_INSTANCE_CONFIG_rel:-config}"
 
-# Determine the required server application install location an add it to the path:
-#
-# Default: used the current latched version
-#
-if [[ "$ARGS_IN" != *"devel"* ]] && [[ "$ARGS_IN" != *"release"* ]] && [[ "$ARGS_IN" != *"snapshot"* ]]; then
-    $LATCH_SCRIPT                                              # record the current latched state in the log
-    export PATH="$MY_WORKSPACE_PARENT/launch:${PATH}"
+########################
+#  No need to select server path as a it's always workspace_parent/server
+########################
 
-# One-time run options:
-#
-# Devel: add the beamline workspace default server location to the path
-#
-elif [[ "$ARGS_IN" == *"devel"* ]]; then
-
-    # Disallow multiple target options along the way
-    #
-    if [[ "$ARGS_IN" == *"release"* ]] || [[ "$ARGS_IN" == *"snapshot"* ]]; then
-        err_msg_exit "Cannot specify two or more target options together; they are mutually exclusive"
-    fi
-    export PATH="$MY_WORKSPACE_PARENT/server:${PATH}"          # i.e. "module load gda-server devel"
-    echo -e "\n\tSetting up GDA 9 SERVER development target"
-
-# Disallow multiple target options along the way
-#
-elif [[ "$ARGS_IN" == *"snapshot"* ]] && [[ "$ARGS_IN" == *"release"* ]]; then
-    err_msg_exit "Cannot specify two or more target options together; they are mutually exclusive"
-
-# Release or Snapshot: module load the appropriate path
-#
-else
-    if [[ "$ARGS_IN" == *"snapshot"* ]]; then
-        module load gda-server/snapshot
-    else
-        source $RELEASE_VERSION_SCRIPT                          # set the RELEASE variable
-        module load gda-server/$RELEASE
-    fi
-fi
-
-# Set server application specifics
-SERVER_INSTALL_PATH=$(readlink -f $(dirname $(which gda-server)))
+# Set server application specifics - find absolute path
+SERVER_INSTALL_PATH=$(readlink -f "${GDA_WORKSPACE_PARENT}/server")
 SERVER_INSTALL_DIRNAME=$(basename "$SERVER_INSTALL_PATH")
 
 # Initialise the java startup arguments, defaulting to dummy if env var not set
 vm_args="-Dgda.mode=${GDA_MODE:-dummy} -Djava.awt.headless=true"
 
-if [[ "$ARGS_IN" == *"debug"* ]]; then
-    vm_args="$vm_args -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000"
+if [[ "$ARGS_IN" == *"--debug"* ]]; then
+    [[ "$ARGS_IN" == *"--debug-wait"* ]] && wait="y" || wait="n"
+    vm_args="$vm_args -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=${wait},address=8000"
 fi
 
 # Set user workspace and eclipse runtime configuration location (user and server build specific)
@@ -118,10 +74,10 @@ module load java/gda90
 # Start/Restart/Stop handling
 #############################
 
-MY_NAME=`basename "$MY_PATH"`
+MY_NAME=$(basename "$(readlink -e "$0")")         # The name of this script
 
-# Write any error before attempting to launch the application into the startup file used to determine
-# whether startup has completed. This allows the error message to be retrieved displayed on the workstation
+# Write any error before attempting to launch/stop the application into the startup file used to determine
+# whether the operation has completed. This allows the error message to be retrieved displayed on the workstation
 # when running in live mode. The message is also written via the normal bashlog route.
 #
 function log_error_to_startup_file_and_exit {
@@ -134,31 +90,25 @@ function exit_servers_to_kill {
     log_error_to_startup_file_and_exit "You are attempting to start the GDA server for beamline $BEAMLINE but there are already $1 server(s) running on this machine ($HOSTNAME), please kill them manually or use the --restart option."
 }
 
-# If starting a java development target, just use path to servers directory to match on (to allow
-# for successive exported builds) otherwise use full path to the gda-server executable
+# Retrieve the server build version number from its install path (i.e. the last element of its path)
 #
 function set_target_server_matcher {
-    local splitter="gda-server"
-    local DEV_MODE_PATTERN="\/servers\/server_"
-    if [[ "$SERVER_INSTALL_PATH" =~ $DEV_MODE_PATTERN ]]; then
-        splitter="server_"
-    fi
-    local TOKENS=(${SERVER_INSTALL_PATH//$splitter/ })
-    TARGET_SERVER_MATCHER=${TOKENS[0]}
+    local TOKENS=(${SERVER_INSTALL_PATH//\// })
+    TARGET_SERVER_MATCHER=${TOKENS[${#TOKENS[@]}-1]}
 }
 
 # Check that all running servers that match the supplied grep pattern belong the current user exiting if not
 #
 function check_running_servers_ownership {
     readarray -t servers_arr < <(ps -ef | grep -E "$1")
-    readarray -t my_servers_arr < <(ps -ef | grep -E "$1" |grep `whoami`)
+    readarray -t my_servers_arr < <(ps -ef | grep -E "$1" | grep `whoami`)
     if [[ ${#servers_arr[@]} !=  ${#my_servers_arr[@]} ]]; then
         log_error_to_startup_file_and_exit "There are $2 servers started by other users running on this machine ($HOSTNAME), please examine and deal with them as appropriate before proceeding."
     fi
 }
 
 # Check that all servers in the array of those belonging to the current user were launched from
-# the same deployment target as those about to be launched and from the same deployment directory, 
+# the same deployment target as those about to be launched and from the same deployment directory,
 # using the previously set matcher.
 #
 function check_matching_server_target {
@@ -166,20 +116,31 @@ function check_matching_server_target {
     pids_to_kill=""
     for server_proc in "${my_servers_arr[@]}"
     do
-        if [[ -z $(grep "${TARGET_SERVER_MATCHER}" <<< "${server_proc}") ]]; then
-            fault_source="target"
-            ((alien_count++))
-        elif [[ -z $(grep "${GDA_WORKSPACE_PARENT}" <<< "${server_proc}") ]]; then
-            fault_source="deployment"
+        if [[ -z $(grep "$1" <<< "${server_proc}") ]]; then
             ((alien_count++))
         else
             pid=$(awk '{ print $2 }' <<< $server_proc)
+            echo "pid: ${pid}"
             pids_to_kill+=" $pid"
         fi
     done
     if [[ $alien_count > 0 ]]; then
         [[ $alien_count == 1 ]] && conjugate="is" || conjugate="are"
-        log_error_to_startup_file_and_exit "$alien_count of the running GDA Servers on ($HOSTNAME) $conjugate based on a different $fault_source than the one you are trying to restart/stop. Please examine and deal with this as appropriate before proceeding."
+        log_error_to_startup_file_and_exit "$alien_count of the running GDA Servers on ($HOSTNAME) $conjugate based on a different $2 than the one you are trying to restart/stop. Please examine and deal with this as appropriate before proceeding."
+    fi
+}
+
+# Kill the process indicated by parameter 1 then sleep for parameter 2 seconds before checking
+# that the kill has been successful. If not, use kill -9 on the process. Parameter 3 is the logging
+# prefix for the initial kill attempt.
+#
+function kill_with_SIGKILL_if_necessary {
+    bashlog info "$MY_NAME" "$3 $1"
+    kill $1
+    sleep $2
+    if [[ "$(ps -p $1)" == *"$1 "* ]]; then
+        bashlog info "$MY_NAME" "SIGKILL required for $1"
+        kill -9 $1
     fi
 }
 
@@ -205,20 +166,18 @@ if [[ "$ARGS_IN" =~ $START_ONLY_PATTERN  ]]; then
 elif [[ "$ARGS_IN" =~ $RESTART_OR_STOP_PATTERN ]]; then
     set_target_server_matcher
     check_running_servers_ownership "$ALL_RUNNING_GDA_OSGI_SERVERS" "GDA"
-    check_matching_server_target
-    OSGI_PIDS_TO_KILL=$pids_to_kill
+    check_matching_server_target ${TARGET_SERVER_MATCHER} "target"
+    OSGI_SERVER_PIDS_TO_KILL=$pids_to_kill
     check_running_servers_ownership "$ALL_RUNNING_SUBORDINATE_SERVERS" "Name, Channel and/or Log"
-    check_matching_server_target
-    bashlog info "$MY_NAME" "killing$OSGI_PIDS_TO_KILL"
-    kill "$OSGI_PIDS_TO_KILL"
-    sleep 10
+    check_matching_server_target ${GDA_WORKSPACE_PARENT} "deployment"
+    for pid in $OSGI_SERVER_PIDS_TO_KILL; do
+        kill_with_SIGKILL_if_necessary "$pid" "8" "Shutting down"
+    done
 
-    # the above should also have got rid of the Log, Channel and Name Server, but just in case:
-    for pid in $pids_to_kill
-    do
-        if [[ -n "$(ps -p $pid)" ]]; then
-            bashlog info "$MY_NAME" "killing $pid"
-            kill "$pid"
+    # the above should also have got rid of the Log, Channel and Name Servers, but just in case:
+    for pid in $pids_to_kill; do
+        if [[ "$(ps -p $pid)" == *"$pid "* ]]; then
+            kill_with_SIGKILL_if_necessary "$pid" "1" "Cleaning up"
         fi
     done
     if [[ "$ARGS_IN" == *"stop"* ]]; then
@@ -234,7 +193,8 @@ fi
 
 # now we must be restarting or starting only
 # Assemble the command string
-COMMAND="gda-server -data $USER_WORKSPACE -configuration $ECLIPSE_RUNTIME_CONFIG -c $BEAMLINE_CONFIG -p $GDA_PROFILES -vmArgs $vm_args"
+
+COMMAND="${GDA_WORKSPACE_PARENT}/server/gda-server -clean -data $USER_WORKSPACE -configuration $ECLIPSE_RUNTIME_CONFIG -c $BEAMLINE_CONFIG -p $GDA_PROFILES -vmArgs $vm_args"
 
 # and execute it retaining stdin
 echo "Starting the GDA Server at $SERVER_INSTALL_PATH/gda-server"
