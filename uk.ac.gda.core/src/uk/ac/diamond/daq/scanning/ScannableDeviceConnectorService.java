@@ -18,6 +18,7 @@
 
 package uk.ac.diamond.daq.scanning;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -33,6 +34,7 @@ import org.eclipse.scanning.api.scan.ScanningException;
 
 import gda.data.scan.datawriter.NexusDataWriter;
 import gda.data.scan.datawriter.scannablewriter.ScannableWriter;
+import gda.device.Detector;
 import gda.device.Scannable;
 import gda.factory.Findable;
 import gda.factory.Finder;
@@ -136,7 +138,16 @@ public class ScannableDeviceConnectorService implements IScannableDeviceService 
 
 	@Override
 	public List<String> getScannableNames() throws ScanningException {
-		return Finder.getInstance().listAllNames(Scannable.class.getName());
+
+		ArrayList<Findable> findableRefs = Finder.getInstance().listAllObjects(Scannable.class.getName());
+		ArrayList<String> findableNames = new ArrayList<String>();
+		for (Findable findable : findableRefs) {
+			if (findable instanceof Detector) continue; // Not them
+			String findableName = findable.getName();
+			findableName = findableName.substring(findableName.lastIndexOf(".") + 1);
+			findableNames.add(findableName);
+		}
+		return findableNames;
 	}
 
 	@Override
