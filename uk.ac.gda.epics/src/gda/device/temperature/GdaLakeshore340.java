@@ -47,7 +47,7 @@ public class GdaLakeshore340 extends TemperatureBase implements IObserver {
 	 */
 	private static final Logger logger = LoggerFactory.getLogger(GdaLakeshore340.class);
 
-	private EpicsLakeshore340Controller controller;
+	protected EpicsLakeshore340Controller controller;
 
 	public EpicsLakeshore340Controller getController() {
 		return controller;
