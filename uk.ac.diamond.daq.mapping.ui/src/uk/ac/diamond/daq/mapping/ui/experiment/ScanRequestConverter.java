@@ -18,6 +18,7 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -35,6 +36,7 @@ import org.eclipse.scanning.api.script.ScriptRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.daq.mapping.api.IClusterProcessingModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IDetectorModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegion;
@@ -141,6 +143,17 @@ public class ScanRequestConverter {
 		for (IDetectorModelWrapper detectorWrapper : mappingExperimentBean.getDetectorParameters()) {
 			if (detectorWrapper.isIncludeInScan()) {
 				scanRequest.putDetector(detectorWrapper.getName(), detectorWrapper.getModel());
+			}
+		}
+
+		// add the required cluster processing steps
+		if (mappingExperimentBean.getClusterProcessingConfiguration() != null) {
+			for (IClusterProcessingModelWrapper processingWrapper : mappingExperimentBean.getClusterProcessingConfiguration()) {
+				String name = processingWrapper.getName();
+				if (scanRequest.getDetectors() != null && scanRequest.getDetectors().containsKey(name)) {
+					throw new IllegalArgumentException(MessageFormat.format("A device or processing step with the name {0} is already included in the scan", name));
+				}
+				scanRequest.putDetector(processingWrapper.getName(), processingWrapper.getModel());
 			}
 		}
 

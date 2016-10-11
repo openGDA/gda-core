@@ -35,6 +35,7 @@ public class FilePathService implements IFilePathService {
 
 	private static final String TEMP_DIR_NAME = "tmp";
 	private static final String PROCESSED_DIR_NAME = "processed";
+	private static final String PROCESSING_TEMPLATES_DIR = "processingTemplates";
 
 	private static NumTracker tracker;
 
@@ -96,6 +97,16 @@ public class FilePathService implements IFilePathService {
 		// Get the current visit directory and append /processed.
 		// TODO This currently doesn't support sub directories under the visit e.g. /sample1/
 		return PathConstructor.createFromDefaultProperty() + "/" + PROCESSED_DIR_NAME;
+	}
+
+
+	public String getPersistenceDir() {
+		return PathConstructor.createFromProperty(LocalProperties.GDA_VAR_DIR);
+	}
+
+
+	public String getProcessingTemplatesDir() {
+		return getPersistenceDir() + "/" + PROCESSING_TEMPLATES_DIR;
 	}
 
 }

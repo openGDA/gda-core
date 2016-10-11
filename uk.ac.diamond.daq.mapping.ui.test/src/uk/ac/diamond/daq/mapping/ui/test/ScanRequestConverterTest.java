@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.scanning.api.device.models.ClusterProcessingModel;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.IPosition;
@@ -50,6 +51,7 @@ import org.junit.Test;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
 import uk.ac.diamond.daq.mapping.api.IScanPathModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IScriptFiles;
+import uk.ac.diamond.daq.mapping.impl.ClusterProcessingModelWrapper;
 import uk.ac.diamond.daq.mapping.impl.DetectorModelWrapper;
 import uk.ac.diamond.daq.mapping.impl.MappingExperimentBean;
 import uk.ac.diamond.daq.mapping.impl.MappingStageInfo;
@@ -212,6 +214,22 @@ public class ScanRequestConverterTest {
 
 		// Check it has the correct axis name
 		assertThat(recoveredOuterModel.getName(), is(Z_AXIS_NAME));
+	}
+
+	public void testClusterProcessingIncludedCorrectly() {
+		String processingStepName = "sum";
+		ClusterProcessingModel clusterProcessingModel = new ClusterProcessingModel();
+		clusterProcessingModel.setName(processingStepName);
+		clusterProcessingModel.setDetectorName("mandelbrot");
+		clusterProcessingModel.setProcessingFilePath("/tmp/sum.nxs");
+		ClusterProcessingModelWrapper wrapper = new ClusterProcessingModelWrapper(
+				processingStepName, clusterProcessingModel, true);
+
+		experimentBean.setClusterProcessingConfiguration(Arrays.asList(wrapper));
+
+		ScanRequest<?> scanRequest = scanRequestConverter.convertToScanRequest(experimentBean);
+
+		assertEquals(scanRequest.getDetectors().get(processingStepName), clusterProcessingModel);
 	}
 
 }

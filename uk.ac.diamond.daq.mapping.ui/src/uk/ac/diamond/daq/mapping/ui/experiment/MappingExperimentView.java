@@ -132,6 +132,8 @@ public class MappingExperimentView implements IAdaptable {
 		sections.add(regionAndPathSection);
 		// a section for essential parameters, e.g. sample name
 		sections.add(new EssentialParametersSection(this, injectionContext));
+		// a section for configuring processing
+		sections.add(new ProcessingSection(this, injectionContext));
 		// the 'submit scan' button
 		sections.add(new SubmitScanSection(this, injectionContext));
 
@@ -178,6 +180,10 @@ public class MappingExperimentView implements IAdaptable {
 		return exposure;
 	}
 
+	protected Composite getMainComposite() {
+		return mainComposite;
+	}
+
 	protected IMappingExperimentBean getBean() {
 		return experimentBean;
 	}
@@ -190,6 +196,9 @@ public class MappingExperimentView implements IAdaptable {
 		scrolledComposite.setMinSize(mainComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 	}
 
+	protected void relayout() {
+		mainComposite.layout(true, true);
+	}
 
 	@SuppressWarnings("unchecked")
 	@Override

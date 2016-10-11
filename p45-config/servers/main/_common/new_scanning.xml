@@ -22,4 +22,8 @@
 		<property name="broker" value="${gda.activemq.broker.uri}" />
 	</bean>
 
+	 <bean id="acquireServlet" class="org.eclipse.scanning.server.servlet.AcquireServlet" init-method="connect">
+        <property name="broker" value="${gda.activemq.broker.uri}" />
+    </bean>
+
 </beans>

@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.eclipse.dawnsci.analysis.api.processing.model.IOperationModel;
 
+import uk.ac.diamond.daq.mapping.api.IClusterProcessingModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IDetectorModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.api.ISampleMetadata;
@@ -15,6 +16,7 @@ public class MappingExperimentBean implements IMappingExperimentBean {
 
 	private ExampleSampleMetadata sampleMetadata;
 	private List<IDetectorModelWrapper> detectorParameters = null;
+	private List<IClusterProcessingModelWrapper> clusterProcessingConfiguration = null;
 	private Map<String, Object> beamlineConfiguration = null;
 	private IScanDefinition scanDefinition;
 	private IScriptFiles scriptFiles = null;
@@ -65,6 +67,16 @@ public class MappingExperimentBean implements IMappingExperimentBean {
 	}
 
 	@Override
+	public List<IClusterProcessingModelWrapper> getClusterProcessingConfiguration() {
+		return clusterProcessingConfiguration;
+	}
+
+	@Override
+	public void setClusterProcessingConfiguration(List<IClusterProcessingModelWrapper> clusterProcessingConfiguration) {
+		this.clusterProcessingConfiguration = clusterProcessingConfiguration;
+	}
+
+	@Override
 	public List<IOperationModel> getPostProcessingConfiguration() {
 		// TODO Auto-generated method stub
 		return null;
@@ -84,4 +96,5 @@ public class MappingExperimentBean implements IMappingExperimentBean {
 	public void setScriptFiles(IScriptFiles scriptFiles) {
 		this.scriptFiles = scriptFiles;
 	}
+
 }

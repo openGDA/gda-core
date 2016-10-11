@@ -19,11 +19,28 @@
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
 import org.eclipse.e4.core.contexts.IEclipseContext;
+import org.eclipse.e4.ui.services.IServiceConstants;
+import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.FontMetrics;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Shell;
 
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 
 public abstract class AbstractMappingSection {
+
+	/**
+	 * Number of horizontal dialog units per character, value <code>4</code>.
+	 */
+	private static final int HORIZONTAL_DIALOG_UNIT_PER_CHAR = 4;
+
+	private static FontMetrics fontMetrics = null;
 
 	protected final MappingExperimentView mappingView;
 	protected final IMappingExperimentBean mappingBean;
@@ -33,6 +50,10 @@ public abstract class AbstractMappingSection {
 		this.mappingView = mappingView;
 		this.mappingBean = mappingView.getBean();
 		this.context = context;
+	}
+
+	protected Shell getShell() {
+		return (Shell) context.get(IServiceConstants.ACTIVE_SHELL);
 	}
 
 	public boolean shouldShow() {
@@ -51,6 +72,28 @@ public abstract class AbstractMappingSection {
 
 	protected void setStatusMessage(String message) {
 		mappingView.getStatusPanel().setMessage(message);
+	}
+
+	protected void setButtonLayoutData(Button button) {
+		// copied from org.eclipse.jface.dialogs.Dialog. Gives buttons a standard minimum width
+		GridData data = new GridData(GridData.FILL_HORIZONTAL);
+		int widthHint = convertHorizontalDLUsToPixels(IDialogConstants.BUTTON_WIDTH);
+		Point minSize = button.computeSize(SWT.DEFAULT, SWT.DEFAULT, true);
+		data.widthHint = Math.max(widthHint, minSize.x);
+		button.setLayoutData(data);
+	}
+
+	public int convertHorizontalDLUsToPixels(int dlus) {
+		if (fontMetrics == null) {
+			GC gc = new GC(mappingView.getMainComposite());
+			gc.setFont(JFaceResources.getDialogFont());
+			fontMetrics = gc.getFontMetrics();
+			gc.dispose();
+		}
+
+		// round to the nearest pixel
+		return (fontMetrics.getAverageCharWidth() * dlus + HORIZONTAL_DIALOG_UNIT_PER_CHAR / 2)
+				/ HORIZONTAL_DIALOG_UNIT_PER_CHAR;
 	}
 
 }

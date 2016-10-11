@@ -298,7 +298,7 @@ public class RegionAndPathSection extends AbstractMappingSection {
 		Object scanPath = mappingBean.getScanDefinition().getMappingScanRegion().getScanPath();
 		pathComposite = (Composite) guiGenerator.generateGui(scanPath, regionAndPathComposite);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).applyTo(pathComposite);
-		regionAndPathComposite.getParent().layout(true, true);
+		mappingView.relayout();
 	}
 
 	private void updatePoints() {

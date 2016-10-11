@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2015 Diamond Light Source Ltd.
+ * Copyright © 2016 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -18,13 +18,10 @@
 
 package uk.ac.diamond.daq.mapping.api;
 
-import org.eclipse.scanning.api.device.models.IDetectorModel;
+import org.eclipse.scanning.api.device.models.ClusterProcessingModel;
 
-/**
- * A wrapper for detector models to allow a list of items to be edited in the GUI and optionally included in scans
- */
-public interface IDetectorModelWrapper extends IScanModelWrapper<IDetectorModel> {
+public interface IClusterProcessingModelWrapper extends IScanModelWrapper<ClusterProcessingModel> {
 
-	// TODO: do we need this interface, or can we just use IScanModelWrapper<IDetectorModel>?
+	// TODO: do we need this interface?
 
 }

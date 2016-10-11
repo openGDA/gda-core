@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2015 Diamond Light Source Ltd.
+ * Copyright © 2016 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -18,13 +18,31 @@
 
 package uk.ac.diamond.daq.mapping.api;
 
-import org.eclipse.scanning.api.device.models.IDetectorModel;
-
 /**
- * A wrapper for detector models to allow a list of items to be edited in the GUI and optionally included in scans
+ * A wrapper for model that can optionally be included in scan
+ * @param <M>
  */
-public interface IDetectorModelWrapper extends IScanModelWrapper<IDetectorModel> {
+public interface IScanModelWrapper<M> {
 
-	// TODO: do we need this interface, or can we just use IScanModelWrapper<IDetectorModel>?
+	/**
+	 * The name of the element, i.e. the detector name.
+	 *
+	 * @return name element name
+	 */
+	public String getName();
 
+	/**
+	 * Whether the item should be included in scans.
+	 *
+	 * @return <code>true</code> if this item should be included in scans,
+	 *    <code>false</code> otherwise
+	 */
+	public boolean isIncludeInScan();
+
+	/**
+	 * Get the model.
+	 *
+	 * @return the model
+	 */
+	public M getModel();
 }

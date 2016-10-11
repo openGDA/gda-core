@@ -19,7 +19,6 @@
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
 import org.eclipse.e4.core.contexts.IEclipseContext;
-import org.eclipse.e4.ui.services.IServiceConstants;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.window.Window;
@@ -28,7 +27,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Shell;
 
 /**
  * A section to edit the beamline configuration, i.e. the positions that certain
@@ -55,10 +53,9 @@ public class BeamlineConfigurationSection extends AbstractMappingSection {
 	}
 
 	private void editBeamlineConfiguration() {
-		final Shell shell = (Shell) context.get(IServiceConstants.ACTIVE_SHELL);
 		final IScannableDeviceService scannableDeviceService = context.get(IScannableDeviceService.class);
 		EditBeamlineConfigurationDialog dialog =
-				new EditBeamlineConfigurationDialog(shell, scannableDeviceService);
+				new EditBeamlineConfigurationDialog(getShell(), scannableDeviceService);
 		dialog.setInitialBeamlineConfiguration(mappingBean.getBeamlineConfiguration());
 		dialog.create();
 		if (dialog.open() == Window.OK) {
