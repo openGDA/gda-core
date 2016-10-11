@@ -1,35 +1,54 @@
 #!/bin/bash
-# Expects a parameter line that can be passed on to the gda python script
+# Expects a parameter line that can be passed on to the gda launch script
+# Also expects the BEAMLINE variable to be set
 
-here_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-set -o nounset  # Turn on nounset
-set -o errexit  # Turn on errexit
+#export GDA_DEBUG=TRUE #uncomment this line to turn on extra logging for the startup scripts
 
-# Define this instance's group, facility and core
-export GDA_WORKSPACE_PARENT=$(readlink -f ${here_dir}/../../../..)
-export GDA_WORKSPACE_GIT_NAME=$(basename $(readlink -f ${here_dir}/../../..))  # will normally be "workspace_git", will always end with "_git"
-export GDA_INSTANCE_CONFIG_rel=${GDA_WORKSPACE_GIT_NAME}/gda-core.git/example-config
-export GDA_GROUP_CONFIG_rel=${GDA_WORKSPACE_GIT_NAME}/gda-core.git/no-group
-export GDA_FACILITY_CONFIG_rel=${GDA_WORKSPACE_GIT_NAME}/gda-diamond.git/dls-config
-export GDA_CORE_CONFIG_rel=${GDA_WORKSPACE_GIT_NAME}/gda-core.git/core-config
+# Set the value that the BEAMLINE environment variable should be to correctly start from this configuration
+# so it can be checked automatically to prevent accidental startup of the wrong beamline.
 
-export GDA_CLIENT=$GDA_WORKSPACE_PARENT/client/gda-example-config
+EXPECTED_BEAMLINE_VALUE=example
 
-# Define a display name for use in messages
-export GDA_INSTANCE_NAME=example-config
+# Initialise the workspace and config locations for a standard Diamond Light Source GDA 9 installation, if the
+# config tree contains the dls-config/bin folder. This will define the following environment variables which
+# must all be set for the server and client to start successfully:
+#
+#         GDA_WORKSPACE_PARENT        four folders above dls-config/bin - all subsequent definitions are relative to this
+#         GDA_INSTANCE_CONFIG_rel     the /config link below GDA_WORKSPACE_PARENT
+#         GDA_GROUP_CONFIG_rel        /gda-core.git/no-group below GDA_WORKSPACE_PARENT
+#         GDA_FACILITY_CONFIG_rel     /gda-diamond.git/dls-config below GDA_WORKSPACE_PARENT
+#         GDA_CORE_CONFIG_rel         /gda-core.git/core-config below GDA_WORKSPACE_PARENT
+#
+#         next it will check that the $BEAMLINE variable is set correctly for this GDA installation and if so set:
+#
+#         GDA_INSTANCE_NAME           same as $BEAMLINE as this is the default for single end station installations
+#
+#         finally set the default client launcher location based on the preceding settings:
+#
+#         GDA_CLIENT                  /client/gda-${GDA_INSTANCE_NAME} below GDA_WORKSPACE_PARENT
+
+DLS_CONFIG_BIN_RELATIVE_PATH=../../../gda-diamond.git/dls-config/bin    # adjust this path to suit your location
+
+if [[ -d ${DLS_CONFIG_BIN_RELATIVE_PATH} ]]; then
+
+	source ${DLS_CONFIG_BIN_RELATIVE_PATH}/gda_set_dls_environment_defaults.sh ${EXPECTED_BEAMLINE_VALUE}
+fi
+
+##################################################################################################################
+# If your installation does not use dls-config or you wish to override the default values set above, please
+# set the required variables below this line, also adding any environment variables specific to your installation:
+##################################################################################################################
 
 # Source function to perform bash logging
 . ${GDA_WORKSPACE_PARENT}/${GDA_CORE_CONFIG_rel}/bin/bashlog_function
 
-if [[ -z "${BEAMLINE-}" ]]; then
-    bashlog error "gda Bash script" '$BEAMLINE is not set (or is null) - exiting'
-    #echo 'gda Bash script: $BEAMLINE is not set (or is null) - exiting'
-    exit 2
-fi
-
 PARAMS=$@
 
 bashlog debug "gda Bash script" "Params = $@"
+
+######################################################################
+# before the gda-core script is invoked using the environment settings
+######################################################################
 
 if [[ "$PARAMS" != *"all"* ]]; then # '--start all' or 'all' not used, so just operate on single component
     # Pass control to the gda_core bash script
@@ -40,15 +59,15 @@ else # all included as a parameter so start the logpanel, servers and client
     elif [[ "$PARAMS" == *"all"* ]]; then
         PARAMS="${PARAMS/all/}"
     fi
-    
+
     echo Ensure the Log panel is running...
     . ${GDA_WORKSPACE_PARENT}/${GDA_CORE_CONFIG_rel}/bin/gda_core logpanel
-    
+
     echo
     echo Making sure we want to restart GDA servers now...
     echo
 
-    . ${GDA_WORKSPACE_PARENT}/${GDA_CORE_CONFIG_rel}/bin/gda_core --restart servers ${PARAMS} 
+    . ${GDA_WORKSPACE_PARENT}/${GDA_CORE_CONFIG_rel}/bin/gda_core --restart servers ${PARAMS}
 
     # look for the output file which will tell us when the servers have started
     ${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel}/bin/utils/lookForFile $OBJECT_SERVER_STARTUP_FILE $HOSTNAME

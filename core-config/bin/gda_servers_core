@@ -1,15 +1,18 @@
 bashlog debug "gda_servers_core" "Entered"
-TARGET=""
 DEBUG=""
 
 # read the GDA9 specific params
 for word in "$@"; do
     case $word in
-        --devel|--release|--snapshot)
-            TARGET=${word}
-            ;;
-        --debug)
+        --debug|--debug-wait)
             DEBUG=${word}
+            ;;
+        -d)
+            DEBUG="--debug"
+            echo in
+            ;;
+        -b)
+            DEBUG="--debug-wait"
             ;;
         *)
             continue
@@ -73,7 +76,7 @@ if [[ "${GDA_MODE}" == "live" && "${CONTROL_MACHINE_NAME}" != "$(uname -n)" ]]; 
       bashlog warn "gda_servers_core" "Public key file $CONTROL_MACHINE_PUBKEY_FILE doesn't exist and no CONTROL_MACHINE_PUBKEY defined!"
     fi
 
-    ssh -T -o BatchMode=yes -i ${CONTROL_MACHINE_SSHKEY_LOC} ${CONTROL_MACHINE_USER}@${CONTROL_MACHINE_NAME} ${GDA_OPERATION} ${TARGET} ${DEBUG} &
+    ssh -T -o BatchMode=yes -i ${CONTROL_MACHINE_SSHKEY_LOC} ${CONTROL_MACHINE_USER}@${CONTROL_MACHINE_NAME} ${GDA_OPERATION} ${DEBUG} &
     export SERVERS_SSH_PID=$!
     # Due to the problem with ssh where remotestartupscript.sh completes, but
     # ssh doesn't return, we run ssh in background but record its PID in
@@ -116,12 +119,12 @@ else
     export JAVA_OPTS="-Dgda.deploytype=1" # Seems to fix the reset_namespace problem
 
     if [[ -n ${DEBUG-} ]]; then
-    	echo "Awaiting debugger connection on port 8000"
+	    [[ $DEBUG == "--debug-wait" ]] && pref="Awaiting" || pref="Use"
+    	echo "${pref} debugger connection on port 8000"
     fi
 
-    bashlog debug "gda_servers_core" "Starting ${GDA_TARGET_SCRIPT}  ${GDA_OPERATION} ${TARGET} ${DEBUG}"
-    nohup ${GDA_TARGET_SCRIPT} ${GDA_OPERATION} ${TARGET} ${DEBUG} >> ${GDA_LOG_FILE}  2>&1 &
-
+    bashlog debug "gda_servers_core" "Starting ${GDA_TARGET_SCRIPT}  ${GDA_OPERATION} ${DEBUG}"
+    nohup ${GDA_TARGET_SCRIPT} ${GDA_OPERATION} ${DEBUG} >> ${GDA_LOG_FILE}  2>&1 &
 
     if [[ ${GDA_OPERATION,,} != "stop" ]]; then
         # Starting; wait for the startup file to be created so that any
@@ -137,6 +140,19 @@ else
         #       wait for this file until a subsequent start of the GDA servers works.
     else
         echo
+        # When shutting down a mismatched server target version or user will result in the server stop
+        # failing and the reason being written to a re-created OBJECT_SERVER_STARTUP_FILE. If this
+        # is the case the reason is echoed to the terminal
+
+        sleep 1        # Give time for the potential error file to finish writing
+
+        if [ -r ${OBJECT_SERVER_STARTUP_FILE} ]; then
+            printf "\n%30s: Unexpectedly found          %s\n" "$HOSTNAME" "$OBJECT_SERVER_STARTUP_FILE"
+            read it < <(cat ${OBJECT_SERVER_STARTUP_FILE})
+            echo -e "\n$it\n"
+            echo "GDA Server failed to stop cleanly"
+            exit 1
+        fi
         echo "GDA Server stopped"
     fi
 fi
