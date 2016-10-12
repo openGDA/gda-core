@@ -54,7 +54,8 @@ def write_link(root, path, exported_path, depth):
     target_match = up_one * 2 + path                                            # make the matcher for the basic workspace script folder path relative to here
     target_test = glob.glob(target_match)                                       # resolve any wildcards, e.g. to include the git repo name for plugins
     if len(target_test) == 0:
-        print "ERROR: could not find {0} in workspace, this script folder will be in the exported product".format(path)     # handle missing plugins
+        print "WARNING: could not find {0} in workspace, this script folder will be in the exported product".format(path)  # handle plugins not in workspace_git e.g. TP ones
+        return
 
     target_test = target_test[0]                                                # get the matching entry
     if os.path.exists(target_test) and os.path.isdir(target_test):              # so its existence can be checked
@@ -69,7 +70,7 @@ def write_link(root, path, exported_path, depth):
         os.symlink(link_target, lfrom)                                          # make the replacement symlink
         print "\nLink written from: {0}\n             to:   {1}".format(lfrom, link_target)
     else:
-        print "ERROR: could not find {0} in workspace, this script folder will be in the exported product".format(target_test[6:])     # handle bad path resolution
+        print "WARNING: could not find {0} in workspace, this script folder will be in the exported product".format(target_test[6:])     # handle bad path resolution
 
 if len(sys.argv) != 2:                                                          # script name plus plugins path
     print "ERROR: plugins.dir argument must be supplied"
