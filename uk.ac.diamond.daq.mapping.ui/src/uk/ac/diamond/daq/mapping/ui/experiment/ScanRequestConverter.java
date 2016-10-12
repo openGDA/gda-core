@@ -23,8 +23,8 @@ import java.util.Map;
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.MapPosition;
-import org.eclipse.scanning.api.points.models.AbstractBoundingBoxModel;
 import org.eclipse.scanning.api.points.models.CompoundModel;
+import org.eclipse.scanning.api.points.models.IBoundingBoxModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.script.ScriptLanguage;
 import org.eclipse.scanning.api.script.ScriptRequest;
@@ -65,8 +65,8 @@ public class ScanRequestConverter {
 
 		if (mappingStageInfo != null) {
 			IScanPathModel scanPath = scanRegion.getScanPath();
-			if (scanPath instanceof AbstractBoundingBoxModel) {
-				AbstractBoundingBoxModel boxModel = (AbstractBoundingBoxModel) scanPath;
+			if (scanPath instanceof IBoundingBoxModel) {
+				IBoundingBoxModel boxModel = (IBoundingBoxModel) scanPath;
 				boxModel.setFastAxisName(mappingStageInfo.getActiveFastScanAxis());
 				boxModel.setSlowAxisName(mappingStageInfo.getActiveSlowScanAxis());
 			}

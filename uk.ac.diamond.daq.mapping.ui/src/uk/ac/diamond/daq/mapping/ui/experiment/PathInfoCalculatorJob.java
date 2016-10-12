@@ -28,7 +28,7 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.e4.core.services.events.IEventBroker;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
-import org.eclipse.scanning.api.points.models.AbstractBoundingBoxModel;
+import org.eclipse.scanning.api.points.models.IBoundingBoxModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
@@ -65,8 +65,8 @@ class PathInfoCalculatorJob extends Job {
 		PathInfo pathInfo = new PathInfo();
 		String xAxisName = "x";
 		String yAxisName = "y";
-		if (scanPathModel instanceof AbstractBoundingBoxModel) {
-			AbstractBoundingBoxModel boxModel = (AbstractBoundingBoxModel) scanPathModel;
+		if (scanPathModel instanceof IBoundingBoxModel) {
+			IBoundingBoxModel boxModel = (IBoundingBoxModel) scanPathModel;
 			xAxisName = boxModel.getFastAxisName();
 			yAxisName = boxModel.getSlowAxisName();
 		}
