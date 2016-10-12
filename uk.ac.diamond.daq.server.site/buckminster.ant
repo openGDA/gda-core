@@ -376,7 +376,6 @@ Additional Ant tasks for Buckminster build. Based on http://www.ralfebert.de/blo
     	<property.expand property="destination.directory.name" definition="${product.directory.name}"/>
     	<property.expand property="install.path" definition="${product.parent.directory.location}/${destination.directory.name}" />
     	<property.expand property="plugins.path" definition="${install.path}/plugins"/> 
-    	<property.expand property="install.git.path" definition="${install.path}/dls-root/workspace_git"/>
     	<property name="ws_git.rel.path" value="../.."/>	
 	</target>
 
@@ -413,7 +412,6 @@ Additional Ant tasks for Buckminster build. Based on http://www.ralfebert.de/blo
 		<property.expand property="spring.framework.link" definition="${plugins.path}/uk.ac.diamond.org.springframework"/>
 
     	<!-- Add the links to cope with hard coded paths in the codebase -->
-    	<mkdir dir="${install.path}/dls-root/workspace"/>
     	<symlink link="${jacorb.link}" resource="${jacorb.dir.name}" />
 		<symlink link="${spring.framework.link}" resource="${spring.dir.name}" />
 
@@ -423,15 +421,6 @@ Additional Ant tasks for Buckminster build. Based on http://www.ralfebert.de/blo
 		</copy>
 
 		<!-- Copy across the config and diffcalc directories -->
-		<copy todir="${install.git.path}/gda-core.git/core-config">
-			<fileset dir="${ws_git.rel.path}/gda-core.git/core-config"/>
-		</copy>
-		<copy todir="${install.git.path}/gda-core.git/example-config">
-			<fileset dir="${ws_git.rel.path}/gda-core.git/example-config"/>
-		</copy>
-		<copy todir="${install.git.path}/gda-diamond.git/dls-config">
-			<fileset dir="${ws_git.rel.path}/gda-diamond.git/dls-config"/>
-		</copy>
 		<copy todir="${install.path}/utilities/diffcalc.git">
 			<fileset dir="${ws_git.rel.path}/diffcalc.git">
 				<exclude name="buckminster.*"/>
@@ -440,56 +429,19 @@ Additional Ant tasks for Buckminster build. Based on http://www.ralfebert.de/blo
 				<exclude name=".*/*"/>
 			</fileset>
 		</copy>
-		<copy todir="${install.git.path}/daq-eclipse.git/org.eclipse.scanning.command/scripts">
-			<fileset dir="${ws_git.rel.path}/daq-eclipse.git/org.eclipse.scanning.command/scripts"/>
-		</copy>
-		<!-- PES folders -->
-		<!-- failonerror="false" is used here so that you can build the server wihtout having to have all
-			the configs in your workspace. This measure should be temporary once dls-root is removed-->
-		<copy todir="${install.git.path}/gda-pes.git/i05-1-config" failonerror="false">
-			<fileset dir="${ws_git.rel.path}/gda-pes.git/i05-1-config"/>
-		</copy>
-		<!-- XAS folders -->
-		<copy todir="${install.git.path}/gda-dls-beamlines-xas.git/i18" failonerror="false">
-			<fileset dir="${ws_git.rel.path}/gda-dls-beamlines-xas.git/i18"/>
-		</copy>
-		<!-- MT beamline folders -->
-		<copy todir="${install.git.path}/gda-mt.git/configurations/mt-config" failonerror="false">
-			<fileset dir="${ws_git.rel.path}/gda-mt.git/configurations/mt-config"/>
-		</copy>
-		<!-- I13-1 beamline folders -->
-		<copy todir="${install.git.path}/gda-dls-beamlines-i13x.git/i13j" failonerror="false">
-			<fileset dir="${ws_git.rel.path}/gda-dls-beamlines-i13x.git/i13j"/>
-		</copy>
-		<!-- I15 beamline folders -->
-		<copy todir="${install.git.path}/gda-mt.git/configurations/i15-config" failonerror="false">
-			<fileset dir="${ws_git.rel.path}/gda-mt.git/configurations/i15-config"/>
-		</copy>
-		<!-- I15-1 beamline folders -->
-		<copy todir="${install.git.path}/gda-mt.git/configurations/i15-1-config" failonerror="false">
-			<fileset dir="${ws_git.rel.path}/gda-mt.git/configurations/i15-1-config"/>
-		</copy>
-		<!-- i02-2 VMXI beamline folders -->
-		<copy todir="${install.git.path}/gda-mx.git/configurations/i02-2-config" failonerror="false">
-			<fileset dir="${ws_git.rel.path}/gda-mx.git/configurations/i02-2-config"/>
-		</copy>
-		<copy todir="${install.git.path}/gda-mx.git/configurations/mx-config" failonerror="false">
-			<fileset dir="${ws_git.rel.path}/gda-mx.git/configurations/mx-config"/>
-		</copy>
-		<!-- Test beamline folders -->
-		<copy todir="${install.git.path}/gda-core.git/p45-config" failonerror="false">
-			<fileset dir="${ws_git.rel.path}/gda-core.git/p45-config"/>
-		</copy>	
-
         <echo>
 == Product has been built in ${destination} ==
         </echo>
+		<condition property="linkback-scripts-on-export">
+			<istrue value="${product.standard.scripts.linkback.on.export}"/>
+		</condition> 
+		<antcall target="_rewrite.links.if.required" />
     </target>
 
-	<target name="create.development-product" depends="create.product">
-		<!-- execute the python script to scan for scriptlocation exetnsion points,
+	<target name="_rewrite.links.if.required" if="linkback-scripts-on-export">
+		<!-- execute the python script to scan for scriptlocation extension points,
 		build the correct version paths to delete and replace them with links -->
-		<exec executable="python" failonerror="true">
+		<exec executable="python" failonerror="true" >
 			<arg line="devlinks.py ${plugins.path}"/>
 		</exec>
 	</target>
@@ -503,19 +455,7 @@ Additional Ant tasks for Buckminster build. Based on http://www.ralfebert.de/blo
     <target name="remove_previous_product_symlink" depends="create.product, _symlink.check.params">
         <symlink action="delete" link="${symlink.to.product.location}"/>
     </target>
-
-    <target name="remove_previous_development-product_symlink" depends="create.development-product, _symlink.check.params">
-        <symlink action="delete" link="${symlink.to.product.location}"/>
-    </target>
-
     <target name="create.product-with.symlink" depends="remove_previous_product_symlink">
-        <symlink link="${symlink.to.product.location}" resource="${symlink.to.product.target}"/>
-        <echo>
-== Symlink to product created (or changed) at ${symlink.to.product.location} --> ${symlink.to.product.target} ==
-        </echo>
-    </target>
-
-    <target name="create.development-product-with.symlink" depends="remove_previous_development-product_symlink">
         <symlink link="${symlink.to.product.location}" resource="${symlink.to.product.target}"/>
         <echo>
 == Symlink to product created (or changed) at ${symlink.to.product.location} --> ${symlink.to.product.target} ==

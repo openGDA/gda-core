@@ -59,8 +59,9 @@ public enum ConfigurationDefaults {
 	PROFILE("main"),
 	APP_PROFILES(getFromApplicationArgsUsingKeySetWithDefault(PROFILE, "-p")),
 
+	IS_ECLIPSE_LAUNCH(checkForEclipseLaunch()),
 	GDA_WORKSPACE_PARENT(Paths.get(WORKSPACE_LOCATION.value).getParent().toString()),		// Default
-	APP_PATHS_ROOT(choosePathsRoot()),
+	APP_PATHS_ROOT(getHierarchicalValueWithDefault(GDA_WORKSPACE_PARENT)),
 
 	GDA_WORKSPACE_NAME("workspace"),
 	APP_WORKSPACE_NAME(getHierarchicalValueWithDefault(GDA_WORKSPACE_NAME)),
@@ -267,32 +268,17 @@ public enum ConfigurationDefaults {
 
 	/**
 	 * Check if the server is running from an exported product or within eclipse and
-	 * return the correct application root path as appropriate. The p2 profile
+	 * set the eclipseLaunch system property as appropriate. The p2 profile
 	 * property in the ini file will only be set for the exported product. Set a 
 	 * System Property so that the rest of the application can easily find this out.
 	 *
-	 * @return	The root path from which to calculate all others relating to startup
+	 * @return	"true" if this is an eclipse based launch otherwise "false"
 	 */
 
-	private static String choosePathsRoot() {
-		String eclipseLaunch = "false";
-		final StringBuilder root = new StringBuilder();
-		if (EXPECTED_P2_PROFILE.value.equalsIgnoreCase(System.getProperty(INI_FILE_PROFILE_PROPERTY.value))) {
-			String installLocation = System.getProperty(INI_FILE_INSTALL_AREA_PROPERTY.value);
-			if (StringUtils.isBlank(installLocation)) {
-				throw new IllegalArgumentException(
-						"The " + INI_FILE_INSTALL_AREA_PROPERTY + " property in the eclipse config.ini file is null or empty; server cannot start");
-			}
-			if (installLocation.startsWith("file:")) {
-				installLocation = installLocation.substring(5);
-			}
-			root.append(combine(installLocation, EXPORTED_PRODUCT_ROOT.value));
-		} else {
-			eclipseLaunch = "true";
-			root.append(getHierarchicalValueWithDefault(GDA_WORKSPACE_PARENT));
-		}
-		System.getProperties().setProperty("gda.eclipse.launch", eclipseLaunch);
-		return root.toString();
+	private static String checkForEclipseLaunch() {
+		boolean eclipseLaunch = !EXPECTED_P2_PROFILE.value.equalsIgnoreCase(System.getProperty(INI_FILE_PROFILE_PROPERTY.value));
+		System.getProperties().setProperty("gda.eclipse.launch", String.valueOf(eclipseLaunch));
+		return String.valueOf(eclipseLaunch);
 	}
 
 	private static String[] standardBasicArgs() {
