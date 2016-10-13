@@ -31,16 +31,22 @@ import gda.data.nexus.extractor.NexusExtractor;
  */
 public class NXTomoEntryLinkCreator extends NXLinkCreator implements InitializingBean {
 
+	private static final String entry_definition = "NXtomo";
+
 	private String control_data_target = "entry1:NXentry/instrument:NXinstrument/source:NXsource/current:SDS";
 
 	private String data_data_target = "entry1:NXentry/tomo_entry:NXsubentry/instrument:NXinstrument/detector:NXdetector/data:SDS";
 	private String data_rotation_angle_target = "entry1:NXentry/tomo_entry:NXsubentry/sample:NXsample/rotation_angle:SDS";
 
 	private String instrument_detector_data_target = "entry1:NXentry/instrument:NXinstrument/pco1_hw_hdf:NXdetector/data:SDS";
-	private String instrument_detector_distance_target = "entry1:NXentry/scan_identifier:SDS";
 	private String instrument_detector_image_key_target = "entry1:NXentry/instrument:NXinstrument/tomoScanDevice:NXpositioner/image_key:SDS";
-	private String instrument_detector_x_pixel_size_target = "entry1:NXentry/scan_identifier:SDS";
-	private String instrument_detector_y_pixel_size_target = "entry1:NXentry/scan_identifier:SDS";
+	private Double instrument_detector_x_pixel_size = Double.NaN;
+	private Double instrument_detector_y_pixel_size = Double.NaN;
+	private String instrument_detector_pixel_size_units = "undefined";
+	private Double instrument_detector_distance = Double.NaN;
+	private String instrument_detector_distance_units = "undefined";
+	private Double instrument_detector_x_rotation_axis_pixel_position = Double.NaN;
+	private Double instrument_detector_y_rotation_axis_pixel_position = Double.NaN;
 
 	private String instrument_source_target = "entry1:NXentry/instrument:NXinstrument/source:NXsource";
 	private String instrument_source_current_target = "entry1:NXentry/instrument:NXinstrument/source:NXsource/current:SDS";
@@ -73,14 +79,6 @@ public class NXTomoEntryLinkCreator extends NXLinkCreator implements Initializin
 		this.data_data_target = this.instrument_detector_data_target;
 	}
 
-	public String getInstrument_detector_distance_target() {
-		return instrument_detector_distance_target;
-	}
-
-	public void setInstrument_detector_distance_target(String instrument_detector_distance_target) {
-		this.instrument_detector_distance_target = instrument_detector_distance_target;
-	}
-
 	public String getInstrument_detector_image_key_target() {
 		return instrument_detector_image_key_target;
 	}
@@ -89,20 +87,12 @@ public class NXTomoEntryLinkCreator extends NXLinkCreator implements Initializin
 		this.instrument_detector_image_key_target = instrument_detector_image_key_target;
 	}
 
-	public String getInstrument_detector_x_pixel_size_target() {
-		return instrument_detector_x_pixel_size_target;
+	public String getInstrument_detector_pixel_size_units() {
+		return instrument_detector_pixel_size_units;
 	}
 
-	public void setInstrument_detector_x_pixel_size_target(String instrument_detector_x_pixel_size_target) {
-		this.instrument_detector_x_pixel_size_target = instrument_detector_x_pixel_size_target;
-	}
-
-	public String getInstrument_detector_y_pixel_size_target() {
-		return instrument_detector_y_pixel_size_target;
-	}
-
-	public void setInstrument_detector_y_pixel_size_target(String instrument_detector_y_pixel_size_target) {
-		this.instrument_detector_y_pixel_size_target = instrument_detector_y_pixel_size_target;
+	public void setInstrument_detector_pixel_size_units(String instrument_detector_pixel_size_units) {
+		this.instrument_detector_pixel_size_units = instrument_detector_pixel_size_units;
 	}
 
 	public String getSample_rotation_angle_target() {
@@ -159,6 +149,56 @@ public class NXTomoEntryLinkCreator extends NXLinkCreator implements Initializin
 		this.title_target = title_target;
 	}
 
+	public Double getInstrument_detector_x_pixel_size() {
+		return instrument_detector_x_pixel_size;
+	}
+
+	public void setInstrument_detector_x_pixel_size(Double instrument_detector_x_pixel_size) {
+		this.instrument_detector_x_pixel_size = instrument_detector_x_pixel_size;
+	}
+
+	public Double getInstrument_detector_y_pixel_size() {
+		return instrument_detector_y_pixel_size;
+	}
+
+	public void setInstrument_detector_y_pixel_size(Double instrument_detector_y_pixel_size) {
+		this.instrument_detector_y_pixel_size = instrument_detector_y_pixel_size;
+	}
+
+	public Double getInstrument_detector_distance() {
+		return instrument_detector_distance;
+	}
+
+	public void setInstrument_detector_distance(Double instrument_detector_distance) {
+		this.instrument_detector_distance = instrument_detector_distance;
+	}
+
+	public String getInstrument_detector_distance_units() {
+		return instrument_detector_distance_units;
+	}
+
+	public void setInstrument_detector_distance_units(String instrument_detector_distance_units) {
+		this.instrument_detector_distance_units = instrument_detector_distance_units;
+	}
+
+	public Double getInstrument_detector_x_rotation_axis_pixel_position() {
+		return instrument_detector_x_rotation_axis_pixel_position;
+	}
+
+	public void setInstrument_detector_x_rotation_axis_pixel_position(
+			Double instrument_detector_x_rotation_axis_pixel_position) {
+		this.instrument_detector_x_rotation_axis_pixel_position = instrument_detector_x_rotation_axis_pixel_position;
+	}
+
+	public Double getInstrument_detector_y_rotation_axis_pixel_position() {
+		return instrument_detector_y_rotation_axis_pixel_position;
+	}
+
+	public void setInstrument_detector_y_rotation_axis_pixel_position(
+			Double instrument_detector_y_rotation_axis_pixel_position) {
+		this.instrument_detector_y_rotation_axis_pixel_position = instrument_detector_y_rotation_axis_pixel_position;
+	}
+
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		// control/data
@@ -171,25 +211,10 @@ public class NXTomoEntryLinkCreator extends NXLinkCreator implements Initializin
 			throw new IllegalStateException("instrument_detector_data_target is not set");
 		addLink("/entry1:NXentry/tomo_entry:NXsubentry/instrument:NXinstrument/detector:NXdetector/data", getInstrument_detector_data_target());
 
-		// instrument/detector/distance
-		if (this.getInstrument_detector_distance_target() == null)
-			throw new IllegalStateException("instrument_detector_distance_target is not set");
-		addLink("/entry1:NXentry/tomo_entry:NXsubentry/instrument:NXinstrument/detector:NXdetector/distance", getInstrument_detector_distance_target());
-
 		// instrument/detector/image_key
 		if (this.getInstrument_detector_image_key_target() == null)
 			throw new IllegalStateException("instrument_detector_image_key_target is not set");
 		addLink("/entry1:NXentry/tomo_entry:NXsubentry/instrument:NXinstrument/detector:NXdetector/image_key", getInstrument_detector_image_key_target());
-
-		// instrument/detector/x_pixel_size
-		if (this.getInstrument_detector_x_pixel_size_target() == null)
-			throw new IllegalStateException("instrument_detector_x_pixel_size_target is not set");
-		addLink("/entry1:NXentry/tomo_entry:NXsubentry/instrument:NXinstrument/detector:NXdetector/x_pixel_size", getInstrument_detector_x_pixel_size_target());
-
-		// instrument/detector/y_pixel_size
-		if (this.getInstrument_detector_x_pixel_size_target() == null)
-			throw new IllegalStateException("instrument_detector_y_pixel_size_target is not set");
-		addLink("/entry1:NXentry/tomo_entry:NXsubentry/instrument:NXinstrument/detector:NXdetector/y_pixel_size", getInstrument_detector_y_pixel_size_target());
 
 		// instrument/source
 		if (this.getInstrument_source_target() == null)
@@ -238,7 +263,7 @@ public class NXTomoEntryLinkCreator extends NXLinkCreator implements Initializin
 		addLink("/entry1:NXentry/tomo_entry:NXsubentry/data:NXdata/rotation_angle", this.data_rotation_angle_target);
 	}
 
-	public void writeStringData(String filename, String dataName, String dataValue ) throws Exception {
+	public void writeStringData(String filename, String dataName, String dataValue) throws Exception {
 		NexusFile file = NexusFileHDF5.openNexusFile(filename);
 		StringBuilder path = NexusUtils.addToAugmentPath(new StringBuilder(), "entry1", NexusExtractor.NXEntryClassName);
 		NexusUtils.addToAugmentPath(path, "tomo_entry", "NXsubentry");
@@ -248,12 +273,28 @@ public class NXTomoEntryLinkCreator extends NXLinkCreator implements Initializin
 		file.close();
 	}
 
+	public void writeDoubleData(String filename, String dataName, double dataValue, String dataUnits) throws Exception {
+		NexusFile file = NexusFileHDF5.openNexusFile(filename);
+		StringBuilder path = NexusUtils.addToAugmentPath(new StringBuilder(), "entry1", NexusExtractor.NXEntryClassName);
+		NexusUtils.addToAugmentPath(path, "tomo_entry", "NXsubentry");
+//		NexusUtils.addToAugmentPath(path, detectorName, NexusExtractor.NXDetectorClassName);
+		GroupNode group = file.getGroup(path.toString(), true);
+		NexusUtils.writeDouble(file, group, dataName, dataValue, dataUnits);
+		file.close();
+	}
+
 	@Override
 	public void makelinks(String filename) throws Exception {
 
 		super.makelinks(filename);
 
 		// workaround: make non-link(s) as well
-		writeStringData(filename, "definition", "NXtomo");
+		writeDoubleData(filename, "instrument/detector/x_pixel_size", this.instrument_detector_x_pixel_size, this.instrument_detector_pixel_size_units);
+		writeDoubleData(filename, "instrument/detector/y_pixel_size", this.instrument_detector_y_pixel_size, this.instrument_detector_pixel_size_units);
+		writeDoubleData(filename, "instrument/detector/distance", this.instrument_detector_distance, this.instrument_detector_distance_units);
+		writeDoubleData(filename, "instrument/detector/x_rotation_axis_pixel_position", this.instrument_detector_x_rotation_axis_pixel_position, "pixel");
+		writeDoubleData(filename, "instrument/detector/y_rotation_axis_pixel_position", this.instrument_detector_y_rotation_axis_pixel_position, "pixel");
+
+		writeStringData(filename, "definition", NXTomoEntryLinkCreator.entry_definition);
 	}
 }
