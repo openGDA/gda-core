@@ -401,8 +401,6 @@ Additional Ant tasks for Buckminster build. Based on http://www.ralfebert.de/blo
     <!-- ====================================================================== -->
     <!--  Create the OSGi product (install from previously created p2 site)     -->
 	<!--  Create/Update a symlink to the product (used by the gda scripts)      -->
-	<!--  Include the config and script details under a local dls-root          -->
-	<!--  Create links within dls-root to cope with hard code paths in classes  -->
     <!-- ====================================================================== -->
 
 	<target name="create.product" depends="set.action.datetime, install-product, lib-copy, jre-copy, find.bundle.names">
@@ -420,7 +418,7 @@ Additional Ant tasks for Buckminster build. Based on http://www.ralfebert.de/blo
 			<fileset file="${workspace.root}/tp/artifacts.xml"></fileset>
 		</copy>
 
-		<!-- Copy across the config and diffcalc directories -->
+		<!-- Copy across the diffcalc folder -->
 		<copy todir="${install.path}/utilities/diffcalc.git">
 			<fileset dir="${ws_git.rel.path}/diffcalc.git">
 				<exclude name="buckminster.*"/>
