@@ -503,7 +503,7 @@ public class GDAJythonInterpreter extends ObservableComponent {
 				this.interp.runsource("from gda.util.converters import IReloadableQuantitiesConverter");
 				// Channel access commands
 
-				this.interp.runsource("from PySrc._completer import Completer");
+				this.interp.runsource("from _pydev_bundle._pydev_completer import Completer");
 				this.interp.runsource("completer = Completer(locals(), globals())");
 
 				// scisoftpy
