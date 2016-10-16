@@ -1,19 +1,10 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Bimorph
+Bundle-Name: GDA Bimorph Scripts
 Bundle-SymbolicName: uk.ac.gda.bimorph;singleton:=true
+Bundle-Vendor: Diamond Light Source
 Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: uk.ac.gda.bimorph.Activator
-Require-Bundle: org.eclipse.ui,
- org.eclipse.core.runtime,
- uk.ac.gda.common;bundle-version="1.2.0",
- uk.ac.gda.core;bundle-version="8.26.0",
- uk.ac.gda.common.rcp;bundle-version="1.2.0",
- org.eclipse.richbeans.widgets;bundle-version="1.0.0",
- org.eclipse.richbeans.xml;bundle-version="1.0.0",
- uk.ac.diamond.daq.jython.api;bundle-version="1.0.0"
-Bundle-ActivationPolicy: lazy
+Require-Bundle: uk.ac.diamond.daq.jython.api;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ClassPath: scripts/,
  .
-Bundle-Vendor: Diamond Light Source

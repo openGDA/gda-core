@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: GDA Bimorph Richbeans UI
+Bundle-SymbolicName: uk.ac.gda.bimorph.ui;singleton:=true
+Bundle-Vendor: Diamond Light Source
+Bundle-Version: 1.0.0.qualifier
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ uk.ac.gda.common;bundle-version="1.2.0",
+ uk.ac.gda.core;bundle-version="8.26.0",
+ uk.ac.gda.common.rcp;bundle-version="1.2.0",
+ org.eclipse.richbeans.widgets;bundle-version="1.0.0",
+ org.eclipse.richbeans.xml;bundle-version="1.0.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7

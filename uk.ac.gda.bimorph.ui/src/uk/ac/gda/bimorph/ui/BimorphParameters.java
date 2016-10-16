@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.bimorph;
+package uk.ac.gda.bimorph.ui;
 
 import java.io.Serializable;
 import java.net.URL;
