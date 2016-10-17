@@ -18,6 +18,7 @@
 
 package uk.ac.gda.arpes.ui;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -127,6 +128,7 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		// Get the number of energy channels in swept mode
 		sweptModeEnergyChannels = analyser.getSweptModeEnergyChannels();
 
+		setLayoutData(new GridData(SWT.LEFT, SWT.TOP, true, true));
 
 		// Make a 2 column grid layout
 		GridLayout gridLayout = new GridLayout(2, false);
@@ -202,39 +204,33 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 
 		// PSU mode
 		lblpsuMode = new Label(this, SWT.NONE);
-		lblpsuMode.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1));
+		lblpsuMode.setLayoutData(labelLayoutData());
 		lblpsuMode.setText("PSU Mode");
 		psuMode = new Label(this, SWT.NONE);
-		GridData gd_psuMode = new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1);
-		gd_psuMode.widthHint = 200;
-		psuMode.setLayoutData(gd_psuMode);
+		psuMode.setLayoutData(controlGridData());
 		psuMode.setText("Not detected!");
 
 		// Lens Mode
 		lblLensMode = new Label(this, SWT.NONE);
-		lblLensMode.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lblLensMode.setLayoutData(labelLayoutData());
 		lblLensMode.setText("Lens Mode");
-		lensMode = new ComboWrapper(this, SWT.NONE);
-		GridData gd_lensMode = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_lensMode.widthHint = 200;
-		lensMode.setLayoutData(gd_lensMode);
+		lensMode = new ComboWrapper(this, SWT.DROP_DOWN | SWT.READ_ONLY);
+		lensMode.setLayoutData(controlGridData());
 		lensMode.setItems(lensModes);
 		lensMode.select(0); // Select the first option so when the GUI draws it can be looked up
 		lensMode.addValueListener(this);
 
 		// Pass energy
 		lblPassEnergy = new Label(this, SWT.NONE);
-		lblPassEnergy.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lblPassEnergy.setLayoutData(labelLayoutData());
 		lblPassEnergy.setText("Pass Energy");
-		passEnergy = new ComboWrapper(this, SWT.NONE);
-		GridData gd_passEnergy = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_passEnergy.widthHint = 200;
-		passEnergy.setLayoutData(gd_passEnergy);
+		passEnergy = new ComboWrapper(this, SWT.DROP_DOWN | SWT.READ_ONLY);
+		passEnergy.setLayoutData(controlGridData());
 		passEnergy.addValueListener(this);
 
 		// Fixed or swept radio box
 		lblSweptMode = new Label(this, SWT.NONE);
-		lblSweptMode.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lblSweptMode.setLayoutData(labelLayoutData());
 		lblSweptMode.setText("Swept Mode");
 		sweptMode = new RadioWrapper(this, SWT.NONE, new String[] { "fixed", "swept" }) {
 			@Override
@@ -251,36 +247,26 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 
 		// Estimated time
 		lblEstimatedTime = new Label(this, SWT.NONE);
-		lblEstimatedTime.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1));
+		lblEstimatedTime.setLayoutData(labelLayoutData());
 		lblEstimatedTime.setText("Estimated Time");
 		estimatedTime = new Label(this, SWT.NONE);
-		GridData gd_estimatedTime = new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1);
-		gd_estimatedTime.widthHint = 200;
-		estimatedTime.setLayoutData(gd_estimatedTime);
+		estimatedTime.setLayoutData(controlGridData());
 
 		// Start Energy
 		lblStartEnergy = new Label(this, SWT.NONE);
-		lblStartEnergy.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lblStartEnergy.setLayoutData(labelLayoutData());
 		lblStartEnergy.setText("Start Energy");
 		startEnergy = new ScaleBox(this, SWT.NONE);
-		GridData gridData = (GridData) startEnergy.getControl().getLayoutData();
-		gridData.widthHint = 200;
-		gridData.horizontalAlignment = SWT.LEFT;
-		gridData.grabExcessHorizontalSpace = false;
-		startEnergy.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		startEnergy.setLayoutData(controlGridData());
 		startEnergy.setUnit("eV");
 		startEnergy.setDecimalPlaces(3);
 
 		// Centre energy
 		lblCenterEnergy = new Label(this, SWT.NONE);
-		lblCenterEnergy.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lblCenterEnergy.setLayoutData(labelLayoutData());
 		lblCenterEnergy.setText("Centre Energy"); //use UK spelling to match scannable name centre_energy
 		centreEnergy = new ScaleBox(this, SWT.NONE);
-		GridData gridData_1 = (GridData) centreEnergy.getControl().getLayoutData();
-		gridData_1.widthHint = 200;
-		gridData_1.horizontalAlignment = SWT.LEFT;
-		gridData_1.grabExcessHorizontalSpace = false;
-		centreEnergy.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		centreEnergy.setLayoutData(controlGridData());
 		centreEnergy.setUnit("eV");
 		centreEnergy.setDecimalPlaces(3);
 		centreEnergy.setFieldName("centreEnergy");
@@ -288,41 +274,29 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 
 		// End Energy
 		lblEndEnergy = new Label(this, SWT.NONE);
-		lblEndEnergy.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lblEndEnergy.setLayoutData(labelLayoutData());
 		lblEndEnergy.setText("End Energy");
 		endEnergy = new ScaleBox(this, SWT.NONE);
-		GridData gridData_2 = (GridData) endEnergy.getControl().getLayoutData();
-		gridData_2.widthHint = 200;
-		gridData_2.horizontalAlignment = SWT.LEFT;
-		gridData_2.grabExcessHorizontalSpace = false;
-		endEnergy.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		endEnergy.setLayoutData(controlGridData());
 		endEnergy.setUnit("eV");
 		endEnergy.setDecimalPlaces(3);
 
 		// Step energy
 		lblStepEnergy = new Label(this, SWT.NONE);
-		lblStepEnergy.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lblStepEnergy.setLayoutData(labelLayoutData());
 		lblStepEnergy.setText("Step Energy");
 		stepEnergy = new ScaleBox(this, SWT.NONE);
-		GridData gridData_3 = (GridData) stepEnergy.getControl().getLayoutData();
-		gridData_3.widthHint = 200;
-		gridData_3.horizontalAlignment = SWT.LEFT;
-		gridData_3.grabExcessHorizontalSpace = false;
-		stepEnergy.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		stepEnergy.setLayoutData(controlGridData());
 		stepEnergy.setUnit("meV");
 		stepEnergy.setDecimalPlaces(5);
 		stepEnergy.setMaximum(10000);
 
 		// Energy width
 		lblEnergyWidth = new Label(this, SWT.NONE);
-		lblEnergyWidth.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lblEnergyWidth.setLayoutData(labelLayoutData());
 		lblEnergyWidth.setText("Energy Width");
 		energyWidth = new ScaleBox(this, SWT.NONE);
-		GridData gridData_4 = (GridData) energyWidth.getControl().getLayoutData();
-		gridData_4.widthHint = 200;
-		gridData_4.horizontalAlignment = SWT.LEFT;
-		gridData_4.grabExcessHorizontalSpace = false;
-		energyWidth.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		energyWidth.setLayoutData(controlGridData());
 		energyWidth.setUnit("eV");
 		energyWidth.setDecimalPlaces(3);
 		energyWidth.setFieldName("energyWidth");
@@ -330,35 +304,30 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 
 		// Time per step
 		lblTimePerStep = new Label(this, SWT.NONE);
-		lblTimePerStep.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lblTimePerStep.setLayoutData(labelLayoutData());
 		lblTimePerStep.setText("Time Per Step");
 		timePerStep = new ScaleBox(this, SWT.NONE);
-		GridData gridData_5 = (GridData) timePerStep.getControl().getLayoutData();
-		gridData_5.widthHint = 200;
-		gridData_5.horizontalAlignment = SWT.LEFT;
-		gridData_5.grabExcessHorizontalSpace = false;
-		timePerStep.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		timePerStep.setLayoutData(controlGridData());
 		timePerStep.setUnit("s");
 		timePerStep.addValueListener(this);
 
 		// Iterations
 		lblIterations = new Label(this, SWT.NONE);
-		lblIterations.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lblIterations.setLayoutData(labelLayoutData());
 		lblIterations.setText("Iterations");
 		iterations = new IntegerBox(this, SWT.NONE);
-		GridData gridData_6 = (GridData) iterations.getControl().getLayoutData();
-		gridData_6.widthHint = 200;
-		gridData_6.horizontalAlignment = SWT.LEFT;
-		gridData_6.grabExcessHorizontalSpace = false;
-		iterations.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		iterations.setLayoutData(controlGridData());
 		iterations.addValueListener(this);
 
 		// Configure only
 		lblConfigureOnly = new Label(this, SWT.NONE);
-		lblConfigureOnly.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lblConfigureOnly.setLayoutData(labelLayoutData());
 		lblConfigureOnly.setText("Configure Only");
 		configureOnly = new BooleanWrapper(this, SWT.NONE);
-		configureOnly.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		// Use special grid data here to make selection box the right size
+		configureOnly.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
+
+		this.layout(true);
 
 		//Call to get current PSU mode as panel is building
 		//Only call after creating all GUI objects
@@ -366,7 +335,7 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 
 		// This is to allow dynamic updates of PSU mode from EPICS
 		// Create a scannable to allow an observer to be added
-		Scannable psuModeScannable = (Scannable) (Finder.getInstance().find("psu_mode"));
+		Scannable psuModeScannable = Finder.getInstance().find("psu_mode");
 
 		// Create an observer that updates the PSU mode when fired
 		final IObserver psuModeObserver = new IObserver() {
@@ -383,6 +352,14 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 
 		// Connect observer to scannable.
 		psuModeScannable.addIObserver(psuModeObserver);
+	}
+
+	private GridData controlGridData() {
+		return new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+	}
+
+	private GridData labelLayoutData() {
+		return new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1);
 	}
 
 	private void updatePsuMode() {
@@ -402,8 +379,11 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 
 	// Sets the available pass energies from the analyser capabilities + PSU mode
 	private void updatePassEnergy() {
-		int i = lensMode.getSelectionIndex();
 
+		// Store current pass energy to reselect it, if still available
+		final int selectedPassEnergy = getSelectedPassEnergy();
+
+		final int i = lensMode.getSelectionIndex();
 		Set<Integer> passEnergies = null;
 		try {
 			passEnergies = energyRange.getPassEnergies(psuMode.getText(), lensModes[i]);
@@ -414,11 +394,21 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 			passEnergies = energyRange.getAllPassEnergies();
 		}
 
-		Map<String, Integer> passMap = new LinkedHashMap<String, Integer>();
+		final Map<String, Integer> passMap = new LinkedHashMap<String, Integer>();
 		for (Integer passEnergy : passEnergies) {
 			passMap.put(passEnergy.toString() + " eV", passEnergy);
 		}
 		passEnergy.setItems(passMap);
+
+		// Try to restore pass energy if its still available
+		if (passEnergies.contains(selectedPassEnergy)) {
+			// Need to determine the index here there might be a nicer way...
+			passEnergy.select((new ArrayList<Integer>(passEnergies)).indexOf(selectedPassEnergy));
+		}
+		// If the old PE is not available any more just select the first option
+		else {
+			passEnergy.select(0);
+		}
 	}
 
 	private double determineMinimumStepEnergy(int passEnergy) {
@@ -426,7 +416,7 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 	}
 
 	private void updateMinimumStepEnergy() {
-		int passEnergyInt = Integer.parseInt(passEnergy.getValue().toString());
+		int passEnergyInt = getSelectedPassEnergy();
 		stepEnergy.setMinimum(determineMinimumStepEnergy(passEnergyInt));
 	}
 
@@ -436,7 +426,11 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 	}
 
 	private int getSelectedPassEnergy(){
-		return Integer.parseInt(passEnergy.getValue().toString());
+		try {
+			return Integer.parseInt(passEnergy.getValue().toString());
+		} catch (NumberFormatException | NullPointerException e) {
+			return 0; // If we couldn't determine the PE return 0;
+		}
 	}
 
 	// This calculates the acquisition time excluding dead time (i.e. shortest possible)
@@ -532,45 +526,12 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 	public void valueChangePerformed(ValueEvent e) {
 
 		if (e.getFieldName().equals("lensMode")) {
-			updateEnergyLimits();
+			// Changed lens mode so different pass energies might be available
+			updatePassEnergy();
 		}
 
 		if (e.getFieldName().equals("passEnergy")) {
-			if (!isSwept()) {// Fixed mode
-				energyWidth.setValue(determineFixedModeEnergyWidth(getSelectedPassEnergy()));
-				startEnergy.setValue(((Number) centreEnergy.getValue()).doubleValue()
-						- ((Number) energyWidth.getValue()).doubleValue() / 2.0);
-				endEnergy.setValue(((Number) centreEnergy.getValue()).doubleValue()
-						+ ((Number) energyWidth.getValue()).doubleValue() / 2.0);
-				stepEnergy.setValue(determineMinimumStepEnergy(getSelectedPassEnergy()));
-			}
-		}
-
-		if (e.getFieldName().equals("sweptMode")) {
-			if (isSwept()) {
-				// In swept edit start, stop and step, not centre
-				startEnergy.setEditable(true);
-				centreEnergy.setEditable(false);
-				endEnergy.setEditable(true);
-				stepEnergy.setEditable(true);
-				// Stop watching for changes in centre energy as they are programmatic
-				startEnergy.addValueListener(this);
-				centreEnergy.removeValueListener(this);
-				endEnergy.addValueListener(this);
-				stepEnergy.addValueListener(this);
-
-			} else { // Fixed mode
-				// In fixed edit centre only
-				startEnergy.setEditable(false);
-				centreEnergy.setEditable(true);
-				endEnergy.setEditable(false);
-				stepEnergy.setEditable(false);
-				// Only watch for changes in centreEnergy in fixed mode
-				startEnergy.removeValueListener(this);
-				centreEnergy.addValueListener(this);
-				endEnergy.removeValueListener(this);
-				stepEnergy.removeValueListener(this);
-				// Update values as appropriate for fixed mode
+			if (!isSwept()) { // Fixed mode
 				energyWidth.setValue(determineFixedModeEnergyWidth(getSelectedPassEnergy()));
 				startEnergy.setValue(((Number) centreEnergy.getValue()).doubleValue()
 						- ((Number) energyWidth.getValue()).doubleValue() / 2.0);
@@ -597,15 +558,53 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 			centreEnergy.setValue((((Number) startEnergy.getValue()).floatValue() + ((Number) endEnergy.getValue()).floatValue()) / 2.0);
 			energyWidth.setValue(((Number) endEnergy.getValue()).floatValue() - ((Number) startEnergy.getValue()).floatValue());
 		}
-		updatePsuMode();
+
 		updateEnergyLimits();
+		updateFixedSweptMode();
 		updateEstimatedTime();
+	}
+
+	/**
+	 * This handles adding and removing listeners and setting controls enabled and disabled depending on the selected mode.
+	 */
+	private void updateFixedSweptMode() {
+		if (isSwept()) {
+			// In swept edit start, stop and step, not centre
+			startEnergy.setEditable(true);
+			centreEnergy.setEditable(false);
+			endEnergy.setEditable(true);
+			stepEnergy.setEditable(true);
+			// Stop watching for changes in centre energy as they are programmatic
+			startEnergy.addValueListener(this);
+			centreEnergy.removeValueListener(this);
+			endEnergy.addValueListener(this);
+			stepEnergy.addValueListener(this);
+
+		} else { // Fixed mode
+			// In fixed edit centre only
+			startEnergy.setEditable(false);
+			centreEnergy.setEditable(true);
+			endEnergy.setEditable(false);
+			stepEnergy.setEditable(false);
+			// Only watch for changes in centreEnergy in fixed mode
+			startEnergy.removeValueListener(this);
+			centreEnergy.addValueListener(this);
+			endEnergy.removeValueListener(this);
+			stepEnergy.removeValueListener(this);
+			// Update values as appropriate for fixed mode
+			energyWidth.setValue(determineFixedModeEnergyWidth(getSelectedPassEnergy()));
+			startEnergy.setValue(((Number) centreEnergy.getValue()).doubleValue()
+					- ((Number) energyWidth.getValue()).doubleValue() / 2.0);
+			endEnergy.setValue(((Number) centreEnergy.getValue()).doubleValue()
+					+ ((Number) energyWidth.getValue()).doubleValue() / 2.0);
+			stepEnergy.setValue(determineMinimumStepEnergy(getSelectedPassEnergy()));
+		}
 	}
 
 	private void updateEnergyLimits() {
 		String psuModeString = psuMode.getText();
 		String lensModeString = lensModes[lensMode.getSelectionIndex()];
-		int passEnergyInt = Integer.parseInt(passEnergy.getValue().toString());
+		int passEnergyInt = getSelectedPassEnergy();
 
 		double min = 0;
 		double max = maxKE;
@@ -680,7 +679,7 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 			stepEnergy.setValue(determineMinimumStepEnergy(getSelectedPassEnergy()));
 
 		}
-		updatePsuMode();
+
 		updateEnergyLimits();
 		updateEstimatedTime();
 	}
