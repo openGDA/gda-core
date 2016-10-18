@@ -143,6 +143,9 @@ public class Application implements IApplication {
 					+ " the workspace when starting the GDA client from the Diamond Launcher, you should be able to run"
 					+ " either 'gda client --reset' or 'gdaclient --reset' from a terminal window.";
 			// TODO: Remove reference to 'gdaclient --reset' when all configs have been standardised.
+			if (problem == null) {
+				problem = "A " + ne.getClass().getName() + " was thrown.";
+			}
 			if (problem.contains("Could not initialise NetService: org.omg.CORBA.TRANSIENT")) {
 				resolution = "The GDA client cannot connect to the GDA servers, so it is likely that the GDA servers are not running."
 						+ "\n\nThe usual remedy is to Restart GDA Servers from the Diamond Launcher before restarting the GDA client.";
