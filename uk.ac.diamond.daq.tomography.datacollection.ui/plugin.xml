@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            name="Tomography Data Collection"
+            id="uk.ac.diamond.daq.tomography.datacollection.ui">
+      </category>
+      <view
+            allowMultiple="false"
+            category="uk.ac.diamond.daq.tomography.datacollection.ui"
+            class="gda.rcp.views.ViewFactory:statusView"
+            icon="platform:/plugin/uk.ac.gda.core/icons/GDAlogos/GDALogo32.png"
+            id="uk.ac.diamond.daq.tomography.datacollection.ui.views.StatusView"
+            name="Status">
+      </view>
+      <view
+            allowMultiple="false"
+            category="uk.ac.diamond.daq.tomography.datacollection.ui"
+            class="uk.ac.diamond.scisoft.analysis.rcp.views.PlotView"
+            icon="icons/chart_curve.png"
+            id="uk.ac.diamond.daq.tomography.datacollection.ui.DetectorPlot"
+            name="Detector Image"
+            restorable="true">
+      </view>
+      <view
+            allowMultiple="false"
+            category="uk.ac.diamond.daq.tomography.datacollection.ui"
+            class="uk.ac.diamond.scisoft.analysis.rcp.views.PlotView"
+            icon="icons/chart_curve.png"
+            id="uk.ac.diamond.daq.tomography.datacollection.ui.NormalisedImage"
+            name="Normalised Image"
+            restorable="true">
+      </view>
+      <view
+            allowMultiple="false"
+            category="uk.ac.diamond.daq.tomography.datacollection.ui"
+            class="uk.ac.diamond.daq.tomography.datacollection.ui.views.DataCollectionPCOHistogramView"
+            icon="icons/AreaDetectorProfileView.gif"
+            id="uk.ac.diamond.daq.tomography.datacollection.ui.views.DataCollectionPCOHistogramView"
+            name="PCO Histogram">
+      </view>                       
+      <view
+            allowMultiple="false"
+            category="uk.ac.diamond.daq.tomography.datacollection.ui"
+            class="uk.ac.diamond.daq.tomography.datacollection.ui.views.DataCollectionPCOArrayView"
+            icon="icons/AreaDetectorImageView.gif"
+            id="uk.ac.diamond.daq.tomography.datacollection.ui.views.DataCollectionPCOArrayView"
+            name="PCO Array">
+      </view>
+      <view
+            allowMultiple="false"
+            category="uk.ac.diamond.daq.tomography.datacollection.ui"
+            class="uk.ac.diamond.daq.tomography.datacollection.ui.views.DataCollectionMJPegView"
+            icon="icons/AreaDetectorLiveView.gif"
+            id="uk.ac.diamond.daq.tomography.datacollection.ui.views.DataCollectionMJPegView"
+            name="PCO MJPeg">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="uk.ac.diamond.daq.tomography.datacollection.ui.perspectives.DataCollectionPerspective"
+            icon="icons/releng_gears.gif"
+            id="uk.ac.diamond.daq.tomography.datacollection.ui.perspectives.DataCollectionPerspective"
+            name="Tomography Data Collection">
+      </perspective>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="*">
+            <perspectiveShortcut
+                  id="uk.ac.diamond.daq.tomography.datacollection.ui.perspectives.DataCollectionPerspective">
+            </perspectiveShortcut>
+      </perspectiveExtension>
+   </extension>
+
+</plugin>
