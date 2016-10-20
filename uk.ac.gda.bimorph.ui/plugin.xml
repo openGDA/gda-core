@@ -24,7 +24,7 @@
   </extension>
    <extension point="uk.ac.common.beans.factory">
       <bean
-            class="uk.ac.gda.bimorph.BimorphParameters"
+            class="uk.ac.gda.bimorph.ui.BimorphParameters"
             describer="uk.ac.gda.bimorph.ui.BimorphParametersDescriber">
       </bean>
       
