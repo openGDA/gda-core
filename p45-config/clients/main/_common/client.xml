@@ -19,7 +19,8 @@
 
 	<import resource="command_queue_processor.xml"/>
 	<import resource="plot_server.xml" />
-	<import resource="stage_controls.xml"/>
+	<import resource="stage_controls.xml"/>  <!--  TODO Remove the current stage controls and replace with tree edit as in scanning perspective -->
+	<import resource="stage_controls_tree.xml"/>
 	<import resource="mapping.xml"/>
 
 	<bean id="ScanDataPointServer" class="uk.ac.gda.remoting.client.GdaRmiProxyFactoryBean">
