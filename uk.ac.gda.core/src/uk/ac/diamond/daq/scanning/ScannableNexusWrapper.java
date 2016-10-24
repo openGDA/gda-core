@@ -28,6 +28,11 @@ import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.annotation.scan.ScanFinally;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.IPosition;
+import org.eclipse.scanning.api.points.Scalar;
+import org.eclipse.scanning.api.scan.ScanningException;
+import org.eclipse.scanning.api.scan.event.IPositionListenable;
+import org.eclipse.scanning.api.scan.event.IPositionListener;
+import org.eclipse.scanning.api.scan.event.PositionDelegate;
 import org.eclipse.scanning.api.scan.rank.IScanRankService;
 import org.eclipse.scanning.api.scan.rank.IScanSlice;
 import org.slf4j.Logger;
@@ -42,13 +47,15 @@ import gda.device.EnumPositioner;
 import gda.device.Scannable;
 import gda.device.ScannableMotion;
 import gda.device.ScannableMotionUnits;
+import gda.device.scannable.ScannablePositionChangeEvent;
+import gda.observable.IObserver;
 
 /**
  * Class provides a default implementation which will write any GDA8 scannable to NeXus
  *
  * @author Matthew Gerring, Matthew Dickie
  */
-public class ScannableNexusWrapper<N extends NXobject> implements IScannable<Object>, INexusDevice<N> {
+public class ScannableNexusWrapper<N extends NXobject> implements IScannable<Object>, INexusDevice<N>, IPositionListenable, IObserver{
 
 	/**
 	 * The name of the 'scannables' collection. This collection contains all wrapped GDA8
@@ -114,8 +121,12 @@ public class ScannableNexusWrapper<N extends NXobject> implements IScannable<Obj
 
 	private static final Logger logger = LoggerFactory.getLogger(ScannableNexusWrapper.class);
 
+	private PositionDelegate positionDelegate;
+
 	ScannableNexusWrapper(Scannable scannable) {
 		this.scannable = scannable;
+		this.scannable.addIObserver(this);
+		this.positionDelegate = new PositionDelegate();
 	}
 
 	protected List<String> calculateFieldNames() {
@@ -245,7 +256,23 @@ public class ScannableNexusWrapper<N extends NXobject> implements IScannable<Obj
 
 	@Override
 	public void setPosition(Object value) throws Exception {
+		final IPosition position = new Scalar<Object>(getName(), -1, value);
+		positionDelegate.firePositionWillPerform(position);
 		scannable.moveTo(value);
+		positionDelegate.firePositionPerformed(getLevel(), position);
+	}
+
+	@Override
+	public void setPosition(Object value, IPosition scanPosition) throws Exception {
+		final int index = (scanPosition == null ? -1 : scanPosition.getIndex(getName()));
+		final IPosition position = new Scalar<Object>(getName(), index, value);
+		positionDelegate.firePositionWillPerform(position);
+		scannable.moveTo(value);
+		positionDelegate.firePositionPerformed(getLevel(), position);
+	
+		if (scanPosition != null && shouldWritePosition()) {
+			write(value, getPositionArray(), scanPosition);
+		}
 	}
 
 	@Override
@@ -287,15 +314,6 @@ public class ScannableNexusWrapper<N extends NXobject> implements IScannable<Obj
 			return ((EnumPositioner) scannable).getPositions();
 		}
 		return null;
-	}
-
-	@Override
-	public void setPosition(Object value, IPosition scanPosition) throws Exception {
-		scannable.moveTo(value);
-
-		if (scanPosition != null && shouldWritePosition()) {
-			write(value, getPositionArray(), scanPosition);
-		}
 	}
 
 	private NexusBaseClass getNexusBaseClass() {
@@ -539,6 +557,30 @@ public class ScannableNexusWrapper<N extends NXobject> implements IScannable<Obj
 	 */
 	public DataNode getDataNode(String fieldName) {
 		return nexusObject.getDataNode(fieldName);
+	}
+
+	@Override
+	public void addPositionListener(IPositionListener listener) {
+		positionDelegate.addPositionListener(listener);
+	}
+
+	@Override
+	public void removePositionListener(IPositionListener listener) {
+		positionDelegate.removePositionListener(listener);
+	}
+
+	@Override
+	public void update(Object source, Object arg) {
+		if (arg instanceof ScannablePositionChangeEvent) {
+			// some scannables notify this
+			Object newPosition = ((ScannablePositionChangeEvent) arg).newPosition;
+			IPosition positon = new Scalar<Object>(getName(), -1, newPosition); // TODO what should index be
+			try {
+				positionDelegate.firePositionChanged(getLevel(), positon);
+			} catch (ScanningException e) {
+				logger.error("An error occurred while notifying position listeners", e);
+			}
+		}
 	}
 
 }

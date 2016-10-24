@@ -25,6 +25,8 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -37,8 +39,15 @@ import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.scanning.api.IScannable;
+import org.eclipse.scanning.api.points.IPosition;
+import org.eclipse.scanning.api.points.Scalar;
+import org.eclipse.scanning.api.scan.PositionEvent;
+import org.eclipse.scanning.api.scan.event.IPositionListenable;
+import org.eclipse.scanning.api.scan.event.IPositionListener;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
 
 import gda.device.ScannableMotionUnits;
 import gda.device.enumpositioner.DummyEnumPositioner;
@@ -119,11 +128,76 @@ public class ScannableNexusWrapperTest {
 
 	@Test
 	public void testSetPosition() throws Exception {
-		// Note: writing position to nexus file when setPosition is called as part of a scan
-		// is tested fully in ScannableNexusWrapperScanTest
+		// Arrange
+		final double newPosition = 8.3;
+		IPositionListener posListener = mock(IPositionListener.class);
+		((IPositionListenable) scannable).addPositionListener(posListener);
 		assertThat(scannable.getPosition(), equalTo(3.7));
-		scannable.setPosition(8.1);
-		assertThat(scannable.getPosition(), equalTo(8.1));
+
+		// Act
+		scannable.setPosition(newPosition);
+
+		// Assert
+		assertThat(scannable.getPosition(), equalTo(newPosition));
+		((IPositionListenable) scannable).removePositionListener(posListener);
+
+		ArgumentCaptor<PositionEvent> captor = ArgumentCaptor.forClass(PositionEvent.class);
+		InOrder order = inOrder(posListener);
+		order.verify(posListener).positionWillPerform(captor.capture());
+		order.verify(posListener).positionChanged(captor.capture());
+		order.verify(posListener).positionPerformed(captor.capture());
+		order.verifyNoMoreInteractions();
+
+		List<PositionEvent> posEvents = captor.getAllValues();
+		assertThat(posEvents, hasSize(3));
+		int i = 0;
+		for (PositionEvent posEvent : posEvents) {
+			assertThat(posEvent.getLevel(), is(i == 0 ? 0 : 5)); // willPerform event doesn't have level set
+			IPosition position = posEvent.getPosition();
+			assertThat(position.getNames(), contains(scannable.getName()));
+			assertThat(position.getValue(scannable.getName()), is(equalTo(Double.valueOf(newPosition))));
+			i++;
+		}
+	}
+
+	@Test
+	public void testSetPosition_withScanPosition() throws Exception {
+		// Note: nexus writing tested separately by ScannableNexusWrapperScanTest
+
+		// Arrange
+		final double newPosition = 3.8;
+		final int scanIndex = 38;
+		IPositionListener posListener = mock(IPositionListener.class);
+		((IPositionListenable) scannable).addPositionListener(posListener);
+		final IPosition scanPosition = new Scalar<Double>("sax", scanIndex, newPosition);
+		assertThat(scannable.getPosition(), equalTo(3.7));
+
+		// Act
+		scannable.setPosition(newPosition, scanPosition);
+
+		// Assert
+		assertThat(scannable.getPosition(), equalTo(newPosition));
+		((IPositionListenable) scannable).removePositionListener(posListener);
+
+		ArgumentCaptor<PositionEvent> captor = ArgumentCaptor.forClass(PositionEvent.class);
+		InOrder order = inOrder(posListener);
+		order.verify(posListener).positionWillPerform(captor.capture());
+		order.verify(posListener).positionChanged(captor.capture());
+		order.verify(posListener).positionPerformed(captor.capture());
+		order.verifyNoMoreInteractions();
+
+		List<PositionEvent> posEvents = captor.getAllValues();
+		assertThat(posEvents, hasSize(3));
+		int i = 0;
+		for (PositionEvent posEvent : posEvents) {
+			assertThat(posEvent.getLevel(), is(i == 0 ? 0 : 5)); // willPerform event doesn't have level set
+			IPosition position = posEvent.getPosition();
+			assertThat(position.getNames(), contains(scannable.getName()));
+			assertThat(position.getIndex("sax"), is(i == 1 ? -1 : 38)); // index not set for positionChanged
+			System.err.println("i = " + i + ", index = " + position.getIndex("sax"));
+			assertThat(position.getValue(scannable.getName()), is(equalTo(Double.valueOf(newPosition))));
+			i++;
+		}
 	}
 
 	@Test
