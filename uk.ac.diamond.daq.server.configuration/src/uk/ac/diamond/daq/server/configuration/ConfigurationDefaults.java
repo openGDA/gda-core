@@ -41,7 +41,6 @@ public enum ConfigurationDefaults {
 	EXPECTED_P2_PROFILE("GDA-server"),
 	INI_FILE_PROFILE_PROPERTY("eclipse.p2.profile"),
 	INI_FILE_INSTALL_AREA_PROPERTY("osgi.install.area"),
-	EXPORTED_PRODUCT_ROOT("dls-root"),
 	LOG_SERVER_CLASS("gda.util.LogServer"),
 	NAME_SERVER_CLASS("org.jacorb.naming.NameServer"),
 	NAME_SERVER_PORT("6700"),

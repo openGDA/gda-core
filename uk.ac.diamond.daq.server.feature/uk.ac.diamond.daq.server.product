@@ -58,8 +58,5 @@ http://www.eclipse.org/legal/epl-v10.html
       <feature id="uk.ac.diamond.daq.server.feature"/>
    </features>
 
-   <configurations>
-      <property name="osgi.instance.area.default" value="@config.dir/../dls-root/workspace" />
-   </configurations>
 
 </product>
