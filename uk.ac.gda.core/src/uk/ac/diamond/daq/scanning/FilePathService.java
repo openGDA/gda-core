@@ -19,6 +19,8 @@
 package uk.ac.diamond.daq.scanning;
 
 import java.io.IOException;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Paths;
 
 import org.eclipse.scanning.api.scan.IFilePathService;
 
@@ -43,8 +45,9 @@ public class FilePathService implements IFilePathService {
 	}
 
 	@Override
-	public synchronized String getNextPath() throws IOException {
+	public synchronized String getNextPath(String template) throws IOException, InvalidPathException {
 
+		if (template==null) template = "";
 		if (tracker == null) {
 			// Make a NumTracker using the property gda.data.numtracker.extension
 			tracker = new NumTracker();
@@ -59,10 +62,14 @@ public class FilePathService implements IFilePathService {
 
 		// Build the file name
 		// Default to "base" if gda.beamline.name is not set (behaviour copied from NexusDataWriter). Should never happen!
-		String filename = LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME, "base") + "-" + fileNumber + ".nxs";
+		if (template.length()>0) template = "-"+template;
+		String filename = String.format("%s%s-%s.nxs", LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME, "base"), template, fileNumber);
 
 		// Return the full file path
 		String path = dir + "/" + filename;
+
+		Paths.get(path); // Check that the path is a path that is valid.
+
 		lastPath = path;
 
 		return path;
