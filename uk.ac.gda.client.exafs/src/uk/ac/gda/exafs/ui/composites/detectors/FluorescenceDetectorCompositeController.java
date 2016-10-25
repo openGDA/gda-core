@@ -91,6 +91,9 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 
 	// Controller state
 	private double[][] theData;
+	private double[][] dataLoadedFromFile;
+	private static final String LIVE_DATA_NAME = "Acquired data";
+	public static final String LOADED_DATA_NAME = "Data loaded from file";
 	private String plotTitle;
 	private boolean applyParametersBeforeAcquire = false;
 	private volatile boolean continuousAquire; // changed to volatile, so changes to it are noticed by different threads
@@ -285,6 +288,13 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 			}
 		});
 
+		fluorescenceDetectorComposite.addShowLoadedDataListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent event) {
+				fluorescenceDetectorComposite.showHideLoadedDataset();
+			}
+		});
+
 		// setup the default dragging behaviour
 		setRegionEditableFromPreference();
 
@@ -296,6 +306,8 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 		plotDataAndUpdateCounts();
 
 		fluorescenceDetectorComposite.autoscaleAxes();
+
+		fluorescenceDetectorComposite.setEnableShowLoadedDataCheckBox(dataLoadedFromFile!=null ? true : false);
 	}
 
 	/**
@@ -350,18 +362,27 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 	 * Not thread safe, must be called from UI thread.
 	 */
 	private void plotDataAndUpdateCounts() {
+
 		if (theData != null) {
 			int element = getCurrentlySelectedElementNumber();
 
 			double[] elementData = (element < theData.length) ? theData[element] : new double[] {/* empty */};
 			Dataset dataset = DatasetFactory.createFromObject(elementData);
+			dataset.setName(LIVE_DATA_NAME);
+
+			double[] savedElementData = new double[] {};
+			if ( dataLoadedFromFile != null ) {
+				savedElementData = (element < dataLoadedFromFile.length) ? dataLoadedFromFile[element] : new double[] {/* empty */};
+			}
+			Dataset savedData = DatasetFactory.createFromObject(savedElementData);
+			savedData.setName(LOADED_DATA_NAME);
 
 			String elementName = "Element " + element;
 			fluorescenceDetectorComposite.setXAxisLabel("Channel Number (" + elementName + ")");
 			fluorescenceDetectorComposite.setElementName(elementName);
 
 			fluorescenceDetectorComposite.setPlotTitle(plotTitle);
-			fluorescenceDetectorComposite.plotDataset(dataset);
+			fluorescenceDetectorComposite.plotDatasets(dataset, savedData);
 
 			if (fluorescenceDetectorComposite.getAutoScaleOnAcquire())
 				fluorescenceDetectorComposite.autoscaleAxes();
@@ -604,10 +625,11 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 		final String filePath = openDialog.open();
 		if (filePath != null) {
 			FluoCompositeDataStore newStore = new FluoCompositeDataStore(filePath);
-			theData = newStore.readDataFromFile();
+			dataLoadedFromFile = newStore.readDataFromFile();
 			plotTitle = "Saved data";
 			replot();
 			fluorescenceDetectorComposite.autoscaleAxes();
+			fluorescenceDetectorComposite.setEnableShowLoadedDataCheckBox(true);
 		}
 	}
 
