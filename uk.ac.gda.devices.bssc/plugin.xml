@@ -202,6 +202,12 @@
            class="uk.ac.gda.devices.bssc.perspectives.BioSAXSStartUp">
      </startup>
   </extension>
+  <extension
+        point="uk.ac.diamond.daq.jython.api.scriptLocations">
+     <location
+           folder="uk.ac.gda.devices.bssc/scripts">
+     </location>
+  </extension>
   <!--<extension
         id="uk.ac.gda.devices.bssc.hideperspective"
         name="Hide Perspective"

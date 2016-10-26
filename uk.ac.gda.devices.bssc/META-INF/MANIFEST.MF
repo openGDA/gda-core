@@ -42,7 +42,8 @@ Require-Bundle: org.eclipse.ui,
  org.dawnsci.plotting.draw2d;bundle-version="1.2.0",
  uk.ac.diamond.scisoft.ncd.core;bundle-version="3.0.0",
  org.eclipse.richbeans.widgets;bundle-version="1.0.0",
- org.eclipse.richbeans.xml;bundle-version="1.0.0"
+ org.eclipse.richbeans.xml;bundle-version="1.0.0",
+ uk.ac.diamond.daq.jython.api
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: uk.ac.gda.devices.bssc,
  uk.ac.gda.devices.bssc.beans,
