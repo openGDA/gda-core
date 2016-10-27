@@ -173,7 +173,7 @@ public class NexusGroupData implements Serializable {
 
 	/**
 	 * TODO replace with hdf.object.Dataset#stringToByte Makes fixed size byte array
-	 * 
+	 *
 	 * @param text
 	 * @param maxLength
 	 *            maximum encoded length in bytes of each string
@@ -588,10 +588,7 @@ public class NexusGroupData implements Serializable {
 		if (dimensions == null || data == null)
 			return null;
 
-		if (dimensions.length < 1)
-			return null;
-
-		if (dimensions[0] < 1)
+		if (ShapeUtils.calcSize(dimensions) < 1)
 			return null;
 
 		Serializable value;
