@@ -52,7 +52,7 @@ import uk.ac.gda.devices.bssc.BioSaxsUtils;
 import uk.ac.gda.devices.bssc.beans.BSSCSessionBean;
 import uk.ac.gda.devices.bssc.beans.LocationBean;
 import uk.ac.gda.devices.bssc.beans.TitrationBean;
-import uk.ac.gda.devices.bssc.wizards.BSSCImportWizardPage;
+import uk.ac.gda.devices.bssc.ui.wizards.BSSCImportWizardPage;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 public class ImportSpreadsheetHandler implements IHandler {

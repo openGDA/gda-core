@@ -14,7 +14,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import gda.factory.FactoryException;
 import uk.ac.gda.devices.bssc.beans.BioSAXSProgressController;
 import uk.ac.gda.devices.bssc.beans.ISAXSProgress;
 
@@ -48,10 +47,7 @@ public class BioSAXSProgressModelTest {
 					controller.setISpyBAPI(bioSAXSISPyB);
 				} catch (SQLException e) {
 					e.printStackTrace();
-				} catch (FactoryException e) {
-					e.printStackTrace();
 				}
-
 			}
 		});
 	}

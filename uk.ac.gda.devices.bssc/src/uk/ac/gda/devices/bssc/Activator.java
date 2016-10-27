@@ -21,23 +21,14 @@ package uk.ac.gda.devices.bssc;
 
 import java.util.Hashtable;
 
-import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Platform;
-import org.eclipse.dawnsci.analysis.api.dataset.IDatasetMathsService;
-import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.jface.resource.ImageRegistry;
-import org.eclipse.ui.plugin.AbstractUIPlugin;
-import org.osgi.framework.Bundle;
+import org.eclipse.core.runtime.Plugin;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-
-import uk.ac.diamond.scisoft.analysis.osgi.DatasetMathsServiceImpl;
 
 /**
  * The activator class controls the plug-in life cycle
  */
-public class Activator extends AbstractUIPlugin implements BundleActivator {
+public class Activator extends Plugin implements BundleActivator {
 
 	// The plug-in ID
 	public static final String PLUGIN_ID = "uk.ac.gda.devices.bssc"; //$NON-NLS-1$
@@ -62,18 +53,6 @@ public class Activator extends AbstractUIPlugin implements BundleActivator {
 		Hashtable<String, String> props = new Hashtable<String, String>(1);
 		props = new Hashtable<String, String>(1);
 		props.put("description", "A service which replaces concrete classes in the scisoft.analysis plugin.");
-		// The following service is required for dataset plotting in the BioSAXS Results perspective
-		context.registerService(IDatasetMathsService.class, new DatasetMathsServiceImpl(), props);
-	}
-
-	@Override
-	protected void initializeImageRegistry(ImageRegistry registry) {
-		super.initializeImageRegistry(registry);
-		Bundle bundle = Platform.getBundle(PLUGIN_ID);
-
-		ImageDescriptor bioISISImage = ImageDescriptor.createFromURL(FileLocator.find(bundle, new Path(
-				DATA_ANALYSIS_IMAGE_ID), null));
-		registry.put(DATA_ANALYSIS_IMAGE_ID, bioISISImage);
 	}
 
 	@Override

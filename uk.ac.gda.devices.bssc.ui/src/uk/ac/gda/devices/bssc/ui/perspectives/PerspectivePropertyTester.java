@@ -1,4 +1,4 @@
-package uk.ac.gda.devices.bssc.perspectives;
+package uk.ac.gda.devices.bssc.ui.perspectives;
 
 import org.eclipse.core.expressions.PropertyTester;
 import org.eclipse.ui.IPerspectiveDescriptor;

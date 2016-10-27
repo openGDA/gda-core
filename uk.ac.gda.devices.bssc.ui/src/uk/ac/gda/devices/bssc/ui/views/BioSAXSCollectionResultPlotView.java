@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.devices.bssc.views;
+package uk.ac.gda.devices.bssc.ui.views;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,4 +1,4 @@
-package uk.ac.gda.devices.bssc.wizards;
+package uk.ac.gda.devices.bssc.ui.wizards;
 
 import java.io.File;
 import java.io.InputStream;

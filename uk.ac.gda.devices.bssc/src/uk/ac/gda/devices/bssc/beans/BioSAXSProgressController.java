@@ -18,6 +18,17 @@
 
 package uk.ac.gda.devices.bssc.beans;
 
+import java.sql.SQLException;
+import java.util.List;
+
+import org.eclipse.core.databinding.observable.list.IObservableList;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.data.metadata.GDAMetadataProvider;
 import gda.device.Device;
 import gda.device.DeviceException;
@@ -29,26 +40,9 @@ import gda.jython.InterfaceProvider;
 import gda.observable.IObservable;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
-
-import java.sql.SQLException;
-import java.util.List;
-
-import org.eclipse.core.databinding.observable.list.IObservableList;
-import org.eclipse.core.databinding.observable.list.WritableList;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PlatformUI;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import uk.ac.gda.devices.bssc.ispyb.BioSAXSISPyB;
 import uk.ac.gda.devices.bssc.ispyb.ISAXSDataCollection;
 import uk.ac.gda.devices.bssc.ispyb.ISpyBStatusInfo;
-import uk.ac.gda.devices.bssc.ui.BioSAXSProgressView;
 
 public class BioSAXSProgressController implements IObservable, Configurable {
 	private static final Logger logger = LoggerFactory.getLogger(BioSAXSProgressController.class);
@@ -59,7 +53,6 @@ public class BioSAXSProgressController implements IObservable, Configurable {
 	private List<ISAXSDataCollection> saxsDataCollections;
 	private Device simpleUDPServer;
 	ObservableComponent obsComp = new ObservableComponent();
-	protected BioSAXSProgressView view;
 	private String udpListenerName;
 
 	@Override
@@ -78,13 +71,13 @@ public class BioSAXSProgressController implements IObservable, Configurable {
 			blSessionId = bioSAXSISPyB.getSessionForVisit(visit);
 		} catch (DeviceException e) {
 			logger.error("DeviceException getting visit", e);
-		} 
+		}
 		catch (SQLException e) {
 			logger.error("SQLEXception getting session id", e);
 		}
 	}
 
-	public void setISpyBAPI(BioSAXSISPyB bioSAXSISPyB) throws FactoryException {
+	public void setISpyBAPI(BioSAXSISPyB bioSAXSISPyB) {
 		this.bioSAXSISPyB = bioSAXSISPyB;
 	}
 
@@ -98,12 +91,12 @@ public class BioSAXSProgressController implements IObservable, Configurable {
 					saxsDataCollections = getDataCollectionsFromISPyB();
 
 					if (saxsDataCollections != null) {
-						Display.getDefault().asyncExec(new Runnable() {
-							@Override
-							public void run() {
-								loadModelFromISpyB(saxsDataCollections);
-							}
-						});
+//						Display.getDefault().asyncExec(new Runnable() {
+//							@Override
+//							public void run() {
+//								loadModelFromISpyB(saxsDataCollections);
+//							}
+//						});
 					}
 					if (monitor.isCanceled())
 						return Status.CANCEL_STATUS;
@@ -142,15 +135,15 @@ public class BioSAXSProgressController implements IObservable, Configurable {
 				if (progress != null) {
 					updateModel(progress, collectionStatusInfo, reductionStatusInfo);
 				} else {
-					
+
 					addToModel(experimentId, dataCollectionId, sampleName, collectionStatusInfo, reductionStatusInfo);
 				}
 			}
 		}
-		
+
 		return bioSAXSProgressModel;
 	}
-	
+
 	public void updateStatusInfoFromISpyB(final long dataCollectionId) {
 		try {
 			final ISAXSDataCollection dataCollection = bioSAXSISPyB.getSAXSDataCollection(dataCollectionId);
@@ -165,19 +158,14 @@ public class BioSAXSProgressController implements IObservable, Configurable {
 				addToModel(experimentId, dataCollectionId, dataCollection.getSampleName(), collectionStatusInfo,
 						reductionStatusInfo);
 			}
-
-			scrollToUpdatedItem();
-
 		} catch (SQLException e) {
 			logger.error("SQLException", e);
 		}
 	}
-	
+
 	private void updateModel(ISAXSProgress progress, ISpyBStatusInfo collectionStatusInfo, ISpyBStatusInfo reductionStatusInfo) {
 		progress.setCollectionStatusInfo(collectionStatusInfo);
 		progress.setReductionStatusInfo(reductionStatusInfo);
-
-		scrollToUpdatedItem();
 	}
 
 	private void addToModel(long experimentId, long dataCollectionId, String sampleName,
@@ -188,20 +176,8 @@ public class BioSAXSProgressController implements IObservable, Configurable {
 		progress.setReductionStatusInfo(reductionStatusInfo);
 
 		bioSAXSProgressModel.add(progress);
-
-		scrollToUpdatedItem();
 	}
 
-	private void scrollToUpdatedItem() {
-		final IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-
-		view = (BioSAXSProgressView) window.getActivePage().findView(BioSAXSProgressView.ID);
-
-		if (view != null) {
-			view.reveal();
-		}
-	}
-	
 	protected ISAXSProgress getProgressItemFromModel(List<ISAXSProgress> list, long id) {
 		for (ISAXSProgress progressItem : list) {
 			if (progressItem.getDataCollectionId() == id) {
@@ -230,12 +206,12 @@ public class BioSAXSProgressController implements IObservable, Configurable {
 	}
 
 	public void setModel(final List<ISAXSProgress> list) {
-		Display.getDefault().asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				bioSAXSProgressModel = new WritableList(list, ISAXSProgress.class);
-			}
-		});
+//		Display.getDefault().asyncExec(new Runnable() {
+//			@Override
+//			public void run() {
+//				bioSAXSProgressModel = new WritableList(list, ISAXSProgress.class);
+//			}
+//		});
 	}
 
 	public List<ISAXSProgress> getModel() {
@@ -245,7 +221,7 @@ public class BioSAXSProgressController implements IObservable, Configurable {
 	public void setUDPListenerName(String simpleUDPServer) {
 		this.udpListenerName = simpleUDPServer;
 	}
-	
+
 	public String getUDPListenerName() {
 		return udpListenerName;
 	}
@@ -271,12 +247,12 @@ class SimpleUDPReceiver implements IObserver {
 		final long saxsDataCollectionId = Long.valueOf((String) dataCollectionId);
 		System.out.println("UDP update recieved for Sample : " + saxsDataCollectionId);
 
-		Display.getDefault().asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				controller.updateStatusInfoFromISpyB(saxsDataCollectionId);
-			}
-		});
+//		Display.getDefault().asyncExec(new Runnable() {
+//			@Override
+//			public void run() {
+//				controller.updateStatusInfoFromISpyB(saxsDataCollectionId);
+//			}
+//		});
 
 	}
 }

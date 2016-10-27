@@ -1,4 +1,4 @@
-package uk.ac.gda.devices.bssc.wizards;
+package uk.ac.gda.devices.bssc.ui.wizards;
 
 import java.io.IOException;
 import java.io.InputStream;

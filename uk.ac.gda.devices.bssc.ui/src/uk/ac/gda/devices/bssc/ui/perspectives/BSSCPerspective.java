@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.devices.bssc.perspectives;
+package uk.ac.gda.devices.bssc.ui.perspectives;
 
 import java.util.ArrayList;
 import java.util.HashMap;

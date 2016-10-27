@@ -1,4 +1,4 @@
-package uk.ac.gda.devices.bssc.wizards;
+package uk.ac.gda.devices.bssc.ui.wizards;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jface.viewers.IStructuredSelection;

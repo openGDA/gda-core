@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.ac.gda.devices.bssc.views;
+package uk.ac.gda.devices.bssc.ui.views;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionListener;

@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.devices.bssc.wizards;
+package uk.ac.gda.devices.bssc.ui.wizards;
 
 import java.io.File;
 import java.io.FileInputStream;
