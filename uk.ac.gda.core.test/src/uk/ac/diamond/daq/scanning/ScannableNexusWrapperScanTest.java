@@ -713,9 +713,9 @@ public class ScannableNexusWrapperScanTest {
 				dataNode = nexusObject.getDataNode(valueFieldName);
 				assertNotNull(dataNode);
 				dataset = dataNode.getDataset().getSlice();
+				assertEquals(0, dataset.getRank());
 				shape = dataset.getShape();
-				assertArrayEquals(new int[] { 1 }, shape);
-				assertEquals(positionArray[fieldIndex], dataset.getObject(0));
+				assertEquals(positionArray[fieldIndex], dataset.getObject());
 
 				if (paths != null && paths.length > fieldIndex) {
 					// and to the location referred to by the location map
@@ -751,12 +751,11 @@ public class ScannableNexusWrapperScanTest {
 			DataNode dataNode = positioner.getDataNode(attrName);
 			assertNotNull(dataNode);
 			IDataset dataset = dataNode.getDataset().getSlice();
-			int[] shape = dataset.getShape();
-			assertArrayEquals(new int[] { 1 }, shape);
+			assertEquals(0, dataset.getRank());
 			Object expectedValue = attributeScannable.getScanMetadataAttribute(attrName);
 			assertEquals(DTypeUtils.getDTypeFromObject(expectedValue),
 					((Dataset) dataset).getDType());
-			assertEquals(expectedValue, dataset.getObject(0));
+			assertEquals(expectedValue, dataset.getObject());
 		}
 	}
 
