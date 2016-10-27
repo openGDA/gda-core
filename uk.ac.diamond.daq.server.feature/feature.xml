@@ -51,6 +51,10 @@ http://www.eclipse.org/legal/epl-v10.html
          id="uk.ac.diamond.daq.vmxi.server.feature"
          version="0.0.0"/>
 
+   <includes
+         id="uk.ac.diamond.daq.scm.feature"
+         version="0.0.0"/>
+
    <plugin
          id="uk.ac.diamond.daq.server"
          download-size="0"
