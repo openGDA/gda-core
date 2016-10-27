@@ -19,7 +19,6 @@
 package gda.data.metadata.icat;
 
 import gda.configuration.properties.LocalProperties;
-import gda.jython.authoriser.AuthoriserProvider;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -28,11 +27,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Joiner;
+import com.google.common.base.Optional;
 
 /**
  * The Icat which talks to the Diamond ICAT database.
@@ -51,48 +51,17 @@ import com.google.common.base.Joiner;
  *                                                                                   +------------------+
  * </pre>
  */
-public class DLSdicat extends IcatBase {
+public class DLSdicat extends DlsIcatBase {
 	private static final Logger logger = LoggerFactory.getLogger(DLSdicat.class);
 
-	/**
-	 * Name of the java property which defines the Icat database username
-	 */
-	public static final String USER_PROP = "gda.data.metadata.dlsicat.user";
-
-	/**
-	 * Name of the java property which defines the Icat database password
-	 */
-	public static final String PASSWORD_PROP = "gda.data.metadata.dlsicat.password";
-
-	/**
-	 * The access string to retrieve the visit ID from the database.
-	 */
-	private static final String VISIT_QUERY = "VISIT";
-
-	/**
-	 * The access string to retrieve the experiment ID from the database.
-	 */
-	private static final String TITLE_QUERY = "TITLE";
-
 	@Override
-	protected String getVisitIDAccessName() {
-		return VISIT_QUERY;
-	}
-
-	@Override
-	protected String getExperimentTitleAccessName() {
-		return TITLE_QUERY;
-	}
-
-	protected String getUsefulVisits(String user) throws Exception {
+	protected List<String> getVisitsForUser(Connection connection, String user) throws Exception {
 		ResultSet resultSet = null;
-		Connection connection = null;
+
 		PreparedStatement prepared = null;
 		List<String> value;
 
 		try {
-			connection = connectToDatabase();
-
 			prepared = connection.prepareStatement("select lower(visit_id) from icatdls42.investigation i "+
 						"inner join icatdls42.instrument ins on i.instrument_id = ins.id "+
 						"inner join icatdls42.shift s on s.investigation_id = i.id "+
@@ -115,19 +84,6 @@ public class DLSdicat extends IcatBase {
 
 			value = concatenateResultSet(resultSet);
 
-			// append to the list extra options if local staff
-			if (AuthoriserProvider.getAuthoriser().isLocalStaff(user)) {
-				// allow beamline staff to use the current visit ID
-				for (String visitPrefix : new String[] {"CM", "NR"}) {
-					String currentVisitID = getLatestVisitWithPrefix(connection, visitPrefix);
-					if (currentVisitID != null && !currentVisitID.isEmpty()) {
-						value.add(currentVisitID);
-					}
-				}
-			}
-
-		} catch (Exception e) {
-			throw new Exception("Processing or reading data from dicat database", e);
 		} finally {
 			if (resultSet != null && !resultSet.isClosed()) {
 				try {
@@ -139,37 +95,27 @@ public class DLSdicat extends IcatBase {
 			if (prepared != null && !prepared.isClosed()) {
 				try {
 					prepared.close();
-				} catch (SQLException e) {
-					logger.error("error closing database connection", e);
-				}
-			}if (connection != null) {
-				try {
-					connection.close();
 				} catch (SQLException e) {
 					logger.error("error closing database connection", e);
 				}
 			}
 		}
 
-		Joiner joiner = Joiner.on(", ");
-		return joiner.join(value);
+		return value;
 	}
 
-	protected String getTitleForVisit(String visitID) throws Exception {
+	@Override
+	protected String getTitleForVisitUsingConnection(String visitID, Connection connection) throws Exception {
 		ResultSet resultSet = null;
-		Connection connection = null;
 		PreparedStatement prepared = null;
 
 		try {
-			connection = connectToDatabase();
 			prepared = connection.prepareStatement("select title from icatdls42.investigation i where lower(i.visit_id) = ? ");
 			prepared.setString(1, visitID);
 			resultSet = prepared.executeQuery();
 			if (resultSet.next())
 				return resultSet.getString("title");
 			return null;
-		} catch (Exception e) {
-			throw new Exception("Processing or reading data from dicat database", e);
 		} finally {
 			if (resultSet != null && !resultSet.isClosed()) {
 				try {
@@ -181,12 +127,6 @@ public class DLSdicat extends IcatBase {
 			if (prepared != null && !prepared.isClosed()) {
 				try {
 					prepared.close();
-				} catch (SQLException e) {
-					logger.error("error closing database connection", e);
-				}
-			}if (connection != null) {
-				try {
-					connection.close();
 				} catch (SQLException e) {
 					logger.error("error closing database connection", e);
 				}
@@ -195,15 +135,7 @@ public class DLSdicat extends IcatBase {
 	}
 
 	@Override
-	protected String getValue(String visitIDFilter, String userNameFilter, String accessName) throws Exception {
-		if (VISIT_QUERY.equals(accessName))
-			return getUsefulVisits(userNameFilter);
-		if (TITLE_QUERY.equals(accessName))
-			return getTitleForVisit(visitIDFilter);
-		throw new IllegalArgumentException("unknown query request");
-	}
-
-	private String getLatestVisitWithPrefix(Connection connection, String visitPrefix) throws SQLException {
+	protected Optional<String> getLatestVisitWithPrefix(Connection connection, String visitPrefix) throws SQLException {
 
 		visitPrefix += "%";
 
@@ -220,12 +152,16 @@ public class DLSdicat extends IcatBase {
 			statement.setString(1, visitPrefix);
 			statement.setString(2, getInstrumentName());
 			resultSet = statement.executeQuery();
-			if (resultSet.next())
-				return resultSet.getString(1);
-			return null;
+			if (resultSet.next()) {
+				final String visit = resultSet.getString(1);
+				if (!visit.isEmpty()) {
+					return Optional.of(visit);
+				}
+			}
+			return Optional.absent();
 		} catch (Exception e) {
 			logger.error("Unable to retrieve visits from database", e);
-			return "";
+			return Optional.absent();
 		} finally {
 			if (resultSet != null && !resultSet.isClosed()) {
 				try {
@@ -244,27 +180,21 @@ public class DLSdicat extends IcatBase {
 		}
 	}
 
-	private Connection connectToDatabase() throws Exception {
+	@Override
+	protected Connection connectToDatabase() throws Exception {
 		Connection connection = null;
 		Class.forName("oracle.jdbc.driver.OracleDriver").newInstance();
 
-		java.util.Properties info = new java.util.Properties();
+		final String username = getMandatoryProperty(USER_PROP, "username");
+		final String password = getMandatoryProperty(PASSWORD_PROP, "password");
+		final String url = getMandatoryProperty(URL_PROP, "URL");
 
-		final String username = LocalProperties.get(USER_PROP);
-		if (username == null) {
-			throw new RuntimeException("DiCAT username not set. Have you set the " + USER_PROP + " property?");
-		}
-
-		final String password = LocalProperties.get(PASSWORD_PROP);
-		if (password == null) {
-			throw new RuntimeException("DiCAT password not set. Have you set the " + PASSWORD_PROP + " property?");
-		}
-
+		Properties info = new Properties();
 		info.put ("user", username);
 		info.put ("password", password);
 		info.put ("oracle.jdbc.timezoneAsRegion", "false");
 
-		connection = DriverManager.getConnection(LocalProperties.get(URL_PROP), info);
+		connection = DriverManager.getConnection(url, info);
 		logger.info("Successfully connected to DiCat, using " + LocalProperties.get(URL_PROP));
 		return connection;
 	}

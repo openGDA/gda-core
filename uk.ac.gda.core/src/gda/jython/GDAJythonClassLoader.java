@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
+ * Copyright © 2016 Diamond Light Source Ltd., Science and Technology
  * Facilities Council
  *
  * This file is part of GDA.
@@ -37,7 +37,7 @@ import com.google.common.collect.ImmutableMap;
 
 /**
  * A Classloader for use with Jython in the GDA environment. It retrieves the class from the correct bundle within the
- * product based on a map initialised at startup from the BundleContext or delegates to its parent..
+ * product's OSGi context based on a map initialised at startup from the BundleContext or delegates to its parent.
  */
 public class GDAJythonClassLoader extends ClassLoader {
 
@@ -138,17 +138,12 @@ public class GDAJythonClassLoader extends ClassLoader {
 
 		Class<?> class1 = findLoadedClass(name);
 		if (class1 == null) {
-			final Map<Bundle, Boolean> matchingBundles = getMatchingBundlesForName(name);
-			final Set<Bundle> searchBundles = matchingBundles != null ? matchingBundles.keySet() : ALL_BUNDLES;
-
-			for (Bundle bundle : searchBundles) {
-				final String bundleName = bundle.getSymbolicName();
-				if (SKIPPED_BUNDLES.contains(bundleName)) {
+			for (Bundle bundle : getMatchingBundlesForName(name).keySet()) {
+				if (SKIPPED_BUNDLES.contains(bundle.getSymbolicName())) {
 					continue;
 				}
 				try {
-					class1 = bundle.loadClass(name);
-					return class1;
+					return bundle.loadClass(name);
 				} catch (ClassNotFoundException er) {
 					continue;
 				}
@@ -191,18 +186,18 @@ public class GDAJythonClassLoader extends ClassLoader {
 	 * import directives between Java and Python source code, it is perfectly possible that
 	 * <code>potentialJavaClassName</code> will in fact be Python source module name which therefore cannot be loaded
 	 * via the Java classloader. In this case it may also contain the dot Java package delimiter (e.g. __gda__.console)
-	 * however, it will not be found in {@link #PACKAGE_MAP} and so the returned matchingBundles will be null. <br>
+	 * however, it will not be found in {@link #PACKAGE_MAP} and so the returned matchingBundles will be empty.<br>
 	 * <br>
 	 * If <code>potentialJavaClassName</code> corresponds to a real Java class, it will be in its fully qualified form
 	 * and so the last dot in the string will separate the package name from the class name. Thus the package name can
 	 * be extracted and matched against {@link #PACKAGE_MAP}.
 	 *
 	 * @param potentialJavaClassName    Could be a fully qualified Java Class name or the name of a Python module.
-	 * @return                          A Map of Bundle to whether the package in potentialJavaClassName is marked
-	 *                                  as included in the Jython API for the Bundle.
+	 * @return                          A Map of Bundle to whether the package in potentialJavaClassName is marked as
+	 *                                  included in the Jython API for the Bundle. Will be empty if no match can be found
 	 */
 	private Map<Bundle, Boolean> getMatchingBundlesForName(final String potentialJavaClassName) {
-		Map<Bundle, Boolean> matchingBundles = null;
+		Map<Bundle, Boolean> matchingBundles = new HashMap<>();
 		final int packageBoundary = potentialJavaClassName.lastIndexOf('.');
 		if (packageBoundary > 0) {
 			final String packageName = potentialJavaClassName.substring(0, packageBoundary);
