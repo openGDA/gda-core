@@ -47,16 +47,13 @@ public class ScriptingPerspective implements IPerspectiveFactory {
 
 	private IPageLayout factory;
 
-	public ScriptingPerspective() {
-		super();
-	}
-
 	@Override
 	public void createInitialLayout(IPageLayout factory) {
 		this.factory = factory;
 		addViews();
 		addActionSets();
 		addNewWizardShortcuts();
+		addViewShortcuts();
 	}
 
 	private void addViews() {
@@ -94,5 +91,10 @@ public class ScriptingPerspective implements IPerspectiveFactory {
 	private void addNewWizardShortcuts() {
 		factory.addNewWizardShortcut("org.eclipse.ui.wizards.new.folder");
 		factory.addNewWizardShortcut("org.eclipse.ui.wizards.new.file");
+	}
+
+	private void addViewShortcuts() {
+		factory.addShowViewShortcut(IPageLayout.ID_PROBLEM_VIEW);
+		factory.addShowViewShortcut(IPageLayout.ID_OUTLINE);
 	}
 }
