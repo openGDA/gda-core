@@ -55,6 +55,7 @@ public class AdapterFactoryBeanDefinitionParser implements BeanDefinitionParser 
 		final BeanReference netServiceBeanRef = new RuntimeBeanReference(CorbaNamespaceHandler.NET_SERVICE_BEAN_NAME);
 
 		final AbstractBeanDefinition beanDef = new GenericBeanDefinition();
+		beanDef.setResource(parserContext.getReaderContext().getResource());
 		beanDef.setBeanClass(AdapterFactory.class);
 		beanDef.getConstructorArgumentValues().addGenericArgumentValue(namespace);
 		beanDef.getConstructorArgumentValues().addGenericArgumentValue(netServiceBeanRef);

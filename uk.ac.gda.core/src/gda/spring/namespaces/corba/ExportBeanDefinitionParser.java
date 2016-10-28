@@ -45,6 +45,7 @@ public class ExportBeanDefinitionParser implements BeanDefinitionParser {
 		CorbaNamespaceHandler.registerNetServiceFactoryBean(parserContext.getRegistry());
 
 		AbstractBeanDefinition beanDef = new GenericBeanDefinition();
+		beanDef.setResource(parserContext.getReaderContext().getResource());
 		beanDef.setBeanClass(SpringImplFactory.class);
 		beanDef.getPropertyValues().addPropertyValue("namespace", namespace);
 		beanDef.getPropertyValues().addPropertyValue("netService", new RuntimeBeanReference(CorbaNamespaceHandler.NET_SERVICE_BEAN_NAME));
