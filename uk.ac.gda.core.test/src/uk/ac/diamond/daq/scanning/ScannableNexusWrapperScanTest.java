@@ -29,7 +29,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static uk.ac.diamond.daq.scanning.ScannableNexusWrapper.COLLECTION_NAME_SCANNABLES;
-import static uk.ac.diamond.daq.scanning.ScannableNexusWrapper.FIELD_NAME_VALUE_DEMAND;
+import static uk.ac.diamond.daq.scanning.ScannableNexusWrapper.FIELD_NAME_VALUE_SET;
 
 import java.io.File;
 import java.io.IOException;
@@ -553,7 +553,7 @@ public class ScannableNexusWrapperScanTest {
 
 		// Check axes
 		List<String> expectedAxesNames = Stream.concat(
-				scannableNames.stream().map(x -> x + "_" + FIELD_NAME_VALUE_DEMAND),
+				scannableNames.stream().map(x -> x + "_" + FIELD_NAME_VALUE_SET),
 				Arrays.asList("real", "imaginary").stream()).collect(Collectors.toList());
 		assertAxes(nxData, expectedAxesNames.toArray(new String[expectedAxesNames.size()]));
 
@@ -573,18 +573,18 @@ public class ScannableNexusWrapperScanTest {
 			assertNotNull(positioner);
 
 			// Demand values should be 1D
-			dataNode = positioner.getDataNode(FIELD_NAME_VALUE_DEMAND);
+			dataNode = positioner.getDataNode(FIELD_NAME_VALUE_SET);
 			dataset = dataNode.getDataset().getSlice();
 			shape = dataset.getShape();
 			assertEquals(1, shape.length);
 			assertEquals(sizes[scannableIndex], shape[0]);
 
-			String nxDataFieldName = scannableName + "_" + FIELD_NAME_VALUE_DEMAND;
+			String nxDataFieldName = scannableName + "_" + FIELD_NAME_VALUE_SET;
 			assertSame(dataNode, nxData.getDataNode(nxDataFieldName));
 			assertIndices(nxData, nxDataFieldName, scannableIndex);
 			assertTarget(nxData, nxDataFieldName, rootNode,
 					"/entry/instrument/" + (inLocationMap ? COLLECTION_NAME_SCANNABLES + "/" : "") +
-					scannableName + "/" + FIELD_NAME_VALUE_DEMAND);
+					scannableName + "/" + FIELD_NAME_VALUE_SET);
 
 			String[] paths = null;
 			String[] units = null;
@@ -714,7 +714,6 @@ public class ScannableNexusWrapperScanTest {
 				assertNotNull(dataNode);
 				dataset = dataNode.getDataset().getSlice();
 				assertEquals(0, dataset.getRank());
-				shape = dataset.getShape();
 				assertEquals(positionArray[fieldIndex], dataset.getObject());
 
 				if (paths != null && paths.length > fieldIndex) {

@@ -18,11 +18,11 @@
 
 package gda.device.scannable;
 
-import gda.device.DeviceException;
-import gda.factory.FactoryException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.device.DeviceException;
+import gda.factory.FactoryException;
 
 public class ScannableMotorWithDemandPosition extends ScannableMotor {
 
@@ -38,8 +38,8 @@ public class ScannableMotorWithDemandPosition extends ScannableMotor {
 		if (extraNames.length != 0 || inputNames.length != 1) {
 			throw new IllegalStateException("Extra or input names have been set. This is not supported");
 		}
-		// Add a extra name to return the demand position
-		setExtraNames(new String[] { getName() + "_demand" });
+		// Add a extra name to return the set position
+		setExtraNames(new String[] { getName() + "_set" });
 		// Check that only one output format is set
 		if (outputFormat.length == 1) {
 			// Copy the output format to give the same format for both the actual and demand positions

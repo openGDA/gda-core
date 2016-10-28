@@ -83,12 +83,12 @@ public class ScannableNexusWrapper<N extends NXobject> implements IScannable<Obj
 	public static final String ATTR_NAME_UNITS = "units";
 
 	/**
-	 * The field name 'value_demand', used for the requested value of a scannable,
+	 * The field name 'value_set', used for the requested value of a scannable,
 	 * e.g. a motor. Note that this should be a constant in {@link NXpositioner}, but
 	 * it hasn't been added yet. When this has happened, the nexus base classes should be
 	 * regenerated and the constant from this {@link NXpositioner} used instead.
 	 */
-	public static final String FIELD_NAME_VALUE_DEMAND = "value_demand";
+	public static final String FIELD_NAME_VALUE_SET = "value_set";
 
 	/**
 	 * The GDA8 scannable being wrapped.
@@ -180,7 +180,7 @@ public class ScannableNexusWrapper<N extends NXobject> implements IScannable<Obj
 		NexusObjectWrapper<N> nexusDelegate = new NexusObjectWrapper<>(
 						scannable.getName(), nexusObject, defaultDataField);
 		if (info.getScanRole(getName()) == ScanRole.SCANNABLE) {
-			nexusDelegate.setDefaultAxisDataFieldName(FIELD_NAME_VALUE_DEMAND);
+			nexusDelegate.setDefaultAxisDataFieldName(FIELD_NAME_VALUE_SET);
 		}
 		if (hasLocationMapEntry()) {
 			nexusDelegate.setCollectionName(COLLECTION_NAME_SCANNABLES);
@@ -269,7 +269,7 @@ public class ScannableNexusWrapper<N extends NXobject> implements IScannable<Obj
 		positionDelegate.firePositionWillPerform(position);
 		scannable.moveTo(value);
 		positionDelegate.firePositionPerformed(getLevel(), position);
-	
+
 		if (scanPosition != null && shouldWritePosition()) {
 			write(value, getPositionArray(), scanPosition);
 		}
@@ -359,10 +359,10 @@ public class ScannableNexusWrapper<N extends NXobject> implements IScannable<Obj
 				// create the 'value_demand' dataset (can't use writeableDatasets map as the
 				// order of entries in that map corresponds to elements in getPositionArray, which
 				// does not include the demand value
-				demandValueDataset = createLazyWritableDataset(nexusObject, FIELD_NAME_VALUE_DEMAND,
+				demandValueDataset = createLazyWritableDataset(nexusObject, FIELD_NAME_VALUE_SET,
 						Double.class, 1, new int[] { 1 });
-				nexusObject.setAttribute(FIELD_NAME_VALUE_DEMAND, ATTR_NAME_LOCAL_NAME,
-						getName() + "." + FIELD_NAME_VALUE_DEMAND);
+				nexusObject.setAttribute(FIELD_NAME_VALUE_SET, ATTR_NAME_LOCAL_NAME,
+						getName() + "." + FIELD_NAME_VALUE_SET);
 			}
 		}
 

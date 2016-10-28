@@ -259,8 +259,8 @@ public class ScannableNexusWrapperTest {
 		assertThat(nexusObjectProvider.getCategory(), nullValue());
 		assertThat(nexusObjectProvider.getCollectionName(), nullValue());
 		assertThat(nexusObjectProvider.getAxisDataFieldNames(),
-				contains("input1", "value_demand"));
-		assertThat(nexusObjectProvider.getDefaultAxisDataFieldName(), equalTo("value_demand"));
+				contains("input1", "value_set"));
+		assertThat(nexusObjectProvider.getDefaultAxisDataFieldName(), equalTo("value_set"));
 
 		NXpositioner nexusObject = (NXpositioner) nexusObjectProvider.getNexusObject();
 		assertThat(nexusObject, notNullValue());
@@ -277,7 +277,7 @@ public class ScannableNexusWrapperTest {
 			assertThat(valueDataNode.getDataset(), notNullValue());
 		}
 
-		DataNode valueDemandDataNode = nexusObject.getDataNode("value_demand");
+		DataNode valueDemandDataNode = nexusObject.getDataNode("value_set");
 		assertThat(valueDemandDataNode, notNullValue());
 		assertThat(valueDemandDataNode.getDataset(), notNullValue());
 	}

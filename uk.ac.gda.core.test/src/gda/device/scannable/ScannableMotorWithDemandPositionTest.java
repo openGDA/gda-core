@@ -27,6 +27,12 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import org.jscience.physics.quantities.Quantity;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
 import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
 import gda.device.Motor;
@@ -37,11 +43,6 @@ import gda.factory.Finder;
 import gda.factory.ObjectFactory;
 import junit.framework.Assert;
 import junitx.framework.ArrayAssert;
-
-import org.jscience.physics.quantities.Quantity;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 
 /**
  * These tests have been copied from ScannableMotorTest to try and ensure ScannableMotorWithDemandPosition behaves the same where it makes sense.
@@ -106,7 +107,7 @@ public class ScannableMotorWithDemandPositionTest {
 		// Check the extra_name is correct
 		String extra_name = sm.getExtraNames()[0];
 		String input_name = sm.getInputNames()[0];
-		assertTrue("Extra name for demand is wrong", extra_name.equals(input_name + "_demand"));
+		assertTrue("Extra name for demand is wrong", extra_name.equals(input_name + "_set"));
 	}
 
 	@Test(expected = DeviceException.class)
@@ -151,7 +152,7 @@ public class ScannableMotorWithDemandPositionTest {
 	@Test
 	public void testToFormattedString() throws Exception {
 		when(motor.getPosition()).thenReturn(.01); // mm
-		assertEquals("sm : sm: 10.000micron sm_demand: unknownmicron (-1000.0:1000.0)", sm.toFormattedString());
+		assertEquals("sm : sm: 10.000micron sm_set: unknownmicron (-1000.0:1000.0)", sm.toFormattedString());
 	}
 
 	@Test(expected = RuntimeException.class)
@@ -168,7 +169,7 @@ public class ScannableMotorWithDemandPositionTest {
 		sm.setMotor(motor);
 		sm.setMotorLimitsComponent(null);
 		sm.configure();
-		assertEquals("sm : sm: 0.0000 sm_demand: unknown", sm.toFormattedString());
+		assertEquals("sm : sm: 0.0000 sm_set: unknown", sm.toFormattedString());
 	}
 
 	@Test
@@ -179,7 +180,7 @@ public class ScannableMotorWithDemandPositionTest {
 		sm.configure();
 		sm.asynchronousMoveTo(10.0);
 		when(motor.getPosition()).thenReturn(.01);
-		assertEquals("sm : sm: 0.010000 sm_demand: 10.000", sm.toFormattedString());
+		assertEquals("sm : sm: 0.010000 sm_set: 10.000", sm.toFormattedString());
 	}
 
 	@Test
@@ -187,7 +188,7 @@ public class ScannableMotorWithDemandPositionTest {
 		when(motor.getPosition()).thenReturn(.01); // mm
 		when(motor.getMinPosition()).thenReturn(-.02);// mm
 		when(motor.getMaxPosition()).thenReturn(.02);// mm
-		assertEquals("sm : sm: 10.000micron sm_demand: unknownmicron (-1000.0:1000.0) mot(-20.000:20.000)", sm.toFormattedString());
+		assertEquals("sm : sm: 10.000micron sm_set: unknownmicron (-1000.0:1000.0) mot(-20.000:20.000)", sm.toFormattedString());
 	}
 
 	@Test
@@ -196,7 +197,7 @@ public class ScannableMotorWithDemandPositionTest {
 		sm.setOffset(1.);
 		assertEquals(1001., sm.getUpperGdaLimits()[0], .000001); // micron
 		assertEquals(-999., sm.getLowerGdaLimits()[0], .000001); // micron
-		assertEquals("sm : sm: 11.000micron(+1.0000) sm_demand: unknownmicron (-999.00:1001.0)", sm.toFormattedString());
+		assertEquals("sm : sm: 11.000micron(+1.0000) sm_set: unknownmicron (-999.00:1001.0)", sm.toFormattedString());
 	}
 
 	@Test
@@ -205,7 +206,7 @@ public class ScannableMotorWithDemandPositionTest {
 		sm.setOffset(1.);
 		assertEquals(1001., sm.getUpperGdaLimits()[0], .000001); // micron
 		assertEquals(-999., sm.getLowerGdaLimits()[0], .000001); // micron
-		assertEquals("sm : sm: 11.000micron(+1.0000) sm_demand: unknownmicron (-999.00:1001.0)", sm.toFormattedString());
+		assertEquals("sm : sm: 11.000micron(+1.0000) sm_set: unknownmicron (-999.00:1001.0)", sm.toFormattedString());
 	}
 
 	@Test
@@ -514,7 +515,7 @@ public class ScannableMotorWithDemandPositionTest {
 		sm.setScalingFactor(-1.);
 		sm.setLowerGdaLimits(-1000.);
 		sm.setUpperGdaLimits(800.);
-		assertEquals("sm : sm: -10.000micron sm_demand: unknownmicron (-1000.0:800.00) mot(-10.000:20.000)", sm.toFormattedString());
+		assertEquals("sm : sm: -10.000micron sm_set: unknownmicron (-1000.0:800.00) mot(-10.000:20.000)", sm.toFormattedString());
 	}
 
 	@Test
