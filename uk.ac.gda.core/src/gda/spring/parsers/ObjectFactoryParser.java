@@ -307,7 +307,7 @@ public class ObjectFactoryParser extends AbstractSingleBeanDefinitionParser {
 
 		// Add new value to the list of values for the property
 		ManagedList<Object> ml = (ManagedList<Object>) pv.getValue();
-		NamespaceUtils.addToManagedList(ml, object);
+		ml.add(object);
 	}
 
 	/**

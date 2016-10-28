@@ -19,7 +19,6 @@
 package gda.spring.namespaces.corba;
 
 import gda.factory.corba.util.SpringImplFactory;
-import gda.spring.parsers.NamespaceUtils;
 
 import java.util.Arrays;
 
@@ -53,7 +52,7 @@ public class ExportBeanDefinitionParser implements BeanDefinitionParser {
 		if (StringUtils.hasText(exclude)) {
 			ManagedList<String> excludedObjects = new ManagedList<String>();
 			String[] names = exclude.split(",");
-			NamespaceUtils.addAllToManagedList(excludedObjects, Arrays.asList(names));
+			excludedObjects.addAll(Arrays.asList(names));
 			beanDef.getPropertyValues().addPropertyValue("excludedObjects", excludedObjects);
 		}
 
