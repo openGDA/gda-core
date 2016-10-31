@@ -31,8 +31,10 @@ import static org.osgi.framework.Constants.EXPORT_PACKAGE;
 
 import java.util.Arrays;
 import java.util.Dictionary;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -55,7 +57,7 @@ public class GDAJythonClassloaderTest {
 	private static final String GOOD_CLASS_NAME = "org.python.monty.nudge.nudge.SayNoMore";
 	private Bundle[] bundles;
 	private final Set<String> scriptFolders = new HashSet<>(Arrays.asList(FOLDER_1));
-	private final Set<String> included = new HashSet<>(Arrays.asList("bundle2:" + PKG_4));
+	private final Map<String, Map<Bundle, Boolean>> included = new HashMap<>();
 	private Dictionary<String, String> headers1;
 	private Dictionary<String, String> headers2;
 	private Dictionary<String, String> headers3;
@@ -73,6 +75,10 @@ public class GDAJythonClassloaderTest {
 		headers1 = new Hashtable<String, String>(ImmutableMap.of(EXPORT_PACKAGE, PKG_1 + "," + PKG_2));
 		headers2 = new Hashtable<String, String>(ImmutableMap.of(EXPORT_PACKAGE, PKG_4 + "," + PKG_2));
 		headers3 = new Hashtable<String, String>(ImmutableMap.of(EXPORT_PACKAGE, PKG_3));
+		included.put(PKG_1, new HashMap<>(ImmutableMap.of(bundle1, false)));
+		included.put(PKG_2, new HashMap<>(ImmutableMap.of(bundle1, false, bundle2, false)));
+		included.put(PKG_3, new HashMap<>(ImmutableMap.of(bundle3, false)));
+		included.put(PKG_4, new HashMap<>(ImmutableMap.of(bundle2, true)));
 
 
 		when(bundle1.getHeaders()).thenReturn(headers1);
