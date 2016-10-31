@@ -63,7 +63,7 @@ public class FilePathService implements IFilePathService {
 		// Build the file name
 		// Default to "base" if gda.beamline.name is not set (behaviour copied from NexusDataWriter). Should never happen!
 		if (template.length()>0) template = "-"+template;
-		String filename = String.format("%s%s-%s.nxs", LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME, "base"), template, fileNumber);
+		String filename = String.format("%s-%s%s.nxs", LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME, "base"), fileNumber, template);
 
 		// Return the full file path
 		String path = dir + "/" + filename;
