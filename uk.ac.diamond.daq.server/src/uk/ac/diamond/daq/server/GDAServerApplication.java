@@ -2,6 +2,7 @@ package uk.ac.diamond.daq.server;
 
 import gda.util.ObjectServer;
 import gda.util.SpringObjectServer;
+import gda.util.Version;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -23,46 +24,45 @@ import static uk.ac.diamond.daq.server.configuration.IGDAConfigurationService.Se
  * This class controls all aspects of the application's execution
  */
 public class GDAServerApplication implements IApplication {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(GDAServerApplication.class);
-	
-	private static IGDAConfigurationService CONFIGURATION_SERVICE;
+
+	private static IGDAConfigurationService configurationService;
 	protected static int SERVER_WAIT_MILLIS = 4000;
-	
+
 	private final Map<ServerType, Process> processes = new HashMap<>();
 	private final CountDownLatch shutdownLatch = new CountDownLatch(1);
 	private final Map<String, ObjectServer> objectServers = new HashMap<String, ObjectServer>();
-	
 
-	
 	/**
-	 * Application start method invoked when it is launched. Loads the required configuration via  the external OSGI configuration service. 
+	 * Application start method invoked when it is launched. Loads the required configuration via  the external OSGI configuration service.
 	 * Starts the 4 (or more) servers and then execution waits for the shutdown hook trigger, multiple object Servers may be started.
 	 * If the application is run from the command line or eclipse it only requires the config file (-f) and profile (-p) args
 	 * to be supplied; in this case it will default to the example-config values for all other things that the scripts pass in.
 	 */
-	public Object start(IApplicationContext context) throws Exception 
+	public Object start(IApplicationContext context) throws Exception
 	{
-		CONFIGURATION_SERVICE.loadConfiguration();
+		ApplicationEnvironment.initialize();
+		configurationService.loadConfiguration();
 
-		logger.info("Starting GDA application");
+		logger.info(String.format("Starting GDA application %s", Version.getRelease()));
 
 		try {
-			processes.put(LOG, CONFIGURATION_SERVICE.getLogServerCommand().execute());
-			logger.info("Log server started");
-			processes.put(NAME, CONFIGURATION_SERVICE.getNameServerCommand().execute());
-			logger.info("Name server started");
-			processes.put(EVENT, CONFIGURATION_SERVICE.getEventServerCommand().execute());
-			logger.info("Channel/Event server started");
+			processes.put(LOG, configurationService.getLogServerCommand().execute());
+			logger.info("Log server starting");
+			processes.put(NAME, configurationService.getNameServerCommand().execute());
+			logger.info("Name server starting");
+			processes.put(EVENT, configurationService.getEventServerCommand().execute());
+			logger.info("Channel/Event server starting");
 			// TODO: find some kind of interactive "channel server is ready" check otherwise you get a corba exception
 			Thread.sleep(SERVER_WAIT_MILLIS);
-			
-			for (ObjectServerCommand command : CONFIGURATION_SERVICE.getObjectServerCommands()) {
+
+			for (ObjectServerCommand command : configurationService.getObjectServerCommands()) {
 				ObjectServer server = command.execute();
 				if (server == null) {
 					logger.info("Unable to start " + command.getProfile() + " Object server, GDA shutting down");
 					stop();
-					break;				
+					break;
 				}
 				objectServers.put(command.getProfile(), server);
 				logger.info(command.getProfile() + " object server started");
@@ -74,7 +74,6 @@ public class GDAServerApplication implements IApplication {
 			ioEx.printStackTrace();
 			stop();
 		}
-		
 		if (!objectServers.isEmpty()) {
 			awaitShutdown();
 			logger.info("GDA application ended");
@@ -109,18 +108,19 @@ public class GDAServerApplication implements IApplication {
 			}
 		}
 		processes.clear();
+		ApplicationEnvironment.release();
 		shutdownLatch.countDown();
 	}
-	
+
 	/**
 	 * Make provision for graceful shutdown by adding a shutdown listener and then waiting on the
 	 * {@link #shutdownLatch}. When shutdown is triggered {@link #stop()} is called which clears
 	 * all created objects/processes and then clears the latch.
-	 * 
+	 *
 	 * @throws InterruptedException if the shutdwonHook thread is interrupted
 	 */
 	protected void awaitShutdown() throws InterruptedException {
-		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {			
+		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
 			@Override
 			public void run() {
 				stop();
@@ -130,6 +130,6 @@ public class GDAServerApplication implements IApplication {
 	}
 
 	public static void setConfigurationService(IGDAConfigurationService service) {
-		CONFIGURATION_SERVICE = service;
+		configurationService = service;
 	}
 }
