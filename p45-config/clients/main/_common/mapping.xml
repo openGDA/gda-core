@@ -87,9 +87,15 @@
 		<property name="activeSlowScanAxis" ref="y_axis_name" />
 		<property name="beamSize" value="0.1" />
 	</bean>
-	<!-- Register the mapping stage info bean as an OSGi service -->
+	<!-- Register the mapping stage info bean as an OSGi service. Do this Twice 
+		under different interfaces to allow Jake's interface to be supported with 
+		minimal changes to the surrounding code. This is messy and should be resolved. -->
 	<bean class="gda.util.osgi.OSGiServiceRegister">
 		<property name="class" value="uk.ac.diamond.daq.mapping.impl.MappingStageInfo" />
+		<property name="service" ref="mapping_stage_info" />
+	</bean>
+	<bean class="gda.util.osgi.OSGiServiceRegister">
+		<property name="class" value="org.eclipse.scanning.api.ui.IStageScanConfiguration" />
 		<property name="service" ref="mapping_stage_info" />
 	</bean>
 

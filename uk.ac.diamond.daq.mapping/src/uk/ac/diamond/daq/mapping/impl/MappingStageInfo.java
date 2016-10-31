@@ -22,6 +22,7 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 
 import org.eclipse.scanning.api.annotation.UiTooltip;
+import org.eclipse.scanning.api.ui.IStageScanConfiguration;
 
 /**
  * A bean which holds information about the current axes used for mapping experiments. The intention is that a single
@@ -29,14 +30,16 @@ import org.eclipse.scanning.api.annotation.UiTooltip;
  * that need to know or check the axis names.
  */
 // TODO find some way of changing the axis names from the server
-public class MappingStageInfo {
+public class MappingStageInfo implements IStageScanConfiguration {
 
 	private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
+	@Override
 	public void addPropertyChangeListener(PropertyChangeListener listener) {
 		this.pcs.addPropertyChangeListener(listener);
 	}
 
+	@Override
 	public void removePropertyChangeListener(PropertyChangeListener listener) {
 		this.pcs.removePropertyChangeListener(listener);
 	}
@@ -45,6 +48,7 @@ public class MappingStageInfo {
 	private String activeSlowScanAxis;
 	private double beamSize;
 
+	@Override
 	public String getActiveFastScanAxis() {
 		return activeFastScanAxis;
 	}
@@ -55,6 +59,7 @@ public class MappingStageInfo {
 		this.pcs.firePropertyChange("activeFastScanAxis", oldValue, newValue);
 	}
 
+	@Override
 	public String getActiveSlowScanAxis() {
 		return activeSlowScanAxis;
 	}
