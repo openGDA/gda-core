@@ -22,15 +22,6 @@ package gda.jython;
 import static uk.ac.gda.common.rcp.util.EclipseUtils.PLATFORM_BUNDLE_PREFIX;
 import static uk.ac.gda.common.rcp.util.EclipseUtils.URI_SEPARATOR;
 
-import gda.configuration.properties.LocalProperties;
-import gda.factory.FactoryException;
-import gda.factory.Findable;
-import gda.factory.Finder;
-import gda.jython.translator.Translator;
-import gda.observable.ObservableComponent;
-import gda.util.exceptionUtils;
-import uk.ac.gda.common.rcp.util.EclipseUtils;
-
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FilenameFilter;
@@ -63,6 +54,15 @@ import org.python.util.PythonInterpreter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
+
+import gda.configuration.properties.LocalProperties;
+import gda.factory.FactoryException;
+import gda.factory.Findable;
+import gda.factory.Finder;
+import gda.jython.translator.Translator;
+import gda.observable.ObservableComponent;
+import gda.util.exceptionUtils;
+import uk.ac.gda.common.rcp.util.EclipseUtils;
 
 /**
  * <p>
@@ -505,10 +505,10 @@ public class GDAJythonInterpreter extends ObservableComponent {
 				this.interp.runsource("from gda.device import ScannableMotion");
 				this.interp.runsource("import gda.device.scannable.ScannableUtils");
 				this.interp.runsource("from gda.util.converters import IReloadableQuantitiesConverter");
-				// Channel access commands
 
-				this.interp.runsource("from _pydev_bundle._pydev_completer import Completer");
-				this.interp.runsource("completer = Completer(locals(), globals())");
+				// Create the completer object to allow command line tab completion
+				this.interp.runsource("from gda_completer import Completer");
+				this.interp.runsource("completer = Completer(globals())");
 
 				// scisoftpy
 				this.interp.runsource("import scisoftpy as dnp");
