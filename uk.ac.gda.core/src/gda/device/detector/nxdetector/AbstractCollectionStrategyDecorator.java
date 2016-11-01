@@ -57,7 +57,6 @@ public abstract class AbstractCollectionStrategyDecorator extends CollectionStra
 		return getDecoratee().getAcquirePeriod();
 	}
 
-	@Deprecated
 	@Override
 	public void configureAcquireAndPeriodTimes(double collectionTime) throws Exception {
 		getDecoratee().configureAcquireAndPeriodTimes(collectionTime);
