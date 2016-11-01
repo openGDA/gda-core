@@ -26,8 +26,8 @@ import gda.factory.corba.util.Filter.ACCEPTANCE;
  */
 final class Subscription {
 
-	EventSubscriber subscriber;
-	Filter filter;
+	private final EventSubscriber subscriber;
+	private final Filter filter;
 
 	/**
 	 * Create the subscription holder
@@ -69,4 +69,38 @@ final class Subscription {
 		}
 		return processed;
 	}
+
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((filter == null) ? 0 : filter.hashCode());
+		result = prime * result + ((subscriber == null) ? 0 : subscriber.hashCode());
+		return result;
+	}
+
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Subscription other = (Subscription) obj;
+		if (filter == null) {
+			if (other.filter != null)
+				return false;
+		} else if (!filter.equals(other.filter))
+			return false;
+		if (subscriber == null) {
+			if (other.subscriber != null)
+				return false;
+		} else if (!subscriber.equals(other.subscriber))
+			return false;
+		return true;
+	}
+
 }
