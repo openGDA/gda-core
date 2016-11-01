@@ -18,9 +18,7 @@ import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.rank.IScanRankService;
 import org.eclipse.scanning.api.scan.rank.IScanSlice;
 
-import gda.device.detector.EpicsAreaDetectorConstants.TriggerMode;
 import gda.device.detector.addetector.ADDetector;
-import gda.device.detector.areadetector.v17.ImageMode;
 import gda.device.detector.areadetector.v17.NDPluginBase.DataType;
 import gda.factory.Finder;
 import uk.ac.diamond.daq.detectors.addetector.api.AreaDetectorRunnableDeviceModel;
@@ -50,8 +48,8 @@ public class AreaDetectorRunnableDevice extends AbstractRunnableDevice<AreaDetec
 	public void run(IPosition position) throws ScanningException, InterruptedException {
 		setDeviceState(DeviceState.RUNNING);
 		try {
-			detector.getAdBase().startAcquiring();
-			detector.getAdBase().waitWhileStatusBusy();
+			detector.collectData();
+			detector.waitWhileBusy();
 		} catch (Exception e) {
 			setDeviceState(DeviceState.FAULT);
 			throw new ScanningException("Acquiring from detector failed", e);
@@ -76,13 +74,9 @@ public class AreaDetectorRunnableDevice extends AbstractRunnableDevice<AreaDetec
 			// Get the dataType to expect
 			dataType = detector.getNdArray().getDataType();
 
-			// Set the exposure time
-			detector.getAdBase().setAcquireTime(model.getExposureTime());
-			// Set image mode to single
-			detector.getAdBase().setImageMode(ImageMode.SINGLE);
-			// Set triggering to internal
-			detector.getAdBase().setTriggerMode(TriggerMode.Internal.ordinal());
-			// FIXME Need to configure the plugin chain here
+			detector.setCollectionTime(model.getExposureTime());
+			detector.atScanStart();
+			// FIXME Need to configure the plugin chain here (or in the collection strategy)
 		} catch (Exception e) {
 			setDeviceState(DeviceState.FAULT);
 			throw new ScanningException("Configuring detector failed", e);
