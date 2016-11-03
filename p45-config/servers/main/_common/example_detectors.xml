@@ -14,7 +14,7 @@
 		<property name="description" value="A dummy malcom detector which is only used for testing"/>
 		<property name="icon"        value="org.eclipse.scanning.example/icons/alarm-clock-select.png"/> <!--  bundle must be on client for that, if it isn't a default icon is used -->
 	</bean>
-	<bean id="dummyMalcolmDetector" class="org.eclipse.scanning.example.malcolm.TestMalcolmDevice" init-method="register">
+	<bean id="dummyMalcolmDetector" class="org.eclipse.scanning.example.malcolm.DummyMalcolmDevice" init-method="register">
 		<property name="name"              value="Malcolm (Dummy)"/>
 		<property name="model"             ref="dummyMalcolmModel"/>
 		<property name="deviceInformation" ref="dummyMalcolmInfo"/>
