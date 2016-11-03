@@ -4,7 +4,7 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<!--  Malcolm Example -->
-	<bean id="dummyMalcolmModel" class="org.eclipse.scanning.example.malcolm.TestMalcolmModel">
+	<bean id="dummyMalcolmModel" class="org.eclipse.scanning.example.malcolm.DummyMalcolmModel">
 		<property name="name"                   value="Malcolm (Dummy)"/>
 		<property name="exposureTime"           value="0.1"/>
     </bean>
