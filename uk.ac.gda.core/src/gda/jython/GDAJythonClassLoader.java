@@ -19,8 +19,6 @@
 
 package gda.jython;
 
-import static org.osgi.framework.Constants.EXPORT_PACKAGE;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -29,11 +27,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
-import org.eclipse.osgi.util.ManifestElement;
 import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleException;
-
-import com.google.common.collect.ImmutableMap;
 
 /**
  * A Classloader for use with Jython in the GDA environment. It retrieves the class from the correct bundle within the
@@ -41,17 +35,17 @@ import com.google.common.collect.ImmutableMap;
  */
 public class GDAJythonClassLoader extends ClassLoader {
 
-	private static boolean STATIC_INITIALISED = false;
-	private static Set<String> STANDARD_SCRIPT_FOLDERS;
-	private static Set<Bundle> ALL_BUNDLES;
-	private static final Map<String, Map<Bundle, Boolean>> PACKAGE_MAP = new HashMap<>();
+	private static boolean staticInitialized = false;
+	private static Set<String> standardScriptFolders;
+	private static Set<Bundle> initializedBundles;
+	private static Map<String, Map<Bundle, Boolean>> packageMap = new HashMap<>();
 
 	// These bundles cause problems/noise when you attempt to load classes: the eclipse ones produce large stack traces if
 	// the class is not found (i.e. each time a python source module name is supplied) rather than simply throwing the
 	// exception. The scanning command package actually leads to a Jython conflict since it has an embedded version 2.7
 	// of Jython whereas the rest of the product uses version 2.5. Once we have migrated the target platform to version
 	// 2.7 it can be removed from the list.
-	private static String SKIPPED_BUNDLES = "org.eclipse.debug.ui, org.eclipse.help.ui, org.eclipse.scanning.command, org.python.pydev.jython";
+	private static final String SKIPPED_BUNDLES = "org.eclipse.debug.ui, org.eclipse.help.ui, org.eclipse.scanning.command, org.python.pydev.jython";
 
 	/**
 	 * Use the return value of this function to get all the packages available to Jython. Call PySystemState.add_package
@@ -60,7 +54,7 @@ public class GDAJythonClassLoader extends ClassLoader {
 	 * @return Returns the packages (including those marked as not part of the Jython API).
 	 */
 	public Set<String> getJythonPackages() {
-		return PACKAGE_MAP.keySet();
+		return packageMap.keySet();
 	}
 
 	/**
@@ -70,7 +64,7 @@ public class GDAJythonClassLoader extends ClassLoader {
 	 * @return					true if the bundle is part of the servers's OSGi namespace
 	 */
 	public boolean isMappedBundle(final String bundleName) {
-		return ALL_BUNDLES.stream().anyMatch(bundle -> bundle.getSymbolicName().equals(bundleName));
+		return initializedBundles.stream().anyMatch(bundle -> bundle.getSymbolicName().equals(bundleName));
 	}
 
 	/**
@@ -83,7 +77,7 @@ public class GDAJythonClassLoader extends ClassLoader {
 	 *                          will be returned, otherwise an {@link Optional} containing true or false will result.
 	 */
 	public Optional<Boolean> isIncludedCombination(final Bundle bundle, final String packageName) {
-		Map<Bundle, Boolean> entry = PACKAGE_MAP.get(packageName);
+		Map<Bundle, Boolean> entry = packageMap.get(packageName);
 		if (entry == null) {
 			return Optional.empty();
 		}
@@ -97,7 +91,7 @@ public class GDAJythonClassLoader extends ClassLoader {
 	 * @return Returns indication of whether initialize method has been called.
 	 */
 	public static boolean useGDAClassLoader() {
-		return STATIC_INITIALISED;
+		return staticInitialized;
 	}
 
 	/**
@@ -106,24 +100,22 @@ public class GDAJythonClassLoader extends ClassLoader {
 	 * @return A set of paths relative to [WORKSPACE_NAME]_git as Strings.
 	 */
 	public Set<String> getStandardFolders() {
-		return STANDARD_SCRIPT_FOLDERS;
+		return standardScriptFolders;
 	}
 
 	/**
 	 * Set up the packages, their visibility and the script folders so that the class is ready to be instantiated, then
 	 * set the status to indicate this.
 	 *
-	 * @param contextBundles            Array of all the OSGi bundles available in the running context
-	 * @param stdScriptFolders          A Set of paths relative to [WORKSPACE_NAME]_git as Strings where Python source files may be found.
-	 * @param includedPackagesNames     A Set of bundle and package name combinations indicating those that should be marked as part
-	 *                                  of the standard Jython API.
-	 * @throws BundleException          if the exported package header of a bundle cannot be parsed.
+ 	 * @param contextBundles        Array of all the OSGi bundles available in the running context
+	 * @param stdScriptFolders      A Set of paths relative to [WORKSPACE_NAME]_git as Strings where Python source files may be found.
+	 * @param pkgMap                A map of package name to a map of Bundle to whether it is part of the standard Jython API
 	 */
-	public static void initialize(final Bundle[] contextBundles, final Set<String> stdScriptFolders, final Set<String> includedPackagesNames) throws BundleException {
-		ALL_BUNDLES = new HashSet<>(Arrays.asList(contextBundles));
-		STANDARD_SCRIPT_FOLDERS = stdScriptFolders;
-		initializePackageMap(includedPackagesNames);
-		STATIC_INITIALISED = true;
+	public static void initialize(final Bundle[] contextBundles, final Set<String> stdScriptFolders, final Map<String, Map<Bundle, Boolean>> pkgMap) {
+		initializedBundles= new HashSet<>(Arrays.asList(contextBundles));
+		standardScriptFolders = stdScriptFolders;
+		packageMap = pkgMap;
+		staticInitialized = true;
 	}
 
 	/**
@@ -165,43 +157,15 @@ public class GDAJythonClassLoader extends ClassLoader {
 	}
 
 	/**
-	 * Builds a {@link Map} of package name to the set of bundles in the context that export the package which can be
-	 * used as a lookup table when subsequently loading a class. Each entry in the bundle set is also associated with a
-	 * {@link Boolean} indicating whether the combination of bundle and package has been marked as part of the Jython API.
-	 *
-	 * @param includedPackagesNames    A Set of bundle and  package name combinations indicating those that should be marked as part
-	 *                                 of the standard Jython API.
-	 *
-	 * @throws BundleException         if the exported package header cannot be parsed.
-	 */
-	private static void initializePackageMap(final Set<String> includedPackagesNames) throws BundleException {
-		for (Bundle bundle : ALL_BUNDLES) {
-			final ManifestElement[] exportPackages = ManifestElement.parseHeader(EXPORT_PACKAGE, bundle.getHeaders().get(EXPORT_PACKAGE));
-			if (exportPackages != null) {
-				for (ManifestElement element : exportPackages) {
-					final String pkgName = element.getValue();
-
-					boolean included = includedPackagesNames.contains(bundle.getSymbolicName() + ":" + pkgName);
-					if (PACKAGE_MAP.containsKey(pkgName)) {
-						PACKAGE_MAP.get(pkgName).put(bundle, included);
-					} else {
-						PACKAGE_MAP.put(pkgName, new HashMap<>(ImmutableMap.of(bundle, included)));
-					}
-				}
-			}
-		}
-	}
-
-	/**
 	 * Builds a set of bundles that match the supplied possible Java class name. Because of the way Jython resolves its
 	 * import directives between Java and Python source code, it is perfectly possible that
 	 * <code>potentialJavaClassName</code> will in fact be Python source module name which therefore cannot be loaded
 	 * via the Java classloader. In this case it may also contain the dot Java package delimiter (e.g. __gda__.console)
-	 * however, it will not be found in {@link #PACKAGE_MAP} and so the returned matchingBundles will be empty.<br>
+	 * however, it will not be found in {@link #packageMap} and so the returned matchingBundles will be empty.<br>
 	 * <br>
 	 * If <code>potentialJavaClassName</code> corresponds to a real Java class, it will be in its fully qualified form
 	 * and so the last dot in the string will separate the package name from the class name. Thus the package name can
-	 * be extracted and matched against {@link #PACKAGE_MAP}.
+	 * be extracted and matched against {@link #packageMap}.
 	 *
 	 * @param potentialJavaClassName    Could be a fully qualified Java Class name or the name of a Python module.
 	 * @return                          A Map of Bundle to whether the package in potentialJavaClassName is marked as
@@ -212,8 +176,8 @@ public class GDAJythonClassLoader extends ClassLoader {
 		final int packageBoundary = potentialJavaClassName.lastIndexOf('.');
 		if (packageBoundary > 0) {
 			final String packageName = potentialJavaClassName.substring(0, packageBoundary);
-			if (StringUtils.isNotBlank(packageName) && PACKAGE_MAP.containsKey(packageName)) {
-				matchingBundles = PACKAGE_MAP.get(packageName);
+			if (StringUtils.isNotBlank(packageName) && packageMap.containsKey(packageName)) {
+				matchingBundles = packageMap.get(packageName);
 			}
 		}
 		return matchingBundles;
