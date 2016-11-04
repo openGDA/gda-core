@@ -22,6 +22,8 @@ import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ColumnViewerToolTipSupport;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
@@ -90,6 +92,14 @@ public class VisitIDDialog extends Dialog {
 		createTableColumns();
 		createContentProvider();
 
+		userTable.addDoubleClickListener(new IDoubleClickListener() {
+			@Override
+			public void doubleClick(DoubleClickEvent event) {
+				setChosenVisitIdFromSelectedRow();
+				okPressed(); // closes dialog
+			}
+		});
+		
 		userTable.setInput(visits);
 
 		return container;
@@ -189,13 +199,17 @@ public class VisitIDDialog extends Dialog {
 				return;
 			}
 			
-			TableItem choice = userTable.getTable().getSelection()[0];
-			chosenVisitID = ((String[]) choice.getData())[0];
+			setChosenVisitIdFromSelectedRow();
 		
 		} else {
 			chosenVisitID = null;
 		}
 		super.buttonPressed(buttonId);
+	}
+
+	private void setChosenVisitIdFromSelectedRow() {
+		TableItem choice = userTable.getTable().getSelection()[0];
+		chosenVisitID = ((String[]) choice.getData())[0];
 	}
 
 }
