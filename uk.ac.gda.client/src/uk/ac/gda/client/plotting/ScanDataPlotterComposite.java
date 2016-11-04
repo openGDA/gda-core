@@ -21,6 +21,7 @@ package uk.ac.gda.client.plotting;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -46,6 +47,8 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.databinding.viewers.ObservableListTreeContentProvider;
 import org.eclipse.jface.databinding.viewers.ViewersObservables;
+import org.eclipse.jface.dialogs.IInputValidator;
+import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.CheckStateChangedEvent;
@@ -89,7 +92,7 @@ public class ScanDataPlotterComposite extends ResourceComposite {
 
 	private static final Logger logger = LoggerFactory.getLogger(ScanDataPlotterComposite.class);
 
-	private IPlottingSystem plottingSystem;
+	private IPlottingSystem<Composite> plottingSystem;
 
 	private DataPlotterCheckedTreeViewer dataTreeViewer;
 	private final Node rootDataNode;
@@ -137,6 +140,7 @@ public class ScanDataPlotterComposite extends ResourceComposite {
 					}
 					@Override
 					public void handleAdd(int index, Object element) {
+						recentlyAddedSpectraList.clear();
 						if (clearPlotOnStartOfScan) {
 							for (Object obj : dataTreeViewer.getCheckedElements()) {
 								dataTreeViewer.updateCheckSelection(obj, false);
@@ -150,7 +154,11 @@ public class ScanDataPlotterComposite extends ResourceComposite {
 			@Override
 			public void propertyChange(final PropertyChangeEvent evt) {
 				Node node = (Node) evt.getNewValue();
-				dataTreeViewer.expandToLevel(node.getParent(), AbstractTreeViewer.ALL_LEVELS);
+
+				// Only expand if there have been no lnI0It spectra added
+				if (recentlyAddedSpectraList.size() == 0) {
+					dataTreeViewer.expandToLevel(node.getParent(), AbstractTreeViewer.ALL_LEVELS);
+				}
 				if (node instanceof LineTraceProviderNode && dataTreeViewer.getChecked(node)) {
 					addTrace((LineTraceProviderNode) node);
 				}
@@ -176,6 +184,80 @@ public class ScanDataPlotterComposite extends ResourceComposite {
 		});
 	}
 
+	private int maxNumberOfAcquiredSpectraToPlot = 20;
+	private ArrayDeque<Node> recentlyAddedSpectraList = new ArrayDeque<Node>();
+
+	/**
+	 * De-select items in tree node to reduce number of spectra that are plotted during data acquisition.
+	 *
+	 * @param node
+	 * @since 28/9/2016
+	 */
+	private void setPlotSelectionStatus(Node node) {
+		int numSpectraToPlot = maxNumberOfAcquiredSpectraToPlot / 2;
+		// Remove excess items from start of checked nodes list and de-select them in tree view
+		if (recentlyAddedSpectraList.size() > maxNumberOfAcquiredSpectraToPlot) {
+			while (recentlyAddedSpectraList.size() > numSpectraToPlot) {
+				// remove node at *start* of list
+				Node removedNode = recentlyAddedSpectraList.remove();
+				// de-select item in tree view
+				updateDataItemNode(removedNode, false);
+				dataTreeViewer.updateCheckSelection(removedNode, false, false);
+			}
+		}
+		recentlyAddedSpectraList.add(node); // add new node to *end* of list
+	}
+
+	/**
+	 * Validator used to check input in 'Max. number of spectra' dialog box (see {@link #getMaxNumSpectraDialog}).
+	 */
+	class IntegerValidator implements IInputValidator {
+		/**
+		 * Validates a string to make sure it's an integer > 0. Returns null for no error, or string with error message
+		 *
+		 * @param newText
+		 * @return String
+		 */
+		@Override
+		public String isValid(String newText) {
+			Integer value = null;
+			try {
+				value = Integer.valueOf(newText);
+			} catch (NumberFormatException nfe) {
+				// swallow, value==null
+			}
+			if (value == null || value < 1) {
+				return "Number should be an integer > 0";
+			}
+			return null;
+		}
+	}
+
+	/**
+	 * Return Action with dialog box to allow user to set the maximum number of spectra that will be plotted during data acquisition.
+	 *
+	 * @return
+	 * @since 28/9/2016
+	 */
+	private Action getMaxNumSpectraDialog() {
+		return new Action("Change number of plotted spectra") {
+			@Override
+			public void run() {
+				InputDialog dlg = new InputDialog(Display.getCurrent().getActiveShell(), "Set maximum number of spectra to plot during acqusition",
+						"Enter maximum number of spectra to show in plot when aquiring data", String.valueOf(maxNumberOfAcquiredSpectraToPlot),
+						new IntegerValidator());
+				if (dlg.open() == Window.OK) {
+					// User clicked OK; update the label with the input
+					Integer userInputInteger = Integer.valueOf(dlg.getValue());
+					if (userInputInteger == null || userInputInteger < 1) {
+						logger.info("Problem converting user input into number of spectra to plot {}", dlg.getValue());
+					} else {
+						maxNumberOfAcquiredSpectraToPlot = userInputInteger;
+					}
+				}
+			}
+		};
+	}
 	private void updateTrace(LineTraceProviderNode lineTraceProvider) {
 		ILineTrace trace = (ILineTrace) plottingSystem.getTrace(((Node) lineTraceProvider).getIdentifier());
 		if (trace != null) {
@@ -223,11 +305,13 @@ public class ScanDataPlotterComposite extends ResourceComposite {
 	}
 
 	IObservableFactory dataObservableFactory = new IObservableFactory() {
+		/** This receives the data and adds it to the plot view */
 		@Override
 		public IObservable createObservable(Object target) {
 			if (target instanceof LineTraceProviderNode) {
 				if (((LineTraceProviderNode) target).isPlotByDefault()) {
-					dataTreeViewer.updateCheckSelection(target, true);
+					setPlotSelectionStatus((Node) target); // de-select some of the earlier plots if necessary
+					dataTreeViewer.updateCheckSelection(target, true); // fires CheckStateChangedEvent
 				}
 			}
 			if (target instanceof Node) {
@@ -381,6 +465,9 @@ public class ScanDataPlotterComposite extends ResourceComposite {
 			@Override
 			public void menuAboutToShow(IMenuManager manager) {
 				if (!rootDataNode.getChildren().isEmpty()) {
+
+					menuMgr.add(getMaxNumSpectraDialog());
+
 					menuMgr.add(new Action("Remove All") {
 						@Override
 						public void run() {

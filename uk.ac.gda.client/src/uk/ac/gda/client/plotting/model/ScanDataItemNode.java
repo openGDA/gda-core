@@ -90,6 +90,15 @@ public class ScanDataItemNode extends LineTraceProviderNode {
 		synchronized (cachedData) {
 			cachedData.addAll(values);
 		}
+	}
+
+	/**
+	 * Save cached data to preference store.
+	 * Moved from {@link #update} to avoid slowdown of gui thread when rapidly adding lots of data.
+	 *
+	 * @since 27/10/2016
+	 */
+	public void saveCachedData() {
 		Display.getDefault().asyncExec(saveData);
 	}
 

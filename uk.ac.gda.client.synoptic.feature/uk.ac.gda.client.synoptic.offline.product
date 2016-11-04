@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="GDA Synoptic Client" uid="uk.ac.gda.client.synoptic.product" id="uk.ac.gda.client.synoptic.product" application="uk.ac.gda.client.application" version="8.56.0" useFeatures="true" includeLaunchers="true">
+<product name="GDA Synoptic Client" uid="uk.ac.gda.client.synoptic.offline.product" id="uk.ac.gda.client.synoptic.product" application="uk.ac.gda.client.application" version="8.52.0" useFeatures="true" includeLaunchers="true">
 
    <aboutInfo>
       <image path="/uk.ac.gda.core/icons/GDAlogos/GDALogo128.png"/>
@@ -18,15 +18,15 @@ The GDA project is an open-source framework for creating customised data acquisi
    <launcherArgs>
       <vmArgs>-Dorg.eclipse.swt.internal.gtk.cairoGraphics=false
 -Dorg.eclipse.swt.internal.gtk.useCairo=false
--Dgda.install.workspace.loc=/dls_sw/i20/software/gda
--Dgda.install.git.loc=/dls_sw/i20/software/gda_git
--Dgda.config=/dls_sw/i20/software/gda/config
--Djava.library.path=/dls_sw/i20/software/gda_git/gda-nexus.git/uk.ac.gda.nexus/lib/linux-x86_64
--Dgda.propertiesFile=/dls_sw/i20/software/gda/config/properties/live/live_instance_synoptic.properties
--Dgda.facility.dir=/dls_sw/i20/software/gda_git/gda-diamond.git/dls-config
--Djacorb.config.dir=/dls_sw/i20/software/gda/config/properties/live/jacorb
--Dgov.aps.jca.JCALibrary.properties=/dls_sw/i20/software/gda/config/properties/live/JCALibrary.properties
--Dgda.mode=live
+-Dgda.install.workspace.loc=${workspace_loc}
+-Dgda.install.git.loc=${project_loc:uk.ac.gda.core/}/../..
+-Dgda.config=${project_loc:i20-config}
+-Djava.library.path=${project_loc:uk.ac.gda.nexus}/lib/linux-x86_64
+-Dgda.propertiesFile=${project_loc:i20-config}/properties/dummy/dummy_instance_synoptic.properties
+-Dgda.facility.dir=${project_loc:dls-config}
+-Djacorb.config.dir=${project_loc:i20-config}/properties/dummy/jacorb
+-Dgov.aps.jca.JCALibrary.properties=${project_loc:i20-config}/properties/dummy/JCALibrary.properties
+-Dgda.mode=dummy
 -Dgda.client.jython.automatic.interpreter=1
 -Duk.ac.diamond.scisoft.analysis.analysisrpcserverprovider.disable=true
 -XX:+DisableExplicitGC
