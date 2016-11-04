@@ -307,12 +307,32 @@ public interface ScanPackage extends EPackage {
 	int PARAMETERS__LINEAR_STAGE = 24;
 
 	/**
+	 * The feature id for the '<em><b>Close shutter after last scan</b></em>' attribute.<br>
+	 * <!-- begin-user-doc --><br>
+	 * <!-- end-user-doc -->
+	 *
+	 * @generated
+	 * @ordered
+	 */
+	int PARAMETERS__CLOSE_SHUTTER_AFTER_LAST_SCAN = 25;
+
+	/**
+	 * The feature id for the '<em><b>Send data to temporary directory</b></em>' attribute.<br>
+	 * <!-- begin-user-doc --><br>
+	 * <!-- end-user-doc -->
+	 *
+	 * @generated
+	 * @ordered
+	 */
+	int PARAMETERS__SEND_DATA_TO_TEMPORARY_DIRECTORY = 26;
+
+	/**
 	 * The number of structural features of the '<em>Parameters</em>' class. <!-- begin-user-doc --> <!-- end-user-doc -->
 	 *
 	 * @generated
 	 * @ordered
 	 */
-	int PARAMETERS_FEATURE_COUNT = 25;
+	int PARAMETERS_FEATURE_COUNT = 27;
 
 	/**
 	 * Returns the meta object for class '{@link uk.ac.gda.tomography.scan.Parameters <em>Parameters</em>}'.
@@ -618,6 +638,32 @@ public interface ScanPackage extends EPackage {
 	EAttribute getParameters_LinearStage();
 
 	/**
+	 * Returns the meta object for the attribute '{@link uk.ac.gda.tomography.scan.Parameters#getCloseShutterAfterLastScan <em>Close shutter after last scan</em>}
+	 * '.
+	 * <p>
+	 * <!-- begin-user-doc --><br>
+	 * <!-- end-user-doc -->
+	 *
+	 * @return the meta object for the attribute '<em>Close shutter after last scan</em>'.
+	 * @see uk.ac.gda.tomography.scan.Parameters#getCloseShutterAfterLastScan()
+	 * @see #getParameters()
+	 */
+	EAttribute getParameters_CloseShutterAfterLastScan();
+
+	/**
+	 * Returns the meta object for the attribute '{@link uk.ac.gda.tomography.scan.Parameters#getSendDataToTemporaryDirectory <em>Send data to temporary directory</em>}
+	 * '.
+	 * <p>
+	 * <!-- begin-user-doc --><br>
+	 * <!-- end-user-doc -->
+	 *
+	 * @return the meta object for the attribute '<em>Send data to temporary directory</em>'.
+	 * @see uk.ac.gda.tomography.scan.Parameters#getSendDataToTemporaryDirectory()
+	 * @see #getParameters()
+	 */
+	EAttribute getParameters_SendDataToTemporaryDirectory();
+
+	/**
 	 * Returns the factory that creates the instances of the model. <!-- begin-user-doc --> <!-- end-user-doc -->
 	 *
 	 * @return the factory that creates the instances of the model.
@@ -830,6 +876,22 @@ public interface ScanPackage extends EPackage {
 		 * @generated
 		 */
 		EAttribute PARAMETERS__LINEAR_STAGE = eINSTANCE.getParameters_LinearStage();
+
+		/**
+		 * The meta object literal for the '<em><b>Close shutter after last scan</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute PARAMETERS__CLOSE_SHUTTER_AFTER_LAST_SCAN = eINSTANCE.getParameters_CloseShutterAfterLastScan();
+
+		/**
+		 * The meta object literal for the '<em><b>Send data to temporary directory</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute PARAMETERS__SEND_DATA_TO_TEMPORARY_DIRECTORY = eINSTANCE.getParameters_SendDataToTemporaryDirectory();
 	}
 
 } //ScanPackage

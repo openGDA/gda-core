@@ -397,4 +397,32 @@ public interface Parameters extends EObject {
 	 */
 	void setLinearStage(String value);
 
+	/**
+	 * @model required="true" default="false" unsettable="false"
+	 * @return close shutter after last scan (default is false)
+	 */
+	boolean getCloseShutterAfterLastScan();
+
+	/**
+	 * Sets the value of the '{@link uk.ac.gda.tomography.scan.Parameters#getCloseShutterAfterLastScan <em>Close shutter after last scan</em>}' attribute.
+	 *
+	 * @param value
+	 *            the new value of the '<em>Close shutter after last scan</em>' attribute.
+	 */
+	void setCloseShutterAfterLastScan(boolean value);
+
+	/**
+	 * @model required="true" default="false" unsettable="false"
+	 * @return send data to temporary directory (default is false)
+	 */
+	boolean getSendDataToTemporaryDirectory();
+
+	/**
+	 * Sets the value of the '{@link uk.ac.gda.tomography.scan.Parameters#getSendDataToTemporaryDirectory <em>Send data to temporary directory</em>}' attribute.
+	 *
+	 * @param value
+	 *            the new value of the '<em>Send data to temporary directory</em>' attribute.
+	 */
+	void setSendDataToTemporaryDirectory(boolean value);
+
 }

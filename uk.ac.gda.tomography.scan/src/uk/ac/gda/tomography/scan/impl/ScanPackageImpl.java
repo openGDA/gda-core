@@ -294,6 +294,16 @@ public class ScanPackageImpl extends EPackageImpl implements ScanPackage {
 		return (EAttribute) parametersEClass.getEStructuralFeatures().get(ScanPackage.PARAMETERS__LINEAR_STAGE);
 	}
 
+	@Override
+	public EAttribute getParameters_CloseShutterAfterLastScan() {
+		return (EAttribute) parametersEClass.getEStructuralFeatures().get(ScanPackage.PARAMETERS__CLOSE_SHUTTER_AFTER_LAST_SCAN);
+	}
+
+	@Override
+	public EAttribute getParameters_SendDataToTemporaryDirectory() {
+		return (EAttribute) parametersEClass.getEStructuralFeatures().get(ScanPackage.PARAMETERS__SEND_DATA_TO_TEMPORARY_DIRECTORY);
+	}
+
 	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -350,6 +360,8 @@ public class ScanPackageImpl extends EPackageImpl implements ScanPackage {
 		createEAttribute(parametersEClass, PARAMETERS__Y_PIXEL_SIZE_UNITS);
 		createEAttribute(parametersEClass, PARAMETERS__ROTATION_STAGE);
 		createEAttribute(parametersEClass, PARAMETERS__LINEAR_STAGE);
+		createEAttribute(parametersEClass, PARAMETERS__CLOSE_SHUTTER_AFTER_LAST_SCAN);
+		createEAttribute(parametersEClass, PARAMETERS__SEND_DATA_TO_TEMPORARY_DIRECTORY);
 	}
 
 	/**
@@ -488,6 +500,14 @@ public class ScanPackageImpl extends EPackageImpl implements ScanPackage {
 				getParameters_LinearStage(),
 				ecorePackage.getEString(),
 				"linearStage", "", 1, 1, Parameters.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(
+				getParameters_CloseShutterAfterLastScan(),
+				ecorePackage.getEBoolean(),
+				"closeShutterAfterLastScan", "", 1, 1, Parameters.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(
+				getParameters_SendDataToTemporaryDirectory(),
+				ecorePackage.getEBoolean(),
+				"sendDataToTemporaryDirectory", "", 1, 1, Parameters.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		// Create resource
 		createResource(eNS_URI);

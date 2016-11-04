@@ -36,6 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.factory.Finder;
+import gda.jython.InterfaceProvider;
 import uk.ac.gda.tomography.scan.Parameters;
 import uk.ac.gda.tomography.scan.ScanPackage;
 
@@ -90,6 +91,9 @@ public class ParametersComposite extends Composite {
 	private Combo yPixelSizeUnits;
 	private Combo rotationStage;
 	private Combo linearStage;
+	private Button sendDataToTempDirectory;
+	private Text outputDirectory;
+	private String outputDirectoryPath;
 	private TomographyOptions tomographyOptions;
 
 	public ParametersComposite(Composite parent) {
@@ -114,6 +118,9 @@ public class ParametersComposite extends Composite {
 		lblWindowTitle.setText("Tomography scan");
 		lblWindowTitle.setFont(SWTResourceManager.getFont("Sans", 14, SWT.BOLD));
 		GridDataFactory.fillDefaults().span(3, 1).applyTo(lblWindowTitle);
+
+		// Current output directory
+		outputDirectoryPath = InterfaceProvider.getCommandRunner().evaluateCommand("PathConstructor.createFromDefaultProperty()");
 
 		// Create the individual parts of the window
 		createDevicesGrid();
@@ -143,8 +150,9 @@ public class ParametersComposite extends Composite {
 		GridDataFactory.fillDefaults().align(SWT.CENTER, SWT.FILL).grab(true, false).applyTo(devices);
 		GridLayoutFactory.fillDefaults().numColumns(1).extendedMargins(5, 5, 5, 5).applyTo(devices);
 
+		// Drop-down boxes to allow user to choose stages
 		final Group devicesMain = new Group(devices, SWT.BORDER);
-		GridDataFactory.fillDefaults().align(SWT.CENTER, SWT.FILL).grab(true, false).applyTo(devicesMain);
+		GridDataFactory.fillDefaults().align(SWT.LEFT, SWT.FILL).grab(true, false).applyTo(devicesMain);
 		GridLayoutFactory.fillDefaults().numColumns(2).extendedMargins(5, 5, 5, 5).applyTo(devicesMain);
 
 		final Label lblRotationStage = new Label(devicesMain, SWT.NONE);
@@ -157,10 +165,27 @@ public class ParametersComposite extends Composite {
 		linearStage = new Combo(devicesMain, SWT.READ_ONLY);
 		linearStage.setItems(tomographyOptions.getLinearStages());
 
+		// Check box to allow user to send data to temporary directory
+		final Group grpOutputDirectory = new Group(devices, SWT.BORDER);
+		GridDataFactory.fillDefaults().align(SWT.LEFT, SWT.FILL).grab(true, false).applyTo(grpOutputDirectory);
+		GridLayoutFactory.fillDefaults().numColumns(1).extendedMargins(5, 5, 5, 5).applyTo(grpOutputDirectory);
+
+		sendDataToTempDirectory = new Button(grpOutputDirectory, SWT.CHECK);
+		GridDataFactory.fillDefaults().align(SWT.LEFT, SWT.CENTER).grab(true, false).span(1, 1).applyTo(sendDataToTempDirectory);
+		sendDataToTempDirectory.setText("Send data to temporary directory");
+		sendDataToTempDirectory.setToolTipText("Data sent to the temporary directory will not be archived.\nUse this option for test scans to avoid filling up archive storage.");
+
+		final Label lblOutputDirectory = new Label(grpOutputDirectory, SWT.NONE);
+		lblOutputDirectory.setText("Current output directory");
+
+		outputDirectory = new Text(grpOutputDirectory, SWT.WRAP | SWT.READ_ONLY);
+		GridDataFactory.fillDefaults().hint(250, SWT.DEFAULT).grab(true, false).applyTo(outputDirectory);
+
 		// -----------------------------------------------------------------------------------
 
 		addComboToTextListeners(rotationStage, ScanPackage.eINSTANCE.getParameters_RotationStage());
 		addComboToTextListeners(linearStage, ScanPackage.eINSTANCE.getParameters_LinearStage());
+		addButtonSelectionListeners(sendDataToTempDirectory, ScanPackage.eINSTANCE.getParameters_SendDataToTemporaryDirectory());
 	}
 
 	private void createReconstructionGrid() {
@@ -417,10 +442,17 @@ public class ParametersComposite extends Composite {
 
 		addTextToIntegerListeners(numFlyScans, ScanPackage.eINSTANCE.getParameters_NumFlyScans());
 		addTextToDoubleListeners(flyScanDelay, ScanPackage.eINSTANCE.getParameters_FlyScanDelay());
+		addButtonSelectionListeners(extraFlatsAtEnd, ScanPackage.eINSTANCE.getParameters_ExtraFlatsAtEnd());
+		addButtonSelectionListeners(closeShutterAfterLastScan, ScanPackage.eINSTANCE.getParameters_CloseShutterAfterLastScan());
 	}
 
 	private void addButtonSelectionListeners(final Button btn, final EAttribute eAttribute) {
 		btn.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				addModelUpdateCommand(eAttribute,btn.getSelection());
+			}
+
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
 				addModelUpdateCommand(eAttribute,btn.getSelection());
@@ -524,6 +556,9 @@ public class ParametersComposite extends Composite {
 		setComboText(rotationStage, params.getRotationStage());
 		setComboText(linearStage, params.getLinearStage());
 
+		sendDataToTempDirectory.setSelection(params.getSendDataToTemporaryDirectory());
+		updateOutputDirectory();
+
 		// Scan parameters
 		title.setText(params.getTitle());
 		exposure.setText(Double.toString(params.getExposureTime()));
@@ -546,6 +581,7 @@ public class ParametersComposite extends Composite {
 
 		numFlyScans.setText(Integer.toString(params.getNumFlyScans()));
 		flyScanDelay.setText(Double.toString(params.getFlyScanDelay()));
+		closeShutterAfterLastScan.setSelection(params.getCloseShutterAfterLastScan());
 
 		// Reconstruction
 		approxCentreOfRotation.setText(params.getApproxCentreOfRotation());
@@ -616,12 +652,25 @@ public class ParametersComposite extends Composite {
 							rotationStage.setText(parameters.getRotationStage());
 						} else if (feature.equals(ScanPackage.eINSTANCE.getParameters_LinearStage())) {
 							linearStage.setText(parameters.getLinearStage());
+						} else if (feature.equals(ScanPackage.eINSTANCE.getParameters_CloseShutterAfterLastScan())) {
+							closeShutterAfterLastScan.setSelection(parameters.getCloseShutterAfterLastScan());
+						} else if (feature.equals(ScanPackage.eINSTANCE.getParameters_SendDataToTemporaryDirectory())) {
+							sendDataToTempDirectory.setSelection(parameters.getSendDataToTemporaryDirectory());
+							updateOutputDirectory();
 						}
 					}
 				}
 			}
 		};
 		resource.eAdapters().add(adapter);
+	}
+
+	// Update the display of the the output directory.
+	// This is for the user's information only: the actual output directory is determined
+	// by the tomographyScan.ProcessScanParameters() script.
+	private void updateOutputDirectory() {
+		final String subdir = sendDataToTempDirectory.getSelection() ? "tmp" : "raw";
+		outputDirectory.setText(outputDirectoryPath + "/" + subdir);
 	}
 
 	// Set value of combo box if it is one of the allowed values.

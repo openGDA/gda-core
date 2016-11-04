@@ -44,6 +44,8 @@ import uk.ac.gda.tomography.scan.ScanPackage;
  * <li>{@link uk.ac.gda.tomography.scan.impl.ParametersImpl#getYPixelSizeUnits <em>y pixel size units</em>}</li>
  * <li>{@link uk.ac.gda.tomography.scan.impl.ParametersImpl#getRotationStage <em>Rotation stage</em>}</li>
  * <li>{@link uk.ac.gda.tomography.scan.impl.ParametersImpl#getLinearStage <em>Linear stage</em>}</li>
+ * <li>{@link uk.ac.gda.tomography.scan.impl.ParametersImpl#getCloseShutterAfterLastScan <em>Close shutter after last scan</em>}</li>
+ * <li>{@link uk.ac.gda.tomography.scan.impl.ParametersImpl#getSendDataToTemporaryDirectory <em>Send data to temporary directory</em>}</li>
  * </ul>
  * </p>
  *
@@ -571,6 +573,50 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 	protected String linearStage = LINEAR_STAGE_EDEFAULT;
 
 	/**
+	 * The default value of the '{@link #getCloseShutterAfterLastScan() <em>Close shutter after last scan</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 *
+	 * @see #getCloseShutterAfterLastScan()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final boolean CLOSE_SHUTTER_AFTER_LAST_SCAN_EDEFAULT = false;
+
+	/**
+	 * The cached value of the '{@link #getCloseShutterAfterLastScan() <em>Close shutter after last scan</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 *
+	 * @see #getCloseShutterAfterLastScan()
+	 * @generated
+	 * @ordered
+	 */
+	protected boolean closeShutterAfterLastScan = CLOSE_SHUTTER_AFTER_LAST_SCAN_EDEFAULT;
+
+	/**
+	 * The default value of the '{@link #getSendDataToTemporaryDirectory() <em>Send data to temporary directory</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 *
+	 * @see #getSendDataToTemporaryDirectory()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final boolean SEND_DATA_TO_TEMPORARY_DIRECTORY_EDEFAULT = false;
+
+	/**
+	 * The cached value of the '{@link #getSendDataToTemporaryDirectory() <em>Send data to temporary directory</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 *
+	 * @see #getSendDataToTemporaryDirectory()
+	 * @generated
+	 * @ordered
+	 */
+	protected boolean sendDataToTemporaryDirectory = SEND_DATA_TO_TEMPORARY_DIRECTORY_EDEFAULT;
+
+	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
@@ -1087,6 +1133,36 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 		}
 	}
 
+	@Override
+	public boolean getCloseShutterAfterLastScan() {
+		return closeShutterAfterLastScan;
+	}
+
+	@Override
+	public void setCloseShutterAfterLastScan(boolean value) {
+		final boolean oldCloseShutterAfterLastScan = closeShutterAfterLastScan;
+		closeShutterAfterLastScan = value;
+		if (eNotificationRequired()) {
+			eNotify(new ENotificationImpl(this, Notification.SET, ScanPackage.PARAMETERS__CLOSE_SHUTTER_AFTER_LAST_SCAN,
+					oldCloseShutterAfterLastScan, value));
+		}
+	}
+
+	@Override
+	public boolean getSendDataToTemporaryDirectory() {
+		return sendDataToTemporaryDirectory;
+	}
+
+	@Override
+	public void setSendDataToTemporaryDirectory(boolean value) {
+		final boolean oldSendDataToTemporaryDirectory = sendDataToTemporaryDirectory;
+		sendDataToTemporaryDirectory = value;
+		if (eNotificationRequired()) {
+			eNotify(new ENotificationImpl(this, Notification.SET, ScanPackage.PARAMETERS__SEND_DATA_TO_TEMPORARY_DIRECTORY,
+					oldSendDataToTemporaryDirectory, value));
+		}
+	}
+
 	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -1145,6 +1221,10 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 			return getRotationStage();
 		case ScanPackage.PARAMETERS__LINEAR_STAGE:
 			return getLinearStage();
+		case ScanPackage.PARAMETERS__CLOSE_SHUTTER_AFTER_LAST_SCAN:
+			return getCloseShutterAfterLastScan();
+		case ScanPackage.PARAMETERS__SEND_DATA_TO_TEMPORARY_DIRECTORY:
+			return getSendDataToTemporaryDirectory();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -1231,6 +1311,12 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 			return;
 		case ScanPackage.PARAMETERS__LINEAR_STAGE:
 			setLinearStage((String) newValue);
+			return;
+		case ScanPackage.PARAMETERS__CLOSE_SHUTTER_AFTER_LAST_SCAN:
+			setCloseShutterAfterLastScan((boolean) newValue);
+			return;
+		case ScanPackage.PARAMETERS__SEND_DATA_TO_TEMPORARY_DIRECTORY:
+			setSendDataToTemporaryDirectory((boolean) newValue);
 			return;
 		}
 		super.eSet(featureID, newValue);
@@ -1319,6 +1405,12 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 		case ScanPackage.PARAMETERS__LINEAR_STAGE:
 			setLinearStage(LINEAR_STAGE_EDEFAULT);
 			return;
+		case ScanPackage.PARAMETERS__CLOSE_SHUTTER_AFTER_LAST_SCAN:
+			setCloseShutterAfterLastScan(CLOSE_SHUTTER_AFTER_LAST_SCAN_EDEFAULT);
+			return;
+		case ScanPackage.PARAMETERS__SEND_DATA_TO_TEMPORARY_DIRECTORY:
+			setSendDataToTemporaryDirectory(SEND_DATA_TO_TEMPORARY_DIRECTORY_EDEFAULT);
+			return;
 		}
 		super.eUnset(featureID);
 	}
@@ -1382,6 +1474,10 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 			return rotationStage != ROTATION_STAGE_EDEFAULT;
 		case ScanPackage.PARAMETERS__LINEAR_STAGE:
 			return linearStage != LINEAR_STAGE_EDEFAULT;
+		case ScanPackage.PARAMETERS__CLOSE_SHUTTER_AFTER_LAST_SCAN:
+			return closeShutterAfterLastScan != CLOSE_SHUTTER_AFTER_LAST_SCAN_EDEFAULT;
+		case ScanPackage.PARAMETERS__SEND_DATA_TO_TEMPORARY_DIRECTORY:
+			return sendDataToTemporaryDirectory != SEND_DATA_TO_TEMPORARY_DIRECTORY_EDEFAULT;
 		}
 		return super.eIsSet(featureID);
 	}
@@ -1447,6 +1543,10 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 		result.append(rotationStage);
 		result.append(", linearStage: ");
 		result.append(linearStage);
+		result.append(", closeShutterAfterLastScan: ");
+		result.append(closeShutterAfterLastScan);
+		result.append(", sendDataToTemporaryDirectory: ");
+		result.append(sendDataToTemporaryDirectory);
 		result.append(')');
 
 		return result.toString();
