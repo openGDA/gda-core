@@ -89,7 +89,7 @@ public class IonChamber {
 		compositeEnergy.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
 		( (GridData) compositeEnergy.getLayoutData() ).widthHint=200; // set size, so that textbox is not too wide
 
-		final Text energyTextbox = addLabelAndTextBox( compositeEnergy, "Energy" );
+		final Text energyTextbox = addLabelAndTextBox( compositeEnergy, "Energy (eV)" );
 		setTextboxFromDouble( energyTextbox, ionChambersBean.getEnergy() );
 
 		// When photon energy is changed, set new 'working energy' for each ion chamber and recalculate the pressures

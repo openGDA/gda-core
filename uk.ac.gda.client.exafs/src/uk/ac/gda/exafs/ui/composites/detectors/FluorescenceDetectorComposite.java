@@ -23,6 +23,8 @@ import java.text.NumberFormat;
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.dawnsci.plotting.api.region.IROIListener;
+import org.eclipse.dawnsci.plotting.api.trace.ColorOption;
+import org.eclipse.dawnsci.plotting.api.trace.ITrace;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.richbeans.api.event.ValueAdapter;
 import org.eclipse.richbeans.api.widget.IFieldWidget;
@@ -580,7 +582,27 @@ public class FluorescenceDetectorComposite extends Composite {
 	}
 
 	/**
-	 *  Hide/show output option checboxes for detector type.
+	 * Plot the given datasets, colour them appropriately and show the legend.
+	 *
+	 * @param datasets
+	 * @since 8/9/2016
+	 */
+	public void plotDatasets(IDataset... datasets) {
+		sashFormPlot.setDatasets(datasets);
+		sashFormPlot.getPlottingSystem().setShowLegend(true);
+		sashFormPlot.getPlottingSystem().setColorOption(ColorOption.BY_NAME);
+		sashFormPlot.plotData();
+		showHideLoadedDataset();
+	}
+
+	public void showHideLoadedDataset() {
+		ITrace trace = sashFormPlot.getPlottingSystem().getTrace(FluorescenceDetectorCompositeController.LOADED_DATA_NAME);
+		if (trace != null)
+			trace.setVisible( getShowDataLoadedFromFile() );
+	}
+
+	/**
+	 *  Hide/show output option checkboxes for detector type.
 	 *
 	 * @param detectorParams
 	 * @since 1/7/2016
@@ -634,4 +656,15 @@ public class FluorescenceDetectorComposite extends Composite {
 		return acquireComposite.getAutoScaleOnAcquireCheckBox().getSelection();
 	}
 
+	public boolean getShowDataLoadedFromFile() {
+		return acquireComposite.getShowDataLoadedFromFileCheckBox().getSelection();
+	}
+
+	public void addShowLoadedDataListener(SelectionListener listener) {
+		acquireComposite.getShowDataLoadedFromFileCheckBox().addSelectionListener(listener);
+	}
+
+	public void setEnableShowLoadedDataCheckBox(boolean enabled) {
+		acquireComposite.getShowDataLoadedFromFileCheckBox().setEnabled(enabled);
+	}
 }
