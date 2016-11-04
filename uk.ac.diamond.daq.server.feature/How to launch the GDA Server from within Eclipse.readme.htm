@@ -1,0 +1,61 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+
+<title>DAQ Platform Server launcher prototypes</title>
+<style type="text/css">
+  body {
+    size: 8.5in 11.0in;
+    margin: 0.25in 0.5in 0.25in 0.5in;
+    tab-interval: 0.5in;
+    }
+  p {  	
+    margin-left: auto;
+    margin-top:  0.5em;
+    margin-bottom: 0.5em;
+    }
+  p.list {
+  	margin-left: 0.5in;
+    margin-top:  0.05em;
+    margin-bottom: 0.05em;
+    }
+  </style>
+
+</head>
+
+<body lang="EN-US">
+
+<h2>Launching the GDA 9+ Server</h2>
+
+<p>The first time you wish to launch the GDA Server after materializing your workspace, it is necessary to generate a launcher with the correct 
+dependencies from the uk.ac.diamond.daq.server.product. Open this file and on the Overview tab in the Testing area (bottom left), click 'Synchronize' 
+followed by 'Launch and Eclipse application'. This will generate and start a launcher called 'uk.ac.diamond.daq.product' running the example config.
+You should then stop this launcher (there doesn't seem to be any way to prevent it starting), find it in the Run Configurations are and then set 
+the BEAMLINE and GDA_MODE environment variables to the values you require on the Environment tab. You should also go to the Common tab and set the Save 
+Location to Local so that the launcher does not get saved in the workspace-git area.Once you have applied this, you can start the launcher in the normal 
+way and it will run the server using your beamline's configuration. </p>
+
+<p>If you need to regenerate the launcher for any reason, you will need to ensure that you delete this launcher before attempting to regenerate 
+it as if you don't, Eclipse will see it already exists and ignore you. Once you have done this it is a repeat of the process above. In summary:</p>
+
+<h3>Creating a Local Beamline specific launcher</h3>
+
+
+<p> To create a beamline launcher do the following:</p>
+
+<ul>
+	<li>Make sure you delete any Run configuration launchers called uk.ac.diamond.daq.server.product.</li>
+	<li>From the uk.ac.diamond.daq.server.product editor click 'Synchronize' followed by 'Launch an Eclipse application'.</li>
+	<li>Stop the resulting running server (unless you actually want example config) and find the uk.ac.diamond.daq.server.product launcher.</li>
+	<li>Select its Environment tab and define the BEAMLINE and GDA_MODE environment variables with the required values (GDA_MODE defaults to dummy), then press Apply.</li>
+	<li>Select the Common tab and set the Save location to Local and press Apply. This will save your version under the workspace folder 
+	rather than the workspace_git one, isolating it from git but keeping it part of your local workspace.</li>
+</ul>
+
+<p>You can now use your new launcher and modify its settings/plugin content without affecting anyone else. If you do some development that 
+will require new plugins to be added to the main product definition, simply add them (or the feature containing them) to the server's feature.xml 
+definition before committing.</p>
+
+
+
+
+</body></html>
