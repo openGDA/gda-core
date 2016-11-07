@@ -258,7 +258,7 @@ public class GDAJythonInterpreter extends ObservableComponent {
 			}
 		} else {
 			logger.info("initialising Jython engine...");
-			// initialise interpreter first //TODO: Docs say this should only be run once
+			// initialise interpreter first {same as PySystemState.initialize(..)}//TODO: Docs say this should only be run once
 			PythonInterpreter.initialize(System.getProperties(), gdaCustomProperties, argv);
 
 			// It appears that InteractiveConsoles must all share the same PySystemState.
@@ -439,6 +439,8 @@ public class GDAJythonInterpreter extends ObservableComponent {
 				logger.info("performing standard Jython interpreter imports...");
 
 				this.interp.runsource("import sys");
+				// Initialise Jython's map of known modules so that old versions don't persist after rest_namespace
+				this.interp.runsource("sys.modules.clear()");
 				this.interp.runsource("import gda.jython");
 				this.interp.runsource("sys.displayhook=gda.jython.GDAInteractiveConsole.displayhook");
 
@@ -448,8 +450,10 @@ public class GDAJythonInterpreter extends ObservableComponent {
 				this.interp.set("command_server", jythonServer);
 				this.interp.runsource("import gda.jython");
 
-				// site import
-				this.interp.runsource("import site");
+				// site import - only do this the first time, not during reset_namespace
+				if (jythonServer.isAtStartup()) {
+					this.interp.runsource("import site");
+				}
 
 				// standard imports
 				this.interp.runsource("import java");
