@@ -64,6 +64,7 @@ import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -100,6 +101,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	 * Name of this object. This should agree with the string used in Castor.
 	 */
 	public static final String SERVERNAME = "command_server";
+	private boolean atStartup = true;
 
 	// the Jython interpreter
 	private GDAJythonInterpreter interp = null;
@@ -390,15 +392,16 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 				runningLocalStation = false;
 			}
 
-			// open a socket for communication, if a port has been defined
+			// open a socket for communication, if a port has been defined - not during reset_namespace
 			int port = determineRemotePortNumber();
-			if (port != -1) {
+			if (port != -1 && atStartup) {
 				socket = new SocketServer();
 				socket.setServerType(remoteServerType);
 				socket.setAuthenticator(authenticator);
 				socket.setPort(port);
 				socket.setUseJline(remoteServerUsesJline);
 				new Thread(socket, "Jython SocketServer port " + port).start();
+				atStartup = false;
 			}
 			configured = true;
 		}
@@ -406,6 +409,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 
 	private GDAJythonInterpreter createJythonInterpreter() {
 		GDAJythonInterpreter interpreter = new GDAJythonInterpreter();
+		jythonScriptPaths.setProjects(new ArrayList<>());        // for reset_namespace to prevent duplication
 		interpreter.setJythonScriptPaths(jythonScriptPaths);
 		interpreter.setGdaVarDirectory(gdaVarDirectory);
 		interpreter.setCacheDirectory(cacheDirectory);
@@ -1630,5 +1634,9 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	@Override
 	public void exec(String s) {
 		interp.getInterp().exec(s);
+	}
+
+	public final boolean isAtStartup() {
+		return atStartup;
 	}
 }
