@@ -3,7 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Tango Plug-in
 Bundle-SymbolicName: org.gda.tango
 Bundle-Version: 1.0.0
-Bundle-Activator: gda.Activator
 Require-Bundle: org.eclipse.core.runtime,
  uk.ac.gda.core;bundle-version="1.0.0",
  uk.ac.gda.nexus;bundle-version="1.0.0",
