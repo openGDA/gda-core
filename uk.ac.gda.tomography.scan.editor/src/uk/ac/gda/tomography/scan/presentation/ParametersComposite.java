@@ -92,6 +92,7 @@ public class ParametersComposite extends Composite {
 	private Combo rotationStage;
 	private Combo linearStage;
 	private Button sendDataToTempDirectory;
+	private Group grpOutputDirectory;
 	private Text outputDirectory;
 	private String outputDirectoryPath;
 	private TomographyOptions tomographyOptions;
@@ -166,7 +167,7 @@ public class ParametersComposite extends Composite {
 		linearStage.setItems(tomographyOptions.getLinearStages());
 
 		// Check box to allow user to send data to temporary directory
-		final Group grpOutputDirectory = new Group(devices, SWT.BORDER);
+		grpOutputDirectory = new Group(devices, SWT.BORDER);
 		GridDataFactory.fillDefaults().align(SWT.LEFT, SWT.FILL).grab(true, false).applyTo(grpOutputDirectory);
 		GridLayoutFactory.fillDefaults().numColumns(1).extendedMargins(5, 5, 5, 5).applyTo(grpOutputDirectory);
 
@@ -179,7 +180,7 @@ public class ParametersComposite extends Composite {
 		lblOutputDirectory.setText("Current output directory");
 
 		outputDirectory = new Text(grpOutputDirectory, SWT.WRAP | SWT.READ_ONLY);
-		GridDataFactory.fillDefaults().hint(250, SWT.DEFAULT).grab(true, false).applyTo(outputDirectory);
+		GridDataFactory.fillDefaults().hint(270, SWT.DEFAULT).grab(true, false).applyTo(outputDirectory);
 
 		// -----------------------------------------------------------------------------------
 
@@ -669,8 +670,17 @@ public class ParametersComposite extends Composite {
 	// This is for the user's information only: the actual output directory is determined
 	// by the tomographyScan.ProcessScanParameters() script.
 	private void updateOutputDirectory() {
-		final String subdir = sendDataToTempDirectory.getSelection() ? "tmp" : "raw";
-		outputDirectory.setText(outputDirectoryPath + "/" + subdir);
+		if (sendDataToTempDirectory.getSelection()) {
+			String tempDir = outputDirectoryPath;
+			if (tempDir.endsWith("/raw")) {
+				tempDir = tempDir.substring(0,  tempDir.length() - 4);
+			}
+			tempDir += "/tmp";
+			outputDirectory.setText(tempDir);
+		} else {
+			outputDirectory.setText(outputDirectoryPath);
+		}
+		grpOutputDirectory.layout();
 	}
 
 	// Set value of combo box if it is one of the allowed values.
