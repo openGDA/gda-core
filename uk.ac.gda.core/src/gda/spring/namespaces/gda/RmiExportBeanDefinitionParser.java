@@ -48,6 +48,7 @@ public class RmiExportBeanDefinitionParser implements BeanDefinitionParser {
 		}
 
 		AbstractBeanDefinition beanDef = new GenericBeanDefinition();
+		beanDef.setResource(parserContext.getReaderContext().getResource());
 		beanDef.setBeanClass(events ? GdaRmiServiceExporter.class : RmiServiceExporter.class);
 		beanDef.getPropertyValues().addPropertyValue("service", new RuntimeBeanReference(service));
 		beanDef.getPropertyValues().addPropertyValue("serviceName", serviceName);

@@ -19,7 +19,6 @@
 package gda.spring.namespaces.corba;
 
 import gda.factory.corba.util.SpringImplFactory;
-import gda.spring.parsers.NamespaceUtils;
 
 import java.util.Arrays;
 
@@ -46,6 +45,7 @@ public class ExportBeanDefinitionParser implements BeanDefinitionParser {
 		CorbaNamespaceHandler.registerNetServiceFactoryBean(parserContext.getRegistry());
 
 		AbstractBeanDefinition beanDef = new GenericBeanDefinition();
+		beanDef.setResource(parserContext.getReaderContext().getResource());
 		beanDef.setBeanClass(SpringImplFactory.class);
 		beanDef.getPropertyValues().addPropertyValue("namespace", namespace);
 		beanDef.getPropertyValues().addPropertyValue("netService", new RuntimeBeanReference(CorbaNamespaceHandler.NET_SERVICE_BEAN_NAME));
@@ -53,7 +53,7 @@ public class ExportBeanDefinitionParser implements BeanDefinitionParser {
 		if (StringUtils.hasText(exclude)) {
 			ManagedList<String> excludedObjects = new ManagedList<String>();
 			String[] names = exclude.split(",");
-			NamespaceUtils.addAllToManagedList(excludedObjects, Arrays.asList(names));
+			excludedObjects.addAll(Arrays.asList(names));
 			beanDef.getPropertyValues().addPropertyValue("excludedObjects", excludedObjects);
 		}
 

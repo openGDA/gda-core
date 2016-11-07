@@ -71,13 +71,13 @@ public class ImportBeanDefinitionParser implements BeanDefinitionParser {
 		final BeanDefinitionRegistry beanDefRegistry = parserContext.getRegistry();
 
 		if (StringUtils.hasText(fullname)) {
-			addBeanDefinitionForObject(fullname, beanDefRegistry);
+			addBeanDefinitionForObject(fullname, beanDefRegistry, parserContext);
 		} else {
 			if( StringUtils.hasText(namelist)){
 				for( String name : namelist.split(",")){
 					name = name.trim();
 					if( !name.isEmpty())
-						addBeanDefinitionForObject(namespace +"/"+name, beanDefRegistry);
+						addBeanDefinitionForObject(namespace +"/"+name, beanDefRegistry, parserContext);
 				}
 			} else {
 				logger.warn("Using the 'namespace' attribute with the <corba:import> element is deprecated");
@@ -94,19 +94,20 @@ public class ImportBeanDefinitionParser implements BeanDefinitionParser {
 					throw new RuntimeException("Couldn't import remote objects", e);
 				}
 				for (String objectName : objectNames) {
-					addBeanDefinitionForObject(objectName, beanDefRegistry);
+					addBeanDefinitionForObject(objectName, beanDefRegistry, parserContext);
 				}
 			}
 		}
 		return null;
 	}
 
-	private static void addBeanDefinitionForObject(String fullName, BeanDefinitionRegistry registry) {
+	private static void addBeanDefinitionForObject(String fullName, BeanDefinitionRegistry registry, ParserContext parserContext) {
 		logger.debug("Registering bean for remote object " + fullName);
 
 		String objectName = fullName.substring(fullName.lastIndexOf('/') + 1);
 
 		AbstractBeanDefinition beanDef = new GenericBeanDefinition();
+		beanDef.setResource(parserContext.getReaderContext().getResource());
 		beanDef.setBeanClass(RemoteObjectFactoryBean.class);
 		beanDef.getPropertyValues().addPropertyValue("remoteName", fullName);
 		beanDef.getPropertyValues().addPropertyValue("netService", new RuntimeBeanReference(CorbaNamespaceHandler.NET_SERVICE_BEAN_NAME));

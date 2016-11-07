@@ -295,7 +295,12 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 	 */
 	@Override
 	public void setPosition(double newPosition) {
-		currentPosition = newPosition;
+		if (currentPosition != newPosition) {
+			currentPosition = newPosition;
+			if (isInitialised) {
+				notifyIObservers(this, MotorEvent.MOVE_COMPLETE);
+			}
+		}
 	}
 
 	/**
