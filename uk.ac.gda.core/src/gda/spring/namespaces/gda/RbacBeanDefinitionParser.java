@@ -33,6 +33,7 @@ public class RbacBeanDefinitionParser implements BeanDefinitionParser {
 	@Override
 	public AbstractBeanDefinition parse(Element element, ParserContext parserContext) {
 		AbstractBeanDefinition beanDef = createRbacBeanPostProcessorBeanDefinition();
+		beanDef.setResource(parserContext.getReaderContext().getResource());
 
 		String beanName = parserContext.getReaderContext().generateBeanName(beanDef);
 		parserContext.getRegistry().registerBeanDefinition(beanName, beanDef);
