@@ -18,6 +18,25 @@
 
 package gda.device.detector;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Vector;
+import java.util.concurrent.Callable;
+
+import org.apache.commons.lang.StringUtils;
+import org.python.core.Py;
+import org.python.core.PyException;
+import org.python.core.PyString;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
@@ -38,25 +57,6 @@ import gda.device.scannable.PositionStreamIndexer;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanInformation;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Vector;
-import java.util.concurrent.Callable;
-
-import org.apache.commons.lang.StringUtils;
-import org.python.core.Py;
-import org.python.core.PyException;
-import org.python.core.PyString;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
-
 public class NXDetector extends DetectorBase implements InitializingBean, NXPluginDetector {
 	private static final Logger logger = LoggerFactory.getLogger(NXDetector.class);
 
@@ -69,7 +69,7 @@ public class NXDetector extends DetectorBase implements InitializingBean, NXPlug
 
 	private List<NXPluginBase> additionalPluginList = new ArrayList<NXPluginBase>();
 
-	private HashMap<String, NXPluginBase> additionalPluginMap;
+	private Map<String, NXPluginBase> additionalPluginMap = new HashMap<>();
 
 	private PositionStreamIndexer<List<NXDetectorDataAppender>> pluginStreamsIndexer;
 
