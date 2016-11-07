@@ -239,6 +239,7 @@ public class EpicsMotorDecorator extends MotorIocDecorator implements MotorUnitS
 		throw new MotorException(MotorStatus.UNKNOWN, "Motor IOC " + getIocPv().split(":")[0] + " is not running");
 	}
 
+	@Override
 	public void setMinPosition(double minimumPosition) throws MotorException {
 		if (isIocRunning()) {
 			if (decoratedMotor instanceof EpicsMotor) {
@@ -257,6 +258,7 @@ public class EpicsMotorDecorator extends MotorIocDecorator implements MotorUnitS
 		throw new MotorException(MotorStatus.UNKNOWN, "Motor IOC " + getIocPv().split(":")[0] + " is not running");
 	}
 
+	@Override
 	public void setMaxPosition(double maximumPosition) throws MotorException {
 		if (isIocRunning()) {
 			if (decoratedMotor instanceof EpicsMotor) {
