@@ -478,9 +478,6 @@
       <location
             folder="org.eclipse.scanning.command/scripts">
       </location>
-      <location
-            folder="org.python.pydev/pysrc">
-      </location>
    </extension>
 
    <extension
