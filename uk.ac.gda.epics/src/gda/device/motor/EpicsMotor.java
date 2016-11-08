@@ -946,6 +946,7 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 	 * @param minimumPosition
 	 *            the minimum position
 	 */
+	@Override
 	public void setMinPosition(double minimumPosition) throws MotorException {
 		try {
 			controller.caput(llm, minimumPosition);
@@ -978,6 +979,7 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 	 * @param maximumPosition
 	 *            the maximum position
 	 */
+	@Override
 	public void setMaxPosition(double maximumPosition) throws MotorException {
 		try {
 			controller.caput(hlm, maximumPosition);
