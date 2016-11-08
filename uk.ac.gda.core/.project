@@ -35,11 +35,6 @@
 			</arguments>
 		</buildCommand>
 		<buildCommand>
-			<name>InCode.inCodeBuilder</name>
-			<arguments>
-			</arguments>
-		</buildCommand>
-		<buildCommand>
 			<name>org.python.pydev.PyDevBuilder</name>
 			<arguments>
 			</arguments>
@@ -54,6 +49,5 @@
 		<nature>org.eclipse.pde.PluginNature</nature>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 		<nature>org.python.pydev.pythonNature</nature>
-		<nature>InCode.inCodeNature</nature>
 	</natures>
 </projectDescription>
