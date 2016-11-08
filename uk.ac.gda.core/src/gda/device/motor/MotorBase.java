@@ -378,9 +378,17 @@ public abstract class MotorBase extends DeviceBase implements Motor, Serializabl
 		return minPosition;
 	}
 
+	public void setMinPosition(double minPosition) throws MotorException {
+		this.minPosition = minPosition;
+	}
+
 	@Override
 	public double getMaxPosition() throws MotorException {
 		return maxPosition;
+	}
+
+	public void setMaxPosition(double maxPosition) throws MotorException {
+		this.maxPosition = maxPosition;
 	}
 
 	@Override

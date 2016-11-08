@@ -157,14 +157,6 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 		this.isInitialised = true;
 	}
 
-	public void setMinPosition(double minPosition) {
-		this.minPosition = minPosition;
-	}
-
-	public void setMaxPosition(double maxPosition) {
-		this.maxPosition = maxPosition;
-	}
-
 	/**
 	 * Returns a string to represent the motor.
 	 *
