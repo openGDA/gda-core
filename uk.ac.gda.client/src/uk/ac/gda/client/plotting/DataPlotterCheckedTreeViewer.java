@@ -27,10 +27,23 @@ import org.eclipse.ui.dialogs.ContainerCheckedTreeViewer;
 public class DataPlotterCheckedTreeViewer extends ContainerCheckedTreeViewer {
 
 	public void updateCheckSelection(Object data, boolean isChecked) {
+		updateCheckSelection(data, isChecked, true);
+	}
+
+	/**
+	 * Update checked status in tree for supplied object with optional firing of CheckStateChangedEvent
+	 *
+	 * @param data
+	 * @param isChecked
+	 * @param fireEvent
+	 * @since 28/9/2016
+	 */
+	public void updateCheckSelection(Object data, boolean isChecked, boolean fireEvent) {
 		Widget widget = this.findItem(data);
 		if (widget instanceof TreeItem) {
 			((TreeItem) widget).setChecked(isChecked);
-			this.fireCheckStateChanged(new CheckStateChangedEvent(this, data, ((TreeItem) widget).getChecked()));
+			if (fireEvent)
+				this.fireCheckStateChanged(new CheckStateChangedEvent(this, data, ((TreeItem) widget).getChecked()));
 		}
 	}
 

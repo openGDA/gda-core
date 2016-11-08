@@ -184,16 +184,6 @@ public class Parker6kMotor extends MotorBase {
 	}
 
 	/**
-	 * Sets the minimum position.
-	 *
-	 * @param minPosition
-	 *            the minimum position
-	 */
-	public void setMinPosition(double minPosition) {
-		this.minPosition = minPosition;
-	}
-
-	/**
 	 * Get the minimum position
 	 *
 	 * @return the minimum position
@@ -201,16 +191,6 @@ public class Parker6kMotor extends MotorBase {
 	@Override
 	public double getMinPosition() {
 		return minPosition;
-	}
-
-	/**
-	 * Sets the maximum position.
-	 *
-	 * @param maxPosition
-	 *            the maximum position
-	 */
-	public void setMaxPosition(double maxPosition) {
-		this.maxPosition = maxPosition;
 	}
 
 	/**

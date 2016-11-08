@@ -28,10 +28,6 @@
                value="platform:/plugin/uk.ac.gda.core/icons/GDAlogos/GDALogo128.png">
          </property>
          <property
-               name="preferenceCustomization"
-               value="plugin_customization.ini">
-         </property>
-         <property
                name="appName"
                value="GDA Synoptic">
          </property>

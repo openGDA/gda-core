@@ -11,7 +11,7 @@ def reprtime():
 
 class WaitWhileScannableBelowThresholdMonitorOnly(ScannableMotionBase):
     '''
-    Can be configured with any any monitor-like scannable and a minimum threshold.
+    Can be configured with any monitor-like scannable and a minimum threshold.
     This scannable's getPosition method will not return until the monitor-like scannable
     returns a number above the threshold.
     
@@ -36,10 +36,25 @@ class WaitWhileScannableBelowThresholdMonitorOnly(ScannableMotionBase):
         self.setLevel(6)
         
         self.lastStatus = True # Good
+        self._operating_continuously=False
+        
+    def setOperatingContinuously(self, b):
+        '''when set to True, no topup monitor will be active. Default is False.
+        '''
+        self._operating_continuously = b
+
+    def isOperatingContinously(self):
+        return self._operating_continuously
 
     def atScanStart(self):
         print '=== Beam checking enabled: '+self.scannableToMonitor.getName()+' must exceed '+str(self.minimumThreshold)+', currently '+str(self._getStatus())
         self.statusRemainedGoodSinceLastGetPosition = True
+        if self._operating_continuously:
+            while not self._getStatusAndHandleChange():  
+                # not okay, so wait here
+                sleep(self.secondsBetweenChecks)
+                self._collectNewMonitorValue()  
+            
 
     def isBusy(self):
         '''This can't be used as isBusy is not checked unless the scannable
@@ -47,34 +62,37 @@ class WaitWhileScannableBelowThresholdMonitorOnly(ScannableMotionBase):
         return False
 
     def waitWhileBusy(self):
-        if JythonServerFacade.getInstance().getScanStatus()==RUNNING:
-            # loop until okay
-            while not self._getStatusAndHandleChange():  
-                # not okay
-                sleep(self.secondsBetweenChecks)
-                self._collectNewMonitorValue()  
-            # now okay
-    
+        if not self._operating_continuously:
+            if JythonServerFacade.getInstance().getScanStatus()==RUNNING:
+                # loop until okay
+                while not self._getStatusAndHandleChange():  
+                    # not okay
+                    sleep(self.secondsBetweenChecks)
+                    self._collectNewMonitorValue()  
+                # now okay
+        
     def getPosition(self):
         '''If scan is running then pauses until status is okay and returning False
         if the scan was not okay. If scan is not running, return the current state
-        and print a warning that the scan is not being paused.'''
-        
+        and print a warning that the scan is not being paused.
+        This only works if scan is not continuous.
+        '''
         self.statusRemainedGoodSinceLastGetPosition = 1.0
         
-        if JythonServerFacade.getInstance().getScanStatus()==RUNNING:
-            # loop until okay
-            while not self._getStatusAndHandleChange():  
-                # not okay
-                self.statusRemainedGoodSinceLastGetPosition = 0.0
-                sleep(self.secondsBetweenChecks)
-                self._collectNewMonitorValue()  
-            # now okay
-        else: # scan not running
-            currentStatus = self._getStatus()
-            if not currentStatus: # bad
-                print self.name + " not holding read-back as no scan is running"
-            self.statusRemainedGoodSinceLastGetPosition = currentStatus
+        if not self._operating_continuously:
+            if JythonServerFacade.getInstance().getScanStatus()==RUNNING:
+                # loop until okay
+                while not self._getStatusAndHandleChange():  
+                    # not okay
+                    self.statusRemainedGoodSinceLastGetPosition = 0.0
+                    sleep(self.secondsBetweenChecks)
+                    self._collectNewMonitorValue()  
+                # now okay
+            else: # scan not running
+                currentStatus = self._getStatus()
+                if not currentStatus: # bad
+                    print self.name + " not holding read-back as no scan is running"
+                self.statusRemainedGoodSinceLastGetPosition = currentStatus
         
         return self.statusRemainedGoodSinceLastGetPosition
 
@@ -82,6 +100,9 @@ class WaitWhileScannableBelowThresholdMonitorOnly(ScannableMotionBase):
         val = self.scannableToMonitor.getPosition()
         if type(val) in (type(()), type([])):
             val = val[0]
+        #ensure scan continues when topup is shutdown. 
+        if val==-1 and self.scannableToMonitor.getName()=="topup_time":
+            return True
         status =  (val >= self.minimumThreshold)
         return status
 

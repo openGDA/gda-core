@@ -18,13 +18,6 @@
 
 package gda.rcp.views.dashboard;
 
-import java.beans.XMLDecoder;
-import java.beans.XMLEncoder;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -297,18 +290,6 @@ public final class DashboardView extends ViewPart {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
-	private List<ScannableObject> getDataFromXML(String textData) throws UnsupportedEncodingException {
-
-		if (textData == null)
-			return null;
-		final ByteArrayInputStream stream = new ByteArrayInputStream(textData.getBytes("UTF-8"));
-		XMLDecoder d = new XMLDecoder(new BufferedInputStream(stream));
-		final List<ScannableObject> data = (List<ScannableObject>) d.readObject();
-		d.close();
-		return data;
-	}
-
 	/**
 	 * Called to get the default list of things to monitor.
 	 */
@@ -330,25 +311,25 @@ public final class DashboardView extends ViewPart {
 		return data;
 	}
 
-	private String getXMLFromData(final List<ScannableObject> data) throws Exception {
-
-		final ByteArrayOutputStream stream = new ByteArrayOutputStream();
-		XMLEncoder e = new XMLEncoder(new BufferedOutputStream(stream));
-		e.writeObject(data);
-		e.close();
-
-		return stream.toString("UTF-8");
-	}
-
 	@Override
 	public void init(IViewSite site, IMemento memento) throws PartInitException {
 		super.init(site);
 
 		try {
-			if (memento != null)
-				this.data = getDataFromXML(memento.getTextData());
-			if (data == null)
+			if (memento != null) {
+				this.data = new ArrayList<ScannableObject>();
+				for (String name : memento.getAttributeKeys()) {
+					ScannableObject so = new ScannableObject(name, new JythonSnapshotProvider());
+					String toolTip = memento.getString(name);
+					if (!"".equals(toolTip)) {
+						// avoid empty string pop-up when mouse-hovering over dashboard
+						so.setToolTip(memento.getString(name));
+					}
+					this.data.add(so);
+				}
+			} else {
 				this.data = getDefaultServerObjects();
+			}
 		} catch (Exception ne) {
 			throw new PartInitException(ne.getMessage());
 		}
@@ -409,12 +390,26 @@ public final class DashboardView extends ViewPart {
 		}
 	}
 
+	/**
+	 * Used to reset the state of the currently monitored scannables
+	 * e.g. after a reset_namespace has replaced Jython scannables
+	 */
+	public void resetCurrentObjects() {
+		for (int i = 0; i < data.size(); i++) {
+			ScannableObject old = data.get(i);
+			ScannableObject so = new ScannableObject(old.getName(), new JythonSnapshotProvider());
+			so.setToolTip(old.getToolTip());
+			data.set(i, so);
+		}
+	}
+
 	@Override
 	public void saveState(IMemento memento) {
-		try {
-			memento.putTextData(getXMLFromData(data));
-		} catch (Exception e) {
-			logger.error("Cannot save plot bean", e);
+		for (ScannableObject so : data) {
+			String toolTip = so.getToolTip();
+			// putString(name, value) must have non-null value to store
+			if (toolTip == null) toolTip = "";
+			memento.putString(so.getName(), toolTip);
 		}
 	}
 

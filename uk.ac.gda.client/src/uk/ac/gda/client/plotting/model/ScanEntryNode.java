@@ -18,9 +18,6 @@
 
 package uk.ac.gda.client.plotting.model;
 
-import gda.rcp.GDAClientActivator;
-import gda.scan.IScanDataPoint;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -37,11 +34,13 @@ import org.eclipse.swt.widgets.Display;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
+import com.google.gson.annotations.Expose;
+
+import gda.rcp.GDAClientActivator;
+import gda.scan.IScanDataPoint;
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.liveplot.IPlotLineColorService;
 import uk.ac.gda.client.plotting.model.LineTraceProviderNode.TraceStyleDetails;
-
-import com.google.gson.annotations.Expose;
 
 public class ScanEntryNode extends ScanNode {
 
@@ -108,7 +107,6 @@ public class ScanEntryNode extends ScanNode {
 			}
 		}
 
-		Display.getDefault().asyncExec(saveData);
 		// TODO Currently detectorScanItemNames are added then positionScanItemNames, needs reviewing on how they are shown
 
 		List<Double> values = new ArrayList<Double>();
@@ -129,6 +127,15 @@ public class ScanEntryNode extends ScanNode {
 				}
 				((ScanDataItemNode) children.get(i + offset)).update(values);
 				values.clear();
+			}
+		}
+
+		// Write stored data to file at the end of scan rather than for every scan data point.
+		int numScanPoints = scanDataPoint.get(0).getNumberOfPoints();
+		if (cachedData.size() == numScanPoints) {
+			Display.getDefault().asyncExec(saveData);
+			for (Object child : children) {
+				((ScanDataItemNode) child).saveCachedData();
 			}
 		}
 	}

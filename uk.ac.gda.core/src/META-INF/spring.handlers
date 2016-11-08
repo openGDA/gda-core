@@ -1,3 +1,2 @@
-http\://www.diamond.ac.uk/schema/gda/objectfactory=gda.spring.parsers.ObjectFactoryNamespaceHandler
 http\://www.diamond.ac.uk/schema/gda/corba=gda.spring.namespaces.corba.CorbaNamespaceHandler
 http\://www.diamond.ac.uk/schema/gda/gda=gda.spring.namespaces.gda.GdaNamespaceHandler

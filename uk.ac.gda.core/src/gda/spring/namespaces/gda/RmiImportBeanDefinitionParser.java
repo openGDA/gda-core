@@ -46,6 +46,7 @@ public class RmiImportBeanDefinitionParser implements BeanDefinitionParser {
 		}
 
 		AbstractBeanDefinition beanDef = new GenericBeanDefinition();
+		beanDef.setResource(parserContext.getReaderContext().getResource());
 		beanDef.setBeanClass(events ? GdaRmiProxyFactoryBean.class : RmiProxyFactoryBean.class);
 		beanDef.getPropertyValues().addPropertyValue("serviceUrl", serviceUrl);
 		beanDef.getPropertyValues().addPropertyValue("serviceInterface", serviceInterface);

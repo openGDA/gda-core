@@ -102,23 +102,9 @@ public class SRControlMotor extends MotorBase {
 		this.srControlName = srControlName;
 	}
 
-	/**
-	 * @param minPosition
-	 */
-	public void setMinPosition(double minPosition) {
-		this.minPosition = minPosition;
-	}
-
 	@Override
 	public double getMinPosition() {
 		return minPosition;
-	}
-
-	/**
-	 * @param maxPosition
-	 */
-	public void setMaxPosition(double maxPosition) {
-		this.maxPosition = maxPosition;
 	}
 
 	@Override

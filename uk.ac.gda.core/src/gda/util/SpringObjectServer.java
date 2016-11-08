@@ -31,10 +31,14 @@ import gda.factory.corba.util.ImplFactory;
 import gda.spring.SpringApplicationContextBasedObjectFactory;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Map;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 import org.springframework.util.StringUtils;
@@ -74,6 +78,37 @@ public class SpringObjectServer extends ObjectServer {
 		applicationContext.getEnvironment().getPropertySources().addFirst(new LocalPropertiesPropertySource());
 		applicationContext.setAllowBeanDefinitionOverriding(false);
 		applicationContext.refresh();
+
+		dumpListOfBeans();
+	}
+
+	private void dumpListOfBeans() {
+		logger.debug("{} bean(s) defined in the application context. Beans by name:", applicationContext.getBeanDefinitionCount());
+		final String[] names = applicationContext.getBeanDefinitionNames();
+		Arrays.sort(names, String.CASE_INSENSITIVE_ORDER);
+		final TreeMap<String, TreeSet<String>> beansByLocation = new TreeMap<>();
+		for (int i=0; i<names.length; i++) {
+			final String name = names[i];
+			final BeanDefinition beanDef = applicationContext.getBeanFactory().getBeanDefinition(name);
+			String location = beanDef.getResourceDescription();
+			if (location == null) {
+				location = "unknown";
+			}
+			logger.debug("  {}. {} (location: {})", i+1, name, location);
+			if (!beansByLocation.containsKey(location)) {
+				beansByLocation.put(location, new TreeSet<String>(String.CASE_INSENSITIVE_ORDER));
+			}
+			final TreeSet<String> beansForThisLocation = beansByLocation.get(location);
+			beansForThisLocation.add(name);
+		}
+		logger.debug("Beans by location:");
+		for (String location : beansByLocation.keySet()) {
+			logger.debug("    {}", location);
+			TreeSet<String> beansForThisLocation = beansByLocation.get(location);
+			for (String name : beansForThisLocation) {
+				logger.debug("        {}", name);
+			}
+		}
 	}
 
 	@Override

@@ -60,6 +60,7 @@ public class CorbaNamespaceHandler extends NamespaceHandlerSupport {
 			}
 		} else {
 			AbstractBeanDefinition beanDef = new GenericBeanDefinition();
+			beanDef.setResourceDescription("class " + CorbaNamespaceHandler.class.getName());
 			beanDef.setBeanClass(NetServiceFactoryBean.class);
 			registry.registerBeanDefinition(NET_SERVICE_BEAN_NAME, beanDef);
 		}
