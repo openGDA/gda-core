@@ -18,6 +18,9 @@
 
 package gda.device.temperature;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.configuration.epics.EpicsConfiguration;
@@ -36,9 +39,6 @@ import gov.aps.jca.dbr.DBR_Double;
 import gov.aps.jca.dbr.DBR_Enum;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This class is designed to support Oxford Cryostream 700 and Phenix Crystat .
@@ -62,6 +62,11 @@ public class EpicsLakeshore340Controller extends DeviceBase implements Configura
 	 *
 	 */
 	public final double MIN_RAMP_RATE = 2.0; // K/min
+
+	/**
+	 * Channel 0 temp
+	 */
+	private Channel krdg0 = null;
 	/**
 	 * Channel 1 temp
 	 */
@@ -74,10 +79,6 @@ public class EpicsLakeshore340Controller extends DeviceBase implements Configura
 	 * Channel 3 temp
 	 */
 	private Channel krdg3 = null;
-	/**
-	 * Channel 0 temp
-	 */
-	private Channel krdg0 = null;
 
 	/**
 	 * Channel to use for readback

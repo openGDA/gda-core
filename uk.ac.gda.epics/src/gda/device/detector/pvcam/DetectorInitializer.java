@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2016 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -16,19 +16,8 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.spring.namespaces.epics;
+package gda.device.detector.pvcam;
 
-import org.springframework.beans.factory.xml.NamespaceHandler;
-import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
-
-/**
- * Spring {@link NamespaceHandler} for the {@code epics} namespace.
- */
-public class EpicsNamespaceHandler extends NamespaceHandlerSupport {
-
-	@Override
-	public void init() {
-		registerBeanDefinitionParser("devices", new DevicesBeanDefinitionParser());
-	}
-
+public interface DetectorInitializer {
+	void initialiseDetector();
 }
