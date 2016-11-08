@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="GDA Synoptic Client" uid="uk.ac.gda.client.synoptic.product" id="uk.ac.gda.client.synoptic.product" application="uk.ac.gda.client.application" version="8.56.0" useFeatures="true" includeLaunchers="true">
+<product name="GDA Synoptic Client" uid="uk.ac.gda.client.synoptic.product" id="uk.ac.gda.client.synoptic.product" application="uk.ac.gda.client.application" version="8.58.0" useFeatures="true" includeLaunchers="true">
 
    <aboutInfo>
       <image path="/uk.ac.gda.core/icons/GDAlogos/GDALogo128.png"/>

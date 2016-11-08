@@ -2,7 +2,7 @@
 <feature
       id="uk.ac.diamond.scisoft.gda.feature"
       label="scisoft gda"
-      version="8.56.0.qualifier"
+      version="8.58.0.qualifier"
       provider-name="Diamond Light Source">
 
    <description url="http://www.opengda.org/">

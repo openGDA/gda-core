@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Client
 Bundle-SymbolicName: uk.ac.gda.common.client
-Bundle-Version: 8.56.0.qualifier
+Bundle-Version: 8.58.0.qualifier
 Require-Bundle: org.eclipse.core.runtime,
  uk.ac.gda.common;bundle-version="1.0.0",
  uk.ac.gda.api;bundle-version="1.0.0",
