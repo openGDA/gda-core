@@ -40,7 +40,13 @@ class Completer(object):
         logger.debug('Caching built-ins for completion')
         self.builtins = []
         for x in dir(__builtin__):
-            obj = eval(x, self.globals) # Get the object to find out what it is
+            try:
+                obj = eval(x, self.globals) # Get the object to find out what it is
+            except SyntaxError:
+                # Calling eval on x resulted in a SyntaxError therefore it 'must' be a keyword
+                # This is almost a special case for 'print' which was changed in 2.6
+                # https://docs.python.org/2/library/functions.html#print
+                continue # So don't do anything with it
             if isinstance(obj, type):  # If its a type its a class
                 self.builtins.append((x, '', '', TYPE_CLASS))
             elif callable(obj):  # If its callable its a method
