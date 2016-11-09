@@ -35,6 +35,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -229,7 +230,8 @@ public class GDAJythonInterpreter extends ObservableComponent {
 			// Add the paths for the standard script folders to the existing _jythonScriptPaths
 			// (the instance config scripts folder is handled elsewhere)
 			int index= 1;
-			for (String pathFragment : classLoader.getStandardFolders()) {
+			for (Entry<String, String> scriptEntry : classLoader.getStandardFolders().entrySet()) {
+				String pathFragment = scriptEntry.getKey();
 				if (pathFragment.endsWith(URI_SEPARATOR)) {
 					pathFragment = pathFragment.substring(0, pathFragment.length() -1);
 				}
@@ -247,7 +249,8 @@ public class GDAJythonInterpreter extends ObservableComponent {
 						scriptFolder = Paths.get(bundlesRoot, "..", "utilities", pathFragment).toFile();	// Add in non-plugin folder offset for exported product
 					}
 					if (scriptFolder.exists() && scriptFolder.isDirectory()) {
-						final ScriptProject scriptProject = new ScriptProject(scriptFolder.getAbsolutePath(), "Scripts: Std" + index++, ScriptProjectType.CORE);
+						String title = scriptEntry.getValue() == null ? "Scripts: Std" + index++ : scriptEntry.getValue();
+						final ScriptProject scriptProject = new ScriptProject(scriptFolder.getAbsolutePath(), title, ScriptProjectType.CORE);
 						_jythonScriptPaths.addProject(scriptProject);
 					} else {
 						throw new IOException(String.format("Script folder %s does not exist", scriptFolder));

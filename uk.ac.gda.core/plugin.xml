@@ -467,16 +467,20 @@
    <extension
          point="uk.ac.diamond.daq.jython.api.scriptLocations">
       <location
-            folder="uk.ac.gda.core/scripts">
+            folder="uk.ac.gda.core/scripts"
+            name="Scripts: Core">
       </location>
       <location
-            folder="uk.ac.diamond.scisoft.python/src">
+            folder="uk.ac.diamond.scisoft.python/src"
+            name="Scripts: Scisoft">
       </location>
       <location
-            folder="diffcalc.git">
+            folder="diffcalc.git"
+            name="Scripts: Diffcalc">
       </location>
       <location
-            folder="org.eclipse.scanning.command/scripts">
+            folder="org.eclipse.scanning.command/scripts"
+            name="Scripts: Scanning">
       </location>
    </extension>
 

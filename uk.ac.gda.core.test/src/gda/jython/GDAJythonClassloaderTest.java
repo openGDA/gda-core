@@ -29,14 +29,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.osgi.framework.Constants.EXPORT_PACKAGE;
 
-import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -56,7 +53,9 @@ public class GDAJythonClassloaderTest {
 	private static final String BAD_CLASS_NAME = "NotActuallyAClass";
 	private static final String GOOD_CLASS_NAME = "org.python.monty.nudge.nudge.SayNoMore";
 	private Bundle[] bundles;
-	private final Set<String> scriptFolders = new HashSet<>(Arrays.asList(FOLDER_1));
+	private final Map<String, String> scriptFolders = new HashMap<String, String>(){{
+			put(FOLDER_1, "TMP");
+	}};
 	private final Map<String, Map<Bundle, Boolean>> included = new HashMap<>();
 	private Dictionary<String, String> headers1;
 	private Dictionary<String, String> headers2;
@@ -109,7 +108,7 @@ public class GDAJythonClassloaderTest {
 	@Test
 	public void pathsAreSetAsInitialized() {
 		GDAJythonClassLoader loader = new GDAJythonClassLoader();
-		assertThat(loader.getStandardFolders(), hasItems(FOLDER_1));
+		assertThat(loader.getStandardFolders().keySet(), hasItems(FOLDER_1));
 	}
 
 	@Test

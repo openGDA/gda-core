@@ -36,7 +36,7 @@ import org.osgi.framework.Bundle;
 public class GDAJythonClassLoader extends ClassLoader {
 
 	private static boolean staticInitialized = false;
-	private static Set<String> standardScriptFolders;
+	private static Map<String, String> standardScriptFolders;
 	private static Set<Bundle> initializedBundles;
 	private static Map<String, Map<Bundle, Boolean>> packageMap = new HashMap<>();
 
@@ -99,7 +99,7 @@ public class GDAJythonClassLoader extends ClassLoader {
 	 *
 	 * @return A set of paths relative to [WORKSPACE_NAME]_git as Strings.
 	 */
-	public Set<String> getStandardFolders() {
+	public Map<String, String> getStandardFolders() {
 		return standardScriptFolders;
 	}
 
@@ -111,7 +111,7 @@ public class GDAJythonClassLoader extends ClassLoader {
 	 * @param stdScriptFolders      A Set of paths relative to [WORKSPACE_NAME]_git as Strings where Python source files may be found.
 	 * @param pkgMap                A map of package name to a map of Bundle to whether it is part of the standard Jython API
 	 */
-	public static void initialize(final Bundle[] contextBundles, final Set<String> stdScriptFolders, final Map<String, Map<Bundle, Boolean>> pkgMap) {
+	public static void initialize(final Bundle[] contextBundles, final Map<String, String> stdScriptFolders, final Map<String, Map<Bundle, Boolean>> pkgMap) {
 		initializedBundles= new HashSet<>(Arrays.asList(contextBundles));
 		standardScriptFolders = stdScriptFolders;
 		packageMap = pkgMap;

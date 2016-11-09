@@ -57,6 +57,13 @@
          </documentation>
       </annotation>
       <complexType>
+         <attribute name="name" type="string">
+            <annotation>
+               <documentation>
+                  The name of the script project as it appears in the GDA project explorer.
+               </documentation>
+            </annotation>
+         </attribute>
          <attribute name="folder" type="string" use="required">
             <annotation>
                <documentation>
@@ -84,7 +91,8 @@
          &lt;extension
          point=&quot;uk.ac.diamond.daq.jython.api.scriptLocations&quot;&gt;
       &lt;location
-            folder=&quot;gda-epics.git/uk.ac.gda.epics/scripts&quot;&gt;
+            folder=&quot;gda-epics.git/uk.ac.gda.epics/scripts&quot;
+            title=&quot;Scripts: Epics&quot;&gt;
       &lt;/location&gt;
    &lt;/extension&gt;
       </documentation>
