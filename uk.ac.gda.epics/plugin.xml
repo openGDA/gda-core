@@ -4,7 +4,8 @@
    <extension
          point="uk.ac.diamond.daq.jython.api.scriptLocations">
       <location
-            folder="uk.ac.gda.epics/scripts">
+            folder="uk.ac.gda.epics/scripts"
+            name="Scripts: EPICS">
       </location>
    </extension>
 
