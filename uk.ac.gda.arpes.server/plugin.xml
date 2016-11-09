@@ -4,6 +4,7 @@
    <extension
          point="uk.ac.diamond.daq.jython.api.scriptLocations">
       <location
+            name="Scripts: ARPES"
             folder="uk.ac.gda.arpes.server/scripts">
       </location>
    </extension>
