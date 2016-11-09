@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="uk.ac.diamond.daq.microscopy.xraymicroscopyexperiment.ui.perspectives.XrayMicroscopyExperimentPerspective"
+            icon="icons/releng_gears.gif"
+            id="uk.ac.diamond.daq.microscopy.xraymicroscopyexperiment.ui.XrayMicroscopyExperimentPerspective"
+            name="X-ray Microscopy Experiment">
+      </perspective>
+   </extension>
+
+</plugin>
