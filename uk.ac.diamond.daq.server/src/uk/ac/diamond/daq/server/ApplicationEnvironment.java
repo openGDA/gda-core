@@ -51,7 +51,7 @@ public class ApplicationEnvironment {
 			injectBeamlineConfigurationService();
 
 			final Bundle[] bundles = GDAServerActivator.getDefault().getBundleContext().getBundles();
-			final Set<String> jythonSourceFolderNames = new HashSet<>();
+			final Map<String, String> jythonSourceFolderNames = new HashMap<>();
 			final Set<String> jythonIncludedPackagesNames = new HashSet<>();
 
 			readJythonScriptLocations(jythonSourceFolderNames);
@@ -126,13 +126,13 @@ public class ApplicationEnvironment {
 	 * @param jythonScriptFolderNames    The {@link Set} in which to store the script folder lications
 	 * @throws IOException
 	 */
-	private static void readJythonScriptLocations(final Set<String> jythonScriptFolderNames) throws IOException {
-		final IExtensionPoint jythonScriptLocations = Platform. getExtensionRegistry().getExtensionPoint(JYTHON_SCRIPT_LOCATIONS);
+	private static void readJythonScriptLocations(final Map<String, String> jythonScriptFolderNames) throws IOException {
+		final IExtensionPoint jythonScriptLocations = Platform.getExtensionRegistry().getExtensionPoint(JYTHON_SCRIPT_LOCATIONS);
 		if (jythonScriptLocations != null) {
 			for(IExtension extension : jythonScriptLocations.getExtensions()) {
 				for(IConfigurationElement element : extension.getConfigurationElements()) {
 					if (element.getName().equals(LOCATION)) {
-						jythonScriptFolderNames.add(element.getAttribute(FOLDER));
+						jythonScriptFolderNames.put(element.getAttribute(FOLDER), element.getAttribute(NAME));
 					}
 				}
 			}
