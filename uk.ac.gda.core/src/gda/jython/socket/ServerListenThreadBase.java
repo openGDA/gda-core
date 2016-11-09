@@ -19,12 +19,12 @@
 
 package gda.jython.socket;
 
-import gda.jython.JythonServerFacade;
-
 import java.io.IOException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.jython.JythonServerFacade;
 
 /**
  * Listens to a port and passes input from that to the Command Server
@@ -32,9 +32,9 @@ import org.slf4j.LoggerFactory;
 public abstract class ServerListenThreadBase extends Thread {
 	private static final Logger logger = LoggerFactory.getLogger(ServerListenThreadBase.class);
 
-	JythonServerFacade command_server = JythonServerFacade.getInstance();
+	private final JythonServerFacade command_server = JythonServerFacade.getInstance();
 
-	private SessionClosedCallback sessionClosedCallback;
+	private final SessionClosedCallback sessionClosedCallback;
 
 	protected ServerListenThreadBase(SessionClosedCallback sessionClosedCallback) {
 		this.sessionClosedCallback = sessionClosedCallback;

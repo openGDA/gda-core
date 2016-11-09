@@ -31,8 +31,6 @@ public class SocketServerWithTelnetNegotiationThread extends SocketServerThreadB
 
 		super(socket);
 
-		setUseJline(true);
-
 		// Using this Terminal subclass prevents the screen being cleared and
 		// the cursor being moved to the top left.
 		final Terminal terminal = new BetterTerminal(socket);

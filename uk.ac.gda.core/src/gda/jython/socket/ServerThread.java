@@ -19,21 +19,21 @@
 
 package gda.jython.socket;
 
-import gda.jython.JythonServerFacade;
-import gda.jython.Terminal;
-import gda.scan.ScanDataPoint;
-import gda.util.Version;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.io.Reader;
+import java.nio.charset.Charset;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.FileCopyUtils;
+
+import gda.jython.JythonServerFacade;
+import gda.jython.Terminal;
+import gda.scan.ScanDataPoint;
+import gda.util.Version;
 
 /**
  * Thread for dealing with a client connected to the Jython server.
@@ -42,10 +42,15 @@ public abstract class ServerThread extends Thread implements Terminal, SessionCl
 
 	private static final Logger logger = LoggerFactory.getLogger(ServerThread.class);
 
+	private static final Charset UTF8_CHARSET = Charset.forName("UTF-8");
+
+	protected final JythonServerFacade command_server = JythonServerFacade.getInstance();
+
+	private OutputStream out = null;
+	private InputStream in = null;
+
 	private static final String WELCOME_BANNER_FILENAME = "welcome_banner.txt";
-
 	private static final String WELCOME_BANNER = readBanner();
-
 	private static String readBanner() {
 		try {
 			InputStream is = ServerThread.class.getResourceAsStream(WELCOME_BANNER_FILENAME);
@@ -56,12 +61,6 @@ public abstract class ServerThread extends Thread implements Terminal, SessionCl
 			return "";
 		}
 	}
-
-	protected JythonServerFacade command_server = JythonServerFacade.getInstance();
-
-	protected PrintWriter out = null;
-
-	protected InputStream in = null;
 
 	protected ServerThread() {
 		super("CommandThread");
@@ -87,24 +86,15 @@ public abstract class ServerThread extends Thread implements Terminal, SessionCl
 	}
 
 	protected void setOutputStream(OutputStream outputStream) {
-		out = new PrintWriter(outputStream, true);
-	}
-
-	protected boolean useJline;
-
-	public void setUseJline(boolean useJline) {
-		this.useJline = useJline;
+		this.out = outputStream;
 	}
 
 	@Override
 	public synchronized void run() {
-		out.printf(WELCOME_BANNER, Version.getRelease());
+		write(String.format(WELCOME_BANNER, Version.getRelease()));
+
 		try {
-			if (useJline) {
-				new JlineServerListenThread(this.in, this.out, this).start();
-			} else {
-				new ServerListenThread(this.in, this.out, this).start();
-			}
+			new JlineServerListenThread(this.in, this.out, this).start();
 		} catch (IOException e) {
 			logger.error("Unable to create thread to listen to client", e);
 		}
@@ -119,20 +109,26 @@ public abstract class ServerThread extends Thread implements Terminal, SessionCl
 	@Override
 	public synchronized void update(Object name, Object data) {
 		if (data instanceof ScanDataPoint) {
-			String point = ((ScanDataPoint) data).toString();
-			out.println(point);
-			out.flush();
+			String string = ((ScanDataPoint) data).toString();
+			write(string);
 		}
 	}
 
 	@Override
 	public synchronized void write(byte[] data) {
-		write(new String(data));
+		try {
+			out.write(data);
+			out.flush();
+		} catch (IOException e) {
+			// Re-encode the data as UTF8 to make it readable
+			logger.error("Error writting '{}' to console", new String(data, UTF8_CHARSET), e);
+		}
 	}
 
 	@Override
 	public void write(String output) {
-		out.print(output);
-		out.flush();
+		// Call through to the byte[] method, after encoding with UTF8
+		write(output.getBytes(UTF8_CHARSET));
 	}
+
 }

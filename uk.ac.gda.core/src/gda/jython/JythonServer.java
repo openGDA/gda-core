@@ -20,6 +20,34 @@
 package gda.jython;
 
 import static java.text.MessageFormat.format;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.io.Writer;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Vector;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
+
+import org.apache.sshd.server.PasswordAuthenticator;
+import org.python.core.Py;
+import org.python.core.PyList;
+import org.python.core.PyObject;
+import org.python.core.PyStringMap;
+import org.python.util.InteractiveConsole;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
+
 import gda.commandqueue.IFindableQueueProcessor;
 import gda.configuration.properties.LocalProperties;
 import gda.device.Detector;
@@ -56,34 +84,6 @@ import gda.scan.ScanDataPoint;
 import gda.scan.ScanInformation;
 import gda.scan.ScanInterruptedException;
 import gda.util.exceptionUtils;
-
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
-import java.io.Writer;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Vector;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.FutureTask;
-
-import org.apache.sshd.server.PasswordAuthenticator;
-import org.python.core.Py;
-import org.python.core.PyList;
-import org.python.core.PyObject;
-import org.python.core.PyStringMap;
-import org.python.util.InteractiveConsole;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.util.StringUtils;
 
 /**
  * This controls the information given to the Jython engine (GDAJythonInterpreter). This implements the Jython
@@ -172,8 +172,6 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	private PasswordAuthenticator authenticator;
 
 	private int remotePort = -1;
-
-	private boolean remoteServerUsesJline=true;
 
 	private String gdaStationScript;
 
@@ -295,10 +293,6 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 		this.remotePort = remotePort;
 	}
 
-	public void setRemoteServerUsesJline(boolean remoteServerUsesJline) {
-		this.remoteServerUsesJline = remoteServerUsesJline;
-	}
-
 	/**
 	 * Add a Pseudo Device to the list of defaults
 	 *
@@ -399,7 +393,6 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 				socket.setServerType(remoteServerType);
 				socket.setAuthenticator(authenticator);
 				socket.setPort(port);
-				socket.setUseJline(remoteServerUsesJline);
 				new Thread(socket, "Jython SocketServer port " + port).start();
 				atStartup = false;
 			}

@@ -36,6 +36,8 @@ public abstract class SocketServerThreadBase extends ServerThread implements Ses
 
 	@Override
 	public void sessionClosed() {
+		// Remove ourself as a terminal also removes us as an observer
+		command_server.deleteOutputTerminal(this);
 		try {
 			socket.close();
 		} catch (IOException ioe) {

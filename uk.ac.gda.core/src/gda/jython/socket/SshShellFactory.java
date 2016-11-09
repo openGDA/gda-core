@@ -26,15 +26,9 @@ import org.apache.sshd.server.ShellFactory;
  */
 public class SshShellFactory implements ShellFactory {
 
-	private boolean useJline;
-
-	public SshShellFactory(boolean useJline) {
-		this.useJline = useJline;
-	}
-
 	@Override
 	public Shell createShell() {
-		return new SshShell(useJline);
+		return new SshShell();
 	}
 
 }

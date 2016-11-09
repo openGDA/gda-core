@@ -19,8 +19,6 @@
 
 package gda.jython.socket;
 
-import gda.configuration.properties.LocalProperties;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -30,6 +28,8 @@ import org.apache.sshd.server.PasswordAuthenticator;
 import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.configuration.properties.LocalProperties;
 
 /**
  * Provides a socket for the GDA command server to accept commands from outside the GDA
@@ -51,12 +51,10 @@ public class SocketServer implements Runnable {
 	private static final Logger logger = LoggerFactory.getLogger(SocketServer.class);
 
 	/** set to false to close socket */
-	public boolean listening = true;
+	public volatile boolean listening = true;
 
 	// the default port
 	int port = 4444;
-
-	private boolean useJline;
 
 	String name = "command_socket";
 
@@ -100,15 +98,11 @@ public class SocketServer implements Runnable {
 		try {
 			while (listening) {
 				// start a new thread for every connection to this socket
-				if (useJline) {
-					new SocketServerWithTelnetNegotiationThread(serverSocket.accept()).start();
-				} else {
-					new SocketServerThread(serverSocket.accept()).start();
-				}
+				new SocketServerWithTelnetNegotiationThread(serverSocket.accept()).start();
 			}
 			serverSocket.close();
-		} catch (IOException ex) {
-			// add an error!
+		} catch (IOException e) {
+			logger.error("Error in Telnet server thread", e);
 		}
 	}
 
@@ -126,7 +120,7 @@ public class SocketServer implements Runnable {
 		File hostKey = new File(new File(gdaConfig, "etc"), "hostkey.ser");
 		sshd.setKeyPairProvider(new SimpleGeneratorHostKeyProvider(hostKey.getAbsolutePath()));
 
-		sshd.setShellFactory(new SshShellFactory(useJline));
+		sshd.setShellFactory(new SshShellFactory());
 
 		sshd.setPasswordAuthenticator(authenticator);
 
@@ -154,10 +148,6 @@ public class SocketServer implements Runnable {
 	 */
 	public void setPort(int portNumber) {
 		port = portNumber;
-	}
-
-	public void setUseJline(boolean useJline) {
-		this.useJline = useJline;
 	}
 
 	private PasswordAuthenticator authenticator;
