@@ -4,7 +4,8 @@
    <extension
          point="uk.ac.diamond.daq.jython.api.scriptLocations">
       <location
-            folder="uk.ac.gda.bimorph/scripts">
+            folder="uk.ac.gda.bimorph/scripts"
+            name="Scripts: Bimorph">
       </location>
    </extension>
 </plugin>
