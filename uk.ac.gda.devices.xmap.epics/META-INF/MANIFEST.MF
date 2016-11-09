@@ -15,4 +15,5 @@ Require-Bundle: org.eclipse.january;bundle-version="1.0.0",
  uk.ac.gda.exafs.api;bundle-version="1.0.0",
  org.apache.commons.lang;bundle-version="2.6.0",
  uk.ac.diamond.org.springframework;bundle-version="4.0.6"
+Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Export-Package: gda.device.detector.xmap
