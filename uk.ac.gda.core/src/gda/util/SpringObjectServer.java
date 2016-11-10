@@ -83,7 +83,7 @@ public class SpringObjectServer extends ObjectServer {
 
 	private void dumpListOfBeans() {
 		logger.debug("{} bean(s) defined in the application context. Beans by name:", applicationContext.getBeanDefinitionCount());
-		final String[] names = applicationContext.getBeanDefinitionNames();
+		final String[] names = applicationContext.getBeanDefinitionNames().clone();
 		Arrays.sort(names, String.CASE_INSENSITIVE_ORDER);
 		final TreeMap<String, TreeSet<String>> beansByLocation = new TreeMap<>();
 		for (int i=0; i<names.length; i++) {
