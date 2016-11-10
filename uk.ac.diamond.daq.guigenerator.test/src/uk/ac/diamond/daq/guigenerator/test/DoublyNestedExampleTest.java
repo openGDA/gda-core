@@ -68,7 +68,7 @@ public class DoublyNestedExampleTest extends GuiGeneratorTestBase {
 	public void testInitialDoubleWrapperBeanDescription() throws Exception {
 		Control control = getNamedControl("description");
 		assertThat(control, is(instanceOf(Text.class)));
-		assertThat(((Text) control).getText(), is(equalTo(doubleWrapperBean.getDescription())));
+		assertThat(((Text) control).getText().replace("\r", ""), is(equalTo(doubleWrapperBean.getDescription())));
 	}
 
 	@Test
@@ -76,7 +76,7 @@ public class DoublyNestedExampleTest extends GuiGeneratorTestBase {
 		Composite wrapperBeanComposite = (Composite) getNamedControl("wrapperBean");
 		Control control = getNamedControl(wrapperBeanComposite, "name");
 		assertThat(control, is(instanceOf(Label.class)));
-		assertThat(((Label) control).getText(), is(equalTo(doubleWrapperBean.getWrapperBean().getName())));
+		assertThat(((Label) control).getText().replace("\r", ""), is(equalTo(doubleWrapperBean.getWrapperBean().getName())));
 	}
 
 	@Test
@@ -84,7 +84,7 @@ public class DoublyNestedExampleTest extends GuiGeneratorTestBase {
 		Composite wrapperBeanComposite = (Composite) getNamedControl("wrapperBean");
 		Control control = getNamedControl(wrapperBeanComposite, "description");
 		assertThat(control, is(instanceOf(Text.class)));
-		assertThat(((Text) control).getText(), is(equalTo(doubleWrapperBean.getWrapperBean().getDescription())));
+		assertThat(((Text) control).getText().replace("\r", ""), is(equalTo(doubleWrapperBean.getWrapperBean().getDescription())));
 	}
 
 	@Test
@@ -102,7 +102,7 @@ public class DoublyNestedExampleTest extends GuiGeneratorTestBase {
 		Composite simpleBeanComposite = (Composite) getNamedControl(wrapperBeanComposite, "simpleBean");
 		Control control = getNamedControl(simpleBeanComposite, "description");
 		assertThat(control, is(instanceOf(Text.class)));
-		assertThat(((Text) control).getText(), is(equalTo(doubleWrapperBean.getWrapperBean().getSimpleBean().getDescription())));
+		assertThat(((Text) control).getText().replace("\r", ""), is(equalTo(doubleWrapperBean.getWrapperBean().getSimpleBean().getDescription())));
 	}
 
 	@Test

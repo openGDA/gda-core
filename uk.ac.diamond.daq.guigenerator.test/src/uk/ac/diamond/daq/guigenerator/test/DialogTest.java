@@ -7,6 +7,8 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 import org.eclipse.richbeans.api.generator.IGuiGeneratorService;
@@ -98,7 +100,7 @@ public class DialogTest {
 	private TestBean testBean;
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() throws Throwable {
 		guiGenerator = new GuiGeneratorService();
 
 		testBean = new TestBean();
@@ -108,44 +110,70 @@ public class DialogTest {
 
 		dialogClosedLatch = new CountDownLatch(1);
 
+		final List<Throwable> errors = new ArrayList<Throwable>(1);
+
 		// The details are important here! If the dialog is opened with syncExec(), the call will only return when the
 		// user closes the dialog (which might be impossible in headless tests). So, we open the dialog with
 		// asyncExec(), which somehow works and doesn't block the UI thread.
 		display.asyncExec(() -> {
-			guiGenerator.openDialog(testBean, null, "Test dialog");
-			dialogClosedLatch.countDown();
+			try {
+				guiGenerator.openDialog(testBean, null, "Test dialog");
+				dialogClosedLatch.countDown();
+			} catch (Throwable ne) {
+				errors.add(ne);
+			}
 		});
+
+		if (!errors.isEmpty()) throw errors.get(0);
+
 		// Then, we get the metawidget from the dialog. We use syncExec() to ensure that the metawidget field is
 		// properly initialised before the test method is called.
 		display.syncExec(() -> {
-			// Get the dialog shell
-			// (We need to get all shells, confirm there is only one and then use it, because display.getActiveShell()
-			// returns null when the tests are run via ant in headless mode.)
-			assertThat(display.getShells().length, is(equalTo(1)));
-			Shell dialog = display.getShells()[0];
+			try {
+				// Get the dialog shell
+				// (We need to get all shells, confirm there is only one and then use it, because display.getActiveShell()
+				// returns null when the tests are run via ant in headless mode.)
+				assertThat(display.getShells().length, is(equalTo(1)));
+				Shell dialog = display.getShells()[0];
 
-			// There is one child Composite in the shell. The first of its children should be the generated metawidget.
-			assertThat(dialog.getChildren().length, is(equalTo(1)));
-			Control[] windowContents = ((Composite) dialog.getChildren()[0]).getChildren();
-			metawidget = (Composite) windowContents[0];
-			// Confirm that the composite is the Metawidget before we try and run any tests
-			assertEquals("org.metawidget.swt.SwtMetawidget", metawidget.getClass().getName());
+				// There is one child Composite in the shell. The first of its children should be the generated metawidget.
+				assertThat(dialog.getChildren().length, is(equalTo(1)));
+				Control[] windowContents = ((Composite) dialog.getChildren()[0]).getChildren();
+				metawidget = (Composite) windowContents[0];
+				// Confirm that the composite is the Metawidget before we try and run any tests
+				assertEquals("org.metawidget.swt.SwtMetawidget", metawidget.getClass().getName());
 
-			// Get the OK button, confirm its identity and keep a reference to it.
-			Composite buttonComposite = (Composite) windowContents[1];
-			Control[] buttons = buttonComposite.getChildren();
-			assertThat(buttons[0], is(instanceOf(Button.class)));
-			okButton = (Button) buttons[0];
-			assertThat(okButton.getText(), is(equalTo("OK")));
+				// Get the OK button, confirm its identity and keep a reference to it.
+				Composite buttonComposite = (Composite) windowContents[1];
+				Control[] buttons = buttonComposite.getChildren();
+				assertThat(buttons[0], is(instanceOf(Button.class)));
+				okButton = (Button) buttons[0];
+				assertThat(okButton.getText(), is(equalTo("OK")));
+			} catch (Throwable ne) {
+				errors.add(ne);
+			}
 		});
+
+		if (!errors.isEmpty()) throw errors.get(0);
+
 	}
 
 	@After
-	public void tearDown() throws Exception {
+	public void tearDown() throws Throwable {
+
+		final List<Throwable> errors = new ArrayList<Throwable>(1);
 		// Programmatically simulate pressing the OK button to close the dialog, by sending a selection event.
 		display.syncExec(() -> {
-			okButton.notifyListeners(SWT.Selection, new Event());
+			try {
+				okButton.notifyListeners(SWT.Selection, new Event());
+			} catch (Throwable ne) {
+				errors.add(ne);
+			}
 		});
+
+		if (!errors.isEmpty()) throw errors.get(0);
+
+
 		// Wait for the dialog to close (if this fails, any subsequent tests will probably fail during setup)
 		dialogClosedLatch.await(2, SECONDS);
 
@@ -163,31 +191,49 @@ public class DialogTest {
 	//
 
 	@Test
-	public void testStringFieldIsText() throws Exception {
+	public void testStringFieldIsText() throws Throwable {
+		final List<Throwable> errors = new ArrayList<Throwable>(1);
 		// Important to use syncExec() here
 		display.syncExec(() -> {
-			Control control = getNamedControl("stringField");
-			assertThat(control, is(instanceOf(Text.class)));
+			try {
+				Control control = getNamedControl("stringField");
+				assertThat(control, is(instanceOf(Text.class)));
+			} catch (Throwable ne){
+				errors.add(ne);
+			}
 		});
+		if (!errors.isEmpty()) throw errors.get(0);
 	}
 
 	@Test
-	public void testDoubleFieldInitalValue() throws Exception {
+	public void testDoubleFieldInitalValue() throws Throwable {
+		final List<Throwable> errors = new ArrayList<Throwable>(1);
 		display.syncExec(() -> {
-			Control control = getNamedControl("doubleField");
-			assertThat(((Text) control).getText(), is(equalTo(String.valueOf(testBean.getDoubleField()))));
+			try {
+				Control control = getNamedControl("doubleField");
+				assertThat(((Text) control).getText(), is(equalTo(String.valueOf(testBean.getDoubleField()))));
+			} catch (Throwable ne){
+				errors.add(ne);
+			}
 		});
+		if (!errors.isEmpty()) throw errors.get(0);
 	}
 
 	@Test
-	public void testDoubleFieldDataBinding() throws Exception {
+	public void testDoubleFieldDataBinding() throws Throwable {
+		final List<Throwable> errors = new ArrayList<Throwable>(1);
 		display.syncExec(() -> {
-			Text control = (Text) getNamedControl("doubleField");
-			// Change the value in the GUI box
-			control.setText("655.4");
-			// Check the bean is updated
-			assertEquals("doubleField not updated", 655.4, testBean.getDoubleField(), Double.MIN_VALUE);
+			try {
+				Text control = (Text) getNamedControl("doubleField");
+				// Change the value in the GUI box
+				control.setText("655.4");
+				// Check the bean is updated
+				assertEquals("doubleField not updated", 655.4, testBean.getDoubleField(), Double.MIN_VALUE);
+			} catch (Throwable ne){
+				errors.add(ne);
+			}
 		});
+		if (!errors.isEmpty()) throw errors.get(0);
 	}
 
 	protected Control getNamedControl(String name) {

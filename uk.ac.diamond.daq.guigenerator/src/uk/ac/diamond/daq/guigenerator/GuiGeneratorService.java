@@ -117,7 +117,7 @@ public class GuiGeneratorService implements IGuiGeneratorService {
 
 	@Override
 	public <T> void openDialog(Object bean, T parent, String title) {
-		if (!(parent instanceof Shell)) throw new RuntimeException(getClass().getSimpleName()+" cannot deal with UI components other than Shell!");
+		if (parent!=null && !(parent instanceof Shell)) throw new RuntimeException(getClass().getSimpleName()+" cannot deal with UI components other than Shell!");
 		new ObjectEditorDialog(bean, (Shell)parent, title, this).open();
 	}
 }
