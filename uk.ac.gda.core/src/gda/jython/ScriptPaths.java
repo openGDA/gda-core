@@ -148,12 +148,14 @@ public class ScriptPaths {
 	}
 
 	/**
-	 * Merge the incoming {@link ScriptPaths} object with this one resulting in its
-	 * projects also being referenced by this object's projects collection
+	 * Add the incoming {@link ScriptProject} object to the projects collection
+	 * if it's not already present
 	 *
-	 * @param scriptPaths
+	 * @param scriptProject
 	 */
-	void merge(final ScriptPaths scriptPaths) {
-		this.projects.addAll(scriptPaths.getProjects());
+	void addProject(final ScriptProject scriptProject) {
+		if (!projects.contains(scriptProject)) {
+			projects.add(scriptProject);
+		}
 	}
 }

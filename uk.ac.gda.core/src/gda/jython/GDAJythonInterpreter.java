@@ -248,7 +248,7 @@ public class GDAJythonInterpreter extends ObservableComponent {
 					}
 					if (scriptFolder.exists() && scriptFolder.isDirectory()) {
 						final ScriptProject scriptProject = new ScriptProject(scriptFolder.getAbsolutePath(), "Scripts: Std" + index++, ScriptProjectType.CORE);
-						_jythonScriptPaths.merge(new ScriptPaths(Arrays.asList(scriptProject)));
+						_jythonScriptPaths.addProject(scriptProject);
 					} else {
 						throw new IOException(String.format("Script folder %s does not exist", scriptFolder));
 					}

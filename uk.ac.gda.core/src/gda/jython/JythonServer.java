@@ -409,7 +409,6 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 
 	private GDAJythonInterpreter createJythonInterpreter() {
 		GDAJythonInterpreter interpreter = new GDAJythonInterpreter();
-		jythonScriptPaths.setProjects(new ArrayList<>());        // for reset_namespace to prevent duplication
 		interpreter.setJythonScriptPaths(jythonScriptPaths);
 		interpreter.setGdaVarDirectory(gdaVarDirectory);
 		interpreter.setCacheDirectory(cacheDirectory);
