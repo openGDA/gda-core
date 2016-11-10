@@ -79,10 +79,12 @@ public class GuiGeneratorService implements IGuiGeneratorService {
 	}
 
 	@Override
-	public Control generateGui(Object bean, Composite parent) {
+	public <T> T generateGui(Object bean, T parent) {
+
+		if (!(parent instanceof Composite)) throw new RuntimeException(getClass().getSimpleName()+" cannot deal with UI components other than Composite!");
 
 		// Create a Metawidget
-		SwtMetawidget metawidget = new SwtMetawidget(parent, SWT.NONE);
+		SwtMetawidget metawidget = new SwtMetawidget((Composite)parent, SWT.NONE);
 
 		// Metawidget builds GUIs in five stages
 		// 1. Inspector
@@ -110,11 +112,12 @@ public class GuiGeneratorService implements IGuiGeneratorService {
 		metawidget.setToInspect(bean);
 		metawidget.pack();
 
-		return metawidget;
+		return (T)metawidget;
 	}
 
 	@Override
-	public void openDialog(Object bean, Shell parent, String title) {
-		new ObjectEditorDialog(bean, parent, title, this).open();
+	public <T> void openDialog(Object bean, T parent, String title) {
+		if (!(parent instanceof Shell)) throw new RuntimeException(getClass().getSimpleName()+" cannot deal with UI components other than Shell!");
+		new ObjectEditorDialog(bean, (Shell)parent, title, this).open();
 	}
 }
