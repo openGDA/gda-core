@@ -56,25 +56,21 @@ public class DataCollectionPerspective implements IPerspectiveFactory {
 
 	private IPageLayout factory;
 
-	public DataCollectionPerspective() {
-		super();
-	}
-
 	@Override
 	public void createInitialLayout(IPageLayout factory) {
 		this.factory = factory;
 		addViews();
 		addActionSets();
 		addNewWizardShortcuts();
-		addPerspectiveShortcuts();
 		addViewShortcuts();
 	}
 
 	private void addViews() {
 		// Creates the overall folder layout.
 		// Note that each new Folder uses a percentage of the remaining EditorArea.
-
 		String editorArea = factory.getEditorArea();
+		factory.setEditorAreaVisible(false);
+
 		factory.addStandaloneView(STATUS_VIEW_ID, false, IPageLayout.TOP, 0.15f, editorArea);
 		IViewLayout statusLayout = factory.getViewLayout(STATUS_VIEW_ID);
 		statusLayout.setCloseable(false);
@@ -98,14 +94,10 @@ public class DataCollectionPerspective implements IPerspectiveFactory {
 		rightBottom.addPlaceholder("org.eclipse.ui.browser.view:data.dispenser.browser");
 		rightBottom.addPlaceholder(CommandQueueViewFactory.ID);
 		rightBottom.addPlaceholder("org.dawb.workbench.plotting.views.toolPageView.*");
-
 	}
 
 	private void addActionSets() {
 		factory.addActionSet(IPageLayout.ID_NAVIGATE_ACTION_SET);
-	}
-
-	private void addPerspectiveShortcuts() {
 	}
 
 	private void addNewWizardShortcuts() {
@@ -113,9 +105,7 @@ public class DataCollectionPerspective implements IPerspectiveFactory {
 		factory.addNewWizardShortcut("org.eclipse.ui.wizards.new.file");
 	}
 
-	@SuppressWarnings("deprecation")
 	private void addViewShortcuts() {
-		factory.addShowViewShortcut(IPageLayout.ID_RES_NAV);
 		factory.addShowViewShortcut(IPageLayout.ID_PROBLEM_VIEW);
 		factory.addShowViewShortcut(IPageLayout.ID_OUTLINE);
 	}
