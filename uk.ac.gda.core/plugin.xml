@@ -496,4 +496,13 @@
       </marshaller>
    </extension>
 
+   <extension
+       point="org.eclipse.dawnsci.analysis.api.classregistry">
+      <classregistry
+            class="uk.ac.gda.core.classregistry.GDACoreClassRegistry"
+            id="uk.ac.gda.core.classregistry.GDACoreClassRegistry">
+      </classregistry>
+   </extension>
+
+
 </plugin>
