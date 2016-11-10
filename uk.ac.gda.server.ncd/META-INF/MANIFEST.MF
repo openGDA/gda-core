@@ -40,6 +40,8 @@ Export-Package: uk.ac.gda.server.ncd,
  uk.ac.gda.server.ncd.subdetector.corba,
  uk.ac.gda.server.ncd.subdetector.corba.CorbaNcdsubDetectorPackage,
  uk.ac.gda.server.ncd.subdetector.corba.impl
-Eclipse-RegisterBuddy: uk.ac.gda.core
+Eclipse-RegisterBuddy: uk.ac.gda.core,
+ org.springframework.beans.factory
 Import-Package: Jama,
- org.slf4j;version="[1.7.2,2.0.0)"
+ org.slf4j;version="[1.7.2,2.0.0)",
+ org.springframework.beans.factory;version="4.0.6.RELEASE"
