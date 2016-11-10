@@ -62,7 +62,7 @@ public class SimpleExampleTest extends GuiGeneratorTestBase {
 	public void testInitialDescription() throws Exception {
 		Control control = getNamedControl("description");
 		assertThat(control, is(instanceOf(Text.class)));
-		assertThat(((Text) control).getText(), is(equalTo(simpleBean.getDescription())));
+		assertThat(((Text) control).getText().replace("\r", ""), is(equalTo(simpleBean.getDescription())));
 	}
 
 	@Test
