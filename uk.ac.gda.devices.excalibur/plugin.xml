@@ -19,7 +19,8 @@
    <extension
          point="uk.ac.diamond.daq.jython.api.scriptLocations">
       <location
-            folder="uk.ac.gda.devices.excalibur/scripts">
+            folder="uk.ac.gda.devices.excalibur/scripts"
+            name="Scripts: Excalibur">
       </location>
    </extension>
 
