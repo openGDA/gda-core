@@ -50,6 +50,8 @@ public class ScriptingPerspective implements IPerspectiveFactory {
 	@Override
 	public void createInitialLayout(IPageLayout factory) {
 		this.factory = factory;
+		factory.setEditorAreaVisible(false);
+
 		addViews();
 		addActionSets();
 		addNewWizardShortcuts();
@@ -59,7 +61,6 @@ public class ScriptingPerspective implements IPerspectiveFactory {
 	private void addViews() {
 		// Creates the overall folder layout.
 		// Note that each new Folder uses a percentage of the remaining EditorArea.
-
 		factory.addStandaloneView(STATUS_VIEW_ID, false, IPageLayout.TOP, 0.13f, factory.getEditorArea());
 		IViewLayout statusLayout = factory.getViewLayout(STATUS_VIEW_ID);
 		statusLayout.setCloseable(false);
