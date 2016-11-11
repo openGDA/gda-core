@@ -124,29 +124,4 @@ public class RelativeLimitValidator implements PositionValidator {
 		return null;
 	}
 
-	// private Scannable host;
-	//
-	// public void setHost(Scannable host) {
-	// this.host = host;
-	// }
-	//
-	// public Scannable getHost() {
-	// return host;
-	// }
-	//
-	//
-	// public int getaIndex() {
-	// if (aIndex == null) {
-	// aIndex = Arrays.asList(host.getInputNames()).indexOf(aName);
-	// }
-	// return aIndex;
-	// }
-	//
-	// public int getbIndex() {
-	// if (bIndex == null) {
-	// bIndex = Arrays.asList(host.getInputNames()).indexOf(bName);
-	// }
-	// return bIndex;
-	// }
-
 }
