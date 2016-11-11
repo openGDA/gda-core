@@ -21,6 +21,7 @@ package gda.data.nexus;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertTrue;
+import org.junit.Ignore;
 import gda.TestHelpers;
 import gda.configuration.properties.LocalProperties;
 import gda.data.metadata.GDAMetadataProvider;
@@ -61,6 +62,7 @@ import uk.ac.gda.util.io.FileUtils;
 /**
  * Class to test writing of nexus files during a scan
  */
+@Ignore("DAQ-368 Test temporarily ignored, due to unavailablility of a required network filesystem")
 public class ScanToNexusTest {
 
 	final static String TestFileFolder = "testfiles/gda/data/nexus/";
