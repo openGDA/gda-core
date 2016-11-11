@@ -21,6 +21,7 @@ Starts the server as an Eclipse OSGI application
 -console
       </programArgs>
       <vmArgs>-Dosgi.gda.application=true
+-Drebel.workspace.path=${workspace_loc}
       </vmArgs>
       <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
       </vmArgsMac>
