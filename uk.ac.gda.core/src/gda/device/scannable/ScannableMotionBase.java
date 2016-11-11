@@ -28,8 +28,8 @@ import gda.device.scannable.component.PositionValidator;
 import gda.device.scannable.component.ScannableLimitsComponent;
 import gda.device.scannable.component.ScannableOffsetAndScalingComponent;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
@@ -52,7 +52,7 @@ public class ScannableMotionBase extends ScannableBase implements ScannableMotio
 
 	protected int numberTries = 1;
 
-	private List<PositionValidator> additionalPositionValidators = new ArrayList<PositionValidator>();
+	private Set<PositionValidator> additionalPositionValidators = new LinkedHashSet<PositionValidator>();
 
 	/**
 	 * Array of tolerance values. Used by the isAt() method. Can be set manually via setTolerance or setTolerances.
@@ -604,11 +604,11 @@ public class ScannableMotionBase extends ScannableBase implements ScannableMotio
 		additionalPositionValidators.add(validator);
 	}
 
-	public void setAdditionalPositionValidators(List<PositionValidator> additionalPositionValidators) {
+	public void setAdditionalPositionValidators(Set<PositionValidator> additionalPositionValidators) {
 		this.additionalPositionValidators = additionalPositionValidators;
 	}
 
-	public List<PositionValidator> getAdditionalPositionValidators() {
+	public Set<PositionValidator> getAdditionalPositionValidators() {
 		return additionalPositionValidators;
 	}
 

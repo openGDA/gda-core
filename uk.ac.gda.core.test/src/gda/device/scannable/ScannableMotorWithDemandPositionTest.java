@@ -94,7 +94,8 @@ public class ScannableMotorWithDemandPositionTest {
 		sm.setMotorName("motor");
 		sm.configure();
 		assertEquals(motor, sm.getMotor());
-		assertEquals(sm.getMotorLimitsComponent(), sm.getAdditionalPositionValidators().get(0));
+		assertEquals(1, sm.getAdditionalPositionValidators().size());
+		assertTrue(sm.getAdditionalPositionValidators().contains(sm.getMotorLimitsComponent()));
 	}
 
 	@Test
