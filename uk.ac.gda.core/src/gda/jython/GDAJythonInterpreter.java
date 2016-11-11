@@ -51,7 +51,6 @@ import org.python.core.PySystemState;
 import org.python.core.PyUnicode;
 import org.python.core.imp;
 import org.python.util.InteractiveConsole;
-import org.python.util.PythonInterpreter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
@@ -77,21 +76,71 @@ public class GDAJythonInterpreter extends ObservableComponent {
 	private static final Logger logger = LoggerFactory.getLogger(GDAJythonInterpreter.class);
 	private static final String JYTHON_VERSION = "2.5";
 	private static final String JYTHON_BUNDLE_PATH = "uk.ac.diamond.jython/jython%s";
+	private static final String UTF_8 = "UTF-8";
+	private static final Properties sysProps;
+
+	private static File cacheDir;
 
 	// the Jython interpreter
 	private InteractiveConsole interp;
 
 	// to avoid running the initialise method more than once
-	boolean configured = false;
+	private boolean configured = false;
 
 	// the translator object used to convert GDA syntax into 'true' jython
-	static private Translator translator = null;
+	private static Translator translator = null;
 
 	// folders where beamline and user scripts are held
 	private ScriptPaths _jythonScriptPaths;
 	private String _gdaVarDir;
 
-	private File cacheDir;
+	private final GDAJythonClassLoader classLoader = new GDAJythonClassLoader();
+
+	/**
+	 * Static initializer bock to set all the static parameters on the PySystemState class
+	 * to be used in all instantiations, i.e. those that persist through reset_namespace
+	 */
+	static {
+		// If not already specified, work out the Jython cache directory and
+		// create if required
+		String cacheDirName = LocalProperties.getVarDir() + "jythonCache";
+		cacheDir = new File(cacheDirName);
+		if (!cacheDir.exists()) {
+			cacheDir.mkdir();
+		}
+
+		// custom properties for the GDA
+		logger.info("determining Jython properties...");
+		final Properties gdaCustomProperties = new Properties();
+		gdaCustomProperties.setProperty("python.console.encoding", UTF_8);
+		gdaCustomProperties.setProperty("python.cachedir", cacheDir.getAbsolutePath());
+
+		try {
+			final File jythonRoot = EclipseUtils.resolveBundleFolderFile(String.format(JYTHON_BUNDLE_PATH, JYTHON_VERSION));
+			gdaCustomProperties.setProperty("python.home", jythonRoot.getAbsolutePath());
+		} catch (IOException e) {
+			throw new RuntimeException("Jython bundle not found", e);
+		}
+
+		if (LocalProperties.check("python.options.showJavaExceptions", false)) {
+			gdaCustomProperties.setProperty("python.options.showJavaExceptions", "true");
+		}
+
+		gdaCustomProperties.setProperty("python.options.includeJavaStackInExceptions", "false");
+
+		if (LocalProperties.check("python.options.showPythonProxyExceptions", false)) {
+			gdaCustomProperties.setProperty("python.options.showPythonProxyExceptions", "true");
+		}
+		String verbose = LocalProperties.get("python.verbose", "");
+		if (!verbose.isEmpty()) {
+			gdaCustomProperties.setProperty("python.verbose", verbose);
+		}
+
+		sysProps = System.getProperties();
+
+		// Initialise the Jython 'sys' class statics for use when constructing instances of it
+		PySystemState.initialize(sysProps, gdaCustomProperties);
+	}
 
 	public ScriptPaths getJythonScriptPaths() {
 		return _jythonScriptPaths;
@@ -137,7 +186,7 @@ public class GDAJythonInterpreter extends ObservableComponent {
 	 *            the cache directory
 	 */
 	public void setCacheDirectory(File cacheDirectory) {
-		this.cacheDir = cacheDirectory;
+		cacheDir = cacheDirectory;
 	}
 
 	private static String appendSeparator(String file) {
@@ -151,124 +200,74 @@ public class GDAJythonInterpreter extends ObservableComponent {
 	 * Configures this interpreter.
 	 */
 	public void configure() {
-		// If not already specified, work out the Jython cache directory and
-		// create if required
-		if (cacheDir == null) {
-			String cacheDirName = LocalProperties.getVarDir() + "jythonCache";
-			cacheDir = new File(cacheDirName);
-		}
-		if (!cacheDir.exists()) {
-			cacheDir.mkdir();
+		// Check the OSGi aware Jython Classloader is properly initialized before proceeding
+		if (!GDAJythonClassLoader.useGDAClassLoader()) {
+			logger.error("GDAJythonClassLoader not initialized properly GDA-Server cannot Start");
+			throw new UnsupportedOperationException();
 		}
 
-		// custom properties for the GDA
-		logger.info("determining Jython properties...");
-		Properties gdaCustomProperties = new Properties();
-		gdaCustomProperties.setProperty("python.console.encoding", "UTF-8");
-		gdaCustomProperties.setProperty("python.cachedir", cacheDir.getAbsolutePath());
+		logger.info("adding GDA package locations to Jython path...");
 
+		// Create a new Jython 'sys' instance to be used by the Py infrastructure based on the settings
+		// supplied to PySystemState.initialize in the initializer block above.
+		// Enclose in a try/catch so that any underlying Jython errors are not lost to the log.
 		try {
-			final File jythonRoot = EclipseUtils.resolveBundleFolderFile(String.format(JYTHON_BUNDLE_PATH, JYTHON_VERSION));
-			gdaCustomProperties.setProperty("python.home", jythonRoot.getAbsolutePath());
-		} catch (IOException e) {
-			throw new RuntimeException("Jython bundle not found", e);
-		}
-
-		if (LocalProperties.check("python.options.showJavaExceptions", false)) {
-			gdaCustomProperties.setProperty("python.options.showJavaExceptions", "true");
-		}
-
-		gdaCustomProperties.setProperty("python.options.includeJavaStackInExceptions", "false");
-
-		if (LocalProperties.check("python.options.showPythonProxyExceptions", false)) {
-			gdaCustomProperties.setProperty("python.options.showPythonProxyExceptions", "true");
-		}
-		String verbose = LocalProperties.get("python.verbose", "");
-		if (!verbose.isEmpty()) {
-			gdaCustomProperties.setProperty("python.verbose", verbose);
-		}
-
-		// The command-line parameters should be a 1-element array containing
-		// an empty string. This is to be consistent with the Python
-		// interpreter and standalone Jython. Python libraries (e.g. warnings)
-		// assume sys.argv will contain at least one element.
-		final String[] argv = new String[] {""};
-
-		// The GDA Class Loader is for OSGi server. If not using OSGI and the new
-		// services, the startup sequence is unchanged
-		if (GDAJythonClassLoader.useGDAClassLoader()) {
-			logger.info("adding GDA package locations to Jython path...");
-			final GDAJythonClassLoader classLoader = new GDAJythonClassLoader();
-
-			// initialise interpreter first //TODO: Docs say this should only be run once
-			// Enclose in a try/catch so that any underlying Jython errors are not lost to the log.
-			final Properties sysProps = System.getProperties();
-			try {
-				PySystemState.initialize(sysProps, gdaCustomProperties, argv, classLoader);
-			} catch (Exception e) {
-				if (e instanceof PyException) {
-					logger.error("Jython initialisation problem: " + e);     // Since PyException puts message in value member
-				} else {
-					logger.error("Jython initialisation problem: ", e);
-				}
-				throw e;
-			}
-
-			// In an OSGi environment Jython's normal CLASSPATH based automatic way of
-			// discovering which packages are available in the JVM does not
-			// work. Therefore to support "from XXXX import *" Jython has to be
-			// told about the bundle locations.
-			final boolean eclipseLaunch = Boolean.valueOf(sysProps.getProperty("gda.eclipse.launch"));
-			final String bundlesRoot;
-			if (eclipseLaunch) {
-				bundlesRoot = LocalProperties.get(LocalProperties.GDA_GIT_LOC);
-				iterateWorkspace(classLoader);
+			PySystemState pss = new PySystemState();
+			Py.setSystemState(pss);
+			pss.setClassLoader(classLoader);
+			pss.setdefaultencoding(UTF_8);		// cannot be done before Py.setSystemState
+		} catch (Exception e) {
+			if (e instanceof PyException) {
+				logger.error("Jython initialisation problem: " + e);     // Since PyException puts message in value member
 			} else {
-				bundlesRoot = sysProps.getProperty("osgi.syspath");
-				iteratePluginsDirectory(bundlesRoot);
+				logger.error("Jython initialisation problem: ", e);
 			}
-			// Add the paths for the standard script folders to the existing _jythonScriptPaths
-			// (the instance config scripts folder is handled elsewhere)
-			int index= 1;
-			for (Entry<String, String> scriptEntry : classLoader.getStandardFolders().entrySet()) {
-				String pathFragment = scriptEntry.getKey();
-				if (pathFragment.endsWith(URI_SEPARATOR)) {
-					pathFragment = pathFragment.substring(0, pathFragment.length() -1);
-				}
-				File scriptFolder = Paths.get(bundlesRoot,  pathFragment).toFile();				// Default to non-plugin folder under workspace_git
-				String frag = pathFragment;
-				URL scriptFolderURL = null;
-				try {
-					while (scriptFolderURL == null && frag.contains(URI_SEPARATOR)) {
-						scriptFolderURL = FileLocator.find(new URL(String.format(PLATFORM_BUNDLE_PREFIX, frag)));
-						frag = frag.substring(frag.indexOf(URI_SEPARATOR) + 1);
-					}
-					if (scriptFolderURL != null) {
-						scriptFolder = EclipseUtils.resolveFileFromPlatformURL(scriptFolderURL);
-					} else if (!eclipseLaunch) {
-						scriptFolder = Paths.get(bundlesRoot, "..", "utilities", pathFragment).toFile();	// Add in non-plugin folder offset for exported product
-					}
-					if (scriptFolder.exists() && scriptFolder.isDirectory()) {
-						String title = scriptEntry.getValue() == null ? "Scripts: Std" + index++ : scriptEntry.getValue();
-						final ScriptProject scriptProject = new ScriptProject(scriptFolder.getAbsolutePath(), title, ScriptProjectType.CORE);
-						_jythonScriptPaths.addProject(scriptProject);
-					} else {
-						throw new IOException(String.format("Script folder %s does not exist", scriptFolder));
-					}
-				} catch (IOException e) {
-					logger.error(String.format("Unable to locate plugin for script location %s, these scripts will not be accessible", pathFragment), e);
-				}
-			}
-		} else {
-			logger.info("initialising Jython engine...");
-			// initialise interpreter first {same as PySystemState.initialize(..)}//TODO: Docs say this should only be run once
-			PythonInterpreter.initialize(System.getProperties(), gdaCustomProperties, argv);
+			throw e;
+		}
 
-			// It appears that InteractiveConsoles must all share the same PySystemState.
-			// There is no way to assign a new (empty) one on instantiation, so use Py.setSystemState
-			// to overwrite the pre-existing one as it will have been used before if we are creating
-			// a new GDAJythonInterpreter as part of namespace reset.
-			Py.setSystemState(new PySystemState());
+		// In an OSGi environment Jython's normal CLASSPATH based automatic way of
+		// discovering which packages are available in the JVM does not
+		// work. Therefore to support "from XXXX import *" Jython has to be
+		// told about the bundle locations.
+		final boolean eclipseLaunch = Boolean.valueOf(sysProps.getProperty("gda.eclipse.launch"));
+		final String bundlesRoot;
+		if (eclipseLaunch) {
+			bundlesRoot = LocalProperties.get(LocalProperties.GDA_GIT_LOC);
+			iterateWorkspace(classLoader);
+		} else {
+			bundlesRoot = sysProps.getProperty("osgi.syspath");
+			iteratePluginsDirectory(bundlesRoot);
+		}
+		// Add the paths for the standard script folders to the existing _jythonScriptPaths
+		// (the instance config scripts folders are handled by Spring injection into the JythonServer bean)
+		int index= 1;
+		for (Entry<String, String> scriptEntry : classLoader.getStandardFolders().entrySet()) {
+			String pathFragment = scriptEntry.getKey();
+			if (pathFragment.endsWith(URI_SEPARATOR)) {
+				pathFragment = pathFragment.substring(0, pathFragment.length() -1);
+			}
+			File scriptFolder = Paths.get(bundlesRoot,  pathFragment).toFile();                       // Default to non-plugin folder under workspace_git
+			String frag = pathFragment;
+			URL scriptFolderURL = null;
+			try {
+				while (scriptFolderURL == null && frag.contains(URI_SEPARATOR)) {
+					scriptFolderURL = FileLocator.find(new URL(String.format(PLATFORM_BUNDLE_PREFIX, frag)));
+					frag = frag.substring(frag.indexOf(URI_SEPARATOR) + 1);
+				}
+				if (scriptFolderURL != null) {
+					scriptFolder = EclipseUtils.resolveFileFromPlatformURL(scriptFolderURL);
+				} else if (!eclipseLaunch) {
+					scriptFolder = Paths.get(bundlesRoot, "..", "utilities", pathFragment).toFile();  // Add in non-plugin folder offset for exported product
+				}
+				if (scriptFolder.exists() && scriptFolder.isDirectory()) {
+					String title = scriptEntry.getValue() == null ? "Scripts: Std" + index++ : scriptEntry.getValue();
+					_jythonScriptPaths.addProject(new ScriptProject(scriptFolder.getAbsolutePath(), title, ScriptProjectType.CORE));
+				} else {
+					throw new IOException(String.format("Script folder %s does not exist", scriptFolder));
+				}
+			} catch (IOException e) {
+				logger.error(String.format("Unable to locate plugin for script location %s, these scripts will not be accessible", pathFragment), e);
+			}
 		}
 
 		// then get instance of interpreter
@@ -407,26 +406,28 @@ public class GDAJythonInterpreter extends ObservableComponent {
 	protected void initialise(JythonServer jythonServer) throws Exception {
 		if (!configured) {
 			try {
-				String translatorClassName = LocalProperties.get("gda.jython.translator.class", "GeneralTranslator");
-				Class<?> translatorClass = Class.forName("gda.jython.translator." + translatorClassName);
+				final String translatorClassName = LocalProperties.get("gda.jython.translator.class", "GeneralTranslator");
+				final Class<?> translatorClass = Class.forName("gda.jython.translator." + translatorClassName);
 				translator = (Translator) translatorClass.newInstance();
 
-				// append directory where all scripts will be located to jython path
-				PySystemState sys = Py.getSystemState();
+				// append the folders where standard scripts will be located to jython path
+				// by this point _jythonScriptPaths should contain a List of these folder paths
+				final PySystemState sys = Py.getSystemState();
 				if (_jythonScriptPaths == null) {
 					logger.warn("no jython script paths defined");
 				} else {
 					logger.info("clearing old Jython class files...");
-					for (String path : _jythonScriptPaths.getPaths()) {
-						PyString scriptFolderName = new PyString(path);
-						File scriptDir = new File(scriptFolderName.toString());
+					// Remove any previously compiled Jython class files from the script folders
+					for (ScriptProject scriptProject : _jythonScriptPaths.getProjects()) {
+						final PyString scriptFolderName = new PyString(scriptProject.getPath());
+						final File scriptDir = new File(scriptFolderName.toString());
 						if (!scriptDir.exists()){
-							throw new FactoryException("Configured Jython script location " + scriptFolderName + " does not exist.");
+							throw new FactoryException(String.format("Configured Jython script location %s does not exist.", scriptFolderName));
 						}
-						logger.info("Adding " + scriptDir + " to the Command Server Jython path");
+						logger.info(String.format("Adding %s to the Command Server Jython path with name %s", scriptDir, scriptProject.getName()));
 
 						if (!sys.path.contains(scriptFolderName)) {
-							removeAllJythonClassFiles(new File(path));
+							removeAllJythonClassFiles(new File(scriptFolderName.getString()));
 							sys.path.append(scriptFolderName);
 						}
 					}
@@ -442,8 +443,6 @@ public class GDAJythonInterpreter extends ObservableComponent {
 				logger.info("performing standard Jython interpreter imports...");
 
 				this.interp.runsource("import sys");
-				// Initialise Jython's map of known modules so that old versions don't persist after rest_namespace
-				this.interp.runsource("sys.modules.clear()");
 				this.interp.runsource("import gda.jython");
 				this.interp.runsource("sys.displayhook=gda.jython.GDAInteractiveConsole.displayhook");
 
@@ -453,10 +452,7 @@ public class GDAJythonInterpreter extends ObservableComponent {
 				this.interp.set("command_server", jythonServer);
 				this.interp.runsource("import gda.jython");
 
-				// site import - only do this the first time, not during reset_namespace
-				if (jythonServer.isAtStartup()) {
-					this.interp.runsource("import site");
-				}
+				this.interp.runsource("import site");
 
 				// standard imports
 				this.interp.runsource("import java");
