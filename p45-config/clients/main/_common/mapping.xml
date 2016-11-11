@@ -25,7 +25,16 @@
 		<property name="detectorParameters">
 			<list>
 				<bean class="uk.ac.diamond.daq.mapping.impl.DetectorModelWrapper">
-					<constructor-arg name="name" value="Mandelbrot Detector" />
+					<constructor-arg name="name" value="mandelbrot" />
+					<!-- 
+					     Configuring spring models is incorrect, you must ask the server for the mandelbrot model 
+					     and the DetectorInformation to provide the user interface label.
+					     The name of the detector is reserved for the scan command. 
+					     Also detector models can be changed by different clients including
+					     python commands. Therefore hard coding the wrong model into the UI
+					     is incorrect, it should reflect the server values as RunnableDeviceService
+					     provides if made in its remote form.
+				     -->
 					<constructor-arg name="model">
 						<bean class="org.eclipse.scanning.example.detector.MandelbrotModel">
 							<property name="realAxisName" ref="x_axis_name" />
