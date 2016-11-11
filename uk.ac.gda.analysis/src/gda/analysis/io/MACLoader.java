@@ -18,15 +18,14 @@
 
 package gda.analysis.io;
 
-import gda.configuration.properties.LocalProperties;
-import gda.data.NumTracker;
-import gda.data.PathConstructor;
-
 import java.io.File;
 import java.io.IOException;
 
 import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
 
+import gda.configuration.properties.LocalProperties;
+import gda.data.NumTracker;
+import gda.data.PathConstructor;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 
 /**
@@ -109,7 +108,7 @@ public class MACLoader extends uk.ac.diamond.scisoft.analysis.io.SRSLoader {
 		DataHolder result = super.loadFile();
 
 		// overwrite dataset names
-		if (result.namesSize()>1) {
+		if (result.size()>1) {
 			result.getDataset(1).setName(fileName);
 		}
 

@@ -280,7 +280,7 @@ public class ScanFileHolder implements Serializable, IScanFileHolder {
 	@Override
 	public void ls() {
 		StringBuilder text = new StringBuilder();
-		for (int i = 0, imax = holder.namesSize(); i < imax; i++) {
+		for (int i = 0, imax = holder.size(); i < imax; i++) {
 			text.append(i);
 			text.append('\t');
 			text.append(holder.getName(i));
