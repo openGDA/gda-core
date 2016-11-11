@@ -604,6 +604,16 @@ public class ScannableMotionBase extends ScannableBase implements ScannableMotio
 		additionalPositionValidators.add(validator);
 	}
 
+	/**
+	 * @throws IllegalArgumentException if validator is null
+	 */
+	public void removePositionValidator(PositionValidator validator) {
+		if (validator == null) {
+			throw new IllegalArgumentException("PositionValidator to remove from '"+ getName() +"' cannot be null");
+		}
+		additionalPositionValidators.remove(validator);
+	}
+
 	public void setAdditionalPositionValidators(Set<PositionValidator> additionalPositionValidators) {
 		this.additionalPositionValidators = additionalPositionValidators;
 	}
