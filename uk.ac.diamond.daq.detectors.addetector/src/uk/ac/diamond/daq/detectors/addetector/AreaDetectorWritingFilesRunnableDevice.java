@@ -53,8 +53,8 @@ public class AreaDetectorWritingFilesRunnableDevice<T extends AreaDetectorWritin
 	public void run(IPosition position) throws ScanningException, InterruptedException {
 		setDeviceState(DeviceState.RUNNING);
 		try {
-			detector.getAdBase().startAcquiring();
-			detector.getAdBase().waitWhileStatusBusy();
+			detector.collectData();
+			detector.waitWhileBusy();
 		} catch (Exception e) {
 			setDeviceState(DeviceState.FAULT);
 			throw new ScanningException("Acquiring from detector failed", e);
@@ -80,13 +80,9 @@ public class AreaDetectorWritingFilesRunnableDevice<T extends AreaDetectorWritin
 				throw new ScanningException("Could not find detector: " + model.getName());
 			}
 
-			// Set the exposure time
-			detector.getAdBase().setAcquireTime(model.getExposureTime());
-			// Set image mode to single
-			detector.getAdBase().setImageMode(ImageMode.SINGLE);
-			// Set triggering to internal
-			detector.getAdBase().setTriggerMode(TriggerMode.Internal.ordinal());
-			// FIXME Need to configure the plugin chain here or let the server do it.
+			detector.setCollectionTime(model.getExposureTime());
+			detector.atScanStart();
+			// FIXME Need to configure the plugin chain here (or in the collection strategy)
 
 			// Setup the file writing
 			NDFile ndFile = detector.getNdFile();
