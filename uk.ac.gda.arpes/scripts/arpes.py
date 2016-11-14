@@ -42,8 +42,10 @@ class ARPESRun:
             time.sleep(1.5)
             # Check i recovering has worked if not tell users
             if(self.scienta.adBase.getDetectorState_RBV() != 0):
-                logger.error("Analyser recovery failed, check EPICS!")
-                print "Analyser is still not ready check EPICS!"
+                msg = "Analyser recovery failed, check EPICS!"
+                logger.error(msg)
+                print msg
+                raise Exception(msg)
             else:
                 logger.info("Analyser was recovered to idle state.")
                 print "Analyser was recovered to idle state."
