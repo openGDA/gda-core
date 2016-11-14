@@ -104,7 +104,7 @@ import org.eclipse.scanning.example.detector.DarkImageDetector;
 import org.eclipse.scanning.example.detector.DarkImageModel;
 import org.eclipse.scanning.example.detector.MandelbrotDetector;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
-import org.eclipse.scanning.points.PointGeneratorFactory;
+import org.eclipse.scanning.points.PointGeneratorService;
 import org.eclipse.scanning.points.serialization.PointsModelMarshaller;
 import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
 import org.eclipse.scanning.sequencer.analysis.ProcessingRunnableDevice;
@@ -155,7 +155,7 @@ public class ScannableNexusWrapperScanTest {
 
 		connector   = new ScannableDeviceConnectorService();
 		dservice    = new RunnableDeviceServiceImpl(connector); // Not testing OSGi so using hard coded service.
-		gservice    = new PointGeneratorFactory();
+		gservice    = new PointGeneratorService();
 		fileFactory = new NexusFileFactoryHDF5();
 
 		ActivemqConnectorService.setJsonMarshaller(new MarshallerService(new PointsModelMarshaller()));
