@@ -172,7 +172,7 @@ public class AreaDetectorWritingFilesRunnableDevice<T extends AreaDetectorWritin
 		int scanRank = scanInfo.getRank();
 
 		// Set the external file written by this detector which will be linked to
-		nexusObjectWrapper.setExternalFileName(fileName);
+		nexusObjectWrapper.setDefaultExternalFileName(fileName);
 
 		// Setup the primary NXdata. Add 2 to the scan rank as AD returns 2D data
 		nexusObjectWrapper.setPrimaryDataFieldName(NXdetector.NX_DATA);
