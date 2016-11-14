@@ -18,6 +18,7 @@
 
 package uk.ac.diamond.daq.scanning;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
@@ -74,6 +75,27 @@ public class FilePathService implements IFilePathService {
 		lastPath = path;
 
 		return path;
+	}
+
+	@Override
+	public String createFolderForLinkedFiles(String filename) throws Exception {
+		// Get the current data directory
+		// TODO This currently doesn't support sub directories under the visit e.g /sample1/
+		String parentDir = PathConstructor.createFromDefaultProperty();
+		String bareFilename = getBareFilename(filename);
+		File newDir = new File(parentDir, bareFilename);
+		newDir.mkdir();
+
+		return newDir.toString();
+	}
+
+	private String getBareFilename(String filePath) {
+		String filename = new File(filePath).getName();
+		int dotIndex = filename.indexOf(".");
+		if (dotIndex == -1) {
+			return filename;
+		}
+		return filename.substring(0, dotIndex);
 	}
 
 	@Override
