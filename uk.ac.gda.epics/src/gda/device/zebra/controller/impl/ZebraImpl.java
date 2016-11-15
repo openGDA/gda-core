@@ -28,6 +28,7 @@ import org.springframework.beans.factory.InitializingBean;
 
 import com.google.common.base.Preconditions;
 
+import gda.device.zebra.LogicGateConfiguration;
 import gda.device.zebra.controller.SoftInputChangedEvent;
 import gda.device.zebra.controller.Zebra;
 import gda.epics.CachedLazyPVFactory;
@@ -676,5 +677,45 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 		logger.trace("...reset()");
 	}
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	@Override
+	public void applyAndGateConfig(int gateNumber, LogicGateConfiguration config) throws IOException {
+		applyLogicGateConfig("AND", gateNumber, config);
+	}
+
+	@Override
+	public void applyOrGateConfig(int gateNumber, LogicGateConfiguration config) throws IOException {
+		applyLogicGateConfig("OR", gateNumber, config);
+	}
+
+	private void applyLogicGateConfig(String type, int gateNumber, LogicGateConfiguration config) throws IOException {
+
+		// Use?
+		final String usePvName = String.format("%s%d_ENA", type, gateNumber);
+		final PV<Integer> usePv = pvFactory.getPVInteger(usePvName);
+		usePv.putWait(booleanArrayToInteger(config.getUse()));
+
+		// Input Source
+		for (int input = 1; input <= 4; input++) {
+			final String sourcePvName = String.format("%s%d_INP%d", type, gateNumber, input);
+			final PV<Integer> sourcePv = pvFactory.getPVInteger(sourcePvName);
+			sourcePv.putWait(config.getSources()[input - 1]);
+		}
+
+		// Invert
+		final String invertPvName = String.format("%s%d_INV", type, gateNumber);
+		final PV<Integer> invertPv = pvFactory.getPVInteger(invertPvName);
+		invertPv.putWait(booleanArrayToInteger(config.getInvert()));
+	}
+
+	private static int booleanArrayToInteger(boolean[] values) {
+		int val = 0;
+		for (int i = 0; i < values.length; i++) {
+			if (values[i]) {
+				val += (1 << i);
+			}
+		}
+		return val;
+	}
 
 }

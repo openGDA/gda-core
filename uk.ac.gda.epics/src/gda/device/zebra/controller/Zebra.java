@@ -18,6 +18,7 @@
 
 package gda.device.zebra.controller;
 
+import gda.device.zebra.LogicGateConfiguration;
 import gda.epics.CachedLazyPVFactory;
 import gda.epics.ReadOnlyPV;
 import gda.observable.Observable;
@@ -233,4 +234,14 @@ public interface Zebra {
 	double getPCPulseStart() throws Exception;
 
 	double getPCPulseStartRBV() throws Exception;
+
+	/**
+	 * Applies a {@link LogicGateConfiguration} to the specified AND gate.
+	 */
+	void applyAndGateConfig(int gateNumber, LogicGateConfiguration config) throws IOException;
+
+	/**
+	 * Applies a {@link LogicGateConfiguration} to the specified OR gate.
+	 */
+	void applyOrGateConfig(int gateNumber, LogicGateConfiguration config) throws IOException;
 }
