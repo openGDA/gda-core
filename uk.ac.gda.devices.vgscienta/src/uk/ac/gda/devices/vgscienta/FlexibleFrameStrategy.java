@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import gda.device.DeviceException;
 import gda.device.detector.addetector.triggering.SimpleAcquire;
 import gda.device.detector.areadetector.v17.ADBase;
+import gda.device.detector.areadetector.v17.NDArray;
 import gda.device.detector.areadetector.v17.NDProcess;
 import gda.device.detector.areadetector.v17.impl.ADBaseImpl;
 import gda.epics.connection.EpicsController;
@@ -50,13 +51,15 @@ public class FlexibleFrameStrategy extends SimpleAcquire implements MonitorListe
 	private volatile int highestFrame = 0;
 	private volatile boolean wethinkweareincharge = false;
 
-	private NDProcess proc;
+	private final NDProcess proc;
+	private final NDArray array;
 	private EpicsController epicsController;
 
-	public FlexibleFrameStrategy(ADBase base, double time, NDProcess ndProcess) throws CAException, InterruptedException, TimeoutException {
+	public FlexibleFrameStrategy(ADBase base, double time, NDProcess ndProcess, NDArray ndArray) throws CAException, InterruptedException, TimeoutException {
 		super(base, time);
 		setReadoutTime(-1);
 		proc = ndProcess;
+		array = ndArray;
 		epicsController = EpicsController.getInstance();
 		epicsController.setMonitor(epicsController.createChannel(((ADBaseImpl) getAdBase()).getBasePVName() + ADBase.ArrayCounter_RBV), this);
 	}
@@ -65,6 +68,7 @@ public class FlexibleFrameStrategy extends SimpleAcquire implements MonitorListe
 	public void collectData() throws Exception {
 		logger.trace("collectData called");
 		getAdBase().setArrayCounter(0);
+		array.getPluginBase().setArrayCounter(0);
 		proc.getPluginBase().setArrayCounter(0);
 		proc.setResetFilter(1);
 		logger.debug("Reset IOC counters and recursive filter");
@@ -190,11 +194,11 @@ public class FlexibleFrameStrategy extends SimpleAcquire implements MonitorListe
 			highestFrame = currentFrame;
 		try {
 			int timeoutCounter = 0;
-			// Check if the expected number of frames have been processed yet
-			while(proc.getNumFiltered_RBV() < highestFrame || proc.getPluginBase().getArrayCounter_RBV() < highestFrame) {
+			// Check if the expected number of frames have been processed yet and reached array plugin
+			while (proc.getNumFiltered_RBV() < highestFrame || array.getPluginBase().getArrayCounter_RBV() < highestFrame) {
 				// Log the current status so we can try to debug why we are here
 				logger.debug("Waiting for IOC processing: highestFrame={},  numFilter={}, arrayCounterRBV={}", highestFrame, proc.getNumFiltered_RBV(),
-						proc.getPluginBase().getArrayCounter_RBV());
+						array.getPluginBase().getArrayCounter_RBV());
 				logger.debug("Waiting for IOC processing: number={}, time={} ms", timeoutCounter, timeoutCounter * PROCESSING_WAIT_TIME_MS);
 				// Check if timeout is exceeded
 				if (timeoutCounter * PROCESSING_WAIT_TIME_MS > PROCESSING_TIMEOUT_MS) {
@@ -207,7 +211,7 @@ public class FlexibleFrameStrategy extends SimpleAcquire implements MonitorListe
 				Thread.sleep(PROCESSING_WAIT_TIME_MS);
 			}
 			logger.debug("At the end of waiting we have: highestFrame={},  numFilter={}, arrayCounterRBV={}", highestFrame, proc.getNumFiltered_RBV(),
-					proc.getPluginBase().getArrayCounter_RBV());
+					array.getPluginBase().getArrayCounter_RBV());
 			logger.info("IOC Processing complete. (Waited for {} ms)", PROCESSING_WAIT_TIME_MS * timeoutCounter);
 		} catch (Exception e) {
 			throw new DeviceException("Error waiting for IOC processing", e);
