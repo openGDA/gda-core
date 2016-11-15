@@ -25,8 +25,10 @@ import gda.epics.connection.EpicsController;
 import gda.factory.Configurable;
 import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
+import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.Monitor;
+import gov.aps.jca.TimeoutException;
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBR_Double;
 import gov.aps.jca.event.MonitorEvent;
@@ -37,8 +39,11 @@ import gov.aps.jca.event.MonitorListener;
  * using ROI binning and then the STAT plugin provides the maximum value. This PVs has the warning and alarm states on it so EPICS will inform this class if the
  * warning or alarm value is reached.
  * <p>
- * If the <i>alarmValue</i> is exceeded the command defined by <i>alarmActionCommand</i> is run, which takes action to protect the detector, typically closing
- * the shutter. The message defined by <i>userMessage</i> is printed to the terminal informing the user what has happened and how to recover.
+ * If the <i>alarmValue</i> is exceeded a <i>delayTime</i> is waited to check for transient events then if the detector is still over-exposed the command
+ * defined by <i>alarmActionCommand</i> is run, which takes action to protect the detector, typically closing the shutter. The message defined by
+ * <i>userMessage</i> is printed to the terminal informing the user what has happened and how to recover.
+ * <p>
+ * Everything is configured in Spring and the class is stand alone it doesn't require any other analyser classes to work.
  *
  * @author James Mudd
  */
@@ -48,11 +53,15 @@ public class VGScientaOverExposureProtector implements Configurable, MonitorList
 	// Over-exposure values
 	private double warningValue = 0;
 	private double alarmValue = 0;
+	private long delayTime = 0;
 
 	// PVs
 	private String valuePv;
 	private String warningPv;
 	private String alarmPv;
+
+	// Channels
+	private Channel valueChannel;
 
 	// Actions
 	private String alarmActionCommand;
@@ -81,6 +90,12 @@ public class VGScientaOverExposureProtector implements Configurable, MonitorList
 			return;
 		}
 
+		if (delayTime <= 0) {
+			logger.error("The delayTime must be set");
+			// return here we wont be able to set this up usefully
+			return;
+		}
+
 		if (alarmActionCommand == null) {
 			logger.warn("No alarmActionCommand has been set. No action will be taken if the alarmValue is exceeded");
 		}
@@ -95,7 +110,7 @@ public class VGScientaOverExposureProtector implements Configurable, MonitorList
 			EPICS_CONTROLLER.caputWait(alarmChannel, alarmValue);
 			logger.info("Setup analyser over-exposure warning and alarm values");
 
-			Channel valueChannel = EPICS_CONTROLLER.createChannel(valuePv);
+			valueChannel = EPICS_CONTROLLER.createChannel(valuePv);
 			// Get updates if the alarm status changes. Should reduce unnecessary updates
 			valueChannel.addMonitor(Monitor.ALARM, this);
 			logger.debug("Added monitor to analyser over-exposure value channel");
@@ -117,15 +132,26 @@ public class VGScientaOverExposureProtector implements Configurable, MonitorList
 			// Check for the alarm case first its the most important
 			if (value >= alarmValue) {
 				if (!alarmHandled) { // If alarm state hasn't been handled
-					logger.error("Analyser over-exposure detected! Running command: {}", alarmActionCommand);
-					if (alarmActionCommand != null) { // Might be null if not set
-						InterfaceProvider.getCommandRunner().runCommand(alarmActionCommand);
+					logger.warn("Analyser over-exposure detected! Waiting for {} ms to check if it's transient", delayTime);
+					// Wait for delayTime to check if its transient
+					try {
+						Thread.sleep(delayTime);
+					} catch (InterruptedException e) {
+						logger.error("Interrupted while waiting to recheck exposure, will have waited < {} ms", delayTime, e);
 					}
-					if (userMessage != null) {
-						// Print a message to the console informing the users what has happened.
-						InterfaceProvider.getTerminalPrinter().print(userMessage);
+					// Re-check the value channel
+					try {
+						double recheckedValue = EPICS_CONTROLLER.cagetDouble(valueChannel);
+						if (recheckedValue < alarmValue) {
+							logger.info("After delay exposure is now below the over-exposure limit");
+							return; // The value is now below the alarm value so don't take further action
+						}
+					} catch (TimeoutException | CAException | InterruptedException e) {
+						logger.error("Error rechecking the exposure value. Assuming over-exposure!", e);
 					}
-					alarmHandled = true;
+
+					// If you reach here over-exposure was detected.
+					takeAction();
 				}
 				return;
 			} else if (value >= warningValue) {
@@ -147,6 +173,21 @@ public class VGScientaOverExposureProtector implements Configurable, MonitorList
 		} else {
 			logger.error("Recieved unexpected DBR type");
 		}
+	}
+
+	/**
+	 * This method is to take action to stop the detector over-exposure e.g. closing a shutter.
+	 */
+	private void takeAction() {
+		logger.error("Analyser over-exposure detected! Running command: {}", alarmActionCommand);
+		if (alarmActionCommand != null) { // Might be null if not set
+			InterfaceProvider.getCommandRunner().runCommand(alarmActionCommand);
+		}
+		if (userMessage != null) {
+			// Print a message to the console informing the users what has happened.
+			InterfaceProvider.getTerminalPrinter().print(userMessage);
+		}
+		alarmHandled = true;
 	}
 
 	public void setWarningValue(double warningValue) {
@@ -175,6 +216,14 @@ public class VGScientaOverExposureProtector implements Configurable, MonitorList
 
 	public void setUserMessage(String userMessage) {
 		this.userMessage = userMessage;
+	}
+
+	public long getDelayTime() {
+		return delayTime;
+	}
+
+	public void setDelayTime(long delayTime) {
+		this.delayTime = delayTime;
 	}
 
 }
