@@ -14,6 +14,9 @@ TYPE_ATTR = '3'  # Green Circle
 TYPE_BUILTIN = '4'  # Gray Circle
 TYPE_PARAM = '5'  # No icon
 
+# The number of keywords and globals expected. -1 because print is in both and is excluded once
+keywords_and_globals = len(dir(__builtin__)) + len(keyword.kwlist) - 1
+
 class CompleterTest(unittest.TestCase):
 
     def setUp(self):
@@ -37,7 +40,13 @@ class CompleterTest(unittest.TestCase):
             self.assertTrue(options_dict.has_key(builtin_), "Builtin was not in completions options")
             # Check the icons
             name, doc, args, icon = options_dict.get(builtin_)  # @UnusedVariable
-            obj = eval(builtin_)  # Get the object to check the icons
+            try:
+                obj = eval(builtin_, globals()) # Get the object to find out what it is
+            except SyntaxError:
+                # Calling eval on x resulted in a SyntaxError therefore it 'must' be a keyword
+                # This is almost a special case for 'print' which was changed in 2.6
+                # https://docs.python.org/2/library/functions.html#print
+                continue # So don't do anything with it
             if isinstance (obj, type):
                 self.assertEqual(icon, TYPE_CLASS, str(builtin_) + " had wrong icon")
             elif callable(obj):
@@ -47,7 +56,7 @@ class CompleterTest(unittest.TestCase):
 
     def test_right_number_of_options_are_found(self):
         options = self.completer.complete('')
-        self.assertEqual(len(options), len(dir(__builtin__)) + len(keyword.kwlist) + len(globals()), "Wrong number of completion options found")
+        self.assertEqual(len(options), keywords_and_globals + len(globals()), "Wrong number of completion options found")
 
     def test_adding_global(self):
         # Make a new object and add it to the globals
@@ -61,7 +70,7 @@ class CompleterTest(unittest.TestCase):
 
         self.assertTrue(options_dict.has_key('new_object'), 'new_object not in completion options')
         # Ensure its the only additional option
-        self.assertEqual(len(options), 1 + len(dir(__builtin__)) + len(keyword.kwlist), "Unexpected options found")
+        self.assertEqual(len(options), 1 + keywords_and_globals, "Unexpected options found")
 
     def test_testObject_thows_exception(self):
         obj = testObject()
