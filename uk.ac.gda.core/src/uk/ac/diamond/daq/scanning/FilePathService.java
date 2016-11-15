@@ -122,11 +122,13 @@ public class FilePathService implements IFilePathService {
 	}
 
 
+	@Override
 	public String getPersistenceDir() {
 		return PathConstructor.createFromProperty(LocalProperties.GDA_VAR_DIR);
 	}
 
 
+	@Override
 	public String getProcessingTemplatesDir() {
 		return getPersistenceDir() + "/" + PROCESSING_TEMPLATES_DIR;
 	}

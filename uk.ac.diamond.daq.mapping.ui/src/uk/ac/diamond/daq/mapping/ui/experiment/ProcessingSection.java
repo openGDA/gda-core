@@ -291,11 +291,16 @@ public class ProcessingSection extends AbstractMappingSection {
 
 		List<IOperationSetupWizardPage> startPages = new ArrayList<>();
 		startPages.add(new AcquireDataWizardPage(detectorModelCopy, context));
-		IOperationModelWizard wizard = ServiceHolder.getOperationUIService().getWizard(null, startPages, templateFile.getAbsolutePath(), null);
+		IOperationModelWizard wizard = ServiceHolder.getOperationUIService().getWizard(null,
+				startPages, templateFile.getAbsolutePath(), null);
 
 		OperationModelWizardDialog dialog = new OperationModelWizardDialog(getShell(), wizard);
 		if (dialog.open() == Window.OK) {
-			//wizard.saveOutputFile(filename); TODO
+			try {
+				wizard.saveOutputFile(processingStep.getModel().getProcessingFilePath());
+			} catch (Exception e) {
+				logger.error("Could not save template file!", e);
+			}
 		}
 		return dialog.getReturnCode() == Window.OK;
 	}
@@ -361,17 +366,15 @@ public class ProcessingSection extends AbstractMappingSection {
 		do {
 			String filename = prefix + (i == 0 ? "" : i) + fileExtn;
 			file = new File(tempDir, filename);
+			i++;
 		} while (file.exists());
 
 		return file;
 	}
 
 	private File[] getTemplateFiles() {
-		File templatesDir = new File("/scratch/templates");
-//		File templatesDir = new File(context.get(IFilePathService.class).getProcessingTemplatesDir());
+		File templatesDir = new File(context.get(IFilePathService.class).getProcessingTemplatesDir());
 		String[] names = templatesDir.list((dir, name) -> name.endsWith("." + NEXUS_FILE_EXTENSION));
-//		String[] names = null;
-//		File templatesDir = new File("/scratch/templates");
 		if (names == null) {
 			templateFiles = new File[0];
 		} else {
