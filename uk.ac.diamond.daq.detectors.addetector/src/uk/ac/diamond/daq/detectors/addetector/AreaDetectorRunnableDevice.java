@@ -44,6 +44,10 @@ public class AreaDetectorRunnableDevice extends AbstractRunnableDevice<AreaDetec
 	private ILazyWriteableDataset total;
 	private DataType dataType;
 
+	public AreaDetectorRunnableDevice() {
+		super(ServiceHolder.getRunnableDeviceService());
+	}
+
 	@Override
 	public void run(IPosition position) throws ScanningException, InterruptedException {
 		setDeviceState(DeviceState.RUNNING);

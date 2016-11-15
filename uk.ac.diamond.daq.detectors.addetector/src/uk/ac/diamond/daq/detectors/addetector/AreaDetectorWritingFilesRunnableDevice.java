@@ -18,10 +18,8 @@ import org.eclipse.scanning.api.scan.ScanInformation;
 import org.eclipse.scanning.api.scan.ScanningException;
 
 import gda.device.DeviceException;
-import gda.device.detector.EpicsAreaDetectorConstants.TriggerMode;
 import gda.device.detector.addetector.ADDetector;
 import gda.device.detector.addetector.filewriter.MultipleImagesPerHDF5FileWriter;
-import gda.device.detector.areadetector.v17.ImageMode;
 import gda.device.detector.areadetector.v17.NDFile;
 import gda.device.detector.areadetector.v17.NDFile.FileWriteMode;
 import gda.device.detector.areadetector.v17.NDFileHDF5;
@@ -48,6 +46,10 @@ public class AreaDetectorWritingFilesRunnableDevice<T extends AreaDetectorWritin
 	private static final String PATH_TO_STATS_TOTAL_NODE = "/entry/instrument/NDAttributes/StatsTotal";
 	private ADDetector detector;
 	private String fileName;
+
+	public AreaDetectorWritingFilesRunnableDevice() {
+		super(ServiceHolder.getRunnableDeviceService());
+	}
 
 	@Override
 	public void run(IPosition position) throws ScanningException, InterruptedException {
