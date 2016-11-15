@@ -452,8 +452,6 @@ public class GDAJythonInterpreter extends ObservableComponent {
 				this.interp.set("command_server", jythonServer);
 				this.interp.runsource("import gda.jython");
 
-				this.interp.runsource("import site");
-
 				// standard imports
 				this.interp.runsource("import java");
 				this.interp.runsource("from java.lang import Thread");
