@@ -45,9 +45,9 @@ public class FlexibleFrameStrategy extends SimpleAcquire implements MonitorListe
 
 	private ObservableComponent oc = new ObservableComponent();
 
-	private int maxNumberOfFrames = 1;
-	private int currentFrame = -1;
-	private int highestFrame = 0;
+	private volatile int maxNumberOfFrames = 1;
+	private volatile int currentFrame = -1;
+	private volatile int highestFrame = 0;
 	private volatile boolean wethinkweareincharge = false;
 
 	private NDProcess proc;
@@ -77,7 +77,7 @@ public class FlexibleFrameStrategy extends SimpleAcquire implements MonitorListe
 	}
 
 	@Override
-	public void monitorChanged(MonitorEvent arg0) {
+	public synchronized void monitorChanged(MonitorEvent arg0) {
 		if (wethinkweareincharge) {
 			if (arg0.getDBR() instanceof DBR_Int) {
 				currentFrame = ((DBR_Int) arg0.getDBR()).getIntValue()[0];
@@ -94,8 +94,6 @@ public class FlexibleFrameStrategy extends SimpleAcquire implements MonitorListe
 		try {
 			if (currentFrame == (maxNumberOfFrames - 1)) {
 					getAdBase().setImageMode(0);
-			} else if (currentFrame >= maxNumberOfFrames) {
-					completeCollection();
 			} else {
 					getAdBase().setImageMode(2);
 			}
