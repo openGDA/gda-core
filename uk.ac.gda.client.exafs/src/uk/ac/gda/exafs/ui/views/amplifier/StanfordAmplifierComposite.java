@@ -28,77 +28,106 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import gda.jython.JythonServerFacade;
+import gda.device.DeviceException;
+import gda.device.currentamplifier.StanfordAmplifier;
+import gda.factory.Finder;
 
 public class StanfordAmplifierComposite{
 
-	private Combo sensitivity;
-	private Combo offset;
-	private Combo offsetUnit;
-	private Combo unit;
+	private static final Logger logger = LoggerFactory.getLogger(StanfordAmplifierComposite.class);
+
+	private Combo sensitivityValueCombo;
+	private Combo offsetValueCombo;
+	private Combo offsetUnitCombo;
+	private Combo sensitivityUnitCombo;
 	private Button on;
 	private Button off;
-	private String scannableName;
+
+	private final StanfordAmplifier stanfordScannable;
 
 	public StanfordAmplifierComposite(Composite parent, @SuppressWarnings("unused") int style, String name, String scannable) {
-		scannableName=scannable;
+
+		stanfordScannable = (StanfordAmplifier)Finder.getInstance().find(scannable);
 
 		Group group = new Group(parent, SWT.NONE);
 		group.setText(name);
 		group.setLayout(new GridLayout(5, false));
+		group.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, false, 1, 1));
 
 		Label lblSensitivity = new Label(group, SWT.NONE);
 		lblSensitivity.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblSensitivity.setText("Sensitivity");
 
-		sensitivity = new Combo(group, SWT.NONE);
-		sensitivity.addSelectionListener(new SelectionAdapter() {
+		sensitivityValueCombo = new Combo(group, SWT.NONE);
+		sensitivityValueCombo.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				JythonServerFacade.getInstance().runCommand(scannableName+".setSensitivity("+ sensitivity.getSelectionIndex() + ")");
+				try {
+					stanfordScannable.setSensitivity(sensitivityValueCombo.getSelectionIndex());
+				} catch (DeviceException e1) {
+					logger.error("Problem setting sensitivity", e1);
+				}
 			}
 		});
-		sensitivity.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		sensitivity.setItems(new String[] {"1", "2", "5", "10", "20", "50", "100", "200", "500"});
 
-		unit = new Combo(group, SWT.NONE);
-		unit.addSelectionListener(new SelectionAdapter() {
+		sensitivityValueCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		sensitivityValueCombo.setItems(stanfordScannable.getAllowedPositions());
+		((GridData)sensitivityValueCombo.getLayoutData()).minimumWidth = 75;
+
+		sensitivityUnitCombo = new Combo(group, SWT.NONE);
+		sensitivityUnitCombo.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				JythonServerFacade.getInstance().runCommand(scannableName+".setUnit("+ unit.getSelectionIndex() + ")");
+				try {
+					stanfordScannable.setSensitivityUnit(sensitivityUnitCombo.getSelectionIndex());
+				} catch (DeviceException e1) {
+					logger.error("Problem setting units", e1);
+				}
 			}
 		});
-		unit.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		unit.setItems(new String[] {"pA/V", "nA/V", "uA/V", "mA/V"});
+		sensitivityUnitCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		sensitivityUnitCombo.setItems(stanfordScannable.getGainUnits());
+		((GridData)sensitivityUnitCombo.getLayoutData()).minimumWidth = 75;
 
 		Button update = new Button(group, SWT.NONE);
 		update.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1));
 		update.setText("Update Values");
+		update.setToolTipText("Update settings to match current hardware status");
 
 		Label lblInputOffsetCurrent = new Label(group, SWT.NONE);
 		lblInputOffsetCurrent.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblInputOffsetCurrent.setText("Input Offset");
 
-		offset = new Combo(group, SWT.NONE);
-		offset.addSelectionListener(new SelectionAdapter() {
+		offsetValueCombo = new Combo(group, SWT.NONE);
+		offsetValueCombo.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				JythonServerFacade.getInstance().runCommand(scannableName+".setOffset("+ offset.getSelectionIndex() + ")");
+				try {
+					stanfordScannable.setOffset(offsetValueCombo.getSelectionIndex());
+				} catch (DeviceException e1) {
+					logger.error("Problem setting offset", e1);
+				}
 			}
 		});
-		offset.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		offset.setItems(new String[] {"1", "2", "5", "10", "20", "50", "100", "200", "500"});
+		offsetValueCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		offsetValueCombo.setItems(stanfordScannable.getAllowedPositions());
 
-		offsetUnit = new Combo(group, SWT.NONE);
-		offsetUnit.addSelectionListener(new SelectionAdapter() {
+		offsetUnitCombo = new Combo(group, SWT.NONE);
+		offsetUnitCombo.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				JythonServerFacade.getInstance().runCommand(scannableName+".setOffsetUnit("+ offsetUnit.getSelectionIndex() + ")");
+				try {
+					stanfordScannable.setOffsetUnit(sensitivityUnitCombo.getSelectionIndex());
+				} catch (DeviceException e1) {
+					logger.error("Problem setting offset unit", e1);
+				}
 			}
 		});
-		offsetUnit.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		offsetUnit.setItems(new String[] {"pA", "nA", "uA"});
+		offsetUnitCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		offsetUnitCombo.setItems(stanfordScannable.getOffsetUnits());
 
 		on = new Button(group, SWT.NONE);
 		on.setSelection(true);
@@ -110,26 +139,22 @@ public class StanfordAmplifierComposite{
 		on.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				JythonServerFacade.getInstance().runCommand(scannableName+".setOn(1)");
-				boolean offsetOn = false;
-				if(JythonServerFacade.getInstance().evaluateCommand(scannableName+".isOn()").equals("1"))
-					offsetOn=true;
-
-				on.setEnabled(!offsetOn);
-				off.setEnabled(offsetOn);
+				try {
+					switchCurrentOn(true);
+				} catch(DeviceException e1) {
+					logger.error("Problem switching on current ", e1);
+				}
 			}
 		});
 
 		off.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				JythonServerFacade.getInstance().runCommand(scannableName+".setOn(0)");
-				boolean offsetOn = false;
-				if(JythonServerFacade.getInstance().evaluateCommand(scannableName+".isOn()").equals("1"))
-					offsetOn=true;
-
-				on.setEnabled(!offsetOn);
-				off.setEnabled(offsetOn);
+				try {
+					switchCurrentOn(false);
+				} catch (DeviceException e1) {
+					logger.error("Problem switching off current ", e1);
+				}
 			}
 		});
 
@@ -143,17 +168,28 @@ public class StanfordAmplifierComposite{
 		updateFields();
 	}
 
-	private void updateFields(){
-		sensitivity.select(Integer.parseInt(JythonServerFacade.getInstance().evaluateCommand(scannableName+".getSensitivity()")));
-		offset.select(Integer.parseInt(JythonServerFacade.getInstance().evaluateCommand(scannableName+".getOffset()")));
-		offsetUnit.select(Integer.parseInt(JythonServerFacade.getInstance().evaluateCommand(scannableName+".getOffsetUnit()")));
-		unit.select(Integer.parseInt(JythonServerFacade.getInstance().evaluateCommand(scannableName+".getUnit()")));
-
-		boolean offsetOn = false;
-		if(JythonServerFacade.getInstance().evaluateCommand(scannableName+".isOn()").equals("1"))
-			offsetOn=true;
-
+	/**
+	 * Turn ion current on/off and also update gui on/off button enabled status.
+	 * @param switchOn
+	 * @throws DeviceException
+	 */
+	private void switchCurrentOn(boolean switchOn) throws DeviceException {
+		stanfordScannable.setOffsetCurrentOn(switchOn);
+		// Update gui on/off buttons
+		boolean offsetOn = stanfordScannable.isOffsetCurrentOn();
 		on.setEnabled(!offsetOn);
 		off.setEnabled(offsetOn);
+	}
+
+	private void updateFields(){
+		try {
+			sensitivityValueCombo.select(stanfordScannable.getSensitivity());
+			offsetValueCombo.select(stanfordScannable.getOffset());
+			offsetUnitCombo.select(stanfordScannable.getOffsetUnit());
+			sensitivityUnitCombo.select(stanfordScannable.getSensitivityUnit());
+			switchCurrentOn( stanfordScannable.isOffsetCurrentOn() );
+		} catch (DeviceException e) {
+			logger.error("Problem updating gui from amplifier hardware settings", e);
+		}
 	}
 }

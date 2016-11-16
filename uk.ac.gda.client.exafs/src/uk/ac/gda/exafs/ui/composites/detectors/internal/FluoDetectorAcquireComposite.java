@@ -43,6 +43,7 @@ public class FluoDetectorAcquireComposite extends Composite {
 	private Button liveCheckBox;
 	private Button applySettingsButton;
 	private Button autoScaleOnAcquireCheckBox;
+	private Button showLoadedDataCheckBox;
 
 	public FluoDetectorAcquireComposite(Composite composite, int style) {
 		super(composite, style);
@@ -55,42 +56,52 @@ public class FluoDetectorAcquireComposite extends Composite {
 		GridLayoutFactory.swtDefaults().numColumns(3).applyTo(acquireGroup);
 
 		detectorNameLabel = new Label(acquireGroup, SWT.NONE);
-		GridDataFactory.swtDefaults().span(3, 1).applyTo(detectorNameLabel);
+		GridDataFactory.swtDefaults().span(4, 1).applyTo(detectorNameLabel);
 		detectorNameLabel.setVisible(false);
 
 		loadButton = new Button(acquireGroup, SWT.NONE);
 		GridDataFactory.swtDefaults().applyTo(loadButton);
 		loadButton.setImage(SWTResourceManager.getImage(FluoDetectorAcquireComposite.class, "/icons/folder.png"));
 		loadButton.setText("Load");
+		loadButton.setToolTipText("Load detector data from file.");
 
 		saveButton = new Button(acquireGroup, SWT.NONE);
 		GridDataFactory.swtDefaults().applyTo(saveButton);
 		saveButton.setImage(SWTResourceManager.getImage(FluoDetectorAcquireComposite.class, "/icons/disk.png"));
 		saveButton.setText("Save");
-
-		autoSaveCheckBox = new Button(acquireGroup, SWT.CHECK);
-		GridDataFactory.swtDefaults().applyTo(autoSaveCheckBox);
-		autoSaveCheckBox.setText("Save on Acquire");
+		saveButton.setToolTipText("Save detector data to file.");
 
 		acquireButton = new Button(acquireGroup, SWT.NONE);
-		GridDataFactory.swtDefaults().applyTo(acquireButton);
 		setAcquireImageToSnapshot();
 		acquireButton.setText("Acquire");
+		acquireButton.setToolTipText("Acquire new frame(s) of data from detector.");
+
+		showLoadedDataCheckBox = new Button(acquireGroup, SWT.CHECK);
+		GridDataFactory.swtDefaults().applyTo(showLoadedDataCheckBox);
+		showLoadedDataCheckBox.setText("Show loaded data");
+		showLoadedDataCheckBox.setToolTipText("Overlay data loaded from file with data acquired from detector.");
+
+		autoSaveCheckBox = new Button(acquireGroup, SWT.CHECK);
+		autoSaveCheckBox.setText("Save on Acquire");
+		autoSaveCheckBox.setToolTipText("Save detector data to file automatically (non-live mode only)");
 
 		acquireTime = new ScaleBox(acquireGroup, SWT.NONE);
+		GridDataFactory.swtDefaults().applyTo(acquireTime);
 		acquireTime.setMinimum(1);
 		acquireTime.setValue(1000);
 		acquireTime.setMaximum(50000);
 		acquireTime.setUnit("ms");
+		acquireTime.setTooltipOveride("Acquisition time");
+
+		applySettingsButton = new Button(acquireGroup, SWT.NONE);
+		applySettingsButton.setText("Apply settings");
+		applySettingsButton.setToolTipText("Apply current settings to detector.");
 
 		liveCheckBox = new Button(acquireGroup, SWT.CHECK);
 		GridDataFactory.swtDefaults().applyTo(liveCheckBox);
-		liveCheckBox.setText("Live");
 
-		applySettingsButton = new Button(acquireGroup, SWT.NONE);
-		GridDataFactory.swtDefaults().span(2, 1).applyTo(applySettingsButton);
-		applySettingsButton.setText("Apply settings");
-		applySettingsButton.setToolTipText("Apply current settings to detector.");
+		liveCheckBox.setText("Live mode");
+		liveCheckBox.setToolTipText("Collect detector from detector continuously.");
 
 		autoScaleOnAcquireCheckBox = new Button(acquireGroup, SWT.CHECK);
 		GridDataFactory.swtDefaults().applyTo(autoScaleOnAcquireCheckBox);
@@ -174,5 +185,9 @@ public class FluoDetectorAcquireComposite extends Composite {
 
 	public Button getAutoScaleOnAcquireCheckBox() {
 		return autoScaleOnAcquireCheckBox;
+	}
+
+	public Button getShowDataLoadedFromFileCheckBox() {
+		return showLoadedDataCheckBox;
 	}
 }
