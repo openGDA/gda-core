@@ -35,7 +35,7 @@
 				<pathelement location="${workspace.git.loc}/gda-nexus.git/uk.ac.gda.nexus/bin" />
 				<pathelement location="${workspace.git.loc}/gda-epics.git/uk.ac.gda.epics/bin" />
 				<pathelement location="${workspace.git.loc}/gda-epics.git/uk.ac.gda.epics/jars/*" />
-				<pathelement location="${workspace.git.loc}/dawnsci.git/org.eclipse.january/bin" />
+				<pathelement location="${workspace.git.loc}/january.git/org.eclipse.january/bin" />
 				<pathelement location="${workspace.git.loc}/dawnsci.git/org.eclipse.dawnsci.analysis.api/bin" />
 				<pathelement location="${workspace.git.loc}/dawnsci.git/org.eclipse.dawnsci.analysis.tree/bin" />
 				<pathelement location="${workspace.git.loc}/dawnsci.git/org.eclipse.dawnsci.nexus/bin" />
