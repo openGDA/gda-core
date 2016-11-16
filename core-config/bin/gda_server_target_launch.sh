@@ -54,7 +54,7 @@ BEAMLINE_CONFIG="$GDA_WORKSPACE_PARENT/${GDA_INSTANCE_CONFIG_rel:-config}"
 SERVER_INSTALL_PATH=$(readlink -f "${GDA_WORKSPACE_PARENT}/server")
 SERVER_INSTALL_DIRNAME=$(basename "$SERVER_INSTALL_PATH")
 
-# Initialise the java startup arguments, defaulting to dummy if env var not set
+# Initialise the GDA and java startup arguments, defaulting GDA_MODE to dummy if env var not set
 vm_args="-Dgda.mode=${GDA_MODE:-dummy} -Djava.awt.headless=true"
 
 if [[ "$ARGS_IN" == *"--debug"* ]]; then
@@ -62,13 +62,15 @@ if [[ "$ARGS_IN" == *"--debug"* ]]; then
     vm_args="$vm_args -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=${wait},address=8000"
 fi
 
+[[ "$ARGS_IN" == *"--force"* ]] && force=true || force=false
+
 # Set user workspace and eclipse runtime configuration location (user and server build specific)
 USER_WORKSPACE=$USER_WORKSPACE_PARENT/$(whoami)
 ECLIPSE_RUNTIME_CONFIG_DIRNAME=$(whoami)-$SERVER_INSTALL_DIRNAME
 ECLIPSE_RUNTIME_CONFIG=$ECLIPSE_RUNTIME_CONFIG_PARENT/$ECLIPSE_RUNTIME_CONFIG_DIRNAME
 
 # Add java location to the path
-module load java/gda90
+module load java/gda92
 
 #############################
 # Start/Restart/Stop handling
@@ -118,15 +120,14 @@ function check_matching_server_target {
     do
         if [[ -z $(grep "$1" <<< "${server_proc}") ]]; then
             ((alien_count++))
-        else
-            pid=$(awk '{ print $2 }' <<< $server_proc)
-            echo "pid: ${pid}"
-            pids_to_kill+=" $pid"
         fi
+        pid=$(awk '{ print $2 }' <<< $server_proc)
+        echo "pid: ${pid}"
+        pids_to_kill+=" $pid"
     done
-    if [[ $alien_count > 0 ]]; then
+    if [[ "$force" == false ]] && [[ $alien_count > 0 ]]; then
         [[ $alien_count == 1 ]] && conjugate="is" || conjugate="are"
-        log_error_to_startup_file_and_exit "$alien_count of the running GDA Servers on ($HOSTNAME) $conjugate based on a different $2 than the one you are trying to restart/stop. Please examine and deal with this as appropriate before proceeding."
+        log_error_to_startup_file_and_exit "$alien_count of the running GDA Servers on ($HOSTNAME) $conjugate based on a different $2 than the one you are trying to restart/stop. Please examine and deal with this as appropriate or retry with --force"
     fi
 }
 
@@ -165,9 +166,12 @@ if [[ "$ARGS_IN" =~ $START_ONLY_PATTERN  ]]; then
 #
 elif [[ "$ARGS_IN" =~ $RESTART_OR_STOP_PATTERN ]]; then
     set_target_server_matcher
+    # check if same user is restarting stopping application as owner of running one whose proc details are stored in $my_servers_arr
     check_running_servers_ownership "$ALL_RUNNING_GDA_OSGI_SERVERS" "GDA"
+    # now check the main application was started from the same server build using $my_servers_arr
     check_matching_server_target ${TARGET_SERVER_MATCHER} "target"
     OSGI_SERVER_PIDS_TO_KILL=$pids_to_kill
+    # repeat above tests for Name/Channel/Log servers via my_servers_arr and checking if deployment folder matches
     check_running_servers_ownership "$ALL_RUNNING_SUBORDINATE_SERVERS" "Name, Channel and/or Log"
     check_matching_server_target ${GDA_WORKSPACE_PARENT} "deployment"
     for pid in $OSGI_SERVER_PIDS_TO_KILL; do
