@@ -33,7 +33,7 @@
 				<pathelement location="${workspace.git.loc}/dawnsci.git/org.eclipse.dawnsci.analysis.dataset/bin" />
 				<pathelement location="${workspace.git.loc}/dawnsci.git/org.eclipse.dawnsci.json/bin" />
 				<pathelement location="${workspace.git.loc}/dawnsci.git/org.eclipse.dawnsci.plotting.api/bin" />
-				<pathelement location="${workspace.git.loc}/dawnsci.git/org.eclipse.january/bin" />
+				<pathelement location="${workspace.git.loc}/january.git/org.eclipse.january/bin" />
 				<pathelement location="${workspace.git.loc}/daq-eclipse.git/org.eclipse.scanning.api/bin" />
 				<pathelement location="${workspace.git.loc}/daq-eclipse.git/org.eclipse.scanning.example/bin" />
 				<pathelement location="${workspace.git.loc}/daq-eclipse.git/org.eclipse.scanning.server/bin" />
