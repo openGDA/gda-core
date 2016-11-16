@@ -18,3 +18,5 @@ Import-Package: org.springframework.beans.factory;version="4.0.6.RELEASE"
 Export-Package: uk.ac.diamond.daq.detectors.addetector
 Bundle-ActivationPolicy: lazy
 Service-Component: OSGI-INF/*.xml
+Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
+

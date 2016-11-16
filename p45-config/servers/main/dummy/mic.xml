@@ -82,4 +82,22 @@
 		<property name="fileWriter" ref="adsim_hdf5_writer" />
 	</bean>
 
+	<!--  Area Detector Example -->
+	<bean id="areaDetectorModel" class="uk.ac.diamond.daq.detectors.addetector.api.AreaDetectorRunnableDeviceModel">
+		<property name="name"                   value="mic"/>
+		<property name="exposureTime"           value="0.1"/>
+	</bean>
+	<bean id="areaDetectorInfo" class="org.eclipse.scanning.api.event.scan.DeviceInformation">
+		<property name="id"          value="org.eclipse.scanning.example.malcolm.dummyMalcolmDetectorSpring"/>
+		<property name="label"       value="Area Detector Simulation"/>
+		<property name="description" value="A simulation area detector IOC"/>
+<!-- 		<property name="icon"        value="org.eclipse.scanning.example/icons/alarm-clock-select.png"/>  bundle must be on client for that, if it isn't a default icon is used -->
+	</bean>
+	<bean id="areaDetector" class="uk.ac.diamond.daq.detectors.addetector.AreaDetectorRunnableDevice" init-method="register">
+		<property name="name"              value="Area Detector Simulation"/>
+		<property name="model"             ref="areaDetectorModel"/>
+		<property name="deviceInformation" ref="areaDetectorInfo"/>
+		<property name="activated"         value="true"/> <!-- This means it is activated as the default device to use in a scan -->
+	</bean>
+
 </beans>
