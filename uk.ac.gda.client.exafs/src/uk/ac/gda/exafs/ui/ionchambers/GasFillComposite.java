@@ -35,12 +35,16 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.forms.events.ExpansionAdapter;
+import org.eclipse.ui.forms.events.ExpansionEvent;
+import org.eclipse.ui.forms.widgets.ExpandableComposite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.exafs.mucal.PressureBean;
 import gda.exafs.mucal.PressureCalculation;
 import uk.ac.gda.beans.exafs.IonChamberParameters;
+import uk.ac.gda.common.rcp.util.GridUtils;
 
 public class GasFillComposite extends Composite {
 	private final static Logger logger = LoggerFactory.getLogger(GasFillComposite.class);
@@ -69,12 +73,12 @@ public class GasFillComposite extends Composite {
 		// Main group has two columns : one for energy, gas type settings; one for 'advanced' settings
 		Group grpGasFilling = new Group(this, SWT.NONE);
 		grpGasFilling.setText("Gas Filling");
-		grpGasFilling.setLayout(new GridLayout(2, true));
+		grpGasFilling.setLayout(new GridLayout(2, false));
 		grpGasFilling.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 
 		// --- Energy, gas type, absorption setting ---
 		Composite energyGasTypeComposite = new Composite(grpGasFilling, SWT.NONE);
-		energyGasTypeComposite.setLayout(new GridLayout(2, true));
+		energyGasTypeComposite.setLayout(new GridLayout(2, false));
 		energyGasTypeComposite.setLayoutData( new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1) );
 
 		// Create map between gas type and description
@@ -94,7 +98,7 @@ public class GasFillComposite extends Composite {
 			gasTypeCombo.add( val.getValue() );
 		}
 
-		absorptionTextbox = IonChamber.addLabelAndTextBox(energyGasTypeComposite, "Absorption" );
+		absorptionTextbox = IonChamber.addLabelAndTextBox(energyGasTypeComposite, "Absorption (%)" );
 
 		Label lblPressure = new Label(energyGasTypeComposite, SWT.NONE);
 		lblPressure.setText("Pressure");
@@ -115,34 +119,34 @@ public class GasFillComposite extends Composite {
 
 		// --- 'Advanced' settings ---
 
-		// TODO : Would be nice to get Expandable bar working properly to show/hide 'advanced' settings
-		// - it currently shows strange behaviour for horizontal resizing ...
-//		ExpandBar expandAdvanced = new ExpandBar(grpGasFilling, SWT.NONE);
-//		expandAdvanced.setLayout(new GridLayout(1, false));
-//		expandAdvanced.setLayoutData( new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1) );
-//
-//		// so that group has enough space to display expanded composite
-//		((GridData)expandAdvanced.getLayoutData()).widthHint = 250;
-//		((GridData)expandAdvanced.getLayoutData()).heightHint = 180;
-//
-//		ExpandItem expandItemAdvanced = new ExpandItem(expandAdvanced, SWT.NONE);
-//		expandItemAdvanced.setText("Advanced");
-//		expandItemAdvanced.setHeight(300);
+		ExpandableComposite expandableComp = new ExpandableComposite(grpGasFilling, SWT.NONE);
+		GridData layoutData = new GridData(SWT.FILL, SWT.TOP, true, true, 1, 1);
+		expandableComp.setLayoutData(layoutData);
+		expandableComp.setText("Advanced");
+		// set minimum width to match length of title
+		layoutData.minimumWidth = expandableComp.computeSize(SWT.DEFAULT, SWT.DEFAULT).x;
 
-		Composite compositeAdvanced = new Composite(grpGasFilling, SWT.NONE);
+		Composite compositeAdvanced = new Composite(expandableComp, SWT.NONE);
 		compositeAdvanced.setLayout( new GridLayout(2, false) );
-		compositeAdvanced.setLayoutData( new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1) );
+		compositeAdvanced.setLayoutData( new GridData(SWT.FILL, SWT.TOP, true, true, 1, 1) );
 
-		//((GridData)compositeAdvanced.getLayoutData()).widthHint = 300;
+		totalPressureTextbox = IonChamber.addLabelAndTextBox(compositeAdvanced, "Total Pressure (bar)");
+ 		ionChamberLengthTextbox = IonChamber.addLabelAndTextBox(compositeAdvanced, "Chamber length (cm)");
+		fill1PeriodTextbox = IonChamber.addLabelAndTextBox(compositeAdvanced, "Fill 1 Period (sec)");
+		fill2PeriodTextbox = IonChamber.addLabelAndTextBox(compositeAdvanced, "Fill 2 Period (sec)");
 
-		totalPressureTextbox = IonChamber.addLabelAndTextBox(compositeAdvanced, "Total Pressure");
- 		ionChamberLengthTextbox = IonChamber.addLabelAndTextBox(compositeAdvanced, "Chamber length");
-		fill1PeriodTextbox = IonChamber.addLabelAndTextBox(compositeAdvanced, "Fill 1 Period");
-		fill2PeriodTextbox = IonChamber.addLabelAndTextBox(compositeAdvanced, "Fill 2 Period");
+		expandableComp.setSize(compositeAdvanced.computeSize(SWT.DEFAULT,  SWT.DEFAULT));
+		expandableComp.setClient(compositeAdvanced);
 
-//		expandItemAdvanced.setControl(compositeAdvanced);
-		//compositeAdvanced.setVisible(false);
-		//((GridData)compositeAdvanced.getLayoutData()).widthHint = 0;
+		expandableComp.addExpansionListener(new ExpansionAdapter() {
+			@Override
+			public void expansionStateChanged(ExpansionEvent e) {
+				GridUtils.layoutFull(getParent());
+				// also layout ionchamber view, to avoid having unnecessary gaps between groups of ionchamber widgets
+				GridUtils.layoutFull(getParent().getParent());
+			}
+		});
+		expandableComp.setExpanded(false);
 
 		addListeners();
 	}
@@ -242,7 +246,7 @@ public class GasFillComposite extends Composite {
 	 */
 	public void updatePressure() {
 		calculatePressure();
-		pressureValueLabel.setText( String.format("%.5g", currentParameters.getPressure()) );
+		pressureValueLabel.setText( String.format("%.5g bar", currentParameters.getPressure()) );
 	}
 
 	/**
