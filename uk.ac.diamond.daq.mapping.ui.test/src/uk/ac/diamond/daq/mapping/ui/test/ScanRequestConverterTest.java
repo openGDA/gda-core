@@ -100,13 +100,15 @@ public class ScanRequestConverterTest {
 
 	@Test
 	public void testDetectorIsIncludedCorrectly() {
-		String detName = "det1";
+		String detName = "mandelbrot";
+		String displayName = "Mandelbrot Detector";
 		IDetectorModel detModel = new MandelbrotModel();
+		detModel.setName(detName);
 		experimentBean.setDetectorParameters(Arrays.asList(new DetectorModelWrapper(detName, detModel, true)));
 
 		ScanRequest<?> scanRequest = scanRequestConverter.convertToScanRequest(experimentBean);
 
-		assertEquals(scanRequest.getDetectors().get(detName), detModel);
+		assertEquals(detModel, scanRequest.getDetectors().get(detName));
 	}
 
 	@Test

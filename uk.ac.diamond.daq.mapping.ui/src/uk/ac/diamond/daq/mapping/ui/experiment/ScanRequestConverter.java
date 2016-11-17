@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
+import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.MapPosition;
 import org.eclipse.scanning.api.points.models.CompoundModel;
@@ -142,7 +143,8 @@ public class ScanRequestConverter {
 		// add the required detectors to the scan
 		for (IDetectorModelWrapper detectorWrapper : mappingExperimentBean.getDetectorParameters()) {
 			if (detectorWrapper.isIncludeInScan()) {
-				scanRequest.putDetector(detectorWrapper.getName(), detectorWrapper.getModel());
+				IDetectorModel detectorModel = detectorWrapper.getModel();
+				scanRequest.putDetector(detectorModel.getName(), detectorModel);
 			}
 		}
 
