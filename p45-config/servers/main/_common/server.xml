@@ -38,16 +38,22 @@
 		serviceName="gda/plotserver"
 		serviceInterface="uk.ac.diamond.scisoft.analysis.PlotServer" />
 
+	<import resource="example_detectors.xml"/>
 	<import resource="command_queue_processor.xml"/>
 	<import resource="jython_server_facade.xml" />
 	<import resource="mapping_stage.xml"/>
 	<import resource="mandelbrot_detectors.xml"/>
-	<import resource="new_scanning.xml"/>
-	<import resource="example_detectors.xml"/>
 
 	<!-- To enable use of a simulated AD uncomment this import and set the WORKSTATION environment variable to your workstation name -->
 	<!-- <import resource="simulated_area_detector.xml"/> -->
-
 	<corba:export namespace="${gda.beamline.name}" />
+
+	
+	<!--  
+	      IMPORTANT: this will start processing the scanning queue. 
+	      detectors must be created before doing this.
+	      ADVISED: do it last or towards the end, scan will now start to run!
+	 --> 
+	<import resource="new_scanning.xml"/> 
 
 </beans>
