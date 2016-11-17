@@ -1,18 +1,21 @@
 bashlog debug "gda_servers_core" "Entered"
 DEBUG=""
+GDA_ARGS=""
+options_text=""
 
 # read the GDA9 specific params
 for word in "$@"; do
     case $word in
-        --debug|--debug-wait)
-            DEBUG=${word}
-            ;;
-        -d)
+        -d|--debug)
             DEBUG="--debug"
-            echo in
+            options_text+="\nUse debugger connection on port 8000"
             ;;
-        -b)
+        -b|--debug-wait)
             DEBUG="--debug-wait"
+            options_text+="\nAwaiting debugger connection on port 8000"
+            ;;
+        --force)
+            GDA_ARGS+="--force "
             ;;
         *)
             continue
@@ -76,7 +79,7 @@ if [[ "${GDA_MODE}" == "live" && "${CONTROL_MACHINE_NAME}" != "$(uname -n)" ]]; 
       bashlog warn "gda_servers_core" "Public key file $CONTROL_MACHINE_PUBKEY_FILE doesn't exist and no CONTROL_MACHINE_PUBKEY defined!"
     fi
 
-    ssh -T -o BatchMode=yes -i ${CONTROL_MACHINE_SSHKEY_LOC} ${CONTROL_MACHINE_USER}@${CONTROL_MACHINE_NAME} ${GDA_OPERATION} ${DEBUG} &
+    ssh -T -o BatchMode=yes -i ${CONTROL_MACHINE_SSHKEY_LOC} ${CONTROL_MACHINE_USER}@${CONTROL_MACHINE_NAME} ${GDA_OPERATION} ${DEBUG} ${GDA_ARGS}&
     export SERVERS_SSH_PID=$!
     # Due to the problem with ssh where remotestartupscript.sh completes, but
     # ssh doesn't return, we run ssh in background but record its PID in
@@ -118,13 +121,10 @@ else
 
     export JAVA_OPTS="-Dgda.deploytype=1" # Seems to fix the reset_namespace problem
 
-    if [[ -n ${DEBUG-} ]]; then
-	    [[ $DEBUG == "--debug-wait" ]] && pref="Awaiting" || pref="Use"
-    	echo "${pref} debugger connection on port 8000"
-    fi
+    echo -e "${options_text}"
 
-    bashlog debug "gda_servers_core" "Starting ${GDA_TARGET_SCRIPT}  ${GDA_OPERATION} ${DEBUG}"
-    nohup ${GDA_TARGET_SCRIPT} ${GDA_OPERATION} ${DEBUG} >> ${GDA_LOG_FILE}  2>&1 &
+    bashlog debug "gda_servers_core" "Starting ${GDA_TARGET_SCRIPT}  ${GDA_OPERATION} ${DEBUG} ${GDA_ARGS}"
+    nohup ${GDA_TARGET_SCRIPT} ${GDA_OPERATION} ${DEBUG} ${GDA_ARGS} >> ${GDA_LOG_FILE}  2>&1 &
 
     if [[ ${GDA_OPERATION,,} != "stop" ]]; then
         # Starting; wait for the startup file to be created so that any

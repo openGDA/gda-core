@@ -48,6 +48,7 @@ OPTIONS:
 SERVER ONLY:
 -d --debug      Start the server in debug mode but do not wait for connection
 -b --debug-wait Start the server in debug mode waiting for a connection on port 8000
+--force         Override the check that prevents restart/stopping from a different server build than is already running
 
 EXAMPLES:
 
