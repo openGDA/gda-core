@@ -42,8 +42,6 @@ public class OSCommandRunner implements Serializable {
 
 	private static final Logger logger = LoggerFactory.getLogger(OSCommandRunner.class);
 
-	// TODO fields should be private and accessor methods used.
-
 	public final Integer exitValue;
 
 	public final Exception exception;
@@ -60,61 +58,40 @@ public class OSCommandRunner implements Serializable {
 		return outputLines;
 	}
 
-	/*
-	 * if we want a constructor that accepts a command line we will need a method to break that into String[] of
-	 * commands
-	 */
-	public OSCommandRunner(String[] _commands, boolean _keepOutput, String stdInFileName, String stdOutFileName) {
-		this(Arrays.asList(_commands), _keepOutput, stdInFileName, stdOutFileName, null, null);
-	}
-
-	public OSCommandRunner(String command, boolean _keepOutput, String stdInFileName, String stdOutFileName) {
-		this(Arrays.asList(command.split("[\\s]")), _keepOutput, stdInFileName, stdOutFileName, null, null);
-	}
-
 	public enum LOGOPTION {
-
 		NEVER,
-
 		ALWAYS,
-
 		ONLY_ON_ERROR
 	}
 
 	public static void runNoWait(String command, LOGOPTION logOption, String stdInFileName) {
-		runNoWait(Arrays.asList(command.split("[\\s]")), logOption, stdInFileName);
+		runNoWait(command.split("[\\s]"), logOption, stdInFileName);
 	}
 
 	public static void runNoWait(String[] _commands, LOGOPTION logOption, String stdInFileName) {
 		runNoWait(Arrays.asList(_commands), logOption, stdInFileName);
 	}
 
-	/**
-	 * Starts executing a process and returns.
-	 * @param _commands - program path and arguments
-	 * @param logOption - controls the logging of the output
-	 * @param stdInFileName - if not null stdin is set to this file for the program
-	 */
 	public static void runNoWait(final List<String> _commands, final LOGOPTION logOption, final String stdInFileName){
-		runNoWait(_commands, logOption, stdInFileName, null, null);
+		runNoWait(_commands, logOption, stdInFileName, null);
 	}
 
 	public static void runNoWait(final List<String> _commands, final LOGOPTION logOption, final String stdInFileName, ExecutorService executor) {
 		_runNoWait(_commands, logOption, stdInFileName, null, null, executor);
 	}
 
+	public static void runNoWait(final List<String> _commands, final LOGOPTION logOption, final String stdInFileName,
+			final Map<? extends String, ? extends String> envPutAll, final List<String> envRemove) {
+		_runNoWait(_commands, logOption, stdInFileName, envPutAll, envRemove, null);
+	}
+
 	/**
-	 * Starts executing a process and returns.
+	 * Starts process, returns immediately.
+	 *
 	 * @param _commands - program path and arguments
 	 * @param logOption - controls the logging of the output
 	 * @param stdInFileName - if not null stdin is set to this file for the program
 	 */
-	public static void runNoWait(final List<String> _commands, final LOGOPTION logOption, final String stdInFileName,
-			final Map<? extends String, ? extends String> envPutAll,
-			final List<String> envRemove) {
-		_runNoWait(_commands, logOption, stdInFileName, envPutAll, envRemove, null);
-	}
-
 	private static void _runNoWait(final List<String> _commands, final LOGOPTION logOption, final String stdInFileName,
 			final Map<? extends String, ? extends String> envPutAll,
 			final List<String> envRemove, ExecutorService executor) {
@@ -141,7 +118,6 @@ public class OSCommandRunner implements Serializable {
 				}
 			}
 		};
-
 		if (executor != null) {
 			executor.submit(r);
 		} else {
@@ -149,42 +125,36 @@ public class OSCommandRunner implements Serializable {
 		}
 	}
 
-	/*
-	 * Start process, wait for completion
-	 */
-	/**
-	 * @param _commands - this is the program and list of arguments
-	 * @param _keepOutput - true if output is to be later accessed in outputLines
-	 * @param stdInFile - if not null stdin is set to this file. Can be a string for the file path or a list of strings for the lines of the file.
-	 * @param stdOutFileName - if not null stdout is set to this file.
-	 */
+	public OSCommandRunner(String command, boolean _keepOutput, String stdInFileName, String stdOutFileName) {
+		this(command.split("[\\s]"), _keepOutput, stdInFileName, stdOutFileName);
+	}
+
+	public OSCommandRunner(String[] _commands, boolean _keepOutput, String stdInFileName, String stdOutFileName) {
+		this(Arrays.asList(_commands), _keepOutput, stdInFileName, stdOutFileName);
+	}
+
 	public OSCommandRunner(List<String> _commands, boolean _keepOutput, Object stdInFile, String stdOutFileName) {
 		this(_commands, _keepOutput, stdInFile, stdOutFileName, null, null);
 	}
 
-	/**
-	 * @param _commands - this is the program and list of arguments
-	 * @param _keepOutput - true if output is to be later accessed in outputLines
-	 * @param stdInFile - if not null stdin is set to this file. Can be a string for the file path or a list of strings for the lines of the file.
-	 * @param stdOutFileName - if not null stdout is set to this file.
-	 */
 	public OSCommandRunner(List<String> _commands, boolean _keepOutput, Object stdInFile, String stdOutFileName, Map<? extends String, ? extends String> envPutAll,
 			List<String> envRemove) {
 		this(_commands, _keepOutput, stdInFile, stdOutFileName, envPutAll, envRemove, null);
 	}
 
-	/**
-	 * @param _commands - this is the program and list of arguments
-	 * @param _keepOutput - true if output is to be later accessed in outputLines
-	 * @param stdInFile - if not null stdin is set to this file. Can be a string for the file path or a list of strings for the lines of the file.
-	 * @param stdOutFileName - if not null stdout is set to this file.
-	 */
 	public OSCommandRunner(List<String> _commands, boolean _keepOutput, Object stdInFile, String stdOutFileName, Map<? extends String, ? extends String> envPutAll,
 			List<String> envRemove, String directory) {
 		this(_commands, _keepOutput, stdInFile, stdOutFileName, envPutAll, envRemove, directory, -1);
 	}
 
-
+	/**
+	 * Starts process, waits for completion.
+	 *
+	 * @param _commands - this is the program and list of arguments
+	 * @param _keepOutput - true if output is to be later accessed in outputLines
+	 * @param stdInFile - if not null stdin is set to this file. Can be a string for the file path or a list of strings for the lines of the file.
+	 * @param stdOutFileName - if not null stdout is set to this file.
+	 */
 	public OSCommandRunner(List<String> _commands, boolean _keepOutput, Object stdInFile, String stdOutFileName, Map<? extends String, ? extends String> envPutAll,
 			List<String> envRemove, String directory, int timeoutInMs) {
 		this.commands = _commands;
@@ -323,7 +293,6 @@ public class OSCommandRunner implements Serializable {
 	        }
 	    }).start();
 	}
-
 
 	public String getCommandAsString() {
 		String msg = "";
