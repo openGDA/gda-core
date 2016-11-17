@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="Live MJPEG Plot View">
-   <implementation class="uk.ac.gda.client.liveplot.mjpeg.LiveMjpegPlot"/>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="Live Stream View">
+   <implementation class="uk.ac.gda.client.live.stream.view.LiveStreamView"/>
    <reference bind="setPlottingService" cardinality="1..1" interface="org.eclipse.dawnsci.plotting.api.IPlottingService" name="IPlottingService" policy="static"/>
    <reference bind="setRemoteDatasetService" cardinality="1..1" interface="org.eclipse.dawnsci.analysis.api.io.IRemoteDatasetService" name="IRemoteDatasetService" policy="static"/>
 </scr:component>

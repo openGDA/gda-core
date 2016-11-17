@@ -3,15 +3,17 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="mic_cam" class="uk.ac.gda.client.liveplot.mjpeg.CameraConfiguration">
+	<bean id="mic_cam" class="uk.ac.gda.client.live.stream.view.CameraConfiguration">
 		<property name="displayName" value="Microscope" />
 		<property name="url" value="http://p45-control.diamond.ac.uk:8090/MIC.MJPG.mjpg" />
+		<property name="arrayPv" value="BL45P-EA-MAP-01:MIC:ARR" />
 		<property name="sleepTime" value="5" />
 	</bean>
 
-	<bean id="det_cam" class="uk.ac.gda.client.liveplot.mjpeg.CameraConfiguration">
+	<bean id="det_cam" class="uk.ac.gda.client.live.stream.view.CameraConfiguration">
 		<property name="displayName" value="Spectrum" />
 		<property name="url" value="http://p45-control.diamond.ac.uk:8090/DET.MJPG.mjpg" />
+		<property name="arrayPv" value="BL45P-EA-MAP-01:DET:ARR" />
 		<property name="sleepTime" value="5" />
 	</bean>
 

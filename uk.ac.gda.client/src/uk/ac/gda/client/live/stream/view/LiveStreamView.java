@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.client.liveplot.mjpeg;
+package uk.ac.gda.client.live.stream.view;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -67,11 +67,11 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.DropDownAction;
  *
  * @author James Mudd
  */
-public class LiveMjpegPlot extends ViewPart {
+public class LiveStreamView extends ViewPart {
 
-	public static final String ID = "uk.ac.gda.client.liveplot.mjpeg.LiveMJPEGView";
+	public static final String ID = "uk.ac.gda.client.live.stream.view.LiveStreamView";
 
-	private static final Logger logger = LoggerFactory.getLogger(LiveMjpegPlot.class);
+	private static final Logger logger = LoggerFactory.getLogger(LiveStreamView.class);
 
 	private static final long MJPEG_DEFAULT_SLEEP_TIME = 50; // ms i.e. 20 fps
 	private static final int MJPEG_DEFAULT_CACHE_SIZE = 3; // frames
@@ -81,12 +81,12 @@ public class LiveMjpegPlot extends ViewPart {
 
 	public static synchronized void setPlottingService(IPlottingService plottingService) {
 		logger.debug("Plotting service set to: {}", plottingService);
-		LiveMjpegPlot.plottingService = plottingService;
+		LiveStreamView.plottingService = plottingService;
 	}
 
 	public static synchronized void setRemoteDatasetService(IRemoteDatasetService remoteDatasetService) {
 		logger.debug("Remote Dataset service set to: {}", remoteDatasetService);
-		LiveMjpegPlot.remoteDatasetService = remoteDatasetService;
+		LiveStreamView.remoteDatasetService = remoteDatasetService;
 	}
 
 	private IPlottingSystem<Composite> plottingSystem;
@@ -324,7 +324,7 @@ public class LiveMjpegPlot extends ViewPart {
 		IWorkbenchPage page = getSite().getPage();
 		page.hideView(this);
 		try {
-			page.showView(LiveMjpegPlot.ID, secondaryId, IWorkbenchPage.VIEW_ACTIVATE);
+			page.showView(LiveStreamView.ID, secondaryId, IWorkbenchPage.VIEW_ACTIVATE);
 		} catch (PartInitException e) {
 			logger.error("Error activating Live MJPEG view with secondary ID {}", secondaryId, e);
 		}
@@ -335,8 +335,8 @@ public class LiveMjpegPlot extends ViewPart {
 	 */
 	class SwitchMjpegEpicsAction extends DropDownAction {
 
-		public SwitchMjpegEpicsAction(final LiveMjpegPlot liveMjpegPlot) {
-			// Need to have a default action. Here I chose to have a reset button. This seems to be an RCP "feature"?
+		public SwitchMjpegEpicsAction(final LiveStreamView liveMjpegPlot) {
+			// Need to have a default action. Here I chose to have a reset button.
 			super(new Action() {
 				@Override
 				public void run() {

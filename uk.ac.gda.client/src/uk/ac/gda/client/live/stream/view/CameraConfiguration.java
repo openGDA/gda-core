@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.client.liveplot.mjpeg;
+package uk.ac.gda.client.live.stream.view;
 
 import gda.factory.Findable;
 

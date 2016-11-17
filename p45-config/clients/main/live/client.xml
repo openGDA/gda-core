@@ -3,7 +3,7 @@
     xsi:schemaLocation="http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
-	<import resource="live_MJPEG.xml"/>
+	<import resource="stream_views.xml"/>
 
 	<import resource="../_common/client.xml"/>
 </beans>

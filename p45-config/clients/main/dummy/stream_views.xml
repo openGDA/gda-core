@@ -13,7 +13,7 @@
 				the machine the Simulation IOC is running on.
 	</description>
 
-	<bean id="mic_cam" class="uk.ac.gda.client.liveplot.mjpeg.CameraConfiguration">
+	<bean id="mic_cam" class="uk.ac.gda.client.live.stream.view.CameraConfiguration">
 		<property name="displayName" value="Simulated Area Detector" />
 		<!-- Use the WORKSTATION environment variable if set, otherwise use HOSTNAME -->
 		<property name="url" value="http://${WORKSTATION:${HOSTNAME}}:8080/CAM.mjpg.mjpg" />

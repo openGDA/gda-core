@@ -163,10 +163,10 @@
       </view>
       <view
             allowMultiple="true"
-            class="uk.ac.gda.client.liveplot.mjpeg.LiveMjpegPlot"
+            class="uk.ac.gda.client.live.stream.view.LiveStreamView"
             icon="icons/media-player-phone-horizontal.png"
-            id="uk.ac.gda.client.liveplot.mjpeg.LiveMJPEGView"
-            name="Live MJPEG Plot"
+            id="uk.ac.gda.client.live.stream.view.LiveStreamView"
+            name="Live Stream"
             restorable="true">
       </view>
       <view
