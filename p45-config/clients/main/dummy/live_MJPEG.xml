@@ -17,6 +17,8 @@
 		<property name="displayName" value="Simulated Area Detector" />
 		<!-- Use the WORKSTATION environment variable if set, otherwise use HOSTNAME -->
 		<property name="url" value="http://${WORKSTATION:${HOSTNAME}}:8080/CAM.mjpg.mjpg" />
+		<!-- If you want the EPICS array stream option add this. Commented out by default as WORKSTATION might not be set -->
+		<!-- <property name="arrayPv" value="${WORKSTATION}-AD-SIM-01:ARR" /> -->
 	</bean>
 
 	<!-- "det" is a GDA detector Simulator in dummy mode, so there is no "det_cam" area detector and

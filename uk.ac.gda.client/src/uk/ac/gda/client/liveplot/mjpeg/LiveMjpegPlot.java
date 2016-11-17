@@ -34,10 +34,14 @@ import org.eclipse.dawnsci.plotting.api.axis.IAxis;
 import org.eclipse.dawnsci.plotting.api.tool.IToolPage.ToolPageRole;
 import org.eclipse.dawnsci.plotting.api.trace.IImageTrace;
 import org.eclipse.dawnsci.plotting.api.trace.IImageTrace.DownsampleType;
+import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.DataEvent;
 import org.eclipse.january.dataset.IDataListener;
 import org.eclipse.january.dataset.IDatasetConnector;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.scanning.connector.epicsv3.EpicsV3DynamicDatasetConnector;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -45,6 +49,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
@@ -54,10 +59,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.factory.Finder;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.DropDownAction;
 
 /**
  * A RCP view for connecting to and displaying a live MJPEG stream. The intension is to provide a easy way for cameras
- * to be integrated into GDA.
+ * to be integrated into GDA, with minimal Spring configuration.
  *
  * @author James Mudd
  */
@@ -67,28 +73,57 @@ public class LiveMjpegPlot extends ViewPart {
 
 	private static final Logger logger = LoggerFactory.getLogger(LiveMjpegPlot.class);
 
-	private static final long DEFAULT_SLEEP_TIME = 50; // ms i.e. 20 fps
-	private static final int DEFAULT_CACHE_SIZE = 3; // frames
+	private static final long MJPEG_DEFAULT_SLEEP_TIME = 50; // ms i.e. 20 fps
+	private static final int MJPEG_DEFAULT_CACHE_SIZE = 3; // frames
 
 	private static IPlottingService plottingService;
 	private static IRemoteDatasetService remoteDatasetService;
 
-	private long frameCounter = 0;
-
-	public synchronized void setPlottingService(IPlottingService plottingService) {
-		logger.debug("Plotting service set by call to: {}", this);
+	public static synchronized void setPlottingService(IPlottingService plottingService) {
+		logger.debug("Plotting service set to: {}", plottingService);
 		LiveMjpegPlot.plottingService = plottingService;
 	}
 
-	public synchronized void setRemoteDatasetService(IRemoteDatasetService remoteDatasetService) {
-		logger.debug("Remote Dataset service set by call to: {}", this);
+	public static synchronized void setRemoteDatasetService(IRemoteDatasetService remoteDatasetService) {
+		logger.debug("Remote Dataset service set to: {}", remoteDatasetService);
 		LiveMjpegPlot.remoteDatasetService = remoteDatasetService;
 	}
 
 	private IPlottingSystem<Composite> plottingSystem;
-
 	private IDatasetConnector stream;
-	private IDataListener shapeListener;
+	private StreamType streamType = StreamType.MJPEG;
+	private IImageTrace iTrace;
+	private CameraConfiguration camConfig;
+	private Composite parent;
+	private String cameraName;
+	private long frameCounter = 0;
+	private final IDataListener shapeListener = new IDataListener() {
+		int[] oldShape;
+
+		@Override
+		public void dataChangePerformed(DataEvent evt) {
+			final Display display = PlatformUI.getWorkbench().getDisplay();
+			// Check if the shape has changed, if so rescale
+			if (!Arrays.equals(evt.getShape(), oldShape)) {
+				oldShape = evt.getShape();
+				// Need to be in the UI thread to do rescaling
+				display.asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						plottingSystem.autoscaleAxes();
+						iTrace.rehistogram();
+					}
+				});
+			}
+			// Update the frame count in the UI thread
+			display.asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					plottingSystem.setTitle(cameraName + ": " + streamType + " - Frame: " + Long.toString(frameCounter++));
+				}
+			});
+		}
+	};
 
 	@Override
 	public void createPartControl(final Composite parent) {
@@ -107,7 +142,7 @@ public class LiveMjpegPlot extends ViewPart {
 		if (getViewSite().getSecondaryId() != null) {
 			createLivePlot(parent, getViewSite().getSecondaryId());
 		} else {
-			// Find all the implemented cameras
+			// Find all the implemented cameras. This is currently using the finder but could use OSGi instead.
 			List<CameraConfiguration> cameras = Finder.getInstance().listLocalFindablesOfType(CameraConfiguration.class);
 			final Map<String, CameraConfiguration> cameraMap = new TreeMap<String, CameraConfiguration>();
 			for (CameraConfiguration camConfig : cameras) {
@@ -140,7 +175,7 @@ public class LiveMjpegPlot extends ViewPart {
 				connectButton.addSelectionListener(new SelectionAdapter() {
 					@Override
 					public void widgetSelected(SelectionEvent e) {
-						// Get the cameras id for the secondary id
+						// Get the cameras ID for the secondary ID
 						reopenViewWithSecondaryId(cameraMap.get(cameraSelector.getItem(cameraSelector.getSelectionIndex())).getName());
 					}
 				});
@@ -162,10 +197,11 @@ public class LiveMjpegPlot extends ViewPart {
 	 * @param cameraId
 	 *            The name of the camera to use
 	 */
-	private void createLivePlot(Composite parent, String cameraId) {
+	private void createLivePlot(final Composite parent, final String cameraId) {
+		this.parent = parent;
 
 		// Get the camera config from the finder
-		CameraConfiguration camConfig = Finder.getInstance().find(cameraId);
+		camConfig = Finder.getInstance().find(cameraId);
 
 		if (camConfig == null) {
 			displayAndLogError(parent, "Camera configuration could not be found for the specified camera ID");
@@ -177,30 +213,6 @@ public class LiveMjpegPlot extends ViewPart {
 			setPartName(camConfig.getDisplayName());
 		} else {
 			setPartName(camConfig.getName());
-		}
-
-		URL url;
-		try {
-			url = new URL(camConfig.getUrl());
-		} catch (MalformedURLException e) {
-			displayAndLogError(parent, "Malformed URL check camera configuration", e);
-			return;
-		}
-
-		// If sleepTime or cacheSize are set use them else use the defaults
-		long sleepTime = camConfig.getSleepTime() != 0 ? camConfig.getSleepTime() : DEFAULT_SLEEP_TIME; // ms
-		int cacheSize = camConfig.getCacheSize() != 0 ? camConfig.getCacheSize() : DEFAULT_CACHE_SIZE; // frames
-
-		try {
-			if (camConfig.isRgb()) {
-				stream = remoteDatasetService.createMJPGDataset(url, sleepTime, cacheSize);
-			} else {
-				stream = remoteDatasetService.createGrayScaleMJPGDataset(url, sleepTime, cacheSize);
-			}
-			stream.connect();
-		} catch (Exception e) {
-			displayAndLogError(parent, "Could not connect to MJPEG Stream at: " + url, e);
-			return;
 		}
 
 		// Setup the plotting system
@@ -217,7 +229,6 @@ public class LiveMjpegPlot extends ViewPart {
 		}
 
 		// Get the camera name to use for the GUI
-		final String cameraName;
 		if (camConfig.getDisplayName() != null) {
 			cameraName = camConfig.getDisplayName();
 		} else {
@@ -226,54 +237,34 @@ public class LiveMjpegPlot extends ViewPart {
 		plottingSystem.setTitle(cameraName);
 
 		// Add useful plotting system actions
-		IToolBarManager toolBarManager = getViewSite().getActionBars().getToolBarManager();
-		IPlotActionSystem plotActionSystem = plottingSystem.getPlotActionSystem();
-		plotActionSystem.fillToolActions(toolBarManager, ToolPageRole.ROLE_2D);
-		plotActionSystem.fillZoomActions(toolBarManager);
-		plotActionSystem.fillPrintActions(toolBarManager);
-		getViewSite().getActionBars().updateActionBars();
+		configureToolbar();
 
-		final IImageTrace iTrace = plottingSystem.createImageTrace("MJPEG stream trace");
-		// Attach the IDatasetConnector of the Mjpeg stream to the trace.
-		iTrace.setDynamicData(stream);
-		plottingSystem.addTrace(iTrace);
-		// Try and make the stream run faster
-		iTrace.setDownsampleType(DownsampleType.POINT);
-		iTrace.setRescaleHistogram(false);
 		// Fix the aspect ratio as is typically required for visible cameras
 		plottingSystem.setKeepAspect(true);
 		// Disable auto rescale as the live stream is constantly refreshing
 		plottingSystem.setRescale(false);
 
-		shapeListener = new IDataListener() {
-			int[] oldShape;
-			@Override
-			public void dataChangePerformed(DataEvent evt) {
-				if (!Arrays.equals(evt.getShape(), oldShape)) {
-					oldShape = evt.getShape();
-					// Need to be in the UI thread to do rescaling
-					PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-						@Override
-						public void run() {
-							if (plottingSystem != null) {
-								plottingSystem.autoscaleAxes();
-								iTrace.rehistogram();
-							}
-						}
-					});
-				}
-				// Update the frame count in the UI thread
-				PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						if (plottingSystem != null) {
-							plottingSystem.setTitle(cameraName + " - Frame: " + Long.toString(frameCounter++));
-						}
-					}
-				});
-			}
-		};
-		stream.addDataListener(shapeListener);
+		// Create a new trace.
+		iTrace = plottingSystem.createImageTrace("Live camera stream");
+		// Attach the IDatasetConnector of the MJPEG stream to the trace.
+		setupStream(StreamType.MJPEG);
+		// Try and make the stream run faster
+		iTrace.setDownsampleType(DownsampleType.POINT);
+		iTrace.setRescaleHistogram(false);
+		// Plot the new trace.
+		plottingSystem.addTrace(iTrace);
+	}
+
+	private void configureToolbar() {
+		IToolBarManager toolBarManager = getViewSite().getActionBars().getToolBarManager();
+		// Add the menu for switching between stream types
+		toolBarManager.add(new SwitchMjpegEpicsAction(this));
+		// Setup the plotting system toolbar options
+		IPlotActionSystem plotActionSystem = plottingSystem.getPlotActionSystem();
+		plotActionSystem.fillToolActions(toolBarManager, ToolPageRole.ROLE_2D);
+		plotActionSystem.fillZoomActions(toolBarManager);
+		plotActionSystem.fillPrintActions(toolBarManager);
+		getViewSite().getActionBars().updateActionBars();
 	}
 
 	@Override
@@ -284,10 +275,7 @@ public class LiveMjpegPlot extends ViewPart {
 	}
 
 	private void displayAndLogError(final Composite parent, final String errorMessage) {
-		Label errorLabel = new Label(parent, SWT.NONE);
-		errorLabel.setText(errorMessage);
-		parent.layout(true);
-		logger.error(errorMessage);
+		displayAndLogError(parent, errorMessage, null);
 	}
 
 	private void displayAndLogError(final Composite parent, final String errorMessage, final Exception exception) {
@@ -319,7 +307,6 @@ public class LiveMjpegPlot extends ViewPart {
 			try {
 				if (shapeListener != null) {
 					stream.removeDataListener(shapeListener);
-					shapeListener = null;
 				}
 				stream.disconnect();
 				stream = null;
@@ -342,4 +329,148 @@ public class LiveMjpegPlot extends ViewPart {
 			logger.error("Error activating Live MJPEG view with secondary ID {}", secondaryId, e);
 		}
 	}
+
+	/**
+	 * This inner class is just used to provide the toolbar action enabling reseting and switching the stream type.
+	 */
+	class SwitchMjpegEpicsAction extends DropDownAction {
+
+		public SwitchMjpegEpicsAction(final LiveMjpegPlot liveMjpegPlot) {
+			// Need to have a default action. Here I chose to have a reset button. This seems to be an RCP "feature"?
+			super(new Action() {
+				@Override
+				public void run() {
+					liveMjpegPlot.reset();
+				}
+				@Override
+				public String getText() {
+					return "Reset";
+				}
+			});
+
+			// Go through all the known stream types and if they are configured options add them
+			for (final StreamType type : StreamType.values()) {
+				switch (type) {
+				case MJPEG:
+					if (camConfig.getUrl() == null) continue;
+					break;
+				case EPICS_ARRAY:
+					if (camConfig.getArrayPv() == null) continue;
+					break;
+				default:
+					logger.warn("Building menu encounterd an unrecognised stream type");
+					// Any unrecognised new types add them all
+					break;
+				}
+				// If you got here your about to add an additional stream option.
+				this.add(new Action(type.displayName, IAction.AS_PUSH_BUTTON) {
+					@Override
+					public void run() {
+						liveMjpegPlot.setupStream(type);
+					}
+				});
+			}
+
+			this.setToolTipText("Choose the type of stream to display from this camera");
+		}
+	}
+
+	/**
+	 * Enum containing all the known stream types
+	 */
+	private enum StreamType {
+		MJPEG("MJPEG"),
+		EPICS_ARRAY("EPICS Array");
+
+		private final String displayName;
+
+		StreamType(String displayName) {
+			this.displayName = displayName;
+		}
+
+		@Override
+		public String toString() {
+			return displayName;
+		}
+	}
+
+	/**
+	 * This should be called when starting a new stream. It also takes care of disconnecting old streams (if any)
+	 *
+	 * @param streamType The type of stream to use
+	 */
+	private void setupStream(StreamType streamType) {
+		// Update the current stream type field.
+		this.streamType = streamType;
+
+		// Disconnect the existing stream
+		if (stream != null) { // Will be null the first time
+			try {
+				stream.disconnect();
+			} catch (DatasetException e) {
+				displayAndLogError(parent, "Error disconnecting from stream", e);
+				return; // Should not continue and create an additional stream
+			}
+		}
+
+		// Switch on the type of stream to setup
+		switch (streamType) {
+		case MJPEG:
+
+			final URL url;
+			try {
+				url = new URL(camConfig.getUrl());
+			} catch (MalformedURLException e) {
+				displayAndLogError(parent, "Malformed URL check camera configuration", e);
+				return;
+			}
+
+			// If sleepTime or cacheSize are set use them, else use the defaults
+			long sleepTime = camConfig.getSleepTime() != 0 ? camConfig.getSleepTime() : MJPEG_DEFAULT_SLEEP_TIME; // ms
+			int cacheSize = camConfig.getCacheSize() != 0 ? camConfig.getCacheSize() : MJPEG_DEFAULT_CACHE_SIZE; // frames
+
+			try {
+				if (camConfig.isRgb()) {
+					stream = remoteDatasetService.createMJPGDataset(url, sleepTime, cacheSize);
+				} else {
+					stream = remoteDatasetService.createGrayScaleMJPGDataset(url, sleepTime, cacheSize);
+				}
+				stream.connect();
+			} catch (Exception e) {
+				displayAndLogError(parent, "Could not connect to MJPEG Stream at: " + url, e);
+				return;
+			}
+			break;
+
+		case EPICS_ARRAY:
+			stream = new EpicsV3DynamicDatasetConnector(camConfig.getArrayPv());
+			try {
+				stream.connect();
+			} catch (DatasetException e) {
+				displayAndLogError(parent, "Could not connect to EPICS Array Stream PV: " + camConfig.getArrayPv() + ":ArrayData" , e);
+				return;
+			}
+			break;
+
+		default:
+			String message = "Stream type '" + streamType + "' not supported";
+			displayAndLogError(parent, message);
+			throw new RuntimeException(message);
+		}
+
+		// Connect the stream to the trace
+		iTrace.setDynamicData(stream);
+
+		// Add the listener for updating the frame counter
+		stream.addDataListener(shapeListener);
+
+		// Reset the frame counter
+		frameCounter = 0;
+	}
+
+	private void reset() {
+		// Call setupStream again with the current stream type. Creates a new stream resetting it.
+		setupStream(streamType);
+	}
+
 }

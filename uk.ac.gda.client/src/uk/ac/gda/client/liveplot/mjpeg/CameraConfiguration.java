@@ -30,6 +30,7 @@ public class CameraConfiguration implements Findable {
 	private String name; // Set to id by spring stuff
 	private String displayName; // Typically a "nice" name for the camera e.g "Sample microscope"
 	private String url; // url to get the data from the camera typically MJPEG stream
+	private String arrayPv; // The PV of the array plugin to use for the stream eg ws141-AD-SIM-01:ARR
 	private boolean rgb; // If true the camera will be treated as RBG not grayscale
 	private long sleepTime; // ms
 	private int cacheSize; // frames
@@ -80,10 +81,18 @@ public class CameraConfiguration implements Findable {
 		this.cacheSize = cacheSize;
 	}
 
+	public String getArrayPv() {
+		return arrayPv;
+	}
+	public void setArrayPv(String arrayPv) {
+		this.arrayPv = arrayPv;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + ((arrayPv == null) ? 0 : arrayPv.hashCode());
 		result = prime * result + cacheSize;
 		result = prime * result + ((displayName == null) ? 0 : displayName.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
@@ -102,6 +111,11 @@ public class CameraConfiguration implements Findable {
 		if (getClass() != obj.getClass())
 			return false;
 		CameraConfiguration other = (CameraConfiguration) obj;
+		if (arrayPv == null) {
+			if (other.arrayPv != null)
+				return false;
+		} else if (!arrayPv.equals(other.arrayPv))
+			return false;
 		if (cacheSize != other.cacheSize)
 			return false;
 		if (displayName == null) {
