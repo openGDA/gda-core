@@ -54,6 +54,6 @@
 	      detectors must be created before doing this.
 	      ADVISED: do it last or towards the end, scan will now start to run!
 	 --> 
-	<import resource="new_scanning.xml"/> 
+	<import resource="solstice_scanning.xml"/> 
 
 </beans>
