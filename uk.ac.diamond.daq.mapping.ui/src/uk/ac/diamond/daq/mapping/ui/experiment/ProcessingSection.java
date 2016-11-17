@@ -18,11 +18,6 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
-import java.beans.XMLDecoder;
-import java.beans.XMLEncoder;
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -34,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.apache.commons.beanutils.BeanUtils;
 import org.dawnsci.processing.ui.ServiceHolder;
 import org.dawnsci.processing.ui.api.IOperationModelWizard;
 import org.dawnsci.processing.ui.api.IOperationSetupWizardPage;
@@ -275,34 +271,39 @@ public class ProcessingSection extends AbstractMappingSection {
 		IDetectorModel detectorModel = getDetectorModel(processingStep.getModel().getDetectorName());
 		if (detectorModel == null) return false;
 
-		// Clone the detector model
-		ByteArrayOutputStream stream = new ByteArrayOutputStream();
-		XMLEncoder encoder = new XMLEncoder(new BufferedOutputStream(stream));
-		encoder.writeObject(detectorModel);
-		encoder.close();
-		XMLDecoder decoder = new XMLDecoder(new ByteArrayInputStream(stream.toByteArray()));
-		IDetectorModel detectorModelCopy = (IDetectorModel) decoder.readObject();
-		decoder.close();
-
 		if (templateFile == null) {
 			logger.error("templateFile is null!");
 			return false;
 		}
 
-		List<IOperationSetupWizardPage> startPages = new ArrayList<>();
-		startPages.add(new AcquireDataWizardPage(detectorModelCopy, context));
-		IOperationModelWizard wizard = ServiceHolder.getOperationUIService().getWizard(null,
-				startPages, templateFile.getAbsolutePath(), null);
-
-		OperationModelWizardDialog dialog = new OperationModelWizardDialog(getShell(), wizard);
-		if (dialog.open() == Window.OK) {
-			try {
-				wizard.saveOutputFile(processingStep.getModel().getProcessingFilePath());
-			} catch (Exception e) {
-				logger.error("Could not save template file!", e);
-			}
+		// Clone the detector model
+		IDetectorModel detectorModelCopy = null;
+		try {
+			detectorModelCopy = (IDetectorModel) BeanUtils.cloneBean(detectorModel);
+		} catch (Exception e) {
+			logger.error("Could not make a copy of the detector model: " + detectorModel.getName(), e);
+			return false;
 		}
-		return dialog.getReturnCode() == Window.OK;
+
+		try {
+			List<IOperationSetupWizardPage> startPages = new ArrayList<>();
+			startPages.add(new AcquireDataWizardPage(detectorModelCopy, context));
+			IOperationModelWizard wizard = ServiceHolder.getOperationUIService().getWizard(null,
+					startPages, templateFile.getAbsolutePath(), null);
+
+			OperationModelWizardDialog dialog = new OperationModelWizardDialog(getShell(), wizard);
+			if (dialog.open() == Window.OK) {
+				try {
+					wizard.saveOutputFile(processingStep.getModel().getProcessingFilePath());
+				} catch (Exception e) {
+					logger.error("Could not save template file!", e);
+				}
+			}
+			return dialog.getReturnCode() == Window.OK;
+		} catch (Exception e) {
+			logger.error("Could not open operation wizard", e);
+			return false;
+		}
 	}
 
 	private void deleteProcessingModel(IClusterProcessingModelWrapper processingStep) {
