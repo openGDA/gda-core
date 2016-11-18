@@ -18,6 +18,7 @@
 
 package gda.device.zebra.controller.impl;
 
+import gda.device.zebra.LogicGateConfiguration;
 import gda.device.zebra.controller.SoftInputChangedEvent;
 import gda.device.zebra.controller.Zebra;
 import gda.epics.CachedLazyPVFactory;
@@ -479,4 +480,15 @@ public class ZebraDummy implements Zebra, Findable, InitializingBean {
 	@Override
 	public void encCopyMotorPosToZebra(int posNum) throws Exception {
 	}
+
+	@Override
+	public void applyAndGateConfig(int gateNumber, LogicGateConfiguration config) throws IOException {
+		// Do nothing
+	}
+
+	@Override
+	public void applyOrGateConfig(int gateNumber, LogicGateConfiguration config) throws IOException {
+		// Do nothing
+	}
+
 }
