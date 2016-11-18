@@ -230,6 +230,7 @@
                minimized="false"
                ratio="0.4"
                relationship="stack"
+               relative="gda.rcp.ncd.views.NCDStatus"
                visible="true">
          </view>
        <!--  <view
