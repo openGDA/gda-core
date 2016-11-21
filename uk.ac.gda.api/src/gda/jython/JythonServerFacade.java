@@ -30,7 +30,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.Vector;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.python.core.PyException;
 import org.python.core.PyFile;
@@ -87,23 +89,17 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 
 	private static JythonServerFacade theInstance = null;
 
-	Vector<INamedScanDataPointObserver> namedSDPObservers = new Vector<INamedScanDataPointObserver>();
+	private final Set<INamedScanDataPointObserver> namedSDPObservers = new CopyOnWriteArraySet<>();
+	private final Set<IScanDataPointObserver> allSDPObservers = new CopyOnWriteArraySet<>();
+	private final Set<ICommandThreadObserver> commandThreadObservers = new CopyOnWriteArraySet<>();
+	private final Set<Terminal> myTerminals = new CopyOnWriteArraySet<>();
 
-	Vector<IScanDataPointObserver> allSDPObservers = new Vector<IScanDataPointObserver>();
+	private final ObservableComponent scanEventObservers = new ObservableComponent();
+	private final ObservableComponent myIObservers = new ObservableComponent();
 
-	Vector<ICommandThreadObserver> commandThreadObservers = new Vector<ICommandThreadObserver>();
+	private String name = "";
 
-	ObservableComponent scanEventObservers = new ObservableComponent();
-
-	String name = "";
-
-	boolean redirectNextInputTo_Raw_Input = false;
-
-	Jython commandServer = null;
-
-	Vector<Terminal> myTerminals = new Vector<Terminal>();
-
-	ObservableComponent myIObservers = new ObservableComponent();
+	private Jython commandServer = null;
 
 	private volatile int originalAuthorisationLevel = 0;
 
@@ -424,11 +420,7 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 				boolean panelUpdated = false;
 				IScanDataPoint point = (IScanDataPoint) data;
 				lastScanDataPoint = point;
-				// Create clone so that the observers can deregister themselves inside their update() method if they
-				// want to without causing an ConcurrentModificationException
-				IScanDataPointObserver[] allSDPObserversArray = new IScanDataPointObserver[allSDPObservers.size()];
-				allSDPObservers.copyInto(allSDPObserversArray);
-				for (IScanDataPointObserver observer : allSDPObserversArray) {
+				for (IScanDataPointObserver observer : allSDPObservers) {
 					try {
 						observer.update(this, point);
 						panelUpdated = true;
@@ -442,10 +434,7 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 
 				String panelName = point.getCreatorPanelName();
 				if (panelName != null) {
-					INamedScanDataPointObserver[] namedObserversArray = new INamedScanDataPointObserver[namedSDPObservers
-							.size()];
-					namedSDPObservers.copyInto(namedObserversArray);
-					for (INamedScanDataPointObserver observer : namedObserversArray) {
+					for (INamedScanDataPointObserver observer : namedSDPObservers) {
 						String name = observer.getName();
 						if (name.contains(panelName)) {
 							try {
@@ -467,16 +456,13 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 				if (panelName != null && !panelUpdated && namedSDPObservers.size() > 0) {
 					logger.warn("Could not send ScanDataPoint to the named panel " + panelName);
 				}
-			} else if (data instanceof BatonChanged) {
+			} else if (data instanceof BatonChanged || data instanceof BatonLeaseRenewRequest) {
 				// the baton has changed hands or there is a new client for the moment, simply distribute the message
 				// object
 				amIBatonHolder();
 				notifyIObservers(this, data);
-			} else if (data instanceof BatonLeaseRenewRequest) {
-				amIBatonHolder();
-				notifyIObservers(this, data);
 			} else if (data instanceof CommandThreadEvent) {
-				for (ICommandThreadObserver observer : commandThreadObservers) {
+				for (ICommandThreadObserver observer: commandThreadObservers) {
 					observer.update(this, data);
 				}
 			} else if (data instanceof ScanEvent) {
@@ -524,42 +510,34 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 
 		// put all Terminals in a separate list as well as they will want extra output
 		if (anIObserver instanceof Terminal) {
-			if (!myTerminals.contains(anIObserver)) {
-				myTerminals.addElement((Terminal) anIObserver);
-			}
+			myTerminals.add((Terminal) anIObserver);
 		}
 
 		// objects wishing to see SDPs
 		if (anIObserver instanceof INamedScanDataPointObserver) {
-			if (!namedSDPObservers.contains(anIObserver)) {
-				namedSDPObservers.addElement((INamedScanDataPointObserver) anIObserver);
-			}
+			namedSDPObservers.add((INamedScanDataPointObserver) anIObserver);
 		} else if (anIObserver instanceof IScanDataPointObserver) {
-			if (!allSDPObservers.contains(anIObserver)) {
-				allSDPObservers.addElement((IScanDataPointObserver) anIObserver);
-			}
+			allSDPObservers.add((IScanDataPointObserver) anIObserver);
 		}
 	}
 
 	@Override
 	public void deleteIObserver(IObserver anIObserver) {
-		synchronized (this) {
-			myIObservers.deleteIObserver(anIObserver);
+		myIObservers.deleteIObserver(anIObserver);
 
-			if (anIObserver instanceof IScanDataPointObserver) {
-				allSDPObservers.removeElement(anIObserver);
-			} else if (anIObserver instanceof INamedScanDataPointObserver) {
-				namedSDPObservers.removeElement(anIObserver);
-			}
+		if (anIObserver instanceof IScanDataPointObserver) {
+			allSDPObservers.remove(anIObserver);
+		} else if (anIObserver instanceof INamedScanDataPointObserver) {
+			namedSDPObservers.remove(anIObserver);
 		}
 	}
 
 	@Override
 	public void deleteIObservers() {
 		myIObservers.deleteIObservers();
-		myTerminals.removeAllElements();
-		namedSDPObservers.removeAllElements();
-		allSDPObservers.removeAllElements();
+		myTerminals.clear();
+		namedSDPObservers.clear();
+		allSDPObservers.clear();
 	}
 
 	@Override
@@ -873,7 +851,7 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 
 	@Override
 	public void deleteCommandThreadObserver(ICommandThreadObserver anObserver) {
-		commandThreadObservers.removeElement(anObserver);
+		commandThreadObservers.remove(anObserver);
 	}
 
 	@Override
