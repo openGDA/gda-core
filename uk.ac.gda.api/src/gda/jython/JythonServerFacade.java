@@ -19,6 +19,27 @@
 
 package gda.jython;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.Vector;
+
+import org.python.core.PyException;
+import org.python.core.PyFile;
+import org.python.core.PyObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.util.StringUtils;
+
 import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
 import gda.factory.Findable;
@@ -41,27 +62,6 @@ import gda.scan.Scan;
 import gda.scan.ScanEvent;
 import gda.util.LibGdaCommon;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.InetAddress;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.Vector;
-
-import org.python.core.PyException;
-import org.python.core.PyFile;
-import org.python.core.PyObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.util.StringUtils;
-
 /**
  * Provides a single point of access for the Jython package for all Java classes. This will work whether the Java is
  * located client-side, server-side, on the same or different ObjectServers.
@@ -80,19 +80,19 @@ import org.springframework.util.StringUtils;
  */
 public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHolder, ICommandRunner,
 		ICurrentScanController, ITerminalPrinter, IJythonNamespace, IAuthorisationHolder, IScanDataPointProvider,
-		IScriptController, ICommandAborter, IBatonStateProvider, InitializingBean, AliasedCommandProvider, IJythonContext,
-		ITerminalOutputProvider, ICommandThreadInfoProvider {
+		IScriptController, ICommandAborter, IBatonStateProvider, InitializingBean, AliasedCommandProvider,
+		IJythonContext, ITerminalOutputProvider, ICommandThreadInfoProvider {
 
 	private static final Logger logger = LoggerFactory.getLogger(JythonServerFacade.class);
 
 	private static JythonServerFacade theInstance = null;
 
 	Vector<INamedScanDataPointObserver> namedSDPObservers = new Vector<INamedScanDataPointObserver>();
-	
+
 	Vector<IScanDataPointObserver> allSDPObservers = new Vector<IScanDataPointObserver>();
-	
+
 	Vector<ICommandThreadObserver> commandThreadObservers = new Vector<ICommandThreadObserver>();
-	
+
 	ObservableComponent scanEventObservers = new ObservableComponent();
 
 	String name = "";
@@ -121,7 +121,7 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 
 	/**
 	 * Creates a Jython server facade, using the {@link Finder} to obtain the Jython command server.
-	 * 
+	 *
 	 * @throws InstantiationException
 	 */
 	private JythonServerFacade() throws InstantiationException {
@@ -130,7 +130,7 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 
 	/**
 	 * Creates a Jython server facade, using the specified Jython command server.
-	 * 
+	 *
 	 * @param commandServer
 	 *            the Jython command server
 	 * @throws InstantiationException
@@ -160,7 +160,7 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 				logger.error(msg);
 				throw new InstantiationException(msg); // Important - do no exit incorrect for rcp gda client
 			}
-			
+
 			// register with the Command Server and validate login information supplied by the user
 			try {
 				originalUsername = UserAuthentication.getUsername();
@@ -169,7 +169,8 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 				if (StringUtils.hasText(originalUsername)) {
 					fullName = LibGdaCommon.getFullNameOfUser(originalUsername);
 				}
-				indexNumberInJythonServer = commandServer.addFacade(this, name, localHost, originalUsername, fullName, "");
+				indexNumberInJythonServer = commandServer.addFacade(this, name, localHost, originalUsername, fullName,
+						"");
 				originalAuthorisationLevel = commandServer.getAuthorisationLevel(indexNumberInJythonServer);
 			} catch (DeviceException e) {
 				final String msg = "Login failed for user: " + UserAuthentication.getUsername();
@@ -182,18 +183,18 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 			for (Findable panel : panels) {
 				if (panel instanceof IObserver) {
 					addIObserver((IObserver) panel);
-				} 
+				}
 			}
 
 		} catch (Exception ex) {
-			logger.error("CommandServerFacade: error during instantiation: " + ex.getMessage(),ex);
+			logger.error("CommandServerFacade: error during instantiation: " + ex.getMessage(), ex);
 			throw new InstantiationException("CommandServerFacade: error during instantiation: " + ex.getMessage());
 		}
 	}
 
 	/**
 	 * Returns the local singleton instance.
-	 * 
+	 *
 	 * @return JythonServerFacade
 	 */
 	public static synchronized JythonServerFacade getInstance() {
@@ -210,7 +211,7 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 
 	/**
 	 * Returns the local singleton instance throwing an Exception if one is required rather than logging it directly.
-	 * 
+	 *
 	 * @return JythonServerFacade
 	 * @throws Exception
 	 */
@@ -237,15 +238,14 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 
 	/**
 	 * Returns the current authorisation level (this value could be dynamic if a baton is in use)
-	 * 
+	 *
 	 * @return the authorisationLevel at this moment in time
 	 */
 	@Override
 	public int getAuthorisationLevel() {
 
 		// if an object server then auth level will be Integer.MAX_VALUE
-		if (LocalProperties.isBatonManagementEnabled()
-				&& originalAuthorisationLevel == Integer.MAX_VALUE) {
+		if (LocalProperties.isBatonManagementEnabled() && originalAuthorisationLevel == Integer.MAX_VALUE) {
 			return originalAuthorisationLevel;
 		}
 
@@ -282,8 +282,8 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	public void runScript(String scriptName, String sourceName, Scan scan) throws Exception {
 		// open up a new file
 		String filePath = locateScript(scriptName);
-		if(filePath==null)
-			throw new Exception("Unable to locate file for script:"+scriptName);
+		if (filePath == null)
+			throw new Exception("Unable to locate file for script:" + scriptName);
 		File file = new File(filePath);
 		runScript(file, sourceName, scan);
 	}
@@ -301,7 +301,7 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 				logger.error("Unable to run script " + script.getAbsolutePath() + " as server os busy");
 			}
 		} catch (IOException e) {
-			logger.error("Unable to run script " + script.getAbsolutePath(),e);
+			logger.error("Unable to run script " + script.getAbsolutePath(), e);
 		}
 	}
 
@@ -361,7 +361,7 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	public boolean isFinishEarlyRequested() {
 		return commandServer.isFinishEarlyRequested();
 	}
-	
+
 	@Override
 	public void pauseCurrentScan() {
 		commandServer.pauseCurrentScan(name);
@@ -378,12 +378,12 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	}
 
 	@Override
-	public void beamlineHalt(){
+	public void beamlineHalt() {
 		commandServer.beamlineHalt(name);
 	}
-	
+
 	@Override
-	public void abortCommands(){
+	public void abortCommands() {
 		commandServer.abortCommands(name);
 	}
 
@@ -439,10 +439,11 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 				}
 
 				// if source of scan command named, then send the SDP to the named panel
-				
+
 				String panelName = point.getCreatorPanelName();
 				if (panelName != null) {
-					INamedScanDataPointObserver[] namedObserversArray = new INamedScanDataPointObserver[namedSDPObservers.size()];
+					INamedScanDataPointObserver[] namedObserversArray = new INamedScanDataPointObserver[namedSDPObservers
+							.size()];
 					namedSDPObservers.copyInto(namedObserversArray);
 					for (INamedScanDataPointObserver observer : namedObserversArray) {
 						String name = observer.getName();
@@ -466,19 +467,19 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 				if (panelName != null && !panelUpdated && namedSDPObservers.size() > 0) {
 					logger.warn("Could not send ScanDataPoint to the named panel " + panelName);
 				}
-			}
-			else if (data instanceof BatonChanged) {
-				// the baton has changed hands or there is a new client for the moment, simply distribute the message object
+			} else if (data instanceof BatonChanged) {
+				// the baton has changed hands or there is a new client for the moment, simply distribute the message
+				// object
 				amIBatonHolder();
 				notifyIObservers(this, data);
-			} else if (data instanceof BatonLeaseRenewRequest){
+			} else if (data instanceof BatonLeaseRenewRequest) {
 				amIBatonHolder();
 				notifyIObservers(this, data);
 			} else if (data instanceof CommandThreadEvent) {
-				for (ICommandThreadObserver observer: commandThreadObservers) {
-					observer.update(this,data);
+				for (ICommandThreadObserver observer : commandThreadObservers) {
+					observer.update(this, data);
 				}
-			} else if (data instanceof ScanEvent){
+			} else if (data instanceof ScanEvent) {
 				scanEventObservers.notifyIObservers(this, data);
 			}
 			// fan out all other messages
@@ -544,7 +545,7 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	public void deleteIObserver(IObserver anIObserver) {
 		synchronized (this) {
 			myIObservers.deleteIObserver(anIObserver);
-			
+
 			if (anIObserver instanceof IScanDataPointObserver) {
 				allSDPObservers.removeElement(anIObserver);
 			} else if (anIObserver instanceof INamedScanDataPointObserver) {
@@ -580,7 +581,7 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	/**
 	 * Makes it easy for strings to be printed on the console and not anywhere else. Also this method fixes awkward
 	 * strings which have \n or double- quotes in them which could cause a syntax error at run time.
-	 * 
+	 *
 	 * @param text
 	 *            the string to be printed
 	 */
@@ -606,7 +607,7 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	/**
 	 * Places the contents of a file into a string. Careful what you give this method! Named after the Perl command (if
 	 * you're interested).
-	 * 
+	 *
 	 * @param pyFile
 	 * @return contents of the file as a string
 	 */
@@ -618,7 +619,7 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 				contents += str;
 			}
 			return contents;
-		} finally{
+		} finally {
 			pyFile.close();
 		}
 	}
@@ -626,11 +627,11 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	/**
 	 * Places the contents of a file into a string. Careful what you give this method! Named after the Perl command (if
 	 * you're interested).
-	 * 
+	 *
 	 * @param file
 	 *            File
 	 * @return String
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public static String slurp(File file) throws IOException {
 		String contents = "";
@@ -642,7 +643,7 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 				contents += System.getProperty("line.separator");
 			}
 			return contents;
-		}finally{
+		} finally {
 			in.close();
 		}
 	}
@@ -650,7 +651,7 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	/**
 	 * Places the contents of a file into a string. Careful what you give this method! Named after the Perl command (if
 	 * you're interested).
-	 * 
+	 *
 	 * @param file
 	 *            File
 	 * @return String
@@ -745,7 +746,7 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 
 	/**
 	 * Reverts to the original user this client was initially logged in as.
-	 * 
+	 *
 	 * @see gda.jython.Jython#switchUser(String,String,String)
 	 */
 	@Override
@@ -761,7 +762,7 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 
 	/**
 	 * Switches the visit this client will collect data as when it holds the baton.
-	 * 
+	 *
 	 * @param visitID
 	 */
 	@Override
@@ -811,7 +812,7 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	public void sendMessage(String message) {
 		commandServer.sendMessage(name, message);
 	}
-	
+
 	@Override
 	public List<UserMessage> getMessageHistory() {
 		return commandServer.getMessageHistory(name);
@@ -864,7 +865,7 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	public void deleteScanEventObserver(IObserver anObserver) {
 		scanEventObservers.deleteIObserver(anObserver);
 	}
-	
+
 	@Override
 	public void addCommandThreadObserver(ICommandThreadObserver anObserver) {
 		commandThreadObservers.add(anObserver);
@@ -886,21 +887,22 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 		if (runningAsAlternateUser) {
 			myDetails.setUserID(this.alternateUsername);
 			try {
-				myDetails.setAuthorisationLevel(AuthoriserProvider.getAuthoriser().getAuthorisationLevel(alternateUsername));
+				myDetails.setAuthorisationLevel(
+						AuthoriserProvider.getAuthoriser().getAuthorisationLevel(alternateUsername));
 			} catch (ClassNotFoundException e) {
 				myDetails.setAuthorisationLevel(0);
 			}
 		}
 		return myDetails;
 	}
-	
+
 	@Override
-	public Vector<String> getAliasedCommands(){
+	public Vector<String> getAliasedCommands() {
 		return commandServer.getAliasedCommands(name);
 	}
-	
+
 	@Override
-	public Vector<String> getAliasedVarargCommands(){
+	public Vector<String> getAliasedVarargCommands() {
 		return commandServer.getAliasedVarargCommands(name);
 	}
 
@@ -953,15 +955,15 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	public void deleteOutputTerminal(Terminal term) {
 		deleteIObserver(term);
 	}
-	
-	
+
 	/**
 	 * Evaluates a string as a Python expression and returns the result. Bypasses translator, batton control, and is not
 	 * available across corba.
 	 * <p>
-	 * This is of particular utility compared to other offerings as calls are synchronous, throw exceptions and can return an actual object.
+	 * This is of particular utility compared to other offerings as calls are synchronous, throw exceptions and can
+	 * return an actual object.
 	 */
-	public PyObject eval(String s) throws PyException{
+	public PyObject eval(String s) throws PyException {
 		return commandServer.eval(s);
 	}
 
@@ -969,7 +971,7 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	 * Executes a string of Python source in the local namespace. Bypasses translator, batton control, and is not
 	 * available across corba.
 	 * <p>
-	 * This is of particular utility compared to other offerings as calls are synchronous and  throw exceptions.
+	 * This is of particular utility compared to other offerings as calls are synchronous and throw exceptions.
 	 */
 	public void exec(String s) throws PyException {
 		commandServer.exec(s);
