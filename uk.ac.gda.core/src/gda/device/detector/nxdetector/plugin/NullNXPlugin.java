@@ -18,16 +18,16 @@
 
 package gda.device.detector.nxdetector.plugin;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.NoSuchElementException;
+
 import gda.device.DeviceException;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataNullAppender;
 import gda.device.detector.nxdetector.NXPlugin;
 import gda.scan.ScanInformation;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.NoSuchElementException;
 
 /**
  * A null NXPlugin implementation. It can be used but will do nothing. Useful as a base class, but
@@ -35,9 +35,15 @@ import java.util.NoSuchElementException;
  */
 public class NullNXPlugin implements NXPlugin {
 
+	private String name = "null_nx_plugin";
+
+	public void setName(final String name) {
+		this.name = name;
+	}
+
 	@Override
 	public String getName() {
-		return "null_nx_plugin";
+		return name;
 	}
 
 	@Override
