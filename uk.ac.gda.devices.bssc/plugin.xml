@@ -5,7 +5,8 @@
   <extension
         point="uk.ac.diamond.daq.jython.api.scriptLocations">
      <location
-           folder="uk.ac.gda.devices.bssc/scripts">
+           folder="uk.ac.gda.devices.bssc/scripts"
+           name="Scripts: BSSC">
      </location>
   </extension>
   <!--<extension
