@@ -18,29 +18,30 @@
 
 package gda.commandqueue;
 
-import gda.commandqueue.Processor.STATE;
-import gda.observable.IObserver;
-
-import junit.framework.Assert;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Before;
 import org.junit.Test;
 
+import gda.commandqueue.Processor.STATE;
+import gda.observable.IObserver;
+
 public class FindableProcessorQueueTest implements IObserver {
 
-	static final long MAX_TIMEOUT_MS = 500;
+	private static final long PAUSE_FOR_PROCESSOR = 50;
+	private static final long MAX_TIMEOUT_MS = 100;
 
-	Processor processor;
-	Queue queue;
+	private Processor processor;
+	private Queue queue;
 
 	@Before
 	public void setUp() throws Exception {
 		FindableProcessorQueue simpleProcessor = new FindableProcessorQueue();
 		simpleProcessor.setStartImmediately(false);
 		simpleProcessor.afterPropertiesSet();
-		processor = simpleProcessor;
 		queue = new CommandQueue();
 		simpleProcessor.setQueue(queue);
+		processor = simpleProcessor;
 	}
 
 	@Test
@@ -51,9 +52,9 @@ public class FindableProcessorQueueTest implements IObserver {
 		TestCommand normalCommand = new TestCommand(processor,MAX_TIMEOUT_MS, 0);
 		queue.addToTail(normalCommand);
 		processor.start(MAX_TIMEOUT_MS);
-		Thread.sleep(500);
-		Assert.assertEquals(Command.STATE.PAUSED, pauseCommand.getState());
-		Assert.assertEquals(Command.STATE.NOT_STARTED, normalCommand.getState());
+		Thread.sleep(PAUSE_FOR_PROCESSOR);
+		assertEquals(Command.STATE.PAUSED, pauseCommand.getState());
+		assertEquals(Command.STATE.NOT_STARTED, normalCommand.getState());
 	}
 
 	@Test
@@ -63,7 +64,7 @@ public class FindableProcessorQueueTest implements IObserver {
 		throwExceptionCommand.setDescription("testException");
 		queue.addToTail(throwExceptionCommand);
 		processor.start(MAX_TIMEOUT_MS);
-		Thread.sleep(500);
+		Thread.sleep(PAUSE_FOR_PROCESSOR);
 	}
 
 
@@ -75,11 +76,11 @@ public class FindableProcessorQueueTest implements IObserver {
 		TestCommand normalCommand = new TestCommand(processor,MAX_TIMEOUT_MS, 0);
 		queue.addToTail(normalCommand);
 		processor.start(MAX_TIMEOUT_MS);
-		Thread.sleep(500);
+		Thread.sleep(PAUSE_FOR_PROCESSOR);
 		processor.start(MAX_TIMEOUT_MS);
-		Thread.sleep(500);
-		Assert.assertEquals(Command.STATE.ABORTED, skipCommand.getState());
-		Assert.assertEquals(Command.STATE.COMPLETED, normalCommand.getState());
+		Thread.sleep(PAUSE_FOR_PROCESSOR);
+		assertEquals(Command.STATE.ABORTED, skipCommand.getState());
+		assertEquals(Command.STATE.COMPLETED, normalCommand.getState());
 	}
 
 
@@ -95,8 +96,8 @@ public class FindableProcessorQueueTest implements IObserver {
 			}
 		});
 		queue.addToTail(command);
-		Thread.sleep(500);
-		Assert.assertEquals(Command.STATE.COMPLETED, command.getState());
+		Thread.sleep(PAUSE_FOR_PROCESSOR);
+		assertEquals(Command.STATE.COMPLETED, command.getState());
 
 	}
 
@@ -105,8 +106,8 @@ public class FindableProcessorQueueTest implements IObserver {
 		TestCommand command = new TestCommand(processor,MAX_TIMEOUT_MS, 0);
 		queue.addToTail(command);
 		processor.start(MAX_TIMEOUT_MS);
-		Thread.sleep(500);
-		Assert.assertEquals(Command.STATE.COMPLETED, command.getState());
+		Thread.sleep(PAUSE_FOR_PROCESSOR);
+		assertEquals(Command.STATE.COMPLETED, command.getState());
 
 	}
 
@@ -116,9 +117,9 @@ public class FindableProcessorQueueTest implements IObserver {
 		processor.addIObserver(this);
 		processor.start(MAX_TIMEOUT_MS);
 		processor.stop(MAX_TIMEOUT_MS);
-		Thread.sleep(500);
+		Thread.sleep(50);
 
-		Assert.assertEquals(STATE.WAITING_START, state);
+		assertEquals(STATE.WAITING_START, state);
 	}
 
 	STATE state;
