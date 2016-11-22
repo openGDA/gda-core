@@ -4,7 +4,8 @@
    <extension
          point="uk.ac.diamond.daq.jython.api.scriptLocations">
       <location
-            folder="uk.ac.gda.server.ncd/scripts">
+            folder="uk.ac.gda.server.ncd/scripts"
+            name="Scripts: Ncd">
       </location>
    </extension>
 
