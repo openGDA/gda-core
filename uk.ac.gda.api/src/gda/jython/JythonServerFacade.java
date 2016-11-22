@@ -511,33 +511,46 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 		// put all Terminals in a separate list as well as they will want extra output
 		if (anIObserver instanceof Terminal) {
 			myTerminals.add((Terminal) anIObserver);
+			logger.debug("Added {} as terminal. Now have {} terminals", anIObserver, myTerminals.size());
 		}
 
 		// objects wishing to see SDPs
 		if (anIObserver instanceof INamedScanDataPointObserver) {
 			namedSDPObservers.add((INamedScanDataPointObserver) anIObserver);
+			logger.debug("Added {} as named SDP observer. Now have {} observers", anIObserver, namedSDPObservers.size());
 		} else if (anIObserver instanceof IScanDataPointObserver) {
 			allSDPObservers.add((IScanDataPointObserver) anIObserver);
+			logger.debug("Added {} as SDP observer. Now have {} observers", anIObserver, allSDPObservers.size());
 		}
+
 	}
 
 	@Override
 	public void deleteIObserver(IObserver anIObserver) {
 		myIObservers.deleteIObserver(anIObserver);
 
-		if (anIObserver instanceof IScanDataPointObserver) {
-			allSDPObservers.remove(anIObserver);
-		} else if (anIObserver instanceof INamedScanDataPointObserver) {
+		// Check if INamedScanDataPointObserver first as its a subclass of IScanDataPointObserver
+		if (anIObserver instanceof INamedScanDataPointObserver) {
 			namedSDPObservers.remove(anIObserver);
+			logger.debug("Removed {} as named SDP observer. Now have {} observers", anIObserver,
+					allSDPObservers.size());
+		} else if (anIObserver instanceof IScanDataPointObserver) {
+			allSDPObservers.remove(anIObserver);
+			logger.debug("Removed {} as SDP observer. Now have {} observers", anIObserver, allSDPObservers.size());
 		}
 	}
 
 	@Override
 	public void deleteIObservers() {
 		myIObservers.deleteIObservers();
+		final int numTerminals = myTerminals.size();
 		myTerminals.clear();
+		final int numNamedSDPObservers = namedSDPObservers.size();
 		namedSDPObservers.clear();
+		final int numSDPObservers = allSDPObservers.size();
 		allSDPObservers.clear();
+		logger.debug("Deleting all IObservers, Removed {} terminals, {} named SDP observers and {} SDP observers",
+				numTerminals, numNamedSDPObservers, numSDPObservers);
 	}
 
 	@Override
