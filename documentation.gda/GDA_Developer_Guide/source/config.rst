@@ -468,9 +468,11 @@ or a one that tracks the server's visit metadata::
        <property name="local" value="true" />
    </bean>
 
-Note: gda.data.ObservablePathConstructor does not support Java property, only support GDA-specific template in implementation. That is to say that it will not correctly interpret ${gda.data.scan.datawriter.datadir} property, you have to put the value of this property in the Spring configuration above, e.g. /dls/i21/data/$year$/$visit$/spool/gdaterminal.log
- instead. 
-Note that the InputTerminalAdapter receives the commands typed into *all* clients' terminals
+Note: ``gda.data.ObservablePathConstructor`` does not support Java properties, only GDA-specific templates in implementation.
+That is to say, it will not correctly interpret  aproperty such as ``${gda.data.scan.datawriter.datadir}``.
+Instead, you have to put the value of this property in the Spring configuration above, e.g. ``/dls/i21/data/$year$/$visit$/spool/gdaterminal.log``. 
+
+Note: the ``InputTerminalAdapter`` receives the commands typed into *all* clients' terminals
 (via the command server).
 
 
