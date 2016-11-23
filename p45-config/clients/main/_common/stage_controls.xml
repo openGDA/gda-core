@@ -9,6 +9,7 @@
 				<ref bean="stage_x_control" />
 				<ref bean="stage_y_control" />
 				<ref bean="stage_z_control" />
+				<ref bean="centreStage"/>
 				<ref bean="gain_control"/>
 				<ref bean="exposure_control"/>
 			</list>
@@ -35,19 +36,36 @@
 		<property name="group" value="Translations" />
 		<property name="increment" value="0.1" />
 	</bean>
-	
+
+	<bean id="centreStage" class="uk.ac.gda.client.livecontrol.JythonCommandControl">
+		<property name="jythonCommand" value="pos stage_x 0 stage_y 0 stage_z 0" />
+		<property name="buttonText" value="Centre Stage" />
+		<property name="group" value="Translations" />
+	</bean>
+
 	<bean id="gain_control" class="uk.ac.gda.client.livecontrol.ScannablePositionerControl">
 		<property name="displayName" value="MIC Gain" />
 		<property name="scannableName" value="mic_gain" />
 		<property name="group" value="Camera Controls" />
 		<property name="increment" value="1" />
 	</bean>
-	
+
 	<bean id="exposure_control" class="uk.ac.gda.client.livecontrol.ScannablePositionerControl">
 		<property name="displayName" value="MIC Exposure" />
 		<property name="scannableName" value="mic_exposure" />
 		<property name="group" value="Camera Controls" />
 		<property name="increment" value="0.1" />
 	</bean>
+
+	<!-- These are simple examples of using JythonCommandControl -->
+<!-- 	<bean id="hello" class="uk.ac.gda.client.livecontrol.JythonCommandControl"> -->
+<!-- 		<property name="jythonCommand" value="print 'Hello World'" /> -->
+<!-- 		<property name="buttonText" value="Say Hi" /> -->
+<!-- 	</bean> -->
+
+<!-- 	<bean id="sleep" class="uk.ac.gda.client.livecontrol.JythonCommandControl"> -->
+<!-- 		<property name="jythonCommand" value="sleep(5);print 'Done'" /> -->
+<!-- 		<property name="buttonText" value="Sleep" /> -->
+<!-- 	</bean> -->
 
 </beans>
