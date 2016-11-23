@@ -19,9 +19,7 @@
 package uk.ac.gda.client.livecontrol;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.RowLayout;
@@ -32,9 +30,7 @@ import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.device.Scannable;
 import gda.factory.Finder;
-import gda.rcp.views.NudgePositionerComposite;
 
 public class LiveControlsView extends ViewPart {
 
@@ -69,20 +65,11 @@ public class LiveControlsView extends ViewPart {
 
 	private void createControlsView(Composite parent, ControlSet controlSet) {
 
-		List<Control> controls = controlSet.getControls();
-
-		// Get the scannables for each control
-		Map<Control, Scannable> scannables = new HashMap<Control, Scannable>();
-		Scannable scannable = null;
-		for (Control control : controls) {
-			// Get the scannable using the finder, don't warn if it can't be found will handle null later
-			scannable = Finder.getInstance().findNoWarn(control.getScannableName());
-			scannables.put(control, scannable);
-		}
+		List<LiveControl> controls = controlSet.getControls();
 
 		// Create a list of required groups and check if there are controls without group set
 		List<String> groups = new ArrayList<String>();
-		for (Control control : controls) {
+		for (LiveControl control : controls) {
 			// If there is a control with no group set the flag
 			if (control.getGroup() == null) {
 				controlsWithNoGroup = true;
@@ -108,11 +95,11 @@ public class LiveControlsView extends ViewPart {
 			displayGroup.setLayout(rowLayout);
 			displayGroup.setText(group);
 
-			for (Control control : controls) {
+			for (LiveControl control : controls) {
 				// If the control belongs in this group add it check for null group first!
 				if (control.getGroup() != null && control.getGroup().equals(group)) {
-					// Create NudgePositionerComposite for this control
-					createNudgePositionerComposite(scannables, displayGroup, control);
+					// Create Composite for this control
+					control.createControl(displayGroup);
 				}
 			}
 		}
@@ -122,33 +109,13 @@ public class LiveControlsView extends ViewPart {
 			Composite displayGroup = new Composite(parent, SWT.NONE);
 			displayGroup.setLayout(rowLayout);
 
-			for (Control control : controls) {
+			for (LiveControl control : controls) {
 				// If the control belongs in this group add it
 				if (control.getGroup() == null) {
-					createNudgePositionerComposite(scannables, displayGroup, control);
+					// Create Composite for this control
+					control.createControl(displayGroup);
 				}
 			}
-		}
-	}
-
-	private void createNudgePositionerComposite(Map<Control, Scannable> scannables, Composite composite, Control control) {
-		// Check the scannable is not null
-		if (scannables.get(control) != null) {
-			NudgePositionerComposite npc = new NudgePositionerComposite(composite, SWT.NONE);
-			npc.setScannable(scannables.get(control));
-			// Configure the NPC with additional settings if provided
-			if (control.getDisplayName() != null) {
-				npc.setDisplayName(control.getDisplayName());
-			}
-			if (control.getUserUnits() != null) {
-				npc.setUserUnits(control.getUserUnits());
-			}
-			if (control.getIncrement() != null) {
-				npc.setIncrement(control.getIncrement());
-			}
-		}
-		else {
-			logger.warn("The scannable {} was not available to create a live control", control.getScannableName());
 		}
 	}
 

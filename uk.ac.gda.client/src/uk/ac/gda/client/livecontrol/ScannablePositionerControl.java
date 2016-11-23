@@ -18,9 +18,18 @@
 
 package uk.ac.gda.client.livecontrol;
 
-import gda.factory.Findable;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Composite;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class Control implements Findable {
+import gda.device.Scannable;
+import gda.factory.Finder;
+import gda.rcp.views.NudgePositionerComposite;
+
+public class ScannablePositionerControl implements LiveControl {
+
+	private static final Logger logger = LoggerFactory.getLogger(ScannablePositionerControl.class);
 
 	// Use the wrapper classes to allow null ie default if not set.
 	private String name; // id
@@ -49,6 +58,7 @@ public class Control implements Findable {
 		this.displayName = displayName;
 	}
 
+	@Override
 	public String getGroup() {
 		return group;
 	}
@@ -111,7 +121,7 @@ public class Control implements Findable {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Control other = (Control) obj;
+		ScannablePositionerControl other = (ScannablePositionerControl) obj;
 		if (displayName == null) {
 			if (other.displayName != null)
 				return false;
@@ -148,6 +158,32 @@ public class Control implements Findable {
 		} else if (!userUnits.equals(other.userUnits))
 			return false;
 		return true;
+	}
+
+	@Override
+	public void createControl(Composite composite) {
+		// Get the scannable with the finder
+		final Scannable scannable = Finder.getInstance().findNoWarn(getScannableName());
+		if (scannable == null) {
+			logger.warn("Could not get scannable '{}' for live control", getScannableName());
+			return;
+		}
+
+		// Create the NudgePositionerComposite and set the scannable
+		final NudgePositionerComposite npc = new NudgePositionerComposite(composite, SWT.NONE);
+		npc.setScannable(scannable);
+
+		// Configure the NPC with additional settings if provided
+		if (getDisplayName() != null) {
+			npc.setDisplayName(getDisplayName());
+		}
+		if (getUserUnits() != null) {
+			npc.setUserUnits(getUserUnits());
+		}
+		if (getIncrement() != null) {
+			npc.setIncrement(getIncrement());
+		}
+
 	}
 
 }

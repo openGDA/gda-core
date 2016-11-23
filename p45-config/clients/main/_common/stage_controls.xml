@@ -15,35 +15,35 @@
 		</property>
 	</bean>
 
-	<bean id="stage_x_control" class="uk.ac.gda.client.livecontrol.Control">
+	<bean id="stage_x_control" class="uk.ac.gda.client.livecontrol.ScannablePositionerControl">
 		<property name="displayName" value="Stage X" />
 		<property name="group" value="Translations" />
 		<property name="scannableName" value="stage_x" />
 		<property name="increment" value="0.1" />
 	</bean>
 
-	<bean id="stage_y_control" class="uk.ac.gda.client.livecontrol.Control">
+	<bean id="stage_y_control" class="uk.ac.gda.client.livecontrol.ScannablePositionerControl">
 		<property name="displayName" value="Stage Y" />
 		<property name="scannableName" value="stage_y" />
 		<property name="group" value="Translations" />
 		<property name="increment" value="0.1" />
 	</bean>
 
-	<bean id="stage_z_control" class="uk.ac.gda.client.livecontrol.Control">
+	<bean id="stage_z_control" class="uk.ac.gda.client.livecontrol.ScannablePositionerControl">
 		<property name="displayName" value="Stage Z" />
 		<property name="scannableName" value="stage_z" />
 		<property name="group" value="Translations" />
 		<property name="increment" value="0.1" />
 	</bean>
 	
-	<bean id="gain_control" class="uk.ac.gda.client.livecontrol.Control">
+	<bean id="gain_control" class="uk.ac.gda.client.livecontrol.ScannablePositionerControl">
 		<property name="displayName" value="MIC Gain" />
 		<property name="scannableName" value="mic_gain" />
 		<property name="group" value="Camera Controls" />
 		<property name="increment" value="1" />
 	</bean>
 	
-	<bean id="exposure_control" class="uk.ac.gda.client.livecontrol.Control">
+	<bean id="exposure_control" class="uk.ac.gda.client.livecontrol.ScannablePositionerControl">
 		<property name="displayName" value="MIC Exposure" />
 		<property name="scannableName" value="mic_exposure" />
 		<property name="group" value="Camera Controls" />

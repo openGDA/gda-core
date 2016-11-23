@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2015 Diamond Light Source Ltd.
+ * Copyright © 2016 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -18,31 +18,30 @@
 
 package uk.ac.gda.client.livecontrol;
 
-import java.util.List;
+import org.eclipse.swt.widgets.Composite;
 
 import gda.factory.Findable;
 
-public class ControlSet implements Findable {
+/**
+ * A Interface which controls wanting to be configured in Spring and used in the Live controls view must implement.
+ *
+ * @author James Mudd
+ *
+ */
+public interface LiveControl extends Findable {
 
-	String name; // id
-	List<LiveControl> controls;
+	/**
+	 * This method will create the GUI for this control.
+	 *
+	 * @param composite The composite onto which the control should draw
+	 */
+	public void createControl(Composite composite);
 
-	@Override
-	public String getName() {
-		return name;
-	}
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public List<LiveControl> getControls() {
-		return controls;
-	}
-
-	public void setControls(List<LiveControl> controls) {
-		this.controls = controls;
-	}
-
+	/**
+	 * Gets the group this control is in.
+	 *
+	 * @return The group this control is in
+	 */
+	public String getGroup();
 
 }
