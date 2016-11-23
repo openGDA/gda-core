@@ -258,7 +258,7 @@ public class LiveStreamView extends ViewPart {
 	private void configureToolbar() {
 		IToolBarManager toolBarManager = getViewSite().getActionBars().getToolBarManager();
 		// Add the menu for switching between stream types
-		toolBarManager.add(new SwitchMjpegEpicsAction(this));
+		toolBarManager.add(new SwitchStreamTypeAction(this));
 		// Setup the plotting system toolbar options
 		IPlotActionSystem plotActionSystem = plottingSystem.getPlotActionSystem();
 		plotActionSystem.fillToolActions(toolBarManager, ToolPageRole.ROLE_2D);
@@ -333,9 +333,9 @@ public class LiveStreamView extends ViewPart {
 	/**
 	 * This inner class is just used to provide the toolbar action enabling reseting and switching the stream type.
 	 */
-	class SwitchMjpegEpicsAction extends DropDownAction {
+	class SwitchStreamTypeAction extends DropDownAction {
 
-		public SwitchMjpegEpicsAction(final LiveStreamView liveMjpegPlot) {
+		public SwitchStreamTypeAction(final LiveStreamView liveMjpegPlot) {
 			// Need to have a default action. Here I chose to have a reset button.
 			super(new Action() {
 				@Override
