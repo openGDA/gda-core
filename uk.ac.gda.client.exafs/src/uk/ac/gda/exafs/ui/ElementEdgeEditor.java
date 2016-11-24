@@ -44,7 +44,7 @@ import org.eclipse.january.dataset.IntegerDataset;
 import org.eclipse.jface.preference.PreferenceDialog;
 import org.eclipse.richbeans.api.event.ValueAdapter;
 import org.eclipse.richbeans.api.event.ValueEvent;
-import org.eclipse.richbeans.reflection.RichBeanUtils;
+import org.eclipse.richbeans.api.reflection.RichBeanUtils;
 import org.eclipse.richbeans.widgets.FieldComposite.NOTIFY_TYPE;
 import org.eclipse.richbeans.widgets.scalebox.ScaleBox;
 import org.eclipse.richbeans.widgets.wrappers.ComboWrapper;

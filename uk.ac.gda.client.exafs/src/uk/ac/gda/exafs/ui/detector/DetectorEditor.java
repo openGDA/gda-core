@@ -54,7 +54,7 @@ import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.richbeans.api.event.ValueAdapter;
 import org.eclipse.richbeans.api.event.ValueEvent;
 import org.eclipse.richbeans.api.event.ValueListener;
-import org.eclipse.richbeans.reflection.RichBeanUtils;
+import org.eclipse.richbeans.api.reflection.RichBeanUtils;
 import org.eclipse.richbeans.widgets.data.DataWrapper;
 import org.eclipse.richbeans.widgets.scalebox.ScaleBox;
 import org.eclipse.richbeans.widgets.selector.BeanSelectionEvent;
