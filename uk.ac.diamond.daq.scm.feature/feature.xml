@@ -20,15 +20,13 @@
          id="uk.ac.gda.server.ncd"
          download-size="0"
          install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="uk.ac.gda.devices.bssc"
          download-size="0"
          install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="uk.ac.gda.server.ncd.epics"
