@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: GDA Core Tests
 Bundle-SymbolicName: uk.ac.gda.core.test
-Bundle-Version: 8.58.0.qualifier
+Bundle-Version: 8.60.0.qualifier
 Fragment-Host: uk.ac.gda.core
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-Vendor: Diamond Light Source

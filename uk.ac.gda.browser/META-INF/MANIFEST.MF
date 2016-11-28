@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: uk.ac.gda.browser
 Bundle-SymbolicName: uk.ac.gda.browser;singleton:=true
-Bundle-Version: 8.58.0.qualifier
+Bundle-Version: 8.60.0.qualifier
 Bundle-Activator: uk.ac.gda.browser.Activator
 Bundle-Vendor: Diamond Light Source
 Require-Bundle: org.eclipse.ui,
