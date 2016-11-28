@@ -18,6 +18,11 @@
 
 package gda.device.enumpositioner;
 
+import java.util.LinkedHashMap;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.device.DeviceException;
@@ -42,11 +47,6 @@ import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 import gov.aps.jca.event.PutEvent;
 import gov.aps.jca.event.PutListener;
-
-import java.util.LinkedHashMap;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This class maps to EPICS positioner template.
@@ -481,6 +481,12 @@ public class EpicsPositioner extends EnumPositionerBase implements EnumPositione
 			if (value == 0.0) {
 				synchronized (lock) {
 					positionerStatus = EnumPositionerStatus.MOVING;
+				}
+			} else if (value == 1.0) {
+				synchronized (lock) {
+					if (!(positionerStatus == EnumPositionerStatus.ERROR)) {
+						positionerStatus = EnumPositionerStatus.IDLE;
+					}
 				}
 			}
 
