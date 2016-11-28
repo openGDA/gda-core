@@ -37,7 +37,7 @@ import gda.observable.IObserver;
  * InterfaceProvider.
  */
 public interface Jython extends Findable {
-	
+
 	/**
 	 * Name of this object. This should agree with the string used in Castor.
 	 */
@@ -74,19 +74,19 @@ public interface Jython extends Findable {
 	 * will hang the thread which calls this method. So this method must be called in a separate thread from the main
 	 * GUI thread, else the GUI will seize up until the command given to this method has returned. For an example of
 	 * the, see the gda.jython.JythonTerminal class.
-	 * 
+	 *
 	 * @param command
 	 *            String
 	 * @param JSFIdentifier
 	 *            - the unique ID of the JythonServerFacade calling this method.
-	 * @return PyObject
+	 * @return String
 	 */
 	public String evaluateCommand(String command, String JSFIdentifier);
 
 	/**
 	 * Executes the Jython command in a new thread (unless the command starts
 	 * with the text 'print').
-	 * 
+	 *
 	 * @param command
 	 *            String
 	 * @param JSFIdentifier
@@ -99,7 +99,7 @@ public interface Jython extends Findable {
 	 * with the text 'print'). Also informs the local facade object the name of
 	 * the local panel which is to receive the scan data for display (assuming
 	 * presumably that the command was a scan).
-	 * 
+	 *
 	 * @param command
 	 *            String
 	 * @param scanObserver
@@ -111,7 +111,7 @@ public interface Jython extends Findable {
 
 	/**
 	 * Runs the Jython command, and changes the ScriptStatus as is goes.
-	 * 
+	 *
 	 * @param command
 	 *            String
 	 * @param JSFIdentifier
@@ -122,7 +122,7 @@ public interface Jython extends Findable {
 	/**
 	 * Runs the given command while keeping the ScriptStatus up to date, but also informs the local facade object the
 	 * name of the local panel which is to receive the scan data for display.
-	 * 
+	 *
 	 * @param command
 	 *            String
 	 * @param scanObserver
@@ -138,7 +138,7 @@ public interface Jython extends Findable {
 	 * method waits until the command has finished so it can return the result. If the command takes a long time it will
 	 * hang the thread which calls this method. So this method must be called in a separate thread from the main GUI
 	 * thread, else the GUI will seize up until the command given to this method has returned.
-	 * 
+	 *
 	 * @param command
 	 *            String
 	 * @param source
@@ -152,7 +152,7 @@ public interface Jython extends Findable {
 	/**
 	 * Foe use by the JythonServerFacade class. Allows an instance of this class operating in a different process to
 	 * remotely register itself with a JythonServer.
-	 * 
+	 *
 	 * @param anIObserver
 	 * @param JSFIdentifier
 	 * @param hostName
@@ -165,19 +165,19 @@ public interface Jython extends Findable {
 	 */
 	public int addFacade(IObserver anIObserver, String JSFIdentifier, String hostName, String username, String fullName, String visitID)
 			throws DeviceException;
-	
-	
+
+
 	/**
 	 * Removes the registration of the facade with this server and returns the baton if applicable.
-	 * 
+	 *
 	 * @param uniqueFacadeName
 	 */
 	public void removeFacade(String uniqueFacadeName);
-	
+
 	/**
 	 * For an already registered JythonServerFacade, changes information for that facade. This can change the permission
 	 * level of this facade (and so this client) or the visit which data is savaed as when this client has the baton.
-	 * 
+	 *
 	 * @param uniqueFacadeName
 	 * @param username
 	 * @param visitID
@@ -188,13 +188,13 @@ public interface Jython extends Findable {
 
 	/**
 	 * Cleanly stops the current scan.
-	 * 
+	 *
 	 * @param JSFIdentifier
 	 *            - the unique ID of the JythonServerFacade calling this method.
 	 */
 	public void requestFinishEarly(String JSFIdentifier);
-	
-	
+
+
 	/**
 	 * @return true if the current scan has had requestFinishEarly called on it.
 	 */
@@ -202,16 +202,16 @@ public interface Jython extends Findable {
 
 	/**
 	 * Stops all scripts, scans, and commands immediately. Also calls the stop method on all motors.
-	 * 
+	 *
 	 * @param JSFIdentifier
 	 *            - the unique ID of the JythonServerFacade calling this method.
 	 */
 	public void beamlineHalt(String JSFIdentifier);
-	
-	
+
+
 	/**
 	 * Stops all scripts, scans, and commands running from the Jython Server immediately.
-	 * 
+	 *
 	 * @param JSFIdentifier
 	 *            - the unique ID of the JythonServerFacade calling this method.
 	 */
@@ -219,7 +219,7 @@ public interface Jython extends Findable {
 
 	/**
 	 * Pauses the current scan
-	 * 
+	 *
 	 * @param JSFIdentifier
 	 *            - the unique ID of the JythonServerFacade calling this method.
 	 */
@@ -228,7 +228,7 @@ public interface Jython extends Findable {
 	/**
 	 * Pauses the current script the next time it calls the ScriptBase.checkForPuases method until resumeCurrentScript
 	 * is called.
-	 * 
+	 *
 	 * @param JSFIdentifier
 	 *            - the unique ID of the JythonServerFacade calling this method.
 	 */
@@ -236,7 +236,7 @@ public interface Jython extends Findable {
 
 	/**
 	 * Resumes the currently paused scan.
-	 * 
+	 *
 	 * @param JSFIdentifier
 	 *            - the unique ID of the JythonServerFacade calling this method.
 	 */
@@ -245,7 +245,7 @@ public interface Jython extends Findable {
 	/**
 	 * Restarts the last scan which was run, if it ended due to an error or it was interrupted. If the last scan
 	 * completed successfully, then this will do nothing.
-	 * 
+	 *
 	 * @param JSFIdentifier
 	 *            - the unique ID of the JythonServerFacade calling this method.
 	 */
@@ -253,7 +253,7 @@ public interface Jython extends Findable {
 
 	/**
 	 * Resumes the currently paused script
-	 * 
+	 *
 	 * @param JSFIdentifier
 	 *            - the unique ID of the JythonServerFacade calling this method.
 	 */
@@ -261,7 +261,7 @@ public interface Jython extends Findable {
 
 	/**
 	 * Returns the scan of the queue (running, idle, paused).
-	 * 
+	 *
 	 * @param JSFIdentifier
 	 *            - the unique ID of the JythonServerFacade calling this method.
 	 * @return int
@@ -270,7 +270,7 @@ public interface Jython extends Findable {
 
 	/**
 	 * Returns the status of the script (running, idle, paused).
-	 * 
+	 *
 	 * @param JSFIdentifier
 	 *            - the unique ID of the JythonServerFacade calling this method.
 	 * @return int
@@ -279,14 +279,14 @@ public interface Jython extends Findable {
 
 	/**
 	 * Returns information about each active command thread
-	 * 
+	 *
 	 * @return Array of command thread information
 	 */
 	public ICommandThreadInfo[] getCommandThreadInfo();
 
 	/**
 	 * Sets the script status.
-	 * 
+	 *
 	 * @param status
 	 *            int
 	 * @param JSFIdentifier
@@ -298,7 +298,7 @@ public interface Jython extends Findable {
 	 * Pass a copy of an object to the Jython interpreter. This object must be relatively simple otherwise it will not
 	 * be passed over CORBA successfully. So the object must be a native type (or only contain native types) and must
 	 * not have any object references inside.
-	 * 
+	 *
 	 * @param objectName
 	 * @param obj
 	 * @param JSFIdentifier
@@ -310,7 +310,7 @@ public interface Jython extends Findable {
 	 * Get a copy of an object from the Jython interpreter. Note that the retreived object will have to be cast by the
 	 * local code. As the object will be passed over CORBA, this method should only be used on native types or classes
 	 * containing only native types.
-	 * 
+	 *
 	 * @param objectName
 	 * @param JSFIdentifier
 	 *            - the unique ID of the JythonServerFacade calling this method.
@@ -322,7 +322,7 @@ public interface Jython extends Findable {
 	 * Returns the name of the GDA release being used by the CommandServer. This is the String returned by the
 	 * JythonServer's local copy of gda.util.Version. This enables Client and Server processes to check if they are of
 	 * the same GDA version.
-	 * 
+	 *
 	 * @param JSFIdentifier
 	 *            - the unique ID of the JythonServerFacade calling this method.
 	 * @return the current GDA release used by the CommandServer.
@@ -331,7 +331,7 @@ public interface Jython extends Findable {
 
 	/**
 	 * This is used by clients when they start to immediately give any output messages from the startup script.
-	 * 
+	 *
 	 * @param JSFIdentifier
 	 *            - the unique ID of the JythonServerFacade calling this method.
 	 * @return the output generated when the CommandServer ran its startup file as a string.
@@ -343,7 +343,7 @@ public interface Jython extends Findable {
 	 * returned string to script which called requestRawInput. This method is distributed because the response could
 	 * come from any object. The requestRawInput should only come from within a script, so that method is not
 	 * distributed.
-	 * 
+	 *
 	 * @param theInput
 	 * @param JSFIdentifier
 	 *            - the unique ID of the JythonServerFacade calling this method.
@@ -353,7 +353,7 @@ public interface Jython extends Findable {
 	// methods associated with control
 	/**
 	 * Ask for the baton for control of the beamline devices.
-	 * 
+	 *
 	 * @param uniqueIdentifier
 	 * @return boolean
 	 */
@@ -361,7 +361,7 @@ public interface Jython extends Findable {
 
 	/**
 	 * Inform the JythonServer that the baton is no longer required by this connection.
-	 * 
+	 *
 	 * @param uniqueIdentifier
 	 *            String
 	 */
@@ -370,16 +370,16 @@ public interface Jython extends Findable {
 	/**
 	 * Inform the JythonServer which Client should now have the baton. This method will only be run for current holders
 	 * of the baton.
-	 * 
+	 *
 	 * @param myJSFIdentifier
 	 * @param indexOfReciever
 	 */
 	public void assignBaton(String myJSFIdentifier, int indexOfReciever);
-	
-	
+
+
 	/**
 	 * Returns details of this client
-	 * 
+	 *
 	 * @param name
 	 * @return ClientDetails
 	 */
@@ -390,7 +390,7 @@ public interface Jython extends Findable {
 	 * <p>
 	 * This array may be slightly out of date if the client was not closed down properly, but after a few minutes the
 	 * client should be automatically removed from the list.
-	 * 
+	 *
 	 * @param myJSFIdentifier
 	 * @return ClientDetails[]
 	 */
@@ -405,35 +405,35 @@ public interface Jython extends Findable {
 	/**
 	 * Returns true if any client holds the baton. If no client holds the baton then all clients may operate hardware
 	 * subject to their authorisation level.
-	 * 
+	 *
 	 * @return true if any client holds the baton.
 	 */
 	public boolean isBatonHeld();
 
-	
+
 	/**
 	 * @param indexOfClient
 	 * @return the authorisation level of the given client
 	 */
 	public int getAuthorisationLevel(int indexOfClient);
-	
+
 	/**
 	 * Broadcast a message to other users on this beamline. Such messages will be displayed in a special viewer.
-	 * 
+	 *
 	 * @param myJSFIdentifier
 	 * @param message
 	 */
 	public void sendMessage(String myJSFIdentifier, String message);
-	
+
 	/**
 	 * Returns previous messages sent during this visit.
 	 */
 	public List<UserMessage> getMessageHistory(String myJSFIdentifier);
-	
+
 	// commands for aliasing methods in the Jython environment
 	/**
 	 * Add a new aliased command.
-	 * 
+	 *
 	 * @param commandName
 	 * @param JSFIdentifier
 	 *            - the unique ID of the JythonServerFacade calling this method.
@@ -442,7 +442,7 @@ public interface Jython extends Findable {
 
 	/**
 	 * Add a new vararg aliased command
-	 * 
+	 *
 	 * @param commandName
 	 * @param JSFIdentifier
 	 *            - the unique ID of the JythonServerFacade calling this method.
@@ -464,9 +464,9 @@ public interface Jython extends Findable {
 
 	/**
 	 * Returns the contents of the top-level Jython namespace.
-	 * 
+	 *
 	 * @return Map
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	public Map<String, Object> getAllFromJythonNamespace() throws DeviceException;
 
@@ -499,10 +499,10 @@ public interface Jython extends Findable {
 	 * <p>
 	 * This is of particular utility compared to other offerings as calls are synchronous, throw exceptions and can
 	 * return an actual object.
-	 * 
+	 *
 	 * @param s
 	 *            The pure Jython string command to eval.
-	 * @return The result of the eval
+	 * @return PyObject The result of the eval
 	 * @throws PyException If eval resulted in exception.
 	 */
 	public PyObject eval(String s) throws PyException;
@@ -512,7 +512,7 @@ public interface Jython extends Findable {
 	 * available across corba.
 	 * <p>
 	 * This is of particular utility compared to other offerings as calls are synchronous and throw exceptions.
-	 * 
+	 *
 	 * @param s The pure Jython string command to exec.
 	 * @throws PyException If exec resulted in exception.
 	 */
