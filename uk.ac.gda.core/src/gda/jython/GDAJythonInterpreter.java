@@ -60,7 +60,6 @@ import gda.factory.Findable;
 import gda.factory.Finder;
 import gda.jython.translator.Translator;
 import gda.observable.ObservableComponent;
-import gda.util.exceptionUtils;
 import uk.ac.gda.common.rcp.util.EclipseUtils;
 
 /**
@@ -80,8 +79,8 @@ public class GDAJythonInterpreter extends ObservableComponent {
 
 	private static File cacheDir;
 
-	// the Jython interpreter
-	private InteractiveConsole interp;
+	// the Jython Interactive Console
+	private InteractiveConsole interactiveConsole;
 
 	// to avoid running the initialise method more than once
 	private boolean initialized = false;
@@ -303,11 +302,11 @@ public class GDAJythonInterpreter extends ObservableComponent {
 		}
 
 		// Get instance of interactive console
-		this.interp = new GDAInteractiveConsole(pss);
+		interactiveConsole = new GDAInteractiveConsole(pss);
 
 		// force it to be the main module with proper name
 		PyModule mod = imp.addModule("__main__");
-		this.interp.setLocals(mod.__dict__);
+		interactiveConsole.setLocals(mod.__dict__);
 	}
 
 	/**
@@ -423,109 +422,109 @@ public class GDAJythonInterpreter extends ObservableComponent {
 
 				// set the console output
 				final Writer terminalWriter = jythonServer.getTerminalWriter();
-				interp.setOut(terminalWriter);
-				interp.setErr(terminalWriter);
+				interactiveConsole.setOut(terminalWriter);
+				interactiveConsole.setErr(terminalWriter);
 
 				// dynamic configuration using Castor
 				logger.info("performing standard Jython interpreter imports...");
 
-				this.interp.runsource("import sys");
-				this.interp.runsource("import gda.jython");
-				this.interp.runsource("sys.displayhook=gda.jython.GDAInteractiveConsole.displayhook");
+				interactiveConsole.runsource("import sys");
+				interactiveConsole.runsource("import gda.jython");
+				interactiveConsole.runsource("sys.displayhook=gda.jython.GDAInteractiveConsole.displayhook");
 
 				// give Jython the reference to this wrapper object
-				this.interp.set("GDAJythonInterpreter", this);
+				interactiveConsole.set("GDAJythonInterpreter", this);
 
-				this.interp.set("command_server", jythonServer);
-				this.interp.runsource("import gda.jython");
+				interactiveConsole.set("command_server", jythonServer);
+				interactiveConsole.runsource("import gda.jython");
 
 				// standard imports
-				this.interp.runsource("import java");
-				this.interp.runsource("from java.lang import Thread");
-				this.interp.runsource("from java.lang import Runnable");
-				this.interp.runsource("from java.lang import InterruptedException");
+				interactiveConsole.runsource("import java");
+				interactiveConsole.runsource("from java.lang import Thread");
+				interactiveConsole.runsource("from java.lang import Runnable");
+				interactiveConsole.runsource("from java.lang import InterruptedException");
 
 				// gda imports
-				this.interp.runsource("from gda.scan import *");
-				this.interp.runsource("from gda.device import *");
-				this.interp.runsource("from gda.jython import JythonServer");
-				this.interp.runsource("from gda.jython import ScriptBase");
-				this.interp.runsource("from gda.device.monitor import BeamMonitor");
+				interactiveConsole.runsource("from gda.scan import *");
+				interactiveConsole.runsource("from gda.device import *");
+				interactiveConsole.runsource("from gda.jython import JythonServer");
+				interactiveConsole.runsource("from gda.jython import ScriptBase");
+				interactiveConsole.runsource("from gda.device.monitor import BeamMonitor");
 
-				this.interp.runsource("from gda.factory import Finder");
-				this.interp.runsource("from gda.device.detector import DetectorBase");
-				this.interp.runsource("from gda.device import Scannable");
-				this.interp.runsource("from gda.device.scannable.scannablegroup import IScannableGroup");
-				this.interp.runsource("finder = Finder.getInstance();");
-				this.interp.runsource("from gda.device.scannable import ScannableBase");
-				this.interp.runsource("from gda.device.scannable import DummyScannable");
-				this.interp.runsource("from gda.device.scannable import ContinuouslyScannable");
-				this.interp.runsource("from gda.device.scannable import SimulatedContinuouslyScannable");
-				this.interp.runsource("from gda.device.scannable import PseudoDevice");
-				this.interp.runsource("from gda.jython.commands import ScannableCommands");
-				this.interp.runsource("from gda.jython.commands.ScannableCommands import *");
-				this.interp.runsource("from gda.jython.commands import GeneralCommands");
-				this.interp.runsource("from gda.jython.commands.GeneralCommands import *");
-				this.interp.runsource("from gda.jython.commands import InputCommands");
-				this.interp.runsource("from gda.jython.commands.InputCommands import *");
+				interactiveConsole.runsource("from gda.factory import Finder");
+				interactiveConsole.runsource("from gda.device.detector import DetectorBase");
+				interactiveConsole.runsource("from gda.device import Scannable");
+				interactiveConsole.runsource("from gda.device.scannable.scannablegroup import IScannableGroup");
+				interactiveConsole.runsource("finder = Finder.getInstance();");
+				interactiveConsole.runsource("from gda.device.scannable import ScannableBase");
+				interactiveConsole.runsource("from gda.device.scannable import DummyScannable");
+				interactiveConsole.runsource("from gda.device.scannable import ContinuouslyScannable");
+				interactiveConsole.runsource("from gda.device.scannable import SimulatedContinuouslyScannable");
+				interactiveConsole.runsource("from gda.device.scannable import PseudoDevice");
+				interactiveConsole.runsource("from gda.jython.commands import ScannableCommands");
+				interactiveConsole.runsource("from gda.jython.commands.ScannableCommands import *");
+				interactiveConsole.runsource("from gda.jython.commands import GeneralCommands");
+				interactiveConsole.runsource("from gda.jython.commands.GeneralCommands import *");
+				interactiveConsole.runsource("from gda.jython.commands import InputCommands");
+				interactiveConsole.runsource("from gda.jython.commands.InputCommands import *");
 
 				// oe plugin commands
 				try {
 					Class.forName("gda.oe.OE");
-					this.interp.runsource("from gda.device.scannable import OEAdapter");
-					this.interp.runsource("from gda.device.scannable import DOFAdapter");
-					this.interp.runsource("from gda.oe import OE");
-					this.interp.runsource("from gda.oe.dofs import DOF");
-					this.interp.runsource("from gda.oe import OE");
+					interactiveConsole.runsource("from gda.device.scannable import OEAdapter");
+					interactiveConsole.runsource("from gda.device.scannable import DOFAdapter");
+					interactiveConsole.runsource("from gda.oe import OE");
+					interactiveConsole.runsource("from gda.oe.dofs import DOF");
+					interactiveConsole.runsource("from gda.oe import OE");
 				} catch (Exception e1) {
 					// ignore
 				}
 
 				// persistence
-				this.interp.runsource("from gda.util.persistence import LocalParameters");
-				this.interp.runsource("from gda.util.persistence import LocalObjectShelfManager");
+				interactiveConsole.runsource("from gda.util.persistence import LocalParameters");
+				interactiveConsole.runsource("from gda.util.persistence import LocalObjectShelfManager");
 
 				// import other interfaces to use with list command
-				this.interp.runsource("from gda.device import ScannableMotion");
-				this.interp.runsource("import gda.device.scannable.ScannableUtils");
-				this.interp.runsource("from gda.util.converters import IReloadableQuantitiesConverter");
+				interactiveConsole.runsource("from gda.device import ScannableMotion");
+				interactiveConsole.runsource("import gda.device.scannable.ScannableUtils");
+				interactiveConsole.runsource("from gda.util.converters import IReloadableQuantitiesConverter");
 
 				// Create the completer object to allow command line tab completion
-				this.interp.runsource("from gda_completer import Completer");
-				this.interp.runsource("completer = Completer(globals())");
+				interactiveConsole.runsource("from gda_completer import Completer");
+				interactiveConsole.runsource("completer = Completer(globals())");
 
 				// scisoftpy
-				this.interp.runsource("import scisoftpy as dnp");
+				interactiveConsole.runsource("import scisoftpy as dnp");
 				// inform translator what the built-in commands are by
 				// aliasing them -- i.e. reserved words
-				this.exec("alias ls");
-				this.exec("alias ls_names");
-				this.exec("vararg_alias pos");
-				this.exec("vararg_alias upos");
-				this.exec("vararg_alias inc");
-				this.exec("vararg_alias uinc");
-				this.exec("alias help");
-				this.exec("alias list_defaults");
-				this.exec("vararg_alias add_default");
-				this.exec("vararg_alias remove_default");
-				this.exec("vararg_alias level");
-				this.exec("alias pause");
-				this.exec("alias reset_namespace");
-				this.exec("alias run");
-				this.exec("vararg_alias scan");
-				this.exec("vararg_alias pscan");
-				this.exec("vararg_alias cscan");
-				this.exec("vararg_alias zacscan");
-				this.exec("vararg_alias testscan");
-				this.exec("vararg_alias gscan");
-				this.exec("vararg_alias tscan");
-				this.exec("vararg_alias timescan");
-				this.exec("vararg_alias staticscan");
-				this.exec("alias lastScanDataPoint");
+				exec("alias ls");
+				exec("alias ls_names");
+				exec("vararg_alias pos");
+				exec("vararg_alias upos");
+				exec("vararg_alias inc");
+				exec("vararg_alias uinc");
+				exec("alias help");
+				exec("alias list_defaults");
+				exec("vararg_alias add_default");
+				exec("vararg_alias remove_default");
+				exec("vararg_alias level");
+				exec("alias pause");
+				exec("alias reset_namespace");
+				exec("alias run");
+				exec("vararg_alias scan");
+				exec("vararg_alias pscan");
+				exec("vararg_alias cscan");
+				exec("vararg_alias zacscan");
+				exec("vararg_alias testscan");
+				exec("vararg_alias gscan");
+				exec("vararg_alias tscan");
+				exec("vararg_alias timescan");
+				exec("vararg_alias staticscan");
+				exec("alias lastScanDataPoint");
 
 				// define a function that can check a java object for a field or method called
 				// __doc__ and print it out
-				this.exec("def _gdahelp(obj=None):\n" + "    if obj is None:\n"
+				exec("def _gdahelp(obj=None):\n" + "    if obj is None:\n"
 						+ "        GeneralCommands.gdahelp()\n" + "        return\n"
 						+ "    if hasattr(obj, '__class__'):\n"
 						+ "        if issubclass(obj.__class__, java.lang.Object):\n" + "            helptext = None\n"
@@ -563,19 +562,19 @@ public class GDAJythonInterpreter extends ObservableComponent {
 		for (Findable findable : OEs) {
 			try {
 				// get object from OE facory
-				this.interp.runsource(findable.getName() + "=finder.find('" + findable.getName() + "')");
+				interactiveConsole.runsource(findable.getName() + "=finder.find('" + findable.getName() + "')");
 				// create an OE adapter object
-				this.interp.runsource(findable.getName() + "= OEAdapter(" + findable.getName() + ")");
-				this.interp.runsource(findable.getName() + ".setName(\"" + findable.getName() + "\")");
+				interactiveConsole.runsource(findable.getName() + "= OEAdapter(" + findable.getName() + ")");
+				interactiveConsole.runsource(findable.getName() + ".setName(\"" + findable.getName() + "\")");
 				// get array of the DOFNames
-				this.interp.runsource("tempArray=" + findable.getName() + ".getDOFNames()");
+				interactiveConsole.runsource("tempArray=" + findable.getName() + ".getDOFNames()");
 				// run a for loop which creates a DOFAdapter object associated with each DOF (assumes that all DOFs have
 				// unique names)
 				String command = "exec(\"for i in range(len(tempArray)):";
 				command += "exec(tempArray[i]+\\\"";
 				command += "=DOFAdapter(" + findable.getName();
 				command += ",'\\\"+tempArray[i]+\\\"')\\\")\")";
-				this.interp.runsource(command);
+				interactiveConsole.runsource(command);
 			} catch (Exception e) {
 				logger.debug(e.getStackTrace().toString());
 			}
@@ -585,7 +584,7 @@ public class GDAJythonInterpreter extends ObservableComponent {
 		ArrayList<Findable> scannables = finder.listAllObjects("Scannable");
 		for (Findable findable : scannables) {
 			try {
-				this.interp.runsource(findable.getName() + "=finder.find('" + findable.getName() + "')");
+				interactiveConsole.runsource(findable.getName() + "=finder.find('" + findable.getName() + "')");
 			} catch (Exception e) {
 				logger.error("Error adding " + findable.getName() + " to namespace", e);
 			}
@@ -625,9 +624,9 @@ public class GDAJythonInterpreter extends ObservableComponent {
 		PyString tempFile = translateScriptToGDA(input);
 		// pass entire script to interpreter
 		try {
-			interp.exec(tempFile);
+			interactiveConsole.exec(tempFile);
 		} catch (PyException e) {
-			interp.showexception(e);
+			interactiveConsole.showexception(e);
 			throw e;
 		}
 
@@ -645,7 +644,7 @@ public class GDAJythonInterpreter extends ObservableComponent {
 		JythonServerFacade.getInstance().setScriptStatus(Jython.RUNNING);
 		try{
 			String lines = JythonServerFacade.slurp(input);
-			this.exec(lines);
+			exec(lines);
 		} finally{
 			JythonServerFacade.getInstance().setScriptStatus(Jython.IDLE);
 		}
@@ -663,9 +662,9 @@ public class GDAJythonInterpreter extends ObservableComponent {
 			logger.debug("GDA command: " + command);
 			command = translator.translate(command);
 			logger.debug("Jython command: " + command);
-			return interp.runsource(command);
+			return interactiveConsole.runsource(command);
 		} catch (Exception e) {
-			exceptionUtils.logException(logger, "Error calling runsource for command:" + command, e);
+			logger.error("Error calling runsource for command: {}", command, e);
 			return false;
 		}
 	}
@@ -677,7 +676,7 @@ public class GDAJythonInterpreter extends ObservableComponent {
 	 * @return Object
 	 */
 	protected Object getFromJythonNamespace(String objectName) {
-		return interp.get(objectName, Object.class);
+		return interactiveConsole.get(objectName, Object.class);
 	}
 
 	/**
@@ -688,7 +687,7 @@ public class GDAJythonInterpreter extends ObservableComponent {
 	 * @return PyObject
 	 */
 	public PyObject getAllFromJythonNamepsace() {
-		return interp.getLocals();
+		return interactiveConsole.getLocals();
 	}
 
 	/**
@@ -699,7 +698,7 @@ public class GDAJythonInterpreter extends ObservableComponent {
 	 * @param obj
 	 */
 	protected void placeInJythonNamespace(String objectName, Object obj) {
-		interp.set(objectName, obj);
+		interactiveConsole.set(objectName, obj);
 	}
 
 	/**
@@ -715,12 +714,12 @@ public class GDAJythonInterpreter extends ObservableComponent {
 		String output = null;
 		try {
 			command = translator.translate(command);
-			PyObject result = interp.eval(command);
+			PyObject result = interactiveConsole.eval(command);
 			output = result.toString();
 		} catch (PyException e) {
 			// simplify what is logged for namespace errors - otherwise too much information is sent to users
 			if (!e.type.toString().contains("exceptions.NameError")) {
-				exceptionUtils.logException(logger, "Error evaluating command " + command, e);
+				logger.error("Error evaluating command: {}", command, e);
 			}
 		}
 		return output;
@@ -827,7 +826,7 @@ public class GDAJythonInterpreter extends ObservableComponent {
 	}
 
 	public InteractiveConsole getInterp() {
-		return interp;
+		return interactiveConsole;
 	}
 
 }
