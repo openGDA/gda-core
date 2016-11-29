@@ -44,7 +44,6 @@ import org.eclipse.core.runtime.FileLocator;
 import org.python.core.Py;
 import org.python.core.PyException;
 import org.python.core.PyModule;
-import org.python.core.PyNone;
 import org.python.core.PyObject;
 import org.python.core.PyString;
 import org.python.core.PySystemState;
@@ -85,7 +84,7 @@ public class GDAJythonInterpreter extends ObservableComponent {
 	private InteractiveConsole interp;
 
 	// to avoid running the initialise method more than once
-	private boolean configured = false;
+	private boolean initialized = false;
 
 	// the translator object used to convert GDA syntax into 'true' jython
 	private static Translator translator = null;
@@ -211,8 +210,8 @@ public class GDAJythonInterpreter extends ObservableComponent {
 		// Create a new Jython 'sys' instance to be used by the Py infrastructure based on the settings
 		// supplied to PySystemState.initialize in the initializer block above.
 		// Enclose in a try/catch so that any underlying Jython errors are not lost to the log.
+		final PySystemState pss = new PySystemState();
 		try {
-			PySystemState pss = new PySystemState();
 			Py.setSystemState(pss);
 			pss.setClassLoader(classLoader);
 			pss.setdefaultencoding(UTF_8);		// cannot be done before Py.setSystemState
@@ -238,40 +237,73 @@ public class GDAJythonInterpreter extends ObservableComponent {
 			bundlesRoot = sysProps.getProperty("osgi.syspath");
 			iteratePluginsDirectory(bundlesRoot);
 		}
-		// Add the paths for the standard script folders to the existing _jythonScriptPaths
-		// (the instance config scripts folders are handled by Spring injection into the JythonServer bean)
-		int index= 1;
-		for (Entry<String, String> scriptEntry : classLoader.getStandardFolders().entrySet()) {
-			String pathFragment = scriptEntry.getKey();
-			if (pathFragment.endsWith(URI_SEPARATOR)) {
-				pathFragment = pathFragment.substring(0, pathFragment.length() -1);
+
+		if (_jythonScriptPaths == null) {
+			logger.warn("no jython script paths defined");
+		} else {
+			// Add the paths for the standard script folders to the existing _jythonScriptPaths
+			// (the instance config scripts folders are handled by Spring injection into the JythonServer bean)
+			int index = 1;
+			for (Entry<String, String> scriptEntry : classLoader.getStandardFolders().entrySet()) {
+				String pathFragment = scriptEntry.getKey();
+				if (pathFragment.endsWith(URI_SEPARATOR)) {
+					pathFragment = pathFragment.substring(0, pathFragment.length() - 1);
+				}
+				File scriptFolder = Paths.get(bundlesRoot, pathFragment).toFile(); // Default to non-plugin folder under workspace_git
+				String frag = pathFragment;
+				URL scriptFolderURL = null;
+				try {
+					while (scriptFolderURL == null && frag.contains(URI_SEPARATOR)) {
+						scriptFolderURL = FileLocator.find(new URL(String.format(PLATFORM_BUNDLE_PREFIX, frag)));
+						frag = frag.substring(frag.indexOf(URI_SEPARATOR) + 1);
+					}
+					if (scriptFolderURL != null) {
+						scriptFolder = EclipseUtils.resolveFileFromPlatformURL(scriptFolderURL);
+					} else if (!eclipseLaunch) {
+						scriptFolder = Paths.get(bundlesRoot, "..", "utilities", pathFragment).toFile(); // Add in non-plugin folder offset for exported product
+					}
+					if (scriptFolder.exists() && scriptFolder.isDirectory()) {
+						String title = scriptEntry.getValue() == null ? "Scripts: Std" + index++
+								: scriptEntry.getValue();
+						_jythonScriptPaths.addProject(
+								new ScriptProject(scriptFolder.getAbsolutePath(), title, ScriptProjectType.CORE));
+					} else {
+						throw new IOException(String.format("Script folder %s does not exist", scriptFolder));
+					}
+				} catch (IOException e) {
+					logger.error(String.format(
+							"Unable to locate plugin for script location %s, these scripts will not be accessible",
+							pathFragment), e);
+				}
 			}
-			File scriptFolder = Paths.get(bundlesRoot,  pathFragment).toFile();                       // Default to non-plugin folder under workspace_git
-			String frag = pathFragment;
-			URL scriptFolderURL = null;
+
+			// append the folders where standard scripts will be located to jython path
+			// by this point _jythonScriptPaths should contain a List of these folder paths
 			try {
-				while (scriptFolderURL == null && frag.contains(URI_SEPARATOR)) {
-					scriptFolderURL = FileLocator.find(new URL(String.format(PLATFORM_BUNDLE_PREFIX, frag)));
-					frag = frag.substring(frag.indexOf(URI_SEPARATOR) + 1);
+				logger.info("clearing old Jython class files...");
+				// Remove any previously compiled Jython class files from the script folders
+				for (ScriptProject scriptProject : _jythonScriptPaths.getProjects()) {
+					final PyString scriptFolderName = new PyString(scriptProject.getPath());
+					final File scriptDir = new File(scriptFolderName.toString());
+					if (!scriptDir.exists()) {
+						throw new FactoryException(String.format("Configured Jython script location %s does not exist.",
+								scriptFolderName));
+					}
+					logger.info(String.format("Adding %s to the Command Server Jython path with name %s", scriptDir,
+							scriptProject.getName()));
+
+					if (!pss.path.contains(scriptFolderName)) {
+						removeAllJythonClassFiles(new File(scriptFolderName.getString()));
+						pss.path.append(scriptFolderName);
+					}
 				}
-				if (scriptFolderURL != null) {
-					scriptFolder = EclipseUtils.resolveFileFromPlatformURL(scriptFolderURL);
-				} else if (!eclipseLaunch) {
-					scriptFolder = Paths.get(bundlesRoot, "..", "utilities", pathFragment).toFile();  // Add in non-plugin folder offset for exported product
-				}
-				if (scriptFolder.exists() && scriptFolder.isDirectory()) {
-					String title = scriptEntry.getValue() == null ? "Scripts: Std" + index++ : scriptEntry.getValue();
-					_jythonScriptPaths.addProject(new ScriptProject(scriptFolder.getAbsolutePath(), title, ScriptProjectType.CORE));
-				} else {
-					throw new IOException(String.format("Script folder %s does not exist", scriptFolder));
-				}
-			} catch (IOException e) {
-				logger.error(String.format("Unable to locate plugin for script location %s, these scripts will not be accessible", pathFragment), e);
+			} catch (Exception e) {
+				logger.error("Error while setting up script paths, scripts might not be accessable", e);
 			}
 		}
 
-		// then get instance of interpreter
-		this.interp = new GDAInteractiveConsole();
+		// Get instance of interactive console
+		this.interp = new GDAInteractiveConsole(pss);
 
 		// force it to be the main module with proper name
 		PyModule mod = imp.addModule("__main__");
@@ -376,63 +408,18 @@ public class GDAJythonInterpreter extends ObservableComponent {
 		return artifactTag.substring(from, to);
 	}
 
-	private void fakeSysExecutable(PySystemState sys) {
-		// fake an executable path to get around problem in pydoc.Helper.__init__
-		File f;
-		if (!(sys.executable instanceof PyNone)) {
-			f = new File(((PyString) sys.executable).asString());
-			if (f.exists()) {
-				return;
-			}
-		}
-
-		int n = sys.path.size() - 1;
-		for (int i = 0; i < n; i++) {
-			f = new File((String) sys.path.get(i));
-			if (f.exists()) {
-				sys.executable = new PyString(f.getPath());
-				return;
-			}
-		}
-		String home = System.getProperty("java.home");
-		sys.executable = new PyString(home);
-		logger.warn("Setting sys.executable to java.home: {}", home);
-	}
-
 	/**
 	 * Set up the Jython interpreter and run Jython scripts to connect to the ObjectServer. This must be run once by the
 	 * calling program after the interpreter instance has been created.
 	 */
 	protected void initialise(JythonServer jythonServer) throws Exception {
-		if (!configured) {
+		if (!initialized) {
+
 			try {
+				// TODO Maybe the translator should be configured via Spring not property? This would remove this code.
 				final String translatorClassName = LocalProperties.get("gda.jython.translator.class", "GeneralTranslator");
 				final Class<?> translatorClass = Class.forName("gda.jython.translator." + translatorClassName);
 				translator = (Translator) translatorClass.newInstance();
-
-				// append the folders where standard scripts will be located to jython path
-				// by this point _jythonScriptPaths should contain a List of these folder paths
-				final PySystemState sys = Py.getSystemState();
-				if (_jythonScriptPaths == null) {
-					logger.warn("no jython script paths defined");
-				} else {
-					logger.info("clearing old Jython class files...");
-					// Remove any previously compiled Jython class files from the script folders
-					for (ScriptProject scriptProject : _jythonScriptPaths.getProjects()) {
-						final PyString scriptFolderName = new PyString(scriptProject.getPath());
-						final File scriptDir = new File(scriptFolderName.toString());
-						if (!scriptDir.exists()){
-							throw new FactoryException(String.format("Configured Jython script location %s does not exist.", scriptFolderName));
-						}
-						logger.info(String.format("Adding %s to the Command Server Jython path with name %s", scriptDir, scriptProject.getName()));
-
-						if (!sys.path.contains(scriptFolderName)) {
-							removeAllJythonClassFiles(new File(scriptFolderName.getString()));
-							sys.path.append(scriptFolderName);
-						}
-					}
-				}
-				fakeSysExecutable(sys);
 
 				// set the console output
 				final Writer terminalWriter = jythonServer.getTerminalWriter();
@@ -558,7 +545,7 @@ public class GDAJythonInterpreter extends ObservableComponent {
 				logger.error(message, ex);
 				throw ex;
 			} finally {
-				configured = true;
+				initialized = true;
 			}
 		}
 	}

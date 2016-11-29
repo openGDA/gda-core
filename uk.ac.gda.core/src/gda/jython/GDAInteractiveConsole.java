@@ -19,8 +19,6 @@
 
 package gda.jython;
 
-import gda.scan.ScanInterruptedException;
-
 import org.python.core.Py;
 import org.python.core.PyException;
 import org.python.core.PyJavaType;
@@ -31,16 +29,19 @@ import org.python.util.InteractiveConsole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.scan.ScanInterruptedException;
+
 /**
  * Class that overrides InteractiveConsole to allow customisation
  */
 public class GDAInteractiveConsole extends InteractiveConsole {
 	private static final Logger logger = LoggerFactory.getLogger(GDAInteractiveConsole.class);
 
-	public GDAInteractiveConsole() {
+	public GDAInteractiveConsole(PySystemState pySystemState) {
 		// treat all interactive console input as UTF-8 by default
 		cflags.encoding = "utf-8";
 		cflags.source_is_utf8 = true;
+		super.systemState = pySystemState;
 	}
 
 	/**
