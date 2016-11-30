@@ -436,7 +436,6 @@ public class GDAJythonInterpreter extends ObservableComponent {
 				interactiveConsole.set("GDAJythonInterpreter", this);
 
 				interactiveConsole.set("command_server", jythonServer);
-				interactiveConsole.runsource("import gda.jython");
 
 				// standard imports
 				interactiveConsole.runsource("import java");
