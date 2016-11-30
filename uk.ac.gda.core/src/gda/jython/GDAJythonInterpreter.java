@@ -561,7 +561,7 @@ public class GDAJythonInterpreter extends ObservableComponent {
 		for (Findable findable : OEs) {
 			try {
 				// get object from OE facory
-				interactiveConsole.runsource(findable.getName() + "=finder.find('" + findable.getName() + "')");
+				interactiveConsole.set(findable.getName(), findable);
 				// create an OE adapter object
 				interactiveConsole.runsource(findable.getName() + "= OEAdapter(" + findable.getName() + ")");
 				interactiveConsole.runsource(findable.getName() + ".setName(\"" + findable.getName() + "\")");
@@ -575,7 +575,7 @@ public class GDAJythonInterpreter extends ObservableComponent {
 				command += ",'\\\"+tempArray[i]+\\\"')\\\")\")";
 				interactiveConsole.runsource(command);
 			} catch (Exception e) {
-				logger.debug(e.getStackTrace().toString());
+				logger.error("Error adding '{}' to namespace", findable.getName(), e);
 			}
 		}
 
@@ -583,9 +583,9 @@ public class GDAJythonInterpreter extends ObservableComponent {
 		ArrayList<Findable> scannables = finder.listAllObjects("Scannable");
 		for (Findable findable : scannables) {
 			try {
-				interactiveConsole.runsource(findable.getName() + "=finder.find('" + findable.getName() + "')");
+				interactiveConsole.set(findable.getName(), findable);
 			} catch (Exception e) {
-				logger.error("Error adding " + findable.getName() + " to namespace", e);
+				logger.error("Error adding '{}' to namespace", findable.getName(), e);
 			}
 		}
 	}
