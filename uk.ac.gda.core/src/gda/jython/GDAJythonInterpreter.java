@@ -428,19 +428,12 @@ public class GDAJythonInterpreter extends ObservableComponent {
 				interactiveConsole.setOut(terminalWriter);
 				interactiveConsole.setErr(terminalWriter);
 
-				// dynamic configuration using Castor
-				logger.info("performing standard Jython interpreter imports...");
-
-				interactiveConsole.runsource("import sys");
-				interactiveConsole.runsource("import gda.jython");
-				interactiveConsole.runsource("sys.displayhook=gda.jython.GDAInteractiveConsole.displayhook");
-
 				// give Jython the reference to this wrapper object
 				interactiveConsole.set("GDAJythonInterpreter", this);
-
 				interactiveConsole.set("command_server", jythonServer);
 
 				// standard imports
+				logger.info("performing standard Jython interpreter imports...");
 				interactiveConsole.runsource("import java");
 				interactiveConsole.runsource("from java.lang import Thread");
 				interactiveConsole.runsource("from java.lang import Runnable");

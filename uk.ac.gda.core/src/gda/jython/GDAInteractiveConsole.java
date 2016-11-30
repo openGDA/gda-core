@@ -45,30 +45,6 @@ public class GDAInteractiveConsole extends InteractiveConsole {
 	}
 
 	/**
-	 * Custom displayhook to print unicode values in unicode
-	 * @see <a href="http://www.python.org/dev/peps/pep-0217/">PEP-217 for more details on displayhook</a>
-	 * @see PySystemState#displayhook
-	 * @param o the object to print and store in <code>_</code>
-	 */
-    public static void displayhook(PyObject o) {
-        /* Print value except if None */
-        /* After printing, also assign to '_' */
-        /* Before, set '_' to None to avoid recursion */
-        if (o == Py.None)
-             return;
-
-        PyObject currentBuiltins = Py.getSystemState().getBuiltins();
-        currentBuiltins.__setitem__("_", Py.None);
-        if (o instanceof PyUnicode) {
-			Py.println(o);
-		} else {
-			Py.println(o.__repr__());
-		}
-        currentBuiltins.__setitem__("_", o);
-    }
-
-
-	/**
 	 * Show syntax error messages in the Terminal This is to work around an apparent bug in jython. showexception will
 	 * print to the terminal for ordinary stuff, just not PySyntaxErrors.
 	 * log as error as it is an exception
