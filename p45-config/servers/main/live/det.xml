@@ -6,34 +6,34 @@
 	http://www.diamond.ac.uk/schema/gda/corba http://www.diamond.ac.uk/schema/gda/corba/gda-corba-1.0.xsd">
 
 	<bean id="det_adbase" class="gda.device.detector.areadetector.v17.impl.ADBaseImpl">
-		<property name="basePVName" value="LAB-MO-MAP-01:DET:DET:" />
+		<property name="basePVName" value="BL45P-EA-MAP-01:DET:DET:" />
 	</bean>
 
 	<bean id="det_stats" class="gda.device.detector.areadetector.v17.impl.NDStatsImpl">
-		<property name="basePVName" value="LAB-MO-MAP-01:DET:STAT:" />
+		<property name="basePVName" value="BL45P-EA-MAP-01:DET:STAT:" />
 		<property name="pluginBase">
 			<bean class="gda.device.detector.areadetector.v17.impl.NDPluginBaseImpl">
-				<property name="basePVName" value="LAB-MO-MAP-01:DET:STAT:" />
+				<property name="basePVName" value="BL45P-EA-MAP-01:DET:STAT:" />
 				<property name="initialArrayPort" value="DET.DET" />
 			</bean>
 		</property>
 	</bean>
 
 	<bean id="det_ndarray" class="gda.device.detector.areadetector.v17.impl.NDArrayImpl">
-		<property name="basePVName" value="LAB-MO-MAP-01:DET:ARR:" />
+		<property name="basePVName" value="BL45P-EA-MAP-01:DET:ARR:" />
 		<property name="pluginBase">
 			<bean class="gda.device.detector.areadetector.v17.impl.NDPluginBaseImpl">
-				<property name="basePVName" value="LAB-MO-MAP-01:DET:ARR:" />
+				<property name="basePVName" value="BL45P-EA-MAP-01:DET:ARR:" />
 				<property name="initialArrayPort" value="DET.DET" />
 			</bean>
 		</property>
 	</bean>
 
 	<bean id="det_ndfile" class="gda.device.detector.areadetector.v17.impl.NDFileImpl">
-		<property name="basePVName" value="LAB-MO-MAP-01:DET:HDF5:" />
+		<property name="basePVName" value="BL45P-EA-MAP-01:DET:HDF5:" />
 		<property name="pluginBase">
 			<bean class="gda.device.detector.areadetector.v17.impl.NDPluginBaseImpl">
-				<property name="basePVName" value="LAB-MO-MAP-01:DET:HDF5:" />
+				<property name="basePVName" value="BL45P-EA-MAP-01:DET:HDF5:" />
 				<property name="initialArrayPort" value="DET.STAT" />
 			</bean>
 		</property>
@@ -48,7 +48,7 @@
 
 	<bean id="det_hdf5"
 		class="gda.device.detector.areadetector.v17.impl.NDFileHDF5Impl">
-		<property name="basePVName" value="LAB-MO-MAP-01:DET:HDF5:" />
+		<property name="basePVName" value="BL45P-EA-MAP-01:DET:HDF5:" />
 		<property name="file" ref="det_ndfile" />
 	</bean>
 

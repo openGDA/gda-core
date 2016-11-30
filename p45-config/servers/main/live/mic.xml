@@ -6,24 +6,24 @@
 	http://www.diamond.ac.uk/schema/gda/corba http://www.diamond.ac.uk/schema/gda/corba/gda-corba-1.0.xsd">
 
 	<bean id="mic_adbase" class="gda.device.detector.areadetector.v17.impl.ADBaseImpl">
-		<property name="basePVName" value="LAB-MO-MAP-01:MIC:DET:" />
+		<property name="basePVName" value="BL45P-EA-MAP-01:MIC:DET:" />
 	</bean>
 
 	<bean id="mic_ndarray" class="gda.device.detector.areadetector.v17.impl.NDArrayImpl">
-		<property name="basePVName" value="LAB-MO-MAP-01:MIC:ARR:" />
+		<property name="basePVName" value="BL45P-EA-MAP-01:MIC:ARR:" />
 		<property name="pluginBase">
 			<bean class="gda.device.detector.areadetector.v17.impl.NDPluginBaseImpl">
-				<property name="basePVName" value="LAB-MO-MAP-01:MIC:ARR:" />
+				<property name="basePVName" value="BL45P-EA-MAP-01:MIC:ARR:" />
 				<property name="initialArrayPort" value="MIC.DET" />
 			</bean>
 		</property>
 	</bean>
 
 	<bean id="mic_ndfile" class="gda.device.detector.areadetector.v17.impl.NDFileImpl">
-		<property name="basePVName" value="LAB-MO-MAP-01:MIC:HDF5:" />
+		<property name="basePVName" value="BL45P-EA-MAP-01:MIC:HDF5:" />
 		<property name="pluginBase">
 			<bean class="gda.device.detector.areadetector.v17.impl.NDPluginBaseImpl">
-				<property name="basePVName" value="LAB-MO-MAP-01:MIC:HDF5:" />
+				<property name="basePVName" value="BL45P-EA-MAP-01:MIC:HDF5:" />
 				<property name="initialArrayPort" value="MIC.DET" />
 			</bean>
 		</property>
@@ -38,7 +38,7 @@
 
 	<bean id="mic_hdf5"
 		class="gda.device.detector.areadetector.v17.impl.NDFileHDF5Impl">
-		<property name="basePVName" value="LAB-MO-MAP-01:MIC:HDF5:" />
+		<property name="basePVName" value="BL45P-EA-MAP-01:MIC:HDF5:" />
 		<property name="file" ref="mic_ndfile" />
 	</bean>
 
@@ -62,11 +62,11 @@
 	</bean>
 	
 	<bean id="mic_gain" class="gda.device.scannable.PVScannable" >
-		<property name="pvName" value="LAB-MO-MAP-01:MIC:DET:Gain" />
+		<property name="pvName" value="BL45P-EA-MAP-01:MIC:DET:Gain" />
 	</bean>
 	
 	<bean id="mic_exposure" class="gda.device.scannable.PVScannable" >
-		<property name="pvName" value="LAB-MO-MAP-01:MIC:DET:AcquireTime" />
+		<property name="pvName" value="BL45P-EA-MAP-01:MIC:DET:AcquireTime" />
 	</bean>
 
 </beans>
