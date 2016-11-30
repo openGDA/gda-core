@@ -32,6 +32,8 @@ import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.IBoundingBoxModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.points.models.ScanRegion;
+import org.eclipse.scanning.api.scan.models.ScanMetadata;
+import org.eclipse.scanning.api.scan.models.ScanMetadata.MetadataType;
 import org.eclipse.scanning.api.script.ScriptLanguage;
 import org.eclipse.scanning.api.script.ScriptRequest;
 import org.slf4j.Logger;
@@ -41,9 +43,11 @@ import uk.ac.diamond.daq.mapping.api.IClusterProcessingModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IDetectorModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegion;
+import uk.ac.diamond.daq.mapping.api.ISampleMetadata;
 import uk.ac.diamond.daq.mapping.api.IScanPathModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IScriptFiles;
 import uk.ac.diamond.daq.mapping.impl.MappingStageInfo;
+import uk.ac.diamond.daq.mapping.impl.SimpleSampleMetadata;
 
 public class ScanRequestConverter {
 
@@ -166,7 +170,31 @@ public class ScanRequestConverter {
 			scanRequest.setAfter(getScriptRequest(scriptFiles.getAfterScanScript()));
 		}
 
+		// add the sample metadata
+		if (mappingExperimentBean.getSampleMetadata() != null) {
+			setSampleMetadata(mappingExperimentBean, scanRequest);
+		}
+
 		return scanRequest;
+	}
+
+	private void setSampleMetadata(IMappingExperimentBean mappingExperimentBean, ScanRequest<IROI> scanRequest) {
+		final ISampleMetadata sampleMetadata = mappingExperimentBean.getSampleMetadata();
+		String sampleName = sampleMetadata.getSampleName();
+		if (sampleName == null || sampleName.trim().isEmpty()) {
+			sampleName = "Unnamed Sample";
+		}
+
+		final ScanMetadata scanMetadata = new ScanMetadata(MetadataType.SAMPLE);
+		scanMetadata.addField("name", sampleMetadata.getSampleName());
+		if (sampleMetadata instanceof SimpleSampleMetadata) {
+			String description = ((SimpleSampleMetadata) sampleMetadata).getDescription();
+			if (description == null || description.trim().isEmpty()) {
+				description = "No description provided.";
+			}
+			scanMetadata.addField("description", description);
+		}
+		scanRequest.setScanMetadata(Arrays.asList(scanMetadata));
 	}
 
 	private ScriptRequest getScriptRequest(String scriptFile) {

@@ -14,7 +14,7 @@ import uk.ac.diamond.daq.mapping.api.IScriptFiles;
 
 public class MappingExperimentBean implements IMappingExperimentBean {
 
-	private ExampleSampleMetadata sampleMetadata;
+	private SimpleSampleMetadata sampleMetadata;
 	private List<IDetectorModelWrapper> detectorParameters = null;
 	private List<IClusterProcessingModelWrapper> clusterProcessingConfiguration = null;
 	private Map<String, Object> beamlineConfiguration = null;
@@ -22,18 +22,18 @@ public class MappingExperimentBean implements IMappingExperimentBean {
 	private IScriptFiles scriptFiles = null;
 
 	public MappingExperimentBean() {
-		sampleMetadata = new ExampleSampleMetadata();
+		sampleMetadata = new SimpleSampleMetadata();
 		scanDefinition = new MappingScanDefinition();
 	}
 
 	@Override
-	public ExampleSampleMetadata getSampleMetadata() {
+	public SimpleSampleMetadata getSampleMetadata() {
 		return sampleMetadata;
 	}
 
 	@Override
 	public void setSampleMetadata(ISampleMetadata sampleMetadata) {
-		this.sampleMetadata = (ExampleSampleMetadata) sampleMetadata;
+		this.sampleMetadata = (SimpleSampleMetadata) sampleMetadata;
 	}
 
 	@Override

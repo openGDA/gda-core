@@ -42,6 +42,8 @@ import org.eclipse.scanning.api.points.models.GridModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.points.models.ScanRegion;
 import org.eclipse.scanning.api.points.models.StepModel;
+import org.eclipse.scanning.api.scan.models.ScanMetadata;
+import org.eclipse.scanning.api.scan.models.ScanMetadata.MetadataType;
 import org.eclipse.scanning.api.script.ScriptRequest;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.junit.After;
@@ -232,6 +234,23 @@ public class ScanRequestConverterTest {
 		ScanRequest<?> scanRequest = scanRequestConverter.convertToScanRequest(experimentBean);
 
 		assertEquals(scanRequest.getDetectors().get(processingStepName), clusterProcessingModel);
+	}
+
+	@Test
+	public void testSampleMetadataSet() throws Exception {
+		final String sampleName = "testSample";
+		final String sampleDescription = "This is a description of the test sample.";
+		experimentBean.getSampleMetadata().setSampleName(sampleName);
+		experimentBean.getSampleMetadata().setDescription(sampleDescription);
+
+		ScanRequest<?> scanRequest = scanRequestConverter.convertToScanRequest(experimentBean);
+
+		List<ScanMetadata> scanMetadataList = scanRequest.getScanMetadata();
+		assertEquals(1, scanMetadataList.size());
+		ScanMetadata sampleMetadata = scanMetadataList.get(0);
+		assertEquals(MetadataType.SAMPLE, sampleMetadata.getType());
+		assertEquals(sampleName, sampleMetadata.getFieldValue("name"));
+		assertEquals(sampleDescription, sampleMetadata.getFieldValue("description"));
 	}
 
 }

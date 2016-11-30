@@ -131,7 +131,7 @@ public class MappingExperimentView implements IAdaptable {
 		regionAndPathSection = new RegionAndPathSection(this, injectionContext);
 		sections.add(regionAndPathSection);
 		// a section for essential parameters, e.g. sample name
-		sections.add(new EssentialParametersSection(this, injectionContext));
+		sections.add(new ScanMetadataSection(this, injectionContext));
 		// a section for configuring processing
 		sections.add(new ProcessingSection(this, injectionContext));
 		// the 'submit scan' button

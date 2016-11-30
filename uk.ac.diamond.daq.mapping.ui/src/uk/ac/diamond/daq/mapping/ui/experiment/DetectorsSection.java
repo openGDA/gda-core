@@ -99,7 +99,7 @@ public class DetectorsSection extends AbstractMappingSection {
 				updateStatusLabel();
 			});
 			Button configButton = new Button(detectorsComposite, SWT.PUSH);
-			configButton.setText("Edit parameters");
+			configButton.setText("Edit parameters...");
 
 			IGuiGeneratorService guiGenerator = context.get(IGuiGeneratorService.class);
 			configButton.addListener(SWT.Selection, event -> {

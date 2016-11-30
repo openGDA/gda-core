@@ -53,7 +53,7 @@ public class ScriptFilesSection extends AbstractMappingSection {
 		scriptsLabel.setText("Scripts");
 		GridDataFactory.fillDefaults().span(scriptsColumns, 1).applyTo(scriptsLabel);
 		Button editScriptsButton = new Button(scriptsComposite, SWT.PUSH);
-		editScriptsButton.setText("Select Script Files");
+		editScriptsButton.setText("Select Script Files...");
 
 		IGuiGeneratorService guiGenerator = context.get(IGuiGeneratorService.class);
 		editScriptsButton.addListener(SWT.Selection, event -> {

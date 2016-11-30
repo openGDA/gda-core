@@ -48,7 +48,7 @@ public class BeamlineConfigurationSection extends AbstractMappingSection {
 		beamlineConfigLabel.setText("Beamline Configuration");
 		GridDataFactory.fillDefaults().span(configColumns, 1).applyTo(beamlineConfigLabel);
 		Button editBeamlineConfigButton = new Button(beamlineConfigComposite, SWT.PUSH);
-		editBeamlineConfigButton.setText("Configure Beamline");
+		editBeamlineConfigButton.setText("Configure Beamline...");
 		editBeamlineConfigButton.addListener(SWT.Selection, event -> editBeamlineConfiguration());
 	}
 

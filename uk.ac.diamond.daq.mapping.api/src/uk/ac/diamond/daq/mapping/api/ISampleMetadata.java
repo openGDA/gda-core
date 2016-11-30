@@ -19,7 +19,8 @@
 package uk.ac.diamond.daq.mapping.api;
 
 /**
- * This interface should be implemented by any class which can represent sample metadata. It contains only minimal methods which should be extended.
+ * This interface should be implemented by any class which can represent sample metadata.
+ * It contains only minimal methods which should be extended.
  */
 public interface ISampleMetadata {
 

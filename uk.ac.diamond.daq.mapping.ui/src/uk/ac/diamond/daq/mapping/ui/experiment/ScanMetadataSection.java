@@ -35,9 +35,9 @@ import org.eclipse.swt.widgets.Text;
 /**
  * A section to configure essential parameters of a scan that do not belong elsewhere.
  */
-public class EssentialParametersSection extends AbstractMappingSection {
+public class ScanMetadataSection extends AbstractMappingSection {
 
-	EssentialParametersSection(MappingExperimentView mappingView, IEclipseContext context) {
+	ScanMetadataSection(MappingExperimentView mappingView, IEclipseContext context) {
 		super(mappingView, context);
 	}
 
@@ -57,7 +57,7 @@ public class EssentialParametersSection extends AbstractMappingSection {
 		IObservableValue sampleNameModelValue = PojoProperties.value("sampleName").observe(mappingBean.getSampleMetadata());
 		dataBindingContext.bindValue(sampleNameTextValue, sampleNameModelValue);
 		Button editMetadataButton = new Button(essentialParametersComposite, SWT.PUSH);
-		editMetadataButton.setText("Edit metadata");
+		editMetadataButton.setText("Edit metadata...");
 
 		IGuiGeneratorService guiGenerator = context.get(IGuiGeneratorService.class);
 		editMetadataButton.addListener(SWT.Selection, event -> {
