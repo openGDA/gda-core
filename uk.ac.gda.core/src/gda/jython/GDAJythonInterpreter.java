@@ -136,6 +136,9 @@ public class GDAJythonInterpreter extends ObservableComponent {
 
 		sysProps = System.getProperties();
 
+		// Log the Jython version
+		logger.info("Using Jython version: {}", PySystemState.version.toString().split("\n")[0]);
+
 		// Initialise the Jython 'sys' class statics for use when constructing instances of it
 		PySystemState.initialize(sysProps, gdaCustomProperties);
 	}
