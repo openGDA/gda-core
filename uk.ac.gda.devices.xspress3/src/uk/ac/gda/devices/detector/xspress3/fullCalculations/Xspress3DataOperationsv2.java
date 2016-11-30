@@ -36,6 +36,7 @@ import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.vortex.Xspress3Parameters;
 import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
+import uk.ac.gda.devices.detector.xspress3.TRIGGER_MODE;
 import uk.ac.gda.devices.detector.xspress3.Xspress3Controller;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
@@ -353,6 +354,7 @@ public class Xspress3DataOperationsv2 {
 
 	public double[][] getMCAData(double time) throws DeviceException {
 		controller.doErase();
+		controller.setTriggerMode(TRIGGER_MODE.TTl_Veto_Only);
 		controller.doStart();
 		((Timer) Finder.getInstance().find("tfg")).clearFrameSets(); // we only want to collect a frame at a time
 		((Timer) Finder.getInstance().find("tfg")).countAsync(time); // run tfg for time
