@@ -21,7 +21,6 @@ Starts the server as an Eclipse OSGI application
 -console
       </programArgs>
       <vmArgs>-Dosgi.gda.application=true
--Drebel.workspace.path=${workspace_loc}
 -Dequinox.ds.print=true
       </vmArgs>
       <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
@@ -60,5 +59,12 @@ http://www.eclipse.org/legal/epl-v10.html
       <feature id="uk.ac.diamond.daq.server.feature"/>
    </features>
 
+
+   <preferencesInfo>
+      <targetfile overwrite="false"/>
+   </preferencesInfo>
+
+   <cssInfo>
+   </cssInfo>
 
 </product>
