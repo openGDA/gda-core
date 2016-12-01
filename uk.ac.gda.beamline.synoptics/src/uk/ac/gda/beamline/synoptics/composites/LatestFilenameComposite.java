@@ -18,9 +18,6 @@
 
 package uk.ac.gda.beamline.synoptics.composites;
 
-import gda.device.detectorfilemonitor.FileProcessor;
-import gda.observable.IObserver;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -53,12 +50,14 @@ import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.detectorfilemonitor.FileProcessor;
+import gda.observable.IObserver;
 import uk.ac.gda.beamline.synoptics.api.PlotConfigurable;
 import uk.ac.gda.beamline.synoptics.events.LatestFilenameEvent;
 import uk.ac.gda.beamline.synoptics.utils.DataFileListener;
 import uk.ac.gda.common.rcp.util.EclipseWidgetUtils;
 /**
- * A {@link Composite} provides a control view of monitoring latest detector data file 
+ * A {@link Composite} provides a control view of monitoring latest detector data file
  * or a control to play back detector data files already collected in a specified data directory.
  * <ul>
  * <li>When 'play' is selected, it tracks the latest detector data file collected;</li>
@@ -173,7 +172,7 @@ class LatestFilenameComposite extends Composite {
 		group = new Group(this, SWT.NONE);
 		group.setText(label);
 		GridLayoutFactory.swtDefaults().numColumns(numColumns).applyTo(group);
-		GridDataFactory.fillDefaults().applyTo(group);
+		GridDataFactory.fillDefaults().grab(true, true).applyTo(group);
 		group.setToolTipText("The latest detector filename is displayed. Press pause to scrolling back through all filenames in the current collection");
 
 		fileNameText = new Text(group, SWT.SINGLE | SWT.BORDER);
@@ -433,7 +432,7 @@ class LatestFilenameComposite extends Composite {
 			((PlotConfigurable) fileProcessor).setPlotType(PlotType.values()[plotTypes.getSelectionIndex()]);
 		}
 		fileProcessor.processFile(fileNameText.getText().trim());
-		
+
 		int findTextIndex = -1;
 		if (detectorCombo.getSelectionIndex() == 0) {
 			findTextIndex = findTextIndex(dirWatcher.getDataFileCollected());
@@ -637,7 +636,7 @@ class LatestFilenameComposite extends Composite {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	private List<FileObject> detectorFilteredFileList(String filtername) {
 		List<FileObject> dataFileCollectedForDetector = Collections.synchronizedList(new ArrayList<FileObject>());
