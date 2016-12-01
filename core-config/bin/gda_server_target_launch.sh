@@ -17,6 +17,20 @@ function err_msg_exit {
     exit 1
 }
 
+# Write any error before attempting to launch/stop the application into the startup file used to determine
+# whether the operation has completed. This allows the error message to be retrieved displayed on the workstation
+# when running in live mode. The message is also written via the normal bashlog route.
+#
+function log_error_to_startup_file_and_exit {
+    echo -e "\e[31m[$(date '+%F %T') $HOSTNAME ($MY_NAME)] ERROR: $1\e[0m" > $OBJECT_SERVER_STARTUP_FILE
+    bashlog error "$MY_NAME" "$1"
+    exit 1
+}
+
+function exit_servers_to_kill {
+    log_error_to_startup_file_and_exit "You are attempting to start the GDA server for beamline $BEAMLINE but there are already $1 server(s) running on this machine ($HOSTNAME), please kill them manually or use the --restart option."
+}
+
 # Require the BEAMLINE environment variable to have been set
 if [[ -z $BEAMLINE ]] ; then
     err_msg_exit "BEAMLINE environment variable not set - GDA server cannot start"
@@ -62,6 +76,14 @@ if [[ "$ARGS_IN" == *"--debug"* ]]; then
     vm_args="$vm_args -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=${wait},address=8000"
 fi
 
+if [[ "$ARGS_IN" == *"--jrebel"* ]]; then
+    [[ -d "/localhome/gda2" ]] && rebel_parent="/localhome/gda2" || rebel_parent="/scratch"
+    if [[ $rebel_parent == "/scratch" ]] && [[ ! -d "/scratch" ]]; then
+        log_error_to_startup_file_and_exit "The parent folder of the rebel.base folder $rebel_parent/.jrebel does not exist, GDA with JRebel cannot start"
+    fi
+    vm_args="$vm_args -agentpath:$rebel_parent/jrebel/lib/libjrebel64.so -Drebel.remoting_plugin=true -Drebel.remoting_port=8666 -Drebel.base=$rebel_parent/.jrebel"
+fi
+
 [[ "$ARGS_IN" == *"--force"* ]] && force=true || force=false
 
 # Set user workspace and eclipse runtime configuration location (user and server build specific)
@@ -77,20 +99,6 @@ module load java/gda92
 #############################
 
 MY_NAME=$(basename "$(readlink -e "$0")")         # The name of this script
-
-# Write any error before attempting to launch/stop the application into the startup file used to determine
-# whether the operation has completed. This allows the error message to be retrieved displayed on the workstation
-# when running in live mode. The message is also written via the normal bashlog route.
-#
-function log_error_to_startup_file_and_exit {
-    echo -e "\e[31m[$(date '+%F %T') $HOSTNAME ($MY_NAME)] ERROR: $1\e[0m" > $OBJECT_SERVER_STARTUP_FILE
-    bashlog error "$MY_NAME" "$1"
-    exit 1
-}
-
-function exit_servers_to_kill {
-    log_error_to_startup_file_and_exit "You are attempting to start the GDA server for beamline $BEAMLINE but there are already $1 server(s) running on this machine ($HOSTNAME), please kill them manually or use the --restart option."
-}
 
 # Retrieve the server build version number from its install path (i.e. the last element of its path)
 #
