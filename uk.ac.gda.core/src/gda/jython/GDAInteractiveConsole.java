@@ -23,6 +23,7 @@ import org.python.core.Py;
 import org.python.core.PyException;
 import org.python.core.PyJavaType;
 import org.python.core.PyObject;
+import org.python.core.PyString;
 import org.python.core.PySystemState;
 import org.python.core.PyUnicode;
 import org.python.util.InteractiveConsole;
@@ -37,10 +38,17 @@ import gda.scan.ScanInterruptedException;
 public class GDAInteractiveConsole extends InteractiveConsole {
 	private static final Logger logger = LoggerFactory.getLogger(GDAInteractiveConsole.class);
 
+	// Use the default ps1 and ps2 prompts
+	private static final PyString PS1_PROMPT = new PyString(">>> ");
+	private static final PyString PS2_PROMPT = new PyString("... ");
+
 	public GDAInteractiveConsole(PySystemState pySystemState) {
 		// treat all interactive console input as UTF-8 by default
 		cflags.encoding = "utf-8";
 		cflags.source_is_utf8 = true;
+		// Set the command prompts for interactive interpreter. Fixes a issue auto-completing on sys
+		pySystemState.ps1 = PS1_PROMPT;
+		pySystemState.ps2 = PS2_PROMPT;
 		super.systemState = pySystemState;
 	}
 
