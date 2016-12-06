@@ -224,6 +224,18 @@ public class RotationViewer {
 		});
 
 		valueEventDelegate = new EventListenersDelegate();
+
+		motorPositionViewer.setCallback(new MotorPositionDemandChangedCallback() {
+			@Override
+			public void call(final double demand) {
+				motorPositionViewer.getDemandBox().getDisplay().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						moveMotor(demand);
+					}
+				});
+			}
+		});
 	}
 
 	protected void notifyListenersOfMove(ValueEvent e) {
@@ -337,6 +349,18 @@ public class RotationViewer {
 				moveMotor(false,littleStep);
 			}
 		});
+	}
+
+	private void moveMotor(final double demand){
+		Double current;
+		try {
+			current = ((ScannablePositionSource)motor).getPosition();
+			final boolean dir = current < demand;
+			final double step = dir ? demand - current : current - demand;
+			moveMotor(dir, step);
+		} catch (DeviceException e) {
+			logger.error("Exception reading position of {}", motor.getDescriptor().getLabelText(), e);
+		}
 	}
 
 	private void moveMotor(final boolean dir, final double step){
@@ -472,12 +496,7 @@ public class RotationViewer {
 				resetToZeroButton.addSelectionListener(new SelectionAdapter() {
 					@Override
 					public void widgetSelected(SelectionEvent e) {
-						try {
-							final Double current = ((ScannablePositionSource)motor).getPosition();
-							moveMotor(current < 0, current < 0 ? -1 * current : current);
-						} catch (DeviceException e1) {
-							logger.error("Exception reading position of {}", motor.getDescriptor().getLabelText(), e);
-						}
+						moveMotor(0);
 					}
 				});
 			}
