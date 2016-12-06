@@ -603,6 +603,13 @@ public class RotationViewer {
 		motorPositionViewer.setDecimalPlaces(decimalPlaces);
 	}
 
+	public void setMotorPositionViewerPopupOnInvalidPosition(boolean popupOnInvalidPosition) {
+		if (motorPositionViewer == null) {
+			throw new IllegalStateException("Cannot set whether to popup on invalid position for this RotationViewer's MotorPositionViewer - widgets have not been created. Call createControls first");
+		}
+		motorPositionViewer.setPopupOnInvalidPosition(popupOnInvalidPosition);
+	}
+
 	public void setEnabled(boolean enabled) {
 		nudgeSizeBox.setEnabled(enabled);
 
