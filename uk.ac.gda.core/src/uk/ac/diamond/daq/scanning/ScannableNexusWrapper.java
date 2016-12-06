@@ -4,6 +4,7 @@ import java.lang.reflect.Array;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
@@ -571,9 +572,14 @@ public class ScannableNexusWrapper<N extends NXobject> implements IScannable<Obj
 
 	@Override
 	public void update(Object source, Object arg) {
+		Object newPosition = null;
 		if (arg instanceof ScannablePositionChangeEvent) {
-			// some scannables notify this
-			Object newPosition = ((ScannablePositionChangeEvent) arg).newPosition;
+			newPosition = ((ScannablePositionChangeEvent) arg).newPosition;
+		} else if (source == scannable && isValueType(arg.getClass())) {
+			newPosition = arg;
+		}
+
+		if (newPosition != null) {
 			IPosition positon = new Scalar<Object>(getName(), -1, newPosition); // TODO what should index be
 			try {
 				positionDelegate.firePositionChanged(getLevel(), positon);
@@ -582,5 +588,35 @@ public class ScannableNexusWrapper<N extends NXobject> implements IScannable<Obj
 			}
 		}
 	}
+
+	private static final Set<Class<?>> VALUE_TYPES = new HashSet<>(Arrays.asList(
+			Double.class, Float.class,
+			Long.class, Integer.class, Short.class, Byte.class,
+			String.class, Character.class,
+			Boolean.class));
+
+	private static boolean isValueType(Class<?> _class) {
+		if (_class.isArray()) {
+			_class = _class.getComponentType();
+		}
+		return VALUE_TYPES.contains(_class) || _class.isEnum();
+	}
+
+//	private Object newPosition(Object source, Object arg) {
+//		if (arg instanceof ScannablePositionChangeEvent) {
+//			return ((ScannablePositionChangeEvent) arg).newPosition;
+//		}
+//		if (arg != scannable && source != MotorProperty.POSITION) {
+//			return null;
+//		}
+//
+//		if (arg instanceof EnumPositionerStatus || arg instanceof MotorStatus || arg instanceof MotorEvent) {
+//			return null;
+//		}
+//
+//		return arg;
+//	}
+
+
 
 }
