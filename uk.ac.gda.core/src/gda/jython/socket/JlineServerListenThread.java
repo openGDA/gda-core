@@ -23,6 +23,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.python.jline.TerminalFactory;
+import org.python.jline.UnixTerminal;
 import org.python.jline.console.ConsoleReader;
 import org.python.jline.console.history.FileHistory;
 
@@ -30,12 +32,20 @@ import gda.configuration.properties.LocalProperties;
 
 public class JlineServerListenThread extends ServerListenThreadBase {
 
+	static {
+		// DAQ-392 - if TERM environment variable is 'dumb' (eg if servers have been started
+		// from IDE launched without user environment), jline defaults to UnsupportedTerminal
+		// and telnet connection is not usable (input not echoed, CompileError when running
+		// commands).
+		TerminalFactory.registerFlavor(TerminalFactory.Flavor.UNIX, UnixXtermTerminal.class);
+		TerminalFactory.configure(TerminalFactory.Type.AUTO);
+	}
+
 	private final ConsoleReader cr;
 
 	public JlineServerListenThread(InputStream in, OutputStream out, SessionClosedCallback sessionClosedCallback) throws IOException {
 
 		super(sessionClosedCallback);
-
 		this.cr = new ConsoleReader(in, out);
 
 		final String gdaVar = LocalProperties.getVarDir();
@@ -48,4 +58,10 @@ public class JlineServerListenThread extends ServerListenThreadBase {
 		return cr.readLine(prompt);
 	}
 
+	public static class UnixXtermTerminal extends UnixTerminal {
+		public UnixXtermTerminal() throws Exception {
+			//TODO: Check for $TERM==dumb first?
+			super("/dev/tty", "xterm");
+		}
+	}
 }
