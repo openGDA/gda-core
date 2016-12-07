@@ -937,7 +937,9 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 			}
 			NexusUtils.writeString(file, g, "scan_identifier", scanid.isEmpty() ? thisPoint.getUniqueName() : scanid);
 			NexusUtils.writeIntegerArray(file, g, "scan_dimensions", thisPoint.getScanDimensions());
-			NexusUtils.writeString(file, g, "title", metadata.getMetadataValue("title"));
+			if (!g.containsNode("title")) {
+				NexusUtils.writeString(file, g, "title", metadata.getMetadataValue("title"));
+			}
 			createCustomMetaData(g);
 		} catch (Exception e) {
 			logger.info("error writing less important scan information", e);
@@ -1718,8 +1720,10 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 		String nxDirName = "before_scan";
 		String nxClass = "NXcollection";
 		// Navigate to correct location in the file.
-		GroupNode g = file.getGroup(NexusUtils.addToAugmentPath(NexusUtils.addToAugmentPath(new StringBuilder(file.getPath(group)), nxDirName, nxClass),
-				scannable.getName(), nxClass).toString(), true);
+		String augmentedPath = NexusUtils.addToAugmentPath(NexusUtils.addToAugmentPath(new StringBuilder(file.getPath(group)), nxDirName, nxClass),
+				scannable.getName(), nxClass).toString();
+		logger.debug("Writing data for scannable (" + scannable.getName() + ") to NeXus file at "+augmentedPath+".");
+		GroupNode g = file.getGroup(augmentedPath, true);
 
 		for (int i = 0; i < inputNames.length; i++) {
 			NexusUtils.writeDouble(file, g, inputNames[i], positions[i]);
@@ -1733,6 +1737,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 		for(String scannableName: metadatascannablestowrite) {
 			try {
 				Scannable scannable = (Scannable) InterfaceProvider.getJythonNamespace().getFromJythonNamespace(scannableName);
+				logger.debug("Getting scannable (" + scannable.getName() + ") data for writting to NeXus file.");
 				Object position = scannable.getPosition();
 				if (weKnowTheLocationFor(scannableName)) {
 					locationmap.get(scannableName).makeScannable(file, group, scannable, position, new int[] {1});
@@ -1741,6 +1746,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 					// put in default location (NXcollection with name metadata)
 				}
 			} catch (NexusException e) {
+				logger.error("Nexus error while adding "+scannableName+" metadata to NeXus file at "+file.getPath(group)+".", e);
 				throw e;
 			} catch (Exception e) {
 				logger.error("error getting "+scannableName+" from namespace or reading position from it.", e);
