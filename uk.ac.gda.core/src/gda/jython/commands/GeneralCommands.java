@@ -18,6 +18,18 @@
 
 package gda.jython.commands;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.Vector;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.ScannableUtils;
@@ -31,18 +43,6 @@ import gda.jython.JythonServer;
 import gda.jython.JythonServerFacade;
 import gda.jython.ScriptBase;
 import gda.jython.scriptcontroller.Scriptcontroller;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.Vector;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Holder for a series of static methods to operate Scannable objects
@@ -292,6 +292,7 @@ public class GeneralCommands {
 	 * reconfigured.
 	 */
 	public static void reset_namespace() {
+		logger.info("Resetting Jython namespace");
 		((JythonServer) Finder.getInstance().find(JythonServer.SERVERNAME)).restart();
 		reconfigureScriptControllers();
 	}
