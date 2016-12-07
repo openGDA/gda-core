@@ -161,6 +161,8 @@ public class AreaDetectorWritingFilesRunnableDevice<T extends AreaDetectorWritin
 	public NexusObjectProvider<NXdetector> getNexusProvider(NexusScanInfo scanInfo) {
 		final NXdetector nxDetector = NexusNodeFactory.createNXdetector();
 
+		nxDetector.setCount_timeScalar(model.getExposureTime());
+
 		// The link is relative and relies on the AD file and the NeXus being in the same directory
 		nxDetector.addExternalLink(NXdetector.NX_DATA, fileName, PATH_TO_DATA_NODE);
 

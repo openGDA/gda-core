@@ -105,6 +105,7 @@ public class AreaDetectorRunnableDevice extends AbstractRunnableDevice<AreaDetec
 	public NXdetector createNexusObject(NexusScanInfo scanInfo) {
 
 		final NXdetector nxDetector = NexusNodeFactory.createNXdetector();
+		nxDetector.setCount_timeScalar(model.getExposureTime());
 
 		// We add 2 to the scan rank to include the image
 		data = nxDetector.initializeLazyDataset(NXdetector.NX_DATA, scanInfo.getRank() + 2, convertDataType(dataType));
