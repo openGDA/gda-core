@@ -575,14 +575,14 @@ public class ScannableNexusWrapper<N extends NXobject> implements IScannable<Obj
 		Object newPosition = null;
 		if (arg instanceof ScannablePositionChangeEvent) {
 			newPosition = ((ScannablePositionChangeEvent) arg).newPosition;
-		} else if (source == scannable && isValueType(arg.getClass())) {
+		} else if (isValueType(arg.getClass())) {
 			newPosition = arg;
 		}
 
 		if (newPosition != null) {
-			IPosition positon = new Scalar<Object>(getName(), -1, newPosition); // TODO what should index be
+			IPosition position = new Scalar<Object>(getName(), -1, newPosition); // TODO what should index be
 			try {
-				positionDelegate.firePositionChanged(getLevel(), positon);
+				positionDelegate.firePositionChanged(getLevel(), position);
 			} catch (ScanningException e) {
 				logger.error("An error occurred while notifying position listeners", e);
 			}
