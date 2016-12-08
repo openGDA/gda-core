@@ -26,6 +26,7 @@ public class HplcBean implements XMLRichBean {
 	private String comment = "";
 	private String buffers = "";
 	private String mode = DEFAULT_HPLC_MODE;
+	private double totalDuration = 100;
 	private boolean isStaff;
 
 	public HplcBean() {
@@ -112,6 +113,12 @@ public class HplcBean implements XMLRichBean {
 
 	public void clear() {
 
+	}
+	public double getTotalDuration() {
+		return totalDuration;
+	}
+	public void setTotalDuration(double totalDuration) {
+		this.totalDuration = totalDuration;
 	}
 
 }
