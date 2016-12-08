@@ -55,6 +55,14 @@ http://www.eclipse.org/legal/epl-v10.html
          id="uk.ac.diamond.daq.scm.feature"
          version="0.0.0"/>
 
+   <includes
+         id="org.eclipse.scanning.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.scanning.event.queues.feature"
+         version="0.0.0"/>
+
    <plugin
          id="uk.ac.diamond.daq.server"
          download-size="0"
