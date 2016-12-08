@@ -186,7 +186,7 @@ public class ScanRequestConverter {
 		}
 
 		final ScanMetadata scanMetadata = new ScanMetadata(MetadataType.SAMPLE);
-		scanMetadata.addField("name", sampleMetadata.getSampleName());
+		scanMetadata.addField("name", sampleName);
 		if (sampleMetadata instanceof SimpleSampleMetadata) {
 			String description = ((SimpleSampleMetadata) sampleMetadata).getDescription();
 			if (description == null || description.trim().isEmpty()) {
