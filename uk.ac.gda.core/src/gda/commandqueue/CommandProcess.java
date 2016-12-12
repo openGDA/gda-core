@@ -19,7 +19,7 @@
 package gda.commandqueue;
 
 import org.eclipse.scanning.api.event.EventException;
-import org.eclipse.scanning.api.event.core.AbstractPausableProcess;
+import org.eclipse.scanning.api.event.core.AbstractLockingPausableProcess;
 import org.eclipse.scanning.api.event.core.IConsumerProcess;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.status.Status;
@@ -33,7 +33,7 @@ import gda.observable.IObserver;
  * Implementation of {@link IConsumerProcess} for running a {@link Command}. This
  * allows a command for the old command queue to be run on the new GDA9 queue.
  */
-public class CommandProcess extends AbstractPausableProcess<CommandBean> {
+public class CommandProcess extends AbstractLockingPausableProcess<CommandBean> {
 
 	private static final Logger logger = LoggerFactory.getLogger(CommandProcess.class);
 
