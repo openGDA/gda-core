@@ -557,7 +557,8 @@ public class ParametersComposite extends Composite {
 		setComboText(rotationStage, params.getRotationStage());
 		setComboText(linearStage, params.getLinearStage());
 
-		sendDataToTempDirectory.setSelection(params.getSendDataToTemporaryDirectory());
+		// Default to *not* using temp directory, regardless of the setting in the last scan
+		sendDataToTempDirectory.setSelection(false);
 		updateOutputDirectory();
 
 		// Scan parameters
