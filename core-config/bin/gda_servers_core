@@ -14,6 +14,9 @@ for word in "$@"; do
             DEBUG="--debug-wait"
             options_text+="\nAwaiting debugger connection on port 8000"
             ;;
+        -j|--jrebel)
+            GDA_ARGS+="--jrebel "
+            ;;
         --force)
             GDA_ARGS+="--force "
             ;;
