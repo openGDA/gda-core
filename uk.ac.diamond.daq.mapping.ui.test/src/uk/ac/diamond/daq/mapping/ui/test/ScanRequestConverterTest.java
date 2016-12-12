@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.device.models.ClusterProcessingModel;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
@@ -183,9 +184,9 @@ public class ScanRequestConverterTest {
 
 	@Test
 	public void testRoiAxisNamesAreSet() throws Exception {
-		ScanRequest<?> scanRequest = scanRequestConverter.convertToScanRequest(experimentBean);
+		ScanRequest<IROI> scanRequest = scanRequestConverter.convertToScanRequest(experimentBean);
 
-		Collection<ScanRegion<?>> regions = scanRequest.getCompoundModel().getRegions();
+		Collection<ScanRegion<IROI>> regions = scanRequest.getCompoundModel().getRegions();
 
 		// Ensure only on region
 		assertThat(regions.size(), is(equalTo(1)));
