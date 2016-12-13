@@ -405,8 +405,14 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 			double regionCounts = 0;
 			if (currentElement < theData.length) {
 				currentElementCounts = calculateSingleElementTotal(theData[currentElement]);
-				int regionStart = fluorescenceDetectorComposite.getRegionStart();
-				int regionEnd = fluorescenceDetectorComposite.getRegionEnd();
+				int regionStart, regionEnd;
+				if (fluorescenceDetectorComposite.getReadoutModeIsRoi() ) {
+					regionStart = fluorescenceDetectorComposite.getRegionStart();
+					regionEnd = fluorescenceDetectorComposite.getRegionEnd();
+				} else {
+					regionStart = fluorescenceDetectorComposite.getWindowStart();
+					regionEnd = fluorescenceDetectorComposite.getWindowEnd();
+				}
 				regionCounts = calculateRegionTotal(theData[currentElement], regionStart, regionEnd);
 			}
 			fluorescenceDetectorComposite.setSelectedElementCounts(currentElementCounts);
