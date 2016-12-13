@@ -133,29 +133,21 @@ public class DetectorsSection extends AbstractMappingSection {
 
 	private List<IDetectorModelWrapper> getDetectorParameters() {
 		List<IDetectorModelWrapper> detectorParams = mappingBean.getDetectorParameters();
-
-		// Note: as yet we can only have one malcolm device on a beamline
-		// This UI will have to be reworked when it's possible to have multiple
-		DeviceInformation<?> malcolmDeviceInfo = getMalcolmDevice();
+		Collection<DeviceInformation<?>> malcolmDeviceInfo = getMalcolmDeviceInfo();
 		if (malcolmDeviceInfo != null) {
-			detectorParams.add(new DetectorModelWrapper(malcolmDeviceInfo.getLabel(),
-					(IDetectorModel) malcolmDeviceInfo.getModel(), false));
+			for (final DeviceInformation<?> deviceInfo : malcolmDeviceInfo) {
+				detectorParams.add(new DetectorModelWrapper(deviceInfo.getLabel(), (IDetectorModel) deviceInfo.getModel(), false));
+			}
 		}
-
 		return detectorParams;
 	}
 
-	@SuppressWarnings("unchecked")
-	private DeviceInformation<? extends IDetectorModel> getMalcolmDevice() {
+	private Collection<DeviceInformation<?>> getMalcolmDeviceInfo() {
 		try {
 			IEventService eventService = context.get(IEventService.class);
 			URI jmsURI = new URI(LocalProperties.getActiveMQBrokerURI());
-			IRunnableDeviceService runnableDeviceService = eventService.createRemoteService(
-					jmsURI, IRunnableDeviceService.class);
-			Collection<DeviceInformation<?>> malcolmDeviceInfos =
-					runnableDeviceService.getDeviceInformation(DeviceRole.MALCOLM);
-			return malcolmDeviceInfos.isEmpty() ? null :
-				(DeviceInformation<? extends IDetectorModel>) malcolmDeviceInfos.iterator().next();
+			IRunnableDeviceService runnableDeviceService = eventService.createRemoteService(jmsURI, IRunnableDeviceService.class);
+			return runnableDeviceService.getDeviceInformation(DeviceRole.MALCOLM);
 		} catch (Exception e) {
 			logger.error("Could not get malcolm devices.", e);
 			return null;
