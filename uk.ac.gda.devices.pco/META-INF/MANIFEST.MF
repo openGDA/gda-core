@@ -10,8 +10,6 @@ Require-Bundle: org.eclipse.ui,
  uk.ac.gda.epics;bundle-version="1.0.0",
  org.eclipse.january;bundle-version="1.0.0",
  uk.ac.diamond.scisoft.analysis;bundle-version="1.0.0",
- uk.ac.diamond.scisoft.analysis.rcp;bundle-version="1.0.0",
- uk.ac.gda.libs;bundle-version="1.0.0",
  uk.ac.gda.common;bundle-version="[1.2.0,2.0.0)",
  uk.ac.gda.tomography;bundle-version="1.0.0",
  uk.ac.diamond.scisoft.analysis.plotserver;bundle-version="1.0.0"
