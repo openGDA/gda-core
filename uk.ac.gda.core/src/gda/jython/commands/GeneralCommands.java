@@ -343,6 +343,7 @@ public class GeneralCommands {
 	 * @param command
 	 */
 	public static void cmd(String command) {
+		logger.info("About to execute '{}' in a new system process", command);
 		String s = null;
 
 		try {
