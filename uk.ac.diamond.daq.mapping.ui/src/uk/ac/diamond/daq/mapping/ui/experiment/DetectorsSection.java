@@ -26,7 +26,6 @@ import java.util.List;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.beans.PojoProperties;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
-import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -58,10 +57,6 @@ public class DetectorsSection extends AbstractMappingSection {
 	private static final Logger logger = LoggerFactory.getLogger(MappingExperimentView.class);
 
 	private DataBindingContext dataBindingContext;
-
-	DetectorsSection(MappingExperimentView mappingView, IEclipseContext context) {
-		super(mappingView, context);
-	}
 
 	@Override
 	public void createControls(Composite parent) {
@@ -101,7 +96,7 @@ public class DetectorsSection extends AbstractMappingSection {
 			Button configButton = new Button(detectorsComposite, SWT.PUSH);
 			configButton.setText("Edit parameters...");
 
-			IGuiGeneratorService guiGenerator = context.get(IGuiGeneratorService.class);
+			IGuiGeneratorService guiGenerator = getService(IGuiGeneratorService.class);
 			configButton.addListener(SWT.Selection, event -> {
 				guiGenerator.openDialog(detectorParameters.getModel(), getShell(),
 						detectorParameters.getName() + " Parameters");
@@ -126,13 +121,13 @@ public class DetectorsSection extends AbstractMappingSection {
 
 		// set all other detectors as not included in scan? TODO why doesn't jface binding do this automatically?
 		if (malcolmDeviceSelected) {
-			mappingBean.getDetectorParameters().stream().filter(detParams -> detParams != malcolmWrapper).
+			getMappingBean().getDetectorParameters().stream().filter(detParams -> detParams != malcolmWrapper).
 				forEach(detParams -> ((DetectorModelWrapper) detParams).setIncludeInScan(false));
 		}
 	}
 
 	private List<IDetectorModelWrapper> getDetectorParameters() {
-		List<IDetectorModelWrapper> detectorParams = mappingBean.getDetectorParameters();
+		List<IDetectorModelWrapper> detectorParams = getMappingBean().getDetectorParameters();
 		Collection<DeviceInformation<?>> malcolmDeviceInfo = getMalcolmDeviceInfo();
 		if (malcolmDeviceInfo != null) {
 			for (final DeviceInformation<?> deviceInfo : malcolmDeviceInfo) {
@@ -144,7 +139,7 @@ public class DetectorsSection extends AbstractMappingSection {
 
 	private Collection<DeviceInformation<?>> getMalcolmDeviceInfo() {
 		try {
-			IEventService eventService = context.get(IEventService.class);
+			IEventService eventService = getService(IEventService.class);
 			URI jmsURI = new URI(LocalProperties.getActiveMQBrokerURI());
 			IRunnableDeviceService runnableDeviceService = eventService.createRemoteService(jmsURI, IRunnableDeviceService.class);
 			return runnableDeviceService.getDeviceInformation(DeviceRole.MALCOLM);

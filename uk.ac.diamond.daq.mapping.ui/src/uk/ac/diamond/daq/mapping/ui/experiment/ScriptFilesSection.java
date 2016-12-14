@@ -18,7 +18,6 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
-import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.richbeans.api.generator.IGuiGeneratorService;
@@ -32,15 +31,11 @@ import org.eclipse.swt.widgets.Label;
  */
 public class ScriptFilesSection extends AbstractMappingSection {
 
-	ScriptFilesSection(MappingExperimentView mappingView, IEclipseContext context) {
-		super(mappingView, context);
-	}
-
 	@Override
 	public boolean shouldShow() {
 		// script files section only shown if bean is non null. Create an empty script files bean
 		// in your spring configuration to allow script files to be set
-		return mappingBean.getScriptFiles() != null;
+		return getMappingBean().getScriptFiles() != null;
 	}
 
 	@Override
@@ -55,9 +50,9 @@ public class ScriptFilesSection extends AbstractMappingSection {
 		Button editScriptsButton = new Button(scriptsComposite, SWT.PUSH);
 		editScriptsButton.setText("Select Script Files...");
 
-		IGuiGeneratorService guiGenerator = context.get(IGuiGeneratorService.class);
+		IGuiGeneratorService guiGenerator = getService(IGuiGeneratorService.class);
 		editScriptsButton.addListener(SWT.Selection, event -> {
-			guiGenerator.openDialog(mappingBean.getScriptFiles(), parent.getShell(), "Select Script Files");
+			guiGenerator.openDialog(getMappingBean().getScriptFiles(), parent.getShell(), "Select Script Files");
 		});
 	}
 

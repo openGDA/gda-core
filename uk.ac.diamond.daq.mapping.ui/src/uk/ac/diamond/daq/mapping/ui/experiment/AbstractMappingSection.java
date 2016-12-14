@@ -19,7 +19,6 @@
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
 import org.eclipse.e4.core.contexts.IEclipseContext;
-import org.eclipse.e4.ui.services.IServiceConstants;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
@@ -42,18 +41,26 @@ public abstract class AbstractMappingSection {
 
 	private static FontMetrics fontMetrics = null;
 
-	protected final MappingExperimentView mappingView;
-	protected final IMappingExperimentBean mappingBean;
-	protected final IEclipseContext context;
+	protected MappingExperimentView mappingView;
 
-	AbstractMappingSection(final MappingExperimentView mappingView, IEclipseContext context) {
+	protected void initialize(MappingExperimentView mappingView) {
 		this.mappingView = mappingView;
-		this.mappingBean = mappingView.getBean();
-		this.context = context;
 	}
 
 	protected Shell getShell() {
-		return (Shell) context.get(IServiceConstants.ACTIVE_SHELL);
+		return mappingView.getShell();
+	}
+
+	protected <S> S getService(Class<S> serviceClass) {
+		return mappingView.getEclipseContext().get(serviceClass);
+	}
+
+	protected IMappingExperimentBean getMappingBean() {
+		return mappingView.getBean();
+	}
+
+	protected IEclipseContext getEclipseContext() {
+		return mappingView.getEclipseContext();
 	}
 
 	public boolean shouldShow() {
@@ -65,6 +72,10 @@ public abstract class AbstractMappingSection {
 	}
 
 	public abstract void createControls(Composite parent);
+
+	protected void setFocus() {
+		// do nothing, subclasses may override
+	}
 
 	protected void updateStatusLabel() {
 		mappingView.getStatusPanel().updateStatusLabel();

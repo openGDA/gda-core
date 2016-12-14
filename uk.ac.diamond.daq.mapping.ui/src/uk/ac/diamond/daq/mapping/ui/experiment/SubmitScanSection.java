@@ -19,7 +19,6 @@
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
-import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.scanning.api.event.scan.ScanBean;
@@ -32,14 +31,12 @@ import org.eclipse.swt.widgets.Composite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
+
 /**
  * A section containing the button to launch a scan.
  */
 public class SubmitScanSection extends AbstractMappingSection {
-
-	SubmitScanSection(MappingExperimentView mappingView, IEclipseContext context) {
-		super(mappingView, context);
-	}
 
 	private static final Logger logger = LoggerFactory.getLogger(SubmitScanSection.class);
 
@@ -52,7 +49,7 @@ public class SubmitScanSection extends AbstractMappingSection {
 		Button scanButton = new Button(submitScanComposite, SWT.NONE);
 		scanButton.setText("Queue Scan");
 
-		final ScanBeanSubmitter submitter = context.get(ScanBeanSubmitter.class);
+		final ScanBeanSubmitter submitter = getService(ScanBeanSubmitter.class);
 		scanButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent event) {
@@ -72,6 +69,7 @@ public class SubmitScanSection extends AbstractMappingSection {
 	}
 
 	private ScanBean createScanBean() {
+		IMappingExperimentBean mappingBean = getMappingBean();
 		ScanBean scanBean = new ScanBean();
 		String sampleName = mappingBean.getSampleMetadata().getSampleName();
 		if (sampleName == null || sampleName.length() == 0) {
@@ -80,7 +78,7 @@ public class SubmitScanSection extends AbstractMappingSection {
 		String pathName = mappingBean.getScanDefinition().getMappingScanRegion().getScanPath().getName();
 		scanBean.setName(String.format("%s - %s Scan", sampleName, pathName));
 
-		final ScanRequestConverter converter = context.get(ScanRequestConverter.class);
+		final ScanRequestConverter converter = getService(ScanRequestConverter.class);
 		ScanRequest<IROI> scanRequest = converter.convertToScanRequest(mappingBean);
 		scanBean.setScanRequest(scanRequest);
 		return scanBean;

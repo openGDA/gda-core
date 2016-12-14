@@ -1,7 +1,7 @@
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -12,6 +12,7 @@ import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.e4.core.di.annotations.Optional;
 import org.eclipse.e4.ui.di.Focus;
 import org.eclipse.e4.ui.di.UIEventTopic;
+import org.eclipse.e4.ui.services.IServiceConstants;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
@@ -20,6 +21,7 @@ import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,15 +30,36 @@ import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBeanProvider;
 
 /**
- * An E4-style POJO class for the mapping experiment view. This allows all dependencies to be injected (currently by a ViewPart instance until we have
- * annotation-based injection available). Ideally that would make this class unit-testable, but usage of the GuiGeneratorService is currently too extensive to
- * allow easy mocking, and the real service cannot be obtained without breaking encapsulation or running in an OSGi framework.
+ * An E4-style POJO class for the mapping experiment view. This allows all dependencies to be injected (currently by a
+ * ViewPart instance until we have annotation-based injection available). Ideally that would make this class
+ * unit-testable, but usage of the GuiGeneratorService is currently too extensive to allow easy mocking, and the real
+ * service cannot be obtained without breaking encapsulation or running in an OSGi framework.
  */
 public class MappingExperimentView implements IAdaptable {
 
+	@SuppressWarnings("unchecked")
+	private static final Class<? extends AbstractMappingSection>[] SECTION_CLASSES = new Class[] {
+			// a section for configuring scannables to be moved to a particular position at the start of a scan
+			BeamlineConfigurationSection.class,
+			// a section for configuring scripts to be run before and after a scan
+			ScriptFilesSection.class,
+			// a section for configuring outer scannables (i.e. in addition to the inner map)
+			OuterScannablesSection.class,
+			// a section for choosing the detectors (or malcolm device) to include in the scan
+			DetectorsSection.class,
+			// a section for configuring the path of the mapping scan
+			RegionAndPathSection.class,
+			// a section for configuring metadata to add to the scan
+			ScanMetadataSection.class,
+			// a section for configuring live processing to run
+			ProcessingSection.class,
+			// a section for submitting the scan to the queue
+			SubmitScanSection.class
+	};
+
 	private static final Logger logger = LoggerFactory.getLogger(MappingExperimentView.class);
 
-	private final IMappingExperimentBean experimentBean;
+	private IMappingExperimentBean experimentBean;
 
 	private StatusPanel statusPanel;
 
@@ -51,9 +74,9 @@ public class MappingExperimentView implements IAdaptable {
 
 	private ScrolledComposite scrolledComposite;
 
-	private RegionAndPathSection regionAndPathSection;
-
 	private Composite mainComposite;
+
+	private Map<Class<? extends AbstractMappingSection>, AbstractMappingSection> sections;
 
 	@Inject
 	public MappingExperimentView(IMappingExperimentBeanProvider beanProvider) {
@@ -65,10 +88,14 @@ public class MappingExperimentView implements IAdaptable {
 		}
 	}
 
+	public Shell getShell() {
+		return (Shell) injectionContext.get(IServiceConstants.ACTIVE_SHELL);
+	}
+
 	@Focus
 	public void setFocus() {
-		if (regionAndPathSection != null) {
-			regionAndPathSection.setFocus();
+		if (sections != null) {
+			sections.get(RegionAndPathSection.class).setFocus();
 		}
 	}
 
@@ -88,56 +115,40 @@ public class MappingExperimentView implements IAdaptable {
 			logger.error("Error getting mapping configuration, no mapping bean set");
 		} else {
 			// create the controls for sections that should be shown
-			final List<AbstractMappingSection> sections = createSections();
-			boolean isFirst = true;
-			for (AbstractMappingSection section : sections) {
-				if (section.shouldShow()) {
-					createSectionControls(section, !isFirst && section.createSeparator());
-					isFirst = false;
-				}
-			}
+			createSections(mainComposite);
 		}
 
 		logger.trace("Finished building the mapping experiment view");
 	}
 
-	private void createSectionControls(AbstractMappingSection section, boolean createSeparator) {
-		if (createSeparator) {
-			// create separator
-			GridDataFactory.fillDefaults().span(2, 1).grab(true, false).applyTo(
-					new Label(mainComposite, SWT.SEPARATOR | SWT.HORIZONTAL));
-		}
+	private void createSections(Composite parent) {
+		sections = new HashMap<>();
+		for (Class<? extends AbstractMappingSection> sectionClass : SECTION_CLASSES) {
+			AbstractMappingSection section;
+			try {
+				section = sectionClass.newInstance();
+				section.initialize(this);
+				sections.put(sectionClass, section);
 
-		section.createControls(mainComposite);
+				if (section.shouldShow()) {
+					// create separator if this section should have one, unless its the first section
+					if (section.createSeparator() && sections.size() > 1) {
+						GridDataFactory.fillDefaults().span(2, 1).grab(true, false).applyTo(
+								new Label(parent, SWT.SEPARATOR | SWT.HORIZONTAL));
+					}
+
+					section.createControls(parent);
+				}
+			} catch (InstantiationException | IllegalAccessException e) {
+				logger.error("Could not create section " + sectionClass.getSimpleName(), e);
+			}
+		}
 	}
 
 	@PreDestroy
 	public void dispose() {
 		plotter.dispose();
 		beamPositionPlotter.dispose();
-	}
-
-	private List<AbstractMappingSection> createSections() {
-		List<AbstractMappingSection> sections = new ArrayList<>(10);
-		// a section for beamline config a.k.a. start position
-		sections.add(new BeamlineConfigurationSection(this, injectionContext));
-		// a section for choosing before/after scripts
-		sections.add(new ScriptFilesSection(this, injectionContext));
-		// add the list of outer scannables, if any
-		sections.add(new OuterScannablesSection(this, injectionContext));
-		// a section to choose and setup the detectors to include in the scan
-		sections.add(new DetectorsSection(this, injectionContext));
-		// a section for the scan region and paths
-		regionAndPathSection = new RegionAndPathSection(this, injectionContext);
-		sections.add(regionAndPathSection);
-		// a section for essential parameters, e.g. sample name
-		sections.add(new ScanMetadataSection(this, injectionContext));
-		// a section for configuring processing
-		sections.add(new ProcessingSection(this, injectionContext));
-		// the 'submit scan' button
-		sections.add(new SubmitScanSection(this, injectionContext));
-
-		return sections;
 	}
 
 	private Composite createMainComposite(Composite parent) {
@@ -178,6 +189,10 @@ public class MappingExperimentView implements IAdaptable {
 			}
 		}
 		return exposure;
+	}
+
+	public IEclipseContext getEclipseContext() {
+		return injectionContext;
 	}
 
 	protected Composite getMainComposite() {

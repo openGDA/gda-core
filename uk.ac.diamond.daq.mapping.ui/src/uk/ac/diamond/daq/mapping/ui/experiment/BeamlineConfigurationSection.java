@@ -18,7 +18,6 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
-import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.window.Window;
@@ -28,15 +27,13 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
+import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
+
 /**
  * A section to edit the beamline configuration, i.e. the positions that certain
  * scannables should be set to before a scan in run.
  */
 public class BeamlineConfigurationSection extends AbstractMappingSection {
-
-	BeamlineConfigurationSection(MappingExperimentView mappingView, IEclipseContext context) {
-		super(mappingView, context);
-	}
 
 	@Override
 	public void createControls(Composite parent) {
@@ -53,9 +50,10 @@ public class BeamlineConfigurationSection extends AbstractMappingSection {
 	}
 
 	private void editBeamlineConfiguration() {
-		final IScannableDeviceService scannableDeviceService = context.get(IScannableDeviceService.class);
-		EditBeamlineConfigurationDialog dialog =
-				new EditBeamlineConfigurationDialog(getShell(), scannableDeviceService);
+		IMappingExperimentBean mappingBean = getMappingBean();
+		final IScannableDeviceService scannableDeviceService = getService(IScannableDeviceService.class);
+		EditBeamlineConfigurationDialog dialog = new EditBeamlineConfigurationDialog(getShell(),
+				scannableDeviceService);
 		dialog.setInitialBeamlineConfiguration(mappingBean.getBeamlineConfiguration());
 		dialog.create();
 		if (dialog.open() == Window.OK) {

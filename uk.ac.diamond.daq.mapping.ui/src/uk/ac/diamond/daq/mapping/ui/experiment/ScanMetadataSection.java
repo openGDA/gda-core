@@ -21,7 +21,6 @@ package uk.ac.diamond.daq.mapping.ui.experiment;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.beans.PojoProperties;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
-import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -32,17 +31,16 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
+import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
+
 /**
  * A section to configure essential parameters of a scan that do not belong elsewhere.
  */
 public class ScanMetadataSection extends AbstractMappingSection {
 
-	ScanMetadataSection(MappingExperimentView mappingView, IEclipseContext context) {
-		super(mappingView, context);
-	}
-
 	@Override
 	public void createControls(Composite parent) {
+		IMappingExperimentBean mappingBean = getMappingBean();
 		Composite essentialParametersComposite = new Composite(parent, SWT.NONE);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(essentialParametersComposite);
 		GridLayoutFactory.swtDefaults().numColumns(3).applyTo(essentialParametersComposite);
@@ -59,7 +57,7 @@ public class ScanMetadataSection extends AbstractMappingSection {
 		Button editMetadataButton = new Button(essentialParametersComposite, SWT.PUSH);
 		editMetadataButton.setText("Edit metadata...");
 
-		IGuiGeneratorService guiGenerator = context.get(IGuiGeneratorService.class);
+		IGuiGeneratorService guiGenerator = getService(IGuiGeneratorService.class);
 		editMetadataButton.addListener(SWT.Selection, event -> {
 			guiGenerator.openDialog(mappingBean.getSampleMetadata(), parent.getShell(), "Sample Metadata");
 			// Ensure that any changes to metadata in the dialog are reflected in the main GUI

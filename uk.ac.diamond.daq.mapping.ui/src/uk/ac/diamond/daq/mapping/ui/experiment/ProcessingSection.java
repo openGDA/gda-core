@@ -39,7 +39,6 @@ import org.eclipse.core.databinding.beans.PojoProperties;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -67,6 +66,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.mapping.api.IClusterProcessingModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IDetectorModelWrapper;
+import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.impl.ClusterProcessingModelWrapper;
 
 /**
@@ -87,10 +87,6 @@ public class ProcessingSection extends AbstractMappingSection {
 	private Map<IClusterProcessingModelWrapper, Control[]> rowControlsMap;
 
 	private File[] templateFiles = null;
-
-	ProcessingSection(MappingExperimentView mappingView, IEclipseContext context) {
-		super(mappingView, context);
-	}
 
 	@Override
 	public void createControls(Composite parent) {
@@ -185,7 +181,7 @@ public class ProcessingSection extends AbstractMappingSection {
 
 		rowControlsMap = new HashMap<>();
 		final List<IClusterProcessingModelWrapper> clusterProcessingSteps =
-			mappingBean.getClusterProcessingConfiguration();
+			getMappingBean().getClusterProcessingConfiguration();
 		if (clusterProcessingSteps != null) {
 			for (IClusterProcessingModelWrapper clusterProcessingStep : clusterProcessingSteps) {
 				addProcessingModelRow(processingStepsComposite, clusterProcessingStep);
@@ -238,7 +234,7 @@ public class ProcessingSection extends AbstractMappingSection {
 
 	private IDetectorModel getDetectorModel(String detectorName) {
 		// first see if there is a model for this detector in the mapping bean
-		Optional<IDetectorModel> detectorModel = mappingBean.getDetectorParameters().stream().
+		Optional<IDetectorModel> detectorModel = getMappingBean().getDetectorParameters().stream().
 				map(wrapper -> wrapper.getModel()).
 				filter(model -> detectorName.equals(model.getName())).
 				findFirst();
@@ -250,7 +246,7 @@ public class ProcessingSection extends AbstractMappingSection {
 		IRunnableDevice<?> detector = null;
 		ScanningException exception = null;
 		try {
-			detector = context.get(IRunnableDeviceService.class).getRunnableDevice(detectorName);
+			detector = getService(IRunnableDeviceService.class).getRunnableDevice(detectorName);
 		} catch (ScanningException e) {
 			exception = e;
 		}
@@ -287,7 +283,7 @@ public class ProcessingSection extends AbstractMappingSection {
 
 		try {
 			List<IOperationSetupWizardPage> startPages = new ArrayList<>();
-			startPages.add(new AcquireDataWizardPage(detectorModelCopy, context));
+			startPages.add(new AcquireDataWizardPage(detectorModelCopy, getEclipseContext()));
 			IOperationModelWizard wizard = ServiceHolder.getOperationUIService().getWizard(null,
 					startPages, templateFile.getAbsolutePath(), null);
 
@@ -307,7 +303,7 @@ public class ProcessingSection extends AbstractMappingSection {
 	}
 
 	private void deleteProcessingModel(IClusterProcessingModelWrapper processingStep) {
-		mappingBean.getClusterProcessingConfiguration().remove(processingStep);
+		getMappingBean().getClusterProcessingConfiguration().remove(processingStep);
 
 		Control[] rowControls = rowControlsMap.remove(processingStep);
 		for (Control control : rowControls) {
@@ -333,6 +329,7 @@ public class ProcessingSection extends AbstractMappingSection {
 			if (ok) {
 				// if the configure wizard wasn't cancelled, add the new processing model
 				// to the list of models and create the new row for it in the UI
+				IMappingExperimentBean mappingBean = getMappingBean();
 				List<IClusterProcessingModelWrapper> processingModels = mappingBean.getClusterProcessingConfiguration();
 				if (processingModels == null) {
 					processingModels = new ArrayList<>();
@@ -357,7 +354,7 @@ public class ProcessingSection extends AbstractMappingSection {
 			templateFileName = templateFileName.substring(0, dotIndex);
 		}
 
-		final IFilePathService filePathService = context.get(IFilePathService.class);
+		final IFilePathService filePathService = getService(IFilePathService.class);
 		final String tempDir = filePathService.getTempDir();
 		final String prefix = templateFileName + "-" + detectorName;
 
@@ -374,7 +371,7 @@ public class ProcessingSection extends AbstractMappingSection {
 	}
 
 	private File[] getTemplateFiles() {
-		File templatesDir = new File(context.get(IFilePathService.class).getProcessingTemplatesDir());
+		File templatesDir = new File(getService(IFilePathService.class).getProcessingTemplatesDir());
 		String[] names = templatesDir.list((dir, name) -> name.endsWith("." + NEXUS_FILE_EXTENSION));
 		if (names == null) {
 			templateFiles = new File[0];
@@ -388,7 +385,7 @@ public class ProcessingSection extends AbstractMappingSection {
 
 	private String[] getDetectorNames() {
 		final List<String> detectorNames = new ArrayList<>();
-		final IRunnableDeviceService runnableDeviceService = context.get(IRunnableDeviceService.class);
+		final IRunnableDeviceService runnableDeviceService = getService(IRunnableDeviceService.class);
 		try {
 			for (DeviceInformation<?> deviceInfo : runnableDeviceService.getDeviceInformation()) {
 				if (deviceInfo.getDeviceRole() == DeviceRole.HARDWARE && deviceInfo.getModel() instanceof IDetectorModel) {
@@ -402,7 +399,7 @@ public class ProcessingSection extends AbstractMappingSection {
 
 		// TODO: temporary code for testing, delete when DeviceInformation is fully working
 		if (detectorNames.isEmpty()) {
-			List<IDetectorModelWrapper> detectorParams = mappingBean.getDetectorParameters();
+			List<IDetectorModelWrapper> detectorParams = getMappingBean().getDetectorParameters();
 			if (detectorParams != null && !detectorParams.isEmpty()) {
 				detectorParams.forEach(wrapper -> detectorNames.add(wrapper.getModel().getName()));
 			}

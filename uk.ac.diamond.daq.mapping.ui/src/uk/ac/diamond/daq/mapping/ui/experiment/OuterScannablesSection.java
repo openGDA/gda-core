@@ -27,7 +27,6 @@ import org.eclipse.core.databinding.beans.PojoProperties;
 import org.eclipse.core.databinding.conversion.Converter;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.databinding.validation.ValidationStatus;
-import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.jface.databinding.fieldassist.ControlDecorationSupport;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -48,19 +47,15 @@ import uk.ac.diamond.daq.mapping.api.IScanPathModelWrapper;
  */
 class OuterScannablesSection extends AbstractMappingSection {
 
-	OuterScannablesSection(MappingExperimentView mappingView, IEclipseContext context) {
-		super(mappingView, context);
-	}
-
 	@Override
 	public boolean shouldShow() {
-		List<IScanPathModelWrapper> outerScannables = mappingBean.getScanDefinition().getOuterScannables();
+		List<IScanPathModelWrapper> outerScannables = getMappingBean().getScanDefinition().getOuterScannables();
 		return outerScannables != null && !outerScannables.isEmpty();
 	}
 
 	@Override
 	public void createControls(Composite parent) {
-		List<IScanPathModelWrapper> outerScannables = mappingBean.getScanDefinition().getOuterScannables();
+		List<IScanPathModelWrapper> outerScannables = getMappingBean().getScanDefinition().getOuterScannables();
 		Composite otherScanAxesComposite = new Composite(parent, SWT.NONE);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(otherScanAxesComposite);
 		final int axesColumns = 2;

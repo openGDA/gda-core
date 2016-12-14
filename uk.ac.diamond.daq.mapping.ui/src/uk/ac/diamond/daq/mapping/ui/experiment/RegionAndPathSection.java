@@ -26,7 +26,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.e4.core.contexts.ContextInjectionFactory;
-import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.e4.ui.di.UISynchronize;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -89,7 +88,7 @@ public class RegionAndPathSection extends AbstractMappingSection {
 
 			// Set the new scan region
 			scanRegion = newRegion;
-			mappingBean.getScanDefinition().getMappingScanRegion().setRegion(scanRegion);
+			getMappingBean().getScanDefinition().getMappingScanRegion().setRegion(scanRegion);
 
 			// Update the path selector with paths valid for the new region type
 			// (The listener on the path selector will take care of propagating the change appropriately, and updating the GUI)
@@ -126,22 +125,23 @@ public class RegionAndPathSection extends AbstractMappingSection {
 	private Composite pathComposite;
 	private IMappingScanRegionShape scanRegion = null;
 	private IScanPathModel scanPathModel = null;
-	private final PathInfoCalculatorJob pathCalculationJob;
-	private final PlottingController plotter;
-	private final IMappingRegionManager mappingRegionManager;
+	private PathInfoCalculatorJob pathCalculationJob;
+	private PlottingController plotter;
+	private IMappingRegionManager mappingRegionManager;
 
 	private Composite regionComposite;
 
-	RegionAndPathSection(MappingExperimentView mappingView, IEclipseContext context) {
-		super(mappingView, context);
-		plotter = context.get(PlottingController.class);
-		mappingRegionManager = context.get(IMappingRegionManager.class);
+	@Override
+	protected void initialize(MappingExperimentView mappingView) {
+		super.initialize(mappingView);
+		plotter = getService(PlottingController.class);
+		mappingRegionManager = getService(IMappingRegionManager.class);
 		pathCalculationJob = createPathCalculationJob();
 	}
 
 	private PathInfoCalculatorJob createPathCalculationJob() {
-		PathInfoCalculatorJob job = ContextInjectionFactory.make(PathInfoCalculatorJob.class, context);
-		UISynchronize uiSync = context.get(UISynchronize.class);
+		PathInfoCalculatorJob job = ContextInjectionFactory.make(PathInfoCalculatorJob.class, getEclipseContext());
+		UISynchronize uiSync = getService(UISynchronize.class);
 		job.addJobChangeListener(new JobChangeAdapter() {
 			@Override
 			public void running(IJobChangeEvent event) {
@@ -264,7 +264,7 @@ public class RegionAndPathSection extends AbstractMappingSection {
 
 		// Set the new scan path. If non-null, add the property change listener
 		scanPathModel = newPath;
-		mappingBean.getScanDefinition().getMappingScanRegion().setScanPath(scanPathModel);
+		getMappingBean().getScanDefinition().getMappingScanRegion().setScanPath(scanPathModel);
 		if (scanPathModel != null) {
 			scanPathModel.addPropertyChangeListener(pathBeanPropertyChangeListener);
 		}
@@ -289,14 +289,14 @@ public class RegionAndPathSection extends AbstractMappingSection {
 		}
 
 		// Scan Region
-		IGuiGeneratorService guiGenerator = context.get(IGuiGeneratorService.class);
-		Object mappingScanRegion = mappingBean.getScanDefinition().getMappingScanRegion().getRegion();
-		regionComposite = (Composite) guiGenerator.generateGui(mappingScanRegion, regionAndPathComposite);
+		IGuiGeneratorService guiGenerator = getService(IGuiGeneratorService.class);
+		Object mappingScanRegion = getMappingBean().getScanDefinition().getMappingScanRegion().getRegion();
+		regionComposite = guiGenerator.generateGui(mappingScanRegion, regionAndPathComposite);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).applyTo(regionComposite);
 
 		// Scan Path
-		Object scanPath = mappingBean.getScanDefinition().getMappingScanRegion().getScanPath();
-		pathComposite = (Composite) guiGenerator.generateGui(scanPath, regionAndPathComposite);
+		Object scanPath = getMappingBean().getScanDefinition().getMappingScanRegion().getScanPath();
+		pathComposite = guiGenerator.generateGui(scanPath, regionAndPathComposite);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).applyTo(pathComposite);
 		mappingView.relayout();
 	}
@@ -310,6 +310,7 @@ public class RegionAndPathSection extends AbstractMappingSection {
 		}
 	}
 
+	@Override
 	public void setFocus() {
 		if (regionAndPathComposite != null) {
 			regionAndPathComposite.setFocus();
