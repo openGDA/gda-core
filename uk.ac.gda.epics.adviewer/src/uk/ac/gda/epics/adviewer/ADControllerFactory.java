@@ -19,6 +19,7 @@
 package uk.ac.gda.epics.adviewer;
 
 import java.util.Dictionary;
+import java.util.Hashtable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +27,6 @@ import org.springframework.util.StringUtils;
 
 import gda.util.osgi.OSGiServiceRegister;
 import uk.ac.gda.epics.adviewer.views.ADUtils;
-import uk.ac.gda.util.dictionary.MapBasedDictionary;
 
 public class ADControllerFactory {
 	private static final Logger logger = LoggerFactory.getLogger(ADControllerFactory.class);
@@ -60,7 +60,7 @@ public class ADControllerFactory {
 		OSGiServiceRegister modelReg = new OSGiServiceRegister();
 		modelReg.setClass(ADController.class);
 		modelReg.setService(impl);
-		Dictionary<String, String> properties = new MapBasedDictionary<>();
+		Dictionary<String, String> properties = new Hashtable<>();
 		properties.put(Activator.SERVICE_NAME, serviceName);
 		modelReg.setProperties(properties);
 		modelReg.afterPropertiesSet();
