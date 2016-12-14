@@ -51,6 +51,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import uk.ac.diamond.daq.mapping.api.IClusterProcessingModelWrapper;
+import uk.ac.diamond.daq.mapping.api.IDetectorModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
 import uk.ac.diamond.daq.mapping.api.IScanPathModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IScriptFiles;
@@ -60,6 +62,7 @@ import uk.ac.diamond.daq.mapping.impl.MappingExperimentBean;
 import uk.ac.diamond.daq.mapping.impl.MappingStageInfo;
 import uk.ac.diamond.daq.mapping.impl.ScanPathModelWrapper;
 import uk.ac.diamond.daq.mapping.impl.ScriptFiles;
+import uk.ac.diamond.daq.mapping.impl.SimpleSampleMetadata;
 import uk.ac.diamond.daq.mapping.region.RectangularMappingRegion;
 import uk.ac.diamond.daq.mapping.ui.experiment.ScanRequestConverter;
 
@@ -71,7 +74,8 @@ public class ScanRequestConverterTest {
 
 	private ScanRequestConverter scanRequestConverter;
 	private MappingStageInfo mappingStageInfo;
-	private MappingExperimentBean experimentBean;
+	private MappingExperimentBean mappingBean;
+	private MappingExperimentBean newMappingBean;
 	private GridModel scanPath;
 
 	@Before
@@ -84,15 +88,17 @@ public class ScanRequestConverterTest {
 		scanRequestConverter.setMappingStageInfo(mappingStageInfo);
 
 		// Set up the experiment bean with some sensible defaults
-		experimentBean = new MappingExperimentBean();
+		mappingBean = new MappingExperimentBean();
 
 		scanPath = new GridModel();
-		experimentBean.getScanDefinition().getMappingScanRegion().setScanPath(scanPath);
+		mappingBean.getScanDefinition().getMappingScanRegion().setScanPath(scanPath);
 
-		IMappingScanRegionShape scanRegion = new RectangularMappingRegion();
-		experimentBean.getScanDefinition().getMappingScanRegion().setRegion(scanRegion);
+		final IMappingScanRegionShape scanRegion = new RectangularMappingRegion();
+		mappingBean.getScanDefinition().getMappingScanRegion().setRegion(scanRegion);
 
-		experimentBean.setDetectorParameters(Collections.emptyList());
+		mappingBean.setDetectorParameters(Collections.emptyList());
+
+		newMappingBean = new MappingExperimentBean();
 	}
 
 	@After
@@ -103,155 +109,303 @@ public class ScanRequestConverterTest {
 
 	@Test
 	public void testDetectorIsIncludedCorrectly() {
-		String detName = "mandelbrot";
-		String displayName = "Mandelbrot Detector";
-		IDetectorModel detModel = new MandelbrotModel();
+		// Arrange
+		final String detName = "mandelbrot";
+		final String displayName = "Mandelbrot Detector";
+		final IDetectorModel detModel = new MandelbrotModel();
 		detModel.setName(detName);
-		experimentBean.setDetectorParameters(Arrays.asList(new DetectorModelWrapper(detName, detModel, true)));
+		mappingBean.setDetectorParameters(Arrays.asList(new DetectorModelWrapper(displayName, detModel, true)));
 
-		ScanRequest<?> scanRequest = scanRequestConverter.convertToScanRequest(experimentBean);
+		// Act - convert mapping bean to scan request
+		final ScanRequest<IROI> scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
 
+		// Assert
 		assertEquals(detModel, scanRequest.getDetectors().get(detName));
+
+		// Act again - convert scan request back to mapping bean
+		((DetectorModelWrapper) mappingBean.getDetectorParameters().get(0)).setIncludeInScan(false);
+		scanRequestConverter.mergeIntoMappingBean(scanRequest, mappingBean);
+
+		// Assert - check the new mapping bean is the same as the original
+		List<IDetectorModelWrapper> newDetectorParams = mappingBean.getDetectorParameters();
+		assertThat(newDetectorParams.size(), is(1));
+		IDetectorModelWrapper wrapper = newDetectorParams.get(0);
+		assertThat(wrapper.getName(), is(equalTo(displayName)));
+		assertThat(wrapper.getModel(), is(equalTo(detModel)));
+		assertThat(wrapper.isIncludeInScan(), is(true));
 	}
 
 	@Test
 	public void testDetectorIsExcludedCorrectly() {
-		String detName = "det1";
-		IDetectorModel detModel = new MandelbrotModel();
-		experimentBean.setDetectorParameters(Arrays.asList(new DetectorModelWrapper(detName, detModel, false)));
+		// Arrange
+		final String displayName = "Mandelbrot Detector";
+		final IDetectorModel detModel = new MandelbrotModel();
+		mappingBean.setDetectorParameters(Arrays.asList(new DetectorModelWrapper(displayName, detModel, false)));
 
-		ScanRequest<?> scanRequest = scanRequestConverter.convertToScanRequest(experimentBean);
+		// Act - convert mapping bean to scan request
+		final ScanRequest<IROI> scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
 
-		// This test relies on the implementation of ScanRequest, which lazily initialises its detectors field only
-		// when a detector is added. If this fails in future because getDetectors() returns an empty map, this test
-		// will need to be updated to match.
+		// Assert
 		assertThat(scanRequest.getDetectors(), is(nullValue()));
+
+		// Act again - merge the scan request back into the same mapping bean
+		scanRequestConverter.mergeIntoMappingBean(scanRequest, mappingBean);
+
+		// Assert again - check the mapping bean is the same as the original
+		List<IDetectorModelWrapper> newDetectorParams = mappingBean.getDetectorParameters();
+		assertThat(newDetectorParams.size(), is(1));
+		IDetectorModelWrapper wrapper = newDetectorParams.get(0);
+		assertThat(wrapper.getName(), is(equalTo(displayName)));
+		assertThat(wrapper.getModel(), is(equalTo(detModel))); // names must be same, i.e. mandlebrot
+		assertThat(wrapper.isIncludeInScan(), is(false));
 	}
 
 	@Test
 	public void testScanPathIsIncluded() {
-		ScanRequest<?> scanRequest = scanRequestConverter.convertToScanRequest(experimentBean);
+		// Act - convert mapping bean to scan request (with the default set-up)
+		final ScanRequest<IROI> scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
 
+		// Assert
 		assertEquals(scanRequest.getCompoundModel().getModels().get(0), scanPath);
+
+		// Act again - convert scan request back to mapping bean
+		scanRequestConverter.mergeIntoMappingBean(scanRequest, newMappingBean);
+
+		// Assert again
+		assertEquals(newMappingBean.getScanDefinition().getMappingScanRegion().getScanPath(), scanPath);
 	}
 
 	@Test
 	public void testStageNamesAreSetCorrectly() {
+		// Initially the scan path doesn't have the correct axis names
 		assertThat(scanPath.getFastAxisName(), is(not(equalTo(X_AXIS_NAME))));
 		assertThat(scanPath.getSlowAxisName(), is(not(equalTo(Y_AXIS_NAME))));
 
-		scanRequestConverter.convertToScanRequest(experimentBean);
+		// Act - they're set according to the MappingStageInfo when the mapping bean is
+		// converted to a scan request
+		ScanRequest<IROI> scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
 
+		// Assert - the axis names are now set to the names of the stage
 		assertThat(scanPath.getFastAxisName(), is(equalTo(X_AXIS_NAME)));
 		assertThat(scanPath.getSlowAxisName(), is(equalTo(Y_AXIS_NAME)));
+
+		scanRequestConverter.mergeIntoMappingBean(scanRequest, newMappingBean);
+	}
+
+	@Test(expected = RuntimeException.class)
+	public void testStageNamesChanged() {
+		// Initially the scan path doesn't have the correct axis names
+		assertThat(scanPath.getFastAxisName(), is(not(equalTo(X_AXIS_NAME))));
+		assertThat(scanPath.getSlowAxisName(), is(not(equalTo(Y_AXIS_NAME))));
+
+		// Act - they're set according to the MappingStageInfo when the mapping bean is
+		// converted to a scan request
+		ScanRequest<IROI> scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
+
+		// Assert - the axis names are now set to the names of the stage
+		assertThat(scanPath.getFastAxisName(), is(equalTo(X_AXIS_NAME)));
+		assertThat(scanPath.getSlowAxisName(), is(equalTo(Y_AXIS_NAME)));
+
+		// change the mapping stage axis names
+		mappingStageInfo.setActiveFastScanAxis("new_x_axis");
+		mappingStageInfo.setActiveSlowScanAxis("new_y_axis");
+
+		// merging the scan request back into a mapping bean should fail
+		scanRequestConverter.mergeIntoMappingBean(scanRequest, newMappingBean);
 	}
 
 	@Test
 	public void testScriptFilesIncludedCorrectly() {
-		IScriptFiles scriptFiles = new ScriptFiles();
-		experimentBean.setScriptFiles(scriptFiles);
-		scriptFiles.setBeforeScanScript("/tmp/before.py");
-		scriptFiles.setAfterScanScript("/tmp/after.py");
+		// Arrange
+		final String beforeScanScript = "/path/to/before.py";
+		final String afterScanScript = "/path/to/after.py";
 
-		ScanRequest<?> scanRequest = scanRequestConverter.convertToScanRequest(experimentBean);
+		final IScriptFiles scriptFiles = new ScriptFiles();
+		mappingBean.setScriptFiles(scriptFiles);
+		scriptFiles.setBeforeScanScript(beforeScanScript);
+		scriptFiles.setAfterScanScript(afterScanScript);
 
-		ScriptRequest beforeScriptReq = scanRequest.getBefore();
+		// Act - covert mapping bean to scan request
+		final ScanRequest<IROI> scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
+
+		// Assert
+		final ScriptRequest beforeScriptReq = scanRequest.getBefore();
 		assertThat(beforeScriptReq, is(notNullValue()));
 		assertThat(beforeScriptReq.getLanguage(), is(SPEC_PASTICHE));
-		assertThat(beforeScriptReq.getFile(), is(equalTo("/tmp/before.py")));
-		ScriptRequest afterScriptReq = scanRequest.getAfter();
+		assertThat(beforeScriptReq.getFile(), is(equalTo(beforeScanScript)));
+		final ScriptRequest afterScriptReq = scanRequest.getAfter();
 		assertThat(afterScriptReq, is(notNullValue()));
 		assertThat(afterScriptReq.getLanguage(), is(SPEC_PASTICHE));
-		assertThat(afterScriptReq.getFile(), is(equalTo("/tmp/after.py")));
+		assertThat(afterScriptReq.getFile(), is(equalTo(afterScanScript)));
+
+		// Act again - convert the scan request back to a mapping bean
+		scanRequestConverter.mergeIntoMappingBean(scanRequest, newMappingBean);
+
+		// Assert again
+		final IScriptFiles newScriptFiles = newMappingBean.getScriptFiles();
+		assertThat(newScriptFiles, is(notNullValue()));
+		assertThat(newScriptFiles.getBeforeScanScript(), is(equalTo(beforeScanScript)));
+		assertThat(newScriptFiles.getAfterScanScript(), is(equalTo(afterScanScript)));
 	}
 
 	@Test
 	public void testBeamlineConfigurationIncludedCorrectly() {
-		Map<String, Object> beamlineConfiguration = new HashMap<>();
-		beamlineConfiguration.put("energy", 2675.3);
+		// Arrange
+		final Map<String, Object> beamlineConfiguration = new HashMap<>();
+		beamlineConfiguration.put("energy", 12345.67);
 		beamlineConfiguration.put("attenuator_pos", "Gap");
 		beamlineConfiguration.put("kb_mirror_pos", 7.0);
-		experimentBean.setBeamlineConfiguration(beamlineConfiguration);
+		mappingBean.setBeamlineConfiguration(beamlineConfiguration);
 
-		ScanRequest<?> scanRequest = scanRequestConverter.convertToScanRequest(experimentBean);
+		// Act - convert mapping bean to scan request
+		final ScanRequest<IROI> scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
 
-		IPosition startPos = scanRequest.getStart();
-		assertThat(startPos.getNames().size(), is(3));
-		assertThat(startPos.get("energy"), is(2675.3));
-		assertThat(startPos.get("attenuator_pos"), is("Gap"));
-		assertThat(startPos.get("kb_mirror_pos"), is(7.0));
+		// Assert
+		final IPosition startPos = scanRequest.getStart();
+		assertThat(startPos.getNames().size(), is(equalTo(beamlineConfiguration.size())));
+		for (String scannableName : beamlineConfiguration.keySet()) {
+			assertThat(startPos.get(scannableName), is(equalTo(beamlineConfiguration.get(scannableName))));
+		}
+
+		// Act again - convert scan request back to a mapping bean
+		scanRequestConverter.mergeIntoMappingBean(scanRequest, newMappingBean);
+
+		// Assert - the new beamline configuration should be equal to the original one
+		final Map<String, Object> newBeamlineConfiguration = newMappingBean.getBeamlineConfiguration();
+		assertThat(newBeamlineConfiguration, is(notNullValue()));
+		assertThat(newBeamlineConfiguration, is(equalTo(beamlineConfiguration)));
 	}
 
 	@Test
 	public void testRoiAxisNamesAreSet() throws Exception {
-		ScanRequest<IROI> scanRequest = scanRequestConverter.convertToScanRequest(experimentBean);
+		// Act - convert mapping bean to scan request
+		final ScanRequest<IROI> scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
+		final Collection<ScanRegion<IROI>> regions = scanRequest.getCompoundModel().getRegions();
 
-		Collection<ScanRegion<IROI>> regions = scanRequest.getCompoundModel().getRegions();
-
-		// Ensure only on region
+		// Assert - ensure only one region
 		assertThat(regions.size(), is(equalTo(1)));
-
-		for (ScanRegion<?> scanRegion : regions) {
-			List<String> scannables = scanRegion.getScannables();
+		for (final ScanRegion<?> scanRegion : regions) {
+			final List<String> scannables = scanRegion.getScannables();
 			assertThat(scannables.get(0), is(equalTo(Y_AXIS_NAME)));
 			assertThat(scannables.get(1), is(equalTo(X_AXIS_NAME)));
 		}
+
+		// Act again - convert scan request back to mapping bean
+		scanRequestConverter.mergeIntoMappingBean(scanRequest, newMappingBean);
+		assertEquals(mappingBean.getScanDefinition().getMappingScanRegion().getRegion(),
+				newMappingBean.getScanDefinition().getMappingScanRegion().getRegion());
 	}
 
 	@Test
 	public void testOuterScannableIsSet() throws Exception {
+		// Arrange
+		final IScanPathModel outerModel = new StepModel(Z_AXIS_NAME, -3, 2, 0.5);
+		final List<IScanPathModelWrapper> outerScannables = Arrays.asList(new ScanPathModelWrapper(
+				Z_AXIS_NAME, outerModel, true));
 
-		IScanPathModel outerModel = new StepModel(Z_AXIS_NAME, -3, 2, 0.5);
-		List<IScanPathModelWrapper> outerScannables = Arrays.asList(new ScanPathModelWrapper("z", outerModel, true));
+		mappingBean.getScanDefinition().setOuterScannables(outerScannables);
 
-		experimentBean.getScanDefinition().setOuterScannables(outerScannables);
+		// Act - convert mapping bean to scan request
+		final ScanRequest<IROI> scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
 
-		// Get the scan request
-		ScanRequest<?> scanRequest = scanRequestConverter.convertToScanRequest(experimentBean);
-
+		// Assert
 		// Check there are now 2 models the outer z StepModel and the inner Grid model
 		assertThat(scanRequest.getCompoundModel().getModels().size(), is(equalTo(2)));
-
-		StepModel recoveredOuterModel = (StepModel) scanRequest.getCompoundModel().getModels().get(0);
-
+		final StepModel recoveredOuterModel = (StepModel) scanRequest.getCompoundModel().getModels().get(0);
 		// Check the outer scannable model is first in the list
 		assertThat(recoveredOuterModel, is(outerModel));
-
 		// Check it has the correct axis name
 		assertThat(recoveredOuterModel.getName(), is(Z_AXIS_NAME));
+
+		// setup the new mapping bean with an outer scannable for the same axis, but disabled
+		// and with a different model, and another enabled and for a different axis
+		newMappingBean.getScanDefinition().setOuterScannables(Arrays.asList(
+				new ScanPathModelWrapper(Z_AXIS_NAME, new StepModel(Z_AXIS_NAME, 0, 5, 0.25), false),
+				new ScanPathModelWrapper("energy", new StepModel("energy", 10000, 15000, 1000), true)));
+		scanRequestConverter.mergeIntoMappingBean(scanRequest, newMappingBean);
+
+		// Assert again - check the new mapping bean is the same as the old one
+		List<IScanPathModelWrapper> newOuterScannables = newMappingBean.getScanDefinition().getOuterScannables();
+		assertThat(newOuterScannables.size(), is(2));
+		assertThat(newOuterScannables.get(0).getName(), is(equalTo(Z_AXIS_NAME)));
+		assertThat(newOuterScannables.get(0).getModel(), is(equalTo(outerModel)));
+		assertThat(newOuterScannables.get(0).isIncludeInScan(), is(true));
+		assertThat(newOuterScannables.get(1).getName(), is(equalTo("energy")));
+		assertThat(newOuterScannables.get(1).isIncludeInScan(), is(false));
 	}
 
+	@Test(expected = RuntimeException.class)
+	public void testOuterScannableNotFound() throws Exception {
+		// Arrange
+		final IScanPathModel outerModel = new StepModel(Z_AXIS_NAME, -3, 2, 0.5);
+		final List<IScanPathModelWrapper> outerScannables = Arrays.asList(new ScanPathModelWrapper(
+				Z_AXIS_NAME, outerModel, true));
+
+		mappingBean.getScanDefinition().setOuterScannables(outerScannables);
+
+		// Act - convert mapping bean to scan request
+		final ScanRequest<IROI> scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
+
+		// Throws an exception as there is no wrapper for the outer scannable in the new mapping bean
+		scanRequestConverter.mergeIntoMappingBean(scanRequest, newMappingBean);
+	}
+
+	@Test
 	public void testClusterProcessingIncludedCorrectly() {
-		String processingStepName = "sum";
-		ClusterProcessingModel clusterProcessingModel = new ClusterProcessingModel();
+		// Arrange
+		final String processingStepName = "sum";
+		final ClusterProcessingModel clusterProcessingModel = new ClusterProcessingModel();
 		clusterProcessingModel.setName(processingStepName);
 		clusterProcessingModel.setDetectorName("mandelbrot");
 		clusterProcessingModel.setProcessingFilePath("/tmp/sum.nxs");
-		ClusterProcessingModelWrapper wrapper = new ClusterProcessingModelWrapper(
+		final ClusterProcessingModelWrapper wrapper = new ClusterProcessingModelWrapper(
 				processingStepName, clusterProcessingModel, true);
 
-		experimentBean.setClusterProcessingConfiguration(Arrays.asList(wrapper));
+		mappingBean.setClusterProcessingConfiguration(Arrays.asList(wrapper));
 
-		ScanRequest<?> scanRequest = scanRequestConverter.convertToScanRequest(experimentBean);
+		// Act - convert mapping bean to scan request
+		final ScanRequest<IROI> scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
 
-		assertEquals(scanRequest.getDetectors().get(processingStepName), clusterProcessingModel);
+		// Assert
+		assertThat(scanRequest.getDetectors().get(processingStepName), is(equalTo(clusterProcessingModel)));
+
+		// Act again - merge scan request into new mapping bean
+		scanRequestConverter.mergeIntoMappingBean(scanRequest, newMappingBean);
+
+		// Assert again - check the new mapping bean is the same as the old one
+		List<IClusterProcessingModelWrapper> newClusterProcessingList = newMappingBean.getClusterProcessingConfiguration();
+		assertThat(newClusterProcessingList.size(), is(1));
+		IClusterProcessingModelWrapper clusterProcessingWrapper = newClusterProcessingList.get(0);
+		assertThat(clusterProcessingWrapper.getName(), is(equalTo(wrapper.getName())));
+		assertThat(clusterProcessingWrapper.getModel(), is(equalTo(clusterProcessingModel)));
 	}
 
 	@Test
 	public void testSampleMetadataSet() throws Exception {
+		// Arrange
 		final String sampleName = "testSample";
 		final String sampleDescription = "This is a description of the test sample.";
-		experimentBean.getSampleMetadata().setSampleName(sampleName);
-		experimentBean.getSampleMetadata().setDescription(sampleDescription);
+		mappingBean.getSampleMetadata().setSampleName(sampleName);
+		mappingBean.getSampleMetadata().setDescription(sampleDescription);
 
-		ScanRequest<?> scanRequest = scanRequestConverter.convertToScanRequest(experimentBean);
+		// Act - convert mapping bean to scan request
+		ScanRequest<IROI> scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
 
+		// Assert
 		List<ScanMetadata> scanMetadataList = scanRequest.getScanMetadata();
 		assertEquals(1, scanMetadataList.size());
-		ScanMetadata sampleMetadata = scanMetadataList.get(0);
-		assertEquals(MetadataType.SAMPLE, sampleMetadata.getType());
-		assertEquals(sampleName, sampleMetadata.getFieldValue("name"));
-		assertEquals(sampleDescription, sampleMetadata.getFieldValue("description"));
+		ScanMetadata scanMetadata = scanMetadataList.get(0);
+		assertEquals(MetadataType.SAMPLE, scanMetadata.getType());
+		assertEquals(sampleName, scanMetadata.getFieldValue("name"));
+		assertEquals(sampleDescription, scanMetadata.getFieldValue("description"));
+
+		// Act again - merge scan request back into new mapping bean
+		scanRequestConverter.mergeIntoMappingBean(scanRequest, newMappingBean);
+
+		// Assert again - check the new mapping bean is the same as the old one
+		SimpleSampleMetadata sampleMetadata = newMappingBean.getSampleMetadata();
+		assertEquals(sampleName, sampleMetadata.getSampleName());
+		assertEquals(sampleDescription, sampleMetadata.getDescription());
 	}
 
 }
