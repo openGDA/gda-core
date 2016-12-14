@@ -46,9 +46,7 @@ Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: org.exolab.castor.mapping;version="1.2.0",
  org.exolab.castor.xml;version="1.2.0",
- org.slf4j;version="[1.7.2,2.0.0)",
- org.springframework.beans.factory;version="3.0.4",
- org.springframework.util;version="3.0.4"
+ org.slf4j;version="[1.7.2,2.0.0)"
 Bundle-ClassPath: jars/com.springsource.org.apache.xerces-2.9.1.jar,
  .
 
