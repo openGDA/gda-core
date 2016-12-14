@@ -259,9 +259,9 @@ public abstract class ObjectServer implements Runnable {
 		File oos = getStartupFile(xmlFile.getAbsolutePath());
 		try {
 			oos.createNewFile();
-			logger.info("startup file created: " + oos.getAbsolutePath());
+			logger.info("Startup file created: {}", oos.getCanonicalPath());
 		} catch (IOException e) {
-			logger.info("Error creating startup file:" + oos.getAbsolutePath(),e);
+			logger.info("Error creating startup file: {}", oos.getAbsolutePath(), e);
 		}
 	}
 
