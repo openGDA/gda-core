@@ -291,8 +291,9 @@ public class GDAJythonInterpreter extends ObservableComponent {
 						throw new FactoryException(String.format("Configured Jython script location %s does not exist.",
 								scriptFolderName));
 					}
-					logger.info(String.format("Adding %s to the Command Server Jython path with name %s", scriptDir,
-							scriptProject.getName()));
+					// toRealPath resolves the true absolute path resolving symlinks and ../'s
+					logger.info("Adding '{}' to the Command Server Jython path with name '{}'", scriptDir.toPath().toRealPath(),
+							scriptProject.getName());
 
 					if (!pss.path.contains(scriptFolderName)) {
 						removeAllJythonClassFiles(new File(scriptFolderName.getString()));
@@ -595,7 +596,7 @@ public class GDAJythonInterpreter extends ObservableComponent {
 		String gdaStationScript = getGdaStationScript();
 		// File localStation = new File(getGdaScriptDir() + "localStation.py");
 		if (StringUtils.hasText(gdaStationScript)) {
-			logger.info("Running startupScript:" + gdaStationScript );
+			logger.info("Running startupScript: {}", gdaStationScript);
 			try{
 				File localStation = new File(gdaStationScript);
 				this.runscript(localStation);
