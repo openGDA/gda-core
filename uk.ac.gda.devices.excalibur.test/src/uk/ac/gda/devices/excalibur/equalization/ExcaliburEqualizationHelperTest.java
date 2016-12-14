@@ -42,6 +42,9 @@ import uk.ac.gda.analysis.hdf5.Hdf5HelperData;
 public class ExcaliburEqualizationHelperTest {
 	static String TestFileFolder;
 
+	// Used a fixed seed to ensure test is reproducible
+	private static final long FIXED_RANDOM_SEED = 3529678539694459119L;
+
 	@BeforeClass
 	static public void setUpClass() {
 /*		TestFileFolder = TestUtils.getGDALargeTestFilesLocation();
@@ -211,7 +214,7 @@ public class ExcaliburEqualizationHelperTest {
 		ExcaliburEqualizationHelper equalizationHelper = ExcaliburEqualizationHelper.getInstance();
 		int width=200;
 		int height=100;
-		Random r = new Random();
+		Random r = new Random(FIXED_RANDOM_SEED);
 		double gaussianWidth= 1.0;
 		double mean=15;
 		short[] data = new short[width*height];
@@ -240,7 +243,7 @@ public class ExcaliburEqualizationHelperTest {
 		for( int ih =0; ih < numChipsDown; ih++){
 			for( int iw =0; iw < numChipsAcross; iw++){
 				short[] data = new short[ChipSet.chipPixels];
-				Random r = new Random();
+				Random r = new Random(FIXED_RANDOM_SEED);
 				double gaussianWidth= 1.0;
 				int index = ih*numChipsAcross+iw;
 				double mean=10 + index;
