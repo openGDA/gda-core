@@ -18,41 +18,24 @@
 
 package uk.ac.gda.util;
 
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.util.StringUtils;
-
-public class UnixToWindowsFilePathConverter implements FilePathConverter, InitializingBean {
+public class UnixToWindowsFilePathConverter implements FilePathConverter {
 
 	private String windowsSubString;
 	private String unixSubString;
 
-	/**
-	 * See {@link #setBackSlash(boolean)}
-	 */
-	@Deprecated
-	private boolean backSlash = true; //some plugins use forward slash for both windows and Unix but previous GDA version uses only different slash
-
-
 	@Override
 	public String converttoInternal(String filepath) {
 
-		String replace = StringUtils.replace(filepath, unixSubString, windowsSubString);
-		if (backSlash) replace = StringUtils.replace(replace, "/", "\\");
-		return replace;
+		String internal = filepath.replace(unixSubString, windowsSubString);
+		internal = internal.replace("/", "\\");
+		return internal;
 	}
 
 	@Override
 	public String converttoExternal(String filepath) {
-		String replace = StringUtils.replace(filepath, windowsSubString, unixSubString);
-		if (backSlash) replace = StringUtils.replace(replace, "\\", "/");
-		return replace;
-	}
-
-	@Override
-	public void afterPropertiesSet() throws Exception {
-		if (windowsSubString == null || unixSubString==null )
-			throw new IllegalArgumentException("windowsSubString == null || unixSubString==null");
-
+		String external = filepath.replace(windowsSubString, unixSubString);
+		external = external.replace("\\", "/");
+		return external;
 	}
 
 	public String getWindowsSubString() {
@@ -69,26 +52,6 @@ public class UnixToWindowsFilePathConverter implements FilePathConverter, Initia
 
 	public void setUnixSubString(String unixSubString) {
 		this.unixSubString = unixSubString;
-	}
-
-	/**
-	 * See {@link #setBackSlash(boolean)}
-	 */
-	@Deprecated
-	public boolean isBackSlash() {
-		return backSlash;
-	}
-
-	/**
-	 * If backslash conversion is not required, see {@link uk.ac.gda.util.SimpleFilePathConverter}
-	 * 
-	 * Instead of this class with unixSubString=X, windowsSubString=Y and backSlash=false
-	 * use SimpleFilePathConverter with userSubString=X and internalSubString=Y
-	 * @param backSlash
-	 */
-	@Deprecated
-	public void setBackSlash(boolean backSlash) {
-		this.backSlash = backSlash;
 	}
 
 }

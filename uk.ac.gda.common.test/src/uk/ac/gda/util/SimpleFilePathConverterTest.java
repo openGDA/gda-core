@@ -29,7 +29,6 @@ public class SimpleFilePathConverterTest {
 		SimpleFilePathConverter converter = new SimpleFilePathConverter();
 		converter.setUserSubString("/dls/i13-1/data");
 		converter.setInternalSubString("/internalmount/test");
-		converter.afterPropertiesSet();
 		String internal = converter.converttoInternal("/dls/i13-1/data/2011/0-0/");
 		assertEquals("/internalmount/test/2011/0-0/", internal);
 	}
@@ -39,7 +38,6 @@ public class SimpleFilePathConverterTest {
 		SimpleFilePathConverter converter = new SimpleFilePathConverter();
 		converter.setUserSubString("/dls/i13-1/data");
 		converter.setInternalSubString("/internalmount/test");
-		converter.afterPropertiesSet();
 		String external = converter.converttoExternal("/internalmount/test/2011/0-0/");
 		assertEquals("/dls/i13-1/data/2011/0-0/", external);
 	}

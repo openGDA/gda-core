@@ -18,34 +18,22 @@
 
 package uk.ac.gda.util;
 
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.util.StringUtils;
-
-
 /**
  * Converts between an "internal" filepath and an "external" (user) filepath
  */
-
-public class SimpleFilePathConverter implements FilePathConverter, InitializingBean {
+public class SimpleFilePathConverter implements FilePathConverter {
 
 	private String internalSubString;
 	private String userSubString;
 
 	@Override
 	public String converttoInternal(String filepath) {
-		return StringUtils.replace(filepath, userSubString, internalSubString);
+		return filepath.replace(userSubString, internalSubString);
 	}
 
 	@Override
 	public String converttoExternal(String filepath) {
-		return StringUtils.replace(filepath, internalSubString, userSubString);
-	}
-
-	@Override
-	public void afterPropertiesSet() throws Exception {
-		if (internalSubString == null || userSubString==null ) {
-			throw new IllegalArgumentException("internalSubString == null || userSubString==null");
-		}
+		return filepath.replace(internalSubString, userSubString);
 	}
 
 	public String getInternalSubString() {
