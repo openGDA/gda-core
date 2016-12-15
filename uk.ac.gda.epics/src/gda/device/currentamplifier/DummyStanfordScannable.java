@@ -84,7 +84,12 @@ public class DummyStanfordScannable extends CurrentAmplifierBase implements Stan
 
 	@Override
 	public Object rawGetPosition() {
-		return value + " " + sensitivityUnit;
+		return sensitivityValue + " " + sensitivityUnit;
+	}
+
+	@Override
+	public Object getPosition() throws DeviceException {
+		return internalToExternal(rawGetPosition());
 	}
 
 	// Sensitivity/gain settings

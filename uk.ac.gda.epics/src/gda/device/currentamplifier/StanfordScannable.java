@@ -95,6 +95,11 @@ public class StanfordScannable extends CurrentAmplifierBase implements StanfordA
 		}
 	}
 
+	@Override
+	public Object getPosition() throws DeviceException {
+		return internalToExternal(rawGetPosition());
+	}
+
 	/**
 	 * Perform caput operation, rethrow any exceptions as DeviceException
 	 * @param pvSuffix
