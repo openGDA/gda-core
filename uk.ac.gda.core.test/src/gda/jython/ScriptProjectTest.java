@@ -22,6 +22,8 @@ package gda.jython;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
+import java.io.IOException;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,7 +35,7 @@ public class ScriptProjectTest {
 	private ScriptProject coreProject;
 
 	@Before
-	public void setUp() {
+	public void setUp() throws IOException {
 		userProject = new ScriptProject("/tmp", "Scripts - User", ScriptProjectType.USER);
 		configProject = new ScriptProject("/tmp", "Scripts - Config", ScriptProjectType.CONFIG);
 		coreProject = new ScriptProject("/tmp", "Scripts - Core", ScriptProjectType.CORE);

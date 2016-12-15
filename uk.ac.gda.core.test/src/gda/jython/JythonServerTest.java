@@ -23,6 +23,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -47,9 +49,9 @@ public class JythonServerTest {
 	private String[] pathsArray;
 
 	@Before
-	public void setUp() {
+	public void setUp() throws IOException {
 		jythonServer = new JythonServer();
-		pathsArray = new String[] {"Nonesuch", "Nonexistent"};
+		pathsArray = new String[] {"testfiles/gda/scanning/../jython/JythonServerTest/Hello", "testfiles/gda/jython/JythonServerTest/Hello/../Test"};
 		List<ScriptProject> projects = new ArrayList<ScriptProject>();
 		for (String path : pathsArray) {
 			projects.add(new ScriptProject(path, "Project: " + path, ScriptProjectType.CORE));
@@ -89,7 +91,7 @@ public class JythonServerTest {
 //	}
 
 	@Test
-	public void testLocateStringUsesScriptPathsObject() {
+	public void testLocateStringUsesScriptPathsObject() throws IOException {
 		ScriptProject realProject = new ScriptProject("testfiles/gda/jython/JythonServerTest", "Real Project", ScriptProjectType.CONFIG);
 		ScriptPaths realPath = new ScriptPaths(Collections.singletonList(realProject));
 		jythonServer.setJythonScriptPaths(realPath);
@@ -97,8 +99,8 @@ public class JythonServerTest {
 	}
 
 	@Test
-	public void testDefaultScriptFolderIsTheFirstEntryInTheList() {
-		Assert.assertEquals("Nonesuch", jythonServer.getDefaultScriptProjectFolder());
+	public void testDefaultScriptFolderIsTheFirstEntryInTheList() throws IOException {
+		Assert.assertEquals(new File("testfiles/gda/jython/JythonServerTest/Hello").getCanonicalPath(), jythonServer.getDefaultScriptProjectFolder());
 	}
 
 	@Test

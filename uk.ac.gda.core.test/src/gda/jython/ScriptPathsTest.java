@@ -20,6 +20,7 @@ package gda.jython;
 
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -32,22 +33,23 @@ import org.junit.Test;
 public class ScriptPathsTest {
 
 	private ScriptPaths defaultPaths, testfilesPaths;
-	private String[] nonsensePathsList = new String[] {"Hello", "Test"};
-	private List<ScriptProject> nonsenseProjects;
+	private List<ScriptProject> emptyProjects;
 	private String testfilesPath = "testfiles/gda/jython/JythonServerTest";
+	private String[] emptyFilesPathsList = new String[] {testfilesPath + "/Hello", testfilesPath + "/Test"};
+	private String badPath = "not a valid path";
 	private ScriptProject testfilesProject;
-	private String existsScriptLocation = "testfiles/gda/jython/JythonServerTest" + File.separator + "exists.py";
 	private String startupScript = "/some/folder/localStation.py";
+	private File existsScriptLocationFile = new File("testfiles/gda/jython/JythonServerTest" + File.separator + "exists.py");
 
 	@Before
-	public void setUp() {
+	public void setUp() throws IOException {
 		defaultPaths = new ScriptPaths();
 		testfilesProject = new ScriptProject(testfilesPath, "Test Project", ScriptProjectType.USER);
 		testfilesPaths = new ScriptPaths(Collections.singletonList(testfilesProject));
 		testfilesPaths.setStartupScript(startupScript);
-		nonsenseProjects = new ArrayList<ScriptProject>();
-		for (String path : nonsensePathsList) {
-			nonsenseProjects.add(new ScriptProject(path, "Project: "+ path, ScriptProjectType.CONFIG));
+		emptyProjects = new ArrayList<ScriptProject>();
+		for (String path : emptyFilesPathsList) {
+			emptyProjects.add(new ScriptProject(path, "Project: "+ path, ScriptProjectType.CONFIG));
 		}
 	}
 
@@ -56,7 +58,7 @@ public class ScriptPathsTest {
 		defaultPaths = null;
 		testfilesPaths = null;
 		testfilesProject = null;
-		nonsenseProjects = null;
+		emptyProjects = null;
 	}
 
 	@Test
@@ -66,15 +68,19 @@ public class ScriptPathsTest {
 	}
 
 	@Test
-	public void testListConstructorKeepsList() {
-		ScriptPaths fromList = new ScriptPaths(nonsenseProjects);
-		Assert.assertArrayEquals(nonsensePathsList, fromList.getPaths().toArray(new String[0]));
+	public void testListConstructorKeepsList() throws IOException {
+		ScriptPaths fromList = new ScriptPaths(emptyProjects);
+		for (int i = 0; i < emptyFilesPathsList.length; i++) {
+			Assert.assertEquals(new File(emptyFilesPathsList[i]).getCanonicalPath(), new File(fromList.getPaths().get(i)).getPath());
+		}
 	}
 
 	@Test
-	public void testListCanBePassedToObject() {
-		defaultPaths.setProjects(nonsenseProjects);
-		Assert.assertArrayEquals(nonsensePathsList, defaultPaths.getPaths().toArray(new String[0]));
+	public void testListCanBePassedToObject() throws IOException {
+		defaultPaths.setProjects(emptyProjects);
+		for (int i = 0; i < emptyFilesPathsList.length; i++) {
+			Assert.assertEquals(new File(emptyFilesPathsList[i]).getCanonicalPath(), new File(defaultPaths.getPaths().get(i)).getPath());
+		}
 	}
 
 	@Test
@@ -88,9 +94,9 @@ public class ScriptPathsTest {
 	}
 
 	@Test
-	public void testRealScriptCanBeFound() {
-		String scriptPath = testfilesPaths.pathToScript("exists.py");
-		Assert.assertEquals(existsScriptLocation, scriptPath);
+	public void testRealScriptCanBeFound() throws IOException {
+		String scriptPath = new File(testfilesPaths.pathToScript("exists.py")).getPath();
+		Assert.assertEquals(existsScriptLocationFile.getCanonicalPath(), scriptPath);
 	}
 
 	@Test
@@ -100,14 +106,14 @@ public class ScriptPathsTest {
 	}
 
 	@Test
-	public void testAutomaticAdditionOfDotpyExtension() {
-		String scriptPath = testfilesPaths.pathToScript("exists");
-		Assert.assertEquals(existsScriptLocation, scriptPath);
+	public void testAutomaticAdditionOfDotpyExtension() throws IOException {
+		String scriptPath = new File(testfilesPaths.pathToScript("exists")).getPath();
+		Assert.assertEquals(existsScriptLocationFile.getCanonicalPath(), scriptPath);
 	}
 
 	@Test
 	public void testThatDescriptionContainsAllOfThePaths() {
-		defaultPaths.setProjects(nonsenseProjects);
+		defaultPaths.setProjects(emptyProjects);
 		String description = defaultPaths.description();
 		Assert.assertTrue(description.contains("Hello"));
 		Assert.assertTrue(description.contains("Test"));
@@ -121,5 +127,11 @@ public class ScriptPathsTest {
 	@Test
 	public void testScriptPathsObjectCanReportWhatStartupScriptToUse() {
 		Assert.assertEquals(startupScript, testfilesPaths.getStartupScript());
+	}
+
+	@Test
+	public void badPathIsDetectedAndMarked() {
+		ScriptProject fail = new ScriptProject(badPath, "Fail", ScriptProjectType.CONFIG);
+		Assert.assertTrue(fail.getPath().startsWith("UNRESOLVED:"));
 	}
 }
