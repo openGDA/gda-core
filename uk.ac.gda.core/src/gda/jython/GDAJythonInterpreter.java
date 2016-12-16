@@ -268,7 +268,7 @@ public class GDAJythonInterpreter extends ObservableComponent {
 						String title = scriptEntry.getValue() == null ? "Scripts: Std" + index++
 								: scriptEntry.getValue();
 						_jythonScriptPaths.addProject(
-								new ScriptProject(scriptFolder.getAbsolutePath(), title, ScriptProjectType.CORE));
+								new ScriptProject(scriptFolder.getCanonicalPath(), title, ScriptProjectType.CORE));
 					} else {
 						throw new IOException(String.format("Script folder %s does not exist", scriptFolder));
 					}
@@ -281,10 +281,11 @@ public class GDAJythonInterpreter extends ObservableComponent {
 
 			// append the folders where standard scripts will be located to jython path
 			// by this point _jythonScriptPaths should contain a List of these folder paths
-			try {
-				logger.info("clearing old Jython class files...");
-				// Remove any previously compiled Jython class files from the script folders
-				for (ScriptProject scriptProject : _jythonScriptPaths.getProjects()) {
+
+			logger.info("clearing old Jython class files...");
+			// Remove any previously compiled Jython class files from the script folders
+			for (ScriptProject scriptProject : _jythonScriptPaths.getProjects()) {
+				try {
 					final PyString scriptFolderName = new PyString(scriptProject.getPath());
 					final File scriptDir = new File(scriptFolderName.toString());
 					if (!scriptDir.exists()) {
@@ -299,9 +300,9 @@ public class GDAJythonInterpreter extends ObservableComponent {
 						removeAllJythonClassFiles(new File(scriptFolderName.getString()));
 						pss.path.append(scriptFolderName);
 					}
+				} catch (Exception e) {
+					logger.error("Error while setting up script paths, {} scripts will not be accessible", scriptProject.getPath(), e);
 				}
-			} catch (Exception e) {
-				logger.error("Error while setting up script paths, scripts might not be accessable", e);
 			}
 		}
 
