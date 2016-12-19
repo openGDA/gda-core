@@ -34,6 +34,7 @@ import org.dawnsci.processing.ui.ServiceHolder;
 import org.dawnsci.processing.ui.api.IOperationModelWizard;
 import org.dawnsci.processing.ui.api.IOperationSetupWizardPage;
 import org.dawnsci.processing.ui.model.OperationModelWizardDialog;
+import org.eclipse.core.databinding.Binding;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.beans.PojoProperties;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
@@ -80,11 +81,12 @@ public class ProcessingSection extends AbstractMappingSection {
 
 	private static final int TEMPLATE_ROW_NUM_COLUMNS = 3;
 
-	private Composite processingStepsComposite;
+	private Composite processingChainsComposite;
 
 	private final DataBindingContext dataBindingContext = new DataBindingContext();
 
-	private Map<IClusterProcessingModelWrapper, Control[]> rowControlsMap;
+	private Map<String, Control[]> rowControlsMap;
+	private Map<String, Binding> includeCheckboxBindings;
 
 	private File[] templateFiles = null;
 
@@ -142,8 +144,8 @@ public class ProcessingSection extends AbstractMappingSection {
 		Button refreshTemplatesButton = new Button(rowComposite, SWT.PUSH);
 		try {
 			IPath uriPath = new Path("/plugin")
-                .append("uk.ac.diamond.daq.mapping.ui")
-                .append("icons").append("page_refresh.png");
+					.append("uk.ac.diamond.daq.mapping.ui")
+					.append("icons").append("page_refresh.png");
 			URI uri = new URI("platform", null, uriPath.toString(), null);
 			URL url = uri.toURL();
 			refreshTemplatesButton.setImage(ImageDescriptor.createFromURL(url).createImage(true));
@@ -175,36 +177,39 @@ public class ProcessingSection extends AbstractMappingSection {
 	}
 
 	private void createProcessingModelRows(Composite parent) {
-		processingStepsComposite = new Composite(parent, SWT.NONE);
-		GridDataFactory.fillDefaults().grab(true, false).applyTo(processingStepsComposite);
-		GridLayoutFactory.swtDefaults().numColumns(TEMPLATE_ROW_NUM_COLUMNS).applyTo(processingStepsComposite);
+		processingChainsComposite = new Composite(parent, SWT.NONE);
+		GridDataFactory.fillDefaults().grab(true, false).applyTo(processingChainsComposite);
+		GridLayoutFactory.swtDefaults().numColumns(TEMPLATE_ROW_NUM_COLUMNS).applyTo(processingChainsComposite);
 
 		rowControlsMap = new HashMap<>();
-		final List<IClusterProcessingModelWrapper> clusterProcessingSteps =
+		includeCheckboxBindings = new HashMap<>();
+		final List<IClusterProcessingModelWrapper> clusterProcessingChains =
 			getMappingBean().getClusterProcessingConfiguration();
-		if (clusterProcessingSteps != null) {
-			for (IClusterProcessingModelWrapper clusterProcessingStep : clusterProcessingSteps) {
-				addProcessingModelRow(processingStepsComposite, clusterProcessingStep);
+		if (clusterProcessingChains != null) {
+			for (IClusterProcessingModelWrapper clusterProcessingChain : clusterProcessingChains) {
+				addProcessingModelRow(processingChainsComposite, clusterProcessingChain);
 			}
 		}
 	}
 
 	private void addProcessingModelRow(Composite parent,
-			IClusterProcessingModelWrapper clusterProcessingStep) {
+			IClusterProcessingModelWrapper clusterProcessingChain) {
+		String processingChainName = clusterProcessingChain.getName();
 		Control[] rowControls = new Control[TEMPLATE_ROW_NUM_COLUMNS];
 		int controlIndex = 0;
 
 		// Include in scan checkbox
 		Button checkBox = new Button(parent, SWT.CHECK);
 		rowControls[controlIndex++] = checkBox;
-		checkBox.setText(clusterProcessingStep.getName());
+		checkBox.setText(clusterProcessingChain.getName());
 		GridDataFactory fillDefaultGridData = GridDataFactory.fillDefaults().grab(true, false);
 		fillDefaultGridData.applyTo(checkBox);
 		IObservableValue checkBoxValue = WidgetProperties.selection().observe(checkBox);
-		IObservableValue activeValue = PojoProperties.value("includeInScan").observe(clusterProcessingStep);
-		dataBindingContext.bindValue(checkBoxValue, activeValue);
+		IObservableValue activeValue = PojoProperties.value("includeInScan").observe(clusterProcessingChain);
+		Binding includeInScanBinding = dataBindingContext.bindValue(checkBoxValue, activeValue);
+		includeCheckboxBindings.put(processingChainName, includeInScanBinding);
 
-		// Button to configure a processing step
+		// Button to configure a processing chain
 		Button configureButton = new Button(parent, SWT.PUSH);
 		rowControls[controlIndex++] = configureButton;
 		configureButton.setText("Configure...");
@@ -213,11 +218,11 @@ public class ProcessingSection extends AbstractMappingSection {
 		configureButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				configureProcessingModel(null, clusterProcessingStep);
+				configureProcessingModel(null, clusterProcessingChain);
 			}
 		});
 
-		// Button to delete a processing step
+		// Button to delete a processing chain
 		Button deleteButton = new Button(parent, SWT.PUSH);
 		rowControls[controlIndex++] = deleteButton;
 		deleteButton.setText("Delete");
@@ -225,11 +230,11 @@ public class ProcessingSection extends AbstractMappingSection {
 		deleteButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				deleteProcessingModel(clusterProcessingStep);
+				deleteProcessingModel(clusterProcessingChain);
 			}
 		});
 
-		rowControlsMap.put(clusterProcessingStep, rowControls);
+		rowControlsMap.put(processingChainName, rowControls);
 	}
 
 	private IDetectorModel getDetectorModel(String detectorName) {
@@ -252,7 +257,7 @@ public class ProcessingSection extends AbstractMappingSection {
 		}
 
 		if (detector == null) {
-			MessageDialog.openError(getShell(), "Configure Processing Step",
+			MessageDialog.openError(getShell(), "Configure Processing Chain",
 					String.format("Could not find a detector with the name '%s'.", detectorName));
 			Object[] args = (exception == null) ? new Object[] { detectorName } :
 				new Object[] { detectorName, exception };
@@ -263,8 +268,8 @@ public class ProcessingSection extends AbstractMappingSection {
 		}
 	}
 
-	private boolean configureProcessingModel(File templateFile, IClusterProcessingModelWrapper processingStep) {
-		IDetectorModel detectorModel = getDetectorModel(processingStep.getModel().getDetectorName());
+	private boolean configureProcessingModel(File templateFile, IClusterProcessingModelWrapper processingChain) {
+		IDetectorModel detectorModel = getDetectorModel(processingChain.getModel().getDetectorName());
 		if (detectorModel == null) return false;
 
 		if (templateFile == null) {
@@ -290,7 +295,7 @@ public class ProcessingSection extends AbstractMappingSection {
 			OperationModelWizardDialog dialog = new OperationModelWizardDialog(getShell(), wizard);
 			if (dialog.open() == Window.OK) {
 				try {
-					wizard.saveOutputFile(processingStep.getModel().getProcessingFilePath());
+					wizard.saveOutputFile(processingChain.getModel().getProcessingFilePath());
 				} catch (Exception e) {
 					logger.error("Could not save template file!", e);
 				}
@@ -302,14 +307,23 @@ public class ProcessingSection extends AbstractMappingSection {
 		}
 	}
 
-	private void deleteProcessingModel(IClusterProcessingModelWrapper processingStep) {
-		getMappingBean().getClusterProcessingConfiguration().remove(processingStep);
+	private void deleteProcessingModel(IClusterProcessingModelWrapper processingChain) {
+		// remove the processing chain from the mapping bean
+		getMappingBean().getClusterProcessingConfiguration().remove(processingChain);
 
-		Control[] rowControls = rowControlsMap.remove(processingStep);
+		// remove and dispose of the binding for the checkbox of the processing chain
+		String processingChainName = processingChain.getName();
+		Binding includeCheckboxBinding = includeCheckboxBindings.remove(processingChainName);
+		dataBindingContext.removeBinding(includeCheckboxBinding);
+		includeCheckboxBinding.dispose();
+
+		// dispose of all the controls on the row for the mapping chain
+		Control[] rowControls = rowControlsMap.remove(processingChainName);
 		for (Control control : rowControls) {
 			control.dispose();
 		}
 
+		// the size of the processing section has changed, so re-layout the whole view
 		mappingView.relayout();
 	}
 
@@ -324,7 +338,6 @@ public class ProcessingSection extends AbstractMappingSection {
 			model.setProcessingFilePath(processingFile.getCanonicalPath());
 			IClusterProcessingModelWrapper modelWrapper = new ClusterProcessingModelWrapper(
 					model.getName(), model, true);
-
 			boolean ok = configureProcessingModel(templateFile, modelWrapper);
 			if (ok) {
 				// if the configure wizard wasn't cancelled, add the new processing model
@@ -336,7 +349,7 @@ public class ProcessingSection extends AbstractMappingSection {
 					mappingBean.setClusterProcessingConfiguration(processingModels);
 				}
 				processingModels.add(modelWrapper);
-				addProcessingModelRow(processingStepsComposite, modelWrapper);
+				addProcessingModelRow(processingChainsComposite, modelWrapper);
 				mappingView.relayout();
 			}
 		} catch (IOException e) {
@@ -406,6 +419,23 @@ public class ProcessingSection extends AbstractMappingSection {
 		}
 
 		return detectorNames.toArray(new String[detectorNames.size()]);
+	}
+
+	@Override
+	protected void updateControls() {
+		// Update the section controls to reflect the new bean
+		// Any additional processing chains in the scan request are added at the end of the list
+		// No existing processing chains are deleted, instead they are just deselected
+		List<IClusterProcessingModelWrapper> processingChains = getMappingBean().getClusterProcessingConfiguration();
+		if (processingChains != null) {
+			for (IClusterProcessingModelWrapper processingChain : processingChains) {
+				if (!rowControlsMap.containsKey(processingChain.getName())) {
+					addProcessingModelRow(processingChainsComposite, processingChain);
+				}
+			}
+		}
+
+		dataBindingContext.updateTargets();
 	}
 
 }
