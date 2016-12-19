@@ -19,10 +19,12 @@
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.eclipse.core.databinding.Binding;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.beans.PojoProperties;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
@@ -58,6 +60,9 @@ public class DetectorsSection extends AbstractMappingSection {
 
 	private DataBindingContext dataBindingContext;
 
+	private Map<String, Button> detectorSelectionCheckboxes;
+	private Map<String, Binding> exposureTimeBindings;
+
 	@Override
 	public void createControls(Composite parent) {
 		Composite detectorsComposite = new Composite(parent, SWT.NONE);
@@ -71,25 +76,31 @@ public class DetectorsSection extends AbstractMappingSection {
 		dataBindingContext = new DataBindingContext();
 		// create a row with a checkbox for each detector
 		List<IDetectorModelWrapper> detectorParametersList = getDetectorParameters();
-		List<Button> detectorSelectionCheckboxes = new ArrayList<>(detectorParametersList.size());
+		detectorSelectionCheckboxes = new HashMap<>(detectorParametersList.size());
+		exposureTimeBindings = new HashMap<>(detectorParametersList.size());
 		for (IDetectorModelWrapper detectorParameters : detectorParametersList) {
+			// create the detector selection checkbox and bind it to the includeInScan property of the wrapper
 			Button checkBox = new Button(detectorsComposite, SWT.CHECK);
-			detectorSelectionCheckboxes.add(checkBox);
+			detectorSelectionCheckboxes.put(detectorParameters.getName(), checkBox);
 			checkBox.setText(detectorParameters.getName());
 			IObservableValue checkBoxValue = WidgetProperties.selection().observe(checkBox);
 			IObservableValue activeValue = PojoProperties.value("includeInScan").observe(detectorParameters);
 			dataBindingContext.bindValue(checkBoxValue, activeValue);
 			checkBox.addListener(SWT.Selection, event -> {
 				updateStatusLabel();
+
 				if (detectorParameters.getModel() instanceof IMalcolmModel) {
-					malcolmDeviceSelectionChanged(detectorSelectionCheckboxes, checkBox, detectorParameters);
+					malcolmDeviceSelectionChanged(detectorParameters.getName());
 				}
 			});
+
+			// create the exposure time text control and bind it the exposure time property of the wrapper
 			Text exposureTimeText = new Text(detectorsComposite, SWT.BORDER);
 			GridDataFactory.fillDefaults().grab(true, false).applyTo(exposureTimeText);
 			IObservableValue exposureTextValue = WidgetProperties.text(SWT.Modify).observe(exposureTimeText);
 			IObservableValue exposureTimeValue = PojoProperties.value("exposureTime").observe(detectorParameters.getModel());
-			dataBindingContext.bindValue(exposureTextValue, exposureTimeValue);
+			Binding exposureTimeBinding = dataBindingContext.bindValue(exposureTextValue, exposureTimeValue);
+			exposureTimeBindings.put(detectorParameters.getName(), exposureTimeBinding);
 			exposureTimeText.addListener(SWT.Modify, event -> {
 				updateStatusLabel();
 			});
@@ -111,17 +122,18 @@ public class DetectorsSection extends AbstractMappingSection {
 	 * @param selectionCheckBoxes
 	 * @param malcolmDeviceCheckBox
 	 */
-	private void malcolmDeviceSelectionChanged(List<Button> selectionCheckBoxes, Button malcolmDeviceCheckBox,
-			IDetectorModelWrapper malcolmWrapper) {
-		boolean malcolmDeviceSelected = malcolmDeviceCheckBox.getSelection();
-		selectionCheckBoxes.stream().filter(cb -> cb != malcolmDeviceCheckBox).forEach(cb -> {
-			cb.setEnabled(!malcolmDeviceSelected);
-			if (malcolmDeviceSelected) cb.setSelection(false);
-		});
+	private void malcolmDeviceSelectionChanged(String name) {
+		boolean malcolmDeviceSelected = detectorSelectionCheckboxes.get(name).getSelection();
+		detectorSelectionCheckboxes.keySet().stream().filter(detName -> !detName.equals(name)).
+			map(detName -> detectorSelectionCheckboxes.get(detName)).forEach(cb -> {
+				cb.setEnabled(!malcolmDeviceSelected);
+				if (malcolmDeviceSelected) cb.setSelection(false);
+			});
 
 		// set all other detectors as not included in scan? TODO why doesn't jface binding do this automatically?
 		if (malcolmDeviceSelected) {
-			getMappingBean().getDetectorParameters().stream().filter(detParams -> detParams != malcolmWrapper).
+			getMappingBean().getDetectorParameters().stream().
+				filter(detParams -> !detParams.getName().equals(name)).
 				forEach(detParams -> ((DetectorModelWrapper) detParams).setIncludeInScan(false));
 		}
 	}
@@ -145,7 +157,33 @@ public class DetectorsSection extends AbstractMappingSection {
 			return runnableDeviceService.getDeviceInformation(DeviceRole.MALCOLM);
 		} catch (Exception e) {
 			logger.error("Could not get malcolm devices.", e);
-			return null;
+			return null;		}
+	}
+
+	@Override
+	protected void updateControls() {
+		// update the bindings for exposure time as we may have new detector models
+		for (IDetectorModelWrapper detectorParams : getMappingBean().getDetectorParameters()) {
+			Binding oldBinding = exposureTimeBindings.get(detectorParams.getName());
+			IObservableValue exposureTextValue = (IObservableValue) oldBinding.getTarget();
+			dataBindingContext.removeBinding(oldBinding);
+			oldBinding.dispose();
+
+			IObservableValue exposureTimeValue = PojoProperties.value("exposureTime").observe(detectorParams.getModel());
+			Binding newBinding = dataBindingContext.bindValue(exposureTextValue, exposureTimeValue);
+			exposureTimeBindings.put(detectorParams.getName(), newBinding);
+		}
+
+		// update the GUI based on the updated model
+		dataBindingContext.updateTargets();
+
+		// if a malcolm device has been de/selected we need to update the checkbox enablement
+		Collection<DeviceInformation<?>> malcolmDevices = getMalcolmDeviceInfo();
+		if (malcolmDevices != null && !malcolmDevices.isEmpty()) {
+			for (DeviceInformation<?> devInfo : malcolmDevices) {
+				String name = devInfo.getLabel();
+				malcolmDeviceSelectionChanged(name);
+			}
 		}
 	}
 
