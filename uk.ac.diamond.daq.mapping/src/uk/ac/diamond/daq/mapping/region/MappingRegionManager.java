@@ -29,10 +29,10 @@ import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
 public class MappingRegionManager implements IMappingRegionManager {
 
 	// Initialise with empty lists - the real contents should be configured using Spring
-	List<IMappingScanRegionShape> regions = Collections.emptyList();
-	List<IScanPathModel> twoDPaths = Collections.emptyList();
-	List<IScanPathModel> oneDPaths = Collections.emptyList();
-	List<IScanPathModel> zeroDPaths = Collections.emptyList();
+	private List<IMappingScanRegionShape> regions = Collections.emptyList();
+	private List<IScanPathModel> twoDPaths = Collections.emptyList();
+	private List<IScanPathModel> oneDPaths = Collections.emptyList();
+	private List<IScanPathModel> zeroDPaths = Collections.emptyList();
 
 	public MappingRegionManager() {
 	}
