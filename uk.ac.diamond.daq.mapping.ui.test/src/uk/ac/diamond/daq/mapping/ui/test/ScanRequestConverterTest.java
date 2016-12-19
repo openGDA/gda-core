@@ -25,6 +25,7 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 
 import java.util.Arrays;
@@ -160,6 +161,24 @@ public class ScanRequestConverterTest {
 		assertThat(wrapper.isIncludeInScan(), is(false));
 	}
 
+	@Test(expected = IllegalArgumentException.class)
+	public void testUnknownDetector() {
+		final String detName = "mandelbrot";
+		final String displayName = "Mandelbrot Detector";
+		final IDetectorModel detModel = new MandelbrotModel();
+		detModel.setName(detName);
+		mappingBean.setDetectorParameters(Arrays.asList(new DetectorModelWrapper(displayName, detModel, true)));
+
+		// Act - convert mapping bean to scan request
+		final ScanRequest<IROI> scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
+
+		// Assert
+		assertEquals(detModel, scanRequest.getDetectors().get(detName));
+
+		// Act again - convert scan request back to mapping bean, throws exception
+		scanRequestConverter.mergeIntoMappingBean(scanRequest, newMappingBean);
+	}
+
 	@Test
 	public void testScanPathIsIncluded() {
 		// Act - convert mapping bean to scan request (with the default set-up)
@@ -192,7 +211,7 @@ public class ScanRequestConverterTest {
 		scanRequestConverter.mergeIntoMappingBean(scanRequest, newMappingBean);
 	}
 
-	@Test(expected = RuntimeException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void testStageNamesChanged() {
 		// Initially the scan path doesn't have the correct axis names
 		assertThat(scanPath.getFastAxisName(), is(not(equalTo(X_AXIS_NAME))));
@@ -334,7 +353,7 @@ public class ScanRequestConverterTest {
 		assertThat(newOuterScannables.get(1).isIncludeInScan(), is(false));
 	}
 
-	@Test(expected = RuntimeException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void testOuterScannableNotFound() throws Exception {
 		// Arrange
 		final IScanPathModel outerModel = new StepModel(Z_AXIS_NAME, -3, 2, 0.5);
@@ -353,21 +372,25 @@ public class ScanRequestConverterTest {
 	@Test
 	public void testClusterProcessingIncludedCorrectly() {
 		// Arrange
-		final String processingStepName = "sum";
+		final String includedProcessingChainName = "sum";
 		final ClusterProcessingModel clusterProcessingModel = new ClusterProcessingModel();
-		clusterProcessingModel.setName(processingStepName);
+		clusterProcessingModel.setName(includedProcessingChainName);
 		clusterProcessingModel.setDetectorName("mandelbrot");
 		clusterProcessingModel.setProcessingFilePath("/tmp/sum.nxs");
-		final ClusterProcessingModelWrapper wrapper = new ClusterProcessingModelWrapper(
-				processingStepName, clusterProcessingModel, true);
+		final ClusterProcessingModelWrapper includedProcessingWrapper = new ClusterProcessingModelWrapper(
+				includedProcessingChainName, clusterProcessingModel, true);
 
-		mappingBean.setClusterProcessingConfiguration(Arrays.asList(wrapper));
+		final String excludedProcessingChainName = "excluded";
+		final ClusterProcessingModelWrapper excludedProcessingWrapper = new ClusterProcessingModelWrapper(
+				excludedProcessingChainName, new ClusterProcessingModel(), false);
+
+		mappingBean.setClusterProcessingConfiguration(Arrays.asList(includedProcessingWrapper, excludedProcessingWrapper));
 
 		// Act - convert mapping bean to scan request
 		final ScanRequest<IROI> scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
 
 		// Assert
-		assertThat(scanRequest.getDetectors().get(processingStepName), is(equalTo(clusterProcessingModel)));
+		assertThat(scanRequest.getDetectors().get(includedProcessingChainName), is(equalTo(clusterProcessingModel)));
 
 		// Act again - merge scan request into new mapping bean
 		scanRequestConverter.mergeIntoMappingBean(scanRequest, newMappingBean);
@@ -376,8 +399,9 @@ public class ScanRequestConverterTest {
 		List<IClusterProcessingModelWrapper> newClusterProcessingList = newMappingBean.getClusterProcessingConfiguration();
 		assertThat(newClusterProcessingList.size(), is(1));
 		IClusterProcessingModelWrapper clusterProcessingWrapper = newClusterProcessingList.get(0);
-		assertThat(clusterProcessingWrapper.getName(), is(equalTo(wrapper.getName())));
+		assertThat(clusterProcessingWrapper.getName(), is(equalTo(includedProcessingWrapper.getName())));
 		assertThat(clusterProcessingWrapper.getModel(), is(equalTo(clusterProcessingModel)));
+		assertFalse(newClusterProcessingList.contains(excludedProcessingWrapper));
 	}
 
 	@Test

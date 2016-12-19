@@ -120,7 +120,7 @@ public class ScanRequestConverter {
 		if (!(scanPath instanceof IBoundingBoxModel)) {
 			final String message = "Could not set fast and slow axis. The scan path is not an instance of IBoundingBoxModel.";
 			logger.error(message);
-			throw new RuntimeException(message);
+			throw new IllegalArgumentException(message);
 		}
 
 		final String fastAxis;
@@ -188,11 +188,13 @@ public class ScanRequestConverter {
 		// add the required cluster processing steps
 		if (mappingBean.getClusterProcessingConfiguration() != null) {
 			for (IClusterProcessingModelWrapper processingWrapper : mappingBean.getClusterProcessingConfiguration()) {
-				String name = processingWrapper.getName();
-				if (scanRequest.getDetectors() != null && scanRequest.getDetectors().containsKey(name)) {
-					throw new IllegalArgumentException(MessageFormat.format("A device or processing step with the name {0} is already included in the scan", name));
+				if (processingWrapper.isIncludeInScan()) {
+					String name = processingWrapper.getName();
+					if (scanRequest.getDetectors() != null && scanRequest.getDetectors().containsKey(name)) {
+						throw new IllegalArgumentException(MessageFormat.format("A device or processing step with the name {0} is already included in the scan", name));
+					}
+					scanRequest.putDetector(processingWrapper.getName(), processingWrapper.getModel());
 				}
-				scanRequest.putDetector(processingWrapper.getName(), processingWrapper.getModel());
 			}
 		}
 
@@ -257,12 +259,12 @@ public class ScanRequestConverter {
 		CompoundModel<IROI> compoundModel = scanRequest.getCompoundModel();
 		Collection<ScanRegion<IROI>> regions = compoundModel.getRegions();
 		if (regions.size() != 1) {
-			throw new RuntimeException("The scan request must have exactly one region, has " + regions.size());
+			throw new IllegalArgumentException("The scan request must have exactly one region, has " + regions.size());
 		}
 		ScanRegion<IROI> region = regions.iterator().next();
 		List<String> scannableNames = region.getScannables();
 		if (scannableNames.size() != 2) {
-			throw new RuntimeException("The scan region should have exactly two scannable names, was " +
+			throw new IllegalArgumentException("The scan region should have exactly two scannable names, was " +
 					String.join(", ", scannableNames));
 		}
 
@@ -271,7 +273,7 @@ public class ScanRequestConverter {
 			List<String> expectedScannableNames = Arrays.asList(
 					mappingStageInfo.getActiveSlowScanAxis(), mappingStageInfo.getActiveFastScanAxis());
 			if (!scannableNames.equals(expectedScannableNames)) {
-				throw new RuntimeException("The axis names have changed. Expected : " +
+				throw new IllegalArgumentException("The axis names have changed. Expected : " +
 						String.join(", ", expectedScannableNames) + "; was " + String.join(", ", scannableNames));
 			}
 		}
@@ -327,7 +329,7 @@ public class ScanRequestConverter {
 		} else if (roi instanceof RectangularROI) {
 			regionShape = new RectangularMappingRegion();
 		} else {
-			throw new RuntimeException("Unable to convert ROI type " + roi.getClass());
+			throw new IllegalArgumentException("Unable to convert ROI type " + roi.getClass());
 		}
 
 		regionShape.updateFromROI(roi);
@@ -341,7 +343,7 @@ public class ScanRequestConverter {
 		List<Object> outerScannableModels = new ArrayList<>(models.subList(0, models.size() - 1));
 		for (Object model : outerScannableModels) {
 			if (!(model instanceof IScanPathModel)) {
-				throw new RuntimeException("Model is not an IScanPathModel: " + model);
+				throw new IllegalArgumentException("Model is not an IScanPathModel: " + model);
 			}
 		}
 
@@ -365,7 +367,7 @@ public class ScanRequestConverter {
 
 		// We didn't find a wrapper for this model
 		if (currentModel != null) {
-			throw new RuntimeException("No IScanPathModelWrapper found for model " + currentModel.getName());
+			throw new IllegalArgumentException("No IScanPathModelWrapper found for model " + currentModel.getName());
 		}
 	}
 
@@ -411,15 +413,14 @@ public class ScanRequestConverter {
 					}
 
 					if (detectorModelWrappers.containsKey(name)) {
-						// The mapping bean already contains this detector. Set it to be included in the scan
+						// Get the wrapper for the detector. Set it to be included in the scan
 						// and overwrite the model with the model in the scan request
-						DetectorModelWrapper existingWrapper = (DetectorModelWrapper) detectorModelWrappers.get(name);
-						existingWrapper.setIncludeInScan(true);
-						existingWrapper.setModel((IDetectorModel) model);
+						DetectorModelWrapper wrapper = (DetectorModelWrapper) detectorModelWrappers.get(name);
+						wrapper.setIncludeInScan(true);
+						wrapper.setModel((IDetectorModel) model);
 					} else {
-						// A new detector (shouldn't normally be possible as they are created in spring)
-						// Add it to the mapping bean
-						detectorParams.add(new DetectorModelWrapper(name, (IDetectorModel) model, true));
+						// The scan includes an unknown detector. This can only occur if the mapping bean has changed in spring
+						throw new IllegalArgumentException("Unknown detector " + name);
 					}
 				} else if (model instanceof ClusterProcessingModel) {
 					List<IClusterProcessingModelWrapper> processingConfigList = mappingBean.getClusterProcessingConfiguration();
@@ -436,7 +437,7 @@ public class ScanRequestConverter {
 						wrapper.setIncludeInScan(true);
 						wrapper.setModel((ClusterProcessingModel) model);
 					} else {
-						// A new processsing step. Add it to the mapping bean
+						// A new processing step. Add it to the mapping bean at the end (the order doesn't matter)
 						processingConfigList.add(new ClusterProcessingModelWrapper(name, (ClusterProcessingModel) model, true));
 					}
 				}
