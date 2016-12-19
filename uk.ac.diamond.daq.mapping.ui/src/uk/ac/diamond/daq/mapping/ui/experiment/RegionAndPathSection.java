@@ -45,6 +45,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.mapping.api.IMappingRegionManager;
+import uk.ac.diamond.daq.mapping.api.IMappingScanRegion;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
 
 /**
@@ -54,11 +55,9 @@ public class RegionAndPathSection extends AbstractMappingSection {
 
 	private class RegionSelectorListener implements ISelectionChangedListener {
 
-		private final ComboViewer pathSelector;
 		private final PropertyChangeListener regionBeanPropertyChangeListener;
 
-		private RegionSelectorListener(ComboViewer pathSelector) {
-			this.pathSelector = pathSelector;
+		private RegionSelectorListener() {
 			this.regionBeanPropertyChangeListener = new PropertyChangeListener() {
 				@Override
 				public void propertyChange(PropertyChangeEvent evt) {
@@ -131,6 +130,10 @@ public class RegionAndPathSection extends AbstractMappingSection {
 
 	private Composite regionComposite;
 
+	private ComboViewer regionSelector;
+
+	private ComboViewer pathSelector;
+
 	@Override
 	protected void initialize(MappingExperimentView mappingView) {
 		super.initialize(mappingView);
@@ -190,7 +193,7 @@ public class RegionAndPathSection extends AbstractMappingSection {
 		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(regionComboComposite);
 		Label regionLabel = new Label(regionComboComposite, SWT.NONE);
 		regionLabel.setText("Region shape:");
-		ComboViewer regionSelector = new ComboViewer(regionComboComposite);
+		regionSelector = new ComboViewer(regionComboComposite);
 		horizontalGrabGridData.applyTo(regionSelector.getControl());
 		regionSelector.getCombo().setToolTipText("Select a scan region shape. The shape can then be drawn on the map, or you can type numbers below.");
 
@@ -200,7 +203,7 @@ public class RegionAndPathSection extends AbstractMappingSection {
 		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(pathComboComposite);
 		Label pathLabel = new Label(pathComboComposite, SWT.NONE);
 		pathLabel.setText("Scan path:");
-		final ComboViewer pathSelector = new ComboViewer(pathComboComposite);
+		pathSelector = new ComboViewer(pathComboComposite);
 		horizontalGrabGridData.applyTo(pathSelector.getControl());
 
 		// Add logic
@@ -219,7 +222,7 @@ public class RegionAndPathSection extends AbstractMappingSection {
 		List<IMappingScanRegionShape> regionList = mappingRegionManager.getRegions();
 		regionSelector.setInput(regionList.toArray());
 
-		regionSelector.addSelectionChangedListener(new RegionSelectorListener(pathSelector));
+		regionSelector.addSelectionChangedListener(new RegionSelectorListener());
 
 		pathSelector.setContentProvider(ArrayContentProvider.getInstance());
 		pathSelector.setLabelProvider(new LabelProvider() {
@@ -272,6 +275,38 @@ public class RegionAndPathSection extends AbstractMappingSection {
 		// Update the GUI to reflect the path changes
 		rebuildMappingSection();
 		updatePoints();
+	}
+
+	@Override
+	protected void updateControls() {
+		IMappingScanRegion mappingScanRegion = getMappingBean().getScanDefinition().getMappingScanRegion();
+		scanRegion = mappingScanRegion.getRegion();
+		scanPathModel = mappingScanRegion.getScanPath();
+
+		// Replace the region model of the same class with the new region
+		List<IMappingScanRegionShape> regionList = mappingRegionManager.getRegions();
+		for (int i = 0; i < regionList.size(); i++) {
+			if (regionList.get(i).getClass().equals(scanRegion.getClass())) {
+				regionList.set(i, scanRegion);
+			}
+		}
+		regionSelector.setInput(regionList.toArray());
+
+		// Replace the scan path model of the same class with the new one
+		List<IScanPathModel> scanPathList = mappingRegionManager.getValidPaths(scanRegion);
+		for (int i = 0; i < scanPathList.size(); i++) {
+			if (scanPathList.get(i).getClass().equals(scanPathModel.getClass())) {
+				scanPathList.set(i, scanPathModel);
+			}
+		}
+		pathSelector.setInput(scanPathList);
+
+		// Recreate the contents of the beans
+		rebuildMappingSection();
+
+		// Set the selection on the combo viewers (has to be done after the above)
+		regionSelector.setSelection(new StructuredSelection(scanRegion));
+		pathSelector.setSelection(new StructuredSelection(scanPathModel));
 	}
 
 	/**
