@@ -38,6 +38,8 @@ import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
  */
 public class ScanMetadataSection extends AbstractMappingSection {
 
+	private DataBindingContext dataBindingContext;
+
 	@Override
 	public void createControls(Composite parent) {
 		IMappingExperimentBean mappingBean = getMappingBean();
@@ -50,7 +52,7 @@ public class ScanMetadataSection extends AbstractMappingSection {
 		Text sampleNameText = new Text(essentialParametersComposite, SWT.BORDER);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(sampleNameText);
 
-		DataBindingContext dataBindingContext = new DataBindingContext();
+		dataBindingContext = new DataBindingContext();
 		IObservableValue sampleNameTextValue = WidgetProperties.text(SWT.Modify).observe(sampleNameText);
 		IObservableValue sampleNameModelValue = PojoProperties.value("sampleName").observe(mappingBean.getSampleMetadata());
 		dataBindingContext.bindValue(sampleNameTextValue, sampleNameModelValue);
@@ -61,8 +63,13 @@ public class ScanMetadataSection extends AbstractMappingSection {
 		editMetadataButton.addListener(SWT.Selection, event -> {
 			guiGenerator.openDialog(mappingBean.getSampleMetadata(), parent.getShell(), "Sample Metadata");
 			// Ensure that any changes to metadata in the dialog are reflected in the main GUI
-			dataBindingContext.updateTargets();
+			updateControls();
 		});
+	}
+
+	@Override
+	protected void updateControls() {
+		dataBindingContext.updateTargets();
 	}
 
 }
