@@ -19,6 +19,7 @@
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.scanning.api.event.scan.ScanBean;
@@ -57,7 +58,8 @@ public class SubmitScanSection extends AbstractMappingSection {
 					ScanBean scanBean = createScanBean();
 					submitter.submitScan(scanBean);
 				} catch (Exception e) {
-					logger.warn("Scan submission failed", e);
+					logger.error("Scan submission failed", e);
+					MessageDialog.openError(getShell(), "Error Submitting Scan", "The scan could not be submitted. See the error log for more details.");
 				}
 			}
 		});
@@ -77,6 +79,7 @@ public class SubmitScanSection extends AbstractMappingSection {
 		}
 		String pathName = mappingBean.getScanDefinition().getMappingScanRegion().getScanPath().getName();
 		scanBean.setName(String.format("%s - %s Scan", sampleName, pathName));
+		scanBean.setProperty(MappingExperimentView.PROPERTY_NAME_MAPPING_SCAN, Boolean.TRUE.toString());
 
 		final ScanRequestConverter converter = getService(ScanRequestConverter.class);
 		ScanRequest<IROI> scanRequest = converter.convertToScanRequest(mappingBean);

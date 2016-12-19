@@ -37,6 +37,8 @@ import uk.ac.diamond.daq.mapping.api.IMappingExperimentBeanProvider;
  */
 public class MappingExperimentView implements IAdaptable {
 
+	public static final String PROPERTY_NAME_MAPPING_SCAN = "mappingScan";
+
 	@SuppressWarnings("unchecked")
 	private static final Class<? extends AbstractMappingSection>[] SECTION_CLASSES = new Class[] {
 			// a section for configuring scannables to be moved to a particular position at the start of a scan
