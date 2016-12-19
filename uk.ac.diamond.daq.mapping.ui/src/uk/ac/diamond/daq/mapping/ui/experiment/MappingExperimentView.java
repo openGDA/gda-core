@@ -1,21 +1,29 @@
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.e4.core.di.annotations.Optional;
 import org.eclipse.e4.ui.di.Focus;
 import org.eclipse.e4.ui.di.UIEventTopic;
 import org.eclipse.e4.ui.services.IServiceConstants;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
+import org.eclipse.scanning.api.event.status.OpenRequest;
+import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.layout.FillLayout;
@@ -28,6 +36,7 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.daq.mapping.api.IDetectorModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBeanProvider;
+import uk.ac.diamond.daq.mapping.impl.MappingExperimentBean;
 
 /**
  * An E4-style POJO class for the mapping experiment view. This allows all dependencies to be injected (currently by a
@@ -191,6 +200,53 @@ public class MappingExperimentView implements IAdaptable {
 			}
 		}
 		return exposure;
+	}
+
+	@Inject
+	public void setSelection(@Named(IServiceConstants.ACTIVE_SELECTION) IStructuredSelection selection) {
+		if (selection != null && selection.getFirstElement() instanceof OpenRequest) {
+			handleOpenRequest((OpenRequest) selection.getFirstElement());
+		}
+	}
+
+	private boolean isMappingScanBean(StatusBean statusBean) {
+		return statusBean instanceof ScanBean &&
+				Boolean.TRUE.toString().equals(statusBean.getProperty(PROPERTY_NAME_MAPPING_SCAN));
+	}
+
+	private void handleOpenRequest(OpenRequest openRequest) {
+		if (!isMappingScanBean(openRequest.getStatusBean())) {
+			return;
+		}
+
+		ScanBean scanBean = (ScanBean) openRequest.getStatusBean();
+		String scanName = scanBean.getName();
+		logger.info("Open Request", "Received an open request for ScanBean with the name: " + scanName);
+
+		// Confirm whether this scan should be opened as it will overwrite the contents of the view
+		Shell shell = (Shell) injectionContext.get(IServiceConstants.ACTIVE_SHELL);
+		boolean confirm = MessageDialog.openConfirm(shell, "Open Mapping Scan",
+				MessageFormat.format("Do you want to open the scan ''{0}'' in the Mapping Experiment Setup view?\n"
+				+ "This will overwrite the current contents of this view.", scanName));
+		if (!confirm) {
+			return;
+		}
+
+		// Get the scan request and merge it into the mapping bean
+		@SuppressWarnings("unchecked")
+		ScanRequest<IROI> scanRequest = (ScanRequest<IROI>) scanBean.getScanRequest();
+		try {
+			scanRequestConverter.mergeIntoMappingBean(scanRequest, (MappingExperimentBean) experimentBean);
+
+			for (AbstractMappingSection section : sections.values()) {
+				section.updateControls();
+			}
+		} catch (Exception e) {
+			String errorMessage = MessageFormat.format(
+					"Could not open scan {0}. Could not recreate the mapping view from the queued scan. See the error log for more details.", scanName);
+			MessageDialog.openError(shell, "Open Results", errorMessage);
+			logger.error("Error merging scan request into mapping bean.", e);
+		}
 	}
 
 	public IEclipseContext getEclipseContext() {

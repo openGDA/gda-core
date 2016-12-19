@@ -107,4 +107,11 @@ public abstract class AbstractMappingSection {
 				/ HORIZONTAL_DIALOG_UNIT_PER_CHAR;
 	}
 
+	/**
+	 * Updates this section based on the mapping bean.
+	 */
+	protected void updateControls() {
+		// Default implementation does nothing. Subclasses may override.
+	}
+
 }
