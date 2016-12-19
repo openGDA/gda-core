@@ -59,15 +59,6 @@
             id="gda.rcp.ncd.views.NCDStatus"
             name="Ncd Status">
       </view>    
-        <view
-            allowMultiple="true"
-            category="gda.rcp.ncd"
-            class="gda.rcp.ncd.views.QAxisCalibration"
-            icon="icons/sample.gif"
-            id="uk.ac.gda.client.ncd.QAxisCalibration"
-            name="Q axis Calibration"
-            restorable="true">
-      </view>    
       <view
             category="gda.rcp.ncd"
             class="gda.rcp.ncd.views.WatchView"

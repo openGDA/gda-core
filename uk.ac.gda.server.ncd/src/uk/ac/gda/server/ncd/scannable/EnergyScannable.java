@@ -91,9 +91,9 @@ public class EnergyScannable extends ScannableBase implements IObserver {
 		for(Scannable s : scannables) {
 			try {
 				s.asynchronousMoveTo(externalPosition);
-			} catch (DeviceException de) {
-				InterfaceProvider.getTerminalPrinter().print(String.format("Could not move %s to %s (%s)", s.getName(), externalPosition, de.getMessage()));
-				logger.warn("Could not move scannable {} to {}", s.getName(), externalPosition, de);
+			} catch (Exception e) {
+				InterfaceProvider.getTerminalPrinter().print(String.format("Could not move %s to %s (%s)", s.getName(), externalPosition, e.getMessage()));
+				logger.warn("Could not move scannable {} to {}", s.getName(), externalPosition, e);
 			}
 		}
 	}
@@ -107,8 +107,8 @@ public class EnergyScannable extends ScannableBase implements IObserver {
 			i++;
 			try {
 				pos[i] = s.getPosition();
-			} catch (DeviceException de) {
-				logger.warn("Can't access scannable {}", s.getName(), de);
+			} catch (Exception e) {
+				logger.warn("Can't access scannable {}", s.getName(), e);
 				pos[i] = Double.NaN;
 			}
 		}

@@ -55,6 +55,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.part.ViewPart;
+import uk.ac.gda.client.UIHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,7 +108,12 @@ public class NcdButtonPanelView extends ViewPart {
 //			try {
 				//only show dialog if empty title
 			boolean needTitle = titleEntry.getText().trim().equals("");
-			boolean needThickness = thicknessPositionLabel.getText().trim().matches("|NaN");
+			boolean needThickness = true;
+			try {
+				needThickness = thicknessScannable.isAt(Double.NaN);
+			} catch (DeviceException e1) {
+				logger.error("Could not read thickness scannable position - assuming not set", e1);
+			}
 				if (needTitle || needThickness) {
 					Dialog cDlg = new ConfirmTitleAndThicknessDialog(Display.getCurrent().getActiveShell(), needTitle, needThickness);
 					cDlg.open();
@@ -157,7 +163,7 @@ public class NcdButtonPanelView extends ViewPart {
 				@Override
 				public void run() {
 					try {
-						NcdController.getInstance().getTfg().stop();
+						NcdController.getInstance().getNcdDetectorSystem().stop();
 					} catch (DeviceException de) {
 						// Create the required Status object
 						final Status status = new Status(IStatus.ERROR, Activator.PLUGIN_ID, "Error Stopping Tfg", de);
@@ -247,6 +253,9 @@ public class NcdButtonPanelView extends ViewPart {
 									} catch (DeviceException e2) {
 									}
 								}
+								thicknessPositionLabel.setForeground(Display.getDefault().getSystemColor(0));
+							} else {
+								thicknessPositionLabel.setForeground(Display.getDefault().getSystemColor(3));
 							}
 
 						}
@@ -365,10 +374,20 @@ public class NcdButtonPanelView extends ViewPart {
 		@Override
 		protected void okPressed() {
 			if (title) {
-				titleEntry.setText(titleText.getText());
+				try {
+					GDAMetadataProvider.getInstance(true).setMetadataValue("title", titleText.getText().trim());
+				} catch (DeviceException e) {
+					UIHelper.showError("Could not set title metadata", e.getLocalizedMessage());
+					logger.error("Could not set title metadata", e);
+				}
 			}
 			if (thickness) {
-				thicknessPositionLabel.setText(thicknessText.getText());
+				try {
+					thicknessScannable.moveTo(Double.valueOf(thicknessText.getText()));
+				} catch (DeviceException e) {
+					UIHelper.showError("Could not set Sample Thickness", e.getLocalizedMessage());
+					throw new IllegalStateException();
+				}
 			}
 			super.okPressed();
 		}

@@ -56,7 +56,7 @@ public class PilatusADController implements InitializingBean {
 	 * Map that stores the channel against the PV name
 	 */
 	private Map<String, Channel> channelMap = new HashMap<String, Channel>();
-	
+
 	// Variables to hold the spring settings
 	private ADBase areaDetector;
 	private String basePVName = null;
@@ -82,7 +82,7 @@ public class PilatusADController implements InitializingBean {
 			throw new FactoryException("error configuring relevant area detector plugins", e);
 		}
 	}
-	
+
 	public ADBase getAreaDetector() {
 		return areaDetector;
 	}
@@ -98,7 +98,7 @@ public class PilatusADController implements InitializingBean {
 	public void setRoi(NDROI roi) {
 		this.roi = roi;
 	}
-	
+
 	public NDProcess getProc() {
 		return proc;
 	}
@@ -106,7 +106,7 @@ public class PilatusADController implements InitializingBean {
 	public void setProc(NDProcess proc) {
 		this.proc = proc;
 	}
-	
+
 	public NDStats getStats() {
 		return stats;
 	}
@@ -114,7 +114,7 @@ public class PilatusADController implements InitializingBean {
 	public void setStats(NDStats stat) {
 		this.stats = stat;
 	}
-	
+
 	public NDOverlay getDraw() {
 		return draw;
 	}
@@ -122,7 +122,7 @@ public class PilatusADController implements InitializingBean {
 	public void setDraw(NDOverlay draw) {
 		this.draw = draw;
 	}
-	
+
 	public NDFileHDF5Impl getHDF5() {
 		return hdf5;
 	}
@@ -130,7 +130,7 @@ public class PilatusADController implements InitializingBean {
 	public void setHDF5(NDFileHDF5Impl hdf5) {
 		this.hdf5 = hdf5;
 	}
-	
+
 	public FfmpegStream getMjpeg() {
 		return mjpeg;
 	}
@@ -157,7 +157,7 @@ public class PilatusADController implements InitializingBean {
 	public int getTriggerMode() throws Exception {
 		return areaDetector.getTriggerMode();
 	}
-	
+
 	public void setTriggerMode(int mode) throws Exception {
 		areaDetector.setTriggerMode((short) mode);
 	}
@@ -179,11 +179,11 @@ public class PilatusADController implements InitializingBean {
 	public int getNumImages() throws Exception {
 		return areaDetector.getNumImages();
 	}
-	
+
 	public void setAcquireTime(double time) throws Exception {
 		areaDetector.setAcquireTime(time);
 	}
-	
+
 	public double getAcquireTime() throws Exception {
 		return areaDetector.getAcquireTime();
 	}
@@ -224,11 +224,11 @@ public class PilatusADController implements InitializingBean {
 		if (areaDetector == null) {
 			throw new IllegalArgumentException("'areaDetector' needs to be declared");
 		}
-		
+
 		if (hdf5 == null) {
 			throw new IllegalArgumentException("'hdf5' needs to be declared");
 		}
-		
+
 		if (array == null) {
 			throw new IllegalArgumentException("'array' needs to be declared");
 		}
@@ -259,16 +259,16 @@ public class PilatusADController implements InitializingBean {
 	}
 
 	public void stopAcquiringWithTimeout() throws Exception {
-		int totalmillis = 10 * 1000;
+		int totalmillis = 20 * 1000;
 		int grain = 25;
 		for (int i = 0; i < totalmillis/grain; i++) {
-			if (areaDetector.getAcquireState() == 0) 
+			if (areaDetector.getAcquireState() == 0)
 				return;
 			Thread.sleep(grain);
 		}
 		stopAcquiring();
 	}
-	
+
 	public void stopAcquiring() throws Exception {
 		try {
 			areaDetector.stopAcquiring();
@@ -298,10 +298,10 @@ public class PilatusADController implements InitializingBean {
 	public float[] getCurrentArray() throws Exception {
 		return array.getFloatArrayData();
 	}
-	
+
 	// PILATUS STUFF
 	// TODO this needs to be in it's own plugin class, I guess
-	
+
 	final String PILATUS_DELAY_TIME = "DelayTime";
 	final String PILATUS_DELAY_TIME_RBV = "DelayTime_RBV";
 	final String PILATUS_READ_TIMEOUT = "ImageFileTmot";
@@ -309,31 +309,31 @@ public class PilatusADController implements InitializingBean {
 	public void setReadTimeout(double d) throws Exception {
 		EPICS_CONTROLLER.caput(getChannel(PILATUS_READ_TIMEOUT), d);
 	}
-	
+
 	public double getReadTimeout() throws Exception {
 		return EPICS_CONTROLLER.cagetDouble(getChannel(PILATUS_READ_TIMEOUT));
 	}
-	
+
 	public void setDelay(double d) throws Exception {
 		EPICS_CONTROLLER.caput(getChannel(PILATUS_DELAY_TIME), d);
 	}
-	
+
 	public double getDelay() throws Exception {
 		return EPICS_CONTROLLER.cagetDouble(getChannel(PILATUS_DELAY_TIME_RBV));
 	}
-	
+
 	final String PILATUS_THRESHOLD_KEV = "ThresholdEnergy";
-	
+
 	public void setThresholdkeV(double d) throws Exception {
 		EPICS_CONTROLLER.caput(getChannel(PILATUS_THRESHOLD_KEV), d);
 	}
-	
+
 	public double getThresholdkeV() throws Exception {
 		return EPICS_CONTROLLER.cagetDouble(getChannel(PILATUS_THRESHOLD_KEV));
 	}
-	
+
 	final String PILATUS_ARMED = "Armed";
-	
+
 	public boolean isArmed() throws Exception {
 		return EPICS_CONTROLLER.cagetEnum(getChannel(PILATUS_ARMED)) == 1;
 	}
@@ -347,30 +347,24 @@ public class PilatusADController implements InitializingBean {
 	}
 
 	/**
-	 * hdf5 plugin only allows up to two added dimensions
-	 * 
+	 * Scan dimensions should be added to the number of images/frames per point
+	 *
 	 * @param dimensions
 	 * @throws Exception
 	 */
 	public void setScanDimensions(int[] dimensions) throws Exception {
-		hdf5.setNumExtraDims(dimensions.length > 2 ? 2 : dimensions.length);
-		hdf5.setExtraDimSizeN(areaDetector.getNumImages());
-		if (dimensions.length > 1) {
-			int totalother = 1;
-			for (int i = 1; i < dimensions.length; i++) {
-				totalother *= dimensions[i];
-			}
-			hdf5.setExtraDimSizeY(dimensions[0]);
-			hdf5.setExtraDimSizeX(totalother);
-		} else {
-			hdf5.setExtraDimSizeX(dimensions[0]);
+		int[] dims = new int[dimensions.length + 1];
+		dims[0] = areaDetector.getNumImages();
+		for (int i = 0; i < dimensions.length; i++) {
+			dims[dimensions.length - i] = dimensions[i];
 		}
+		hdf5.setExtraDimensions(dims);
 	}
 
 	public void startRecording() throws Exception {
-		if (hdf5.getCapture() == 1) 
+		if (hdf5.getCapture() == 1)
 				throw new DeviceException("detector found already saving data when it should not be");
-		
+
 		hdf5.setFilePath(PathConstructor.createFromDefaultProperty());
 		hdf5.startCapture();
 		int totalmillis = 60 * 1000;
@@ -383,57 +377,57 @@ public class PilatusADController implements InitializingBean {
 	}
 
 	public void endRecording() throws Exception {
-		
+
 		// when we are called here there no more frames will be collected, so we just need to make sure
 		// all the ones in the system are written out
-		
+
 		// which the current settings writing a 2M frame on i22 takes ~50ms first time around and the same amount on closing
 
 		throwIfWriteError();
-		
+
 		int totalFramesCollected = 1;
 		int totalmillis = 30 * 1000;
-		
+
 		int grain = 80;
 		for (int i = 0; i < totalmillis/grain; i++) {
 			totalFramesCollected = areaDetector.getArrayCounter_RBV();
-			
+
 			if (totalFramesCollected == 0) {
 				// this is a common error
-				// we may be here in an aborted measurement, so there is no reasonable expectation how many 
-				// frames we need to have collected. But for sure if there are no frames there we may as well 
+				// we may be here in an aborted measurement, so there is no reasonable expectation how many
+				// frames we need to have collected. But for sure if there are no frames there we may as well
 				// throw an error, even if that would have been expected.
 				throw new DeviceException("detector was bluffing: no frames collected at end of acquisiton");
 			}
-			
+
 			totalmillis = 30 * 1000 + totalFramesCollected * 100;
 
-			
+
 			if (hdf5.getFile().getCapture_RBV() == 0) return;
-			
+
 			if (hdf5.getFile().getPluginBase().getArrayCounter_RBV() == totalFramesCollected) {
 				hdf5.stopCapture();
 			}
-		
+
 			if (hdf5.getQueueUse() > 1) {
 				// reset wait time while we still churn through frames, keep waiting loop for closing only
 				i = 0;
 			}
-				
-			
+
+
 			if (hdf5.getFile().getPluginBase().getDroppedArrays_RBV() > 0)
 				throw new DeviceException("dropped frames in the hdf5 recording");
-			
+
 			throwIfWriteError();
-				
+
 			Thread.sleep(grain);
 		}
-		
+
 		hdf5.stopCapture();
 		logger.warn("Waited very long for hdf writing to finish, still not done. Hope all will be ok in the end.");
 		throwIfWriteError();
 	}
-	
+
 	private void throwIfWriteError() throws Exception {
 		if (hdf5.getWriteStatus() != 0) {
 			String message = "error in EPICS hdf5 file writer";
@@ -443,7 +437,7 @@ public class PilatusADController implements InitializingBean {
 			throw new DeviceException(message);
 		}
 	}
-	
+
 	public void stop() throws Exception {
 		stopAcquiring();
 		hdf5.stopCapture();
@@ -457,7 +451,7 @@ public class PilatusADController implements InitializingBean {
 	public void setAbsoluteFilename(String name) throws Exception {
 		hdf5.setFileTemplate(name);
 	}
-	
+
 	public void resetCounters() throws Exception {
 		areaDetector.setArrayCounter(0);
 		array.getPluginBase().setArrayCounter(0);
