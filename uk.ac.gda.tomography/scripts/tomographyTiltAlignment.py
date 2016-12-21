@@ -3,7 +3,7 @@ from gda.factory import Finder
 from gda.jython.commands.ScannableCommands import scan
 from i12utilities import pwd
 from gda.util import Sleep
-from uk.ac.diamond.scisoft.analysis.dataset import Image as javaImage
+from org.eclipse.dawnsci.analysis.dataset.impl import Image as javaImage
 
 
 plotData = True
