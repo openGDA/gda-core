@@ -177,6 +177,15 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 	}
 
 	@Override
+	public void setArrayCounter(int n) throws DeviceException {
+		try {
+			pvProvider.pvSetArrayCounter.putWait(n);
+		} catch (IOException e) {
+			throw new DeviceException("IOException while setting ArrayCounter", e);
+		}
+	}
+
+	@Override
 	public Integer getNumFramesToAcquire() throws DeviceException {
 		try {
 			return pvProvider.pvGetNumImages.get();

@@ -138,6 +138,7 @@ public class Xspress3ScanOperationsv2 {
 
 	public void clearAndStart() throws DeviceException {
 		controller.doErase();
+		controller.setArrayCounter(0);
 		controller.doStart();
 	}
 
