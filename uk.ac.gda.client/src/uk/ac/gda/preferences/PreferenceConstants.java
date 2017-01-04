@@ -97,11 +97,6 @@ public class PreferenceConstants {
 	public static final String GDA_USE_SCANDATAPOINT_SERVICE = "gda.use_scandatapoint_service";
 
 	/**
-	 * Name of preference to set TRUE if launch configurations e.g. Run/Debug are to be disabled Default is TRUE
-	 */
-	public static final String GDA_DISABLE_LAUNCH_CONFIGS = "gda.disable_launch_configs";
-
-	/**
 	 * Name of preference to set TRUE if the XYPlotView is to be opened when a scan is started Default is TRUE
 	 */
 	public static final String GDA_OPEN_XYPLOT_ON_SCAN_START = "gda.open_xyplot_on_scan_start";
