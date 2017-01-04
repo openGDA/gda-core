@@ -4,7 +4,6 @@ import gda.util.ObjectServer;
 import gda.util.SpringObjectServer;
 import gda.util.Version;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -15,6 +14,7 @@ import org.eclipse.equinox.app.IApplicationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ch.qos.logback.classic.LoggerContext;
 import uk.ac.diamond.daq.server.configuration.IGDAConfigurationService;
 import uk.ac.diamond.daq.server.configuration.IGDAConfigurationService.ServerType;
 import uk.ac.diamond.daq.server.configuration.commands.ObjectServerCommand;
@@ -45,38 +45,44 @@ public class GDAServerApplication implements IApplication {
 		ApplicationEnvironment.initialize();
 		configurationService.loadConfiguration();
 
-		logger.info(String.format("Starting GDA application %s", Version.getRelease()));
+		logger.info("Starting GDA server application {}", Version.getRelease());
 
 		try {
-			processes.put(LOG, configurationService.getLogServerCommand().execute());
-			logger.info("Log server starting");
-			processes.put(NAME, configurationService.getNameServerCommand().execute());
-			logger.info("Name server starting");
-			processes.put(EVENT, configurationService.getEventServerCommand().execute());
-			logger.info("Channel/Event server starting");
-			// TODO: find some kind of interactive "channel server is ready" check otherwise you get a corba exception
-			Thread.sleep(SERVER_WAIT_MILLIS);
+			try {
+				processes.put(LOG, configurationService.getLogServerCommand().execute());
+				logger.info("Log server starting");
+				processes.put(NAME, configurationService.getNameServerCommand().execute());
+				logger.info("Name server starting");
+				processes.put(EVENT, configurationService.getEventServerCommand().execute());
+				logger.info("Channel/Event server starting");
+				// TODO: find some kind of interactive "channel server is ready" check otherwise you get a corba exception
+				Thread.sleep(SERVER_WAIT_MILLIS);
+			}
+			catch (Exception subEx) {
+				String[] failedServer = {"Log", "Name", "Event"};
+				logger.error("Unable to start {} server, GDA server shutting down", failedServer[processes.size()]);
+				throw subEx;
+			}
 
 			for (ObjectServerCommand command : configurationService.getObjectServerCommands()) {
 				ObjectServer server = command.execute();
 				if (server == null) {
-					logger.info("Unable to start " + command.getProfile() + " Object server, GDA shutting down");
+					logger.error("Unable to start {} Object server, GDA server shutting down", command.getProfile());
 					stop();
 					break;
 				}
 				objectServers.put(command.getProfile(), server);
-				logger.info(command.getProfile() + " object server started");
+				logger.info("{} object server started", command.getProfile());
 			}
 		}
-		catch (IOException ioEx) {
-			String[] failedServer = {"Log", "Name", "Event"};
-			logger.info("Unable to start " + failedServer[processes.size()] + " server, GDA shutting down");
-			ioEx.printStackTrace();
+		catch (Exception ex) {
+			logger.error("GDA server startup failure", ex);
+			ex.printStackTrace();
 			stop();
 		}
 		if (!objectServers.isEmpty()) {
 			awaitShutdown();
-			logger.info("GDA application ended");
+			logger.info("GDA server application ended");
 		}
 		return IApplication.EXIT_OK;
 	}
@@ -100,9 +106,14 @@ public class GDAServerApplication implements IApplication {
 		for (Map.Entry<ServerType, Process> process : processes.entrySet()) {
 			logger.info("{} Server shutting down", process.getKey());
 			try {
-				process.getValue().destroyForcibly().waitFor(20, TimeUnit.MILLISECONDS);
+				if (process.getKey() == ServerType.LOG) {
+					((LoggerContext)LoggerFactory.getILoggerFactory()).stop();
+				}
+				if (!process.getValue().destroyForcibly().waitFor(1000, TimeUnit.MILLISECONDS)) {
+					logger.error("Shutdown of {} server timed out, check for orphaned process", process.getKey());
+				}
 			} catch (InterruptedException e) {
-				logger.error("Shutdown of {} interrupted, check for orphaned process", process.getKey());
+				logger.error("Shutdown of {} server interrupted, check for orphaned process", process.getKey(), e);
 				e.printStackTrace();
 				Thread.currentThread().interrupt();
 			}
