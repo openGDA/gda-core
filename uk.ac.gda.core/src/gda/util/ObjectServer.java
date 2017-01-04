@@ -21,7 +21,9 @@ package gda.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.List;
+import java.util.Optional;
 import java.util.Vector;
 
 import org.slf4j.Logger;
@@ -127,7 +129,7 @@ public abstract class ObjectServer implements Runnable {
 	public static ObjectServer createServerImpl(String xmlFile, String mappingFile) throws FactoryException {
 		ObjectServer objectServer = createObjectServer(xmlFile, mappingFile, true, false);
 		objectServer.configure();
-		logger.info("Server initialisation complete. xmlFile = " + xmlFile);
+		logger.info("Server initialisation complete. xmlFile = {}", xmlFile);
 		return objectServer;
 	}
 
@@ -199,7 +201,7 @@ public abstract class ObjectServer implements Runnable {
 	@SuppressWarnings("unused")
 	private static ObjectServer createObjectServer(String xmlFile, String mappingFile, boolean serverSide, boolean localObjectsOnly) throws FactoryException {
 		File file = getAbsoluteFilePath(xmlFile);
-		logger.info("Starting ObjectServer using file " + xmlFile);
+		logger.info("Starting ObjectServer using file {}", xmlFile);
 
 		if (!file.exists()) {
 			throw new FactoryException(String.format("File does not exist: %s", file));
@@ -393,14 +395,22 @@ public abstract class ObjectServer implements Runnable {
 		spawn(args);
 	}
 
+	/**
+	 * Start the required Object server. If this fails, the reason will be logged
+	 * and also recorded in the file that allows the startup scripts to exit cleanly.
+	 *
+	 * @param args     Potential override values for the default Spring file and profile
+	 * @return         The successfully initialised server object or null
+	 */
 	public static ObjectServer spawn(String[] args) {
 		LoggingUtils.setLogDirectory();
 		LogbackUtils.configureLoggingForServerProcess("objectserver");
 		ObjectServer server = null;
 
+		// Set default options...
+		commandLineXmlFile = getDefaultServerSideXmlFile();
+
 		try {
-			// Set default options...
-			commandLineXmlFile = getDefaultServerSideXmlFile();
 			// ...but possibly override them with command-line arguments
 			parseArgs(args);
 
@@ -424,6 +434,13 @@ public abstract class ObjectServer implements Runnable {
 			logger.error(msg, e);
 			System.err.println(msg);
 			e.printStackTrace(System.err);
+			try {
+				String eMsg = String.format("ERROR: Failed startup; %s", Optional.ofNullable(e.getMessage()).orElse(String.format("%s thrown", e.getClass())));
+				Files.write(getStartupFile(commandLineXmlFile).toPath(), eMsg.getBytes());
+			} catch (Exception e1) {
+				logger.error("Unable to write exception message to startup file on failed start.", e1);
+			}
+			server = null;   // just in case
 		}
 		return server;
 	}
