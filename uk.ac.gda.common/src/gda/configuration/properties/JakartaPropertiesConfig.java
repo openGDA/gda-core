@@ -20,9 +20,9 @@
 package gda.configuration.properties;
 
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.configuration.CompositeConfiguration;
@@ -211,18 +211,24 @@ public class JakartaPropertiesConfig implements PropertiesConfig {
 			Object o = config.getProperty(key);
 			if (o != null) {
 				// Check for multiple setting of properties
-				if (o instanceof ArrayList) {
-					logger.debug(key + " is set multiple times the value used will be the first! This maybe ok if deliberately overridden");
+				if (o instanceof List<?>) {
+					logger.debug("{} is set multiple times the value used will be the first! This maybe ok if deliberately overridden", key);
+					// Check for unnecessary overriding of properties
+					List<?> list = (List<?>) o;
+					// If all the values are the same it's definitely unnecessarily overridden
+					if (list.size() > 1 && list.stream().distinct().count() == 1){
+						logger.warn("{} is unnecessarily overridden", key);
+					}
 				}
 				if (o instanceof String) {
 					// Calling getString method ensures value has any
 					// processing
 					// done by commons config applied - ie string
 					// interpolation, etc.
-					logger.debug(key + " = " + LocalProperties.get(key));
+					logger.debug("{} = {}", key, LocalProperties.get(key));
 				} else {
 					// Handle non-string objects, eg ArrayList's
-					logger.debug(key + " = " + o.toString());
+					logger.debug("{} = {}", key, o.toString());
 				}
 			}
 		}
