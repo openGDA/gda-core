@@ -674,7 +674,7 @@ public class BoxProfile extends SidePlotProfile {
 		HandleStatus hStatus = HandleStatus.NONE;
 
 		if (roi == null) {
-			roi = new RectangularROI();
+			roi = new RectangularROI(10, 0);
 			roi.setPlot(true);
 			roiHandler.setROI(roi);
 			setROIName(roi);

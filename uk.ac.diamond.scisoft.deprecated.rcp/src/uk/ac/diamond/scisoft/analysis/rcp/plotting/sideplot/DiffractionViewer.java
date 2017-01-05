@@ -511,7 +511,7 @@ public class DiffractionViewer extends SidePlotProfile implements SelectionListe
 				});
 			}
 			if (rectROI == null) {
-				rectROI = new RectangularROI();
+				rectROI = new RectangularROI(10, 0);
 			}
 			if ((flags & IImagePositionEvent.CTRLKEY) != 0) {
 				rectROI.setPoint(cpt);
