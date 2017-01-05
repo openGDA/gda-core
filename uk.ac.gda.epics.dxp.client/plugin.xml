@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="uk.ac.gda.epics.dxp.client.EDXDPerspective"
+            icon="icons/edxd-16x16.png"
+            id="uk.ac.gda.beamline.i12.EDXD"
+            name="EDXD">
+      </perspective>
+      <perspective
+            class="uk.ac.gda.epics.dxp.client.EDXDAlignmentPerspective"
+            icon="icons/align_edxd-16x16.png"
+            id="uk.ac.gda.beamline.i12.EDXD.alignment"
+            name="Align EDXD ">
+      </perspective>
+   </extension>
+   <extension
+     point="org.eclipse.ui.views">
+		<view
+	            category="uk.ac.gda.epics.dxp"
+	            class="uk.ac.diamond.scisoft.analysis.rcp.views.PlotView"
+	            id="uk.ac.gda.epics.dxpplotview"
+	            name="EDXD Plot"
+	            restorable="true">
+	      </view>
+	      <category
+	            id="uk.ac.gda.epics.dxp"
+	            name="EDXD">
+	      </category>
+       <view
+             allowMultiple="true"
+             category="uk.ac.gda.epics.dxp"
+             class="uk.ac.gda.epics.dxp.client.viewfactories.StatusViewFactory:edxdStatusViewHolder"
+             icon="icons/edxd-16x16.png"
+             id="uk.ac.gda.epics.dxp.client.statusview"
+             name="EDXD Status"
+             restorable="true">
+       </view>
+       <view
+             category="uk.ac.gda.epics.dxp"
+             class="uk.ac.gda.epics.dxp.client.viewfactories.EDXDAlignmentChecklistViewFactory:checklistViewHolder"
+             id="uk.ac.gda.epics.dxp.client.checklist"
+             name="EDXD Checklist"
+             restorable="true">
+       </view>
+       <view
+             category="uk.ac.gda.epics.dxp"
+             class="uk.ac.gda.epics.dxp.client.viewfactories.EDXDAlignmentDetectorSetupViewFactory:detectorSetupHolder"
+             id="uk.ac.gda.epics.dxp.client.setupview"
+             name="EDXD Detector Setup"
+             restorable="true">
+       </view>
+       <view
+             category="uk.ac.gda.epics.dxp"
+             class="uk.ac.gda.epics.dxp.client.viewfactories.EDXDFrontEndCameraViewFactory:frontEndCameraSetupHolder"
+             id="uk.ac.gda.epics.dxp.client.cameraview"
+             name="EDXD FrontEnd Camera"
+             restorable="true">
+       </view>
+       <view
+             category="uk.ac.gda.epics.dxp"
+             class="uk.ac.gda.epics.dxp.client.views.EDXDAlignmentPlotView"
+             id="uk.ac.gda.epics.dxp.client.alignment.plot"
+             name="EDXD Alignment Plot"
+             restorable="true">
+       </view>
+  	</extension>
+</plugin>

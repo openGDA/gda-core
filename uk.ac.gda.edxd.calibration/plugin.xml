@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+
+<!--
+ <copyright>
+ </copyright>
+
+ $Id$
+-->
+
+<plugin>
+
+   <extension point="org.eclipse.emf.ecore.generated_package">
+      <package
+            uri="http://opengda.org/edxdcalibration"
+            class="uk.ac.gda.edxd.calibration.edxdcalibration.EdxdcalibrationPackage"
+            genModel="model/edxdcalibration.genmodel"/>
+   </extension>
+
+   <extension point="org.eclipse.emf.ecore.extension_parser">
+      <parser
+            type="edxdcalibration"
+            class="uk.ac.gda.edxd.calibration.edxdcalibration.util.EdxdcalibrationResourceFactoryImpl"/>
+   </extension>
+
+</plugin>

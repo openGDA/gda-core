@@ -1,0 +1,22 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: EDXD Detector
+Bundle-SymbolicName: uk.ac.gda.edxd.detector;singleton:=true
+Bundle-Version: 9.2.0.qualifier
+Bundle-Vendor: Diamond Light Source
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: uk.ac.gda.nexus,
+ uk.ac.gda.api,
+ slf4j.api,
+ uk.ac.gda.epics,
+ org.eclipse.january,
+ uk.ac.gda.analysis,
+ uk.ac.gda.core,
+ org.eclipse.emf.ecore,
+ uk.ac.gda.edxd.calibration,
+ uk.ac.gda.edxd.common,
+ org.eclipse.dawnsci.analysis.api,
+ org.eclipse.dawnsci.nexus,
+ uk.ac.diamond.scisoft.analysis
+Import-Package: org.springframework.beans.factory;version="4.0.6.RELEASE"
+Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework

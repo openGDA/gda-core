@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: EDXD Common
+Bundle-SymbolicName: uk.ac.gda.edxd.common
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: uk.ac.gda.edxd.common.Activator
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Export-Package: uk.ac.gda.edxd.common
+Import-Package: org.springframework.beans.factory;version="4.0.6.RELEASE"
+Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework

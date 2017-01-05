@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="edxdcalibration"
+    nsURI="http://opengda.org/edxdcalibration" nsPrefix="ec">
+  <eClassifiers xsi:type="ecore:EClass" name="CalibrationConfig">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="fileName" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="lastCalibrated" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="DocumentRoot">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="edxdCalibration" upperBound="-1"
+        eType="#//EdxdCalibration" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="EdxdCalibration">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="hutch" eType="#//HUTCH"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="collimator" eType="#//COLLIMATOR"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="energyCalibration" eType="#//CalibrationConfig"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="qCalibration" eType="#//CalibrationConfig"
+        containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="HUTCH">
+    <eLiterals name="HUTCH1" literal="HUTCH1"/>
+    <eLiterals name="HUTCH2" value="1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="COLLIMATOR">
+    <eLiterals name="COLLIMATOR1" literal="HUTCH1"/>
+    <eLiterals name="COLLIMATOR2" value="1" literal="COLLIMATOR2"/>
+    <eLiterals name="COLLIMATOR3" value="3" literal="COLLIMATOR3"/>
+    <eLiterals name="COLLIMATOR4" value="4" literal="COLLIMATOR4"/>
+  </eClassifiers>
+</ecore:EPackage>
