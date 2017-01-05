@@ -132,7 +132,7 @@ public class Logpanel extends Composite {
 		receiver.setContext(logpanelContext);
 		receiver.setRemoteHost(logServerHost);
 		receiver.setPort(logServerOutPort);
-		receiver.setReconnectionDelay(10000);
+		receiver.setReconnectionDelay(1000);
 
 		/* this looks simple but is hard to get right
 		patternLayout = new PatternLayout();
