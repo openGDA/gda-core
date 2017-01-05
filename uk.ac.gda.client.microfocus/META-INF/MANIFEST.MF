@@ -60,4 +60,4 @@ Import-Package: Jama,
  org.python.core,
  org.slf4j;version="[1.7.2,2.0.0)"
 Bundle-Vendor: Diamond Light Source
-Service-Component: OSGI-INF/exafsSelectionHandler.xml
+Service-Component: OSGI-INF/*.xml

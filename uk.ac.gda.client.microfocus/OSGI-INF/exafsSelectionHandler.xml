@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="uk.ac.gda.client.microfocus">
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="Exafs Selection Handler">
    <implementation class="uk.ac.gda.client.microfocus.views.ExafsSelectionHandler"/>
    <service>
       <provide interface="org.osgi.service.event.EventHandler"/>
    </service>
    <property name="event.topics" type="String" value="org/dawnsci/mapping/ui/mapview/click"/>
+   <reference bind="setStageConfiguration" cardinality="0..1" interface="org.eclipse.scanning.api.ui.IStageScanConfiguration" name="IStageScanConfiguration" policy="dynamic"/>
+   <reference bind="setRemoteDatasetService" cardinality="1..1" interface="org.eclipse.dawnsci.analysis.api.io.IRemoteDatasetService" name="IRemoteDatasetService" policy="static"/>
 </scr:component>
