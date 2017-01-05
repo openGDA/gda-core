@@ -46,6 +46,7 @@ public class MappingStageInfo implements IStageScanConfiguration {
 
 	private String activeFastScanAxis;
 	private String activeSlowScanAxis;
+	private String associatedAxis;
 	private double beamSize;
 
 	@Override
@@ -68,6 +69,17 @@ public class MappingStageInfo implements IStageScanConfiguration {
 		String oldValue = this.activeSlowScanAxis;
 		this.activeSlowScanAxis = newValue;
 		this.pcs.firePropertyChange("activeSlowScanAxis", oldValue, newValue);
+	}
+
+	@Override
+	public String getAssociatedAxis() {
+		return associatedAxis;
+	}
+
+	public void setAssociatedAxis(String newValue) {
+		String oldValue = this.associatedAxis;
+		this.associatedAxis = newValue;
+		this.pcs.firePropertyChange("associatedAxis", oldValue, newValue);
 	}
 
 	@UiTooltip("The beam size to use for the beam position marker on the plot, in the same units as the scan axes")
