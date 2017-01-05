@@ -20,11 +20,9 @@
 package gda.data;
 
 import static gda.configuration.properties.LocalProperties.GDA_DATAWRITER_DIR;
-import gda.configuration.properties.LocalProperties;
-import gda.data.metadata.GDAMetadataProvider;
-import gda.device.DeviceException;
-import gda.util.HostId;
+import static gda.configuration.properties.LocalProperties.GDA_VISIT_DIR;
 
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -35,6 +33,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
+import gda.configuration.properties.LocalProperties;
+import gda.data.metadata.GDAMetadataProvider;
+import gda.device.DeviceException;
+import gda.util.HostId;
 import uk.ac.gda.util.io.IPathConstructor;
 
 /**
@@ -98,8 +100,12 @@ public class PathConstructor implements IPathConstructor {
 	 * metadata. In GDA ObjectServers the metadata for visit and user only relate to the current baton holder.
 	 *
 	 * @return The constructed path.
+	 * @deprecated use {@link PathConstructor#getClientVisitDirectory()}
+	 *     or {@link PathConstructor#getVisitSubdirectory(String)}
 	 */
+	@Deprecated
 	public static String createFromRCPProperties() {
+		logger.warn("Using deprecated createFromRCPProperties. Use getClientVisitDirectory");
 		HashMap<String, String> metadataOverrides = new HashMap<String, String>();
 		if (LocalProperties.get(LocalProperties.RCP_APP_VISIT) != null) {
 			metadataOverrides.put("visit", LocalProperties.get(LocalProperties.RCP_APP_VISIT));
@@ -173,8 +179,64 @@ public class PathConstructor implements IPathConstructor {
 				path += interpret(st.nextToken(), overrides);
 			}
 		}
-
 		return path;
+	}
+
+	/**
+	 * Get the path to the root of the current visit directory
+	 * based on template at {link {@link LocalProperties#GDA_VISIT_DIR}
+	 * usually ${gda.data}/$year$/$visit$
+	 *
+	 * @return path to visit directory
+	 */
+	public static String getVisitDirectory() {
+		return createFromProperty(GDA_VISIT_DIR);
+	}
+
+	/**
+	 * Return the path of a subdirectory in the root of the client's visit
+	 *
+	 * @param subdirectory
+	 * @return Path of visit subdirectory without trailing /
+	 */
+	public static String getVisitSubdirectory(String subdirectory) {
+		return Paths.get(getVisitDirectory(), subdirectory).toString();
+	}
+
+	/**
+	 * For client-side RCP classes wanting the root visit directory for this client
+	 * (not necessarily the data directory in current use).
+	 *
+	 * Based on template at {link {@link LocalProperties#GDA_VISIT_DIR}
+	 * usually ${gda.data}/$year$/$visit$
+	 *
+	 * Construct the path based on a template containing text and metadata item names. Override the metadata if values
+	 * placed in LocalProperties have been set by the RCP application - may not always want to use what's in the
+	 * metadata. In GDA ObjectServers the metadata for visit and user only relate to the current baton holder.
+	 *
+	 * @return The constructed path.
+	 */
+	public static String getClientVisitDirectory() {
+		Map<String, String> metadataOverrides = new HashMap<>();
+		if (LocalProperties.get(LocalProperties.RCP_APP_VISIT) != null) {
+			metadataOverrides.put("visit", LocalProperties.get(LocalProperties.RCP_APP_VISIT));
+		}
+		if (LocalProperties.get(LocalProperties.RCP_APP_USER) != null) {
+
+			metadataOverrides.put("federalid", LocalProperties.get(LocalProperties.RCP_APP_USER));
+			metadataOverrides.put("user", LocalProperties.get(LocalProperties.RCP_APP_USER));
+		}
+		return createFromProperty(GDA_VISIT_DIR, metadataOverrides);
+	}
+
+	/**
+	 * Return the path of a subdirectory in the root of the client's visit
+	 *
+	 * @param subdirectory
+	 * @return Path of visit subdirectory without trailing /
+	 */
+	public static String getClientVisitSubdirectory(String subdirectory) {
+		return Paths.get(getClientVisitDirectory(), subdirectory).toString();
 	}
 
 	private static String interpret(String s, Map<String, String> overrides) {
