@@ -488,7 +488,7 @@ public class Application implements IApplication {
 		}
 
 		if (path == null) {
-			path = PathConstructor.createFromRCPProperties() + "/xml/";
+			path = PathConstructor.getClientVisitSubdirectory("xml") + File.separator;
 		}
 		return path;
 	}

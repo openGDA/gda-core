@@ -18,16 +18,16 @@
 
 package gda.analysis;
 
-import gda.data.PathConstructor;
-
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 
 import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
 import org.eclipse.january.dataset.IDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.data.PathConstructor;
 import uk.ac.diamond.scisoft.analysis.PlotServer;
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
@@ -46,12 +46,12 @@ public class RCPPlotter extends SDAPlotter {
 	protected static String saveTempFile(DataHolder tHolder, IDataset dataset) throws ScanFileHolderException {
 
 		try {
-			java.io.File tmpFile = File.createTempFile("tmp_img", ".raw");
-			String dirName = PathConstructor.createFromRCPProperties() + PlotServer.GRIDVIEWDIR;
-			java.io.File directory = new java.io.File(dirName);
+			File tmpFile = File.createTempFile("tmp_img", ".raw");
+			String dirName = PathConstructor.getClientVisitSubdirectory(PlotServer.GRIDVIEWDIR);
+			File directory = new File(dirName);
 			if (!directory.exists())
 				directory.mkdir();
-			String rawFilename = PathConstructor.createFromRCPProperties() + PlotServer.GRIDVIEWDIR + tmpFile.getName();
+			String rawFilename = Paths.get(dirName, tmpFile.getName()).toString();
 			tHolder.setDataset("Data", dataset);
 			new RawBinarySaver(rawFilename).saveFile(tHolder);
 			return rawFilename;
