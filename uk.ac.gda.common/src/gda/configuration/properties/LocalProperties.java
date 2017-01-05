@@ -95,6 +95,11 @@ public class LocalProperties {
 	public static final String GDA_DATA_SCAN_DATAWRITER_DATAFORMAT = "gda.data.scan.datawriter.dataFormat";
 
 	/**
+	 * Property used to provide the path of the root of the visit
+	 */
+	public static final String GDA_VISIT_DIR = "gda.paths.visitdirectory";
+
+	/**
 	 * Property used to provide the 'default' property to gda.data.PathConstructor (in uk.ac.gda.core). This in turn
 	 * is used by *many* classes to determine where scan files or images should be written.
 	 */
