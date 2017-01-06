@@ -18,6 +18,51 @@
 
 package gda.rcp;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.resources.WorkspaceJob;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.action.ActionContributionItem;
+import org.eclipse.jface.action.IContributionItem;
+import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.action.ToolBarManager;
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.preference.PreferenceManager;
+import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.IViewPart;
+import org.eclipse.ui.IViewReference;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.WorkbenchException;
+import org.eclipse.ui.actions.WorkspaceModifyOperation;
+import org.eclipse.ui.application.IWorkbenchConfigurer;
+import org.eclipse.ui.application.IWorkbenchWindowConfigurer;
+import org.eclipse.ui.application.WorkbenchAdvisor;
+import org.eclipse.ui.application.WorkbenchWindowAdvisor;
+import org.eclipse.ui.ide.IDE;
+import org.eclipse.ui.internal.ide.IDEInternalWorkbenchImages;
+import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin;
+import org.eclipse.ui.menus.CommandContributionItem;
+import org.osgi.framework.Bundle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.configuration.properties.LocalProperties;
 import gda.factory.Findable;
 import gda.factory.Finder;
@@ -35,67 +80,9 @@ import gda.jython.batoncontrol.BatonRequested;
 import gda.observable.IObserver;
 import gda.rcp.preferences.GdaRootPreferencePage;
 import gda.util.ObjectServer;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.resources.WorkspaceJob;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.debug.core.DebugPlugin;
-import org.eclipse.debug.core.ILaunchManager;
-import org.eclipse.debug.internal.core.LaunchManager;
-import org.eclipse.debug.internal.ui.DebugUIPlugin;
-import org.eclipse.debug.internal.ui.launchConfigurations.LaunchConfigurationManager;
-import org.eclipse.jface.action.ActionContributionItem;
-import org.eclipse.jface.action.IContributionItem;
-import org.eclipse.jface.action.IToolBarManager;
-import org.eclipse.jface.action.ToolBarManager;
-import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.jface.preference.PreferenceManager;
-import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.IPerspectiveDescriptor;
-import org.eclipse.ui.IViewPart;
-import org.eclipse.ui.IViewReference;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PerspectiveAdapter;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.WorkbenchException;
-import org.eclipse.ui.actions.WorkspaceModifyOperation;
-import org.eclipse.ui.application.IWorkbenchConfigurer;
-import org.eclipse.ui.application.IWorkbenchWindowConfigurer;
-import org.eclipse.ui.application.WorkbenchAdvisor;
-import org.eclipse.ui.application.WorkbenchWindowAdvisor;
-import org.eclipse.ui.ide.IDE;
-import org.eclipse.ui.internal.ide.IDEInternalWorkbenchImages;
-import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin;
-import org.eclipse.ui.menus.CommandContributionItem;
-import org.osgi.framework.Bundle;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import uk.ac.gda.client.liveplot.LivePlotViewManager;
 import uk.ac.gda.client.scripting.JythonPerspective;
 import uk.ac.gda.client.scripting.ScriptProjectCreator;
-import uk.ac.gda.preferences.PreferenceConstants;
 import uk.ac.gda.ui.partlistener.MenuDisplayPartListener;
 import uk.ac.gda.views.baton.MessageView;
 import uk.ac.gda.views.baton.dialogs.BatonRequestDialog;
@@ -149,10 +136,6 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 		 */
 		declareDefaultImages(configurer);
 
-		IPreferenceStore preferenceStore = GDAClientActivator.getDefault().getPreferenceStore();
-		if (preferenceStore.getBoolean(PreferenceConstants.GDA_DISABLE_LAUNCH_CONFIGS))
-			disableLaunchConfigs();
-
 		removeUnusedPreferencePages();
 	}
 
@@ -173,70 +156,9 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 		pm.remove("net.sf.py4j.defaultserver.preferences.DefaultServerPreferencePage");//Remove Py4J preference page
 	}
 
-	private void disableLaunchConfigs() {
-		// GDA-3307: Remove Debug/Run menu items from the GUI.
-		// There are a few different ways to achieve this removal
-		// 1- Edit plugin.xml and rebuild org.eclipse.debug.{ui,core}
-		// 2- Use transformations with OSGI to edit plugin.xml on the fly at startup
-		// 3- Remove dependency from GDA on org.eclipse.debug.{ui,core}
-		// 4- Access internals of Debug Launch managers and make them think the plugin.xmls
-		// didn't define any launches of interest.
-		//
-		// Option 3 has some merit, but it requires a lot of work and getting PyDev and JDT people
-		// to work together.
-		// Options 1, 2 and 4 are basically the same achieved through different means. Option 4
-		// has been chosen as it provides the cleanest implementation that is debuggable
-		// and can have reasonable error handling. All of 1, 2 and 4 are brittle and may/will require
-		// updating when GDA upgrades the underlying Eclipse, but hopefully this code should
-		// just fail gracefully in that case.
-		ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
-		LaunchConfigurationManager launchConfigurationManager = DebugUIPlugin.getDefault()
-				.getLaunchConfigurationManager();
-		try {
-			final String error = "Eclipse implementation has changed in some unknown way.";
-			Field launchGroupsField = LaunchConfigurationManager.class.getDeclaredField("fLaunchGroups");
-			launchGroupsField.setAccessible(true);
-			Object launchGroups = launchGroupsField.get(launchConfigurationManager);
-			if (launchGroups != null) {
-				throw new Exception(error);
-			}
-
-			Field launchShortcutsField = LaunchConfigurationManager.class.getDeclaredField("fLaunchShortcuts");
-			launchShortcutsField.setAccessible(true);
-			Object launchShortcuts = launchShortcutsField.get(launchConfigurationManager);
-			if (launchShortcuts != null) {
-				throw new Exception(error);
-			}
-			Field launchModesField = LaunchManager.class.getDeclaredField("fLaunchModes");
-			launchModesField.setAccessible(true);
-			Object launchModes = launchModesField.get(launchManager);
-			if (launchModes != null) {
-				throw new Exception(error);
-			}
-
-			// Only try and set values once we are sure the state can be changed. We don't want to end up
-			// partially changing the internal state.
-			launchGroupsField.set(launchConfigurationManager, Collections.emptyMap());
-			launchShortcutsField.set(launchConfigurationManager, Collections.emptyList());
-			launchModesField.set(launchManager, Collections.emptyMap());
-
-		} catch (Exception e) {
-			logger.warn("Failed to remove Run... and Debug... items from GUI. Has Eclipse been upgraded?", e);
-		}
-	}
-
 	@Override
 	public void postStartup() {
 		super.postStartup();
-
-		// GDA-3306: Remove the following action sets by default from all perspectives
-		// Eclipse doesn't provide a public API way of doing this, so we use some internal
-		// APIs to perform the removal.
-		final Set<String> actionSetsToHide = new HashSet<String>();
-		actionSetsToHide.add("org.eclipse.ui.edit.text.actionSet.annotationNavigation");
-		actionSetsToHide.add("synopticDisplayActions");
-		actionSetsToHide.add("org.eclipse.search.searchActionSet");
-		actionSetsToHide.add("org.eclipse.debug.ui.launchActionSet");
 
 		final IWorkbenchWindow workbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 		if (workbenchWindow != null) {
@@ -244,34 +166,6 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 			 * Adds the part listener to add view menu text to all parts opened hereafter.
 			 */
 			applyViewMenuText(workbenchWindow);
-
-			PerspectiveAdapter listener = new PerspectiveAdapter() {
-
-				// This code uses some internal Eclipse APIs from the Java 1.4 days with no genercis
-				@SuppressWarnings("unchecked")
-				@Override
-				public void perspectiveActivated(IWorkbenchPage page, IPerspectiveDescriptor perspectiveDescriptor) {
-// E4FIXME: This code needs to be revisited
-//					if (page instanceof WorkbenchPage) {
-//						IPerspectiveDescriptor perspective2 = page.getPerspective();
-//						ArrayList<IActionSetDescriptor> toRemove = new ArrayList<IActionSetDescriptor>();
-//						if (perspective != null) {
-//							for (IActionSetDescriptor actionSetDescriptor : perspective.getAlwaysOnActionSets()) {
-//								if (actionSetsToHide.contains(actionSetDescriptor.getId())) {
-//									toRemove.add(actionSetDescriptor);
-//								}
-//							}
-//							perspective.turnOffActionSets(toRemove.toArray(new IActionSetDescriptor[toRemove.size()]));
-//							perspective.getHiddenToolbarItems().addAll(actionSetsToHide);
-//							perspective.getHiddenMenuItems().addAll(actionSetsToHide);
-//							perspective.updateActionBars();
-//						}
-				}
-
-			};
-			workbenchWindow.addPerspectiveListener(listener);
-			// also remove action sets from already open perspective
-			listener.perspectiveActivated(workbenchWindow.getActivePage(), null);
 
 			// Add a listener to make sure a live scan plot is visible at the start of each scan (unless this
 			// behaviour has been switched off in the client preferences)
