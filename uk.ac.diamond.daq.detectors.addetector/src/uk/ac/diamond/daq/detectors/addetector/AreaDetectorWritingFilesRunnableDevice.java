@@ -2,7 +2,6 @@ package uk.ac.diamond.daq.detectors.addetector;
 
 import java.io.File;
 
-import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
@@ -10,8 +9,6 @@ import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
 import org.eclipse.scanning.api.annotation.scan.PostConfigure;
 import org.eclipse.scanning.api.annotation.scan.PreConfigure;
-import org.eclipse.scanning.api.device.AbstractRunnableDevice;
-import org.eclipse.scanning.api.device.IWritableDetector;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.ScanInformation;
@@ -24,7 +21,7 @@ import gda.device.detector.areadetector.v17.NDFile;
 import gda.device.detector.areadetector.v17.NDFile.FileWriteMode;
 import gda.device.detector.areadetector.v17.NDFileHDF5;
 import gda.factory.Finder;
-import uk.ac.diamond.daq.detectors.addetector.api.AreaDetectorWritingFilesRunnableDeviceModel;
+import uk.ac.diamond.daq.detectors.addetector.api.AreaDetectorRunnableDeviceModel;
 
 /**
  * <p>
@@ -36,8 +33,7 @@ import uk.ac.diamond.daq.detectors.addetector.api.AreaDetectorWritingFilesRunnab
  *
  * @author James Mudd
  */
-public class AreaDetectorWritingFilesRunnableDevice<T extends AreaDetectorWritingFilesRunnableDeviceModel>
-		extends AbstractRunnableDevice<T> implements IWritableDetector<T>, INexusDevice<NXdetector> {
+public class AreaDetectorWritingFilesRunnableDevice extends AreaDetectorRunnableDevice {
 
 	// This is the path within the HDF5 file that the AD writes to the data block
 	private static final String PATH_TO_DATA_NODE = "/entry/instrument/detector/data";
@@ -46,10 +42,6 @@ public class AreaDetectorWritingFilesRunnableDevice<T extends AreaDetectorWritin
 	private static final String PATH_TO_STATS_TOTAL_NODE = "/entry/instrument/NDAttributes/StatsTotal";
 	private ADDetector detector;
 	private String fileName;
-
-	public AreaDetectorWritingFilesRunnableDevice() {
-		super(ServiceHolder.getRunnableDeviceService());
-	}
 
 	@Override
 	public void run(IPosition position) throws ScanningException, InterruptedException {
@@ -72,7 +64,7 @@ public class AreaDetectorWritingFilesRunnableDevice<T extends AreaDetectorWritin
 	}
 
 	@Override
-	public void configure(T model) throws ScanningException {
+	public void configure(AreaDetectorRunnableDeviceModel model) throws ScanningException {
 		setDeviceState(DeviceState.CONFIGURING);
 
 		try {

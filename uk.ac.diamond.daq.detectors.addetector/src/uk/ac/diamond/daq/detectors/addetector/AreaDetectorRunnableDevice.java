@@ -1,6 +1,5 @@
 package uk.ac.diamond.daq.detectors.addetector;
 
-import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
@@ -10,8 +9,6 @@ import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.ILazyWriteableDataset;
 import org.eclipse.january.dataset.SliceND;
-import org.eclipse.scanning.api.device.AbstractRunnableDevice;
-import org.eclipse.scanning.api.device.IWritableDetector;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.ScanningException;
@@ -33,8 +30,7 @@ import uk.ac.diamond.daq.detectors.addetector.api.AreaDetectorRunnableDeviceMode
  *
  * @author James Mudd
  */
-public class AreaDetectorRunnableDevice extends AbstractRunnableDevice<AreaDetectorRunnableDeviceModel> implements
-		IWritableDetector<AreaDetectorRunnableDeviceModel>, INexusDevice<NXdetector> {
+public class AreaDetectorRunnableDevice extends AbstractAreaDetectorRunnableDevice {
 
 	private static final String FIELD_NAME_TOTAL = "total";
 	private ILazyWriteableDataset data;
