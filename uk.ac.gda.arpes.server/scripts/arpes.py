@@ -11,11 +11,11 @@ class ARPESRun:
 
     def __init__(self, beanFile):
         self.bean = uk.ac.gda.arpes.beans.ARPESScanBean.createFromXML(beanFile)
-        self.scienta = gda.factory.Finder.getInstance().listAllLocalObjects("uk.ac.gda.devices.vgscienta.VGScientaAnalyser")[0]
+        self.scienta = gda.factory.Finder.getInstance().find('analyser')
         self.progresscounter = 0
         self.totalSteps = 3
         self.lastreportedmeasurement = None
-        logger.debug('Initialised ARPESRun with file: ' + beanFile)
+        logger.debug('Initialised ARPESRun with file: ' + beanFile + ', and analyser: ' + self.scienta.name)
 
     def checkDevice(self):
         # The idea of this method it to check that the analyser is ready to be configured or
@@ -70,7 +70,10 @@ class ARPESRun:
         self.scienta.setEnergyStep(self.bean.getStepEnergy() / 1000.0)
         # Set the exposure time and iterations
         self.scienta.setCollectionTime(self.bean.getTimePerStep())
-        self.scienta.getCollectionStrategy().setMaxNumberOfFrames(self.bean.getIterations())
+        
+        # Temporary remove iterations as VGScientaAnalyserCamOnly only doesn't support it yet
+        # This won't work properly on i05 HR as it is this needs resolving!
+        #self.scienta.getCollectionStrategy().setMaxNumberOfFrames(self.bean.getIterations())
 
         # Check if its configure only
         if self.bean.isConfigureOnly():
