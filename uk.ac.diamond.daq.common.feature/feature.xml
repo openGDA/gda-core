@@ -34,6 +34,10 @@ http://www.eclipse.org/legal/epl-v10.html
          id="uk.ac.diamond.daq.thirdparty.springbase.feature"
          version="0.0.0"/>
 
+   <includes
+         id="uk.ac.diamond.daq.thirdparty.xml.feature"
+         version="0.0.0"/>
+
    <plugin
          id="uk.ac.gda.common"
          download-size="0"
@@ -48,20 +52,6 @@ http://www.eclipse.org/legal/epl-v10.html
 
    <plugin
          id="uk.ac.diamond.org.apache.activemq"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.apache.xerces"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.apache.xml.serializer"
          download-size="0"
          install-size="0"
          version="0.0.0"
