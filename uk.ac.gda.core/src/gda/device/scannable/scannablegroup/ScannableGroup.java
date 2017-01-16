@@ -99,8 +99,8 @@ public class ScannableGroup extends ScannableBase implements Configurable, IScan
 
 		// configure all members
 		for (Scannable scannable : groupMembers) {
-			if (scannable instanceof ScannableBase) {
-				((ScannableBase) scannable).configure();
+			if (scannable instanceof Configurable) {
+				((Configurable) scannable).configure();
 			}
 			scannable.addIObserver(this);
 		}

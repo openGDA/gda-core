@@ -28,7 +28,6 @@ import gda.device.ScannableMotion;
 import gda.device.detector.BufferedDetector;
 import gda.device.scannable.ContinuouslyScannable;
 import gda.device.scannable.PositionConvertorFunctions;
-import gda.device.scannable.ScannableBase;
 import gda.device.scannable.ScannableUtils;
 import gda.device.scannable.scannablegroup.IScannableGroup;
 import gda.factory.Findable;
@@ -90,9 +89,9 @@ public class ScannableCommands {
 						"Usage: pos [ScannableName] - returns the position of all Scannables [or the given scannable]");
 			} else if (args[0] instanceof IScannableGroup) {
 				return ScannableUtils.prettyPrintScannableGroup((IScannableGroup) args[0]);
-			} else if (args[0] instanceof ScannableBase) {// example: pos pseudoDeviceName, Jython command:
+			} else if (args[0] instanceof Scannable) {// example: pos pseudoDeviceName, Jython command:
 				// pos([pseudoDeviceName])
-				return ((ScannableBase) args[0]).__str__().toString();
+				return ((Scannable) args[0]).toFormattedString();
 			}
 			return args[0].toString();
 		} else if (args.length >= 2) {// example pos pseudoDeviceName newPosition, Jython command:
