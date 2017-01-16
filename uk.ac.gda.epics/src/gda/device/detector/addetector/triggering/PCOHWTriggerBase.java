@@ -18,6 +18,9 @@
 
 package gda.device.detector.addetector.triggering;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.ADDriverPco;
@@ -26,9 +29,6 @@ import gda.device.detector.areadetector.v17.ImageMode;
 import gda.scan.ScanInformation;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /*
  * Class of detector  to drive the PCO4000 camera using an external trigger
@@ -42,6 +42,7 @@ public class PCOHWTriggerBase extends SimpleAcquire {
 	private static Logger logger = LoggerFactory.getLogger(PCOHWTriggerBase.class);
 	private final ADDriverPco adDriverPco;
 	private double collectionTime = 0.;
+	private PcoTriggerMode triggerMode = PcoTriggerMode.EXTERNAL_AND_SOFTWARE;
 
 	public PCOHWTriggerBase(ADBase adBase, ADDriverPco adDriverPco) {
 		super(adBase, 0.);
@@ -77,10 +78,8 @@ public class PCOHWTriggerBase extends SimpleAcquire {
 		getAdBase().setImageModeWait(ImageMode.SINGLE);
 		adDriverPco.getAdcModePV().putNoWait(1); //2 adcs
 		adDriverPco.getTimeStampModePV().putNoWait(timeStamp);
-		// getAdBase().setAcquirePeriod(0.0); //this is needed for PCO to make sure delay=0 - do not use as it effects
-		// delay
-		getAdBase().setTriggerMode(PcoTriggerMode.EXTERNAL_AND_SOFTWARE.ordinal()); // exposure time set by camera
-																					// rather than trigger
+		// getAdBase().setAcquirePeriod(0.0); //this is needed for PCO to make sure delay=0 - do not use as it affects delay
+		getAdBase().setTriggerMode(triggerMode.ordinal());
 		adDriverPco.getArmModePV().putWait(true);
 		// the callback is coming back before the camera is ready as seen by the BUSY out is still high
 		while (!adDriverPco.getArmModePV().get()) {//this is not working as armMode does not reflect true state of arm - check with oscilloscope
@@ -205,5 +204,13 @@ public class PCOHWTriggerBase extends SimpleAcquire {
 
 	public void setCollectingData(boolean collectingData) {
 		this.collectingData = collectingData;
+	}
+
+	public PcoTriggerMode getTriggerMode() {
+		return triggerMode;
+	}
+
+	public void setTriggerMode(PcoTriggerMode triggerMode) {
+		this.triggerMode = triggerMode;
 	}
 }
