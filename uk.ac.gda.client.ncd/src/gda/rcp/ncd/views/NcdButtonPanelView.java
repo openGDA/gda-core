@@ -18,18 +18,6 @@
 
 package gda.rcp.ncd.views;
 
-import gda.data.metadata.GDAMetadataProvider;
-import gda.device.DeviceException;
-import gda.device.EnumPositioner;
-import gda.device.Scannable;
-import gda.device.scannable.corba.impl.ScannableAdapter;
-import gda.factory.Findable;
-import gda.factory.Finder;
-import gda.jython.JythonServerFacade;
-import gda.rcp.ncd.Activator;
-import gda.rcp.ncd.NcdController;
-import gda.rcp.ncd.widgets.ShutterGroup;
-
 import java.util.ArrayList;
 
 import org.eclipse.core.runtime.IStatus;
@@ -55,10 +43,21 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.part.ViewPart;
-import uk.ac.gda.client.UIHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.data.metadata.GDAMetadataProvider;
+import gda.device.DeviceException;
+import gda.device.EnumPositioner;
+import gda.device.Scannable;
+import gda.device.scannable.corba.impl.ScannableAdapter;
+import gda.factory.Findable;
+import gda.factory.Finder;
+import gda.jython.JythonServerFacade;
+import gda.rcp.ncd.Activator;
+import gda.rcp.ncd.NcdController;
+import gda.rcp.ncd.widgets.ShutterGroup;
+import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.util.ThreadManager;
 
 public class NcdButtonPanelView extends ViewPart {
@@ -94,6 +93,7 @@ public class NcdButtonPanelView extends ViewPart {
 	private SelectionListener startListener = new SelectionListener() {
 		@Override
 		public void widgetSelected(SelectionEvent e) {
+			logger.info("Scan start requested from NcdButtonPanelView");
 			if (retainMetadata.getSelection()) {
 				try {
 					thicknessString = thicknessPositionLabel.getText();
