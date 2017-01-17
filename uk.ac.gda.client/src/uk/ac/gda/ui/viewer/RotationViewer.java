@@ -47,6 +47,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
+import gda.device.IScannableMotor;
 import gda.device.Scannable;
 import gda.device.ScannableMotionUnits;
 import uk.ac.gda.client.UIHelper;
@@ -350,9 +351,14 @@ public class RotationViewer {
 				try {
 					((ScannablePositionSource)motor).setPosition(targetVal);
 				} catch (final DeviceException e) {
-					logger.error("Exception when " + msg + ":" + e.getMessage());
-					logger.debug("Exception when " + msg + ":" + e.getMessage(), e);
-					UIHelper.showError("Exception when " + msg, e.getMessage());
+					if (e.getMessage().contains(IScannableMotor.WAS_ALREADY_BUSY_SO_COULD_NOT_BE_MOVED)) {
+						logger.info("Exception when " + msg + ":" + e.getMessage());
+					}
+					else {
+						logger.error("Exception when " + msg + ":" + e.getMessage());
+						logger.debug("Exception when " + msg + ":" + e.getMessage(), e);
+						UIHelper.showError("Exception when " + msg, e.getMessage());
+					}
 				}
 				finally {
 					try {

@@ -237,7 +237,8 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 
 			// check motor status. Throw an error if it is not idle. TODO: There is a race condition here
 			if (this.isBusy()) {
-				throw new DeviceException("The scannable motor " + getName() + " (" + motor.getName() + ") was already busy so could not be moved");
+				throw new DeviceException("The scannable motor " + getName() + " (" + motor.getName() + ") " + IScannableMotor.WAS_ALREADY_BUSY_SO_COULD_NOT_BE_MOVED);
+				// RotationViewer.moveMotor now depends on this DeviceException containing the substring defined by IScannableMotor.WAS_ALREADY_BUSY_SO_COULD_NOT_BE_MOVED
 			}
 
 			try {
