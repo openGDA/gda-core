@@ -50,4 +50,11 @@ public class DarkImageAreaDetectorWritingFilesRunnableDeviceModel extends AreaDe
 			return false;
 		return true;
 	}
+
+	@Override
+	public String toString() {
+		return getClass().getName() + '@' + Integer.toHexString(hashCode())
+				+ " [frequency=" + frequency + ", exposureTime=" + getExposureTime()
+				+ ", name=" + getName() + ", timeout=" + getTimeout() + "]";
+	}
 }
