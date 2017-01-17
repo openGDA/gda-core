@@ -18,18 +18,6 @@
 
 package gda.rcp.ncd.views;
 
-import gda.data.metadata.GDAMetadataProvider;
-import gda.device.DeviceException;
-import gda.device.EnumPositioner;
-import gda.device.Scannable;
-import gda.device.scannable.corba.impl.ScannableAdapter;
-import gda.factory.Findable;
-import gda.factory.Finder;
-import gda.jython.JythonServerFacade;
-import gda.rcp.ncd.Activator;
-import gda.rcp.ncd.NcdController;
-import gda.rcp.ncd.widgets.ShutterGroup;
-
 import java.util.ArrayList;
 
 import org.eclipse.core.runtime.IStatus;
@@ -58,6 +46,18 @@ import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.data.metadata.GDAMetadataProvider;
+import gda.device.DeviceException;
+import gda.device.EnumPositioner;
+import gda.device.Scannable;
+import gda.device.scannable.corba.impl.ScannableAdapter;
+import gda.factory.Findable;
+import gda.factory.Finder;
+import gda.jython.JythonServerFacade;
+import gda.rcp.ncd.Activator;
+import gda.rcp.ncd.NcdController;
+import gda.rcp.ncd.widgets.ShutterGroup;
+import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.util.ThreadManager;
 
 public class NcdButtonPanelView extends ViewPart {
@@ -93,6 +93,7 @@ public class NcdButtonPanelView extends ViewPart {
 	private SelectionListener startListener = new SelectionListener() {
 		@Override
 		public void widgetSelected(SelectionEvent e) {
+			logger.info("Scan start requested from NcdButtonPanelView");
 			if (retainMetadata.getSelection()) {
 				try {
 					thicknessString = thicknessPositionLabel.getText();
@@ -107,7 +108,12 @@ public class NcdButtonPanelView extends ViewPart {
 //			try {
 				//only show dialog if empty title
 			boolean needTitle = titleEntry.getText().trim().equals("");
-			boolean needThickness = thicknessPositionLabel.getText().trim().matches("|NaN");
+			boolean needThickness = true;
+			try {
+				needThickness = thicknessScannable.isAt(Double.NaN);
+			} catch (DeviceException e1) {
+				logger.error("Could not read thickness scannable position - assuming not set", e1);
+			}
 				if (needTitle || needThickness) {
 					Dialog cDlg = new ConfirmTitleAndThicknessDialog(Display.getCurrent().getActiveShell(), needTitle, needThickness);
 					cDlg.open();
@@ -157,7 +163,7 @@ public class NcdButtonPanelView extends ViewPart {
 				@Override
 				public void run() {
 					try {
-						NcdController.getInstance().getTfg().stop();
+						NcdController.getInstance().getNcdDetectorSystem().stop();
 					} catch (DeviceException de) {
 						// Create the required Status object
 						final Status status = new Status(IStatus.ERROR, Activator.PLUGIN_ID, "Error Stopping Tfg", de);
@@ -247,6 +253,9 @@ public class NcdButtonPanelView extends ViewPart {
 									} catch (DeviceException e2) {
 									}
 								}
+								thicknessPositionLabel.setForeground(Display.getDefault().getSystemColor(0));
+							} else {
+								thicknessPositionLabel.setForeground(Display.getDefault().getSystemColor(3));
 							}
 
 						}
@@ -365,10 +374,20 @@ public class NcdButtonPanelView extends ViewPart {
 		@Override
 		protected void okPressed() {
 			if (title) {
-				titleEntry.setText(titleText.getText());
+				try {
+					GDAMetadataProvider.getInstance(true).setMetadataValue("title", titleText.getText().trim());
+				} catch (DeviceException e) {
+					UIHelper.showError("Could not set title metadata", e.getLocalizedMessage());
+					logger.error("Could not set title metadata", e);
+				}
 			}
 			if (thickness) {
-				thicknessPositionLabel.setText(thicknessText.getText());
+				try {
+					thicknessScannable.moveTo(Double.valueOf(thicknessText.getText()));
+				} catch (DeviceException e) {
+					UIHelper.showError("Could not set Sample Thickness", e.getLocalizedMessage());
+					throw new IllegalStateException();
+				}
 			}
 			super.okPressed();
 		}

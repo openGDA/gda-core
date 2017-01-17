@@ -34,7 +34,7 @@ public class MetaDataProcessingScanListener extends DataProcessingScanListenerBa
 
 	@Override
 	public void doProcessing() {
-		List<String> values = new ArrayList<>(metadataEntries.size());
+		List<String> values = new ArrayList<>(metadataEntries.size() + 1);
 		values.add(filepath);
 		for (MetadataEntry entry : metadataEntries) {
 			values.add(entry.getMetadataValue());

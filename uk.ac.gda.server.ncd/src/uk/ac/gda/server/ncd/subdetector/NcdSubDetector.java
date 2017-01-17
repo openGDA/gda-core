@@ -51,12 +51,16 @@ import gda.device.detector.NXDetectorData;
 import gda.factory.FactoryException;
 import gda.jython.JythonServerFacade;
 import gda.util.persistence.LocalParameters;
+import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
 import uk.ac.gda.server.ncd.detectorsystem.NcdDetectorSystem;
 
 public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
 
 	private static final Logger logger = LoggerFactory.getLogger(NcdSubDetector.class);
+	private static final String CALIBRATRION_ATTRIBUTE = "calibrationFile";
+	private static final String MASK_ATTRIBUTE = "maskFile";
+
 	protected Detector detector;
 	protected String detectorType;
 	protected double pixelSize = 0.0;
@@ -69,25 +73,32 @@ public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
 	protected FileConfiguration configuration;
 
 	protected void restoreAttributeMap() {
-		if (configuration != null)
+		if (configuration != null) {
 			return;
+		}
+		logger.trace("{} - configuration null - reloading", getName());
 		try {
 			configuration = LocalParameters.getXMLConfiguration(this.getClass().getCanonicalName()+":"+getName());
 			for (Iterator iterator = configuration.getKeys(); iterator.hasNext();) {
 				String name = (String) iterator.next();
-				if (attributeMap.containsKey(name))
+				if (attributeMap.containsKey(name)) {
+					logger.trace("{}.restore - {} already in map, ignoring later value ({})", getName(), name, attributeMap.get(name));
 					continue; // don't overwrite
+				}
 				try {
 					Object property = configuration.getProperty(name);
 					if (property instanceof List) { // I get doubles I put in back in lists...
 						property = ((List) property).get(0);
+						logger.trace("{}.restore - {} returned list ({}) - using first value", getName(), name, property);
 					}
 					try {
 						property = Double.parseDouble(property.toString());
+						logger.trace("{}.restore - {} converted to double", getName(), name);
 					} catch (Exception e) {
 						// was worth a try (literally)
 					}
 					attributeMap.put(name, property);
+					logger.trace("{}.restoring - {}: {}", getName(), name, configuration.getString(name));
 				} catch (Exception e) {
 					logger.info("Error restoring attribute '{}' for detector {}", name, getName());
 				}
@@ -97,7 +108,7 @@ public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
 			logger.error("{} - error restoring attributes from LocalParameters", getName(), e);
 		}
 	}
-	
+
 	public Detector getDetector() {
 		return detector;
 	}
@@ -211,28 +222,45 @@ public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
 	@Override
 	public void setAttribute(String attributeName, Object value) throws DeviceException {
 		dp = null;
+		logger.trace("{}.setAttribute - Setting {} to '{}'", getName(), attributeName, value);
 		restoreAttributeMap();
+		logger.trace("{}.setAttribute - Attribute map restored", getName());
 		if (descriptionLabel.equals(attributeName)) {
+			logger.trace("{}.setAttribute - Setting {} - not using xml", getName(), descriptionLabel);
 			description = (String) value;
 		} else if (value != null) {
 			attributeMap.put(attributeName, value);
 			if (configuration != null)
+				logger.trace("{}.setAttribute - setting xml {} to {}", getName(), attributeName, value);
 				configuration.setProperty(attributeName, value);
 		} else if (attributeMap.containsKey(attributeName)) {
+			logger.trace("{}.setAttribute - value is null, removing {} from attributes", getName(), attributeName);
 			attributeMap.remove(attributeName);
 			if (configuration != null)
+				logger.trace("{} - value is null, removing from xml configuration", getName());
 				configuration.clearProperty(attributeName);
 		}
+		logger.trace("{}.setAttribute - After set {} is {} in map, {} in configuration", getName(),
+				attributeName,
+				attributeMap.getOrDefault(attributeName, null),
+				configuration == null ? "n/a" : configuration.getProperty(attributeName));
 	}
 
 	@Override
 	public Object getAttribute(String attributeName) throws DeviceException {
+		logger.trace("{}.getAttribute - getting {}", getName(), attributeName);
 		restoreAttributeMap();
 		if (descriptionLabel.equals(attributeName)) {
 			return description;
 		} else if (attributeMap.containsKey(attributeName)) {
-			return attributeMap.get(attributeName);
+			Object value = attributeMap.get(attributeName);
+			logger.trace("{}.getAttribute - in map returning {}", getName(), value);
+			logger.trace("{}.getAttribute - not using value in xml ({})",
+					getName(),
+					configuration == null ? "n/a" : configuration.getProperty(attributeName));
+			return value;
 		}
+		logger.trace("{}.getAttribute - {} not present, returning null", getName(), attributeName);
 		return null;
 	}
 
@@ -276,7 +304,7 @@ public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
 
 			detTree.addChildNode(type_node);
 		}
-		
+
 		if (getDetectorType() != null) {
 			ngd = new NexusGroupData(getDetectorType());
 			ngd.isDetectorEntryData = false;
@@ -297,49 +325,53 @@ public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
 			detTree.addChildNode(type_node);
 		}
 
-		if (getPixelSize() != 0.0) {
-			ngd = new NexusGroupData(getPixelSize());
-			ngd.isDetectorEntryData = false;
-
-			for (String label : new String[] { "x_pixel_size", "y_pixel_size" }) {
-				NexusTreeNode type_node = new NexusTreeNode(label, NexusExtractor.SDSClassName, null, ngd);
-				type_node.setIsPointDependent(false);
-				type_node.addChildNode(new NexusTreeNode("units", NexusExtractor.AttrClassName, type_node,
-						new NexusGroupData("m")));
-
-				detTree.addChildNode(type_node);
-			}
-		}
 
 		if (mask != null) {
 			int[] devicedims = getDataDimensions();
 			ngd = new NexusGroupData(new int[] { devicedims[0], devicedims[1] }, mask.getData());
 			nxdata.addData(getName() + "mask", ngd, null, null);
 		}
-		String maskFile = (String) getAttribute("maskFile");
+		String maskFile = (String) getAttribute(MASK_ATTRIBUTE);
 		if (maskFile != null) {
 			linkMaskFile(nxdata, maskFile);
 		}
-		String calibration = (String) getAttribute("calibrationFile");
-		if (calibration != null && !calibration.isEmpty()) {
-			linkCalibrationFile(nxdata, calibration);
-		}
+//		String calibration = (String) getAttribute("calibrationFile");
+//		if (calibration != null && !calibration.isEmpty()) {
+//			linkCalibrationFile(nxdata, calibration);
+//		}
 
-		for (String label : new String[] { "distance", "beam_center_x", "beam_center_y", "scaling_factor" }) {
-			if (attributeMap.containsKey(label)) {
-				try {
-					ngd = new NexusGroupData((Double) attributeMap.get(label));
-					ngd.isDetectorEntryData = "scaling_factor".equals(label);
+		if (attributeMap.containsKey(CALIBRATRION_ATTRIBUTE)) {
+			linkCalibrationFile(nxdata, (String) attributeMap.get(CALIBRATRION_ATTRIBUTE));
+		} else {
+			if (getPixelSize() != 0.0) {
+				ngd = new NexusGroupData(getPixelSize());
+				ngd.isDetectorEntryData = false;
 
+				for (String label : new String[] { "x_pixel_size", "y_pixel_size" }) {
 					NexusTreeNode type_node = new NexusTreeNode(label, NexusExtractor.SDSClassName, null, ngd);
 					type_node.setIsPointDependent(false);
-
-					type_node.addChildNode(new NexusTreeNode("units", NexusExtractor.AttrClassName, type_node, label
-							.equals("distance") ? new NexusGroupData("m") : null));
+					type_node.addChildNode(new NexusTreeNode("units", NexusExtractor.AttrClassName, type_node,
+							new NexusGroupData("m")));
 
 					detTree.addChildNode(type_node);
-				} catch (Exception e) {
-					logger.warn("{} - Error writing metadata {}: ", getName(), label, e);
+				}
+			}
+			for (String label : new String[] { "distance", "beam_center_x", "beam_center_y", "scaling_factor" }) {
+				if (attributeMap.containsKey(label)) {
+					try {
+						ngd = new NexusGroupData((Double) attributeMap.get(label));
+						ngd.isDetectorEntryData = "scaling_factor".equals(label);
+
+						NexusTreeNode type_node = new NexusTreeNode(label, NexusExtractor.SDSClassName, null, ngd);
+						type_node.setIsPointDependent(false);
+
+						type_node.addChildNode(new NexusTreeNode("units", NexusExtractor.AttrClassName, type_node, label
+								.equals("distance") ? new NexusGroupData("m") : null));
+
+						detTree.addChildNode(type_node);
+					} catch (Exception e) {
+						logger.warn("{} - Error writing metadata {}: ", getName(), label, e);
+					}
 				}
 			}
 		}
@@ -397,22 +429,42 @@ public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
 			JythonServerFacade.getInstance().print(String.format("%s - calibration file '%s' does not exist", getName(), filePath));
 			return;
 		}
+		DataHolder loadFile;
 		try {
-			new HDF5Loader(filePath).loadFile();
+			loadFile = new HDF5Loader(filePath).loadFile();
 		} catch (ScanFileHolderException sfhe) {
 			logger.error("{} - Could not open calibration file tree", getName(), sfhe);
 			return;
 		}
+
+		//sample calibration
+
+		Dataset dataset = loadFile.getDataset("/entry/instrument/detector/beam_center_x");
+
+		NexusGroupData ngd;
+		ngd = NexusGroupData.createFromDataset(dataset);
+		NexusTreeNode type_node = new NexusTreeNode("beam_center_x", NexusExtractor.SDSClassName, null, ngd);
+//		type_node.addChildNode(new NexusTreeNode("units", NexusExtractor.AttrClassName, type_node, "beam_center_x"
+//				.equals("distance") ? new NexusGroupData("m") : null));
 		try {
-			NexusGroupData ngd = new NexusGroupData("nxfile://" + filePath + "#entry/");
-			ngd.isDetectorEntryData = true;
-			NexusTreeNode type_node = new NexusTreeNode("calibration", NexusExtractor.ExternalSDSLink, null, ngd);
 			nxdata.getDetTree(getTreeName()).addChildNode(type_node);
-			logger.info("{} - Linked calibration file {}", getName(), filePath);
-		} catch (Exception e) {
-			logger.error("{} - Could not link external calibration", getName(), e);
+		} catch (DeviceException e) {
 		}
+
+
 	}
+
+
+//		ngd = new NexusGroupData((Double) attributeMap.get(label));
+//		ngd.isDetectorEntryData = "scaling_factor".equals(label);
+//
+//		NexusTreeNode type_node = new NexusTreeNode(label, NexusExtractor.SDSClassName, null, ngd);
+//		type_node.setIsPointDependent(false);
+//
+//		type_node.addChildNode(new NexusTreeNode("units", NexusExtractor.AttrClassName, type_node, label
+//				.equals("distance") ? new NexusGroupData("m") : null));
+//
+//		detTree.addChildNode(type_node);
 
 	@Override
 	public double getPixelSize() throws DeviceException {

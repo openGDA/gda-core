@@ -21,10 +21,6 @@
 	    <description>This is a view allowing you to view NCD Graphics.</description>
 	    <topic href="html/subtopic.html" label="NCD Graphics Help" />
 	 </context>  
-	 <context id="qaxiscalibration">
-	    <description>This is a view allowing you to view NCD Q-Axis Calibration.</description>
-	    <topic href="html/subtopic.html" label="NCD Q-Axis Calibration Help" />
-	 </context>   
 	 <context id="status">
 	    <description>This is a view allowing you to view NCD Status.</description>
 	    <topic href="html/subtopic.html" label="NCD Status Help" />
