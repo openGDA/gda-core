@@ -1,20 +1,19 @@
 """Utility script to help manage BSL file conversion"""
 from gda.configuration.properties import LocalProperties
-import subprocess
-import os
 from gda.observable import IObserver
 from gda.util.persistence import LocalParameters
 from gda.data.metadata import GDAMetadataProvider
-COMMAND_PROPERTY = "gda.scan.executeAtEnd"
-BKUP_COMMAND_PROPERTY = "gda.scan.executeAtEnd.bkup"
+BSL_CONVERSION_CONFIGURED = 'gda.scan.processing.bsl.configured'
+
+RUNNER = Finder.getInstance().find('bslConversion')
 
 class BslConversionUpdater(IObserver):
     def update(self, source, arg):
         print 'Visit changed to ' + str(arg)
         restore()
 
-if not LocalProperties.contains(BKUP_COMMAND_PROPERTY):
-    LocalProperties.set(BKUP_COMMAND_PROPERTY, LocalProperties.get(COMMAND_PROPERTY))
+if not LocalProperties.contains(BSL_CONVERSION_CONFIGURED):
+    LocalProperties.set(BSL_CONVERSION_CONFIGURED, True)
     for meta in GDAMetadataProvider.getInstance().getMetadataEntries():
         if meta.name == 'visit':
             break
@@ -22,7 +21,6 @@ if not LocalProperties.contains(BKUP_COMMAND_PROPERTY):
         meta.addIObserver(BslConversionUpdater())
 
 
-DEFAULT_COMMAND = LocalProperties.get(BKUP_COMMAND_PROPERTY)
 CONFIGURATION_FILE = 'bslUsers'
 DEFAULT = False
 
@@ -30,35 +28,27 @@ STORE = LocalParameters.getXMLConfiguration(CONFIGURATION_FILE)
 
 def isConvertingOn():
     """Check whether new files will be converted automatically"""
-    return STORE.getProperty(_get_store_key()) or False
+    return RUNNER.enabled
 
-def createBslFiles(create, command=DEFAULT_COMMAND):
+def createBslFiles(create):
     """Automatically convert scan files to bsl
 
     Arguments:
     create: if True, scan files are converted
-    command: (optional) if a different command to the default is required
-        it can be specified here
     """
-    if create:
-        LocalProperties.set(COMMAND_PROPERTY, command)
-    else:
-        LocalProperties.set(COMMAND_PROPERTY, ':')
+    RUNNER.enabled = create
     _store(create)
 
-def convertFileToBsl(filepath, check=False):
+def convertFileToBsl(filepath):
     """manually convert a file to BSL format
 
     Arguments:
     filepath: absolute path of file to convert
-    check: (optional - defaults to False) if True, return exit code from command
     """
 
     if not os.path.exists(filepath):
         raise IOError('"%s" does not exist' %(filepath))
-    result = subprocess.check_call([DEFAULT_COMMAND, filepath])
-    if check:
-        return result
+    RUNNER.getRunner().triggerProcessing(filepath)
 
 def convertAllFilesToBsl(topDir, recursive=False):
     """Convert all nxs files in directory to BSL
