@@ -131,28 +131,7 @@ public class ScanRequestConverter {
 		final ScanRequest<IROI> scanRequest = new ScanRequest<>();
 
 		final IMappingScanRegion scanRegion = mappingBean.getScanDefinition().getMappingScanRegion();
-		if (!(scanRegion.getScanPath() instanceof IMapPathModel)) {
-			final String message = "Could not set fast and slow axis. The scan path is not an instance of IMapPathModel.";
-			logger.error(message);
-			throw new IllegalArgumentException(message);
-		}
-
-		// get the fast and slow axis of the scan.
-		final IMapPathModel mapPath = (IMapPathModel) scanRegion.getScanPath();
-		final String fastAxis;
-		final String slowAxis;
-		if (mappingStageInfo != null) {
-			// If the mapping stage is set, use these axis, and update the default map path with them
-			fastAxis = mappingStageInfo.getActiveFastScanAxis();
-			slowAxis = mappingStageInfo.getActiveSlowScanAxis();
-			mapPath.setFastAxisName(fastAxis);
-			mapPath.setSlowAxisName(slowAxis);
-		} else {
-			// Otherwise we use the default axis in the map path model
-			logger.warn("No mapping axis manager is set - the scan request will use default axis names!");
-			fastAxis = mapPath.getFastAxisName();
-			slowAxis = mapPath.getSlowAxisName();
-		}
+		final IMapPathModel mapPath = getMapPathAndConfigureScanAxes(scanRegion);
 
 		// Build the list of models for the scan
 		// first get the models for any outer scannables to be included
@@ -169,7 +148,8 @@ public class ScanRequestConverter {
 		final CompoundModel<IROI> compoundModel = new CompoundModel<>(models);
 
 		// Add the ROI for the mapping region
-		final ScanRegion<IROI> region = new ScanRegion<>(scanRegion.getRegion().toROI(), slowAxis, fastAxis);
+		final ScanRegion<IROI> region = new ScanRegion<>(scanRegion.getRegion().toROI(),
+				mapPath.getSlowAxisName(), mapPath.getFastAxisName());
 
 		// Convert to a List of ScanRegion<IROI> containing one item to avoid unsafe varargs warning
 		compoundModel.setRegions(Arrays.asList(region));
@@ -221,6 +201,28 @@ public class ScanRequestConverter {
 		}
 
 		return scanRequest;
+	}
+
+	private IMapPathModel getMapPathAndConfigureScanAxes(IMappingScanRegion scanRegion) {
+		// check the scan path is an IMapPathModel
+		if (!(scanRegion.getScanPath() instanceof IMapPathModel)) {
+			final String message = "Could not set fast and slow axis. The scan path is not an instance of IMapPathModel.";
+			logger.error(message);
+			throw new IllegalArgumentException(message);
+		}
+
+		// get the fast and slow axis of the scan.
+		final IMapPathModel mapPath = (IMapPathModel) scanRegion.getScanPath();
+		if (mappingStageInfo != null) {
+			// If the mapping stage is set, use these axis, and update the default map path with them
+			mapPath.setFastAxisName(mappingStageInfo.getActiveFastScanAxis());
+			mapPath.setSlowAxisName(mappingStageInfo.getActiveSlowScanAxis());
+		} else {
+			// Otherwise we use the default axis in the map path model
+			logger.warn("No mapping axis manager is set - the scan request will use default axis names!");
+		}
+
+		return mapPath;
 	}
 
 	private void setSampleMetadata(IMappingExperimentBean mappingBean, ScanRequest<IROI> scanRequest) {
