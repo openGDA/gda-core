@@ -60,6 +60,9 @@ public class AreaDetectorRunnableDevice extends AbstractAreaDetectorRunnableDevi
 	public void configure(AreaDetectorRunnableDeviceModel model) throws ScanningException {
 		setDeviceState(DeviceState.CONFIGURING);
 
+		// Cache the model so it can be used in other methods (createNexusObject). This seems a bit messy
+		this.model = model;
+
 		// Get the detector by name defined in the model
 		detector = Finder.getInstance().find(model.getName());
 		if (detector == null) {
@@ -69,8 +72,10 @@ public class AreaDetectorRunnableDevice extends AbstractAreaDetectorRunnableDevi
 		try {
 			// Get the data size so we know how big to write in the file and cache it here so we don't
 			// need to go to EPICS all the time
-			dataDimensions[0] = detector.getAdBase().getSizeY_RBV();
-			dataDimensions[1] = detector.getAdBase().getSizeX_RBV();
+			// FIXME This is a potential bug the values obtained from these PVs will only be correct if
+			// one frame has been through the AD pipeline.
+			dataDimensions[0] = detector.getAdBase().getArraySizeY_RBV();
+			dataDimensions[1] = detector.getAdBase().getArraySizeX_RBV();
 			// Get the dataType to expect
 			dataType = detector.getNdArray().getDataType();
 
