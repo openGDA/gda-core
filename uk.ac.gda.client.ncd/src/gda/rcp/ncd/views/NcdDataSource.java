@@ -220,6 +220,8 @@ public class NcdDataSource extends ViewPart implements IObserver {
 		grpStatistics.setLayout(new GridLayout(3, false));
 		grpStatistics.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
+		Label spacer = new Label(grpStatistics, SWT.NONE);
+		spacer.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
 		Label txtValue = new Label(grpStatistics, SWT.NONE);
 		txtValue.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
 		txtValue.setAlignment(SWT.CENTER);
@@ -279,6 +281,9 @@ public class NcdDataSource extends ViewPart implements IObserver {
 		gd_textSum.widthHint = 120;
 		textSum.setLayoutData(gd_textSum);
 		textSum.setEditable(false);
+
+		Label spacer2 = new Label(grpStatistics, SWT.NONE);
+		spacer.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
 
 		Label txtMean = new Label(grpStatistics, SWT.NONE);
 		txtMean.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
