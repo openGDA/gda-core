@@ -80,11 +80,14 @@ public class NcdDataSource extends ViewPart implements IObserver {
 	private Button btnStopUpdates;
 	private Button btnStartUpdates;
 
+	protected String default_source;
+
 	/**
 	 * Controls the server side display of live or near live data and displays statistics
 	 */
 	public NcdDataSource() {
 		panelId = "unknown";
+		default_source = "nothing";
 	}
 
 	@Override
@@ -138,10 +141,6 @@ public class NcdDataSource extends ViewPart implements IObserver {
 			}
 		});
 
-		if (combo.getItemCount() > 0) {
-			combo.select(0);
-			updateSourceCombo();
-		}
 		Group grpMaths = new Group(parent, SWT.NONE);
 		grpMaths.setText("Maths");
 		grpMaths.setLayout(new GridLayout(4, false));
@@ -311,7 +310,7 @@ public class NcdDataSource extends ViewPart implements IObserver {
 	}
 
 	protected void populateSourceCombo() {
-		String oldSelected = "nothing";
+		String oldSelected = default_source;
 		try {
 			oldSelected = combo.getItem(combo.getSelectionIndex());
 		} catch(Exception ignored) {
@@ -333,6 +332,7 @@ public class NcdDataSource extends ViewPart implements IObserver {
 			combo.add(thing);
 			if (thing.equals(oldSelected)) {
 				combo.select(combo.getItemCount()-1);
+				updateSourceCombo();
 			}
 		}
 	}

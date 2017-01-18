@@ -22,5 +22,6 @@ public class NcdDataSourceWaxs extends NcdDataSource {
 
 	public NcdDataSourceWaxs() {
 		super.panelId = "uk.ac.gda.client.ncd.waxsview";
+		super.default_source = "Live WAXS";
 	}
 }

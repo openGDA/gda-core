@@ -22,5 +22,6 @@ public class NcdDataSourceSaxs extends NcdDataSource {
 
 	public NcdDataSourceSaxs() {
 		super.panelId = "uk.ac.gda.client.ncd.saxsview";
+		super.default_source = "Live SAXS";
 	}
 }
