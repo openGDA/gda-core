@@ -3,8 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: uk.ac.gda.tomography.scan.editor;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-ClassPath: .,
- swt-grouplayout.jar
 Bundle-Activator: uk.ac.gda.tomography.scan.presentation.ScanEditorPlugin$Implementation
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
