@@ -18,6 +18,21 @@
 
 package gda.jython.commands;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.TreeMap;
+import java.util.Vector;
+
+import org.apache.commons.lang.ArrayUtils;
+import org.python.core.PyException;
+import org.python.core.PyInteger;
+import org.python.core.PyList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.configuration.properties.LocalProperties;
 import gda.data.scan.datawriter.DataWriter;
 import gda.device.Detector;
@@ -50,21 +65,6 @@ import gda.scan.StaticScan;
 import gda.scan.TestScan;
 import gda.scan.TimeScan;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.TreeMap;
-import java.util.Vector;
-
-import org.apache.commons.lang.ArrayUtils;
-import org.python.core.PyException;
-import org.python.core.PyInteger;
-import org.python.core.PyList;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * Holder for a series of static methods to operate Scannable objects
  */
@@ -75,27 +75,27 @@ public class ScannableCommands {
 	private static boolean posCommandIsInTheProcessOfListingAllScannables = false;
 
 	/**
-	 * The pos command. Reports the current position of a scannable or moves one or more scannables concurrently.
+	 * The pos command. Reports the current position of a scannable or moves one or more scannables concurrently. It
+	 * prints the output to the terminal.
 	 *
 	 * @param args
-	 * @return String reporting final positions
 	 * @throws Exception
 	 *             - any exception within this method
 	 */
-	public static String pos(Object... args) throws Exception {
+	public static void pos(Object... args) throws Exception {
 		if (args.length == 1) {
 			if (args[0] == null) {// example: pos None, Jython command: pos([None])
 				throw new Exception(
 						"Usage: pos [ScannableName] - returns the position of all Scannables [or the given scannable]");
 			} else if (args[0] instanceof IScannableGroup) {
-				return ScannableUtils.prettyPrintScannableGroup((IScannableGroup) args[0]);
-			} else if (args[0] instanceof Scannable) {// example: pos pseudoDeviceName, Jython command:
-				// pos([pseudoDeviceName])
-				return ((Scannable) args[0]).toFormattedString();
+				InterfaceProvider.getTerminalPrinter().print(ScannableUtils.prettyPrintScannableGroup((IScannableGroup) args[0]));
+			} else if (args[0] instanceof Scannable) {// example: pos pseudoDeviceName, Jython command: pos([pseudoDeviceName])
+				InterfaceProvider.getTerminalPrinter().print(((Scannable) args[0]).toFormattedString());
 			}
-			return args[0].toString();
-		} else if (args.length >= 2) {// example pos pseudoDeviceName newPosition, Jython command:
-						// pos([pseudoDeviceName, newPosition]
+			else {
+				InterfaceProvider.getTerminalPrinter().print(args[0].toString());
+			}
+		} else if (args.length >= 2) {// example pos pseudoDeviceName newPosition, Jython command: pos([pseudoDeviceName, newPosition]
 			// identify scannables and the positions to move them to
 			Scannable[] scannableList = new Scannable[args.length / 2];
 			HashMap<Scannable, Object> positionMap = new HashMap<Scannable, Object>();
@@ -193,7 +193,7 @@ public class ScannableCommands {
 				for (Scannable scn3: scannableList){
 					output += ScannableUtils.getFormattedCurrentPosition(scn3) + "\n";
 				}
-				return output.trim();
+				InterfaceProvider.getTerminalPrinter().print(output.trim());
 			} catch (Exception e) {
 				// Call the atCommandFailure() hooks
 				for (Scannable scn: scannableList){
@@ -202,7 +202,6 @@ public class ScannableCommands {
 				throw e;
 			}
 		}
-		return "";
 	}
 
 	/**
@@ -292,21 +291,6 @@ public class ScannableCommands {
 	}
 
 	/**
-	 * Single argument version of pos - used by the pos.py script
-	 *
-	 * @param args
-	 * @return String reporting final positions
-	 */
-	public static String pos(Object args) {
-		if (args instanceof IScannableGroup){
-			return ScannableUtils.prettyPrintScannableGroup((IScannableGroup) args);
-		} else if (args instanceof Scannable){
-			return ((Scannable) args).toFormattedString();
-		}
-		return args.toString();
-	}
-
-	/**
 	 * Gets a list of names of all the scannables on the server
 	 */
 	public static List<String> getScannableNames() throws DeviceException {
@@ -389,15 +373,14 @@ public class ScannableCommands {
 	}
 
 	/**
-	 * Relative move version of pos.
+	 * Relative move version of pos. Prints the output to the terminal.
 	 *
 	 * @param args
-	 * @return String - reporting final positions
 	 * @throws Exception
 	 */
-	public static String inc(Object... args) throws Exception {
+	public static void inc(Object... args) throws Exception {
 		if (args.length == 1) {
-			return args[0].toString();
+			InterfaceProvider.getTerminalPrinter().print(args[0].toString());
 		} else if (args.length >= 2) {
 			// identify scannables and the positions to move them to
 			Scannable[] scannables = new Scannable[args.length / 2];
@@ -442,9 +425,8 @@ public class ScannableCommands {
 			for (int i = 0; i < j; i++) {
 				output += scannables[i].toFormattedString() + " ";
 			}
-			return output;
+			InterfaceProvider.getTerminalPrinter().print(output);
 		}
-		return "";
 	}
 
 	/**
