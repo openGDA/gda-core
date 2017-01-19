@@ -15,7 +15,6 @@ Require-Bundle: org.eclipse.core.runtime,
  org.apache.commons.beanutils;bundle-version="1.9.1",
  uk.ac.gda.exafs.datawriter;bundle-version="1.0.0",
  uk.ac.gda.exafs.api;bundle-version="1.0.0",
- uk.ac.diamond.org.springframework;bundle-version="4.0.6",
  uk.ac.diamond.org.nfunk.jep;bundle-version="2.4.1",
  slf4j.api;bundle-version="[1.7.2,2.0.0)",
  uk.ac.gda.core;bundle-version="8.42.0",
@@ -25,7 +24,10 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.richbeans.api;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Eclipse-RegisterBuddy: uk.ac.gda.common, uk.ac.gda.core, uk.ac.gda.client
+Eclipse-RegisterBuddy: uk.ac.gda.common,
+ uk.ac.gda.core,
+ uk.ac.gda.client,
+ uk.ac.diamond.org.springframework
 Bundle-Vendor: Diamond Light Source
 Export-Package: gda.device.detector,
  gda.device.detector.countertimer,
@@ -36,3 +38,4 @@ Export-Package: gda.device.detector,
  uk.ac.gda.server.exafs.scan,
  uk.ac.gda.server.exafs.scan.iterators,
  uk.ac.gda.server.exafs.scan.preparers
+Import-Package: org.springframework.beans.factory;version="4.0.6.RELEASE"
