@@ -19,10 +19,10 @@
 
 package gda.function;
 
+import org.jscience.physics.quantities.Quantity;
+
 import gda.factory.FactoryException;
 import gda.util.QuantityFactory;
-
-import org.jscience.physics.quantities.Quantity;
 
 /**
  * LinearFunction (yValue = xValue * slope + intercept)
@@ -120,12 +120,12 @@ public class LinearFunction extends Function {
 		// slope = slopeNumerator.divide(slopeDenominator);
 		slope = slopeNumerator.times(slopeDenominator.reciprocal());
 
+		logger.debug("LinearFunction.evaluate: xValue is " + xValue.toString());
 		logger.debug("LinearFunction.evaluate: slope is " + slope.toString());
 		logger.debug("LinearFunction.evaluate: intercept is " + intercept.toString());
 
 		Quantity interim = xValue.times(slope).plus(intercept);
 
-		logger.debug("LinearFunction.evaluate: xValue is " + xValue.toString());
 		logger.debug("LinearFunction.evaluate: interim is " + interim.toString());
 
 		// The return value required from this method must have the same
