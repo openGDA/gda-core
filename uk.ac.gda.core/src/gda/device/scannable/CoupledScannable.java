@@ -21,6 +21,15 @@
  */
 package gda.device.scannable;
 
+import java.util.Arrays;
+import java.util.List;
+
+import org.apache.commons.lang.ArrayUtils;
+import org.jscience.physics.quantities.Quantity;
+import org.jscience.physics.units.Unit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.ScannableMotionUnits;
@@ -30,15 +39,6 @@ import gda.factory.Finder;
 import gda.function.Function;
 import gda.observable.IObserver;
 import gda.util.QuantityFactory;
-
-import java.util.Arrays;
-import java.util.List;
-
-import org.apache.commons.lang.ArrayUtils;
-import org.jscience.physics.quantities.Quantity;
-import org.jscience.physics.units.Unit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Couples together the movement of several other Scannables.
@@ -236,15 +236,13 @@ public class CoupledScannable extends ScannableMotionUnitsBase implements IObser
 		}
 
 		// loop through all functions, calculate and send command to Scannable
-		Quantity targets[] = new Quantity[theFunctions.length];
-		for (int i = 0; i < theFunctions.length; i++) {
+		final Quantity targets[] = new Quantity[theFunctions.length];
+		final Unit<? extends Quantity> userUnits = QuantityFactory.createUnitFromString(getUserUnits());
 
-			// need to generate the correct Quantity object
+		for (int i = 0; i < theFunctions.length; i++) {
 			// if the scannable can use units:
 			if (theScannables[i] instanceof ScannableMotionUnits) {
-				Unit<? extends Quantity> targetUnit = QuantityFactory
-						.createUnitFromString(((ScannableMotionUnits) theScannables[i]).getUserUnits());
-				targets[i] = theFunctions[i].evaluate(QuantityFactory.createFromObject(position, targetUnit));
+				targets[i] = theFunctions[i].evaluate(QuantityFactory.createFromObject(position, userUnits));
 			}
 			// else treat position as a dimensionless number
 			else {
@@ -327,5 +325,8 @@ public class CoupledScannable extends ScannableMotionUnitsBase implements IObser
 
 	}
 
-
+	@Override
+	public String toFormattedString() {
+		return ScannableUtils.formatScannableWithChildren(this, Arrays.asList(theScannables), true);
+	}
 }
