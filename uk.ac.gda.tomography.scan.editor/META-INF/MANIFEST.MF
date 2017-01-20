@@ -19,8 +19,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui.ide;visibility:=reexport,
  uk.ac.gda.core;bundle-version="8.26.0",
  uk.ac.gda.client;bundle-version="1.0.0",
- uk.ac.gda.common,
- uk.ac.diamond.org.springframework;bundle-version="4.0.6"
+ uk.ac.gda.common
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Bundle-ActivationPolicy: lazy
-Import-Package: org.slf4j;version="[1.7.2,2.0.0)"
+Import-Package: org.slf4j;version="[1.7.2,2.0.0)",
+ org.springframework.beans.factory;version="4.0.6.RELEASE"
