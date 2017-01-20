@@ -33,7 +33,8 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.ui.forms.events.ExpansionAdapter;
 import org.eclipse.ui.forms.events.ExpansionEvent;
 import org.eclipse.ui.forms.widgets.ExpandableComposite;
-import org.eclipse.wb.swt.SWTResourceManager;
+
+import com.swtdesigner.SWTResourceManager;
 
 import uk.ac.gda.common.rcp.util.GridUtils;
 

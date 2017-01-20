@@ -18,9 +18,6 @@
 
 package gda.simplescan;
 
-import gda.configuration.properties.LocalProperties;
-import gda.jython.JythonServerFacade;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
@@ -46,7 +43,12 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.wb.swt.SWTResourceManager;
+
+import com.swtdesigner.SWTResourceManager;
+
+import gda.configuration.properties.LocalProperties;
+import gda.jython.JythonServerFacade;
+
 
 public class PosComposite extends Composite {
 

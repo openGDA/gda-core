@@ -18,11 +18,6 @@
 
 package gda.rcp.views;
 
-import gda.device.DeviceException;
-import gda.device.Scannable;
-import gda.jython.JythonServerFacade;
-import gda.observable.IObserver;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -45,9 +40,15 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.wb.swt.SWTResourceManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.swtdesigner.SWTResourceManager;
+
+import gda.device.DeviceException;
+import gda.device.Scannable;
+import gda.jython.JythonServerFacade;
+import gda.observable.IObserver;
 
 /**
  * A class which provides a GUI composite to allow easy control of a scannable.
