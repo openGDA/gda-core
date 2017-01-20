@@ -47,7 +47,6 @@ import gda.observable.IObserver;
 public class ScannableGroup extends ScannableBase implements Configurable, IScannableGroup, IObserver {
 
 	private static final Logger logger = LoggerFactory.getLogger(ScannableGroup.class);
-	private static final String INDENT = "  ";
 
 	// the list of members
 	String[] groupMemberNames = new String[0]; // will use jakarta commons.lang to manipulate this
@@ -373,49 +372,7 @@ public class ScannableGroup extends ScannableBase implements Configurable, IScan
 
 	@Override
 	public String toFormattedString() {
-		StringBuilder positionString = new StringBuilder(getName());
-		positionString.append(" ::");
-		for (Scannable s : getGroupMembers()) {
-			String pos = null;
-			try {
-				pos = s.toFormattedString();
-			} catch (Exception ex) {
-				logger.error("Error formatting device position for " + s.getName(), ex);
-				pos = s.getName() + ": n/a";
-			}
-			for (String line : pos.split("\n")) {
-				positionString.append('\n');
-				positionString.append(INDENT);
-				positionString.append(line);
-			}
-		}
-		return alignOutput(positionString.toString());
-	}
-
-	private String alignOutput(String unaligned) {
-		int longest = 0;
-		for (String line : unaligned.split("\n")) {
-			int colon = line.indexOf(':');
-			if (colon > longest) {
-				longest = colon;
-			}
-		}
-		StringBuilder outputString = new StringBuilder();
-		for (String line : unaligned.split("\n")) {
-			String splitLine[] = line.split("(?<!:):(?!:)", 2);// only split on first colon, ignore double colon
-			if (splitLine.length > 1) {
-				int colon = splitLine[0].length();
-				int padding = longest - colon + 1;
-				outputString.append(splitLine[0]);
-				outputString.append(String.format("%" + padding + "s", ":"));
-				outputString.append(splitLine[1]);
-			} else {
-				// no colon - just print as is
-				outputString.append(line);
-			}
-			outputString.append('\n');
-		}
-		return outputString.toString().trim();
+		return ScannableUtils.formatScannableWithChildren(this, getGroupMembers(), false);
 	}
 
 	@Override

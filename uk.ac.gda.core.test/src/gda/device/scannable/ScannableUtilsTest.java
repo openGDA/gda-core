@@ -25,17 +25,18 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import gda.device.Detector;
-import gda.device.Scannable;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Vector;
 
-import junitx.framework.ArrayAssert;
-
 import org.junit.Before;
 import org.junit.Test;
+
+import gda.device.Detector;
+import gda.device.Scannable;
+import gda.device.scannable.scannablegroup.ScannableGroup;
+import junitx.framework.ArrayAssert;
 
 /**
  * tests the methods in ScannableUtils
@@ -157,6 +158,62 @@ public class ScannableUtilsTest {
 		String[] formattedCurrentPositionArray = ScannableUtils.getFormattedCurrentPositionArray(scannable);
 
 		assertEquals(formattedCurrentPositionArray[0], String.format(format[0], position));
+	}
+
+	@Test
+	public void testFormatScannableWithChildrenNoParentPositionNoErrors() throws Exception {
+		final Scannable s1 = new DummyScannable("s1");
+		final Scannable s2 = new DummyScannable("s2");
+		final ScannableGroup group = new ScannableGroup("sg1", new Scannable[] { s1, s2 });
+		final String expectedResult = "sg1 ::\n  s1 : 0.0000 (-1.7977e+308:1.7977e+308)\n  s2 : 0.0000 (-1.7977e+308:1.7977e+308)";
+
+		final String result = ScannableUtils.formatScannableWithChildren(group, group.getGroupMembers(), false);
+		assertEquals(expectedResult, result);
+	}
+
+	@Test
+	public void testFormatScannableWithChildrenNoParentPositionWithErrors() throws Exception {
+		// In the event of an exception in one scannable, the ScannableGroup should show the value as dashes
+		// and continue with the remaining scannables.
+		final Scannable s1 = new DummyScannable("s1") {
+			@Override
+			public String toFormattedString() {
+				throw new RuntimeException("failure in toFormattedString()");
+			}
+		};
+		final Scannable s2 = new DummyScannable("s2");
+		final ScannableGroup group = new ScannableGroup("sg1", new Scannable[] { s1, s2 });
+		final String expectedResult = "sg1 ::\n  s1 : n/a\n  s2 : 0.0000 (-1.7977e+308:1.7977e+308)";
+
+		final String result = ScannableUtils.formatScannableWithChildren(group, group.getGroupMembers(), false);
+		assertEquals(expectedResult, result);
+	}
+
+	@Test
+	public void testFormatScannableWithChildrenWithParentPositionNoErrors() throws Exception {
+		final Scannable s1 = new DummyScannable("s1");
+		final Scannable s2 = new DummyScannable("s2");
+		final ScannableGroup group = new ScannableGroup("sg1", new Scannable[] { s1, s2 });
+		final String expectedResult = "sg1  : s1: 0.0000 s2: 0.0000 ::\n  s1 : 0.0000 (-1.7977e+308:1.7977e+308)\n  s2 : 0.0000 (-1.7977e+308:1.7977e+308)";
+
+		final String result = ScannableUtils.formatScannableWithChildren(group, group.getGroupMembers(), true);
+		assertEquals(expectedResult, result);
+	}
+
+	@Test
+	public void testFormatScannableWithChildrenWithParentPositionWithErrors() throws Exception {
+		final Scannable s1 = new DummyScannable("s1");
+		final Scannable s2 = new DummyScannable("s2");
+		final ScannableGroup group = new ScannableGroup("sg1", new Scannable[] { s1, s2 }) {
+			@Override
+			public String getPosition() {
+				throw new RuntimeException("failure in getPosition()");
+			}
+		};
+		final String expectedResult = "sg1  : n/a ::\n  s1 : 0.0000 (-1.7977e+308:1.7977e+308)\n  s2 : 0.0000 (-1.7977e+308:1.7977e+308)";
+
+		final String result = ScannableUtils.formatScannableWithChildren(group, group.getGroupMembers(), true);
+		assertEquals(expectedResult, result);
 	}
 
 	/**

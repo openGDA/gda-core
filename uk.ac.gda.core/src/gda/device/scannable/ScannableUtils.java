@@ -26,6 +26,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.Collection;
 import java.util.List;
 import java.util.Vector;
 
@@ -40,6 +41,8 @@ import org.python.core.PyNone;
 import org.python.core.PyObject;
 import org.python.core.PySequence;
 import org.python.core.PyString;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import gda.device.Detector;
 import gda.device.DeviceException;
@@ -56,8 +59,12 @@ import gda.util.QuantityFactory;
  */
 public abstract class ScannableUtils {
 
+	private static final Logger logger = LoggerFactory.getLogger(ScannableUtils.class);
+
 	// add a small amount to values to ensure that the final point in the scan is included
 	private static final Double fudgeFactor = 1e-10;
+
+	private static final String INDENT = "  ";
 
 	/**
 	 * Exception thrown when a call to ScannableBase.validate() fails.
@@ -320,6 +327,71 @@ public abstract class ScannableUtils {
 			throw new DeviceException("error formatting position string of '" + scannable.getName() + "': "
 					+ e.getMessage(), e);
 		}
+	}
+
+	/**
+	 * Formats a scannable which contains child scannables, such as ScannableGroup & CoupledScannable.
+	 *
+	 * @param parent Overall scannable
+	 * @param children Collection of child scannables
+	 * @param includeParentPosition Controls whether position of parent scannable should be included in output
+	 * @return Name and position of parent and child scannables indented for terminal output.
+	 */
+	public static String formatScannableWithChildren(Scannable parent, Collection<Scannable> children, boolean includeParentPosition) {
+		final StringBuilder positionString = new StringBuilder();
+		if (includeParentPosition) {
+			try {
+				positionString.append(getFormattedCurrentPosition(parent));
+			} catch (Exception ex) {
+				logger.error("Error formatting device position for " + parent.getName(), ex);
+				positionString.append(parent.getName() + ": n/a");
+			}
+		} else {
+			positionString.append(parent.getName());
+		}
+		positionString.append(" ::");
+		for (final Scannable s : children) {
+			String pos = null;
+			try {
+				pos = s.toFormattedString();
+			} catch (Exception ex) {
+				logger.error("Error formatting device position for " + s.getName(), ex);
+				pos = s.getName() + ": n/a";
+			}
+			for (String line : pos.split("\n")) {
+				positionString.append('\n');
+				positionString.append(INDENT);
+				positionString.append(line);
+			}
+		}
+		return alignOutput(positionString.toString());
+	}
+
+	private static String alignOutput(String unaligned) {
+		int longest = 0;
+		for (final String line : unaligned.split("\n")) {
+			int colon = line.indexOf(':');
+			if (colon > longest) {
+				longest = colon;
+			}
+		}
+
+		final StringBuilder outputString = new StringBuilder();
+		for (String line : unaligned.split("\n")) {
+			final String splitLine[] = line.split("(?<!:):(?!:)", 2);// only split on first colon, ignore double colon
+			if (splitLine.length > 1) {
+				int colon = splitLine[0].length();
+				int padding = longest - colon + 1;
+				outputString.append(splitLine[0]);
+				outputString.append(String.format("%" + padding + "s", ":"));
+				outputString.append(splitLine[1]);
+			} else {
+				// no colon - just print as is
+				outputString.append(line);
+			}
+			outputString.append('\n');
+		}
+		return outputString.toString().trim();
 	}
 
 	/**
