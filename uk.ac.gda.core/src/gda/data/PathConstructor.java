@@ -28,6 +28,7 @@ import gda.util.HostId;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 import org.slf4j.Logger;
@@ -128,10 +129,10 @@ public class PathConstructor implements IPathConstructor {
 	 * @param property
 	 *            The name of a Java property from which to obtain the path template.
 	 * @param overrides
-	 * @see PathConstructor#createFromTemplate(String,HashMap)
+	 * @see PathConstructor#createFromTemplate(String, Map)
 	 * @return The constructed path.
 	 */
-	public static String createFromProperty(String property, HashMap<String, String> overrides) {
+	public static String createFromProperty(String property, Map<String, String> overrides) {
 		String template = LocalProperties.get(property);
 		if (template == null) {
 			throw new IllegalArgumentException("Could not find property " + StringUtils.quote(property));
@@ -162,7 +163,7 @@ public class PathConstructor implements IPathConstructor {
 	 *            baton has been taken.; or be working 'offline' or unit testing.
 	 * @return The constructed path.
 	 */
-	public static String createFromTemplate(String template, HashMap<String, String> overrides) {
+	public static String createFromTemplate(String template, Map<String, String> overrides) {
 		StringTokenizer st = new StringTokenizer(template, "$");
 		String path = "";
 
@@ -176,7 +177,7 @@ public class PathConstructor implements IPathConstructor {
 		return path;
 	}
 
-	private static String interpret(String s, HashMap<String, String> overrides) {
+	private static String interpret(String s, Map<String, String> overrides) {
 		String value = "";
 
 		// Use the overrides in preference to metadata values. This is useful as the metadata is correct for the
