@@ -140,4 +140,10 @@ public class LinearFunction extends Function {
 	@Override
 	public void configure() throws FactoryException {
 	}
+
+	@Override
+	public String toString() {
+		return "LinearFunction [interception=" + interception + ", slopeDividend=" + slopeDividend + ", slopeDivisor=" + slopeDivisor
+				+ ", slope=" + slope + ", slopeNumerator=" + slopeNumerator + ", slopeDenominator=" + slopeDenominator + ", intercept=" + intercept + "]";
+	}
 }
