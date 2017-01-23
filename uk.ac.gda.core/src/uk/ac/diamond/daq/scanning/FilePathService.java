@@ -28,6 +28,8 @@ import org.eclipse.scanning.api.scan.IFilePathService;
 import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
 import gda.data.PathConstructor;
+import gda.data.metadata.GDAMetadataProvider;
+import gda.device.DeviceException;
 
 /**
  * Implementation of the {@link IFilePathService} which determines the next path to write to.
@@ -131,6 +133,27 @@ public class FilePathService implements IFilePathService {
 	@Override
 	public String getProcessingTemplatesDir() {
 		return getPersistenceDir() + "/" + PROCESSING_TEMPLATES_DIR;
+	}
+
+	@Override
+	public int getScanNumber() throws Exception {
+		if (tracker == null) {
+			// Make a NumTracker using the property gda.data.numtracker.extension
+			tracker = new NumTracker();
+		}
+		return tracker.getCurrentFileNumber();
+	}
+
+	@Override
+	public String getVisit() throws Exception {
+		String visit = null;
+		try {
+			visit = GDAMetadataProvider.getInstance().getMetadataValue("visit");
+		} catch (DeviceException ignored) {
+			// We do not mind if this does not work!
+		}
+		if (visit==null) visit = LocalProperties.get(LocalProperties.GDA_DEF_VISIT, "cm0-0");
+		return visit;
 	}
 
 }
