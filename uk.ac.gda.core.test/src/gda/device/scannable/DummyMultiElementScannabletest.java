@@ -270,7 +270,7 @@ public class DummyMultiElementScannabletest {
 	 *
 	 */
 	@Test
-	public void test__call__() {
+	public void test__call__() throws DeviceException {
 		assertTrue(arrayCompare((PyArray) theScannable.__call__(), startPosition));
 	}
 
