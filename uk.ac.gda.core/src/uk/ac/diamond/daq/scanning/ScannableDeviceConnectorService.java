@@ -95,7 +95,23 @@ public class ScannableDeviceConnectorService implements IScannableDeviceService 
 		}
 	}
 
+
+	private static IScannableDeviceService instance;
+	public static IScannableDeviceService getInstance() {
+		return instance;
+	}
+
+	public ScannableDeviceConnectorService() {
+		instance = this;
+	}
+
+
 	private Map<String, IScannable<?>> scannables = null;
+
+	@Override
+	public <T> void register(IScannable<T> scannable) {
+		scannables.put(scannable.getName(), scannable);
+	}
 
 	@Override
 	public <T> IScannable<T> getScannable(String name) throws ScanningException {
@@ -147,6 +163,7 @@ public class ScannableDeviceConnectorService implements IScannableDeviceService 
 			findableName = findableName.substring(findableName.lastIndexOf(".") + 1);
 			findableNames.add(findableName);
 		}
+		if (scannables!=null) findableNames.addAll(scannables.keySet()); // They can be added by spring.
 		return findableNames;
 	}
 

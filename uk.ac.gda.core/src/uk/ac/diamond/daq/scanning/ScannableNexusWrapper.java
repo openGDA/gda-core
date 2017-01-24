@@ -25,6 +25,7 @@ import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.ILazyWriteableDataset;
 import org.eclipse.january.dataset.SliceND;
+import org.eclipse.scanning.api.AbstractScannable;
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.annotation.scan.ScanFinally;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
@@ -49,6 +50,7 @@ import gda.device.Scannable;
 import gda.device.ScannableMotion;
 import gda.device.ScannableMotionUnits;
 import gda.device.scannable.ScannablePositionChangeEvent;
+import gda.factory.Finder;
 import gda.observable.IObserver;
 
 /**
@@ -56,7 +58,7 @@ import gda.observable.IObserver;
  *
  * @author Matthew Gerring, Matthew Dickie
  */
-public class ScannableNexusWrapper<N extends NXobject> implements IScannable<Object>, INexusDevice<N>, IPositionListenable, IObserver{
+public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable<Object> implements IScannable<Object>, INexusDevice<N>, IPositionListenable, IObserver{
 
 	/**
 	 * The name of the 'scannables' collection. This collection contains all wrapped GDA8
@@ -131,6 +133,25 @@ public class ScannableNexusWrapper<N extends NXobject> implements IScannable<Obj
 	private static final Logger logger = LoggerFactory.getLogger(ScannableNexusWrapper.class);
 
 	private PositionDelegate positionDelegate;
+
+	/**
+	 * Used from spring
+	 */
+	public ScannableNexusWrapper() {
+		super(ScannableDeviceConnectorService.getInstance());
+	}
+
+	/**
+	 * Used from spring to connect the wrapper to a particular named GDA8 scannable
+	 * @param scannableName
+	 */
+	public void setScannableName(String scannableName) {
+
+		this.scannable = Finder.getInstance().find(scannableName);
+		this.scannable.addIObserver(this);
+		this.positionDelegate = new PositionDelegate();
+
+	}
 
 	ScannableNexusWrapper(Scannable scannable) {
 		this.scannable = scannable;
