@@ -18,12 +18,12 @@
 
 package gda.device.detector.areadetector.v17;
 
+import java.util.concurrent.TimeoutException;
+
 import gda.device.detector.areadetector.AreaDetectorBin;
 import gda.device.detector.areadetector.AreaDetectorROI;
 import gda.device.detector.areadetector.v17.NDPluginBase.DataType;
 import gda.observable.Observable;
-
-import java.util.concurrent.TimeoutException;
 
 /**
  * ADBase represents the AreaDetector driver - commonly the first tab in edm
@@ -862,4 +862,18 @@ public interface ADBase extends ADCommon {
 	void waitForDetectorStateIDLE(double timeoutS) throws InterruptedException, Exception, TimeoutException;
 
 	void startAcquiringWait() throws Exception;
+
+	// General purpose getters and setters for arbitrary PV suffixes. Primarily for prototyping.
+
+	int getIntBySuffix(String suffix) throws Exception;
+
+	void setIntBySuffix(String suffix, int arraycounter) throws Exception;
+
+	double getDoubleBySuffix(String suffix) throws Exception;
+
+	void setDoubleBySuffix(String suffix, double acquiretime) throws Exception;
+
+	String getStringBySuffix(String suffix) throws Exception;
+
+	void setStringBySuffix(String suffix, String acquiretime) throws Exception;
 }

@@ -18,6 +18,14 @@
 
 package gda.device.detector.areadetector.v17.impl;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.util.StringUtils;
+
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.configuration.epics.EpicsConfiguration;
@@ -44,14 +52,6 @@ import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
 import gov.aps.jca.event.PutEvent;
 import gov.aps.jca.event.PutListener;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.util.StringUtils;
 
 public class ADBaseImpl implements InitializingBean, ADBase {
 
@@ -2574,6 +2574,41 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 
 	}
 
+	// General purpose getters and setters for arbitrary PV suffixes. Primarily for prototyping.
 
+	@Override
+	public int getIntBySuffix(String suffix) throws Exception {
+		return EPICS_CONTROLLER.cagetInt(getChannel(suffix));
+	}
 
+	@Override
+	public void setIntBySuffix(String suffix, int value) throws Exception {
+		Channel channel = getChannel(suffix);
+		logger.info("Setting channel {} to int value {}", channel.getName(), value);
+		EPICS_CONTROLLER.caput(channel, value);
+	}
+
+	@Override
+	public double getDoubleBySuffix(String suffix) throws Exception {
+		return EPICS_CONTROLLER.cagetDouble(getChannel(suffix));
+	}
+
+	@Override
+	public void setDoubleBySuffix(String suffix, double value) throws Exception {
+		Channel channel = getChannel(suffix);
+		logger.info("Setting channel {} to double value {}", channel.getName(), value);
+		EPICS_CONTROLLER.caput(channel, value);
+	}
+
+	@Override
+	public String getStringBySuffix(String suffix) throws Exception {
+		return EPICS_CONTROLLER.caget(getChannel(suffix));
+	}
+
+	@Override
+	public void setStringBySuffix(String suffix, String value) throws Exception {
+		Channel channel = getChannel(suffix);
+		logger.info("Setting channel {} to string value {}", channel.getName(), value);
+		EPICS_CONTROLLER.caput(channel, value);
+	}
 }
