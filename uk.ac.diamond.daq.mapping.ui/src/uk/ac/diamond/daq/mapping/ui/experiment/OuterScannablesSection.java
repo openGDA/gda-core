@@ -18,7 +18,9 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.databinding.Binding;
 import org.eclipse.core.databinding.DataBindingContext;
@@ -47,6 +49,98 @@ import uk.ac.diamond.daq.mapping.api.IScanPathModelWrapper;
  */
 class OuterScannablesSection extends AbstractMappingSection {
 
+	private static class ScanPathToStringConverter extends Converter {
+
+		public ScanPathToStringConverter() {
+			super(IScanPathModel.class, String.class);
+		}
+
+		@Override
+		public Object convert(Object fromObject) {
+			if (fromObject == null) {
+				return ""; // this is the case when the outer scannable is not specified
+			} else if (fromObject instanceof StepModel) {
+				return convertStepModel((StepModel) fromObject);
+			} else if (fromObject instanceof ArrayModel) {
+				return convertArrayModel((ArrayModel) fromObject);
+			} else {
+				// We only expect path model types that can be created from this GUI
+				throw new IllegalArgumentException("Unknown model type: " + fromObject.getClass());
+			}
+		}
+
+		private Object convertStepModel(StepModel stepModel) {
+			StringBuilder stringBuilder = new StringBuilder();
+			stringBuilder.append(doubleToString(stepModel.getStart()));
+			stringBuilder.append(' ');
+			stringBuilder.append(doubleToString(stepModel.getStop()));
+			stringBuilder.append(' ');
+			stringBuilder.append(doubleToString(stepModel.getStep()));
+
+			return stringBuilder.toString();
+		}
+
+		private Object convertArrayModel(IScanPathModel scanPath) {
+			ArrayModel arrayModel = (ArrayModel) scanPath;
+			double[] positions = arrayModel.getPositions();
+			StringBuilder stringBuilder = new StringBuilder();
+			for (int i = 0; i < positions.length; i++) {
+				stringBuilder.append(doubleToString(positions[i]));
+				if (i < positions.length - 1) stringBuilder.append(",");
+			}
+			return stringBuilder.toString();
+		}
+
+		private String doubleToString(double doubleVal) {
+			String stringVal = Double.toString(doubleVal);
+			if (stringVal.endsWith(".0")) {
+				return stringVal.substring(0, stringVal.length() - 2);
+			}
+			return stringVal;
+		}
+	}
+
+	private static final class StringToScanPathConverter extends Converter {
+		private final String scannableName;
+
+		private StringToScanPathConverter(String scannableName) {
+			super(String.class, IScanPathModel.class);
+			this.scannableName = scannableName;
+		}
+
+		@Override
+		public Object convert(Object fromObject) {
+			try {
+				String text = (String) fromObject;
+				String[] startStopStep = text.split(" ");
+				if (startStopStep.length == 3) {
+					StepModel stepModel = new StepModel();
+					stepModel.setName(scannableName);
+					stepModel.setStart(Double.parseDouble(startStopStep[0]));
+					stepModel.setStop(Double.parseDouble(startStopStep[1]));
+					stepModel.setStep(Double.parseDouble(startStopStep[2]));
+					return stepModel;
+				} else {
+					String[] strings = text.split(",");
+					double[] positions = new double[strings.length];
+					for (int index = 0; index < strings.length; index++) {
+						positions[index] = Double.parseDouble(strings[index]);
+					}
+					ArrayModel arrayModel = new ArrayModel();
+					arrayModel.setName(scannableName);
+					arrayModel.setPositions(positions);
+					return arrayModel;
+				}
+			} catch  (NumberFormatException e) {
+				return null;
+			}
+		}
+	}
+
+	private DataBindingContext dataBindingContext;
+
+	private Map<String, Binding> axisBindings;
+
 	@Override
 	public boolean shouldShow() {
 		List<IScanPathModelWrapper> outerScannables = getMappingBean().getScanDefinition().getOuterScannables();
@@ -64,7 +158,8 @@ class OuterScannablesSection extends AbstractMappingSection {
 		otherScanAxesLabel.setText("Other Scan Axes");
 		GridDataFactory.fillDefaults().span(axesColumns, 1).applyTo(otherScanAxesLabel);
 
-		DataBindingContext dataBindingContext = new DataBindingContext();
+		dataBindingContext = new DataBindingContext();
+		axisBindings = new HashMap<>();
 		for (IScanPathModelWrapper scannableAxisParameters : outerScannables) {
 			Button checkBox = new Button(otherScanAxesComposite, SWT.CHECK);
 			checkBox.setText(scannableAxisParameters.getName());
@@ -77,52 +172,53 @@ class OuterScannablesSection extends AbstractMappingSection {
 			axisText.setToolTipText("<start stop step> or <pos1,pos2,pos3,pos4...>");
 			GridDataFactory.fillDefaults().grab(true, false).applyTo(axisText);
 			IObservableValue axisTextValue = WidgetProperties.text(SWT.Modify).observe(axisText);
-			IObservableValue axisValue = PojoProperties.value("model").observe(scannableAxisParameters);
-			UpdateValueStrategy axisTextToModelStrategy = new UpdateValueStrategy();
-			axisTextToModelStrategy.setConverter(new Converter(String.class, IScanPathModel.class) {
-				@Override
-				public Object convert(Object fromObject) {
-					try {
-						String text = (String) fromObject;
-						String[] startStopStep = text.split(" ");
-						if (startStopStep.length == 3) {
-							StepModel stepModel = new StepModel();
-							stepModel.setName(scannableAxisParameters.getName());
-							stepModel.setStart(Double.parseDouble(startStopStep[0]));
-							stepModel.setStop(Double.parseDouble(startStopStep[1]));
-							stepModel.setStep(Double.parseDouble(startStopStep[2]));
-							return stepModel;
-						} else {
-							String[] strings = text.split(",");
-							double[] positions = new double[strings.length];
-							for (int index = 0; index < strings.length; index++) {
-								positions[index] = Double.parseDouble(strings[index]);
-							}
-							ArrayModel arrayModel = new ArrayModel();
-							arrayModel.setName(scannableAxisParameters.getName());
-							arrayModel.setPositions(positions);
-							return arrayModel;
-						}
-					} catch (NumberFormatException nfe) {
-						return null;
-					}
-				}
-			});
-			axisTextToModelStrategy.setBeforeSetValidator(value -> {
-				if (value instanceof IScanPathModel) {
-					return ValidationStatus.ok();
-				}
-				String message = "Text is incorrectly formatted";
-				if (scannableAxisParameters.isIncludeInScan()) {
-					return ValidationStatus.error(message);
-				} else {
-					return ValidationStatus.warning(message);
-				}
-			});
-			Binding bindValue = dataBindingContext.bindValue(axisTextValue, axisValue, axisTextToModelStrategy,
-					new UpdateValueStrategy());
-			ControlDecorationSupport.create(bindValue, SWT.LEFT | SWT.TOP);
+			bindScanPathModelToTextField(scannableAxisParameters, axisTextValue);
 		}
+	}
+
+	private void bindScanPathModelToTextField(IScanPathModelWrapper scannableAxisParameters,
+			IObservableValue axisTextValue) {
+		final String scannableName = scannableAxisParameters.getName();
+		IObservableValue axisValue = PojoProperties.value("model").observe(scannableAxisParameters);
+
+		UpdateValueStrategy axisTextToModelStrategy = new UpdateValueStrategy();
+		axisTextToModelStrategy.setConverter(new StringToScanPathConverter(scannableName));
+		axisTextToModelStrategy.setBeforeSetValidator(value -> {
+			if (value instanceof IScanPathModel) {
+				return ValidationStatus.ok();
+			}
+			String message = "Text is incorrectly formatted";
+			if (scannableAxisParameters.isIncludeInScan()) {
+				return ValidationStatus.error(message);
+			} else {
+				return ValidationStatus.warning(message);
+			}
+		});
+
+		UpdateValueStrategy modelToAxisTextStrategy = new UpdateValueStrategy();
+		modelToAxisTextStrategy.setConverter(new ScanPathToStringConverter());
+
+		Binding axisBinding = dataBindingContext.bindValue(axisTextValue, axisValue,
+				axisTextToModelStrategy, modelToAxisTextStrategy);
+		ControlDecorationSupport.create(axisBinding, SWT.LEFT | SWT.TOP);
+		axisBindings.put(scannableName, axisBinding);
+	}
+
+	@Override
+	public void updateControls() {
+		// update the bindings for exposure time as we may have new models
+		for (IScanPathModelWrapper scannableAxisParameters : getMappingBean().getScanDefinition().getOuterScannables()) {
+			// remove the binding between the text field and old model
+			Binding oldBinding = axisBindings.get(scannableAxisParameters.getName());
+			IObservableValue axisTextValue = (IObservableValue) oldBinding.getTarget();
+			dataBindingContext.removeBinding(oldBinding);
+			oldBinding.dispose();
+
+			// create a new binding between
+			bindScanPathModelToTextField(scannableAxisParameters, axisTextValue);
+		}
+
+		dataBindingContext.updateTargets();
 	}
 
 }
