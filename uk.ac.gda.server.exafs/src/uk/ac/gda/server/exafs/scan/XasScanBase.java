@@ -46,6 +46,7 @@ import gda.exafs.scan.RepetitionsProperties;
 import gda.exafs.scan.ScanStartedMessage;
 import gda.jython.InterfaceProvider;
 import gda.jython.ScriptBase;
+import gda.jython.batoncontrol.ClientDetails;
 import gda.jython.commands.GeneralCommands;
 import gda.jython.commands.ScannableCommands;
 import gda.jython.scriptcontroller.event.ScanCreationEvent;
@@ -531,8 +532,19 @@ public abstract class XasScanBase implements XasScan {
 		return xmlFileName;
 	}
 
+	/** Return visit id from baton holder.
+	 * If there is no batonHolder, client has lost the baton for some reason - probably due to network communication timeout.
+	 * In this case, set the visit id to default value rather than throwing exception so that the scan can continue.
+	 * (This function is used when creating the logging message, and not critical for creating or running a scan)
+	 * @return Visit id, or 'unknown-visit' if baton holder is unavailable
+	 */
 	protected String getMyVisitID() {
-		return InterfaceProvider.getBatonStateProvider().getBatonHolder().getVisitID();
+		String visitId = "unknown-visit";
+		ClientDetails batonHolder = InterfaceProvider.getBatonStateProvider().getBatonHolder();
+		if (batonHolder!=null) {
+			visitId = batonHolder.getVisitID();
+		}
+		return visitId;
 	}
 
 	protected void setQueuePropertiesStart() {
