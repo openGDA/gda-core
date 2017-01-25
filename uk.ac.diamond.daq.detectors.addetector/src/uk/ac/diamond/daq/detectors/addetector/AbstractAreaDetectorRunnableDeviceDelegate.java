@@ -19,9 +19,11 @@
 package uk.ac.diamond.daq.detectors.addetector;
 
 import org.eclipse.dawnsci.nexus.NXdetector;
+import org.eclipse.dawnsci.nexus.NexusBaseClass;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
+import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.LevelInformation;
 import org.eclipse.scanning.api.scan.ScanInformation;
@@ -96,6 +98,11 @@ public abstract class AbstractAreaDetectorRunnableDeviceDelegate {
 	public NexusObjectProvider<NXdetector> getNexusProvider(NexusScanInfo info) throws NexusException {
 		logger.trace("getNexusProvider({}) on {}", info, runnableDeviceProxy.getName());
 		return null;
+	}
+
+
+	protected NexusObjectWrapper<NXdetector> getNexusObjectWrapper(String name, NexusBaseClass nexusBaseClass) {
+		return new NexusObjectWrapper<NXdetector>(name, nexusBaseClass);
 	}
 
 	// Delegated annotated methods
