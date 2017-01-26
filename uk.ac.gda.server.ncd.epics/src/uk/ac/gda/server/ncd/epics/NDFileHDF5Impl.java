@@ -21,7 +21,7 @@ package uk.ac.gda.server.ncd.epics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class NDFileHDF5Impl extends gda.device.detector.areadetector.v17.impl.NDFileHDF5ExtraDimension {
+public class NDFileHDF5Impl extends gda.device.detector.areadetector.v17.impl.NDFileHDF5Impl {
 	static final Logger logger = LoggerFactory.getLogger(NDFileHDF5Impl.class);
 
 	public final String ColumnsPerChunk = "NumColChunks";
@@ -37,11 +37,11 @@ public class NDFileHDF5Impl extends gda.device.detector.areadetector.v17.impl.ND
 	private Integer initialColumnsPerChunk;
 	private Integer initialFramesPerChunk;
 	private Integer initialChunkAlignment;
-
+	
 	@Override
 	public void reset() throws Exception {
 		super.reset();
-
+		
 		if (initialColumnsPerChunk != null) {
 			setColumnsPerChunk(initialColumnsPerChunk);
 		}
@@ -87,7 +87,7 @@ public class NDFileHDF5Impl extends gda.device.detector.areadetector.v17.impl.ND
 			throw ex;
 		}
 	}
-
+	
 	public int getChunkAlignment() throws Exception {
 		try {
 			return EPICS_CONTROLLER.cagetInt(getChannel(ChunkAlignment_RBV));
@@ -129,7 +129,7 @@ public class NDFileHDF5Impl extends gda.device.detector.areadetector.v17.impl.ND
 	public void setInitialChunkAlignment(Integer initialChunkAlignment) {
 		this.initialChunkAlignment = initialChunkAlignment;
 	}
-
+	
 	public int getQueueUse() throws Exception {
 		try {
 			return EPICS_CONTROLLER.cagetInt(getChannel(QueueUse));
@@ -138,7 +138,7 @@ public class NDFileHDF5Impl extends gda.device.detector.areadetector.v17.impl.ND
 			throw ex;
 		}
 	}
-
+	
 	public int getWriteStatus() throws Exception {
 		try {
 			return EPICS_CONTROLLER.cagetInt(getChannel(WriteStatus));
@@ -147,7 +147,7 @@ public class NDFileHDF5Impl extends gda.device.detector.areadetector.v17.impl.ND
 			throw ex;
 		}
 	}
-
+	
 	public String getWriteMessage() throws Exception {
 		try {
 			return new String(EPICS_CONTROLLER.cagetByteArray(getChannel(WriteMessage))).trim();
