@@ -18,7 +18,15 @@
 
 package gda.device.detector.pixium;
 
-import gda.analysis.RCPPlotter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Vector;
+
+import org.eclipse.january.dataset.DoubleDataset;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.data.NumTracker;
 import gda.data.PathConstructor;
 import gda.data.fileregistrar.FileRegistrarHelper;
@@ -39,15 +47,6 @@ import gda.jython.InterfaceProvider;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
-
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.Vector;
-
-import org.eclipse.january.dataset.DoubleDataset;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class PixiumController extends DetectorBase {
 
@@ -141,7 +140,7 @@ public class PixiumController extends DetectorBase {
 
 	public void setPreviewROI(EpicsAreaDetectorROIElement previewROI) {
 		this.previewROI = previewROI;
-	}	
+	}
 
 	public EpicsAreaDetectorROI getAreaDetectorROI() {
 		return areaDetectorROI;
@@ -149,7 +148,7 @@ public class PixiumController extends DetectorBase {
 
 	public void setAreaDetectorROI(EpicsAreaDetectorROI areaDetectorROI) {
 		this.areaDetectorROI = areaDetectorROI;
-	}	
+	}
 
 	public String getBasePVName() {
 		return basePVName;
@@ -174,7 +173,7 @@ public class PixiumController extends DetectorBase {
 	private Channel channelOffsetReferenceNumber_RBV;
 	private Channel channelOffsetReference;
 	private Channel channelOffsetReference_RBV;
-	private Channel channelActivateMode;	
+	private Channel channelActivateMode;
 	private Channel channelXRayWindow;
 	private Channel channelXRayWindow_RBV;
 	private Channel channelXRayFrequency;
@@ -187,7 +186,7 @@ public class PixiumController extends DetectorBase {
 	private Channel channelSetActiveMode;
 	private Channel channelUnsetActiveMode;
 	private Channel channelChangeMode;
-	private Channel channelAquisitionMode_RBV;	
+	private Channel channelAquisitionMode_RBV;
 
 	private String plotName;
 
@@ -234,16 +233,16 @@ public class PixiumController extends DetectorBase {
 			channelUnsetActiveMode = ecl.createChannel(basePVName + "DeactivateMode");
 			channelChangeMode = ecl.createChannel(basePVName + "ChangeMode");
 			channelAquisitionMode_RBV = ecl.createChannel(basePVName + "AcquisitionMode_RBV");
-			
+
 			// acknowledge that creation phase is completed
 			ecm.creationPhaseCompleted();
-			
+
 		} catch (Exception e) {
 			throw new FactoryException("Failure to initialise AreaDetector", e);
 		}
 
-	}	
-	
+	}
+
 	public void resetAll() throws CAException, InterruptedException {
 		areaDetector.reset();
 		areaDetectorROI.reset();
@@ -253,25 +252,25 @@ public class PixiumController extends DetectorBase {
 		previewROI.reset();
 		image.reset();
 	}
-	
+
 	// Pixium specific methods
 	public String setMode(int logicalMode, int offset) throws IllegalStateException, CAException, TimeoutException, InterruptedException {
-		
+
 		ecl.caput(channelLogicalMode, logicalMode);
 		Thread.sleep(2000);
 		ecl.caput(channelOffsetReferenceNumber, offset);
 		ecl.caput(channelSetActiveMode, 1);
-		
+
 		Thread.sleep(2000);
 		return this.report();
 	}
-	
-	
+
+
 	public String report() throws TimeoutException, CAException, InterruptedException {
 		String result = this.getAquisitionMode();
 		result += "\nBinning      = " + areaDetector.getBinning().toString();
 		result += "\nROI          = " + areaDetector.getROI().toString();
-		result += "\nX-Ray window = " + this.getXRayWindow() + "ms"; 
+		result += "\nX-Ray window = " + this.getXRayWindow() + "ms";
 		result += "\nFrequency    = " + this.getFrequency() + "mHz";
 		return result;
 	}
@@ -279,11 +278,11 @@ public class PixiumController extends DetectorBase {
 	public void setExposures(int numberOfExposures) throws CAException, InterruptedException {
 		areaDetector.setNumExposures(numberOfExposures);
 	}
-	
+
 	public int getExposures() throws NumberFormatException, TimeoutException, CAException, InterruptedException {
 		return areaDetector.getNumExposures();
 	}
-	
+
 	// Methods which are required for the Detector Interface
 	@Override
 	public void collectData() throws DeviceException {
@@ -296,7 +295,7 @@ public class PixiumController extends DetectorBase {
 				Thread.sleep(idlePollTime_ms);
 			}
 
-			// Having some issues with the camera, so adding in a small sleep here, 
+			// Having some issues with the camera, so adding in a small sleep here,
 			// running the camera more slowly seems to help with EPICS so might be
 			// an issue of the commands coming through too quickly with the new 10G
 			// Card
@@ -334,21 +333,21 @@ public class PixiumController extends DetectorBase {
 	}
 
 	@Override
-	public int getStatus() throws DeviceException {	
+	public int getStatus() throws DeviceException {
 		try {
-			
+
 			int state = areaDetector.getAquireState();
 			if(state == 1) {
 				return Detector.BUSY;
 			}
-			
+
 			state = Integer.parseInt(areaDetector.getState());
 			if(state == 1 || state==2 || state==3 || state==4) {
 				return Detector.BUSY;
 			}
 		} catch (Exception e) {
 			throw new DeviceException("Failure to cause Pixium Detector to read Status",e);
-		} 
+		}
 
 		return Detector.IDLE;
 	}
@@ -357,48 +356,35 @@ public class PixiumController extends DetectorBase {
 	public Object readout() throws DeviceException {
 
 		Vector<String> outputArray = new Vector<String>();
-		String output = ""; 		
+		String output = "";
 
 		try {
-			String absolutePath = fullImageLocation.getAbsolutePath();			
+			String absolutePath = fullImageLocation.getAbsolutePath();
 			String fileName = fullFrameSaver.getFileName();
 			fileName = fileName.trim();
-			
+
 			output = String.format(fullFrameSaver.getFileTemplate(),absolutePath,fileName,0);
 			FileRegistrarHelper.registerFile(output);
-			outputArray.add(output.trim());		
-			
+			outputArray.add(output.trim());
+
 			// now all the files collected need to be registered
 			for ( int i = 1; i < getCollectionTime(); i++) {
-				
+
 				output = String.format(fullFrameSaver.getFileTemplate(),absolutePath,fileName,i);
 				// registers the file for archiving.
 				FileRegistrarHelper.registerFile(output);
-				
-				outputArray.add(String.format(fullFrameSaver.getFileTemplate(),"",fileName,i));				
+
+				outputArray.add(String.format(fullFrameSaver.getFileTemplate(),"",fileName,i));
 			}
-			
+
 		} catch (Exception e) {
 			throw new DeviceException("Failure to readout Pixium detector",e);
 		}
 
-		// whatever happens though, pipe the output to the PCOPlot screen
-//		try {
-//			AreaDetectorBin bin = previewROI.getBinning();
-//			double scalefactor = bin.getBinX()*bin.getBinY();
-//			// the division here is to normalise the data so it always appears to be plain 16bit
-//			DataSet data = (DataSet)this.getImage().getImage().__div__(scalefactor);
-//
-//			RCPPlotter.imagePlot(getPlotName(), data);
-//		} catch (Exception e) {
-//			logger.error("Failure to send Pixium update to PixiumPlot, with error",e);
-//		}
 		int numberOfFilesCollected = outputArray.size();
 		String output1 = numberOfFilesCollected +" images collected: [" + outputArray.get(0) + ", ......, "+outputArray.get(numberOfFilesCollected-1) +"]";
 		return output1;
-		//return outputArray.toString();
 	}
-
 
 	@Override
 	public void setCollectionTime(double collectionTime) throws DeviceException {
@@ -420,7 +406,7 @@ public class PixiumController extends DetectorBase {
 				this.stoplive();
 			} catch (Exception e) {
 				throw new DeviceException("Preview running when scan was started, and could not be deactivated.  Stop the preview and then restart the scan",e);
-			} 
+			}
 		}
 
 		try {
@@ -447,19 +433,6 @@ public class PixiumController extends DetectorBase {
 			double timeStamp;
 			imageFiles.add(filename);
 			areaDetector.acquire();
-			// kick off the preview image thread
-			//liveThreadRunning = true;
-
-			// run up the thread to monitor the image
-			
-//			try {
-//				liveThread = new LiveThread();
-//				AreaDetectorBin bin = previewROI.getBinning();
-//				liveThread.setup(bin.getBinX()*2, bin.getBinY()*2, getImage(), this, false);
-//				liveThread.start();
-//			} catch (Exception e) {
-//				logger.error("Failed to start live view thread", e);
-//			} 	
 
 			while (getStatus() == Detector.BUSY) {
 				imageCounter = areaDetector.getArrayCounter();
@@ -500,12 +473,12 @@ public class PixiumController extends DetectorBase {
 		} else {
 			filePathString = filename.replace("Z:","/dls/i12");
 		}
-		
+
 		return filePathString;
 	}
 
 	public void resetAndEnableFullFrameCapture() throws CAException, TimeoutException, InterruptedException {
-		
+
 		// ROI Elements
 		areaDetectorROI.setEnable(true);
 
@@ -513,7 +486,7 @@ public class PixiumController extends DetectorBase {
 		fullFrameROI.setUse(true);
 		AreaDetectorROI roi = areaDetector.getROI();
 		fullFrameROI.setROI(roi);
-		fullFrameROI.setDataType(areaDetector.getInitialDataType());		
+		fullFrameROI.setDataType(areaDetector.getInitialDataType());
 
 		// Frame Saver Elements, set all to capture, but dont enable them
 		fullFrameSaver.setEnable(true);
@@ -523,7 +496,7 @@ public class PixiumController extends DetectorBase {
 		// Make sure the preview channel is also available
 		image.setEnable(true);
 		previewROI.setUse(true);
-		
+
 		// Set the area Detector code
 		areaDetector.setArrayCounter(0);
 		// set the image mode to Multiple
@@ -544,34 +517,34 @@ public class PixiumController extends DetectorBase {
 				this.stoplive();
 			} catch (Exception e) {
 				throw new DeviceException("Preview running when scan was started, and could not be deactivated.  Stop the preview and then restart the scan",e);
-			} 
+			}
 		}
-	
+
 		// make sure the camera is set to taking single images
 		try {
 			pointNumber=0; // initialise a scan
-			resetAndEnableFullFrameCapture();	
+			resetAndEnableFullFrameCapture();
 			fullImageLocation = createMainFileStructure();
 			setFileSaverParameters(fullImageLocation);
 			// force the Acquire period to zero
 			areaDetector.setAcquirePeriod(0.0);
-			
+
 			// check that the Acquisition mode is ok.
 			if (this.getAquisitionMode().contains("NOT SET")) {
 				throw new DeviceException("Pixium Mode not set!");
 			}
-		
+
 		} catch (Exception e) {
 			throw new DeviceException("AtScanStart failed with error :",e);
 		} finally {
 			logger.debug("Ending PCO.AtScanStart");
 		}
-		
+
 		// kick off the preview image thread
 		liveThreadRunning = true;
 
 		// run up the thread to monitor the image
-		
+
 		try {
 			liveThread = new LiveThread();
 			AreaDetectorBin bin = previewROI.getBinning();
@@ -579,22 +552,22 @@ public class PixiumController extends DetectorBase {
 			liveThread.start();
 		} catch (Exception e) {
 			logger.error("Failed to start live view thread", e);
-		} 	
+		}
 
 	}
-	
+
 	@Override
 	public void atScanEnd() {
 
 		try {
 			// stop the thread
 			liveThreadRunning = false;
-		
+
 			liveThread.join();
 
 		} catch (Exception e) {
 			logger.warn("Fail to stop liveThread at scan end",e);
-		}		
+		}
 	}
 
 	@Override
@@ -614,27 +587,27 @@ public class PixiumController extends DetectorBase {
 	public void atPointEnd(){
 		pointNumber++;
 	}
-	
+
 	private String getAquisitionMode() throws TimeoutException, CAException, InterruptedException {
 		return ecl.cagetString(channelAquisitionMode_RBV);
 	}
-	
+
 	private int getXRayWindow() throws TimeoutException, CAException, InterruptedException {
 		ecl.caput(channelOffsetReference,ecl.cagetInt(channelOffsetReferenceNumber));
 		return ecl.cagetInt(channelXRayWindow_RBV);
 	}
-	
+
 	private int getFrequency() throws TimeoutException, CAException, InterruptedException {
 		ecl.caput(channelOffsetReference,ecl.cagetInt(channelOffsetReferenceNumber));
 		return ecl.cagetInt(channelXRayFrequency_RBV);
 	}
 
-	
+
 	// Helper methods for dealing with the file system.
 	public File createMainFileStructure() throws IOException {
 
 		// set up the filename which will be the base directory for data to be saved to
-		File path = new File(PathConstructor.createFromDefaultProperty()); 
+		File path = new File(PathConstructor.createFromDefaultProperty());
 		NumTracker nt = new NumTracker("i12");
 		String filenumber = Long.toString(nt.getCurrentFileNumber());
 		File scanFolder = new File(path, filenumber);
@@ -674,7 +647,7 @@ public class PixiumController extends DetectorBase {
 			areaDetector.setAcquirePeriod(exposureTime);
 
 			image.setEnable(true);
-			
+
 			// set it going
 			areaDetector.acquire();
 
@@ -703,10 +676,7 @@ public class PixiumController extends DetectorBase {
 					"Preview already running, tried to change the exposure time but there was a problem");
 				}
 			}
-
-
 		}
-
 	}
 
 	@Override
@@ -716,7 +686,7 @@ public class PixiumController extends DetectorBase {
 			this.stoplive();
 		} catch (Exception e) {
 			throw new DeviceException("Cannot stop pixium detector",e);
-		} 
+		}
 	}
 
 	public void stoplive() throws CAException, InterruptedException, TimeoutException {
@@ -727,7 +697,7 @@ public class PixiumController extends DetectorBase {
 		// stop the thread
 		liveThreadRunning = false;
 
-		liveThread.join();		
+		liveThread.join();
 
 		waitForIdle();
 
@@ -778,9 +748,7 @@ public class PixiumController extends DetectorBase {
 					if(preview) {
 					areaDetector.acquire();
 					}
-					
-					RCPPlotter.imagePlot(getPlotName(), data);
-					
+
 				} catch (Exception e) {
 					logger.warn("Failure send Pixium update to PIxiumPlot, with error",e);
 				} finally {
@@ -807,7 +775,6 @@ public class PixiumController extends DetectorBase {
 	}
 	public void setPlotName(String plotName) {
 		this.plotName = plotName;
-	}	
-
+	}
 
 }

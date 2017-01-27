@@ -1,23 +1,16 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Pixium
-Bundle-SymbolicName: uk.ac.gda.devices.pixium
+Bundle-SymbolicName: uk.ac.gda.devices.pixium;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: uk.ac.gda.devices.pixium.Activator
-Require-Bundle: org.eclipse.ui,
- org.eclipse.core.runtime,
+Require-Bundle: org.eclipse.core.runtime,
  uk.ac.gda.core;bundle-version="1.0.0",
  uk.ac.gda.common;bundle-version="1.0.0",
  org.eclipse.january;bundle-version="1.0.0",
- uk.ac.diamond.scisoft.analysis;bundle-version="1.0.0",
  uk.ac.gda.libs;bundle-version="1.0.0",
  uk.ac.gda.epics;bundle-version="1.0.0",
- uk.ac.gda.common.client;bundle-version="1.0.0",
- uk.ac.gda.client;bundle-version="1.0.0",
  uk.ac.gda.nexus,
- uk.ac.diamond.scisoft.analysis.plotserver;bundle-version="1.0.0",
- uk.ac.diamond.jython;bundle-version="[2.7.0,3.0.0)",
- uk.ac.gda.analysis;bundle-version="8.50.0"
+ uk.ac.diamond.jython;bundle-version="[2.7.0,3.0.0)"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: org.slf4j,

@@ -18,6 +18,17 @@
 
 package gda.device.detector.pixium;
 
+import static gda.jython.InterfaceProvider.getCurrentScanInformationHolder;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.configuration.properties.LocalProperties;
 import gda.data.PathConstructor;
 import gda.device.DeviceException;
@@ -42,43 +53,31 @@ import gda.observable.Predicate;
 import gda.scan.ConcurrentScan;
 import gda.scan.RepeatScan;
 import gda.scan.ScanInformation;
-import static gda.jython.InterfaceProvider.getCurrentScanInformationHolder;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Vector;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import gov.aps.jca.TimeoutException;
 import uk.ac.gda.util.UnixToWindowsFilePathConverter;
 
 public class PixiumNXDetector extends NXDetector implements IPixiumNXDetector {
 
-	static final Logger logger = LoggerFactory.getLogger(PixiumNXDetector.class);
-	
-	
+	private static final Logger logger = LoggerFactory.getLogger(PixiumNXDetector.class);
+
+	private static final String DETECTOR_NOT_IDLE_ERROR_MESSAGE = "Failed to set value because detector was found in a state different from Idle!";
+
 	private CachedLazyPVFactory dev;
 	private String prefix;
-	private List<String> earlyFramesTranslatn = new Vector<String>();
-	private List<Integer> allowedPUModes = new ArrayList<Integer>();
-	
+	private List<String> earlyFramesTranslatn = new ArrayList<>();
+	private List<Integer> allowedPUModes = new ArrayList<>();
+
 	private String shutterPVName;
 	private int shutterIntForClose;
 	private int shutterIntForOpen;
 	private boolean useShutter = true;
-	PV<Integer> shutterPV;
+	private PV<Integer> shutterPV;
 	private Scannable fastshutter=null;
 	private Scriptcontroller eventAdmin;
 
-
 	private long currentPointNumber;
-	
-	
-	public PV<Integer> getShutterPV() {
+
+	private PV<Integer> getShutterPV() {
 		if (shutterPV == null) {
 			shutterPV = LazyPVFactory.newIntegerPV(shutterPVName);
 		}
@@ -100,7 +99,7 @@ public class PixiumNXDetector extends NXDetector implements IPixiumNXDetector {
 	public void setShutterIntForClose(int shutterIntForClose) {
 		this.shutterIntForClose = shutterIntForClose;
 	}
-	
+
 	public int getShutterIntForOpen() {
 		return shutterIntForOpen;
 	}
@@ -108,7 +107,7 @@ public class PixiumNXDetector extends NXDetector implements IPixiumNXDetector {
 	public void setShutterIntForOpen(int shutterIntForOpen) {
 		this.shutterIntForOpen = shutterIntForOpen;
 	}
-	
+
 	public boolean isUseShutter() {
 		return useShutter;
 	}
@@ -116,7 +115,7 @@ public class PixiumNXDetector extends NXDetector implements IPixiumNXDetector {
 	public void setUseShutter(boolean useShutter) {
 		this.useShutter = useShutter;
 	}
-	
+
 	public String getPrefix() {
 		return prefix;
 	}
@@ -124,47 +123,39 @@ public class PixiumNXDetector extends NXDetector implements IPixiumNXDetector {
 	public void setPrefix(String prefix) {
 		this.prefix = prefix;
 	}
-	
+
 	@Override
 	public void afterPropertiesSet() {
 		super.afterPropertiesSet();
-		
+
 		if (prefix == null) {
 			throw new IllegalArgumentException("The prefix must not be null!");
 		}
 		dev = new CachedLazyPVFactory(prefix);
-		
+
 		if (shutterPVName == null) {
 			throw new IllegalArgumentException("The shutterPV must not be null for calibration to work!");
-		} 
-		
+		}
+
 		if( shutterPV == null ){
 			shutterPV = LazyPVFactory.newIntegerPV(shutterPVName);
 		}
 		earlyFramesTranslatn.add("Off");
 		earlyFramesTranslatn.add("On");
 		allowedPUModes.addAll(Arrays.asList(1,3,4,7,13,14,15));
-		
-//		NXMetaDataProvider metashop = Finder.getInstance().find("metashop");
-//		Scannable pix10_PUMode = (Scannable)Finder.getInstance().find("pix10_PUMode");
-//		Scannable pix10_BaseExposure = (Scannable)Finder.getInstance().find("pix10_BaseExposure");
-//		Scannable pix10_BaseAcquirePeriod = (Scannable)Finder.getInstance().find("pix10_BaseAcquirePeriod");
-//		metashop.add(pix10_PUMode);
-//		metashop.add(pix10_BaseExposure);
-//		metashop.add(pix10_BaseAcquirePeriod);
 	}
 
 	@Override
 	public void atScanStart() throws DeviceException {
 		//send event to client with scan info at start so users are informed
-		int scannumber =getCurrentScanInformationHolder().getCurrentScanInformation().getScanNumber();
-		int numberOfPoints = getCurrentScanInformationHolder().getCurrentScanInformation().getNumberOfPoints();
+		final int scannumber =getCurrentScanInformationHolder().getCurrentScanInformation().getScanNumber();
+		final int numberOfPoints = getCurrentScanInformationHolder().getCurrentScanInformation().getNumberOfPoints();
 		String dataDir=PathConstructor.createFromDefaultProperty();
 		if (!dataDir.endsWith(File.separator)) {
 			dataDir += File.separator;
 		}
-		String beamline=LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME);
-		String scanFilename=dataDir+String.format("%s-%d", beamline,scannumber) + ".nxs";
+		final String beamline=LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME);
+		final String scanFilename=dataDir+String.format("%s-%d", beamline,scannumber) + ".nxs";
 		if (getEventAdmin()!=null && getEventAdmin() instanceof ScriptControllerBase) {
 			((ScriptControllerBase)getEventAdmin()).update(getEventAdmin(), new ScanStartEvent(scannumber,numberOfPoints,scanFilename));
 		}
@@ -172,6 +163,7 @@ public class PixiumNXDetector extends NXDetector implements IPixiumNXDetector {
 		currentPointNumber=0;
 		super.atScanStart();
 	}
+
 	@Override
 	public void atPointStart() throws DeviceException {
 		currentPointNumber++;
@@ -183,6 +175,7 @@ public class PixiumNXDetector extends NXDetector implements IPixiumNXDetector {
 			fastshutter.moveTo("OPEN");
 		}
 	}
+
 	@Override
 	public void atPointEnd() throws DeviceException {
 		super.atPointEnd();
@@ -190,6 +183,7 @@ public class PixiumNXDetector extends NXDetector implements IPixiumNXDetector {
 			fastshutter.moveTo("CLOSE");
 		}
 	}
+
 	@Override
 	public void atScanEnd() throws DeviceException {
 		if (getEventAdmin()!=null && getEventAdmin() instanceof ScriptControllerBase) {
@@ -197,172 +191,174 @@ public class PixiumNXDetector extends NXDetector implements IPixiumNXDetector {
 		}
 		super.atScanEnd();
 	}
+
 	@Override
-	public void includeEarlyFrames() throws Exception {
+	public void includeEarlyFrames() throws IOException, DeviceException {
 		if (isIdle()) {
 			dev.getPVInteger(EARLY_FRAMES).putWait(0);
 		} else {
-			throw new DeviceException("Failed to set value because detector was found in a state different from Idle!");
+			throw new DeviceException(DETECTOR_NOT_IDLE_ERROR_MESSAGE);
 		}
 	}
-	
-	public void includeEarlyFramesExt() throws Exception {
+
+	public void includeEarlyFramesExt() throws IOException, DeviceException {
 		if (isIdle()) {
-			int newVal = 0;
-			int oldVal = dev.getPVInteger(EARLY_FRAMES_RBV).get();
+			final int newVal = 0;
+			final int oldVal = dev.getPVInteger(EARLY_FRAMES_RBV).get();
 			dev.getPVInteger(EARLY_FRAMES).putWait(newVal);
 			String msg =	"Old : " + earlyFramesTranslatn.get(oldVal) + " ("+ oldVal +")\n";
 			msg +=			"New : " + earlyFramesTranslatn.get(newVal) + " ("+ newVal +")";
 			print(msg);
 		} else {
-			throw new DeviceException("Failed to set value because detector was found in a state different from Idle!");
+			throw new DeviceException(DETECTOR_NOT_IDLE_ERROR_MESSAGE);
 		}
 	}
 
 	@Override
 	public void excludeEarlyFrames() throws Exception {
-		if (isIdle()) {
+		if (waitForIdle()) {
 			dev.getPVInteger(EARLY_FRAMES).putWait(1);
 		} else {
-			throw new DeviceException("Failed to set value because detector was found in a state different from Idle!");
+			print("excludeEarlyFrames = " + dev.getPVInteger(DETECTOR_STATE_RBV).get());
+			throw new DeviceException(DETECTOR_NOT_IDLE_ERROR_MESSAGE);
 		}
 	}
-	
+
 	public void excludeEarlyFramesExt() throws Exception {
 		if (isIdle()) {
-			int newVal = 1;
-			int oldVal = dev.getPVInteger(EARLY_FRAMES_RBV).get();
+			final int newVal = 1;
+			final int oldVal = dev.getPVInteger(EARLY_FRAMES_RBV).get();
 			dev.getPVInteger(EARLY_FRAMES).putWait(newVal);
 			String msg =	"Old : " + earlyFramesTranslatn.get(oldVal) + " ("+ oldVal +")\n";
 			msg +=			"New : " + earlyFramesTranslatn.get(newVal) + " ("+ newVal +")";
 			print(msg);
 		} else {
-			throw new DeviceException("Failed to set value because detector was found in a state different from Idle!");
+			throw new DeviceException(DETECTOR_NOT_IDLE_ERROR_MESSAGE);
 		}
 	}
-	
-	public int reportEarlyFrames() throws Exception {
+
+	public int reportEarlyFrames() throws IOException {
 		return dev.getPVInteger(EARLY_FRAMES_RBV).get();
 	}
-	
-	public int reportEarlyFramesExt() throws Exception {
-		int outVal = dev.getPVInteger(EARLY_FRAMES_RBV).get();
-		String msg = earlyFramesTranslatn.get(outVal) + " ("+ outVal+")";
+
+	public int reportEarlyFramesExt() throws IOException  {
+		final int outVal = dev.getPVInteger(EARLY_FRAMES_RBV).get();
+		final String msg = earlyFramesTranslatn.get(outVal) + " ("+ outVal+")";
 		print(msg);
 		return outVal;
 	}
-	
+
 	@Override
 	public void setBaseExposure(double expTime) throws Exception {
 		if (isIdle()) {
 			dev.getPVDouble(BASE_EXPOSURE).putWait(expTime);
 		} else {
-			throw new DeviceException("Failed to set value because detector was found in a state different from Idle!");
+			throw new DeviceException(DETECTOR_NOT_IDLE_ERROR_MESSAGE);
 		}
 	}
-	
+
 	public void setBaseExposureExt(double expTime) throws Exception {
 		if (isIdle()) {
-			double oldVal = dev.getPVDouble(BASE_EXPOSURE_RBV).get();
+			final double oldVal = dev.getPVDouble(BASE_EXPOSURE_RBV).get();
 			dev.getPVDouble(BASE_EXPOSURE).putWait(expTime);
 			String msg =	"Old : " + oldVal +"\n";
 			msg +=			"New : " + expTime;
 			print(msg);
 		} else {
-			throw new DeviceException("Failed to set value because detector was found in a state different from Idle!");
+			throw new DeviceException(DETECTOR_NOT_IDLE_ERROR_MESSAGE);
 		}
 	}
-	
+
 	@Override
 	public double getBaseExposure() throws Exception {
 		return dev.getPVDouble(BASE_EXPOSURE_RBV).get();
 	}
-	
+
 	@Override
 	public void setBaseAcquirePeriod(double acqTime) throws Exception {
 		if (isIdle()) {
 			dev.getPVDouble(BASE_ACQUIRE_PERIOD).putWait(acqTime);
 		} else {
-			throw new DeviceException("Failed to set value because detector was found in a state different from Idle!");
+			throw new DeviceException(DETECTOR_NOT_IDLE_ERROR_MESSAGE);
 		}
 	}
-	
+
 	public void setBaseAcquirePeriodExt(double acqTime) throws Exception {
 		if (isIdle()) {
-			double oldVal = dev.getPVDouble(BASE_ACQUIRE_PERIOD_RBV).get();
+			final double oldVal = dev.getPVDouble(BASE_ACQUIRE_PERIOD_RBV).get();
 			dev.getPVDouble(BASE_ACQUIRE_PERIOD).putWait(acqTime);
 			String msg =	"Old : " + oldVal +"\n";
 			msg +=			"New : " + acqTime;
 			print(msg);
 		} else {
-			throw new DeviceException("Failed to set value because detector was found in a state different from Idle!");
+			throw new DeviceException(DETECTOR_NOT_IDLE_ERROR_MESSAGE);
 		}
 	}
-	
+
 	@Override
 	public double getBaseAcquirePeriod() throws Exception {
 		return dev.getPVDouble(BASE_ACQUIRE_PERIOD_RBV).get();
 	}
-	
+
 	@Override
 	public void setExposuresPerImage(int numExp) throws Exception {
 		if (isIdle()) {
 			dev.getPVInteger(EXPOSURES_PER_IMAGE).putWait(numExp);
 		} else {
-			throw new DeviceException("Failed to set value because detector was found in a state different from Idle!");
+			throw new DeviceException(DETECTOR_NOT_IDLE_ERROR_MESSAGE);
 		}
 	}
-	
+
 	public void setExposuresPerImageExt(int numExp) throws Exception {
 		if (isIdle()) {
-			int oldVal = dev.getPVInteger(EXPOSURES_PER_IMAGE_RBV).get();
+			final int oldVal = dev.getPVInteger(EXPOSURES_PER_IMAGE_RBV).get();
 			dev.getPVInteger(EXPOSURES_PER_IMAGE).putWait(numExp);
 			String msg =	"Old : " + oldVal +"\n";
 			msg +=			"New : " + numExp;
 			print(msg);
 		} else {
-			throw new DeviceException("Failed to set value because detector was found in a state different from Idle!");
+			throw new DeviceException(DETECTOR_NOT_IDLE_ERROR_MESSAGE);
 		}
 	}
-	
+
 	@Override
 	public int getExposuresPerImage() throws Exception {
 		return dev.getPVInteger(EXPOSURES_PER_IMAGE_RBV).get();
 	}
-	
+
 	@Override
 	public void setNumImages(int numImg) throws Exception {
 		if (isIdle()) {
 			dev.getPVInteger(NUM_IMAGES).putWait(numImg);
 		} else {
-			throw new DeviceException("Failed to set value because detector was found in a state different from Idle!");
+			throw new DeviceException(DETECTOR_NOT_IDLE_ERROR_MESSAGE);
 		}
 	}
-	
+
 	public void setNumImagesExt(int numImg) throws Exception {
 		if (isIdle()) {
-			int oldVal = dev.getPVInteger(NUM_IMAGES_RBV).get();
+			final int oldVal = dev.getPVInteger(NUM_IMAGES_RBV).get();
 			dev.getPVInteger(NUM_IMAGES).putWait(numImg);
 			String msg =	"Old : " + oldVal +"\n";
 			msg +=			"New : " + numImg;
 			print(msg);
 		} else {
-			throw new DeviceException("Failed to set value because detector was found in a state different from Idle!");
+			throw new DeviceException(DETECTOR_NOT_IDLE_ERROR_MESSAGE);
 		}
 	}
-	
+
 	@Override
 	public int getNumImages() throws Exception {
 		return dev.getPVInteger(NUM_IMAGES_RBV).get();
 	}
-	
+
 	@Override
 	public void setPUMode(int mode) throws Exception {
 		if (allowedPUModes.contains(mode)) {
 			if (isIdle()) {
 				dev.getPVInteger(PU_MODE).putWait(mode);
 			} else {
-				throw new DeviceException("Failed to set value because detector was found in a state different from Idle!");
+				throw new DeviceException(DETECTOR_NOT_IDLE_ERROR_MESSAGE);
 			}
 		} else {
 			String msg = "The input PU mode of " + mode + " is not allowed!\n";
@@ -371,17 +367,17 @@ public class PixiumNXDetector extends NXDetector implements IPixiumNXDetector {
 			throw new IllegalArgumentException(msg);
 		}
 	}
-	
+
 	public void setPUModeExt(int mode) throws Exception {
 		if (allowedPUModes.contains(mode)) {
 			if (isIdle()) {
-				int oldVal = dev.getPVInteger(PU_MODE_RBV).get();
+				final int oldVal = dev.getPVInteger(PU_MODE_RBV).get();
 				dev.getPVInteger(PU_MODE).putWait(mode);
 				String msg =	"Old : " + oldVal +"\n";
 				msg +=			"New : " + mode;
 				print(msg);
 			} else {
-				throw new DeviceException("Failed to set value because detector was found in a state different from Idle!");
+				throw new DeviceException(DETECTOR_NOT_IDLE_ERROR_MESSAGE);
 			}
 		} else {
 			String msg = "The input PU mode of " + mode + " is not allowed.\n";
@@ -390,69 +386,67 @@ public class PixiumNXDetector extends NXDetector implements IPixiumNXDetector {
 			throw new IllegalArgumentException(msg);
 		}
 	}
-	
+
 	@Override
 	public int getPUMode() throws Exception {
 		return dev.getPVInteger(PU_MODE_RBV).get();
 	}
-	
+
 	public void reportAllowablePUModes() {
 		print(allowedPUModes.toString());
 	}
-	
+
 	@Override
 	public void calibrate() throws Exception {
 		// TO-DO
 		if (useShutter) {
 			// close shutter
 			print("About to close shutter (" + getShutterPVName() + ")...");
-			int shutterClose = getShutterIntForClose();
+			final int shutterClose = getShutterIntForClose();
 			getShutterPV().putWait(shutterClose);
-			
+
 			// wait for shutter to close
 			waitForIntPVValEqualTo(getShutterPV(), shutterClose, 10);
 			print("Shutter closed at Shutter State: " + getShutterPV().get() + " ("+ getShutterPVName() + ")");
-			
+
 		} else {
 			print("The use of shutter was not requested for this calibration!");
 		}
-		
+
 		print("\t at Shutter State: " + getShutterPV().get() + " ("+ getShutterPVName() + ")");
 		print("\t at Detector State: " + dev.getPVInteger(DETECTOR_STATE_RBV).get());
-		
+
 		// stop detector acquire
 		print("About to stop acquire 2...");
 //		dev.getPVInteger(ACQUIRE).putWait(0);
 		dev.getPVInteger(ACQUIRE).putNoWait(0);
-		
+
 		// wait for detector to stop acquire
 		waitForIntPVValEqualTo(dev.getPVInteger(ACQUIRE), 0, 10);
 		print("Acquire stopped at Acquire State: " + dev.getPVInteger(ACQUIRE).get());
 		waitForIntPVValEqualTo(dev.getPVInteger(DETECTOR_STATE_RBV), 0, 60*2.0);
-		
+
 		print("\t at Acquire State: " + dev.getPVInteger(ACQUIRE).get());
 		print("\t at Detector State: " + dev.getPVInteger(DETECTOR_STATE_RBV).get());
-		
-		int valBeforeCalibrate = dev.getPVInteger(CALIBRATE_RBV).get();
-				
+
 		// calibrate
 		print("About to calibrate...");
 		dev.getPVInteger(CALIBRATE).putWait(1,60.0*3.5);
-		
+
 		// wait for calibration to be running
 		//waitForIntPVValNotEqualTo(dev.getPVInteger(CALIBRATE_RBV), valBeforeCalibrate, 30);
 		print("Calibrating started at Calibration-Running State: " + dev.getPVInteger(CALIBRATE_RBV).get());
-		
+
 		// wait for calibration to end
 		waitForIntPVValEqualTo(dev.getPVInteger(CALIBRATE_RBV), 0, 30);
 		print("Calibrating ended at Calibration-Running State: " + dev.getPVInteger(CALIBRATE_RBV).get());
-		
+
 		print("\t at Calibration-Running State: " + dev.getPVInteger(CALIBRATE_RBV).get());
 		print("\t at Detector State: " + dev.getPVInteger(DETECTOR_STATE_RBV).get());
-		
-		double baseExposure = getBaseExposure();
-		double baseAcquirePeriod = getBaseAcquirePeriod();
-		
+
+		final double baseExposure = getBaseExposure();
+		final double baseAcquirePeriod = getBaseAcquirePeriod();
+
 		String msg = "\n";
 		msg += "Detector calibrated to:";
 		msg += "\n Base Exposure: " + baseExposure;
@@ -460,7 +454,7 @@ public class PixiumNXDetector extends NXDetector implements IPixiumNXDetector {
 		msg += "\n Shutter State: " + getShutterPV().get() + " ("+ getShutterPVName() + ")";
 		print(msg);
 	}
-	
+
 	public void waitForIntPVValEqualTo(PV<Integer> pv, int valWaitedFor, double timeoutSec) throws DeviceException {
 		try {
 			pv.setValueMonitoring(true);
@@ -475,7 +469,7 @@ public class PixiumNXDetector extends NXDetector implements IPixiumNXDetector {
 			throw new DeviceException(e);
 		}
 	}
-	
+
 	public void waitForIntPVValNotEqualTo(PV<Integer> pv, int valWaitedFor, double timeoutSec) throws DeviceException {
 		try {
 			pv.setValueMonitoring(true);
@@ -490,7 +484,7 @@ public class PixiumNXDetector extends NXDetector implements IPixiumNXDetector {
 			throw new DeviceException(e);
 		}
 	}
-	
+
 	public void waitForShutterPos(int shutterPosWaitedFor, double timeoutSec) throws DeviceException {
 		if( shutterPV == null ){
 			shutterPV = LazyPVFactory.newIntegerPV(shutterPVName);
@@ -510,7 +504,7 @@ public class PixiumNXDetector extends NXDetector implements IPixiumNXDetector {
 	}
 	/**
 	 * method to print message to the Jython Terminal console.
-	 * 
+	 *
 	 * @param msg
 	 */
 	private void print(String msg) {
@@ -518,8 +512,8 @@ public class PixiumNXDetector extends NXDetector implements IPixiumNXDetector {
 			InterfaceProvider.getTerminalPrinter().print(msg);
 		}
 	}
-	
-	public class EqualTo implements Predicate<Integer> {
+
+	private class EqualTo implements Predicate<Integer> {
 
 		private final int value;
 
@@ -553,14 +547,14 @@ public class PixiumNXDetector extends NXDetector implements IPixiumNXDetector {
 				return false;
 			return true;
 		}
-		
+
 		@Override
 		public String toString() {
 			return "EqualTo(" + value + ")";
 		}
 	}
-	
-	public class NotEqualTo implements Predicate<Integer> {
+
+	private class NotEqualTo implements Predicate<Integer> {
 
 		private final int value;
 
@@ -595,26 +589,23 @@ public class PixiumNXDetector extends NXDetector implements IPixiumNXDetector {
 				return false;
 			return true;
 		}
-		
+
 		@Override
 		public String toString() {
 			return "NotEqualTo(" + value + ")";
 		}
 	}
-	
+
 	@Override
 	public void acquire(double collectionTime, int numImages) throws Exception {
 		// TO-DO
 		if (numImages <= 0) {
 			throw new IllegalArgumentException("The input value of numImages must be a positive integer.");
 		}
-		
-		ScanInformation scanInfo_IGNORED = null;
-		int numberImagesPerCollection_IGNORED = -1;
-		PixiumSimpleAcquire psa = (PixiumSimpleAcquire)this.getCollectionStrategy();
+
+		final ScanInformation scanInfo_IGNORED = null;
+		final PixiumSimpleAcquire psa = (PixiumSimpleAcquire)this.getCollectionStrategy();
 		psa.prepareForCollection(collectionTime, numImages, scanInfo_IGNORED);
-//		ConcurrentScan scan = RepeatScan.create_repscan(numImages, this);
-//		scan.runScan();
 		psa.collectData();
 		psa.waitWhileBusy();
 	}
@@ -625,17 +616,17 @@ public class PixiumNXDetector extends NXDetector implements IPixiumNXDetector {
 		if (collectionTime <= 0) {
 			throw new IllegalArgumentException("The input value of collectionTime must be a positive number.");
 		}
-		
+
 		int numImages = Integer.MAX_VALUE;
 		numImages = 12; //for testing
-		ScanInformation scanInfo_IGNORED = null;
-		int numberImagesPerCollection_IGNORED = -1;
-		PixiumSimpleAcquire psa = (PixiumSimpleAcquire)this.getCollectionStrategy();
+		final ScanInformation scanInfo_IGNORED = null;
+		final int numberImagesPerCollection_IGNORED = -1;
+		final PixiumSimpleAcquire psa = (PixiumSimpleAcquire)this.getCollectionStrategy();
 		psa.prepareForCollection(collectionTime, numberImagesPerCollection_IGNORED, scanInfo_IGNORED);
-		ConcurrentScan scan = RepeatScan.create_repscan(numImages, this);
+		final ConcurrentScan scan = RepeatScan.create_repscan(numImages, this);
 		scan.runScan();
 	}
-	
+
 	@Override
 	public void stop() throws DeviceException {
 		super.stop();
@@ -645,52 +636,52 @@ public class PixiumNXDetector extends NXDetector implements IPixiumNXDetector {
 			throw new DeviceException("Failed to stop Pixium detector", e);
 		}
 	}
-	
+
 	public void stopAcquiring() throws Exception {
-		AbstractADTriggeringStrategy ats = (AbstractADTriggeringStrategy)this.getCollectionStrategy();
+		final AbstractADTriggeringStrategy ats = (AbstractADTriggeringStrategy)this.getCollectionStrategy();
 		ats.getAdBase().stopAcquiring();
 	}
-	
+
 	public void setWindowsSubString(String windowsSubString) {
 		UnixToWindowsFilePathConverter filePathConverter = null;
 		for (NXPluginBase plugin : getAdditionalPluginList()) {
 			filePathConverter = null;
 			if (plugin instanceof SingleImagePerFileWriter){
-				SingleImagePerFileWriter fileWriter = (SingleImagePerFileWriter)plugin;
-				NDFileImpl ndFile = (NDFileImpl)fileWriter.getNdFile();
+				final SingleImagePerFileWriter fileWriter = (SingleImagePerFileWriter)plugin;
+				final NDFileImpl ndFile = (NDFileImpl)fileWriter.getNdFile();
 				filePathConverter = (UnixToWindowsFilePathConverter)(ndFile.getFilePathConverter());
 			} else if (plugin instanceof MultipleImagesPerHDF5FileWriter) {
-				MultipleImagesPerHDF5FileWriter fileWriter = (MultipleImagesPerHDF5FileWriter)plugin;
-				NDFileImpl ndFile = (NDFileImpl)fileWriter.getNdFile();
+				final MultipleImagesPerHDF5FileWriter fileWriter = (MultipleImagesPerHDF5FileWriter)plugin;
+				final NDFileImpl ndFile = (NDFileImpl)fileWriter.getNdFile();
 				filePathConverter = (UnixToWindowsFilePathConverter)(ndFile.getFilePathConverter());
 			}
 			if (filePathConverter != null) {
-				String oldVal = filePathConverter.getWindowsSubString();
+				final String oldVal = filePathConverter.getWindowsSubString();
 				filePathConverter.setWindowsSubString(windowsSubString);
 				String msg =	"Old : " + oldVal +"\n";
 				msg +=			"New : " + windowsSubString;
 				print(msg);
 			}
 		}
-		
+
 	}
-	
+
 	public String[] getWindowsSubString() {
-		String[] windowsSubString = new String[getAdditionalPluginList().size()];
+		final String[] windowsSubString = new String[getAdditionalPluginList().size()];
 		UnixToWindowsFilePathConverter filePathConverter = null;
 		int i = 0;
 		for (NXPluginBase plugin : getAdditionalPluginList()) {
 			filePathConverter = null;
 			if (plugin instanceof SingleImagePerFileWriter){
-				SingleImagePerFileWriter fileWriter = (SingleImagePerFileWriter)plugin;
-				NDFileImpl ndFile = (NDFileImpl)fileWriter.getNdFile();
+				final SingleImagePerFileWriter fileWriter = (SingleImagePerFileWriter)plugin;
+				final NDFileImpl ndFile = (NDFileImpl)fileWriter.getNdFile();
 				filePathConverter = (UnixToWindowsFilePathConverter)(ndFile.getFilePathConverter());
 			} else if (plugin instanceof MultipleImagesPerHDF5FileWriter) {
-				MultipleImagesPerHDF5FileWriter fileWriter = (MultipleImagesPerHDF5FileWriter)plugin;
-				NDFileImpl ndFile = (NDFileImpl)fileWriter.getNdFile();
+				final MultipleImagesPerHDF5FileWriter fileWriter = (MultipleImagesPerHDF5FileWriter)plugin;
+				final NDFileImpl ndFile = (NDFileImpl)fileWriter.getNdFile();
 				filePathConverter = (UnixToWindowsFilePathConverter)(ndFile.getFilePathConverter());
 			}
-			
+
 			if (filePathConverter != null) {
 				windowsSubString[i] = filePathConverter.getWindowsSubString();
 			} else {
@@ -709,8 +700,18 @@ public class PixiumNXDetector extends NXDetector implements IPixiumNXDetector {
 		this.fastshutter = fastshutter;
 	}
 
-	public boolean isIdle() throws IOException {
+	private boolean isIdle() throws IOException {
 		return dev.getPVInteger(DETECTOR_STATE_RBV).get()==0;
+	}
+
+	private boolean waitForIdle() throws Exception  {
+		final int totMillis = 60 * 1000 * 10;
+		final int grain = 25;
+		for (int i = 0; i < totMillis/grain; i++) {
+			if (isIdle()) return true;
+			Thread.sleep(grain);
+		}
+		throw new TimeoutException("Timeout waiting for detector to be in the Idle state.");
 	}
 
 	public Scriptcontroller getEventAdmin() {
@@ -721,6 +722,3 @@ public class PixiumNXDetector extends NXDetector implements IPixiumNXDetector {
 		this.eventAdmin = eventAdmin;
 	}
 }
-
-
-

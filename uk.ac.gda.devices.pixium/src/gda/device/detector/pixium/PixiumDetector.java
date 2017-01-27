@@ -18,6 +18,20 @@
 
 package gda.device.detector.pixium;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Vector;
+import java.util.concurrent.Callable;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+
 import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
 import gda.data.PathConstructor;
@@ -37,43 +51,30 @@ import gda.jython.InterfaceProvider;
 import gda.scan.ScanInformation;
 import gov.aps.jca.CAException;
 import gov.aps.jca.TimeoutException;
-
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Vector;
-import java.util.concurrent.Callable;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
-
-import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 import uk.ac.gda.devices.pixium.IPixiumController;
 import uk.ac.gda.devices.pixium.IPixiumDetector;
 
 /**
- * Pixium detector supports EPICS area detector pixium driver and various area detector plugins, including region of
- * interest, sub array sample, data processing and statics. HDF5 and Tiff file savers, and MJPEG live image streaming.
- * Instance of this class is a scannable thus can be used in a scan command for data collection. In addition, it also
- * provide a fast data collection methods when nothing need to be scanned over. There are a few default properties
- * implemented in this class you must be aware of: <li>data acquisition is defaulte to file saver capture control while
- * continuously acquiring and you can change this to camera acquire control by setting
- * <code>pixium.setCaptureControl(False)</code>.</li> <li>data storage is defaulte to the lustre storage, to change it
- * to local storage on Windows run <code>
- * pixium.setLocalDataStore(True)</code></li> <li>data format is defaulte to TIFF image, to change it to HDF5 run
- * <code>pixium.setHdfFormat(True)</code></li> <li>Data plotting is defaulted to NO so it does not automatically plot
- * after each acquisition, to change it run <code>pixium.setAutoPlotting(True)</code></li>
+ * Pixium detector supports EPICS area detector pixium driver and various area detector plugins, including region of interest, sub array sample, data processing
+ * and statics. HDF5 and Tiff file savers, and MJPEG live image streaming. Instance of this class is a scannable thus can be used in a scan command for data
+ * collection. In addition, it also provide a fast data collection methods when nothing need to be scanned over. There are a few default properties implemented
+ * in this class you must be aware of:
+ * <p>
+ * <li>data acquisition is defaulted to file saver capture control while continuously acquiring and you can change this to camera acquire control by setting
+ * <code>pixium.setCaptureControl(False)</code>.</li>
+ * <li>data storage is defaulted to the lustre storage, to change it to local storage on Windows run <code>
+ * pixium.setLocalDataStore(True)</code></li>
+ * <li>data format is defaulted to TIFF image, to change it to HDF5 run <code>pixium.setHdfFormat(True)</code></li>
+ * <li>Data plotting is defaulted to NO so it does not automatically plot after each acquisition, to change it run
+ * <code>pixium.setAutoPlotting(True)</code></li>
+ * </p>
  */
 public class PixiumDetector extends DetectorBase implements InitializingBean, IPixiumDetector {
-	// PositionCallableProvider<NexusTreeProvider> {
 
 	private static final Logger logger = LoggerFactory.getLogger(PixiumDetector.class);
+
 	public static final double UnixEpochDifferenceFromEPICS = 631152000;
+
 	private boolean localDataStore = false; // default to write to Lustre storage
 	private File scanSaveFolder; // scan number is used as folder name
 	private String detectorID;
@@ -82,19 +83,15 @@ public class PixiumDetector extends DetectorBase implements InitializingBean, IP
 	private Windows2LinuxFilePath nonLocalDataStoreWindows2LinuxFilePath;
 	private IPixiumController controller;
 	private boolean captureControl = true; // default is capture mode
-	private boolean autoPlotting = false; // default is no plotting at end of data collection
 	private boolean hdfFormat = false; // default is tiff format
 	private boolean isPreviewing = false;
 	private int scanpointnumber = 0; // to support multiple images per scan data point
-	Vector<String> outputformats = new Vector<String>();
+	private Vector<String> outputformats = new Vector<>();
 	private boolean scanRunning;
 	private boolean readAcquisitionTime = true;
 	private boolean readAcquisitionPeriod = false;
 	private boolean readFilepath = true;
-	// private static final String FILEPATH_EXTRANAME = "filepath";
-	// private boolean firstReadoutInScan = true;
 	private INexusTree nexusMetaDataForPixium;
-	private int numberOfFramesCurrentAcq;
 	private double[] timesCurrentAcq;
 	private boolean getPositionCalledForCurrentAcq;
 
@@ -155,21 +152,6 @@ public class PixiumDetector extends DetectorBase implements InitializingBean, IP
 		} catch (Exception e) {
 			throw new DeviceException("Failed to start Pixium detector to Acquire or capture", e);
 		}
-		// nexusMetaDataForPixium = getNexusMetaDataForPixium();
-		// double acquire_peirod;
-		// try {
-		// acquire_peirod = controller.getAcquireTime();
-		// } catch (Exception e) {
-		// logger.error("TCannot get the image acquisition period from EPICS area detector.", e);
-		// throw new DeviceException(
-		// getName() + ": Cannot get the image acquisition period from EPICS area detector.", e);
-		// }
-		// numberOfFramesCurrentAcq = (int) getCollectionTime();
-		// timesCurrentAcq = new double[numberOfFramesCurrentAcq];
-		// for (int i = 0; i < timesCurrentAcq.length; i++) {
-		// timesCurrentAcq[i] = i * acquire_peirod;
-		// }
-		// getPositionCalledForCurrentAcq = false;
 	}
 
 	INexusTree getNexusMetaDataForPixium() throws DeviceException {
@@ -249,9 +231,9 @@ public class PixiumDetector extends DetectorBase implements InitializingBean, IP
 
 	@Override
 	public Object readout() throws DeviceException {
-		Vector<String> output = new Vector<String>();
-		String absolutePath = scanSaveFolder.getAbsolutePath() + File.separator;
-		NXDetectorData dataTree = new NXDetectorData();
+		final Vector<String> output = new Vector<>();
+		final String absolutePath = scanSaveFolder.getAbsolutePath() + File.separator;
+		final NXDetectorData dataTree = new NXDetectorData();
 		try {
 			if (hdfFormat) {
 				print("Frames collected: " + controller.getHdf().getFile().getNumCaptured_RBV());
@@ -307,9 +289,6 @@ public class PixiumDetector extends DetectorBase implements InitializingBean, IP
 			throw new DeviceException("readout failed to add scan file link to NeXus data file.", e);
 		}
 		// FileRegistrarHelper.registerFiles(output);
-		if (isAutoPlotting()) {
-			plotImage(output.lastElement());
-		}
 		if (LocalProperties.get("gda.data.scan.datawriter.dataFormat").matches("NexusDataWriter")) {
 			// NeXus file format
 			return dataTree;
@@ -319,15 +298,6 @@ public class PixiumDetector extends DetectorBase implements InitializingBean, IP
 	}
 
 	// @Override
-	// public NexusTreeProvider readout() throws DeviceException {
-	// try {
-	// return getPositionCallable().call();
-	// } catch (Exception e) {
-	// throw new DeviceException("Error in readout", e);
-	// }
-	// }
-
-	// @Override
 	public Callable<NexusTreeProvider> getPositionCallable() {
 		NexusTreeProviderCallable nexusTreeProviderCallable = new NexusTreeProviderCallable(getName(),
 				nexusMetaDataForPixium, timesCurrentAcq, !getPositionCalledForCurrentAcq);
@@ -335,7 +305,7 @@ public class PixiumDetector extends DetectorBase implements InitializingBean, IP
 		return nexusTreeProviderCallable;
 	}
 
-	class NexusTreeProviderCallable implements Callable<NexusTreeProvider> {
+	private class NexusTreeProviderCallable implements Callable<NexusTreeProvider> {
 
 		final private String name;
 		final private INexusTree nexusMetaDataForPixium1;
@@ -405,9 +375,6 @@ public class PixiumDetector extends DetectorBase implements InitializingBean, IP
 				data.setDoubleVals(new Double[] { new Double(filenames.length) });
 
 				// FileRegistrarHelper.registerFiles(output);
-				if (isAutoPlotting()) {
-					plotImage(filenames[filenames.length - 1]);
-				}
 			}
 
 			if (firstCall) {
@@ -454,53 +421,6 @@ public class PixiumDetector extends DetectorBase implements InitializingBean, IP
 
 	public boolean isReadAcquisitionTime() {
 		return this.readAcquisitionTime;
-	}
-
-	/**
-	 * plot image data on default pane configured in Spring object. This starts independent job to plot so it does not
-	 * block acquisition. Timing values are printed and logged to provide more information of file saving timings.
-	 *
-	 * @param imageFileName
-	 */
-	public void plotImage(final String imageFileName) {
-		// Plot the last image collected from file
-		Thread plot = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				boolean plotted = false;
-				int trycounter = 0;
-				double starttime = System.currentTimeMillis();
-				double time = 0.0, timeout = 15000.0;
-				double fileexisttime = 0.0;
-				boolean firsttime = true;
-				while (!plotted && time < timeout) {
-					if ((new File(imageFileName)).exists()) {
-						if (firsttime) {
-							fileexisttime = System.currentTimeMillis();
-							firsttime = false;
-						}
-						try {
-							SDAPlotter.imagePlot(getPlotName(), imageFileName);
-							plotted = true;
-						} catch (Exception e) {
-							trycounter++;
-							logger.error("Plot data {} try {} failed", imageFileName, trycounter);
-							plotted = false;
-						}
-						print("Time elasped since plotting request: " + (System.currentTimeMillis() - starttime));
-						logger.debug("Time elasped since plotting request: {}",
-								(System.currentTimeMillis() - starttime));
-						print("Time elasped since file first appears: " + (System.currentTimeMillis() - fileexisttime));
-						logger.debug("Time elasped since file first appears: {}",
-								(System.currentTimeMillis() - fileexisttime));
-					} else {
-						// logger.debug("wait for data file {} to plot.", imageFileName);
-					}
-					time = (System.currentTimeMillis() - starttime);
-				}
-			}
-		}, "plotimage");
-		plot.start();
 	}
 
 	@Override
@@ -862,9 +782,6 @@ public class PixiumDetector extends DetectorBase implements InitializingBean, IP
 				}
 			}
 		}
-		if (isAutoPlotting()) {
-			plotImage(imageFiles.lastElement());
-		}
 	}
 
 	/**
@@ -933,7 +850,7 @@ public class PixiumDetector extends DetectorBase implements InitializingBean, IP
 	/**
 	 *
 	 */
-	static class Windows2LinuxFilePath {
+	private static class Windows2LinuxFilePath {
 		private String windowsPath;
 
 		private String linuxPath;
@@ -1085,14 +1002,6 @@ public class PixiumDetector extends DetectorBase implements InitializingBean, IP
 
 	public void setNonLocalDataStoreWindows2LinuxFileName(Windows2LinuxFilePath nonLocalDataStoreWindows2LinuxFilePath) {
 		this.nonLocalDataStoreWindows2LinuxFilePath = nonLocalDataStoreWindows2LinuxFilePath;
-	}
-
-	public void setAutoPlotting(boolean autoPlotting) {
-		this.autoPlotting = autoPlotting;
-	}
-
-	public boolean isAutoPlotting() {
-		return autoPlotting;
 	}
 
 	public boolean isHdfFormat() {
