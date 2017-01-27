@@ -18,6 +18,12 @@
 
 package gda.device.detector.pco;
 
+import java.awt.Point;
+import java.awt.Rectangle;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.detector.IPCOControllerV17;
@@ -32,12 +38,6 @@ import gda.device.detector.areadetector.v17.NDProcess;
 import gda.device.detector.areadetector.v17.NDROI;
 import gda.device.detector.areadetector.v17.NDStats;
 import gda.factory.Findable;
-import java.awt.Point;
-import java.awt.Rectangle;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import uk.ac.gda.devices.pco.LiveModeUtil;
 import uk.ac.gda.tomography.devices.ITomographyDetector;
 
@@ -70,21 +70,20 @@ public class PCOTomography implements ITomographyDetector, Findable {
 	private double maxIntensity = 65000;
 
 	@Override
-
 	public void acquireMJpeg(Double expTime, int binX, int binY, Double scale, Double offset) throws Exception {
 
 		// plugins arranged - cam -> proc -> roi ->mjpeg
-		IPCOControllerV17 controller = pcoDetector.getController();
+		final IPCOControllerV17 controller = pcoDetector.getController();
 
-		ADBase areaDetector = controller.getAreaDetector();
+		final ADBase areaDetector = controller.getAreaDetector();
 		//
 		pcoDetector.getController().disarmCamera();
 		//
-		NDStats stat = controller.getStat();
-		NDProcess proc1 = controller.getProc1();
-		NDROI roi1 = controller.getRoi1();
-		FfmpegStream mJpeg1 = controller.getMJpeg1();
-		NDFile tiff = controller.getTiff();
+		final NDStats stat = controller.getStat();
+		final NDProcess proc1 = controller.getProc1();
+		final NDROI roi1 = controller.getRoi1();
+		final FfmpegStream mJpeg1 = controller.getMJpeg1();
+		final NDFile tiff = controller.getTiff();
 
 		controller.setImageMode(ImageMode.CONTINUOUS.ordinal());
 
@@ -93,7 +92,7 @@ public class PCOTomography implements ITomographyDetector, Findable {
 		// enabling stat
 		stat.getPluginBase().enableCallbacks();
 		stat.setComputeStatistics(1);
-		NDPluginBase proc1PluginBase = proc1.getPluginBase();
+		final NDPluginBase proc1PluginBase = proc1.getPluginBase();
 		stat.getPluginBase().setNDArrayPort(proc1PluginBase.getPortName_RBV());
 		// Setting default values so the MJPeg viewer can cope with the image streaming.
 		//
@@ -133,13 +132,13 @@ public class PCOTomography implements ITomographyDetector, Findable {
 
 	@Override
 	public void resumeAcquisition() throws Exception {
-		IPCOControllerV17 controller = pcoDetector.getController();
+		final IPCOControllerV17 controller = pcoDetector.getController();
 		controller.acquire();
 	}
 
 	@Override
 	public void setZoomRoiStart(Point roiStart) throws Exception {
-		NDROI roi2 = pcoDetector.getController().getRoi2();
+		final NDROI roi2 = pcoDetector.getController().getRoi2();
 		roi2.enableX();
 		roi2.enableY();
 		roi2.setMinX(roiStart.x);
@@ -149,11 +148,11 @@ public class PCOTomography implements ITomographyDetector, Findable {
 	@Override
 	public void setupZoomMJpeg(Rectangle roi, Point bin) throws Exception {
 		logger.info("zoom - roisize-" + roi + " - bin - " + bin);
-		IPCOControllerV17 controller = pcoDetector.getController();
-		NDROI roi2 = controller.getRoi2();
-		ADBase areaDetector = controller.getAreaDetector();
-		NDProcess proc2 = controller.getProc2();
-		FfmpegStream mJpeg2 = controller.getMJpeg2();
+		final IPCOControllerV17 controller = pcoDetector.getController();
+		final NDROI roi2 = controller.getRoi2();
+		final ADBase areaDetector = controller.getAreaDetector();
+		final NDProcess proc2 = controller.getProc2();
+		final FfmpegStream mJpeg2 = controller.getMJpeg2();
 
 		roi2.getPluginBase().enableCallbacks();
 		roi2.getPluginBase().setNDArrayPort(areaDetector.getPortName_RBV());
@@ -169,12 +168,12 @@ public class PCOTomography implements ITomographyDetector, Findable {
 		roi2.setSizeX(roi.width);
 		roi2.setSizeY(roi.height);
 
-		NDPluginBase proc2PluginBase = proc2.getPluginBase();
+		final NDPluginBase proc2PluginBase = proc2.getPluginBase();
 		proc2PluginBase.setNDArrayPort(roi2.getPluginBase().getPortName_RBV());
 		proc2PluginBase.enableCallbacks();
 		proc2PluginBase.setMinCallbackTime(PRC_MIN_TIME);
 
-		NDPluginBase mjpeg2PluginBase = mJpeg2.getPluginBase();
+		final NDPluginBase mjpeg2PluginBase = mJpeg2.getPluginBase();
 		mjpeg2PluginBase.setNDArrayPort(proc2PluginBase.getPortName_RBV());
 		mjpeg2PluginBase.enableCallbacks();
 	}
@@ -191,18 +190,18 @@ public class PCOTomography implements ITomographyDetector, Findable {
 
 	@Override
 	public void enableFlatField() throws Exception {
-		IPCOControllerV17 controller = pcoDetector.getController();
-		NDProcess proc1 = controller.getProc1();
-		NDProcess proc2 = controller.getProc2();
+		final IPCOControllerV17 controller = pcoDetector.getController();
+		final NDProcess proc1 = controller.getProc1();
+		final NDProcess proc2 = controller.getProc2();
 		proc1.setEnableFlatField(1);
 		proc2.setEnableFlatField(1);
 	}
 
 	@Override
 	public void disableFlatField() throws Exception {
-		IPCOControllerV17 controller = pcoDetector.getController();
-		NDProcess proc1 = controller.getProc1();
-		NDProcess proc2 = controller.getProc2();
+		final IPCOControllerV17 controller = pcoDetector.getController();
+		final NDProcess proc1 = controller.getProc1();
+		final NDProcess proc2 = controller.getProc2();
 		proc1.setEnableFlatField(0);
 		proc2.setEnableFlatField(0);
 
@@ -231,7 +230,7 @@ public class PCOTomography implements ITomographyDetector, Findable {
 	@Override
 	public String demandRaw(Double acqTime, String demandRawFilePath, String demandRawFileName, Boolean isHdf,
 			Boolean isFlatFieldCorrectionRequired, Boolean demandWhileStreaming) throws Exception {
-		IPCOControllerV17 controller = pcoDetector.getController();
+		final IPCOControllerV17 controller = pcoDetector.getController();
 
 		// Ensure disarm the camera before any change
 		if (!demandWhileStreaming) {
@@ -251,18 +250,18 @@ public class PCOTomography implements ITomographyDetector, Findable {
 			// FIXME - program so that HDF can be used.
 
 		} else {
-			boolean isHdfFormat = isHdfFormat();
+			final boolean isHdfFormat = isHdfFormat();
 			setHdfFormat(false);
 			// if it isn't hdf the assumption is it should be tiff.
 			// Demand raw
 			// Stop tiff capture
 			// stop tiff capture
 			try {
-				NDFile tiff = controller.getTiff();
-				ADBase areaDetector = controller.getAreaDetector();
-				String areadDetectorPortName = areaDetector.getPortName_RBV();
+				final NDFile tiff = controller.getTiff();
+				final ADBase areaDetector = controller.getAreaDetector();
+				final String areadDetectorPortName = areaDetector.getPortName_RBV();
 
-				NDStats ndStat = controller.getStat();
+				final NDStats ndStat = controller.getStat();
 				ndStat.getPluginBase().enableCallbacks();
 				ndStat.setComputeStatistics(1);
 				tiff.getPluginBase().enableCallbacks();
@@ -301,8 +300,8 @@ public class PCOTomography implements ITomographyDetector, Findable {
 				if (isFlatFieldCorrectionRequired) {
 
 					/* Demand raw goes through proc so that flat field can be applied */
-					NDProcess proc1 = controller.getProc1();
-					NDProcess proc2 = controller.getProc2();
+					final NDProcess proc1 = controller.getProc1();
+					final NDProcess proc2 = controller.getProc2();
 					proc1.setEnableLowClip(0);
 					proc1.setEnableHighClip(0);
 
@@ -339,8 +338,6 @@ public class PCOTomography implements ITomographyDetector, Findable {
 				}
 
 				// to remove synchronised acquisition chain along all the plugins
-			} catch (Exception ex) {
-				throw ex;
 			} finally {
 				setHdfFormat(isHdfFormat);
 			}
@@ -350,7 +347,7 @@ public class PCOTomography implements ITomographyDetector, Findable {
 	}
 
 	private void prepareProcForFlat(NDProcess proc, int numberOfImages) throws Exception {
-		IPCOControllerV17 controller = pcoDetector.getController();
+		final IPCOControllerV17 controller = pcoDetector.getController();
 		proc.getPluginBase().setNDArrayPort(controller.getAreaDetector().getPortName_RBV());
 		proc.getPluginBase().enableCallbacks();
 
@@ -383,24 +380,24 @@ public class PCOTomography implements ITomographyDetector, Findable {
 	@Override
 	public String takeFlat(double acqTime, int numberOfImages, String fileLocation, String fileName,
 			String filePathTemplate) throws Exception {
-		IPCOControllerV17 controller = pcoDetector.getController();
+		final IPCOControllerV17 controller = pcoDetector.getController();
 		String fullFileName = null;
-		boolean isHdfFormat = isHdfFormat();
+		final boolean isHdfFormat = isHdfFormat();
 		setHdfFormat(false);
 		logger.info("{} starts to collect {} averaged flat field, please wait...", pcoDetector.getName(),
 				numberOfImages);
-		ADBase areaDetector = controller.getAreaDetector();
+		final ADBase areaDetector = controller.getAreaDetector();
 		areaDetector.setAcquireTime(acqTime);
-		NDProcess proc1 = controller.getProc1();
+		final NDProcess proc1 = controller.getProc1();
 		prepareProcForFlat(proc1, numberOfImages);
 
 		// Proc2
-		NDProcess proc2 = controller.getProc2();
+		final NDProcess proc2 = controller.getProc2();
 		prepareProcForFlat(proc2, numberOfImages);
 		// capture the appropriate number of images
 		controller.setImageMode(ImageMode.CONTINUOUS.ordinal());
 		//
-		NDFile tiff = controller.getTiff();
+		final NDFile tiff = controller.getTiff();
 		tiff.getPluginBase().enableCallbacks();
 		tiff.stopCapture();
 
@@ -444,9 +441,9 @@ public class PCOTomography implements ITomographyDetector, Findable {
 	}
 
 	private void prepareProcForDark(NDProcess proc, int numberOfImages) throws Exception {
-		IPCOControllerV17 controller = pcoDetector.getController();
+		final IPCOControllerV17 controller = pcoDetector.getController();
 		// set Proc1 array port to Roi1 and enable callback
-		NDPluginBase pluginBase = proc.getPluginBase();
+		final NDPluginBase pluginBase = proc.getPluginBase();
 
 		pluginBase.setNDArrayPort(controller.getAreaDetector().getPortName_RBV());
 		pluginBase.enableCallbacks();
@@ -480,26 +477,26 @@ public class PCOTomography implements ITomographyDetector, Findable {
 			String filePathTemplate) throws Exception {
 
 		String fullFileName = null;
-		boolean isHdfFormat = isHdfFormat();
+		final boolean isHdfFormat = isHdfFormat();
 		setHdfFormat(false);
-		IPCOControllerV17 controller = pcoDetector.getController();
+		final IPCOControllerV17 controller = pcoDetector.getController();
 		controller.getAreaDetector().setImageMode(ImageMode.CONTINUOUS.ordinal());
 		logger.info("{} starts to collect {} averaged flat field, please wait...", pcoDetector.getName(),
 				numberOfImages);
 
-		ADBase areaDetector = controller.getAreaDetector();
+		final ADBase areaDetector = controller.getAreaDetector();
 		areaDetector.setAcquireTime(acqTime);
 
 		// Proc1
-		NDProcess proc1 = controller.getProc1();
+		final NDProcess proc1 = controller.getProc1();
 		prepareProcForDark(proc1, numberOfImages);
 
 		// Proc2
-		NDProcess proc2 = controller.getProc2();
+		final NDProcess proc2 = controller.getProc2();
 		prepareProcForDark(proc2, numberOfImages);
 
 		//
-		NDFile tiff = controller.getTiff();
+		final NDFile tiff = controller.getTiff();
 		tiff.getPluginBase().enableCallbacks();
 		tiff.stopCapture();
 
@@ -566,7 +563,7 @@ public class PCOTomography implements ITomographyDetector, Findable {
 		pcoDetector.getController().disarmCamera();
 		pcoDetector.resetAll();
 		// HDF plugin is not used for the tomography alignment.
-		NDFileHDF5 hdf = pcoDetector.getController().getHdf();
+		final NDFileHDF5 hdf = pcoDetector.getController().getHdf();
 		if (hdf != null) {
 			hdf.getFile().getPluginBase().disableCallbacks();
 		}
@@ -574,10 +571,10 @@ public class PCOTomography implements ITomographyDetector, Findable {
 
 	@Override
 	public void setupForTilt(int minY, int maxY, int minX, int maxX) throws Exception {
-		IPCOControllerV17 controller = pcoDetector.getController();
-		ADBase areaDetector = controller.getAreaDetector();
+		final IPCOControllerV17 controller = pcoDetector.getController();
+		final ADBase areaDetector = controller.getAreaDetector();
 		// Adding 1 as the detector starts counting pixels beginning from 1
-		NDROI roi2 = controller.getRoi2();
+		final NDROI roi2 = controller.getRoi2();
 		roi2.setSizeY(maxY - minY + 1);
 		roi2.setMinY(minY);
 
@@ -596,7 +593,7 @@ public class PCOTomography implements ITomographyDetector, Findable {
 
 	@Override
 	public void resetAfterTiltToInitialValues() throws Exception {
-		IPCOControllerV17 controller = pcoDetector.getController();
+		final IPCOControllerV17 controller = pcoDetector.getController();
 		controller.getTiff().getPluginBase().setNDArrayPort(controller.getAreaDetector().getPortName_RBV());
 		controller.getTiff().getPluginBase().disableCallbacks();
 		// ADBase adBase = pcoDetector.getController().getAreaDetector();
@@ -608,15 +605,15 @@ public class PCOTomography implements ITomographyDetector, Findable {
 
 	@Override
 	public void setProcScale(double factor) throws Exception {
-		IPCOControllerV17 controller = pcoDetector.getController();
+		final IPCOControllerV17 controller = pcoDetector.getController();
 		controller.getProc1().setEnableOffsetScale(1);
 		controller.getProc1().setScale(factor);
 		controller.getProc2().setEnableOffsetScale(1);
 		controller.getProc2().setScale(factor);
 	}
 
-	public void setProcOffset(double offset) throws Exception {
-		IPCOControllerV17 controller = pcoDetector.getController();
+	private void setProcOffset(double offset) throws Exception {
+		final IPCOControllerV17 controller = pcoDetector.getController();
 		controller.getProc1().setEnableOffsetScale(1);
 		controller.getProc1().setOffset(offset);
 		controller.getProc2().setEnableOffsetScale(1);
@@ -625,7 +622,7 @@ public class PCOTomography implements ITomographyDetector, Findable {
 
 	@Override
 	public void setRoi1ScalingDivisor(double divisor) throws Exception {
-		IPCOControllerV17 controller = pcoDetector.getController();
+		final IPCOControllerV17 controller = pcoDetector.getController();
 		controller.getRoi1().enableScaling();
 		controller.getRoi1().setScale(divisor);
 	}
@@ -661,7 +658,7 @@ public class PCOTomography implements ITomographyDetector, Findable {
 	@Override
 	public void initDetector() throws Exception {
 		// set the image model to single
-		IPCOControllerV17 controller = pcoDetector.getController();
+		final IPCOControllerV17 controller = pcoDetector.getController();
 		controller.setImageMode(0);
 		// setting the ADC model to 2-ADC mode
 		pcoDetector.setADCMode(1);
@@ -673,12 +670,12 @@ public class PCOTomography implements ITomographyDetector, Findable {
 	}
 
 	private void enableLowHighClip() throws Exception {
-		IPCOControllerV17 controller = pcoDetector.getController();
-		NDProcess proc1 = controller.getProc1();
+		final IPCOControllerV17 controller = pcoDetector.getController();
+		final NDProcess proc1 = controller.getProc1();
 		proc1.setEnableHighClip(1);
 		proc1.setHighClip(65534);
 		//
-		NDProcess proc2 = controller.getProc2();
+		final NDProcess proc2 = controller.getProc2();
 		proc2.setEnableHighClip(1);
 		proc2.setHighClip(65534);
 
@@ -708,7 +705,7 @@ public class PCOTomography implements ITomographyDetector, Findable {
 
 	@Override
 	public void setProc1Scale(double newScale) throws Exception {
-		NDProcess proc1 = pcoDetector.getController().getProc1();
+		final NDProcess proc1 = pcoDetector.getController().getProc1();
 
 		proc1.setEnableOffsetScale(1);
 		logger.debug("Setting new scale:{}", newScale);

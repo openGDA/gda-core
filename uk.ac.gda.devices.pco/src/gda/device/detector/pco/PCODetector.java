@@ -18,6 +18,15 @@
 
 package gda.device.detector.pco;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+
 import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
 import gda.data.PathConstructor;
@@ -33,33 +42,21 @@ import gda.device.detector.areadetector.v17.NDFile;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanInformation;
 import gov.aps.jca.TimeoutException;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Vector;
-
-import org.eclipse.dawnsci.analysis.api.io.IDataHolder;
-import org.eclipse.dawnsci.analysis.api.io.IFileLoader;
-import org.eclipse.january.dataset.IDataset;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
-
-import uk.ac.diamond.scisoft.analysis.SDAPlotter;
-import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
-import uk.ac.diamond.scisoft.analysis.io.TIFFImageLoader;
 import uk.ac.gda.devices.pco.LiveModeUtil;
 
 /**
  * Separating out the detector from the controller - Part of GDA-4231 area detector stuff to get all detectors aligned
  * to EPICS V1.7
- * 
+ *
  * @author rsr31645
  */
 public class PCODetector extends DetectorBase implements InitializingBean, IPCODetector {
 
+	private static final Logger logger = LoggerFactory.getLogger(PCODetector.class);
+
+	private static final String GDA_FILE_TRANSFER_SCRIPT = "gda.file.transfer.script";
+
 	private boolean isWindowsIoc = true;
-	public final String GDA_FILE_TRANSFER_SCRIPT = "gda.file.transfer.script";
 	private String description;
 	private String detectorID;
 	private String detectorType;
@@ -69,7 +66,6 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 	// parameter required by Tomography reconstruction software
 	private String projectionFolderName = "projections";
 
-	// private String numTrackerTag;
 	private Windows2LinuxFilePath localDataStoreWindows2LinuxFilePath;
 	private Windows2LinuxFilePath nonLocalDataStoreWindows2LinuxFilePath;
 	private Windows2LinuxFilePath demandRawDataStoreWindows2LinuxFileName;
@@ -77,7 +73,6 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 	private int numberOfDarkImages;
 	private String faltFileNameRoot;
 	private int numberOfFlatImages;
-	private static final Logger logger = LoggerFactory.getLogger(PCODetector.class);
 	private boolean saveLocal = false;
 	private boolean hdfFormat = true; // default is HDF format
 	private String plotName;
@@ -87,6 +82,10 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 	private boolean isPreviewing = false;
 	private boolean scanRunning;
 	private boolean firstcall;
+	private List<String> imageFiles = new ArrayList<>();
+	private boolean scanNumberAlreadyIncremented = false;
+	private long filenumber = -1;
+	private boolean isWindowsIocSet = false;
 
 	public PCODetector() {
 		setLocal(true); // do not use CORBA, use RMI
@@ -103,7 +102,6 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 		// make sure all file savers disabled
 		controller.disableTiffSaver();
 		controller.disableHdfSaver();
-		// TODO start external MJEP GUI on client?
 		controller.acquire();
 		isPreviewing = true;
 	}
@@ -137,12 +135,12 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 			// make sure that the new time is at least the acquisition Time plus the pause
 			long nextStartTime = (long) (aquisitionStartTime + pauseTime + (collectionTime * 1000.0));
 			long currentTime = System.currentTimeMillis();
-			// InterfaceProvider.getTerminalPrinter().print(String.format("%d, %d", nextStartTime, currentTime));
 			// wait for the correct amount of time, and then start
 			if (nextStartTime > currentTime) {
 				try {
 					Thread.sleep(nextStartTime - currentTime);
 				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
 					throw new DeviceException("Failed to cause Thread.sleep", e);
 				}
 			}
@@ -150,11 +148,9 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 			try {
 				controller.trigger();
 				aquisitionStartTime = System.currentTimeMillis();
+			} catch (RuntimeException | DeviceException e) {
+				throw e;
 			} catch (Exception e) {
-				if (e instanceof RuntimeException)
-					throw (RuntimeException) e;
-				if (e instanceof DeviceException)
-					throw (DeviceException) e;
 				throw new DeviceException("Failed to make PCO camera trigger", e);
 			}
 		}
@@ -198,23 +194,25 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 			}
 			return Detector.IDLE;
 		}
-		int status = controller.getAreaDetector().getStatus(); // get camera acquire state
-		return status;
+		return controller.getAreaDetector().getStatus(); // return camera acquire state
 	}
 
 	@Override
 	public Object readout() throws DeviceException {
 		String output = "";
-		NXDetectorData dataTree = new NXDetectorData();
+		final NXDetectorData dataTree = new NXDetectorData();
 		try {
 			if (hdfFormat) {
-				print("Frames collected: " + controller.getHdf().getFile().getNumCaptured_RBV());
-				if (controller.getHdf().getFile().getNumCapture_RBV() == controller.getHdf().getFile()
-						.getNumCaptured_RBV()) {
+				final NDFile file = controller.getHdf().getFile();
+				final int framesRequired = file.getNumCapture_RBV();
+				final int framesCollected = file.getNumCaptured_RBV();
+				print("Frames collected: " + framesCollected);
+				if (framesRequired == framesCollected) {
 					// when capturing completed
-					int totalmillis = 120 * 1000; // 2 minutes timeout
-					int grain = 25;
-					long timer = 0, timer0 = System.currentTimeMillis();
+					final int totalmillis = 120 * 1000; // 2 minutes timeout
+					final int grain = 25;
+					long timer = 0;
+					final long timer0 = System.currentTimeMillis();
 					while (isWriterBusy() && timer - timer0 < totalmillis) {
 						Thread.sleep(grain);
 						timer = System.currentTimeMillis();
@@ -255,7 +253,7 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 
 	/**
 	 * method to print message to the Jython Terminal console.
-	 * 
+	 *
 	 * @param msg
 	 */
 	private void print(String msg) {
@@ -273,9 +271,9 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 				}
 			}
 			else {
-				LoggerFactory.getLogger("PCODetector:"+this.getName()).info("setCollectionTime: Not live!");
+				logger.info("{} - setCollectionTime: Not live!", getName());
 			}
-			ADBase areaDetector = controller.getAreaDetector();
+			final ADBase areaDetector = controller.getAreaDetector();
 			areaDetector.setAcquireTime(collectionTime);
 			this.collectionTime = collectionTime;
 		} catch (Exception e) {
@@ -286,8 +284,8 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 
 	public void setCollectionTime(Object... collectspec) throws DeviceException {
 		this.collectionTime = Double.parseDouble(collectspec[0].toString());
-		int numImagesPerPoint = Integer.parseInt(collectspec[1].toString());
-		int totalNumImages = Integer.parseInt(collectspec[2].toString());
+		final int numImagesPerPoint = Integer.parseInt(collectspec[1].toString());
+		final int totalNumImages = Integer.parseInt(collectspec[2].toString());
 		try {
 			if (LiveModeUtil.isLiveMode()) {
 				if (controller.isArmed()) {
@@ -295,9 +293,9 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 				}
 			}
 			else {
-				LoggerFactory.getLogger("PCODetector:"+this.getName()).info("setCollectionTime: Not live!");
+				logger.info("{} - setCollectionTime: Not live!", getName());
 			}
-			ADBase areaDetector = controller.getAreaDetector();
+			final ADBase areaDetector = controller.getAreaDetector();
 			areaDetector.setAcquireTime(collectionTime);
 			controller.setNumImages(numImagesPerPoint);
 			if (numImagesPerPoint > 1) {
@@ -356,7 +354,7 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 			// must set file path and file name before starting capturing -EPICS required this
 			initialiseFilePath();
 			setFileName();
-			ScanInformation scaninfo = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation();
+			final ScanInformation scaninfo = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation();
 			if (hdfFormat) {
 				controller.setScanDimensions(scaninfo.getDimensions());
 				controller.startRecording();
@@ -403,18 +401,13 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 				logger.error("Failed to get Dropped Array parameter from HDF plugin.", e);
 				throw new DeviceException("Failed to get Dropped Array parameter from HDF plugin.", e);
 			}
-			long starttimer = System.currentTimeMillis();
+			final long starttimer = System.currentTimeMillis();
 			long timer = 0;
 			try {
 				while (controller.getHdf().getCapture_RBV() == 1
 						&& timer < starttimer + 10 * getCollectionTime() * 1000) {
 					Thread.sleep(50);
 					timer = System.currentTimeMillis();
-					// if (controller.getHdf().getNumCaptured_RBV() +
-					// controller.getHdf().getPluginBase().getDroppedArrays_RBV()==
-					// controller.getHdf().getPluginBase().getArrayCounter_RBV()) {
-					// controller.getHdf().stopCapture();
-					// }
 				}
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
@@ -461,18 +454,13 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 				}
 				throw new DeviceException(getName() + ": reports dropped array number: " + num);
 			}
-			long starttimer = System.currentTimeMillis();
+			final long starttimer = System.currentTimeMillis();
 			long timer = 0;
 			try {
 				while (controller.getTiff().getCapture_RBV() == 1
 						&& timer < starttimer + 10 * getCollectionTime() * 1000) {
 					Thread.sleep((int) getCollectionTime() / 10);
 					timer = System.currentTimeMillis();
-					// if (controller.getTiff().getNumCaptured_RBV() +
-					// controller.getTiff().getPluginBase().getDroppedArrays_RBV()==
-					// controller.getTiff().getPluginBase().getArrayCounter_RBV()) {
-					// controller.getTiff().stopCapture();
-					// }
 				}
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
@@ -481,15 +469,6 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 				logger.error("Failed to getCapture_RBV() in Tiff plugin.", e);
 				throw new DeviceException("Failed to getCapture_RBV() in Tiff plugin.", e);
 			}
-			// if (timer>=starttimer+10*getCollectionTime()*1000){
-			// try {
-			// controller.getTiff().stopCapture();
-			// } catch (Exception e) {
-			// logger.error("Failed to stop capture in Tiff plugin.", e);
-			// throw new DeviceException("Failed to stop capture in Tiff plugin.", e);
-			// }
-			// throw new DeviceException("TimeoutException: It takes to long to collect the last frame");
-			// }
 		}
 		try {
 			controller.disarmCamera();
@@ -527,11 +506,11 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 		}
 	}
 
-	private void initialiseFilePath() throws IOException, Exception {
+	private void initialiseFilePath() throws Exception {
 		scanSaveFolder = createMainFileStructure(); // this statement rely on GDA file tracker increment properly
 													// already
 		setFilePath(scanSaveFolder);
-		
+
 		//Initialise the file template
 		NDFile fullFrameSaver;
 		if (hdfFormat) {
@@ -542,7 +521,7 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 		fullFrameSaver.setFileTemplate(fullFrameSaver.getInitialFileTemplate());
 	}
 
-	private void setFileName() throws IOException, Exception {
+	private void setFileName() throws Exception {
 		NDFile fullFrameSaver;
 		if (hdfFormat) {
 			fullFrameSaver = controller.getHdf().getFile();
@@ -583,7 +562,7 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 	/**
 	 * manage the file path mapping between Windows (where the EPICS IOC is running) and Linux (Where data is to be
 	 * stored).
-	 * 
+	 *
 	 * @param filePath
 	 * @throws Exception
 	 */
@@ -620,10 +599,6 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 		return filePathString;
 	}
 
-	File metadataFile;
-	Vector<String> imageFiles = new Vector<String>();
-	private boolean scanNumberAlreadyIncremented = false;
-
 	public boolean isScanNumberAlreadyIncremented() {
 		return scanNumberAlreadyIncremented;
 	}
@@ -631,9 +606,6 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 	public void setScanNumberAlreadyIncremented(boolean scanNumberAlreadyIncremented) {
 		this.scanNumberAlreadyIncremented = scanNumberAlreadyIncremented;
 	}
-
-	private long filenumber = -1;
-	private boolean isWindowsIocSet = false;
 
 	/**
 	 * processes after collected data: <li>Archival of data collected</li> <li>Display the last image</li>
@@ -658,7 +630,7 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 	/**
 	 * processing to be done before starting acquire data from detector - create data storage parameters and metadata
 	 * file
-	 * 
+	 *
 	 * @throws Exception
 	 * @throws IOException
 	 * @throws DeviceException
@@ -678,7 +650,7 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 
 	/**
 	 * collect specified number of dark images - users must ensure the shutter is closed before call this method
-	 * 
+	 *
 	 * @param numberOfDarks
 	 * @throws Exception
 	 */
@@ -717,8 +689,8 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 		if (hdfFormat) {
 			imageFiles.add(getFilePath(controller.getHdf().getFile().getFullFileName_RBV()));
 		} else {
-			String formatter = controller.getTiff().getFileTemplate().trim();
-			String filename = controller.getTiff().getFileName();
+			final String formatter = controller.getTiff().getFileTemplate().trim();
+			final String filename = controller.getTiff().getFileName();
 			for (int i = 0; i < numberOfDarks; i++) {
 				imageFiles.add(getFilePath(String.format(formatter, scanSaveFolder.getAbsolutePath(), filename, i)));
 			}
@@ -728,19 +700,19 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 
 	/**
 	 * collect the dark image set - users must ensure the shutter is closed and number of images is set in EPICS
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	@Override
 	public void collectDarkSet() throws Exception {
-		int numberOfDarkImages = controller.getNumImages();
-		collectDarkSet(numberOfDarkImages);
+		final int numberOfDarks = controller.getNumImages();
+		collectDarkSet(numberOfDarks);
 	}
 
 	/**
 	 * collect specified numbers of flat images, users must ensure the shutter is open and sample is outside from the
 	 * field of view.
-	 * 
+	 *
 	 * @param numberOfFlats
 	 *            - number of flat images for each flat set
 	 * @param flatSet
@@ -791,11 +763,11 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 	/**
 	 * collect specified numbers of flat images, users must ensure the shutter is open and sample is outside from the
 	 * field of view and set the number of flat images required in EPICS.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	public void collectFlatSet(int flatSet) throws Exception {
-		int numberOfFlats = controller.getNumImages();
+		final int numberOfFlats = controller.getNumImages();
 		collectFlatSet(numberOfFlats, flatSet);
 	}
 
@@ -808,81 +780,21 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 		setScanNumberAlreadyIncremented(false);
 	}
 
-	/**
-	 * plot image to the PCOPlot view.
-	 * 
-	 * @param imageFileName
-	 */
-
-	@Override
-	public void plotImage(final String imageFileName) {
-		// Plot the last image collected from file
-		Thread plot = new Thread(new Runnable() {
-			boolean plotted = false;
-			int trycounter = 0;
-			double starttime = System.currentTimeMillis();
-			double time = 0.0, timeout = 15000.0;
-			double fileexisttime;
-			private boolean firsttime = true;
-
-			@Override
-			public void run() {
-				while (!plotted && time < timeout) {
-
-					if ((new File(imageFileName)).exists()) {
-						if (firsttime) {
-							fileexisttime = System.currentTimeMillis();
-							firsttime = false;
-						}
-						try {
-
-							IFileLoader loader = LoaderFactory.getLoader(TIFFImageLoader.class, imageFileName);
-							IDataHolder dataHolder = loader.loadFile();
-							IDataset dataset = dataHolder.getDataset(0);
-							if (dataset != null) {
-								dataset.clearMetadata(null);
-								SDAPlotter.imagePlot(getPlotName(), dataset);
-								// SDAPlotter.imagePlot(getPlotName(), imageFileName);
-							}
-
-							plotted = true;
-						} catch (Exception e) {
-							trycounter++;
-							logger.error("Plot data {} try {} failed", imageFileName, trycounter);
-							plotted = false;
-						}
-						print("Time elasped since plotting request: " + (System.currentTimeMillis() - starttime));
-						logger.debug("Time elasped since plotting request: {}",
-								(System.currentTimeMillis() - starttime));
-						print("Time elasped since file first appears: " + (System.currentTimeMillis() - fileexisttime));
-						logger.debug("Time elasped since file first appears: {}",
-								(System.currentTimeMillis() - fileexisttime));
-
-					} else {
-						// logger.debug("wait for data file {} to plot.", imageFileName);
-					}
-					time = (System.currentTimeMillis() - starttime);
-				}
-			}
-		}, "plotpcoimage");
-		plot.start();
-	}
-
 	// Helper methods for dealing with the file system.
 	@Override
 	public File createMainFileStructure() throws IOException {
 		// set up the filename which will be the base directory for data to be saved to
-		File path = new File(PathConstructor.createFromDefaultProperty());
-		NumTracker nt = new NumTracker(LocalProperties.GDA_BEAMLINE_NAME);
-		String filenumber;
+		final File path = new File(PathConstructor.createFromDefaultProperty());
+		final NumTracker nt = new NumTracker(LocalProperties.GDA_BEAMLINE_NAME);
+		String fileNum;
 		if (!isScanNumberAlreadyIncremented()) {
 			// for non-scan use
-			filenumber = Long.toString(this.filenumber);
+			fileNum = Long.toString(this.filenumber);
 		} else {
 			// for scan which already increments the file number
-			filenumber = Long.toString(nt.getCurrentFileNumber());
+			fileNum = Long.toString(nt.getCurrentFileNumber());
 		}
-		File scanFolder = new File(path, filenumber);
+		final File scanFolder = new File(path, fileNum);
 		// Make the directory if required.
 		if (!scanFolder.isDirectory()) {
 			// create the directory
@@ -892,7 +804,7 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 			return scanFolder;
 		}
 		// tiff to save image in projections folder under scanNumber folder
-		File projectionsFolder = new File(scanFolder, projectionFolderName);
+		final File projectionsFolder = new File(scanFolder, projectionFolderName);
 		if (!projectionsFolder.isDirectory()) {
 			// create the directory required for Tomography reconstruction software
 			projectionsFolder.mkdir();
@@ -908,14 +820,14 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 	private void transferFiles() throws DeviceException {
 		try {
 			// copy the files off
-			Runtime rt = Runtime.getRuntime();
-			String script = LocalProperties.get(GDA_FILE_TRANSFER_SCRIPT, null);
+			final Runtime rt = Runtime.getRuntime();
+			final String script = LocalProperties.get(GDA_FILE_TRANSFER_SCRIPT, null);
 			if (script == null) {
 				logger.warn("property '{}' is not defined.", GDA_FILE_TRANSFER_SCRIPT);
 				return;
 			}
-			Process p = rt.exec(String.format("%s %s", script, scanSaveFolder.getAbsolutePath()));
-			InterfaceProvider.getTerminalPrinter().print("Start to copy data to Central Storage");
+			final Process p = rt.exec(String.format("%s %s", script, scanSaveFolder.getAbsolutePath()));
+			print("Start to copy data to Central Storage");
 			// TODO this should be in a monitoring loop
 			p.waitFor();
 
@@ -1043,9 +955,8 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 		return numberOfFlatImages;
 	}
 
-	static class Windows2LinuxFilePath {
+	private static class Windows2LinuxFilePath {
 		private String windowsPath;
-
 		private String linuxPath;
 
 		public String getWindowsPath() {
@@ -1069,8 +980,7 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 		 * @return the linux file name for a given windows file name respective to the location of the datastore.
 		 */
 		public String getFilePathString(String fileName) {
-			String filePathString = fileName.replace(windowsPath, linuxPath);
-			return filePathString;
+			return fileName.replace(windowsPath, linuxPath);
 		}
 	}
 
@@ -1120,7 +1030,7 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 
 	/**
 	 * Acquire and wait till the acquisition is complete.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	@Override
@@ -1168,7 +1078,7 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 
 	/**
 	 * s
-	 * 
+	 *
 	 * @param demandRawDataStoreWindows2LinuxFileName
 	 *            The demandRawDataStoreWindows2LinuxFileName to set.
 	 */
@@ -1189,7 +1099,7 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 	@Override
 	public void setTiffFilePathBasedOnIocOS(String demandRawFilePath) throws Exception {
 		if (isWindowsIoc()) {
-			String replacedWindowsPath = demandRawFilePath.replaceAll(
+			final String replacedWindowsPath = demandRawFilePath.replaceAll(
 					demandRawDataStoreWindows2LinuxFileName.getLinuxPath(),
 					demandRawDataStoreWindows2LinuxFileName.getWindowsPath());
 			controller.getTiff().setFilePath(replacedWindowsPath);
@@ -1205,7 +1115,7 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 			controller.setADCMode(mode);
 		}
 		else {
-			LoggerFactory.getLogger("PCODetector:"+this.getName()).info("setADCMode: Not live!");
+			logger.info("{} - setADCMode: Not live!", getName());
 		}
 	}
 
@@ -1228,5 +1138,4 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 	public void setTimestampMode(int timestampMode) throws Exception {
 		controller.setTimestampMode(timestampMode);
 	}
-
 }

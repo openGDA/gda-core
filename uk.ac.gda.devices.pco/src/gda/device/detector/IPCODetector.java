@@ -18,10 +18,10 @@
 
 package gda.device.detector;
 
-import gda.device.Detector;
-
 import java.io.File;
 import java.io.IOException;
+
+import gda.device.Detector;
 
 /**
  * Interface for the PCODetector
@@ -31,7 +31,7 @@ public interface IPCODetector extends Detector {
 	/**
 	 * Sets the file path depending on the parameters either locally or remotely , and also either in the hdf format or
 	 * tiff format.
-	 * 
+	 *
 	 * @param filePath
 	 * @throws Exception
 	 */
@@ -39,7 +39,7 @@ public interface IPCODetector extends Detector {
 
 	/**
 	 * Collects the number of dark images as requested.
-	 * 
+	 *
 	 * @param numberOfDarks
 	 * @throws Exception
 	 */
@@ -47,7 +47,7 @@ public interface IPCODetector extends Detector {
 
 	/**
 	 * Collect flat images in sets as specified by the parameter and also how many images per set.
-	 * 
+	 *
 	 * @param numberOfFlats
 	 * @param flatSet
 	 * @throws Exception
@@ -55,15 +55,8 @@ public interface IPCODetector extends Detector {
 	void collectFlatSet(int numberOfFlats, int flatSet) throws Exception;
 
 	/**
-	 * plots the image from the file onto the detector configured plot.
-	 * 
-	 * @param imageFileName
-	 */
-	void plotImage(String imageFileName);
-
-	/**
 	 * creates the main file structure and returns the root of the file system.
-	 * 
+	 *
 	 * @return {@link File}
 	 * @throws IOException
 	 */
@@ -117,7 +110,7 @@ public interface IPCODetector extends Detector {
 
 	/**
 	 * In addition to its own resets, this method also calls reset on all plugins
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	void resetAll() throws Exception;
@@ -143,7 +136,7 @@ public interface IPCODetector extends Detector {
 
 	/**
 	 * The ADC mode is set on the detector
-	 * 
+	 *
 	 * @param mode
 	 * @throws Exception
 	 */

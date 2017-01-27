@@ -18,6 +18,13 @@
 
 package gda.device.detector.pco;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.device.DeviceException;
@@ -41,20 +48,12 @@ import gda.jython.InterfaceProvider;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
-
 import uk.ac.gda.devices.pco.LiveModeUtil;
 
 /**
  * Separating out the detector from the controller - Part of GDA-4231 area detector stuff to get all detectors aligned
  * to EPICS V1.7
- * 
+ *
  * @author rsr31645
  */
 public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
@@ -101,7 +100,7 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 	/**
 	 * Map that stores the channel against the PV name
 	 */
-	private Map<String, Channel> channelMap = new HashMap<String, Channel>();
+	private Map<String, Channel> channelMap = new HashMap<>();
 
 	private FfmpegStream mjpeg1;
 	private FfmpegStream mjpeg2;
@@ -137,7 +136,6 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 	}
 
 	public PCOControllerV17() {
-		super();
 		isLive = LiveModeUtil.isLiveMode();
 	}
 
@@ -200,7 +198,7 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 
 	/**
 	 * method to print message to the Jython Terminal console.
-	 * 
+	 *
 	 * @param msg
 	 */
 	private void print(String msg) {
@@ -230,7 +228,7 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 
 	/**
 	 * calibrated camera readout time for current ADC mode and Pixel Rate.
-	 * 
+	 *
 	 * @return readout time
 	 * @throws Exception
 	 * @throws InterruptedException
@@ -645,10 +643,10 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 
 	public void initialisePluginsArrayDimensions() throws Exception {
 		if ((tiff.getPluginBase().isCallbackEnabled() && tiff.getPluginBase().getArraySize0_RBV() == 0)
-				|| (hdf.getFile().getPluginBase().isCallbackEnabled() && 
+				|| (hdf.getFile().getPluginBase().isCallbackEnabled() &&
 					hdf.getFile().getPluginBase().getArraySize0_RBV() == 0)) {
 			if (this.getAreaDetector().getArraySizeX_RBV() == 0
-					|| (         tiff.getPluginBase().getArraySize0_RBV() != this.getAreaDetector().getArraySizeX_RBV() || 
+					|| (         tiff.getPluginBase().getArraySize0_RBV() != this.getAreaDetector().getArraySizeX_RBV() ||
 						hdf.getFile().getPluginBase().getArraySize0_RBV() !=      getAreaDetector().getArraySizeX_RBV())) {
 				// dummy acquisition to ensure all plugin array dimensions are initialised,
 				// these must be called at least once after IOC restarts.
@@ -688,7 +686,7 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 
 	/**
 	 * hdf5 plugin only allows up to two added dimensions
-	 * 
+	 *
 	 * @param dimensions
 	 * @throws Exception
 	 */
@@ -713,8 +711,8 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 			throw new DeviceException("detector found already saving data when it should not be");
 		// hdf.setFilePath(PathConstructor.createFromDefaultProperty());
 		hdf.startCapture();
-		int totalmillis = 60 * 1000;
-		int grain = 25;
+		final int totalmillis = 60 * 1000;
+		final int grain = 25;
 		for (int i = 0; i < totalmillis / grain; i++) {
 			if (hdf.getCapture() == 1)
 				return;
@@ -726,8 +724,8 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 	@Override
 	public void endRecording() throws Exception {
 		// writing the buffers can take a long time
-		int totalmillis = 120 * 1000;
-		int grain = 25;
+		final int totalmillis = 120 * 1000;
+		final int grain = 25;
 		for (int i = 0; i < totalmillis / grain; i++) {
 			if (hdf.getFile().getCapture_RBV() == 0)
 				return;
@@ -810,7 +808,7 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 
 	/**
 	 * This method allows to toggle between the method in which the PV is acquired.
-	 * 
+	 *
 	 * @param pvElementName
 	 * @param args
 	 * @return {@link Channel} to talk to the relevant PV.
