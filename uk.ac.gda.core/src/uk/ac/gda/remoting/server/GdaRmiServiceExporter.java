@@ -18,9 +18,6 @@
 
 package uk.ac.gda.remoting.server;
 
-import gda.factory.Findable;
-import gda.observable.IObservable;
-
 import java.rmi.RemoteException;
 
 import org.slf4j.Logger;
@@ -29,11 +26,14 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.remoting.rmi.RmiServiceExporter;
 
+import gda.factory.Findable;
+import gda.observable.IObservable;
 import uk.ac.gda.remoting.ServiceInterface;
 
 /**
  * A bean that can be used in place of Spring's {@link RmiServiceExporter}. Makes an object remotely available using
- * RMI. Also creates an observer for the 'real' object that injects events into the GDA event system.
+ * RMI. Also creates an observer for the 'real' object that injects events into the GDA event system if the service interface
+ * is both Findable and Observable..
  */
 public class GdaRmiServiceExporter implements InitializingBean {
 
@@ -116,7 +116,7 @@ public class GdaRmiServiceExporter implements InitializingBean {
 			serviceExporter.afterPropertiesSet();
 
 			try {
-				setupEventDispatch();
+				setupEventDispatchIfSupported();
 				logger.debug("Service " + getServiceName() + " exported");
 			} catch (Exception e) {
 				throw new RemoteException("Unable to export service", e);
@@ -126,7 +126,7 @@ public class GdaRmiServiceExporter implements InitializingBean {
 		}
 	}
 
-	private void setupEventDispatch() throws Exception {
+	private void setupEventDispatchIfSupported() throws Exception {
 		final Object service = getService();
 		if (service instanceof IObservable && service instanceof Findable) {
 			final Findable findable = (Findable) service;
@@ -136,10 +136,6 @@ public class GdaRmiServiceExporter implements InitializingBean {
 			observer.setSourceName(findable.getName());
 			observer.setObject(observable);
 			observer.afterPropertiesSet();
-		}
-
-		else {
-			throw new RuntimeException("Object " + serviceName + " must implement IObservable and Findable in order for events to be sent over CORBA. Use " + RmiServiceExporter.class.getName() + " instead of " + getClass().getSimpleName() + " if event handling is not necessary.");
 		}
 	}
 
