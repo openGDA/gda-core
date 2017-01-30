@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.FileCopyUtils;
 
+import gda.jython.IScanDataPointObserver;
 import gda.jython.JythonServerFacade;
 import gda.jython.Terminal;
 import gda.scan.ScanDataPoint;
@@ -38,7 +39,7 @@ import gda.util.Version;
 /**
  * Thread for dealing with a client connected to the Jython server.
  */
-public abstract class ServerThread extends Thread implements Terminal, SessionClosedCallback {
+public abstract class ServerThread extends Thread implements Terminal, SessionClosedCallback, IScanDataPointObserver {
 
 	private static final Logger logger = LoggerFactory.getLogger(ServerThread.class);
 
@@ -109,8 +110,12 @@ public abstract class ServerThread extends Thread implements Terminal, SessionCl
 	@Override
 	public synchronized void update(Object name, Object data) {
 		if (data instanceof ScanDataPoint) {
-			String string = ((ScanDataPoint) data).toString();
-			write(string);
+			ScanDataPoint sdp = (ScanDataPoint) data;
+			// If its the first point in a scan print the header
+			if (sdp.getCurrentPointNumber() == 0) {
+				write(sdp.getHeaderString() + "\n");
+			}
+			write(sdp.toFormattedString() + "\n");
 		}
 	}
 
