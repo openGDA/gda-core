@@ -946,6 +946,7 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	public void deleteOutputTerminal(Terminal term) {
 		myTerminals.remove(term);
 		deleteIObserver(term);
+		logger.debug("Removed a terminal, now have {} terminals", myTerminals.size());
 	}
 
 	/**
