@@ -1,0 +1,35 @@
+#!/usr/bin/expect
+
+# Expect script derived from M. Booth's gdanotify that attempts to talk to the GDA server's
+# telnet port exiting with non-zero code unless the connection is successful
+
+# Turn off display to stdout
+log_user 0
+
+#If it all goes pear shaped the script will timeout after 5 seconds.
+set timeout 5
+
+#First argument is assigned to the variable text
+set host [lindex $argv 0]
+set port [lindex $argv 1]
+
+#This spawns the telnet program and connects it to the variable name
+spawn telnet $host $port
+
+# Expect the standard prompt and send a word to it. Handle error responses
+# using regular expression matching, or handle the timeout condition.
+expect {
+        ">>> " {send "stuff"}
+    -re "Connection refused" {exit 1}
+    -re "Connection closed"  {exit 2}
+    -re "no address.*" {exit 3}
+    timeout {exit 4}
+}
+
+# If all was successful expect the standard prompt and on receiving this
+# close the connection in an ordered way
+expect ">>> "
+send \x1d
+expect "telnet>"
+send "quit\r"
+exit 0

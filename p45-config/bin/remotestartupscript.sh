@@ -14,14 +14,14 @@ export GDA_NO_PROMPT=true
 export GDA_IN_REMOTE_STARTUP=true
 
 if [[ -n "${SSH_ORIGINAL_COMMAND}" ]]; then
-	if [[ "${SSH_ORIGINAL_COMMAND}" == *"restart"* ]]; then
-		SSH_ORIGINAL_COMMAND="${SSH_ORIGINAL_COMMAND/restart/--restart}"
-	elif [[ "${SSH_ORIGINAL_COMMAND}" == *"start"* ]]; then
-		SSH_ORIGINAL_COMMAND="${SSH_ORIGINAL_COMMAND/start/--start}"
-	elif [[ "${SSH_ORIGINAL_COMMAND}" == *"stop"* ]]; then
-		SSH_ORIGINAL_COMMAND="${SSH_ORIGINAL_COMMAND/stop/--stop}"
-	fi
-	${here_dir}/gda  ${SSH_ORIGINAL_COMMAND} --mode=live servers
+    if [[ "${SSH_ORIGINAL_COMMAND}" == *"restart"* ]]; then
+        SSH_ORIGINAL_COMMAND="${SSH_ORIGINAL_COMMAND/restart/--restart}"
+    elif [[ "${SSH_ORIGINAL_COMMAND}" == *"start"* ]]; then
+        SSH_ORIGINAL_COMMAND="${SSH_ORIGINAL_COMMAND/start/--start}"
+    elif [[ "${SSH_ORIGINAL_COMMAND}" == *"stop"* ]]; then
+        SSH_ORIGINAL_COMMAND="${SSH_ORIGINAL_COMMAND/stop/--stop}"
+    fi
+    ${here_dir}/gda  ${SSH_ORIGINAL_COMMAND} --mode=live servers < /dev/null > /dev/null 2>&1      # should prevent the ssh command that calls this script from not returning
 else
-	${here_dir}/gda --restart --mode=live servers
+    ${here_dir}/gda --restart --mode=live servers < /dev/null > /dev/null 2>&1
 fi
