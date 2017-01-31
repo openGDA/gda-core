@@ -27,6 +27,8 @@ import org.python.jline.TerminalFactory;
 import org.python.jline.UnixTerminal;
 import org.python.jline.console.ConsoleReader;
 import org.python.jline.console.history.FileHistory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
 
@@ -41,6 +43,7 @@ public class JlineServerListenThread extends ServerListenThreadBase {
 		TerminalFactory.configure(TerminalFactory.Type.AUTO);
 	}
 
+	private static final Logger logger = LoggerFactory.getLogger(JlineServerListenThread.class);
 	private final ConsoleReader cr;
 
 	public JlineServerListenThread(InputStream in, OutputStream out, SessionClosedCallback sessionClosedCallback) throws IOException {
@@ -51,6 +54,16 @@ public class JlineServerListenThread extends ServerListenThreadBase {
 		final String gdaVar = LocalProperties.getVarDir();
 		final File historyFile = new File(gdaVar, "server.history");
 		cr.setHistory(new FileHistory(historyFile));
+	}
+
+	@Override
+	public void close() {
+		try {
+			cr.close();
+		} catch (IOException e) {
+			//Not much we can do here - log warning and carry on
+			logger.warn("Failed to close ConsoleReader", e);
+		}
 	}
 
 	@Override

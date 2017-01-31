@@ -62,9 +62,15 @@ public abstract class ServerListenThreadBase extends Thread {
 		} catch (IOException ex) {
 			logger.error("Error while communicating with CommandServer via socket: " + ex.getMessage());
 		}
-
+		close();
 		sessionClosedCallback.sessionClosed();
 	}
+
+	/**
+	 * Close the terminal
+	 * gives a chance for any history to be saved etc
+	 */
+	protected void close() {}
 
 	protected abstract String readLine(String prompt) throws IOException;
 
