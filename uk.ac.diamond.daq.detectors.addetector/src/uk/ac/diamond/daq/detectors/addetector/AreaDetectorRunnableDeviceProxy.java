@@ -3,7 +3,9 @@
  */
 package uk.ac.diamond.daq.detectors.addetector;
 
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXdetector;
@@ -29,6 +31,7 @@ import org.eclipse.scanning.api.device.IActivatable;
 import org.eclipse.scanning.api.device.IRunnableEventDevice;
 import org.eclipse.scanning.api.device.IWritableDetector;
 import org.eclipse.scanning.api.device.models.DeviceRole;
+import org.eclipse.scanning.api.device.models.ScanMode;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.LevelInformation;
@@ -54,6 +57,7 @@ public class AreaDetectorRunnableDeviceProxy implements
 		INexusDevice<NXdetector> {
 
 	private AbstractAreaDetectorRunnableDevice rDevice;
+	private Set<ScanMode>           supportedScanModes = EnumSet.of(ScanMode.SOFTWARE);
 
 	// interface INameable
 
@@ -67,6 +71,19 @@ public class AreaDetectorRunnableDeviceProxy implements
 	@Override
 	public String getName() {
 		return name;
+	}
+
+	// interface IdeviceRoleActor
+
+	/**
+	 * {@inheritDoc} <P>
+	 *
+	 * Note that this must be a method on the proxy, rather than being delegated, since the delegate will not have
+	 * been configured at the point at which this method is expected to return a valid set of supported scan modes.
+	 */
+	@Override
+	public Set<ScanMode> getSupportedScanModes() {
+		return supportedScanModes;
 	}
 
 	// proxies AbstractRunnableDevice<AreaDetectorRunnableDeviceModel>
@@ -307,5 +324,4 @@ public class AreaDetectorRunnableDeviceProxy implements
 		this.rDevice = areaDetectorRunnableDevice;
 		this.rDevice.setRunnableDeviceService(ServiceHolder.getRunnableDeviceService());
 	}
-
 }
