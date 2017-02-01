@@ -3,17 +3,10 @@
  */
 package uk.ac.diamond.daq.detectors.addetector;
 
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Set;
-
-import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
-import org.eclipse.scanning.api.IModelProvider;
-import org.eclipse.scanning.api.IScanAttributeContainer;
 import org.eclipse.scanning.api.annotation.scan.LevelEnd;
 import org.eclipse.scanning.api.annotation.scan.LevelStart;
 import org.eclipse.scanning.api.annotation.scan.PointEnd;
@@ -27,301 +20,175 @@ import org.eclipse.scanning.api.annotation.scan.ScanFinally;
 import org.eclipse.scanning.api.annotation.scan.ScanPause;
 import org.eclipse.scanning.api.annotation.scan.ScanResume;
 import org.eclipse.scanning.api.annotation.scan.ScanStart;
-import org.eclipse.scanning.api.device.IActivatable;
-import org.eclipse.scanning.api.device.IRunnableEventDevice;
-import org.eclipse.scanning.api.device.IWritableDetector;
-import org.eclipse.scanning.api.device.models.DeviceRole;
-import org.eclipse.scanning.api.device.models.ScanMode;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.LevelInformation;
 import org.eclipse.scanning.api.scan.ScanInformation;
 import org.eclipse.scanning.api.scan.ScanningException;
-import org.eclipse.scanning.api.scan.event.IPositionListenable;
-import org.eclipse.scanning.api.scan.event.IPositionListener;
-import org.eclipse.scanning.api.scan.event.IRunListener;
 
+import gda.device.detector.addetector.ADDetector;
+import gda.factory.Finder;
 import uk.ac.diamond.daq.detectors.addetector.api.AreaDetectorRunnableDeviceModel;
 
 /**
- * @author voo82358
- *
+ * This is an implementation of a new style GDA detector which delegates much of its specific
+ * functionality to an AbstractAreaDetectorRunnableDeviceDelegate. This allows the creation
+ * of runnable devices defined by Jython classes which don't exist at spring configuration time.
  */
-public class AreaDetectorRunnableDeviceProxy implements
-		IRunnableEventDevice<AreaDetectorRunnableDeviceModel>,
-		IModelProvider<AreaDetectorRunnableDeviceModel>,
-		IScanAttributeContainer,
-		IPositionListenable,
-		IActivatable,
-		IWritableDetector<AreaDetectorRunnableDeviceModel>,
-		INexusDevice<NXdetector> {
+public class AreaDetectorRunnableDeviceProxy extends AbstractAreaDetectorRunnableDevice {
 
-	private AbstractAreaDetectorRunnableDevice rDevice;
-	private Set<ScanMode>           supportedScanModes = EnumSet.of(ScanMode.SOFTWARE);
+	private AbstractAreaDetectorRunnableDeviceDelegate delegate;
+	private ADDetector detector;
 
-	// interface INameable
-
-	private String name;
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
+	public AreaDetectorRunnableDeviceProxy() {
+		super(ServiceHolder.getRunnableDeviceService());
 	}
 
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	// interface IdeviceRoleActor
-
-	/**
-	 * {@inheritDoc} <P>
-	 *
-	 * Note that this must be a method on the proxy, rather than being delegated, since the delegate will not have
-	 * been configured at the point at which this method is expected to return a valid set of supported scan modes.
-	 */
-	@Override
-	public Set<ScanMode> getSupportedScanModes() {
-		return supportedScanModes;
-	}
-
-	// proxies AbstractRunnableDevice<AreaDetectorRunnableDeviceModel>
-
-	@Override
-	public boolean isActivated() {
-		return rDevice.isActivated();
-	}
-
-	@Override
-	public boolean setActivated(boolean activated) throws ScanningException {
-		return rDevice.setActivated(activated);
-	}
-
-	@Override
-	public void addPositionListener(IPositionListener listener) {
-		rDevice.addPositionListener(listener);
-	}
-
-	@Override
-	public void removePositionListener(IPositionListener listener) {
-		rDevice.removePositionListener(listener);
-	}
-
-	// interface IRunnableDevice (AbstractRunnableDevice)
-
-	@Override
-	public void run(IPosition position) throws ScanningException, InterruptedException {
-		rDevice.run(position);
-	}
-
-	// interface IWritableDetector
-
-	@Override
-	public boolean write(IPosition position) throws ScanningException {
-		return rDevice.write(position);
-	}
-
-	// interface IWritableDetector interfaces
-
-	@Override
-	public void addRunListener(IRunListener l) throws ScanningException {
-		rDevice.addRunListener(l);
-	}
-
-	@Override
-	public void removeRunListener(IRunListener l) throws ScanningException {
-		rDevice.removeRunListener(l);
-	}
-
-	@Override
-	public void fireRunWillPerform(IPosition position) throws ScanningException {
-		rDevice.fireRunWillPerform(position);
-	}
-
-	@Override
-	public void fireRunPerformed(IPosition position) throws ScanningException {
-		rDevice.fireRunPerformed(position);
-	}
-
-	@Override
-	public void fireWriteWillPerform(IPosition position) throws ScanningException {
-		rDevice.fireWriteWillPerform(position);
-	}
-
-	@Override
-	public void fireWritePerformed(IPosition position) throws ScanningException {
-		rDevice.fireWritePerformed(position);
-	}
-
-	@Override
-	public void pause() throws ScanningException {
-		rDevice.pause();
-	}
-
-	@Override
-	public void seek(int stepNumber) throws ScanningException {
-		rDevice.seek(stepNumber);
-	}
-
-	@Override
-	public void resume() throws ScanningException {
-		rDevice.resume();
-	}
-
-	@Override
-	public DeviceState getDeviceState() throws ScanningException {
-		return rDevice.getDeviceState();
-	}
-
-	@Override
-	public String getDeviceStatus() throws ScanningException {
-		return rDevice.getDeviceStatus();
-	}
-
-	@Override
-	public boolean isDeviceBusy() throws ScanningException {
-		return rDevice.isDeviceBusy();
-	}
-
-	@Override
-	public void abort() throws ScanningException {
-		rDevice.abort();
-	}
-
-	@Override
-	public void disable() throws ScanningException {
-		rDevice.disable();
-	}
-
-	@Override
-	public AreaDetectorRunnableDeviceModel getModel() {
-		return rDevice.getModel();
-	}
-
-	@Override
-	public Object getAttribute(String attribute) throws ScanningException {
-		return rDevice.getAttribute(attribute);
-	}
-
-	@Override
-	public <A> List<A> getAllAttributes() throws ScanningException {
-		return rDevice.getAllAttributes();
-	}
-
-	@Override
-	public DeviceRole getRole() {
-		if (rDevice == null) {
-			return DeviceRole.HARDWARE;
-		}
-		return rDevice.getRole();
-	}
-
-	@Override
-	public void setRole(DeviceRole role) {
-		rDevice.setRole(role);
-	}
-
-	@Override
-	public void setLevel(int level) {
-		rDevice.setLevel(level);
-	}
-
-	@Override
-	public int getLevel() {
-		return rDevice.getLevel();
-	}
+	// AbstractRunnableDevice<AreaDetectorRunnableDeviceModel>
 
 	@Override
 	public void configure(AreaDetectorRunnableDeviceModel model) throws ScanningException {
-		rDevice.configure(model);
+		setDeviceState(DeviceState.CONFIGURING);
+
+		// Get the detector by name defined in the model
+		detector = Finder.getInstance().find(model.getName());
+		if (detector == null) throw new ScanningException("Could not find detector for " + model.getName());
+		if (delegate == null) throw new ScanningException("No delegate defined for " + model.getName());
+
+		try {
+			delegate.configure(model);
+		} catch (Exception e) {
+			setDeviceState(DeviceState.FAULT);
+			throw new ScanningException("Failed configuring detector " + model.getName(), e);
+		}
+		setDeviceState(DeviceState.READY);
 	}
+
+	/**
+	 * Allow delegates to set the device state.
+	 *
+	 * @param nstate New State
+	 */
+	@Override
+	public void setDeviceState(DeviceState nstate) throws ScanningException {
+		super.setDeviceState(nstate);
+	}
+
+	// Delegated interface IRunnableDevice<AreaDetectorRunnableDeviceModel> methods
 
 	@Override
-	public void reset() throws ScanningException {
-		rDevice.reset();
+	public void run(IPosition position) throws ScanningException, InterruptedException {
+		delegate.run(position);
 	}
 
-	// interface INexusDevice
+	// Delegated interface IWritableDetector<AreaDetectorRunnableDeviceModel> methods
+
+	@Override
+	public boolean write(IPosition position) throws ScanningException {
+		return delegate.write(position);
+	}
+
+	// Delegated interface INexusDevice<NXdetector> methods
 
 	@Override
 	public NexusObjectProvider<NXdetector> getNexusProvider(NexusScanInfo info) throws NexusException {
-		return rDevice.getNexusProvider(info);
+		return delegate.getNexusProvider(info);
 	}
 
+	// Delegated annotated methods
+
+	@Override
 	@PreConfigure
 	public void preConfigure(Object model) throws ScanningException {
-		rDevice.preConfigure(model);
+		delegate.preConfigure(model);
 	}
 
+	@Override
 	@PostConfigure
 	public void postConfigure(Object model) throws ScanningException {
-		rDevice.postConfigure(model);
+		delegate.postConfigure(model);
 	}
 
+	@Override
 	@LevelStart
 	public void levelStart(LevelInformation info) throws ScanningException {
-		rDevice.levelStart(info);
+		delegate.levelStart(info);
 	}
 
+	@Override
 	@LevelEnd
 	public void levelEnd(LevelInformation info) throws ScanningException {
-		rDevice.levelEnd(info);
+		delegate.levelEnd(info);
 	}
 
+	@Override
 	@PointStart
 	public void pointStart(IPosition point) throws ScanningException {
-		rDevice.pointStart(point);
+		delegate.pointStart(point);
 	}
 
+	@Override
 	@PointEnd
 	public void pointEnd(IPosition point) throws ScanningException {
-		rDevice.pointEnd(point);
+		delegate.pointEnd(point);
 	}
 
+	@Override
 	@ScanStart
 	public void scanStart(ScanInformation info) throws ScanningException {
-		rDevice.scanStart(info);
+		delegate.scanStart(info);
 	}
 
+	@Override
 	@ScanEnd
 	public void scanEnd(ScanInformation info) throws ScanningException {
-		rDevice.scanEnd(info);
+		delegate.scanEnd(info);
 	}
 
+	@Override
 	@ScanAbort
 	public void scanAbort(ScanInformation info) throws ScanningException {
-		rDevice.scanAbort(info);
+		delegate.scanAbort(info);
 	}
 
+	@Override
 	@ScanFault
 	public void scanFault(ScanInformation info) throws ScanningException {
-		rDevice.scanFault(info);
+		delegate.scanFault(info);
 	}
 
+	@Override
 	@ScanFinally
 	public void scanFinally(ScanInformation info) throws ScanningException {
-		rDevice.scanFinally(info);
+		delegate.scanFinally(info);
 	}
 
+	@Override
 	@ScanPause
 	public void scanPaused() throws ScanningException {
-		rDevice.scanPaused();
+		delegate.scanPause();
 	}
 
+	@Override
 	@ScanResume
 	public void scanResumed() throws ScanningException {
-		rDevice.scanResumed();
+		delegate.scanResume();
 	}
 
 	// Class methods
 
-	public AbstractAreaDetectorRunnableDevice getRunnableDevice() {
-		return rDevice;
+	public AbstractAreaDetectorRunnableDeviceDelegate getDelegate() {
+		return delegate;
 	}
 
-	public void setRunnableDevice(AbstractAreaDetectorRunnableDevice areaDetectorRunnableDevice) {
-		this.rDevice = areaDetectorRunnableDevice;
-		this.rDevice.setRunnableDeviceService(ServiceHolder.getRunnableDeviceService());
+	public void setDelegate(AbstractAreaDetectorRunnableDeviceDelegate delegate) {
+		this.delegate = delegate;
+		if (delegate.getRunnableDeviceProxy() != this ) {
+			throw new RuntimeException("Delegates runnable device is not this!");
+		}
+	}
+
+	public ADDetector getDetector() {
+		return detector;
 	}
 }

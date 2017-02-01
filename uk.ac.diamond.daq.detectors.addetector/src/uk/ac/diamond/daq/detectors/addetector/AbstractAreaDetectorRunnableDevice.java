@@ -54,13 +54,15 @@ public abstract class AbstractAreaDetectorRunnableDevice extends AbstractRunnabl
 		super(dservice);
 	}
 
-	// Class methods
+	// Annotated methods
 
 	/**
-	 * Implement default method for use with Jython.
 	 * NOTE: Arguments are filled with annotations using introspection. OSGi services may be requested (null if not found)
 	 * NOTE: More than one method may be annotated.
-	 * @param model
+	 * @param model - TODO: This should probably have a type which is more specific than Object. Currently in a scan
+	 *        it gets populated with a ScanInformation object, but RunnableDeviceServiceImpl.createRunnableDevice(),
+	 *        AcquireRequestHandler.configureDetector() and ScanProcess.configureDetectors() all explicitly invoke
+	 *        it with a model, hence the param name here.
 	 */
 	@SuppressWarnings("unused")
 	@PreConfigure
@@ -69,10 +71,12 @@ public abstract class AbstractAreaDetectorRunnableDevice extends AbstractRunnabl
 	}
 
 	/**
-	 * Implement default method for use with Jython.
 	 * NOTE: Arguments are filled with annotations using introspection. OSGi services may be requested (null if not found)
 	 * NOTE: More than one method may be annotated.
-	 * @param model
+	 * @param model - TODO: This should probably have a type which is more specific than Object. Currently in a scan
+	 *        it gets populated with a ScanInformation object, but RunnableDeviceServiceImpl.createRunnableDevice(),
+	 *        AcquireRequestHandler.configureDetector() and ScanProcess.configureDetectors() all explicitly invoke
+	 *        it with a model, hence the param name here.
 	 */
 	@SuppressWarnings("unused")
 	@PostConfigure
@@ -81,7 +85,6 @@ public abstract class AbstractAreaDetectorRunnableDevice extends AbstractRunnabl
 	}
 
 	/**
-	 * Implement default method for use with Jython.
 	 * NOTE: Arguments are filled with annotations using introspection. OSGi services may be requested (null if not found)
 	 * NOTE: More than one method may be annotated.
 	 * @param info
@@ -93,7 +96,6 @@ public abstract class AbstractAreaDetectorRunnableDevice extends AbstractRunnabl
 	}
 
 	/**
-	 * Implement default method for use with Jython.
 	 * NOTE: Arguments are filled with annotations using introspection. OSGi services may be requested (null if not found)
 	 * NOTE: More than one method may be annotated.
 	 * @param info
@@ -105,7 +107,6 @@ public abstract class AbstractAreaDetectorRunnableDevice extends AbstractRunnabl
 	}
 
 	/**
-	 * Implement default method for use with Jython.
 	 * NOTE: Arguments are filled with annotations using introspection. OSGi services may be requested (null if not found)
 	 * NOTE: More than one method may be annotated.
 	 * @param point
@@ -117,7 +118,6 @@ public abstract class AbstractAreaDetectorRunnableDevice extends AbstractRunnabl
 	}
 
 	/**
-	 * Implement default method for use with Jython.
 	 * NOTE: Arguments are filled with annotations using introspection. OSGi services may be requested (null if not found)
 	 * NOTE: More than one method may be annotated.
 	 * @param point
@@ -129,7 +129,6 @@ public abstract class AbstractAreaDetectorRunnableDevice extends AbstractRunnabl
 	}
 
 	/**
-	 * Implement default method for use with Jython.
 	 * NOTE: Arguments are filled with annotations using introspection. OSGi services may be requested (null if not found)
 	 * NOTE: More than one method may be annotated.
 	 * @param info
@@ -141,7 +140,6 @@ public abstract class AbstractAreaDetectorRunnableDevice extends AbstractRunnabl
 	}
 
 	/**
-	 * Implement default method for use with Jython.
 	 * NOTE: Arguments are filled with annotations using introspection. OSGi services may be requested (null if not found)
 	 * NOTE: More than one method may be annotated.
 	 * @param info
@@ -153,7 +151,6 @@ public abstract class AbstractAreaDetectorRunnableDevice extends AbstractRunnabl
 	}
 
 	/**
-	 * Implement default method for use with Jython.
 	 * NOTE: Arguments are filled with annotations using introspection. OSGi services may be requested (null if not found)
 	 * NOTE: More than one method may be annotated.
 	 * @param info
@@ -165,7 +162,6 @@ public abstract class AbstractAreaDetectorRunnableDevice extends AbstractRunnabl
 	}
 
 	/**
-	 * Implement default method for use with Jython.
 	 * NOTE: Arguments are filled with annotations using introspection. OSGi services may be requested (null if not found)
 	 * NOTE: More than one method may be annotated.
 	 * @param info
@@ -177,7 +173,6 @@ public abstract class AbstractAreaDetectorRunnableDevice extends AbstractRunnabl
 	}
 
 	/**
-	 * Implement default method for use with Jython.
 	 * NOTE: Arguments are filled with annotations using introspection. OSGi services may be requested (null if not found)
 	 * NOTE: More than one method may be annotated.
 	 * @param info
@@ -189,7 +184,6 @@ public abstract class AbstractAreaDetectorRunnableDevice extends AbstractRunnabl
 	}
 
 	/**
-	 * Implement default method for use with Jython.
 	 * NOTE: Arguments are filled with annotations using introspection. OSGi services may be requested (null if not found)
 	 * NOTE: More than one method may be annotated.
 	 */
@@ -200,7 +194,6 @@ public abstract class AbstractAreaDetectorRunnableDevice extends AbstractRunnabl
 	}
 
 	/**
-	 * Implement default method for use with Jython.
 	 * NOTE: Arguments are filled with annotations using introspection. OSGi services may be requested (null if not found)
 	 * NOTE: More than one method may be annotated.
 	 */

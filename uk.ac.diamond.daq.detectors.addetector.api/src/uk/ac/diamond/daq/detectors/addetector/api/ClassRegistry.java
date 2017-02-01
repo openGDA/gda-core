@@ -30,6 +30,7 @@ public class ClassRegistry implements IClassRegistry {
 		registry = new HashMap<>();
 		registry.put(AreaDetectorRunnableDeviceModel.class.getSimpleName(), AreaDetectorRunnableDeviceModel.class);
 		registry.put(AreaDetectorWritingFilesRunnableDeviceModel.class.getSimpleName(), AreaDetectorWritingFilesRunnableDeviceModel.class);
+		registry.put(DarkImageAreaDetectorWritingFilesRunnableDeviceModel.class.getSimpleName(), DarkImageAreaDetectorWritingFilesRunnableDeviceModel.class);
 	}
 
 	@Override
