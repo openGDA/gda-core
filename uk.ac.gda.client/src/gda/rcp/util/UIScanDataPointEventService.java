@@ -18,14 +18,6 @@
 
 package gda.rcp.util;
 
-import gda.jython.IAllScanDataPointsObserver;
-import gda.jython.InterfaceProvider;
-import gda.jython.Jython;
-import gda.jython.JythonServerStatus;
-import gda.jython.batoncontrol.BatonChanged;
-import gda.rcp.GDAClientActivator;
-import gda.scan.IScanDataPoint;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -35,6 +27,13 @@ import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.jython.IScanDataPointObserver;
+import gda.jython.InterfaceProvider;
+import gda.jython.Jython;
+import gda.jython.JythonServerStatus;
+import gda.jython.batoncontrol.BatonChanged;
+import gda.rcp.GDAClientActivator;
+import gda.scan.IScanDataPoint;
 import uk.ac.gda.ClientManager;
 import uk.ac.gda.preferences.PreferenceConstants;
 
@@ -62,7 +61,7 @@ public final class UIScanDataPointEventService {
 	}
 
 	private List<IScanDataPoint> currentDataPoints;
-	private IAllScanDataPointsObserver scanDataPointObserver;
+	private IScanDataPointObserver scanDataPointObserver;
 	private Collection<ScanPlotListener> listeners;
 	private boolean running = false;
 
@@ -94,7 +93,7 @@ public final class UIScanDataPointEventService {
 		if (scanDataPointObserver != null)
 			throw new RuntimeException("The ScanDataPointEventService is already connected.");
 
-		this.scanDataPointObserver = new IAllScanDataPointsObserver() {
+		this.scanDataPointObserver = new IScanDataPointObserver() {
 
 			@Override
 			public void update(Object theObserved, final Object info) {

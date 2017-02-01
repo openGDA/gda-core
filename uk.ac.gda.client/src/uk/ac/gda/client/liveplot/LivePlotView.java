@@ -18,16 +18,6 @@
 
 package uk.ac.gda.client.liveplot;
 
-import gda.data.PathConstructor;
-import gda.jython.IAllScanDataPointsObserver;
-import gda.jython.InterfaceProvider;
-import gda.observable.IObserver;
-import gda.plots.ScanTreeItem;
-import gda.plots.SingleScanLine;
-import gda.rcp.GDAClientActivator;
-import gda.scan.AxisSpec;
-import gda.scan.IScanDataPoint;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -76,6 +66,15 @@ import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.data.PathConstructor;
+import gda.jython.IScanDataPointObserver;
+import gda.jython.InterfaceProvider;
+import gda.observable.IObserver;
+import gda.plots.ScanTreeItem;
+import gda.plots.SingleScanLine;
+import gda.rcp.GDAClientActivator;
+import gda.scan.AxisSpec;
+import gda.scan.IScanDataPoint;
 import uk.ac.diamond.scisoft.analysis.PlotServer;
 import uk.ac.diamond.scisoft.analysis.PlotServerProvider;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
@@ -89,7 +88,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.gda.preferences.PreferenceConstants;
 
 @SuppressWarnings("deprecation")
-public class LivePlotView extends ViewPart implements IAllScanDataPointsObserver {
+public class LivePlotView extends ViewPart implements IScanDataPointObserver {
 	private static final String MEMENTO_GROUP = "LivePlotView";
 
 	/**
@@ -441,7 +440,7 @@ public class LivePlotView extends ViewPart implements IAllScanDataPointsObserver
 	/**
 	 * Writes to a memento and a set of archive files in a folder a copy of the state of the xy lines displayed in the
 	 * view
-	 * 
+	 *
 	 * @param memento
 	 * @param archiveFolder
 	 */
@@ -615,7 +614,7 @@ class XYPlotActionGroup extends ActionGroup {
 
 	/**
 	 * Adds the Open in New Window action to the context menu.
-	 * 
+	 *
 	 * @param menu
 	 *            the context menu
 	 * @param selection
