@@ -45,6 +45,8 @@ public class JlineServerListenThread extends ServerListenThreadBase {
 
 	private static final Logger logger = LoggerFactory.getLogger(JlineServerListenThread.class);
 	private final ConsoleReader cr;
+	private File historyFile;
+	private FileHistory hist;
 
 	public JlineServerListenThread(InputStream in, OutputStream out, SessionClosedCallback sessionClosedCallback) throws IOException {
 
@@ -52,16 +54,26 @@ public class JlineServerListenThread extends ServerListenThreadBase {
 		this.cr = new ConsoleReader(in, out);
 
 		final String gdaVar = LocalProperties.getVarDir();
-		final File historyFile = new File(gdaVar, "server.history");
-		cr.setHistory(new FileHistory(historyFile));
+		historyFile = new File(gdaVar, "server.history");
+		hist = new FileHistory(historyFile);
+		cr.setHistory(hist);
+		cr.setHistoryEnabled(true);
+		logger.debug("Writing telnet history to {}", historyFile);
 	}
 
 	@Override
 	public void close() {
 		try {
+			hist.flush();
+			logger.debug("Wrote telnet history to {}", historyFile);
+		} catch (IOException e) {
+			//Not much we can do here - worst case is we lose the history
+			logger.warn("Error writing telnet terminal history", e);
+		}
+		try {
 			cr.close();
 		} catch (IOException e) {
-			//Not much we can do here - log warning and carry on
+			//Or here - log warning and carry on
 			logger.warn("Failed to close ConsoleReader", e);
 		}
 	}
