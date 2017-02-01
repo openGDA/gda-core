@@ -121,15 +121,17 @@ class OuterScannablesSection extends AbstractMappingSection {
 					stepModel.setStep(Double.parseDouble(startStopStep[2]));
 					return stepModel;
 				} else {
-					String[] strings = text.split(",");
-					double[] positions = new double[strings.length];
-					for (int index = 0; index < strings.length; index++) {
-						positions[index] = Double.parseDouble(strings[index]);
-					}
-					ArrayModel arrayModel = new ArrayModel();
-					arrayModel.setName(scannableName);
-					arrayModel.setPositions(positions);
-					return arrayModel;
+					// TODO: array models commented out until implemented in jython
+					return null;
+//					String[] strings = text.split(",");
+//					double[] positions = new double[strings.length];
+//					for (int index = 0; index < strings.length; index++) {
+//						positions[index] = Double.parseDouble(strings[index]);
+//					}
+//					ArrayModel arrayModel = new ArrayModel();
+//					arrayModel.setName(scannableName);
+//					arrayModel.setPositions(positions);
+//					return arrayModel;
 				}
 			} catch  (NumberFormatException e) {
 				return null;
@@ -169,7 +171,9 @@ class OuterScannablesSection extends AbstractMappingSection {
 
 			// FIXME make a proper widget for this?
 			Text axisText = new Text(otherScanAxesComposite, SWT.BORDER);
-			axisText.setToolTipText("<start stop step> or <pos1,pos2,pos3,pos4...>");
+			axisText.setToolTipText("<start stop step>");
+			// TODO: array models commented out until implemented in jython
+//			axisText.setToolTipText("<start stop step> or <pos1,pos2,pos3,pos4...>");
 			GridDataFactory.fillDefaults().grab(true, false).applyTo(axisText);
 			IObservableValue axisTextValue = WidgetProperties.text(SWT.Modify).observe(axisText);
 			bindScanPathModelToTextField(scannableAxisParameters, axisTextValue);
