@@ -4,7 +4,6 @@
 package uk.ac.diamond.daq.detectors.addetector;
 
 import java.util.List;
-import java.util.Set;
 
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXdetector;
@@ -30,7 +29,6 @@ import org.eclipse.scanning.api.device.IActivatable;
 import org.eclipse.scanning.api.device.IRunnableEventDevice;
 import org.eclipse.scanning.api.device.IWritableDetector;
 import org.eclipse.scanning.api.device.models.DeviceRole;
-import org.eclipse.scanning.api.device.models.ScanMode;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.LevelInformation;
@@ -205,11 +203,6 @@ public class AreaDetectorRunnableDeviceProxy implements
 	@Override
 	public void setRole(DeviceRole role) {
 		rDevice.setRole(role);
-	}
-
-	@Override
-	public Set<ScanMode> getSupportedScanModes() {
-		return rDevice.getSupportedScanModes();
 	}
 
 	@Override
