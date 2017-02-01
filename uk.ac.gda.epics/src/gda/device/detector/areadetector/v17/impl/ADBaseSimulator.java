@@ -18,6 +18,8 @@
 
 package gda.device.detector.areadetector.v17.impl;
 
+import java.util.concurrent.TimeoutException;
+
 import gda.device.detector.areadetector.AreaDetectorBin;
 import gda.device.detector.areadetector.AreaDetectorROI;
 import gda.device.detector.areadetector.v17.ADBase;
@@ -25,8 +27,6 @@ import gda.device.detector.areadetector.v17.ImageMode;
 import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.observable.Observable;
 import gda.observable.ObservableUtil;
-
-import java.util.concurrent.TimeoutException;
 
 public class ADBaseSimulator implements ADBase {
 
@@ -827,5 +827,34 @@ public class ADBaseSimulator implements ADBase {
 	@Override
 	public void startAcquiringWait() throws Exception {
 		// TODO Auto-generated method stub
+	}
+
+	// General purpose getters and setters for arbitrary PV suffixes. Primarily for prototyping.
+
+	@Override
+	public int getIntBySuffix(String suffix) throws Exception {
+		return 0;
+	}
+
+	@Override
+	public void setIntBySuffix(String suffix, int arraycounter) throws Exception {
+	}
+
+	@Override
+	public double getDoubleBySuffix(String suffix) throws Exception {
+		return 0;
+	}
+
+	@Override
+	public void setDoubleBySuffix(String suffix, double acquiretime) throws Exception {
+	}
+
+	@Override
+	public String getStringBySuffix(String suffix) throws Exception {
+		return null;
+	}
+
+	@Override
+	public void setStringBySuffix(String suffix, String acquiretime) throws Exception {
 	}
 }
