@@ -18,6 +18,7 @@
 
 package gda.device.scannable;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -128,7 +129,8 @@ class PositionStreamIndexPuller<T> implements Callable<T> {
 				called = true;
 			}
 		} else {
-			logger.warn("@{}.call method called twice for index: {}", Integer.toHexString(hashCode()), index);
+			logger.warn("@{}.call method called twice for index: {}, stack trace {}", Integer.toHexString(hashCode()), index, Arrays.toString(Thread.currentThread().getStackTrace()));
+
 		}
 		return value;
 	}

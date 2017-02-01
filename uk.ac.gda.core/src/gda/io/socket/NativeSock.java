@@ -60,7 +60,7 @@ public class NativeSock {
 	protected DataOutputStream outputStream;
 
 	/** Input stream. */
-	protected LEDataInputStream inputStream;
+	private LEDataInputStream inputStream;
 
 	/** Host name. */
 	private String host = null;
@@ -152,83 +152,10 @@ public class NativeSock {
 		return (buf.toString());
 	}
 
-	/**
-	 * Reads the input stream with a length <code>len</code>.
-	 *
-	 * @param buf
-	 *            The buffer to fill
-	 * @param len
-	 *            The number of bytes to read
-	 * @throws IOException
-	 */
-	public void read(byte[] buf, int len) throws IOException {
-		inputStream.read(buf, 0, len);
+	public byte readByte() throws IOException {
+		return inputStream.readByte();
 	}
 
-	/**
-	 * Reads the input stream with a length <code>len</code> at offset <code>offset</code>.
-	 *
-	 * @param buf
-	 *            The buffer to fill.
-	 * @param off
-	 *            The offset to read from.
-	 * @param len
-	 *            The number of bytes to read.
-	 * @throws IOException
-	 */
-	public void read(byte[] buf, int off, int len) throws IOException {
-		inputStream.read(buf, off, len);
-	}
-
-	/**
-	 * Reads 2 bytes (a unicode char in little endian format) and returns them as a big endian char.
-	 *
-	 * @return big endian char
-	 * @throws IOException
-	 */
-	public char readChar() throws IOException {
-		return inputStream.readChar();
-	}
-
-	/**
-	 * Reads 4 bytes (an int in little endian format) and returns them as a big endian integer.
-	 *
-	 * @return big endian integer
-	 * @throws IOException
-	 */
-	public int readInt() throws IOException {
-		return inputStream.readInt();
-	}
-
-	/**
-	 * Reads 8 bytes (a long in little endian format) and returns them as a big endian long.
-	 *
-	 * @return big endian long
-	 * @throws IOException
-	 */
-	public long readLong() throws IOException {
-		return inputStream.readLong();
-	}
-
-	/**
-	 * Reads 4 bytes (a IEEE float in little endian format) and returns them as a big endian float.
-	 *
-	 * @return big endian float
-	 * @throws IOException
-	 */
-	public float readFloat() throws IOException {
-		return inputStream.readFloat();
-	}
-
-	/**
-	 * Reads 8 bytes (a IEEE double in little endian format) and returns them as a big endian double.
-	 *
-	 * @return double
-	 * @throws IOException
-	 */
-	public double readDouble() throws IOException {
-		return inputStream.readDouble();
-	}
 
 	/**
 	 * This reads the input stream byte-by-byte searching for a pattern. This only works with ASCII characters (8 bits).
