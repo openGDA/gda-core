@@ -19,19 +19,19 @@
 
 package gda.device.detector.odccd;
 
-import gda.io.socket.NativeSock;
-
 import java.io.IOException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.io.socket.NativeSock;
 
 /**
  * <p>
  * <b>Title: </b>Customized <code>NativeSock</code> class for Oxford Diffraction CCDs.
  * </p>
  * <p>
- * <b>Description: </b>This class extends <code>gda.io.socket.NativeSock</code> to provide a cutomized
+ * <b>Description: </b>This class extends <code>gda.io.socket.NativeSock</code> to provide a customised
  * <code>readUntil(String)</code> method. The method performs the same functions as in <code>NativeSock</code>
  * except that it throws an exception if it encounters an error in the messages transmitted from the IS software. This
  * avoids <code>readUntil(String)</code> hanging because it cannot find the string because IS sent an error message
@@ -55,28 +55,29 @@ public class ODCCDNativeSock extends NativeSock {
 	 *
 	 * @param pattern
 	 *            The pattern to read until.
-	 * @return The input stream in string format upto the end of the pattern.
+	 * @return The input stream in string format up to the end of the pattern.
 	 * @throws IOException
 	 *             This is thrown if the IS software transmits an error.
 	 */
 	@Override
 	public String readUntil(String pattern) throws IOException {
+		return readUntil(pattern, null);
+	}
 
-		StringBuffer sb = null;
+	public String readUntil(String pattern, String altError) throws IOException {
+
+		StringBuffer sb = new StringBuffer();
 		String errorMsg = "(ERROR):";
 		byte[] errorBytes = errorMsg.getBytes();
 		byte last_errorByte = errorBytes[errorBytes.length - 1];
 		try {
 			char lastChar = pattern.charAt(pattern.length() - 1);
-			sb = new StringBuffer();
-			byte ch = inputStream.readByte();
+			char lastAltErrorChar = (altError == null ? '!' : altError.charAt(altError.length() - 1));
+			byte ch = readByte();
 			// Loop until finding the pattern. Then return.
 			while (true) {
 				sb.append((char) ch);
-
-				// Check if what we have read so far contains an error message
-				// from
-				// IS.
+				// Check if what we have read so far contains an error message from IS.
 				if ((ch == last_errorByte) && sb.toString().endsWith(errorMsg)) {
 					// Read the rest of this line.
 					sb.append(super.readLine());
@@ -84,22 +85,42 @@ public class ODCCDNativeSock extends NativeSock {
 					// message.
 					sb.append(super.readLine());
 					// Now return the error message in the exception
-					String errorToReturn = "ERROR: IS sent an error." + sb.toString();
+					String errorToReturn = "ERROR: IS sent an error: " + errorMsg;
 					logger.error(errorToReturn);
 					throw new IOException(errorToReturn);
 				}
-
+				// Or the alternate error message
+				if (altError != null && (char) ch == lastAltErrorChar) {
+					if (sb.toString().endsWith(altError)) {
+						logger.info("IS sent an alt error: {}", altError);
+						sb.append(super.readLine());
+						String errorToReturn = "ERROR: IS sent an alt error: " + altError;
+						logger.error(errorToReturn);
+						throw new IOException(errorToReturn);
+					}
+				}
+				// Or the pattern we are looking for
 				if ((char) ch == lastChar) {
 					if (sb.toString().endsWith(pattern)) {
-						logger.trace("IS sent: {}", sb.toString());
+						logger.info("IS sent the requested pattern {}", pattern);
 						return (sb.toString());
 					}
 				}
-				ch = inputStream.readByte();
+				// Clear the buffer for every whole line we receive
+				if (ch == 015) {
+					logger.trace("IS sent line: {}", sb.toString());
+					sb.setLength(0); // Clear buffer immediately after logging input
+				}
+				if (ch > 255) {
+					logger.warn("IS sent a character > 255: {}", ch);
+				}
+				ch = readByte();
 			}
 		} catch (IOException e) {
-			logger.warn("Exception caught when trying to readUntil({}) in NativeSock. IS sent: {}", pattern, sb.toString());
+			logger.error("Exception caught when trying to readUntil({}) in NativeSock: {}", pattern, e.toString());
 			throw e;
+		} finally {
+			logger.trace("IS sent: {}", sb.toString());
 		}
 	}
 

@@ -88,7 +88,7 @@ public class ODCCDOverflow extends ODCCDSingleExposure {
 					fastFilenames.add(unixFilename);
 				} catch (Exception e) {
 					logger.error("saveImage() failed saving fast image.", e);
-					unixFilenames.add(null);
+					fastFilenames.add(null);
 				}
 			} else if (fastFilenames.size() > unixFilenames.size()) {
 				String runfileOdccdFilename = getOdccdFilePath(runfileName);
@@ -134,8 +134,9 @@ public class ODCCDOverflow extends ODCCDSingleExposure {
 				<30. final filename> <31. run filename> <32. experiment name>
 		*/
 		getOdccd().runScript("call smi_exps2b_atlas \"" + odccdfilename + "\" " + parameters);
-		logger.trace("Waiting for api:IMAGE EXPORTED");
-		getOdccd().readInputUntil("api:IMAGE EXPORTED");
+		logger.trace(            "Waiting for api(ANS):IMAGE EXPORTED");
+		getOdccd().readInputUntil(           "api(ANS):IMAGE EXPORTED");
+		logger.trace("saveImage({}, {}) found api(ANS):IMAGE EXPORTED", odccdfilename, parameters);
 	}
 
 	/* PositionInputStream<NXDetectorDataAppender> methods */
@@ -160,30 +161,29 @@ public class ODCCDOverflow extends ODCCDSingleExposure {
 
 	@Override
 	protected List<NXDetectorDataAppender> readPoll(int maxToRead, int index) {
-		logger.trace("readPoll({} ignored, {}), fastFilenamesRead={}, elementsRead={}",
-								maxToRead, index,  fastFilenamesRead, elementsRead);
+		logger.trace("readPoll({} ignored, {}), fastFilenamesRead={}, images_added={}, fastFilenames.size()={}, finalFilenames.size()={}",
+							  maxToRead, index, fastFilenamesRead,    images_added,    fastFilenames.size(),    finalFilenames.size());
 		List<NXDetectorDataAppender> appenders = new ArrayList<>();
 		// Since we only expect to return one element at a time with this collection strategy, use the simpler, but less
 		// efficient option of returning one at once, letting the caller request more elements if needed.
-		if (index % 2 == 0) {	//(fast) {
-								//	^^ doesn't work, since we get multiple calls to read() from multiple regions
+		if (index % 2 == 0) {
 			if (fastFilenames.size() == (index/2)+1) { // > fastFilenamesRead) {
 				logger.trace("fastFilenames.size() = {}", fastFilenames.size());
 				appenders.add(new NXDetectorDataFileAppenderForSrs(fastFilenames.get(fastFilenamesRead), getInputStreamNames().get(0))); // TODO: Add pixel size and units?
 				fastFilenamesRead++;
-				logger.trace("Returning 1 new filename: {}", appenders);
+				logger.trace("Returning 1 new fast filename: {}", appenders);
 			}
-		} else { //if (unixFilenames.size() == finalFilenames.size()) {
-			if (finalFilenames.size() == (index/2)+1) { // > elementsRead) {
+		} else {
+			if (finalFilenames.size() == (index/2)+1) { // > images_added) {
 				logger.trace("unixFilenames.size() = {}, finalFilenames.size() = {}", fastFilenames.size(), finalFilenames.size());
 				// Can't get this to work for the moment as ADDetector calls NXDetectorDataWithFilepathForSrs.addFileName rather than NXDetectorDataWithFilepathForSrs.addFileNames
 				//List<NXDetectorDataAppender> inner_appenders = new ArrayList<>();
-				//inner_appenders.add(new NXDetectorDataFileAppenderForSrs(unixFilenames.get(elementsRead), getInputStreamNames().get(/*0*/1))); // TODO: Add pixel size and units?
-				//inner_appenders.add(new NXDetectorDataFileAppenderForSrs(finalFilenames.get(elementsRead), getInputStreamNames().get(/*1*/2))); // TODO: Add pixel size and units?
+				//inner_appenders.add(new NXDetectorDataFileAppenderForSrs(unixFilenames.get(images_added), getInputStreamNames().get(/*0*/1))); // TODO: Add pixel size and units?
+				//inner_appenders.add(new NXDetectorDataFileAppenderForSrs(finalFilenames.get(images_added), getInputStreamNames().get(/*1*/2))); // TODO: Add pixel size and units?
 				//appenders.add(new NXDetectorSerialAppender(inner_appenders));
-				appenders.add(new NXDetectorDataFileAppenderForSrs(finalFilenames.get(elementsRead), getInputStreamNames().get(2))); // TODO: Add pixel size and units?
-				elementsRead++;
-				logger.trace("Returning 1 new pair of filenames: {}", appenders);
+				appenders.add(new NXDetectorDataFileAppenderForSrs(finalFilenames.get(images_added), getInputStreamNames().get(2))); // TODO: Add pixel size and units?
+				images_added++;
+				logger.trace("Returning 1 new final filename: {}", appenders);
 			}
 		}
 		return appenders;

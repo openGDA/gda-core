@@ -19,6 +19,15 @@
 
 package gda.device.detector.odccd;
 
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.Serializable;
+import java.net.SocketTimeoutException;
+
+import org.apache.commons.lang.NotImplementedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.ODCCD;
@@ -26,14 +35,6 @@ import gda.device.detector.DetectorBase;
 import gda.factory.Configurable;
 import gda.factory.Findable;
 import gda.util.exceptionUtils;
-
-import java.io.EOFException;
-import java.io.IOException;
-import java.io.Serializable;
-import java.net.SocketTimeoutException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -206,7 +207,7 @@ public class ODCCDController extends DetectorBase implements Configurable, Seria
 
 	/**
 	 * Use this method to disconnect from older versions of the IS software.
-	 * 
+	 *
 	 * See also {@link ODCCDController#logout}
 	 */
 	@Override
@@ -225,7 +226,7 @@ public class ODCCDController extends DetectorBase implements Configurable, Seria
 
 	/**
 	 * Use this method to disconnect from newer versions of the IS software.
-	 * 
+	 *
 	 * See also {@link ODCCDController#disconnect}
 	 */
 	public synchronized void logout() {
@@ -235,7 +236,7 @@ public class ODCCDController extends DetectorBase implements Configurable, Seria
 		}
 		try {
 			this.writeCommand("logout");
-			logger.debug("Flushed {} characters", this.flush());
+			logger.debug("Flushed {} characters", this.flush(true));
 		} finally {
 			if (mConnected) {
 				logger.error("Flush completed but still connected!");
@@ -261,8 +262,8 @@ public class ODCCDController extends DetectorBase implements Configurable, Seria
 	 * @param command
 	 */
 	private synchronized void writeCommand(String command) {
-		logger.trace("writeCommand({})", command);
-		// Check is we connected succesfully to IS
+		logger.trace("writeCommand({})...", command);
+		// Check is we connected successfully to IS
 		if (!mConnected) {
 			throw new IllegalStateException("ERROR: ODCCDController is trying to use IS and is not connected.");
 		}
@@ -274,6 +275,7 @@ public class ODCCDController extends DetectorBase implements Configurable, Seria
 			throw new RuntimeException("ERROR when trying to write command in ODCCDController. " + "command: "
 					+ command, e);
 		}
+		logger.trace("...writeCommand({})", command);
 	}
 
 	/**
@@ -285,8 +287,12 @@ public class ODCCDController extends DetectorBase implements Configurable, Seria
 	 * @throws IOException
 	 */
 	public synchronized String readInputUntil(String str) throws IOException {
-		logger.trace("readInputUntil({})", str);
-		return getODCCDNativeSock().readUntil(str);
+		return getODCCDNativeSock().readUntil(str, null);
+	}
+
+	public synchronized String readInputUntil(String str, String altError) throws IOException {
+		logger.trace("readInputUntil({}, {})", str, altError);
+		return getODCCDNativeSock().readUntil(str, altError);
 	}
 
 	/**
@@ -339,14 +345,7 @@ public class ODCCDController extends DetectorBase implements Configurable, Seria
 	 */
 	@Override
 	public synchronized double temperature() {
-		this.binaryCommand("temp");
-		try {
-			return getODCCDNativeSock().readDouble();
-		} catch (RuntimeException e) {
-			throw new RuntimeException("Error when reading CCD temperature.", e);
-		} catch (Exception e) {
-			throw new RuntimeException("Error when reading CCD temperature.", e);
-		}
+		throw new NotImplementedException();
 	}
 
 	/**
@@ -356,12 +355,7 @@ public class ODCCDController extends DetectorBase implements Configurable, Seria
 	 */
 	@Override
 	public synchronized double waterTemperature() {
-		this.binaryCommand("water temp");
-		try {
-			return getODCCDNativeSock().readDouble();
-		} catch (Exception e) {
-			throw new RuntimeException("Error when reading CCD water temperature.", e);
-		}
+		throw new NotImplementedException();
 	}
 
 	/**
@@ -373,8 +367,7 @@ public class ODCCDController extends DetectorBase implements Configurable, Seria
 	 */
 	@Deprecated
 	public synchronized byte[] smi(int secs) {
-		this.binaryCommand("sm i " + (new Integer(secs)).toString());
-		return this.readBinaryFrame();
+		throw new NotImplementedException();
 	}
 
 	/**
@@ -386,8 +379,7 @@ public class ODCCDController extends DetectorBase implements Configurable, Seria
 	 */
 	@Deprecated
 	public synchronized byte[] darkcurrent(int secs) {
-		this.binaryCommand("dark " + (new Integer(secs)).toString());
-		return this.readBinaryFrame();
+		throw new NotImplementedException();
 	}
 
 	/**
@@ -412,8 +404,7 @@ public class ODCCDController extends DetectorBase implements Configurable, Seria
 	@Override
 	@Deprecated
 	public synchronized ODCCDImage readDataFromISDataBase(String pathname) {
-		// String getDataCommand = "db get " + pathname;
-		return this.readImage();
+		throw new NotImplementedException();
 	}
 
 	/**
@@ -422,31 +413,23 @@ public class ODCCDController extends DetectorBase implements Configurable, Seria
 	 * @return The image in a ODCCDImage object.
 	 */
 	public synchronized ODCCDImage readImage() {
-		ODCCDImage image = new ODCCDImage();
-		do {
-			this.readBinaryFrameUntilData();
-			byte[] data = readBinaryFrame();
-			image.addImageData(data, mBinaryHeader);
-		} while (mBinaryHeader.getFlags() >> 12 != 4);
-		return image;
+		throw new NotImplementedException();
 	}
 
 	/**
 	 * @return int
 	 */
-	public synchronized int flush(){
+	public synchronized int flush(boolean expectEOF){
 		logger.trace("flush()");
-		
+
 		StringBuffer sb = new StringBuffer();
-		int charactersRead=0;
 		if(mConnected){
 			ODCCDNativeSock sock = getODCCDNativeSock();
 			int timeout = sock.getSocketTimeOut();
 			try{
 				sock.setSocketTimeOut(1000);
 				while(true){
-					sb.append(sock.readChar());
-					charactersRead++;
+					sb.append((char)sock.readByte());
 				}
 			}
 			catch(SocketTimeoutException ex){
@@ -468,7 +451,7 @@ public class ODCCDController extends DetectorBase implements Configurable, Seria
 		} else {
 			logger.warn("Flush method called when not connected");
 		}
-		return charactersRead;
+		return sb.length();
 	}
 	/**
 	 * Read the shutter status
@@ -480,7 +463,7 @@ public class ODCCDController extends DetectorBase implements Configurable, Seria
 		this.writeCommand("shutter");
 		try {
 			// Read until we see the response from the detector IS object.
-			String response = getODCCDNativeSock().readUntil("detector:");
+			String response = getODCCDNativeSock().readUntil("detector:", null);
 			// Read the rest of the line
 			response = getODCCDNativeSock().readLine();
 
@@ -517,105 +500,6 @@ public class ODCCDController extends DetectorBase implements Configurable, Seria
 	public synchronized String closeShutter() {
 		this.writeCommand("sh c");
 		return this.shutter();
-	}
-
-	/**
-	 * Send a command to IS if IS is running in binary mode. This method reads the IS binary header data (and fills the
-	 * header data object). It also reads any padding, up to the start of the data buffer.
-	 *
-	 * @param command
-	 */
-	private synchronized void binaryCommand(String command) {
-		logger.trace("binaryCommand({})", command);
-		// The command is sent as a string.
-		this.writeCommand(command);
-
-		this.readBinaryFrameUntilData();
-	}
-
-	/**
-	 * Read the binary header from IS. Also read the name of the data frame, until the point at which the data block
-	 * begins.
-	 */
-	public synchronized void readBinaryFrameUntilData() {
-		logger.trace("readBinaryFrameUntilData()");
-		// read back the binary header information and fill header object.
-		try {
-			// Read until the start of the binary header.
-			this.readInputUntil("(DATA):");
-
-			// Get the header information.
-			this.readBinaryHeader();
-
-			// Read the name
-			byte[] theName = new byte[mBinaryHeader.getNameLength()];
-			getODCCDNativeSock().read(theName, mBinaryHeader.getNameLength());
-			// Print the name
-			mDataName = new String(theName);
-
-			// Read until start of data block
-			int numberOfSpacers = mBinaryHeader.getDataOffset()
-					- (mBinaryHeader.getNameOffset() + mBinaryHeader.getNameLength());
-			byte[] theSpacers = new byte[numberOfSpacers];
-			getODCCDNativeSock().read(theSpacers, numberOfSpacers);
-			// Check I'm not reading something important
-			for (int i = 0; i < numberOfSpacers; i++) {
-				if (theSpacers[i] != 0) {
-					String s = "";
-					for (int j = 0; j < theSpacers.length; j++) {
-						s += String.format("%x", theSpacers[j]);
-					}
-					logger.error("ERROR: In ODCCDController. Corrupt data stream. spacers = " + s);
-					break;
-				}
-			}
-
-		} catch (Exception e) {
-			throw new RuntimeException("ERROR: Caught Exception when reading back binary header and spacers from IS.",
-					e);
-		}
-	}
-
-	/**
-	 * Read the binary image, using the previously read header information
-	 *
-	 * @return The image in a byte[] array.
-	 */
-	public synchronized byte[] readBinaryFrame() {
-		int dataLength = mBinaryHeader.getDataLength() * mBinaryHeader.getDataSize()[0]
-				* mBinaryHeader.getDataSize()[1];
-		byte[] image = new byte[dataLength];
-		try {
-			getODCCDNativeSock().read(image, dataLength);
-			return image;
-		} catch (Exception e) {
-			throw new RuntimeException("Error when reading binary frame.", e);
-		}
-	}
-
-	/**
-	 * Method to read the IS binary header information and put the information in a ISBinaryHeader object.
-	 */
-	private synchronized void readBinaryHeader() {
-		try {
-			mBinaryHeader.setNameOffset(getODCCDNativeSock().readInt());
-			mBinaryHeader.setNameLength(getODCCDNativeSock().readInt());
-			mBinaryHeader.setDataOffset(getODCCDNativeSock().readInt());
-			mBinaryHeader.setDataLength(getODCCDNativeSock().readInt());
-			int[] d = new int[2];
-			d[0] = getODCCDNativeSock().readInt();
-			d[1] = getODCCDNativeSock().readInt();
-			mBinaryHeader.setDataSize(d);
-			d[0] = getODCCDNativeSock().readInt();
-			d[1] = getODCCDNativeSock().readInt();
-			mBinaryHeader.setDataDstOffset(d);
-			mBinaryHeader.setUnitOffset(getODCCDNativeSock().readInt());
-			mBinaryHeader.setUnitLength(getODCCDNativeSock().readInt());
-			mBinaryHeader.setFrameLength(getODCCDNativeSock().readInt());
-			mBinaryHeader.setFlags(getODCCDNativeSock().readInt());
-		} catch (Exception e) {
-			throw new RuntimeException("ERROR: Caught Exception when reading IS binary header.", e);
-		}
 	}
 
 	@Override

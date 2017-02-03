@@ -106,8 +106,8 @@ public class ODCCDSingleExposure implements CollectionStrategyBeanInterface, NXF
 	private final AtomicInteger status = new AtomicInteger(Detector.IDLE);
 
 	protected List<String> unixFilenames;
-	protected int elementsRead;
-	private int elementsRequested;
+	protected int images_added;
+	private int images_requested;
 	private AxisConfiguration phi, kappa, omega, twotheta, gamma, ddist;
 	protected Callable<Double> i0MonitorCallable = null;
 
@@ -119,19 +119,19 @@ public class ODCCDSingleExposure implements CollectionStrategyBeanInterface, NXF
 
 	@Override
 	public double getAcquireTime() throws Exception {
-		logger.warn("getAcquireTime() called! Returning 0");
+		logger.warn("getAcquireTime() called! Returning 0, stack trace {}", Arrays.toString(Thread.currentThread().getStackTrace()));
 		return 0;
 	}
 
 	@Override
 	public double getAcquirePeriod() throws Exception {
-		logger.warn("getAcquirePeriod() called! Returning 0");
+		logger.warn("getAcquirePeriod() called! Returning 0, stack trace {}", Arrays.toString(Thread.currentThread().getStackTrace()));
 		return 0;
 	}
 
 	@Override @Deprecated
 	public void configureAcquireAndPeriodTimes(double collectionTime) throws Exception {
-		logger.warn("configureAcquireAndPeriodTimes({}) called! Ignoring", collectionTime);
+		logger.warn("configureAcquireAndPeriodTimes({}) called! Ignoring, stack trace {}", collectionTime, Arrays.toString(Thread.currentThread().getStackTrace()));
 	}
 
 	@Override
@@ -153,15 +153,17 @@ public class ODCCDSingleExposure implements CollectionStrategyBeanInterface, NXF
 		}
 		this.scanInfo = scanInfo;
 
+		logger.trace("Zeroing images_added ({}) & images_requested ({}) and clearing unixFilenames: {} ; status {}",
+							  images_added,       images_requested,                  unixFilenames,      getStatus());
 		unixFilenames = new ArrayList<String>();
-		elementsRead = 0;
-		elementsRequested = 0;
+		images_added = 0;
+		images_requested = 0;
 
 		if (!odccd.isConnected()) {
 			try {
 				odccd.connect(host);
 			} catch (Exception ex) {
-				logger.error("odccd.connect() failed. " + connectionProblem + " on {}", host, ex);
+				logger.error("odccd.connect({}) failed. {}", host, connectionProblem, ex);
 				throw ex;
 			}
 		} else {
@@ -222,15 +224,18 @@ public class ODCCDSingleExposure implements CollectionStrategyBeanInterface, NXF
 		logger.trace("...waitWhileBusy()");
 	}
 
-	private void acquireImage() {
+	private boolean acquireImage() {
 		logger.trace("aquireImage()... binning {}, collectionTime {}", binning, collectionTime);
 		// call smi_exps1_atlas <1. binning> <2. timeout>
 		odccd.runScript("call smi_exps1_atlas " + binning + " " + collectionTime);
-		logger.trace("Waiting for api:IMAGE TAKEN");
+		logger.trace("aquireImage() Waiting for api(ANS):IMAGE TAKEN");
 		try {
-			odccd.readInputUntil("api:IMAGE TAKEN");
+			odccd.readInputUntil(              "api(ANS):IMAGE TAKEN", "DETECTOR NOT READY");
+			logger.trace( "acquireImage() found api(ANS):IMAGE TAKEN");
+			return true;
 		} catch (IOException e) {
 			logger.error("acquireImage() failed.", e);
+			return false;
 		}
 	}
 
@@ -397,30 +402,31 @@ public class ODCCDSingleExposure implements CollectionStrategyBeanInterface, NXF
 				<25. intensity integral> <26.time> <27. binning>
 		*/
 		odccd.runScript("call smi_exps2_atlas \"" + odccdfilename + "\" " + parameters);
-		logger.trace("Waiting for api:IMAGE EXPORTED");
-		odccd.readInputUntil("api:IMAGE EXPORTED");
+		logger.trace(            "Waiting for api(ANS):IMAGE EXPORTED");
+		odccd.readInputUntil(                "api(ANS):IMAGE EXPORTED");
+		logger.trace("saveImage({}, {}) found api(ANS):IMAGE EXPORTED", odccdfilename, parameters);
 	}
 
 	@Override
 	public void setGenerateCallbacks(boolean b) {
-		logger.warn("setGenerateCallbacks({}) called! Ignoring", b);
+		logger.warn("setGenerateCallbacks({}) called! Ignoring, stack trace {}", b, Arrays.toString(Thread.currentThread().getStackTrace()));
 	}
 
 	@Override
 	public boolean isGenerateCallbacks() {
-		logger.warn("isGenerateCallbacks() called! Returning false");
+		logger.warn("isGenerateCallbacks() called! Returning false, stack trace {}", Arrays.toString(Thread.currentThread().getStackTrace()));
 		return false;
 	}
 
 	@Override
 	public int getNumberImagesPerCollection(double collectionTime) throws Exception {
-		logger.warn("getNumberImagesPerCollection({}) called! Returning 1", collectionTime);
+		logger.warn("getNumberImagesPerCollection({}) called! Returning 1, stack trace {}", collectionTime, Arrays.toString(Thread.currentThread().getStackTrace()));
 		return 1;
 	}
 
 	@Override
 	public boolean requiresAsynchronousPlugins() {
-		logger.warn("requiresAsynchronousPlugins() called! Returning false");
+		logger.warn("requiresAsynchronousPlugins() called! Returning false, stack trace {}", Arrays.toString(Thread.currentThread().getStackTrace()));
 		return false;
 	}
 
@@ -433,7 +439,7 @@ public class ODCCDSingleExposure implements CollectionStrategyBeanInterface, NXF
 
 	@Override
 	public boolean willRequireCallbacks() {
-		logger.warn("willRequireCallbacks() called! Returning false");
+		logger.warn("willRequireCallbacks() called! Returning false, stack trace {}", Arrays.toString(Thread.currentThread().getStackTrace()));
 		return false;
 	}
 
@@ -445,7 +451,7 @@ public class ODCCDSingleExposure implements CollectionStrategyBeanInterface, NXF
 
 	@Override
 	public void prepareForLine() throws Exception {
-		logger.warn("prepareForLine()");
+		logger.warn("prepareForLine() stack trace {}", Arrays.toString(Thread.currentThread().getStackTrace()));
 		// Set up any assigned i0 monitor now, so it gets started at the correct time.
 		if (i0Monitor != null) {
 			if (i0MonitorCallable != null) {
@@ -458,7 +464,7 @@ public class ODCCDSingleExposure implements CollectionStrategyBeanInterface, NXF
 
 	@Override
 	public void completeLine() throws Exception {
-		logger.warn("completeLine() called!");
+		logger.warn("completeLine() called!  stack trace {}", Arrays.toString(Thread.currentThread().getStackTrace()));
 	}
 
 	@Override
@@ -512,8 +518,8 @@ public class ODCCDSingleExposure implements CollectionStrategyBeanInterface, NXF
 	@Override
 	public List<NXDetectorDataAppender> read(int maxToRead) throws NoSuchElementException, InterruptedException, DeviceException {
 		logger.trace("read({}) stack trace {}", maxToRead, Arrays.toString(Thread.currentThread().getStackTrace()));
-		logger.trace("elementsRead = {}, elementsRequested {}, status {}, filenames {}",
-					elementsRead, elementsRequested, status, unixFilenames);
+		logger.trace("images_added = {}, images_requested {}, status {}, unixFilenames {}",
+					  images_added,      images_requested,    status,    unixFilenames);
 		long sleep_time_ms = Math.max(200, millisFromSeconds(collectionTime)); // Poll at no more than 5Hz
 		long new_element_timeout_ms = millisFromSeconds(collectionTime*timeoutCollectionTimeMultiplier + timeoutCollectionTimeOffset);
 		// A new element timeout of collectionTime + 50 seconds does not always seem to be enough. If darks are being subtracted, then the
@@ -521,8 +527,8 @@ public class ODCCDSingleExposure implements CollectionStrategyBeanInterface, NXF
 		// failing to return within 20+50 seconds.
 		long log_timeout_ms = Math.min(new_element_timeout_ms/2, millisFromSeconds(collectionTime + 5));
 		Date log_time = new Date();
-		int index = elementsRequested;
-		elementsRequested++;
+		int index = images_requested;
+		images_requested++;
 
 		// Since we are expected to be providing a stream, we shouldn't report the same filename more than once, but we should
 		// always return at least one item. If the caller needs more items than we provide, it should call this again.
@@ -544,13 +550,15 @@ public class ODCCDSingleExposure implements CollectionStrategyBeanInterface, NXF
 	}
 
 	protected List<NXDetectorDataAppender> readPoll(int maxToRead, int index) {
+		logger.trace("readPoll({} ignored, {}), images_added={}, unixFilenames.size()={}",
+							  maxToRead, index, images_added,    unixFilenames.size());
 		List<NXDetectorDataAppender> appenders = new ArrayList<>();
 
-		if (maxToRead > Integer.MAX_VALUE - elementsRead) {
-			maxToRead = Integer.MAX_VALUE - elementsRead;
-			logger.trace("Limited maxToRead to {} so that it doesn't wrap and become negative when we add elementsRead {}", maxToRead, elementsRead);
+		if (maxToRead > Integer.MAX_VALUE - images_added) {
+			maxToRead = Integer.MAX_VALUE - images_added;
+			logger.trace("Limited maxToRead to {} so that it doesn't wrap and become negative when we add images_added {}", maxToRead, images_added);
 		} // :
-		List<String> filenamesSubset = unixFilenames.subList(elementsRead, Math.min(maxToRead+elementsRead,
+		List<String> filenamesSubset = unixFilenames.subList(images_added, Math.min(maxToRead+images_added,
 				unixFilenames.size()));
 		// TODO: Does subList cope with from and to being the same?
 
@@ -558,7 +566,7 @@ public class ODCCDSingleExposure implements CollectionStrategyBeanInterface, NXF
 			logger.trace("filenames.size = {} filenamesSubset.size = {}", unixFilenames.size(), filenamesSubset.size());
 			for (String filename : filenamesSubset) {
 				appenders.add(new NXDetectorDataFileAppenderForSrs(filename, getInputStreamNames().get(0))); // TODO: Add pixel size and units?
-				elementsRead++;
+				images_added++;
 			}
 			logger.trace("Returning {} new filenames: {}", filenamesSubset.size(), appenders);
 		}
@@ -664,9 +672,12 @@ public class ODCCDSingleExposure implements CollectionStrategyBeanInterface, NXF
 	private class AcquireImageAsync extends Thread {
 		@Override
 		public void run() {
-			acquireImage();
-			setStatus(Detector.IDLE);
-			saveImage();
+			if (acquireImage()) {
+				saveImage();
+				setStatus(Detector.IDLE); // Should really have a READOUT state here.
+			} else {
+				setStatus(Detector.FAULT);
+			}
 		}
 	}
 
