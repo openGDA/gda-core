@@ -26,11 +26,11 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.jface.dialogs.IDialogConstants;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
@@ -153,12 +153,12 @@ public class Application implements IApplication {
 			else if (problem.contains("NetService: init org.omg.CORBA.ORBPackage.InvalidName")) {
 				resolution = "It is likely that the existing workspace is incompatible with an updated client.\n\n" + resolution;
 			}
-			MessageDialog
-			.openError(
-					new Shell(display),
-					"Cannot Start Client",
-					"The GDA Client cannot start.\n\n'" + problem + "'\n\n" + resolution
+			MessageBox messageBox = new MessageBox(new Shell(display), SWT.ICON_ERROR);
+			messageBox.setText("Cannot Start GDA Client");
+			messageBox.setMessage("The GDA Client cannot start."
+					+ "\n\n'" + problem + "'\n\n" + resolution
 					+ "\n\nIf the problem persists, please contact your GDA support representative.");
+			messageBox.open();
 			return EXIT_OK;
 
 		} finally {
@@ -251,7 +251,13 @@ public class Application implements IApplication {
 		// if no valid visit ID then do same as the cancel button
 		if (visits == null || visits.length == 0) {
 			if (!isStaff) {
-				logger.info("No visits found for user '{}' at this time on this beamline. GUI will not start.", user);
+				logger.error("No visits found for user '{}' at this time on this beamline. GUI will not start.", user);
+				MessageBox messageBox = new MessageBox(new Shell(display), SWT.ICON_ERROR);
+				messageBox.setText("Cannot Start GDA Client");
+				messageBox.setMessage("No visits found for user: " + user + ""
+						+ "\n\nAre you sure your logged in as the right user?"
+						+ "\n\nGDA will not start");
+				messageBox.open();
 				return EXIT_OK;
 			}
 			logger.info("No visits found for user '{}' at this time on this beamline. Will use default visit as ID listed as a member of staff.", user);
