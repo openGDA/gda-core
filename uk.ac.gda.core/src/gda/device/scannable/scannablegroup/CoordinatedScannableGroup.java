@@ -242,7 +242,7 @@ public class CoordinatedScannableGroup extends ScannableGroup implements ICoordi
 	//
 	//TODO: This class should be made to extend ScannableMotion and this functionality moved out into
 	//      a generic 'additional-validator' (However this is quite involved!). RobW
-	String checkAdditionalPositionValidators(Object externalPos) throws DeviceException {
+	protected String checkAdditionalPositionValidators(Object externalPos) throws DeviceException {
 
 		if (getAdditionalPositionValidators().size() < 1) {
 			return null;
