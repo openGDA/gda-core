@@ -20,6 +20,7 @@ import org.eclipse.scanning.api.annotation.scan.ScanFinally;
 import org.eclipse.scanning.api.annotation.scan.ScanPause;
 import org.eclipse.scanning.api.annotation.scan.ScanResume;
 import org.eclipse.scanning.api.annotation.scan.ScanStart;
+import org.eclipse.scanning.api.annotation.scan.WriteComplete;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.LevelInformation;
@@ -143,6 +144,12 @@ public class AreaDetectorRunnableDeviceProxy extends AbstractAreaDetectorRunnabl
 	@ScanEnd
 	public void scanEnd(ScanInformation info) throws ScanningException {
 		delegate.scanEnd(info);
+	}
+
+	@Override
+	@WriteComplete
+	public void writeComplete(ScanInformation info) throws ScanningException {
+		delegate.writeComplete(info);
 	}
 
 	@Override

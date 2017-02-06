@@ -23,6 +23,7 @@ import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
+import org.eclipse.scanning.api.annotation.scan.WriteComplete;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.LevelInformation;
 import org.eclipse.scanning.api.scan.ScanInformation;
@@ -144,6 +145,16 @@ public abstract class AbstractAreaDetectorRunnableDeviceDelegate {
 	@SuppressWarnings("unused")
 	public void scanEnd(ScanInformation info) throws ScanningException {
 		logger.trace("scanEnd({}) on {} filePath={}", info, runnableDeviceProxy.getName(), info.getFilePath());
+	}
+
+	/** Delegated {@link WriteComplete}
+	 *
+	 * @param info
+	 * @throws ScanningException
+	 */
+	@SuppressWarnings("unused")
+	public void writeComplete(ScanInformation info) throws ScanningException {
+		logger.trace("writeComplete({}) on {} filePath={}", info, runnableDeviceProxy.getName(), info.getFilePath());
 	}
 
 	@SuppressWarnings("unused")
