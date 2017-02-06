@@ -40,13 +40,6 @@ public class GDAJythonClassLoader extends ClassLoader {
 	private static Set<Bundle> initializedBundles;
 	private static Map<String, Map<Bundle, Boolean>> packageMap = new HashMap<>();
 
-	// These bundles cause problems/noise when you attempt to load classes: the eclipse ones produce large stack traces if
-	// the class is not found (i.e. each time a python source module name is supplied) rather than simply throwing the
-	// exception. The scanning command package actually leads to a Jython conflict since it has an embedded version 2.7
-	// of Jython whereas the rest of the product uses version 2.5. Once we have migrated the target platform to version
-	// 2.7 it can be removed from the list.
-	private static final String SKIPPED_BUNDLES = "org.eclipse.debug.ui, org.eclipse.help.ui, org.eclipse.scanning.command, org.python.pydev.jython";
-
 	/**
 	 * Use the return value of this function to get all the packages available to Jython. Call PySystemState.add_package
 	 * on each one.
@@ -141,9 +134,6 @@ public class GDAJythonClassLoader extends ClassLoader {
 		Class<?> class1 = findLoadedClass(name);		// check we don't already have it
 		if (class1 == null) {
 			for (Bundle bundle : getMatchingBundlesForName(name).keySet()) {
-				if (SKIPPED_BUNDLES.contains(bundle.getSymbolicName())) {
-					continue;
-				}
 				try {
 					return bundle.loadClass(name);
 				} catch (ClassNotFoundException er) {
