@@ -19,6 +19,20 @@
 
 package gda.data.fileregistrar;
 
+import java.io.File;
+import java.util.Vector;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
+import org.eclipse.scanning.api.annotation.scan.FileDeclared;
+import org.eclipse.scanning.api.annotation.scan.ScanEnd;
+import org.eclipse.scanning.api.annotation.scan.ScanFinally;
+import org.eclipse.scanning.api.device.IRunnableDeviceService;
+import org.eclipse.scanning.api.scan.IScanService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.data.PathConstructor;
 import gda.data.scan.datawriter.DataWriterExtenderBase;
 import gda.data.scan.datawriter.IDataWriterExtender;
@@ -29,18 +43,34 @@ import gda.jython.Jython;
 import gda.jython.JythonServerFacade;
 import gda.scan.IScanDataPoint;
 
-import java.io.File;
-import java.util.Vector;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
- * File registration service that listens to scans (via DataWriterExtender) and can be used directly by detectors. Files
+ *
+ *<p>
+ * The FileRegistrar deals with archiving in both the GDA8 and the GDA8 scanning systems.
+ *
+ * <h3>To be used in 9</h3>
+ * the init-method "register" must be called. This ensures that the  FileRegistrar is registered as a scanning
+ * participant. Now whenever a scan is run its @FileDeclared and @ScanEnd annotations will be run.
+ *<p>
+<pre>
+{@code <bean id="FileRegistrar" class="gda.data.fileregistrar.FileRegistrar"} <b>init-method="register"></b>
+{@code     <property name="name" value="FileRegistrar"/> }
+{@code     <property name="directory" value="/dls/bl-misc/dropfiles2/icat/dropZone/}${gda.instrument}-" />
+{@code </bean> }
+</pre>
+
+ * <h3>To be used in 8</h3>
+ * In GDA8 File registration listens to scans (via DataWriterExtender) and can be used directly by detectors. Files
  * will be archived and listed in icat and possibly post-processed. Whatever the pipeline is configured to do.
+ *
+
+ <pre>
+{@code <bean id="FileRegistrar" class="gda.data.fileregistrar.FileRegistrar"}
+{@code     <property name="name" value="FileRegistrar"/> }
+{@code     <property name="directory" value="/dls/bl-misc/dropfiles2/icat/dropZone/}${gda.instrument}-" />
+{@code </bean> }
+</pre>
+
  */
 public class FileRegistrar extends DataWriterExtenderBase implements IFileRegistrar, Localizable {
 
@@ -61,11 +91,17 @@ public class FileRegistrar extends DataWriterExtenderBase implements IFileRegist
 	private ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(1, 10, 1, TimeUnit.SECONDS,
 			new LinkedBlockingQueue<Runnable>());
 
+	/**
+	 * Entry point in GDA8 scanning to register a file
+	 */
 	@Override
 	public void registerFile(String fileName) {
 		registerFiles(new String[] { fileName });
 	}
 
+	/**
+	 * Entry point in GDA8 scanning to register files
+	 */
 	@Override
 	public void registerFiles(String[] fileNames) {
 		for (String fileName : fileNames) {
@@ -77,19 +113,42 @@ public class FileRegistrar extends DataWriterExtenderBase implements IFileRegist
 		}
 	}
 
-	private void addFile(String fileName) {
-		if (fileName == null || fileName.isEmpty()) {
-			return;
+	/**
+	 * Normally in GDA8 the IFileRegistrar interface is made available to register files.
+	 * That interface should be used rather than this method.
+	 *
+	 * In GDA9 this is redundant because annotations are used for any object participating
+	 * in a scan. The @FileDeclared injects the filenames to be used in the scan. You
+	 * may also inject the first position of the scan or any OSGi service or the ScanInformation
+	 * when using this annotation.
+	 *
+	 * @param filePath - the full path to the file
+	 */
+	@FileDeclared
+	public void addScanFile(String filePath) {
+		addFile(filePath);
+	}
+
+	/**
+	 *
+	 * @param fileNameOrPath - If this starts with / it is considered a path, otherwise a name.
+	 */
+	private void addFile(final String fileNameOrPath) {
+
+		if (fileNameOrPath == null || fileNameOrPath.isEmpty()) {
+			return; // TODO Should this be an exception? Perhaps it should be an error condition not an ignored one.
 		}
 
-		logger.debug("adding " + fileName);
-		if (fileName.charAt(0) != '/') {
-			fileName = PathConstructor.createFromDefaultProperty() + "/" + fileName;
-			logger.debug("changed filename to " + fileName);
+		logger.debug("Adding " + fileNameOrPath);
+		String filePath = fileNameOrPath;
+		if (fileNameOrPath.charAt(0) != '/') {
+			filePath = PathConstructor.createFromDefaultProperty() + "/" + fileNameOrPath;
+			logger.debug("Changed file path to " + filePath);
 		}
-		synchronized (files) {
-			if (!files.contains(fileName)){
-				files.add(fileName);
+
+		synchronized (files) { // TODO files is already a Vector which is synchronized.
+			if (!files.contains(filePath)){
+				files.add(filePath);
 			}
 		}
 	}
@@ -122,11 +181,22 @@ public class FileRegistrar extends DataWriterExtenderBase implements IFileRegist
 		super.completeCollection(parent);
 	}
 
+	@ScanEnd
+	public void scanEnd() {
+		addCurrentScanFile();
+		kickOff();
+	}
+
+	@ScanFinally
+	public void scanFinally() {
+		if (files!=null) files.clear(); // Do not archive failed scans?
+	}
+
 	private void kickOff() {
 		final String[] fileArr;
 		final String datasetId;
 
-		synchronized (files) {
+		synchronized (files) {  // TODO files is already a Vector which is synchronized.
 			if (files.isEmpty()) {
 				return;
 			}
@@ -226,4 +296,29 @@ public class FileRegistrar extends DataWriterExtenderBase implements IFileRegist
 	public void setClientFileAnnouncer(DeviceBase clientFileAnnouncer) {
 		this.sockPuppet = clientFileAnnouncer;
 	}
+
+
+	// This is provided by OSGi. Making static usually gives the best
+	// opportunity that one of the load cycles will have set the service.
+	private static IRunnableDeviceService runnableDeviceService;
+
+	public IRunnableDeviceService getRunnableDeviceService() {
+		return runnableDeviceService;
+	}
+
+	public void setRunnableDeviceService(IRunnableDeviceService rs) {
+		runnableDeviceService = rs;
+	}
+
+	/**
+	 * Method called by spring to register the registrar with solstice scanning.
+	 *
+	 * @throws NullPointerException if there is no IRunnableDeviceService - this is intentional and an error
+	 * @throws ClassCastException if IRunnableDeviceService is not a IScanService which is must be.
+	 */
+	public void register() {
+		((IScanService)runnableDeviceService).addScanParticipant(this);
+		logger.info("Registered "+getClass().getSimpleName()+" as a particpant in scans");
+	}
+
 }
