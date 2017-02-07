@@ -29,6 +29,10 @@
          id="uk.ac.gda.vmxi.lims.feature"
          version="0.0.0"/>
 
+   <includes
+         id="uk.ac.gda.vmxi.match.feature"
+         version="0.0.0"/>
+
    <plugin
          id="uk.ac.gda.px"
          download-size="0"
