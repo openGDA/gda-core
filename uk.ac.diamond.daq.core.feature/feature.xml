@@ -73,14 +73,27 @@ http://www.eclipse.org/legal/epl-v10.html
          version="0.0.0"/>
 
    <plugin
-         id="org.apache.derby"
+         id="uk.ac.diamond.daq.jython.api"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.mariadb.jdbc"
+         id="uk.ac.gda.epics"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="uk.ac.diamond.daq.detectors.addetector"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="uk.ac.diamond.daq.detectors.addetector.api"
          download-size="0"
          install-size="0"
          version="0.0.0"
