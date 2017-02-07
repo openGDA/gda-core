@@ -1322,24 +1322,15 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			logger.info("No region validator provided, so region validation is NOT applied.");
 			return true;
 		}
-		//use current beam photon energy, not what recorded in the region
-		double currentExcitationEnergy=0.0;
-		if (regionDefinitionResourceUtil.isSourceSelectable()) {
-			if (region.getExcitationEnergy()>regionDefinitionResourceUtil.getXRaySourceEnergyLimit()) {
-				currentExcitationEnergy = hardXRayEnergy;
-			} else {
-				currentExcitationEnergy = softXRayEnergy;
-			}
-		} else {
-			currentExcitationEnergy = hardXRayEnergy;
-		}
-		if (regionValidator.isValidRegion(region, elementset, currentExcitationEnergy)) {
+		if (regionValidator.isValidRegion(region, elementset)) {
 			updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_Status(), STATUS.READY);
 			return true;
 		} else {
 			updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_Status(), STATUS.INVALID);
 			if (showDialogIfInvalid) {
-				String message="Region '" + region.getName()+"' has energies ("+region.getLowEnergy()+" - "+region.getHighEnergy()+") outside the energy range ("+regionValidator.getEnergyrange()+") permitted for \nElement Set: '"+comboElementSet.getText()+"', Pass Energy: '"+region.getPassEnergy()+"' and Lens Mode: '"+region.getLensMode()+"'.\n";
+				String message = "Region '" + region.getName() + "' has energies (" + region.getLowEnergy() + " - " + region.getHighEnergy()
+						+ ") outside the energy range (" + regionValidator.getEnergyRange(region, elementset) + ") permitted for \nElement Set: '"
+						+ comboElementSet.getText() + "', Pass Energy: '" + region.getPassEnergy() + "' and Lens Mode: '" + region.getLensMode() + "'.\n";
 				openMessageBox("Invalid Region", message, SWT.ICON_ERROR);
 			}
 			return false;
