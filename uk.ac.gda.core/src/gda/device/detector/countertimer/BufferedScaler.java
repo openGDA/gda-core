@@ -18,16 +18,16 @@
 
 package gda.device.detector.countertimer;
 
-import gda.device.ContinuousParameters;
-import gda.device.DeviceException;
-import gda.device.detector.BufferedDetector;
-import gda.device.detector.DAServer;
-
 import java.util.HashMap;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.device.ContinuousParameters;
+import gda.device.DeviceException;
+import gda.device.detector.BufferedDetector;
+import gda.device.detector.DAServer;
 
 /**
  * Adapter for the TfgScalerWithLogValues class so that it may be used in ContinuousScans.
@@ -43,6 +43,7 @@ public class BufferedScaler extends TfgScalerWithLogValues implements BufferedDe
 	private int ttlSocket = 0; // the TTL Trig In socket [0-3] default is 0
 	private Boolean returnCountRates = false;
 	private double[][] framesRead;
+	private int numCycles = 1;
 
 	public BufferedScaler(){
 		try {
@@ -125,7 +126,7 @@ public class BufferedScaler extends TfgScalerWithLogValues implements BufferedDe
 
 		//Send as a single command. Otherwise DAServer reply timeouts are seen and the 3 commands take about 10s!
 		StringBuffer buffer = new StringBuffer();
-		buffer.append("tfg setup-groups ext-start cycles 1"+"\n");
+		buffer.append("tfg setup-groups ext-start cycles "+numCycles+"\n");
 		buffer.append(parameters.getNumberDataPoints() + " 0.000001 0.00000001 0 0 0 " + (ttlSocket + 8)+"\n");
 		buffer.append("-1 0 0 0 0 0 0");
 		// FIXME RJW on qexafs that fail, especially where # points < previous scan, why are # frames incorrect?
@@ -272,4 +273,57 @@ public class BufferedScaler extends TfgScalerWithLogValues implements BufferedDe
 		this.ttlSocket = ttlSocket;
 	}
 
+	public int getNumCycles() {
+		return numCycles;
+	}
+
+	public void setNumCycles(int numCycles) {
+		this.numCycles = numCycles;
+	}
+
+	/**
+	 * Return cycle currently being executed by Tfg by parsing the value of the Cycle field from
+	 * the Tfg 'progress' string.
+	 * (Note: Parent class implementation returns current lap which is different to current cycle).
+	 * return
+	 */
+	@Override
+	public int getCurrentCycle() throws DeviceException {
+		String result = daserver.sendCommand("tfg read progress").toString();
+		if (result.equals("IDLE")) {
+			return 0;
+		}
+		// Parse da.server progress string and extract cycle number
+		// (Typical da.server progress string : "RUNNING: Cycle=   2, Frame=3277, LIVE, Time 13.2771 of 15.0002")
+
+		// Remove , and = characters from da.server string...
+		result = result.replace("=", " ").replace(",", " ");
+		// split into array at one or more whitespace chars
+		String[] splitString = result.split("\\s+");
+
+		String cycle = splitString.length>2 ? splitString[2]:null;
+
+		int cycleNumber=0;
+		try {
+			cycleNumber = Integer.parseInt(cycle);
+		} catch(NumberFormatException nfe) {
+			logger.debug("Problem parsing current cycle number from da.server string {}", result);
+		}
+		return cycleNumber;
+	}
+
+	/**
+	 * Clear specified block of scaler memory. Intended to be used with multiple cycles, so that
+	 * frames of scaler memory used for a cycle can be cleared once they have been read,
+	 * ready to be re-used on subsequent cycles.
+	 * @param startFrame
+	 * @param finalFrame
+	 * @throws DeviceException
+	 * @author Iain Hall
+	 * @since 25/1/2017
+	 */
+	public void clearMemoryFrames(int startFrame, int finalFrame) throws DeviceException {
+		int numFrames = finalFrame-startFrame+1;
+		scaler.clear(startFrame, 0, 0, numFrames, 1, 9);
+	}
 }
