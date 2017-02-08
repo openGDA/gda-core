@@ -146,6 +146,28 @@ public class ScannableDeviceConnectorService implements IScannableDeviceService 
 			throw new ScanningException("Cannot find scannable with name " + name);
 		}
 
+		/**
+		 *
+		 * They may provide into the finder a class which is
+		 * both IScannable and Scannable, the two interfaces do not
+		 * mind sitting over a GDA8 scannable, providing if it is marked
+		 * as IScannable<Object>.
+		 *
+		 * It can then also be marked as INexusDevice in order to implement
+		 * the nexus writing part of the scannable.
+		 */
+		if (scannable instanceof IScannable) {
+			@SuppressWarnings("unchecked")
+			IScannable<T> iscannable = (IScannable<T>)scannable;
+			scannables.put(name, iscannable);
+            return iscannable;
+		}
+
+		/**
+		 * This section deals with automatically wrapping a GDA8 Scannable
+		 * into an object which is IScannable and INexusDevice. If this is
+		 * done the INexusDevice writes as an NXPositioner in a default location.
+		 */
 		@SuppressWarnings("unchecked")
 		IScannable<T> s = (IScannable<T>) new ScannableNexusWrapper<>(scannable);
 		scannables.put(name, s);

@@ -178,8 +178,14 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public NexusObjectProvider<N> getNexusProvider(NexusScanInfo info) throws NexusException {
+
+		if (scannable!=null && scannable instanceof INexusDevice) {
+			return ((INexusDevice<N>)scannable).getNexusProvider(info);
+		}
+
 		calculateFieldNames();
 
 		nexusObject = createNexusObject(info);
