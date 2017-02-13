@@ -277,7 +277,7 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 		gain.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 
 		List<String> notches = null;
-		if (!LocalProperties.get("gda.factory.factoryName").equals("I18")) {
+		if (!LocalProperties.get("gda.factory.factoryName").equalsIgnoreCase("I18")) {
 			notches = GainCalculation.getGainNotches();
 		} else {
 			notches = new ArrayList<String>(8);
@@ -302,7 +302,7 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 			}
 		});
 
-		if (!LocalProperties.get("gda.factory.factoryName").equals("I18")) {
+		if (!LocalProperties.get("gda.factory.factoryName").equalsIgnoreCase("I18")) {
 			offsetLabel = new Label(gainProperties, SWT.NONE);
 			offsetLabel.setText("Offset");
 			offsetLabel
