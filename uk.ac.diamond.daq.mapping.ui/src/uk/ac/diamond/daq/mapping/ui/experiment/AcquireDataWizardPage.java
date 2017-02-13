@@ -195,6 +195,7 @@ class AcquireDataWizardPage extends AbstractOperationSetupWizardPage {
 		}
 
 		lastFilePath = dialog.getPath();
+		loadDataFromFile(lastFilePath);
 	}
 
 	private void loadDataFromFile(String filePath) {
