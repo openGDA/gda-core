@@ -33,6 +33,7 @@ import org.eclipse.scanning.api.annotation.scan.ScanFinally;
 import org.eclipse.scanning.api.annotation.scan.ScanPause;
 import org.eclipse.scanning.api.annotation.scan.ScanResume;
 import org.eclipse.scanning.api.annotation.scan.ScanStart;
+import org.eclipse.scanning.api.annotation.scan.WriteComplete;
 import org.eclipse.scanning.api.device.AbstractRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IWritableDetector;
@@ -148,6 +149,17 @@ public abstract class AbstractAreaDetectorRunnableDevice extends AbstractRunnabl
 	@ScanEnd
 	public void scanEnd(ScanInformation info) throws ScanningException {
 		logger.trace("scanEnd({}) filePath={}", info, info.getFilePath());
+	}
+
+	/**
+	 * NOTE: Arguments are filled with annotations using introspection. OSGi services may be requested (null if not found)
+	 * NOTE: More than one method may be annotated.
+	 * @param info
+	 */
+	@SuppressWarnings("unused")
+	@WriteComplete
+	public void writeComplete(ScanInformation info) throws ScanningException {
+		logger.trace("writeComplete({}) filePath={}", info, info.getFilePath());
 	}
 
 	/**
