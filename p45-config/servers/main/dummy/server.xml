@@ -5,13 +5,17 @@
 
 	<!--for an 'empty' configuration, remove the imports below, and the other xml files and directories inside the xml/server directory-->
 	<import resource="det.xml" />
-	<!-- To enable use of a simulated AD uncomment this import and set the WORKSTATION environment variable to your workstation name -->
-	<!-- 
 	<import resource="mic.xml" />
-	 -->
 	<import resource="mapping_motors.xml"/>
 
+	<!-- In dummy mode, ADSIM detectors need to be configured with a short form hostname, since HOSTNAME is an FQDN we
+		 need to strip off the domain, if we haven't been configured with an explicit WORKSTATION variable.
+	 -->
+	<bean id="ADSIM_HOST" class="java.lang.String">
+	    <constructor-arg type="java.lang.String" value="${WORKSTATION:#{'${HOSTNAME}'.split('\.')[0]}}"/>
+	</bean>
+
 <!-- Do not remove anything below here -->
-	<import resource="file:${gda.config}/servers/main/_common/server.xml" />
+	<import resource="../../main/_common/server.xml" />
 
 </beans>

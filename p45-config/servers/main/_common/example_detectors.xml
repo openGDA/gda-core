@@ -3,7 +3,7 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<!--  Malcolm Example -->
+	<!--  Dummy (Simulated) Malcolm Example -->
 	<bean id="dummyMalcolmModel" class="org.eclipse.scanning.example.malcolm.DummyMalcolmModel">
 		<property name="name"                   value="malcolm"/>
 		<property name="exposureTime"           value="0.1"/>
