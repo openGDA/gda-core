@@ -123,7 +123,6 @@ import org.eclipse.scanning.test.scan.mock.MockWritingMandlebrotModel;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -420,7 +419,6 @@ public class ScannableNexusWrapperScanTest {
 	}
 
 	@Test
-	@Ignore("Temporarily comment out test while fixing scanning.")
 	public void testNexusScannableWrapperScan() throws Exception {
 		int[] shape = new int[] { 8, 5 };
 		IRunnableDevice<ScanModel> scanner = createGridScan(detector, shape);
