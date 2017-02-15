@@ -58,7 +58,6 @@ public class FilePathService implements IFilePathService {
 		}
 
 		// Get the current data directory
-		// TODO This currently doesn't support sub directories under the visit e.g /sample1/
 		String dir = PathConstructor.createFromDefaultProperty();
 
 		// Get the next file number and update the tracker file on disk
@@ -112,15 +111,13 @@ public class FilePathService implements IFilePathService {
 	@Override
 	public String getTempDir() {
 		// Get the current visit directory and append /tmp.
-		// TODO This currently doesn't support sub directories under the visit e.g. /sample1/
-		return PathConstructor.createFromDefaultProperty() + "/" + TEMP_DIR_NAME;
+		return PathConstructor.getVisitSubdirectory(TEMP_DIR_NAME);
 	}
 
 	@Override
 	public String getProcessedFilesDir() {
 		// Get the current visit directory and append /processed.
-		// TODO This currently doesn't support sub directories under the visit e.g. /sample1/
-		return PathConstructor.createFromDefaultProperty() + "/" + PROCESSED_DIR_NAME;
+		return PathConstructor.getVisitSubdirectory(PROCESSED_DIR_NAME);
 	}
 
 
