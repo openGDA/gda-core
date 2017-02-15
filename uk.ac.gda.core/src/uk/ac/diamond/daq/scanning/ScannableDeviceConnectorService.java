@@ -110,6 +110,8 @@ public class ScannableDeviceConnectorService implements IScannableDeviceService 
 
 	@Override
 	public <T> void register(IScannable<T> scannable) {
+		if (scannables == null)
+			scannables = new HashMap<>();
 		scannables.put(scannable.getName(), scannable);
 	}
 
