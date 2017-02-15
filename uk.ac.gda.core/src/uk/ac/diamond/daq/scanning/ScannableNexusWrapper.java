@@ -278,6 +278,7 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 	public void setPosition(Object value) throws Exception {
 		final IPosition position = new Scalar<Object>(getName(), -1, value);
 		positionDelegate.firePositionWillPerform(position);
+		logger.debug("Moving scannable {} to position {}", scannable.getName(), value);
 		scannable.moveTo(value);
 		positionDelegate.firePositionPerformed(getLevel(), position);
 	}
@@ -287,6 +288,7 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 		final int index = (scanPosition == null ? -1 : scanPosition.getIndex(getName()));
 		final IPosition position = new Scalar<Object>(getName(), index, value);
 		positionDelegate.firePositionWillPerform(position);
+		logger.debug("Moving scannable {} to position {}", scannable.getName(), value);
 		scannable.moveTo(value);
 		positionDelegate.firePositionPerformed(getLevel(), position);
 
