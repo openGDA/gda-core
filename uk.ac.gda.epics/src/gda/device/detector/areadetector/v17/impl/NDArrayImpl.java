@@ -79,7 +79,7 @@ public class NDArrayImpl extends NDBaseImpl implements NDArray, InitializingBean
 			Channel ch = (config != null) ? createChannel(config.getArrayData().getPv()) : getChannel(ARRAY_DATA);
 			return EPICS_CONTROLLER.cagetByteArray(ch);
 		} catch (Exception ex) {
-			logger.warn("problem with g.d.d.a.v.i.NDArrayImpl ->getByteArrayData()", ex);
+			logger.warn("problem with getByteArrayData()", ex);
 			throw ex;
 		}
 	}
@@ -110,7 +110,7 @@ public class NDArrayImpl extends NDBaseImpl implements NDArray, InitializingBean
 				EPICS_CONTROLLER.caput(getChannel(ARRAY_DATA), arrayData);
 			}
 		} catch (Exception ex) {
-			logger.warn("problem with g.d.d.a.v.i.NDArrayImpl ->getArrayData()", ex);
+			logger.warn("problem with getArrayData()", ex);
 			throw ex;
 		}
 
@@ -183,7 +183,7 @@ public class NDArrayImpl extends NDBaseImpl implements NDArray, InitializingBean
 			}
 			return createChannel(fullPvName);
 		} catch (Exception exception) {
-			logger.warn("g.d.d.a.v.i.NDArrayImpl-> Problem getting channel", exception);
+			logger.warn("Problem getting channel", exception);
 			throw exception;
 		}
 	}
@@ -194,10 +194,10 @@ public class NDArrayImpl extends NDBaseImpl implements NDArray, InitializingBean
 			try {
 				channel = EPICS_CONTROLLER.createChannel(fullPvName);
 			} catch (CAException cae) {
-				logger.warn("g.d.d.a.v.i.NDArrayImpl-> Problem creating channel", cae);
+				logger.warn("Problem creating channel", cae);
 				throw cae;
 			} catch (TimeoutException te) {
-				logger.warn("g.d.d.a.v.i.NDArrayImpl-> Problem creating channel", te);
+				logger.warn("Problem creating channel", te);
 				throw te;
 
 			}
@@ -219,7 +219,7 @@ public class NDArrayImpl extends NDBaseImpl implements NDArray, InitializingBean
 			}
 			return EPICS_CONTROLLER.cagetByteArray(getChannel(ARRAY_DATA), numberOfElements);
 		} catch (Exception ex) {
-			logger.warn("problem with g.d.d.a.v.i.NDArrayImpl ->getByteArrayData()", ex);
+			logger.warn("problem with getByteArrayData()", ex);
 			throw ex;
 		}
 	}
@@ -232,7 +232,7 @@ public class NDArrayImpl extends NDBaseImpl implements NDArray, InitializingBean
 			}
 			return EPICS_CONTROLLER.cagetShortArray(getChannel(ARRAY_DATA), numberOfElements);
 		} catch (Exception ex) {
-			logger.warn("problem with g.d.d.a.v.i.NDArrayImpl ->cagetShortArray()", ex);
+			logger.warn("problem with cagetShortArray()", ex);
 			throw ex;
 		}
 	}
@@ -245,7 +245,7 @@ public class NDArrayImpl extends NDBaseImpl implements NDArray, InitializingBean
 			}
 			return EPICS_CONTROLLER.cagetIntArray(getChannel(ARRAY_DATA), numberOfElements);
 		} catch (Exception ex) {
-			logger.warn("problem with g.d.d.a.v.i.NDArrayImpl ->cagetIntArray()", ex);
+			logger.warn("problem with cagetIntArray()", ex);
 			throw ex;
 		}
 	}
@@ -258,7 +258,7 @@ public class NDArrayImpl extends NDBaseImpl implements NDArray, InitializingBean
 			}
 			return EPICS_CONTROLLER.cagetFloatArray(getChannel(ARRAY_DATA), numberOfElements);
 		} catch (Exception ex) {
-			logger.warn("problem with g.d.d.a.v.i.NDArrayImpl ->cagetFloatArray()", ex);
+			logger.warn("problem with cagetFloatArray()", ex);
 			throw ex;
 		}
 	}
@@ -295,7 +295,7 @@ public class NDArrayImpl extends NDBaseImpl implements NDArray, InitializingBean
 			}
 			return EPICS_CONTROLLER.cagetDoubleArray(getChannel(ARRAY_DATA), numberOfElements);
 		} catch (Exception ex) {
-			logger.warn("problem with g.d.d.a.v.i.NDArrayImpl -> cagetDoubleArray()", ex);
+			logger.warn("problem with cagetDoubleArray()", ex);
 			throw ex;
 		}
 	}

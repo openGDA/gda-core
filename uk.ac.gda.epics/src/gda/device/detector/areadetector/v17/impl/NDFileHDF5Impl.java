@@ -695,7 +695,7 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 			}
 			return createChannel(fullPvName);
 		} catch (Exception exception) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Problem getting channel", exception);
+			logger.warn("Problem getting channel", exception);
 			throw exception;
 		}
 	}
@@ -706,10 +706,10 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 			try {
 				channel = EPICS_CONTROLLER.createChannel(fullPvName);
 			} catch (CAException cae) {
-				logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Problem creating channel", cae);
+				logger.warn("Problem creating channel", cae);
 				throw cae;
 			} catch (TimeoutException te) {
-				logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Problem creating channel", te);
+				logger.warn("Problem creating channel", te);
 				throw te;
 
 			}

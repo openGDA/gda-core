@@ -113,7 +113,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 			}
 			return EPICS_CONTROLLER.caget(getChannel(Label));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDROIImpl-> Cannot getLabel", ex);
+			logger.warn("Cannot getLabel", ex);
 			throw ex;
 		}
 	}
@@ -130,7 +130,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 				EPICS_CONTROLLER.caput(getChannel(Label), label);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDROIImpl-> Cannot setLabel", ex);
+			logger.warn("Cannot setLabel", ex);
 			throw ex;
 		}
 	}
@@ -146,7 +146,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 			}
 			return EPICS_CONTROLLER.caget(getChannel(Label_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDROIImpl-> Cannot getLabel_RBV", ex);
+			logger.warn("Cannot getLabel_RBV", ex);
 			throw ex;
 		}
 	}
@@ -162,7 +162,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(BinX));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDROIImpl-> Cannot getBinX", ex);
+			logger.warn("Cannot getBinX", ex);
 			throw ex;
 		}
 	}
@@ -179,7 +179,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 				EPICS_CONTROLLER.caput(getChannel(BinX), binx);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDROIImpl-> Cannot setBinX", ex);
+			logger.warn("Cannot setBinX", ex);
 			throw ex;
 		}
 	}
@@ -195,7 +195,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(BinX_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDROIImpl-> Cannot getBinX_RBV", ex);
+			logger.warn("Cannot getBinX_RBV", ex);
 			throw ex;
 		}
 	}
@@ -211,7 +211,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(BinY));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDROIImpl-> Cannot getBinY", ex);
+			logger.warn("Cannot getBinY", ex);
 			throw ex;
 		}
 	}
@@ -228,7 +228,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 				EPICS_CONTROLLER.caput(getChannel(BinY), biny);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDROIImpl-> Cannot setBinY", ex);
+			logger.warn("Cannot setBinY", ex);
 			throw ex;
 		}
 	}
@@ -244,7 +244,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(BinY_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDROIImpl-> Cannot getBinY_RBV", ex);
+			logger.warn("Cannot getBinY_RBV", ex);
 			throw ex;
 		}
 	}
@@ -260,7 +260,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(BinZ));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDROIImpl-> Cannot getBinZ", ex);
+			logger.warn("Cannot getBinZ", ex);
 			throw ex;
 		}
 	}
@@ -277,7 +277,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 				EPICS_CONTROLLER.caput(getChannel(BinZ), binz);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDROIImpl-> Cannot setBinZ", ex);
+			logger.warn("Cannot setBinZ", ex);
 			throw ex;
 		}
 	}
@@ -293,7 +293,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(BinZ_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDROIImpl-> Cannot getBinZ_RBV", ex);
+			logger.warn("Cannot getBinZ_RBV", ex);
 			throw ex;
 		}
 	}
@@ -309,7 +309,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(MinX));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDROIImpl-> Cannot getMinX", ex);
+			logger.warn("Cannot getMinX", ex);
 			throw ex;
 		}
 	}
@@ -326,7 +326,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 				EPICS_CONTROLLER.caput(getChannel(MinX), minx);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDROIImpl-> Cannot setMinX", ex);
+			logger.warn("Cannot setMinX", ex);
 			throw ex;
 		}
 	}
@@ -342,7 +342,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(MinX_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDROIImpl-> Cannot getMinX_RBV", ex);
+			logger.warn("Cannot getMinX_RBV", ex);
 			throw ex;
 		}
 	}
@@ -358,7 +358,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(MinY));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDROIImpl-> Cannot getMinY", ex);
+			logger.warn("Cannot getMinY", ex);
 			throw ex;
 		}
 	}
@@ -375,7 +375,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 				EPICS_CONTROLLER.caput(getChannel(MinY), miny);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDROIImpl-> Cannot setMinY", ex);
+			logger.warn("Cannot setMinY", ex);
 			throw ex;
 		}
 	}
@@ -391,7 +391,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(MinY_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDROIImpl-> Cannot getMinY_RBV", ex);
+			logger.warn("Cannot getMinY_RBV", ex);
 			throw ex;
 		}
 	}
@@ -407,7 +407,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(MinZ));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDROIImpl-> Cannot getMinZ", ex);
+			logger.warn("Cannot getMinZ", ex);
 			throw ex;
 		}
 	}
@@ -424,7 +424,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 				EPICS_CONTROLLER.caput(getChannel(MinZ), minz);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDROIImpl-> Cannot setMinZ", ex);
+			logger.warn("Cannot setMinZ", ex);
 			throw ex;
 		}
 	}
@@ -440,7 +440,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(MinZ_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDROIImpl-> Cannot getMinZ_RBV", ex);
+			logger.warn("Cannot getMinZ_RBV", ex);
 			throw ex;
 		}
 	}
@@ -456,7 +456,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeX));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDROIImpl-> Cannot getSizeX", ex);
+			logger.warn("Cannot getSizeX", ex);
 			throw ex;
 		}
 	}
@@ -473,7 +473,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 				EPICS_CONTROLLER.caput(getChannel(SizeX), sizex);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDROIImpl-> Cannot setSizeX", ex);
+			logger.warn("Cannot setSizeX", ex);
 			throw ex;
 		}
 	}
@@ -489,7 +489,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeX_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDROIImpl-> Cannot getSizeX_RBV", ex);
+			logger.warn("Cannot getSizeX_RBV", ex);
 			throw ex;
 		}
 	}
@@ -505,7 +505,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeY));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDROIImpl-> Cannot getSizeY", ex);
+			logger.warn("Cannot getSizeY", ex);
 			throw ex;
 		}
 	}
@@ -522,7 +522,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 				EPICS_CONTROLLER.caput(getChannel(SizeY), sizey);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDROIImpl-> Cannot setSizeY", ex);
+			logger.warn("Cannot setSizeY", ex);
 			throw ex;
 		}
 	}
@@ -538,7 +538,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeY_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDROIImpl-> Cannot getSizeY_RBV", ex);
+			logger.warn("Cannot getSizeY_RBV", ex);
 			throw ex;
 		}
 	}
@@ -554,7 +554,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeZ));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDROIImpl-> Cannot getSizeZ", ex);
+			logger.warn("Cannot getSizeZ", ex);
 			throw ex;
 		}
 	}
@@ -571,7 +571,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 				EPICS_CONTROLLER.caput(getChannel(SizeZ), sizez);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDROIImpl-> Cannot setSizeZ", ex);
+			logger.warn("Cannot setSizeZ", ex);
 			throw ex;
 		}
 	}
@@ -587,7 +587,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeZ_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDROIImpl-> Cannot getSizeZ_RBV", ex);
+			logger.warn("Cannot getSizeZ_RBV", ex);
 			throw ex;
 		}
 	}
@@ -603,7 +603,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(MaxSizeX_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDROIImpl-> Cannot getMaxSizeX_RBV", ex);
+			logger.warn("Cannot getMaxSizeX_RBV", ex);
 			throw ex;
 		}
 	}
@@ -619,7 +619,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(MaxSizeY_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDROIImpl-> Cannot getMaxSizeY_RBV", ex);
+			logger.warn("Cannot getMaxSizeY_RBV", ex);
 			throw ex;
 		}
 	}
@@ -635,7 +635,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(MaxSizeZ_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDROIImpl-> Cannot getMaxSizeZ_RBV", ex);
+			logger.warn("Cannot getMaxSizeZ_RBV", ex);
 			throw ex;
 		}
 	}
@@ -651,7 +651,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ReverseX));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDROIImpl-> Cannot getReverseX", ex);
+			logger.warn("Cannot getReverseX", ex);
 			throw ex;
 		}
 	}
@@ -668,7 +668,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 				EPICS_CONTROLLER.caput(getChannel(ReverseX), reversex);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDROIImpl-> Cannot setReverseX", ex);
+			logger.warn("Cannot setReverseX", ex);
 			throw ex;
 		}
 	}
@@ -684,7 +684,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ReverseX_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDROIImpl-> Cannot getReverseX_RBV", ex);
+			logger.warn("Cannot getReverseX_RBV", ex);
 			throw ex;
 		}
 	}
@@ -700,7 +700,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ReverseY));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDROIImpl-> Cannot getReverseY", ex);
+			logger.warn("Cannot getReverseY", ex);
 			throw ex;
 		}
 	}
@@ -717,7 +717,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 				EPICS_CONTROLLER.caput(getChannel(ReverseY), reversey);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDROIImpl-> Cannot setReverseY", ex);
+			logger.warn("Cannot setReverseY", ex);
 			throw ex;
 		}
 	}
@@ -733,7 +733,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ReverseY_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDROIImpl-> Cannot getReverseY_RBV", ex);
+			logger.warn("Cannot getReverseY_RBV", ex);
 			throw ex;
 		}
 	}
@@ -749,7 +749,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ReverseZ));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDROIImpl-> Cannot getReverseZ", ex);
+			logger.warn("Cannot getReverseZ", ex);
 			throw ex;
 		}
 	}
@@ -766,7 +766,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 				EPICS_CONTROLLER.caput(getChannel(ReverseZ), reversez);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDROIImpl-> Cannot setReverseZ", ex);
+			logger.warn("Cannot setReverseZ", ex);
 			throw ex;
 		}
 	}
@@ -782,7 +782,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ReverseZ_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDROIImpl-> Cannot getReverseZ_RBV", ex);
+			logger.warn("Cannot getReverseZ_RBV", ex);
 			throw ex;
 		}
 	}
@@ -798,7 +798,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(ArraySizeX_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDROIImpl-> Cannot getArraySizeX_RBV", ex);
+			logger.warn("Cannot getArraySizeX_RBV", ex);
 			throw ex;
 		}
 	}
@@ -814,7 +814,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(ArraySizeY_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDROIImpl-> Cannot getArraySizeY_RBV", ex);
+			logger.warn("Cannot getArraySizeY_RBV", ex);
 			throw ex;
 		}
 	}
@@ -830,7 +830,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(ArraySizeZ_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDROIImpl-> Cannot getArraySizeZ_RBV", ex);
+			logger.warn("Cannot getArraySizeZ_RBV", ex);
 			throw ex;
 		}
 	}
@@ -879,7 +879,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(EnableScale_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDROIImpl-> Cannot getEnableScale_RBV", ex);
+			logger.warn("Cannot getEnableScale_RBV", ex);
 			throw ex;
 		}
 	}
@@ -895,7 +895,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(Scale));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDROIImpl-> Cannot getScale", ex);
+			logger.warn("Cannot getScale", ex);
 			throw ex;
 		}
 	}
@@ -912,7 +912,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 				EPICS_CONTROLLER.caput(getChannel(Scale), scale);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDROIImpl-> Cannot setScale", ex);
+			logger.warn("Cannot setScale", ex);
 			throw ex;
 		}
 	}
@@ -928,7 +928,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(Scale_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDROIImpl-> Cannot getScale_RBV", ex);
+			logger.warn("Cannot getScale_RBV", ex);
 			throw ex;
 		}
 	}
@@ -944,7 +944,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(DataTypeOut));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDROIImpl-> Cannot getDataTypeOut", ex);
+			logger.warn("Cannot getDataTypeOut", ex);
 			throw ex;
 		}
 	}
@@ -961,7 +961,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 				EPICS_CONTROLLER.caput(getChannel(DataTypeOut), datatypeout);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDROIImpl-> Cannot setDataTypeOut", ex);
+			logger.warn("Cannot setDataTypeOut", ex);
 			throw ex;
 		}
 	}
@@ -977,7 +977,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(DataTypeOut_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDROIImpl-> Cannot getDataTypeOut_RBV", ex);
+			logger.warn("Cannot getDataTypeOut_RBV", ex);
 			throw ex;
 		}
 	}
@@ -1035,7 +1035,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 			}
 			return createChannel(fullPvName);
 		} catch (Exception exception) {
-			logger.warn("g.d.d.a.v.i.NDROIImpl -> Problem getting channel", exception);
+			logger.warn("Problem getting channel", exception);
 			throw exception;
 		}
 	}
@@ -1046,10 +1046,10 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 			try {
 				channel = EPICS_CONTROLLER.createChannel(fullPvName);
 			} catch (CAException cae) {
-				logger.warn("g.d.d.a.v.i.NDROIImpl-> Problem creating channel", cae);
+				logger.warn("Problem creating channel", cae);
 				throw cae;
 			} catch (TimeoutException te) {
-				logger.warn("g.d.d.a.v.i.NDROIImpl-> Problem creating channel", te);
+				logger.warn("Problem creating channel", te);
 				throw te;
 
 			}

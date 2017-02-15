@@ -109,7 +109,7 @@ public class NDFileNexusImpl implements InitializingBean, NDFileNexus {
 			}
 			return new String(EPICS_CONTROLLER.cagetByteArray(getChannel(TemplateFilePath))).trim();
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot getTemplateFilePath", ex);
+			logger.warn("Cannot getTemplateFilePath", ex);
 			throw ex;
 		}
 	}
@@ -127,7 +127,7 @@ public class NDFileNexusImpl implements InitializingBean, NDFileNexus {
 				EPICS_CONTROLLER.caput(getChannel(TemplateFilePath), (templatefilepath + '\0').getBytes());
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setTemplateFilePath", ex);
+			logger.warn("Cannot setTemplateFilePath", ex);
 			throw ex;
 		}
 	}
@@ -144,7 +144,7 @@ public class NDFileNexusImpl implements InitializingBean, NDFileNexus {
 			}
 			return new String(EPICS_CONTROLLER.cagetByteArray(getChannel(TemplateFilePath_RBV))).trim();
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot getTemplateFilePath_RBV", ex);
+			logger.warn("Cannot getTemplateFilePath_RBV", ex);
 			throw ex;
 		}
 	}
@@ -161,7 +161,7 @@ public class NDFileNexusImpl implements InitializingBean, NDFileNexus {
 			}
 			return new String(EPICS_CONTROLLER.cagetByteArray(getChannel(TemplateFileName))).trim();
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot getTemplateFileName", ex);
+			logger.warn("Cannot getTemplateFileName", ex);
 			throw ex;
 		}
 	}
@@ -179,7 +179,7 @@ public class NDFileNexusImpl implements InitializingBean, NDFileNexus {
 				EPICS_CONTROLLER.caput(getChannel(TemplateFileName), (templatefilename + '\0').getBytes());
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setTemplateFileName", ex);
+			logger.warn("Cannot setTemplateFileName", ex);
 			throw ex;
 		}
 	}
@@ -196,7 +196,7 @@ public class NDFileNexusImpl implements InitializingBean, NDFileNexus {
 			}
 			return new String(EPICS_CONTROLLER.cagetByteArray(getChannel(TemplateFileName_RBV))).trim();
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot getTemplateFileName_RBV", ex);
+			logger.warn("Cannot getTemplateFileName_RBV", ex);
 			throw ex;
 		}
 	}
@@ -212,7 +212,7 @@ public class NDFileNexusImpl implements InitializingBean, NDFileNexus {
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(FileTemplateValid));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot getFileTemplateValid", ex);
+			logger.warn("Cannot getFileTemplateValid", ex);
 			throw ex;
 		}
 	}
@@ -229,7 +229,7 @@ public class NDFileNexusImpl implements InitializingBean, NDFileNexus {
 				EPICS_CONTROLLER.caput(getChannel(FileTemplateValid), filetemplatevalid);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setFileTemplateValid", ex);
+			logger.warn("Cannot setFileTemplateValid", ex);
 			throw ex;
 		}
 	}
@@ -294,7 +294,7 @@ public class NDFileNexusImpl implements InitializingBean, NDFileNexus {
 			}
 			return createChannel(fullPvName);
 		} catch (Exception exception) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Problem getting channel", exception);
+			logger.warn("Problem getting channel", exception);
 			throw exception;
 		}
 	}
@@ -305,10 +305,10 @@ public class NDFileNexusImpl implements InitializingBean, NDFileNexus {
 			try {
 				channel = EPICS_CONTROLLER.createChannel(fullPvName);
 			} catch (CAException cae) {
-				logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Problem creating channel", cae);
+				logger.warn("Problem creating channel", cae);
 				throw cae;
 			} catch (TimeoutException te) {
-				logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Problem creating channel", te);
+				logger.warn("Problem creating channel", te);
 				throw te;
 
 			}

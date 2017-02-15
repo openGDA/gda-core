@@ -135,8 +135,7 @@ public class SingleExposureEpicsShutter extends SimpleAcquire {
 	private void checkForCloseShutterTaskErrors() throws DeviceException, InterruptedException {
 		if (closeShutterTask == null) return;
 		if (!closeShutterTask.isDone()) {
-			logger.error("g.d.d.a.t.SingleExposureEpicsShutter-> " +
-					"closeShutterTask still running, cancelling...");
+			logger.error("closeShutterTask still running, cancelling...");
 			closeShutterTask.cancel(true);
 		}
 		try {
@@ -187,10 +186,10 @@ public class SingleExposureEpicsShutter extends SimpleAcquire {
 			try {
 				shutter = EPICS_CONTROLLER.createChannel(shutterPV);
 			} catch (CAException cae) {
-				logger.warn("g.d.d.a.t.SingleExposureEpicsShutter-> Problem creating channel", cae);
+				logger.warn("Problem creating channel", cae);
 				throw cae;
 			} catch (TimeoutException te) {
-				logger.warn("g.d.d.a.t.SingleExposureEpicsShutter-> Problem creating channel", te);
+				logger.warn("Problem creating channel", te);
 				throw te;
 			}
 		}
