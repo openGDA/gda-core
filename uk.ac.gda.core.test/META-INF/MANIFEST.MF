@@ -19,4 +19,6 @@ Require-Bundle: uk.ac.gda.test.helpers;bundle-version="1.0.0",
  org.eclipse.dawnsci.json;bundle-version="1.0.0",
  org.eclipse.scanning.event;bundle-version="1.0.0",
  uk.ac.diamond.scisoft.analysis;bundle-version="1.3.0",
- org.eclipse.scanning.test
+ org.eclipse.scanning.test,
+ uk.ac.diamond.org.powermock;bundle-version="1.6.4",
+ javassist;bundle-version="3.20.0"

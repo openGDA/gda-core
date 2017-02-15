@@ -19,6 +19,10 @@
 
 package gda.jython;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -28,17 +32,25 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.osgi.framework.Bundle;
+import org.python.core.PyList;
+import org.python.core.PyObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A Classloader for use with Jython in the GDA environment. It retrieves the class from the correct bundle within the
  * product's OSGi context based on a map initialised at startup from the BundleContext or delegates to its parent.
  */
 public class GDAJythonClassLoader extends ClassLoader {
-
+	private static final Logger logger = LoggerFactory.getLogger(GDAJythonClassLoader.class);
+	private static final String JAR_EXTENSION = ".jar";
 	private static boolean staticInitialized = false;
 	private static Map<String, String> standardScriptFolders;
 	private static Set<Bundle> initializedBundles;
 	private static Map<String, Map<Bundle, Boolean>> packageMap = new HashMap<>();
+	private static Map<String, URLClassLoader> jarClassLoaders = new HashMap<>();
+
+	private PyList sysPath;
 
 	/**
 	 * Use the return value of this function to get all the packages available to Jython. Call PySystemState.add_package
@@ -121,29 +133,79 @@ public class GDAJythonClassLoader extends ClassLoader {
 	}
 
 	/**
-	 * Load the requested class by deriving the appropriate bundle and using its Classloader. If the
-	 * class cannot be found, delegate up the hierarchy.
+	 * Load the requested class by deriving the appropriate bundle(s) and trying their Classloaders. If the
+	 * class cannot be found this way, attempt to get it from Jars on the Jython sys.path. If it still
+	 * can't be found, delegate up the hierarchy.
 	 *
-	 * @param name	The fully qualified name of the class to be loaded.
+	 * @param name	The name of the class to be loaded. The Jython infrastructure chunks through the fully
+	 * 				qualified class name of the the require class, successively calling this method. For
+	 * 				example for the class com.a.b.klass it might call first with com.a, then com.a.b.klass.
 	 */
 	@Override
 	public Class<?> loadClass(String name) throws ClassNotFoundException {
 		if (StringUtils.isBlank(name))
 			throw new ClassNotFoundException(name);
 
-		Class<?> class1 = findLoadedClass(name);		// check we don't already have it
-		if (class1 == null) {
+		Class<?> theClass = findLoadedClass(name);         // check we don't already have it
+		if (theClass == null) {
 			for (Bundle bundle : getMatchingBundlesForName(name).keySet()) {
 				try {
-					return bundle.loadClass(name);
+					theClass = bundle.loadClass(name);
+					logger.debug("Loaded class: {}", name);
+					return theClass;
 				} catch (ClassNotFoundException er) {
-					continue;
+					continue;                              // try the next bundle
 				}
 			}
-			// If the requested class is not visible to the GDA Jython Class Loader, delegate up
-			class1 = super.loadClass(name);
+			try {
+				if (sysPath != null && sysPath.toString().contains(JAR_EXTENSION)) {   // if there are jar(s) on our sys.path
+					return useSysPathJarClassLoading(name);
+				}
+			} catch (ClassNotFoundException er) {
+				// If the requested class is not visible to the GDA Jython Class Loader or Jar Class loading, delegate up
+			}
+			//This is the last resort and will almost certainly fail
+			theClass = super.loadClass(name);
 		}
-		return class1;
+
+		return theClass;
+	}
+
+	/**
+	 * Attempt to load the specified class from any Jars specified on the Jython sys.path using
+	 * a URL ClassLoader created for the each jar path.
+	 *
+	 * @param name	The name of the class to be loaded. The Jython infrastructure chunks through the fully
+	 * 				qualified class name of the the require class, successively calling	this method. For
+	 * 				example for the class com.a.b.klass it might call first with com.a, then com.a.b.klass.
+	 *
+	 * @return		The loaded class if successful
+	 * @throws 		ClassNotFoundException if none of the identified Jars can load the class or a valid URL
+	 * 				could not be formed from one of the jar paths.
+	 */
+	private Class<?> useSysPathJarClassLoading(final String name) throws ClassNotFoundException {
+		for (PyObject pathObj : sysPath.getArray()) {
+			final String path = pathObj.toString().trim();
+			if (path.endsWith(JAR_EXTENSION)) {
+				if (!jarClassLoaders.containsKey(path)) {             // Check we haven't made a loader for this jar already
+					try {
+						final URL[] urls = {(new URL("file://" + path))};
+						jarClassLoaders.put(path, new URLClassLoader(urls));
+					} catch (MalformedURLException e) {
+						logger.warn("Unable to resolve jar file path URL for {}", path, e);
+						continue;
+					}
+				}
+				try {
+					Class<?> theClass = jarClassLoaders.get(path).loadClass(name);
+					logger.debug("Loaded class {} from {}", name, path);
+					return theClass;
+				} catch (ClassNotFoundException cnfe) {
+					continue;                                         // Try the next sys.path entry
+				}
+			}
+		}
+		throw new ClassNotFoundException();
 	}
 
 	/**
@@ -171,5 +233,28 @@ public class GDAJythonClassLoader extends ClassLoader {
 			}
 		}
 		return matchingBundles;
+	}
+
+	/**
+	 * Allows the classLoader to be informed of the Jython sys.path so it can be checked for dynamically added jar files
+	 *
+	 * @param path A Jython sys.path list of entries
+	 */
+	public void setSysPath(PyList path) {
+		sysPath = path;
+	}
+
+	/**
+	 * Ensures that any JAR classloaders initialised at runtime can be released at shutdown
+	 */
+	public static void closeJarClassLoaders() {
+		for (Map.Entry< String, URLClassLoader> entry : jarClassLoaders.entrySet()) {
+			try {
+				entry.getValue().close();
+			} catch (IOException e) {
+				logger.warn("Unable to close URLClassLoader for Jython sys path {}, potential resource leak.", entry.getKey(), e);
+			}
+			jarClassLoaders.remove(entry.getKey());
+		}
 	}
 }
