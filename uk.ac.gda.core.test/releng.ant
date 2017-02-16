@@ -50,7 +50,7 @@
 				<pathelement location="${workspace.git.loc}/dawnsci.git/org.eclipse.dawnsci.analysis.tree/bin" />
 				<pathelement location="${workspace.git.loc}/dawnsci.git/org.eclipse.dawnsci.nexus/bin" />
 				<pathelement location="${workspace.git.loc}/dawnsci.git/org.eclipse.dawnsci.json/bin" />
-				<pathelement location="${workspace.git.loc}/daq-eclipse.git/uk.ac.diamond.daq.activemq.connector/bin" />
+				<pathelement location="${workspace.git.loc}/daq-eclipse.git/org.eclipse.scanning.connector.activemq/bin" />
 				<pathelement location="${workspace.git.loc}/scisoft-core.git/uk.ac.diamond.scisoft.analysis/bin" />
 				<pathelement location="${workspace.git.loc}/scisoft-core.git/uk.ac.diamond.scisoft.analysis/jars/*" />
 				<pathelement location="${workspace.git.loc}/dawnsci.git/org.eclipse.dawnsci.analysis.dataset/bin" />

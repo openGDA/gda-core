@@ -139,7 +139,7 @@ import gda.device.scannable.ScannableBase;
 import gda.factory.Factory;
 import gda.factory.Finder;
 import gda.factory.MapFactory;
-import uk.ac.diamond.daq.activemq.connector.ActivemqConnectorService;
+import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
 import uk.ac.diamond.scisoft.analysis.io.LoaderServiceImpl;
 
 /**
