@@ -2,6 +2,8 @@ bashlog debug "gda_servers_core" "Entered"
 DEBUG=""
 GDA_ARGS=""
 options_text=""
+readonly ABORTED=66
+readonly FAILED=99
 
 # read the GDA9 specific params
 for word in "$@"; do
@@ -25,6 +27,45 @@ for word in "$@"; do
             ;;
     esac
 done
+
+# function to be invoked on server start abort that runs in the zenity subshell (see below)
+# and so needs an exit to stop a recursive loop occuring.
+function cleanup {
+    bashlog error "gda_servers_core" "Aborting: GDA Server startup abort requested by user"
+    export GDA_NO_PROMPT=true
+    export ABORTING=true
+    # if in dummy mode just kill the processes, otherwise initiate a stop on the remote machine
+    if [[ "${GDA_MODE}" != "live" ]]; then
+        readarray -t servers_arr < <(ps -ef | grep -E '\-name [G]da-server|org.jacorb.naming.[N]ameServer|gda.factory.corba.util.[C]hannelServer|gda.util.[L]ogServer')
+        for server_proc in "${servers_arr[@]}"; do
+            pid=$(awk '{ print $2 }' <<< $server_proc)
+            kill -SIGKILL $pid
+        done
+    else
+        ${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/bin/gda --stop servers
+    fi
+    exit $ABORTED
+}
+
+# function to wrap non-progress zenity boxes so that they aren't displayed if GDA_NO_PROMPT is set or there is no X display
+function gda_zenity {
+    if [[ -n "${DISPLAY:-}" && "${GDA_NO_PROMPT:-}" != true ]] && [[ "${@}" != *"--progress"* ]]; then
+        zenity "${@}"
+    fi
+}
+
+# function to wrap the zenity progress bar invocation so that the quotes in the title and text parameters don't cause problems during string expansion
+function gda_zenity_progress {
+    zenity --progress --width 550 --pulsate --auto-close \
+            --title="GDA Server starting: Press Cancel or close window to Abort" \
+            --text="\n\t\t\t\t\tStarting GDA Server on ${server_machine}"
+}
+
+function echo_if_not_in_remote_startup {
+    if [[ "${GDA_IN_REMOTE_STARTUP:-}" != true ]]; then
+        echo "$@"
+    fi
+}
 
 if [[ "${GDA_MODE}" == "live" && "${CONTROL_MACHINE_NAME}" != "$(uname -n)" ]]; then
     # This section runs when in live mode when not on the control machine
@@ -65,9 +106,9 @@ if [[ "${GDA_MODE}" == "live" && "${CONTROL_MACHINE_NAME}" != "$(uname -n)" ]]; 
     if [[ -n "${CONTROL_MACHINE_PUBKEY-}" ]]; then
       if [[ -f ~/.ssh/known_hosts ]]; then
         ssh-keygen-remove() {
-	        bashlog debug "gda_servers_core" "removing old public key for $1 in ~/.ssh/known_hosts"
-	        SSH_KEYGEN_OUT=$(ssh-keygen -R $1)
-	        bashlog debug "gda_servers_core" "removed old public key for $1 in ~/.ssh/known_hosts: $SSH_KEYGEN_OUT"
+            bashlog debug "gda_servers_core" "removing old public key for $1 in ~/.ssh/known_hosts"
+            SSH_KEYGEN_OUT=$(ssh-keygen -R $1)
+            bashlog debug "gda_servers_core" "removed old public key for $1 in ~/.ssh/known_hosts: $SSH_KEYGEN_OUT"
         }
         # Only try to remove old key if known_hosts exists, otherwise ssh-keygen failing will return us to the command line.
         ssh-keygen-remove ${CONTROL_MACHINE_NAME}
@@ -81,41 +122,44 @@ if [[ "${GDA_MODE}" == "live" && "${CONTROL_MACHINE_NAME}" != "$(uname -n)" ]]; 
     else
       bashlog warn "gda_servers_core" "Public key file $CONTROL_MACHINE_PUBKEY_FILE doesn't exist and no CONTROL_MACHINE_PUBKEY defined!"
     fi
+    
+    # must be prevented from entering here during abort as there is no terminal to echo to, which will cause exit 1 due to the set -e in gda_core
+    if [[ "${ABORTING:-false}" == false ]] && [[ "${GDA_OPERATION}" != "start" ]]; then
+        [[ "${GDA_OPERATION}" == "restart" ]] && extra="and then restart" || extra=""
+        echo -e "\n\e[36mGDA Server will stop within 15 seconds ${extra}, please wait...\e[0m"
+    fi
 
-    ssh -T -o BatchMode=yes -i ${CONTROL_MACHINE_SSHKEY_LOC} ${CONTROL_MACHINE_USER}@${CONTROL_MACHINE_NAME} ${GDA_OPERATION} ${DEBUG} ${GDA_ARGS}&
-    export SERVERS_SSH_PID=$!
-    # Due to the problem with ssh where remotestartupscript.sh completes, but
-    # ssh doesn't return, we run ssh in background but record its PID in
-    # SERVERS_SSH_PID. This allows the calling scripts to use lookForFile and
-    # wait for either the ssh command completing (fast, but unreliable), or
-    # the OBJECT_SERVER_STARTUP_FILE appearing (slow, but reliable). Note that
-    # due to network filesystem issues, waiting for the file client side is
-    # *much* less responsive but should start the client eventually, even if
-    # ssh hangs.
-    bashlog debug "gda_servers_core" "SERVERS_SSH_PID=$SERVERS_SSH_PID"
+    ssh -T -o BatchMode=yes -i ${CONTROL_MACHINE_SSHKEY_LOC} ${CONTROL_MACHINE_USER}@${CONTROL_MACHINE_NAME} ${GDA_OPERATION} ${DEBUG} ${GDA_ARGS}
+    ssh_tunnel_activated=true
 
 else
     # This runs when live on the control machine or in any mode other than live
     # i.e. when starting in live from a beamline workstation, execution will eventually come
     # through here when it has been through the ssh tunnel loop.
 
-    echo
+    ######### WARNING #########
+    #
+    # Never directly use echo in in this else clause as, in live mode it will be run on the control machine which has
+    # no terminal to echo to. This will cause a nonzero return value making the script abort immediately before it 
+    # has finished doing the jobs it was supposed to. Instead use the 'echo_if_not_in_remote_startup' function.
+
+    echo_if_not_in_remote_startup
     case "${GDA_OPERATION,,}" in
-        stop) echo "Stopping the GDA Server, please wait..." ;;
-        start|restart) echo "${GDA_OPERATION^}ing the GDA Server, please wait...";; # ^ converts 1st character to upper case
-        *) echo "Restarting the GDA Server, please wait..." ;; # if no stop|start|restart was passed to this script, then restart is assumed
+        stop) echo_if_not_in_remote_startup "Stopping the GDA Server, please wait..." ;;
+        start|restart) echo_if_not_in_remote_startup "${GDA_OPERATION^}ing the GDA Server, please wait...";; # ^ converts 1st character to upper case
+        *) echo_if_not_in_remote_startup "Restarting the GDA Server, please wait..." ;; # if no stop|start|restart was passed to this script, then restart is assumed
     esac
 
     # At this point, the pre scripts must have set GDA_LOGS_DIR and GDA_VAR
     #TODO check that
 
-    # Set up the directory for VAR
+    # Set up the directory for VAR.
     mkdir -pv -m 777 ${GDA_VAR}
 
-	if [[ -f "${OBJECT_SERVER_STARTUP_FILE}" ]]; then
-	    bashlog info "gda_servers_pre_facility" "deleting ${OBJECT_SERVER_STARTUP_FILE}, last modified $(stat --format=%y ${OBJECT_SERVER_STARTUP_FILE} | cut -c 1-19)"
-	    rm -fv ${OBJECT_SERVER_STARTUP_FILE}
-	fi
+    if [[ -f "${OBJECT_SERVER_STARTUP_FILE}" ]]; then
+        bashlog info "gda_servers_core" "deleting ${OBJECT_SERVER_STARTUP_FILE}, last modified $(stat --format=%y ${OBJECT_SERVER_STARTUP_FILE} | cut -c 1-19)"
+        rm -fv ${OBJECT_SERVER_STARTUP_FILE}
+    fi
 
     umask 0002
     # This should fix a problem where sub-directories created in a visit folder end up
@@ -124,37 +168,112 @@ else
 
     export JAVA_OPTS="-Dgda.deploytype=1" # Seems to fix the reset_namespace problem
 
-    echo -e "${options_text}"
+    if [[ "${GDA_OPERATION}" != "start" ]]; then
+        [[ "${GDA_OPERATION}" == "restart" ]] && extra="and then restart" || extra=""
+        echo_if_not_in_remote_startup -e "\n\e[36mGDA Server will stop within 15 seconds ${extra}, please wait...\e[0m"
+    fi
+    echo_if_not_in_remote_startup -e "${options_text}"
 
-    bashlog debug "gda_servers_core" "Starting ${GDA_TARGET_SCRIPT}  ${GDA_OPERATION} ${DEBUG} ${GDA_ARGS}"
-    nohup ${GDA_TARGET_SCRIPT} ${GDA_OPERATION} ${DEBUG} ${GDA_ARGS} >> ${GDA_LOG_FILE}  2>&1 &
+    bashlog debug "gda_servers_core" "Calling ${GDA_TARGET_SCRIPT}  ${GDA_OPERATION} ${DEBUG} ${GDA_ARGS}"
+    ${GDA_TARGET_SCRIPT} ${GDA_OPERATION} ${DEBUG} ${GDA_ARGS} >> ${GDA_LOG_FILE}  2>&1
+
+fi
+
+# The next section is entered under 3 circumstances:
+#
+#    1. If we are in dummy mode and have therefore only been through the 'else' section of the above conditional to start the 
+#       server on the same machine as the main gda script was run.
+#    2. If we are in live mode and have only been through 'if' section of the above conditional to start the server on the control
+#       machine via the ssh tunnel. That is, the ssh tunnel has just been started from the machine the main gda script was run on
+#       and this section is executed straight after also on that machine. The script chain started as gda2 on the control machine
+#       via the ssh tunnel never comes through here .
+#    3. If we are in live mode running the main gda script from the same machine as we expect the gda server to run on not in 
+#       remote startup and that machine is the control machine, i.e. "local live" mode operation. In this case, as with case 1.
+#       we will only have been through the 'else' section of the conditional
+#
+# The order of the if statement that grants entry to the section is important as execution can go in if:
+#
+#    a. We are in dummy mode
+#    b. We are NOT in dummy mode (i.e.we are in live) AND we have initilaised the ssh tunnel - normal live beamline operation
+#    c. NEITHER a) NOR b) is true AND we are on the control machine AND not in remote startup so live mode and no tunnel - "local live" mode
+#
+# thus a), b) and c) respectively correspond to 1., 2. and 3.
+
+if [[ "${GDA_MODE}" == "dummy" ]] || [[ "${ssh_tunnel_activated:-}" == true ]] || [[ "${CONTROL_MACHINE_NAME}" == "$(uname -n)" && "${GDA_IN_REMOTE_STARTUP}" == false ]]; then
+
+    unset ssh_tunnel_activated                                      # Cancel the flag allowing entry  when starting in live mode on the workstation
 
     if [[ ${GDA_OPERATION,,} != "stop" ]]; then
-        # Starting; wait for the startup file to be created so that any
-        # gda_servers_post scripts don't run before the servers are started.
+        # Starting/restarting; wait for the server's Telnet port to be acsssible so that any gda_servers_post scripts don't run before the servers are started.
+        # A zenity progress bar is displayed whilst this is happening allowing startup to be aborted by pressing Cancel, closing the window or pressing 
+        # Ctrl-C in the original terminal. This must be updated by echoed output preferably from a subshell to make the bar animate and enable the Cancel
+        # functionality. If GDA_NO_PROMPT is true or there is no X display then the old style advancing minuses are displayed in the terminal instead, 
+        # Ctrl-C will still work in this case.
 
-        ${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel}/bin/utils/lookForFile $OBJECT_SERVER_STARTUP_FILE $HOSTNAME
+        [[ "${GDA_MODE}" == "dummy" ]] && server_machine="${HOSTNAME}" || server_machine="${CONTROL_MACHINE_NAME}"
+        
+        if [[ -z "${DISPLAY:-}" || "${GDA_NO_PROMPT:-}" == "true" ]]; then 
+            progress_consumer="tee /dev/null"                       # When prompt are disabled, the minus signs are echoed to the terminal as before
+            progress_emitter="echo -n -"                            # which requires no newline to be appended 
+         else 
+            progress_consumer="gda_zenity_progress"                 # otherwise the zenity progress bar is used (via a function to cope with quotes in the command options)
+            progress_emitter="echo -"                               # which requires the trailing newline to function correctly
+        fi
+
+        set +e		# temporarily disable on error exit since zenity returns -1 when cancel is clicked and we need check the exit code for failed and aborted starts.
+        (
+            # Set a trap to intercept the SIGPIPE generated when Cancel or close window is clicked
+            # or the SIGINT from Ctrl-C and run the cleanup function to kill the starting servers.
+            trap cleanup PIPE INT
+
+            while :
+            do                                                 # First check for startup errors
+                if [ -r $OBJECT_SERVER_STARTUP_FILE ]; then
+                    read it < <(cat $OBJECT_SERVER_STARTUP_FILE)
+                    if [[ ${#it} > 0 ]]; then
+                        gda_zenity --error --width 500  --text="GDA Server failed to start:\n\n$it\n"
+                        exit $FAILED
+                    fi
+                fi                                             # then ping the server until it responds.
+
+                ${GDA_WORKSPACE_PARENT}/${GDA_CORE_CONFIG_rel}/bin/telnet_ping "${server_machine}" 9999
+                if [[ "$?" == 0 ]]; then
+                    if [[ -n "${DISPLAY:-}" && "${GDA_NO_PROMPT:-}" != true ]]; then    # if we are using zenity progress bar then change
+                        echo "#\n\t\t\t\t\t\t  Server started"                          # its text when startup is succesful for 2 seconds
+                        sleep 2
+                    fi
+                    break
+                fi
+                sleep 1
+                $progress_emitter                   # Emit the progress indicator char correctly, based on GDA_NO_PROMPT/DISPLAY
+            done
+        ) | $progress_consumer                      # consuming it with the corresponding command
+
+        status=("${PIPESTATUS[0]}")               # Cache the startup exit code so that no later commands modify the value.
+        if [[ "${status}" == $FAILED ]]; then
+            msg="failed to start"
+        else
+           [[ "${status}" == $ABORTED ]] && msg="start aborted" || { msg="started"; GDA_SERVERS_UP=true; }
+        fi
+
+        set -e                                    # Reinstate on error exit.
         echo
-        echo "GDA Server started"
-
-        # TODO: Ideally we would like to stop waiting for the startup file if the startup fails, but all
-        #       output from the gda core script is written to the log file and not returned from nohup.
-        #       We never find out the exit codes or process status and failed startups will continue to
-        #       wait for this file until a subsequent start of the GDA servers works.
+        echo "GDA Server $msg"
+        if [[ -n "${DISPLAY:-}" ]]; then
+            stty sane                             # Stop prompt hanging after exiting Telnet.
+        fi
     else
         echo
         # When shutting down a mismatched server target version or user will result in the server stop
         # failing and the reason being written to a re-created OBJECT_SERVER_STARTUP_FILE. If this
-        # is the case the reason is echoed to the terminal
+        # is the case the reason is echoed to the terminal/a zenity message box.
 
-        sleep 1        # Give time for the potential error file to finish writing
+        sleep 1        # Give time for the potential error file to finish writing.
 
         if [ -r ${OBJECT_SERVER_STARTUP_FILE} ]; then
-            printf "\n%30s: Unexpectedly found          %s\n" "$HOSTNAME" "$OBJECT_SERVER_STARTUP_FILE"
             read it < <(cat ${OBJECT_SERVER_STARTUP_FILE})
-            echo -e "\n$it\n"
-            echo "GDA Server failed to stop cleanly"
-            exit 1
+            gda_zenity --error --width 500  --text="GDA Server failed to stop cleanly:\n\n$it\n"
+            exit 0
         fi
         echo "GDA Server stopped"
     fi
