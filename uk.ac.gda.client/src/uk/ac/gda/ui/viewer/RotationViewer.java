@@ -47,6 +47,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
+import gda.device.IScannableMotor;
 import gda.device.Scannable;
 import gda.device.ScannableMotionUnits;
 import uk.ac.gda.client.UIHelper;
@@ -224,6 +225,18 @@ public class RotationViewer {
 		});
 
 		valueEventDelegate = new EventListenersDelegate();
+
+		motorPositionViewer.setCallback(new MotorPositionDemandChangedCallback() {
+			@Override
+			public void call(final double demand) {
+				motorPositionViewer.getDemandBox().getDisplay().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						moveMotor(demand);
+					}
+				});
+			}
+		});
 	}
 
 	protected void notifyListenersOfMove(ValueEvent e) {
@@ -339,6 +352,18 @@ public class RotationViewer {
 		});
 	}
 
+	private void moveMotor(final double demand){
+		Double current;
+		try {
+			current = ((ScannablePositionSource)motor).getPosition();
+			final boolean dir = current < demand;
+			final double step = dir ? demand - current : current - demand;
+			moveMotor(dir, step);
+		} catch (DeviceException e) {
+			logger.error("Exception reading position of {}", motor.getDescriptor().getLabelText(), e);
+		}
+	}
+
 	private void moveMotor(final boolean dir, final double step){
 		final String msg = "moving " + motor.getDescriptor().getLabelText() + " by " + step;
 		final double targetVal = calculateTargetPosition(dir, step);
@@ -350,9 +375,14 @@ public class RotationViewer {
 				try {
 					((ScannablePositionSource)motor).setPosition(targetVal);
 				} catch (final DeviceException e) {
-					logger.error("Exception when " + msg + ":" + e.getMessage());
-					logger.debug("Exception when " + msg + ":" + e.getMessage(), e);
-					UIHelper.showError("Exception when " + msg, e.getMessage());
+					if (e.getMessage().contains(IScannableMotor.WAS_ALREADY_BUSY_SO_COULD_NOT_BE_MOVED)) {
+						logger.info("Exception when " + msg + ":" + e.getMessage());
+					}
+					else {
+						logger.error("Exception when " + msg + ":" + e.getMessage());
+						logger.debug("Exception when " + msg + ":" + e.getMessage(), e);
+						UIHelper.showError("Exception when " + msg, e.getMessage());
+					}
 				}
 				finally {
 					try {
@@ -472,12 +502,7 @@ public class RotationViewer {
 				resetToZeroButton.addSelectionListener(new SelectionAdapter() {
 					@Override
 					public void widgetSelected(SelectionEvent e) {
-						try {
-							final Double current = ((ScannablePositionSource)motor).getPosition();
-							moveMotor(current < 0, current < 0 ? -1 * current : current);
-						} catch (DeviceException e1) {
-							logger.error("Exception reading position of {}", motor.getDescriptor().getLabelText(), e);
-						}
+						moveMotor(0);
 					}
 				});
 			}
@@ -582,6 +607,13 @@ public class RotationViewer {
 		}
 
 		motorPositionViewer.setDecimalPlaces(decimalPlaces);
+	}
+
+	public void setMotorPositionViewerPopupOnInvalidPosition(boolean popupOnInvalidPosition) {
+		if (motorPositionViewer == null) {
+			throw new IllegalStateException("Cannot set whether to popup on invalid position for this RotationViewer's MotorPositionViewer - widgets have not been created. Call createControls first");
+		}
+		motorPositionViewer.setPopupOnInvalidPosition(popupOnInvalidPosition);
 	}
 
 	public void setEnabled(boolean enabled) {

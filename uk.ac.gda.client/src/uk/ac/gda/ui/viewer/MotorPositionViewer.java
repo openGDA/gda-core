@@ -43,6 +43,7 @@ import gda.device.Scannable;
 import gda.device.ScannableMotionUnits;
 import gda.jython.InterfaceProvider;
 import gda.observable.IObserver;
+import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.ui.internal.viewer.ScannableMotionUnitsPositionSource;
 import uk.ac.gda.ui.internal.viewer.ScannablePositionSource;
 
@@ -155,6 +156,16 @@ public class MotorPositionViewer {
 		}
 	}
 
+	public void setPopupOnInvalidPosition(boolean popupOnInvalidPosition) {
+		this.popupOnInvalidPosition = popupOnInvalidPosition;
+	}
+
+	private boolean popupOnInvalidPosition = false;
+
+	public boolean isPopupOnInvalidPosition() {
+		return popupOnInvalidPosition;
+	}
+
 	private void createControls(Composite comp){
 		createReadbacksGroup(comp);
 		motorBox.setUnit(motor.getDescriptor().getUnit());
@@ -174,22 +185,34 @@ public class MotorPositionViewer {
 				setDemandPrev();
 				if(Double.isNaN(demand))
 				{
-					logger.error("Invalid position " + demand);
 					motorBox.setValue(demandPrev);
+					String msg = "Invalid position " + demand;
+					logger.error(msg);
+					if (isPopupOnInvalidPosition()) {
+						UIHelper.showError(msg, "not a number");
+					}
 					return;
 				}
 				String reply = null;
 				try {
 					reply = scannable.checkPositionValid(demand);
-				} catch (DeviceException e1) {
-					logger.error("Unable to check the validity of the input position , no move will be performed", e1);
+				} catch (Exception e1) {
 					motorBox.setValue(demandPrev);
+					String msg = "Unable to check the validity of the input position, no move will be performed.";
+					logger.error(msg, e1);
+					if (isPopupOnInvalidPosition()) {
+						UIHelper.showError(msg, String.format("%s\n\n%s", e1.getMessage(), e1.getStackTrace().toString()));
+					}
 					return;
 				}
 				if(reply != null)
 				{
-					logger.error("Invalid position " + reply);
 					motorBox.setValue(demandPrev);
+					String msg = "Invalid position " + demand + "; Reason: " + reply;
+					logger.error(msg);
+					if (isPopupOnInvalidPosition()) {
+						UIHelper.showError("Invalid position " + demand, reply);
+					}
 					return;
 				}
 
