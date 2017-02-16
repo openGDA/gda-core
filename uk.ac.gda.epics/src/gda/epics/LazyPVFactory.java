@@ -468,7 +468,7 @@ public class LazyPVFactory {
 
 					while (!predicate.apply(lastMonitoredValue)) {
 						long remaining = deadline - System.currentTimeMillis();
-						System.out.print("deadline: " + deadline + " remaining: " + remaining + "\n");
+						logger.debug("deadline: " + deadline + " remaining: " + remaining + "\n");
 						if (remaining <= 0) {
 							String msg = "The requested value {0} was not observed from the PV {1} within the specified timeout of {2}s";
 							throw new java.util.concurrent.TimeoutException(format(msg, predicate.toString(),
