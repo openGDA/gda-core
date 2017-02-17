@@ -40,7 +40,7 @@ class gdaItem(object):
 	#	return "epicsName="+self.epicsName+"gdaName="+self.gdaName+"type="+self.type
 
 map={"simpleMotor":"EpicsMotor", "simplePv":"EpicsMonitor","positioner":"EpicsPositioner","pneumatic":"EpicsPneumatic","currAmp":"EpicsCurrentAmplifier", "simpleScaler":"EpicsScaler"}
-gdaItems=["EpicsMotor", "EpicsMonitor","EpicsPositioner","EpicsPneumatic","EpicsCurrentAmplifier", "EpicsScaler", "MarCCDDetector", "MXCameraForDummy", "IrelecSampleChanger", "DefaultFileHeader","PXParameters","GDABCM","RTPCamera", "JythonServer","ScriptController"]
+gdaItems=["EpicsMotor", "EpicsMonitor","EpicsPositioner","EpicsPneumatic","EpicsCurrentAmplifier", "EpicsScaler", "MarCCDDetector", "MXCameraForDummy", "DefaultFileHeader","PXParameters","GDABCM","RTPCamera", "JythonServer","ScriptController"]
 DOFTypes=["DOF","SingleAxisLinearDOF","SingleAxisAngularDOF","EpicsAxisLinearDOF","EpicsAxisAngularDOF","SingleAxisAngularFixedSpeedDOF","SingleAxisWavelengthDOF","DoubleAxisGapWidthDOF","DoubleAxisGapPositionDOF","DoubleAxisLinearDOF","DoubleAxisAngularDOF","UndulatorPhaseDOF","MonoDOF","SlaveMonoDOF","MonoWithSettleTimeDOF","CoupledDOF","XafsMonoAndTableDOF","SineDriveDOF","SineDriveAngularDOF","SineDriveCoupledDOF","MirrorAndGratingMonoDOF","DOFRouteChecker","UndulatorHarmonicDOF","UndulatorPolarizationDOF","UndulatorEnergyDOF","LookupDOF"]
 positionerTypes=["LinearPositioner","AngularPositioner","AngularPositioner_ReverseOffset"]
 
