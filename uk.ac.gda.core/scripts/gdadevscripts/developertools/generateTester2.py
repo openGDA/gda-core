@@ -139,12 +139,9 @@ class sampleChangerCheckGenerator:
 	isEmpty=True
 	def parseCSVList(self, list):
 		returnList=[]
-		isEmpty1=quickListCheck(4,"IrelecSampleChanger",list,returnList)
-		sampleChangerList=returnList
-		returnList2=[]
-		isEmpty2=quickListCheck(4,"JActorSampleChanger",list,returnList2)
-		self.isEmpty=isEmpty1&isEmpty2
-		self.sampleChangerList=returnList+returnList2
+		isEmpty=quickListCheck(4,"JActorSampleChanger",list,returnList)
+		self.isEmpty=isEmpty
+		self.sampleChangerList=returnList
 	def write(self, fileout):
 		if self.isEmpty==False:
 			print >>fileout,'def checkSampleChangers(command_server):'
