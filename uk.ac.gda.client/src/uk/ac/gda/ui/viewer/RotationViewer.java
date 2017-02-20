@@ -18,10 +18,6 @@
 
 package uk.ac.gda.ui.viewer;
 
-import gda.device.DeviceException;
-import gda.device.Scannable;
-import gda.device.ScannableMotionUnits;
-
 import java.text.DecimalFormat;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -40,7 +36,6 @@ import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
@@ -51,6 +46,10 @@ import org.eclipse.swt.widgets.Layout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.DeviceException;
+import gda.device.Scannable;
+import gda.device.ScannableMotionUnits;
+import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.ui.internal.viewer.ScannablePositionSource;
 import uk.ac.gda.ui.internal.viewer.ScannableRotationSource;
 
@@ -341,25 +340,36 @@ public class RotationViewer {
 	}
 
 	private void moveMotor(final boolean dir, final double step){
-		final String msg = "Moving " + motor.getDescriptor().getLabelText() + " by " + step;
+		final String msg = "moving " + motor.getDescriptor().getLabelText() + " by " + step;
 		final double targetVal = calculateTargetPosition(dir, step);
 		motorPositionViewer.getDemandBox().setNumericValue(targetVal);
 		motorPositionViewer.getDemandBox().demandBegin(targetVal);
-
-		ValueEvent event = new ValueEvent(this,scannable.getName());
-		event.setDoubleValue(targetVal);
-		event.setFieldName(motorLabel);
-
-		notifyListenersOfMove(event);
-
 		Job job = new Job(msg){
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				try {
 					((ScannablePositionSource)motor).setPosition(targetVal);
-				} catch (DeviceException e) {
+				} catch (final DeviceException e) {
 					logger.error("Exception when " + msg + ":" + e.getMessage());
 					logger.debug("Exception when " + msg + ":" + e.getMessage(), e);
+					UIHelper.showError("Exception when " + msg, e.getMessage());
+				}
+				finally {
+					try {
+						final Double position = ((ScannablePositionSource)motor).getPosition();
+						motorPositionViewer.getDemandBox().getDisplay().asyncExec(new Runnable() {
+							@Override
+							public void run() {
+								motorPositionViewer.getDemandBox().demandComplete(position);
+								ValueEvent event = new ValueEvent(this,scannable.getName());
+								event.setDoubleValue(position);
+								event.setFieldName(motorLabel);
+								notifyListenersOfMove(event);
+							}
+						});
+					} catch (DeviceException e) {
+						logger.error("Exception reading position of {}", motor.getDescriptor().getLabelText(), e);
+					}
 				}
 				return Status.OK_STATUS;
 			}
@@ -459,33 +469,16 @@ public class RotationViewer {
 				GridData gridData = new GridData(SWT.FILL, SWT.FILL, true, true);
 				gridData.horizontalSpan = 2;
 				resetToZeroButton = createButton(buttonGroup, "Move to zero", null, gridData);
-
-				resetToZeroButton.addSelectionListener(new SelectionListener() {
-
+				resetToZeroButton.addSelectionListener(new SelectionAdapter() {
 					@Override
 					public void widgetSelected(SelectionEvent e) {
-						final String msg = "Moving " + motor.getDescriptor().getLabelText() + " to 0.0";
-						motorPositionViewer.getDemandBox().setNumericValue(0);
-						motorPositionViewer.getDemandBox().demandBegin(0);
-
-						Job job = new Job(msg){
-							@Override
-							protected IStatus run(IProgressMonitor monitor) {
-								try {
-									((ScannablePositionSource)motor).setPosition(0.0);
-								} catch (DeviceException e) {
-									logger.error("Exception when " + msg + ":" + e.getMessage());
-									logger.debug("Exception when " + msg + ":" + e.getMessage(), e);
-								}
-								return Status.OK_STATUS;
-							}
-						};
-						job.setUser(true);
-						job.schedule();
+						try {
+							final Double current = ((ScannablePositionSource)motor).getPosition();
+							moveMotor(current < 0, current < 0 ? -1 * current : current);
+						} catch (DeviceException e1) {
+							logger.error("Exception reading position of {}", motor.getDescriptor().getLabelText(), e);
+						}
 					}
-
-					@Override
-					public void widgetDefaultSelected(SelectionEvent e) {}
 				});
 			}
 
