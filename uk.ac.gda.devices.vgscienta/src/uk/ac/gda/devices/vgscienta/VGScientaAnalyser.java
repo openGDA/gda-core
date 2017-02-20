@@ -155,7 +155,7 @@ public class VGScientaAnalyser extends ADDetector implements MonitorListener, Fl
 
 			setExtraNames(new String[] {"cps"});
 
-			flex = new FlexibleFrameStrategy(getAdBase(), 0., getNdProc());
+			flex = new FlexibleFrameStrategy(getAdBase(), 0., getNdProc(), getNdArray());
 			setCollectionStrategy(flex);
 			flex.setMaxNumberOfFrames(1);
 			flex.addIObserver(this);
