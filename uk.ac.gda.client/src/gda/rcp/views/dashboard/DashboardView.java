@@ -357,19 +357,16 @@ public final class DashboardView extends ViewPart {
 	 * Called to refresh all the values in the table.
 	 */
 	public void refresh() {
-		if (serverViewer.getControl().isDisposed())
-			return;
-
 		try {
 			for (ScannableObject sso : data) {
 				sso.refresh();
 			}
-			Display.getDefault().syncExec(new Runnable() {
-
-				@Override
-				public void run() {
-					if (!serverViewer.isCellEditorActive())
-						serverViewer.refresh();
+			Display.getDefault().asyncExec(() -> {
+				if (serverViewer.getControl().isDisposed()) {
+					return;
+				}
+				if (!serverViewer.isCellEditorActive()) {
+					serverViewer.refresh();
 				}
 			});
 		} catch (Exception ne) {
