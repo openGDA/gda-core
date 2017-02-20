@@ -18,6 +18,7 @@
 
 package uk.ac.gda.remoting.client;
 
+import gda.factory.Findable;
 import gda.observable.IObservable;
 
 import org.aopalliance.intercept.MethodInterceptor;
@@ -94,10 +95,24 @@ public class GdaRmiProxyFactoryBean extends RmiClientInterceptor implements Bean
 				throw new RuntimeException("Unable to receive events for remote object", e);
 			}
 		}
+
+		// If the remote object is Findable, check the name used for the RMI proxy matches the name of the remote
+		// object. If they don't match the creation of the RMI proxy can cause the remote object's name to change!
+		if (remoteObjectIsFindable()) {
+			final Findable remoteFindable = (Findable) serviceProxy;
+			final String remoteObjectName = remoteFindable.getName();
+			if (!objectName.equals(remoteObjectName)) {
+				logger.warn(String.format("RMI proxy has name \"%s\" but remote object has name \"%s\"", objectName, remoteObjectName));
+			}
+		}
 	}
 
 	private boolean remoteObjectIsObservable() {
 		return ClassUtils.isAssignable(IObservable.class, getServiceInterface());
+	}
+
+	private boolean remoteObjectIsFindable() {
+		return ClassUtils.isAssignable(Findable.class, getServiceInterface());
 	}
 
 	@Override

@@ -171,7 +171,7 @@ public class DummyScannableTest {
 	}
 
 	@Test
-	public void test__call__() {
+	public void test__call__() throws DeviceException {
 		assertTrue(theScannable.__call__().__float__().getValue() == 10.0);
 	}
 

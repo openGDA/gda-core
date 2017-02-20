@@ -182,7 +182,12 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 	// TODO: make final
 	@Override
 	public Object getPosition() throws DeviceException {
-		return internalToExternal(rawGetPosition());
+		try {
+			return internalToExternal(rawGetPosition());
+		}
+		catch (Exception e) {
+			throw new DeviceException("exception in " + getName() + ".getPosition()", e);
+		}
 	}
 
 	/**
@@ -451,12 +456,12 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 	 */
 	@Override
 	public void moveTo(Object position) throws DeviceException {
-		this.asynchronousMoveTo(position);
 		try {
+			this.asynchronousMoveTo(position);
 			this.waitWhileBusy();
 		} catch (Exception e) {
 			// convert to a device exception
-			throw new DeviceException(e.getMessage(), e.getCause());
+			throw new DeviceException("Move failed for " + getName() + ".moveTo("+position+")", e);
 		}
 	}
 
@@ -624,17 +629,9 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 	 * @see org.python.core.PyObject#__call__()
 	 * @return the position of this object as a native or array of natives
 	 */
-	public PyObject __call__() {
+	public PyObject __call__() throws DeviceException {
 
-		Object position;
-		try {
-			position = getPosition();
-		} catch (Exception e) {
-			if (e instanceof NullPointerException || e.getMessage().isEmpty()){
-				throw new RuntimeException("exception in " + getName() + ".getPosition()",e);
-			}
-			throw new RuntimeException(e.getMessage());
-		}
+		Object position = getPosition();
 
 		// if no input or extra names
 		if (position == null) {
@@ -701,20 +698,9 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 	 * @return a message explaining what happened
 	 */
 	@MethodAccessProtected(isProtected = true)
-	public PyObject __call__(PyObject new_position) {
-		try {
-			moveTo(new_position);
-			return new PyString("Move complete: " + ScannableUtils.getFormattedCurrentPosition(this));
-		} catch (Exception e) {
-//			String msg = "Move failed for " + getName() + " " + e.getMessage();
-//			logger.error(msg, e);
-//			return new PyString(msg);
-			if (e instanceof NullPointerException || e.getMessage().isEmpty()){
-				throw new RuntimeException("Move failed for " + getName() + ".moveTo("+new_position+")",e);
-			}
-			throw new RuntimeException(e.getMessage(),e);
-
-		}
+	public PyObject __call__(PyObject new_position) throws DeviceException {
+		moveTo(new_position);
+		return new PyString("Move complete: " + ScannableUtils.getFormattedCurrentPosition(this));
 	}
 
 	/**

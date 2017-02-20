@@ -123,9 +123,9 @@ public class GDAJythonInterpreter extends ObservableComponent {
 		if (LocalProperties.check("python.options.showJavaExceptions", false)) {
 			gdaCustomProperties.setProperty("python.options.showJavaExceptions", "true");
 		}
-
-		gdaCustomProperties.setProperty("python.options.includeJavaStackInExceptions", "false");
-
+		if (LocalProperties.check("python.options.includeJavaStackInExceptions", false)) {
+			gdaCustomProperties.setProperty("python.options.includeJavaStackInExceptions", "true");
+		}
 		if (LocalProperties.check("python.options.showPythonProxyExceptions", false)) {
 			gdaCustomProperties.setProperty("python.options.showPythonProxyExceptions", "true");
 		}
