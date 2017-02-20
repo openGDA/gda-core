@@ -16,13 +16,12 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.devices.vgscienta.i05_1;
+package uk.ac.gda.devices.vgscienta;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.device.detector.areadetector.v17.impl.NDPluginBaseImpl;
-import uk.ac.gda.devices.vgscienta.VGScientaAnalyser;
 
 /**
  * This is a kludge for https://trac.diamond.ac.uk/beam/ticket/8210
