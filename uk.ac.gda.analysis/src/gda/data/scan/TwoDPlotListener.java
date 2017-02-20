@@ -57,9 +57,9 @@ public class TwoDPlotListener extends DataWriterExtenderBase {
 				if (dimensions.length != 2)
 					return;
 				xaxis = DatasetFactory.zeros(DoubleDataset.class, dimensions[0]);
-				xaxis.setName(dataPoint.getScannableHeader()[0]);
+				xaxis.setName(scanInformation.getScannableNames()[0]);
 				yaxis = DatasetFactory.zeros(DoubleDataset.class, dimensions[1]);
-				yaxis.setName(dataPoint.getScannableHeader()[1]);
+				yaxis.setName(scanInformation.getScannableNames()[1]);
 				ds = DatasetFactory.zeros(DoubleDataset.class, dimensions[1], dimensions[0]);
 				ds.fill(Double.NaN); // Initialise dataset with NaN so auto histogramming will work.
 			}
