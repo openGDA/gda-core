@@ -25,6 +25,11 @@ package gda.device;
 public interface IScannableMotor extends Scannable {
 
 	/**
+	 * Couples (at present) ScannableMotor.rawAsynchronousMoveTo and RotationViewer.moveMotor
+	 */
+	static final String WAS_ALREADY_BUSY_SO_COULD_NOT_BE_MOVED = "was already busy so could not be moved";
+
+	/**
 	 * Sets the motor used by this scannable motor.
 	 *
 	 * @param motor

@@ -18,58 +18,61 @@
 
 package gda.util;
 
-import gda.device.DeviceBase;
-import gda.factory.FactoryException;
-
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.device.DeviceBase;
+import gda.factory.FactoryException;
+
 /**
  * Findable object used to invoke Runnable objects and then wait for a time
  */
 public class TimedRunnableInvoker extends DeviceBase {
+
 	private static final Logger logger = LoggerFactory.getLogger(TimedRunnableInvoker.class);
-	Integer waitTime=1000; //1m
-	boolean running=true;
+
+	Integer waitTime = 1000; // 1m
+
+	boolean running = true;
+
 	List<Runnable> runnables;
+
 	Thread t;
 
-	/**
-	 *
-	 */
-	public TimedRunnableInvoker(){
+	public TimedRunnableInvoker() {
 		setLocal(true);
 	}
 
 	@Override
 	public void configure() throws FactoryException {
- 		setConfigured(true);
+		setConfigured(true);
 		start();
 	}
 
-	void start(){
-		if(!configured)
+	void start() {
+		if (!configured)
 			return;
-		if(t == null && runnables != null && !runnables.isEmpty() && isRunning()){
-			t = new Thread( new Runnable() {
+		if (t == null && runnables != null && !runnables.isEmpty() && isRunning()) {
+			t = new Thread(new Runnable() {
 				@Override
 				public void run() {
-					while(isRunning()){
-						for(Runnable runnable: runnables){
-								try{
-									runnable.run();
-								} catch (Throwable ex){
-									logger.error(ex.getMessage(),ex);
-								}
+					while (isRunning()) {
+						for (Runnable runnable : runnables) {
+							try {
+								runnable.run();
+							} catch (Throwable ex) {
+								logger.error(ex.getMessage(), ex);
+							}
 						}
 						try {
 							Thread.sleep(getWaitTime());
 						} catch (InterruptedException e) {
-							//do nothing
+							// do nothing
 						}
 					}
-					t=null;
+					t = null;
 				}
 			});
 			t.start();
@@ -84,7 +87,8 @@ public class TimedRunnableInvoker extends DeviceBase {
 	}
 
 	/**
-	 * @param waitTime wait time in ms
+	 * @param waitTime
+	 *            wait time in ms
 	 */
 	public void setWaitTime(Integer waitTime) {
 		this.waitTime = waitTime;
@@ -98,11 +102,12 @@ public class TimedRunnableInvoker extends DeviceBase {
 	}
 
 	/**
-	 * @param running true if running
+	 * @param running
+	 *            true if running
 	 */
 	public void setRunning(boolean running) {
 		this.running = running;
-		if(running && configured)
+		if (running && configured)
 			start();
 	}
 

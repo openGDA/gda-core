@@ -33,7 +33,7 @@ class OutgoingTimedStructuredEvent {
 
 	@Override
 	public String toString() {
-		return String.format("TimedStructuredEvent(time=%d, source=%s, type=%s)", timeReceivedMs,
+		return String.format("OutgoingTimedStructuredEvent(time=%d, source=%s, type=%s)", timeReceivedMs,
 				event.eventHeader.eventName, event.eventHeader.typeName);
 	}
 }
