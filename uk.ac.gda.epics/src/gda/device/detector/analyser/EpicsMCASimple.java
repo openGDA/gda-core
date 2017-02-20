@@ -18,6 +18,16 @@
 
 package gda.device.detector.analyser;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Vector;
+
+import org.apache.commons.lang.ArrayUtils;
+import org.jscience.physics.quantities.Quantity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.MCAStatus;
@@ -38,16 +48,6 @@ import gda.util.converters.IQuantitiesConverter;
 import gda.util.converters.IQuantityConverter;
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBR_Enum;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Vector;
-
-import org.apache.commons.lang.ArrayUtils;
-import org.jscience.physics.quantities.Quantity;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Class to communicate with an epics MCA record. The MCA record controls and acquires data from a multichannel analyser
@@ -137,7 +137,8 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 
 	private String converterName = "mca_roi_conversion"; //$NON-NLS-1$
 
-	private boolean acquisitionDone = true, readingDone = true;
+	private volatile boolean acquisitionDone = true;
+	private volatile boolean readingDone = true;
 
 	FindableEpicsDevice epicsDevice = null;
 	RegisterForEpicsUpdates registerForEpicsUpdates = null;
@@ -821,14 +822,16 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 						if(readingDoneIfNotAquiring){
 							setReadingDone(true);
 						} else {
+							readingDone = false;
+							logger.debug("readingDone set to false");
 							// don't do the CA put on the JCA event dispatch thread
 							new Thread(new Runnable() {
 								@Override
 								public void run() {
 									try {
 										// now ask for a read and set ReadingDone false
+										logger.debug("Requesting read");
 										setIntFieldValue(readField, 1);
-										readingDone = false;
 									} catch (Exception e) {
 										exceptionUtils.logException(logger,
 												"Error setting read to 1 in response to acquisition done", e);
