@@ -29,8 +29,6 @@ import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.Monitor;
 import gov.aps.jca.TimeoutException;
-import gov.aps.jca.dbr.DBR;
-import gov.aps.jca.dbr.DBR_Double;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 
@@ -51,16 +49,17 @@ public class VGScientaOverExposureProtector implements Configurable, MonitorList
 	private static final Logger logger = LoggerFactory.getLogger(VGScientaOverExposureProtector.class);
 
 	// Over-exposure values
-	private double warningValue = 0;
-	private double alarmValue = 0;
 	private long delayTime = 0;
 
 	// PVs
-	private String valuePv;
-	private String warningPv;
-	private String alarmPv;
+	private String basePv; // The one that corresponds directly to the value
+	// The suffixes appended to the base PV to get the warning and alarm level PVs
+	private static final String ALARM_PV_SUFFIX = ".HIHI";
+	private static final String WARNING_PV_SUFFIX = ".HIGH";
 
 	// Channels
+	private Channel warningChannel;
+	private Channel alarmChannel;
 	private Channel valueChannel;
 
 	// Actions
@@ -77,15 +76,8 @@ public class VGScientaOverExposureProtector implements Configurable, MonitorList
 	public void configure() throws FactoryException {
 		logger.info("Configuring over-exposure protection");
 
-		if (valuePv == null || warningPv == null || alarmPv == null) {
-			logger.error("The valuePv, warningPv and alarmPv must be set for the over exposure protection to work. It will not be enabled");
-			// return here we wont be able to set this up usefully
-			return;
-		}
-
-		// Check that the warning and alarm values make sense, this is mostly to catch the case =0 where they have not been set
-		if (warningValue <= 0 || alarmValue <= 0) {
-			logger.error("The warningValue and alarmValue must be set");
+		if (basePv == null) {
+			logger.error("The basePv must be set for the over exposure protection to work. It will NOT be enabled");
 			// return here we wont be able to set this up usefully
 			return;
 		}
@@ -101,16 +93,11 @@ public class VGScientaOverExposureProtector implements Configurable, MonitorList
 		}
 
 		try {
-			// Set the warning and alarm values. These are only used by EPICS to indicate to the user the status
-			Channel warningChannel = EPICS_CONTROLLER.createChannel(warningPv);
-			Channel alarmChannel = EPICS_CONTROLLER.createChannel(alarmPv);
-			logger.debug("Setting analyser over-exposure warning value to: {}", warningValue);
-			EPICS_CONTROLLER.caputWait(warningChannel, warningValue);
-			logger.debug("Setting analyser over-exposure alarm value to: {}", alarmValue);
-			EPICS_CONTROLLER.caputWait(alarmChannel, alarmValue);
-			logger.info("Setup analyser over-exposure warning and alarm values");
+			// Create the warning alarm and value channels
+			warningChannel = EPICS_CONTROLLER.createChannel(basePv + WARNING_PV_SUFFIX);
+			alarmChannel = EPICS_CONTROLLER.createChannel(basePv + ALARM_PV_SUFFIX);
+			valueChannel = EPICS_CONTROLLER.createChannel(basePv);
 
-			valueChannel = EPICS_CONTROLLER.createChannel(valuePv);
 			// Get updates if the alarm status changes. Should reduce unnecessary updates
 			valueChannel.addMonitor(Monitor.ALARM, this);
 			logger.debug("Added monitor to analyser over-exposure value channel");
@@ -122,15 +109,28 @@ public class VGScientaOverExposureProtector implements Configurable, MonitorList
 		logger.info("Finsihed configuring analyser over-exposure protection");
 	}
 
+	private double getAlarmValue() throws TimeoutException, CAException, InterruptedException {
+		double alarmValue = EPICS_CONTROLLER.cagetDouble(alarmChannel);
+		logger.debug("Alarm value is: {}", alarmValue);
+		return alarmValue;
+	}
+
+	private double getWarningValue() throws TimeoutException, CAException, InterruptedException {
+		double warningValue = EPICS_CONTROLLER.cagetDouble(warningChannel);
+		logger.debug("Warning value is: {}", warningValue);
+		return warningValue;
+	}
+
 	@Override
 	public void monitorChanged(MonitorEvent ev) {
-		DBR dbr = ev.getDBR();
-		if (dbr.isDOUBLE()) {
+		// Ignore the event it just used to trigger this code
+
+		try {
 			// Get the actual value
-			final double value = ((DBR_Double) dbr).getDoubleValue()[0];
+			final double value = EPICS_CONTROLLER.cagetDouble(valueChannel);
 
 			// Check for the alarm case first its the most important
-			if (value >= alarmValue) {
+			if (value >= getAlarmValue()) {
 				if (!alarmHandled) { // If alarm state hasn't been handled
 					logger.warn("Analyser over-exposure detected! Waiting for {} ms to check if it's transient", delayTime);
 					// Wait for delayTime to check if its transient
@@ -139,39 +139,31 @@ public class VGScientaOverExposureProtector implements Configurable, MonitorList
 					} catch (InterruptedException e) {
 						logger.error("Interrupted while waiting to recheck exposure, will have waited < {} ms", delayTime, e);
 					}
+
 					// Re-check the value channel
-					try {
-						double recheckedValue = EPICS_CONTROLLER.cagetDouble(valueChannel);
-						if (recheckedValue < alarmValue) {
-							logger.info("After delay exposure is now below the over-exposure limit");
-							return; // The value is now below the alarm value so don't take further action
-						}
-					} catch (TimeoutException | CAException | InterruptedException e) {
-						logger.error("Error rechecking the exposure value. Assuming over-exposure!", e);
+					double recheckedValue = EPICS_CONTROLLER.cagetDouble(valueChannel);
+					if (recheckedValue < getAlarmValue()) {
+						logger.info("After delay exposure is now below the over-exposure limit");
+						return; // The value is now below the alarm value so don't take further action
 					}
 
 					// If you reach here over-exposure was detected.
 					takeAction();
 				}
-				return;
-			} else if (value >= warningValue) {
+			} else if (value >= getWarningValue()) {
 				if (!warningHandled) { // If warning state hasn't been handled
 					logger.warn("Analyser over-exposure warning level reached");
 					warningHandled = true;
 				}
-				return;
-			}
-
-			if (value < warningValue) {
+			} else { // i.e < warning value
 				logger.info("Analyser exposure at safe level");
 				alarmHandled = false;
 				warningHandled = false;
 				logger.debug("Reset alarmHandled and warningHandled to false");
-				return;
 			}
-
-		} else {
-			logger.error("Recieved unexpected DBR type");
+		} catch (TimeoutException | CAException | InterruptedException e) {
+			logger.error("Error rechecking the exposure value. Assuming over-exposure!", e);
+			takeAction();
 		}
 	}
 
@@ -190,26 +182,6 @@ public class VGScientaOverExposureProtector implements Configurable, MonitorList
 		alarmHandled = true;
 	}
 
-	public void setWarningValue(double warningValue) {
-		this.warningValue = warningValue;
-	}
-
-	public void setAlarmValue(double alarmValue) {
-		this.alarmValue = alarmValue;
-	}
-
-	public void setValuePv(String valuePv) {
-		this.valuePv = valuePv;
-	}
-
-	public void setWarningPv(String warningPv) {
-		this.warningPv = warningPv;
-	}
-
-	public void setAlarmPv(String alarmPv) {
-		this.alarmPv = alarmPv;
-	}
-
 	public void setAlarmActionCommand(String alarmActionCommand) {
 		this.alarmActionCommand = alarmActionCommand;
 	}
@@ -218,12 +190,12 @@ public class VGScientaOverExposureProtector implements Configurable, MonitorList
 		this.userMessage = userMessage;
 	}
 
-	public long getDelayTime() {
-		return delayTime;
-	}
-
 	public void setDelayTime(long delayTime) {
 		this.delayTime = delayTime;
+	}
+
+	public void setBasePv(String basePv) {
+		this.basePv = basePv;
 	}
 
 }
