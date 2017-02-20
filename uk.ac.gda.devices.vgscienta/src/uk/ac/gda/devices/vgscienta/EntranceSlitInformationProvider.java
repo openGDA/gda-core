@@ -20,7 +20,6 @@ package uk.ac.gda.devices.vgscienta;
 
 public interface EntranceSlitInformationProvider {
 	public Number getRawValue();
-	public String getLabel();
 	public Double getSizeInMM();
 	public String getShape();
 	public String getDirection();

@@ -37,5 +37,4 @@ Export-Package: uk.ac.gda.devices.vgscienta;
    gda.device.detector.addetector,
    gda.device.detector.areadetector.v17,
    gda.observable,
-   org.slf4j",
- uk.ac.gda.devices.vgscienta.i05_1
+   org.slf4j"
