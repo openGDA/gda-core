@@ -316,8 +316,9 @@ public class ScannableMotionBaseTest extends ScannableBaseTest {
 		PositionValidator v2 = mock(PositionValidator.class);
 		getSMB().addPositionValidator(v1);
 		getSMB().addPositionValidator(v2);
-		assertEquals(v1, getSMB().getAdditionalPositionValidators().get(0));
-		assertEquals(v2, getSMB().getAdditionalPositionValidators().get(1));
+		assertEquals(2, getSMB().getAdditionalPositionValidators().size());
+		assertTrue(getSMB().getAdditionalPositionValidators().contains(v1));
+		assertTrue(getSMB().getAdditionalPositionValidators().contains(v2));
 	}
 
 	@Test

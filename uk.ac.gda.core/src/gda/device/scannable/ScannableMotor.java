@@ -660,6 +660,9 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 	}
 
 	public void setMotorLimitsComponent(MotorLimitsComponent motorLimitsComponent) {
+		if (this.motorLimitsComponent != null) {
+			removePositionValidator(this.motorLimitsComponent);
+		}
 		this.motorLimitsComponent = motorLimitsComponent;
 		addPositionValidator(getMotorLimitsComponent());
 	}

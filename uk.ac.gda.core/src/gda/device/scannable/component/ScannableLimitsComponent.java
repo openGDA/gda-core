@@ -27,21 +27,21 @@ import gda.device.scannable.PositionConvertorFunctions;
 public class ScannableLimitsComponent implements LimitsComponent {
 
 	/**
-	 * Array of lower limits (one for each input name). Null if no limits set. Any value within array may be null if
-	 * that input has no corresponding limit.
+	 * Array of lower limits (one for each input name). Null if no limits set.
+	 * Any value within array may be null if that input has no corresponding limit.
 	 */
 	private Double[] internalLowerLim = null;
 
 	/**
-	 * Array of upper limits (one for each input name). Null if no limits set. Any value within array may be null if
-	 * that input has no corresponding limit.
+	 * Array of upper limits (one for each input name). Null if no limits set.
+	 * Any value within array may be null if that input has no corresponding limit.
 	 */
 	private Double[] internalUpperLim = null;
 
 	private Scannable hostScannable;
 
 	/**
-	 * e.g. 'Scannable' or 'Epics' (For messages only)
+	 * e.g. 'Scannable' or 'Epics' (for messages only).
 	 */
 	protected String limitType = "";
 

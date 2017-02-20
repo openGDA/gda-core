@@ -34,7 +34,7 @@ public class MotorLimitsComponent implements LimitsComponent {
 	}
 
 	/**
-	 * {@inheritDoc}. Returns null indicating no limit set of the motor returns NaN.
+	 * {@inheritDoc}<P>Returns null indicating no limit set of the motor returns NaN.
 	 */
 	@Override
 	public Double[] getInternalLower() throws DeviceException {
@@ -48,7 +48,7 @@ public class MotorLimitsComponent implements LimitsComponent {
 	}
 
 	/**
-	 * {@inheritDoc}. Returns null indicating no limit set of the motor returns NaN.
+	 * {@inheritDoc}<P>Returns null indicating no limit set of the motor returns NaN.
 	 */
 	@Override
 	public Double[] getInternalUpper() throws DeviceException {
@@ -64,11 +64,8 @@ public class MotorLimitsComponent implements LimitsComponent {
 	@Override
 	public String checkInternalPosition(Object[] internalPosition) throws DeviceException {
 
-		Double[] lowerLim;
-		Double[] upperLim;
-
-		lowerLim = getInternalLower();
-		upperLim = getInternalUpper();
+		final Double[] lowerLim = getInternalLower();
+		final Double[] upperLim = getInternalUpper();
 
 		// If neither limits are set, return null indicating okay.
 		if ((lowerLim == null) & (upperLim == null)) {
@@ -107,18 +104,6 @@ public class MotorLimitsComponent implements LimitsComponent {
 		return null;
 	}
 
-	// @Override
-	// public void setInternalLower(Double[] internaLowerLim) throws DeviceException {
-	// throw new DeviceException("Could not set motor " + motor.getName() + "'s lower limit: This method is a STUB");
-	//
-	// }
-	//
-	// @Override
-	// public void setInternalUpper(Double[] internalUpperLim) throws DeviceException {
-	// throw new DeviceException("Could not set motor " + motor.getName() + "'s upper limit: This method is a STUB");
-	//
-	// }
-
 	@Override
 	public void setInternalLower(Double[] internalLowerLim) throws DeviceException {
 		checkLimitsSettable();
@@ -147,7 +132,6 @@ public class MotorLimitsComponent implements LimitsComponent {
 		setMotorLimits((getInternalLower()==null) ? null : getInternalLower()[0], internalUpperLim[0]);
 	}
 
-
 	private void checkLimitsSettable() throws DeviceException {
 		try {
 			if (!motor.isLimitsSettable()) {
@@ -156,7 +140,6 @@ public class MotorLimitsComponent implements LimitsComponent {
 		} catch (MotorException e) {
 			throw new DeviceException("Problem checking if motor " + motor.getName() + "'s limits are settable", e);
 		}
-
 	}
 
 	/**
@@ -178,7 +161,6 @@ public class MotorLimitsComponent implements LimitsComponent {
 		} catch (MotorException e) {
 			throw new DeviceException("Problem setting motor " + motor.getName() + "'s limits:", e);
 		}
-
 	}
 
 }
