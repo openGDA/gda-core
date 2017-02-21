@@ -28,6 +28,7 @@ import java.util.concurrent.TimeUnit;
 import org.eclipse.scanning.api.annotation.scan.FileDeclared;
 import org.eclipse.scanning.api.annotation.scan.ScanEnd;
 import org.eclipse.scanning.api.annotation.scan.ScanFinally;
+import org.eclipse.scanning.api.scan.IFilePathService;
 import org.eclipse.scanning.api.scan.IScanService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -203,7 +204,16 @@ public class FileRegistrar extends DataWriterExtenderBase implements IFileRegist
 			if (lastScanDataPoint != null) {
 				datasetId = "scan-" + lastScanDataPoint.getScanIdentifier();
 			} else {
-				datasetId = new File(files.iterator().next()).getName();
+				final IFilePathService pathService = FileRegistrarServiceHolder.getFilePathService();
+				String id; // to get over the fact the datasetId is final
+				try {
+					int scanNumber = pathService.getScanNumber();
+					id = "scan-" + scanNumber;
+				} catch (Exception e) {
+					logger.warn("Cannot get scan number from FilePathService, using file name instead");
+					id = new File(files.iterator().next()).getName();
+				}
+				datasetId = id;
 			}
 			fileArr = files.toArray(new String[0]);
 			files.clear();

@@ -19,6 +19,7 @@
 package gda.data.fileregistrar;
 
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
+import org.eclipse.scanning.api.scan.IFilePathService;
 
 /**
  * Holds the IRunnableDeviceService which the file registrar uses
@@ -39,5 +40,14 @@ public class FileRegistrarServiceHolder {
 		runnableDeviceService = rs;
 	}
 
+    private static IFilePathService filePathService;
+
+	public static IFilePathService getFilePathService() {
+		return filePathService;
+	}
+
+	public static void setFilePathService(IFilePathService filePathService) {
+		FileRegistrarServiceHolder.filePathService = filePathService;
+	}
 
 }

@@ -2,4 +2,5 @@
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="File Registrar Service Holder">
    <implementation class="gda.data.fileregistrar.FileRegistrarServiceHolder"/>
    <reference bind="setRunnableDeviceService" cardinality="1..1" interface="org.eclipse.scanning.api.device.IRunnableDeviceService" name="IRunnableDeviceService" policy="static"/>
-</scr:component>
+
+   <reference bind="setFilePathService" cardinality="1..1" interface="org.eclipse.scanning.api.scan.IFilePathService" name="IFilePathService" policy="static"/></scr:component>
