@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="File Registrar">
-   <implementation class="gda.data.fileregistrar.FileRegistrar"/>
-   <reference bind="setRunnableDeviceService" cardinality="0..1" interface="org.eclipse.scanning.api.device.IRunnableDeviceService" name="IRunnableDeviceService" policy="dynamic"/>
-</scr:component>

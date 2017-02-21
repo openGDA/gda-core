@@ -28,7 +28,6 @@ import java.util.concurrent.TimeUnit;
 import org.eclipse.scanning.api.annotation.scan.FileDeclared;
 import org.eclipse.scanning.api.annotation.scan.ScanEnd;
 import org.eclipse.scanning.api.annotation.scan.ScanFinally;
-import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.scan.IScanService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -296,20 +295,6 @@ public class FileRegistrar extends DataWriterExtenderBase implements IFileRegist
 	public void setClientFileAnnouncer(DeviceBase clientFileAnnouncer) {
 		this.sockPuppet = clientFileAnnouncer;
 	}
-
-
-	// This is provided by OSGi. Making static usually gives the best
-	// opportunity that one of the load cycles will have set the service.
-	private static IRunnableDeviceService runnableDeviceService;
-
-	public IRunnableDeviceService getRunnableDeviceService() {
-		return runnableDeviceService;
-	}
-
-	public void setRunnableDeviceService(IRunnableDeviceService rs) {
-		runnableDeviceService = rs;
-	}
-
 	/**
 	 * Method called by spring to register the registrar with solstice scanning.
 	 *
@@ -317,7 +302,7 @@ public class FileRegistrar extends DataWriterExtenderBase implements IFileRegist
 	 * @throws ClassCastException if IRunnableDeviceService is not a IScanService which is must be.
 	 */
 	public void register() {
-		((IScanService)runnableDeviceService).addScanParticipant(this);
+		((IScanService)FileRegistrarServiceHolder.getRunnableDeviceService()).addScanParticipant(this);
 		logger.info("Registered "+getClass().getSimpleName()+" as a particpant in scans");
 	}
 
