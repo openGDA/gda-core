@@ -9,6 +9,6 @@
 	<import resource="mapping_motors.xml"/>
 
 <!-- Do not remove anything below here -->
-	<import resource="file:${gda.config}/servers/main/_common/server.xml" />
+	<import resource="../../main/_common/server.xml" />
 
 </beans>

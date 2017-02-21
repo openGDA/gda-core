@@ -1,0 +1,46 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:gda="http://www.diamond.ac.uk/schema/gda/gda"
+	xmlns:corba="http://www.diamond.ac.uk/schema/gda/corba"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+	http://www.diamond.ac.uk/schema/gda/gda http://www.diamond.ac.uk/schema/gda/gda/gda-gda-1.0.xsd
+	http://www.diamond.ac.uk/schema/gda/corba http://www.diamond.ac.uk/schema/gda/corba/gda-corba-1.0.xsd">
+
+	<!-- This seems a bit redundant in the new scanning but keeping it for now 
+		to fit with the current ADDectector framework -->
+	<bean id="det_hdf5_writer"
+		class="gda.device.detector.addetector.filewriter.MultipleImagesPerHDF5FileWriter">
+		<property name="ndFileHDF5" ref="det_hdf5" />
+		<property name="fileTemplate" value="%s%s.hdf5" />
+		<property name="filePathTemplate" value="$datadir$" />
+		<property name="fileNameTemplate" value="" />
+		<property name="fileNumberAtScanStart" value="-1" />
+		<property name="setFileNameAndNumber" value="true" />
+	</bean>
+
+	<bean id="det" class="gda.device.detector.addetector.ADDetector">
+		<property name="adBase" ref="det_adbase" />
+		<property name="ndFile" ref="det_ndfile" />
+		<property name="ndArray" ref="det_ndarray" />
+		<property name="ndStats" ref="det_stats" />
+		<property name="fileWriter" ref="det_hdf5_writer" />
+	</bean>
+
+	<!--  Scanning Gui configuration -->
+
+	<bean id="detModel" class="uk.ac.diamond.daq.detectors.addetector.api.AreaDetectorRunnableDeviceModel">
+		<property name="name"                   value="det"/>
+		<property name="exposureTime"           value="0.1"/>
+	</bean>
+	<bean id="detInfo" class="org.eclipse.scanning.api.event.scan.DeviceInformation">
+		<property name="id"          value="org.eclipse.scanning.api.event.scan.DeviceInformation.detInfo"/>
+		<property name="label"       value="Det Area Detector Device Label"/>
+		<property name="description" value="Det Area Detector Device Description"/>
+<!-- 		<property name="icon"        value="org.eclipse.scanning.example/icons/alarm-clock-select.png"/>  bundle must be on client for that, if it isn't a default icon is used -->
+	</bean>
+	<bean id="detDetector" class="uk.ac.diamond.daq.detectors.addetector.AreaDetectorRunnableDevice" init-method="register">
+		<property name="name"              value="det"/>
+		<property name="model"             ref="detModel"/>
+		<property name="deviceInformation" ref="detInfo"/>
+		<property name="activated"         value="false"/> <!-- This means it is activated as the default device to use in a scan -->
+	</bean>
+</beans>

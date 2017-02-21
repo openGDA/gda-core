@@ -38,10 +38,12 @@
 		serviceName="gda/plotserver"
 		serviceInterface="uk.ac.diamond.scisoft.analysis.PlotServer" />
 
+	<import resource="det.xml"/>
+	<import resource="mic.xml"/>
 	<import resource="example_detectors.xml"/>
 	<import resource="command_queue_processor.xml"/>
 	<import resource="jython_server_facade.xml" />
-	<import resource="mapping_stage.xml"/>
+	<import resource="mapping_motors.xml"/>
 	<import resource="mandelbrot_detectors.xml"/>
 
 	<!-- To enable use of a simulated AD uncomment this import and set the WORKSTATION environment variable to your workstation name -->
