@@ -50,6 +50,7 @@ public class RedirectableFileLoggerTest {
 	private void createLogger(String logfile) {
 		when(mockPathProvider.getPath()).thenReturn(logfile);
 		logger = new RedirectableFileLogger(mockPathProvider);
+		logger.configure();
 	}
 
 	@Test
@@ -59,6 +60,7 @@ public class RedirectableFileLoggerTest {
 
 		assertFalse(new File(logfile).exists());
 		logger = new RedirectableFileLogger(mockPathProvider);
+		logger.configure();
 		assertTrue(new File(logfile).exists());
 	}
 

@@ -18,10 +18,6 @@
 
 package gda.jython.logger;
 
-import gda.data.ObservablePathProvider;
-import gda.data.PathChanged;
-import gda.observable.IObserver;
-
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +26,10 @@ import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.PatternLayout;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.FileAppender;
+import gda.data.ObservablePathProvider;
+import gda.data.PathChanged;
+import gda.factory.Configurable;
+import gda.observable.IObserver;
 
 /**
  * A RedirectableLogger logs strings to a file maintained by the instance and to a standard slf4j logger. The log file's
@@ -91,7 +91,7 @@ import ch.qos.logback.core.FileAppender;
 * </pre></code><p>
  */
 
-public class RedirectableFileLogger implements LineLogger, IObserver {
+public class RedirectableFileLogger implements LineLogger, IObserver, Configurable {
 
 	static private org.slf4j.Logger logger = LoggerFactory.getLogger(RedirectableFileLogger.class);
 
@@ -99,7 +99,14 @@ public class RedirectableFileLogger implements LineLogger, IObserver {
 
 	private ch.qos.logback.classic.Logger localLogger;
 
+	private ObservablePathProvider pathProvider;
+
 	public RedirectableFileLogger(ObservablePathProvider logFilePathProvider) {
+		this.pathProvider = logFilePathProvider;
+	}
+
+	@Override
+	public void configure() {
 
 		// Context
 		LoggerContext localContext = new LoggerContext();
@@ -113,7 +120,7 @@ public class RedirectableFileLogger implements LineLogger, IObserver {
 		// file appender
 		localAppender = new FileAppender<ILoggingEvent>();
 		localAppender.setAppend(true);
-		localAppender.setFile(logFilePathProvider.getPath());
+		localAppender.setFile(pathProvider.getPath());
 		localAppender.setContext(localContext);
 		localAppender.setLayout(localLayout);
 		localAppender.start();
@@ -124,7 +131,7 @@ public class RedirectableFileLogger implements LineLogger, IObserver {
 		localLogger.addAppender(localAppender);
 
 		// register for path updates
-		logFilePathProvider.addIObserver(this); //FIXME: potential race condition
+		pathProvider.addIObserver(this); //FIXME: potential race condition
 	}
 
 	private void setFile(String logfile) {
