@@ -128,7 +128,7 @@ public class ObservableUtil<E> implements Observable<E>, IIsBeingObserved {
 				if (predicate != null) {
 					// if predicate is configured and it is *not* true then don't send the update.
 					if (!predicate.apply(changeCode)) {
-						return;
+						continue;
 					}
 				}
 				observer.update(theObserved, changeCode);
