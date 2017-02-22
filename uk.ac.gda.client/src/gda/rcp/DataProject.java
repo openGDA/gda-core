@@ -18,9 +18,6 @@
 
 package gda.rcp;
 
-import gda.configuration.properties.LocalProperties;
-import gda.data.PathConstructor;
-
 import java.util.List;
 import java.util.Vector;
 
@@ -32,6 +29,8 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
+import gda.data.PathConstructor;
 import uk.ac.diamond.scisoft.analysis.rcp.GDADataNature;
 import uk.ac.gda.preferences.PreferenceConstants;
 import uk.ac.gda.preferences.PreferenceInitializer;
@@ -89,7 +88,7 @@ public class DataProject {
 		if (project != null)
 			return project;
 
-		return createDataProject(monitor, projName, PathConstructor.createFromRCPProperties(),
+		return createDataProject(monitor, projName, PathConstructor.getClientVisitDirectory(),
 			preferenceStore.getString(PreferenceConstants.GDA_DATA_PROJECT_FILTER),
 			preferenceStore.getBoolean(PreferenceConstants.GDA_DATA_PROJECT_FILTER_IS_EXCLUDE));
 	}
