@@ -17,8 +17,8 @@
 	</description>
 
 	<!-- Stage axis names defined as String beans for convenience and to avoid repetition of the same literal value -->
-	<bean id="x_axis_name" class="java.lang.String" factory-method="valueOf"><constructor-arg value="stage_x"/></bean>
-	<bean id="y_axis_name" class="java.lang.String" factory-method="valueOf"><constructor-arg value="stage_y"/></bean>
+	<bean id="x_axis_name" class="java.lang.String" factory-method="valueOf"><constructor-arg value="stagex"/></bean>
+	<bean id="y_axis_name" class="java.lang.String" factory-method="valueOf"><constructor-arg value="stagey"/></bean>
 
 	<!-- The mapping experiment bean provides the options and defaults used for setting up new mapping experiments -->
 	<bean id="mapping_experiment_bean" class="uk.ac.diamond.daq.mapping.impl.MappingExperimentBean">

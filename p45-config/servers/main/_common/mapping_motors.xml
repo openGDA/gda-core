@@ -16,6 +16,14 @@
 		<property name="motor" ref="stage_y_motor" />
 	</bean>
 
+	<bean id="stagex" class="gda.device.scannable.ScannableMotor">
+		<property name="motor" ref="stage_x_motor" />
+	</bean>
+
+	<bean id="stagey" class="gda.device.scannable.ScannableMotor">
+		<property name="motor" ref="stage_y_motor" />
+	</bean>
+
 	<bean id="stage_z" class="gda.device.scannable.ScannableMotor">
 		<property name="motor" ref="stage_z_motor" />
 	</bean>

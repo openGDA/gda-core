@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!-- Dummy Malcolm Device -->
+	<bean id="defaultMalcolmModel" class="org.eclipse.scanning.api.device.models.MalcolmModel">
+		<property name="name" value="P45-SCAN02"/>
+		<property name="exposureTime" value="0.01"/>
+	</bean>
+	
+	<bean id="defaultMalcolmInfo" class="org.eclipse.scanning.api.event.scan.DeviceInformation">
+		<property name="id" value="org.eclipse.scanning.example.malcolm.defaultMalcolmDevice"/>
+		<property name="label" value="Malcolm"/>
+		<property name="description" value="The default Malcolm device for beamline P45"/>
+	</bean>
+	
+	<bean id="defaultMalcolmDevice" class="org.eclipse.scanning.malcolm.core.MalcolmDevice" init-method="register">
+		<property name="name" value="P45-SCAN02"/>
+		<property name="model" ref="defaultMalcolmModel"/>
+		<property name="deviceInformation" ref="defaultMalcolmInfo"/>
+		<!-- Whether this is the default device to use in a scan. Possibly should be set to true-->
+		<property name="activated" value="false"/>
+	</bean>
+
+</beans>
+
