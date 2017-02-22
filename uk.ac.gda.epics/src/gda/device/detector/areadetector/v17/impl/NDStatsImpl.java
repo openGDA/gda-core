@@ -89,7 +89,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ComputeStatistics));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot getComputeStatistics", ex);
+			logger.warn("Cannot getComputeStatistics", ex);
 			throw ex;
 		}
 	}
@@ -106,7 +106,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 				EPICS_CONTROLLER.caput(getChannel(ComputeStatistics), computestatistics);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot setComputeStatistics", ex);
+			logger.warn("Cannot setComputeStatistics", ex);
 			throw ex;
 		}
 	}
@@ -122,7 +122,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ComputeStatistics_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot getComputeStatistics_RBV", ex);
+			logger.warn("Cannot getComputeStatistics_RBV", ex);
 			throw ex;
 		}
 	}
@@ -138,7 +138,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(BgdWidth));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot getBgdWidth", ex);
+			logger.warn("Cannot getBgdWidth", ex);
 			throw ex;
 		}
 	}
@@ -155,7 +155,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 				EPICS_CONTROLLER.caput(getChannel(BgdWidth), bgdwidth);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot setBgdWidth", ex);
+			logger.warn("Cannot setBgdWidth", ex);
 			throw ex;
 		}
 	}
@@ -171,7 +171,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(BgdWidth_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot getBgdWidth_RBV", ex);
+			logger.warn("Cannot getBgdWidth_RBV", ex);
 			throw ex;
 		}
 	}
@@ -187,7 +187,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(MinValue_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot getMinValue_RBV", ex);
+			logger.warn("Cannot getMinValue_RBV", ex);
 			throw ex;
 		}
 	}
@@ -203,7 +203,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(MaxValue_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot getMaxValue_RBV", ex);
+			logger.warn("Cannot getMaxValue_RBV", ex);
 			throw ex;
 		}
 	}
@@ -219,7 +219,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(MeanValue_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot getMeanValue_RBV", ex);
+			logger.warn("Cannot getMeanValue_RBV", ex);
 			throw ex;
 		}
 	}
@@ -235,7 +235,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(Sigma_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot getSigma_RBV", ex);
+			logger.warn("Cannot getSigma_RBV", ex);
 			throw ex;
 		}
 	}
@@ -251,7 +251,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(Total_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot getTotal_RBV", ex);
+			logger.warn("Cannot getTotal_RBV", ex);
 			throw ex;
 		}
 	}
@@ -267,7 +267,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(Net_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot getNet_RBV", ex);
+			logger.warn("Cannot getNet_RBV", ex);
 			throw ex;
 		}
 	}
@@ -283,7 +283,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ComputeCentroid));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot getComputeCentroid", ex);
+			logger.warn("Cannot getComputeCentroid", ex);
 			throw ex;
 		}
 	}
@@ -300,7 +300,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 				EPICS_CONTROLLER.caput(getChannel(ComputeCentroid), computecentroid);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot setComputeCentroid", ex);
+			logger.warn("Cannot setComputeCentroid", ex);
 			throw ex;
 		}
 	}
@@ -316,7 +316,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ComputeCentroid_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot getComputeCentroid_RBV", ex);
+			logger.warn("Cannot getComputeCentroid_RBV", ex);
 			throw ex;
 		}
 	}
@@ -332,7 +332,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(CentroidThreshold));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot getCentroidThreshold", ex);
+			logger.warn("Cannot getCentroidThreshold", ex);
 			throw ex;
 		}
 	}
@@ -349,7 +349,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 				EPICS_CONTROLLER.caput(getChannel(CentroidThreshold), centroidthreshold);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot setCentroidThreshold", ex);
+			logger.warn("Cannot setCentroidThreshold", ex);
 			throw ex;
 		}
 	}
@@ -365,7 +365,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(CentroidThreshold_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot getCentroidThreshold_RBV", ex);
+			logger.warn("Cannot getCentroidThreshold_RBV", ex);
 			throw ex;
 		}
 	}
@@ -381,7 +381,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(CentroidX_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot getCentroidX_RBV", ex);
+			logger.warn("Cannot getCentroidX_RBV", ex);
 			throw ex;
 		}
 	}
@@ -397,7 +397,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(CentroidY_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot getCentroidY_RBV", ex);
+			logger.warn("Cannot getCentroidY_RBV", ex);
 			throw ex;
 		}
 	}
@@ -413,7 +413,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(SigmaX_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot getSigmaX_RBV", ex);
+			logger.warn("Cannot getSigmaX_RBV", ex);
 			throw ex;
 		}
 	}
@@ -429,7 +429,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(SigmaY_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot getSigmaY_RBV", ex);
+			logger.warn("Cannot getSigmaY_RBV", ex);
 			throw ex;
 		}
 	}
@@ -445,7 +445,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(SigmaXY_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot getSigmaXY_RBV", ex);
+			logger.warn("Cannot getSigmaXY_RBV", ex);
 			throw ex;
 		}
 	}
@@ -461,7 +461,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ComputeProfiles));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot getComputeProfiles", ex);
+			logger.warn("Cannot getComputeProfiles", ex);
 			throw ex;
 		}
 	}
@@ -478,7 +478,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 				EPICS_CONTROLLER.caput(getChannel(ComputeProfiles), computeprofiles);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot setComputeProfiles", ex);
+			logger.warn("Cannot setComputeProfiles", ex);
 			throw ex;
 		}
 	}
@@ -494,7 +494,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ComputeProfiles_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot getComputeProfiles_RBV", ex);
+			logger.warn("Cannot getComputeProfiles_RBV", ex);
 			throw ex;
 		}
 	}
@@ -510,7 +510,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(ProfileSizeX_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot getProfileSizeX_RBV", ex);
+			logger.warn("Cannot getProfileSizeX_RBV", ex);
 			throw ex;
 		}
 	}
@@ -526,7 +526,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(ProfileSizeY_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot getProfileSizeY_RBV", ex);
+			logger.warn("Cannot getProfileSizeY_RBV", ex);
 			throw ex;
 		}
 	}
@@ -542,7 +542,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(CursorX));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot getCursorX", ex);
+			logger.warn("Cannot getCursorX", ex);
 			throw ex;
 		}
 	}
@@ -559,7 +559,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 				EPICS_CONTROLLER.caput(getChannel(CursorX), cursorx);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot setCursorX", ex);
+			logger.warn("Cannot setCursorX", ex);
 			throw ex;
 		}
 	}
@@ -575,7 +575,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(CursorX_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot getCursorX_RBV", ex);
+			logger.warn("Cannot getCursorX_RBV", ex);
 			throw ex;
 		}
 	}
@@ -591,7 +591,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(CursorY));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot getCursorY", ex);
+			logger.warn("Cannot getCursorY", ex);
 			throw ex;
 		}
 	}
@@ -608,7 +608,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 				EPICS_CONTROLLER.caput(getChannel(CursorY), cursory);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot setCursorY", ex);
+			logger.warn("Cannot setCursorY", ex);
 			throw ex;
 		}
 	}
@@ -624,7 +624,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(CursorY_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot getCursorY_RBV", ex);
+			logger.warn("Cannot getCursorY_RBV", ex);
 			throw ex;
 		}
 	}
@@ -640,7 +640,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 			}
 			return EPICS_CONTROLLER.cagetDoubleArray(getChannel(ProfileAverageX_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot getProfileAverageX_RBV", ex);
+			logger.warn("Cannot getProfileAverageX_RBV", ex);
 			throw ex;
 		}
 	}
@@ -656,7 +656,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 			}
 			return EPICS_CONTROLLER.cagetDoubleArray(getChannel(ProfileAverageY_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot getProfileAverageY_RBV", ex);
+			logger.warn("Cannot getProfileAverageY_RBV", ex);
 			throw ex;
 		}
 	}
@@ -672,7 +672,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 			}
 			return EPICS_CONTROLLER.cagetDoubleArray(getChannel(ProfileThresholdX_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot getProfileThresholdX_RBV", ex);
+			logger.warn("Cannot getProfileThresholdX_RBV", ex);
 			throw ex;
 		}
 	}
@@ -690,7 +690,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 			return EPICS_CONTROLLER.cagetDoubleArray(getChannel(ProfileThresholdY_RBV));
 
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot getProfileThresholdY_RBV", ex);
+			logger.warn("Cannot getProfileThresholdY_RBV", ex);
 			throw ex;
 		}
 	}
@@ -706,7 +706,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 			}
 			return EPICS_CONTROLLER.cagetDoubleArray(getChannel(ProfileCentroidX_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot getProfileCentroidX_RBV", ex);
+			logger.warn("Cannot getProfileCentroidX_RBV", ex);
 			throw ex;
 		}
 	}
@@ -722,7 +722,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 			}
 			return EPICS_CONTROLLER.cagetDoubleArray(getChannel(ProfileCentroidY_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot getProfileCentroidY_RBV", ex);
+			logger.warn("Cannot getProfileCentroidY_RBV", ex);
 			throw ex;
 		}
 	}
@@ -738,7 +738,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 			}
 			return EPICS_CONTROLLER.cagetDoubleArray(getChannel(ProfileCursorX_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot getProfileCursorX_RBV", ex);
+			logger.warn("Cannot getProfileCursorX_RBV", ex);
 			throw ex;
 		}
 	}
@@ -754,7 +754,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 			}
 			return EPICS_CONTROLLER.cagetDoubleArray(getChannel(ProfileCursorY_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot getProfileCursorY_RBV", ex);
+			logger.warn("Cannot getProfileCursorY_RBV", ex);
 			throw ex;
 		}
 	}
@@ -770,7 +770,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ComputeHistogram));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot getComputeHistogram", ex);
+			logger.warn("Cannot getComputeHistogram", ex);
 			throw ex;
 		}
 	}
@@ -790,7 +790,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 			EPICS_CONTROLLER.caput(channel, computehistogram);
 			logger.debug("Set Compute Histogram to "+computehistogram+" on "+channel.getName());
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot setComputeHistogram", ex);
+			logger.warn("Cannot setComputeHistogram", ex);
 			throw ex;
 		}
 	}
@@ -806,7 +806,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ComputeHistogram_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot getComputeHistogram_RBV", ex);
+			logger.warn("Cannot getComputeHistogram_RBV", ex);
 			throw ex;
 		}
 	}
@@ -822,7 +822,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(HistSize));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot getHistSize", ex);
+			logger.warn("Cannot getHistSize", ex);
 			throw ex;
 		}
 	}
@@ -842,7 +842,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 			EPICS_CONTROLLER.caput(channel, histsize);
 			logger.debug("Set History Size to "+histsize+" on "+channel.getName());
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot setHistSize", ex);
+			logger.warn("Cannot setHistSize", ex);
 			throw ex;
 		}
 	}
@@ -858,7 +858,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(HistSize_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot getHistSize_RBV", ex);
+			logger.warn("Cannot getHistSize_RBV", ex);
 			throw ex;
 		}
 	}
@@ -874,7 +874,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(HistMin));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot getHistMin", ex);
+			logger.warn("Cannot getHistMin", ex);
 			throw ex;
 		}
 	}
@@ -894,7 +894,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 			EPICS_CONTROLLER.caput(channel, histmin);
 			logger.debug("Set History Min to "+histmin+" on "+channel.getName());
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot setHistMin", ex);
+			logger.warn("Cannot setHistMin", ex);
 			throw ex;
 		}
 	}
@@ -910,7 +910,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(HistMin_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot getHistMin_RBV", ex);
+			logger.warn("Cannot getHistMin_RBV", ex);
 			throw ex;
 		}
 	}
@@ -926,7 +926,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(HistMax));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot getHistMax", ex);
+			logger.warn("Cannot getHistMax", ex);
 			throw ex;
 		}
 	}
@@ -946,7 +946,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 			EPICS_CONTROLLER.caput(channel, histmax);
 			logger.debug("Set History Max to "+histmax+" on "+channel.getName());
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot setHistMax", ex);
+			logger.warn("Cannot setHistMax", ex);
 			throw ex;
 		}
 	}
@@ -962,7 +962,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(HistMax_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot getHistMax_RBV", ex);
+			logger.warn("Cannot getHistMax_RBV", ex);
 			throw ex;
 		}
 	}
@@ -978,7 +978,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(HistEntropy_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot getHistEntropy_RBV", ex);
+			logger.warn("Cannot getHistEntropy_RBV", ex);
 			throw ex;
 		}
 	}
@@ -1009,7 +1009,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(MaxSizeX));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot getMaxSizeX", ex);
+			logger.warn("Cannot getMaxSizeX", ex);
 			throw ex;
 		}
 	}
@@ -1029,7 +1029,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 			EPICS_CONTROLLER.caput(channel, maxsizex);
 			logger.debug("Set History Max Size X to "+maxsizex+" on "+channel.getName());
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot setMaxSizeX", ex);
+			logger.warn("Cannot setMaxSizeX", ex);
 			throw ex;
 		}
 	}
@@ -1045,7 +1045,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(SetXHOPR));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot getSetXHOPR", ex);
+			logger.warn("Cannot getSetXHOPR", ex);
 			throw ex;
 		}
 	}
@@ -1062,7 +1062,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 				EPICS_CONTROLLER.caput(getChannel(SetXHOPR), setxhopr);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot setSetXHOPR", ex);
+			logger.warn("Cannot setSetXHOPR", ex);
 			throw ex;
 		}
 	}
@@ -1078,7 +1078,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(MaxSizeY));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot getMaxSizeY", ex);
+			logger.warn("Cannot getMaxSizeY", ex);
 			throw ex;
 		}
 	}
@@ -1098,7 +1098,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 			EPICS_CONTROLLER.caput(channel, maxsizey);
 			logger.debug("Set History Max Y Size to "+maxsizey+" on "+channel.getName());
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot setMaxSizeY", ex);
+			logger.warn("Cannot setMaxSizeY", ex);
 			throw ex;
 		}
 	}
@@ -1114,7 +1114,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(SetYHOPR));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot getSetYHOPR", ex);
+			logger.warn("Cannot getSetYHOPR", ex);
 			throw ex;
 		}
 	}
@@ -1131,7 +1131,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 				EPICS_CONTROLLER.caput(getChannel(SetYHOPR), setyhopr);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot setSetYHOPR", ex);
+			logger.warn("Cannot setSetYHOPR", ex);
 			throw ex;
 		}
 	}

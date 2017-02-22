@@ -195,7 +195,7 @@ public class FFMjpegModelImpl extends EPICSBaseModel<FfmpegStreamType> implement
 			}
 			return new String(EPICS_CONTROLLER.cagetByteArray(getChannel(FfmpegStream.MJPG_URL_RBV, null))).trim();
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.FfmpegStreamImpl-> Cannot getMJPG_URL_RBV", ex);
+			logger.warn("Cannot getMJPG_URL_RBV", ex);
 			throw ex;
 		}
 	}
@@ -214,7 +214,7 @@ public class FFMjpegModelImpl extends EPICSBaseModel<FfmpegStreamType> implement
 			}
 			return new String(EPICS_CONTROLLER.cagetByteArray(getChannel(FfmpegStream.JPG_URL_RBV, null))).trim();
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.FfmpegStreamImpl-> Cannot getJPG_URL_RBV", ex);
+			logger.warn("Cannot getJPG_URL_RBV", ex);
 			throw ex;
 		}
 	}

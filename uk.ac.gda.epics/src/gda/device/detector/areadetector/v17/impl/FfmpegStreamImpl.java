@@ -92,7 +92,7 @@ public class FfmpegStreamImpl extends NDBaseImpl implements InitializingBean, Ff
 			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(QUALITY));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.FfmpegStreamImpl-> Cannot getQUALITY", ex);
+			logger.warn("Cannot getQUALITY", ex);
 			throw ex;
 		}
 	}
@@ -109,7 +109,7 @@ public class FfmpegStreamImpl extends NDBaseImpl implements InitializingBean, Ff
 				EPICS_CONTROLLER.caput(getChannel(QUALITY), quality);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.FfmpegStreamImpl-> Cannot setQUALITY", ex);
+			logger.warn("Cannot setQUALITY", ex);
 			throw ex;
 		}
 	}
@@ -125,7 +125,7 @@ public class FfmpegStreamImpl extends NDBaseImpl implements InitializingBean, Ff
 			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(QUALITY_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.FfmpegStreamImpl-> Cannot getQUALITY_RBV", ex);
+			logger.warn("Cannot getQUALITY_RBV", ex);
 			throw ex;
 		}
 	}
@@ -141,7 +141,7 @@ public class FfmpegStreamImpl extends NDBaseImpl implements InitializingBean, Ff
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(FALSE_COL));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.FfmpegStreamImpl-> Cannot getFALSE_COL", ex);
+			logger.warn("Cannot getFALSE_COL", ex);
 			throw ex;
 		}
 	}
@@ -158,7 +158,7 @@ public class FfmpegStreamImpl extends NDBaseImpl implements InitializingBean, Ff
 				EPICS_CONTROLLER.caput(getChannel(FALSE_COL), false_col);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.FfmpegStreamImpl-> Cannot setFALSE_COL", ex);
+			logger.warn("Cannot setFALSE_COL", ex);
 			throw ex;
 		}
 	}
@@ -174,7 +174,7 @@ public class FfmpegStreamImpl extends NDBaseImpl implements InitializingBean, Ff
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(FALSE_COL_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.FfmpegStreamImpl-> Cannot getFALSE_COL_RBV", ex);
+			logger.warn("Cannot getFALSE_COL_RBV", ex);
 			throw ex;
 		}
 	}
@@ -190,7 +190,7 @@ public class FfmpegStreamImpl extends NDBaseImpl implements InitializingBean, Ff
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ALWAYS_ON));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.FfmpegStreamImpl-> Cannot getALWAYS_ON", ex);
+			logger.warn("Cannot getALWAYS_ON", ex);
 			throw ex;
 		}
 	}
@@ -207,7 +207,7 @@ public class FfmpegStreamImpl extends NDBaseImpl implements InitializingBean, Ff
 				EPICS_CONTROLLER.caput(getChannel(ALWAYS_ON), always_on);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.FfmpegStreamImpl-> Cannot setALWAYS_ON", ex);
+			logger.warn("Cannot setALWAYS_ON", ex);
 			throw ex;
 		}
 	}
@@ -223,7 +223,7 @@ public class FfmpegStreamImpl extends NDBaseImpl implements InitializingBean, Ff
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ALWAYS_ON_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.FfmpegStreamImpl-> Cannot getALWAYS_ON_RBV", ex);
+			logger.warn("Cannot getALWAYS_ON_RBV", ex);
 			throw ex;
 		}
 	}
@@ -239,7 +239,7 @@ public class FfmpegStreamImpl extends NDBaseImpl implements InitializingBean, Ff
 			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(HTTP_PORT_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.FfmpegStreamImpl-> Cannot getHTTP_PORT_RBV", ex);
+			logger.warn("Cannot getHTTP_PORT_RBV", ex);
 			throw ex;
 		}
 	}
@@ -255,7 +255,7 @@ public class FfmpegStreamImpl extends NDBaseImpl implements InitializingBean, Ff
 			}
 			return EPICS_CONTROLLER.caget(getChannel(HOST_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.FfmpegStreamImpl-> Cannot getHOST_RBV", ex);
+			logger.warn("Cannot getHOST_RBV", ex);
 			throw ex;
 		}
 	}
@@ -271,7 +271,7 @@ public class FfmpegStreamImpl extends NDBaseImpl implements InitializingBean, Ff
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(CLIENTS_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.FfmpegStreamImpl-> Cannot getCLIENTS_RBV", ex);
+			logger.warn("Cannot getCLIENTS_RBV", ex);
 			throw ex;
 		}
 	}
@@ -288,7 +288,7 @@ public class FfmpegStreamImpl extends NDBaseImpl implements InitializingBean, Ff
 			}
 			return new String(EPICS_CONTROLLER.cagetByteArray(getChannel(JPG_URL_RBV))).trim();
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.FfmpegStreamImpl-> Cannot getJPG_URL_RBV", ex);
+			logger.warn("Cannot getJPG_URL_RBV", ex);
 			throw ex;
 		}
 	}
@@ -306,7 +306,7 @@ public class FfmpegStreamImpl extends NDBaseImpl implements InitializingBean, Ff
 			}
 			return new String(EPICS_CONTROLLER.cagetByteArray(getChannel(MJPG_URL_RBV))).trim();
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.FfmpegStreamImpl-> Cannot getMJPG_URL_RBV", ex);
+			logger.warn("Cannot getMJPG_URL_RBV", ex);
 			throw ex;
 		}
 	}
@@ -405,7 +405,7 @@ public class FfmpegStreamImpl extends NDBaseImpl implements InitializingBean, Ff
 			}
 			return createChannel(fullPvName);
 		} catch (Exception exception) {
-			logger.warn("g.d.d.a.v.i.FfmpegStreamImpl-> Problem getting channel", exception);
+			logger.warn("Problem getting channel", exception);
 			throw exception;
 		}
 	}
@@ -416,10 +416,10 @@ public class FfmpegStreamImpl extends NDBaseImpl implements InitializingBean, Ff
 			try {
 				channel = EPICS_CONTROLLER.createChannel(fullPvName);
 			} catch (CAException cae) {
-				logger.warn("g.d.d.a.v.i.FfmpegStreamImpl-> Problem creating channel", cae);
+				logger.warn("Problem creating channel", cae);
 				throw cae;
 			} catch (TimeoutException te) {
-				logger.warn("g.d.d.a.v.i.FfmpegStreamImpl-> Problem creating channel", te);
+				logger.warn("Problem creating channel", te);
 				throw te;
 
 			}

@@ -522,7 +522,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.caget(getChannel(Name0));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getName0", ex);
+			logger.warn("Cannot getName0", ex);
 			throw ex;
 		}
 	}
@@ -539,7 +539,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(Name0), name0);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setName0", ex);
+			logger.warn("Cannot setName0", ex);
 			throw ex;
 		}
 	}
@@ -555,7 +555,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.caget(getChannel(Name_RBV0));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getName_RBV0", ex);
+			logger.warn("Cannot getName_RBV0", ex);
 			throw ex;
 		}
 	}
@@ -572,7 +572,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(Name_RBV0), name_rbv0);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setName_RBV0", ex);
+			logger.warn("Cannot setName_RBV0", ex);
 			throw ex;
 		}
 	}
@@ -588,7 +588,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(Use0));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getUse0", ex);
+			logger.warn("Cannot getUse0", ex);
 			throw ex;
 		}
 	}
@@ -605,7 +605,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(Use0), use0);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setUse0", ex);
+			logger.warn("Cannot setUse0", ex);
 			throw ex;
 		}
 	}
@@ -621,7 +621,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(Use0_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getUse0_RBV", ex);
+			logger.warn("Cannot getUse0_RBV", ex);
 			throw ex;
 		}
 	}
@@ -637,7 +637,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(PositionXLink0));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getPositionXLink0", ex);
+			logger.warn("Cannot getPositionXLink0", ex);
 			throw ex;
 		}
 	}
@@ -654,7 +654,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(PositionXLink0), positionxlink0);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setPositionXLink0", ex);
+			logger.warn("Cannot setPositionXLink0", ex);
 			throw ex;
 		}
 	}
@@ -670,7 +670,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(PositionX0));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getPositionX0", ex);
+			logger.warn("Cannot getPositionX0", ex);
 			throw ex;
 		}
 	}
@@ -687,7 +687,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(PositionX0), positionx0);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setPositionX0", ex);
+			logger.warn("Cannot setPositionX0", ex);
 			throw ex;
 		}
 	}
@@ -703,7 +703,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(PositionX0_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getPositionX0_RBV", ex);
+			logger.warn("Cannot getPositionX0_RBV", ex);
 			throw ex;
 		}
 	}
@@ -719,7 +719,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(PositionYLink0));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getPositionYLink0", ex);
+			logger.warn("Cannot getPositionYLink0", ex);
 			throw ex;
 		}
 	}
@@ -748,7 +748,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(PositionY0));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getPositionY0", ex);
+			logger.warn("Cannot getPositionY0", ex);
 			throw ex;
 		}
 	}
@@ -765,7 +765,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(PositionY0), positiony0);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setPositionY0", ex);
+			logger.warn("Cannot setPositionY0", ex);
 			throw ex;
 		}
 	}
@@ -781,7 +781,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(PositionY0_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getPositionY0_RBV", ex);
+			logger.warn("Cannot getPositionY0_RBV", ex);
 			throw ex;
 		}
 	}
@@ -797,7 +797,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeXLink0));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getSizeXLink0", ex);
+			logger.warn("Cannot getSizeXLink0", ex);
 			throw ex;
 		}
 	}
@@ -814,7 +814,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(SizeXLink0), sizexlink0);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setSizeXLink0", ex);
+			logger.warn("Cannot setSizeXLink0", ex);
 			throw ex;
 		}
 	}
@@ -830,7 +830,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeX0));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getSizeX0", ex);
+			logger.warn("Cannot getSizeX0", ex);
 			throw ex;
 		}
 	}
@@ -847,7 +847,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(SizeX0), sizex0);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setSizeX0", ex);
+			logger.warn("Cannot setSizeX0", ex);
 			throw ex;
 		}
 	}
@@ -863,7 +863,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeX0_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getSizeX0_RBV", ex);
+			logger.warn("Cannot getSizeX0_RBV", ex);
 			throw ex;
 		}
 	}
@@ -879,7 +879,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeYLink0));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getSizeYLink0", ex);
+			logger.warn("Cannot getSizeYLink0", ex);
 			throw ex;
 		}
 	}
@@ -896,7 +896,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(SizeYLink0), sizeylink0);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setSizeYLink0", ex);
+			logger.warn("Cannot setSizeYLink0", ex);
 			throw ex;
 		}
 	}
@@ -912,7 +912,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeY0));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getSizeY0", ex);
+			logger.warn("Cannot getSizeY0", ex);
 			throw ex;
 		}
 	}
@@ -929,7 +929,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(SizeY0), sizey0);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setSizeY0", ex);
+			logger.warn("Cannot setSizeY0", ex);
 			throw ex;
 		}
 	}
@@ -945,7 +945,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeY0_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getSizeY0_RBV", ex);
+			logger.warn("Cannot getSizeY0_RBV", ex);
 			throw ex;
 		}
 	}
@@ -961,7 +961,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(Shape0));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getShape0", ex);
+			logger.warn("Cannot getShape0", ex);
 			throw ex;
 		}
 	}
@@ -978,7 +978,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(Shape0), shape0);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setShape0", ex);
+			logger.warn("Cannot setShape0", ex);
 			throw ex;
 		}
 	}
@@ -994,7 +994,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(Shape0_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getShape0_RBV", ex);
+			logger.warn("Cannot getShape0_RBV", ex);
 			throw ex;
 		}
 	}
@@ -1010,7 +1010,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(DrawMode0));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getDrawMode0", ex);
+			logger.warn("Cannot getDrawMode0", ex);
 			throw ex;
 		}
 	}
@@ -1027,7 +1027,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(DrawMode0), drawmode0);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setDrawMode0", ex);
+			logger.warn("Cannot setDrawMode0", ex);
 			throw ex;
 		}
 	}
@@ -1043,7 +1043,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(DrawMode0_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getDrawMode0_RBV", ex);
+			logger.warn("Cannot getDrawMode0_RBV", ex);
 			throw ex;
 		}
 	}
@@ -1059,7 +1059,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(Red0));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getRed0", ex);
+			logger.warn("Cannot getRed0", ex);
 			throw ex;
 		}
 	}
@@ -1076,7 +1076,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(Red0), red0);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setRed0", ex);
+			logger.warn("Cannot setRed0", ex);
 			throw ex;
 		}
 	}
@@ -1092,7 +1092,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(Red0_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getRed0_RBV", ex);
+			logger.warn("Cannot getRed0_RBV", ex);
 			throw ex;
 		}
 	}
@@ -1108,7 +1108,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(Green0));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getGreen0", ex);
+			logger.warn("Cannot getGreen0", ex);
 			throw ex;
 		}
 	}
@@ -1125,7 +1125,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(Green0), green0);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setGreen0", ex);
+			logger.warn("Cannot setGreen0", ex);
 			throw ex;
 		}
 	}
@@ -1141,7 +1141,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(Green0_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getGreen0_RBV", ex);
+			logger.warn("Cannot getGreen0_RBV", ex);
 			throw ex;
 		}
 	}
@@ -1157,7 +1157,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(Blue0));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getBlue0", ex);
+			logger.warn("Cannot getBlue0", ex);
 			throw ex;
 		}
 	}
@@ -1174,7 +1174,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(Blue0), blue0);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setBlue0", ex);
+			logger.warn("Cannot setBlue0", ex);
 			throw ex;
 		}
 	}
@@ -1190,7 +1190,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(Blue0_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getBlue0_RBV", ex);
+			logger.warn("Cannot getBlue0_RBV", ex);
 			throw ex;
 		}
 	}
@@ -1206,7 +1206,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.caget(getChannel(Name1));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getName1", ex);
+			logger.warn("Cannot getName1", ex);
 			throw ex;
 		}
 	}
@@ -1223,7 +1223,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(Name1), name1);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setName1", ex);
+			logger.warn("Cannot setName1", ex);
 			throw ex;
 		}
 	}
@@ -1239,7 +1239,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.caget(getChannel(Name_RBV1));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getName_RBV1", ex);
+			logger.warn("Cannot getName_RBV1", ex);
 			throw ex;
 		}
 	}
@@ -1256,7 +1256,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(Name_RBV1), name_rbv1);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setName_RBV1", ex);
+			logger.warn("Cannot setName_RBV1", ex);
 			throw ex;
 		}
 	}
@@ -1272,7 +1272,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(Use1));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getUse1", ex);
+			logger.warn("Cannot getUse1", ex);
 			throw ex;
 		}
 	}
@@ -1289,7 +1289,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(Use1), use1);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setUse1", ex);
+			logger.warn("Cannot setUse1", ex);
 			throw ex;
 		}
 	}
@@ -1305,7 +1305,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(Use1_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getUse1_RBV", ex);
+			logger.warn("Cannot getUse1_RBV", ex);
 			throw ex;
 		}
 	}
@@ -1321,7 +1321,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(PositionXLink1));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getPositionXLink1", ex);
+			logger.warn("Cannot getPositionXLink1", ex);
 			throw ex;
 		}
 	}
@@ -1338,7 +1338,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(PositionXLink1), positionxlink1);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setPositionXLink1", ex);
+			logger.warn("Cannot setPositionXLink1", ex);
 			throw ex;
 		}
 	}
@@ -1354,7 +1354,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(PositionX1));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getPositionX1", ex);
+			logger.warn("Cannot getPositionX1", ex);
 			throw ex;
 		}
 	}
@@ -1371,7 +1371,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(PositionX1), positionx1);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setPositionX1", ex);
+			logger.warn("Cannot setPositionX1", ex);
 			throw ex;
 		}
 	}
@@ -1387,7 +1387,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(PositionX1_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getPositionX1_RBV", ex);
+			logger.warn("Cannot getPositionX1_RBV", ex);
 			throw ex;
 		}
 	}
@@ -1403,7 +1403,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(PositionYLink1));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getPositionYLink1", ex);
+			logger.warn("Cannot getPositionYLink1", ex);
 			throw ex;
 		}
 	}
@@ -1420,7 +1420,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(PositionYLink1), positionylink1);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setPositionYLink1", ex);
+			logger.warn("Cannot setPositionYLink1", ex);
 			throw ex;
 		}
 	}
@@ -1436,7 +1436,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(PositionY1));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getPositionY1", ex);
+			logger.warn("Cannot getPositionY1", ex);
 			throw ex;
 		}
 	}
@@ -1453,7 +1453,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(PositionY1), positiony1);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setPositionY1", ex);
+			logger.warn("Cannot setPositionY1", ex);
 			throw ex;
 		}
 	}
@@ -1469,7 +1469,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(PositionY1_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getPositionY1_RBV", ex);
+			logger.warn("Cannot getPositionY1_RBV", ex);
 			throw ex;
 		}
 	}
@@ -1485,7 +1485,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeXLink1));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getSizeXLink1", ex);
+			logger.warn("Cannot getSizeXLink1", ex);
 			throw ex;
 		}
 	}
@@ -1502,7 +1502,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(SizeXLink1), sizexlink1);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setSizeXLink1", ex);
+			logger.warn("Cannot setSizeXLink1", ex);
 			throw ex;
 		}
 	}
@@ -1518,7 +1518,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeX1));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getSizeX1", ex);
+			logger.warn("Cannot getSizeX1", ex);
 			throw ex;
 		}
 	}
@@ -1535,7 +1535,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(SizeX1), sizex1);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setSizeX1", ex);
+			logger.warn("Cannot setSizeX1", ex);
 			throw ex;
 		}
 	}
@@ -1551,7 +1551,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeX1_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getSizeX1_RBV", ex);
+			logger.warn("Cannot getSizeX1_RBV", ex);
 			throw ex;
 		}
 	}
@@ -1567,7 +1567,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeYLink1));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getSizeYLink1", ex);
+			logger.warn("Cannot getSizeYLink1", ex);
 			throw ex;
 		}
 	}
@@ -1584,7 +1584,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(SizeYLink1), sizeylink1);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setSizeYLink1", ex);
+			logger.warn("Cannot setSizeYLink1", ex);
 			throw ex;
 		}
 	}
@@ -1600,7 +1600,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeY1));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getSizeY1", ex);
+			logger.warn("Cannot getSizeY1", ex);
 			throw ex;
 		}
 	}
@@ -1617,7 +1617,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(SizeY1), sizey1);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setSizeY1", ex);
+			logger.warn("Cannot setSizeY1", ex);
 			throw ex;
 		}
 	}
@@ -1633,7 +1633,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeY1_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getSizeY1_RBV", ex);
+			logger.warn("Cannot getSizeY1_RBV", ex);
 			throw ex;
 		}
 	}
@@ -1649,7 +1649,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(Shape1));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getShape1", ex);
+			logger.warn("Cannot getShape1", ex);
 			throw ex;
 		}
 	}
@@ -1666,7 +1666,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(Shape1), shape1);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setShape1", ex);
+			logger.warn("Cannot setShape1", ex);
 			throw ex;
 		}
 	}
@@ -1682,7 +1682,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(Shape1_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getShape1_RBV", ex);
+			logger.warn("Cannot getShape1_RBV", ex);
 			throw ex;
 		}
 	}
@@ -1698,7 +1698,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(DrawMode1));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getDrawMode1", ex);
+			logger.warn("Cannot getDrawMode1", ex);
 			throw ex;
 		}
 	}
@@ -1715,7 +1715,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(DrawMode1), drawmode1);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setDrawMode1", ex);
+			logger.warn("Cannot setDrawMode1", ex);
 			throw ex;
 		}
 	}
@@ -1731,7 +1731,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(DrawMode1_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getDrawMode1_RBV", ex);
+			logger.warn("Cannot getDrawMode1_RBV", ex);
 			throw ex;
 		}
 	}
@@ -1747,7 +1747,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(Red1));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getRed1", ex);
+			logger.warn("Cannot getRed1", ex);
 			throw ex;
 		}
 	}
@@ -1764,7 +1764,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(Red1), red1);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setRed1", ex);
+			logger.warn("Cannot setRed1", ex);
 			throw ex;
 		}
 	}
@@ -1780,7 +1780,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(Red1_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getRed1_RBV", ex);
+			logger.warn("Cannot getRed1_RBV", ex);
 			throw ex;
 		}
 	}
@@ -1796,7 +1796,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(Green1));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getGreen1", ex);
+			logger.warn("Cannot getGreen1", ex);
 			throw ex;
 		}
 	}
@@ -1813,7 +1813,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(Green1), green1);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setGreen1", ex);
+			logger.warn("Cannot setGreen1", ex);
 			throw ex;
 		}
 	}
@@ -1829,7 +1829,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(Green1_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getGreen1_RBV", ex);
+			logger.warn("Cannot getGreen1_RBV", ex);
 			throw ex;
 		}
 	}
@@ -1845,7 +1845,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(Blue1));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getBlue1", ex);
+			logger.warn("Cannot getBlue1", ex);
 			throw ex;
 		}
 	}
@@ -1862,7 +1862,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(Blue1), blue1);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setBlue1", ex);
+			logger.warn("Cannot setBlue1", ex);
 			throw ex;
 		}
 	}
@@ -1878,7 +1878,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(Blue1_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getBlue1_RBV", ex);
+			logger.warn("Cannot getBlue1_RBV", ex);
 			throw ex;
 		}
 	}
@@ -1894,7 +1894,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.caget(getChannel(Name2));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getName2", ex);
+			logger.warn("Cannot getName2", ex);
 			throw ex;
 		}
 	}
@@ -1911,7 +1911,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(Name2), name2);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setName2", ex);
+			logger.warn("Cannot setName2", ex);
 			throw ex;
 		}
 	}
@@ -1927,7 +1927,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.caget(getChannel(Name_RBV2));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getName_RBV2", ex);
+			logger.warn("Cannot getName_RBV2", ex);
 			throw ex;
 		}
 	}
@@ -1944,7 +1944,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(Name_RBV2), name_rbv2);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setName_RBV2", ex);
+			logger.warn("Cannot setName_RBV2", ex);
 			throw ex;
 		}
 	}
@@ -1960,7 +1960,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(Use2));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getUse2", ex);
+			logger.warn("Cannot getUse2", ex);
 			throw ex;
 		}
 	}
@@ -1977,7 +1977,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(Use2), use2);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setUse2", ex);
+			logger.warn("Cannot setUse2", ex);
 			throw ex;
 		}
 	}
@@ -1993,7 +1993,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(Use2_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getUse2_RBV", ex);
+			logger.warn("Cannot getUse2_RBV", ex);
 			throw ex;
 		}
 	}
@@ -2009,7 +2009,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(PositionXLink2));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getPositionXLink2", ex);
+			logger.warn("Cannot getPositionXLink2", ex);
 			throw ex;
 		}
 	}
@@ -2026,7 +2026,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(PositionXLink2), positionxlink2);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setPositionXLink2", ex);
+			logger.warn("Cannot setPositionXLink2", ex);
 			throw ex;
 		}
 	}
@@ -2042,7 +2042,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(PositionX2));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getPositionX2", ex);
+			logger.warn("Cannot getPositionX2", ex);
 			throw ex;
 		}
 	}
@@ -2059,7 +2059,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(PositionX2), positionx2);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setPositionX2", ex);
+			logger.warn("Cannot setPositionX2", ex);
 			throw ex;
 		}
 	}
@@ -2075,7 +2075,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(PositionX2_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getPositionX2_RBV", ex);
+			logger.warn("Cannot getPositionX2_RBV", ex);
 			throw ex;
 		}
 	}
@@ -2091,7 +2091,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(PositionYLink2));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getPositionYLink2", ex);
+			logger.warn("Cannot getPositionYLink2", ex);
 			throw ex;
 		}
 	}
@@ -2108,7 +2108,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(PositionYLink2), positionylink2);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setPositionYLink2", ex);
+			logger.warn("Cannot setPositionYLink2", ex);
 			throw ex;
 		}
 	}
@@ -2124,7 +2124,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(PositionY2));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getPositionY2", ex);
+			logger.warn("Cannot getPositionY2", ex);
 			throw ex;
 		}
 	}
@@ -2141,7 +2141,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(PositionY2), positiony2);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setPositionY2", ex);
+			logger.warn("Cannot setPositionY2", ex);
 			throw ex;
 		}
 	}
@@ -2157,7 +2157,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(PositionY2_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getPositionY2_RBV", ex);
+			logger.warn("Cannot getPositionY2_RBV", ex);
 			throw ex;
 		}
 	}
@@ -2173,7 +2173,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeXLink2));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getSizeXLink2", ex);
+			logger.warn("Cannot getSizeXLink2", ex);
 			throw ex;
 		}
 	}
@@ -2190,7 +2190,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(SizeXLink2), sizexlink2);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setSizeXLink2", ex);
+			logger.warn("Cannot setSizeXLink2", ex);
 			throw ex;
 		}
 	}
@@ -2206,7 +2206,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeX2));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getSizeX2", ex);
+			logger.warn("Cannot getSizeX2", ex);
 			throw ex;
 		}
 	}
@@ -2223,7 +2223,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(SizeX2), sizex2);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setSizeX2", ex);
+			logger.warn("Cannot setSizeX2", ex);
 			throw ex;
 		}
 	}
@@ -2239,7 +2239,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeX2_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getSizeX2_RBV", ex);
+			logger.warn("Cannot getSizeX2_RBV", ex);
 			throw ex;
 		}
 	}
@@ -2255,7 +2255,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeYLink2));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getSizeYLink2", ex);
+			logger.warn("Cannot getSizeYLink2", ex);
 			throw ex;
 		}
 	}
@@ -2272,7 +2272,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(SizeYLink2), sizeylink2);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setSizeYLink2", ex);
+			logger.warn("Cannot setSizeYLink2", ex);
 			throw ex;
 		}
 	}
@@ -2288,7 +2288,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeY2));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getSizeY2", ex);
+			logger.warn("Cannot getSizeY2", ex);
 			throw ex;
 		}
 	}
@@ -2305,7 +2305,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(SizeY2), sizey2);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setSizeY2", ex);
+			logger.warn("Cannot setSizeY2", ex);
 			throw ex;
 		}
 	}
@@ -2321,7 +2321,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeY2_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getSizeY2_RBV", ex);
+			logger.warn("Cannot getSizeY2_RBV", ex);
 			throw ex;
 		}
 	}
@@ -2337,7 +2337,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(Shape2));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getShape2", ex);
+			logger.warn("Cannot getShape2", ex);
 			throw ex;
 		}
 	}
@@ -2354,7 +2354,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(Shape2), shape2);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setShape2", ex);
+			logger.warn("Cannot setShape2", ex);
 			throw ex;
 		}
 	}
@@ -2370,7 +2370,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(Shape2_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getShape2_RBV", ex);
+			logger.warn("Cannot getShape2_RBV", ex);
 			throw ex;
 		}
 	}
@@ -2386,7 +2386,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(DrawMode2));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getDrawMode2", ex);
+			logger.warn("Cannot getDrawMode2", ex);
 			throw ex;
 		}
 	}
@@ -2403,7 +2403,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(DrawMode2), drawmode2);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setDrawMode2", ex);
+			logger.warn("Cannot setDrawMode2", ex);
 			throw ex;
 		}
 	}
@@ -2419,7 +2419,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(DrawMode2_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getDrawMode2_RBV", ex);
+			logger.warn("Cannot getDrawMode2_RBV", ex);
 			throw ex;
 		}
 	}
@@ -2435,7 +2435,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(Red2));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getRed2", ex);
+			logger.warn("Cannot getRed2", ex);
 			throw ex;
 		}
 	}
@@ -2452,7 +2452,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(Red2), red2);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setRed2", ex);
+			logger.warn("Cannot setRed2", ex);
 			throw ex;
 		}
 	}
@@ -2468,7 +2468,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(Red2_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getRed2_RBV", ex);
+			logger.warn("Cannot getRed2_RBV", ex);
 			throw ex;
 		}
 	}
@@ -2484,7 +2484,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(Green2));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getGreen2", ex);
+			logger.warn("Cannot getGreen2", ex);
 			throw ex;
 		}
 	}
@@ -2501,7 +2501,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(Green2), green2);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setGreen2", ex);
+			logger.warn("Cannot setGreen2", ex);
 			throw ex;
 		}
 	}
@@ -2517,7 +2517,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(Green2_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getGreen2_RBV", ex);
+			logger.warn("Cannot getGreen2_RBV", ex);
 			throw ex;
 		}
 	}
@@ -2533,7 +2533,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(Blue2));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getBlue2", ex);
+			logger.warn("Cannot getBlue2", ex);
 			throw ex;
 		}
 	}
@@ -2550,7 +2550,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(Blue2), blue2);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setBlue2", ex);
+			logger.warn("Cannot setBlue2", ex);
 			throw ex;
 		}
 	}
@@ -2566,7 +2566,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(Blue2_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getBlue2_RBV", ex);
+			logger.warn("Cannot getBlue2_RBV", ex);
 			throw ex;
 		}
 	}
@@ -2582,7 +2582,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.caget(getChannel(Name3));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getName3", ex);
+			logger.warn("Cannot getName3", ex);
 			throw ex;
 		}
 	}
@@ -2599,7 +2599,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(Name3), name3);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setName3", ex);
+			logger.warn("Cannot setName3", ex);
 			throw ex;
 		}
 	}
@@ -2615,7 +2615,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.caget(getChannel(Name_RBV3));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getName_RBV3", ex);
+			logger.warn("Cannot getName_RBV3", ex);
 			throw ex;
 		}
 	}
@@ -2632,7 +2632,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(Name_RBV3), name_rbv3);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setName_RBV3", ex);
+			logger.warn("Cannot setName_RBV3", ex);
 			throw ex;
 		}
 	}
@@ -2648,7 +2648,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(Use3));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getUse3", ex);
+			logger.warn("Cannot getUse3", ex);
 			throw ex;
 		}
 	}
@@ -2665,7 +2665,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(Use3), use3);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setUse3", ex);
+			logger.warn("Cannot setUse3", ex);
 			throw ex;
 		}
 	}
@@ -2681,7 +2681,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(Use3_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getUse3_RBV", ex);
+			logger.warn("Cannot getUse3_RBV", ex);
 			throw ex;
 		}
 	}
@@ -2697,7 +2697,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(PositionXLink3));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getPositionXLink3", ex);
+			logger.warn("Cannot getPositionXLink3", ex);
 			throw ex;
 		}
 	}
@@ -2714,7 +2714,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(PositionXLink3), positionxlink3);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setPositionXLink3", ex);
+			logger.warn("Cannot setPositionXLink3", ex);
 			throw ex;
 		}
 	}
@@ -2730,7 +2730,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(PositionX3));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getPositionX3", ex);
+			logger.warn("Cannot getPositionX3", ex);
 			throw ex;
 		}
 	}
@@ -2747,7 +2747,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(PositionX3), positionx3);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setPositionX3", ex);
+			logger.warn("Cannot setPositionX3", ex);
 			throw ex;
 		}
 	}
@@ -2763,7 +2763,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(PositionX3_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getPositionX3_RBV", ex);
+			logger.warn("Cannot getPositionX3_RBV", ex);
 			throw ex;
 		}
 	}
@@ -2779,7 +2779,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(PositionYLink3));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getPositionYLink3", ex);
+			logger.warn("Cannot getPositionYLink3", ex);
 			throw ex;
 		}
 	}
@@ -2796,7 +2796,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(PositionYLink3), positionylink3);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setPositionYLink3", ex);
+			logger.warn("Cannot setPositionYLink3", ex);
 			throw ex;
 		}
 	}
@@ -2812,7 +2812,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(PositionY3));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getPositionY3", ex);
+			logger.warn("Cannot getPositionY3", ex);
 			throw ex;
 		}
 	}
@@ -2829,7 +2829,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(PositionY3), positiony3);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setPositionY3", ex);
+			logger.warn("Cannot setPositionY3", ex);
 			throw ex;
 		}
 	}
@@ -2845,7 +2845,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(PositionY3_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getPositionY3_RBV", ex);
+			logger.warn("Cannot getPositionY3_RBV", ex);
 			throw ex;
 		}
 	}
@@ -2861,7 +2861,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeXLink3));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getSizeXLink3", ex);
+			logger.warn("Cannot getSizeXLink3", ex);
 			throw ex;
 		}
 	}
@@ -2878,7 +2878,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(SizeXLink3), sizexlink3);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setSizeXLink3", ex);
+			logger.warn("Cannot setSizeXLink3", ex);
 			throw ex;
 		}
 	}
@@ -2894,7 +2894,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeX3));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getSizeX3", ex);
+			logger.warn("Cannot getSizeX3", ex);
 			throw ex;
 		}
 	}
@@ -2911,7 +2911,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(SizeX3), sizex3);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setSizeX3", ex);
+			logger.warn("Cannot setSizeX3", ex);
 			throw ex;
 		}
 	}
@@ -2927,7 +2927,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeX3_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getSizeX3_RBV", ex);
+			logger.warn("Cannot getSizeX3_RBV", ex);
 			throw ex;
 		}
 	}
@@ -2943,7 +2943,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeYLink3));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getSizeYLink3", ex);
+			logger.warn("Cannot getSizeYLink3", ex);
 			throw ex;
 		}
 	}
@@ -2960,7 +2960,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(SizeYLink3), sizeylink3);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setSizeYLink3", ex);
+			logger.warn("Cannot setSizeYLink3", ex);
 			throw ex;
 		}
 	}
@@ -2976,7 +2976,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeY3));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getSizeY3", ex);
+			logger.warn("Cannot getSizeY3", ex);
 			throw ex;
 		}
 	}
@@ -2993,7 +2993,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(SizeY3), sizey3);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setSizeY3", ex);
+			logger.warn("Cannot setSizeY3", ex);
 			throw ex;
 		}
 	}
@@ -3009,7 +3009,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeY3_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getSizeY3_RBV", ex);
+			logger.warn("Cannot getSizeY3_RBV", ex);
 			throw ex;
 		}
 	}
@@ -3025,7 +3025,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(Shape3));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getShape3", ex);
+			logger.warn("Cannot getShape3", ex);
 			throw ex;
 		}
 	}
@@ -3042,7 +3042,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(Shape3), shape3);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setShape3", ex);
+			logger.warn("Cannot setShape3", ex);
 			throw ex;
 		}
 	}
@@ -3058,7 +3058,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(Shape3_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getShape3_RBV", ex);
+			logger.warn("Cannot getShape3_RBV", ex);
 			throw ex;
 		}
 	}
@@ -3074,7 +3074,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(DrawMode3));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getDrawMode3", ex);
+			logger.warn("Cannot getDrawMode3", ex);
 			throw ex;
 		}
 	}
@@ -3091,7 +3091,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(DrawMode3), drawmode3);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setDrawMode3", ex);
+			logger.warn("Cannot setDrawMode3", ex);
 			throw ex;
 		}
 	}
@@ -3107,7 +3107,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(DrawMode3_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getDrawMode3_RBV", ex);
+			logger.warn("Cannot getDrawMode3_RBV", ex);
 			throw ex;
 		}
 	}
@@ -3123,7 +3123,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(Red3));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getRed3", ex);
+			logger.warn("Cannot getRed3", ex);
 			throw ex;
 		}
 	}
@@ -3140,7 +3140,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(Red3), red3);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setRed3", ex);
+			logger.warn("Cannot setRed3", ex);
 			throw ex;
 		}
 	}
@@ -3156,7 +3156,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(Red3_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getRed3_RBV", ex);
+			logger.warn("Cannot getRed3_RBV", ex);
 			throw ex;
 		}
 	}
@@ -3172,7 +3172,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(Green3));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getGreen3", ex);
+			logger.warn("Cannot getGreen3", ex);
 			throw ex;
 		}
 	}
@@ -3189,7 +3189,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(Green3), green3);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setGreen3", ex);
+			logger.warn("Cannot setGreen3", ex);
 			throw ex;
 		}
 	}
@@ -3205,7 +3205,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(Green3_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getGreen3_RBV", ex);
+			logger.warn("Cannot getGreen3_RBV", ex);
 			throw ex;
 		}
 	}
@@ -3221,7 +3221,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(Blue3));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getBlue3", ex);
+			logger.warn("Cannot getBlue3", ex);
 			throw ex;
 		}
 	}
@@ -3238,7 +3238,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(Blue3), blue3);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setBlue3", ex);
+			logger.warn("Cannot setBlue3", ex);
 			throw ex;
 		}
 	}
@@ -3254,7 +3254,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(Blue3_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getBlue3_RBV", ex);
+			logger.warn("Cannot getBlue3_RBV", ex);
 			throw ex;
 		}
 	}
@@ -3270,7 +3270,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.caget(getChannel(Name4));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getName4", ex);
+			logger.warn("Cannot getName4", ex);
 			throw ex;
 		}
 	}
@@ -3287,7 +3287,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(Name4), name4);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setName4", ex);
+			logger.warn("Cannot setName4", ex);
 			throw ex;
 		}
 	}
@@ -3303,7 +3303,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.caget(getChannel(Name_RBV4));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getName_RBV4", ex);
+			logger.warn("Cannot getName_RBV4", ex);
 			throw ex;
 		}
 	}
@@ -3320,7 +3320,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(Name_RBV4), name_rbv4);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setName_RBV4", ex);
+			logger.warn("Cannot setName_RBV4", ex);
 			throw ex;
 		}
 	}
@@ -3336,7 +3336,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(Use4));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getUse4", ex);
+			logger.warn("Cannot getUse4", ex);
 			throw ex;
 		}
 	}
@@ -3353,7 +3353,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(Use4), use4);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setUse4", ex);
+			logger.warn("Cannot setUse4", ex);
 			throw ex;
 		}
 	}
@@ -3369,7 +3369,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(Use4_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getUse4_RBV", ex);
+			logger.warn("Cannot getUse4_RBV", ex);
 			throw ex;
 		}
 	}
@@ -3385,7 +3385,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(PositionXLink4));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getPositionXLink4", ex);
+			logger.warn("Cannot getPositionXLink4", ex);
 			throw ex;
 		}
 	}
@@ -3402,7 +3402,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(PositionXLink4), positionxlink4);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setPositionXLink4", ex);
+			logger.warn("Cannot setPositionXLink4", ex);
 			throw ex;
 		}
 	}
@@ -3418,7 +3418,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(PositionX4));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getPositionX4", ex);
+			logger.warn("Cannot getPositionX4", ex);
 			throw ex;
 		}
 	}
@@ -3435,7 +3435,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(PositionX4), positionx4);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setPositionX4", ex);
+			logger.warn("Cannot setPositionX4", ex);
 			throw ex;
 		}
 	}
@@ -3451,7 +3451,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(PositionX4_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getPositionX4_RBV", ex);
+			logger.warn("Cannot getPositionX4_RBV", ex);
 			throw ex;
 		}
 	}
@@ -3467,7 +3467,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(PositionYLink4));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getPositionYLink4", ex);
+			logger.warn("Cannot getPositionYLink4", ex);
 			throw ex;
 		}
 	}
@@ -3484,7 +3484,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(PositionYLink4), positionylink4);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setPositionYLink4", ex);
+			logger.warn("Cannot setPositionYLink4", ex);
 			throw ex;
 		}
 	}
@@ -3500,7 +3500,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(PositionY4));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getPositionY4", ex);
+			logger.warn("Cannot getPositionY4", ex);
 			throw ex;
 		}
 	}
@@ -3517,7 +3517,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(PositionY4), positiony4);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setPositionY4", ex);
+			logger.warn("Cannot setPositionY4", ex);
 			throw ex;
 		}
 	}
@@ -3533,7 +3533,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(PositionY4_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getPositionY4_RBV", ex);
+			logger.warn("Cannot getPositionY4_RBV", ex);
 			throw ex;
 		}
 	}
@@ -3549,7 +3549,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeXLink4));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getSizeXLink4", ex);
+			logger.warn("Cannot getSizeXLink4", ex);
 			throw ex;
 		}
 	}
@@ -3566,7 +3566,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(SizeXLink4), sizexlink4);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setSizeXLink4", ex);
+			logger.warn("Cannot setSizeXLink4", ex);
 			throw ex;
 		}
 	}
@@ -3582,7 +3582,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeX4));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getSizeX4", ex);
+			logger.warn("Cannot getSizeX4", ex);
 			throw ex;
 		}
 	}
@@ -3599,7 +3599,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(SizeX4), sizex4);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setSizeX4", ex);
+			logger.warn("Cannot setSizeX4", ex);
 			throw ex;
 		}
 	}
@@ -3615,7 +3615,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeX4_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getSizeX4_RBV", ex);
+			logger.warn("Cannot getSizeX4_RBV", ex);
 			throw ex;
 		}
 	}
@@ -3631,7 +3631,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeYLink4));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getSizeYLink4", ex);
+			logger.warn("Cannot getSizeYLink4", ex);
 			throw ex;
 		}
 	}
@@ -3648,7 +3648,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(SizeYLink4), sizeylink4);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setSizeYLink4", ex);
+			logger.warn("Cannot setSizeYLink4", ex);
 			throw ex;
 		}
 	}
@@ -3664,7 +3664,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeY4));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getSizeY4", ex);
+			logger.warn("Cannot getSizeY4", ex);
 			throw ex;
 		}
 	}
@@ -3681,7 +3681,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(SizeY4), sizey4);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setSizeY4", ex);
+			logger.warn("Cannot setSizeY4", ex);
 			throw ex;
 		}
 	}
@@ -3697,7 +3697,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeY4_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getSizeY4_RBV", ex);
+			logger.warn("Cannot getSizeY4_RBV", ex);
 			throw ex;
 		}
 	}
@@ -3713,7 +3713,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(Shape4));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getShape4", ex);
+			logger.warn("Cannot getShape4", ex);
 			throw ex;
 		}
 	}
@@ -3730,7 +3730,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(Shape4), shape4);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setShape4", ex);
+			logger.warn("Cannot setShape4", ex);
 			throw ex;
 		}
 	}
@@ -3746,7 +3746,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(Shape4_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getShape4_RBV", ex);
+			logger.warn("Cannot getShape4_RBV", ex);
 			throw ex;
 		}
 	}
@@ -3762,7 +3762,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(DrawMode4));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getDrawMode4", ex);
+			logger.warn("Cannot getDrawMode4", ex);
 			throw ex;
 		}
 	}
@@ -3779,7 +3779,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(DrawMode4), drawmode4);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setDrawMode4", ex);
+			logger.warn("Cannot setDrawMode4", ex);
 			throw ex;
 		}
 	}
@@ -3795,7 +3795,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(DrawMode4_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getDrawMode4_RBV", ex);
+			logger.warn("Cannot getDrawMode4_RBV", ex);
 			throw ex;
 		}
 	}
@@ -3811,7 +3811,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(Red4));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getRed4", ex);
+			logger.warn("Cannot getRed4", ex);
 			throw ex;
 		}
 	}
@@ -3828,7 +3828,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(Red4), red4);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setRed4", ex);
+			logger.warn("Cannot setRed4", ex);
 			throw ex;
 		}
 	}
@@ -3844,7 +3844,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(Red4_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getRed4_RBV", ex);
+			logger.warn("Cannot getRed4_RBV", ex);
 			throw ex;
 		}
 	}
@@ -3860,7 +3860,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(Green4));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getGreen4", ex);
+			logger.warn("Cannot getGreen4", ex);
 			throw ex;
 		}
 	}
@@ -3877,7 +3877,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(Green4), green4);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setGreen4", ex);
+			logger.warn("Cannot setGreen4", ex);
 			throw ex;
 		}
 	}
@@ -3893,7 +3893,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(Green4_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getGreen4_RBV", ex);
+			logger.warn("Cannot getGreen4_RBV", ex);
 			throw ex;
 		}
 	}
@@ -3909,7 +3909,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(Blue4));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getBlue4", ex);
+			logger.warn("Cannot getBlue4", ex);
 			throw ex;
 		}
 	}
@@ -3926,7 +3926,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(Blue4), blue4);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setBlue4", ex);
+			logger.warn("Cannot setBlue4", ex);
 			throw ex;
 		}
 	}
@@ -3942,7 +3942,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(Blue4_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getBlue4_RBV", ex);
+			logger.warn("Cannot getBlue4_RBV", ex);
 			throw ex;
 		}
 	}
@@ -3958,7 +3958,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.caget(getChannel(Name5));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getName5", ex);
+			logger.warn("Cannot getName5", ex);
 			throw ex;
 		}
 	}
@@ -3975,7 +3975,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(Name5), name5);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setName5", ex);
+			logger.warn("Cannot setName5", ex);
 			throw ex;
 		}
 	}
@@ -3991,7 +3991,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.caget(getChannel(Name_RBV5));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getName_RBV5", ex);
+			logger.warn("Cannot getName_RBV5", ex);
 			throw ex;
 		}
 	}
@@ -4008,7 +4008,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(Name_RBV5), name_rbv5);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setName_RBV5", ex);
+			logger.warn("Cannot setName_RBV5", ex);
 			throw ex;
 		}
 	}
@@ -4024,7 +4024,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(Use5));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getUse5", ex);
+			logger.warn("Cannot getUse5", ex);
 			throw ex;
 		}
 	}
@@ -4041,7 +4041,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(Use5), use5);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setUse5", ex);
+			logger.warn("Cannot setUse5", ex);
 			throw ex;
 		}
 	}
@@ -4057,7 +4057,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(Use5_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getUse5_RBV", ex);
+			logger.warn("Cannot getUse5_RBV", ex);
 			throw ex;
 		}
 	}
@@ -4073,7 +4073,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(PositionXLink5));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getPositionXLink5", ex);
+			logger.warn("Cannot getPositionXLink5", ex);
 			throw ex;
 		}
 	}
@@ -4090,7 +4090,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(PositionXLink5), positionxlink5);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setPositionXLink5", ex);
+			logger.warn("Cannot setPositionXLink5", ex);
 			throw ex;
 		}
 	}
@@ -4106,7 +4106,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(PositionX5));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getPositionX5", ex);
+			logger.warn("Cannot getPositionX5", ex);
 			throw ex;
 		}
 	}
@@ -4123,7 +4123,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(PositionX5), positionx5);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setPositionX5", ex);
+			logger.warn("Cannot setPositionX5", ex);
 			throw ex;
 		}
 	}
@@ -4139,7 +4139,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(PositionX5_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getPositionX5_RBV", ex);
+			logger.warn("Cannot getPositionX5_RBV", ex);
 			throw ex;
 		}
 	}
@@ -4155,7 +4155,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(PositionYLink5));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getPositionYLink5", ex);
+			logger.warn("Cannot getPositionYLink5", ex);
 			throw ex;
 		}
 	}
@@ -4172,7 +4172,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(PositionYLink5), positionylink5);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setPositionYLink5", ex);
+			logger.warn("Cannot setPositionYLink5", ex);
 			throw ex;
 		}
 	}
@@ -4188,7 +4188,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(PositionY5));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getPositionY5", ex);
+			logger.warn("Cannot getPositionY5", ex);
 			throw ex;
 		}
 	}
@@ -4205,7 +4205,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(PositionY5), positiony5);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setPositionY5", ex);
+			logger.warn("Cannot setPositionY5", ex);
 			throw ex;
 		}
 	}
@@ -4221,7 +4221,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(PositionY5_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getPositionY5_RBV", ex);
+			logger.warn("Cannot getPositionY5_RBV", ex);
 			throw ex;
 		}
 	}
@@ -4237,7 +4237,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeXLink5));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getSizeXLink5", ex);
+			logger.warn("Cannot getSizeXLink5", ex);
 			throw ex;
 		}
 	}
@@ -4254,7 +4254,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(SizeXLink5), sizexlink5);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setSizeXLink5", ex);
+			logger.warn("Cannot setSizeXLink5", ex);
 			throw ex;
 		}
 	}
@@ -4270,7 +4270,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeX5));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getSizeX5", ex);
+			logger.warn("Cannot getSizeX5", ex);
 			throw ex;
 		}
 	}
@@ -4287,7 +4287,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(SizeX5), sizex5);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setSizeX5", ex);
+			logger.warn("Cannot setSizeX5", ex);
 			throw ex;
 		}
 	}
@@ -4303,7 +4303,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeX5_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getSizeX5_RBV", ex);
+			logger.warn("Cannot getSizeX5_RBV", ex);
 			throw ex;
 		}
 	}
@@ -4319,7 +4319,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeYLink5));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getSizeYLink5", ex);
+			logger.warn("Cannot getSizeYLink5", ex);
 			throw ex;
 		}
 	}
@@ -4336,7 +4336,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(SizeYLink5), sizeylink5);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setSizeYLink5", ex);
+			logger.warn("Cannot setSizeYLink5", ex);
 			throw ex;
 		}
 	}
@@ -4352,7 +4352,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeY5));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getSizeY5", ex);
+			logger.warn("Cannot getSizeY5", ex);
 			throw ex;
 		}
 	}
@@ -4369,7 +4369,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(SizeY5), sizey5);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setSizeY5", ex);
+			logger.warn("Cannot setSizeY5", ex);
 			throw ex;
 		}
 	}
@@ -4385,7 +4385,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeY5_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getSizeY5_RBV", ex);
+			logger.warn("Cannot getSizeY5_RBV", ex);
 			throw ex;
 		}
 	}
@@ -4401,7 +4401,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(Shape5));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getShape5", ex);
+			logger.warn("Cannot getShape5", ex);
 			throw ex;
 		}
 	}
@@ -4418,7 +4418,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(Shape5), shape5);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setShape5", ex);
+			logger.warn("Cannot setShape5", ex);
 			throw ex;
 		}
 	}
@@ -4434,7 +4434,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(Shape5_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getShape5_RBV", ex);
+			logger.warn("Cannot getShape5_RBV", ex);
 			throw ex;
 		}
 	}
@@ -4450,7 +4450,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(DrawMode5));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getDrawMode5", ex);
+			logger.warn("Cannot getDrawMode5", ex);
 			throw ex;
 		}
 	}
@@ -4467,7 +4467,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(DrawMode5), drawmode5);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setDrawMode5", ex);
+			logger.warn("Cannot setDrawMode5", ex);
 			throw ex;
 		}
 	}
@@ -4483,7 +4483,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(DrawMode5_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getDrawMode5_RBV", ex);
+			logger.warn("Cannot getDrawMode5_RBV", ex);
 			throw ex;
 		}
 	}
@@ -4499,7 +4499,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(Red5));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getRed5", ex);
+			logger.warn("Cannot getRed5", ex);
 			throw ex;
 		}
 	}
@@ -4516,7 +4516,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(Red5), red5);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setRed5", ex);
+			logger.warn("Cannot setRed5", ex);
 			throw ex;
 		}
 	}
@@ -4532,7 +4532,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(Red5_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getRed5_RBV", ex);
+			logger.warn("Cannot getRed5_RBV", ex);
 			throw ex;
 		}
 	}
@@ -4548,7 +4548,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(Green5));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getGreen5", ex);
+			logger.warn("Cannot getGreen5", ex);
 			throw ex;
 		}
 	}
@@ -4565,7 +4565,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(Green5), green5);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setGreen5", ex);
+			logger.warn("Cannot setGreen5", ex);
 			throw ex;
 		}
 	}
@@ -4581,7 +4581,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(Green5_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getGreen5_RBV", ex);
+			logger.warn("Cannot getGreen5_RBV", ex);
 			throw ex;
 		}
 	}
@@ -4597,7 +4597,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(Blue5));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getBlue5", ex);
+			logger.warn("Cannot getBlue5", ex);
 			throw ex;
 		}
 	}
@@ -4614,7 +4614,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(Blue5), blue5);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setBlue5", ex);
+			logger.warn("Cannot setBlue5", ex);
 			throw ex;
 		}
 	}
@@ -4630,7 +4630,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(Blue5_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getBlue5_RBV", ex);
+			logger.warn("Cannot getBlue5_RBV", ex);
 			throw ex;
 		}
 	}
@@ -4646,7 +4646,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.caget(getChannel(Name6));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getName6", ex);
+			logger.warn("Cannot getName6", ex);
 			throw ex;
 		}
 	}
@@ -4663,7 +4663,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(Name6), name6);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setName6", ex);
+			logger.warn("Cannot setName6", ex);
 			throw ex;
 		}
 	}
@@ -4679,7 +4679,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.caget(getChannel(Name_RBV6));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getName_RBV6", ex);
+			logger.warn("Cannot getName_RBV6", ex);
 			throw ex;
 		}
 	}
@@ -4696,7 +4696,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(Name_RBV6), name_rbv6);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setName_RBV6", ex);
+			logger.warn("Cannot setName_RBV6", ex);
 			throw ex;
 		}
 	}
@@ -4712,7 +4712,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(Use6));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getUse6", ex);
+			logger.warn("Cannot getUse6", ex);
 			throw ex;
 		}
 	}
@@ -4729,7 +4729,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(Use6), use6);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setUse6", ex);
+			logger.warn("Cannot setUse6", ex);
 			throw ex;
 		}
 	}
@@ -4745,7 +4745,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(Use6_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getUse6_RBV", ex);
+			logger.warn("Cannot getUse6_RBV", ex);
 			throw ex;
 		}
 	}
@@ -4761,7 +4761,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(PositionXLink6));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getPositionXLink6", ex);
+			logger.warn("Cannot getPositionXLink6", ex);
 			throw ex;
 		}
 	}
@@ -4778,7 +4778,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(PositionXLink6), positionxlink6);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setPositionXLink6", ex);
+			logger.warn("Cannot setPositionXLink6", ex);
 			throw ex;
 		}
 	}
@@ -4794,7 +4794,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(PositionX6));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getPositionX6", ex);
+			logger.warn("Cannot getPositionX6", ex);
 			throw ex;
 		}
 	}
@@ -4811,7 +4811,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(PositionX6), positionx6);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setPositionX6", ex);
+			logger.warn("Cannot setPositionX6", ex);
 			throw ex;
 		}
 	}
@@ -4827,7 +4827,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(PositionX6_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getPositionX6_RBV", ex);
+			logger.warn("Cannot getPositionX6_RBV", ex);
 			throw ex;
 		}
 	}
@@ -4843,7 +4843,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(PositionYLink6));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getPositionYLink6", ex);
+			logger.warn("Cannot getPositionYLink6", ex);
 			throw ex;
 		}
 	}
@@ -4860,7 +4860,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(PositionYLink6), positionylink6);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setPositionYLink6", ex);
+			logger.warn("Cannot setPositionYLink6", ex);
 			throw ex;
 		}
 	}
@@ -4876,7 +4876,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(PositionY6));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getPositionY6", ex);
+			logger.warn("Cannot getPositionY6", ex);
 			throw ex;
 		}
 	}
@@ -4893,7 +4893,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(PositionY6), positiony6);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setPositionY6", ex);
+			logger.warn("Cannot setPositionY6", ex);
 			throw ex;
 		}
 	}
@@ -4909,7 +4909,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(PositionY6_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getPositionY6_RBV", ex);
+			logger.warn("Cannot getPositionY6_RBV", ex);
 			throw ex;
 		}
 	}
@@ -4925,7 +4925,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeXLink6));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getSizeXLink6", ex);
+			logger.warn("Cannot getSizeXLink6", ex);
 			throw ex;
 		}
 	}
@@ -4942,7 +4942,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(SizeXLink6), sizexlink6);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setSizeXLink6", ex);
+			logger.warn("Cannot setSizeXLink6", ex);
 			throw ex;
 		}
 	}
@@ -4958,7 +4958,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeX6));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getSizeX6", ex);
+			logger.warn("Cannot getSizeX6", ex);
 			throw ex;
 		}
 	}
@@ -4975,7 +4975,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(SizeX6), sizex6);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setSizeX6", ex);
+			logger.warn("Cannot setSizeX6", ex);
 			throw ex;
 		}
 	}
@@ -4991,7 +4991,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeX6_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getSizeX6_RBV", ex);
+			logger.warn("Cannot getSizeX6_RBV", ex);
 			throw ex;
 		}
 	}
@@ -5007,7 +5007,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeYLink6));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getSizeYLink6", ex);
+			logger.warn("Cannot getSizeYLink6", ex);
 			throw ex;
 		}
 	}
@@ -5024,7 +5024,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(SizeYLink6), sizeylink6);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setSizeYLink6", ex);
+			logger.warn("Cannot setSizeYLink6", ex);
 			throw ex;
 		}
 	}
@@ -5040,7 +5040,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeY6));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getSizeY6", ex);
+			logger.warn("Cannot getSizeY6", ex);
 			throw ex;
 		}
 	}
@@ -5057,7 +5057,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(SizeY6), sizey6);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setSizeY6", ex);
+			logger.warn("Cannot setSizeY6", ex);
 			throw ex;
 		}
 	}
@@ -5073,7 +5073,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeY6_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getSizeY6_RBV", ex);
+			logger.warn("Cannot getSizeY6_RBV", ex);
 			throw ex;
 		}
 	}
@@ -5089,7 +5089,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(Shape6));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getShape6", ex);
+			logger.warn("Cannot getShape6", ex);
 			throw ex;
 		}
 	}
@@ -5106,7 +5106,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(Shape6), shape6);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setShape6", ex);
+			logger.warn("Cannot setShape6", ex);
 			throw ex;
 		}
 	}
@@ -5122,7 +5122,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(Shape6_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getShape6_RBV", ex);
+			logger.warn("Cannot getShape6_RBV", ex);
 			throw ex;
 		}
 	}
@@ -5138,7 +5138,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(DrawMode6));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getDrawMode6", ex);
+			logger.warn("Cannot getDrawMode6", ex);
 			throw ex;
 		}
 	}
@@ -5155,7 +5155,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(DrawMode6), drawmode6);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setDrawMode6", ex);
+			logger.warn("Cannot setDrawMode6", ex);
 			throw ex;
 		}
 	}
@@ -5171,7 +5171,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(DrawMode6_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getDrawMode6_RBV", ex);
+			logger.warn("Cannot getDrawMode6_RBV", ex);
 			throw ex;
 		}
 	}
@@ -5187,7 +5187,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(Red6));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getRed6", ex);
+			logger.warn("Cannot getRed6", ex);
 			throw ex;
 		}
 	}
@@ -5204,7 +5204,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(Red6), red6);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setRed6", ex);
+			logger.warn("Cannot setRed6", ex);
 			throw ex;
 		}
 	}
@@ -5220,7 +5220,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(Red6_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getRed6_RBV", ex);
+			logger.warn("Cannot getRed6_RBV", ex);
 			throw ex;
 		}
 	}
@@ -5236,7 +5236,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(Green6));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getGreen6", ex);
+			logger.warn("Cannot getGreen6", ex);
 			throw ex;
 		}
 	}
@@ -5253,7 +5253,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(Green6), green6);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setGreen6", ex);
+			logger.warn("Cannot setGreen6", ex);
 			throw ex;
 		}
 	}
@@ -5269,7 +5269,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(Green6_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getGreen6_RBV", ex);
+			logger.warn("Cannot getGreen6_RBV", ex);
 			throw ex;
 		}
 	}
@@ -5285,7 +5285,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(Blue6));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getBlue6", ex);
+			logger.warn("Cannot getBlue6", ex);
 			throw ex;
 		}
 	}
@@ -5302,7 +5302,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(Blue6), blue6);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setBlue6", ex);
+			logger.warn("Cannot setBlue6", ex);
 			throw ex;
 		}
 	}
@@ -5318,7 +5318,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(Blue6_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getBlue6_RBV", ex);
+			logger.warn("Cannot getBlue6_RBV", ex);
 			throw ex;
 		}
 	}
@@ -5334,7 +5334,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.caget(getChannel(Name7));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getName7", ex);
+			logger.warn("Cannot getName7", ex);
 			throw ex;
 		}
 	}
@@ -5351,7 +5351,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(Name7), name7);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setName7", ex);
+			logger.warn("Cannot setName7", ex);
 			throw ex;
 		}
 	}
@@ -5367,7 +5367,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.caget(getChannel(Name_RBV7));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getName_RBV7", ex);
+			logger.warn("Cannot getName_RBV7", ex);
 			throw ex;
 		}
 	}
@@ -5384,7 +5384,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(Name_RBV7), name_rbv7);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setName_RBV7", ex);
+			logger.warn("Cannot setName_RBV7", ex);
 			throw ex;
 		}
 	}
@@ -5400,7 +5400,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(Use7));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getUse7", ex);
+			logger.warn("Cannot getUse7", ex);
 			throw ex;
 		}
 	}
@@ -5417,7 +5417,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(Use7), use7);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setUse7", ex);
+			logger.warn("Cannot setUse7", ex);
 			throw ex;
 		}
 	}
@@ -5433,7 +5433,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(Use7_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getUse7_RBV", ex);
+			logger.warn("Cannot getUse7_RBV", ex);
 			throw ex;
 		}
 	}
@@ -5449,7 +5449,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(PositionXLink7));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getPositionXLink7", ex);
+			logger.warn("Cannot getPositionXLink7", ex);
 			throw ex;
 		}
 	}
@@ -5466,7 +5466,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(PositionXLink7), positionxlink7);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setPositionXLink7", ex);
+			logger.warn("Cannot setPositionXLink7", ex);
 			throw ex;
 		}
 	}
@@ -5482,7 +5482,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(PositionX7));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getPositionX7", ex);
+			logger.warn("Cannot getPositionX7", ex);
 			throw ex;
 		}
 	}
@@ -5499,7 +5499,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(PositionX7), positionx7);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setPositionX7", ex);
+			logger.warn("Cannot setPositionX7", ex);
 			throw ex;
 		}
 	}
@@ -5515,7 +5515,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(PositionX7_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getPositionX7_RBV", ex);
+			logger.warn("Cannot getPositionX7_RBV", ex);
 			throw ex;
 		}
 	}
@@ -5531,7 +5531,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(PositionYLink7));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getPositionYLink7", ex);
+			logger.warn("Cannot getPositionYLink7", ex);
 			throw ex;
 		}
 	}
@@ -5548,7 +5548,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(PositionYLink7), positionylink7);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setPositionYLink7", ex);
+			logger.warn("Cannot setPositionYLink7", ex);
 			throw ex;
 		}
 	}
@@ -5564,7 +5564,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(PositionY7));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getPositionY7", ex);
+			logger.warn("Cannot getPositionY7", ex);
 			throw ex;
 		}
 	}
@@ -5581,7 +5581,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(PositionY7), positiony7);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setPositionY7", ex);
+			logger.warn("Cannot setPositionY7", ex);
 			throw ex;
 		}
 	}
@@ -5597,7 +5597,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(PositionY7_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getPositionY7_RBV", ex);
+			logger.warn("Cannot getPositionY7_RBV", ex);
 			throw ex;
 		}
 	}
@@ -5613,7 +5613,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeXLink7));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getSizeXLink7", ex);
+			logger.warn("Cannot getSizeXLink7", ex);
 			throw ex;
 		}
 	}
@@ -5630,7 +5630,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(SizeXLink7), sizexlink7);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setSizeXLink7", ex);
+			logger.warn("Cannot setSizeXLink7", ex);
 			throw ex;
 		}
 	}
@@ -5646,7 +5646,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeX7));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getSizeX7", ex);
+			logger.warn("Cannot getSizeX7", ex);
 			throw ex;
 		}
 	}
@@ -5663,7 +5663,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(SizeX7), sizex7);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setSizeX7", ex);
+			logger.warn("Cannot setSizeX7", ex);
 			throw ex;
 		}
 	}
@@ -5679,7 +5679,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeX7_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getSizeX7_RBV", ex);
+			logger.warn("Cannot getSizeX7_RBV", ex);
 			throw ex;
 		}
 	}
@@ -5695,7 +5695,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeYLink7));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getSizeYLink7", ex);
+			logger.warn("Cannot getSizeYLink7", ex);
 			throw ex;
 		}
 	}
@@ -5712,7 +5712,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(SizeYLink7), sizeylink7);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setSizeYLink7", ex);
+			logger.warn("Cannot setSizeYLink7", ex);
 			throw ex;
 		}
 	}
@@ -5728,7 +5728,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeY7));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getSizeY7", ex);
+			logger.warn("Cannot getSizeY7", ex);
 			throw ex;
 		}
 	}
@@ -5745,7 +5745,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(SizeY7), sizey7);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setSizeY7", ex);
+			logger.warn("Cannot setSizeY7", ex);
 			throw ex;
 		}
 	}
@@ -5761,7 +5761,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeY7_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getSizeY7_RBV", ex);
+			logger.warn("Cannot getSizeY7_RBV", ex);
 			throw ex;
 		}
 	}
@@ -5777,7 +5777,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(Shape7));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getShape7", ex);
+			logger.warn("Cannot getShape7", ex);
 			throw ex;
 		}
 	}
@@ -5794,7 +5794,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(Shape7), shape7);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setShape7", ex);
+			logger.warn("Cannot setShape7", ex);
 			throw ex;
 		}
 	}
@@ -5810,7 +5810,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(Shape7_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getShape7_RBV", ex);
+			logger.warn("Cannot getShape7_RBV", ex);
 			throw ex;
 		}
 	}
@@ -5826,7 +5826,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(DrawMode7));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getDrawMode7", ex);
+			logger.warn("Cannot getDrawMode7", ex);
 			throw ex;
 		}
 	}
@@ -5843,7 +5843,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(DrawMode7), drawmode7);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setDrawMode7", ex);
+			logger.warn("Cannot setDrawMode7", ex);
 			throw ex;
 		}
 	}
@@ -5859,7 +5859,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(DrawMode7_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getDrawMode7_RBV", ex);
+			logger.warn("Cannot getDrawMode7_RBV", ex);
 			throw ex;
 		}
 	}
@@ -5875,7 +5875,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(Red7));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getRed7", ex);
+			logger.warn("Cannot getRed7", ex);
 			throw ex;
 		}
 	}
@@ -5892,7 +5892,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(Red7), red7);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setRed7", ex);
+			logger.warn("Cannot setRed7", ex);
 			throw ex;
 		}
 	}
@@ -5908,7 +5908,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(Red7_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getRed7_RBV", ex);
+			logger.warn("Cannot getRed7_RBV", ex);
 			throw ex;
 		}
 	}
@@ -5924,7 +5924,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(Green7));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getGreen7", ex);
+			logger.warn("Cannot getGreen7", ex);
 			throw ex;
 		}
 	}
@@ -5941,7 +5941,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(Green7), green7);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setGreen7", ex);
+			logger.warn("Cannot setGreen7", ex);
 			throw ex;
 		}
 	}
@@ -5957,7 +5957,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(Green7_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getGreen7_RBV", ex);
+			logger.warn("Cannot getGreen7_RBV", ex);
 			throw ex;
 		}
 	}
@@ -5973,7 +5973,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(Blue7));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getBlue7", ex);
+			logger.warn("Cannot getBlue7", ex);
 			throw ex;
 		}
 	}
@@ -5990,7 +5990,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 				EPICS_CONTROLLER.caput(getChannel(Blue7), blue7);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDFileNexusImpl-> Cannot setBlue7", ex);
+			logger.warn("Cannot setBlue7", ex);
 			throw ex;
 		}
 	}
@@ -6006,7 +6006,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(Blue7_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Cannot getBlue7_RBV", ex);
+			logger.warn("Cannot getBlue7_RBV", ex);
 			throw ex;
 		}
 	}
@@ -6059,7 +6059,7 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			}
 			return createChannel(fullPvName);
 		} catch (Exception exception) {
-			logger.warn("g.d.d.a.v.i.NDOverlayImpl -> Problem getting channel", exception);
+			logger.warn("Problem getting channel", exception);
 			throw exception;
 		}
 	}
@@ -6070,10 +6070,10 @@ public class NDOverlayImpl extends NDBaseImpl implements InitializingBean, NDOve
 			try {
 				channel = EPICS_CONTROLLER.createChannel(fullPvName);
 			} catch (CAException cae) {
-				logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Problem creating channel", cae);
+				logger.warn("Problem creating channel", cae);
 				throw cae;
 			} catch (TimeoutException te) {
-				logger.warn("g.d.d.a.v.i.NDOverlayImpl-> Problem creating channel", te);
+				logger.warn("Problem creating channel", te);
 				throw te;
 
 			}

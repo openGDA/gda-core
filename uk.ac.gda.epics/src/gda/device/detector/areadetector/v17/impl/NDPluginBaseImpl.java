@@ -105,7 +105,7 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 			}
 			return EPICS_CONTROLLER.caget(getChannel(PortName_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDPluginBaseImpl-> Cannot getPortName_RBV", ex);
+			logger.warn("Cannot getPortName_RBV", ex);
 			throw ex;
 		}
 	}
@@ -121,7 +121,7 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 			}
 			return EPICS_CONTROLLER.caget(getChannel(PluginType_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDPluginBaseImpl-> Cannot getPluginType_RBV", ex);
+			logger.warn("Cannot getPluginType_RBV", ex);
 			throw ex;
 		}
 	}
@@ -137,7 +137,7 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 			}
 			return EPICS_CONTROLLER.caget(getChannel(NDArrayPort));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDPluginBaseImpl-> Cannot getNDArrayPort", ex);
+			logger.warn("Cannot getNDArrayPort", ex);
 			throw ex;
 		}
 	}
@@ -154,7 +154,7 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 				EPICS_CONTROLLER.caput(getChannel(NDArrayPort), ndarrayport);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDPluginBaseImpl-> Cannot setNDArrayPort", ex);
+			logger.warn("Cannot setNDArrayPort", ex);
 			throw ex;
 		}
 	}
@@ -170,7 +170,7 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 			}
 			return EPICS_CONTROLLER.caget(getChannel(NDArrayPort_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDPluginBaseImpl-> Cannot getNDArrayPort_RBV", ex);
+			logger.warn("Cannot getNDArrayPort_RBV", ex);
 			throw ex;
 		}
 	}
@@ -186,7 +186,7 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(NDArrayAddress));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDPluginBaseImpl-> Cannot getNDArrayAddress", ex);
+			logger.warn("Cannot getNDArrayAddress", ex);
 			throw ex;
 		}
 	}
@@ -203,7 +203,7 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 				EPICS_CONTROLLER.caput(getChannel(NDArrayAddress), ndarrayaddress);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDPluginBaseImpl-> Cannot setNDArrayAddress", ex);
+			logger.warn("Cannot setNDArrayAddress", ex);
 			throw ex;
 		}
 	}
@@ -219,7 +219,7 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(NDArrayAddress_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDPluginBaseImpl-> Cannot getNDArrayAddress_RBV", ex);
+			logger.warn("Cannot getNDArrayAddress_RBV", ex);
 			throw ex;
 		}
 	}
@@ -290,7 +290,7 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(MinCallbackTime));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDPluginBaseImpl-> Cannot getMinCallbackTime", ex);
+			logger.warn("Cannot getMinCallbackTime", ex);
 			throw ex;
 		}
 	}
@@ -307,7 +307,7 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 				EPICS_CONTROLLER.caput(getChannel(MinCallbackTime), mincallbacktime);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDPluginBaseImpl-> Cannot setMinCallbackTime", ex);
+			logger.warn("Cannot setMinCallbackTime", ex);
 			throw ex;
 		}
 	}
@@ -323,7 +323,7 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(MinCallbackTime_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDPluginBaseImpl-> Cannot getMinCallbackTime_RBV", ex);
+			logger.warn("Cannot getMinCallbackTime_RBV", ex);
 			throw ex;
 		}
 	}
@@ -339,7 +339,7 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(BlockingCallbacks));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDPluginBaseImpl-> Cannot getBlockingCallbacks", ex);
+			logger.warn("Cannot getBlockingCallbacks", ex);
 			throw ex;
 		}
 	}
@@ -356,7 +356,7 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 				EPICS_CONTROLLER.caput(getChannel(BlockingCallbacks), blockingcallbacks);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDPluginBaseImpl-> Cannot setBlockingCallbacks", ex);
+			logger.warn("Cannot setBlockingCallbacks", ex);
 			throw ex;
 		}
 	}
@@ -372,7 +372,7 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(BlockingCallbacks_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDPluginBaseImpl-> Cannot getBlockingCallbacks_RBV", ex);
+			logger.warn("Cannot getBlockingCallbacks_RBV", ex);
 			throw ex;
 		}
 	}
@@ -388,7 +388,7 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(ArrayCounter));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDPluginBaseImpl-> Cannot getArrayCounter", ex);
+			logger.warn("Cannot getArrayCounter", ex);
 			throw ex;
 		}
 	}
@@ -405,7 +405,7 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 				EPICS_CONTROLLER.caputWait(getChannel(ArrayCounter), arraycounter);
 			}
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDPluginBaseImpl-> Cannot setArrayCounter", ex);
+			logger.warn("Cannot setArrayCounter", ex);
 			throw ex;
 		}
 	}
@@ -421,7 +421,7 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(ArrayCounter_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDPluginBaseImpl-> Cannot getArrayCounter_RBV", ex);
+			logger.warn("Cannot getArrayCounter_RBV", ex);
 			throw ex;
 		}
 	}
@@ -437,7 +437,7 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(ArrayRate_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDPluginBaseImpl-> Cannot getArrayRate_RBV", ex);
+			logger.warn("Cannot getArrayRate_RBV", ex);
 			throw ex;
 		}
 	}
@@ -453,7 +453,7 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(DroppedArrays));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDPluginBaseImpl-> Cannot getDroppedArrays", ex);
+			logger.warn("Cannot getDroppedArrays", ex);
 			throw ex;
 		}
 	}
@@ -482,7 +482,7 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(DroppedArrays_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDPluginBaseImpl-> Cannot getDroppedArrays_RBV", ex);
+			logger.warn("Cannot getDroppedArrays_RBV", ex);
 			throw ex;
 		}
 	}
@@ -498,7 +498,7 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(NDimensions_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDPluginBaseImpl-> Cannot getNDimensions_RBV", ex);
+			logger.warn("Cannot getNDimensions_RBV", ex);
 			throw ex;
 		}
 	}
@@ -514,7 +514,7 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(ArraySize0_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDPluginBaseImpl-> Cannot getArraySize0_RBV", ex);
+			logger.warn("Cannot getArraySize0_RBV", ex);
 			throw ex;
 		}
 	}
@@ -530,7 +530,7 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(ArraySize1_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDPluginBaseImpl-> Cannot getArraySize1_RBV", ex);
+			logger.warn("Cannot getArraySize1_RBV", ex);
 			throw ex;
 		}
 	}
@@ -546,7 +546,7 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(ArraySize2_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDPluginBaseImpl-> Cannot getArraySize2_RBV", ex);
+			logger.warn("Cannot getArraySize2_RBV", ex);
 			throw ex;
 		}
 	}
@@ -562,7 +562,7 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(DataType_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDPluginBaseImpl-> Cannot getDataType_RBV", ex);
+			logger.warn("Cannot getDataType_RBV", ex);
 			throw ex;
 		}
 	}
@@ -578,7 +578,7 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ColorMode_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDPluginBaseImpl-> Cannot getColorMode_RBV", ex);
+			logger.warn("Cannot getColorMode_RBV", ex);
 			throw ex;
 		}
 	}
@@ -594,7 +594,7 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(BayerPattern_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDPluginBaseImpl-> Cannot getBayerPattern_RBV", ex);
+			logger.warn("Cannot getBayerPattern_RBV", ex);
 			throw ex;
 		}
 	}
@@ -610,7 +610,7 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(UniqueId_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDPluginBaseImpl-> Cannot getUniqueId_RBV", ex);
+			logger.warn("Cannot getUniqueId_RBV", ex);
 			throw ex;
 		}
 	}
@@ -626,7 +626,7 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(TimeStamp_RBV));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDPluginBaseImpl-> Cannot getTimeStamp_RBV", ex);
+			logger.warn("Cannot getTimeStamp_RBV", ex);
 			throw ex;
 		}
 	}
@@ -642,7 +642,7 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 			}
 			return EPICS_CONTROLLER.caget(getChannel(NDAttributesFile));
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDPluginBaseImpl-> Cannot getNDAttributesFile", ex);
+			logger.warn("Cannot getNDAttributesFile", ex);
 			throw ex;
 		}
 	}
@@ -662,7 +662,7 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 			}
 
 		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDPluginBaseImpl-> Cannot setNDAttributesFile", ex);
+			logger.warn("Cannot setNDAttributesFile", ex);
 			throw ex;
 		}
 	}
@@ -715,7 +715,7 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 			}
 			return createChannel(fullPvName);
 		} catch (Exception exception) {
-			logger.warn("g.d.d.a.v.i.NDPluginBaseImpl -> Problem getting channel", exception);
+			logger.warn("Problem getting channel", exception);
 			throw exception;
 		}
 	}
@@ -726,10 +726,10 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 			try {
 				channel = EPICS_CONTROLLER.createChannel(fullPvName);
 			} catch (CAException cae) {
-				logger.warn("g.d.d.a.v.i.NDPluginBaseImpl-> Problem creating channel", cae);
+				logger.warn("Problem creating channel", cae);
 				throw cae;
 			} catch (TimeoutException te) {
-				logger.warn("g.d.d.a.v.i.NDPluginBaseImpl-> Problem creating channel", te);
+				logger.warn("Problem creating channel", te);
 				throw te;
 
 			}
