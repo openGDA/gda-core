@@ -63,6 +63,7 @@ import org.eclipse.scanning.api.event.scan.AcquireRequest;
 import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.custom.StackLayout;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Button;
@@ -75,6 +76,9 @@ import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
 
+/**
+ * A wizard page to acquire data for the selected detector for configuring processing.
+ */
 class AcquireDataWizardPage extends AbstractOperationSetupWizardPage {
 
 	private static final Logger logger = LoggerFactory.getLogger(AcquireDataWizardPage.class);
@@ -82,7 +86,7 @@ class AcquireDataWizardPage extends AbstractOperationSetupWizardPage {
 	public static final String DEFAULT_ENTRY_PATH = "/entry/";
 	public static final String DEFAULT_DATASET_NAME = "data"; // NXdetector.data field
 
-	private final IDetectorModel detectorModel;
+	private IDetectorModel detectorModel = null;
 
 	private IPlottingSystem<Composite> plottingSystem;
 
@@ -96,12 +100,15 @@ class AcquireDataWizardPage extends AbstractOperationSetupWizardPage {
 
 	private Job update;
 
-	protected AcquireDataWizardPage(IDetectorModel detectorModel, IEclipseContext context) {
+	private Composite detectorComposite;
+
+	private StackLayout detectorAreaStackLayout;
+
+	protected AcquireDataWizardPage(IEclipseContext context) {
 		super(AcquireDataWizardPage.class.getName());
 		setTitle("Acquire Data");
 		setDescription("Acquire data from the detector to select the region to process.");
 
-		this.detectorModel = detectorModel;
 		this.context = context;
 	}
 
@@ -292,11 +299,18 @@ class AcquireDataWizardPage extends AbstractOperationSetupWizardPage {
 	}
 
 	private Control createDetectorControl(Composite parent) {
-		Composite detectorComposite = new Composite(parent, SWT.NONE);
-		GridLayoutFactory.fillDefaults().applyTo(detectorComposite);
+		detectorComposite = new Composite(parent, SWT.NONE);
+		detectorAreaStackLayout = new StackLayout();
+		detectorComposite.setLayout(detectorAreaStackLayout);
 
-		IGuiGeneratorService guiGenerator = context.get(IGuiGeneratorService.class);
-		guiGenerator.generateGui(detectorModel, detectorComposite);
+		// The detector model may not have been set yet, so just create a placeholder
+		Label detectorPlaceholder = new Label(detectorComposite, SWT.NONE);
+		detectorPlaceholder.setText("No detector selected");
+		detectorAreaStackLayout.topControl = detectorPlaceholder;
+
+		if (detectorModel != null) {
+			createDetectorUIControls(detectorModel);
+		}
 
 		return detectorComposite;
 	}
@@ -326,13 +340,30 @@ class AcquireDataWizardPage extends AbstractOperationSetupWizardPage {
 
 	@Override
 	public void wizardTerminatingButtonPressed(int buttonId) {
-		// TODO Auto-generated method stub
-
+		// nothing to do
 	}
 
 	@Override
 	public void setInputData(OperationData od) {
-		// since this wizardpage will always be the first, and will have no initial data, this method does nothing
+		// since this wizard page is before the operations pages and will have no initial data, this method does nothing
+	}
+
+	public void setDetectorModel(IDetectorModel detectorModel) {
+		if (detectorModel != this.detectorModel) {
+			this.detectorModel = detectorModel;
+
+			// if we've already created the UI we create a new composite for this detector
+			if (detectorComposite != null) {
+				createDetectorUIControls(detectorModel);
+			}
+		}
+	}
+
+	private void createDetectorUIControls(IDetectorModel detectorModel) {
+		IGuiGeneratorService guiGenerator = context.get(IGuiGeneratorService.class);
+		Control detectorControl = guiGenerator.generateGui(detectorModel, detectorComposite);
+		detectorAreaStackLayout.topControl = detectorControl;
+		detectorComposite.layout();
 	}
 
 }
