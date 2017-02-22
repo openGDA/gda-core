@@ -18,19 +18,14 @@
 
 package gda.device.detector.xmap.edxd;
 
-import gda.device.DeviceException;
-import gda.device.detector.areadetector.v17.NDFileHDF5;
-import gda.device.epicsdevice.EpicsMonitorEvent;
-import gda.device.epicsdevice.FindableEpicsDevice;
-import gda.device.epicsdevice.ReturnType;
-import gda.factory.Configurable;
-import gda.factory.FactoryException;
-import gda.observable.IObserver;
-import gov.aps.jca.TimeoutException;
-import gov.aps.jca.dbr.DBR_Enum;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.device.DeviceException;
+import gda.device.detector.areadetector.v17.NDFileHDF5;
+import gda.device.epicsdevice.ReturnType;
+import gda.factory.Configurable;
+import gov.aps.jca.TimeoutException;
 
 /**
  * This class describes the EDXD detector on I12, it is made up of 24 subdetectors:
@@ -94,39 +89,9 @@ public class EDXDMappingController extends EDXDController implements Configurabl
 		version = 3 ;
 	}
 
+	// Add all the EDXD Elements to the detector (called by configure())
 	@Override
-	public void configure() throws FactoryException {
-		//FIXME this should be pulled in from the spring configuration
-		//TODO Please be aware that use of the finder prevents others from understanding how the code flows!
-		xmap = new FindableEpicsDevice();
-		xmap.setDeviceName(epicsDeviceName);
-		xmap.setName(epicsDeviceName);
-		xmap.configure();
-        statusChannel = xmap.createEpicsChannel(ReturnType.DBR_NATIVE, STATUS , "");
-        statusChannel.addIObserver(new IObserver(){
-
-			@Override
-			public void update(Object source, Object arg) {
-				logger.debug("the status update from xmap is " + arg);
-				if(arg instanceof EpicsMonitorEvent){
-					EpicsMonitorEvent evt = (EpicsMonitorEvent) arg;
-					isBusy = ((DBR_Enum)evt.epicsDbr).getEnumValue()[0] == 1;
-				}
-				else
-					isBusy = false;
-				try {
-					notifyIObservers(this, getStatusObject());
-					logger.debug("acquisition status updated to {}", getStatus());
-				} catch (DeviceException e) {
-					logger.error("ln351 : AcqStatusListener , error ", e);
-				}
-			}
-        });
-		addElements();
-	}
-
-	// Add all the EDXD Elements to the detector
-	private void addElements(){
+	protected void addElements() {
 		for(int i = (0+ elementOffset); i < (numberOfElements + elementOffset); i++ )
 			subDetectors.add(new EDXDMappingElement(xmap,i));
 	}
@@ -139,8 +104,8 @@ public class EDXDMappingController extends EDXDController implements Configurabl
 	 */
 	@Override
 	public double setDynamicRange(double dynamicRange) throws DeviceException {
-		xmap.setValue("SETDYNRANGE","",dynamicRange);
-		return (Double) xmap.getValue(ReturnType.DBR_NATIVE,"GETDYNRANGE"+elementOffset,"");
+		xmap.setValue(SETDYNRANGE, "", dynamicRange);
+		return (Double) xmap.getValue(ReturnType.DBR_NATIVE, GETDYNRANGE + elementOffset, "");
 	}
 
 	/**

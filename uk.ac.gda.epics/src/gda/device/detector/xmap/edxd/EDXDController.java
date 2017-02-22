@@ -18,6 +18,12 @@
 
 package gda.device.detector.xmap.edxd;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.detector.DetectorBase;
@@ -35,12 +41,6 @@ import gda.util.persistence.LocalObjectShelfManager;
 import gda.util.persistence.ObjectShelfException;
 import gov.aps.jca.dbr.DBR_Enum;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * This class describes the EDXD detector on I12, it is made up of 24 subdetectors
  */
@@ -54,18 +54,26 @@ public class EDXDController extends DetectorBase implements Configurable {
 	protected FindableEpicsDevice xmap = null;
 	protected boolean isBusy = false;
 	protected String epicsDeviceName="edxd";
-	protected List<EDXDElement> subDetectors = new ArrayList<EDXDElement>();
+	protected final List<EDXDElement> subDetectors = new ArrayList<EDXDElement>();
 	protected DeviceException collectData_Exception;
-	protected String GETPRESETVALUE = "GETPRESETVALUE";
-	protected String GETPRESETTYPE = "GETPRESETTYPE";
 	protected IEpicsChannel statusChannel;
-	protected static String STATUS = "ACQUIRING";
-	protected static String RESUMEMODE = "SETRESUME";
-	protected static String SCAACTIVATE = "SCAACTIVATE";
-	protected static String SETPRESETVALUE = "SETPRESETVALUE";
-	protected static String SETPRESETTYPE = "SETPRESETTYPE";
-	protected static String SCAELEMENTS = "SCAELEMENTS";
+	protected static final String STATUS = "ACQUIRING";
 
+	// Keys to access xmap's PVs
+	protected static final String ACQUIRE = "ACQUIRE";
+	protected static final String GETDYNRANGE = "GETDYNRANGE";
+	protected static final String GETDYNRANGE0 = "GETDYNRANGE0";
+	protected static final String GETNBINS = "GETNBINS";
+	protected static final String GETPRESETTYPE = "GETPRESETTYPE";
+	protected static final String GETPRESETVALUE = "GETPRESETVALUE";
+	protected static final String SETRESUME = "SETRESUME";
+	protected static final String SCAACTIVATE = "SCAACTIVATE";
+	protected static final String SCAELEMENTS = "SCAELEMENTS";
+	protected static final String SETBINWIDTH = "SETBINWIDTH";
+	protected static final String SETDYNRANGE = "SETDYNRANGE";
+	protected static final String SETNBINS = "SETNBINS";
+	protected static final String SETPRESETTYPE = "SETPRESETTYPE";
+	protected static final String SETPRESETVALUE = "SETPRESETVALUE";
 
 	// TODO these are accessed directly and shouldn't be
 	public enum COLLECTION_MODES {MCA_SPECTRA, MCA_MAPPING, SCA_MAPPING , LIST_MAPPING}
@@ -86,11 +94,15 @@ public class EDXDController extends DetectorBase implements Configurable {
 
 	@Override
 	public void configure() throws FactoryException {
-		//FIXME this should be pulled in from the spring configuration
-		xmap = new FindableEpicsDevice();
-		xmap.setDeviceName(epicsDeviceName);
-		xmap.setName(epicsDeviceName);
-		xmap.configure();
+		// FIXME The xmap FindableEpicsDevice should preferably be configured in Spring but,
+		// for backwards compatibility, is created here if necessary.
+		// TODO Please be aware that use of the finder prevents others from understanding how the code flows!
+		if (xmap == null) {
+			xmap = new FindableEpicsDevice();
+			xmap.setDeviceName(epicsDeviceName);
+			xmap.setName(epicsDeviceName);
+			xmap.configure();
+		}
 		statusChannel = xmap.createEpicsChannel(ReturnType.DBR_NATIVE, STATUS , "");
 		statusChannel.addIObserver(new IObserver(){
 
@@ -113,6 +125,11 @@ public class EDXDController extends DetectorBase implements Configurable {
 
 			}
 		});
+
+		addElements();
+	}
+
+	protected void addElements() {
 		// Add all the EDXD Elements to the detector
 		for (int i = 0; i < numberOfElements; i++)
 			subDetectors.add(new EDXDElement(xmap, i + 1));
@@ -139,13 +156,13 @@ public class EDXDController extends DetectorBase implements Configurable {
 	public void collectData() throws DeviceException {
 		collectData_Exception=null;
 		// set the acquisition time
-		xmap.setValue("SETPRESETVALUE","",collectionTime);
+		xmap.setValue(SETPRESETVALUE, "", collectionTime);
 		// set to take the acquisition for the amount of time specified
 		// 0 = Disabled
 		// 1 = real time
 		// 2 = live time
 		// 3 = events
-		xmap.setValue("SETPRESETTYPE","",1);
+		xmap.setValue(SETPRESETTYPE, "", 1);
 		(new Thread() {
 			@Override
 			public void run() {
@@ -153,7 +170,7 @@ public class EDXDController extends DetectorBase implements Configurable {
 				// now run the actual collection
 				// this has been seen to fail, so a loop trying a couple of times would probably be good
 				try {
-					xmap.setValue(null,"ACQUIRE","",1,(2*collectionTime)+5);
+					xmap.setValue(null, ACQUIRE, "", 1, (2 * collectionTime) + 5);
 				} catch (DeviceException e) {
 					logger.error(e.getMessage(),e);
 					collectData_Exception = e;
@@ -249,8 +266,8 @@ public class EDXDController extends DetectorBase implements Configurable {
 	 * @throws DeviceException
 	 */
 	public int setBins(int NumberOfBins) throws DeviceException {
-		xmap.setValue("SETNBINS","",NumberOfBins);
-		return (Integer) xmap.getValue(ReturnType.DBR_NATIVE,"GETNBINS","");
+		xmap.setValue(SETNBINS, "", NumberOfBins);
+		return (Integer) xmap.getValue(ReturnType.DBR_NATIVE, GETNBINS, "");
 	}
 
 	/**
@@ -259,7 +276,7 @@ public class EDXDController extends DetectorBase implements Configurable {
 	 * @throws DeviceException
 	 */
 	public int getBins() throws DeviceException {
-		return (Integer) xmap.getValue(ReturnType.DBR_NATIVE,"GETNBINS","");
+		return (Integer) xmap.getValue(ReturnType.DBR_NATIVE, GETNBINS, "");
 	}
 
 	/**
@@ -269,8 +286,8 @@ public class EDXDController extends DetectorBase implements Configurable {
 	 * @throws DeviceException
 	 */
 	public double setDynamicRange(double dynamicRange) throws DeviceException {
-		xmap.setValue("SETDYNRANGE","",dynamicRange);
-		return (Double) xmap.getValue(ReturnType.DBR_NATIVE,"GETDYNRANGE0","");
+		xmap.setValue(SETDYNRANGE, "", dynamicRange);
+		return (Double) xmap.getValue(ReturnType.DBR_NATIVE, GETDYNRANGE0, "");
 	}
 
 	/**
@@ -279,7 +296,7 @@ public class EDXDController extends DetectorBase implements Configurable {
 	 * @throws DeviceException
 	 */
 	public void setBinWidth(double binWidth) throws DeviceException {
-		xmap.setValue("SETBINWIDTH","",binWidth);
+		xmap.setValue(SETBINWIDTH, "", binWidth);
 	}
 
 	/**
@@ -507,7 +524,7 @@ public class EDXDController extends DetectorBase implements Configurable {
 		int toset =0;
 		if(resume)
 			toset = 1;
-		xmap.setValue(RESUMEMODE  ,"",toset);
+		xmap.setValue(SETRESUME  ,"",toset);
 	}
 
 	/**
@@ -543,12 +560,12 @@ public class EDXDController extends DetectorBase implements Configurable {
 	 * @throws DeviceException
 	 */
 	public void start() throws DeviceException {
-		xmap.setValueNoWait("ACQUIRE","",1);
+		xmap.setValueNoWait(ACQUIRE, "", 1);
 	}
 
 	@Override
 	public void stop() throws DeviceException {
-		xmap.setValueNoWait("ACQUIRE","",0);
+		xmap.setValueNoWait(ACQUIRE, "", 0);
 	}
 
 	/**
@@ -600,6 +617,14 @@ public class EDXDController extends DetectorBase implements Configurable {
 
 	public double getOCR(int mcaNumber) throws DeviceException{
 		return subDetectors.get(mcaNumber).getOutputCountRate();
+	}
+
+	public FindableEpicsDevice getXmap() {
+		return xmap;
+	}
+
+	public void setXmap(FindableEpicsDevice xmap) {
+		this.xmap = xmap;
 	}
 
 }
