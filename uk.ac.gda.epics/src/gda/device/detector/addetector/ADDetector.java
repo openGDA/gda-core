@@ -18,6 +18,19 @@
 
 package gda.device.detector.addetector;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Vector;
+import java.util.concurrent.Callable;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.util.StringUtils;
+
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
@@ -49,19 +62,6 @@ import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
 import gda.scan.Scan;
 import gda.scan.ScanInformation;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Vector;
-import java.util.concurrent.Callable;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.util.StringUtils;
 
 /**
  * <b>WARNING: This class is very much under development and will likely be until at least GDA 8.26 . <i>Please do use it though</i> so that we can learn from
@@ -400,17 +400,17 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 	public void configure() throws FactoryException {
 		super.configure();
 		if (!afterPropertiesSetCalled)
-			throw new RuntimeException("afterPropertiesSet not yet called");
+			throw new FactoryException("afterPropertiesSet not yet called");
 		if (!StringUtils.hasLength(getName()))
-			throw new RuntimeException("name is not defined");
-		createStatsGroups();
-		setInputNames(A);
-		configureExtraNamesAndOutputFormat();
+			throw new FactoryException("name is not defined");
 
 		try {
+			createStatsGroups();
+			setInputNames(A);
+			configureExtraNamesAndOutputFormat();
 			reset();
 		} catch (Exception e) {
-			throw new FactoryException("Problem reseting a plugin", e);
+			logger.error("Configuring {} failed! Device may not work as expected", getName());
 		}
 	}
 
