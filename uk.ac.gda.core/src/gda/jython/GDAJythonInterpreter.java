@@ -305,6 +305,7 @@ public class GDAJythonInterpreter extends ObservableComponent {
 				}
 			}
 		}
+		classLoader.setSysPath(pss.path); // Inform the ClassLoader of the sys.path contents
 
 		// Get instance of interactive console
 		interactiveConsole = new GDAInteractiveConsole(pss);
