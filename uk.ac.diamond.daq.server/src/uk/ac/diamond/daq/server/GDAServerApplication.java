@@ -1,5 +1,6 @@
 package uk.ac.diamond.daq.server;
 
+import gda.jython.GDAJythonClassLoader;
 import gda.util.ObjectServer;
 import gda.util.SpringObjectServer;
 import gda.util.Version;
@@ -119,6 +120,7 @@ public class GDAServerApplication implements IApplication {
 			}
 		}
 		processes.clear();
+		GDAJythonClassLoader.closeJarClassLoaders();
 		ApplicationEnvironment.release();
 		shutdownLatch.countDown();
 	}
