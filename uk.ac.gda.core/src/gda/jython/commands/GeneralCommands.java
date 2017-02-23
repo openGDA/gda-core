@@ -123,7 +123,7 @@ public class GeneralCommands {
 	public static void ls(String interfaceName) {
 
 		if (interfaceName == null || interfaceName.compareTo("") == 0 || interfaceName.compareTo("all") == 0) {
-			String output = "";
+			String output = "\n";
 			ArrayList<String> availableInterfaces = Finder.getInstance().listAllInterfaces();
 
 			availableInterfaces.remove("Findable");
@@ -171,8 +171,7 @@ public class GeneralCommands {
 
 			// print out to the Jython interpreter directly (so output is formatted correctly)
 			try {
-				JythonServerFacade.getInstance().runCommand("list_of_objects='"
-						+ output + "';print list_of_objects");
+				InterfaceProvider.getTerminalPrinter().print(output);
 			} catch (Exception e) {
 				// do nothing
 			}
