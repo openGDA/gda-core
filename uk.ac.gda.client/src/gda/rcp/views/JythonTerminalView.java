@@ -66,8 +66,8 @@ import org.slf4j.LoggerFactory;
 import com.swtdesigner.SWTResourceManager;
 
 import gda.configuration.properties.LocalProperties;
-import gda.jython.IAllScanDataPointsObserver;
 import gda.jython.IJythonContext;
+import gda.jython.IScanDataPointObserver;
 import gda.jython.Jython;
 import gda.jython.JythonServerFacade;
 import gda.jython.Terminal;
@@ -93,7 +93,7 @@ import uk.ac.gda.menu.JythonControlsFactory;
  * data points missed by the view not being present. For now always use this view as a default visible one and this
  * issue will not be as bad.
  */
-public class JythonTerminalView extends ViewPart implements Runnable, IAllScanDataPointsObserver, Terminal {
+public class JythonTerminalView extends ViewPart implements Runnable, IScanDataPointObserver, Terminal {
 
 	// The output panel is similar to the details panel at the bottom of the
 	// "Variables" view used when debugging. See these classes:
@@ -836,10 +836,10 @@ public class JythonTerminalView extends ViewPart implements Runnable, IAllScanDa
 	private String determineOutputFileName() {
 		String terminalOutputDirName = getTerminalOutputDirName();
 		terminalOutputDirName = terminalOutputDirName.replaceAll("/$", ""); // strip leading / to avoid dir//file
-		
+
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss");
 		String timestamp = sdf.format(new Date());
-		
+
 		String filename = String.format("%s/terminal_output_%s.txt", terminalOutputDirName, timestamp);
 		return filename;
 	}

@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
-import gda.jython.IAllScanDataPointsObserver;
+import gda.jython.IScanDataPointObserver;
 import gda.jython.IScanDataPointProvider;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanDataPoint;
@@ -38,7 +38,7 @@ import uk.ac.diamond.scisoft.analysis.SDAPlotter;
  * To use this scannable, give it the names of the x,y and z columns and the plot view to send the plot to ("Plot 1" by
  * default. Then simply include in the scan command you wish to plot.
  */
-public class TwoDScanPlotter extends ScannableBase implements IAllScanDataPointsObserver {
+public class TwoDScanPlotter extends ScannableBase implements IScanDataPointObserver {
 
 	private static final Logger logger = LoggerFactory.getLogger(TwoDScanPlotter.class);
 
