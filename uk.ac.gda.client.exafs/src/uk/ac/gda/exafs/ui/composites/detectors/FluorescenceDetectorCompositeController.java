@@ -100,6 +100,9 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 	private boolean updatingRoiPlotFromUI;
 	private boolean updatingRoiUIFromPlot;
 
+        // Magic strings
+        private static final String SPOOL_DIR_PROPERTY = "gda.fluorescenceDetector.spoolDir";
+
 	/**
 	 * Create a new FluorescenceDetectorCompositeController for the given FluorescenceDetectorComposite. Call at least one of setDetector() and
 	 * setDetectorParameters() before calling initialise() to set up the controller.
@@ -642,7 +645,7 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 			long snapShotNumber = new NumTracker(snapshotPrefix).incrementNumber();
 			String fileName = snapshotPrefix + snapShotNumber + ".mca";
 
-			String spoolDirPath = PathConstructor.createFromDefaultProperty();
+			String spoolDirPath = PathConstructor.createFromProperty(SPOOL_DIR_PROPERTY);
 			File filePath = new File(spoolDirPath + "/" + fileName);
 			String spoolFilePath = filePath.getAbsolutePath();
 
