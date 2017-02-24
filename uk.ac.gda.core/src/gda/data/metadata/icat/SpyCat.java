@@ -21,11 +21,14 @@ package gda.data.metadata.icat;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.mariadb.jdbc.MariaDbDataSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
@@ -39,10 +42,13 @@ import gda.configuration.properties.LocalProperties;
  */
 public class SpyCat extends DlsIcatBase {
 
+	private static final Logger logger = LoggerFactory.getLogger(SpyCat.class);
+
 	////////////////////////////////////////////////////////////////////////////////////////////////
 
 	@Override
 	protected List<String> getVisitsForUser(Connection connection, String username) throws Exception {
+		logger.trace(     "getVisitsForUser({}, {})", connection, username);
 
 		final String sql = "CALL ispyb.retrieve_current_sessions_for_person(?, ?, ?)";
 
@@ -53,11 +59,14 @@ public class SpyCat extends DlsIcatBase {
 
 		final List<String> visits = template.query(sql, parameters, VISIT_MAPPER);
 
+		logger.debug("SQL query '{}' with parameters {} returned {}", sql, Arrays.toString(parameters), visits);
+
 		return visits;
 	}
 
 	@Override
 	protected Optional<String> getLatestVisitWithPrefix(Connection connection, String visitPrefix) {
+		logger.trace(         "getLatestVisitWithPrefix({}, {})", connection, visitPrefix);
 
 		final String sql = "CALL ispyb.retrieve_most_recent_session(?, ?)";
 
@@ -66,6 +75,8 @@ public class SpyCat extends DlsIcatBase {
 		final JdbcTemplate template = makeJdbcTemplateFromConnection(connection);
 
 		final List<String> visits = template.query(sql, VISIT_MAPPER, parameters);
+
+		logger.debug("SQL query '{}' with parameters {} returned {}", sql, Arrays.toString(parameters), visits);
 
 		return (visits.isEmpty()) ? Optional.<String>absent() : Optional.of(visits.get(0));
 	}
@@ -82,6 +93,7 @@ public class SpyCat extends DlsIcatBase {
 
 	@Override
 	protected String getTitleForVisitUsingConnection(String visit, Connection connection) throws Exception {
+		logger.trace("getTitleForVisitUsingConnection({}, {})", visit, connection);
 
 		// Split visit code (e.g. "cm14486-3") into proposal code ("cm") and proposal number (14486)
 		final Pattern visitPattern = Pattern.compile("([a-z]+)(\\d+)-(\\d+)");
@@ -99,6 +111,8 @@ public class SpyCat extends DlsIcatBase {
 		final JdbcTemplate template = makeJdbcTemplateFromConnection(connection);
 
 		final String title = template.queryForObject(sql, parameters, String.class);
+
+		logger.debug("SQL query '{}' with parameters {} returned '{}'", sql, Arrays.toString(parameters), title);
 
 		return title;
 	}
