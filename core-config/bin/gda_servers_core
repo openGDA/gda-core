@@ -58,7 +58,7 @@ function gda_zenity {
 function gda_zenity_progress {
     zenity --progress --width 550 --pulsate --auto-close \
             --title="GDA Server starting: Press Cancel or close window to Abort" \
-            --text="\n\t\t\t\t\tStarting GDA Server on ${server_machine}"
+            --text="\nStarting GDA Server on ${server_machine}"
 }
 
 function echo_if_not_in_remote_startup {
@@ -122,7 +122,7 @@ if [[ "${GDA_MODE}" == "live" && "${CONTROL_MACHINE_NAME}" != "$(uname -n)" ]]; 
     else
       bashlog warn "gda_servers_core" "Public key file $CONTROL_MACHINE_PUBKEY_FILE doesn't exist and no CONTROL_MACHINE_PUBKEY defined!"
     fi
-    
+
     # must be prevented from entering here during abort as there is no terminal to echo to, which will cause exit 1 due to the set -e in gda_core
     if [[ "${ABORTING:-false}" == false ]] && [[ "${GDA_OPERATION}" != "start" ]]; then
         [[ "${GDA_OPERATION}" == "restart" ]] && extra="and then restart" || extra=""
@@ -131,6 +131,7 @@ if [[ "${GDA_MODE}" == "live" && "${CONTROL_MACHINE_NAME}" != "$(uname -n)" ]]; 
 
     ssh -T -o BatchMode=yes -i ${CONTROL_MACHINE_SSHKEY_LOC} ${CONTROL_MACHINE_USER}@${CONTROL_MACHINE_NAME} ${GDA_OPERATION} ${DEBUG} ${GDA_ARGS}
     ssh_tunnel_activated=true
+    echo -e "${options_text}"
 
 else
     # This runs when live on the control machine or in any mode other than live
@@ -140,7 +141,7 @@ else
     ######### WARNING #########
     #
     # Never directly use echo in in this else clause as, in live mode it will be run on the control machine which has
-    # no terminal to echo to. This will cause a nonzero return value making the script abort immediately before it 
+    # no terminal to echo to. This will cause a nonzero return value making the script abort immediately before it
     # has finished doing the jobs it was supposed to. Instead use the 'echo_if_not_in_remote_startup' function.
 
     echo_if_not_in_remote_startup
@@ -239,7 +240,7 @@ if [[ "${GDA_MODE}" == "dummy" ]] || [[ "${ssh_tunnel_activated:-}" == true ]] |
                 ${GDA_WORKSPACE_PARENT}/${GDA_CORE_CONFIG_rel}/bin/telnet_ping "${server_machine}" 9999
                 if [[ "$?" == 0 ]]; then
                     if [[ -n "${DISPLAY:-}" && "${GDA_NO_PROMPT:-}" != true ]]; then    # if we are using zenity progress bar then change
-                        echo "#\n\t\t\t\t\t\t  Server started"                          # its text when startup is succesful for 2 seconds
+                        echo "#\nServer started"                                        # its text when startup is successful for 2 seconds
                         sleep 2
                     fi
                     break
