@@ -300,7 +300,8 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 		}
 
 		// motor is not moving
-		if (Math.abs(currentInternalPosition - lastDemandedInternalPosition) <= demandPositionTolerance) {
+		double tolerance = getDemandPositionTolerance();
+		if (Math.abs(currentInternalPosition - lastDemandedInternalPosition) <= tolerance) {
 			return lastDemandedInternalPosition;
 		} // else
 
@@ -309,7 +310,7 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 			String msg = MessageFormat.format(
 					"{0} is returning a position based on its real motor position ({1}) rather than its last demanded position({2}),\n"
 							+ "as these differ by more than the configured demand position tolerance ({3}).",
-					getName(), currentInternalPosition, lastDemandedInternalPosition, demandPositionTolerance);
+					getName(), currentInternalPosition, lastDemandedInternalPosition, tolerance);
 			demand_msg_shown = true; // reset by rawAsynchMoveto
 			logger.info(msg);
 			InterfaceProvider.getTerminalPrinter().print("WARNING: " + msg);
@@ -519,7 +520,7 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 
 		try {
 			if (isReturningDemandPosition() && (lastDemandedInternalPosition != null) && (!isBusy())) {
-				if (Math.abs(((Double) rawGetPosition()) - lastDemandedInternalPosition) <= demandPositionTolerance) {
+				if (Math.abs(((Double) rawGetPosition()) - lastDemandedInternalPosition) <= getDemandPositionTolerance()) {
 					report += " demand";
 				} else {
 					// stopped, but not at target so show demand as well
@@ -719,6 +720,7 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 	public double getDemandPositionTolerance() {
 		if (!isDemandPositionToleranceSet) {
 			try {
+				// Do not update isDemandPositionToleranceSet to allow dynamic updating from EPICS
 				demandPositionTolerance = motor.getRetryDeadband();
 			} catch (MotorException e) {
 				logger.error("{} failed to get the tolerance from motor: {}", getName(), e);
