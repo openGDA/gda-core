@@ -30,7 +30,7 @@ public class NexusGroupDataTest {
 
 	@Test
 	public void testShapes() {
-		Assert.assertArrayEquals(new int[0], ShapeUtils.getShapeFromObject(null));
+		Assert.assertEquals(null, ShapeUtils.getShapeFromObject(null));
 
 		Assert.assertArrayEquals(new int[] {0}, ShapeUtils.getShapeFromObject(new int[]{}));
 		Assert.assertArrayEquals(new int[] {0}, ShapeUtils.getShapeFromObject(new double[]{}));
