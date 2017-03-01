@@ -21,6 +21,7 @@ package gda.observable;
  * Interface for an object that is observing an {@link Observable}
  *
  */
+@FunctionalInterface
 public interface Observer<E> {
 	/**
 	 * Called whenever an observed object is changed.

@@ -26,6 +26,7 @@ package gda.observable;
  *
  * @see gda.observable.IObservable
  */
+@FunctionalInterface
 public interface IObserver {
 
 	/**
