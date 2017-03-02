@@ -18,20 +18,6 @@
 
 package gda.rcp.ncd.views;
 
-import gda.data.PathConstructor;
-import gda.data.metadata.GDAMetadataProvider;
-import gda.data.metadata.Metadata;
-import gda.device.Device;
-import gda.device.TimerStatus;
-import gda.factory.Finder;
-import gda.jython.IAllScanDataPointsObserver;
-import gda.jython.InterfaceProvider;
-import gda.observable.IObservable;
-import gda.observable.IObserver;
-import gda.rcp.ncd.ExptDataModel;
-import gda.rcp.ncd.NcdController;
-import gda.scan.ScanDataPoint;
-
 import java.text.NumberFormat;
 import java.util.Collection;
 
@@ -43,6 +29,19 @@ import org.slf4j.LoggerFactory;
 
 import com.swtdesigner.SWTResourceManager;
 
+import gda.data.PathConstructor;
+import gda.data.metadata.GDAMetadataProvider;
+import gda.data.metadata.Metadata;
+import gda.device.Device;
+import gda.device.TimerStatus;
+import gda.factory.Finder;
+import gda.jython.IScanDataPointObserver;
+import gda.jython.InterfaceProvider;
+import gda.observable.IObservable;
+import gda.observable.IObserver;
+import gda.rcp.ncd.ExptDataModel;
+import gda.rcp.ncd.NcdController;
+import gda.scan.ScanDataPoint;
 import uk.ac.gda.server.ncd.detectorsystem.NcdDetectorSystem;
 import uk.ac.gda.server.ncd.plotting.DetectorRates;
 import uk.ac.gda.server.ncd.plotting.NormalisationUpdate;
@@ -50,7 +49,7 @@ import uk.ac.gda.server.ncd.plotting.NormalisationUpdate;
 /**
  * A system status display panel
  */
-public class NcdStatusUpdater implements IObserver, IAllScanDataPointsObserver {
+public class NcdStatusUpdater implements IObserver, IScanDataPointObserver {
 
 	private static final Logger logger = LoggerFactory.getLogger(NcdStatusUpdater.class);
 
@@ -63,7 +62,7 @@ public class NcdStatusUpdater implements IObserver, IAllScanDataPointsObserver {
 
 	/**
 	 * Constructor
-	 * 
+	 *
 	 * @param client
 	 *            who to update
 	 */

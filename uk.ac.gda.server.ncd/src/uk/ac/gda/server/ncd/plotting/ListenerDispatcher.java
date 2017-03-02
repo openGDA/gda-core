@@ -41,7 +41,7 @@ import gda.device.TimerStatus;
 import gda.factory.Configurable;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
-import gda.jython.IAllScanDataPointsObserver;
+import gda.jython.IScanDataPointObserver;
 import gda.jython.InterfaceProvider;
 import gda.observable.IObserver;
 import gda.scan.ScanDataPoint;
@@ -58,7 +58,7 @@ import uk.ac.gda.server.ncd.subdetector.NcdWireDetector;
  * This listens to SDPs and the NcdDetectorSystem Timer to send updates to the client with either live raw data, stored
  * raw data or processed (reduced) data from the SDP.
  */
-public class ListenerDispatcher implements Findable, IObserver, Configurable, IAllScanDataPointsObserver {
+public class ListenerDispatcher implements Findable, IObserver, Configurable, IScanDataPointObserver {
 
 	private class RequestObject {
 		public RequestObject(String type, String entity) {
