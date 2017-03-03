@@ -34,9 +34,9 @@
 				<pathelement location="${workspace.git.loc}/dawnsci.git/org.eclipse.dawnsci.json/bin" />
 				<pathelement location="${workspace.git.loc}/dawnsci.git/org.eclipse.dawnsci.plotting.api/bin" />
 				<pathelement location="${workspace.git.loc}/january.git/org.eclipse.january/bin" />
-				<pathelement location="${workspace.git.loc}/daq-eclipse.git/org.eclipse.scanning.api/bin" />
-				<pathelement location="${workspace.git.loc}/daq-eclipse.git/org.eclipse.scanning.example/bin" />
-				<pathelement location="${workspace.git.loc}/daq-eclipse.git/org.eclipse.scanning.server/bin" />
+				<pathelement location="${workspace.git.loc}/scanning.git/org.eclipse.scanning.api/bin" />
+				<pathelement location="${workspace.git.loc}/scanning.git/org.eclipse.scanning.example/bin" />
+				<pathelement location="${workspace.git.loc}/scanning.git/org.eclipse.scanning.server/bin" />
 				<path refid="tp.slf4j.path" />  <!-- ensure that required org.slf4j.LoggerFactory appears first in classpath -->
 				<path refid="tp.jcl-over-slf4j.path" />  <!-- ensure that matching imp appears first in classpath -->
 				<path refid="tp.hamcrest.path" />  <!-- ensure that latest version appears first in classpath -->
