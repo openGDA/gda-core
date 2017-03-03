@@ -232,6 +232,7 @@ where task can be:
 		self.parser.add_option("-n", "--dry-run", dest="dry_run", action="store_true", default=False, help="show what processes would be started and environment variables set")
 		self.parser.add_option("-v", "--verbose", dest="verbose", action="store_true", default=False, help="increase verbosity")
 		self.parser.add_option("--trace", dest="trace", action="store_true", default=False, help="increase verbosity again")
+		self.parser.add_option("--dump-classpath-and-exit", dest="dump_classpath_and_exit", type="string", metavar="FILE")
 
 		group = OptionGroup(self.parser, "Actions")
 		group.add_option("--version", dest="version", action="store_true", default=False, help="display GDA version")
@@ -851,6 +852,15 @@ where task can be:
 		for item in self.library_path:
 			self.logger.trace('   %s' % (item,))
 
+		if self.options.dump_classpath_and_exit:
+			filename = self.options.dump_classpath_and_exit
+			print "Writing classpath to %s" % filename
+			f = open(filename, "wb")
+			for p in self.gda_class_path_list:
+				f.write(p + "\n")
+			f.close()
+			sys.exit(0)
+		
 		self.gda_class_path = os.pathsep.join(self.gda_class_path_list)
 		self.gda_class_path_list = None  # so it's not reused
 
