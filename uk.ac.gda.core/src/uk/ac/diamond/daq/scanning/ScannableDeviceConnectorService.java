@@ -192,12 +192,12 @@ public class ScannableDeviceConnectorService implements IScannableDeviceService 
 	}
 
 	@Override
-	public Set<String> getGlobalMetadataScannableNames() {
+	public Set<String> getGlobalPerScanMonitorNames() {
 		return NexusDataWriter.getMetadatascannables();
 	}
 
 	@Override
-	public Set<String> getRequiredMetadataScannableNames(String scannableName) {
+	public Set<String> getRequiredPerScanMonitorNames(String scannableName) {
 		ScannableWriter writer = NexusDataWriter.getLocationmap().get(scannableName);
 		if (writer != null) {
 			Collection<String> requiredScannables = writer.getPrerequisiteScannableNames();
