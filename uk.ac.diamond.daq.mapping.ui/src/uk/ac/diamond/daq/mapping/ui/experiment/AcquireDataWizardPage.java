@@ -33,7 +33,6 @@ import java.util.concurrent.TimeUnit;
 import org.dawnsci.processing.ui.model.AbstractOperationSetupWizardPage;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.dawnsci.analysis.api.io.ILoaderService;
 import org.eclipse.dawnsci.analysis.api.processing.OperationData;
@@ -49,6 +48,7 @@ import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.SliceND;
 import org.eclipse.jface.dialogs.ErrorDialog;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -60,6 +60,7 @@ import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.core.IRequester;
 import org.eclipse.scanning.api.event.scan.AcquireRequest;
+import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -160,8 +161,14 @@ class AcquireDataWizardPage extends AbstractOperationSetupWizardPage {
 		request.setDetectorModel(detectorModel);
 
 		try {
-			getRequestor().post(request);
-			loadDataFromFile(request.getFilePath());
+			AcquireRequest response = getRequestor().post(request);
+			if (response.getStatus() == Status.COMPLETE) {
+				loadDataFromFile(response.getFilePath());
+			} else if (response.getStatus() == Status.FAILED){
+				MessageDialog.openError(getShell(), "Acquire Data", "Unable to acquire data for detector. Reason: " + response.getMessage());
+			} else {
+				throw new IllegalArgumentException("Unknown status: " + response.getStatus());
+			}
 		} catch (Exception e) {
 			handleException("Unable to acquire data for detector " + detectorModel.getName(), e);
 		}
@@ -172,7 +179,7 @@ class AcquireDataWizardPage extends AbstractOperationSetupWizardPage {
 			final IEventService eventService = context.get(IEventService.class);
 			final URI uri = new URI(LocalProperties.getActiveMQBrokerURI());
 			acquireRequestor = eventService.createRequestor(uri, ACQUIRE_REQUEST_TOPIC, ACQUIRE_RESPONSE_TOPIC);
-			acquireRequestor.setTimeout(2, TimeUnit.MINUTES);
+			acquireRequestor.setTimeout(15, TimeUnit.SECONDS);
 		}
 
 		return acquireRequestor;
@@ -242,8 +249,9 @@ class AcquireDataWizardPage extends AbstractOperationSetupWizardPage {
 
 	private void handleException(String errorMessage, Throwable e) {
 		if (e instanceof InvocationTargetException) e = e.getCause();
-		ErrorDialog.openError(getShell(), "Error", errorMessage, new Status(IStatus.ERROR,
-				"uk.ac.diamond.daq.mapping.ui.experiment", errorMessage, e));
+		ErrorDialog.openError(getShell(), "Acquire Data", errorMessage,
+				new org.eclipse.core.runtime.Status(IStatus.ERROR,
+						"uk.ac.diamond.daq.mapping.ui.experiment", errorMessage, e));
 		logger.error(errorMessage, e);
 	}
 
@@ -273,7 +281,7 @@ class AcquireDataWizardPage extends AbstractOperationSetupWizardPage {
 							}
 						}
 					});
-					return Status.OK_STATUS;
+					return org.eclipse.core.runtime.Status.OK_STATUS;
 				}
 			};
 		}
