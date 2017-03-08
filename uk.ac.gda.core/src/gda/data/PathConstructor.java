@@ -31,7 +31,6 @@ import java.util.StringTokenizer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.StringUtils;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.metadata.GDAMetadataProvider;
@@ -141,7 +140,7 @@ public class PathConstructor implements IPathConstructor {
 	public static String createFromProperty(String property, Map<String, String> overrides) {
 		String template = LocalProperties.get(property);
 		if (template == null) {
-			throw new IllegalArgumentException("Could not find property " + StringUtils.quote(property));
+			throw new IllegalArgumentException("Could not find property '" + property + "'");
 		}
 		return createFromTemplate(template, overrides);
 	}
