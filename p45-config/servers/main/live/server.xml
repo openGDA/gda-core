@@ -8,6 +8,7 @@
 	<import resource="mic.xml" />
 	<import resource="mapping_motors.xml"/>
 	<import resource="malcolm.xml"/>
+	<import resource="malcolm_real.xml"/>
 
 <!-- Do not remove anything below here -->
 	<import resource="../../main/_common/server.xml" />
