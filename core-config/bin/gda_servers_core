@@ -165,7 +165,6 @@ else
     umask 0002
     # This should fix a problem where sub-directories created in a visit folder end up
     # with a different mask to the default.
-    GDA_TARGET_SCRIPT=$(readlink -f ${GDA_WORKSPACE_PARENT}/${GDA_CORE_CONFIG_rel}/bin/gda_server_target_launch.sh)
 
     export JAVA_OPTS="-Dgda.deploytype=1"
 
@@ -175,6 +174,7 @@ else
     fi
     echo_if_not_in_remote_startup -e "${options_text}"
 
+    GDA_TARGET_SCRIPT=$(readlink -f ${GDA_WORKSPACE_PARENT}/${GDA_CORE_CONFIG_rel}/bin/gda_server_target_launch.sh)
     bashlog debug "gda_servers_core" "Calling ${GDA_TARGET_SCRIPT}  ${GDA_OPERATION} ${DEBUG} ${GDA_ARGS}"
     ${GDA_TARGET_SCRIPT} ${GDA_OPERATION} ${DEBUG} ${GDA_ARGS} >> ${GDA_LOG_FILE}  2>&1
 
