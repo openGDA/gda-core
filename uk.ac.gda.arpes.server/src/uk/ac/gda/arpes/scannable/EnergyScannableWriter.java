@@ -107,14 +107,14 @@ public class EnergyScannableWriter extends SingleScannableWriter {
 		@Override
 		public Collection<SelfCreatingLink> makeComponent(final NexusFile file, final GroupNode group, final int[] dim,
 				final String path, final String scannableName, final String componentName, final Object pos,
-				final String unit) throws NexusException {
+				final String unit, final boolean primary) throws NexusException {
 
-			super.makeComponent(file, group, dim, path, scannableName, componentName, pos, unit);
+			super.makeComponent(file, group, dim, path, scannableName, componentName, pos, unit, primary);
 			final double[] stokes = getStokes(pos.toString());
 			if (stokes == null) {
 				stokesWriter = null;
 			} else {
-				stokesWriter.makeComponent(file, group, dim, stokesPath, scannableName, componentName, stokes, null);
+				stokesWriter.makeComponent(file, group, dim, stokesPath, scannableName, componentName, stokes, null, primary);
 			}
 			return Collections.emptySet();
 		}
