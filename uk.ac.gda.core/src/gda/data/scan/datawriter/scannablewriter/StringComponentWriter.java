@@ -18,8 +18,6 @@
 
 package gda.data.scan.datawriter.scannablewriter;
 
-import gda.data.scan.datawriter.SelfCreatingLink;
-
 import java.util.Collection;
 import java.util.Collections;
 
@@ -32,6 +30,8 @@ import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusUtils;
+
+import gda.data.scan.datawriter.SelfCreatingLink;
 
 public class StringComponentWriter extends DefaultComponentWriter {
 
@@ -46,7 +46,7 @@ public class StringComponentWriter extends DefaultComponentWriter {
 
 	@Override
 	public Collection<SelfCreatingLink> makeComponent(final NexusFile file, GroupNode group, int[] scanDims, final String path,
-			final String scannableName, final String componentName, final Object pos, final String unit)
+			final String scannableName, final String componentName, final Object pos, final String unit, final boolean primary)
 					throws NexusException {
 
 		String aPath = file.getPath(group) + path;
@@ -77,6 +77,10 @@ public class StringComponentWriter extends DefaultComponentWriter {
 
 		if (componentName != null) {
 			NexusUtils.writeStringAttribute(file, data, "local_name", scannableName + "." + componentName);
+		}
+
+		if (primary) {
+			NexusUtils.writeAttribute(file, data, "primary", 1);
 		}
 
 		addCustomAttributes(file, lGroup, scannableName, componentName);

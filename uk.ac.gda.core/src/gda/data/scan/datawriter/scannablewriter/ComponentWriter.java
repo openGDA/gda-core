@@ -18,13 +18,13 @@
 
 package gda.data.scan.datawriter.scannablewriter;
 
-import gda.data.scan.datawriter.SelfCreatingLink;
-
 import java.util.Collection;
 
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusFile;
+
+import gda.data.scan.datawriter.SelfCreatingLink;
 
 /**
  * This interface allows writing of a single input or extra element of a scannable
@@ -32,7 +32,7 @@ import org.eclipse.dawnsci.nexus.NexusFile;
 public interface ComponentWriter {
 
 	public Collection<SelfCreatingLink> makeComponent(NexusFile file, GroupNode group, int[] dim, String path,
-			String scannableName, String componentName, Object pos, String unit) throws NexusException;
+			String scannableName, String componentName, Object pos, String unit, boolean primary) throws NexusException;
 
 	public void writeComponent(NexusFile file, GroupNode group, int[] start, String path, String scannableName,
 			String componentName, Object pos) throws NexusException;

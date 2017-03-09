@@ -18,10 +18,6 @@
 
 package gda.data.scan.datawriter.scannablewriter;
 
-import gda.data.scan.datawriter.SelfCreatingLink;
-import gda.device.Scannable;
-import gda.device.ScannableMotionUnits;
-
 import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.HashMap;
@@ -34,6 +30,10 @@ import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.data.scan.datawriter.SelfCreatingLink;
+import gda.device.Scannable;
+import gda.device.ScannableMotionUnits;
 
 /**
  * At the moment this class should handle well formed scannables returning Doubles or Strings with multiple input or
@@ -99,7 +99,7 @@ public class SingleScannableWriter implements ScannableWriter {
 
 	@Override
 	public Collection<? extends SelfCreatingLink> makeScannable(final NexusFile file, GroupNode group, final Scannable s,
-			final Object position, final int[] dim) throws NexusException {
+			final Object position, final int[] dim, final boolean primary) throws NexusException {
 
 		final Vector<SelfCreatingLink> sclc = new Vector<SelfCreatingLink>();
 		resetComponentWriters();
@@ -123,7 +123,7 @@ public class SingleScannableWriter implements ScannableWriter {
 				final Object componentObject = getComponentObject(s, position, i);
 				final ComponentWriter cw = getComponentWriter(s, componentName, componentObject);
 				final Collection<SelfCreatingLink> compLinks = cw.makeComponent(file, group, dim, getPaths()[i], s.getName(), componentName, componentObject,
-						unit);
+						unit, primary);
 				sclc.addAll(compLinks);
 
 			} catch (final Exception e) {
