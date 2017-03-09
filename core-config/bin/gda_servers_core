@@ -125,8 +125,8 @@ if [[ "${GDA_MODE}" == "live" && "${CONTROL_MACHINE_NAME}" != "$(uname -n)" ]]; 
 
     # must be prevented from entering here during abort as there is no terminal to echo to, which will cause exit 1 due to the set -e in gda_core
     if [[ "${ABORTING:-false}" == false ]] && [[ "${GDA_OPERATION}" != "start" ]]; then
-        [[ "${GDA_OPERATION}" == "restart" ]] && extra="and then restart" || extra=""
-        echo -e "\n\e[36mGDA Server will stop within 15 seconds ${extra}, please wait...\e[0m"
+        [[ "${GDA_OPERATION}" == "restart" ]] && extra=" and then restart" || extra=""
+        echo -e "\n\e[36mGDA Server will stop within 15 seconds${extra}, please wait...\e[0m"
     fi
 
     ssh -T -o BatchMode=yes -i ${CONTROL_MACHINE_SSHKEY_LOC} ${CONTROL_MACHINE_USER}@${CONTROL_MACHINE_NAME} ${GDA_OPERATION} ${DEBUG} ${GDA_ARGS}
@@ -170,8 +170,8 @@ else
     export JAVA_OPTS="-Dgda.deploytype=1" # Seems to fix the reset_namespace problem
 
     if [[ "${GDA_OPERATION}" != "start" ]]; then
-        [[ "${GDA_OPERATION}" == "restart" ]] && extra="and then restart" || extra=""
-        echo_if_not_in_remote_startup -e "\n\e[36mGDA Server will stop within 15 seconds ${extra}, please wait...\e[0m"
+        [[ "${GDA_OPERATION}" == "restart" ]] && extra=" and then restart" || extra=""
+        echo_if_not_in_remote_startup -e "\n\e[36mGDA Server will stop within 15 seconds${extra}, please wait...\e[0m"
     fi
     echo_if_not_in_remote_startup -e "${options_text}"
 
