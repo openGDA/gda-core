@@ -90,14 +90,14 @@ public class ObservableComponent implements IObservable, IIsBeingObserved {
 				// Don't log the full stack trace to keep the log tidier, full trace is in debug if enabled
 				logger.error("swallowing exception: {}", ex.toString());
 
-				/*
-				 * Try to log something useful about the args of update which caused the exception to be thrown, but beware: ServerSideEventDispatcher.update
-				 * details how calling toString (including via {} in logger) on Scannables can cause deadlocks...so just use class names to describe problem.
-				 */
-				final String anIObserverDescription = anIObserver == null ? "null" : anIObserver.getClass().getName();
-				final String theObservedDescription = theObserved == null ? "null" : theObserved.getClass().getName();
-
 				if (logger.isDebugEnabled()) {
+					/*
+					 * Try to log something useful about the args of update which caused the exception to be thrown, but beware: ServerSideEventDispatcher.update
+					 * details how calling toString (including via {} in logger) on Scannables can cause deadlocks...so just use class names to describe problem.
+					 */
+					final String anIObserverDescription = anIObserver == null ? "null" : anIObserver.getClass().getName();
+					final String theObservedDescription = theObserved == null ? "null" : theObserved.getClass().getName();
+
 					logger.debug("triggered by {}.update({}, {})", anIObserverDescription, theObservedDescription, changeCode, ex);
 				}
 
