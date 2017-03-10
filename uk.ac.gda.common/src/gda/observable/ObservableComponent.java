@@ -39,11 +39,13 @@ public class ObservableComponent implements IObservable, IIsBeingObserved {
 	 * @param anIObserver
 	 *            the observer
 	 * @see gda.observable.IObservable#addIObserver(gda.observable.IObserver)
+	 * @throws IllegalArgumentException
+	 *             If anIObserver is null
 	 */
 	@Override
 	public void addIObserver(IObserver anIObserver) {
 		if (anIObserver == null) {
-			return;
+			throw new IllegalArgumentException("Can't add a null observer");
 		}
 		myIObservers.add(anIObserver);
 	}
@@ -54,11 +56,13 @@ public class ObservableComponent implements IObservable, IIsBeingObserved {
 	 * @param anIObserver
 	 *            the observer
 	 * @see gda.observable.IObservable#deleteIObserver(gda.observable.IObserver)
+	 * @throws IllegalArgumentException
+	 *             If anIObserver is null
 	 */
 	@Override
 	public void deleteIObserver(IObserver anIObserver) {
 		if (anIObserver == null) {
-			return;
+			throw new IllegalArgumentException("Can't delete a null observer");
 		}
 		myIObservers.remove(anIObserver);
 	}
