@@ -79,7 +79,7 @@ import gda.observable.IObserver;
  * 		<property name="path" value="${gda.data.scan.datawriter.datadir}/gdaterminal.log" />
  * 		<property name="local" value="true" />
  * 	</bean>
-* </pre></code><p>
+ * </pre></code><p>
  *
  * or a one that tracks the server's visit metadata:
  *
@@ -88,12 +88,11 @@ import gda.observable.IObserver;
  * 		<property name="template" value="${gda.data.scan.datawriter.datadir}/gdaterminal.log" />
  * 		<property name="gdaMetadata" ref="GDAMetadata" />
  * 		<property name="local" value="true" />
-* </pre></code><p>
+ * </pre></code><p>
  */
-
 public class RedirectableFileLogger implements LineLogger, IObserver, Configurable {
 
-	static private org.slf4j.Logger logger = LoggerFactory.getLogger(RedirectableFileLogger.class);
+	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(RedirectableFileLogger.class);
 
 	private FileAppender<ILoggingEvent> localAppender;
 
@@ -101,12 +100,17 @@ public class RedirectableFileLogger implements LineLogger, IObserver, Configurab
 
 	private ObservablePathProvider pathProvider;
 
+	private boolean configured = false;
+
 	public RedirectableFileLogger(ObservablePathProvider logFilePathProvider) {
 		this.pathProvider = logFilePathProvider;
 	}
 
 	@Override
 	public void configure() {
+		if(configured) {
+			return;
+		}
 
 		// Context
 		LoggerContext localContext = new LoggerContext();
@@ -132,6 +136,8 @@ public class RedirectableFileLogger implements LineLogger, IObserver, Configurab
 
 		// register for path updates
 		pathProvider.addIObserver(this); //FIXME: potential race condition
+
+		configured = true;
 	}
 
 	private void setFile(String logfile) {
@@ -141,11 +147,13 @@ public class RedirectableFileLogger implements LineLogger, IObserver, Configurab
 	}
 
 	public String getFile() {
+		configure();
 		return localAppender.getFile();
 	}
 
 	@Override
 	public void log(String msg) {
+		configure();
 		String lines[] = msg.split("\\r?\\n");
 		for (String line : lines) {
 			String stripEnd = StringUtils.stripEnd(line, null);
