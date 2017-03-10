@@ -62,10 +62,10 @@ public abstract class BasePvProvidingImpl implements InitializingBean {
 			try {
 				channel = EPICS_CONTROLLER.createChannel(fullPvName);
 			} catch (CAException cae) {
-				logger.warn("g.d.d.a.v.i.NDROIImpl-> Problem creating channel", cae);
+				logger.warn("Problem creating channel", cae);
 				throw cae;
 			} catch (TimeoutException te) {
-				logger.warn("g.d.d.a.v.i.NDROIImpl-> Problem creating channel", te);
+				logger.warn("Problem creating channel", te);
 				throw te;
 
 			}
