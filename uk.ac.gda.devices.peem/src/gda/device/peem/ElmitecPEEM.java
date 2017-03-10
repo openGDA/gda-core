@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.device.PEEM;
-import gda.device.detector.uview.CorbaBridgeConnection;
+import gda.device.detector.uview.corba.impl.CorbaBridgeConnection;
 import gda.device.peem.MicroscopeControl.Microscope;
 import gda.device.peem.MicroscopeControl.MicroscopePackage.MicroscopeException;
 import gda.factory.Finder;

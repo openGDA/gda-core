@@ -17,24 +17,40 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device.detector.uview;
+package gda.device.detector.uviewnew.corba.impl;
 
 import gda.configuration.properties.LocalProperties;
-import gda.device.DeviceBase;
+import gda.device.peem.MicroscopeControl.Microscope;
+import gda.device.peem.MicroscopeControl.MicroscopeHelper;
+import gda.factory.Configurable;
+import gda.factory.Findable;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
+import org.omg.CORBA.ORB;
+import org.omg.CosNaming.NameComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * An abstract base class for all CorbaBridgeConnection classes
+ * Java Implementation for Connection between PEEM CORBA Server and Client
  */
-abstract public class CorbaBridgeConnectionBase extends DeviceBase {
+public class CorbaBridgeConnection implements Configurable, Findable {
+	private static final Logger logger = LoggerFactory.getLogger(CorbaBridgeConnection.class);
 
-	private static final Logger logger = LoggerFactory.getLogger(CorbaBridgeConnectionBase.class);
+	private String name = null;
+
+	/**
+	 * 
+	 */
+	public static ORB orb = null;
+
+	/**
+	 * 
+	 */
+	public static Microscope msImpl = null;
 
 	/**
 	 * 
@@ -65,12 +81,55 @@ abstract public class CorbaBridgeConnectionBase extends DeviceBase {
 	/**
 	 * Constructor.
 	 */
-	public CorbaBridgeConnectionBase() {
-		// getConfig();
+	public CorbaBridgeConnection() {
+	}
+
+	@Override
+	public void configure() {
+		logger.debug("CorbaBridgeConnection configured!");
+		connect();
 	}
 
 	/**
-	 * Return if Corba bridge connected
+	 * Instruct the ORB to connect to & setup the detector
+	 * 
+	 * @return Microscope detector object
+	 */
+	public Microscope connect() {
+		if (isConnected()){
+			logger.info("The Java ORB already connected.");
+//			this.disconnect();
+		}
+		else{
+			getConfig();
+	
+			if (setupORB()){
+				connected = true;
+				logger.info("The Java ORB has been successfully established.");
+			}
+			else{
+				connected = false;
+				logger.info("Can not connecte to the Corba Bridge!");
+			}
+		}
+		
+		return msImpl;
+	}
+
+	/**
+	 * Instruct the ORB to disconnect from the detector
+	 * 
+	 * @return boolean true after shutdown the connection
+	 */
+	public boolean disconnect() {
+		shutdownORB();
+		msImpl = null;
+		logger.info("PEEM Corba Bridge Client disconnected!");
+		return true;
+	}
+
+	/**
+	 * Determine if detector is connected
 	 * 
 	 * @return boolean true if connected else false
 	 */
@@ -79,9 +138,9 @@ abstract public class CorbaBridgeConnectionBase extends DeviceBase {
 	}
 
 	/**
-	 * Read the config file
+	 * Read the Config file named in java properties
 	 * 
-	 * @return int 1='file readOK', 2='error reading file'
+	 * @return int read status 1='file read', 2='file not found'
 	 */
 	public int getConfig() {
 		String clientConfigFile = LocalProperties.get("gda.config") + System.getProperty("file.separator")
@@ -89,8 +148,7 @@ abstract public class CorbaBridgeConnectionBase extends DeviceBase {
 		// logger.debug("PEEM config file: " + clientConfigFile);
 
 		CORBACommandArgc = 0;
-		if (readConfigurationFile(clientConfigFile)) { // use the configuration
-			// file for orb settings
+		if (readConfigurationFile(clientConfigFile)) { // use the configuration file for orb settings
 			return 1;
 		}
 
@@ -105,16 +163,10 @@ abstract public class CorbaBridgeConnectionBase extends DeviceBase {
 		CORBACommandArg[CORBACommandArgc++] = "-ORBInitRef";
 		CORBACommandArg[CORBACommandArgc++] = "NameService=corbaloc:iiop:1.2@diamrd2050.dc.diamond.ac.uk:1050/NameService";
 		return 2;
-
 	}
 
 	/**
-	 * @return boolean
-	 */
-	abstract public boolean setupORB();
-
-	/**
-	 * Read object reference from file
+	 * Read object reference from named file
 	 * 
 	 * @param fileName
 	 *            file to read
@@ -137,7 +189,7 @@ abstract public class CorbaBridgeConnectionBase extends DeviceBase {
 	}
 
 	/**
-	 * Read the Client configuratioin file startupClient.txt
+	 * Read the Client configuration file startupClient.txt
 	 * 
 	 * @param fileName
 	 *            the String name of the file to read
@@ -186,6 +238,98 @@ abstract public class CorbaBridgeConnectionBase extends DeviceBase {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Setup the PEEM Corba Bridge Client
+	 * 
+	 * @return boolean true if set OK else false
+	 */
+	public boolean setupORB() {
+		try {
+			if (connected) {
+				logger.debug("The Corba connected with PEEM is already connected. Use the existing one.");
+			} else {
+				// Create and initialize the ORB
+				orb = ORB.init(CORBACommandArg, System.getProperties()); // -ORBInitialPort
+				// 1050
+				// -ORBInitialHost
+				// localhost
+			}
+			org.omg.CORBA.Object obj;
+
+			if (CORBACommandArgc == 0) {
+				// Obtain the IOR Reference from file
+				String strIOR = readRef(CORBARef);
+				obj = orb.string_to_object(strIOR);
+
+				msImpl = MicroscopeHelper.narrow(obj);
+				logger.debug("Obtained a handle from IOR file" + msImpl);
+			} else {
+				// Obtain Naming service reference
+				org.omg.CosNaming.NamingContext rootContext = null;
+				obj = orb.resolve_initial_references("NameService");
+				rootContext = org.omg.CosNaming.NamingContextHelper.narrow(obj);
+
+				// Obtain the MicroscopeController object reference
+				org.omg.CosNaming.NameComponent[] objName = new NameComponent[2];
+				objName[0] = new NameComponent("MicroscopeControl", "");
+				objName[1] = new NameComponent("LEEM", "");
+				obj = rootContext.resolve(objName);
+
+				msImpl = MicroscopeHelper.narrow(obj);
+				logger.debug("Obtained a handle from nameing service: " + msImpl);
+			}
+		} catch (Exception e) {
+			logger.debug("ERROR : " + e);
+			e.printStackTrace(System.out);
+			connected = false;
+			msImpl = null;
+			logger.info("Can not connecte with the PEEM Server via Corba Bridge!");
+			return false;
+		}
+
+		logger.debug("The Java ORB has been successfully established.");
+		System.out.print("The PEEM Vesion Info: ");
+		logger.debug("UView " + msImpl.GetVersion() + ", LEEM2000 " + msImpl.GetLEEM2000Version());
+		connected = true;
+		logger.info("PEEM Corba Bridge Client established!");
+		return true;
+	}
+
+	/**
+	 * Instruct the ORB to shutdown
+	 */
+	public void shutdownORB() {
+		connected = false;
+		orb.shutdown(false);
+		orb.destroy();
+		msImpl = null;
+		logger.info("PEEM Corba Bridge Client disconnected!");
+	}
+
+	/**
+	 * Print the UView version as Debug message
+	 */
+	public void getUViewVersion() {
+		logger.debug(Float.toString(msImpl.GetVersion()));
+	}
+
+	/**
+	 * Print the LEEM2000 version as Debug message
+	 */
+	public void getLEEMVersion() {
+		logger.debug(Float.toString(msImpl.GetLEEM2000Version()));
+	}
+
+	@Override
+	public String getName() {
+		return name;
+	}
+
+	@Override
+	public void setName(String name) {
+		this.name = name;
 	}
 
 }

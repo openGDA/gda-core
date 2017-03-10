@@ -10,9 +10,8 @@ Require-Bundle: org.eclipse.core.runtime;bundle-version="3.5.0",
  uk.ac.diamond.scisoft.analysis;bundle-version="1.0.0",
  uk.ac.gda.epics;bundle-version="1.0.0",
  uk.ac.gda.api;bundle-version="8.26.0",
- uk.ac.gda.swingclient;bundle-version="1.0.0",
  uk.ac.diamond.jython;bundle-version="[2.5.3,3.0.0)"
-Eclipse-RegisterBuddy: uk.ac.gda.libs
+Eclipse-RegisterBuddy: uk.ac.gda.libs, uk.ac.diamond.org.springframework 
 Eclipse-BuddyPolicy: registered
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
@@ -21,19 +20,18 @@ Export-Package: gda.device,
  gda.device.detector.pixis,
  gda.device.detector.uview.corba,
  gda.device.detector.uview.corba.impl,
- gda.device.detector.uviewnew,
  gda.device.detector.uviewnew.corba.impl,
  gda.device.peem,
  gda.device.peem.MicroscopeControl,
  gda.device.peem.MicroscopeControl.MicroscopePackage,
  gda.device.peem.corba,
  gda.device.peem.corba.impl,
- gda.devices.peem,
- gda.gui.peem,
- gda.gui.peem.UViewPlayer
+ gda.devices.peem
 Bundle-ClassPath: .,
  jars/peem-1.0.jar,
  jars/gda_peem-corba.jar
 Bundle-Vendor: Diamond Light Source
-Import-Package: org.slf4j;version="[1.7.2,2.0.0)",
+Import-Package: net.sf.cglib.core,
+ net.sf.cglib.proxy,
+ org.slf4j;version="[1.7.2,2.0.0)",
  org.springframework.beans.factory;version="4.0.6.RELEASE"
