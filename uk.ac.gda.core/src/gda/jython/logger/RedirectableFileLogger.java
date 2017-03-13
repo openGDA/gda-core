@@ -18,6 +18,8 @@
 
 package gda.jython.logger;
 
+import java.util.regex.Pattern;
+
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
 
@@ -102,6 +104,8 @@ public class RedirectableFileLogger implements LineLogger, IObserver, Configurab
 
 	private boolean configured = false;
 
+	private static final Pattern NEW_LINE_PATTERN = Pattern.compile("\\r?\\n");
+
 	public RedirectableFileLogger(ObservablePathProvider logFilePathProvider) {
 		this.pathProvider = logFilePathProvider;
 	}
@@ -154,7 +158,7 @@ public class RedirectableFileLogger implements LineLogger, IObserver, Configurab
 	@Override
 	public void log(String msg) {
 		configure();
-		String lines[] = msg.split("\\r?\\n");
+		String lines[] = NEW_LINE_PATTERN.split(msg);
 		for (String line : lines) {
 			String stripEnd = StringUtils.stripEnd(line, null);
 			if(logger.isDebugEnabled()){
