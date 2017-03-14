@@ -18,6 +18,11 @@
 
 package gda.device.scannable;
 
+import java.text.MessageFormat;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.configuration.properties.LocalProperties;
 import gda.device.BlockingMotor;
 import gda.device.DeviceException;
@@ -34,11 +39,6 @@ import gda.factory.FactoryException;
 import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
 import gda.observable.IObserver;
-
-import java.text.MessageFormat;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Adapter class for motor to work as scannables. This class uses units and has an offset/scaling factor for the motor
@@ -376,13 +376,13 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 
 	@Override
 	public void waitWhileBusy() throws DeviceException, InterruptedException {
-		logger.debug("{}: start waiting << instanceof BlockingMotor = {}, pollBlockingMotorsStatus = {}",
+		logger.trace("{}: start waiting << instanceof BlockingMotor = {}, pollBlockingMotorsStatus = {}",
 				getName(), getMotor() instanceof BlockingMotor, pollBlockingMotorsStatus);
 
 		if ((getMotor() instanceof BlockingMotor) && (!pollBlockingMotorsStatus)) {
 			((BlockingMotor) motor).waitWhileStatusBusy();
 
-			logger.debug("{}: isIsBusyThrowingExceptionWhenMotorGoesIntoFault() = {}",
+			logger.trace("{}: isIsBusyThrowingExceptionWhenMotorGoesIntoFault() = {}",
 					getName(), isIsBusyThrowingExceptionWhenMotorGoesIntoFault());
 			if (isIsBusyThrowingExceptionWhenMotorGoesIntoFault()) {
 				raiseExceptionIfInFault("waitWhileBusy()");
@@ -390,7 +390,7 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 		} else {
 			super.waitWhileBusy();
 		}
-		logger.debug("{}: waiting complete >> motor position={}, motor status={}, lastDemandedInternalPosition={}, returnDemandPosition={}",
+		logger.trace("{}: waiting complete >> motor position={}, motor status={}, lastDemandedInternalPosition={}, returnDemandPosition={}",
 				getName(), this.motor.getPosition(), this.motor.getStatus(), lastDemandedInternalPosition, returnDemandPosition);
 		// Belt and braces...
 		if (motor.getStatus() != MotorStatus.READY) {
