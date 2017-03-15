@@ -18,19 +18,19 @@
 
 package gda.jython.accesscontrol;
 
-import gda.configuration.properties.LocalProperties;
-import gda.device.Device;
-import gda.device.corba.impl.DeviceAdapter;
-import gda.factory.Findable;
-import gda.factory.corba.util.NetService;
-import gda.factory.corba.util.RbacEnabledAdapter;
-
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
+
+import gda.configuration.properties.LocalProperties;
+import gda.device.Device;
+import gda.device.corba.impl.DeviceAdapter;
+import gda.factory.Findable;
+import gda.factory.corba.util.NetService;
+import gda.factory.corba.util.RbacEnabledAdapter;
 
 /**
  * Contains methods that handle wrapping of objects to enable role-based access control (RBAC).
@@ -60,16 +60,16 @@ public class RbacUtils {
 			return findable;
 		}
 
-		if (findable instanceof Device && canProxyUsingCglib(findable)) {
-			findable = DeviceInterceptor.newDeviceInstance((Device) findable);
-		} else if (isOEInPath()) {
-			try {
+		try {
+			if (findable instanceof Device && canProxyUsingCglib(findable)) {
+				findable = DeviceInterceptor.newDeviceInstance((Device) findable);
+			} else if (isOEInPath()) {
 				if (OE.isInstance(findable) && canProxyUsingCglib(findable)) {
 					findable = (Findable) newoeinstance.invoke(OEInterceptor,OE.cast(findable));
 				}
-			} catch (Exception e) {
-				logger.warn("Exception while trying to create an OEInterceptor: " + e.getMessage());
 			}
+		} catch (Exception e) {
+			logger.warn("Exception while trying to wrap {} with interceptor", findable.getName(), e);
 		}
 		return findable;
 	}
