@@ -396,7 +396,9 @@ public class ConcurrentScan extends ConcurrentScanChild implements Scan {
 	public void doCollection() throws Exception {
 		try {
 			if (!this.isChild) {
-				logger.info("Starting scan: '" + getName() + "' (" + getCommand() + ")" );
+				logger.info("Starting scan: '{}' ({})", getName(), getCommand());
+				logger.debug("Scan is {}D and {} points", getDimensions().length, getNumberPoints());
+				logger.debug("Scan contains {} scannables and {} detectors", getScannables().size(), getDetectors().size());
 			}
 			reportDetectorsThatWillBeMovedConcurrentlyWithSomeOtherScannables();
 			logger.info("Concurrency: " + reportDevicesByLevel());
