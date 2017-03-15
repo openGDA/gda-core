@@ -85,7 +85,7 @@ public final class DashboardView extends ViewPart {
 
 	private static final Logger logger = LoggerFactory.getLogger(DashboardView.class);
 
-	public static final String ID = "uk.ac.gda.exafs.ui.dashboardView"; //$NON-NLS-1$
+	public static final String ID = "uk.ac.gda.rcp.views.dashboardView"; //$NON-NLS-1$
 
 	public static final String FREQUENCY_LABEL = "update_frequency";
 

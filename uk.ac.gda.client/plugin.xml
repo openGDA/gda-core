@@ -114,7 +114,7 @@
             category="uk.ac.gda.client.general.category"
             class="gda.rcp.views.dashboard.DashboardView"
             icon="icons/layout_content.png"
-            id="uk.ac.gda.exafs.ui.dashboardView"
+            id="uk.ac.gda.rcp.views.dashboardView"
             name="Dashboard"
             restorable="true">
       </view>
@@ -713,7 +713,7 @@
     </command>
  </menuContribution>
  <menuContribution
-       locationURI="toolbar:uk.ac.gda.exafs.ui.dashboardView">
+       locationURI="toolbar:uk.ac.gda.rcp.views.dashboardView">
     <command
           commandId="uk.ac.gda.client.RefreshDashCommand"
           icon="icons/page_refresh.png"
@@ -755,7 +755,7 @@
     </command>
  </menuContribution>
  <menuContribution
-       locationURI="popup:uk.ac.gda.exafs.ui.dashboardView">
+       locationURI="popup:uk.ac.gda.rcp.views.dashboardView">
     <command
           commandId="uk.ac.gda.client.AddScannableCommand"
           icon="icons/monitor_add.png"
@@ -823,7 +823,7 @@
     </command>
  </menuContribution>
  <menuContribution
-       locationURI="menu:uk.ac.gda.exafs.ui.dashboardView">
+       locationURI="menu:uk.ac.gda.rcp.views.dashboardView">
     <command
           commandId="uk.ac.gda.client.ResetServerObjectsCommand"
           label="Reset"
