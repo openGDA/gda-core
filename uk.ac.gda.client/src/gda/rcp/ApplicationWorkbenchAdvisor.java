@@ -18,24 +18,6 @@
 
 package gda.rcp;
 
-import gda.configuration.properties.LocalProperties;
-import gda.factory.Findable;
-import gda.factory.Finder;
-import gda.factory.corba.util.EventService;
-import gda.gui.RCPController;
-import gda.gui.RCPControllerImpl;
-import gda.gui.RCPOpenPerspectiveCommand;
-import gda.gui.RCPOpenViewCommand;
-import gda.gui.RCPSetPreferenceCommand;
-import gda.jython.IScanDataPointObserver;
-import gda.jython.InterfaceProvider;
-import gda.jython.JythonServerFacade;
-import gda.jython.UserMessage;
-import gda.jython.batoncontrol.BatonRequested;
-import gda.observable.IObserver;
-import gda.rcp.preferences.GdaRootPreferencePage;
-import gda.util.ObjectServer;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
@@ -95,6 +77,24 @@ import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
+import gda.factory.Findable;
+import gda.factory.Finder;
+import gda.factory.corba.util.EventService;
+import gda.gui.RCPController;
+import gda.gui.RCPControllerImpl;
+import gda.gui.RCPOpenPerspectiveCommand;
+import gda.gui.RCPOpenViewCommand;
+import gda.gui.RCPSetPreferenceCommand;
+import gda.jython.IScanDataPointObserver;
+import gda.jython.InterfaceProvider;
+import gda.jython.JythonServerFacade;
+import gda.jython.UserMessage;
+import gda.jython.batoncontrol.BatonRequested;
+import gda.observable.IObserver;
+import gda.rcp.preferences.GdaRootPreferencePage;
+import gda.util.ObjectServer;
+import uk.ac.gda.client.closeactions.UserOptionsOnCloseDialog;
 import uk.ac.gda.client.liveplot.LivePlotViewManager;
 import uk.ac.gda.client.scripting.JythonPerspective;
 import uk.ac.gda.client.scripting.ScriptProjectCreator;
@@ -550,6 +550,23 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 		if (cleanupTasks == null)
 			cleanupTasks = new ArrayList<CleanupWork>(7);
 		cleanupTasks.add(work);
+	}
+
+	@Override
+	public boolean preShutdown() {
+		if (LocalProperties.check("gda.gui.useCloseMenu")) {
+			return CloseMenu();
+		}
+		return true;
+	}
+
+	private boolean CloseMenu() {
+		Shell shell = PlatformUI.getWorkbench().getDisplay().getActiveShell();
+		UserOptionsOnCloseDialog close = new UserOptionsOnCloseDialog(shell);
+		if (close.open() == UserOptionsOnCloseDialog.CANCEL) {
+			return false; // veto the shutdown
+		}
+		return true;
 	}
 
 	/*

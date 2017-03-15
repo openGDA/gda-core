@@ -125,9 +125,20 @@ public class Application implements IApplication {
 
 			int returnCode = PlatformUI.createAndRunWorkbench(display, new ApplicationWorkbenchAdvisor());
 
+			if (LocalProperties.check("gda.gui.useCloseMenu")) {
+				//overrides any other normal exit conditions
+				if (System.getProperty("requestedRestart", "false").equals("true")) {
+					System.setProperty("requestedRestart", "false");
+					return EXIT_RELAUNCH.equals(Integer.getInteger(PROP_EXIT_CODE)) ? EXIT_RELAUNCH : EXIT_RESTART;
+				} else {
+					return EXIT_OK;
+				}
+			}
+
 			// the workbench doesn't support relaunch yet (bug 61809) so
 			// for now restart is used, and exit data properties are checked
 			// here to substitute in the relaunch return code if needed
+
 			if (returnCode != PlatformUI.RETURN_RESTART) {
 				return EXIT_OK;
 			}
@@ -276,8 +287,6 @@ public class Application implements IApplication {
 		}
 		return 1;
 	}
-
-
 
 	@Override
 	public void stop() {
