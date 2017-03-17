@@ -2,5 +2,12 @@
 <?eclipse version="3.4"?>
 <plugin>
 
+   <extension
+      point="org.eclipse.dawnsci.analysis.api.classregistry">
+      <classregistry
+           class="uk.ac.diamond.daq.mapping.impl.MappingUIClassRegistry"
+           id="uk.ac.diamond.daq.mapping.impl.MappingUIClassRegistry">
+      </classregistry>
+   </extension>
 
 </plugin>
