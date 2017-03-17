@@ -14,8 +14,12 @@
 		 ==================================================================== -->
 
 	<import file="${workspace.git.loc}/diamond-releng.git/diamond.releng.tools/ant-headless/test-common.ant" />
-	<target name="junit-tests" depends="set-test-base-GDA">
-		<junit-call description="${ant.project.name} Java JUnit tests">
+	
+	<target name="junit-tests" depends="set-test-base-GDA, Xvfb_start, _junit-tests, Xvfb_stop" />
+	
+	<target name="_junit-tests">
+		<junit-call description="${ant.project.name} Java JUnit tests"
+		Xvfb-display-name="${Xvfb-display-name}" Xvfb-display-number="${Xvfb-display-number}">
 			<formatter type="xml" />
 			<classpath>
 				<pathelement location="${junitjar.loc}" />
@@ -36,10 +40,12 @@
 				<pathelement location="${workspace.git.loc}/january.git/org.eclipse.january/bin" />
 				<pathelement location="${workspace.git.loc}/scanning.git/org.eclipse.scanning.api/bin" />
 				<pathelement location="${workspace.git.loc}/scanning.git/org.eclipse.scanning.example/bin" />
+				<pathelement location="${workspace.git.loc}/scanning.git/org.eclipse.scanning.points/bin" />
 				<pathelement location="${workspace.git.loc}/scanning.git/org.eclipse.scanning.server/bin" />
 				<path refid="tp.slf4j.path" />  <!-- ensure that required org.slf4j.LoggerFactory appears first in classpath -->
 				<path refid="tp.jcl-over-slf4j.path" />  <!-- ensure that matching imp appears first in classpath -->
 				<path refid="tp.hamcrest.path" />  <!-- ensure that latest version appears first in classpath -->
+				<path refid="tp.swt.path" />  <!-- ensure that correct platform appears first in classpath -->
 				<path refid="tp.path" />  <!-- target platform -->
 			</classpath>
 			<batchtest todir="@{report.dir}">
