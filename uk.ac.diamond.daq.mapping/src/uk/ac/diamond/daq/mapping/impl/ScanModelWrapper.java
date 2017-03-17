@@ -23,11 +23,22 @@ import org.eclipse.scanning.api.annotation.UiHidden;
 
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 
+/**
+ * Abstract superclass of wrappers for elements in the mapping UI. Wraps the model describing
+ * the item (e.g. a detector) and adds a name to be displayed to the user and a boolean to
+ * indicate whether the element should be included in the scan.
+ *
+ * @param <T> the wrapped model type
+ */
 public abstract class ScanModelWrapper<T> implements IScanModelWrapper<T> {
 
 	private String name;
 	private boolean includeInScan;
 	private T model;
+
+	public ScanModelWrapper() {
+		// no-arg
+	}
 
 	public ScanModelWrapper(String name, T model, boolean includeInScan) {
 		this.name = name;

@@ -54,4 +54,36 @@ public class MappingScanDefinition implements IScanDefinition {
 	public void setOuterScannables(List<IScanPathModelWrapper> outerScannables) {
 		this.outerScannables = outerScannables;
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((mappingScanRegion == null) ? 0 : mappingScanRegion.hashCode());
+		result = prime * result + ((outerScannables == null) ? 0 : outerScannables.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		MappingScanDefinition other = (MappingScanDefinition) obj;
+		if (mappingScanRegion == null) {
+			if (other.mappingScanRegion != null)
+				return false;
+		} else if (!mappingScanRegion.equals(other.mappingScanRegion))
+			return false;
+		if (outerScannables == null) {
+			if (other.outerScannables != null)
+				return false;
+		} else if (!outerScannables.equals(other.outerScannables))
+			return false;
+		return true;
+	}
+
 }

@@ -22,7 +22,14 @@ import org.eclipse.scanning.api.device.models.ClusterProcessingModel;
 
 import uk.ac.diamond.daq.mapping.api.IClusterProcessingModelWrapper;
 
+/**
+ * A wrapper for a {@link ClusterProcessingModel} for use in the mapping UI.
+ */
 public class ClusterProcessingModelWrapper extends ScanModelWrapper<ClusterProcessingModel> implements IClusterProcessingModelWrapper{
+
+	public ClusterProcessingModelWrapper() {
+		// no-arg constructor for json serialization
+	}
 
 	public ClusterProcessingModelWrapper(String name, ClusterProcessingModel model, boolean includeInScan) {
 		super(name, model, includeInScan);

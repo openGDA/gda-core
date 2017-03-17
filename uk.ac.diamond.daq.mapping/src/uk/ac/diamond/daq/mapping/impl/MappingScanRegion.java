@@ -28,8 +28,6 @@ public class MappingScanRegion implements IMappingScanRegion {
 	private IMappingScanRegionShape region;
 	private IScanPathModel scanPath;
 
-	// private IDataset regionContext;
-
 	@Override
 	public IMappingScanRegionShape getRegion() {
 		return region;
@@ -50,13 +48,35 @@ public class MappingScanRegion implements IMappingScanRegion {
 		this.scanPath = scanPath;
 	}
 
-	// @Override
-	// public IDataset getRegionContext() {
-	// return regionContext;
-	// }
-	//
-	// @Override
-	// public void setRegionContext(IDataset regionContext) {
-	// this.regionContext = regionContext;
-	// }
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((region == null) ? 0 : region.hashCode());
+		result = prime * result + ((scanPath == null) ? 0 : scanPath.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		MappingScanRegion other = (MappingScanRegion) obj;
+		if (region == null) {
+			if (other.region != null)
+				return false;
+		} else if (!region.equals(other.region))
+			return false;
+		if (scanPath == null) {
+			if (other.scanPath != null)
+				return false;
+		} else if (!scanPath.equals(other.scanPath))
+			return false;
+		return true;
+	}
+
 }

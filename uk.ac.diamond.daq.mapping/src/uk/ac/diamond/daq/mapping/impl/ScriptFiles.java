@@ -49,4 +49,35 @@ public class ScriptFiles implements IScriptFiles {
 		this.afterScanScript = afterScanScript;
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((afterScanScript == null) ? 0 : afterScanScript.hashCode());
+		result = prime * result + ((beforeScanScript == null) ? 0 : beforeScanScript.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ScriptFiles other = (ScriptFiles) obj;
+		if (afterScanScript == null) {
+			if (other.afterScanScript != null)
+				return false;
+		} else if (!afterScanScript.equals(other.afterScanScript))
+			return false;
+		if (beforeScanScript == null) {
+			if (other.beforeScanScript != null)
+				return false;
+		} else if (!beforeScanScript.equals(other.beforeScanScript))
+			return false;
+		return true;
+	}
+
 }

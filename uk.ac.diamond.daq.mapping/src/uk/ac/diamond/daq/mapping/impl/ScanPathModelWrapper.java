@@ -22,7 +22,14 @@ import org.eclipse.scanning.api.points.models.IScanPathModel;
 
 import uk.ac.diamond.daq.mapping.api.IScanPathModelWrapper;
 
+/**
+ * A wrapper for an {@link IScanPathModel} for use in the mapping UI
+ */
 public class ScanPathModelWrapper extends ScanModelWrapper<IScanPathModel> implements IScanPathModelWrapper {
+
+	public ScanPathModelWrapper() {
+		// no-arg constructor for json deserialization
+	}
 
 	public ScanPathModelWrapper(String name, IScanPathModel model, boolean includeInScan) {
 		super(name, model, includeInScan);
