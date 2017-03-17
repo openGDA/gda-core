@@ -10,11 +10,14 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.e4.core.di.annotations.Optional;
 import org.eclipse.e4.ui.di.Focus;
+import org.eclipse.e4.ui.di.PersistState;
 import org.eclipse.e4.ui.di.UIEventTopic;
+import org.eclipse.e4.ui.model.application.ui.basic.MPart;
 import org.eclipse.e4.ui.services.IServiceConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -47,6 +50,8 @@ import uk.ac.diamond.daq.mapping.impl.MappingExperimentBean;
 public class MappingExperimentView implements IAdaptable {
 
 	public static final String PROPERTY_NAME_MAPPING_SCAN = "mappingScan";
+
+	private static final String STATE_KEY_MAPPING_BEAN_JSON = "mappingBean.json";
 
 	@SuppressWarnings("unchecked")
 	private static final Class<? extends AbstractMappingSection>[] SECTION_CLASSES = new Class[] {
@@ -111,11 +116,13 @@ public class MappingExperimentView implements IAdaptable {
 	}
 
 	@PostConstruct
-	public void createView(Composite parent) {
+	public void createView(Composite parent, MPart part) {
 		// It'd really be better if the beam position plotter could initialise itself when the map plot view was
 		// created, but there doesn't seem to be a good way to hook into that, so we use the creation of the GUI
 		// elements for this view as a proxy since it happens at around the same time.
 		beamPositionPlotter.init();
+
+		loadPreviousState(part);
 
 		logger.trace("Starting to build the mapping experiment view");
 
@@ -130,6 +137,32 @@ public class MappingExperimentView implements IAdaptable {
 		}
 
 		logger.trace("Finished building the mapping experiment view");
+	}
+
+	private void loadPreviousState(MPart part) {
+		String json = part.getPersistedState().get(STATE_KEY_MAPPING_BEAN_JSON);
+		if (json != null) {
+			logger.trace("Restoring the previous state of the mapping view.");
+			IMarshallerService marshaller = injectionContext.get(IMarshallerService.class);
+			try {
+				experimentBean = marshaller.unmarshal(json, MappingExperimentBean.class);
+			} catch (Exception e) {
+				logger.error("Failed to restore the previous state of the mapping view", e);
+			}
+		}
+	}
+
+	@PersistState
+	public void saveState(MPart part) {
+		// serialize the json bean and save it in the preferences
+		IMarshallerService marshaller = injectionContext.get(IMarshallerService.class);
+		try {
+			logger.trace("Saving the current state of the mapping view.");
+			String json = marshaller.marshal(experimentBean);
+			part.getPersistedState().put(STATE_KEY_MAPPING_BEAN_JSON, json);
+		} catch (Exception e) {
+			logger.error("Could save current the state of the mapping view.", e);
+		}
 	}
 
 	private void createSections(Composite parent) {
@@ -214,6 +247,9 @@ public class MappingExperimentView implements IAdaptable {
 				Boolean.TRUE.toString().equals(statusBean.getProperty(PROPERTY_NAME_MAPPING_SCAN));
 	}
 
+	/**
+	 * @param openRequest
+	 */
 	private void handleOpenRequest(OpenRequest openRequest) {
 		if (!isMappingScanBean(openRequest.getStatusBean())) {
 			return;
@@ -237,15 +273,18 @@ public class MappingExperimentView implements IAdaptable {
 		ScanRequest<IROI> scanRequest = (ScanRequest<IROI>) scanBean.getScanRequest();
 		try {
 			scanRequestConverter.mergeIntoMappingBean(scanRequest, (MappingExperimentBean) experimentBean);
-
-			for (AbstractMappingSection section : sections.values()) {
-				section.updateControls();
-			}
+			updateControls();
 		} catch (Exception e) {
 			String errorMessage = MessageFormat.format(
 					"Could not open scan {0}. Could not recreate the mapping view from the queued scan. See the error log for more details.", scanName);
 			MessageDialog.openError(shell, "Open Results", errorMessage);
 			logger.error("Error merging scan request into mapping bean.", e);
+		}
+	}
+
+	private void updateControls() {
+		for (AbstractMappingSection section : sections.values()) {
+			section.updateControls();
 		}
 	}
 

@@ -19,10 +19,15 @@
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.core.databinding.Binding;
 import org.eclipse.core.databinding.DataBindingContext;
@@ -139,14 +144,22 @@ public class DetectorsSection extends AbstractMappingSection {
 	}
 
 	private List<IDetectorModelWrapper> getDetectorParameters() {
-		List<IDetectorModelWrapper> detectorParams = getMappingBean().getDetectorParameters();
-		Collection<DeviceInformation<?>> malcolmDeviceInfo = getMalcolmDeviceInfo();
-		if (malcolmDeviceInfo != null) {
-			for (final DeviceInformation<?> deviceInfo : malcolmDeviceInfo) {
-				detectorParams.add(new DetectorModelWrapper(deviceInfo.getLabel(), (IDetectorModel) deviceInfo.getModel(), false));
-			}
-		}
-		return detectorParams;
+		// a function to convert DeviceInformations to IDetectorModelWrappers
+		Function<DeviceInformation<?>, IDetectorModelWrapper> malcolmInfoToWrapper =
+				info -> new DetectorModelWrapper(info.getLabel(), (IDetectorModel) info.getModel(), false);
+
+		// create a new list of detector model wrappers including the existing ones in the
+		// mapping bean and new ones for the malcolm devices (using the function above).
+		// Uses a map with a merge function that keeps the first value to keep the
+		// existing wrapper for malcolm devices if present
+		Map<String, IDetectorModelWrapper> detectorParams =
+				Stream.concat(getMappingBean().getDetectorParameters().stream(),
+						getMalcolmDeviceInfo().stream().map(info -> malcolmInfoToWrapper.apply(info))).
+				collect(Collectors.toMap(IDetectorModelWrapper::getName, Function.identity(),
+						(v1, v2) -> v1, // this merge function keeps the existing value
+						LinkedHashMap::new)); // linked hash map to maintain the order
+
+		return new ArrayList<>(detectorParams.values());
 	}
 
 	private Collection<DeviceInformation<?>> getMalcolmDeviceInfo() {
@@ -157,7 +170,8 @@ public class DetectorsSection extends AbstractMappingSection {
 			return runnableDeviceService.getDeviceInformation(DeviceRole.MALCOLM);
 		} catch (Exception e) {
 			logger.error("Could not get malcolm devices.", e);
-			return null;		}
+			return null;
+		}
 	}
 
 	@Override

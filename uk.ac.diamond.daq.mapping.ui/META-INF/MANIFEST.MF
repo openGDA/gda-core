@@ -30,7 +30,8 @@ Require-Bundle: org.eclipse.ui,
  org.dawnsci.plotting;bundle-version="1.2.0",
  org.dawnsci.processing.ui.api,
  org.dawnsci.processing.ui,
- org.apache.commons.beanutils;bundle-version="1.9.1"
+ org.apache.commons.beanutils;bundle-version="1.9.1",
+ org.eclipse.e4.ui.model.workbench
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Import-Package: org.eclipse.e4.core.contexts,
