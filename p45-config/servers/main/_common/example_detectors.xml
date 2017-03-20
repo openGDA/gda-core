@@ -7,6 +7,18 @@
 	<bean id="dummyMalcolmModel" class="org.eclipse.scanning.example.malcolm.DummyMalcolmModel">
 		<property name="name"                   value="malcolm"/>
 		<property name="exposureTime"           value="0.1"/>
+		<property name="axesToMove">
+			<list>
+				<value>stagex</value>
+				<value>stagey</value>
+			</list>
+		</property>
+		<property name="positionerNames">
+			<list>
+				<value>stagex</value>
+				<value>stagey</value>
+			</list>
+		</property>
     </bean>
 	<bean id="dummyMalcolmInfo" class="org.eclipse.scanning.api.event.scan.DeviceInformation">
 		<property name="id"          value="org.eclipse.scanning.example.malcolm.dummyMalcolmDetectorSpring"/>
