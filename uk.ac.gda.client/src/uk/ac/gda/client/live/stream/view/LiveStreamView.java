@@ -131,6 +131,7 @@ public class LiveStreamView extends ViewPart {
 
 	@Override
 	public void createPartControl(final Composite parent) {
+		this.parent = parent;
 
 		if (remoteDatasetService == null) {
 			displayAndLogError(parent, "Cannot connect to MJPEG stream: no remote dataset service is available");
@@ -232,8 +233,6 @@ public class LiveStreamView extends ViewPart {
 	 *            The name of the camera to use and type of stream to display
 	 */
 	private void createLivePlot(final Composite parent, final String secondaryId) {
-		this.parent = parent;
-
 		String cameraId = cameraIdFromSecondaryId(secondaryId);
 		StreamType streamType = streamTypeFromSecondaryId(secondaryId);
 
