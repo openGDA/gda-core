@@ -43,6 +43,8 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.scanning.connector.epicsv3.EpicsV3DynamicDatasetConnector;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
@@ -142,6 +144,11 @@ public class LiveStreamView extends ViewPart {
 		if (getViewSite().getSecondaryId() != null) {
 			createLivePlot(parent, getViewSite().getSecondaryId());
 		} else {
+			createCameraSelector(parent);
+		}
+	}
+
+	private void createCameraSelector(final Composite parent) {
 			// Find all the implemented cameras. This is currently using the finder but could use OSGi instead.
 			List<CameraConfiguration> cameras = Finder.getInstance().listLocalFindablesOfType(CameraConfiguration.class);
 			final Map<String, CameraConfiguration> cameraMap = new TreeMap<String, CameraConfiguration>();
@@ -157,7 +164,7 @@ public class LiveStreamView extends ViewPart {
 				logger.debug("Found {} cameras", cameras.size());
 
 				// Setup composite layout
-				parent.setLayout(new GridLayout(3, false));
+				parent.setLayout(new GridLayout(1, false));
 				parent.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, true, false));
 
 				Label cameraSelectorLabel = new Label(parent, SWT.NONE);
@@ -168,6 +175,12 @@ public class LiveStreamView extends ViewPart {
 				cameraSelector.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 				cameraSelector.setItems(cameraMap.keySet().toArray(new String[0]));
 				cameraSelector.setSelection(0);
+				cameraSelector.addMouseListener(new MouseAdapter() {
+					@Override
+					public void mouseDoubleClick(MouseEvent e) {
+						reopenViewWithSecondaryId(cameraMap.get(cameraSelector.getItem(cameraSelector.getSelectionIndex())).getName());
+					}
+				});
 
 				Button connectButton = new Button(parent, SWT.DEFAULT);
 				connectButton.setLayoutData(new GridData(SWT.BEGINNING, SWT.TOP, false, false));
@@ -184,7 +197,6 @@ public class LiveStreamView extends ViewPart {
 				displayAndLogError(parent, "No cameras were found");
 			}
 			return;
-		}
 	}
 
 	/**
