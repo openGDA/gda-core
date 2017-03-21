@@ -162,7 +162,7 @@ public class LogServer implements Configurable, BeanNameAware {
 		//Use stdout as use of logger is no good if the logging configuration is wrong
 		System.out.println("Configure logserver using file " + StringUtils.quote(configFile));
 		SimpleSocketServer.configureLC(lc, configFile);
-		lc.putProperty(LogbackUtils.SOURCE_PROPERTY_NAME, "logserver");
+		LogbackUtils.addSourcePropertyAndListener(lc, "logserver");
 		LogbackUtils.setEventDelayToZeroInAllSocketAppenders(lc);
 		socketServer.start();
 	}
