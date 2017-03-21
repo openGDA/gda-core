@@ -53,6 +53,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
@@ -97,6 +98,7 @@ public class LiveStreamView extends ViewPart {
 	private IImageTrace iTrace;
 	private CameraConfiguration camConfig;
 	private Composite parent;
+	private Text errorText;
 	private String cameraName;
 	private long frameCounter = 0;
 	private final IDataListener shapeListener = new IDataListener() {
@@ -291,10 +293,24 @@ public class LiveStreamView extends ViewPart {
 	}
 
 	private void displayAndLogError(final Composite parent, final String errorMessage, final Exception exception) {
-		Label errorLabel = new Label(parent, SWT.NONE);
-		errorLabel.setText(errorMessage);
-		parent.layout(true);
 		logger.error(errorMessage, exception);
+		if (errorText == null) {
+			errorText = new Text(parent, SWT.LEFT | SWT.WRAP | SWT.BORDER);
+			errorText.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseDoubleClick(MouseEvent e) {
+					errorText.dispose();
+					parent.layout(true);
+					errorText=null;
+				}
+			});
+			errorText.setToolTipText("Double click this message to remove it.");
+			parent.layout(true);
+		}
+		StringBuilder s = new StringBuilder(errorText.getText());
+		s.append("\n").append(errorMessage);
+		if (exception != null) { s.append("\n\t").append(exception.getMessage()); }
+		errorText.setText(s.toString());
 	}
 
 	@Override
