@@ -403,7 +403,7 @@ public class LiveStreamView extends ViewPart {
 			super(new Action() {
 				@Override
 				public void run() {
-					liveMjpegPlot.reset();
+					liveMjpegPlot.reopenViewWithSecondaryId(null);
 				}
 				@Override
 				public String getText() {
@@ -539,10 +539,4 @@ public class LiveStreamView extends ViewPart {
 		// Reset the frame counter
 		frameCounter = 0;
 	}
-
-	private void reset() {
-		// Call setupStream again with the current stream type. Creates a new stream resetting it.
-		setupStream(streamType);
-	}
-
 }
