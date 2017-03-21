@@ -94,7 +94,7 @@ public class LiveStreamView extends ViewPart {
 
 	private IPlottingSystem<Composite> plottingSystem;
 	private IDatasetConnector stream;
-	private StreamType streamType = StreamType.MJPEG;
+	private StreamType streamType;
 	private IImageTrace iTrace;
 	private CameraConfiguration camConfig;
 	private Composite parent;
@@ -201,6 +201,26 @@ public class LiveStreamView extends ViewPart {
 			return;
 	}
 
+	private String cameraIdFromSecondaryId(String secondaryId) {
+		if (secondaryId.endsWith(StreamType.MJPEG.secondaryIdSuffix())) {
+			return secondaryId.substring(0, secondaryId.lastIndexOf(StreamType.MJPEG.secondaryIdSuffix()));
+		} else if (secondaryId.endsWith(StreamType.EPICS_ARRAY.secondaryIdSuffix())) {
+			return secondaryId.substring(0, secondaryId.lastIndexOf(StreamType.EPICS_ARRAY.secondaryIdSuffix()));
+		} else {
+			return secondaryId;
+		}
+	}
+
+	private StreamType streamTypeFromSecondaryId(String secondaryId) {
+		if (secondaryId.endsWith(StreamType.MJPEG.secondaryIdSuffix())) {
+			return StreamType.MJPEG;
+		} else if (secondaryId.endsWith(StreamType.EPICS_ARRAY.secondaryIdSuffix())) {
+			return StreamType.EPICS_ARRAY;
+		} else {
+			return null;
+		}
+	}
+
 	/**
 	 * This is the method that actually creates a MJPEG stream and sets up the plotting system.
 	 * <p>
@@ -208,11 +228,14 @@ public class LiveStreamView extends ViewPart {
 	 *
 	 * @param parent
 	 *            Composite to draw on
-	 * @param cameraId
-	 *            The name of the camera to use
+	 * @param secondaryId
+	 *            The name of the camera to use and type of stream to display
 	 */
-	private void createLivePlot(final Composite parent, final String cameraId) {
+	private void createLivePlot(final Composite parent, final String secondaryId) {
 		this.parent = parent;
+
+		String cameraId = cameraIdFromSecondaryId(secondaryId);
+		StreamType streamType = streamTypeFromSecondaryId(secondaryId);
 
 		// Get the camera config from the finder
 		camConfig = Finder.getInstance().find(cameraId);
@@ -220,6 +243,10 @@ public class LiveStreamView extends ViewPart {
 		if (camConfig == null) {
 			displayAndLogError(parent, "Camera configuration could not be found for the specified camera ID");
 			return;
+		}
+
+		if (streamType == null) {
+			streamType = camConfig.getUrl() == null ? StreamType.EPICS_ARRAY : StreamType.MJPEG;
 		}
 
 		// Do some things to make the UI a bit more friendly
@@ -260,8 +287,16 @@ public class LiveStreamView extends ViewPart {
 
 		// Create a new trace.
 		iTrace = plottingSystem.createImageTrace("Live camera stream");
+
 		// Attach the IDatasetConnector of the MJPEG stream to the trace.
-		setupStream(StreamType.MJPEG);
+		if (streamType == StreamType.MJPEG && camConfig.getUrl() == null) {
+			displayAndLogError(parent, "MJPEG stream requested but no url defined for " + cameraName);
+		}
+		if (streamType == StreamType.EPICS_ARRAY && camConfig.getArrayPv() == null) {
+			displayAndLogError(parent, "EPICS stream requested but no array PV defined for " + cameraName);
+		}
+		setupStream(streamType);
+
 		// Try and make the stream run faster
 		iTrace.setDownsampleType(DownsampleType.POINT);
 		iTrace.setRescaleHistogram(false);
@@ -394,7 +429,7 @@ public class LiveStreamView extends ViewPart {
 				this.add(new Action(type.displayName, IAction.AS_PUSH_BUTTON) {
 					@Override
 					public void run() {
-						liveMjpegPlot.setupStream(type);
+						liveMjpegPlot.reopenViewWithSecondaryId(cameraIdFromSecondaryId(getViewSite().getSecondaryId()) + type.secondaryIdSuffix());
 					}
 				});
 			}
@@ -414,6 +449,15 @@ public class LiveStreamView extends ViewPart {
 
 		StreamType(String displayName) {
 			this.displayName = displayName;
+		}
+
+		/**
+		 * Note: If this is changed, views referenced in user workspaces will no longer be valid.
+		 *
+		 * @return suffix used to denote which stream is associated with a view.
+		 */
+		public String secondaryIdSuffix() {
+			return "#" + name();
 		}
 
 		@Override
