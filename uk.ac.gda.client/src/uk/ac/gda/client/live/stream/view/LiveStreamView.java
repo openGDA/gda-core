@@ -134,12 +134,12 @@ public class LiveStreamView extends ViewPart {
 		this.parent = parent;
 
 		if (remoteDatasetService == null) {
-			displayAndLogError(parent, "Cannot connect to MJPEG stream: no remote dataset service is available");
+			displayAndLogError(parent, "Cannot create Live Stream: no remote dataset service is available");
 			return;
 		}
 
 		if (plottingService == null) {
-			displayAndLogError(parent, "Cannot connect to MJPEG stream: no plotting service is available");
+			displayAndLogError(parent, "Cannot create Live Stream: no plotting service is available");
 			return;
 		}
 
@@ -240,7 +240,7 @@ public class LiveStreamView extends ViewPart {
 		camConfig = Finder.getInstance().find(cameraId);
 
 		if (camConfig == null) {
-			displayAndLogError(parent, "Camera configuration could not be found for the specified camera ID");
+			displayAndLogError(parent, "Camera configuration could not be found for camera ID " + cameraId);
 			return;
 		}
 
@@ -521,7 +521,7 @@ public class LiveStreamView extends ViewPart {
 			try {
 				stream.connect();
 			} catch (DatasetException e) {
-				displayAndLogError(parent, "Could not connect to EPICS Array Stream PV: " + camConfig.getArrayPv() + ":ArrayData" , e);
+				displayAndLogError(parent, "Could not connect to EPICS Array Stream PV: " + camConfig.getArrayPv(), e);
 				return;
 			}
 			break;
