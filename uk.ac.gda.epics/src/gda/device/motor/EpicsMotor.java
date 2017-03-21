@@ -439,13 +439,8 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 		}
 	}
 
-	private void ensuredConfigured() throws FactoryException {
-		if (!configured)
-			configure();
-	}
-
 	private void waitForInitialisation() throws TimeoutException, FactoryException {
-		ensuredConfigured();
+		configure();
 		long startTime_ms = System.currentTimeMillis();
 		double timeout_s = EpicsGlobals.getTimeout();
 		long timeout_ms = (long) (timeout_s * 1000.);
