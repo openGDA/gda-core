@@ -371,9 +371,10 @@ public class LiveStreamView extends ViewPart {
 					stream.removeDataListener(shapeListener);
 				}
 				stream.disconnect();
-				stream = null;
 			} catch (Exception e) {
 				logger.error("Error disconnecting remote data stream", e);
+			} finally {
+				stream = null;
 			}
 		}
 		super.dispose();
@@ -478,9 +479,11 @@ public class LiveStreamView extends ViewPart {
 		if (stream != null) { // Will be null the first time
 			try {
 				stream.disconnect();
-			} catch (DatasetException e) {
+			} catch (Exception e) {
 				displayAndLogError(parent, "Error disconnecting from stream", e);
 				return; // Should not continue and create an additional stream
+			} finally {
+				stream = null;
 			}
 		}
 
