@@ -152,54 +152,54 @@ public class LiveStreamView extends ViewPart {
 	}
 
 	private void createCameraSelector(final Composite parent) {
-			// Find all the implemented cameras. This is currently using the finder but could use OSGi instead.
-			List<CameraConfiguration> cameras = Finder.getInstance().listLocalFindablesOfType(CameraConfiguration.class);
-			final Map<String, CameraConfiguration> cameraMap = new TreeMap<String, CameraConfiguration>();
-			for (CameraConfiguration camConfig : cameras) {
-				if (camConfig.getDisplayName() != null) {
-					cameraMap.put(camConfig.getDisplayName(), camConfig);
-				} else {
-					logger.warn("No display name was set for camera id: {}. Using id instead", camConfig.getName());
-					cameraMap.put(camConfig.getName(), camConfig);
+		// Find all the implemented cameras. This is currently using the finder but could use OSGi instead.
+		List<CameraConfiguration> cameras = Finder.getInstance().listLocalFindablesOfType(CameraConfiguration.class);
+		final Map<String, CameraConfiguration> cameraMap = new TreeMap<String, CameraConfiguration>();
+		for (CameraConfiguration camConfig : cameras) {
+			if (camConfig.getDisplayName() != null) {
+				cameraMap.put(camConfig.getDisplayName(), camConfig);
+			} else {
+				logger.warn("No display name was set for camera id: {}. Using id instead", camConfig.getName());
+				cameraMap.put(camConfig.getName(), camConfig);
+			}
+		}
+		if (!cameraMap.isEmpty()) {
+			logger.debug("Found {} cameras", cameras.size());
+
+			// Setup composite layout
+			parent.setLayout(new GridLayout(1, false));
+			parent.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, true, false));
+
+			Label cameraSelectorLabel = new Label(parent, SWT.NONE);
+			cameraSelectorLabel.setLayoutData(new GridData(SWT.BEGINNING, SWT.TOP, false, false));
+			cameraSelectorLabel.setText("Select camera:");
+
+			final org.eclipse.swt.widgets.List cameraSelector = new org.eclipse.swt.widgets.List(parent, SWT.SINGLE | SWT.BORDER | SWT.V_SCROLL);
+			cameraSelector.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+			cameraSelector.setItems(cameraMap.keySet().toArray(new String[0]));
+			cameraSelector.setSelection(0);
+			cameraSelector.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseDoubleClick(MouseEvent e) {
+					reopenViewWithSecondaryId(cameraMap.get(cameraSelector.getItem(cameraSelector.getSelectionIndex())).getName());
 				}
-			}
-			if (!cameraMap.isEmpty()) {
-				logger.debug("Found {} cameras", cameras.size());
+			});
 
-				// Setup composite layout
-				parent.setLayout(new GridLayout(1, false));
-				parent.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, true, false));
+			Button connectButton = new Button(parent, SWT.DEFAULT);
+			connectButton.setLayoutData(new GridData(SWT.BEGINNING, SWT.TOP, false, false));
+			connectButton.setText("Connect");
+			connectButton.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					// Get the cameras ID for the secondary ID
+					reopenViewWithSecondaryId(cameraMap.get(cameraSelector.getItem(cameraSelector.getSelectionIndex())).getName());
+				}
+			});
 
-				Label cameraSelectorLabel = new Label(parent, SWT.NONE);
-				cameraSelectorLabel.setLayoutData(new GridData(SWT.BEGINNING, SWT.TOP, false, false));
-				cameraSelectorLabel.setText("Select camera:");
-
-				final org.eclipse.swt.widgets.List cameraSelector = new org.eclipse.swt.widgets.List(parent, SWT.SINGLE | SWT.BORDER | SWT.V_SCROLL);
-				cameraSelector.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-				cameraSelector.setItems(cameraMap.keySet().toArray(new String[0]));
-				cameraSelector.setSelection(0);
-				cameraSelector.addMouseListener(new MouseAdapter() {
-					@Override
-					public void mouseDoubleClick(MouseEvent e) {
-						reopenViewWithSecondaryId(cameraMap.get(cameraSelector.getItem(cameraSelector.getSelectionIndex())).getName());
-					}
-				});
-
-				Button connectButton = new Button(parent, SWT.DEFAULT);
-				connectButton.setLayoutData(new GridData(SWT.BEGINNING, SWT.TOP, false, false));
-				connectButton.setText("Connect");
-				connectButton.addSelectionListener(new SelectionAdapter() {
-					@Override
-					public void widgetSelected(SelectionEvent e) {
-						// Get the cameras ID for the secondary ID
-						reopenViewWithSecondaryId(cameraMap.get(cameraSelector.getItem(cameraSelector.getSelectionIndex())).getName());
-					}
-				});
-
-			} else { // No cameras found
-				displayAndLogError(parent, "No cameras were found");
-			}
-			return;
+		} else { // No cameras found
+			displayAndLogError(parent, "No cameras were found");
+		}
+		return;
 	}
 
 	private String cameraIdFromSecondaryId(String secondaryId) {
