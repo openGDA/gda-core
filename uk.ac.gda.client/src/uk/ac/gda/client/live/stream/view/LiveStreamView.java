@@ -248,11 +248,13 @@ public class LiveStreamView extends ViewPart {
 			streamType = camConfig.getUrl() == null ? StreamType.EPICS_ARRAY : StreamType.MJPEG;
 		}
 
-		// Do some things to make the UI a bit more friendly
+		// Use camera ID (, i.e. camera device name) and stream type for the tab text, to keep it short
+		setPartName(cameraId + ": " + streamType);
+
 		if (camConfig.getDisplayName() != null) {
-			setPartName(camConfig.getDisplayName());
+			cameraName = camConfig.getDisplayName();
 		} else {
-			setPartName(camConfig.getName());
+			cameraName = cameraId;
 		}
 
 		// Setup the plotting system
@@ -268,13 +270,9 @@ public class LiveStreamView extends ViewPart {
 			axis.setVisible(false);
 		}
 
-		// Get the camera name to use for the GUI
-		if (camConfig.getDisplayName() != null) {
-			cameraName = camConfig.getDisplayName();
-		} else {
-			cameraName = cameraId;
-		}
-		plottingSystem.setTitle(cameraName);
+		// Use the full camera name from the camera configuration, if available, for the plot title as it should better
+		// describe the camera and we should have plenty of space for it.
+		plottingSystem.setTitle(cameraName + ": " + streamType + " - No data yet");
 
 		// Add useful plotting system actions
 		configureToolbar();
