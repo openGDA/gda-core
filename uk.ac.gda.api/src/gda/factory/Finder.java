@@ -94,6 +94,9 @@ public class Finder {
 				logger.warn("FactoryException looking for "+name,e);
 			}
 		}
+		if (findable == null) {
+			logger.warn("Could not find \"" + name + "\"");
+		}
 		return findable;
 	}
 

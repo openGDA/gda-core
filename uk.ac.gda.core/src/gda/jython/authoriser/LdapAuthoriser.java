@@ -19,22 +19,15 @@
 
 package gda.jython.authoriser;
 
-import gda.configuration.properties.LocalProperties;
-import gda.jython.authenticator.LdapAuthenticator;
-import gda.jython.authenticator.LdapMixin;
-
-import java.util.Hashtable;
-import java.util.List;
-
-import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
-import javax.naming.ldap.InitialLdapContext;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.configuration.properties.LocalProperties;
+import gda.jython.authenticator.LdapMixin;
 
 /**
  * Extension to the FileAuthoriser which fetches information from an ldap server if the account is not listed in the xml
@@ -47,17 +40,9 @@ public class LdapAuthoriser extends FileAuthoriser implements Authoriser {
 	 */
 	public static final String LDAPSTAFF_PROPERTY = "gda.jython.authoriser.ldap.staff_group";
 
-	/**
-	 * The java property to use to define which class of Authenticator to use
-	 */
-	public static final String LDAPSTAFFCONTEXT_PROPERTY = "gda.jython.authoriser.ldap.staff_context";
-
 	private static final Logger logger = LoggerFactory.getLogger(LdapAuthoriser.class);
 
-	private final String ldapContext = LocalProperties.get(LdapAuthenticator.LDAPCONTEXT_PROPERTY,
-			"com.sun.jndi.ldap.LdapCtxFactory");
 	private final String staffRole = LocalProperties.get(LDAPSTAFF_PROPERTY, "DLSLTD_Staff");
-	private final String staffContext = LocalProperties.get(LDAPSTAFFCONTEXT_PROPERTY, "DC=fed,DC=cclrc,DC=ac,DC=uk");
 
 	private LdapMixin ldap = new LdapMixin();
 
@@ -68,7 +53,7 @@ public class LdapAuthoriser extends FileAuthoriser implements Authoriser {
 			return true;
 		}
 		try {
-			NamingEnumeration<SearchResult> users = searchLdapForUser(username);
+			NamingEnumeration<SearchResult> users = ldap.searchLdapForUser(username, "cn", "memberOf", "sn", "givenName", "title");
 			return users != null && users.hasMore();
 		} catch (NamingException e) {
 			logger.error("Failed to find user " + username + " in ldap or xml file: " + e.getMessage());
@@ -98,7 +83,7 @@ public class LdapAuthoriser extends FileAuthoriser implements Authoriser {
 		}
 		NamingEnumeration<SearchResult> users = null;
 		try {
-			 users = searchLdapForUser(username);
+			 users = ldap.searchLdapForUser(username, "memberOf");
 			if (users != null && users.hasMore()) {
 				String groups = extractAttributes(users.next(), "memberOf");
 				return groups.contains(staffRole);
@@ -115,73 +100,6 @@ public class LdapAuthoriser extends FileAuthoriser implements Authoriser {
 			}
 		}
 		return false;
-	}
-
-	private InitialLdapContext getContext(String ldapURL) throws NamingException {
-		Hashtable<String, String> env = new Hashtable<String, String>();
-
-		env.put(Context.INITIAL_CONTEXT_FACTORY, ldapContext);
-		env.put(Context.SECURITY_AUTHENTICATION, "none");
-		env.put(Context.PROVIDER_URL, ldapURL);
-
-		return new InitialLdapContext(env, null);
-	}
-
-	private NamingEnumeration<SearchResult> searchLdapForUser(String fedId) {
-
-		final List<String> urls = ldap.getUrlsToTry();
-		logger.debug("LDAP URLs: " + urls);
-
-		if (urls.isEmpty()) {
-			logger.error("No LDAP servers defined");
-			return null;
-		}
-
-		Exception lastException = null;
-
-		for (String url : urls) {
-			try {
-				return searchOneLdapServerForUser(url, fedId);
-			} catch (Exception e) {
-				// try the next server
-				lastException = e;
-				logger.info("Unable to use LDAP server with URL '{}' - will try next server", url, e);
-			}
-		}
-
-		logger.error("Unable to connect to any LDAP server", lastException);
-		return null;
-	}
-
-	private NamingEnumeration<SearchResult> searchOneLdapServerForUser(String url, String fedId) throws NamingException {
-
-		InitialLdapContext ctx = null;
-		try {
-			if( fedId == null || fedId.isEmpty())
-				return null;
-			// Set up criteria on which to search
-			// e.g. (&(objectClass=groupOfUniqueNames)(uniqueMember=uid=ifx999,ou=People,dc=esrf,dc=fr))
-			String filter = "(&(objectClass=user)(cn=" + fedId + "))";
-
-			// Set up search constraints
-			String returnedAtts[] = { "cn", "memberOf", "sn", "givenName", "title" };
-			SearchControls cons = new SearchControls();
-			cons.setSearchScope(SearchControls.SUBTREE_SCOPE);
-			cons.setReturningAttributes(returnedAtts);
-
-			// Search
-			ctx = getContext(url);
-			return ctx.search(staffContext, filter, cons);
-
-		} finally {
-			if (ctx != null) {
-				try {
-					ctx.close();
-				} catch (NamingException e) {
-				}
-			}
-		}
-
 	}
 
 	private String extractAttributes(SearchResult sr, String attributeName) {
