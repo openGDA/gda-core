@@ -27,9 +27,7 @@ public class InitialiseDetectorAfterExposureTimeChangeDecorator extends Abstract
 	@Override
 	protected void rawPrepareForCollection(double collectionTime, int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
 		getDecoratee().prepareForCollection(collectionTime, numberImagesPerCollection, scanInfo); // must be called before detector initialise
-		if (collectionTime != getAdBase().getAcquireTime()) {
-			detector.initialiseDetector();
-		}
+		detector.initialiseDetector();
 	}
 
 	public DetectorInitializer getDetector() {

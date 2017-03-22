@@ -1276,34 +1276,6 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 		}
 	}
 
-	private void setMinPositionFromListener(double minPosition) {
-		this.minPosition = minPosition;
-		notifyIObservers(MotorProperty.LOWLIMIT, new Double(minPosition));
-	}
-
-	private void setMaxPositionFromListener(double maxPosition) {
-		this.maxPosition = maxPosition;
-		notifyIObservers(MotorProperty.HIGHLIMIT, new Double(maxPosition));
-	}
-
-	/**
-	 * updates the lower soft limit when and if it changes in EPICS.
-	 */
-	private class LLMMonitorListener implements MonitorListener {
-		@Override
-		public void monitorChanged(MonitorEvent mev) {
-			DBR dbr = mev.getDBR();
-			if (dbr.isFLOAT()) {
-				setMinPositionFromListener(new Float(((DBR_Float) dbr).getFloatValue()[0]).doubleValue());
-			} else if (dbr.isDOUBLE()) {
-				setMinPositionFromListener(((DBR_Double) dbr).getDoubleValue()[0]);
-			} else {
-				logger.error("Error: illegal .LLM value.");
-			}
-
-		}
-	}
-
 	private enum SetUseState {
 		UNKNOWN,
 		SET,
@@ -1436,6 +1408,34 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 			} else {
 				logger.error("Error: illegal .HLM value.");
 			}
+		}
+	}
+
+	private void setMinPositionFromListener(double minPosition) {
+		this.minPosition = minPosition;
+		notifyIObservers(MotorProperty.LOWLIMIT, new Double(minPosition));
+	}
+
+	private void setMaxPositionFromListener(double maxPosition) {
+		this.maxPosition = maxPosition;
+		notifyIObservers(MotorProperty.HIGHLIMIT, new Double(maxPosition));
+	}
+
+	/**
+	 * updates the lower soft limit when and if it changes in EPICS.
+	 */
+	private class LLMMonitorListener implements MonitorListener {
+		@Override
+		public void monitorChanged(MonitorEvent mev) {
+			DBR dbr = mev.getDBR();
+			if (dbr.isFLOAT()) {
+				setMinPositionFromListener(new Float(((DBR_Float) dbr).getFloatValue()[0]).doubleValue());
+			} else if (dbr.isDOUBLE()) {
+				setMinPositionFromListener(((DBR_Double) dbr).getDoubleValue()[0]);
+			} else {
+				logger.error("Error: illegal .LLM value.");
+			}
+
 		}
 	}
 
