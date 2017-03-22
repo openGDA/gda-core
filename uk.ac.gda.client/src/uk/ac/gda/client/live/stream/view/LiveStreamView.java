@@ -43,6 +43,8 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.scanning.connector.epicsv3.EpicsV3DynamicDatasetConnector;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
@@ -51,6 +53,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
@@ -91,10 +94,11 @@ public class LiveStreamView extends ViewPart {
 
 	private IPlottingSystem<Composite> plottingSystem;
 	private IDatasetConnector stream;
-	private StreamType streamType = StreamType.MJPEG;
+	private StreamType streamType;
 	private IImageTrace iTrace;
 	private CameraConfiguration camConfig;
 	private Composite parent;
+	private Text errorText;
 	private String cameraName;
 	private long frameCounter = 0;
 	private final IDataListener shapeListener = new IDataListener() {
@@ -127,14 +131,15 @@ public class LiveStreamView extends ViewPart {
 
 	@Override
 	public void createPartControl(final Composite parent) {
+		this.parent = parent;
 
 		if (remoteDatasetService == null) {
-			displayAndLogError(parent, "Cannot connect to MJPEG stream: no remote dataset service is available");
+			displayAndLogError(parent, "Cannot create Live Stream: no remote dataset service is available");
 			return;
 		}
 
 		if (plottingService == null) {
-			displayAndLogError(parent, "Cannot connect to MJPEG stream: no plotting service is available");
+			displayAndLogError(parent, "Cannot create Live Stream: no plotting service is available");
 			return;
 		}
 
@@ -142,48 +147,78 @@ public class LiveStreamView extends ViewPart {
 		if (getViewSite().getSecondaryId() != null) {
 			createLivePlot(parent, getViewSite().getSecondaryId());
 		} else {
-			// Find all the implemented cameras. This is currently using the finder but could use OSGi instead.
-			List<CameraConfiguration> cameras = Finder.getInstance().listLocalFindablesOfType(CameraConfiguration.class);
-			final Map<String, CameraConfiguration> cameraMap = new TreeMap<String, CameraConfiguration>();
-			for (CameraConfiguration camConfig : cameras) {
-				if (camConfig.getDisplayName() != null) {
-					cameraMap.put(camConfig.getDisplayName(), camConfig);
-				} else {
-					logger.warn("No display name was set for camera id: {}. Using id instead", camConfig.getName());
-					cameraMap.put(camConfig.getName(), camConfig);
+			createCameraSelector(parent);
+		}
+	}
+
+	private void createCameraSelector(final Composite parent) {
+		// Find all the implemented cameras. This is currently using the finder but could use OSGi instead.
+		List<CameraConfiguration> cameras = Finder.getInstance().listLocalFindablesOfType(CameraConfiguration.class);
+		final Map<String, CameraConfiguration> cameraMap = new TreeMap<String, CameraConfiguration>();
+		for (CameraConfiguration camConfig : cameras) {
+			if (camConfig.getDisplayName() != null) {
+				cameraMap.put(camConfig.getDisplayName(), camConfig);
+			} else {
+				logger.warn("No display name was set for camera id: {}. Using id instead", camConfig.getName());
+				cameraMap.put(camConfig.getName(), camConfig);
+			}
+		}
+		if (!cameraMap.isEmpty()) {
+			logger.debug("Found {} cameras", cameras.size());
+
+			// Setup composite layout
+			parent.setLayout(new GridLayout(1, false));
+			parent.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, true, false));
+
+			Label cameraSelectorLabel = new Label(parent, SWT.NONE);
+			cameraSelectorLabel.setLayoutData(new GridData(SWT.BEGINNING, SWT.TOP, false, false));
+			cameraSelectorLabel.setText("Select camera:");
+
+			final org.eclipse.swt.widgets.List cameraSelector = new org.eclipse.swt.widgets.List(parent, SWT.SINGLE | SWT.BORDER | SWT.V_SCROLL);
+			cameraSelector.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+			cameraSelector.setItems(cameraMap.keySet().toArray(new String[0]));
+			cameraSelector.setSelection(0);
+			cameraSelector.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseDoubleClick(MouseEvent e) {
+					reopenViewWithSecondaryId(cameraMap.get(cameraSelector.getItem(cameraSelector.getSelectionIndex())).getName());
 				}
-			}
-			if (!cameraMap.isEmpty()) {
-				logger.debug("Found {} cameras", cameras.size());
+			});
 
-				// Setup composite layout
-				parent.setLayout(new GridLayout(3, false));
-				parent.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, true, false));
+			Button connectButton = new Button(parent, SWT.DEFAULT);
+			connectButton.setLayoutData(new GridData(SWT.BEGINNING, SWT.TOP, false, false));
+			connectButton.setText("Connect");
+			connectButton.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					// Get the cameras ID for the secondary ID
+					reopenViewWithSecondaryId(cameraMap.get(cameraSelector.getItem(cameraSelector.getSelectionIndex())).getName());
+				}
+			});
 
-				Label cameraSelectorLabel = new Label(parent, SWT.NONE);
-				cameraSelectorLabel.setLayoutData(new GridData(SWT.BEGINNING, SWT.TOP, false, false));
-				cameraSelectorLabel.setText("Select camera:");
+		} else { // No cameras found
+			displayAndLogError(parent, "No cameras were found");
+		}
+		return;
+	}
 
-				final org.eclipse.swt.widgets.List cameraSelector = new org.eclipse.swt.widgets.List(parent, SWT.SINGLE | SWT.BORDER | SWT.V_SCROLL);
-				cameraSelector.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-				cameraSelector.setItems(cameraMap.keySet().toArray(new String[0]));
-				cameraSelector.setSelection(0);
+	private String cameraIdFromSecondaryId(String secondaryId) {
+		if (secondaryId.endsWith(StreamType.MJPEG.secondaryIdSuffix())) {
+			return secondaryId.substring(0, secondaryId.lastIndexOf(StreamType.MJPEG.secondaryIdSuffix()));
+		} else if (secondaryId.endsWith(StreamType.EPICS_ARRAY.secondaryIdSuffix())) {
+			return secondaryId.substring(0, secondaryId.lastIndexOf(StreamType.EPICS_ARRAY.secondaryIdSuffix()));
+		} else {
+			return secondaryId;
+		}
+	}
 
-				Button connectButton = new Button(parent, SWT.DEFAULT);
-				connectButton.setLayoutData(new GridData(SWT.BEGINNING, SWT.TOP, false, false));
-				connectButton.setText("Connect");
-				connectButton.addSelectionListener(new SelectionAdapter() {
-					@Override
-					public void widgetSelected(SelectionEvent e) {
-						// Get the cameras ID for the secondary ID
-						reopenViewWithSecondaryId(cameraMap.get(cameraSelector.getItem(cameraSelector.getSelectionIndex())).getName());
-					}
-				});
-
-			} else { // No cameras found
-				displayAndLogError(parent, "No cameras were found");
-			}
-			return;
+	private StreamType streamTypeFromSecondaryId(String secondaryId) {
+		if (secondaryId.endsWith(StreamType.MJPEG.secondaryIdSuffix())) {
+			return StreamType.MJPEG;
+		} else if (secondaryId.endsWith(StreamType.EPICS_ARRAY.secondaryIdSuffix())) {
+			return StreamType.EPICS_ARRAY;
+		} else {
+			return null;
 		}
 	}
 
@@ -194,25 +229,32 @@ public class LiveStreamView extends ViewPart {
 	 *
 	 * @param parent
 	 *            Composite to draw on
-	 * @param cameraId
-	 *            The name of the camera to use
+	 * @param secondaryId
+	 *            The name of the camera to use and type of stream to display
 	 */
-	private void createLivePlot(final Composite parent, final String cameraId) {
-		this.parent = parent;
+	private void createLivePlot(final Composite parent, final String secondaryId) {
+		String cameraId = cameraIdFromSecondaryId(secondaryId);
+		StreamType streamType = streamTypeFromSecondaryId(secondaryId);
 
 		// Get the camera config from the finder
 		camConfig = Finder.getInstance().find(cameraId);
 
 		if (camConfig == null) {
-			displayAndLogError(parent, "Camera configuration could not be found for the specified camera ID");
+			displayAndLogError(parent, "Camera configuration could not be found for camera ID " + cameraId);
 			return;
 		}
 
-		// Do some things to make the UI a bit more friendly
+		if (streamType == null) {
+			streamType = camConfig.getUrl() == null ? StreamType.EPICS_ARRAY : StreamType.MJPEG;
+		}
+
+		// Use camera ID (, i.e. camera device name) and stream type for the tab text, to keep it short
+		setPartName(cameraId + ": " + streamType);
+
 		if (camConfig.getDisplayName() != null) {
-			setPartName(camConfig.getDisplayName());
+			cameraName = camConfig.getDisplayName();
 		} else {
-			setPartName(camConfig.getName());
+			cameraName = cameraId;
 		}
 
 		// Setup the plotting system
@@ -228,13 +270,9 @@ public class LiveStreamView extends ViewPart {
 			axis.setVisible(false);
 		}
 
-		// Get the camera name to use for the GUI
-		if (camConfig.getDisplayName() != null) {
-			cameraName = camConfig.getDisplayName();
-		} else {
-			cameraName = cameraId;
-		}
-		plottingSystem.setTitle(cameraName);
+		// Use the full camera name from the camera configuration, if available, for the plot title as it should better
+		// describe the camera and we should have plenty of space for it.
+		plottingSystem.setTitle(cameraName + ": " + streamType + " - No data yet");
 
 		// Add useful plotting system actions
 		configureToolbar();
@@ -246,8 +284,16 @@ public class LiveStreamView extends ViewPart {
 
 		// Create a new trace.
 		iTrace = plottingSystem.createImageTrace("Live camera stream");
+
 		// Attach the IDatasetConnector of the MJPEG stream to the trace.
-		setupStream(StreamType.MJPEG);
+		if (streamType == StreamType.MJPEG && camConfig.getUrl() == null) {
+			displayAndLogError(parent, "MJPEG stream requested but no url defined for " + cameraName);
+		}
+		if (streamType == StreamType.EPICS_ARRAY && camConfig.getArrayPv() == null) {
+			displayAndLogError(parent, "EPICS stream requested but no array PV defined for " + cameraName);
+		}
+		setupStream(streamType);
+
 		// Try and make the stream run faster
 		iTrace.setDownsampleType(DownsampleType.POINT);
 		iTrace.setRescaleHistogram(false);
@@ -279,10 +325,24 @@ public class LiveStreamView extends ViewPart {
 	}
 
 	private void displayAndLogError(final Composite parent, final String errorMessage, final Exception exception) {
-		Label errorLabel = new Label(parent, SWT.NONE);
-		errorLabel.setText(errorMessage);
-		parent.layout(true);
 		logger.error(errorMessage, exception);
+		if (errorText == null) {
+			errorText = new Text(parent, SWT.LEFT | SWT.WRAP | SWT.BORDER);
+			errorText.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseDoubleClick(MouseEvent e) {
+					errorText.dispose();
+					parent.layout(true);
+					errorText=null;
+				}
+			});
+			errorText.setToolTipText("Double click this message to remove it.");
+			parent.layout(true);
+		}
+		StringBuilder s = new StringBuilder(errorText.getText());
+		s.append("\n").append(errorMessage);
+		if (exception != null) { s.append("\n\t").append(exception.getMessage()); }
+		errorText.setText(s.toString());
 	}
 
 	@Override
@@ -309,9 +369,10 @@ public class LiveStreamView extends ViewPart {
 					stream.removeDataListener(shapeListener);
 				}
 				stream.disconnect();
-				stream = null;
 			} catch (Exception e) {
 				logger.error("Error disconnecting remote data stream", e);
+			} finally {
+				stream = null;
 			}
 		}
 		super.dispose();
@@ -340,7 +401,7 @@ public class LiveStreamView extends ViewPart {
 			super(new Action() {
 				@Override
 				public void run() {
-					liveMjpegPlot.reset();
+					liveMjpegPlot.reopenViewWithSecondaryId(null);
 				}
 				@Override
 				public String getText() {
@@ -366,7 +427,7 @@ public class LiveStreamView extends ViewPart {
 				this.add(new Action(type.displayName, IAction.AS_PUSH_BUTTON) {
 					@Override
 					public void run() {
-						liveMjpegPlot.setupStream(type);
+						liveMjpegPlot.reopenViewWithSecondaryId(cameraIdFromSecondaryId(getViewSite().getSecondaryId()) + type.secondaryIdSuffix());
 					}
 				});
 			}
@@ -388,6 +449,15 @@ public class LiveStreamView extends ViewPart {
 			this.displayName = displayName;
 		}
 
+		/**
+		 * Note: If this is changed, views referenced in user workspaces will no longer be valid.
+		 *
+		 * @return suffix used to denote which stream is associated with a view.
+		 */
+		public String secondaryIdSuffix() {
+			return "#" + name();
+		}
+
 		@Override
 		public String toString() {
 			return displayName;
@@ -407,9 +477,11 @@ public class LiveStreamView extends ViewPart {
 		if (stream != null) { // Will be null the first time
 			try {
 				stream.disconnect();
-			} catch (DatasetException e) {
+			} catch (Exception e) {
 				displayAndLogError(parent, "Error disconnecting from stream", e);
 				return; // Should not continue and create an additional stream
+			} finally {
+				stream = null;
 			}
 		}
 
@@ -447,7 +519,7 @@ public class LiveStreamView extends ViewPart {
 			try {
 				stream.connect();
 			} catch (DatasetException e) {
-				displayAndLogError(parent, "Could not connect to EPICS Array Stream PV: " + camConfig.getArrayPv() + ":ArrayData" , e);
+				displayAndLogError(parent, "Could not connect to EPICS Array Stream PV: " + camConfig.getArrayPv(), e);
 				return;
 			}
 			break;
@@ -467,10 +539,4 @@ public class LiveStreamView extends ViewPart {
 		// Reset the frame counter
 		frameCounter = 0;
 	}
-
-	private void reset() {
-		// Call setupStream again with the current stream type. Creates a new stream resetting it.
-		setupStream(streamType);
-	}
-
 }
