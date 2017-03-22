@@ -18,16 +18,24 @@
 
 package gda.jython.authenticator;
 
-import gda.configuration.properties.LocalProperties;
-
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import javax.naming.Context;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
+import javax.naming.ldap.InitialLdapContext;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.configuration.properties.LocalProperties;
 
 /**
  * Contains LDAP-related methods.
@@ -36,10 +44,85 @@ public class LdapMixin {
 
 	private static final Logger logger = LoggerFactory.getLogger(LdapMixin.class);
 
+	private final String ldapContext = LocalProperties.get(LdapAuthenticator.LDAPCONTEXT_PROPERTY,
+			"com.sun.jndi.ldap.LdapCtxFactory");
+
+	/**
+	 * The java property to use to define which class of Authenticator to use
+	 */
+	public static final String LDAPSTAFFCONTEXT_PROPERTY = "gda.jython.authoriser.ldap.staff_context";
+	private final String staffContext = LocalProperties.get(LDAPSTAFFCONTEXT_PROPERTY, "DC=fed,DC=cclrc,DC=ac,DC=uk");
+
 	private HostnameResolver resolver = new InetAddressHostnameResolver();
 
 	public void setResolver(HostnameResolver resolver) {
 		this.resolver = resolver;
+	}
+
+	public InitialLdapContext getContext(String ldapURL) throws NamingException {
+		Hashtable<String, String> env = new Hashtable<String, String>();
+
+		env.put(Context.INITIAL_CONTEXT_FACTORY, ldapContext);
+		env.put(Context.SECURITY_AUTHENTICATION, "none");
+		env.put(Context.PROVIDER_URL, ldapURL);
+
+		return new InitialLdapContext(env, null);
+	}
+
+	public NamingEnumeration<SearchResult> searchLdapForUser(String fedId, String... requiredAtts) {
+
+		final List<String> urls = getUrlsToTry();
+		logger.debug("LDAP URLs: " + urls);
+
+		if (urls.isEmpty()) {
+			logger.error("No LDAP servers defined");
+			return null;
+		}
+
+		Exception lastException = null;
+
+		for (String url : urls) {
+			try {
+				return searchOneLdapServerForUser(url, fedId, requiredAtts);
+			} catch (Exception e) {
+				// try the next server
+				lastException = e;
+				logger.info("Unable to use LDAP server with URL '{}' - will try next server", url, e);
+			}
+		}
+
+		logger.error("Unable to connect to any LDAP server", lastException);
+		return null;
+	}
+
+	private NamingEnumeration<SearchResult> searchOneLdapServerForUser(String url, String fedId, String... returnedAtts) throws NamingException {
+
+		InitialLdapContext ctx = null;
+		try {
+			if( fedId == null || fedId.isEmpty())
+				return null;
+			// Set up criteria on which to search
+			// e.g. (&(objectClass=groupOfUniqueNames)(uniqueMember=uid=ifx999,ou=People,dc=esrf,dc=fr))
+			String filter = "(&(objectClass=user)(cn=" + fedId + "))";
+
+			// Set up search constraints
+			SearchControls cons = new SearchControls();
+			cons.setSearchScope(SearchControls.SUBTREE_SCOPE);
+			cons.setReturningAttributes(returnedAtts);
+
+			// Search
+			ctx = getContext(url);
+			return ctx.search(staffContext, filter, cons);
+
+		} finally {
+			if (ctx != null) {
+				try {
+					ctx.close();
+				} catch (NamingException e) {
+				}
+			}
+		}
+
 	}
 
 	/**
