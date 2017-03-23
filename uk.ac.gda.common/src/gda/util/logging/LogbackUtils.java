@@ -270,9 +270,36 @@ public class LogbackUtils {
 			throw new RuntimeException(msg, e);
 		}
 
-		context.putProperty(SOURCE_PROPERTY_NAME, processName);
+		addSourcePropertyAndListener(context, processName);
 
 		setEventDelayToZeroInAllSocketAppenders(context);
+	}
+
+	public static void addSourcePropertyAndListener(LoggerContext context, final String processName) {
+
+		// Add a listener that will restore the source property when the context is reset
+		context.addListener(new LoggerContextAdapter() {
+
+			@Override
+			public boolean isResetResistant() {
+				// Must return true so that this listener isn't removed from the context
+				// when the context is reset (otherwise the property will only get added
+				// to the context once).
+				return true;
+			}
+
+			@Override
+			public void onReset(LoggerContext context) {
+				addSourcePropertyToContext(context, processName);
+			}
+		});
+
+		// Set the property initially
+		addSourcePropertyToContext(context, processName);
+	}
+
+	private static void addSourcePropertyToContext(LoggerContext context, String processName) {
+		context.putProperty(SOURCE_PROPERTY_NAME, processName);
 	}
 
 	public static void setEventDelayToZeroInAllSocketAppenders(LoggerContext context) {
