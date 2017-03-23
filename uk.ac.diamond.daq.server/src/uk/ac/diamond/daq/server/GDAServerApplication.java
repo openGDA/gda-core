@@ -5,6 +5,8 @@ import gda.util.ObjectServer;
 import gda.util.SpringObjectServer;
 import gda.util.Version;
 
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -43,10 +45,13 @@ public class GDAServerApplication implements IApplication {
 	 */
 	public Object start(IApplicationContext context) throws Exception
 	{
+		// Log some info for debugging - this only goes to stdout as logging is not setup yet
+		logger.info("Starting GDA server application {}", Version.getRelease());
+		logger.info("Java version: {}", System.getProperty("java.version"));
+		logger.info("JVM arguments: {}", ManagementFactory.getRuntimeMXBean().getInputArguments());
+
 		ApplicationEnvironment.initialize();
 		configurationService.loadConfiguration();
-
-		logger.info("Starting GDA server application {}", Version.getRelease());
 
 		try {
 			try {
