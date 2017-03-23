@@ -139,6 +139,9 @@ public class Finder {
 				}
 			}
 		}
+		if (findable == null) {
+			logger.warn("Could not find \"" + name + "\"");
+		}
 		return findable;
 	}
 

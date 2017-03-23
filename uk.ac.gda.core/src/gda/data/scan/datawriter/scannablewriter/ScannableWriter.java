@@ -18,14 +18,14 @@
 
 package gda.data.scan.datawriter.scannablewriter;
 
-import gda.data.scan.datawriter.SelfCreatingLink;
-import gda.device.Scannable;
-
 import java.util.Collection;
 
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusFile;
+
+import gda.data.scan.datawriter.SelfCreatingLink;
+import gda.device.Scannable;
 
 /**
  * This interface is used by the NexusDataWriterMetadataTree to place the "position" of a scannable in the correct place
@@ -53,9 +53,11 @@ public interface ScannableWriter {
 	 *            the scannable data to write (do NOT call s.getPosition() to get it!)
 	 * @param dim
 	 *            number of dimensions in the scan (or {1} for metadata only)
+	 * @param primary
+	 *            Is this scannable primary, will add primary=1 attribute to the scannables dataset
 	 */
 	public Collection<? extends SelfCreatingLink> makeScannable(NexusFile file, GroupNode group, Scannable s, Object position,
-			int[] dim) throws NexusException;
+			int[] dim, boolean primary) throws NexusException;
 
 	/**
 	 * @param file
