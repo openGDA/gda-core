@@ -25,9 +25,7 @@ Import-Package: net.sf.cglib.core,
  org.python.core,
  org.slf4j;version="[1.7.2,2.0.0)",
  org.springframework.beans.factory;version="4.0.6.RELEASE"
-Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework, 
- uk.ac.gda.api,
- uk.ac.gda.core
+Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Export-Package: uk.ac.gda.devices.vgscienta;
   uses:="gda.device.detector,
    gda.device,
