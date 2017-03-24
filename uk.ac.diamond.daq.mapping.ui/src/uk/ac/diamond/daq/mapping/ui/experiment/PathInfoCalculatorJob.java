@@ -25,12 +25,17 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.analysis.api.roi.IRectangularROI;
+import org.eclipse.dawnsci.analysis.dataset.roi.LinearROI;
 import org.eclipse.e4.core.services.events.IEventBroker;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.BoundingBox;
+import org.eclipse.scanning.api.points.models.BoundingLine;
 import org.eclipse.scanning.api.points.models.IBoundingBoxModel;
+import org.eclipse.scanning.api.points.models.IBoundingLineModel;
+import org.eclipse.scanning.api.points.models.IMapPathModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
@@ -68,28 +73,47 @@ class PathInfoCalculatorJob extends Job {
 		String xAxisName = "x";
 		String yAxisName = "y";
 
-		if (scanPathModel instanceof IBoundingBoxModel) {
-			IBoundingBoxModel boxModel = (IBoundingBoxModel) scanPathModel;
-			xAxisName = boxModel.getFastAxisName();
-			yAxisName = boxModel.getSlowAxisName();
+		if (scanPathModel instanceof IMapPathModel) {
+			IMapPathModel mapPathModel = (IMapPathModel) scanPathModel;
+			xAxisName = mapPathModel.getFastAxisName();
+			yAxisName = mapPathModel.getSlowAxisName();
 
-			if (scanRegion!=null && scanRegion.toROI() != null) {
-				// We set the roi to the bounds of the first region.
-				// TODO Is this correct?
-				IRectangularROI roi = scanRegion.toROI().getBounds();
-				if (roi!=null) {
-				    BoundingBox box = boxModel.getBoundingBox();
-				    if (box==null) {
-				    	box = new BoundingBox();
-				    	boxModel.setBoundingBox(box);
-				    }
-					box.setFastAxisStart(roi.getPointX());
-					box.setSlowAxisStart(roi.getPointY());
-					box.setFastAxisLength(roi.getLength(0));
-					box.setSlowAxisLength(roi.getLength(1));
+			if (scanRegion != null && scanRegion.toROI() != null) {
+				if (scanPathModel instanceof IBoundingBoxModel) {
+					IBoundingBoxModel boxModel = (IBoundingBoxModel) scanPathModel;
+					// We set the roi to the bounds of the first region.
+					// TODO Is this correct?
+					IRectangularROI roi = scanRegion.toROI().getBounds();
+					if (roi != null) {
+						BoundingBox box = boxModel.getBoundingBox();
+						if (box == null) {
+							box = new BoundingBox();
+							boxModel.setBoundingBox(box);
+						}
+						box.setFastAxisStart(roi.getPointX());
+						box.setSlowAxisStart(roi.getPointY());
+						box.setFastAxisLength(roi.getLength(0));
+						box.setSlowAxisLength(roi.getLength(1));
+					}
+				} else if (scanPathModel instanceof IBoundingLineModel) {
+					IBoundingLineModel lineModel = (IBoundingLineModel) scanPathModel;
+					IROI roi = scanRegion.toROI();
+					if (roi instanceof LinearROI) {
+						LinearROI linearROI = (LinearROI) roi;
+						BoundingLine line = lineModel.getBoundingLine();
+						if (line == null) {
+							line = new BoundingLine();
+							lineModel.setBoundingLine(line);
+						}
+						line.setxStart(linearROI.getPointX());
+						line.setyStart(linearROI.getPointY());
+						line.setAngle(linearROI.getAngle());
+						line.setLength(linearROI.getLength());
+					}
 				}
 			}
 		}
+
 		try {
 			final Iterable<IPosition> pointIterable = pointGeneratorFactory.createGenerator(scanPathModel, scanRegion.toROI());
 			double lastX = Double.NaN;

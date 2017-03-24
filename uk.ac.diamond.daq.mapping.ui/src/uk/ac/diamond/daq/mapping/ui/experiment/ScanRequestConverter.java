@@ -43,7 +43,7 @@ import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.MapPosition;
 import org.eclipse.scanning.api.points.models.CompoundModel;
-import org.eclipse.scanning.api.points.models.IBoundingBoxModel;
+import org.eclipse.scanning.api.points.models.IMapPathModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.points.models.ScanRegion;
 import org.eclipse.scanning.api.scan.models.ScanMetadata;
@@ -117,8 +117,8 @@ public class ScanRequestConverter {
 		final IMappingScanRegion scanRegion = mappingBean.getScanDefinition().getMappingScanRegion();
 		final IScanPathModel scanPath = scanRegion.getScanPath();
 
-		if (!(scanPath instanceof IBoundingBoxModel)) {
-			final String message = "Could not set fast and slow axis. The scan path is not an instance of IBoundingBoxModel.";
+		if (!(scanPath instanceof IMapPathModel)) {
+			final String message = "Could not set fast and slow axis. The scan path is not an instance of IMapPathModel.";
 			logger.error(message);
 			throw new IllegalArgumentException(message);
 		}
@@ -129,12 +129,12 @@ public class ScanRequestConverter {
 			fastAxis = mappingStageInfo.getActiveFastScanAxis();
 			slowAxis = mappingStageInfo.getActiveSlowScanAxis();
 			// Change the axis on the scanPathModel
-			IBoundingBoxModel boxModel = (IBoundingBoxModel) scanPath;
+			IMapPathModel boxModel = (IMapPathModel) scanPath;
 			boxModel.setFastAxisName(fastAxis);
 			boxModel.setSlowAxisName(slowAxis);
 		} else {
 			logger.warn("No mapping axis manager is set - the scan request will use default axis names!");
-			IBoundingBoxModel boxModel = (IBoundingBoxModel) scanPath;
+			IMapPathModel boxModel = (IMapPathModel) scanPath;
 			fastAxis = boxModel.getFastAxisName();
 			slowAxis = boxModel.getSlowAxisName();
 		}
