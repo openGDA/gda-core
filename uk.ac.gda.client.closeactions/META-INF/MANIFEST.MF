@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: GDA Client Close Actions
 Bundle-SymbolicName: uk.ac.gda.client.closeactions
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 8.62.0.qualifier
 Bundle-Vendor: Diamond Light Source
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: org.eclipse.equinox.common,
