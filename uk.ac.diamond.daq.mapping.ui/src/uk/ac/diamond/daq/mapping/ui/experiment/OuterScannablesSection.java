@@ -100,6 +100,16 @@ class OuterScannablesSection extends AbstractMappingSection {
 		}
 	}
 
+	/**
+	 * Converter for converting a string to a path model. The string specifies the path of the
+	 * outer scannable. It can either be:
+	 * <ul>
+	 *   <li>A comma separated list of points, i.e. pos1,pos2,pos3,pos4,...</li>
+	 *   <li>One or more step ranges separated by spaces, i.e. start stop step
+	 * </ul>
+	 * <p>If the string contains a comma, it is interpreted a sequence of points, otherwise
+	 * as one or more ranges.
+	 */
 	private static final class StringToScanPathConverter extends Converter {
 		private final String scannableName;
 
@@ -110,32 +120,42 @@ class OuterScannablesSection extends AbstractMappingSection {
 
 		@Override
 		public Object convert(Object fromObject) {
+			final String text = (String) fromObject;
+			if (text.isEmpty()) return null;
 			try {
-				String text = (String) fromObject;
-				String[] startStopStep = text.split(" ");
-				if (startStopStep.length == 3) {
-					StepModel stepModel = new StepModel();
-					stepModel.setName(scannableName);
-					stepModel.setStart(Double.parseDouble(startStopStep[0]));
-					stepModel.setStop(Double.parseDouble(startStopStep[1]));
-					stepModel.setStep(Double.parseDouble(startStopStep[2]));
-					return stepModel;
+				if (text.contains(",")) {
+					return convertStringToArrayModel(text);
 				} else {
-					// TODO: array models commented out until implemented in jython
-					return null;
-//					String[] strings = text.split(",");
-//					double[] positions = new double[strings.length];
-//					for (int index = 0; index < strings.length; index++) {
-//						positions[index] = Double.parseDouble(strings[index]);
-//					}
-//					ArrayModel arrayModel = new ArrayModel();
-//					arrayModel.setName(scannableName);
-//					arrayModel.setPositions(positions);
-//					return arrayModel;
+					return convertStringToStepModel(text);
 				}
-			} catch  (NumberFormatException e) {
+			} catch (Exception e) {
 				return null;
 			}
+		}
+
+		private Object convertStringToStepModel(String text) {
+			String[] startStopStep= text.split(" ");
+			if (startStopStep.length == 3) {
+				StepModel stepModel = new StepModel();
+				stepModel.setName(scannableName);
+				stepModel.setStart(Double.parseDouble(startStopStep[0]));
+				stepModel.setStop(Double.parseDouble(startStopStep[1]));
+				stepModel.setStep(Double.parseDouble(startStopStep[2]));
+				return stepModel;
+			}
+			return null;
+		}
+
+		private Object convertStringToArrayModel(String text) {
+			String[] strings = text.split(",");
+			double[] positions = new double[strings.length];
+			for (int index = 0; index < strings.length; index++) {
+				positions[index] = Double.parseDouble(strings[index]);
+			}
+			ArrayModel arrayModel = new ArrayModel();
+			arrayModel.setName(scannableName);
+			arrayModel.setPositions(positions);
+			return arrayModel;
 		}
 	}
 
@@ -172,8 +192,7 @@ class OuterScannablesSection extends AbstractMappingSection {
 			// FIXME make a proper widget for this?
 			Text axisText = new Text(otherScanAxesComposite, SWT.BORDER);
 			axisText.setToolTipText("<start stop step>");
-			// TODO: array models commented out until implemented in jython
-//			axisText.setToolTipText("<start stop step> or <pos1,pos2,pos3,pos4...>");
+			axisText.setToolTipText("<start stop step> or <pos1,pos2,pos3,pos4...>");
 			GridDataFactory.fillDefaults().grab(true, false).applyTo(axisText);
 			IObservableValue axisTextValue = WidgetProperties.text(SWT.Modify).observe(axisText);
 			bindScanPathModelToTextField(scannableAxisParameters, axisTextValue);
