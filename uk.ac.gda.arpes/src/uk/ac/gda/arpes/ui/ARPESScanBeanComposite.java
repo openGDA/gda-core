@@ -20,6 +20,7 @@ package uk.ac.gda.arpes.ui;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -56,6 +57,8 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.swtdesigner.SWTResourceManager;
 
 import gda.device.Scannable;
 import gda.factory.Finder;
@@ -114,8 +117,15 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		//Switch off undoing as it doesn't work when box values are programmatically updated
 		editor.setUndoStackActive(false);
 
+		// Should be local as its already imported by Spring
+		final List<IVGScientaAnalyserRMI> analyserRmiList = Finder.getInstance().listLocalFindablesOfType(IVGScientaAnalyserRMI.class);
+		if (analyserRmiList.isEmpty()) {
+			throw new RuntimeException("No analyser was found over RMI");
+		}
+		// TODO Might actually want to handle the case where more than on
+		analyser = analyserRmiList.get(0);
+
 		// Get the energy range from the analyser this will now be local don't need to keep making calls over RMI
-		analyser = Finder.getInstance().find("analyserRmi");
 		energyRange = analyser.getEnergyRange();
 		// Find all the lens modes
 		lensModes = energyRange.getAllLensModes().toArray(new String[0]);
@@ -129,6 +139,8 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		sweptModeEnergyChannels = analyser.getSweptModeEnergyChannels();
 
 		setLayoutData(new GridData(SWT.LEFT, SWT.TOP, true, true));
+		setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
+		setBackgroundMode(SWT.INHERIT_FORCE);
 
 		// Make a 2 column grid layout
 		GridLayout gridLayout = new GridLayout(2, false);
@@ -244,6 +256,7 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 			}
 		};
 		sweptMode.addValueListener(this);
+		sweptMode.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 
 		// Estimated time
 		lblEstimatedTime = new Label(this, SWT.NONE);
