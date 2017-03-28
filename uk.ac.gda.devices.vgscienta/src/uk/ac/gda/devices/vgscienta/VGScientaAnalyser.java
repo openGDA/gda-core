@@ -53,7 +53,7 @@ import uk.ac.diamond.scisoft.analysis.roi.ROIProfile;
 
 @CorbaAdapterClass(DeviceAdapter.class)
 @CorbaImplClass(DeviceImpl.class)
-public class VGScientaAnalyser extends ADDetector implements MonitorListener, FlexibleFrameDetector, IObserver, IVGScientaAnalyserRMI {
+public class VGScientaAnalyser extends ADDetector implements MonitorListener, IObserver, IVGScientaAnalyserRMI {
 	private static final Logger logger = LoggerFactory.getLogger(VGScientaAnalyser.class);
 
 	protected boolean inScan = false;
@@ -495,17 +495,7 @@ public class VGScientaAnalyser extends ADDetector implements MonitorListener, Fl
 	}
 
 	@Override
-	public int getCurrentFrame() {
-		return flex.getCurrentFrame();
-	}
-
-	@Override
-	public int getMaximumFrame() {
-		return flex.getMaxNumberOfFrames();
-	}
-
-	@Override
-	public void setMaximumFrame(int max) {
+	public void changeRequestedIterations(int max) {
 		flex.setMaxNumberOfFrames(max);
 	}
 

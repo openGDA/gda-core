@@ -18,11 +18,6 @@
 
 package uk.ac.gda.arpes.ui.views;
 
-import gda.device.Device;
-import gda.device.MotorStatus;
-import gda.factory.Finder;
-import gda.observable.IObserver;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
@@ -40,16 +35,20 @@ import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.Device;
+import gda.device.MotorStatus;
+import gda.factory.Finder;
+import gda.observable.IObserver;
 import uk.ac.gda.arpes.widgets.ProgressBarWithText;
-import uk.ac.gda.devices.vgscienta.FlexibleFrameDetector;
 import uk.ac.gda.devices.vgscienta.FrameUpdate;
+import uk.ac.gda.devices.vgscienta.IVGScientaAnalyserRMI;
 import uk.ac.gda.devices.vgscienta.SweptProgress;
 
 public class AnalyserProgressView extends ViewPart implements IObserver {
 	private static final Logger logger = LoggerFactory.getLogger(AnalyserProgressView.class);
 
 	private Text csweep;
-	private FlexibleFrameDetector analyser;
+	private IVGScientaAnalyserRMI analyser;
 	private Device sweepUpdater;
 	private Spinner sweepSpinner;
 	private int scheduledIterations = -1;
@@ -60,9 +59,6 @@ public class AnalyserProgressView extends ViewPart implements IObserver {
 	private Color preColor = new Color(Display.getCurrent(), 250, 0, 0);
 	private Color postColor = new Color(Display.getCurrent(), 0, 250, 0);
 	private boolean running;
-
-	public AnalyserProgressView() {
-	}
 
 	@Override
 	public void createPartControl(Composite parent) {
@@ -115,7 +111,7 @@ public class AnalyserProgressView extends ViewPart implements IObserver {
 		});
 		sweepSpinner.setToolTipText("The total number of iterations required. Press enter to confim changes");
 
-		analyser = (FlexibleFrameDetector) Finder.getInstance().find("analyser");
+		analyser = Finder.getInstance().find("analyser");
 		if (analyser != null) {
 			analyser.addIObserver(this);
 		}
@@ -194,7 +190,7 @@ public class AnalyserProgressView extends ViewPart implements IObserver {
 	private void changeScheduledIterations(int newScheduledIterations) {
 		logger.debug("About to change scheduled iterations to: {}", newScheduledIterations);
 		try {
-			analyser.setMaximumFrame(newScheduledIterations);
+			analyser.changeRequestedIterations(newScheduledIterations);
 			logger.info("Changed scheduled iterations to: {}", newScheduledIterations);
 		} catch (IllegalArgumentException e) {
 			logger.error("Scheduled iteratons could not be set to {}", newScheduledIterations, e);

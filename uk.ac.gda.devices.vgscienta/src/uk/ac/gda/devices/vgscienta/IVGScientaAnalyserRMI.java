@@ -76,4 +76,11 @@ public interface IVGScientaAnalyserRMI extends Device {
 	 */
 	String getLensMode() throws Exception;
 
+	/**
+	 * This can be called to change the number of iterations scheduled during a scan.
+	 *
+	 * @param newScheduledIterations
+	 */
+	void changeRequestedIterations(int newScheduledIterations);
+
 }
