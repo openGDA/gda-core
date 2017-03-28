@@ -182,7 +182,7 @@ public class UserSelectedActionOnClose {
 			logger.debug("Retrieving local contact from ISPyB.");
 			result = new ISPyBLocalContacts(template).forCurrentVisit(visit);
 		} catch(Exception e) {
-			logger.error("There was an error connecting to ISPyB while retrieving local contact: ", e.toString());
+			logger.error("There was an error connecting to ISPyB while retrieving local contact", e);
 		}
 		return result;
 	}
