@@ -8,6 +8,7 @@ import uk.ac.gda.client.closeactions.contactinfo.LdapEmail;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -138,10 +139,19 @@ public class UserSelectedActionOnClose {
 		default:
 			break;
 		}
-
+		
+		logger.debug("eRs: {}", eRs);
+		List<String> viableEmailRecipients = new ArrayList<>();
+		for (String eR : eRs) {
+			if (eR != null && eR.trim().length() > 0) {
+				viableEmailRecipients.add(eR);
+			}
+		}
+		logger.debug("viableEmailRecipients: {}", viableEmailRecipients);
+		
 		//convert to String[] for Mime
-	    String[] recipients = new String[eRs.size()];
-	    eRs.toArray(recipients);
+		String[] recipients = new String[viableEmailRecipients.size()];
+		viableEmailRecipients.toArray(recipients);
 		return recipients;
 	}
 
