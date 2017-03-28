@@ -18,9 +18,6 @@
 
 package uk.ac.gda.remoting.client;
 
-import gda.factory.Findable;
-import gda.observable.IObservable;
-
 import org.aopalliance.intercept.MethodInterceptor;
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.beans.factory.BeanNameAware;
@@ -28,6 +25,9 @@ import org.springframework.beans.factory.FactoryBean;
 import org.springframework.remoting.rmi.RmiClientInterceptor;
 import org.springframework.remoting.rmi.RmiProxyFactoryBean;
 import org.springframework.util.ClassUtils;
+
+import gda.factory.Findable;
+import gda.observable.IObservable;
 
 /**
  * A Spring {@link FactoryBean} that can be used in place of Spring's standard {@link RmiProxyFactoryBean}. Uses our
@@ -102,7 +102,7 @@ public class GdaRmiProxyFactoryBean extends RmiClientInterceptor implements Bean
 			final Findable remoteFindable = (Findable) serviceProxy;
 			final String remoteObjectName = remoteFindable.getName();
 			if (!objectName.equals(remoteObjectName)) {
-				logger.warn(String.format("RMI proxy has name \"%s\" but remote object has name \"%s\"", objectName, remoteObjectName));
+				logger.error(String.format("RMI proxy has name \"%s\" but remote object has name \"%s\" - Events won't work and the server object will be renamed", objectName, remoteObjectName));
 			}
 		}
 	}
