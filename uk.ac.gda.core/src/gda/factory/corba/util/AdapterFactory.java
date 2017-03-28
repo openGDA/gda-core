@@ -19,13 +19,6 @@
 
 package gda.factory.corba.util;
 
-import gda.configuration.properties.LocalProperties;
-import gda.factory.Factory;
-import gda.factory.FactoryException;
-import gda.factory.Findable;
-import gda.factory.Finder;
-import gda.jython.accesscontrol.RbacUtils;
-
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,6 +28,13 @@ import java.util.Vector;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.configuration.properties.LocalProperties;
+import gda.factory.Factory;
+import gda.factory.FactoryException;
+import gda.factory.Findable;
+import gda.factory.Finder;
+import gda.jython.accesscontrol.RbacUtils;
 
 /**
  * Remote factory to resolve object references and create client side adapter interfaces
@@ -88,7 +88,7 @@ public class AdapterFactory implements Factory {
 		Finder finder = Finder.getInstance();
 		synchronized(store){
 			if ((findable = store.get(fullName)) == null) {
-				if ((findable = finder.findLocal(objectName)) == null) {
+				if ((findable = finder.findLocalNoWarn(objectName)) == null) {
 					try {
 						findable = createRbacWrappedAdapter(netService, fullName, objectName);
 						store.put(fullName, findable);

@@ -38,6 +38,8 @@ import org.eclipse.january.dataset.SliceND;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.data.scan.datawriter.SelfCreatingLink;
+
 public class NumberComponentWriter extends DefaultComponentWriter {
 
 	/** Logger */
@@ -58,7 +60,7 @@ public class NumberComponentWriter extends DefaultComponentWriter {
 	@Override
 	public Collection<SelfCreatingLink> makeComponent(final NexusFile file, GroupNode group, final int[] dim,
 			final String path, final String scannableName, final String componentName, final Object pos,
-			final String unit) throws NexusException {
+			final String unit, final boolean primary) throws NexusException {
 
 		DataNode data;
 
@@ -107,6 +109,10 @@ public class NumberComponentWriter extends DefaultComponentWriter {
 
 		if (StringUtils.isNotBlank(unit)) {
 			NexusUtils.writeStringAttribute(file, data, "units", unit);
+		}
+
+		if (primary) {
+			NexusUtils.writeAttribute(file, data, "primary", 1);
 		}
 
 		addCustomAttributes(file, data, scannableName, componentName);

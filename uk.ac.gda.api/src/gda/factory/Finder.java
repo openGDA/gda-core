@@ -81,9 +81,10 @@ public class Finder {
 	 * Return a named object from any of the factories known to the finder.
 	 *
 	 * @param <T>
+	 *            class of Object being returned
 	 * @param name
 	 *            object to find.
-	 * @return object of type {@link gda.factory.Findable}.
+	 * @return the findable object or null if it cannot be found
 	 */
 	public <T extends Findable> T find(String name) {
 		return findObjectByName(name, false, true);
@@ -91,13 +92,14 @@ public class Finder {
 
 	/**
 	 * Return a named object from any of the factories known to the finder.
-	 * Do not warn if there is a FactoryException
+	 * <p>
+	 * Do <b>not</b> log warning if there is a FactoryException or nothing can be found.
 	 *
 	 * @param <T>
 	 *            class of Object being returned
 	 * @param name
 	 *            object to find.
-	 * @return object of type {@link gda.factory.Findable}.
+	 * @return the findable object or null if it cannot be found
 	 */
 	public <T extends Findable> T findNoWarn(String name) {
 		return findObjectByName(name, false, false);
@@ -107,21 +109,40 @@ public class Finder {
 	 * Find an instance of a locally defined object
 	 *
 	 * @param <T>
+	 *            class of Object being returned
 	 * @param name
 	 *            the name of the instance to find
-	 * @return the findable object
+	 * @return the findable object or null if it cannot be found
 	 */
 	public <T extends Findable> T findLocal(String name) {
 		return findObjectByName(name, true, true);
 	}
 
 	/**
+	 * Find an instance of a locally defined object
+	 * <p>
+	 * Do <b>not</b> log warning if there is a FactoryException or nothing can be found.
+	 *
+	 * @param <T>
+	 *            class of Object being returned
+	 * @param name
+	 *            the name of the instance to find
+	 * @return the findable object or null if it cannot be found
+	 */
+	public <T extends Findable> T findLocalNoWarn(String name) {
+		return findObjectByName(name, true, false);
+	}
+
+	/**
 	 * Find an instance of an object given its name
 	 *
-	 * @param name The name of the object to find
-	 * @param local True if only local objects are to be found
-	 * @param warn True to log a warning message in the case of a FactoryException
-	 * @return the findable object
+	 * @param name
+	 *            The name of the object to find
+	 * @param local
+	 *            True if only local objects are to be found
+	 * @param warn
+	 *            True to log a warning message in the case of a FactoryException
+	 * @return the findable object or null if it cannot be found
 	 */
 	private <T extends Findable> T findObjectByName(String name, boolean local, boolean warn) {
 		T findable = null;
@@ -135,9 +156,12 @@ public class Finder {
 				}
 			} catch (FactoryException e) {
 				if (warn) {
-					logger.warn("FactoryException locally looking for "+name,e);
+					logger.warn("FactoryException locally looking for {}", name, e);
 				}
 			}
+		}
+		if (findable == null && warn) {
+			logger.warn("Could not find \"{}\"", name);
 		}
 		return findable;
 	}

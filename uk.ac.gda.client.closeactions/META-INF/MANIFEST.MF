@@ -1,0 +1,22 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: GDA Client Close Actions
+Bundle-SymbolicName: uk.ac.gda.client.closeactions
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: Diamond Light Source
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: org.eclipse.equinox.common,
+ org.eclipse.core.jobs,
+ uk.ac.diamond.org.springframework,
+ uk.ac.gda.common,
+ org.mariadb.jdbc,
+ uk.ac.gda.api,
+ uk.ac.gda.core,
+ org.eclipse.swt,
+ org.eclipse.jface,
+  ch.qos.logback.classic;bundle-version="[1.0.7,2.0.0)",
+ ch.qos.logback.core;bundle-version="[1.0.7,2.0.0)"
+Export-Package: uk.ac.gda.client.closeactions,
+ uk.ac.gda.client.closeactions.contactinfo
+Import-Package: javax.mail.internet,
+ org.slf4j;version="[1.7.2,2.0.0)"

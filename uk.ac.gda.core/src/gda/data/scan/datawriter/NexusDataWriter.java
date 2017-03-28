@@ -1000,16 +1000,19 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 			GroupNode g = file.getGroup(NexusUtils.createAugmentPath(entryName, NexusExtractor.NXEntryClassName), false);
 
 			Set<Scannable> wehavewritten = new HashSet<Scannable>();
+			boolean isFirstScannable = true;
 			for (Scannable scannable : scannablesAndMonitors) {
 				String scannableName = scannable.getName();
 				if (weKnowTheLocationFor(scannableName)) {
 					wehavewritten.add(scannable);
 					ScannableWriter writer = locationmap.get(scannableName);
 					Collection<String> prerequisites = writer.getPrerequisiteScannableNames();
-					if (prerequisites != null)
+					if (prerequisites != null) {
 						metadatascannablestowrite.addAll(prerequisites);
-					scannableID.addAll(writer.makeScannable(file, g, scannable, getSDPositionFor(scannableName), generateDataDim(false, scanDimensions, null)));
+					}
+					scannableID.addAll(writer.makeScannable(file, g, scannable, getSDPositionFor(scannableName), generateDataDim(false, scanDimensions, null), isFirstScannable));
 				}
+				isFirstScannable = false; // The first scannable was not in the locationMap so allow the primary tag to be handled by makeScannablesAndMonitors
 			}
 
 			Set<String> aux = new HashSet<String>();
@@ -1740,7 +1743,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 				logger.debug("Getting scannable (" + scannable.getName() + ") data for writting to NeXus file.");
 				Object position = scannable.getPosition();
 				if (weKnowTheLocationFor(scannableName)) {
-					locationmap.get(scannableName).makeScannable(file, group, scannable, position, new int[] {1});
+					locationmap.get(scannableName).makeScannable(file, group, scannable, position, new int[] {1}, false);
 				} else {
 					makeMetadataScannableFallback(group, scannable, position);
 					// put in default location (NXcollection with name metadata)
