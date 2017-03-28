@@ -147,7 +147,7 @@ public class UserSelectedActionOnClose {
 
 	private List<String> getFeedbackGroup() {
 		List<String> eRs = new ArrayList<>();
-		String recipientsProperty = LocalProperties.get("dag-group@diamond.ac.uk");
+		String recipientsProperty = LocalProperties.get("gda.feedback.recipients","dag-group@diamond.ac.uk");
 		String[] recipients = recipientsProperty.split(" ");
 		for (String recipient : recipients) {
 			recipient.trim();
