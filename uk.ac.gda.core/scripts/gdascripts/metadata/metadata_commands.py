@@ -30,14 +30,14 @@ def meta_ll():
     Command to list the items to be put into the scan metadata. The value of the items will also be listed
     """
     metashop=Finder.getInstance().find("metashop")
-    return metashop.list(True)
+    print metashop.list(True)
 
 def meta_ls():
     """
     Command to list the items to be put into the scan metadata. 
     """
     metashop=Finder.getInstance().find("metashop")
-    return metashop.list(False)
+    print metashop.list(False)
 
 def meta_rm(farg, *vargs):
     """
