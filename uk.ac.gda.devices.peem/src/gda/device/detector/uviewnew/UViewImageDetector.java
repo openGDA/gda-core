@@ -94,8 +94,7 @@ public class UViewImageDetector extends DetectorBase implements UViewNew {
 			this.collectionTime = uic.getExposureTime();
 			this.prepare();
 		} catch (DeviceException e) {
-			// TODO Auto-generated catch block
-			logger.error("TODO put description of error here", e);
+			logger.error("Cannot configure connection to UView.", e);
 		}
 	}
 
