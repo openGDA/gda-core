@@ -31,6 +31,8 @@ import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.ScanningException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import gda.data.scan.datawriter.NexusDataWriter;
 import gda.data.scan.datawriter.scannablewriter.ScannableWriter;
@@ -95,6 +97,7 @@ public class ScannableDeviceConnectorService implements IScannableDeviceService 
 		}
 	}
 
+	private static final Logger logger = LoggerFactory.getLogger(ScannableDeviceConnectorService.class);
 
 	private static IScannableDeviceService instance;
 	public static IScannableDeviceService getInstance() {
@@ -207,6 +210,11 @@ public class ScannableDeviceConnectorService implements IScannableDeviceService 
 		}
 
 		return Collections.emptySet();
+	}
+
+	@Override
+	public void handleDeviceError(String name, Exception e) {
+		logger.warn("Failure getting device information for " + name, e);
 	}
 
 }
