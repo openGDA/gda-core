@@ -21,6 +21,7 @@ package gda.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.Optional;
@@ -406,6 +407,11 @@ public abstract class ObjectServer implements Runnable {
 		LoggingUtils.setLogDirectory();
 		LogbackUtils.configureLoggingForServerProcess("objectserver");
 		ObjectServer server = null;
+
+		// Log some basic information about the server we are about to start
+		logger.info("Starting GDA Server {} for beamline {}", Version.getRelease(), LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME));
+		logger.info("Java version: {}", System.getProperty("java.version"));
+		logger.debug("JVM arguments: {}", ManagementFactory.getRuntimeMXBean().getInputArguments());
 
 		// Set default options...
 		commandLineXmlFile = getDefaultServerSideXmlFile();
