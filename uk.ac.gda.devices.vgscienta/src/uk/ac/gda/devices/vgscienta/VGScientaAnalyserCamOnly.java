@@ -605,4 +605,9 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 	public int getSweptModeEnergyChannels() {
 		return sweptModeRegion[2];
 	}
+
+	@Override
+	public void changeRequestedIterations(int max) {
+		throw new UnsupportedOperationException("Can not chnage iterations on this implementation");
+	}
 }
