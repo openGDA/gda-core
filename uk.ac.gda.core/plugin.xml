@@ -456,11 +456,11 @@
    <extension
          point="uk.ac.diamond.daq.jython.api.visiblePackages">
       <bundle
-            name="uk.ac.gda.diamond.scisoft.python">
+            name="uk.ac.diamond.scisoft.python">
       </bundle>
          <packages>
             <package
-               name="uk.ac.gda.diamond.scisoft.python">
+               name="uk.ac.diamond.scisoft.python">
             </package>
       </packages>
    </extension>
