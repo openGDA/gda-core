@@ -176,16 +176,20 @@ public class UserSelectedActionOnClose {
 	}
 
 	private String getLocalContact(String visit){
-		String result = null;
-		try {
-			logger.debug("Connecting to ISPyB.");
-			JdbcTemplate template = ISPyBLocalContacts.connectToDatabase();
-			logger.debug("Retrieving local contact from ISPyB.");
-			result = new ISPyBLocalContacts(template).forCurrentVisit(visit);
-		} catch(Exception e) {
-			logger.error("There was an error connecting to ISPyB while retrieving local contact", e);
+		//filter out cm and nr
+		if (!(visit.startsWith("cm") || visit.startsWith("nr"))) {
+			String result = null;
+			try {
+				logger.debug("Connecting to ISPyB.");
+				JdbcTemplate template = ISPyBLocalContacts.connectToDatabase();
+				logger.debug("Retrieving local contact from ISPyB.");
+				result = new ISPyBLocalContacts(template).forCurrentVisit(visit);
+			} catch(Exception e) {
+				logger.error("There was an error connecting to ISPyB while retrieving local contact", e);
+			}
+			return result;
 		}
-		return result;
+		return "";
 	}
 
 	private String getNextLocalContact(){
