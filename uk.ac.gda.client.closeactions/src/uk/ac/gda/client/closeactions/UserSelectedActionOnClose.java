@@ -76,7 +76,8 @@ public class UserSelectedActionOnClose {
 					try{
 						final String[] recipients = getEmailRecipients();
 						final String beamlineName = LocalProperties.get("gda.beamline.name","Beamline Unknown").toUpperCase();
-						final String from = String.format("%s <%s>", LocalProperties.RCP_APP_VISIT, beamlineName);
+						final String visit = LocalProperties.get(LocalProperties.RCP_APP_VISIT);
+						final String from = String.format("%s <%s>", visit, beamlineName);
 						final String mailSubject = subject + " " + beamlineName;
 	
 						final String smtpHost = LocalProperties.get("gda.feedback.smtp.host","localhost");
@@ -93,7 +94,7 @@ public class UserSelectedActionOnClose {
 						if (text != "") {
 							helper.setText(text);
 						} else {
-							helper.setText("The current user (visit: " + LocalProperties.RCP_APP_VISIT + ") on " + beamlineName + " is finished.");
+							helper.setText("The current user (visit: " + visit + ") on " + beamlineName + " is finished.");
 						}
 						{//required to workaround class loader issue with "no object DCH..." error
 							MailcapCommandMap mc = (MailcapCommandMap) CommandMap.getDefaultCommandMap();
