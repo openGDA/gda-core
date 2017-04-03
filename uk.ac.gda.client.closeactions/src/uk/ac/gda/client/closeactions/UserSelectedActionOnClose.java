@@ -118,7 +118,6 @@ public class UserSelectedActionOnClose {
 		//using List because number of recipients is variable
 		List<String> eRs = new ArrayList<>();
 
-		eRs.add("victoria.lawson@diamond.ac.uk");
 		switch (optionChoice)
 		{
 		case RESTART_CLIENT:
@@ -158,13 +157,18 @@ public class UserSelectedActionOnClose {
 
 	private List<String> getFeedbackGroup() {
 		List<String> eRs = new ArrayList<>();
-		String recipientsProperty = LocalProperties.get("gda.feedback.recipients","dag-group@diamond.ac.uk");
-		String[] recipients = recipientsProperty.split(" ");
-		for (String recipient : recipients) {
-			recipient.trim();
-			eRs.add(recipient);
-		}
+		addRecipients(eRs, LocalProperties.get("gda.feedback.recipients",""));
+		addRecipients(eRs, LocalProperties.get("gda.developers", ""));
 		return eRs;
+	}
+
+	private void addRecipients(List<String> eRs, String recipientsString) {
+		if (!(recipientsString.equals(""))) {
+			String[] recipients = recipientsString.split(" ");
+			for (String recipient : recipients) {
+				eRs.add(recipient.trim());
+			}
+		}
 	}
 
 	private String getEmailAddress(String fedID){
