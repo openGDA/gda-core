@@ -18,10 +18,6 @@
 
 package uk.ac.gda.server.ncd.scannable;
 
-import gda.data.scan.datawriter.SelfCreatingLink;
-import gda.data.scan.datawriter.scannablewriter.NumberComponentWriter;
-import gda.data.scan.datawriter.scannablewriter.SingleScannableWriter;
-
 import java.util.Collection;
 
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
@@ -29,6 +25,10 @@ import org.eclipse.dawnsci.analysis.api.tree.Node;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusUtils;
+
+import gda.data.scan.datawriter.SelfCreatingLink;
+import gda.data.scan.datawriter.scannablewriter.NumberComponentWriter;
+import gda.data.scan.datawriter.scannablewriter.SingleScannableWriter;
 
 public class EnergyScannableWriter extends SingleScannableWriter {
 
@@ -65,10 +65,10 @@ public class EnergyScannableWriter extends SingleScannableWriter {
 		@Override
 		public Collection<SelfCreatingLink> makeComponent(final NexusFile file, final GroupNode group, final int[] dim,
 				final String path, final String scannableName, final String componentName, final Object pos,
-				final String unit) throws NexusException {
+				final String unit, final boolean primary) throws NexusException {
 			uncertaintiesPath = path + "_error";
-			super.makeComponent(file, group, dim, uncertaintiesPath, scannableName, null, pos, unit);
-			return trueEnergyWriter.makeComponent(file, group, dim, path, scannableName, componentName, pos, unit);
+			super.makeComponent(file, group, dim, uncertaintiesPath, scannableName, null, pos, unit, primary);
+			return trueEnergyWriter.makeComponent(file, group, dim, path, scannableName, componentName, pos, unit, primary);
 		}
 
 		@Override
