@@ -61,6 +61,9 @@ public class CheckAccessBeforeMethod implements MethodInterceptor {
 		// user info is stored in metadata entries on user log into GDA.
 		final Metadata metadata = GDAMetadataProvider.getInstance();
 		final String userid = metadata.getMetadataValue("federalid");
+		// at GDA server start up time, there is no user ID available
+		if (userid == null || userid.isEmpty())
+			return arg0.proceed();
 		logger.debug("Check if user {} has access right to {}", userid, arg0.getThis());
 		if (accessControl != null && accessControl.getStatus() == AccessControl.Status.ENABLED) {
 			logger.debug("User {} has access right to {}", userid, arg0.getThis());
