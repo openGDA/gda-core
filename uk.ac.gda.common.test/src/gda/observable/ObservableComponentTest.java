@@ -19,10 +19,12 @@
 
 package gda.observable;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 /**
  * Tests {@link ObservableComponent}.
@@ -41,19 +43,13 @@ public class ObservableComponentTest {
 				throw new RuntimeException("should be swallowed");
 			}
 		});
+
 		// notifyIObservers previously caused a NullPointerException
 		// when it logged an exception and theObserved was null by
 		// calling toString on theObserved
-		try {
-			oc.notifyIObservers(null, "\"theObserved is null\"");
-			assertTrue("toStringSubstitute should be null", true);
+		oc.notifyIObservers(null, "\"theObserved is null\"");
 
-			oc.notifyIObservers(new Integer(1), "theObserved is not null");
-			assertTrue("toStringSubstitute should be <Integer>", true);
-		}
-		catch (RuntimeException ex) {
-			fail("notifyIObservers should swallow exceptions");
-		}
+		oc.notifyIObservers(new Integer(1), "theObserved is not null");
 	}
 
 	/**
@@ -81,6 +77,47 @@ public class ObservableComponentTest {
 		for (TestObserver observer : observers) {
 			assertTrue("Observer '" + observer.getName() + "' didn't receive an update", observer.receivedUpdate());
 		}
+	}
+
+	@Rule
+	public ExpectedException thrown = ExpectedException.none();
+
+	@Test
+	public void testAddingNullObserverThrows() {
+		ObservableComponent oc = new ObservableComponent();
+
+		thrown.expect(IllegalArgumentException.class);
+		thrown.expectMessage("Can't add a null observer");
+		oc.addIObserver(null);
+	}
+
+	@Test
+	public void testRemovingNullObserverThrows() {
+		ObservableComponent oc = new ObservableComponent();
+
+		thrown.expect(IllegalArgumentException.class);
+		thrown.expectMessage("Can't delete a null observer");
+		oc.deleteIObserver(null);
+	}
+
+	@Test
+	public void testIsBeingObserved() {
+		ObservableComponent oc = new ObservableComponent();
+
+		// New shouldn't have any observers
+		assertFalse(oc.IsBeingObserved());
+
+		// Add an observer
+		oc.addIObserver(new TestObserver("test observer"));
+
+		// Should now be being observed
+		assertTrue(oc.IsBeingObserved());
+
+		// Remove all observers
+		oc.deleteIObservers();
+
+		// Now shouldn't be being observed again
+		assertFalse(oc.IsBeingObserved());
 	}
 
 	/**
