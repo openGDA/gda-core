@@ -37,6 +37,7 @@ import gda.device.corba.impl.DeviceImpl;
 import gda.device.detector.NXDetectorData;
 import gda.device.detector.addetector.ADDetector;
 import gda.device.detector.areadetector.v17.ADBase;
+import gda.device.detector.areadetector.v17.ImageMode;
 import gda.device.detector.areadetector.v17.NDProcess;
 import gda.device.detector.areadetector.v17.impl.ADBaseImpl;
 import gda.device.detector.nxdetector.roi.PlotServerROISelectionProvider;
@@ -213,10 +214,12 @@ public class VGScientaAnalyser extends ADDetector implements MonitorListener, IO
 		return controller.getEnergyChannels();
 	}
 
+	@Override
 	public double[] getEnergyAxis() throws Exception {
 		return controller.getEnergyAxis();
 	}
 
+	@Override
 	public double[] getAngleAxis() throws Exception {
 		return controller.getYAxis();
 	}
@@ -379,6 +382,7 @@ public class VGScientaAnalyser extends ADDetector implements MonitorListener, IO
 		}
 	}
 
+	@Override
 	public void setLensMode(String value) throws Exception {
 		if (inScan)
 			throw new DeviceException("change of lens mode prohibited during scan");
@@ -404,6 +408,7 @@ public class VGScientaAnalyser extends ADDetector implements MonitorListener, IO
 	public String getPsuMode() throws Exception {
 		return controller.getPsuMode();
 	}
+	@Override
 	public void setPassEnergy(Integer value) throws Exception {
 		if (inScan)
 			throw new DeviceException("change of pass energy prohibited during scan");
@@ -420,6 +425,7 @@ public class VGScientaAnalyser extends ADDetector implements MonitorListener, IO
 			getAdBase().startAcquiring();
 	}
 
+	@Override
 	public Integer getPassEnergy() throws Exception {
 			return controller.getPassEnergy();
 	}
@@ -432,10 +438,12 @@ public class VGScientaAnalyser extends ADDetector implements MonitorListener, IO
 		return controller.getStartEnergy();
 	}
 
+	@Override
 	public void setCentreEnergy(Double value) throws Exception {
 		controller.setCentreEnergy(value);
 	}
 
+	@Override
 	public Double getCentreEnergy() throws Exception {
 		return controller.getCentreEnergy();
 	}
@@ -456,6 +464,7 @@ public class VGScientaAnalyser extends ADDetector implements MonitorListener, IO
 		return controller.getEnergyStep();
 	}
 
+	@Override
 	public void zeroSupplies() throws Exception {
 		// zeroSupplies also cause the acquisition to stop
 		controller.zeroSupplies();
@@ -573,6 +582,19 @@ public class VGScientaAnalyser extends ADDetector implements MonitorListener, IO
 	@Override
 	public int getSweptModeEnergyChannels() {
 		return sweptModeRegion[2];
+	}
+
+	@Override
+	public void startContinuious() throws Exception {
+		logger.info("Starting continious acquisition");
+		// For continuous acquisition in alignment use fixed mode
+		setFixedMode(true);
+		// Change to continuous
+		getAdBase().setImageMode(ImageMode.CONTINUOUS);
+		// Change to 1 iteration
+		controller.setIterations(1);
+		// Start acquiring
+		getAdBase().startAcquiring();
 	}
 
 }

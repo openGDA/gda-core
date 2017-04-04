@@ -19,6 +19,7 @@
 package uk.ac.gda.devices.vgscienta;
 
 import gda.device.Device;
+import gda.device.DeviceException;
 
 /**
  * This is intended to be the interface for the clients to interact with the analyser over RMI.
@@ -77,10 +78,106 @@ public interface IVGScientaAnalyserRMI extends Device {
 	String getLensMode() throws Exception;
 
 	/**
+	 * Sets the lens mode
+	 *
+	 * @param lensMode The lens mode to set
+	 * @throws Exception If there is a problem with the EPICS communication
+	 */
+	void setLensMode(String lensMode) throws Exception;
+
+	/**
 	 * This can be called to change the number of iterations scheduled during a scan.
 	 *
 	 * @param newScheduledIterations
 	 */
 	void changeRequestedIterations(int newScheduledIterations);
+
+	/**
+	 * Get the energy axis for the current acquisition
+	 *
+	 * @return The energy axis
+	 * @throws Exception If there is a problem with the EPICS communication
+	 */
+	double[] getEnergyAxis() throws Exception;
+
+	/**
+	 * Gets the Y axis (usually angle) for the current acquisition
+	 *
+	 * @return The angle axis
+	 * @throws Exception If there is a problem with the EPICS communication
+	 */
+	double[] getAngleAxis() throws Exception;
+
+	/**
+	 * Get the current pass energy
+	 *
+	 * @return The current pass energy
+	 * @throws Exception If there is a problem with the EPICS communication
+	 */
+	// TODO This should probably be changed to double to become consistent with SPECS analysers
+	Integer getPassEnergy() throws Exception;
+
+	/**
+	 * Sets the pass energy
+	 *
+	 * @param passEnergy The requested pass energy
+	 * @throws Exception If the pass energy is invalid or if there is a problem with the EPICS communication
+	 */
+	// TODO This should probably be changed to double to become consistent with SPECS analysers
+	void setPassEnergy(Integer passEnergy) throws Exception;
+
+	/**
+	 * Gets the current centre energy
+	 *
+	 * @return The current centre energy
+	 * @throws Exception If there is a problem with the EPICS communication
+	 */
+	Double getCentreEnergy() throws Exception;
+
+	/**
+	 * Sets the centre energy
+	 *
+	 * @param centreEnergy The requested centre energy
+	 * @throws Exception If there is a problem with the EPICS communication
+	 */
+	void setCentreEnergy(Double centreEnergy) throws Exception;
+
+	/**
+	 * Gets the collection time per point
+	 *
+	 * @return The collection time
+	 * @throws DeviceException If there is a problem with the EPICS communication
+	 */
+	double getCollectionTime() throws DeviceException;
+
+	/**
+	 * Sets the collection time per point
+	 *
+	 * @throws DeviceException If there is a problem with the EPICS communication
+	 */
+	void setCollectionTime(double collectionTime) throws DeviceException;
+
+	/**
+	 * Starts the analyser acquiring in continuous mode, this is intended for use in alignment. This is non blocking
+	 *
+	 * @throws Exception If there is a problem with the EPICS communication
+	 */
+	void startContinuious() throws Exception;
+
+	/**
+	 * Stops the analyser acquiring <b>Does NOT zero supplies</b>
+	 *
+	 * @see #zeroSupplies()
+	 * @throws Exception If there is a problem with the EPICS communication
+	 */
+	void stop() throws Exception;
+
+	/**
+	 * Stops the analyser and zeros the HV supplies. This puts the analyser into a safe state.
+	 *
+	 * @see #stop()
+	 * @throws Exception If there is a problem with the EPICS communication
+	 */
+	void zeroSupplies() throws Exception;
 
 }

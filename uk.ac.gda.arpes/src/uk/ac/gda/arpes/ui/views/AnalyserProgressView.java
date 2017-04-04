@@ -18,6 +18,8 @@
 
 package uk.ac.gda.arpes.ui.views;
 
+import java.util.List;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
@@ -111,9 +113,12 @@ public class AnalyserProgressView extends ViewPart implements IObserver {
 		});
 		sweepSpinner.setToolTipText("The total number of iterations required. Press enter to confim changes");
 
-		analyser = Finder.getInstance().find("analyser");
-		if (analyser != null) {
-			analyser.addIObserver(this);
+		List<IVGScientaAnalyserRMI> analysers = Finder.getInstance().listFindablesOfType(IVGScientaAnalyserRMI.class);
+		if (analysers.size() != 1) {
+			logger.error("Didn't find 1 analyser");
+		}
+		else {
+			analysers.get(0).addIObserver(this);
 		}
 
 		sweepUpdater = (Device) Finder.getInstance().find("sweepupdater");

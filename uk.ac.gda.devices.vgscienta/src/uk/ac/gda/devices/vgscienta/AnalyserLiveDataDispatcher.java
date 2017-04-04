@@ -42,7 +42,7 @@ class AnalyserLiveDataDispatcher implements MonitorListener, Configurable, Finda
 	private static final Logger logger = LoggerFactory.getLogger(AnalyserLiveDataDispatcher.class);
 
 	private String plotName;
-	protected VGScientaAnalyser analyser;
+	protected IVGScientaAnalyserRMI analyser;
 	private String name;
 	private EpicsController epicsController;
 	private String arrayPV, frameNumberPV;
@@ -71,11 +71,11 @@ class AnalyserLiveDataDispatcher implements MonitorListener, Configurable, Finda
 		this.plotName = plotName;
 	}
 
-	public VGScientaAnalyser getAnalyser() {
+	public IVGScientaAnalyserRMI getAnalyser() {
 		return analyser;
 	}
 
-	public void setAnalyser(VGScientaAnalyser analyser) {
+	public void setAnalyser(IVGScientaAnalyserRMI analyser) {
 		this.analyser = analyser;
 	}
 

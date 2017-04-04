@@ -37,6 +37,7 @@ import gda.device.corba.impl.DeviceImpl;
 import gda.device.detector.NXDetectorData;
 import gda.device.detector.addetector.ADDetector;
 import gda.device.detector.areadetector.v17.ADBase;
+import gda.device.detector.areadetector.v17.ImageMode;
 import gda.device.detector.nxdetector.roi.PlotServerROISelectionProvider;
 import gda.device.scannable.ScannableBase;
 import gda.factory.FactoryException;
@@ -220,10 +221,12 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 		return controller.getEnergyChannels();
 	}
 
+	@Override
 	public double[] getEnergyAxis() throws Exception {
 		return controller.getEnergyAxis();
 	}
 
+	@Override
 	public double[] getAngleAxis() throws Exception {
 		return controller.getYAxis();
 	}
@@ -389,6 +392,7 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 		}
 	}
 
+	@Override
 	public void setLensMode(String value) throws Exception {
 		if (inScan)
 			throw new DeviceException("change of lens mode prohibited during scan");
@@ -412,6 +416,7 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 		return controller.getPsuMode();
 	}
 
+	@Override
 	public void setPassEnergy(Integer value) throws Exception {
 		if (inScan)
 			throw new DeviceException("change of pass energy prohibited during scan");
@@ -425,6 +430,7 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 			getAdBase().startAcquiring();
 	}
 
+	@Override
 	public Integer getPassEnergy() throws Exception {
 		return controller.getPassEnergy();
 	}
@@ -437,10 +443,12 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 		return controller.getStartEnergy();
 	}
 
+	@Override
 	public void setCentreEnergy(Double value) throws Exception {
 		controller.setCentreEnergy(value);
 	}
 
+	@Override
 	public Double getCentreEnergy() throws Exception {
 		return controller.getCentreEnergy();
 	}
@@ -461,6 +469,7 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 		return controller.getEnergyStep();
 	}
 
+	@Override
 	public void zeroSupplies() throws Exception {
 		controller.zeroSupplies();
 	}
@@ -609,5 +618,18 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 	@Override
 	public void changeRequestedIterations(int max) {
 		throw new UnsupportedOperationException("Can not chnage iterations on this implementation");
+	}
+
+	@Override
+	public void startContinuious() throws Exception {
+		logger.info("Starting continious acquisition");
+		// For continuous acquisition in alignment use fixed mode
+		setFixedMode(true);
+		// Change to continuous
+		getAdBase().setImageMode(ImageMode.CONTINUOUS);
+		// Change to 1 iteration
+		controller.setIterations(1);
+		// Start acquiring
+		getAdBase().startAcquiring();
 	}
 }
