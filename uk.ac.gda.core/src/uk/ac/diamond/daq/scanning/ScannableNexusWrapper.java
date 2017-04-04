@@ -276,21 +276,21 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 
 	@Override
 	public void setPosition(Object value) throws Exception {
-		final IPosition position = new Scalar<Object>(getName(), -1, value);
-		positionDelegate.firePositionWillPerform(position);
-		logger.debug("Moving scannable {} to position {}", scannable.getName(), value);
-		scannable.moveTo(value);
-		positionDelegate.firePositionPerformed(getLevel(), position);
+		setPosition(value, null);
 	}
 
 	@Override
 	public void setPosition(Object value, IPosition scanPosition) throws Exception {
-		final int index = (scanPosition == null ? -1 : scanPosition.getIndex(getName()));
-		final IPosition position = new Scalar<Object>(getName(), index, value);
-		positionDelegate.firePositionWillPerform(position);
-		logger.debug("Moving scannable {} to position {}", scannable.getName(), value);
-		scannable.moveTo(value);
-		positionDelegate.firePositionPerformed(getLevel(), position);
+		if (value != null) {
+			final int index = (scanPosition == null ? -1 : scanPosition.getIndex(getName()));
+			final IPosition position = new Scalar<Object>(getName(), index, value);
+			positionDelegate.firePositionWillPerform(position);
+			logger.debug("Moving scannable {} to position {} at {}", scannable.getName(), value, scanPosition);
+			scannable.moveTo(value);
+			positionDelegate.firePositionPerformed(getLevel(), position);
+		} else {
+			logger.debug("Ignoring request to move scannable {} to position {} at {}", scannable.getName(), value, scanPosition);
+		} // setPosition is called with a value==null if it is a monitor in a scan and doesn't need to be moved.
 
 		if (scanPosition != null && shouldWritePosition()) {
 			write(value, getPositionArray(), scanPosition);

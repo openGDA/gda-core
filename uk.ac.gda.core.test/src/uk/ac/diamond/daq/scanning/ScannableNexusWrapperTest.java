@@ -209,6 +209,60 @@ public class ScannableNexusWrapperTest {
 	}
 
 	@Test
+	public void testNullSetPosition() throws Exception {
+		// Arrange
+		IPositionListener posListener = mock(IPositionListener.class);
+		((IPositionListenable) scannable).addPositionListener(posListener);
+		assertThat(scannable.getPosition(), equalTo(3.7));
+
+		// Act
+		scannable.setPosition(null);
+
+		// Assert
+		assertThat(scannable.getPosition(), equalTo(3.7));
+		((IPositionListenable) scannable).removePositionListener(posListener);
+
+		ArgumentCaptor<PositionEvent> captor = ArgumentCaptor.forClass(PositionEvent.class);
+		InOrder order = inOrder(posListener);
+		//order.verify(posListener).positionWillPerform(captor.capture());
+		//order.verify(posListener).positionChanged(captor.capture());
+		//order.verify(posListener).positionPerformed(captor.capture());
+		order.verifyNoMoreInteractions();
+
+		List<PositionEvent> posEvents = captor.getAllValues();
+		assertThat(posEvents, hasSize(0));
+	}
+
+	@Test
+	public void testNullSetPosition_withScanPosition() throws Exception {
+		// Note: nexus writing tested separately by ScannableNexusWrapperScanTest
+
+		// Arrange
+		final int scanIndex = 38;
+		IPositionListener posListener = mock(IPositionListener.class);
+		((IPositionListenable) scannable).addPositionListener(posListener);
+		final IPosition scanPosition = new Scalar<Double>("sax", scanIndex, null);
+		assertThat(scannable.getPosition(), equalTo(3.7));
+
+		// Act
+		scannable.setPosition(null, scanPosition);
+
+		// Assert
+		assertThat(scannable.getPosition(), equalTo(3.7));
+		((IPositionListenable) scannable).removePositionListener(posListener);
+
+		ArgumentCaptor<PositionEvent> captor = ArgumentCaptor.forClass(PositionEvent.class);
+		InOrder order = inOrder(posListener);
+		//order.verify(posListener).positionWillPerform(captor.capture());
+		//order.verify(posListener).positionChanged(captor.capture());
+		//order.verify(posListener).positionPerformed(captor.capture());
+		order.verifyNoMoreInteractions();
+
+		List<PositionEvent> posEvents = captor.getAllValues();
+		assertThat(posEvents, hasSize(0));
+	}
+
+	@Test
 	public void testGetFieldNames() throws Exception {
 		DummyScannable multiFieldDummyScannable = new DummyScannable("multiField");
 		multiFieldDummyScannable.setInputNames(new String[] { "input1", "input2", "input3" });
