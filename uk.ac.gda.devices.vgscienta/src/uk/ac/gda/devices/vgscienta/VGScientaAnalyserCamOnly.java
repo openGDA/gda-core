@@ -38,8 +38,10 @@ import gda.device.detector.NXDetectorData;
 import gda.device.detector.addetector.ADDetector;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.ImageMode;
+import gda.device.detector.areadetector.v17.impl.ADBaseImpl;
 import gda.device.detector.nxdetector.roi.PlotServerROISelectionProvider;
 import gda.device.scannable.ScannableBase;
+import gda.epics.connection.EpicsController;
 import gda.factory.FactoryException;
 import gda.factory.corba.util.CorbaAdapterClass;
 import gda.factory.corba.util.CorbaImplClass;
@@ -146,6 +148,16 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 	public void configure() throws FactoryException {
 		super.configure();
 		setExtraNames(new String[] {"cps"});
+
+		try {
+		// For updates to GUI
+		// FIXME This is messy there must be a better way to observe this, but for now this works and is how it's done in the old implementation
+		final EpicsController epicsController = EpicsController.getInstance();
+		epicsController.setMonitor(epicsController.createChannel(((ADBaseImpl) getAdBase()).getBasePVName() + ADBase.Acquire_RBV), this);
+		}
+		catch (Exception e) {
+			logger.error("Error setting up EPICS monitors", e);
+		}
 	}
 
 	public VGScientaController getController() {
