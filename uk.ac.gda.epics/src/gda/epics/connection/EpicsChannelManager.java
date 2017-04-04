@@ -18,6 +18,16 @@
 
 package gda.epics.connection;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.epics.connection.EpicsController.MonitorType;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
@@ -26,16 +36,6 @@ import gov.aps.jca.event.ConnectionListener;
 import gov.aps.jca.event.MonitorListener;
 import gov.aps.jca.event.PutEvent;
 import gov.aps.jca.event.PutListener;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * EPICS channel (connection, monitor) manager.
@@ -108,12 +108,12 @@ public class EpicsChannelManager implements ConnectionListener, PutListener {
 		this.initializationListener = listener;
 
 		controller = EpicsController.getInstance();
-		channels = new HashMap<String, Channel>();
+		channels = new ConcurrentHashMap<String, Channel>();
 		unconnectedCriticalChannels = new HashSet<Channel>();
 		connectedCriticalChannels = new HashSet<Channel>();
-		monitoredChannels = new HashMap<Channel, MonitorListener>();
-		monitorTypes = new HashMap<MonitorListener, MonitorType>();
-		initialValues = new HashMap<String, Object>();
+		monitoredChannels = new ConcurrentHashMap<Channel, MonitorListener>();
+		monitorTypes = new ConcurrentHashMap<MonitorListener, MonitorType>();
+		initialValues = new ConcurrentHashMap<String, Object>();
 	}
 
 	/**
