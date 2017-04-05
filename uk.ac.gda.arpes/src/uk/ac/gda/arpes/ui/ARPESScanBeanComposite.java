@@ -426,7 +426,11 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 
 	private int getSelectedPassEnergy(){
 		try {
-			return Integer.parseInt(passEnergy.getValue().toString());
+			String passEnergyString = passEnergy.getValue().toString();
+			if (passEnergyString.isEmpty()) {
+				return 0; // Will be the case if a new editor is being opened
+			}
+			return Integer.parseInt(passEnergyString);
 		} catch (NumberFormatException | NullPointerException e) {
 			logger.error("Couldn't determine the pass energy", e);
 			return 0; // If we couldn't determine the PE return 0
