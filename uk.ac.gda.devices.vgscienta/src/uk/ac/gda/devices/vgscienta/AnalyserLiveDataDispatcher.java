@@ -33,7 +33,6 @@ import gda.factory.Configurable;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
 import gov.aps.jca.Channel;
-import gov.aps.jca.dbr.DBRType;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
@@ -44,21 +43,20 @@ class AnalyserLiveDataDispatcher implements MonitorListener, Configurable, Finda
 	private String plotName;
 	protected IVGScientaAnalyserRMI analyser;
 	private String name;
-	private EpicsController epicsController;
-	private String arrayPV, frameNumberPV;
-	private long oldNumber = -1;
+	private final  EpicsController epicsController = EpicsController.getInstance();
+	private String arrayPV;
+	private String frameNumberPV;
 	private Channel arrayChannel;
 
-	private ThreadPoolExecutor executor;
+	private final ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<Runnable>(1));
 
 	@Override
 	public void configure() throws FactoryException {
-		epicsController = EpicsController.getInstance();
-		executor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<Runnable>(1));
 		try {
 			arrayChannel = epicsController.createChannel(arrayPV);
 			epicsController.setMonitor(epicsController.createChannel(frameNumberPV), this);
 		} catch (Exception e) {
+			logger.error("Error setting up analyser live visualisation", e);
 			throw new FactoryException("Cannot set up monitoring of arrays", e);
 		}
 	}
@@ -91,42 +89,33 @@ class AnalyserLiveDataDispatcher implements MonitorListener, Configurable, Finda
 
 	@Override
 	public void monitorChanged(MonitorEvent arg0) {
+		logger.trace("Might soon be sending some thing to plot {} with axes from {} because of {}", plotName, analyser.getName(), arg0.toString());
+
 		try {
-			logger.trace("might soon be sending some thing to plot " + plotName + " with axes from " + analyser.getName() + " because of " + arg0.toString());
-
-			int newvalue =((gov.aps.jca.dbr.INT) arg0.getDBR().convert(DBRType.INT)).getIntValue()[0];
-
-			if (newvalue > oldNumber && newvalue > 0) {
-				try {
-					executor.submit(new Runnable() {
-						@Override
-						public void run() {
-							try {
-								plotNewArray();
-							} catch (Exception e) {
-								logger.error("exception caught preparing analyser live plot", e);
-							}
-						}
-					});
-					logger.trace("plot jobs for " + plotName + " queued successfully");
-				} catch (RejectedExecutionException ree) {
-					logger.debug("plot jobs for "+plotName+" are queueing up, as expected in certain circumstances, so this one got skipped");
+			executor.submit(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						plotNewArray();
+					} catch (Exception e) {
+						logger.error("exception caught preparing analyser live plot", e);
+					}
 				}
-			}
-			oldNumber = newvalue;
-
-		} catch (Exception e) {
-			logger.error("exception caught preparing analyser live plot", e);
+			});
+			logger.trace("Plot jobs for {} queued successfully", plotName);
+		} catch (RejectedExecutionException ree) {
+			logger.debug("Plot jobs for {} are queueing up, as expected in certain circumstances, so this one got skipped", plotName);
+			logger.trace("Exception for rejected execution", ree);
 		}
 	}
 
 	protected Dataset getArrayAsDataset(int x, int y) throws Exception {
 		int[] dims = new int[] {x, y};
 		int arraysize = dims[0]*dims[1];
-		if (arraysize < 1) return null;
-		logger.trace("about to get array for " + plotName);
-//		double[] value = (double[]) arrayChannel.get(arraysize).getValue();
-		// return DatasetFactory.createFromObject(DoubleDataset.class, value, dims);
+		if (arraysize < 1) {
+			return null;
+		}
+		logger.trace("About to get array for {}", plotName);
 		float[] array = epicsController.cagetFloatArray(arrayChannel, arraysize);
 		return DatasetFactory.createFromObject(array, dims);
 	}
@@ -154,9 +143,10 @@ class AnalyserLiveDataDispatcher implements MonitorListener, Configurable, Finda
 		Dataset ds = getArrayAsDataset(yAxis.getShape()[0], xAxis.getShape()[0]);
 		if (ds == null)
 			return;
-		if (ds.max().intValue() <= 0)
-			logger.warn("something fishy - no positive values in sight");
-		logger.trace("dispatching plot to " + plotName);
+		if (ds.max().intValue() <= 0) {
+			logger.warn("Something fishy - no positive values in sight");
+		}
+		logger.trace("Dispatching plot to {}", plotName);
 		SDAPlotter.imagePlot(plotName, xAxis, yAxis, ds);
 	}
 
