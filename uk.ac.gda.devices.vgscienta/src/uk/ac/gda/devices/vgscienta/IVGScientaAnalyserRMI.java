@@ -180,4 +180,22 @@ public interface IVGScientaAnalyserRMI extends Device {
 	 */
 	void zeroSupplies() throws Exception;
 
+	/**
+	 * Gets the currently set number of iterations
+	 *
+	 * @return The current number of iterations
+	 * @throws Exception If there is a problem with the EPICS communication
+	 */
+	int getIterations() throws Exception;
+
+	/**
+	 * Sets the number of iterations requested, not for use while in a scan
+	 *
+	 * @see #changeRequestedIterations(int)
+	 * @param iterations The requested number of iterations
+	 * @throws Exception If there is a problem with the EPICS communication
+	 * @throws IllegalStateException If the analyser is performing a scan
+	 */
+	void setIterations(int iterations) throws Exception;
+
 }

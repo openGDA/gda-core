@@ -597,4 +597,17 @@ public class VGScientaAnalyser extends ADDetector implements MonitorListener, IO
 		getAdBase().startAcquiring();
 	}
 
+	@Override
+	public int getIterations() throws Exception {
+		return flex.getMaxNumberOfFrames();
+	}
+
+	@Override
+	public void setIterations(int iterations) throws Exception {
+		if (inScan) {
+			throw new IllegalStateException("Cannot set the number of iterations during a scan");
+		}
+		flex.setMaxNumberOfFrames(iterations);
+	}
+
 }

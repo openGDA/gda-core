@@ -60,11 +60,6 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 	private VGScientaController controller;
 	private VGScientaAnalyserEnergyRange energyRange;
 	private int[] fixedModeRegion;
-
-	public final static MotorStatus stopped = MotorStatus.READY;
-	public final static MotorStatus running = MotorStatus.BUSY;
-	private MotorStatus currentstatus = stopped;
-
 	private int[] sweptModeRegion;
 
 	private EntranceSlitInformationProvider entranceSlitInformationProvider;
@@ -500,12 +495,13 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 			logger.debug("been informed of some sort of change to acquire status");
 			DBR_Enum en = (DBR_Enum) arg0.getDBR();
 			short[] no = (short[]) en.getValue();
+			final MotorStatus currentstatus;
 			if (no[0] == 0) {
 				logger.info("been informed of a stop");
-				currentstatus = stopped;
+				currentstatus = MotorStatus.READY;
 			} else {
 				logger.info("been informed of a start");
-				currentstatus = running;
+				currentstatus = MotorStatus.BUSY;
 			}
 			notifyIObservers(this, currentstatus);
 		}
@@ -643,5 +639,18 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 		controller.setIterations(1);
 		// Start acquiring
 		getAdBase().startAcquiring();
+	}
+
+	@Override
+	public int getIterations() throws Exception {
+		return controller.getIterations();
+	}
+
+	@Override
+	public void setIterations(int iterations) throws Exception {
+		if (inScan) {
+			throw new IllegalStateException("Cannot set the number of iterations during a scan");
+		}
+		controller.setIterations(iterations);
 	}
 }
