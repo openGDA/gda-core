@@ -19,8 +19,6 @@
 
 package gda.device;
 
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 
@@ -33,6 +31,7 @@ import gda.factory.Localizable;
 import gda.jython.accesscontrol.MethodAccessProtected;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
+
 /**
  * A base implementation for all devices
  */
@@ -48,9 +47,9 @@ public abstract class DeviceBase implements Device, ConditionallyConfigurable, L
 
 	private boolean configureAtStartup = true;
 
-	private ObservableComponent observableComponent = new ObservableComponent();
+	private final ObservableComponent observableComponent = new ObservableComponent();
 
-	private Map<String, Object> attributes = new Hashtable<>();
+	private final Map<String, Object> attributes = new Hashtable<>();
 
 	protected boolean configured = false;
 
