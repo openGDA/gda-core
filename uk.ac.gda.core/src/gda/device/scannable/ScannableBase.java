@@ -461,7 +461,7 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 			this.waitWhileBusy();
 		} catch (Exception e) {
 			// convert to a device exception
-			throw new DeviceException("Move failed for " + getName() + ".moveTo("+position+")", e);
+			throw new DeviceException(String.format("Move failed for %s.moveTo(%s)\n\t%s", getName(), position, e.getMessage()), e);
 		}
 	}
 
