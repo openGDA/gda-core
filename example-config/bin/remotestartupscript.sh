@@ -1,21 +1,16 @@
 #!/bin/bash
 # This script is only invoked when user gda2 ssh's to the control machine. It is run by an entry in gda's ~/.ssh/authorized_keys
+# Because of this, no environment variables (other than SSH_ORIGINAL_COMMAND potentially) have been set when it executes.
+#
+# If you wish to use the dls-config common /remote/startupscript.sh you must source it, performing any custom operations beforehand.
+# If you don't have any custom operations then you can just invoke the common script directly from your authorized_keys file.
+#
+# If not using the common script, you will need to set GDA_NO_PROMPT and GDA_IN_REMOTE_STARTUP to true and initialise your Bash
+# environment before invoking the main gda script to get correct startup behaviour. Also please add "< /dev/null > /dev/null 2>&1"
+# to the end of the line that calls the gda script to prevent ssh from hanging incorrectly due to an unclosed stream.
 
-here_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-# This script is run as a single command by ssh, so we need to set up our environment
-# See http://stackoverflow.com/questions/216202/why-does-an-ssh-remote-command-get-fewer-environment-variables-then-when-run-man
-. /usr/share/Modules/init/bash
 
-# There is no user or screen to prompt or display pop-ups
-export GDA_NO_PROMPT=true
-
-# Set an environment variable to indicate we came through the remote startup script, so that we can error if we attempt to do this recursively
-export GDA_IN_REMOTE_STARTUP=true
-
-if [[ -n "${SSH_ORIGINAL_COMMAND}" ]]; then 
-    ${here_dir}/gda  --${SSH_ORIGINAL_COMMAND} --mode=live servers
-else
-    ${here_dir}/gda --restart --mode=live servers
-fi 
-
+# If you want any special behaviour add it above this line
+here_absolute_path="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd -P )"
+source ${here_absolute_path}/../../../gda-diamond.git/dls-config/live/gda-servers-startup-script.sh  # Derive dls-config relative path as appropriate

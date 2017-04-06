@@ -31,8 +31,8 @@ EXPECTED_BEAMLINE_VALUE=p45
 #         GDA_JYTHON_SOCKET           9999
 
 
-here_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-DLS_CONFIG_BIN_RELATIVE_PATH=${here_dir}/../../../gda-diamond.git/dls-config/bin    # adjust this path to suit your location
+here_absolute_path="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd -P )"
+DLS_CONFIG_BIN_RELATIVE_PATH=${here_absolute_path}/../../../gda-diamond.git/dls-config/bin    # adjust this path to suit your location
 
 if [[ -d ${DLS_CONFIG_BIN_RELATIVE_PATH} ]]; then
 
