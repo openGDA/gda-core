@@ -590,12 +590,13 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 					if( parts.length!=2){
 						throw new NexusException("Invalid format for external link " + StringUtils.quote(link));
 					}
-					Path absExtPath = Paths.get(parts[0]);
+					Path absExtPath = getReal(Paths.get(parts[0]));
 					String address=parts[1];
 					File f = absExtPath.toFile();
-					if (!f.exists())
+					if (!f.exists()) {
 						logger.warn("file " + absExtPath + " does not exist at time of adding link");
-					Path nxsFile = Paths.get(nexusFileUrl);
+					}
+					Path nxsFile = getReal(Paths.get(nexusFileUrl));
 					Path nxsParent = nxsFile.getParent();
 					Path relativize = nxsParent.relativize(absExtPath);
 					String relativeLink = "nxfile://" + relativize + "#" + address;
@@ -1815,6 +1816,26 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 			return (long) 0;
 		default:
 			return null;
+		}
+	}
+
+	/**
+	 * Remove symlinks and parent directory links from path if possible
+	 * eg <pre>getReal(Paths.get("/path/to/directory/sub/../abc.nxs"))</pre>
+	 * returns {@link Path} to <pre>/path/to/directory/abc.nxs</pre>
+	 * @param path {@link Path} the original path possibly containing symlinks/..
+	 * @return the {@link Path} made as real as it can be, if the path doesn't exist or
+	 * 		can't be read, return the original path
+	 */
+	private static Path getReal(Path path) {
+		if (path == null) {
+			return null;
+		}
+		try {
+			return path.toRealPath();
+		} catch (IOException ioe) {
+			logger.warn("Could not make {} into real path", path);
+			return path;
 		}
 	}
 }
