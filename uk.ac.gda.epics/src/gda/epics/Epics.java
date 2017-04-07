@@ -18,11 +18,10 @@
 
 package gda.epics;
 
+import java.util.ArrayList;
+
 import gda.factory.Configurable;
 import gda.factory.Findable;
-import gda.observable.IObservable;
-
-import java.util.ArrayList;
 
 /**
  * An interface that all EPICS hardware and Communication channels must implement. This interface provides method
@@ -43,7 +42,7 @@ import java.util.ArrayList;
  * communicate asynchronouely with EPICS servers
  * </ul>
  */
-public interface Epics extends Findable, Configurable, IObservable {
+public interface Epics extends Findable, Configurable {
 	/**
 	 * Gets the EPICS Record name. Record name is device's EPICS name plus subsystem's record name without record's
 	 * field name. This method is required by EPICS integration through XML inferface files.

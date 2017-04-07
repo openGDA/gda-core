@@ -18,11 +18,10 @@
 
 package gda.epics;
 
-import gda.factory.FactoryException;
-import gda.observable.IObserver;
-
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import gda.factory.FactoryException;
 
 /**
  * EpicsBase class provides the common implementation to all EPICS classes. It implements all methods required by
@@ -100,21 +99,6 @@ public abstract class EpicsBase implements Epics {
 	@Override
 	public void setPvNames(ArrayList<String> pvs) throws EpicsException {
 		this.pvNames = pvs;
-	}
-
-	@Override
-	public void addIObserver(IObserver anIObserver) {
-		this.addIObserver(anIObserver);
-	}
-
-	@Override
-	public void deleteIObserver(IObserver anIObserver) {
-		this.deleteIObserver(anIObserver);
-	}
-
-	@Override
-	public void deleteIObservers() {
-		this.deleteIObservers();
 	}
 
 }
