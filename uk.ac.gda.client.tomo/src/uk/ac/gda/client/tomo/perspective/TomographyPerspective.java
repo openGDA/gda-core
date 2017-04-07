@@ -31,11 +31,14 @@ import uk.ac.gda.client.tomo.configuration.view.factory.TomoConfigurationViewFac
  */
 public class TomographyPerspective implements IPerspectiveFactory {
 	public static final String ID = "uk.ac.gda.client.tomo.perspective";
+
 	@Override
 	public void createInitialLayout(IPageLayout layout) {
+		final String editorArea = layout.getEditorArea();
 		layout.setEditorAreaVisible(false);
 		layout.setFixed(false);
-		IFolderLayout mainFolder = layout.createFolder("MAIN_FOLDER", IPageLayout.TOP, IPageLayout.RATIO_MAX, null);
+
+		final IFolderLayout mainFolder = layout.createFolder("MAIN_FOLDER", IPageLayout.TOP, IPageLayout.RATIO_MAX, editorArea);
 		mainFolder.addView(TomoAlignmentViewFactory.ID);
 		mainFolder.addView(TomoConfigurationViewFactory.ID);
 		layout.addShowViewShortcut(TomoAlignmentViewFactory.ID);
