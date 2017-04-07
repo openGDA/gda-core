@@ -75,7 +75,7 @@ class ARPESRun:
         
         # Temporary remove iterations as VGScientaAnalyserCamOnly only doesn't support it yet
         # This won't work properly on i05 HR as it is this needs resolving!
-        #self.scienta.getCollectionStrategy().setMaxNumberOfFrames(self.bean.getIterations())
+        self.scienta.setIterations(self.bean.getIterations())
 
         # Check if its configure only
         if self.bean.isConfigureOnly():
