@@ -18,9 +18,10 @@
 
 package gda.device.detector.addetector.filewriter;
 
-import gda.data.NumTracker;
-
 import java.io.IOException;
+
+import gda.configuration.properties.LocalProperties;
+import gda.data.NumTracker;
 
 public class SingleImagePerFileWriterWithNumTracker extends SingleImagePerFileWriter {
 
@@ -55,7 +56,11 @@ public class SingleImagePerFileWriterWithNumTracker extends SingleImagePerFileWr
 
 	public void setNumTrackerExtension(String numTrackerExtension) {
 		try {
-			numTracker = new NumTracker(numTrackerExtension);
+			// workaround DAQ-560, we need to pass in the directry name to NumTracker, otherwise it will not respect
+			// the passed extension name. Unfortunately, this means we duplicate some logic.
+			String fallbackDirname = LocalProperties.get(LocalProperties.GDA_VAR_DIR);
+			String dirname = LocalProperties.get(LocalProperties.GDA_DATA_NUMTRACKER, fallbackDirname);
+			numTracker = new NumTracker(numTrackerExtension, dirname);
 		} catch (IOException e) {
 			throw new IllegalArgumentException("NumTracker with extension '" + numTrackerExtension + "' could not be created.", e);
 		}
