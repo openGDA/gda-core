@@ -18,6 +18,13 @@
 
 package gda.device.detector.areadetector.v17.impl;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.device.detector.areadetector.IPVProvider;
@@ -28,13 +35,6 @@ import gda.factory.FactoryException;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 
 public class FfmpegStreamImpl extends NDBaseImpl implements InitializingBean, FfmpegStream {
 	// Setup the logging facilities
@@ -446,7 +446,7 @@ public class FfmpegStreamImpl extends NDBaseImpl implements InitializingBean, Ff
 	@Override
 	public void reset() throws Exception {
 		getPluginBase().reset();
-		if (initialQuality != Double.NaN) {
+		if (!Double.isNaN(initialQuality)) {
 			setQUALITY(initialQuality);
 		}
 		if (initialAlwaysOn == 1) {
