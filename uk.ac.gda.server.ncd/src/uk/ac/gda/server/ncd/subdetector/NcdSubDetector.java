@@ -79,8 +79,8 @@ public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
 		logger.trace("{} - configuration null - reloading", getName());
 		try {
 			configuration = LocalParameters.getXMLConfiguration(this.getClass().getCanonicalName()+":"+getName());
-			for (Iterator iterator = configuration.getKeys(); iterator.hasNext();) {
-				String name = (String) iterator.next();
+			for (Iterator<String> iterator = configuration.getKeys(); iterator.hasNext();) {
+				String name = iterator.next();
 				if (attributeMap.containsKey(name)) {
 					logger.trace("{}.restore - {} already in map, ignoring later value ({})", getName(), name, attributeMap.get(name));
 					continue; // don't overwrite
