@@ -37,7 +37,7 @@ import org.eclipse.january.dataset.SliceND;
 import org.eclipse.scanning.api.AbstractScannable;
 import org.eclipse.scanning.api.IScanAttributeContainer;
 import org.eclipse.scanning.api.annotation.scan.ScanFinally;
-import org.eclipse.scanning.api.event.scan.NexusSlitsPosition;
+import org.eclipse.scanning.api.event.scan.DeviceValueMultiPosition;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.rank.IScanRankService;
 import org.eclipse.scanning.api.scan.rank.IScanSlice;
@@ -50,7 +50,7 @@ import gda.device.Scannable;
 /**
  * Class provides an implementation which will write an NXslit to NeXus based on information from individual scannables
  */
-public class NexusSlitsWrapper extends AbstractScannable<NexusSlitsPosition> implements INexusDevice<NXslit> {
+public class NexusSlitsWrapper extends AbstractScannable<DeviceValueMultiPosition> implements INexusDevice<NXslit> {
 
 	private static final Logger logger = LoggerFactory.getLogger(NexusSlitsWrapper.class);
 
@@ -61,24 +61,22 @@ public class NexusSlitsWrapper extends AbstractScannable<NexusSlitsPosition> imp
 		super(ScannableDeviceConnectorService.getInstance());
 	}
 
-	// implements IScannable<Object>
+	// implements IScannable<DeviceValueMultiPosition>
 
 	@Override
-	public NexusSlitsPosition getPosition() throws Exception {
-		NexusSlitsPosition position = new NexusSlitsPosition();
-		position.setX_gap((double)x_gap.getPosition());
-		position.setY_gap((double)y_gap.getPosition());
+	public DeviceValueMultiPosition getPosition() throws Exception {
+		DeviceValueMultiPosition position = new DeviceValueMultiPosition();
+		position.put(NXslit.NX_X_GAP, (double)x_gap.getPosition());
+		position.put(NXslit.NX_Y_GAP, (double)y_gap.getPosition());
 		return position;
 	}
 
 	@Override
-	public void setPosition(NexusSlitsPosition value, IPosition position) throws Exception {
+	public void setPosition(DeviceValueMultiPosition value, IPosition position) throws Exception {
 		logger.debug("setPosition({}, {}) called on {}", value, position, getName());
 
 		if (value!=null) {
 			logger.warn("non null setPosition() not expected on {}, ignoring...", getName());
-			//int index = position!=null ? position.getIndex(getName()) : -1;
-			//delegate.firePositionPerformed(-1, new Scalar(getName(), index, value));
 		}
 
 		if (position!=null) {
@@ -86,7 +84,7 @@ public class NexusSlitsWrapper extends AbstractScannable<NexusSlitsPosition> imp
 		}
 	}
 
-	private void write(NexusSlitsPosition demand, NexusSlitsPosition actual, IPosition loc) throws Exception {
+	private void write(DeviceValueMultiPosition demand, DeviceValueMultiPosition actual, IPosition loc) throws Exception {
 
 		// There may be actual values when there aren't demand values, but there should never be demand values when
 		// there are no actual values.
@@ -95,8 +93,8 @@ public class NexusSlitsWrapper extends AbstractScannable<NexusSlitsPosition> imp
 		}
 		if (actual!=null) {
 			// write actual position
-			final Dataset newXPositionData = DatasetFactory.createFromObject(actual.getX_gap());
-			final Dataset newYPositionData = DatasetFactory.createFromObject(actual.getY_gap());
+			final Dataset newXPositionData = DatasetFactory.createFromObject(actual.get(NXslit.NX_X_GAP));
+			final Dataset newYPositionData = DatasetFactory.createFromObject(actual.get(NXslit.NX_Y_GAP));
 			IScanSlice rslice = IScanRankService.getScanRankService().createScanSlice(loc);
 			SliceND xSliceND = new SliceND(xLzValue.getShape(), xLzValue.getMaxShape(), rslice.getStart(), rslice.getStop(), rslice.getStep());
 			SliceND ySliceND = new SliceND(yLzValue.getShape(), yLzValue.getMaxShape(), rslice.getStart(), rslice.getStop(), rslice.getStep());
