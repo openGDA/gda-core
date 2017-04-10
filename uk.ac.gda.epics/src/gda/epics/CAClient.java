@@ -1067,6 +1067,29 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 
 	/**
 	 * @param numberOfElements
+	 * @return int[]
+	 * @throws CAException
+	 * @throws TimeoutException
+	 * @throws InterruptedException
+	 */
+	public int[] cagetArrayInt(int numberOfElements) throws CAException, TimeoutException, InterruptedException {
+		int[] values = controller.cagetIntArray(theChannel, numberOfElements);
+		return values;
+	}
+
+	/**
+	 * @return int[]
+	 * @throws CAException
+	 * @throws TimeoutException
+	 * @throws InterruptedException
+	 */
+	public int[] cagetArrayInt() throws CAException, TimeoutException, InterruptedException {
+		int[] values = controller.cagetIntArray(theChannel);
+		return values;
+	}
+
+	/**
+	 * @param numberOfElements
 	 * @return double[]
 	 * @throws CAException
 	 * @throws TimeoutException
