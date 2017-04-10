@@ -54,9 +54,9 @@ public class StatsAndMathsWithSymmetry extends PlotViewStatsAndMaths {
 	private Button fourButton;
 
 	private boolean weSentUpdate = false;
-	
+
 	private OriginalDataAndSettings odas;
-	
+
 	protected class DatasetWithCentre {
 		double x,y;
 		Dataset dataset;
@@ -66,12 +66,12 @@ public class StatsAndMathsWithSymmetry extends PlotViewStatsAndMaths {
 			this.dataset = dataset;
 		}
 	}
-	
+
 	protected class OriginalDataAndSettings {
 		Dataset image;
 		BooleanDataset mask;
 		SectorROI sectorROI;
-		
+
 		public OriginalDataAndSettings() throws Exception {
 			image = currentBean.getData().get(0).getData();
 			mask = getMaskDataset(image);
@@ -87,7 +87,7 @@ public class StatsAndMathsWithSymmetry extends PlotViewStatsAndMaths {
 		public DatasetWithCentre getImageDWC() {
 			return new DatasetWithCentre(sectorROI.getPoint()[0], sectorROI.getPoint()[1], image);
 		}
-		
+
 		private BooleanDataset getMaskDataset(Dataset image) throws Exception {
 			BooleanDataset md;
 			MaskingBean mb = (MaskingBean) getRoi(GuiParameters.MASKING, MaskingBean.class);
@@ -102,12 +102,12 @@ public class StatsAndMathsWithSymmetry extends PlotViewStatsAndMaths {
 			return md;
 		}
 	}
-	
+
 	private SelectionListener folder = new SelectionListener() {
-		
+
 		@Override
 		public void widgetSelected(SelectionEvent e) {
-			if (foldingButton.getSelection()) 
+			if (foldingButton.getSelection())
 				plotSymmetry();
 			else if (e.widget.equals(foldingButton)) {
 				pushToPlotView(odas);
@@ -118,25 +118,25 @@ public class StatsAndMathsWithSymmetry extends PlotViewStatsAndMaths {
 		public void widgetDefaultSelected(SelectionEvent e) {
 		}
 	};
-	
+
 	@Override
 	public void createPartControl(Composite parent) {
 		super.createPartControl(parent);
 
 		Composite composite = new Composite(parent, SWT.NONE);
 		composite.setLayout(new FillLayout(SWT.HORIZONTAL));
-		
+
 		foldingButton = new Button(composite, SWT.TOGGLE);
 		foldingButton.setText("Display folded symmetry");
 		foldingButton.addSelectionListener(folder);
-		
+
 		rawDataButton = new Button(composite, SWT.CHECK);
 		rawDataButton.setText("display raw data");
 		rawDataButton.addSelectionListener(folder);
-		
+
 		Composite radioComposite = new Composite(parent, SWT.NONE);
 		radioComposite.setLayout(new FillLayout(SWT.HORIZONTAL));
-		
+
 		udButton = new Button(radioComposite, SWT.RADIO);
 		udButton.setText("up/down");
 		udButton.addSelectionListener(folder);
@@ -144,27 +144,27 @@ public class StatsAndMathsWithSymmetry extends PlotViewStatsAndMaths {
 		lrButton = new Button(radioComposite, SWT.RADIO);
 		lrButton.setText("left/right");
 		lrButton.addSelectionListener(folder);
-		
+
 		fourButton = new Button(radioComposite, SWT.RADIO);
 		fourButton.setText("4 quadrant");
 		fourButton.setSelection(true);
 		fourButton.addSelectionListener(folder);
 	}
-	
+
 	@Override
 	protected void processData(DataBean bean) {
 		super.processData(bean);
-		
+
 		if (weSentUpdate) {
 			weSentUpdate = false;
 			return;
 		}
-		
+
 		odas = null;
-		
+
 		List<DatasetWithAxisInformation> dc = bean.getData();
 		final Dataset d = dc.get(0).getData();
-		
+
 		boolean buttonEnabled = false;
 
 		if (d.getRank() == 2) {
@@ -186,12 +186,13 @@ public class StatsAndMathsWithSymmetry extends PlotViewStatsAndMaths {
 	private Object getRoi(GuiParameters key, @SuppressWarnings("rawtypes") Class clazz) throws Exception {
 
 		GuiBean guiBean = SDAPlotter.getGuiBean(plotView.getPlotViewName());
-		if (guiBean.containsKey(key) && clazz.isInstance(guiBean.get(key))){
-			return guiBean.get(key);
+		Serializable obj = key.equals(GuiParameters.ROIDATA) ? guiBean.getROI() : guiBean.get(key);
+		if (clazz.isInstance(obj)) {
+			return obj;
 		}
 		throw new Exception(String.format("no roi of type %s found with key %s", clazz.getSimpleName(), key));
 	}
-	
+
 	private void setRoi(GuiParameters key, Serializable thing) {
 		try {
 			GuiBean guiBean = SDAPlotter.getGuiBean(plotView.getPlotViewName());
@@ -201,7 +202,7 @@ public class StatsAndMathsWithSymmetry extends PlotViewStatsAndMaths {
 			logger.warn("cannot adjust ROI after plotting symmetry", e);
 		}
 	}
-	
+
 	private void plotSymmetry() {
 		try {
 			if (odas ==null) odas = new OriginalDataAndSettings();
@@ -215,17 +216,17 @@ public class StatsAndMathsWithSymmetry extends PlotViewStatsAndMaths {
 				transformedDWC = getTransformedDWC(odas.getMaskDWC());
 			}
 			pushToPlotView(transformedDWC);
-			
+
 		} catch (Exception e) {
 			logger.error("error generating symmetry data to plot", e);
 		}
-	}	
-	
+	}
+
 	protected DatasetWithCentre getTransformedDWC(DatasetWithCentre dwc) {
 		if (fourButton.getSelection()) {
 			return getUpDown(getLeftRight(dwc));
 		}
-		if (udButton.getSelection()) { 
+		if (udButton.getSelection()) {
 			return getUpDown(dwc);
 		}
 		if (lrButton.getSelection()) {
@@ -233,13 +234,13 @@ public class StatsAndMathsWithSymmetry extends PlotViewStatsAndMaths {
 		}
 		return dwc;
 	}
-	
+
 	protected DatasetWithCentre getUpDown(DatasetWithCentre dwc) {
 		int[] shape = dwc.dataset.getShape();
-		
+
 		int[] newshape = new int[] { getNewLength(shape[0], dwc.y), shape[1] };
 		Dataset sumdata = new IntegerDataset(newshape);
-		
+
 		int unflippedOffset = getUnflippedOffsetInNewDataset(shape[0], dwc.y);
 		int flippedOffset = getFlippedOffsetInNewDataset(shape[0], dwc.y);
 
@@ -259,7 +260,7 @@ public class StatsAndMathsWithSymmetry extends PlotViewStatsAndMaths {
 
 	protected DatasetWithCentre getLeftRight(DatasetWithCentre dwc) {
 		int[] shape = dwc.dataset.getShape();
-		
+
 		int[] newshape = new int[] {  shape[0], getNewLength(shape[1], dwc.x) };
 		Dataset sumdata = new IntegerDataset(newshape);
 
@@ -281,20 +282,20 @@ public class StatsAndMathsWithSymmetry extends PlotViewStatsAndMaths {
 		}
 		return new DatasetWithCentre(dwc.x+unflippedOffset, dwc.y, sumdata);
 	}
-		
+
 	protected int getNewLength(int length, double centre) {
 			return centre > (length/2.0) ?  (int) Math.ceil(centre*2) : (int) Math.ceil((length - centre)*2);
 	}
-		
+
 	protected int getUnflippedOffsetInNewDataset(int length, double x) {
 		if (x > (length/2.0)) return 0;
 		return getNewLength(length, x) - length;
 	}
-	
+
 	public int getFlippedOffsetInNewDataset(int length, double x) {
 		return getNewLength(length, x) - getUnflippedOffsetInNewDataset(length, x) - length;
 	}
-	
+
 	protected void pushToPlotView(DatasetWithCentre datasetWithCentre) {
 		DataBean result = new DataBean();
 		List<DatasetWithAxisInformation> coll = new ArrayList<DatasetWithAxisInformation>();
