@@ -150,11 +150,11 @@ class HexapodAxis(PseudoDevice):
 
 	def atScanStart(self):
 		if not self.incli.isConfigured():
-			self.incli.configured()
+			self.incli.configure()
 		if not self.outcli.isConfigured():
-			self.outcli.configured()
+			self.outcli.configure()
 		if not self.movecli.isConfigured():
-			self.movecli.configured()
+			self.movecli.configure()
 
 	def atScanEnd(self):
 		if self.incli.isConfigured():
