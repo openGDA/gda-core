@@ -652,11 +652,23 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 			File filePath = new File(spoolDirPath + "/" + fileName);
 			String spoolFilePath = filePath.getAbsolutePath();
 
-			FluoCompositeDataStore newStore = new FluoCompositeDataStore(spoolFilePath);
-			newStore.writeDataToFile(theData);
+		    FileDialog dialog = new FileDialog(fluorescenceDetectorComposite.getShell(), SWT.SAVE);
+		    dialog.setFilterPath(filePath.getParent());
+		    dialog.setFileName(fileName);
+		    String[] filters = new String[]{"*.mca", "*.dat"};
+		    dialog.setFilterExtensions(filters);
+		    String userFilePath = dialog.open();
 
-			String msg = "Saved: " + spoolFilePath;
-			logAndAppendStatus(msg);
+		    if (userFilePath!=null) {
+		    	FluoCompositeDataStore newStore = new FluoCompositeDataStore(userFilePath);
+		    	newStore.writeDataToFile(theData);
+		    	newStore.writeDataToColumnFile(theData);
+
+				String msg = "Saved: " + userFilePath;
+				logAndAppendStatus(msg);
+				msg = "Saved: " + newStore.getColumnFileName();
+				logAndAppendStatus(msg);
+		    }
 		} catch (IOException ie) {
 			logger.error("Exception writing out detector data.", ie);
 			displayErrorMessage("Exception writing out detector data", "Problem recording data. See log for details.");

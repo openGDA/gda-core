@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.DecimalFormat;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +36,8 @@ public class FluoCompositeDataStore {
 	private static final Logger logger = LoggerFactory.getLogger(FluoCompositeDataStore.class);
 
 	private String fileName;
+
+	private String columnFileName;
 
 	public FluoCompositeDataStore(String fileName) {
 		this.fileName = fileName;
@@ -67,6 +70,56 @@ public class FluoCompositeDataStore {
 			data[i] = PrimitiveArrayEncoder.getDoubleArray(split[i]);
 		}
 		return data;
+	}
+
+	/**
+	 * Write MCA data to text file, counts in columns (i.e. column 1 has counts for each channel in element 1 etc).
+	 * Output filename is mca filename with .dat appended.
+	 * @param data
+	 */
+	public void writeDataToColumnFile(double[][] data) {
+		int numElements = data.length;
+		int numChannels = data[0].length;
+
+		columnFileName = fileName+".dat";
+		String header = "# Filename    : "+columnFileName+"\n"+
+					    "# Description : MCA data from file "+fileName+" saved in columns\n"+
+					    "# Number of elements : "+numElements+"\n"+
+					    "# Number of channels : "+numChannels+"\n#\n\n";
+
+		StringBuilder str = new StringBuilder();
+		str.append(header);
+
+		// Column labels
+		str.append("# Channel");
+		for (int i = 0; i < numElements; i++) {
+			str.append(",\tElement_" + i);
+		}
+		str.append("\n");
+
+		// Add the data in columns (one detector element per column)
+		DecimalFormat formatter = new DecimalFormat("0.#####E0");
+		for (int i = 0; i < numChannels; i++) {
+			str.append(i);
+			for (int j = 0; j < numElements; j++) {
+				str.append("\t\t"); // 2 tabs to align with column names (test alignment with non-zero data)
+				str.append(formatter.format(data[j][i]));
+			}
+			str.append("\n");
+		}
+
+		//Write the file
+		try {
+			BufferedWriter out = new BufferedWriter(new FileWriter(columnFileName));
+			out.write(str.toString());
+			out.close();
+		} catch (IOException e) {
+			logger.error("IOException whilst writing stored detector editor data to file " + columnFileName);
+		}
+	}
+
+	public String getColumnFileName() {
+		return columnFileName;
 	}
 
 	public void writeDataToFile(double[][] newData) {
