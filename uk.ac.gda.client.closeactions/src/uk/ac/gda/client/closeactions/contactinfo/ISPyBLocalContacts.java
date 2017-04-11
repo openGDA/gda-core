@@ -55,7 +55,7 @@ public class ISPyBLocalContacts {
 		this.template= template;
 	}
 	
-	public String forCurrentVisit(String visit) throws Exception {
+	public List<String> forCurrentVisit(String visit) throws Exception {
 
 		// Split visit code (e.g. "cm14486-3") into proposal code ("cm") and proposal number (14486)
 		final Pattern visitPattern = Pattern.compile("([a-z]+)(\\d+)-(\\d+)");
@@ -71,7 +71,7 @@ public class ISPyBLocalContacts {
 
 		final Object[] parameters = new Object[] { proposalCode, proposalNumber, endthing };
 
-		final String fedID = template.queryForObject(sql, parameters, LC_MAPPER);
+		final List<String> fedID = template.query(sql, parameters, LC_MAPPER);
 
 		return fedID;
 	}

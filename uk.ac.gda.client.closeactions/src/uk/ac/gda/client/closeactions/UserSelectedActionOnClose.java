@@ -8,8 +8,11 @@ import uk.ac.gda.client.closeactions.contactinfo.LdapEmail;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.activation.CommandMap;
 import javax.activation.MailcapCommandMap;
@@ -75,7 +78,8 @@ public class UserSelectedActionOnClose {
 					try{
 						final String[] recipients = getEmailRecipients();
 						final String beamlineName = LocalProperties.get("gda.beamline.name","Beamline Unknown").toUpperCase();
-						final String from = String.format("%s <%s>", LocalProperties.RCP_APP_VISIT, beamlineName);
+						final String visit = LocalProperties.get(LocalProperties.RCP_APP_VISIT);
+						final String from = String.format("%s <%s>", visit, beamlineName);
 						final String mailSubject = subject + " " + beamlineName;
 	
 						final String smtpHost = LocalProperties.get("gda.feedback.smtp.host","localhost");
@@ -92,7 +96,7 @@ public class UserSelectedActionOnClose {
 						if (text != "") {
 							helper.setText(text);
 						} else {
-							helper.setText("The current user (visit: " + LocalProperties.RCP_APP_VISIT + ") on " + beamlineName + " is finished.");
+							helper.setText("The current user (visit: " + visit + ") on " + beamlineName + " is finished.");
 						}
 						{//required to workaround class loader issue with "no object DCH..." error
 							MailcapCommandMap mc = (MailcapCommandMap) CommandMap.getDefaultCommandMap();
@@ -116,7 +120,6 @@ public class UserSelectedActionOnClose {
 		//using List because number of recipients is variable
 		List<String> eRs = new ArrayList<>();
 
-		eRs.add("victoria.lawson@diamond.ac.uk");
 		switch (optionChoice)
 		{
 		case RESTART_CLIENT:
@@ -130,79 +133,78 @@ public class UserSelectedActionOnClose {
 			}
 			break;
 		case FINISHED:
-			//should only ever return single emails
-			eRs.add(getEmailAddress(getLocalContact()));
-			eRs.add(getEmailAddress(getNextLocalContact()));
+			for (String LocalContact : getCurrentAndNextLocalContacts()) {
+				eRs.add(getEmailAddress(LocalContact));
+			}
 			eRs.add(LocalProperties.get("gda.principalbeamlinescientist"));
 			break;
 		default:
 			break;
 		}
 
+		logger.debug("eRs: {}", eRs);
+		List<String> viableEmailRecipients = new ArrayList<>();
+		for (String eR : eRs) {
+			if (eR != null && eR.trim().length() > 0) {
+				viableEmailRecipients.add(eR);
+			}
+		}
+		logger.debug("viableEmailRecipients: {}", viableEmailRecipients);
+		
 		//convert to String[] for Mime
-	    String[] recipients = new String[eRs.size()];
-	    eRs.toArray(recipients);
+		String[] recipients = new String[viableEmailRecipients.size()];
+		viableEmailRecipients.toArray(recipients);
 		return recipients;
 	}
 
 	private List<String> getFeedbackGroup() {
 		List<String> eRs = new ArrayList<>();
-		String recipientsProperty = LocalProperties.get("dag-group@diamond.ac.uk");
-		String[] recipients = recipientsProperty.split(" ");
-		for (String recipient : recipients) {
-			recipient.trim();
-			eRs.add(recipient);
-		}
+		addRecipients(eRs, LocalProperties.get("gda.feedback.recipients",""));
+		addRecipients(eRs, LocalProperties.get("gda.developers", ""));
 		return eRs;
+	}
+
+	private void addRecipients(List<String> eRs, String recipientsString) {
+		if (!(recipientsString.equals(""))) {
+			String[] recipients = recipientsString.split(" ");
+			for (String recipient : recipients) {
+				eRs.add(recipient.trim());
+			}
+		}
 	}
 
 	private String getEmailAddress(String fedID){
 		return new LdapEmail().forFedID(fedID);
 	}
 
-	private String getLocalContact(){
-		return getLocalContact(LocalProperties.get(LocalProperties.RCP_APP_VISIT));
+	private Set<String> getCurrentAndNextLocalContacts(){
+		Set<String> localContacts = new HashSet<>();
+		localContacts.addAll(getLocalContact(LocalProperties.get(LocalProperties.RCP_APP_VISIT)));
+		for (String visit: getNextVisits()){
+			localContacts.addAll(getLocalContact(visit));
+		}
+		return localContacts;
 	}
 
-	private String getLocalContact(String visit){
-		String result = null;
-		try {
-			logger.debug("Connecting to ISPyB.");
-			JdbcTemplate template = ISPyBLocalContacts.connectToDatabase();
-			logger.debug("Retrieving local contact from ISPyB.");
-			result = new ISPyBLocalContacts(template).forCurrentVisit(visit);
-		} catch(Exception e) {
-			logger.error("There was an error connecting to ISPyB while retrieving local contact: ", e.toString());
+	private List<String> getLocalContact(String visit){
+		List<String> result = new ArrayList<>();
+		//filter out cm and nr so we're not inundating devs with emails during commissioning etc.
+		if (!(visit.startsWith("cm") || visit.startsWith("nr"))) {
+			try {
+				logger.debug("Connecting to ISPyB.");
+				JdbcTemplate template = ISPyBLocalContacts.connectToDatabase();
+				logger.debug("Retrieving local contact from ISPyB.");
+				result = new ISPyBLocalContacts(template).forCurrentVisit(visit);
+			} catch(Exception e) {
+				logger.error("There was an error connecting to ISPyB while retrieving local contact", e);
+			}
 		}
 		return result;
 	}
 
-	private String getNextLocalContact(){
-		for (String result : getNextVisits()){
-			//filter out cm and nr
-			if (!(result.startsWith("cm") || result.startsWith("nr"))) {
-				String[] parts = result.split(",");
-				String startDate[] = parts[1].split(" ");
-
-				SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-				int oneDayInMillis = 24*60*60*1000;
-				String tomorrow = df.format(new Date(System.currentTimeMillis() + oneDayInMillis));
-
-				if (startDate[0] == tomorrow){
-					String currentLC = getLocalContact();
-					String nextLC = getLocalContact(parts[0]);
-					if (currentLC != nextLC) {
-						return nextLC;
-					}
-				}
-			}
-		}
-		return "";
-	}
-
 	private List<String> getNextVisits(){
 		String beamline = LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME);
-		 List<String> result = null;
+		List<String> result = new ArrayList<>();
 		try {
 			logger.debug("Connecting to ISPyB.");
 			JdbcTemplate template = ISPyBLocalContacts.connectToDatabase();
