@@ -1325,7 +1325,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 				NexusUtils.writeString(file, group, "local_name", detectorName);
 			}
 		} catch (DeviceException e) {
-			e.printStackTrace();
+			logger.error("Error writting detector metadata", e);
 		}
 
 		// Check to see if the detector will write its own info into NeXus

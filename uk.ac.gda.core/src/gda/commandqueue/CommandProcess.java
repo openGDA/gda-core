@@ -129,8 +129,7 @@ public class CommandProcess extends AbstractLockingPausableProcess<CommandBean> 
 				broadcast(bean);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
-			logger.error("Cannot execute command " + command);
+			logger.error("Cannot execute command {}", command, e);
 
 			// broadcast the bean for a failed scan
 			setBeanStatus(Status.FAILED);
