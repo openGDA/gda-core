@@ -88,8 +88,6 @@ public class SpringObjectServer extends ObjectServer {
 		applicationContext.refresh();
 
 		dumpListOfBeans();
-
-		writeFindablesJythonModule();
 	}
 
 	private void dumpListOfBeans() {
@@ -132,7 +130,7 @@ public class SpringObjectServer extends ObjectServer {
 	 *
 	 * <p>Documented further on <a href="http://confluence.diamond.ac.uk/x/IwyvAw">Confluence</a>.
 	 */
-	private void writeFindablesJythonModule() {
+	void writeFindablesJythonModule() {
 
 		final String moduleName = "gdaserver";
 
