@@ -18,6 +18,9 @@
 
 package gda.epics;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.InitializationListener;
@@ -39,9 +42,6 @@ import gov.aps.jca.dbr.DBRType;
 import gov.aps.jca.dbr.DBR_Int;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -283,7 +283,6 @@ public class AccessControl implements Configurable, Findable, IObservable, Initi
 					dbr = dbr.convert(DBRType.INT);
 				} catch (CAStatusException e) {
 					logger.error("Conversion DBR to DBRType.INT failed. ", e);
-					e.printStackTrace();
 				}
 				value = ((DBR_Int) dbr).getIntValue()[0];
 			} else {

@@ -1541,7 +1541,7 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 					try {
 						Thread.sleep(100);
 					} catch (InterruptedException e) {
-						e.printStackTrace();
+						logger.error("Interrupted waiting for callback", e);
 					}
 				}
 
