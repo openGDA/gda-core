@@ -169,7 +169,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 
 		if (!ClientManager.isTestingMode()) {
 			jsf = JythonServerFacade.getInstance();
-			jsf.addIObserver(this);
+			jsf.addOutputTerminal(this);
 		}
 
 		helpHandler = GDAClientActivator.getNamedService(HelpHandler.class, null);
@@ -1101,6 +1101,9 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 	public void dispose() {
 		if(autoCompleter!=null){
 			autoCompleter.dispose();
+		}
+		if (!ClientManager.isTestingMode()) {
+			jsf.deleteOutputTerminal(this);
 		}
 
 		super.dispose();
