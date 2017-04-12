@@ -43,6 +43,7 @@ import org.eclipse.dawnsci.hdf5.nexus.NexusFileHDF5;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusUtils;
+import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.DTypeUtils;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
@@ -198,7 +199,8 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 
 		try {
 			beamline = metadata.getMetadataValue("instrument", "gda.instrument", null);
-		} catch (DeviceException e1) {
+		} catch (DeviceException e) {
+			logger.error("Error getting instrument metadata", e);
 		}
 
 		// If the beamline name isn't set then default to 'base'.
@@ -513,8 +515,8 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 			Dataset ds = DatasetFactory.createFromObject(newData).reshape(dimArray);
 			try {
 				lazy.setSlice(null, ds, SliceND.createSlice(lazy, startPos, stop));
-			} catch (Exception e) {
-				throw new NexusException(e.getMessage());
+			} catch (DatasetException e) {
+				throw new NexusException("Error writing data from " + detectorName, e);
 			}
 		}
 	}
@@ -571,43 +573,43 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 		if (nxClassIsExternalSDS) {
 			if (makeData) {
 				NexusGroupData data = tree.getData();
-				try {
-					/**
-					 * Create a link of the format
-					 * "nxfile://" + path to external file relative to nxs file + "#" + address
-					 *
-					 * The buffer in data contains
-					 * "nxfile://" + abs path to external file + "#" + address
-					 *
-					 * so we need to replace the abs path with the relative path
-					 */
-					String link = ((String[]) data.getBuffer())[0];
-					//link is of format nxfile:// + filepath + # + address
-					String[] linkParts = link.split("nxfile://");
-					if( linkParts.length!=2){
-						throw new NexusException("Invalid format for external link " + StringUtils.quote(link));
-					}
-					String[] parts = linkParts[1].split("#");
-					if( parts.length!=2){
-						throw new NexusException("Invalid format for external link " + StringUtils.quote(link));
-					}
-					Path absExtPath = getReal(Paths.get(parts[0]));
-					String address=parts[1];
-					File f = absExtPath.toFile();
-					if (!f.exists()) {
-						logger.warn("file " + absExtPath + " does not exist at time of adding link");
-					}
-					Path nxsFile = getReal(Paths.get(nexusFileUrl));
-					Path nxsParent = nxsFile.getParent();
-					Path relativize = nxsParent.relativize(absExtPath);
-					String relativeLink = "nxfile://" + relativize + "#" + address;
-					String path = file.getPath(group);
-					file.linkExternal(new URI(relativeLink), path + name, false);
-					links.add(new ExternalNXlink(name, relativeLink));
-				} catch (URISyntaxException e) {
-					throw new NexusException(
-							"supported encoding in creating string for external linking -- this should never happen");
+
+				/**
+				 * Create a link of the format "nxfile://" + path to external file relative to nxs file + "#" + address
+				 *
+				 * The buffer in data contains "nxfile://" + abs path to external file + "#" + address
+				 *
+				 * so we need to replace the abs path with the relative path
+				 */
+				String link = ((String[]) data.getBuffer())[0];
+				// link is of format nxfile:// + filepath + # + address
+				String[] linkParts = link.split("nxfile://");
+				if (linkParts.length != 2) {
+					throw new NexusException("Invalid format for external link " + StringUtils.quote(link));
 				}
+				String[] parts = linkParts[1].split("#");
+				if (parts.length != 2) {
+					throw new NexusException("Invalid format for external link " + StringUtils.quote(link));
+				}
+				Path absExtPath = getReal(Paths.get(parts[0]));
+				String address = parts[1];
+				File f = absExtPath.toFile();
+				if (!f.exists()) {
+					logger.warn("file " + absExtPath + " does not exist at time of adding link");
+				}
+				Path nxsFile = getReal(Paths.get(nexusFileUrl));
+				Path nxsParent = nxsFile.getParent();
+				Path relativize = nxsParent.relativize(absExtPath);
+				String relativeLink = "nxfile://" + relativize + "#" + address;
+				String path = file.getPath(group);
+				try {
+					URI relativeLinkUri = new URI(relativeLink);
+					file.linkExternal(relativeLinkUri, path + name, false);
+				} catch (URISyntaxException e) {
+					throw new NexusException("Could not create URI from: " + relativeLink, e);
+				}
+				links.add(new ExternalNXlink(name, relativeLink));
+
 			}
 			return;
 		}
@@ -1039,7 +1041,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 			makeMetadataScannables(g, metadatascannablestowrite);
 		} catch (NexusException e) {
 			// FIXME NexusDataWriter should allow exceptions to be thrown
-			logger.error("TODO put description of error here", e);
+			logger.error("Error making configured scannables and monitors", e);
 		}
 		return scannablesAndMonitors;
 	}
@@ -1611,8 +1613,8 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 			try {
 				ILazyWriteableDataset lazy = data.getWriteableDataset();
 				lazy.setSlice(null, DatasetFactory.createFromObject(positions[i]).reshape(dimArray), SliceND.createSlice(lazy, startPos, stop));
-			} catch (Exception e) {
-				throw new NexusException(e.getMessage());
+			} catch (DatasetException e) {
+				throw new NexusException("Error writing " + inputNames[i], e);
 			}
 		}
 
@@ -1623,13 +1625,13 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 			ILazyWriteableDataset lazy = data.getWriteableDataset();
 			try {
 				lazy.setSlice(null, DatasetFactory.createFromObject(positions[inputNames.length + i]), SliceND.createSlice(lazy, startPos, stop));
-			} catch (Exception e) {
-				throw new NexusException(e.getMessage());
+			} catch (DatasetException e) {
+				throw new NexusException("Error writing " + extraNames[i], e);
 			}
 		}
 	}
 
-	private void writeCounterTimer(Detector detector, double newData[]) throws NexusException {
+	private void writeCounterTimer(Detector detector, double[] newData) throws NexusException {
 		int[] startPos = generateDataStartPos(dataStartPosPrefix, null);
 		int[] stop = generateDataStop(startPos, null);
 		int[] dimArray = generateDataDim(false, dataDimPrefix, null);
@@ -1648,7 +1650,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 				ILazyWriteableDataset lazy = data.getWriteableDataset();
 				lazy.setSlice(null, DatasetFactory.createFromObject(newData[j]).reshape(dimArray), SliceND.createSlice(lazy, startPos, stop));
 			} catch (Exception e) {
-				throw new NexusException(e.getMessage());
+				throw new NexusException("Error writing data for " + detector.getName(), e);
 			}
 		}
 	}
