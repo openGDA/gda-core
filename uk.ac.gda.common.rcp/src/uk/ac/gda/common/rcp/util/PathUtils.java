@@ -26,6 +26,8 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.util.io.IPathConstructor;
 
+
+@Deprecated // See DAQ-563
 public class PathUtils {
 	
 	private static Logger logger = LoggerFactory.getLogger(PathUtils.class);
