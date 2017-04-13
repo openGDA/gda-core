@@ -208,7 +208,13 @@ public abstract class ObjectServer implements Runnable {
 			throw new FactoryException(String.format("File does not exist: %s", file));
 		}
 
-		return new SpringObjectServer(file, localObjectsOnly);
+		final SpringObjectServer springObjectServer = new SpringObjectServer(file, localObjectsOnly);
+
+		if (serverSide) {
+			springObjectServer.writeFindablesJythonModule();
+		}
+
+		return springObjectServer;
 	}
 
 	protected static BeanDefinitionRegistry loadBeanDefinitions(File file) {
