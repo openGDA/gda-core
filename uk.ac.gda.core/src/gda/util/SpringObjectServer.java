@@ -88,8 +88,6 @@ public class SpringObjectServer extends ObjectServer {
 		applicationContext.refresh();
 
 		dumpListOfBeans();
-
-		writeFindablesJythonModule();
 	}
 
 	private void dumpListOfBeans() {
@@ -132,7 +130,7 @@ public class SpringObjectServer extends ObjectServer {
 	 *
 	 * <p>Documented further on <a href="http://confluence.diamond.ac.uk/x/IwyvAw">Confluence</a>.
 	 */
-	private void writeFindablesJythonModule() {
+	void writeFindablesJythonModule() {
 
 		final String moduleName = "gdaserver";
 
@@ -184,7 +182,7 @@ public class SpringObjectServer extends ObjectServer {
 			writer.println("# generation-time attributes");
 			writer.format("__beamline__ = '%s'\n", LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME).toUpperCase());
 			writer.format("__gdaversion__ = '%s'\n", Version.getRelease());
-			writer.format("__xmlfile__ = '%s'\n", LocalProperties.get("sun.java.command").split(" ")[2]);
+			writer.format("__xmlfile__ = '%s'\n", xmlFile);
 			String[] pid_host = ManagementFactory.getRuntimeMXBean().getName().split("@");
 			writer.format("__pid__ = '%s'\n", pid_host[0]);
 			writer.format("__hostname__ = '%s'\n", pid_host[1]);
