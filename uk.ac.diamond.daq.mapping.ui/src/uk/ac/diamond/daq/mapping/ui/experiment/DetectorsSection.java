@@ -26,8 +26,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.eclipse.core.databinding.Binding;
 import org.eclipse.core.databinding.DataBindingContext;
@@ -148,18 +148,34 @@ public class DetectorsSection extends AbstractMappingSection {
 		Function<DeviceInformation<?>, IDetectorModelWrapper> malcolmInfoToWrapper =
 				info -> new DetectorModelWrapper(info.getLabel(), (IDetectorModel) info.getModel(), false);
 
-		// create a new list of detector model wrappers including the existing ones in the
-		// mapping bean and new ones for the malcolm devices (using the function above).
-		// Uses a map with a merge function that keeps the first value to keep the
-		// existing wrapper for malcolm devices if present
-		Map<String, IDetectorModelWrapper> detectorParams =
-				Stream.concat(getMappingBean().getDetectorParameters().stream(),
-						getMalcolmDeviceInfo().stream().map(info -> malcolmInfoToWrapper.apply(info))).
-				collect(Collectors.toMap(IDetectorModelWrapper::getName, Function.identity(),
-						(v1, v2) -> v1, // this merge function keeps the existing value
-						LinkedHashMap::new)); // linked hash map to maintain the order
+		// get the DeviceInformation objects for the malcolm devices and apply the function
+		// above to create DetectorModelWrappers for them.
+		Map<String, IDetectorModelWrapper> malcolmParams = getMalcolmDeviceInfo().stream().
+				map(info -> malcolmInfoToWrapper.apply(info)).
+				collect(Collectors.toMap(IDetectorModelWrapper::getName, Function.identity()));
 
-		return new ArrayList<>(detectorParams.values());
+		// a predicate to filter out malcolm devices which no longer exist
+		Predicate<IDetectorModelWrapper> nonExistantMalcolmFilter =
+				wrapper -> !(wrapper.getModel() instanceof IMalcolmModel) || malcolmParams.containsKey(wrapper.getName());
+
+		// create a name-keyed map from the existing detector parameters in the bean, filtering out those for
+		// malcolm devices which no longer exist using the predicate above
+		Map<String, IDetectorModelWrapper> detectorParams = getMappingBean().getDetectorParameters().stream().
+				filter(nonExistantMalcolmFilter). // filter out malcolm device which no longer exist
+				collect(Collectors.toMap(IDetectorModelWrapper::getName, // key by name
+						Function.identity(), // the value is the wrapper itself
+						(v1, v2) -> v1, // merge function not used as there should be no duplicate keys
+						LinkedHashMap::new)); // create a linked hash map to maintain the order
+
+		// merge in the wrappers for the malcolm devices. The merge function here keeps the original
+		// wrapper if the mapping bean already contained one for a device with this name
+		malcolmParams.forEach((name, params) -> detectorParams.merge(name, params, (v1, v2) -> v1));
+
+		// convert to a list and set this as the detector parameters in the bean
+		List<IDetectorModelWrapper> detectorParamList = new ArrayList<>(detectorParams.values());
+		getMappingBean().setDetectorParameters(detectorParamList);
+
+		return detectorParamList;
 	}
 
 	private Collection<DeviceInformation<?>> getMalcolmDeviceInfo() {
