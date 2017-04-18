@@ -19,16 +19,20 @@
 
 package gda.device.detector.xmap;
 
+import java.util.Random;
+
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.detector.DetectorBase;
-
-import java.util.Random;
+import gda.device.detector.xmap.edxd.IEDXDMappingController;
 
 /**
  * Should set in the XML this class to be always local. There is no corba implementation for it.
  */
 public class DummyXmapController extends DetectorBase implements XmapController {
+
+	protected IEDXDMappingController edxdController;
+
 	private int numberOfElements = 4;
 	private int numberOfBins = 1024;
 	private double acquisitionTime;
@@ -44,6 +48,14 @@ public class DummyXmapController extends DetectorBase implements XmapController 
 	@Override
 	public void configure(){
 		// no configuration required
+	}
+
+	public IEDXDMappingController getEdxdController() {
+		return edxdController;
+	}
+
+	public void setEdxdController(IEDXDMappingController edxdController) {
+		this.edxdController = edxdController;
 	}
 
 	@Override
