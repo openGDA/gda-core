@@ -295,6 +295,8 @@ public class ExperimentRunEditor extends EditorPart implements ExperimentObjectL
 
 		List<IExperimentBeanDescription> beanTypes = ExperimentBeanManager.INSTANCE.getBeanDescriptions();
 		String[] columnNames = runObjectManager.getOrderedColumnBeanTypes();
+
+		int columnsMade = 0;
 		for (int index = 0; index < columnNames.length; index++){
 			String columnName = columnNames[index];
 			for (IExperimentBeanDescription type : beanTypes) {
@@ -304,12 +306,13 @@ public class ExperimentRunEditor extends EditorPart implements ExperimentObjectL
 					thisColumn.getColumn().setText(type.getBeanType());
 					thisColumn.getColumn().setWidth(width);
 					thisColumn.setLabelProvider(new BeanColumnLabelProvider(type));
+					columnsMade++;
 					break;
 				}
 			}
 		}
 
-		final TableViewerColumn runNum = new TableViewerColumn(table, SWT.LEFT, columnNames.length + 1);
+		final TableViewerColumn runNum = new TableViewerColumn(table, SWT.LEFT, columnsMade + 1);
 		runNum.getColumn().setText("Repetitions");
 		runNum.getColumn().setWidth(30);
 		runNum.setLabelProvider(new RepetitionsColumnLabelProvider());
