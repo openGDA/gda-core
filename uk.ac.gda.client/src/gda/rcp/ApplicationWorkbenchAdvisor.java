@@ -325,7 +325,7 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 						display.asyncExec(new Runnable() {
 							@Override
 							public void run() {
-								final Shell shell = display.getShells()[0];
+								final Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
 								BatonRequestDialog.doPassBaton(shell, request);
 							}
 						});
