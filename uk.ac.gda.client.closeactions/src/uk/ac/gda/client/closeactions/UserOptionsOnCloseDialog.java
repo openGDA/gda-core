@@ -38,13 +38,15 @@ public class UserOptionsOnCloseDialog extends TitleAreaDialog {
 	private static final String TITLE = "Close Actions";
 	private static final String BLURB = "Please tell us why you're closing the client, so we can take appropriate action.";
 
-	private final int niceWidth = 350;
+	private final int niceWidth = 480;
 
 	private UserOptionsMenuOnClose menu;
 	UserSelectedActionOnClose closeAction = new UserSelectedActionOnClose();
 
 	public UserOptionsOnCloseDialog(Shell parent) {
 		super(parent);
+		
+		setShellStyle(getShellStyle() | SWT.RESIZE);
 	}
 
 	@Override
@@ -69,7 +71,8 @@ public class UserOptionsOnCloseDialog extends TitleAreaDialog {
 
 	@Override
 	protected Point getInitialSize() {
-		return new Point(niceWidth + 20, 410);
+		final Point original = super.getInitialSize();
+		return new Point(niceWidth + 20, original.y);
 	}
 
 	@Override
