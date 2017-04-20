@@ -18,6 +18,8 @@
 
 package uk.ac.gda.client.experimentdefinition.ui.handlers;
 
+import java.text.MessageFormat;
+
 import org.eclipse.scanning.api.ui.IResultHandler;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
@@ -57,6 +59,11 @@ public abstract class AbstractOpenResultsHandler extends AbstractQueueBeanHandle
 	 */
 	protected void showResults(@SuppressWarnings("unused") IExperimentObject experimentObject) {
 		// does nothing by default, subclasses may override
+	}
+
+	@Override
+	public String getErrorMessage(ExperimentCommandBean bean) {
+		return MessageFormat.format("Cannot open results for scan {0}.\n\nPlease contact your support representative.", bean.getName());
 	}
 
 	/**
