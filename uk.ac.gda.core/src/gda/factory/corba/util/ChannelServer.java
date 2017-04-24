@@ -19,13 +19,6 @@
 
 package gda.factory.corba.util;
 
-import gda.configuration.properties.LocalProperties;
-import gda.factory.corba.StructuredEvent;
-import gda.factory.corba.StructuredEventHelper;
-import gda.util.ObjectServer;
-import gda.util.logging.LogbackUtils;
-import gda.util.logging.LoggingUtils;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
@@ -44,11 +37,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
+import gda.factory.corba.StructuredEvent;
+import gda.factory.corba.StructuredEventHelper;
+import gda.util.logging.LogbackUtils;
+
 /**
  * This drives the event channel object.
  */
 public class ChannelServer {
 	private static final Logger logger = LoggerFactory.getLogger(ChannelServer.class);
+
+	private static final String EVENT_CHANNEL_NAME = "gda.eventChannelName";
+	private static final String STARTUP_COMPLETE_FOLDER = "gda.objectserver.initialisationCompleteFolder";
+	private static final String EVENT_CHANNEL_THREAD_POOL_SIZE = "gda.factory.corba.util.MyEventChannelImpl.threadPoolSize";
+
+	private static final Properties PROPS = System.getProperties();
 
 	/**
 	 * Main entry point for running the channel server as a standalone application.
@@ -57,26 +60,20 @@ public class ChannelServer {
 	 *            command-line arguments
 	 */
 	public static void main(String[] args) {
-		LoggingUtils.setLogDirectory();
-		LogbackUtils.configureLoggingForServerProcess("eventserver");
-
 		String eventChannelName = null;
-		String property;
-		Properties props = System.getProperties();
+		LogbackUtils.configureLoggingForServerProcess("eventserver", PROPS.getProperty(LogbackUtils.GDA_SERVER_LOGGING_XML));
 
-		props.put("org.omg.CORBA.ORBClass", LocalProperties.get("gda.ORBClass", "org.jacorb.orb.ORB"));
-		props.put("org.omg.CORBA.ORBSingletonClass", LocalProperties.get("gda.ORBSingletonClass", "org.jacorb.orb.ORBSingleton"));
-
-		if (args.length > 0)
+		if (args.length > 0){
 			eventChannelName = args[0];
-		else if ((property = NameFilter.getEventChannelName()) != null)
-			eventChannelName = property;
+			logger.info("Using supplied argument {} to set Event Channel Name", args[0]);
+		}
 		else {
-			logger.warn("NameFilter.getEventChannelName() should never null!");
-			eventChannelName = "local.eventChannel";
+			eventChannelName = PROPS.getProperty(EVENT_CHANNEL_NAME, "local.eventChannel");
+			final String source = PROPS.containsKey(EVENT_CHANNEL_NAME) ? EVENT_CHANNEL_NAME : "default value";
+			logger.info("Using System Property {} to set Event Channe Name to {}", source, eventChannelName);
 		}
 
-		ORB orb = ORB.init(args, props);
+		ORB orb = ORB.init(args, PROPS);
 		ChannelServer channelServer = new ChannelServer(eventChannelName, orb);
 		channelServer.createAndBindEventChannel();
 		Runtime.getRuntime().addShutdownHook(new UnbindEventServerShutdownHook(channelServer));
@@ -139,13 +136,14 @@ public class ChannelServer {
 
 			NamingContextExt nc = NamingContextExtHelper.narrow(orb.resolve_initial_references("NameService"));
 
-			GdaEventChannelImpl channel = new GdaEventChannelImpl(orb, poa);
+			GdaEventChannelImpl channel = new GdaEventChannelImpl(orb, poa,
+					Integer.valueOf(PROPS.getProperty(EVENT_CHANNEL_THREAD_POOL_SIZE, "0")));
 
 			org.omg.CORBA.Object o = poa.servant_to_reference(channel);
 			nc.rebind(nc.to_name(eventChannelName), o);
 
 			logger.info("Event channel initialisation complete");
-			String fileDir = LocalProperties.get(ObjectServer.INITIALISATIONCOMPLETEFOLDER);
+			String fileDir = PROPS.getProperty(STARTUP_COMPLETE_FOLDER);
 			if (fileDir == null) {
 				fileDir = System.getenv("TEMP");
 			}
@@ -202,10 +200,9 @@ public class ChannelServer {
 class GdaEventChannelImpl extends EventChannelImpl {
 	private static final Logger logger = LoggerFactory.getLogger(GdaEventChannelImpl.class);
 
-	GdaEventChannelImpl(org.omg.CORBA.ORB orb, org.omg.PortableServer.POA poa) {
+	GdaEventChannelImpl(org.omg.CORBA.ORB orb, org.omg.PortableServer.POA poa, int threadPoolSize) {
 		super(orb, poa);
-		int threadPoolSize;
-		if ((threadPoolSize = LocalProperties.getAsInt("gda.factory.corba.util.MyEventChannelImpl.threadPoolSize", 0)) > 0) {
+		if (threadPoolSize > 0) {
 			newFixedThreadPool = Executors.newFixedThreadPool(threadPoolSize);
 		}
 	}

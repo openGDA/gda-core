@@ -43,7 +43,6 @@ import gda.factory.corba.util.EventService;
 import gda.factory.corba.util.ImplFactory;
 import gda.factory.corba.util.NetService;
 import gda.util.logging.LogbackUtils;
-import gda.util.logging.LoggingUtils;
 
 /**
  * A utility class which creates objects for local or remote access.
@@ -410,8 +409,7 @@ public abstract class ObjectServer implements Runnable {
 	 * @return         The successfully initialised server object or null
 	 */
 	public static ObjectServer spawn(String[] args) {
-		LoggingUtils.setLogDirectory();
-		LogbackUtils.configureLoggingForServerProcess("objectserver");
+		LogbackUtils.configureLoggingForServerProcess("objectserver", LocalProperties.get(LogbackUtils.GDA_SERVER_LOGGING_XML));
 		ObjectServer server = null;
 
 		// Log some basic information about the server we are about to start
