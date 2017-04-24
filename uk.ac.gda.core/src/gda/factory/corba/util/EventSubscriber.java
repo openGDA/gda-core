@@ -22,6 +22,7 @@ package gda.factory.corba.util;
 /**
  * A class can implement the Subscriber interface when it wants to be informed of events by the EventService
  */
+@FunctionalInterface
 public interface EventSubscriber {
 	/**
 	 * Informs the Subscriber of an event

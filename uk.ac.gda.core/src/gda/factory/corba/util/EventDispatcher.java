@@ -22,6 +22,7 @@ package gda.factory.corba.util;
 /**
  * Interface to be implemented by objects that can dispatch events.
  */
+@FunctionalInterface
 public interface EventDispatcher {
 
 	/**
