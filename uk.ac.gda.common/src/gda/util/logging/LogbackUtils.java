@@ -182,11 +182,12 @@ public class LogbackUtils {
 	/**
 	 * Configures Logback for a server-side process.
 	 *
-	 * @param processName the name of the process for which logging is being configured
+	 * @param processName       processName the name of the process for which logging is being configured
+	 * @param configFilename    the server logging config file to be used
 	 */
-	public static void configureLoggingForServerProcess(String processName) {
+	public static void configureLoggingForServerProcess(String processName, String configFilename) {
 		URL defaultServerConfigFile = LogbackUtils.class.getResource(DEFAULT_SERVER_CONFIG);
-		configureLoggingForProcess(processName, defaultServerConfigFile, GDA_SERVER_LOGGING_XML);
+		configureLoggingForProcess(processName, defaultServerConfigFile, configFilename);
 	}
 
 	/**
@@ -201,7 +202,21 @@ public class LogbackUtils {
 	 */
 	public static void configureLoggingForClientProcess(String processName) {
 		URL defaultClientConfigFile = LogbackUtils.class.getResource(DEFAULT_CLIENT_CONFIG);
-		configureLoggingForProcess(processName, defaultClientConfigFile, GDA_CLIENT_LOGGING_XML);
+
+		// Look for the property
+		String configFilename = LocalProperties.get(GDA_CLIENT_LOGGING_XML);
+
+		// If the property isn't found, log an error. Treat this as non-fatal, because Logback will still
+		// be in its default state (so log messages will still be displayed on the console).
+		if (configFilename == null) {
+			final String msg = String.format(
+				"Please set the %s property, to specify the logging configuration file",
+				GDA_CLIENT_LOGGING_XML);
+			logger.error(msg);
+			return;
+		}
+
+		configureLoggingForProcess(processName, defaultClientConfigFile, configFilename);
 	}
 
 	/**
@@ -220,26 +235,20 @@ public class LogbackUtils {
 
 	/**
 	 * Configures Logback for either a server- or client-side process, using a default configuration file, followed by
-	 * a specified configuration file (using the value of a property, or falling back to the value of a legacy
-	 * property).
+	 * a specified configuration file.
 	 *
-	 * @param processName the name of the process for which logging is being configured
-	 * @param defaultConfigFile the default logging configuration file, which will be applied first
-	 * @param propertyName the property name to use for the custom logging configuration file
+	 * @param processName           The name of the process for which logging is being configured
+	 * @param defaultConfigFile     The default logging configuration file, which will be applied first
+	 * @param configFilename        The name of the custom logging configuration file to use
 	 */
-	protected static void configureLoggingForProcess(String processName, URL defaultConfigFile, String propertyName) {
+	protected static void configureLoggingForProcess(String processName, URL defaultConfigFile, String configFilename) {
 
 		LoggerContext context = getLoggerContext();
 
-		// Look for the property
-		String configFile = LocalProperties.get(propertyName);
-
-		// If the property isn't found, log an error. Treat this as non-fatal, because Logback will still
+		// If no config filename is specified, log an error. Treat this as non-fatal, because Logback will still
 		// be in its default state (so log messages will still be displayed on the console).
-		if (configFile == null) {
-			final String msg = String.format(
-				"Please set the %s property, to specify the logging configuration file",
-				propertyName);
+		if (configFilename == null) {
+			final String msg = "Unable to configure using null or empty logging filename.";
 			logger.error(msg);
 			return;
 		}
@@ -263,10 +272,10 @@ public class LogbackUtils {
 		// Configure using the specified logging configuration.
 		try {
 			//Use stdout as use of logger is no good if the logging configuration is wrong
-			System.out.println("Configure logging using file: " + configFile);
-			configureLogging(context, configFile);
+			System.out.println("Configure logging using file: " + configFilename);
+			configureLogging(context, configFilename);
 		} catch (JoranException e) {
-			final String msg = String.format("Unable to configure logging using %s", configFile);
+			final String msg = String.format("Unable to configure logging using %s", configFilename);
 			throw new RuntimeException(msg, e);
 		}
 

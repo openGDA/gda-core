@@ -448,6 +448,19 @@ public class LocalProperties {
 
 	}
 
+	/**
+	 * Provide a more explicit means to force initialisation and loading of the Local Properties
+	 * rather than just relying on, but in addition to, it happening when a specific property is
+	 * loaded. This method doesn't need to do anything, the ability to call it alone will
+	 * trigger the static initialiser block. By keeping the static initialiser block rather
+	 * than making it into a static method, we keep the thread safety it guarantees without the
+	 * need to add an initialised flag on which to synchronise it and all the access methods,
+	 * which would need to check the flag.
+	 */
+	public static final void load() {
+		// Just needs to exist to trigger the initialiser block when called
+	}
+
 	private final static Properties loadProperties(final String path) throws IOException {
 		final File file                  = new File(path);
 		return loadProperties(file);
