@@ -25,6 +25,8 @@ import javax.jms.Session;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 
+import gda.configuration.properties.LocalProperties;
+
 /**
  * Base class implemented by classes that send and receive messages using JMS.
  */
@@ -32,14 +34,13 @@ public class JmsClient {
 
 	protected static final String TOPIC_PREFIX = "gda.event.";
 
-	protected static final String JMS_URL = "tcp://localhost:61616";
-
 	protected Connection connection;
 
 	protected Session session;
 
 	protected void createSession() throws JMSException {
-		ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(JMS_URL);
+		final String jmsBrokerUri = LocalProperties.getActiveMQBrokerURI();
+		final ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(jmsBrokerUri);
 		connection = factory.createConnection();
 		session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 	}
