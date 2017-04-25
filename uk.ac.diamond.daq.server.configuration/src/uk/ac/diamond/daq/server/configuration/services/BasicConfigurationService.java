@@ -26,7 +26,7 @@ public class BasicConfigurationService implements IGDAConfigurationService {
 	@Override
 	public void loadConfiguration() {
 		// enum initialised here - sets up java properties as passed in or uses defaults
-		initialiseObjectServerEnvironment();
+		initialiseServerEnvironment();
 		try {
 			final String corba_classpath = resolvePath("uk.ac.diamond.org.jacorb/jars", true);
 			final String log_server_classpath = String.join(File.pathSeparator,
@@ -38,8 +38,8 @@ public class BasicConfigurationService implements IGDAConfigurationService {
 			final String channel_server_classpath = String.join(File.pathSeparator, log_server_classpath, corba_classpath);
 
 			commands.put(ServerType.NAME, new SubProcessCommand(buildNameServerCommand(), corba_classpath));
-			commands.put(ServerType.LOG, new SubProcessCommand(buildLogServerCommand((String[])null), log_server_classpath));
-			commands.put(ServerType.EVENT, new SubProcessCommand(buildChannelServerCommand((String[])null), channel_server_classpath));
+			commands.put(ServerType.LOG, new SubProcessCommand(buildLogServerCommand(), log_server_classpath));
+			commands.put(ServerType.EVENT, new SubProcessCommand(buildChannelServerCommand(), channel_server_classpath));
 		} catch (IOException e) {
 			throw new RuntimeException("Could not locate subprocess server classpath component:", e);
 		}

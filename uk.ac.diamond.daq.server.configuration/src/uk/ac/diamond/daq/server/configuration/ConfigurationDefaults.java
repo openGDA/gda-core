@@ -11,11 +11,17 @@ import java.util.List;
 import java.util.Properties;
 import java.util.function.BiFunction;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Platform;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.CaseFormat;
+
+import gda.configuration.properties.LocalProperties;
+import gda.util.logging.LoggingUtils;
 
 /**
  * Default settings to be used when not running the product from one of the scripts
@@ -101,34 +107,59 @@ public enum ConfigurationDefaults {
 	APP_FACILITY_CONFIG(combine(APP_PATHS_ROOT, APP_FACILITY_CONFIG_rel)),
 	APP_GROUP_CONFIG(combine(APP_PATHS_ROOT, APP_GROUP_CONFIG_rel)),
 
+	APP_INSTANCE_PROPERTIES(combine(APP_INSTANCE_CONFIG, "properties")),
+
 	GDA_CONFIG(APP_INSTANCE_CONFIG.value),
 
 	GDA_SPRING_XML_FILE_PATHS(multiCaseJoiner(
 			combine(APP_INSTANCE_CONFIG, "servers"), APP_PROFILES_MODE, (one, two) -> combine(combine(one, two), "server.xml"))),
 	APP_SPRING_XML_FILE_PATHS(getFromApplicationArgsUsingKeySetWithDefault(GDA_SPRING_XML_FILE_PATHS, "-f")),
 
-	APP_PROPERTIES_FILE(combine(combine(APP_INSTANCE_CONFIG, "properties"), combine(APP_MODE, APP_MODE + "_instance_java.properties"))),
-	APP_JCA_LIBRARY_FILE(combine(combine(APP_INSTANCE_CONFIG, "properties"), combine(APP_MODE, "JCALibrary.properties"))),
+	APP_PROPERTIES_FILE(combine(APP_INSTANCE_PROPERTIES, combine(APP_MODE, APP_MODE + "_instance_java.properties"))),
+	APP_JCA_LIBRARY_FILE(combine(APP_INSTANCE_PROPERTIES, combine(APP_MODE, "JCALibrary.properties"))),
 
-	JACORB_CONFIG_DIR(combine(combine(APP_INSTANCE_CONFIG, "properties"), combine(APP_MODE, "jacorb"))),
+	JACORB_CONFIG_DIR(combine(APP_INSTANCE_PROPERTIES, combine(APP_MODE, "jacorb"))),
 	APP_JACORB_VM_ARGS("-Djacorb.config.dir=" + getSystemPropertyWithDefault(JACORB_CONFIG_DIR));
+
+	private static final int GDA_PREFIX_LENGTH = 4;
+
+	private static final String GDA_EVENT_CHANNEL_NAME = "gda.eventChannelName";
 
 	private static final String[] APP_JAVA_OPTS = JAVA_OPTS.value.split(" ");
 
-	private static final String[] BASIC_VM_ARGS =  new String[]{"-Dgda.install.workspace.loc=" + combine(APP_PATHS_ROOT, "workspace"),
-																"-Dgda.install.git.loc=" + APP_WORKSPACE_GIT,
-																"-Dgda.config=" + APP_INSTANCE_CONFIG};
+	private static final String[] BASIC_VM_ARGS =  {"-Dgda.install.workspace.loc=" + combine(APP_PATHS_ROOT, GDA_WORKSPACE_NAME),
+													"-Dgda.install.git.loc=" + APP_WORKSPACE_GIT,
+													"-Dgda.config=" + APP_INSTANCE_CONFIG};
 
 	// N.B. this follows what the gda script calls the 'STANDARD' layout also mode is currently opposite of script default (live)
-	private static final String[] OPTIONAL_VM_ARGS = concat(initialiseOptions(),  new String[]{"-Dgda.mode=" + APP_MODE,
-																"-Dgda.propertiesFile=" + APP_PROPERTIES_FILE,
-																"-Dgda.core.dir=" + APP_CORE_CONFIG,
-																"-Dgda.facility.dir=" + APP_FACILITY_CONFIG,
-																"-Dgda.group.dir=" + APP_GROUP_CONFIG,
-																"-Dgda.instance.dir=" + APP_INSTANCE_CONFIG}, String.class);
+	private static final String[] OPTIONAL_VM_ARGS = concat(initialiseOptions(),  arrayOf(	"-Dgda.mode=" + APP_MODE,
+																							"-Dgda.propertiesFile=" + APP_PROPERTIES_FILE,
+																							"-Dgda.core.dir=" + APP_CORE_CONFIG,
+																							"-Dgda.facility.dir=" + APP_FACILITY_CONFIG,
+																							"-Dgda.group.dir=" + APP_GROUP_CONFIG,
+																							"-Dgda.instance.dir=" + APP_INSTANCE_CONFIG), String.class);
 
-	private static final String[] OBJECT_SERVER_VM_ARGS =  new String[]{"-Dgov.aps.jca.JCALibrary.properties=" + APP_JCA_LIBRARY_FILE,
-																		"-Dderby.stream.error.field=gda.util.persistence.LocalObjectShelfManager.DerbyLogStream"};
+	private static final String[] OBJECT_SERVER_VM_ARGS =  {"-Dgov.aps.jca.JCALibrary.properties=" + APP_JCA_LIBRARY_FILE,
+															"-Dderby.stream.error.field=gda.util.persistence.LocalObjectShelfManager.DerbyLogStream"};
+
+	private static final String[] NAME_SERVER_VM_ARGS = {	APP_JACORB_VM_ARGS.value,
+															"-Dgda.install.workspace.loc=" + combine(APP_PATHS_ROOT, GDA_WORKSPACE_NAME),
+															"-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB",
+															"-Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton",
+															"-DOAPort=" + getHierarchicalValueWithDefault(NAME_SERVER_PORT)};
+
+	private static final String[] LOGSERVER_LOCAL_PROPERTY_KEYS = {	"gda.logserver.xml",
+																	"gda.logserver.port",
+																	"gda.server.logging.port"};
+
+	private static final String[] CHANNEL_SERVER_LOCAL_PROPERTY_KEYS = {"gda.server.logging.xml",
+																		"gda.ORBClass",
+																		"gda.ORBSingletonClass",
+																		GDA_EVENT_CHANNEL_NAME,
+																		"gda.objectserver.initialisationCompleteFolder",
+																		"gda.factory.corba.util.MyEventChannelImpl.threadPoolSize"};
+
+	private static final Logger logger = LoggerFactory.getLogger(ConfigurationDefaults.class);
 
 	private final String value;
 
@@ -139,13 +170,14 @@ public enum ConfigurationDefaults {
 	@Override
 	public String toString() {
 		return value;
-	}	
+	}
 
 	/**
-	 * Assemble the default values for the Objects Server startup args and system properties. These would previously be set by the startup
-	 * scripts or explicitly from the command line. If not, this method will set them based on the default values above.
+	 * Assemble the default values for the common server startup args and system properties. These would previously be set by the startup
+	 * scripts or explicitly from the command line. If not, this method will set them based on the default values above. Also force loading
+	 * of Local Properties so that they are available to subsequent code including the buildXXCommand methods below.
 	 */
-	public static void initialiseObjectServerEnvironment() {
+	public static void initialiseServerEnvironment() {
 		final String[] basicArgs = concat(concat(standardBasicArgs(), APP_JACORB_VM_ARGS.value), OBJECT_SERVER_VM_ARGS, String.class);
 		final String[] optionalArgs = concat(OPTIONAL_VM_ARGS, "-Djava.awt.headless=true");
 		final String[] vmArgs =  concat(basicArgs, optionalArgs, String.class);
@@ -157,50 +189,124 @@ public enum ConfigurationDefaults {
 				System.setProperty(bits[0].substring(2), bits[1]);
 			}
 		}
+		if (StringUtils.isBlank(properties.getProperty(LocalProperties.GDA_BEAMLINE_NAME))) {
+			System.setProperty(LocalProperties.GDA_BEAMLINE_NAME, APP_BEAMLINE.value);
+		}
+		LocalProperties.load();
+		logger.info("LocalProperties loaded");
+		LoggingUtils.setLogDirectory();
 	}
 
+	// These command array builder methods are all called after initialiseObjectServerEnvironment and thus can make use of Local Properties
+
+	/**
+	 * Build composite command array for use by {@link ProcessBuilder#ProcessBuilder(String... command)} when starting the
+	 * {@link gda.util.LogServer}. Supplies all the required parameters as System properties for the VM that runs it.
+	 *
+	 * @return		The required composite command array including all the above elements.
+	 */
 	public static String[] buildLogServerCommand(final String... optionalVMArgs) {
-		return buildCommand(LOG_SERVER_CLASS.value, standardBasicArgs(), optionalVMArgs);
+		String[] logServerArgs = ArrayUtils.isNotEmpty(optionalVMArgs) ? optionalVMArgs: OPTIONAL_VM_ARGS;
+		for (String key : LOGSERVER_LOCAL_PROPERTY_KEYS) {
+			if (LocalProperties.contains(key)) {
+				logServerArgs = (String[])ArrayUtils.add(logServerArgs, String.format("-D%s=%s", key, LocalProperties.get(key)));
+			} else {
+				if ("gda.logserver.xml".equals(key)) {
+					logger.warn("{} property not specified, Log Server may not start correctly", key);
+				} else {
+					logger.info("Log Server will start listening on default port (6000)");
+				}
+			}
+		}
+		return buildCommand(arrayOf(LOG_SERVER_CLASS.value), standardBasicArgs(), logServerArgs);
 	}
 
+	/**
+	 * Build composite command array for use by {@link ProcessBuilder#ProcessBuilder(String... command)} when starting the
+	 * {@link org.jacorb.naming.NameServer}. Supplies all the required parameters as System properties for the VM that runs it.
+	 *
+	 * @return		The required composite command array including all the above elements.
+	 */
 	public static String[] buildNameServerCommand() {
-		final String[] vmArgs = new String[]{APP_JACORB_VM_ARGS.value,
-										"-Dgda.install.workspace.loc=" + combine(APP_PATHS_ROOT, "workspace"),
-										"-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB",
-										"-Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton",
-										"-DOAPort=" + getHierarchicalValueWithDefault(NAME_SERVER_PORT)};
-		return buildCommand( NAME_SERVER_CLASS.value, concat(APP_JAVA_OPTS, vmArgs, String.class), new String[]{});
+		return buildCommand(arrayOf(NAME_SERVER_CLASS.value), concat(APP_JAVA_OPTS, NAME_SERVER_VM_ARGS, String.class), arrayOf());
 	}
 
+	/**
+	 * Build composite command array for use by {@link ProcessBuilder#ProcessBuilder(String... command)} when starting the
+	 * {@link gda.factory.corba.util.ChannelServer}. Supplies the event channel name as an argument to the ChannelServer
+	 *  class and all other required parameters as System properties for the VM that runs it.
+	 *
+	 * @return		The required composite command array including all the above elements.
+	 */
 	public static String[] buildChannelServerCommand(final String... optionalVMArgs) {
+		String[] channelServerArgs = ArrayUtils.isNotEmpty(optionalVMArgs) ? optionalVMArgs: OPTIONAL_VM_ARGS;
+		String[] serverClassPlusOptionalEventChannel = {CHANNEL_SERVER_CLASS.value};
+		for (String key : CHANNEL_SERVER_LOCAL_PROPERTY_KEYS) {
+			if (LocalProperties.contains(key)) {
+				if (key.equals(GDA_EVENT_CHANNEL_NAME)) {
+					serverClassPlusOptionalEventChannel = concat(serverClassPlusOptionalEventChannel, LocalProperties.get(key));
+				} else {
+					channelServerArgs = (String[])ArrayUtils.add(channelServerArgs, String.format("-D%s=%s", substituteORBKeys(key), LocalProperties.get(key)));
+				}
+			} else {
+				if (!key.equals(GDA_EVENT_CHANNEL_NAME) && !"gda.factory.corba.util.MyEventChannelImpl.threadPoolSize".equals(key)) {
+					logger.warn("{} property not specified, Channel/Event Server may not start correctly", key);
+				} else {
+					final String tail = key.substring(key.lastIndexOf('.') + 1);
+					logger.info("Channel/Event Server will start with default {}", tail);
+				}
+			}
+		}
 		final String[] vmArgs = concat(standardBasicArgs(), APP_JACORB_VM_ARGS.value);
-		return buildCommand(CHANNEL_SERVER_CLASS.value, vmArgs, optionalVMArgs);
+		return buildCommand(serverClassPlusOptionalEventChannel, vmArgs, channelServerArgs);
 	}
 
-	private static String[] buildCommand(final String className, final String[] vmArgs, final String... optionalVMArgs){
+	/**
+	 * Substitute org.omg.CORBA for the gda prefix in keys referring to the ORB
+	 *
+	 * @param key		The LocalProperties key prefixed with gda
+	 * @return			The modified key prefixes with org.omg.CORBA
+	 */
+	private static String substituteORBKeys(String key) {
+		return key.contains("ORB") ? String.format("org.omg.CORBA.%s", key.substring(GDA_PREFIX_LENGTH)) : key;
+	}
+
+	/**
+	 * Build composite command array for use by {@link ProcessBuilder#ProcessBuilder(String... command)} to embody
+	 * the form: java <some vm args> <class to run> <params for class>.
+	 *
+	 * @param classNamePlusArgs		The fully qualified class name plus any arguments for its main method as an Array.
+	 * @param vmArgs				Any common -D arguments for the VM executing the target class as an Array.
+	 * @param optionalVMArgs		Any beamline specific -D arguments for the VM executing the target class as an Array;
+	 * 								if this is not specified orn null, the default values for the beamline will be used.
+	 * 								N.B. this is not the case if an empty array is supplied as this is a valid (empty) set.
+	 *
+	 * @return						The composite command array including all the above elements.
+	 */
+	private static String[] buildCommand(final String[] classNamePlusArgs, final String[] vmArgs, final String... optionalVMArgs){
 		final String[] optionalArgs = optionalVMArgs != null ? optionalVMArgs: OPTIONAL_VM_ARGS;
-		return concat(concat("java", concat(vmArgs, optionalArgs, String.class)), className);		
+		return concat(concat("java", concat(vmArgs, optionalArgs, String.class)), classNamePlusArgs, String.class);
 	}
 
 	// utility methods to handle the defaulting of value that might be set by environment variables/system properties
 
 	private static String getEnvVarWithDefault(final ConfigurationDefaults instance) {
-		return getEnvVarWithDefault(instance, null);		
+		return getEnvVarWithDefault(instance, null);
 	}
 
 	private static String getEnvVarWithDefault(final ConfigurationDefaults instance, final CaseFormat format) {
 		final String name = format != null ? CaseFormat.UPPER_UNDERSCORE.to(format, instance.name()): instance.name();
 		final String loaded = System.getenv(name);
-		return loaded != null ? loaded : instance.value;		
+		return loaded != null ? loaded : instance.value;
 	}
 
 	private static String getSystemPropertyWithDefault(final ConfigurationDefaults instance) {
-		return getSystemPropertyWithDefault(instance, instance.value);		
+		return getSystemPropertyWithDefault(instance, instance.value);
 	}
 
 	private static String getSystemPropertyWithDefault(final ConfigurationDefaults instance, final String defaultValue) {
 		final String loaded = System.getProperty(instance.name().toLowerCase().replaceAll("_","."));
-		return loaded != null ? loaded : defaultValue;		
+		return loaded != null ? loaded : defaultValue;
 	}
 
 	private static String getHierarchicalValueWithDefault(final ConfigurationDefaults instance) {
@@ -305,7 +411,7 @@ public enum ConfigurationDefaults {
 	 * @return a zero to 3 length array of those args that have been specified
 	 */
 	private static final String[] initialiseOptions() {
-		final List<String> args = new ArrayList<String>();
+		final List<String> args = new ArrayList<>();
 		if (APP_LOGS_DIR.value != null) {
 			args.add("-Dgda.logs.dir=" + APP_LOGS_DIR);
 		}
@@ -314,7 +420,7 @@ public enum ConfigurationDefaults {
 		}
 		if (APP_VAR.value != null) {
 			args.add("-Dgda.var=" + APP_VAR);
-		}		
+		}
 		return args.toArray(new String[args.size()]);
 	}
 
@@ -337,9 +443,19 @@ public enum ConfigurationDefaults {
 		} catch (IOException e) {
 			throw new IllegalArgumentException("Beamline config layout file cannot be loaded", e);
 		} catch (Exception e) {
-			throw new IllegalArgumentException("Unable to look up '" + APP_BEAMLINE.value + 
+			throw new IllegalArgumentException("Unable to look up '" + APP_BEAMLINE.value +
 					"' from " + BEAMLINE_LAYOUTS.value, e);
 		}
 		return layoutDetails;
+	}
+
+	/**
+	 * Convenience method for use in calls to methods that don't or can't (because of parameter position) take String varargs.
+	 *
+	 * @param members		The array members in varargs form
+	 * @return				The array of members
+	 */
+	private static String[] arrayOf(String ... members) {
+		return members;
 	}
 }
