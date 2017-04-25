@@ -509,23 +509,19 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		final IJythonServerStatusObserver serverObserver = new IJythonServerStatusObserver() {
 			@Override
 			public void update(Object theObserved, final Object changeCode) {
-				Display.getDefault().asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						if (changeCode instanceof gda.jython.batoncontrol.BatonChanged) {
-							updateBatonStatus(batonStatus);
-						} else if (changeCode instanceof BatonLeaseRenewRequest) {
-							InterfaceProvider.getBatonStateProvider().amIBatonHolder();
-						} else if (changeCode instanceof JythonServerStatus) {
-							updateScriptStatus(scriptStatus);
-						} else if (changeCode instanceof ScanEvent) {
-							updateScanDetails(scanStatus,(ScanEvent)changeCode);
-							updateScriptStatus(scriptStatus);
-						} else if (changeCode instanceof Scan.ScanStatus) {
-							updateScriptStatus(scriptStatus);
-						}
-					}
-				});
+				if (changeCode instanceof gda.jython.batoncontrol.BatonChanged) {
+					updateBatonStatus(batonStatus);
+				} else if (changeCode instanceof BatonLeaseRenewRequest) {
+					// Cause the baton to be renewed by this client - Seems like a odd place for this?
+					InterfaceProvider.getBatonStateProvider().amIBatonHolder();
+				} else if (changeCode instanceof JythonServerStatus) {
+					updateScriptStatus(scriptStatus);
+				} else if (changeCode instanceof ScanEvent) {
+					updateScanDetails(scanStatus, (ScanEvent) changeCode);
+					updateScriptStatus(scriptStatus);
+				} else if (changeCode instanceof Scan.ScanStatus) {
+					updateScriptStatus(scriptStatus);
+				}
 			}
 		};
 
@@ -574,11 +570,11 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		case FINISHING_EARLY:
 		case TIDYING_UP_AFTER_FAILURE:
 		case TIDYING_UP_AFTER_STOP:
-			setStatusLineText(status, message, null);
+			setStatusLineText(status, message);
 			break;
 		case COMPLETED_OKAY:
 		default:
-			setStatusLineText(status, message, null);
+			setStatusLineText(status, message);
 			break;
 		}
 	}
@@ -595,7 +591,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 
 	private void updateStatus(StatusLineContributionItem status, int scan, final String postFix) {
 		if (scan == Jython.IDLE) {
-			setStatusLineText(status, "No " + postFix + " running", null);
+			setStatusLineText(status, "No " + postFix + " running");
 		} else if (scan == Jython.PAUSED) {
 			setStatusLineText(status, "Paused " + postFix, "control_pause_blue.png");
 		} else if (scan == Jython.RUNNING) {
@@ -604,9 +600,9 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 	}
 
 	private void updateBatonStatus(LinkContributionItem batonStatus) {
-
-		String text, tooltip;
-		Image image;
+		final String text;
+		final String tooltip;
+		final Image image;
 		if (InterfaceProvider.getBatonStateProvider().isBatonHeld()) {
 			final ClientDetails holder = InterfaceProvider.getBatonStateProvider().getBatonHolder();
 			final boolean isHolder = InterfaceProvider.getBatonStateProvider().amIBatonHolder();
@@ -630,26 +626,30 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 			image = GdaImages.getImage("delete.png");
 			tooltip = "";
 		}
-		batonStatus.setText(text);
-		batonStatus.setImage(image);
-		batonStatus.setToolTipText(tooltip);
+
+		// Update the GUI this needs to be in the UI thread
+		window.getShell().getDisplay().asyncExec(() -> {
+			batonStatus.setText(text);
+			batonStatus.setImage(image);
+			batonStatus.setToolTipText(tooltip);
+		});
 	}
 
-	private void setStatusLineText(final StatusLineContributionItem status, final String... conf) {
-		if (conf[1] == null) {
-			status.setImage(null);
-		} else {
-			status.setImage(GdaImages.getImage(conf[1]));
-		}
-		status.setText(conf[0]);
-		if (conf.length > 2) {
-			status.setToolTipText(conf[2]);
-		} else {
-			status.setToolTipText(null);
-		}
+	private void setStatusLineText(final StatusLineContributionItem status, final String text) {
+		setStatusLineText(status, text, null);
+	}
 
+	private void setStatusLineText(final StatusLineContributionItem status, final String text, final String imageName) {
+
+		final Image image = GdaImages.getImage(imageName);
 		final IStatusLineManager man = getActionBarConfigurer().getStatusLineManager();
-		man.update(true); // makes new widgets
+
+		// Update the GUI this needs to be in the UI thread
+		window.getShell().getDisplay().asyncExec(() -> {
+			status.setText(text);
+			status.setImage(image);
+			man.update(true); // makes new widgets
+		});
 	}
 
 	/**
@@ -996,7 +996,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		ISharedImages sharedImages = getWindow().getWorkbench()
 				.getSharedImages();
 
-		IActionCommandMappingService acms = (IActionCommandMappingService) getWindow()
+		IActionCommandMappingService acms = getWindow()
 				.getService(IActionCommandMappingService.class);
 		acms.map(actionId, commandId);
 
