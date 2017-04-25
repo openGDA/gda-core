@@ -142,7 +142,7 @@ public class LogbackUtils {
 	 * @return a list of the logger's appenders
 	 */
 	public static List<Appender<ILoggingEvent>> getAppendersForLogger(Logger logger) {
-		List<Appender<ILoggingEvent>> appenders = new LinkedList<Appender<ILoggingEvent>>();
+		List<Appender<ILoggingEvent>> appenders = new LinkedList<>();
 		Iterator<Appender<ILoggingEvent>> iterator = logger.iteratorForAppenders();
 		while (iterator.hasNext()) {
 			appenders.add(iterator.next());
@@ -182,7 +182,7 @@ public class LogbackUtils {
 	/**
 	 * Configures Logback for a server-side process.
 	 *
-	 * @param processName       processName the name of the process for which logging is being configured
+	 * @param processName       the name of the process for which logging is being configured
 	 * @param configFilename    the server logging config file to be used
 	 */
 	public static void configureLoggingForServerProcess(String processName, String configFilename) {
@@ -209,10 +209,7 @@ public class LogbackUtils {
 		// If the property isn't found, log an error. Treat this as non-fatal, because Logback will still
 		// be in its default state (so log messages will still be displayed on the console).
 		if (configFilename == null) {
-			final String msg = String.format(
-				"Please set the %s property, to specify the logging configuration file",
-				GDA_CLIENT_LOGGING_XML);
-			logger.error(msg);
+			logger.error("Please set the {} property, to specify the logging configuration file", GDA_CLIENT_LOGGING_XML);
 			return;
 		}
 
@@ -248,8 +245,7 @@ public class LogbackUtils {
 		// If no config filename is specified, log an error. Treat this as non-fatal, because Logback will still
 		// be in its default state (so log messages will still be displayed on the console).
 		if (configFilename == null) {
-			final String msg = "Unable to configure using null or empty logging filename.";
-			logger.error(msg);
+			logger.error("Unable to configure using null or empty logging filename.");
 			return;
 		}
 
