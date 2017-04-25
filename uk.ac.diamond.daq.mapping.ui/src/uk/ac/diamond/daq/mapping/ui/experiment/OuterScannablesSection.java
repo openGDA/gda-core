@@ -202,6 +202,7 @@ class OuterScannablesSection extends AbstractMappingSection {
 	private DataBindingContext dataBindingContext;
 
 	private Map<String, Binding> axisBindings;
+	private Map<String, Binding> checkBoxBindings;
 
 	@Override
 	public boolean shouldShow() {
@@ -222,12 +223,14 @@ class OuterScannablesSection extends AbstractMappingSection {
 
 		dataBindingContext = new DataBindingContext();
 		axisBindings = new HashMap<>();
+		checkBoxBindings = new HashMap<>();
 		for (IScanPathModelWrapper scannableAxisParameters : outerScannables) {
 			Button checkBox = new Button(otherScanAxesComposite, SWT.CHECK);
 			checkBox.setText(scannableAxisParameters.getName());
 			IObservableValue checkBoxValue = WidgetProperties.selection().observe(checkBox);
 			IObservableValue activeValue = PojoProperties.value("includeInScan").observe(scannableAxisParameters);
-			dataBindingContext.bindValue(checkBoxValue, activeValue);
+			Binding checkBoxBinding = dataBindingContext.bindValue(checkBoxValue, activeValue);
+			checkBoxBindings.put(scannableAxisParameters.getName(), checkBoxBinding);
 
 			// FIXME make a proper widget for this?
 			Text axisText = new Text(otherScanAxesComposite, SWT.BORDER);
@@ -236,36 +239,48 @@ class OuterScannablesSection extends AbstractMappingSection {
 					+ "or a list of ranges <start1 stop1 step1; start2 stop2 step2>");
 			GridDataFactory.fillDefaults().grab(true, false).applyTo(axisText);
 			IObservableValue axisTextValue = WidgetProperties.text(SWT.Modify).observe(axisText);
-			bindScanPathModelToTextField(scannableAxisParameters, axisTextValue);
+			bindScanPathModelToTextField(scannableAxisParameters, axisTextValue, checkBoxBinding);
 		}
 	}
 
 	private void bindScanPathModelToTextField(IScanPathModelWrapper scannableAxisParameters,
-			IObservableValue axisTextValue) {
+			IObservableValue axisTextValue, Binding checkBoxBinding) {
 		final String scannableName = scannableAxisParameters.getName();
 		IObservableValue axisValue = PojoProperties.value("model").observe(scannableAxisParameters);
 
+		// create an update strategy from text to model with a converter and a validator
 		UpdateValueStrategy axisTextToModelStrategy = new UpdateValueStrategy();
 		axisTextToModelStrategy.setConverter(new StringToScanPathConverter(scannableName));
 		axisTextToModelStrategy.setBeforeSetValidator(value -> {
+			// the value created by the converter will be an IScanPathModel if the text value is valid, or null if not
 			if (value instanceof IScanPathModel) {
 				return ValidationStatus.ok();
 			}
-			String message = "Text is incorrectly formatted";
+			boolean isEmpty = ((String) axisTextValue.getValue()).isEmpty();
+			String message = isEmpty ? "Enter a range or list of values for this scannable" : "Text is incorrectly formatted";
 			if (scannableAxisParameters.isIncludeInScan()) {
 				return ValidationStatus.error(message);
 			} else {
-				return ValidationStatus.warning(message);
+				// empty value is ok if this scannable is not included in the scan
+				return isEmpty ? ValidationStatus.ok() : ValidationStatus.warning(message);
 			}
 		});
 
+		// create an update strategy from model back to text
 		UpdateValueStrategy modelToAxisTextStrategy = new UpdateValueStrategy();
 		modelToAxisTextStrategy.setConverter(new ScanPathToStringConverter());
 
+		// create the binding from the values and the two update strategies
 		Binding axisBinding = dataBindingContext.bindValue(axisTextValue, axisValue,
 				axisTextToModelStrategy, modelToAxisTextStrategy);
 		ControlDecorationSupport.create(axisBinding, SWT.LEFT | SWT.TOP);
 		axisBindings.put(scannableName, axisBinding);
+
+		// when the include in scan checkbox is changed we need to revalidate the model
+		// as this determines the severity of the validation status.
+		checkBoxBinding.getModel().addChangeListener(evt -> {
+			axisBinding.validateTargetToModel();
+		});
 	}
 
 	@Override
@@ -273,13 +288,15 @@ class OuterScannablesSection extends AbstractMappingSection {
 		// update the bindings for exposure time as we may have new models
 		for (IScanPathModelWrapper scannableAxisParameters : getMappingBean().getScanDefinition().getOuterScannables()) {
 			// remove the binding between the text field and old model
-			Binding oldBinding = axisBindings.get(scannableAxisParameters.getName());
+			final String scannableName = scannableAxisParameters.getName();
+			Binding oldBinding = axisBindings.get(scannableName);
 			IObservableValue axisTextValue = (IObservableValue) oldBinding.getTarget();
 			dataBindingContext.removeBinding(oldBinding);
 			oldBinding.dispose();
 
-			// create a new binding between
-			bindScanPathModelToTextField(scannableAxisParameters, axisTextValue);
+			// create a new binding between the checkbox and the new model
+			Binding checkBoxBinding = checkBoxBindings.get(scannableName);
+			bindScanPathModelToTextField(scannableAxisParameters, axisTextValue, checkBoxBinding);
 		}
 
 		dataBindingContext.updateTargets();
