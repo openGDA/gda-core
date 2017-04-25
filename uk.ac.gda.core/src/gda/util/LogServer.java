@@ -1,18 +1,5 @@
 package gda.util;
 
-/**
- * A modified version of ch.qos.logback.classic.net.SimpleSocketServer from Logback: the reliable, generic, fast and
- * flexible logging framework. Copyright (C) 1999-2006, QOS.ch This library is free software, you can redistribute it
- * and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software
- * Foundation.
- */
-
-import gda.configuration.properties.LocalProperties;
-import gda.factory.Configurable;
-import gda.factory.FactoryException;
-import gda.util.logging.LogbackUtils;
-import gda.util.logging.LoggingUtils;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanNameAware;
@@ -23,6 +10,9 @@ import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.classic.net.SimpleSocketServer;
 import ch.qos.logback.classic.net.SocketNode;
 import ch.qos.logback.core.joran.spi.JoranException;
+import gda.factory.Configurable;
+import gda.factory.FactoryException;
+import gda.util.logging.LogbackUtils;
 
 /**
  * A simple {@link SocketNode} based server for Logging.
@@ -76,7 +66,6 @@ public class LogServer implements Configurable, BeanNameAware {
 	 *             if the logging system cannot be configured
 	 */
 	public static void main(String argv[]) throws JoranException {
-		LoggingUtils.setLogDirectory();
 		LogServer logServer = null;
 		String configFile;
 		if (argv.length == 2) {
@@ -88,13 +77,13 @@ public class LogServer implements Configurable, BeanNameAware {
 				e.printStackTrace();
 				usage("Could not interpret port number [" + portStr + "].");
 			}
-		} else if ((configFile = LocalProperties.get(CONFIG_FILE_PROPERTY)) != null) {
+		} else if ((configFile = System.getProperty(CONFIG_FILE_PROPERTY)) != null) {
 			String portStr = null;
 			int port;
-			if ((portStr = LocalProperties.get(LISTENING_PORT_PROPERTY, null)) != null) {
+			if ((portStr = System.getProperty(LISTENING_PORT_PROPERTY, null)) != null) {
 				port = Integer.parseInt(portStr);
 			} else {
-				port = LocalProperties.getInt(PORT_NUMBER_PROPERTY, DEFAULT_PORT);
+				port = Integer.getInteger(PORT_NUMBER_PROPERTY, DEFAULT_PORT);
 			}
 			logServer = new LogServer(port, configFile);
 		} else {
