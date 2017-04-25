@@ -61,6 +61,8 @@ import org.eclipse.ui.texteditor.StatusLineContributionItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.util.concurrent.RateLimiter;
+
 import gda.commandqueue.Processor;
 import gda.commandqueue.ProcessorCurrentItem;
 import gda.commandqueue.Queue;
@@ -70,6 +72,7 @@ import gda.jython.InterfaceProvider;
 import gda.jython.Jython;
 import gda.jython.JythonServerStatus;
 import gda.jython.authenticator.UserAuthentication;
+import gda.jython.batoncontrol.BatonChanged;
 import gda.jython.batoncontrol.BatonLeaseRenewRequest;
 import gda.jython.batoncontrol.ClientDetails;
 import gda.observable.IObserver;
@@ -133,6 +136,8 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 	private Action testAction;
 	private IWorkbenchAction exportWizardAction;
 	private IWorkbenchAction importWizardAction;
+
+	private final RateLimiter scanEventRateLimiter = RateLimiter.create(20); // 20 refreshes per sec max
 
 	/**
 	 * @param configurer
@@ -509,17 +514,16 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		final IJythonServerStatusObserver serverObserver = new IJythonServerStatusObserver() {
 			@Override
 			public void update(Object theObserved, final Object changeCode) {
-				if (changeCode instanceof gda.jython.batoncontrol.BatonChanged) {
+				if (changeCode instanceof BatonChanged) {
 					updateBatonStatus(batonStatus);
 				} else if (changeCode instanceof BatonLeaseRenewRequest) {
 					// Cause the baton to be renewed by this client - Seems like a odd place for this?
 					InterfaceProvider.getBatonStateProvider().amIBatonHolder();
-				} else if (changeCode instanceof JythonServerStatus) {
+				} else if (changeCode instanceof JythonServerStatus || changeCode instanceof Scan.ScanStatus) {
 					updateScriptStatus(scriptStatus);
-				} else if (changeCode instanceof ScanEvent) {
+				// If its a scan event limit the rate of GUI updates
+				} else if (changeCode instanceof ScanEvent && scanEventRateLimiter.tryAcquire()) {
 					updateScanDetails(scanStatus, (ScanEvent) changeCode);
-					updateScriptStatus(scriptStatus);
-				} else if (changeCode instanceof Scan.ScanStatus) {
 					updateScriptStatus(scriptStatus);
 				}
 			}
@@ -570,8 +574,6 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		case FINISHING_EARLY:
 		case TIDYING_UP_AFTER_FAILURE:
 		case TIDYING_UP_AFTER_STOP:
-			setStatusLineText(status, message);
-			break;
 		case COMPLETED_OKAY:
 		default:
 			setStatusLineText(status, message);
