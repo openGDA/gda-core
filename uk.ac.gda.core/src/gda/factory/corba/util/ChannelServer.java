@@ -35,7 +35,6 @@ import org.omg.CosNaming.NamingContextExtHelper;
 import org.omg.CosNaming.NamingContextPackage.NotFound;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.StringUtils;
 
 import gda.factory.corba.StructuredEvent;
 import gda.factory.corba.StructuredEventHelper;
@@ -128,7 +127,7 @@ public class ChannelServer {
 	 * Creates the event channel and binds it in the naming service.
 	 */
 	public void createAndBindEventChannel() {
-		logger.info("Creating event channel with name " + StringUtils.quote(eventChannelName));
+		logger.info("Creating event channel with name '{}'", eventChannelName);
 
 		try {
 			org.omg.PortableServer.POA poa = org.omg.PortableServer.POAHelper.narrow(orb
@@ -154,24 +153,32 @@ public class ChannelServer {
 			final File fileDirAsFile = new File(fileDir);
 			if (!fileDirAsFile.exists()) {
 				if (fileDirAsFile.mkdirs()) {
-					logger.info("Created " + fileDirAsFile);
+					logger.info("Created {}", fileDirAsFile);
 				} else {
-					logger.error(fileDirAsFile + " didn't exist and it could not be created");
+					logger.error("Initialisation complete folder {} didn't exist and it could not be created", fileDirAsFile);
 				}
 			}
-
-			File oos = new File(fileDir + File.separator + "event_server_startup");
-			try {
-				oos.createNewFile();
-				oos.setLastModified(System.currentTimeMillis());
-			} catch (IOException e) {
-				logger.info("startup file already exist");
-			}
-			oos = null;
+			createStartupFileIfNotPresent(fileDir);
 		} catch (org.omg.CORBA.TRANSIENT ct) {
-			logger.error("NameServer not started: " + ct.getMessage());
+			logger.error("NameServer not started: {}", ct);
 		} catch (Exception e) {
 			logger.error("Couldn't create event channel", e);
+		}
+	}
+
+	private void createStartupFileIfNotPresent(final String fileDir) {
+		File oos = new File(fileDir + File.separator + "event_server_startup");
+		try {
+			if (oos.createNewFile()) {
+				if (!oos.setLastModified(System.currentTimeMillis())) {
+					logger.warn("Could not update timestamp of startup file");
+				}
+			} else {
+				logger.info("startup file already exists");
+			}
+
+		} catch (IOException e) {
+			logger.info("startup file already exists", e);
 		}
 	}
 
@@ -190,6 +197,7 @@ public class ChannelServer {
 			nc.unbind(nc.to_name(eventChannelName));
 		} catch (NotFound e) {
 			// ignore - wasn't bound in the first place
+			logger.debug("Tried to unbind a non-bound event", e);
 		} catch (Exception e) {
 			throw new RuntimeException("Couldn't unbind event channel", e);
 		}
@@ -216,10 +224,10 @@ class GdaEventChannelImpl extends EventChannelImpl {
 				if (timeToDispatch > 500) {
 					if (timedAny.isStructuredEvent()) {
 						StructuredEvent event = StructuredEventHelper.extract(timedAny.event);
-						logger.debug(String.format("Event took %dms to push_event (source=%s, type=%s)", timeToDispatch,
-								event.eventHeader.eventName, event.eventHeader.typeName));
+						logger.debug("Event took {}ms to push_event (source={}, type={})", timeToDispatch,
+									event.eventHeader.eventName, event.eventHeader.typeName);
 					} else {
-						logger.debug(String.format("Event took %dms to push_event %s", timeToDispatch, timedAny.toString()));
+						logger.debug("Event took {}ms to push_event {}s", timeToDispatch, timedAny.toString());
 					}
 				}
 			}
@@ -229,9 +237,9 @@ class GdaEventChannelImpl extends EventChannelImpl {
 			try {
 				s = timedAny.event.type().id();
 			} catch (Exception ex) {
-				// do nothing
+				logger.error("Could not push event of unknown type", ex);
 			}
-			logger.error(String.format("Could not push event (type: %s)", s), e);
+			logger.error("Could not push event (type: {})", s, e);
 		}
 	}
 
@@ -254,9 +262,8 @@ class GdaEventChannelImpl extends EventChannelImpl {
 						long timeOfDispatch = System.currentTimeMillis();
 						long timeBeforeDispatching = timeOfDispatch - timedAny.timeReceivedMs;
 						if (timeBeforeDispatching > 100) {
-							logger.debug(String.format(
-									"Event took %dms until push_event %s %d events pushed since last warning",
-									timeBeforeDispatching, timedAny.toString(), eventsPushedWithinTime));
+							logger.debug("Event took {}ms until push_event {} {} events pushed since last warning",
+									timeBeforeDispatching, timedAny.toString(), eventsPushedWithinTime);
 							eventsPushedWithinTime = 0;
 						} else {
 							eventsPushedWithinTime++;
