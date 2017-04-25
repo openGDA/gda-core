@@ -373,19 +373,26 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 			Dataset dataset = DatasetFactory.createFromObject(elementData);
 			dataset.setName(LIVE_DATA_NAME);
 
-			double[] savedElementData = new double[] {};
+			double[] savedElementData = null;
 			if ( dataLoadedFromFile != null ) {
 				savedElementData = (element < dataLoadedFromFile.length) ? dataLoadedFromFile[element] : new double[] {/* empty */};
 			}
-			Dataset savedData = DatasetFactory.createFromObject(savedElementData);
-			savedData.setName(LOADED_DATA_NAME);
+			Dataset savedData = null;
+			if (savedElementData!=null) {
+				savedData = DatasetFactory.createFromObject(savedElementData);
+				savedData.setName(LOADED_DATA_NAME);
+			}
 
 			String elementName = "Element " + element;
 			fluorescenceDetectorComposite.setXAxisLabel("Channel Number (" + elementName + ")");
 			fluorescenceDetectorComposite.setElementName(elementName);
 
 			fluorescenceDetectorComposite.setPlotTitle(plotTitle);
-			fluorescenceDetectorComposite.plotDatasets(dataset, savedData);
+			if (savedData!=null) {
+			    fluorescenceDetectorComposite.plotDatasets(dataset, savedData);
+			} else {
+				fluorescenceDetectorComposite.plotDatasets(dataset);
+			}
 
 			if (fluorescenceDetectorComposite.getAutoScaleOnAcquire())
 				fluorescenceDetectorComposite.autoscaleAxes();
