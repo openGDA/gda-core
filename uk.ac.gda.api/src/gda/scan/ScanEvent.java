@@ -47,13 +47,13 @@ public class ScanEvent implements Serializable {
 		}
 	}
 
-	private ScanInformation latestInformation;
-	private ScanStatus latestStatus;
-	private int currentPointNumber;
-	private EventType type;
+	private final ScanInformation latestInformation;
+	private final ScanStatus latestStatus;
+	private final int currentPointNumber;
+	private final EventType type;
 
-	public ScanEvent(EventType type, ScanInformation latestInformation, ScanStatus latestStatus, int currentPointNumber) {
-		super();
+	public ScanEvent(EventType type, ScanInformation latestInformation, ScanStatus latestStatus,
+			int currentPointNumber) {
 		this.type = type; // why are we sending this event
 		this.latestInformation = latestInformation; // static info about the scan
 		this.latestStatus = latestStatus; // current status
@@ -71,7 +71,7 @@ public class ScanEvent implements Serializable {
 	 * @return String
 	 */
 	public String toProgressString() {
-		String output = "";
+		final String output;
 		switch (latestStatus) {
 		case COMPLETED_AFTER_FAILURE:
 			output = getScanCompletedMessagePrefix() + "failed.";
@@ -86,20 +86,16 @@ public class ScanEvent implements Serializable {
 			output = getScanCompletedMessagePrefix() + " complete.";
 			break;
 		case FINISHING_EARLY:
-			output = addScanRunningOutput();
-			output += " FINISHING";
+			output = addScanRunningOutput() + " FINISHING";
 			break;
 		case PAUSED:
-			output = addScanRunningOutput();
-			output += " PAUSED";
+			output = addScanRunningOutput() + " PAUSED";
 			break;
 		case TIDYING_UP_AFTER_FAILURE:
-			output = addScanRunningOutput();
-			output += " ERROR";
+			output = addScanRunningOutput() + " ERROR";
 			break;
 		case TIDYING_UP_AFTER_STOP:
-			output = addScanRunningOutput();
-			output += " ABORTING";
+			output = addScanRunningOutput() + " ABORTING";
 			break;
 		default:
 			output = addScanRunningOutput();
