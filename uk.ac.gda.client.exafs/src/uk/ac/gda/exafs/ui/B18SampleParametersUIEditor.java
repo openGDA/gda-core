@@ -212,7 +212,7 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 			public void expansionStateChanged(ExpansionEvent e) {
 				if (!sampleEnvironment.getValue().toString().equals("none"))
 					temperatureExpandableComposite.setExpanded(true);
-				updateExpandable(temperatureExpandableComposite);
+				updateExpandable(temperatureExpandableComposite, null);
 			}
 		};
 		temperatureExpandableComposite.addExpansionListener(tempExpansionListener);
@@ -232,7 +232,7 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 					wheelExpandableComposite.setExpanded(true);
 				else
 					wheelExpandableComposite.setExpanded(e.getState());
-				updateExpandable(wheelExpandableComposite);
+				updateExpandable(wheelExpandableComposite, null);
 			}
 		};
 		wheelExpandableComposite.addExpansionListener(wheelExpansionAdapter);
@@ -244,22 +244,25 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 	}
 
 	private ExpansionAdapter getStageExpansionListener(final ExpandableComposite expandableComposite) {
+		return getStageExpansionListener(expandableComposite, null);
+	}
+
+	private ExpansionAdapter getStageExpansionListener(final ExpandableComposite expandableComposite, final Button useSampleStageButton) {
 		ExpansionAdapter extAdapter = new ExpansionAdapter() {
 			@Override
 			public void expansionStateChanged(ExpansionEvent e) {
-				// if (!sampleEnvironment.getValue().toString().equals("none"))
 				// layout the expanded composite first...
 				ExpandableComposite comp = (ExpandableComposite) e.getSource();
 				GridUtils.layoutFull(comp);
 				// Layout the sample stage composite...
 				sampleStageExpandableComposite.setExpanded(true);
-				updateExpandable(expandableComposite);
+				updateExpandable(expandableComposite, useSampleStageButton);
 			}
 		};
 		return extAdapter;
 	}
 
-	private void updateExpandable(ExpandableComposite expComposite) {
+	private void updateExpandable(ExpandableComposite expComposite, Button useSampleStageButton) {
 		// First, get bean settings from ui
 		try {
 			controller.uiToBean();
@@ -267,6 +270,12 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 		} catch (Exception e) {
 			logger.error("Problem converting UI to bean {}", e);
 		}
+		// Make sure composite is always expanded if the sample stage is currently selected
+		boolean forceExpanded = useSampleStageButton!=null && useSampleStageButton.getSelection()==true;
+		if (forceExpanded) {
+			expComposite.setExpanded(true);
+		}
+
 		GridUtils.layoutFull(expComposite);
 		refreshScrolledContentsSize();
 		linkuiForDynamicLoading(false);
@@ -353,7 +362,8 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 	private void setupExpandableComposite( ExpandableComposite expandableComposite, Composite childComposite, final SAMPLESTAGE_TYPE stageType) {
 		expandableComposite.setClient( childComposite );
 		expandableComposite.setExpanded(false);
-		ExpansionAdapter expansionListener = getStageExpansionListener(expandableComposite);
+		Button useSampleStageButton = (Button)childComposite.getChildren()[0];
+		ExpansionAdapter expansionListener = getStageExpansionListener(expandableComposite, useSampleStageButton);
 		expandableComposite.addExpansionListener( expansionListener );
 		GridUtils.layoutFull(expandableComposite);
 		// Expand composite if stage is selected
