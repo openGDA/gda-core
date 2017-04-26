@@ -21,6 +21,10 @@ package uk.ac.diamond.daq.detectors.addetector.api;
 public class AreaDetectorRunnableDeviceExtendedModel extends AreaDetectorWritingFilesRunnableDeviceModel {
 	private boolean    stopBetweenPoints;
 	private boolean    runUserScripts;
+	private boolean    darkAuto;
+	private int        darkFrequency;
+	private float      darkElapseTimeS;
+	private float      darkMinRelaxTimeS;
 
 	public boolean isStopBetweenPoints() {
 		return stopBetweenPoints;
@@ -38,12 +42,48 @@ public class AreaDetectorRunnableDeviceExtendedModel extends AreaDetectorWriting
 		this.runUserScripts = runUserScripts;
 	}
 
+	public boolean isDarkAuto() {
+		return darkAuto;
+	}
+
+	public void setDarkAuto(boolean darkAuto) {
+		this.darkAuto = darkAuto;
+	}
+
+	public int getDarkFrequency() {
+		return darkFrequency;
+	}
+
+	public void setDarkFrequency(int darkFrequency) {
+		this.darkFrequency = darkFrequency;
+	}
+
+	public float getDarkElapseTimeS() {
+		return darkElapseTimeS;
+	}
+
+	public void setDarkElapseTimeS(float darkElapseTimeS) {
+		this.darkElapseTimeS = darkElapseTimeS;
+	}
+
+	public float getDarkMinRelaxTimeS() {
+		return darkMinRelaxTimeS;
+	}
+
+	public void setDarkMinRelaxTimeS(float darkMinRelaxTimeS) {
+		this.darkMinRelaxTimeS = darkMinRelaxTimeS;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + Boolean.hashCode(stopBetweenPoints);
-		result = prime * result + Boolean.hashCode(runUserScripts);
+		result = prime * result + (darkAuto ? 1231 : 1237);
+		result = prime * result + Float.floatToIntBits(darkElapseTimeS);
+		result = prime * result + darkFrequency;
+		result = prime * result + Float.floatToIntBits(darkMinRelaxTimeS);
+		result = prime * result + (runUserScripts ? 1231 : 1237);
+		result = prime * result + (stopBetweenPoints ? 1231 : 1237);
 		return result;
 	}
 
@@ -56,9 +96,17 @@ public class AreaDetectorRunnableDeviceExtendedModel extends AreaDetectorWriting
 		if (getClass() != obj.getClass())
 			return false;
 		AreaDetectorRunnableDeviceExtendedModel other = (AreaDetectorRunnableDeviceExtendedModel) obj;
-		if (stopBetweenPoints != other.stopBetweenPoints)
+		if (darkAuto != other.darkAuto)
+			return false;
+		if (Float.floatToIntBits(darkElapseTimeS) != Float.floatToIntBits(other.darkElapseTimeS))
+			return false;
+		if (darkFrequency != other.darkFrequency)
+			return false;
+		if (Float.floatToIntBits(darkMinRelaxTimeS) != Float.floatToIntBits(other.darkMinRelaxTimeS))
 			return false;
 		if (runUserScripts != other.runUserScripts)
+			return false;
+		if (stopBetweenPoints != other.stopBetweenPoints)
 			return false;
 		return true;
 	}
@@ -67,6 +115,8 @@ public class AreaDetectorRunnableDeviceExtendedModel extends AreaDetectorWriting
 	public String toString() {
 		return getClass().getName() + '@' + Integer.toHexString(hashCode())
 				+ " [stopBetweenPoints=" + stopBetweenPoints + ", runUserScripts=" + runUserScripts
+				+ ", darkAuto=" + darkAuto + ", darkFrequency=" + darkFrequency
+				+ ", darkElapseTimeS=" + darkElapseTimeS + ", darkMinRelaxTimeS=" + darkMinRelaxTimeS
 				+ ", exposureTime=" + getExposureTime() + ", name=" + getName() + ", timeout=" + getTimeout() + "]";
 	}
 }
