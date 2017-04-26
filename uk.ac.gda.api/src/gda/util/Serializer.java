@@ -34,23 +34,27 @@ import org.slf4j.LoggerFactory;
  * A class to serialize/de-serialize an object into a byte array. Initially written to pass an object over the CORBA
  * event service. The object must implement the java.io.Serializable interface.
  */
-public class Serializer {
+public final class Serializer {
 	private static final Logger logger = LoggerFactory.getLogger(Serializer.class);
+
+	private Serializer() {
+		// Prevent instances being created
+	}
 
 	/**
 	 * Serialize the specified object into a byte array.
-	 * 
+	 *
 	 * @param object
 	 *            the object to serialize
 	 * @return a byte array containing the serialized object
 	 */
-	public static byte[] toByte(Object object) {
+	public static byte[] toByte(final Object object) {
 		byte[] byteData = null;
 
 		if (object != null) {
 			try {
-				ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-				ObjectOutputStream os = new ObjectOutputStream(new BufferedOutputStream(byteStream));
+				final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+				final ObjectOutputStream os = new ObjectOutputStream(new BufferedOutputStream(byteStream));
 				os.flush();
 				os.writeObject(object);
 				os.flush();
@@ -68,18 +72,18 @@ public class Serializer {
 
 	/**
 	 * De-serialize the given byte array and construct an instance of the object contained therein.
-	 * 
+	 *
 	 * @param byteData
 	 *            a byte array containing the serialized object.
 	 * @return the de-serialized object.
 	 */
-	public static Object toObject(byte[] byteData) {
+	public static Object toObject(final byte[] byteData) {
 		Object object = null;
 
 		if (byteData.length > 1 && byteData[0] != 0) {
 			try {
-				ByteArrayInputStream byteStream = new ByteArrayInputStream(byteData);
-				ObjectInputStream is = new ObjectInputStream(new BufferedInputStream(byteStream));
+				final ByteArrayInputStream byteStream = new ByteArrayInputStream(byteData);
+				final ObjectInputStream is = new ObjectInputStream(new BufferedInputStream(byteStream));
 				object = is.readObject();
 				is.close();
 			} catch (IOException e) {
