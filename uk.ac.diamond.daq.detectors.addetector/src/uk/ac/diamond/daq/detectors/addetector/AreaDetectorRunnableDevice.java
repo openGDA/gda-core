@@ -15,6 +15,7 @@ import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.rank.IScanRankService;
 import org.eclipse.scanning.api.scan.rank.IScanSlice;
 
+import gda.device.detector.EpicsAreaDetectorConstants.TriggerMode;
 import gda.device.detector.addetector.ADDetector;
 import gda.device.detector.areadetector.v17.NDPluginBase.DataType;
 import gda.factory.Finder;
@@ -79,7 +80,12 @@ public class AreaDetectorRunnableDevice extends AbstractAreaDetectorRunnableDevi
 			// Get the dataType to expect
 			dataType = detector.getNdArray().getDataType();
 
+			// Set the exposure time
 			detector.setCollectionTime(model.getExposureTime());
+
+			// Set triggering to internal (This implementation only works for software triggering anyway)
+			detector.getAdBase().setTriggerMode(TriggerMode.Internal.ordinal());
+
 			detector.atScanStart();
 			// FIXME Need to configure the plugin chain here (or in the collection strategy)
 		} catch (Exception e) {
