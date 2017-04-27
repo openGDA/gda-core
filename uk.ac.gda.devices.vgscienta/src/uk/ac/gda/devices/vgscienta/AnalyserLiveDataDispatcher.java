@@ -111,12 +111,12 @@ class AnalyserLiveDataDispatcher implements MonitorListener, Configurable, Finda
 
 	protected Dataset getArrayAsDataset(int x, int y) throws Exception {
 		int[] dims = new int[] {x, y};
-		int arraysize = dims[0]*dims[1];
-		if (arraysize < 1) {
-			return null;
+		int arraySize = dims[0]*dims[1];
+		if (arraySize < 1) {
+			throw new IllegalArgumentException(String.format("arraySize was less than 1. x=%d y=%d", x, y));
 		}
 		logger.trace("About to get array for {}", plotName);
-		float[] array = epicsController.cagetFloatArray(arrayChannel, arraysize);
+		float[] array = epicsController.cagetFloatArray(arrayChannel, arraySize);
 		return DatasetFactory.createFromObject(array, dims);
 	}
 
@@ -141,11 +141,7 @@ class AnalyserLiveDataDispatcher implements MonitorListener, Configurable, Finda
 		Dataset xAxis = getXAxis();
 		Dataset yAxis = getYAxis();
 		Dataset ds = getArrayAsDataset(yAxis.getShape()[0], xAxis.getShape()[0]);
-		if (ds == null)
-			return;
-		if (ds.max().intValue() <= 0) {
-			logger.warn("Something fishy - no positive values in sight");
-		}
+
 		logger.trace("Dispatching plot to {}", plotName);
 		SDAPlotter.imagePlot(plotName, xAxis, yAxis, ds);
 	}
