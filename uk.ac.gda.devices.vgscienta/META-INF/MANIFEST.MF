@@ -18,7 +18,7 @@ Require-Bundle: uk.ac.gda.common,
  uk.ac.diamond.scisoft.analysis;bundle-version="1.2.0",
  uk.ac.diamond.scisoft.analysis.plotserver;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Vendor: Diamond Light Source
 Import-Package: net.sf.cglib.core,
  net.sf.cglib.proxy,
