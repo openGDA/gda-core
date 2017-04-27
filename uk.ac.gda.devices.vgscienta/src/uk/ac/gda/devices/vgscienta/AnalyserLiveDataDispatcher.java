@@ -23,8 +23,8 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.january.dataset.IDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,14 +34,13 @@ import gda.factory.FactoryException;
 import gda.factory.Findable;
 import gov.aps.jca.Channel;
 import gov.aps.jca.event.MonitorEvent;
-import gov.aps.jca.event.MonitorListener;
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 
-class AnalyserLiveDataDispatcher implements MonitorListener, Configurable, Findable {
+class AnalyserLiveDataDispatcher implements Configurable, Findable {
 	private static final Logger logger = LoggerFactory.getLogger(AnalyserLiveDataDispatcher.class);
 
 	private String plotName;
-	protected IVGScientaAnalyserRMI analyser;
+	private IVGScientaAnalyserRMI analyser;
 	private String name;
 	private final  EpicsController epicsController = EpicsController.getInstance();
 	private String arrayPV;
@@ -54,10 +53,66 @@ class AnalyserLiveDataDispatcher implements MonitorListener, Configurable, Finda
 	public void configure() throws FactoryException {
 		try {
 			arrayChannel = epicsController.createChannel(arrayPV);
-			epicsController.setMonitor(epicsController.createChannel(frameNumberPV), this);
+
+			final Channel frameNumber = epicsController.createChannel(frameNumberPV);
+			epicsController.setMonitor(frameNumber, this::updatedFrameReceived);
+
 		} catch (Exception e) {
 			logger.error("Error setting up analyser live visualisation", e);
 			throw new FactoryException("Cannot set up monitoring of arrays", e);
+		}
+	}
+
+	private void updatedFrameReceived(final MonitorEvent event) {
+		logger.trace("Might soon be sending some thing to plot {} with axes from {} because of {}", plotName, analyser.getName(), event);
+
+		try {
+			executor.submit(this::plotNewArray);
+			logger.trace("Plot jobs for {} queued successfully", plotName);
+		} catch (RejectedExecutionException ree) {
+			logger.debug("Plot jobs for {} are queueing up, as expected in certain circumstances, so this one got skipped", plotName);
+			logger.trace("Exception for rejected execution", ree);
+		}
+	}
+
+	private IDataset getArrayAsDataset(int x, int y) throws Exception {
+		int[] dims = new int[] {x, y};
+		int arraySize = dims[0]*dims[1];
+		if (arraySize < 1) {
+			throw new IllegalArgumentException(String.format("arraySize was less than 1. x=%d y=%d", x, y));
+		}
+		logger.trace("About to get array for {}", plotName);
+		float[] array = epicsController.cagetFloatArray(arrayChannel, arraySize);
+		return DatasetFactory.createFromObject(array, dims);
+	}
+
+	private IDataset getXAxis() throws Exception {
+		double[] xdata = analyser.getEnergyAxis();
+		IDataset xAxis = DatasetFactory.createFromObject(xdata);
+		xAxis.setName("energies (eV)");
+		return xAxis;
+	}
+
+	private IDataset getYAxis() throws Exception {
+		double[] ydata = analyser.getAngleAxis();
+		IDataset yAxis = DatasetFactory.createFromObject(ydata);
+		if ("Transmission".equalsIgnoreCase(analyser.getLensMode())) {
+			yAxis.setName("location (mm)");
+		} else
+			yAxis.setName("angles (deg)");
+		return yAxis;
+	}
+
+	private void plotNewArray() {
+		try {
+			IDataset xAxis = getXAxis();
+			IDataset yAxis = getYAxis();
+			IDataset ds = getArrayAsDataset(yAxis.getShape()[0], xAxis.getShape()[0]);
+
+			logger.trace("Dispatching plot to {}", plotName);
+			SDAPlotter.imagePlot(plotName, xAxis, yAxis, ds);
+		} catch (Exception e) {
+			logger.error("Exception caught preparing analyser live plot", e);
 		}
 	}
 
@@ -87,65 +142,6 @@ class AnalyserLiveDataDispatcher implements MonitorListener, Configurable, Finda
 		this.name = name;
 	}
 
-	@Override
-	public void monitorChanged(MonitorEvent arg0) {
-		logger.trace("Might soon be sending some thing to plot {} with axes from {} because of {}", plotName, analyser.getName(), arg0.toString());
-
-		try {
-			executor.submit(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						plotNewArray();
-					} catch (Exception e) {
-						logger.error("exception caught preparing analyser live plot", e);
-					}
-				}
-			});
-			logger.trace("Plot jobs for {} queued successfully", plotName);
-		} catch (RejectedExecutionException ree) {
-			logger.debug("Plot jobs for {} are queueing up, as expected in certain circumstances, so this one got skipped", plotName);
-			logger.trace("Exception for rejected execution", ree);
-		}
-	}
-
-	protected Dataset getArrayAsDataset(int x, int y) throws Exception {
-		int[] dims = new int[] {x, y};
-		int arraySize = dims[0]*dims[1];
-		if (arraySize < 1) {
-			throw new IllegalArgumentException(String.format("arraySize was less than 1. x=%d y=%d", x, y));
-		}
-		logger.trace("About to get array for {}", plotName);
-		float[] array = epicsController.cagetFloatArray(arrayChannel, arraySize);
-		return DatasetFactory.createFromObject(array, dims);
-	}
-
-	protected Dataset getXAxis() throws Exception {
-		double[] xdata = analyser.getEnergyAxis();
-		Dataset xAxis = DatasetFactory.createFromObject(xdata);
-		xAxis.setName("energies (eV)");
-		return xAxis;
-	}
-
-	protected Dataset getYAxis() throws Exception {
-		double[] ydata = analyser.getAngleAxis();
-		Dataset yAxis = DatasetFactory.createFromObject(ydata);
-		if ("Transmission".equalsIgnoreCase(analyser.getLensMode())) {
-			yAxis.setName("location (mm)");
-		} else
-			yAxis.setName("angles (deg)");
-		return yAxis;
-	}
-
-	protected void plotNewArray() throws Exception {
-		Dataset xAxis = getXAxis();
-		Dataset yAxis = getYAxis();
-		Dataset ds = getArrayAsDataset(yAxis.getShape()[0], xAxis.getShape()[0]);
-
-		logger.trace("Dispatching plot to {}", plotName);
-		SDAPlotter.imagePlot(plotName, xAxis, yAxis, ds);
-	}
-
 	public String getArrayPV() {
 		return arrayPV;
 	}
@@ -160,6 +156,14 @@ class AnalyserLiveDataDispatcher implements MonitorListener, Configurable, Finda
 
 	public void setFrameNumberPV(String frameNumberPV) {
 		this.frameNumberPV = frameNumberPV;
+	}
+
+	public Channel getArrayChannel() {
+		return arrayChannel;
+	}
+
+	public void setArrayChannel(Channel arrayChannel) {
+		this.arrayChannel = arrayChannel;
 	}
 
 }
