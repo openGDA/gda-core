@@ -397,7 +397,7 @@ public abstract class XasScanBase implements XasScan {
 		if (scriptFile.isFile())
 			runScript(scriptNameOrCommand);
 		else {
-			InterfaceProvider.getCommandRunner().runCommand(scriptNameOrCommand);
+			InterfaceProvider.getCommandRunner().evaluateCommand(scriptNameOrCommand);
 		}
 	}
 
