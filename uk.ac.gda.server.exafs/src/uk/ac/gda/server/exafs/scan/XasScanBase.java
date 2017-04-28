@@ -279,7 +279,7 @@ public abstract class XasScanBase implements XasScan {
 	protected abstract Object[] createScanArguments(String sampleName, List<String> descriptions) throws Exception;
 
 	private void checkForPause() throws InterruptedException {
-		if (numRepetitions > 1 && LocalProperties.check(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY)) {
+		if (LocalProperties.check(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY)) {
 			log("** Paused scan after repetition "
 					+ currentRepetition
 					+ ". To resume the scan, press the Start button in the Command Queue view. To abort this scan, press the Skip Task button.");
