@@ -23,6 +23,7 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.IDataset;
 import org.slf4j.Logger;
@@ -45,7 +46,10 @@ class AnalyserLiveDataDispatcher implements Configurable, Findable {
 	private final  EpicsController epicsController = EpicsController.getInstance();
 	private String arrayPV;
 	private String frameNumberPV;
+	private String acquirePV;
 	private Channel arrayChannel;
+	private boolean sumFrames = false; // false by default to maintain backwards compatibility with Spring config
+	private Dataset summedFrames;
 
 	private final ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<Runnable>(1));
 
@@ -56,6 +60,12 @@ class AnalyserLiveDataDispatcher implements Configurable, Findable {
 
 			final Channel frameNumber = epicsController.createChannel(frameNumberPV);
 			epicsController.setMonitor(frameNumber, this::updatedFrameReceived);
+
+			// If we are accumulating frames need to know when a new acquisition starts so we can clear the summedFrames
+			if (sumFrames) {
+				final Channel acquireChannel = epicsController.createChannel(acquirePV);
+				epicsController.setMonitor(acquireChannel, this::acquireStatusChanged);
+			}
 
 		} catch (Exception e) {
 			logger.error("Error setting up analyser live visualisation", e);
@@ -75,6 +85,14 @@ class AnalyserLiveDataDispatcher implements Configurable, Findable {
 		}
 	}
 
+	private void acquireStatusChanged(final MonitorEvent event) {
+		// This could be a start or stop event but it doesn't actually matter so don't need to parse the event
+		logger.trace("Received change of acquire state: {}", event);
+
+		// Remove the existing summed data
+		summedFrames = null;
+	}
+
 	private IDataset getArrayAsDataset(int x, int y) throws Exception {
 		int[] dims = new int[] {x, y};
 		int arraySize = dims[0]*dims[1];
@@ -82,8 +100,23 @@ class AnalyserLiveDataDispatcher implements Configurable, Findable {
 			throw new IllegalArgumentException(String.format("arraySize was less than 1. x=%d y=%d", x, y));
 		}
 		logger.trace("About to get array for {}", plotName);
+		// Get as float[] not double[] for performance
 		float[] array = epicsController.cagetFloatArray(arrayChannel, arraySize);
-		return DatasetFactory.createFromObject(array, dims);
+		Dataset newData = DatasetFactory.createFromObject(array, dims);
+
+		if (!sumFrames) {
+			return newData; // If we're not accumulating just return the newest data
+		}
+		else { // We are summing frames
+			if (summedFrames == null) { // i.e A new acquire has just started
+				summedFrames = newData;
+			}
+			else {
+				// Add the new data to the existing summed data and return it.
+				return summedFrames.iadd(newData);
+			}
+			return DatasetFactory.createFromObject(array, dims);
+		}
 	}
 
 	private IDataset getXAxis() throws Exception {
@@ -164,6 +197,22 @@ class AnalyserLiveDataDispatcher implements Configurable, Findable {
 
 	public void setArrayChannel(Channel arrayChannel) {
 		this.arrayChannel = arrayChannel;
+	}
+
+	public String getAcquirePV() {
+		return acquirePV;
+	}
+
+	public void setAcquirePV(String acquirePV) {
+		this.acquirePV = acquirePV;
+	}
+
+	public boolean isSumFrames() {
+		return sumFrames;
+	}
+
+	public void setSumFrames(boolean sumFrames) {
+		this.sumFrames = sumFrames;
 	}
 
 }
