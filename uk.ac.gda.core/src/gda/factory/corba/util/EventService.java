@@ -56,8 +56,6 @@ public class EventService {
 
 	private EventReceiver eventReceiver = null;
 
-	private boolean configured;
-
 	/**
 	 * Access method for the EventService singleton
 	 *
@@ -90,12 +88,8 @@ public class EventService {
 			eventChannel = EventChannelHelper.narrow(nc.resolve(nc.to_name(eventChannelName)));
 			logger.info("Successfully configured EventService using name '{}'", eventChannelName);
 		}
-		configured = true;
 	}
 
-	public boolean isConfigured() {
-		return configured;
-	}
 
 	/**
 	 * Associate a dispatcher with the event channel
@@ -103,7 +97,7 @@ public class EventService {
 	 * @return the event dispatcher
 	 */
 	public EventDispatcher getEventDispatcher() {
-		if (eventDispatcher == null && configured) {
+		if (eventDispatcher == null) {
 			if (usingJMS) {
 				eventDispatcher = new JmsEventDispatcher();
 			}
@@ -126,11 +120,6 @@ public class EventService {
 	 *            the event filter
 	 */
 	public void subscribe(EventSubscriber eventSubscriber, Filter filter) {
-		if (!configured) {
-			logger.error("Not configured");
-			return; // Not configured
-		}
-
 		if (eventReceiver == null) {
 			if(usingJMS) {
 				eventReceiver = new JmsEventReceiver();

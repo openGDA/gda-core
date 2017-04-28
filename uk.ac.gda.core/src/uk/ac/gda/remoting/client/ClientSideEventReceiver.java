@@ -18,15 +18,15 @@
 
 package uk.ac.gda.remoting.client;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+
 import gda.factory.corba.util.EventService;
 import gda.factory.corba.util.EventSubscriber;
 import gda.factory.corba.util.Filter;
 import gda.factory.corba.util.NameFilter;
 import gda.observable.ObservableComponent;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 
 /**
  * Object that registers with the GDA event system to receive events relating to a specific remote object. The events
@@ -74,9 +74,6 @@ public class ClientSideEventReceiver implements InitializingBean {
 
 		// Register to receive events from the event system
 		final EventService eventService = EventService.getInstance();
-		if (!eventService.isConfigured()) {
-			throw new Exception("EventService is not configured; check the logs to see what went wrong");
-		}
 		Filter filter = new NameFilter(objectName, observableComponent);
 		eventService.subscribe(eventSubscriber, filter);
 		logger.debug("Now subscribed to events from '{}'", objectName);

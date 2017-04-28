@@ -18,14 +18,14 @@
 
 package uk.ac.gda.remoting.server;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+
 import gda.factory.corba.util.EventDispatcher;
 import gda.factory.corba.util.EventService;
 import gda.observable.IObservable;
 import gda.observable.IObserver;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 
 /**
  * An instance of {@link IObserver} that takes events dispatched by an instance of {@link IObservable} and dispatches
@@ -61,9 +61,6 @@ public class ServerSideEventDispatcher implements InitializingBean, IObserver {
 
 		// Set things up to dispatch events into the event system
 		final EventService eventService = EventService.getInstance();
-		if (!eventService.isConfigured()) {
-			throw new Exception("EventService is not configured; check the logs to see what went wrong");
-		}
 		eventDispatcher = eventService.getEventDispatcher();
 		object.addIObserver(this);
 		logger.debug("Now watching events from '{}'", sourceName);
