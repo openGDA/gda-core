@@ -287,7 +287,7 @@ public class BatonManager implements IBatonManager {
 			ClientInfo other = getClientInfo(uniqueIdentifier);
 
 			// if requester has higher auth than current baton holder then take
-			if (other.getAuthorisationLevel() > currentHolder.authorisationLevel
+			if (other.getAuthorisationLevel() > currentHolder.getAuthorisationLevel()
 					|| (other.getUserID().equals(currentHolder.getUserID()) && other.getAuthorisationLevel() == currentHolder.getAuthorisationLevel())) {
 				changeBatonHolder(uniqueIdentifier);
 				return true;
