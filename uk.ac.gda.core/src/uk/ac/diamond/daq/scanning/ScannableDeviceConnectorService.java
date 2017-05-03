@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.scanning.api.AbstractScannable;
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.points.IPosition;
@@ -118,6 +119,7 @@ public class ScannableDeviceConnectorService implements IScannableDeviceService 
 		scannables.put(scannable.getName(), scannable);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public <T> IScannable<T> getScannable(String name) throws ScanningException {
 		if (scannables == null)
@@ -151,32 +153,34 @@ public class ScannableDeviceConnectorService implements IScannableDeviceService 
 			throw new ScanningException("Cannot find scannable with name " + name);
 		}
 
-		/**
-		 *
-		 * They may provide into the finder a class which is
-		 * both IScannable and Scannable, the two interfaces do not
-		 * mind sitting over a GDA8 scannable, providing if it is marked
-		 * as IScannable<Object>.
-		 *
-		 * It can then also be marked as INexusDevice in order to implement
-		 * the nexus writing part of the scannable.
-		 */
+		IScannable<T> iscannable = null;
+
 		if (scannable instanceof IScannable) {
-			@SuppressWarnings("unchecked")
-			IScannable<T> iscannable = (IScannable<T>)scannable;
-			scannables.put(name, iscannable);
-            return iscannable;
+			/**
+			 * They may provide into the finder a class which is
+			 * both IScannable and Scannable, the two interfaces do not
+			 * mind sitting over a GDA8 scannable, providing if it is marked
+			 * as IScannable<Object>.
+			 *
+			 * It can then also be marked as INexusDevice in order to implement
+			 * the nexus writing part of the scannable.
+			 */
+			iscannable = ((IScannable<T>) scannable);
+		} else {
+			/**
+			 * This section deals with automatically wrapping a GDA8 Scannable
+			 * into an object which is IScannable and INexusDevice. If this is
+			 * done the INexusDevice writes as an NXPositioner in a default location.
+			 */
+			iscannable = (IScannable<T>) new ScannableNexusWrapper<>(scannable);
 		}
 
-		/**
-		 * This section deals with automatically wrapping a GDA8 Scannable
-		 * into an object which is IScannable and INexusDevice. If this is
-		 * done the INexusDevice writes as an NXPositioner in a default location.
-		 */
-		@SuppressWarnings("unchecked")
-		IScannable<T> s = (IScannable<T>) new ScannableNexusWrapper<>(scannable);
-		scannables.put(name, s);
-		return s;
+		scannables.put(name, iscannable);
+		if (iscannable instanceof AbstractScannable) {
+			((AbstractScannable<T>) iscannable).setScannableDeviceService(this);
+		}
+
+		return iscannable;
 	}
 
 	@Override
