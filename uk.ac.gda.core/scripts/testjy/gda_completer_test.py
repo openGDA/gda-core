@@ -69,8 +69,8 @@ class CompleterTest(unittest.TestCase):
         options_dict = dict((option[0], option) for option in options)
 
         self.assertTrue(options_dict.has_key('new_object'), 'new_object not in completion options')
-        # Ensure its the only additional option
-        self.assertEqual(len(options), 1 + keywords_and_globals, "Unexpected options found")
+        # Ensure its the only option
+        self.assertEqual(len(options), 1, "Unexpected options found")
 
     def test_testObject_thows_exception(self):
         obj = testObject()
