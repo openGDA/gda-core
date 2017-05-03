@@ -69,6 +69,9 @@ import gda.jython.commandinfo.CommandThreadEventType;
 import gda.jython.commandinfo.CommandThreadInfo;
 import gda.jython.commandinfo.CommandThreadType;
 import gda.jython.commandinfo.ICommandThreadInfo;
+import gda.jython.completion.AutoCompletion;
+import gda.jython.completion.TextCompleter;
+import gda.jython.completion.impl.JythonCompleter;
 import gda.jython.corba.impl.JythonImpl;
 import gda.jython.socket.SocketServer;
 import gda.jython.socket.SocketServer.ServerType;
@@ -93,7 +96,8 @@ import gda.util.exceptionUtils;
  * ICurrentScanHolder, IJythonServerNotifer, and IDefaultScannableProvider interfaces.
  */
 public class JythonServer implements Jython, LocalJython, Configurable, Localizable, Serializable,
-		ICurrentScanInformationHolder, IJythonServerNotifer, IDefaultScannableProvider, IObservable, ITerminalInputProvider {
+		ICurrentScanInformationHolder, IJythonServerNotifer, IDefaultScannableProvider, IObservable, ITerminalInputProvider,
+		TextCompleter {
 
 	private static Logger logger = LoggerFactory.getLogger(JythonServer.class);
 
@@ -174,6 +178,8 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	private int remotePort = -1;
 
 	private String gdaStationScript;
+
+	private TextCompleter jythonCompleter;
 
 	// configure whether #panicStop() tries to stop all Scannables found in the Jython namespace
 	private boolean stopJythonScannablesOnStopAll = true;
@@ -396,6 +402,9 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 				new Thread(socket, "Jython SocketServer port " + port).start();
 				atStartup = false;
 			}
+
+			jythonCompleter = new JythonCompleter(this);
+
 			configured = true;
 		}
 	}
@@ -1630,5 +1639,10 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 
 	public final boolean isAtStartup() {
 		return atStartup;
+	}
+
+	@Override
+	public AutoCompletion getCompletionsFor(String line, int posn) {
+		return jythonCompleter.getCompletionsFor(line, posn);
 	}
 }

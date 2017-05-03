@@ -26,6 +26,7 @@ import gda.jython.Jython;
 import gda.jython.UserMessage;
 import gda.jython.batoncontrol.ClientDetails;
 import gda.jython.commandinfo.ICommandThreadInfo;
+import gda.jython.completion.AutoCompletion;
 import gda.jython.corba.CorbaJythonPOA;
 import gda.observable.IObserver;
 import gda.scan.ScanDataPoint;
@@ -577,6 +578,19 @@ public class JythonImpl extends CorbaJythonPOA implements IObserver {
 			any.insert_Value(infos);
 			return any;
 		} catch (Exception de) {
+			throw new CorbaDeviceException(de.getMessage());
+		}
+	}
+
+	@Override
+	public Any getCompletionsFor(final String line, final int posn) throws CorbaDeviceException {
+		try {
+			final AutoCompletion ac = jythonServer.getCompletionsFor(line, posn);
+			final org.omg.CORBA.Any any = org.omg.CORBA.ORB.init().create_any();
+			any.insert_Value(ac);
+			return any;
+		} catch (Exception de) {
+			logger.error("Error sending AutoCompletion over Corba", de);
 			throw new CorbaDeviceException(de.getMessage());
 		}
 	}
