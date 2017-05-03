@@ -257,18 +257,6 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 					public void keyTraversed(TraverseEvent e) {
 						e.doit = false;
 						switch (e.detail) {
-						case SWT.TRAVERSE_TAB_NEXT:
-							PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-								@Override
-								public void run() {
-//									//don't insert tab if cursor is after text - let autocomplete work
-									String toCaret = txtInput.getText(0, txtInput.getCaretPosition()-1);
-									if (toCaret.trim().length() == 0) {
-										txtInput.insert(String.valueOf(SWT.TAB));
-									}
-								}
-							});
-							break;
 						case SWT.TRAVERSE_TAB_PREVIOUS:
 							int caret = txtInput.getCaretPosition();
 							if (txtInput.getText(caret-1, caret-1).equals(String.valueOf(SWT.TAB))) {

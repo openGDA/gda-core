@@ -7,12 +7,12 @@ from gda.device.detector import NXDetector
 
 # Type constants used to pick the icon to display for the option
 # The usage is chosen to match PyDev see jyimportsTipper.py
-TYPE_IMPORT = '0'  # Blue Dot
-TYPE_CLASS = '1'  # Yellow Diamond
-TYPE_FUNCTION = '2'  # Blue Triangle
-TYPE_ATTR = '3'  # Green Circle
-TYPE_BUILTIN = '4'  # Gray Circle
-TYPE_PARAM = '5'  # No icon
+TYPE_IMPORT = 0  # Blue Dot
+TYPE_CLASS = 1  # Yellow Diamond
+TYPE_FUNCTION = 2  # Blue Triangle
+TYPE_ATTR = 3  # Green Circle
+TYPE_BUILTIN = 4  # Gray Circle
+TYPE_PARAM = 5  # No icon
 
 # The number of keywords and globals expected. -1 because print is in both and is excluded once
 keywords_and_globals = len(dir(__builtin__)) + len(keyword.kwlist) - 1

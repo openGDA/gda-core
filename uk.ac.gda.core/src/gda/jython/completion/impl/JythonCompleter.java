@@ -95,7 +95,7 @@ public class JythonCompleter implements TextCompleter {
 		List<PyTuple> results = getJythonCompletions(partial);
 		return results
 				.stream()
-				.map(o -> new AutoCompleteOption((String)o.get(0), Integer.valueOf(o.get(3).toString())))
+				.map(o -> new AutoCompleteOption((String)o.get(0), (int)o.get(3)))
 				.collect(Collectors.toList());
 	}
 

@@ -19,12 +19,12 @@ logger = LoggerFactory.getLogger(__name__ + '.py')
 
 # Type constants used to pick the icon to display for the option
 # The usage is chosen to match PyDev see jyimportsTipper.py
-TYPE_IMPORT = '0'  # Blue Dot
-TYPE_CLASS = '1'  # Yellow Diamond
-TYPE_FUNCTION = '2'  # Blue Triangle
-TYPE_ATTR = '3'  # Green Circle
-TYPE_BUILTIN = '4'  # Gray Circle
-TYPE_PARAM = '5'  # No icon, This doesn't have support in the Java side
+TYPE_IMPORT = 0  # Blue Dot
+TYPE_CLASS = 1  # Yellow Diamond
+TYPE_FUNCTION = 2  # Blue Triangle
+TYPE_ATTR = 3  # Green Circle
+TYPE_BUILTIN = 4  # Gray Circle
+TYPE_PARAM = 5  # No icon, This doesn't have support in the Java side
 
 class Completer(object):
 

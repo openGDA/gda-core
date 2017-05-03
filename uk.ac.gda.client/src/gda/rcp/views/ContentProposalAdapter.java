@@ -1623,21 +1623,12 @@ public class ContentProposalAdapter {
 
 					// The popup is not open. We are looking at keydown events
 					// for a trigger to open the popup.
-					if (triggerKeyStroke != null) {
-						// Either there are no modifiers for the trigger and we
-						// check the character field...
-						if ((triggerKeyStroke.getModifierKeys() == KeyStroke.NO_KEY && triggerKeyStroke.getNaturalKey() == e.character)
-								||
-								// ...or there are modifiers, in which case the
-								// keycode and state must match
-								(triggerKeyStroke.getNaturalKey() == e.keyCode && ((triggerKeyStroke.getModifierKeys() & e.stateMask) == triggerKeyStroke
-										.getModifierKeys()))) {
-							// We never propagate the keystroke for an explicit
-							// keystroke invocation of the popup
-							e.doit = false;
-							openProposalPopup(false);
-							return;
-						}
+					if (triggerKeyStroke != null && triggerKeyStroke.getModifierKeys() == e.stateMask && triggerKeyStroke.getNaturalKey() == e.character) {
+						// We never propagate the keystroke for an explicit
+						// keystroke invocation of the popup
+						e.doit = false;
+						openProposalPopup(false);
+						return;
 					}
 					/*
 					 * The triggering keystroke was not invoked. If a character was typed, compare it to the
