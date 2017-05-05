@@ -2,7 +2,9 @@ package uk.ac.gda.client.closeactions;
 
 import gda.configuration.properties.LocalProperties;
 import uk.ac.gda.client.closeactions.ClientCloseOption;
+import uk.ac.gda.client.closeactions.contactinfo.ISPyBJdbcTemplate;
 import uk.ac.gda.client.closeactions.contactinfo.ISPyBLocalContacts;
+import uk.ac.gda.client.closeactions.contactinfo.ISPyBVisits;
 import uk.ac.gda.client.closeactions.contactinfo.LdapEmail;
 
 import java.io.BufferedWriter;
@@ -225,10 +227,8 @@ public class UserSelectedActionOnClose {
 		//filter out cm and nr so we're not inundating devs with emails during commissioning etc.
 		if (!(visit.startsWith("cm") || visit.startsWith("nr"))) {
 			try {
-				logger.debug("Connecting to ISPyB.");
-				JdbcTemplate template = ISPyBLocalContacts.connectToDatabase();
 				logger.debug("Retrieving local contact from ISPyB.");
-				result = new ISPyBLocalContacts(template).forCurrentVisit(visit);
+				result = new ISPyBLocalContacts(new ISPyBJdbcTemplate().template()).forCurrentVisit(visit);
 			} catch(Exception e) {
 				logger.error("There was an error connecting to ISPyB while retrieving local contact", e);
 			}
@@ -240,10 +240,8 @@ public class UserSelectedActionOnClose {
 		String beamline = LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME);
 		List<String> result = new ArrayList<>();
 		try {
-			logger.debug("Connecting to ISPyB.");
-			JdbcTemplate template = ISPyBLocalContacts.connectToDatabase();
 			logger.debug("Retrieving next visits from ISPyB.");
-			result = new ISPyBLocalContacts(template).forFollowingVisit(beamline);
+			result = new ISPyBVisits(new ISPyBJdbcTemplate().template()).followingVisits(beamline);
 		} catch(Exception e) {
 			logger.error("There was an error connecting to ISPyB while retrieving visits: ", e);
 		}
