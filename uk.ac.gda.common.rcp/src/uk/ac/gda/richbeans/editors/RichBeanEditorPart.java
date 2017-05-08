@@ -36,6 +36,7 @@ import org.eclipse.richbeans.api.event.ValueEvent;
 import org.eclipse.richbeans.api.event.ValueListener;
 import org.eclipse.richbeans.api.widget.IFieldProvider;
 import org.eclipse.richbeans.api.widget.IFieldWidget;
+import org.eclipse.richbeans.binding.BeanService;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IReusableEditor;
@@ -134,7 +135,8 @@ public abstract class RichBeanEditorPart extends EditorPart implements ValueList
 	}
 
 	protected void createDataBindingController() {
-		IBeanService service = ServiceGrabber.getBeanService();
+
+		IBeanService service = BeanService.getInstance();
 		if (service == null) {
 			throw new IllegalStateException("BeanService is not available");
 		}
