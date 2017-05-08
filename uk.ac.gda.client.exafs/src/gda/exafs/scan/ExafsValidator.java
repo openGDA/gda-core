@@ -24,10 +24,9 @@ import java.util.Collections;
 import java.util.List;
 
 import org.nfunk.jep.JEP;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
+import gda.data.PathConstructor;
 import gda.device.Scannable;
 import gda.factory.Findable;
 import gda.factory.Finder;
@@ -35,31 +34,110 @@ import gda.util.Element;
 import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.exafs.IDetectorParameters;
 import uk.ac.gda.beans.exafs.IOutputParameters;
+import uk.ac.gda.beans.exafs.ISampleParameters;
+import uk.ac.gda.beans.exafs.IScanParameters;
 import uk.ac.gda.beans.exafs.OutputParameters;
+import uk.ac.gda.beans.exafs.QEXAFSParameters;
 import uk.ac.gda.beans.exafs.SignalParameters;
 import uk.ac.gda.beans.exafs.XanesScanParameters;
 import uk.ac.gda.beans.exafs.XasScanParameters;
+import uk.ac.gda.beans.exafs.XesScanParameters;
+import uk.ac.gda.beans.microfocus.MicroFocusScanParameters;
 import uk.ac.gda.beans.validation.AbstractValidator;
+import uk.ac.gda.beans.validation.InvalidBeanException;
 import uk.ac.gda.beans.validation.InvalidBeanMessage;
+import uk.ac.gda.client.experimentdefinition.IExperimentObject;
 import uk.ac.gda.exafs.ui.data.ScanObject;
+import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 /**
  * Abstract to hold generic XAS validations for beamlines using the server.exafs plugin
  */
 public abstract class ExafsValidator extends AbstractValidator {
 
-	protected JEP jepParser;
+	private JEP jepParser;
 
-	protected static final List<String> EDGES = Arrays.asList(new String[] { "K", "L1", "L2", "L3" });
-	protected static boolean isCheckingFinables = true;
+	private static final List<String> EDGES = Arrays.asList(new String[] { "K", "L1", "L2", "L3" });
 	private static final char[] ILLEGAL_CHARACTERS = { '/', '\n', '\r', '\t', '\0', '\f', '`', '?', '*', '\\', '<',
 			'>', '|', '\"', ':', '@', '!', '$', '#', '%', '&', '(', ')' };
 
 	protected ScanObject bean;
 
-	private static final Logger logger = LoggerFactory.getLogger(ExafsValidator.class);
+	@Override
+	public void validate(IExperimentObject b) throws InvalidBeanException {
+		this.bean = (ScanObject) b;
 
-	public List<InvalidBeanMessage> validateIOutputParameters(IOutputParameters iOutputParams) {
+		final List<InvalidBeanMessage> errors = new ArrayList<InvalidBeanMessage>(31);
+
+		try {
+			errors.addAll(validateIScanParameters(bean.getScanParameters(), bean.getDetectorParameters()));
+			errors.addAll(validateISampleParameters(bean.getSampleParameters()));
+			errors.addAll(validateIDetectorParameters(bean.getDetectorParameters()));
+			errors.addAll(validateIOutputParameters(bean.getOutputParameters()));
+		} catch (Exception e) {
+			throw new InvalidBeanException("Exception retrieving parameters objects: " + e.getMessage());
+		}
+
+		if (!errors.isEmpty()) {
+			for (InvalidBeanMessage invalidBeanMessage : errors) {
+				invalidBeanMessage.setFolderName(bean.getFolder().getName());
+			}
+			throw new InvalidBeanException(errors);
+		}
+
+	}
+
+	// Generic implementation of validateIScanParameters: beamlines may want to override
+	protected List<InvalidBeanMessage> validateIScanParameters(IScanParameters scanParams, IDetectorParameters detParams) {
+		final List<InvalidBeanMessage> errors = new ArrayList<InvalidBeanMessage>(31);
+
+		if (scanParams instanceof XasScanParameters) {
+			errors.addAll(validateXasScanParameters((XasScanParameters) scanParams, getMinEnergy(), getMaxEnergy()));
+		} else if (scanParams instanceof XanesScanParameters) {
+			errors.addAll(validateXanesScanParameters((XanesScanParameters) scanParams));
+		} else if (scanParams instanceof XesScanParameters) {
+			errors.addAll(validateXesScanParameters((XesScanParameters) scanParams, detParams));
+		} else if (scanParams instanceof MicroFocusScanParameters) {
+			errors.addAll(validateMicroFocusParameters((MicroFocusScanParameters) scanParams));
+		} else if (scanParams instanceof QEXAFSParameters) {
+			errors.addAll(validateQEXAFSParameters((QEXAFSParameters) scanParams));
+		} else if (scanParams == null) {
+			errors.add(new InvalidBeanMessage("Missing or Invalid Scan Parameters"));
+		} else {
+			errors.add(new InvalidBeanMessage("Unknown Scan Type " + scanParams.getClass().getName()));
+		}
+		if (bean != null) {
+			setFileName(errors, bean.getScanFileName());
+		}
+		return errors;
+	}
+
+	protected List<InvalidBeanMessage> validateGenericISampleParameters(ISampleParameters sampleParameters) {
+		InvalidBeanMessage invalidBeanMessage;
+		if (sampleParameters == null) {
+			try {
+				if (bean != null && bean.isMicroFocus()) {
+					// do not have a sample file for microfocus scans
+					return Collections.emptyList();
+				}
+				// else its missing
+				invalidBeanMessage = new InvalidBeanMessage("Missing or Invalid Sample Parameters");
+			} catch (Exception e) {
+				invalidBeanMessage = new InvalidBeanMessage(
+						"Error testing if bean is a microfocus scan when testing Scan parameters from bean");
+			}
+		} else {
+			invalidBeanMessage = new InvalidBeanMessage("Unknown Sample Type " + sampleParameters.getClass().getName());
+		}
+		if (bean != null) {
+			invalidBeanMessage.setFileName(bean.getSampleFileName());
+		}
+		final ArrayList<InvalidBeanMessage> errors = new ArrayList<InvalidBeanMessage>();
+		errors.add(invalidBeanMessage);
+		return errors;
+	}
+
+	protected List<InvalidBeanMessage> validateIOutputParameters(IOutputParameters iOutputParams) {
 
 		if (iOutputParams == null) {
 			return Collections.emptyList();
@@ -79,7 +157,7 @@ public abstract class ExafsValidator extends AbstractValidator {
 		return errors;
 	}
 
-	public List<InvalidBeanMessage> validateOutputParameters(OutputParameters o) {
+	private List<InvalidBeanMessage> validateOutputParameters(OutputParameters o) {
 		if (!o.isShouldValidate()) {
 			return Collections.emptyList();
 		}
@@ -114,7 +192,116 @@ public abstract class ExafsValidator extends AbstractValidator {
 		return errors;
 	}
 
-	protected InvalidBeanMessage checkExpressionSyntax(final String label, final String value,
+	protected List<InvalidBeanMessage> validateXesScanParameters(XesScanParameters x, IDetectorParameters detParams) {
+
+		if (x == null) {
+			return Collections.emptyList();
+		}
+
+		final List<InvalidBeanMessage> errors = new ArrayList<InvalidBeanMessage>(31);
+		if (!x.isShouldValidate()) {
+			return errors;
+		}
+
+		// check the detector type XES has been chosen
+		if (detParams != null && !detParams.getExperimentType().equalsIgnoreCase("xes")) {
+			errors.add(new InvalidBeanMessage("The experiment type in the detector parameters file is "
+					+ detParams.getExperimentType() + " which should be XES"));
+		}
+
+		if (x.getScanType() == XesScanParameters.SCAN_XES_FIXED_MONO) {
+
+			checkBounds("Integration Time", x.getXesIntegrationTime(), 0d, 25d, errors);
+			double initialE = x.getXesInitialEnergy();
+			double finalE = x.getXesFinalEnergy();
+			if (initialE >= finalE) {
+				errors.add(new InvalidBeanMessage("The initial energy is greater than or equal to the final energy."));
+			}
+
+			checkBounds("XES Initial Energy", initialE, 0d, finalE, errors);
+			checkBounds("XES Final Energy", finalE, initialE, 35000d, errors);
+
+		} else if (x.getScanType() == XesScanParameters.SCAN_XES_SCAN_MONO) {
+
+			checkBounds("Integration Time", x.getXesIntegrationTime(), 0d, 25d, errors);
+			double initialE = x.getXesInitialEnergy();
+			double finalE = x.getXesFinalEnergy();
+			if (initialE >= finalE) {
+				errors.add(new InvalidBeanMessage("The initial energy is greater than or equal to the final energy."));
+			}
+
+			checkBounds("XES Initial Energy", initialE, 0d, finalE, errors);
+			checkBounds("XES Final Energy", finalE, initialE, 35000d, errors);
+
+			initialE = x.getMonoInitialEnergy();
+			finalE = x.getMonoFinalEnergy();
+			if (initialE >= finalE) {
+				errors.add(new InvalidBeanMessage("The initial energy is greater than or equal to the final energy."));
+			}
+
+			checkBounds("Mono Initial Energy", initialE, 0d, finalE, errors);
+			checkBounds("Mono Final Energy", finalE, initialE, 35000d, errors);
+
+		} else { // Fixed XES and XAS or XANES
+			if (bean != null) {
+				String xmlFolderName = PathConstructor.createFromDefaultProperty() + "/xml/"
+						+ bean.getFolder().getName() + "/";
+				checkFileExists("Scan file name", x.getScanFileName(), xmlFolderName, errors);
+
+				if (errors.size() == 0) {
+					Object energyScanBean;
+					try {
+						energyScanBean = XMLHelpers.getBeanObject(xmlFolderName, x.getScanFileName());
+					} catch (Exception e) {
+						InvalidBeanMessage msg = new InvalidBeanMessage(e.getMessage());
+						errors.add(msg);
+						return errors;
+					}
+					if (x.getScanType() == XesScanParameters.FIXED_XES_SCAN_XAS) {
+						validateXasScanParameters((XasScanParameters) energyScanBean, getMinEnergy(), getMaxEnergy());
+					} else {
+						validateXanesScanParameters((XanesScanParameters) energyScanBean);
+					}
+				}
+
+			}
+		}
+		return errors;
+	}
+
+	protected List<InvalidBeanMessage> validateMicroFocusParameters(MicroFocusScanParameters x) {
+		if (x == null) {
+			return Collections.emptyList();
+		}
+		final List<InvalidBeanMessage> errors = new ArrayList<InvalidBeanMessage>(31);
+		// TODO add validation for MicroFocus
+		return errors;
+	}
+
+	protected List<InvalidBeanMessage> validateQEXAFSParameters(QEXAFSParameters x) {
+		if (x == null) {
+			return Collections.emptyList();
+		}
+
+		final List<InvalidBeanMessage> errors = new ArrayList<InvalidBeanMessage>(31);
+		if (!x.isShouldValidate()) {
+			return errors;
+		}
+
+		final double initialE = x.getInitialEnergy();
+		final double finalE = x.getFinalEnergy();
+		if (initialE >= finalE) {
+			errors.add(new InvalidBeanMessage("The initial energy is greater than or equal to the final energy."));
+		}
+
+		checkBounds("Initial Energy", initialE, getMinEnergy(), finalE, errors);
+		checkBounds("Final Energy", finalE, initialE, getMaxEnergy(), errors);
+		//checkBounds("NumberPoints", x.getNumberPoints(), 0d, 200000d, errors);
+
+		return errors;
+	}
+
+	private InvalidBeanMessage checkExpressionSyntax(final String label, final String value,
 			final List<InvalidBeanMessage> errors, final String... messages) {
 
 		if (value == null) {
@@ -145,7 +332,7 @@ public abstract class ExafsValidator extends AbstractValidator {
 		return null;
 	}
 
-	public List<InvalidBeanMessage> validateIDetectorParameters(IDetectorParameters iDetectorParams) {
+	protected List<InvalidBeanMessage> validateIDetectorParameters(IDetectorParameters iDetectorParams) {
 
 		final List<InvalidBeanMessage> errors = new ArrayList<InvalidBeanMessage>(31);
 
@@ -172,7 +359,7 @@ public abstract class ExafsValidator extends AbstractValidator {
 		return errors;
 	}
 
-	public List<InvalidBeanMessage> validateXanesScanParameters(XanesScanParameters x) {
+	protected List<InvalidBeanMessage> validateXanesScanParameters(XanesScanParameters x) {
 
 		if (x == null) {
 			return Collections.emptyList();
@@ -207,7 +394,7 @@ public abstract class ExafsValidator extends AbstractValidator {
 		return errors;
 	}
 
-	public List<InvalidBeanMessage> validateXasScanParameters(XasScanParameters x, double beamlineMinEnergy,
+	protected List<InvalidBeanMessage> validateXasScanParameters(XasScanParameters x, double beamlineMinEnergy,
 			double beamlineMaxEnergy) {
 
 		if (x == null) {
@@ -275,21 +462,8 @@ public abstract class ExafsValidator extends AbstractValidator {
 		return false;
 	}
 
-	/**
-	 * Used in testing mode to switch off checking of findables which are not there.
-	 *
-	 * @param isChecking
-	 */
-	public static final void _setCheckingFinables(boolean isChecking) {
-		isCheckingFinables = isChecking;
-	}
-
 	protected void checkFindable(final String label, final String deviceName, final Class<? extends Findable> clazz,
 			final List<InvalidBeanMessage> errors, final String... messages) {
-
-		if (!isCheckingFinables) {
-			return;
-		}
 
 		if (deviceName == null) {
 			InvalidBeanMessage msg = new InvalidBeanMessage("The " + label + " has no value and this is not allowed.",
@@ -338,4 +512,13 @@ public abstract class ExafsValidator extends AbstractValidator {
 		return true;
 	}
 
+	protected double getMinEnergy() {
+		return Double.MIN_VALUE;
+	}
+
+	protected double getMaxEnergy() {
+		return Double.MAX_VALUE;
+	}
+
+	protected abstract List<InvalidBeanMessage> validateISampleParameters(ISampleParameters sampleParameters);
 }

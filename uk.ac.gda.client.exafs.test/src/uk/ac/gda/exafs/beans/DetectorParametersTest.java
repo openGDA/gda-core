@@ -20,8 +20,6 @@ package uk.ac.gda.exafs.beans;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-import gda.exafs.scan.ExafsValidator;
-import gda.util.TestUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -32,6 +30,7 @@ import org.eclipse.core.runtime.content.IContentDescriber;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import gda.util.TestUtils;
 import uk.ac.gda.beans.exafs.DetectorGroup;
 import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.exafs.FluorescenceParameters;
@@ -151,9 +150,6 @@ public class DetectorParametersTest {
 
 		DetectorParameters d = createFromXML(PackageUtils.getTestPath(getClass())
 				+ "DetectorParameters_withTransmission.xml");
-		ExafsValidator._setCheckingFinables(false);
-
-		// ExafsValidator.getInstance().validate(d);
 
 		assertEquals(expectedValue, d);
 
@@ -221,8 +217,7 @@ public class DetectorParametersTest {
 
 		DetectorParameters d = createFromXML(PackageUtils.getTestPath(getClass())
 				+ "DetectorParameters_withFluorescence.xml");
-		ExafsValidator._setCheckingFinables(false);
-		// ExafsValidator.getInstance().validate(d);
+
 		if (!expectedValue.equals(d)) {
 			fail("Values read are incorrect - " + d.toString());
 		}

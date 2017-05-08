@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<QEXAFSParameters>
+    <initialEnergy>10000.0</initialEnergy>
+    <finalEnergy>11000.0</finalEnergy>
+    <speed>10.0</speed>
+    <stepSize>1.0</stepSize>
+    <time>104.89</time>
+    <element>Fe</element>
+    <edge>K</edge>
+</QEXAFSParameters>

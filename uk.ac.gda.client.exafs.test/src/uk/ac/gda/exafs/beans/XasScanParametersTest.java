@@ -20,12 +20,6 @@ package uk.ac.gda.exafs.beans;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-import gda.TestHelpers;
-import gda.device.scannable.DummyScannable;
-import gda.exafs.scan.ExafsValidator;
-import gda.factory.Factory;
-import gda.factory.Finder;
-import gda.util.TestUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -36,17 +30,19 @@ import org.eclipse.core.runtime.content.IContentDescriber;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import gda.TestHelpers;
+import gda.device.scannable.DummyScannable;
+import gda.factory.Factory;
+import gda.factory.Finder;
+import gda.util.TestUtils;
 import uk.ac.gda.beans.exafs.XasScanParameters;
 import uk.ac.gda.beans.validation.InvalidBeanMessage;
 import uk.ac.gda.exafs.ui.describers.XasDescriber;
 import uk.ac.gda.util.PackageUtils;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
-/**
- *
- */
 public class XasScanParametersTest {
-	final static String testScratchDirectoryName = TestUtils
+	private static final String testScratchDirectoryName = TestUtils
 			.generateDirectorynameFromClassname(XasScanParametersTest.class.getCanonicalName());
 
 	@BeforeClass
@@ -329,26 +325,14 @@ public class XasScanParametersTest {
 	}
 
 	private void validate(XasScanParameters o) {
-		List<InvalidBeanMessage> errors = new ExafsValidator() {
-			@Override
-			public void validate(uk.ac.gda.client.experimentdefinition.IExperimentObject bean)
-					throws uk.ac.gda.beans.validation.InvalidBeanException {
-				// unused
-			}
-		}.validateXasScanParameters(o, 2000, 35000);
+		final List<InvalidBeanMessage> errors = new ExafsValidatorWrapperForTesting().validateXasScanParametersForTest(o, 2000, 35000);
 		if (errors.size() > 0) {
 			fail(errors.get(0).getPrimaryMessage());
 		}
 	}
 
 	private boolean isInvalid(XasScanParameters o) {
-		List<InvalidBeanMessage> errors = new ExafsValidator() {
-			@Override
-			public void validate(uk.ac.gda.client.experimentdefinition.IExperimentObject bean)
-					throws uk.ac.gda.beans.validation.InvalidBeanException {
-				// unused
-			}
-		}.validateXasScanParameters(o, 2000, 35000);
+		final List<InvalidBeanMessage> errors = new ExafsValidatorWrapperForTesting().validateXasScanParametersForTest(o, 2000, 35000);
 		return errors.size() != 0;
 	}
 }

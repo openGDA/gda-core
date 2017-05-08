@@ -20,8 +20,6 @@ package uk.ac.gda.exafs.beans;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-import gda.exafs.scan.ExafsValidator;
-import gda.util.TestUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -33,6 +31,7 @@ import org.eclipse.core.runtime.content.IContentDescriber;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import gda.util.TestUtils;
 import uk.ac.gda.beans.exafs.OutputParameters;
 import uk.ac.gda.beans.exafs.SignalParameters;
 import uk.ac.gda.beans.validation.InvalidBeanMessage;
@@ -40,19 +39,16 @@ import uk.ac.gda.exafs.ui.describers.OutputDescriber;
 import uk.ac.gda.util.PackageUtils;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
-/**
- * class to hold sample parameters
- */
 public class OutputParametersTest {
-	final static String testScratchDirectoryName = TestUtils
+
+	private static final String testScratchDirectoryName = TestUtils
 			.generateDirectorynameFromClassname(OutputParametersTest.class.getCanonicalName());
 
-
-	public static OutputParameters createFromXML(String filename) throws Exception {
+	private static OutputParameters createFromXML(String filename) throws Exception {
 		return (OutputParameters) XMLHelpers.createFromXML(OutputParameters.mappingURL, OutputParameters.class, OutputParameters.schemaUrl, filename);
 	}
 
-	public static void writeToXML(OutputParameters outputParams, String filename) throws Exception {
+	private static void writeToXML(OutputParameters outputParams, String filename) throws Exception {
 		XMLHelpers.writeToXML(OutputParameters.mappingURL, outputParams, filename);
 	}
 
@@ -99,21 +95,11 @@ public class OutputParametersTest {
 //		o.addSignal(new SignalParameters("Time(sec)", "time", "%s", "time*1000", "EpicsClock"));
 //		o.addSignal(new SignalParameters("Temp", "temp", "%s", "temp", "Eurotherm"));
 
-		ExafsValidator._setCheckingFinables(false);
-
-
 		validate(o);
-
 	}
 
 	private void validate(OutputParameters o) {
-		List<InvalidBeanMessage> errors = new ExafsValidator() {
-			@Override
-			public void validate(uk.ac.gda.client.experimentdefinition.IExperimentObject bean)
-					throws uk.ac.gda.beans.validation.InvalidBeanException {
-				// unused
-			}
-		}.validateIOutputParameters(o);
+		final List<InvalidBeanMessage> errors = new ExafsValidatorWrapperForTesting().validateIOutputParametersForTest(o);
 		if (errors.size() > 0){
 			fail(errors.get(0).getPrimaryMessage());
 		}
@@ -130,16 +116,7 @@ public class OutputParametersTest {
 		o.addSignal(new SignalParameters("Time(sec)", "time", 4, "time*1000", "EpicsClock"));
 		o.addSignal(new SignalParameters("Temp", "temp", 4, "temp", "Eurotherm"));
 
-		ExafsValidator._setCheckingFinables(false);
-
-		List<InvalidBeanMessage> errors = new ExafsValidator() {
-			@Override
-			public void validate(uk.ac.gda.client.experimentdefinition.IExperimentObject bean)
-					throws uk.ac.gda.beans.validation.InvalidBeanException {
-				// unused
-			}
-		}.validateIOutputParameters(o);
-
+		final List<InvalidBeanMessage> errors = new ExafsValidatorWrapperForTesting().validateIOutputParametersForTest(o);
 		if (errors.size() == 0){
 			throw new Exception("$ character in names passed the checks!");
 		}
@@ -162,7 +139,6 @@ public class OutputParametersTest {
 
 		OutputParameters s = createFromXML(PackageUtils.getTestPath(getClass())
 				+ "OutputParameters.xml");
-		ExafsValidator._setCheckingFinables(false);
 		validate(s);
 		if (!expectedValue.equals(s)) {
 			fail("Values read are incorrect - " + s.toString());
@@ -186,7 +162,6 @@ public class OutputParametersTest {
 		}
 
 		OutputParameters s = createFromXML(testScratchDirectoryName + "OutputParameters_written.xml");
-		ExafsValidator._setCheckingFinables(false);
 		validate(s);
 		if (!op.equals(s)) {
 			fail("Values read are incorrect - " + s.toString());

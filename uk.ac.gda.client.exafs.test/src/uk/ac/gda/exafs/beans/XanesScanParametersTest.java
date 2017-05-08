@@ -20,12 +20,6 @@ package uk.ac.gda.exafs.beans;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-import gda.TestHelpers;
-import gda.device.scannable.DummyScannable;
-import gda.exafs.scan.ExafsValidator;
-import gda.factory.Factory;
-import gda.factory.Finder;
-import gda.util.TestUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -36,6 +30,11 @@ import org.eclipse.core.runtime.content.IContentDescriber;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import gda.TestHelpers;
+import gda.device.scannable.DummyScannable;
+import gda.factory.Factory;
+import gda.factory.Finder;
+import gda.util.TestUtils;
 import uk.ac.gda.beans.exafs.Region;
 import uk.ac.gda.beans.exafs.XanesScanParameters;
 import uk.ac.gda.beans.validation.InvalidBeanMessage;
@@ -46,7 +45,7 @@ import uk.ac.gda.util.PackageUtils;
  * XanesScanParametersTest tests xml serialization and region checking.
  */
 public class XanesScanParametersTest {
-	final static String testScratchDirectoryName = TestUtils
+	private static final String testScratchDirectoryName = TestUtils
 			.generateDirectorynameFromClassname(XanesScanParametersTest.class.getCanonicalName());
 
 	/**
@@ -222,26 +221,14 @@ public class XanesScanParametersTest {
 	}
 
 	private void validate(XanesScanParameters o) {
-		List<InvalidBeanMessage> errors = new ExafsValidator() {
-			@Override
-			public void validate(uk.ac.gda.client.experimentdefinition.IExperimentObject bean)
-					throws uk.ac.gda.beans.validation.InvalidBeanException {
-				// unused
-			}
-		}.validateXanesScanParameters(o);
+		final List<InvalidBeanMessage> errors = new ExafsValidatorWrapperForTesting().validateXanesScanParametersForTest(o);
 		if (errors.size() > 0) {
 			fail(errors.get(0).getPrimaryMessage());
 		}
 	}
 
 	private boolean isInvalid(XanesScanParameters o) {
-		List<InvalidBeanMessage> errors = new ExafsValidator() {
-			@Override
-			public void validate(uk.ac.gda.client.experimentdefinition.IExperimentObject bean)
-					throws uk.ac.gda.beans.validation.InvalidBeanException {
-				// unused
-			}
-		}.validateXanesScanParameters(o);
+		final List<InvalidBeanMessage> errors = new ExafsValidatorWrapperForTesting().validateXanesScanParametersForTest(o);
 		return errors.size() != 0;
 	}
 
