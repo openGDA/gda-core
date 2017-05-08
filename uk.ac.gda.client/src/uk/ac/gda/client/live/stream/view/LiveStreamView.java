@@ -26,12 +26,10 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.eclipse.dawnsci.analysis.api.io.IRemoteDatasetService;
-import org.eclipse.dawnsci.plotting.api.IPlotActionSystem;
 import org.eclipse.dawnsci.plotting.api.IPlottingService;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlotType;
 import org.eclipse.dawnsci.plotting.api.axis.IAxis;
-import org.eclipse.dawnsci.plotting.api.tool.IToolPage.ToolPageRole;
 import org.eclipse.dawnsci.plotting.api.trace.IImageTrace;
 import org.eclipse.dawnsci.plotting.api.trace.IImageTrace.DownsampleType;
 import org.eclipse.january.DatasetException;
@@ -40,6 +38,7 @@ import org.eclipse.january.dataset.IDataListener;
 import org.eclipse.january.dataset.IDatasetConnector;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.scanning.connector.epicsv3.EpicsV3DynamicDatasetConnector;
 import org.eclipse.swt.SWT;
@@ -54,6 +53,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
@@ -257,10 +257,12 @@ public class LiveStreamView extends ViewPart {
 			cameraName = cameraId;
 		}
 
+		IActionBars actionBars = getViewSite().getActionBars();
+
 		// Setup the plotting system
 		try {
 			plottingSystem = plottingService.createPlottingSystem();
-			plottingSystem.createPlotPart(parent, camConfig.getUrl(), null, PlotType.IMAGE, this);
+			plottingSystem.createPlotPart(parent, camConfig.getUrl(), actionBars, PlotType.IMAGE, this);
 		} catch (Exception e) {
 			displayAndLogError(parent, "Could not create plotting system", e);
 			return;
@@ -275,7 +277,7 @@ public class LiveStreamView extends ViewPart {
 		plottingSystem.setTitle(cameraName + ": " + streamType + " - No data yet");
 
 		// Add useful plotting system actions
-		configureToolbar();
+		configureActionBars(actionBars);
 
 		// Fix the aspect ratio as is typically required for visible cameras
 		plottingSystem.setKeepAspect(true);
@@ -301,16 +303,32 @@ public class LiveStreamView extends ViewPart {
 		plottingSystem.addTrace(iTrace);
 	}
 
-	private void configureToolbar() {
-		IToolBarManager toolBarManager = getViewSite().getActionBars().getToolBarManager();
-		// Add the menu for switching between stream types
-		toolBarManager.add(new SwitchStreamTypeAction(this));
+	private void configureActionBars(IActionBars actionBars) {
+		IToolBarManager toolBarManager = actionBars.getToolBarManager();
+
 		// Setup the plotting system toolbar options
-		IPlotActionSystem plotActionSystem = plottingSystem.getPlotActionSystem();
-		plotActionSystem.fillToolActions(toolBarManager, ToolPageRole.ROLE_2D);
-		plotActionSystem.fillZoomActions(toolBarManager);
-		plotActionSystem.fillPrintActions(toolBarManager);
-		getViewSite().getActionBars().updateActionBars();
+		List<String> requiredToolBarIds = Arrays.asList(
+				"org.csstudio.swt.xygraph.autoscale",
+				"org.dawb.common.ui.plot.tool",
+				"org.dawb.workbench.plotting.histo",
+				"org.dawnsci.plotting.system.preference.export",
+				"org.eclipse.nebula.visualization.xygraph.figures.ZoomType");
+
+		// Remove all ToolBar contributions with Ids which are either undefined or not required
+		Arrays.stream(toolBarManager.getItems())
+			.filter(ci -> ci.getId() == null || requiredToolBarIds.stream().noneMatch(ci.getId()::contains))
+			.forEach(toolBarManager::remove);
+			// If getId() returns null then the match will not be performed as the || short circuits it, this
+			// also prevents the NPE which would result from trying to match on a null Id.
+
+		// Remove all Menu contributions
+		IMenuManager menuManager = actionBars.getMenuManager();
+		Arrays.stream(menuManager.getItems()).forEach(menuManager::remove);
+
+		// Add the ToolBar for switching between stream types
+		toolBarManager.insertBefore(toolBarManager.getItems()[0].getId(), new SwitchStreamTypeAction(this));
+
+		actionBars.updateActionBars();
 	}
 
 	@Override
