@@ -487,9 +487,6 @@ public class GDAJythonInterpreter extends ObservableComponent {
 				interactiveConsole.runsource("import gda.device.scannable.ScannableUtils");
 				interactiveConsole.runsource("from gda.util.converters import IReloadableQuantitiesConverter");
 
-				// Create the completer object to allow command line tab completion
-				interactiveConsole.runsource("from gda_completer import Completer");
-				interactiveConsole.runsource("completer = Completer(globals())");
 
 				// scisoftpy
 				interactiveConsole.runsource("import scisoftpy as dnp");
