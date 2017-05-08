@@ -29,6 +29,7 @@ import gda.jython.Jython;
 import gda.jython.UserMessage;
 import gda.jython.batoncontrol.ClientDetails;
 import gda.jython.commandinfo.ICommandThreadInfo;
+import gda.jython.completion.AutoCompletion;
 import gda.jython.corba.CorbaJython;
 import gda.jython.corba.CorbaJythonHelper;
 import gda.observable.IObserver;
@@ -1088,6 +1089,27 @@ public class JythonAdapter implements Jython, EventSubscriber {
 			}
 		}
 		return false;
+	}
+
+	@Override
+	public AutoCompletion getCompletionsFor(String line, int posn) {
+		for (int i = 0; i < NetService.RETRY; i++) {
+			try {
+				Any any = jythonServer.getCompletionsFor(line, posn);
+				AutoCompletion ac = (AutoCompletion) any.extract_Value();
+				return ac;
+			} catch (COMM_FAILURE cf) {
+				jythonServer = CorbaJythonHelper.narrow(netService.reconnect(name));
+			} catch (org.omg.CORBA.TRANSIENT ct) {
+				// This exception is thrown when the ORB failed to connect to
+				// the object
+				// primarily when the server has failed.
+				break;
+			} catch (CorbaDeviceException ex) {
+				logger.warn("Not able to get AutoCompletion from Corba", ex);
+			}
+		}
+		return AutoCompletion.noCompletions(line, posn);
 	}
 
 	@Override

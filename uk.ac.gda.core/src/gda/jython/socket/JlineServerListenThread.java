@@ -22,15 +22,20 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.List;
 
 import org.python.jline.TerminalFactory;
 import org.python.jline.UnixTerminal;
 import org.python.jline.console.ConsoleReader;
+import org.python.jline.console.completer.CandidateListCompletionHandler;
+import org.python.jline.console.completer.Completer;
 import org.python.jline.console.history.FileHistory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
+import gda.jython.JythonServerFacade;
+import gda.jython.completion.AutoCompletion;
 
 public class JlineServerListenThread extends ServerListenThreadBase {
 
@@ -59,6 +64,11 @@ public class JlineServerListenThread extends ServerListenThreadBase {
 		cr.setHistory(hist);
 		cr.setHistoryEnabled(true);
 		logger.debug("Writing telnet history to {}", historyFile);
+
+		cr.addCompleter(new GdaJythonCompleter());
+		CandidateListCompletionHandler clch = new CandidateListCompletionHandler();
+		clch.setPrintSpaceAfterFullCompletion(false);
+		cr.setCompletionHandler(clch);
 	}
 
 	@Override
@@ -81,6 +91,15 @@ public class JlineServerListenThread extends ServerListenThreadBase {
 	@Override
 	protected String readLine(String prompt) throws IOException {
 		return cr.readLine(prompt);
+	}
+
+	private static final class GdaJythonCompleter implements Completer {
+		@Override
+		public int complete(String buffer, int cursor, List<CharSequence> candidates) {
+			AutoCompletion ac = JythonServerFacade.getInstance().getCompletionsFor(buffer, cursor);
+			candidates.addAll(ac.getStrings());
+			return ac.getPosition();
+		}
 	}
 
 	public static class UnixXtermTerminal extends UnixTerminal {

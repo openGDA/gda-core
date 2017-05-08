@@ -19,12 +19,12 @@ logger = LoggerFactory.getLogger(__name__ + '.py')
 
 # Type constants used to pick the icon to display for the option
 # The usage is chosen to match PyDev see jyimportsTipper.py
-TYPE_IMPORT = '0'  # Blue Dot
-TYPE_CLASS = '1'  # Yellow Diamond
-TYPE_FUNCTION = '2'  # Blue Triangle
-TYPE_ATTR = '3'  # Green Circle
-TYPE_BUILTIN = '4'  # Gray Circle
-TYPE_PARAM = '5'  # No icon, This doesn't have support in the Java side
+TYPE_IMPORT = 0  # Blue Dot
+TYPE_CLASS = 1  # Yellow Diamond
+TYPE_FUNCTION = 2  # Blue Triangle
+TYPE_ATTR = 3  # Green Circle
+TYPE_BUILTIN = 4  # Gray Circle
+TYPE_PARAM = 5  # No icon, This doesn't have support in the Java side
 
 class Completer(object):
 
@@ -73,7 +73,7 @@ class Completer(object):
         4 type (Where it is a integer as a string)
         e.g. ("complete", "This method is ...", "command", TYPE_FUNCTION)
 
-        The order of the returned list is not important it is sorted and filter by the Java code
+        The order of the returned list is not important it is sorted by the Java code
         """
         logger.debug('Command to complete: {}', command)
 
@@ -120,6 +120,8 @@ class Completer(object):
                 # Now we have the object figure out the types being careful not to call methods
                 results = []
                 for opt in options:
+                    if not opt.startswith(parts[-1]):
+                        continue
                     # Check if the class has the attribute in the same approach as above
                     if hasattr(obj.__class__, opt):
                         if callable(getattr(obj, opt)):  # If its callable its a function
@@ -152,6 +154,8 @@ class Completer(object):
                 # Build the list ignoring doc string and argument lists
                 results = []
                 for option in options:
+                    if not option.startswith(parts[-1]):
+                        continue
                     if callable(getattr(obj, option)): # If it's callable it's a function
                         results.append((option, '', '', TYPE_FUNCTION))
                     else: # Else it's a attribute
@@ -183,8 +187,7 @@ class Completer(object):
             logger.debug('Matching globals: {}', str(globals_list))
 
             # Return the globals, keywords and builtins
-            # Not the keywords and builtins are not filtered here they will be on the java side
-            return globals_list + self.keywords + self.builtins
+            return globals_list + [opt for opt in self.keywords + self.builtins if opt[0].startswith(command)]
 
     def enable_debug(self, enable):
         if enable:

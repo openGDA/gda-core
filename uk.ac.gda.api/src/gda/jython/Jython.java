@@ -30,6 +30,7 @@ import gda.device.DeviceException;
 import gda.factory.Findable;
 import gda.jython.batoncontrol.ClientDetails;
 import gda.jython.commandinfo.ICommandThreadInfo;
+import gda.jython.completion.AutoCompletion;
 import gda.observable.IObserver;
 
 /**
@@ -517,4 +518,6 @@ public interface Jython extends Findable {
 	 * @throws PyException If exec resulted in exception.
 	 */
 	public void exec(String s) throws PyException;
+
+	public AutoCompletion getCompletionsFor(String line, int posn);
 }

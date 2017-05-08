@@ -57,6 +57,8 @@ import gda.jython.commandinfo.CommandThreadEvent;
 import gda.jython.commandinfo.ICommandThreadInfo;
 import gda.jython.commandinfo.ICommandThreadInfoProvider;
 import gda.jython.commandinfo.ICommandThreadObserver;
+import gda.jython.completion.AutoCompletion;
+import gda.jython.completion.TextCompleter;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 import gda.scan.IScanDataPoint;
@@ -83,7 +85,7 @@ import gda.util.LibGdaCommon;
 public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHolder, ICommandRunner,
 		ICurrentScanController, ITerminalPrinter, IJythonNamespace, IAuthorisationHolder, IScanDataPointProvider,
 		IScriptController, ICommandAborter, IBatonStateProvider, InitializingBean, AliasedCommandProvider,
-		IJythonContext, ITerminalOutputProvider, ICommandThreadInfoProvider {
+		IJythonContext, ITerminalOutputProvider, ICommandThreadInfoProvider, TextCompleter {
 
 	private static final Logger logger = LoggerFactory.getLogger(JythonServerFacade.class);
 
@@ -968,5 +970,10 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	 */
 	public void exec(String s) throws PyException {
 		commandServer.exec(s);
+	}
+
+	@Override
+	public AutoCompletion getCompletionsFor(String line, int posn) {
+		return commandServer.getCompletionsFor(line, posn);
 	}
 }

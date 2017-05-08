@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import gda.factory.Findable;
 import gda.factory.Finder;
 import gda.jython.commandinfo.ICommandThreadInfoProvider;
+import gda.jython.completion.TextCompleter;
 
 /**
  * Static methods to get current implementation for various interfaces supported by JythonServerFacade and JythonServer
@@ -53,7 +54,8 @@ public class InterfaceProvider {
 	static private AliasedCommandProvider aliasedCommandProvider;
 	static private ICommandThreadInfoProvider commandInfoProvider;
 	private static IJythonServerStatusProvider jythonServerStatusProvider;
-	
+	private static TextCompleter jythonCompleter;
+
 	/**
 	 * @return current selected implementation of ICommandRunner
 	 */
@@ -355,6 +357,13 @@ public class InterfaceProvider {
 			batonStateProvider = JythonServerFacade.getInstance();
 		}
 		return batonStateProvider;
+	}
+
+	public static TextCompleter getCompleter() {
+		if (jythonCompleter == null) {
+			jythonCompleter = JythonServerFacade.getInstance();
+		}
+		return jythonCompleter;
 	}
 
 	/**

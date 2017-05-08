@@ -166,6 +166,8 @@ interface CorbaJython : gda::_factory::corba::CorbaFindable
     boolean projectIsCoreType(in string path) raises (device::corba::CorbaDeviceException);
     
     any getCommandThreadInfo() raises  (device::corba::CorbaDeviceException);
+
+    any getCompletionsFor(in string line, in long posn) raises (device::corba::CorbaDeviceException);
 };
 
 };};};
