@@ -195,6 +195,21 @@ class CompleterTest(unittest.TestCase):
         options = self.completer.complete('case')
         self.assertListEqual(options, [])
 
+    def test_java_package(self):
+        global gda
+        import gda
+        options = self.completer.complete('gda.device.motor.');
+        options_dict = dict((option[0], option) for option in options)
+
+        self.assertTrue(options_dict.has_key('DummyMotor'), 'Completion incorrect for java package')
+
+    def test_invalid_java_package(self):
+        global gda
+        import gda
+        options = self.completer.complete('gda.device.thispackagedoesntexist.');
+
+        self.assertTrue(options == [], "Completion returned completions for package that doesn't exist")
+
 # Test helper class
 class testObject(object):
 

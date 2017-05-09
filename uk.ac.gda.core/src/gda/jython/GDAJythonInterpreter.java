@@ -216,6 +216,7 @@ public class GDAJythonInterpreter {
 			Py.setSystemState(pss);
 			pss.setClassLoader(classLoader);
 			pss.setdefaultencoding(UTF_8);		// cannot be done before Py.setSystemState
+			Py.defaultSystemState = pss;
 		} catch (Exception e) {
 			if (e instanceof PyException) {
 				logger.error("Jython initialisation problem: " + e);     // Since PyException puts message in value member

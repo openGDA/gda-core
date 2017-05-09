@@ -15,6 +15,7 @@ import re
 from ch.qos.logback.classic import Level
 from org.slf4j import LoggerFactory
 from java.lang import Object
+from org.python.core import PyJavaPackage
 
 logger = LoggerFactory.getLogger(__name__ + '.py')
 
@@ -195,7 +196,30 @@ class Completer(object):
                         results.append((opt, '', '', TYPE_ATTR))
 
                 return results
-
+            elif isinstance(obj, PyJavaPackage):
+                logger.debug('package {}', obj)
+                results = []
+                for i in parts[1:-1]:
+                    a = getattr(obj, i, None)
+                    logger.debug('next part: {}, {}', i, a)
+                    if a is None:
+                        logger.debug('no completions')
+                        return []
+                    else:
+                        obj = a
+                for i in dir(obj):
+                    if i.startswith(parts[-1]):
+                        # needs None as fallback for case where Class appears in dir
+                        # but getattr throws exception (eg classes with missing native
+                        # dependencies)
+                        t = TYPE_CLASS
+                        try:
+                            if isinstance(getattr(obj, i, None), PyJavaPackage):
+                                t = TYPE_IMPORT
+                        except:
+                            pass
+                        results.append((i, '', '', t))
+                return results
             else:  # It's a Python object
                 logger.debug('{} is a Python object', parts[0])
 
@@ -226,7 +250,6 @@ class Completer(object):
                     else: # Else it's a attribute
                         results.append((option, '', '', TYPE_ATTR))
                 return results
-
         else:
             logger.debug('No need to split command, returning globals, keywords and builtins')
 

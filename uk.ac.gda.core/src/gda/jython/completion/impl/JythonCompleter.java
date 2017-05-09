@@ -135,7 +135,14 @@ public class JythonCompleter implements TextCompleter {
 
 	@SuppressWarnings("unchecked")
 	private List<PyTuple> getJythonCompletions(String partial) {
-		return (PyList)jyComplete.__call__(new PyString(partial));
+		try {
+			return (PyList)jyComplete.__call__(new PyString(partial));
+		} catch (Exception | UnsatisfiedLinkError e) {
+			// catch link error for the case where classes with native method calls
+			// have libraries missing
+			logger.warn("Completion for {} failed", partial, e);
+			return new ArrayList<>();
+		}
 	}
 
 	/**
