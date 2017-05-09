@@ -202,7 +202,7 @@ public class SpringObjectServer extends ObjectServer {
 			writer.println("\t# fake imports for fake assignments below");
 			LinkedHashSet<String> imports = new LinkedHashSet<>();
 			for (Class<?> type : beanTypes.values()) {
-				final String className = type.getSimpleName();
+				final String className = type.getSimpleName().split("\\$")[0];
 				imports.add(String.format("\tfrom %s import %s", type.getPackage().getName(), className));
 			}
 			String[] _imports = imports.toArray(new String[] {});
@@ -214,7 +214,8 @@ public class SpringObjectServer extends ObjectServer {
 			writer.println("\t# fake assignments for PyDev type-inference");
 			for (String name : beanTypes.keySet()) {
 				Class<?> type =  beanTypes.get(name);
-				writer.format("\t%s = %s()\n", name, type.getSimpleName());
+				String simple = type.getSimpleName().split("\\$")[0];
+				writer.format("\t%s = %s()\n", name, simple);
 			}
 			writer.println("");
 
