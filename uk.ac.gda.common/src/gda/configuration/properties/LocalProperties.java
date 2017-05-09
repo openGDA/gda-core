@@ -343,7 +343,7 @@ public class LocalProperties {
 
 	public static String getActiveMQBrokerURI() {
 		return get(GDA_ACTIVEMQ_BROKER_URI,
-				String.format("failover:(tcp://%s:%d)?startupMaxReconnectAttempts=3",
+				String.format("failover:(tcp://%s:%d?daemon=true)?startupMaxReconnectAttempts=3",
 						get("gda.server.host", "localhost"),
 						61616));
 	}
