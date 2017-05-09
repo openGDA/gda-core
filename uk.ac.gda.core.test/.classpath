@@ -3,6 +3,11 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="benchmarks"/>
 	<classpathentry kind="lib" path="jars/Test1.jar"/>
+	<classpathentry kind="lib" path="jars/commons-math3-3.2.jar" sourcepath="jars/commons-math3-3.2-sources.jar"/>
+	<classpathentry kind="lib" path="jars/jmh-core-1.19.jar" sourcepath="jars/jmh-core-1.19-sources.jar"/>
+	<classpathentry kind="lib" path="jars/jmh-generator-annprocess-1.19.jar" sourcepath="jars/jmh-generator-annprocess-1.19-sources.jar"/>
+	<classpathentry kind="lib" path="jars/jopt-simple-4.6.jar" sourcepath="jars/jopt-simple-4.6-sources.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
