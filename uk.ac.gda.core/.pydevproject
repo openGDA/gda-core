@@ -5,7 +5,6 @@
 <pydev_pathproperty name="org.python.pydev.PROJECT_SOURCE_PATH">
 <path>/uk.ac.gda.core/scripts</path>
 <path>/uk.ac.gda.core/classes/main</path>
-<path>/uk.ac.gda.core/bin</path>
 </pydev_pathproperty>
 <pydev_pathproperty name="org.python.pydev.PROJECT_EXTERNAL_SOURCE_PATH">
 <path>${GDA_WORKSPACE_PARENT}/workspace/tp/plugins/log4j.over.slf4j_1.7.18.jar</path>
