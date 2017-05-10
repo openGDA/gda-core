@@ -7,15 +7,15 @@
 <path>/uk.ac.gda.core/classes/main</path>
 </pydev_pathproperty>
 <pydev_pathproperty name="org.python.pydev.PROJECT_EXTERNAL_SOURCE_PATH">
-<path>${GDA_WORKSPACE_PARENT}/workspace/tp/plugins/log4j.over.slf4j_1.7.18.jar</path>
-<path>${GDA_WORKSPACE_PARENT}/workspace/tp/plugins/jcl.over.slf4j_1.7.18.jar</path>
-<path>${GDA_WORKSPACE_PARENT}/workspace/tp/plugins/slf4j.api_1.7.18.jar</path>
-<path>${GDA_WORKSPACE_PARENT}/workspace/tp/plugins/ch.qos.logback.classic_1.1.6.jar</path>
-<path>${GDA_WORKSPACE_PARENT}/workspace/tp/plugins/ch.qos.logback.core_1.1.6.jar</path>
+<path>${GDA_WORKSPACE_PARENT}/workspace/tp/plugins/log4j.over.slf4j_1.7.22.jar</path>
+<path>${GDA_WORKSPACE_PARENT}/workspace/tp/plugins/jcl.over.slf4j_1.7.22.jar</path>
+<path>${GDA_WORKSPACE_PARENT}/workspace/tp/plugins/slf4j.api_1.7.22.jar</path>
+<path>${GDA_WORKSPACE_PARENT}/workspace/tp/plugins/ch.qos.logback.classic_1.1.9.jar</path>
+<path>${GDA_WORKSPACE_PARENT}/workspace/tp/plugins/ch.qos.logback.core_1.1.9.jar</path>
 <path>${GDA_WORKSPACE_PARENT}/workspace_git/scisoft-core.git/uk.ac.diamond.scisoft.deprecated/bin</path>
-<path>${GDA_WORKSPACE_PARENT}/workspace/tp/plugins/org.apache.commons.math3_3.6.0.jar</path>
+<path>${GDA_WORKSPACE_PARENT}/workspace/tp/plugins/org.apache.commons.math3_3.6.1.jar</path>
 <path>${GDA_WORKSPACE_PARENT}/workspace_git/diamond-springframework.git/uk.ac.diamond.org.springframework/jars/spring-beans-4.0.6.RELEASE.jar</path>
 <path>${GDA_WORKSPACE_PARENT}/workspace/tp/plugins/org.apache.commons.configuration_1.10.0.jar</path>
-<path>${GDA_WORKSPACE_PARENT}/workspace/tp/plugins/org.apache.commons.lang_2.6.0.jar</path>
+<path>${GDA_WORKSPACE_PARENT}/workspace/tp/plugins/org.apache.commons.lang_2.6.0.v201404270220.jar</path>
 </pydev_pathproperty>
 </pydev_project>
