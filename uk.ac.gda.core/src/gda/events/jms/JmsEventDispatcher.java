@@ -37,7 +37,7 @@ import gda.factory.corba.util.EventDispatcher;
 import gda.util.Serializer;
 
 /**
- * An {@link EventDispatcher} that uses JMS to dispatch events.
+ * An {@link EventDispatcher} that uses JMS to dispatch events. This class was significantly rewritten as part of DAQ-515
  */
 public class JmsEventDispatcher extends JmsClient implements EventDispatcher {
 
@@ -50,12 +50,8 @@ public class JmsEventDispatcher extends JmsClient implements EventDispatcher {
 	 * Creates a JMS event dispatcher.
 	 */
 	public JmsEventDispatcher() {
-		try {
-			createSession();
-			logger.info("Created new session: {}", session);
-		} catch (JMSException e) {
-			logger.error("Unable to create JMS event dispatcher", e);
-		}
+		// If the super constructor succeeds then we know the session was created
+		logger.info("Created new session: {}", session);
 	}
 
 	@Override

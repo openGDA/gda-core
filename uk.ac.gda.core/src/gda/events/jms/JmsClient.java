@@ -30,19 +30,23 @@ import gda.configuration.properties.LocalProperties;
 /**
  * Base class implemented by classes that send and receive messages using JMS.
  */
-public class JmsClient {
+public abstract class JmsClient {
 
 	protected static final String TOPIC_PREFIX = "gda.event.";
 
-	protected Connection connection;
+	protected final Connection connection;
 
-	protected Session session;
+	protected final Session session;
 
-	protected void createSession() throws JMSException {
+	protected JmsClient() {
 		final String jmsBrokerUri = LocalProperties.getActiveMQBrokerURI();
 		final ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(jmsBrokerUri);
-		connection = factory.createConnection();
-		session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+		try {
+			connection = factory.createConnection();
+			session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+		} catch (JMSException e) {
+			throw new RuntimeException("Failed to connect to ActiveMQ, is it running?", e);
+		}
 	}
 
 }
