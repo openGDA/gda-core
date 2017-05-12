@@ -627,23 +627,46 @@
             name="Xspress3 Bean File Content"
             priority="high">
       </content-type>
+      <content-type
+            base-type="org.eclipse.core.runtime.xml"
+            describer="uk.ac.gda.exafs.ui.describers.DetectorDescriber"
+            file-extensions="xml"
+            id="uk.ac.diamond.gda.client.exafs.getDetectorContent"
+            name="Detector Bean File Content"
+            priority="high">
+      </content-type>
+      <content-type
+            base-type="org.eclipse.core.runtime.xml"
+            describer="uk.ac.gda.exafs.ui.describers.OutputDescriber"
+            file-extensions="xml"
+            id="uk.ac.diamond.gda.client.exafs.getOutputContent"
+            name="Output Bean File Content"
+            priority="high">
+      </content-type>
+      <content-type
+            base-type="org.eclipse.core.runtime.xml"
+            describer="uk.ac.gda.exafs.ui.describers.QEXAFSParametersDescriber"
+            file-extensions="xml"
+            id="uk.ac.diamond.gda.client.exafs.getQexafsContent"
+            name="QEXAFS Bean File Content"
+            priority="high">
+      </content-type>
+      <content-type
+            base-type="org.eclipse.core.runtime.xml"
+            describer="uk.ac.gda.exafs.ui.describers.XesScanParametersDescriber"
+            file-extensions="xml"
+            id="uk.ac.gda.beans.exafs.XesScanParametersContentType"
+            name="XesScanParameters File Content"
+            priority="high">
+      </content-type>
    </extension>
 
 
     <extension 
          point="org.eclipse.ui.editors">
       <editor
-            class="uk.ac.gda.exafs.ui.XasScanParametersEditor"
-            default="true"
-            icon="icons/XasParametersIcon.png"
-            id="uk.ac.gda.exafs.ui.XasScanParametersEditor"
-            name="XAS Scan Parameters">
-         <contentTypeBinding
-               contentTypeId="uk.ac.diamond.gda.client.exafs.getXasContent">
-         </contentTypeBinding>
-      </editor>
-      <editor
             class="uk.ac.gda.exafs.ui.XanesScanParametersEditor"
+            contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
             default="true"
             icon="icons/XanesParametersIcon.png"
             id="uk.ac.gda.exafs.ui.XanesScanParametersEditor"
@@ -654,28 +677,20 @@
       </editor>
       <editor
             class="uk.ac.gda.exafs.ui.editors.detectors.Xspress2ParametersEditor"
+            contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
             default="true"
-            icon="icons/page_refresh.png"
+            icon="icons/ParametersEditorIcon.png"
             id="uk.ac.gda.exafs.ui.Xspress2ParametersEditor"
-            name="Xspress Parameters">
+            name="Xspress2 Parameters">
          <contentTypeBinding
                contentTypeId="uk.ac.diamond.gda.client.exafs.getXspressContent">
          </contentTypeBinding>
       </editor>
       <editor
-            class="uk.ac.gda.exafs.ui.detector.vortex.VortexParametersEditor"
-            default="true"
-            icon="icons/page_refresh.png"
-            id="uk.ac.gda.exafs.ui.VortexParametersEditor"
-            name="Vortex Parameters">
-         <contentTypeBinding
-               contentTypeId="uk.ac.diamond.gda.client.exafs.getVortexContent">
-         </contentTypeBinding>
-      </editor>
-      <editor
             class="uk.ac.gda.exafs.ui.editors.detectors.Xspress3ParametersEditor"
+            contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
             default="false"
-            icon="icons/page_refresh.png"
+            icon="icons/ParametersEditorIcon.png"
             id="uk.ac.gda.exafs.ui.Xspress3ParametersEditor"
             name="Xspress3 Parameters">
          <contentTypeBinding
@@ -686,15 +701,102 @@
             class="uk.ac.gda.exafs.ui.detector.medipix.MedipixParametersEditor"
             contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
             default="false"
-            icon="icons/page_refresh.png"
+            icon="icons/DetectorParametersIcon.png"
             id="uk.ac.gda.exafs.ui.MedipixParametersEditor"
             name="Medipix Parameters">
          <contentTypeBinding
                contentTypeId="uk.ac.diamond.gda.client.exafs.getXspress3Content">
          </contentTypeBinding>
       </editor>
-    </extension>
-
+      <editor
+            class="uk.ac.gda.exafs.ui.XasScanParametersEditor"
+            contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
+            default="true"
+            icon="icons/XasParametersIcon.png"
+            id="uk.ac.gda.exafs.ui.XasScanParametersEditor"
+            name="XAS Scan Parameters">
+         <contentTypeBinding
+               contentTypeId="uk.ac.diamond.gda.client.exafs.getXasContent">
+         </contentTypeBinding>
+      </editor>
+      <editor
+            class="uk.ac.gda.exafs.ui.XanesScanParametersEditor"
+            contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
+            default="true"
+            icon="icons/XanesParametersIcon.png"
+            id="uk.ac.gda.exafs.ui.XanesScanParametersEditor"
+            name="ANGLE Scan Parameters">
+         <contentTypeBinding
+               contentTypeId="uk.ac.diamond.gda.client.exafs.getXanesContent">
+         </contentTypeBinding>
+      </editor>
+      <editor
+            class="uk.ac.gda.exafs.ui.DetectorParametersEditor"
+            contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
+            default="true"
+            icon="icons/DetectorParametersIcon.png"
+            id="uk.ac.gda.exafs.ui.DetectorParametersEditor"
+            name="Detector Parameters">
+         <contentTypeBinding
+               contentTypeId="uk.ac.diamond.gda.client.exafs.getDetectorContent">
+         </contentTypeBinding>
+      </editor>
+      <editor
+            class="uk.ac.gda.exafs.ui.OutputParametersEditor"
+            contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
+            default="true"
+            icon="icons/OutputParametersIcon.png"
+            id="uk.ac.gda.exafs.ui.OutputParametersEditor"
+            name="Output Parameters">
+         <contentTypeBinding
+               contentTypeId="uk.ac.diamond.gda.client.exafs.getOutputContent">
+         </contentTypeBinding>
+      </editor>
+      <editor
+            class="uk.ac.gda.exafs.ui.detector.vortex.VortexParametersEditor"
+            contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
+            default="true"
+            icon="icons/ParametersEditorIcon.png"
+            id="uk.ac.gda.exafs.ui.VortexParametersEditor"
+            name="Vortex Parameters">
+         <contentTypeBinding
+               contentTypeId="uk.ac.diamond.gda.client.exafs.getVortexContent">
+         </contentTypeBinding>
+      </editor>
+      <editor
+            class="uk.ac.gda.exafs.ui.detector.xspress.XspressParametersEditor"
+            contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
+            default="true"
+            icon="icons/ParametersEditorIcon.png"
+            id="uk.ac.gda.exafs.ui.XspressParametersEditor"
+            name="Xspress Parameters">
+         <contentTypeBinding
+               contentTypeId="uk.ac.diamond.gda.client.exafs.getXspressContent">
+         </contentTypeBinding>
+      </editor>
+      <editor
+            class="uk.ac.gda.exafs.ui.QEXAFSParametersEditor"
+            contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
+            default="true"
+            icon="icons/QexafsParametersIcon.png"
+            id="uk.ac.gda.exafs.ui.QEXAFSParametersEditor"
+            name="QEXAFS Parameters">
+         <contentTypeBinding
+               contentTypeId="uk.ac.diamond.gda.client.exafs.getQexafsContent">
+         </contentTypeBinding>
+      </editor>
+      <editor
+            class="uk.ac.gda.exafs.ui.XesScanParametersEditor"
+            contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
+            default="true"
+            icon="icons/XesParametersIcon.png"
+            id="uk.ac.gda.exafs.ui.XesScanParametersEditor"
+            name="XesScanParameters">
+         <contentTypeBinding
+               contentTypeId="uk.ac.gda.beans.exafs.XesScanParametersContentType">
+         </contentTypeBinding>
+      </editor>
+   </extension>
    <extension
          point="uk.ac.common.beans.factory">
       <bean
@@ -705,10 +807,102 @@
             class="uk.ac.gda.beans.vortex.Xspress3Parameters"
             describer="uk.ac.gda.exafs.ui.describers.Xspress3Describer">
       </bean>
+      <bean
+            class="uk.ac.gda.beans.exafs.XasScanParameters"
+            describer="uk.ac.gda.exafs.ui.describers.XasDescriber">
+      </bean>
+      <bean
+            class="uk.ac.gda.beans.exafs.XanesScanParameters"
+            describer="uk.ac.gda.exafs.ui.describers.XanesDescriber">
+      </bean>
+      <bean
+            class="uk.ac.gda.beans.exafs.DetectorParameters"
+            describer="uk.ac.gda.exafs.ui.describers.DetectorDescriber">
+      </bean>
+      <bean
+            class="uk.ac.gda.beans.exafs.OutputParameters"
+            describer="uk.ac.gda.exafs.ui.describers.OutputDescriber">
+      </bean>
+      <bean
+            class="uk.ac.gda.beans.exafs.QEXAFSParameters"
+            describer="uk.ac.gda.exafs.ui.describers.QEXAFSParametersDescriber">
+      </bean>
+      <bean
+            class="uk.ac.gda.beans.xspress.XspressParameters"
+            describer="uk.ac.gda.exafs.ui.describers.XspressDescriber">
+      </bean>
+      <bean
+            class="uk.ac.gda.beans.exafs.XesScanParameters"
+            describer="uk.ac.gda.exafs.ui.describers.XesScanParametersDescriber">
+      </bean>
    </extension>
 
    <extension point="org.eclipse.scanning.api.resultsHandler">
       <resultsHandler class="uk.ac.gda.exafs.ui.actions.OpenResultsHandler"/>
+   </extension>
+   <extension
+         point="uk.ac.gda.richbeans.beantypes">
+      <describer
+            bean="uk.ac.gda.beans.exafs.XasScanParameters"
+            commandId="uk.ac.gda.client.exafs.CopyXASCommand"
+            contentType="uk.ac.diamond.gda.client.exafs.getXasContent"
+            includeInNew="true"
+            name="XAS Scan"
+            template="XAS_Parameters"
+            type="Scan">
+      </describer>
+      <describer
+            bean="uk.ac.gda.beans.exafs.XanesScanParameters"
+            commandId="uk.ac.gda.client.exafs.CopyXANESCommand"
+            contentType="uk.ac.diamond.gda.client.exafs.getXanesContent"
+            includeInNew="true"
+            name="XANES Scan"
+            template="ANGLE_Parameters"
+            type="Scan">
+      </describer>
+      <describer
+            bean="uk.ac.gda.beans.exafs.XesScanParameters"
+            commandId="uk.ac.gda.client.exafs.CopyXESCommand"
+            contentType="uk.ac.gda.beans.exafs.XesScanParametersContentType"
+            includeInNew="true"
+            name="XES Scan"
+            template="XES_Parameters"
+            type="Scan">
+      </describer>
+      <describer
+            bean="uk.ac.gda.beans.exafs.QEXAFSParameters"
+            commandId="uk.ac.gda.client.exafs.CopyQEXAFSCommand"
+            contentType="uk.ac.diamond.gda.client.exafs.getQexafsContent"
+            includeInNew="true"
+            name="QEXAFS Scan"
+            template="QEXAFS_Parameters"
+            type="Scan">
+      </describer>
+      <describer
+            bean="uk.ac.gda.beans.exafs.SampleElements"
+            includeInNew="false"
+            name="Sample Elements"
+            template="Sample_Elements"
+            type="UNREGISTERED">
+      </describer>    
+      <describer
+            bean="uk.ac.gda.beans.exafs.DetectorParameters"
+            commandId="uk.ac.gda.client.exafs.CopyDetectorCommand"
+            contentType="uk.ac.diamond.gda.client.exafs.getDetectorContent"
+            includeInNew="true"
+            name="Detector"
+            template="Detector_Parameters"
+            type="Detector">
+      </describer>
+      <describer
+            bean="uk.ac.gda.beans.exafs.OutputParameters"
+            commandId="uk.ac.gda.client.exafs.CopyOutputCommand"
+            contentType="uk.ac.diamond.gda.client.exafs.getOutputContent"
+            includeInNew="true"
+            name="Output"
+            template="Output_Parameters"
+            type="Output">
+      </describer>
    </extension>
 
 </plugin>

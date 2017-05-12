@@ -10,24 +10,27 @@
    <extension-point id="uk.ac.gda.microfocus.trajectory.counterTimerName" name="TrajectoryCounterTimerName" schema="schema/uk.ac.gda.microfocus.trajectory.counterTimerName.exsd"/>
    <extension-point id="uk.ac.microfocus.elementlist.refresh" name="View ids for refresh on focus" schema="schema/uk.ac.microfocus.elementlist.refresh.exsd"/>
   <extension point="org.eclipse.ui.editors">
-    <editor class="uk.ac.gda.client.microfocus.ui.editors.MicroFocusScanParametersEditor"
+      <editor
+            class="uk.ac.gda.client.microfocus.ui.editors.MicroFocusScanParametersEditor"
+            contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
             default="true"
+            icon="icons/DetectorParametersIcon.png"
             id="uk.ac.gda.client.microfocus.ui.editors.MicroFocusScanParametersEditor"
-            name="MicroFocusScanParameters">
-            <contentTypeBinding
-                contentTypeId="uk.ac.gda.beans.microfocus.MicroFocusScanParametersContentType">
-            </contentTypeBinding>
-     </editor>
+            name="MicroFocus Scan">
+         <contentTypeBinding
+               contentTypeId="uk.ac.diamond.gda.client.microfocus.getMicroFocusContent">
+         </contentTypeBinding>
+      </editor>
   </extension>
   <extension point="org.eclipse.core.contenttype.contentTypes">
-     <content-type
-       base-type="org.eclipse.core.runtime.xml"
-       describer="uk.ac.gda.microfocus.ui.describers.MicroFocusScanParametersDescriber"
-       file-extensions="xml"
-       id="uk.ac.gda.beans.microfocus.MicroFocusScanParametersContentType"
-       name="MicroFocusScanParameters File Content"
-       priority="high">
-     </content-type>
+      <content-type
+            base-type="org.eclipse.core.runtime.xml"
+            describer="uk.ac.gda.microfocus.ui.describers.MicroFocusScanParametersDescriber"
+            file-extensions="xml"
+            id="uk.ac.diamond.gda.client.microfocus.getMicroFocusContent"
+            name="MicroFocus Scan Content"
+            priority="high">
+      </content-type>
   </extension>
    <extension
          point="org.eclipse.ui.perspectives">
@@ -152,6 +155,25 @@
 
    <extension point="org.eclipse.scanning.api.resultsHandler">
       <resultsHandler class="uk.ac.gda.client.microfocus.ui.commands.OpenResultsHandler"/>
+   </extension>
+   <extension
+         point="uk.ac.gda.richbeans.beantypes">
+      <describer
+            bean="uk.ac.gda.beans.microfocus.MicroFocusScanParameters"
+            commandId="uk.ac.gda.client.exafs.CopyMICROFOCUSCommand"
+            contentType="uk.ac.diamond.gda.client.microfocus.getMicroFocusContent"
+            includeInNew="true"
+            name="Micro Focus"
+            template="MicroFocus_Parameters"
+            type="Scan">
+      </describer>
+   </extension>
+   <extension
+         point="uk.ac.common.beans.factory">
+      <bean
+            class="uk.ac.gda.beans.microfocus.MicroFocusScanParameters"
+            describer="uk.ac.gda.microfocus.ui.describers.MicroFocusScanParametersDescriber">
+      </bean>
    </extension>
 
 </plugin>
