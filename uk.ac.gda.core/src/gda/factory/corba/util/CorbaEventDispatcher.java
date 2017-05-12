@@ -19,12 +19,6 @@
 
 package gda.factory.corba.util;
 
-import gda.configuration.properties.LocalProperties;
-import gda.factory.corba.EventHeader;
-import gda.factory.corba.StructuredEvent;
-import gda.factory.corba.StructuredEventHelper;
-import gda.util.Serializer;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -46,6 +40,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Optional;
+
+import gda.configuration.properties.LocalProperties;
+import gda.factory.corba.EventHeader;
+import gda.factory.corba.StructuredEvent;
+import gda.factory.corba.StructuredEventHelper;
+import gda.util.Serializer;
 
 public class CorbaEventDispatcher extends PushSupplierPOA implements EventDispatcher, Runnable {
 
@@ -75,9 +75,12 @@ public class CorbaEventDispatcher extends PushSupplierPOA implements EventDispat
 		this.batchMode = batchMode;
 
 		if(batchMode){
-			int threadPoolSize;
-			threadPoolSize = LocalProperties.getAsInt("gda.factory.corba.util.CorbaEventDispatcher.threadPoolSize", 5);
-			execCompletionService = new ExecutorCompletionService<Void>(Executors.newFixedThreadPool(threadPoolSize));
+			final int threadPoolSize = LocalProperties.getAsInt("gda.factory.corba.util.CorbaEventDispatcher.threadPoolSize", 5);
+			execCompletionService = new ExecutorCompletionService<>(Executors.newFixedThreadPool(threadPoolSize, r -> {
+				Thread t = Executors.defaultThreadFactory().newThread(r);
+				t.setDaemon(true);
+				return t;
+			}));
 		}
 
 		supplierAdmin = eventChannel.for_suppliers();
@@ -117,6 +120,7 @@ public class CorbaEventDispatcher extends PushSupplierPOA implements EventDispat
 					}
 					if (thread == null) {
 						thread = new Thread(this, "CorbaEventDispatcher");
+						thread.setDaemon(true);
 						thread.start();
 					}
 					lock.notifyAll();

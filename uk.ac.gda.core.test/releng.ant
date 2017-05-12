@@ -104,4 +104,164 @@
 		</junit-call>
 	</target>
 
+	<property name="jmh.ver" value="1.19" />
+
+	<property name="src" location="benchmarks"/>
+	<property name="build" location="bin"/>
+	<property name="dist" location="${build}/dist"/>
+
+	<property name="jmh-core.jar" location="${plugin.basedir}/jars/jmh-core-${jmh.ver}.jar"/>
+	<property name="jmh-generator-annprocess.jar" location="${plugin.basedir}/jars/jmh-generator-annprocess-${jmh.ver}.jar"/>
+	<property name="joptsimple.jar" location="${plugin.basedir}/jars/jopt-simple-4.6.jar"/>
+	<property name="commonsmath.jar" location="${plugin.basedir}/jars/commons-math3-3.2.jar"/>
+
+	<!--
+		The workflow is as follows:
+		- Compile the benchmarks with JMH and JMH Annotation processor in classpath.
+			* Annotation processors will run and generate synthetic code.
+			* Annotation processors will create the list of discovered benchmarks.
+		- Pack the classes, generated code, benchmark lists in a JAR
+			* Bring the dependencies along in the JAR; Annotation processor is not
+			  required in final JAR
+			* (You might be able to run JMH without the self-contained JAR,
+			  take note of the META-INF/* files in that case)
+			* Filter out META-INF/services/ to disable JMH processors for the future
+	-->
+
+	<target name="jmh-jar" description="Generate the self-contained JAR" depends="jmh-clean, set-test-base-GDA">
+		<mkdir dir="${build}"/>
+		<javac srcdir="${src}" destdir="${build}" includeantruntime="false">
+			<classpath>
+				<pathelement location="${jmh-core.jar}" />
+				<pathelement location="${jmh-generator-annprocess.jar}" />
+				<!-- All The GDA depedencies -->
+				<pathelement location="${junitjar.loc}" />
+				<pathelement location="${jythonjar.loc}" />
+				<pathelement location="${plugin.basedir}/bin" />
+				<pathelement location="${plugin.basedir}/jars/*" />
+				<pathelement location="${workspace.git.loc}/diamond-releng.git/diamond.releng.tools/logging" />
+				<!-- to pick up logback-test.xml -->
+				<pathelement location="${workspace.git.loc}/gda-common.git/uk.ac.gda.test.helpers/bin" />
+				<pathelement location="${plugin.host.basedir}/classes/main" />
+				<pathelement location="${plugin.host.basedir}/classes/test" />
+				<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.api/bin" />
+				<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.api/jars/*" />
+				<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.analysis/bin" />
+				<pathelement location="${workspace.git.loc}/gda-common.git/uk.ac.gda.common/bin" />
+				<pathelement location="${workspace.git.loc}/gda-nexus.git/uk.ac.gda.nexus/bin" />
+				<pathelement location="${workspace.git.loc}/dawn-hdf.git/hdf.hdf5lib/bin" />
+				<pathelement location="${workspace.git.loc}/dawn-hdf.git/hdf.object/bin" />
+				<pathelement location="${workspace.git.loc}/january.git/org.eclipse.january/bin" />
+				<pathelement location="${workspace.git.loc}/scanning.git/org.eclipse.scanning.api/bin" />
+				<pathelement location="${workspace.git.loc}/scanning.git/org.eclipse.scanning.sequencer/bin" />
+				<pathelement location="${workspace.git.loc}/scanning.git/org.eclipse.scanning.points/bin" />
+				<pathelement location="${workspace.git.loc}/scanning.git/org.eclipse.scanning.example/bin" />
+				<pathelement location="${workspace.git.loc}/scanning.git/org.eclipse.scanning.event/bin" />
+				<pathelement location="${workspace.git.loc}/scanning.git/org.eclipse.scanning.server/bin" />
+				<pathelement location="${workspace.git.loc}/scanning.git/org.eclipse.scanning.test/bin" />
+				<pathelement location="${workspace.git.loc}/dawnsci.git/org.eclipse.dawnsci.hdf5/bin" />
+				<pathelement location="${workspace.git.loc}/dawnsci.git/org.eclipse.dawnsci.analysis.api/bin" />
+				<pathelement location="${workspace.git.loc}/dawnsci.git/org.eclipse.dawnsci.analysis.tree/bin" />
+				<pathelement location="${workspace.git.loc}/dawnsci.git/org.eclipse.dawnsci.nexus/bin" />
+				<pathelement location="${workspace.git.loc}/dawnsci.git/org.eclipse.dawnsci.json/bin" />
+				<pathelement location="${workspace.git.loc}/scanning.git/org.eclipse.scanning.connector.activemq/bin" />
+				<pathelement location="${workspace.git.loc}/scisoft-core.git/uk.ac.diamond.scisoft.analysis/bin" />
+				<pathelement location="${workspace.git.loc}/scisoft-core.git/uk.ac.diamond.scisoft.analysis/jars/*" />
+				<pathelement location="${workspace.git.loc}/dawnsci.git/org.eclipse.dawnsci.analysis.dataset/bin" />
+				<pathelement location="${workspace.git.loc}/scisoft-core.git/uk.ac.diamond.scisoft.analysis.plotserver/bin" />
+				<pathelement location="${workspace.git.loc}/scisoft-core.git/uk.ac.diamond.scisoft.deprecated/bin" />
+				<pathelement location="${workspace.git.loc}/dawn-common.git/org.dawb.common.util/bin" />
+				<pathelement location="${workspace.git.loc}/diamond-jacorb.git/uk.ac.diamond.org.jacorb/jars/*" />
+				<pathelement location="${workspace.git.loc}/diamond-springframework.git/uk.ac.diamond.org.springframework/jars/*" />
+				<path refid="tp.slf4j.path" />
+				<!-- ensure that required org.slf4j.LoggerFactory appears first in classpath -->
+				<path refid="tp.jcl-over-slf4j.path" />
+				<!-- ensure that matching imp appears first in classpath -->
+				<path refid="tp.hamcrest.path" />
+				<!-- ensure that latest version appears first in classpath -->
+				<pathelement path="${workspace.loc}/tp/plugins/uk.ac.diamond.org.jscience_2.0.2.jar" />
+				<!-- ensure that 2.0.2 appears first in classpath -->
+				<path refid="tp.path" />
+				<!-- target platform -->
+				<path refid="libs.jars.path" />
+			</classpath>
+		</javac>
+		<delete dir="${dist} "/>
+		<mkdir dir="${dist}"/>
+
+		<jar jarfile="${dist}/benchmarks.jar" basedir="${build}">
+			<manifest>
+				<attribute name="Main-Class" value="org.openjdk.jmh.Main"/>
+			</manifest>
+			<zipfileset src="${jmh-core.jar}" excludes="**/META-INF/services/**" />
+			<zipfileset src="${joptsimple.jar}" />
+			<zipfileset src="${commonsmath.jar}" />
+		</jar>
+	</target>
+
+	<target name="jmh-clean" description="JMH Clean">
+		<delete dir="${build}"/>
+		<delete dir="${dist}"/>
+	</target>
+
+	<target name="run-benchmarks" depends="jmh-jar, set-test-base-GDA" description="Run the JMH Benchmarks">
+		<java classname="org.openjdk.jmh.Main" fork="true">
+			<sysproperty key="gda.propertiesFiles" value = "${plugin.basedir}/src/java.properties"/>
+			<sysproperty key="jacorb.config.dir" value="${workspace.git.loc}/gda-core.git/p45-config/properties/dummy/jacorb"/>
+			<classpath>
+				<pathelement location="${dist}/benchmarks.jar"/>
+				<pathelement location="${junitjar.loc}" />
+				<pathelement location="${jythonjar.loc}" />
+				<pathelement location="${plugin.basedir}/bin" />
+				<pathelement location="${plugin.basedir}/jars/*" />
+				<pathelement location="${workspace.git.loc}/diamond-releng.git/diamond.releng.tools/logging" />
+				<!-- to pick up logback-test.xml -->
+				<pathelement location="${workspace.git.loc}/gda-common.git/uk.ac.gda.test.helpers/bin" />
+				<pathelement location="${plugin.host.basedir}/classes/main" />
+				<pathelement location="${plugin.host.basedir}/classes/test" />
+				<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.api/bin" />
+				<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.api/jars/*" />
+				<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.analysis/bin" />
+				<pathelement location="${workspace.git.loc}/gda-common.git/uk.ac.gda.common/bin" />
+				<pathelement location="${workspace.git.loc}/gda-nexus.git/uk.ac.gda.nexus/bin" />
+				<pathelement location="${workspace.git.loc}/dawn-hdf.git/hdf.hdf5lib/bin" />
+				<pathelement location="${workspace.git.loc}/dawn-hdf.git/hdf.object/bin" />
+				<pathelement location="${workspace.git.loc}/january.git/org.eclipse.january/bin" />
+				<pathelement location="${workspace.git.loc}/scanning.git/org.eclipse.scanning.api/bin" />
+				<pathelement location="${workspace.git.loc}/scanning.git/org.eclipse.scanning.sequencer/bin" />
+				<pathelement location="${workspace.git.loc}/scanning.git/org.eclipse.scanning.points/bin" />
+				<pathelement location="${workspace.git.loc}/scanning.git/org.eclipse.scanning.example/bin" />
+				<pathelement location="${workspace.git.loc}/scanning.git/org.eclipse.scanning.event/bin" />
+				<pathelement location="${workspace.git.loc}/scanning.git/org.eclipse.scanning.server/bin" />
+				<pathelement location="${workspace.git.loc}/scanning.git/org.eclipse.scanning.test/bin" />
+				<pathelement location="${workspace.git.loc}/dawnsci.git/org.eclipse.dawnsci.hdf5/bin" />
+				<pathelement location="${workspace.git.loc}/dawnsci.git/org.eclipse.dawnsci.analysis.api/bin" />
+				<pathelement location="${workspace.git.loc}/dawnsci.git/org.eclipse.dawnsci.analysis.tree/bin" />
+				<pathelement location="${workspace.git.loc}/dawnsci.git/org.eclipse.dawnsci.nexus/bin" />
+				<pathelement location="${workspace.git.loc}/dawnsci.git/org.eclipse.dawnsci.json/bin" />
+				<pathelement location="${workspace.git.loc}/scanning.git/org.eclipse.scanning.connector.activemq/bin" />
+				<pathelement location="${workspace.git.loc}/scisoft-core.git/uk.ac.diamond.scisoft.analysis/bin" />
+				<pathelement location="${workspace.git.loc}/scisoft-core.git/uk.ac.diamond.scisoft.analysis/jars/*" />
+				<pathelement location="${workspace.git.loc}/dawnsci.git/org.eclipse.dawnsci.analysis.dataset/bin" />
+				<pathelement location="${workspace.git.loc}/scisoft-core.git/uk.ac.diamond.scisoft.analysis.plotserver/bin" />
+				<pathelement location="${workspace.git.loc}/scisoft-core.git/uk.ac.diamond.scisoft.deprecated/bin" />
+				<pathelement location="${workspace.git.loc}/dawn-common.git/org.dawb.common.util/bin" />
+				<pathelement location="${workspace.git.loc}/diamond-jacorb.git/uk.ac.diamond.org.jacorb/jars/*" />
+				<pathelement location="${workspace.git.loc}/diamond-springframework.git/uk.ac.diamond.org.springframework/jars/*" />
+				<pathelement location="${workspace.git.loc}/daq-eclipse.git/uk.ac.diamond.org.apache.activemq"/>
+				<path refid="tp.slf4j.path" />
+				<!-- ensure that required org.slf4j.LoggerFactory appears first in classpath -->
+				<path refid="tp.jcl-over-slf4j.path" />
+				<!-- ensure that matching imp appears first in classpath -->
+				<path refid="tp.hamcrest.path" />
+				<!-- ensure that latest version appears first in classpath -->
+				<pathelement path="${workspace.loc}/tp/plugins/uk.ac.diamond.org.jscience_2.0.2.jar" />
+				<!-- ensure that 2.0.2 appears first in classpath -->
+				<path refid="tp.path" />
+				<!-- target platform -->
+				<path refid="libs.jars.path" />
+			</classpath>
+		</java>
+	</target>
+
 </project>
