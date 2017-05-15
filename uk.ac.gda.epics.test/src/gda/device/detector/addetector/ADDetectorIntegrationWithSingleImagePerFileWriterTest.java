@@ -18,6 +18,12 @@
 
 package gda.device.detector.addetector;
 
+import static org.junit.Assert.assertEquals;
+
+import java.io.File;
+
+import org.junit.Test;
+
 import gda.TestHelpers;
 import gda.configuration.properties.LocalProperties;
 import gda.data.scan.datawriter.NexusDataWriter;
@@ -30,9 +36,6 @@ import gda.device.detector.areadetector.v17.impl.NDPluginBaseSimulator;
 import gda.jython.InterfaceProvider;
 import gda.scan.ConcurrentScan;
 import gda.scan.RepeatScan;
-import junit.framework.Assert;
-
-import org.junit.Test;
 
 public class ADDetectorIntegrationWithSingleImagePerFileWriterTest {
 
@@ -88,7 +91,7 @@ public class ADDetectorIntegrationWithSingleImagePerFileWriterTest {
 		LocalProperties.setScanSetsScanNumber(true);
 		LocalProperties.set(NexusDataWriter.GDA_NEXUS_CREATE_SRS, "false");
 		String fileName = runTest(true);
-		Assert.assertEquals(dir+"/Data/1/pco1/filename1-0.tif", fileName);
+		assertEquals(new File(dir + "/Data/1/pco1/filename1-0.tif").getAbsolutePath(), fileName);
 	}
 	@Test
 	public void testSingleImagePerFileWriterScanScanSetsScanNumber() throws Exception {
@@ -96,6 +99,6 @@ public class ADDetectorIntegrationWithSingleImagePerFileWriterTest {
 		LocalProperties.setScanSetsScanNumber(false);
 		LocalProperties.set(NexusDataWriter.GDA_NEXUS_CREATE_SRS, "false");
 		String fileName = runTest(false);
-		Assert.assertEquals(dir+"/Data/pco1/filename-0.tif", fileName);
+		assertEquals(new File(dir+"/Data/pco1/filename-0.tif").getAbsolutePath(), fileName);
 	}
 }

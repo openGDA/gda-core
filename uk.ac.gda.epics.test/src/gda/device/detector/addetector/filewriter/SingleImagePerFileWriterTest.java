@@ -22,6 +22,13 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import java.io.File;
+import java.util.List;
+
+import org.junit.Before;
+import org.junit.Test;
+
 import gda.configuration.properties.LocalProperties;
 import gda.data.PathConstructor;
 import gda.device.detector.NXDetectorDataWithFilepathForSrs;
@@ -35,11 +42,6 @@ import gda.jython.ITerminalPrinter;
 import gda.jython.InterfaceProvider;
 import gda.observable.ObservableUtil;
 import gda.scan.ScanInformation;
-
-import java.util.List;
-
-import org.junit.Before;
-import org.junit.Test;
 
 
 // TODO: Tests here are minimal
@@ -87,7 +89,7 @@ public class SingleImagePerFileWriterTest {
 
 	@Test
 	public void testGetFilePathDefault() {
-		assertEquals("absolute/path/to/datadir/12345-detname-files", writer.getFilePath());
+		assertEquals(new File("absolute/path/to/datadir/12345-detname-files").getAbsolutePath(), writer.getFilePath());
 	}
 
 	@Test
@@ -143,7 +145,7 @@ public class SingleImagePerFileWriterTest {
 		NXDetectorDataFileAppenderForSrs value = (NXDetectorDataFileAppenderForSrs)readValues.get(0);
 		NXDetectorDataWithFilepathForSrs data = new NXDetectorDataWithFilepathForSrs();
 		value.appendTo(data, "detname");
-		assertEquals(data.getFilepath(), "absolute/path/to/datadir/12345-detname-files/00001.tif");
+		assertEquals(new File("absolute/path/to/datadir/12345-detname-files/00001.tif").getAbsolutePath(), data.getFilepath());
 	}
 
 	@Test

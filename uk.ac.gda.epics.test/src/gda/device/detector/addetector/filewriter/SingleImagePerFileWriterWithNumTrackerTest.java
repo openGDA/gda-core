@@ -22,6 +22,13 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import java.io.File;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.InOrder;
+
 import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
 import gda.data.PathConstructor;
@@ -32,10 +39,6 @@ import gda.jython.InterfaceProvider;
 import gda.observable.ObservableUtil;
 import gda.scan.ScanInformation;
 import gda.util.TestUtils;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.InOrder;
 
 
 // TODO: Tests here are minimal
@@ -84,7 +87,7 @@ public class SingleImagePerFileWriterWithNumTrackerTest {
 	public void testGetFilePathDefault() throws Exception {
 		setGdaVarDir(TestUtils.setUpTest(this.getClass(), "testGetFilePathDefault", true));
 		createWriter();
-		assertEquals("path/to/datadir/snapped-data/detname", writer.getFilePath());
+		assertEquals(new File("path/to/datadir/snapped-data/detname").getAbsolutePath(), writer.getFilePath());
 	}
 
 	@Test
