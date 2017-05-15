@@ -77,7 +77,7 @@ public class ExafsSelectionHandler implements EventHandler {
 				if (attributeHasValue(groupNode, ATTR_NAME_NX_CLASS, NX_POSITIONER.toString()) &&
 						attributeHasValue(groupNode, ATTR_NAME_GDA_SCANNABLE_NAME, scannableName) &&
 						attributeHasValue(groupNode, ATTR_NAME_GDA_SCAN_ROLE,
-								ScanRole.METADATA.toString().toLowerCase())) {
+								ScanRole.MONITOR_PER_SCAN.toString().toLowerCase())) {
 					return true;
 				}
 			}
