@@ -74,7 +74,8 @@ Require-Bundle: org.eclipse.help.ui,
  org.eclipse.scanning.event.ui,
  org.eclipse.scanning.api,
  org.eclipse.scanning.connector.epicsv3,
- uk.ac.gda.client.closeactions
+ uk.ac.gda.client.closeactions,
+ com.google.guava;bundle-version="16.0.1"
 Export-Package: com.swtdesigner,
  gda.gui.scriptcontroller.logging,
  gda.osgi,
