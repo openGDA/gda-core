@@ -31,8 +31,6 @@ import org.eclipse.richbeans.api.widget.ActiveMode;
 import org.eclipse.richbeans.widgets.FieldBeanComposite;
 import org.eclipse.richbeans.widgets.FieldComposite;
 import org.eclipse.richbeans.widgets.scalebox.ScaleBox;
-import org.eclipse.richbeans.widgets.selector.VerticalListEditor;
-import org.eclipse.richbeans.widgets.wrappers.BooleanWrapper;
 import org.eclipse.richbeans.widgets.wrappers.ComboWrapper;
 import org.eclipse.richbeans.widgets.wrappers.TextWrapper;
 import org.eclipse.richbeans.widgets.wrappers.TextWrapper.TEXT_TYPE;
@@ -109,15 +107,6 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 	private ExpandableComposite sampleStageExpandableComposite;
 	private ExpandableComposite temperatureExpandableComposite;
 	private ExpandableComposite wheelExpandableComposite;
-
-	private TextWrapper afterScanscriptName;
-	private TextWrapper beforeScanscriptName;
-
-	private VerticalListEditor signalList;
-	private BooleanWrapper signalActive;
-
-	private VerticalListEditor metadataList;
-	private BooleanWrapper metadataActive;
 
 	private B18SampleParameters bean;
 	private Composite wheelComp;
@@ -241,7 +230,29 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 			wheelExpandableComposite.setExpanded(true);
 
 		refreshScrolledContentsSize();
+
+		name.addValueListener(listenerToUpdateBeanFromUI);
+		description1.addValueListener(listenerToUpdateBeanFromUI);
+		description2.addValueListener(listenerToUpdateBeanFromUI);
 	}
+
+	private ValueListener listenerToUpdateBeanFromUI = new ValueListener() {
+		@Override
+		public void valueChangePerformed(ValueEvent e) {
+			try {
+				if (isDirty()) {
+					controller.uiToBean();
+				}
+			} catch (Exception e1) {
+				logger.error("Problem updating UI from bean", e1);
+			}
+		}
+
+		@Override
+		public String getValueListenerName() {
+			return null;
+		}
+	};
 
 	private ExpansionAdapter getStageExpansionListener(final ExpandableComposite expandableComposite) {
 		return getStageExpansionListener(expandableComposite, null);
@@ -591,6 +602,11 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 			new Label(lakeshoreComposite.getTime(), SWT.NONE);
 
 			temperatureExpandableComposite.setClient(tempComp);
+
+			sampleEnvironment.addValueListener(listenerToUpdateBeanFromUI);
+			pulseTubeCryostatParameters.addValueListener(listenerToUpdateBeanFromUI);
+			furnaceParameters.addValueListener(listenerToUpdateBeanFromUI);
+			lakeshoreComposite.addValueListener(listenerToUpdateBeanFromUI);
 		}
 	}
 
@@ -614,17 +630,7 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 			sampleWheelParametersComposite.setActiveMode(ActiveMode.ACTIVE_ONLY);
 			sampleWheelParametersComposite.layout();
 
-			sampleWheelParametersComposite.addValueListener(new ValueListener() {
-				@Override
-				public void valueChangePerformed(ValueEvent e) {
-					linkUI(false);
-				}
-
-				@Override
-				public String getValueListenerName() {
-					return null;
-				}
-			});
+			sampleWheelParametersComposite.addValueListener(listenerToUpdateBeanFromUI);
 
 			wheelExpandableComposite.setClient(wheelComp);
 		}
@@ -755,29 +761,5 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 
 	public SampleWheelParametersComposite getSampleWheelParameters() {
 		return sampleWheelParametersComposite;
-	}
-
-	public TextWrapper getBeforeScriptName() {
-		return beforeScanscriptName;
-	}
-
-	public TextWrapper getAfterScriptName() {
-		return afterScanscriptName;
-	}
-
-	public VerticalListEditor getSignalList() {
-		return signalList;
-	}
-
-	public BooleanWrapper getSignalActive() {
-		return signalActive;
-	}
-
-	public BooleanWrapper getMetadataActive() {
-		return metadataActive;
-	}
-
-	public VerticalListEditor getMetadataList() {
-		return metadataList;
 	}
 }
