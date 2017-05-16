@@ -27,7 +27,7 @@ import org.eclipse.dawnsci.nexus.NexusBaseClass;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
-import org.eclipse.dawnsci.nexus.NexusScanInfo.ScanRole;
+import org.eclipse.dawnsci.nexus.NexusScanInfo.NexusRole;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
 import org.eclipse.january.dataset.Dataset;
@@ -130,14 +130,15 @@ public class NexusSlitsWrapper extends AbstractScannable<DeviceValueMultiPositio
 	public NexusObjectProvider<NXslit> getNexusProvider(NexusScanInfo info) throws NexusException {
 		final NXslit positioner = NexusNodeFactory.createNXslit();
 
-		if (info.getScanRole(getName()) == ScanRole.METADATA) {
+		NexusRole nexusRole = info.getScanRole(getName()).getNexusRole();
+		if (nexusRole == NexusRole.PER_SCAN) {
 			try {
 				positioner.setX_gapScalar((Number)x_gap.getPosition());
 				positioner.setY_gapScalar((Number)y_gap.getPosition());
 			} catch (DeviceException e) {
 				logger.error("Error getting position of {} or {}", x_gap.getName(), y_gap.getName(), e);
 			}
-		} else {
+		} else if (nexusRole == NexusRole.PER_POINT) {
 			String floatFill = System.getProperty("GDA/gda.nexus.floatfillvalue", "NaN");
 			double fill = "NaN".equalsIgnoreCase(floatFill) ? Double.NaN : Double.parseDouble(floatFill);
 

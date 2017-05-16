@@ -722,7 +722,7 @@ public class ScannableNexusWrapperScanTest {
 			assertEquals(3, nexusObject.getNumberOfAttributes());
 
 			assertEquals(metadataScannableName, nexusObject.getAttrString(null, ATTR_NAME_GDA_SCANNABLE_NAME));
-			assertEquals(ScanRole.METADATA.toString().toLowerCase(),
+			assertEquals(ScanRole.MONITOR_PER_SCAN.toString().toLowerCase(),
 					nexusObject.getAttrString(null, ATTR_NAME_GDA_SCAN_ROLE));
 
 			final String[] valueFieldNames = (String[]) ArrayUtils.addAll(

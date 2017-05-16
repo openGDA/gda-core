@@ -17,6 +17,7 @@ import org.eclipse.dawnsci.nexus.NexusBaseClass;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
+import org.eclipse.dawnsci.nexus.NexusScanInfo.NexusRole;
 import org.eclipse.dawnsci.nexus.NexusScanInfo.ScanRole;
 import org.eclipse.dawnsci.nexus.builder.CustomNexusEntryModification;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
@@ -389,11 +390,12 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 		final int scanRank = info.getRank();
 		final int[] chunks = info.createChunk(1); // TODO Might be slow, need to check this
 
-		final ScanRole role = info.getScanRole(getName());
-		if (role != ScanRole.METADATA) {
+		final ScanRole scanRole = info.getScanRole(getName());
+		final NexusRole nexusRole = scanRole.getNexusRole();
+		if (nexusRole == NexusRole.PER_POINT) {
 			// cache the lazy writeable datasets we create so we can write to them later
 			writableDatasets = new LinkedHashMap<>();
-			if (role == ScanRole.SCANNABLE) {
+			if (scanRole == ScanRole.SCANNABLE) {
 				// create the 'value_demand' dataset (can't use writeableDatasets map as the
 				// order of entries in that map corresponds to elements in getPositionArray, which
 				// does not include the demand value
@@ -411,10 +413,10 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 			final String inputFieldName = inputFieldNames.get(i);
 			final String outputFieldName = outputFieldNames.get(i);
 			final Object value = positionArray[i];
-			if (role == ScanRole.METADATA) {
+			if (nexusRole == NexusRole.PER_SCAN) {
 				// simply set the field to the current value
 				nexusObject.setField(outputFieldName, value);
-			} else {
+			} else if (nexusRole == NexusRole.PER_POINT) {
 				// otherwise create a lazy writable dataset of the appropriate type
 				final ILazyWriteableDataset dataset = createLazyWritableDataset(nexusObject,
 						outputFieldName, value.getClass(), scanRank, chunks);
