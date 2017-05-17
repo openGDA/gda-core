@@ -20,6 +20,8 @@ package gda.scan;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.File;
+
 import org.junit.Test;
 
 import gda.TestHelpers;
@@ -80,7 +82,7 @@ public class ContinuousScanTest {
 		assertEquals(10, data.length);
 		IScanDataPoint point = InterfaceProvider.getScanDataPointProvider().getLastScanDataPoint();
 		assertEquals(ScanBaseFirstScanNumber, point.getScanIdentifier());
-		assertEquals(dir + "/Data/" + ScanBaseFirstScanNumber + ".dat",point.getCurrentFilename());
+		assertEquals(new File(dir + "/Data/" + ScanBaseFirstScanNumber + ".dat").getAbsolutePath(), point.getCurrentFilename());
 	}
 
 	@Test
@@ -99,7 +101,7 @@ public class ContinuousScanTest {
 		assertEquals(10, data.length);
 		IScanDataPoint point = InterfaceProvider.getScanDataPointProvider().getLastScanDataPoint();
 		assertEquals(1, point.getScanIdentifier());
-		assertEquals(dir + "/Data/1.dat", scan.getDataWriter().getCurrentFileName());
+		assertEquals(new File(dir + "/Data/1.dat").getAbsolutePath(), scan.getDataWriter().getCurrentFileName());
 	}
 
 	/**
@@ -157,11 +159,9 @@ public class ContinuousScanTest {
 		assertEquals(1, mainScan.getScanNumber());
 		IScanDataPoint point = InterfaceProvider.getScanDataPointProvider().getLastScanDataPoint();
 		assertEquals(1, point.getScanIdentifier());
-		assertEquals(dir + "/Data/1.dat", point.getCurrentFilename());
+		assertEquals(new File(dir + "/Data/1.dat").getAbsolutePath(), point.getCurrentFilename());
 
 	}
-
-
 
 	/**
 	 * @throws Exception
@@ -241,7 +241,7 @@ public class ContinuousScanTest {
 
 		IScanDataPoint point = InterfaceProvider.getScanDataPointProvider().getLastScanDataPoint();
 		assertEquals(ScanBaseFirstScanNumber, point.getScanIdentifier());
-		assertEquals(dir + "/Data/" + ScanBaseFirstScanNumber + ".dat", point.getCurrentFilename());
+		assertEquals(new File(dir + "/Data/" + ScanBaseFirstScanNumber + ".dat").getAbsolutePath(), point.getCurrentFilename());
 
 	}
 
@@ -280,7 +280,7 @@ public class ContinuousScanTest {
 		assertEquals(10,detector.getNumberFrames());
 		IScanDataPoint point = InterfaceProvider.getScanDataPointProvider().getLastScanDataPoint();
 		assertEquals(1, point.getScanIdentifier());
-		assertEquals(dir + "/Data/1.dat", point.getCurrentFilename());
+		assertEquals(new File(dir + "/Data/1.dat").getAbsolutePath(), point.getCurrentFilename());
 	}
 
 	@Test
@@ -312,7 +312,7 @@ public class ContinuousScanTest {
 		assertEquals(10,detector.getNumberFrames());
 		IScanDataPoint point = InterfaceProvider.getScanDataPointProvider().getLastScanDataPoint();
 		assertEquals(1, point.getScanIdentifier());
-		assertEquals(dir + "/Data/1.dat", point.getCurrentFilename());
+		assertEquals(new File(dir + "/Data/1.dat").getAbsolutePath(), point.getCurrentFilename());
 
 	}
 }

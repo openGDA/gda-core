@@ -22,6 +22,8 @@ package gda.data;
 import static gda.configuration.properties.LocalProperties.GDA_DATAWRITER_DIR;
 import static gda.configuration.properties.LocalProperties.GDA_VISIT_DIR;
 
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -157,7 +159,11 @@ public class PathConstructor implements IPathConstructor {
 	}
 
 	/**
-	 * Construct a path based on a template containing text and metadata item names.
+	 * Construct a path based on a template containing text and metadata item names and resolve any
+	 * symlinks or .. components.
+	 *
+	 * If it's not possible to resolve the canonical path (due to IOExecption), this returns
+	 * the path as written in the template.
 	 *
 	 * @param template
 	 *            The path template.
@@ -166,7 +172,7 @@ public class PathConstructor implements IPathConstructor {
 	 *            because some of the metadata values are correct only for the current baton holder. There will be times
 	 *            when the user might not be the current beamline baton holder e.g. during client startup before the
 	 *            baton has been taken.; or be working 'offline' or unit testing.
-	 * @return The constructed path.
+	 * @return The canonical form of the constructed path.
 	 */
 	public static String createFromTemplate(String template, Map<String, String> overrides) {
 		StringTokenizer st = new StringTokenizer(template, "$");
@@ -178,7 +184,13 @@ public class PathConstructor implements IPathConstructor {
 				path += interpret(st.nextToken(), overrides);
 			}
 		}
-		return path;
+
+		try {
+			return new File(path).getCanonicalPath();
+		} catch (IOException | SecurityException e) {
+			logger.warn("Could not get canonical path from {} - may not exist", path, e);
+			return path;
+		}
 	}
 
 	/**
