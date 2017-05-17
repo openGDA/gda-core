@@ -19,19 +19,22 @@
 
 package gda.spring;
 
-import gda.factory.Findable;
-import gda.util.converters.JEPConverterHolder;
-import gda.util.converters.LookupTableConverterHolder;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.util.StringUtils;
+
+import gda.factory.Findable;
+import gda.util.converters.JEPConverterHolder;
+import gda.util.converters.LookupTableConverterHolder;
 
 /**
  * A Spring {@link BeanFactoryPostProcessor} that sets the name of all
  * {@link Findable}s to be the same as the Spring bean ID.
  */
 public class FindableNameSetterPostProcessor extends BeanPostProcessorAdapter {
+	private static final Logger logger = LoggerFactory.getLogger(FindableNameSetterPostProcessor.class);
 
 	// Must be *after* initialization, or an explicit 'name' property/value could revert the processor's changes
 	// See http://static.springsource.org/spring/docs/3.0.x/javadoc-api/org/springframework/beans/factory/BeanFactory.html
@@ -45,7 +48,7 @@ public class FindableNameSetterPostProcessor extends BeanPostProcessorAdapter {
 	}
 
 	protected static void checkFindableName(String beanName, Findable findable) {
-		if (!beanName.equals(findable.getName())) {
+		if (findable.getName() == null) {
 
 			if (cannotSetObjectName(findable)) {
 				throw new RuntimeException("Bean " + StringUtils.quote(beanName) + " has name " + StringUtils.quote(findable.getName()) + "; you need to set the name manually");
@@ -55,6 +58,8 @@ public class FindableNameSetterPostProcessor extends BeanPostProcessorAdapter {
 			if (!beanName.equals(findable.getName())) {
 				throw new RuntimeException("Name of bean " + StringUtils.quote(beanName) + " could not be set");
 			}
+		} else if (!findable.getName().equals(beanName)) {
+			logger.warn("Bean '{}' has id that doesn't match name ('{}')", beanName, findable.getName());
 		}
 	}
 
