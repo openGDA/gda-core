@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Xmap
-Bundle-SymbolicName: uk.ac.gda.devices.xmap
+Bundle-SymbolicName: uk.ac.gda.devices.xmap;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Require-Bundle: uk.ac.gda.common;bundle-version="1.0.0",
  uk.ac.gda.core;bundle-version="1.0.0",
@@ -12,7 +12,9 @@ Require-Bundle: uk.ac.gda.common;bundle-version="1.0.0",
  uk.ac.diamond.jython;bundle-version="[2.7.0,3.0.0)",
  org.apache.commons.lang;bundle-version="[2.6.0,2.7.0)",
  uk.ac.gda.exafs.api;bundle-version="1.0.0",
- org.eclipse.dawnsci.nexus;bundle-version="1.0.0"
+ org.eclipse.dawnsci.nexus;bundle-version="1.0.0",
+ org.eclipse.scanning.api,
+ org.eclipse.scanning.example
 Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy: uk.ac.gda.common, uk.ac.gda.core, uk.ac.diamond.org.springframework
 Eclipse-BuddyPolicy: registered

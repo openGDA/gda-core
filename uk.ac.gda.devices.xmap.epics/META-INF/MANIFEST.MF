@@ -15,5 +15,6 @@ Require-Bundle: org.eclipse.january;bundle-version="1.0.0",
  uk.ac.gda.exafs.api;bundle-version="1.0.0",
  org.apache.commons.lang;bundle-version="2.6.0"
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
-Export-Package: gda.device.detector.xmap
+Export-Package: gda.device.detector.nxdetector.xmap.fluorescencedetector,
+ gda.device.detector.xmap
 Import-Package: org.springframework.beans.factory;version="4.0.6.RELEASE"
