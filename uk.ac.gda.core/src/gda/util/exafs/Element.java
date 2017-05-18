@@ -18,9 +18,6 @@
 
 package gda.util.exafs;
 
-import gda.jscience.physics.quantities.PhotonEnergy;
-import gda.jscience.physics.units.NonSIext;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -33,12 +30,13 @@ import java.util.Map;
 import java.util.Vector;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.jscience.physics.quantities.Energy;
 import org.jscience.physics.quantities.Quantity;
 import org.jscience.physics.units.NonSI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.jscience.physics.quantities.PhotonEnergy;
+import gda.jscience.physics.units.NonSIext;
 import uk.ac.gda.util.io.TokenFileParser;
 
 /**
@@ -453,8 +451,8 @@ public final class Element {
 
 		} else if ("L1".equals(edge)) { // L1
 			// fix L1 final energy at 15 A-1
-			Energy edgeInEV = Quantity.valueOf(edgeEnergy, NonSI.ELECTRON_VOLT);
-			gda.jscience.physics.quantities.Vector k = Quantity.valueOf(15, NonSIext.PER_ANGSTROM);
+			Quantity edgeInEV = Quantity.valueOf(edgeEnergy, NonSI.ELECTRON_VOLT);
+			Quantity k = Quantity.valueOf(15, NonSIext.PER_ANGSTROM);
 			double finalEnergyInEV = PhotonEnergy.photonEnergyOf(edgeInEV, k).getAmount();
 			return finalEnergyInEV;
 			// return edgeEnergy + 500;
