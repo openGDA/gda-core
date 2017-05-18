@@ -126,7 +126,8 @@ public abstract class ServerThread extends Thread implements Terminal, SessionCl
 			out.flush();
 		} catch (IOException e) {
 			// Re-encode the data as UTF8 to make it readable
-			logger.error("Error writting '{}' to console", new String(data, UTF8_CHARSET), e);
+			logger.error("Error writing '{}' to console", new String(data, UTF8_CHARSET), e);
+			sessionClosed();
 		}
 	}
 
