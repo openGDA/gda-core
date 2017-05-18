@@ -72,7 +72,7 @@ public class NexusSlitsWrapper extends AbstractScannable<DeviceValueMultiPositio
 	}
 
 	@Override
-	public void setPosition(DeviceValueMultiPosition value, IPosition position) throws Exception {
+	public DeviceValueMultiPosition setPosition(DeviceValueMultiPosition value, IPosition position) throws Exception {
 		logger.debug("setPosition({}, {}) called on {}", value, position, getName());
 
 		if (value!=null) {
@@ -80,8 +80,11 @@ public class NexusSlitsWrapper extends AbstractScannable<DeviceValueMultiPositio
 		}
 
 		if (position!=null) {
-			write(value, getPosition(), position);
+			DeviceValueMultiPosition currentLocation = getPosition();
+			write(value, currentLocation, position);
+			return currentLocation;
 		}
+		return null;
 	}
 
 	private void write(DeviceValueMultiPosition demand, DeviceValueMultiPosition actual, IPosition loc) throws Exception {

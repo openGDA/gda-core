@@ -276,12 +276,12 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 	}
 
 	@Override
-	public void setPosition(Object value) throws Exception {
-		setPosition(value, null);
+	public Object setPosition(Object value) throws Exception {
+		return setPosition(value, null);
 	}
 
 	@Override
-	public void setPosition(Object value, IPosition scanPosition) throws Exception {
+	public Object setPosition(Object value, IPosition scanPosition) throws Exception {
 		if (value != null) {
 			final int index = (scanPosition == null ? -1 : scanPosition.getIndex(getName()));
 			final IPosition position = new Scalar<Object>(getName(), index, value);
@@ -294,8 +294,14 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 		} // setPosition is called with a value==null if it is a monitor in a scan and doesn't need to be moved.
 
 		if (scanPosition != null && shouldWritePosition()) {
-			write(value, getPositionArray(), scanPosition);
+			final Object position = scannable.getPosition();
+			write(value, getPositionArray(position), scanPosition);
+			return position; // It stops it being read again.
 		}
+
+		// We didn't read real position again when setting the value so we cannot provide the
+		// new position.
+		return null;
 	}
 
 	@Override
@@ -386,7 +392,7 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 	 * @throws NexusException
 	 */
 	private void createDataFields(NexusScanInfo info, final N nexusObject) throws NexusException {
-		final Object[] positionArray = getPositionArray();
+		final Object[] positionArray = getPositionArray(null);
 		final int scanRank = info.getRank();
 		final int[] chunks = info.createChunk(1); // TODO Might be slow, need to check this
 
@@ -475,9 +481,10 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 	 * @return position as an array
 	 * @throws NexusException
 	 */
-	private Object[] getPositionArray() throws NexusException {
+	private Object[] getPositionArray(Object position) throws NexusException {
 		try {
-			final Object position = scannable.getPosition();
+			if (position==null) position = scannable.getPosition();
+
 			if (!position.getClass().isArray()) {
 				// position is not an array (i.e. is a double) return array with position as single element
 				return new Object[] { position };

@@ -54,7 +54,7 @@ public class ScannableDeviceConnectorService implements IScannableDeviceService 
 	 * A simple class to adapt an GDA8 {@link Scannable} to the {@link IScannable} API.
 	 * May be deleted if not used in future.
 	 */
-	public class ScannableAdapter implements IScannable<Object> {
+	public class ScannableAdapter extends AbstractScannable<Object> {
 
 		private Scannable scannable;
 
@@ -88,13 +88,15 @@ public class ScannableDeviceConnectorService implements IScannableDeviceService 
 		}
 
 		@Override
-		public void setPosition(Object value) throws Exception {
+		public Object setPosition(Object value) throws Exception {
 			scannable.moveTo(value);
+			return null; // Since we did not read position as part of the move, we return null
 		}
 
 		@Override
-		public void setPosition(Object value, IPosition position) throws Exception {
+		public Object setPosition(Object value, IPosition position) throws Exception {
 			scannable.moveTo(value);
+			return null; // Since we did not read position as part of the move, we return null
 		}
 	}
 
