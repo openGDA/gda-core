@@ -26,7 +26,10 @@ import org.python.core.PyList;
 import org.python.core.PyObject;
 import org.python.core.PyString;
 import org.python.core.PyTuple;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
 import gda.jython.Jython;
 import gda.jython.completion.AutoCompleteOption;
 import gda.jython.completion.AutoCompletion;
@@ -38,21 +41,52 @@ import gda.jython.completion.TextCompleter;
  * context sensitive text completion
  */
 public class JythonCompleter implements TextCompleter {
+	public static final String COMPLETION_STYLE_PROPERTY = "gda.jython.completion.style";
+	private static final Logger logger = LoggerFactory.getLogger(JythonCompleter.class);
 	private boolean completeOnEmpty;
 	private PyObject jyComplete;
 
+	private enum MODE {
+		/** Must match exactly (ignoring case) */
+		BASIC,
+		/** Allow use of upper case letters to match beginnings of words (eg gP&nbsp;→&nbsp;getPosition) */
+		CAMEL,
+		/** Anything goes - if letter are present and in the right order it works */
+		FUZZY,
+		/** {@link #BASIC} if all lower case, {@link #CAMEL} otherwise */
+		AUTO,
+		;
+		public static MODE get(String mode) {
+			return valueOf(mode.toUpperCase());
+		}
+		@Override
+		public String toString() {
+			return super.toString().toLowerCase();
+		}
+	}
+
 	/**
-	 * Set the jython interpreter that should be used to provide the completions.<br>
+	 * Set the jython interpreter that should be used to provide the completions.<p>
 	 * There should be a {@code gda_completer} module on the PYTHON_PATH that has a {@code Completer}
 	 * class with a {@code complete} method taking a string and returning a list of tuples
-	 * (completion, args, doc, type).<br><br>
+	 * (completion, args, doc, type).<p>
 	 * Currently, only completion and type are used.
 	 * @param jython {@link Jython} instance to get the complete method from
 	 */
 	public JythonCompleter(Jython jython) {
-		// Create the completer object to allow command line tab completion
+		String style = LocalProperties.get(COMPLETION_STYLE_PROPERTY);
+		MODE mode;
+		try {
+			mode = style == null ? MODE.AUTO : MODE.get(style);
+		} catch (IllegalArgumentException iae) {
+			logger.debug("{} not a recognised mode", style, iae);
+			mode = MODE.AUTO;
+		}
+		logger.info("Using {} jython completion style", mode);
+
+		// Create the completer object in namespace to provide context aware command line completion
 		jython.exec("from gda_completer import Completer");
-		jyComplete = jython.eval("Completer(globals()).complete");
+		jyComplete = jython.eval("Completer(globals(), '" + mode + "').complete");
 	}
 
 	/**
