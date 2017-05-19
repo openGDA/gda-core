@@ -254,7 +254,7 @@ public class RegionComposite extends Composite {
 			}
 		}
 		viewer.setInput(regions);
-		site.setSelectionProvider(viewer);
+		if (site!= null) site.setSelectionProvider(viewer);
 	}
 
 	@SuppressWarnings("unused")
