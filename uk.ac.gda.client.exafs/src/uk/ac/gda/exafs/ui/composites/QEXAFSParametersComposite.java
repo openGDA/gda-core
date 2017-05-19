@@ -18,11 +18,6 @@
 
 package uk.ac.gda.exafs.ui.composites;
 
-import gda.configuration.properties.LocalProperties;
-import gda.jscience.physics.quantities.BraggAngle;
-import gda.jython.JythonServerFacade;
-import gda.util.QuantityFactory;
-
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
@@ -47,6 +42,10 @@ import org.jscience.physics.quantities.Quantity;
 import org.jscience.physics.units.NonSI;
 import org.jscience.physics.units.Unit;
 
+import gda.configuration.properties.LocalProperties;
+import gda.jscience.physics.quantities.BraggAngle;
+import gda.jython.JythonServerFacade;
+import gda.util.QuantityFactory;
 import uk.ac.gda.beans.exafs.QEXAFSParameters;
 import uk.ac.gda.exafs.ExafsActivator;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
@@ -100,15 +99,15 @@ public final class QEXAFSParametersComposite extends FieldBeanComposite {
 		createEmptyLabel(finalEnergy);
 		createEmptyLabel(finalEnergy);
 
-		if (LocalProperties.get("gda.beamline.name").equals("b18")) {
+		if ("b18".equals(LocalProperties.get("gda.beamline.name"))) {
 			String dcmCrystal = JythonServerFacade.getInstance().evaluateCommand("dcm_crystal()");
-			if (dcmCrystal.equals("Si(111)")) {
+			if ("Si(111)".equals(dcmCrystal)) {
 				finalEnergy.setMinimum(2050.0);
 				finalEnergy.setMaximum(26000.0);
 				initialEnergy.setMinimum(2050.0);
 				initialEnergy.setMaximum(26000.0);
 				crystal = Quantity.valueOf(6.2695, NonSI.ANGSTROM);
-			} else if (dcmCrystal.equals("Si(311)")) {
+			} else if ("Si(311)".equals(dcmCrystal)) {
 				finalEnergy.setMinimum(4000.0);
 				finalEnergy.setMaximum(40000.0);
 				initialEnergy.setMinimum(4000.0);
@@ -116,7 +115,7 @@ public final class QEXAFSParametersComposite extends FieldBeanComposite {
 				crystal = Quantity.valueOf(3.275, NonSI.ANGSTROM);
 			}
 		} else {
-			Double max = ExafsActivator.getDefault().getPreferenceStore()
+			Double max = ExafsActivator.getStore()
 					.getDouble(ExafsPreferenceConstants.XAS_MAX_ENERGY);
 			if (max == 0)
 				max = 40000.;
@@ -155,12 +154,17 @@ public final class QEXAFSParametersComposite extends FieldBeanComposite {
 		minSpeedlabel.setText(minSpeed);
 		Label maxSpeedlabel = new Label(speedComp, SWT.NONE);
 
-		String maxSpeed = JythonServerFacade.getInstance().evaluateCommand("bragg_speed()");
-		if (maxSpeed != null) {
+
+		try {
+			String maxSpeed = JythonServerFacade.getInstance().evaluateCommand("bragg_speed()");
 			double maxSpeedDouble = Double.parseDouble(maxSpeed) * 1000;
 			speed.setMaximum(maxSpeedDouble);
 			maxSpeedlabel.setText("Max = " + formatter.format(maxSpeedDouble) + " mdeg/sec");
+		} catch (NumberFormatException | NullPointerException e1) {
+			e1.printStackTrace();
 		}
+
+
 
 		label = new Label(this, SWT.NONE);
 		label.setText("Step Size");
@@ -206,7 +210,7 @@ public final class QEXAFSParametersComposite extends FieldBeanComposite {
 		initialEnergy.addValueListener(new ValueAdapter("initialEnergyListener") {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
-				if (initialEnergy.getNumericValue() != 0 && !initialEnergy.getValue().toString().equals("")) {
+				 if (!Double.isNaN(initialEnergy.getNumericValue())) {
 					provider.setInitialEnergy(initialEnergy.getNumericValue());
 					calculate(provider);
 				}
@@ -216,7 +220,7 @@ public final class QEXAFSParametersComposite extends FieldBeanComposite {
 		finalEnergy.addValueListener(new ValueAdapter("finalEnergyListener") {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
-				if (finalEnergy.getNumericValue() != 0 && !finalEnergy.getValue().toString().equals("")) {
+				 if (!Double.isNaN(finalEnergy.getNumericValue())) {
 					provider.setFinalEnergy(finalEnergy.getNumericValue());
 					calculate(provider);
 				}
@@ -226,7 +230,7 @@ public final class QEXAFSParametersComposite extends FieldBeanComposite {
 		speed.addValueListener(new ValueAdapter("speedListener") {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
-				if (speed.getNumericValue() != 0 && !speed.getValue().toString().equals("")){
+				if (!Double.isNaN(speed.getNumericValue())){
 					provider.setSpeed(speed.getNumericValue());
 					calculate(provider);
 				}
@@ -236,7 +240,7 @@ public final class QEXAFSParametersComposite extends FieldBeanComposite {
 		stepSize.addValueListener(new ValueAdapter("stepSizeListener") {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
-				if (stepSize.getNumericValue() != 0 && !stepSize.getValue().toString().equals("")) {
+				if (!Double.isNaN(stepSize.getNumericValue())){
 					provider.setStepSize(stepSize.getNumericValue());
 					calculate(provider);
 				}
@@ -270,7 +274,7 @@ public final class QEXAFSParametersComposite extends FieldBeanComposite {
 //			totalTime.setText(formatter.format(time) + " s");
 		}
 		int numberOfPoints = (int) (rangeEv / stepSizeVal);
-		numberPoints.setText(numberOfPoints + "");
+		numberPoints.setText(Integer.toString(numberOfPoints));
 		if (numberOfPoints > 4000) {
 			numberPoints.setForeground(new Color(null, 255, 0, 0));
 			numberPoints.setText(numberOfPoints
