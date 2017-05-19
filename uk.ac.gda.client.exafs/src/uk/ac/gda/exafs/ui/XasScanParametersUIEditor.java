@@ -18,9 +18,6 @@
 
 package uk.ac.gda.exafs.ui;
 
-import gda.util.Converter;
-import gda.util.exafs.Element;
-
 import java.text.DecimalFormat;
 import java.util.EventObject;
 import java.util.List;
@@ -65,6 +62,8 @@ import org.eclipse.swt.widgets.Link;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.util.Converter;
+import gda.util.exafs.Element;
 import uk.ac.gda.beans.exafs.XasScanParameters;
 import uk.ac.gda.exafs.ExafsActivator;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
@@ -90,7 +89,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 	private GridData gd_centre;
 	private GridLayout gridLayout_1;
 	private IRegion aLine, bLine, cLine, edgeLine;
-	private boolean energyInK = ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.EXAFS_FINAL_ANGSTROM);
+	private boolean energyInK = ExafsActivator.getStore().getBoolean(ExafsPreferenceConstants.EXAFS_FINAL_ANGSTROM);
 	private boolean showLineAnnotations = false;
 
 	public XasScanParametersUIEditor(final String path, final RichBeanMultiPageEditorPart containingEditor, final XasScanParameters xasScanParameters) {
@@ -127,10 +126,10 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		right.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		expandContainer = main;
 		createEstimationComposite(right);
-		createPlotRegions();
+		if (plottingsystem!=null) createPlotRegions();
 		createShowHideLineAnnotationsButton();
 		scrolledComposite.setMinSize(container.computeSize(SWT.DEFAULT, SWT.DEFAULT));
-		ExafsActivator.getDefault().getPreferenceStore().addPropertyChangeListener(this);
+		ExafsActivator.getStore().addPropertyChangeListener(this);
 		updateEdgeRegion();
 		updateExafsTimeType();
 		updateLayout();
@@ -145,8 +144,10 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 				plottingsystem.repaint();
 			}
 		};
-		plottingsystemActionBarWrapper.getRightManager().add(menuAction);
-		plottingsystemActionBarWrapper.update(true);
+		if (plottingsystem!=null) {
+			plottingsystemActionBarWrapper.getRightManager().add(menuAction);
+			plottingsystemActionBarWrapper.update(true);
+		}
 	}
 
 	/**
@@ -159,7 +160,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 			aLine.setRegionColor(Display.getDefault().getSystemColor(SWT.COLOR_RED));
 			plottingsystem.addRegion(aLine);
 			new ARegionSynchronizer(aLine, getA(), getGaf1());
-			aLine.setMobile(ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.EXAFS_GRAPH_EDITABLE));
+			aLine.setMobile(ExafsActivator.getStore().getBoolean(ExafsPreferenceConstants.EXAFS_GRAPH_EDITABLE));
 		} catch (Exception e) {
 			logger.error("Cannot create region for position of a!", e);
 		}
@@ -169,7 +170,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 			bLine.setRegionColor(Display.getDefault().getSystemColor(SWT.COLOR_YELLOW));
 			plottingsystem.addRegion(bLine);
 			new BRegionSynchronizer(bLine, b, c, gaf2, gaf3);
-			bLine.setMobile(ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.EXAFS_GRAPH_EDITABLE));
+			bLine.setMobile(ExafsActivator.getStore().getBoolean(ExafsPreferenceConstants.EXAFS_GRAPH_EDITABLE));
 		} catch (Exception e) {
 			logger.error("Cannot create region for position of b!", e);
 		}
@@ -179,7 +180,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 			cLine.setRegionColor(Display.getDefault().getSystemColor(SWT.COLOR_BLUE));
 			plottingsystem.addRegion(cLine);
 			new CRegionSynchronizer(cLine, c, gaf3);
-			cLine.setMobile(ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.EXAFS_GRAPH_EDITABLE) && !ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.C_MIRRORS_B_LINK));
+			cLine.setMobile(ExafsActivator.getStore().getBoolean(ExafsPreferenceConstants.EXAFS_GRAPH_EDITABLE) && !ExafsActivator.getStore().getBoolean(ExafsPreferenceConstants.C_MIRRORS_B_LINK));
 		} catch (Exception e) {
 			logger.error("Cannot create region for position of c!", e);
 		}
@@ -330,7 +331,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 				gafb.setNumericValue(calcGaf1or2(energy));
 				gafb.on();
 			}
-			if (ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.C_MIRRORS_B_LINK)) {
+			if (ExafsActivator.getStore().getBoolean(ExafsPreferenceConstants.C_MIRRORS_B_LINK)) {
 				Double newGafCValue = calcGaf3(energy);
 				abc.off();
 				cScaleBox.off();
@@ -537,8 +538,8 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		gridLayout_1.numColumns = 2;
 		topCentre.setLayout(gridLayout_1);
 		createE0();
-		int beamlineMinEnergy = ExafsActivator.getDefault().getPreferenceStore().getInt(ExafsPreferenceConstants.XAS_MIN_ENERGY);
-		int beamlineMaxEnergy = ExafsActivator.getDefault().getPreferenceStore().getInt(ExafsPreferenceConstants.XAS_MAX_ENERGY);
+		int beamlineMinEnergy = ExafsActivator.getStore().getInt(ExafsPreferenceConstants.XAS_MIN_ENERGY);
+		int beamlineMaxEnergy = ExafsActivator.getStore().getInt(ExafsPreferenceConstants.XAS_MAX_ENERGY);
 		if (beamlineMaxEnergy == 0)
 			beamlineMaxEnergy = 40000;
 		createInitialEnergy(beamlineMinEnergy);
@@ -689,7 +690,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 
 
 				// change C as well if the preference has been set to do so
-				if (ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.C_MIRRORS_B_LINK)) {
+				if (ExafsActivator.getStore().getBoolean(ExafsPreferenceConstants.C_MIRRORS_B_LINK)) {
 					c.off();
 					gaf3.off();
 					c.setNumericValue(calcC(newValue));
@@ -984,8 +985,10 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 			public void run() {
 				try {
 					suspendGraphUpdate = true;
-					drawLines();
-					updatePlottedPoints();
+					if (plottingsystem!=null) {
+						drawLines();
+						updatePlottedPoints();
+					}
 				} catch (Exception e1) {
 					logger.error("Cannot update XAS points", e1);
 				} finally {
@@ -1046,49 +1049,13 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 	protected void setPointsUpdate(boolean isUpdate) {
 		super.setPointsUpdate(isUpdate);
 		updateValueAllowed = isUpdate;
-		if (isUpdate) {
-			a.on();
-			b.on();
-			c.on();
-			gaf1.on();
-			gaf2.on();
-			gaf3.on();
-			initialEnergy.on();
-			finalEnergy.on();
-			exafsStep.on();
-			edgeStep.on();
-			edgeTime.on();
-			preEdgeStep.on();
-			preEdgeTime.on();
-			exafsFromTime.on();
-			exafsToTime.on();
-			exafsTime.on();
-			kWeighting.on();
-			exafsStepType.on();
-			getCoreHole().on();
-			getEdgeEnergy().on();
-		}
-		else {
-			a.off();
-			b.off();
-			c.off();
-			gaf1.off();
-			gaf2.off();
-			gaf3.off();
-			initialEnergy.off();
-			finalEnergy.off();
-			exafsStep.off();
-			edgeStep.off();
-			edgeTime.off();
-			preEdgeStep.off();
-			preEdgeTime.off();
-			exafsFromTime.off();
-			exafsToTime.off();
-			exafsTime.off();
-			kWeighting.off();
-			exafsStepType.off();
-			getCoreHole().off();
-			getEdgeEnergy().off();
+		try {
+			controller.switchState(isUpdate);
+			a.checkBounds(); // hack: without these three calls,
+			b.checkBounds(); // the widgets do not update until
+			c.checkBounds(); // they gain and lose focus
+		} catch (Exception e) {
+			logger.error("Problem switching widgets", e);
 		}
 	}
 
@@ -1127,22 +1094,22 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 				}
 			// this part is ONLY for when the element has just been changed.
 			if (type != ELEMENT_EVENT_TYPE.INIT) {
-				if (ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.A_ELEMENT_LINK))
+				if (ExafsActivator.getStore().getBoolean(ExafsPreferenceConstants.A_ELEMENT_LINK))
 					a.setValue(getAfromElement());
-				if (ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.B_ELEMENT_LINK))
+				if (ExafsActivator.getStore().getBoolean(ExafsPreferenceConstants.B_ELEMENT_LINK))
 					b.setValue(getBfromElement());
-				if (ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.C_ELEMENT_LINK)) {
+				if (ExafsActivator.getStore().getBoolean(ExafsPreferenceConstants.C_ELEMENT_LINK)) {
 					Double value = getCfromElement();
 					c.setValue(value);
 				}
-				if (ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.INITIAL_ENERGY_ELEMENT_LINK))
+				if (ExafsActivator.getStore().getBoolean(ExafsPreferenceConstants.INITIAL_ENERGY_ELEMENT_LINK))
 					initialEnergy.setValue(getInitialEnergyFromElement());
-				if (ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.FINAL_ENERGY_ELEMENT_LINK))
+				if (ExafsActivator.getStore().getBoolean(ExafsPreferenceConstants.FINAL_ENERGY_ELEMENT_LINK))
 					finalEnergy.setValue(getFinalEnergyFromElement());
 				rebuildGraph();
 			} else {
 				final XasScanParameters scanParams = (XasScanParameters) editingBean;
-				if (ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.A_ELEMENT_LINK)) {
+				if (ExafsActivator.getStore().getBoolean(ExafsPreferenceConstants.A_ELEMENT_LINK)) {
 					if (scanParams.getA() == null) {
 						if (scanParams.getGaf1() == null)
 							a.setValue(getAfromElement());
@@ -1150,7 +1117,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 							a.setValue(calcAorB(scanParams.getGaf1()));
 					}
 				}
-				if (ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.B_ELEMENT_LINK)) {
+				if (ExafsActivator.getStore().getBoolean(ExafsPreferenceConstants.B_ELEMENT_LINK)) {
 					if (scanParams.getB() == null) {
 						if (scanParams.getGaf1() == null)
 							b.setValue(getBfromElement());
@@ -1158,7 +1125,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 							b.setValue(calcAorB(scanParams.getGaf2()));
 					}
 				}
-				if (ExafsActivator.getDefault().getPreferenceStore()
+				if (ExafsActivator.getStore()
 						.getBoolean(ExafsPreferenceConstants.C_ELEMENT_LINK)) {
 					if (scanParams.getC() == null) {
 						if (scanParams.getGaf1() == null)
@@ -1250,7 +1217,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		String edge = getEdgeUseBean();
 		double ed = getEdgeValue();
 		double en = 0.0;
-		if (ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.C_MIRRORS_B_LINK))
+		if (ExafsActivator.getStore().getBoolean(ExafsPreferenceConstants.C_MIRRORS_B_LINK))
 			en = ed + (getGaf2Value() * ele.getCoreHole(edge));
 		en = ed + (getGaf3Value() * ele.getCoreHole(edge));
 		if (energyInK)
@@ -1263,9 +1230,9 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		a.setActive(isAB);
 		b.setActive(isAB);
 		if (isAB) {
-			boolean cMirrorsB = ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.C_MIRRORS_B_LINK);
+			boolean cMirrorsB = ExafsActivator.getStore().getBoolean(ExafsPreferenceConstants.C_MIRRORS_B_LINK);
 			c.setActive(!cMirrorsB);
-			cLine.setMobile(!cMirrorsB);
+			if (cLine != null) cLine.setMobile(!cMirrorsB);
 		}
 		else
 			c.setActive(false);
@@ -1273,9 +1240,9 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		gaf1.setActive(!isAB);
 		gaf2.setActive(!isAB);
 		if (!isAB) {
-			boolean cMirrorsB = ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.C_MIRRORS_B_LINK);
+			boolean cMirrorsB = ExafsActivator.getStore().getBoolean(ExafsPreferenceConstants.C_MIRRORS_B_LINK);
 			gaf3.setActive(!cMirrorsB);
-			cLine.setMobile(!cMirrorsB);
+			if (cLine != null) cLine.setMobile(!cMirrorsB);
 		}
 		else
 			gaf3.setActive(false);
@@ -1406,7 +1373,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 			this.bLabel.removeSelectionListener(bListener);
 		if (cLabel != null && !cLabel.isDisposed())
 			this.cLabel.removeSelectionListener(cListener);
-		ExafsActivator.getDefault().getPreferenceStore().removePropertyChangeListener(this);
+		ExafsActivator.getStore().removePropertyChangeListener(this);
 		super.dispose();
 	}
 
