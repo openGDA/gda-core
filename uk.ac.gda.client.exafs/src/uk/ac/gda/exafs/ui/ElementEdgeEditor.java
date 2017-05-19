@@ -166,13 +166,17 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 		grid.marginHeight = 0;
 		plotArea.setLayout(grid);
 
-		plottingsystemActionBarWrapper = ActionBarWrapper.createActionBars(plotArea, null);
-		plottingsystem.createPlotPart(plotArea, getTitle(), null, PlotType.XY, this);
-		plottingsystem.getPlotActionSystem().fillZoomActions(plottingsystemActionBarWrapper.getToolBarManager());
-		plottingsystem.getPlotComposite().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		plottingsystemActionBarWrapper.update(true);
+		if (plottingsystem!=null) { // skip when testing
 
-		plotUpdateJob.createTrace();
+			plottingsystemActionBarWrapper = ActionBarWrapper.createActionBars(plotArea, null);
+
+			plottingsystem.createPlotPart(plotArea, getTitle(), null, PlotType.XY, this);
+			plottingsystem.getPlotActionSystem().fillZoomActions(plottingsystemActionBarWrapper.getToolBarManager());
+			plottingsystem.getPlotComposite().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+			plottingsystemActionBarWrapper.update(true);
+
+			plotUpdateJob.createTrace();
+		}
 
 		xasScanExpandableComposite.setClient(plotArea);
 
@@ -194,19 +198,22 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 			controller.addValueListener(new ValueAdapter("Element Edge Bean Listener") {
 				@Override
 				public void valueChangePerformed(ValueEvent e) {
-					getSite().getShell().getDisplay().asyncExec(new Runnable() {
-						@Override
-						public void run() {
-							try {
-								if (!suspendGraphUpdate && updateValueAllowed){
-									updatePlottedPoints();
-									updatePointsLabels();
+					if (plottingsystem!=null) {
+						Display.getDefault().asyncExec(new Runnable() {
+
+							@Override
+							public void run() {
+								try {
+									if (!suspendGraphUpdate && updateValueAllowed){
+										updatePlottedPoints();
+										updatePointsLabels();
+									}
+								} catch (Exception e1) {
+									logger.error("Cannot update plot of points.", e1);
 								}
-							} catch (Exception e1) {
-								logger.error("Cannot update plot of points.", e1);
 							}
-						}
-					});
+						});
+					}
 				}
 			});
 		} catch (Exception e1) {
@@ -291,13 +298,13 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 		edgeEnergyLabel.setNotifyType(NOTIFY_TYPE.VALUE_CHANGED);
 		edgeEnergyLabel.on();
 
-		if (LocalProperties.get("gda.beamline.name").equals("b18")) {
+		if ("b18".equals(LocalProperties.get("gda.beamline.name"))) {
 			String dcmCrystal = JythonServerFacade.getInstance().evaluateCommand("dcm_crystal()");
-			if (dcmCrystal.equals("Si(111)")) {
+			if ("Si(111)".equals(dcmCrystal)) {
 				edgeEnergyLabel.setMaximum(26000.0);
 				edgeEnergyLabel.setMinimum(2050.0);
 			}
-			else if (dcmCrystal.equals("Si(311)")) {
+			else if ("Si(311)".equals(dcmCrystal)) {
 				edgeEnergyLabel.setMaximum(40000.0);
 				edgeEnergyLabel.setMinimum(4000.0);
 			}
@@ -327,6 +334,8 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 		List<String> choices = reader.getAllowedChoices(objectName, "edge");
 		edge.setItems(choices.toArray(new String[choices.size()]));
 
+		final String ERROR_MSG = "Cannot update element.";
+
 		element.addValueListener(new ValueAdapter("elementListener") {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
@@ -334,7 +343,7 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 					setPointsUpdate(false);
 					updateElement(ELEMENT_EVENT_TYPE.ELEMENT_CHANGE);
 				} catch (Exception e1) {
-					logger.error("Cannot update element.", e1);
+					logger.error(ERROR_MSG, e1);
 				} finally {
 					setPointsUpdate(true);
 				}
@@ -347,7 +356,7 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 					setPointsUpdate(false);
 					updateElement(ELEMENT_EVENT_TYPE.EDGE_CHANGE);
 				} catch (Exception e1) {
-					logger.error("Cannot update element.", e1);
+					logger.error(ERROR_MSG, e1);
 				} finally {
 					setPointsUpdate(true);
 				}
@@ -360,7 +369,7 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 					setPointsUpdate(false);
 					updateElement(ELEMENT_EVENT_TYPE.ENERGY_CHANGE);
 				} catch (Exception e1) {
-					logger.error("Cannot update element.", e1);
+					logger.error(ERROR_MSG, e1);
 				} finally {
 					setPointsUpdate(true);
 				}
@@ -487,7 +496,7 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 			return null;
 		}
 		if (black == null || black.isDisposed())
-			black = getSite().getShell().getDisplay().getSystemColor(SWT.COLOR_BLACK);
+			black = Display.getDefault().getSystemColor(SWT.COLOR_BLACK);
 		element.setForeground(black);
 		return ele;
 	}
@@ -608,30 +617,34 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 				final Dataset yDataSet = DatasetFactory.createFromObject(y);
 				xDataSet.setName("Energy (eV)");
 				yDataSet.setName("\u0394E (eV)");
-				Display.getDefault().syncExec(new Runnable() {
-					@Override
-					public void run() {
-						// We just replot it.
-						exafsProfile.setTraceColor(Display.getDefault().getSystemColor(SWT.COLOR_BLACK));
-						exafsProfile.setData(xDataSet, yDataSet);
-						if (first) {
-							plottingsystem.repaint();
-							first = false;
+				if (plottingsystem!=null) { // skip when testing
+					Display.getDefault().syncExec(new Runnable() {
+						@Override
+						public void run() {
+							// We just replot it.
+							exafsProfile.setTraceColor(Display.getDefault().getSystemColor(SWT.COLOR_BLACK));
+							exafsProfile.setData(xDataSet, yDataSet);
+							if (first) {
+								plottingsystem.repaint();
+								first = false;
+							}
+							plottingsystem.autoscaleAxes();
 						}
-						plottingsystem.autoscaleAxes();
-					}
-				});
+					});
+				}
 				lastPlottedBean = BeansFactory.deepClone(scanBean);
 				return Status.OK_STATUS;
 			} catch (Throwable no) {
 				lastPlottedBean = null;
-				Display.getDefault().syncExec(new Runnable() {
-					@Override
-					public void run() {
-						// We just replot it.
-						exafsProfile.setTraceColor(Display.getDefault().getSystemColor(SWT.COLOR_RED));
-					}
-				});
+				if (plottingsystem!=null) {
+					Display.getDefault().syncExec(new Runnable() {
+						@Override
+						public void run() {
+							// We just replot it.
+							exafsProfile.setTraceColor(Display.getDefault().getSystemColor(SWT.COLOR_RED));
+						}
+					});
+				}
 				return Status.CANCEL_STATUS;
 			}
 		}

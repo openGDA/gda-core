@@ -6,8 +6,21 @@ Bundle-Version: 1.0.0
 Fragment-Host: uk.ac.gda.client.exafs;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: junitx.framework,
+ org.dawb.common.services,
+ org.eclipse.dawnsci.plotting.api,
+ org.eclipse.dawnsci.plotting.api.trace,
+ org.eclipse.richbeans.binding,
+ org.eclipse.richbeans.widgets,
+ org.eclipse.swt.widgets,
+ org.eclipse.swtbot.swt.finder,
+ org.eclipse.swtbot.swt.finder.junit,
+ org.eclipse.swtbot.swt.finder.widgets,
  org.eclipse.ui.actions,
  org.eclipse.ui.ide,
- uk.ac.gda.beans.exafs
+ uk.ac.gda.beans.exafs,
+ uk.ac.gda.exafs.ui,
+ uk.ac.gda.richbeans.editors
 Require-Bundle: uk.ac.gda.test.helpers;bundle-version="1.0.0",
- org.junit;bundle-version="[4.12.0,5.0.0)"
+ org.junit;bundle-version="[4.12.0,5.0.0)",
+ org.eclipse.swtbot.swt.finder,
+ org.eclipse.richbeans.test

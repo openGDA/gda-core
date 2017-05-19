@@ -18,6 +18,8 @@
 
 package uk.ac.gda.exafs;
 
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.preference.PreferenceStore;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -87,5 +89,10 @@ public class ExafsActivator extends AbstractUIPlugin {
 		ServiceReference<T> ref = plugin.getBundle().getBundleContext().getServiceReference(serviceClass);
 		return plugin.getBundle().getBundleContext().getService(ref);
 	}
+	private static IPreferenceStore store = new PreferenceStore();
 
+	public static IPreferenceStore getStore() {
+		if (plugin!=null) return plugin.getPreferenceStore();
+		return store;
+	}
 }

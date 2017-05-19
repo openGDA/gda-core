@@ -14,19 +14,22 @@
 		 ==================================================================== -->
 
 	<import file="${workspace.git.loc}/diamond-releng.git/diamond.releng.tools/ant-headless/test-common.ant" />
-	<target name="junit-tests" depends="set-test-base-GDA">
-		<junit-call description="${ant.project.name} Java JUnit tests">
+
+	<target name="junit-tests" depends="set-test-base-GDA, Xvfb_start, Metacity_start, _junit-tests, Metacity_stop, Xvfb_stop" />
+
+	<target name="_junit-tests">
+		<junit-call description="${ant.project.name} Java JUnit tests"
+		Xvfb-display-name="${Xvfb-display-name}" Xvfb-display-number="${Xvfb-display-number}">
 			<formatter type="xml" />
 			<classpath>
 				<pathelement location="${junitjar.loc}" />
 				<pathelement location="${jythonjar.loc}" />
+				<pathelement location="${plugin.host.basedir}/bin" />
 				<path refid="libs.jars.path" />
 				<pathelement location="${plugin.basedir}/bin" />
 				<pathelement location="${workspace.git.loc}/diamond-releng.git/diamond.releng.tools/logging" />  <!-- to pick up logback-test.xml -->
 				<pathelement location="${workspace.git.loc}/gda-common.git/uk.ac.gda.test.helpers/bin" />
 				<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.core/classes/main" />
-				<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.core/classes/test" />
-				<pathelement location="${plugin.host.basedir}/bin" />
 				<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.api/bin" />
 				<pathelement location="${workspace.git.loc}/gda-common.git/uk.ac.gda.common/bin" />
 				<pathelement location="${workspace.git.loc}/gda-common-rcp.git/uk.ac.gda.common.rcp/bin" />
@@ -35,13 +38,22 @@
 				<pathelement location="${workspace.git.loc}/gda-xas-core.git/uk.ac.gda.devices.xspress2/bin" />
 				<pathelement location="${workspace.git.loc}/gda-xas-core.git/uk.ac.gda.exafs.api/bin" />
 				<pathelement location="${workspace.git.loc}/gda-nexus.git/uk.ac.gda.nexus/bin" />
+				<pathelement location="${workspace.git.loc}/scisoft-core.git/uk.ac.diamond.scisoft.analysis/bin" />
+				<pathelement location="${workspace.git.loc}/dawnsci.git/org.eclipse.dawnsci.analysis.api/bin" />
+				<pathelement location="${workspace.git.loc}/dawnsci.git/org.eclipse.dawnsci.analysis.dataset/bin" />
+				<pathelement location="${workspace.git.loc}/dawnsci.git/org.eclipse.dawnsci.plotting.api/bin" />
 				<pathelement location="${workspace.git.loc}/richbeans.git/org.eclipse.richbeans.api/bin" />
+				<pathelement location="${workspace.git.loc}/richbeans.git/org.eclipse.richbeans.binding/bin" />
+				<pathelement location="${workspace.git.loc}/richbeans.git/org.eclipse.richbeans.widgets/bin" />
 				<pathelement location="${workspace.git.loc}/richbeans.git/org.eclipse.richbeans.xml/bin" />
+				<pathelement location="${workspace.git.loc}/richbeans.git/org.eclipse.richbeans.test/bin" />
 				<pathelement location="${workspace.git.loc}/dawn-ui.git/org.dawnsci.common.widgets/bin" />
 				<path refid="tp.slf4j.path" />  <!-- ensure that required org.slf4j.LoggerFactory appears first in classpath -->
 				<path refid="tp.jcl-over-slf4j.path" />  <!-- ensure that matching imp appears first in classpath -->
 				<path refid="tp.hamcrest.path" />  <!-- ensure that latest version appears first in classpath -->
 				<pathelement path="${workspace.loc}/tp/plugins/uk.ac.diamond.org.jscience_2.0.2.jar" />  <!-- ensure that 2.0.2 appears first in classpath -->
+				<path refid="tp.swt.path" />  <!-- ensure that correct platform appears first in classpath -->
+				<path refid="tp.swtbot.path" />
 				<path refid="tp.path" />  <!-- target platform -->
 			</classpath>
 			<batchtest todir="@{report.dir}">
