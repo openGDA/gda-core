@@ -69,11 +69,11 @@ import uk.ac.gda.util.io.IPathConstructor;
 public class PathConstructor implements IPathConstructor {
 	private static final Logger logger = LoggerFactory.getLogger(PathConstructor.class);
 
-	private static String[] tokens = { "visit", "instrument", "facility", "year", "subdirectory", "hostid" };
+	private static String[] tokens = { "proposal", "visit", "instrument", "facility", "year", "subdirectory", "hostid" };
 
-	private static String[] defaultProperties = { "gda.defVisit", "gda.instrument", "gda.facility", "", "", "" };
+	private static String[] defaultProperties = { "", "gda.defVisit", "gda.instrument", "gda.facility", "", "", "" };
 
-	private static String[] defaultValues = { "0-0", "", "", (new SimpleDateFormat("yyyy")).format(new Date()), "", HostId.getId() };
+	private static String[] defaultValues = { "0", "0-0", "", "", (new SimpleDateFormat("yyyy")).format(new Date()), "", HostId.getId() };
 
 	/**
 	 * @return the default java property name that contains the data directory template.
@@ -246,6 +246,10 @@ public class PathConstructor implements IPathConstructor {
 		// misleading.
 		if (overrides != null && overrides.containsKey(s)) {
 			return overrides.get(s);
+		}
+
+		if (s.equals("proposal")) {
+			 return interpret("visit", overrides).split("-")[0];
 		}
 
 		if (GDAMetadataProvider.getInstance() != null) {
