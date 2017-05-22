@@ -36,7 +36,6 @@ import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
-import gda.util.Sleep;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
@@ -294,7 +293,7 @@ public class PixiumController extends DetectorBase {
 			while(!state.equalsIgnoreCase("0")) {
 				logger.debug("State of the camera is {}",state);
 				state = areaDetector.getState();
-				Sleep.sleep(idlePollTime_ms);				
+				Thread.sleep(idlePollTime_ms);
 			}
 
 			// Having some issues with the camera, so adding in a small sleep here, 
@@ -654,7 +653,7 @@ public class PixiumController extends DetectorBase {
 		while(!state.equalsIgnoreCase("0")) {
 			logger.debug("State of the camera is {}",state);
 			state = areaDetector.getState();
-			Sleep.sleep(idlePollTime_ms);				
+			Thread.sleep(idlePollTime_ms);
 		}
 	}
 

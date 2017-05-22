@@ -35,7 +35,6 @@ import gda.device.detector.NXDetectorDataWithFilepathForSrs;
 import gda.device.detector.areadetector.v17.NDFile;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanInformation;
-import gda.util.Sleep;
 import gov.aps.jca.CAException;
 import gov.aps.jca.TimeoutException;
 
@@ -560,7 +559,7 @@ public class PixiumDetector extends DetectorBase implements InitializingBean, IP
 					print("the file writer in EPICS Area detector is busy. Please release it to proceed or abort this scan instead");
 					firstTime = false;
 				}
-				Sleep.sleep(100);
+				Thread.sleep(100);
 			}
 			// reset detector
 			resetAll();
@@ -788,7 +787,7 @@ public class PixiumDetector extends DetectorBase implements InitializingBean, IP
 						int initialImageCounter = controller.getArrayCounter();
 						while (imageCounter < numberOfImage) {
 							if (firstFrame) {
-								Sleep.sleep((int) (period * 1000));
+								Thread.sleep((int) (period * 1000));
 								firstFrame = false;
 							}
 
