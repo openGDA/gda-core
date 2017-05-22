@@ -32,8 +32,6 @@ import gda.device.detector.areadetector.v17.NDProcess;
 import gda.device.detector.areadetector.v17.NDROI;
 import gda.device.detector.areadetector.v17.NDStats;
 import gda.factory.Findable;
-import gda.util.Sleep;
-
 import java.awt.Point;
 import java.awt.Rectangle;
 
@@ -424,7 +422,7 @@ public class PCOTomography implements ITomographyDetector, Findable {
 		pcoDetector.getController().acquire();
 
 		while (tiff.getStatus() != Detector.IDLE) {
-			Sleep.sleep(200);
+			Thread.sleep(200);
 		}
 
 		//
@@ -525,7 +523,7 @@ public class PCOTomography implements ITomographyDetector, Findable {
 		pcoDetector.getController().acquire();
 
 		while (tiff.getStatus() != Detector.IDLE) {
-			Sleep.sleep(200);
+			Thread.sleep(200);
 		}
 
 		// disable recursive filter for both procs

@@ -38,7 +38,6 @@ import gda.epics.connection.EpicsController;
 import gda.epics.interfaces.PcocamType;
 import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
-import gda.util.Sleep;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
@@ -638,7 +637,7 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 		hdf.setNumRowChunks(areaDetector.getArraySizeY_RBV());
 		if (areaDetector.getAcquireState() == 1) {
 			areaDetector.stopAcquiring(); // force stop any active camera acquisition on reset, this will disarm camera
-			Sleep.sleep(3000);
+			Thread.sleep(3000);
 		}
 		// makeDetectorReadyForCollection(); // initialise area detector ready for acquisition
 		initialisePluginsArrayDimensions();

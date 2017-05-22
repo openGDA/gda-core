@@ -32,7 +32,6 @@ import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.NDFile;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanInformation;
-import gda.util.Sleep;
 import gov.aps.jca.TimeoutException;
 
 import java.io.File;
@@ -335,7 +334,7 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 					print("the file writer in EPICS Area detector is busy. Please release it to proceed or abort this scan instead");
 					firstTime = false;
 				}
-				Sleep.sleep(100);
+				Thread.sleep(100);
 			}
 			controller.makeDetectorReadyForCollection(); // this will leave camera disarmed
 			if (hdfFormat) {
@@ -367,9 +366,13 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 			}
 			scanRunning = true;
 			controller.armCamera();
-			Sleep.sleep(3000);
+			Thread.sleep(3000);
 			firstcall = true;
 			aquisitionStartTime = System.currentTimeMillis();
+		} catch (InterruptedException e) {
+			logger.warn("{} - interrupted while preparing for scan", getName(), e);
+			Thread.currentThread().interrupt();
+			throw new DeviceException(getName() + " interrupted while preparing for scan", e);
 		} catch (Exception e) {
 			logger.error("atScanStart failed with error:", e);
 			throw new DeviceException("atScanStart failed with error:", e);
@@ -405,7 +408,7 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 			try {
 				while (controller.getHdf().getCapture_RBV() == 1
 						&& timer < starttimer + 10 * getCollectionTime() * 1000) {
-					Sleep.sleep(50);
+					Thread.sleep(50);
 					timer = System.currentTimeMillis();
 					// if (controller.getHdf().getNumCaptured_RBV() +
 					// controller.getHdf().getPluginBase().getDroppedArrays_RBV()==
@@ -413,6 +416,9 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 					// controller.getHdf().stopCapture();
 					// }
 				}
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+				throw new DeviceException("Thread interrupted waiting for HDF writing to complete", e);
 			} catch (Exception e) {
 				logger.error("Failed to getCapture_RBV() from HDF plugin.", e);
 				throw new DeviceException("Failed to getCapture_RBV() from HDF plugin.", e);
@@ -460,7 +466,7 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 			try {
 				while (controller.getTiff().getCapture_RBV() == 1
 						&& timer < starttimer + 10 * getCollectionTime() * 1000) {
-					Sleep.sleep((int) getCollectionTime() / 10);
+					Thread.sleep((int) getCollectionTime() / 10);
 					timer = System.currentTimeMillis();
 					// if (controller.getTiff().getNumCaptured_RBV() +
 					// controller.getTiff().getPluginBase().getDroppedArrays_RBV()==
@@ -468,6 +474,9 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 					// controller.getTiff().stopCapture();
 					// }
 				}
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+				throw new DeviceException("Thread interrupted waiting for TIFF writing to complete", e);
 			} catch (Exception e) {
 				logger.error("Failed to getCapture_RBV() in Tiff plugin.", e);
 				throw new DeviceException("Failed to getCapture_RBV() in Tiff plugin.", e);
@@ -492,8 +501,11 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 		if (saveLocal) {
 			try {
 				while (isWriterBusy()) {
-					Sleep.sleep(100);
+					Thread.sleep(100);
 				}
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+				throw new DeviceException("Thread interrupted waiting for writer to complete", e);
 			} catch (Exception e) {
 				logger.error("check buffer writting state failed", e);
 				throw new DeviceException("check buffer writting state failed", e);
@@ -700,7 +712,7 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 		print("starting collect " + numberOfDarks + " dark images. Please wait ......");
 		// wait for the collection to be complete
 		while (getStatus() == Detector.BUSY) {
-			Sleep.sleep(100);
+			Thread.sleep(100);
 		}
 		if (hdfFormat) {
 			imageFiles.add(getFilePath(controller.getHdf().getFile().getFullFileName_RBV()));
@@ -762,7 +774,7 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 		print("starting collect " + numberOfFlats + " flat images. Please wait ......");
 		// wait for the collection to be complete
 		while (getStatus() == Detector.BUSY) {
-			Sleep.sleep(100);
+			Thread.sleep(100);
 		}
 		if (hdfFormat) {
 			imageFiles.add(getFilePath(controller.getHdf().getFile().getFullFileName_RBV()));
@@ -1116,11 +1128,11 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 		controller.getAreaDetector().startAcquiringSynchronously();
 		if (hdfFormat) {
 			while (controller.getHdf().getStatus() != Detector.IDLE) {
-				Sleep.sleep(100);
+				Thread.sleep(100);
 			}
 		} else {
 			while (controller.getTiff().getStatus() != Detector.IDLE) {
-				Sleep.sleep(100);
+				Thread.sleep(100);
 			}
 		}
 	}

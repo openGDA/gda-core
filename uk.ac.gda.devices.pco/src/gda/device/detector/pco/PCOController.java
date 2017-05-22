@@ -35,7 +35,6 @@ import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
-import gda.util.Sleep;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
@@ -681,9 +680,9 @@ public class PCOController extends DetectorBase implements PCO4000 {
 					String.format("Collecting dark image d_%05d",i));
 			this.collectData();
 			// wait for the collection to be complete
-			Sleep.sleep(100);
+			Thread.sleep(100);
 			while(this.isBusy()) {
-				Sleep.sleep(100);
+				Thread.sleep(100);
 			}
 			this.readout();
 		}
@@ -731,9 +730,9 @@ public class PCOController extends DetectorBase implements PCO4000 {
 					String.format("Collecting flat image f_%03d_%05d",flatSet,i));
 			this.collectData();
 			// wait for the collection to be complete
-			Sleep.sleep(100);
+			Thread.sleep(100);
 			while(this.isBusy()) {
-				Sleep.sleep(100);
+				Thread.sleep(100);
 			}
 			this.readout();
 		}
