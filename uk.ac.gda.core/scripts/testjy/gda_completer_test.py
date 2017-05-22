@@ -87,7 +87,7 @@ class CompleterTest(unittest.TestCase):
         # There are 3 additional attributes on subclasses '__dict__', '__module__' and '__weakref__'
         # see http://stackoverflow.com/questions/16513029/where-do-classes-get-their-default-dict-attributes-from/16515220
         # There are then an additonal 3 from the testObject class 'name', 'number' and 'getName'
-        self.assertEqual(len(options), len(dir(object())) + 3 + 3, 'Number of options was wrong')
+        self.assertEqual(len(options), len(dir(object())) + 6 + 3, 'Number of options was wrong')
 
         name, doc, args, icon = options_dict.get('getName')  # @UnusedVariable
         self.assertEqual(icon, TYPE_FUNCTION, 'getName had wrong icon')
@@ -142,6 +142,32 @@ class CompleterTest(unittest.TestCase):
         self.assertEqual(name, 'additionalPluginList')
         self.assertEqual(icon, TYPE_ATTR, 'additionalPluginList had wrong icon')
 
+    def test_camel_case_complete(self):
+        self.completer.matches = gda_completer.camel_match
+        global obj
+        obj = testObject()
+        # Complete on obj.
+        options = self.completer.complete('obj.cCA')
+        self.assertListEqual(options, [('camelCaseAttribute', '', '', TYPE_ATTR)])
+        options = self.completer.complete('obj.gN')
+        self.assertListEqual(options, [('getName', '', '', TYPE_FUNCTION)])
+
+    def test_snake_case_complete(self):
+        self.completer.matches = gda_completer.camel_match
+        global obj
+        obj = testObject()
+        # Complete on obj.
+        options = self.completer.complete('obj.s_c_a')
+        self.assertListEqual(options, [('snake_case_attribute', '', '', TYPE_ATTR)])
+        options = self.completer.complete('obj.g_n')
+        self.assertListEqual(options, [('get_name', '', '', TYPE_FUNCTION)])
+
+    def test_camel_and_snake_case_globals(self):
+        self.completer.matches = gda_completer.camel_match
+        options = self.completer.complete('FPE')
+        self.assertListEqual(options, [('FloatingPointError', '', '', TYPE_CLASS)])
+        options = self.completer.complete('r_i')
+        self.assertListEqual(options, [('raw_input', '', '', TYPE_FUNCTION)])
 
 # Test helper class
 class testObject(object):
@@ -149,9 +175,14 @@ class testObject(object):
     def __init__(self):
         self.name = "Hi"
         self.number = 34.2
+        self.camelCaseAttribute = 'hello'
+        self.snake_case_attribute = 'world'
 
     def getName(self):
         raise Exception('Methods should never be called!')
+
+    def get_name(self):
+        raise Exception('Methods should never be called')
 
 def suite():
     suite = unittest.TestSuite()

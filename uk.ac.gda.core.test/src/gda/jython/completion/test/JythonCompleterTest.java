@@ -35,7 +35,6 @@ import org.python.core.PyMethod;
 import org.python.core.PyString;
 import org.python.core.PyTuple;
 
-import gda.factory.FactoryException;
 import gda.jython.Jython;
 import gda.jython.JythonServer;
 import gda.jython.completion.AutoCompletion;
@@ -48,10 +47,10 @@ public class JythonCompleterTest {
 	private PyMethod jyFunc;
 
 	@Before
-	public void setup() throws FactoryException {
+	public void setup() {
 		jy = PowerMockito.mock(JythonServer.class);
 		jyFunc = PowerMockito.mock(PyMethod.class);
-		Mockito.when(jy.eval("Completer(globals()).complete")).thenReturn(jyFunc);
+		Mockito.when(jy.eval("Completer(globals(), 'auto').complete")).thenReturn(jyFunc);
 		Mockito.when(jyFunc.__call__(new PyString(""))).thenReturn(makeList(makeTuple("abs", 2), makeTuple("pos", 2)));
 
 		jc = new JythonCompleter(jy);
