@@ -17,7 +17,7 @@ import gda.jython.authoriser.AuthoriserProvider;
  * the execution of tartget's method. Beamline staffs are exempted from this restriction.
  * <p>
  * The original requirements for this come from I06 and I10, where access control to shared devices between the two branches are set in EPICS based on which
- * shutter is opened.
+ * experiment hutch shutter is opened.
  * <p>
  * It is designed to be used with Spring AOP and IoC, for example:
  *
@@ -51,6 +51,38 @@ import gda.jython.authoriser.AuthoriserProvider;
  *  	<property name="disableValue" value="1" />
  *  </bean>
  *  } <br>
+ * The above XML bean will check permission on every method call in EpicsMotor class.
+ * </pre>
+ * </p>
+ * <p>
+ * To enable check permission on only specific methods it requires pointcut and advisor as below:
+ * 
+ * <pre>
+ * {@code
+ *	<bean id="accessCheckAdvice" class="gda.aop.CheckAccessBeforeMethod">
+ * 		<property name="accessControl" ref="accessControl"/>
+ *	</bean>
+ *	<bean id="accessCheckAdvisor" class="org.springframework.aop.support.NameMatchMethodPointcutAdvisor">
+ *		<property name="mappedNames" value=
+"setValue,home,moveBy,moveContinuously,moveTo,setMaxPositionsetMinPosition,setPosition,setSpeed,setTimeToVelocity,setUserOffset,stop,stopGo" />
+ *		<property name="advice" ref="accessCheckAdvice" />
+ *	</bean>
+ *		<bean id="MotorPitchMirror_PGM" class="org.springframework.aop.framework.ProxyFactoryBean">
+ *		<property name="target">
+ *			<bean class="gda.device.motor.EpicsMotor">
+ *				<property name="deviceName" value="PGM.MIR" />
+ *				<property name="local" value="true"/>
+ *			</bean>
+ *		</property>
+ *		<property name="interceptorNames">
+ *			<list>
+ *				<value>accessCheckAdvisor</value>
+ *			</list>
+ *		</property>
+ *	</bean>
+ * } <br/>
+ * </pre>
+ * </p>
  * Implementation note: checking isLocalStaff require file access, so it is better to do it only when necessary.
  */
 public class CheckAccessBeforeMethod implements MethodInterceptor {
@@ -66,11 +98,9 @@ public class CheckAccessBeforeMethod implements MethodInterceptor {
 			return arg0.proceed();
 		logger.debug("Check if user {} has access right to {}", userid, arg0.getThis());
 		if (accessControl != null && accessControl.getStatus() == AccessControl.Status.ENABLED) {
-			logger.debug("User {} has access right to {}", userid, arg0.getThis());
 			return arg0.proceed();
 		} else if (AuthoriserProvider.getAuthoriser().isLocalStaff(userid)) {
 			// beamline staffs always have all access
-			logger.debug("User {} has access right to {}", userid, arg0.getThis());
 			return arg0.proceed();
 		} else {
 			logger.debug("User {} has NO access right to {}", userid, arg0.getThis());
