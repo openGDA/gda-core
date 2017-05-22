@@ -20,14 +20,12 @@ package uk.ac.gda.client.tomo.alignment.view.handlers.impl;
 
 import gda.data.NumTracker;
 import gda.data.PathConstructor;
+import gda.data.metadata.GDAMetadataProvider;
 import gda.device.DeviceException;
 import gda.factory.Findable;
 import gda.jython.IScanDataPointObserver;
-import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerFacade;
 import gda.observable.IObservable;
-import gda.observable.IObserver;
-import gda.util.Sleep;
 
 import java.io.BufferedReader;
 import java.io.Closeable;
@@ -49,7 +47,6 @@ import org.slf4j.LoggerFactory;
 import uk.ac.gda.client.tomo.DoublePointList;
 import uk.ac.gda.client.tomo.ExternalFunction;
 import uk.ac.gda.client.tomo.TiltPlotPointsHolder;
-import uk.ac.gda.client.tomo.alignment.view.TomoAlignmentCommands;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ICameraHandler;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ICameraModuleMotorHandler;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ISampleStageMotorHandler;
@@ -66,7 +63,6 @@ public class TiltController implements ITiltController {
 	private static final String MATLAB_OUTPUT_PREFIX = "output =";
 	private static final String NAN_VALUE = "NaN";
 	private Pattern doublePattern = Pattern.compile("\\-?[0-9]*\\.?[0-9]*");
-	private static final String SUBDIRECTORY = "Subdirectory:";
 	private ExternalFunction externalProgram1;
 	private ExternalFunction externalProgram2;
 	private ITiltBallLookupTableHandler lookupTableHandler;
@@ -221,69 +217,25 @@ public class TiltController implements ITiltController {
 		return getPlottablePoint(firstScanFolder, secondScanFolder);
 	}
 
-	private String getSubDir() {
-		final boolean[] subdirChanged = new boolean[1];
-		final String[] subdir = new String[1];
-		IObserver observer = null;
-		if (tomoScriptController != null) {
-			observer = new IObserver() {
-
-				@Override
-				public void update(Object source, Object arg) {
-					if (arg instanceof String) {
-						String msg = (String) arg;
-						if (msg.startsWith(SUBDIRECTORY)) {
-							subdir[0] = msg.substring(SUBDIRECTORY.length());
-							subdirChanged[0] = true;
-						}
-
-					}
-				}
-			};
-			tomoScriptController.addIObserver(observer);
+	private String getSubDir() throws DeviceException {
+		String sub;
+		try {
+			sub = GDAMetadataProvider.getInstance().getMetadataValue("subdirectory");
+		} catch (DeviceException e) {
+			logger.error("Could not get subdirectory from metadata", e);
+			throw new DeviceException("Error reading subdirectory metadata", e);
 		}
-
-		InterfaceProvider.getCommandRunner().evaluateCommand(TomoAlignmentCommands.GET_SUBDIR);
-		while (!subdirChanged[0]) {
-			Sleep.sleep(5);
-		}
-
-		if (tomoScriptController != null && observer != null) {
-			tomoScriptController.deleteIObserver(observer);
-		}
-		logger.debug("Subdir is {}", subdir[0]);
-		return subdir[0];
+		logger.debug("Subdir is {}", sub);
+		return sub;
 	}
 
-	private void changeSubDir(final String subdir) {
-		final boolean[] subdirChanged = new boolean[1];
-		IObserver observer = null;
-		if (tomoScriptController != null) {
-			observer = new IObserver() {
-
-				@Override
-				public void update(Object source, Object arg) {
-					if (arg instanceof String) {
-						String msg = (String) arg;
-						if (msg.equals("Subdirectory set to " + subdir)) {
-							subdirChanged[0] = true;
-						}
-
-					}
-				}
-			};
-			tomoScriptController.addIObserver(observer);
+	private void changeSubDir(final String subdir) throws DeviceException {
+		try {
+			GDAMetadataProvider.getInstance().setMetadataValue("subdirectory", subdir);
+		} catch (DeviceException e) {
+			logger.error("Could not set subdirectory metadata", e);
+			throw new DeviceException("Error setting subdirectory metadata", e);
 		}
-
-		InterfaceProvider.getCommandRunner()
-				.evaluateCommand(String.format(TomoAlignmentCommands.CHANGE_SUBDIR, subdir));
-		while (!subdirChanged[0]) {
-			Sleep.sleep(5);
-		}
-		if (tomoScriptController != null && observer != null) {
-			tomoScriptController.deleteIObserver(observer);
-		}
-
 		logger.debug("Subdirectory set to {}", subdir);
 	}
 

@@ -21,7 +21,6 @@ package uk.ac.gda.client.tomo.alignment.view.controller;
 import gda.device.DeviceException;
 import gda.device.detector.areadetector.IPVProvider;
 import gda.epics.connection.EpicsController;
-import gda.util.Sleep;
 import gov.aps.jca.CAException;
 import gov.aps.jca.CAStatus;
 import gov.aps.jca.Channel;
@@ -257,7 +256,7 @@ public class TomoEpicsAlignmentController implements InitializingBean {
 					}
 					int i = 0;
 					while (Channel.CONNECTED != channel.getConnectionState()) {
-						Sleep.sleep(50);
+						Thread.sleep(50);
 						if (i > 10) {
 							break;
 						}

@@ -19,7 +19,6 @@
 package uk.ac.gda.client.tomo.alignment.view.handlers.impl;
 
 import gda.epics.connection.EpicsController;
-import gda.util.Sleep;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
@@ -91,7 +90,7 @@ public class SampleWeightRotationHandler implements ISampleWeightRotationHandler
 		EPICS_CONTROLLER.caput(createChannel(servoSetPV), bigStepServoSet.toString());
 	}
 
-	public Channel createChannel(String fullPvName) throws CAException, TimeoutException {
+	public Channel createChannel(String fullPvName) throws CAException, TimeoutException, InterruptedException {
 		Channel channel;
 		synchronized (channelMap) {
 			channel = channelMap.get(fullPvName);
@@ -101,7 +100,7 @@ public class SampleWeightRotationHandler implements ISampleWeightRotationHandler
 					channel = EPICS_CONTROLLER.createChannel(fullPvName);
 					int i = 0;
 					while (Channel.CONNECTED != channel.getConnectionState()) {
-						Sleep.sleep(50);
+						Thread.sleep(50);
 						if (i > 10) {
 							break;
 						}

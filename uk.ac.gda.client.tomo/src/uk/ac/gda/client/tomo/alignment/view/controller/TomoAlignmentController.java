@@ -1116,7 +1116,7 @@ public class TomoAlignmentController extends TomoViewController {
 		return cameraHandler.getFastPreviewExposureThreshold();
 	}
 
-	public String doAutoFocus(SubMonitor progress, double exposureTime) {
+	public String doAutoFocus(SubMonitor progress, double exposureTime) throws Exception {
 		try {
 			return autofocusController.doAutoFocus(progress, exposureTime);
 		} catch (Exception ex) {

@@ -25,7 +25,6 @@ import gda.jython.InterfaceProvider;
 import gda.jython.Jython;
 import gda.jython.JythonServerFacade;
 import gda.observable.IObserver;
-import gda.util.Sleep;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -720,7 +719,12 @@ public class TomoConfigurationView extends BaseTomographyView implements IDetect
 						// This is an annoying usage of sleep, however, the command queue doesn't seem to be sychronous
 						// in executing its commands. I found no better way to get the command queue to go into a paused
 						// state rather than a empty queue state after stopping the queue.
-						Sleep.sleep(2000);
+						try {
+							Thread.sleep(2000);
+						} catch (InterruptedException e1) {
+							logger.warn("Thread interrupted while waiting before stopping queue", e1);
+							Thread.currentThread().interrupt();
+						}
 						CommandExecutor.executeCommand(getViewSite(),
 								CommandQueueContributionFactory.UK_AC_GDA_CLIENT_START_COMMAND_QUEUE);
 					}

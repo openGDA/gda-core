@@ -22,5 +22,5 @@ import org.eclipse.core.runtime.IProgressMonitor;
 
 public interface IAutofocusController {
 
-	public String doAutoFocus(IProgressMonitor monitor, double acquireTime);
+	public String doAutoFocus(IProgressMonitor monitor, double acquireTime) throws InterruptedException;
 }

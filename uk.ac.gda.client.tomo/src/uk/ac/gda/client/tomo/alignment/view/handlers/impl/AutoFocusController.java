@@ -24,7 +24,6 @@ import gda.jython.JythonServerFacade;
 import gda.observable.IObservable;
 import gda.observable.IObserver;
 import gda.scan.IScanDataPoint;
-import gda.util.Sleep;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
@@ -46,7 +45,7 @@ public class AutoFocusController implements IAutofocusController {
 	}
 
 	@Override
-	public String doAutoFocus(IProgressMonitor monitor, double acquireTime) {
+	public String doAutoFocus(IProgressMonitor monitor, double acquireTime) throws InterruptedException {
 		final PyBaseException[] exceptions = new PyBaseException[1];
 		final SubMonitor progress = SubMonitor.convert(monitor);
 		progress.beginTask("", 30);
@@ -61,7 +60,7 @@ public class AutoFocusController implements IAutofocusController {
 			//
 			int tries = 0;
 			while (autofocusObserver.getResult() == null && tries < 20) {
-				Sleep.sleep(100);
+				Thread.sleep(100);
 				tries++;
 			}
 

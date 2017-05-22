@@ -21,7 +21,6 @@ package uk.ac.gda.client.tomo.alignment.view.handlers.impl;
 import gda.jython.JythonServerFacade;
 import gda.observable.IObservable;
 import gda.observable.IObserver;
-import gda.util.Sleep;
 
 import java.awt.geom.Point2D.Double;
 import java.util.Collections;
@@ -111,7 +110,7 @@ public class TiltPythonController implements ITiltController {
 				String.format(TOMO_ALIGNMENT_TILT_COMMAND, selectedCameraModule.getValue(), exposureTime));
 
 		while (!isComplete()) {
-			Sleep.sleep(500);
+			Thread.sleep(500);
 		}
 
 		tomoScriptController.deleteIObserver(tiltAlignmentObserver);

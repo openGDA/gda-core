@@ -21,7 +21,6 @@ package uk.ac.gda.client.tomo.alignment.view.handlers.impl;
 import gda.jython.JythonServerFacade;
 import gda.observable.IObservable;
 import gda.observable.IObserver;
-import gda.util.Sleep;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -85,10 +84,18 @@ public class TomoStageVerticalMotorMotionHandler implements IVerticalMotorMotion
 
 		JythonServerFacade.getInstance().evaluateCommand(moveVerticalCmd);
 
-		while (!isComplete[0]) {
-			Sleep.sleep(100);
+		try {
+			while (!isComplete[0]) {
+				Thread.sleep(100);
+			}
+		} catch (InterruptedException ie) {
+			Thread.currentThread().interrupt();
+			String msg = "Thread interrupted while waiting for vertical motor to move";
+			logger.error(msg);
+			throw new RuntimeException(msg);
+		} finally {
+			tomoScriptController.deleteIObserver(obs);
 		}
-		tomoScriptController.deleteIObserver(obs);
 
 		if (exString[0] != null) {
 			throw new IllegalStateException(exString[0]);
@@ -125,10 +132,18 @@ public class TomoStageVerticalMotorMotionHandler implements IVerticalMotorMotion
 		};
 		tomoScriptController.addIObserver(obs);
 		JythonServerFacade.getInstance().evaluateCommand(TomoAlignmentCommands.GET_VERTICAL);
-		while (maps[0] == null) {
-			Sleep.sleep(200);
+		try {
+			while (maps[0] == null) {
+				Thread.sleep(200);
+			}
+		} catch (InterruptedException ie) {
+			Thread.currentThread().interrupt();
+			String msg = "Thread interrupted while waiting for vertical motor positions";
+			logger.error(msg);
+			throw new RuntimeException(msg);
+		} finally {
+			tomoScriptController.deleteIObserver(obs);
 		}
-		tomoScriptController.deleteIObserver(obs);
 		if (maps[0] instanceof Map<?, ?>) {
 			return (Map<String, Double>) maps[0];
 		}

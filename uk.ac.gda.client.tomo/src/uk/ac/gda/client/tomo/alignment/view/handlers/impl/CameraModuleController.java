@@ -23,7 +23,6 @@ import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerFacade;
 import gda.observable.IObservable;
 import gda.observable.IObserver;
-import gda.util.Sleep;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
@@ -111,11 +110,18 @@ public class CameraModuleController implements InitializingBean, ICameraModuleCo
 		tomoScriptController.addIObserver(observer);
 		JythonServerFacade.getInstance().evaluateCommand(TomoAlignmentCommands.GET_MODULE_COMMAND);
 		int tries = 0;
-		while (moduleNumArr[0] == null && tries < 1000) {
-			Sleep.sleep(100);
-			tries++;
+		try {
+			while (moduleNumArr[0] == null && tries < 1000) {
+				Thread.sleep(100);
+				tries++;
+			}
+		} catch (InterruptedException e) {
+			logger.error("Thread interrupted while waiting for module number", e);
+			Thread.currentThread().interrupt();
+			throw new DeviceException("Could not get module", e);
+		} finally {
+			tomoScriptController.deleteIObserver(observer);
 		}
-		tomoScriptController.deleteIObserver(observer);
 		if (exceptions[0] != null) {
 			throw new IllegalStateException(exceptions[0].getMessage().toString());
 		}

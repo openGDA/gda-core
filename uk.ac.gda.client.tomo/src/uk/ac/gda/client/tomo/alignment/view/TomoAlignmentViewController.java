@@ -19,7 +19,6 @@
 package uk.ac.gda.client.tomo.alignment.view;
 
 import gda.device.DeviceException;
-import gda.util.Sleep;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
@@ -175,7 +174,7 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 						progress.subTask("After this dialog closes, please drag the image to the desired location");
 						long timeBeforePrep = System.currentTimeMillis();
 						for (int i = 0; i < 2; i++) {
-							Sleep.sleep((expTimeInSeconds * 3) + 10);
+							Thread.sleep((expTimeInSeconds * 3) + 10);
 							progress.worked(1);
 						}
 						logger.debug("Prep time waited for  {} milli seconds",
@@ -485,7 +484,7 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 						try {
 							logger.debug("Sleeping for 5 sec to allow rsync to copy images");
 							//logger.debug("Camera distance changed to {}", cameraDistance);
-							Sleep.sleep(5*1000);
+							Thread.sleep(5*1000);
 
 							// Loading the first image
 							img = new Image(tomoAlignmentView.getLeftWindowImageViewer().getDisplay(),
@@ -1069,7 +1068,13 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 					tomoAlignmentView.getTomoPlotComposite().updateHistogramData(histogramFromStats);
 				}
 
-				Sleep.sleep(500);
+				try {
+					Thread.sleep(500);
+				} catch (InterruptedException e) {
+					logger.error("Thread interrupted during collection", e);
+					Thread.currentThread().interrupt();
+					break;
+				}
 			}
 		}
 

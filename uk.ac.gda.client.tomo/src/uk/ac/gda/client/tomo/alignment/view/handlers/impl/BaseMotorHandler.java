@@ -20,7 +20,6 @@ package uk.ac.gda.client.tomo.alignment.view.handlers.impl;
 
 import gda.device.DeviceException;
 import gda.device.IScannableMotor;
-import gda.util.Sleep;
 
 import java.util.ArrayList;
 
@@ -74,7 +73,7 @@ public class BaseMotorHandler {
 			Double currPos = (Double) motor.getPosition();
 			progress.subTask(String.format("%s position: %.3g", motor.getName(), currPos));
 			progress.worked(1);
-			Sleep.sleep(step);
+			Thread.sleep(step);
 			count++;
 			if (monitor.isCanceled()) {
 				motor.stop();
