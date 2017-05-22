@@ -18,6 +18,9 @@
 
 package gda.device.monitor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.configuration.epics.EpicsConfiguration;
@@ -37,12 +40,13 @@ import gov.aps.jca.dbr.DBR_Double;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * EpicsBpmController Class
+ *
+ * @since 9.3.3
+ * @fy65 9.3.3 @Deprecated please use {@link gda.device.monitor.EpicsBpmController} instead
  */
+@Deprecated
 public class EpicsBeamPositionMonitor extends MonitorBase implements Monitor, InitializationListener, EpicsInterfaceDevice{
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsBeamPositionMonitor.class);

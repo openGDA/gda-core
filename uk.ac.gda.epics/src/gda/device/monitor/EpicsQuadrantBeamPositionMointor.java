@@ -18,18 +18,22 @@
 
 package gda.device.monitor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
 import gda.device.Monitor;
 import gda.device.enumpositioner.EpicsQuadraCurrentAmplifier;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * EpicsCurrAmpQuadController Class: A monitor type to get the beam intensity, beam positions and four currents
+ * 
+ * @since 9.3.3
+ * @fy65 @Deprecated please use {@link gda.device.qbpm.EpicsQbpm} instead
  */
+@Deprecated
 public class EpicsQuadrantBeamPositionMointor extends MonitorBase implements Monitor{
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsQuadrantBeamPositionMointor.class);
