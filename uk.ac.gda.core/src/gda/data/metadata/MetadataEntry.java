@@ -153,5 +153,8 @@ public abstract class MetadataEntry implements Findable, IObservable, Serializab
 		return false;
 	}
 
-
+	@Override
+	public String toString() {
+		return String.format("Metadata: %s = %s", getName(), getMetadataValue());
+	}
 }
