@@ -27,7 +27,6 @@ import gda.device.detector.mythen.data.MythenRawDataset;
 import gda.device.detector.mythen.tasks.DataProcessingTask;
 import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
-import gda.util.Sleep;
 
 import java.io.File;
 import java.io.IOException;
@@ -222,9 +221,15 @@ public class MythenDetector extends MythenDetectorImpl implements IMythenDetecto
 		// check if Mythen created raw data file successfully or not
 		double timer=System.currentTimeMillis();
 		double timerElapsed=0.0;
-		while (!rawFile.exists() && timerElapsed*1000 < collectionTime) { //checking for maximum of the collection time
-			Sleep.sleep(100);
-			timerElapsed=System.currentTimeMillis()-timer;
+		try {
+			while (!rawFile.exists() && timerElapsed*1000 < collectionTime) { //checking for maximum of the collection time
+				Thread.sleep(100);
+				timerElapsed=System.currentTimeMillis()-timer;
+			}
+		} catch (InterruptedException ie) {
+			Thread.currentThread().interrupt();
+			logger.error("{} - Thread interrupted while waiting for {} to be written", getName(), rawFile.getName(), ie);
+			return;
 		}
 		if (timerElapsed*1000>= collectionTime) {
 			// failed to create raw data after exposure time, then return no further process of raw data.
@@ -531,8 +536,15 @@ public class MythenDetector extends MythenDetectorImpl implements IMythenDetecto
 		processing.start();
 		if (waitForDataCorrection) {
 			// wait for data processing thread to return
-			while (processing.isAlive()) {
-				Sleep.sleep(100);
+			try {
+				while (processing.isAlive()) {
+					Thread.sleep(100);
+				}
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+				String msg = getName() + " - Thread interrupted waiting for processing to complete";
+				logger.error(msg, e);
+				throw new DeviceException(msg, e);
 			}
 		}
 		status = IDLE;

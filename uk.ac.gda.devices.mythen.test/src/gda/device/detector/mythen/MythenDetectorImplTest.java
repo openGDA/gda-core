@@ -18,6 +18,8 @@
 
 package gda.device.detector.mythen;
 
+import static org.junit.Assert.assertEquals;
+
 import gda.configuration.properties.LocalProperties;
 import gda.device.Scannable;
 import gda.device.detector.mythen.client.DummyMythenClient;
@@ -27,14 +29,11 @@ import gda.device.detector.mythen.data.DataConverter;
 import gda.device.scannable.DummyScannable;
 import gda.jython.InterfaceProvider;
 import gda.jython.MockJythonServerFacade;
-import gda.util.Sleep;
 import gda.util.TestUtils;
 
 import java.io.File;
 
 import org.junit.Test;
-import static org.junit.Assert.*;
-
 /**
  * Tests {@link MythenDetectorImpl}.
  */
@@ -72,7 +71,7 @@ public class MythenDetectorImplTest {
 		delta.asynchronousMoveTo(0);
 		mythen.collectData(); // change collectData() method to Non-blocking as interface defined
 		while (mythen.isBusy()){
-			Sleep.sleep(100);
+			Thread.sleep(100);
 		}
 		double[][] data1 = mythen.readoutProcessedData().toDoubleArray();
 		assertEquals(0.0017567, data1[0][0], 0.001);
@@ -80,7 +79,7 @@ public class MythenDetectorImplTest {
 		delta.asynchronousMoveTo(10);
 		mythen.collectData();
 		while (mythen.isBusy()){
-			Sleep.sleep(100);
+			Thread.sleep(100);
 		}
 		double[][] data2 = mythen.readoutProcessedData().toDoubleArray();
 		assertEquals(10.0 + data1[0][0], data2[0][0], 0.001);
