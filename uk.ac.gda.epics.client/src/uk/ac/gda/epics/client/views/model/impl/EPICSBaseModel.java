@@ -27,7 +27,6 @@ import gda.epics.connection.InitializationListener;
 import gda.epics.interfaces.NDPluginBaseType;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
-import gda.util.Sleep;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
@@ -174,7 +173,7 @@ public abstract class EPICSBaseModel<T> implements InitializingBean, Initializat
 					}
 					int i = 0;
 					while (Channel.CONNECTED != channel.getConnectionState()) {
-						Sleep.sleep(50);
+						Thread.sleep(50);
 						if (i > 10) {
 							break;
 						}

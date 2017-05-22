@@ -33,7 +33,6 @@ import gda.epics.interfaces.PneumaticCallbackType;
 import gda.epics.xml.EpicsRecord;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
-import gda.util.Sleep;
 import gda.util.exceptionUtils;
 import gov.aps.jca.CAException;
 import gov.aps.jca.CAStatus;
@@ -375,8 +374,15 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements EnumPo
 			}
 			if (statusPvIndicatesPositionOnly) {
 				// See GDA-5822 - wait for status positions field being initialised before calling getPosition().
-				while (statuspositions.size() < value + 1) {
-					Sleep.sleep(100);
+				try {
+					while (statuspositions.size() < value + 1) {
+						Thread.sleep(100);
+					}
+				} catch (InterruptedException e) {
+					logger.error("Thread interrupted while waiting for status positions to be populated", e);
+					Thread.currentThread().interrupt();
+					// don't continue to notify observers
+					return;
 				}
 				notifyIObservers(EpicsPneumaticCallback.this,
 						new ScannablePositionChangeEvent(statuspositions.get(value)));

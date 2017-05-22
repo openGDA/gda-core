@@ -25,7 +25,6 @@ import gda.device.detector.areadetector.v17.ImageMode;
 import gda.device.detector.areadetector.v17.impl.ADBaseImpl;
 import gda.epics.connection.EpicsController;
 import gda.scan.ScanInformation;
-import gda.util.Sleep;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
@@ -213,7 +212,7 @@ public class SingleExposureEpicsShutter extends SimpleAcquire {
 
 		if (shutterCloseDelay > 0) {
 			// Start close task after start of acquisition.
-			Sleep.sleep((int) (shutterOpenDelay*1000));
+			Thread.sleep((int) (shutterOpenDelay*1000));
 
 			logger.info("collectData() after {}s sleep {} = {}",
 					new Object[] { shutterOpenDelay, shutterPV,
@@ -231,7 +230,7 @@ public class SingleExposureEpicsShutter extends SimpleAcquire {
 		} else {
 			// Start close BEFORE start of acquisition.!!!
 			double sleepFor = shutterOpenDelay+shutterCloseDelay;
-			Sleep.sleep((int) (sleepFor*1000));
+			Thread.sleep((int) (sleepFor*1000));
 
 			logger.info("collectData() after {}s sleep {} = {}",
 					new Object[] { sleepFor, shutterPV, EPICS_CONTROLLER.caget(shutter) });
@@ -242,7 +241,7 @@ public class SingleExposureEpicsShutter extends SimpleAcquire {
 				shutterPV, EPICS_CONTROLLER.caget(shutter));
 
 			sleepFor = -shutterCloseDelay;
-			Sleep.sleep((int) (sleepFor*1000));
+			Thread.sleep((int) (sleepFor*1000));
 
 			logger.info("collectData() after {}s sleep {} = {}",
 					new Object[] { sleepFor, shutterPV, EPICS_CONTROLLER.caget(shutter) });
