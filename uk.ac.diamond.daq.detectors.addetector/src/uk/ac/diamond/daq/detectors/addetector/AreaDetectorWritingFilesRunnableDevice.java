@@ -13,6 +13,7 @@ import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.ScanInformation;
 import org.eclipse.scanning.api.scan.ScanningException;
+import org.eclipse.scanning.sequencer.nexus.SolsticeConstants;
 
 import gda.device.DeviceException;
 import gda.device.detector.addetector.ADDetector;
@@ -40,6 +41,7 @@ public class AreaDetectorWritingFilesRunnableDevice extends AreaDetectorRunnable
 	private static final String DETECTOR_FILE_EXTENSION = ".hdf5";
 	private static final String FIELD_NAME_STATS_TOTAL = "total";
 	private static final String PATH_TO_STATS_TOTAL_NODE = "/entry/instrument/NDAttributes/StatsTotal";
+	private static final String PATH_TO_UNIQUE_KEYS_NODE = "/entry/instrument/NDAttributes/NDArrayUniqueId";
 	private ADDetector detector;
 	private String fileName;
 
@@ -161,6 +163,9 @@ public class AreaDetectorWritingFilesRunnableDevice extends AreaDetectorRunnable
 		// Add the link for the total
 		nxDetector.addExternalLink(FIELD_NAME_STATS_TOTAL, fileName, PATH_TO_STATS_TOTAL_NODE);
 
+		// Add the link to the unique keys
+		nxDetector.addExternalLink(SolsticeConstants.PROPERTY_NAME_UNIQUE_KEYS_PATH, fileName, PATH_TO_UNIQUE_KEYS_NODE);
+
 		// Get the NexusOjbectWrapper wrapping the detector
 		NexusObjectWrapper<NXdetector> nexusObjectWrapper = new NexusObjectWrapper<NXdetector>(
 				getName(), nxDetector);
@@ -177,6 +182,11 @@ public class AreaDetectorWritingFilesRunnableDevice extends AreaDetectorRunnable
 		// Add an additional NXData for the stats total. This is also scanRank + 2 as AD writes [y,x,1,1]
 		nexusObjectWrapper.addAdditionalPrimaryDataFieldName(FIELD_NAME_STATS_TOTAL);
 		nexusObjectWrapper.setExternalDatasetRank(FIELD_NAME_STATS_TOTAL, scanRank + 2);
+
+		// There is no NXData for the unique keys as it isn't something users should want to plot, but the path
+		// property needs to be set, so the unique keys are added to the solstice_scan unique keys
+
+		nexusObjectWrapper.setPropertyValue(SolsticeConstants.PROPERTY_NAME_UNIQUE_KEYS_PATH, PATH_TO_UNIQUE_KEYS_NODE);
 
 		return nexusObjectWrapper;
 	}
