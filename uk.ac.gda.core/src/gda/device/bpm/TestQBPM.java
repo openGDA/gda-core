@@ -24,8 +24,6 @@ import gda.device.DeviceException;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
 import gda.util.ObjectServer;
-import gda.util.Sleep;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,8 +39,9 @@ public class TestQBPM {
 	 * @param args
 	 *            the args
 	 * @throws FactoryException
+	 * @throws InterruptedException
 	 */
-	public static void main(String[] args) throws FactoryException {
+	public static void main(String[] args) throws FactoryException, InterruptedException {
 		double x, y;
 		ObjectServer.createLocalImpl("/home/shk/gda/config/xml/bpm.xml");
 		BPM bpm = (BPM) Finder.getInstance().find("bpm");
@@ -54,7 +53,7 @@ public class TestQBPM {
 			} catch (DeviceException e) {
 				e.printStackTrace();
 			}
-			Sleep.sleep(1000);
+			Thread.sleep(1000);
 		}
 		System.exit(0);
 	}

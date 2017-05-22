@@ -205,7 +205,6 @@ public class ElogEntryTest {
 		String[] fileLocations = {(testfile1), (testfile2)};
 
 		ElogEntry.postAsyn(title, content,userID, visit, logID, groupID, fileLocations);
-		Sleep.sleep(1000);
 	}
 
 	@Test

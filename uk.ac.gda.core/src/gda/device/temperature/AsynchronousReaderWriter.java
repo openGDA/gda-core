@@ -22,7 +22,6 @@ package gda.device.temperature;
 import gda.device.DeviceException;
 import gda.device.Serial;
 import gda.util.BusyFlag;
-import gda.util.Sleep;
 
 import java.io.IOException;
 
@@ -264,7 +263,13 @@ public class AsynchronousReaderWriter implements Runnable {
 			// See trac #1174
 			catch (DeviceException de) {
 				logger.debug(debugName + " run() caught DeviceException " + de.getMessage());
-				Sleep.sleep(75);
+				try {
+					Thread.sleep(75);
+				} catch (InterruptedException e) {
+					logger.error("{} - Thread interrupted", debugName, e);
+					Thread.currentThread().interrupt();
+					break;
+				}
 			}
 		} // end of while loop
 	}

@@ -22,8 +22,8 @@ package gda.device.motor;
 import gda.device.DeviceBase;
 import gda.device.MotorStatus;
 import gda.factory.Configurable;
+import gda.factory.FactoryException;
 import gda.factory.Findable;
-import gda.util.Sleep;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -36,6 +36,7 @@ import java.util.Hashtable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 /**
  * A class interfacing to a motord daemon process (version 1.0), running on a VME system. Interprets reply strings in a
@@ -135,8 +136,15 @@ public class MotordController extends DeviceBase implements Configurable, Findab
 	}
 
 	@Override
-	public void configure() {
-		init();
+	public void configure() throws FactoryException {
+		try {
+			init();
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			String msg = getName() + " interrupted during initialisation";
+			logger.error(msg, e);
+			throw new FactoryException(msg, e);
+		}
 	}
 
 	/**
@@ -211,8 +219,9 @@ public class MotordController extends DeviceBase implements Configurable, Findab
 
 	/**
 	 * Initialize the workings of the object.
+	 * @throws InterruptedException
 	 */
-	public void init() {
+	public void init() throws InterruptedException {
 		if (connect()) {
 			monitorMotord = true;
 			monitorThread = new MonitorThread();
@@ -289,8 +298,9 @@ public class MotordController extends DeviceBase implements Configurable, Findab
 
 	/**
 	 * Dis-connect from the motord daemon.
+	 * @throws InterruptedException
 	 */
-	private void disconnect() {
+	private void disconnect() throws InterruptedException {
 		try {
 			if (motordSocket != null) {
 				sendMessage(QUIT_CMD);
@@ -310,14 +320,15 @@ public class MotordController extends DeviceBase implements Configurable, Findab
 	 *
 	 * @param msg
 	 *            The message to be sent.
+	 * @throws InterruptedException
 	 */
-	private void sendMessage(String msg) {
+	private void sendMessage(String msg) throws InterruptedException {
 		String sendmsg = new String(msg + '\015');
 
 		if (motordout == null) {
 			reconnect();
 			do {
-				Sleep.sleep(100);
+				Thread.sleep(100);
 			} while (!connected);
 		}
 
@@ -385,8 +396,9 @@ public class MotordController extends DeviceBase implements Configurable, Findab
 	 * @param mnemonic
 	 *            Mnemonic of the required motor.
 	 * @return the drive step rate (speed) of a motor
+	 * @throws InterruptedException
 	 */
-	public int getSpeed(String mnemonic) {
+	public int getSpeed(String mnemonic) throws InterruptedException {
 		sendMessage(GET_SPEED_CMD + mnemonic);
 		return -1;
 	}
@@ -399,8 +411,9 @@ public class MotordController extends DeviceBase implements Configurable, Findab
 	 * @param stepsPerSecond
 	 *            Required step drive rate.
 	 * @return -1
+	 * @throws InterruptedException
 	 */
-	public int setSpeed(String mnemonic, int stepsPerSecond) {
+	public int setSpeed(String mnemonic, int stepsPerSecond) throws InterruptedException {
 		int speedRegister;
 		float divisor = (float) 40.0;
 
@@ -424,8 +437,9 @@ public class MotordController extends DeviceBase implements Configurable, Findab
 	 *            Mnemonic of the required motor.
 	 * @param steps
 	 *            Required step position.
+	 * @throws InterruptedException
 	 */
-	public void setPosition(String mnemonic, int steps) {
+	public void setPosition(String mnemonic, int steps) throws InterruptedException {
 		sendMessage(SET_POSITION_CMD + mnemonic + " Position=" + steps);
 
 		// To ensure we update local copy.
@@ -440,8 +454,9 @@ public class MotordController extends DeviceBase implements Configurable, Findab
 	 *
 	 * @param mnemonic
 	 *            Mnemonic of the required motor.
+	 * @throws InterruptedException
 	 */
-	public void loadPosition(String mnemonic) {
+	public void loadPosition(String mnemonic) throws InterruptedException {
 		if (version == 1)
 			sendMessage(GET_POSITION_CMD + mnemonic);
 		else
@@ -490,8 +505,9 @@ public class MotordController extends DeviceBase implements Configurable, Findab
 	 *            Mnemonic of the required motor.
 	 * @param steps
 	 *            Required step increment.
+	 * @throws InterruptedException
 	 */
-	public void moveBy(String mnemonic, int steps) {
+	public void moveBy(String mnemonic, int steps) throws InterruptedException {
 		sendMessage(MOVE_BY_CMD + mnemonic + " " + steps);
 
 		MotorData md = motorDataTable.get(mnemonic);
@@ -507,8 +523,9 @@ public class MotordController extends DeviceBase implements Configurable, Findab
 	 *            Mnemonic of the required motor.
 	 * @param steps
 	 *            Required step position.
+	 * @throws InterruptedException
 	 */
-	public void moveTo(String mnemonic, int steps) {
+	public void moveTo(String mnemonic, int steps) throws InterruptedException {
 		sendMessage(MOVE_TO_CMD + mnemonic + " " + steps);
 
 		MotorData md = motorDataTable.get(mnemonic);
@@ -524,8 +541,9 @@ public class MotordController extends DeviceBase implements Configurable, Findab
 	 *            Mnemonic of the required motor.
 	 * @param direction
 	 *            Direction to move in.
+	 * @throws InterruptedException
 	 */
-	public void moveContinuously(String mnemonic, int direction) {
+	public void moveContinuously(String mnemonic, int direction) throws InterruptedException {
 		int signMultiplier = 1;
 		if (direction < 0)
 			signMultiplier = -1;
@@ -557,8 +575,9 @@ public class MotordController extends DeviceBase implements Configurable, Findab
 
 	/**
 	 * Halts all motors supported by this motor daemon.
+	 * @throws InterruptedException
 	 */
-	public void halt() {
+	public void halt() throws InterruptedException {
 		sendMessage(HALT_MOTORS_CMD);
 	}
 
@@ -598,9 +617,16 @@ public class MotordController extends DeviceBase implements Configurable, Findab
 		 */
 		@Override
 		public void run() {
+			try {
+				runController();
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+				logger.error("Thread interrupted while running {}", getName(), e);
+			}
+		}
+		private void runController() throws InterruptedException {
 			String message = new String();
 			int idleCount = 0;
-
 			while (monitorMotord) {
 				idleCount++;
 
@@ -610,14 +636,21 @@ public class MotordController extends DeviceBase implements Configurable, Findab
 						idleCount = 0;
 						analyseMotordReply(message);
 					} else {
-						if (monitorMovingMotors() > 0)
+						if (monitorMovingMotors() > 0) {
 							idleCount = 0;
+						}
 					}
 
 					if (!persistentConnection && (idleCount > DISCONNECT_COUNT))
 						disconnect();
 				} else {
-					Sleep.sleep(MONITORING_TIMEOUT);
+					try {
+						Thread.sleep(MONITORING_TIMEOUT);
+					} catch (InterruptedException e) {
+						logger.error("Thread interrupted while running", e);
+						Thread.currentThread().interrupt();
+						break;
+					}
 				}
 			}
 		}
@@ -627,6 +660,7 @@ public class MotordController extends DeviceBase implements Configurable, Findab
 		 *
 		 * @param message
 		 *            Motor daemon reply message.
+		 * @throws InterruptedException
 		 */
 		private synchronized void analyseMotordReply(String message) {
 			int messageCode = -1;
@@ -653,7 +687,13 @@ public class MotordController extends DeviceBase implements Configurable, Findab
 
 					// Make sure all motors are halted and request
 					// list of supported motors.
-					halt();
+					try {
+						halt();
+					} catch (InterruptedException e) {
+						Thread.currentThread().interrupt();
+						logger.error("Thread interrupted during halt of {}", getName(), e);
+						return;
+					}
 				}
 			} else {
 				mnemonic = message.substring(4, 5);
@@ -736,8 +776,9 @@ public class MotordController extends DeviceBase implements Configurable, Findab
 		 * Updates positions of moving motors.
 		 *
 		 * @return the number of moving motors
+		 * @throws InterruptedException
 		 */
-		private int monitorMovingMotors() {
+		private int monitorMovingMotors() throws InterruptedException {
 			String mnemonic;
 			int movingMotorCount = 0;
 

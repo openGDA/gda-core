@@ -24,7 +24,6 @@ import gda.device.MotorException;
 import gda.device.MotorStatus;
 import gda.factory.Finder;
 import gda.observable.IObservable;
-import gda.util.Sleep;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -260,7 +259,14 @@ public class NavitarMotor extends MotorBase implements IObservable, Motor {
 	public void stop() throws MotorException {
 		constructCommand(CommandType.SET_TARGET_LIMIT, STOP);
 		sendCommand();
-		Sleep.sleep(500);
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			String msg = "Thread interrupted while stopping " + getName();
+			logger.error(msg, e);
+			Thread.currentThread().interrupt();
+			throw new MotorException(MotorStatus.UNKNOWN, msg);
+		}
 	}
 
 	@Override

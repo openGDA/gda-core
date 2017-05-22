@@ -392,8 +392,9 @@ public class Mode {
 	/**
 	 * @param scannableList
 	 * @throws DeviceException
+	 * @throws InterruptedException
 	 */
-	void moveToNominalPosition(Scannable... scannableList) throws DeviceException {
+	void moveToNominalPosition(Scannable... scannableList) throws DeviceException, InterruptedException {
 
 		Map<String, Scannable> busyList = new TreeMap<String, Scannable>();
 
@@ -413,7 +414,12 @@ public class Mode {
 		// wait to finish
 		for (String sname : busyList.keySet()) {
 			while (busyList.get(sname).isBusy())
-				gda.util.Sleep.sleep(175);
+				try {
+					Thread.sleep(175);
+				} catch (InterruptedException e) {
+					logger.error("Interrupted waiting for moves to finish", e);
+					throw e;
+				}
 			Util.printTerm(sname + " reached " + busyList.get(sname).getPosition());
 		}
 	}
@@ -423,7 +429,14 @@ public class Mode {
 		for (ScannableEntry se : scannables.values()) {
 			sset.add(se.scannable);
 		}
-		moveToNominalPosition(sset.toArray(new Scannable[0]));
+		try {
+			moveToNominalPosition(sset.toArray(new Scannable[0]));
+		} catch (InterruptedException e) {
+			String msg = "Thread interrupted while waiting for move to complete";
+			logger.error(msg, e);
+			Thread.currentThread().interrupt();
+			throw new DeviceException(msg, e);
+		}
 	}
 
 	/**

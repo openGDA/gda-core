@@ -22,9 +22,9 @@ package gda.device.motor;
 import gda.device.Motor;
 import gda.device.MotorException;
 import gda.device.MotorStatus;
+import gda.factory.FactoryException;
 import gda.factory.Finder;
 import gda.observable.IObservable;
-import gda.util.Sleep;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,11 +75,17 @@ public class CrystalLogicMotor extends MotorBase implements IObservable, Motor, 
 	}
 
 	@Override
-	public void configure() {
+	public void configure() throws FactoryException {
 		if ((crystalLogicController = (CrystalLogicController) Finder.getInstance().find(crystalLogicControllerName)) == null) {
 			logger.error("CrystalLogicController " + crystalLogicControllerName + " not found");
 		}
-		updateMotorPositions();
+		try {
+			updateMotorPositions();
+		} catch (InterruptedException e) {
+			logger.error("Thread interrupted while configuring", e);
+			Thread.currentThread().interrupt();
+			throw new FactoryException("Thread interrupted while configuring", e);
+		}
 	}
 
 	private synchronized commandStatus sendCommand(String command) {
@@ -103,13 +109,13 @@ public class CrystalLogicMotor extends MotorBase implements IObservable, Motor, 
 		sendCommand("wv v7 " + level);
 	}
 
-	private void updateMotorPositions() {
+	private void updateMotorPositions() throws InterruptedException {
 		int i;
 		int motorId = 14;
 
 		for (i = 0; i < 3; i++) {
 			sendCommand("px" + motorId++);
-			Sleep.sleep(100);
+			Thread.sleep(100);
 			string = crystalLogicController.getPositionReply();
 			extractMotorPosition(false);
 		}
@@ -300,7 +306,13 @@ public class CrystalLogicMotor extends MotorBase implements IObservable, Motor, 
 		 * This seems to be one way to stop the controller producing Control Stack Overflow messages after a few moves.
 		 */
 		crystalLogicController.sendEscape();
-		updateMotorPositions();
+		try {
+			updateMotorPositions();
+		} catch (InterruptedException e) {
+			logger.error("Thread interrupted while configuring", e);
+			Thread.currentThread().interrupt();
+			throw new RuntimeException("Thread interrupted while updating motor positions", e);
+		}
 
 		setVerbosity(0);
 		monitor = false;

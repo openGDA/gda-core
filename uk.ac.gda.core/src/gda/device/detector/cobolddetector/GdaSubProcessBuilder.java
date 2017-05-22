@@ -19,8 +19,6 @@
 
 package gda.device.detector.cobolddetector;
 
-import gda.util.Sleep;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -73,7 +71,7 @@ public class GdaSubProcessBuilder {
 					Process p = pb.start();
 
 					BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
-					Sleep.sleep(200);
+					Thread.sleep(200);
 					p.waitFor();
 					if (br.ready())
 						logger.info("GdaSubProcessBuilder: " + args.get(0) + ", reply = ");
@@ -103,9 +101,16 @@ public class GdaSubProcessBuilder {
 		int timeout = 5000;
 		int wait = 0;
 		if (sync)
-			while (processThread.isAlive() && wait < timeout) {
-				Sleep.sleep(300);
-				wait += 300;
+			try {
+				while (processThread.isAlive() && wait < timeout) {
+					Thread.sleep(300);
+					wait += 300;
+				}
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+				String msg = "Thread interrupted while waiting for command to complete";
+				logger.error(msg, e);
+				throw new RuntimeException(msg);
 			}
 
 		if (reply.toLowerCase().contains("exception") || reply.toLowerCase().contains("error")

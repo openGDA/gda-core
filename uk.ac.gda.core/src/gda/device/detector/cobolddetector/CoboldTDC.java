@@ -28,7 +28,6 @@ import gda.device.DeviceException;
 import gda.device.detector.DetectorBase;
 import gda.util.Alarm;
 import gda.util.AlarmListener;
-import gda.util.Sleep;
 
 import java.io.File;
 import java.io.IOException;
@@ -231,8 +230,9 @@ public class CoboldTDC extends DetectorBase implements AsynchronousDetector, Cob
 	 *            double data collection time in milli-secs
 	 * @param synchronousScan
 	 *            true for synchronous TimeScan, false for AsynchronousTimeScan
+	 * @throws InterruptedException
 	 */
-	private synchronized void collect(double collectionTime, boolean synchronousScan) {
+	private synchronized void collect(double collectionTime, boolean synchronousScan) throws InterruptedException {
 		if (!collectingData) {
 			this.collectionTime = collectionTime;
 			collectingStatus = synchronousScan ? Detector.BUSY : Detector.MONITORING;
@@ -242,7 +242,7 @@ public class CoboldTDC extends DetectorBase implements AsynchronousDetector, Cob
 		}
 	}
 
-	private synchronized void waitForStatus(int state, int timeout, int interval) throws DeviceException {
+	private synchronized void waitForStatus(int state, int timeout, int interval) throws DeviceException, InterruptedException {
 		if (timeout < interval)
 			timeout = interval;
 		// CoboldPCCMD slow so initially wait for 1 sec then check status every
@@ -250,7 +250,7 @@ public class CoboldTDC extends DetectorBase implements AsynchronousDetector, Cob
 		int wait = 0;
 		int status;
 		while (getStatus() != state && wait < timeout) {
-			Sleep.sleep(interval);
+			Thread.sleep(interval);
 			wait += interval;
 		}
 		if ((status = getStatus()) != state)
@@ -258,12 +258,12 @@ public class CoboldTDC extends DetectorBase implements AsynchronousDetector, Cob
 					+ status);
 	}
 
-	protected void waitForStatus(int state) throws DeviceException {
+	protected void waitForStatus(int state) throws DeviceException, InterruptedException {
 		// default getStatus() timeout = 5, secsinterval = 3 secs
 		waitForStatus(state, 5000, 3000);
 	}
 
-	private void waitForStatus(int state, int timeout) throws DeviceException {
+	private void waitForStatus(int state, int timeout) throws DeviceException, InterruptedException {
 		// default getStatus() interval = 3 secs
 		waitForStatus(state, timeout, 3000);
 	}
@@ -367,7 +367,14 @@ public class CoboldTDC extends DetectorBase implements AsynchronousDetector, Cob
 		// detector is not already doing an asynchronous scan ie status =
 		// MONITORING.
 
-		collect(collectionTime, true);
+		try {
+			collect(collectionTime, true);
+		} catch (InterruptedException e) {
+			String msg = getName() + " - Thread interrupted while collecting data";
+			logger.error(msg, e);
+			Thread.currentThread().interrupt();
+			throw new DeviceException(msg, e);
+		}
 	}
 
 	/**
@@ -378,7 +385,14 @@ public class CoboldTDC extends DetectorBase implements AsynchronousDetector, Cob
 	 */
 	@Override
 	public void countAsync(double collectionTime) throws DeviceException {
-		collect(collectionTime, false);
+		try {
+			collect(collectionTime, false);
+		} catch (InterruptedException e) {
+			String msg = getName() + " - Thread interrupted while collecting data";
+			logger.error(msg, e);
+			Thread.currentThread().interrupt();
+			throw new DeviceException(msg, e);
+		}
 	}
 
 	/**
@@ -416,8 +430,9 @@ public class CoboldTDC extends DetectorBase implements AsynchronousDetector, Cob
 	 * Start the Cobold scan letting the scanTimer alarm end the collection and scheduling regular spectrum updates
 	 *
 	 * @param newCommand
+	 * @throws InterruptedException
 	 */
-	public void startCoboldScan(String newCommand) {
+	public void startCoboldScan(String newCommand) throws InterruptedException {
 		if (readFromHardware) {
 			try {
 				try {
@@ -526,12 +541,20 @@ public class CoboldTDC extends DetectorBase implements AsynchronousDetector, Cob
 				sendAsynchronousCommand("stop");
 				waitForStatus(Detector.IDLE, 5000);
 			}
+		} catch (InterruptedException ie) {
+			Thread.currentThread().interrupt();
+			logger.warn("{} - Thread interrupted while stopping motor", ie);
 		} catch (DeviceException e1) {
-			logger.error("stop command timed-out");
+			logger.error("stop command timed-out", e1);
 		} finally {
 			savingFiles = true;
 			if (saveDCFsBetweenRuns)
-				saveFiles();
+				try {
+					saveFiles();
+				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
+					logger.warn("{} - Thread interrupted while saving file. Files may not have been written correctly");
+				}
 			savingFiles = false;
 			// let the scan know that the detector has finished collection, this
 			// will end the scan
@@ -539,33 +562,33 @@ public class CoboldTDC extends DetectorBase implements AsynchronousDetector, Cob
 		}
 	}
 
-	private void saveFiles() {
+	private void saveFiles() throws InterruptedException {
 		// wait for LMF, DCF & COD files to be written
 		int wait = 200;
 		File lmf = new File(lmfName);
-		Sleep.sleep(200);
+		Thread.sleep(200);
 		while (lmf.exists() && !lmf.canRead() && wait < 10000) {
-			Sleep.sleep(200);
+			Thread.sleep(200);
 			wait += 200;
 		}
 		String dcfName = saveCurrentDcf();
 		logger.info("Co0boldTDC saving DCF file " + dcfName);
-		Sleep.sleep(200);
+		Thread.sleep(200);
 
 		File dcf = new File(dcfName);
 		wait = 200;
 		while (dcf.exists() && !dcf.canRead() && wait < 10000) {
-			Sleep.sleep(200);
+			Thread.sleep(200);
 			wait += 200;
 		}
 
 		String codName = saveCOD();
 		File codFile = new File(codName);
-		Sleep.sleep(200);
+		Thread.sleep(200);
 
 		wait = 200;
 		while (codFile.exists() && !codFile.canRead() && wait < 10000) {
-			Sleep.sleep(200);
+			Thread.sleep(200);
 			wait += 200;
 		}
 	}

@@ -50,7 +50,7 @@ public class DummyCoboldTDC extends CoboldTDC {
 	}
 
 	@Override
-	public void startCoboldScan(String newCommand) {
+	public void startCoboldScan(String newCommand) throws InterruptedException {
 		if (!new File(lmfName).exists())
 			try {
 				new File(lmfName).createNewFile();
