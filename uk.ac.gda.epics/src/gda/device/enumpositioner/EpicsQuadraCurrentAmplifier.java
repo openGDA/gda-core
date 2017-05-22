@@ -18,6 +18,9 @@
 
 package gda.device.enumpositioner;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.device.DeviceException;
@@ -35,13 +38,13 @@ import gov.aps.jca.dbr.DBR_CTRL_Double;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * EpicsCurrAmpQuadController Class
+ *
+ * @since 9.3.3
+ * @fy65 9.3.3 @Deprecated please use {@link gda.device.enumpositioner.EpicsCurrAmpQuadController} instead
  */
-
+@Deprecated
 public class EpicsQuadraCurrentAmplifier extends EnumPositionerBase implements EpicsInterfaceDevice, EnumPositioner,
 		InitializationListener {
 	private static final Logger logger = LoggerFactory.getLogger(EpicsQuadraCurrentAmplifier.class);
