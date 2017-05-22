@@ -49,7 +49,6 @@ import gda.scan.Scan.ScanStatus;
 import gda.scan.ScanEvent;
 import gda.scan.ScanEvent.EventType;
 import gda.scan.ScanInformation;
-import gda.util.Sleep;
 
 public class DataCollection extends ScriptBase implements IObserver, InitializingBean, Findable, Configurable {
 	private static final Logger logger = LoggerFactory.getLogger(DataCollection.class);
@@ -122,8 +121,14 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 		String message = "Engage stage '" + stage.getName()+ "' ...";
 		updateMessage(null, message);
 		stage.engageStage();
-		while (!stage.isEngaged()) {
-			Sleep.sleep(100);
+		try {
+			while (!stage.isEngaged()) {
+				Thread.sleep(100);
+			}
+		} catch (InterruptedException e) {
+			logger.error("Thread interrupted while engaging sample stage {}", stage.getName(), e);
+			Thread.currentThread().interrupt();
+			throw new DeviceException("Thread interrupted while engaging sample stage: " + stage.getName(), e);
 		}
 		message = "Stage " + stage.getName() + " is engaged.";
 		updateMessage(null, message);
@@ -313,7 +318,7 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 		}
 		try {
 			while (!detectorArm.isParked()) {
-				Sleep.sleep(100);
+				Thread.sleep(100);
 			}
 		} catch (DeviceException e) {
 			message="Failed on checking detector '"+detectorArm.getName()+"' is at parking poistion or not.";
@@ -423,7 +428,7 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 		}
 		try {
 			while (!detectorArm.isParked()) {
-				Sleep.sleep(100);
+				Thread.sleep(100);
 			}
 		} catch (DeviceException e) {
 			message="Failed on checking detector '"+detectorArm.getName()+"' is at parking poistion or not.";
@@ -510,7 +515,7 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 		try {
 			while (!detectorArm.isAtPosition(stage, sampleStage.getzPosition())){
 				checkForPauseAndInterruption();
-				Sleep.sleep(100);
+				Thread.sleep(100);
 			}
 		} catch (DeviceException e) {
 			message = "Failed to check detector at position for stage '"+sampleStage.getName()+"'";
@@ -573,7 +578,7 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 		try {
 			while (!stage.isAtCalibrantPosition(cell)) {
 				checkForPauseAndInterruption();
-				Sleep.sleep(100);
+				Thread.sleep(100);
 			}
 		} catch (DeviceException e) {
 			message="Failed on checking stage '"+stage.getName()+" in position or not.";

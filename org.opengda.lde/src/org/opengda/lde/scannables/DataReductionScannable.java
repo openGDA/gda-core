@@ -31,7 +31,6 @@ import gda.jython.scriptcontroller.ScriptControllerBase;
 import gda.jython.scriptcontroller.Scriptcontroller;
 import gda.observable.IObserver;
 import gda.util.OSCommandRunner;
-import gda.util.Sleep;
 
 @CorbaAdapterClass(ScannableAdapter.class)
 @CorbaImplClass(ScannableImpl.class)
@@ -80,14 +79,20 @@ public class DataReductionScannable extends DummyScannable implements Scannable,
 			public void run() {
 				long starttimer=System.currentTimeMillis();
 				long elapsedtimer=System.currentTimeMillis();
-				while (InterfaceProvider.getScanDataPointProvider().getLastScanDataPoint()==null) {
-					Sleep.sleep(100);
-					elapsedtimer=System.currentTimeMillis()-starttimer;
-					if (elapsedtimer>timeout) {
-						InterfaceProvider.getTerminalPrinter().print("Timeout while waiting for filename from last scan data point");
-						logger.error("Timeout while waiting for filename from last scan data point");
-						break;
+				try {
+					while (InterfaceProvider.getScanDataPointProvider().getLastScanDataPoint()==null) {
+						Thread.sleep(100);
+						elapsedtimer=System.currentTimeMillis()-starttimer;
+						if (elapsedtimer>timeout) {
+							InterfaceProvider.getTerminalPrinter().print("Timeout while waiting for filename from last scan data point");
+							logger.error("Timeout while waiting for filename from last scan data point");
+							break;
+						}
 					}
+				} catch (InterruptedException e) {
+					logger.error("Thread interrupted while waiting for data point", e);
+					Thread.currentThread().interrupt();
+					return;
 				}
 				filename=InterfaceProvider.getScanDataPointProvider().getLastScanDataPoint().getCurrentFilename();
 				if (!isCalibrant()) {

@@ -50,7 +50,6 @@ import org.slf4j.LoggerFactory;
 import gda.factory.Finder;
 import gda.jython.scriptcontroller.Scriptcontroller;
 import gda.observable.IObserver;
-import gda.util.Sleep;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 
 /**
@@ -132,12 +131,13 @@ public class ReducedDataPlotComposite extends Composite implements IObserver {
 		});
 	}
 
-	private void updatePlot(final IProgressMonitor monitor, String value, final String sampleName) {
+	private void updatePlot(final IProgressMonitor monitor, String value, final String sampleName) throws InterruptedException {
 		File file= new File(value);
 		long starttime=System.currentTimeMillis();
 		long timer=0;
 		while (!file.exists() && timer < 10000) {
-			Sleep.sleep(50);
+			// TODO: Move this sleeping out of the Display thread
+			Thread.sleep(50);
 			timer=System.currentTimeMillis()-starttime;
 		}
 		if (timer >= 10000) {
@@ -191,20 +191,24 @@ public class ReducedDataPlotComposite extends Composite implements IObserver {
 			if (arg instanceof NewDataFileEvent) {
 
 				Display.getDefault().asyncExec(new Runnable() {
-
-
 					@Override
 					public void run() {
 						String sampleID = ((NewDataFileEvent)arg).getSampleID();
 						String filename = ((NewDataFileEvent)arg).getFilename();
-						if (sampleID!=null) {
-							for (Sample sample : samples) {
-								if (sample.getSampleID().equalsIgnoreCase(sampleID)) {
-									updatePlot(new NullProgressMonitor(), filename,sample.getName()+" - "+FilenameUtils.getName(filename));
+						try {
+							if (sampleID!=null) {
+								for (Sample sample : samples) {
+									if (sample.getSampleID().equalsIgnoreCase(sampleID)) {
+										updatePlot(new NullProgressMonitor(), filename,sample.getName()+" - "+FilenameUtils.getName(filename));
+									}
 								}
+							} else {
+								updatePlot(new NullProgressMonitor(), filename,FilenameUtils.getName(filename));
 							}
-						} else {
-							updatePlot(new NullProgressMonitor(), filename,FilenameUtils.getName(filename));
+						} catch (InterruptedException ie) {
+							String msg = "Thread interrupted while updating plot" + getPlotName();
+							logger.error(msg, ie);
+							Thread.currentThread().interrupt();
 						}
 					}
 				});
