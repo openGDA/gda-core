@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+	
+	<bean id="methodInterceptor" class="gda.aop.TestMethodInterceptor" />
+	
+	<bean id="testAopProxiedBeanFromJython" class="org.springframework.aop.framework.ProxyFactoryBean">
+		<property name="target">
+			<bean class="gda.device.scannable.DummyScannable" />
+		</property>
+		<property name="interceptorNames">
+			<list>
+				<value>methodInterceptor</value>
+			</list>
+		</property>
+	</bean>
+</beans>
