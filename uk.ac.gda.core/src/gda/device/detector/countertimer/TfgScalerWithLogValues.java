@@ -18,9 +18,9 @@
 
 package gda.device.detector.countertimer;
 
-import gda.device.DeviceException;
-
 import org.apache.commons.lang.ArrayUtils;
+
+import gda.device.DeviceException;
 
 /**
  * A version of TfgScaler for Spectroscopy Ionchambers which assumes it has output channels (time),I0,It,Iref.
@@ -33,6 +33,11 @@ public class TfgScalerWithLogValues extends TfgScalerWithDarkCurrent {
 	public static final String LNITIREF_LABEL = "lnItIref";
 
 	private boolean outputLogValues = false; // add ln(I0/It) and ln(I0/Iref) to the output
+
+	// Scaler channnel numbers that contain the i0, it, iRef input signals
+	private int i0ScalerChannel = 0;
+	private int itScalerChannel = 1;
+	private int iRefScalerChannel = 2;
 
 	public TfgScalerWithLogValues() {
 		super();
@@ -156,10 +161,8 @@ public class TfgScalerWithLogValues extends TfgScalerWithDarkCurrent {
 	 * This should only be called when outputLogValues is set to true.
 	 */
 	private Double[] getI0ItIRef(double[] data) {
-		if (timeChannelRequired) {
-			return new Double[] { data[1], data[2], data[3] };
-		}
-		return new Double[] { data[0], data[1], data[2] };
+		int offset = timeChannelRequired ? 1 : 0;
+		return new Double[]{ data[i0ScalerChannel+offset], data[itScalerChannel+offset], data[iRefScalerChannel+offset]};
 	}
 
 	private double[] correctCounts(final double[] output, final Double[] counts) {
@@ -168,6 +171,30 @@ public class TfgScalerWithLogValues extends TfgScalerWithDarkCurrent {
 			output[i + outIndex] = counts[i];
 		}
 		return output;
+	}
+
+	public int getI0ScalerChannel() {
+		return i0ScalerChannel;
+	}
+
+	public void setI0ScalerChannel(int i0ScalerChannel) {
+		this.i0ScalerChannel = i0ScalerChannel;
+	}
+
+	public int getItScalerChannel() {
+		return itScalerChannel;
+	}
+
+	public void setItScalerChannel(int itScalerChannel) {
+		this.itScalerChannel = itScalerChannel;
+	}
+
+	public int getiRefScalerChannel() {
+		return iRefScalerChannel;
+	}
+
+	public void setiRefScalerChannel(int iRefScalerChannel) {
+		this.iRefScalerChannel = iRefScalerChannel;
 	}
 
 }
