@@ -157,13 +157,14 @@ public abstract class ExafsValidator extends AbstractValidator {
 			return errors;
 		}
 
+		String experimentType = iDetectorParams.getExperimentType();
 		String fileName = "";
-		if (iDetectorParams.getExperimentType().equalsIgnoreCase(DetectorParameters.FLUORESCENCE_TYPE))
+		if (experimentType.equalsIgnoreCase(DetectorParameters.FLUORESCENCE_TYPE))
 			fileName = iDetectorParams.getFluorescenceParameters().getConfigFileName();
-		else if (iDetectorParams.getExperimentType().equalsIgnoreCase(DetectorParameters.XES_TYPE))
+		else if (experimentType.equalsIgnoreCase(DetectorParameters.XES_TYPE))
 			fileName = iDetectorParams.getXesParameters().getConfigFileName();
 
-		if (fileName == null || fileName.isEmpty())
+		if (fileName == null || fileName.isEmpty() && !experimentType.equalsIgnoreCase(DetectorParameters.TRANSMISSION_TYPE))
 				errors.add(new InvalidBeanMessage("Fluorescence detector XML configuration file not specified!"));
 
 		if (bean != null) {

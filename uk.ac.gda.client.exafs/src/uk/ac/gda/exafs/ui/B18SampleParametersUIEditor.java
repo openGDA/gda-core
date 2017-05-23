@@ -21,6 +21,7 @@ package uk.ac.gda.exafs.ui;
 import java.net.URL;
 import java.util.List;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.richbeans.api.event.ValueAdapter;
@@ -30,8 +31,6 @@ import org.eclipse.richbeans.api.widget.ActiveMode;
 import org.eclipse.richbeans.widgets.FieldBeanComposite;
 import org.eclipse.richbeans.widgets.FieldComposite;
 import org.eclipse.richbeans.widgets.scalebox.ScaleBox;
-import org.eclipse.richbeans.widgets.selector.VerticalListEditor;
-import org.eclipse.richbeans.widgets.wrappers.BooleanWrapper;
 import org.eclipse.richbeans.widgets.wrappers.ComboWrapper;
 import org.eclipse.richbeans.widgets.wrappers.TextWrapper;
 import org.eclipse.richbeans.widgets.wrappers.TextWrapper.TEXT_TYPE;
@@ -109,15 +108,6 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 	private ExpandableComposite temperatureExpandableComposite;
 	private ExpandableComposite wheelExpandableComposite;
 
-	private TextWrapper afterScanscriptName;
-	private TextWrapper beforeScanscriptName;
-
-	private VerticalListEditor signalList;
-	private BooleanWrapper signalActive;
-
-	private VerticalListEditor metadataList;
-	private BooleanWrapper metadataActive;
-
 	private B18SampleParameters bean;
 	private Composite wheelComp;
 	private Composite stageComp;
@@ -193,7 +183,7 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 		createStageShowAll();
 
 		// stage
-		ExpansionAdapter stageExpansionListener = getStageExpansionListener();
+		ExpansionAdapter stageExpansionListener = getStageExpansionListener(sampleStageExpandableComposite);
 
 		sampleStageExpandableComposite.addExpansionListener(stageExpansionListener);
 
@@ -211,9 +201,7 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 			public void expansionStateChanged(ExpansionEvent e) {
 				if (!sampleEnvironment.getValue().toString().equals("none"))
 					temperatureExpandableComposite.setExpanded(true);
-				GridUtils.layoutFull(temperatureExpandableComposite);
-				refreshScrolledContentsSize();
-				linkuiForDynamicLoading(false);
+				updateExpandable(temperatureExpandableComposite, null);
 			}
 		};
 		temperatureExpandableComposite.addExpansionListener(tempExpansionListener);
@@ -233,9 +221,7 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 					wheelExpandableComposite.setExpanded(true);
 				else
 					wheelExpandableComposite.setExpanded(e.getState());
-				GridUtils.layoutFull(wheelExpandableComposite);
-				refreshScrolledContentsSize();
-				linkuiForDynamicLoading(false);
+				updateExpandable(wheelExpandableComposite, null);
 			}
 		};
 		wheelExpandableComposite.addExpansionListener(wheelExpansionAdapter);
@@ -244,24 +230,72 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 			wheelExpandableComposite.setExpanded(true);
 
 		refreshScrolledContentsSize();
+
+		name.addValueListener(listenerToUpdateBeanFromUI);
+		description1.addValueListener(listenerToUpdateBeanFromUI);
+		description2.addValueListener(listenerToUpdateBeanFromUI);
 	}
 
-	private ExpansionAdapter getStageExpansionListener() {
+	private ValueListener listenerToUpdateBeanFromUI = new ValueListener() {
+		@Override
+		public void valueChangePerformed(ValueEvent e) {
+			try {
+				if (isDirty()) {
+					controller.uiToBean();
+				}
+			} catch (Exception e1) {
+				logger.error("Problem updating UI from bean", e1);
+			}
+		}
+
+		@Override
+		public String getValueListenerName() {
+			return null;
+		}
+	};
+
+	private ExpansionAdapter getStageExpansionListener(final ExpandableComposite expandableComposite) {
+		return getStageExpansionListener(expandableComposite, null);
+	}
+
+	private ExpansionAdapter getStageExpansionListener(final ExpandableComposite expandableComposite, final Button useSampleStageButton) {
 		ExpansionAdapter extAdapter = new ExpansionAdapter() {
 			@Override
 			public void expansionStateChanged(ExpansionEvent e) {
-				// if (!sampleEnvironment.getValue().toString().equals("none"))
 				// layout the expanded composite first...
 				ExpandableComposite comp = (ExpandableComposite) e.getSource();
 				GridUtils.layoutFull(comp);
 				// Layout the sample stage composite...
 				sampleStageExpandableComposite.setExpanded(true);
-				GridUtils.layoutFull(sampleStageExpandableComposite);
-				refreshScrolledContentsSize();
-				linkuiForDynamicLoading(false);
+				updateExpandable(expandableComposite, useSampleStageButton);
 			}
 		};
 		return extAdapter;
+	}
+
+	private void updateExpandable(ExpandableComposite expComposite, Button useSampleStageButton) {
+		// First, get bean settings from ui
+		try {
+			controller.uiToBean();
+			logger.debug("Sample name {}, Sample description {}, Sample comments {}", bean.getName(), bean.getDescription1(), bean.getDescription2());
+		} catch (Exception e) {
+			logger.error("Problem converting UI to bean {}", e);
+		}
+		// Make sure composite is always expanded if the sample stage is currently selected
+		boolean forceExpanded = useSampleStageButton!=null && useSampleStageButton.getSelection()==true;
+		if (forceExpanded) {
+			expComposite.setExpanded(true);
+		}
+
+		GridUtils.layoutFull(expComposite);
+		refreshScrolledContentsSize();
+		linkuiForDynamicLoading(false);
+
+		// Try to set focus on first element in the expandable composite (the twistie toggle at top of composite)
+		Control[] childWidgets = expComposite.getChildren();
+		if (childWidgets != null && childWidgets.length > 0) {
+			logger.debug("Trying to set focus to {}. Has focus = {}", expComposite.getText(), childWidgets[0].setFocus());
+		}
 	}
 
 	private void refreshScrolledContentsSize() {
@@ -322,11 +356,8 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 				} else
 					while( selectedSampleStages.remove(stageType.getTypeString()) ); // remove all occurrences from list
 
-				System.out.printf("Sample stage (type %s) selected = %d\n", stageType.getTypeString(), sampleStageSelected.getSelection() == true ? 1:0);
-				int count=0;
-				for( String stage : selectedSampleStages ) {
-					System.out.printf("%d : %s\n",count++, stage );
-				};
+				logger.debug("Selected sample stages {}", ArrayUtils.toString(selectedSampleStages));
+
 				// update model with new list
 				bean.setSelectedSampleStages(selectedSampleStages);
 
@@ -342,7 +373,8 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 	private void setupExpandableComposite( ExpandableComposite expandableComposite, Composite childComposite, final SAMPLESTAGE_TYPE stageType) {
 		expandableComposite.setClient( childComposite );
 		expandableComposite.setExpanded(false);
-		ExpansionAdapter expansionListener = getStageExpansionListener();
+		Button useSampleStageButton = (Button)childComposite.getChildren()[0];
+		ExpansionAdapter expansionListener = getStageExpansionListener(expandableComposite, useSampleStageButton);
 		expandableComposite.addExpansionListener( expansionListener );
 		GridUtils.layoutFull(expandableComposite);
 		// Expand composite if stage is selected
@@ -570,6 +602,11 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 			new Label(lakeshoreComposite.getTime(), SWT.NONE);
 
 			temperatureExpandableComposite.setClient(tempComp);
+
+			sampleEnvironment.addValueListener(listenerToUpdateBeanFromUI);
+			pulseTubeCryostatParameters.addValueListener(listenerToUpdateBeanFromUI);
+			furnaceParameters.addValueListener(listenerToUpdateBeanFromUI);
+			lakeshoreComposite.addValueListener(listenerToUpdateBeanFromUI);
 		}
 	}
 
@@ -593,17 +630,7 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 			sampleWheelParametersComposite.setActiveMode(ActiveMode.ACTIVE_ONLY);
 			sampleWheelParametersComposite.layout();
 
-			sampleWheelParametersComposite.addValueListener(new ValueListener() {
-				@Override
-				public void valueChangePerformed(ValueEvent e) {
-					linkUI(false);
-				}
-
-				@Override
-				public String getValueListenerName() {
-					return null;
-				}
-			});
+			sampleWheelParametersComposite.addValueListener(listenerToUpdateBeanFromUI);
 
 			wheelExpandableComposite.setClient(wheelComp);
 		}
@@ -734,29 +761,5 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 
 	public SampleWheelParametersComposite getSampleWheelParameters() {
 		return sampleWheelParametersComposite;
-	}
-
-	public TextWrapper getBeforeScriptName() {
-		return beforeScanscriptName;
-	}
-
-	public TextWrapper getAfterScriptName() {
-		return afterScanscriptName;
-	}
-
-	public VerticalListEditor getSignalList() {
-		return signalList;
-	}
-
-	public BooleanWrapper getSignalActive() {
-		return signalActive;
-	}
-
-	public BooleanWrapper getMetadataActive() {
-		return metadataActive;
-	}
-
-	public VerticalListEditor getMetadataList() {
-		return metadataList;
 	}
 }

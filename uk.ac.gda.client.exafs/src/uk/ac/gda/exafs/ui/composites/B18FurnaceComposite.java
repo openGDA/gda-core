@@ -18,8 +18,12 @@
 
 package uk.ac.gda.exafs.ui.composites;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+
 import org.eclipse.richbeans.widgets.FieldBeanComposite;
 import org.eclipse.richbeans.widgets.FieldComposite;
+import org.eclipse.richbeans.widgets.scalebox.NumberBox;
 import org.eclipse.richbeans.widgets.scalebox.ScaleBox;
 import org.eclipse.richbeans.widgets.wrappers.BooleanWrapper;
 import org.eclipse.swt.SWT;
@@ -57,6 +61,12 @@ public class B18FurnaceComposite extends FieldBeanComposite {
 		temperature = new ScaleBox(this, SWT.NONE);
 		temperature.setUnit("C");
 		temperature.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+//		tolerance.setDecimalPlaces(0); //If setDecimalPlaces to 0, getValue() returns an Integer which *fails to map from ui to bean* !
+		// Instead create new DecimalFormat object with 0 decimal places, and pass it in.
+		// This sets the format only, not the number of decimal places, which means that :
+		//  1) Gui accepts only integer input.
+		//  2) The ScaleBox internally thinks it has 2 decimal places (zero for decimal part), so getValue() returns a Double which maps correctly to bean.
+		temperature.setNumberFormat(getDecimalFormat(0)); //sets the format only, and *not* the number of decimal places
 
 		try {
 			setMotorLimits("eurotherm", temperature);
@@ -72,6 +82,7 @@ public class B18FurnaceComposite extends FieldBeanComposite {
 		tolerance = new ScaleBox(this, SWT.NONE);
 		tolerance.setUnit("C");
 		tolerance.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		tolerance.setNumberFormat(getDecimalFormat(0));
 
 		Label lblTime = new Label(this, SWT.NONE);
 		lblTime.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -86,8 +97,25 @@ public class B18FurnaceComposite extends FieldBeanComposite {
 		controlFlag.setText("Only read, no control");
 	}
 
+	/**
+	 * Create new DecimalFormat for specified number of decimal places
+	 * (copied from NumberBox constructor, {@link NumberBox#NumberBox(Composite, int)})
+	 * @param decimalPlaces
+	 * @return DecimalFormat
+	 */
+	public DecimalFormat getDecimalFormat(int decimalPlaces) {
+		DecimalFormat numberFormat = new DecimalFormat();
+		numberFormat.setMaximumFractionDigits(decimalPlaces);
+		numberFormat.setMinimumFractionDigits(decimalPlaces);
+		numberFormat.setGroupingUsed(false);
+		DecimalFormatSymbols dfs = ((DecimalFormat) numberFormat).getDecimalFormatSymbols();
+		dfs.setInfinity(String.valueOf(Double.POSITIVE_INFINITY));
+		((DecimalFormat) numberFormat).setDecimalFormatSymbols(dfs);
+		return numberFormat;
+	}
+
 	public void setMotorLimits(String motorName, ScaleBox box) throws Exception {
-		// Check to see if furnace is initialised before trying to get limits 
+		// Check to see if furnace is initialised before trying to get limits
 		// - to avoid slow gui due to timeout from missing Epics PVs. imh 24/5/2016
 		String confString = JythonServerFacade.getInstance().evaluateCommand(motorName + ".isConfigured()");
 		if (!confString.equals("True")) {

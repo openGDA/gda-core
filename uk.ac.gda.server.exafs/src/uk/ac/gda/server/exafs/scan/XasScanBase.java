@@ -46,6 +46,7 @@ import gda.exafs.scan.RepetitionsProperties;
 import gda.exafs.scan.ScanStartedMessage;
 import gda.jython.InterfaceProvider;
 import gda.jython.ScriptBase;
+import gda.jython.batoncontrol.ClientDetails;
 import gda.jython.commands.GeneralCommands;
 import gda.jython.commands.ScannableCommands;
 import gda.jython.scriptcontroller.event.ScanCreationEvent;
@@ -278,7 +279,7 @@ public abstract class XasScanBase implements XasScan {
 	protected abstract Object[] createScanArguments(String sampleName, List<String> descriptions) throws Exception;
 
 	private void checkForPause() throws InterruptedException {
-		if (numRepetitions > 1 && LocalProperties.check(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY)) {
+		if (LocalProperties.check(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY)) {
 			log("** Paused scan after repetition "
 					+ currentRepetition
 					+ ". To resume the scan, press the Start button in the Command Queue view. To abort this scan, press the Skip Task button.");
@@ -396,7 +397,7 @@ public abstract class XasScanBase implements XasScan {
 		if (scriptFile.isFile())
 			runScript(scriptNameOrCommand);
 		else {
-			InterfaceProvider.getCommandRunner().runCommand(scriptNameOrCommand);
+			InterfaceProvider.getCommandRunner().evaluateCommand(scriptNameOrCommand);
 		}
 	}
 
@@ -531,8 +532,19 @@ public abstract class XasScanBase implements XasScan {
 		return xmlFileName;
 	}
 
+	/** Return visit id from baton holder.
+	 * If there is no batonHolder, client has lost the baton for some reason - probably due to network communication timeout.
+	 * In this case, set the visit id to default value rather than throwing exception so that the scan can continue.
+	 * (This function is used when creating the logging message, and not critical for creating or running a scan)
+	 * @return Visit id, or 'unknown-visit' if baton holder is unavailable
+	 */
 	protected String getMyVisitID() {
-		return InterfaceProvider.getBatonStateProvider().getBatonHolder().getVisitID();
+		String visitId = "unknown-visit";
+		ClientDetails batonHolder = InterfaceProvider.getBatonStateProvider().getBatonHolder();
+		if (batonHolder!=null) {
+			visitId = batonHolder.getVisitID();
+		}
+		return visitId;
 	}
 
 	protected void setQueuePropertiesStart() {
