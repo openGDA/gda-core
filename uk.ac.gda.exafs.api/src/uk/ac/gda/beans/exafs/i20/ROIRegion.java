@@ -65,4 +65,40 @@ public class ROIRegion implements Serializable {
 		this.yRoi = yRoi;
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((roiName == null) ? 0 : roiName.hashCode());
+		result = prime * result + ((xRoi == null) ? 0 : xRoi.hashCode());
+		result = prime * result + ((yRoi == null) ? 0 : yRoi.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ROIRegion other = (ROIRegion) obj;
+		if (roiName == null) {
+			if (other.roiName != null)
+				return false;
+		} else if (!roiName.equals(other.roiName))
+			return false;
+		if (xRoi == null) {
+			if (other.xRoi != null)
+				return false;
+		} else if (!xRoi.equals(other.xRoi))
+			return false;
+		if (yRoi == null) {
+			if (other.yRoi != null)
+				return false;
+		} else if (!yRoi.equals(other.yRoi))
+			return false;
+		return true;
+	}
 }

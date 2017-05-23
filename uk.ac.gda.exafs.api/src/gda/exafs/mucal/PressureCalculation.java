@@ -39,6 +39,8 @@ import uk.ac.gda.util.OSUtils;
 public class PressureCalculation {
 
 	private final static Logger logger = LoggerFactory.getLogger(PressureCalculation.class);
+	private static double maxAllowedPressure = 2.0;
+	private static double minAllowedPressure = 0.001;
 
 	/** Run mucal code and return absorption coefficient for element of given atomic number at specified photon energy
 	 * Refactored from PressureCalculation.getPressure(...) function.
@@ -98,6 +100,11 @@ public class PressureCalculation {
 
 		PressureBean ret = new PressureBean();
 
+		if (bean.getPercentAbsorption()==null || bean.getIonChamberLength()==null) {
+			ret.setErrorMessage("No values for absorption or chamber length have been set.");
+			return ret;
+		}
+
 		double muA = getAbsorptionCoeff( getGasAtomicNumber(bean), getWorkingEnergyInKev(bean) );
 
 		String symbol = bean.getGasType();
@@ -119,8 +126,12 @@ public class PressureCalculation {
 
 			double muB = muA;
 			muA = getAbsorptionCoeff( getHeliumAtomicNumber(), getWorkingEnergyInKev(bean) );
-			double muT = -1*Math.log(transmission)/chamberLength; // total absorption coeff required to get user specified transmission
-			double pT  = bean.getTotalPressure(); // total pressure in ion chamber (bars)
+			Double pT  = bean.getTotalPressure(); // total pressure in ion chamber (bars)
+			if (pT==null){
+				ret.setErrorMessage("No value for total pressure has been set.");
+				return ret;
+			}
+			double muT = -1*Math.log(transmission)/(chamberLength*pT); // total absorption coeff required to get user specified transmission
 
 			/* Calculate density of specified gas (rhoB), from total absorption and density (muT, rhoT) and absorption coeff for each gas (muA, muB) :
 			 	mu = absorption coefficient [cm2/g], rho = mass density [g/cm3]:
@@ -158,17 +169,15 @@ public class PressureCalculation {
 		return ret;
 	}
 
-
 	private static String[] checkPressure(double p, double ad, String gasSymbol) {
 		if (gasSymbol.equals("N"))
 			gasSymbol = "N\u2082";
-		if (p>2) {
-			return new String[]{"The required absorption cannot be obtained with the present gas choice.",
-								"The pressure of '"+gasSymbol+"' is "+p+" which is too large, as Pressure is limited to 2 bar.",
-								"Absorption will be: "+ad+"."};
+		if (p>maxAllowedPressure) {
+			return new String[]{"The pressure of '"+gasSymbol+"' is "+p+" which may be too large.",
+								"Pressures should be limited to "+maxAllowedPressure+" bar or less."};
 		}
-		if (p<0.001) {
-			return new String[]{"'"+gasSymbol+"' would have a pressure of less than 1 mbar.",
+		if (p<minAllowedPressure) {
+			return new String[]{"'"+gasSymbol+"' would have a pressure of less than "+1000*minAllowedPressure+" mbar.",
 								"Pressures of less than 1 mbar give a low accuracy, try a different mix."};
 		}
 		return null;

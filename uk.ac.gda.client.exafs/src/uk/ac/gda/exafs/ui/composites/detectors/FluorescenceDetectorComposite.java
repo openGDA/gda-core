@@ -497,6 +497,7 @@ public class FluorescenceDetectorComposite extends Composite {
 	 */
 	public void setPlottedRegionMobile(boolean mobile) {
 		sashFormPlot.getRegionOnDisplay().setMobile(mobile);
+		sashFormPlot.getRegionOnDisplay().setTrackMouse(false);
 	}
 
 	/**

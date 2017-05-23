@@ -35,7 +35,7 @@ import gda.device.DeviceException;
 import gda.device.currentamplifier.StanfordAmplifier;
 import gda.factory.Finder;
 
-public class StanfordAmplifierComposite{
+public class StanfordAmplifierComposite {
 
 	private static final Logger logger = LoggerFactory.getLogger(StanfordAmplifierComposite.class);
 
@@ -43,14 +43,14 @@ public class StanfordAmplifierComposite{
 	private Combo offsetValueCombo;
 	private Combo offsetUnitCombo;
 	private Combo sensitivityUnitCombo;
-	private Button on;
-	private Button off;
+	private Button onRadio;
+	private Button offRadio;
 
 	private final StanfordAmplifier stanfordScannable;
 
 	public StanfordAmplifierComposite(Composite parent, @SuppressWarnings("unused") int style, String name, String scannable) {
 
-		stanfordScannable = (StanfordAmplifier)Finder.getInstance().find(scannable);
+		stanfordScannable = (StanfordAmplifier) Finder.getInstance().find(scannable);
 
 		Group group = new Group(parent, SWT.NONE);
 		group.setText(name);
@@ -120,7 +120,7 @@ public class StanfordAmplifierComposite{
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				try {
-					stanfordScannable.setOffsetUnit(sensitivityUnitCombo.getSelectionIndex());
+					stanfordScannable.setOffsetUnit(offsetUnitCombo.getSelectionIndex());
 				} catch (DeviceException e1) {
 					logger.error("Problem setting offset unit", e1);
 				}
@@ -129,32 +129,23 @@ public class StanfordAmplifierComposite{
 		offsetUnitCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		offsetUnitCombo.setItems(stanfordScannable.getOffsetUnits());
 
-		on = new Button(group, SWT.NONE);
-		on.setSelection(true);
-		on.setText("On");
+		onRadio = new Button(group, SWT.RADIO);
+		onRadio.setText("On");
 
-		off = new Button(group, SWT.NONE);
-		off.setText("Off");
+		offRadio = new Button(group, SWT.RADIO);
+		offRadio.setText("Off");
 
-		on.addSelectionListener(new SelectionAdapter() {
+		onRadio.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				try {
-					switchCurrentOn(true);
-				} catch(DeviceException e1) {
-					logger.error("Problem switching on current ", e1);
-				}
+				switchCurrentOn(true);
 			}
 		});
 
-		off.addSelectionListener(new SelectionAdapter() {
+		offRadio.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				try {
-					switchCurrentOn(false);
-				} catch (DeviceException e1) {
-					logger.error("Problem switching off current ", e1);
-				}
+				switchCurrentOn(false);
 			}
 		});
 
@@ -169,25 +160,29 @@ public class StanfordAmplifierComposite{
 	}
 
 	/**
-	 * Turn ion current on/off and also update gui on/off button enabled status.
+	 * Turn ion current on/off and also update gui on/off radio status.
 	 * @param switchOn
 	 * @throws DeviceException
 	 */
-	private void switchCurrentOn(boolean switchOn) throws DeviceException {
-		stanfordScannable.setOffsetCurrentOn(switchOn);
-		// Update gui on/off buttons
-		boolean offsetOn = stanfordScannable.isOffsetCurrentOn();
-		on.setEnabled(!offsetOn);
-		off.setEnabled(offsetOn);
+	private void switchCurrentOn(boolean switchOn) {
+		try {
+			stanfordScannable.setOffsetCurrentOn(switchOn);
+			// Update on/off status widget
+			boolean offsetOn = stanfordScannable.isOffsetCurrentOn();
+			onRadio.setSelection(offsetOn);
+			offRadio.setSelection(!offsetOn);
+		} catch (DeviceException e1) {
+			logger.error("Problem switching on current ", e1);
+		}
 	}
 
-	private void updateFields(){
+	private void updateFields() {
 		try {
 			sensitivityValueCombo.select(stanfordScannable.getSensitivity());
 			offsetValueCombo.select(stanfordScannable.getOffset());
 			offsetUnitCombo.select(stanfordScannable.getOffsetUnit());
 			sensitivityUnitCombo.select(stanfordScannable.getSensitivityUnit());
-			switchCurrentOn( stanfordScannable.isOffsetCurrentOn() );
+			switchCurrentOn(stanfordScannable.isOffsetCurrentOn());
 		} catch (DeviceException e) {
 			logger.error("Problem updating gui from amplifier hardware settings", e);
 		}

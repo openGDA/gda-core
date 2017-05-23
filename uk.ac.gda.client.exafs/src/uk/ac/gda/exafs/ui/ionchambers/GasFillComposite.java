@@ -258,9 +258,15 @@ public class GasFillComposite extends Composite {
 			pressureCalcResults = PressureCalculation.getPressure(currentParameters);
 			double pressure = pressureCalcResults.getPressure();
 			currentParameters.setPressure( pressure );
+			if (pressureCalcResults.getErrorMessage()!=null) {
+				String toolTip = "";
+				if (pressureCalcResults.getErrorTooltip()!=null) {
+					toolTip = pressureCalcResults.getErrorTooltip();
+				}
+				logger.warn("Warning from gas fill calculation : {}\n{}", pressureCalcResults.getErrorMessage(), toolTip);
+			}
 		} catch (Exception e) {
 			logger.error("Problem running mucal for absorption calculation ", e);
 		}
 	}
-
 }
