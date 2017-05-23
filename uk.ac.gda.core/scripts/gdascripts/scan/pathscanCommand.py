@@ -18,12 +18,15 @@ except:
 from gda.device.scannable.scannablegroup import ScannableGroup
 from gda.jython.commands.ScannableCommands import scan
 from gda.jython.commands.GeneralCommands import alias
-def pathscan(scannables, path, detector, exposure, *args): #@UndefinedVariable
+def pathscan(scannables, path, detector, exposure=None, *args): #@UndefinedVariable
     ''' Scan a group of scannables following the specified path and collect data at each point from specified detector and time'''
     sg=ScannableGroup()
     for each in scannables:
         sg.addGroupMember(each)
     sg.setName("pathgroup")
-    scan([sg, path, detector, exposure]+list(args))
+    if exposure is None:
+        scan([sg, path, detector]+list(args))
+    else:
+        scan([sg, path, detector, exposure]+list(args))
 
 alias("pathscan")
