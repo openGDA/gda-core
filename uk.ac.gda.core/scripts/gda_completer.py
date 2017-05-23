@@ -27,12 +27,21 @@ TYPE_ATTR = 3  # Green Circle
 TYPE_BUILTIN = 4  # Gray Circle
 TYPE_PARAM = 5  # No icon, This doesn't have support in the Java side
 
-CAMEL_REG = re.compile('([A-Z][a-z]*|_[a-z]+)')
+CAMEL_REG = re.compile('([A-Z][a-z]*|_[a-z]*)')
 # String contains either upper case or underscore - should use camel_match
 AUTO_REG = re.compile('.*([A-Z]|_)')
 
 
-def camel_match(partial, possible):
+def camel_snake_match(partial):
+    """Match words based on camelCase or snake_case
+
+    gP -> getPosition
+    r_n -> reset_namespace
+    Words with mixed uppercase letters and underscores will only match if all are present
+    eg
+    gA_m will match getAwkward_mixedCase
+    but neither of gAC or g_m will
+    """
     keys = CAMEL_REG.findall(partial)
     p = CAMEL_REG.search(partial)
     sub_text = partial if not p else partial[:p.start()]
@@ -40,26 +49,33 @@ def camel_match(partial, possible):
         # make sure that the match starts with the start of the partial text
         sub_text = keys.pop(0)
     match_regex = '^' + sub_text + '[a-z]*' + '[a-z_]*'.join(keys)
-    return re.match(match_regex, possible)
+    logger.debug('Matching against regex: {}', match_regex)
+    return re.compile(match_regex).match
 
-def basic_match(partial, possible, case_sensitive=False):
-    if case_sensitive:
-        return possible.startswith(partial)
-    else:
-        return possible.lower().startswith(partial.lower())
+def basic_match(partial):
+    """Match words only if they match exactly (ignoring case)"""
+    lower = partial.lower()
+    def match(completion):
+        logger.debug('Matching if starts with "{}"', lower)
+        return completion.lower().startswith(lower)
+    return match
 
-def fuzzy_match(partial, possible):
-    reg = '.*' + '.*'.join(partial.lower()) + '.*'
-    return re.match(reg, possible.lower())
+def fuzzy_match(partial):
+    """Match on any part of the word (case insensitive)"""
+    lower = partial.lower()
+    def match(completion):
+        return lower in completion.lower()
+    return match
 
-def auto_match(partial, possible):
+def auto_match(partial):
     if AUTO_REG.match(partial):
-        return camel_match(partial, possible)
+        return camel_snake_match(partial)
     else:
-        return basic_match(partial, possible)
+        return basic_match(partial)
 
+# functions that take a partial command and return a function that will match completion options against it.
 matchers = {'basic': basic_match,
-            'camel': camel_match,
+            'camel': camel_snake_match,
             'fuzzy': fuzzy_match,
             'auto': auto_match}
 
@@ -70,11 +86,11 @@ class Completer(object):
 
         if matching not in matchers:
             logger.warn('Matching style "{}" not available', matching)
-            self.matches = matchers['basic']
+            self.match_maker = matchers['basic']
         else:
-            self.matches = matchers[matching]
+            self.match_maker = matchers[matching]
 
-        logger.debug('Using {} completion', self.matches)
+        logger.debug('Using {} completion', self.match_maker)
 
         # Build and cache the keywords results
         logger.debug('Caching keywords for completion')
@@ -162,10 +178,12 @@ class Completer(object):
                 options = dir(obj)
                 logger.debug('Completions options: {}', str(options))
 
+                match = self.match_maker(parts[-1])
+
                 # Now we have the object figure out the types being careful not to call methods
                 results = []
                 for opt in options:
-                    if not self.matches(parts[-1], opt):
+                    if not match(opt):
                         continue
                     # Check if the class has the attribute in the same approach as above
                     if hasattr(obj.__class__, opt):
@@ -196,10 +214,12 @@ class Completer(object):
                 options = dir(obj)
                 logger.debug('Completions options: {}', str(options))
 
+                match = self.match_maker(parts[-1])
+
                 # Build the list ignoring doc string and argument lists
                 results = []
                 for option in options:
-                    if not self.matches(parts[-1], option):
+                    if not match(option):
                         continue
                     if callable(getattr(obj, option)): # If it's callable it's a function
                         results.append((option, '', '', TYPE_FUNCTION))
@@ -210,12 +230,14 @@ class Completer(object):
         else:
             logger.debug('No need to split command, returning globals, keywords and builtins')
 
+            match = self.match_maker(command)
+
             # Build the lists ignoring doc string and argument lists
             # We might want to cache something here looping over all globals every time is a bit wasteful? It also "feels" slow
             globals_list = []
             for x in self.globals.keys():
                 # It prevents looking at objects which don't match the current string up to now.
-                if not self.matches(command, x):
+                if not match(x):
                     continue
                 # Get the object
                 obj = eval(x, self.globals)
@@ -231,9 +253,9 @@ class Completer(object):
             logger.debug('Matching globals: {}', str(globals_list))
 
             # Return the globals, keywords and builtins
-            return globals_list + [opt for opt in self.keywords + self.builtins if self.matches(command, opt[0])]
+            return globals_list + [opt for opt in self.keywords + self.builtins if match(opt[0])]
 
-    def enable_debug(self, enable):
+    def enable_debug(self, enable=True):
         if enable:
             logger.setLevel(Level.DEBUG)
         else:

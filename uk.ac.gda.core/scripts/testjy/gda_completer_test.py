@@ -143,7 +143,7 @@ class CompleterTest(unittest.TestCase):
         self.assertEqual(icon, TYPE_ATTR, 'additionalPluginList had wrong icon')
 
     def test_camel_case_complete(self):
-        self.completer.matches = gda_completer.camel_match
+        self.completer.match_maker = gda_completer.camel_snake_match
         global obj
         obj = testObject()
         # Complete on obj.
@@ -153,7 +153,7 @@ class CompleterTest(unittest.TestCase):
         self.assertListEqual(options, [('getName', '', '', TYPE_FUNCTION)])
 
     def test_snake_case_complete(self):
-        self.completer.matches = gda_completer.camel_match
+        self.completer.match_maker = gda_completer.camel_snake_match
         global obj
         obj = testObject()
         # Complete on obj.
@@ -163,11 +163,37 @@ class CompleterTest(unittest.TestCase):
         self.assertListEqual(options, [('get_name', '', '', TYPE_FUNCTION)])
 
     def test_camel_and_snake_case_globals(self):
-        self.completer.matches = gda_completer.camel_match
+        self.completer.match_maker = gda_completer.camel_snake_match
         options = self.completer.complete('FPE')
         self.assertListEqual(options, [('FloatingPointError', '', '', TYPE_CLASS)])
         options = self.completer.complete('r_i')
         self.assertListEqual(options, [('raw_input', '', '', TYPE_FUNCTION)])
+
+    def test_fuzzy_search(self):
+        self.completer.match_maker = gda_completer.fuzzy_match
+        options = self.completer.complete('ingpoi')
+        self.assertListEqual(options, [('FloatingPointError', '', '', TYPE_CLASS)])
+        options = self.completer.complete('ingpio')
+        self.assertListEqual(options, [])
+
+    def test_basic_completion(self):
+        self.completer.match_maker = gda_completer.basic_match
+        global obj
+        obj = testObject()
+        options = self.completer.complete('floati')
+        self.assertListEqual(options, [('FloatingPointError', '', '', TYPE_CLASS)])
+        options = self.completer.complete('obj.n')
+        self.assertListEqual(options, [('name', '', '', TYPE_ATTR), ('number', '', '', TYPE_ATTR)])
+        # Don't complete camel case
+        options = self.completer.complete('obj.gN')
+        self.assertListEqual(options, [])
+        options = self.completer.complete('FPE')
+        self.assertListEqual(options, [])
+        # Don't complete fuzzy
+        options = self.completer.complete('obj.attribute')
+        self.assertListEqual(options, [])
+        options = self.completer.complete('case')
+        self.assertListEqual(options, [])
 
 # Test helper class
 class testObject(object):
