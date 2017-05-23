@@ -85,7 +85,7 @@ public class GDAJythonClassloaderTest {
 	private static final String JAR_LOCATION = "gda-core.git/uk.ac.gda.core.test/" + JAR_NAME;
 	private static final String METHOD_NAME = "doSomethingUseless";
 	private static final String METHOD_NAME_RACE = "getCompetitors";
-	private static final String MAIN_CLASSLOADER_SUCCESS_MSG = "Loaded class: {}";
+	private static final String MAIN_CLASSLOADER_SUCCESS_MSG = "Loaded class {} from bundle {}";
 	private static final String URL_CLASSLOADER_SUCCESS_MSG = "Loaded class {} from {}";
 	private static final String NIGEL_RESPONSE = "Nigel doing something";
 	private static final String GERVAIS_RESPONSE = "Gervais doing something";
@@ -217,7 +217,7 @@ public class GDAJythonClassloaderTest {
 		assertThat(loader.loadClass(GOOD_CLASS_NAME), equalTo(DummyClass.class));
 		verify(bundles[0], never()).loadClass(GOOD_CLASS_NAME);
 		verify(bundles[1], never()).loadClass(GOOD_CLASS_NAME);
-		verify(logger).debug(contains(MAIN_CLASSLOADER_SUCCESS_MSG), eq(GOOD_CLASS_NAME));
+		verify(logger).debug(contains(MAIN_CLASSLOADER_SUCCESS_MSG), eq(GOOD_CLASS_NAME), eq(bundles[2]));
 	}
 
 	@Test(expected=ClassNotFoundException.class)
