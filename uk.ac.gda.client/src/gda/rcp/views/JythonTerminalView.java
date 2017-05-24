@@ -665,7 +665,6 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 			txtPrompt.setText(NORMAL_PROMPT);
 			appendOutput("KeyboardInterrupt");
 			appendOutput(">>> \n");
-//			run();
 		}
 	}
 
@@ -946,7 +945,6 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 			addToOutputBuffer(text);
 			// update where new print out should start
 			caretPosition = outputBuffer.length();
-			// scrollToBottom = true;
 		}
 		// if just regular output simply append
 		else if (!text.contains("\r") && !text.startsWith(RAW_INPUT_PROMPT)) {
@@ -961,7 +959,6 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 			addToOutputBuffer(text);
 			// update where new print out should start
 			caretPosition = outputBuffer.length();
-			// scrollToBottom = true;
 			// if output starts with '-->' when user requested input mid-script
 		} else if (text.startsWith(RAW_INPUT_PROMPT)) {
 			// add this output to the end of the previous line
@@ -970,7 +967,6 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 			addToOutputBuffer(text);
 			// update where new print out should start
 			caretPosition = outputBuffer.length();
-			// scrollToBottom = true;
 		}
 		// Otherwise must contain a \r.
 		// This should be handled properly so the caret is returned to the start of the last line rather than \r
@@ -990,7 +986,6 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 				if (locOfCR == 0) {
 					int locofLastEndofLine = outputBuffer.lastIndexOf("\n");
 					caretPosition = locofLastEndofLine + 1;
-					// caretPosition = txtOutput.getOffsetAtLine(txtOutput.getLineCount() - 1);
 				}
 				// else add first part of text and then move the caret of
 				// that line
@@ -999,7 +994,6 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 					addToOutputBuffer(substring);
 					int locofLastEndofLine = outputBuffer.lastIndexOf("\n");
 					caretPosition = locofLastEndofLine + 1;
-					// caretPosition = txtOutput.getOffsetAtLine(txtOutput.getLineCount() - 1);
 				}
 
 				// if anything after the /r in the text, append that
@@ -1015,7 +1009,6 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 			// any error, simply output everything and treat \r as a \n
 			catch (Exception e) {
 				addToOutputBuffer(text);
-				// txtOutput.setText(txtOutput.getText() + newOutput);
 				caretPosition = outputBuffer.length();
 			}
 		}
