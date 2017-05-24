@@ -28,6 +28,8 @@ import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Vector;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -141,8 +143,6 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 
 	private Object lastScanDataPointUniqueName;
 
-	// to update the output area from the buffer
-	UpdaterRunner updaterRunner = new UpdaterRunner();
 	volatile boolean outputBufferUpdated = false;
 
 	private ScanDataPointFormatter scanDataPointFormatter;
@@ -176,9 +176,8 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 
 		fetchOldHistory();
 
-		// start the thread to update the output area from the buffer
-		uk.ac.gda.util.ThreadManager.getThread(updaterRunner,
-				getClass().getName() + " " + getName() + "  updater runner").start();
+		// Refresh the terminal output at 20 Hz
+		Executors.newScheduledThreadPool(1).scheduleAtFixedRate(new SimpleOutputUpdater(this), 0, 50, TimeUnit.MILLISECONDS);
 	}
 
 	@Override
@@ -284,7 +283,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 	 * Lock to allow exclusive access to the current content of the output text box, and the copy of the current
 	 * content.
 	 */
-	final Lock outputLock = new ReentrantLock(true);
+	final Lock outputLock = new ReentrantLock();
 
 	protected void setOutputText(String text) {
 		outputLock.lock();
@@ -902,34 +901,6 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 		outputBufferUpdated = true;
 	}
 
-	private class UpdaterRunner implements Runnable {
-		private SimpleOutputUpdater latestUpdater;
-
-		@Override
-		public void run() {
-			while (true) {
-				try {
-					// test if anything added
-					while (!outputBufferUpdated) {
-						Thread.sleep(50);
-					}
-					outputBufferUpdated = false;
-					//if there is not already a SimpleOutputUpdater on the UIThread queue then add one
-					if( latestUpdater ==null || !latestUpdater.inqueue){
-						latestUpdater = new SimpleOutputUpdater(JythonTerminalView.this);
-						if (!PlatformUI.getWorkbench().getDisplay().isDisposed()) {
-							PlatformUI.getWorkbench().getDisplay().asyncExec(latestUpdater);
-						}
-					}
-					Thread.sleep(50);
-				} catch (InterruptedException e) {
-					outputBufferUpdated = true;
-					logger.warn("UpdateRunner. Swallowed InterruptedException: " , e);
-				}
-			}
-		}
-	}
-
 	private void recalculateBuffer(String text) {
 		text = text.replaceAll("\\r+\\n", "\n");
 
@@ -1096,17 +1067,19 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
  */
 class SimpleOutputUpdater implements Runnable {
 
-	public boolean inqueue;
 	private final JythonTerminalView jtv;
 
 	SimpleOutputUpdater(JythonTerminalView jtv) {
 		this.jtv = jtv;
-		inqueue=true;
 	}
 
 	@Override
 	public void run() {
-		inqueue = false;
+		// If the buffer is not updated don't need to get in the UI thread
+		if (!jtv.outputBufferUpdated) {
+			return;
+		}
+		jtv.outputBufferUpdated = false;
 		// On Windows, newlines are \r\n terminated, when you call setText() or append()
 		// \n is replaced with \r\n, so this sequence unexpectedly may return false:
 		// txtOutput.setText(newOutput);
@@ -1118,12 +1091,14 @@ class SimpleOutputUpdater implements Runnable {
 		jtv.outputLock.lock();
 		try {
 			String newOutput = jtv.outputBuffer.toString().trim();
-			//decide whether to call outputDoc.append or set
-			if (newOutput .startsWith(jtv.txtOutputLast)) {
+			// decide whether to call outputDoc.append or set
+			if (newOutput.startsWith(jtv.txtOutputLast)) {
 				String append = newOutput.substring(jtv.txtOutputLast.length());
-				jtv.outputDoc.append(append);
+				// Get in the UI thread and update the terminal output
+				PlatformUI.getWorkbench().getDisplay().syncExec(() -> jtv.outputDoc.append(append));
 			} else {
-				jtv.outputDoc.set(newOutput);
+				// Get in the UI thread and update the terminal output
+				PlatformUI.getWorkbench().getDisplay().syncExec(() -> jtv.outputDoc.set(newOutput));
 			}
 			jtv.txtOutputLast = newOutput;
 		} finally {
@@ -1131,22 +1106,25 @@ class SimpleOutputUpdater implements Runnable {
 		}
 
 		if (!JythonTerminalView.getScrollLock()) {
-			//we need to change what is shown
+			// we need to change what is shown
 			String realOutput = jtv.outputDoc.get();
 			if (jtv.outputTextViewer.getTextWidget() != null && realOutput.contains("\n")) {
 				int index = realOutput.lastIndexOf("\n") + 1;
-				jtv.outputTextViewer.getTextWidget().setSelection(index);
-				jtv.outputTextViewer.getTextWidget().showSelection();
+				PlatformUI.getWorkbench().getDisplay().syncExec(() -> {
+					jtv.outputTextViewer.getTextWidget().setSelection(index);
+					jtv.outputTextViewer.getTextWidget().showSelection();
+				});
 			}
 		}
 
 		if (JythonTerminalView.getMoveToTopOnUpdate()) {
-			IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-			IWorkbenchPage page = window.getActivePage();
-			if (jtv.getSite().getPage().equals(page)) {
-				page.bringToTop(jtv);
-			}
-
+			PlatformUI.getWorkbench().getDisplay().syncExec(() -> {
+				IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+				IWorkbenchPage page = window.getActivePage();
+				if (jtv.getSite().getPage().equals(page)) {
+					page.bringToTop(jtv);
+				}
+			});
 		}
 	}
 
