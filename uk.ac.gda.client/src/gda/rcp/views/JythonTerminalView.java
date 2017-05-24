@@ -107,13 +107,13 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 	public static final String ID = "gda.rcp.jythonterminalview";
 
 	private static final Logger logger = LoggerFactory.getLogger(JythonTerminalView.class);
-	private static final String NORMALPROMPT = ">>>";
-	private static final String ADDITONALINPUTPROMPT = "...";
-	private static final String RAWINPUTPROMPT = "-->";
-	private static final int maxCommandsToSave = 100;
+	private static final String NORMAL_PROMPT = ">>>";
+	private static final String ADDITONAL_INPUT_PROMPT = "...";
+	private static final String RAW_INPUT_PROMPT = "-->";
+	private static final int MAX_COMMANDS_TO_SAVE = 100;
 
-	private static Boolean scrollLock = false;
-	private static Boolean moveToTopOnUpdate = false;
+	private static boolean scrollLock = false;
+	private static boolean moveToTopOnUpdate = false;
 
 	private volatile String txtInputText = "";
 	private volatile String txtPromptText = "";
@@ -130,7 +130,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 	private Text txtPrompt;
 
 	private Vector<String> cmdHistory = new Vector<String>(0);
-	private int cmdHistory_index = 0;
+	private int cmdHistoryIndex = 0;
 	private String commandFileName;
 	private JythonServerFacade jsf;
 	private boolean runFromHistory = false;
@@ -232,7 +232,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 				txtPrompt.setEditable(false);
 				txtPrompt.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 				txtPrompt.setLayoutData(new GridData(GridData.FILL_VERTICAL));
-				txtPrompt.setText(NORMALPROMPT);
+				txtPrompt.setText(NORMAL_PROMPT);
 				txtPrompt.setFont(font);
 				txtPrompt.setTabs(tabSize);
 			}
@@ -389,7 +389,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 				PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 					@Override
 					public void run() {
-						txtPrompt.setText(RAWINPUTPROMPT);
+						txtPrompt.setText(RAW_INPUT_PROMPT);
 						txtInput.setBackground(SWTResourceManager.getColor(SWT.COLOR_GRAY));
 						// clear the command-line
 						txtInput.setText("");
@@ -400,7 +400,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 					@Override
 					public void run() {
 						// change prompt back to usual
-						txtPrompt.setText(NORMALPROMPT);
+						txtPrompt.setText(NORMAL_PROMPT);
 						txtInput.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 					}
 				});
@@ -451,7 +451,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 
 		appendOutput(String.format("%s %s\n", txtPromptText, txtInputText));
 		// if this is the start of a new command
-		if (txtPromptText.compareTo(NORMALPROMPT) == 0) {
+		if (txtPromptText.compareTo(NORMAL_PROMPT) == 0) {
 			String typedCmd = txtInputText;
 			// add the command to cmdHistory
 			if (cmdHistory.size() == 0) {
@@ -460,7 +460,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 					&& (typedCmd.compareTo(cmdHistory.get(cmdHistory.size() - 1)) != 0)) {
 				addCommandToHistory(typedCmd);
 			}
-			if (cmdHistory_index != cmdHistory.size() - 2) {
+			if (cmdHistoryIndex != cmdHistory.size() - 2) {
 				runFromHistory = true;
 			}
 			// run the command
@@ -473,7 +473,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 					@Override
 					public void run() {
 						// change the prompt
-						txtPrompt.setText(ADDITONALINPUTPROMPT);
+						txtPrompt.setText(ADDITONAL_INPUT_PROMPT);
 						// clear the command-line
 						txtInput.setText("");
 					}
@@ -481,7 +481,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 			} else {
 				currentCmd = "";
 				// reset the cmdHistory pointer if we just added a new line
-				cmdHistory_index = cmdHistory.size();
+				cmdHistoryIndex = cmdHistory.size();
 				runFromHistory = false;
 
 				class InputClearTask implements Runnable {
@@ -503,7 +503,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 			}
 		}
 		// if we are part way through a multi-line command
-		else if (txtPromptText.compareTo(ADDITONALINPUTPROMPT) == 0) {
+		else if (txtPromptText.compareTo(ADDITONAL_INPUT_PROMPT) == 0) {
 			// add to history if something was entered
 			if (txtInputText.compareTo("") != 0) {
 				if (cmdHistory.size() == 0) {
@@ -512,7 +512,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 						&& (txtInputText.compareTo(cmdHistory.get(cmdHistory.size() - 1)) != 0)) {
 					addCommandToHistory(txtInputText);
 				}
-				if (cmdHistory_index != cmdHistory.size() - 2) {
+				if (cmdHistoryIndex != cmdHistory.size() - 2) {
 					runFromHistory = true;
 				}
 			}
@@ -539,7 +539,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 				PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 					@Override
 					public void run() {// change the prompt
-						txtPrompt.setText(ADDITONALINPUTPROMPT);
+						txtPrompt.setText(ADDITONAL_INPUT_PROMPT);
 						// clear the command-line
 						txtInput.setText("");
 					}
@@ -549,18 +549,18 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 				PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 					@Override
 					public void run() {// change the prompt
-						txtPrompt.setText(NORMALPROMPT);
+						txtPrompt.setText(NORMAL_PROMPT);
 						// clear the command-line
 						txtInput.setText("");
 					}
 				});
 				// reset the cmdHistory pointer
-				cmdHistory_index = cmdHistory.size();
+				cmdHistoryIndex = cmdHistory.size();
 				runFromHistory = false;
 			}
 		}
 		// else a script has asked for input
-		else if (txtPromptText.compareTo(RAWINPUTPROMPT) == 0) {
+		else if (txtPromptText.compareTo(RAW_INPUT_PROMPT) == 0) {
 			// get the next input from the user
 			jsf.setRawInput(txtInputText);
 			PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
@@ -595,7 +595,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 				// running
 				// we want to write to file every command as quickly as
 				// possible
-				int numberToRemove = cmdHistory.size() - maxCommandsToSave;
+				int numberToRemove = cmdHistory.size() - MAX_COMMANDS_TO_SAVE;
 				if (numberToRemove > 0) {
 					for (int i = 0; i < numberToRemove; i++) {
 						cmdHistory.removeElementAt(0);
@@ -609,7 +609,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 					}
 					out.close();
 				}
-				this.cmdHistory_index = cmdHistory.size();
+				this.cmdHistoryIndex = cmdHistory.size();
 			}
 
 			// else make a new file
@@ -629,16 +629,16 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 		// down arrow
 		if (e.keyCode == SWT.ARROW_DOWN) {
 			runFromHistory = false;
-			if (cmdHistory_index < cmdHistory.size() - 1) {
-				cmdHistory_index++;
-				txtInput.setText(cmdHistory.get(cmdHistory_index));
+			if (cmdHistoryIndex < cmdHistory.size() - 1) {
+				cmdHistoryIndex++;
+				txtInput.setText(cmdHistory.get(cmdHistoryIndex));
 				moveCaretToEnd();
 			}
 			// if at end of array then dont move index pointer but add a
 			// blank
 			// string
-			else if (cmdHistory_index == cmdHistory.size() - 1) {
-				cmdHistory_index++;
+			else if (cmdHistoryIndex == cmdHistory.size() - 1) {
+				cmdHistoryIndex++;
 				txtInput.setText("");
 			}
 		}
@@ -646,11 +646,11 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 		else if (e.keyCode == SWT.ARROW_UP) {
 			if (runFromHistory) {
 				runFromHistory = false;
-			} else if (cmdHistory_index > 0) {
-				cmdHistory_index--;
+			} else if (cmdHistoryIndex > 0) {
+				cmdHistoryIndex--;
 			}
 			if (cmdHistory.size() != 0) {
-				txtInput.setText(cmdHistory.get(cmdHistory_index));
+				txtInput.setText(cmdHistory.get(cmdHistoryIndex));
 				moveCaretToEnd();
 			}
 		}
@@ -662,10 +662,9 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 		else if (e.stateMask == SWT.CTRL && (e.keyCode == 'd' || e.keyCode == 'z')) {
 			txtInput.setText("");
 			currentCmd = "";
-			txtPrompt.setText(NORMALPROMPT);
+			txtPrompt.setText(NORMAL_PROMPT);
 			appendOutput("KeyboardInterrupt");
 			appendOutput(">>> \n");
-//			run();
 		}
 	}
 
@@ -935,7 +934,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 		text = text.replaceAll("\\r+\\n", "\n");
 
 		// if a repeat of the command prompt
-		if (text.startsWith(NORMALPROMPT)) {
+		if (text.startsWith(NORMAL_PROMPT)) {
 			// make sure that the print out starts on a new line
 			if (outputBuffer.length() > 0 && outputBuffer.charAt(outputBuffer.length() - 1) != '\n') {
 				outputBuffer.append("\r\n");
@@ -946,10 +945,9 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 			addToOutputBuffer(text);
 			// update where new print out should start
 			caretPosition = outputBuffer.length();
-			// scrollToBottom = true;
 		}
 		// if just regular output simply append
-		else if (!text.contains("\r") && !text.startsWith(RAWINPUTPROMPT)) {
+		else if (!text.contains("\r") && !text.startsWith(RAW_INPUT_PROMPT)) {
 			// If text field has grown too long, trim off 10% from the beginning. Note: This is only performed for
 			// this "regular output" case because changing the text field length for the other cases messes up the
 			// caretPosition value.
@@ -961,16 +959,14 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 			addToOutputBuffer(text);
 			// update where new print out should start
 			caretPosition = outputBuffer.length();
-			// scrollToBottom = true;
 			// if output starts with '-->' when user requested input mid-script
-		} else if (text.startsWith(RAWINPUTPROMPT)) {
+		} else if (text.startsWith(RAW_INPUT_PROMPT)) {
 			// add this output to the end of the previous line
 			caretPosition = outputBuffer.length();
 			// print
 			addToOutputBuffer(text);
 			// update where new print out should start
 			caretPosition = outputBuffer.length();
-			// scrollToBottom = true;
 		}
 		// Otherwise must contain a \r.
 		// This should be handled properly so the caret is returned to the start of the last line rather than \r
@@ -990,7 +986,6 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 				if (locOfCR == 0) {
 					int locofLastEndofLine = outputBuffer.lastIndexOf("\n");
 					caretPosition = locofLastEndofLine + 1;
-					// caretPosition = txtOutput.getOffsetAtLine(txtOutput.getLineCount() - 1);
 				}
 				// else add first part of text and then move the caret of
 				// that line
@@ -999,7 +994,6 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 					addToOutputBuffer(substring);
 					int locofLastEndofLine = outputBuffer.lastIndexOf("\n");
 					caretPosition = locofLastEndofLine + 1;
-					// caretPosition = txtOutput.getOffsetAtLine(txtOutput.getLineCount() - 1);
 				}
 
 				// if anything after the /r in the text, append that
@@ -1015,7 +1009,6 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 			// any error, simply output everything and treat \r as a \n
 			catch (Exception e) {
 				addToOutputBuffer(text);
-				// txtOutput.setText(txtOutput.getText() + newOutput);
 				caretPosition = outputBuffer.length();
 			}
 		}
@@ -1065,19 +1058,19 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 		this.mockJythonContext = mockJythonContext;
 	}
 
-	public static Boolean getScrollLock() {
+	public static boolean getScrollLock() {
 		return scrollLock;
 	}
 
-	public static void setScrollLock(Boolean scrollLock) {
+	public static void setScrollLock(boolean scrollLock) {
 		JythonTerminalView.scrollLock = scrollLock;
 	}
 
-	public static Boolean getMoveToTopOnUpdate() {
+	public static boolean getMoveToTopOnUpdate() {
 		return moveToTopOnUpdate;
 	}
 
-	public static void setMoveToTopOnUpdate(Boolean moveToTopOnUpdate) {
+	public static void setMoveToTopOnUpdate(boolean moveToTopOnUpdate) {
 		JythonTerminalView.moveToTopOnUpdate = moveToTopOnUpdate;
 	}
 
@@ -1153,8 +1146,8 @@ class SimpleOutputUpdater implements Runnable {
 			if (jtv.getSite().getPage().equals(page)) {
 				page.bringToTop(jtv);
 			}
+
 		}
 	}
-
 
 }
