@@ -151,7 +151,7 @@ public class GDAJythonClassLoader extends ClassLoader {
 			for (Bundle bundle : getMatchingBundlesForName(name).keySet()) {
 				try {
 					theClass = bundle.loadClass(name);
-					logger.debug("Loaded class: {}", name);
+					logger.debug("Loaded class {} from bundle {}", name, bundle);
 					return theClass;
 				} catch (ClassNotFoundException er) {
 					continue;                              // try the next bundle
