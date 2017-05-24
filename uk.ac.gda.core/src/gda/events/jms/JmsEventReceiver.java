@@ -59,12 +59,11 @@ public class JmsEventReceiver extends JmsClient implements EventReceiver {
 	 * Creates a JMS event receiver.
 	 */
 	public JmsEventReceiver() {
+		logger.info("Created new session: '{}'", session);
 		try {
-			createSession();
 			connection.start();
-			logger.info("Created new session: '{}'", session);
 		} catch (JMSException e) {
-			logger.error("Unable to create JMS event receiver", e);
+			throw new RuntimeException("Unable to create JMS event receiver", e);
 		}
 	}
 
