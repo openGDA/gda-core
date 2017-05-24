@@ -112,8 +112,8 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 	private static final String RAW_INPUT_PROMPT = "-->";
 	private static final int MAX_COMMANDS_TO_SAVE = 100;
 
-	private static Boolean scrollLock = false;
-	private static Boolean moveToTopOnUpdate = false;
+	private static boolean scrollLock = false;
+	private static boolean moveToTopOnUpdate = false;
 
 	private volatile String txtInputText = "";
 	private volatile String txtPromptText = "";
@@ -1065,19 +1065,19 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 		this.mockJythonContext = mockJythonContext;
 	}
 
-	public static Boolean getScrollLock() {
+	public static boolean getScrollLock() {
 		return scrollLock;
 	}
 
-	public static void setScrollLock(Boolean scrollLock) {
+	public static void setScrollLock(boolean scrollLock) {
 		JythonTerminalView.scrollLock = scrollLock;
 	}
 
-	public static Boolean getMoveToTopOnUpdate() {
+	public static boolean getMoveToTopOnUpdate() {
 		return moveToTopOnUpdate;
 	}
 
-	public static void setMoveToTopOnUpdate(Boolean moveToTopOnUpdate) {
+	public static void setMoveToTopOnUpdate(boolean moveToTopOnUpdate) {
 		JythonTerminalView.moveToTopOnUpdate = moveToTopOnUpdate;
 	}
 
