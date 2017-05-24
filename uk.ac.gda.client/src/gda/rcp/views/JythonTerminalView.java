@@ -130,7 +130,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 	private Text txtPrompt;
 
 	private Vector<String> cmdHistory = new Vector<String>(0);
-	private int cmdHistory_index = 0;
+	private int cmdHistoryIndex = 0;
 	private String commandFileName;
 	private JythonServerFacade jsf;
 	private boolean runFromHistory = false;
@@ -460,7 +460,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 					&& (typedCmd.compareTo(cmdHistory.get(cmdHistory.size() - 1)) != 0)) {
 				addCommandToHistory(typedCmd);
 			}
-			if (cmdHistory_index != cmdHistory.size() - 2) {
+			if (cmdHistoryIndex != cmdHistory.size() - 2) {
 				runFromHistory = true;
 			}
 			// run the command
@@ -481,7 +481,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 			} else {
 				currentCmd = "";
 				// reset the cmdHistory pointer if we just added a new line
-				cmdHistory_index = cmdHistory.size();
+				cmdHistoryIndex = cmdHistory.size();
 				runFromHistory = false;
 
 				class InputClearTask implements Runnable {
@@ -512,7 +512,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 						&& (txtInputText.compareTo(cmdHistory.get(cmdHistory.size() - 1)) != 0)) {
 					addCommandToHistory(txtInputText);
 				}
-				if (cmdHistory_index != cmdHistory.size() - 2) {
+				if (cmdHistoryIndex != cmdHistory.size() - 2) {
 					runFromHistory = true;
 				}
 			}
@@ -555,7 +555,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 					}
 				});
 				// reset the cmdHistory pointer
-				cmdHistory_index = cmdHistory.size();
+				cmdHistoryIndex = cmdHistory.size();
 				runFromHistory = false;
 			}
 		}
@@ -609,7 +609,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 					}
 					out.close();
 				}
-				this.cmdHistory_index = cmdHistory.size();
+				this.cmdHistoryIndex = cmdHistory.size();
 			}
 
 			// else make a new file
@@ -629,16 +629,16 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 		// down arrow
 		if (e.keyCode == SWT.ARROW_DOWN) {
 			runFromHistory = false;
-			if (cmdHistory_index < cmdHistory.size() - 1) {
-				cmdHistory_index++;
-				txtInput.setText(cmdHistory.get(cmdHistory_index));
+			if (cmdHistoryIndex < cmdHistory.size() - 1) {
+				cmdHistoryIndex++;
+				txtInput.setText(cmdHistory.get(cmdHistoryIndex));
 				moveCaretToEnd();
 			}
 			// if at end of array then dont move index pointer but add a
 			// blank
 			// string
-			else if (cmdHistory_index == cmdHistory.size() - 1) {
-				cmdHistory_index++;
+			else if (cmdHistoryIndex == cmdHistory.size() - 1) {
+				cmdHistoryIndex++;
 				txtInput.setText("");
 			}
 		}
@@ -646,11 +646,11 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 		else if (e.keyCode == SWT.ARROW_UP) {
 			if (runFromHistory) {
 				runFromHistory = false;
-			} else if (cmdHistory_index > 0) {
-				cmdHistory_index--;
+			} else if (cmdHistoryIndex > 0) {
+				cmdHistoryIndex--;
 			}
 			if (cmdHistory.size() != 0) {
-				txtInput.setText(cmdHistory.get(cmdHistory_index));
+				txtInput.setText(cmdHistory.get(cmdHistoryIndex));
 				moveCaretToEnd();
 			}
 		}
@@ -1153,8 +1153,8 @@ class SimpleOutputUpdater implements Runnable {
 			if (jtv.getSite().getPage().equals(page)) {
 				page.bringToTop(jtv);
 			}
+
 		}
 	}
-
 
 }
