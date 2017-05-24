@@ -107,10 +107,10 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 	public static final String ID = "gda.rcp.jythonterminalview";
 
 	private static final Logger logger = LoggerFactory.getLogger(JythonTerminalView.class);
-	private static final String NORMALPROMPT = ">>>";
-	private static final String ADDITONALINPUTPROMPT = "...";
-	private static final String RAWINPUTPROMPT = "-->";
-	private static final int maxCommandsToSave = 100;
+	private static final String NORMAL_PROMPT = ">>>";
+	private static final String ADDITONAL_INPUT_PROMPT = "...";
+	private static final String RAW_INPUT_PROMPT = "-->";
+	private static final int MAX_COMMANDS_TO_SAVE = 100;
 
 	private static Boolean scrollLock = false;
 	private static Boolean moveToTopOnUpdate = false;
@@ -232,7 +232,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 				txtPrompt.setEditable(false);
 				txtPrompt.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 				txtPrompt.setLayoutData(new GridData(GridData.FILL_VERTICAL));
-				txtPrompt.setText(NORMALPROMPT);
+				txtPrompt.setText(NORMAL_PROMPT);
 				txtPrompt.setFont(font);
 				txtPrompt.setTabs(tabSize);
 			}
@@ -389,7 +389,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 				PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 					@Override
 					public void run() {
-						txtPrompt.setText(RAWINPUTPROMPT);
+						txtPrompt.setText(RAW_INPUT_PROMPT);
 						txtInput.setBackground(SWTResourceManager.getColor(SWT.COLOR_GRAY));
 						// clear the command-line
 						txtInput.setText("");
@@ -400,7 +400,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 					@Override
 					public void run() {
 						// change prompt back to usual
-						txtPrompt.setText(NORMALPROMPT);
+						txtPrompt.setText(NORMAL_PROMPT);
 						txtInput.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 					}
 				});
@@ -451,7 +451,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 
 		appendOutput(String.format("%s %s\n", txtPromptText, txtInputText));
 		// if this is the start of a new command
-		if (txtPromptText.compareTo(NORMALPROMPT) == 0) {
+		if (txtPromptText.compareTo(NORMAL_PROMPT) == 0) {
 			String typedCmd = txtInputText;
 			// add the command to cmdHistory
 			if (cmdHistory.size() == 0) {
@@ -473,7 +473,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 					@Override
 					public void run() {
 						// change the prompt
-						txtPrompt.setText(ADDITONALINPUTPROMPT);
+						txtPrompt.setText(ADDITONAL_INPUT_PROMPT);
 						// clear the command-line
 						txtInput.setText("");
 					}
@@ -503,7 +503,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 			}
 		}
 		// if we are part way through a multi-line command
-		else if (txtPromptText.compareTo(ADDITONALINPUTPROMPT) == 0) {
+		else if (txtPromptText.compareTo(ADDITONAL_INPUT_PROMPT) == 0) {
 			// add to history if something was entered
 			if (txtInputText.compareTo("") != 0) {
 				if (cmdHistory.size() == 0) {
@@ -539,7 +539,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 				PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 					@Override
 					public void run() {// change the prompt
-						txtPrompt.setText(ADDITONALINPUTPROMPT);
+						txtPrompt.setText(ADDITONAL_INPUT_PROMPT);
 						// clear the command-line
 						txtInput.setText("");
 					}
@@ -549,7 +549,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 				PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 					@Override
 					public void run() {// change the prompt
-						txtPrompt.setText(NORMALPROMPT);
+						txtPrompt.setText(NORMAL_PROMPT);
 						// clear the command-line
 						txtInput.setText("");
 					}
@@ -560,7 +560,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 			}
 		}
 		// else a script has asked for input
-		else if (txtPromptText.compareTo(RAWINPUTPROMPT) == 0) {
+		else if (txtPromptText.compareTo(RAW_INPUT_PROMPT) == 0) {
 			// get the next input from the user
 			jsf.setRawInput(txtInputText);
 			PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
@@ -595,7 +595,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 				// running
 				// we want to write to file every command as quickly as
 				// possible
-				int numberToRemove = cmdHistory.size() - maxCommandsToSave;
+				int numberToRemove = cmdHistory.size() - MAX_COMMANDS_TO_SAVE;
 				if (numberToRemove > 0) {
 					for (int i = 0; i < numberToRemove; i++) {
 						cmdHistory.removeElementAt(0);
@@ -662,7 +662,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 		else if (e.stateMask == SWT.CTRL && (e.keyCode == 'd' || e.keyCode == 'z')) {
 			txtInput.setText("");
 			currentCmd = "";
-			txtPrompt.setText(NORMALPROMPT);
+			txtPrompt.setText(NORMAL_PROMPT);
 			appendOutput("KeyboardInterrupt");
 			appendOutput(">>> \n");
 //			run();
@@ -935,7 +935,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 		text = text.replaceAll("\\r+\\n", "\n");
 
 		// if a repeat of the command prompt
-		if (text.startsWith(NORMALPROMPT)) {
+		if (text.startsWith(NORMAL_PROMPT)) {
 			// make sure that the print out starts on a new line
 			if (outputBuffer.length() > 0 && outputBuffer.charAt(outputBuffer.length() - 1) != '\n') {
 				outputBuffer.append("\r\n");
@@ -949,7 +949,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 			// scrollToBottom = true;
 		}
 		// if just regular output simply append
-		else if (!text.contains("\r") && !text.startsWith(RAWINPUTPROMPT)) {
+		else if (!text.contains("\r") && !text.startsWith(RAW_INPUT_PROMPT)) {
 			// If text field has grown too long, trim off 10% from the beginning. Note: This is only performed for
 			// this "regular output" case because changing the text field length for the other cases messes up the
 			// caretPosition value.
@@ -963,7 +963,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 			caretPosition = outputBuffer.length();
 			// scrollToBottom = true;
 			// if output starts with '-->' when user requested input mid-script
-		} else if (text.startsWith(RAWINPUTPROMPT)) {
+		} else if (text.startsWith(RAW_INPUT_PROMPT)) {
 			// add this output to the end of the previous line
 			caretPosition = outputBuffer.length();
 			// print
