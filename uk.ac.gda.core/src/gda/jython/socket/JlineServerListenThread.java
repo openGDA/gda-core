@@ -27,6 +27,7 @@ import java.util.List;
 import org.python.jline.TerminalFactory;
 import org.python.jline.UnixTerminal;
 import org.python.jline.console.ConsoleReader;
+import org.python.jline.console.UserInterruptException;
 import org.python.jline.console.completer.CandidateListCompletionHandler;
 import org.python.jline.console.completer.Completer;
 import org.python.jline.console.history.FileHistory;
@@ -69,6 +70,8 @@ public class JlineServerListenThread extends ServerListenThreadBase {
 		CandidateListCompletionHandler clch = new CandidateListCompletionHandler();
 		clch.setPrintSpaceAfterFullCompletion(false);
 		cr.setCompletionHandler(clch);
+
+		cr.setHandleUserInterrupt(true);
 	}
 
 	@Override
@@ -90,7 +93,12 @@ public class JlineServerListenThread extends ServerListenThreadBase {
 
 	@Override
 	protected String readLine(String prompt) throws IOException {
-		return cr.readLine(prompt);
+		try {
+			return cr.readLine(prompt);
+		} catch (UserInterruptException uie) {
+			cr.println("KeyboardInterrupt");
+			throw new InterruptedInputException(uie);
+		}
 	}
 
 	private static final class GdaJythonCompleter implements Completer {
