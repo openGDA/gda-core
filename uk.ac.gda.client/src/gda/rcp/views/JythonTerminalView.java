@@ -33,6 +33,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.regex.Pattern;
 
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
@@ -150,6 +151,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 
 	private Composite root;
 
+	private final Pattern newLinePattern = Pattern.compile("\\r+\\n");
 
 	/***/
 	public JythonTerminalView() {
@@ -844,7 +846,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 	}
 
 	private void recalculateBuffer(String text) {
-		text = text.replaceAll("\\r+\\n", "\n");
+		newLinePattern.matcher(text).replaceAll("\n");
 
 		// if a repeat of the command prompt
 		if (text.startsWith(NORMAL_PROMPT)) {
