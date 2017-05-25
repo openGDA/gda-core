@@ -454,22 +454,12 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 				cmdHistoryIndex = cmdHistory.size();
 				runFromHistory = false;
 
-				class InputClearTask implements Runnable {
-					final String command;
-
-					InputClearTask(String command) {
-						this.command = command;
+				PlatformUI.getWorkbench().getDisplay().asyncExec(() -> {
+					// clear the command-line if it has not been changed
+					if (typedCmd.equals(txtInput.getText())) {
+						txtInput.setText("");
 					}
-
-					@Override
-					public void run() {
-						// clear the command-line if it has not been changed
-						if (command.equals(txtInput.getText())) {
-							txtInput.setText("");
-						}
-					}
-				}
-				PlatformUI.getWorkbench().getDisplay().asyncExec(new InputClearTask(typedCmd));
+				});
 			}
 		}
 		// if we are part way through a multi-line command
