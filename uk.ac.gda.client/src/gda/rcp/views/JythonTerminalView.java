@@ -39,6 +39,7 @@ import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.ITextOperationTarget;
 import org.eclipse.jface.text.TextViewer;
@@ -1052,6 +1053,24 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 						page.bringToTop(JythonTerminalView.this);
 					}
 				});
+			}
+		}
+	}
+
+	/**
+	 * Extends the standard JFace {@link Document} class to add an {@code append}
+	 * method.
+	 */
+	private class JythonTerminalDocument extends Document {
+
+		/**
+		 * Appends the given text to the end of this document.
+		 */
+		private void append(String text) {
+			try {
+				replace(getLength(), 0, text);
+			} catch (BadLocationException e) {
+				logger.error("Couldn't append text", e);
 			}
 		}
 	}
