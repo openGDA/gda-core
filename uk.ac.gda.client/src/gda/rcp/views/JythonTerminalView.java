@@ -44,14 +44,10 @@ import org.eclipse.jface.text.TextViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.TraverseEvent;
-import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IViewSite;
@@ -240,32 +236,22 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 				txtInput = new Text(inputHolder, SWT.NONE);
 				txtInput.setFont(font);
 				txtInput.setTabs(tabSize);
-				txtInput.addListener(SWT.DefaultSelection, new Listener() {
-					@Override
-					public void handleEvent(Event e) {
-						JythonTerminalView.this.txtInput_ActionPerformed();
-					}
-				});
+				txtInput.addListener(SWT.DefaultSelection, e -> txtInput_ActionPerformed());
 				txtInput.addKeyListener(new KeyAdapter() {
 					@Override
 					public void keyPressed(KeyEvent e) {
 						handleTxtInputKeyEvent(e);
 					}
 				});
-				txtInput.addTraverseListener(new TraverseListener() {
-					@Override
-					public void keyTraversed(TraverseEvent e) {
+				txtInput.addTraverseListener(e -> {
 						e.doit = false;
-						switch (e.detail) {
-						case SWT.TRAVERSE_TAB_PREVIOUS:
+						if (e.detail == SWT.TRAVERSE_TAB_PREVIOUS) {
 							int caret = txtInput.getCaretPosition();
 							if (txtInput.getText(caret-1, caret-1).equals(String.valueOf(SWT.TAB))) {
 								txtInput.setText(txtInput.getText().replaceFirst("\t", ""));
 								txtInput.setSelection(caret-1);
 							}
-							break;
 						}
-					}
 				});
 
 				txtInput.setLayoutData(new GridData(GridData.FILL_BOTH));
@@ -371,13 +357,9 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 		} else if (theObserved instanceof JythonServerFacade && changeCode instanceof ScanEvent) {
 			if (((ScanEvent) changeCode).getType() == ScanEvent.EventType.FINISHED) {
 				// BEEP to info users scan has finished.
-				PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-
-					@Override
-					public void run() {
-						logger.debug("======= system beep =======");
-						PlatformUI.getWorkbench().getDisplay().beep();
-					}
+				PlatformUI.getWorkbench().getDisplay().asyncExec(() -> {
+					logger.debug("======= system beep =======");
+					PlatformUI.getWorkbench().getDisplay().beep();
 				});
 			}
 		} else if (changeCode instanceof String) {
@@ -386,23 +368,17 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 			if (message.compareTo(Jython.RAWINPUTREQUESTED) == 0) {
 				// change prompt and next input will go through a different
 				// method call
-				PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						txtPrompt.setText(RAW_INPUT_PROMPT);
-						txtInput.setBackground(SWTResourceManager.getColor(SWT.COLOR_GRAY));
-						// clear the command-line
-						txtInput.setText("");
-					}
+				PlatformUI.getWorkbench().getDisplay().asyncExec(() -> {
+					txtPrompt.setText(RAW_INPUT_PROMPT);
+					txtInput.setBackground(SWTResourceManager.getColor(SWT.COLOR_GRAY));
+					// clear the command-line
+					txtInput.setText("");
 				});
 			} else if (message.compareTo(Jython.RAWINPUTRECEIVED) == 0) {
-				PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						// change prompt back to usual
-						txtPrompt.setText(NORMAL_PROMPT);
-						txtInput.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
-					}
+				PlatformUI.getWorkbench().getDisplay().asyncExec(() -> {
+					// change prompt back to usual
+					txtPrompt.setText(NORMAL_PROMPT);
+					txtInput.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 				});
 			}
 		}
@@ -441,12 +417,9 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 
 		// print out what was typed
 
-		PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
-			@Override
-			public void run() {
-				txtPromptText = txtPrompt.getText();
-				txtInputText = txtInput.getText();
-			}
+		PlatformUI.getWorkbench().getDisplay().syncExec(() -> {
+			txtPromptText = txtPrompt.getText();
+			txtInputText = txtInput.getText();
 		});
 
 		appendOutput(String.format("%s %s\n", txtPromptText, txtInputText));
@@ -469,14 +442,11 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 			if (needMore) {
 				// save the command so far
 				currentCmd = typedCmd;
-				PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						// change the prompt
-						txtPrompt.setText(ADDITONAL_INPUT_PROMPT);
-						// clear the command-line
-						txtInput.setText("");
-					}
+				PlatformUI.getWorkbench().getDisplay().asyncExec(() -> {
+					// change the prompt
+					txtPrompt.setText(ADDITONAL_INPUT_PROMPT);
+					// clear the command-line
+					txtInput.setText("");
 				});
 			} else {
 				currentCmd = "";
@@ -518,41 +488,27 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 			}
 			// append to whole command
 			currentCmd += "\n" + txtInputText;
-			PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					txtInput.setEnabled(false);
-				}
-			});
+			PlatformUI.getWorkbench().getDisplay().asyncExec(() -> txtInput.setEnabled(false));
 			// run the command
 			boolean needMore = jsf.runsource("\n" + currentCmd, getName());
-			PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					txtInput.setEnabled(true);
-					txtInput.forceFocus();
-				}
+			PlatformUI.getWorkbench().getDisplay().asyncExec(() -> {
+				txtInput.setEnabled(true);
+				txtInput.forceFocus();
 			});
 
 			// if not a complete Jython command
 			if (needMore) {
-				PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-					@Override
-					public void run() {// change the prompt
-						txtPrompt.setText(ADDITONAL_INPUT_PROMPT);
-						// clear the command-line
-						txtInput.setText("");
-					}
+				PlatformUI.getWorkbench().getDisplay().asyncExec(() -> {// change the prompt
+					txtPrompt.setText(ADDITONAL_INPUT_PROMPT);
+					// clear the command-line
+					txtInput.setText("");
 				});
 			} else {
 				currentCmd = "";
-				PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-					@Override
-					public void run() {// change the prompt
-						txtPrompt.setText(NORMAL_PROMPT);
-						// clear the command-line
-						txtInput.setText("");
-					}
+				PlatformUI.getWorkbench().getDisplay().asyncExec(() -> {// change the prompt
+					txtPrompt.setText(NORMAL_PROMPT);
+					// clear the command-line
+					txtInput.setText("");
 				});
 				// reset the cmdHistory pointer
 				cmdHistoryIndex = cmdHistory.size();
@@ -563,12 +519,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 		else if (txtPromptText.compareTo(RAW_INPUT_PROMPT) == 0) {
 			// get the next input from the user
 			jsf.setRawInput(txtInputText);
-			PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-				@Override
-				public void run() {// clear the command-line
-					txtInput.setText("");
-				}
-			});
+			PlatformUI.getWorkbench().getDisplay().asyncExec(() -> txtInput.setText(""));
 		}
 	}
 
