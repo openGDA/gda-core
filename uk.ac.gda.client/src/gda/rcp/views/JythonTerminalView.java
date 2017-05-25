@@ -238,7 +238,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 				txtInput = new Text(inputHolder, SWT.NONE);
 				txtInput.setFont(font);
 				txtInput.setTabs(tabSize);
-				txtInput.addListener(SWT.DefaultSelection, e -> txtInput_ActionPerformed());
+				txtInput.addListener(SWT.DefaultSelection, e -> textInputActionPerformed());
 				txtInput.addKeyListener(new KeyAdapter() {
 					@Override
 					public void keyPressed(KeyEvent e) {
@@ -611,7 +611,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 		}
 	}
 
-	private void txtInput_ActionPerformed() {
+	private void textInputActionPerformed() {
 		// first intercept to see if there's any command which this panel is
 		// interested in rather than passing to the interpreter.
 		String inputText = txtInput.getText();
