@@ -523,7 +523,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 			// if the file exists, read its contents
 			if (commandFile.exists()) {
 				BufferedReader in = new BufferedReader(new FileReader(commandFile));
-				String str = "";
+				String str;
 				while ((str = in.readLine()) != null) {
 					if (!str.isEmpty()) {
 						cmdHistory.add(str);
@@ -664,8 +664,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 			appendOutput(this.txtPrompt.getText() + parts[0] + "\n");
 
 			// print out the last 100 commands
-			int i = 0;
-			i = cmdHistory.size() > 100 ? cmdHistory.size() - 100 : 0;
+			int i = cmdHistory.size() > 100 ? cmdHistory.size() - 100 : 0;
 
 			for (; i < cmdHistory.size(); i++) {
 				appendOutput(i + "\t" + cmdHistory.get(i) + "\n");
