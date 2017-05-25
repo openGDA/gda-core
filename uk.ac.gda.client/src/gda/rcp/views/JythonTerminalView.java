@@ -889,7 +889,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 		else {
 			try {
 				// find out where the \r is
-				int locOfCR = text.indexOf("\r");
+				int locOfCR = text.indexOf('\r');
 
 				// remove any final \n
 				if (text.endsWith("\n")) {
@@ -1047,7 +1047,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 				// we need to change what is shown
 				String realOutput = outputDoc.get();
 				if (outputTextViewer.getTextWidget() != null && realOutput.contains("\n")) {
-					int index = realOutput.lastIndexOf("\n") + 1;
+					int index = realOutput.lastIndexOf('\n') + 1;
 					PlatformUI.getWorkbench().getDisplay().syncExec(() -> {
 						outputTextViewer.getTextWidget().setSelection(index);
 						outputTextViewer.getTextWidget().showSelection();
