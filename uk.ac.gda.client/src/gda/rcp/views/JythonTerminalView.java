@@ -1021,30 +1021,40 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 				if (newOutput.startsWith(txtOutputLast)) {
 					String append = newOutput.substring(txtOutputLast.length());
 					// Get in the UI thread and update the terminal output
-					PlatformUI.getWorkbench().getDisplay().syncExec(() -> outputDoc.append(append));
+					PlatformUI.getWorkbench().getDisplay().asyncExec(() -> {
+						outputDoc.append(append);
+						scrollToBottomIfEnabled();
+					});
 				} else {
 					// Get in the UI thread and update the terminal output
-					PlatformUI.getWorkbench().getDisplay().syncExec(() -> outputDoc.set(newOutput));
+					PlatformUI.getWorkbench().getDisplay().asyncExec(() -> {
+						outputDoc.set(newOutput);
+						scrollToBottomIfEnabled();
+					});
 				}
 				txtOutputLast = newOutput;
 			} finally {
 				outputLock.unlock();
 			}
 
-			if (!JythonTerminalView.getScrollLock()) {
-				// we need to change what is shown
-				String realOutput = outputDoc.get();
-				if (outputTextViewer.getTextWidget() != null && realOutput.contains("\n")) {
-					int index = realOutput.lastIndexOf('\n') + 1;
-					PlatformUI.getWorkbench().getDisplay().syncExec(() -> {
-						outputTextViewer.getTextWidget().setSelection(index);
-						outputTextViewer.getTextWidget().showSelection();
-					});
-				}
-			}
+			moveViewToTopIfEnabled();
+		}
 
+		/**
+		 * Scroll's the terminal to the bottom if the scrolling isn't locked. Must be called in the UI thread!
+		 */
+		private void scrollToBottomIfEnabled() {
+			if (!JythonTerminalView.getScrollLock()) {
+				// Find out how many characters are in the output
+				final int characters = outputDoc.getLength();
+				// Move the selection to the last character ensuring it is shown
+				outputTextViewer.getTextWidget().setSelection(characters);
+			}
+		}
+
+		private void moveViewToTopIfEnabled() {
 			if (JythonTerminalView.getMoveToTopOnUpdate()) {
-				PlatformUI.getWorkbench().getDisplay().syncExec(() -> {
+				PlatformUI.getWorkbench().getDisplay().asyncExec(() -> {
 					IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 					IWorkbenchPage page = window.getActivePage();
 					if (getSite().getPage().equals(page)) {
