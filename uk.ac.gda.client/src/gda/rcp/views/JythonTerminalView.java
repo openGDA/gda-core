@@ -121,7 +121,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 
 	private Text txtInput;
 	/** {@link Document} containing output text */
-	private JythonTerminalDocument outputDoc;
+	private final JythonTerminalDocument outputDoc = new JythonTerminalDocument();
 
 	/** {@link TextViewer} that displays the output document */
 	private TextViewer outputTextViewer;
@@ -129,7 +129,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 	private String txtOutputLast; //copy of string sent to outputDoc.set()
 	private Text txtPrompt;
 
-	private Vector<String> cmdHistory = new Vector<String>(0);
+	private final Vector<String> cmdHistory = new Vector<>();
 	private int cmdHistoryIndex = 0;
 	private String commandFileName;
 	private JythonServerFacade jsf;
@@ -137,21 +137,25 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 	private String currentCmd;
 	private boolean printOutput = false;
 
-	private FileWriter outputFile;
-
-	private Object lastScanDataPointUniqueName;
-
+	/**
+	 * Lock to allow exclusive access to the current content of the output text box, and the copy of the current
+	 * content.
+	 */
+	private final Lock outputLock = new ReentrantLock();
 	private final AtomicBoolean outputBufferUpdated = new AtomicBoolean(false);
-
-	private ScanDataPointFormatter scanDataPointFormatter;
-
-	private AutoCompleter autoCompleter;
-
-	private HelpHandler helpHandler;
-
-	private Composite root;
-
 	private final Pattern newLinePattern = Pattern.compile("\\r+\\n");
+	private final StringBuffer outputBuffer = new StringBuffer();
+
+	private FileWriter outputFile;
+	private Object lastScanDataPointUniqueName;
+	private ScanDataPointFormatter scanDataPointFormatter;
+	private AutoCompleter autoCompleter;
+	private HelpHandler helpHandler;
+	private Composite root;
+	private TextViewerAction copyAction;
+	private TextViewerAction selectAllAction;
+	private TextViewerWordWrapToggleAction wordWrapAction;
+	private IJythonContext mockJythonContext;
 
 	/***/
 	public JythonTerminalView() {
@@ -200,7 +204,6 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 				outputTextViewer.setEditable(false);
 				outputTextViewer.getTextWidget().setFont(font);
 				outputTextViewer.getTextWidget().setTabs(tabSize);
-				outputDoc = new JythonTerminalDocument();
 				outputTextViewer.setDocument(outputDoc);
 				txtOutputLast = "";
 
@@ -268,12 +271,6 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 		helpSystem.setHelp(root, "uk.ac.gda.client.jython_console");
 	}
 
-	/**
-	 * Lock to allow exclusive access to the current content of the output text box, and the copy of the current
-	 * content.
-	 */
-	private final Lock outputLock = new ReentrantLock();
-
 	protected void setOutputText(String text) {
 		outputLock.lock();
 		try {
@@ -306,11 +303,6 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 		Menu menu = menuMgr.createContextMenu(outputTextViewer.getTextWidget());
 		outputTextViewer.getTextWidget().setMenu(menu);
 	}
-
-	private TextViewerAction copyAction;
-	private TextViewerAction selectAllAction;
-	private TextViewerWordWrapToggleAction wordWrapAction;
-
 
 	private void fillContextMenuForOutputBox(IMenuManager menuMgr) {
 		copyAction = new TextViewerAction(outputTextViewer, ITextOperationTarget.COPY);
@@ -825,10 +817,6 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 			return false; // Threw, So is not a number
 		}
 	}
-
-	StringBuffer outputBuffer = new StringBuffer("");
-
-	private IJythonContext mockJythonContext;
 
 	private synchronized void appendOutput(String text) {
 		// if output being saved to a file (record command)
