@@ -102,4 +102,16 @@ public class GDAInteractiveConsole extends InteractiveConsole {
 		return eval(new PyUnicode(s));
 	}
 
+	@Override
+	public boolean runsource(String command) {
+		try {
+			logger.debug("GDA command: {}", command);
+			command = GDAJythonInterpreter.getTranslator().translate(command);
+			logger.debug("Jython command: {}", command);
+			return super.runsource(command);
+		} catch (Exception e) {
+			logger.error("Error calling runsource for command: {}", command, e);
+			return false;
+		}
+	}
 }

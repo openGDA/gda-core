@@ -24,6 +24,7 @@ import static java.text.MessageFormat.format;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
@@ -592,12 +593,17 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	}
 
 	@Override
-	public boolean runsource(String command, String source, String JSFIdentifier) throws ClassCastException {
+	public boolean runsource(String command, String source, String JSFIdentifier) {
+		return runsource(command, source, JSFIdentifier, null);
+	}
+
+	@Override
+	public boolean runsource(String command, String source, String JSFIdentifier, InputStream stdin) {
 		try {
 			setScanObserver(source);
 			int authorisationLevel = this.batonManager.getAuthorisationLevelOf(JSFIdentifier);
 			echoInputToServerSideTerminalObservers(">>> " + command);
-			RunSourceRunner runner = new RunSourceRunner(interp, command, authorisationLevel);
+			RunSourceRunner runner = new RunSourceRunner(interp, command, authorisationLevel, stdin);
 			runner.setName(nameThread(command));
 			runsourceThreads.add(runner);
 			runner.start();
@@ -1369,23 +1375,39 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 		 * Returns true if the command is a completed Jython command or false if more input is required.
 		 */
 		public boolean result = false;
+		private InputStream stdin;
 
 		/**
 		 * Constructor.
 		 *
-		 * @param interpreter
-		 * @param command
-		 * @param authorisationLevel
+		 * @param interpreter The interpreter used to run the command
+		 * @param command The command to run
+		 * @param authorisationLevel The authorisation of the user who requested this command be run.
+		 *         Prevents moves of devices which protection levels higher than the level given.
+		 * @param stdin InputStream to take input from. Can be null - command will run without input stream
 		 */
-		public RunSourceRunner(GDAJythonInterpreter interpreter, String command, int authorisationLevel) {
+		public RunSourceRunner(GDAJythonInterpreter interpreter, String command, int authorisationLevel, InputStream stdin) {
 			this.interpreter = interpreter;
 			this.cmd = command;
 			this.authorisationLevel = authorisationLevel;
+			this.stdin = stdin;
 		}
 
+		/**
+		 * Run the command
+		 *
+		 * If stdin was provided (non-null), create new system state with that stdin and use that to run the command,
+		 * otherwise run in existing interpreter. The environment (globals()) will be the same for both.
+		 */
 		@Override
 		public void run() {
-			result = interpreter.runsource(cmd);
+			if (stdin == null) {
+				result = interpreter.runsource(cmd);
+			} else {
+				try (InteractiveConsole py = interpreter.getChildConsole(stdin)) {
+					result = py.runsource(cmd);
+				}
+			}
 		}
 	}
 

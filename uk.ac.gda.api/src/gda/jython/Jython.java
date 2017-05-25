@@ -19,6 +19,7 @@
 
 package gda.jython;
 
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
@@ -134,7 +135,7 @@ public interface Jython extends Findable {
 	public void runScript(String command, String scanObserver, String JSFIdentifier);
 
 	/**
-	 * Similar to runCommand, except that a boolean is returned if the command was complete or if additional lines of a
+	 * Similar to {@link #runCommand}, except that a boolean is returned if the command was complete or if additional lines of a
 	 * multi-line command are required. Used only by the JythonTerminal to determine which prompt to display. Note: this
 	 * method waits until the command has finished so it can return the result. If the command takes a long time it will
 	 * hang the thread which calls this method. So this method must be called in a separate thread from the main GUI
@@ -149,6 +150,24 @@ public interface Jython extends Findable {
 	 * @return boolean
 	 */
 	public boolean runsource(String command, String source, String JSFIdentifier);
+
+	/**
+	 * Similar to {@link #runCommand}, except that a boolean is returned if the command was complete or if additional lines of a
+	 * multi-line command are required. Used only by the JythonTerminal to determine which prompt to display. Note: this
+	 * method waits until the command has finished so it can return the result. If the command takes a long time it will
+	 * hang the thread which calls this method. So this method must be called in a separate thread from the main GUI
+	 * thread, else the GUI will seize up until the command given to this method has returned.
+	 *
+	 * @param command
+	 *            the command to run
+	 * @param source
+	 *            the source of the command
+	 * @param JSFIdentifier
+	 *            the unique ID of the JythonServerFacade calling this method.
+	 * @param stdin the InputStream to use as stdin for this command
+	 * @return true if command was incomplete and more is required (eg "if True:"), false otherwise (including on error)
+	 */
+	public boolean runsource(String command, String source, String JSFIdentifier, InputStream stdin);
 
 	/**
 	 * Foe use by the JythonServerFacade class. Allows an instance of this class operating in a different process to

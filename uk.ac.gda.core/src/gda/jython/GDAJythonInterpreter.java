@@ -26,6 +26,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.io.Writer;
 import java.net.URL;
@@ -658,15 +659,7 @@ public class GDAJythonInterpreter {
 	 * @return boolean
 	 */
 	protected boolean runsource(String command) {
-		try {
-			logger.debug("GDA command: " + command);
-			command = translator.translate(command);
-			logger.debug("Jython command: " + command);
-			return interactiveConsole.runsource(command);
-		} catch (Exception e) {
-			logger.error("Error calling runsource for command: {}", command, e);
-			return false;
-		}
+		return interactiveConsole.runsource(command);
 	}
 
 	/**
@@ -829,4 +822,18 @@ public class GDAJythonInterpreter {
 		return interactiveConsole;
 	}
 
+	public InteractiveConsole getChildConsole(InputStream stdin) {
+		PySystemState pss = new PySystemState();
+		PySystemState old = interactiveConsole.getSystemState();
+		pss.setClassLoader(old.getClassLoader());
+		pss.path = old.path;
+
+		InteractiveConsole py = new GDAInteractiveConsole(pss);
+		pss.setdefaultencoding(UTF_8); //needs to be set after creating console - see #configure method
+		py.setIn(stdin);
+		py.setOut(old.stdout);
+		py.setErr(old.stderr);
+		py.setLocals(interactiveConsole.getLocals());
+		return py;
+	}
 }

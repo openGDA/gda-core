@@ -36,6 +36,7 @@ import gda.observable.IObserver;
 import gda.scan.ScanDataPointClient;
 import gda.scan.ScanDataPointVar;
 
+import java.io.InputStream;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
@@ -1120,5 +1121,13 @@ public class JythonAdapter implements Jython, EventSubscriber {
 	@Override
 	public void exec(String s) {
 		throw new UnsupportedOperationException();
+	}
+
+	/**
+	 * This method is not available over CORBA and throws UnsupportedOperationException
+	 */
+	@Override
+	public boolean runsource(String command, String source, String JSFIdentifier, InputStream in) {
+		throw new UnsupportedOperationException("It is not currently possible to specify stdin across CORBA");
 	}
 }

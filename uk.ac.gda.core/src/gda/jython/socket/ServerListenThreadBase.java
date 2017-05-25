@@ -20,6 +20,7 @@
 package gda.jython.socket;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,7 +58,7 @@ public abstract class ServerListenThreadBase extends Thread {
 					fromServer = "";
 				}
 				command = previousCommand + fromServer;
-				needMore = command_server.runsource(command, "CommandThread");
+				needMore = command_server.runsource(command, "CommandThread", getInput());
 				// needMore will be true if the command was incomplete e.g. the
 				// first line of a for loop. It is false otherwise (including
 				// mercifully if there is a syntax error).
@@ -81,6 +82,7 @@ public abstract class ServerListenThreadBase extends Thread {
 	protected void close() {}
 
 	protected abstract String readLine(String prompt) throws IOException;
+	protected abstract InputStream getInput();
 
 	protected class InterruptedInputException extends IOException {
 		public InterruptedInputException(Exception uie) {

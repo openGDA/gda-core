@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
+import org.python.core.Py;
 import org.python.jline.TerminalFactory;
 import org.python.jline.UnixTerminal;
 import org.python.jline.console.ConsoleReader;
@@ -53,6 +54,7 @@ public class JlineServerListenThread extends ServerListenThreadBase {
 	private final ConsoleReader cr;
 	private File historyFile;
 	private FileHistory hist;
+	private final InputStream rawInputStream;
 
 	public JlineServerListenThread(InputStream in, OutputStream out, SessionClosedCallback sessionClosedCallback) throws IOException {
 
@@ -72,6 +74,7 @@ public class JlineServerListenThread extends ServerListenThreadBase {
 		cr.setCompletionHandler(clch);
 
 		cr.setHandleUserInterrupt(true);
+		rawInputStream = new JlineInputStream();
 	}
 
 	@Override
@@ -114,6 +117,47 @@ public class JlineServerListenThread extends ServerListenThreadBase {
 		public UnixXtermTerminal() throws Exception {
 			//TODO: Check for $TERM==dumb first?
 			super("/dev/tty", "xterm");
+		}
+	}
+
+
+	@Override
+	protected InputStream getInput() {
+		return rawInputStream;
+	}
+
+	/**
+	 * A JLine enabled input stream to pass to the jython interpreter as stdin<p>
+	 * Used mainly for <code>input</code> and <code>raw_input</code>
+	 */
+	class JlineInputStream extends InputStream {
+		@Override
+		public int read() throws IOException {
+			// This should never be called but just pass through to socket input if it is
+			logger.warn("Unexpected call to RawJline.read()", new Exception("Non-error -> stack trace for unexpected call"));
+			return cr.getInput().read();
+		}
+
+		@Override
+		public int read(byte[] buf, int offset, int len) throws IOException {
+			// don't add raw input to history
+			cr.setHistoryEnabled(false);
+			try {
+				// Use console reader to let backspace/arrow keys to work
+				String line = cr.readLine("");
+				if (line == null) {
+					throw Py.EOFError("EOF when reading a line");
+				}
+				byte[] bline = line.getBytes();
+				int i = offset;
+				for (; i < bline.length; i++) {
+					buf[i] = bline[i];
+				}
+				buf[i] = '\n';
+				return bline.length + 1;
+			} finally {
+				cr.setHistoryEnabled(true);
+			}
 		}
 	}
 }
