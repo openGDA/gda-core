@@ -153,8 +153,6 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 	private AutoCompleter autoCompleter;
 	private HelpHandler helpHandler;
 	private Composite root;
-	private TextViewerAction copyAction;
-	private TextViewerAction selectAllAction;
 	private TextViewerWordWrapToggleAction wordWrapAction;
 	private IJythonContext mockJythonContext;
 
@@ -306,11 +304,11 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 	}
 
 	private void fillContextMenuForOutputBox(IMenuManager menuMgr) {
-		copyAction = new TextViewerAction(outputTextViewer, ITextOperationTarget.COPY);
+		TextViewerAction copyAction = new TextViewerAction(outputTextViewer, ITextOperationTarget.COPY);
 		copyAction.setText("&Copy");
 		copyAction.setActionDefinitionId(IWorkbenchCommandConstants.EDIT_COPY);
 
-		selectAllAction = new TextViewerAction(outputTextViewer, ITextOperationTarget.SELECT_ALL);
+		TextViewerAction selectAllAction = new TextViewerAction(outputTextViewer, ITextOperationTarget.SELECT_ALL);
 		selectAllAction.setText("Select &All");
 		selectAllAction.setActionDefinitionId(IWorkbenchCommandConstants.EDIT_SELECT_ALL);
 
