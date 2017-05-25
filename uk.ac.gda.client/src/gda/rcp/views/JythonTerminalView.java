@@ -560,8 +560,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 				commandFile.createNewFile();
 			}
 		} catch (Exception e) {
-			logger.warn("JythonTerminal: error reading Jython terminal history from file " + commandFileName
-					+ " during configure");
+			logger.warn("Error reading Jython terminal history from file '{}' during configure", commandFileName, e);
 			commandFileName = null;
 		}
 
@@ -746,6 +745,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 			outputFile.close();
 			outputFile = null;
 		} catch (IOException e) {
+			logger.error("Error closing output file", e);
 			outputFile = null;
 		}
 	}
@@ -759,7 +759,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 			logger.info("Recording terminal output to: " + filename);
 		} catch (IOException e) {
 			printOutput = false;
-			logger.warn("JythonTerminal could not create the output file: " + filename);
+			logger.warn("JythonTerminal could not create the output file: {}", filename, e);
 		}
 	}
 
@@ -793,14 +793,15 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 		// add command to the history
 		cmdHistory.add(newCommand);
 
-		// also save command to a file
-		try {
-			if (getCommandFilename() != null) {
+		if (getCommandFilename() != null) {
+			// also save command to a file
+			try {
 				BufferedWriter out = new BufferedWriter(new FileWriter(getCommandFilename(), true));
 				out.write(newCommand + "\n");
 				out.close();
+			} catch (IOException e) {
+				logger.error("Could not save to history file: {}", getCommandFilename(), e);
 			}
-		} catch (IOException e) {
 		}
 	}
 
@@ -838,7 +839,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 				outputFile.flush();
 			} catch (IOException e) {
 				closeOutputFile();
-				logger.warn("Error writing terminal output to file. Closing the file. Error was: " + e.getMessage());
+				logger.warn("Error writing terminal output to file", e);
 			}
 		}
 		recalculateBuffer(text);
@@ -923,6 +924,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 			}
 			// any error, simply output everything and treat \r as a \n
 			catch (Exception e) {
+				logger.error("Error updating the console output", e);
 				addToOutputBuffer(text);
 				caretPosition = outputBuffer.length();
 			}
