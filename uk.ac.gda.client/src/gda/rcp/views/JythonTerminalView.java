@@ -30,6 +30,7 @@ import java.util.Date;
 import java.util.Vector;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -143,7 +144,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 
 	private Object lastScanDataPointUniqueName;
 
-	volatile boolean outputBufferUpdated = false;
+	final AtomicBoolean outputBufferUpdated = new AtomicBoolean(false);
 
 	private ScanDataPointFormatter scanDataPointFormatter;
 
@@ -898,7 +899,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 			}
 		}
 		recalculateBuffer(text);
-		outputBufferUpdated = true;
+		outputBufferUpdated.set(true);
 	}
 
 	private void recalculateBuffer(String text) {
@@ -1075,11 +1076,12 @@ class SimpleOutputUpdater implements Runnable {
 
 	@Override
 	public void run() {
-		// If the buffer is not updated don't need to get in the UI thread
-		if (!jtv.outputBufferUpdated) {
+		// If the buffer is not updated don't need to get in the UI thread so just return
+		// If the flag is true do the update and reset the flag to false.
+		if (!jtv.outputBufferUpdated.getAndSet(false)) {
 			return;
 		}
-		jtv.outputBufferUpdated = false;
+
 		// On Windows, newlines are \r\n terminated, when you call setText() or append()
 		// \n is replaced with \r\n, so this sequence unexpectedly may return false:
 		// txtOutput.setText(newOutput);
