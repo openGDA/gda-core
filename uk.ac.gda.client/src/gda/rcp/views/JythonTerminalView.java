@@ -124,12 +124,12 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 
 	private Text txtInput;
 	/** {@link Document} containing output text */
-	JythonTerminalDocument outputDoc;
+	private JythonTerminalDocument outputDoc;
 
 	/** {@link TextViewer} that displays the output document */
-	TextViewer outputTextViewer;
+	private TextViewer outputTextViewer;
 
-	String txtOutputLast; //copy of string sent to outputDoc.set()
+	private String txtOutputLast; //copy of string sent to outputDoc.set()
 	private Text txtPrompt;
 
 	private Vector<String> cmdHistory = new Vector<String>(0);
@@ -144,7 +144,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 
 	private Object lastScanDataPointUniqueName;
 
-	final AtomicBoolean outputBufferUpdated = new AtomicBoolean(false);
+	private final AtomicBoolean outputBufferUpdated = new AtomicBoolean(false);
 
 	private ScanDataPointFormatter scanDataPointFormatter;
 
@@ -178,7 +178,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 		fetchOldHistory();
 
 		// Refresh the terminal output at 20 Hz
-		Executors.newScheduledThreadPool(1).scheduleAtFixedRate(new SimpleOutputUpdater(this), 0, 50, TimeUnit.MILLISECONDS);
+		Executors.newScheduledThreadPool(1).scheduleAtFixedRate(new SimpleOutputUpdater(), 0, 50, TimeUnit.MILLISECONDS);
 	}
 
 	@Override
@@ -284,7 +284,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 	 * Lock to allow exclusive access to the current content of the output text box, and the copy of the current
 	 * content.
 	 */
-	final Lock outputLock = new ReentrantLock();
+	private final Lock outputLock = new ReentrantLock();
 
 	protected void setOutputText(String text) {
 		outputLock.lock();
@@ -1062,72 +1062,65 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 		super.dispose();
 	}
 
-}
-/**
- * Used by appendOutpupt
- */
-class SimpleOutputUpdater implements Runnable {
+	/**
+	 * This is used to update the UI from the outputBuffer
+	 */
+	private class SimpleOutputUpdater implements Runnable {
 
-	private final JythonTerminalView jtv;
-
-	SimpleOutputUpdater(JythonTerminalView jtv) {
-		this.jtv = jtv;
-	}
-
-	@Override
-	public void run() {
-		// If the buffer is not updated don't need to get in the UI thread so just return
-		// If the flag is true do the update and reset the flag to false.
-		if (!jtv.outputBufferUpdated.getAndSet(false)) {
-			return;
-		}
-
-		// On Windows, newlines are \r\n terminated, when you call setText() or append()
-		// \n is replaced with \r\n, so this sequence unexpectedly may return false:
-		// txtOutput.setText(newOutput);
-		// txtOutput.getText().equals(newOutput);
-		// The effect of this is we need to keep a local copy of the last
-		// string to be set, and we need to calculate the selection index on
-		// what the text actually is to know what the selection index should be
-
-		jtv.outputLock.lock();
-		try {
-			String newOutput = jtv.outputBuffer.toString().trim();
-			// decide whether to call outputDoc.append or set
-			if (newOutput.startsWith(jtv.txtOutputLast)) {
-				String append = newOutput.substring(jtv.txtOutputLast.length());
-				// Get in the UI thread and update the terminal output
-				PlatformUI.getWorkbench().getDisplay().syncExec(() -> jtv.outputDoc.append(append));
-			} else {
-				// Get in the UI thread and update the terminal output
-				PlatformUI.getWorkbench().getDisplay().syncExec(() -> jtv.outputDoc.set(newOutput));
+		@Override
+		public void run() {
+			// If the buffer is not updated don't need to get in the UI thread so just return
+			// If the flag is true do the update and reset the flag to false.
+			if (!outputBufferUpdated.getAndSet(false)) {
+				return;
 			}
-			jtv.txtOutputLast = newOutput;
-		} finally {
-			jtv.outputLock.unlock();
-		}
 
-		if (!JythonTerminalView.getScrollLock()) {
-			// we need to change what is shown
-			String realOutput = jtv.outputDoc.get();
-			if (jtv.outputTextViewer.getTextWidget() != null && realOutput.contains("\n")) {
-				int index = realOutput.lastIndexOf("\n") + 1;
+			// On Windows, newlines are \r\n terminated, when you call setText() or append()
+			// \n is replaced with \r\n, so this sequence unexpectedly may return false:
+			// txtOutput.setText(newOutput);
+			// txtOutput.getText().equals(newOutput);
+			// The effect of this is we need to keep a local copy of the last
+			// string to be set, and we need to calculate the selection index on
+			// what the text actually is to know what the selection index should be
+
+			outputLock.lock();
+			try {
+				String newOutput = outputBuffer.toString().trim();
+				// decide whether to call outputDoc.append or set
+				if (newOutput.startsWith(txtOutputLast)) {
+					String append = newOutput.substring(txtOutputLast.length());
+					// Get in the UI thread and update the terminal output
+					PlatformUI.getWorkbench().getDisplay().syncExec(() -> outputDoc.append(append));
+				} else {
+					// Get in the UI thread and update the terminal output
+					PlatformUI.getWorkbench().getDisplay().syncExec(() -> outputDoc.set(newOutput));
+				}
+				txtOutputLast = newOutput;
+			} finally {
+				outputLock.unlock();
+			}
+
+			if (!JythonTerminalView.getScrollLock()) {
+				// we need to change what is shown
+				String realOutput = outputDoc.get();
+				if (outputTextViewer.getTextWidget() != null && realOutput.contains("\n")) {
+					int index = realOutput.lastIndexOf("\n") + 1;
+					PlatformUI.getWorkbench().getDisplay().syncExec(() -> {
+						outputTextViewer.getTextWidget().setSelection(index);
+						outputTextViewer.getTextWidget().showSelection();
+					});
+				}
+			}
+
+			if (JythonTerminalView.getMoveToTopOnUpdate()) {
 				PlatformUI.getWorkbench().getDisplay().syncExec(() -> {
-					jtv.outputTextViewer.getTextWidget().setSelection(index);
-					jtv.outputTextViewer.getTextWidget().showSelection();
+					IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+					IWorkbenchPage page = window.getActivePage();
+					if (getSite().getPage().equals(page)) {
+						page.bringToTop(JythonTerminalView.this);
+					}
 				});
 			}
 		}
-
-		if (JythonTerminalView.getMoveToTopOnUpdate()) {
-			PlatformUI.getWorkbench().getDisplay().syncExec(() -> {
-				IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-				IWorkbenchPage page = window.getActivePage();
-				if (jtv.getSite().getPage().equals(page)) {
-					page.bringToTop(jtv);
-				}
-			});
-		}
 	}
-
 }
