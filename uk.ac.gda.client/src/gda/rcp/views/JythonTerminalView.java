@@ -429,7 +429,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 		if (txtPromptText.compareTo(NORMAL_PROMPT) == 0) {
 			String typedCmd = txtInputText;
 			// add the command to cmdHistory
-			if (cmdHistory.size() == 0) {
+			if (cmdHistory.isEmpty()) {
 				addCommandToHistory(typedCmd);
 			} else if ((typedCmd.compareTo("") != 0)
 					&& (typedCmd.compareTo(cmdHistory.get(cmdHistory.size() - 1)) != 0)) {
@@ -468,7 +468,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 		else if (txtPromptText.compareTo(ADDITONAL_INPUT_PROMPT) == 0) {
 			// add to history if something was entered
 			if (txtInputText.compareTo("") != 0) {
-				if (cmdHistory.size() == 0) {
+				if (cmdHistory.isEmpty()) {
 					addCommandToHistory(txtInputText);
 				} else if ((txtInputText.compareTo("") != 0)
 						&& (txtInputText.compareTo(cmdHistory.get(cmdHistory.size() - 1)) != 0)) {
@@ -525,7 +525,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 				BufferedReader in = new BufferedReader(new FileReader(commandFile));
 				String str = "";
 				while ((str = in.readLine()) != null) {
-					if (!(str.compareTo("") == 0)) {
+					if (!str.isEmpty()) {
 						cmdHistory.add(str);
 					}
 				}
@@ -592,7 +592,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 			} else if (cmdHistoryIndex > 0) {
 				cmdHistoryIndex--;
 			}
-			if (cmdHistory.size() != 0) {
+			if (!cmdHistory.isEmpty()) {
 				txtInput.setText(cmdHistory.get(cmdHistoryIndex));
 				moveCaretToEnd();
 			}
