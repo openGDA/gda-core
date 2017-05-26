@@ -25,5 +25,6 @@ import gda.observable.IObserver;
  * For classes who wish to observe scan data points distributed by an IScanDataPointProvider (e.g. the
  * JythonServerFacade).
  */
+@FunctionalInterface
 public interface IScanDataPointObserver extends IObserver {
 }
