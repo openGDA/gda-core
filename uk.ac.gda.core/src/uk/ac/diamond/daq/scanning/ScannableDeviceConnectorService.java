@@ -124,12 +124,13 @@ public class ScannableDeviceConnectorService implements IScannableDeviceService 
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T> IScannable<T> getScannable(String name) throws ScanningException {
+		boolean jythonScannable = false;
+
 		if (scannables == null)
 			scannables = new HashMap<>();
 
 		// first check whether this scannable exists in the cache
 		if (scannables.containsKey(name)) {
-			@SuppressWarnings("unchecked")
 			IScannable<T> scannable = (IScannable<T>) scannables.get(name);
 			if (scannable == null)
 				throw new ScanningException("Cannot find scannable with name " + name);
@@ -148,6 +149,7 @@ public class ScannableDeviceConnectorService implements IScannableDeviceService 
 			Object jythonObject = InterfaceProvider.getJythonNamespace().getFromJythonNamespace(name);
 			if (jythonObject instanceof Scannable) {
 				scannable = (Scannable) jythonObject;
+				jythonScannable = true;
 			}
 		}
 
@@ -177,7 +179,11 @@ public class ScannableDeviceConnectorService implements IScannableDeviceService 
 			iscannable = (IScannable<T>) new ScannableNexusWrapper<>(scannable);
 		}
 
-		scannables.put(name, iscannable);
+		// Jython scannable can be reassigned, so do not cache
+		if (!jythonScannable) {
+			scannables.put(name, iscannable);
+		}
+
 		if (iscannable instanceof AbstractScannable) {
 			((AbstractScannable<T>) iscannable).setScannableDeviceService(this);
 		}
