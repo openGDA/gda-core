@@ -31,8 +31,6 @@ import java.util.Vector;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Pattern;
 
 import org.eclipse.jface.action.IMenuListener;
@@ -138,11 +136,6 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 	private String currentCmd;
 	private boolean printOutput = false;
 
-	/**
-	 * Lock to allow exclusive access to the current content of the output text box, and the copy of the current
-	 * content.
-	 */
-	private final Lock outputLock = new ReentrantLock();
 	private final AtomicBoolean outputBufferUpdated = new AtomicBoolean(false);
 	private final Pattern newLinePattern = Pattern.compile("\\r+\\n");
 	private final StringBuffer outputBuffer = new StringBuffer();
@@ -212,7 +205,10 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 				if (!ClientManager.isTestingMode()) {
 					String startupOutput = jsf.getStartupOutput();
 					if (startupOutput != null) {
-						setOutputText(startupOutput);
+						appendOutput(startupOutput);
+						// Set the outputBuffer length to zero this will mean the startup output will be cleared when
+						// the next output is received.
+						outputBuffer.setLength(0);
 					}
 				}
 			}
@@ -268,17 +264,6 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 	private void setHelpContextIDS() {
 		IWorkbenchHelpSystem helpSystem = getSite().getWorkbenchWindow().getWorkbench().getHelpSystem();
 		helpSystem.setHelp(root, "uk.ac.gda.client.jython_console");
-	}
-
-	protected void setOutputText(String text) {
-		outputLock.lock();
-		try {
-			outputDoc.set(text);
-			txtOutputLast = text;
-			outputBuffer.setLength(0);
-		} finally {
-			outputLock.unlock();
-		}
 	}
 
 	private void createContextMenuForOutputBox() {
@@ -978,7 +963,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 	}
 
 	public void clearConsole() {
-		setOutputText("");
+		PlatformUI.getWorkbench().getDisplay().asyncExec(() -> outputDoc.set(""));
 	}
 
 	@Override
@@ -1014,28 +999,23 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 			// string to be set, and we need to calculate the selection index on
 			// what the text actually is to know what the selection index should be
 
-			outputLock.lock();
-			try {
-				String newOutput = outputBuffer.toString().trim();
-				// decide whether to call outputDoc.append or set
-				if (newOutput.startsWith(txtOutputLast)) {
-					String append = newOutput.substring(txtOutputLast.length());
-					// Get in the UI thread and update the terminal output
-					PlatformUI.getWorkbench().getDisplay().asyncExec(() -> {
-						outputDoc.append(append);
-						scrollToBottomIfEnabled();
-					});
-				} else {
-					// Get in the UI thread and update the terminal output
-					PlatformUI.getWorkbench().getDisplay().asyncExec(() -> {
-						outputDoc.set(newOutput);
-						scrollToBottomIfEnabled();
-					});
-				}
-				txtOutputLast = newOutput;
-			} finally {
-				outputLock.unlock();
+			String newOutput = outputBuffer.toString().trim();
+			// decide whether to call outputDoc.append or set
+			if (newOutput.startsWith(txtOutputLast)) {
+				String append = newOutput.substring(txtOutputLast.length());
+				// Get in the UI thread and update the terminal output
+				PlatformUI.getWorkbench().getDisplay().asyncExec(() -> {
+					outputDoc.append(append);
+					scrollToBottomIfEnabled();
+				});
+			} else {
+				// Get in the UI thread and update the terminal output
+				PlatformUI.getWorkbench().getDisplay().asyncExec(() -> {
+					outputDoc.set(newOutput);
+					scrollToBottomIfEnabled();
+				});
 			}
+			txtOutputLast = newOutput;
 
 			moveViewToTopIfEnabled();
 		}
