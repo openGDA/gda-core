@@ -18,15 +18,22 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
+import java.net.URI;
+
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.window.Window;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
+import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 
 /**
@@ -34,6 +41,8 @@ import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
  * scannables should be set to before a scan in run.
  */
 public class BeamlineConfigurationSection extends AbstractMappingSection {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(BeamlineConfigurationSection.class);
 
 	@Override
 	public void createControls(Composite parent) {
@@ -50,15 +59,25 @@ public class BeamlineConfigurationSection extends AbstractMappingSection {
 	}
 
 	private void editBeamlineConfiguration() {
-		IMappingExperimentBean mappingBean = getMappingBean();
-		final IScannableDeviceService scannableDeviceService = getService(IScannableDeviceService.class);
-		EditBeamlineConfigurationDialog dialog = new EditBeamlineConfigurationDialog(getShell(),
-				scannableDeviceService);
-		dialog.setInitialBeamlineConfiguration(mappingBean.getBeamlineConfiguration());
-		dialog.create();
-		if (dialog.open() == Window.OK) {
-			mappingBean.setBeamlineConfiguration(dialog.getModifiedBeamlineConfiguration());
+		try {
+			IMappingExperimentBean mappingBean = getMappingBean();
+			EditBeamlineConfigurationDialog dialog = new EditBeamlineConfigurationDialog(getShell(),
+					getScannableDeviceService());
+			dialog.setInitialBeamlineConfiguration(mappingBean.getBeamlineConfiguration());
+			dialog.create();
+			if (dialog.open() == Window.OK) {
+				mappingBean.setBeamlineConfiguration(dialog.getModifiedBeamlineConfiguration());
+			}
+		} catch (Exception e) {
+			LOGGER.error("Could not edit beamline configuration", e);
+			MessageDialog.openError(getShell(), "Beamline Configuration", "Could not edit beamline configuration: " + e.getMessage());
 		}
+	}
+
+	private IScannableDeviceService getScannableDeviceService() throws Exception {
+		IEventService eventService = getService(IEventService.class);
+		URI jmsURI = new URI(LocalProperties.getActiveMQBrokerURI());
+		return  eventService.createRemoteService(jmsURI, IScannableDeviceService.class);
 	}
 
 }
