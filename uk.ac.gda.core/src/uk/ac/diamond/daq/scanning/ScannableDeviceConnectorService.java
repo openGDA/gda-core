@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.eclipse.scanning.api.AbstractScannable;
 import org.eclipse.scanning.api.IScannable;
@@ -38,6 +39,7 @@ import org.slf4j.LoggerFactory;
 import gda.data.scan.datawriter.NexusDataWriter;
 import gda.data.scan.datawriter.scannablewriter.ScannableWriter;
 import gda.device.Detector;
+import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.factory.Findable;
 import gda.factory.Finder;
@@ -193,17 +195,34 @@ public class ScannableDeviceConnectorService implements IScannableDeviceService 
 
 	@Override
 	public List<String> getScannableNames() throws ScanningException {
+		final List<String> scannableNames = new ArrayList<>();
 
-		ArrayList<Findable> findableRefs = Finder.getInstance().listAllObjects(Scannable.class.getName());
-		ArrayList<String> findableNames = new ArrayList<String>();
+		// add the names of findable scannables
+		final List<Findable> findableRefs = Finder.getInstance().listAllObjects(Scannable.class.getName());
 		for (Findable findable : findableRefs) {
 			if (findable instanceof Detector) continue; // Not them
 			String findableName = findable.getName();
-			findableName = findableName.substring(findableName.lastIndexOf(".") + 1);
-			findableNames.add(findableName);
+			findableName = findableName.substring(findableName.lastIndexOf('.') + 1);
+			scannableNames.add(findableName);
 		}
-		if (scannables!=null) findableNames.addAll(scannables.keySet()); // They can be added by spring.
-		return findableNames;
+
+		// add the names of the jython scannables
+		try {
+			final List<String> jythonScannableNames =
+				InterfaceProvider.getJythonNamespace().getAllFromJythonNamespace().entrySet().stream()
+					.filter(entry -> entry.getValue() instanceof Scannable)
+					.map(Map.Entry::getKey)
+					.collect(Collectors.toList());
+			scannableNames.addAll(jythonScannableNames);
+		} catch (DeviceException e) {
+			throw new ScanningException("Could not get names of jython scannables", e);
+		}
+
+		if (scannables!=null) {
+			scannableNames.addAll(scannables.keySet()); // They can be added by spring.
+		}
+
+		return scannableNames;
 	}
 
 	@Override
