@@ -19,48 +19,68 @@
 
 package gda.device.detector;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+
+import java.util.Random;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+
 import gda.device.Detector;
 import gda.device.DeviceException;
+import gda.device.scannable.DummyScannable;
 import gda.factory.FactoryException;
+import uk.ac.diamond.daq.concurrent.Async;
 
 /**
- * A Dummy class that will create data with the specified dimensions.
+ * <p>
+ * A Dummy detector that will create random data at each point. It supports collection time so it will "acquire" for as
+ * long as requested.
+ * </p>
+ * <p>
+ * It is intended to be the detector equivalent of {@link DummyScannable} used for testing scanning. e.g
+ * <pre>
+ *   ds = DummyScannable('ds')
+ *   dd = DummyDetector('dd')
+ *   scan ds 0 10 1 dd 0.1
+ * </pre>
  */
 public class DummyDetector extends DetectorBase {
 
-	protected int[] dims/* = {100, 100}*/;
-	protected double[] data;
-	protected int status;
+	private double maxDataValue = 10.0;
+	private int status;
+	private final Random random = new Random();
+	private transient Future<?> future;
 
 	/**
-	 *
+	 * No arg constructor for subclasses and Spring. Does not configure.
 	 */
-	public DummyDetector(){
+	public DummyDetector() {
+		setInputNames(new String[0]);
 	}
 
 	/**
-	 * With name and dimensions of output
+	 * Constructor for easy use from Jython e.g.
 	 *
-	 * @param string
-	 * @param is
+	 * <pre> dd = DummyDetector('dd')</pre>
+	 *
+	 * Constructs and configures the detector
+	 *
+	 * @param name
 	 */
-	public DummyDetector(String string, int[] is) {
-		setName(string);
-		dims = is;
+	public DummyDetector(String name) {
+		setName(name);
+		setInputNames(null);
+		try {
+			configure();
+		} catch (FactoryException e) {
+			throw new RuntimeException("Failed to configure: " + getName(), e);
+		}
 	}
+
 
 	@Override
 	public boolean createsOwnFiles() throws DeviceException {
 		return false;
-	}
-
-	/**
-	 * Set the data dimensions for this dummy detector
-	 *
-	 * @param dims
-	 */
-	public void setDataDimensions(int[] dims) {
-		this.dims = dims;
 	}
 
 
@@ -71,34 +91,37 @@ public class DummyDetector extends DetectorBase {
 
 	@Override
 	public void configure() throws FactoryException {
-		status = Detector.IDLE;
-	}
+		// If extra names are not set
+		if(getExtraNames() == null || getExtraNames().length == 0) {
+			setExtraNames(new String[]{getName()}); // Set extra name as device name
+		}
 
-	@Override
-	public int[] getDataDimensions() throws DeviceException {
-		return dims;
+		status = Detector.IDLE;
 	}
 
 	@Override
 	public void collectData() throws DeviceException {
 		status = Detector.BUSY;
-		// generate data here
 
-		int len = 1;
+		// Calculate the collection time in ms to simulate acquiring
+		final long collectionTimeMillis = (long) (collectionTime * 1000);
 
-		if (dims != null) {
-			for (int d : dims) {
-				len *= d;
-			}
-		} else {
-			len = extraNames.length;
+		// Start a task generating the data so this returns instantly
+		future = Async.schedule(this::acquireData, collectionTimeMillis, MILLISECONDS);
+	}
+
+	private Object acquireData() {
+		// Generate data. Return an array of size extraNames.length containing random doubles between 0 and maxDataValue
+		return random.doubles(extraNames.length, 0, maxDataValue).toArray();
+	}
+
+	@Override
+	public void waitWhileBusy() throws DeviceException, InterruptedException {
+		try {
+			future.get(); // blocks while data is acquired
+		} catch (ExecutionException e) {
+			throw new DeviceException("Exception while acquiring the data", e);
 		}
-		data = new double[len];
-
-		for (int i = 0; i < len; i++) {
-			data[i] = i;
-		}
-
 		status = Detector.IDLE;
 	}
 
@@ -109,14 +132,17 @@ public class DummyDetector extends DetectorBase {
 
 	@Override
 	public Object readout() throws DeviceException {
-		Object returnvalue = data;
-		data = null;
-		return returnvalue;
+		try {
+			return future.get();
+		} catch (ExecutionException | InterruptedException e) {
+			Thread.currentThread().interrupt();
+			throw new DeviceException("Exception during readout", e);
+		}
 	}
 
 	@Override
 	public String getDescription() throws DeviceException {
-		return "Dummy Arbitrary Dimensional Detector";
+		return "Dummy Detector";
 	}
 
 	@Override
@@ -128,4 +154,27 @@ public class DummyDetector extends DetectorBase {
 	public String getDetectorType() throws DeviceException {
 		return "Dummy";
 	}
+
+	public double getMaxDataValue() {
+		return maxDataValue;
+	}
+
+	/**
+	 * Sets the max data value. The data returned will be between 0 and this value
+	 *
+	 * @param maxDataValue
+	 */
+	public void setMaxDataValue(double maxDataValue) {
+		this.maxDataValue = maxDataValue;
+	}
+
+	/**
+	 * Allows the random seed to be set for reproducible testing.
+	 *
+	 * @param seed
+	 */
+	public void setRandomSeed(long seed) {
+		random.setSeed(seed);
+	}
+
 }
