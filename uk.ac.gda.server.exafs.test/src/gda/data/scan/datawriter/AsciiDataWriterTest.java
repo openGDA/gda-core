@@ -98,7 +98,8 @@ public class AsciiDataWriterTest {
 			Scannable scannable1 = new DummyScannable("energy", 1000.0);
 			scannables.add(scannable1);
 			Vector<Detector> detectors = new Vector<Detector>();
-			Detector det1 = new DummyDetector("counts", new int[] { 1 });
+			DummyDetector det1 = new DummyDetector("counts");
+			det1.setRandomSeed(34L);
 			detectors.add(det1);
 
 			for (double i = 1000; i <= 1100; i += 100) {
