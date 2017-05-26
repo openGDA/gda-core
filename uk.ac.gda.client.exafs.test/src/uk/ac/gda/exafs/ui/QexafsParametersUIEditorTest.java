@@ -18,7 +18,6 @@
 
 package uk.ac.gda.exafs.ui;
 
-import static org.eclipse.swtbot.swt.finder.matchers.WidgetMatcherFactory.withLabel;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -107,12 +106,12 @@ public class QexafsParametersUIEditorTest extends ShellTest {
 		assertNotNull(bot.comboBoxWithLabel("Element"));
 		assertNotNull(bot.comboBoxWithLabel("Edge"));
 
-		assertNotNull(bot.widget(withLabel("Edge Energy")));
-		assertNotNull(bot.widget(withLabel("Initial Energy")));
-		assertNotNull(bot.widget(withLabel("Final Energy")));
-		assertNotNull(bot.widget(withLabel("Speed")));
-		assertNotNull(bot.widget(withLabel("Step Size")));
-		assertNotNull(bot.widget(withLabel("Scan Time")));
+		assertNotNull(ui.getEdgeEnergy());
+		assertNotNull(ui.getInitialEnergy());
+		assertNotNull(ui.getFinalEnergy());
+		assertNotNull(ui.getSpeed());
+		assertNotNull(ui.getStepSize());
+		assertNotNull(ui.getTime());
 
 		assertNotNull(bot.button("Load defaults"));
 

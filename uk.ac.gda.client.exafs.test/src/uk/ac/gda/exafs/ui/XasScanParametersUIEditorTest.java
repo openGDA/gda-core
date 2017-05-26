@@ -143,7 +143,7 @@ public class XasScanParametersUIEditorTest extends ShellTest {
 
 		// Test ScaleBoxes
 
-		assertEquals(bean.getEdgeEnergy(),synchExec( ()-> (((NumberBox) bot.widget(withLabel("Edge Energy"))).getNumericValue())),0);
+		assertEquals(bean.getEdgeEnergy(),synchExec( ()-> ui.getEdgeEnergy().getNumericValue()));
 
 		assertEquals(bean.getInitialEnergy(),synchExec( ()-> ui.getInitialEnergy().getNumericValue()),0);
 		assertEquals(bean.getFinalEnergy(), synchExec( ()-> ui.getFinalEnergy().getNumericValue()),0);
@@ -215,9 +215,9 @@ public class XasScanParametersUIEditorTest extends ShellTest {
 
 		bot.comboBoxWithLabel("Edge Region").setSelection("A/B");
 
-		assertTrue( ! ( (NumberBox) bot.widget(withLabel("Gaf1")) ).isEditable() );
-		assertTrue( ! ( (NumberBox) bot.widget(withLabel("Gaf2")) ).isEditable() );
-		assertTrue( ! ( (NumberBox) bot.widget(withLabel("Gaf3")) ).isEditable() );
+		assertTrue( ! ui.getGaf1().isEditable()) ;
+		assertTrue( ! ui.getGaf2().isEditable()) ;
+		assertTrue( ! ui.getGaf3().isEditable()) ;
 
 		assertTrue( ui.getA().isEditable() );
 		assertTrue( ui.getB().isEditable() );
@@ -233,7 +233,7 @@ public class XasScanParametersUIEditorTest extends ShellTest {
 		bot.comboBoxWithLabel("Exafs Time Type").setSelection("Constant Time");
 
 		assertNotNull(bot.label("Exafs Time Step"));
-		assertNotNull(bot.widget(withLabel("Exafs Time Step")));
+		assertNotNull(ui.getExafsStep());
 	}
 
 
@@ -244,11 +244,12 @@ public class XasScanParametersUIEditorTest extends ShellTest {
 
 		bot.comboBoxWithLabel("Exafs Time Type").setSelection("Variable Time");
 
-		List<String> labels = Arrays.asList("Exafs From Time", "Exafs To Time", "K Weighting");
-
-		for (String label: labels) {
-			checkExists(label);
-		}
+		assertNotNull(ui.getExafsFromTime());
+		assertNotNull(bot.label("Exafs From Time"));
+		assertNotNull(ui.getExafsToTime());
+		assertNotNull(bot.label("Exafs To Time"));
+		assertNotNull(ui.getKWeighting());
+		assertNotNull(bot.label("K Weighting"));
 	}
 
 
