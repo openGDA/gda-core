@@ -131,4 +131,8 @@ public class ExafsPreferenceConstants {
 	 */
 	public static final String QEXAFS_IS_DEFAULT_SCAN_TYPE = "exafs.editor.qexafsdefaultscan.preference";
 
+	/**
+	 * When true, XANES scans are the default scan type and new scans are always XANES when first created
+	 */
+	public static final String XANES_IS_DEFAULT_SCAN_TYPE = "exafs.editor.xanesdefaultscan.preference";
 }

@@ -18,8 +18,6 @@
 
 package uk.ac.gda.exafs.ui.data;
 
-import gda.exafs.scan.ExafsTimeEstimator;
-
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.HashMap;
@@ -31,6 +29,7 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.richbeans.api.reflection.RichBeanUtils;
 
+import gda.exafs.scan.ExafsTimeEstimator;
 import uk.ac.gda.beans.exafs.IDetectorParameters;
 import uk.ac.gda.beans.exafs.IOutputParameters;
 import uk.ac.gda.beans.exafs.ISampleParameters;
@@ -70,6 +69,9 @@ public class ScanObject extends ExperimentObject implements IExperimentObject {
 			getTypeToFileMap().put(SCANBEANTYPE, scanFile.getName());
 		} else if (scanPrefs.getBoolean(ScanType.QEXAFS_DEFAULT.toString(), false)) {
 			IFile scanFile = xmlCH.doTemplateCopy(folder, "QEXAFS_Parameters.xml");
+			getTypeToFileMap().put(SCANBEANTYPE, scanFile.getName());
+		} else if (scanPrefs.getBoolean(ScanType.XANES_DEFAULT.toString(), false)) {
+			IFile scanFile = xmlCH.doTemplateCopy(folder, "XANES_Parameters.xml");
 			getTypeToFileMap().put(SCANBEANTYPE, scanFile.getName());
 		} else {
 			IFile scanFile = xmlCH.doTemplateCopy(folder, "XAS_Parameters.xml");

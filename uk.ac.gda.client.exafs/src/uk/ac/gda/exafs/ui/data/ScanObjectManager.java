@@ -18,14 +18,6 @@
 
 package uk.ac.gda.exafs.ui.data;
 
-import gda.exafs.scan.ScanStartedMessage;
-import gda.factory.Findable;
-import gda.factory.Finder;
-import gda.jython.scriptcontroller.logging.ILoggingScriptController;
-import gda.jython.scriptcontroller.logging.LoggingScriptController;
-import gda.observable.IObserver;
-import gda.rcp.GDAClientActivator;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
@@ -33,6 +25,13 @@ import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.exafs.scan.ScanStartedMessage;
+import gda.factory.Findable;
+import gda.factory.Finder;
+import gda.jython.scriptcontroller.logging.ILoggingScriptController;
+import gda.jython.scriptcontroller.logging.LoggingScriptController;
+import gda.observable.IObserver;
+import gda.rcp.GDAClientActivator;
 import uk.ac.gda.beans.exafs.IDetectorParameters;
 import uk.ac.gda.beans.exafs.IScanParameters;
 import uk.ac.gda.client.experimentdefinition.ExperimentObjectManager;
@@ -94,6 +93,15 @@ public final class ScanObjectManager extends ExperimentObjectManager implements 
 	public static void setQEXAFSDefaultScanType(boolean qexafsIsDefault) {
 		ExafsActivator.getDefault().getPreferenceStore().setValue(ExafsPreferenceConstants.QEXAFS_IS_DEFAULT_SCAN_TYPE, qexafsIsDefault);
 		serverPrefs.putBoolean(ScanType.QEXAFS_DEFAULT.toString(), qexafsIsDefault);
+	}
+
+	public static boolean isXANESDefaultScanType() {
+		return ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.XANES_IS_DEFAULT_SCAN_TYPE);
+	}
+
+	public static void setXANESDefaultScanType(boolean xanesIsDefault) {
+		ExafsActivator.getDefault().getPreferenceStore().setValue(ExafsPreferenceConstants.XANES_IS_DEFAULT_SCAN_TYPE, xanesIsDefault);
+		serverPrefs.putBoolean(ScanType.XANES_DEFAULT.toString(), xanesIsDefault);
 	}
 
 	/**

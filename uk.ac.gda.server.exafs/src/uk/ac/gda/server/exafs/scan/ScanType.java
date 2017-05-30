@@ -19,5 +19,5 @@
 package uk.ac.gda.server.exafs.scan;
 
 public enum ScanType {
-	XES_ONLY, QEXAFS_DEFAULT;
+	XES_ONLY, QEXAFS_DEFAULT, XANES_DEFAULT;
 }
