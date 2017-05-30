@@ -857,7 +857,7 @@
             contentType="uk.ac.diamond.gda.client.exafs.getXanesContent"
             includeInNew="true"
             name="XANES Scan"
-            template="ANGLE_Parameters"
+            template="XANES_Parameters"
             type="Scan">
       </describer>
       <describer
