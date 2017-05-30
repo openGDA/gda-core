@@ -19,17 +19,6 @@
 
 package gda.scan;
 
-import gda.data.DetectorDataWrapper;
-import gda.data.PlottableDetectorData;
-import gda.data.PlottableDetectorDataClone;
-import gda.data.nexus.tree.NexusTreeProvider;
-import gda.data.scan.datawriter.DataWriterBase;
-import gda.device.Detector;
-import gda.device.DeviceException;
-import gda.device.Scannable;
-import gda.device.scannable.ScannableUtils;
-import gda.util.Serializer;
-
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -40,6 +29,16 @@ import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.data.DetectorDataWrapper;
+import gda.data.PlottableDetectorData;
+import gda.data.PlottableDetectorDataClone;
+import gda.data.nexus.tree.NexusTreeProvider;
+import gda.data.scan.datawriter.DataWriterBase;
+import gda.device.Detector;
+import gda.device.DeviceException;
+import gda.device.Scannable;
+import gda.device.scannable.ScannableUtils;
+import gda.util.Serializer;
 import uk.ac.gda.util.map.MapUtils;
 
 /**
@@ -55,7 +54,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	/**
 	 * The delimiter used by toString() method.
 	 */
-	public static String delimiter = "\t";
+	public static final String DELIMITER = "\t";
 
 	/**
 	 * The command typed to start the scan that this point is part of.
@@ -68,13 +67,6 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	 */
 	private String creatorPanelName = "";
 
-//	/**
-//	 * The result of calling {@link DataWriter#getCurrentFileName() getCurrentFilename()} on the {@link DataWriter}
-//	 * owned by the scan which created this point. Could be used to uniquely identify where this data is being recorded
-//	 * by the {@link DataWriter}.
-//	 */
-//	private String currentFilename = "";
-
 	/**
 	 * The current point number.
 	 */
@@ -84,38 +76,23 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	 * Vector<Object> of data from the detectors. Each element represents the data from the detector in the
 	 * corresponding element of the 'detectors' vector;
 	 */
-	private Vector<Object> detectorData = new Vector<Object>();
+	private Vector<Object> detectorData = new Vector<>();
 
 	/**
 	 * The expanded header names for detectors in which the names are composed as detector name plus its element name.
 	 */
 	private String[] detectorHeader = new String[0];
 
-//	/**
-//	 * The detectors used in the scan.
-//	 */
-//	private String[] detectorNames = new String[0];
-
 	/**
 	 * The {@link gda.device.Detector} detectors that participate in the scan.
 	 */
-	private transient Vector<Detector> detectors = new Vector<Detector>();
+	private final transient Vector<Detector> detectors = new Vector<>();
 
 	/**
 	 * Formatting information for the scannable positions - used in the toString method. If an element is "" or null
 	 * then do not format that in the output.
 	 */
 	private String[][] detectorFormats = new String[0][];
-
-//	/**
-//	 * beamline name
-//	 */
-//	private String instrument = "";
-//
-//	/**
-//	 * total number of points in the scan
-//	 */
-//	private int numberOfPoints = -1;
 
 	/**
 	 * The expanded header names for scannable position in which the names are composed of the scannable name plus its
@@ -127,27 +104,17 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	 * The current positions of the scannables. Each element represents the scannable in the corresponding element of
 	 * the 'scannables' vector;
 	 */
-	private Vector<Object> scannablePositions = new Vector<Object>();
+	private Vector<Object> scannablePositions = new Vector<>();
 
 	/**
 	 * Formatting information for the scannable positions - used in the toString method.
 	 */
 	private String[][] scannableFormats = new String[0][];
 
-//	/**
-//	 * The scan identifier, such as the scan number.
-//	 */
-//	private int scanIdentifier = -1;
-
-//	/**
-//	 * The scannables which are part of the scan.
-//	 */
-//	private String[] scannableNames = new String[0];
-
 	/**
 	 * The {@link gda.device.Scannable} scannables that participate in the scan.
 	 */
-	private transient Vector<Scannable> scannables = new Vector<Scannable>();
+	private transient Vector<Scannable> scannables = new Vector<>();
 
 	/**
 	 * Unique identifier for the scan.
@@ -155,9 +122,10 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	private String uniqueName = "";
 
 	// values useful for plotting tools
-	private List<IScanStepId> stepIds = new Vector<IScanStepId>();
+	private List<IScanStepId> stepIds = new Vector<>();
 	private int numberOfChildScans = 0;
 	private ScanPlotSettings scanPlotSettings;
+
 	/**
 	 * Is this data point contain child scan
 	 */
@@ -180,20 +148,13 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	protected ScanDataPoint(ScanData point, ScanDataPointVar sdpt) {
 		uniqueName = point.uniqueName;
 		scanInfo = point.scanInfo;
-//		scannableNames = point.scannableNames;
-//		detectorNames = point.detectorNames;
 		scannableHeader = point.scannableHeader;
 		detectorHeader = point.detectorHeader;
 		hasChild = point.hasChild;
-//		scanIdentifier = point.scanIdentifier;
 		creatorPanelName = point.creatorPanelName;
-//		currentFilename = point.currentFilename;
 		numberOfChildScans = point.numberOfChildScans;
-//		instrument = point.instrument;
-//		numberOfPoints = point.numberOfPoints;
 		command = point.command;
 		scanPlotSettings = point.scanPlotSettings;
-//		scanDimensions = point.scanDimensions;
 
 		currentPointNumber = sdpt.getCurrentPointNumber();
 		detectorFormats = point.detectorFormats;
@@ -202,7 +163,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 		scannablePositions = sdpt.getPositions();
 		detectorData = sdpt.getDetectorData();
 
-		Vector<IScanStepId> stepIds = new Vector<IScanStepId>();
+		Vector<IScanStepId> stepIds = new Vector<>();
 		if (sdpt.getStepIds() != null) {
 			Object[] dt = (Object[]) Serializer.toObject(sdpt.getStepIds());
 			for (Object obj : dt) {
@@ -363,7 +324,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 		boolean first = true;
 		for (String s : array) {
 			if (!first) {
-				sb.append(delimiter);
+				sb.append(DELIMITER);
 			}
 			sb.append(s);
 			first = false;
@@ -382,7 +343,6 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	 */
 	@Override
 	public void addDetector(Detector det) {
-//		detectorNames = (String[]) ArrayUtils.add(detectorNames, det.getName());
 		scanInfo.setDetectorNames((String[]) ArrayUtils.add(scanInfo.getDetectorNames(), det.getName()));
 		String[] extraNames = det.getExtraNames();
 		if (extraNames != null && extraNames.length > 0) {
@@ -402,7 +362,6 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	 */
 	@Override
 	public void addScannable(Scannable scannable) {
-//		scannableNames = (String[]) ArrayUtils.add(scannableNames, scannable.getName());
 		scanInfo.setScannableNames((String[]) ArrayUtils.add(scanInfo.getScannableNames(), scannable.getName()));
 		scannableHeader = (String[]) ArrayUtils.addAll(scannableHeader, scannable.getInputNames());
 		scannableHeader = (String[]) ArrayUtils.addAll(scannableHeader, scannable.getExtraNames());
@@ -471,7 +430,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 			Double[] scannablePosAsDoubles = getPositionsAsDoubles();
 			Double[] detectorDataAsDoubles = getDetectorDataAsDoubles();
 
-			Vector<Double> output = new Vector<Double>();
+			Vector<Double> output = new Vector<>();
 			output.addAll(Arrays.asList(scannablePosAsDoubles));
 			output.addAll(Arrays.asList(detectorDataAsDoubles));
 			allValuesAsDoubles = output.toArray(new Double[] {});
@@ -486,7 +445,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	 */
 	@Override
 	public Double[] getDetectorDataAsDoubles() {
-		Vector<Double> vals = new Vector<Double>();
+		Vector<Double> vals = new Vector<>();
 		if (getDetectorData() != null) {
 			for (Object data : getDetectorData()) {
 				PlottableDetectorData wrapper = (data instanceof PlottableDetectorData) ? (PlottableDetectorData) data
@@ -510,7 +469,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	 */
 	@Override
 	public Vector<String> getDetectorHeader() {
-		return new Vector<String>(Arrays.asList(detectorHeader));
+		return new Vector<>(Arrays.asList(detectorHeader));
 	}
 
 	/**
@@ -520,7 +479,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	 */
 	@Override
 	public Vector<String> getDetectorNames() {
-		return new Vector<String>(Arrays.asList(scanInfo.getDetectorNames()));
+		return new Vector<>(Arrays.asList(scanInfo.getDetectorNames()));
 	}
 
 	/**
@@ -558,8 +517,8 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 
 		String data = toDelimitedString();
 
-		String[] headerElements = header.split(delimiter);
-		String[] dataElements = data.split(delimiter);
+		String[] headerElements = header.split(DELIMITER);
+		String[] dataElements = data.split(DELIMITER);
 
 		if(headerElements.length != dataElements.length )
 			throw new IllegalArgumentException("Number of parts in header '" + headerElements.length + "' != number of parts in data '" + dataElements.length + "'");
@@ -587,7 +546,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	public String getDelimitedHeaderString() {
 		String header = convertStringArrayToString(scannableHeader);
 		if (detectorHeader.length > 0) {
-			header += delimiter + convertStringArrayToString(detectorHeader);
+			header += DELIMITER + convertStringArrayToString(detectorHeader);
 		}
 		return header.trim();
 	}
@@ -603,7 +562,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 						scannableFormats[i]);
 				for (String part : thisPosition) {
 					sb.append(part);
-					sb.append(delimiter);
+					sb.append(DELIMITER);
 				}
 			} catch (Exception e) {
 				// ignore so will get a truncated string
@@ -621,7 +580,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 			if (dataItem instanceof String || dataItem instanceof NexusTreeProvider
 					|| dataItem instanceof PlottableDetectorDataClone) {
 				sb.append(dataItem.toString());
-				sb.append(delimiter);
+				sb.append(DELIMITER);
 			}
 			/*
 			 * else use the first format if it is not empty
@@ -634,7 +593,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 							detectorFormats[i]);
 					for (String part : thisPosition) {
 						sb.append(part);
-						sb.append(delimiter);
+						sb.append(DELIMITER);
 					}
 				} catch (Exception e) {
 					logger.error("Error getting position", e);
@@ -645,7 +604,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 			 */
 			else {
 				sb.append(DataWriterBase.getDetectorData(dataItem, false));
-				sb.append(delimiter);
+				sb.append(DELIMITER);
 			}
 			i++;
 		}
@@ -660,7 +619,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 
 	@Override
 	public Vector<String> getNames() {
-		Vector<String> allNames = new Vector<String>();
+		Vector<String> allNames = new Vector<>();
 		allNames.addAll(getScannableNames());
 		allNames.addAll(getDetectorNames());
 		return allNames;
@@ -678,7 +637,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 
 	@Override
 	public Vector<String> getPositionHeader() {
-		return new Vector<String>(Arrays.asList(scannableHeader));
+		return new Vector<>(Arrays.asList(scannableHeader));
 	}
 
 	@Override
@@ -693,7 +652,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 
 	@Override
 	public Vector<String> getScannableNames() {
-		return new Vector<String>(Arrays.asList(scanInfo.getScannableNames()));
+		return new Vector<>(Arrays.asList(scanInfo.getScannableNames()));
 	}
 
 	/**
@@ -703,7 +662,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	 */
 	@Override
 	public Double[] getPositionsAsDoubles() {
-		Vector<Double> vals = new Vector<Double>();
+		Vector<Double> vals = new Vector<>();
 		if (getPositions() != null) {
 			for (Object data : getPositions()) {
 				PlottableDetectorData wrapper = new DetectorDataWrapper(data);
@@ -804,8 +763,8 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 
 		String data = toDelimitedString();
 
-		String[] headerElements = header.split(delimiter);
-		String[] dataElements = data.split(delimiter);
+		String[] headerElements = header.split(DELIMITER);
+		String[] dataElements = data.split(DELIMITER);
 
 		for (int i = 0; i < headerElements.length; i++) {
 			int headerLength = headerElements[i].trim().length();
@@ -838,7 +797,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	public String toDelimitedString() {
 		if( delimitedString == null){
 			StringBuilder sb = new StringBuilder(createStringFromPositions());
-			sb.append(delimiter);
+			sb.append(DELIMITER);
 			sb.append(createStringFromDetectorData());
 			delimitedString = sb.toString().trim();
 		}
