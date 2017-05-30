@@ -298,17 +298,21 @@ public class ExperimentRunEditor extends EditorPart implements ExperimentObjectL
 
 		int columnsMade = 0;
 		for (int index = 0; index < columnNames.length; index++){
-			String columnName = columnNames[index];
+			final String columnName = columnNames[index];
+			boolean beanDescriptionFound = false;
 			for (IExperimentBeanDescription type : beanTypes) {
 				if (type.includeInNew() && columnName.equals(type.getBeanType())) {
-					TableViewerColumn thisColumn = new TableViewerColumn(table, SWT.LEFT,
-							index+1);
+					final TableViewerColumn thisColumn = new TableViewerColumn(table, SWT.LEFT, index+1);
 					thisColumn.getColumn().setText(type.getBeanType());
 					thisColumn.getColumn().setWidth(width);
 					thisColumn.setLabelProvider(new BeanColumnLabelProvider(type));
 					columnsMade++;
+					beanDescriptionFound = true;
 					break;
 				}
+			}
+			if (!beanDescriptionFound) {
+				logger.error("No experiment bean description found for {}", columnName);
 			}
 		}
 
