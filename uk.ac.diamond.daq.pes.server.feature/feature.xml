@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="uk.ac.diamond.daq.arpes.server.feature"
-      label="Arpes Server Components Feature"
+      id="uk.ac.diamond.daq.pes.server.feature"
+      label="PES Server Components Feature"
       version="1.0.0.qualifier"
       provider-name="Diamond Light Source Ltd">
 
@@ -16,10 +16,6 @@
    <license url="http://www.example.com/license">
       [Enter License Description here.]
    </license>
-
-   <includes
-         id="uk.ac.diamond.daq.analysis.server.feature"
-         version="0.0.0"/>
 
    <plugin
          id="uk.ac.gda.arpes.server"
