@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="uk.ac.diamond.daq.devices.specs.phoibos.ui.SpecsLiveSpectrumPlot">
+   <implementation class="uk.ac.diamond.daq.devices.specs.phoibos.ui.SpecsLiveSpectrumPlot"/>
+   <reference bind="setPlottingService" cardinality="1..1" interface="org.eclipse.dawnsci.plotting.api.IPlottingService" name="IPlottingService" policy="static"/>
+</scr:component>

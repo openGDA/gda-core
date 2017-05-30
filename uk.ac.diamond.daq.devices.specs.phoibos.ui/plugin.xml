@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin>
+
+   <extension
+         id="uk.ac.diamond.daq.devices.specs.phoibos.ui.fragment"
+         point="org.eclipse.e4.workbench.model">
+      <fragment
+            uri="fragment.e4xmi">
+      </fragment>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            class="uk.ac.diamond.daq.devices.specs.phoibos.ui.SpecsLiveSpectrumPlot"
+            icon="icons/analyser_spectrum_icon.png"
+            id="uk.ac.diamond.daq.devices.specs.phoibos.ui.spectrum"
+            name="Spectrum"
+            restorable="true">
+      </view>
+      <view
+            class="uk.ac.diamond.daq.devices.specs.phoibos.ui.SpecsLiveImagePlot"
+            icon="icons/analyser_image_icon.png"
+            id="uk.ac.diamond.daq.devices.specs.phoibos.ui.image"
+            name="Image"
+            restorable="true">
+      </view>
+      <e4view
+            class="uk.ac.diamond.daq.devices.specs.phoibos.ui.control.SpecsLiveAnalyserControlsView"
+            icon="icons/analyser_icon.png"
+            id="uk.ac.diamond.daq.devices.specs.phoibos.ui.controls"
+            name="Analyser Controls"
+            restorable="true">
+      </e4view>
+   </extension>
+
+</plugin>
