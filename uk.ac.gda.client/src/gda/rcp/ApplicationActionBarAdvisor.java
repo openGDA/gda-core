@@ -463,12 +463,15 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 							switch (state) {
 							case PROCESSING_ITEMS:
 								queueStatus.setText("Running " + (item != null ? item.getDescription() : ""));
+								queueStatus.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_YELLOW));
 								break;
 							case UNKNOWN:
 								queueStatus.setText("Queue - unknown");
+								queueStatus.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_MAGENTA));
 								break;
 							case WAITING_QUEUE:
 								queueStatus.setText("Queue - waiting");
+								queueStatus.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_GREEN));
 								break;
 							case WAITING_START:
 								queueStatus.setText("Queue - paused");

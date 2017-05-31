@@ -22,3 +22,5 @@ Require-Bundle: uk.ac.gda.test.helpers;bundle-version="1.0.0",
  org.eclipse.scanning.test,
  uk.ac.diamond.org.powermock;bundle-version="1.6.4",
  javassist;bundle-version="3.20.0"
+Import-Package: org.eclipse.osgi.util
+
