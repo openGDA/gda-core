@@ -62,6 +62,8 @@ public class NudgePositionerComposite extends Composite {
 
 	private static final Logger logger = LoggerFactory.getLogger(NudgePositionerComposite.class);
 	public static final double DEFAULT_INCREMENT = 1.0;
+	private static final int NUDGE_BUTTON_WIDTH = 28;
+	private static final int DEFAULT_INCREMENT_TEXT_WIDTH = 30;
 
 	// GUI Elements
 	private Label displayNameLabel;
@@ -83,6 +85,7 @@ public class NudgePositionerComposite extends Composite {
 	private Double incrementValue = DEFAULT_INCREMENT;
 	private Double currentPosition;
 	private GridData stopButtonGridData;
+	private int incrementTextWidth = DEFAULT_INCREMENT_TEXT_WIDTH;
 
 	/**
 	 * Constructor for a NudgePositionerComposite only requires the specification of minimal parameters.
@@ -119,7 +122,7 @@ public class NudgePositionerComposite extends Composite {
 				// If enter was pressed move to new position
 				if (key.character == SWT.CR) { // enter or numpad enter pressed
 					// Get the new position from the text box
-					double newPosition = Double.valueOf(positionText.getText().split(" ")[0]);
+					double newPosition = Double.parseDouble(positionText.getText().split(" ")[0]);
 					move(newPosition);
 				}
 				// If up was pressed increment position and move
@@ -143,7 +146,7 @@ public class NudgePositionerComposite extends Composite {
 		// Decrement button
 		decrementButton = new Button(this, SWT.NONE);
 		decrementButton.setText("-");
-		decrementButton.setLayoutData(GridDataFactory.fillDefaults().hint(28, SWT.DEFAULT).grab(true, false).create());
+		decrementButton.setLayoutData(GridDataFactory.fillDefaults().hint(NUDGE_BUTTON_WIDTH, SWT.DEFAULT).grab(true, false).create());
 		decrementButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -153,15 +156,13 @@ public class NudgePositionerComposite extends Composite {
 
 		// Increment text box
 		incrementText = new Text(this, SWT.BORDER);
-		GridData incrementGridData = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
-		incrementGridData.widthHint = 30; // Make the increment box a little wider
-		incrementText.setLayoutData(GridDataFactory.fillDefaults().hint(30, SWT.DEFAULT).grab(true, false).create());
+		incrementText.setLayoutData(GridDataFactory.fillDefaults().hint(incrementTextWidth, SWT.DEFAULT).grab(true, false).create());
 		incrementText.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent key) {
 				// If enter was pressed update increment and switch focus to position box to allow up down tapping.
 				if (key.character == SWT.CR) { // enter or numpad enter pressed
-					setIncrement(Double.valueOf(incrementText.getText()));
+					setIncrement(Double.parseDouble(incrementText.getText()));
 					positionText.setFocus();
 				}
 			}
@@ -170,7 +171,7 @@ public class NudgePositionerComposite extends Composite {
 		// Increment button
 		incrementButton = new Button(this, SWT.NONE);
 		incrementButton.setText("+");
-		incrementButton.setLayoutData(GridDataFactory.fillDefaults().hint(28, SWT.DEFAULT).grab(true, false).create());
+		incrementButton.setLayoutData(GridDataFactory.fillDefaults().hint(NUDGE_BUTTON_WIDTH, SWT.DEFAULT).grab(true, false).create());
 		incrementButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -186,7 +187,7 @@ public class NudgePositionerComposite extends Composite {
 				try {
 					scannable.stop();
 				} catch (DeviceException e1) {
-					logger.error("Error while stopping " + scannableName, e);
+					logger.error("Error while stopping " + scannableName, e1);
 				}
 			}
 		});
@@ -232,11 +233,7 @@ public class NudgePositionerComposite extends Composite {
 		if (upperLimit == null || lowerLimit == null) {
 			return true; // Limits are not set
 		} else {
-			if (newPosition >= lowerLimit && newPosition <= upperLimit) {
-				return true;
-			} else {
-				return false;
-			}
+			return (newPosition >= lowerLimit && newPosition <= upperLimit);
 		}
 	}
 
@@ -608,4 +605,12 @@ public class NudgePositionerComposite extends Composite {
 		updateReadbackJob.schedule(); // Get initial values
 	}
 
+	public int getIncrementTextWidth() {
+		return incrementTextWidth;
+	}
+
+	public void setIncrementTextWidth(int incrementTextWidth) {
+		this.incrementTextWidth = incrementTextWidth;
+		((GridData) incrementText.getLayoutData()).widthHint = incrementTextWidth;
+	}
 }
