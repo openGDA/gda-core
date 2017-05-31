@@ -18,7 +18,6 @@
 
 package uk.ac.gda.exafs.ui.views.scalersmonitor;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.dawnsci.plotting.api.PlotType;
 import org.eclipse.dawnsci.plotting.api.axis.IAxis;
 import org.eclipse.dawnsci.plotting.api.trace.ILineTrace;
@@ -33,21 +32,15 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 
 import gda.configuration.properties.LocalProperties;
-import gda.device.CounterTimer;
 import gda.device.DeviceException;
-import gda.factory.Finder;
-import uk.ac.gda.beans.xspress.XspressDetector;
+import gda.device.detector.DetectorMonitorDataProvider.COLLECTION_TYPES;
 
 public class XspressMonitorView extends MonitorViewBase {
 	public static final String ID = "uk.ac.gda.exafs.ui.views.scalersmonitor";
-	// protected static final Logger logger = LoggerFactory.getLogger(XspressMonitorView.class);
-	// private static final Double MAX_FLUO_RATE = 500000.0;
+
 	protected ScalersMonitorConfig displayData;
 	private IAxis dtAxis;
-	private IAxis primaryAxis;
-	private XspressDetector xspress;
-	private CounterTimer ionchambers;
-	private Double collectionTime;
+	private IAxis primaryAxis;;
 	private Double maxFluoRate;
 
 	public XspressMonitorView() {
@@ -70,13 +63,6 @@ public class XspressMonitorView extends MonitorViewBase {
 
 		super.createPartControl(parent);
 
-		// TODO why get the detector names from java properties? Spring is a much nicer way of configuring as it means
-		// not having to look in the code to see what devices are used.
-		String xspressName = LocalProperties.get("gda.exafs.xspressName", "xspress2system");
-		xspress = (XspressDetector) Finder.getInstance().find(xspressName);
-		String ionchambersName = LocalProperties.get("gda.exafs.ionchambersName", "counterTimer01");
-		ionchambers = (CounterTimer) Finder.getInstance().find(ionchambersName);
-		collectionTime = Double.valueOf(LocalProperties.get("gda.exafs.ui.views.scalersMonitor.collectionTime", "1.0"));
 		maxFluoRate = Double.valueOf(LocalProperties.get("gda.exafs.ui.views.scalersMonitor.maxFluoRate", "500000"));
 	}
 
@@ -159,65 +145,17 @@ public class XspressMonitorView extends MonitorViewBase {
 			runMonitoring = false;
 			logger.error("Exception trying to plot Xspress statistics " + e.getMessage());
 		}
-
 	}
 
 	@Override
 	protected Double[] getFluoDetectorCountRatesAndDeadTimes() throws DeviceException {
-		numElements = xspress.getNumberOfDetectors();
-		Double[] rates = (Double[]) xspress.getAttribute("liveStats");
-		return rates;
+		numElements = dataProvider.getNumElements(COLLECTION_TYPES.XSPRESS2);
+		return dataProvider.getFluoDetectorCountRatesAndDeadTimes(COLLECTION_TYPES.XSPRESS2);
 	}
 
 	@Override
 	protected Double[] getIonChamberValues() throws Exception {
-		if (xspress == null) {
-			String xspressName = LocalProperties.get("gda.exafs.xspressName", "xspress2system");
-			xspress = (XspressDetector) Finder.getInstance().find(xspressName);
-		}
-		if (ionchambers == null) {
-			String ionchambersName = LocalProperties.get("gda.exafs.ionchambersName", "counterTimer01");
-			ionchambers = (CounterTimer) Finder.getInstance().find(ionchambersName);
-		}
-
-		// Check to make sure that no scan or script is currently running before reading from detectors
-		// to avoid indadvertently interfering with data collection.
-		if ( !getScriptOrScanIsRunning() && !xspress.isBusy()
-				&& !ionchambers.isBusy()) {
-			xspress.collectData();
-			ionchambers.setCollectionTime(collectionTime);
-			ionchambers.clearFrameSets();
-			ionchambers.collectData();
-			xspress.waitWhileBusy();
-			ionchambers.waitWhileBusy();
-		} else {
-			throw new Exception(ALREADY_RUNNING_MSG);
-		}
-
-		// read the latest frame
-		int currentFrame = ionchambers.getCurrentFrame();
-		if (currentFrame % 2 != 0)
-			currentFrame--;
-
-		if (currentFrame > 0) {
-			currentFrame /= 2;
-			currentFrame--;
-		}
-
-		// assumes an column called I0
-		double[] ion_results = (double[]) ionchambers.readout();
-		Double collectionTime = (Double) ionchambers.getAttribute("collectionTime");
-
-		String[] extraNames = ionchambers.getExtraNames();
-		int i0Index = ArrayUtils.indexOf(extraNames, "I0");
-		if (collectionTime != null) {
-			ion_results[i0Index] /= collectionTime;
-			ion_results[i0Index + 1] /= collectionTime;
-			ion_results[i0Index + 2] /= collectionTime;
-		}
-
-
-		return new Double[] { ion_results[i0Index + 0], ion_results[i0Index + 1], ion_results[i0Index + 2] };
+		return dataProvider.getIonChamberValues(COLLECTION_TYPES.XSPRESS2);
 	}
 
 	@Override
