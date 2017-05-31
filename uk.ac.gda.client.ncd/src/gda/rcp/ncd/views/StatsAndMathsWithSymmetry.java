@@ -187,8 +187,9 @@ public class StatsAndMathsWithSymmetry extends PlotViewStatsAndMaths {
 	private Object getRoi(GuiParameters key, @SuppressWarnings("rawtypes") Class clazz) throws Exception {
 
 		GuiBean guiBean = SDAPlotter.getGuiBean(plotView.getPlotViewName());
-		if (guiBean.containsKey(key) && clazz.isInstance(guiBean.get(key))){
-			return guiBean.get(key);
+		Serializable obj = key.equals(GuiParameters.ROIDATA) ? guiBean.getROI() : guiBean.get(key);
+		if (clazz.isInstance(obj)) {
+			return obj;
 		}
 		throw new Exception(String.format("no roi of type %s found with key %s", clazz.getSimpleName(), key));
 	}
