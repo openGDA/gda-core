@@ -23,7 +23,6 @@ import gda.device.DeviceException;
 import gda.device.MotorException;
 import gda.device.MotorStatus;
 import gda.factory.Finder;
-import gda.util.Sleep;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -483,7 +482,7 @@ public class SRControlMotor extends MotorBase {
 				logger.debug("SRControlMotor.getZeroMode() about to move phase to: " + ZERO_PHASE_OFFSET);
 				moveTo(ZERO_PHASE_OFFSET);
 				do {
-					Sleep.sleep(100);
+					Thread.sleep(100);
 				} while (this.getStatus() == MotorStatus.BUSY);
 				logger.debug("SRControlMotor.getZeroMode() finished move to: " + ZERO_PHASE_OFFSET);
 				srControl.getValue(MODE_SERVER, SRControlInterface.GET_STATUS, value);
@@ -491,7 +490,7 @@ public class SRControlMotor extends MotorBase {
 				logger.debug("SRControlMotor.getZeroMode() about to move phase back to 0");
 				moveTo(0);
 				while (this.getStatus() == MotorStatus.BUSY) {
-					Sleep.sleep(100);
+					Thread.sleep(100);
 				}
 				logger.debug("SRControlMotor.getZeroMode() finished move to: 0");
 				retVal = value[0];
@@ -508,6 +507,11 @@ public class SRControlMotor extends MotorBase {
 			} catch (DeviceException e) {
 				logger.error("SRControlMotor.getZeroMode() caught DeviceException with message: " + e.getMessage());
 				throw e;
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+				String msg = "Interrupted while getting Zero Mode";
+				logger.error(msg, e);
+				throw new DeviceException(msg, e);
 			}
 		}
 		logger.debug("SRControlMotor.getZeroMode() about to return: " + retVal);

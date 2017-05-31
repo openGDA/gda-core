@@ -23,7 +23,6 @@ import gda.device.Motor;
 import gda.device.MotorException;
 import gda.device.MotorStatus;
 import gda.observable.IObservable;
-import gda.util.Sleep;
 
 /**
  * TotalDummyMotor Class
@@ -41,8 +40,6 @@ public class TotalDummyMotor extends MotorBase implements Runnable, IObservable,
 
 	private boolean moving = false;
 
-	private int sleepTime = 0;
-
 	@Override
 	public void configure(){
 		// no configuration required
@@ -51,7 +48,6 @@ public class TotalDummyMotor extends MotorBase implements Runnable, IObservable,
 	@Override
 	public void moveBy(double steps) throws MotorException {
 		moving = true;
-		Sleep.sleep(sleepTime);
 		posn += steps;
 		moving = false;
 	}
@@ -59,7 +55,6 @@ public class TotalDummyMotor extends MotorBase implements Runnable, IObservable,
 	@Override
 	public void moveTo(double steps) throws MotorException {
 		moving = true;
-		Sleep.sleep(sleepTime);
 		posn = steps;
 		moving = false;
 	}

@@ -176,7 +176,11 @@ public class AerotechMotor extends MotorBase implements Configurable, IObservabl
 			}
 		} catch (DeviceException e) {
 			motorMoving = false;
-			throw (new MotorException(MotorStatus.FAULT, e.getMessage()));
+			throw new MotorException(MotorStatus.FAULT, "Error moving - " + getName(), e);
+		} catch (InterruptedException e) {
+			logger.error("{} - Interrupted while waiting for absolute move", getName(), e);
+			Thread.currentThread().interrupt();
+			throw new MotorException(MotorStatus.UNKNOWN, getName() + " - Interrupted while waiting for absolute move", e);
 		}
 	}
 

@@ -23,8 +23,8 @@ import gda.device.DeviceException;
 import gda.device.Serial;
 import gda.device.serial.StringReader;
 import gda.device.serial.StringWriter;
+import gda.factory.FactoryException;
 import gda.factory.Finder;
-import gda.util.Sleep;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +53,7 @@ public class OxfordDanfysikQBPM extends BPMBase {
 	private Serial serial = null;
 
 	@Override
-	public void configure() {
+	public void configure() throws FactoryException {
 		if ((serial = (Serial) Finder.getInstance().find(serialDeviceName)) == null) {
 			logger.error("Serial Device " + serialDeviceName + " not found");
 		} else {
@@ -69,15 +69,21 @@ public class OxfordDanfysikQBPM extends BPMBase {
 			}
 		}
 
-		initialize();
+		try {
+			initialize();
+		} catch (InterruptedException e) {
+			logger.error("Thread interrupted while initialisating", e);
+			Thread.currentThread().interrupt();
+			throw new FactoryException("Interrupted while initialisating", e);
+		}
 	}
 
-	private boolean sendCommand(String command, boolean waitForAcknowledgement) {
+	private boolean sendCommand(String command, boolean waitForAcknowledgement) throws InterruptedException {
 		boolean timeout = false;
 
 		try {
 			writer.write(command);
-			Sleep.sleep(100);
+			Thread.sleep(100);
 			if (waitForAcknowledgement)
 				reader.read();
 		} catch (DeviceException e) {
@@ -87,9 +93,9 @@ public class OxfordDanfysikQBPM extends BPMBase {
 		return timeout;
 	}
 
-	private void initialize() {
+	private void initialize() throws InterruptedException {
 		sendCommand("*rst" + address, false);
-		Sleep.sleep(1000);
+		Thread.sleep(1000);
 		sendCommand(":conf0:gx1?", true);
 		sendCommand(":conf0:gy1?", true);
 		sendCommand(":conf0:a11?", true);
@@ -102,8 +108,23 @@ public class OxfordDanfysikQBPM extends BPMBase {
 		sendCommand(":conf0:d20?", true);
 	}
 
+	/**
+	 * Initialize, wrapping Interrupted exceptions in device exceptions
+	 * (and reinterrupting thread)
+	 * @throws DeviceException
+	 */
+	private void reinitialize() throws DeviceException {
+		try {
+			initialize();
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			logger.error("{} interrupted while initialising", getName());
+			throw new DeviceException("Interrupted while trying to initialise", e);
+		}
+	}
+
 	@Override
-	public double getX() {
+	public double getX() throws DeviceException {
 		double x = 0.0;
 
 		try {
@@ -113,7 +134,7 @@ public class OxfordDanfysikQBPM extends BPMBase {
 			e.printStackTrace();
 		} catch (NumberFormatException nfex) {
 			if (retry) {
-				initialize();
+				reinitialize();
 				retry = false;
 				x = getX();
 				retry = true;
@@ -124,18 +145,18 @@ public class OxfordDanfysikQBPM extends BPMBase {
 	}
 
 	@Override
-	public double getY() {
+	public double getY() throws DeviceException {
 		double y = 0.0;
 
 		try {
 			writer.write(":read" + address + ":posy?");
 			y = Double.parseDouble(reader.read());
 		} catch (DeviceException e) {
-			initialize();
+			reinitialize();
 			y = getY();
 		} catch (NumberFormatException nfex) {
 			if (retry) {
-				initialize();
+				reinitialize();
 				retry = false;
 				y = getY();
 				retry = true;

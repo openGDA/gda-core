@@ -21,6 +21,7 @@ package gda.device.motor;
 
 import gda.device.MotorException;
 import gda.device.MotorStatus;
+import gda.factory.FactoryException;
 import gda.factory.Finder;
 
 import org.slf4j.Logger;
@@ -46,18 +47,26 @@ public class SRS122Motor extends MotorBase {
 	}
 
 	@Override
-	public void configure() {
+	public void configure() throws FactoryException {
 		Finder finder = Finder.getInstance();
 		if ((mc = (MotordController) finder.find(MotordControllerName)) == null) {
 			logger.error("SRS122Controller not found");
+			throw new FactoryException("Controller can't be found");
 		}
 
 		// loadPosition(getName());
 
 		// use the VME motor position file. Safer if someone has moved the
 		// motors
-		// with a telnet conection.
-		mc.loadPosition(mnemonic);
+		// with a telnet connection.
+		try {
+			mc.loadPosition(mnemonic);
+		} catch (InterruptedException e) {
+			String msg = "Thread interrupted during configuration for " + getName();
+			logger.error(msg, e);
+			Thread.currentThread().interrupt();
+			throw new FactoryException(msg, e);
+		}
 	}
 
 	/**
@@ -92,7 +101,14 @@ public class SRS122Motor extends MotorBase {
 	@Override
 	public void moveBy(double steps) throws MotorException {
 		checkMotorSupported();
-		mc.moveBy(getMnemonic(), (int) Math.round(addInBacklash(steps)));
+		try {
+			mc.moveBy(getMnemonic(), (int) Math.round(addInBacklash(steps)));
+		} catch (InterruptedException ie) {
+			Thread.currentThread().interrupt();
+			String msg = "Thread interrupted while moving motor " + getName();
+			logger.error(msg, ie);
+			throw new MotorException(MotorStatus.UNKNOWN, msg);
+		}
 	}
 
 	@Override
@@ -101,13 +117,27 @@ public class SRS122Motor extends MotorBase {
 		double currentPosition = getPosition();
 		double increment = steps - currentPosition;
 		steps = addInBacklash(increment) + currentPosition;
-		mc.moveTo(getMnemonic(), (int) Math.round(steps));
+		try {
+			mc.moveTo(getMnemonic(), (int) Math.round(steps));
+		} catch (InterruptedException ie) {
+			Thread.currentThread().interrupt();
+			String msg = "Thread interrupted while moving motor " + getName();
+			logger.error(msg, ie);
+			throw new MotorException(MotorStatus.UNKNOWN, msg);
+		}
 	}
 
 	@Override
 	public void moveContinuously(int direction) throws MotorException {
 		checkMotorSupported();
-		mc.moveContinuously(getMnemonic(), direction);
+		try {
+			mc.moveContinuously(getMnemonic(), direction);
+		} catch (InterruptedException ie) {
+			Thread.currentThread().interrupt();
+			String msg = "Thread interrupted while moving motor " + getName();
+			logger.error(msg, ie);
+			throw new MotorException(MotorStatus.UNKNOWN, msg);
+		}
 	}
 
 	@Override
@@ -118,7 +148,14 @@ public class SRS122Motor extends MotorBase {
 	@Override
 	public void setPosition(double steps) throws MotorException {
 		checkMotorSupported();
-		mc.setPosition(getMnemonic(), (int) Math.round(steps));
+		try {
+			mc.setPosition(getMnemonic(), (int) Math.round(steps));
+		} catch (InterruptedException ie) {
+			Thread.currentThread().interrupt();
+			String msg = "Thread interrupted while setting position of motor " + getName();
+			logger.error(msg, ie);
+			throw new MotorException(MotorStatus.UNKNOWN, msg);
+		}
 	}
 
 	@Override
@@ -130,25 +167,53 @@ public class SRS122Motor extends MotorBase {
 	@Override
 	public void setSpeed(double stepsPerSecond) throws MotorException {
 		checkMotorSupported();
-		mc.setSpeed(getMnemonic(), (int) Math.round(stepsPerSecond));
+		try {
+			mc.setSpeed(getMnemonic(), (int) Math.round(stepsPerSecond));
+		} catch (InterruptedException ie) {
+			Thread.currentThread().interrupt();
+			String msg = "Thread interrupted while setting speed of motor " + getName();
+			logger.error(msg, ie);
+			throw new MotorException(MotorStatus.UNKNOWN, msg);
+		}
 	}
 
 	@Override
 	public double getSpeed() throws MotorException {
 		checkMotorSupported();
-		return mc.getSpeed(getMnemonic());
+		try {
+			return mc.getSpeed(getMnemonic());
+		} catch (InterruptedException ie) {
+			Thread.currentThread().interrupt();
+			String msg = "Thread interrupted while getting speed of motor " + getName();
+			logger.error(msg, ie);
+			throw new MotorException(MotorStatus.UNKNOWN, msg);
+		}
 	}
 
 	@Override
 	public void stop() throws MotorException {
 		checkMotorSupported();
-		mc.halt();
+		try {
+			mc.halt();
+		} catch (InterruptedException ie) {
+			Thread.currentThread().interrupt();
+			String msg = "Thread interrupted while stopping motor " + getName();
+			logger.error(msg, ie);
+			throw new MotorException(MotorStatus.UNKNOWN, msg);
+		}
 	}
 
 	@Override
 	public void panicStop() throws MotorException {
 		checkMotorSupported();
-		mc.halt();
+		try {
+			mc.halt();
+		} catch (InterruptedException ie) {
+			Thread.currentThread().interrupt();
+			String msg = "Thread interrupted while panicStopping motor " + getName();
+			logger.error(msg, ie);
+			throw new MotorException(MotorStatus.UNKNOWN, msg);
+		}
 	}
 
 	@Override

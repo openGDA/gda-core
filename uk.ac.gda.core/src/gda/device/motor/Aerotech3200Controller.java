@@ -22,7 +22,6 @@ package gda.device.motor;
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.factory.Findable;
-import gda.util.Sleep;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -260,8 +259,9 @@ public class Aerotech3200Controller extends DeviceBase implements Findable {
 	 *            the absolute target position
 	 * @param speed
 	 *            the requested speed
+	 * @throws InterruptedException
 	 */
-	public void moveAbsolute(int axis, double target, int speed) {
+	public void moveAbsolute(int axis, double target, int speed) throws InterruptedException {
 		// StringBuffer buffer = null;
 		int i;
 		int error;
@@ -276,7 +276,7 @@ public class Aerotech3200Controller extends DeviceBase implements Findable {
 				logger.debug("!!!!!!!!!!!!!!!!!!!!NEGATIVE ERROR!!!!!!!!!!!!!!!");
 			}
 			if (error > NOERROR) {
-				Sleep.sleep(2000);
+				Thread.sleep(2000);
 				/*
 				 * int option = JOptionPane .showOptionDialog( frame, i + "tries, error code" + error, "Motor error
 				 * warning", JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE, null, new String[]{"OK"}, "OK");
