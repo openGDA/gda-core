@@ -31,11 +31,8 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 
-import gda.configuration.properties.LocalProperties;
-import gda.device.CounterTimer;
 import gda.device.DeviceException;
-import gda.device.XmapDetector;
-import gda.factory.Finder;
+import gda.device.detector.DetectorMonitorDataProvider.COLLECTION_TYPES;
 
 public class XmapMonitorView extends MonitorViewBase {
 
@@ -54,7 +51,6 @@ public class XmapMonitorView extends MonitorViewBase {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		refreshRate = 0.1;
 
 		Group grpCurrentCountRates = new Group(parent, SWT.BORDER);
 		grpCurrentCountRates.setText("Current count rates");
@@ -69,14 +65,6 @@ public class XmapMonitorView extends MonitorViewBase {
 		primaryAxis = myPlotter.getSelectedYAxis();
 		primaryAxis.setTitle("Counts (Hz)");
 		dtAxis = myPlotter.createAxis("Deadtime (%)", true, SWT.RIGHT);
-
-		String xmapName = LocalProperties.get("gda.exafs.xmapName", "xmapMca");
-		XmapDetector xmap = (XmapDetector) Finder.getInstance().find(xmapName);
-		try {
-			numElements = xmap.getNumberOfMca();
-		} catch (DeviceException e) {
-			logger.error("Exception while fetching number of elements in the Si detector. Is it properly configured/connected?", e);
-		}
 
 		super.createPartControl(parent);
 	}
@@ -176,65 +164,12 @@ public class XmapMonitorView extends MonitorViewBase {
 
 	@Override
 	protected Double[] getFluoDetectorCountRatesAndDeadTimes() throws DeviceException {
-		String xmapName = LocalProperties.get("gda.exafs.xmapName", "xmapMca");
-		XmapDetector xmap = (XmapDetector) Finder.getInstance().find(xmapName);
-		numElements = xmap.getNumberOfMca();
-		return (Double[]) xmap.getAttribute("liveStats");
+		numElements = dataProvider.getNumElements(COLLECTION_TYPES.XMAP);
+		return dataProvider.getFluoDetectorCountRatesAndDeadTimes(COLLECTION_TYPES.XMAP);
 	}
 
 	@Override
 	protected Double[] getIonChamberValues() throws Exception {
-
-		String xmapName = LocalProperties.get("gda.exafs.xmapName", "xmapMca");
-		XmapDetector xmap = (XmapDetector) Finder.getInstance().find(xmapName);
-		String ionchambersName = LocalProperties.get("gda.exafs.ionchambersName", "counterTimer01");
-		CounterTimer ionchambers = (CounterTimer) Finder.getInstance().find(ionchambersName);
-
-		// Check to make sure that no scan or script is currently running before reading from detectors
-		// to avoid indadvertently interfering with data collection.
-		if ( getScriptOrScanIsRunning() && !xmap.isBusy() && !ionchambers.isBusy() ){
-			xmap.collectData();
-			ionchambers.setCollectionTime(1);
-			ionchambers.collectData();
-			ionchambers.clearFrameSets();
-			ionchambers.waitWhileBusy();
-			xmap.stop();
-			xmap.waitWhileBusy();
-		} else {
-			throw new Exception(ALREADY_RUNNING_MSG);
-		}
-
-		// read the latest frame
-		int currentFrame = ionchambers.getCurrentFrame();
-		if (currentFrame % 2 != 0) {
-			currentFrame--;
-		}
-		if (currentFrame > 0) {
-			currentFrame /= 2;
-			currentFrame--;
-		}
-
-		int numChannels = ionchambers.getExtraNames().length;
-//		// works for TFG2 only where time if the first channel
-		double[] ion_results = ionchambers.readFrame(1, numChannels, currentFrame);
-
-//		double[] ion_results = (double[]) ionchambers.readout();
-		Double collectionTime = (Double) ionchambers.getAttribute("collectionTime");
-		int i0Index = -1;
-		String[] eNames = ionchambers.getExtraNames();
-		// find the index for I0
-		for (String s : eNames) {
-			i0Index++;
-			if (s.equals("I0"))
-				break;
-
-		}
-		if (collectionTime != null) {
-			ion_results[i0Index] /= collectionTime;
-			ion_results[i0Index + 1] /= collectionTime;
-			ion_results[i0Index + 2] /= collectionTime;
-		}
-		return new Double[] { ion_results[i0Index + 0], ion_results[i0Index + 1], ion_results[i0Index + 2] };
-
+		return dataProvider.getIonChamberValues(COLLECTION_TYPES.XMAP);
 	}
 }
