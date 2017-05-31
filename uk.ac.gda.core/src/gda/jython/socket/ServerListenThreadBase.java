@@ -47,7 +47,15 @@ public abstract class ServerListenThreadBase extends Thread {
 		String previousCommand = "";
 		String command = "";
 		try {
-			while ((fromServer = readLine(needMore ? "... " : ">>> ")) != null) {
+			while (fromServer != null) {
+				try {
+					fromServer = readLine(needMore ? "... " : ">>> ");
+					if (fromServer == null) continue;
+				} catch (InterruptedInputException iie) {
+					logger.debug("User interrupt from telnet", iie);
+					previousCommand = "";
+					fromServer = "";
+				}
 				command = previousCommand + fromServer;
 				needMore = command_server.runsource(command, "CommandThread");
 				// needMore will be true if the command was incomplete e.g. the
@@ -73,5 +81,11 @@ public abstract class ServerListenThreadBase extends Thread {
 	protected void close() {}
 
 	protected abstract String readLine(String prompt) throws IOException;
+
+	protected class InterruptedInputException extends IOException {
+		public InterruptedInputException(Exception uie) {
+			super(uie);
+		}
+	}
 
 }
