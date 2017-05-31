@@ -228,9 +228,15 @@ public class ShutterPanel extends JPanel implements IObserver, Runnable,Configur
 
 	@Override
 	public void run() {
-		while (true) {
+		while (!Thread.currentThread().isInterrupted()) {
 			// update every so long, in case an EPICS update is lost
-			gda.util.Sleep.sleep(12345);
+			try {
+				Thread.sleep(12345);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+				logger.error("Thread interrupted while waiting to update ShutterPanel", e);
+				return;
+			}
 			update(null, null);
 		}
 	}

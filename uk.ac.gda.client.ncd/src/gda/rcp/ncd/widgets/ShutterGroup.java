@@ -173,9 +173,15 @@ public class ShutterGroup implements IObserver, Runnable {
 
 	@Override
 	public void run() {
-		while (true) {
+		while (!Thread.currentThread().isInterrupted()) {
 			// update every so long, in case an EPICS update is lost
-			gda.util.Sleep.sleep(12345);
+			try {
+				Thread.sleep(10000);
+			} catch (InterruptedException e) {
+				logger.error("Interrupted while waiting for shutter update", e);
+				Thread.currentThread().interrupt();
+				break;
+			}
 			update(null, null);
 		}
 	}

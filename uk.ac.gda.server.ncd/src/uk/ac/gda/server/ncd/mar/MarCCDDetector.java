@@ -29,8 +29,6 @@ import gda.device.detector.corba.impl.DetectorImpl;
 import gda.factory.FactoryException;
 import gda.factory.corba.util.CorbaAdapterClass;
 import gda.factory.corba.util.CorbaImplClass;
-import gda.util.Sleep;
-
 import java.util.Date;
 
 import org.slf4j.Logger;
@@ -425,15 +423,24 @@ public class MarCCDDetector extends DetectorBase implements Runnable {
 
 	@Override
 	public void run() {
+		try {
+			runMarCCD();
+		} catch (InterruptedException e) {
+			logger.error("Thread interrupted while running MarCcdDetector {}", getName(), e);
+			Thread.currentThread().interrupt();
+		}
+	}
+
+	private void runMarCCD() throws InterruptedException {
 		while (true) {
 			while (!acquiring) {
-				Sleep.sleep(50);
+				Thread.sleep(50);
 			}
 			try {
 				String path = PathConstructor.createFromDefaultProperty();
 				filename = path + "/" + getName() + "-" + tracker.incrementNumber() + "." + SUFFIX;
 				while (timer.getStatus() != Timer.IDLE) {
-					Sleep.sleep(50);
+					Thread.sleep(50);
 				}
 				mc.readout(rawMode, filename);
 			} catch (Exception e) {
