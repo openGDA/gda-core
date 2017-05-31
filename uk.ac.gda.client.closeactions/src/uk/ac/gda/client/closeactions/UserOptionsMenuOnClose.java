@@ -43,77 +43,78 @@ public class UserOptionsMenuOnClose extends Composite {
 		// radial button group
 		Composite selectionGroup = new Composite(this, SWT.NONE);
 		GridLayoutFactory.fillDefaults().applyTo(selectionGroup);
-		GridDataFactory.swtDefaults().hint(niceWidth, SWT.DEFAULT).applyTo(selectionGroup);
+		GridDataFactory.swtDefaults().hint(niceWidth, SWT.DEFAULT).align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(selectionGroup);
 
-		Button option1 = optionButton(selectionGroup, "I'm finished for now - but I or a colleague will be back soon (no action)",
+		final Button option1 = optionButton(selectionGroup, "I'm finished for now - but I or a colleague will be back soon (no action)", niceWidth);
+
+		final Button option2 = optionButton(selectionGroup, "I need to restart the client (Please tell us why)", niceWidth);
+
+		final Button option3 = optionButton(selectionGroup, "I need to restart the client and the server (Please tell us why)", niceWidth);
+
+		final Button option4 = optionButton(selectionGroup,
+				"I'm finished for this visit, the hutch is searched and locked (if on-site) and I have or am about to inform the EHC on +44 1235 77 87 87.",
 				niceWidth);
-		option1.setSelection(true);
+
+		final Text feedback = new Text(selectionGroup, SWT.MULTI | SWT.BORDER);
+		GridDataFactory.swtDefaults().hint(niceWidth - 25, 60).indent(15, 0).align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(feedback);
+		feedback.addModifyListener(new ModifyListener() {
+			@Override
+			public void modifyText(ModifyEvent e) {
+				restartReason = ((Text) (e.getSource())).getText();
+			}
+		});
+
 		option1.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				selectedOption = ClientCloseOption.TEMP_ABSENCE;
+				feedback.setEnabled(false);
 			}
 		});
 
-		Button option2 = optionButton(selectionGroup, "Need to restart the client (Please tell us why)",
-				niceWidth);
-		final Text option2feedback = reasonText(selectionGroup, niceWidth);
 		option2.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				selectedOption = ClientCloseOption.RESTART_CLIENT;
-				option2feedback.setVisible(((Button)e.getSource()).getSelection());
+				feedback.setEnabled(true);
+				feedback.setFocus();
 			}
 		});
 
-		Button option3 = optionButton(selectionGroup, "I need to restart the client and the server (Please tell us why)",
-				niceWidth);
-		final Text option3feedback = reasonText(selectionGroup, niceWidth);
 		option3.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				selectedOption = ClientCloseOption.RESTART_CLIENT_AND_SERVER;
-				option3feedback.setVisible(((Button)e.getSource()).getSelection());
+				feedback.setEnabled(true);
+				feedback.setFocus();
 			}
 		});
 
-		Button option4 = optionButton(selectionGroup, "I'm finished for this visit, the hutch is searched and locked (if on-site) and I have or am about to inform the EHC on +44 1235 77 87 87.",
-				niceWidth);
 		option4.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				selectedOption = ClientCloseOption.FINISHED;
+				feedback.setEnabled(false);
 			}
 		});
+
+		option1.setSelection(true);
+		feedback.setEnabled(false);
 	}
 
 	private Button optionButton(Composite parent, String text, int width) {
 		Button button = new Button(parent, SWT.WRAP | SWT.RADIO);
-		GridDataFactory.swtDefaults().hint(width, SWT.DEFAULT).applyTo(button);
+		GridDataFactory.swtDefaults().hint(width, SWT.DEFAULT).grab(true, false).align(SWT.FILL, SWT.FILL).applyTo(button);
 		button.setText(text);
 		return button;
 	}
 
-	private Text reasonText(Composite parent, int width) {
-		Text feedbackBox = new Text(parent, SWT.V_SCROLL | SWT.BORDER);
-		GridDataFactory.swtDefaults().hint(width-40, SWT.DEFAULT).indent(15, 0).applyTo(feedbackBox);
-		feedbackBox.setVisible(false);
-
-		feedbackBox.addModifyListener(new ModifyListener() {
-			@Override
-			public void modifyText(ModifyEvent e) {
-				restartReason = ((Text)(e.getSource())).getText();
-			}
-		});
-
-		return feedbackBox;
-	}
-	
 	public ClientCloseOption selectedOption() {
 		return selectedOption;
 	}
-	
+
 	public String restartReason() {
 		return restartReason;
-	} 
+	}
+
 }

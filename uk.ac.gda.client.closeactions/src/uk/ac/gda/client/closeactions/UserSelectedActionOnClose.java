@@ -2,10 +2,16 @@ package uk.ac.gda.client.closeactions;
 
 import gda.configuration.properties.LocalProperties;
 import uk.ac.gda.client.closeactions.ClientCloseOption;
+import uk.ac.gda.client.closeactions.contactinfo.ISPyBJdbcTemplate;
 import uk.ac.gda.client.closeactions.contactinfo.ISPyBLocalContacts;
+import uk.ac.gda.client.closeactions.contactinfo.ISPyBVisits;
 import uk.ac.gda.client.closeactions.contactinfo.LdapEmail;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -41,17 +47,31 @@ public class UserSelectedActionOnClose {
 	private final static Logger logger = LoggerFactory.getLogger(UserSelectedActionOnClose.class);
 
 	private ClientCloseOption optionChoice;
+	private String visit;
+	private String beamlineName;
+
+	UserSelectedActionOnClose(){
+		beamlineName = LocalProperties.get("gda.beamline.name","Beamline Unknown").toUpperCase();
+		visit = LocalProperties.get(LocalProperties.RCP_APP_VISIT);
+	}
 
 	public void doCloseAction(ClientCloseOption selectedOption, String reason) {
 		optionChoice = selectedOption;
 		switch (selectedOption)
 		{
 		case RESTART_CLIENT:
-			sendEmail(reason, "GDA Restart Reasoning/Feedback");
+			if (!reason.trim().isEmpty()){
+				logToTextFile(reason);
+				sendEmail(reason, "GDA Restart Reasoning/Feedback");
+			}
 			logger.info("User felt the need to restart client. Could we be having client issues?");
 			break;
 		case RESTART_CLIENT_AND_SERVER:
-			sendEmail(reason, "GDA Restart Reasoning/Feedback");
+			if (!reason.trim().isEmpty()){
+				logToTextFile(reason);
+				sendEmail(reason, "GDA Restart Reasoning/Feedback");
+			}
+			logger.info("User felt the need to restart client and server. Could we be having server/control station issues?");
 			if (!LocalProperties.isDummyModeEnabled()){
 				ProcessBuilder pb = new ProcessBuilder("gdaservers_closemenurestart");
 				try {
@@ -77,8 +97,6 @@ public class UserSelectedActionOnClose {
 				protected IStatus run(IProgressMonitor monitor) {
 					try{
 						final String[] recipients = getEmailRecipients();
-						final String beamlineName = LocalProperties.get("gda.beamline.name","Beamline Unknown").toUpperCase();
-						final String visit = LocalProperties.get(LocalProperties.RCP_APP_VISIT);
 						final String from = String.format("%s <%s>", visit, beamlineName);
 						final String mailSubject = subject + " " + beamlineName;
 	
@@ -98,6 +116,7 @@ public class UserSelectedActionOnClose {
 						} else {
 							helper.setText("The current user (visit: " + visit + ") on " + beamlineName + " is finished.");
 						}
+
 						{//required to workaround class loader issue with "no object DCH..." error
 							MailcapCommandMap mc = (MailcapCommandMap) CommandMap.getDefaultCommandMap();
 							mc.addMailcap("text/plain;; x-java-content-handler=com.sun.mail.handlers.text_plain");
@@ -113,6 +132,23 @@ public class UserSelectedActionOnClose {
 				}
 			};
 			job.schedule();
+		}
+	}
+
+	private void logToTextFile(String text){
+		DateFormat df = new SimpleDateFormat("dd/MM/yy HH:mm:ss");
+		String date = df.format(new Date());
+
+		String[] pid_host = ManagementFactory.getRuntimeMXBean().getName().split("@");
+		String file = LocalProperties.get("gda.gui.closeMenuFeedbackFile", LocalProperties.get("gda.logs.dir") + "/user_restart_reasons.txt");
+
+		try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, true));) {
+			writer.write(date + " " + visit + " " + beamlineName + "@" + pid_host[1] + ": ");
+			writer.write(text.replace('\n', ' '));
+			writer.newLine();
+			writer.flush();
+		} catch (IOException e) {
+			logger.error("Problem accessing local property: ", e);
 		}
 	}
 
@@ -191,10 +227,8 @@ public class UserSelectedActionOnClose {
 		//filter out cm and nr so we're not inundating devs with emails during commissioning etc.
 		if (!(visit.startsWith("cm") || visit.startsWith("nr"))) {
 			try {
-				logger.debug("Connecting to ISPyB.");
-				JdbcTemplate template = ISPyBLocalContacts.connectToDatabase();
 				logger.debug("Retrieving local contact from ISPyB.");
-				result = new ISPyBLocalContacts(template).forCurrentVisit(visit);
+				result = new ISPyBLocalContacts(new ISPyBJdbcTemplate().template()).forCurrentVisit(visit);
 			} catch(Exception e) {
 				logger.error("There was an error connecting to ISPyB while retrieving local contact", e);
 			}
@@ -206,10 +240,8 @@ public class UserSelectedActionOnClose {
 		String beamline = LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME);
 		List<String> result = new ArrayList<>();
 		try {
-			logger.debug("Connecting to ISPyB.");
-			JdbcTemplate template = ISPyBLocalContacts.connectToDatabase();
 			logger.debug("Retrieving next visits from ISPyB.");
-			result = new ISPyBLocalContacts(template).forFollowingVisit(beamline);
+			result = new ISPyBVisits(new ISPyBJdbcTemplate().template()).followingVisits(beamline);
 		} catch(Exception e) {
 			logger.error("There was an error connecting to ISPyB while retrieving visits: ", e);
 		}
