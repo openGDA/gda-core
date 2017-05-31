@@ -159,7 +159,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		setTitleToolTip("Create a new or editing an existing sequence");
 		// setContentDescription("A view for editing sequence parameters");
 		setPartName("Sequence Editor");
-		this.selectionChangedListeners = new ArrayList<ISelectionChangedListener>();
+		this.selectionChangedListeners = new ArrayList<>();
 	}
 
 	private RegionDefinitionResourceUtil regionDefinitionResourceUtil;
@@ -810,7 +810,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	}
 
 	protected List<String> getRegionNames() {
-		List<String> regionNames = new ArrayList<String>();
+		List<String> regionNames = new ArrayList<>();
 		for (Region region : regions) {
 			regionNames.add(region.getName());
 		}
@@ -1160,7 +1160,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	}
 
 	private void openMessageBox(String title, String message, int iconStyle) {
-		MessageBox dialog=new MessageBox(getSite().getShell(), iconStyle | SWT.OK);
+		logger.debug("About to open message box with message: {}", message);
+		MessageBox dialog = new MessageBox(getSite().getShell(), iconStyle | SWT.OK);
 		dialog.setText(title);
 		dialog.setMessage(message);
 		dialog.open();
