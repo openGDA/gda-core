@@ -143,13 +143,13 @@ public class ScannableDeviceConnectorService implements IScannableDeviceService 
 		Scannable scannable = null;
 		Finder finder = Finder.getInstance();
 		Findable found = finder.findNoWarn(name);
-		if (found instanceof Scannable) {
+		if (found instanceof Scannable && !(found instanceof Detector)) {
 			scannable = (Scannable) found;
 		}
 
 		if (scannable == null) {
 			Object jythonObject = InterfaceProvider.getJythonNamespace().getFromJythonNamespace(name);
-			if (jythonObject instanceof Scannable) {
+			if (jythonObject instanceof Scannable && !(jythonObject instanceof Detector)) {
 				scannable = (Scannable) jythonObject;
 				jythonScannable = true;
 			}
@@ -200,17 +200,18 @@ public class ScannableDeviceConnectorService implements IScannableDeviceService 
 		// add the names of findable scannables
 		final List<Findable> findableRefs = Finder.getInstance().listAllObjects(Scannable.class.getName());
 		for (Findable findable : findableRefs) {
-			if (findable instanceof Detector) continue; // Not them
-			String findableName = findable.getName();
-			findableName = findableName.substring(findableName.lastIndexOf('.') + 1);
-			scannableNames.add(findableName);
+			if (!(findable instanceof Detector)) { // exclude detectors
+				String findableName = findable.getName();
+				findableName = findableName.substring(findableName.lastIndexOf('.') + 1);
+				scannableNames.add(findableName);
+			}
 		}
 
 		// add the names of the jython scannables
 		try {
 			final List<String> jythonScannableNames =
 				InterfaceProvider.getJythonNamespace().getAllFromJythonNamespace().entrySet().stream()
-					.filter(entry -> entry.getValue() instanceof Scannable)
+					.filter(entry -> entry.getValue() instanceof Scannable && !(entry.getValue() instanceof Detector))
 					.map(Map.Entry::getKey)
 					.collect(Collectors.toList());
 			scannableNames.addAll(jythonScannableNames);
