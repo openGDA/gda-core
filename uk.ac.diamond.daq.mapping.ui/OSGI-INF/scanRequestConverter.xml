@@ -5,4 +5,5 @@
       <provide interface="uk.ac.diamond.daq.mapping.ui.experiment.ScanRequestConverter"/>
    </service>
    <reference bind="setMappingStageInfo" cardinality="1..1" interface="uk.ac.diamond.daq.mapping.impl.MappingStageInfo" name="MappingStageInfo" policy="static"/>
+   <reference bind="setEventService" cardinality="1..1" interface="org.eclipse.scanning.api.event.IEventService" name="IEventService" policy="static"/>
 </scr:component>

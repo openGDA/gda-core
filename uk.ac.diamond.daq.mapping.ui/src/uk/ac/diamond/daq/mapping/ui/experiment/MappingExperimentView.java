@@ -27,6 +27,7 @@ import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.event.status.OpenRequest;
 import org.eclipse.scanning.api.event.status.StatusBean;
+import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.layout.FillLayout;
@@ -316,7 +317,11 @@ public class MappingExperimentView implements IAdaptable {
 	@Override
 	public <T> T getAdapter(Class<T> adapter) {
 		if (adapter == ScanRequest.class) {
-			return (T) scanRequestConverter.convertToScanRequest(experimentBean);
+			try {
+				return (T) scanRequestConverter.convertToScanRequest(experimentBean);
+			} catch (ScanningException e) {
+				logger.error("Could not create scan request", e);
+			}
 		}
 
 		return null;

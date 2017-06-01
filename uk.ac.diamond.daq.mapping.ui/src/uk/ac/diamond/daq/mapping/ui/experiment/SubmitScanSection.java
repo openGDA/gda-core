@@ -24,6 +24,7 @@ import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
+import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -70,7 +71,7 @@ public class SubmitScanSection extends AbstractMappingSection {
 		return false;
 	}
 
-	private ScanBean createScanBean() {
+	private ScanBean createScanBean() throws ScanningException {
 		IMappingExperimentBean mappingBean = getMappingBean();
 		ScanBean scanBean = new ScanBean();
 		String sampleName = mappingBean.getSampleMetadata().getSampleName();

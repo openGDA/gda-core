@@ -20,6 +20,7 @@ package uk.ac.diamond.daq.mapping.ui.test;
 
 import static org.eclipse.scanning.api.script.ScriptLanguage.SPEC_PASTICHE;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -36,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
+import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.device.models.ClusterProcessingModel;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
@@ -48,6 +50,8 @@ import org.eclipse.scanning.api.scan.models.ScanMetadata;
 import org.eclipse.scanning.api.scan.models.ScanMetadata.MetadataType;
 import org.eclipse.scanning.api.script.ScriptRequest;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
+import org.eclipse.scanning.example.scannable.MockScannableConnector;
+import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -73,6 +77,8 @@ public class ScanRequestConverterTest {
 	private static final String Y_AXIS_NAME = "testing_stage_y";
 	private static final String Z_AXIS_NAME = "testing_z_axis";
 
+	private IScannableDeviceService connector;
+
 	private ScanRequestConverter scanRequestConverter;
 	private MappingStageInfo mappingStageInfo;
 	private MappingExperimentBean mappingBean;
@@ -81,12 +87,17 @@ public class ScanRequestConverterTest {
 
 	@Before
 	public void setUp() throws Exception {
+		// We wire things together without OSGi here
+		// DO NOT COPY THIS IN NON-TEST CODE!
+		connector = new MockScannableConnector(null);
+
 		mappingStageInfo = new MappingStageInfo();
 		mappingStageInfo.setActiveFastScanAxis(X_AXIS_NAME);
 		mappingStageInfo.setActiveSlowScanAxis(Y_AXIS_NAME);
 
 		scanRequestConverter = new ScanRequestConverter();
 		scanRequestConverter.setMappingStageInfo(mappingStageInfo);
+		scanRequestConverter.setScannableDeviceService(connector);
 
 		// Set up the experiment bean with some sensible defaults
 		mappingBean = new MappingExperimentBean();
@@ -109,7 +120,7 @@ public class ScanRequestConverterTest {
 	}
 
 	@Test
-	public void testDetectorIsIncludedCorrectly() {
+	public void testDetectorIsIncludedCorrectly() throws Exception {
 		// Arrange
 		final String detName = "mandelbrot";
 		final String displayName = "Mandelbrot Detector";
@@ -137,7 +148,7 @@ public class ScanRequestConverterTest {
 	}
 
 	@Test
-	public void testDetectorIsExcludedCorrectly() {
+	public void testDetectorIsExcludedCorrectly() throws Exception {
 		// Arrange
 		final String displayName = "Mandelbrot Detector";
 		final IDetectorModel detModel = new MandelbrotModel();
@@ -162,7 +173,7 @@ public class ScanRequestConverterTest {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testUnknownDetector() {
+	public void testUnknownDetector() throws Exception {
 		final String detName = "mandelbrot";
 		final String displayName = "Mandelbrot Detector";
 		final IDetectorModel detModel = new MandelbrotModel();
@@ -180,7 +191,18 @@ public class ScanRequestConverterTest {
 	}
 
 	@Test
-	public void testScanPathIsIncluded() {
+	public void testMonitorsIncluded() throws Exception {
+		// Act
+		final ScanRequest<IROI> scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
+
+		// Assert - these are the monitors that are set as active in MockScannableConnector
+		String[] expectedMonitorNames = new String[] { "a", "p", "monitor0", "monitor3", "monitor6", "monitor9" };
+		assertThat(scanRequest.getMonitorNames(), hasItems(expectedMonitorNames));
+		assertThat(scanRequest.getMonitorNames().size(), CoreMatchers.is(expectedMonitorNames.length));
+	}
+
+	@Test
+	public void testScanPathIsIncluded() throws Exception {
 		// Act - convert mapping bean to scan request (with the default set-up)
 		final ScanRequest<IROI> scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
 
@@ -195,7 +217,7 @@ public class ScanRequestConverterTest {
 	}
 
 	@Test
-	public void testStageNamesAreSetCorrectly() {
+	public void testStageNamesAreSetCorrectly() throws Exception {
 		// Initially the scan path doesn't have the correct axis names
 		assertThat(scanPath.getFastAxisName(), is(not(equalTo(X_AXIS_NAME))));
 		assertThat(scanPath.getSlowAxisName(), is(not(equalTo(Y_AXIS_NAME))));
@@ -212,7 +234,7 @@ public class ScanRequestConverterTest {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testStageNamesChanged() {
+	public void testStageNamesChanged() throws Exception {
 		// Initially the scan path doesn't have the correct axis names
 		assertThat(scanPath.getFastAxisName(), is(not(equalTo(X_AXIS_NAME))));
 		assertThat(scanPath.getSlowAxisName(), is(not(equalTo(Y_AXIS_NAME))));
@@ -234,7 +256,7 @@ public class ScanRequestConverterTest {
 	}
 
 	@Test
-	public void testScriptFilesIncludedCorrectly() {
+	public void testScriptFilesIncludedCorrectly() throws Exception {
 		// Arrange
 		final String beforeScanScript = "/path/to/before.py";
 		final String afterScanScript = "/path/to/after.py";
@@ -268,7 +290,7 @@ public class ScanRequestConverterTest {
 	}
 
 	@Test
-	public void testBeamlineConfigurationIncludedCorrectly() {
+	public void testBeamlineConfigurationIncludedCorrectly() throws Exception {
 		// Arrange
 		final Map<String, Object> beamlineConfiguration = new HashMap<>();
 		beamlineConfiguration.put("energy", 12345.67);
@@ -370,7 +392,7 @@ public class ScanRequestConverterTest {
 	}
 
 	@Test
-	public void testClusterProcessingIncludedCorrectly() {
+	public void testClusterProcessingIncludedCorrectly() throws Exception {
 		// Arrange
 		final String includedProcessingChainName = "sum";
 		final ClusterProcessingModel clusterProcessingModel = new ClusterProcessingModel();
