@@ -1030,13 +1030,13 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 		}
 		// else if the output would only overwrite existing text
 		else if (theString.length() + caretPosition < finalCharacter) {
-			outputBuffer.replace(caretPosition, theString.length(), theString);
+			outputBuffer.replace(caretPosition, caretPosition + theString.length(), theString);
 		}
 		// else a mixture of overwriting and appending
 		else {
 			int firstPartLength = finalCharacter - caretPosition;
 			String firstPart = theString.substring(0, firstPartLength);
-			outputBuffer.replace(caretPosition, firstPartLength, firstPart);
+			outputBuffer.replace(caretPosition, finalCharacter, firstPart);
 			if (firstPartLength < theString.length()) {
 				String lastPart = theString.substring(firstPartLength);
 				outputBuffer.append(lastPart);
