@@ -25,19 +25,31 @@ def meta_add( farg, *vargs):
     metashop.add([farg]+list(vargs))
 
 #    metashop.ll()
-def meta_ll():
+def _meta_ll():
     """
     Command to list the items to be put into the scan metadata. The value of the items will also be listed
     """
     metashop=Finder.getInstance().find("metashop")
-    print metashop.list(True)
+    return metashop.list(True)
 
-def meta_ls():
+def _meta_ls():
     """
     Command to list the items to be put into the scan metadata. 
     """
     metashop=Finder.getInstance().find("metashop")
-    print metashop.list(False)
+    return metashop.list(False)
+
+def meta_ll():
+    """
+    Command to print the items to be put into the scan metadata. The value of the items will also be listed
+    """
+    print _meta_ll()
+
+def meta_ls():
+    """
+    Command to print the items to be put into the scan metadata. 
+    """
+    print _meta_ls()
 
 def meta_rm(farg, *vargs):
     """
