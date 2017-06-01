@@ -354,9 +354,9 @@ public class PilatusADController implements InitializingBean {
 	 */
 	public void setScanDimensions(int[] dimensions) throws Exception {
 		int[] dims = new int[dimensions.length + 1];
-		dims[0] = areaDetector.getNumImages();
+		dims[dimensions.length] = areaDetector.getNumImages();
 		for (int i = 0; i < dimensions.length; i++) {
-			dims[dimensions.length - i] = dimensions[i];
+			dims[i] = dimensions[i];
 		}
 		hdf5.setExtraDimensions(dims);
 	}
