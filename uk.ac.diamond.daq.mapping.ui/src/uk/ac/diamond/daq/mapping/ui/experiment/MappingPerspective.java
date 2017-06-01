@@ -54,11 +54,13 @@ public class MappingPerspective implements IPerspectiveFactory {
 				EventConstants.STATUS_TOPIC,
 				EventConstants.SUBMISSION_QUEUE);
 
+
 		queueViewId = queueViewId + "partName=Queue";
 		folderLayout.addView(queueViewId);
 
 		folderLayout.addView("uk.ac.gda.client.livecontrol.LiveControlsView");
 		folderLayout.addView("uk.ac.gda.client.liveplot.mjpeg.LiveMJPEGView");
+		folderLayout.addView("org.eclipse.scanning.device.ui.device.MonitorView");
 
 		logger.trace("Finished building Mapping Visualisation perspective");
 	}
