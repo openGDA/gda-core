@@ -1,5 +1,6 @@
 """Utility script to help manage BSL file conversion"""
 from gda.configuration.properties import LocalProperties
+from gda.factory import Finder
 from gda.observable import IObserver
 from gda.util.persistence import LocalParameters
 from gda.data.metadata import GDAMetadataProvider
@@ -13,7 +14,7 @@ class BslConversionUpdater(IObserver):
         restore()
 
 if not LocalProperties.contains(BSL_CONVERSION_CONFIGURED):
-    LocalProperties.set(BSL_CONVERSION_CONFIGURED, True)
+    LocalProperties.set(BSL_CONVERSION_CONFIGURED, 'True')
     for meta in GDAMetadataProvider.getInstance().getMetadataEntries():
         if meta.name == 'visit':
             break
