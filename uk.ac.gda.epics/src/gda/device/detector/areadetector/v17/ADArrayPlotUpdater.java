@@ -23,8 +23,8 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
+import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.january.dataset.IDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +45,7 @@ import uk.ac.diamond.scisoft.analysis.SDAPlotter;
  * 	<property name="plotName" value="AD Plot" />
  * 	<property name="arrayPlugin" ref="ndarray" />
  * </bean>
- * 
+ *
  * Finder.getInstance().find("ad_plot_update").start()
  * ...
  * Finder.getInstance().find("ad_plot_update").stop()
@@ -139,7 +139,7 @@ public class ADArrayPlotUpdater implements Findable {
 				} else {
 					data = arrayPlugin.getImageData(sizeX * sizeY);
 				}
-				IDataset ds = DatasetFactory.createFromObject(data, unsigned);
+				IDataset ds = DatasetFactory.createFromObject(unsigned, data);
 				ds.setShape(sizeY, sizeX);
 				SDAPlotter.imagePlot(plotName, ds);
 			}
