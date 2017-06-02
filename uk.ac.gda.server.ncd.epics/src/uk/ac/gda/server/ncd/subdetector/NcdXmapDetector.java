@@ -58,7 +58,7 @@ public class NcdXmapDetector extends NcdSubDetector  {
 	}
 
 	@Override
-	public String getDetectorType() throws DeviceException {
+	public String getDetectorType() {
 		return NcdDetectorSystem.FLUORESCENCE_DETECTOR;
 	}
 

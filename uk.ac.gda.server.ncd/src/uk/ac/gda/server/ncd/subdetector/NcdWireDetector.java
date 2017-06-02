@@ -170,7 +170,7 @@ public class NcdWireDetector extends NcdSubDetector implements INcdSubDetector {
 	}
 
 	@Override
-	public String getDetectorType() throws DeviceException {
+	public String getDetectorType() {
 		return detectorType;
 	}
 

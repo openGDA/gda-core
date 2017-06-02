@@ -18,9 +18,8 @@
 
 package uk.ac.gda.server.ncd.subdetector;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -29,10 +28,6 @@ import java.util.Map;
 import org.apache.commons.configuration.FileConfiguration;
 import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.dawnsci.analysis.api.diffraction.DetectorProperties;
-import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
-import org.eclipse.dawnsci.analysis.api.tree.DataNode;
-import org.eclipse.dawnsci.analysis.api.tree.NodeLink;
-import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DoubleDataset;
 import org.slf4j.Logger;
@@ -49,17 +44,15 @@ import gda.device.Timer;
 import gda.device.detector.DataDimension;
 import gda.device.detector.NXDetectorData;
 import gda.factory.FactoryException;
-import gda.jython.JythonServerFacade;
 import gda.util.persistence.LocalParameters;
-import uk.ac.diamond.scisoft.analysis.io.DataHolder;
-import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
 import uk.ac.gda.server.ncd.detectorsystem.NcdDetectorSystem;
+import uk.ac.gda.server.ncd.meta.INcdMetaProvider;
 
 public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
 
+	private static final String SCALING_FACTOR = "scaling_factor";
+
 	private static final Logger logger = LoggerFactory.getLogger(NcdSubDetector.class);
-	private static final String CALIBRATRION_ATTRIBUTE = "calibrationFile";
-	private static final String MASK_ATTRIBUTE = "maskFile";
 
 	protected Detector detector;
 	protected String detectorType;
@@ -71,6 +64,8 @@ public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
 	protected String interpretation = null;
 	private DetectorProperties dp = null;
 	protected FileConfiguration configuration;
+
+	protected Collection<INcdMetaProvider> metaProviders = new ArrayList<>();
 
 	protected void restoreAttributeMap() {
 		if (configuration != null) {
@@ -158,7 +153,7 @@ public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
 	}
 
 	@Override
-	public String getDetectorType() throws DeviceException {
+	public String getDetectorType() {
 		return detectorType;
 	}
 
@@ -325,146 +320,37 @@ public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
 			detTree.addChildNode(type_node);
 		}
 
-
-		if (mask != null) {
-			int[] devicedims = getDataDimensions();
-			ngd = new NexusGroupData(new int[] { devicedims[0], devicedims[1] }, mask.getData());
-			nxdata.addData(getName() + "mask", ngd, null, null);
-		}
-		String maskFile = (String) getAttribute(MASK_ATTRIBUTE);
-		if (maskFile != null) {
-			linkMaskFile(nxdata, maskFile);
-		}
 //		String calibration = (String) getAttribute("calibrationFile");
 //		if (calibration != null && !calibration.isEmpty()) {
 //			linkCalibrationFile(nxdata, calibration);
 //		}
 
-		if (attributeMap.containsKey(CALIBRATRION_ATTRIBUTE)) {
-			linkCalibrationFile(nxdata, (String) attributeMap.get(CALIBRATRION_ATTRIBUTE));
-		} else {
-			if (getPixelSize() != 0.0) {
-				ngd = new NexusGroupData(getPixelSize());
-				ngd.isDetectorEntryData = false;
-
-				for (String label : new String[] { "x_pixel_size", "y_pixel_size" }) {
-					NexusTreeNode type_node = new NexusTreeNode(label, NexusExtractor.SDSClassName, null, ngd);
-					type_node.setIsPointDependent(false);
-					type_node.addChildNode(new NexusTreeNode("units", NexusExtractor.AttrClassName, type_node,
-							new NexusGroupData("m")));
-
-					detTree.addChildNode(type_node);
-				}
-			}
-			for (String label : new String[] { "distance", "beam_center_x", "beam_center_y", "scaling_factor" }) {
-				if (attributeMap.containsKey(label)) {
-					try {
-						ngd = new NexusGroupData((Double) attributeMap.get(label));
-						ngd.isDetectorEntryData = "scaling_factor".equals(label);
-
-						NexusTreeNode type_node = new NexusTreeNode(label, NexusExtractor.SDSClassName, null, ngd);
-						type_node.setIsPointDependent(false);
-
-						type_node.addChildNode(new NexusTreeNode("units", NexusExtractor.AttrClassName, type_node, label
-								.equals("distance") ? new NexusGroupData("m") : null));
-
-						detTree.addChildNode(type_node);
-					} catch (Exception e) {
-						logger.warn("{} - Error writing metadata {}: ", getName(), label, e);
-					}
-				}
+		for (INcdMetaProvider meta : metaProviders) {
+			try {
+				meta.writeout(nxdata, getTreeName());
+			} catch (Exception e) {
+				//Catch everything so that metadata doesn't stop file being written
+				logger.error("Could not write metadata from {}", meta.getName(), e);
 			}
 		}
-	}
 
-	private void linkMaskFile(NXDetectorData nxdata, String filePath) {
-		if (filePath == null || filePath.isEmpty()) {
-			logger.info("{} - Not including mask data. No mask file set", getName());
-			return;
-		}
-		if (!new File(filePath).exists()) {
-			logger.error("{} - Could not include mask data. {} does not exist", getName(), filePath);
-			JythonServerFacade.getInstance().print(String.format("%s - mask file '%s' does not exist", getName(), filePath));
-			return;
-		}
-		TreeFile tree;
-		try {
-			tree = new HDF5Loader(filePath).loadTree();
-			NodeLink maskNode = tree.findNodeLink("/entry/mask/mask");
-			if (maskNode == null) {
-				logger.error("{} - Mask file does not contain mask", getName());
-				return;
-			} else {
-				long[] dims = ((DataNode) maskNode.getDestination()).getMaxShape();
-				int[] detDims = getDataDimensions();
-				if (dims[0] != detDims[0] || dims[1] != detDims[1]) {
-					logger.error("{} - Mask dimensions not equal to detector dimensions", getName());
-					JythonServerFacade.getInstance()
-							.print(String.format("%s - mask wrong dimension (%s instead of %s)", getName(), Arrays.toString(dims), Arrays.toString(detDims)));
-					return;
-				}
+		if (attributeMap.containsKey(SCALING_FACTOR)) {
+			try {
+				ngd = new NexusGroupData((Double) attributeMap.get(SCALING_FACTOR));
+				ngd.isDetectorEntryData = true;
+
+				NexusTreeNode type_node = new NexusTreeNode(SCALING_FACTOR, NexusExtractor.SDSClassName, null, ngd);
+				type_node.setIsPointDependent(false);
+
+				type_node.addChildNode(new NexusTreeNode("units", NexusExtractor.AttrClassName, type_node, null));
+
+				detTree.addChildNode(type_node);
+			} catch (Exception e) {
+				logger.warn("{} - Error writing scaling factor", getName(), e);
 			}
-		} catch (ScanFileHolderException sfhe) {
-			logger.error("{} - Could not open mask file tree ({})", getName(), filePath);
-			return;
-		} catch (DeviceException e) {
-			logger.error("{} - Could not read detector dimensions", getName(), e);
-			return;
 		}
-		try {
-			nxdata.addExternalFileLink(getTreeName(), "pixel_mask", "nxfile://" + filePath + "#entry/mask/mask", false, true);
-			logger.info("{} - Linked mask file {}", getName(), filePath);
-		} catch (Exception e) {
-			logger.error("{} - Could not link external mask", getName(), e);
-		}
-	}
-
-	private void linkCalibrationFile(NXDetectorData nxdata, String filePath) {
-		if (filePath == null || filePath.isEmpty()) {
-			logger.info("{} - Not including calibration data. No calibration file set", getName());
-			return;
-		}
-		if (!new File(filePath).exists()) {
-			logger.error("{} - Could not include calibration data. {} does not exist", getName(), filePath);
-			JythonServerFacade.getInstance().print(String.format("%s - calibration file '%s' does not exist", getName(), filePath));
-			return;
-		}
-		DataHolder loadFile;
-		try {
-			loadFile = new HDF5Loader(filePath).loadFile();
-		} catch (ScanFileHolderException sfhe) {
-			logger.error("{} - Could not open calibration file tree", getName(), sfhe);
-			return;
-		}
-
-		//sample calibration
-
-		Dataset dataset = loadFile.getDataset("/entry/instrument/detector/beam_center_x");
-
-		NexusGroupData ngd;
-		ngd = NexusGroupData.createFromDataset(dataset);
-		NexusTreeNode type_node = new NexusTreeNode("beam_center_x", NexusExtractor.SDSClassName, null, ngd);
-//		type_node.addChildNode(new NexusTreeNode("units", NexusExtractor.AttrClassName, type_node, "beam_center_x"
-//				.equals("distance") ? new NexusGroupData("m") : null));
-		try {
-			nxdata.getDetTree(getTreeName()).addChildNode(type_node);
-		} catch (DeviceException e) {
-		}
-
 
 	}
-
-
-//		ngd = new NexusGroupData((Double) attributeMap.get(label));
-//		ngd.isDetectorEntryData = "scaling_factor".equals(label);
-//
-//		NexusTreeNode type_node = new NexusTreeNode(label, NexusExtractor.SDSClassName, null, ngd);
-//		type_node.setIsPointDependent(false);
-//
-//		type_node.addChildNode(new NexusTreeNode("units", NexusExtractor.AttrClassName, type_node, label
-//				.equals("distance") ? new NexusGroupData("m") : null));
-//
-//		detTree.addChildNode(type_node);
 
 	@Override
 	public double getPixelSize() throws DeviceException {
@@ -522,5 +408,9 @@ public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
 			}
 		}
 		return dp;
+	}
+
+	public void setMetaProviders(Collection<INcdMetaProvider> meta) {
+		this.metaProviders = meta;
 	}
 }
