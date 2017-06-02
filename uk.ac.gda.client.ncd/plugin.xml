@@ -273,10 +273,5 @@
                id="uk.ac.gda.client.ncd.gridstartscanall"
                name="Scan All">
 		</command>
-		<command
-               defaultHandler="gda.rcp.ncd.actions.MaskFileUpdater"
-               id="uk.ac.gda.client.ncd.updatescanmaskfile"
-               name="Update Scan Mask">
-         </command>
       </extension>
 </plugin>
