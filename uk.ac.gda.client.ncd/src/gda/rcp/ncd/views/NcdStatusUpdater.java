@@ -22,6 +22,7 @@ import java.text.NumberFormat;
 import java.util.Collection;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.widgets.Display;
 import org.slf4j.Logger;
@@ -57,8 +58,10 @@ public class NcdStatusUpdater implements IObserver, IScanDataPointObserver {
 	private ExptDataModel exptDataModel;
 	private NcdStatus client;
 	private String subdirectory;
+	private String scanTitle;
 	private Metadata metadata;
-	private Device blaster;
+	private Device subDirBlaster;
+	private Device scanTitleBlaster;
 
 	/**
 	 * Constructor
@@ -81,9 +84,12 @@ public class NcdStatusUpdater implements IObserver, IScanDataPointObserver {
 		try {
 			metadata = GDAMetadataProvider.getInstance();
 			subdirectory = metadata.getMetadataValue("subdirectory");
+			scanTitle = metadata.getMetadataValue("title");
 
-			blaster = Finder.getInstance().find("observableSubdirectory");
-			blaster.addIObserver(this);
+			subDirBlaster = Finder.getInstance().find("observableSubdirectory");
+			subDirBlaster.addIObserver(this);
+			scanTitleBlaster = Finder.getInstance().find("observableScanTitle");
+			scanTitleBlaster.addIObserver(this);
 
 			meUpdate();
 		} catch (Exception e) {
@@ -92,7 +98,7 @@ public class NcdStatusUpdater implements IObserver, IScanDataPointObserver {
 
 		InterfaceProvider.getScanDataPointProvider().addIScanDataPointObserver(this);
 
-		client.subDirectory.addKeyListener(new org.eclipse.swt.events.KeyAdapter() {
+		client.subDirectory.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyReleased(KeyEvent e) {
 				super.keyReleased(e);
@@ -101,6 +107,21 @@ public class NcdStatusUpdater implements IObserver, IScanDataPointObserver {
 					try {
 						metadata.setMetadataValue("subdirectory", client.subDirectory.getText().trim());
 					} catch (Exception e1) {
+						logger.error("Could not set subdirectory", e1);
+						client.subDirectory.setText("");
+					}
+				}
+			}
+		});
+		client.scanTitle.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				super.keyReleased(e);
+				if (e.character == SWT.CR) {
+					try {
+						metadata.setMetadataValue("title", client.scanTitle.getText().trim());
+					} catch (Exception e1) {
+						logger.error("Could not set title", e1);
 						client.subDirectory.setText("");
 					}
 				}
@@ -112,7 +133,7 @@ public class NcdStatusUpdater implements IObserver, IScanDataPointObserver {
 	public void update(Object iObservable, Object arg) {
 		if (client.progressBar.isDisposed()) {
 			tfg.deleteIObserver(this);
-			blaster.deleteIObserver(this);
+			subDirBlaster.deleteIObserver(this);
 			exptDataModel.deleteIObserver(this);
 			InterfaceProvider.getScanDataPointProvider().deleteIScanDataPointObserver(this);
 			return;
@@ -123,6 +144,7 @@ public class NcdStatusUpdater implements IObserver, IScanDataPointObserver {
 	private void meUpdate() {
 		client.subDirectory.setText(subdirectory);
 		client.currentDirectory.setText(PathConstructor.createFromDefaultProperty());
+		client.scanTitle.setText(scanTitle);
 		exptDataModel.setDirectory(client.currentDirectory.getText());
 	}
 
@@ -204,7 +226,11 @@ public class NcdStatusUpdater implements IObserver, IScanDataPointObserver {
 							}
 						}
 					} else if (arg instanceof String) {
-						subdirectory = arg.toString();
+						if (((Device) iObservable).getName().equals(subDirBlaster.getName())) {
+							subdirectory = arg.toString();
+						} else if (((Device) iObservable).getName().equals(scanTitleBlaster.getName())) {
+							scanTitle = arg.toString();
+						}
 						meUpdate();
 					}
 				} else if (arg instanceof ScanDataPoint) {
@@ -216,5 +242,12 @@ public class NcdStatusUpdater implements IObserver, IScanDataPointObserver {
 				client.currentDirectory.setText(exptDataModel.getDirectory());
 			}
 		}
+	}
+	public void disconnect() {
+		InterfaceProvider.getScanDataPointProvider().deleteIScanDataPointObserver(this);
+		tfg.deleteIObserver(this);
+		exptDataModel.deleteIObserver(this);
+		subDirBlaster.deleteIObserver(this);
+		scanTitleBlaster.deleteIObserver(this);
 	}
 }

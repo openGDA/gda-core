@@ -26,8 +26,10 @@ Require-Bundle: org.eclipse.ui,
  uk.ac.diamond.scisoft.analysis.plotserver;bundle-version="1.0.0",
  org.dawnsci.plotting;bundle-version="1.2.0",
  org.apache.commons.lang;bundle-version="[2.6.0,2.7.0)",
+ pl.pragmatists.JUnitParams;bundle-version="1.1.0",
+ uk.ac.diamond.org.apache.activemq;bundle-version="5.9.0",
  org.eclipse.dawnsci.analysis.api,
- pl.pragmatists.JUnitParams;bundle-version="1.1.0"
+ org.eclipse.scanning.device.ui;bundle-version="1.0.0"
 Bundle-Vendor: Diamond Light Source
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .
@@ -37,8 +39,15 @@ Bundle-Activator: gda.rcp.ncd.Activator
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: uk.ac.gda.client.ncd;singleton:=true
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Eclipse-RegisterBuddy: uk.ac.diamond.org.apache.activemq,
+ org.springframework.beans.factory,
+ uk.ac.gda.server.ncd
 Export-Package: gda.rcp.ncd.perspectives,
  gda.rcp.ncd.views
-Import-Package: org.apache.commons.lang,
+Import-Package: com.google.common.eventbus,
+ org.apache.commons.lang,
  org.dawb.common.services,
- org.slf4j;version="[1.7.2,2.0.0)"
+ org.eclipse.scanning.api.annotation.ui,
+ org.eclipse.scanning.api.ui.auto,
+ org.slf4j;version="[1.7.2,2.0.0)",
+ uk.ac.diamond.daq.msgbus

@@ -18,11 +18,6 @@
 
 package gda.rcp.ncd.widgets;
 
-import gda.device.DeviceException;
-import gda.device.EnumPositioner;
-import gda.observable.IObserver;
-import gda.rcp.ncd.Activator;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,6 +36,11 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.device.DeviceException;
+import gda.device.EnumPositioner;
+import gda.observable.IObserver;
+import gda.rcp.ncd.Activator;
 
 public class ShutterGroup implements IObserver, Runnable {
 
@@ -63,10 +63,12 @@ public class ShutterGroup implements IObserver, Runnable {
 	final Color red;
 	final Color defaultColor;
 	final Color green;
-	
+
+	private Group group;
+
 	public ShutterGroup(Composite parent, int style, final EnumPositioner shutter) {
 
-		Group group = new Group(parent, style);
+		group = new Group(parent, style);
 		group.setText(shutter.getName());
 
 		this.shutter = shutter;
@@ -79,7 +81,7 @@ public class ShutterGroup implements IObserver, Runnable {
 		label.setText("  Fault  ");
 		label.setSize(100, 20);
 
-		button = new org.eclipse.swt.widgets.Button(group, SWT.NONE);
+		button = new Button(group, SWT.NONE);
 		button.setText("  Wait  ");
 		button.setToolTipText(String.format("Operate %s", shutter.getName()));
 		button.addSelectionListener(new SelectionListener() {
@@ -94,7 +96,7 @@ public class ShutterGroup implements IObserver, Runnable {
 				}
 
 				Runnable runnable = new Runnable() {
-					
+
 					@Override
 					public void run() {
 						try {
@@ -103,14 +105,9 @@ public class ShutterGroup implements IObserver, Runnable {
 							// Create the required Status object
 							final Status status = new Status(IStatus.ERROR, Activator.PLUGIN_ID, "Error Operating "
 									+ shutter.getName(), de);
-							
-							Display.getDefault().asyncExec(new Runnable() {
-								@Override
-								public void run() {
-									ErrorDialog.openError(Display.getCurrent().getActiveShell(), "DeviceException", "Error Operating "
-											+ shutter.getName(), status);
-								}
-							});
+
+							Display.getDefault().asyncExec(() -> ErrorDialog.openError(Display.getCurrent().getActiveShell(), "DeviceException", "Error Operating "
+											+ shutter.getName(), status));
 						}
 					}
 				};
@@ -127,8 +124,8 @@ public class ShutterGroup implements IObserver, Runnable {
 		defaultColor = label.getBackground();
 		shutter.addIObserver(this);
 		update(null, null);
+		group.addDisposeListener(e -> group.dispose());
 	}
-
 	@Override
 	public void update(Object theObserved, Object changeCode) {
 		new Thread(new Runnable() {
@@ -139,23 +136,23 @@ public class ShutterGroup implements IObserver, Runnable {
 					// we should improve the changeCode
 					final String status = shutter.getPosition().toString();
 					final String nextaction = status2action.get(status);
-					
+
 					Display dis = Display.getDefault();
 					dis.asyncExec(new Runnable() {
 						@Override
 						public void run() {
 							if ("Close".equals(status)) {
 								label.setText("Closed");
-								label.setBackground(red);
+								group.setBackground(red);
 							} else if ("FAULT".equals(status)) {
 								label.setText("FAULT");
-								label.setBackground(red);
+								group.setBackground(red);
 							} else {
 								//label.setBackground(green);
 								label.setText(status);
-								label.setBackground(defaultColor);
+								group.setBackground(defaultColor);
 							}
-							
+
 							if (nextaction != null) {
 								button.setText(nextaction);
 							} else {

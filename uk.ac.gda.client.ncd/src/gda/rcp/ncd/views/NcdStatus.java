@@ -18,21 +18,42 @@
 
 package gda.rcp.ncd.views;
 
+import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.scanning.api.ui.auto.IModelViewer;
+import org.eclipse.scanning.api.ui.auto.InterfaceInvalidException;
+import org.eclipse.scanning.device.ui.model.InterfaceService;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.part.ViewPart;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import com.google.common.eventbus.Subscribe;
 import com.swtdesigner.SWTResourceManager;
 
+import gda.device.EnumPositioner;
+import gda.factory.Finder;
+import gda.rcp.ncd.widgets.NcdMetaGroup;
+import gda.rcp.ncd.widgets.NcdScanControlComposite;
+import gda.rcp.ncd.widgets.ShutterGroup;
+import uk.ac.diamond.daq.msgbus.MsgBus;
+import uk.ac.gda.server.ncd.detectorsystem.NcdDetectorSystem;
+import uk.ac.gda.server.ncd.msg.NcdMetaType;
+import uk.ac.gda.server.ncd.msg.NcdMsg;
+
 public class NcdStatus extends ViewPart {
+	private static final Logger logger = LoggerFactory.getLogger(NcdStatus.class);
+
 	public NcdStatus() {
+		MsgBus.subscribe(this);
 	}
 	protected Text subDirectory;
 	protected Text currentDirectory;
@@ -48,22 +69,28 @@ public class NcdStatus extends ViewPart {
 	protected Label i0Normalisation;
 	protected Label itNormalisation;
 
+	private NcdStatusUpdater ncdStatusUpdater;
+	private NcdStatusModel model;
+	private IModelViewer<NcdStatusModel> modelView;
+	protected Text scanTitle;
 
 	@Override
 	public void createPartControl(Composite parent) {
-//		parent.setLayout(new RowLayout(SWT.VERTICAL));
 		createFirstHalf(parent);
 	}
 
 	private void createFirstHalf(Composite parent) {
-//		Composite parent = new Composite(up, SWT.NONE);
 		GridLayout gl_parent = new GridLayout(4, false);
 		gl_parent.verticalSpacing = 12;
-		GridData gridData = new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1);
+		GridData gridData = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 		parent.setLayoutData(gridData);
 		parent.setLayout(gl_parent);
+
+		Composite progress = new Composite(parent, SWT.NONE);
+		progress.setLayout(new GridLayout(4, false));
+		progress.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 4, 1));
 		{
-			Group grpFrame = new Group(parent, SWT.NONE);
+			Group grpFrame = new Group(progress, SWT.NONE);
 			grpFrame.setText("Frame");
 			GridData gd_grpElapsedTime = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 			gd_grpElapsedTime.widthHint = 60;
@@ -78,7 +105,7 @@ public class NcdStatus extends ViewPart {
 			}
 		}
 		{
-			Group grpCycle = new Group(parent, SWT.NONE);
+			Group grpCycle = new Group(progress, SWT.NONE);
 			grpCycle.setText("Cycle");
 			GridData gd_grpElapsedTime = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 			gd_grpElapsedTime.widthHint = 60;
@@ -93,7 +120,7 @@ public class NcdStatus extends ViewPart {
 			}
 		}
 		{
-			Group grpElapsedTime = new Group(parent, SWT.NONE);
+			Group grpElapsedTime = new Group(progress, SWT.NONE);
 			GridData gd_grpElapsedTime = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 			gd_grpElapsedTime.widthHint = 120;
 			grpElapsedTime.setLayoutData(gd_grpElapsedTime);
@@ -108,7 +135,7 @@ public class NcdStatus extends ViewPart {
 			}
 		}
 		{
-			Group grpElapsedTime = new Group(parent, SWT.NONE);
+			Group grpElapsedTime = new Group(progress, SWT.NONE);
 			GridData gd_grpElapsedTime = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 			gd_grpElapsedTime.widthHint = 120;
 			grpElapsedTime.setLayoutData(gd_grpElapsedTime);
@@ -123,12 +150,12 @@ public class NcdStatus extends ViewPart {
 			}
 		}
 		{
-			Label label = new Label(parent, SWT.NONE);
+			Label label = new Label(progress, SWT.NONE);
 			label.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1));
 			label.setText("Progress");
 		}
 		{
-			progressBar = new ProgressBar(parent, SWT.NONE);
+			progressBar = new ProgressBar(progress, SWT.NONE);
 			progressBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 2, 1));
 		}
 		{
@@ -296,20 +323,95 @@ public class NcdStatus extends ViewPart {
 			Label label = new Label(parent, SWT.NONE);
 			label.setText("Subdirectory");
 			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 2, 1));
-
-		}
-		{
 			subDirectory = new Text(parent, SWT.BORDER);
 			GridData gd_subDirectory = new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1);
 			subDirectory.setLayoutData(gd_subDirectory);
 			subDirectory.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 			subDirectory.setText("");
 		}
+		{
+			Label label = new Label(parent, SWT.NONE);
+			label.setText("Scan Title");
+			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 2, 1));
+			scanTitle = new Text(parent, SWT.BORDER);
+			GridData gd_subDirectory = new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1);
+			scanTitle.setLayoutData(gd_subDirectory);
+			scanTitle.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+			scanTitle.setText("");
+		}
+		GridDataFactory gdf = GridDataFactory.fillDefaults().span(4, 1);
 
-		new NcdStatusUpdater(this);
+		model = new NcdStatusModel();
+		try {
+			modelView = new InterfaceService().createModelViewer();
+			Composite createPartControl = modelView.createPartControl(parent);
+			modelView.setModel(model);
+			createPartControl.setLayoutData(gdf.create());
+		} catch (InterfaceInvalidException e) {
+			logger.error("Could not create model editor for calibration", e);
+		}
+
+		Composite calibrationDetail = new Composite(parent, SWT.NONE);
+		calibrationDetail.setLayout(new GridLayout(2, true));
+		calibrationDetail.setLayoutData(gdf.grab(true, true).span(3,1).create());
+
+		Composite saxsCal = new NcdMetaGroup(calibrationDetail, NcdDetectorSystem.SAXS_DETECTOR);
+		saxsCal.setLayoutData(gdf.grab(true, false).align(SWT.FILL, SWT.FILL).span(1,1).create());
+
+		Composite waxsCal = new NcdMetaGroup(calibrationDetail, NcdDetectorSystem.WAXS_DETECTOR);
+		waxsCal.setLayoutData(gdf.create());
+
+		Composite shutters = new Composite(parent, SWT.NONE);
+		shutters.setLayout(new GridLayout());
+		shutters.setLayoutData(gdf.grab(false, false).create());
+		for (EnumPositioner posn : Finder.getInstance().listFindablesOfType(EnumPositioner.class)) {
+			new ShutterGroup(shutters, SWT.NONE, posn);
+		}
+
+		Composite controls = new NcdScanControlComposite(parent, SWT.NONE);
+		controls.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 4, 1));
+
+		ncdStatusUpdater = new NcdStatusUpdater(this);
+		MsgBus.publish(new NcdMsg.Refresh("SAXS", NcdMetaType.CALIBRATION));
+		MsgBus.publish(new NcdMsg.Refresh("WAXS", NcdMetaType.CALIBRATION));
 	}
+
 
 	@Override
 	public void setFocus() {
+		scanTitle.setFocus();
+	}
+	@Override
+	public void dispose() {
+		super.dispose();
+		MsgBus.unsubscribe(this);
+		ncdStatusUpdater.disconnect();
+	}
+
+	@Subscribe
+	public void update(NcdMsg.StatusUpdate upd) {
+		logger.debug("Calibration status update {}", upd);
+		if (NcdDetectorSystem.SAXS_DETECTOR.equals(upd.getDetectorType())) {
+			switch (upd.getMetaType()) {
+			case CALIBRATION:
+				model.setSaxsCalibrationDirect(upd.getFilepath());
+				break;
+			case MASK:
+				model.setSaxsMaskDirect(upd.getFilepath());
+				break;
+			case BACKGROUND:
+			}
+		} else if (NcdDetectorSystem.WAXS_DETECTOR.equals(upd.getDetectorType())) {
+			switch (upd.getMetaType()) {
+			case CALIBRATION:
+				model.setWaxsCalibrationDirect(upd.getFilepath());
+				break;
+			case MASK:
+				model.setWaxsMaskDirect(upd.getFilepath());
+				break;
+			case BACKGROUND:
+			}
+		}
+		Display.getDefault().asyncExec(() -> modelView.refresh());
 	}
 }
