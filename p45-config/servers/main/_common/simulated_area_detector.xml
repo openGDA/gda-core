@@ -5,15 +5,15 @@
 	http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<description>
-		This needs the simulated area detector to be running and the PVs to 
-		have naming starting with the workstation name, this needs to be in an environment 
-		variable WORKSTATION which can be read by spring when setting up the config. 
+		This needs the simulated area detector to be running locally, i.e. on the localhost.
 		The property gda.scan.sets.scannumber=true must also be set for scan numbering 
 		to work
 	</description>
+	
+	<bean id="localhostInetAddress" class="java.net.InetAddress" factory-method="getLocalHost"/>
 
 	<bean id="simAD_base" class="gda.device.detector.areadetector.v17.impl.ADBaseImpl">
-		<property name="basePVName" value="${WORKSTATION}-AD-SIM-01:CAM:" />
+		<property name="basePVName" value="#{ localhostInetAddress.hostName.split('\.')[0] }-AD-SIM-01:CAM:" />
 	</bean>
 
 	<bean id="simAD_collection_strategy"
@@ -25,7 +25,7 @@
 	<bean id="simAD_NDFileHDF5" class="gda.spring.V17NDFileHDF5FactoryBean">
 		<property name="ndFileImpl">
 			<bean class="gda.spring.V17NDFileFactoryBean">
-				<property name="prefix" value="${WORKSTATION}-AD-SIM-01:HDF5:" />
+				<property name="prefix" value="#{ localhostInetAddress.hostName.split('\.')[0] }-AD-SIM-01:HDF5:" />
 				<property name="resetToInitialValues" value="false" />
 			</bean>
 		</property>
@@ -53,16 +53,16 @@
 	</bean>
 
 	<bean id="simAD_array" class="gda.device.detector.areadetector.v17.impl.NDArrayImpl">
-		<property name="basePVName" value="${WORKSTATION}-AD-SIM-01:ARR:" />
+		<property name="basePVName" value="#{ localhostInetAddress.hostName.split('\.')[0] }-AD-SIM-01:ARR:" />
 		<property name="pluginBase">
 			<bean class="gda.device.detector.areadetector.v17.impl.NDPluginBaseImpl">
-				<property name="basePVName" value="${WORKSTATION}-AD-SIM-01:ARR:" />
+				<property name="basePVName" value="#{ localhostInetAddress.hostName.split('\.')[0] }-AD-SIM-01:ARR:" />
 			</bean>
 		</property>
 	</bean>	
 
 	<bean id="simAD_cam" class="gda.device.detector.addetector.ADCameraDetector">
-		<property name="basePVName" value="${WORKSTATION}-AD-SIM-01:CAM:" />
+		<property name="basePVName" value="#{ localhostInetAddress.hostName.split('\.')[0] }-AD-SIM-01:CAM:" />
 		<property name="areaDetector" ref="simAD_base" />
 		<property name="array" ref="simAD_array" />
 		<property name="local" value="true" />
