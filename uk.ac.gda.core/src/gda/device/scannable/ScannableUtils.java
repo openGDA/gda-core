@@ -57,14 +57,18 @@ import gda.util.QuantityFactory;
 /**
  * A collection of tools for Scannables and packages which use them
  */
-public abstract class ScannableUtils {
+public final class ScannableUtils {
 
 	private static final Logger logger = LoggerFactory.getLogger(ScannableUtils.class);
 
 	// add a small amount to values to ensure that the final point in the scan is included
-	private static final Double fudgeFactor = 1e-10;
+	private static final double FUDGE_FACTOR = 1e-10;
 
 	private static final String INDENT = "  ";
+
+	private ScannableUtils() {
+		// Private constructor to prevent instantiation
+	}
 
 	/**
 	 * Exception thrown when a call to ScannableBase.validate() fails.
@@ -73,7 +77,7 @@ public abstract class ScannableUtils {
 		/**
 		 * the message
 		 */
-		String message = "";
+		final String message;
 
 		/**
 		 * Constructor.
@@ -624,14 +628,14 @@ public abstract class ScannableUtils {
 
 			double difference = Math.abs(stopValue - startValue);
 			if (stepValue == 0.) {
-				if (difference < fudgeFactor) {
+				if (difference < FUDGE_FACTOR) {
 					// zero step value okay as there is no distance to move
 					continue;
 				}
 				throw new Exception("a step field is zero despite there being a distance to move in that direction.");
 			}
 
-			double fudgeValue = stepValue * fudgeFactor;
+			double fudgeValue = stepValue * FUDGE_FACTOR;
 			int steps = (int) Math.abs((difference + Math.abs(fudgeValue)) / stepValue);
 			if (steps > maxSteps) {
 				maxSteps = steps;
@@ -657,7 +661,7 @@ public abstract class ScannableUtils {
 		if (stepValue == 0) {
 			return 0;
 		}
-		double fudgeValue = stepValue * fudgeFactor;
+		double fudgeValue = stepValue * FUDGE_FACTOR;
 		double difference = Math.abs(stopValue - startValue);
 		maxSteps = (int) Math.abs((difference + Math.abs(fudgeValue)) / stepValue);
 		return maxSteps;
