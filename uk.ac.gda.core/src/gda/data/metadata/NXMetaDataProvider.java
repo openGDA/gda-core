@@ -18,22 +18,6 @@
 
 package gda.data.metadata;
 
-import gda.data.PlottableDetectorData;
-import gda.data.nexus.extractor.NexusExtractor;
-import gda.data.nexus.extractor.NexusGroupData;
-import gda.data.nexus.tree.INexusTree;
-import gda.data.nexus.tree.NexusTreeAppender;
-import gda.data.nexus.tree.NexusTreeNode;
-import gda.data.scan.datawriter.NexusDataWriter;
-import gda.device.Detector;
-import gda.device.DeviceException;
-import gda.device.Scannable;
-import gda.device.ScannableMotionUnits;
-import gda.device.scannable.ScannableUtils;
-import gda.device.scannable.scannablegroup.ScannableGroup;
-import gda.factory.Findable;
-import gda.jython.InterfaceProvider;
-
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.Arrays;
@@ -58,6 +42,22 @@ import org.python.core.PySequence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
+
+import gda.data.PlottableDetectorData;
+import gda.data.nexus.extractor.NexusExtractor;
+import gda.data.nexus.extractor.NexusGroupData;
+import gda.data.nexus.tree.INexusTree;
+import gda.data.nexus.tree.NexusTreeAppender;
+import gda.data.nexus.tree.NexusTreeNode;
+import gda.data.scan.datawriter.NexusDataWriter;
+import gda.device.Detector;
+import gda.device.DeviceException;
+import gda.device.Scannable;
+import gda.device.ScannableMotionUnits;
+import gda.device.scannable.ScannableUtils;
+import gda.device.scannable.scannablegroup.ScannableGroup;
+import gda.factory.Findable;
+import gda.jython.InterfaceProvider;
 
 public class NXMetaDataProvider implements NexusTreeAppender, Map<String, Object>, Findable {
 
@@ -520,7 +520,13 @@ public class NXMetaDataProvider implements NexusTreeAppender, Map<String, Object
 		} else if (args[0] instanceof String && args.length == 3 && args[2] instanceof String) {
 			add((String) args[0], args[1], (String) args[2]);
 		} else {
-			throw new IllegalArgumentException("Invalid arguments");
+			for (Object arg : args) {
+				if (arg instanceof Scannable) {
+					add((Scannable) arg);
+				} else {
+					throw new IllegalArgumentException("Invalid argument: " + arg.toString() + " is not a Scannable! Usage: add(String,Object [,String]) or add(Scannable [,Scannable,Scannable...]))");
+				}
+			}
 		}
 	}
 
@@ -850,10 +856,10 @@ public class NXMetaDataProvider implements NexusTreeAppender, Map<String, Object
 						node.addChildNode(new NexusTreeNode(ATTRIBUTE_KEY_FOR_METADATA_TYPE, NexusExtractor.AttrClassName, node,
 							new NexusGroupData(ATTRIBUTE_VALUE_FOR_METADATA_TYPE_SCANNABLE)));
 					}
-					else
-					{
-						System.out.println("Metadata type already set on the parent");
-					}
+					//else
+					//{
+					//	System.out.println("Metadata type already set on the parent");
+					//}
 
 					if (whoami.equals("input")) {
 						node.addChildNode(new NexusTreeNode(ATTRIBUTE_KEY_FOR_FIELD_TYPE, NexusExtractor.AttrClassName, node,
