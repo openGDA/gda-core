@@ -20,6 +20,7 @@ package gda.device.detector.nxdetector.roi;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Vector;
 
@@ -79,6 +80,18 @@ public class PlotServerROISelectionProvider implements IndexedRectangularROIProv
 		if (scisoftRoiList == null) {
 			scisoftRoiList = new Vector<org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI>();
 		}
+		// Sort the ROI list so we get the same order every time
+		// Otherwise the currently selected ROI is always first
+		// TODO: replace with scisoftRoiList.sort((r1, r2) -> r1.getName().compareTo(r2.getName())); for Java 8
+		scisoftRoiList.sort(new Comparator<org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI>() {
+			@Override
+			public int compare(org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI o1,
+					org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI o2) {
+				String s1 = o1.getName();
+				String s2 = o2.getName();
+				return s1.compareTo(s2);
+			}
+		});
 		return scisoftRoiList;
 	}
 
