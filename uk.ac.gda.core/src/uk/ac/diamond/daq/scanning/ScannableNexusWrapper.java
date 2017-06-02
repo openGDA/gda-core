@@ -51,7 +51,6 @@ import gda.device.Scannable;
 import gda.device.ScannableMotion;
 import gda.device.ScannableMotionUnits;
 import gda.device.scannable.ScannablePositionChangeEvent;
-import gda.factory.Finder;
 import gda.observable.IObserver;
 
 /**
@@ -140,24 +139,22 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 	 */
 	public ScannableNexusWrapper() {
 		super(ScannableDeviceConnectorService.getInstance());
-	}
-
-	/**
-	 * Used from spring to connect the wrapper to a particular named GDA8 scannable
-	 * @param scannableName
-	 */
-	public void setScannableName(String scannableName) {
-
-		this.scannable = Finder.getInstance().find(scannableName);
-		this.scannable.addIObserver(this);
 		this.positionDelegate = new PositionDelegate();
-
 	}
 
 	ScannableNexusWrapper(Scannable scannable) {
 		this.scannable = scannable;
 		this.scannable.addIObserver(this);
 		this.positionDelegate = new PositionDelegate();
+	}
+
+	/**
+	 * Used from spring to connect the wrapper to a particular GDA8 scannable.
+	 * @param scannable the GDA8 scannable to wrap
+	 */
+	public void setScannable(Scannable scannable) {
+		this.scannable = scannable;
+		this.scannable.addIObserver(this);
 	}
 
 	protected void calculateFieldNames() {
