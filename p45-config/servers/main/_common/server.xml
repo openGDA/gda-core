@@ -47,7 +47,7 @@
 	<import resource="mandelbrot_detectors.xml"/>
 	<import resource="aop.xml"/>
 
-	<!-- To enable use of a simulated AD uncomment this import and set the WORKSTATION environment variable to your workstation name -->
+	<!-- To enable use of a simulated AD uncomment this import -->
 	<!-- <import resource="simulated_area_detector.xml"/> -->
 	<corba:export namespace="${gda.beamline.name}" />
 
