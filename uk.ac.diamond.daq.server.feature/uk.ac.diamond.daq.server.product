@@ -19,6 +19,7 @@ Starts the server as an Eclipse OSGI application
       <programArgs>--launcher.suppressErrors
 --launcher.appendVmargs
 -console
+-clean
       </programArgs>
       <vmArgs>-Dosgi.gda.application=true
 -Dequinox.ds.print=true
