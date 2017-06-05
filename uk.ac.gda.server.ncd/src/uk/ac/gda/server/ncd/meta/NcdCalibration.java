@@ -73,8 +73,8 @@ public class NcdCalibration extends PerVisitExternalNcdMetadata {
 
 			//beam center
 			double[] bc = dp.getBeamCentreCoords();
-			nxdata.addData(treeName, "beam_center_x", NexusGroupData.createFromDataset(DatasetFactory.createFromObject(new double[] {dp.getHPxSize()*bc[0]})), "mm", null, null, false);
-			nxdata.addData(treeName, "beam_center_y", NexusGroupData.createFromDataset(DatasetFactory.createFromObject(new double[] {dp.getVPxSize()*bc[1]})), "mm", null, null, false);
+			nxdata.addData(treeName, "beam_center_x", NexusGroupData.createFromDataset(DatasetFactory.createFromObject(new double[] {bc[0]})), null, null, null, false);
+			nxdata.addData(treeName, "beam_center_y", NexusGroupData.createFromDataset(DatasetFactory.createFromObject(new double[] {bc[1]})), null, null, null, false);
 
 			// pixel size
 			nxdata.addData(treeName, "x_pixel_size", NexusGroupData.createFromDataset(DatasetFactory.createFromObject(new double[] {dp.getHPxSize()})), "mm", null, null, false);
