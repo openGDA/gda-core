@@ -3,7 +3,7 @@ package uk.ac.diamond.daq.detectors.vgscienta.electronanalyser.api;
 import org.eclipse.scanning.api.annotation.UiLookup;
 import org.eclipse.scanning.api.annotation.UiRequired;
 
-import uk.ac.diamond.daq.detectors.addetector.api.AreaDetectorWritingFilesRunnableDeviceModel;
+import uk.ac.diamond.daq.detectors.addetector.api.AreaDetectorRunnableDeviceModel;
 
 /**
  * This is the simplest model possible to use an VG Scienta electron analyser with the new scanning.
@@ -12,7 +12,7 @@ import uk.ac.diamond.daq.detectors.addetector.api.AreaDetectorWritingFilesRunnab
  *
  * @author James Mudd
  */
-public class ElectronAnalyserRunnableDeviceModel extends AreaDetectorWritingFilesRunnableDeviceModel {
+public class ElectronAnalyserRunnableDeviceModel extends AreaDetectorRunnableDeviceModel {
 
 	private DA30LensMode lensMode = DA30LensMode.DA30_08; // Default to a angular 30 mode
 	private int passEnergy = 10;
