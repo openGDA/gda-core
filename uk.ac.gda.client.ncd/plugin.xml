@@ -211,11 +211,6 @@
                relationship="bottom"
                ratio="0.4"
                relative="org.eclipse.ui.views.ContentOutline" />
-         <view id="uk.ac.gda.client.ncd.NcdButtonPanelView"
-               minimized="false"
-               relationship="bottom"
-               ratio="0.74"
-               relative="gda.rcp.ncd.views.NCDStatus" />
          <view
                id="uk.ac.gda.client.liveplotview"
                minimized="false"
