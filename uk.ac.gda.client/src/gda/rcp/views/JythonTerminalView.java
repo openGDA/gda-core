@@ -33,7 +33,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 
-import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
@@ -277,12 +276,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 
 		MenuManager menuMgr = new MenuManager();
 		menuMgr.setRemoveAllWhenShown(true);
-		menuMgr.addMenuListener(new IMenuListener() {
-			@Override
-			public void menuAboutToShow(IMenuManager manager) {
-				fillContextMenuForOutputBox(manager);
-			}
-		});
+		menuMgr.addMenuListener(this::fillContextMenuForOutputBox);
 
 		Menu menu = menuMgr.createContextMenu(outputTextViewer.getTextWidget());
 		outputTextViewer.getTextWidget().setMenu(menu);
