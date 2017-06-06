@@ -17,11 +17,11 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.persistence;
+package uk.ac.diamond.daq.persistence.jythonshelf;
 
 import java.util.List;
 
-import uk.ac.diamond.daq.persistence.LocalDatabase.LocalDatabaseException;
+import uk.ac.diamond.daq.persistence.jythonshelf.LocalDatabase.LocalDatabaseException;
 
 /**
  *

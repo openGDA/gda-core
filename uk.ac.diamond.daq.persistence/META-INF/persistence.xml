@@ -7,10 +7,10 @@
 	<persistence-unit name="BcmPersistenceUnit" transaction-type="RESOURCE_LOCAL">
 		<provider>oracle.toplink.essentials.ejb.cmp3.EntityManagerFactoryProvider</provider>
 		
-		<class>gda.server.beamlineConfigurationManager.Mode</class>
-		<class>gda.server.beamlineConfigurationManager.Snapshot</class>
-		<class>gda.server.beamlineConfigurationManager.ScannableEntry</class>
-		<class>gda.server.beamlineConfigurationManager.PositionEntry</class>
+		<class>uk.ac.diamond.daq.persistence.bcm.Mode</class>
+		<class>uk.ac.diamond.daq.persistence.bcm.Snapshot</class>
+		<class>uk.ac.diamond.daq.persistence.bcm.ScannableEntry</class>
+		<class>uk.ac.diamond.daq.persistence.bcm.PositionEntry</class>
 		
 		<properties>
 			<property name="toplink.ddl-generation" value="create-tables" />
@@ -21,8 +21,8 @@
 	<persistence-unit name="JythonShelfPersistenceUnit" transaction-type="RESOURCE_LOCAL">
 		<provider>oracle.toplink.essentials.ejb.cmp3.EntityManagerFactoryProvider</provider>
 		
-		<class>uk.ac.diamond.daq.persistence.entity.ObjectShelf</class>
-		<class>uk.ac.diamond.daq.persistence.entity.ObjectShelfEntry</class>
+		<class>uk.ac.diamond.daq.persistence.jythonshelf.entity.ObjectShelf</class>
+		<class>uk.ac.diamond.daq.persistence.jythonshelf.entity.ObjectShelfEntry</class>
 		
 		<properties>
 			<property name="toplink.ddl-generation" value="create-tables" />

@@ -368,7 +368,7 @@ this file using a name to identify each piece of information. You must
 ensure that you call the save method to make sure the XML file is
 saved after every change. Here is example code on how to use this::
 
-   >>> from gda.util.persistence import LocalParameters
+   >>> from uk.ac.diamond.daq.persistence.jythonshelf import LocalParameters
    >>> config = LocalParameters.getXMLConfiguration("my_parameters_file")
    >>> config.setProperty("mythings.myint", 42)
    >>> config.setProperty("mythings.mystring", "blarghh")

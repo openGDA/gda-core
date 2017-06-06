@@ -17,10 +17,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.persistence;
-
-import uk.ac.diamond.daq.persistence.LocalDatabase.LocalDatabaseException;
-import uk.ac.diamond.daq.persistence.entity.ObjectShelf;
+package uk.ac.diamond.daq.persistence.jythonshelf;
 
 import java.io.Serializable;
 import java.io.Writer;
@@ -36,6 +33,9 @@ import javax.persistence.Query;
 
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.daq.persistence.jythonshelf.LocalDatabase.LocalDatabaseException;
+import uk.ac.diamond.daq.persistence.jythonshelf.entity.ObjectShelf;
+
 /**
  * A class used to create and access 'shelves' filled with key/value pairs. The keys are arbitrary strings such as
  * 'mode', 'mode.euler', 'a.b.1' or 'a.b.2'. Any type of serializable object can be stored which includes all Jython
@@ -44,8 +44,8 @@ import org.slf4j.LoggerFactory;
  * shelf can be exported to a dictionary object and later imported. More than one shelf object can talk to the same
  * underlying shelf.
  * <p>
- * To work as advertised this depends on the java.properties described in uk.ac.diamond.daq.persistence.LocalDatabase to be
- * configured.
+ * To work as advertised this depends on the java.properties described in
+ * uk.ac.diamond.daq.persistence.jythonshelf.LocalDatabase to be configured.
  */
 public abstract class LocalObjectShelfManager {
 
@@ -56,7 +56,7 @@ public abstract class LocalObjectShelfManager {
 
 	static Boolean staticEmfCreated = false;
 
-	private static Map<String, LocalObjectShelf> openShelves = new Hashtable<String, LocalObjectShelf>();
+	private static Map<String, LocalObjectShelf> openShelves = new Hashtable<>();
 
 	// This can be overridden in extending classes. This will be added to the
 	// implictely added to new shelf names and calling shelves on the class will
@@ -84,7 +84,7 @@ public abstract class LocalObjectShelfManager {
 	 */
 	@SuppressWarnings("unchecked")
 	synchronized public static List<String> shelves(String shelfNamePrefix) throws LocalDatabaseException {
-		List<String> toReturn = new ArrayList<String>();
+		List<String> toReturn = new ArrayList<>();
 
 		EntityManager em = staticBeginTransaction();
 		Query q = em.createQuery("select c from ObjectShelf c");
@@ -163,7 +163,7 @@ public abstract class LocalObjectShelfManager {
 	 * @return An empty dictionary
 	 */
 	public static Dictionary<String, Serializable> getDictionaryForImport() {
-		return new Hashtable<String, Serializable>();
+		return new Hashtable<>();
 	}
 
 	private static EntityManager staticBeginTransaction() throws LocalDatabaseException {

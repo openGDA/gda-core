@@ -20,6 +20,7 @@
 package uk.ac.diamond.daq.persistence;
 
 import gda.util.TestUtils;
+import uk.ac.diamond.daq.persistence.jythonshelf.LocalParameters;
 
 import static org.junit.Assert.*;
 

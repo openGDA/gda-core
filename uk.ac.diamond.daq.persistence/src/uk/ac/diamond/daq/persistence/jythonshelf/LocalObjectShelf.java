@@ -16,11 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.persistence;
-
-import uk.ac.diamond.daq.persistence.LocalDatabase.LocalDatabaseException;
-import uk.ac.diamond.daq.persistence.entity.ObjectShelf;
-import uk.ac.diamond.daq.persistence.entity.ObjectShelfEntry;
+package uk.ac.diamond.daq.persistence.jythonshelf;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -38,6 +34,10 @@ import javax.persistence.EntityManager;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import uk.ac.diamond.daq.persistence.jythonshelf.LocalDatabase.LocalDatabaseException;
+import uk.ac.diamond.daq.persistence.jythonshelf.entity.ObjectShelf;
+import uk.ac.diamond.daq.persistence.jythonshelf.entity.ObjectShelfEntry;
 
 /**
  * LocalObjectShelf Class
@@ -82,7 +82,7 @@ public class LocalObjectShelf {
 		// Fill the cache
 
 		// Shelf is ready to go
-		logger.info("LocalObjectShelf " + shelfNamePrefix + shelfName + " ready.");
+		logger.info("LocalObjectShelf {}{} ready", shelfNamePrefix, shelfName);
 	}
 
 	private void addShelf(String name) throws ObjectShelfException, LocalDatabaseException {
@@ -94,7 +94,7 @@ public class LocalObjectShelf {
 			newshelf.setName(shelfNamePrefix + name);
 			em.persist(newshelf);
 			commitTransaction(em);
-			logger.info("Created new LocalJythonShelf " + name);
+			logger.info("Created new LocalJythonShelf {}", name);
 		} else {
 			throw new ObjectShelfException("Could not make new shelf: a shelf with name " + shelfNamePrefix + name
 					+ " exists already");
@@ -144,7 +144,7 @@ public class LocalObjectShelf {
 	 * @return a list of key names.
 	 */
 	synchronized public List<String> keys() {
-		List<String> toReturn = new ArrayList<String>();
+		List<String> toReturn = new ArrayList<>();
 		EntityManager em;
 		ObjectShelf shelf;
 
@@ -242,7 +242,7 @@ public class LocalObjectShelf {
 		commitTransaction(em);
 
 		if (keyDidNotExist) {
-			logger.info(String.format("Added new entry=%s to shelf=%s.", keyName, this.shelfName));
+			logger.info("Added new entry={} to shelf={}.", keyName, this.shelfName);
 		}
 	}
 
