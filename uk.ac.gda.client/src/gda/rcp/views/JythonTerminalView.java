@@ -338,7 +338,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 		} else if (changeCode instanceof String) {
 			String message = (String) changeCode;
 
-			if (message.compareTo(Jython.RAWINPUTREQUESTED) == 0) {
+			if (message.compareTo(Jython.RAW_INPUT_REQUESTED) == 0) {
 				// change prompt and next input will go through a different
 				// method call
 				PlatformUI.getWorkbench().getDisplay().asyncExec(() -> {
@@ -347,7 +347,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 					// clear the command-line
 					txtInput.setText("");
 				});
-			} else if (message.compareTo(Jython.RAWINPUTRECEIVED) == 0) {
+			} else if (message.compareTo(Jython.RAW_INPUT_RECEIVED) == 0) {
 				PlatformUI.getWorkbench().getDisplay().asyncExec(() -> {
 					// change prompt back to usual
 					txtPrompt.setText(NORMAL_PROMPT);
