@@ -105,6 +105,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	 * Name of this object. This should agree with the string used in Castor.
 	 */
 	public static final String SERVERNAME = "command_server";
+	public static final String NULL = String.valueOf((char)0);
 	private boolean atStartup = true;
 
 	// the Jython interpreter
@@ -652,6 +653,9 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 		// call raw_input which waits for an input from the user
 		while (expectingInputForRawInput) {
 			Thread.sleep(100);
+		}
+		if (NULL.equals(theRawInput)) {
+			throw Py.EOFError("EOF when reading a line");
 		}
 		return theRawInput;
 	}

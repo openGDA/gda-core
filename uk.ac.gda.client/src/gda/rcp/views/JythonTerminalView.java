@@ -67,6 +67,7 @@ import gda.configuration.properties.LocalProperties;
 import gda.jython.IJythonContext;
 import gda.jython.IScanDataPointObserver;
 import gda.jython.Jython;
+import gda.jython.JythonServer;
 import gda.jython.JythonServerFacade;
 import gda.jython.Terminal;
 import gda.jython.gui.JythonGuiConstants;
@@ -574,9 +575,15 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 		else if (e.stateMask == SWT.CTRL && (e.keyCode == 'd' || e.keyCode == 'z')) {
 			txtInput.setText("");
 			currentCmd = "";
-			txtPrompt.setText(NORMAL_PROMPT);
-			appendOutput("KeyboardInterrupt");
-			appendOutput(">>> \n");
+			String currentPrompt = txtPrompt.getText();
+			if (currentPrompt.equals(RAW_INPUT_PROMPT)) {
+				// JythonServer is waiting for input - send null char to end interrupt
+				jsf.setRawInput(JythonServer.NULL);
+			} else {
+				txtPrompt.setText(NORMAL_PROMPT);
+				appendOutput("KeyboardInterrupt");
+				appendOutput(">>> \n");
+			}
 		}
 	}
 
