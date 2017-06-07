@@ -59,7 +59,6 @@ import gda.factory.FactoryException;
 import gda.factory.Findable;
 import gda.factory.Finder;
 import gda.jython.translator.Translator;
-import gda.observable.ObservableComponent;
 import uk.ac.gda.common.rcp.util.EclipseUtils;
 
 /**
@@ -70,7 +69,7 @@ import uk.ac.gda.common.rcp.util.EclipseUtils;
  * jython.jar located in the jython installation folder must be referenced in the java classpath. Jython.jar must NOT be
  * located anywhere else. This is because there is more to jython than just the files in jython.jar(!).****
  */
-public class GDAJythonInterpreter extends ObservableComponent {
+public class GDAJythonInterpreter {
 	private static final Logger logger = LoggerFactory.getLogger(GDAJythonInterpreter.class);
 	private static final String JYTHON_VERSION = "2.7";
 	private static final String JYTHON_BUNDLE_PATH = "uk.ac.diamond.jython/jython%s";
