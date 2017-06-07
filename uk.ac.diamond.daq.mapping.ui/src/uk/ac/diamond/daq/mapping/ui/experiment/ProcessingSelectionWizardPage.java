@@ -40,6 +40,8 @@ import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.jface.window.Window;
+import org.eclipse.richbeans.widgets.file.FileSelectionDialog;
 import org.eclipse.scanning.api.device.models.ClusterProcessingModel;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.scan.IFilePathService;
@@ -48,7 +50,9 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,9 +68,36 @@ import uk.ac.diamond.daq.mapping.impl.ClusterProcessingModelWrapper;
  */
 class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 
+	private class RadioButtonHandler extends SelectionAdapter {
+
+		private Button radioButton;
+		private List<Control> controls;
+
+
+		public RadioButtonHandler(Button radioButton, List<Control> controls) {
+			this.radioButton = radioButton;
+			this.controls = controls;
+		}
+
+		@Override
+		public void widgetSelected(SelectionEvent e) {
+			setControlsEnabled(radioButton.getSelection());
+			updateButtons();
+		}
+
+		public void setControlsEnabled(boolean enabled) {
+			for (Control control : controls) {
+				control.setEnabled(enabled);
+			}
+		}
+
+	}
+
 	private static final String NEXUS_FILE_EXTENSION = "nxs";
 
 	private static final Logger logger = LoggerFactory.getLogger(ProcessingSelectionWizardPage.class);
+
+	private static String lastFilePath = null;
 
 	private final IEclipseContext context;
 
@@ -74,9 +105,15 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 
 	private final List<IDetectorModelWrapper> detectors;
 
+	private Text existingFileText;
+
 	private ComboViewer templatesComboViewer;
 
 	private ComboViewer detectorsComboViewer;
+
+	private Button createNewButton;
+
+	private Button useExistingButton;
 
 	protected ProcessingSelectionWizardPage(IEclipseContext context,
 			IClusterProcessingModelWrapper processingModelWrapper,
@@ -94,20 +131,65 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 	public void createControl(Composite parent) {
 		Composite composite = new Composite(parent, SWT.NONE);
 		setControl(composite);
-		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(composite);
+		GridLayoutFactory.swtDefaults().applyTo(composite);
 
-		createTemplateSelectionControls(composite);
 		createDetectorSelectionControls(composite);
+
+		createNewButton = new Button(composite, SWT.RADIO);
+		createNewButton.setText("Create a new processing file from a template:");
+		GridDataFactory.swtDefaults().applyTo(createNewButton);
+
+		List<Control> selectTemplateControls = createSelectTemplateControls(composite);
+		createNewButton.addSelectionListener(new RadioButtonHandler(createNewButton, selectTemplateControls));
+		createNewButton.setSelection(true);
+
+		useExistingButton = new Button(composite, SWT.RADIO);
+		useExistingButton.setText("Use an existing processing file:");
+		GridDataFactory.swtDefaults().span(2, 1).applyTo(useExistingButton);
+
+		List<Control> useExistingControls = createExistingFileControls(composite);
+		RadioButtonHandler existingControlsButtonHandler =
+				new RadioButtonHandler(useExistingButton, useExistingControls);
+		useExistingButton.addSelectionListener(existingControlsButtonHandler);
+		useExistingButton.setSelection(false);
+		existingControlsButtonHandler.setControlsEnabled(false);
 	}
 
-	private void createTemplateSelectionControls(Composite parent) {
-		// Label for select template combo
-		Label label = new Label(parent, SWT.NONE);
-		label.setText("Processing Template File:");
+	private void createDetectorSelectionControls(Composite parent) {
+		Composite composite = new Composite(parent, SWT.NONE);
+		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(composite);
+		GridDataFactory.fillDefaults().applyTo(composite);
+
+		// Label for select detector combo
+		Label label = new Label(composite, SWT.NONE);
+		label.setText("Detector:");
 		GridDataFactory.swtDefaults().applyTo(label);
 
+		// Combo viewer for detector selection
+		detectorsComboViewer = new ComboViewer(composite, SWT.DROP_DOWN | SWT.READ_ONLY);
+		GridDataFactory.swtDefaults().applyTo(detectorsComboViewer.getControl());
+		detectorsComboViewer.setContentProvider(ArrayContentProvider.getInstance());
+		detectorsComboViewer.setLabelProvider(new LabelProvider() {
+			@Override
+			public String getText(Object element) {
+				return ((IDetectorModelWrapper) element).getName();
+			}
+		});
+		detectorsComboViewer.setInput(detectors);
+		if (!detectors.isEmpty()) {
+			detectorsComboViewer.setSelection(new StructuredSelection(detectors.get(0)));
+		}
+	}
+
+	private List<Control> createSelectTemplateControls(Composite parent) {
 		Composite composite = new Composite(parent, SWT.NONE);
-		GridLayoutFactory.fillDefaults().numColumns(2).applyTo(composite);
+		GridLayoutFactory.swtDefaults().numColumns(3).applyTo(composite);
+		GridDataFactory.fillDefaults().indent(20, 0).applyTo(composite);
+
+		// Label for select template combo
+		Label label = new Label(composite, SWT.NONE);
+		label.setText("Processing Template File:");
+		GridDataFactory.swtDefaults().applyTo(label);
 
 		templatesComboViewer = new ComboViewer(composite, SWT.DROP_DOWN | SWT.READ_ONLY);
 		GridDataFactory.swtDefaults().applyTo(templatesComboViewer.getControl());
@@ -119,6 +201,7 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 				return ((File) element).getName();
 			}
 		});
+
 		templatesComboViewer.setInput(templateFiles);
 		if (!templateFiles.isEmpty()) {
 			templatesComboViewer.setSelection(new StructuredSelection(templateFiles.get(0)));
@@ -145,6 +228,8 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 				refreshTemplates();
 			}
 		});
+
+		return Arrays.asList(label, templatesComboViewer.getCombo(), refreshTemplatesButton);
 	}
 
 	private void refreshTemplates() {
@@ -159,28 +244,6 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 
 	private File getSelectedTemplateFile() {
 		return (File) templatesComboViewer.getStructuredSelection().getFirstElement();
-	}
-
-	private void createDetectorSelectionControls(Composite parent) {
-		// Label for select detector combo
-		Label label = new Label(parent, SWT.NONE);
-		label.setText("Detector:");
-		GridDataFactory.swtDefaults().applyTo(label);
-
-		// Combo viewer for detector selection
-		detectorsComboViewer = new ComboViewer(parent, SWT.DROP_DOWN | SWT.READ_ONLY);
-		GridDataFactory.swtDefaults().applyTo(detectorsComboViewer.getControl());
-		detectorsComboViewer.setContentProvider(ArrayContentProvider.getInstance());
-		detectorsComboViewer.setLabelProvider(new LabelProvider() {
-			@Override
-			public String getText(Object element) {
-				return ((IDetectorModelWrapper) element).getName();
-			}
-		});
-		detectorsComboViewer.setInput(detectors);
-		if (!detectors.isEmpty()) {
-			detectorsComboViewer.setSelection(new StructuredSelection(detectors.get(0)));
-		}
 	}
 
 	private IDetectorModelWrapper getSelectedDetector() {
@@ -220,9 +283,91 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 		return file;
 	}
 
+	private List<Control> createExistingFileControls(Composite parent) {
+		Composite composite = new Composite(parent, SWT.NONE);
+		GridDataFactory.fillDefaults().indent(20, 0).applyTo(composite);
+		GridLayoutFactory.fillDefaults().numColumns(3).applyTo(composite);
+
+		Label label = new Label(composite, SWT.NONE);
+		label.setText("Processing File:");
+		GridDataFactory.swtDefaults().applyTo(label);
+
+		existingFileText = new Text(composite, SWT.BORDER | SWT.SINGLE);
+		GridDataFactory.fillDefaults().grab(true, false).applyTo(existingFileText);
+		existingFileText.addModifyListener(e -> updateButtons());
+
+		Button browseButton = new Button(composite, SWT.PUSH);
+		browseButton.setText("Browse...");
+		GridDataFactory.swtDefaults().applyTo(browseButton);
+		browseButton.addSelectionListener(new SelectionAdapter() {
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				chooseExistingProcessingFile();
+			}
+
+		});
+
+		return Arrays.asList(label, existingFileText, browseButton);
+	}
+
+	private void chooseExistingProcessingFile() {
+		FileSelectionDialog dialog = new FileSelectionDialog(getShell());
+		dialog.setFolderSelector(false);
+		dialog.setExtensions(new String[] { NEXUS_FILE_EXTENSION });
+		dialog.setFiles(new String[] { "Nexus files" });
+		dialog.setHasResourceButton(false);
+		dialog.setNewFile(false);
+		if (lastFilePath != null) {
+			dialog.setPath(lastFilePath);
+		}
+
+		dialog.create();
+		if (dialog.open() != Window.OK) {
+			return;
+		}
+
+		String filePath = dialog.getPath();
+		existingFileText.setText(filePath);
+		lastFilePath = filePath;
+	}
+
+	private void updateButtons() {
+		boolean pageComplete = false;
+		if (createNewButton.getSelection()) {
+			pageComplete = true;
+		} else {
+			final String filePath = existingFileText.getText();
+			if (!filePath.isEmpty()) {
+				final File file = new File(filePath);
+				pageComplete = file.exists() && file.isFile();
+			}
+		}
+
+		setPageComplete(pageComplete);
+		getContainer().updateButtons();
+	}
+
+	@Override
+	public boolean shouldSkipRemainingPages() {
+		// if we're using an existing processing file we skip the rest of the wizard
+		return useExistingButton.getSelection();
+	}
+
+	@Override
+	public boolean canFlipToNextPage() {
+		// we can only move on to the next page if create new is selected
+		// if use existing is selected, then this is the only page of the wizard
+		return createNewButton.getSelection() && super.canFlipToNextPage();
+	}
+
 	@Override
 	public void wizardTerminatingButtonPressed(int buttonId) {
-		// nothing to do
+		if (buttonId == Window.OK && useExistingButton.getSelection()) {
+			// when we're using an existing processing file, this method
+			// gets called instead of finishPage being called directly by the wizard
+			finishPage();
+		}
 	}
 
 	@Override
@@ -235,32 +380,44 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 		// we don't need to do anything here
 	}
 
-	@Override
-	public void finishPage() {
-		final IDetectorModel detectorModel = getSelectedDetector().getModel();
-		final String templateFile = getSelectedTemplateFile().getPath();
+	private void configureProcessingModel(IDetectorModel detectorModel) {
+		final File processingFile;
+		if (createNewButton.getSelection()) {
+			final String templateFile = getSelectedTemplateFile().getPath();
+			processingFile = getNewProcessingFile(templateFile, detectorModel.getName());
+		} else {
+			processingFile = new File(existingFileText.getText().trim());
+		}
 
-		final File processingFile = getNewProcessingFile(templateFile, detectorModel.getName());
 		((ClusterProcessingModelWrapper) processingModelWrapper).setName(processingFile.getName());
 		ClusterProcessingModel processingModel = processingModelWrapper.getModel();
 		processingModel.setName(processingFile.getName());
 		processingModel.setProcessingFilePath(processingFile.getAbsolutePath());
 		processingModel.setDetectorName(detectorModel.getName());
+	}
 
-		// Clone the detector model - we don't want to change the one in the mapping bean
-		IDetectorModel detectorModelCopy = null;
-		try {
-			detectorModelCopy = (IDetectorModel) BeanUtils.cloneBean(detectorModel);
-		} catch (Exception e) {
-			logger.error("Could not make a copy of the detector model: " + detectorModel.getName(), e);
-		}
-		((AcquireDataWizardPage) getNextPage()).setDetectorModel(detectorModelCopy);
+	@Override
+	public void finishPage() {
+		final IDetectorModel detectorModel = getSelectedDetector().getModel();
+		configureProcessingModel(detectorModel);
 
-		// set template file on wizard, so that other pages can be created appropriately
-		try {
-			((IOperationModelWizard) getWizard()).setTemplateFile(templateFile);
-		} catch (Exception e) {
-			logger.error("Error setting template file on wizard. Could not create operations pages.", e);
+		if (createNewButton.getSelection()) {
+			// Clone the detector model - we don't want to change the one in the mapping bean
+			IDetectorModel detectorModelCopy = null;
+			try {
+				detectorModelCopy = (IDetectorModel) BeanUtils.cloneBean(detectorModel);
+			} catch (Exception e) {
+				logger.error("Could not make a copy of the detector model: " + detectorModel.getName(), e);
+			}
+			((AcquireDataWizardPage) getNextPage()).setDetectorModel(detectorModelCopy);
+
+			// set template file on wizard, so that other pages can be created appropriately
+			final String templateFile = getSelectedTemplateFile().getPath();
+			try {
+				((IOperationModelWizard) getWizard()).setTemplateFile(templateFile);
+			} catch (Exception e) {
+				logger.error("Error setting template file on wizard. Could not create operations pages.", e);
+			}
 		}
 	}
 

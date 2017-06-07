@@ -136,7 +136,8 @@ public class ProcessingSection extends AbstractMappingSection {
 		// Include in scan checkbox
 		Button checkBox = new Button(parent, SWT.CHECK);
 		rowControls[controlIndex++] = checkBox;
-		checkBox.setText(clusterProcessingChain.getName());
+		String name = clusterProcessingChain.getName();
+		checkBox.setText(name == null ? "(Unnamed)" : name);
 		GridDataFactory fillDefaultGridData = GridDataFactory.fillDefaults().grab(true, false);
 		fillDefaultGridData.applyTo(checkBox);
 		IObservableValue checkBoxValue = WidgetProperties.selection().observe(checkBox);
@@ -199,6 +200,7 @@ public class ProcessingSection extends AbstractMappingSection {
 					startPages, (String) null, null);
 
 			OperationModelWizardDialog dialog = new OperationModelWizardDialog(getShell(), wizard);
+			dialog.setTitle("Setup Processing");
 			if (dialog.open() == Window.OK) {
 				try {
 					wizard.saveOutputFile(processingModelWrapper.getModel().getProcessingFilePath());
