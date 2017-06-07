@@ -42,7 +42,7 @@ public interface Jython extends Findable {
 	/**
 	 * Name of this object. This should agree with the string used in Castor.
 	 */
-	public static final String SERVERNAME = "command_server";
+	public static final String SERVER_NAME = "command_server";
 
 	/**
 	 * Script, scan or queue not in use
@@ -62,12 +62,12 @@ public interface Jython extends Findable {
 	/**
 	 * String passed to IObservers of the CommandServer that it is waiting for input via the setRawInput method
 	 */
-	public static final String RAWINPUTREQUESTED = "raw input requested";
+	public static final String RAW_INPUT_REQUESTED = "raw input requested";
 
 	/**
 	 * String passed to IObservers of the CommandServer that it has received input via the setRawInput method
 	 */
-	public static final String RAWINPUTRECEIVED = "raw input received";
+	public static final String RAW_INPUT_RECEIVED = "raw input received";
 
 	/**
 	 * Runs a single line Jython command through the interpreter and returns the result in the form of a string. Note:

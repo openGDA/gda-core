@@ -626,7 +626,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	public void setRawInput(String theInput, String JSFIdentifier) {
 		if (expectingInputForRawInput) {
 			// tell all terminals that an input has been received
-			updateIObservers(RAWINPUTRECEIVED);
+			updateIObservers(RAW_INPUT_RECEIVED);
 			theRawInput = theInput;
 			expectingInputForRawInput = false;
 			return;
@@ -645,7 +645,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 		expectingInputForRawInput = true;
 
 		// tell all terminals that they should alter their input prompt
-		updateIObservers(RAWINPUTREQUESTED);
+		updateIObservers(RAW_INPUT_REQUESTED);
 
 		this.interp.exec(("print '" + prompt + "'"));
 

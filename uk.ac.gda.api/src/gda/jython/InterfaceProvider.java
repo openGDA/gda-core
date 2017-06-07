@@ -153,11 +153,11 @@ public class InterfaceProvider {
 	 * @return JythonServer
 	 */
 	private static LocalJython getLocalJythonServerFromFinder() {
-		Findable obj = Finder.getInstance().find(Jython.SERVERNAME);
+		Findable obj = Finder.getInstance().find(Jython.SERVER_NAME);
 		if (obj != null && obj instanceof LocalJython) {
 			return (LocalJython) obj;
 		}
-		throw new IllegalStateException("Unable to find local object of type LocalJython called " + Jython.SERVERNAME);
+		throw new IllegalStateException("Unable to find local object of type LocalJython called " + Jython.SERVER_NAME);
 	}
 
 	/**
