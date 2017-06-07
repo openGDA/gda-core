@@ -17,7 +17,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.persistence.entity;
+package uk.ac.diamond.daq.persistence.jythonshelf.entity;
 
 import static javax.persistence.CascadeType.ALL;
 

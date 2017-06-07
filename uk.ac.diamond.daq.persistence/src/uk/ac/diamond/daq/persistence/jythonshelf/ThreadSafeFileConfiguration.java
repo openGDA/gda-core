@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.persistence;
+package uk.ac.diamond.daq.persistence.jythonshelf;
 
 import java.io.File;
 import java.io.InputStream;

@@ -17,9 +17,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.persistence;
-
-import gda.configuration.properties.LocalProperties;
+package uk.ac.diamond.daq.persistence.jythonshelf;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -35,6 +33,8 @@ import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.configuration.reloading.FileChangedReloadingStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.configuration.properties.LocalProperties;
 
 /**
  * A singleton class used to access the GDA's local parameter stores in ${gda.var}. This system supplements the
@@ -56,10 +56,10 @@ import org.slf4j.LoggerFactory;
 public class LocalParameters {
 	private static final Logger logger = LoggerFactory.getLogger(LocalParameters.class);
 
-	static String DEFAULT_CONFIG_NAME = "localParameters";
+	static final String DEFAULT_CONFIG_NAME = "localParameters";
 
 	/** Holds non-thread-safe configurations. */
-	static HashMap<String, XMLConfiguration> configList = new HashMap<String, XMLConfiguration>();
+	static HashMap<String, XMLConfiguration> configList = new HashMap<>();
 
 	/**
 	 * This is a singleton class. Constructor is private.
@@ -170,7 +170,7 @@ public class LocalParameters {
 		if (createAlways && configList.containsKey(fullName)){
 			configList.remove(fullName);
 		}
-		if (configList.containsKey(fullName) == false) {
+		if (!configList.containsKey(fullName)) {
 			XMLConfiguration config;
 
 			// Try to open the file
@@ -182,7 +182,7 @@ public class LocalParameters {
 				// Assume the error occured because the file does not exist
 
 				// Throw exception if createIfMissing is false
-				if (createIfMissing == false) {
+				if (!createIfMissing) {
 					logger.error("Could not load " + configDir + configName + ".xml which will not be created");
 					throw new ConfigurationException(e);
 				}
@@ -218,7 +218,7 @@ public class LocalParameters {
 			}// endif - create a missing file
 			config.setReloadingStrategy(new FileChangedReloadingStrategy());
 			configList.put(fullName, config);
-			logger.debug("Loaded the configuration file: " + fullName);
+			logger.debug("Loaded the configuration file: {}", fullName);
 
 		}// endif - instantiate a new configuration
 
@@ -259,6 +259,6 @@ public class LocalParameters {
 	}
 
 	/** Lock objects used to enforce thread safety. */
-	private static ConcurrentHashMap<String, Object> locks = new ConcurrentHashMap<String, Object>();
+	private static ConcurrentHashMap<String, Object> locks = new ConcurrentHashMap<>();
 
 }

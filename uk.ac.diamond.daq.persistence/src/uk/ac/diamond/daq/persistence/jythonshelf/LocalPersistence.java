@@ -16,9 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.persistence;
-
-import gda.configuration.properties.LocalProperties;
+package uk.ac.diamond.daq.persistence.jythonshelf;
 
 import java.io.File;
 import java.util.Properties;
@@ -26,25 +24,34 @@ import java.util.Properties;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
-import oracle.toplink.essentials.config.TopLinkProperties;
-import uk.ac.diamond.daq.persistence.LocalDatabase.LocalDatabaseException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
+import oracle.toplink.essentials.config.TopLinkProperties;
+import uk.ac.diamond.daq.persistence.jythonshelf.LocalDatabase.LocalDatabaseException;
+
+
+
 /**
- * Provides a static method to access the gda's local database using the Java Persistence API (aka Glassfish).
+ * Provides a static method to access the gda's local database using the Java Persistence API.
  *
- * @see uk.ac.diamond.daq.persistence.LocalDatabase
+ * @see uk.ac.diamond.daq.persistence.jythonshelf.LocalDatabase
  */
 public class LocalPersistence {
 	private static final Logger logger = LoggerFactory.getLogger(LocalPersistence.class);
 
+	private LocalPersistence(){              // prevent instantiation
+	}
+
 	/**
-	 * Creates a Java Persistence API (aka Glassfish) EntityManagerFactory associated with the GDA's local database.
+	 * Creates a Java Persistence API EntityManagerFactory associated with the GDA's local database. As the telnet
+	 * and RCP clients use different classloaders (because of how their listeners are created) it is necessary to
+	 * switch the ThreadContextClassLoader to this bundle's ClassLoader to guarantee that the persistence.xml resource
+	 * can be correctly loaded when creating the EntityManager. It is reset again afterwards
 	 *
 	 * @param persistenceUnitName
-	 *            The name of the persistent unit matching the xml entry in /srv/META-INF/persistence.xml
+	 *            The name of the persistence unit matching the xml entry in /META-INF/persistence.xml
 	 * @return An EntityManagerFactory
 	 * @throws LocalDatabaseException
 	 */
@@ -57,8 +64,8 @@ public class LocalPersistence {
 			toplinkApplicationLocation.mkdirs();
 		}
 
-		logger.info("Loading persistence entity " + persistenceUnitName + " using toplink.jdbc.url="
-				+ LocalDatabase.getJdbcUrl() + " and user=" + LocalDatabase.getJdbcUsername());
+		logger.info("Loading persistence entity {} using toplink.jdbc.url{} and user={}",
+				persistenceUnitName, LocalDatabase.getJdbcUrl(), LocalDatabase.getJdbcUsername());
 
 		properties.put(TopLinkProperties.JDBC_DRIVER, LocalDatabase.getJdbcDriver());
 		properties.put(TopLinkProperties.JDBC_URL, LocalDatabase.getJdbcUrl());
@@ -66,7 +73,16 @@ public class LocalPersistence {
 		properties.put(TopLinkProperties.JDBC_PASSWORD, LocalDatabase.getJdbcPassword());
 		properties.put(TOPLINK_APPLICATION_LOCATION, toplinkApplicationLocation.getAbsolutePath());
 
-		return Persistence.createEntityManagerFactory(persistenceUnitName, properties);
+		// Cache the thread ClassLoader and then substitute our own to guarantee resolution of the persistence.xml file
+		ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+		ClassLoader persistenceAware = LocalPersistence.class.getClassLoader();
+
+		try {
+			Thread.currentThread().setContextClassLoader(persistenceAware);
+			return Persistence.createEntityManagerFactory(persistenceUnitName, properties);
+		} finally {
+			Thread.currentThread().setContextClassLoader(tccl);
+		}
 	}
 
 	private static final String TOPLINK_APPLICATION_LOCATION = "toplink.application-location";
@@ -83,7 +99,6 @@ public class LocalPersistence {
 		}
 
 		// Otherwise, fall back to ${gda.var}/toplink
-		File toplinkApplicationLocation = new File(new File(LocalProperties.getVarDir()), "toplink");
-		return toplinkApplicationLocation;
+		return new File(new File(LocalProperties.getVarDir()), "toplink");
 	}
 }
