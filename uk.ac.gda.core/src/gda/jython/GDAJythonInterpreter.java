@@ -47,6 +47,7 @@ import org.python.core.PyException;
 import org.python.core.PyModule;
 import org.python.core.PyObject;
 import org.python.core.PyString;
+import org.python.core.PyStringMap;
 import org.python.core.PySystemState;
 import org.python.core.PyUnicode;
 import org.python.core.imp;
@@ -56,6 +57,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import gda.configuration.properties.LocalProperties;
+import gda.device.Scannable;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
 import gda.factory.Finder;
@@ -268,6 +270,11 @@ public class GDAJythonInterpreter {
 
 		// Create the __main__ module for the console to use
 		PyModule mod = imp.addModule("__main__");
+
+		// Replace globals dict to prevent scannables and aliases being overwritten
+		GdaGlobals globals = new GdaGlobals();
+		globals.update(mod.__dict__);
+		mod.__dict__ = globals;
 
 		// Get instance of interactive console
 		interactiveConsole = new GDAInteractiveConsole(mod.__dict__, pss);
@@ -746,4 +753,43 @@ public class GDAJythonInterpreter {
 	}
 
 
+	/**
+	 * Extension of dictionary to use for python globals so that we can intercept sets
+	 * and check that we're not overriding a scannable or aliased command.
+	 *
+	 * Deletions are intercepted so that deleting an aliased command also removes the alias
+	 */
+	protected class GdaGlobals extends PyStringMap {
+		@Override
+		public void __setitem__(String key, PyObject value) {
+			// TODO: DAQ-704 This should be reviewed to either allow all aliasing
+			// or made stricter to prevent it. Currently just log occasions where
+			// workarounds are used to avoid current checks
+
+			// Check if we're trying to overwrite an aliased command
+			if (translator != null
+					&& (translator.getAliasedCommands().contains(key)
+							|| translator.getAliasedVarargCommands().contains(key))) {
+				logger.debug("Overwriting aliased command '{}' with '{}'", key, value);
+			}
+
+			// Try and get existing object from namespace
+			PyObject obj = get(new PyString(key), Py.None);
+			// Check if it's a scannable
+			if (!Py.None.equals(obj) && obj.__tojava__(Scannable.class) != Py.NoConversion) {
+				logger.debug("Overwriting scannable '{}' with '{}'", key, value);
+			}
+			super.__setitem__(key, value);
+		}
+
+		@Override
+		public void __delitem__(String key) {
+			// If deleting an aliased command, remove the alias
+			if (translator != null) {
+				translator.getAliasedCommands().remove(key);
+				translator.getAliasedVarargCommands().remove(key);
+			}
+			super.__delitem__(key);
+		}
+	}
 }
