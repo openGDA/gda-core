@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: GDA Event Bus
 Bundle-SymbolicName: uk.ac.gda.eventbus
-Bundle-Version: 8.62.0.qualifier
+Bundle-Version: 8.64.0.qualifier
 Bundle-Vendor: Diamond Light Source
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: com.google.guava;bundle-version="[16.0.0,17.0.0)",

@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: uk.ac.gda.api plugin
 Bundle-SymbolicName: uk.ac.gda.api;singleton:=true
-Bundle-Version: 8.62.0.qualifier
+Bundle-Version: 8.64.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: gda.analysis.numerical.optimization.optimizers,
  gda.analysis.plotmanager.corba,

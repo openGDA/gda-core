@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: CommandInfo
 Bundle-SymbolicName: uk.ac.gda.client.commandinfo;singleton:=true
-Bundle-Version: 8.62.0.qualifier
+Bundle-Version: 8.64.0.qualifier
 Bundle-Activator: uk.ac.gda.client.commandinfo.Activator
 Bundle-Vendor: Diamond Light Source
 Require-Bundle: org.eclipse.ui,
