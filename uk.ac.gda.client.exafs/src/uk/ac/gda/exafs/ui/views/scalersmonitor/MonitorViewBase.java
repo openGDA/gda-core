@@ -18,8 +18,15 @@
 
 package uk.ac.gda.exafs.ui.views.scalersmonitor;
 
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
+import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
+import org.eclipse.dawnsci.plotting.api.PlotType;
 import org.eclipse.dawnsci.plotting.api.PlottingFactory;
+import org.eclipse.dawnsci.plotting.api.axis.IAxis;
+import org.eclipse.dawnsci.plotting.api.trace.ILineTrace;
+import org.eclipse.dawnsci.plotting.api.trace.ILineTrace.TraceType;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.dialogs.IInputValidator;
@@ -28,8 +35,12 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.ui.IPartListener2;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.IWorkbenchPartReference;
@@ -69,6 +80,15 @@ public abstract class MonitorViewBase extends ViewPart implements IPartListener2
 
 	protected IPlottingSystem<Composite> myPlotter;
 
+	/** Class to set the I0, It, Iref... values in textboxes at top of view */
+	protected ScalersMonitorConfig displayData;
+
+	protected IAxis dtAxis;
+
+	protected IAxis primaryAxis;
+
+	protected Double maxFluoRate;
+
 	protected boolean amVisible = true;
 
 	private Action btnRunPause;
@@ -82,7 +102,6 @@ public abstract class MonitorViewBase extends ViewPart implements IPartListener2
 	protected DetectorMonitorDataProviderInterface dataProvider;
 
 	protected double collectionTime;
-
 
 	@Override
 	public void init(IViewSite site) throws PartInitException {
@@ -112,34 +131,11 @@ public abstract class MonitorViewBase extends ViewPart implements IPartListener2
 		}
 	}
 
-	/**
-	 * Collect the data from the fluorescence detector
-	 *
-	 * @return Double[]
-	 * @throws DeviceException
-	 */
-	protected abstract Double[] getFluoDetectorCountRatesAndDeadTimes() throws DeviceException;
-
-	/**
-	 * Runs in the UI thread, so updates to UI objects should only be made here.
-	 *
-	 * @param values
-	 *            - values from the ion chambers
-	 * @param xspressStats
-	 *            - values from the fluo detector
-	 */
-	protected abstract void updateDisplay(Double[] values, Double[] xspressStats);
-
-	/**
-	 * Collect the data from the ion chambers
-	 *
-	 * @return Double[]
-	 * @throws DeviceException
-	 */
-	protected abstract Double[] getIonChamberValues() throws Exception;
-
 	@Override
 	public void createPartControl(Composite parent) {
+
+		setupGui(parent);
+
 		getSite().getPage().addPartListener(this);
 		createToolbar();
 		collectionTime = Double.valueOf(LocalProperties.get("gda.exafs.ui.views.scalersMonitor.collectionTime", "1.0"));
@@ -163,6 +159,40 @@ public abstract class MonitorViewBase extends ViewPart implements IPartListener2
 		}
 	}
 
+	/**
+	 * Setup gui with textboxes for the rates and plot to display channel values.
+	 * Common code refactored from {@link XspressMonitorView#createPartControl(Composite)} and
+	 * {@link XmapMonitorView#createPartControl(Composite)}
+	 * @since 6/6/2017
+	 * @param parent
+	 */
+	protected void setupGui(Composite parent) {
+		Group grpCurrentCountRates = new Group(parent, SWT.BORDER);
+		grpCurrentCountRates.setText("Current count rates");
+		grpCurrentCountRates.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		grpCurrentCountRates.setLayout(new GridLayout());
+
+		setupDisplayData(grpCurrentCountRates);
+
+		myPlotter.createPlotPart(grpCurrentCountRates, "Rates", null, PlotType.XY, null);
+		myPlotter.getPlotComposite().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+
+		primaryAxis = myPlotter.getSelectedYAxis();
+		primaryAxis.setTitle("Counts (Hz)");
+		dtAxis = myPlotter.createAxis("Deadtime (%)", true, SWT.RIGHT);
+		maxFluoRate = Double.valueOf(LocalProperties.get("gda.exafs.ui.views.scalersMonitor.maxFluoRate", "500000"));
+	}
+
+	/**
+	 * Setup gui that displays the rate values (in textboxes)
+	 * May be overridden by child classes to customise the name and number columns etc.
+	 * @param parent
+	 */
+	protected void setupDisplayData(Composite parent) {
+		displayData = new ScalersMonitorConfig(parent);
+		displayData.createControls();
+	}
+
 	private void createToolbar() {
 		IToolBarManager manager = getViewSite().getActionBars().getToolBarManager();
 		pauseImage = GDAClientActivator.getImageDescriptor("icons/control_stop_blue.png");
@@ -182,7 +212,6 @@ public abstract class MonitorViewBase extends ViewPart implements IPartListener2
 					// create new collection thread and start it
 					Thread collectionThread = new Thread(createCollectionRunnable());
 					collectionThread.start();
-					btnRunPause.setImageDescriptor(pauseImage);
 				}
 			}
 		};
@@ -261,10 +290,18 @@ public abstract class MonitorViewBase extends ViewPart implements IPartListener2
   	* Check to see it collection is allowed to take place by {@link #dataProvider}. If collection
   	* is currently not allowed, a dialog box will be displayed to allow user to override the setting
   	* and allow collection to proceed. <p>
+  	* If another detector rates view is running, user is notified and collection will not begin.
   	* This is function is called every time the 'start' button is pressed.
  	* @return true if collection is allowed to start, false otherwise
  	*/
 	private boolean checkRunCollectionAllowed() {
+		if (dataProvider.getCollectionIsRunning()){
+			MessageDialog.openInformation(Display.getDefault().getActiveShell(),
+					"Detector rate collection",
+					"Another detector rates view is already running. You will need to stop that one before this one can be started.");
+			return false;
+		}
+
 		if (!dataProvider.getCollectionAllowed()) {
 			boolean allow = MessageDialog.openQuestion(Display.getDefault().getActiveShell(),
 					"Detector rate collection",
@@ -285,7 +322,9 @@ public abstract class MonitorViewBase extends ViewPart implements IPartListener2
 			@Override
 			public void run() {
 				logger.debug("Collection thread started");
+				btnRunPause.setImageDescriptor(pauseImage);
 				runCollection();
+				setRunButtonImage(runImage);
 				logger.debug("Collection thread finished");
 			}
 		};
@@ -305,24 +344,31 @@ public abstract class MonitorViewBase extends ViewPart implements IPartListener2
 
 		final long guiRefreshIntervalMs = (long) collectionTime*1000;
 
-		// set the collection time
-		dataProvider.setCollectionTime(collectionTime);
+		if (dataProvider.getCollectionIsRunning()) {
+			logger.debug("Collection already running in another thread");
+			return;
+		}
+
+		dataProvider.setCollectionIsRunning(true);
 
 		while(runMonitoring && dataProvider.getCollectionAllowed()) {
-			final Double[] values;
-			final Double[] xspressStats;
+			// set the collection time
+			dataProvider.setCollectionTime(collectionTime);
+
+			final Double[] ionChamberValues;
+			final Double[] fluoStats;
 			long timeAtCollectionStart;
 			try {
 				timeAtCollectionStart = System.currentTimeMillis();
 				logger.trace("reading from ionchambers");
-				values = getIonChamberValues();
+				ionChamberValues = getIonChamberValues();
 				logger.trace("reading from fluo detector");
-				xspressStats = getFluoDetectorCountRatesAndDeadTimes();
+				fluoStats = getFluoDetectorCountRatesAndDeadTimes();
 			} catch(final Exception e1) {
 				logger.debug("getFluoDetectorCountRatesAndDeadTimes exception" + e1.getMessage() + " stopping collection of detector rates.");
 				runMonitoring = false;
 				final String errorMessage = " view will have to stop collecting.\nError occurred while getting detector values: "+e1.getMessage();
-
+				logger.error("Problem collecting detctor rates", e1);
 				PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 					@Override
 					public void run() {
@@ -331,12 +377,11 @@ public abstract class MonitorViewBase extends ViewPart implements IPartListener2
 								"Detector Rates Error",	getPartName() + errorMessage);
 					}
 				});
-				runMonitoring = false;
 				continue;
 			}
 
 			// If data returned is null, collection is probably not allowed (e.g. switched off by script)
-			if (!dataProvider.getCollectionAllowed() || values==null || xspressStats==null) {
+			if (!dataProvider.getCollectionAllowed() || ionChamberValues==null || fluoStats==null) {
 				runMonitoring=false;
 				continue;
 			}
@@ -345,7 +390,7 @@ public abstract class MonitorViewBase extends ViewPart implements IPartListener2
 			PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 				@Override
 				public void run() {
-					updateDisplay(values, xspressStats);
+					updateDisplayedData(fluoStats, ionChamberValues);
 				}
 			});
 
@@ -366,8 +411,137 @@ public abstract class MonitorViewBase extends ViewPart implements IPartListener2
 				}
 			}
 		}
-		// reset image back to 'start' arrow
-		setRunButtonImage(runImage);
+		dataProvider.setCollectionIsRunning(false);
+	}
+
+	/**
+	 * Collect the data from the fluorescence detector
+	 *
+	 * @return Double[]
+	 * @throws DeviceException
+	 */
+	protected abstract Double[] getFluoDetectorCountRatesAndDeadTimes() throws DeviceException;
+
+	/**
+	 * Collect the data from the ion chambers
+	 *
+	 * @return Double[]
+	 * @throws DeviceException
+	 */
+	protected abstract Double[] getIonChamberValues() throws Exception;
+
+	/**
+	 * Runs in the UI thread, so updates to UI objects should only be made here.
+	 *
+	 * @param statsValues
+	 *            - stats values from the fluo detector
+	 * @param ionchamberValues
+	 *            - values from the ion chambers
+	 */
+	protected void updateDisplayedData(Double[] statsValues, Double[] ionchamberValues) {
+		displayData.setI0(ionchamberValues[0]);
+		displayData.setIt(ionchamberValues[1]);
+		displayData.setIref(ionchamberValues[2]);
+		double ItI0 = Math.log(ionchamberValues[0] / ionchamberValues[1]);
+		displayData.setItI0(ItI0);
+		double IrefIt = Math.log(ionchamberValues[2] / ionchamberValues[1]);
+		displayData.setIrefIt(IrefIt);
+
+		updateDisplayDataFFValues(statsValues, ionchamberValues);
+
+		double[] rates = getRatesFromStats(statsValues);
+		double[] dts = getDeadtimePercentFromStats(statsValues);
+		updatePlot(rates, dts);
+	}
+
+	/**
+	 * Extract rate information from stats array produced by fluo detector
+	 * (Refactored from {@link XspressMonitorView}, {@link XmapMonitorView}.
+	 * @since 6/6/2017
+	 * @param stats
+	 * @return rate
+	 */
+	protected double[] getRatesFromStats(Double[] stats) {
+		double[] rates = new double[numElements];
+		for (int element = 0; element < numElements; element++) {
+			rates[element] = stats[element * 3]; // Hz
+		}
+		return rates;
+	}
+
+	/**
+	 * Extract deadtime information from stats array produced by fluo detector
+	 * (Refactored from {@link XspressMonitorView}, {@link XmapMonitorView}.
+	 * @since 6/6/2017
+	 * @param stats
+	 * @return rate
+	 */
+	protected double[] getDeadtimePercentFromStats(Double[] stats) {
+		double[] dts = new double[numElements];
+		for (int element = 0; element < numElements; element++) {
+			dts[element] = (stats[element * 3 + 1] - 1) * 100; // %
+		}
+		return dts;
+	}
+
+	/**
+	 * Update the FF and FFI0 values in {@link #displayData}.
+	 * @param statsValues
+	 * @param deadtimeValues
+	 */
+	protected abstract void updateDisplayDataFFValues(Double[] statsValues, Double[] deadtimeValues);
+
+	/**
+	 * Update plot part of gui to show supplied rate and deadtime values.
+	 * Common code refactored from
+	 * {@link XspressMonitorView#createPartControl(Composite)} and
+	 * {@link XmapMonitorView#createPartControl(Composite)}
+	 * @since 6/6/2017
+	 * @param rates
+	 * @param dts
+	 */
+	protected void updatePlot(double[] rates, double[] dts) {
+		if (myPlotter==null) {
+			return;
+		}
+
+		Dataset dsRates = new DoubleDataset(rates);
+		dsRates.setName("Rates (Hz)");
+
+		Dataset dsDeadTime = new DoubleDataset(dts);
+		dsDeadTime.setName("Deadtime (%)");
+
+		Dataset x = DatasetFactory.createRange(numElements, Dataset.FLOAT32);
+		x.setName("Element");
+
+		myPlotter.clear();
+
+		// rates plot
+		myPlotter.setSelectedYAxis(primaryAxis);
+		ILineTrace ratesTrace = myPlotter.createLineTrace("Rates (Hz)");
+		ratesTrace.setTraceType(TraceType.HISTO);
+		ratesTrace.setLineWidth(5);
+		ratesTrace.setTraceColor(new Color(null, 0, 0, 128));
+		ratesTrace.setData(x, dsRates);
+		myPlotter.addTrace(ratesTrace);
+		myPlotter.getSelectedXAxis().setRange(0, numElements);
+		myPlotter.getSelectedXAxis().setTitle("Element");
+		int minRangeValue = numElements==1 ? -1 : 0;
+		myPlotter.getSelectedYAxis().setRange(minRangeValue, maxFluoRate);
+
+		// deadtime plot
+		myPlotter.setSelectedYAxis(dtAxis);
+		ILineTrace deadTimeTrace = myPlotter.createLineTrace("Red (%)");
+		deadTimeTrace.setLineWidth(1);
+		deadTimeTrace.setTraceColor(new Color(null, 255, 0, 0));
+		deadTimeTrace.setData(x, dsDeadTime);
+		myPlotter.addTrace(deadTimeTrace);
+		myPlotter.getSelectedYAxis().setShowMajorGrid(false);
+		myPlotter.getSelectedYAxis().setRange(0, 100);
+
+		myPlotter.setSelectedYAxis(primaryAxis);
+		myPlotter.setShowLegend(false);
+		myPlotter.repaint(false);
 	}
 
 	public void setRunMonitoring(boolean runMonitoring) {
@@ -382,6 +556,7 @@ public abstract class MonitorViewBase extends ViewPart implements IPartListener2
 	public void dispose() {
 		amVisible = false;
 		myPlotter.dispose();
+		setRunMonitoring(false); //to make sure collection thread stops
 		super.dispose();
 		logger.debug("dispose");
 	}
@@ -421,6 +596,7 @@ public abstract class MonitorViewBase extends ViewPart implements IPartListener2
 	public void partHidden(IWorkbenchPartReference partRef) {
 		if (partRef.getPartName().equals(this.getPartName())) {
 			amVisible = false;
+			setRunMonitoring(false); //to make sure collection thread stops
 			logger.debug("partHidden");
 		}
 	}

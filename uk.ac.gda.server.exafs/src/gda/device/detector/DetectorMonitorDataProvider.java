@@ -45,7 +45,7 @@ public class DetectorMonitorDataProvider extends ScannableBase implements Detect
 
 	protected static final Logger logger = LoggerFactory.getLogger(DetectorMonitorDataProvider.class);
 
-	public enum COLLECTION_TYPES {XSPRESS2, XMAP};
+	public enum COLLECTION_TYPES {XSPRESS2, XMAP, XMAP_I1};
 
 	private volatile boolean collectionInProgress = false;
 
@@ -95,7 +95,7 @@ public class DetectorMonitorDataProvider extends ScannableBase implements Detect
 		if (collectionType == COLLECTION_TYPES.XSPRESS2 && xspress2Detector==null) {
 			missingDetectors += "xspress2Detector ";
 		}
-		if (collectionType == COLLECTION_TYPES.XMAP && xmapDetector==null) {
+		if ((collectionType == COLLECTION_TYPES.XMAP || collectionType == COLLECTION_TYPES.XMAP_I1) && xmapDetector==null) {
 			missingDetectors += "xmapDetector";
 		}
 		return missingDetectors;
@@ -134,6 +134,7 @@ public class DetectorMonitorDataProvider extends ScannableBase implements Detect
 			switch(type) {
 				case XSPRESS2 : return getIonChambersForXspress2();
 				case XMAP 	  : return getIonChambersForXmap();
+				case XMAP_I1  : return getIonChambersForXmapI1();
 				default 	  : return null;
 			}
 		} finally {
@@ -161,7 +162,8 @@ public class DetectorMonitorDataProvider extends ScannableBase implements Detect
 		try {
 			switch(type) {
 				case XSPRESS2 : return getXSpress2Data();
-				case XMAP 	  : return getXmapData();
+				case XMAP 	  :
+				case XMAP_I1  : return getXmapData();
 				default 	  : return null;
 			}
 		} finally {
@@ -181,7 +183,8 @@ public class DetectorMonitorDataProvider extends ScannableBase implements Detect
 		checkDetectors(type);
 		switch(type) {
 			case XSPRESS2 : return xspress2Detector.getNumberOfDetectors();
-			case XMAP 	  : return xmapDetector.getNumberOfMca();
+			case XMAP :
+			case XMAP_I1 : return xmapDetector.getNumberOfMca();
 			default 	  : return 0;
 		}
 	}
@@ -245,6 +248,15 @@ public class DetectorMonitorDataProvider extends ScannableBase implements Detect
 		logger.debug("Collect values from {}", xspress2Detector.getName());
 		Double[] rates = (Double[]) xspress2Detector.getAttribute("liveStats");
 		return rates;
+	}
+
+	protected Double[] getIonChambersForXmapI1() throws Exception {
+		// Collect data in same way as regular xmap
+		getIonChambersForXmap();
+
+		// read 4th channel of ionchamber - this has counts for I1
+		double[] ion_results = ionchambers.readFrame(4, 1, 0);
+		return new Double[] {ion_results[0] / collectionTime};
 	}
 
 	protected Double[] getIonChambersForXmap() throws Exception {
@@ -393,5 +405,21 @@ public class DetectorMonitorDataProvider extends ScannableBase implements Detect
 			logger.error("Thread interrupted in waitWhileBusy", e);
 		}
 		logger.debug("waitWhileBusy finished");
+	}
+
+	/** Whether collection of detector rates is taking place and {@link #getIonChamberValues(COLLECTION_TYPES)} and
+	 * {@link #getFluoDetectorCountRatesAndDeadTimes(COLLECTION_TYPES)}
+	 * are being called periodically by gui thread.
+	 * (i.e runCollection() method of MonitorViewBase is being run by a view) */
+	private boolean collectionIsRunning;
+
+	@Override
+	public boolean getCollectionIsRunning() {
+		return collectionIsRunning;
+	}
+
+	@Override
+	public void setCollectionIsRunning(boolean collectionIsRunning) {
+		this.collectionIsRunning = collectionIsRunning;
 	}
 }
