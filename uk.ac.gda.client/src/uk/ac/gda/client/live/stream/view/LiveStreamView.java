@@ -455,34 +455,6 @@ public class LiveStreamView extends ViewPart {
 	}
 
 	/**
-	 * Enum containing all the known stream types
-	 */
-	private enum StreamType {
-		MJPEG("MJPEG"),
-		EPICS_ARRAY("EPICS Array");
-
-		private final String displayName;
-
-		StreamType(String displayName) {
-			this.displayName = displayName;
-		}
-
-		/**
-		 * Note: If this is changed, views referenced in user workspaces will no longer be valid.
-		 *
-		 * @return suffix used to denote which stream is associated with a view.
-		 */
-		public String secondaryIdSuffix() {
-			return "#" + name();
-		}
-
-		@Override
-		public String toString() {
-			return displayName;
-		}
-	}
-
-	/**
 	 * This should be called when starting a new stream. It also takes care of disconnecting old streams (if any)
 	 *
 	 * @param streamType The type of stream to use

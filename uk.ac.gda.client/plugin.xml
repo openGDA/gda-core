@@ -900,6 +900,11 @@
        </command>
     </toolbar>
  </menuContribution>
+ <menuContribution
+       allPopups="false"
+       class="uk.ac.gda.client.live.stream.view.LiveStreamMenuContribution"
+       locationURI="menu:window?after=showView">
+ </menuContribution>
  
  
  
