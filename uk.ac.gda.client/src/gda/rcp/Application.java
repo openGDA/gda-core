@@ -112,8 +112,9 @@ public class Application implements IApplication {
 			try {
 				BeansFactoryInit.initBeansFactory();
 			} catch (Exception e) {
-				logger.error("Failed to initalize Beans Factory", e);
-				throw new RuntimeException("Failed to initalize Beans Factory", e);
+				final String message = "Failed to initialize Beans Factory";
+				logger.error(message, e);
+				throw new RuntimeException(message, e);
 			}
 
 			IPreferenceStore preferenceStore = GDAClientActivator.getDefault().getPreferenceStore();
