@@ -18,6 +18,9 @@ def runMapping():
                            'gda-dls-beamlines-i13x.git',
                            'gda-dls-beamlines-i21.git',
  
+                           'gda-diamond.git/configurations/i15-1-config',
+                           'gda-diamond.git/configurations/i15-config',
+
                            'gda-dls-beamlines-xas.git/b18',
                            'gda-dls-beamlines-xas.git/i08',
                            'gda-dls-beamlines-xas.git/i14',
@@ -31,8 +34,6 @@ def runMapping():
                            'gda-mt.git/configurations/i07-config',
                            'gda-mt.git/configurations/i10-config',
                            'gda-mt.git/configurations/i10-shared',
-                           'gda-mt.git/configurations/i15-1-config',
-                           'gda-mt.git/configurations/i15-config',
                            'gda-mt.git/configurations/i16-config',
                            'gda-mt.git/configurations/mt-config',
  
