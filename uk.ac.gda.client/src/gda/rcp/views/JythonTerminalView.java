@@ -342,8 +342,9 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 				// change prompt and next input will go through a different
 				// method call
 				PlatformUI.getWorkbench().getDisplay().asyncExec(() -> {
+					txtInput.setEnabled(true);
 					txtPrompt.setText(RAW_INPUT_PROMPT);
-					txtInput.setBackground(SWTResourceManager.getColor(SWT.COLOR_GRAY));
+					txtInput.setFocus();
 					// clear the command-line
 					txtInput.setText("");
 				});
@@ -351,7 +352,6 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 				PlatformUI.getWorkbench().getDisplay().asyncExec(() -> {
 					// change prompt back to usual
 					txtPrompt.setText(NORMAL_PROMPT);
-					txtInput.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 				});
 			}
 		}
@@ -396,93 +396,98 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 		});
 
 		appendOutput(String.format("%s %s\n", txtPromptText, txtInputText));
-		// if this is the start of a new command
-		if (txtPromptText.compareTo(NORMAL_PROMPT) == 0) {
-			String typedCmd = txtInputText;
-			// add the command to cmdHistory
-			if (cmdHistory.isEmpty()) {
-				addCommandToHistory(typedCmd);
-			} else if ((typedCmd.compareTo("") != 0)
-					&& (typedCmd.compareTo(cmdHistory.get(cmdHistory.size() - 1)) != 0)) {
-				addCommandToHistory(typedCmd);
-			}
-			if (cmdHistoryIndex != cmdHistory.size() - 2) {
-				runFromHistory = true;
-			}
-			// run the command
-			boolean needMore = jsf.runsource(typedCmd, getName());
-			// if not a complete Jython command
-			if (needMore) {
-				// save the command so far
-				currentCmd = typedCmd;
-				PlatformUI.getWorkbench().getDisplay().asyncExec(() -> {
-					// change the prompt
-					txtPrompt.setText(ADDITONAL_INPUT_PROMPT);
-					// clear the command-line
-					txtInput.setText("");
-				});
-			} else {
-				currentCmd = "";
-				// reset the cmdHistory pointer if we just added a new line
-				cmdHistoryIndex = cmdHistory.size();
-				runFromHistory = false;
-
-				PlatformUI.getWorkbench().getDisplay().asyncExec(() -> {
-					// clear the command-line if it has not been changed
-					if (typedCmd.equals(txtInput.getText())) {
-						txtInput.setText("");
-					}
-				});
-			}
-		}
-		// if we are part way through a multi-line command
-		else if (txtPromptText.compareTo(ADDITONAL_INPUT_PROMPT) == 0) {
-			// add to history if something was entered
-			if (txtInputText.compareTo("") != 0) {
+		try {
+			// if this is the start of a new command
+			if (txtPromptText.compareTo(NORMAL_PROMPT) == 0) {
+				String typedCmd = txtInputText;
+				// add the command to cmdHistory
 				if (cmdHistory.isEmpty()) {
-					addCommandToHistory(txtInputText);
-				} else if ((txtInputText.compareTo("") != 0)
-						&& (txtInputText.compareTo(cmdHistory.get(cmdHistory.size() - 1)) != 0)) {
-					addCommandToHistory(txtInputText);
+					addCommandToHistory(typedCmd);
+				} else if ((typedCmd.compareTo("") != 0)
+						&& (typedCmd.compareTo(cmdHistory.get(cmdHistory.size() - 1)) != 0)) {
+					addCommandToHistory(typedCmd);
 				}
 				if (cmdHistoryIndex != cmdHistory.size() - 2) {
 					runFromHistory = true;
 				}
+				// run the command
+				boolean needMore = jsf.runsource(typedCmd, getName());
+				// if not a complete Jython command
+				if (needMore) {
+					// save the command so far
+					currentCmd = typedCmd;
+					PlatformUI.getWorkbench().getDisplay().asyncExec(() -> {
+						// change the prompt
+						txtPrompt.setText(ADDITONAL_INPUT_PROMPT);
+						// clear the command-line
+						txtInput.setText("");
+					});
+				} else {
+					currentCmd = "";
+					// reset the cmdHistory pointer if we just added a new line
+					cmdHistoryIndex = cmdHistory.size();
+					runFromHistory = false;
+
+					PlatformUI.getWorkbench().getDisplay().asyncExec(() -> {
+						// clear the command-line if it has not been changed
+						if (typedCmd.equals(txtInput.getText())) {
+							txtInput.setText("");
+						}
+						txtPrompt.setText(NORMAL_PROMPT);
+					});
+				}
 			}
-			// append to whole command
-			currentCmd += "\n" + txtInputText;
-			PlatformUI.getWorkbench().getDisplay().asyncExec(() -> txtInput.setEnabled(false));
-			// run the command
-			boolean needMore = jsf.runsource("\n" + currentCmd, getName());
+			// if we are part way through a multi-line command
+			else if (txtPromptText.compareTo(ADDITONAL_INPUT_PROMPT) == 0) {
+				// add to history if something was entered
+				if (txtInputText.compareTo("") != 0) {
+					if (cmdHistory.isEmpty() || ((txtInputText.compareTo("") != 0)
+							&& (txtInputText.compareTo(cmdHistory.get(cmdHistory.size() - 1)) != 0))) {
+						addCommandToHistory(txtInputText);
+					}
+					if (cmdHistoryIndex != cmdHistory.size() - 2) {
+						runFromHistory = true;
+					}
+				}
+				// append to whole command
+				currentCmd += "\n" + txtInputText;
+				PlatformUI.getWorkbench().getDisplay().asyncExec(() -> txtInput.setEnabled(false));
+				// run the command
+				boolean needMore = jsf.runsource("\n" + currentCmd, getName());
+
+				// if not a complete Jython command
+				if (needMore) {
+					PlatformUI.getWorkbench().getDisplay().asyncExec(() -> {// change the prompt
+						txtPrompt.setText(ADDITONAL_INPUT_PROMPT);
+						// clear the command-line
+						txtInput.setText("");
+					});
+				} else {
+					currentCmd = "";
+					PlatformUI.getWorkbench().getDisplay().asyncExec(() -> {// change the prompt
+						txtPrompt.setText(NORMAL_PROMPT);
+						// clear the command-line
+						txtInput.setText("");
+					});
+					// reset the cmdHistory pointer
+					cmdHistoryIndex = cmdHistory.size();
+					runFromHistory = false;
+				}
+			}
+			// else a script has asked for input
+			else if (txtPromptText.compareTo(RAW_INPUT_PROMPT) == 0) {
+				// get the next input from the user
+				jsf.setRawInput(txtInputText);
+				PlatformUI.getWorkbench().getDisplay().asyncExec(() -> txtInput.setText(""));
+			}
+		} catch (Exception e) {
+			logger.debug("caught ", e);
+			throw e;
+		} finally {
 			PlatformUI.getWorkbench().getDisplay().asyncExec(() -> {
 				txtInput.setEnabled(true);
-				txtInput.forceFocus();
+				txtInput.setFocus();
 			});
-
-			// if not a complete Jython command
-			if (needMore) {
-				PlatformUI.getWorkbench().getDisplay().asyncExec(() -> {// change the prompt
-					txtPrompt.setText(ADDITONAL_INPUT_PROMPT);
-					// clear the command-line
-					txtInput.setText("");
-				});
-			} else {
-				currentCmd = "";
-				PlatformUI.getWorkbench().getDisplay().asyncExec(() -> {// change the prompt
-					txtPrompt.setText(NORMAL_PROMPT);
-					// clear the command-line
-					txtInput.setText("");
-				});
-				// reset the cmdHistory pointer
-				cmdHistoryIndex = cmdHistory.size();
-				runFromHistory = false;
-			}
-		}
-		// else a script has asked for input
-		else if (txtPromptText.compareTo(RAW_INPUT_PROMPT) == 0) {
-			// get the next input from the user
-			jsf.setRawInput(txtInputText);
-			PlatformUI.getWorkbench().getDisplay().asyncExec(() -> txtInput.setText(""));
 		}
 	}
 

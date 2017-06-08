@@ -70,6 +70,7 @@ import gda.jython.commandinfo.CommandThreadEventType;
 import gda.jython.commandinfo.CommandThreadInfo;
 import gda.jython.commandinfo.CommandThreadType;
 import gda.jython.commandinfo.ICommandThreadInfo;
+import gda.jython.commands.InputCommands;
 import gda.jython.completion.AutoCompletion;
 import gda.jython.completion.TextCompleter;
 import gda.jython.completion.impl.JythonCompleter;
@@ -643,18 +644,14 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	/**
 	 * when users ask for command_line input during a script, this gives the Jython the response
 	 *
-	 * @param prompt
-	 *            - string to print out asking for the information
 	 * @return - the output from the user
 	 * @throws InterruptedException
 	 */
-	public String requestRawInput(String prompt) throws InterruptedException {
+	public String requestRawInput() throws InterruptedException {
 		expectingInputForRawInput = true;
 
 		// tell all terminals that they should alter their input prompt
 		updateIObservers(RAW_INPUT_REQUESTED);
-
-		this.interp.exec(("print '" + prompt + "'"));
 
 		// call raw_input which waits for an input from the user
 		while (expectingInputForRawInput) {
@@ -1384,7 +1381,8 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 		 * @param command The command to run
 		 * @param authorisationLevel The authorisation of the user who requested this command be run.
 		 *         Prevents moves of devices which protection levels higher than the level given.
-		 * @param stdin InputStream to take input from. Can be null - command will run without input stream
+		 * @param stdin InputStream to take input from. Can be null - will use {@link InputCommands#requestInput(String)}
+		 *         for input (input/raw_input) if so.
 		 */
 		public RunSourceRunner(GDAJythonInterpreter interpreter, String command, int authorisationLevel, InputStream stdin) {
 			this.interpreter = interpreter;

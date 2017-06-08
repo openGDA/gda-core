@@ -59,6 +59,7 @@ import gda.configuration.properties.LocalProperties;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
 import gda.factory.Finder;
+import gda.jython.commands.InputCommands;
 import gda.jython.translator.Translator;
 import uk.ac.gda.common.rcp.util.EclipseUtils;
 
@@ -436,6 +437,7 @@ public class GDAJythonInterpreter {
 				final Writer terminalWriter = jythonServer.getTerminalWriter();
 				interactiveConsole.setOut(terminalWriter);
 				interactiveConsole.setErr(terminalWriter);
+				interactiveConsole.setIn(new GDAStdin());
 
 				// give Jython the reference to this wrapper object
 				interactiveConsole.set("GDAJythonInterpreter", this);
@@ -830,10 +832,27 @@ public class GDAJythonInterpreter {
 
 		InteractiveConsole py = new GDAInteractiveConsole(pss);
 		pss.setdefaultencoding(UTF_8); //needs to be set after creating console - see #configure method
-		py.setIn(stdin);
+		if (stdin == null) {
+			pss.stdin = old.stdin;
+		} else {
+			py.setIn(stdin);
+		}
 		py.setOut(old.stdout);
 		py.setErr(old.stderr);
 		py.setLocals(interactiveConsole.getLocals());
 		return py;
+	}
+
+	public static class GDAStdin extends PyObject {
+		public PyObject readline() {
+			try {
+				String raw = InputCommands.requestInput();
+				return new PyString(raw);
+			} catch (InterruptedException e) {
+				logger.error("JythonTerminalView raw_input interrupted", e);
+				Thread.currentThread().interrupt();
+				throw new PyException(Py.KeyboardInterrupt);
+			}
+		}
 	}
 }

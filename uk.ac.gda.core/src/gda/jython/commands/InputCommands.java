@@ -20,11 +20,17 @@ package gda.jython.commands;
 
 import gda.factory.Finder;
 import gda.jython.JythonServer;
+import gda.jython.JythonServerFacade;
 
 /**
  * InputCommands
  */
 public class InputCommands {
+
+	private static JythonServer server;
+
+	private InputCommands() {}
+
 	/**
 	 * For use within scripts to request input from the Jython terminal
 	 *
@@ -32,9 +38,20 @@ public class InputCommands {
 	 * @return Object
 	 * @throws InterruptedException
 	 */
-	public static Object requestInput(String promptString) throws InterruptedException {
-		JythonServer server = (JythonServer) Finder.getInstance().find(JythonServer.SERVERNAME);
+	public static String requestInput(String promptString) throws InterruptedException {
+		JythonServerFacade.getInstance().print(promptString);
+		return getServer().requestRawInput();
+	}
 
-		return server.requestRawInput(promptString);
+	public static String requestInput() throws InterruptedException {
+		return getServer().requestRawInput();
+	}
+
+
+	private static JythonServer getServer() {
+		if (server == null) {
+			server = Finder.getInstance().find(JythonServer.SERVERNAME);
+		}
+		return server;
 	}
 }
