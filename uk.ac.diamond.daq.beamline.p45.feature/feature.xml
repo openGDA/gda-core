@@ -2,7 +2,7 @@
 <feature
       id="uk.ac.diamond.daq.beamline.p45.feature"
       label="GDA - Test Rig Beamline P45"
-      version="9.4.0.qualifier">
+      version="9.5.0.qualifier">
 
    <description url="http://www.example.com/description">
       [Enter Feature Description here.]
