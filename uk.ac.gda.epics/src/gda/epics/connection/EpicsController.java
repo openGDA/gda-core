@@ -18,6 +18,14 @@
 
 package gda.epics.connection;
 
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.epics.util.EpicsGlobals;
 import gda.epics.util.JCAUtils;
 import gov.aps.jca.CAException;
@@ -50,14 +58,6 @@ import gov.aps.jca.event.GetListener;
 import gov.aps.jca.event.MonitorListener;
 import gov.aps.jca.event.PutEvent;
 import gov.aps.jca.event.PutListener;
-
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The EPICSConnection class initialises JCA context, setting up network configuration for EPICS IOCs. It provides a
@@ -812,8 +812,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	private DBR getDBR(Channel ch, DBRType type, int count, double timeout) throws TimeoutException, CAException {
 		int elementCount = ch.getElementCount();
 		if (elementCount < count) {
-			logger.warn("Requested "+count+" elements from "+ch.getName()+" but channel elementCount is " + elementCount +
-					" ask Controls to increase EPICS_CA_MAX_ARRAY_BYTES.");
+			logger.warn("Requested {} elements from {} but channel elementCount is {} ask Controls to increase the records .NELM field.",count,ch.getName(),elementCount );
 		}
 		try {
 			GetListenerImpl listener = new GetListenerImpl();
