@@ -32,7 +32,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import gda.configuration.properties.LocalProperties;
-import gda.exafs.mucal.PressureCalculation;
 import uk.ac.gda.beans.exafs.IonChamberParameters;
 import uk.ac.gda.beans.exafs.IonChambersBean;
 import uk.ac.gda.exafs.ui.ionchambers.IonChamber;
@@ -70,20 +69,12 @@ public class IonChamberUITest extends ShellTest {
 
 	@Test
 	public void testPressureCalculation() throws Exception {
-		IonChambersBean bean = beanFromXML();
-		IonChamberParameters i0chamberParam = bean.getIonChambers().get(0);
-
-		i0chamberParam.setGasType("He");
-		i0chamberParam.setPercentAbsorption(65.5);
-		i0chamberParam.setWorkingEnergy(bean.getEnergy());
-
-		double pressure = PressureCalculation.getPressure(i0chamberParam).getPressure();
 
 		bot.comboBoxWithLabel("Gas Type").setSelection("He");
 		bot.textWithLabel("Absorption (%)").setText("65.5");
 
 		// Will fail the test with WidgetNotFoundException if the calculation does not work
-		bot.label(String.format("%.5g bar",pressure));
+		bot.label("110.00 bar");
 	}
 
 	@Test
