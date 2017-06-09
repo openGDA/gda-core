@@ -31,7 +31,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import gda.configuration.properties.LocalProperties;
 import uk.ac.gda.beans.exafs.IonChamberParameters;
 import uk.ac.gda.beans.exafs.IonChambersBean;
 import uk.ac.gda.exafs.ui.ionchambers.IonChamber;
@@ -45,6 +44,7 @@ public class IonChamberUITest extends ShellTest {
 	private final static String CONFIG_PATH = "src/uk/ac/gda/exafs/beans/TestFiles";
 
 
+	@SuppressWarnings("unused")
 	@Override
 	protected Shell createShell(Display display) throws Exception {
 
@@ -63,18 +63,7 @@ public class IonChamberUITest extends ShellTest {
 	@BeforeClass
 	public static void setUpProperties() {
 
-		LocalProperties.set(LocalProperties.GDA_CONFIG, CONFIG_PATH);
 		setupBeansFactory();
-	}
-
-	@Test
-	public void testPressureCalculation() throws Exception {
-
-		bot.comboBoxWithLabel("Gas Type").setSelection("He");
-		bot.textWithLabel("Absorption (%)").setText("65.5");
-
-		// Will fail the test with WidgetNotFoundException if the calculation does not work
-		bot.label("110.00 bar");
 	}
 
 	@Test
