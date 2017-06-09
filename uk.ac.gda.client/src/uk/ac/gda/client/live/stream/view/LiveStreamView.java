@@ -312,7 +312,9 @@ public class LiveStreamView extends ViewPart {
 				"org.dawb.common.ui.plot.tool",
 				"org.dawb.workbench.plotting.histo",
 				"org.dawnsci.plotting.system.preference.export",
-				"org.eclipse.nebula.visualization.xygraph.figures.ZoomType");
+				"org.eclipse.nebula.visualization.xygraph.figures.ZoomType",
+				"org.dawb.workbench.ui.editors.plotting.swtxy.addRegions",
+				"org.dawb.workbench.ui.editors.plotting.swtxy.removeRegions");
 
 		// Remove all ToolBar contributions with Ids which are either undefined or not required
 		Arrays.stream(toolBarManager.getItems())
