@@ -306,12 +306,17 @@ public class GDAJythonInterpreter {
 		}
 		classLoader.setSysPath(pss.path); // Inform the ClassLoader of the sys.path contents
 
+		// Log the sys.path in jython so where things will be loaded from
+		logger.debug("sys.path: {}", pss.path);
+
 		// Get instance of interactive console
 		interactiveConsole = new GDAInteractiveConsole(pss);
 
 		// force it to be the main module with proper name
 		PyModule mod = imp.addModule("__main__");
 		interactiveConsole.setLocals(mod.__dict__);
+
+		logger.info("Jython configured");
 	}
 
 	/**
