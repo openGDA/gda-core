@@ -20,7 +20,6 @@ package gda.rcp.ncd.views;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.scanning.api.ui.auto.IModelViewer;
-import org.eclipse.scanning.api.ui.auto.InterfaceInvalidException;
 import org.eclipse.scanning.device.ui.model.InterfaceService;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
@@ -347,7 +346,7 @@ public class NcdStatus extends ViewPart {
 			Composite createPartControl = modelView.createPartControl(parent);
 			modelView.setModel(model);
 			createPartControl.setLayoutData(gdf.create());
-		} catch (InterfaceInvalidException e) {
+		} catch (Exception e) {
 			logger.error("Could not create model editor for calibration", e);
 		}
 
