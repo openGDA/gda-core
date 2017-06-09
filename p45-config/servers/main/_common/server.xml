@@ -40,7 +40,10 @@
 
 	<import resource="det.xml"/>
 	<import resource="mic.xml"/>
-	<import resource="example_detectors.xml"/>
+	<import resource="constantVelocityDevice.xml"/>
+	<import resource="darkImageDetector.xml"/>
+	<import resource="dummyMalcolmDetector.xml"/>
+	<import resource="mandelbrotDetector.xml"/>
 	<import resource="command_queue_processor.xml"/>
 	<import resource="jython_server_facade.xml" />
 	<import resource="mapping_motors.xml"/>
