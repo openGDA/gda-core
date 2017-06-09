@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: GDA Persistence classes fragment for Derby
+Bundle-SymbolicName: org.apache.derby.fragment.daq.persistence
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: Diamond Light Source
+Fragment-Host: org.apache.derby;bundle-version="10.8.2"
+Require-Bundle: uk.ac.diamond.daq.persistence;bundle-version="1.0.0"
+
