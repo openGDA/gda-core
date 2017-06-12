@@ -383,8 +383,8 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 	private void configureProcessingModel(IDetectorModel detectorModel) {
 		final File processingFile;
 		if (createNewButton.getSelection()) {
-			final String templateFile = getSelectedTemplateFile().getPath();
-			processingFile = getNewProcessingFile(templateFile, detectorModel.getName());
+			final String templateFileName = getSelectedTemplateFile().getName();
+			processingFile = getNewProcessingFile(templateFileName, detectorModel.getName());
 		} else {
 			processingFile = new File(existingFileText.getText().trim());
 		}
