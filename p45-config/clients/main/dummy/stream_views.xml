@@ -6,19 +6,16 @@
 	<description>
 		To use the Simulated Area detector in dummy mode:
 			1) Launch the Utilities > GDA SWMR AreaDetector Simulation
-				on the local machine and start the IOC.
-			2) If you want to use an Area detector on another machine, or
-				you are also launching the GDA servers, export the
-				WORKSTATION environment variable with the short name for
-				the machine the Simulation IOC is running on.
+				on the local machine and start the IOC in localhost.
 	</description>
 
+	<bean id="localhostname" class="java.net.InetAddress" factory-method="getLocalHost"/>
+	
 	<bean id="mic_cam" class="uk.ac.gda.client.live.stream.view.CameraConfiguration">
 		<property name="displayName" value="Simulated Area Detector" />
-		<!-- Use the WORKSTATION environment variable if set, otherwise use HOSTNAME -->
-		<property name="url" value="http://${WORKSTATION:${HOSTNAME}}:8080/CAM.mjpg.mjpg" />
+		<property name="url" value="http://#{ localhostname.hostName.split('\.')[0] }:8080/CAM.mjpg.mjpg" />
 		<!-- If you want the EPICS array stream option add this. Commented out by default as WORKSTATION might not be set -->
-		<!-- <property name="arrayPv" value="${WORKSTATION}-AD-SIM-01:ARR" /> -->
+		<property name="arrayPv" value="#{ localhostname.hostName.split('\.')[0] }-AD-SIM-01:ARR" />
 	</bean>
 
 	<!-- "det" is a GDA detector Simulator in dummy mode, so there is no "det_cam" area detector and
