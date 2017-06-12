@@ -22,9 +22,12 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.List;
 
+import org.dawnsci.plotting.roi.ROIEditTable;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
+import org.eclipse.dawnsci.plotting.api.region.IROIListener;
+import org.eclipse.dawnsci.plotting.api.region.ROIEvent;
 import org.eclipse.e4.core.contexts.ContextInjectionFactory;
 import org.eclipse.e4.ui.di.UISynchronize;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -57,12 +60,13 @@ public class RegionAndPathSection extends AbstractMappingSection {
 
 		private final PropertyChangeListener regionBeanPropertyChangeListener;
 
-		private RegionSelectorListener() {
+		private RegionSelectorListener(ROIEditTable tab) {
 			this.regionBeanPropertyChangeListener = new PropertyChangeListener() {
 				@Override
 				public void propertyChange(PropertyChangeEvent evt) {
 					plotter.updatePlotRegionFrom(scanRegion);
 					updatePoints();
+					tab.setRegion(scanRegion.toROI(), null, null);
 				}
 			};
 		}
@@ -74,7 +78,6 @@ public class RegionAndPathSection extends AbstractMappingSection {
 			// Get the new selection.
 			IStructuredSelection selection = (IStructuredSelection) event.getSelection();
 			IMappingScanRegionShape selectedRegion = (IMappingScanRegionShape) selection.getFirstElement();
-
 			changeRegion(selectedRegion);
 		}
 
@@ -96,7 +99,7 @@ public class RegionAndPathSection extends AbstractMappingSection {
 			pathSelector.setInput(scanPathList);
 			if (scanPathList.contains(scanPathModel)) {
 				pathSelector.setSelection(new StructuredSelection(scanPathModel), true);
-			} else if (scanPathList.size() > 0) {
+			} else if (!scanPathList.isEmpty()) {
 				// Select the first path by default
 				pathSelector.setSelection(new StructuredSelection(scanPathList.get(0)), true);
 			} else {
@@ -121,14 +124,13 @@ public class RegionAndPathSection extends AbstractMappingSection {
 	};
 
 	private Composite regionAndPathComposite;
+	private Composite rightComposite;
 	private Composite pathComposite;
 	private IMappingScanRegionShape scanRegion = null;
 	private IScanPathModel scanPathModel = null;
 	private PathInfoCalculatorJob pathCalculationJob;
 	private PlottingController plotter;
 	private IMappingRegionManager mappingRegionManager;
-
-	private Composite regionComposite;
 
 	private ComboViewer regionSelector;
 
@@ -185,10 +187,13 @@ public class RegionAndPathSection extends AbstractMappingSection {
 		});
 
 		// Prepare a grid data factory for controls which will need to grab space horizontally
-		GridDataFactory horizontalGrabGridData = GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false);
+		GridDataFactory horizontalGrabGridData = GridDataFactory.swtDefaults().align(SWT.FILL, SWT.TOP).grab(true, false);
 
 		// Make the region selection
-		Composite regionComboComposite = new Composite(regionAndPathComposite, SWT.NONE);
+		Composite regionComposite = new Composite(regionAndPathComposite, SWT.NONE);
+		GridLayoutFactory.swtDefaults().numColumns(1).applyTo(regionComposite);
+		//horizontalGrabGridData.applyTo(regionComposite);
+		Composite regionComboComposite = new Composite(regionComposite, SWT.NONE);
 		horizontalGrabGridData.applyTo(regionComboComposite);
 		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(regionComboComposite);
 		Label regionLabel = new Label(regionComboComposite, SWT.NONE);
@@ -196,9 +201,14 @@ public class RegionAndPathSection extends AbstractMappingSection {
 		regionSelector = new ComboViewer(regionComboComposite);
 		horizontalGrabGridData.applyTo(regionSelector.getControl());
 		regionSelector.getCombo().setToolTipText("Select a scan region shape. The shape can then be drawn on the map, or you can type numbers below.");
+		ROIEditTable regionEditor = new ROIEditTable(60,  new int[]{135, 55},false);
+		regionEditor.createPartControl(regionComposite);
 
 		// Make the path selection
-		Composite pathComboComposite = new Composite(regionAndPathComposite, SWT.NONE);
+		rightComposite = new Composite(regionAndPathComposite, SWT.NONE);
+		GridLayoutFactory.swtDefaults().numColumns(1).applyTo(rightComposite);
+		horizontalGrabGridData.applyTo(rightComposite);
+		Composite pathComboComposite = new Composite(rightComposite, SWT.NONE);
 		horizontalGrabGridData.applyTo(pathComboComposite);
 		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(pathComboComposite);
 		Label pathLabel = new Label(pathComboComposite, SWT.NONE);
@@ -222,7 +232,25 @@ public class RegionAndPathSection extends AbstractMappingSection {
 		List<IMappingScanRegionShape> regionList = mappingRegionManager.getRegions();
 		regionSelector.setInput(regionList.toArray());
 
-		regionSelector.addSelectionChangedListener(new RegionSelectorListener());
+		regionSelector.addSelectionChangedListener(new RegionSelectorListener(regionEditor));
+
+		regionEditor.addROIListener(new IROIListener() {
+
+			@Override
+			public void roiSelected(ROIEvent evt) {
+				//this event will not happen
+			}
+
+			@Override
+			public void roiDragged(ROIEvent evt) {
+				//this event will not happen
+			}
+
+			@Override
+			public void roiChanged(ROIEvent evt) {
+				scanRegion.updateFromROI(evt.getROI());
+			}
+		});
 
 		pathSelector.setContentProvider(ArrayContentProvider.getInstance());
 		pathSelector.setLabelProvider(new LabelProvider() {
@@ -284,13 +312,13 @@ public class RegionAndPathSection extends AbstractMappingSection {
 		scanPathModel = mappingScanRegion.getScanPath();
 
 		// Replace the region model of the same class with the new region
-		List<IMappingScanRegionShape> regionList = mappingRegionManager.getRegions();
-		for (int i = 0; i < regionList.size(); i++) {
-			if (regionList.get(i).getClass().equals(scanRegion.getClass())) {
-				regionList.set(i, scanRegion);
-			}
-		}
-		regionSelector.setInput(regionList.toArray());
+//		List<IMappingScanRegionShape> regionList = mappingRegionManager.getRegions();
+//		for (int i = 0; i < regionList.size(); i++) {
+//			if (regionList.get(i).getClass().equals(scanRegion.getClass())) {
+//				regionList.set(i, scanRegion);
+//			}
+//		}
+//		regionSelector.setInput(regionList.toArray());
 
 		// Replace the scan path model of the same class with the new one
 		List<IScanPathModel> scanPathList = mappingRegionManager.getValidPaths(scanRegion);
@@ -313,25 +341,17 @@ public class RegionAndPathSection extends AbstractMappingSection {
 	 * Call this to rebuild the mapping section. Only required when the underlying beans are swapped.
 	 */
 	private void rebuildMappingSection() {
-		// Remove the old controls
-		if (regionComposite != null) {
-			regionComposite.dispose();
-			regionComposite = null;
-		}
+
 		if (pathComposite != null) {
 			pathComposite.dispose();
 			pathComposite = null;
 		}
 
-		// Scan Region
 		IGuiGeneratorService guiGenerator = getService(IGuiGeneratorService.class);
-		Object mappingScanRegion = getMappingBean().getScanDefinition().getMappingScanRegion().getRegion();
-		regionComposite = guiGenerator.generateGui(mappingScanRegion, regionAndPathComposite);
-		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).applyTo(regionComposite);
 
 		// Scan Path
 		Object scanPath = getMappingBean().getScanDefinition().getMappingScanRegion().getScanPath();
-		pathComposite = guiGenerator.generateGui(scanPath, regionAndPathComposite);
+		pathComposite = guiGenerator.generateGui(scanPath, rightComposite);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).applyTo(pathComposite);
 		mappingView.relayout();
 	}
