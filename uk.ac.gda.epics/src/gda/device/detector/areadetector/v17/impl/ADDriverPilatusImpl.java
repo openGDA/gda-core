@@ -18,6 +18,12 @@
 
 package gda.device.detector.areadetector.v17.impl;
 
+import java.io.IOException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.device.Detector;
@@ -36,13 +42,6 @@ import gov.aps.jca.CAStatus;
 import gov.aps.jca.Channel;
 import gov.aps.jca.event.PutEvent;
 import gov.aps.jca.event.PutListener;
-
-import java.io.IOException;
-
-import org.python.modules.synchronize;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 
 public class ADDriverPilatusImpl implements ADDriverPilatus, InitializingBean {
 
