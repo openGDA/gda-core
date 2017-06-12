@@ -101,7 +101,7 @@ public class XmapRunnableDevice extends AbstractRunnableDevice<XmapRunnableDevic
 			throw new ScanningException(message, e);
 		}
 
-		setDeviceState(DeviceState.READY);
+		setDeviceState(DeviceState.ARMED);
 	}
 
 	@Override
@@ -221,7 +221,7 @@ public class XmapRunnableDevice extends AbstractRunnableDevice<XmapRunnableDevic
 			throw new ScanningException(message, e);
 		}
 
-		setDeviceState(DeviceState.READY);
+		setDeviceState(DeviceState.ARMED);
 		return true;
 	}
 
