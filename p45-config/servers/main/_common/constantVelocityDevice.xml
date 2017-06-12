@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!--  Constant Velocity Example -->
+	<bean id="constantVelocityModel" class="org.eclipse.scanning.example.detector.ConstantVelocityModel">
+		<property name="name"           value="cvExmpl"/>
+		<property name="lineSize"       value="64"/>
+		<property name="channelCount"   value="60"/>
+		<property name="spectraSize"    value="10"/>
+		<property name="timeout"        value="100"/>
+	</bean>
+	<bean id="constantVelocityInfo" class="org.eclipse.scanning.api.event.scan.DeviceInformation">
+		<property name="id"          value="org.eclipse.scanning.example.detector.constantVelocityDevice"/>
+		<property name="label"       value="Constant Velocity Example Detector"/>
+		<property name="description" value="A detector which runs line scans within the arbitrary outer scan which it is given."/>
+	</bean>
+	<bean id="constantVelocityDevice" class="org.eclipse.scanning.example.detector.ConstantVelocityDevice" init-method="register">
+		<property name="name"              value="cvExmpl"/>
+		<property name="model"             ref="constantVelocityModel"/>
+		<property name="deviceInformation" ref="constantVelocityInfo"/>
+	</bean>
+
+</beans>
