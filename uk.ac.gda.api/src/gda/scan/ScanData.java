@@ -28,13 +28,10 @@ public class ScanData implements Serializable {
 	public ScanInformation scanInfo;
 	public String uniqueName;
 	public Boolean hasChild;
-	public String[] /*scannableNames, detectorNames, */scannableHeader, detectorHeader;
-//	public Integer numberOfPoints;
-//	public String instrument;
+	public String[] scannableHeader;
+	public String[] detectorHeader;
 	public String command;
-//	public int scanIdentifier;
 	public String creatorPanelName;
-//	public String currentFilename;
 	public Integer numberOfChildScans;
 	public String xAxis;
 	public String[] yAxesShown;
@@ -42,7 +39,6 @@ public class ScanData implements Serializable {
 	public ScanPlotSettings scanPlotSettings;
 	public String[][] scannableFormats;
 	public String[][] detectorFormats;
-//	public int[] scanDimensions;
 	public static String[] emptyStringArray = new String[0];
 
 	public ScanData() {
@@ -52,20 +48,13 @@ public class ScanData implements Serializable {
 	public ScanData(IScanDataPoint point) {
 		uniqueName = point.getUniqueName();
 		scanInfo = point.getScanInformation();
-//		scannableNames = point.getScannableNames().toArray(emptyStringArray);
-//		detectorNames = point.getDetectorNames().toArray(emptyStringArray);
 		scannableHeader = point.getPositionHeader().toArray(emptyStringArray);
 		detectorHeader = point.getDetectorHeader().toArray(emptyStringArray);
 		hasChild = point.getHasChild();
-//		scanIdentifier = point.getScanIdentifier();
 		creatorPanelName = point.getCreatorPanelName();
-//		currentFilename = point.getCurrentFilename();
 		numberOfChildScans = point.getNumberOfChildScans();
-//		instrument = point.getInstrument();
-//		numberOfPoints = point.getNumberOfPoints();
 		command = point.getCommand();
 		scanPlotSettings = point.getScanPlotSettings();
-//		scanDimensions = point.getScanDimensions();
 		scannableFormats = point.getScannableFormats();
 		detectorFormats = point.getDetectorFormats();
 	}
