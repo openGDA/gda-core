@@ -62,7 +62,7 @@ public class AreaDetectorRunnableDeviceProxy extends AbstractAreaDetectorRunnabl
 			setDeviceState(DeviceState.FAULT);
 			throw new ScanningException("Failed configuring detector " + model.getName(), e);
 		}
-		setDeviceState(DeviceState.READY);
+		setDeviceState(DeviceState.ARMED);
 	}
 
 	/**

@@ -55,7 +55,7 @@ public class AreaDetectorWritingFilesRunnableDevice extends AreaDetectorRunnable
 			setDeviceState(DeviceState.FAULT);
 			throw new ScanningException("Acquiring from detector failed", e);
 		}
-		setDeviceState(DeviceState.READY);
+		setDeviceState(DeviceState.ARMED);
 	}
 
 	private ScanInformation information;
