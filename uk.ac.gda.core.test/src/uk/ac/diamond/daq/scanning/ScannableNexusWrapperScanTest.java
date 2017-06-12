@@ -103,6 +103,7 @@ import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IRunListener;
 import org.eclipse.scanning.api.scan.event.RunEvent;
 import org.eclipse.scanning.api.scan.models.ScanModel;
+import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
 import org.eclipse.scanning.event.EventServiceImpl;
 import org.eclipse.scanning.example.detector.ConstantVelocityDevice;
 import org.eclipse.scanning.example.detector.ConstantVelocityModel;
@@ -139,7 +140,6 @@ import gda.device.scannable.ScannableBase;
 import gda.factory.Factory;
 import gda.factory.Finder;
 import gda.factory.MapFactory;
-import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
 import uk.ac.diamond.scisoft.analysis.io.LoaderServiceImpl;
 
 /**
@@ -528,7 +528,7 @@ public class ScannableNexusWrapperScanTest {
 
 	private void checkNexusFile(final IRunnableDevice<ScanModel> scanner, int... sizes) throws Exception{
 		final ScanModel scanModel = ((AbstractRunnableDevice<ScanModel>) scanner).getModel();
-		assertEquals(DeviceState.READY, scanner.getDeviceState());
+		assertEquals(DeviceState.ARMED, scanner.getDeviceState());
 		String filePath = ((AbstractRunnableDevice<ScanModel>) scanner).getModel().getFilePath();
 
 		NexusFile nf = org.eclipse.dawnsci.nexus.ServiceHolder.getNexusFileFactory().newNexusFile(filePath);

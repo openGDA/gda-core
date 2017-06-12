@@ -192,7 +192,7 @@ public class ZebraRunnableDevice extends AbstractRunnableDevice<ZebraModel> impl
 			throw new ScanningException(message, e);
 		}
 
-		setDeviceState(DeviceState.READY);
+		setDeviceState(DeviceState.ARMED);
 		return true;
 	}
 

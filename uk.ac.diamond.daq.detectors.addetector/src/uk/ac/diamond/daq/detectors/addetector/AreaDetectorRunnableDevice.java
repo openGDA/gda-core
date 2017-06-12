@@ -92,7 +92,7 @@ public class AreaDetectorRunnableDevice extends AbstractAreaDetectorRunnableDevi
 			setDeviceState(DeviceState.FAULT);
 			throw new ScanningException("Configuring detector failed", e);
 		}
-		setDeviceState(DeviceState.READY);
+		setDeviceState(DeviceState.ARMED);
 	}
 
 	@Override
@@ -147,7 +147,7 @@ public class AreaDetectorRunnableDevice extends AbstractAreaDetectorRunnableDevi
 			throw new ScanningException("Getting the data from the detector failed", e);
 		}
 
-		setDeviceState(DeviceState.READY);
+		setDeviceState(DeviceState.ARMED);
 		// FIXME why ever return false? If this fails you can throw, in what case is it good for this method to finish
 		// saying I failed?
 		return true;
