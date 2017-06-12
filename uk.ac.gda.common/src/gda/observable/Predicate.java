@@ -30,6 +30,8 @@ package gda.observable;
  *
  * @param <T> The type of object tested by an implementation
  */
+@FunctionalInterface
+// TODO This should be replaced by java.util.function.Predicate<T> in Java 8
 public interface Predicate<T> {
 
 	/**
