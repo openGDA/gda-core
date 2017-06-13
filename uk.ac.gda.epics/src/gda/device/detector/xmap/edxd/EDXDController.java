@@ -35,11 +35,11 @@ import gda.factory.Configurable;
 import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
 import gda.observable.IObserver;
-import gda.util.persistence.LocalDatabase.LocalDatabaseException;
-import gda.util.persistence.LocalObjectShelf;
-import gda.util.persistence.LocalObjectShelfManager;
-import gda.util.persistence.ObjectShelfException;
 import gov.aps.jca.dbr.DBR_Enum;
+import uk.ac.diamond.daq.persistence.jythonshelf.LocalDatabase.LocalDatabaseException;
+import uk.ac.diamond.daq.persistence.jythonshelf.LocalObjectShelf;
+import uk.ac.diamond.daq.persistence.jythonshelf.LocalObjectShelfManager;
+import uk.ac.diamond.daq.persistence.jythonshelf.ObjectShelfException;
 
 /**
  * This class describes the EDXD detector on I12, it is made up of 24 subdetectors
