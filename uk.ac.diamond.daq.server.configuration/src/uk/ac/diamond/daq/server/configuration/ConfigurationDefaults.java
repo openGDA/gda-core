@@ -140,7 +140,7 @@ public enum ConfigurationDefaults {
 																							"-Dgda.instance.dir=" + APP_INSTANCE_CONFIG), String.class);
 
 	private static final String[] OBJECT_SERVER_VM_ARGS =  {"-Dgov.aps.jca.JCALibrary.properties=" + APP_JCA_LIBRARY_FILE,
-															"-Dderby.stream.error.field=gda.util.persistence.LocalObjectShelfManager.DerbyLogStream"};
+															"-Dderby.stream.error.field=uk.ac.diamond.daq.persistence.jythonshelf.LocalObjectShelfManager.DerbyLogStream"};
 
 	private static final String[] NAME_SERVER_VM_ARGS = {	APP_JACORB_VM_ARGS.value,
 															"-Dgda.install.workspace.loc=" + combine(APP_PATHS_ROOT, GDA_WORKSPACE_NAME),
