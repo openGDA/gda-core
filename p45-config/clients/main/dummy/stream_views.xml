@@ -13,7 +13,7 @@
 	
 	<bean id="mic_cam" class="uk.ac.gda.client.live.stream.view.CameraConfiguration">
 		<property name="displayName" value="Simulated Area Detector" />
-		<property name="url" value="http://#{ localhostname.hostName.split('\.')[0] }:8080/CAM.mjpg.mjpg" />
+		<property name="url" value="http://localhost:8081/CAM.mjpg.mjpg" />
 		<!-- If you want the EPICS array stream option add this. Commented out by default as WORKSTATION might not be set -->
 		<property name="arrayPv" value="#{ localhostname.hostName.split('\.')[0] }-AD-SIM-01:ARR" />
 	</bean>
