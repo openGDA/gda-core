@@ -37,7 +37,6 @@ import org.eclipse.january.dataset.DataEvent;
 import org.eclipse.january.dataset.IDataListener;
 import org.eclipse.january.dataset.IDatasetConnector;
 import org.eclipse.jface.action.Action;
-import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.scanning.connector.epicsv3.EpicsV3DynamicDatasetConnector;
@@ -62,7 +61,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.factory.Finder;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.DropDownAction;
 
 /**
  * A RCP view for connecting to and displaying a live MJPEG stream. The intension is to provide a easy way for cameras
@@ -82,16 +80,6 @@ public class LiveStreamView extends ViewPart {
 	private static IPlottingService plottingService;
 	private static IRemoteDatasetService remoteDatasetService;
 
-	public static synchronized void setPlottingService(IPlottingService plottingService) {
-		logger.debug("Plotting service set to: {}", plottingService);
-		LiveStreamView.plottingService = plottingService;
-	}
-
-	public static synchronized void setRemoteDatasetService(IRemoteDatasetService remoteDatasetService) {
-		logger.debug("Remote Dataset service set to: {}", remoteDatasetService);
-		LiveStreamView.remoteDatasetService = remoteDatasetService;
-	}
-
 	private IPlottingSystem<Composite> plottingSystem;
 	private IDatasetConnector stream;
 	private StreamType streamType;
@@ -102,7 +90,7 @@ public class LiveStreamView extends ViewPart {
 	private String cameraName;
 	private long frameCounter = 0;
 	private final IDataListener shapeListener = new IDataListener() {
-		int[] oldShape;
+		private int[] oldShape;
 
 		@Override
 		public void dataChangePerformed(DataEvent evt) {
@@ -111,23 +99,25 @@ public class LiveStreamView extends ViewPart {
 			if (!Arrays.equals(evt.getShape(), oldShape)) {
 				oldShape = evt.getShape();
 				// Need to be in the UI thread to do rescaling
-				display.asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						plottingSystem.autoscaleAxes();
-						iTrace.rehistogram();
-					}
+				display.asyncExec(() -> {
+					plottingSystem.autoscaleAxes();
+					iTrace.rehistogram();
 				});
 			}
 			// Update the frame count in the UI thread
-			display.asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					plottingSystem.setTitle(cameraName + ": " + streamType + " - Frame: " + Long.toString(frameCounter++));
-				}
-			});
+			display.asyncExec(() -> plottingSystem.setTitle(cameraName + ": " + streamType + " - Frame: " + Long.toString(frameCounter++)));
 		}
 	};
+
+	public static synchronized void setPlottingService(IPlottingService plottingService) {
+		logger.debug("Plotting service set to: {}", plottingService);
+		LiveStreamView.plottingService = plottingService;
+	}
+
+	public static synchronized void setRemoteDatasetService(IRemoteDatasetService remoteDatasetService) {
+		logger.debug("Remote Dataset service set to: {}", remoteDatasetService);
+		LiveStreamView.remoteDatasetService = remoteDatasetService;
+	}
 
 	@Override
 	public void createPartControl(final Composite parent) {
@@ -154,13 +144,13 @@ public class LiveStreamView extends ViewPart {
 	private void createCameraSelector(final Composite parent) {
 		// Find all the implemented cameras. This is currently using the finder but could use OSGi instead.
 		List<CameraConfiguration> cameras = Finder.getInstance().listLocalFindablesOfType(CameraConfiguration.class);
-		final Map<String, CameraConfiguration> cameraMap = new TreeMap<String, CameraConfiguration>();
-		for (CameraConfiguration camConfig : cameras) {
-			if (camConfig.getDisplayName() != null) {
-				cameraMap.put(camConfig.getDisplayName(), camConfig);
+		final Map<String, CameraConfiguration> cameraMap = new TreeMap<>();
+		for (CameraConfiguration cam : cameras) {
+			if (cam.getDisplayName() != null) {
+				cameraMap.put(cam.getDisplayName(), cam);
 			} else {
-				logger.warn("No display name was set for camera id: {}. Using id instead", camConfig.getName());
-				cameraMap.put(camConfig.getName(), camConfig);
+				logger.warn("No display name was set for camera id: {}. Using id instead", cam.getName());
+				cameraMap.put(cam.getName(), cam);
 			}
 		}
 		if (!cameraMap.isEmpty()) {
@@ -234,7 +224,7 @@ public class LiveStreamView extends ViewPart {
 	 */
 	private void createLivePlot(final Composite parent, final String secondaryId) {
 		String cameraId = cameraIdFromSecondaryId(secondaryId);
-		StreamType streamType = streamTypeFromSecondaryId(secondaryId);
+		streamType = streamTypeFromSecondaryId(secondaryId);
 
 		// Get the camera config from the finder
 		camConfig = Finder.getInstance().find(cameraId);
@@ -327,8 +317,17 @@ public class LiveStreamView extends ViewPart {
 		IMenuManager menuManager = actionBars.getMenuManager();
 		Arrays.stream(menuManager.getItems()).forEach(menuManager::remove);
 
-		// Add the ToolBar for switching between stream types
-		toolBarManager.insertBefore(toolBarManager.getItems()[0].getId(), new SwitchStreamTypeAction(this));
+		// Add the Reset button to restart the view
+		toolBarManager.insertBefore(toolBarManager.getItems()[0].getId(), new Action() {
+			@Override
+			public void run() {
+				reopenViewWithSecondaryId(getViewSite().getSecondaryId());
+			}
+			@Override
+			public String getText() {
+				return "Reset";
+			}
+		});
 
 		actionBars.updateActionBars();
 	}
@@ -361,7 +360,9 @@ public class LiveStreamView extends ViewPart {
 		}
 		StringBuilder s = new StringBuilder(errorText.getText());
 		s.append("\n").append(errorMessage);
-		if (exception != null) { s.append("\n\t").append(exception.getMessage()); }
+		if (exception != null) {
+			s.append("\n\t").append(exception.getMessage());
+		}
 		errorText.setText(s.toString());
 	}
 
@@ -385,9 +386,7 @@ public class LiveStreamView extends ViewPart {
 		}
 		if (stream != null) {
 			try {
-				if (shapeListener != null) {
-					stream.removeDataListener(shapeListener);
-				}
+				stream.removeDataListener(shapeListener);
 				stream.disconnect();
 			} catch (Exception e) {
 				logger.error("Error disconnecting remote data stream", e);
@@ -408,51 +407,6 @@ public class LiveStreamView extends ViewPart {
 			page.showView(LiveStreamView.ID, secondaryId, IWorkbenchPage.VIEW_ACTIVATE);
 		} catch (PartInitException e) {
 			logger.error("Error activating Live MJPEG view with secondary ID {}", secondaryId, e);
-		}
-	}
-
-	/**
-	 * This inner class is just used to provide the toolbar action enabling reseting and switching the stream type.
-	 */
-	class SwitchStreamTypeAction extends DropDownAction {
-
-		public SwitchStreamTypeAction(final LiveStreamView liveMjpegPlot) {
-			// Need to have a default action. Here I chose to have a reset button.
-			super(new Action() {
-				@Override
-				public void run() {
-					liveMjpegPlot.reopenViewWithSecondaryId(null);
-				}
-				@Override
-				public String getText() {
-					return "Reset";
-				}
-			});
-
-			// Go through all the known stream types and if they are configured options add them
-			for (final StreamType type : StreamType.values()) {
-				switch (type) {
-				case MJPEG:
-					if (camConfig.getUrl() == null) continue;
-					break;
-				case EPICS_ARRAY:
-					if (camConfig.getArrayPv() == null) continue;
-					break;
-				default:
-					logger.warn("Building menu encounterd an unrecognised stream type");
-					// Any unrecognised new types add them all
-					break;
-				}
-				// If you got here your about to add an additional stream option.
-				this.add(new Action(type.displayName, IAction.AS_PUSH_BUTTON) {
-					@Override
-					public void run() {
-						liveMjpegPlot.reopenViewWithSecondaryId(cameraIdFromSecondaryId(getViewSite().getSecondaryId()) + type.secondaryIdSuffix());
-					}
-				});
-			}
-
-			this.setToolTipText("Choose the type of stream to display from this camera");
 		}
 	}
 
