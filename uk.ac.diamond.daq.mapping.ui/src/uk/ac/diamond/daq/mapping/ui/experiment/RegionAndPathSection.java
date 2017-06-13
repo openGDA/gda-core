@@ -26,6 +26,10 @@ import org.dawnsci.plotting.roi.ROIEditTable;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
+import org.eclipse.dawnsci.analysis.dataset.roi.CircularROI;
+import org.eclipse.dawnsci.analysis.dataset.roi.LinearROI;
+import org.eclipse.dawnsci.analysis.dataset.roi.PointROI;
+import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.dawnsci.plotting.api.region.IROIListener;
 import org.eclipse.dawnsci.plotting.api.region.ROIEvent;
 import org.eclipse.e4.core.contexts.ContextInjectionFactory;
@@ -59,8 +63,10 @@ public class RegionAndPathSection extends AbstractMappingSection {
 	private class RegionSelectorListener implements ISelectionChangedListener {
 
 		private final PropertyChangeListener regionBeanPropertyChangeListener;
+		private final ROIEditTable table;
 
 		private RegionSelectorListener(ROIEditTable tab) {
+			this.table = tab;
 			this.regionBeanPropertyChangeListener = new PropertyChangeListener() {
 				@Override
 				public void propertyChange(PropertyChangeEvent evt) {
@@ -79,6 +85,23 @@ public class RegionAndPathSection extends AbstractMappingSection {
 			IStructuredSelection selection = (IStructuredSelection) event.getSelection();
 			IMappingScanRegionShape selectedRegion = (IMappingScanRegionShape) selection.getFirstElement();
 			changeRegion(selectedRegion);
+
+			switch (selectedRegion.getName()) {
+
+			case "Rectangle":
+				table.setRegion(new RectangularROI(1.0, 0.0), null, null);
+				break;
+			case "Circle":
+				table.setRegion(new CircularROI(1.0), null, null);
+				break;
+			case "Line":
+				table.setRegion(new LinearROI(1.0, 30.0), null, null);
+				break;
+			case "Point":
+				table.setRegion(new PointROI(0.0,0.0), null, null);
+				break;
+			}
+
 		}
 
 		private void changeRegion(IMappingScanRegionShape newRegion) {
@@ -182,9 +205,7 @@ public class RegionAndPathSection extends AbstractMappingSection {
 
 		// Add a listener to update the scrolled composite when the region and path composite changes
 		// This will set the initial size as well when the region and path composite is first drawn
-		regionAndPathComposite.addListener(SWT.Resize, event -> {
-			mappingView.recalculateMinimumSize();
-		});
+		regionAndPathComposite.addListener(SWT.Resize, event -> mappingView.recalculateMinimumSize());
 
 		// Prepare a grid data factory for controls which will need to grab space horizontally
 		GridDataFactory horizontalGrabGridData = GridDataFactory.swtDefaults().align(SWT.FILL, SWT.TOP).grab(true, false);
@@ -310,15 +331,6 @@ public class RegionAndPathSection extends AbstractMappingSection {
 		IMappingScanRegion mappingScanRegion = getMappingBean().getScanDefinition().getMappingScanRegion();
 		scanRegion = mappingScanRegion.getRegion();
 		scanPathModel = mappingScanRegion.getScanPath();
-
-		// Replace the region model of the same class with the new region
-//		List<IMappingScanRegionShape> regionList = mappingRegionManager.getRegions();
-//		for (int i = 0; i < regionList.size(); i++) {
-//			if (regionList.get(i).getClass().equals(scanRegion.getClass())) {
-//				regionList.set(i, scanRegion);
-//			}
-//		}
-//		regionSelector.setInput(regionList.toArray());
 
 		// Replace the scan path model of the same class with the new one
 		List<IScanPathModel> scanPathList = mappingRegionManager.getValidPaths(scanRegion);
