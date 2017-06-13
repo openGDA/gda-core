@@ -1862,7 +1862,7 @@
 	</class>
 	<!-- Beamline Configuration Manager -->
 	<class identity="name"
-		name="gda.server.beamlineConfigurationManager.BeamlineConfigurationManager">
+		name="uk.ac.diamond.daq.persistence.bcm.BeamlineConfigurationManager">
 		<map-to xml="BeamlineConfigurationManager" />
 		<field name="name" type="string">
 			<bind-xml name="name" node="element" />
