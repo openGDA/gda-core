@@ -2,7 +2,7 @@
 from gda.configuration.properties import LocalProperties
 from gda.factory import Finder
 from gda.observable import IObserver
-from gda.util.persistence import LocalParameters
+from uk.ac.diamond.daq.persistence.jythonshelf import LocalParameters
 from gda.data.metadata import GDAMetadataProvider
 BSL_CONVERSION_CONFIGURED = 'gda.scan.processing.bsl.configured'
 

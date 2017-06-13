@@ -44,7 +44,7 @@ import gda.device.Timer;
 import gda.device.detector.DataDimension;
 import gda.device.detector.NXDetectorData;
 import gda.factory.FactoryException;
-import gda.util.persistence.LocalParameters;
+import uk.ac.diamond.daq.persistence.jythonshelf.LocalParameters;
 import uk.ac.gda.server.ncd.detectorsystem.NcdDetectorSystem;
 import uk.ac.gda.server.ncd.meta.INcdMetaProvider;
 
