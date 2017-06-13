@@ -34,6 +34,7 @@
 				<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.api/bin" />
 				<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.api/jars/*" />
 				<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.analysis/bin" />
+				<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.diamond.daq.persistence/bin" />
 				<pathelement location="${workspace.git.loc}/gda-common.git/uk.ac.gda.common/bin" />
 				<pathelement location="${workspace.git.loc}/gda-nexus.git/uk.ac.gda.nexus/bin" />
 				<pathelement location="${workspace.git.loc}/dawn-hdf.git/hdf.hdf5lib/bin" />

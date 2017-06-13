@@ -21,13 +21,13 @@
  */
 package gda.device.scannable;
 
-import gda.device.DeviceException;
-import gda.util.QuantityFactory;
-import gda.util.persistence.LocalParameters;
-
 import org.apache.commons.configuration.FileConfiguration;
 import org.jscience.physics.quantities.Quantity;
 import org.jscience.physics.units.Unit;
+
+import gda.device.DeviceException;
+import gda.util.QuantityFactory;
+import uk.ac.diamond.daq.persistence.jythonshelf.LocalParameters;
 
 /**
  * The gap of a two jaw slit.

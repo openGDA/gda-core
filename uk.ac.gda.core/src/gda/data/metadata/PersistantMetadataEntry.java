@@ -18,15 +18,15 @@
 
 package gda.data.metadata;
 
-import gda.factory.FactoryException;
-import gda.util.persistence.LocalParameters;
-
 import java.io.IOException;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.FileConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.factory.FactoryException;
+import uk.ac.diamond.daq.persistence.jythonshelf.LocalParameters;
 
 public class PersistantMetadataEntry extends MetadataEntry {
 

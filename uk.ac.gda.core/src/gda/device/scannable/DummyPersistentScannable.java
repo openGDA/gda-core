@@ -18,15 +18,15 @@
 
 package gda.device.scannable;
 
-import gda.device.DeviceException;
-import gda.util.persistence.LocalParameters;
-
 import java.io.IOException;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.FileConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.device.DeviceException;
+import uk.ac.diamond.daq.persistence.jythonshelf.LocalParameters;
 
 /**
  * Dummy object that is able to save its position into a local parameter

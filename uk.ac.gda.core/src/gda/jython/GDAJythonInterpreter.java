@@ -484,8 +484,8 @@ public class GDAJythonInterpreter {
 				}
 
 				// persistence
-				interactiveConsole.runsource("from gda.util.persistence import LocalParameters");
-				interactiveConsole.runsource("from gda.util.persistence import LocalObjectShelfManager");
+				interactiveConsole.runsource("from uk.ac.diamond.daq.persistence.jythonshelf import LocalParameters");
+				interactiveConsole.runsource("from uk.ac.diamond.daq.persistence.jythonshelf import LocalObjectShelfManager");
 
 				// import other interfaces to use with list command
 				interactiveConsole.runsource("from gda.device import ScannableMotion");

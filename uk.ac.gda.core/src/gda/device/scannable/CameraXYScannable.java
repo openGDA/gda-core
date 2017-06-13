@@ -18,6 +18,10 @@
 
 package gda.device.scannable;
 
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.FileConfiguration;
+import org.springframework.beans.factory.InitializingBean;
+
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.displayscaleprovider.DisplayScaleProvider;
@@ -27,11 +31,7 @@ import gda.factory.FactoryException;
 import gda.factory.corba.util.CorbaAdapterClass;
 import gda.factory.corba.util.CorbaImplClass;
 import gda.observable.IObserver;
-import gda.util.persistence.LocalParameters;
-
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.FileConfiguration;
-import org.springframework.beans.factory.InitializingBean;
+import uk.ac.diamond.daq.persistence.jythonshelf.LocalParameters;
 
 @CorbaImplClass(ScannableImpl.class)
 @CorbaAdapterClass(ScannableAdapter.class)

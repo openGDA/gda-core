@@ -19,9 +19,6 @@
 
 package gda.jython.authoriser;
 
-import gda.configuration.properties.LocalProperties;
-import gda.util.persistence.LocalParameters;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
@@ -31,6 +28,9 @@ import org.apache.commons.configuration.FileConfiguration;
 import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.configuration.properties.LocalProperties;
+import uk.ac.diamond.daq.persistence.jythonshelf.LocalParameters;
 
 /**
  * Performs authentication via a file listing usernames and access levels.

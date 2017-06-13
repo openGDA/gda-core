@@ -18,14 +18,6 @@
 
 package gda.util.userOptions;
 
-import gda.configuration.properties.LocalProperties;
-import gda.data.PathConstructor;
-import gda.device.DeviceException;
-import gda.util.VisitPath;
-import gda.util.exceptionUtils;
-import gda.util.persistence.LocalParameters;
-import gda.util.simpleServlet.corba.impl.SimpleServletAdapter;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
@@ -37,6 +29,14 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.FileConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.configuration.properties.LocalProperties;
+import gda.data.PathConstructor;
+import gda.device.DeviceException;
+import gda.util.VisitPath;
+import gda.util.exceptionUtils;
+import gda.util.simpleServlet.corba.impl.SimpleServletAdapter;
+import uk.ac.diamond.daq.persistence.jythonshelf.LocalParameters;
 
 /**
  * UserOptions Class Use TreeMap as it is sorted by the key as opposed to HashMaps which are not.
