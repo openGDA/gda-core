@@ -7,7 +7,7 @@ import os
 
 import gda.px.util.SavePNGPlot.save
 from gda.util.userOptions.UserOptions import getUserOptionsFromConfig
-from gda.util.persistence import LocalParameters
+from uk.ac.diamond.daq.persistence.jythonshelf import LocalParameters
 from gda.util import QuantityFactory, ElogEntry
 from gda.factory import Finder
 from gda.analysis import DataSet, Plotter, Fitter, ScanFileHolder
