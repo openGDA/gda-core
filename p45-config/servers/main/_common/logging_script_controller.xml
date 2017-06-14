@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!-- This bean definition is present to test loading of uk.ac.diamond.daq.persistence.jythonshelf classes
+	     by the derby database. This is enabled using the org.apache.derby.fragment.daq.persistence 
+	     fragment and if it is not working you will get a ClassNotFoundException in the Console/
+	     gda_servers_output.txt log relating to org.apache.derby (See DAQ-280)-->
+
+	<bean id="testLoggingScriptController" class="gda.jython.scriptcontroller.logging.LoggingScriptController">
+		<property name="messageClassToLog" value="gda.example.scriptcontroller.logging.OtherExampleLoggingMessage" />
+		<property name="directory" value="${gda.var}/" />
+		<property name="local" value="true" />
+	</bean>
+</beans>

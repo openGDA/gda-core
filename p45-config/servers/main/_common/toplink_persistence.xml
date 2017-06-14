@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!-- This bean definition is present to test loading of uk.ac.diamond.daq.persistence.jythonshelf classes
+	     by the derby database. This is enabled using the org.apache.derby.fragment.daq.persistence 
+	     fragment and if it is not working you will get a ClassNotFoundException in the Console/
+	     gda_servers_output.txt log relating to org.apache.derby, toplink or LocalParameters (See DAQ-280)-->
+
+	<bean id="testLocalParameters" class="gda.device.enumpositioner.DummyPersistentNamedEnumPositioner" init-method="configure">
+		<property name="configurationName" value="localParams" />
+		<property name="values">
+			<map>
+				<entry key="150 lines per mm" value="-40.0000"/>
+				<entry key="300 lines per mm" value="0.0000"/>
+				<entry key="1200 lines per mm" value="30.0000"/>
+			</map>
+		</property>
+		<property name="startPositionName" value="300 lines per mm"/>
+	</bean>
+	
+	<bean id="bcm"	class="uk.ac.diamond.daq.persistence.bcm.BeamlineConfigurationManager" />
+</beans>
