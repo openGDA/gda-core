@@ -28,6 +28,7 @@ public class HplcBean implements XMLRichBean {
 	private String mode = DEFAULT_HPLC_MODE;
 	private double totalDuration = 100;
 	private boolean isStaff;
+	private String columnType = "";
 
 	public HplcBean() {
 		ClientDetails myDetails = InterfaceProvider.getBatonStateProvider().getMyDetails();
@@ -119,6 +120,12 @@ public class HplcBean implements XMLRichBean {
 	}
 	public void setTotalDuration(double totalDuration) {
 		this.totalDuration = totalDuration;
+	}
+	public String getColumnType() {
+		return columnType;
+	}
+	public void setColumnType(String value) {
+		columnType = value;
 	}
 
 }

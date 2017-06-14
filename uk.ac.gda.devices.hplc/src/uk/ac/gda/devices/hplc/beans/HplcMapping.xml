@@ -40,6 +40,9 @@
 		<field name="mode" type="string" >
 			<bind-xml name="mode" />
 		</field>
+		<field name="columnType" type="string" >
+			<bind-xml name="columnType" />
+		</field>
 		<field name="totalDuration" type="double" >
 			<bind-xml name="duration" />
 		</field>

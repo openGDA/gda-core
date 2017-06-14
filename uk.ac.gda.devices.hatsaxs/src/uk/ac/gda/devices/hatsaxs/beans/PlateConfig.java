@@ -27,6 +27,7 @@ public class PlateConfig implements Findable, Serializable{
 	private static final long serialVersionUID = 6948031255054246852L;
 	private String name;
 	private List<Plate> plates;
+	private String[] availableCapillaries;
 
 	public List<Plate> getPlates() {
 		return plates;
@@ -71,6 +72,15 @@ public class PlateConfig implements Findable, Serializable{
 //		}
 //		return false;
 //	}
+
+	public String[] getAvailableCapillaries() {
+		return availableCapillaries;
+	}
+
+	public void setAvailableCapillaries(String[] availableCapillaries) {
+		this.availableCapillaries = availableCapillaries;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
