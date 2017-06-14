@@ -316,22 +316,6 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 		this.scannableFormats = formats;
 	}
 
-	private String convertStringArrayToString(String[] array) {
-		// Use StringBuilder rather than String addition for speed
-		StringBuilder sb = new StringBuilder();
-		sb.append("");
-
-		boolean first = true;
-		for (String s : array) {
-			if (!first) {
-				sb.append(DELIMITER);
-			}
-			sb.append(s);
-			first = false;
-		}
-		return sb.toString();
-	}
-
 	/**
 	 * Add a detector to the list of detectors this object holds data from. This stores the name in the detectorHeader
 	 * array and detectorNames array. If its a countertimer is stored in the boolean array. The contents of the
@@ -534,7 +518,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 		}
 
 		if (dataPointFormatter == null || !dataPointFormatter.isValid(this)) {
-			return convertStringArrayToString(headerElements);
+			return String.join(DELIMITER, headerElements);
 		}
 
 		// Optionally a data formatter may be set on Scan data points.
@@ -544,9 +528,9 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 
 	@Override
 	public String getDelimitedHeaderString() {
-		String header = convertStringArrayToString(scannableHeader);
+		String header = String.join(DELIMITER, scannableHeader);
 		if (detectorHeader.length > 0) {
-			header += DELIMITER + convertStringArrayToString(detectorHeader);
+			header += DELIMITER + String.join(DELIMITER, detectorHeader);
 		}
 		return header.trim();
 	}
@@ -778,7 +762,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 		}
 
 		if (dataPointFormatter == null || !dataPointFormatter.isValid(this)) {
-			return convertStringArrayToString(dataElements);
+			return String.join(DELIMITER, dataElements);
 		}
 
 		// Optionally a data formatter may be set on Scan data points.
