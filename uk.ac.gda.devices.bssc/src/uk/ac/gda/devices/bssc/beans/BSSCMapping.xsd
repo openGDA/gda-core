@@ -42,6 +42,7 @@
 				<xsd:element name="key" type="xsd:string"/>
 				<xsd:element name="username" type="xsd:string" minOccurs="0"/>
 				<xsd:element name="visit" type="xsd:string" minOccurs="0"/>
+				<xsd:element name="datafilename" type="xsd:string" minOccurs="0"/>
 			</xsd:all>
 		</xsd:complexType>
 

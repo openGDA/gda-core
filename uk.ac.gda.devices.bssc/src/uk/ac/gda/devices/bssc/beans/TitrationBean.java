@@ -18,20 +18,19 @@
 
 package uk.ac.gda.devices.bssc.beans;
 
-import gda.jython.InterfaceProvider;
-import gda.jython.batoncontrol.ClientDetails;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import uk.ac.gda.util.beans.xml.XMLRichBean;
+import gda.jython.InterfaceProvider;
+import gda.jython.batoncontrol.ClientDetails;
 import uk.ac.gda.devices.hatsaxs.beans.LocationBean;
+import uk.ac.gda.util.beans.xml.XMLRichBean;
 
 public class TitrationBean implements XMLRichBean {
-	
+
 	public enum Viscosity {
 		LOW("low", "l"),
 		MEDIUM("medium", "med", "m"),
@@ -84,6 +83,7 @@ public class TitrationBean implements XMLRichBean {
 	String visit = "";
 	String username = "";
 	boolean isStaff;
+	private String datafilename;
 
 	public TitrationBean() {
 		ClientDetails myDetails = InterfaceProvider.getBatonStateProvider().getMyDetails();
@@ -242,5 +242,13 @@ public class TitrationBean implements XMLRichBean {
 	}
 	public void setKey(String key) {
 		this.key = key.toLowerCase();
+	}
+
+	public String getDatafilename() {
+		return datafilename;
+	}
+
+	public void setDatafilename(String datafilename) {
+		this.datafilename = datafilename;
 	}
 }
