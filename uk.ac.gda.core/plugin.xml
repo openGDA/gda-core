@@ -371,9 +371,6 @@
             name="gda.scan">
          </package>
          <package
-            name="gda.server.beamlineConfigurationManager">
-         </package>
-         <package
             name="gda.server.collisionAvoidance">
          </package>
          <package
@@ -420,12 +417,6 @@
          </package>
          <package
             name="gda.util.osgi">
-         </package>
-         <package
-            name="gda.util.persistence">
-         </package>
-         <package
-            name="gda.util.persistence.entity">
          </package>
          <package
             name="gda.util.simpleServlet">

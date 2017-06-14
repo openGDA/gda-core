@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
-<commatest>
-	<not-escaped>1,2,3</not-escaped>
-	<escaped>1\,2\,3</escaped>
-</commatest>
