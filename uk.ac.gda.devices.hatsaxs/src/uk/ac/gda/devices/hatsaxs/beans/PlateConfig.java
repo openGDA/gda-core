@@ -54,24 +54,6 @@ public class PlateConfig implements Findable, Serializable{
 	public Plate getPlate(int i) {
 		return plates.get(i-1);
 	}
-//	@Override
-//	public boolean equals(Object that) {
-//		if (this == that) {
-//			return true;
-//		}
-//		if (that instanceof PlateConfig) {
-//			PlateConfig theOther = (PlateConfig)that;
-//			if (theOther.plates.size() == plates.size()) {
-//				for (int i = 0; i < plates.size(); i++) {
-//					if (!plates.get(i).equals(theOther.plates.get(i))) {
-//						return false;
-//					}
-//				}
-//				return true;
-//			}
-//		}
-//		return false;
-//	}
 
 	public String[] getAvailableCapillaries() {
 		return availableCapillaries;
@@ -91,24 +73,31 @@ public class PlateConfig implements Findable, Serializable{
 	}
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (getClass() != obj.getClass()) {
 			return false;
+		}
 		PlateConfig other = (PlateConfig) obj;
 		if (name == null) {
-			if (other.name != null)
+			if (other.name != null) {
 				return false;
-		} else if (!name.equals(other.name))
+			}
+		} else if (!name.equals(other.name)) {
 			return false;
+		}
 		if (plates == null) {
-			if (other.plates != null)
+			if (other.plates != null) {
 				return false;
-		} else if (!plates.equals(other.plates))
+			}
+		} else if (!plates.equals(other.plates)) {
 			return false;
+		}
 		return true;
 	}
-	
+
 }
