@@ -357,21 +357,22 @@ public final class DashboardView extends ViewPart {
 	 * Called to refresh all the values in the table.
 	 */
 	public void refresh() {
-		try {
-			for (ScannableObject sso : data) {
+		for (ScannableObject sso : data) {
+			try {
 				sso.refresh();
+			} catch (Exception e) {
+				logger.error("Cannot refresh ScannableObject: {}", sso.getName(), e);
 			}
-			Display.getDefault().asyncExec(() -> {
-				if (serverViewer.getControl().isDisposed()) {
-					return;
-				}
-				if (!serverViewer.isCellEditorActive()) {
-					serverViewer.refresh();
-				}
-			});
-		} catch (Exception ne) {
-			logger.error("Cannot refresh objects", ne);
 		}
+		Display.getDefault().asyncExec(() -> {
+			if (serverViewer.getControl().isDisposed()) {
+				return;
+			}
+			if (!serverViewer.isCellEditorActive()) {
+				serverViewer.refresh();
+			}
+		});
+
 	}
 
 	/**
