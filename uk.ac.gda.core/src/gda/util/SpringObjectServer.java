@@ -38,6 +38,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
+import org.springframework.core.env.AbstractEnvironment;
+import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.util.StringUtils;
 
 import gda.configuration.properties.LocalProperties;
@@ -81,13 +83,25 @@ public class SpringObjectServer extends ObjectServer {
 	 */
 	public SpringObjectServer(File xmlFile, boolean localObjectsOnly) {
 		super(xmlFile, localObjectsOnly);
+
 		final String configLocation = "file:" + xmlFile.getAbsolutePath();
 		applicationContext = new FileSystemXmlApplicationContext(new String[] {configLocation}, false);
 		applicationContext.getEnvironment().getPropertySources().addFirst(new LocalPropertiesPropertySource());
+		setApplicationContextActiveProfiles(applicationContext);
 		applicationContext.setAllowBeanDefinitionOverriding(false);
 		applicationContext.refresh();
 
 		dumpListOfBeans();
+	}
+
+	private static void setApplicationContextActiveProfiles(ApplicationContext applicationContext) {
+		final String gdaPropertyName = String.format("gda.%s", AbstractEnvironment.ACTIVE_PROFILES_PROPERTY_NAME);
+		if (LocalProperties.contains(gdaPropertyName)) {
+			final String[] activeProfiles = LocalProperties.getStringArray(gdaPropertyName);
+			final ConfigurableEnvironment environment = (ConfigurableEnvironment) applicationContext.getEnvironment();
+			logger.info("\"{}\" property is set, so setting active profiles to {}", gdaPropertyName, activeProfiles);
+			environment.setActiveProfiles(activeProfiles);
+		}
 	}
 
 	private void dumpListOfBeans() {
