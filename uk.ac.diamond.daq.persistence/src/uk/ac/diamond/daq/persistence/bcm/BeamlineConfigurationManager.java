@@ -302,7 +302,14 @@ public class BeamlineConfigurationManager implements Findable, Configurable, Loc
 	public void moveToNominalPosition(Scannable... scannableList) throws DeviceException {
 		for (Mode m : activeModes.values()) {
 			Util.printTerm("Mode: " + m.getName());
-			m.moveToNominalPosition(scannableList);
+			try {
+				m.moveToNominalPosition(scannableList);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+				String msg = getName() + "Thread interrupted while moving motors to nominal position";
+				logger.error(msg);
+				throw new DeviceException(msg, e);
+			}
 		}
 		Util.printTerm("done");
 	}
