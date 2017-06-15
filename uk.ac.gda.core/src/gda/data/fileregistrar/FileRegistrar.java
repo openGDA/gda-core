@@ -163,7 +163,6 @@ public class FileRegistrar extends DataWriterExtenderBase implements IFileRegist
 				addFile(fileName);
 			}
 		}
-		kickOff();
 		super.addData(parent, dataPoint);
 	}
 
