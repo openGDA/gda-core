@@ -125,14 +125,16 @@ public class DummyEpicsLakeshore336 extends ScannableBase {
 	}
 
 	@Override
-	public double[] getPosition() throws DeviceException {
+	// Returns Object[] not double[] as primitive arrays are not supported by ScannableSnapshot.
+	// Additionally this allows the range to be returned as a Integer
+	public Object[] getPosition() throws DeviceException {
 		// Check the lengths are matched
 		if (outputFormat.length != (inputNames.length + extraNames.length)) {
 			logger.error("outputFormat.length != (inputNames.length + extraNames.length)");
 			throw new DeviceException("outputFormat.length != (inputNames.length + extraNames.length)");
 		}
 
-		double[] pos = new double[outputFormat.length];
+		Object[] pos = new Object[outputFormat.length];
 		// demand value
 		pos[0] = getCurrentDemandTemperature();
 
