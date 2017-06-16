@@ -99,7 +99,7 @@ public class ElectronAnalyserRunnableDevice extends AbstractRunnableDevice<Elect
 			analyser.getAdBase().setTriggerMode(TriggerMode.Internal.ordinal());
 
 			// Setup the data dimensions this might not always work!
-			dataDimensions = new int[] { analyser.getFixedModeRegion()[2], analyser.getFixedModeRegion()[3] };
+			dataDimensions = new int[] { analyser.getFixedModeRegion()[3], analyser.getFixedModeRegion()[2] };
 
 		} catch (Exception e) {
 			setDeviceState(DeviceState.FAULT);
