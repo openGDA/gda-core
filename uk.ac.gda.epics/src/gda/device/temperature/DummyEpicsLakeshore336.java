@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
 import gda.device.DeviceException;
 import gda.device.scannable.ScannableBase;
 import gda.device.scannable.ScannableUtils;
-import gda.factory.FactoryException;
 
 /**
  * A Dummy version of the class for controlling a Lakeshore 336 temperature controller through the EPICS interface.
@@ -43,7 +42,11 @@ public class DummyEpicsLakeshore336 extends ScannableBase {
 
 	private static final Logger logger = LoggerFactory.getLogger(DummyEpicsLakeshore336.class);
 
-	// Random to be used to generate dummy data
+	private static final double COMPARISON_TOLERANCE = 0.001;
+
+	/**
+	 * Random to be used to generate dummy data
+	 */
 	Random random = new Random();
 
 	/**
@@ -65,9 +68,10 @@ public class DummyEpicsLakeshore336 extends ScannableBase {
 	private int input;
 	private double demandTemperaure;
 	private double manualOutput;
-	private double p;
-	private double i;
-	private double d;
+	// PID parameters
+	private double pidP;
+	private double pidI;
+	private double pidD;
 	private int heaterRange;
 	private double rampRate;
 	private boolean rampEnabled;
@@ -78,11 +82,6 @@ public class DummyEpicsLakeshore336 extends ScannableBase {
 
 	public void setTolerance(double tolerance) {
 		this.tolerance = tolerance;
-	}
-
-	@Override
-	public void configure() throws FactoryException {
-		super.configure();
 	}
 
 	/**
@@ -98,8 +97,8 @@ public class DummyEpicsLakeshore336 extends ScannableBase {
 	 */
 	@Override
 	public boolean isBusy() throws DeviceException {
-		// Check if blocking is disabled and return not busy
-		if (blocking == false) {
+		// If not blocking return not busy
+		if (blocking) {
 			return false;
 		}
 		try {
@@ -108,12 +107,12 @@ public class DummyEpicsLakeshore336 extends ScannableBase {
 				return false;
 			}
 			// Special targeted demand of 0 means never busy
-			if (getTargetDemandTemperature() == 0.0) {
+			if (getTargetDemandTemperature() < COMPARISON_TOLERANCE) {
 				return false;
 			}
 			// Check if the current demand temperature has reached the target yet, if not the device is busy.
 			// This is critical if ramping is enabled, but also useful to check it the Lakeshore has actually set the new demand yet.
-			if (getCurrentDemandTemperature() != getTargetDemandTemperature()) {
+			if (Math.abs(getCurrentDemandTemperature() - getTargetDemandTemperature()) > COMPARISON_TOLERANCE) {
 				return true;
 			}
 			// Check if the temperature has reached the demanded temperature within tolerance
@@ -366,7 +365,7 @@ public class DummyEpicsLakeshore336 extends ScannableBase {
 	public void setP(double demandP) throws DeviceException {
 		try {
 			logger.info("Setting P to {} for ouput {}", demandP, activeOutput);
-			this.p = demandP;
+			this.pidP = demandP;
 		} catch (Exception e) {
 			logger.error("Error setting P to {} for output {}", demandP, activeOutput, e);
 			throw new DeviceException("Error setting value in Lakeshore 336 Temperature Controller device", e);
@@ -381,7 +380,7 @@ public class DummyEpicsLakeshore336 extends ScannableBase {
 	 */
 	public double getP() throws DeviceException {
 		try {
-			return p;
+			return pidP;
 		} catch (Exception e) {
 			logger.error("Error getting P for output {}", activeOutput, e);
 			throw new DeviceException("Error reading from Lakeshore 336 Temperature Controller device", e);
@@ -397,7 +396,7 @@ public class DummyEpicsLakeshore336 extends ScannableBase {
 	public void setI(double demandI) throws DeviceException {
 		try {
 			logger.info("Setting I to {} for ouput {}", demandI, activeOutput);
-			this.i = demandI;
+			this.pidI = demandI;
 		} catch (Exception e) {
 			logger.error("Error setting I to {} for output {}", demandI, activeOutput, e);
 			throw new DeviceException("Error setting value in Lakeshore 336 Temperature Controller device", e);
@@ -412,7 +411,7 @@ public class DummyEpicsLakeshore336 extends ScannableBase {
 	 */
 	public double getI() throws DeviceException {
 		try {
-			return i;
+			return pidI;
 		} catch (Exception e) {
 			logger.error("Error getting I for output {}", activeOutput, e);
 			throw new DeviceException("Error reading from Lakeshore 336 Temperature Controller device", e);
@@ -428,7 +427,7 @@ public class DummyEpicsLakeshore336 extends ScannableBase {
 	public void setD(double demandD) throws DeviceException {
 		try {
 			logger.info("Setting D to {} for ouput {}", demandD, activeOutput);
-			this.d = demandD;
+			this.pidD = demandD;
 		} catch (Exception e) {
 			logger.error("Error setting D to {} for output {}", demandD, activeOutput, e);
 			throw new DeviceException("Error setting value in Lakeshore 336 Temperature Controller device", e);
@@ -443,7 +442,7 @@ public class DummyEpicsLakeshore336 extends ScannableBase {
 	 */
 	public double getD() throws DeviceException {
 		try {
-			return d;
+			return pidD;
 		} catch (Exception e) {
 			logger.error("Error getting D for output {}", activeOutput, e);
 			throw new DeviceException("Error reading from Lakeshore 336 Temperature Controller device", e);

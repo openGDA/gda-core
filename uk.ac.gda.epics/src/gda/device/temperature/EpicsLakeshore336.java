@@ -25,7 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
-import gda.device.detector.areadetector.IPVProvider;
 import gda.device.scannable.ScannableBase;
 import gda.device.scannable.ScannableUtils;
 import gda.epics.connection.EpicsController;
@@ -45,31 +44,38 @@ public class EpicsLakeshore336 extends ScannableBase {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsLakeshore336.class);
 
-	private final EpicsController EPICS_CONTROLLER = EpicsController.getInstance();
+	private static final double COMPARISON_TOLERANCE = 0.001;
+
+	private static final EpicsController EPICS_CONTROLLER = EpicsController.getInstance();
+
 	private String basePVName = null;
-	private IPVProvider pvProvider;
+
+	/**
+	 * Map that stores the channel against the PV name
+	 */
+	private final Map<String, Channel> channelMap = new HashMap<>();
 
 	// The PV name constants
-	public static final String CH_TEMP = "KRDG%d";
-	public static final String LOOP_DEMAND = "SETP_S%d";
-	public static final String LOOP_DEMAND_RBV = "SETP%d";
-	public static final String LOOP_OUTPUT = "HTR%d";
-	public static final String LOOP_HEATERRANGE = "RANGE_S%d";
-	public static final String LOOP_HEATERRANGE_RBV = "RANGE%d";
-	public static final String LOOP_RAMP = "RAMP_S%d";
-	public static final String LOOP_RAMP_RBV = "RAMP%d";
-	public static final String LOOP_RAMP_ENABLE = "RAMPST_S%d";
-	public static final String LOOP_RAMP_ENABLE_RBV = "RAMPST%d";
-	public static final String LOOP_INPUT = "OMINPUT_S%d";
-	public static final String LOOP_INPUT_RBV = "OMINPUT%d";
-	public static final String LOOP_MANUAL_OUT = "MOUT_S%d";
-	public static final String LOOP_MANUAL_OUT_RBV = "MOUT%d";
-	public static final String LOOP_P = "P_S%d";
-	public static final String LOOP_P_RBV = "P%d";
-	public static final String LOOP_I = "I_S%d";
-	public static final String LOOP_I_RBV = "I%d";
-	public static final String LOOP_D = "D_S%d";
-	public static final String LOOP_D_RBV = "D%d";
+	private static final String CH_TEMP = "KRDG%d";
+	private static final String LOOP_DEMAND = "SETP_S%d";
+	private static final String LOOP_DEMAND_RBV = "SETP%d";
+	private static final String LOOP_OUTPUT = "HTR%d";
+	private static final String LOOP_HEATERRANGE = "RANGE_S%d";
+	private static final String LOOP_HEATERRANGE_RBV = "RANGE%d";
+	private static final String LOOP_RAMP = "RAMP_S%d";
+	private static final String LOOP_RAMP_RBV = "RAMP%d";
+	private static final String LOOP_RAMP_ENABLE = "RAMPST_S%d";
+	private static final String LOOP_RAMP_ENABLE_RBV = "RAMPST%d";
+	private static final String LOOP_INPUT = "OMINPUT_S%d";
+	private static final String LOOP_INPUT_RBV = "OMINPUT%d";
+	private static final String LOOP_MANUAL_OUT = "MOUT_S%d";
+	private static final String LOOP_MANUAL_OUT_RBV = "MOUT%d";
+	private static final String LOOP_P = "P_S%d";
+	private static final String LOOP_P_RBV = "P%d";
+	private static final String LOOP_I = "I_S%d";
+	private static final String LOOP_I_RBV = "I%d";
+	private static final String LOOP_D = "D_S%d";
+	private static final String LOOP_D_RBV = "D%d";
 
 	/**
 	 * The allowed difference between the measured and demand temperatures for isBusy to return false
@@ -94,36 +100,14 @@ public class EpicsLakeshore336 extends ScannableBase {
 		this.tolerance = tolerance;
 	}
 
-	/**
-	 * Map that stores the channel against the PV name
-	 */
-	private Map<String, Channel> channelMap = new HashMap<String, Channel>();
-
 	private Channel getChannel(String pvPostFix, int number) throws Exception {
-		return getChannel(String.format(pvPostFix, number));
-	}
-
-	private Channel getChannel(String pvPostFix) throws Exception {
-		String fullPvName;
-		if (pvProvider != null) {
-			fullPvName = pvProvider.getPV(pvPostFix);
-		} else {
-			fullPvName = basePVName + pvPostFix;
-		}
+		final String fullPvName = basePVName + String.format(pvPostFix, number);
 		Channel channel = channelMap.get(fullPvName);
 		if (channel == null) {
 			channel = EPICS_CONTROLLER.createChannel(fullPvName);
 			channelMap.put(fullPvName, channel);
 		}
 		return channel;
-	}
-
-	public IPVProvider getPvProvider() {
-		return pvProvider;
-	}
-
-	public void setPvProvider(IPVProvider pvProvider) {
-		this.pvProvider = pvProvider;
 	}
 
 	public String getBasePVName() {
@@ -136,6 +120,9 @@ public class EpicsLakeshore336 extends ScannableBase {
 
 	@Override
 	public void configure() throws FactoryException {
+		if (basePVName != null) {
+			throw new FactoryException("basePVName cant be null");
+		}
 		super.configure();
 	}
 
@@ -153,8 +140,8 @@ public class EpicsLakeshore336 extends ScannableBase {
 	 */
 	@Override
 	public boolean isBusy() throws DeviceException {
-		// Check if blocking is disabled and return not busy
-		if (blocking == false) {
+		// If not blocking return not busy
+		if (blocking) {
 			return false;
 		}
 		try {
@@ -163,12 +150,12 @@ public class EpicsLakeshore336 extends ScannableBase {
 				return false;
 			}
 			// Special targeted demand of 0 means never busy
-			if (getTargetDemandTemperature() == 0.0) {
+			if (getTargetDemandTemperature() < COMPARISON_TOLERANCE) {
 				return false;
 			}
 			// Check if the current demand temperature has reached the target yet, if not the device is busy.
 			// This is critical if ramping is enabled, but also useful to check it the Lakeshore has actually set the new demand yet.
-			if (getCurrentDemandTemperature() != getTargetDemandTemperature()) {
+			if (Math.abs(getCurrentDemandTemperature() - getTargetDemandTemperature()) > COMPARISON_TOLERANCE) {
 				return true;
 			}
 			// Check if the temperature has reached the demanded temperature within tolerance
