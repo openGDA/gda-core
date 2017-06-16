@@ -18,11 +18,11 @@
 
 package gda.device.detector.addetector.collectionstrategy;
 
-import gda.device.detector.areadetector.v17.NDProcess;
-import gda.scan.ScanInformation;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.device.detector.areadetector.v17.NDProcess;
+import gda.scan.ScanInformation;
 
 /**
  * This class causes the decorated collection strategy to request the detector collects multiple images, it then sums them and
@@ -39,6 +39,7 @@ public class AutoSummingProcessDecorator extends AbstractADCollectionStrategyDec
 	// Class properties
 	private NDProcess ndProcess=null;
 	private int processDataTypeOut=5; // UINT32
+	private boolean outputEveryArray = false;
 
 	// Instance variables
 	private static final Logger logger = LoggerFactory.getLogger(AutoSummingProcessDecorator.class);
@@ -69,7 +70,11 @@ public class AutoSummingProcessDecorator extends AbstractADCollectionStrategyDec
 			ndProcess.setFilterType(NDProcess.FilterTypeV1_8_Sum);
 			ndProcess.setNumFilter(totalImagesPerCollection);
 			ndProcess.setAutoResetFilter(1);
-			ndProcess.setFilterCallbacks(NDProcess.FilterCallback_ArrayNOnly);
+			if (isOutputEveryArray()) {
+				ndProcess.setFilterCallbacks(NDProcess.FilterCallback_EveryArray);
+			} else {
+				ndProcess.setFilterCallbacks(NDProcess.FilterCallback_ArrayNOnly);
+			}
 			ndProcess.setEnableFilter(1);
 			ndProcess.setEnableHighClip(0);
 			ndProcess.setEnableLowClip(0);
@@ -136,5 +141,13 @@ public class AutoSummingProcessDecorator extends AbstractADCollectionStrategyDec
 
 	public void setProcessDataTypeOut(int processDataTypeOut) {
 		this.processDataTypeOut = processDataTypeOut;
+	}
+
+	public boolean isOutputEveryArray() {
+		return outputEveryArray;
+	}
+
+	public void setOutputEveryArray(boolean outputEveryArray) {
+		this.outputEveryArray = outputEveryArray;
 	}
 }
