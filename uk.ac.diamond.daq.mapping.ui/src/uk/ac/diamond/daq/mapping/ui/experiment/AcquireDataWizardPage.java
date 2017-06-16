@@ -18,17 +18,12 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
-import static org.eclipse.scanning.api.event.EventConstants.ACQUIRE_REQUEST_TOPIC;
-import static org.eclipse.scanning.api.event.EventConstants.ACQUIRE_RESPONSE_TOPIC;
 import static uk.ac.diamond.daq.mapping.ui.experiment.ProcessingSection.NEXUS_FILE_EXTENSION;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.lang.reflect.InvocationTargetException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.text.MessageFormat;
-import java.util.concurrent.TimeUnit;
 
 import org.dawnsci.processing.ui.model.AbstractOperationSetupWizardPage;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -56,8 +51,6 @@ import org.eclipse.jface.window.Window;
 import org.eclipse.richbeans.api.generator.IGuiGeneratorService;
 import org.eclipse.richbeans.widgets.file.FileSelectionDialog;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
-import org.eclipse.scanning.api.event.EventException;
-import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.core.IRequester;
 import org.eclipse.scanning.api.event.scan.AcquireRequest;
 import org.eclipse.scanning.api.event.status.Status;
@@ -74,8 +67,6 @@ import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.configuration.properties.LocalProperties;
-
 /**
  * A wizard page to acquire data for the selected detector for configuring processing.
  */
@@ -83,20 +74,17 @@ class AcquireDataWizardPage extends AbstractOperationSetupWizardPage {
 
 	private static final Logger logger = LoggerFactory.getLogger(AcquireDataWizardPage.class);
 
-	public static final String DEFAULT_ENTRY_PATH = "/entry/";
-	public static final String DEFAULT_DATASET_NAME = "data"; // NXdetector.data field
+	private static final String PAGE_TITLE = "Acquire Data";
 
 	private IDetectorModel detectorModel = null;
 
 	private IPlottingSystem<Composite> plottingSystem;
 
-	private IDataset dataset = null;
-
 	private static String lastFilePath = null;
 
 	private final IEclipseContext context;
 
-	private static IRequester<AcquireRequest> acquireRequestor = null;
+	private IRequester<AcquireRequest> acquireRequestor = null;
 
 	private Job update;
 
@@ -106,7 +94,7 @@ class AcquireDataWizardPage extends AbstractOperationSetupWizardPage {
 
 	protected AcquireDataWizardPage(IEclipseContext context) {
 		super(AcquireDataWizardPage.class.getName());
-		setTitle("Acquire Data");
+		setTitle(PAGE_TITLE);
 		setDescription("Acquire data from the detector to select the region to process.");
 
 		this.context = context;
@@ -163,16 +151,12 @@ class AcquireDataWizardPage extends AbstractOperationSetupWizardPage {
 
 	private void acquireData() {
 		setPageComplete(false);
-		AcquireRequest request = new AcquireRequest();
-		request.setDetectorName(detectorModel.getName());
-		request.setDetectorModel(detectorModel);
-
 		try {
-			AcquireRequest response = getRequestor().post(request);
+			final AcquireRequest response = MappingExperimentUtils.acquireData(detectorModel, getRequestor());
 			if (response.getStatus() == Status.COMPLETE) {
 				loadDataFromFile(response.getFilePath());
-			} else if (response.getStatus() == Status.FAILED){
-				MessageDialog.openError(getShell(), "Acquire Data", "Unable to acquire data for detector. Reason: " + response.getMessage());
+			} else if (response.getStatus() == Status.FAILED) {
+				MessageDialog.openError(getShell(), PAGE_TITLE, "Unable to acquire data for detector. Reason: " + response.getMessage());
 			} else {
 				throw new IllegalArgumentException("Unknown status: " + response.getStatus());
 			}
@@ -181,14 +165,10 @@ class AcquireDataWizardPage extends AbstractOperationSetupWizardPage {
 		}
 	}
 
-	private IRequester<AcquireRequest> getRequestor() throws URISyntaxException, EventException {
+	private IRequester<AcquireRequest> getRequestor() throws Exception {
 		if (acquireRequestor == null) {
-			final IEventService eventService = context.get(IEventService.class);
-			final URI uri = new URI(LocalProperties.getActiveMQBrokerURI());
-			acquireRequestor = eventService.createRequestor(uri, ACQUIRE_REQUEST_TOPIC, ACQUIRE_RESPONSE_TOPIC);
-			acquireRequestor.setTimeout(15, TimeUnit.SECONDS);
+			acquireRequestor = MappingExperimentUtils.getAcquireRequestor(context);
 		}
-
 		return acquireRequestor;
 	}
 
@@ -213,7 +193,7 @@ class AcquireDataWizardPage extends AbstractOperationSetupWizardPage {
 	}
 
 	private void loadDataFromFile(String filePath) {
-		String datasetPath = DEFAULT_ENTRY_PATH + detectorModel.getName() + "/" + DEFAULT_DATASET_NAME;
+		final String datasetPath = MappingExperimentUtils.getDatasetPath(detectorModel);
 
 		try {
 			getWizard().getContainer().run(true, true, new IRunnableWithProgress() {
@@ -236,8 +216,8 @@ class AcquireDataWizardPage extends AbstractOperationSetupWizardPage {
 						}
 
 						ILoaderService loaderService = context.get(ILoaderService.class);
-						dataset = loaderService.getDataset(filePath, datasetPath, new ProgressMonitorWrapper(monitor)).squeeze();
-						update();
+						final IDataset dataset = loaderService.getDataset(filePath, datasetPath, new ProgressMonitorWrapper(monitor)).squeeze();
+						update(dataset);
 						final Display display = getShell().getDisplay();
 						// in the UI thread, execute setPageComplete to be called in 100ms
 						// this is required as wizard page resets buttons when this runnable is finished
@@ -256,7 +236,7 @@ class AcquireDataWizardPage extends AbstractOperationSetupWizardPage {
 
 	private void handleException(String errorMessage, Throwable e) {
 		if (e instanceof InvocationTargetException) e = e.getCause();
-		ErrorDialog.openError(getShell(), "Acquire Data", errorMessage,
+		ErrorDialog.openError(getShell(), PAGE_TITLE, errorMessage,
 				new org.eclipse.core.runtime.Status(IStatus.ERROR,
 						"uk.ac.diamond.daq.mapping.ui.experiment", errorMessage, e));
 		logger.error(errorMessage, e);
@@ -264,10 +244,15 @@ class AcquireDataWizardPage extends AbstractOperationSetupWizardPage {
 
 	@Override
 	protected void update() {
+		// Not implemented: use update(IDataset dataset)
+		throw new UnsupportedOperationException("Use update(IDataset dataset)");
+	}
+
+	private void update(IDataset dataset) {
 		SliceInformation s = new SliceInformation(new SliceND(dataset.getShape()),
 				new SliceND(dataset.getShape()), new SliceND(dataset.getShape()), dataset.getRank() == 1 ? new int[]{0} : new int[]{0,1}, 1, 1);
 
-		SourceInformation source =  new SourceInformation("/", DEFAULT_ENTRY_PATH + detectorModel.getName() + "/" + DEFAULT_DATASET_NAME, dataset);
+		final SourceInformation source = MappingExperimentUtils.getSourceInformation(detectorModel, dataset);
 
 		SliceFromSeriesMetadata m = new SliceFromSeriesMetadata(source,s);
 		dataset.setMetadata(m);
@@ -323,7 +308,7 @@ class AcquireDataWizardPage extends AbstractOperationSetupWizardPage {
 			GridLayoutFactory.fillDefaults().applyTo(plotAndToolbarComposite);
 
 			// TODO: toolbar?
-			plottingSystem.createPlotPart(plotAndToolbarComposite, "Acquire Data", null,
+			plottingSystem.createPlotPart(plotAndToolbarComposite, PAGE_TITLE, null,
 					PlotType.IMAGE, null);
 			GridDataFactory.fillDefaults().grab(true, true).applyTo(plottingSystem.getPlotComposite());
 			return plotAndToolbarComposite;
