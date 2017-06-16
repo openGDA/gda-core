@@ -44,33 +44,31 @@ import gda.jython.JythonServerFacade;
 import gda.scan.IScanDataPoint;
 
 /**
+ * <p>
+ * The FileRegistrar deals with archiving in both the GDA8 and the GDA9 scanning systems.
  *
- *<p>
- * The FileRegistrar deals with archiving in both the GDA8 and the GDA8 scanning systems.
+ * <h3>To be used in 9</h3> the init-method "register" must be called. This ensures that the FileRegistrar is registered
+ * as a scanning participant. Now whenever a scan is run its @FileDeclared and @ScanEnd annotations will be run.
+ * <p>
  *
- * <h3>To be used in 9</h3>
- * the init-method "register" must be called. This ensures that the  FileRegistrar is registered as a scanning
- * participant. Now whenever a scan is run its @FileDeclared and @ScanEnd annotations will be run.
- *<p>
-<pre>
-{@code <bean id="FileRegistrar" class="gda.data.fileregistrar.FileRegistrar"} <b>init-method="register"></b>
-{@code     <property name="name" value="FileRegistrar"/> }
-{@code     <property name="directory" value="/dls/bl-misc/dropfiles2/icat/dropZone/}${gda.instrument}-" />
-{@code </bean> }
-</pre>
-
- * <h3>To be used in 8</h3>
- * In GDA8 File registration listens to scans (via DataWriterExtender) and can be used directly by detectors. Files
- * will be archived and listed in icat and possibly post-processed. Whatever the pipeline is configured to do.
+ * <pre>
+ * {@code <bean id="FileRegistrar" class="gda.data.fileregistrar.FileRegistrar"} <b>init-method="register"></b>
+ * {@code     <property name="name" value="FileRegistrar"/> }
+ * {@code     <property name="directory" value="/dls/bl-misc/dropfiles2/icat/dropZone/}${gda.instrument}-" />
+ * {@code </bean> }
+ * </pre>
  *
-
- <pre>
-{@code <bean id="FileRegistrar" class="gda.data.fileregistrar.FileRegistrar"}
-{@code     <property name="name" value="FileRegistrar"/> }
-{@code     <property name="directory" value="/dls/bl-misc/dropfiles2/icat/dropZone/}${gda.instrument}-" />
-{@code </bean> }
-</pre>
-
+ * <h3>To be used in 8</h3> In GDA8 File registration listens to scans (via DataWriterExtender) and can be used directly
+ * by detectors. Files will be archived and listed in icat and possibly post-processed. Whatever the pipeline is
+ * configured to do.
+ *
+ * <pre>
+ * {@code <bean id="FileRegistrar" class="gda.data.fileregistrar.FileRegistrar"}
+ * {@code     <property name="name" value="FileRegistrar"/> }
+ * {@code     <property name="directory" value="/dls/bl-misc/dropfiles2/icat/dropZone/}${gda.instrument}-" />
+ * {@code </bean> }
+ * </pre>
+ *
  */
 public class FileRegistrar extends DataWriterExtenderBase implements IFileRegistrar, Localizable {
 
