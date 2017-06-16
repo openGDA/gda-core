@@ -61,7 +61,9 @@ import uk.ac.diamond.daq.mapping.impl.DetectorModelWrapper;
  */
 public class DetectorsSection extends AbstractMappingSection {
 
-	private static final Logger logger = LoggerFactory.getLogger(MappingExperimentView.class);
+	private static final Logger logger = LoggerFactory.getLogger(DetectorsSection.class);
+
+	private static final int DETECTORS_COLUMNS = 3;
 
 	private DataBindingContext dataBindingContext;
 
@@ -72,11 +74,10 @@ public class DetectorsSection extends AbstractMappingSection {
 	public void createControls(Composite parent) {
 		Composite detectorsComposite = new Composite(parent, SWT.NONE);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(detectorsComposite);
-		final int detectorsColumns = 3;
-		GridLayoutFactory.swtDefaults().numColumns(detectorsColumns).applyTo(detectorsComposite);
+		GridLayoutFactory.swtDefaults().numColumns(DETECTORS_COLUMNS).applyTo(detectorsComposite);
 		Label detectorsLabel = new Label(detectorsComposite, SWT.NONE);
 		detectorsLabel.setText("Detectors");
-		GridDataFactory.fillDefaults().span(detectorsColumns, 1).applyTo(detectorsLabel);
+		GridDataFactory.fillDefaults().span(DETECTORS_COLUMNS, 1).applyTo(detectorsLabel);
 
 		dataBindingContext = new DataBindingContext();
 		// create a row with a checkbox for each detector
@@ -101,6 +102,7 @@ public class DetectorsSection extends AbstractMappingSection {
 
 			// create the exposure time text control and bind it the exposure time property of the wrapper
 			Text exposureTimeText = new Text(detectorsComposite, SWT.BORDER);
+			exposureTimeText.setToolTipText("Exposure time");
 			GridDataFactory.fillDefaults().grab(true, false).applyTo(exposureTimeText);
 			IObservableValue exposureTextValue = WidgetProperties.text(SWT.Modify).observe(exposureTimeText);
 			IObservableValue exposureTimeValue = PojoProperties.value("exposureTime").observe(detectorParameters.getModel());
@@ -109,8 +111,11 @@ public class DetectorsSection extends AbstractMappingSection {
 			exposureTimeText.addListener(SWT.Modify, event -> {
 				updateStatusLabel();
 			});
-			Button configButton = new Button(detectorsComposite, SWT.PUSH);
-			configButton.setText("Edit parameters...");
+
+			// Edit configuration
+			final Button configButton = new Button(detectorsComposite, SWT.PUSH);
+			configButton.setImage(MappingExperimentUtils.getImage("icons/pencil.png"));
+			configButton.setToolTipText("Edit parameters");
 
 			IGuiGeneratorService guiGenerator = getService(IGuiGeneratorService.class);
 			configButton.addListener(SWT.Selection, event -> {
