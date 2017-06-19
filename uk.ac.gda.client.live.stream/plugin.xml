@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension point="org.eclipse.ui.views">
+      <view
+         allowMultiple="true"
+         class="uk.ac.gda.client.live.stream.view.LiveStreamView"
+         icon="icons/live_stream.png"
+         id="uk.ac.gda.client.live.stream.view.LiveStreamView"
+         name="Live Stream"
+         restorable="true">
+      </view>
+   </extension>
+   <extension point="org.eclipse.ui.menus">
+      <menuContribution
+         allPopups="false"
+         class="uk.ac.gda.client.live.stream.view.LiveStreamMenuContribution"
+         locationURI="menu:window?after=showView">
+      </menuContribution>
+   </extension>
+</plugin>

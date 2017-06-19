@@ -478,13 +478,6 @@
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.scanning.connector.epicsv3"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="org.eclipse.scanning.malcolm.core"
          download-size="0"
          install-size="0"
@@ -513,6 +506,13 @@
 
    <plugin
          id="uk.ac.diamond.daq.persistence"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="uk.ac.gda.client.live.stream"
          download-size="0"
          install-size="0"
          version="0.0.0"
