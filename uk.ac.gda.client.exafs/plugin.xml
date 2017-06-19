@@ -663,11 +663,11 @@
          </contentTypeBinding>
       </editor>
       <editor
-            class="uk.ac.gda.exafs.ui.detector.vortex.VortexParametersEditor"
+            class="uk.ac.gda.exafs.ui.editors.detectors.VortexParametersEditor"
             contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
             default="true"
             icon="icons/page_refresh.png"
-            id="uk.ac.gda.exafs.ui.VortexParametersEditor"
+            id="uk.ac.gda.exafs.ui.editors.detectors.VortexParametersEditor"
             name="Vortex Parameters">
          <contentTypeBinding
                contentTypeId="uk.ac.diamond.gda.client.exafs.getVortexContent">
