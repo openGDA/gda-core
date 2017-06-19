@@ -6,7 +6,7 @@ Bundle-Version: 1.0.0
 Require-Bundle: org.eclipse.core.runtime,
  uk.ac.gda.core;bundle-version="1.0.0",
  uk.ac.gda.nexus;bundle-version="1.0.0",
- org.apache.commons.io;bundle-version="[2.4.0,2.5.0)",
+ org.apache.commons.io;bundle-version="2.4.0",
  uk.ac.gda.common;bundle-version="1.0.0",
  uk.ac.gda.api;bundle-version="1.0.0",
  uk.ac.gda.devices.xspress2;bundle-version="1.0.0",
