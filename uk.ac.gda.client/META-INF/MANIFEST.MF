@@ -10,7 +10,6 @@ Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy: uk.ac.gda.libs, uk.ac.gda.core
 Eclipse-BuddyPolicy: registered
 Bundle-Localization: plugin
-Eclipse-LazyStart: true
 Dependency-Note: E4FIXME Added e4 workbench because of use of internal
 Require-Bundle: org.eclipse.help.ui,
  org.eclipse.ui.console,
