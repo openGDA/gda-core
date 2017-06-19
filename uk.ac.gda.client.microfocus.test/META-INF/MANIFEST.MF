@@ -7,7 +7,7 @@ Bundle-Vendor: Diamond Light Source
 Fragment-Host: uk.ac.gda.client.microfocus;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: uk.ac.diamond.org.powermock;bundle-version="[1.6.4,2.0.0)",
- javassist;bundle-version="[3.20.0,3.21.0)",
+ javassist;bundle-version="3.20.0",
  uk.ac.gda.server.exafs,
  org.mockito.mockito-core;bundle-version="[1.10.19,2.0.0)",
  org.junit;bundle-version="[4.12.0,5.0.0)",
