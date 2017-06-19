@@ -20,8 +20,8 @@
 package gda.jython.corba.impl;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
-import java.util.Vector;
 
 import org.omg.CORBA.Any;
 import org.slf4j.Logger;
@@ -471,8 +471,8 @@ public class JythonImpl extends CorbaJythonPOA implements IObserver {
 	@Override
 	public String[] getAliasedCommand(String arg0) throws CorbaDeviceException {
 		try {
-			Vector<String> details = jythonServer.getAliasedCommands(arg0);
-			String[] a=new String[details.size()];
+			Collection<String> details = jythonServer.getAliasedCommands(arg0);
+			String[] a = new String[details.size()];
 			return details.toArray(a);
 		} catch (Exception de) {
 			throw new CorbaDeviceException(de.getMessage());
@@ -483,8 +483,8 @@ public class JythonImpl extends CorbaJythonPOA implements IObserver {
 	public String[] getAliasedVarargCommand(String arg0)
 			throws CorbaDeviceException {
 		try {
-			Vector<String> details = jythonServer.getAliasedVarargCommands(arg0);
-			String[] a=new String[details.size()];
+			Collection<String> details = jythonServer.getAliasedVarargCommands(arg0);
+			String[] a = new String[details.size()];
 			return details.toArray(a);
 		} catch (Exception de) {
 			throw new CorbaDeviceException(de.getMessage());

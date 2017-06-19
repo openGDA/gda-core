@@ -20,9 +20,9 @@
 package gda.jython;
 
 import java.io.InputStream;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 
 import org.python.core.PyException;
 import org.python.core.PyObject;
@@ -428,13 +428,13 @@ public interface Jython extends Findable {
 	 * @param JSFIdentifier
 	 * @return the aliased commands
 	 */
-	public Vector<String> getAliasedCommands(String JSFIdentifier);
+	public Collection<String> getAliasedCommands(String JSFIdentifier);
 	/**
 	 * Get the list of vararg aliased commands - GDA syntax extension in Jython environment
 	 * @param JSFIdentifier
 	 * @return the aliased vararg commands
 	 */
-	public Vector<String> getAliasedVarargCommands(String JSFIdentifier);
+	public Collection<String> getAliasedVarargCommands(String JSFIdentifier);
 
 	/**
 	 * Returns the contents of the top-level Jython namespace.
