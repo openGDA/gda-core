@@ -17,7 +17,7 @@ Require-Bundle: org.eclipse.core.runtime,
  uk.ac.gda.swingclient,
  uk.ac.gda.analysis,
  uk.ac.gda.devices.mythen;bundle-version="1.0.0",
- org.apache.commons.lang;bundle-version="[2.6.0,2.7.0)",
+ org.apache.commons.lang;bundle-version="2.6.0",
  org.eclipse.dawnsci.nexus;bundle-version="1.0.0",
  org.apache.commons.collections;bundle-version="3.2.1"
 Bundle-ActivationPolicy: lazy
