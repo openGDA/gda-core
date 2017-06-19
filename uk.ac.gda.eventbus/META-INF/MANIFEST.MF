@@ -5,7 +5,7 @@ Bundle-SymbolicName: uk.ac.gda.eventbus
 Bundle-Version: 9.5.0.qualifier
 Bundle-Vendor: Diamond Light Source
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Require-Bundle: com.google.guava;bundle-version="[16.0.0,17.0.0)",
+Require-Bundle: com.google.guava;bundle-version="16.0.1",
  ch.qos.logback.classic;bundle-version="[1.0.7,2.0.0)",
  ch.qos.logback.core;bundle-version="[1.0.7,2.0.0)",
  uk.ac.gda.eventbus.api

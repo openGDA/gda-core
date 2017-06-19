@@ -17,6 +17,6 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.swt,
  org.eclipse.jface.databinding;bundle-version="1.6.0",
  org.eclipse.jface,
- com.google.guava;bundle-version="[16.0.0,17.0.0)"
+ com.google.guava;bundle-version="16.0.1"
 Export-Package: uk.ac.gda.client.logpanel.view
 Bundle-Activator: uk.ac.gda.client.logpanel.Activator
