@@ -21,7 +21,9 @@ import org.eclipse.scanning.api.annotation.scan.ScanPause;
 import org.eclipse.scanning.api.annotation.scan.ScanResume;
 import org.eclipse.scanning.api.annotation.scan.ScanStart;
 import org.eclipse.scanning.api.annotation.scan.WriteComplete;
+import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.scan.DeviceState;
+import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.LevelInformation;
 import org.eclipse.scanning.api.scan.ScanInformation;
@@ -98,16 +100,14 @@ public class AreaDetectorRunnableDeviceProxy extends AbstractAreaDetectorRunnabl
 
 	// Delegated annotated methods
 
-	@Override
 	@PreConfigure
-	public void preConfigure(Object model) throws ScanningException {
-		delegate.preConfigure(model);
+	public void preConfigure(Object model, ScanBean scanBean, IPublisher<?> publisher) throws ScanningException {
+		delegate.preConfigure(model, scanBean, publisher);
 	}
 
-	@Override
 	@PostConfigure
-	public void postConfigure(Object model) throws ScanningException {
-		delegate.postConfigure(model);
+	public void postConfigure(Object model, ScanBean scanBean, IPublisher<?> publisher) throws ScanningException {
+		delegate.postConfigure(model, scanBean, publisher);
 	}
 
 	@Override

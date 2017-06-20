@@ -24,6 +24,8 @@ import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
 import org.eclipse.scanning.api.annotation.scan.WriteComplete;
+import org.eclipse.scanning.api.event.core.IPublisher;
+import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.LevelInformation;
 import org.eclipse.scanning.api.scan.ScanInformation;
@@ -108,13 +110,13 @@ public abstract class AbstractAreaDetectorRunnableDeviceDelegate {
 	// Delegated annotated methods
 
 	@SuppressWarnings("unused")
-	public void preConfigure(Object model) throws ScanningException {
-		logger.trace("preConfigure({}) on {}", model, runnableDeviceProxy.getName());
+	public void preConfigure(Object scanModel, ScanBean scanBean, IPublisher<?> publisher) throws ScanningException {
+		logger.trace("preConfigure({}, {}, {}) on {}", scanModel, scanBean, publisher, runnableDeviceProxy.getName());
 	}
 
 	@SuppressWarnings("unused")
-	public void postConfigure(Object model) throws ScanningException {
-		logger.trace("postConfigure({}) on {}", model, runnableDeviceProxy.getName());
+	public void postConfigure(Object scanModel, ScanBean scanBean, IPublisher<?> publisher) throws ScanningException {
+		logger.trace("postConfigure({}, {}, {}) on {}", scanModel, scanBean, publisher, runnableDeviceProxy.getName());
 	}
 
 	@SuppressWarnings("unused")
