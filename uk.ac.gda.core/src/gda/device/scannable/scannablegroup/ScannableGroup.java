@@ -273,6 +273,23 @@ public class ScannableGroup extends ScannableBase implements Configurable, IScan
 
 	}
 
+	protected int testGroupMove(Object position) throws DeviceException {
+		// Duplicating logic in asyncMoveTo is unfortunate, but preferable to corrupting its interface
+		Vector<Object[]> targets = extractPositionsFromObject(position);
+		int numberToMove = 0;
+		for (int i = 0; i < groupMembers.size(); i++) {
+			Scannable scn = groupMembers.get(i);
+			if (scn.getInputNames().length + scn.getExtraNames().length == 0) {
+				continue;
+			}
+			Object[] target = targets.get(i);
+			if (target.length != 1 || target[0] != null) {
+				numberToMove++;
+			}
+		}
+		return numberToMove;
+	}
+
 	protected Vector<Object[]> extractPositionsFromObject(Object position) throws DeviceException {
 		// map object to an array of doubles
 		int inputLength = 0;

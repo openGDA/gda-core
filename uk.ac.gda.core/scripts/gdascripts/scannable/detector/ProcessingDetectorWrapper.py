@@ -628,13 +628,13 @@ class SwitchableHardwareTriggerableProcessingDetectorWrapper(ProcessingDetectorW
 		
 	def endCollection(self):
 		self.det.endCollection()
-		self.scanned_det = None
 
 #	def atScanLineEnd(self):
 #		self.det.atScanLineEnd()
 
 	def atScanEnd(self):
 		ProcessingDetectorWrapper.atScanEnd(self)
+		self.scanned_det = None
 #		if self.array_monitor_for_hardware_triggering:
 #			self.array_monitor_for_hardware_triggering.prepareForCollection(999, None) # Number not used
 
