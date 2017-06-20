@@ -19,7 +19,9 @@
 package gda.jython;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -273,13 +275,13 @@ public class MockJythonServerFacade implements IDefaultScannableProvider, ICurre
 	}
 
 	@Override
-	public Vector<String> getAliasedCommands() {
-		return new Vector<String>();
+	public Collection<String> getAliasedCommands() {
+		return new HashSet<>();
 	}
 
 	@Override
-	public Vector<String> getAliasedVarargCommands() {
-		return new Vector<String>();
+	public Collection<String> getAliasedVarargCommands() {
+		return new HashSet<>();
 	}
 
 	@Override
