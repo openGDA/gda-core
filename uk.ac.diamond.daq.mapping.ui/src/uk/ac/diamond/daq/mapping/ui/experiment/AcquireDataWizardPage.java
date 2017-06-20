@@ -35,13 +35,11 @@ import org.eclipse.dawnsci.analysis.dataset.slicer.SliceFromSeriesMetadata;
 import org.eclipse.dawnsci.analysis.dataset.slicer.SliceInformation;
 import org.eclipse.dawnsci.analysis.dataset.slicer.SourceInformation;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
-import org.eclipse.dawnsci.plotting.api.PlotType;
 import org.eclipse.dawnsci.plotting.api.PlottingFactory;
 import org.eclipse.dawnsci.plotting.api.trace.MetadataPlotUtils;
 import org.eclipse.dawnsci.slicing.api.util.ProgressMonitorWrapper;
 import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.january.dataset.IDataset;
-import org.eclipse.january.dataset.SliceND;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -249,9 +247,7 @@ class AcquireDataWizardPage extends AbstractOperationSetupWizardPage {
 	}
 
 	private void update(IDataset dataset) {
-		SliceInformation s = new SliceInformation(new SliceND(dataset.getShape()),
-				new SliceND(dataset.getShape()), new SliceND(dataset.getShape()), dataset.getRank() == 1 ? new int[]{0} : new int[]{0,1}, 1, 1);
-
+		final SliceInformation s = MappingExperimentUtils.getDatasetSlice(dataset);
 		final SourceInformation source = MappingExperimentUtils.getSourceInformation(detectorModel, dataset);
 
 		SliceFromSeriesMetadata m = new SliceFromSeriesMetadata(source,s);
@@ -303,23 +299,11 @@ class AcquireDataWizardPage extends AbstractOperationSetupWizardPage {
 	private Control createDataPlotControl(Composite parent) {
 		try {
 			plottingSystem = PlottingFactory.createPlottingSystem();
-
-			Composite plotAndToolbarComposite = new Composite(parent, SWT.NONE);
-			GridLayoutFactory.fillDefaults().applyTo(plotAndToolbarComposite);
-
-			// TODO: toolbar?
-			plottingSystem.createPlotPart(plotAndToolbarComposite, PAGE_TITLE, null,
-					PlotType.IMAGE, null);
-			GridDataFactory.fillDefaults().grab(true, true).applyTo(plottingSystem.getPlotComposite());
-			return plotAndToolbarComposite;
+			return MappingExperimentUtils.createDataPlotControl(parent, plottingSystem, PAGE_TITLE);
 		} catch (Exception e) {
-			logger.error("Could not create plotting system", e);
-
-			Label label = new Label(parent, SWT.NONE);
-			label.setBackground(parent.getDisplay().getSystemColor(SWT.COLOR_WHITE));
-			label.setForeground(parent.getDisplay().getSystemColor(SWT.COLOR_RED));
-			label.setText("Could not create plotting system: " + e.getMessage());
-			return label;
+			final String message = "Could not create plotting system";
+			logger.error(message, e);
+			return MappingExperimentUtils.createErrorLabel(parent, message, e);
 		}
 	}
 

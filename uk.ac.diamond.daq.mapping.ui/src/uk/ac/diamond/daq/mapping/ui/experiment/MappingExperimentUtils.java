@@ -24,14 +24,24 @@ import static org.eclipse.scanning.api.event.EventConstants.ACQUIRE_RESPONSE_TOP
 import java.net.URI;
 import java.util.concurrent.TimeUnit;
 
+import org.eclipse.dawnsci.analysis.dataset.slicer.SliceInformation;
 import org.eclipse.dawnsci.analysis.dataset.slicer.SourceInformation;
+import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
+import org.eclipse.dawnsci.plotting.api.PlotType;
 import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.january.dataset.IDataset;
+import org.eclipse.january.dataset.SliceND;
+import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.core.IRequester;
 import org.eclipse.scanning.api.event.scan.AcquireRequest;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 import gda.configuration.properties.LocalProperties;
@@ -50,7 +60,7 @@ class MappingExperimentUtils {
 	}
 
 	// Create a requestor to which acquire requests can be posted to ActiveMQ
-	static IRequester<AcquireRequest> getAcquireRequestor(IEclipseContext context) throws Exception {
+	static IRequester<AcquireRequest> getAcquireRequestor(final IEclipseContext context) throws Exception {
 		final IEventService eventService = context.get(IEventService.class);
 		final URI uri = new URI(LocalProperties.getActiveMQBrokerURI());
 		final IRequester<AcquireRequest> acquireRequestor = eventService.createRequestor(uri, ACQUIRE_REQUEST_TOPIC, ACQUIRE_RESPONSE_TOPIC);
@@ -58,22 +68,47 @@ class MappingExperimentUtils {
 		return acquireRequestor;
 	}
 
-	static AcquireRequest acquireData(IDetectorModel detectorModel, IRequester<AcquireRequest> acquireRequestor) throws Exception {
+	static AcquireRequest acquireData(final IDetectorModel detectorModel, final IRequester<AcquireRequest> acquireRequestor) throws Exception {
 		final AcquireRequest request = new AcquireRequest();
 		request.setDetectorName(detectorModel.getName());
 		request.setDetectorModel(detectorModel);
 		return acquireRequestor.post(request);
 	}
 
-	static Image getImage(String imagePath) {
+	static Image getImage(final String imagePath) {
 		return AbstractUIPlugin.imageDescriptorFromPlugin(MappingUIConstants.PLUGIN_ID, imagePath).createImage();
 	}
 
-	static String getDatasetPath(IDetectorModel detectorModel) {
+	static String getDatasetPath(final IDetectorModel detectorModel) {
 		return DEFAULT_ENTRY_PATH + detectorModel.getName() + "/" + DEFAULT_DATASET_NAME;
 	}
 
-	static SourceInformation getSourceInformation(IDetectorModel detectorModel, IDataset dataset) {
+	static SourceInformation getSourceInformation(final IDetectorModel detectorModel, final IDataset dataset) {
 		return new SourceInformation("/", DEFAULT_ENTRY_PATH + detectorModel.getName() + "/" + DEFAULT_DATASET_NAME, dataset);
+	}
+
+	static SliceInformation getDatasetSlice(final IDataset dataset) {
+		final int[] dataDimensions = dataset.getRank() == 1 ? new int[] { 0 } : new int[] { 0, 1 };
+		return new SliceInformation(new SliceND(dataset.getShape()),
+				new SliceND(dataset.getShape()),
+				new SliceND(dataset.getShape()),
+				dataDimensions, 1, 1);
+	}
+
+	static Control createDataPlotControl(final Composite parent, final IPlottingSystem<Composite> plottingSystem, final String title) {
+		final Composite plotAndToolbarComposite = new Composite(parent, SWT.NULL);
+		GridLayoutFactory.fillDefaults().applyTo(plotAndToolbarComposite);
+
+		plottingSystem.createPlotPart(plotAndToolbarComposite, title, null, PlotType.IMAGE, null);
+		GridDataFactory.fillDefaults().grab(true, true).applyTo(plottingSystem.getPlotComposite());
+		return plotAndToolbarComposite;
+	}
+
+	static Label createErrorLabel(final Composite parent, final String message, final Exception e) {
+		final Label label = new Label(parent, SWT.NONE);
+		label.setBackground(parent.getDisplay().getSystemColor(SWT.COLOR_WHITE));
+		label.setForeground(parent.getDisplay().getSystemColor(SWT.COLOR_RED));
+		label.setText(message + ": " + e.getMessage());
+		return label;
 	}
 }
