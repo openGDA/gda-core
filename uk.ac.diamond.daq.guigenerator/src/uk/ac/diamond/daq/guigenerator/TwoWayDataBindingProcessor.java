@@ -44,6 +44,9 @@ import org.metawidget.widgetprocessor.iface.WidgetProcessorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.daq.guigenerator.converter.DoubleToStringConverter;
+import uk.ac.diamond.daq.guigenerator.converter.StringToDoubleConverter;
+
 /**
  * This is a improved implementation of the eclipse core databinding provided by metawidget. It implements two way
  * binding with dynamic updating of UI to model and on request binding of model to UI (as the model may not implement
@@ -103,6 +106,15 @@ public class TwoWayDataBindingProcessor implements AdvancedWidgetProcessor<Contr
 						converter);
 			}
 		}
+
+		IConverter doubleToStringConverter = new DoubleToStringConverter();
+		mConverters.put(new ConvertFromTo(Double.class, String.class), doubleToStringConverter);
+		mConverters.put(new ConvertFromTo(double.class, String.class), doubleToStringConverter);
+
+		IConverter stringToDoubleConverter = new StringToDoubleConverter();
+
+		mConverters.put(new ConvertFromTo(String.class, Double.class), stringToDoubleConverter);
+		mConverters.put(new ConvertFromTo(String.class, double.class), stringToDoubleConverter);
 	}
 
 	@Override
