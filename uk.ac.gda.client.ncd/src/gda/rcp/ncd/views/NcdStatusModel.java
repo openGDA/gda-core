@@ -18,9 +18,7 @@
 
 package gda.rcp.ncd.views;
 
-import org.eclipse.scanning.api.annotation.ui.EditType;
 import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
-import org.eclipse.scanning.api.annotation.ui.FieldRole;
 import org.eclipse.scanning.api.annotation.ui.FileType;
 
 import gda.device.DeviceException;
@@ -36,16 +34,16 @@ public class NcdStatusModel {
 
 	private static final String THICKNESS_METADATA = "sample_thickness";
 
-	@FieldDescriptor(label="Saxs Mask", file=FileType.EXISTING_FILE)
+	@FieldDescriptor(label="SAXS Mask", file=FileType.EXISTING_FILE)
 	private String saxsMask;
 
-	@FieldDescriptor(label="Waxs Mask", file=FileType.EXISTING_FILE)
+	@FieldDescriptor(label="WAXS Mask", file=FileType.EXISTING_FILE)
 	private String waxsMask;
 
-	@FieldDescriptor(label="Saxs Calibration", file=FileType.EXISTING_FILE, edit=EditType.LONG, validif="saxsCalibration.exists()")
+	@FieldDescriptor(label="SAXS Calibration", file=FileType.EXISTING_FILE)
 	private String saxsCalibration;
 
-	@FieldDescriptor(label="Waxs Calibrations", file=FileType.EXISTING_FILE, role=FieldRole.EXPERT)
+	@FieldDescriptor(label="WAXS Calibration", file=FileType.EXISTING_FILE)
 	private String waxsCalibration;
 
 	@FieldDescriptor(label="Sample Thickness", unit="mm", hint="Thickness of sample", minimum=0.0, numberFormat="#0.0##")
@@ -89,7 +87,9 @@ public class NcdStatusModel {
 	}
 
 	public void setSaxsMask(String saxsMask) {
-		if (saxsMask.contains("#")) {
+		if (saxsMask == null) {
+			MsgBus.publish(saxsMaskMsg.changeRequest(null, null));
+		} else if (saxsMask.contains("#")) {
 			String[] parts = saxsMask.split("#", 2);
 			MsgBus.publish(saxsMaskMsg.changeRequest(parts[0], parts[1]));
 		} else {
@@ -118,7 +118,9 @@ public class NcdStatusModel {
 	}
 
 	public void setWaxsMask(String waxsMask) {
-		if (waxsMask.contains("#")) {
+		if (waxsMask == null) {
+			MsgBus.publish(waxsMaskMsg.changeRequest(null, null));
+		} else if (waxsMask.contains("#")) {
 			String[] parts = waxsMask.split("#", 1);
 			MsgBus.publish(waxsMaskMsg.changeRequest(parts[0], parts[1]));
 		} else {
