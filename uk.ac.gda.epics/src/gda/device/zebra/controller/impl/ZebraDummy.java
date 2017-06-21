@@ -346,6 +346,10 @@ public class ZebraDummy implements Zebra, Findable, InitializingBean {
 	}
 
 	@Override
+	public void setPCPulseInput(int input) throws Exception {
+	}
+
+	@Override
 	public ReadOnlyPV<Integer> getNumberOfPointsDownloadedPV() {
 		return new DummyReadOnlyPV<Integer>(ZEBRA_PV, 33);
 	}
