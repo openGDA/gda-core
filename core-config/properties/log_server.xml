@@ -15,9 +15,9 @@
 
 	<!-- http://logback.qos.ch/manual/appenders.html#RollingFileAppender -->
 	<appender name="LogFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>${gda.logs.dir}/gda_server.log</file>
+		<file>${gda.logs.dir}/gda-server.log</file>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-			<fileNamePattern>${gda.logs.dir}/gda_server.%d{yyyy-MM-dd}.log.gz</fileNamePattern>
+			<fileNamePattern>${gda.logs.dir}/gda-server-%d{yyyyMMdd}.log.gz</fileNamePattern>
 		</rollingPolicy>
 		<encoder>
 			<pattern>%d %-5level [%property{HOSTNAME}/%property{GDA_SOURCE}/%property{JVMNAME}] %logger - %m%n%rEx</pattern>
