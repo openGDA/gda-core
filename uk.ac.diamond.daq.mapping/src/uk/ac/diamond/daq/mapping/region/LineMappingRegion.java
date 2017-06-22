@@ -120,6 +120,11 @@ public class LineMappingRegion implements IMappingScanRegionShape {
 	}
 
 	@Override
+	public LinearROI getDefaultROI() {
+		return new LinearROI(1.0,0.0);
+	}
+
+	@Override
 	public LinearROI toROI() {
 		LinearROI roi = new LinearROI();
 		roi.setPoint(getxStart(), getyStart());

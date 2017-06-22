@@ -18,7 +18,6 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
-import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.List;
 
@@ -27,10 +26,6 @@ import org.dawnsci.plotting.roi.ROIEditTable;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
-import org.eclipse.dawnsci.analysis.dataset.roi.CircularROI;
-import org.eclipse.dawnsci.analysis.dataset.roi.LinearROI;
-import org.eclipse.dawnsci.analysis.dataset.roi.PointROI;
-import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.dawnsci.plotting.api.region.IROIListener;
 import org.eclipse.e4.core.contexts.ContextInjectionFactory;
 import org.eclipse.e4.ui.di.UISynchronize;
@@ -65,13 +60,10 @@ public class RegionAndPathSection extends AbstractMappingSection {
 		private final PropertyChangeListener regionBeanPropertyChangeListener;
 
 		private RegionSelectorListener() {
-			this.regionBeanPropertyChangeListener = new PropertyChangeListener() {
-				@Override
-				public void propertyChange(PropertyChangeEvent evt) {
+			this.regionBeanPropertyChangeListener = evt -> {
 					plotter.updatePlotRegionFrom(scanRegion);
 					updatePoints();
 					if (!updatingRegion) regionEditor.setRegion(scanRegion.toROI(), null, null);
-				}
 			};
 		}
 
@@ -84,24 +76,7 @@ public class RegionAndPathSection extends AbstractMappingSection {
 			IMappingScanRegionShape selectedRegion = (IMappingScanRegionShape) selection.getFirstElement();
 			changeRegion(selectedRegion);
 
-			// Need default regions for testing
-			switch (selectedRegion.getName()) {
-
-			case "Rectangle":
-				regionEditor.setRegion(new RectangularROI(1.0, 0.0), null, null);
-				break;
-			case "Circle":
-				regionEditor.setRegion(new CircularROI(1.0), null, null);
-				break;
-			case "Line":
-				regionEditor.setRegion(new LinearROI(1.0, 0.0), null, null);
-				break;
-			case "Point":
-				regionEditor.setRegion(new PointROI(0.0,0.0), null, null);
-				break;
-			}
-
-
+			regionEditor.setRegion(selectedRegion.getDefaultROI(), null, null);
 		}
 
 		private void changeRegion(IMappingScanRegionShape newRegion) {
@@ -139,12 +114,7 @@ public class RegionAndPathSection extends AbstractMappingSection {
 
 	private static final Logger logger = LoggerFactory.getLogger(RegionAndPathSection.class);
 
-	private final PropertyChangeListener pathBeanPropertyChangeListener = new PropertyChangeListener() {
-		@Override
-		public void propertyChange(PropertyChangeEvent evt) {
-			updatePoints();
-		}
-	};
+	private final PropertyChangeListener pathBeanPropertyChangeListener = evt -> updatePoints();
 
 
 	private Composite regionAndPathComposite;
@@ -283,16 +253,11 @@ public class RegionAndPathSection extends AbstractMappingSection {
 		});
 
 
-		pathSelector.addSelectionChangedListener(new ISelectionChangedListener() {
-			@Override
-			public void selectionChanged(SelectionChangedEvent event) {
+		pathSelector.addSelectionChangedListener( event -> {
 				logger.debug("Path selection event: {}", event);
-
-				// Get the new selection.
 				IStructuredSelection selection = (IStructuredSelection) event.getSelection();
 				IScanPathModel selectedPath = (IScanPathModel) selection.getFirstElement();
 				changePath(selectedPath);
-			}
 		});
 
 		// Setting the first region will trigger the listeners to update the mapping section and point count
