@@ -80,7 +80,7 @@ public class JmsEventReceiver extends JmsClient implements EventReceiver {
 			final MessageConsumer consumer = session.createConsumer(topic);
 
 			// Add the listener that handles received messages
-			consumer.setMessageListener(new MessageDispatcher(eventSubscriber));
+			consumer.setMessageListener(new MessageDispatcher(eventSubscriber, topicName));
 
 			// Store the consumer for disconnecting
 			consumers.add(consumer);
@@ -98,16 +98,18 @@ public class JmsEventReceiver extends JmsClient implements EventReceiver {
 	private class MessageDispatcher implements MessageListener {
 
 		private final EventSubscriber eventSubscriber;
+		private final String topic;
 
-		public MessageDispatcher(EventSubscriber eventSubscriber) {
+		public MessageDispatcher(EventSubscriber eventSubscriber, String topic) {
 			this.eventSubscriber = eventSubscriber;
+			this.topic = topic;
 		}
 
 		@Override
 		public void onMessage(final Message message) {
 			// If its not a ObjectMessage fail
 			if (!(message instanceof ObjectMessage)) {
-				logger.error("Received unexpected message: '{}'", message);
+				logger.error("Received unexpected message: '{}' on topic '{}'", message, topic);
 				return; // We can't handle this message
 			}
 			// It is a ObjectMessage so cast it
@@ -123,12 +125,12 @@ public class JmsEventReceiver extends JmsClient implements EventReceiver {
 				// Get the sending timestamp
 				sendingTimestamp = objectMessage.getJMSTimestamp();
 			} catch (JMSException e) {
-				logger.error("Error handling received message: '{}'", message, e);
+				logger.error("Error handling received message: '{}' on topic '{}'", message, topic, e);
 				return; // We can't continue
 			}
 
 			if (!(serializedObject instanceof byte[])) {
-				logger.error("Received a message that was not a serialized object");
+				logger.error("Received a message on topic '{}' that was not a serialized object", topic);
 				return; // We can't handle this case
 			}
 			// Deserialize back to the actual message object - Using the GDA serializer which can see the classes
@@ -137,7 +139,7 @@ public class JmsEventReceiver extends JmsClient implements EventReceiver {
 			// Warn about receiving old messages. This suggests a communication issue or very high message rate.
 			final long messageAgeMillis = System.currentTimeMillis() - sendingTimestamp;
 			if (messageAgeMillis > MESSAGE_AGE_WARNING_MILLS) {
-				logger.warn("Message received is older than {} ms. Age is: {} ms", MESSAGE_AGE_WARNING_MILLS, messageAgeMillis);
+				logger.warn("Message received on topic '{}' is older than {} ms. Age is: {} ms", topic, MESSAGE_AGE_WARNING_MILLS, messageAgeMillis);
 			}
 
 			// Inform subscribers
