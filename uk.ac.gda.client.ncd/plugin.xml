@@ -58,7 +58,13 @@
             icon="icons/sample.gif"
             id="gda.rcp.ncd.views.NCDStatus"
             name="Ncd Status">
-      </view>    
+      </view>
+      <view
+           class="gda.rcp.ncd.views.SyringeControlView"
+           id="gda.rcp.ncd.views.SyringeControlView"
+           name="Syringe Control"
+           restorable="true">
+      </view>
       <view
             category="gda.rcp.ncd"
             class="gda.rcp.ncd.views.WatchView"

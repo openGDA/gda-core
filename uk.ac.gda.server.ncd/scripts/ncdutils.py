@@ -47,10 +47,10 @@ class DetectorMeta(ScannableMotionUnitsBase):
         return 0
 
 class DetectorMetaString(DetectorMeta):
-	def rawAsynchronousMoveTo(self, p):
-		getDetectorByType(self.detsystem, self.type).setAttribute(self.meta, p)
-	def rawGetPosition(self):
-		return getDetectorByType(self.detsystem, self.type).getAttribute(self.meta) or ''
+    def rawAsynchronousMoveTo(self, p):
+        getDetectorByType(self.detsystem, self.type).setAttribute(self.meta, p)
+    def rawGetPosition(self):
+        return getDetectorByType(self.detsystem, self.type).getAttribute(self.meta) or ''
 
 class DetectorMetaWithPv(DetectorMeta, object):
     def __init__(self, name, detsystem, type, meta, unit=None, pv=None):
