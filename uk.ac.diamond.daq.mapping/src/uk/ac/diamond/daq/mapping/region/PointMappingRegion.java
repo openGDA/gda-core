@@ -100,6 +100,11 @@ public class PointMappingRegion implements IMappingScanRegionShape {
 	}
 
 	@Override
+	public PointROI getDefaultROI() {
+		return new PointROI(0.0,0.0);
+	}
+
+	@Override
 	public String whichPlottingRegionType() {
 		return RegionType.POINT.toString();
 	}
