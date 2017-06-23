@@ -18,7 +18,7 @@
 
 package uk.ac.gda.devices.bssc.ispyb;
 
-import uk.ac.gda.devices.bssc.beans.LocationBean;
+import uk.ac.gda.devices.hatsaxs.beans.LocationBean;
 
 public class SampleInfo {
 	private LocationBean location;

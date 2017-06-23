@@ -49,16 +49,16 @@ public final class BSSCSessionBeanComposite extends Composite {
 	public BSSCSessionBeanComposite(Composite parent, int style, final RichBeanEditorPart editor) {
 		super(parent, style);
 		GridLayout layout = new GridLayout(2, false);
-		layout.marginWidth=5;
+		layout.marginWidth = 5;
 		setLayout(layout);
 		Composite composite = new Composite(this, SWT.NONE);
 		RowLayout rowLayout = new RowLayout(SWT.HORIZONTAL);
-		rowLayout.marginWidth=0;
-		rowLayout.marginTop=0;
-		rowLayout.marginBottom=0;
-		rowLayout.marginLeft=0;
-		rowLayout.marginRight=0;
-		rowLayout.spacing=5;
+		rowLayout.marginWidth = 0;
+		rowLayout.marginTop = 0;
+		rowLayout.marginBottom = 0;
+		rowLayout.marginLeft = 0;
+		rowLayout.marginRight = 0;
+		rowLayout.spacing = 5;
 		composite.setLayout(rowLayout);
 		
 		Button btnNewSample = new Button(composite, SWT.NONE);
@@ -69,9 +69,8 @@ public final class BSSCSessionBeanComposite extends Composite {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				super.widgetSelected(e);
-				// TODO
 				if (measurements != null)
-					measurements.addSample();		
+					measurements.addSample();
 			}
 		});
 		
@@ -84,15 +83,27 @@ public final class BSSCSessionBeanComposite extends Composite {
 			public void widgetSelected(SelectionEvent e) {
 				super.widgetSelected(e);
 				if (measurements != null)
-					measurements.deleteSelection();			
+					measurements.deleteSelection();
 			}
 		});
+		layoutData = new GridData(SWT.TRAIL, SWT.FILL, true, false, 1, 1);
+
+		Composite runControls = new Composite(this, SWT.NONE);
+		runControls.setLayout(new GridLayout(2, false));
+		runControls.setLayoutData(layoutData);
+
+		layoutData = new GridData(SWT.TRAIL, SWT.FILL, true, false, 1, 1);
+
+		final Button btnRunPipeline = new Button(runControls, SWT.CHECK);
+		btnRunPipeline.setText("Include processing");
+		btnRunPipeline.setLayoutData(layoutData);
+		btnRunPipeline.setToolTipText("Automatically run processing after experiment");
 		
-		Button btnQueueExperiment = new Button(this, SWT.NONE);
-		layoutData = new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1);
+		layoutData = new GridData(SWT.TRAIL, SWT.CENTER, true, false, 1, 1);
+		Button btnQueueExperiment = new Button(runControls, SWT.NONE);
 		btnQueueExperiment.setLayoutData(layoutData);
 		btnQueueExperiment.setText("Queue Experiment");
-		btnQueueExperiment.setToolTipText("save file and queue for execution (will start immediately if queue running");
+		btnQueueExperiment.setToolTipText("save file and queue for execution (will start immediately if queue running)");
 		btnQueueExperiment.addSelectionListener(new SelectionAdapter() {
 
 			@Override
@@ -105,7 +116,7 @@ public final class BSSCSessionBeanComposite extends Composite {
 						return;
 					Queue queue = CommandQueueViewFactory.getQueue();
 					if (queue != null) {
-						queue.addToTail(new JythonCommandCommandProvider(String.format("import BSSC; BSSC.BSSCRun(\"%s\").run()", editor.getPath()), editor.getTitle(), editor.getPath()));
+						queue.addToTail(new JythonCommandCommandProvider(String.format("import BSSC; BSSC.BSSCRun('%s').run('%s')", editor.getPath(), String.valueOf(btnRunPipeline.getSelection())), editor.getTitle(), editor.getPath()));
 					} else {
 						logger.warn("No queue received from CommandQueueViewFactory");
 					}

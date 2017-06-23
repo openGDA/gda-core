@@ -1,18 +1,17 @@
 import time, sys
 import gda.factory.Finder
-import uk.ac.gda.devices.bssc.beans.BSSCSessionBean
+from uk.ac.gda.devices.bssc.beans import BSSCSessionBean
 from gda.data.metadata import GDAMetadataProvider
 import gda.jython.commands.ScannableCommands
 from gda.commandqueue import JythonScriptProgressProvider
 from uk.ac.gda.devices.bssc.ispyb import BioSAXSDBFactory, BioSAXSISPyBUtils, ISpyBStatusInfo, ISpyBStatus
 
 class BSSCRun:
-    
     def __init__(self, beanFile):
         finder = gda.factory.Finder.getInstance()
         find = finder.find
         self.samplevolume = 20
-        self.bean = uk.ac.gda.devices.bssc.beans.BSSCSessionBean.createFromXML(beanFile)
+        self.bean = BSSCSessionBean.createFromXML(beanFile)
         self.bssc = finder.listAllLocalObjects("uk.ac.gda.devices.bssc.BioSAXSSampleChanger")[0]
         self.tfg = finder.listAllLocalObjects("gda.device.Timer")[0]
         self.detector = finder.listAllLocalObjects("uk.ac.gda.server.ncd.detectorsystem.NcdDetectorSystem")[0]
@@ -209,7 +208,7 @@ class BSSCRun:
             return False
         return True
         
-    def run(self):
+    def run(self, processing=True):
         self.reportProgress("Initialising");
         self.checkDevice()
         self.bssc.setSampleType("green")

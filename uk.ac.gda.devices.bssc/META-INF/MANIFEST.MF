@@ -16,15 +16,21 @@ Export-Package: org.apache.poi.openxml4j.exceptions,
  org.apache.poi.ss.usermodel,
  uk.ac.gda.devices.bssc,
  uk.ac.gda.devices.bssc.beans,
- uk.ac.gda.devices.bssc.ispyb
-Import-Package: org.slf4j;version="[1.7.2,2.0.0)"
+ uk.ac.gda.devices.bssc.ispyb,
+ uk.ac.gda.devices.bssc.ui
+Import-Package: org.apache.poi.openxml4j.exceptions,
+ org.apache.poi.ss.usermodel,
+ org.dawnsci.plotting.tools.profile,
+ org.dawnsci.plotting.views,
+ org.embl,
+ org.embl.ctrl,
+ org.embl.data,
+ org.embl.net,
+ uk.ac.gda.devices.hatsaxs,
+ uk.ac.gda.devices.hatsaxs.beans,
+ uk.ac.gda.devices.hatsaxs.ui,
+ uk.ac.gda.devices.hatsaxs.wizards,
+ org.slf4j;version="[1.7.2,2.0.0)"
 Eclipse-RegisterBuddy: uk.ac.gda.core
 Bundle-ClassPath: jars/BSSC.jar,
- jars/JLib.jar,
- jars/poi-3.9-20121203.jar,
- jars/poi-examples-3.9-20121203.jar,
- jars/poi-excelant-3.9-20121203.jar,
- jars/poi-ooxml-3.9-20121203.jar,
- jars/poi-ooxml-schemas-3.9-20121203.jar,
- jars/poi-scratchpad-3.9-20121203.jar,
  .
