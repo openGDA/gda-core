@@ -202,13 +202,11 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 				createContextMenuForOutputBox();
 				wordWrapAction.run(); // to set initial word wrap state
 
+				// Print the output from startup (localstaion.py) to the terminal
 				if (!ClientManager.isTestingMode()) {
 					String startupOutput = jsf.getStartupOutput();
 					if (startupOutput != null) {
 						appendOutput(startupOutput);
-						// Set the outputBuffer length to zero this will mean the startup output will be cleared when
-						// the next output is received.
-						outputBuffer.setLength(0);
 					}
 				}
 			}
