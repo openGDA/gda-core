@@ -23,8 +23,6 @@ import org.eclipse.january.dataset.Dataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.cosylab.epics.caj.CAJChannel;
-
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
@@ -47,14 +45,14 @@ import gda.factory.FactoryException;
 import gda.factory.corba.util.CorbaAdapterClass;
 import gda.factory.corba.util.CorbaImplClass;
 import gda.observable.IObserver;
-import gov.aps.jca.dbr.DBR_Enum;
+import gov.aps.jca.Channel;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 import uk.ac.diamond.scisoft.analysis.roi.ROIProfile;
 
 @CorbaAdapterClass(DeviceAdapter.class)
 @CorbaImplClass(DeviceImpl.class)
-public class VGScientaAnalyser extends ADDetector implements MonitorListener, IObserver, IVGScientaAnalyserRMI {
+public class VGScientaAnalyser extends ADDetector implements IObserver, IVGScientaAnalyserRMI {
 	private static final Logger logger = LoggerFactory.getLogger(VGScientaAnalyser.class);
 
 	protected boolean inScan = false;
@@ -62,7 +60,7 @@ public class VGScientaAnalyser extends ADDetector implements MonitorListener, IO
 	private VGScientaController controller;
 	private VGScientaAnalyserEnergyRange energyRange;
 	private int[] fixedModeRegion;
-	private EpicsController epicsController;
+	private final EpicsController epicsController = EpicsController.getInstance();
 
 	/**
 	 * This is the energy covered by one pixel in pass energy 1 in meV
@@ -161,9 +159,23 @@ public class VGScientaAnalyser extends ADDetector implements MonitorListener, IO
 			flex.setMaxNumberOfFrames(1);
 			flex.addIObserver(this);
 
-			// for updates to GUI
-			epicsController = EpicsController.getInstance();
-			epicsController.setMonitor(epicsController.createChannel(((ADBaseImpl) getAdBase()).getBasePVName() + ADBase.Acquire_RBV), this);
+			// For updates to GUI notify when the acquire status changes
+			final Channel acquireRbv = epicsController.createChannel(((ADBaseImpl) getAdBase()).getBasePVName() + ADBase.Acquire_RBV);
+			epicsController.setMonitor(acquireRbv, new MonitorListener() {
+				@Override
+				public void monitorChanged(MonitorEvent ev) {
+					logger.debug("been informed of some sort of change to acquire status");
+					short[] no = (short[]) ev.getDBR().getValue();
+					if (no[0] == 0) {
+						logger.info("been informed of a stop");
+						currentstatus = stopped;
+					} else {
+						logger.info("been informed of a start");
+						currentstatus = running;
+					}
+					notifyIObservers(this, currentstatus);
+				}
+			});
 
 		} catch (Exception e) {
 			throw new FactoryException("error setting up areadetector and related listeners ", e);
@@ -475,23 +487,6 @@ public class VGScientaAnalyser extends ADDetector implements MonitorListener, IO
 			zeroSupplies();
 		} catch (Exception e) {
 			logger.error("error zeroing power supplies", e);
-		}
-	}
-
-	@Override
-	public void monitorChanged(MonitorEvent arg0) {
-		if (((CAJChannel) arg0.getSource()).getName().endsWith(ADBase.Acquire_RBV)) {
-			logger.debug("been informed of some sort of change to acquire status");
-			DBR_Enum en = (DBR_Enum) arg0.getDBR();
-			short[] no = (short[]) en.getValue();
-			if (no[0] == 0) {
-				logger.info("been informed of a stop");
-				currentstatus = stopped;
-			} else {
-				logger.info("been informed of a start");
-				currentstatus = running;
-			}
-			notifyIObservers(this, currentstatus);
 		}
 	}
 

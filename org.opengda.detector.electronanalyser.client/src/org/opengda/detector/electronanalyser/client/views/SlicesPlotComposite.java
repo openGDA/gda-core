@@ -48,7 +48,6 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.device.detector.areadetector.v17.ADBase;
 import gda.epics.connection.EpicsController.MonitorType;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
@@ -161,8 +160,6 @@ public class SlicesPlotComposite extends EpicsArrayPlotComposite {
 			first = true;
 			try {
 				updateChannel = controller.createChannel(updatePV,dataListener, MonitorType.NATIVE, false);
-				String[] split = getUpdatePV().split(":");
-				startChannel = controller.createChannel(split[0] + ":" + split[1] + ":" + ADBase.Acquire, this, MonitorType.NATIVE, false);
 				controller.creationPhaseCompleted();
 				controller.tryInitialize(100);
 				logger.debug("Data channel {} is created", updateChannel.getName());
@@ -210,7 +207,7 @@ public class SlicesPlotComposite extends EpicsArrayPlotComposite {
 			}
 		}
 	}
-	ArrayList<Dataset> dataslices=new ArrayList<Dataset>();
+	ArrayList<Dataset> dataslices=new ArrayList<>();
 	@Override
 	protected void updatePlot(IProgressMonitor monitor) {
 		super.updatePlot(monitor);
@@ -231,7 +228,7 @@ public class SlicesPlotComposite extends EpicsArrayPlotComposite {
 			double[] values = Arrays.copyOf(value, arraysize);
 			final Dataset ds = DatasetFactory.createFromObject(values, dims);
 
-			ArrayList<Dataset> plotDataSets = new ArrayList<Dataset>();
+			ArrayList<Dataset> plotDataSets = new ArrayList<>();
 			if (selectedSlice>sliceControl.getMaximum()) selectedSlice=1;
 			for (int i=0; i<slices; i++) {
 				Dataset slice = ds.getSlice(new int[] {i, 0 },new int[] { i+1, dims[1]-1 }, new int[] {1,1});
@@ -267,7 +264,7 @@ public class SlicesPlotComposite extends EpicsArrayPlotComposite {
 	public void updatePlot() {
 		if (xdata==null) return;
 		super.updatePlot();
-		ArrayList<Dataset> plotDataSets = new ArrayList<Dataset>();
+		ArrayList<Dataset> plotDataSets = new ArrayList<>();
 		plotDataSets.add(dataset);
 		plottingSystem.createPlot1D(xAxis, plotDataSets, new NullProgressMonitor());
 	}

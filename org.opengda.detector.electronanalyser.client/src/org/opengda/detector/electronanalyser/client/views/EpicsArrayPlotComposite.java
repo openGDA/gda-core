@@ -15,7 +15,6 @@ import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.cosylab.epics.caj.CAJChannel;
 import com.google.common.util.concurrent.RateLimiter;
 
 import gda.device.DeviceException;
@@ -31,7 +30,7 @@ import gov.aps.jca.dbr.DBR_Double;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 
-public class EpicsArrayPlotComposite extends Composite implements InitializationListener, MonitorListener, IEnergyAxis, IPlotCompositeInitialiser {
+public class EpicsArrayPlotComposite extends Composite implements InitializationListener, IEnergyAxis, IPlotCompositeInitialiser {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsArrayPlotComposite.class);
 	protected String updatePV;
@@ -74,7 +73,12 @@ public class EpicsArrayPlotComposite extends Composite implements Initialization
 			try {
 				updateChannel = controller.createChannel(updatePV, updateListener, MonitorType.NATIVE, false);
 				String[] split = getUpdatePV().split(":");
-				startChannel = controller.createChannel(split[0] + ":" + split[1] + ":" + ADBase.Acquire, this, MonitorType.NATIVE, false);
+				startChannel = controller.createChannel(split[0] + ":" + split[1] + ":" + ADBase.Acquire, new MonitorListener() {
+					@Override
+					public void monitorChanged(MonitorEvent ev) {
+						setNewRegion(true);
+					}
+				});
 				controller.creationPhaseCompleted();
 				controller.tryInitialize(100);
 				logger.debug("Data channel {} is created", updateChannel.getName());
@@ -208,13 +212,6 @@ public class EpicsArrayPlotComposite extends Composite implements Initialization
 
 	public boolean isNewRegion() {
 		return newRegion;
-	}
-
-	@Override
-	public void monitorChanged(MonitorEvent arg0) {
-		if (((CAJChannel) arg0.getSource()).getName().endsWith(ADBase.Acquire)) {
-			setNewRegion(true);
-		}
 	}
 
 	private double[] convertToBindingEnergy(double[] xdata) {

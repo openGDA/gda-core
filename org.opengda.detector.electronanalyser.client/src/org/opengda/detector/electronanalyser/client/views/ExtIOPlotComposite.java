@@ -43,12 +43,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.epics.connection.InitializationListener;
-import gov.aps.jca.event.MonitorListener;
 
 /**
  * monitor and display external IO data update in the plot.
  */
-public class ExtIOPlotComposite extends EpicsArrayPlotComposite implements InitializationListener, MonitorListener, IEnergyAxis, IPlotCompositeInitialiser  {
+public class ExtIOPlotComposite extends EpicsArrayPlotComposite implements InitializationListener, IEnergyAxis, IPlotCompositeInitialiser  {
 
 	private static final Logger logger = LoggerFactory.getLogger(ExtIOPlotComposite.class);
 
@@ -86,7 +85,7 @@ public class ExtIOPlotComposite extends EpicsArrayPlotComposite implements Initi
 	protected void updatePlot(final IProgressMonitor monitor) {
 		super.updatePlot(monitor);
 
-		ArrayList<Dataset> plotDataSets = new ArrayList<Dataset>();
+		ArrayList<Dataset> plotDataSets = new ArrayList<>();
 		try {
 			double[] data = analyser.getExtIO(xdata.length);
 
@@ -120,7 +119,7 @@ public class ExtIOPlotComposite extends EpicsArrayPlotComposite implements Initi
 	public void updatePlot() {
 		if (xdata==null) return;
 		super.updatePlot();
-		ArrayList<Dataset> plotDataSets = new ArrayList<Dataset>();
+		ArrayList<Dataset> plotDataSets = new ArrayList<>();
 		plotDataSets.add(dataset);
 		plottingSystem.createPlot1D(xAxis, plotDataSets, new NullProgressMonitor());
 	}
