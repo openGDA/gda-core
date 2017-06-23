@@ -103,7 +103,8 @@ Export-Package: com.cosylab.epics.caj,
  gov.aps.jca.configuration,
  gov.aps.jca.dbr,
  gov.aps.jca.event,
- gov.aps.jca.jni
+ gov.aps.jca.jni,
+ uk.ac.diamond.daq.epics.connector
 Bundle-ClassPath: .,
  jars/epics.jar,
  jars/jca-2.3.6.jar,
