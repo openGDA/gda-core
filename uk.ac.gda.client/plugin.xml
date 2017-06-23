@@ -163,14 +163,6 @@
       </view>
       <view
             allowMultiple="true"
-            class="uk.ac.gda.client.live.stream.view.LiveStreamView"
-            icon="icons/media-player-phone-horizontal.png"
-            id="uk.ac.gda.client.live.stream.view.LiveStreamView"
-            name="Live Stream"
-            restorable="true">
-      </view>
-      <view
-            allowMultiple="true"
             class="uk.ac.gda.client.livecontrol.LiveControlsView"
             icon="icons/ui-slider-050.png"
             id="uk.ac.gda.client.livecontrol.LiveControlsView"
@@ -900,14 +892,6 @@
        </command>
     </toolbar>
  </menuContribution>
- <menuContribution
-       allPopups="false"
-       class="uk.ac.gda.client.live.stream.view.LiveStreamMenuContribution"
-       locationURI="menu:window?after=showView">
- </menuContribution>
- 
- 
- 
  </extension>
    <extension
          point="org.eclipse.ui.startup">

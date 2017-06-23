@@ -39,7 +39,6 @@ import org.eclipse.january.dataset.IDatasetConnector;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
-import org.eclipse.scanning.connector.epicsv3.EpicsV3DynamicDatasetConnector;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
@@ -61,6 +60,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.factory.Finder;
+import uk.ac.diamond.daq.epics.connector.EpicsV3DynamicDatasetConnector;
 
 /**
  * A RCP view for connecting to and displaying a live MJPEG stream. The intension is to provide a easy way for cameras
@@ -343,8 +343,8 @@ public class LiveStreamView extends ViewPart {
 		displayAndLogError(parent, errorMessage, null);
 	}
 
-	private void displayAndLogError(final Composite parent, final String errorMessage, final Exception exception) {
-		logger.error(errorMessage, exception);
+	private void displayAndLogError(final Composite parent, final String errorMessage, final Throwable throwable) {
+		logger.error(errorMessage, throwable);
 		if (errorText == null) {
 			errorText = new Text(parent, SWT.LEFT | SWT.WRAP | SWT.BORDER);
 			errorText.addMouseListener(new MouseAdapter() {
@@ -360,8 +360,8 @@ public class LiveStreamView extends ViewPart {
 		}
 		StringBuilder s = new StringBuilder(errorText.getText());
 		s.append("\n").append(errorMessage);
-		if (exception != null) {
-			s.append("\n\t").append(exception.getMessage());
+		if (throwable != null) {
+			s.append("\n\t").append(throwable.getMessage());
 		}
 		errorText.setText(s.toString());
 	}
@@ -461,7 +461,13 @@ public class LiveStreamView extends ViewPart {
 			break;
 
 		case EPICS_ARRAY:
-			stream = new EpicsV3DynamicDatasetConnector(camConfig.getArrayPv());
+			try {
+				stream = new EpicsV3DynamicDatasetConnector(camConfig.getArrayPv());
+			} catch (NoClassDefFoundError e) {
+				// As uk.ac.gda.epics is an optional dependency if it is not included in the client. The code will fail
+				// here.
+				displayAndLogError(parent, "Could not connect to EPICS stream, Is uk.ac.gda.epics in the product?", e);
+			}
 			try {
 				stream.connect();
 			} catch (DatasetException e) {

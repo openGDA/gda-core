@@ -36,6 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.factory.Finder;
+import uk.ac.diamond.daq.epics.connector.EpicsV3DynamicDatasetConnector;
 
 /**
  * This processed {@link CameraConfiguration}'s in the client Spring and generates the menu items to allow them to be
@@ -99,14 +100,24 @@ public class LiveStreamMenuContribution extends ExtensionContributionFactory {
 
 		// Now EPICS streams
 		if (!epicsCameras.isEmpty()) {
-			final MenuManager epicsMenu = new MenuManager("EPICS Streams");
+			// Check if EPICS streams can work, i.e. id uk.ac.gda.epics bundle is available
+			try {
+				// Make the class load if not available will throw
+				EpicsV3DynamicDatasetConnector.class.getName();
 
-			for (Entry<String, CameraConfiguration> cam : epicsCameras.entrySet()) {
-				epicsMenu.add(createMenuAction(cam, StreamType.EPICS_ARRAY));
+				// Only build the menu if EPICS streams can work
+				final MenuManager epicsMenu = new MenuManager("EPICS Streams");
+
+				for (Entry<String, CameraConfiguration> cam : epicsCameras.entrySet()) {
+					epicsMenu.add(createMenuAction(cam, StreamType.EPICS_ARRAY));
+				}
+
+				// Add to the window menu always shown
+				additions.addContributionItem(epicsMenu, Expression.TRUE);
 			}
-
-			// Add to the window menu always shown
-			additions.addContributionItem(epicsMenu, Expression.TRUE);
+			catch (NoClassDefFoundError e) {
+				logger.error("Camera configurations including EPICS PVs were found but EPICS bundle (uk.ac.gda.epics) is not avaliable", e);
+			}
 		}
 
 		logger.debug("Finished creating menu items for live streams");
