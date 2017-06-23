@@ -25,12 +25,12 @@ import gda.factory.Finder;
 import gda.jython.JythonServerFacade;
 import gda.observable.IObserver;
 
-import org.csstudio.swt.widgets.figures.AbstractLinearMarkedFigure;
-import org.csstudio.swt.widgets.figures.TankFigure;
-import org.csstudio.swt.widgets.figures.ThermometerFigure;
 import org.eclipse.draw2d.LightweightSystem;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.nebula.visualization.widgets.figures.AbstractLinearMarkedFigure;
+import org.eclipse.nebula.visualization.widgets.figures.TankFigure;
+import org.eclipse.nebula.visualization.widgets.figures.ThermometerFigure;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -92,7 +92,6 @@ public class BSSCStatus extends ViewPart implements IObserver {
 			final LightweightSystem lws = new LightweightSystem(canvas);		
 			
 			thermo_seu = new ThermometerFigure();
-			
 			thermo_seu.setRange(-20, 60);
 			thermo_seu.setLoLevel(-50);
 			thermo_seu.setLoloLevel(-80);

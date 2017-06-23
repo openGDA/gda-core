@@ -16,8 +16,7 @@ Export-Package: org.apache.poi.openxml4j.exceptions,
  org.apache.poi.ss.usermodel,
  uk.ac.gda.devices.bssc,
  uk.ac.gda.devices.bssc.beans,
- uk.ac.gda.devices.bssc.ispyb,
- uk.ac.gda.devices.bssc.ui
+ uk.ac.gda.devices.bssc.ispyb
 Import-Package: org.apache.poi.openxml4j.exceptions,
  org.apache.poi.ss.usermodel,
  org.dawnsci.plotting.tools.profile,
