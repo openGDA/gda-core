@@ -135,7 +135,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	// store any output from during setup to be displayed by terminals
 	boolean runningLocalStation = false;
 
-	String bufferedLocalStationOutput = "";
+	StringBuilder bufferedLocalStationOutput = new StringBuilder();
 
 	// part of the Localizable interface
 	boolean isLocal = false;
@@ -778,7 +778,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 			updateIObservers(output);
 
 			if (runningLocalStation) {
-				bufferedLocalStationOutput += str;
+				bufferedLocalStationOutput.append(str);
 			}
 		}
 
@@ -868,6 +868,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 		this.configured = false;
 		interruptThreads();
 		try {
+			bufferedLocalStationOutput = new StringBuilder();
 			configure();
 		} catch (FactoryException e) {
 			logger.error(
@@ -950,7 +951,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 
 	@Override
 	public String getStartupOutput(String JSFIdentifier) {
-		return this.bufferedLocalStationOutput;
+		return this.bufferedLocalStationOutput.toString();
 	}
 
 	@Override
