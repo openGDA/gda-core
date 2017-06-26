@@ -99,7 +99,7 @@ public class SpringObjectServer extends ObjectServer {
 		if (LocalProperties.contains(gdaPropertyName)) {
 			final String[] activeProfiles = LocalProperties.getStringArray(gdaPropertyName);
 			final ConfigurableEnvironment environment = (ConfigurableEnvironment) applicationContext.getEnvironment();
-			logger.info("\"{}\" property is set, so setting active profiles to {}", gdaPropertyName, activeProfiles);
+			logger.info("\"{}\" property is set, so setting active profiles to {}", gdaPropertyName, Arrays.toString(activeProfiles));
 			environment.setActiveProfiles(activeProfiles);
 		}
 	}
