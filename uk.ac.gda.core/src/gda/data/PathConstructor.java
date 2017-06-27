@@ -106,7 +106,9 @@ public class PathConstructor implements IPathConstructor {
 	 */
 	@Deprecated
 	public static String createFromRCPProperties() {
-		logger.warn("Using deprecated createFromRCPProperties. Use getClientVisitDirectory");
+		final String msg = "Using deprecated createFromRCPProperties. Use getClientVisitDirectory";
+		logger.warn(msg);
+		logger.debug(msg, new Exception("Stack trace"));
 		HashMap<String, String> metadataOverrides = new HashMap<String, String>();
 		if (LocalProperties.get(LocalProperties.RCP_APP_VISIT) != null) {
 			metadataOverrides.put("visit", LocalProperties.get(LocalProperties.RCP_APP_VISIT));
