@@ -3,6 +3,7 @@
 	<name>p45-config</name>
 	<comment></comment>
 	<projects>
+		<project>uk.ac.gda.client.live.stream</project>
 		<project>uk.ac.gda.core</project>
 	</projects>
 	<buildSpec>
