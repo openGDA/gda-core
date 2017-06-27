@@ -18,10 +18,6 @@
 
 package uk.ac.gda.client.scripting;
 
-import gda.configuration.properties.LocalProperties;
-import gda.jython.JythonServerFacade;
-import gda.rcp.GDAClientActivator;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -55,6 +51,9 @@ import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
+import gda.jython.JythonServerFacade;
+import gda.rcp.GDAClientActivator;
 import uk.ac.gda.common.rcp.util.BundleUtils;
 import uk.ac.gda.jython.PydevConstants;
 import uk.ac.gda.ui.utils.ProjectUtils;
@@ -254,7 +253,7 @@ public class ScriptProjectCreator implements IStartup {
 		if (chkGDASyntax) {
 			if (!hasPythonNature) {
 				// Assumes that the interpreter named PydevConstants.INTERPRETER_NAME has been created.
-				PythonNature.addNature(project2, monitor, IPythonNature.JYTHON_VERSION_2_5,
+				PythonNature.addNature(project2, monitor, IPythonNature.JYTHON_VERSION_2_7,
 				// NOTE Very important to start the name with a '/'
 				// or pydev creates the wrong kind of nature.
 						"/" + project2.getName() + "/src", null, PydevConstants.INTERPRETER_NAME, null);
