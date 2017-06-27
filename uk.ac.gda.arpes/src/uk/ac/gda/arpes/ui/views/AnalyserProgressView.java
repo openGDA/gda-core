@@ -95,6 +95,7 @@ public class AnalyserProgressView extends ViewPart implements IObserver {
 		sweepSpinner.setMinimum(1);
 		sweepSpinner.setMaximum(1000);
 		sweepSpinner.setSelection(1);
+		sweepSpinner.setEnabled(false); // Disable for now it doesn't work
 		sweepSpinner.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
