@@ -38,9 +38,13 @@ import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
+import org.eclipse.jface.text.ITextListener;
 import org.eclipse.jface.text.ITextOperationTarget;
+import org.eclipse.jface.text.TextEvent;
 import org.eclipse.jface.text.TextViewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ST;
+import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.graphics.Font;
@@ -197,6 +201,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 				outputTextViewer.getTextWidget().setFont(font);
 				outputTextViewer.getTextWidget().setTabs(tabSize);
 				outputTextViewer.setDocument(outputDoc);
+				outputTextViewer.addTextListener(new TextUpdateListener(parent));
 				txtOutputLast = "";
 
 				createContextMenuForOutputBox();
@@ -1008,44 +1013,16 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 			if (newOutput.startsWith(txtOutputLast)) {
 				String append = newOutput.substring(txtOutputLast.length());
 				// Get in the UI thread and update the terminal output
-				PlatformUI.getWorkbench().getDisplay().asyncExec(() -> {
-					outputDoc.append(append);
-					scrollToBottomIfEnabled();
-				});
+				PlatformUI.getWorkbench().getDisplay().asyncExec(() ->
+					outputDoc.append(append)
+				);
 			} else {
 				// Get in the UI thread and update the terminal output
-				PlatformUI.getWorkbench().getDisplay().asyncExec(() -> {
-					outputDoc.set(newOutput);
-					scrollToBottomIfEnabled();
-				});
+				PlatformUI.getWorkbench().getDisplay().asyncExec(() ->
+					outputDoc.set(newOutput)
+				);
 			}
 			txtOutputLast = newOutput;
-
-			moveViewToTopIfEnabled();
-		}
-
-		/**
-		 * Scroll's the terminal to the bottom if the scrolling isn't locked. Must be called in the UI thread!
-		 */
-		private void scrollToBottomIfEnabled() {
-			if (!JythonTerminalView.getScrollLock()) {
-				// Find out how many characters are in the output
-				final int characters = outputDoc.getLength();
-				// Move the selection to the last character ensuring it is shown
-				outputTextViewer.getTextWidget().setSelection(characters);
-			}
-		}
-
-		private void moveViewToTopIfEnabled() {
-			if (JythonTerminalView.getMoveToTopOnUpdate()) {
-				PlatformUI.getWorkbench().getDisplay().asyncExec(() -> {
-					IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-					IWorkbenchPage page = window.getActivePage();
-					if (getSite().getPage().equals(page)) {
-						page.bringToTop(JythonTerminalView.this);
-					}
-				});
-			}
 		}
 	}
 
@@ -1063,6 +1040,63 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 				replace(getLength(), 0, text);
 			} catch (BadLocationException e) {
 				logger.error("Couldn't append text", e);
+			}
+		}
+	}
+
+	/**
+	 * Listener to implement auto-scroll and bring-to-front settings
+	 */
+	private class TextUpdateListener implements ITextListener {
+
+		private final Composite parent;
+		private final StyledText text;
+
+		public TextUpdateListener(Composite parent) {
+			this.parent = parent;
+			this.text = outputTextViewer.getTextWidget();
+		}
+
+		@Override
+		public void textChanged(TextEvent event) {
+			if (!JythonTerminalView.getScrollLock()) {
+				scrollToBottom();
+			}
+			if (JythonTerminalView.getMoveToTopOnUpdate()) {
+				bringToFront();
+			}
+		}
+
+		/**
+		 * Bring view to front
+		 * @see JythonTerminalView#setMoveToTopOnUpdate(boolean)
+		 */
+		private void bringToFront() {
+			IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+			IWorkbenchPage page = window.getActivePage();
+			if (getSite().getPage().equals(page)) {
+				page.bringToTop(JythonTerminalView.this);
+			}
+		}
+
+		/**
+		 * Scroll view to bottom, keeping horizontal scroll position
+		 * @see JythonTerminalView#setScrollLock(boolean)
+		 */
+		private void scrollToBottom() {
+			// Stop view redrawing while scroll position is being updated
+			// prevents flickering of the horizontal scroll from line end to previous position
+			parent.setRedraw(false);
+			try {
+				// Cache the current horizontal position
+				final int horizontalScrollPosition = text.getHorizontalPixel();
+				// Move to the end of the text
+				text.invokeAction(ST.TEXT_END);
+				// Restore the horizontal position
+				text.setHorizontalPixel(horizontalScrollPosition);
+			} finally {
+				// Mark for redraw
+				parent.setRedraw(true);
 			}
 		}
 	}
