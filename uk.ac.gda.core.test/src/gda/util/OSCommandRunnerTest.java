@@ -21,20 +21,25 @@ package gda.util;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
-
 
 /**
  *
  */
 public class OSCommandRunnerTest {
-	final static String TestFileFolder = "gda/util/TestFiles/";
+	final static String TestFileFolder = "testfiles/gda/util/OSCommandRunnerTest/";
+	static String testScratchDirectoryName = null;
 
 	/**
+	 * Creates an empty directory for use by test code.
+	 *
+	 * @throws Exception if setup fails
 	 */
-	@Before
-	public void setUp() {
+	@BeforeClass
+	public static void setUpBeforeClass() throws Exception {
+		testScratchDirectoryName = TestUtils.generateDirectorynameFromClassname(OSCommandRunnerTest.class.getCanonicalName());
+		TestUtils.makeScratchDirectory(testScratchDirectoryName);
 	}
 
 	/**
@@ -44,7 +49,7 @@ public class OSCommandRunnerTest {
 	public void testOSCommandRunner() {
 		String[] commands = { "awk", "{if(NF>5) print $1,$4}" };
 		OSCommandRunner os = new OSCommandRunner(commands, false, TestFileFolder + "OSCommandRunnerInput.dat",
-				TestFileFolder + "OSCommandRunnerOutput.dat");
+				testScratchDirectoryName + "OSCommandRunnerOutput.dat");
 		assertTrue(os.succeeded);
 	}
 
@@ -54,8 +59,8 @@ public class OSCommandRunnerTest {
 	@Test
 	public void testNoInputFile() {
 		String[] commands = { "awk", "{if(NF>5) print $1,$4}" };
-		OSCommandRunner os = new OSCommandRunner(commands, false, TestFileFolder + "DoesNotExist.dat", TestFileFolder
-				+ "OSCommandRunnerOutput.dat");
+		OSCommandRunner os = new OSCommandRunner(commands, false, TestFileFolder + "DoesNotExist.dat",
+				testScratchDirectoryName + "OSCommandRunnerOutput.dat");
 		assertEquals(TestFileFolder + "DoesNotExist.dat" + " (No such file or directory)", os.exception.getMessage());
 	}
 
@@ -66,7 +71,7 @@ public class OSCommandRunnerTest {
 	public void testNoOutputFile() {
 		String[] commands = { "awk", "{if(NF>5) print $1,$4}" };
 		OSCommandRunner os = new OSCommandRunner(commands, false, TestFileFolder + "OSCommandRunnerInput.dat",
-				TestFileFolder + "/DoesNotExist/1.dat");
-		assertEquals(TestFileFolder + "DoesNotExist/1.dat" + " (No such file or directory)", os.exception.getMessage());
+				testScratchDirectoryName + "/DoesNotExist/1.dat");
+		assertEquals(testScratchDirectoryName + "DoesNotExist/1.dat" + " (No such file or directory)", os.exception.getMessage());
 	}
 }
