@@ -19,29 +19,30 @@
 
 package gda.jython.commands;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+
+import java.util.Arrays;
+
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.InOrder;
+
 import gda.MockFactory;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.ScannableMotion;
+import gda.jython.InterfaceProvider;
+import gda.jython.MockJythonServerFacade;
 
-import java.util.Arrays;
-
-import junit.framework.TestCase;
-
-import org.junit.Assert;
-import org.junit.Before;
-import org.mockito.InOrder;
-
-/**
- *
- */
-public class ScannableCommandsTest extends TestCase {
+public class ScannableCommandsTest {
 	private ScannableMotion lev4;
 	private ScannableMotion lev5a;
 	private Scannable lev5b;
@@ -53,9 +54,10 @@ public class ScannableCommandsTest extends TestCase {
 	 * @throws Exception
 	 *             if setup fails
 	 */
-	@Override
 	@Before
 	public void setUp() throws Exception {
+		InterfaceProvider.setTerminalPrinterForTesting(new MockJythonServerFacade());
+
 		lev4 = MockFactory.createMockScannableMotion("lev4", 4);
 		lev5a = MockFactory.createMockScannableMotion("lev5a", 5);
 		lev5b = MockFactory.createMockScannable("lev5b", 5);
@@ -65,6 +67,7 @@ public class ScannableCommandsTest extends TestCase {
 	/**
 	 * @throws Exception
 	 */
+	@Test
 	public void testPosWithSingleMove() throws Exception {
 		ScannableCommands.pos(lev4, 1.2);
 		InOrder inOrder = inOrder(lev4);
@@ -81,6 +84,7 @@ public class ScannableCommandsTest extends TestCase {
 	 * TODO: This test is getting far too big
 	 * @throws Exception
 	 */
+	@Test
 	public void testPosWithTripleConcurrentMove() throws Exception {
 		ScannableCommands.pos(lev5a, 1.3, lev6, 1.4, lev5b, 1.35, lev4, 1.2);
 		InOrder inOrder = inOrder(lev4, lev5a, lev5b, lev6);
@@ -134,6 +138,7 @@ public class ScannableCommandsTest extends TestCase {
 	 * TODO: This test is getting far too big
 	 * @throws Exception
 	 */
+	@Test
 	public void testPosWithTripleConcurrentMoveAndFailingScannable() throws Exception {
 		doThrow(new DeviceException("lev5a move failed")).when(lev5a).waitWhileBusy();
 
@@ -183,6 +188,7 @@ public class ScannableCommandsTest extends TestCase {
 	 * @throws InterruptedException
 	 * @throws Exception
 	 */
+	@Test
 	public void testAtCommandFailureForOkayPos() throws InterruptedException, Exception {
 		ScannableCommands.pos(lev5a, 1.3, lev6, 1.4, lev5b, 1.35, lev4, 1.2);
 		for (Scannable scn : Arrays.asList(lev4, lev5a, lev5b, lev6)) {
@@ -193,6 +199,7 @@ public class ScannableCommandsTest extends TestCase {
 	/**
 	 * @throws Exception
 	 */
+	@Test
 	public void testAtCommandFailureForPosException() throws Exception {
 		Scannable failer = MockFactory.createMockScannable("failer");
 		doThrow(new DeviceException("Planned failure for test")).when(failer).asynchronousMoveTo(anyObject());
