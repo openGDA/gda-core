@@ -75,24 +75,12 @@
 					<exclude name="**/ScannableNexusWrapperScanTest.java" />
 					<exclude name="**/*PluginTest.java" />
 					<!--the excludes below are temporary -->
-					<exclude name="**/EditPermissionsTest.java" />
 					<exclude name="**/ObjectFactoryValidationTest.java" />
 					<exclude name="**/DummyKeithleyTest.java" />
 					<exclude name="**/KeithleyRemoteTest.java" />
 					<exclude name="**/KeithleyTest.java" />
 					<exclude name="**/ODCCDControllerTest.java" />
-					<exclude name="**/DottedAccessScannableMotionBaseTest.java" />
-					<exclude name="**/DummyTemperatureTest.java" />
-					<exclude name="**/XspressSystemTest.java" />
-					<exclude name="**/ChooseVisitIDFrameTest.java" />
-					<exclude name="**/ScanPlotPanelTest.java" />
-					<exclude name="**/ParametersPanelBuilderTest.java" />
-					<exclude name="**/SimpleXYSeriesTest.java" />
 					<exclude name="**/LdapAuthoriserTest.java" />
-					<exclude name="**/CommandSocketTest.java" />
-					<exclude name="**/SimplePlotFrameTest.java" />
-					<exclude name="**/NewClassTest.java" />
-					<exclude name="**/AboutTest.java" />
 					<exclude name="**/util/LocalPropertiesTest.java" /> <!-- there is also a LocalPropertiesTest in gda/configuration/properties-->
 					<exclude name="**/OSCommandRunnerTest.java" />
 				</fileset>
