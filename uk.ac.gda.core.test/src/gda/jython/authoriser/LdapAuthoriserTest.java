@@ -23,12 +23,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import gda.configuration.properties.LocalProperties;
-import gda.util.TestUtils;
-import gda.util.exceptionUtils;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import gda.configuration.properties.LocalProperties;
+import gda.util.TestUtils;
+import gda.util.exceptionUtils;
 
 /**
  *
@@ -46,7 +47,7 @@ public class LdapAuthoriserTest {
 	public static void setUpBeforeClass() throws Exception {
 
 		//create the underlying xml file
-		testScratchDirectoryName = TestUtils.generateDirectorynameFromClassname(FileAuthoriserTest.class
+		testScratchDirectoryName = TestUtils.generateDirectorynameFromClassname(LdapAuthoriserTest.class
 				.getCanonicalName());
 		try {
 			TestUtils.makeScratchDirectory(testScratchDirectoryName + "xml");
@@ -76,7 +77,7 @@ public class LdapAuthoriserTest {
 		assertEquals(1,authoriser.getAuthorisationLevel("testUserNotInLdap"));
 		assertEquals(2,authoriser.getAuthorisationLevel("testStaffNotInLdap"));
 		assertEquals(3,authoriser.getAuthorisationLevel("mzp47"));
-		assertEquals(5,authoriser.getAuthorisationLevel("rjw82"));
+		assertEquals(5,authoriser.getAuthorisationLevel("bmn54829"));
 	}
 
 	/**
@@ -88,7 +89,7 @@ public class LdapAuthoriserTest {
 		assertFalse(authoriser.isLocalStaff("testUserNotInLdap"));
 		assertTrue(authoriser.isLocalStaff("testStaffNotInLdap"));
 		assertFalse(authoriser.isLocalStaff("mzp47"));
-		assertTrue(authoriser.isLocalStaff("rjw82"));
+		assertTrue(authoriser.isLocalStaff("bmn54829"));
 	}
 
 	/**
@@ -99,7 +100,7 @@ public class LdapAuthoriserTest {
 		assertTrue(authoriser.hasAuthorisationLevel("testUserNotInLdap"));
 		assertTrue(authoriser.hasAuthorisationLevel("testStaffNotInLdap"));
 		assertTrue(authoriser.hasAuthorisationLevel("mzp47"));
-		assertTrue(authoriser.hasAuthorisationLevel("rjw82"));
+		assertTrue(authoriser.hasAuthorisationLevel("bmn54829"));
 		assertFalse(authoriser.hasAuthorisationLevel("a_username_in_xml_or_ldap"));
 	}
 
