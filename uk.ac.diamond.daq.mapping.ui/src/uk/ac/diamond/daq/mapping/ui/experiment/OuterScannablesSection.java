@@ -34,6 +34,7 @@ import org.eclipse.jface.databinding.fieldassist.ControlDecorationSupport;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.jface.window.Window;
 import org.eclipse.scanning.api.points.models.ArrayModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.points.models.MultiStepModel;
@@ -43,6 +44,8 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.mapping.api.IScanPathModelWrapper;
 
@@ -51,6 +54,7 @@ import uk.ac.diamond.daq.mapping.api.IScanPathModelWrapper;
  */
 class OuterScannablesSection extends AbstractMappingSection {
 
+	private static final Logger logger = LoggerFactory.getLogger(OuterScannablesSection.class);
 	private static class ScanPathToStringConverter extends Converter {
 
 		public ScanPathToStringConverter() {
@@ -86,6 +90,8 @@ class OuterScannablesSection extends AbstractMappingSection {
 			stringBuilder.append(doubleToString(stepModel.getStop()));
 			stringBuilder.append(' ');
 			stringBuilder.append(doubleToString(stepModel.getStep()));
+			stringBuilder.append(' ');
+			stringBuilder.append(doubleToString(stepModel.getExposureTime()));
 		}
 
 		private String convertMultiStepModel(MultiStepModel multiStepModel) {
@@ -98,7 +104,7 @@ class OuterScannablesSection extends AbstractMappingSection {
 					stringBuilder.append(";");
 				}
 			}
-
+			
 			return stringBuilder.toString();
 		}
 
@@ -154,18 +160,20 @@ class OuterScannablesSection extends AbstractMappingSection {
 					return convertStringToStepModel(text);
 				}
 			} catch (Exception e) {
+				logger.error("Could not convert string to model",e);
 				return null;
 			}
 		}
 
 		private StepModel convertStringToStepModel(String text) {
 			String[] startStopStep= text.split(" ");
-			if (startStopStep.length == 3) {
+			if (startStopStep.length == 3 || startStopStep.length == 4) {
 				StepModel stepModel = new StepModel();
 				stepModel.setName(scannableName);
 				stepModel.setStart(Double.parseDouble(startStopStep[0]));
 				stepModel.setStop(Double.parseDouble(startStopStep[1]));
 				stepModel.setStep(Double.parseDouble(startStopStep[2]));
+				stepModel.setExposureTime( startStopStep.length == 4? Double.parseDouble(startStopStep[3]) : 0 );
 				return stepModel;
 			}
 			return null;
@@ -215,8 +223,8 @@ class OuterScannablesSection extends AbstractMappingSection {
 		List<IScanPathModelWrapper> outerScannables = getMappingBean().getScanDefinition().getOuterScannables();
 		Composite otherScanAxesComposite = new Composite(parent, SWT.NONE);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(otherScanAxesComposite);
-		final int axesColumns = 2;
-		GridLayoutFactory.swtDefaults().numColumns(axesColumns).spacing(8, 5).applyTo(otherScanAxesComposite);
+		final int axesColumns = 3;
+		GridLayoutFactory.swtDefaults().numColumns(axesColumns).applyTo(otherScanAxesComposite);
 		Label otherScanAxesLabel = new Label(otherScanAxesComposite, SWT.NONE);
 		otherScanAxesLabel.setText("Other Scan Axes");
 		GridDataFactory.fillDefaults().span(axesColumns, 1).applyTo(otherScanAxesLabel);
@@ -239,12 +247,50 @@ class OuterScannablesSection extends AbstractMappingSection {
 					+ "or a list of ranges <start1 stop1 step1; start2 stop2 step2>");
 			GridDataFactory.fillDefaults().grab(true, false).applyTo(axisText);
 			IObservableValue axisTextValue = WidgetProperties.text(SWT.Modify).observe(axisText);
+
+			Button multiStepButton = new Button(otherScanAxesComposite, 0);
+			multiStepButton.setImage(MappingExperimentUtils.getImage("icons/pencil.png"));
+			multiStepButton.setToolTipText("Edit a multi-step scan");
+
+			MultiStepEditorDialog dialog = new MultiStepEditorDialog(getShell(), scannableAxisParameters.getName());
+			multiStepButton.addListener(SWT.Selection, event-> editModelThroughDialog(dialog, scannableAxisParameters.getName(), axisText));
+
 			bindScanPathModelToTextField(scannableAxisParameters, axisTextValue, checkBoxBinding);
 		}
 	}
 
-	private void bindScanPathModelToTextField(IScanPathModelWrapper scannableAxisParameters,
-			IObservableValue axisTextValue, Binding checkBoxBinding) {
+	private void editModelThroughDialog(MultiStepEditorDialog dialog, String scannableName, Text axisText) {
+
+		MultiStepModel multiStepModel = new MultiStepModel();
+
+		if (!axisText.getText().isEmpty()) {
+			Object oldModel = (new StringToScanPathConverter(scannableName)).convert(axisText.getText());
+
+			if (oldModel instanceof MultiStepModel) {
+				multiStepModel = (MultiStepModel) oldModel;
+			} else if (oldModel instanceof StepModel) {
+				multiStepModel.getStepModels().add((StepModel) oldModel);
+			} else if (oldModel instanceof ArrayModel) {
+				double[] positions = ((ArrayModel) oldModel).getPositions();
+				for (int i=0; i<positions.length-1; i++) {
+					StepModel stepModel = new StepModel(scannableName,positions[i], positions[i+1], positions[i+1]-positions[i]);
+					multiStepModel.getStepModels().add(stepModel);
+				}
+			}
+		}
+
+		multiStepModel.setName(scannableName);
+		dialog.setModel(multiStepModel);
+		if (dialog.open() == Window.OK) {
+			try {
+				axisText.setText((String) new ScanPathToStringConverter().convert(dialog.getEditor().getModel()));
+			} catch (Exception e) {
+				logger.error("Cannot retrieve MultiStepModel from dialog", e);
+			}
+		}
+	}
+
+	private void bindScanPathModelToTextField(IScanPathModelWrapper scannableAxisParameters, IObservableValue axisTextValue, Binding checkBoxBinding) {
 		final String scannableName = scannableAxisParameters.getName();
 		IObservableValue axisValue = PojoProperties.value("model").observe(scannableAxisParameters);
 
