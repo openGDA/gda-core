@@ -104,7 +104,7 @@ public abstract class ScanBase implements NestableScan {
 	/**
 	 * Counter to get the current point number. 0 based as for ScanDataPoint
 	 */
-	int currentPointCount = -1;
+	protected int currentPointCount = -1;
 
 	/**
 	 * instrument name.
@@ -769,7 +769,7 @@ public abstract class ScanBase implements NestableScan {
 	 */
 	// if one of the child scans does not support the reporting of scan dimensions then simply return
 	// as if a 1d scan
-	int[] getDimensions() {
+	protected int[] getDimensions() {
 
 		// ContiguousScan scans should appear one dimensional and have their own interface for working out the dimension
 		// TODO: is it really appropriate for ScanBase to have to be aware of ContiguousScans?
@@ -857,7 +857,7 @@ public abstract class ScanBase implements NestableScan {
 		return stepId;
 	}
 
-	List<IScanStepId> getStepIds() {
+	protected List<IScanStepId> getStepIds() {
 		Vector<IScanStepId> stepsIds = new Vector<IScanStepId>();
 		NestableScan scan = this;
 		while (scan != null) {
