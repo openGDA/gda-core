@@ -19,6 +19,10 @@
 package gda.jython.commands;
 
 import static org.junit.Assert.assertEquals;
+
+import org.junit.Before;
+import org.junit.Test;
+
 import gda.MockFactory;
 import gda.device.DeviceException;
 import gda.device.Scannable;
@@ -28,11 +32,7 @@ import gda.factory.Findable;
 import gda.jython.InterfaceProvider;
 import gda.jython.MockJythonServerFacade;
 
-import org.junit.Before;
-import org.junit.Test;
-
-public class GeneralCommandsTest{
-
+public class GeneralCommandsTest {
 
 	private MockJythonServerFacade jsfNoGroup;
 	private MockJythonServerFacade jsfWithGroup;
@@ -65,31 +65,31 @@ public class GeneralCommandsTest{
 	}
 
 	@Test
-	public void lsTest() throws DeviceException{
+	public void lsNoGroup() throws DeviceException{
 		InterfaceProvider.setJythonNamespaceForTesting(jsfNoGroup);
 		InterfaceProvider.setTerminalPrinterForTesting(jsfNoGroup);
 		GeneralCommands.ls(Findable.class);
 
 		String output = jsfNoGroup.getTerminalOutput();
-
 		String expected = "\nlev4 : 0.0\nlev5a : 0.0\nlev5b : 0.0\nlev6 : 0.0\n\n";
 
 		assertEquals(expected, output);
+	}
 
+	@Test
+	public void lsWithGroup() throws Exception {
 		InterfaceProvider.setJythonNamespaceForTesting(jsfWithGroup);
 		InterfaceProvider.setTerminalPrinterForTesting(jsfWithGroup);
 		GeneralCommands.ls(Findable.class);
 
-		output = jsfWithGroup.getTerminalOutput();
-
-		expected = "\ngroup ::\n  lev4  : 0.0\n  lev5a : 0.0\n  lev5b : 0.0\n  lev6  : 0.0\n\n";
+		String output = jsfWithGroup.getTerminalOutput();
+		String expected = "\ngroup ::\n  lev4  : 0.0\n  lev5a : 0.0\n  lev5b : 0.0\n  lev6  : 0.0\n\n";
 
 		assertEquals(expected, output);
-
 	}
 
 	@Test
-	public void posAllTest() throws DeviceException{
+	public void posAllNoGroup() throws DeviceException{
 		InterfaceProvider.setJythonNamespaceForTesting(jsfNoGroup);
 		InterfaceProvider.setTerminalPrinterForTesting(jsfNoGroup);
 		ScannableCommands.pos();
@@ -98,13 +98,16 @@ public class GeneralCommandsTest{
 		String expected = "lev4  : 0.0\nlev5a : 0.0\nlev5b : 0.0\nlev6  : 0.0\n";
 
 		assertEquals(expected, output);
+	}
 
+	@Test
+	public void posAllWithGroup() throws Exception {
 		InterfaceProvider.setJythonNamespaceForTesting(jsfWithGroup);
 		InterfaceProvider.setTerminalPrinterForTesting(jsfWithGroup);
 		ScannableCommands.pos();
 
-		output = jsfWithGroup.getTerminalOutput();
-		expected = "group ::\n  lev4  : 0.0\n  lev5a : 0.0\n  lev5b : 0.0\n  lev6  : 0.0\n";
+		String output = jsfWithGroup.getTerminalOutput();
+		String expected = "group ::\n  lev4  : 0.0\n  lev5a : 0.0\n  lev5b : 0.0\n  lev6  : 0.0\n";
 
 		assertEquals(expected, output);
 	}
