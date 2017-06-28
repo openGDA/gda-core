@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="Find Beam In Plot">
+   <implementation class="uk.ac.diamond.daq.mapping.ui.experiment.FindBeamInPlot"/>
+   <reference bind="setMappingStageInfo" cardinality="1..1" interface="uk.ac.diamond.daq.mapping.impl.MappingStageInfo" name="MappingStageInfo" policy="static"/>
+   <reference bind="setPlottingController" cardinality="1..1" interface="uk.ac.diamond.daq.mapping.ui.experiment.PlottingController" name="PlottingController" policy="static" />
+</scr:component>

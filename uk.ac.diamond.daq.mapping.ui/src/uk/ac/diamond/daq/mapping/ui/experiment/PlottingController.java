@@ -225,4 +225,14 @@ public class PlottingController {
 			scanPathColour = null;
 		}
 	}
+
+	public void centrePlotAroundPoint(double xPos, double yPos) {
+		double xDelta = (mapPlottingSystem.getSelectedXAxis().getUpper()
+				- mapPlottingSystem.getSelectedXAxis().getLower()) / 2;
+		double yDelta = (mapPlottingSystem.getSelectedYAxis().getUpper()
+				- mapPlottingSystem.getSelectedYAxis().getLower()) / 2;
+		mapPlottingSystem.getSelectedXAxis().setRange(xPos - xDelta, xPos + xDelta);
+		mapPlottingSystem.getSelectedYAxis().setRange(yPos - yDelta, yPos + yDelta);
+	}
+
 }

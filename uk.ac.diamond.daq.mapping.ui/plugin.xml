@@ -48,6 +48,11 @@
             id="uk.ac.diamond.daq.mapping.ui.command.showHideBeamPosition"
             name="Show/Hide Beam Position">
       </command>
+      <command
+      		defaultHandler="uk.ac.diamond.daq.mapping.ui.experiment.FindBeamInPlot"
+      		id="uk.ac.diamond.daq.mapping.ui.command.findBeamInPlot"
+      		name="Centre plot around beam">
+      </command>
    </extension>
    <extension
          point="org.eclipse.dawnsci.plotting.api.plottingAction">
@@ -78,6 +83,14 @@
             id="uk.ac.diamond.daq.mapping.ui.showHideBeamPositionAction"
             plot_name="Map">
       </plotting_action>
+      <plotting_action
+      		action_type="TOOLBAR"
+      		command_id="uk.ac.diamond.daq.mapping.ui.command.findBeamInPlot"
+      		icon="icons/centreBeam.png"
+      		id="uk.ac.diamond.daq.mapping.ui.findBeamInPlot"
+      		plot_name="Map">
+      </plotting_action>
+      		
    </extension>
 
 </plugin>
