@@ -30,7 +30,6 @@ import org.junit.runners.Suite;
 //	gda.analysis.datavector.AllJUnitTests.class,
 //	gda.analysis.io.NexusLoaderTest.class,
 //	gda.analysis.FitterTest.class,
-	gda.configuration.AllJUnitTests.class,
 	gda.data.AllJUnitTests.class,
 	gda.device.AllJUnitTests.class,
 	//gda.epics.AllJUnitTests.class,
