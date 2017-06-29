@@ -101,4 +101,9 @@ public abstract class ScanModelWrapper<T> implements IScanModelWrapper<T> {
 			return false;
 		return true;
 	}
+
+	@Override
+	public String toString() {
+		return "ScanModelWrapper [name=" + name + ", includeInScan=" + includeInScan + ", model=" + model + "]";
+	}
 }
