@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -160,9 +161,17 @@ public class DetectorsSection extends AbstractMappingSection {
 				map(info -> malcolmInfoToWrapper.apply(info)).
 				collect(Collectors.toMap(IDetectorModelWrapper::getName, Function.identity()));
 
+		// a function to collect Malcolm model names
+		final Function<IDetectorModelWrapper, String> getMalcolmModel =	param -> param.getModel().getName();
+
+		// get the set of Malcolm models
+		final Set<String> malcolmModels = malcolmParams.values().stream()
+				.map(param -> getMalcolmModel.apply(param))
+				.collect(Collectors.toSet());
+
 		// a predicate to filter out malcolm devices which no longer exist
 		Predicate<IDetectorModelWrapper> nonExistantMalcolmFilter =
-				wrapper -> !(wrapper.getModel() instanceof IMalcolmModel) || malcolmParams.containsKey(wrapper.getName());
+				wrapper -> !(wrapper.getModel() instanceof IMalcolmModel) || malcolmModels.contains(wrapper.getModel().getName());
 
 		// create a name-keyed map from the existing detector parameters in the bean, filtering out those for
 		// malcolm devices which no longer exist using the predicate above
