@@ -293,10 +293,9 @@ class AnalyserWithRectangularROIClass(AnalyserDetectorClass):
 	def addRoi(self, x=None, y=None, width=None, height=None, angle=0):
 		#To get the current GUI situation
 		guibean=RCPPlotter.getGuiBean(self.panel);
-		#roi=gbean.get(GuiParameters.ROIDATA)
-		roi=guibean[GuiParameters.ROIDATA];
-		roiList=guibean[GuiParameters.ROIDATALIST];
-		
+		roi = guibean.getROI()
+		roiList=guibean[GuiParameters.ROIDATALIST]
+
 		if None in [x, y, width, height, angle]:#No ROI parameter defined.
 			print "No ROI info defined in the command. Use GUI ROI box selection"
 			if roi is None: # No ROI selection on the gui
@@ -341,8 +340,7 @@ class AnalyserWithRectangularROIClass(AnalyserDetectorClass):
 	def getRoiSelectionBox(self):
 		#Get current ROI info from the View
 		guibean=RCPPlotter.getGuiBean(self.panel);
-		#roi=gbean.get(GuiParameters.ROIDATA)
-		roi=guibean[GuiParameters.ROIDATA];
+		roi = guibean.getROI()
 		if roi is None:
 			print None;
 		else:
