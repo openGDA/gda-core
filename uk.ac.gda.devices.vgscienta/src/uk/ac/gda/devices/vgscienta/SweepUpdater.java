@@ -40,7 +40,6 @@ import gov.aps.jca.event.MonitorListener;
 public class SweepUpdater extends DeviceBase implements Configurable, Findable {
 	private static final Logger logger = LoggerFactory.getLogger(SweepUpdater.class);
 
-	protected VGScientaAnalyser analyser;
 	private EpicsController epicsController;
 	private String currentSweepPV, maxSweepPV, pctSweepPV;
 	private int oldNumber = -1, maxSweep = 0, percentage = 0;

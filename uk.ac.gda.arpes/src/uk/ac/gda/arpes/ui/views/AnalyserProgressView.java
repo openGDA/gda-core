@@ -42,7 +42,6 @@ import gda.device.MotorStatus;
 import gda.factory.Finder;
 import gda.observable.IObserver;
 import uk.ac.gda.arpes.widgets.ProgressBarWithText;
-import uk.ac.gda.devices.vgscienta.FrameUpdate;
 import uk.ac.gda.devices.vgscienta.IVGScientaAnalyserRMI;
 import uk.ac.gda.devices.vgscienta.SweptProgress;
 
@@ -54,7 +53,6 @@ public class AnalyserProgressView extends ViewPart implements IObserver {
 	private Device sweepUpdater;
 	private Spinner sweepSpinner;
 	private int scheduledIterations = -1;
-	private int compSweep = -1;
 	private ProgressBarWithText progressBar;
 
 	private Color idleColor = new Color(Display.getCurrent(), 150, 150, 150);
@@ -134,22 +132,6 @@ public class AnalyserProgressView extends ViewPart implements IObserver {
 
 	@Override
 	public void update(Object source, Object arg) {
-		if (arg instanceof FrameUpdate) {
-			final FrameUpdate fu = (FrameUpdate) arg;
-			Display.getDefault().asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					compSweep = fu.cFrame;
-					csweep.setText(String.valueOf(compSweep));
-					if (fu.mFrame != scheduledIterations) {
-						scheduledIterations = fu.mFrame;
-						sweepSpinner.setSelection(scheduledIterations);
-						logger.debug("Updated scheduled iterations to {}", scheduledIterations);
-					}
-				}
-			});
-			return;
-		}
 		if (arg instanceof MotorStatus) {
 			running = MotorStatus.BUSY.equals(arg);
 			Display.getDefault().asyncExec(new Runnable() {
