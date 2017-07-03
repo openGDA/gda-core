@@ -48,10 +48,6 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 
 		boolean useToolBar = LocalProperties.check(LocalProperties.GDA_GUI_USE_TOOL_BAR, true);
 		boolean usePerspectiveBar = LocalProperties.check(LocalProperties.GDA_GUI_USE_PERSPECTIVE_BAR, true);
-		Boolean useIntroScreen = null;
-		if (LocalProperties.contains(LocalProperties.GDA_GUI_FORCE_INTRO)) {
-			useIntroScreen = LocalProperties.check(LocalProperties.GDA_GUI_FORCE_INTRO);
-		}
 		int width = LocalProperties.getAsInt(LocalProperties.GDA_GUI_START_WIDTH, 1450);
 		int height = LocalProperties.getAsInt(LocalProperties.GDA_GUI_START_HEIGHT, 900);
 
@@ -74,6 +70,21 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 					: beamLineName.toUpperCase(), gda.util.Version.getRelease());
 		}
 		configurer.setTitle(title);
+
+	}
+
+	@Override
+	public void openIntro() {
+		handleForceIntroProperty();
+		super.openIntro();
+	}
+
+	private static void handleForceIntroProperty() {
+
+		Boolean useIntroScreen = null;
+		if (LocalProperties.contains(LocalProperties.GDA_GUI_FORCE_INTRO)) {
+			useIntroScreen = LocalProperties.check(LocalProperties.GDA_GUI_FORCE_INTRO);
+		}
 
 		// Option to save and restore the GUI state between sessions. For GDA default is 'false'.
 		// If LocalProperties.GDA_GUI_SAVE_RESTORE is set to true, this setting to force Intro may have no effect
