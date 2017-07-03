@@ -21,6 +21,7 @@ package uk.ac.diamond.daq.mapping.ui.experiment;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -191,7 +192,7 @@ public class DetectorsSection extends AbstractMappingSection {
 			return runnableDeviceService.getDeviceInformation(DeviceRole.MALCOLM);
 		} catch (Exception e) {
 			logger.error("Could not get malcolm devices.", e);
-			return null;
+			return Collections.emptyList();
 		}
 	}
 
