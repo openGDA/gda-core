@@ -69,7 +69,7 @@ public class ChannelServer {
 		else {
 			eventChannelName = PROPS.getProperty(EVENT_CHANNEL_NAME, "local.eventChannel");
 			final String source = PROPS.containsKey(EVENT_CHANNEL_NAME) ? EVENT_CHANNEL_NAME : "default value";
-			logger.info("Using System Property {} to set Event Channe Name to {}", source, eventChannelName);
+			logger.info("Using System Property {} to set Event Channel Name to {}", source, eventChannelName);
 		}
 
 		ORB orb = ORB.init(args, PROPS);
