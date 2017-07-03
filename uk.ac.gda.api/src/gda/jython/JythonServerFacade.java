@@ -29,8 +29,8 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
+import java.util.UUID;
 import java.util.Vector;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -137,7 +137,7 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 		try {
 			// because this is a call to the Finder, this facade cannot be called during the instantiation phase. It can
 			// be called during the configure phase.
-			name = generateRandomName();
+			name = UUID.randomUUID().toString();
 			this.commandServer = commandServer;
 
 			InetAddress hostAddress = java.net.InetAddress.getLocalHost();
@@ -684,29 +684,6 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 			return "";
 		}
 		return contents;
-	}
-
-	private String generateRandomName() {
-		StringBuffer randomString = new StringBuffer();
-		Random random = new Random();
-
-		// Generate a random string
-		for (int i = 0; i < 15; i++) {
-			// 26 uppercase letters + 9 digits + 26 lowercase letters
-			int digit = random.nextInt(51);
-
-			char alphaNum;
-			if (digit < 26) {
-				alphaNum = (char) (digit + 'A');
-			} else if (digit < 35) {
-				alphaNum = (char) (digit - 26 + '0');
-			} else {
-				alphaNum = (char) (digit - 35 + 'a');
-			}
-
-			randomString.append(alphaNum);
-		}
-		return randomString.toString();
 	}
 
 	public void addAliasedCommand(String commandName) {
