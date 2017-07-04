@@ -29,6 +29,7 @@ import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.text.SimpleDateFormat;
+import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -38,6 +39,7 @@ import java.util.Vector;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
+import java.util.stream.Collectors;
 
 import org.apache.sshd.server.PasswordAuthenticator;
 import org.python.core.Py;
@@ -318,15 +320,11 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	 *
 	 * @return Vector<String>
 	 */
-	public Vector<String> getDefaultScannableNames() {
+	public Collection<String> getDefaultScannableNames() {
 		Vector<Scannable> objs = getDefaultScannables();
-
-		Vector<String> names = new Vector<String>();
-
-		for (Scannable obj : objs) {
-			names.add(obj.getName());
-		}
-		return names;
+		return objs.stream()
+				.map(Scannable::getName)
+				.collect(Collectors.toList());
 	}
 
 	// to fulfil the Findable interface

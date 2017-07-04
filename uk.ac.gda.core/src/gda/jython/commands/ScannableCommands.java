@@ -19,12 +19,13 @@
 package gda.jython.commands;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
-import java.util.Vector;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.python.core.PyException;
@@ -45,7 +46,6 @@ import gda.device.scannable.ContinuouslyScannable;
 import gda.device.scannable.PositionConvertorFunctions;
 import gda.device.scannable.ScannableUtils;
 import gda.device.scannable.scannablegroup.IScannableGroup;
-import gda.factory.Findable;
 import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
 import gda.jython.JythonServer;
@@ -893,22 +893,17 @@ public class ScannableCommands {
 	 * List all the Scannable objects used implicitly in every scan
 	 */
 	public static void list_defaults() {
-		String output = "";
-
-		Vector<Scannable> vector = ((JythonServer) Finder.getInstance().find(JythonServer.SERVERNAME))
-				.getDefaultScannables();
-		for (Findable thisFindable : vector) {
-			output += thisFindable.getName() + "\\n";
-		}
+		String output = get_defaults()
+				.stream()
+				.map(Scannable::getName)
+				.collect(Collectors.joining("\n"));
 
 		// print out to the Jython interpreter directly (so output is formatted correctly)
-		try {
-			JythonServerFacade.getInstance().runCommand(
-					"current_default_to_print='" + output
-							+ "';print current_default_to_print;del(current_default_to_print)");
-		} catch (Exception e) {
-			// do nothing
-		}
+		InterfaceProvider.getTerminalPrinter().print(output);
+	}
+
+	public static Collection<Scannable> get_defaults() {
+		return InterfaceProvider.getDefaultScannableProvider().getDefaultScannables();
 	}
 
 	/**
