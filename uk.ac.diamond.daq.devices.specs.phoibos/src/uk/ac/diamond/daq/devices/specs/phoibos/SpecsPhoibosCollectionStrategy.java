@@ -76,6 +76,10 @@ public class SpecsPhoibosCollectionStrategy implements AsyncNXCollectionStrategy
 		this.sequence = new SpecsPhoibosSequence(sequence);
 	}
 
+	public SpecsPhoibosSequence getSequence() {
+		return new SpecsPhoibosSequence(sequence);
+	}
+
 	@Override
 	public String getName() {
 		return this.getClass().getSimpleName();
