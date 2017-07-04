@@ -402,14 +402,7 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	@Override
 	public void update(Object dataSource, Object data) {
 		try {
-			// byte arrays are only for the terminal
-			if (data instanceof byte[]) {
-				for (Terminal terminal : myTerminals) {
-					terminal.write((byte[]) data);
-				}
-			}
-
-			else if (data instanceof TerminalOutput) {
+			if (data instanceof TerminalOutput) {
 				final TerminalOutput output = (TerminalOutput) data;
 				for (Terminal terminal : myTerminals) {
 					terminal.write(output.getOutput());

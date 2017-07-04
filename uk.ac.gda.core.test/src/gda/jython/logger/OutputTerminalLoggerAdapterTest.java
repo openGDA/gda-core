@@ -19,12 +19,13 @@
 package gda.jython.logger;
 
 import static org.mockito.Mockito.verify;
-import gda.jython.ITerminalOutputProvider;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import gda.jython.ITerminalOutputProvider;
 
 @RunWith(MockitoJUnitRunner.class)
 public class OutputTerminalLoggerAdapterTest {
@@ -46,7 +47,7 @@ public class OutputTerminalLoggerAdapterTest {
 	@Test
 	public void testPrint() throws Exception {
 		adapter = new OutputTerminalAdapter(mockLogger, mockTerminalOutputProvider);
-		adapter.write("abcd1234".getBytes("UTF8"));
+		adapter.write("abcd1234");
 		verify(mockLogger).log("abcd1234");
 	}
 }

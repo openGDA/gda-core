@@ -20,26 +20,12 @@ package gda.jython.logger;
 
 import gda.jython.Terminal;
 
-import java.io.UnsupportedEncodingException;
-
 class TerminalAdapter implements Terminal{
 
 	final LineLogger logger;
 
 	public TerminalAdapter(LineLogger logger) {
 		this.logger = logger;
-	}
-
-	@Override
-	public void write(byte[] data) {
-		// Copied from JythonTerminal.java
-		String msg = "encoding error!!!";
-		try {
-			msg = new String(data, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-		}
-		write(msg);
 	}
 
 	@Override

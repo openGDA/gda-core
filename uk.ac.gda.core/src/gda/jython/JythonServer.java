@@ -26,7 +26,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
@@ -601,14 +600,8 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	}
 
 	private void echoInputToServerSideTerminalObservers(String s) {
-		byte[] utf8Bytes;
-		try {
-			utf8Bytes = s.getBytes("UTF8");
-			for (Terminal terminal : myTerminals) {
-				terminal.write(utf8Bytes);
-			}
-		} catch (UnsupportedEncodingException e) {
-			logger.error("Problem extracting UTF8 byte array from command: " + s, e);
+		for (Terminal terminal : myTerminals) {
+			terminal.write(s);
 		}
 	}
 

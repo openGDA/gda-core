@@ -120,21 +120,14 @@ public abstract class ServerThread extends Thread implements Terminal, SessionCl
 	}
 
 	@Override
-	public synchronized void write(byte[] data) {
+	public synchronized void write(String output) {
 		try {
-			out.write(data);
+			out.write(output.getBytes(UTF8_CHARSET));
 			out.flush();
 		} catch (IOException e) {
-			// Re-encode the data as UTF8 to make it readable
-			logger.error("Error writing '{}' to console", new String(data, UTF8_CHARSET), e);
+			logger.error("Error writing '{}' to console", output, e);
 			sessionClosed();
 		}
-	}
-
-	@Override
-	public void write(String output) {
-		// Call through to the byte[] method, after encoding with UTF8
-		write(output.getBytes(UTF8_CHARSET));
 	}
 
 }

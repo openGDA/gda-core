@@ -24,7 +24,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Vector;
@@ -358,18 +357,6 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 				});
 			}
 		}
-	}
-
-	@Override
-	public void write(byte[] data) {
-		String output = "encoding error!!!";
-		try {
-			output = new String(data, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			logger.warn("UnsupportedEncodingException while converting to UTF-8 in Jython Console: " + e.getMessage(),
-					e);
-		}
-		write(output);
 	}
 
 	@Override

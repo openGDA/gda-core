@@ -28,11 +28,9 @@ import gda.observable.IObserver;
 public interface Terminal extends IObserver {
 	/**
 	 * This method accepts information for the terminal to display to the user.
-	 * 
+	 *
 	 * @param output
 	 */
-	public void write(byte[] output);
-
 	public void write(String output);
 
 }
