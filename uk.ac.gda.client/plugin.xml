@@ -5,13 +5,6 @@
    <extension-point id="uk.ac.gda.client.preferences" name="Default Preferences" schema="schema/uk.ac.gda.client.preferences.exsd"/>
    <extension-point id="gda.scan.scan.data.point.formatter" name="Formatter for Scan Data Point" schema="schema/gda.scan.scan.data.point.formatter.exsd"/>
 
-  <extension
-         point="org.eclipse.ui.console.consoleFactories">
-      <consoleFactory
-            class="gda.rcp.console.GDAConsoleFactory"
-            label="GDA Terminal">
-      </consoleFactory>
-   </extension>   
    <extension
          id="application"
          point="org.eclipse.core.runtime.applications">
