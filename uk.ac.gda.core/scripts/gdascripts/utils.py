@@ -4,6 +4,8 @@
 
 from gda.epics import CAClient
 from gda.factory import Finder
+from contextlib import contextmanager
+from gda.jython.commands import ScannableCommands
 
 
 def frange(start,end,step):
@@ -76,6 +78,16 @@ def printJythonEnvironment():
 	#print '  login =', os.getlogin() # TODO: Broken in Jython 2.5.3?
 	print '  javapath = ',os.environ['CLASSPATH']
 	print '  jythonpath = ', sys.path
+
+@contextmanager
+def default_scannables(*scn):
+	current = set(ScannableCommands.get_defaults())
+	new_scannables = set(scn) - current
+	ScannableCommands.add_default(*new_scannables)
+	try:
+		yield
+	finally:
+		ScannableCommands.remove_default(*new_scannables)
 
 
 command_server = Finder.getInstance().find('command_server')
