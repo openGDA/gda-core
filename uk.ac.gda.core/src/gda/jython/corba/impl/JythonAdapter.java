@@ -1114,6 +1114,22 @@ public class JythonAdapter implements Jython, EventSubscriber {
 	}
 
 	@Override
+	public void print(String text) {
+		for (int i = 0; i < NetService.RETRY; i++) {
+			try {
+				jythonServer.print(text);
+				return;
+			} catch (COMM_FAILURE cf) {
+				jythonServer = CorbaJythonHelper.narrow(netService.reconnect(name));
+			} catch (org.omg.CORBA.TRANSIENT ct) {
+				// This exception is thrown when the ORB failed to connect to
+				// the object primarily when the server has failed.
+				break;
+			}
+		}
+	}
+
+	@Override
 	public PyObject eval(String s) {
 		throw new UnsupportedOperationException();
 	}

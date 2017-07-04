@@ -588,21 +588,17 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	}
 
 	/**
-	 * Makes it easy for strings to be printed on the console and not anywhere else. Also this method fixes awkward
-	 * strings which have \n or double- quotes in them which could cause a syntax error at run time.
+	 * Print to Jython console on all clients (and notify anything added via {@link #addOutputTerminal(Terminal)}).
+	 * Makes it easy for strings to be printed on the console and not anywhere else.
 	 *
-	 * @param text
-	 *            the string to be printed
+	 * @param text the string to be printed
 	 */
 	@Override
 	public void print(String text) {
 		if (text == null) {
 			return;
 		}
-		text = text.replaceAll("\n", "\\\\n");
-		text = text.replaceAll("\"", "'");
-		text = "print\"" + text + "\"";
-		commandServer.runCommand(text, name);
+		commandServer.print(text + "\n");
 	}
 
 	/**

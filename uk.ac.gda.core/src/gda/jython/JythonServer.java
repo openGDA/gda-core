@@ -1617,4 +1617,13 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	public AutoCompletion getCompletionsFor(String line, int posn) {
 		return jythonCompleter.getCompletionsFor(line, posn);
 	}
+
+	@Override
+	public void print(String text) {
+		try {
+			terminalWriter.write(text);
+		} catch (IOException e) {
+			logger.error("Could not print message: {}", text, e);
+		}
+	}
 }

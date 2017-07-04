@@ -168,6 +168,8 @@ interface CorbaJython : gda::_factory::corba::CorbaFindable
     any getCommandThreadInfo() raises  (device::corba::CorbaDeviceException);
 
     any getCompletionsFor(in string line, in long posn) raises (device::corba::CorbaDeviceException);
+
+    void print(in string text);
 };
 
 };};};

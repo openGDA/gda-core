@@ -539,4 +539,6 @@ public interface Jython extends Findable {
 	public void exec(String s) throws PyException;
 
 	public AutoCompletion getCompletionsFor(String line, int posn);
+
+	public void print(String text);
 }
