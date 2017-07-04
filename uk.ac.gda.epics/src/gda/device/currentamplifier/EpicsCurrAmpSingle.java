@@ -18,6 +18,9 @@
 
 package gda.device.currentamplifier;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.device.CurrentAmplifier;
@@ -40,9 +43,6 @@ import gov.aps.jca.dbr.DBR_CTRL_Enum;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * EPICS template interface class for Single Channel Current Amplifier device.
  */
@@ -52,7 +52,7 @@ public class EpicsCurrAmpSingle extends CurrentAmplifierBase implements Initiali
 	private static final Logger logger = LoggerFactory.getLogger(EpicsCurrAmpSingle.class);
 
 	private String deviceName = null;
-
+	private String pvName = null;
 	private EpicsChannelManager channelManager;
 
 	private EpicsController controller;
@@ -111,6 +111,9 @@ public class EpicsCurrAmpSingle extends CurrentAmplifierBase implements Initiali
 				} catch (ConfigurationNotFoundException e) {
 					logger.error("Can NOT find EPICS configuration for current amplifier " + getDeviceName(), e);
 				}
+			} else if (getPvName() != null) {
+				createChannelAccess(getPvName());
+				channelManager.tryInitialize(100);
 			} else {
 				logger.error("Missing EPICS interface configuration for the current amplifier " + getName());
 				throw new FactoryException("Missing EPICS interface configuration for the current amplifier "
@@ -310,6 +313,18 @@ public class EpicsCurrAmpSingle extends CurrentAmplifierBase implements Initiali
 		}
 	}
 
+	private void createChannelAccess(String pvName2) throws FactoryException {
+		try {
+			Ic = channelManager.createChannel(pvName2 + ":I", false);
+			setGain = channelManager.createChannel(pvName2 + ":GAIN", gainMonitor, MonitorType.CTRL, false);
+			setAcDc = channelManager.createChannel(pvName2 + ":ACDC", modeMonitor, MonitorType.CTRL, false);
+			channelManager.creationPhaseCompleted();
+
+		} catch (Throwable th) {
+			throw new FactoryException("failed to connect to all channels", th);
+		}
+	}
+
 	/**
 	 * Current monitor
 	 */
@@ -433,6 +448,14 @@ public class EpicsCurrAmpSingle extends CurrentAmplifierBase implements Initiali
 	public void setPoll(boolean poll) {
 		this.poll = poll;
 		this.enableValueMonitoring=!poll;
+	}
+
+	public String getPvName() {
+		return pvName;
+	}
+
+	public void setPvName(String pvName) {
+		this.pvName = pvName;
 	}
 
 }
