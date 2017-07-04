@@ -487,6 +487,9 @@ public class SpecsPhoibosCollectionStrategy implements AsyncNXCollectionStrategy
 			data.addElement(regionName, "psu_mode", new NexusGroupData(regionCompleted.getPsuMode()), null, false); // No units so set null
 			data.addElement(regionName, "count_time", new NexusGroupData(regionCompleted.getExposureTime()), "sec", false);
 			data.addElement(regionName, "pass_energy", new NexusGroupData(regionCompleted.getPassEnergy()), "eV", false);
+			// Save the photon energy and work function used for KE <-> BE conversions.
+			data.addElement(regionName, "photon_energy", new NexusGroupData(analyser.getCurrentPhotonEnergy()), "eV", false);
+			data.addElement(regionName, "work_function", new NexusGroupData(analyser.getWorkFunction()), "eV", false);
 
 			logger.debug("Finished writing to NeXus region: {}", regionName);
 		}

@@ -853,4 +853,13 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 		return new SpecsPhoibosLiveDataUpdate(totalPoints, currentPoint, spectrum, image, keEnergyAxis, beEnergyAxis, yAxis);
 	}
 
+	/**
+	 * Gets the photon energy that will currently be used when converting KE <-> BE
+	 *
+	 * @return The cached photon energy
+	 */
+	public double getCurrentPhotonEnergy() {
+		return currentPhotonEnergy;
+	}
+
 }
