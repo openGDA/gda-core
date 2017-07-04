@@ -18,6 +18,7 @@
 
 package uk.ac.diamond.daq.devices.specs.phoibos;
 
+import java.nio.file.Paths;
 import java.util.Set;
 
 import org.eclipse.january.dataset.DatasetFactory;
@@ -27,6 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.util.concurrent.RateLimiter;
 
+import gda.data.PathConstructor;
 import gda.device.DeviceException;
 import gda.device.EnumPositioner;
 import gda.device.Scannable;
@@ -686,9 +688,27 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 		}
 	}
 
+	/**
+	 * Set the analyser sequence from a sequence file. If the path is absolute it will be used as is else the absolute
+	 * path will be constructed from the visit xml directory and the provided file name.
+	 *
+	 * @param filePath
+	 *            Path to a sequence file either absolute or a file inside the visit xml directory
+	 */
 	public void setSequenceFile(String filePath) {
 		logger.debug("Setting sequence file to: {}", filePath);
-		setSequence(SpecsPhoibosSequenceHelper.loadSequence(filePath));
+
+		final String absoluteFilePath;
+		if (Paths.get(filePath).isAbsolute()) {
+			absoluteFilePath = filePath;
+		}
+		else {
+			logger.trace("Assuming file path within visit XML dir");
+			String visitXmlDir = PathConstructor.getVisitSubdirectory("xml");
+			absoluteFilePath = Paths.get(visitXmlDir, filePath).toString();
+		}
+
+		setSequence(SpecsPhoibosSequenceHelper.loadSequence(absoluteFilePath));
 	}
 
 	@Override
@@ -803,7 +823,7 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 	private void processEpicsUpdate(Object source, Object arg) {
 		// TODO The performance could be improved here the update from EPICS already contains the current point so
 		// We could use it but improvement would be minor and we would need an EPICS dependency here.
-		logger.trace("Update received from EPICS");
+		logger.trace("Update received from EPICS. source:{}, arg:{}", source, arg);
 		if (getCurrentPoint() == 0) {
 			// When you start a new region the current channel changes back to 0 but there isn't any data yet.
 			logger.trace("Update for first point, no data yet so ignoring");

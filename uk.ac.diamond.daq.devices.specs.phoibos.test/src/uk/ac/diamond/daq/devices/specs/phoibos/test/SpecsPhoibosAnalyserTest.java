@@ -38,6 +38,7 @@ public class SpecsPhoibosAnalyserTest {
 		when(photonEnergyProvider.getPosition()).thenReturn(500.0);
 		analyser.setPhotonEnergyProvider(photonEnergyProvider);
 		analyser.setWorkFunction(4.5); // Set an example work function
+		analyser.configure(); // Updates the photon energy
 	}
 
 	@Test(expected=IllegalArgumentException.class)
@@ -88,8 +89,8 @@ public class SpecsPhoibosAnalyserTest {
 	}
 
 	@Test
-	public void testBEtoKEConversion() throws Exception {
-		// BE = hv - KE - wf
+	public void testBEtoKEConversion() {
+		// KE = hv - BE - wf
 		// 500 - 400 - 4.5 = 95.5
 		assertThat(analyser.toKineticEnergy(400.0), is(equalTo(95.5)));
 
@@ -101,8 +102,8 @@ public class SpecsPhoibosAnalyserTest {
 	}
 
 	@Test
-	public void testKEtoBEConversion() throws Exception {
-		// KE - hv -BE - wf
+	public void testKEtoBEConversion() {
+		// BE = hv - KE - wf
 		// 500 - 400 - 4.5 = 95.5
 		assertThat(analyser.toBindingEnergy(95.5), is(equalTo(400.0)));
 
@@ -124,6 +125,12 @@ public class SpecsPhoibosAnalyserTest {
 
 		verify(controller, times(1)).setLowEnergy(100.0);
 		verify(controller, times(1)).setHighEnergy(200.0);
+	}
+
+	@Test
+	public void testLoadingSequenceFromAbsolutePath() {
+		String sequencePath = this.getClass().getResource("test_sequence.seq").getFile();
+		analyser.setSequenceFile(sequencePath);
 	}
 
 }
