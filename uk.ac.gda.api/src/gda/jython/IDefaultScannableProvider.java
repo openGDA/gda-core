@@ -18,7 +18,7 @@
 
 package gda.jython;
 
-import java.util.Vector;
+import java.util.Collection;
 
 import gda.device.Scannable;
 
@@ -30,16 +30,16 @@ import gda.device.Scannable;
  */
 public interface IDefaultScannableProvider {
 	/**
-	 * Returns a list of scannable objects which must be called in every scan. Used by scans to construct the list of
+	 * Returns a collection of scannable objects which must be called in every scan. Used by scans to construct the list of
 	 * objects whose positions are reported at every node of a scan.
 	 * <P>
-	 * This returns a vector of object references of all the objects in the Jython namepsace listed in the
+	 * This returns a collection of object references of all the objects in the Jython namepsace listed in the
 	 * DefaultScannablesList object named "scannablesList" in the configuration information.
 	 * <P>
 	 * As this method returns object references, this method must only be called by objects local to this object. This
 	 * method must never be available remotely.
-	 * 
-	 * @return Vector
+	 *
+	 * @return Collection
 	 */
-	public Vector<Scannable> getDefaultScannables();
+	public Collection<Scannable> getDefaultScannables();
 }

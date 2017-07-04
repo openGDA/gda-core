@@ -30,16 +30,18 @@ import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
-import java.util.stream.Collectors;
 
 import org.apache.sshd.server.PasswordAuthenticator;
 import org.python.core.Py;
@@ -161,7 +163,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 
 	Vector<Thread> evalThreads = new Vector<Thread>();
 
-	Vector<Scannable> defaultScannables = new Vector<Scannable>();
+	private final Set<Scannable> defaultScannables = new CopyOnWriteArraySet<>();
 
 	// volatile parameters when dealing with user input from scripts
 	volatile boolean expectingInputForRawInput = false;
@@ -266,14 +268,12 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	}
 
 	/**
-	 * Removes the Pseudo device from ths list of defaults
+	 * Remove the scannable from the list of defaults
 	 *
 	 * @param scannable
 	 */
 	public void removeDefault(Scannable scannable) {
-		if (defaultScannables.contains(scannable)) {
-			defaultScannables.remove(scannable);
-		}
+		defaultScannables.remove(scannable);
 	}
 
 	/**
@@ -305,26 +305,12 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	}
 
 	/**
-	 * Add a Pseudo Device to the list of defaults
+	 * Add a scannable to the list of defaults
 	 *
 	 * @param scannable
 	 */
 	public void addDefault(Scannable scannable) {
-		if (!defaultScannables.contains(scannable)) {
-			defaultScannables.add(scannable);
-		}
-	}
-
-	/**
-	 * Returns a vector of all the names of the default scannables for display purposes.
-	 *
-	 * @return Vector<String>
-	 */
-	public Collection<String> getDefaultScannableNames() {
-		Vector<Scannable> objs = getDefaultScannables();
-		return objs.stream()
-				.map(Scannable::getName)
-				.collect(Collectors.toList());
+		defaultScannables.add(scannable);
 	}
 
 	// to fulfil the Findable interface
@@ -372,7 +358,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 			}
 
 			// reset the defaultScannables array
-			defaultScannables = new Vector<Scannable>();
+			defaultScannables.clear();
 
 			try {
 				// create the objects references in the interpreter namespace
@@ -970,8 +956,8 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	}
 
 	@Override
-	public Vector<Scannable> getDefaultScannables() {
-		return defaultScannables;
+	public Collection<Scannable> getDefaultScannables() {
+		return Collections.unmodifiableSet(defaultScannables);
 	}
 
 	@Override
