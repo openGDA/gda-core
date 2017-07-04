@@ -129,11 +129,6 @@ public class RectangularMappingRegion implements IMappingScanRegionShape {
 	}
 
 	@Override
-	public RectangularROI getDefaultROI() {
-		return new RectangularROI(1.0,0.0);
-	}
-
-	@Override
 	public String whichPlottingRegionType() {
 		return RegionType.BOX.toString();
 	}

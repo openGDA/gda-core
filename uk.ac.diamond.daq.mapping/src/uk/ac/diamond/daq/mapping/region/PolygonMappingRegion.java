@@ -73,11 +73,6 @@ public class PolygonMappingRegion implements IMappingScanRegionShape {
 	}
 
 	@Override
-	public PolygonalROI getDefaultROI() {
-		return new PolygonalROI();
-	}
-
-	@Override
 	public String whichPlottingRegionType() {
 		return RegionType.POLYGON.toString();
 	}

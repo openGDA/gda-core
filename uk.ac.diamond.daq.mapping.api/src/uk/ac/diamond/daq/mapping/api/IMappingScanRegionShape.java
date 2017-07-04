@@ -68,8 +68,4 @@ public interface IMappingScanRegionShape {
 	 */
 	public void removePropertyChangeListener(PropertyChangeListener listener);
 
-	/**
-	 * @return New ROI with default parameters
-	 */
-	public IROI getDefaultROI();
 }
