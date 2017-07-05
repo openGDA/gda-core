@@ -31,6 +31,7 @@ import java.sql.Timestamp;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -1325,7 +1326,7 @@ public abstract class ScanBase implements NestableScan {
 	protected synchronized void setUp() {
 		// first add to the list of scannables all those items which are
 		// in the list of defaults
-		Vector<Scannable> defaultScannables = getDefaultScannableProvider().getDefaultScannables();
+		Collection<Scannable> defaultScannables = getDefaultScannableProvider().getDefaultScannables();
 		for (Scannable scannable : defaultScannables) {
 			if (scannable instanceof Detector && !allDetectors.contains(scannable)) {
 				this.allDetectors.add((Detector) scannable);
