@@ -75,6 +75,19 @@ public class DummyEpicsCurrAmpSingle extends CurrentAmplifierBase implements Sca
 			// scannable name
 			this.inputNames[0] = getName();
 			this.outputFormat[0] = "%5.4f";
+			if (isBeingObserved()) {
+				new Thread(()-> {
+					while (true) {
+						current = getCurrent();
+						notifyIObservers(DummyEpicsCurrAmpSingle.this, current);
+						try {
+							Thread.sleep(1000); // update every second
+						} catch (InterruptedException e) {
+							break;
+						}
+					}
+				}).start();
+			}
 			configured = true;
 		} // end of if (!configured)
 	}
