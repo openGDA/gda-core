@@ -18,6 +18,8 @@
 
 package gda.device.currentamplifier;
 
+import java.util.Arrays;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,6 +78,7 @@ public class EpicsCurrAmpSingle extends CurrentAmplifierBase implements Initiali
 	private ModeMonitorListener modeMonitor;
 	private boolean enableValueMonitoring = true;
 	private boolean poll=false;
+	private boolean acdcAvailable=true; // keep the original default behaviour if not set in Spring bean definition
 
 	private Monitor monitor;
 
@@ -138,6 +141,15 @@ public class EpicsCurrAmpSingle extends CurrentAmplifierBase implements Initiali
 		return positionLabels;
 	}
 
+	@Override
+	public String[] getModePositions() throws DeviceException {
+		if (!acdcAvailable) throw new DeviceException("Mode channel is not available for device '"+getName()+"'");
+		try {
+			return controller.cagetLabels(setAcDc);
+		} catch (Exception e) {
+			throw new DeviceException(getName() + " exception in getGainPositions", e);
+		}
+	}
 	/**
 	 * returns a parsed list of gains available for this amplifier.
 	 *
@@ -197,6 +209,7 @@ public class EpicsCurrAmpSingle extends CurrentAmplifierBase implements Initiali
 
 	@Override
 	public String getMode() throws DeviceException {
+		if (!acdcAvailable) throw new DeviceException("Mode channel is not available for device '"+getName()+"'");
 		try {
 			return controller.cagetLabels(setAcDc)[0];
 		} catch (Throwable e) {
@@ -206,35 +219,24 @@ public class EpicsCurrAmpSingle extends CurrentAmplifierBase implements Initiali
 
 	@Override
 	public void setMode(String mode) throws DeviceException {
-		if (modePositions.contains(mode)) {
-			int target = gainPositions.indexOf(mode);
-			try {
-				controller.caput(setAcDc, target, 2);
-			} catch (Throwable th) {
-				throw new DeviceException(setAcDc.getName() + " failed to moveTo " + mode, th);
-			}
-			return;
+		if (!acdcAvailable)
+			throw new DeviceException("Mode channel is not available for device '" + getName() + "'");
+		try {
+			controller.caput(setAcDc, mode, 2);
+		} catch (Throwable th) {
+			throw new DeviceException(setAcDc.getName() + " failed to moveTo " + mode, th);
 		}
-		// if get here then wrong position name supplied
-		throw new DeviceException("Position called: " + mode + " not found.");
 	}
 
 	@Override
 	public void initializationCompleted() {
 		// borrowed from EpicsPneumatic
-		String[] position, mode;
+
 		try {
-			position = getGainPositions();
-			for (int i = 0; i < position.length; i++) {
-				if (position[i] != null || position[i] != "") {
-					super.gainPositions.add(position[i]);
-				}
-			}
-			mode = getModePositions();
-			for (int i = 0; i < mode.length; i++) {
-				if (mode[i] != null || mode[i] != "") {
-					super.modePositions.add(mode[i]);
-				}
+			super.gainPositions.addAll(Arrays.asList(getGainPositions()));
+
+			if (acdcAvailable) {
+				super.modePositions.addAll(Arrays.asList(getModePositions()));
 			}
 			if (!isEnableValueMonitoring()) {
 				disableValueMonitoring();
@@ -304,8 +306,10 @@ public class EpicsCurrAmpSingle extends CurrentAmplifierBase implements Initiali
 			Ic = channelManager.createChannel(currAmpConfig.getI().getPv(), false);
 			setGain = channelManager.createChannel(currAmpConfig.getSETGAIN().getPv(), gainMonitor, MonitorType.CTRL,
 					false);
-			setAcDc = channelManager.createChannel(currAmpConfig.getSETACDC().getPv(), modeMonitor, MonitorType.CTRL,
+			if (acdcAvailable) {
+				setAcDc = channelManager.createChannel(currAmpConfig.getSETACDC().getPv(), modeMonitor, MonitorType.CTRL,
 					false);
+			}
 			channelManager.creationPhaseCompleted();
 
 		} catch (Throwable th) {
@@ -317,7 +321,9 @@ public class EpicsCurrAmpSingle extends CurrentAmplifierBase implements Initiali
 		try {
 			Ic = channelManager.createChannel(pvName2 + ":I", false);
 			setGain = channelManager.createChannel(pvName2 + ":GAIN", gainMonitor, MonitorType.CTRL, false);
-			setAcDc = channelManager.createChannel(pvName2 + ":ACDC", modeMonitor, MonitorType.CTRL, false);
+			if (acdcAvailable) {
+				setAcDc = channelManager.createChannel(pvName2 + ":ACDC", modeMonitor, MonitorType.CTRL, false);
+			}
 			channelManager.creationPhaseCompleted();
 
 		} catch (Throwable th) {
@@ -377,8 +383,8 @@ public class EpicsCurrAmpSingle extends CurrentAmplifierBase implements Initiali
 		public void monitorChanged(MonitorEvent mev) {
 			DBR dbr = mev.getDBR();
 			if (dbr.isENUM()) {
-				mode = ((DBR_CTRL_Enum) dbr).getLabels()[0];
-				notifyIObservers(this, mode);
+				int value = ((DBR_CTRL_Enum) dbr).getEnumValue()[0];
+				notifyIObservers(this, mode=modePositions.get(value));
 			} else {
 				logger.error("Mode does not return Enum type.");
 			}
@@ -393,8 +399,8 @@ public class EpicsCurrAmpSingle extends CurrentAmplifierBase implements Initiali
 		public void monitorChanged(MonitorEvent mev) {
 			DBR dbr = mev.getDBR();
 			if (dbr.isENUM()) {
-				gain = ((DBR_CTRL_Enum) dbr).getLabels()[0];
-				notifyIObservers(this, gain);
+				int value = ((DBR_CTRL_Enum) dbr).getEnumValue()[0];
+				notifyIObservers(this, gain=gainPositions.get(value));
 			} else {
 				logger.error("Gain does not return Enum type.");
 			}
@@ -456,6 +462,14 @@ public class EpicsCurrAmpSingle extends CurrentAmplifierBase implements Initiali
 
 	public void setPvName(String pvName) {
 		this.pvName = pvName;
+	}
+
+	public boolean isAcdcAvailable() {
+		return acdcAvailable;
+	}
+
+	public void setAcdcAvailable(boolean acdcAvailable) {
+		this.acdcAvailable = acdcAvailable;
 	}
 
 }
