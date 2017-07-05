@@ -3,7 +3,7 @@
       id="uk.ac.diamond.daq.analysis.server.feature"
       label="Analysis Server Components Feature"
       version="1.0.0.qualifier"
-      provider-name="Diamond Light Source Ltd">
+      provider-name="Diamond Light Source">
 
    <description url="http://www.example.com/description">
       Server side components used in data analysis.

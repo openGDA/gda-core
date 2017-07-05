@@ -3,7 +3,7 @@
       id="uk.ac.diamond.daq.scisoftpy.feature"
       label="ScisoftPy Feature"
       version="1.0.0.qualifier"
-      provider-name="Diamond Light Source Ltd">
+      provider-name="Diamond Light Source">
 
    <description url="http://www.example.com/description">
       Encapsulates plugins required for ScisoftPysupport

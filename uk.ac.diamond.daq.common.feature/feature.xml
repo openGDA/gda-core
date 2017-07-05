@@ -3,7 +3,7 @@
       id="uk.ac.diamond.daq.common.feature"
       label="Data Acquisition Common Feature"
       version="1.0.0.qualifier"
-      provider-name="Diamond Light Source Ltd">
+      provider-name="Diamond Light Source">
 
    <description url="http://www.example.com/description">
       Data Acquisition Components common to server and client. Keep this feature only for plugins/features that are truly common functionality used throught the system e.g. logging, injection framework, common library plugins etc.

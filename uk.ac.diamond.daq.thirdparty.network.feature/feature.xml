@@ -3,7 +3,7 @@
       id="uk.ac.diamond.daq.thirdparty.network.feature"
       label="Network Feature"
       version="1.0.0.qualifier"
-      provider-name="Diamond Light Source Ltd">
+      provider-name="Diamond Light Source">
 
    <description url="http://www.example.com/description">
       Third Party components that provide network based services or implement common network protocols and transports.

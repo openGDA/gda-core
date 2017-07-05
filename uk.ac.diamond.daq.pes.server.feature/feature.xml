@@ -3,7 +3,7 @@
       id="uk.ac.diamond.daq.pes.server.feature"
       label="PES Server Components Feature"
       version="1.0.0.qualifier"
-      provider-name="Diamond Light Source Ltd">
+      provider-name="Diamond Light Source">
 
    <description url="http://www.example.com/description">
       Contains all plugins required for Arpes beamline support

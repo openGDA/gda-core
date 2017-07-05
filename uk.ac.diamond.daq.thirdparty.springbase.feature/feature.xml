@@ -3,7 +3,7 @@
       id="uk.ac.diamond.daq.thirdparty.springbase.feature"
       label="Spring Base Feature"
       version="1.0.0.qualifier"
-      provider-name="Diamond Light Source Ltd">
+      provider-name="Diamond Light Source">
 
    <description url="http://www.example.com/description">
       Contains basic Spring components used in all configurations of
