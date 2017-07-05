@@ -653,4 +653,28 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 		}
 		controller.setIterations(iterations);
 	}
+
+	/**
+	 * Gets the number of slices. i.e the number of non-energy (Y channels) that will be recorded. The data is binned in the Y direction.
+	 *
+	 * @return Current number of slices
+	 * @throws Exception
+	 *             If there is a problem at the EPICS level
+	 */
+	public int getSlices() throws Exception {
+		return controller.getSlice();
+	}
+
+	/**
+	 * Sets the number of slices to record i.e the number of non-energy (Y channels) that will be recorded. The data is binned in the Y direction.
+	 *
+	 * @param slices
+	 *            The requested number of slices
+	 * @throws Exception
+	 *             If there is a problem at the EPICS level
+	 */
+	public void setSlices(int slices) throws Exception {
+		// TODO validate the slices value it should be < the detector region Y size
+		controller.setSlices(slices);
+	}
 }
