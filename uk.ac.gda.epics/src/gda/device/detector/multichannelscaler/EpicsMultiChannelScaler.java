@@ -18,6 +18,12 @@
 
 package gda.device.detector.multichannelscaler;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.MCAStatus;
@@ -29,14 +35,7 @@ import gda.factory.Findable;
 import gda.factory.Finder;
 import gda.jython.JythonServerFacade;
 import gda.observable.IObserver;
-import gda.scan.EpicsTrajectoryScanController;
 import gov.aps.jca.Channel;
-
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A Multi-channel scaler class that implements the Detector interface in GDA framework.
@@ -222,7 +221,7 @@ public class EpicsMultiChannelScaler extends DetectorBase implements Configurabl
 	@Override
 	public int[] getDataDimensions() throws DeviceException {
 		int[] dims = { EpicsDlsMcsSis3820Controller.MAXIMUM_NUMBER_OF_MCA,
-				EpicsTrajectoryScanController.MAXIMUM_PULSE_NUMBER };
+				EpicsDlsMcsSis3820Controller.MAXIMUM_NUMBER_BINS };
 		return dims;
 	}
 	/**

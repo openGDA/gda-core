@@ -36,7 +36,6 @@ import gda.epics.interfaces.McaGroupType;
 import gda.factory.Configurable;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
-import gda.scan.EpicsTrajectoryScanController;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.Monitor;
@@ -66,7 +65,7 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Configur
 	/**
 	 * maximum number of bins in spectrum
 	 */
-	private int MAXIMUM_NUMBER_BINS = EpicsTrajectoryScanController.MAXIMUM_PULSE_NUMBER;
+	public static final int MAXIMUM_NUMBER_BINS = 60000;
 
 	/**
 	 * acquisition flag

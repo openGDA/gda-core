@@ -742,43 +742,6 @@
 		</field>
 	</class>
 
-	<class extends="gda.device.DeviceBase" identity="name" name="gda.scan.EpicsTrajectoryScanController">
-		<map-to xml="EpicsTrajectoryScanController"/>
-		<field name="name" type="string">
-			<bind-xml name="name" node="element"/>
-		</field>
-		<field name="deviceName" type="string">
-			<bind-xml name="deviceName" node="element"/>
-		</field>
-		<field name="m1axis" type="string">
-			<bind-xml name="m1axis" node="element"/>
-		</field>
-		<field name="m2axis" type="string">
-			<bind-xml name="m2axis" node="element"/>
-		</field>
-		<field name="m3axis" type="string">
-			<bind-xml name="m3axis" node="element"/>
-		</field>
-		<field name="m4axis" type="string">
-			<bind-xml name="m4axis" node="element"/>
-		</field>
-		<field name="m5axis" type="string">
-			<bind-xml name="m5axis" node="element"/>
-		</field>
-		<field name="m6axis" type="string">
-			<bind-xml name="m6axis" node="element"/>
-		</field>
-		<field name="m7axis" type="string">
-			<bind-xml name="m7axis" node="element"/>
-		</field>
-		<field name="m8axis" type="string">
-			<bind-xml name="m8axis" node="element"/>
-		</field>
-		<field name="accelerationTime" type="double">
-			<bind-xml name="accelerationTime" node="element"/>
-		</field>
-	</class>
-
 	<class extends="gda.device.DeviceBase" identity="name" name="gda.device.detector.etldetector.EpicsETLController">
 		<map-to xml="EpicsETLController"/>
 		<field name="name" type="string">
