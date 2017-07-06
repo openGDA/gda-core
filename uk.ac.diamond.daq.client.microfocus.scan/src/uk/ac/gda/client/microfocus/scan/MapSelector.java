@@ -25,7 +25,6 @@ import org.python.core.PySequence;
 import gda.device.Scannable;
 import gda.device.detector.countertimer.BufferedScaler;
 import gda.device.scannable.ContinuouslyScannable;
-import gda.device.scannable.I18SingleTrajectoryScannable;
 import gda.device.scannable.RealPositionReader;
 import gda.jython.InterfaceProvider;
 import uk.ac.gda.beans.microfocus.MicroFocusScanParameters;
@@ -107,19 +106,10 @@ public class MapSelector {
 
 	public void enableFasterRaster() {
 		raster_mode = faster_raster;
-		setStageMotorToBidirectional(stage1TrajMotor, true);
-		setStageMotorToBidirectional(stage3TrajMotor, true);
 	}
 
 	public void disableFasterRaster() {
 		raster_mode = raster;
-		setStageMotorToBidirectional(stage1TrajMotor, false);
-		setStageMotorToBidirectional(stage3TrajMotor, false);
-	}
-
-	private void setStageMotorToBidirectional(ContinuouslyScannable stageTrajMotor, boolean isBidirectional) {
-		if (stageTrajMotor instanceof I18SingleTrajectoryScannable)
-			((I18SingleTrajectoryScannable) stageTrajMotor).setBidirectional(isBidirectional);
 	}
 
 	public void setStage(int stageNumber) {
