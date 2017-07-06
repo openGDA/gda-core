@@ -107,7 +107,7 @@ public class PathConstructor implements IPathConstructor {
 	@Deprecated
 	public static String createFromRCPProperties() {
 		logger.warn("Using deprecated createFromRCPProperties. Use getClientVisitDirectory");
-		HashMap<String, String> metadataOverrides = new HashMap<String, String>();
+		HashMap<String, String> metadataOverrides = new HashMap<>();
 		if (LocalProperties.get(LocalProperties.RCP_APP_VISIT) != null) {
 			metadataOverrides.put("visit", LocalProperties.get(LocalProperties.RCP_APP_VISIT));
 		}
@@ -176,20 +176,20 @@ public class PathConstructor implements IPathConstructor {
 	 */
 	public static String createFromTemplate(String template, Map<String, String> overrides) {
 		StringTokenizer st = new StringTokenizer(template, "$");
-		String path = "";
+		StringBuilder path = new StringBuilder();
 
 		while (st.hasMoreTokens()) {
-			path += st.nextToken();
+			path.append(st.nextToken());
 			if (st.hasMoreTokens()) {
-				path += interpret(st.nextToken(), overrides);
+				path.append(interpret(st.nextToken(), overrides));
 			}
 		}
 
 		try {
-			return new File(path).getCanonicalPath();
+			return new File(path.toString()).getCanonicalPath();
 		} catch (IOException | SecurityException e) {
 			logger.warn("Could not get canonical path from {} - may not exist", path, e);
-			return path;
+			return path.toString();
 		}
 	}
 
