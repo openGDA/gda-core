@@ -581,8 +581,10 @@ public abstract class MonitorViewBase extends ViewPart implements IPartListener2
 
 	@Override
 	public void partClosed(IWorkbenchPartReference partRef) {
+		logger.debug("partClosed");
 		if (partRef.getPartName().equals(this.getPartName())) {
 			amVisible = false;
+			setRunMonitoring(false); //to make sure collection thread stops
 			logger.debug("partClosed");
 		}
 	}

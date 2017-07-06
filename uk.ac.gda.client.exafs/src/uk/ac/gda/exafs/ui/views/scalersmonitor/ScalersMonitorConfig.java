@@ -103,7 +103,7 @@ public class ScalersMonitorConfig {
 	public String getDetectorName() {
 		return detectorName;
 	}
-	
+
 	public void setTitles(String[] titles) {
 		this.titles = titles;
 	}
@@ -113,7 +113,7 @@ public class ScalersMonitorConfig {
 	}
 
 	public void setTextInColumn(int columnNumber, double val) {
-		String txt = String.format(formats[4], val);
+		String txt = String.format(formats[columnNumber], val);
 		table.getItem(0).setText(columnNumber, txt);
 	}
 }

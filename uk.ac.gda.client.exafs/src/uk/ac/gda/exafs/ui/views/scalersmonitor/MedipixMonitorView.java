@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2010 Diamond Light Source Ltd.
+ * Copyright © 2011 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -18,44 +18,37 @@
 
 package uk.ac.gda.exafs.ui.views.scalersmonitor;
 
+import org.eclipse.swt.widgets.Composite;
+
 import gda.device.DeviceException;
 import gda.device.detector.DetectorMonitorDataProvider.COLLECTION_TYPES;
 
-public class XspressMonitorView extends MonitorViewBase {
-	public static final String ID = "uk.ac.gda.exafs.ui.views.scalersmonitor";
+public class MedipixMonitorView extends MonitorViewBase {
 
-	private COLLECTION_TYPES collectionType = COLLECTION_TYPES.XSPRESS2;
+	private COLLECTION_TYPES collectionType = COLLECTION_TYPES.MEDIPIX;
+
+	public static final String ID = "uk.ac.gda.exafs.ui.views.medipixmonitor";
+
+	private String[] titles = {"I1", "FF", "FF/I1"};
+	private String[] formats = {"%.4f", "%.4f", "%.4f"};
 
 	@Override
-	protected void updateDisplayDataFFValues(Double[] xspressStats, Double[] values) {
-		Double FF = 0.0;
-		double maxRate = 0;
-		int maxElement = 0;
-		for (int element = 0; element < numElements; element++) {
+	protected void setupDisplayData(Composite parent) {
+		displayData = new ScalersMonitorConfig(parent);
+		displayData.setTitles(titles);
+		displayData.setFormats(formats);
+		displayData.createControls();
+	}
 
-			FF += xspressStats[element * 3];
-			// find which element gives the max rate
-			if (xspressStats[element * 3] > maxRate) {
-				maxRate = xspressStats[element * 3];
-				maxElement = element;
-			}
-		}
+	@Override
+	protected void updateDisplayedData(Double[] statsValues, Double[] ionchamberValues) {
+		double I1 = ionchamberValues[0]; // counts for I1 ionchamber
+		double FF = statsValues[0]; // total counts in ROI from medipix
+		double ffI1 = I1>0 ? FF/I1 : 0;
 
-		displayData.setFF(FF);
-
-		// get the normalised in window counts for the highest rate element
-		switch (numElements) {
-		case 9:
-			displayData.setFFI0(xspressStats[maxElement * 3 + 2] / values[0]);
-			break;
-		case 64:
-			displayData.setFFI0(xspressStats[36 * 3 + 2] / values[0]); // use element 37 as I think this is one of
-																		// the more central ones
-			break;
-		default:
-			displayData.setFFI0(xspressStats[2] / values[0]);
-			break;
-		}
+		displayData.setTextInColumn(0, I1);
+		displayData.setTextInColumn(1, FF);
+		displayData.setTextInColumn(2, ffI1);
 	}
 
 	@Override
@@ -67,5 +60,9 @@ public class XspressMonitorView extends MonitorViewBase {
 	@Override
 	protected Double[] getIonChamberValues() throws Exception {
 		return dataProvider.getIonChamberValues(collectionType);
+	}
+
+	@Override
+	protected void updateDisplayDataFFValues(Double[] statsValues, Double[] deadtimeValues) {
 	}
 }
