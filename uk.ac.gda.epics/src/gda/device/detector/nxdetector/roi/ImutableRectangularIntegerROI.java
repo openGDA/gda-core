@@ -18,16 +18,22 @@
 
 package gda.device.detector.nxdetector.roi;
 
+import java.io.Serializable;
 import java.text.MessageFormat;
 
 
-public class ImutableRectangularIntegerROI implements RectangularROI<Integer> {
+public class ImutableRectangularIntegerROI implements RectangularROI<Integer>, Serializable {
 
-	final private int xstart;
-	final private int xsize;
-	final private int ystart;
-	final private int ysize;
-	final private String name;
+	/**
+	 * Generated serial ID
+	 */
+	private static final long serialVersionUID = 4528518322504011015L;
+
+	private final int xstart;
+	private final int xsize;
+	private final int ystart;
+	private final int ysize;
+	private final String name;
 
 	public static ImutableRectangularIntegerROI valueOf(org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI scisoftRoi) {
 		String name = scisoftRoi.getName();
@@ -73,8 +79,7 @@ public class ImutableRectangularIntegerROI implements RectangularROI<Integer> {
 
 	@Override
 	public String toString() {
-		return MessageFormat.format(
-				//"xstart:{0} ystart:{1} xsize:{2} ysize:{3}  ''{4}''", xstart, ystart, xsize, ysize, name);
-				"start=({0}, {1}) size={2}x{3} *{4}*", xstart, ystart, xsize, ysize, name);
+		return MessageFormat.format("start=({0}, {1}) size={2}x{3} *{4}*", xstart, ystart, xsize, ysize, name);
 	}
+
 }
