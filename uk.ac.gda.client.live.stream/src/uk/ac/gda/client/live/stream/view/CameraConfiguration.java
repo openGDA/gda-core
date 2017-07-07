@@ -18,6 +18,7 @@
 
 package uk.ac.gda.client.live.stream.view;
 
+import gda.device.detector.nxdetector.roi.RemoteRectangularROIsProvider;
 import gda.factory.Findable;
 
 /**
@@ -27,15 +28,23 @@ import gda.factory.Findable;
  */
 public class CameraConfiguration implements Findable {
 
-	private String name; // Set to id by spring stuff
-	private String displayName; // Typically a "nice" name for the camera e.g "Sample microscope"
-	private String url; // url to get the data from the camera typically MJPEG stream
-	private String arrayPv; // The PV of the array plugin to use for the stream eg ws141-AD-SIM-01:ARR
-	private boolean rgb; // If true the camera will be treated as RBG not grayscale
+	/** For {@link Findable} interface, set to ID by FindableNameSetterPostProcessor */
+	private String name;
+	/** Typically a "nice" name for the camera e.g "Sample microscope" */
+	private String displayName;
+	/** URL to get the data from the camera needs to be a MJPEG stream */
+	private String url;
+	/** The PV of the array plugin to use for the EPICS stream e.g. "ws141-AD-SIM-01:ARR"*/
+	private String arrayPv;
+	/** If true the camera will be treated as RBG not grayscale (Only for MJPEG) */
+	private boolean rgb;
+	/** Some delay time (Only for MJPEG)*/
 	private long sleepTime; // ms
+	/** Some cache size (Only for MJPEG)*/
 	private int cacheSize; // frames
+	/** If set, will allow ROIs drawn on the live stream to be passes to AD plugins in scans*/
+	private RemoteRectangularROIsProvider roiProvider;
 
-	// TODO add more Java Doc for these properties
 	@Override
 	public String getName() {
 		return name;
@@ -88,6 +97,13 @@ public class CameraConfiguration implements Findable {
 		this.arrayPv = arrayPv;
 	}
 
+	public RemoteRectangularROIsProvider getRoiProvider() {
+		return roiProvider;
+	}
+	public void setRoiProvider(RemoteRectangularROIsProvider roiProvider) {
+		this.roiProvider = roiProvider;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -97,6 +113,7 @@ public class CameraConfiguration implements Findable {
 		result = prime * result + ((displayName == null) ? 0 : displayName.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		result = prime * result + (rgb ? 1231 : 1237);
+		result = prime * result + ((roiProvider == null) ? 0 : roiProvider.hashCode());
 		result = prime * result + (int) (sleepTime ^ (sleepTime >>> 32));
 		result = prime * result + ((url == null) ? 0 : url.hashCode());
 		return result;
@@ -129,6 +146,11 @@ public class CameraConfiguration implements Findable {
 		} else if (!name.equals(other.name))
 			return false;
 		if (rgb != other.rgb)
+			return false;
+		if (roiProvider == null) {
+			if (other.roiProvider != null)
+				return false;
+		} else if (!roiProvider.equals(other.roiProvider))
 			return false;
 		if (sleepTime != other.sleepTime)
 			return false;
