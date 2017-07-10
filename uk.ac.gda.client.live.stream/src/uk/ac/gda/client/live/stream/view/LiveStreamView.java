@@ -21,15 +21,23 @@ package uk.ac.gda.client.live.stream.view;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import org.eclipse.dawnsci.analysis.api.io.IRemoteDatasetService;
+import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.dawnsci.plotting.api.IPlottingService;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlotType;
 import org.eclipse.dawnsci.plotting.api.axis.IAxis;
+import org.eclipse.dawnsci.plotting.api.region.IROIListener;
+import org.eclipse.dawnsci.plotting.api.region.IRegion;
+import org.eclipse.dawnsci.plotting.api.region.IRegionListener;
+import org.eclipse.dawnsci.plotting.api.region.ROIEvent;
+import org.eclipse.dawnsci.plotting.api.region.RegionEvent;
 import org.eclipse.dawnsci.plotting.api.trace.IImageTrace;
 import org.eclipse.dawnsci.plotting.api.trace.IImageTrace.DownsampleType;
 import org.eclipse.january.DatasetException;
@@ -59,6 +67,7 @@ import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.detector.nxdetector.roi.ImutableRectangularIntegerROI;
 import gda.factory.Finder;
 import uk.ac.diamond.daq.epics.connector.EpicsV3DynamicDatasetConnector;
 
@@ -490,5 +499,60 @@ public class LiveStreamView extends ViewPart {
 
 		// Reset the frame counter
 		frameCounter = 0;
+
+		// Setup the ROI provider if configured
+		if (camConfig.getRoiProvider() != null) {
+
+			final IROIListener roiListener = new IROIListener.Stub() {
+				@Override
+				public void roiChanged(ROIEvent evt) {
+					updateServerRois();
+				}
+			};
+
+			plottingSystem.addRegionListener(new IRegionListener.Stub() {
+
+				// Note regionS method
+				@Override
+				public void regionsRemoved(RegionEvent evt) {
+					evt.getRegions().stream().forEach(region -> region.removeROIListener(roiListener));
+					updateServerRois();
+				}
+
+				@Override
+				public void regionRemoved(RegionEvent evt) {
+					evt.getRegion().removeROIListener(roiListener);
+					updateServerRois();
+				}
+
+				@Override
+				public void regionAdded(RegionEvent evt) {
+					evt.getRegion().addROIListener(roiListener);
+					updateServerRois();
+				}
+			});
+		}
+	}
+
+	private  void updateServerRois() {
+		final Collection<IRegion> regions = plottingSystem.getRegions();
+
+		// Check if any regions are non rectangular and warn if not
+		if (regions.stream()
+				.map(IRegion::getROI)
+				.anyMatch(roi -> !(roi instanceof RectangularROI))) {
+			logger.warn("{} contains non rectangular regions", camConfig.getDisplayName());
+		}
+
+		// Get the rectangular ROIs
+		List<gda.device.detector.nxdetector.roi.RectangularROI<Integer>> rois = regions.stream()
+				.map(IRegion::getROI)
+				.filter(RectangularROI.class::isInstance) // Only use rectangular ROIs
+				.map(RectangularROI.class::cast) // Cast to RectangularROI
+				.map(ImutableRectangularIntegerROI::valueOf) // Create ImutableRectangularIntegerROI
+				.collect(Collectors.toList());
+
+		// Send the new ROIs to the server
+		camConfig.getRoiProvider().updateRois(rois);
 	}
 }

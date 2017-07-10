@@ -63,4 +63,86 @@
 		<property name="basePVName" value="#{ localhostname.hostName.split('\.')[0] }-AD-SIM-01:HDF5:" />
 		<property name="file" ref="mic_ndfile" />
 	</bean>
+
+	<bean id="mic_roiStats" class="gda.device.detector.nxdetector.plugin.areadetector.ADRoiStatsPairFactory">
+		<property name="pluginName" value="roistats1" />
+		<property name="baseRoiPVName" value="#{ localhostname.hostName.split('\.')[0] }-AD-SIM-01:ROI:" />
+		<property name="baseStatsPVName" value="#{ localhostname.hostName.split('\.')[0] }-AD-SIM-01:STAT:" />
+		<property name="roiInputNdArrayPort" value="CAM.CAM" />
+		<property name="enabledBasicStats" value="Total" />
+		<property name="oneTimeSeriesCollectionPerLine" value="false" />
+		<property name="roiProvider">
+			<bean class="gda.device.detector.nxdetector.roi.LiveStreamRoiIndexer">
+				<property name="liveStreamRoiProvider" ref="mic_roi" />
+				<property name="index" value="0" /> <!-- Zero based indexing i.e. Region 1 = index 0 -->
+			</bean>
+		</property>
+	</bean>
+	
+	<!-- The Object which get the ROIs from the client over RMI -->
+	<bean id="mic_roi" class="gda.device.detector.nxdetector.roi.LiveStreamROIProvider" />
+	<bean class="uk.ac.gda.remoting.server.GdaRmiServiceExporter">
+		<property name="serviceName" value="gda/micRoi" />
+		<property name="service" ref="mic_roi" />
+		<property name="serviceInterface" value="gda.device.detector.nxdetector.roi.RemoteRectangularROIsProvider" />
+	</bean>
+	
+	<bean id="mic_nx" class="gda.device.detector.NXDetector">
+		<property name="name" value="mic_nx" />
+		<property name="collectionStrategy" ref="mic_CollectionStrategy" />
+		<property name="additionalPluginList">
+			<list>
+				<ref bean="mic_roiStats" />
+				<ref bean="mic_nx_hdf5" />
+			</list>
+		</property>
+	</bean>
+	
+	<bean id="mic_CollectionStrategy" class="gda.device.detector.addetector.collectionstrategy.SingleImageModeDecorator">
+		<property name="restoreNumImagesAndImageMode" value="true" />
+		<property name="decoratee">
+			<bean class="gda.device.detector.addetector.collectionstrategy.InternalTriggerModeDecorator">
+				<property name="restoreTriggerMode" value="true" />
+				<property name="decoratee">
+					<bean class="gda.device.detector.addetector.collectionstrategy.ConfigureAcquireTimeDecorator">
+						<property name="restoreAcquireTime" value="true" />
+						<property name="decoratee">
+							<bean class="gda.device.detector.addetector.collectionstrategy.SoftwareStartStop">
+								<property name="restoreAcquireState" value="true" />
+								<property name="adBase" ref="mic_adbase" />
+								<property name="readoutTime" value="-1" />
+							</bean>
+						</property>
+					</bean>
+				</property>
+			</bean>
+		</property>
+	</bean>
+	
+	<bean id="mic_nx_hdf5" class="gda.device.detector.addetector.filewriter.MultipleImagesPerHDF5FileWriter">
+		<property name="filePathTemplate" value="$datadir$" />
+		<property name="fileTemplate" value="%s%s-%d.hdf" />
+		<property name="fileNumberAtScanStart" value="-1" />
+		<property name="setFileNameAndNumber" value="true" />
+		<property name="rowChunks" value="0" />
+		<property name="colChunks" value="0" />
+		<property name="framesChunks" value="0" />
+		<property name="framesFlush" value="0" />
+		<property name="lazyOpen" value="true" />
+		<property name="blocking" value="false" />
+		<property name="pathErrorSuppressed" value="true" />
+		<property name="fileNameTemplate" value="mic_nx"/>
+		<property name="ndFileHDF5">
+			<bean class="gda.spring.V17NDFileHDF5FactoryBean">
+				<property name="ndFileImpl">
+					<bean class="gda.spring.V17NDFileFactoryBean">
+						<property name="prefix" value="#{ localhostname.hostName.split('\.')[0] }-AD-SIM-01:HDF5:" />
+						<property name="resetToInitialValues" value="false" />
+					</bean>
+				</property>
+			</bean>
+		</property>
+	</bean>
+	
+
 </beans>

@@ -16,8 +16,13 @@
 		<property name="url" value="http://localhost:8081/CAM.mjpg.mjpg" />
 		<!-- If you want the EPICS array stream option add this. Commented out by default as WORKSTATION might not be set -->
 		<property name="arrayPv" value="#{ localhostname.hostName.split('\.')[0] }-AD-SIM-01:ARR" />
+		<property name="roiProvider" ref="mic_roi" />
 	</bean>
-
-	<!-- "det" is a GDA detector Simulator in dummy mode, so there is no "det_cam" area detector and
-		 thus no mjpg url to connect to  -->
+		 
+	<bean id="mic_roi" class="uk.ac.gda.remoting.client.GdaRmiProxyFactoryBean">
+		<property name="serviceUrl" value="${gda.rmi.prefix}micRoi" />
+		<property name="serviceInterface" value="gda.device.detector.nxdetector.roi.RemoteRectangularROIsProvider" />
+		<property name="refreshStubOnConnectFailure" value="true" />
+	</bean>
+		 
 </beans>
