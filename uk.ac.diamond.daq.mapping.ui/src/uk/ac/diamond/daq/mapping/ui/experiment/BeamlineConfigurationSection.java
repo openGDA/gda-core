@@ -54,7 +54,6 @@ public class BeamlineConfigurationSection extends AbstractMappingSection {
 	private Text summaryText;
 	private Composite configSummaryComposite;
 	private static final int MAX_TXT_LINES = 3;
-	private Map<String, Object> configuredScannables;
 	private DecimalFormat format = new DecimalFormat("##########0.0###");
 
 	@Override
@@ -84,9 +83,7 @@ public class BeamlineConfigurationSection extends AbstractMappingSection {
 		summaryText = new Text(configSummaryComposite, SWT.MULTI | SWT.READ_ONLY);
 		summaryText.setLayoutData(new GridData(SWT.FILL,SWT.FILL,true,true));
 		summaryText.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_DARK_GRAY));
-
-		configuredScannables = getMappingBean().getBeamlineConfiguration();
-		updateConfiguredScannableSummary(configuredScannables);
+		updateConfiguredScannableSummary();
 	}
 
 	private void editBeamlineConfiguration() {
@@ -97,9 +94,9 @@ public class BeamlineConfigurationSection extends AbstractMappingSection {
 			dialog.setInitialBeamlineConfiguration(mappingBean.getBeamlineConfiguration());
 			dialog.create();
 			if (dialog.open() == Window.OK) {
-				configuredScannables = dialog.getModifiedBeamlineConfiguration();
+				Map<String, Object> configuredScannables = dialog.getModifiedBeamlineConfiguration();
 				mappingBean.setBeamlineConfiguration(configuredScannables);
-				updateConfiguredScannableSummary(configuredScannables);
+				updateConfiguredScannableSummary();
 			}
 		} catch (Exception e) {
 			LOGGER.error("Could not edit beamline configuration", e);
@@ -113,9 +110,10 @@ public class BeamlineConfigurationSection extends AbstractMappingSection {
 		return  eventService.createRemoteService(jmsURI, IScannableDeviceService.class);
 	}
 
-	private void updateConfiguredScannableSummary(Map<String, Object> configured) {
+	private void updateConfiguredScannableSummary() {
 
 		try {
+			Map<String, Object> configured = getMappingBean().getBeamlineConfiguration();
 			List<String> txt = new ArrayList<>();
 			for (Map.Entry<String,Object> entry : configured.entrySet()) {
 				String key = entry.getKey();
@@ -135,4 +133,8 @@ public class BeamlineConfigurationSection extends AbstractMappingSection {
 		}
 	}
 
+	@Override
+	protected void updateControls() {
+		updateConfiguredScannableSummary();
+	}
 }
