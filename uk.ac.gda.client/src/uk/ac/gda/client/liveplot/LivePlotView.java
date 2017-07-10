@@ -35,7 +35,7 @@ import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.dawnsci.analysis.api.io.IDataHolder;
 import org.eclipse.dawnsci.analysis.api.io.IFileLoader;
-import org.eclipse.dawnsci.plotting.api.tool.IToolPageSystem;
+import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.january.dataset.DoubleDataset;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
@@ -87,7 +87,6 @@ import uk.ac.diamond.scisoft.analysis.plotserver.OneDDataFilePlotDefinition;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.gda.preferences.PreferenceConstants;
 
-@SuppressWarnings("deprecation")
 public class LivePlotView extends ViewPart implements IScanDataPointObserver {
 	private static final String MEMENTO_GROUP = "LivePlotView";
 
@@ -486,10 +485,17 @@ public class LivePlotView extends ViewPart implements IScanDataPointObserver {
 		xyPlot.setFocus();
 	}
 
+	// This method is required for the plotting tools to work.
 	@Override
-	public Object getAdapter(@SuppressWarnings("rawtypes") Class clazz) {
-		if (clazz == IToolPageSystem.class)
-			return this.xyPlot.getPlottingSystem();
+	public <T> T getAdapter(final Class<T> clazz) {
+		IPlottingSystem<Composite> plottingSystem = this.xyPlot.getPlottingSystem();
+		if (plottingSystem != null) {
+			// If the plotting system can provide the requested adaptor return it
+			T adapter = plottingSystem.getAdapter(clazz);
+			if (adapter != null) {
+				return adapter;
+			}
+		}
 		return super.getAdapter(clazz);
 	}
 

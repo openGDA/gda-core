@@ -46,10 +46,10 @@ import org.eclipse.dawnsci.plotting.api.jreality.impl.Plot1DGraphTable;
 import org.eclipse.dawnsci.plotting.api.jreality.impl.Plot1DStyles;
 import org.eclipse.dawnsci.plotting.api.trace.ILineTrace;
 import org.eclipse.dawnsci.plotting.api.trace.ILineTrace.PointStyle;
+import org.eclipse.dawnsci.plotting.api.trace.ITrace;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.DoubleDataset;
-import org.eclipse.dawnsci.plotting.api.trace.ITrace;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuListener;
@@ -438,7 +438,7 @@ public class LivePlotComposite extends Composite {
 		return archiveFolder;
 	}
 
-	public Object getPlottingSystem() {
+	public IPlottingSystem<Composite> getPlottingSystem() {
 		return this.plotView.plottingSystem;
 	}
 
@@ -475,7 +475,7 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 	private static final String UNKNOWN = "unknown";
 	private static final Logger logger = LoggerFactory.getLogger(SubLivePlotView.class);
 	static public final String ID = "uk.ac.gda.client.xyplotview";
-	protected IPlottingSystem plottingSystem;
+	protected IPlottingSystem<Composite> plottingSystem;
 	private LiveData dummy; // used when all other lines are invisible
 	private final String archiveFolder;
 	private Label positionLabel;
