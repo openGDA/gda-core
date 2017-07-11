@@ -73,13 +73,14 @@
       <plotting_action
             action_type="TOOLBAR"
             command_id="uk.ac.diamond.daq.mapping.ui.command.showHideMappingPath"
-            icon="icons/Show_Hide_Path_16.png"
+            icon="icons/Show_Hide_Path_64.png"
             id="uk.ac.diamond.daq.mapping.ui.showHideMappingPathAction"
             plot_name="Map">
       </plotting_action>
       <plotting_action
             action_type="TOOLBAR"
             command_id="uk.ac.diamond.daq.mapping.ui.command.showHideBeamPosition"
+            icon="icons/Show_Hide_Beam.png"
             id="uk.ac.diamond.daq.mapping.ui.showHideBeamPositionAction"
             plot_name="Map">
       </plotting_action>
