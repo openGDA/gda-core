@@ -19,10 +19,6 @@
 
 package gda.device.detector;
 
-import gda.device.Detector;
-import gda.device.DeviceException;
-import gda.device.scannable.ScannableUtils;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -34,10 +30,19 @@ import java.net.UnknownHostException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
+import gda.data.NumTracker;
+import gda.device.Detector;
+import gda.device.DetectorSnapper;
+import gda.device.DeviceException;
+import gda.device.scannable.ScannableUtils;
+import gda.jython.InterfaceProvider;
+import gda.scan.ScanInformation;
+
 /**
  * Interface to the ImageProPlus package for data collection from a Photonics Science CCD.
  */
-public class IPPserver extends DetectorBase implements Detector {
+public class IPPserver extends DetectorBase implements Detector, DetectorSnapper {
 
 	private static final Logger logger = LoggerFactory.getLogger(IPPserver.class);
 
@@ -72,6 +77,10 @@ public class IPPserver extends DetectorBase implements Detector {
 	private String lastImagePathName = "";
 
 	private boolean busyFlag = false;
+
+	private NumTracker snapshotNumTracker = null;
+
+	private String snapshotNumTrackerExtension = "ippserver";
 
 	// TODO - implement non-blocking commands so Jython not blocked? - ie
 	// put
@@ -356,8 +365,43 @@ public class IPPserver extends DetectorBase implements Detector {
 
 	@Override
 	public void collectData() throws DeviceException {
+		ScanInformation info = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation();
 		acquireImage(); // this command will have attempted to secure a connection if required
-		saveData(fileNameRoot, fileFormat);
+		saveData(fileNameRoot + "_" + info.getScanNumber() + "_", fileFormat);
+	}
+
+	@Override
+	public String[] acquire() throws DeviceException {
+		//TODO implement
+		acquireImage();
+		String snapshotFileNameRoot = fileNameRoot + "_snapshot_" + snapshotNumTracker.incrementNumber();
+		saveData(snapshotFileNameRoot, fileFormat);
+		return new String[] {lastImagePathName};
+	}
+
+	@Override
+	public void prepareForAcquisition(double acquisitionTime) throws DeviceException {
+		setCollectionTime(acquisitionTime);
+	}
+
+	@Override
+	public double getAcquireTime() throws DeviceException {
+		return getCollectionTime();
+	}
+
+	@Override
+	public double getAcquirePeriod() throws DeviceException {
+		return getAcquireTime();
+	}
+
+	public String getSnapshotNumTrackerExtension() {
+		return snapshotNumTrackerExtension;
+	}
+
+	public void setSnapshotNumTrackerExtension(String snapshotNumTrackerExtension) throws IOException {
+		this.snapshotNumTrackerExtension = snapshotNumTrackerExtension;
+		snapshotNumTracker = new NumTracker(
+				snapshotNumTrackerExtension, LocalProperties.get(LocalProperties.GDA_VAR_DIR));
 	}
 
 	/**
