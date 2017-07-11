@@ -74,6 +74,10 @@ import uk.ac.diamond.daq.epics.connector.EpicsV3DynamicDatasetConnector;
 /**
  * A RCP view for connecting to and displaying a live MJPEG stream. The intension is to provide a easy way for cameras
  * to be integrated into GDA, with minimal Spring configuration.
+ * <p>
+ * To setup this view in Spring create a {@link CameraConfiguration} in client Spring
+ * <p>
+ * For additional docs see <a href="http://confluence.diamond.ac.uk/x/1wWKAg">Setup Live Stream Camera View</a>
  *
  * @author James Mudd
  */
@@ -232,6 +236,7 @@ public class LiveStreamView extends ViewPart {
 	 *            The name of the camera to use and type of stream to display
 	 */
 	private void createLivePlot(final Composite parent, final String secondaryId) {
+		logger.debug("Creating live stream plot with secondary ID: {}", secondaryId);
 		String cameraId = cameraIdFromSecondaryId(secondaryId);
 		streamType = streamTypeFromSecondaryId(secondaryId);
 
