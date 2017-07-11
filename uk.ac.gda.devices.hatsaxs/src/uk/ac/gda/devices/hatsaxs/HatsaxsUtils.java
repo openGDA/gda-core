@@ -34,7 +34,7 @@ public class HatsaxsUtils {
 	private HatsaxsUtils() {}
 
 	public static String getXmlDirectory() {
-		return PathConstructor.createFromTemplate(LocalProperties.get(VISIT_DIRECTORY_PROPERTY) + "/xml/");
+		return PathConstructor.getClientVisitSubdirectory("xml");
 	}
 	
 	public static File getBioSaxsFileFromName(String name) {

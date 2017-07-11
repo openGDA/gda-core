@@ -274,7 +274,7 @@ public class HplcSampleFieldComposite extends FieldComposite {
 					String visit = element.getVisit();
 					HashMap<String, String> overrides = new HashMap<>();
 					overrides.put("visit", visit);
-					String visitPath = PathConstructor.createFromTemplate(LocalProperties.get("gda.data.visitdirectory"), overrides);
+					String visitPath = PathConstructor.createFromProperty(LocalProperties.GDA_VISIT_DIR, overrides);
 					File visitDir = new File(visitPath);
 					return visitDir.exists() && visitDir.isDirectory() && visitDir.canWrite();
 				}
