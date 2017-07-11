@@ -50,6 +50,7 @@ import uk.ac.gda.devices.bssc.beans.BSSCSessionBean;
 import uk.ac.gda.devices.bssc.beans.TitrationBean;
 import uk.ac.gda.devices.hatsaxs.HatsaxsUtils;
 import uk.ac.gda.devices.hatsaxs.beans.LocationBean;
+import uk.ac.gda.devices.hatsaxs.ui.HatsaxsUiUtils;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 import uk.ac.gda.richbeans.editors.RichBeanMultiPageEditorPart;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
@@ -210,7 +211,7 @@ public final class BSSCSessionBeanEditor extends RichBeanMultiPageEditorPart {
 				} catch (Exception e) {
 					logger.error("Exception writing bean to XML", e);
 				}
-				HatsaxsUtils.refreshXmlDirectory();
+				HatsaxsUiUtils.refreshXmlDirectory();
 			}
 
 			IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();

@@ -49,6 +49,7 @@ import org.slf4j.LoggerFactory;
 import uk.ac.gda.common.rcp.util.EclipseUtils;
 import uk.ac.gda.devices.hatsaxs.HatsaxsUtils;
 import uk.ac.gda.devices.hatsaxs.beans.LocationBean;
+import uk.ac.gda.devices.hatsaxs.ui.HatsaxsUiUtils;
 import uk.ac.gda.devices.hplc.beans.HplcBean;
 import uk.ac.gda.devices.hplc.beans.HplcSessionBean;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
@@ -215,7 +216,7 @@ public final class HplcSessionBeanEditor extends RichBeanMultiPageEditorPart {
 				} catch (Exception e) {
 					logger.error("Exception writing bean to XML", e);
 				}
-				HatsaxsUtils.refreshXmlDirectory();
+				HatsaxsUiUtils.refreshXmlDirectory();
 			}
 
 			IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();

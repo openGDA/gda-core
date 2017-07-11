@@ -19,17 +19,12 @@ Export-Package: org.apache.poi.openxml4j.exceptions,
  uk.ac.gda.devices.bssc.ispyb
 Import-Package: org.apache.poi.openxml4j.exceptions,
  org.apache.poi.ss.usermodel,
- org.dawnsci.plotting.tools.profile,
- org.dawnsci.plotting.views,
  org.embl,
  org.embl.ctrl,
  org.embl.data,
  org.embl.net,
- uk.ac.gda.devices.hatsaxs,
- uk.ac.gda.devices.hatsaxs.beans,
- uk.ac.gda.devices.hatsaxs.ui,
- uk.ac.gda.devices.hatsaxs.wizards,
- org.slf4j;version="[1.7.2,2.0.0)"
+ org.slf4j;version="[1.7.2,2.0.0)",
+ uk.ac.gda.devices.hatsaxs.beans
 Eclipse-RegisterBuddy: uk.ac.gda.core
 Bundle-ClassPath: jars/BSSC.jar,
  .
