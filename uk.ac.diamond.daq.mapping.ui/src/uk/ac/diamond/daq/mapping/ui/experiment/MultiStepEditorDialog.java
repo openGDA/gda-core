@@ -80,6 +80,8 @@ public class MultiStepEditorDialog extends Dialog {
 			logger.error("Could not set model:",e);
 		}
 
+		((MultiStepComposite) ed.getUI()).updateUnits(scannableName);
+
 		// Disabling scannable name combo since dialog is tied to single scannable
 		((MultiStepComposite) ed.getUI()).setNameComboEnabled(false);
 
