@@ -19,17 +19,18 @@
 
 package gda.jscience.physics.units;
 
-import gda.jscience.physics.quantities.Count;
-import gda.jscience.physics.quantities.Vector;
-
 import org.jscience.physics.quantities.Angle;
+import org.jscience.physics.quantities.Duration;
+import org.jscience.physics.quantities.ElectricCurrent;
 import org.jscience.physics.quantities.Energy;
 import org.jscience.physics.quantities.Length;
 import org.jscience.physics.quantities.Temperature;
-import org.jscience.physics.quantities.ElectricCurrent;
 import org.jscience.physics.units.NonSI;
 import org.jscience.physics.units.SI;
 import org.jscience.physics.units.Unit;
+
+import gda.jscience.physics.quantities.Count;
+import gda.jscience.physics.quantities.Vector;
 
 /**
  * <p>
@@ -113,11 +114,27 @@ public final class NonSIext {
 	 */
 	public static final Unit<Length> MICRON_UM = SI.METER.times(1e-6).alternate("um");
 	/**
+	 * A unit of length equal to one millionth of one second (alternative name <code>uS</code>).
+	 */
+	public static final Unit<Duration> MICROSECOND = SI.SECOND.times(1e-6).alternate("uS");
+	/**
+	 * A unit of length equal to one millionth of one second (alternative name <code>μS</code>).
+	 */
+	public static final Unit<Duration> MICROSECOND_MU = SI.SECOND.times(1e-6).alternate("μS");
+	/**
+	 * A unit of length equal to one millionth of one second (alternative name <code>us</code>).
+	 */
+	public static final Unit<Duration> MICROSECOND_LC = SI.SECOND.times(1e-6).alternate("us");
+	/**
+	 * A unit of length equal to one millionth of one second (alternative name <code>μs</code>).
+	 */
+	public static final Unit<Duration> MICROSECOND_MU_LC = SI.SECOND.times(1e-6).alternate("μs");
+	/**
 	 * An alternative unit name for ANGSTROM (alternative name <code>Ang</code>).
 	 */
 	public static final Unit<Length> ANG = SI.METER.times(1e-10).alternate("Ang");
 	/**
-	 * 
+	 *
 	 */
 	public static final Unit<Length> ANGSTROM = SI.METER.times(1e-10).alternate("Angstrom");
 
@@ -130,27 +147,27 @@ public final class NonSIext {
 	 * A unit of temperature equal to the Kelvin temeprature shifted by -273.15.
 	 */
 	public static final Unit<Temperature> CENTIGRADE = SI.KELVIN.plus(-273.15).alternate("centigrade");
-	
+
 	/**
 	 * keV is a useful unit for DCM energies.
 	 */
 	public static final Unit<Energy> KILOELECTRONVOLT = NonSI.ELECTRON_VOLT.times(1e3).alternate("keV");
-	
+
 	/**
 	 * GeV is a useful unit for machine energies.
 	 */
 	public static final Unit<Energy> GIGAELECTRONVOLT = NonSI.ELECTRON_VOLT.times(1e9).alternate("GeV");
 
 	/**
-	 * microAmp (uA) 
+	 * microAmp (uA)
 	 */
 	public static final Unit<ElectricCurrent> uAMPERE = SI.AMPERE.times(1e-6).alternate("uA");
 	/**
-	 * microAmp (μA) 
+	 * microAmp (μA)
 	 */
 	public static final Unit<ElectricCurrent> MICROAMPERE = SI.AMPERE.times(1e-6).alternate("μA");
-	
-	
+
+
 	/**
 	 * A unit of counts or motor steps.
 	 */
@@ -160,7 +177,7 @@ public final class NonSIext {
 	 * A unit of counts or motor steps.
 	 */
 	public static final Unit<Count> KILOCOUNT = NonSIext.COUNT.times(1e3).alternate("kcts");
-	
+
 
 	/**
 	 * Static method to force class initialization.
