@@ -76,6 +76,7 @@ import gda.device.scannable.ScannableUtils;
 import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
 import gda.scan.IScanDataPoint;
+import gda.util.QuantityFactory;
 
 /**
  * DataWriter that outputs NeXus files and optionally a SRS/Text file as well.
@@ -1714,9 +1715,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 	private void makeMetadataScannableFallback(GroupNode group, Scannable scannable, Object position) throws NexusException {
 		String[] inputNames = scannable.getInputNames();
 		String[] extraNames = scannable.getExtraNames();
-		// FIXME ideally this would work for non-doubles as well
-		// FIXME this needs to bring in the units
-		Double[] positions = ScannableUtils.objectToArray(position);
+
 
 		logger.debug("Writing data for scannable (" + scannable.getName() + ") to NeXus file.");
 
@@ -1728,12 +1727,33 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 				scannable.getName(), nxClass).toString();
 		logger.debug("Writing data for scannable (" + scannable.getName() + ") to NeXus file at "+augmentedPath+".");
 		GroupNode g = file.getGroup(augmentedPath, true);
+		// handle String value that cannot be converted to Quantity
+		if (position instanceof String && QuantityFactory.createFromString((String) position) == null) {
+			if (inputNames.length==1) {
+				NexusUtils.writeString(file, g, inputNames[0], (String)position);
+			}
+			if (extraNames.length==1) {
+				NexusUtils.writeString(file, g, extraNames[0], (String)position);
+			}
+		} else if (position instanceof String[]) {
+			String[] positions=(String[]) position;
+			for (int i = 0; i < inputNames.length; i++) {
+				NexusUtils.writeString(file, g, inputNames[i], positions[i]);
+			}
+			for (int i = 0; i < extraNames.length; i++) { // TODO check if position index is correct here
+				NexusUtils.writeString(file, g, extraNames[i], positions[inputNames.length+i]);
+			}
+		} else {
+			// FIXME ideally this would work for non-doubles as well
+			// FIXME this needs to bring in the units
+			Double[] positions = ScannableUtils.objectToArray(position);
 
-		for (int i = 0; i < inputNames.length; i++) {
-			NexusUtils.writeDouble(file, g, inputNames[i], positions[i]);
-		}
-		for (int i = 0; i < extraNames.length; i++) { // TODO check if position index is correct here
-			NexusUtils.writeDouble(file, g, extraNames[i], positions[i]);
+			for (int i = 0; i < inputNames.length; i++) {
+				NexusUtils.writeDouble(file, g, inputNames[i], positions[i]);
+			}
+			for (int i = 0; i < extraNames.length; i++) { // TODO check if position index is correct here
+				NexusUtils.writeDouble(file, g, extraNames[i], positions[i]);
+			}
 		}
 	}
 
