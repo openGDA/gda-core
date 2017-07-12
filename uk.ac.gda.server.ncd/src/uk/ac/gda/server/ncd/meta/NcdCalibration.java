@@ -30,8 +30,8 @@ import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeNode;
 import gda.device.detector.NXDetectorData;
 import gda.jython.InterfaceProvider;
+import uk.ac.diamond.daq.scm.api.events.NcdMetaType;
 import uk.ac.diamond.scisoft.analysis.io.NexusDiffractionCalibrationReader;
-import uk.ac.gda.server.ncd.msg.NcdMetaType;
 
 public class NcdCalibration extends PerVisitExternalNcdMetadata {
 	private static final Logger logger = LoggerFactory.getLogger(NcdCalibration.class);

@@ -16,10 +16,10 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.server.ncd.msg;
+package uk.ac.diamond.daq.scm.api.events;
 
-public enum NcdMetaType {
-	MASK,
-	CALIBRATION,
-	BACKGROUND;
+public interface NcdMetadataFileMsg extends NcdMetadataMsg {
+
+	String getFilepath();
+	String getInternalPath();
 }

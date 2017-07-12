@@ -35,10 +35,10 @@ import gda.factory.FactoryException;
 import gda.observable.IObserver;
 import uk.ac.diamond.daq.msgbus.MsgBus;
 import uk.ac.diamond.daq.persistence.jythonshelf.LocalParameters;
-import uk.ac.gda.server.ncd.msg.NcdMetaType;
-import uk.ac.gda.server.ncd.msg.NcdMetadataMsg;
-import uk.ac.gda.server.ncd.msg.NcdMsg;
-import uk.ac.gda.server.ncd.msg.NcdMsgFactory;
+import uk.ac.diamond.daq.scm.api.events.NcdMetaType;
+import uk.ac.diamond.daq.scm.api.events.NcdMetadataMsg;
+import uk.ac.diamond.daq.scm.api.events.NcdMsg;
+import uk.ac.diamond.daq.scm.api.events.NcdMsgFactory;
 
 public abstract class PerVisitExternalNcdMetadata extends NcdMetaBaseProvider implements IObserver, ExternalMetadataFile {
 	private static final Logger logger = LoggerFactory.getLogger(PerVisitExternalNcdMetadata.class);

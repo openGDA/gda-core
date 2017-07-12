@@ -16,18 +16,27 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.server.ncd.meta;
+package uk.ac.diamond.daq.scm.api.events;
 
-import gda.device.detector.NXDetectorData;
-import uk.ac.diamond.daq.scm.api.events.NcdMetaType;
+public class NcdMsgFactory {
 
-public class NcdBackground extends PerVisitExternalNcdMetadata {
+	private NcdMetaType metaType;
+	private String detectorType;
 
-	public NcdBackground() {
-		setMetaType(NcdMetaType.BACKGROUND);
+	public NcdMsgFactory(String detType, NcdMetaType type) {
+		this.detectorType = detType;
+		this.metaType = type;
 	}
-	@Override
-	protected void write(NXDetectorData nxdata, String treeName) {
 
+	public NcdMetadataFileMsg update(String filename, String internal) {
+		return new NcdMsg.StatusUpdate(detectorType, metaType, filename, internal);
+	}
+
+	public NcdMetadataMsg refresh() {
+		return new NcdMsg.Refresh(detectorType, metaType);
+	}
+
+	public NcdMetadataMsg changeRequest(String newFile, String newInternal) {
+		return new NcdMsg.ChangeRequest(detectorType, metaType, newFile, newInternal);
 	}
 }

@@ -34,9 +34,9 @@ import org.slf4j.LoggerFactory;
 import com.google.common.eventbus.Subscribe;
 
 import uk.ac.diamond.daq.msgbus.MsgBus;
+import uk.ac.diamond.daq.scm.api.events.NcdMetaType;
+import uk.ac.diamond.daq.scm.api.events.NcdMsg;
 import uk.ac.diamond.scisoft.analysis.io.NexusDiffractionCalibrationReader;
-import uk.ac.gda.server.ncd.msg.NcdMetaType;
-import uk.ac.gda.server.ncd.msg.NcdMsg;
 
 
 public class NcdMetaGroup extends Composite {

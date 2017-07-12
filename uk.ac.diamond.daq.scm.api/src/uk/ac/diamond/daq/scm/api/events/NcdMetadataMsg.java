@@ -16,27 +16,11 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.server.ncd.msg;
+package uk.ac.diamond.daq.scm.api.events;
 
-public class NcdMsgFactory {
+import java.io.Serializable;
 
-	private NcdMetaType metaType;
-	private String detectorType;
-
-	public NcdMsgFactory(String detType, NcdMetaType type) {
-		this.detectorType = detType;
-		this.metaType = type;
-	}
-
-	public NcdMetadataFileMsg update(String filename, String internal) {
-		return new NcdMsg.StatusUpdate(detectorType, metaType, filename, internal);
-	}
-
-	public NcdMetadataMsg refresh() {
-		return new NcdMsg.Refresh(detectorType, metaType);
-	}
-
-	public NcdMetadataMsg changeRequest(String newFile, String newInternal) {
-		return new NcdMsg.ChangeRequest(detectorType, metaType, newFile, newInternal);
-	}
+public interface NcdMetadataMsg extends Serializable {
+	String getDetectorType();
+	NcdMetaType getMetaType();
 }

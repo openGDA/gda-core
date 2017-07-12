@@ -29,7 +29,8 @@ Require-Bundle: org.eclipse.ui,
  pl.pragmatists.JUnitParams;bundle-version="1.1.0",
  uk.ac.diamond.org.apache.activemq;bundle-version="5.9.0",
  org.eclipse.dawnsci.analysis.api,
- org.eclipse.scanning.device.ui;bundle-version="1.0.0"
+ org.eclipse.scanning.device.ui;bundle-version="1.0.0",
+ uk.ac.diamond.daq.scm.api
 Bundle-Vendor: Diamond Light Source
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .

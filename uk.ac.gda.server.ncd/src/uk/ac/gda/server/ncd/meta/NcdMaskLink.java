@@ -30,8 +30,8 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.detector.NXDetectorData;
 import gda.jython.InterfaceProvider;
+import uk.ac.diamond.daq.scm.api.events.NcdMetaType;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
-import uk.ac.gda.server.ncd.msg.NcdMetaType;
 
 public class NcdMaskLink extends PerVisitExternalNcdMetadata {
 	private static final String DEFAULT_INTERNAL_PATH = "/entry/mask/mask";

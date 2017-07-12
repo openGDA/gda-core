@@ -27,8 +27,8 @@ import gda.device.scannable.corba.impl.ScannableAdapter;
 import gda.factory.Findable;
 import gda.factory.Finder;
 import uk.ac.diamond.daq.msgbus.MsgBus;
-import uk.ac.gda.server.ncd.msg.NcdMetaType;
-import uk.ac.gda.server.ncd.msg.NcdMsgFactory;
+import uk.ac.diamond.daq.scm.api.events.NcdMetaType;
+import uk.ac.diamond.daq.scm.api.events.NcdMsgFactory;
 
 public class NcdStatusModel {
 

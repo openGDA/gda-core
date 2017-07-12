@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.server.ncd.msg;
+package uk.ac.diamond.daq.scm.api.events;
 
 import uk.ac.diamond.daq.msgbus.MsgBus.Msg;
 

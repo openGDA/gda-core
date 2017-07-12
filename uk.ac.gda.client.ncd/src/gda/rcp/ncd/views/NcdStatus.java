@@ -44,9 +44,9 @@ import gda.rcp.ncd.widgets.NcdMetaGroup;
 import gda.rcp.ncd.widgets.NcdScanControlComposite;
 import gda.rcp.ncd.widgets.ShutterGroup;
 import uk.ac.diamond.daq.msgbus.MsgBus;
+import uk.ac.diamond.daq.scm.api.events.NcdMetaType;
+import uk.ac.diamond.daq.scm.api.events.NcdMsg;
 import uk.ac.gda.server.ncd.detectorsystem.NcdDetectorSystem;
-import uk.ac.gda.server.ncd.msg.NcdMetaType;
-import uk.ac.gda.server.ncd.msg.NcdMsg;
 
 public class NcdStatus extends ViewPart {
 	private static final Logger logger = LoggerFactory.getLogger(NcdStatus.class);
