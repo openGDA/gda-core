@@ -27,8 +27,6 @@
 				<property name="startupScript" value="${gda.config}/scripts/localStation.py" />
 			</bean>
 		</property>
-		<property name="gdaVarDirectory" value="${gda.var}" />
-		<property name="cacheDirectory" value="${gda.var}/jythonCache" />
 		<property name="remotePort" value="${gda.jython.socket}" />
 	</bean>
 
