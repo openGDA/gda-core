@@ -238,22 +238,22 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	}
 
 	/**
-	 * Sets the 'var' directory used by this Jython server.
-	 *
-	 * @param gdaVarDirectory
-	 *            the 'var' directory
+	 * WARNING 12 Jul 2017 This method is about to be deleted,
+	 * do not use it from this date onwards.
 	 */
+	@Deprecated
 	public void setGdaVarDirectory(File gdaVarDirectory) {
+		logger.warn("Please remove the 'gdaVarDirectory' property from your {} bean definition - it is no longer used", getClass().getSimpleName());
 		this.gdaVarDirectory = gdaVarDirectory;
 	}
 
 	/**
-	 * Sets the cache directory used by this Jython server.
-	 *
-	 * @param cacheDirectory
-	 *            the cache directory
+	 * WARNING 12 Jul 2017 This method is about to be deleted,
+	 * do not use it from this date onwards.
 	 */
+	@Deprecated
 	public void setCacheDirectory(File cacheDirectory) {
+		logger.warn("Please remove the 'cacheDirectory' property from your {} bean definition - it is no longer used", getClass().getSimpleName());
 		this.cacheDirectory = cacheDirectory;
 	}
 
@@ -399,8 +399,6 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	private GDAJythonInterpreter createJythonInterpreter() {
 		GDAJythonInterpreter interpreter = new GDAJythonInterpreter();
 		interpreter.setJythonScriptPaths(jythonScriptPaths);
-		interpreter.setGdaVarDirectory(gdaVarDirectory);
-		interpreter.setCacheDirectory(cacheDirectory);
 		return interpreter;
 	}
 
