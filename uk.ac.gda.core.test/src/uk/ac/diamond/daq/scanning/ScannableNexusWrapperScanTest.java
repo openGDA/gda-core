@@ -28,6 +28,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
+import static org.python.icu.impl.Assert.fail;
 import static uk.ac.diamond.daq.scanning.ScannableNexusWrapper.ATTR_NAME_GDA_FIELD_NAME;
 import static uk.ac.diamond.daq.scanning.ScannableNexusWrapper.ATTR_NAME_GDA_SCANNABLE_NAME;
 import static uk.ac.diamond.daq.scanning.ScannableNexusWrapper.ATTR_NAME_GDA_SCAN_ROLE;
@@ -92,6 +93,7 @@ import org.eclipse.scanning.api.device.IWritableDetector;
 import org.eclipse.scanning.api.device.models.ProcessingModel;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.scan.DeviceState;
+import org.eclipse.scanning.api.points.AbstractPosition;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
@@ -130,16 +132,20 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import gda.TestHelpers;
 import gda.data.scan.datawriter.NexusDataWriter;
 import gda.data.scan.datawriter.scannablewriter.ScannableWriter;
 import gda.data.scan.datawriter.scannablewriter.SingleScannableWriter;
+import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.DummyScannable;
 import gda.device.scannable.ScannableBase;
 import gda.factory.Factory;
+import gda.factory.Findable;
 import gda.factory.Finder;
 import gda.factory.MapFactory;
+import gda.jython.InterfaceProvider;
 import uk.ac.diamond.scisoft.analysis.io.LoaderServiceImpl;
 
 /**
@@ -420,10 +426,27 @@ public class ScannableNexusWrapperScanTest {
 
 	@Test
 	public void testNexusScannableWrapperScan() throws Exception {
-		int[] shape = new int[] { 8, 5 };
-		IRunnableDevice<ScanModel> scanner = createGridScan(detector, shape);
+		testGridScan(null);
+	}
+
+	@Test
+	public void testNexusScannableWrapperScan3D() throws Exception {
+		testGridScan("energy");
+	}
+
+	@Test
+	public void testNexusScannableWrapperScan3DWithJythonOuterScannable() throws Exception {
+		TestHelpers.setUpTest(ScannableNexusWrapperScanTest.class, "testNexusScannableWrapper3DWithJythonOuterScannable", true);
+		InterfaceProvider.getJythonNamespace().placeInJythonNamespace("jy_energy", new DummyScannable("jy_energy", 9.357e8));
+
+		testGridScan("jy_energy");
+	}
+
+	private void testGridScan(String outerScannableName) throws Exception {
+		int[] size = (outerScannableName == null) ? new int[] { 8, 5 } : new int[] { 2, 5, 3 };
+		IRunnableDevice<ScanModel> scanner = createGridScan(detector, outerScannableName, size);
 		scanner.run(null);
-		checkNexusFile(scanner, shape);
+		checkNexusFile(scanner, size);
 	}
 
 	@SuppressWarnings("unused")
@@ -609,7 +632,7 @@ public class ScannableNexusWrapperScanTest {
 			}
 
 			// Actual values should be scanD
-			Scannable legacyScannable = Finder.getInstance().find(scannableName);
+			Scannable legacyScannable = getScannable(scannableName);
 			List<String> inputFieldNames = new ArrayList<>();
 			inputFieldNames.addAll(Arrays.asList(legacyScannable.getInputNames()));
 			inputFieldNames.addAll(Arrays.asList(legacyScannable.getExtraNames()));
@@ -659,10 +682,24 @@ public class ScannableNexusWrapperScanTest {
 		}
 	}
 
+	private Scannable getScannable(String scannableName) {
+		Findable found = Finder.getInstance().find(scannableName);
+		if (found instanceof Scannable && !(found instanceof Detector)) {
+			return (Scannable) found;
+		}
+
+		Object jythonObj = InterfaceProvider.getJythonNamespace().getFromJythonNamespace(scannableName);
+		if (jythonObj instanceof Scannable && !(jythonObj instanceof Detector)) {
+			return (Scannable) jythonObj;
+		}
+
+		fail("No scannable exists with name " + scannableName);
+		return null; // never reached
+	}
+
 	private void checkMetadataScannables(final ScanModel scanModel, NXentry entry) throws Exception {
 		DataNode dataNode;
 		IDataset dataset;
-		int[] shape;
 		NXinstrument instrument = entry.getInstrument();
 
 		Collection<IScannable<?>> perScan  = scanModel.getMonitors().stream().filter(scannable -> scannable.getMonitorRole()==MonitorRole.PER_SCAN).collect(Collectors.toList());
@@ -687,8 +724,10 @@ public class ScannableNexusWrapperScanTest {
 		} while (!scannableNamesToCheck.isEmpty());
 
 		// check the metadata scannables specified in the legacy spring config are present
+		List<String> scannableNames = ((AbstractPosition) scanModel.getPositionIterable().iterator().next()).getNames();
 		for (String legacyMetadataScannableName : expectedMetadataScannableNames) {
-			assertTrue(legacyMetadataScannableName, metadataScannableNames.contains(legacyMetadataScannableName));
+			assertTrue(legacyMetadataScannableName, metadataScannableNames.contains(legacyMetadataScannableName)
+					|| scannableNames.contains(legacyMetadataScannableName));
 		}
 
 		// check each metadata scannable has been written correctly
@@ -850,7 +889,8 @@ public class ScannableNexusWrapperScanTest {
 		return parsedSegments;
 	}
 
-	private IRunnableDevice<ScanModel> createGridScan(final IRunnableDevice<?> detector, int... size) throws Exception {
+	private IRunnableDevice<ScanModel> createGridScan(final IRunnableDevice<?> detector,
+			String outerScannableName, int... size) throws Exception {
 		// Create scan points for a grid and make a generator
 		GridModel gmodel = new GridModel();
 		gmodel.setFastAxisName("salong");
@@ -862,13 +902,13 @@ public class ScannableNexusWrapperScanTest {
 		IPointGenerator<?> gen = gservice.createGenerator(gmodel);
 
 		// We add the outer scans, if any
-		if (size.length > 2) {
+		if (outerScannableName != null) {
 			for (int dim = size.length - 3; dim > -1; dim--) {
 				final StepModel model;
 				if (size[dim] - 1 > 0) { // TODO outer scannable name(s)? could use cryostat temperature as an outer scan
-				    model = new StepModel("neXusScannable"+(dim+1), 10,20,9.99d/(size[dim]-1));
+				    model = new StepModel(outerScannableName, 10000,20000,9999.99d/(size[dim]-1));
 				} else {
-					model = new StepModel("neXusScannable" + (dim+1), 10, 20, 30); // Will generate one value at 10
+					model = new StepModel(outerScannableName + (dim+1), 10, 20, 30); // Will generate one value at 10
 				}
 				final IPointGenerator<?> step = gservice.createGenerator(model);
 				gen = gservice.createCompoundGenerator(step, gen);
