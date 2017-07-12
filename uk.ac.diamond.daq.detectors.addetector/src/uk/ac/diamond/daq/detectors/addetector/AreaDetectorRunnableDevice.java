@@ -35,9 +35,9 @@ public class AreaDetectorRunnableDevice extends AbstractAreaDetectorRunnableDevi
 
 	private static final String FIELD_NAME_TOTAL = "total";
 	private ILazyWriteableDataset data;
-	private ADDetector detector;
+	protected ADDetector adDetector;
 	// This implementation only supports 2D area detectors, this might not be all cases
-	private int[] dataDimensions = new int[2];
+	private final int[] dataDimensions = new int[2];
 	private ILazyWriteableDataset total;
 	private DataType dataType;
 
@@ -49,8 +49,8 @@ public class AreaDetectorRunnableDevice extends AbstractAreaDetectorRunnableDevi
 	public void run(IPosition position) throws ScanningException, InterruptedException {
 		setDeviceState(DeviceState.RUNNING);
 		try {
-			detector.collectData();
-			detector.waitWhileBusy();
+			adDetector.collectData();
+			adDetector.waitWhileBusy();
 		} catch (Exception e) {
 			setDeviceState(DeviceState.FAULT);
 			throw new ScanningException("Acquiring from detector failed", e);
@@ -65,8 +65,8 @@ public class AreaDetectorRunnableDevice extends AbstractAreaDetectorRunnableDevi
 		this.model = model;
 
 		// Get the detector by name defined in the model
-		detector = Finder.getInstance().find(model.getName());
-		if (detector == null) {
+		adDetector = Finder.getInstance().find(model.getName());
+		if (adDetector == null) {
 			throw new ScanningException("Could not find detector: " + model.getName());
 		}
 
@@ -75,18 +75,18 @@ public class AreaDetectorRunnableDevice extends AbstractAreaDetectorRunnableDevi
 			// need to go to EPICS all the time
 			// FIXME This is a potential bug the values obtained from these PVs will only be correct if
 			// one frame has been through the AD pipeline.
-			dataDimensions[0] = detector.getAdBase().getArraySizeY_RBV();
-			dataDimensions[1] = detector.getAdBase().getArraySizeX_RBV();
+			dataDimensions[0] = adDetector.getAdBase().getArraySizeY_RBV();
+			dataDimensions[1] = adDetector.getAdBase().getArraySizeX_RBV();
 			// Get the dataType to expect
-			dataType = detector.getNdArray().getDataType();
+			dataType = adDetector.getNdArray().getDataType();
 
 			// Set the exposure time
-			detector.setCollectionTime(model.getExposureTime());
+			adDetector.setCollectionTime(model.getExposureTime());
 
 			// Set triggering to internal (This implementation only works for software triggering anyway)
-			detector.getAdBase().setTriggerMode(TriggerMode.Internal.ordinal());
+			adDetector.getAdBase().setTriggerMode(TriggerMode.Internal.ordinal());
 
-			detector.atScanStart();
+			adDetector.atScanStart();
 			// FIXME Need to configure the plugin chain here (or in the collection strategy)
 		} catch (Exception e) {
 			setDeviceState(DeviceState.FAULT);
@@ -97,9 +97,8 @@ public class AreaDetectorRunnableDevice extends AbstractAreaDetectorRunnableDevi
 
 	@Override
 	public NexusObjectProvider<NXdetector> getNexusProvider(NexusScanInfo info) {
-		NXdetector detector = createNexusObject(info);
-		NexusObjectWrapper<NXdetector> nexusProvider = new NexusObjectWrapper<NXdetector>(
-				getName(), detector);
+		final NXdetector nxDetector = createNexusObject(info);
+		final NexusObjectWrapper<NXdetector> nexusProvider = new NexusObjectWrapper<>(getName(), nxDetector);
 
 		// "data" is the name of the primary data field (i.e. the 'signal' field of the default NXdata)
 		nexusProvider.setPrimaryDataFieldName(NXdetector.NX_DATA);
@@ -109,7 +108,7 @@ public class AreaDetectorRunnableDevice extends AbstractAreaDetectorRunnableDevi
 		return nexusProvider;
 	}
 
-	public NXdetector createNexusObject(NexusScanInfo scanInfo) {
+	private NXdetector createNexusObject(NexusScanInfo scanInfo) {
 
 		final NXdetector nxDetector = NexusNodeFactory.createNXdetector();
 		nxDetector.setCount_timeScalar(model.getExposureTime());
@@ -130,10 +129,10 @@ public class AreaDetectorRunnableDevice extends AbstractAreaDetectorRunnableDevi
 
 		try {
 			// Get the data from the detector array plugin
-			Object image = detector.getNdArray().getImageData(dataDimensions[0] * dataDimensions[1]);
+			final Object image = adDetector.getNdArray().getImageData(dataDimensions[0] * dataDimensions[1]);
 
 			// Create a dataset from the data
-			Dataset dataset = DatasetFactory.createFromObject(image);
+			final Dataset dataset = DatasetFactory.createFromObject(image);
 			// Write the image data
 			IScanSlice scanSlice = IScanRankService.getScanRankService().createScanSlice(pos, dataDimensions);
 			SliceND sliceND = new SliceND(data.getShape(), data.getMaxShape(), scanSlice.getStart(), scanSlice.getStop(), scanSlice.getStep());

@@ -16,7 +16,6 @@ import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.sequencer.nexus.SolsticeConstants;
 
 import gda.device.DeviceException;
-import gda.device.detector.addetector.ADDetector;
 import gda.device.detector.addetector.filewriter.MultipleImagesPerHDF5FileWriter;
 import gda.device.detector.areadetector.v17.NDFile;
 import gda.device.detector.areadetector.v17.NDFile.FileWriteMode;
@@ -42,23 +41,14 @@ public class AreaDetectorWritingFilesRunnableDevice extends AreaDetectorRunnable
 	private static final String FIELD_NAME_STATS_TOTAL = "total";
 	private static final String PATH_TO_STATS_TOTAL_NODE = "/entry/instrument/NDAttributes/StatsTotal";
 	private static final String PATH_TO_UNIQUE_KEYS_NODE = "/entry/instrument/NDAttributes/NDArrayUniqueId";
-	private ADDetector detector;
 	private String fileName;
+	private ScanInformation information;
 
 	@Override
 	public void run(IPosition position) throws ScanningException, InterruptedException {
-		setDeviceState(DeviceState.RUNNING);
-		try {
-			detector.collectData();
-			detector.waitWhileBusy();
-		} catch (Exception e) {
-			setDeviceState(DeviceState.FAULT);
-			throw new ScanningException("Acquiring from detector failed", e);
-		}
+		super.run(position);
 		setDeviceState(DeviceState.ARMED);
 	}
-
-	private ScanInformation information;
 
 	@PreConfigure
 	public void preConfigure(ScanInformation info) {
@@ -71,26 +61,26 @@ public class AreaDetectorWritingFilesRunnableDevice extends AreaDetectorRunnable
 
 		try {
 			// Get the detector by name defined in the model
-			detector = Finder.getInstance().find(model.getName());
-			if (detector == null) {
+			adDetector = Finder.getInstance().find(model.getName());
+			if (adDetector == null) {
 				throw new ScanningException("Could not find detector: " + model.getName());
 			}
 
-			detector.setCollectionTime(model.getExposureTime());
-			detector.atScanStart();
+			adDetector.setCollectionTime(model.getExposureTime());
+			adDetector.atScanStart();
 			// FIXME Need to configure the plugin chain here (or in the collection strategy)
 
 			// Setup the file writing
-			NDFile ndFile = detector.getNdFile();
+			final NDFile ndFile = adDetector.getNdFile();
 			// TODO this is a bit unsafe just cast it. Maybe ADDetector should hold a NdFileHDF5 itself?
-			NDFileHDF5 ndFileHDF5 = ((MultipleImagesPerHDF5FileWriter) detector.getFileWriter()).getNdFileHDF5();
+			final NDFileHDF5 ndFileHDF5 = ((MultipleImagesPerHDF5FileWriter) adDetector.getFileWriter()).getNdFileHDF5();
 
 			// Setup the HDF plugin
 			// File template just merge path and file name (ignore file numbering in area detector)
-			String filetemplate = "%s%s";
+			final String filetemplate = "%s%s";
 			ndFileHDF5.setFileTemplate(filetemplate);
 			// Just use a File object for nice methods
-			File scanFile = new File(getBean().getFilePath());
+			final File scanFile = new File(getBean().getFilePath());
 			// Set path
 			ndFileHDF5.setFilePath(scanFile.getParent());
 
@@ -108,7 +98,7 @@ public class AreaDetectorWritingFilesRunnableDevice extends AreaDetectorRunnable
 
 			// FIXME This only handles raster type scans (not snake) and ones in a line square or cube.
 			// Think the solution is to use the POS plugin to tell AD in advance where the frames are going
-			int[] scanShape = information.getShape();
+			final int[] scanShape = information.getShape();
 			switch (information.getRank()) {
 			case 1: // 1D Scan
 				ndFileHDF5.setNumExtraDims(0); // 1D scan so no extra dims
@@ -167,10 +157,9 @@ public class AreaDetectorWritingFilesRunnableDevice extends AreaDetectorRunnable
 		nxDetector.addExternalLink(SolsticeConstants.PROPERTY_NAME_UNIQUE_KEYS_PATH, fileName, PATH_TO_UNIQUE_KEYS_NODE);
 
 		// Get the NexusOjbectWrapper wrapping the detector
-		NexusObjectWrapper<NXdetector> nexusObjectWrapper = new NexusObjectWrapper<NXdetector>(
-				getName(), nxDetector);
+		final NexusObjectWrapper<NXdetector> nexusObjectWrapper = new NexusObjectWrapper<>(getName(), nxDetector);
 
-		int scanRank = scanInfo.getRank();
+		final int scanRank = scanInfo.getRank();
 
 		// Set the external file written by this detector which will be linked to
 		nexusObjectWrapper.setDefaultExternalFileName(fileName);
