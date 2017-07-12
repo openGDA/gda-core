@@ -44,6 +44,7 @@ import gda.rcp.ncd.widgets.NcdMetaGroup;
 import gda.rcp.ncd.widgets.NcdScanControlComposite;
 import gda.rcp.ncd.widgets.ShutterGroup;
 import uk.ac.diamond.daq.msgbus.MsgBus;
+import uk.ac.diamond.daq.msgbus.MsgBus.Msg;
 import uk.ac.diamond.daq.scm.api.events.NcdMetaType;
 import uk.ac.diamond.daq.scm.api.events.NcdMsg;
 import uk.ac.gda.server.ncd.detectorsystem.NcdDetectorSystem;
@@ -384,6 +385,7 @@ public class NcdStatus extends ViewPart {
 	public void dispose() {
 		super.dispose();
 		MsgBus.unsubscribe(this);
+		model.close();
 		ncdStatusUpdater.disconnect();
 	}
 
@@ -412,5 +414,14 @@ public class NcdStatus extends ViewPart {
 			}
 		}
 		Display.getDefault().asyncExec(() -> modelView.refresh());
+	}
+
+	@Subscribe
+	public void refresh(StatusUpdated upd) {
+		logger.debug("Refreshing model viewer");
+		Display.getDefault().asyncExec(() -> modelView.refresh());
+	}
+
+	public static class StatusUpdated extends Msg {
 	}
 }

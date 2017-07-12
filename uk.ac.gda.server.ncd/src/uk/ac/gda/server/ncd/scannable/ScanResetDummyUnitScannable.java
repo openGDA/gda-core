@@ -64,7 +64,6 @@ public class ScanResetDummyUnitScannable extends DummyUnitsScannable  implements
 
 	@Override
 	public void moveTo(Object position) throws DeviceException {
-		notifyIObservers(this, new ScannablePositionChangeEvent(getPosition()));
 		super.moveTo(position);
 	}
 	@Override

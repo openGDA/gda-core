@@ -23,14 +23,16 @@ import org.eclipse.scanning.api.annotation.ui.FileType;
 
 import gda.device.DeviceException;
 import gda.device.Scannable;
+import gda.device.scannable.ScannablePositionChangeEvent;
 import gda.device.scannable.corba.impl.ScannableAdapter;
 import gda.factory.Findable;
 import gda.factory.Finder;
+import gda.observable.IObserver;
 import uk.ac.diamond.daq.msgbus.MsgBus;
 import uk.ac.diamond.daq.scm.api.events.NcdMetaType;
 import uk.ac.diamond.daq.scm.api.events.NcdMsgFactory;
 
-public class NcdStatusModel {
+public class NcdStatusModel implements IObserver {
 
 	private static final String THICKNESS_METADATA = "sample_thickness";
 
@@ -154,6 +156,28 @@ public class NcdStatusModel {
 		return thicknessScannable;
 	}
 	public void setThicknessScannable(Scannable thicknessScannable) {
+		if (this.thicknessScannable != null) {
+			this.thicknessScannable.deleteIObserver(this);
+		}
 		this.thicknessScannable = thicknessScannable;
+		if (thicknessScannable != null) {
+			thicknessScannable.addIObserver(this);
+		}
+	}
+
+	public void close() {
+		if (thicknessScannable != null) {
+			thicknessScannable.deleteIObserver(this);
+		}
+	}
+	@Override
+	public void update(Object source, Object arg) {
+		if (arg instanceof ScannablePositionChangeEvent) {
+			ScannablePositionChangeEvent e = (ScannablePositionChangeEvent)arg;
+			if (((Scannable)source).getName().equals(thicknessScannable.getName())) {
+				sampleThickness = (double)e.newPosition;
+				MsgBus.publish(new NcdStatus.StatusUpdated());
+			}
+		}
 	}
 }
