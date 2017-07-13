@@ -308,7 +308,7 @@ public abstract class XasScanBase implements XasScan {
 		// log("Starting " + scriptType + " scan...");
 	}
 
-	private void determineExperimentPath(String experimentFullPath) {
+	protected void determineExperimentPath(String experimentFullPath) {
 
 		if (!experimentFullPath.endsWith(File.separator)) {
 			experimentFullPath = experimentFullPath + File.separator;
