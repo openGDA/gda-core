@@ -94,8 +94,6 @@ look like this excerpt from the example configuration's ``server.xml`` file::
         <property name="startupScript" value="${gda.config}/scripts/localStation.py" />
       </bean>
     </property>
-    <property name="gdaVarDirectory" value="${gda.config}/var" />
-    <property name="cacheDirectory" value="${gda.config}/var/jythonCache" />
     <property name="remotePort" value="9999" />
   </bean>
  
