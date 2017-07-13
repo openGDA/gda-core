@@ -25,7 +25,7 @@ package gda.device.detector.nxdetector.roi;
  */
 public class LiveStreamRoiIndexer implements RectangularROIProvider<Integer> {
 
-	/** The object which provides all the ROIs remotely from the client*/
+	/** The object which provides all the ROIs remotely from the client */
 	private LiveStreamROIProvider liveStreamRoiProvider;
 
 	/** The ROI index zero based */
@@ -33,7 +33,13 @@ public class LiveStreamRoiIndexer implements RectangularROIProvider<Integer> {
 
 	@Override
 	public RectangularROI<Integer> getRoi() {
-		return liveStreamRoiProvider.getRois().get(index);
+		try {
+			return liveStreamRoiProvider.getRois().get(index);
+		} catch (IndexOutOfBoundsException e) {
+			// If there is no ROI with that index return null. This is the case where more ROIs are needed server side, than are defined on the client. The ROIs
+			// not defined will be disabled in the scan
+			return null;
+		}
 	}
 
 	public LiveStreamROIProvider getLiveStreamRoiProvider() {
