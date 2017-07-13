@@ -18,18 +18,17 @@
 
 package gda.device.scannable;
 
+import org.apache.commons.lang.ArrayUtils;
+import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
 import gda.jython.IAllScanDataPointsObserver;
 import gda.jython.IScanDataPointProvider;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanDataPoint;
-
-import org.apache.commons.lang.ArrayUtils;
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 
 /**
@@ -47,6 +46,8 @@ public class TwoDScanPlotter extends ScannableBase implements IAllScanDataPoints
 	protected DoubleDataset intensity;
 
 	private String z_colName; // Currently, this *must* be a detector as this class looks only in that part of the SDP
+	private String xAxisName;
+	private String yAxisName;
 	private String plotViewname = "Plot 1";
 
 	private Double xStart;
@@ -211,8 +212,11 @@ public class TwoDScanPlotter extends ScannableBase implements IAllScanDataPoints
 	public void plot() throws Exception {
 		if (getPlotViewname() != null) {
 			logger.debug("Plotting to RCP client plot named:" + getPlotViewname());
-			// SDAPlotter.surfacePlot(plotViewname, x, y, intensity);
-			SDAPlotter.imagePlot(plotViewname, x, y, intensity);
+			if (xAxisName!=null && yAxisName!=null) {
+				SDAPlotter.imagePlot(plotViewname, x, y, intensity, xAxisName, yAxisName);
+			} else {
+				SDAPlotter.imagePlot(plotViewname, x, y, intensity);
+			}
 		}
 	}
 
@@ -284,4 +288,19 @@ public class TwoDScanPlotter extends ScannableBase implements IAllScanDataPoints
 		this.rate = rate;
 	}
 
+	public String getXAxisName() {
+		return xAxisName;
+	}
+
+	public void setXAxisName(String xAxisName) {
+		this.xAxisName = xAxisName;
+	}
+
+	public String getYAxisName() {
+		return yAxisName;
+	}
+
+	public void setYAxisName(String yAxisName) {
+		this.yAxisName = yAxisName;
+	}
 }
