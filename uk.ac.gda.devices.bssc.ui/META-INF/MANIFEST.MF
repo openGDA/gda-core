@@ -27,7 +27,6 @@ Require-Bundle: uk.ac.gda.devices.bssc;bundle-version="1.0.0",
  org.eclipse.dawnsci.slicing.api,
  org.dawb.common.services,
  uk.ac.diamond.scisoft.analysis.rcp,
- org.csstudio.swt.widgets,
  org.eclipse.richbeans.xml,
  org.eclipse.gef,
  uk.ac.diamond.scisoft.ncd.core,
@@ -36,6 +35,8 @@ Require-Bundle: uk.ac.gda.devices.bssc;bundle-version="1.0.0",
  org.dawnsci.plotting.tools,
  org.apache.commons.beanutils,
  org.eclipse.core.expressions,
- org.csstudio.swt.xygraph;bundle-version="1.1.0",
- org.eclipse.core.databinding.property;bundle-version="1.5.0"
+ org.eclipse.core.databinding.property;bundle-version="1.5.0",
+ uk.ac.gda.devices.hatsaxs,
+ org.eclipse.nebula.visualization.widgets,
+ org.eclipse.nebula.visualization.xygraph
 Import-Package: org.slf4j;version="1.7.21"

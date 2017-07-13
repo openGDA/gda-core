@@ -20,6 +20,7 @@ package uk.ac.gda.devices.bssc.ui;
 
 import java.net.URL;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.richbeans.widgets.FieldComposite;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
@@ -74,5 +75,10 @@ public final class BSSCSessionBeanUIEditor extends RichBeanEditorPart {
 	@Override
 	public void dispose() {
 		super.dispose();
+	}
+	
+	@Override
+	public void doSave(IProgressMonitor monitor) {
+		super.doSave(monitor);
 	}
 }

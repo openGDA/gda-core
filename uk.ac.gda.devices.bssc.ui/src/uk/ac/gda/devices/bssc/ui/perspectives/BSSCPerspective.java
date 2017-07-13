@@ -28,9 +28,6 @@ import org.eclipse.ui.IPerspectiveFactory;
 
 public class BSSCPerspective implements IPerspectiveFactory {
 	public static String ID = "uk.ac.gda.devices.bssc.perspective";
-	private HashMap<String, ArrayList<IEditorReference>> perspectiveEditors = new HashMap<String, ArrayList<IEditorReference>>();
-	private HashMap<String, IEditorReference> lastActiveEditors = new HashMap<String, IEditorReference>();
-	private ArrayList<IEditorReference> editorRefs;
 	
 	@Override
 	public void createInitialLayout(IPageLayout layout) {
@@ -40,8 +37,6 @@ public class BSSCPerspective implements IPerspectiveFactory {
 			folderLayout.addView("gda.rcp.jythonterminalview");
 			folderLayout.addView("gda.rcp.views.baton.BatonView");
 		}
-		// TODO Auto-generated method stub
-		
 		layout.addView("org.eclipse.ui.navigator.ProjectExplorer", IPageLayout.LEFT, 0.31f, IPageLayout.ID_EDITOR_AREA);
 		layout.addView("uk.ac.gda.devices.bssc.views.CapillaryView", IPageLayout.TOP, 0.45f, IPageLayout.ID_EDITOR_AREA);
 		layout.addView("uk.ac.gda.client.CommandQueueViewFactory", IPageLayout.TOP, 0.22f, "gda.rcp.ncd.views.NCDStatus");

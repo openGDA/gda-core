@@ -39,7 +39,6 @@ import uk.ac.gda.devices.bssc.ui.BSSCSessionBeanEditor;
 
 public class BioSAXSStartUp implements IStartup {
 
-	private static int runcount = 0;
 	private IWorkbenchWindow window;
 	private IWorkbenchPage page;
 	private String activePerspectiveID = BioSAXSSetupPerspective.ID;
@@ -100,15 +99,17 @@ public class BioSAXSStartUp implements IStartup {
 								JythonServerFacade.getInstance().runCommand("import loadProfiles\nloadProfiles.load()");
 							} catch (PartInitException e) {
 								//worse things have happened
+							} catch (ClassCastException cce) {
+								// Non radial plot?
 							}
 						}
 					}
-					
+
 					@Override
 					public void perspectiveSavedAs(IWorkbenchPage page, IPerspectiveDescriptor oldPerspective,
 							IPerspectiveDescriptor newPerspective) {
 					}
-					
+
 					@Override
 					public void perspectiveDeactivated(IWorkbenchPage page, IPerspectiveDescriptor perspective) {
 					}

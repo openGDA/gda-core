@@ -32,8 +32,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.devices.bssc.beans.BSSCSessionBean;
-import uk.ac.gda.devices.bssc.beans.LocationBean;
 import uk.ac.gda.devices.bssc.beans.TitrationBean;
+import uk.ac.gda.devices.hatsaxs.beans.LocationBean;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 public class BSSCImportWizardPage extends WizardNewFileCreationPage {
@@ -46,9 +46,9 @@ public class BSSCImportWizardPage extends WizardNewFileCreationPage {
 	private static final int CONCENTRATION_COL_NO = 4;
 	private static final int VISCOSITY_COL_NO = 5;
 	private static final int MOLECULAR_WEIGHT_COL_NO = 6;
-	private static final int BUFFER_PLATE_COL_NO = 7;
-	private static final int BUFFER_ROW_COL_NO = 8;
-	private static final int BUFFER_COLUMN_COL_NO = 9;
+//	private static final int BUFFER_PLATE_COL_NO = 7;
+//	private static final int BUFFER_ROW_COL_NO = 8;
+//	private static final int BUFFER_COLUMN_COL_NO = 9;
 //	private static final int RECOUP_COL_NO = 10;
 	private static final int RECOUP_PLATE_COL_NO = 10;
 	private static final int RECOUP_ROW_COL_NO = 11;
@@ -111,7 +111,7 @@ public class BSSCImportWizardPage extends WizardNewFileCreationPage {
 	}
 	
 	private LocationBean locationFromCells(Cell platec, Cell rowc, Cell columnc) {
-		LocationBean location = new LocationBean();
+		LocationBean location = new LocationBean(BSSCSessionBean.BSSC_PLATES);
 		location.setPlate(parsePlateCell(platec));
 		location.setRow(rowc.getStringCellValue().charAt(0));
 		location.setColumn((short) columnc.getNumericCellValue());
@@ -138,11 +138,6 @@ public class BSSCImportWizardPage extends WizardNewFileCreationPage {
 					tibi.setLocation(location);
 				
 					tibi.setSampleName(row.getCell(SAMPLE_NAME_COL_NO).getStringCellValue());
-	
-					location = locationFromCells(row.getCell(BUFFER_PLATE_COL_NO), row.getCell(BUFFER_ROW_COL_NO), row.getCell(BUFFER_COLUMN_COL_NO));
-					if (!location.isValid())
-						throw new Exception("invalid buffer location");
-					tibi.setBufferLocation(location);
 	
 					try {
 						location = locationFromCells(row.getCell(RECOUP_PLATE_COL_NO), row.getCell(RECOUP_ROW_COL_NO), row.getCell(RECOUP_COLUMN_COL_NO));
