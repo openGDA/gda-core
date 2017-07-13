@@ -18,18 +18,15 @@
 
 package uk.ac.diamond.daq.detectors.addetector;
 
-import org.eclipse.dawnsci.nexus.NXdetector;
-import org.eclipse.dawnsci.nexus.NexusScanInfo;
-import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.ScanningException;
 
 import uk.ac.diamond.daq.detectors.addetector.api.AreaDetectorRunnableDeviceModel;
 import uk.ac.diamond.daq.detectors.addetector.api.DarkImageAreaDetectorWritingFilesRunnableDeviceModel;
 
-public class DarkImageAreaDetectorWritingFilesRunnableDevice extends AreaDetectorWritingFilesRunnableDevice {
+public class DarkImageAreaDetectorWritingFilesRunnableDevice extends AbstractAreaDetectorWritingFilesRunnableDevice {
 
-	// abstract class AbstractRunnableDevice
+	// interface IConfigurable
 
 	@Override
 	public void configure(AreaDetectorRunnableDeviceModel model) throws ScanningException {
@@ -49,30 +46,5 @@ public class DarkImageAreaDetectorWritingFilesRunnableDevice extends AreaDetecto
 			super.run(position);
 		}
 	}
-
-	@Override
-	public void postConfigure() {
-		// TODO Auto-generated method stub
-		super.postConfigure();
-	}
-
-	// interface INexusDevice
-
-	@Override
-	public NexusObjectProvider<NXdetector> getNexusProvider(NexusScanInfo scanInfo) {
-		// TODO Auto-generated method stub
-		return super.getNexusProvider(scanInfo);
-	}
-
-	// interface IWritableDetector
-
-	@Override
-	public boolean write(IPosition pos) throws ScanningException {
-		// TODO Auto-generated method stub
-		return super.write(pos);
-	}
-
-	// Class
-
 
 }
