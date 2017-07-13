@@ -48,7 +48,7 @@ public class NcdStatusModel implements IObserver {
 	@FieldDescriptor(label="WAXS Calibration", file=FileType.EXISTING_FILE)
 	private String waxsCalibration;
 
-	@FieldDescriptor(label="Sample Thickness", unit="mm", hint="Thickness of sample", minimum=0.0, numberFormat="#0.0##")
+	@FieldDescriptor(label="Sample Thickness", unit="mm", hint="Thickness of sample", minimum=0.0, numberFormat="#0.0")
 	private double sampleThickness;
 
 	@FieldDescriptor(visible=false)
@@ -129,16 +129,6 @@ public class NcdStatusModel implements IObserver {
 			MsgBus.publish(waxsMaskMsg.changeRequest(waxsMask, null));
 		}
 	}
-
-//	@Subscribe
-//	public void update(NcdMsg.StatusUpdate msg) {
-//		if (msg.getDetectorType().equals("SAXS")) {
-//			if (msg.getMetaType().equals(NcdMetaType.CALIBRATION)) {
-//				saxsCalibration = msg.getFilepath();
-//				setSaxsCalibration(msg.getFilepath());
-//			}
-//		}
-//	}
 
 	protected void setSaxsMaskDirect(String mask) {
 		saxsMask = mask;
