@@ -173,10 +173,6 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 
 	private ScriptPaths jythonScriptPaths;
 
-	private File gdaVarDirectory;
-
-	private File cacheDirectory;
-
 	private ServerType remoteServerType = ServerType.TELNET;
 
 	private PasswordAuthenticator authenticator;
@@ -234,26 +230,6 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	 */
 	public void setJythonScriptPaths(ScriptPaths jythonScriptPaths) {
 		this.jythonScriptPaths = jythonScriptPaths;
-	}
-
-	/**
-	 * WARNING 12 Jul 2017 This method is about to be deleted,
-	 * do not use it from this date onwards.
-	 */
-	@Deprecated
-	public void setGdaVarDirectory(File gdaVarDirectory) {
-		logger.warn("Please remove the 'gdaVarDirectory' property from your {} bean definition - it is no longer used", getClass().getSimpleName());
-		this.gdaVarDirectory = gdaVarDirectory;
-	}
-
-	/**
-	 * WARNING 12 Jul 2017 This method is about to be deleted,
-	 * do not use it from this date onwards.
-	 */
-	@Deprecated
-	public void setCacheDirectory(File cacheDirectory) {
-		logger.warn("Please remove the 'cacheDirectory' property from your {} bean definition - it is no longer used", getClass().getSimpleName());
-		this.cacheDirectory = cacheDirectory;
 	}
 
 	/**
@@ -361,7 +337,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 
 			try {
 				// create the objects references in the interpreter namespace
-				interp = createJythonInterpreter();
+				interp = new GDAJythonInterpreter(jythonScriptPaths);
 				interp.configure();
 			} catch (Exception e) {
 				throw new FactoryException(e.getMessage(), e);
@@ -393,12 +369,6 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 
 			configured = true;
 		}
-	}
-
-	private GDAJythonInterpreter createJythonInterpreter() {
-		GDAJythonInterpreter interpreter = new GDAJythonInterpreter();
-		interpreter.setJythonScriptPaths(jythonScriptPaths);
-		return interpreter;
 	}
 
 	private int determineRemotePortNumber() {
