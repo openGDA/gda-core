@@ -91,7 +91,6 @@ public class GDAJythonInterpreter {
 
 	// folders where beamline and user scripts are held
 	private ScriptPaths _jythonScriptPaths;
-	private String _gdaVarDir;
 
 	private final GDAJythonClassLoader classLoader = new GDAJythonClassLoader();
 
@@ -144,11 +143,7 @@ public class GDAJythonInterpreter {
 		PySystemState.initialize(sysProps, gdaCustomProperties);
 	}
 
-	public ScriptPaths getJythonScriptPaths() {
-		return _jythonScriptPaths;
-	}
-
-	public void setJythonScriptPaths(ScriptPaths scriptPaths) {
+	public GDAJythonInterpreter(final ScriptPaths scriptPaths) {
 		_jythonScriptPaths = scriptPaths;
 	}
 
@@ -157,45 +152,6 @@ public class GDAJythonInterpreter {
 	 */
 	public String getGdaStationScript() {
 		return _jythonScriptPaths != null ? _jythonScriptPaths.getStartupScript() : "";
-	}
-
-	/**
-	 * @return string - the full path of the gda var directory
-	 */
-	public String getGdaVarDir() {
-		if (_gdaVarDir == null) {
-			_gdaVarDir = LocalProperties.getVarDir();
-		}
-		return _gdaVarDir;
-	}
-
-	/**
-	 * Sets the 'var' directory used by this interpreter.
-	 *
-	 * @param gdaVarDirectory
-	 *            the 'var' directory
-	 */
-	public void setGdaVarDirectory(File gdaVarDirectory) {
-		if (gdaVarDirectory != null) {
-			_gdaVarDir = appendSeparator(gdaVarDirectory.getAbsolutePath());
-		}
-	}
-
-	/**
-	 * Sets the cache directory used by this interpreter.
-	 *
-	 * @param cacheDirectory
-	 *            the cache directory
-	 */
-	public void setCacheDirectory(File cacheDirectory) {
-		cacheDir = cacheDirectory;
-	}
-
-	private static String appendSeparator(String file) {
-		if (!file.endsWith(System.getProperty("file.separator"))) {
-			return file + System.getProperty("file.separator");
-		}
-		return file;
 	}
 
 	/**
