@@ -38,7 +38,12 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.richbeans.api.generator.IGuiGeneratorService;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -179,12 +184,22 @@ public class RegionAndPathSection extends AbstractMappingSection {
 		// Make the region selection
 		Composite regionComboComposite = new Composite(regionAndPathComposite, SWT.NONE);
 		horizontalGrabGridData.applyTo(regionComboComposite);
-		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(regionComboComposite);
+		GridLayoutFactory.swtDefaults().numColumns(3).applyTo(regionComboComposite);
 		Label regionLabel = new Label(regionComboComposite, SWT.NONE);
 		regionLabel.setText("Region shape:");
 		regionSelector = new ComboViewer(regionComboComposite);
 		horizontalGrabGridData.applyTo(regionSelector.getControl());
 		regionSelector.getCombo().setToolTipText("Select a scan region shape. The shape can then be drawn on the map, or you can type numbers below.");
+		Button redrawRegion = new Button(regionComboComposite, SWT.NONE);
+		redrawRegion.setImage(new Image(Display.getCurrent(), getClass().getResourceAsStream("/icons/map--pencil.png")));
+		redrawRegion.setToolTipText("Draw/Redraw region");
+		redrawRegion.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				// Reselect the same region type to cause a redraw event
+				regionSelector.setSelection(regionSelector.getSelection());
+			}
+		});
 
 		// Make the path selection
 		Composite pathComboComposite = new Composite(regionAndPathComposite, SWT.NONE);

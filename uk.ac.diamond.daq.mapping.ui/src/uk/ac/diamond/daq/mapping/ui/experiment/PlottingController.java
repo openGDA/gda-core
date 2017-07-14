@@ -61,7 +61,7 @@ public class PlottingController {
 	}
 
 	private void checkPlottingSystem() {
-		if (mapPlottingSystem == null) {
+		if (mapPlottingSystem == null || mapPlottingSystem.isDisposed()) {
 			initPlottingSystem();
 			if (mapPlottingSystem == null) {
 				throw new NullPointerException("Couldn't get map plotting system");
@@ -86,6 +86,7 @@ public class PlottingController {
 		// Color blue = new Color(null, 0, 0, 255);
 		mappingRegionColour = new Color(null, 255, 196, 0); // orange
 		scanPathColour = new Color(null, 160, 32, 240); // purple
+		logger.debug("Initialized plotting system");
 	}
 
 	void updatePlotRegionFrom(IMappingScanRegionShape scanRegion) {
