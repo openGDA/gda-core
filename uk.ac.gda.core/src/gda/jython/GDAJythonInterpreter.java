@@ -784,9 +784,15 @@ public class GDAJythonInterpreter {
 		PySystemState pss = new PySystemState();
 		PySystemState old = interactiveConsole.getSystemState();
 		pss.setClassLoader(old.getClassLoader());
-		pss.path = old.path;
+		PyObject main = old.modules.__finditem__("__main__");
 
 		InteractiveConsole py = new GDAInteractiveConsole(pss);
+		pss.path = old.path;
+		pss.builtins = old.builtins;
+		pss.modules = old.modules;
+		// GDAInteractiveConsole creates a new __main__ module - we want to use
+		// the same each time
+		pss.modules.__setitem__("__main__", main);
 		pss.setdefaultencoding(UTF_8); //needs to be set after creating console - see #configure method
 		if (stdin == null) {
 			pss.stdin = old.stdin;
