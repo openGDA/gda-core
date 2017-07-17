@@ -29,25 +29,24 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PerspectiveAdapter;
 import org.eclipse.ui.PlatformUI;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.devices.hplc.ui.HplcSessionBeanEditor;
 
 public class HplcStartUp implements IStartup {
 
-	private IWorkbenchWindow window;
-	private IWorkbenchPage page;
-	private String activePerspectiveID = HplcSetupPerspective.ID;
+	private static final Logger logger = LoggerFactory.getLogger(HplcStartUp.class);
 	
 	@Override
 	public void earlyStartup() {
 		Display.getDefault().asyncExec(new Runnable(){
 			@Override
 			public void run() {
-				window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-				page = window.getActivePage();
+				IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 
 				// Need add listener to workbench to always have at least one editor available
-				IPartService service = (IPartService) window.getService(IPartService.class);
+				IPartService service = window.getService(IPartService.class);
 				service.addPartListener(new IPartListener() {
 					@Override
 					public void partActivated(IWorkbenchPart part) {
@@ -59,9 +58,13 @@ public class HplcStartUp implements IStartup {
 
 					@Override
 					public void partClosed(IWorkbenchPart part) {
-						if (activePerspectiveID.equals(HplcSetupPerspective.ID)) {
+						IWorkbenchWindow window = part.getSite().getWorkbenchWindow();
+						IWorkbenchPage page = window.getActivePage();
+						IPerspectiveDescriptor persp = page.getPerspective();
+						if (persp != null && HplcSetupPerspective.ID.equals(persp.getId())) {
 							if (page.getEditorReferences().length == 0) {
-								openEditorWithDefaultSamples();
+								logger.debug("All editors closed");
+								PlatformUI.getWorkbench().getDisplay().asyncExec(HplcStartUp::openEditorWithDefaultSamples);
 							}
 						}
 					}
@@ -78,10 +81,11 @@ public class HplcStartUp implements IStartup {
 				window.addPerspectiveListener(new PerspectiveAdapter() {
 					@Override
 					public void perspectiveActivated(IWorkbenchPage page, IPerspectiveDescriptor perspective) {
-						activePerspectiveID = perspective.getId();
+						String activePerspectiveID = perspective.getId();
 						
 						if (activePerspectiveID.equals(HplcSetupPerspective.ID)) {
 							if (page.getEditorReferences().length == 0) {
+								logger.debug("Perspective opened with no editors present");
 								openEditorWithDefaultSamples();
 							}
 						}
@@ -99,7 +103,8 @@ public class HplcStartUp implements IStartup {
 			}});
 	}
 
-	private void openEditorWithDefaultSamples() {
+	private static void openEditorWithDefaultSamples() {
+		logger.debug("Opening editor with default samples");
 		HplcSessionBeanEditor editor = new HplcSessionBeanEditor();
 		editor.openEditorWithDefaultSamples();
 	}

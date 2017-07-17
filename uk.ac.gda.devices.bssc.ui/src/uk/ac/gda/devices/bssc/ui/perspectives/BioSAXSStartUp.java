@@ -34,23 +34,21 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PerspectiveAdapter;
 import org.eclipse.ui.PlatformUI;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.devices.bssc.ui.BSSCSessionBeanEditor;
 
 public class BioSAXSStartUp implements IStartup {
-
-	private IWorkbenchWindow window;
-	private IWorkbenchPage page;
-	private String activePerspectiveID = BioSAXSSetupPerspective.ID;
+	
+	private static final Logger logger = LoggerFactory.getLogger(BioSAXSStartUp.class);
 	
 	@Override
 	public void earlyStartup() {
 		Display.getDefault().asyncExec(new Runnable(){
 			@Override
 			public void run() {
-				window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-				page = window.getActivePage();
-				activePerspectiveID = page.getPerspective().getId();
+				IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 
 				// Need add listener to workbench to always have at least one editor available
 				IPartService service = (IPartService) window.getService(IPartService.class);
@@ -62,12 +60,16 @@ public class BioSAXSStartUp implements IStartup {
 					@Override
 					public void partBroughtToTop(IWorkbenchPart part) {
 					}
-
+					
 					@Override
 					public void partClosed(IWorkbenchPart part) {
-						if (activePerspectiveID.equals(BioSAXSSetupPerspective.ID)) {
+						IWorkbenchWindow window = part.getSite().getWorkbenchWindow();
+						IWorkbenchPage page = window.getActivePage();
+						IPerspectiveDescriptor persp = page.getPerspective();
+						if (persp != null && BioSAXSSetupPerspective.ID.equals(persp.getId())) {
 							if (page.getEditorReferences().length == 0) {
-								openEditorWithDefaultSamples();
+								logger.debug("All editors closed");
+								PlatformUI.getWorkbench().getDisplay().asyncExec(BioSAXSStartUp::openEditorWithDefaultSamples);
 							}
 						}
 					}
@@ -84,10 +86,11 @@ public class BioSAXSStartUp implements IStartup {
 				window.addPerspectiveListener(new PerspectiveAdapter() {
 					@Override
 					public void perspectiveActivated(IWorkbenchPage page, IPerspectiveDescriptor perspective) {
-						activePerspectiveID = perspective.getId();
+						String activePerspectiveID = perspective.getId();
 						
 						if (activePerspectiveID.equals(BioSAXSSetupPerspective.ID)) {
 							if (page.getEditorReferences().length == 0) {
+								logger.debug("Perspective opened with no editors present");
 								openEditorWithDefaultSamples();
 							}
 						} else if (activePerspectiveID.equals(BioSAXSProgressPerspective.ID)) {
@@ -117,7 +120,8 @@ public class BioSAXSStartUp implements IStartup {
 			}});
 	}
 
-	private void openEditorWithDefaultSamples() {
+	private static void openEditorWithDefaultSamples() {
+		logger.debug("Opening editor with default samples");
 		BSSCSessionBeanEditor editor = new BSSCSessionBeanEditor();
 		editor.openEditorWithDefaultSamples();
 	}

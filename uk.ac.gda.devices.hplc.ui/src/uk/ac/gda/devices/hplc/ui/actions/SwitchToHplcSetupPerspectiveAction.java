@@ -1,4 +1,4 @@
-package uk.ac.gda.devices.bssc.ui.actions;
+package uk.ac.gda.devices.hplc.ui.actions;
 
 import java.util.Properties;
 
@@ -11,7 +11,7 @@ import org.eclipse.ui.intro.IIntroManager;
 import org.eclipse.ui.intro.IIntroSite;
 import org.eclipse.ui.intro.config.IIntroAction;
 
-public class SwitchToBioSAXSSetupPerspectiveAction implements IIntroAction {
+public class SwitchToHplcSetupPerspectiveAction implements IIntroAction {
 	@Override
 	public void run(IIntroSite site, Properties params) {
 		IWorkbench workbench = PlatformUI.getWorkbench();
@@ -25,12 +25,10 @@ public class SwitchToBioSAXSSetupPerspectiveAction implements IIntroAction {
 
 		// open the BioSAXS setup perspective
 		try {
-			workbench.showPerspective("uk.ac.gda.devices.bssc.biosaxsresultperspective", window);
-			workbench.showPerspective("uk.ac.gda.devices.bssc.biosaxsprogressperspective", window);
-			workbench.showPerspective("uk.ac.gda.devices.bssc.biosaxssetupperspective", window);
+			workbench.showPerspective("uk.ac.gda.devices.hplc.hplcsetupperspective", window);
 
-			IPerspectiveRegistry iPerspectiveRegistry = workbench.getPerspectiveRegistry();
-			iPerspectiveRegistry.setDefaultPerspective("uk.ac.gda.devices.bssc.biosaxssetupperspective");
+			IPerspectiveRegistry iPerspectiveRegistry = PlatformUI.getWorkbench().getPerspectiveRegistry();
+			iPerspectiveRegistry.setDefaultPerspective("uk.ac.gda.devices.hplc.hplcsetupperspective");
 
 		} catch (WorkbenchException e) {
 		}
