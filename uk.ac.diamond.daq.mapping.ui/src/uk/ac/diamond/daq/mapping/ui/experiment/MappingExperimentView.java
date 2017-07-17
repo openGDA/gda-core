@@ -30,7 +30,6 @@ import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
@@ -54,8 +53,11 @@ public class MappingExperimentView implements IAdaptable {
 
 	private static final String STATE_KEY_MAPPING_BEAN_JSON = "mappingBean.json";
 
+	/**
+	 * These classes will be created on a scrollable composite (not always visible)
+	 */
 	@SuppressWarnings("unchecked")
-	private static final Class<? extends AbstractMappingSection>[] SECTION_CLASSES = new Class[] {
+	private static final Class<? extends AbstractMappingSection>[] SCROLLED_SECTION_CLASSES = new Class[] {
 			// a section for configuring scannables to be moved to a particular position at the start of a scan
 			BeamlineConfigurationSection.class,
 			// a section for configuring scripts to be run before and after a scan
@@ -69,7 +71,14 @@ public class MappingExperimentView implements IAdaptable {
 			// a section for configuring metadata to add to the scan
 			ScanMetadataSection.class,
 			// a section for configuring live processing to run
-			ProcessingSection.class,
+			ProcessingSection.class
+	};
+
+	/**
+	 * These classes are always visible
+	 */
+	@SuppressWarnings("unchecked")
+	private static final Class<? extends AbstractMappingSection>[] UNSCROLLED_SECTION_CLASSES = new Class[] {
 			// a section for submitting the scan to the queue
 			SubmitScanSection.class
 	};
@@ -127,16 +136,43 @@ public class MappingExperimentView implements IAdaptable {
 
 		logger.trace("Starting to build the mapping experiment view");
 
-		mainComposite = createMainComposite(parent);
+		GridLayoutFactory.fillDefaults().applyTo(parent);
+		GridDataFactory.fillDefaults().applyTo(parent);
+		parent.setBackgroundMode(SWT.INHERIT_FORCE);
+
+		scrolledComposite = new ScrolledComposite(parent, SWT.H_SCROLL | SWT.V_SCROLL);
+		scrolledComposite.setExpandHorizontal(true);
+		scrolledComposite.setExpandVertical(true);
+
+		GridLayoutFactory.fillDefaults().applyTo(scrolledComposite);
+		GridDataFactory.fillDefaults().grab(true, true).applyTo(scrolledComposite);
+
+		Composite alwaysVisible = new Composite(parent, SWT.NONE);
+		GridLayoutFactory.fillDefaults().applyTo(alwaysVisible);
+		GridDataFactory.fillDefaults().grab(true, false).applyTo(alwaysVisible);
+
+		mainComposite = new Composite(scrolledComposite, SWT.NONE);
+		GridLayoutFactory.fillDefaults().applyTo(mainComposite);
+		GridDataFactory.fillDefaults().grab(true, true).applyTo(mainComposite);
+
+		scrolledComposite.setContent(mainComposite);
+
+		// Separator to distinguish between mainComposite and alwaysVisible composites
+		GridDataFactory.fillDefaults().span(2, 1).grab(true, false).applyTo(
+				new Label(alwaysVisible, SWT.SEPARATOR | SWT.HORIZONTAL));
+
 		// Make the status bar label
-		createStatusPanel(mainComposite);
+		createStatusPanel(alwaysVisible);
+
 		if (experimentBean == null) {
 			logger.error("Error getting mapping configuration, no mapping bean set");
 		} else {
 			// create the controls for sections that should be shown
-			createSections(mainComposite);
-		}
+			createSections(mainComposite, SCROLLED_SECTION_CLASSES);
+			createSections(alwaysVisible, UNSCROLLED_SECTION_CLASSES);
 
+		}
+		mainComposite.pack();
 		logger.trace("Finished building the mapping experiment view");
 	}
 
@@ -166,9 +202,9 @@ public class MappingExperimentView implements IAdaptable {
 		}
 	}
 
-	private void createSections(Composite parent) {
-		sections = new HashMap<>();
-		for (Class<? extends AbstractMappingSection> sectionClass : SECTION_CLASSES) {
+	private void createSections(Composite parent, Class<? extends AbstractMappingSection>[] classes) {
+		if (sections==null) sections = new HashMap<>();
+		for (Class<? extends AbstractMappingSection> sectionClass : classes) {
 			AbstractMappingSection section;
 			try {
 				section = sectionClass.newInstance();
@@ -194,20 +230,6 @@ public class MappingExperimentView implements IAdaptable {
 	public void dispose() {
 		plotter.dispose();
 		beamPositionPlotter.dispose();
-	}
-
-	private Composite createMainComposite(Composite parent) {
-		parent.setLayout(new FillLayout());
-		parent.setBackgroundMode(SWT.INHERIT_FORCE); // stop the ScrolledComposite being grey regardless of theme colour
-		scrolledComposite = new ScrolledComposite(parent, SWT.H_SCROLL | SWT.V_SCROLL);
-		scrolledComposite.setExpandHorizontal(true);
-		scrolledComposite.setExpandVertical(true);
-
-		final Composite mainComposite = new Composite(scrolledComposite, SWT.NONE);
-		scrolledComposite.setContent(mainComposite);
-
-		GridLayoutFactory.fillDefaults().numColumns(1).spacing(0, 0).applyTo(mainComposite);
-		return mainComposite;
 	}
 
 	private void createStatusPanel(final Composite mainComposite) {
