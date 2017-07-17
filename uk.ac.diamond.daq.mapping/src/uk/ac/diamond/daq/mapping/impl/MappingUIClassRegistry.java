@@ -24,6 +24,7 @@ import java.util.Map;
 
 import org.eclipse.dawnsci.analysis.api.persistence.IClassRegistry;
 
+import uk.ac.diamond.daq.mapping.region.CentredRectangleMappingRegion;
 import uk.ac.diamond.daq.mapping.region.CircularMappingRegion;
 import uk.ac.diamond.daq.mapping.region.LineMappingRegion;
 import uk.ac.diamond.daq.mapping.region.PointMappingRegion;
@@ -47,6 +48,7 @@ public class MappingUIClassRegistry implements IClassRegistry {
 		registerClass(tmp, PointMappingRegion.class);
 		registerClass(tmp, PolygonMappingRegion.class);
 		registerClass(tmp, RectangularMappingRegion.class);
+		registerClass(tmp, CentredRectangleMappingRegion.class);
 		registerClass(tmp, SimpleSampleMetadata.class);
 		registerClass(tmp, ScriptFiles.class);
 

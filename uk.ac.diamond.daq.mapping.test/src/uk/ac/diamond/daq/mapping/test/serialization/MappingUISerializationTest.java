@@ -53,6 +53,7 @@ import uk.ac.diamond.daq.mapping.impl.MappingUIClassRegistry;
 import uk.ac.diamond.daq.mapping.impl.ScanPathModelWrapper;
 import uk.ac.diamond.daq.mapping.impl.ScriptFiles;
 import uk.ac.diamond.daq.mapping.impl.SimpleSampleMetadata;
+import uk.ac.diamond.daq.mapping.region.CentredRectangleMappingRegion;
 import uk.ac.diamond.daq.mapping.region.CircularMappingRegion;
 import uk.ac.diamond.daq.mapping.region.LineMappingRegion;
 import uk.ac.diamond.daq.mapping.region.PointMappingRegion;
@@ -231,6 +232,20 @@ public class MappingUISerializationTest {
 
 		String json = service.marshal(region);
 		RectangularMappingRegion newRegion = service.unmarshal(json, RectangularMappingRegion.class);
+
+		assertEquals(region, newRegion);
+	}
+
+	@Test
+	public void testSerializeCentredRectangleMappingRegion() throws Exception {
+		CentredRectangleMappingRegion region = new CentredRectangleMappingRegion();
+		region.setxCentre(15.0);
+		region.setxRange(10.0);
+		region.setyCentre(8.5);
+		region.setyRange(13.0);
+
+		String json = service.marshal(region);
+		CentredRectangleMappingRegion newRegion = service.unmarshal(json, CentredRectangleMappingRegion.class);
 
 		assertEquals(region, newRegion);
 	}

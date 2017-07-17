@@ -23,11 +23,12 @@ import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
 
 public class MappingRegionManagerTest {
 
-	private IMappingScanRegionShape[] regions = new IMappingScanRegionShape[] { new RectangularMappingRegion(),
+	private IMappingScanRegionShape[] regions = new IMappingScanRegionShape[] {
+			new RectangularMappingRegion(), new CentredRectangleMappingRegion(),
 			new CircularMappingRegion(), new LineMappingRegion(), new PointMappingRegion(),
 			new PolygonMappingRegion() };
-	private IScanPathModel[] twoDPaths = new IScanPathModel[] { new GridModel(), new RasterModel(), new SpiralModel(),
-			new LissajousModel() };
+	private IScanPathModel[] twoDPaths = new IScanPathModel[] { new GridModel(), new RasterModel(),
+			new SpiralModel(), new LissajousModel() };
 	private IScanPathModel[] oneDPaths = new IScanPathModel[] { new OneDEqualSpacingModel(), new OneDStepModel() };
 	private IScanPathModel[] zeroDPaths = new IScanPathModel[] { new SinglePointModel() };
 
@@ -57,6 +58,13 @@ public class MappingRegionManagerTest {
 	@Test
 	public void getValidPathsForRectangleShouldReturnAll2DPaths() throws Exception {
 		List<IScanPathModel> paths = mappingRegionManager.getValidPaths(new RectangularMappingRegion());
+		assertThat("All 2D paths should be returned", paths, hasItems(twoDPaths));
+		assertEquals("No other paths should be returned", paths.size(), (twoDPaths.length));
+	}
+
+	@Test
+	public void getValidPathsForCentredRectangleShouldReturnAll2DPaths() throws Exception {
+		List<IScanPathModel> paths = mappingRegionManager.getValidPaths(new CentredRectangleMappingRegion());
 		assertThat("All 2D paths should be returned", paths, hasItems(twoDPaths));
 		assertEquals("No other paths should be returned", paths.size(), (twoDPaths.length));
 	}

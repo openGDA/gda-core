@@ -114,6 +114,7 @@
 		<property name="regions">
 			<list>
 				<bean class="uk.ac.diamond.daq.mapping.region.RectangularMappingRegion" />
+				<bean class="uk.ac.diamond.daq.mapping.region.CentredRectangleMappingRegion" />
 				<bean class="uk.ac.diamond.daq.mapping.region.CircularMappingRegion" />
 				<bean class="uk.ac.diamond.daq.mapping.region.PolygonMappingRegion" />
 				<bean class="uk.ac.diamond.daq.mapping.region.LineMappingRegion" />
