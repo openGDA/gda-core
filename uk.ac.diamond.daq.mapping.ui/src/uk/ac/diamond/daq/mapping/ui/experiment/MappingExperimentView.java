@@ -168,10 +168,10 @@ public class MappingExperimentView implements IAdaptable {
 			logger.error("Error getting mapping configuration, no mapping bean set");
 		} else {
 			// create the controls for sections that should be shown
-			createSections(mainComposite, SCROLLED_SECTION_CLASSES);
-			createSections(alwaysVisible, UNSCROLLED_SECTION_CLASSES);
-
+			createSections(mainComposite, SCROLLED_SECTION_CLASSES, part.getPersistedState());
+			createSections(alwaysVisible, UNSCROLLED_SECTION_CLASSES, part.getPersistedState());
 		}
+
 		mainComposite.pack();
 		logger.trace("Finished building the mapping experiment view");
 	}
@@ -198,11 +198,16 @@ public class MappingExperimentView implements IAdaptable {
 			String json = marshaller.marshal(experimentBean);
 			part.getPersistedState().put(STATE_KEY_MAPPING_BEAN_JSON, json);
 		} catch (Exception e) {
-			logger.error("Could save current the state of the mapping view.", e);
+			logger.error("Could not save current the state of the mapping view.", e);
+		}
+
+		// Now save any other persistent data that is outside the mapping bean
+		for (AbstractMappingSection section : sections.values()) {
+			section.saveState(part.getPersistedState());
 		}
 	}
 
-	private void createSections(Composite parent, Class<? extends AbstractMappingSection>[] classes) {
+	private void createSections(Composite parent, Class<? extends AbstractMappingSection>[] classes, Map<String, String> persistedState) {
 		if (sections==null) sections = new HashMap<>();
 		for (Class<? extends AbstractMappingSection> sectionClass : classes) {
 			AbstractMappingSection section;
@@ -217,7 +222,7 @@ public class MappingExperimentView implements IAdaptable {
 						GridDataFactory.fillDefaults().span(2, 1).grab(true, false).applyTo(
 								new Label(parent, SWT.SEPARATOR | SWT.HORIZONTAL));
 					}
-
+					section.loadState(persistedState);
 					section.createControls(parent);
 				}
 			} catch (InstantiationException | IllegalAccessException e) {
@@ -280,7 +285,7 @@ public class MappingExperimentView implements IAdaptable {
 
 		ScanBean scanBean = (ScanBean) openRequest.getStatusBean();
 		String scanName = scanBean.getName();
-		logger.info("Open Request", "Received an open request for ScanBean with the name: " + scanName);
+		logger.info("Open Request", "Received an open request for ScanBean with the name: %s", scanName);
 
 		// Confirm whether this scan should be opened as it will overwrite the contents of the view
 		Shell shell = (Shell) injectionContext.get(IServiceConstants.ACTIVE_SHELL);

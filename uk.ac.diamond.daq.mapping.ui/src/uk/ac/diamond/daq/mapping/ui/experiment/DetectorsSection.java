@@ -35,9 +35,11 @@ import org.eclipse.core.databinding.Binding;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.beans.PojoProperties;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
+import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.jface.window.Window;
 import org.eclipse.richbeans.api.generator.IGuiGeneratorService;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.models.DeviceRole;
@@ -66,29 +68,60 @@ public class DetectorsSection extends AbstractMappingSection {
 	private static final Logger logger = LoggerFactory.getLogger(DetectorsSection.class);
 
 	private static final int DETECTORS_COLUMNS = 3;
+	private static final String DETECTOR_SELECTION_KEY_JSON = "detectorSelection.json";
 
 	private DataBindingContext dataBindingContext;
 
 	private Map<String, Button> detectorSelectionCheckboxes;
 	private Map<String, Binding> exposureTimeBindings;
+	private List<IDetectorModelWrapper> chosenDetectors;
+	private Composite controlsComposite;
 
 	@Override
 	public void createControls(Composite parent) {
 		Composite detectorsComposite = new Composite(parent, SWT.NONE);
+		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(detectorsComposite);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(detectorsComposite);
-		GridLayoutFactory.swtDefaults().numColumns(DETECTORS_COLUMNS).applyTo(detectorsComposite);
 		Label detectorsLabel = new Label(detectorsComposite, SWT.NONE);
 		detectorsLabel.setText("Detectors");
-		GridDataFactory.fillDefaults().span(DETECTORS_COLUMNS, 1).applyTo(detectorsLabel);
+		GridDataFactory.swtDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER).applyTo(detectorsLabel);
 
+		Button configure = new Button(detectorsComposite, SWT.PUSH);
+		configure.setImage(MappingExperimentUtils.getImage("icons/gear.png"));
+		configure.setToolTipText("Select detectors to show");
+		GridDataFactory.fillDefaults().align(SWT.RIGHT, SWT.CENTER).applyTo(configure);
+		configure.addListener(SWT.Selection, event -> addDetector(detectorsComposite));
+
+		if (chosenDetectors!=null) createDetectorControls(detectorsComposite, chosenDetectors);
+	}
+
+	private void addDetector(Composite parent) {
+
+		DetectorChooser dialog = new DetectorChooser(getShell(),getDetectorParameters(), chosenDetectors);
+
+		if (dialog.open() == Window.OK) {
+			chosenDetectors = dialog.getSelectedDetectors();
+			createDetectorControls(parent, chosenDetectors);
+			mappingView.relayout();
+			mappingView.recalculateMinimumSize();
+		}
+	}
+
+	private void createDetectorControls(Composite parent, List<IDetectorModelWrapper> detectorParametersList) {
+
+		if (controlsComposite!=null) controlsComposite.dispose();
 		dataBindingContext = new DataBindingContext();
-		// create a row with a checkbox for each detector
-		List<IDetectorModelWrapper> detectorParametersList = getDetectorParameters();
-		detectorSelectionCheckboxes = new HashMap<>(detectorParametersList.size());
-		exposureTimeBindings = new HashMap<>(detectorParametersList.size());
+		int listSize = getDetectorParameters().size();
+		detectorSelectionCheckboxes = new HashMap<>(listSize);
+		exposureTimeBindings = new HashMap<>(listSize);
+
+		controlsComposite = new Composite(parent, SWT.NONE);
+		GridDataFactory.fillDefaults().grab(true, false).span(2, 1).applyTo(controlsComposite);
+		GridLayoutFactory.swtDefaults().numColumns(DETECTORS_COLUMNS).margins(0, 0).applyTo(controlsComposite);
+
 		for (IDetectorModelWrapper detectorParameters : detectorParametersList) {
 			// create the detector selection checkbox and bind it to the includeInScan property of the wrapper
-			Button checkBox = new Button(detectorsComposite, SWT.CHECK);
+			Button checkBox = new Button(controlsComposite, SWT.CHECK);
 			detectorSelectionCheckboxes.put(detectorParameters.getName(), checkBox);
 			checkBox.setText(detectorParameters.getName());
 			IObservableValue checkBoxValue = WidgetProperties.selection().observe(checkBox);
@@ -103,19 +136,17 @@ public class DetectorsSection extends AbstractMappingSection {
 			});
 
 			// create the exposure time text control and bind it the exposure time property of the wrapper
-			Text exposureTimeText = new Text(detectorsComposite, SWT.BORDER);
+			Text exposureTimeText = new Text(controlsComposite, SWT.BORDER);
 			exposureTimeText.setToolTipText("Exposure time");
 			GridDataFactory.fillDefaults().grab(true, false).applyTo(exposureTimeText);
 			IObservableValue exposureTextValue = WidgetProperties.text(SWT.Modify).observe(exposureTimeText);
 			IObservableValue exposureTimeValue = PojoProperties.value("exposureTime").observe(detectorParameters.getModel());
 			Binding exposureTimeBinding = dataBindingContext.bindValue(exposureTextValue, exposureTimeValue);
 			exposureTimeBindings.put(detectorParameters.getName(), exposureTimeBinding);
-			exposureTimeText.addListener(SWT.Modify, event -> {
-				updateStatusLabel();
-			});
+			exposureTimeText.addListener(SWT.Modify, event -> updateStatusLabel());
 
 			// Edit configuration
-			final Button configButton = new Button(detectorsComposite, SWT.PUSH);
+			final Button configButton = new Button(controlsComposite, SWT.PUSH);
 			configButton.setImage(MappingExperimentUtils.getImage("icons/pencil.png"));
 			configButton.setToolTipText("Edit parameters");
 
@@ -125,7 +156,10 @@ public class DetectorsSection extends AbstractMappingSection {
 						detectorParameters.getName() + " Parameters");
 				dataBindingContext.updateTargets();
 			});
+
 		}
+
+		mappingView.relayout();
 	}
 
 	/**
@@ -136,17 +170,19 @@ public class DetectorsSection extends AbstractMappingSection {
 	 */
 	private void malcolmDeviceSelectionChanged(String name) {
 		boolean malcolmDeviceSelected = detectorSelectionCheckboxes.get(name).getSelection();
-		detectorSelectionCheckboxes.keySet().stream().filter(detName -> !detName.equals(name)).
-			map(detName -> detectorSelectionCheckboxes.get(detName)).forEach(cb -> {
-				cb.setEnabled(!malcolmDeviceSelected);
-				if (malcolmDeviceSelected) cb.setSelection(false);
-			});
+		detectorSelectionCheckboxes.keySet().stream()
+											.filter(detName -> !detName.equals(name))
+											.map(detName -> detectorSelectionCheckboxes.get(detName))
+											.forEach(cb -> {
+												cb.setEnabled(!malcolmDeviceSelected);
+												if (malcolmDeviceSelected) cb.setSelection(false);
+											});
 
 		// set all other detectors as not included in scan? TODO why doesn't jface binding do this automatically?
 		if (malcolmDeviceSelected) {
-			getMappingBean().getDetectorParameters().stream().
-				filter(detParams -> !detParams.getName().equals(name)).
-				forEach(detParams -> ((DetectorModelWrapper) detParams).setIncludeInScan(false));
+			getMappingBean().getDetectorParameters().stream()
+				.filter(detParams -> !detParams.getName().equals(name))
+				.forEach(detParams -> ((DetectorModelWrapper) detParams).setIncludeInScan(false));
 		}
 	}
 
@@ -157,16 +193,16 @@ public class DetectorsSection extends AbstractMappingSection {
 
 		// get the DeviceInformation objects for the malcolm devices and apply the function
 		// above to create DetectorModelWrappers for them.
-		Map<String, IDetectorModelWrapper> malcolmParams = getMalcolmDeviceInfo().stream().
-				map(info -> malcolmInfoToWrapper.apply(info)).
-				collect(Collectors.toMap(IDetectorModelWrapper::getName, Function.identity()));
+		Map<String, IDetectorModelWrapper> malcolmParams = getMalcolmDeviceInfo().stream()
+				.map(malcolmInfoToWrapper::apply)
+				.collect(Collectors.toMap(IDetectorModelWrapper::getName, Function.identity()));
 
 		// a function to collect Malcolm model names
 		final Function<IDetectorModelWrapper, String> getMalcolmModel =	param -> param.getModel().getName();
 
 		// get the set of Malcolm models
 		final Set<String> malcolmModels = malcolmParams.values().stream()
-				.map(param -> getMalcolmModel.apply(param))
+				.map(getMalcolmModel::apply)
 				.collect(Collectors.toSet());
 
 		// a predicate to filter out malcolm devices which no longer exist
@@ -229,6 +265,31 @@ public class DetectorsSection extends AbstractMappingSection {
 				String name = devInfo.getLabel();
 				malcolmDeviceSelectionChanged(name);
 			}
+		}
+	}
+
+	@Override
+	protected void saveState(Map<String, String> persistedState) {
+		IMarshallerService marshaller = getEclipseContext().get(IMarshallerService.class);
+		try {
+			persistedState.put(DETECTOR_SELECTION_KEY_JSON, marshaller.marshal(chosenDetectors));
+		} catch (Exception e) {
+			logger.error("Error saving detector selection", e);
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	protected void loadState(Map<String, String> persistedState) {
+		String json = persistedState.get(DETECTOR_SELECTION_KEY_JSON);
+		if (json == null || json.isEmpty()) { // This happens when client is reset || if no detectors are configured.
+			return;
+		}
+		IMarshallerService marshaller = getEclipseContext().get(IMarshallerService.class);
+		try {
+			chosenDetectors = marshaller.unmarshal(json, List.class);
+		} catch (Exception e) {
+			logger.error("Error loading detector selection", e);
 		}
 	}
 

@@ -18,6 +18,8 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
+import java.util.Map;
+
 import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.resource.JFaceResources;
@@ -114,4 +116,17 @@ public abstract class AbstractMappingSection {
 		// Default implementation does nothing. Subclasses may override.
 	}
 
+	/**
+	 * Default implementation does nothing since most data is saved through the mapping bean
+	 */
+	protected void saveState(@SuppressWarnings("unused") Map<String, String> persistedState) {
+
+	}
+
+	/**
+	 * Default implementation does nothing since most data is loaded through the mapping bean
+	 */
+	protected void loadState(@SuppressWarnings("unused") Map<String, String> persistedState) {
+
+	}
 }
