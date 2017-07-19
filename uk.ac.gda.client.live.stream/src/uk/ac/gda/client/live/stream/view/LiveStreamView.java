@@ -70,6 +70,7 @@ import org.slf4j.LoggerFactory;
 import gda.device.detector.nxdetector.roi.ImutableRectangularIntegerROI;
 import gda.factory.Finder;
 import uk.ac.diamond.daq.epics.connector.EpicsV3DynamicDatasetConnector;
+import uk.ac.gda.client.live.stream.handlers.SnapshotData;
 
 /**
  * A RCP view for connecting to and displaying a live MJPEG stream. The intension is to provide a easy way for cameras
@@ -82,6 +83,8 @@ import uk.ac.diamond.daq.epics.connector.EpicsV3DynamicDatasetConnector;
  * @author James Mudd
  */
 public class LiveStreamView extends ViewPart {
+
+	public static final String LIVE_CAMERA_STREAM = "Live camera stream";
 
 	public static final String ID = "uk.ac.gda.client.live.stream.view.LiveStreamView";
 
@@ -289,7 +292,7 @@ public class LiveStreamView extends ViewPart {
 		plottingSystem.setRescale(false);
 
 		// Create a new trace.
-		iTrace = plottingSystem.createImageTrace("Live camera stream");
+		iTrace = plottingSystem.createImageTrace(LIVE_CAMERA_STREAM);
 
 		// Attach the IDatasetConnector of the MJPEG stream to the trace.
 		if (streamType == StreamType.MJPEG && camConfig.getUrl() == null) {
@@ -559,5 +562,13 @@ public class LiveStreamView extends ViewPart {
 
 		// Send the new ROIs to the server
 		camConfig.getRoiProvider().updateRois(rois);
+	}
+
+	public IPlottingSystem<Composite> getPlottingSystem() {
+		return plottingSystem;
+
+	}
+	public SnapshotData snapshot() {
+		return new SnapshotData(plottingSystem.getTitle(), iTrace.getData().clone());
 	}
 }

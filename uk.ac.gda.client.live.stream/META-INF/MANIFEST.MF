@@ -22,3 +22,4 @@ Require-Bundle: uk.ac.gda.api,
  org.eclipse.dawnsci.analysis.dataset
 Service-Component: OSGI-INF/*.xml
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
+Export-Package: uk.ac.gda.client.live.stream.view
