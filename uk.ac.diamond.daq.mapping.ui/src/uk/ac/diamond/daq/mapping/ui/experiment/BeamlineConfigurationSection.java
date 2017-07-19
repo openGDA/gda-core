@@ -59,16 +59,10 @@ public class BeamlineConfigurationSection extends AbstractMappingSection {
 	@Override
 	public void createControls(Composite parent) {
 		Composite beamlineConfigComposite = new Composite(parent, SWT.NONE);
-		GridLayoutFactory.swtDefaults().numColumns(2).equalWidth(false).applyTo(beamlineConfigComposite);
+		GridLayoutFactory.swtDefaults().numColumns(3).equalWidth(false).applyTo(beamlineConfigComposite);
 		GridDataFactory.fillDefaults().grab(false, false).applyTo(beamlineConfigComposite);
 
-		Composite configLabelAndButtonComposite = new Composite(beamlineConfigComposite,SWT.NONE);
-		GridLayoutFactory.swtDefaults().numColumns(1).equalWidth(false).applyTo(configLabelAndButtonComposite);
-
-		Label configLabel = new Label(configLabelAndButtonComposite, SWT.NONE);
-		configLabel.setText("Beamline Configuration");
-
-		Button editBeamlineConfigButton = new Button(configLabelAndButtonComposite, SWT.PUSH);
+		Button editBeamlineConfigButton = new Button(beamlineConfigComposite, SWT.PUSH);
 		editBeamlineConfigButton.setText("Configure Beamline...");
 		editBeamlineConfigButton.addListener(SWT.Selection, event -> editBeamlineConfiguration());
 
@@ -78,7 +72,7 @@ public class BeamlineConfigurationSection extends AbstractMappingSection {
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(configSummaryComposite);
 
 		final Label separator = new Label(configSummaryComposite, SWT.SEPARATOR | SWT.VERTICAL);
-		GridDataFactory.fillDefaults().hint(SWT.DEFAULT, configLabelAndButtonComposite.getSize().y).grab(false, false).applyTo(separator);
+		GridDataFactory.fillDefaults().hint(SWT.DEFAULT, configSummaryComposite.getSize().y).grab(false, false).applyTo(separator);
 
 		summaryText = new Text(configSummaryComposite, SWT.MULTI | SWT.READ_ONLY);
 		summaryText.setLayoutData(new GridData(SWT.FILL,SWT.FILL,true,true));
