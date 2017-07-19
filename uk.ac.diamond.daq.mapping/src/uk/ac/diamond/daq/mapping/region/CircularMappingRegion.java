@@ -31,8 +31,8 @@ import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
 
 public class CircularMappingRegion implements IMappingScanRegionShape {
 
-	private double xCenter = 0;
-	private double yCenter = 0;
+	private double xCentre = 0;
+	private double yCentre = 0;
 	private double radius = 1;
 	private String name = "Circle";
 
@@ -49,28 +49,28 @@ public class CircularMappingRegion implements IMappingScanRegionShape {
 	}
 
 	@UiComesAfter("regionShape")
-	public double getxCenter() {
-		return xCenter;
+	public double getxCentre() {
+		return xCentre;
 	}
 
-	public void setxCenter(double newValue) {
-		double oldvalue = this.xCenter;
-		this.xCenter = newValue;
-		this.pcs.firePropertyChange("xCenter", oldvalue, newValue);
+	public void setxCentre(double newValue) {
+		double oldvalue = this.xCentre;
+		this.xCentre = newValue;
+		this.pcs.firePropertyChange("xCentre", oldvalue, newValue);
 	}
 
-	@UiComesAfter("xCenter")
-	public double getyCenter() {
-		return yCenter;
+	@UiComesAfter("xCentre")
+	public double getyCentre() {
+		return yCentre;
 	}
 
-	public void setyCenter(double newValue) {
-		double oldvalue = this.yCenter;
-		this.yCenter = newValue;
-		this.pcs.firePropertyChange("yCenter", oldvalue, newValue);
+	public void setyCentre(double newValue) {
+		double oldvalue = this.yCentre;
+		this.yCentre = newValue;
+		this.pcs.firePropertyChange("yCentre", oldvalue, newValue);
 	}
 
-	@UiComesAfter("yCenter")
+	@UiComesAfter("yCentre")
 	public double getRadius() {
 		return radius;
 	}
@@ -92,16 +92,16 @@ public class CircularMappingRegion implements IMappingScanRegionShape {
 		if (newROI instanceof CircularROI) {
 			CircularROI roi = (CircularROI) newROI;
 			// First save the old values
-			double oldXCenter = xCenter;
-			double oldYCenter = yCenter;
+			double oldxCentre = xCentre;
+			double oldyCentre = yCentre;
 			double oldRadius = radius;
 			// First update all the values not using the setters to avoid pcs events
-			xCenter = roi.getPoint()[0];
-			yCenter = roi.getPoint()[1];
+			xCentre = roi.getPoint()[0];
+			yCentre = roi.getPoint()[1];
 			radius = roi.getRadius();
 			// Fire the events once the update is finished
-			this.pcs.firePropertyChange("xCenter", oldXCenter, xCenter);
-			this.pcs.firePropertyChange("yCenter", oldYCenter, yCenter);
+			this.pcs.firePropertyChange("xCentre", oldxCentre, xCentre);
+			this.pcs.firePropertyChange("yCentre", oldyCentre, yCentre);
 			this.pcs.firePropertyChange("radius", oldRadius, radius);
 		} else {
 			throw new IllegalArgumentException("Circular mapping region can only update from a CircularROI");
@@ -111,7 +111,7 @@ public class CircularMappingRegion implements IMappingScanRegionShape {
 	@Override
 	public CircularROI toROI() {
 		CircularROI roi = new CircularROI();
-		roi.setPoint(getxCenter(), getyCenter());
+		roi.setPoint(getxCentre(), getyCentre());
 		roi.setRadius(getRadius());
 		return roi;
 	}
@@ -129,9 +129,9 @@ public class CircularMappingRegion implements IMappingScanRegionShape {
 		temp = Double.doubleToLongBits(radius);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		temp = Double.doubleToLongBits(xCenter);
+		temp = Double.doubleToLongBits(xCentre);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
-		temp = Double.doubleToLongBits(yCenter);
+		temp = Double.doubleToLongBits(yCentre);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		return result;
 	}
@@ -152,9 +152,9 @@ public class CircularMappingRegion implements IMappingScanRegionShape {
 				return false;
 		} else if (!name.equals(other.name))
 			return false;
-		if (Double.doubleToLongBits(xCenter) != Double.doubleToLongBits(other.xCenter))
+		if (Double.doubleToLongBits(xCentre) != Double.doubleToLongBits(other.xCentre))
 			return false;
-		if (Double.doubleToLongBits(yCenter) != Double.doubleToLongBits(other.yCenter))
+		if (Double.doubleToLongBits(yCentre) != Double.doubleToLongBits(other.yCentre))
 			return false;
 		return true;
 	}

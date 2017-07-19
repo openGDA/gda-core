@@ -155,8 +155,8 @@ public class MappingUISerializationTest {
 	@Test
 	public void testSerializeCircularMappingRegion() throws Exception {
 		CircularMappingRegion region = new CircularMappingRegion();
-		region.setxCenter(10.0);
-		region.setyCenter(25.0);
+		region.setxCentre(10.0);
+		region.setyCentre(25.0);
 		region.setRadius(5.8);
 
 		String json = service.marshal(region);

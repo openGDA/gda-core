@@ -18,8 +18,8 @@ public class CircularMappingRegionTest {
 		double radius = 5.64;
 
 		CircularMappingRegion circularMappingRegion = new CircularMappingRegion();
-		circularMappingRegion.setxCenter(xCentre);
-		circularMappingRegion.setyCenter(yCentre);
+		circularMappingRegion.setxCentre(xCentre);
+		circularMappingRegion.setyCentre(yCentre);
 		circularMappingRegion.setRadius(radius);
 
 		// getPoint() returns bottom left ie min x and min y, getEndPoint() returns top right ie max x max y
@@ -45,8 +45,8 @@ public class CircularMappingRegionTest {
 		circularMappingRegion.updateFromROI(circularROI);
 
 		// Check values
-		assertEquals("xCentre", xCentre, circularMappingRegion.getxCenter(), xCentre * 1e-8);
-		assertEquals("yCentre", yCentre, circularMappingRegion.getyCenter(), yCentre * 1e-8);
+		assertEquals("xCentre", xCentre, circularMappingRegion.getxCentre(), xCentre * 1e-8);
+		assertEquals("yCentre", yCentre, circularMappingRegion.getyCentre(), yCentre * 1e-8);
 		assertEquals("radius", radius, circularMappingRegion.getRadius(), radius * 1e-8);
 	}
 
