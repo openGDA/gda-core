@@ -249,12 +249,7 @@ public class RegionAndPathSection extends AbstractMappingSection {
 			changePath(selectedPath);
 		});
 
-		// Setting the first region will trigger the listeners to update the mapping section and point count
-		regionSelector.setSelection(new StructuredSelection(regionList.get(0)), true);
-
-		// Plot the scan region. This will cancel the region drawing event in the plotting system to avoid user confusion at startup
-		// TODO check if this is the preferred behaviour, or better to leave the drawing event active
-		plotter.updatePlotRegionFrom(scanRegion);
+		updateControls();
 	}
 
 	private void changePath(IScanPathModel newPath) {
@@ -284,20 +279,28 @@ public class RegionAndPathSection extends AbstractMappingSection {
 		scanRegion = mappingScanRegion.getRegion();
 		scanPathModel = mappingScanRegion.getScanPath();
 
-		// Replace the region model of the same class with the new region
+		// Replace the region model of the same class with the new region from the mapping bean
 		List<IMappingScanRegionShape> regionList = mappingRegionManager.getRegions();
-		for (int i = 0; i < regionList.size(); i++) {
-			if (regionList.get(i).getClass().equals(scanRegion.getClass())) {
-				regionList.set(i, scanRegion);
+		if (scanRegion == null) {
+			scanRegion = regionList.get(0);
+		} else {
+			for (int i = 0; i < regionList.size(); i++) {
+				if (regionList.get(i).getClass().equals(scanRegion.getClass())) {
+					regionList.set(i, scanRegion);
+				}
 			}
 		}
 		regionSelector.setInput(regionList.toArray());
 
-		// Replace the scan path model of the same class with the new one
+		// Replace the scan path model of the same class with the new scan path model from the mapping bean
 		List<IScanPathModel> scanPathList = mappingRegionManager.getValidPaths(scanRegion);
-		for (int i = 0; i < scanPathList.size(); i++) {
-			if (scanPathList.get(i).getClass().equals(scanPathModel.getClass())) {
-				scanPathList.set(i, scanPathModel);
+		if (scanPathModel == null) {
+			scanPathModel = scanPathList.get(0);
+		} else {
+			for (int i = 0; i < scanPathList.size(); i++) {
+				if (scanPathList.get(i).getClass().equals(scanPathModel.getClass())) {
+					scanPathList.set(i, scanPathModel);
+				}
 			}
 		}
 		pathSelector.setInput(scanPathList);
@@ -308,6 +311,10 @@ public class RegionAndPathSection extends AbstractMappingSection {
 		// Set the selection on the combo viewers (has to be done after the above)
 		regionSelector.setSelection(new StructuredSelection(scanRegion));
 		pathSelector.setSelection(new StructuredSelection(scanPathModel));
+
+		// Plot the scan region. This will cancel the region drawing event in the plotting system to avoid user confusion at startup
+		// TODO check if this is the preferred behaviour, or better to leave the drawing event active
+		plotter.updatePlotRegionFrom(scanRegion);
 	}
 
 	/**
