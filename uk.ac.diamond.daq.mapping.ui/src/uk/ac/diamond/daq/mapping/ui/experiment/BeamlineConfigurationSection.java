@@ -111,26 +111,23 @@ public class BeamlineConfigurationSection extends AbstractMappingSection {
 	}
 
 	private void updateConfiguredScannableSummary() {
-
-		try {
-			Map<String, Object> configured = getMappingBean().getBeamlineConfiguration();
-			List<String> txt = new ArrayList<>();
-			for (Map.Entry<String,Object> entry : configured.entrySet()) {
-				String key = entry.getKey();
-				Object value = entry.getValue();
-				txt.add(key+" = "+(value instanceof Number ? format.format(value) : value ));
-			}
-			summaryText.setToolTipText(txt.stream().collect(Collectors.joining("\n")));
-			if (txt.size()>MAX_TXT_LINES) {
-				txt = txt.subList(0, MAX_TXT_LINES);
-				txt.set(MAX_TXT_LINES-1, ".....");
-			}
-			summaryText.setText(txt.stream().collect(Collectors.joining("\n")));
-			configSummaryComposite.setVisible( !txt.isEmpty()? true : false);
-
-		} catch (NullPointerException npe) {
-			LOGGER.debug("MappingExperimentBean.beamlineConfiguration is null on startup in new workspace: "+npe);
+		Map<String, Object> configured = getMappingBean().getBeamlineConfiguration();
+		if (configured == null) {
+			return; // Will be null on startup in a new workspace
 		}
+		List<String> txt = new ArrayList<>();
+		for (Map.Entry<String, Object> entry : configured.entrySet()) {
+			String key = entry.getKey();
+			Object value = entry.getValue();
+			txt.add(key + " = " + (value instanceof Number ? format.format(value) : value));
+		}
+		summaryText.setToolTipText(txt.stream().collect(Collectors.joining("\n")));
+		if (txt.size() > MAX_TXT_LINES) {
+			txt = txt.subList(0, MAX_TXT_LINES);
+			txt.set(MAX_TXT_LINES - 1, ".....");
+		}
+		summaryText.setText(txt.stream().collect(Collectors.joining("\n")));
+		configSummaryComposite.setVisible(!txt.isEmpty() ? true : false);
 	}
 
 	@Override
