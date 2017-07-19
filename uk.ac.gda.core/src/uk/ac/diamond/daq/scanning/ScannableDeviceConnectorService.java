@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
 
 import org.eclipse.scanning.api.AbstractScannable;
 import org.eclipse.scanning.api.IScannable;
+import org.eclipse.scanning.api.MonitorRole;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.ScanningException;
@@ -179,6 +180,13 @@ public class ScannableDeviceConnectorService implements IScannableDeviceService 
 			 * done the INexusDevice writes as an NXPositioner in a default location.
 			 */
 			iscannable = (IScannable<T>) new ScannableNexusWrapper<>(scannable);
+			/**
+			 * to support metadata scannable defined in GDA 8
+			 */
+			if (getGlobalPerScanMonitorNames().contains(iscannable.getName())){
+				iscannable.setActivated(true);
+				iscannable.setMonitorRole(MonitorRole.PER_SCAN);
+			}
 		}
 
 		// Jython scannable can be reassigned, so do not cache
