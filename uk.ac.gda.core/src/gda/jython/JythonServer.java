@@ -68,6 +68,7 @@ import gda.jython.authoriser.Authoriser;
 import gda.jython.authoriser.AuthoriserProvider;
 import gda.jython.batoncontrol.BatonManager;
 import gda.jython.batoncontrol.ClientDetails;
+import gda.jython.batoncontrol.ClientDetailsAndLeaseState;
 import gda.jython.commandinfo.CommandThreadEvent;
 import gda.jython.commandinfo.CommandThreadEventType;
 import gda.jython.commandinfo.CommandThreadInfo;
@@ -1570,7 +1571,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 
 		final ITerminalPrinter tp = InterfaceProvider.getTerminalPrinter();
 
-		final List<ClientDetails> clients = batonManager.getAllClients();
+		final List<ClientDetailsAndLeaseState> clients = batonManager.getAllClients();
 
 		tp.print(String.format("%d client%s connected%s",
 			clients.size(),
@@ -1581,17 +1582,18 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 
 			tp.print("");
 
-			tp.print(String.format("%-6s   %-15s   %-20s   %-10s   %s",
-				"Number", "Username", "Hostname", "Visit", "Holds baton?"));
+			tp.print(String.format("%-6s   %-15s   %-20s   %-10s   %s   %s",
+				"Number", "Username", "Hostname", "Visit", "Lease?", "Baton?"));
 
-			tp.print("=============================================================================");
+			tp.print("===============================================================================");
 
-			for (ClientDetails c : clients) {
-				tp.print(String.format("%-6d   %-15s   %-20s   %-10s   %s",
+			for (ClientDetailsAndLeaseState c : clients) {
+				tp.print(String.format("%-6d   %-15s   %-20s   %-10s   %s      %s",
 					c.getIndex(),
 					c.getUserID(),
 					c.getHostname(),
 					c.getVisitID(),
+					c.isHasLease() ? "yes" : "",
 					c.isHasBaton() ? "yes" : ""));
 			}
 		}

@@ -126,6 +126,6 @@ public interface IBatonManager {
 	/**
 	 * Returns details of all connected clients.
 	 */
-	public List<ClientDetails> getAllClients();
+	public List<ClientDetailsAndLeaseState> getAllClients();
 
 }

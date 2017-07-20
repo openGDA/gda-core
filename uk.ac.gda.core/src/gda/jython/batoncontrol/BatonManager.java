@@ -529,15 +529,17 @@ public class BatonManager implements IBatonManager {
 	}
 
 	@Override
-	public List<ClientDetails> getAllClients() {
-		final List<ClientDetails> clients = new ArrayList<ClientDetails>();
+	public List<ClientDetailsAndLeaseState> getAllClients() {
+		final List<ClientDetailsAndLeaseState> clients = new ArrayList<>();
 		for (Map.Entry<String, ClientInfo> entry : facadeNames.entrySet()) {
 			final String uniqueId = entry.getKey();
 			final ClientInfo info = entry.getValue();
 			if (!info.isServer()) {
 				final boolean hasBaton = amIBatonHolder(uniqueId, false);
 				final ClientDetails details = new ClientDetails(info, hasBaton);
-				clients.add(details);
+				final boolean hasLease = leaseHolders.containsKey(uniqueId);
+				final ClientDetailsAndLeaseState detailsAndLease = new ClientDetailsAndLeaseState(details, hasLease);
+				clients.add(detailsAndLease);
 			}
 		}
 		return clients;
