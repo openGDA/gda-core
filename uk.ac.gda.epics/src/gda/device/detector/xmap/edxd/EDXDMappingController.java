@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
  * This class describes the EDXD detector on I12, it is made up of 24 subdetectors:
  * EDXDMappingElement instances, each wrapping an EpicsMCASimple instance.
  */
-public class EDXDMappingController extends EDXDController implements Configurable, IEDXDMappingController {
+public class EDXDMappingController extends EDXDController implements Configurable {
 
 	// Setup the logging facilities
 	private static final Logger logger = LoggerFactory.getLogger(EDXDMappingController.class);
@@ -205,7 +205,6 @@ public class EDXDMappingController extends EDXDController implements Configurabl
 		 xmap.setValueNoWait(ERASESTART  ,"",1);
 	}
 
-	@Override
 	public void setCollectionMode(COLLECTION_MODES mode) throws DeviceException{
 		xmap.setValueNoWait(COLLECTIONMODE, "", mode.ordinal());
 	}
@@ -218,11 +217,11 @@ public class EDXDMappingController extends EDXDController implements Configurabl
 		//xmap.setValue(SETPRESETREAL ,"",collectionTime);
 	}
 
+
 	public void setPixelAdvanceMode(PIXEL_ADVANCE_MODE mode) throws DeviceException{
 		xmap.setValueNoWait(PIXELADVANCEMODE, "", mode.ordinal());
 	}
 
-	@Override
 	public void setIgnoreGate(boolean yes) throws DeviceException{
 		if (yes)
 			xmap.setValueNoWait(IGNOREGATE, "", 1);
