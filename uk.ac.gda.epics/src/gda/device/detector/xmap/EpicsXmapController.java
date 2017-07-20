@@ -18,18 +18,16 @@
 
 package gda.device.detector.xmap;
 
-import gda.device.Detector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.device.detector.xmap.edxd.EDXDElement;
 import gda.device.detector.xmap.edxd.EDXDMappingController;
 import gda.factory.FactoryException;
-import gda.observable.IObserver;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-public class EpicsXmapController extends DeviceBase implements XmapController, IObserver {
+public class EpicsXmapController extends DeviceBase implements XmapController {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsXmapController.class);
 
@@ -45,20 +43,6 @@ public class EpicsXmapController extends DeviceBase implements XmapController, I
 					+ " (EpicsXmapControllerROI) must be given the EDXD object or object name to be able to configure");
 		}
 		numberOfElements = edxdController.getNumberOfElements();
-		edxdController.addIObserver(this);
-	}
-
-	@Override
-	public void update(Object theObserved, Object changeCode) {
-		if (theObserved == edxdController) {
-			Integer status = (Integer) changeCode; // a ClassCastException here would imply a change in EDXD{,Mapping}Controller implementation
-			if (status == Detector.IDLE) {
-				//TODO status update needs to be made
-			}
-			else if (status == Detector.BUSY) {
-				//TODO status update needs to be made
-			}
-		}
 	}
 
 	@Override
