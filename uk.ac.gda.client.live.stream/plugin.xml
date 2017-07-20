@@ -10,6 +10,13 @@
          name="Live Stream"
          restorable="true">
       </view>
+      <view
+            class="uk.ac.gda.client.live.stream.view.SnapshotView"
+            icon="icons/snapshot.png"
+            id="uk.ac.gda.client.live.stream.view.snapshotview"
+            name="Snapshot"
+            restorable="true">
+      </view>
    </extension>
    <extension point="org.eclipse.ui.menus">
       <menuContribution
@@ -17,5 +24,32 @@
          class="uk.ac.gda.client.live.stream.view.LiveStreamMenuContribution"
          locationURI="menu:window?after=showView">
       </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:uk.ac.gda.client.live.stream.view.LiveStreamView">
+         <command
+               commandId="uk.ac.gda.client.live.stream.snapshotcommand"
+               icon="icons/snapshot.png"
+               label="Snapshot"
+               style="push"
+               tooltip="Take a snapshot of the live image">
+         </command>
+      </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="uk.ac.gda.client.live.stream.handlers.SnapshotFromLiveStream"
+            commandId="uk.ac.gda.client.live.stream.snapshothandler">
+      </handler>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="uk.ac.gda.client.live.stream.handlers.SnapshotFromLiveStream"
+            description="Take a snapshot of the live image"
+            id="uk.ac.gda.client.live.stream.snapshotcommand"
+            name="Snapshot">
+      </command>
    </extension>
 </plugin>
