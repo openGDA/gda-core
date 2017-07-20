@@ -405,7 +405,11 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 			if (data instanceof TerminalOutput) {
 				final TerminalOutput output = (TerminalOutput) data;
 				for (Terminal terminal : myTerminals) {
-					terminal.write(output.getOutput());
+					try {
+						terminal.write(output.getOutput());
+					} catch (Exception e) {
+						logger.error("Failed to write '{}' to terminal {}", output.getOutput(), terminal, e);
+					}
 				}
 			}
 
