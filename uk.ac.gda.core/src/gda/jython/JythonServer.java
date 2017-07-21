@@ -42,7 +42,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 
-import org.apache.sshd.server.PasswordAuthenticator;
 import org.python.core.Py;
 import org.python.core.PyList;
 import org.python.core.PyObject;
@@ -80,8 +79,6 @@ import gda.jython.completion.TextCompleter;
 import gda.jython.completion.impl.JythonCompleter;
 import gda.jython.corba.impl.JythonImpl;
 import gda.jython.server.JlineTelnetConnectionManager;
-import gda.jython.socket.SocketServer;
-import gda.jython.socket.SocketServer.ServerType;
 import gda.jython.translator.Translator;
 import gda.messages.InMemoryMessageHandler;
 import gda.messages.MessageHandler;
@@ -128,9 +125,6 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 
 	IObserver remoteFacade = null;
 
-	// tcp/ip socket for communication
-	SocketServer socket = null;
-
 	// to ensure configuration only performed once
 	boolean configured = false;
 
@@ -174,10 +168,6 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	BatonManager batonManager = new BatonManager();
 
 	private ScriptPaths jythonScriptPaths;
-
-	private ServerType remoteServerType = ServerType.TELNET;
-
-	private PasswordAuthenticator authenticator;
 
 	private int remotePort = -1;
 
@@ -251,24 +241,6 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	 */
 	public void removeDefault(Scannable scannable) {
 		defaultScannables.remove(scannable);
-	}
-
-	/**
-	 * Sets the remote server type.
-	 *
-	 * @param remoteServerType
-	 *            the remote server type
-	 */
-	public void setRemoteServerType(SocketServer.ServerType remoteServerType) {
-		this.remoteServerType = remoteServerType;
-	}
-
-	/**
-	 * Sets the {@link PasswordAuthenticator} to use to authenticate users connecting via SSH to the Jython server. Not
-	 * needed if a Telnet server is enabled.
-	 */
-	public void setAuthenticator(PasswordAuthenticator authenticator) {
-		this.authenticator = authenticator;
 	}
 
 	/**

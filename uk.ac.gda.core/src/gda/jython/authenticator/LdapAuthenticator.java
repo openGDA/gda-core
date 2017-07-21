@@ -19,8 +19,6 @@
 
 package gda.jython.authenticator;
 
-import gda.configuration.properties.LocalProperties;
-
 import java.util.Hashtable;
 import java.util.List;
 
@@ -30,15 +28,15 @@ import javax.naming.NamingException;
 import javax.naming.ldap.InitialLdapContext;
 
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.sshd.server.PasswordAuthenticator;
-import org.apache.sshd.server.session.ServerSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.configuration.properties.LocalProperties;
 
 /**
  * Uses an ldap server for authentication of a username and password
  */
-public class LdapAuthenticator implements Authenticator, PasswordAuthenticator {
+public class LdapAuthenticator implements Authenticator {
 
 	private static final Logger logger = LoggerFactory.getLogger(LdapAuthenticator.class);
 
@@ -126,10 +124,5 @@ public class LdapAuthenticator implements Authenticator, PasswordAuthenticator {
 			}
 		}
 		return false;
-	}
-
-	@Override
-	public Object authenticate(String username, String password, ServerSession session) {
-		return (isAuthenticated(username, password)) ? username : null;
 	}
 }
