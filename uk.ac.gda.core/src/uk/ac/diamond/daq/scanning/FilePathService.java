@@ -36,10 +36,10 @@ import gda.device.DeviceException;
  */
 public class FilePathService implements IFilePathService {
 
-	private static final String TEMP_DIR_NAME = "tmp";
-	private static final String PROCESSED_DIR_NAME = "processed";
 	private static final String PROCESSING_TEMPLATES_DIR = "processingTemplates";
-
+	private static final String VISIT_TEMP_DIR_NAME = "tmp";
+	private static final String VISIT_PROCESSED_DIR_NAME = "processed";
+	private static final String VISIT_CONFIG_DIR_NAME = "xml";
 	private static NumTracker tracker;
 
 	private String lastPath = null;
@@ -111,13 +111,13 @@ public class FilePathService implements IFilePathService {
 	@Override
 	public String getTempDir() {
 		// Get the current visit directory and append /tmp.
-		return PathConstructor.getVisitSubdirectory(TEMP_DIR_NAME);
+		return PathConstructor.getVisitSubdirectory(VISIT_TEMP_DIR_NAME);
 	}
 
 	@Override
 	public String getProcessedFilesDir() {
 		// Get the current visit directory and append /processed.
-		return PathConstructor.getVisitSubdirectory(PROCESSED_DIR_NAME);
+		return PathConstructor.getVisitSubdirectory(VISIT_PROCESSED_DIR_NAME);
 	}
 
 
@@ -151,6 +151,12 @@ public class FilePathService implements IFilePathService {
 		}
 		if (visit==null) visit = LocalProperties.get(LocalProperties.GDA_DEF_VISIT, "cm0-0");
 		return visit;
+	}
+
+	@Override
+	public String getVisitConfigDir() {
+		// Get the current visit directory and append /tmp.
+		return PathConstructor.getVisitSubdirectory(VISIT_CONFIG_DIR_NAME);
 	}
 
 }
