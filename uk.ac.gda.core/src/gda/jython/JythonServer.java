@@ -79,6 +79,7 @@ import gda.jython.completion.AutoCompletion;
 import gda.jython.completion.TextCompleter;
 import gda.jython.completion.impl.JythonCompleter;
 import gda.jython.corba.impl.JythonImpl;
+import gda.jython.server.JlineTelnetConnectionManager;
 import gda.jython.socket.SocketServer;
 import gda.jython.socket.SocketServer.ServerType;
 import gda.jython.translator.Translator;
@@ -358,11 +359,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 			// open a socket for communication, if a port has been defined - not during reset_namespace
 			int port = determineRemotePortNumber();
 			if (port != -1 && atStartup) {
-				socket = new SocketServer();
-				socket.setServerType(remoteServerType);
-				socket.setAuthenticator(authenticator);
-				socket.setPort(port);
-				new Thread(socket, "Jython SocketServer port " + port).start();
+				JlineTelnetConnectionManager.runServer(port);
 				atStartup = false;
 			}
 
