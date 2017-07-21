@@ -85,7 +85,7 @@ public class MappingExperimentView implements IAdaptable {
 
 	private static final Logger logger = LoggerFactory.getLogger(MappingExperimentView.class);
 
-	private IMappingExperimentBean experimentBean;
+	private IMappingExperimentBean mappingBean = null;
 
 	private StatusPanel statusPanel;
 
@@ -106,11 +106,10 @@ public class MappingExperimentView implements IAdaptable {
 
 	@Inject
 	public MappingExperimentView(IMappingExperimentBeanProvider beanProvider) {
-		if (beanProvider != null) {
-			experimentBean = beanProvider.getMappingExperimentBean();
+		if (beanProvider == null) {
+			throw new NullPointerException("beanProvider must not be null");
 		} else {
-			experimentBean = null;
-			logger.error("A mapping experiment bean provider is required - check Spring and OSGi configuration");
+			setMappingBean(beanProvider.getMappingExperimentBean());
 		}
 	}
 
@@ -164,7 +163,7 @@ public class MappingExperimentView implements IAdaptable {
 		// Make the status bar label
 		createStatusPanel(alwaysVisible);
 
-		if (experimentBean == null) {
+		if (mappingBean == null) {
 			logger.error("Error getting mapping configuration, no mapping bean set");
 		} else {
 			// create the controls for sections that should be shown
@@ -182,7 +181,7 @@ public class MappingExperimentView implements IAdaptable {
 			logger.trace("Restoring the previous state of the mapping view.");
 			IMarshallerService marshaller = injectionContext.get(IMarshallerService.class);
 			try {
-				experimentBean = marshaller.unmarshal(json, MappingExperimentBean.class);
+				mappingBean = marshaller.unmarshal(json, MappingExperimentBean.class);
 			} catch (Exception e) {
 				logger.error("Failed to restore the previous state of the mapping view", e);
 			}
@@ -195,7 +194,7 @@ public class MappingExperimentView implements IAdaptable {
 		IMarshallerService marshaller = injectionContext.get(IMarshallerService.class);
 		try {
 			logger.trace("Saving the current state of the mapping view.");
-			String json = marshaller.marshal(experimentBean);
+			String json = marshaller.marshal(mappingBean);
 			part.getPersistedState().put(STATE_KEY_MAPPING_BEAN_JSON, json);
 		} catch (Exception e) {
 			logger.error("Could not save current the state of the mapping view.", e);
@@ -241,7 +240,7 @@ public class MappingExperimentView implements IAdaptable {
 		statusPanel = new StatusPanel(mainComposite, SWT.NONE, this);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(statusPanel);
 
-		if (experimentBean == null) {
+		if (mappingBean == null) {
 			statusPanel.setMessage("Error getting mapping experiment definition");
 		}
 	}
@@ -255,7 +254,7 @@ public class MappingExperimentView implements IAdaptable {
 
 	double getPointExposureTime() {
 		double exposure = 0.0;
-		for (IDetectorModelWrapper detectorParameters : experimentBean.getDetectorParameters()) {
+		for (IDetectorModelWrapper detectorParameters : mappingBean.getDetectorParameters()) {
 			if (detectorParameters.isIncludeInScan()) {
 				exposure = Math.max(exposure, detectorParameters.getModel().getExposureTime());
 			}
@@ -300,7 +299,7 @@ public class MappingExperimentView implements IAdaptable {
 		@SuppressWarnings("unchecked")
 		ScanRequest<IROI> scanRequest = (ScanRequest<IROI>) scanBean.getScanRequest();
 		try {
-			scanRequestConverter.mergeIntoMappingBean(scanRequest, (MappingExperimentBean) experimentBean);
+			scanRequestConverter.mergeIntoMappingBean(scanRequest, (MappingExperimentBean) mappingBean);
 			updateControls();
 		} catch (Exception e) {
 			String errorMessage = MessageFormat.format(
@@ -310,10 +309,16 @@ public class MappingExperimentView implements IAdaptable {
 		}
 	}
 
-	private void updateControls() {
+	public void setMappingBean(IMappingExperimentBean bean) {
+		mappingBean = bean;
+	}
+
+	public void updateControls() {
 		for (AbstractMappingSection section : sections.values()) {
 			section.updateControls();
 		}
+		relayout();
+		recalculateMinimumSize();
 	}
 
 	public IEclipseContext getEclipseContext() {
@@ -325,7 +330,7 @@ public class MappingExperimentView implements IAdaptable {
 	}
 
 	protected IMappingExperimentBean getBean() {
-		return experimentBean;
+		return mappingBean;
 	}
 
 	protected StatusPanel getStatusPanel() {
@@ -345,7 +350,7 @@ public class MappingExperimentView implements IAdaptable {
 	public <T> T getAdapter(Class<T> adapter) {
 		if (adapter == ScanRequest.class) {
 			try {
-				return (T) scanRequestConverter.convertToScanRequest(experimentBean);
+				return (T) scanRequestConverter.convertToScanRequest(mappingBean);
 			} catch (ScanningException e) {
 				logger.error("Could not create scan request", e);
 			}

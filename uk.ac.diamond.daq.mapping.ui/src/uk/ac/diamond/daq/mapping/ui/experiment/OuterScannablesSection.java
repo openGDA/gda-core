@@ -104,7 +104,7 @@ class OuterScannablesSection extends AbstractMappingSection {
 					stringBuilder.append(";");
 				}
 			}
-			
+
 			return stringBuilder.toString();
 		}
 
@@ -333,16 +333,25 @@ class OuterScannablesSection extends AbstractMappingSection {
 	public void updateControls() {
 		// update the bindings for exposure time as we may have new models
 		for (IScanPathModelWrapper scannableAxisParameters : getMappingBean().getScanDefinition().getOuterScannables()) {
-			// remove the binding between the text field and old model
 			final String scannableName = scannableAxisParameters.getName();
-			Binding oldBinding = axisBindings.get(scannableName);
-			IObservableValue axisTextValue = (IObservableValue) oldBinding.getTarget();
-			dataBindingContext.removeBinding(oldBinding);
-			oldBinding.dispose();
 
-			// create a new binding between the checkbox and the new model
-			Binding checkBoxBinding = checkBoxBindings.get(scannableName);
-			bindScanPathModelToTextField(scannableAxisParameters, axisTextValue, checkBoxBinding);
+			// remove the old binding between the checkbox and the old model and create a new one
+			Binding oldCheckBoxBinding = checkBoxBindings.get(scannableName);
+			IObservableValue checkBoxValue = (IObservableValue) oldCheckBoxBinding.getTarget();
+			dataBindingContext.removeBinding(oldCheckBoxBinding);
+			oldCheckBoxBinding.dispose();
+
+			IObservableValue activeValue = PojoProperties.value("includeInScan").observe(scannableAxisParameters);
+			Binding newCheckBoxBinding = dataBindingContext.bindValue(checkBoxValue, activeValue);
+			checkBoxBindings.put(scannableName, newCheckBoxBinding);
+
+			// remove the binding between the text field and old model
+			Binding oldTextFieldBinding = axisBindings.get(scannableName);
+			IObservableValue axisTextValue = (IObservableValue) oldTextFieldBinding.getTarget();
+			dataBindingContext.removeBinding(oldTextFieldBinding);
+			oldTextFieldBinding.dispose();
+
+			bindScanPathModelToTextField(scannableAxisParameters, axisTextValue, newCheckBoxBinding);
 		}
 
 		dataBindingContext.updateTargets();

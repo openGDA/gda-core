@@ -38,15 +38,14 @@ public interface IScanDefinition {
 
 	/**
 	 * Gets the list of outer scannables including their parameters for use outside the mapping scan. e.g change temperature and at each temperature take a map.
-	 * This list allows complex scan to be built containing many outer loops. Can be <code>null</code> indicating no outer scannables
-	 *
-	 * @return outerScannables
+	 * This list allows complex scan to be built containing many outer loops. Should never be <code>null</code>.
+	 * @return outerScannables the outer scannables
 	 */
 	public List<IScanPathModelWrapper> getOuterScannables();
 
 	/**
 	 * Sets the list of outer scannables including their parameters for use outside the mapping scan. e.g change temperature and at each temperature take a map.
-	 * This list allows complex scan to be built containing many outer loops. Can be <code>null</code> indicating no outer scannables
+	 * This list allows complex scan to be built containing many outer loops. Must not be <code>null</code> indicating no outer scannables
 	 *
 	 * @param outerScannables
 	 */

@@ -43,7 +43,7 @@ public abstract class AbstractMappingSection {
 
 	private static FontMetrics fontMetrics = null;
 
-	protected MappingExperimentView mappingView;
+	private MappingExperimentView mappingView;
 
 	protected void initialize(MappingExperimentView mappingView) {
 		this.mappingView = mappingView;
@@ -59,6 +59,14 @@ public abstract class AbstractMappingSection {
 
 	protected IMappingExperimentBean getMappingBean() {
 		return mappingView.getBean();
+	}
+
+	protected MappingExperimentView getMappingView() {
+		return mappingView;
+	}
+
+	protected void relayoutMappingView() {
+		mappingView.relayout();
 	}
 
 	protected IEclipseContext getEclipseContext() {

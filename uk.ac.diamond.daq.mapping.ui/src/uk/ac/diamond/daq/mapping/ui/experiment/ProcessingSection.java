@@ -234,7 +234,7 @@ public class ProcessingSection extends AbstractMappingSection {
 		}
 
 		// the size of the processing section has changed, so re-layout the whole view
-		mappingView.relayout();
+		relayoutMappingView();
 	}
 
 	private void addProcessingModel() {
@@ -250,7 +250,7 @@ public class ProcessingSection extends AbstractMappingSection {
 			}
 			processingModels.add(modelWrapper);
 			addProcessingModelRow(processingChainsComposite, modelWrapper);
-			mappingView.relayout();
+			relayoutMappingView();
 		}
 	}
 

@@ -18,6 +18,7 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
+import org.eclipse.core.databinding.Binding;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.beans.PojoProperties;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
@@ -39,6 +40,7 @@ import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 public class ScanMetadataSection extends AbstractMappingSection {
 
 	private DataBindingContext dataBindingContext;
+	private Binding sampleNameBinding;
 
 	@Override
 	public void createControls(Composite parent) {
@@ -55,13 +57,13 @@ public class ScanMetadataSection extends AbstractMappingSection {
 		dataBindingContext = new DataBindingContext();
 		IObservableValue sampleNameTextValue = WidgetProperties.text(SWT.Modify).observe(sampleNameText);
 		IObservableValue sampleNameModelValue = PojoProperties.value("sampleName").observe(mappingBean.getSampleMetadata());
-		dataBindingContext.bindValue(sampleNameTextValue, sampleNameModelValue);
+		sampleNameBinding = dataBindingContext.bindValue(sampleNameTextValue, sampleNameModelValue);
 		Button editMetadataButton = new Button(essentialParametersComposite, SWT.PUSH);
 		editMetadataButton.setText("Edit metadata...");
 
 		IGuiGeneratorService guiGenerator = getService(IGuiGeneratorService.class);
 		editMetadataButton.addListener(SWT.Selection, event -> {
-			guiGenerator.openDialog(mappingBean.getSampleMetadata(), parent.getShell(), "Sample Metadata");
+			guiGenerator.openDialog(getMappingBean().getSampleMetadata(), parent.getShell(), "Sample Metadata");
 			// Ensure that any changes to metadata in the dialog are reflected in the main GUI
 			updateControls();
 		});
@@ -69,7 +71,14 @@ public class ScanMetadataSection extends AbstractMappingSection {
 
 	@Override
 	protected void updateControls() {
-		dataBindingContext.updateTargets();
+		// Note: the sample metadata object may be a new one, so we
+		final IObservableValue sampleNameTextValue = (IObservableValue) sampleNameBinding.getTarget();
+		dataBindingContext.removeBinding(sampleNameBinding);
+		sampleNameBinding.dispose();
+
+		IObservableValue sampleNameModelValue = PojoProperties.value("sampleName").observe(getMappingBean().getSampleMetadata());
+		sampleNameBinding = dataBindingContext.bindValue(sampleNameTextValue, sampleNameModelValue);
+		sampleNameBinding.updateModelToTarget();
 	}
 
 }

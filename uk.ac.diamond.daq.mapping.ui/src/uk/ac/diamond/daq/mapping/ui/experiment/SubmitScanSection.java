@@ -18,57 +18,141 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
+import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
+import org.eclipse.scanning.api.scan.IFilePathService;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.FileDialog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
+import uk.ac.diamond.daq.mapping.impl.MappingExperimentBean;
+import uk.ac.diamond.daq.mapping.ui.MappingUIConstants;
 
 /**
- * A section containing the button to launch a scan.
+ * A section containing:<ul>
+ * <li>a button to submit a scan to the queue;</li>
+ * <li>a button to save a scan to disk;</li>
+ * <li>a button to load a scan from disk.</li>
+ * </ul>
  */
 public class SubmitScanSection extends AbstractMappingSection {
 
+	private static final String[] FILE_FILTER_NAMES = new String[] { "Mapping Scan Files", "All Files (*.*)" };
+	private static final String[] FILE_FILTER_EXTENSIONS = new String[] { "*.map", "*.*" };
 	private static final Logger logger = LoggerFactory.getLogger(SubmitScanSection.class);
-
-	@Override
-	public void createControls(Composite parent) {
-		Composite submitScanComposite = new Composite(parent, SWT.NONE);
-		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.BOTTOM).applyTo(submitScanComposite);
-		GridLayoutFactory.swtDefaults().numColumns(4).applyTo(submitScanComposite);
-
-		Button scanButton = new Button(submitScanComposite, SWT.NONE);
-		scanButton.setText("Queue Scan");
-
-		final ScanBeanSubmitter submitter = getService(ScanBeanSubmitter.class);
-		scanButton.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent event) {
-				try {
-					ScanBean scanBean = createScanBean();
-					submitter.submitScan(scanBean);
-				} catch (Exception e) {
-					logger.error("Scan submission failed", e);
-					MessageDialog.openError(getShell(), "Error Submitting Scan", "The scan could not be submitted. See the error log for more details.");
-				}
-			}
-		});
-	}
 
 	@Override
 	public boolean createSeparator() {
 		return false;
+	}
+
+	@Override
+	public void createControls(Composite parent) {
+		Composite composite = new Composite(parent, SWT.NONE);
+		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.BOTTOM).applyTo(composite);
+		GridLayoutFactory.swtDefaults().numColumns(3).applyTo(composite);
+
+		// Button to submit a scan to the queue
+		Button submitScanButton = new Button(composite, SWT.PUSH);
+		submitScanButton.setText("Queue Scan");
+		GridDataFactory.swtDefaults().applyTo(submitScanButton);
+		submitScanButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent event) {
+				submitScan();
+			}
+		});
+
+		// Button to load a scan from disk
+		Button loadButton = new Button(composite, SWT.PUSH); // TODO use icons instead?
+		loadButton.setText("Load Scan");
+		GridDataFactory.fillDefaults().grab(true, false).align(SWT.RIGHT, SWT.CENTER).applyTo(loadButton);
+		loadButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent event) {
+				loadScan();
+			}
+		});
+
+		// Button to save a scan to disk
+		Button saveButton = new Button(composite, SWT.PUSH);
+		saveButton.setText("Save Scan");
+		GridDataFactory.swtDefaults().applyTo(saveButton);
+		saveButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent event) {
+				saveScan();
+			}
+		});
+	}
+
+	private void loadScan() {
+		final String fileName = chooseFileName(SWT.OPEN);
+		if (fileName == null) return;
+
+		try {
+			byte[] bytes = Files.readAllBytes(Paths.get(fileName));
+			final String json = new String(bytes, "UTF-8");
+
+			final IMarshallerService marshaller = getService(IMarshallerService.class);
+			IMappingExperimentBean mappingBean = marshaller.unmarshal(json, MappingExperimentBean.class);
+			getMappingView().setMappingBean(mappingBean);
+			getMappingView().updateControls();
+		} catch (Exception e) {
+			final String errorMessage = "Could not load a mapping scan from file: " + fileName;
+			logger.error(errorMessage, e);
+			ErrorDialog.openError(getShell(), "Save Scan", errorMessage,
+					new Status(IStatus.ERROR, MappingUIConstants.PLUGIN_ID, errorMessage, e));
+		}
+	}
+
+	private void saveScan() {
+		final String fileName = chooseFileName(SWT.SAVE);
+		if (fileName == null) return;
+
+		final IMappingExperimentBean mappingBean = getMappingBean();
+		final IMarshallerService marshaller = getService(IMarshallerService.class);
+		try {
+			logger.trace("Serializing the state of the mapping view to json");
+			final String json = marshaller.marshal(mappingBean);
+			logger.trace("Writing state of mapping view to file: {}", fileName);
+			Files.write(Paths.get(fileName), json.getBytes(Charset.forName("UTF-8")), StandardOpenOption.CREATE);
+		} catch (Exception e) {
+			final String errorMessage = "Could not save the mapping scan to file: " + fileName;
+			logger.error(errorMessage, e);
+			ErrorDialog.openError(getShell(), "Save Scan", errorMessage,
+					new Status(IStatus.ERROR, MappingUIConstants.PLUGIN_ID, errorMessage, e));
+		}
+	}
+
+	private String chooseFileName(int fileDialogStyle) {
+		final FileDialog dialog = new FileDialog(getShell(), fileDialogStyle);
+		dialog.setFilterNames(FILE_FILTER_NAMES);
+		dialog.setFilterExtensions(FILE_FILTER_EXTENSIONS);
+		final String visitConfigDir = getService(IFilePathService.class).getVisitConfigDir();
+		dialog.setFilterPath(visitConfigDir);
+
+		return dialog.open();
 	}
 
 	private ScanBean createScanBean() throws ScanningException {
@@ -86,6 +170,17 @@ public class SubmitScanSection extends AbstractMappingSection {
 		ScanRequest<IROI> scanRequest = converter.convertToScanRequest(mappingBean);
 		scanBean.setScanRequest(scanRequest);
 		return scanBean;
+	}
+
+	private void submitScan() {
+		final ScanBeanSubmitter submitter = getService(ScanBeanSubmitter.class);
+		try {
+			ScanBean scanBean = createScanBean();
+			submitter.submitScan(scanBean);
+		} catch (Exception e) {
+			logger.error("Scan submission failed", e);
+			MessageDialog.openError(getShell(), "Error Submitting Scan", "The scan could not be submitted. See the error log for more details.");
+		}
 	}
 
 }

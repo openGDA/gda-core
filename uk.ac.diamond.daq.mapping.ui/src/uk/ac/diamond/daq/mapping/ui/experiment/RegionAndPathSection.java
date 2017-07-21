@@ -176,7 +176,7 @@ public class RegionAndPathSection extends AbstractMappingSection {
 
 		// Add a listener to update the scrolled composite when the region and path composite changes
 		// This will set the initial size as well when the region and path composite is first drawn
-		regionAndPathComposite.addListener(SWT.Resize, event -> mappingView.recalculateMinimumSize());
+		regionAndPathComposite.addListener(SWT.Resize, event -> getMappingView().recalculateMinimumSize());
 
 		// Prepare a grid data factory for controls which will need to grab space horizontally
 		GridDataFactory horizontalGrabGridData = GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false);
@@ -341,7 +341,7 @@ public class RegionAndPathSection extends AbstractMappingSection {
 		Object scanPath = getMappingBean().getScanDefinition().getMappingScanRegion().getScanPath();
 		pathComposite = guiGenerator.generateGui(scanPath, regionAndPathComposite);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).applyTo(pathComposite);
-		mappingView.relayout();
+		relayoutMappingView();
 	}
 
 	private void updatePoints() {

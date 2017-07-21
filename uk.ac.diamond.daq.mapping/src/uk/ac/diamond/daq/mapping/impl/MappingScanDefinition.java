@@ -52,6 +52,9 @@ public class MappingScanDefinition implements IScanDefinition {
 
 	@Override
 	public void setOuterScannables(List<IScanPathModelWrapper> outerScannables) {
+		if (outerScannables == null) {
+			throw new NullPointerException();
+		}
 		this.outerScannables = outerScannables;
 	}
 
