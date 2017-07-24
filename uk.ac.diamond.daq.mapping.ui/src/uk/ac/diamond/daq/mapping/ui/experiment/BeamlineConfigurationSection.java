@@ -53,7 +53,7 @@ public class BeamlineConfigurationSection extends AbstractMappingSection {
 	private static final Logger LOGGER = LoggerFactory.getLogger(BeamlineConfigurationSection.class);
 	private Text summaryText;
 	private Composite configSummaryComposite;
-	private static final int MAX_TXT_LINES = 3;
+	private static final int MAX_TXT_LINES = 1;
 	private DecimalFormat format = new DecimalFormat("##########0.0###");
 
 	@Override
