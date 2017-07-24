@@ -132,7 +132,7 @@ public class ScannableDeviceConnectorService implements IScannableDeviceService 
 		if (scannables == null)
 			scannables = new HashMap<>();
 
-		// first check whether this scannable exists in the cache
+		// first check whether an existing IScannable with this name in the cache, if so return it
 		if (scannables.containsKey(name)) {
 			IScannable<T> scannable = (IScannable<T>) scannables.get(name);
 			if (scannable == null)
@@ -140,7 +140,7 @@ public class ScannableDeviceConnectorService implements IScannableDeviceService 
 			return scannable;
 		}
 
-		// if not, see if we can find it using the Finder mechanism
+		// if not, see if we can find a gda.device.Scannable with this name using the Finder mechanism
 		Scannable scannable = null;
 		Finder finder = Finder.getInstance();
 		Findable found = finder.findNoWarn(name);
@@ -149,6 +149,7 @@ public class ScannableDeviceConnectorService implements IScannableDeviceService 
 		}
 
 		if (scannable == null) {
+			// if not, see if we can find a gda.device.Scannable with this name in the jython namespace
 			Object jythonObject = InterfaceProvider.getJythonNamespace().getFromJythonNamespace(name);
 			if (jythonObject instanceof Scannable && !(jythonObject instanceof Detector)) {
 				scannable = (Scannable) jythonObject;
@@ -156,12 +157,31 @@ public class ScannableDeviceConnectorService implements IScannableDeviceService 
 			}
 		}
 
+		// if we still haven't found the scannable, throw a ScanningException
 		if (scannable == null) {
 			throw new ScanningException("Cannot find scannable with name " + name);
 		}
 
-		IScannable<T> iscannable = null;
+		// create a ScannableNexusWrapper wrapping the gda.device.Scannable
+		IScannable<T> iscannable = createScannableWrapper(name, scannable, jythonScannable);
 
+		// cache the IScannable for future use
+		scannables.put(name, iscannable);
+
+		return iscannable;
+	}
+
+	/**
+	 * Create a new {@link ScannableNexusWrapper} implementing {@link IScannable} wrapping the legacy {@link Scannable}.
+	 * @param name name of the scannable
+	 * @param scannable the scannable to wrap
+	 * @param jythonScannable <code>true</code> if the scannable is a jython scannable, <code>false</code> otherwise
+	 * @return a {@link ScannableNexusWrapper} wrapping the {@link Scannable}
+	 * @throws ScanningException
+	 */
+	private <T> IScannable<T> createScannableWrapper(String name, Scannable scannable, boolean jythonScannable)
+			throws ScanningException {
+		IScannable<T> iscannable = null;
 		if (scannable instanceof IScannable) {
 			/**
 			 * They may provide into the finder a class which is
@@ -179,7 +199,11 @@ public class ScannableDeviceConnectorService implements IScannableDeviceService 
 			 * into an object which is IScannable and INexusDevice. If this is
 			 * done the INexusDevice writes as an NXPositioner in a default location.
 			 */
-			iscannable = (IScannable<T>) new ScannableNexusWrapper<>(scannable);
+			if (jythonScannable) {
+				iscannable = (IScannable<T>) new JythonScannableNexusWrapper<>(name);
+			} else {
+				iscannable = (IScannable<T>) new ScannableNexusWrapper<>(scannable);
+			}
 			/**
 			 * to support metadata scannable defined in GDA 8
 			 */
@@ -187,15 +211,10 @@ public class ScannableDeviceConnectorService implements IScannableDeviceService 
 				iscannable.setActivated(true);
 				iscannable.setMonitorRole(MonitorRole.PER_SCAN);
 			}
-		}
 
-		// Jython scannable can be reassigned, so do not cache
-		if (!jythonScannable) {
-			scannables.put(name, iscannable);
-		}
-
-		if (iscannable instanceof AbstractScannable) {
-			((AbstractScannable<T>) iscannable).setScannableDeviceService(this);
+			if (iscannable instanceof AbstractScannable) {
+				((AbstractScannable<T>) iscannable).setScannableDeviceService(this);
+			}
 		}
 
 		return iscannable;

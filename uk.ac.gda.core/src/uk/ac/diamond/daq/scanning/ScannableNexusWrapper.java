@@ -101,6 +101,8 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 
 	/**
 	 * The GDA8 scannable being wrapped.
+	 * NOTE: always use {@link #getScannable()} to get the scannable rather than
+	 * access this field directly.
 	 */
 	private Scannable scannable;
 
@@ -143,21 +145,30 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 	}
 
 	ScannableNexusWrapper(Scannable scannable) {
-		this.scannable = scannable;
-		this.scannable.addIObserver(this);
+		setScannable(scannable);
 		this.positionDelegate = new PositionDelegate();
 	}
 
 	/**
 	 * Used from spring to connect the wrapper to a particular GDA8 scannable.
 	 * @param scannable the GDA8 scannable to wrap
+	 * @throws IllegalStateException if the scannable is already set
 	 */
 	public void setScannable(Scannable scannable) {
+		if (this.scannable != null) {
+			throw new IllegalStateException("The wrapped scannable has already been set");
+		}
+
 		this.scannable = scannable;
 		this.scannable.addIObserver(this);
 	}
 
+	public Scannable getScannable() {
+		return scannable;
+	}
+
 	protected void calculateFieldNames() {
+		final Scannable scannable = getScannable();
 		final String[] inputNames = scannable.getInputNames();
 		final String[] extraNames = scannable.getExtraNames();
 		inputFieldNames = new ArrayList<>(inputNames.length + extraNames.length);
@@ -179,8 +190,8 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 	@SuppressWarnings("unchecked")
 	@Override
 	public NexusObjectProvider<N> getNexusProvider(NexusScanInfo info) throws NexusException {
-
-		if (scannable!=null && scannable instanceof INexusDevice) {
+		final Scannable scannable = getScannable();
+		if (scannable instanceof INexusDevice) {
 			return ((INexusDevice<N>)scannable).getNexusProvider(info);
 		}
 
@@ -202,12 +213,12 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 	}
 
 	private boolean hasLocationMapEntry() {
-		return NexusDataWriter.getLocationmap().containsKey(scannable.getName());
+		return NexusDataWriter.getLocationmap().containsKey(getName());
 	}
 
 	private N createNexusObject(NexusScanInfo info) throws NexusException {
 		final NexusBaseClass nexusBaseClass = getNexusBaseClass();
-		final String scannableName = scannable.getName();
+		final String scannableName = getName();
 
 		@SuppressWarnings("unchecked")
 		final N nexusObject = (N) NexusNodeFactory.createNXobjectForClass(nexusBaseClass);
@@ -229,7 +240,7 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 
 	@Override
 	public CustomNexusEntryModification getCustomNexusModification() {
-		final String name = scannable.getName();
+		final String name = getScannable().getName();
 		if (hasLocationMapEntry()) {
 			ScannableWriter writer = NexusDataWriter.getLocationmap().get(name);
 			if (writer instanceof SingleScannableWriter) {
@@ -249,27 +260,27 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 
 	@Override
 	public void setLevel(int level) {
-		scannable.setLevel(level);
+		getScannable().setLevel(level);
 	}
 
 	@Override
 	public int getLevel() {
-		return scannable.getLevel();
+		return getScannable().getLevel();
 	}
 
 	@Override
 	public String getName() {
-		return scannable.getName();
+		return getScannable().getName();
 	}
 
 	@Override
 	public void setName(String name) {
-		scannable.setName(name);
+		getScannable().setName(name);
 	}
 
 	@Override
 	public Object getPosition() throws Exception {
-		return scannable.getPosition();
+		return getScannable().getPosition();
 	}
 
 	@Override
@@ -279,6 +290,7 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 
 	@Override
 	public Object setPosition(Object value, IPosition scanPosition) throws Exception {
+		final Scannable scannable = getScannable();
 		if (value != null) {
 			final int index = (scanPosition == null ? -1 : scanPosition.getIndex(getName()));
 			final IPosition position = new Scalar<Object>(getName(), index, value);
@@ -303,6 +315,7 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 
 	@Override
 	public String getUnit() {
+		final Scannable scannable = getScannable();
 		if (scannable instanceof ScannableMotionUnits) {
 			return ((ScannableMotionUnits) scannable).getUserUnits();
 		}
@@ -312,6 +325,7 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 
 	@Override
 	public Object getMaximum() {
+		final Scannable scannable = getScannable();
 		if (scannable instanceof ScannableMotion) {
 			// return upper limit for first input name
 			final Double[] upperLimits = ((ScannableMotion) scannable).getUpperGdaLimits();
@@ -324,6 +338,7 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 
 	@Override
 	public Object getMinimum() {
+		final Scannable scannable = getScannable();
 		if (scannable instanceof ScannableMotion) {
 			// return lower limit for first input name
 			final Double[] lowerLimits = ((ScannableMotion) scannable).getLowerGdaLimits();
@@ -336,6 +351,7 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 
 	@Override
 	public String[] getPermittedValues() throws Exception {
+		final Scannable scannable = getScannable();
 		if (scannable instanceof EnumPositioner) {
 			return ((EnumPositioner) scannable).getPositions();
 		}
@@ -360,7 +376,7 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 
 	private NexusBaseClass getNexusBaseClass() {
 		try {
-			Object nxClass = scannable.getScanMetadataAttribute(Scannable.ATTR_NX_CLASS);
+			Object nxClass = getScannable().getScanMetadataAttribute(Scannable.ATTR_NX_CLASS);
 			if (nxClass != null && nxClass instanceof String) {
 				return NexusBaseClass.getBaseClassForName((String) nxClass);
 			}
@@ -480,7 +496,7 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 	 */
 	private Object[] getPositionArray(Object position) throws NexusException {
 		try {
-			if (position==null) position = scannable.getPosition();
+			if (position==null) position = getScannable().getPosition();
 
 			if (!position.getClass().isArray()) {
 				// position is not an array (i.e. is a double) return array with position as single element
@@ -500,7 +516,7 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 			// position is already an object array
 			return (Object[]) position;
 		} catch (DeviceException e) {
-			throw new NexusException("Could not get position of device: " + scannable.getName(), e);
+			throw new NexusException("Could not get position of device: " + getName(), e);
 		}
 	}
 
@@ -515,6 +531,7 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 	 */
 	private void registerAttributes(NXobject nexusObject) throws NexusException {
 		// We create the attributes, if any
+		final Scannable scannable = getScannable();
 		nexusObject.setField("name", scannable.getName());
 
 		try {
