@@ -370,19 +370,14 @@ public class RotationViewer {
 		motorPositionViewer.getDemandBox().setNumericValue(targetVal);
 		motorPositionViewer.getDemandBox().demandBegin(targetVal);
 		Job job = new Job(msg){
+
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				try {
 					((ScannablePositionSource)motor).setPosition(targetVal);
 				} catch (final DeviceException e) {
-					if (e.getMessage().contains(IScannableMotor.WAS_ALREADY_BUSY_SO_COULD_NOT_BE_MOVED)) {
-						logger.info("Exception when " + msg + ":" + e.getMessage());
-					}
-					else {
-						logger.error("Exception when " + msg + ":" + e.getMessage());
-						logger.debug("Exception when " + msg + ":" + e.getMessage(), e);
-						UIHelper.showError("Exception when " + msg, e.getMessage());
-					}
+					logger.debug("Exception when {}: {}", msg, e.getMessage(), e);
+					handleExceptionRecursively(e);
 				}
 				finally {
 					try {
@@ -402,6 +397,20 @@ public class RotationViewer {
 					}
 				}
 				return Status.OK_STATUS;
+			}
+
+			private void handleExceptionRecursively(Throwable e) {
+
+				if (e.getMessage().contains(IScannableMotor.WAS_ALREADY_BUSY_SO_COULD_NOT_BE_MOVED)) {
+					logger.info("Exception when {}: {}", msg, e.getMessage());
+				}
+				else if (e.getCause() == null) {
+					logger.error("Exception when {}: {}", msg, e.getMessage());
+					UIHelper.showError("Exception when " + msg, e.getMessage());
+				}
+				else {
+					handleExceptionRecursively(e.getCause());
+				}
 			}
 		};
 		job.setUser(true);
