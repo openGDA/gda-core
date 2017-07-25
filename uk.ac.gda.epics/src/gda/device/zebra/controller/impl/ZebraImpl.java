@@ -101,6 +101,7 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 	private static final String PCPulseStart = "PC_PULSE_START";
 	private static final String PCPulseWidth = "PC_PULSE_WID";
 	private static final String PCPulseStep = "PC_PULSE_STEP";
+	private static final String PCPulseInput = "PC_PULSE_INP";
 	private static final String PCPulseStatus = "PC_PULSE_OUT";
 
 	private static final int PCPulsePulseMaxMin = 0;
@@ -135,11 +136,28 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 	private CachedLazyPVFactory pvFactory;
 
 	@Deprecated
-	private boolean useAvalField=false;
+	private boolean useAvalField = false;
+
+	private boolean armPutNoWait = false;
+
+	public boolean isArmPutNoWait() {
+		return armPutNoWait;
+	}
 
 	/**
+	 * This is for EPICS support module versions 1-14 and above.<br>
+	 * This switches the behaviour to be compatible with the way Area Detector behaves i.e. a put with wait to arm the detector only returns once the
+	 * acquisition is complete.
+	 */
+	public void setArmPutNoWait(boolean armPutNoWait) {
+		this.armPutNoWait = armPutNoWait;
+	}
+
+	/**
+	 * This is for EPICS support module versions below 1-7
 	 *
-	 * @param useAvalField if true the captured ENC1 values are stored in .AVAL field ( original IOC interface). Default is false
+	 * @param useAvalField
+	 *            if true the captured ENC1 values are stored in .AVAL field ( original IOC interface). Default is false
 	 */
 	@Deprecated
 	@Override
@@ -248,6 +266,11 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 	}
 
 	@Override
+	public void setPCPulseInput(int input) throws Exception {
+		pvFactory.getIntegerPVValueCache(PCPulseInput).putWait(input);
+	}
+
+	@Override
 	public void setPCGateSource(int val) throws Exception {
 		assert (val == PC_GATE_SOURCE_POSITION ||
 				val == PC_GATE_SOURCE_TIME ||
@@ -320,7 +343,13 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 	public void pcArm() throws Exception {
 		logger.trace("pcArm()...");
 		//reset(); // Before re-enabling this, please leave a note here explaining why it was re-enabled.
-		pvFactory.getPVInteger(PCArm).putWait(1);
+
+		if (armPutNoWait) {
+			pvFactory.getPVInteger(PCArm).putNoWait(1);
+		} else {
+			pvFactory.getPVInteger(PCArm).putWait(1);
+		}
+
 		while (!isPCArmed()) {
 			logger.info("Zebra not yet armed, waiting...");
 			Thread.sleep(100);
