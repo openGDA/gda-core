@@ -24,6 +24,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.slf4j.LoggerFactory;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
@@ -264,6 +265,10 @@ public class LogbackUtils {
 				throw new RuntimeException(msg, e);
 			}
 		}
+
+		// Capture java.util.logging calls and handle with slf4j
+		SLF4JBridgeHandler.removeHandlersForRootLogger();
+		SLF4JBridgeHandler.install();
 
 		// Configure using the specified logging configuration.
 		try {
