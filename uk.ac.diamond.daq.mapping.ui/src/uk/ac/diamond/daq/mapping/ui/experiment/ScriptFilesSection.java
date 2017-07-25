@@ -24,7 +24,6 @@ import org.eclipse.richbeans.api.generator.IGuiGeneratorService;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
 
 /**
  * A section to configure the script files to run before and/or after a scan.
@@ -44,9 +43,6 @@ public class ScriptFilesSection extends AbstractMappingSection {
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(scriptsComposite);
 		final int scriptsColumns = 2;
 		GridLayoutFactory.swtDefaults().numColumns(scriptsColumns).applyTo(scriptsComposite);
-		Label scriptsLabel = new Label(scriptsComposite, SWT.NONE);
-		scriptsLabel.setText("Scripts");
-		GridDataFactory.fillDefaults().span(scriptsColumns, 1).applyTo(scriptsLabel);
 		Button editScriptsButton = new Button(scriptsComposite, SWT.PUSH);
 		editScriptsButton.setText("Select Script Files...");
 
