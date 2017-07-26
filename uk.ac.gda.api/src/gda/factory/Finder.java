@@ -45,20 +45,12 @@ import org.slf4j.LoggerFactory;
  * </code>
  * </pre>
  */
-public class Finder {
+public enum Finder {
+	INSTANCE;
 
 	private static final Logger logger = LoggerFactory.getLogger(Finder.class);
 
-	private static final Finder instance = new Finder();
-
-	private final List<Factory> factories;
-
-	/**
-	 * Constructs a new Finder and initialises its list of factories which will be used to search for objects.
-	 */
-	private Finder() {
-		factories = Collections.synchronizedList(new ArrayList<Factory>());
-	}
+	private final List<Factory> factories = Collections.synchronizedList(new ArrayList<Factory>());
 
 	/**
 	 * Getter to construct and/or return single instance of the finder.
@@ -68,7 +60,7 @@ public class Finder {
 	 * @return the instance of finder.
 	 */
 	public static Finder getInstance() {
-		return instance;
+		return INSTANCE;
 	}
 
 	private Iterable<Factory> getCopyOfFactories() {
