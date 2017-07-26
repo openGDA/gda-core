@@ -702,7 +702,7 @@ public class ScannableNexusWrapperScanTest {
 		IDataset dataset;
 		NXinstrument instrument = entry.getInstrument();
 
-		Collection<IScannable<?>> perScan  = scanModel.getMonitors().stream().filter(scannable -> scannable.getMonitorRole()==MonitorRole.PER_SCAN).collect(Collectors.toList());
+		Collection<IScannable<?>> perScan  = scanModel.getMonitorsPerScan();
 		Set<String> metadataScannableNames = perScan.stream().map(ms -> ms.getName()).collect(Collectors.toSet());
 
 		Set<String> expectedMetadataScannableNames = new HashSet<>(legacyMetadataScannables);
@@ -922,7 +922,7 @@ public class ScannableNexusWrapperScanTest {
 
 		IScannable<?> attributeScannable = connector.getScannable("attributes");
 		attributeScannable.setMonitorRole(MonitorRole.PER_SCAN);
-		scanModel.setMonitors(attributeScannable);
+		scanModel.setMonitorsPerScan(attributeScannable);
 
 		// Create a file to scan into
 		File output = File.createTempFile("test_legacy_nexus", ".nxs");

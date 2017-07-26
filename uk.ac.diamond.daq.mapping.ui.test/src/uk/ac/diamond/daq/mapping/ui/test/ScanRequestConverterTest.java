@@ -198,9 +198,13 @@ public class ScanRequestConverterTest {
 		final ScanRequest<IROI> scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
 
 		// Assert - these are the monitors that are set as active in MockScannableConnector
-		String[] expectedMonitorNames = new String[] { "a", "p", "monitor0", "monitor3", "monitor6", "monitor9" };
-		assertThat(scanRequest.getMonitorNames(), hasItems(expectedMonitorNames));
-		assertThat(scanRequest.getMonitorNames().size(), CoreMatchers.is(expectedMonitorNames.length));
+		String[] expectedMonitorNamesPerPoint = new String[] { "a", "p", "monitor0", "monitor3", "monitor6", "monitor9" };
+		assertThat(scanRequest.getMonitorNamesPerPoint(), hasItems(expectedMonitorNamesPerPoint));
+		assertThat(scanRequest.getMonitorNamesPerPoint().size(), CoreMatchers.is(expectedMonitorNamesPerPoint.length));
+
+		String[] expectedMonitorNamesPerScan = new String[] { };
+		assertThat(scanRequest.getMonitorNamesPerScan(), hasItems(expectedMonitorNamesPerScan));
+		assertThat(scanRequest.getMonitorNamesPerScan().size(), CoreMatchers.is(expectedMonitorNamesPerScan.length));
 	}
 
 	@Test

@@ -43,6 +43,7 @@ import org.eclipse.dawnsci.analysis.dataset.roi.PointROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.PolygonalROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.richbeans.api.generator.IGuiGeneratorService;
+import org.eclipse.scanning.api.MonitorRole;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.device.models.ClusterProcessingModel;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
@@ -185,8 +186,8 @@ public class ScanRequestConverter {
 		}
 
 		// add the activated monitors. Note: these do not come from the mapping bean
-		final Set<String> monitorNames = getMonitors();
-		scanRequest.setMonitorNames(monitorNames);
+		scanRequest.setMonitorNamesPerPoint(getMonitorNamesSet(MonitorRole.PER_POINT));
+		scanRequest.setMonitorNamesPerScan(getMonitorNamesSet(MonitorRole.PER_SCAN));
 
 		// set the scripts to run before and after the scan, if any
 		if (mappingBean.getScriptFiles() != null) {
@@ -502,10 +503,11 @@ public class ScanRequestConverter {
 		return scannableDeviceService;
 	}
 
-	private Set<String> getMonitors() throws ScanningException {
+	private Set<String> getMonitorNamesSet(MonitorRole monitorRole) throws ScanningException {
 		final Collection<DeviceInformation<?>> scannableInfos = getScannableDeviceService().getDeviceInformation();
 		return scannableInfos.stream().
 			filter(info -> info.isActivated()).
+			filter(info -> info.getMonitorRole() == monitorRole).
 			map(info -> info.getName()).
 			collect(Collectors.toSet());
 	}
