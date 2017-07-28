@@ -26,6 +26,7 @@ import java.util.Map;
 public class CachedLazyPVFactory {
 
 	protected Map<String, PV<Double>> pvDoubles;
+	protected Map<String, PV<Double[]>> pvDoublesArray;
 	protected Map<String, ReadOnlyPV<Double>> pvReadOnlyDoubles;
 	protected Map<String, ReadOnlyPV<Double[]>> pvReadOnlyDoubleArrays;
 	protected Map<String, ReadOnlyPV<Integer>> pvReadOnlyIntegers;
@@ -44,6 +45,17 @@ public class CachedLazyPVFactory {
 		if (pv == null) {
 			pv = LazyPVFactory.newDoublePV(deviceprefix + suffix);
 			pvDoubles.put(suffix, pv);
+		}
+		return pv;
+	}
+
+	public PV<Double[]> getPVDoubleArray(String suffix) {
+		if (pvDoublesArray == null)
+			pvDoublesArray = new HashMap<String, PV<Double[]>>();
+		PV<Double[]> pv = pvDoublesArray.get(suffix);
+		if (pv == null) {
+			pv = LazyPVFactory.newDoubleArrayPV(deviceprefix + suffix);
+			pvDoublesArray.put(suffix, pv);
 		}
 		return pv;
 	}

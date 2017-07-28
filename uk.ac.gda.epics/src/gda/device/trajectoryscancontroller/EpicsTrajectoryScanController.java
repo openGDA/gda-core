@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device.trajectoryscan;
+package gda.device.trajectoryscancontroller;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -32,7 +32,6 @@ import org.springframework.beans.factory.InitializingBean;
 import gda.epics.CachedLazyPVFactory;
 import gda.epics.LazyPVFactory;
 import gda.epics.PV;
-import gda.epics.PVValueCache;
 import gda.factory.Findable;
 
 /**
@@ -44,8 +43,9 @@ import gda.factory.Findable;
  * to Epics using {@link #sendProfileValues}.
  * @since 3/7/2017
  */
-public class EpicsTrajectoryScanController extends TrajectoryScanBase implements Findable, InitializingBean, TrajectoryScan {
+public final class EpicsTrajectoryScanController extends TrajectoryScanControllerBase implements Findable, InitializingBean{
 
+	@SuppressWarnings("unused")
 	private static final Logger logger = LoggerFactory.getLogger(EpicsTrajectoryScanController.class);
 
 	private CachedLazyPVFactory pvFactory;
@@ -54,6 +54,7 @@ public class EpicsTrajectoryScanController extends TrajectoryScanBase implements
 	private String pvBase;
 
 	private static final String X_POSITION_ARRAY = "X:Positions";
+	private static final String POSITION_ARRAY = ":Positions";
 
 	private static final String PROFILE_NUM_POINTS = "ProfileNumPoints";
 	private static final String PROFILE_NUM_POINTS_RBV = "ProfileNumPoints_RBV";
@@ -81,11 +82,12 @@ public class EpicsTrajectoryScanController extends TrajectoryScanBase implements
 	private static final String OFFSET_AXIS = ":Offset";
 	private static final String RESOLUTION = ":Resolution";
 	private static final String PROFILE_TIME_MODE="ProfileTimeMode";
+	private static final String CS_PORT=":CsPort";
+	private static final String CS_AXIS=":CsAxis";
+
 
 	private static final String DRIVER_VERSION = "DriverVersion_RBV";
 	private static final String PROGRAM_VERSION = "ProgramVersion_RBV";
-
-	private List<String> axisNames = Arrays.asList(new String[]{"A", "B", "C", "U", "V", "W", "X", "Y", "Z"});
 
 	private PV<Integer[]> userArrayPv;
 	private PV<Integer[]> velocityModeArrayPv;
@@ -141,20 +143,21 @@ public class EpicsTrajectoryScanController extends TrajectoryScanBase implements
 		return this.pvBase;
 	}
 
-	public void setAxisNames(String[] axisNames) {
-		this.axisNames = Arrays.asList(axisNames);
-	}
-
-	public List<String> getAxisNames() {
-		return axisNames;
-	}
-
-	private PVValueCache<Integer> getPVForAxis(int axisIndex, String name) throws Exception {
+	private String getPVNameForAxis(int axisIndex, String name) throws Exception {
 		if (axisIndex<0 || axisIndex>axisNames.size()) {
 			throw new Exception("Axis with index "+axisIndex+" not found");
 		}
 		String axisPvName = axisNames.get(axisIndex)+name;
-		return pvFactory.getIntegerPVValueCache(axisPvName);
+		return axisPvName;
+	}
+
+
+	private String getPVNameForMotor(int motorIndex, String name) throws Exception {
+		if (motorIndex<0 || motorIndex>motorNames.size()) {
+			throw new Exception("Motor with index "+motorIndex+" not found");
+		}
+		String motorPvName = motorNames.get(motorIndex)+name;
+		return motorPvName;
 	}
 
 	// Num profile points
@@ -217,7 +220,7 @@ public class EpicsTrajectoryScanController extends TrajectoryScanBase implements
 	// Build profile
 	@Override
 	public void setBuildProfile() throws Exception {
-		pvFactory.getPVInteger(PROFILE_BUILD+PROC).putWait(1);;
+		pvFactory.getPVInteger(PROFILE_BUILD+PROC).putWait(1);
 	}
 
 	// Append profile
@@ -276,12 +279,14 @@ public class EpicsTrajectoryScanController extends TrajectoryScanBase implements
 	}
 
 
+	@Override
 	public void setCoordinateSystem(String pmacName) throws IOException {
 		pvFactory.getPVString(PROFILE_CS_NAME).putWait(pmacName);
 	}
 
-	public void getCoordinateSystem() throws IOException {
-		pvFactory.getPVString(PROFILE_CS_NAME).get();
+	@Override
+	public String getCoordinateSystem() throws IOException {
+		return pvFactory.getPVString(PROFILE_CS_NAME).get();
 	}
 
 	// Time mode
@@ -289,37 +294,77 @@ public class EpicsTrajectoryScanController extends TrajectoryScanBase implements
 		pvFactory.getPVString(PROFILE_TIME_MODE).putWait(timeMode);
 	}
 
-	public String getTimeMode(String timeMode) throws IOException {
+	public String getTimeMode() throws IOException {
 		return pvFactory.getPVString(PROFILE_TIME_MODE).get();
 	}
 
 
 	//'Use' axis
-	public void setUseAxis(int axisIndex, boolean useAxis) throws IOException, Exception {
+	@Override
+	public void setUseAxis(int axis, boolean useAxis) throws IOException, Exception {
 		int val = useAxis ? 1 : 0;
-		getPVForAxis(axisIndex, USE_AXIS).putWait(val);
+		String axisPvName = getPVNameForAxis(axis, USE_AXIS);
+		pvFactory.getIntegerPVValueCache(axisPvName).putWait(val);
 	}
 
-	public boolean getUseAxis(int axisIndex) throws IOException, Exception {
-		return getPVForAxis(axisIndex, USE_AXIS).get() > 0;
+	@Override
+	public boolean getUseAxis(int axis) throws IOException, Exception {
+		String axisPvName = getPVNameForAxis(axis, USE_AXIS);
+		return pvFactory.getIntegerPVValueCache(axisPvName).get() > 0;
+	}
+
+
+	public void setAxisPoints(int axis, Double [] points)throws IOException, Exception{
+
+		String positionPvName = getPVNameForAxis(axis, POSITION_ARRAY);
+		pvFactory.getPVDoubleArray(positionPvName).putWait(points);
 	}
 
 	//Axis offset
-	public void setOffsetForAxis(int axis, int offset) throws IOException, Exception {
-		getPVForAxis(axis, OFFSET_AXIS).putWait(offset);
+	@Override
+	public void setOffsetForAxis(int axis, double offset) throws IOException, Exception {
+
+		String axisPvName = getPVNameForAxis(axis, OFFSET_AXIS);
+		pvFactory.getDoublePVValueCache(axisPvName).putWait(offset);
 	}
 
-	public int getOffsetForAxis(int axis) throws IOException, Exception {
-		return getPVForAxis(axis, OFFSET_AXIS).get();
+	@Override
+	public double getOffsetForAxis(int axis) throws IOException, Exception {
+		String axisPvName = getPVNameForAxis(axis, OFFSET_AXIS);
+		return pvFactory.getDoublePVValueCache(axisPvName).get();
 	}
 
 	//Axis resolution
-	public void setResolutionForAxis(int axis, int resolution) throws IOException, Exception {
-		getPVForAxis(axis, RESOLUTION).putWait(resolution);
+	@Override
+	public void setResolutionForAxis(int axis, double resolution) throws IOException, Exception {
+		String axisPvName = getPVNameForAxis(axis, RESOLUTION);
+		pvFactory.getDoublePVValueCache(axisPvName).putWait(resolution);
 	}
 
-	public int getResolutionForAxis(int axis) throws IOException, Exception {
-		return getPVForAxis(axis, RESOLUTION).get();
+	@Override
+	public double getResolutionForAxis(int axis) throws IOException, Exception {
+		String axisPvName = getPVNameForAxis(axis, RESOLUTION);
+		return pvFactory.getDoublePVValueCache(axisPvName).get();
+	}
+
+	public void setCSPort(int motor,String port) throws IOException, Exception {
+		String axisPvName = getPVNameForMotor(motor,CS_PORT);
+		pvFactory.getPVString(axisPvName).putNoWait(port);
+	}
+
+	public String getCSPort(int motor) throws IOException, Exception {
+		String axisPvName = getPVNameForMotor(motor,CS_PORT);
+		return pvFactory.getPVString(axisPvName).get();
+	}
+
+	public void setCSAssignment(int motor, String port) throws IOException, Exception {
+		String axisPvName = getPVNameForMotor(motor,CS_AXIS);
+		pvFactory.getPVString(axisPvName).putNoWait(port);
+	}
+
+	public String getCSAssignment(int motor) throws IOException, Exception {
+		String axisPvName = getPVNameForMotor(motor,CS_AXIS);
+		return pvFactory.getPVString(axisPvName).get();
 	}
 
 	public double getDriverVersion() throws IOException {
@@ -425,48 +470,4 @@ public class EpicsTrajectoryScanController extends TrajectoryScanBase implements
 		executeStateMap.put(3, ExecuteState.FLYBACK);
 	}
 
-	/**
-	 * Set some default values (Motor coordinate assignment, PMac coordinate system selection)
-	 */
-	static public class FixedSettings {
-
-		private static final String DEFAULT_PMAC_NAME = "PMAC6CS3";
-		private static final String DEFAULT_CS_AXIS = "10000X";
-
-		private static final String DEFAULT_TIME_MODE = "ARRAY";
-		private static final int DEFAULT_RESOLUTION = 1;
-		private static final int DEFAULT_OFFSET = 0;
-
-		private static final int[] AXIS_IN_USE   = {0, 0, 0, 0, 0, 0, 1, 0, 0};
-
-		private EpicsTrajectoryScanController controller;
-
-		public FixedSettings(EpicsTrajectoryScanController controller) {
-			this.controller = controller;
-		}
-
-		public void setDefaults() throws Exception {
-			// Set in use status for each axis; for 'in use' axes also set default resolution and offset
-			for (int i = 0; i < AXIS_IN_USE.length; i++) {
-				controller.setUseAxis(i, AXIS_IN_USE[0] > 0);
-				if (AXIS_IN_USE[i] > 0) {
-					controller.setOffsetForAxis(i, DEFAULT_OFFSET);
-					controller.setResolutionForAxis(i, DEFAULT_RESOLUTION);
-				}
-			}
-
-			controller.setCoordinateSystem(DEFAULT_PMAC_NAME);
-			controller.setTimeMode(DEFAULT_TIME_MODE);
-
-			// Check that CsPort, CsAxis values are correct for motor 4
-			String csPortMotor4 = controller.getPVFactory().getPVString("M4:CsPort_RBV").get();
-			String csAxisMotor4 = controller.getPVFactory().getPVString("M4:CsAxis_RBV").get();
-			if (!csPortMotor4.equals(DEFAULT_PMAC_NAME)) {
-				logger.warn("Motor 4 CS port name should be set to {}", DEFAULT_PMAC_NAME);
-			}
-			if (!csAxisMotor4.equals(DEFAULT_CS_AXIS)) {
-				logger.warn("Motor 4 CS assignment should be set to {}", DEFAULT_CS_AXIS);
-			}
-		}
-	}
 }

@@ -16,24 +16,24 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device.trajectoryscan;
+package gda.device.trajectoryscancontroller;
 
 import java.io.IOException;
 import java.util.List;
 
-public interface TrajectoryScan {
+public interface TrajectoryScanController {
 
 	/** Status enum values for 'Profile Build' and 'Append Points' */
-	public enum Status {UNDEFINED, SUCCESS, FAILURE};
+	public enum Status {UNDEFINED, SUCCESS, FAILURE}
 
 	/** State enum values for 'Profile Build' and 'Append Points' */
-	public enum State {DONE, BUSY};
+	public enum State {DONE, BUSY}
 
 	/** Status enum values for 'Profile Execution' */
-	public enum ExecuteStatus {UNDEFINED, SUCCESS, FAILURE, ABORT, TIMEOUT};
+	public enum ExecuteStatus {UNDEFINED, SUCCESS, FAILURE, ABORT, TIMEOUT}
 
 	/** State enum values for 'Profile Execution' */
-	public enum ExecuteState {DONE, MOVE_START, EXECUTING, FLYBACK};
+	public enum ExecuteState {DONE, MOVE_START, EXECUTING, FLYBACK}
 
 	// Methods to setup, clear list of values making up the trajectory (in memory)
 
@@ -85,4 +85,21 @@ public interface TrajectoryScan {
 	Status getAppendStatus() throws IOException;
 
 	Status getBuildStatus() throws IOException;
+
+
+	public void setCoordinateSystem(String pmacName) throws IOException;
+	public String getCoordinateSystem() throws IOException;
+
+
+	public void setAxisNames(String[] axisNames);
+	public void setMotorNames(String[] motorNames);
+	public List<String> getAxisNames();
+	public List<String> getMotorNames();
+	public void setUseAxis(int axis, boolean useAxis) throws IOException, Exception;
+	public boolean getUseAxis(int axis) throws IOException, Exception;
+	public void setOffsetForAxis(int axis, double offset) throws IOException, Exception;
+	public double getOffsetForAxis(int axis) throws IOException, Exception;
+	public void setResolutionForAxis(int axis, double resolution) throws IOException, Exception;
+	public double getResolutionForAxis(int axis) throws IOException, Exception;
+
 }
