@@ -78,6 +78,7 @@ import gda.jython.completion.AutoCompletion;
 import gda.jython.completion.TextCompleter;
 import gda.jython.completion.impl.JythonCompleter;
 import gda.jython.corba.impl.JythonImpl;
+import gda.jython.server.JlineSshServer;
 import gda.jython.server.JlineTelnetConnectionManager;
 import gda.jython.translator.Translator;
 import gda.messages.InMemoryMessageHandler;
@@ -311,6 +312,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 			int port = determineRemotePortNumber();
 			if (port != -1 && atStartup) {
 				JlineTelnetConnectionManager.runServer(port);
+				JlineSshServer.runServer(port-1);
 				atStartup = false;
 			}
 
