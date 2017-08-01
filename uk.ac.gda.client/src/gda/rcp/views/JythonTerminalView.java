@@ -738,10 +738,10 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 		String terminalOutputDirName = getTerminalOutputDirName();
 		terminalOutputDirName = terminalOutputDirName.replaceAll("/$", ""); // strip leading / to avoid dir//file
 
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss");
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss");
 		String timestamp = sdf.format(new Date());
 
-		String filename = String.format("%s/terminal_output_%s.txt", terminalOutputDirName, timestamp);
+		String filename = String.format("%s/terminal-output-%s.txt", terminalOutputDirName, timestamp);
 		return filename;
 	}
 
