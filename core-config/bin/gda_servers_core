@@ -100,7 +100,7 @@ if [[ "${GDA_MODE}" == "live" && "${CONTROL_MACHINE_NAME}" != "$(uname -n)" ]]; 
       fi
       CONTROL_MACHINE_PUBKEY="$(<$CONTROL_MACHINE_PUBKEY_FILE)"
     fi
-    CONTROL_MACHINE_NAME_FQDN=${CONTROL_MACHINE_NAME%.diamond.ac.uk}
+    CONTROL_MACHINE_NAME_SHORT=${CONTROL_MACHINE_NAME%.diamond.ac.uk}
     CONTROL_MACHINE_IP=$(resolveip -s $CONTROL_MACHINE_NAME)
     CONTROL_MACHINE_IP=${CONTROL_MACHINE_IP%% }
     if [[ -n "${CONTROL_MACHINE_PUBKEY-}" ]]; then
@@ -113,12 +113,12 @@ if [[ "${GDA_MODE}" == "live" && "${CONTROL_MACHINE_NAME}" != "$(uname -n)" ]]; 
         # Only try to remove old key if known_hosts exists, otherwise ssh-keygen failing will return us to the command line.
         ssh-keygen-remove ${CONTROL_MACHINE_NAME}
         # Also remove the short name of the control server, it it exists
-        ssh-keygen-remove ${CONTROL_MACHINE_NAME_FQDN}
+        ssh-keygen-remove ${CONTROL_MACHINE_NAME_SHORT}
         # And remove the numeric IP address of the server, if it has an entry
         ssh-keygen-remove ${CONTROL_MACHINE_IP}
       fi
       bashlog debug "gda_servers_core" "adding new public key for ${CONTROL_MACHINE_NAME} in ~/.ssh/known_hosts"
-      echo "${CONTROL_MACHINE_NAME_FQDN},${CONTROL_MACHINE_NAME},${CONTROL_MACHINE_IP} ${CONTROL_MACHINE_PUBKEY}" >> ~/.ssh/known_hosts
+      echo "${CONTROL_MACHINE_NAME_SHORT},${CONTROL_MACHINE_NAME},${CONTROL_MACHINE_IP} ${CONTROL_MACHINE_PUBKEY}" >> ~/.ssh/known_hosts
     else
       bashlog warn "gda_servers_core" "Public key file $CONTROL_MACHINE_PUBKEY_FILE doesn't exist and no CONTROL_MACHINE_PUBKEY defined!"
     fi
