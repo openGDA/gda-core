@@ -41,11 +41,14 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
+import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.client.CommandQueueView;
+import uk.ac.gda.core.GDACoreActivator;
 import uk.ac.gda.video.views.BasicCameraComposite;
+import uk.ac.gda.video.views.ICameraConfig;
 
 public class CapillaryView extends ViewPart {
 	private static final Logger logger = LoggerFactory.getLogger(CapillaryView.class);
@@ -79,7 +82,13 @@ public class CapillaryView extends ViewPart {
 		gd_bcc.exclude = true;
 		bcc.setLayoutData(gd_bcc);
 		try {
-			bcc.playURL("http://bl21b-di-serv-01.diamond.ac.uk:8082/BSAXS.CAM.MJPG.mjpg");
+			ServiceReference<ICameraConfig> ref = GDACoreActivator.getBundleContext().getServiceReference(ICameraConfig.class);
+			if (ref != null) {
+				ICameraConfig conf = GDACoreActivator.getBundleContext().getService(ref);
+				if (conf != null && conf.getCameras().length > 0) {
+					bcc.playURL(conf.getCameras()[0].getMjpegURL());
+				}
+			}
 		} catch (FactoryException e) {
 			logger.error("cannot configure mjpeg stream", e);
 		}
