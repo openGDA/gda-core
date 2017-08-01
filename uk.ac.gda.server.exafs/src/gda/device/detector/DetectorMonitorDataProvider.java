@@ -28,6 +28,7 @@ import gda.device.XmapDetector;
 import gda.device.detector.addetector.ADDetector;
 import gda.device.detector.addetector.triggering.SimpleAcquire;
 import gda.device.detector.areadetector.v17.NDPluginBase;
+import gda.device.detector.countertimer.TfgScalerWithDarkCurrent;
 import gda.device.scannable.ScannableBase;
 import gda.jython.Jython;
 import gda.jython.JythonServerFacade;
@@ -56,6 +57,8 @@ public class DetectorMonitorDataProvider extends ScannableBase implements Detect
 	private boolean collectionAllowed = true;
 
 	private double collectionTime = 1.0;
+
+	private boolean darkCurrentRequired;
 
 	// References to the detectors - set these by injection using Spring or Jython.
 	private XspressDetector xspress2Detector;
@@ -119,6 +122,20 @@ public class DetectorMonitorDataProvider extends ScannableBase implements Detect
 		}
 	}
 
+	private void storeDarkCurrentRequired() {
+		darkCurrentRequired = false;
+		if (ionchambers instanceof TfgScalerWithDarkCurrent) {
+			darkCurrentRequired = ((TfgScalerWithDarkCurrent)ionchambers).isDarkCurrentRequired();
+			((TfgScalerWithDarkCurrent)ionchambers).setDarkCurrentRequired(false);
+		}
+	}
+
+	private void restoreDarkCurrentRequired() {
+		if (ionchambers instanceof TfgScalerWithDarkCurrent) {
+			((TfgScalerWithDarkCurrent)ionchambers).setDarkCurrentRequired(darkCurrentRequired);
+		}
+	}
+
 	/**
 	 * Setup ion chamber to record one frame of data and return the data collected.
 	 * Also trigger collection of xspress, xmap data at the same time.
@@ -135,6 +152,8 @@ public class DetectorMonitorDataProvider extends ScannableBase implements Detect
 		checkDetectors(type);
 		waitWhileBusy();
 		collectionInProgress=true;
+		storeDarkCurrentRequired();
+
 		try {
 			switch(type) {
 				case XSPRESS2 : return getIonChambersForXspress2();
@@ -145,6 +164,7 @@ public class DetectorMonitorDataProvider extends ScannableBase implements Detect
 			}
 		} finally {
 			collectionInProgress=false;
+			restoreDarkCurrentRequired();
 			logger.debug("Collect ion chamber values finished");
 		}
 	}
@@ -446,6 +466,14 @@ public class DetectorMonitorDataProvider extends ScannableBase implements Detect
 		logger.debug("atScanStart");
 		collectionAllowed = false;
 		waitWhileBusy();
+	}
+
+	/**
+	 * Reset collectionAllowed flag
+	 */
+	@Override
+	public void atScanEnd() {
+		collectionAllowed = true;
 	}
 
 	@Override
