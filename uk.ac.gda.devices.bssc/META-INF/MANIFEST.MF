@@ -10,7 +10,9 @@ Require-Bundle: org.eclipse.core.runtime,
  uk.ac.gda.core;bundle-version="1.0.0",
  uk.ac.gda.libs;bundle-version="1.0.0",
  uk.ac.gda.common,
- org.eclipse.core.databinding;bundle-version="1.4.1"
+ org.eclipse.core.databinding;bundle-version="1.4.1",
+ uk.ac.diamond.org.springframework;bundle-version="4.0.6",
+ uk.ac.diamond.jython;bundle-version="2.7.1"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: org.apache.poi.openxml4j.exceptions,
  org.apache.poi.ss.usermodel,
