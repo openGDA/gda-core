@@ -40,7 +40,6 @@ import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.window.Window;
-import org.eclipse.richbeans.api.generator.IGuiGeneratorService;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.models.DeviceRole;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
@@ -149,17 +148,17 @@ public class DetectorsSection extends AbstractMappingSection {
 			final Button configButton = new Button(controlsComposite, SWT.PUSH);
 			configButton.setImage(MappingExperimentUtils.getImage("icons/pencil.png"));
 			configButton.setToolTipText("Edit parameters");
-
-			IGuiGeneratorService guiGenerator = getService(IGuiGeneratorService.class);
-			configButton.addListener(SWT.Selection, event -> {
-				guiGenerator.openDialog(detectorParameters.getModel(), getShell(),
-						detectorParameters.getName() + " Parameters");
-				dataBindingContext.updateTargets();
-			});
-
+			configButton.addListener(SWT.Selection, event -> editDetectorParameters(detectorParameters));
 		}
+	}
 
-		mappingView.relayout();
+	private void editDetectorParameters(final IDetectorModelWrapper detectorParameters) {
+		final EditDetectorParametersDialog editDialog = new EditDetectorParametersDialog(getShell(), getEclipseContext(), detectorParameters);
+		editDialog.create();
+		if (editDialog.open() == Window.OK) {
+			dataBindingContext.updateTargets();
+			mappingView.relayout();
+		}
 	}
 
 	/**
