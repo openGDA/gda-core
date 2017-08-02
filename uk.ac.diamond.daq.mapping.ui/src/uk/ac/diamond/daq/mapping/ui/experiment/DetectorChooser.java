@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.richbeans.widgets.shuffle.ShuffleConfiguration;
@@ -69,24 +70,22 @@ public class DetectorChooser extends Dialog {
 		parent.setBackgroundMode(SWT.INHERIT_FORCE);
 		final Composite composite = (Composite) super.createDialogArea(parent);
 		data = new ShuffleConfiguration<>();
-		List<String> availableDetectors = new ArrayList<>();
-		availableDetectors.addAll(labelMap.keySet());
-		data.setFromList(availableDetectors);
 		data.setFromLabel("Available");
-
-		List<String> selectedDetectors = new ArrayList<>();
-		selectedList.forEach(model -> {
-			String name = model.getName();
-			selectedDetectors.add(name);
-			if (availableDetectors.contains(name)) {
-				availableDetectors.remove(name);
-			}
-		});
-
-		data.setToList(selectedDetectors);
 		data.setToLabel("Selected");
+
+		List<String> selectedDetectors = selectedList.stream()
+				.map(IDetectorModelWrapper::getName)
+				.collect(Collectors.toList());
+
+		List<String> availableDetectors = labelMap.keySet().stream()
+				.filter(model -> !selectedDetectors.contains(model))
+				.collect(Collectors.toList());
+
 		ShuffleViewer<String> viewer = new ShuffleViewer<>(data);
 		viewer.createPartControl(composite);
+
+		data.setFromList(availableDetectors);
+		data.setToList(selectedDetectors);
 
 		return composite;
 	}
