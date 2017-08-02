@@ -203,4 +203,11 @@ public class ScannablePositionerControl implements LiveControl {
 		}
 	}
 
+	@Override
+	public String toString() {
+		return "ScannablePositionerControl [name=" + name + ", displayName=" + displayName + ", group=" + group
+				+ ", scannableName=" + scannableName + ", showStop=" + showStop + ", userUnits=" + userUnits
+				+ ", increment=" + increment + ", incrementTextWidth=" + incrementTextWidth + "]";
+	}
+
 }

@@ -128,4 +128,10 @@ public class JythonCommandControl implements LiveControl {
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		return "JythonCommandControl [name=" + name + ", group=" + group + ", buttonText=" + buttonText
+				+ ", jythonCommand=" + jythonCommand + "]";
+	}
+
 }
