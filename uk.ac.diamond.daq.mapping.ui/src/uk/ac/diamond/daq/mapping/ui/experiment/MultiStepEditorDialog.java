@@ -21,6 +21,7 @@ package uk.ac.diamond.daq.mapping.ui.experiment;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.scanning.api.IModelProvider;
 import org.eclipse.scanning.api.points.models.MultiStepModel;
 import org.eclipse.scanning.device.ui.composites.MultiStepComposite;
 import org.eclipse.scanning.device.ui.model.ModelPersistAction;
@@ -71,7 +72,20 @@ public class MultiStepEditorDialog extends Dialog {
 			model = new MultiStepModel();
 			model.setName(scannableName);
 		}
-		ed = new TypeEditor<>(()->model, comp, SWT.NONE);
+		final IModelProvider<MultiStepModel> modelProvider = new IModelProvider<MultiStepModel>() {
+
+			@Override
+			public MultiStepModel getModel() throws Exception {
+				return model;
+			}
+
+			@Override
+			public void updateModel(MultiStepModel model) throws Exception {
+				// updateModel is not needed for this implementation
+				// Overriding because super throws IllegalArgumentException
+			}
+		};
+		ed = new TypeEditor<>(modelProvider, comp, SWT.NONE);
 		GridDataFactory.fillDefaults().grab(true, false).span(2,1).applyTo(ed);
 
 		try {
