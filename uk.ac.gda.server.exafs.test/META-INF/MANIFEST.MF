@@ -11,4 +11,10 @@ Require-Bundle: uk.ac.gda.test.helpers;bundle-version="1.0.0",
  uk.ac.diamond.org.powermock;bundle-version="[1.5.1,1.5.2)",
  javassist;bundle-version="[3.20.0,3.21.0)",
  org.mockito.mockito-core;bundle-version="[1.9.5,2.0.0)",
- org.objenesis;bundle-version="[2.1.0,3.0.0)"
+ org.objenesis;bundle-version="[2.1.0,3.0.0)",
+ uk.ac.gda.devices.xspress2,
+ org.eclipse.dawnsci.hdf5,
+ org.eclipse.dawnsci.analysis.api,
+ org.eclipse.dawnsci.nexus
+Import-Package: uk.ac.gda.server.exafs.epics.device.scannable
+ 
