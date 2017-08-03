@@ -18,12 +18,12 @@
 
 package gda.device.scannable;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
 import gda.device.IAirBearingScannableMotor;
 import gda.device.Scannable;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 /**
  * An extended {@link ScannableMotor} implementation that provides control to switch on/off air supply to
  * the motor's air bearing mechanism automatically when motion is requested.
@@ -31,54 +31,65 @@ import org.slf4j.LoggerFactory;
 public class AirBearingScannableMotor extends ScannableMotor implements IAirBearingScannableMotor {
 	private static final Logger logger=LoggerFactory.getLogger(AirBearingScannableMotor.class);
 	private Scannable airBearingScannable;
+	private String onPositionValue;
+	private String offPositionValue;
 	@Override
 	public void on() throws DeviceException {
 		if (airBearingScannable!=null) {
-			airBearingScannable.moveTo("on");
+			if (onPositionValue != null) {
+				airBearingScannable.moveTo(onPositionValue);
+			} else {
+				airBearingScannable.moveTo("on");
+			}
 		}
 	}
 	@Override
 	public void off() throws DeviceException {
 		if (airBearingScannable!=null) {
-			airBearingScannable.moveTo("off");
+			if (offPositionValue != null) {
+				airBearingScannable.moveTo(offPositionValue);
+			} else {
+				airBearingScannable.moveTo("off");
+			}
 		}
 	}
 	@Override
 	public boolean isOn() throws DeviceException {
 		if (airBearingScannable!=null) {
-			return airBearingScannable.getPosition().toString().trim().equals("on");
+			if (onPositionValue != null) {
+				return airBearingScannable.getPosition().toString().trim().equals(onPositionValue);
+			} else {
+				return airBearingScannable.getPosition().toString().trim().equals("on");
+			}
 		}
 		return false;
 	}
 	@Override
 	public void atScanStart() throws DeviceException {
-		if (airBearingScannable!=null) {
-			airBearingScannable.moveTo("on");
-			logger.info("Turn air bearing on at scan start.");
-		}
+		on();
 		super.atScanStart();
 	}
 	@Override
 	public void atScanEnd() throws DeviceException {
-		if (airBearingScannable!=null) {
-			airBearingScannable.moveTo("off");
-			logger.info("Turn air bearing off at scan end.");
-		}
+		off();
 		super.atScanEnd();
 	}
 	@Override
 	public void rawAsynchronousMoveTo(Object internalPosition) throws DeviceException {
 		boolean airBearingControlHere=false;
-		if (airBearingScannable!=null) {
-			if (airBearingScannable.getPosition().toString().trim().equals("off")) {
-				airBearingScannable.moveTo("on");
-				airBearingControlHere=true;
-				logger.info("Turn air bearing on in asynchronousMoveTo.");
-			}
+		if (!isOn()) {
+			on();
+			airBearingControlHere=true;
+			logger.info("Turn air bearing on in asynchronousMoveTo.");
 		}
 		super.rawAsynchronousMoveTo(internalPosition);
 		if (airBearingControlHere) {
-			airBearingScannable.moveTo("off");
+			try {
+				super.waitWhileBusy();
+			} catch (InterruptedException e) {
+				logger.error("{}: Motion be interrupted - {}.", getName(), e.getMessage());
+			}
+			off();
 			logger.info("Turn air bearing off in asynchronousMoveTo.");
 		}
 	}
@@ -88,5 +99,18 @@ public class AirBearingScannableMotor extends ScannableMotor implements IAirBear
 	public void setAirBearingScannable(Scannable airBearingScannable) {
 		this.airBearingScannable = airBearingScannable;
 	}
+	public String getOnPositionValue() {
+		return onPositionValue;
+	}
+	public void setOnPositionValue(String onPositionValue) {
+		this.onPositionValue = onPositionValue;
+	}
+	public String getOffPositionValue() {
+		return offPositionValue;
+	}
+	public void setOffPositionValue(String offPositionValue) {
+		this.offPositionValue = offPositionValue;
+	}
+
 
 }
