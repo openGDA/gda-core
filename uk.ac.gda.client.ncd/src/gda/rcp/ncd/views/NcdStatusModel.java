@@ -31,7 +31,6 @@ import gda.observable.IObserver;
 import uk.ac.diamond.daq.msgbus.MsgBus;
 import uk.ac.diamond.daq.scm.api.events.NcdMetaType;
 import uk.ac.diamond.daq.scm.api.events.NcdMsgFactory;
-import uk.ac.diamond.daq.scm.api.events.NcdStatus;
 import uk.ac.diamond.daq.scm.api.events.StatusUpdated;
 
 public class NcdStatusModel implements IObserver {
