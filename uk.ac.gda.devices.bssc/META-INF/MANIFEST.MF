@@ -14,9 +14,7 @@ Require-Bundle: org.eclipse.core.runtime,
  uk.ac.diamond.org.springframework;bundle-version="4.0.6",
  uk.ac.diamond.jython;bundle-version="2.7.1"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Export-Package: org.apache.poi.openxml4j.exceptions,
- org.apache.poi.ss.usermodel,
- uk.ac.gda.devices.bssc,
+Export-Package: uk.ac.gda.devices.bssc,
  uk.ac.gda.devices.bssc.beans,
  uk.ac.gda.devices.bssc.ispyb
 Import-Package: org.apache.poi.openxml4j.exceptions,
