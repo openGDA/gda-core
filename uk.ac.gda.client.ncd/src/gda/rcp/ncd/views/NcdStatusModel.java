@@ -31,6 +31,8 @@ import gda.observable.IObserver;
 import uk.ac.diamond.daq.msgbus.MsgBus;
 import uk.ac.diamond.daq.scm.api.events.NcdMetaType;
 import uk.ac.diamond.daq.scm.api.events.NcdMsgFactory;
+import uk.ac.diamond.daq.scm.api.events.NcdStatus;
+import uk.ac.diamond.daq.scm.api.events.StatusUpdated;
 
 public class NcdStatusModel implements IObserver {
 
@@ -166,7 +168,7 @@ public class NcdStatusModel implements IObserver {
 			ScannablePositionChangeEvent e = (ScannablePositionChangeEvent)arg;
 			if (((Scannable)source).getName().equals(thicknessScannable.getName())) {
 				sampleThickness = (double)e.newPosition;
-				MsgBus.publish(new NcdStatus.StatusUpdated());
+				MsgBus.publish(new StatusUpdated());
 			}
 		}
 	}
