@@ -300,7 +300,7 @@ public class ScannableNexusWrapperTest {
 
 		// triggers fields to be recalculated
 		NexusScanInfo scanInfo = new NexusScanInfo(Arrays.asList("xPos", "yPos"));
-		scanInfo.setMonitorNames(Sets.newHashSet("multiField"));
+		scanInfo.setPerPointMonitorNames(Sets.newHashSet("multiField"));
 		multiFieldScannable.getNexusProvider(scanInfo);
 
 		assertThat(multiFieldScannable.getOutputFieldNames(),
