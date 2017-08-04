@@ -14,8 +14,9 @@ Require-Bundle: uk.ac.gda.common;bundle-version="1.0.0",
  uk.ac.gda.exafs.api;bundle-version="1.0.0",
  org.eclipse.dawnsci.nexus;bundle-version="1.0.0",
  org.eclipse.scanning.api,
- org.eclipse.scanning.example
+ uk.ac.gda.devices.xmap.api;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
+Service-Component: OSGI-INF/*.xml
 Eclipse-RegisterBuddy: uk.ac.gda.common, uk.ac.gda.core, uk.ac.diamond.org.springframework
 Eclipse-BuddyPolicy: registered
 Import-Package: org.slf4j;version="[1.7.2,2.0.0)",

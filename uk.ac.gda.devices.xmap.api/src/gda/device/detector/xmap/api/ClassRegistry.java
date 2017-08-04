@@ -16,14 +16,12 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device.detector.xmap;
+package gda.device.detector.xmap.api;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.dawnsci.analysis.api.persistence.IClassRegistry;
-
-import gda.device.detector.xmap.api.XmapRunnableDeviceModel;
 
 public class ClassRegistry implements IClassRegistry {
 

@@ -42,7 +42,6 @@ import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.rank.IScanRankService;
 import org.eclipse.scanning.api.scan.rank.IScanSlice;
-import org.eclipse.scanning.example.Services;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,7 +71,7 @@ public class XmapRunnableDevice extends AbstractRunnableDevice<XmapRunnableDevic
 	private Map<String, ILazyWriteableDataset> datasetMap = null;
 
 	public XmapRunnableDevice() {
-		super(Services.getRunnableDeviceService());
+		super(ServiceHolder.getRunnableDeviceService());
 	}
 
 	@Override

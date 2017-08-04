@@ -4,8 +4,8 @@
    <extension
          point="org.eclipse.dawnsci.analysis.api.classregistry">
       <classregistry
-            class="gda.device.detector.xmap.ClassRegistry"
-            id="gda.device.detector.xmap.classregistry">
+            class="gda.device.detector.xmap.api.ClassRegistry"
+            id="gda.device.detector.xmap.api.classregistry">
       </classregistry>
    </extension>
 

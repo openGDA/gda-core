@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="Services for XMAP Detector">
+   <implementation class="gda.device.detector.xmap.ServiceHolder"/>
+   <reference bind="setRunnableDeviceService" cardinality="1..1" interface="org.eclipse.scanning.api.device.IRunnableDeviceService" name="IRunnableDeviceService" policy="static"/>
+</scr:component>
