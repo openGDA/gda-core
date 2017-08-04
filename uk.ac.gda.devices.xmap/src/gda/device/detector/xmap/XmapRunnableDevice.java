@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
@@ -35,8 +34,6 @@ import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.ILazyWriteableDataset;
 import org.eclipse.january.dataset.SliceND;
-import org.eclipse.scanning.api.device.AbstractRunnableDevice;
-import org.eclipse.scanning.api.device.IWritableDetector;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.ScanningException;
@@ -50,57 +47,27 @@ import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
 import gda.device.detector.xmap.api.XmapRunnableDeviceModel;
-import gda.factory.Finder;
 
 /**
  * <p>
- * This is an implementation of a new style GDA detector that can connect to an XMAP detector.
+ * New style GDA detector for XMAP
  * </p>
+ * This implementation writes detector data itself.<br>
+ * See XmapWritingFilesRunnableDevice for an alternative implementation using Area Detector to write the file.
  *
  * @author Anthony Hull
  */
-public class XmapRunnableDevice extends AbstractRunnableDevice<XmapRunnableDeviceModel>
-		implements IWritableDetector<XmapRunnableDeviceModel>, INexusDevice<NXdetector> {
+public class XmapRunnableDevice extends XmapRunnableDeviceBase {
 
 	private static final Logger logger = LoggerFactory.getLogger(XmapRunnableDevice.class);
 	private static final String DATASET_NAME_FULL_SPECTRUM = "fullSpectrum";
-	private NexusXmap xmapMca;
-	private String detectorName;
 
 	// Map from dataset name to the lazy dataset used to write to the Nexus file
 	private Map<String, ILazyWriteableDataset> datasetMap = null;
 
-	public XmapRunnableDevice() {
-		super(ServiceHolder.getRunnableDeviceService());
-	}
-
 	@Override
 	public void configure(XmapRunnableDeviceModel model) throws ScanningException {
-		super.configure(model);
-		setDeviceState(DeviceState.CONFIGURING);
-
-		// Get the detector named in the model
-		detectorName = model.getName();
-		xmapMca = Finder.getInstance().find(detectorName);
-		if (xmapMca == null) {
-			final String message = "Could not find XMAP MCA: " + detectorName;
-			logger.error(message);
-			throw new ScanningException(message);
-		}
-
-		// Configure detector
-		try {
-			xmapMca.setAcquisitionTime(model.getExposureTime());
-			xmapMca.configure();
-			xmapMca.atScanStart();
-		} catch (Exception e) {
-			setDeviceState(DeviceState.FAULT);
-			final String message = "Configuring controller failed";
-			logger.error(message, e);
-			throw new ScanningException(message, e);
-		}
-
-		setDeviceState(DeviceState.ARMED);
+		super.configureXmapDetector(model);
 	}
 
 	@Override
@@ -115,7 +82,7 @@ public class XmapRunnableDevice extends AbstractRunnableDevice<XmapRunnableDevic
 			final List<INexusTree> detectorDataNodes = getDetectorDataNodes();
 			for (INexusTree dataNode : detectorDataNodes) {
 				final String datasetName = dataNode.getName();
-				logger.debug("Creating dataset for " + datasetName);
+				logger.debug("Creating dataset for {}", datasetName);
 
 				final ILazyWriteableDataset lazyDataset = createLazyDatasetForNexusTreeNode(dataNode, scanInfo.getRank());
 				nxDetector.createDataNode(datasetName, lazyDataset);
@@ -160,13 +127,12 @@ public class XmapRunnableDevice extends AbstractRunnableDevice<XmapRunnableDevic
 		final int[] shapeForLazy = maxShape.clone();
 		Arrays.fill(shapeForLazy, 0, scanRank, 0);
 
-		final ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset(datasetName, dataType, shapeForLazy, maxShape, null);
-		return lazy;
+		return NexusUtils.createLazyWriteableDataset(datasetName, dataType, shapeForLazy, maxShape, null);
 	}
 
 	private List<INexusTree> getDetectorDataNodes() throws DeviceException {
 		// Get list of data fields that detector will produce (assume detector has already been configured)
-		final NexusTreeProvider nexusTreeProvider = xmapMca.readout();
+		final NexusTreeProvider nexusTreeProvider = xmapDetector.readout();
 
 		final List<INexusTree> dataFields = new ArrayList<>();
 		final INexusTree detectorNode = nexusTreeProvider.getNexusTree().getChildNode(0);
@@ -178,27 +144,15 @@ public class XmapRunnableDevice extends AbstractRunnableDevice<XmapRunnableDevic
 	}
 
 	@Override
-	public void run(IPosition position) throws ScanningException, InterruptedException {
-		setDeviceState(DeviceState.RUNNING);
-		try {
-			xmapMca.clearAndStart();
-			xmapMca.waitWhileBusy();
-		} catch (Exception e) {
-			setDeviceState(DeviceState.FAULT);
-			throw new ScanningException("Acquiring from detector failed", e);
-		}
-	}
-
-	@Override
 	public boolean write(IPosition position) throws ScanningException {
 		try {
 			// Get data from detector
-			final NexusTreeProvider nexusTreeProvider = xmapMca.readout();
+			final NexusTreeProvider nexusTreeProvider = xmapDetector.readout();
 			final INexusTree detectorNode = nexusTreeProvider.getNexusTree().getChildNode(0);
 
-			if (!detectorNode.getName().equals(detectorName)) {
+			if (!detectorNode.getName().equals(xmapDetectorName)) {
 				final String message = "Incorrect detector name in data: expected "
-						+ detectorName + ", actual: " + detectorNode.getName();
+						+ xmapDetectorName + ", actual: " + detectorNode.getName();
 				logger.error(message);
 				throw new ScanningException(message);
 			}

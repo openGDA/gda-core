@@ -29,6 +29,7 @@ public class ClassRegistry implements IClassRegistry {
 	static {
 		registry = new HashMap<>();
 		registry.put(XmapRunnableDeviceModel.class.getSimpleName(), XmapRunnableDeviceModel.class);
+		registry.put(XmapWritingFilesRunnableDeviceModel.class.getSimpleName(), XmapWritingFilesRunnableDeviceModel.class);
 	}
 
 	@Override
