@@ -93,7 +93,7 @@ public abstract class DummyVideoReceiverBase<T> extends ConfigurableBase impleme
 
 		logger.info("Starting");
 
-		createBlankImage();
+		createInitialImage();
 		circleX = (int) (Math.random() * imageSize.width);
 		circleY = (int) (Math.random() * imageSize.height);
 
@@ -154,7 +154,7 @@ public abstract class DummyVideoReceiverBase<T> extends ConfigurableBase impleme
 	/**
 	 * Creates the initial image.
 	 */
-	protected abstract void createBlankImage();
+	protected abstract void createInitialImage();
 
 	/**
 	 * Updates the image. Called at regular intervals.

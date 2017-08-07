@@ -33,7 +33,7 @@ public class DummyAwtVideoReceiver extends DummyVideoReceiverBase<Image> {
 	private BufferedImage image;
 	
 	@Override
-	protected void createBlankImage() {
+	protected void createInitialImage() {
 		image = new BufferedImage(imageSize.width, imageSize.height, BufferedImage.TYPE_INT_RGB);
 		Graphics g = image.getGraphics();
 		g.setColor(BACKGROUND_COLOUR);
