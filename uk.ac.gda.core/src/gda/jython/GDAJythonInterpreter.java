@@ -483,17 +483,29 @@ public class GDAJythonInterpreter {
 
 				// define a function that can check a java object for a field or method called
 				// __doc__ and print it out
-				exec("def _gdahelp(obj=None):\n" + "    if obj is None:\n"
-						+ "        GeneralCommands.gdahelp()\n" + "        return\n"
+				exec("def _gdahelp(obj=None):\n"
+						+ "    if obj is None:\n"
+						+ "        GeneralCommands.gdahelp()\n"
+						+ "        return\n"
 						+ "    if hasattr(obj, '__class__'):\n"
-						+ "        if issubclass(obj.__class__, java.lang.Object):\n" + "            helptext = None\n"
-						+ "            if hasattr(obj, '__doc__'):\n" + "                helptext = obj.__doc__\n"
+						+ "        if issubclass(obj.__class__, java.lang.Object):\n"
+						+ "            helptext = None\n"
+						+ "            if hasattr(obj, '__doc__'):\n"
+						+ "                helptext = obj.__doc__\n"
 						+ "                if not isinstance(helptext, str):\n"
 						+ "                    if hasattr(helptext, '__call__'):\n"
-						+ "                        helptext = helptext()\n" + "                    else:\n"
-						+ "                        helptext = None\n" + "            if helptext is not None:\n"
-						+ "                print helptext\n" + "                return\n" + "    import pydoc\n"
-						+ "    pydoc.help(obj)\n" + "    print\n");
+						+ "                        helptext = helptext()\n"
+						+ "                    elif isinstance(helptext, unicode):\n"
+						+ "                        print helptext\n"
+						+ "                        return\n"
+						+ "                    else:\n"
+						+ "                        helptext = None\n"
+						+ "            if helptext is not None:\n"
+						+ "                print helptext\n"
+						+ "                return\n"
+						+ "    import pydoc\n"
+						+ "    pydoc.help(obj)\n"
+						+ "    print\n");
 
 				populateNamespace();
 				runStationStartupScript();
