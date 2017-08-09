@@ -48,7 +48,7 @@ public class DataReductionScannable extends DummyScannable implements Scannable,
 	private StringValueScannable currentCalibrationScannable;
 	private SimpleUDPServerScannable simpleUDPServer;
 	private String sampleID=null;
-	private Map<String, String> map=new HashedMap<String, String>();
+	private Map<String, String> map=new HashedMap<>();
 
 	
 	@Override
