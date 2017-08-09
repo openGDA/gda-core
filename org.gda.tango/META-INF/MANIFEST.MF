@@ -22,7 +22,8 @@ Require-Bundle: org.eclipse.core.runtime,
  uk.ac.diamond.org.jacorb;bundle-version="2.2.2"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Export-Package: gda.device,
+Export-Package: fr.esrf.Tango,
+ gda.device,
  gda.device.base,
  gda.device.detector.frelon,
  gda.device.detector.mythen,
