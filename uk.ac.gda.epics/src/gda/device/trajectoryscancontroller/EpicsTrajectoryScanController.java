@@ -85,6 +85,7 @@ public final class EpicsTrajectoryScanController extends TrajectoryScanControlle
 	private static final String CS_PORT=":CsPort";
 	private static final String CS_AXIS=":CsAxis";
 
+	private static final String DRIVE_BUFFER_A_INDEX = "EpicsBufferAPtr_RBV";
 
 	private static final String DRIVER_VERSION = "DriverVersion_RBV";
 	private static final String PROGRAM_VERSION = "ProgramVersion_RBV";
@@ -168,6 +169,8 @@ public final class EpicsTrajectoryScanController extends TrajectoryScanControlle
 	public int getProfileNumPoints() throws Exception {
 		return pvFactory.getIntegerPVValueCache(PROFILE_NUM_POINTS).get();
 	}
+
+	@Override
 	public void setProfileNumPoints(int numPoints) throws Exception {
 		pvFactory.getIntegerPVValueCache(PROFILE_NUM_POINTS).putWait(numPoints);
 	}
@@ -180,6 +183,8 @@ public final class EpicsTrajectoryScanController extends TrajectoryScanControlle
 	public int getProfileNumPointsToBuild() throws Exception {
 		return pvFactory.getIntegerPVValueCache(PROFILE_NUM_POINTS_TO_BUILD).get();
 	}
+
+	@Override
 	public void setProfileNumPointsToBuild(int numPoints) throws Exception {
 		pvFactory.getIntegerPVValueCache(PROFILE_NUM_POINTS_TO_BUILD).putWait(numPoints);
 	}
@@ -193,6 +198,7 @@ public final class EpicsTrajectoryScanController extends TrajectoryScanControlle
 	}
 
 	// Velocity mode
+	@Override
 	public void setProfileVelocityModeArray(Integer[] vals) throws IOException {
 		velocityModeArrayPv.putWait(vals);
 	}
@@ -201,6 +207,7 @@ public final class EpicsTrajectoryScanController extends TrajectoryScanControlle
 	}
 
 	//Time
+	@Override
 	public void setProfileTimeArray(Double[] vals) throws IOException {
 		profileTimeArrayPv.putWait(vals);
 	}
@@ -314,6 +321,7 @@ public final class EpicsTrajectoryScanController extends TrajectoryScanControlle
 	}
 
 
+	@Override
 	public void setAxisPoints(int axis, Double [] points)throws IOException, Exception{
 
 		String positionPvName = getPVNameForAxis(axis, POSITION_ARRAY);
@@ -347,6 +355,7 @@ public final class EpicsTrajectoryScanController extends TrajectoryScanControlle
 		return pvFactory.getDoublePVValueCache(axisPvName).get();
 	}
 
+	@Override
 	public void setCSPort(int motor,String port) throws IOException, Exception {
 		String axisPvName = getPVNameForMotor(motor,CS_PORT);
 		pvFactory.getPVString(axisPvName).putNoWait(port);
@@ -357,6 +366,7 @@ public final class EpicsTrajectoryScanController extends TrajectoryScanControlle
 		return pvFactory.getPVString(axisPvName).get();
 	}
 
+	@Override
 	public void setCSAssignment(int motor, String port) throws IOException, Exception {
 		String axisPvName = getPVNameForMotor(motor,CS_AXIS);
 		pvFactory.getPVString(axisPvName).putNoWait(port);
@@ -436,6 +446,10 @@ public final class EpicsTrajectoryScanController extends TrajectoryScanControlle
 		setProfileUserArray(userMode);
 	}
 
+	@Override
+	public int getDriveBufferAIndex() throws IOException, Exception {
+		return pvFactory.getPVInteger(DRIVE_BUFFER_A_INDEX).get();
+	}
 
 	private Map<Integer,State> stateMap;
 	private Map<Integer,Status> statusMap;
