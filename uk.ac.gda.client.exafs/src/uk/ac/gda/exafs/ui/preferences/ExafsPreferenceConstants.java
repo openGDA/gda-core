@@ -124,6 +124,15 @@ public class ExafsPreferenceConstants {
 	 */
 	public static final String DETECTOR_OUTPUT_IN_OUTPUT_PARAMETERS = "exafs.outputeditor.showFluoOptions.preference";
 
+	/**
+	 * Order of detector elements in {@link uk.ac.gda.exafs.ui.composites.detectors.internal.FluoDetectorElementsComposite}, i.e. value correspond to enum value
+	 * in {@link org.eclipse.richbeans.widgets.selector.GridListEditor.GRID_ORDER} :<p>
+	 * <li>0 = LEFT_TO_RIGHT_TOP_TO_BOTTOM
+	 * <li>1 = TOP_TO_BOTTOM_RIGHT_TO_LEFT
+	 * <li>2 = CUSTOM_MAP
+	 */
+	public static final String DETECTOR_ELEMENT_ORDER = "exafs.editor.detectorElementOrder.preference";
+
 	public static final String HIDE_DEFAULT_GAS_MIXTURES_BUTTON = "exafs.hideDefaultGasMixturesButton.preference";
 
 	/**

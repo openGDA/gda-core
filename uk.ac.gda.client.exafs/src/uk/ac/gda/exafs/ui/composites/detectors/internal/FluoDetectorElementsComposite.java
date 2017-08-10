@@ -18,11 +18,15 @@
 
 package uk.ac.gda.exafs.ui.composites.detectors.internal;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.richbeans.api.widget.IFieldWidget;
 import org.eclipse.richbeans.widgets.selector.GridListEditor;
+import org.eclipse.richbeans.widgets.selector.GridListEditor.GRID_ORDER;
 import org.eclipse.richbeans.widgets.selector.ListEditor;
 import org.eclipse.richbeans.widgets.wrappers.BooleanWrapper;
 import org.eclipse.richbeans.widgets.wrappers.BooleanWrapper.BOOLEAN_MODE;
@@ -50,6 +54,7 @@ public class FluoDetectorElementsComposite extends Composite {
 	private GridListEditor detectorElementTable;
 	private LabelWrapper elementName;
 	private BooleanWrapper excluded;
+	private GRID_ORDER gridOrder =  GRID_ORDER.LEFT_TO_RIGHT_TOP_TO_BOTTOM;
 
 	public FluoDetectorElementsComposite(Composite parent, int style) {
 		super(parent, style);
@@ -126,11 +131,31 @@ public class FluoDetectorElementsComposite extends Composite {
 		}
 
 		detectorElementTable = new GridListEditor(elementsGroup, SWT.NONE, columns, rows);
+		if (gridOrder==GRID_ORDER.CUSTOM_MAP && numberOfElements==9) {
+			setupDetectorMap9Element();
+		} else {
+			detectorElementTable.setGridOrder(gridOrder);
+		}
 		detectorElementTable.setGridWidth(Math.max(160, columns * 25));
 		detectorElementTable.setGridHeight(rows * 23);
 		GridDataFactory.fillDefaults().align(SWT.CENTER, SWT.CENTER).span(2, 1).applyTo(detectorElementTable);
 		detectorElementTable.moveAbove(elementName);
 		this.getParent().layout(true, true);
+	}
+
+	/**
+	 *  Setup grid map for 9 element Ge detector which has slightly unusual arrangement of elements.
+	 */
+	void setupDetectorMap9Element() {
+		detectorElementTable.setGridOrder(GRID_ORDER.CUSTOM_MAP);
+		Map<Integer, Integer> gridMap = new HashMap<Integer, Integer>();
+		int[] elementIndices = new int[] { 5, 4, 3,
+										   6, 8, 2,
+										   7, 0, 1 };
+		for (int i = 0; i < elementIndices.length; i++) {
+			gridMap.put(i, elementIndices[i]);
+		}
+		detectorElementTable.setGridMap(gridMap);
 	}
 
 	public ListEditor getDetectorList() {
@@ -147,5 +172,9 @@ public class FluoDetectorElementsComposite extends Composite {
 
 	public IFieldWidget getExcluded() {
 		return excluded;
+	}
+
+	public void setDetectorElementOrder(GRID_ORDER order) {
+		this.gridOrder = order;
 	}
 }

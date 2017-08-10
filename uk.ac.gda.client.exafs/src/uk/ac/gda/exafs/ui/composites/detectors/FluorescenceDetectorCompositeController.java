@@ -44,6 +44,7 @@ import org.eclipse.richbeans.api.event.ValueEvent;
 import org.eclipse.richbeans.api.event.ValueListener;
 import org.eclipse.richbeans.widgets.selector.BeanSelectionEvent;
 import org.eclipse.richbeans.widgets.selector.BeanSelectionListener;
+import org.eclipse.richbeans.widgets.selector.GridListEditor.GRID_ORDER;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -198,6 +199,7 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 
 		// Set up the composite with information about the detector
 		fluorescenceDetectorComposite.setDetectorName(theDetector.getName());
+		setDetectorElementOrderPreference();
 		fluorescenceDetectorComposite.setDetectorElementListSize(theDetector.getNumberOfElements());
 		fluorescenceDetectorComposite.setMCASize(theDetector.getMCASize());
 		fluorescenceDetectorComposite.setMaxNumberOfRois(theDetector.getMaxNumberOfRois());
@@ -342,6 +344,15 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 	private void setShowOutputOptionsFromPreference() {
 		boolean outputEditorShowOutputOptions = ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.DETECTOR_OUTPUT_IN_OUTPUT_PARAMETERS);
 		fluorescenceDetectorComposite.setShowOutputOptions(!outputEditorShowOutputOptions);
+	}
+
+	private void setDetectorElementOrderPreference() {
+		int elementOrder = ExafsActivator.getDefault().getPreferenceStore().getInt(ExafsPreferenceConstants.DETECTOR_ELEMENT_ORDER);
+		GRID_ORDER order = GRID_ORDER.LEFT_TO_RIGHT_TOP_TO_BOTTOM;
+		if (elementOrder<GRID_ORDER.values().length) {
+			order = GRID_ORDER.values()[elementOrder];
+		}
+		fluorescenceDetectorComposite.setDetectorElementOrder(order);
 	}
 
 	private void createDataStore() {

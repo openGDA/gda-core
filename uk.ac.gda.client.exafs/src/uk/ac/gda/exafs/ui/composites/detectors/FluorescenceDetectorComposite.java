@@ -29,6 +29,7 @@ import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.richbeans.api.event.ValueAdapter;
 import org.eclipse.richbeans.api.widget.IFieldWidget;
 import org.eclipse.richbeans.widgets.selector.BeanSelectionListener;
+import org.eclipse.richbeans.widgets.selector.GridListEditor;
 import org.eclipse.richbeans.widgets.selector.ListEditor;
 import org.eclipse.richbeans.widgets.wrappers.BooleanWrapper;
 import org.eclipse.richbeans.widgets.wrappers.ComboWrapper;
@@ -226,6 +227,16 @@ public class FluorescenceDetectorComposite extends Composite {
 	public void setDetectorElementListSize(int size) {
 		elementsComposite.configureDetectorElementTable(size, regionsComposite);
 		sashFormPlot.computeSizes();
+	}
+
+	/**
+	 * Call this before {@link FluoDetectorElementsComposite#configureDetectorElementTable}
+	 * to set the display order of the detector elements in the composite.
+	 *
+	 * @param order
+	 */
+	public void setDetectorElementOrder(GridListEditor.GRID_ORDER order) {
+		elementsComposite.setDetectorElementOrder(order);
 	}
 
 	/**
