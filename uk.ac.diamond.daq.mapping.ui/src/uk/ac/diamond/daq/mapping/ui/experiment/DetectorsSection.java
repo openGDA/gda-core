@@ -105,7 +105,7 @@ public class DetectorsSection extends AbstractMappingSection {
 	}
 
 	private void chooseDetectors() {
-		DetectorChooser dialog = new DetectorChooser(getShell(),getDetectorParameters(), chosenDetectors);
+		ChooseDetectorsDialog dialog = new ChooseDetectorsDialog(getShell(),getDetectorParameters(), chosenDetectors);
 
 		if (dialog.open() == Window.OK) {
 			chosenDetectors = dialog.getSelectedDetectors();

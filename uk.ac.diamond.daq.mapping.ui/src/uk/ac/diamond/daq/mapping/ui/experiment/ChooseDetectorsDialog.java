@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.richbeans.widgets.shuffle.ShuffleConfiguration;
 import org.eclipse.richbeans.widgets.shuffle.ShuffleViewer;
 import org.eclipse.swt.SWT;
@@ -37,9 +38,9 @@ import uk.ac.diamond.daq.mapping.api.IDetectorModelWrapper;
 import uk.ac.diamond.daq.mapping.impl.DetectorModelWrapper;
 
 /**
- * Lets user choose a subset from their configured detectors
+ * Lets user choose a subset from their configured detectors.
  */
-public class DetectorChooser extends Dialog {
+public class ChooseDetectorsDialog extends Dialog {
 
 	private List<IDetectorModelWrapper> originalList;
 	private List<IDetectorModelWrapper> selectedList;
@@ -51,8 +52,9 @@ public class DetectorChooser extends Dialog {
 	 * @param availableDetectors - all detectors configured in Spring
 	 * @param selectedDetectors - previously selected detectors; can be null
 	 */
-	protected DetectorChooser(Shell parentShell, List<IDetectorModelWrapper> availableDetectors, List<IDetectorModelWrapper> selectedDetectors) {
+	protected ChooseDetectorsDialog(Shell parentShell, List<IDetectorModelWrapper> availableDetectors, List<IDetectorModelWrapper> selectedDetectors) {
 		super(parentShell);
+		setShellStyle(SWT.RESIZE);
 		originalList = availableDetectors;
 		selectedList = selectedDetectors == null ? new ArrayList<>() : selectedDetectors;
 		originalList.forEach(model -> labelMap.put(model.getName(), model));
@@ -68,7 +70,7 @@ public class DetectorChooser extends Dialog {
 	public Control createDialogArea(Composite parent) {
 		parent.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
 		parent.setBackgroundMode(SWT.INHERIT_FORCE);
-		final Composite composite = (Composite) super.createDialogArea(parent);
+
 		data = new ShuffleConfiguration<>();
 		data.setFromLabel("Available");
 		data.setToLabel("Selected");
@@ -82,12 +84,13 @@ public class DetectorChooser extends Dialog {
 				.collect(Collectors.toList());
 
 		ShuffleViewer<String> viewer = new ShuffleViewer<>(data);
-		viewer.createPartControl(composite);
+		Control shuffleComposite = viewer.createPartControl(parent);
+		GridDataFactory.fillDefaults().grab(true, true).applyTo(shuffleComposite);
 
 		data.setFromList(availableDetectors);
 		data.setToList(selectedDetectors);
 
-		return composite;
+		return shuffleComposite;
 	}
 
 	@Override
