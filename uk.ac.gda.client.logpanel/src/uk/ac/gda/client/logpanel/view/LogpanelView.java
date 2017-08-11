@@ -78,11 +78,11 @@ public class LogpanelView extends ViewPart {
 
 	protected void setupCommandActivationAndDeactivationHandlers(final Logpanel logpanel) {
 		// activate/deactivate Copy command depending on whether any log messages are selected or not
-		ICommandService commandService = (ICommandService) getSite().getService(ICommandService.class); // or PlatformUI.getWorkbench().getService(ICommandService.class);
+		ICommandService commandService = getSite().getService(ICommandService.class); // or PlatformUI.getWorkbench().getService(ICommandService.class);
 		final String copyCommandId = CopyToClipboardHandler.ID;
 		Command copyCommand = commandService.getCommand(copyCommandId);
 		IHandler copyCommandHandler = copyCommand.getHandler();
-		final IHandlerService handlerService = (IHandlerService) getSite().getService(IHandlerService.class); // or PlatformUI.getWorkbench().getService(IHandlerService.class);
+		final IHandlerService handlerService = getSite().getService(IHandlerService.class); // or PlatformUI.getWorkbench().getService(IHandlerService.class);
 		final IHandlerActivation copyCommandHandlerActivation = handlerService.activateHandler(copyCommandId, copyCommandHandler);
 		handlerService.deactivateHandler(copyCommandHandlerActivation);
 		logpanel.getViewer().addSelectionChangedListener(new ISelectionChangedListener() {
