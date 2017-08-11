@@ -13,7 +13,7 @@
             class="uk.ac.gda.client.logpanel.view.LogpanelView"
             icon="icons/application_error.png"
             id="uk.ac.gda.client.logpanel.view"
-            name="Logpanel">
+            name="Log Panel">
       </view>
    </extension>
    <extension
