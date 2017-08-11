@@ -96,7 +96,7 @@ public class DetectorsSection extends AbstractMappingSection {
 		GridDataFactory.fillDefaults().align(SWT.RIGHT, SWT.CENTER).applyTo(configure);
 		configure.addListener(SWT.Selection, event -> chooseDetectors());
 
-		if (chosenDetectors != null) {
+		if (chosenDetectors == null) {
 			// this will only be null if loadState() has not been called, i.e. on a workspace reset
 			// in this case show all available detectors
 			chosenDetectors = getDetectorParameters();
