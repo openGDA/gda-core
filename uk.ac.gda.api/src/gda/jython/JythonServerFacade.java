@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -174,14 +173,6 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 				final String msg = "Login failed for user: " + UserAuthentication.getUsername();
 				logger.error(msg);
 				throw new InstantiationException(msg); // Important - do no exit incorrect for rcp gda client
-			}
-
-			// create a list of all GUI panels which support IObserver interface to receive updates
-			ArrayList<Findable> panels = Finder.getInstance().listAllLocalObjects("AcquisitionPanel");
-			for (Findable panel : panels) {
-				if (panel instanceof IObserver) {
-					addIObserver((IObserver) panel);
-				}
 			}
 
 		} catch (Exception ex) {
