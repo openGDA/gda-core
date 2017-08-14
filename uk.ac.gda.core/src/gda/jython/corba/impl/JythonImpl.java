@@ -594,4 +594,8 @@ public class JythonImpl extends CorbaJythonPOA implements IObserver {
 			throw new CorbaDeviceException(de.getMessage());
 		}
 	}
+	@Override
+	public void print(String text) {
+		jythonServer.print(text);
+	}
 }
