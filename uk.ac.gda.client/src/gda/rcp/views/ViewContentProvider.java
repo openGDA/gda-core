@@ -18,17 +18,18 @@
 
 package gda.rcp.views;
 
-import gda.device.Scannable;
-import gda.factory.Findable;
-import gda.factory.Finder;
-
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.ui.IViewSite;
+
+import gda.device.Scannable;
+import gda.factory.Findable;
+import gda.factory.Finder;
 
 /*
  * The content provider class is responsible for
@@ -107,7 +108,7 @@ public class ViewContentProvider implements IStructuredContentProvider,
 		p1.addChild(to2);
 		p1.addChild(to3);
 
-		ArrayList<String> interfaces = Finder.getInstance().listAllInterfaces();
+		List<String> interfaces = Finder.getInstance().listAllInterfaces();
 		TreeParent[] parents = new TreeParent[interfaces.size()];
 		int i = 0;
 		for (String intfc : interfaces) {

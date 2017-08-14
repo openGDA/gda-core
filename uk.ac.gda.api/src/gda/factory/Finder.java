@@ -66,7 +66,7 @@ public enum Finder {
 	private Iterable<Factory> getCopyOfFactories() {
 		// using a copy prevent ConcurrentModificationException if the list of factories
 		// is modified during iteration
-		return new ArrayList<Factory>(factories);
+		return new ArrayList<>(factories);
 	}
 
 	/**
@@ -180,9 +180,9 @@ public enum Finder {
 	 *
 	 * @return array of interface names
 	 */
-	public ArrayList<String> listAllInterfaces() {
+	public List<String> listAllInterfaces() {
 		ArrayList<Findable> objects = listAllObjects();
-		ArrayList<String> usedInterfaces = new ArrayList<String>();
+		ArrayList<String> usedInterfaces = new ArrayList<>();
 
 		for (Findable findable : objects) {
 			// loop through all the interfaces that objects use
@@ -192,7 +192,7 @@ public enum Finder {
 				for (Class<?> theClass : superclass.getInterfaces()) {
 					// if there is a match then add this object
 					String name = theClass.getName();
-					name = name.substring(name.lastIndexOf(".") + 1);
+					name = name.substring(name.lastIndexOf('.') + 1);
 					if (!usedInterfaces.contains(name)) {
 						usedInterfaces.add(name);
 					}
@@ -212,11 +212,11 @@ public enum Finder {
 	 * @return the list of Findable object names supporting the named interface.
 	 */
 	public ArrayList<String> listAllNames(String interfaceName) {
-		ArrayList<Findable> findableRefs = listAllObjects(interfaceName);
-		ArrayList<String> findableNames = new ArrayList<String>();
+		List<Findable> findableRefs = listAllObjects(interfaceName);
+		ArrayList<String> findableNames = new ArrayList<>();
 		for (Findable findable : findableRefs) {
 			String findableName = findable.getName();
-			findableName = findableName.substring(findableName.lastIndexOf(".") + 1);
+			findableName = findableName.substring(findableName.lastIndexOf('.') + 1);
 			findableNames.add(findableName);
 		}
 		return findableNames;
@@ -229,7 +229,7 @@ public enum Finder {
 	 * @param interfaceName
 	 * @return the list of Findable objects supporting the named interface.
 	 */
-	public ArrayList<Findable> listAllLocalObjects(String interfaceName) {
+	public List<Findable> listAllLocalObjects(String interfaceName) {
 		return listAllObjects(interfaceName,true);
 	}
 
@@ -242,7 +242,7 @@ public enum Finder {
 	 * @return the list of Findable objects supporting the named interface.
 	 */
 	public ArrayList<Findable> listAllObjects(String interfaceName) {
-		return listAllObjects(interfaceName,false);
+		return listAllObjects(interfaceName, false);
 	}
 
 	private ArrayList<Findable> listAllObjects(String interfaceName, boolean localObjectsOnly) {
@@ -251,7 +251,7 @@ public enum Finder {
 			return listAllObjects();
 		}
 
-		ArrayList<Findable> objectRefs = new ArrayList<Findable>();
+		ArrayList<Findable> objectRefs = new ArrayList<>();
 		// loop through all factories
 		for (Factory factory : getCopyOfFactories()) {
 
@@ -321,7 +321,7 @@ public enum Finder {
 	 */
 	private boolean classNameMatchesString(Class<?> theClass, String interfaceName) {
 		String className = theClass.getName();
-		String shortName = className.substring(className.lastIndexOf(".") + 1);
+		String shortName = className.substring(className.lastIndexOf('.') + 1);
 		return className.compareTo(interfaceName) == 0 || shortName.compareTo(interfaceName) == 0;
 	}
 
@@ -331,7 +331,7 @@ public enum Finder {
 	 * @return a list of all known Findable objects.
 	 */
 	private ArrayList<Findable> listAllObjects() {
-		ArrayList<Findable> allFindables = new ArrayList<Findable>();
+		ArrayList<Findable> allFindables = new ArrayList<>();
 		for (Factory factory : getCopyOfFactories()) {
 			allFindables.addAll(factory.getFindables());
 		}
@@ -370,7 +370,7 @@ public enum Finder {
 	 * @return a map of matching {@code Findable}s, with the object names as keys and the objects as values
 	 */
 	private <T extends Findable> Map<String, T> getFindablesOfType(Class<T> clazz, boolean local) {
-		Map<String, T> findables = new HashMap<String, T>();
+		Map<String, T> findables = new HashMap<>();
 		for (Factory factory : getCopyOfFactories()) {
 			if (local && !factory.isLocal()) {
 				continue;
@@ -416,7 +416,7 @@ public enum Finder {
 	 * @return a list of matching {@code Findable}s
 	 */
 	private <T extends Findable> List<T> listFindablesOfType(Class<T> clazz, boolean local) {
-		return new ArrayList<T>(getFindablesOfType(clazz, local).values());
+		return new ArrayList<>(getFindablesOfType(clazz, local).values());
 	}
 
 }
