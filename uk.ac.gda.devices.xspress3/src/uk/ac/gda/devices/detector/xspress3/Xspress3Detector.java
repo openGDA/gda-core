@@ -296,9 +296,8 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 			thisFrame.setPlottableValue(getExtraNames()[numberOfChannelsToRead], totalFF);
 
 			// TODO this needs fixing at some point - currently writes an absolute path when better to use relative in Nexus
-			// Also, deriveFilename() only gives the correct name in step scans when Auto Increment is switched off in EPICS
 			if (writeHDF5Files) {
-				thisFrame.addScanFileLink(getName(), "nxfile://" + deriveFilename() + "#entry/instrument/detector/data");
+				thisFrame.addScanFileLink(getName(), "nxfile://" + controller.getFullFileName() + "#entry/instrument/detector/data");
 			}
 
 			results[frame] = thisFrame;
@@ -340,14 +339,6 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 			}
 		}
 		return FFs;
-	}
-
-	private String deriveFilename() throws DeviceException {
-		String path = controller.getFilePath();
-		String prefix = controller.getFilePrefix();
-		String scanNumber = Integer.toString(controller.getNextFileNumber());
-		String xspress3File = path + prefix + scanNumber + ".hdf5";
-		return xspress3File;
 	}
 
 	@Override
