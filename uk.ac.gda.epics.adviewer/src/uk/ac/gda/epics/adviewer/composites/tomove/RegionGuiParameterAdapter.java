@@ -19,11 +19,6 @@
 package uk.ac.gda.epics.adviewer.composites.tomove;
 
 
-import gda.observable.Observable;
-import gda.observable.ObservableUtil;
-import gda.observable.Observer;
-import gda.observable.Predicate;
-
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
@@ -41,6 +36,10 @@ import org.eclipse.dawnsci.plotting.api.region.RegionEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.observable.Observable;
+import gda.observable.ObservableUtil;
+import gda.observable.Observer;
+import gda.observable.Predicate;
 import uk.ac.diamond.scisoft.analysis.PlotServer;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
@@ -147,8 +146,10 @@ public class RegionGuiParameterAdapter implements
 			roiList.add((RectangularROI) roi); // TODO: Only works for
 												// rectangular regions
 		}
-
-		changedParameters.put(GuiParameters.ROIDATA, changedRoi);
+		if (changedRoi instanceof RectangularROI) {
+			roiList.add(changedRoi);
+		}
+		changedParameters.put(GuiParameters.ROIDATA, changedRoi.getName());
 		changedParameters.put(GuiParameters.ROIDATALIST, roiList);
 
 		observableComponent.notifyIObservers(this, changedParameters);

@@ -101,6 +101,7 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 	private static final String PCPulseStart = "PC_PULSE_START";
 	private static final String PCPulseWidth = "PC_PULSE_WID";
 	private static final String PCPulseStep = "PC_PULSE_STEP";
+	private static final String PCPulseInput = "PC_PULSE_INP";
 	private static final String PCPulseStatus = "PC_PULSE_OUT";
 
 	private static final int PCPulsePulseMaxMin = 0;
@@ -262,6 +263,11 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 	public void setPCPulseMax(int val) throws Exception {
 		assert (PCPulsePulseMaxMin <= val && val <= PCPulsePulseMaxMax);
 		pvFactory.getIntegerPVValueCache(PCPulseMax).putWait(val);
+	}
+
+	@Override
+	public void setPCPulseInput(int input) throws Exception {
+		pvFactory.getIntegerPVValueCache(PCPulseInput).putWait(input);
 	}
 
 	@Override

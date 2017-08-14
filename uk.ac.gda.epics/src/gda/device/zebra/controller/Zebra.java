@@ -86,6 +86,8 @@ public interface Zebra {
 
 	double getPCPulseStepRBV() throws Exception;
 
+	void setPCPulseInput(int input) throws Exception;
+
 	void setPCPulseStep(double step) throws Exception;
 
 	/**
