@@ -22,7 +22,6 @@ import gda.configuration.properties.LocalProperties;
 import gda.data.PathConstructor;
 import gda.device.DeviceException;
 import gda.util.VisitPath;
-import gda.util.exceptionUtils;
 import gda.util.persistence.LocalParameters;
 import gda.util.simpleServlet.corba.impl.SimpleServletAdapter;
 
@@ -401,32 +400,6 @@ public class UserOptions extends java.util.TreeMap<String, UserOption> implement
 	 */
 	public static void saveUserOptions(UserOptions options) throws DeviceException {
 		options.saveValuesToConfigFromGUI(configDirValues(), configNameValues);
-	}
-
-	/**
-	 * @param onlyIfDefault
-	 * @throws DeviceException
-	 */
-	public static void showDialog(String pathToValues, boolean onlyIfDefault) throws DeviceException {
-		UserOptions options =  UserOptions.getUserOptionsFromConfigFromGUI(configDirTemplate, configNameTemplate, pathToValues,
-				configNameValues);
-		if (options != null && options.size() > 0 && (!onlyIfDefault || options.containsDefault)) {
-			UserOptionsDialog dlg = new UserOptionsDialog(null, null, options);
-			if (dlg.getOK()) {
-				options.saveValuesToConfigFromGUI(pathToValues, configNameValues);
-			}
-		}
-	}
-
-	/**
-	 * @param onlyIfDefault
-	 */
-	public static void showDialogNoExceptions(String pathToValues, boolean onlyIfDefault) {
-		try {
-			showDialog(pathToValues, onlyIfDefault);
-		} catch (Exception ex) {
-			exceptionUtils.logException(logger, "Error showing user options", ex);
-		}
 	}
 
 }
