@@ -25,10 +25,15 @@ import org.slf4j.LoggerFactory;
 import gda.device.CounterTimer;
 import gda.device.DeviceException;
 import gda.device.XmapDetector;
+import gda.device.detector.addetector.ADDetector;
+import gda.device.detector.addetector.triggering.SimpleAcquire;
+import gda.device.detector.areadetector.v17.NDPluginBase;
+import gda.device.detector.countertimer.TfgScalerWithDarkCurrent;
 import gda.device.scannable.ScannableBase;
 import gda.jython.Jython;
 import gda.jython.JythonServerFacade;
 import gda.observable.IObserver;
+import gda.scan.ScanInformation;
 import uk.ac.gda.beans.xspress.XspressDetector;
 /**
  * Class to to provide data used for detector rate view (e.g. XspressMonitorView}, XmapMonitorView})
@@ -45,7 +50,7 @@ public class DetectorMonitorDataProvider extends ScannableBase implements Detect
 
 	protected static final Logger logger = LoggerFactory.getLogger(DetectorMonitorDataProvider.class);
 
-	public enum COLLECTION_TYPES {XSPRESS2, XMAP};
+	public enum COLLECTION_TYPES {XSPRESS2, XMAP, XMAP_I1, MEDIPIX};
 
 	private volatile boolean collectionInProgress = false;
 
@@ -53,10 +58,13 @@ public class DetectorMonitorDataProvider extends ScannableBase implements Detect
 
 	private double collectionTime = 1.0;
 
+	private boolean darkCurrentRequired;
+
 	// References to the detectors - set these by injection using Spring or Jython.
 	private XspressDetector xspress2Detector;
 	private CounterTimer ionchambers;
 	private XmapDetector xmapDetector;
+	private ADDetector medipixDetector;
 
 	private String name;
 
@@ -95,7 +103,7 @@ public class DetectorMonitorDataProvider extends ScannableBase implements Detect
 		if (collectionType == COLLECTION_TYPES.XSPRESS2 && xspress2Detector==null) {
 			missingDetectors += "xspress2Detector ";
 		}
-		if (collectionType == COLLECTION_TYPES.XMAP && xmapDetector==null) {
+		if ((collectionType == COLLECTION_TYPES.XMAP || collectionType == COLLECTION_TYPES.XMAP_I1) && xmapDetector==null) {
 			missingDetectors += "xmapDetector";
 		}
 		return missingDetectors;
@@ -111,6 +119,20 @@ public class DetectorMonitorDataProvider extends ScannableBase implements Detect
 		String missingDetectors = getMissingDetectors(collectionType);
 		if (missingDetectors.length()>0) {
 			throw new DeviceException("Cannot collect data - "+missingDetectors+" have not been set ");
+		}
+	}
+
+	private void storeDarkCurrentRequired() {
+		darkCurrentRequired = false;
+		if (ionchambers instanceof TfgScalerWithDarkCurrent) {
+			darkCurrentRequired = ((TfgScalerWithDarkCurrent)ionchambers).isDarkCurrentRequired();
+			((TfgScalerWithDarkCurrent)ionchambers).setDarkCurrentRequired(false);
+		}
+	}
+
+	private void restoreDarkCurrentRequired() {
+		if (ionchambers instanceof TfgScalerWithDarkCurrent) {
+			((TfgScalerWithDarkCurrent)ionchambers).setDarkCurrentRequired(darkCurrentRequired);
 		}
 	}
 
@@ -130,14 +152,19 @@ public class DetectorMonitorDataProvider extends ScannableBase implements Detect
 		checkDetectors(type);
 		waitWhileBusy();
 		collectionInProgress=true;
+		storeDarkCurrentRequired();
+
 		try {
 			switch(type) {
 				case XSPRESS2 : return getIonChambersForXspress2();
 				case XMAP 	  : return getIonChambersForXmap();
+				case XMAP_I1  : return getIonChambersForXmapI1();
+				case MEDIPIX  : return getIonChambersForMedipix();
 				default 	  : return null;
 			}
 		} finally {
 			collectionInProgress=false;
+			restoreDarkCurrentRequired();
 			logger.debug("Collect ion chamber values finished");
 		}
 	}
@@ -161,7 +188,9 @@ public class DetectorMonitorDataProvider extends ScannableBase implements Detect
 		try {
 			switch(type) {
 				case XSPRESS2 : return getXSpress2Data();
-				case XMAP 	  : return getXmapData();
+				case XMAP 	  :
+				case XMAP_I1  : return getXmapData();
+				case MEDIPIX  : return getMedipixData();
 				default 	  : return null;
 			}
 		} finally {
@@ -181,8 +210,10 @@ public class DetectorMonitorDataProvider extends ScannableBase implements Detect
 		checkDetectors(type);
 		switch(type) {
 			case XSPRESS2 : return xspress2Detector.getNumberOfDetectors();
-			case XMAP 	  : return xmapDetector.getNumberOfMca();
-			default 	  : return 0;
+			case XMAP :
+			case XMAP_I1 : return xmapDetector.getNumberOfMca();
+			case MEDIPIX : return 1;
+			default 	 : return 0;
 		}
 	}
 
@@ -216,17 +247,7 @@ public class DetectorMonitorDataProvider extends ScannableBase implements Detect
 			throw new Exception("Script/scan already running");
 		}
 
-		// read the latest frame
-		int currentFrame = ionchambers.getCurrentFrame();
-		if (currentFrame % 2 != 0)
-			currentFrame--;
-
-		if (currentFrame > 0) {
-			currentFrame /= 2;
-			currentFrame--;
-		}
-
-		// assumes an column called I0
+		// assumes a column called I0
 		double[] ion_results = (double[]) ionchambers.readout();
 		// Why do this - we already know the collection time, having just set it... imh
 		Double collectionTime = (Double) ionchambers.getAttribute("collectionTime");
@@ -247,6 +268,28 @@ public class DetectorMonitorDataProvider extends ScannableBase implements Detect
 		return rates;
 	}
 
+	protected Double[] getIonChambersForXmapI1() throws Exception {
+		// Collect data in same way as regular xmap
+		getIonChambersForXmap();
+
+		// read 4th channel of ionchamber - this has counts for I1
+		double[] ion_results = ionchambers.readFrame(4, 1, 0);
+		return new Double[] {ion_results[0] / collectionTime};
+	}
+
+	private int getCurrentFrame() throws DeviceException {
+		// read the latest frame
+		int currentFrame = ionchambers.getCurrentFrame();
+		if (currentFrame % 2 != 0) {
+			currentFrame--;
+		}
+		if (currentFrame > 0) {
+			currentFrame /= 2;
+			currentFrame--;
+		}
+		return currentFrame;
+	}
+
 	protected Double[] getIonChambersForXmap() throws Exception {
 		logger.debug("Collect values from {} and {}", ionchambers.getName(), xmapDetector.getName());
 
@@ -262,15 +305,7 @@ public class DetectorMonitorDataProvider extends ScannableBase implements Detect
 			throw new Exception("Script/scan already running");
 		}
 
-		// read the latest frame
-		int currentFrame = ionchambers.getCurrentFrame();
-		if (currentFrame % 2 != 0) {
-			currentFrame--;
-		}
-		if (currentFrame > 0) {
-			currentFrame /= 2;
-			currentFrame--;
-		}
+		int currentFrame = getCurrentFrame();
 
 		int numChannels = ionchambers.getExtraNames().length;
 //		// works for TFG2 only where time if the first channel
@@ -293,6 +328,55 @@ public class DetectorMonitorDataProvider extends ScannableBase implements Detect
 			ion_results[i0Index + 2] /= collectionTime;
 		}
 		return new Double[] { ion_results[i0Index + 0], ion_results[i0Index + 1], ion_results[i0Index + 2] };
+	}
+
+	/**
+	 * Collection of single frame of data on Medipix. This is externally triggered by the Tfg.
+	 * Readout of data is done via the array plugin part of epics-- see {@link #getMedipixData()}.
+	 * @return
+	 * @throws Exception
+	 */
+	private Double[] getIonChambersForMedipix() throws Exception {
+		ScanInformation scanInfo = new ScanInformation();
+		// Should be MultipleExposureHardwareTriggeredStrategy for medipix
+		SimpleAcquire acquire = ( (SimpleAcquire) medipixDetector.getCollectionStrategy());
+
+		acquire.getAdBase().setArrayCallbacks(1); // set callback on array plugin
+		acquire.prepareForCollection(1, 1, scanInfo);
+
+		ionchambers.setCollectionTime(collectionTime);
+		ionchambers.collectData();
+		ionchambers.waitWhileBusy();
+
+		// read 4th channel of ionchamber - this has counts for I1
+		double[] ion_results = ionchambers.readFrame(4, 1, 0);
+		return new Double[] {ion_results[0] / collectionTime};
+	}
+
+	private int getNumPixelsInImage() throws Exception {
+		NDPluginBase ndarrayPluginBase = medipixDetector.getNdArray().getPluginBase();
+		int dim0 = ndarrayPluginBase.getArraySize0_RBV();
+		int dim1 = ndarrayPluginBase.getArraySize1_RBV();
+		return Math.max(1, dim0) * Math.max(1, dim1);
+	}
+
+	/**
+	 * Readout current array data from medipix
+	 * @return Sum of counts over all pixels.
+	 * @throws Exception
+	 */
+	private Double[] getMedipixData() throws DeviceException {
+		double totalCounts = 0.0;
+		try {
+			int numElements = getNumPixelsInImage();
+			int[] arrayData = medipixDetector.getNdArray().getIntArrayData(numElements);
+			for(int i=0; i<arrayData.length; i++) {
+				totalCounts += arrayData[i];
+			}
+		} catch (Exception e) {
+			throw new DeviceException(e);
+		}
+		return new Double[] {totalCounts};
 	}
 
 	private Double[] getXmapData() throws DeviceException {
@@ -321,6 +405,14 @@ public class DetectorMonitorDataProvider extends ScannableBase implements Detect
 
 	public void setXmapDetector(XmapDetector xmapDetector) {
 		this.xmapDetector = xmapDetector;
+	}
+
+	public ADDetector getMedipixDetector() {
+		return medipixDetector;
+	}
+
+	public void setMedipixDetector(ADDetector medipixDetector) {
+		this.medipixDetector = medipixDetector;
 	}
 
 	@Override
@@ -376,6 +468,14 @@ public class DetectorMonitorDataProvider extends ScannableBase implements Detect
 		waitWhileBusy();
 	}
 
+	/**
+	 * Reset collectionAllowed flag
+	 */
+	@Override
+	public void atScanEnd() {
+		collectionAllowed = true;
+	}
+
 	@Override
 	public boolean isBusy() {
 		return collectionInProgress;
@@ -393,5 +493,21 @@ public class DetectorMonitorDataProvider extends ScannableBase implements Detect
 			logger.error("Thread interrupted in waitWhileBusy", e);
 		}
 		logger.debug("waitWhileBusy finished");
+	}
+
+	/** Whether collection of detector rates is taking place and {@link #getIonChamberValues(COLLECTION_TYPES)} and
+	 * {@link #getFluoDetectorCountRatesAndDeadTimes(COLLECTION_TYPES)}
+	 * are being called periodically by gui thread.
+	 * (i.e runCollection() method of MonitorViewBase is being run by a view) */
+	private boolean collectionIsRunning;
+
+	@Override
+	public boolean getCollectionIsRunning() {
+		return collectionIsRunning;
+	}
+
+	@Override
+	public void setCollectionIsRunning(boolean collectionIsRunning) {
+		this.collectionIsRunning = collectionIsRunning;
 	}
 }

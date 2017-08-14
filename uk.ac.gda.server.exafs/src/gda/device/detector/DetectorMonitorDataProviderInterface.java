@@ -38,4 +38,9 @@ public interface DetectorMonitorDataProviderInterface extends Findable, IObserva
 	boolean getCollectionAllowed();
 
 	void setCollectionAllowed(boolean collectionAllowed);
+
+	public boolean getCollectionIsRunning();
+
+	public void setCollectionIsRunning(boolean collectionIsRunning);
+
 }

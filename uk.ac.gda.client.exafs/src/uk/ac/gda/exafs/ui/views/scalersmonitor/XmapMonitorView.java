@@ -18,84 +18,22 @@
 
 package uk.ac.gda.exafs.ui.views.scalersmonitor;
 
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
-import org.eclipse.dawnsci.plotting.api.PlotType;
-import org.eclipse.dawnsci.plotting.api.axis.IAxis;
-import org.eclipse.dawnsci.plotting.api.trace.ILineTrace;
-import org.eclipse.dawnsci.plotting.api.trace.ILineTrace.TraceType;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Group;
-
 import gda.device.DeviceException;
 import gda.device.detector.DetectorMonitorDataProvider.COLLECTION_TYPES;
 
 public class XmapMonitorView extends MonitorViewBase {
 
-	private static final Double MAX_FLUO_RATE = 500000.0;
+	private COLLECTION_TYPES collectionType = COLLECTION_TYPES.XMAP;
 
 	public static final String ID = "uk.ac.gda.exafs.ui.views.xmapmonitor";
 
-	protected ScalersMonitorConfig displayData;
-
-	private IAxis primaryAxis;
-
-	private IAxis dtAxis;
-
-	public XmapMonitorView() {
-	}
-
 	@Override
-	public void createPartControl(Composite parent) {
-
-		Group grpCurrentCountRates = new Group(parent, SWT.BORDER);
-		grpCurrentCountRates.setText("Current count rates");
-		grpCurrentCountRates.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		grpCurrentCountRates.setLayout(new GridLayout());
-
-		displayData = new ScalersMonitorConfig(grpCurrentCountRates);
-
-		myPlotter.createPlotPart(grpCurrentCountRates, "Rates", null, PlotType.XY, null);
-		myPlotter.getPlotComposite().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-
-		primaryAxis = myPlotter.getSelectedYAxis();
-		primaryAxis.setTitle("Counts (Hz)");
-		dtAxis = myPlotter.createAxis("Deadtime (%)", true, SWT.RIGHT);
-
-		super.createPartControl(parent);
-	}
-
-	@Override
-	protected void updateDisplay(Double[] values, Double[] xspressStats) {
-		displayData.setI0(values[0]);
-		displayData.setIt(values[1]);
-		displayData.setIref(values[2]);
-		double ItI0 = Math.log(values[0] / values[1]);
-		displayData.setItI0(ItI0);
-		double IrefIt = Math.log(values[2] / values[1]);
-		displayData.setIrefIt(IrefIt);
-		updateXmapGrid(xspressStats, values);
-	}
-
-	protected void updateXmapGrid(Double[] xmapStats, Double[] values) {
-		double[] rates = new double[numElements];
-		double[] dts = new double[numElements];
+	protected void updateDisplayDataFFValues(Double[] xmapStats, Double[] values) {
 		Double FF = 0.0;
-		double maxRate = 0;
-		double maxDT = 0.0;
 		for (int element = 0; element < numElements; element++) {
-			rates[element] = xmapStats[element * 3]; // Hz
-			dts[element] = (xmapStats[element * 3 + 1] - 1) * 100; // %
 			FF += xmapStats[element * 3 + 2] * xmapStats[element * 3 + 1];
-
-			maxRate = xmapStats[element * 3] > maxRate ? xmapStats[element * 3] : maxRate;
-			maxDT = xmapStats[element * 3 + 1] > maxDT ? xmapStats[element * 3 + 1] : maxDT;
 		}
+
 		displayData.setFF(FF);
 
 		// get the normalised in window counts for one of the highest rate elements
@@ -110,67 +48,16 @@ public class XmapMonitorView extends MonitorViewBase {
 			displayData.setFFI0(FF / values[0]);
 			break;
 		}
-
-		if (myPlotter == null) {
-			return;
-		}
-
-		for (int element = 0; element < numElements; element++) {
-			rates[element] = rates[element];
-			dts[element] = dts[element];
-		}
-
-		Dataset dsRates = new DoubleDataset(rates);
-		dsRates.setName("Rates (Hz)");
-
-		Dataset dsDeadTime = new DoubleDataset(dts);
-		dsDeadTime.setName("Deadtime (%)");
-
-		Dataset x = DatasetFactory.createRange(numElements, Dataset.FLOAT32);
-		x.setName("Element");
-
-		myPlotter.clear();
-
-		// rates plot
-		myPlotter.setSelectedYAxis(primaryAxis);
-		ILineTrace ratesTrace = myPlotter.createLineTrace("Rates (Hz)");
-		ratesTrace.setTraceType(TraceType.HISTO);
-		ratesTrace.setLineWidth(5);
-		ratesTrace.setTraceColor(new Color(null, 0, 0, 128));
-		ratesTrace.setData(x, dsRates);
-		myPlotter.addTrace(ratesTrace);
-		if (numElements == 1) {
-			myPlotter.getSelectedXAxis().setRange(-1, numElements);
-		} else {
-			myPlotter.getSelectedXAxis().setRange(0, numElements);
-		}
-		myPlotter.getSelectedXAxis().setTitle("Element");
-		myPlotter.getSelectedYAxis().setRange(0, MAX_FLUO_RATE);
-
-		// deadtime plot
-		myPlotter.setSelectedYAxis(dtAxis);
-		ILineTrace deadTimeTrace = myPlotter.createLineTrace("Red (%)");
-		deadTimeTrace.setTraceType(TraceType.HISTO);
-		deadTimeTrace.setLineWidth(10);
-		deadTimeTrace.setTraceColor(new Color(null, 255, 0, 0));
-		deadTimeTrace.setData(x, dsDeadTime);
-		myPlotter.addTrace(deadTimeTrace);
-		myPlotter.getSelectedYAxis().setShowMajorGrid(false);
-		myPlotter.getSelectedYAxis().setRange(0, 100);
-
-		myPlotter.setSelectedYAxis(primaryAxis);
-		myPlotter.setShowLegend(false);
-		myPlotter.repaint(false);
 	}
 
 	@Override
 	protected Double[] getFluoDetectorCountRatesAndDeadTimes() throws DeviceException {
-		numElements = dataProvider.getNumElements(COLLECTION_TYPES.XMAP);
-		return dataProvider.getFluoDetectorCountRatesAndDeadTimes(COLLECTION_TYPES.XMAP);
+		numElements = dataProvider.getNumElements(collectionType);
+		return dataProvider.getFluoDetectorCountRatesAndDeadTimes(collectionType);
 	}
 
 	@Override
 	protected Double[] getIonChamberValues() throws Exception {
-		return dataProvider.getIonChamberValues(COLLECTION_TYPES.XMAP);
+		return dataProvider.getIonChamberValues(collectionType);
 	}
 }

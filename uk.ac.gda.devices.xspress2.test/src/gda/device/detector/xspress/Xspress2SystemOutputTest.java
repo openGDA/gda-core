@@ -18,14 +18,18 @@
 
 package gda.device.detector.xspress;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 
+import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
 import gda.device.detector.DUMMY_XSPRESS2_MODE;
@@ -45,16 +49,16 @@ import uk.ac.gda.beans.xspress.XspressDetector;
 public class Xspress2SystemOutputTest {
 
 
-	private static Xspress2Detector xspress = new Xspress2Detector();
-	private static Xspress2DAServerController controller;
-	private static DummyDAServer daserver;
+	private Xspress2Detector xspress = new Xspress2Detector();
+	private Xspress2DAServerController controller;
+	private DummyDAServer daserver;
 	final static String TestFileFolder = "testfiles/gda/device/detector/xspress/";
 
 	private static final int NUM_ENABLED_ELEMENTS = 8;
 	private static final int SIZE_SCALER_DATA = NUM_ENABLED_ELEMENTS + 1; // for FF
 
-	@BeforeClass
-	public static void setUpBeforeClass() {
+	@Before
+	public void setUpBeforeClass() {
 		xspress = new Xspress2Detector();
 		controller = new Xspress2DAServerController();
 		xspress.setController(controller);
@@ -294,6 +298,49 @@ public class Xspress2SystemOutputTest {
 		}
 	}
 
+	private Dataset getDatasetNexusTree(NexusTreeProvider readoutData, String datasetName) {
+		INexusTree nexusTree = readoutData.getNexusTree().getNode(xspress.getName()).getNode(datasetName);
+		return nexusTree.getData().toDataset();
+	}
 
+	@Test
+	public void testFFSumIsCorrect() throws DeviceException {
+		xspress.setReadoutMode(XspressDetector.READOUT_MCA);
+		NexusTreeProvider readoutData = xspress.readout(0,0)[0];
+		Dataset dataset = getDatasetNexusTree(readoutData, "scalers");
+		assertArrayEquals(new int[]{xspress.getNumberOfDetectors()}, dataset.getShape());
 
+		// Check that counts for excluded detector elements have been set to zero; sum up FF value
+		double ff=0.0;
+		for(int i=0; i<xspress.getNumberOfDetectors(); i++) {
+			double val = dataset.getDouble(i);
+			if (xspress.getDetectorList().get(i).isExcluded()) {
+				assertEquals(val, 0.0, 1e-6);
+			} else {
+				assertTrue(val>0);
+			}
+			ff += val;
+		}
+		// Test FF value stored in nexus file - should match sum over all non excluded elements
+		Dataset ffDataset = getDatasetNexusTree(readoutData, "FF");
+		assertEquals(ffDataset.getDouble(0), ff, 1e-6);
+	}
+
+	@Test
+	public void testScalerDataShapesAreCorrect() throws DeviceException {
+		xspress.setReadoutMode(XspressDetector.READOUT_MCA);
+		xspress.setAddDTScalerValuesToAscii(true);
+		NexusTreeProvider readoutData = xspress.readout(0,0)[0];
+
+		// These datasets should all have the same shape (i.e. number of detector elements),
+		// even if some elements have been de-selected.
+		String[] rawTfgDatasetNames = new String[]{ "scalers", "raw scaler total", "tfg resets",
+													"raw scaler in-window", "tfg clock cycles"};
+
+		int[] expectedDims = new int[] {xspress.getNumberOfDetectors()};
+		for(String name : rawTfgDatasetNames) {
+			Dataset dataset = getDatasetNexusTree(readoutData, name);
+			assertArrayEquals(expectedDims, dataset.getShape());
+		}
+	}
 }

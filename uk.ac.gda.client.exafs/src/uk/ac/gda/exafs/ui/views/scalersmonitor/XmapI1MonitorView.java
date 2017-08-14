@@ -18,299 +18,65 @@
 
 package uk.ac.gda.exafs.ui.views.scalersmonitor;
 
-import org.eclipse.jface.action.Action;
-import org.eclipse.jface.action.IToolBarManager;
-import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Group;
-import org.eclipse.ui.IPartListener2;
-import org.eclipse.ui.IWorkbenchPartReference;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.configuration.properties.LocalProperties;
-import gda.device.CounterTimer;
 import gda.device.DeviceException;
-import gda.device.XmapDetector;
-import gda.factory.Finder;
-import gda.jython.Jython;
-import gda.jython.JythonServerFacade;
-import gda.rcp.GDAClientActivator;
-import uk.ac.gda.client.CommandQueueViewFactory;
+import gda.device.detector.DetectorMonitorDataProvider.COLLECTION_TYPES;
 
 
 /**
  * Version of XmapMonitorView which does not display the results from I0,It,Iref but the next channel from the TFG
  * instead.
  */
-public class XmapI1MonitorView extends ViewPart implements Runnable, IPartListener2 {
+public class XmapI1MonitorView extends XmapMonitorView  {
 
 	public static final String ID = "uk.ac.gda.exafs.ui.views.xmapi1monitor"; //$NON-NLS-1$
 
 	protected static final Logger logger = LoggerFactory.getLogger(XmapI1MonitorView.class);
 
-	protected volatile boolean runMonitoring = false;
-	protected volatile boolean keepOnTrucking = true;
-	protected volatile double refreshRate = 0.1; // seconds
+	private COLLECTION_TYPES collectionType = COLLECTION_TYPES.XMAP_I1;
 
-	protected boolean amVisible = true;
-	protected XmapI1MonitorViewData displayData;
-	private volatile Thread updateThread;
+	// Column names and formats used for displayed rate data
+	private String[] titles = {"I1", "Input Count Rate", "Dead Time(%)", "FF Rate", "FF / I1"};
+	private String[] formats = {"%.0f", "%.0f", "%.4f", "%.4f", "%.4f"};
 
-	private ImageDescriptor pauseImage;
+	@Override
+	protected void setupDisplayData(Composite parent) {
+		displayData = new ScalersMonitorConfig(parent);
+		displayData.setTitles(titles);
+		displayData.setFormats(formats);
+		displayData.createControls();
+	};
 
-	private ImageDescriptor runImage;
+	@Override
+	protected void updateDisplayedData(Double[] xmapStats, Double[] ionchamberValues) {
+		double I1counts = ionchamberValues[0];
+		double rate = xmapStats[0]; // Rate in Hz
+		double deadTimePercent = (xmapStats[1] - 1)*100; // Deadtime as percentage
+		double FF = xmapStats[2]*xmapStats[1]; // FF only for first element? XmapMonitor does sum over all elements...
 
-	private Action btnRunPause;
+		displayData.setTextInColumn(0, I1counts);
+		displayData.setTextInColumn(1, rate);
+		displayData.setTextInColumn(2, deadTimePercent);
+		displayData.setTextInColumn(3, FF);
+		displayData.setTextInColumn(4, FF/I1counts);
 
-	public XmapI1MonitorView() {
+		double[] rates = getRatesFromStats(xmapStats);
+		double[] dts = getDeadtimePercentFromStats(xmapStats);
+
+		updatePlot(rates, dts);
 	}
 
 	@Override
-	public void createPartControl(Composite parent) {
-		{
-			Group grpCurrentCountRates = new Group(parent, SWT.BORDER);
-			grpCurrentCountRates.setText("Current count rates");
-			grpCurrentCountRates.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-			grpCurrentCountRates.setLayout(new GridLayout());
-
-			displayData = new XmapI1MonitorViewData(grpCurrentCountRates);
-		}
-
-		// create a thread for this object and start it
-		createThread();
-		createToolbar();
-	}
-
-	private void createToolbar() {
-		IToolBarManager manager = getViewSite().getActionBars().getToolBarManager();
-		pauseImage = GDAClientActivator.getImageDescriptor("icons/control_stop_blue.png");
-		runImage = GDAClientActivator.getImageDescriptor("icons/control_play_blue.png");
-		btnRunPause = new Action(null, SWT.NONE) {
-			@Override
-			public void run() {
-				if (btnRunPause.getImageDescriptor().equals(pauseImage)) {
-					setRunMonitoring(false);
-					btnRunPause.setImageDescriptor(runImage);
-				} else {
-					setRunMonitoring(true);
-					btnRunPause.setImageDescriptor(pauseImage);
-				}
-			}
-		};
-		btnRunPause.setId(CommandQueueViewFactory.ID + ".runpause");
-		btnRunPause.setImageDescriptor(runImage);
-		manager.add(btnRunPause);
-	}
-
-	private void createThread() {
-		keepOnTrucking = true;
-		updateThread = uk.ac.gda.util.ThreadManager.getThread(this);
-		updateThread.start();
+	protected Double[] getFluoDetectorCountRatesAndDeadTimes() throws DeviceException {
+		numElements = dataProvider.getNumElements(collectionType);
+		return dataProvider.getFluoDetectorCountRatesAndDeadTimes(collectionType);
 	}
 
 	@Override
-	public void setFocus() {
-		// Set the focus
-	}
-
-	public void setRunMonitoring(boolean runMonitoring) {
-		this.runMonitoring = runMonitoring;
-	}
-
-	public boolean isRunMonitoring() {
-		return runMonitoring;
-	}
-
-	public double getRefreshRate() {
-		return refreshRate;
-	}
-
-	public void setRefreshRate(double refreshRate) {
-		if (refreshRate > 0 && refreshRate < 5.0) {
-			this.refreshRate = refreshRate;
-		}
-	}
-
-	@Override
-	public void run() {
-		while (keepOnTrucking) {
-			if (!runMonitoring || !amVisible) {
-				try {
-					if (!keepOnTrucking) {
-						return;
-					}
-					Thread.sleep(1000);
-					if (!keepOnTrucking) {
-						return;
-					}
-				} catch (InterruptedException e) {
-					// end the thread
-					return;
-				}
-			} else {
-
-				final Double i1;
-				final Double[] xmapStats;
-				try {
-					logger.debug("Collecting data");
-					i1 = updateValues();
-					xmapStats = getXmapCountRatesAndDeadTimes();
-				} catch (Exception e1) {
-					logger.debug(e1.getMessage(), e1);
-					setRunMonitoring(false);
-					PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-						@Override
-						public void run() {
-							btnRunPause.setImageDescriptor(runImage);
-						}
-					});
-					continue;
-				}
-
-				PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						displayData.setI1(i1);
-						updateXmapGrid(xmapStats, i1);
-					}
-
-				});
-
-				try {
-					if (!keepOnTrucking) {
-						return;
-					}
-					Thread.sleep((long) (refreshRate * 1000));
-					if (!keepOnTrucking) {
-						return;
-					}
-				} catch (InterruptedException e) {
-					// end the thread
-					return;
-				}
-			}
-		}
-	}
-
-	protected void updateXmapGrid(Double[] xmapStats, Double i1) {
-
-		double rate = xmapStats[0]; // Hz
-		double dt = (xmapStats[1] - 1) * 100; // %
-		Double FF = xmapStats[2] * xmapStats[1];
-		displayData.setDeadTime(dt);
-		displayData.setFF(FF);
-		displayData.setICR(rate);
-		displayData.setFFI1(FF / i1);
-	}
-
-	protected Double[] getXmapCountRatesAndDeadTimes() throws DeviceException {
-		XmapDetector xmap = (XmapDetector) Finder.getInstance().find("xmapMca");
-		return (Double[]) xmap.getAttribute("liveStats");
-	}
-
-	protected Double updateValues() throws Exception {
-
-		String xmapName = LocalProperties.get("gda.exafs.xmapName", "xmapMca");
-		XmapDetector xmap = (XmapDetector) Finder.getInstance().find(xmapName);
-		String ionchambersName = LocalProperties.get("gda.exafs.i1Name", "I1");
-		CounterTimer ionchambers = (CounterTimer) Finder.getInstance().find(ionchambersName);
-
-		// only collect new data outside of scans else will readout the last data collected
-		if (JythonServerFacade.getInstance().getScanStatus() == Jython.IDLE && !xmap.isBusy()
-				&& !ionchambers.isBusy()) {
-			xmap.collectData();
-			ionchambers.setCollectionTime(1);
-			ionchambers.clearFrameSets();
-			ionchambers.collectData();
-			ionchambers.waitWhileBusy();
-			xmap.stop();
-			xmap.waitWhileBusy();
-		} else {
-			throw new Exception("Scan and/or detectors already running, so stop the loop");
-		}
-
-
-		// read the latest frame
-		int currentFrame = ionchambers.getCurrentFrame();
-		if (currentFrame % 2 != 0) {
-			currentFrame--;
-		}
-		if (currentFrame > 0) {
-			currentFrame /= 2;
-			currentFrame--;
-		}
-
-		// this view is bespoke to readout out the fourth ionchamber only (I1)
-		double[] ion_results = ionchambers.readFrame(4, 1, currentFrame);
-		Double collectionTime = (Double) ionchambers.getAttribute("collectionTime");
-		return ion_results[0] /= collectionTime;
-	}
-
-	@Override
-	public void dispose() {
-		keepOnTrucking = false;
-		amVisible = false;
-		super.dispose();
-	}
-
-	@Override
-	public void partActivated(IWorkbenchPartReference partRef) {
-		// ignore
-	}
-
-	@Override
-	public void partBroughtToTop(IWorkbenchPartReference partRef) {
-		if (partRef.getPartName().equals(this.getPartName())) {
-			amVisible = true;
-			logger.info("partBroughtToTop");
-		}
-	}
-
-	@Override
-	public void partClosed(IWorkbenchPartReference partRef) {
-		if (partRef.getPartName().equals(this.getPartName())) {
-			amVisible = false;
-			logger.info("partClosed");
-		}
-	}
-
-	@Override
-	public void partDeactivated(IWorkbenchPartReference partRef) {
-		// ignore
-	}
-
-	@Override
-	public void partHidden(IWorkbenchPartReference partRef) {
-		if (partRef.getPartName().equals(this.getPartName())) {
-			amVisible = false;
-			logger.info("partHidden");
-		}
-	}
-
-	@Override
-	public void partInputChanged(IWorkbenchPartReference partRef) {
-		// ignore
-	}
-
-	@Override
-	public void partOpened(IWorkbenchPartReference partRef) {
-		if (partRef.getPartName().equals(this.getPartName())) {
-			amVisible = true;
-			logger.info("partOpened");
-		}
-	}
-
-	@Override
-	public void partVisible(IWorkbenchPartReference partRef) {
-		if (partRef.getPartName().equals(this.getPartName())) {
-			amVisible = true;
-			logger.info("partVisible");
-		}
+	protected Double[] getIonChamberValues() throws Exception {
+		return dataProvider.getIonChamberValues(collectionType);
 	}
 }

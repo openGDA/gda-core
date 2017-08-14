@@ -226,7 +226,10 @@ public class Xspress2NexusTreeProvider {
 
 			// add all in-window scaler counts in bulk
 			double [][] deadtimeCorrectedScalerData = readoutScalerDataUsingScalerMemory(numberOfFrames, rawScalerData, true);
-			NXDetectorData.addData(detTree, "scalers", new NexusGroupData(deadtimeCorrectedScalerData[frameIndex]), "counts", 1);
+
+			// Add Deadtime corrected scaler values, *without* FF (i.e. last value)..
+			double[] dtCorrectedScalerValues = ArrayUtils.subarray(deadtimeCorrectedScalerData[frameIndex], 0, currentSettings.getNumberOfDetectors());
+			NXDetectorData.addData(detTree, "scalers", new NexusGroupData(dtCorrectedScalerValues), "counts", 1);
 
 			// optionally create a sum of all MCAs together
 			if (currentSettings.isSumAllElementData()) {
@@ -270,16 +273,24 @@ public class Xspress2NexusTreeProvider {
 		return thisFrame;
 	}
 
-	/*
-	 * Adds FF to the Nexus data where defined in the ascii data
+	/**
+	 * Adds FF to the Nexus data.
+	 * FF data is last element of deadtime corrected in window scaler counts array
+	 * @param detTree
+	 * @param thisFrame
+	 * @param ds - deadtime corrected in window scaler counts
 	 */
 	private NXDetectorData addFFIfPossible(INexusTree detTree, NXDetectorData thisFrame, double[] ds) {
-		int ffColumn = currentSettings.getChannelLabels().indexOf("FF");
-		if (currentSettings.getChannelLabels().size() == ds.length && ffColumn > -1)
-			NXDetectorData.addData(detTree, "FF", new NexusGroupData(ds[ffColumn]), "counts", 1);
+		int ffColumn = ds.length-1;
+		int ffBadColumn = -1;
 		if (currentSettings.getMcaGrades() == Xspress2Detector.RES_THRES) {
-			int ffBadColumn = currentSettings.getChannelLabels().indexOf("FF_bad");
-			if (ffBadColumn > -1)
+			ffBadColumn = ds.length-1;
+			ffColumn = ffBadColumn-1;
+		}
+		if (ffColumn > -1) {
+			NXDetectorData.addData(detTree, "FF", new NexusGroupData(ds[ffColumn]), "counts", 1);
+		}
+		if (ffBadColumn > -1) {
 				NXDetectorData.addData(detTree, "FF_bad", new NexusGroupData(ds[ffBadColumn]), "counts", 1);
 		}
 		return thisFrame;
@@ -306,6 +317,14 @@ public class Xspress2NexusTreeProvider {
 		return results;
 	}
 
+	/**
+	 * Return deadtime corrected in-window scaler counts. Values for excluded detector elements are set to zero.
+	 * The last value in each frame is the sum of counts over all elements (i.e. 'FF')..
+	 * @param numFrames
+	 * @param rawScalerData
+	 * @param performCorrections
+	 * @return deadtime corrected in-window scaler counts
+	 */
 	public double[][] readoutScalerDataUsingScalerMemory(int numFrames, int[] rawScalerData, boolean performCorrections) {
 
 		double[][] scalerData = new double[numFrames][];
@@ -625,41 +644,48 @@ public class Xspress2NexusTreeProvider {
 			return thisFrame;
 		}
 
-		int numFilteredDetectors = currentSettings.getNumberOfIncludedDetectors();
+		int numDetectors = currentSettings.getNumberOfDetectors(); //always write Deadtime values for all elements
 
-		int[] totalCounts = new int[numFilteredDetectors];
-		int[] numResets = new int[numFilteredDetectors];
-		int[] inWinCounts = new int[numFilteredDetectors];
-		int[] numClockCounts = new int[numFilteredDetectors];
+		int[] totalCounts = new int[numDetectors];
+		int[] numResets = new int[numDetectors];
+		int[] inWinCounts = new int[numDetectors];
+		int[] numClockCounts = new int[numDetectors];
 
-		int i = 0;
 		for (int element = 0; element < currentSettings.getNumberOfDetectors(); element++) {
-			if (!currentSettings.isDetectorExcluded(element)) {
-				totalCounts[i] = unpackedScalerData[element * 4];
-				numResets[i] = unpackedScalerData[element * 4 + 1];
-				inWinCounts[i] = unpackedScalerData[element * 4 + 2];
-				numClockCounts[i] = unpackedScalerData[element * 4 + 3];
-				i++;
-			}
+			totalCounts[element] = unpackedScalerData[element * 4];
+			numResets[element] = unpackedScalerData[element * 4 + 1];
+			inWinCounts[element] = unpackedScalerData[element * 4 + 2];
+			numClockCounts[element] = unpackedScalerData[element * 4 + 3];
 		}
 
-		thisFrame.addData(detectorName, "raw scaler total", new NexusGroupData(totalCounts), "counts", 1);
-		thisFrame.addData(detectorName, "tfg resets", new NexusGroupData(numResets), "counts", 1);
-		thisFrame.addData(detectorName, "raw scaler in-window", new NexusGroupData(inWinCounts), "counts", 1);
-		thisFrame.addData(detectorName, "tfg clock cycles", new NexusGroupData(numClockCounts), "counts", 1);
+		INexusTree detTree = thisFrame.getDetTree(detectorName);
+		NXDetectorData.addData(detTree, "raw scaler total", new NexusGroupData(totalCounts), "counts", 1);
+		NXDetectorData.addData(detTree, "tfg resets", new NexusGroupData(numResets), "counts", 1);
+		NXDetectorData.addData(detTree, "raw scaler in-window", new NexusGroupData(inWinCounts), "counts", 1);
+		NXDetectorData.addData(detTree, "tfg clock cycles", new NexusGroupData(numClockCounts), "counts", 1);
 
 		return thisFrame;
 	}
 
-	/*
+	/**
 	 * Adds to the output the 'ascii' data which is the values which will be
 	 * displayed in the Jython Terminal, plotting and ascii file.
+	 * @param thisFrame
+	 * @param scalerData - deadtime corrected in window scaler counts
 	 */
 	private NXDetectorData fillNXDetectorDataWithScalerData(NXDetectorData thisFrame, double[] scalerData,
 			int[] rawScalervalues) {
 
 		double[] dataToPlot;
-		int ffColumn = currentSettings.getChannelLabels().indexOf("FF");
+
+		// Set indices of FF and FF_bad value
+		int ffColumn = scalerData.length-1;
+		int ffBadColumn = -1;
+		if (currentSettings.getMcaGrades() == Xspress2Detector.RES_THRES) {
+			ffBadColumn = scalerData.length-1;
+			ffColumn = ffBadColumn-1;
+		}
+
 		if (currentSettings.getParameters().isOnlyShowFF())
 			// only add FF, so filter out rest of scalerdata
 			dataToPlot = new double[] { scalerData[ffColumn] };
@@ -668,7 +694,7 @@ public class Xspress2NexusTreeProvider {
 		else {
 			double[] plottableData = new double[0];
 			for (int i = 0; i < scalerData.length; i++)
-				if (i == ffColumn || i < currentSettings.getChannelLabels().size())
+				if (i == ffColumn || i==ffBadColumn || !currentSettings.getDetectorElements().get(i).isExcluded())
 					plottableData = ArrayUtils.add(plottableData, scalerData[i]);
 			dataToPlot = plottableData;
 		}
@@ -732,8 +758,8 @@ public class Xspress2NexusTreeProvider {
 			// loop over all the elements
 			for (int element = 0; element < currentSettings.getNumberOfDetectors(); element++) {
 				DetectorElement thisElement = currentSettings.getDetectorElements().get(element);
-				if (thisElement.isExcluded())
-					continue;
+//				if (thisElement.isExcluded())
+//					continue;
 
 				// calculate the windowingCorrectionFactor based on good and bad
 
@@ -750,6 +776,12 @@ public class Xspress2NexusTreeProvider {
 						// if a virtual scaler return 1,2 or 16 numbers
 						double[] out = extractVirtualScaler(unpackedMCAData, frame, deadtimeCorrectionFactor, element,
 								mcaPosition);
+
+						// Replace data for excluded elements with zeros
+						if (thisElement.isExcluded()) {
+							out = new double[out.length];
+						}
+
 						String elementName = detectorName + "_element" + element + "_" + thisRoi.getRoiName();
 
 						if (out.length == 2) {
