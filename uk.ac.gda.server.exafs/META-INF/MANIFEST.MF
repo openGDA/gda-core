@@ -38,4 +38,8 @@ Export-Package: gda.device.detector,
  uk.ac.gda.server.exafs.scan,
  uk.ac.gda.server.exafs.scan.iterators,
  uk.ac.gda.server.exafs.scan.preparers
-Import-Package: org.springframework.beans.factory;version="4.0.6.RELEASE"
+Import-Package: org.springframework.beans.factory;version="4.0.6.RELEASE",
+ gda.device.detector.addetector,
+ gda.device.detector.addetector.triggering,
+ gda.device.detector.areadetector.v17,
+ gda.device.detector.areadetector.v17.impl

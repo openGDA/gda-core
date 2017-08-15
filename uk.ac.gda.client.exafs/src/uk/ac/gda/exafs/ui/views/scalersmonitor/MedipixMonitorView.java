@@ -18,38 +18,37 @@
 
 package uk.ac.gda.exafs.ui.views.scalersmonitor;
 
-import org.eclipse.january.dataset.Dataset;
-import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.swt.widgets.Composite;
+
 import gda.device.DeviceException;
 import gda.device.detector.DetectorMonitorDataProvider.COLLECTION_TYPES;
 
-public class XmapMonitorView extends MonitorViewBase {
+public class MedipixMonitorView extends MonitorViewBase {
 
-	private COLLECTION_TYPES collectionType = COLLECTION_TYPES.XMAP;
+	private COLLECTION_TYPES collectionType = COLLECTION_TYPES.MEDIPIX;
 
-	public static final String ID = "uk.ac.gda.exafs.ui.views.xmapmonitor";
+	public static final String ID = "uk.ac.gda.exafs.ui.views.medipixmonitor";
+
+	private String[] titles = {"I1", "FF", "FF/I1"};
+	private String[] formats = {"%.4f", "%.4f", "%.4f"};
 
 	@Override
-	protected void updateDisplayDataFFValues(Double[] xmapStats, Double[] values) {
-		Double FF = 0.0;
-		for (int element = 0; element < numElements; element++) {
-			FF += xmapStats[element * 3 + 2] * xmapStats[element * 3 + 1];
-		}
+	protected void setupDisplayData(Composite parent) {
+		displayData = new ScalersMonitorConfig(parent);
+		displayData.setTitles(titles);
+		displayData.setFormats(formats);
+		displayData.createControls();
+	}
 
-		displayData.setFF(FF);
+	@Override
+	protected void updateDisplayedData(Double[] statsValues, Double[] ionchamberValues) {
+		double I1 = ionchamberValues[0]; // counts for I1 ionchamber
+		double FF = statsValues[0]; // total counts in ROI from medipix
+		double ffI1 = I1>0 ? FF/I1 : 0;
 
-		// get the normalised in window counts for one of the highest rate elements
-		switch (numElements) {
-		case 9:
-			displayData.setFFI0(xmapStats[8 * 3 + 2] / values[0]);
-			break;
-		case 64:
-			displayData.setFFI0(xmapStats[16 * 3 + 2] / values[0]);
-			break;
-		default:
-			displayData.setFFI0(FF / values[0]);
-			break;
-		}
+		displayData.setTextInColumn(0, I1);
+		displayData.setTextInColumn(1, FF);
+		displayData.setTextInColumn(2, ffI1);
 	}
 
 	@Override
@@ -61,5 +60,9 @@ public class XmapMonitorView extends MonitorViewBase {
 	@Override
 	protected Double[] getIonChamberValues() throws Exception {
 		return dataProvider.getIonChamberValues(collectionType);
+	}
+
+	@Override
+	protected void updateDisplayDataFFValues(Double[] statsValues, Double[] deadtimeValues) {
 	}
 }

@@ -22,7 +22,7 @@ import java.text.DecimalFormat;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 
@@ -31,6 +31,7 @@ public class ScalersMonitorConfig {
 	private String[] formats = { "%.0f","%.0f", "%.0f", "%.4f", "%.4f", "%.0f", "%.4f" };
 	private String detectorName = "Ge";
 	private Table table;
+	private final Composite parent;
 
 	public void setI0(double val) {
 		DecimalFormat formatter = new DecimalFormat("###,###,###,###,###");
@@ -67,8 +68,12 @@ public class ScalersMonitorConfig {
 		table.getItem(0).setText(6, txt);
 	}
 
-	public ScalersMonitorConfig(Group grpCurrentCountRates) {
-		table = new Table(grpCurrentCountRates, SWT.MULTI | SWT.BORDER | SWT.NO_FOCUS);
+	public ScalersMonitorConfig(Composite parent) {
+		this.parent = parent;
+	}
+
+	public void createControls() {
+		table = new Table(parent, SWT.MULTI | SWT.BORDER | SWT.NO_FOCUS);
 		table.setLinesVisible(true);
 		table.setHeaderVisible(true);
 		table.setItemCount(1);
@@ -99,4 +104,16 @@ public class ScalersMonitorConfig {
 		return detectorName;
 	}
 
+	public void setTitles(String[] titles) {
+		this.titles = titles;
+	}
+
+	public void setFormats(String[] formats) {
+		this.formats = formats;
+	}
+
+	public void setTextInColumn(int columnNumber, double val) {
+		String txt = String.format(formats[columnNumber], val);
+		table.getItem(0).setText(columnNumber, txt);
+	}
 }

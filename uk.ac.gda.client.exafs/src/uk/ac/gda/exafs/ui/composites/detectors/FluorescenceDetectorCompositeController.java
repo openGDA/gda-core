@@ -228,7 +228,7 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 		fluorescenceDetectorComposite.addSaveButtonListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent event) {
-				saveDataToFile();
+				saveDataToFile(true);
 			}
 		});
 
@@ -301,6 +301,9 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 		// setup the default dragging behaviour
 		setRegionEditableFromPreference();
 
+		// Hide/show output options
+		setShowOutputOptionsFromPreference();
+
 		// setup data store and fetch stored data, if any
 		createDataStore();
 		theData = dataStore.readDataFromFile();
@@ -337,6 +340,11 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 	private void setRegionEditableFromPreference() {
 		fluorescenceDetectorComposite.setPlottedRegionMobile(ExafsActivator.getDefault().getPreferenceStore()
 				.getBoolean(ExafsPreferenceConstants.DETECTOR_OVERLAY_ENABLED));
+	}
+
+	private void setShowOutputOptionsFromPreference() {
+		boolean outputEditorShowOutputOptions = ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.DETECTOR_OUTPUT_IN_OUTPUT_PARAMETERS);
+		fluorescenceDetectorComposite.setShowOutputOptions(!outputEditorShowOutputOptions);
 	}
 
 	private void createDataStore() {
@@ -569,7 +577,7 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 			}
 
 			if (writeToDisk) {
-				saveDataToFile();
+				saveDataToFile(false);
 			} else if (monitor != null) {
 				logAndAppendStatus("Data successfully acquired");
 			}
@@ -651,8 +659,9 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 
 	/**
 	 * Save the current data to a file. The file name and location are chosen automatically.
+	 * @param showDialogBox if true, display dialog box to allow user to set file name and location.
 	 */
-	public void saveDataToFile() {
+	public void saveDataToFile(boolean showDialogBox) {
 		try {
 			String snapshotPrefix = theDetector.getName() + "_snapshot";
 			long snapShotNumber = new NumTracker(snapshotPrefix).incrementNumber();
@@ -660,21 +669,24 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 
 			String spoolDirPath = PathConstructor.createFromProperty(SPOOL_DIR_PROPERTY);
 			File filePath = new File(spoolDirPath + "/" + fileName);
-			String spoolFilePath = filePath.getAbsolutePath();
+			String outputFilename = filePath.getAbsolutePath();
 
-		    FileDialog dialog = new FileDialog(fluorescenceDetectorComposite.getShell(), SWT.SAVE);
-		    dialog.setFilterPath(filePath.getParent());
-		    dialog.setFileName(fileName);
-		    String[] filters = new String[]{"*.mca", "*.dat"};
-		    dialog.setFilterExtensions(filters);
-		    String userFilePath = dialog.open();
+			// Display dialog box to specify output directory (only if *not* using 'save on acquire')
+			if (showDialogBox) {
+				FileDialog dialog = new FileDialog(fluorescenceDetectorComposite.getShell(), SWT.SAVE);
+				dialog.setFilterPath(filePath.getParent());
+				dialog.setFileName(fileName);
+				String[] filters = new String[] { "*.mca", "*.dat" };
+				dialog.setFilterExtensions(filters);
+				outputFilename = dialog.open();
+			}
 
-		    if (userFilePath!=null) {
-		    	FluoCompositeDataStore newStore = new FluoCompositeDataStore(userFilePath);
-		    	newStore.writeDataToFile(theData);
-		    	newStore.writeDataToColumnFile(theData);
+			if (outputFilename != null) {
+				FluoCompositeDataStore newStore = new FluoCompositeDataStore(outputFilename);
+				newStore.writeDataToFile(theData);
+				newStore.writeDataToColumnFile(theData);
 
-				String msg = "Saved: " + userFilePath;
+				String msg = "Saved: " + outputFilename;
 				logAndAppendStatus(msg);
 				msg = "Saved: " + newStore.getColumnFileName();
 				logAndAppendStatus(msg);

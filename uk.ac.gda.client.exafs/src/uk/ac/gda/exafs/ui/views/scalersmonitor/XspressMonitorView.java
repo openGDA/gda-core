@@ -18,155 +18,56 @@
 
 package uk.ac.gda.exafs.ui.views.scalersmonitor;
 
-import org.eclipse.dawnsci.plotting.api.PlotType;
-import org.eclipse.dawnsci.plotting.api.axis.IAxis;
-import org.eclipse.dawnsci.plotting.api.trace.ILineTrace;
-import org.eclipse.dawnsci.plotting.api.trace.ILineTrace.TraceType;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Group;
-
-import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
 import gda.device.detector.DetectorMonitorDataProvider.COLLECTION_TYPES;
 
 public class XspressMonitorView extends MonitorViewBase {
 	public static final String ID = "uk.ac.gda.exafs.ui.views.scalersmonitor";
 
-	protected ScalersMonitorConfig displayData;
-	private IAxis dtAxis;
-	private IAxis primaryAxis;;
-	private Double maxFluoRate;
-
-	public XspressMonitorView() {
-	}
+	private COLLECTION_TYPES collectionType = COLLECTION_TYPES.XSPRESS2;
 
 	@Override
-	public void createPartControl(Composite parent) {
-		Group grpCurrentCountRates = new Group(parent, SWT.BORDER);
-		grpCurrentCountRates.setText("Current count rates");
-		grpCurrentCountRates.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		grpCurrentCountRates.setLayout(new GridLayout());
+	protected void updateDisplayDataFFValues(Double[] xspressStats, Double[] values) {
+		Double FF = 0.0;
+		double maxRate = 0;
+		int maxElement = 0;
+		for (int element = 0; element < numElements; element++) {
 
-		displayData = new ScalersMonitorConfig(grpCurrentCountRates);
-
-		myPlotter.createPlotPart(grpCurrentCountRates, "Rates", null, PlotType.XY, null);
-		myPlotter.getPlotComposite().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		primaryAxis = myPlotter.getSelectedYAxis();
-		primaryAxis.setTitle("Counts (Hz)");
-		dtAxis = myPlotter.createAxis("Deadtime (%)", true, SWT.RIGHT);
-
-		super.createPartControl(parent);
-
-		maxFluoRate = Double.valueOf(LocalProperties.get("gda.exafs.ui.views.scalersMonitor.maxFluoRate", "500000"));
-	}
-
-	protected void updateXspressGrid(Double[] xspressStats, Double[] values) {
-		try {
-			double[] rates = new double[numElements];
-			double[] dts = new double[numElements];
-			Double FF = 0.0;
-			double maxRate = 0;
-			double maxDT = 0.0;
-			int maxElement = 0;
-			for (int element = 0; element < numElements; element++) {
-				rates[element] = xspressStats[element * 3]; // Hz
-				dts[element] = (xspressStats[element * 3 + 1] - 1) * 100;
-				if (dts[element] < 0.0)
-					dts[element] = 0.0; // %
-				FF += xspressStats[element * 3];
-				// find which element gives the max rate
-				if (xspressStats[element * 3] > maxRate) {
-					maxRate = xspressStats[element * 3];
-					maxElement = element;
-				}
-				maxDT = xspressStats[element * 3 + 1] > maxDT ? xspressStats[element * 3 + 1] : maxDT;
+			FF += xspressStats[element * 3];
+			// find which element gives the max rate
+			if (xspressStats[element * 3] > maxRate) {
+				maxRate = xspressStats[element * 3];
+				maxElement = element;
 			}
-			displayData.setFF(FF);
+		}
 
-			// get the normalised in window counts for the highest rate element
-			switch (numElements) {
-			case 9:
-				displayData.setFFI0(xspressStats[maxElement * 3 + 2] / values[0]);
-				break;
-			case 64:
-				displayData.setFFI0(xspressStats[36 * 3 + 2] / values[0]); // use element 37 as I think this is one of
-																			// the more central ones
-				break;
-			default:
-				displayData.setFFI0(xspressStats[2] / values[0]);
-				break;
-			}
+		displayData.setFF(FF);
 
-			Dataset dsRates = DatasetFactory.createFromObject(rates);
-			dsRates.setName("Rates (Hz)");
-
-			Dataset dsDeadTime = DatasetFactory.createFromObject(dts);
-			dsDeadTime.setName("Deadtime (%)");
-
-			Dataset x = DatasetFactory.createRange(numElements, Dataset.FLOAT32);
-			x.setName("Element");
-
-			myPlotter.clear();
-
-			// rates plot
-			myPlotter.setSelectedYAxis(primaryAxis);
-			ILineTrace ratesTrace = myPlotter.createLineTrace("Rates (Hz)");
-			ratesTrace.setTraceType(TraceType.HISTO);
-			ratesTrace.setLineWidth(5);
-			ratesTrace.setTraceColor(new Color(null, 0, 0, 128));
-			ratesTrace.setData(x, dsRates);
-			myPlotter.addTrace(ratesTrace);
-			myPlotter.getSelectedXAxis().setRange(0, numElements);
-			myPlotter.getSelectedXAxis().setTitle("Element");
-			myPlotter.getSelectedYAxis().setRange(0, maxFluoRate);
-
-			// deadtime plot
-			myPlotter.setSelectedYAxis(dtAxis);
-			ILineTrace deadTimeTrace = myPlotter.createLineTrace("Red (%)");
-			deadTimeTrace.setLineWidth(1);
-			deadTimeTrace.setTraceColor(new Color(null, 255, 0, 0));
-			deadTimeTrace.setData(x, dsDeadTime);
-			myPlotter.addTrace(deadTimeTrace);
-			myPlotter.getSelectedYAxis().setShowMajorGrid(false);
-			myPlotter.getSelectedYAxis().setRange(0, 100);
-
-			myPlotter.setSelectedYAxis(primaryAxis);
-			myPlotter.setShowLegend(false);
-			myPlotter.repaint(false);
-
-		} catch (Exception e) {
-			// log and stop plotting
-			runMonitoring = false;
-			logger.error("Exception trying to plot Xspress statistics " + e.getMessage());
+		// get the normalised in window counts for the highest rate element
+		switch (numElements) {
+		case 9:
+			displayData.setFFI0(xspressStats[maxElement * 3 + 2] / values[0]);
+			break;
+		case 64:
+			displayData.setFFI0(xspressStats[36 * 3 + 2] / values[0]); // use element 37 as I think this is one of
+																		// the more central ones
+			break;
+		default:
+			displayData.setFFI0(xspressStats[2] / values[0]);
+			break;
 		}
 	}
 
 	@Override
 	protected Double[] getFluoDetectorCountRatesAndDeadTimes() throws DeviceException {
-		numElements = dataProvider.getNumElements(COLLECTION_TYPES.XSPRESS2);
-		return dataProvider.getFluoDetectorCountRatesAndDeadTimes(COLLECTION_TYPES.XSPRESS2);
+		numElements = dataProvider.getNumElements(collectionType);
+		return dataProvider.getFluoDetectorCountRatesAndDeadTimes(collectionType);
 	}
 
 	@Override
 	protected Double[] getIonChamberValues() throws Exception {
-		return dataProvider.getIonChamberValues(COLLECTION_TYPES.XSPRESS2);
-	}
-
-	@Override
-	protected void updateDisplay(Double[] values, Double[] xspressStats) {
-		displayData.setI0(values[0]);
-		displayData.setIt(values[1]);
-		displayData.setIref(values[2]);
-		double ItI0 = Math.log(values[0] / values[1]);
-		displayData.setItI0(ItI0);
-		double IrefIt = Math.log(values[2] / values[1]);
-		displayData.setIrefIt(IrefIt);
-		updateXspressGrid(xspressStats, values);
+		return dataProvider.getIonChamberValues(collectionType);
 	}
 }

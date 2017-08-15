@@ -43,6 +43,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.SashFormPlotComposite;
+import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.beans.vortex.Xspress3Parameters;
 import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.common.rcp.util.GridUtils;
@@ -617,6 +618,15 @@ public class FluorescenceDetectorComposite extends Composite {
 		GridUtils.setVisibleAndLayout(outputPrefComposite.getShowDTRawValues(), enableFFDTButtons );
 	}
 
+
+	/**
+	 * Hide/show the 'output options' part of the gui.
+	 * @param showOutputOptions
+	 */
+	public void setShowOutputOptions(boolean showOutputOptions) {
+		GridUtils.setVisibleAndLayout(outputPrefComposite, showOutputOptions);
+	}
+
 	/**
 	 * Setup GUI for specified readout mode of detector.
 	 * i.e. shows/hides different parts of GUI as appropriate for XSpress2/3
@@ -626,11 +636,11 @@ public class FluorescenceDetectorComposite extends Composite {
 	 * @since 1/7/2016
 	 */
 	public void setReadoutModeOptions(FluorescenceDetectorParameters detectorParams) {
-		if ( detectorParams instanceof XspressParameters ) {
+		if (detectorParams instanceof XspressParameters) {
 			XspressParameters xspressParams = (XspressParameters) detectorParams;
 			readoutModeComposite.setReadoutMode( xspressParams.getReadoutMode() );
 			regionsComposite.updateControlVisibility( xspressParams.getReadoutMode() );
-		} else if ( detectorParams instanceof Xspress3Parameters ) {
+		} else if ( detectorParams instanceof Xspress3Parameters || detectorParams instanceof VortexParameters ) {
 			// Xspress3 gui is for 'region of interest' only...
 			readoutModeComposite.setReadoutMode( XspressParameters.READOUT_MODE_REGIONSOFINTEREST  );
 			regionsComposite.updateControlVisibility( XspressParameters.READOUT_MODE_REGIONSOFINTEREST );
