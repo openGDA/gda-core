@@ -39,8 +39,11 @@ public class InputCommands {
 	 * @throws InterruptedException
 	 */
 	public static String requestInput(String promptString) throws InterruptedException {
-		JythonServerFacade.getInstance().print(promptString);
-		return getServer().requestRawInput();
+		if (promptString != null && !promptString.isEmpty()) {
+			// prevents empty new line being printed on the console
+			JythonServerFacade.getInstance().print(promptString);
+		}
+		return requestInput();
 	}
 
 	public static String requestInput() throws InterruptedException {
