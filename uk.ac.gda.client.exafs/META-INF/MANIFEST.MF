@@ -5,13 +5,17 @@ Bundle-SymbolicName: uk.ac.gda.client.exafs;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Diamond Light Source
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Import-Package: gda.device.corba,
+Import-Package: com.thoughtworks.xstream,
+ com.thoughtworks.xstream.annotations,
+ gda.device.corba,
  gda.device.detector.nxdetector.roi,
  gda.jscience.physics.quantities,
  gda.util.exafs,
  org.apache.commons.collections,
  org.apache.commons.collections.bidimap;version="3.2.1",
+ org.apache.commons.io,
  org.apache.commons.lang,
+ org.apache.log4j;version="1.2.17",
  org.dawnsci.plotting.jreality.overlay.events,
  org.dawnsci.plotting.jreality.tool,
  org.eclipse.core.commands,
@@ -81,6 +85,7 @@ Require-Bundle: uk.ac.gda.exafs.api;bundle-version="1.0.0",
  org.eclipse.richbeans.reflection;bundle-version="1.0.0",
  uk.ac.gda.epics.adviewer,
  uk.ac.gda.epics;bundle-version="1.0.0",
+ com.thoughtworks.xstream;bundle-version="1.2.1",
  uk.ac.gda.server.exafs;bundle-version="1.0.0"
 Export-Package: com.swtdesigner,
  gda.exafs.scan,
