@@ -366,7 +366,7 @@ public class UserOptions extends java.util.TreeMap<String, UserOption> implement
 	}
 
 	public static UserOptions getUserOptionsFromRcpGui() throws DeviceException {
-		final String visitDirectory = PathConstructor.createFromRCPProperties();
+		final String visitDirectory = PathConstructor.getClientVisitDirectory();
 		final UserOptions options = getUserOptionsFromConfigFromGUI(configDirTemplate, configNameTemplate, visitDirectory, configNameValues);
 		return options;
 	}
@@ -380,7 +380,7 @@ public class UserOptions extends java.util.TreeMap<String, UserOption> implement
 	}
 
 	public static void saveUserOptionsFromRcpGui(UserOptions options) throws DeviceException {
-		final String visitDirectory = PathConstructor.createFromRCPProperties();
+		final String visitDirectory = PathConstructor.getClientVisitDirectory();
 		options.saveValuesToConfigFromGUI(visitDirectory, configNameValues);
 	}
 

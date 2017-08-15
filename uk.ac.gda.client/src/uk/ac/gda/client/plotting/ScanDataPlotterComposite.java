@@ -587,4 +587,8 @@ public class ScanDataPlotterComposite extends ResourceComposite {
 			color.dispose();
 		}
 	}
+
+	public IPlottingSystem<Composite> getPlottingSystem() {
+		return plottingSystem;
+	}
 }
