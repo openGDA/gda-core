@@ -20,6 +20,9 @@ package uk.ac.gda.devices.vgscienta;
 
 import java.util.Arrays;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
@@ -30,6 +33,7 @@ import gda.device.detector.areadetector.v17.ADBase;
 import gda.factory.FactoryException;
 
 public class VGScientaAnalyserTotalOnly extends DetectorBase implements NexusDetector {
+	private static final Logger logger = LoggerFactory.getLogger(VGScientaAnalyserTotalOnly.class);
 
 	private ADBase adBase;
 	private VGScientaController controller;
@@ -65,6 +69,12 @@ public class VGScientaAnalyserTotalOnly extends DetectorBase implements NexusDet
 			throw new DeviceException(e);
 		}
 		firstReadoutInScan = true;
+	}
+
+	@Override
+	public void atScanEnd() throws DeviceException {
+		super.atScanEnd();
+		zeroSuppliesIgnoreErrors();
 	}
 
 	@Override
@@ -125,6 +135,14 @@ public class VGScientaAnalyserTotalOnly extends DetectorBase implements NexusDet
 					new NexusGroupData(String.format("%03d", entranceSlitInformationProvider.getRawValue().intValue())), null, null);
 			data.addData(getName(), "entrance_slit_shape", new NexusGroupData(entranceSlitInformationProvider.getShape().toLowerCase()), null, null);
 			data.addData(getName(), "entrance_slit_direction", new NexusGroupData(entranceSlitInformationProvider.getDirection().toLowerCase()), null, null);
+		}
+	}
+
+	public void zeroSuppliesIgnoreErrors() {
+		try {
+			controller.zeroSupplies();
+		} catch (Exception e) {
+			logger.error("error zeroing power supplies", e);
 		}
 	}
 
