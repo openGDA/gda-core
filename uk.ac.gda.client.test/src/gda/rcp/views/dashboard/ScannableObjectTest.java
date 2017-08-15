@@ -170,4 +170,34 @@ public class ScannableObjectTest {
 		assertEquals("m1_input_1: 12,  m2_input_1: 12.000 mm,  m3_input_1: 1.0000,  m3_input_2: 2.0000",
 				so.getOutput());
 	}
+
+	@Test
+	public void testScannablePrimitivePosition() throws Exception {
+		Scannable m = Mockito.mock(Scannable.class);
+		when(m.getName()).thenReturn("m");
+		when(m.getInputNames()).thenReturn(new String[] {"input"});
+		when(m.getExtraNames()).thenReturn(new String[] {});
+		when(m.getOutputFormat()).thenReturn(new String[] {"%5.5g"});
+		when(m.getPosition()).thenReturn(1.0);
+		ScannableSnapshot si = new ScannableSnapshot(m);
+		DummySnapshotProvider p = new DummySnapshotProvider(si);
+		ScannableObject so = new ScannableObject("m", p);
+		so.refresh();
+		assertEquals("input: 1.0000", so.getOutput());
+	}
+
+	@Test
+	public void testScannablePrimitiveArrayPosition() throws Exception {
+		Scannable m = Mockito.mock(Scannable.class);
+		when(m.getName()).thenReturn("m");
+		when(m.getInputNames()).thenReturn(new String[] {"input"});
+		when(m.getExtraNames()).thenReturn(new String[] {"extra"});
+		when(m.getOutputFormat()).thenReturn(new String[] {"%5.5g", "%5.5g"});
+		when(m.getPosition()).thenReturn(new double[] {1.0, 2.0});
+		ScannableSnapshot si = new ScannableSnapshot(m);
+		DummySnapshotProvider p = new DummySnapshotProvider(si);
+		ScannableObject so = new ScannableObject("m", p);
+		so.refresh();
+		assertEquals("input: 1.0000,  extra: 2.0000", so.getOutput());
+	}
 }

@@ -47,6 +47,8 @@ public class TwoDScanPlotter extends ScannableBase implements IScanDataPointObse
 	protected DoubleDataset intensity;
 
 	private String z_colName; // Currently, this *must* be a detector as this class looks only in that part of the SDP
+	private String xAxisName;
+	private String yAxisName;
 	private String plotViewname = "Plot 1";
 
 	private Double xStart;
@@ -211,8 +213,11 @@ public class TwoDScanPlotter extends ScannableBase implements IScanDataPointObse
 	public void plot() throws Exception {
 		if (getPlotViewname() != null) {
 			logger.debug("Plotting to RCP client plot named:" + getPlotViewname());
-			// SDAPlotter.surfacePlot(plotViewname, x, y, intensity);
-			SDAPlotter.imagePlot(plotViewname, x, y, intensity);
+			if (xAxisName!=null && yAxisName!=null) {
+				SDAPlotter.imagePlot(plotViewname, x, y, intensity, xAxisName, yAxisName);
+			} else {
+				SDAPlotter.imagePlot(plotViewname, x, y, intensity);
+			}
 		}
 	}
 
@@ -284,4 +289,19 @@ public class TwoDScanPlotter extends ScannableBase implements IScanDataPointObse
 		this.rate = rate;
 	}
 
+	public String getXAxisName() {
+		return xAxisName;
+	}
+
+	public void setXAxisName(String xAxisName) {
+		this.xAxisName = xAxisName;
+	}
+
+	public String getYAxisName() {
+		return yAxisName;
+	}
+
+	public void setYAxisName(String yAxisName) {
+		this.yAxisName = yAxisName;
+	}
 }
