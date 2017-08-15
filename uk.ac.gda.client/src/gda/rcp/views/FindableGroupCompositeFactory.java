@@ -20,13 +20,7 @@ package gda.rcp.views;
 
 import gda.factory.Findable;
 
-import org.springframework.beans.factory.InitializingBean;
-
-public class FindableGroupCompositeFactory extends GroupCompositeFactory implements Findable, InitializingBean{
-
-//	public FindableGroupCompositeFactory() {
-//		this.compositeFactories
-//	}
+public class FindableGroupCompositeFactory extends GroupCompositeFactory implements Findable {
 
 	private String name;
 
@@ -40,11 +34,5 @@ public class FindableGroupCompositeFactory extends GroupCompositeFactory impleme
 	public String getName() {
 		return name;
 	}
-
-	@Override
-	public void afterPropertiesSet() throws Exception {
-
-	}
-
 
 }

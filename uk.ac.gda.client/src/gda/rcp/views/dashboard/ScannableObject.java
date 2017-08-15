@@ -80,7 +80,18 @@ public class ScannableObject {
 				System.arraycopy(si.extraNames, 0, names, si.inputNames.length, si.extraNames.length);
 				System.arraycopy(si.outputFormat, 0, formats, 0, si.outputFormat.length);
 				StringBuilder sb = new StringBuilder();
-				Object[] position = (Object[]) si.lastPosition;
+				Object[] position;
+				if (si.lastPosition.getClass().isArray()
+						&& si.lastPosition.getClass().getComponentType().isPrimitive()) {
+					// last position is an array of primitivies
+					int l = java.lang.reflect.Array.getLength(si.lastPosition);
+					position = new Object[l];
+					for (int i = 0; i < l; i++) {
+						position[i] = java.lang.reflect.Array.get(si.lastPosition, i);
+					}
+				} else {
+					position = (Object[]) si.lastPosition;
+				}
 				for (int i = 0; i < names.length; i++) {
 					if (formats[i] == null || names[i] == null) {
 						break;
