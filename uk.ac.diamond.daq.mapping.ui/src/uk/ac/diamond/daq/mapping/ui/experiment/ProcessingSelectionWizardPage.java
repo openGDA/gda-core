@@ -18,6 +18,8 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
+import static uk.ac.diamond.daq.mapping.ui.MappingUIConstants.NEXUS_FILE_EXTENSION;
+
 import java.io.File;
 import java.net.URI;
 import java.net.URL;
@@ -92,8 +94,6 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 		}
 
 	}
-
-	private static final String NEXUS_FILE_EXTENSION = "nxs";
 
 	private static final Logger logger = LoggerFactory.getLogger(ProcessingSelectionWizardPage.class);
 
