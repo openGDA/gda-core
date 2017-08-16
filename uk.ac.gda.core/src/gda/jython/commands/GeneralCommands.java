@@ -23,7 +23,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
@@ -124,7 +124,7 @@ public class GeneralCommands {
 
 		if (interfaceName == null || interfaceName.compareTo("") == 0 || interfaceName.compareTo("all") == 0) {
 			String output = "\n";
-			ArrayList<String> availableInterfaces = Finder.getInstance().listAllInterfaces();
+			List<String> availableInterfaces = Finder.getInstance().listAllInterfaces();
 
 			availableInterfaces.remove("Findable");
 			availableInterfaces.remove("Hashtable");
