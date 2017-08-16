@@ -28,7 +28,7 @@
 		<property name="serviceInterface" value="gda.scan.IScanDataPointServer" />
 	</bean>
 
-	<bean id="plot_server" class="uk.ac.diamond.scisoft.analysis.plotserver.PlotServerBase"/>
+	<import resource="file:${gda.config}/servers/main/_common/server.xml" />
 
 	<import resource="commandQueueProcessor.xml"/>
 
@@ -47,7 +47,5 @@
 <!-- do not remove anything below here -->
 	<import resource="jythonServerFacade.xml" />
 	<corba:export namespace="gda" />
-
-	<import resource="file:${gda.config}/servers/main/_common/server.xml" />
 
 </beans>

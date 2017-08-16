@@ -22,7 +22,7 @@
 	</bean>
 	
 	<import resource="commandQueueProcessor.xml"/>
-	<import resource="plot_server.xml" />
+    <import resource="file://${gda.core.dir}/clients/_common/plot_server.xml" />
 <!--	<import resource="mvc_example_model.xml"/> -->
 
 		

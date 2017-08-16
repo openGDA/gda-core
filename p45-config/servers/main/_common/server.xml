@@ -31,12 +31,8 @@
 		<property name="serviceInterface" value="gda.scan.IScanDataPointServer" />
 	</bean>
 
-	<bean id="plot_server" class="uk.ac.diamond.scisoft.analysis.plotserver.PlotServerBase"/>
 
-	<gda:rmi-export
-		service="plot_server"
-		serviceName="gda/plotserver"
-		serviceInterface="uk.ac.diamond.scisoft.analysis.PlotServer" />
+	<import resource="file://${gda.core.dir}/servers/_common/plot_server.xml" />
 
 	<import resource="det.xml"/>
 	<import resource="mic.xml"/>

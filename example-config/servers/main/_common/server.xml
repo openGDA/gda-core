@@ -12,9 +12,6 @@
 		http://www.springframework.org/schema/context
 		http://www.springframework.org/schema/context/spring-context.xsd">
 
-	<gda:rmi-export
-		service="plot_server"
-		serviceName="gda/plotserver"
-		serviceInterface="uk.ac.diamond.scisoft.analysis.PlotServer" />
+    <import resource="file://${gda.core.dir}/servers/_common/plot_server.xml" />
 
 </beans>

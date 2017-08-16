@@ -1,13 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:gda="http://www.diamond.ac.uk/schema/gda/gda"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
-	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.diamond.ac.uk/schema/gda/gda
+	http://www.diamond.ac.uk/schema/gda/gda/gda-gda-1.1.xsd">
 
-	<bean id="plot_server" class="uk.ac.gda.remoting.client.GdaRmiProxyFactoryBean">
-		<property name="serviceUrl" value="${gda.rmi.prefix}plotserver" />
-		<property name="serviceInterface" value="uk.ac.diamond.scisoft.analysis.PlotServer" />
-		<property name="refreshStubOnConnectFailure" value="true" />
-	</bean>
+	<gda:rmi-import
+		id="plot_server"
+		serviceUrl="${gda.rmi.prefix}plotserver"
+		serviceInterface="uk.ac.diamond.scisoft.analysis.PlotServer" />
 
 	<bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
 		<property name="staticMethod" value="uk.ac.diamond.scisoft.analysis.PlotServerProvider.setPlotServer" />
