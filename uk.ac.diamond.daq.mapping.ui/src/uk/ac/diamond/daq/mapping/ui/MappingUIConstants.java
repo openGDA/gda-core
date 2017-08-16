@@ -21,6 +21,7 @@ package uk.ac.diamond.daq.mapping.ui;
 public final class MappingUIConstants {
 
 	public static final String PLUGIN_ID = "uk.ac.diamond.daq.mapping.ui";
+	public static final String NEXUS_FILE_EXTENSION = "nxs";
 
 	private MappingUIConstants() {
 		// private constructor to prevent instantiation

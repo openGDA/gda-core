@@ -54,13 +54,12 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.daq.mapping.api.IClusterProcessingModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.impl.ClusterProcessingModelWrapper;
+import uk.ac.diamond.daq.mapping.ui.MappingUIConstants;
 
 /**
  * Section to configure cluster processing for a mapping scan.
  */
 public class ProcessingSection extends AbstractMappingSection {
-
-	public static final String NEXUS_FILE_EXTENSION = "nxs";
 
 	private static final Logger logger = LoggerFactory.getLogger(ProcessingSection.class);
 
@@ -257,7 +256,7 @@ public class ProcessingSection extends AbstractMappingSection {
 	private File[] getTemplateFiles() {
 		// TODO: move getting templates to a service
 		File templatesDir = new File(getService(IFilePathService.class).getProcessingTemplatesDir());
-		String[] names = templatesDir.list((dir, name) -> name.endsWith("." + NEXUS_FILE_EXTENSION));
+		String[] names = templatesDir.list((dir, name) -> name.endsWith("." + MappingUIConstants.NEXUS_FILE_EXTENSION));
 		File[] templateFiles;
 		if (names == null) {
 			templateFiles = new File[0];

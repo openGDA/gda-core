@@ -18,8 +18,6 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
-import static uk.ac.diamond.daq.mapping.ui.experiment.ProcessingSection.NEXUS_FILE_EXTENSION;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.lang.reflect.InvocationTargetException;
@@ -64,6 +62,8 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import uk.ac.diamond.daq.mapping.ui.MappingUIConstants;
 
 /**
  * A wizard page to acquire data for the selected detector for configuring processing.
@@ -173,7 +173,7 @@ class AcquireDataWizardPage extends AbstractOperationSetupWizardPage {
 	private void loadDataFromFile() {
 		FileSelectionDialog dialog = new FileSelectionDialog(getShell());
 		dialog.setFolderSelector(false);
-		dialog.setExtensions(new String[] { NEXUS_FILE_EXTENSION, "*.*" });
+		dialog.setExtensions(new String[] { MappingUIConstants.NEXUS_FILE_EXTENSION, "*.*" });
 		dialog.setFiles(new String[] { "Nexus files", "All Files" });
 		dialog.setHasResourceButton(false);
 		dialog.setNewFile(false);
