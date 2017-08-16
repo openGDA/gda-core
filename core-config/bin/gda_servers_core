@@ -107,7 +107,7 @@ if [[ "${GDA_MODE}" == "live" && "${CONTROL_MACHINE_NAME}" != "$(uname -n)" ]]; 
       if [[ -f ~/.ssh/known_hosts ]]; then
         ssh-keygen-remove() {
             bashlog debug "gda_servers_core" "removing old public key for $1 in ~/.ssh/known_hosts"
-            SSH_KEYGEN_OUT=$(ssh-keygen -R $1)
+            SSH_KEYGEN_OUT=$(ssh-keygen -R $1 2>&1)
             bashlog debug "gda_servers_core" "removed old public key for $1 in ~/.ssh/known_hosts: $SSH_KEYGEN_OUT"
         }
         # Only try to remove old key if known_hosts exists, otherwise ssh-keygen failing will return us to the command line.
