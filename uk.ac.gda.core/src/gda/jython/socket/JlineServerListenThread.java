@@ -138,23 +138,24 @@ public class JlineServerListenThread extends ServerListenThreadBase {
 			return cr.getInput().read();
 		}
 
+		/**
+		 * Use the ConsoleReader for reading user input to provide readline support
+		 */
 		@Override
 		public int read(byte[] buf, int offset, int len) throws IOException {
 			// don't add raw input to history
 			cr.setHistoryEnabled(false);
 			try {
-				// Use console reader to let backspace/arrow keys to work
-				String line = cr.readLine("");
+				// Use the contents of the buffer as the prompt
+				String line = cr.readLine(new String(buf, 0, offset));
 				if (line == null) {
 					throw Py.EOFError("EOF when reading a line");
 				}
 				byte[] bline = line.getBytes();
-				int i = offset;
-				for (; i < bline.length; i++) {
-					buf[i] = bline[i];
+				for (int i=0; i < bline.length; i++) {
+					buf[i+offset] = bline[i];
 				}
-				buf[i] = '\n';
-				return bline.length + 1;
+				return bline.length;
 			} finally {
 				cr.setHistoryEnabled(true);
 			}

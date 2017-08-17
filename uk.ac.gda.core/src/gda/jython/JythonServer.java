@@ -1346,13 +1346,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 		 */
 		@Override
 		public void run() {
-			if (stdin == null) {
-				result = interpreter.runsource(cmd);
-			} else {
-				try (InteractiveConsole py = interpreter.getChildConsole(stdin)) {
-					result = py.runsource(cmd);
-				}
-			}
+			result = interpreter.runsource(cmd, stdin);
 		}
 	}
 

@@ -19,6 +19,10 @@
 
 package gda.jython;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Arrays;
+
 import org.python.core.Py;
 import org.python.core.PyException;
 import org.python.core.PyJavaType;
@@ -30,19 +34,30 @@ import org.python.util.InteractiveConsole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.jython.commands.InputCommands;
 import gda.scan.ScanInterruptedException;
 
 /**
  * Class that overrides InteractiveConsole to allow customisation
  */
 public class GDAInteractiveConsole extends InteractiveConsole {
+	private static final int INPUT_BUFFER_SIZE = 1024;
+
 	private static final Logger logger = LoggerFactory.getLogger(GDAInteractiveConsole.class);
 
 	// Use the default ps1 and ps2 prompts
 	private static final PyString PS1_PROMPT = new PyString(">>> ");
 	private static final PyString PS2_PROMPT = new PyString("... ");
 
-	public GDAInteractiveConsole(PySystemState pySystemState) {
+	/**
+	 * Each Jython command is run in its own thread.
+	 * A ThreadLocal STDIN allows commands from different sources to have their input streams
+	 * directed correctly to the source and not to the other consoles
+	 */
+	private final ThreadLocal<InputStream> localStdin = new ThreadLocal<>();
+
+	public GDAInteractiveConsole(PyObject locals, PySystemState pySystemState) {
+		super(locals, "<input>", true);
 		// treat all interactive console input as UTF-8 by default
 		cflags.encoding = "utf-8";
 		cflags.source_is_utf8 = true;
@@ -50,6 +65,16 @@ public class GDAInteractiveConsole extends InteractiveConsole {
 		pySystemState.ps1 = PS1_PROMPT;
 		pySystemState.ps2 = PS2_PROMPT;
 		super.systemState = pySystemState;
+		pySystemState.stdin = new GDAStdin();
+	}
+
+	/**
+	 * Set the InputStream to use for commands run <em>in this thread</em>.
+	 * This does not affect any commands run from other threads, even using the same console.
+	 */
+	@Override
+	public void setIn(InputStream inStream) {
+		localStdin.set(inStream);
 	}
 
 	/**
@@ -102,6 +127,13 @@ public class GDAInteractiveConsole extends InteractiveConsole {
 		return eval(new PyUnicode(s));
 	}
 
+	/**
+	 * Run the given command in the Jython interpreter after running it through the translator.
+	 * <p>
+	 * {@inheritDoc}
+	 *
+	 * @see gda.jython.translator.Translator
+	 */
 	@Override
 	public boolean runsource(String command) {
 		try {
@@ -112,6 +144,61 @@ public class GDAInteractiveConsole extends InteractiveConsole {
 		} catch (Exception e) {
 			logger.error("Error calling runsource for command: {}", command, e);
 			return false;
+		}
+	}
+
+	/**
+	 * Read a line of user input.
+	 * <p>
+	 * Overrides the default raw_input to allow different InputStreams to be specified when
+	 * running a command
+	 */
+	// Don't use the builtin raw_input so that we can control how the prompt is displayed
+	@Override
+	public String raw_input(PyObject prompt) {
+		return consoleReadline(prompt.asString());
+	}
+
+	/**
+	 * Class to act as sys.stdin in Jython. Delegates to the InteractiveConsole so that the correct
+	 * inputStream is used.
+	 */
+	// Needs to be public so Jython can reflect on it
+	public class GDAStdin extends PyObject {
+		public PyObject readline() {
+			return new PyString(consoleReadline(""));
+		}
+	}
+
+	/**
+	 * Read a line from the STDIN of the process calling the command.
+	 * This uses a thread local InputStream if one has been set (via {@link #setIn})
+	 * or {@link JythonServer#requestRawInput()} if not.
+	 * @param prompt String to display when prompting user for input
+	 * @return String input by the user
+	 * @throws PyException if user cancels input before entering by either
+	 * KeyboardInterrupt or EOF
+	 */
+	private String consoleReadline(String prompt) {
+		InputStream stdin = localStdin.get();
+		if (stdin == null) {
+			try {
+				return InputCommands.requestInput(prompt);
+			} catch (InterruptedException e) {
+				logger.error("JythonTerminalView raw_input interrupted", e);
+				Thread.currentThread().interrupt();
+				throw new PyException(Py.KeyboardInterrupt);
+			}
+		} else {
+			byte[] buffer = Arrays.copyOf(prompt.getBytes(), INPUT_BUFFER_SIZE);
+			try {
+				int offset = prompt.length();
+				int read = stdin.read(buffer, offset, INPUT_BUFFER_SIZE-offset);
+				return new String(buffer, offset, read);
+			} catch (IOException e) {
+				logger.error("Could not read input from given InputStream ({})", stdin, e);
+			}
+			return "";
 		}
 	}
 }

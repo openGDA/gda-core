@@ -59,7 +59,6 @@ import gda.configuration.properties.LocalProperties;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
 import gda.factory.Finder;
-import gda.jython.commands.InputCommands;
 import gda.jython.translator.Translator;
 import uk.ac.gda.common.rcp.util.EclipseUtils;
 
@@ -268,12 +267,11 @@ public class GDAJythonInterpreter {
 		// Log the sys.path in jython so where things will be loaded from
 		logger.debug("sys.path: {}", pss.path);
 
-		// Get instance of interactive console
-		interactiveConsole = new GDAInteractiveConsole(pss);
-
-		// force it to be the main module with proper name
+		// Create the __main__ module for the console to use
 		PyModule mod = imp.addModule("__main__");
-		interactiveConsole.setLocals(mod.__dict__);
+
+		// Get instance of interactive console
+		interactiveConsole = new GDAInteractiveConsole(mod.__dict__, pss);
 
 		logger.info("Jython configured");
 	}
@@ -393,7 +391,6 @@ public class GDAJythonInterpreter {
 				final Writer terminalWriter = jythonServer.getTerminalWriter();
 				interactiveConsole.setOut(terminalWriter);
 				interactiveConsole.setErr(terminalWriter);
-				interactiveConsole.setIn(new GDAStdin());
 
 				// give Jython the reference to this wrapper object
 				interactiveConsole.set("GDAJythonInterpreter", this);
@@ -622,13 +619,14 @@ public class GDAJythonInterpreter {
 	}
 
 	/**
-	 * Gives the command to the JythonInterpreter's runsource method
+	 * Gives the command to the JythonInterpreter's runsource method and runs it with a given STDIN
 	 *
-	 * @param command
-	 *            String
+	 * @param command String to run in interpreter
+	 * @param in InputStream to use for STDIN
 	 * @return boolean
 	 */
-	protected boolean runsource(String command) {
+	protected boolean runsource(String command, InputStream in) {
+		interactiveConsole.setIn(in);
 		return interactiveConsole.runsource(command);
 	}
 
@@ -792,41 +790,5 @@ public class GDAJythonInterpreter {
 		return interactiveConsole;
 	}
 
-	public InteractiveConsole getChildConsole(InputStream stdin) {
-		PySystemState pss = new PySystemState();
-		PySystemState old = interactiveConsole.getSystemState();
-		pss.setClassLoader(old.getClassLoader());
-		PyObject main = old.modules.__finditem__("__main__");
 
-		InteractiveConsole py = new GDAInteractiveConsole(pss);
-		pss.path = old.path;
-		pss.builtins = old.builtins;
-		pss.modules = old.modules;
-		// GDAInteractiveConsole creates a new __main__ module - we want to use
-		// the same each time
-		pss.modules.__setitem__("__main__", main);
-		pss.setdefaultencoding(UTF_8); //needs to be set after creating console - see #configure method
-		if (stdin == null) {
-			pss.stdin = old.stdin;
-		} else {
-			py.setIn(stdin);
-		}
-		py.setOut(old.stdout);
-		py.setErr(old.stderr);
-		py.setLocals(interactiveConsole.getLocals());
-		return py;
-	}
-
-	public static class GDAStdin extends PyObject {
-		public PyObject readline() {
-			try {
-				String raw = InputCommands.requestInput();
-				return new PyString(raw);
-			} catch (InterruptedException e) {
-				logger.error("JythonTerminalView raw_input interrupted", e);
-				Thread.currentThread().interrupt();
-				throw new PyException(Py.KeyboardInterrupt);
-			}
-		}
-	}
 }
