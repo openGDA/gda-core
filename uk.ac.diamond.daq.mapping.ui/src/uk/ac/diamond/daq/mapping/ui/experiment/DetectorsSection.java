@@ -23,6 +23,7 @@ import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_AXES_TO_MOVE;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -237,7 +238,7 @@ public class DetectorsSection extends AbstractMappingSection {
 			// get the axesToMove from the malcolm device
 			IRunnableDevice<?> runnableDevice = getRunnableDeviceService().getRunnableDevice(deviceName);
 			if (!(runnableDevice instanceof IAttributableDevice)) return;
-			List<String> axesToMove = Arrays.asList(((IAttributableDevice) runnableDevice).getAttributeValue("axesToMove"));
+			List<String> axesToMove = Arrays.asList(((IAttributableDevice) runnableDevice).getAttributeValue(ATTRIBUTE_NAME_AXES_TO_MOVE));
 			MappingStageInfo stageInfo = getEclipseContext().get(MappingStageInfo.class);
 
 			// only update the mapping stage if the malcolm device is configured to move at least two axes.

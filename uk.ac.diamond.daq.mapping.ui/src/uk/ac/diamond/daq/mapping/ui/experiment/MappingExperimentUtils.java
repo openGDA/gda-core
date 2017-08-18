@@ -79,12 +79,12 @@ class MappingExperimentUtils {
 		return AbstractUIPlugin.imageDescriptorFromPlugin(MappingUIConstants.PLUGIN_ID, imagePath).createImage();
 	}
 
-	static String getDatasetPath(final IDetectorModel detectorModel) {
-		return DEFAULT_ENTRY_PATH + detectorModel.getName() + "/" + DEFAULT_DATASET_NAME;
+	static String getDatasetPath(final String detectorName) {
+		return DEFAULT_ENTRY_PATH + detectorName + "/" + DEFAULT_DATASET_NAME;
 	}
 
-	static SourceInformation getSourceInformation(final IDetectorModel detectorModel, final IDataset dataset) {
-		return new SourceInformation("/", DEFAULT_ENTRY_PATH + detectorModel.getName() + "/" + DEFAULT_DATASET_NAME, dataset);
+	static SourceInformation getSourceInformation(final String detectorName, final IDataset dataset) {
+		return new SourceInformation("/", DEFAULT_ENTRY_PATH + detectorName + "/" + DEFAULT_DATASET_NAME, dataset);
 	}
 
 	static SliceInformation getDatasetSlice(final IDataset dataset) {

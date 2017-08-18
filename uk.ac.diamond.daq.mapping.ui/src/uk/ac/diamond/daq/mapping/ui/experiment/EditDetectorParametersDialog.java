@@ -285,7 +285,7 @@ public class EditDetectorParametersDialog extends Dialog {
 						}
 
 						final ILoaderService loaderService = context.get(ILoaderService.class);
-						final String datasetPath = MappingExperimentUtils.getDatasetPath(detectorModel.getModel());
+						final String datasetPath = MappingExperimentUtils.getDatasetPath(detectorModel.getModel().getName());
 						dataset = loaderService.getDataset(filePath, datasetPath, new ProgressMonitorWrapper(monitor));
 
 						if (dataset == null) {

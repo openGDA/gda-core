@@ -52,6 +52,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.mapping.api.IClusterProcessingModelWrapper;
+import uk.ac.diamond.daq.mapping.api.IDetectorModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.impl.ClusterProcessingModelWrapper;
 import uk.ac.diamond.daq.mapping.ui.MappingUIConstants;
@@ -62,6 +63,8 @@ import uk.ac.diamond.daq.mapping.ui.MappingUIConstants;
 public class ProcessingSection extends AbstractMappingSection {
 
 	private static final Logger logger = LoggerFactory.getLogger(ProcessingSection.class);
+
+	private static final File[] NO_TEMPLATE_FILES = new File[0];
 
 	private static final int TEMPLATE_ROW_NUM_COLUMNS = 3;
 
@@ -185,12 +188,17 @@ public class ProcessingSection extends AbstractMappingSection {
 		} else {
 			// get the IDetectorModel for the detector name as set in the processing model
 			String detectorName = processingModelWrapper.getModel().getDetectorName();
+			String malcolmDeviceName = processingModelWrapper.getModel().getMalcolmDeviceName();
+			// if the malcolm device name is set, we use that as the detetor in the acquire scan instead
+			String acquireDetectorName = malcolmDeviceName == null ? detectorName : malcolmDeviceName;
+
 			Optional<IDetectorModel> detectorWrapper =
 					getMappingBean().getDetectorParameters().stream().
-					map(wrapper -> wrapper.getModel()).
-					filter(model -> model.getName().equals(detectorName)).
+					map(IDetectorModelWrapper::getModel).
+					filter(model -> model.getName().equals(acquireDetectorName)).
 					findFirst();
-			acquirePage.setDetectorModel(detectorWrapper.get());
+			acquirePage.setAcquireDetectorModel(detectorWrapper.get());
+			acquirePage.setDetectorDataGroupName(detectorName);
 		}
 		startPages.add(acquirePage);
 
@@ -254,18 +262,14 @@ public class ProcessingSection extends AbstractMappingSection {
 	}
 
 	private File[] getTemplateFiles() {
-		// TODO: move getting templates to a service
+		// TODO: consider moving this method to a service
 		File templatesDir = new File(getService(IFilePathService.class).getProcessingTemplatesDir());
 		String[] names = templatesDir.list((dir, name) -> name.endsWith("." + MappingUIConstants.NEXUS_FILE_EXTENSION));
-		File[] templateFiles;
 		if (names == null) {
-			templateFiles = new File[0];
-		} else {
-			// TODO sort first?
-			templateFiles = Arrays.stream(names).map(name -> new File(templatesDir, name)).toArray(File[]::new);
+			return NO_TEMPLATE_FILES;
 		}
 
-		return templateFiles;
+		return Arrays.stream(names).map(name -> new File(templatesDir, name)).toArray(File[]::new);
 	}
 
 	@Override

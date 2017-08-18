@@ -18,15 +18,22 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
-import static uk.ac.diamond.daq.mapping.ui.MappingUIConstants.NEXUS_FILE_EXTENSION;
+import static java.util.stream.Collectors.toList;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_DATASETS;
 
 import java.io.File;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.dawnsci.processing.ui.api.IOperationModelWizard;
@@ -35,18 +42,32 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.dawnsci.analysis.api.processing.OperationData;
 import org.eclipse.e4.core.contexts.IEclipseContext;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.window.Window;
 import org.eclipse.richbeans.widgets.file.FileSelectionDialog;
+import org.eclipse.scanning.api.device.IAttributableDevice;
+import org.eclipse.scanning.api.device.IRunnableDevice;
+import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.models.ClusterProcessingModel;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
+import org.eclipse.scanning.api.device.models.IMalcolmModel;
+import org.eclipse.scanning.api.event.EventException;
+import org.eclipse.scanning.api.event.IEventService;
+import org.eclipse.scanning.api.event.scan.DeviceState;
+import org.eclipse.scanning.api.malcolm.MalcolmConstants;
+import org.eclipse.scanning.api.malcolm.MalcolmTable;
+import org.eclipse.scanning.api.malcolm.attributes.IDeviceAttribute;
+import org.eclipse.scanning.api.malcolm.attributes.MalcolmDatasetType;
 import org.eclipse.scanning.api.scan.IFilePathService;
+import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -58,6 +79,7 @@ import org.eclipse.swt.widgets.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.mapping.api.IClusterProcessingModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IDetectorModelWrapper;
 import uk.ac.diamond.daq.mapping.impl.ClusterProcessingModelWrapper;
@@ -95,6 +117,10 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 
 	}
 
+	public static final String PROPERTY_NAME_MALCOLM_ACQUIRE_SUPPORT = "org.eclipse.scanning.malcolm.supports.acquire";
+
+	private static final String NEXUS_FILE_EXTENSION = "nxs";
+
 	private static final Logger logger = LoggerFactory.getLogger(ProcessingSelectionWizardPage.class);
 
 	private static String lastFilePath = null;
@@ -115,6 +141,13 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 
 	private Button useExistingButton;
 
+	private IRunnableDeviceService runnableDeviceService = null;
+
+	/**
+	 * A map from the name of a malcolm device to the name of the main primary dataset for that malcolm device.
+	 */
+	private Map<String, String> malcolmDetectorDatasetNames = null;
+
 	protected ProcessingSelectionWizardPage(IEclipseContext context,
 			IClusterProcessingModelWrapper processingModelWrapper,
 			List<IDetectorModelWrapper> detectors) {
@@ -124,7 +157,19 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 
 		this.context = context;
 		this.processingModelWrapper = processingModelWrapper;
-		this.detectors = detectors;
+
+		this.detectors = detectors.stream().
+				filter(ProcessingSelectionWizardPage::supportsAcquire).
+				collect(toList());
+	}
+
+	private static boolean supportsAcquire(IDetectorModelWrapper wrapper) {
+		if (wrapper.getModel() instanceof IMalcolmModel) {
+			// This property, if set, returns the name of a malcolm device that supports acquire.
+			return wrapper.getModel().getName().equals(LocalProperties.get(PROPERTY_NAME_MALCOLM_ACQUIRE_SUPPORT));
+		}
+
+		return true;
 	}
 
 	@Override
@@ -179,6 +224,28 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 		if (!detectors.isEmpty()) {
 			detectorsComboViewer.setSelection(new StructuredSelection(detectors.get(0)));
 		}
+		detectorsComboViewer.addSelectionChangedListener(evt -> {
+			IDetectorModelWrapper selectedWrapper = (IDetectorModelWrapper) ((IStructuredSelection) evt.getSelection()).getFirstElement();
+			IDetectorModel detectorModel = selectedWrapper.getModel();
+			if (detectorModel instanceof IMalcolmModel &&
+					!getDetectorDatasetNameForMalcolm((IMalcolmModel) detectorModel).isPresent()) {
+				MessageDialog.openError(getShell(), "Setup Processing",
+						"Could not get primary dataset for malcolm device: " + detectorModel.getName());
+				setPageComplete(false);
+			} else {
+				setPageComplete(true);
+			}
+		});
+	}
+
+	private IRunnableDeviceService getRunnableDeviceService() throws EventException, URISyntaxException {
+		if (runnableDeviceService == null) {
+			IEventService eventService = context.get(IEventService.class);
+			URI jmsURI = new URI(LocalProperties.getActiveMQBrokerURI());
+			runnableDeviceService = eventService.createRemoteService(jmsURI, IRunnableDeviceService.class);
+		}
+
+		return runnableDeviceService;
 	}
 
 	private List<Control> createSelectTemplateControls(Composite parent) {
@@ -380,11 +447,11 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 		// we don't need to do anything here
 	}
 
-	private void configureProcessingModel(IDetectorModel detectorModel) {
+	private void configureProcessingModel(IDetectorModel acquireDetectorModel, Optional<String> malcolmDetectorDatasetName) {
 		final File processingFile;
 		if (createNewButton.getSelection()) {
 			final String templateFileName = getSelectedTemplateFile().getName();
-			processingFile = getNewProcessingFile(templateFileName, detectorModel.getName());
+			processingFile = getNewProcessingFile(templateFileName, acquireDetectorModel.getName());
 		} else {
 			processingFile = new File(existingFileText.getText().trim());
 		}
@@ -393,13 +460,78 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 		ClusterProcessingModel processingModel = processingModelWrapper.getModel();
 		processingModel.setName(processingFile.getName());
 		processingModel.setProcessingFilePath(processingFile.getAbsolutePath());
-		processingModel.setDetectorName(detectorModel.getName());
+		processingModel.setDetectorName(malcolmDetectorDatasetName.orElse(acquireDetectorModel.getName()));
+		if (acquireDetectorModel instanceof IMalcolmModel) {
+			processingModel.setMalcolmDeviceName(acquireDetectorModel.getName());
+		}
+	}
+
+	/**
+	 * Get the name of the dataset to use for the malcolm device with the given name. This is the
+	 * first dataset of type 'primary' in the {@link MalcolmTable} of the {@link MalcolmConstants#ATTRIBUTE_NAME_DATASETS}
+	 * attribute.
+	 * @param malcolmModel
+	 * @return
+	 */
+	private Optional<String> getDetectorDatasetNameForMalcolm(IMalcolmModel malcolmModel) {
+		if (malcolmDetectorDatasetNames != null && malcolmDetectorDatasetNames.containsKey(malcolmModel.getName())) {
+			return Optional.of(malcolmDetectorDatasetNames.get(malcolmModel.getName()));
+		}
+
+		Optional<String> datasetName = Optional.empty();
+		try {
+			final IRunnableDevice<IMalcolmModel> malcolmDevice = getRunnableDeviceService().getRunnableDevice(malcolmModel.getName());
+			if (malcolmDevice.getDeviceState() != DeviceState.READY) {
+				throw new ScanningException("The malcolm device is not ready. A scan may be running.");
+			}
+
+			try {
+				malcolmDevice.configure(malcolmModel); // configure the malcolm device, puts it in 'Armed' state
+				if (malcolmDevice instanceof IAttributableDevice) {
+					final IDeviceAttribute<?> tableAttr = ((IAttributableDevice) malcolmDevice).getAttribute(ATTRIBUTE_NAME_DATASETS);
+					final MalcolmTable datasetsTable  = (MalcolmTable) tableAttr.getValue();
+					if (datasetsTable != null) {
+						datasetName = getPrimaryDatasetNameForMalcolm(datasetsTable);
+					}
+				}
+
+				if (datasetName.isPresent()) { // if we found the dataset name, cache it
+					logger.debug("Got ''{}'' as dataset for processing for malcolm device ''{}''", datasetName.get(), malcolmModel.getName());
+					if (malcolmDetectorDatasetNames == null) {
+						malcolmDetectorDatasetNames = new HashMap<>(4);
+					}
+					malcolmDetectorDatasetNames.put(malcolmModel.getName(), datasetName.get());
+				} else {
+					logger.error("Could not get primary dataset for malcolm device ''{}''. The dataset for the malcolm device may not be set correctly.", malcolmModel.getName());
+				}
+			} finally {
+				malcolmDevice.reset(); // Reset the malcolm device back to the 'Ready' state
+			}
+		} catch (Exception e) {
+			logger.error("Could not get primary dataset for malcolm device: " + malcolmModel.getName(), e);
+		}
+
+		return datasetName;
+	}
+
+	private Optional<String> getPrimaryDatasetNameForMalcolm(MalcolmTable table) {
+		final Predicate<Map<String, Object>> primaryDatasetFilter = row ->
+			MalcolmDatasetType.fromString((String) row.get(MalcolmConstants.DATASETS_TABLE_COLUMN_TYPE)) == MalcolmDatasetType.PRIMARY;
+
+		return StreamSupport.stream(table.spliterator(), false). // get a stream from the iterable table
+				filter(primaryDatasetFilter). // filter for primary datasets
+				map(row -> row.get(MalcolmConstants.DATASETS_TABLE_COLUMN_NAME)). // get the name of the dataset, e.g.
+				map(String.class::cast). // cast to string
+				filter(name -> name.contains(".")). // sanity check, the name should be made of 2 dot separated parts, e.g. 'detector.data'
+				map(name -> name.split("\\.")[0]). // get the first part, e.g. 'detector'. This will be the name of the NXdata group in the nexus file to process
+				findFirst();
 	}
 
 	@Override
 	public void finishPage() {
 		final IDetectorModel detectorModel = getSelectedDetector().getModel();
-		configureProcessingModel(detectorModel);
+		final Optional<String> malcolmDetectorDatasetName = detectorModel instanceof IMalcolmModel ? getDetectorDatasetNameForMalcolm((IMalcolmModel) detectorModel) : Optional.empty();
+		configureProcessingModel(detectorModel, malcolmDetectorDatasetName);
 
 		if (createNewButton.getSelection()) {
 			// Clone the detector model - we don't want to change the one in the mapping bean
@@ -408,8 +540,11 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 				detectorModelCopy = (IDetectorModel) BeanUtils.cloneBean(detectorModel);
 			} catch (Exception e) {
 				logger.error("Could not make a copy of the detector model: " + detectorModel.getName(), e);
+				return;
 			}
-			((AcquireDataWizardPage) getNextPage()).setDetectorModel(detectorModelCopy);
+			AcquireDataWizardPage acquirePage = (AcquireDataWizardPage) getNextPage();
+			acquirePage.setAcquireDetectorModel(detectorModelCopy);
+			acquirePage.setDetectorDataGroupName(malcolmDetectorDatasetName.orElse(detectorModel.getName()));
 
 			// set template file on wizard, so that other pages can be created appropriately
 			final String templateFile = getSelectedTemplateFile().getPath();

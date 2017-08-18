@@ -74,7 +74,19 @@ class AcquireDataWizardPage extends AbstractOperationSetupWizardPage {
 
 	private static final String PAGE_TITLE = "Acquire Data";
 
-	private IDetectorModel detectorModel = null;
+	/**
+	 * In the case of a software acquire this will be the model of the software detector
+	 * whose data we want to acquire;
+	 * in the case of a hardware acquire this will be the model of the malcolm device.
+	 */
+	private IDetectorModel acquireDetectorModel;
+
+	/**
+	 * The name of the detector whose data we want to acquire. This is the name of the
+	 * {@code NXdata} group in the nexus file we want to process. In the case of a hardware
+	 * (i.e. malcolm) acquire this be the name of a malcolm contolled detector.
+	 */
+	private String detectorDataGroupName;
 
 	private IPlottingSystem<Composite> plottingSystem;
 
@@ -150,7 +162,7 @@ class AcquireDataWizardPage extends AbstractOperationSetupWizardPage {
 	private void acquireData() {
 		setPageComplete(false);
 		try {
-			final AcquireRequest response = MappingExperimentUtils.acquireData(detectorModel, getRequestor());
+			final AcquireRequest response = MappingExperimentUtils.acquireData(acquireDetectorModel, getRequestor());
 			if (response.getStatus() == Status.COMPLETE) {
 				loadDataFromFile(response.getFilePath());
 			} else if (response.getStatus() == Status.FAILED) {
@@ -159,7 +171,7 @@ class AcquireDataWizardPage extends AbstractOperationSetupWizardPage {
 				throw new IllegalArgumentException("Unknown status: " + response.getStatus());
 			}
 		} catch (Exception e) {
-			handleException("Unable to acquire data for detector " + detectorModel.getName(), e);
+			handleException("Unable to acquire data for detector " + acquireDetectorModel.getName(), e);
 		}
 	}
 
@@ -191,7 +203,7 @@ class AcquireDataWizardPage extends AbstractOperationSetupWizardPage {
 	}
 
 	private void loadDataFromFile(String filePath) {
-		final String datasetPath = MappingExperimentUtils.getDatasetPath(detectorModel);
+		final String datasetPath = MappingExperimentUtils.getDatasetPath(detectorDataGroupName);
 
 		try {
 			getWizard().getContainer().run(true, true, new IRunnableWithProgress() {
@@ -227,7 +239,7 @@ class AcquireDataWizardPage extends AbstractOperationSetupWizardPage {
 			});
 		} catch (InvocationTargetException | InterruptedException e) {
 			String errorMessage = MessageFormat.format("Could not load data for detector {0} from file {1}.",
-					detectorModel.getName(), filePath);
+					acquireDetectorModel.getName(), filePath);
 			handleException(errorMessage, e);
 		}
 	}
@@ -248,7 +260,7 @@ class AcquireDataWizardPage extends AbstractOperationSetupWizardPage {
 
 	private void update(IDataset dataset) {
 		final SliceInformation s = MappingExperimentUtils.getDatasetSlice(dataset);
-		final SourceInformation source = MappingExperimentUtils.getSourceInformation(detectorModel, dataset);
+		final SourceInformation source = MappingExperimentUtils.getSourceInformation(detectorDataGroupName, dataset);
 
 		SliceFromSeriesMetadata m = new SliceFromSeriesMetadata(source,s);
 		dataset.setMetadata(m);
@@ -289,8 +301,8 @@ class AcquireDataWizardPage extends AbstractOperationSetupWizardPage {
 		detectorPlaceholder.setText("No detector selected");
 		detectorAreaStackLayout.topControl = detectorPlaceholder;
 
-		if (detectorModel != null) {
-			createDetectorUIControls(detectorModel);
+		if (acquireDetectorModel != null) {
+			createDetectorUIControls(acquireDetectorModel);
 		}
 
 		return detectorComposite;
@@ -317,15 +329,19 @@ class AcquireDataWizardPage extends AbstractOperationSetupWizardPage {
 		// since this wizard page is before the operations pages and will have no initial data, this method does nothing
 	}
 
-	public void setDetectorModel(IDetectorModel detectorModel) {
-		if (detectorModel != this.detectorModel) {
-			this.detectorModel = detectorModel;
+	public void setAcquireDetectorModel(IDetectorModel detectorModel) {
+		if (detectorModel != this.acquireDetectorModel) {
+			this.acquireDetectorModel = detectorModel;
 
 			// if we've already created the UI we create a new composite for this detector
 			if (detectorComposite != null) {
 				createDetectorUIControls(detectorModel);
 			}
 		}
+	}
+
+	public void setDetectorDataGroupName(String detectorName) {
+		this.detectorDataGroupName = detectorName;
 	}
 
 	private void createDetectorUIControls(IDetectorModel detectorModel) {
