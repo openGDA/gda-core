@@ -87,6 +87,7 @@ public class JythonCompleter implements TextCompleter {
 		// Create the completer object in namespace to provide context aware command line completion
 		jython.exec("from gda_completer import Completer");
 		jyComplete = jython.eval("Completer(globals(), '" + mode + "').complete");
+		jython.exec("del Completer"); // Remove Completer import to keep namespace cleaner
 	}
 
 	/**
