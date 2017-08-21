@@ -36,14 +36,6 @@
          unpack="false"/>
 
    <plugin
-         id="uk.ac.diamond.activemq.fragment.ncd"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         fragment="true"
-         unpack="false"/>
-
-   <plugin
          id="uk.ac.diamond.daq.scm.api"
          download-size="0"
          install-size="0"
