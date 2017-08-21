@@ -7,12 +7,6 @@ Bundle-ClassPath: .
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Export-Package: uk.ac.gda.tomography.scan,
- uk.ac.gda.tomography.scan.impl,
- uk.ac.gda.tomography.scan.util
-Require-Bundle: uk.ac.gda.core;bundle-version="9.0.0",
- org.eclipse.core.runtime,
- org.eclipse.emf.ecore;visibility:=reexport,
- org.eclipse.emf.ecore.xmi;visibility:=reexport
+Export-Package: uk.ac.gda.tomography.scan
 Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy: uk.ac.gda.core
