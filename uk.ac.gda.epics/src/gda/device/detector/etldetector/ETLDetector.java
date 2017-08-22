@@ -18,6 +18,10 @@
 
 package gda.device.detector.etldetector;
 
+import org.python.core.PyException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.EtlDetector;
@@ -28,11 +32,10 @@ import gda.device.enumpositioner.EpicsSimpleMbbinary;
 import gda.device.scannable.ScannableUtils;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
+import gda.util.OutOfRangeException;
+import gov.aps.jca.CAException;
+import gov.aps.jca.TimeoutException;
 import gov.aps.jca.event.MonitorListener;
-
-import org.python.core.PyException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A class to represent a single ETL scintillation detector. This detector consists of two components: a sensor and a
@@ -42,6 +45,9 @@ import org.slf4j.LoggerFactory;
 public class ETLDetector extends DetectorBase implements EtlDetector, Detector, Scannable {
 
 	private static final Logger logger = LoggerFactory.getLogger(ETLDetector.class);
+
+	private static final String OPEN = "OPEN";
+	private static final String CLOSE = "CLOSE";
 
 	private String name;
 
@@ -114,10 +120,10 @@ public class ETLDetector extends DetectorBase implements EtlDetector, Detector, 
 	public void openShutter() throws DeviceException {
 		if (fastshutter != null) {
 			try {
-				fastshutter.moveTo("OPEN");
-				shutterOpened=true;
+				fastshutter.moveTo(OPEN);
+				shutterOpened = true;
 			} catch (DeviceException e) {
-				throw e;
+				throw new DeviceException("Problem opening shutter", e);
 			}
 		}
 	}
@@ -130,18 +136,18 @@ public class ETLDetector extends DetectorBase implements EtlDetector, Detector, 
 	public void closeShutter() throws DeviceException{
 		if (fastshutter != null) {
 			try {
-				fastshutter.moveTo("CLOSE");
+				fastshutter.moveTo(CLOSE);
 				shutterOpened=false;
 			} catch (DeviceException e) {
-				throw e;
+				throw new DeviceException("Problem closing shutter", e);
 			}
 		}
 	}
 	@Override
 	public void stop() throws DeviceException {
 		scaler.stop();
-		if (fastshutter != null && fastshutter.getPosition().toString().equalsIgnoreCase("OPEN")) {
-			fastshutter.moveTo("CLOSE");
+		if (fastshutter != null && fastshutter.getPosition().toString().equalsIgnoreCase(OPEN)) {
+			fastshutter.moveTo(CLOSE);
 		}
 	}
 
@@ -159,8 +165,8 @@ public class ETLDetector extends DetectorBase implements EtlDetector, Detector, 
 
 	@Override
 	public void collectData() throws DeviceException {
-		if (fastshutter != null && fastshutter.getPosition().toString().equalsIgnoreCase("CLOSE")) {
-			fastshutter.moveTo("OPEN");
+		if (fastshutter != null && fastshutter.getPosition().toString().equalsIgnoreCase(CLOSE)) {
+			fastshutter.moveTo(OPEN);
 		}
 		// scaler.clear();
 		scaler.start();
@@ -179,7 +185,7 @@ public class ETLDetector extends DetectorBase implements EtlDetector, Detector, 
 	@Override
 	public int[] getDataDimensions() throws DeviceException {
 		/* If this.readout() returned scaler.readout() then
-		return scaler.getDataDimensions();
+		 * return scaler.getDataDimensions();
 		 * would be correct (as scaler.readout() returns an int[]
 		 * and scaler.getDataDimensions returns { getTotalChans() }.
 		 * Unfortunately, scaler.readout(x) returns an int, so
@@ -202,7 +208,7 @@ public class ETLDetector extends DetectorBase implements EtlDetector, Detector, 
 	public void setHV(int mv) throws DeviceException {
 		try {
 			detector.setHighVoltage(mv);
-		} catch (Throwable e) {
+		} catch (CAException | InterruptedException | OutOfRangeException e) {
 			throw new DeviceException("Exception caught on setting detector " + detectorName + " high voltage.", e);
 		}
 	}
@@ -217,7 +223,7 @@ public class ETLDetector extends DetectorBase implements EtlDetector, Detector, 
 	public int getActualHV() throws DeviceException {
 		try {
 			return detector.getActualHVOutput();
-		} catch (Throwable e) {
+		} catch (CAException | InterruptedException | TimeoutException e) {
 			throw new DeviceException("Exception throws on getting the actual High Voltage output from detector "
 					+ detectorName, e);
 		}
@@ -233,7 +239,7 @@ public class ETLDetector extends DetectorBase implements EtlDetector, Detector, 
 	public int getHV() throws DeviceException {
 		try {
 			return detector.getHighVoltage();
-		} catch (Throwable e) {
+		} catch (CAException | TimeoutException | InterruptedException e) {
 			throw new DeviceException("Excaption throw on access High voltage registry on detector " + detectorName, e);
 		}
 	}
@@ -248,7 +254,7 @@ public class ETLDetector extends DetectorBase implements EtlDetector, Detector, 
 	public void setUpperThreshold(int ulim) throws DeviceException {
 		try {
 			detector.setUpperLimit(ulim);
-		} catch (Throwable e) {
+		} catch (CAException | InterruptedException  e) {
 			throw new DeviceException("Excaption throw on setting upper threshold on detector " + detectorName, e);
 		}
 	}
@@ -263,7 +269,7 @@ public class ETLDetector extends DetectorBase implements EtlDetector, Detector, 
 	public int getUpperThreshold() throws DeviceException {
 		try {
 			return detector.getUpperLimit();
-		} catch (Throwable e) {
+		} catch (CAException | TimeoutException | InterruptedException e) {
 			throw new DeviceException("Excaption throw on getting upper threshold on detector " + detectorName, e);
 		}
 	}
@@ -278,7 +284,7 @@ public class ETLDetector extends DetectorBase implements EtlDetector, Detector, 
 	public void setLowerThreshold(int llim) throws DeviceException {
 		try {
 			detector.setLowerLimit(llim);
-		} catch (Throwable e) {
+		} catch (CAException | InterruptedException e) {
 			throw new DeviceException("Excaption throw on setting lower threshold on detector " + detectorName, e);
 		}
 	}
@@ -293,7 +299,7 @@ public class ETLDetector extends DetectorBase implements EtlDetector, Detector, 
 	public int getLowerThreshold() throws DeviceException {
 		try {
 			return detector.getLowerLimit();
-		} catch (Throwable e) {
+		} catch (CAException | TimeoutException | InterruptedException e) {
 			throw new DeviceException("Excaption throw on getting lower threshold on detector " + detectorName, e);
 		}
 	}

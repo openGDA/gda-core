@@ -18,6 +18,9 @@
 
 package gda.device.detector.etldetector;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.device.DeviceBase;
@@ -26,22 +29,17 @@ import gda.epics.connection.EpicsController;
 import gda.epics.connection.InitializationListener;
 import gda.epics.interfaces.ETLdetectorType;
 import gda.epics.xml.EpicsRecord;
-import gda.factory.Configurable;
 import gda.factory.FactoryException;
-import gda.factory.Findable;
 import gda.factory.Finder;
 import gda.util.OutOfRangeException;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * The Class EpicsETLScintillator.
  */
-public class EpicsETLController extends DeviceBase implements Configurable, Findable, InitializationListener {
+public class EpicsETLController extends DeviceBase implements InitializationListener {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsETLController.class);
 
@@ -215,7 +213,7 @@ public class EpicsETLController extends DeviceBase implements Configurable, Find
 	}
 
 	/**
-	 * Set the upper threashold in mV.
+	 * Set the upper threshold in mV.
 	 *
 	 * @param hv
 	 * @throws CAException
