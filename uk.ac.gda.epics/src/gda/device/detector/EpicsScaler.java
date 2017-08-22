@@ -18,6 +18,12 @@
 
 package gda.device.detector;
 
+import java.lang.reflect.Array;
+
+import org.python.core.PySequence;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.configuration.epics.EpicsConfiguration;
@@ -39,41 +45,10 @@ import gov.aps.jca.dbr.DBR_Enum;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 
-import java.lang.reflect.Array;
-
-import org.python.core.PySequence;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-class Status {
-	private final int val;
-
-	private Status(int val) {
-		this.val = val;
-	}
-
-	/**
-	 * @return val
-	 */
-	public int getVal() {
-		return val;
-	}
-
-	/**
-	 * IDLE
-	 */
-	public static final Status IDLE = new Status(0);
-
-	/**
-	 * BUSY
-	 */
-	public static final Status BUSY = new Status(1);
-}
-
 /**
  * Epics scaler class.
  */
-public class EpicsScaler extends gda.device.detector.DetectorBase implements Detector, InitializationListener {
+public class EpicsScaler extends DetectorBase implements Detector, InitializationListener {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsScaler.class);
 
@@ -109,7 +84,7 @@ public class EpicsScaler extends gda.device.detector.DetectorBase implements Det
 
 	private double frequency;
 
-	private volatile Status scalerStatus;
+	private volatile int scalerStatus;
 
 	private volatile int totalChannels = -1;
 
@@ -125,10 +100,8 @@ public class EpicsScaler extends gda.device.detector.DetectorBase implements Det
 	public EpicsScaler() {
 		controller = EpicsController.getInstance();
 		channelManager = new EpicsChannelManager(this);
-		setScalerStatus(Status.IDLE); // If left as null then it appears to be
+		setStatus(Detector.IDLE);
 		setInputNames(new String[]{});
-		// busy and is added to scans a default
-		// detector.
 	}
 
 	/**
@@ -288,7 +261,7 @@ public class EpicsScaler extends gda.device.detector.DetectorBase implements Det
 			// We need to set the status to BUSY else a check that it is BUSY
 			// straight after this call may show that it is not
 			// Such an issue has been observed.
-			setScalerStatus(Status.BUSY);
+			setStatus(Detector.BUSY);
 		} catch (Throwable th) {
 			throw new DeviceException("EpicsScaler.start: failed to start", th);
 		}
@@ -449,16 +422,12 @@ public class EpicsScaler extends gda.device.detector.DetectorBase implements Det
 		return value;
 	}
 
-	private void setScalerStatus(Status scalerStatus) {
+	private void setStatus(int scalerStatus) {
 		this.scalerStatus = scalerStatus;
 	}
 
 	@Override
 	public int getStatus() {
-		return getScalerStatus() == Status.IDLE ? Detector.IDLE : Detector.BUSY;
-	}
-
-	private Status getScalerStatus() {
 		return scalerStatus;
 	}
 
@@ -512,7 +481,7 @@ public class EpicsScaler extends gda.device.detector.DetectorBase implements Det
 		public void monitorChanged(MonitorEvent ev) {
 			DBR dbr = ev.getDBR();
 			if (dbr.isENUM()) {
-				setScalerStatus(((DBR_Enum) dbr).getEnumValue()[0] == 1 ? Status.BUSY : Status.IDLE);
+				setStatus(((DBR_Enum) dbr).getEnumValue()[0] == 1 ? Detector.BUSY : Detector.IDLE);
 				notifyIObservers("ScalerStatus", getStatus());
 			} else {
 				logger.error("EpicsScaler.monitorChanged: Error - .CNT should return ENUM type value.");
