@@ -18,6 +18,11 @@
 
 package gda.device.enumpositioner;
 
+import java.util.Vector;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
 import gda.device.EnumPositioner;
 import gda.device.EnumPositionerStatus;
@@ -37,11 +42,6 @@ import gov.aps.jca.event.MonitorListener;
 import gov.aps.jca.event.PutEvent;
 import gov.aps.jca.event.PutListener;
 
-import java.util.Vector;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class EpicsAirBearingControl extends EnumPositionerBase implements EnumPositioner, InitializationListener {
 
 	private static final Logger logger=LoggerFactory.getLogger(EpicsAirBearingControl.class);
@@ -56,6 +56,7 @@ public class EpicsAirBearingControl extends EnumPositionerBase implements EnumPo
 	private boolean initialised = false;
 	private String targetPosition;
 	private Vector<String> readpositions=new Vector<String>();
+	private String currentPosition="";
 
 	public EpicsAirBearingControl() {
 		super();
@@ -79,7 +80,9 @@ public class EpicsAirBearingControl extends EnumPositionerBase implements EnumPo
 	public Object rawGetPosition() throws DeviceException {
 		try {
 			short test = controller.cagetEnum(readChannel);
-			return positions.get(test);
+			//refresh currentPosition to ensure it is up to date. I21 something the monitor listener fails to update this - reason not known.
+			currentPosition=positions.get(test);
+			return currentPosition;
 		} catch (Throwable th) {
 			throw new DeviceException("failed to get position from " + readChannel.getName(), th);
 		}
@@ -158,13 +161,13 @@ public class EpicsAirBearingControl extends EnumPositionerBase implements EnumPo
 	/**
 	 * InPos monitor listener
 	 */
-	private String currentPosition="";
+
 	private class ReadPvMonitorListener implements MonitorListener {
 
 		@Override
 		public void monitorChanged(MonitorEvent arg0) {
 			if (initialised) {
-				if (!positions.isEmpty()) {
+				if (!readpositions.isEmpty()) {
 
 					int value = -1;
 					DBR dbr = arg0.getDBR();
@@ -218,4 +221,11 @@ public class EpicsAirBearingControl extends EnumPositionerBase implements EnumPo
 		this.setPV = setPV;
 	}
 
+	public String getTargetPosition() {
+		return targetPosition;
+	}
+
+	public String getCurrentPosition(){
+		return currentPosition;
+	}
 }
