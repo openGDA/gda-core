@@ -21,20 +21,21 @@ package gda.device.scannable;
 
 import static org.jscience.physics.units.SI.METER;
 import static org.jscience.physics.units.SI.MICRO;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import org.jscience.physics.quantities.Quantity;
+import org.junit.Assert;
+import org.junit.Test;
+
 import gda.device.DeviceException;
 import gda.device.ScannableMotion;
 import gda.device.ScannableMotionUnits;
 import gda.device.scannable.component.ScannableOffsetAndScalingComponent;
-import junit.framework.Assert;
-import junitx.framework.ArrayAssert;
-
-import org.jscience.physics.quantities.Quantity;
-import org.junit.Test;
 
 public class ScannableMotionUnitsBaseTest extends ScannableMotionBaseTest {
 
@@ -102,7 +103,7 @@ public class ScannableMotionUnitsBaseTest extends ScannableMotionBaseTest {
 	 */
 	@Override
 	public void testDefaultValues() throws DeviceException {
-		ArrayAssert.assertEquals(new String[]{""}, getSMU().getAcceptableUnits());
+		assertArrayEquals(new String[]{""}, getSMU().getAcceptableUnits());
 		assertEquals("", getSMU().getHardwareUnitString());
 		assertEquals("", getSMU().getUserUnits());
 		super.testDefaultValues();
@@ -145,7 +146,7 @@ public class ScannableMotionUnitsBaseTest extends ScannableMotionBaseTest {
 	@Test
 	public void testSetHardwareUnit () throws DeviceException {
 		getSMU().setHardwareUnitString("keV");
-		ArrayAssert.assertEquals(new String[] {"keV", "eV", "GeV"}, getSMU().getAcceptableUnits());
+		assertArrayEquals(new String[] {"keV", "eV", "GeV"}, getSMU().getAcceptableUnits());
 	}
 
 	@Test
@@ -235,7 +236,7 @@ public class ScannableMotionUnitsBaseTest extends ScannableMotionBaseTest {
 		when(mock.getOffset()).thenReturn(new Double[]{1000.});
 		getSMU().setHardwareUnitString("mm");
 		getSMU().setUserUnits("m");
-		ArrayAssert.assertEquals(new Double[]{1.},	getSMU().getOffset());
+		assertArrayEquals(new Double[]{1.},	getSMU().getOffset());
 	}
 
 	@Test
@@ -245,7 +246,7 @@ public class ScannableMotionUnitsBaseTest extends ScannableMotionBaseTest {
 		when(mock.getOffset()).thenReturn(new Double[]{1000., 2000., null});
 		getSMU().setHardwareUnitString("mm");
 		getSMU().setUserUnits("m");
-		ArrayAssert.assertEquals(new Double[]{1., 2., null}, getSMU().getOffset());
+		assertArrayEquals(new Double[]{1., 2., null}, getSMU().getOffset());
 	}
 
 	@Test
@@ -331,7 +332,7 @@ public class ScannableMotionUnitsBaseTest extends ScannableMotionBaseTest {
 //	@Test
 //	public void testAddGetAcceptableUnit() throws DeviceException {
 //		getSMU().addAcceptableUnit("m");
-//		ArrayAssert.assertEquals(new String[]{"m"}, getSMU().getAcceptableUnits());
+//		assertArrayEquals(new String[]{"m"}, getSMU().getAcceptableUnits());
 //		getSMU().addAcceptableUnit("mm");
-//		ArrayAssert.assertEquals(new String[]{"m", "mm"}, getSMU().getAcceptableUnits());
+//		assertArrayEquals(new String[]{"m", "mm"}, getSMU().getAcceptableUnits());
 //	}

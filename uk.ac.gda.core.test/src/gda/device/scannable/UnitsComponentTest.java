@@ -20,16 +20,17 @@ package gda.device.scannable;
 
 import static org.jscience.physics.units.SI.METER;
 import static org.jscience.physics.units.SI.MILLI;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import gda.device.DeviceException;
-import gda.device.scannable.component.UnitsComponent;
-import junitx.framework.ArrayAssert;
 
 import org.jscience.physics.quantities.Quantity;
 import org.junit.Before;
 import org.junit.Test;
 import org.python.core.PyFloat;
 import org.python.core.PyTuple;
+
+import gda.device.DeviceException;
+import gda.device.scannable.component.UnitsComponent;
 
 /**
  * Note: this is largely tested through ScannableMotionUnitsBaseTeast
@@ -67,7 +68,7 @@ public class UnitsComponentTest {
 		uc.setUserUnits("m");
 		uc.setHardwareUnitString("mm");
 		Double[] internalExpected = new Double[]{1000., 2000., 3000., 4000., 5000.};
-		ArrayAssert.assertEquals(internalExpected, (Double[]) uc.externalTowardInternal(new Object[]{1, q2m, q3000mm, "4m", "5000 mm"}));
+		assertArrayEquals(internalExpected, (Double[]) uc.externalTowardInternal(new Object[]{1, q2m, q3000mm, "4m", "5000 mm"}));
 	}
 
 	@Test
@@ -104,7 +105,7 @@ public class UnitsComponentTest {
 		uc.setHardwareUnitString("mm");
 		uc.setUserUnits("m");
 		Double[] externalExpected = new Double[]{1., 2., 3., 4., 5.};
-		ArrayAssert.assertEquals(externalExpected, (Double[]) uc.internalTowardExternal(new Object[]{1000, q2m, q3000mm, "4m", "5000 mm"}));
+		assertArrayEquals(externalExpected, (Double[]) uc.internalTowardExternal(new Object[]{1000, q2m, q3000mm, "4m", "5000 mm"}));
 	}
 
 	@Test

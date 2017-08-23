@@ -32,10 +32,6 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import gda.device.DeviceException;
-import gda.device.scannable.scannablegroup.ScannableMotionWithScannableFieldsBase;
-import gda.device.scannable.scannablegroup.ScannableMotionWithScannableFieldsBase.ScannableField;
-import junitx.framework.ArrayAssert;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -44,6 +40,10 @@ import org.python.core.PyFloat;
 import org.python.core.PyInteger;
 import org.python.core.PyList;
 import org.python.core.PyObject;
+
+import gda.device.DeviceException;
+import gda.device.scannable.scannablegroup.ScannableMotionWithScannableFieldsBase;
+import gda.device.scannable.scannablegroup.ScannableMotionWithScannableFieldsBase.ScannableField;
 
 public class ScannableMotionWithScannableFieldsBaseTest {
 
@@ -377,29 +377,29 @@ public class ScannableMotionWithScannableFieldsBaseTest {
 	@Test
 	public void testSFGetOffset() {
 		when(scn.getOffset()).thenReturn(new Double[] { 1., null });
-		ArrayAssert.assertEquals(new Double[]{1.}, i1.getOffset());
-		ArrayAssert.assertEquals(null, i2.getOffset());
+		assertArrayEquals(new Double[]{1.}, i1.getOffset());
+		assertArrayEquals(null, i2.getOffset());
 	}
 
 	@Test
 	public void testSFGetOffsetWithNoOffsetsOnParent() {
 		when(scn.getOffset()).thenReturn(null);
-		ArrayAssert.assertEquals(null, i1.getOffset());
-		ArrayAssert.assertEquals(null, i2.getOffset());
+		assertArrayEquals(null, i1.getOffset());
+		assertArrayEquals(null, i2.getOffset());
 	}
 
 	@Test
 	public void testSFGetScalingFactor() {
 		when(scn.getScalingFactor()).thenReturn(new Double[] { 1., null });
-		ArrayAssert.assertEquals(new Double[]{1.}, i1.getScalingFactor());
-		ArrayAssert.assertEquals(null, i2.getScalingFactor());
+		assertArrayEquals(new Double[]{1.}, i1.getScalingFactor());
+		assertArrayEquals(null, i2.getScalingFactor());
 	}
 
 	@Test
 	public void testSFGetScalingFactorNoOffsetsOnParent() {
 		when(scn.getOffset()).thenReturn(null);
-		ArrayAssert.assertEquals(null, i1.getScalingFactor());
-		ArrayAssert.assertEquals(null, i2.getScalingFactor());
+		assertArrayEquals(null, i1.getScalingFactor());
+		assertArrayEquals(null, i2.getScalingFactor());
 	}
 
 // TODO: can't test with spy.
@@ -420,15 +420,15 @@ public class ScannableMotionWithScannableFieldsBaseTest {
 //	@Test
 //	public void testSFSetScalingFactor() {
 //		when(scn.getScalingFactor()).thenReturn(new Double[] { 1., null });
-//		ArrayAssert.assertEquals(new Double[]{1.}, i1.getScalingFactor());
-//		ArrayAssert.assertEquals(null, i2.getScalingFactor());
+//		assertArrayEquals(new Double[]{1.}, i1.getScalingFactor());
+//		assertArrayEquals(null, i2.getScalingFactor());
 //	}
 //
 //	@Test
 //	public void testSFSetScalingFactorNoOffsetsOnParent() {
 //		when(scn.getOffset()).thenReturn(null);
-//		ArrayAssert.assertEquals(null, i1.getScalingFactor());
-//		ArrayAssert.assertEquals(null, i2.getScalingFactor());
+//		assertArrayEquals(null, i1.getScalingFactor());
+//		assertArrayEquals(null, i2.getScalingFactor());
 //	}
 
 	@Test

@@ -19,6 +19,7 @@
 package gda.device.scannable;
 
 import static gda.device.scannable.PositionConvertorFunctions.toDoubleArray;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -27,8 +28,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import gda.device.DeviceException;
-import junitx.framework.ArrayAssert;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -39,6 +38,8 @@ import org.python.core.PyInteger;
 import org.python.core.PyList;
 import org.python.core.PySlice;
 import org.python.core.PyString;
+
+import gda.device.DeviceException;
 
 public class ScannableBaseTest {
 
@@ -154,9 +155,9 @@ public class ScannableBaseTest {
 	@SuppressWarnings("unused")
 	public void testDefaultValues() throws DeviceException {
 		createScannableToTest();
-		ArrayAssert.assertEquals(getSB().getInputNames(), new String[] { "value" });
-		ArrayAssert.assertEquals(getSB().getOutputFormat(), new String[] { "%5.5g" });
-		ArrayAssert.assertEquals(getSB().getExtraNames(), new String[] {});
+		assertArrayEquals(getSB().getInputNames(), new String[] { "value" });
+		assertArrayEquals(getSB().getOutputFormat(), new String[] { "%5.5g" });
+		assertArrayEquals(getSB().getExtraNames(), new String[] {});
 		assertEquals(5, getSB().getLevel());
 	}
 
@@ -167,13 +168,13 @@ public class ScannableBaseTest {
 	@Test
 	public void testSetGetExtraNames() {
 		getSB().setExtraNames(new String[] { "newe1" });
-		ArrayAssert.assertEquals(getSB().getExtraNames(), new String[] { "newe1" });
+		assertArrayEquals(getSB().getExtraNames(), new String[] { "newe1" });
 	}
 
 	@Test
 	public void testSetGetInputNames() {
 		getSB().setInputNames(new String[] { "newi1" });
-		ArrayAssert.assertEquals(getSB().getInputNames(), new String[] { "newi1" });
+		assertArrayEquals(getSB().getInputNames(), new String[] { "newi1" });
 	}
 
 	@Test
@@ -189,7 +190,7 @@ public class ScannableBaseTest {
 	@Test
 	public void test__call__() throws DeviceException {
 		when(getSB().getPosition()).thenReturn( new Double[] { 1., 2. } );
-		ArrayAssert.assertEquals(toDoubleArray(getSB().__call__()), new Double[] { 1., 2. });
+		assertArrayEquals(toDoubleArray(getSB().__call__()), new Double[] { 1., 2. });
 	}
 
 	@Test
@@ -233,7 +234,7 @@ public class ScannableBaseTest {
 //	@Test
 //	public void testGetPositionWithExtraNames() throws DeviceException {
 //		configureTwoExtraFields();
-//		ArrayAssert.assertEquals(new Double[] { 1., 2., 3., 4. }, (Object[]) getSB().getPosition());
+//		assertArrayEquals(new Double[] { 1., 2., 3., 4. }, (Object[]) getSB().getPosition());
 //	}
 
 	@Test

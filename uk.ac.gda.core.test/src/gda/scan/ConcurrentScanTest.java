@@ -33,6 +33,20 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.concurrent.Callable;
+
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.mockito.InOrder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.MockFactory;
 import gda.TestHelpers;
 import gda.configuration.properties.LocalProperties;
@@ -44,20 +58,6 @@ import gda.device.Scannable;
 import gda.device.detector.DetectorWithReadout;
 import gda.device.scannable.DummyScannable;
 import gda.device.scannable.PositionCallableProvider;
-
-import java.io.File;
-import java.util.Arrays;
-import java.util.concurrent.Callable;
-
-import junitx.framework.FileAssert;
-
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.mockito.InOrder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Class to test writing of nexus files during a scan
@@ -1049,8 +1049,9 @@ public class ConcurrentScanTest {
 		scan.runScan();
 		System.out.print(scan.getDataWriter().getCurrentFileName());
 
-		FileAssert.assertEquals(new File("testfiles/gda/scan/ConcurrentScanTest/testSrsFileWriting_expected.dat"),
-				new File(testScratchDirectoryName + "/Data/1.dat"));
+		// ASCII file compare
+		assertEquals(Files.readAllLines(Paths.get("testfiles/gda/scan/ConcurrentScanTest/testSrsFileWriting_expected.dat")),
+				Files.readAllLines(Paths.get(testScratchDirectoryName + "/Data/1.dat")));
 	}
 
 	/**
@@ -1083,8 +1084,9 @@ public class ConcurrentScanTest {
 		verify(ct).setCollectionTime(.1);
 		verify(ct, never()).asynchronousMoveTo(anyObject());
 
-		FileAssert.assertEquals(new File("testfiles/gda/scan/ConcurrentScanTest/testCounterTimer_expected.dat"),
-				new File(testScratchDirectoryName + "/Data/1.dat"));
+		// ASCII file compare
+		assertEquals(Files.readAllLines(Paths.get("testfiles/gda/scan/ConcurrentScanTest/testCounterTimer_expected.dat")),
+				Files.readAllLines(Paths.get(testScratchDirectoryName + "/Data/1.dat")));
 	}
 
 	@Test

@@ -19,6 +19,7 @@
 package gda.device.scannable;
 
 import static gda.device.scannable.PositionConvertorFunctions.toObjectArray;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -30,13 +31,13 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import org.junit.Test;
+
 import gda.device.DeviceException;
 import gda.device.ScannableMotion;
 import gda.device.scannable.component.PositionValidator;
 import junit.framework.Assert;
-import junitx.framework.ArrayAssert;
-
-import org.junit.Test;
 
 public class ScannableMotionBaseTest extends ScannableBaseTest {
 
@@ -119,8 +120,8 @@ public class ScannableMotionBaseTest extends ScannableBaseTest {
 
 	@Test
 	public void testDefaultGdaLimits() {
-		ArrayAssert.assertEquals(null, getSM().getLowerGdaLimits());
-		ArrayAssert.assertEquals(null, getSM().getUpperGdaLimits());
+		assertArrayEquals(null, getSM().getLowerGdaLimits());
+		assertArrayEquals(null, getSM().getUpperGdaLimits());
 	}
 
 	// TEST LIMIT SETTERS
@@ -130,8 +131,8 @@ public class ScannableMotionBaseTest extends ScannableBaseTest {
 		getSM().setInputNames(new String[] { "i" });
 		getSM().setLowerGdaLimits(1.);
 		getSM().setUpperGdaLimits(2.);
-		ArrayAssert.assertEquals(new Double[] { 1. }, getSM().getLowerGdaLimits());
-		ArrayAssert.assertEquals(new Double[] { 2. }, getSM().getUpperGdaLimits());
+		assertArrayEquals(new Double[] { 1. }, getSM().getLowerGdaLimits());
+		assertArrayEquals(new Double[] { 2. }, getSM().getUpperGdaLimits());
 	}
 
 	@Test
@@ -159,16 +160,16 @@ public class ScannableMotionBaseTest extends ScannableBaseTest {
 	public void testSetGetGdaLimitsArray() throws Exception {
 		getSM().setLowerGdaLimits(new Double[] { 1., 2. });
 		getSM().setUpperGdaLimits(new Double[] { 3., 4. });
-		ArrayAssert.assertEquals(new Double[] { 1., 2. }, getSM().getLowerGdaLimits());
-		ArrayAssert.assertEquals(new Double[] { 3., 4. }, getSM().getUpperGdaLimits());
+		assertArrayEquals(new Double[] { 1., 2. }, getSM().getLowerGdaLimits());
+		assertArrayEquals(new Double[] { 3., 4. }, getSM().getUpperGdaLimits());
 	}
 
 	@Test
 	public void testSetGetGdaLimitsArrayWithNulls() throws Exception {
 		getSM().setLowerGdaLimits(new Double[] { 1., null });
 		getSM().setUpperGdaLimits(new Double[] { null, 4. });
-		ArrayAssert.assertEquals(new Double[] { 1., null }, getSM().getLowerGdaLimits());
-		ArrayAssert.assertEquals(new Double[] { null, 4. }, getSM().getUpperGdaLimits());
+		assertArrayEquals(new Double[] { 1., null }, getSM().getLowerGdaLimits());
+		assertArrayEquals(new Double[] { null, 4. }, getSM().getUpperGdaLimits());
 	}
 
 	@Test
@@ -350,7 +351,7 @@ public class ScannableMotionBaseTest extends ScannableBaseTest {
 	public void testSetGetTolerance() throws DeviceException {
 		configureTwoExtraFields();
 		getSM().setTolerances(new Double[] { 1., 2. });
-		ArrayAssert.assertEquals(new Double[] { 1., 2. }, getSM().getTolerances());
+		assertArrayEquals(new Double[] { 1., 2. }, getSM().getTolerances());
 	}
 
 	@Test
@@ -453,7 +454,7 @@ public class ScannableMotionBaseTest extends ScannableBaseTest {
 	@Test
 	public void testGetPositionDoubleArray() throws DeviceException {
 		when(getSMB().rawGetPosition()).thenReturn(new Double[] { 1.1, 2.1 });
-		ArrayAssert.assertEquals(new Double[] { 1.1, 2.1 }, toObjectArray(getSB().getPosition()));
+		assertArrayEquals(new Double[] { 1.1, 2.1 }, toObjectArray(getSB().getPosition()));
 	}
 
 	@Test
@@ -498,14 +499,14 @@ public class ScannableMotionBaseTest extends ScannableBaseTest {
 		getSM().setTolerances(new Double[] { .1, .2 });
 		getSM().setNumberTries(99);
 
-		ArrayAssert.assertEquals(new Double[] { 1., 2. }, (Object[]) getSM().getAttribute("lowerGdaLimits"));
-		ArrayAssert.assertEquals(new Double[] { 3., 4. }, (Object[]) getSM().getAttribute("upperGdaLimits"));
-		ArrayAssert.assertEquals(new Double[] { .1, .2 }, (Double[]) getSM().getAttribute("tolerance"));
-		ArrayAssert.assertEquals(new Double[] { .1, .2 }, (Double[]) getSM().getAttribute("tolerance"));
+		assertArrayEquals(new Double[] { 1., 2. }, (Object[]) getSM().getAttribute("lowerGdaLimits"));
+		assertArrayEquals(new Double[] { 3., 4. }, (Object[]) getSM().getAttribute("upperGdaLimits"));
+		assertArrayEquals(new Double[] { .1, .2 }, (Double[]) getSM().getAttribute("tolerance"));
+		assertArrayEquals(new Double[] { .1, .2 }, (Double[]) getSM().getAttribute("tolerance"));
 		assertEquals(99, getSM().getAttribute("numberTries()"));
-		ArrayAssert.assertEquals(new Double[] { 1., 3. }, (Double[]) getSMB().getAttribute(ScannableMotion.FIRSTINPUTLIMITS));
+		assertArrayEquals(new Double[] { 1., 3. }, (Double[]) getSMB().getAttribute(ScannableMotion.FIRSTINPUTLIMITS));
 		getSM().setLowerGdaLimits(new Double[] { null, 2. });
-		ArrayAssert.assertEquals(new Double[] {null, 3. }, (Double[]) getSMB().getAttribute(ScannableMotion.FIRSTINPUTLIMITS));
+		assertArrayEquals(new Double[] {null, 3. }, (Double[]) getSMB().getAttribute(ScannableMotion.FIRSTINPUTLIMITS));
 		Double[] nullDoubleArray = null;
 		getSM().setUpperGdaLimits(nullDoubleArray);
 		Assert.assertNull( getSMB().getAttribute(ScannableMotion.FIRSTINPUTLIMITS));
@@ -558,7 +559,7 @@ public class ScannableMotionBaseTest extends ScannableBaseTest {
 		configureTwoExtraFields();
 		getSMB().setOffset(.1, .2, .3, .4);
 		when(getDelegate().rawGetPosition()).thenReturn(new Double[] { 1., 2., 3., 4. });
-		ArrayAssert.assertEquals(new Double[] { 1.1, 2.2, 3.3, 4.4 }, (Object[]) getSB().getPosition()); // debug
+		assertArrayEquals(new Double[] { 1.1, 2.2, 3.3, 4.4 }, (Object[]) getSB().getPosition()); // debug
 	}
 
 	@Test
@@ -566,7 +567,7 @@ public class ScannableMotionBaseTest extends ScannableBaseTest {
 		configureTwoExtraFields();
 		getSMB().setOffset(.1, .2);
 		when(getDelegate().rawGetPosition()).thenReturn(new Double[] { 1., 2., 3., 4. });
-		ArrayAssert.assertEquals(new Double[] { 1.1, 2.2, 3., 4. }, (Object[]) getSB().getPosition()); // debug
+		assertArrayEquals(new Double[] { 1.1, 2.2, 3., 4. }, (Object[]) getSB().getPosition()); // debug
 	}
 
 	@Test
@@ -621,8 +622,8 @@ public class ScannableMotionBaseTest extends ScannableBaseTest {
 		getSM().setScalingFactor(new Double[] { null, 1., -1. });
 		getSM().setLowerGdaLimits(new Double[] { -1000., -1000., -1000. });
 		getSM().setUpperGdaLimits(new Double[] { 800., 800., 800. });
-		ArrayAssert.assertEquals(new Double[] { -1000., -1000., -1000. }, getSM().getLowerGdaLimits());
-		ArrayAssert.assertEquals(new Double[] { 800., 800., 800. }, getSM().getUpperGdaLimits());
+		assertArrayEquals(new Double[] { -1000., -1000., -1000. }, getSM().getLowerGdaLimits());
+		assertArrayEquals(new Double[] { 800., 800., 800. }, getSM().getUpperGdaLimits());
 	}
 
 	@Test

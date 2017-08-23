@@ -18,15 +18,16 @@
 
 package gda.device.scannable;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import gda.device.Scannable;
-import gda.device.scannable.component.ScannableOffsetAndScalingComponent;
-import junitx.framework.ArrayAssert;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import gda.device.Scannable;
+import gda.device.scannable.component.ScannableOffsetAndScalingComponent;
 
 /**
  * Note: this is largely tested through ScannableMotionUnitsBaseTeast
@@ -62,25 +63,25 @@ public class ScannableOffsetAndScalingComponentTest {
 	public void testExternalTowardInternalWithOffsetOnly() {
 		Object object = new Object();
 		oc.setOffset(new Double[]{1., null});
-		ArrayAssert.assertEquals(new Object[]{9., object}, (Object[]) oc.externalTowardInternal(new Object[]{10, object}));
+		assertArrayEquals(new Object[]{9., object}, (Object[]) oc.externalTowardInternal(new Object[]{10, object}));
 	}
 	@Test
 	public void testInternalTowardExternalWithOffsetOnly() {
 		Object object = new Object();
 		oc.setOffset(new Double[]{1., null});
-		ArrayAssert.assertEquals(new Object[]{11., object}, (Object[]) oc.internalTowardExternal(new Object[]{10, object}));
+		assertArrayEquals(new Object[]{11., object}, (Object[]) oc.internalTowardExternal(new Object[]{10, object}));
 	}
 	@Test
 	public void testExternalTowardInternalWithScaleOnly() {
 		Object object = new Object();
 		oc.setScalingFactor(new Double[]{2., null});
-		ArrayAssert.assertEquals(new Object[]{5., object}, (Object[]) oc.externalTowardInternal(new Object[]{10, object}));
+		assertArrayEquals(new Object[]{5., object}, (Object[]) oc.externalTowardInternal(new Object[]{10, object}));
 	}
 	@Test
 	public void testInternalTowardExternalWithScaleOnly() {
 		Object object = new Object();
 		oc.setScalingFactor(new Double[]{2., null});
-		ArrayAssert.assertEquals(new Object[]{20., object}, (Object[]) oc.internalTowardExternal(new Object[]{10, object}));
+		assertArrayEquals(new Object[]{20., object}, (Object[]) oc.internalTowardExternal(new Object[]{10, object}));
 	}
 
 	@Test
@@ -89,7 +90,7 @@ public class ScannableOffsetAndScalingComponentTest {
 		Object object = new Object();
 		oc.setScalingFactor(new Double[]{2., 4., null, null});
 		oc.setOffset(new Double[]{20., null, 50., null});
-		ArrayAssert.assertEquals(new Object[]{40., 25., 50., object}, (Object[]) oc.externalTowardInternal(new Object[]{100, 100, 100, object}));
+		assertArrayEquals(new Object[]{40., 25., 50., object}, (Object[]) oc.externalTowardInternal(new Object[]{100, 100, 100, object}));
 	}
 
 	@Test
@@ -98,7 +99,7 @@ public class ScannableOffsetAndScalingComponentTest {
 		Object object = new Object();
 		oc.setScalingFactor(new Double[]{2., 4., null, null});
 		oc.setOffset(new Double[]{20., null, 50., null});
-		ArrayAssert.assertEquals(new Object[]{100., 100., 100., object}, (Object[]) oc.internalTowardExternal(new Object[]{40., 25., 50., object}));
+		assertArrayEquals(new Object[]{100., 100., 100., object}, (Object[]) oc.internalTowardExternal(new Object[]{40., 25., 50., object}));
 	}
 
 

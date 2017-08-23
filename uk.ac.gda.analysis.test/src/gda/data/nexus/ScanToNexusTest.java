@@ -20,8 +20,19 @@
 package gda.data.nexus;
 
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.LinkedList;
+
+import org.eclipse.january.dataset.Dataset;
+import org.junit.Before;
 import org.junit.Ignore;
+import org.junit.Test;
+
 import gda.TestHelpers;
 import gda.configuration.properties.LocalProperties;
 import gda.data.metadata.GDAMetadataProvider;
@@ -45,16 +56,7 @@ import gda.device.Detector;
 import gda.device.Scannable;
 import gda.scan.ConcurrentScan;
 import gda.util.TestUtils;
-
-import java.io.File;
-import java.util.LinkedList;
-
 import junit.framework.Assert;
-
-import org.eclipse.january.dataset.Dataset;
-import org.junit.Before;
-import org.junit.Test;
-
 import uk.ac.gda.analysis.hdf5.Hdf5Helper;
 import uk.ac.gda.analysis.hdf5.Hdf5HelperData;
 import uk.ac.gda.util.io.FileUtils;
@@ -166,12 +168,14 @@ public class ScanToNexusTest {
 		/* now save to ASCII file that caters for multi dimensional data */
 		String asciiOutputFile = testScratchDirectoryName + "/ascii.txt";
 		uk.ac.diamond.scisoft.analysis.io.NexusLoader.convertToAscii(filename, null, null, asciiOutputFile, datasetNames);
-		junitx.framework.FileAssert.assertEquals(new File(TestFileFolder + "testCreateScanFile_ascii_expected.txt"),
-				new File(asciiOutputFile));
+		// ASCII file compare
+		assertEquals(Files.readAllLines(Paths.get(TestFileFolder + "testCreateScanFile_ascii_expected.txt")),
+				Files.readAllLines(Paths.get(asciiOutputFile)));
 
 		String srsDataFile = testScratchDirectoryName + "/Data/" + "1.dat";
-		junitx.framework.FileAssert.assertEquals(new File(TestFileFolder + "testCreateScanToAlignedSRSFile_expected.dat"),
-				new File(srsDataFile));
+		// ASCII file compare
+		assertEquals(Files.readAllLines(Paths.get(TestFileFolder + "testCreateScanToAlignedSRSFile_expected.dat")),
+				Files.readAllLines(Paths.get(srsDataFile)));
 	}
 
 	/**
@@ -188,8 +192,9 @@ public class ScanToNexusTest {
 		LocalProperties.set("gda.data.scan.datawriter.dataFormat.SrsDataFile.aligncolumns", "False");
 		LocalProperties.set(LocalProperties.GDA_DATA_SCAN_DATAWRITER_DATAFORMAT, "SrsDataFile");
 		runScanToCreateFile(null,null);
-		junitx.framework.FileAssert.assertEquals(new File(TestFileFolder + "testCreateScanToSRSFile_expected.dat"),
-				new File(testScratchDirectoryName + "/Data/1.dat"));
+		// ASCII file compare
+		assertEquals(Files.readAllLines(Paths.get(TestFileFolder + "testCreateScanToSRSFile_expected.dat")),
+				Files.readAllLines(Paths.get(testScratchDirectoryName + "/Data/1.dat")));
 	}
 
 	/**
@@ -206,8 +211,9 @@ public class ScanToNexusTest {
 		LocalProperties.set("gda.data.scan.datawriter.dataFormat.SrsDataFile.aligncolumns", "True");
 		LocalProperties.set(LocalProperties.GDA_DATA_SCAN_DATAWRITER_DATAFORMAT, "SrsDataFile");
 		runScanToCreateFile(null,null);
-		junitx.framework.FileAssert.assertEquals(new File(TestFileFolder + "testCreateScanToAlignedSRSFile_expected.dat"),
-				new File(testScratchDirectoryName + "/Data/1.dat"));
+		// ASCII file compare
+		assertEquals(Files.readAllLines(Paths.get(TestFileFolder + "testCreateScanToAlignedSRSFile_expected.dat")),
+				Files.readAllLines(Paths.get(testScratchDirectoryName + "/Data/1.dat")));
 	}
 
 	/**
@@ -236,8 +242,9 @@ public class ScanToNexusTest {
 		writer.addVariable("I0", "SimpleScannable1", 0);
 		writer.addVariable("it", "SimpleScannable2", 0);
 		runScanToCreateFile(null, writer);
-		junitx.framework.FileAssert.assertEquals(new File(TestFileFolder + "testDataWriterExtender_expected.txt"),
-				new File(output));
+		// ASCII file compare
+		assertEquals(Files.readAllLines(Paths.get(TestFileFolder + "testDataWriterExtender_expected.txt")),
+				Files.readAllLines(Paths.get(output)));
 	}
 
 	/**
@@ -253,8 +260,7 @@ public class ScanToNexusTest {
 		tree.sort(NexusTreeNode.getNameComparator());
 		INexusTree branch = tree.getChildNode(2).getChildNode(2).getChildNode(0).getChildNode(0);
 		String val = branch.toText("", ":", "=", "|");
-		org.junit.Assert.assertEquals(val,
-				"|Attr:target=dimensions:39=type:NX_CHAR=data:/entry1/instrument/SimpleDetector3/data\n");
+		assertEquals(val, "|Attr:target=dimensions:39=type:NX_CHAR=data:/entry1/instrument/SimpleDetector3/data\n");
 	}
 
 	/**
@@ -270,7 +276,7 @@ public class ScanToNexusTest {
 		tree.sort(NexusTreeNode.getNameComparator());
 		INexusTree branch = tree.getChildNode(0).getChildNode(2).getChildNode(0).getChildNode(0);
 		String val = branch.toText("", ":", "=", "|");
-		org.junit.Assert.assertEquals(val,
+		assertEquals(val,
 				"|Attr:target=dimensions:39=type:NX_CHAR=data:/entry1/instrument/SimpleDetector3/data\n");
 	}
 
@@ -287,7 +293,7 @@ public class ScanToNexusTest {
 		tree.sort(NexusTreeNode.getNameComparator());
 		INexusTree branch = tree.getChildNode(0).getChildNode(2).getChildNode(0).getChildNode(0);
 		String val = branch.toText("", ":", "=", "|");
-		org.junit.Assert.assertEquals(val,
+		assertEquals(val,
 				"|Attr:target=dimensions:39=type:NX_CHAR=data:/entry1/instrument/SimpleDetector3/data\n");
 	}
 
@@ -304,7 +310,7 @@ public class ScanToNexusTest {
 		tree.sort(NexusTreeNode.getNameComparator());
 		INexusTree branch = tree.getChildNode(0).getChildNode(3).getChildNode(2).getChildNode(0).getChildNode(0);
 		String val = branch.toText("", ":", "=", "|");
-		org.junit.Assert.assertEquals(val,
+		assertEquals(val,
 				"|Attr:target=dimensions:39=type:NX_CHAR=data:/entry1/instrument/SimpleDetector3/data\n");
 	}
 
@@ -319,7 +325,7 @@ public class ScanToNexusTest {
 		tree.sort(NexusTreeNode.getNameComparator());
 		INexusTree branch = tree.getChildNode(0).getChildNode(2).getChildNode(0).getChildNode(0);
 		String val = branch.toText("", ":", "=", "|");
-		org.junit.Assert.assertEquals(val,
+		assertEquals(val,
 				"|Attr:target=dimensions:39=type:NX_CHAR=data:/entry1/instrument/SimpleDetector3/data\n");
 	}
 
@@ -334,8 +340,7 @@ public class ScanToNexusTest {
 		tree.sort(NexusTreeNode.getNameComparator());
 		INexusTree branch = tree.getChildNode(2).getChildNode(2).getChildNode(0).getChildNode(0);
 		String val = branch.toText("", ":", "=", "|");
-		org.junit.Assert.assertEquals(val,
-				"|Attr:target=dimensions:39=type:NX_CHAR=data:/entry1/instrument/SimpleDetector3/data\n");
+		assertEquals(val, "|Attr:target=dimensions:39=type:NX_CHAR=data:/entry1/instrument/SimpleDetector3/data\n");
 	}
 
 	/**

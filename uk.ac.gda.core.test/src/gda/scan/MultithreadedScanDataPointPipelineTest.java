@@ -19,12 +19,20 @@
 package gda.scan;
 
 import static gda.jython.InterfaceProvider.setJythonServerNotiferForTesting;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import java.util.concurrent.Callable;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.InOrder;
+
 import gda.AbstractTestBase;
 import gda.MockFactory;
 import gda.data.scan.datawriter.DataWriter;
@@ -33,14 +41,6 @@ import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.PositionCallableProvider;
 import gda.jython.IJythonServerNotifer;
-
-import java.util.concurrent.Callable;
-
-import junitx.framework.ArrayAssert;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.InOrder;
 
 public class MultithreadedScanDataPointPipelineTest extends AbstractTestBase {
 
@@ -296,10 +296,10 @@ public class MultithreadedScanDataPointPipelineTest extends AbstractTestBase {
 		inOrderBroadcastThread.verify(mockDataWriter).addData(point2);
 		inOrderBroadcastThread.verify(mockJythonServerNotifer).notifyServer(mockScan, point2);
 
-		ArrayAssert.assertEquals(new Object[] { posa1, posc1, posb1, posd1 }, point1.getScannablePositions().toArray());
-		ArrayAssert.assertEquals(new Object[] { dataa1, datab1 }, point1.getDetectorData().toArray());
-		ArrayAssert.assertEquals(new Object[] { posa2, posc2, posb2, posd2 }, point2.getScannablePositions().toArray());
-		ArrayAssert.assertEquals(new Object[] { dataa2, datab2 }, point2.getDetectorData().toArray());
+		assertArrayEquals(new Object[] { posa1, posc1, posb1, posd1 }, point1.getScannablePositions().toArray());
+		assertArrayEquals(new Object[] { dataa1, datab1 }, point1.getDetectorData().toArray());
+		assertArrayEquals(new Object[] { posa2, posc2, posb2, posd2 }, point2.getScannablePositions().toArray());
+		assertArrayEquals(new Object[] { dataa2, datab2 }, point2.getDetectorData().toArray());
 	}
 
 	@Test

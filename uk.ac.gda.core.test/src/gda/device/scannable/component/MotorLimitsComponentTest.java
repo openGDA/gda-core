@@ -18,17 +18,18 @@
 
 package gda.device.scannable.component;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import gda.device.DeviceException;
-import gda.device.Motor;
-import gda.device.MotorException;
-import junitx.framework.ArrayAssert;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import gda.device.DeviceException;
+import gda.device.Motor;
+import gda.device.MotorException;
 
 public class MotorLimitsComponentTest {
 
@@ -45,7 +46,7 @@ public class MotorLimitsComponentTest {
 	@Test
 	public void testGetInternalLower() throws MotorException, DeviceException {
 		when(motor.getMinPosition()).thenReturn(-1.);
-		ArrayAssert.assertEquals(new Double[]{-1.}, lc.getInternalLower());
+		assertArrayEquals(new Double[]{-1.}, lc.getInternalLower());
 		when(motor.getMinPosition()).thenReturn(Double.NaN);
 		assertEquals(null, (Object) lc.getInternalLower());
 	}
@@ -53,7 +54,7 @@ public class MotorLimitsComponentTest {
 	@Test
 	public void testGetInternalUpper() throws MotorException, DeviceException {
 		when(motor.getMaxPosition()).thenReturn(1.);
-		ArrayAssert.assertEquals(new Double[]{1.}, lc.getInternalUpper());
+		assertArrayEquals(new Double[]{1.}, lc.getInternalUpper());
 		when(motor.getMaxPosition()).thenReturn(Double.NaN);
 		assertEquals(null, (Object) lc.getInternalUpper());
 	}

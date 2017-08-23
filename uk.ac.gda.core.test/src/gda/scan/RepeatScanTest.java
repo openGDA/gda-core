@@ -18,12 +18,23 @@
 
 package gda.scan;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.concurrent.Callable;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Matchers;
+import org.mockito.Mockito;
+
 import gda.TestHelpers;
 import gda.configuration.properties.LocalProperties;
 import gda.device.Detector;
@@ -32,14 +43,6 @@ import gda.device.Scannable;
 import gda.device.detector.RepScanScannable;
 import gda.device.scannable.PositionCallableProvider;
 import gda.jython.commands.ScannableCommands;
-
-import java.io.File;
-import java.util.concurrent.Callable;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Matchers;
-import org.mockito.Mockito;
 
 public class RepeatScanTest {
 
@@ -230,8 +233,8 @@ public class RepeatScanTest {
 		assertEquals( 3, outer.getPositionCallableThreadPoolSize());
 		assertEquals( 10, outer.getScanDataPointQueueLength());
 
-		junitx.framework.FileAssert.assertEquals(new File(TestFileFolder + "testOuterScan/Data/expected.dat"),
-			new File(testScratchDirectoryName + "/Data/" + ScanBaseFirstScanNumber + ".dat"));
+		assertArrayEquals(Files.readAllBytes(Paths.get(TestFileFolder + "testOuterScan/Data/expected.dat")),
+				Files.readAllBytes(Paths.get(testScratchDirectoryName + "/Data/" + ScanBaseFirstScanNumber + ".dat")));
 
 	}
 	final static String TestFileFolder = "testfiles/gda/scan/RepeatScanTest/";

@@ -20,12 +20,11 @@ package gda.device.scannable;
 
 import static org.jscience.physics.units.SI.METER;
 import static org.jscience.physics.units.SI.MILLI;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import junitx.framework.ArrayAssert;
 
 import org.jscience.physics.quantities.Quantity;
 import org.jscience.physics.units.Unit;
@@ -40,49 +39,49 @@ public class PositionConvertorFunctionsTest {
 
 	@Test
 	public void testToObjectArrayWithSingleObjects() {
-		ArrayAssert.assertEquals(new Object[] { 1 }, PositionConvertorFunctions.toObjectArray(1));
-		ArrayAssert.assertEquals(new Object[] { 1. }, PositionConvertorFunctions.toObjectArray(1.));
-		ArrayAssert.assertEquals(new Object[] { "abc" }, PositionConvertorFunctions.toObjectArray("abc"));
+		assertArrayEquals(new Object[] { 1 }, PositionConvertorFunctions.toObjectArray(1));
+		assertArrayEquals(new Object[] { 1. }, PositionConvertorFunctions.toObjectArray(1.));
+		assertArrayEquals(new Object[] { "abc" }, PositionConvertorFunctions.toObjectArray("abc"));
 	}
 
 	@Test
 	public void testToObjectArrayWithSinglePyObjects() {
-		ArrayAssert.assertEquals(new Object[] { new PyInteger(1) }, PositionConvertorFunctions
+		assertArrayEquals(new Object[] { new PyInteger(1) }, PositionConvertorFunctions
 				.toObjectArray(new PyInteger(1)));
-		ArrayAssert.assertEquals(new Object[] { new PyFloat(1.) }, PositionConvertorFunctions
+		assertArrayEquals(new Object[] { new PyFloat(1.) }, PositionConvertorFunctions
 				.toObjectArray(new PyFloat(1.)));
-		ArrayAssert.assertEquals(new Object[] { new PyString("abc") }, PositionConvertorFunctions
+		assertArrayEquals(new Object[] { new PyString("abc") }, PositionConvertorFunctions
 				.toObjectArray(new PyString("abc")));
 	}
 
 	@Test
 	public void testToObjectArrayWithArray() {
 		Object[] array = new Object[] { 1, 2., "abc", new PyInteger(1), new PyFloat(2.), new PyString("abc") };
-		ArrayAssert.assertEquals(array, PositionConvertorFunctions.toObjectArray(array));
+		assertArrayEquals(array, PositionConvertorFunctions.toObjectArray(array));
 	}
 
 	@Test
 	public void testToObjectArrayWithDoubleArray() {
 		Double[] array = new Double[] { 1., 2., null} ;
-		ArrayAssert.assertEquals(array, PositionConvertorFunctions.toObjectArray(array));
+		assertArrayEquals(array, PositionConvertorFunctions.toObjectArray(array));
 	}
 
 	@Test
 	public void testToObjectArrayWithString() {
-		ArrayAssert.assertEquals(new Object[] {"string"}, PositionConvertorFunctions.toObjectArray("string"));
-		ArrayAssert.assertEquals(new Object[] {new String("string")}, PositionConvertorFunctions.toObjectArray(new String("string")));
+		assertArrayEquals(new Object[] {"string"}, PositionConvertorFunctions.toObjectArray("string"));
+		assertArrayEquals(new Object[] {new String("string")}, PositionConvertorFunctions.toObjectArray(new String("string")));
 	}
 
 	@Test
 	public void testToObjectArrayWithPySequences() {
 		PyObject[] array = new PyObject[] { new PyInteger(1), new PyFloat(2.), new PyString("abc") };
-		ArrayAssert.assertEquals(array, PositionConvertorFunctions.toObjectArray(array));
+		assertArrayEquals(array, PositionConvertorFunctions.toObjectArray(array));
 	}
 
 	@Test
 	public void testToObjectArrayWithPrimitiveDoubleArray() {
 		double[] array = new double[] { 1., 2.} ;
-		ArrayAssert.assertEquals(new Double[] {1., 2.}, PositionConvertorFunctions.toObjectArray(array));
+		assertArrayEquals(new Double[] {1., 2.}, PositionConvertorFunctions.toObjectArray(array));
 	}
 
 	@Test
@@ -108,17 +107,17 @@ public class PositionConvertorFunctionsTest {
 
 	@Test
 	public void testToDoubleArray() {
-		ArrayAssert.assertEquals(new Double[] { 1., 2., null },
+		assertArrayEquals(new Double[] { 1., 2., null },
 				PositionConvertorFunctions.toDoubleArray(new Object[] { 1., 2, null }));
-		ArrayAssert.assertEquals(new Double[] { 1., 2., 3. },
+		assertArrayEquals(new Double[] { 1., 2., 3. },
 				PositionConvertorFunctions.toDoubleArray(new Object[] {"1", "2.", "3.00" }));
-		ArrayAssert.assertEquals(new Double[] { 1., 2.},
+		assertArrayEquals(new Double[] { 1., 2.},
 				PositionConvertorFunctions.toDoubleArray(new Object[] {new PyInteger(1), new PyFloat(2.)}));
 	}
 
 	@Test
 	public void testToDoubleArrayWithPyStrings() {
-		ArrayAssert.assertEquals(new Double[] { 1.},
+		assertArrayEquals(new Double[] { 1.},
 				PositionConvertorFunctions.toDoubleArray(new Object[] { new PyString("1.") }));
 	}
 
@@ -128,10 +127,10 @@ public class PositionConvertorFunctionsTest {
 		Object nullObject = null;
 		Object[] nullObjectArray = null;
 		assertEquals(null, PositionConvertorFunctions.toDouble(nullObject) );
-		ArrayAssert.assertEquals(null, PositionConvertorFunctions.toDoubleArray(nullObject) );
-		ArrayAssert.assertEquals(null, PositionConvertorFunctions.toDoubleArray(nullObjectArray) );
+		assertArrayEquals(null, PositionConvertorFunctions.toDoubleArray(nullObject) );
+		assertArrayEquals(null, PositionConvertorFunctions.toDoubleArray(nullObjectArray) );
 		assertEquals(null, PositionConvertorFunctions.toObject(nullObjectArray) );
-		ArrayAssert.assertEquals(null, PositionConvertorFunctions.toObjectArray(nullObject) );
+		assertArrayEquals(null, PositionConvertorFunctions.toObjectArray(nullObject) );
 	}
 
 	@Test
@@ -190,14 +189,14 @@ public class PositionConvertorFunctionsTest {
 		Quantity[] expected = new Quantity[]{Quantity.valueOf(1., METER), Quantity.valueOf(1., METER), null};
 		Quantity[] actual = PositionConvertorFunctions.toQuantityArray(
 				new Quantity[]{Quantity.valueOf(1., METER), Quantity.valueOf(1000., MILLI(METER)), null}, METER);
-		ArrayAssert.assertEquals(expected, actual);
+		assertArrayEquals(expected, actual);
 	}
 
 	@Test
 	public void testToAmmountArray() {
 		Double[] actual = PositionConvertorFunctions.toAmountArray(
 				new Quantity[]{Quantity.valueOf(1., METER), Quantity.valueOf(1000., MILLI(METER)), null});
-		ArrayAssert.assertEquals(new Double[]{1., 1000., null}, actual);
+		assertArrayEquals(new Double[]{1., 1000., null}, actual);
 	}
 
 }

@@ -18,26 +18,27 @@
 
 package gda.jython.translator;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import gda.jython.InterfaceProvider;
-import gda.jython.MockJythonServerFacade;
-import gda.util.TestUtils;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-
-import junitx.framework.FileAssert;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
+
+import gda.jython.InterfaceProvider;
+import gda.jython.MockJythonServerFacade;
+import gda.util.TestUtils;
 /**
  * Test that the GeneralTranslator produces the expected translation
  */
@@ -173,9 +174,9 @@ public class GeneralTranslatorTest {
 		pw.flush();
 		pw.close();
 
-		FileAssert.assertBinaryEquals(
-				new File(expectedFilename),
-				new File(translatedFilename));
+		// Binary compare files
+		assertArrayEquals(Files.readAllBytes(Paths.get(expectedFilename)),
+				Files.readAllBytes(Paths.get(translatedFilename)));
 	}
 
 	@Test

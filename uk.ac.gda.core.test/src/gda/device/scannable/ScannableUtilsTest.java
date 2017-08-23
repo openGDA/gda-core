@@ -36,7 +36,7 @@ import org.junit.Test;
 import gda.device.Detector;
 import gda.device.Scannable;
 import gda.device.scannable.scannablegroup.ScannableGroup;
-import junitx.framework.ArrayAssert;
+
 
 /**
  * tests the methods in ScannableUtils
@@ -258,7 +258,7 @@ public class ScannableUtilsTest {
 		Object position =  new Double[] {12.0, .1, -0.1, 3.145};
 		String[] format = new String[] {"%.1f","%.2f","%.3f","%.4f"};
 		String[] result = ScannableUtils.getFormattedCurrentPositionArray(position, 4, format);
-		ArrayAssert.assertEquals(new String[]{"12.0", "0.10", "-0.100", "3.1450"}, result);
+		assertArrayEquals(new String[]{"12.0", "0.10", "-0.100", "3.1450"}, result);
 	}
 
 	@Test
@@ -266,14 +266,14 @@ public class ScannableUtilsTest {
 		Object position =  new Double[] {12.0, null, -0.1, 3.145};
 		String[] format = new String[] {"%.1f","%.2f","%.3f","%.4f"};
 		String[] result = ScannableUtils.getFormattedCurrentPositionArray(position, 4, format);
-		ArrayAssert.assertEquals(new String[]{"12.0", "unknown", "-0.100", "3.1450"}, result);
+		assertArrayEquals(new String[]{"12.0", "unknown", "-0.100", "3.1450"}, result);
 	}
 	@Test
 	public void testGetCurrentPositionMultipleFieldsBadFormat() throws Exception {
 		Object position =  new Double[] {12.0, .1, -0.1, 3.145};
 		String[] format = new String[] {"%.1f"};
 		String[] result = ScannableUtils.getFormattedCurrentPositionArray(position, 4, format);
-		ArrayAssert.assertEquals(new String[]{"12.0", "0.1", "-0.1", "3.1"}, result);
+		assertArrayEquals(new String[]{"12.0", "0.1", "-0.1", "3.1"}, result);
 	}
 
 	public void testCalculateNextPoint() {
