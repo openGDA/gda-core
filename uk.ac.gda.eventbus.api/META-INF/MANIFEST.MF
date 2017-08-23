@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: GDA Event Bus API
 Bundle-SymbolicName: uk.ac.gda.eventbus.api
-Bundle-Version: 9.5.0.qualifier
+Bundle-Version: 9.6.0.qualifier
 Require-Bundle: org.eclipse.core.runtime
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy

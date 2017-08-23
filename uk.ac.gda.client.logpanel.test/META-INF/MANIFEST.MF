@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: GDA Logpanel Tests
 Bundle-SymbolicName: uk.ac.gda.client.logpanel.test
-Bundle-Version: 9.5.0.qualifier
+Bundle-Version: 9.6.0.qualifier
 Bundle-Vendor: Diamond Light Source
 Fragment-Host: uk.ac.gda.client.logpanel;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7

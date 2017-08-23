@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: GDA Client Plug-in
 Bundle-SymbolicName: uk.ac.gda.client;singleton:=true
 Bundle-Activator: gda.rcp.GDAClientActivator
-Bundle-Version: 9.5.0.qualifier
+Bundle-Version: 9.6.0.qualifier
 Bundle-Vendor: Diamond Light Source
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy

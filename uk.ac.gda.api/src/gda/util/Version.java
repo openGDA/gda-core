@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
  */
 public class Version {
 
-	private static final String RELEASE_VER = "9.5.0";
+	private static final String RELEASE_VER = "9.6.0";
 
 	/**
 	 * Returns the release version as a String
@@ -44,7 +44,7 @@ public class Version {
 	 * @return release number as a double.
 	 */
 	public static double getReleaseNumber() {
-		return Double.parseDouble(RELEASE_VER.substring(0, RELEASE_VER.lastIndexOf(".")) + RELEASE_VER.substring(RELEASE_VER.lastIndexOf(".") + 1));
+		return Double.parseDouble(RELEASE_VER.substring(0, RELEASE_VER.lastIndexOf('.')) + RELEASE_VER.substring(RELEASE_VER.lastIndexOf('.') + 1));
 	}
 
 	/**
@@ -52,7 +52,7 @@ public class Version {
 	 *
 	 * @param args
 	 */
-	public static void main(String args[]) {
+	public static void main(String[] args) {
 		final Logger logger = LoggerFactory.getLogger(Version.class);
 		logger.info("GDA version: {} ", getRelease());
 		// Also get as numeric to check
