@@ -5,8 +5,7 @@ Bundle-SymbolicName: uk.ac.gda.client.exafs.test
 Bundle-Version: 1.0.0
 Fragment-Host: uk.ac.gda.client.exafs;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Import-Package: junitx.framework,
- org.dawb.common.services,
+Import-Package: org.dawb.common.services,
  org.eclipse.dawnsci.plotting.api,
  org.eclipse.dawnsci.plotting.api.trace,
  org.eclipse.richbeans.binding,

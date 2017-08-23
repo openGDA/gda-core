@@ -22,7 +22,9 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
 import org.eclipse.january.dataset.Dataset;
@@ -109,7 +111,7 @@ public class Xspress2SystemTest {
 	@Test
 	public void testConfigure() {
 		DetectorROI roi = new DetectorROI("1st_peak", 100, 1122);
-		ArrayList<DetectorROI> regions = new ArrayList<DetectorROI>();
+		ArrayList<DetectorROI> regions = new ArrayList<>();
 		regions.add(roi);
 		DetectorElement[] expected = { new DetectorElement("Element0", 0, 0, 4000, false, regions),
 				new DetectorElement("Element1", 1, 85, 2047, false, regions),
@@ -224,12 +226,14 @@ public class Xspress2SystemTest {
 
 	/**
 	 * Test method for {@link gda.device.detector.xspress.Xspress2Detector#saveDetectors(java.lang.String)}.
+	 * @throws IOException If file access fails
 	 */
 	@Test
-	public void testSaveDetectors() {
+	public void testSaveDetectors() throws IOException {
 		xspress.saveDetectors(testScratchDirectoryName + "xspressConfig-saved.xml");
-		junitx.framework.FileAssert.assertEquals(new File(TestFileFolder + "xspressConfig.xml"), new File(
-				testScratchDirectoryName + "xspressConfig-saved.xml"));
+		// ASCII file compare
+		assertEquals(Files.readAllLines(Paths.get(TestFileFolder + "xspressConfig.xml")),
+				Files.readAllLines(Paths.get(testScratchDirectoryName + "xspressConfig-saved.xml")));
 	}
 
 	/**
@@ -300,7 +304,7 @@ public class Xspress2SystemTest {
 		assertEquals(8, xspress.getFullMCABits());
 		assertEquals(256, xspress.getCurrentMCASize());
 		try {
-			ArrayList<DetectorROI> regionList = new ArrayList<DetectorROI>();
+			ArrayList<DetectorROI> regionList = new ArrayList<>();
 			DetectorROI roi = new DetectorROI("roi1", 50, 100);
 			DetectorROI roi2 = new DetectorROI("roi2", 150, 174);
 			regionList.add(roi);

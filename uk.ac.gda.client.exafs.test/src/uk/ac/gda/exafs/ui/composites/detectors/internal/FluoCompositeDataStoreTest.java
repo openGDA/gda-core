@@ -19,15 +19,16 @@
 package uk.ac.gda.exafs.ui.composites.detectors.internal;
 
 import static org.junit.Assert.assertEquals;
-import gda.util.TestUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-
-import junitx.framework.FileAssert;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import gda.util.TestUtils;
 
 public class FluoCompositeDataStoreTest {
 
@@ -56,6 +57,7 @@ public class FluoCompositeDataStoreTest {
 		FluoCompositeDataStore testDataStore = new FluoCompositeDataStore(outputFilename);
 		testDataStore.writeDataToFile(theData);
 
-		FileAssert.assertEquals(originalDataFile, new File(outputFilename));
+		// ASCII file compare
+		assertEquals(Files.readAllLines(originalDataFile.toPath()), Files.readAllLines(Paths.get(outputFilename)));
 	}
 }
