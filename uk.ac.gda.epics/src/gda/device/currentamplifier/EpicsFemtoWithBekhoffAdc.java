@@ -80,7 +80,7 @@ public class EpicsFemtoWithBekhoffAdc extends DetectorBase implements NexusDetec
 	private static final String FEMTO_COUPLING = "ACDC";
 
 	// ADC PVs // Some are currently unused as I don't understand what they do
-	private static final String ADC_PREFIX = ":ADC";
+	private static final String ADC_PREFIX = "ADC";
 	private static final String ADC_MODE = "MODE";
 	private static final String ADC_ENABLE = "ENABLED";
 	private static final String ADC_RETRIGGER = "RETRIGGER";
@@ -88,13 +88,15 @@ public class EpicsFemtoWithBekhoffAdc extends DetectorBase implements NexusDetec
 	private static final String ADC_CLEAR = "CLEAR";
 	private static final String ADC_SAMPLES = "SAMPLES";
 	private static final String ADC_OFFSET = "OFFSET";
-	private static final String ADC_AVERAGE = "AVERAGE";
+	private static final String ADC_AVERAGE = "AVERAGE"; //on I21 this is the integration time for the averaged value
 	private static final String ADC_BUFFFER_COUNT = "BUFFERCOUNT";
 	private static final String ADC_CHANNEL_BUFFFER = "CHANBUFF";
 	private static final String ADC_CAPTURE = "CAPTURE";
-	private static final String ADC_VALUE = "VALUE";
+	private static final String ADC_VALUE = "VALUE"; //on I21 this is the actual averaged value over the specifid integration time.
 	private static final String ADC_STATE = "STATE";
 	private static final String ADC_INTERRUPT = "INTERRUPT";
+	private boolean hasIAVinPV=true;
+	private boolean hasIinPV=true;
 
 	// Mode, gain, enum string eg. "Low Noise", "10E4", "10^4 low noise"
 	private Map<String, Map<Double, String>> modeToGainToGainStringMap;
@@ -170,7 +172,8 @@ public class EpicsFemtoWithBekhoffAdc extends DetectorBase implements NexusDetec
 	 * @throws TimeoutException
 	 */
 	private Channel getAdcChannel(String pvPostFix) throws CAException, TimeoutException {
-		return getChannel(I_AVERAGE + ADC_PREFIX + adcChannel + "_" + pvPostFix);
+		if (!isHasIAVinPV()) return getChannel(ADC_PREFIX + adcChannel + "_" + pvPostFix);
+		return getChannel(I_AVERAGE + ":" + ADC_PREFIX + adcChannel + "_" + pvPostFix);
 	}
 
 	/**
@@ -183,6 +186,7 @@ public class EpicsFemtoWithBekhoffAdc extends DetectorBase implements NexusDetec
 	 * @throws TimeoutException
 	 */
 	private Channel getFemtoChannel(String pvPostFix) throws CAException, TimeoutException {
+		if (!isHasIinPV()) return getChannel(pvPostFix);
 		return getChannel(I_INSTANTANEOUS + ":" + pvPostFix);
 	}
 
@@ -577,6 +581,7 @@ public class EpicsFemtoWithBekhoffAdc extends DetectorBase implements NexusDetec
 	private double getAverageVoltage() throws DeviceException {
 		logger.trace("getAverageVoltage called");
 		try {
+			if (!isHasIAVinPV()) return EPICS_CONTROLLER.cagetDouble(getFemtoChannel(ADC_PREFIX + adcChannel + "_" + ADC_VALUE));
 			return EPICS_CONTROLLER.cagetDouble(getChannel(I_AVERAGE));
 		} catch (TimeoutException | CAException | InterruptedException e) {
 			String msg = "Error getting average voltage";
@@ -776,6 +781,22 @@ public class EpicsFemtoWithBekhoffAdc extends DetectorBase implements NexusDetec
 
 	public void setUpperVoltageBound(double upperVoltageBound) {
 		this.upperVoltageBound = upperVoltageBound;
+	}
+
+	public boolean isHasIAVinPV() {
+		return hasIAVinPV;
+	}
+
+	public void setHasIAVinPV(boolean hasAverage) {
+		this.hasIAVinPV = hasAverage;
+	}
+
+	public boolean isHasIinPV() {
+		return hasIinPV;
+	}
+
+	public void setHasIinPV(boolean hasIinPV) {
+		this.hasIinPV = hasIinPV;
 	}
 
 }
