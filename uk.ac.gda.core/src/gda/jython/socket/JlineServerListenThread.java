@@ -86,12 +86,8 @@ public class JlineServerListenThread extends ServerListenThreadBase {
 			//Not much we can do here - worst case is we lose the history
 			logger.warn("Error writing telnet terminal history", e);
 		}
-		try {
-			cr.close();
-		} catch (IOException e) {
-			//Or here - log warning and carry on
-			logger.warn("Failed to close ConsoleReader", e);
-		}
+		cr.close();
+
 	}
 
 	@Override
