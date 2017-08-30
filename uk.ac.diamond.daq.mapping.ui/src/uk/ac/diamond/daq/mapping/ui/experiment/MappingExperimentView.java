@@ -1,5 +1,7 @@
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,6 +25,9 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.scanning.api.device.IRunnableDeviceService;
+import org.eclipse.scanning.api.event.EventException;
+import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.event.status.OpenRequest;
@@ -36,6 +41,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.mapping.api.IDetectorModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBeanProvider;
@@ -101,6 +107,8 @@ public class MappingExperimentView implements IAdaptable {
 	private ScrolledComposite scrolledComposite;
 
 	private Composite mainComposite;
+
+	private IRunnableDeviceService runnableDeviceService;
 
 	private Map<Class<? extends AbstractMappingSection>, AbstractMappingSection> sections;
 
@@ -357,6 +365,20 @@ public class MappingExperimentView implements IAdaptable {
 		}
 
 		return null;
+	}
+
+	public IRunnableDeviceService getRunnableDeviceService() throws EventException {
+		if (runnableDeviceService == null) {
+			IEventService eventService = injectionContext.get(IEventService.class);
+			try {
+				URI jmsURI = new URI(LocalProperties.getActiveMQBrokerURI());
+				return  eventService.createRemoteService(jmsURI, IRunnableDeviceService.class);
+			} catch (URISyntaxException e) {
+				throw new EventException("Malformed URI for activemq", e);
+			}
+		}
+
+		return runnableDeviceService;
 	}
 
 }

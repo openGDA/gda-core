@@ -23,6 +23,8 @@ import java.util.Map;
 import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.scanning.api.device.IRunnableDeviceService;
+import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.FontMetrics;
 import org.eclipse.swt.graphics.GC;
@@ -55,6 +57,10 @@ public abstract class AbstractMappingSection {
 
 	protected <S> S getService(Class<S> serviceClass) {
 		return mappingView.getEclipseContext().get(serviceClass);
+	}
+
+	protected IRunnableDeviceService getRunnableDeviceService() throws EventException {
+		return mappingView.getRunnableDeviceService();
 	}
 
 	protected IMappingExperimentBean getMappingBean() {
