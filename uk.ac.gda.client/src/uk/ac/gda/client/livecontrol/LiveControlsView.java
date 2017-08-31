@@ -48,7 +48,7 @@ public class LiveControlsView extends ViewPart {
 		// Cache the composite for setFocus()
 		this.parent = parent;
 
-		List<ControlSet> controlSets = Finder.getInstance().listFindablesOfType(ControlSet.class);
+		List<ControlSet> controlSets = Finder.getInstance().listLocalFindablesOfType(ControlSet.class);
 
 		if (controlSets.isEmpty()) {
 			displayAndLogError(parent, "No controls sets were found");
