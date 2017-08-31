@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
@@ -29,6 +30,8 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.swtdesigner.SWTResourceManager;
 
 import gda.factory.Finder;
 
@@ -80,9 +83,12 @@ public class LiveControlsView extends ViewPart {
 				groups.add(control.getGroup());
 			}
 		}
-
+		//DAQ-855 make the view scrollable
+		final ScrolledComposite scrolledComposite=new ScrolledComposite(parent, SWT.H_SCROLL | SWT.V_SCROLL);
+		final Composite content=new Composite(scrolledComposite, SWT.NONE);
+		content.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 		// Layout the composite
-		parent.setLayout(new RowLayout(SWT.VERTICAL));
+		content.setLayout(new RowLayout(SWT.VERTICAL));
 
 		// Define the row layout to be used bay all the groups
 		RowLayout rowLayout = new RowLayout(SWT.HORIZONTAL);
@@ -91,7 +97,7 @@ public class LiveControlsView extends ViewPart {
 		// Loop through the groups
 		for (String group : groups) {
 			// Create a new group
-			Group displayGroup = new Group(parent, SWT.INHERIT_DEFAULT);
+			Group displayGroup = new Group(content, SWT.INHERIT_DEFAULT);
 			displayGroup.setLayout(rowLayout);
 			displayGroup.setText(group);
 
@@ -106,7 +112,7 @@ public class LiveControlsView extends ViewPart {
 
 		if (controlsWithNoGroup) {
 			// Add controls with no group directly to another composite
-			Composite displayGroup = new Composite(parent, SWT.NONE);
+			Composite displayGroup = new Composite(content, SWT.NONE);
 			displayGroup.setLayout(rowLayout);
 
 			for (LiveControl control : controls) {
@@ -117,7 +123,12 @@ public class LiveControlsView extends ViewPart {
 				}
 			}
 		}
-	}
+		scrolledComposite.setContent(content);
+		scrolledComposite.setExpandVertical(true);
+		scrolledComposite.setExpandHorizontal(true);
+		scrolledComposite.setMinSize(content.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+		scrolledComposite.setShowFocusedControl(true);
+}
 
 	@Override
 	public void setFocus() {
