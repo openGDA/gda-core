@@ -140,6 +140,8 @@ public interface Zebra {
 
 	void pcDisarm() throws Exception;
 
+	void waitUntilNotArmed(int timeout) throws Exception;
+
 	void setPCCaptureBitField(int val) throws Exception;
 
 	int getPCCaptureBitField() throws Exception;
