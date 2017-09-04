@@ -87,19 +87,19 @@ public class EditBeamlineConfigurationDialog extends Dialog {
 	 * @return control tree
 	 */
 	private ControlTree createControlTree() {
-		// TODO group by scannable group?
-		ControlTree controlTree = new ControlTree();
+		final ControlTree controlTree = new ControlTree();
 
-		// TODO: do we have to have a parent group? why?
-		ControlGroup scannablesGroup = new ControlGroup();
+		// We need only one group of controls, so create one called "Scannables" here
+		// and disable the "Add group" button in createDialogArea().
+		final ControlGroup scannablesGroup = new ControlGroup();
 		scannablesGroup.setName(SCANNABLES_GROUP_NAME);
 		controlTree.add(scannablesGroup);
 
-		List<INamedNode> controlNodes = new ArrayList<>();
+		final List<INamedNode> controlNodes = new ArrayList<>();
 		if (initialBeamlineConfiguration != null) {
 			for (String scannableName : initialBeamlineConfiguration.keySet()) {
 				// TODO: check the scannable with the given name exists?
-				ControlNode controlNode = new ControlNode();
+				final ControlNode controlNode = new ControlNode();
 				controlNode.setName(scannableName);
 				controlNode.setValue(initialBeamlineConfiguration.get(scannableName));
 				controlTree.add(controlNode);
@@ -131,17 +131,19 @@ public class EditBeamlineConfigurationDialog extends Dialog {
 		final ControlTree controlTree = createControlTree();
 		viewer = new ControlTreeViewer(scannableDeviceService, INDIRECT_NO_SET_VALUE);
 		viewer.setDefaultGroupName(SCANNABLES_GROUP_NAME);
-		ToolBarManager toolbarManager = new ToolBarManager(SWT.FLAT);
+		final ToolBarManager toolbarManager = new ToolBarManager(SWT.FLAT);
 		ToolBar toolBar = toolbarManager.createControl(composite);
 		toolBar.setLayoutData(new GridData(SWT.END, SWT.FILL, true, false));
 
 		try {
 			viewer.createPartControl(composite, controlTree, toolbarManager);
+			toolbarManager.remove(ControlTreeViewer.ACTION_ID_ADD_GROUP);
 			toolbarManager.update(true);
 		} catch (Exception e) {
 			logger.error("Could not create control tree viewer", e);
 		}
 
+		viewer.setFocus();
 		return composite;
 	}
 
@@ -158,6 +160,4 @@ public class EditBeamlineConfigurationDialog extends Dialog {
 	public Map<String, Object> getModifiedBeamlineConfiguration() {
 		return newBeamlineConfiguration;
 	}
-
-
 }
