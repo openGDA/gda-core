@@ -110,11 +110,6 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 		 */
 		IDE.registerAdapters();
 
-		/*
-		 * Does nothing in eclipse 3.5x
-		 */
-		super.initialize(configurer);
-
 		// Don't clear the background when resizing. This should remove the flickering.
 		// This may have other effects of causing "cheese" to appear.
 		System.setProperty("sun.awt.noerasebackground", "true");
