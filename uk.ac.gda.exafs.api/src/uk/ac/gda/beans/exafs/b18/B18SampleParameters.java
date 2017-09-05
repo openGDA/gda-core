@@ -41,7 +41,7 @@ public class B18SampleParameters implements Serializable, ISampleParameters {
 	/**
 	 * Valid sample stages.
 	 */
-	public static final String[] STAGE = new String[] { "none", "xythetastage", "ln2cryostage", "sxcryostage" };
+	public static final String[] STAGE = new String[] { "none", "xythetastage", "ln2cryostage", "sxcryostage", "userstage" };
 
 	String name = "";
 	String description1 = "";
