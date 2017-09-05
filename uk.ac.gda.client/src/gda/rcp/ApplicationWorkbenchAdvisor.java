@@ -115,14 +115,6 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 		 */
 		super.initialize(configurer);
 
-		// TODO This fix probably causes the stack traces about AWT threads that sometimes
-		// occur when the RCP client is exited. Probably best not to use this class as
-		// this may start doing something at the OS level since the client is exiting
-		// at this point.
-		if (System.getProperty("gda.ignore.SWT.AWT.workaround") == null) {
-			WorkaroundSWT_AWT_BridgeOnGTK.workAroundIssue();
-		}
-
 		// Don't clear the background when resizing. This should remove the flickering.
 		// This may have other effects of causing "cheese" to appear.
 		System.setProperty("sun.awt.noerasebackground", "true");
