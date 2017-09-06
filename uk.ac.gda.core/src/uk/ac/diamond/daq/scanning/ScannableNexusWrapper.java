@@ -610,9 +610,12 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 
 	@ScanFinally
 	public void scanFinally() {
+		// clear the state of the nexus object and datasets ready for the next scan
 		writableDatasets = null;
 		inputFieldNames = null;
 		outputFieldNames = null;
+		demandValueDataset = null;
+		nexusObject = null;
 	}
 
 	/**
@@ -653,6 +656,10 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 		}
 	}
 
+	protected boolean isNexusObjectCreated() {
+		return nexusObject != null;
+	}
+
 	private static final Set<Class<?>> VALUE_TYPES = new HashSet<>(Arrays.asList(
 			Double.class, Float.class,
 			Long.class, Integer.class, Short.class, Byte.class,
@@ -665,22 +672,5 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 		}
 		return VALUE_TYPES.contains(_class) || _class.isEnum();
 	}
-
-//	private Object newPosition(Object source, Object arg) {
-//		if (arg instanceof ScannablePositionChangeEvent) {
-//			return ((ScannablePositionChangeEvent) arg).newPosition;
-//		}
-//		if (arg != scannable && source != MotorProperty.POSITION) {
-//			return null;
-//		}
-//
-//		if (arg instanceof EnumPositionerStatus || arg instanceof MotorStatus || arg instanceof MotorEvent) {
-//			return null;
-//		}
-//
-//		return arg;
-//	}
-
-
 
 }

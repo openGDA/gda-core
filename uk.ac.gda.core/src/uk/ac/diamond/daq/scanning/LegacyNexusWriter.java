@@ -68,6 +68,10 @@ class LegacyNexusWriter<N extends NXobject> implements CustomNexusEntryModificat
 			throw new IllegalStateException("modifyEntry() has already been called");
 		}
 
+		// check that the nexus object for the wrapper has been created. This should be the case
+		// if we're in a scan, unless this scannable is a per-scan monitor that is unavailable
+		if (!scannableNexusWrapper.isNexusObjectCreated()) return;
+
 		this.entry = entry;
 
 		String[] paths = scannableWriter.getPaths();
@@ -176,11 +180,16 @@ class LegacyNexusWriter<N extends NXobject> implements CustomNexusEntryModificat
 
 		// link to existing data node
 		final DataNode dataNode = this.scannableNexusWrapper.getDataNode(fieldName);
-		parentGroup.addDataNode(newFieldName, dataNode);
 
-		// also add units if not already present
-		if (StringUtils.isNotBlank(unit)) {
-			parentGroup.setAttribute(newFieldName, ScannableNexusWrapper.ATTR_NAME_UNITS, unit);
+		// An error getting the position of a per-scan monitor is not treated as fatal, but no Nexus object
+		// (and therefore no data node) will be created, so check for that condition here.
+		if (dataNode != null) {
+			parentGroup.addDataNode(newFieldName, dataNode);
+
+			// also add units if not already present
+			if (StringUtils.isNotBlank(unit)) {
+				parentGroup.setAttribute(newFieldName, ScannableNexusWrapper.ATTR_NAME_UNITS, unit);
+			}
 		}
 	}
 }
