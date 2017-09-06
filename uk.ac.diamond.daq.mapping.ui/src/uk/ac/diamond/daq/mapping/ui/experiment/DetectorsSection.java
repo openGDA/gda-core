@@ -23,7 +23,9 @@ import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -40,13 +42,18 @@ import org.eclipse.core.databinding.beans.PojoProperties;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.window.Window;
+import org.eclipse.scanning.api.device.IAttributableDevice;
+import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.models.DeviceRole;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.device.models.IMalcolmModel;
+import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.scan.DeviceInformation;
+import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -56,7 +63,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.mapping.api.IDetectorModelWrapper;
+import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 import uk.ac.diamond.daq.mapping.impl.DetectorModelWrapper;
+import uk.ac.diamond.daq.mapping.impl.MappingStageInfo;
 
 /**
  * A section for choosing which detectors should be included in the scan, and for
@@ -133,7 +142,7 @@ public class DetectorsSection extends AbstractMappingSection {
 				updateStatusLabel();
 
 				if (detectorParameters.getModel() instanceof IMalcolmModel) {
-					malcolmDeviceSelectionChanged(detectorParameters.getName());
+					malcolmDeviceSelectionChanged(detectorParameters);
 				}
 			});
 
@@ -169,10 +178,11 @@ public class DetectorsSection extends AbstractMappingSection {
 	 * @param selectionCheckBoxes
 	 * @param malcolmDeviceCheckBox
 	 */
-	private void malcolmDeviceSelectionChanged(String name) {
-		boolean malcolmDeviceSelected = detectorSelectionCheckboxes.get(name).getSelection();
+	private void malcolmDeviceSelectionChanged(IDetectorModelWrapper wrapper) {
+		final String label = wrapper.getName();
+		boolean malcolmDeviceSelected = detectorSelectionCheckboxes.get(label).getSelection();
 		detectorSelectionCheckboxes.keySet().stream()
-											.filter(detName -> !detName.equals(name))
+											.filter(detName -> !detName.equals(label))
 											.map(detName -> detectorSelectionCheckboxes.get(detName))
 											.forEach(cb -> {
 												cb.setEnabled(!malcolmDeviceSelected);
@@ -182,8 +192,41 @@ public class DetectorsSection extends AbstractMappingSection {
 		// set all other detectors as not included in scan? TODO why doesn't jface binding do this automatically?
 		if (malcolmDeviceSelected) {
 			getMappingBean().getDetectorParameters().stream()
-				.filter(detParams -> !detParams.getName().equals(name))
+				.filter(detParams -> !detParams.getName().equals(label))
 				.forEach(detParams -> ((DetectorModelWrapper) detParams).setIncludeInScan(false));
+		}
+
+		// update the mapping stage info
+		if (malcolmDeviceSelected) {
+			updateMappingStage(wrapper);
+		}
+	}
+
+	private void updateMappingStage(IDetectorModelWrapper wrapper) {
+		final String deviceName = wrapper.getModel().getName();
+		try {
+			// get the axesToMove from the malcolm device
+			IRunnableDevice<?> runnableDevice = getRunnableDeviceService().getRunnableDevice(deviceName);
+			if (!(runnableDevice instanceof IAttributableDevice)) return;
+			List<String> axesToMove = Arrays.asList(((IAttributableDevice) runnableDevice).getAttributeValue("axesToMove"));
+			MappingStageInfo stageInfo = getEclipseContext().get(MappingStageInfo.class);
+
+			if (axesToMove.contains(stageInfo.getActiveFastScanAxis()) && axesToMove.contains(
+					stageInfo.getActiveSlowScanAxis())) {
+				// the mapping stage is already set correctly for the malcolm device, no update required
+				return;
+			}
+
+			// TODO: check that malcolm gives us these in the correct order
+			stageInfo.setActiveFastScanAxis(axesToMove.get(0));
+			stageInfo.setActiveSlowScanAxis(axesToMove.get(1));
+
+			// TODO: we should update the associated (i.e. 'z') axis as well. We need some way to get this from malcolm.
+			MessageDialog.openInformation(getShell(), "Mapping Stage",
+					MessageFormat.format("The active fast scan axis for mapping scans has been updated to ''{0}'' and the active slow scan axis to ''{1}''. The associated axis is ''{2}'' and has not been changed.", stageInfo.getActiveFastScanAxis(), stageInfo.getActiveSlowScanAxis(),
+							stageInfo.getAssociatedAxis()));
+		} catch (ScanningException | EventException e) {
+			logger.error("Could not get axes of malcolm device: {}", deviceName, e);
 		}
 	}
 
@@ -257,7 +300,7 @@ public class DetectorsSection extends AbstractMappingSection {
 		final Set<String> detectorNames = chosenDetectors.stream().map(IDetectorModelWrapper::getName).collect(toSet());
 		chosenDetectors.addAll(
 				getMappingBean().getDetectorParameters().stream().
-					filter(wrapper -> wrapper.isIncludeInScan()).
+					filter(IScanModelWrapper::isIncludeInScan).
 					filter(wrapper -> !detectorNames.contains(wrapper.getName())).
 					collect(Collectors.toList()));
 
