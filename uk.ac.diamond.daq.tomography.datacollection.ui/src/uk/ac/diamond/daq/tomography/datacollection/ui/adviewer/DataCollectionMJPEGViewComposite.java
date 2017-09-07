@@ -19,32 +19,23 @@
 package uk.ac.diamond.daq.tomography.datacollection.ui.adviewer;
 
 import org.eclipse.jface.dialogs.Dialog;
-import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.commandqueue.JythonCommandCommandProvider;
-import gda.commandqueue.Queue;
 import gda.device.scannable.DummyUnitsScannable;
 import gda.rcp.views.CompositeFactory;
 import gda.rcp.views.StageCompositeDefinition;
@@ -52,17 +43,16 @@ import gda.rcp.views.StageCompositeFactory;
 import gda.rcp.views.TabCompositeFactory;
 import gda.rcp.views.TabCompositeFactoryImpl;
 import gda.rcp.views.TabFolderCompositeFactory;
-import uk.ac.gda.client.CommandQueueViewFactory;
 import uk.ac.gda.client.tomo.TomoClientActivator;
 import uk.ac.gda.epics.adviewer.ADController;
 import uk.ac.gda.epics.adviewer.composites.MJPeg;
 import uk.ac.gda.epics.adviewer.views.MJPegView;
+import uk.ac.gda.tomography.scan.editor.NormalisedImageDialog;
 import uk.ac.gda.tomography.scan.editor.ScanParameterDialog;
 
 public class DataCollectionMJPEGViewComposite extends Composite {
 	private static final Logger logger = LoggerFactory.getLogger(DataCollectionMJPEGViewComposite.class);
 
-	private DataCollectionADControllerImpl adControllerImpl;
 	private EnumPositionerComposite lensComposite;
 	private EnumPositionerComposite binningXComposite;
 	private EnumPositionerComposite binningYComposite;
@@ -70,8 +60,8 @@ public class DataCollectionMJPEGViewComposite extends Composite {
 	private Button btnDragX;
 	private Button btnDragY;
 
-	private Image sinogram_image;
-	private Image normalizedImage_image;
+	private Image sinogramImage;
+	private Image normalizedImageImage;
 
 	private MJPeg mJPeg;
 
@@ -196,21 +186,18 @@ public class DataCollectionMJPEGViewComposite extends Composite {
 		//---------------------------------------------------------------------------------------------------------
 		// Tidy up when this view is closed
 		//---------------------------------------------------------------------------------------------------------
-		addDisposeListener(new DisposeListener() {
-			@Override
-			public void widgetDisposed(DisposeEvent e) {
-				if (mJPegViewInitialiser != null) {
-					mJPegViewInitialiser.dispose();
-					mJPegViewInitialiser = null;
-				}
-				if (sinogram_image != null) {
-					sinogram_image.dispose();
-					sinogram_image = null;
-				}
-				if (normalizedImage_image != null) {
-					normalizedImage_image.dispose();
-					normalizedImage_image = null;
-				}
+		addDisposeListener(e -> {
+			if (mJPegViewInitialiser != null) {
+				mJPegViewInitialiser.dispose();
+				mJPegViewInitialiser = null;
+			}
+			if (sinogramImage != null) {
+				sinogramImage.dispose();
+				sinogramImage = null;
+			}
+			if (normalizedImageImage != null) {
+				normalizedImageImage.dispose();
+				normalizedImageImage = null;
 			}
 		});
 	}
@@ -238,65 +225,7 @@ public class DataCollectionMJPEGViewComposite extends Composite {
 	}
 
 	private void showNormalisedImageDialog() {
-		final Dialog dlg = new Dialog(Display.getCurrent().getActiveShell()) {
-
-			private Text outBeamX;
-			private Text exposureTime;
-
-			@Override
-			protected void configureShell(Shell newShell) {
-				super.configureShell(newShell);
-				newShell.setText("Get Normalised Image");
-			}
-
-			@Override
-			protected void createButtonsForButtonBar(final Composite parent) {
-				// create OK and Cancel buttons by default
-				createButton(parent, IDialogConstants.OK_ID, "Run", false);
-				createButton(parent, IDialogConstants.CANCEL_ID, IDialogConstants.CANCEL_LABEL, false);
-			}
-
-			@Override
-			protected Control createDialogArea(Composite parent) {
-				Composite cmp = new Composite(parent, SWT.NONE);
-				GridDataFactory.fillDefaults().applyTo(cmp);
-				cmp.setLayout(new GridLayout(2, false));
-				Label lblOutOfBeam = new Label(cmp, SWT.NONE);
-				lblOutOfBeam.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-				lblOutOfBeam.setText("Out of beam position/mm");
-				outBeamX = new Text(cmp, SWT.BORDER);
-				outBeamX.setText("0.0");
-				GridData outBeamXLayoutData = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
-				outBeamXLayoutData.minimumWidth = 50;
-				outBeamX.setLayoutData(outBeamXLayoutData);
-
-				Label lblExposure = new Label(cmp, SWT.NONE);
-				lblExposure.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-				lblExposure.setText("Exposure time/s");
-				exposureTime = new Text(cmp, SWT.BORDER);
-				exposureTime.setText("1.0");
-				exposureTime.setLayoutData(outBeamXLayoutData);
-				return cmp;
-			}
-
-			@Override
-			protected void okPressed() {
-				final String cmd = String.format(adControllerImpl.getShowNormalisedImageCmd(), outBeamX.getText(), exposureTime.getText());
-				try {
-					Queue queue = CommandQueueViewFactory.getQueue();
-					if (queue != null) {
-						queue.addToTail(new JythonCommandCommandProvider(cmd, "Running command '" + cmd + "'", null));
-						CommandQueueViewFactory.showView();
-					} else {
-						throw new Exception("Queue not found");
-					}
-				} catch (Exception e1) {
-					MJPegView.reportErrorToUserAndLog("Error showing normalised image", e1);
-				}
-				super.okPressed();
-			}
-
-		};
+		final Dialog dlg = new NormalisedImageDialog(Display.getCurrent().getActiveShell());
 		dlg.open();
 	}
 	
@@ -313,7 +242,7 @@ public class DataCollectionMJPEGViewComposite extends Composite {
 		if (!(adController instanceof DataCollectionADControllerImpl)) {
 			throw new IllegalArgumentException("ADController must be of type DataCollectionADControllerImpl");
 		}
-		adControllerImpl = (DataCollectionADControllerImpl) adController;
+		DataCollectionADControllerImpl adControllerImpl = (DataCollectionADControllerImpl) adController;
 		mJPegViewInitialiser = new DataCollectionMJPegViewInitialiser(adControllerImpl, mJPeg, mjPegView, this);
 		lensComposite.setEnumPositioner(adControllerImpl.getLensEnum());
 		binningXComposite.setEnumPositioner(adControllerImpl.getBinningXEnum());
