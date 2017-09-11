@@ -106,6 +106,8 @@ public interface Zebra {
 	 */
 	void setPCGateSource(int ordinal) throws Exception;
 
+	void setPCGateInput(int input) throws Exception;
+
 	double getPCGateStart() throws Exception;
 
 	double getPCGateStartRBV() throws Exception;

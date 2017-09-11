@@ -87,6 +87,7 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 	private static final String PCGateWidth = "PC_GATE_WID";
 	private static final String PCGateNumberOfGates = "PC_GATE_NGATE";
 	private static final String PCGateStep = "PC_GATE_STEP";
+	private static final String PCGateInput = "PC_GATE_INP";
 	private static final String PCGateStatus = "PC_GATE_OUT";
 
 	private static final double PCPulseDelayMin =       0.0000;
@@ -282,6 +283,11 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 	@Override
 	public int getPCGateSource() throws Exception {
 		return pvFactory.getPVInteger(PCGateSource).get();
+	}
+
+	@Override
+	public void setPCGateInput(int input) throws Exception {
+		pvFactory.getIntegerPVValueCache(PCGateInput).putWait(input);
 	}
 
 	@Override

@@ -197,6 +197,10 @@ public class ZebraDummy implements Zebra, Findable, InitializingBean {
 	}
 
 	@Override
+	public void setPCGateInput(int input) throws Exception {
+	}
+
+	@Override
 	public double getPCGateStart() throws Exception {
 		return pcGateStart;
 	}
