@@ -5,6 +5,7 @@ import java.net.URISyntaxException;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.OptionalDouble;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -261,13 +262,11 @@ public class MappingExperimentView implements IAdaptable {
 	}
 
 	double getPointExposureTime() {
-		double exposure = 0.0;
-		for (IDetectorModelWrapper detectorParameters : mappingBean.getDetectorParameters()) {
-			if (detectorParameters.isIncludeInScan()) {
-				exposure = Math.max(exposure, detectorParameters.getModel().getExposureTime());
-			}
-		}
-		return exposure;
+		OptionalDouble exposure = mappingBean.getDetectorParameters().stream()
+									.filter(IDetectorModelWrapper::isIncludeInScan)
+									.mapToDouble(wrapper -> wrapper.getModel().getExposureTime())
+									.max();
+		return exposure.isPresent() ? exposure.getAsDouble() : 0;
 	}
 
 	@Inject
@@ -322,9 +321,7 @@ public class MappingExperimentView implements IAdaptable {
 	}
 
 	public void updateControls() {
-		for (AbstractMappingSection section : sections.values()) {
-			section.updateControls();
-		}
+		sections.values().forEach(AbstractMappingSection::updateControls);
 		relayout();
 		recalculateMinimumSize();
 	}

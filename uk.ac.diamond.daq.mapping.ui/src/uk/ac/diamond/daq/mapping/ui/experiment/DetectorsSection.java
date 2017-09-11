@@ -166,11 +166,10 @@ public class DetectorsSection extends AbstractMappingSection {
 			dataBindingContext.bindValue(checkBoxValue, activeValue);
 			dataBindingContext.updateTargets(); // sets the checkbox checked if the detector was previously selected
 			checkBox.addListener(SWT.Selection, event -> {
-				updateStatusLabel();
-
 				if (detectorParameters.getModel() instanceof IMalcolmModel) {
 					malcolmDeviceSelectionChanged(detectorParameters);
 				}
+				updateStatusLabel();
 			});
 
 			// create the exposure time text control and bind it the exposure time property of the wrapper
