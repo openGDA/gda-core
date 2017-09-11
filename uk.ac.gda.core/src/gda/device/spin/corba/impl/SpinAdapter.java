@@ -66,6 +66,7 @@ public class SpinAdapter extends ScannableAdapter implements ISpin,Scannable, De
 		for (int i = 0; i < NetService.RETRY; i++) {
 			try {
 				corbaSpin.off();
+				return;
 			} catch (COMM_FAILURE cf) {
 				corbaSpin = CorbaSpinHelper.narrow(netService.reconnect(name));
 			} catch (TRANSIENT ct) {
@@ -82,6 +83,7 @@ public class SpinAdapter extends ScannableAdapter implements ISpin,Scannable, De
 		for (int i = 0; i < NetService.RETRY; i++) {
 			try {
 				corbaSpin.on();
+				return;
 			} catch (COMM_FAILURE cf) {
 				corbaSpin = CorbaSpinHelper.narrow(netService.reconnect(name));
 			} catch (TRANSIENT ct) {
