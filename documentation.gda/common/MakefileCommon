@@ -5,7 +5,7 @@
 ifeq ($(CONTEXT),diamond)
 	@echo "Environment variable CONTEXT=diamond, so setting build environment suitable for Diamond Light Source"
 	# get the location of a Python that has Sphinx installed
-	SPHINXBUILD?=$(shell module load python/anaconda;which sphinx-build)
+	SPHINXBUILD?=/dls_sw/dasc/releng/miniconda3/envs/jenkins-doc-build/bin/sphinx-build
 
 	# need to add style files that are missing from texlive-2007.60 for sphinx 1.4.1
 	# for imgmath png generation in html
