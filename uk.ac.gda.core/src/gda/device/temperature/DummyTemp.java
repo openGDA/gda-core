@@ -19,19 +19,18 @@
 
 package gda.device.temperature;
 
-import gda.device.DeviceException;
-import gda.device.Temperature;
-import gda.device.TemperatureRamp;
-import gda.device.TemperatureStatus;
-import gda.factory.FactoryException;
-import gda.util.LoggingConstants;
-import gda.util.PollerEvent;
-
 import java.text.NumberFormat;
 import java.util.Date;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.device.DeviceException;
+import gda.device.Temperature;
+import gda.device.TemperatureRamp;
+import gda.device.TemperatureStatus;
+import gda.factory.FactoryException;
+import gda.util.PollerEvent;
 
 /**
  * Simulator device for temperature controllers
@@ -430,7 +429,7 @@ public class DummyTemp extends TemperatureBase implements Runnable, Temperature 
 	 */
 	@Override
 	public void pollDone(PollerEvent pe) {
-		logger.debug(LoggingConstants.FINEST, "DummyTemp.pollDone() currentTemp is " + currentTemp);
+		logger.trace("DummyTemp.pollDone() currentTemp is {}", currentTemp);
 
 		String stateString = null;
 		String dataString = null;
