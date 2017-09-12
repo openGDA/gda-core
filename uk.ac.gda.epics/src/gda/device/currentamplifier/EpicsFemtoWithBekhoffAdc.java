@@ -124,6 +124,9 @@ public class EpicsFemtoWithBekhoffAdc extends DetectorBase implements NexusDetec
 	// This is used to only add scan metadata when required
 	private boolean firstReadoutInScan;
 
+	private AdcMode adcMode;
+	private boolean adcEnable;
+	private boolean adcRetrigger;
 	// This monitors the ADC state and is used to decrement the acquiring latch once the acquire is finished
 	private final MonitorListener adcStateMonitor = ev -> {
 		logger.trace("Received update from ADC state");
@@ -226,8 +229,6 @@ public class EpicsFemtoWithBekhoffAdc extends DetectorBase implements NexusDetec
 			// Get the contents of the gain enum from EPICS and check if we have the same
 			epicsGainStrings.addAll(Arrays.asList(EPICS_CONTROLLER.cagetLabels(getFemtoChannel(FEMTO_GAIN))));
 
-			// Ensure the ADC is ready for software triggering
-			setupAdcForSoftwareTriggering();
 		} catch (Exception e) {
 			logger.error("Failed to configure current amplifier: {}", getName(), e);
 		}
@@ -508,10 +509,26 @@ public class EpicsFemtoWithBekhoffAdc extends DetectorBase implements NexusDetec
 		firstReadoutInScan = true;
 	}
 
+	@Override
+	public void atScanEnd() throws DeviceException {
+		super.atScanEnd();
+		// restore ADC mode to what it was before scan.
+		restoreADCMode();
+		firstReadoutInScan=false;
+	}
 	private void setupAdcForSoftwareTriggering() throws DeviceException {
+		adcMode = getAdcMode();
+		adcEnable = getAdcEnable();
+		adcRetrigger = getAdcRetrigger();
 		setAdcMode(AdcMode.TRIGGERED);
 		setAdcEnable(true);
 		setAdcRetrigger(true);
+	}
+
+	private void restoreADCMode() throws DeviceException {
+		if (adcMode != null) setAdcMode(adcMode);
+		setAdcEnable(adcEnable);
+		setAdcRetrigger(adcRetrigger);
 	}
 
 	@Override
