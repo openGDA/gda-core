@@ -50,6 +50,10 @@ public class OpenSequenceHandler {
 		// Open the dialog for the user to select a sequence file
 		String path = getOpenPath(shell);
 
+		if(path == null) { //User pressed cancel
+			return;
+		}
+
 		SpecsPhoibosSequence sequence = SpecsPhoibosSequenceHelper.loadSequence(path);
 
 		if (sequence == null) {

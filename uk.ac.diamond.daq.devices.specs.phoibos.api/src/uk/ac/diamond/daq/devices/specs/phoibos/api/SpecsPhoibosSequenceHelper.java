@@ -23,6 +23,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
+import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,8 +79,18 @@ public final class SpecsPhoibosSequenceHelper {
 	 * @return The loaded sequence
 	 * @throws RuntimeException
 	 *             If an {@link IOException} occurs during the loading
+	 * @throws NullPointerException
+	 *             If path is null
+	 * @throws IllegalArgumentException
+	 *             If path is empty
 	 */
 	public static SpecsPhoibosSequence loadSequence(final String path) {
+		// Parameter validation
+		Objects.requireNonNull(path);
+		if (path.isEmpty()) {
+			throw new IllegalArgumentException("path was empty");
+		}
+
 		logger.debug("About to load sequence from file: {}", path);
 
 		try (Reader reader = new FileReader(path)) {

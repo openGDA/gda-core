@@ -193,7 +193,6 @@ public class SpecsRegionEditor {
 		estimatedTimeText = new Text(parent, SWT.NONE);
 		GridDataFactory.swtDefaults().grab(true, false).align(SWT.FILL, SWT.FILL).applyTo(estimatedTimeText);
 
-		// parent.layout(true, true);
 		logger.trace("Finished building composite");
 	}
 
@@ -206,16 +205,24 @@ public class SpecsRegionEditor {
 	@Inject
 	private void selectedRegionChanged(
 			@UIEventTopic(SpecsUiConstants.REGION_SELECTED_EVENT) SpecsPhoibosRegion region) {
-		logger.trace("selectedRegionChanged called");
+		logger.trace("selectedRegionChanged called with {}", region);
 
+		if (region == null) { // Can happen when a sequence is loaded.
+			parent.setVisible(false); // Hide the UI as its not bound
+			return;
+		}
+
+		// Get the wrapper for editing support
 		SpecsPhoibosRegionEditingWrapper regionEditingWrapper = new SpecsPhoibosRegionEditingWrapper(region,
 				analyser.getDetectorEnergyWidth());
+
 		// Setup the data binding
 
 		// Remove existing bindings as the region has changed
 		dbc.dispose();
 		dbc = new DataBindingContext();
 
+		// Region name
 		IObservableValue regionNameTarget = WidgetProperties.text(SWT.Modify).observe(nameText);
 		IObservableValue regionNameModel = BeanProperties.value("name").observe(regionEditingWrapper);
 		dbc.bindValue(regionNameTarget, regionNameModel);
@@ -318,6 +325,9 @@ public class SpecsRegionEditor {
 
 		// Update the widgets from the model
 		dbc.updateTargets();
+
+		// Bindings are setup make the controls visible
+		parent.setVisible(true);
 
 		logger.trace("Finished bindings");
 	}
