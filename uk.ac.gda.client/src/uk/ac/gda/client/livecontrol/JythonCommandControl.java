@@ -24,6 +24,8 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 
+import com.swtdesigner.SWTResourceManager;
+
 import gda.jython.ICommandRunner;
 import gda.jython.InterfaceProvider;
 
@@ -71,6 +73,9 @@ public class JythonCommandControl implements LiveControl {
 
 	@Override
 	public void createControl(Composite composite) {
+		composite.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
+		composite.setBackgroundMode(SWT.INHERIT_FORCE);
+
 		final ICommandRunner commandRunner = InterfaceProvider.getCommandRunner();
 		final Button button = new Button(composite, SWT.NONE);
 		button.setText(buttonText);
