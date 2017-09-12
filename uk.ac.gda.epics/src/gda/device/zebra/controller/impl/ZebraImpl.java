@@ -19,6 +19,7 @@
 package gda.device.zebra.controller.impl;
 
 import java.io.IOException;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -366,6 +367,15 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 	@Override
 	public void pcDisarm() throws Exception {
 		pvFactory.getPVInteger(PCDisArm).putWait(1,5);
+	}
+
+	@Override
+	public void waitUntilNotArmed(int timeout) throws Exception {
+		try {
+			pvFactory.getPVInteger(PCArmOut).waitForValue(x -> (x == 0), timeout);
+		} catch (TimeoutException e) {
+			throw new Exception(String.format("Zebra was still armed after %d seconds", timeout), e);
+		}
 	}
 
 	@Override

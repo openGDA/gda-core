@@ -278,6 +278,11 @@ public class ZebraDummy implements Zebra, Findable, InitializingBean {
 	}
 
 	@Override
+	public void waitUntilNotArmed(int timeout) throws Exception {
+		// do nothing
+	}
+
+	@Override
 	public void setPCCaptureBitField(int val) throws Exception {
 		pcCaptureBitField = val;
 	}
