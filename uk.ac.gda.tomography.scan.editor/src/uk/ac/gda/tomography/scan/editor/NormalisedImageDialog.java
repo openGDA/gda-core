@@ -39,14 +39,14 @@ import org.slf4j.LoggerFactory;
 import gda.commandqueue.JythonCommandCommandProvider;
 import gda.commandqueue.Queue;
 import uk.ac.gda.client.CommandQueueViewFactory;
-import uk.ac.gda.tomography.scan.TomoScanParameters;
+import uk.ac.gda.tomography.scan.NormalisedImageParameters;
 
 public class NormalisedImageDialog extends Dialog {
 
 	private static final Logger logger = LoggerFactory.getLogger(NormalisedImageDialog.class);
 	private static final String STASH_NAME = "uk.ac.gda.tomography.scan.editor.normalisedimagemodel.json";
 
-	private TomoScanParameters model;
+	private NormalisedImageParameters model;
 
 	public NormalisedImageDialog(Shell shell) {
 		super(shell);
@@ -120,16 +120,16 @@ public class NormalisedImageDialog extends Dialog {
 		super.okPressed();
 	}
 
-	private TomoScanParameters getModel() {
+	private NormalisedImageParameters getModel() {
 		final IStashing stash = ServiceHolder.getStashingService().createStash(STASH_NAME);
 		if (stash.isStashed()) {
 			try {
-				return stash.unstash(TomoScanParameters.class);
+				return stash.unstash(NormalisedImageParameters.class);
 			} catch (Exception e) {
 				logger.warn("Cannot retrieve saved parameters; using defaults", e);
 			}
 		}
-		return new TomoScanParameters();
+		return new NormalisedImageParameters();
 	}
 
 	private void saveModel() {
