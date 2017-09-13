@@ -16,10 +16,11 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device.trajectoryscan;
+package gda.device.trajectoryscancontroller;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -29,13 +30,37 @@ import org.slf4j.LoggerFactory;
  * TrajecoryScan base class implementation, with common functions used to set up trajectory scan point lists in memory.
  * @since 3/7/2017
  */
-public abstract class TrajectoryScanBase implements TrajectoryScan {
+public abstract class TrajectoryScanControllerBase implements TrajectoryScanController {
 
-	private static final Logger logger = LoggerFactory.getLogger(TrajectoryScanBase.class);
+	private static final Logger logger = LoggerFactory.getLogger(TrajectoryScanControllerBase.class);
 
 	protected List<Double> trajectoryPositions;
 	protected List<Double> trajectoryTimes;
 	protected List<Integer> trajectoryVelocityModes;
+
+	protected List<String> axisNames = Arrays.asList(new String[]{"A", "B", "C", "U", "V", "W", "X", "Y", "Z"});
+	protected List<String> motorNames = Arrays.asList(new String[]{"M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8"});
+
+
+	@Override
+	public void setAxisNames(String[] axisNames) {
+		this.axisNames = Arrays.asList(axisNames);
+	}
+
+	@Override
+	public List<String> getAxisNames() {
+		return axisNames;
+	}
+
+	@Override
+	public void setMotorNames(String[] motorNames) {
+		this.motorNames = Arrays.asList(motorNames);
+	}
+
+	@Override
+	public List<String> getMotorNames() {
+		return motorNames;
+	}
 
 	public void createTrajectoryLists() {
 		trajectoryPositions = new ArrayList<Double>();

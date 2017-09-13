@@ -25,8 +25,9 @@ import java.util.List;
 
 import org.junit.Test;
 
-import gda.device.trajectoryscan.TrajectoryScan.ExecuteState;
-import gda.device.trajectoryscan.TrajectoryScan.ExecuteStatus;
+import gda.device.trajectoryscancontroller.DummyTrajectoryScanController;
+import gda.device.trajectoryscancontroller.TrajectoryScanController.ExecuteState;
+import gda.device.trajectoryscancontroller.TrajectoryScanController.ExecuteStatus;
 
 public class TrajectoryScanTest {
 

@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device.trajectoryscan;
+package gda.device.trajectoryscancontroller;
 
 import java.io.IOException;
 
@@ -29,7 +29,7 @@ import gda.factory.Findable;
  * 'Dummy mode' implementation of TrajectoryScan controller.
  * @since 3/7/2017
  */
-public class DummyTrajectoryScanController extends TrajectoryScanBase implements TrajectoryScan, Findable {
+public class DummyTrajectoryScanController extends TrajectoryScanControllerBase implements Findable {
 
 	private static final Logger logger = LoggerFactory.getLogger(DummyTrajectoryScanController.class);
 
@@ -159,4 +159,53 @@ public class DummyTrajectoryScanController extends TrajectoryScanBase implements
 	public Status getBuildStatus() throws IOException {
 		return Status.SUCCESS;
 	}
+
+	@Override
+	public void setCoordinateSystem(String pmacName) throws IOException {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public String getCoordinateSystem() throws IOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setUseAxis(int axis, boolean useAxis) throws IOException, Exception {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public boolean getUseAxis(int axis) throws IOException, Exception {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void setOffsetForAxis(int axis, double offset) throws IOException, Exception {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public double getOffsetForAxis(int axis) throws IOException, Exception {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void setResolutionForAxis(int axis, double resolution) throws IOException, Exception {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public double getResolutionForAxis(int axis) throws IOException, Exception {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
 }
