@@ -19,10 +19,6 @@
 
 package gda.hrpd.data;
 
-import gda.configuration.properties.LocalProperties;
-import gda.data.PathConstructor;
-import gda.jython.JythonServerFacade;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -31,13 +27,17 @@ import java.util.Collection;
 import java.util.Iterator;
 
 import org.apache.commons.collections.map.MultiValueMap;
-import org.apache.poi.hssf.usermodel.HSSFCell;
-import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.configuration.properties.LocalProperties;
+import gda.data.PathConstructor;
+import gda.jython.JythonServerFacade;
 
 /**
  * class that provides access to sample information in a Excel spreadsheet. The default file name of the spreadsheet is
@@ -128,28 +128,25 @@ public class ExcelReader {
 	/**
 	 * load data from spreadsheet to the map, or initialise the multimap
 	 */
-	@SuppressWarnings( { "cast", "unchecked" })
 	public void readData() {
 		mvm.clear();
 
 		int i = 0;
-		for (Iterator<HSSFRow> rit = (Iterator<HSSFRow>) sheet.rowIterator(); rit.hasNext();) {
-			HSSFRow row = rit.next();
-			// ArrayList<String> values = new ArrayList<String>();
-			for (Iterator<HSSFCell> cit = (Iterator<HSSFCell>) row.cellIterator(); cit.hasNext();) {
-				HSSFCell cell = cit.next();
-				if (cell.getCellType() == HSSFCell.CELL_TYPE_STRING) {
+		for (Iterator<Row> rit = sheet.rowIterator(); rit.hasNext();) {
+			Row row = rit.next();
+			for (Iterator<Cell> cit = row.cellIterator(); cit.hasNext();) {
+				Cell cell = cit.next();
+				if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
 					mvm.put(i, cell.getRichStringCellValue().toString());
-				} else if (cell.getCellType() == HSSFCell.CELL_TYPE_NUMERIC) {
+				} else if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
 					mvm.put(i, String.valueOf(cell.getNumericCellValue()));
-				} else if (cell.getCellType() == HSSFCell.CELL_TYPE_BLANK) {
+				} else if (cell.getCellType() == Cell.CELL_TYPE_BLANK) {
 					mvm.put(i, "");
 				}
 			}
 			i++;
-			// System.out.println(i + " " +mvm.size());
 		}
-		System.out.println(i);
+		logger.debug("Read row {}", i);
 	}
 
 	/**
@@ -177,8 +174,7 @@ public class ExcelReader {
 				wb = new HSSFWorkbook(fs);
 				sheet = wb.getSheetAt(0);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.error("Error opening spreadsheet", e);
 			}
 		}
 	}
@@ -190,8 +186,7 @@ public class ExcelReader {
 		try {
 			fin.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Error closing spreadsheet", e);
 		}
 	}
 
