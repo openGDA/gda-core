@@ -102,4 +102,16 @@ public interface TrajectoryScanController {
 	public void setResolutionForAxis(int axis, double resolution) throws IOException, Exception;
 	public double getResolutionForAxis(int axis) throws IOException, Exception;
 
+	public int getDriveBufferAIndex() throws IOException, Exception;
+
+	public void setProfileNumPoints(int numPoints) throws Exception;
+	public void setProfileNumPointsToBuild(int numPoints) throws Exception;
+	public void setProfileVelocityModeArray(Integer[] vals) throws IOException;
+	public void setProfileTimeArray(Double[] vals) throws IOException;
+
+	public void setAxisPoints(int axis, Double [] points)throws IOException, Exception;
+
+	public void setCSPort(int motor,String port) throws IOException, Exception;
+	public void setCSAssignment(int motor, String port) throws IOException, Exception;
+
 }

@@ -19,6 +19,7 @@
 package gda.device.trajectoryscancontroller;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,8 +56,11 @@ public class DummyTrajectoryScanController extends TrajectoryScanControllerBase 
 		return name;
 	}
 
+	private int driveBufferAIndex;
+
 	@Override
 	public void setBuildProfile() throws Exception {
+		driveBufferAIndex = trajectoryPositions.size();
 	}
 
 	@Override
@@ -206,6 +210,46 @@ public class DummyTrajectoryScanController extends TrajectoryScanControllerBase 
 	public double getResolutionForAxis(int axis) throws IOException, Exception {
 		// TODO Auto-generated method stub
 		return 0;
+	}
+
+	@Override
+	public int getDriveBufferAIndex() throws IOException, Exception {
+		return driveBufferAIndex;
+	}
+
+	@Override
+	public void setProfileNumPoints(int numPoints) throws Exception {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void setProfileNumPointsToBuild(int numPoints) throws Exception {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void setProfileVelocityModeArray(Integer[] vals) throws IOException {
+		trajectoryVelocityModes = Arrays.asList(vals);
+	}
+
+	@Override
+	public void setProfileTimeArray(Double[] vals) throws IOException {
+		trajectoryTimes = Arrays.asList(vals);
+	}
+
+	@Override
+	public void setAxisPoints(int axis, Double[] points) throws IOException, Exception {
+		trajectoryPositions = Arrays.asList(points);
+	}
+
+	@Override
+	public void setCSPort(int motor, String port) throws IOException, Exception {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void setCSAssignment(int motor, String port) throws IOException, Exception {
+		// TODO Auto-generated method stub
 	}
 
 }
