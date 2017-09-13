@@ -453,6 +453,30 @@ public class SpecsPhoibosCollectionStrategy implements AsyncNXCollectionStrategy
 				// Write to the file
 				writeRegionToNexus(region, data);
 			}
+
+			// Write the regions_list to allow script to parse the file easier
+			writeRegionList(data, detectorName);
+		}
+
+
+		/**
+		 * <p>
+		 * This writes a region_list dataset to /entry1/instrument/analyser/region_list
+		 * </p>
+		 * <p>
+		 * The idea is to make the NeXus file easier to parse with loading scripts see B07-167
+		 * </p>
+		 * @param data The data to write with
+		 * @param detectorName Name of the detector (probably analyser)
+		 */
+		private void writeRegionList(NXDetectorData data, String detectorName) {
+			String[] regionNames = regions.stream().
+					map(SpecsPhoibosRegion::getName). // Get the names
+					collect(Collectors.toList()). // Put into a List
+					toArray(new String[regions.size()]); // Convert to an array
+			NexusGroupData regionList = new NexusGroupData(NexusGroupData.MAX_TEXT_LENGTH, regionNames);
+			regionList.isDetectorEntryData = true; // Make true so its copied to NXData
+			data.addElement(detectorName, "region_list", regionList, null, false);
 		}
 
 		private void writeRegionToNexus(final SpecsPhoibosCompletedRegion regionCompleted, final NXDetectorData data) {
