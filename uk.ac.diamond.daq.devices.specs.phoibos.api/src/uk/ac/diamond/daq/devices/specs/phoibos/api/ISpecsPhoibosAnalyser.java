@@ -93,6 +93,14 @@ public interface ISpecsPhoibosAnalyser extends Findable, IObservable {
 
 	Set<String> getAcquisitionModes();
 
+	/**
+	 * Sets up the analyser to run the provided sequence.
+	 *
+	 * @param sequence
+	 *            The sequence to set
+	 * @throws IllegalArgumentException
+	 *             If the sequence can't be set
+	 */
 	void setSequence(SpecsPhoibosSequence sequence);
 
 	/**

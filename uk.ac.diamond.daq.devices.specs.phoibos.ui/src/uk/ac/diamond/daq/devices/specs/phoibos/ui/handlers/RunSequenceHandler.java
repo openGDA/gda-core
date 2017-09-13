@@ -1,8 +1,12 @@
 
 package uk.ac.diamond.daq.devices.specs.phoibos.ui.handlers;
 
+import javax.inject.Named;
+
 import org.eclipse.e4.core.di.annotations.Execute;
 import org.eclipse.e4.ui.model.application.ui.basic.MPart;
+import org.eclipse.e4.ui.services.IServiceConstants;
+import org.eclipse.swt.widgets.Shell;
 
 import gda.jython.ICommandRunner;
 import gda.jython.ITerminalPrinter;
@@ -16,9 +20,9 @@ public class RunSequenceHandler extends SetSequenceHandler {
 
 	@Override
 	@Execute
-	public void execute(MPart part) {
+	public void execute(MPart part, @Named(IServiceConstants.ACTIVE_SHELL) Shell shell) {
 		// Set the sequence on the analyser
-		super.execute(part);
+		super.execute(part, shell);
 
 		String scanCommand = scanCommandBuilder.buildScanCommand();
 
