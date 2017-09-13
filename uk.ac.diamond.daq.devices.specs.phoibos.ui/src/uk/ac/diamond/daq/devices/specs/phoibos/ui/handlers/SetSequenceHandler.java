@@ -39,7 +39,7 @@ public class SetSequenceHandler {
 		// Get the sequence open in the editor
 		SpecsPhoibosSequence sequence = (SpecsPhoibosSequence) part.getTransientData().get(SpecsUiConstants.OPEN_SEQUENCE);
 
-		logger.trace("About to configure analuyser with sequence: {}", sequence);
+		logger.trace("About to configure analyser with sequence: {}", sequence);
 		// Setup the analyser
 		analyser.setSequence(sequence);
 		logger.debug("Sucessfully configured analyser with sequence");
