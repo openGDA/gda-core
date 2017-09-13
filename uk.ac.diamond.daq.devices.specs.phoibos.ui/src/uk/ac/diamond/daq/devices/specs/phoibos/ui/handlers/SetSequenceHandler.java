@@ -48,12 +48,9 @@ public class SetSequenceHandler {
 
 	@CanExecute
 	public boolean canExecute(MPart part) {
-		// Check if a region is loaded
+		// Check if a sequence is loaded
 		String path = part.getPersistedState().get(SpecsUiConstants.OPEN_SEQUENCE_FILE_PATH);
-		if (path == null) {
-			return false;
-		}
-		return true;
+		return path != null;
 	}
 
 }

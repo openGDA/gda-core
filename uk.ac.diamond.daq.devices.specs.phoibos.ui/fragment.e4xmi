@@ -18,6 +18,7 @@
               <children xsi:type="menu:ToolBarSeparator" xmi:id="_VqXOAL4bEea9L_peJX3sCA" elementId="uk.ac.diamond.daq.devices.specs.phoibos.ui.toolbarseparator.2"/>
               <children xsi:type="menu:HandledToolItem" xmi:id="_tPncwLikEean8t5B5UNQpA" elementId="uk.ac.diamond.daq.devices.specs.phoibos.ui.handledtoolitem.runsequencenow" label="Run sequence now" iconURI="platform:/plugin/uk.ac.diamond.daq.devices.specs.phoibos.ui/icons/sequence_editor/run_exc.gif" tooltip="Saves then runs the current sequence" command="_ptMCYLilEean8t5B5UNQpA"/>
               <children xsi:type="menu:HandledToolItem" xmi:id="_8QOjsAJ7EeeltrRfvwMueg" elementId="uk.ac.diamond.daq.devices.specs.phoibos.ui.handledtoolitem.setSequenceOnAnalyser" label="Configure Analyser" iconURI="platform:/plugin/uk.ac.diamond.daq.devices.specs.phoibos.ui/icons/sequence_editor/analyser_configure_icon.gif" tooltip="Configures the analyser with this sequence" command="_GcnfMAJ8EeeltrRfvwMueg"/>
+              <children xsi:type="menu:HandledToolItem" xmi:id="_5d_Y0JhpEee_QIz1qwh0kQ" elementId="uk.ac.diamond.daq.devices.specs.phoibos.ui.handledtoolitem.scancommandtoclipboard" label="Scan command to clipboard" iconURI="platform:/plugin/uk.ac.diamond.daq.devices.specs.phoibos.ui/icons/sequence_editor/runToClipboard.png" tooltip="Copy the scan command to the clipboard" command="_v3mGUJhpEee_QIz1qwh0kQ"/>
             </toolbar>
           </children>
         </children>
@@ -46,6 +47,7 @@
     <elements xsi:type="commands:Command" xmi:id="_vvQvwL4aEea9L_peJX3sCA" elementId="uk.ac.diamond.daq.devices.specs.phoibos.ui.command.removeregion" commandName="Remove Region"/>
     <elements xsi:type="commands:Command" xmi:id="_az2QUL4bEea9L_peJX3sCA" elementId="uk.ac.diamond.daq.devices.specs.phoibos.ui.command.newregion" commandName="New Region"/>
     <elements xsi:type="commands:Command" xmi:id="_GcnfMAJ8EeeltrRfvwMueg" elementId="uk.ac.diamond.daq.devices.specs.phoibos.ui.command.setSequence" commandName="Set Sequence" description="Sets the active sequence on the analyser"/>
+    <elements xsi:type="commands:Command" xmi:id="_v3mGUJhpEee_QIz1qwh0kQ" elementId="uk.ac.diamond.daq.devices.specs.phoibos.ui.command.scanCommandToClipboard" commandName="Scan Command to Clipboard" description="Copy the scan command to the clipboard"/>
   </fragments>
   <fragments xsi:type="fragment:StringModelFragment" xmi:id="_FYJqYLiiEean8t5B5UNQpA" featurename="handlers" parentElementId="org.eclipse.e4.legacy.ide.application">
     <elements xsi:type="commands:Handler" xmi:id="_X8HgMLrkEeaMqZZEEuPiqg" elementId="uk.ac.diamond.daq.devices.specs.phoibos.ui.handler.savesequence" contributionURI="bundleclass://uk.ac.diamond.daq.devices.specs.phoibos.ui/uk.ac.diamond.daq.devices.specs.phoibos.ui.handlers.SaveSequenceHandler" command="_mvqhULilEean8t5B5UNQpA"/>
@@ -57,5 +59,6 @@
     <elements xsi:type="commands:Handler" xmi:id="_hbi9EL4bEea9L_peJX3sCA" elementId="uk.ac.diamond.daq.devices.specs.phoibos.ui.handler.6" contributionURI="bundleclass://uk.ac.diamond.daq.devices.specs.phoibos.ui/uk.ac.diamond.daq.devices.specs.phoibos.ui.handlers.NewRegionHandler" command="_az2QUL4bEea9L_peJX3sCA"/>
     <elements xsi:type="commands:Handler" xmi:id="_K58mIAJ8EeeltrRfvwMueg" elementId="uk.ac.diamond.daq.devices.specs.phoibos.ui.handler.7" contributionURI="bundleclass://uk.ac.diamond.daq.devices.specs.phoibos.ui/uk.ac.diamond.daq.devices.specs.phoibos.ui.handlers.SetSequenceHandler" command="_GcnfMAJ8EeeltrRfvwMueg"/>
     <elements xsi:type="commands:Handler" xmi:id="_R6f5cB6kEee_csdnO0BkHQ" elementId="uk.ac.diamond.daq.devices.specs.phoibos.ui.handler.8" contributionURI="bundleclass://uk.ac.diamond.daq.devices.specs.phoibos.ui/uk.ac.diamond.daq.devices.specs.phoibos.ui.handlers.RunSequenceHandler" command="_ptMCYLilEean8t5B5UNQpA"/>
+    <elements xsi:type="commands:Handler" xmi:id="_2VGVQJhpEee_QIz1qwh0kQ" elementId="uk.ac.diamond.daq.devices.specs.phoibos.ui.handler.0" contributionURI="bundleclass://uk.ac.diamond.daq.devices.specs.phoibos.ui/uk.ac.diamond.daq.devices.specs.phoibos.ui.handlers.ScanCommandToClipboardHandler" command="_v3mGUJhpEee_QIz1qwh0kQ"/>
   </fragments>
 </fragment:ModelFragments>
