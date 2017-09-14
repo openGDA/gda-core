@@ -72,6 +72,7 @@ import com.swtdesigner.SWTResourceManager;
 
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosRegion;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequence;
+import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequenceHelper;
 import uk.ac.diamond.daq.devices.specs.phoibos.ui.SpecsUiConstants;
 
 public class SpecsSequenceEditor {
@@ -175,6 +176,11 @@ public class SpecsSequenceEditor {
 			}
 		});
 
+		// If there is a persisted sequence file restore it
+		String sequencePath = part.getPersistedState().get(SpecsUiConstants.OPEN_SEQUENCE_FILE_PATH);
+		if (sequencePath != null) {
+			openSequence(SpecsPhoibosSequenceHelper.loadSequence(sequencePath));
+		}
 	}
 
 	private void setSequence(SpecsPhoibosSequence sequence, String path) {
@@ -352,7 +358,6 @@ public class SpecsSequenceEditor {
 	@Optional
 	@Inject
 	private void openSequence(@UIEventTopic(OPEN_SEQUENCE_EVENT) SpecsPhoibosSequence sequence) {
-
 		String path = part.getPersistedState().get(SpecsUiConstants.OPEN_SEQUENCE_FILE_PATH);
 		setSequence(sequence, path);
 	}
