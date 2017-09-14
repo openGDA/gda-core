@@ -18,13 +18,6 @@
 
 package uk.ac.gda.client;
 
-import gda.device.Device;
-import gda.factory.Configurable;
-import gda.factory.FactoryException;
-import gda.factory.Finder;
-import gda.observable.IObserver;
-import gda.rcp.DataProject;
-
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -34,6 +27,14 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.configuration.properties.LocalProperties;
+import gda.device.Device;
+import gda.factory.Configurable;
+import gda.factory.FactoryException;
+import gda.factory.Finder;
+import gda.observable.IObserver;
+import gda.rcp.DataProject;
 
 public class ServerFileListener implements IObserver, Configurable {
 	private static final Logger logger = LoggerFactory.getLogger(ServerFileListener.class);
@@ -89,8 +90,11 @@ public class ServerFileListener implements IObserver, Configurable {
 		}
 		if (!(arg instanceof String[]))
 			return;
-
-		link = dataProject.getFolder("data");
+		String name="data";
+		if (LocalProperties.check(LocalProperties.GDA_SHOW_VISIT_NAME_AS_DATA_FOLDER_NAME, false)) {
+			name = LocalProperties.get(LocalProperties.RCP_APP_VISIT, "data");
+		}
+		link=dataProject.getFolder(name);
 		// as you can see below I tried only updating what is needed, but due to linked resources (I think)
 		// (for now) only the full refresh seems to work, but at least we've put this in a jobs now
 		refreshJob.schedule(500);
