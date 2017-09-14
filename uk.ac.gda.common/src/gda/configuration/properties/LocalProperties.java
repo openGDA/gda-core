@@ -340,6 +340,10 @@ public class LocalProperties {
 	private static final String GDA_SCAN_SETS_SCANNUMBER = "gda.scan.sets.scannumber";
 
 	public static final String GDA_ACTIVEMQ_BROKER_URI = "gda.activemq.broker.uri";
+	/**
+	 * Option to display visit name as data folder name in Data Project
+	 */
+	public static final String GDA_SHOW_VISIT_NAME_AS_DATA_FOLDER_NAME = "gda.show.visit.name.as.data.folder.name";
 
 	public static String getActiveMQBrokerURI() {
 		return get(GDA_ACTIVEMQ_BROKER_URI,
