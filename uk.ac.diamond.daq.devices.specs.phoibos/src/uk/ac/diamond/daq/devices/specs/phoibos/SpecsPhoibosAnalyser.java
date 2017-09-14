@@ -36,12 +36,28 @@ import gda.device.detector.NXDetector;
 import gda.device.detector.areadetector.v17.ImageMode;
 import gda.device.detector.nxdetector.NXCollectionStrategyPlugin;
 import gda.factory.FactoryException;
+import gda.observable.Observer;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.ISpecsPhoibosAnalyser;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosLiveDataUpdate;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosRegion;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequence;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequenceHelper;
 
+/**
+ * <p>
+ * This class is the actual detector used in GDA. It is composed of a {@link SpecsPhoibosController} handling the EPICS
+ * communication, and a {@link SpecsPhoibosCollectionStrategy} handling the collection logic.
+ * </p>
+ * <p>
+ * It is exported via RMI using the {@link ISpecsPhoibosAnalyser} interface, to the client GUI to request information
+ * available here, like the available {@link #getLensModes()}. It also provides the logic for BE <-> KE conversion using
+ * the photon energy.
+ * </p>
+ * The GUI can be an {@link Observer} of this class to receive live updates of the scan as it is received from EPICS,
+ * see {@link SpecsPhoibosLiveDataUpdate}
+ *
+ * @author James Mudd
+ */
 public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAnalyser {
 
 	/**
@@ -89,7 +105,7 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 	/**
 	 * Limit the rate of update events sent to the GUI to a max of 10 per sec
 	 */
-	private final RateLimiter updateLimiter = RateLimiter.create(10.0);
+	private final transient RateLimiter updateLimiter = RateLimiter.create(10.0);
 
 	@Override
 	public void configure() throws FactoryException {
@@ -459,6 +475,7 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 		setPsuMode(region.getPsuMode());
 		setLensMode(region.getLensMode());
 		setAcquisitionMode(region.getAcquisitionMode());
+		setSlices(region.getSlices());
 
 		// Energy range - Logic is:
 		// - Convert to KE if required
@@ -561,6 +578,16 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 		return getExposureTime();
 	}
 
+	public void setSlices(int slices) {
+		try {
+			controller.setSlices(slices);
+		} catch (Exception e) {
+			final String msg = "Error setting slices";
+			logger.error(msg, e);
+			throw new RuntimeException(msg, e);
+		}
+	}
+
 	@Override
 	public int getSlices() {
 		try {
@@ -640,6 +667,7 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 			// Always update observers when the acquire finishes
 			notifyIObservers(this, getLiveDataUpdate());
 		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt(); // Re-interrupt the thread.
 			final String msg = "Error waiting for acquisition to complete";
 			logger.error(msg, e);
 			throw new DeviceException(msg, e);

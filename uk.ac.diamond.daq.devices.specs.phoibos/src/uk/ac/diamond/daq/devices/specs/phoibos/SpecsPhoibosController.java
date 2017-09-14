@@ -553,6 +553,19 @@ public class SpecsPhoibosController implements Configurable, IObservable {
 		return epicsController.cagetInt(getChannel(VALUES_RBV));
 	}
 
+	/**
+	 * Sets the number of slices, this is the number of y channels
+	 *
+	 * @param slices The requested number of slices
+	 * @throws Exception
+	 */
+	public void setSlices(int slices) throws Exception {
+		if (slices < 1) {
+			throw new IllegalArgumentException("Slices must be >= 1");
+		}
+		epicsController.caput(getChannel(SLICES), slices);
+	}
+
 	public int getSlices() throws Exception {
 		return epicsController.cagetInt(getChannel(SLICES_RBV));
 	}

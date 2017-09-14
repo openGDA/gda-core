@@ -35,7 +35,7 @@ public class SpecsPhoibosRegion implements Serializable {
 	/**
 	 * Generated serial ID
 	 */
-	private static final long serialVersionUID = 4498165026561874271L;
+	private static final long serialVersionUID = 4498165026561874272L;
 
 	private String name = "region";
 	private String acquisitionMode = "Fixed Transmission";
@@ -47,9 +47,15 @@ public class SpecsPhoibosRegion implements Serializable {
 	private double passEnergy = 5.0;
 	private int iterations = 1;
 	private double exposureTime = 1.0;
-	private boolean enabled = true; // Used to enable and disable regions within a sequence
-	private boolean bindingEnergy = false; // Is the region defined in binding energy or kinetic energy
-	private int values = 1; // Only used in Snapshot breaks up into multiple regions
+	/** Used to enable and disable regions within a sequence */
+	// TODO Is this a property of the region or the sequence? Might be better in the sequence
+	private boolean enabled = true;
+	/** Is the region defined in binding energy or kinetic energy */
+	private boolean bindingEnergy = false; //
+	/** Only used in Snapshot breaks up into multiple regions */
+	private int values = 1;
+	/** Non-energy channels */
+	private int slices = 100;
 	private final transient PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
 	public SpecsPhoibosRegion() {
@@ -62,19 +68,20 @@ public class SpecsPhoibosRegion implements Serializable {
 	 * @param region To be copied
 	 */
 	public SpecsPhoibosRegion(SpecsPhoibosRegion region) {
-		this.name = region.name;
-		this.acquisitionMode = region.acquisitionMode;
-		this.psuMode = region.psuMode;
-		this.lensMode = region.lensMode;
-		this.startEnergy = region.startEnergy;
-		this.endEnergy = region.endEnergy;
-		this.stepEnergy = region.stepEnergy;
-		this.passEnergy = region.passEnergy;
-		this.iterations = region.iterations;
-		this.exposureTime = region.exposureTime;
-		this.enabled = region.enabled;
-		this.bindingEnergy = region.bindingEnergy;
-		this.values = region.values;
+		this.name = region.getName();
+		this.acquisitionMode = region.getAcquisitionMode();
+		this.psuMode = region.getPsuMode();
+		this.lensMode = region.getLensMode();
+		this.startEnergy = region.getStartEnergy();
+		this.endEnergy = region.getEndEnergy();
+		this.stepEnergy = region.getStepEnergy();
+		this.passEnergy = region.getPassEnergy();
+		this.iterations = region.getIterations();
+		this.exposureTime = region.getExposureTime();
+		this.enabled = region.isEnabled();
+		this.bindingEnergy = region.isBindingEnergy();
+		this.values = region.getValues();
+		this.slices = region.getSlices();
 	}
 
 	public void addPropertyChangeListener(PropertyChangeListener listener) {
@@ -216,13 +223,23 @@ public class SpecsPhoibosRegion implements Serializable {
 		pcs.firePropertyChange("bindingEnergy", oldValue, bindingEnergy);
 	}
 
+	public int getSlices() {
+		return slices;
+	}
+
+	public void setSlices(int slices) {
+		int oldValue = this.slices;
+		this.slices = slices;
+		pcs.firePropertyChange("slices", oldValue, slices);
+	}
+
 	@Override
 	public String toString() {
 		return "SpecsPhoibosRegion [name=" + name + ", acquisitionMode=" + acquisitionMode + ", psuMode=" + psuMode
 				+ ", lensMode=" + lensMode + ", startEnergy=" + startEnergy + ", endEnergy=" + endEnergy
 				+ ", stepEnergy=" + stepEnergy + ", passEnergy=" + passEnergy + ", iterations=" + iterations
 				+ ", exposureTime=" + exposureTime + ", enabled=" + enabled + ", bindingEnergy=" + bindingEnergy
-				+ ", values=" + values + "]";
+				+ ", values=" + values + ", slices=" + slices + "]";
 	}
 
 	@Override
@@ -243,6 +260,7 @@ public class SpecsPhoibosRegion implements Serializable {
 		temp = Double.doubleToLongBits(passEnergy);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		result = prime * result + ((psuMode == null) ? 0 : psuMode.hashCode());
+		result = prime * result + slices;
 		temp = Double.doubleToLongBits(startEnergy);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		temp = Double.doubleToLongBits(stepEnergy);
@@ -291,6 +309,8 @@ public class SpecsPhoibosRegion implements Serializable {
 			if (other.psuMode != null)
 				return false;
 		} else if (!psuMode.equals(other.psuMode))
+			return false;
+		if (slices != other.slices)
 			return false;
 		if (Double.doubleToLongBits(startEnergy) != Double.doubleToLongBits(other.startEnergy))
 			return false;
