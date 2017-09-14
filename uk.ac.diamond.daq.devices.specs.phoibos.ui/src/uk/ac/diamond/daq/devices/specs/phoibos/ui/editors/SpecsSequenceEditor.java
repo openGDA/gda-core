@@ -201,6 +201,7 @@ public class SpecsSequenceEditor {
 			}
 		});
 		enabledCol.setEditingSupport(new EnabledEditingSupport(tableViewer));
+		enabledCol.getColumn().setToolTipText("Enable or disable this region to be measured when the sequence is run");
 
 		// Region Name
 		TableViewerColumn nameCol = createTableViewerColumn(tableViewer, "Name", 150);
@@ -212,7 +213,7 @@ public class SpecsSequenceEditor {
 		});
 
 		// Acquisition Mode
-		TableViewerColumn acquisitionModeCol = createTableViewerColumn(tableViewer, "Acquisition Mode", 180);
+		TableViewerColumn acquisitionModeCol = createTableViewerColumn(tableViewer, "Acquisition Mode", 140);
 		acquisitionModeCol.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
@@ -221,7 +222,7 @@ public class SpecsSequenceEditor {
 		});
 
 		// Lens Mode
-		TableViewerColumn lensModeCol = createTableViewerColumn(tableViewer, "Lens Mode", 180);
+		TableViewerColumn lensModeCol = createTableViewerColumn(tableViewer, "Lens Mode", 170);
 		lensModeCol.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
@@ -230,7 +231,7 @@ public class SpecsSequenceEditor {
 		});
 
 		// Pass Energy
-		TableViewerColumn passEnergyCol = createTableViewerColumn(tableViewer, "Pass Energy (eV)", 50);
+		TableViewerColumn passEnergyCol = createTableViewerColumn(tableViewer, "Pass Energy (eV)", 120);
 		passEnergyCol.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
@@ -239,7 +240,7 @@ public class SpecsSequenceEditor {
 		});
 
 		// Energy Mode
-		TableViewerColumn energyModeCol = createTableViewerColumn(tableViewer, "Energy Mode", 65);
+		TableViewerColumn energyModeCol = createTableViewerColumn(tableViewer, "Energy Mode", 100);
 		energyModeCol.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
@@ -251,7 +252,7 @@ public class SpecsSequenceEditor {
 		});
 
 		// Start Energy
-		TableViewerColumn startEnergyCol = createTableViewerColumn(tableViewer, "Start Energy (eV)", 75);
+		TableViewerColumn startEnergyCol = createTableViewerColumn(tableViewer, "Start Energy (eV)", 125);
 		startEnergyCol.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
@@ -260,7 +261,7 @@ public class SpecsSequenceEditor {
 		});
 
 		// End Energy
-		TableViewerColumn endEnergyCol = createTableViewerColumn(tableViewer, "End Energy (eV)", 75);
+		TableViewerColumn endEnergyCol = createTableViewerColumn(tableViewer, "End Energy (eV)", 125);
 		endEnergyCol.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
@@ -269,7 +270,7 @@ public class SpecsSequenceEditor {
 		});
 
 		// Step Energy
-		TableViewerColumn stepEnergyCol = createTableViewerColumn(tableViewer, "Step Energy (eV)", 75);
+		TableViewerColumn stepEnergyCol = createTableViewerColumn(tableViewer, "Step Energy (eV)", 125);
 		stepEnergyCol.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
@@ -278,7 +279,7 @@ public class SpecsSequenceEditor {
 		});
 
 		// Exposure Time
-		TableViewerColumn exposureTimeCol = createTableViewerColumn(tableViewer, "Exposure Time (sec)", 50);
+		TableViewerColumn exposureTimeCol = createTableViewerColumn(tableViewer, "Exposure (sec)", 125);
 		exposureTimeCol.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
@@ -287,11 +288,20 @@ public class SpecsSequenceEditor {
 		});
 
 		// Iterations
-		TableViewerColumn iterationsCol = createTableViewerColumn(tableViewer, "Iterations", 50);
+		TableViewerColumn iterationsCol = createTableViewerColumn(tableViewer, "Iterations", 125);
 		iterationsCol.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
 				return String.valueOf(((SpecsPhoibosRegion) element).getIterations());
+			}
+		});
+
+		//Slices
+		TableViewerColumn slicesCol = createTableViewerColumn(tableViewer, "Slices", 125);
+		slicesCol.setLabelProvider(new ColumnLabelProvider() {
+			@Override
+			public String getText(Object element) {
+				return String.valueOf(((SpecsPhoibosRegion) element).getSlices());
 			}
 		});
 

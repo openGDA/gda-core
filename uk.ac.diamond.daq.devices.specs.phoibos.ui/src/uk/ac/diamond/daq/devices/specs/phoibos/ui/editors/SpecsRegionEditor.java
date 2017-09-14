@@ -73,6 +73,8 @@ public class SpecsRegionEditor {
 	private Text widthEnergyText;
 	private Text estimatedTimeText;
 
+	private Spinner slicesSpinner;
+
 	@Inject
 	public SpecsRegionEditor() {
 		logger.trace("Constructor called");
@@ -188,6 +190,13 @@ public class SpecsRegionEditor {
 		iterationsSpinner.setMaximum(1000); // This is arbitrary but not expecting more that 1000 needed.
 		GridDataFactory.swtDefaults().grab(true, false).align(SWT.FILL, SWT.FILL).applyTo(iterationsSpinner);
 
+		Label slicesLabel = new Label(parent, SWT.NONE);
+		slicesLabel.setText("Slices");
+		slicesSpinner = new Spinner(parent, SWT.BORDER);
+		slicesSpinner.setMinimum(1);
+		slicesSpinner.setMaximum(1000); // Should be the detector width in Y, for now hard code to 1000.
+		GridDataFactory.swtDefaults().grab(true, false).align(SWT.FILL, SWT.FILL).applyTo(slicesSpinner);
+
 		Label estimatedTimeLabel = new Label(parent, SWT.NONE);
 		estimatedTimeLabel.setText("Estimated time");
 		estimatedTimeText = new Text(parent, SWT.NONE);
@@ -279,6 +288,11 @@ public class SpecsRegionEditor {
 		IObservableValue iterationsTarget = WidgetProperties.selection().observe(iterationsSpinner);
 		IObservableValue iterationsModel = BeanProperties.value("iterations").observe(regionEditingWrapper);
 		dbc.bindValue(iterationsTarget, iterationsModel);
+
+		// Slices
+		IObservableValue slicesTarget = WidgetProperties.selection().observe(slicesSpinner);
+		IObservableValue slicesModel = BeanProperties.value("slices").observe(regionEditingWrapper);
+		dbc.bindValue(slicesTarget, slicesModel);
 
 		// Exposure Time
 		IObservableValue exposureTimeTarget = WidgetProperties.text(SWT.Modify).observe(exposureTimeText);

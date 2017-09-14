@@ -250,4 +250,12 @@ public class SpecsPhoibosRegionEditingWrapper implements PropertyChangeListener 
 		region.setBindingEnergy(bindingEnergy);
 	}
 
+	public int getSlices() {
+		return region.getSlices();
+	}
+
+	public void setSlices(int slices) {
+		region.setSlices(slices);
+	}
+
 }
