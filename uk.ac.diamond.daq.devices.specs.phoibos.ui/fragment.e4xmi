@@ -35,7 +35,6 @@
         </children>
       </children>
     </elements>
-    <elements xsi:type="basic:Part" xmi:id="_j1cesLyREeatCp5ZtBH5bQ" elementId="uk.ac.diamond.daq.devices.specs.phoibos.ui.part.rawregioneditor" contributionURI="bundleclass://uk.ac.diamond.daq.devices.specs.phoibos.ui/uk.ac.diamond.daq.devices.specs.phoibos.ui.editors.SpecsRegionEditorRaw" label="Raw Region Editor" closeable="true"/>
   </fragments>
   <fragments xsi:type="fragment:StringModelFragment" xmi:id="_Xb8ccLihEean8t5B5UNQpA" featurename="commands" parentElementId="org.eclipse.e4.legacy.ide.application">
     <elements xsi:type="commands:Command" xmi:id="_j6ec4LilEean8t5B5UNQpA" elementId="uk.ac.diamond.daq.devices.specs.phoibos.ui.command.newsequence" commandName="New Sequence"/>
