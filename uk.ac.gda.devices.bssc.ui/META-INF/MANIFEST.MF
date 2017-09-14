@@ -42,3 +42,4 @@ Require-Bundle: uk.ac.gda.devices.bssc;bundle-version="1.0.0",
 Import-Package: org.slf4j;version="1.7.21",
  uk.ac.gda.devices.hatsaxs.ui,
  uk.ac.gda.devices.hatsaxs.wizards
+Bundle-Vendor: Diamond Light Source
