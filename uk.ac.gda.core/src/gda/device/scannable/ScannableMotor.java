@@ -66,10 +66,6 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IScannab
 
 	private static final Logger logger = LoggerFactory.getLogger(ScannableMotor.class);
 
-	@Deprecated
-	// introduced for 8.18, remove for 8.20 or 8.22 if there have been no troubles
-	private static final String REVERT_TO_POLLING_MOTOR_STATUS = "gda.device.scannable.ScannableMotor.revertToPollingMotorStatus";
-
 	private String motorName;
 
 	private Motor motor;
@@ -90,8 +86,6 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IScannab
 	 * Field used to identify whether the demand position tolerance is set.
 	 */
 	private boolean isDemandPositionToleranceSet = false;
-
-	private boolean pollBlockingMotorsStatus = false;
 
 	private boolean logMoveRequestsWithInfo = false;
 
@@ -157,11 +151,6 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IScannab
 			if (LocalProperties.check(COPY_MOTOR_LIMITS_INTO_SCANNABLE_LIMITS, false)) {
 				copyMotorLimitsIntoScannableLimits();
 			}
-
-			if (LocalProperties.check(REVERT_TO_POLLING_MOTOR_STATUS, false)) {
-				pollBlockingMotorsStatus = true;
-			}
-
 		} catch (Exception e) {
 			throw new FactoryException("Exception during configure of " + getName(), e);
 		}
@@ -367,10 +356,10 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IScannab
 
 	@Override
 	public void waitWhileBusy() throws DeviceException, InterruptedException {
-		logger.trace("{}: start waiting << instanceof BlockingMotor = {}, pollBlockingMotorsStatus = {}",
-				getName(), getMotor() instanceof BlockingMotor, pollBlockingMotorsStatus);
+		logger.trace("{}: start waiting << instanceof BlockingMotor = {}",
+				getName(), getMotor() instanceof BlockingMotor);
 
-		if ((getMotor() instanceof BlockingMotor) && (!pollBlockingMotorsStatus)) {
+		if (motor instanceof BlockingMotor) {
 			((BlockingMotor) motor).waitWhileStatusBusy();
 
 			logger.trace("{}: isIsBusyThrowingExceptionWhenMotorGoesIntoFault() = {}",
