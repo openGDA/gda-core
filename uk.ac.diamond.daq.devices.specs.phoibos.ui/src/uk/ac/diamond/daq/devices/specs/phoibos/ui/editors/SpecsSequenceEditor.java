@@ -24,14 +24,11 @@ import static uk.ac.diamond.daq.devices.specs.phoibos.ui.SpecsUiConstants.REGION
 import static uk.ac.diamond.daq.devices.specs.phoibos.ui.SpecsUiConstants.SAVED_SEQUENCE_HASH;
 
 import java.beans.PropertyChangeListener;
-import java.net.URL;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
-import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.e4.core.di.annotations.Optional;
 import org.eclipse.e4.core.services.events.IEventBroker;
 import org.eclipse.e4.ui.di.Focus;
@@ -42,18 +39,13 @@ import org.eclipse.e4.ui.workbench.modeling.EPartService;
 import org.eclipse.e4.ui.workbench.modeling.EPartService.PartState;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
-import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.CheckboxCellEditor;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
-import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.EditingSupport;
-import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.swt.SWT;
@@ -63,8 +55,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.Text;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,26 +78,15 @@ public class SpecsSequenceEditor {
 	@Inject
 	private EPartService partService;
 
-	private final Bundle bundle = FrameworkUtil.getBundle(this.getClass());
-
 	private Text filePathText;
 	private TableViewer sequenceTableViewer;
 	private Map<String, Object> transientData;
-
-	// static fields to hold the images
-	private final Image checked = getImageDescriptor("icons/sequence_editor/checked.gif");
-	private final Image unchecked = getImageDescriptor("icons/sequence_editor/unchecked.gif");
 
 	// When sequence fire property change events cause the table to refresh
 	private final PropertyChangeListener sequenceListener = evt -> {
 		sequenceTableViewer.refresh();
 		updateDirty();
 	};
-
-	private Image getImageDescriptor(String filepath) {
-		URL url = FileLocator.find(bundle, new Path(filepath), null);
-		return ImageDescriptor.createFromURL(url).createImage();
-	}
 
 	@PostConstruct
 	void createView(Composite parent) {
@@ -141,39 +120,32 @@ public class SpecsSequenceEditor {
 		table.setLinesVisible(true);
 
 		sequenceTableViewer.setContentProvider(new ArrayContentProvider());
-		sequenceTableViewer.addSelectionChangedListener(new ISelectionChangedListener() {
-			@Override
-			public void selectionChanged(SelectionChangedEvent event) {
-				final ISelection selection = event.getSelection();
-				logger.trace("Region selected: {}", selection);
-				final IStructuredSelection structuredSelection = (IStructuredSelection) selection;
-				final SpecsPhoibosRegion region = (SpecsPhoibosRegion) structuredSelection.getFirstElement();
-				transientData.put(SpecsUiConstants.SELECTED_REGION, region);
-				// Send the event the region editor will display the region
-				eventBroker.post(REGION_SELECTED_EVENT, region);
-				// Force canExecute methods to be reevaluated
-				eventBroker.send(UIEvents.REQUEST_ENABLEMENT_UPDATE_TOPIC, UIEvents.ALL_ELEMENT_ID);
-			}
+		sequenceTableViewer.addSelectionChangedListener(event -> {
+			final ISelection selection = event.getSelection();
+			logger.trace("Region selected: {}", selection);
+			final IStructuredSelection structuredSelection = (IStructuredSelection) selection;
+			final SpecsPhoibosRegion region = (SpecsPhoibosRegion) structuredSelection.getFirstElement();
+			transientData.put(SpecsUiConstants.SELECTED_REGION, region);
+			// Send the event the region editor will display the region
+			eventBroker.post(REGION_SELECTED_EVENT, region);
+			// Force canExecute methods to be reevaluated
+			eventBroker.send(UIEvents.REQUEST_ENABLEMENT_UPDATE_TOPIC, UIEvents.ALL_ELEMENT_ID);
 		});
 
 		// On double click on region open the region editor and display it
-		sequenceTableViewer.addDoubleClickListener(new IDoubleClickListener() {
+		sequenceTableViewer.addDoubleClickListener(event -> {
+			ISelection selection = event.getSelection();
+			logger.trace("Region double clicked: {}", selection);
 
-			@Override
-			public void doubleClick(DoubleClickEvent event) {
-				ISelection selection = event.getSelection();
-				logger.trace("Region double clicked: {}", selection);
+			// Open the region editor and give focus
+			partService.showPart("uk.ac.diamond.daq.devices.specs.phoibos.ui.part.regioneditor",
+					PartState.ACTIVATE);
 
-				// Open the region editor and give focus
-				partService.showPart("uk.ac.diamond.daq.devices.specs.phoibos.ui.part.regioneditor",
-						PartState.ACTIVATE);
-
-				// Send the event to show the region.
-				IStructuredSelection structuredSelection = (IStructuredSelection) selection;
-				SpecsPhoibosRegion reg = (SpecsPhoibosRegion) structuredSelection.getFirstElement();
-				// Send the event the region editor will display the region
-				eventBroker.post(REGION_SELECTED_EVENT, reg);
-			}
+			// Send the event to show the region.
+			IStructuredSelection structuredSelection = (IStructuredSelection) selection;
+			SpecsPhoibosRegion reg = (SpecsPhoibosRegion) structuredSelection.getFirstElement();
+			// Send the event the region editor will display the region
+			eventBroker.post(REGION_SELECTED_EVENT, reg);
 		});
 
 		// If there is a persisted sequence file restore it
@@ -208,6 +180,12 @@ public class SpecsSequenceEditor {
 		// Enabled
 		TableViewerColumn enabledCol = createTableViewerColumn(tableViewer, "Enabled", 18);
 		enabledCol.setLabelProvider(new ColumnLabelProvider() {
+			// Load images using the SpecsSequenceEditor classloader
+			private final Image checked = new Image(tableViewer.getControl().getDisplay(),
+					SpecsSequenceEditor.class.getResourceAsStream("/icons/sequence_editor/checked.gif"));
+			private final Image unchecked = new Image(tableViewer.getControl().getDisplay(),
+					SpecsSequenceEditor.class.getResourceAsStream("/icons/sequence_editor/unchecked.gif"));
+
 			@Override
 			public String getText(Object element) {
 				return null;
@@ -221,7 +199,6 @@ public class SpecsSequenceEditor {
 					return unchecked;
 				}
 			}
-
 		});
 		enabledCol.setEditingSupport(new EnabledEditingSupport(tableViewer));
 
