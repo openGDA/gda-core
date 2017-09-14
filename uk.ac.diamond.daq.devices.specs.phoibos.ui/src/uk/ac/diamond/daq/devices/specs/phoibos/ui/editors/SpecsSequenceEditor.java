@@ -64,6 +64,7 @@ import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosRegion;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequence;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequenceHelper;
 import uk.ac.diamond.daq.devices.specs.phoibos.ui.SpecsUiConstants;
+import uk.ac.diamond.daq.devices.specs.phoibos.ui.helpers.SpecsPhoibosTimeEstimator;
 
 public class SpecsSequenceEditor {
 
@@ -78,13 +79,19 @@ public class SpecsSequenceEditor {
 	@Inject
 	private EPartService partService;
 
+	// UI elements
+	private Composite statusBar;
 	private Text filePathText;
+	private Label estimatedTimeLabel;
 	private TableViewer sequenceTableViewer;
+
 	private Map<String, Object> transientData;
+	private SpecsPhoibosSequence sequence;
 
 	// When sequence fire property change events cause the table to refresh
 	private final PropertyChangeListener sequenceListener = evt -> {
 		sequenceTableViewer.refresh();
+		updateEstiamtedTime();
 		updateDirty();
 	};
 
@@ -95,18 +102,26 @@ public class SpecsSequenceEditor {
 		GridLayoutFactory.swtDefaults().numColumns(1).spacing(5, 0).applyTo(parent);
 		parent.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 
-		// Make the status bar composite which shows the open sequence
-		Composite filePathComposite = new Composite(parent, SWT.NONE);
-		GridDataFactory.swtDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER).applyTo(filePathComposite);
-		GridLayoutFactory.swtDefaults().numColumns(2).spacing(5, 0).applyTo(filePathComposite);
-		Label label = new Label(filePathComposite, SWT.NONE);
-		label.setText("Open sequence: ");
-		filePathText = new Text(filePathComposite, SWT.READ_ONLY);
-		filePathText.setText("None");
-		filePathComposite.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
+		statusBar = new Composite(parent, SWT.NONE);
+		GridDataFactory.swtDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER).applyTo(statusBar);
+		GridLayoutFactory.swtDefaults().numColumns(4).spacing(5, 0).applyTo(statusBar);
+		statusBar.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 
+		// Sequence file path
+		Label label = new Label(statusBar, SWT.NONE);
+		label.setText("Open sequence:");
+		filePathText = new Text(statusBar, SWT.READ_ONLY);
+		filePathText.setText("None");
 		GridDataFactory.swtDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER).applyTo(filePathText);
 
+		// Sequence estimated Time
+		Label estimatedTimelabel = new Label(statusBar, SWT.NONE);
+		estimatedTimelabel.setText("Estimated Sequence Time:");
+		estimatedTimeLabel = new Label(statusBar, SWT.NONE);
+		estimatedTimeLabel.setText("--:--:--");
+		GridDataFactory.swtDefaults().align(SWT.RIGHT, SWT.CENTER).applyTo(estimatedTimeLabel);
+
+		// The main sequence table
 		sequenceTableViewer = new TableViewer(parent,
 				SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).grab(true, true)
@@ -155,7 +170,16 @@ public class SpecsSequenceEditor {
 		}
 	}
 
+	private void updateEstiamtedTime() {
+		String estimatedTime = SpecsPhoibosTimeEstimator.estimateSequenceRunTime(sequence);
+		estimatedTimeLabel.setText(estimatedTime);
+		statusBar.layout();
+	}
+
 	private void setSequence(SpecsPhoibosSequence sequence, String path) {
+
+		// Cache sequence
+		this.sequence = sequence;
 
 		// Update the file path label
 		if (path == null) { // null path indicates unsaved sequence
@@ -168,6 +192,8 @@ public class SpecsSequenceEditor {
 		transientData.put(SAVED_SEQUENCE_HASH, sequence.hashCode());
 
 		sequenceTableViewer.setInput(sequence.getRegions());
+
+		updateEstiamtedTime(); // Refresh the time estimation
 
 		// Add the sequence listener
 		sequence.addPropertyChangeListener(sequenceListener);
@@ -311,6 +337,15 @@ public class SpecsSequenceEditor {
 			@Override
 			public String getText(Object element) {
 				return ((SpecsPhoibosRegion) element).getPsuMode();
+			}
+		});
+
+		// Estimated Time
+		TableViewerColumn estimatedTimeCol = createTableViewerColumn(tableViewer, "Estimated Time", 80);
+		estimatedTimeCol.setLabelProvider(new ColumnLabelProvider() {
+			@Override
+			public String getText(Object element) {
+				return SpecsPhoibosTimeEstimator.estimateRegionTime((SpecsPhoibosRegion) element);
 			}
 		});
 

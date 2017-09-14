@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.devices.specs.phoibos.ui.editors;
+package uk.ac.diamond.daq.devices.specs.phoibos.ui.helpers;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -25,6 +25,7 @@ import java.beans.PropertyChangeSupport;
 import org.apache.commons.lang.time.DurationFormatUtils;
 
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosRegion;
+import uk.ac.diamond.daq.devices.specs.phoibos.ui.editors.SpecsRegionEditor;
 
 /**
  * This class provides editing support for {@link SpecsRegionEditor}. It handles the update logic when using different
@@ -40,7 +41,7 @@ public class SpecsPhoibosRegionEditingWrapper implements PropertyChangeListener 
 	private final double detectorEnergyWidth;
 	private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
-	SpecsPhoibosRegionEditingWrapper(SpecsPhoibosRegion region, double detectorEnergyWidth) {
+	public SpecsPhoibosRegionEditingWrapper(SpecsPhoibosRegion region, double detectorEnergyWidth) {
 		this.region = region;
 		this.detectorEnergyWidth = detectorEnergyWidth;
 		region.addPropertyChangeListener(this);

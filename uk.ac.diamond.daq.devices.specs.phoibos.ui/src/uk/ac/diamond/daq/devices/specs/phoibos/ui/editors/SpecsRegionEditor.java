@@ -40,6 +40,7 @@ import gda.factory.Finder;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.ISpecsPhoibosAnalyser;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosRegion;
 import uk.ac.diamond.daq.devices.specs.phoibos.ui.SpecsUiConstants;
+import uk.ac.diamond.daq.devices.specs.phoibos.ui.helpers.SpecsPhoibosRegionEditingWrapper;
 
 public class SpecsRegionEditor {
 	private static final Logger logger = LoggerFactory.getLogger(SpecsRegionEditor.class);
