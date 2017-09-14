@@ -284,9 +284,9 @@ public class NavitarMotor extends MotorBase implements IObservable, Motor {
 			status = MotorStatus.BUSY;
 		} else if (commandValue != 0) {
 			if ((commandValue & HOME_SENSOR) == HOME_SENSOR) {
-				status = MotorStatus.LOWERLIMIT;
+				status = MotorStatus.LOWER_LIMIT;
 			} else if ((commandValue & LIMIT_SENSOR) == LIMIT_SENSOR) {
-				status = MotorStatus.UPPERLIMIT;
+				status = MotorStatus.UPPER_LIMIT;
 			}
 			motorMoving = false;
 		}

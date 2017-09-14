@@ -19,14 +19,6 @@
 
 package gda.device.motor;
 
-import gda.device.DeviceException;
-import gda.device.Motor;
-import gda.device.MotorException;
-import gda.device.MotorStatus;
-import gda.factory.Configurable;
-import gda.factory.Finder;
-import gda.observable.IObservable;
-
 import java.io.BufferedReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -36,6 +28,14 @@ import java.net.URL;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.device.DeviceException;
+import gda.device.Motor;
+import gda.device.MotorException;
+import gda.device.MotorStatus;
+import gda.factory.Configurable;
+import gda.factory.Finder;
+import gda.observable.IObservable;
 
 /**
  * NewportXPSMotor Class
@@ -470,7 +470,7 @@ public class NewportXPSMotor extends MotorBase implements Configurable, IObserva
 
 	@Override
 	public boolean isMoving() throws MotorException {
-		return (getStatus().value() == MotorStatus._BUSY);
+		return (getStatus() == MotorStatus.BUSY);
 	}
 
 	/**

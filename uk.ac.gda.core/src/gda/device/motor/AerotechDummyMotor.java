@@ -19,16 +19,16 @@
 
 package gda.device.motor;
 
+import java.util.Random;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.Motor;
 import gda.device.MotorException;
 import gda.device.MotorStatus;
 import gda.factory.Configurable;
 import gda.observable.IObservable;
-
-import java.util.Random;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A Dummy motor class.
@@ -58,7 +58,7 @@ public class AerotechDummyMotor extends MotorBase implements Runnable, Configura
 
 	private double targetposition;
 
-	private volatile int status;
+	private volatile MotorStatus status;
 
 	// private int axis = 1;
 	// private int nextErrorStatus = MotorStatus._UPPERLIMIT;
@@ -115,7 +115,7 @@ public class AerotechDummyMotor extends MotorBase implements Runnable, Configura
 		}
 		Thread.yield();
 
-		status = MotorStatus._READY;
+		status = MotorStatus.READY;
 	}
 
 	@Override
@@ -173,7 +173,7 @@ public class AerotechDummyMotor extends MotorBase implements Runnable, Configura
 		// README: Set the status now otherwise checking status immediately
 		// after
 		// moveTo may return the wrong answer
-		status = MotorStatus._BUSY;
+		status = MotorStatus.BUSY;
 		increments = nonContinuousIncrements;
 		double increment = newpos - currentPosition;
 		newpos = addInBacklash(increment) + currentPosition;
@@ -191,7 +191,7 @@ public class AerotechDummyMotor extends MotorBase implements Runnable, Configura
 		// README: Set the status now otherwise checking status immediately
 		// after
 		// moveContinuously may return the wrong answer
-		status = MotorStatus._BUSY;
+		status = MotorStatus.BUSY;
 		increments = continuousIncrements;
 		posinc = 1 * direction;
 		motorMoving = true;
@@ -206,7 +206,7 @@ public class AerotechDummyMotor extends MotorBase implements Runnable, Configura
 		// README: Set the status now otherwise checking status immediately
 		// after
 		// moveBy may return the wrong answer
-		status = MotorStatus._BUSY;
+		status = MotorStatus.BUSY;
 		increments = nonContinuousIncrements;
 		targetposition = currentPosition + addInBacklash(amount);
 		posinc = (targetposition - currentPosition) / increments;
@@ -248,7 +248,7 @@ public class AerotechDummyMotor extends MotorBase implements Runnable, Configura
 
 	@Override
 	public MotorStatus getStatus() {
-		return MotorStatus.from_int(status);
+		return status;
 	}
 
 	@Override
@@ -280,16 +280,16 @@ public class AerotechDummyMotor extends MotorBase implements Runnable, Configura
 			}
 
 			if (limitCount == 0)
-				status = MotorStatus._BUSY;
+				status = MotorStatus.BUSY;
 
 			for (i = 0; i < increments; i++) {
 				if (simulatedMoveRequired) {
-					if (status == MotorStatus._UPPERLIMIT) {
+					if (status == MotorStatus.UPPER_LIMIT) {
 						if (posinc < 0)
 							limitCount--;
 						else
 							break;
-					} else if (status == MotorStatus._LOWERLIMIT) {
+					} else if (status == MotorStatus.LOWER_LIMIT) {
 						if (posinc > 0)
 							limitCount--;
 						else
@@ -298,15 +298,15 @@ public class AerotechDummyMotor extends MotorBase implements Runnable, Configura
 						if (Math.abs(random.nextGaussian()) > gaussianErrorThreshold) {
 							limitCount = 4;
 							if (posinc > 0)
-								status = MotorStatus._UPPERLIMIT;
+								status = MotorStatus.UPPER_LIMIT;
 							else if (posinc < 0)
-								status = MotorStatus._LOWERLIMIT;
+								status = MotorStatus.LOWER_LIMIT;
 							break;
 						}
 					}
 
 					if (limitCount == 0)
-						status = MotorStatus._BUSY;
+						status = MotorStatus.BUSY;
 					currentPosition += posinc;
 					notifyIObservers(this, null);
 				} else
@@ -322,8 +322,8 @@ public class AerotechDummyMotor extends MotorBase implements Runnable, Configura
 
 			if (i == increments)
 				currentPosition = targetposition;
-			if (status == MotorStatus._BUSY)
-				status = MotorStatus._READY;
+			if (status == MotorStatus.BUSY)
+				status = MotorStatus.READY;
 
 			simulatedMoveRequired = false;
 			motorMoving = false;

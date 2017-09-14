@@ -19,11 +19,11 @@
 
 package gda.device.motor;
 
-import gda.device.MotorException;
-import gda.device.MotorStatus;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.device.MotorException;
+import gda.device.MotorStatus;
 
 /**
  * A Dummy motor class
@@ -39,7 +39,7 @@ public class MikeDummyMotor extends MotorBase {
 
 	private double targetposition;
 
-	private int mystatus;
+	private MotorStatus mystatus;
 
 	private double posinc; // chunks of drive to add while busy
 
@@ -54,7 +54,7 @@ public class MikeDummyMotor extends MotorBase {
 	 * Constructor
 	 */
 	public MikeDummyMotor() {
-		mystatus = MotorStatus._READY;
+		mystatus = MotorStatus.READY;
 	}
 
 	@Override
@@ -79,13 +79,13 @@ public class MikeDummyMotor extends MotorBase {
 			nCallsBusy = 0;
 		}
 		motorMoving = true;
-		mystatus = MotorStatus._BUSY;
+		mystatus = MotorStatus.BUSY;
 		nCalls = 0;
 	}
 
 	@Override
 	public synchronized void moveContinuously(int direction) {
-		mystatus = MotorStatus._BUSY;
+		mystatus = MotorStatus.BUSY;
 		nCalls = 0;
 	}
 
@@ -131,17 +131,17 @@ public class MikeDummyMotor extends MotorBase {
 	public synchronized MotorStatus getStatus() {
 		// stay busy for nCallsBusy getStatus calls, increasing position each
 		// time
-		if ((mystatus == MotorStatus._BUSY) && (nCalls < nCallsBusy)) // disable
+		if ((mystatus == MotorStatus.BUSY) && (nCalls < nCallsBusy)) // disable
 		// chunks
 		{
 			nCalls++;
 			currentposition = currentposition + posinc;
 			// FIXME: Clarify comment below or remove.
 			// **** try without Thread.yield();
-			return (MotorStatus.from_int(MotorStatus._BUSY));
+			return MotorStatus.BUSY;
 		}
 		currentposition = targetposition;
 		motorMoving = false;
-		return (MotorStatus.from_int(MotorStatus._READY));
+		return MotorStatus.READY;
 	}
 }

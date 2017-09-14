@@ -419,10 +419,10 @@ public class Parker6kMotor extends MotorBase {
 		String command;
 
 		if (stepsPerSecond < getMinSpeed()) {
-			throw (new MotorException(MotorStatus.LOWERLIMIT, stepsPerSecond
+			throw (new MotorException(MotorStatus.LOWER_LIMIT, stepsPerSecond
 					+ " outside lower hardware speed limit of " + getMinSpeed()));
 		} else if (stepsPerSecond > getMaxSpeed()) {
-			throw (new MotorException(MotorStatus.UPPERLIMIT, stepsPerSecond
+			throw (new MotorException(MotorStatus.UPPER_LIMIT, stepsPerSecond
 					+ " outside upper hardware speed limit of " + getMaxSpeed()));
 		}
 
@@ -628,10 +628,10 @@ public class Parker6kMotor extends MotorBase {
 	 */
 	private void targetRangeCheck(double tmpTarget) throws MotorException {
 		if (tmpTarget < getMinPosition()) {
-			throw (new MotorException(MotorStatus.LOWERLIMIT, tmpTarget + " outside lower hardware limit of "
+			throw (new MotorException(MotorStatus.LOWER_LIMIT, tmpTarget + " outside lower hardware limit of "
 					+ getMinPosition()));
 		} else if (tmpTarget > getMaxPosition()) {
-			throw (new MotorException(MotorStatus.UPPERLIMIT, tmpTarget + " outside upper hardware limit of "
+			throw (new MotorException(MotorStatus.UPPER_LIMIT, tmpTarget + " outside upper hardware limit of "
 					+ getMaxPosition()));
 		}
 	}
@@ -787,9 +787,9 @@ public class Parker6kMotor extends MotorBase {
 		if (strStatus.charAt(MOVING) == '1') {
 			return (MotorStatus.BUSY);
 		} else if ((strStatus.charAt(POS_HW_LIMIT) == '1') || (strStatus.charAt(POS_SW_LIMIT) == '1')) {
-			return (MotorStatus.UPPERLIMIT);
+			return (MotorStatus.UPPER_LIMIT);
 		} else if ((strStatus.charAt(NEG_HW_LIMIT) == '1') || (strStatus.charAt(NEG_SW_LIMIT) == '1')) {
-			return (MotorStatus.LOWERLIMIT);
+			return (MotorStatus.LOWER_LIMIT);
 		} else if ((strStatus.charAt(STALLED) == '1') || (strStatus.charAt(SHUTDOWN) == '1')
 				|| (strStatus.charAt(FAULT) == '1') || (strStatus.charAt(POSN_ERROR_EXCEEDED) == '1')
 				|| (strStatus.charAt(TARGET_ZONE_TIMEOUT) == '1') || (strStatus.charAt(MOTION_SUSPENDED) == '1')) {

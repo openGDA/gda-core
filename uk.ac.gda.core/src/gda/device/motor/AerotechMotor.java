@@ -370,10 +370,10 @@ public class AerotechMotor extends MotorBase implements Configurable, IObservabl
 				}
 			} else if (response.equals("UPPERLIMIT")) {
 				motorMoving = false;
-				status = MotorStatus.UPPERLIMIT;
+				status = MotorStatus.UPPER_LIMIT;
 			} else if (response.equals("LOWERLIMIT")) {
 				motorMoving = false;
-				status = MotorStatus.LOWERLIMIT;
+				status = MotorStatus.LOWER_LIMIT;
 			}
 		} catch (DeviceException e) {
 			logger.error(getName() + " : caught DeviceException in getStatus : " + e.getMessage());

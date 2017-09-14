@@ -19,13 +19,13 @@
 
 package gda.device.motor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.MotorException;
 import gda.device.MotorStatus;
 import gda.device.serial.SerialController;
 import gda.factory.Finder;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A Generic class to implement an RS232 Slave motor interface
@@ -43,7 +43,7 @@ public class SlaveMotor extends MotorBase {
 
 	private double currentPosition = 0;
 
-	private int status = MotorStatus._READY;
+	private MotorStatus status = MotorStatus.READY;
 
 	private String homeCommand;
 
@@ -202,12 +202,12 @@ public class SlaveMotor extends MotorBase {
 
 		try {
 			serialController.sendCommand(command);
-			status = MotorStatus.BUSY.value();
+			status = MotorStatus.BUSY;
 			parseReply(serialController.getReply());
 		} catch (Exception e) {
 			throw new MotorException(MotorStatus.FAULT, e.getMessage());
 		} finally {
-			status = MotorStatus.READY.value();
+			status = MotorStatus.READY;
 		}
 	}
 
@@ -225,7 +225,7 @@ public class SlaveMotor extends MotorBase {
 	public void setPosition(double steps) throws MotorException {
 		currentPosition = steps;
 		simulatedPosition = steps;
-		status = MotorStatus._READY;
+		status = MotorStatus.READY;
 		logger.debug("setPosition command for SlaveMotor does not set actual mono posn");
 	}
 
@@ -234,7 +234,7 @@ public class SlaveMotor extends MotorBase {
 		// if motor busy then simulate a position for OeMove display purposes
 		// only
 		// else assume currentposition has been updated with real value
-		if (status == MotorStatus.BUSY.value() && (targetPosition - simulatedPosition > 1))
+		if (status == MotorStatus.BUSY && (targetPosition - simulatedPosition > 1))
 			simulatedPosition += 1.0;
 		else
 			simulatedPosition = currentPosition;
@@ -265,7 +265,7 @@ public class SlaveMotor extends MotorBase {
 
 	@Override
 	public MotorStatus getStatus() throws MotorException {
-		return MotorStatus.from_int(status);
+		return status;
 	}
 
 	@Override

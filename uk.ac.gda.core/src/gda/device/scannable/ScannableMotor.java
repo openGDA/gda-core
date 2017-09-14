@@ -30,7 +30,6 @@ import gda.device.IScannableMotor;
 import gda.device.Motor;
 import gda.device.MotorException;
 import gda.device.MotorProperties.MotorEvent;
-import gda.device.MotorProperties.MotorProperty;
 import gda.device.MotorStatus;
 import gda.device.motor.DummyMotor;
 import gda.device.motor.TotalDummyMotor;
@@ -38,7 +37,6 @@ import gda.device.scannable.component.MotorLimitsComponent;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
-import gda.observable.IObserver;
 
 /**
  * Adapter class for motor to work as scannables. This class uses units and has an offset/scaling factor for the motor
@@ -50,7 +48,7 @@ import gda.observable.IObserver;
  * <p>
  * GDALimits are based on the userPosition, but must be in the same units as the motor.
  */
-public class ScannableMotor extends ScannableMotionUnitsBase implements IObserver, IScannableMotor {
+public class ScannableMotor extends ScannableMotionUnitsBase implements IScannableMotor {
 
 	/**
 	 * String to use in getAttribute to get the motor name
@@ -97,11 +95,9 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 
 	private boolean logMoveRequestsWithInfo = false;
 
-	/**
-	 * Constructor
-	 */
-	public ScannableMotor() {
-	}
+	private final Object isBusyAndMovetoLock = new Object();
+
+	private boolean demandMsgShown = false;
 
 	/**
 	 * Sets the motor used by this scannable motor.
@@ -117,8 +113,9 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 	}
 
 	/**
-	 * COPY_MOTOR_LIMITS_INTO_SCANNABLE_LIMITS Method required by scripts which need to access the real motor at times. Before the script could get the motor
-	 * name but now that the motor may be set by spring, scripts cannot get the underlying motor.
+	 * COPY_MOTOR_LIMITS_INTO_SCANNABLE_LIMITS Method required by scripts which need to access the real motor at times.
+	 * Before the script could get the motor name but now that the motor may be set by spring, scripts cannot get the
+	 * underlying motor.
 	 *
 	 * @return Motor
 	 */
@@ -133,7 +130,7 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 			setMotor((Motor) Finder.getInstance().find(motorName));
 		}
 
-		motor.addIObserver(this);
+		motor.addIObserver((theObserved, changeCode) -> handleMotorUpdates(changeCode));
 		this.inputNames = new String[] { getName() };
 
 		try {
@@ -147,9 +144,8 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 					// try to work out the units the motor works in
 					unitsComponent.setHardwareUnitString(motorUnit);
 				}
-			} else if ((motor instanceof DummyMotor || motor instanceof TotalDummyMotor) // TODO: Get rid of this
-																							// malarchy
-					&& getHardwareUnitString() == null) {
+			} else if ((motor instanceof DummyMotor || motor instanceof TotalDummyMotor)
+					&& getHardwareUnitString() == null) { // TODO: Get rid of this malarchy
 				// default for simulations
 				unitsComponent.setHardwareUnitString("mm");
 			} else if (getHardwareUnitString() == null) {
@@ -174,8 +170,8 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 
 	private void copyMotorLimitsIntoScannableLimits() throws Exception {
 		if (getUpperGdaLimits() == null || getLowerGdaLimits() == null) {
-			Double upperMotorLimit = getUpperMotorLimit();
-			Double lowerMotorLimit = getLowerMotorLimit();
+			final Double upperMotorLimit = getUpperMotorLimit();
+			final Double lowerMotorLimit = getLowerMotorLimit();
 			setLowerGdaLimits((lowerMotorLimit == null) ? -Double.MAX_VALUE : lowerMotorLimit);
 			setUpperGdaLimits((upperMotorLimit == null) ? Double.MAX_VALUE : upperMotorLimit);
 		}
@@ -195,8 +191,8 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 
 	@Override
 	public Double[] getFirstInputLimits() throws DeviceException {
-		Double lowerInnerLimit = getLowerInnerLimit();
-		Double upperInnerLimit = getUpperInnerLimit();
+		final Double lowerInnerLimit = getLowerInnerLimit();
+		final Double upperInnerLimit = getUpperInnerLimit();
 		return lowerInnerLimit == null && upperInnerLimit == null ? null : new Double[] { lowerInnerLimit,
 				upperInnerLimit };
 	}
@@ -217,10 +213,6 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 	public void setMotorName(String motorName) {
 		this.motorName = motorName;
 	}
-
-	private final Object isBusyAndMovetoLock = new Object();
-
-	private boolean demand_msg_shown = false;
 
 	/**
 	 * {@inheritDoc}. Triggers a motor to move. Throws a DeviceException if the motor is already busy. This method's
@@ -257,9 +249,8 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 			} catch (MotorException e) {
 				throw new DeviceException(e.getMessage(), e);
 			}
-			demand_msg_shown = false;
+			demandMsgShown = false;
 		}
-
 	}
 
 	/**
@@ -270,11 +261,11 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 	 */
 	@Override
 	public Object rawGetPosition() throws DeviceException {
-		if (this.motor == null) {
+		if (motor == null) {
 			return null; // TODO: Should throw an exception.
 		}
 		try {
-			return this.motor.getPosition();
+			return motor.getPosition();
 		} catch (MotorException e) {
 			throw new DeviceException(e.getMessage(), e);
 		}
@@ -289,7 +280,7 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 	 */
 	protected Object rawGetDemandPosition() throws DeviceException {
 
-		double currentInternalPosition = (Double) rawGetPosition();
+		final double currentInternalPosition = (Double) rawGetPosition();
 
 		if (lastDemandedInternalPosition == null) {
 			return currentInternalPosition;
@@ -300,18 +291,18 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 		}
 
 		// motor is not moving
-		double tolerance = getDemandPositionTolerance();
+		final double tolerance = getDemandPositionTolerance();
 		if (Math.abs(currentInternalPosition - lastDemandedInternalPosition) <= tolerance) {
 			return lastDemandedInternalPosition;
 		} // else
 
 		// motor is not moving but is not at the last demand position.
-		if (!demand_msg_shown) {
-			String msg = MessageFormat.format(
+		if (!demandMsgShown) {
+			final String msg = MessageFormat.format(
 					"{0} is returning a position based on its real motor position ({1}) rather than its last demanded position({2}),\n"
 							+ "as these differ by more than the configured demand position tolerance ({3}).",
 					getName(), currentInternalPosition, lastDemandedInternalPosition, tolerance);
-			demand_msg_shown = true; // reset by rawAsynchMoveto
+			demandMsgShown = true; // reset by rawAsynchMoveto
 			logger.info(msg);
 			InterfaceProvider.getTerminalPrinter().print("WARNING: " + msg);
 		}
@@ -368,8 +359,7 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 			if (isIsBusyThrowingExceptionWhenMotorGoesIntoFault()) {
 				raiseExceptionIfInFault("isBusy()");
 			}
-			int currentStatus = this.motor.getStatus().value();
-			return currentStatus == MotorStatus._BUSY;
+			return this.motor.getStatus() == MotorStatus.BUSY;
 		} catch (MotorException e) {
 			throw new DeviceException(e.getMessage(), e);
 		}
@@ -392,7 +382,7 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 			super.waitWhileBusy();
 		}
 		logger.trace("{}: waiting complete >> motor position={}, motor status={}, lastDemandedInternalPosition={}, returnDemandPosition={}",
-				getName(), this.motor.getPosition(), this.motor.getStatus(), lastDemandedInternalPosition, returnDemandPosition);
+				getName(), motor.getPosition(), motor.getStatus(), lastDemandedInternalPosition, returnDemandPosition);
 		// Belt and braces...
 		if (motor.getStatus() != MotorStatus.READY) {
 			if (isIsBusyThrowingExceptionWhenMotorGoesIntoFault()) {
@@ -404,9 +394,9 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 	}
 
 	private void raiseExceptionIfInFault(String caller) throws MotorException {
-		if ((motor.getStatus() == MotorStatus.FAULT) || (motor.getStatus() == MotorStatus.UPPERLIMIT)
-				|| (motor.getStatus() == MotorStatus.LOWERLIMIT)
-				|| (motor.getStatus() == MotorStatus.SOFTLIMITVIOLATION))
+		if ((motor.getStatus() == MotorStatus.FAULT) || (motor.getStatus() == MotorStatus.UPPER_LIMIT)
+				|| (motor.getStatus() == MotorStatus.LOWER_LIMIT)
+				|| (motor.getStatus() == MotorStatus.SOFT_LIMIT_VIOLATION))
 			throw new MotorException(motor.getStatus(), "\nDuring " + getName() + "." + caller + " EPICS Motor was found in "
 					+ motor.getStatus() + " status. Please check EPICS Screen.");
 	}
@@ -438,9 +428,9 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 							+ getName()
 							+ "'s lower motor limit as there is no limits component (probably because the no motor has been set).");
 		}
-		Double[] internalArray = (isScalingFactorNegative()) ? motorLimitsComponent.getInternalUpper()
+		final Double[] internalArray = (isScalingFactorNegative()) ? motorLimitsComponent.getInternalUpper()
 				: motorLimitsComponent.getInternalLower();
-		Double internal = (internalArray == null) ? null : internalArray[0];
+		final Double internal = (internalArray == null) ? null : internalArray[0];
 		return PositionConvertorFunctions.toDouble(internalToExternal(internal));
 	}
 
@@ -458,9 +448,9 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 							+ getName()
 							+ "'s upper motor limit as there is no limits component (probably because the no motor has been set).");
 		}
-		Double[] internalArray = (isScalingFactorNegative()) ? motorLimitsComponent.getInternalLower()
+		final Double[] internalArray = (isScalingFactorNegative()) ? motorLimitsComponent.getInternalLower()
 				: motorLimitsComponent.getInternalUpper();
-		Double internal = (internalArray == null) ? null : internalArray[0];
+		final Double internal = (internalArray == null) ? null : internalArray[0];
 		return PositionConvertorFunctions.toDouble(internalToExternal(internal));
 	}
 
@@ -473,9 +463,9 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 	@Override
 	public Double getLowerInnerLimit() throws DeviceException {
 
-		Double lowerGdaLimit = (getLowerGdaLimits() == null) ? null : getLowerGdaLimits()[0];
-		Double lowerMotorLimit = getLowerMotorLimit();
-		if (lowerGdaLimit == null & lowerMotorLimit == null)
+		final Double lowerGdaLimit = (getLowerGdaLimits() == null) ? null : getLowerGdaLimits()[0];
+		final Double lowerMotorLimit = getLowerMotorLimit();
+		if (lowerGdaLimit == null && lowerMotorLimit == null)
 			return null;
 		if (lowerGdaLimit == null)
 			return lowerMotorLimit;
@@ -493,9 +483,9 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 	@Override
 	public Double getUpperInnerLimit() throws DeviceException {
 
-		Double upperGdaLimit = (getUpperGdaLimits() == null) ? null : getUpperGdaLimits()[0];
-		Double upperMotorLimit = getUpperMotorLimit();
-		if (upperGdaLimit == null & upperMotorLimit == null)
+		final Double upperGdaLimit = (getUpperGdaLimits() == null) ? null : getUpperGdaLimits()[0];
+		final Double upperMotorLimit = getUpperMotorLimit();
+		if (upperGdaLimit == null && upperMotorLimit == null)
 			return null;
 		if (upperGdaLimit == null)
 			return upperMotorLimit;
@@ -507,8 +497,8 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 	@Override
 	public String toFormattedString() {
 		String report = super.toFormattedString();
-		Double lowerMotorLimit;
-		Double upperMotorLimit;
+		Double lowerMotorLimit = null;
+		Double upperMotorLimit = null;
 		if (motorLimitsComponent == null) {
 			return report;
 		}
@@ -516,8 +506,9 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 			lowerMotorLimit = getLowerMotorLimit();
 			upperMotorLimit = getUpperMotorLimit();
 		} catch (DeviceException e) {
-			throw new RuntimeException(getName() + ": exception while getting Motor limits. " + e.getMessage() + "; "
-					+ e.getCause(), e);
+			final String message = String.format("%s: exception while getting Motor limits.", getName());
+			logger.error(message, e);
+			throw new RuntimeException(message, e);
 		}
 
 		if (lowerMotorLimit != null || upperMotorLimit != null) {
@@ -536,12 +527,12 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 					report += " demand";
 				} else {
 					// stopped, but not at target so show demand as well
-					Double[] offsetArray = new Double[getInputNames().length + getExtraNames().length];
+					final Double[] offsetArray = new Double[getInputNames().length + getExtraNames().length];
 					if (getOffset() != null) {
 						// Complication - the offset array may not have offsets for the extra fields.
 						System.arraycopy(getOffset(), 0, offsetArray, 0, getOffset().length);
 					}
-					String[] unitStringArray = new String[getInputNames().length + getExtraNames().length];
+					final String[] unitStringArray = new String[getInputNames().length + getExtraNames().length];
 					for (int i = 0; i < unitStringArray.length; i++) {
 						unitStringArray[i] = getUserUnits();
 					}
@@ -552,7 +543,9 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 				}
 			}
 		} catch (DeviceException e) {
-			throw new RuntimeException(getName() + ".toFormattedString() exception:", e);
+			final String message = String.format("%s.toFormattedString() exception:", getName());
+			logger.error(message, e);
+			throw new RuntimeException(message);
 		}
 		return report;
 	}
@@ -621,27 +614,14 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 		}
 	}
 
-	@Override
-	public void update(Object theObserved, Object changeCode) {
+	public void handleMotorUpdates(Object changeCode) {
 
-		if (theObserved == this.motor && changeCode instanceof MotorStatus) {
+		if (changeCode instanceof MotorStatus) {
+			final MotorStatus motorStatus = (MotorStatus) changeCode;
 
-			int motorStatus = ((MotorStatus) changeCode).value();
-
-			if (motorStatus == MotorStatus._READY) {
+			if (motorStatus == MotorStatus.READY) {
 				notifyIObservers(this, new ScannableStatus(this.getName(), ScannableStatus.IDLE));
-			} else if (motorStatus == MotorStatus._BUSY) {
-				// do nothing as should have already informed IObservers during asynchronousMoveTo
-			} else {
-				notifyIObservers(this, new ScannableStatus(this.getName(), ScannableStatus.FAULT));
-			}
-		} else if (theObserved instanceof MotorProperty && changeCode instanceof MotorStatus) {
-
-			int motorStatus = ((MotorStatus) changeCode).value();
-
-			if (motorStatus == MotorStatus._READY) {
-				notifyIObservers(this, new ScannableStatus(this.getName(), ScannableStatus.IDLE));
-			} else if (motorStatus == MotorStatus._BUSY) {
+			} else if (motorStatus == MotorStatus.BUSY) {
 				// do nothing as should have already informed IObservers during asynchronousMoveTo
 			} else {
 				notifyIObservers(this, new ScannableStatus(this.getName(), ScannableStatus.FAULT));
@@ -650,15 +630,12 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 
 		// to account for inconsistent message types from EpicsMotor
 		else if (changeCode instanceof MotorEvent) {
-			if (((MotorEvent) changeCode) == MotorEvent.MOVE_COMPLETE) {
+			final MotorEvent motorEvent = (MotorEvent) changeCode;
+
+			if (motorEvent == MotorEvent.MOVE_COMPLETE) {
 				notifyIObservers(this, new ScannableStatus(this.getName(), ScannableStatus.IDLE));
 			}
 		}
-		// According to Paul G this will cause too many events to be fired.
-		// if (theObserved == MotorProperty.POSITION) {
-		// notifyIObservers(this, new ScannablePosition(this.getName(), (Double)changeCode));
-		// }
-
 	}
 
 	public void setMotorLimitsComponent(MotorLimitsComponent motorLimitsComponent) {
@@ -671,16 +648,6 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 
 	public MotorLimitsComponent getMotorLimitsComponent() {
 		return motorLimitsComponent;
-	}
-
-	// Castor fails with super's vararg method
-	public void setScalingFactor(Double scale) {
-		super.setScalingFactor(new Double[] { scale });
-	}
-
-	// Castor fails with super's vararg method
-	public void setOffset(Double offset) {
-		super.setOffset(new Double[] { offset });
 	}
 
 	public void setIsBusyThrowsExceptionWhenMotorGoesIntoFault(boolean isBusyThrowsExceptionWhenMotorGoesIntoFault) {

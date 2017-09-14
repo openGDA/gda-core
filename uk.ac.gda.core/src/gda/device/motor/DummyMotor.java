@@ -19,17 +19,18 @@
 
 package gda.device.motor;
 
+import java.util.Random;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.Motor;
 import gda.device.MotorException;
 import gda.device.MotorProperties.MotorEvent;
 import gda.device.MotorStatus;
 import gda.device.scannable.MotorUnitStringSupplier;
 import gda.observable.IObservable;
-
-import java.util.Random;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import uk.ac.gda.util.ThreadManager;
 
 /**
  * A Dummy motor class
@@ -48,9 +49,9 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 	private double positionIncrement;
 
 	// These are the two default values for numberOfIncrements
-	private static final int continuousIncrements = 1000000;
+	private static final int CONTINUOUS_INCREMENTS = 1000000;
 
-	private static final int nonContinuousIncrements = 10;
+	private static final int NON_CONTINUOUS_INCREMENTS = 10;
 
 	// This flag is used to indicate to the run() thread
 	// whether or not it should be trying to simulate a move.
@@ -67,7 +68,7 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 
 	private volatile double currentPosition;
 
-	private volatile int status;
+	private volatile MotorStatus status;
 
 	private double speed = 0;
 
@@ -95,6 +96,7 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 
 	private double randomLimitTriggerLevel = 10.0;
 
+	// See comment on randomlyProduceLimits
 	private int limitCount = 0;
 
 	// If randomlyProduceExceptions is true then moveTo will generate
@@ -111,15 +113,9 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 
 	private boolean homing = false;
 
-	/**
-	 * Constructor.
-	 */
-	public DummyMotor() {
-	}
-
 	@Override
 	public void configure() {
-		runner = uk.ac.gda.util.ThreadManager.getThread(this, getClass().getName());
+		runner = ThreadManager.getThread(this, getClass().getName());
 		runner.start();
 
 		// We have to be sure that the monitoring thread is ready for
@@ -132,7 +128,7 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 		}
 		Thread.yield();
 
-		status = MotorStatus._READY;
+		status = MotorStatus.READY;
 		isInitialised = true;
 
 		runner.setName(getClass().getName() + " " + getName());
@@ -177,38 +173,31 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 	public void moveTo(double requestedPosition) throws MotorException {
 
 		if (randomlyProduceExceptions && Math.abs(random.nextGaussian()) > randomExceptionTriggerLevel) {
-			logger.debug("DummyMotor " + getName() + " randomly throwing exception");
+			logger.debug("DummyMotor {} randomly throwing exception", getName());
 			throw new MotorException(MotorStatus.FAULT, "Random dummy motor fault");
 		}
 
 		double positionChange = requestedPosition - currentPosition;
 		if (positionChange != 0.0) {
-			// The status must be set first otherwise checking status
-			// immediately
+			// The status must be set first otherwise checking status immediately
 			// after moveTo may return the wrong answer
-			status = MotorStatus._BUSY;
+			status = MotorStatus.BUSY;
 
-			// The targetPosition is the currentPosition plus the
-			// positionChange
-			// adjusted for any specified backlash. (The backlash will be
-			// corrected
+			// The targetPosition is the currentPosition plus the positionChange
+			// adjusted for any specified backlash. (The backlash will be corrected
 			// later by the Positioner.)
 			targetPosition = addInBacklash(positionChange) + currentPosition;
 
-			// The numberOfIncrements used is based on the expected time the
-			// move
-			// will take. It should be large enough so that the position
-			// changes
+			// The numberOfIncrements used is based on the expected time the move
+			// will take. It should be large enough so that the position changes
 			// at least every half a second.
 			double totalExpectedMoveTime = Math.abs((targetPosition - currentPosition) / speed);
-			numberOfIncrements = Math.max(nonContinuousIncrements, (int) (totalExpectedMoveTime * 2.0));
+			numberOfIncrements = Math.max(NON_CONTINUOUS_INCREMENTS, (int) (totalExpectedMoveTime * 2.0));
 
-			// This is the number of steps the motor will appear to move
-			// each time.
+			// This is the number of steps the motor will appear to move each time.
 			positionIncrement = (targetPosition - currentPosition) / numberOfIncrements;
 
-			// The currentSpeed is in steps per second, incrementalSleepTime
-			// should
+			// The currentSpeed is in steps per second, incrementalSleepTime should
 			// be in ms hence the 1000.0 in the calculation.
 			incrementalSleepTime = (int) Math.abs(positionIncrement * 1000.0 / speed);
 
@@ -216,13 +205,13 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 			if (incrementalSleepTime == 0)
 				incrementalSleepTime = 1;
 
-			logger.trace("DummyMotor speed is: " + speed + " steps per second");
-			logger.trace("DummyMotor total move is: " + (targetPosition - currentPosition) + " steps");
-			logger.trace("DummyMotor move ought to take: " + totalExpectedMoveTime + " seconds");
-			logger.trace("DummyMotor number of numberOfIncrements: " + numberOfIncrements);
-			logger.trace("DummyMotor incrementalSleepTime is: " + incrementalSleepTime + "milliseconds");
-			logger.trace("DummyMotor expected total time for this move: "
-					+ Math.abs(incrementalSleepTime * numberOfIncrements / 1000.0) + "s");
+			logger.trace("DummyMotor speed is: {} steps per second", speed);
+			logger.trace("DummyMotor total move is: {} steps", (targetPosition - currentPosition));
+			logger.trace("DummyMotor move ought to take: {} seconds", totalExpectedMoveTime);
+			logger.trace("DummyMotor number of numberOfIncrements: {}", numberOfIncrements);
+			logger.trace("DummyMotor incrementalSleepTime is: {} milliseconds", incrementalSleepTime);
+			logger.trace("DummyMotor expected total time for this move: {}s",
+					Math.abs(incrementalSleepTime * numberOfIncrements / 1000.0));
 
 			motorMoving = true;
 			synchronized (this) {
@@ -245,9 +234,9 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 		// Continuous movement is simulated by doing a very large
 		// numberOfIncrements in the relevant direction with a very small
 		// incrementalSleepTime.
-		status = MotorStatus._BUSY;
-		numberOfIncrements = continuousIncrements;
-		positionIncrement = 1 * direction;
+		status = MotorStatus.BUSY;
+		numberOfIncrements = CONTINUOUS_INCREMENTS;
+		positionIncrement = direction;
 		incrementalSleepTime = 1;
 		motorMoving = true;
 		synchronized (this) {
@@ -346,7 +335,7 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 	@Override
 	public void stop() throws MotorException {
 		simulatedMoveRequired = false;
-		status = MotorStatus._READY;
+		status = MotorStatus.READY;
 		motorMoving = false;
 	}
 
@@ -358,7 +347,7 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 	@Override
 	public void panicStop() throws MotorException {
 		simulatedMoveRequired = false;
-		status = MotorStatus._READY;
+		status = MotorStatus.READY;
 	}
 
 	/**
@@ -368,7 +357,19 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 	 */
 	@Override
 	public MotorStatus getStatus() {
-		return MotorStatus.from_int(status);
+		return status;
+	}
+
+	public void setStatus(MotorStatus status) {
+		this.status = status;
+	}
+
+	public int getLimitCount() {
+		return limitCount;
+	}
+
+	public void setLimitCount(int limitCount) {
+		this.limitCount = limitCount;
 	}
 
 	/**
@@ -386,6 +387,7 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 	 */
 
 	@Override
+	@SuppressWarnings("squid:S2189") // Otherwise SonarLint complains about lack of end condition
 	public synchronized void run() {
 		int i = 0;
 
@@ -403,73 +405,68 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 			// If limitCount is 0 set the status to BUSY a limit may still
 			// be set from last move.
 			if (limitCount == 0)
-				status = MotorStatus._BUSY;
+				status = MotorStatus.BUSY;
 
 			for (i = 0; i < numberOfIncrements; i++) {
 				if (simulatedMoveRequired) {
+
+					logger.trace("Moving {}, status {}, position {}", getName(), status, currentPosition);
 					// When a limit is randomly set, limitCount is set to 4.
-					// It is decremented here and when it reaches 0 the
-					// limit
-					// is cleared. This means that at the beginning of a
-					// move
+					// It is decremented here and when it reaches 0 the limit
+					// is cleared. This means that at the beginning of a move
 					// away from a limit the limit will still show. After 4
 					// increments it will clear.
-					if (status == MotorStatus._UPPERLIMIT) {
+					if (status == MotorStatus.UPPER_LIMIT) {
 						if (positionIncrement < 0)
 							limitCount--;
 						else
 							break;
-					} else if (status == MotorStatus._LOWERLIMIT) {
+					} else if (status == MotorStatus.LOWER_LIMIT) {
 						if (positionIncrement > 0)
 							limitCount--;
 						else
 							break;
 					} else {
-						// If not at a limit see whether a random limit should
-						// be set,
-						// upper or lower is set according to the direction of
-						// movement.
+						// If not at a limit see whether a random limit should be set,
+						// upper or lower is set according to the direction of movement.
 						if (randomlyProduceLimits && Math.abs(random.nextGaussian()) > randomLimitTriggerLevel) {
 							limitCount = 4;
 							if (positionIncrement > 0)
-								status = MotorStatus._UPPERLIMIT;
+								status = MotorStatus.UPPER_LIMIT;
 							else if (positionIncrement < 0)
-								status = MotorStatus._LOWERLIMIT;
+								status = MotorStatus.LOWER_LIMIT;
 							break;
 						}
 					}
 
 					// Clear limit
 					if (limitCount == 0)
-						status = MotorStatus._BUSY;
+						status = MotorStatus.BUSY;
 
 					// Wait for the incrementalSleepTime
 					try {
-						logger.trace("DummyMotor " + getName() + " incremental wait starting");
+						logger.trace("DummyMotor {} incremental wait starting", getName());
 						wait(incrementalSleepTime);
-						logger.trace("DummyMotor " + getName() + " incremental wait over");
+						logger.trace("DummyMotor {} incremental wait over", getName());
 					} catch (InterruptedException ex) {
-						logger.error("DummyMotor " + getName() + " InterruptedException in incremental wait");
+						logger.error("DummyMotor {} InterruptedException in incremental wait", getName());
 					}
 
 					// Increment the position
 					currentPosition += positionIncrement;
-					logger.trace("DummyMotor " + getName() + " position is now " + currentPosition);
+					logger.trace("DummyMotor {} position is now {}", getName(), currentPosition);
 				}
 
-				// This is the else for the if (simulatedMoveRequired). This
-				// flag
-				// can be set to false by the stop() method which should cause
-				// the
+				// This is the else for the if (simulatedMoveRequired). This flag
+				// can be set to false by the stop() method which should cause the
 				// move to be abandoned hence the break.
-				else{
-					status = MotorStatus._READY;
+				else {
+					status = MotorStatus.READY;
 					break;
 				}
 			}
 
-			// If the move has been completed need to adjust the final
-			// position
+			// If the move has been completed need to adjust the final position
 			// to what it should be (may be slightly wrong due to rounding).
 			if (i == numberOfIncrements)
 				currentPosition = targetPosition;
@@ -477,22 +474,19 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 			savePosition(getName());
 
 			// If the status is still BUSY the move was completed without a
-			// limit
-			// flag being set and so status should be set to READY.
-			if (status == MotorStatus._BUSY)
-				status = MotorStatus._READY;
+			// limit flag being set and so status should be set to READY.
+			if (status == MotorStatus.BUSY)
+				status = MotorStatus.READY;
 
 			logger.debug("Dummy motor {} finished moving at position {}; status now {}",
-					this.getName(), currentPosition, MotorStatus.from_int(status));
+					this.getName(), currentPosition, status);
 
 			// Switch off the moving flags
 			simulatedMoveRequired = false;
 			motorMoving = false;
 
-			// If this was a homing move, and it succeeded, then mark the
-			// motor as
-			// homed. NB status = READY is not enough to say that the move
-			// succeeded
+			// If this was a homing move, and it succeeded, then mark the motor as
+			// homed. NB status = READY is not enough to say that the move succeeded
 			// as this will happen when a move is stopped.
 			if (currentPosition == targetPosition && homing) {
 				homed = true;

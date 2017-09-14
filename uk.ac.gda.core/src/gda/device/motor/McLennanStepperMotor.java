@@ -227,13 +227,13 @@ public class McLennanStepperMotor extends McLennanMotor {
 				}
 
 				else if (reply.charAt(LOWERLIMIT) == ON) {
-					status = MotorStatus.LOWERLIMIT;
+					status = MotorStatus.LOWER_LIMIT;
 					logger.error("The motor at axis " + axis + " is at its lower limit.");
 					channelSelector.releaseChannel(this);
 				}
 
 				else if (reply.charAt(UPPERLIMIT) == ON) {
-					status = MotorStatus.UPPERLIMIT;
+					status = MotorStatus.UPPER_LIMIT;
 					logger.error("The motor at axis " + axis + " is at its upper limit.");
 					channelSelector.releaseChannel(this);
 				}

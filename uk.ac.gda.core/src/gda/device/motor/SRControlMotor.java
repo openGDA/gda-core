@@ -282,9 +282,9 @@ public class SRControlMotor extends MotorBase {
 			srControl.getValue(deviceID, SRControlInterface.GET_INTERLOCKS, value);
 			short bitValue = (short) value[0];
 			if ((bitValue & SRControlInterface.LOWERLIMIT_INTERLOCK) != NO_INTERLOCK_ERROR) {
-				status = MotorStatus.LOWERLIMIT;
+				status = MotorStatus.LOWER_LIMIT;
 			} else if ((bitValue & SRControlInterface.UPPERLIMIT_INTERLOCK) != NO_INTERLOCK_ERROR) {
-				status = MotorStatus.UPPERLIMIT;
+				status = MotorStatus.UPPER_LIMIT;
 			} else if ((bitValue & SRControlInterface.GEARBOXFAIL_INTERLOCK) != NO_INTERLOCK_ERROR) {
 				status = MotorStatus.FAULT;
 			} else if ((bitValue & SRControlInterface.ARRAYTILT_INTERLOCK) != NO_INTERLOCK_ERROR) {

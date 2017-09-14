@@ -65,7 +65,7 @@ public class MotorAdapter extends DeviceAdapter implements Motor {
 			} catch (TRANSIENT ct) {
 				corbaMotor = CorbaMotorHelper.narrow(netService.reconnect(name));
 			} catch (CorbaMotorException ex) {
-				MotorStatus ms = MotorStatus.from_int(ex.status.value());
+				MotorStatus ms = MotorStatus.fromInt(ex.status.value());
 				throw new MotorException(ms, ex.message);
 			}
 
@@ -84,7 +84,7 @@ public class MotorAdapter extends DeviceAdapter implements Motor {
 			} catch (TRANSIENT ct) {
 				corbaMotor = CorbaMotorHelper.narrow(netService.reconnect(name));
 			} catch (CorbaMotorException ex) {
-				MotorStatus ms = MotorStatus.from_int(ex.status.value());
+				MotorStatus ms = MotorStatus.fromInt(ex.status.value());
 				throw new MotorException(ms, ex.message);
 			}
 
@@ -103,7 +103,7 @@ public class MotorAdapter extends DeviceAdapter implements Motor {
 			} catch (TRANSIENT ct) {
 				corbaMotor = CorbaMotorHelper.narrow(netService.reconnect(name));
 			} catch (CorbaMotorException ex) {
-				MotorStatus ms = MotorStatus.from_int(ex.status.value());
+				MotorStatus ms = MotorStatus.fromInt(ex.status.value());
 				throw new MotorException(ms, ex.message);
 			}
 
@@ -122,7 +122,7 @@ public class MotorAdapter extends DeviceAdapter implements Motor {
 			} catch (TRANSIENT ct) {
 				corbaMotor = CorbaMotorHelper.narrow(netService.reconnect(name));
 			} catch (CorbaMotorException ex) {
-				MotorStatus ms = MotorStatus.from_int(ex.status.value());
+				MotorStatus ms = MotorStatus.fromInt(ex.status.value());
 				throw new MotorException(ms, ex.message);
 			}
 
@@ -140,7 +140,7 @@ public class MotorAdapter extends DeviceAdapter implements Motor {
 			} catch (TRANSIENT ct) {
 				corbaMotor = CorbaMotorHelper.narrow(netService.reconnect(name));
 			} catch (CorbaMotorException ex) {
-				MotorStatus ms = MotorStatus.from_int(ex.status.value());
+				MotorStatus ms = MotorStatus.fromInt(ex.status.value());
 				throw new MotorException(ms, ex.message);
 			}
 
@@ -159,7 +159,7 @@ public class MotorAdapter extends DeviceAdapter implements Motor {
 			} catch (TRANSIENT ct) {
 				corbaMotor = CorbaMotorHelper.narrow(netService.reconnect(name));
 			} catch (CorbaMotorException ex) {
-				MotorStatus ms = MotorStatus.from_int(ex.status.value());
+				MotorStatus ms = MotorStatus.fromInt(ex.status.value());
 				throw new MotorException(ms, ex.message);
 			}
 
@@ -178,7 +178,7 @@ public class MotorAdapter extends DeviceAdapter implements Motor {
 			} catch (TRANSIENT ct) {
 				corbaMotor = CorbaMotorHelper.narrow(netService.reconnect(name));
 			} catch (CorbaMotorException ex) {
-				MotorStatus ms = MotorStatus.from_int(ex.status.value());
+				MotorStatus ms = MotorStatus.fromInt(ex.status.value());
 				throw new MotorException(ms, ex.message);
 			}
 		}
@@ -196,7 +196,7 @@ public class MotorAdapter extends DeviceAdapter implements Motor {
 			} catch (TRANSIENT ct) {
 				corbaMotor = CorbaMotorHelper.narrow(netService.reconnect(name));
 			} catch (CorbaMotorException ex) {
-				MotorStatus ms = MotorStatus.from_int(ex.status.value());
+				MotorStatus ms = MotorStatus.fromInt(ex.status.value());
 				throw new MotorException(ms, ex.message);
 			}
 		}
@@ -214,7 +214,7 @@ public class MotorAdapter extends DeviceAdapter implements Motor {
 			} catch (TRANSIENT ct) {
 				corbaMotor = CorbaMotorHelper.narrow(netService.reconnect(name));
 			} catch (CorbaMotorException ex) {
-				MotorStatus ms = MotorStatus.from_int(ex.status.value());
+				MotorStatus ms = MotorStatus.fromInt(ex.status.value());
 				throw new MotorException(ms, ex.message);
 			}
 		}
@@ -232,7 +232,7 @@ public class MotorAdapter extends DeviceAdapter implements Motor {
 			} catch (TRANSIENT ct) {
 				corbaMotor = CorbaMotorHelper.narrow(netService.reconnect(name));
 			} catch (CorbaMotorException ex) {
-				MotorStatus ms = MotorStatus.from_int(ex.status.value());
+				MotorStatus ms = MotorStatus.fromInt(ex.status.value());
 				throw new MotorException(ms, ex.message);
 			}
 		}
@@ -250,7 +250,7 @@ public class MotorAdapter extends DeviceAdapter implements Motor {
 			} catch (TRANSIENT ct) {
 				corbaMotor = CorbaMotorHelper.narrow(netService.reconnect(name));
 			} catch (CorbaMotorException ex) {
-				MotorStatus ms = MotorStatus.from_int(ex.status.value());
+				MotorStatus ms = MotorStatus.fromInt(ex.status.value());
 				throw new MotorException(ms, ex.message);
 			}
 
@@ -269,7 +269,7 @@ public class MotorAdapter extends DeviceAdapter implements Motor {
 			} catch (TRANSIENT ct) {
 				corbaMotor = CorbaMotorHelper.narrow(netService.reconnect(name));
 			} catch (CorbaMotorException ex) {
-				MotorStatus ms = MotorStatus.from_int(ex.status.value());
+				MotorStatus ms = MotorStatus.fromInt(ex.status.value());
 				throw new MotorException(ms, ex.message);
 			}
 
@@ -283,13 +283,13 @@ public class MotorAdapter extends DeviceAdapter implements Motor {
 
 		for (int i = 0; i < NetService.RETRY; i++) {
 			try {
-				mstat = MotorStatus.from_int(corbaMotor.getStatus().value());
+				mstat = MotorStatus.fromInt(corbaMotor.getStatus().value());
 			} catch (COMM_FAILURE cf) {
 				corbaMotor = CorbaMotorHelper.narrow(netService.reconnect(name));
 			} catch (TRANSIENT ct) {
 				corbaMotor = CorbaMotorHelper.narrow(netService.reconnect(name));
 			} catch (CorbaMotorException ex) {
-				MotorStatus ms = MotorStatus.from_int(ex.status.value());
+				MotorStatus ms = MotorStatus.fromInt(ex.status.value());
 				throw new MotorException(ms, ex.message);
 			}
 		}
@@ -307,7 +307,7 @@ public class MotorAdapter extends DeviceAdapter implements Motor {
 			} catch (TRANSIENT ct) {
 				corbaMotor = CorbaMotorHelper.narrow(netService.reconnect(name));
 			} catch (CorbaMotorException ex) {
-				MotorStatus ms = MotorStatus.from_int(ex.status.value());
+				MotorStatus ms = MotorStatus.fromInt(ex.status.value());
 				throw new MotorException(ms, ex.message);
 			}
 
@@ -325,7 +325,7 @@ public class MotorAdapter extends DeviceAdapter implements Motor {
 			} catch (TRANSIENT ct) {
 				corbaMotor = CorbaMotorHelper.narrow(netService.reconnect(name));
 			} catch (CorbaMotorException ex) {
-				MotorStatus ms = MotorStatus.from_int(ex.status.value());
+				MotorStatus ms = MotorStatus.fromInt(ex.status.value());
 				throw new MotorException(ms, ex.message);
 			}
 
@@ -344,7 +344,7 @@ public class MotorAdapter extends DeviceAdapter implements Motor {
 			} catch (TRANSIENT ct) {
 				corbaMotor = CorbaMotorHelper.narrow(netService.reconnect(name));
 			} catch (CorbaMotorException ex) {
-				MotorStatus ms = MotorStatus.from_int(ex.status.value());
+				MotorStatus ms = MotorStatus.fromInt(ex.status.value());
 				throw new MotorException(ms, ex.message);
 			}
 
@@ -362,7 +362,7 @@ public class MotorAdapter extends DeviceAdapter implements Motor {
 			} catch (TRANSIENT ct) {
 				corbaMotor = CorbaMotorHelper.narrow(netService.reconnect(name));
 			} catch (CorbaMotorException ex) {
-				MotorStatus ms = MotorStatus.from_int(ex.status.value());
+				MotorStatus ms = MotorStatus.fromInt(ex.status.value());
 				throw new MotorException(ms, ex.message);
 			}
 
@@ -380,7 +380,7 @@ public class MotorAdapter extends DeviceAdapter implements Motor {
 			} catch (TRANSIENT ct) {
 				corbaMotor = CorbaMotorHelper.narrow(netService.reconnect(name));
 			} catch (CorbaMotorException ex) {
-				MotorStatus ms = MotorStatus.from_int(ex.status.value());
+				MotorStatus ms = MotorStatus.fromInt(ex.status.value());
 				throw new MotorException(ms, ex.message);
 			}
 
@@ -399,7 +399,7 @@ public class MotorAdapter extends DeviceAdapter implements Motor {
 			} catch (TRANSIENT ct) {
 				corbaMotor = CorbaMotorHelper.narrow(netService.reconnect(name));
 			} catch (CorbaMotorException ex) {
-				MotorStatus ms = MotorStatus.from_int(ex.status.value());
+				MotorStatus ms = MotorStatus.fromInt(ex.status.value());
 				throw new MotorException(ms, ex.message);
 			}
 
@@ -418,7 +418,7 @@ public class MotorAdapter extends DeviceAdapter implements Motor {
 			} catch (TRANSIENT ct) {
 				corbaMotor = CorbaMotorHelper.narrow(netService.reconnect(name));
 			} catch (CorbaMotorException ex) {
-				MotorStatus ms = MotorStatus.from_int(ex.status.value());
+				MotorStatus ms = MotorStatus.fromInt(ex.status.value());
 				throw new MotorException(ms, ex.message);
 			}
 
@@ -436,7 +436,7 @@ public class MotorAdapter extends DeviceAdapter implements Motor {
 			} catch (TRANSIENT ct) {
 				corbaMotor = CorbaMotorHelper.narrow(netService.reconnect(name));
 			} catch (CorbaMotorException ex) {
-				MotorStatus ms = MotorStatus.from_int(ex.status.value());
+				MotorStatus ms = MotorStatus.fromInt(ex.status.value());
 				throw new MotorException(ms, ex.message);
 			}
 
@@ -454,7 +454,7 @@ public class MotorAdapter extends DeviceAdapter implements Motor {
 			} catch (TRANSIENT ct) {
 				corbaMotor = CorbaMotorHelper.narrow(netService.reconnect(name));
 			} catch (CorbaMotorException ex) {
-				MotorStatus ms = MotorStatus.from_int(ex.status.value());
+				MotorStatus ms = MotorStatus.fromInt(ex.status.value());
 				throw new MotorException(ms, ex.message);
 			}
 
@@ -472,7 +472,7 @@ public class MotorAdapter extends DeviceAdapter implements Motor {
 			} catch (TRANSIENT ct) {
 				corbaMotor = CorbaMotorHelper.narrow(netService.reconnect(name));
 			} catch (CorbaMotorException ex) {
-				MotorStatus ms = MotorStatus.from_int(ex.status.value());
+				MotorStatus ms = MotorStatus.fromInt(ex.status.value());
 				throw new MotorException(ms, ex.message);
 			}
 
@@ -490,7 +490,7 @@ public class MotorAdapter extends DeviceAdapter implements Motor {
 			} catch (TRANSIENT ct) {
 				corbaMotor = CorbaMotorHelper.narrow(netService.reconnect(name));
 			} catch (CorbaMotorException ex) {
-				MotorStatus ms = MotorStatus.from_int(ex.status.value());
+				MotorStatus ms = MotorStatus.fromInt(ex.status.value());
 				throw new MotorException(ms, ex.message);
 			}
 
@@ -508,7 +508,7 @@ public class MotorAdapter extends DeviceAdapter implements Motor {
 			} catch (TRANSIENT ct) {
 				corbaMotor = CorbaMotorHelper.narrow(netService.reconnect(name));
 			} catch (CorbaMotorException ex) {
-				MotorStatus ms = MotorStatus.from_int(ex.status.value());
+				MotorStatus ms = MotorStatus.fromInt(ex.status.value());
 				throw new MotorException(ms, ex.message);
 			}
 
@@ -526,7 +526,7 @@ public class MotorAdapter extends DeviceAdapter implements Motor {
 			} catch (TRANSIENT ct) {
 				corbaMotor = CorbaMotorHelper.narrow(netService.reconnect(name));
 			} catch (CorbaMotorException ex) {
-				MotorStatus ms = MotorStatus.from_int(ex.status.value());
+				MotorStatus ms = MotorStatus.fromInt(ex.status.value());
 				throw new MotorException(ms, ex.message);
 			}
 

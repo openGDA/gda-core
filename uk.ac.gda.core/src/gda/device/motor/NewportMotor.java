@@ -274,9 +274,9 @@ public class NewportMotor extends MotorBase {
 		if (reply.charAt(MOVING) == '1')
 			ms = MotorStatus.BUSY;
 		else if (reply.charAt(POS_LIMIT) == '1')
-			ms = MotorStatus.UPPERLIMIT;
+			ms = MotorStatus.UPPER_LIMIT;
 		else if (reply.charAt(NEG_LIMIT) == '1')
-			ms = MotorStatus.LOWERLIMIT;
+			ms = MotorStatus.LOWER_LIMIT;
 		else if (reply.charAt(POWER) == '1')
 			ms = MotorStatus.FAULT;
 		// This next may be presumptious??

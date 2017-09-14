@@ -198,12 +198,12 @@ public class McLennanServoMotor extends McLennanMotor {
 			}
 
 			if (reply.charAt(LOWERLIMIT) == ON) {
-				status = MotorStatus.LOWERLIMIT;
+				status = MotorStatus.LOWER_LIMIT;
 				logger.error("The motor at axis " + axis + " is at its lower limit.");
 			}
 
 			if (reply.charAt(UPPERLIMIT) == ON) {
-				status = MotorStatus.UPPERLIMIT;
+				status = MotorStatus.UPPER_LIMIT;
 				logger.error("The motor at axis " + axis + " is at its upper limit.");
 			}
 		} catch (MotorException e) {

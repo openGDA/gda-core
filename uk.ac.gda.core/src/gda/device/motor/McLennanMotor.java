@@ -249,7 +249,7 @@ public abstract class McLennanMotor extends MotorBase {
 	@Override
 	public void moveBy(double steps) throws MotorException {
 		// README See documentation in method header.
-		if ((status == MotorStatus.UPPERLIMIT || status == MotorStatus.LOWERLIMIT) && backOffSteps > 1) {
+		if ((status == MotorStatus.UPPER_LIMIT || status == MotorStatus.LOWER_LIMIT) && backOffSteps > 1) {
 			logger.warn("McLennanMotor: moveTo found limit on, checking move size");
 			if (Math.abs(steps) < backOffSteps) {
 				// change it for the backOffSteps with the same sense as steps
@@ -288,7 +288,7 @@ public abstract class McLennanMotor extends MotorBase {
 		double increment = steps - currentPosition;
 
 		// README See documentation in method header.
-		if ((status == MotorStatus.UPPERLIMIT || status == MotorStatus.LOWERLIMIT) && backOffSteps > 1) {
+		if ((status == MotorStatus.UPPER_LIMIT || status == MotorStatus.LOWER_LIMIT) && backOffSteps > 1) {
 			logger.warn("McLennanMotor: moveTo found limit on, checking move size");
 			if (Math.abs(increment) < backOffSteps) {
 				// change it for the backOffSteps with the same sense as

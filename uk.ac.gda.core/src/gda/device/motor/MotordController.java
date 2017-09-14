@@ -811,9 +811,9 @@ public class MotordController extends DeviceBase implements Configurable, Findab
 			md.setMoving(false);
 
 			if (message.indexOf("Home limit") != -1)
-				md.setMotorStatus(MotorStatus.LOWERLIMIT);
+				md.setMotorStatus(MotorStatus.LOWER_LIMIT);
 			else if (message.indexOf("FS limit") != -1)
-				md.setMotorStatus(MotorStatus.UPPERLIMIT);
+				md.setMotorStatus(MotorStatus.UPPER_LIMIT);
 			else if (message.indexOf("External fault") != -1)
 				md.setMotorStatus(MotorStatus.FAULT);
 			else if (message.indexOf("Spurious interrupt") != -1)

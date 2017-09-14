@@ -115,12 +115,12 @@ public class SimpleMotor implements Motor, InitializingBean{
 		final double upperLimit = getMaxPosition();
 
 		if (requestedPosition < lowerLimit) {
-			throw (new MotorException(MotorStatus.LOWERLIMIT, "Motor " + name + " " + requestedPosition + " outside lower hardware limit of "
+			throw (new MotorException(MotorStatus.LOWER_LIMIT, "Motor " + name + " " + requestedPosition + " outside lower hardware limit of "
 					+ lowerLimit));
 		}
 
 		else if (requestedPosition > upperLimit) {
-			throw (new MotorException(MotorStatus.UPPERLIMIT, "Motor " + name + " " + requestedPosition + " outside upper hardware limit of "
+			throw (new MotorException(MotorStatus.UPPER_LIMIT, "Motor " + name + " " + requestedPosition + " outside upper hardware limit of "
 					+ upperLimit));
 		}
 	}
