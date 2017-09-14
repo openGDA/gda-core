@@ -131,10 +131,8 @@ public class SpecsPhoibosCollectionStrategy implements AsyncNXCollectionStrategy
 	}
 
 	private boolean isUsingSequence() {
-		if (sequence == null) {
-			return false;
-		}
-		return true;
+		// true if sequence is non-null
+		return sequence != null;
 	}
 
 	@Override
@@ -145,7 +143,7 @@ public class SpecsPhoibosCollectionStrategy implements AsyncNXCollectionStrategy
 			return sequence.getEnabledRegions().stream().map(SpecsPhoibosRegion::getName).collect(Collectors.toList());
 		}
 		// Use the name of the analyser as the name
-		return Arrays.asList(new String[]{analyser.getName()});
+		return Arrays.asList(analyser.getName());
 	}
 
 	@Override
@@ -156,7 +154,7 @@ public class SpecsPhoibosCollectionStrategy implements AsyncNXCollectionStrategy
 			return Collections.nCopies(sequence.getEnabledRegions().size(), REGION_OUTPUT_FORMAT);
 		}
 		// Else in single region mode so just return one REGION_OUTPUT_FORMAT
-		return Arrays.asList(new String[]{REGION_OUTPUT_FORMAT});
+		return Arrays.asList(REGION_OUTPUT_FORMAT);
 	}
 
 	@Override
@@ -174,7 +172,6 @@ public class SpecsPhoibosCollectionStrategy implements AsyncNXCollectionStrategy
 	@Override
 	public void configureAcquireAndPeriodTimes(double collectionTime) throws Exception {
 		// TODO Auto-generated method stub
-
 	}
 
 	@Override
@@ -182,7 +179,6 @@ public class SpecsPhoibosCollectionStrategy implements AsyncNXCollectionStrategy
 			throws Exception {
 		// Call through to the other prepareForCollection going to ignore the passed in values anyway.
 		prepareForCollection(numberImagesPerCollection, scanInfo);
-
 	}
 
 	@Override
