@@ -160,7 +160,7 @@ public abstract class QexafsScannable extends ScannableMotor implements Continuo
 	@Override
 	public void stop() throws DeviceException {
 
-		if (getMotor().getStatus().value() == MotorStatus._READY)
+		if (getMotor().getStatus() == MotorStatus.READY)
 			return;
 
 		super.stop();
