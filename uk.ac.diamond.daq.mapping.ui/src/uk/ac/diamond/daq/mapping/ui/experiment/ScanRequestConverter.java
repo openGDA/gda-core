@@ -273,34 +273,20 @@ public class ScanRequestConverter {
 		if (regions.size() != 1) {
 			throw new IllegalArgumentException("The scan request must have exactly one region, has " + regions.size());
 		}
-		final ScanRegion<IROI> region = regions.iterator().next();
-		final List<String> scannableNames = region.getScannables();
-		if (scannableNames.size() != 2) {
-			throw new IllegalArgumentException("The scan region should have exactly two scannable names, was " +
-					String.join(", ", scannableNames));
-		}
 
 		// Check that the scannable names in the scan region are the same as in the mapping stage
-		if (mappingStageInfo != null) {
-			List<String> expectedScannableNames = Arrays.asList(
-					mappingStageInfo.getActiveSlowScanAxis(), mappingStageInfo.getActiveFastScanAxis());
-			if (!scannableNames.equals(expectedScannableNames)) {
-				throw new IllegalArgumentException("The axis names have changed. Expected : " +
-						String.join(", ", expectedScannableNames) + "; was " + String.join(", ", scannableNames));
-			}
-		}
+		final IMapPathModel mapPath = checkMapModelAndUpdateMappingStage(compoundModel);
 
 		// recreate the outer scannable wrappers from the scan request
 		mergeOuterScannables(compoundModel, mappingBean);
 
 		// set the scan path to the last child model of the compound model
-		final IScanPathModel mapPath = (IScanPathModel) compoundModel.getModels().get(
-				compoundModel.getModels().size() - 1);
 		final IScanDefinition scanDefinition = mappingBean.getScanDefinition();
 		final IMappingScanRegion scanRegion = scanDefinition.getMappingScanRegion();
 		scanRegion.setScanPath(mapPath);
 
 		// convert the ROI to a mapping scan region shape
+		final ScanRegion<IROI> region = regions.iterator().next();
 		final IMappingScanRegionShape shape = convertROItoRegionShape(region.getRoi());
 		scanRegion.setRegion(shape);
 
@@ -326,6 +312,25 @@ public class ScanRequestConverter {
 
 		// recreate the sample metadata from the metadata in the scan request
 		mergeSampleMetadata(scanRequest, mappingBean);
+	}
+
+	private IMapPathModel checkMapModelAndUpdateMappingStage(final CompoundModel<IROI> compoundModel) {
+		final List<Object> models = compoundModel.getModels();
+		// check that the inner most model is an IMapPathModel, i.e. for a mapping scan
+		final Object innerModelObj = models.get(models.size() - 1);
+		if (!(innerModelObj instanceof IMapPathModel)) {
+			throw new IllegalArgumentException("The inner most model is not a map model. This is not mapping scan");
+		}
+
+		final IMapPathModel mapPath = (IMapPathModel) innerModelObj;
+
+		// update the mapping bean with axes in the mapping path
+		if (mappingStageInfo != null) {
+			mappingStageInfo.setActiveFastScanAxis(mapPath.getFastAxisName());
+			mappingStageInfo.setActiveSlowScanAxis(mapPath.getSlowAxisName());
+		}
+
+		return mapPath;
 	}
 
 	private IMappingScanRegionShape convertROItoRegionShape(IROI roi) {

@@ -104,5 +104,5 @@ public class MappingStageInfo implements IStageScanConfiguration {
 		return "MappingStageInfo [activeFastScanAxis=" + activeFastScanAxis + ", activeSlowScanAxis="
 				+ activeSlowScanAxis + ", associatedAxis=" + associatedAxis + ", beamSize=" + beamSize + "]";
 	}
-	
+
 }

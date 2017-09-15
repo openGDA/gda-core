@@ -21,6 +21,7 @@ package uk.ac.diamond.daq.mapping.ui.test;
 import static org.eclipse.scanning.api.script.ScriptLanguage.SPEC_PASTICHE;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.hasItems;
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -58,6 +59,7 @@ import org.junit.Test;
 
 import uk.ac.diamond.daq.mapping.api.IClusterProcessingModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IDetectorModelWrapper;
+import uk.ac.diamond.daq.mapping.api.IMappingScanRegion;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
 import uk.ac.diamond.daq.mapping.api.IScanPathModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IScriptFiles;
@@ -233,7 +235,7 @@ public class ScanRequestConverterTest {
 		scanRequestConverter.mergeIntoMappingBean(scanRequest, newMappingBean);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testStageNamesChanged() throws Exception {
 		// Initially the scan path doesn't have the correct axis names
 		assertThat(scanPath.getFastAxisName(), is(not(equalTo(X_AXIS_NAME))));
@@ -251,8 +253,22 @@ public class ScanRequestConverterTest {
 		mappingStageInfo.setActiveFastScanAxis("new_x_axis");
 		mappingStageInfo.setActiveSlowScanAxis("new_y_axis");
 
-		// merging the scan request back into a mapping bean should fail
+		// the new mapping bean hasn't been set up with a scan path at this stage
+		IMappingScanRegion newRegion = newMappingBean.getScanDefinition().getMappingScanRegion();
+		assertThat(newRegion.getScanPath(), is(nullValue()));
+
+		// merging the scan request back into a mapping bean
 		scanRequestConverter.mergeIntoMappingBean(scanRequest, newMappingBean);
+
+		// check that the new mapping bean has the correct stage names
+		assertThat(newRegion.getScanPath(), is(instanceOf(GridModel.class)));
+		GridModel newScanPath = (GridModel) newRegion.getScanPath();
+		assertThat(newScanPath.getFastAxisName(), is(equalTo(X_AXIS_NAME)));
+		assertThat(newScanPath.getSlowAxisName(), is(equalTo(Y_AXIS_NAME)));
+
+		// check that the mapping stage info has been updated with the stage names from the scan request
+		assertThat(mappingStageInfo.getActiveFastScanAxis(), is(equalTo(X_AXIS_NAME)));
+		assertThat(mappingStageInfo.getActiveSlowScanAxis(), is(equalTo(Y_AXIS_NAME)));
 	}
 
 	@Test

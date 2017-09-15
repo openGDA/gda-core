@@ -240,13 +240,16 @@ public class DetectorsSection extends AbstractMappingSection {
 			List<String> axesToMove = Arrays.asList(((IAttributableDevice) runnableDevice).getAttributeValue("axesToMove"));
 			MappingStageInfo stageInfo = getEclipseContext().get(MappingStageInfo.class);
 
+			// only update the mapping stage if the malcolm device is configured to move at least two axes.
+			if (axesToMove.size() < 2) return;
+
 			if (axesToMove.contains(stageInfo.getActiveFastScanAxis()) && axesToMove.contains(
 					stageInfo.getActiveSlowScanAxis())) {
 				// the mapping stage is already set correctly for the malcolm device, no update required
 				return;
 			}
 
-			// TODO: check that malcolm gives us these in the correct order
+			// we assume the order is fast-axis, slow-axes. Malcolm devices must be configured to have this order
 			stageInfo.setActiveFastScanAxis(axesToMove.get(0));
 			stageInfo.setActiveSlowScanAxis(axesToMove.get(1));
 
