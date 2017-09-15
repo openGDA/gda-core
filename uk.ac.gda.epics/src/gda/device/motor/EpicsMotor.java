@@ -622,7 +622,7 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 			// check motor status flags MSTA
 			if (controller.cagetShort(lvio) == 1) {
 				logger.error("Soft limit violation on {}", lvio.getName());
-				ms = MotorStatus.SOFTLIMITVIOLATION;
+				ms = MotorStatus.SOFT_LIMIT_VIOLATION;
 			}
 			// add to queue so that the status is cleared
 			if (!ms.equals(get_motorStatus())) {
@@ -909,12 +909,12 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 		final double upperLimit = getMaxPosition();
 
 		if (requestedPosition < lowerLimit) {
-			throw (new MotorException(MotorStatus.LOWERLIMIT, requestedPosition + " outside lower hardware limit of "
+			throw (new MotorException(MotorStatus.LOWER_LIMIT, requestedPosition + " outside lower hardware limit of "
 					+ lowerLimit));
 		}
 
 		else if (requestedPosition > upperLimit) {
-			throw (new MotorException(MotorStatus.UPPERLIMIT, requestedPosition + " outside upper hardware limit of "
+			throw (new MotorException(MotorStatus.UPPER_LIMIT, requestedPosition + " outside upper hardware limit of "
 					+ upperLimit));
 		}
 	}
@@ -1185,11 +1185,11 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 			if (!lastMotorStatus.equals(status))
 				logger.error("Motor - {} is at FAULT. Please check EPICS motor status.", getName());
 		} else if ((lmsta & MSTA_UPPER_LIMIT) != 0) {
-			status = MotorStatus.UPPERLIMIT;
+			status = MotorStatus.UPPER_LIMIT;
 			if (!lastMotorStatus.equals(status))
 				logger.warn("Motor - {} is at UPPERLIMIT.", getName());
 		} else if ((lmsta & MSTA_LOWER_LIMIT) != 0) {
-			status = MotorStatus.LOWERLIMIT;
+			status = MotorStatus.LOWER_LIMIT;
 			if (!lastMotorStatus.equals(status))
 				logger.warn("Motor - {} is at LOWERLIMIT.", getName());
 		} else if ((lmsta & MSTA_DONE) != 0) {
@@ -1373,8 +1373,8 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 				if (dbr.isDOUBLE()) {
 					double msta = ((DBR_Double) dbr).getDoubleValue()[0]; // TODO why doubkle !!??
 					MotorStatus status = getMotorStatusFromMSTAValue(msta);
-					if ((status == MotorStatus.READY || status == MotorStatus.LOWERLIMIT
-							|| status == MotorStatus.UPPERLIMIT || status == MotorStatus.FAULT)) {
+					if ((status == MotorStatus.READY || status == MotorStatus.LOWER_LIMIT
+							|| status == MotorStatus.UPPER_LIMIT || status == MotorStatus.FAULT)) {
 						mstaStatus = status;
 						moveEventQueue.addMoveCompleteEvent(EpicsMotor.this, status, STATUSCHANGE_REASON.NEWSTATUS);
 
@@ -1474,7 +1474,7 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 				if (dbr.isSHORT()) {
 					short value = ((DBR_Short) dbr).getShortValue()[0];
 					if (value == 1) {
-						set_motorStatus(MotorStatus.UPPERLIMIT);
+						set_motorStatus(MotorStatus.UPPER_LIMIT);
 					}
 				} else {
 					logger.error("Error: expecting Int type but got " + dbr.getType() + " type.");
@@ -1492,7 +1492,7 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 				if (dbr.isSHORT()) {
 					short value = ((DBR_Short) dbr).getShortValue()[0];
 					if (value == 1) {
-						set_motorStatus(MotorStatus.LOWERLIMIT);
+						set_motorStatus(MotorStatus.LOWER_LIMIT);
 					}
 				} else {
 					logger.error("Error: expecting Int type but got " + dbr.getType() + " type.");
@@ -1740,7 +1740,7 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 	@Override
 	public MotorStatus waitWhileStatusBusy() throws InterruptedException {
 		synchronized (_motorStatusMonitor) {
-			while (_motorStatus.value() == MotorStatus._BUSY) {
+			while (_motorStatus == MotorStatus.BUSY) {
 				_motorStatusMonitor.wait();
 			}
 			return _motorStatus;
