@@ -18,8 +18,6 @@
 
 package gda.device.scannable;
 
-import gda.util.QuantityFactory;
-
 import java.lang.reflect.Array;
 import java.util.List;
 
@@ -29,15 +27,22 @@ import org.jscience.physics.units.Unit;
 import org.python.core.PyFloat;
 import org.python.core.PyInteger;
 import org.python.core.PyList;
+import org.python.core.PyNone;
 import org.python.core.PyObject;
 import org.python.core.PySequence;
 import org.python.core.PyString;
 import org.python.core.PyTuple;
 
+import gda.util.QuantityFactory;
+
 /**
  * Some functions for converting the the objects used as positions by Scannables.
  */
-public class PositionConvertorFunctions {
+public final class PositionConvertorFunctions {
+
+	private PositionConvertorFunctions() {
+		// Prevent Instances
+	}
 
 	/**
 	 * Converts an object to an object array. If the object is an array it is caste directly to an array, otherwise it
@@ -46,7 +51,7 @@ public class PositionConvertorFunctions {
 	 * @param object
 	 * @return definitely an object array.
 	 */
-	static public Object[] toObjectArray(Object object) {
+	public static Object[] toObjectArray(Object object) {
 
 		if (object == null) {
 			return null;
@@ -66,7 +71,7 @@ public class PositionConvertorFunctions {
 			Object[] objectArray = new Object[length];
 			for (int i = 0; i < length; i++) {
 				Object item = ((PySequence) object).__finditem__(i);
-				if (!(item instanceof org.python.core.PyNone)){
+				if (!(item instanceof PyNone)){
 					objectArray[i] = item;
 				}
 			}
@@ -83,7 +88,7 @@ public class PositionConvertorFunctions {
 			Object[] objectArray = new Object[length];
 			for (int i = 0; i < length; i++) {
 				Object item = Array.get(object, i);
-				if (!(item instanceof org.python.core.PyNone)){
+				if (!(item instanceof PyNone)){
 					objectArray[i] = item;
 				}
 			}
@@ -148,7 +153,7 @@ public class PositionConvertorFunctions {
 
 	}
 
-	public static org.python.core.PyObject toPyObject(Object object) {
+	public static PyObject toPyObject(Object object) {
 
 		if (object == null) {
 			return null;
@@ -192,7 +197,7 @@ public class PositionConvertorFunctions {
 	 * @param object
 	 * @return length
 	 */
-	static public int length(Object object) {
+	public static int length(Object object) {
 		return toObjectArray(object).length;
 	}
 
@@ -203,7 +208,7 @@ public class PositionConvertorFunctions {
 	 * @param objectArray
 	 * @return either an object, or an object array.
 	 */
-	static public Object toObject(Object[] objectArray) {
+	public static Object toObject(Object[] objectArray) {
 
 		if (objectArray == null) {
 			return null;
@@ -224,7 +229,7 @@ public class PositionConvertorFunctions {
 	 * @param object
 	 * @return a Double
 	 */
-	static public Double toDouble(Object object) {
+	public static Double toDouble(Object object) {
 
 		if (object == null) {
 			return null;
@@ -253,7 +258,7 @@ public class PositionConvertorFunctions {
 	 *
 	 * @param objectArray
 	 */
-	static public Double[] toDoubleArray(Object[] objectArray) {
+	public static Double[] toDoubleArray(Object[] objectArray) {
 
 		if (objectArray == null) {
 			return null;
@@ -273,7 +278,7 @@ public class PositionConvertorFunctions {
 	 * @param objectList
 	 * @return a Double array
 	 */
-	static public Double[] toDoubleArray(List<Object> objectList) {
+	public static Double[] toDoubleArray(List<Object> objectList) {
 
 		return toDoubleArray(objectList.toArray());
 
@@ -287,7 +292,7 @@ public class PositionConvertorFunctions {
 	 * @param objectArray
 	 * @return A Double array
 	 */
-	static public Double[] toDoubleArray(Object objectArray) {
+	public static Double[] toDoubleArray(Object objectArray) {
 
 		if (objectArray == null) {
 			return null;
@@ -295,7 +300,7 @@ public class PositionConvertorFunctions {
 		return toDoubleArray(toObjectArray(objectArray));
 	}
 
-	static public Quantity[] toQuantityArray(final Object[] objectArray, final Unit<?> targetUnit) {
+	public static Quantity[] toQuantityArray(final Object[] objectArray, final Unit<?> targetUnit) {
 		if (objectArray == null) {
 			return null;
 		}
@@ -306,7 +311,7 @@ public class PositionConvertorFunctions {
 		return quantityArray;
 	}
 
-	static public Quantity[] toQuantityArray(final Quantity[] quantityArray, final Unit<?> targetUnit) {
+	public static Quantity[] toQuantityArray(final Quantity[] quantityArray, final Unit<?> targetUnit) {
 		if (quantityArray == null) {
 			return null;
 		}
@@ -317,7 +322,7 @@ public class PositionConvertorFunctions {
 		return targetQuantityArray;
 	}
 
-	static public Integer toInteger(Object object) {
+	public static Integer toInteger(Object object) {
 
 		if (object == null) {
 			return null;
@@ -346,7 +351,7 @@ public class PositionConvertorFunctions {
 	 *
 	 * @param objectArray
 	 */
-	static public Integer[] toIntegerArray(Object[] objectArray) {
+	public static Integer[] toIntegerArray(Object[] objectArray) {
 
 		if (objectArray == null) {
 			return null;
@@ -358,7 +363,7 @@ public class PositionConvertorFunctions {
 		return integerArray;
 	}
 
-	static public Integer[] toIntegerArray(Object objectArray) {
+	public static Integer[] toIntegerArray(Object objectArray) {
 
 		if (objectArray == null) {
 			return null;
@@ -367,7 +372,7 @@ public class PositionConvertorFunctions {
 	}
 
 
-	static public Quantity toQuantity(final Object object, final Unit<?> targetUnit) {
+	public static Quantity toQuantity(final Object object, final Unit<?> targetUnit) {
 
 		if (object == null) {
 			return null;
@@ -398,7 +403,7 @@ public class PositionConvertorFunctions {
 		return Quantity.valueOf(toDouble(object), targetUnit);
 	}
 
-	static public Double[] toAmountArray(final Quantity[] quantityArray) {
+	public static Double[] toAmountArray(final Quantity[] quantityArray) {
 		Double[] ammountArray = new Double[quantityArray.length];
 		for (int i = 0; i < quantityArray.length; i++) {
 			ammountArray[i] = (quantityArray[i]==null) ? null : quantityArray[i].getAmount();
