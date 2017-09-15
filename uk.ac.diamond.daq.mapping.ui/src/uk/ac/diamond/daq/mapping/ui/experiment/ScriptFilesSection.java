@@ -24,6 +24,7 @@ import org.eclipse.richbeans.api.generator.IGuiGeneratorService;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
 
 /**
  * A section to configure the script files to run before and/or after a scan.
@@ -39,17 +40,23 @@ public class ScriptFilesSection extends AbstractMappingSection {
 
 	@Override
 	public void createControls(Composite parent) {
-		Composite scriptsComposite = new Composite(parent, SWT.NONE);
+		final Composite scriptsComposite = new Composite(parent, SWT.NONE);
+		GridLayoutFactory.swtDefaults().numColumns(2).equalWidth(false).applyTo(scriptsComposite);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(scriptsComposite);
-		final int scriptsColumns = 2;
-		GridLayoutFactory.swtDefaults().numColumns(scriptsColumns).applyTo(scriptsComposite);
-		Button editScriptsButton = new Button(scriptsComposite, SWT.PUSH);
-		editScriptsButton.setText("Select Script Files...");
 
-		IGuiGeneratorService guiGenerator = getService(IGuiGeneratorService.class);
-		editScriptsButton.addListener(SWT.Selection, event -> {
-			guiGenerator.openDialog(getMappingBean().getScriptFiles(), parent.getShell(), "Select Script Files");
-		});
+		final Label scriptsLabel = new Label(scriptsComposite, SWT.NONE);
+		scriptsLabel.setText("Script Files");
+		GridDataFactory.fillDefaults().grab(true, false).applyTo(scriptsLabel);
+
+		final Button editScriptsButton = new Button(scriptsComposite, SWT.PUSH);
+		editScriptsButton.setImage(MappingExperimentUtils.getImage("icons/pencil.png"));
+		editScriptsButton.setToolTipText("Select Script Files");
+		GridDataFactory.swtDefaults().align(SWT.TRAIL, SWT.CENTER).applyTo(editScriptsButton);
+
+		final IGuiGeneratorService guiGenerator = getService(IGuiGeneratorService.class);
+		editScriptsButton.addListener(SWT.Selection, event ->
+			guiGenerator.openDialog(getMappingBean().getScriptFiles(), parent.getShell(), "Select Script Files")
+		);
 	}
 
 }
