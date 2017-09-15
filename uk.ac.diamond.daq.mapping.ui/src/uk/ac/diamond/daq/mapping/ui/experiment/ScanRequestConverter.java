@@ -18,6 +18,8 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
+import static java.util.stream.Collectors.toCollection;
+
 import java.net.URI;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -29,6 +31,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -125,58 +128,48 @@ public class ScanRequestConverter {
 	 * @throws ScanningException
 	 */
 	public ScanRequest<IROI> convertToScanRequest(IMappingExperimentBean mappingBean) throws ScanningException {
-		ScanRequest<IROI> scanRequest = new ScanRequest<IROI>();
+		final ScanRequest<IROI> scanRequest = new ScanRequest<>();
 
 		final IMappingScanRegion scanRegion = mappingBean.getScanDefinition().getMappingScanRegion();
-		final IScanPathModel scanPath = scanRegion.getScanPath();
-
-		if (!(scanPath instanceof IMapPathModel)) {
+		if (!(scanRegion.getScanPath() instanceof IMapPathModel)) {
 			final String message = "Could not set fast and slow axis. The scan path is not an instance of IMapPathModel.";
 			logger.error(message);
 			throw new IllegalArgumentException(message);
 		}
 
+		// get the fast and slow axis of the scan.
+		final IMapPathModel mapPath = (IMapPathModel) scanRegion.getScanPath();
 		final String fastAxis;
 		final String slowAxis;
 		if (mappingStageInfo != null) {
+			// If the mapping stage is set, use these axis, and update the default map path with them
 			fastAxis = mappingStageInfo.getActiveFastScanAxis();
 			slowAxis = mappingStageInfo.getActiveSlowScanAxis();
-			// Change the axis on the scanPathModel
-			IMapPathModel boxModel = (IMapPathModel) scanPath;
-			boxModel.setFastAxisName(fastAxis);
-			boxModel.setSlowAxisName(slowAxis);
+			mapPath.setFastAxisName(fastAxis);
+			mapPath.setSlowAxisName(slowAxis);
 		} else {
+			// Otherwise we use the default axis in the map path model
 			logger.warn("No mapping axis manager is set - the scan request will use default axis names!");
-			IMapPathModel boxModel = (IMapPathModel) scanPath;
-			fastAxis = boxModel.getFastAxisName();
-			slowAxis = boxModel.getSlowAxisName();
+			fastAxis = mapPath.getFastAxisName();
+			slowAxis = mapPath.getSlowAxisName();
 		}
 
 		// Build the list of models for the scan
-		final List<IScanPathModel> models = new ArrayList<>();
-		// If there are outer scannables to be included, add them to the list
-		// TODO currently there is no support for outer scannables ROIs
-		for (IScanPathModelWrapper scanPathModelWrapper : mappingBean.getScanDefinition()
-				.getOuterScannables()) {
-			if (scanPathModelWrapper.isIncludeInScan()) {
-				final IScanPathModel model = scanPathModelWrapper.getModel();
-				if (model == null) {
-					logger.warn("Outer scannables contained a null model for: {}. It wont be included in the scan!",
-							scanPathModelWrapper.getName());
-				} else {
-					models.add(model);
-				}
-			}
-		}
+		// first get the models for any outer scannables to be included
+		final List<IScanPathModel> models = mappingBean.getScanDefinition().getOuterScannables().stream().
+			filter(IScanPathModelWrapper::isIncludeInScan).
+			map(IScanPathModelWrapper::getModel).
+			filter(Objects::nonNull).
+			collect(toCollection(ArrayList::new)); // use array list as we're going to add an element
 
-		// Add the actual map path model last, it's the inner most model
-		models.add(scanRegion.getScanPath());
+		// then add the actual map path model last, it's the inner most model
+		models.add(mapPath);
 
 		// Convert the list of models into a compound model
 		final CompoundModel<IROI> compoundModel = new CompoundModel<>(models);
 
 		// Add the ROI for the mapping region
-		ScanRegion<IROI> region = new ScanRegion<IROI>(scanRegion.getRegion().toROI(), slowAxis, fastAxis);
+		final ScanRegion<IROI> region = new ScanRegion<>(scanRegion.getRegion().toROI(), slowAxis, fastAxis);
 
 		// Convert to a List of ScanRegion<IROI> containing one item to avoid unsafe varargs warning
 		compoundModel.setRegions(Arrays.asList(region));
@@ -185,7 +178,7 @@ public class ScanRequestConverter {
 		scanRequest.setCompoundModel(compoundModel);
 
 		// set the scan start position (scannables not in the scan that are set to a certain value before the scan starts)
-		Map<String, Object> beamlineConfiguration = mappingBean.getBeamlineConfiguration();
+		final Map<String, Object> beamlineConfiguration = mappingBean.getBeamlineConfiguration();
 		if (beamlineConfiguration != null) {
 			scanRequest.setStart(new MapPosition(beamlineConfiguration));
 		}
@@ -212,12 +205,12 @@ public class ScanRequestConverter {
 		}
 
 		// add the activated monitors. Note: these do not come from the mapping bean
-		Set<String> monitorNames = getMonitors();
+		final Set<String> monitorNames = getMonitors();
 		scanRequest.setMonitorNames(monitorNames);
 
 		// set the scripts to run before and after the scan, if any
 		if (mappingBean.getScriptFiles() != null) {
-			IScriptFiles scriptFiles = mappingBean.getScriptFiles();
+			final IScriptFiles scriptFiles = mappingBean.getScriptFiles();
 			scanRequest.setBefore(createScriptRequest(scriptFiles.getBeforeScanScript()));
 			scanRequest.setAfter(createScriptRequest(scriptFiles.getAfterScanScript()));
 		}
@@ -273,13 +266,13 @@ public class ScanRequestConverter {
 	 * @param mappingBean the {@link IMappingExperimentBean} to merge into
 	 */
 	public void mergeIntoMappingBean(ScanRequest<IROI> scanRequest, MappingExperimentBean mappingBean) {
-		CompoundModel<IROI> compoundModel = scanRequest.getCompoundModel();
-		Collection<ScanRegion<IROI>> regions = compoundModel.getRegions();
+		final CompoundModel<IROI> compoundModel = scanRequest.getCompoundModel();
+		final Collection<ScanRegion<IROI>> regions = compoundModel.getRegions();
 		if (regions.size() != 1) {
 			throw new IllegalArgumentException("The scan request must have exactly one region, has " + regions.size());
 		}
-		ScanRegion<IROI> region = regions.iterator().next();
-		List<String> scannableNames = region.getScannables();
+		final ScanRegion<IROI> region = regions.iterator().next();
+		final List<String> scannableNames = region.getScannables();
 		if (scannableNames.size() != 2) {
 			throw new IllegalArgumentException("The scan region should have exactly two scannable names, was " +
 					String.join(", ", scannableNames));
@@ -299,14 +292,14 @@ public class ScanRequestConverter {
 		mergeOuterScannables(compoundModel, mappingBean);
 
 		// set the scan path to the last child model of the compound model
-		IScanPathModel mappingModel = (IScanPathModel) compoundModel.getModels().get(
+		final IScanPathModel mapPath = (IScanPathModel) compoundModel.getModels().get(
 				compoundModel.getModels().size() - 1);
 		final IScanDefinition scanDefinition = mappingBean.getScanDefinition();
-		IMappingScanRegion scanRegion = scanDefinition.getMappingScanRegion();
-		scanRegion.setScanPath(mappingModel);
+		final IMappingScanRegion scanRegion = scanDefinition.getMappingScanRegion();
+		scanRegion.setScanPath(mapPath);
 
 		// convert the ROI to a mapping scan region shape
-		IMappingScanRegionShape shape = convertROItoRegionShape(region.getRoi());
+		final IMappingScanRegionShape shape = convertROItoRegionShape(region.getRoi());
 		scanRegion.setRegion(shape);
 
 		// recreate the beamline configuration from the scan start position
@@ -355,9 +348,9 @@ public class ScanRequestConverter {
 	}
 
 	private void mergeOuterScannables(CompoundModel<IROI> compoundModel, MappingExperimentBean mappingBean) {
-		List<IScanPathModelWrapper> outerScannables = mappingBean.getScanDefinition().getOuterScannables();
-		List<Object> models = compoundModel.getModels();
-		List<Object> outerScannableModels = new ArrayList<>(models.subList(0, models.size() - 1));
+		final List<IScanPathModelWrapper> outerScannables = mappingBean.getScanDefinition().getOuterScannables();
+		final List<Object> models = compoundModel.getModels();
+		final List<Object> outerScannableModels = new ArrayList<>(models.subList(0, models.size() - 1));
 		for (Object model : outerScannableModels) {
 			if (!(model instanceof IScanPathModel)) {
 				throw new IllegalArgumentException("Model is not an IScanPathModel: " + model);
@@ -365,7 +358,7 @@ public class ScanRequestConverter {
 		}
 
 		// We assume that models have the same name as the wrapper
-		Iterator<Object> modelIter = outerScannableModels.iterator();
+		final Iterator<Object> modelIter = outerScannableModels.iterator();
 		IScanPathModel currentModel =  modelIter.hasNext() ? (IScanPathModel) modelIter.next() : null;
 		// iterate through the list of outer scannable wrappers to find the wrapper for the
 		// current model. If we find a match, then we move on to the next model
