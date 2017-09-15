@@ -18,8 +18,8 @@
 
 package uk.ac.gda.beamline.synoptics.utils;
 
-import org.apache.commons.vfs.FileChangeEvent;
-import org.apache.commons.vfs.FileListener;
+import org.apache.commons.vfs2.FileChangeEvent;
+import org.apache.commons.vfs2.FileListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

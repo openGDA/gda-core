@@ -24,12 +24,12 @@ import java.util.Map;
 import java.util.Stack;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.vfs.FileListener;
-import org.apache.commons.vfs.FileMonitor;
-import org.apache.commons.vfs.FileName;
-import org.apache.commons.vfs.FileObject;
-import org.apache.commons.vfs.FileSystemException;
-import org.apache.commons.vfs.provider.AbstractFileSystem;
+import org.apache.commons.vfs2.FileListener;
+import org.apache.commons.vfs2.FileMonitor;
+import org.apache.commons.vfs2.FileName;
+import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileSystemException;
+import org.apache.commons.vfs2.provider.AbstractFileSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 /**
@@ -65,7 +65,7 @@ import org.slf4j.LoggerFactory;
  * <br /><b>Example usage:</b><pre>
  * see {@link DataFileListener}
  *
- * Acknowledgement: This implementation heavily referenced to {@link org.apache.commons.vfs.impl.DefaultFileMonitor}
+ * Acknowledgement: This implementation heavily referenced to {@link org.apache.commons.vfs2.impl.DefaultFileMonitor}
  */
 public class GDADataDirectoryMonitor implements Runnable, FileMonitor {
 
