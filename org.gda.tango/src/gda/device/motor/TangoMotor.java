@@ -137,9 +137,9 @@ public class TangoMotor extends MotorBase implements Motor{
 				break;
 			case DevState._ALARM:
 				if (getHardLimitLow())
-					motorStatus = MotorStatus.LOWERLIMIT;
+					motorStatus = MotorStatus.LOWER_LIMIT;
 				else if (getHardLimitHigh())
-					motorStatus = MotorStatus.UPPERLIMIT;
+					motorStatus = MotorStatus.UPPER_LIMIT;
 				else
 					motorStatus = MotorStatus.FAULT;
 				break;
@@ -291,11 +291,11 @@ public class TangoMotor extends MotorBase implements Motor{
 		final double upperLimit = getMaxPosition();
 
 		if (requestedPosition < lowerLimit) {
-			throw (new MotorException(MotorStatus.LOWERLIMIT, requestedPosition + " outside lower hardware limit of " + lowerLimit));
+			throw (new MotorException(MotorStatus.LOWER_LIMIT, requestedPosition + " outside lower hardware limit of " + lowerLimit));
 		}
 
 		else if (requestedPosition > upperLimit) {
-			throw (new MotorException(MotorStatus.UPPERLIMIT, requestedPosition + " outside upper hardware limit of " + upperLimit));
+			throw (new MotorException(MotorStatus.UPPER_LIMIT, requestedPosition + " outside upper hardware limit of " + upperLimit));
 		}
 	}
 
