@@ -103,7 +103,15 @@ public class DataProject {
 				resourceFilterWrapper.add(ResourceFilterWrapper.createRegexFolderFilter(filter, true, excludes));
 				resourceFilterWrapper.add(ResourceFilterWrapper.createRegexFolderFilter(filter, false, excludes));
 			}
-			return ProjectUtils.createImportProjectAndFolder(projName, "data", dataPath,
+			String folderName="data";
+			if (LocalProperties.check(LocalProperties.GDA_SHOW_VISIT_NAME_AS_DATA_FOLDER_NAME, false)) {
+				//show visit name as data folder name
+				folderName = LocalProperties.get(LocalProperties.RCP_APP_VISIT, "data");
+				if (folderName.equalsIgnoreCase("data")) {
+					logger.warn("Cannot find visit name!");
+				}
+			}
+			return ProjectUtils.createImportProjectAndFolder(projName, folderName,dataPath,
 					GDADataNature.ID, resourceFilterWrapper, monitor);
 	}
 
