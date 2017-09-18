@@ -18,19 +18,19 @@
 
 package gda.commandqueue;
 
-import gda.jython.IJythonServerStatusObserver;
-import gda.jython.IJythonServerStatusProvider;
-import gda.jython.InterfaceProvider;
-import gda.jython.Jython;
-import gda.jython.JythonServerStatus;
-import gda.observable.IObserver;
-
 import java.io.File;
 import java.io.Serializable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
+
+import gda.jython.IJythonServerStatusObserver;
+import gda.jython.IJythonServerStatusProvider;
+import gda.jython.InterfaceProvider;
+import gda.jython.Jython;
+import gda.jython.JythonServerStatus;
+import gda.observable.IObserver;
 
 /**
  * JythonScriptFileRunnerCommand is an implementation of Command whose run method runs the script file set by the
@@ -54,17 +54,21 @@ public class JythonScriptFileRunnerCommand extends CommandBase implements Serial
 	 */
 	@Override
 	public void run() throws Exception {
-		if (hasAlreadyBeenRun)
+
+		if (hasAlreadyBeenRun) {
 			throw new Exception("Command has already been run");
+		}
+
 		hasAlreadyBeenRun = true;
+
 		IObserver progressProviderObserver = null;
 		IJythonServerStatusObserver jythonServerStatusObserver = null;
 		IJythonServerStatusProvider jythonServerStatusProvider = null;
 		JythonScriptProgressProvider jProgressProvider = null;
+
 		try {
-			/**
-			 * listen to messages from the script and pass to the observer of this command
-			 */
+
+			// listen to messages from the script and pass to the observer of this command
 			progressProviderObserver = new IObserver() {
 				@Override
 				public void update(Object source, Object arg) {
@@ -82,21 +86,22 @@ public class JythonScriptFileRunnerCommand extends CommandBase implements Serial
 				@Override
 				public void update(Object source, Object arg) {
 					if (arg instanceof JythonServerStatus) {
+
 						JythonServerStatus jsState = (JythonServerStatus) arg;
 						int scriptState = jsState.scriptStatus;
 						int scanState = jsState.scanStatus;
 						boolean scriptOrScanPaused = scriptState == Jython.PAUSED || scanState == Jython.PAUSED;
-						if (JythonScriptFileRunnerCommand.this.getState().equals(Command.STATE.NOT_STARTED)
-								&& scriptState == Jython.RUNNING) {
-							JythonScriptFileRunnerCommand.this.setState(Command.STATE.RUNNING);
+
+						if (getState().equals(Command.STATE.NOT_STARTED) && scriptState == Jython.RUNNING) {
+							setState(Command.STATE.RUNNING);
 						}
-						if (JythonScriptFileRunnerCommand.this.getState().equals(Command.STATE.RUNNING)
-								&& scriptOrScanPaused) {
-							JythonScriptFileRunnerCommand.this.setState(Command.STATE.PAUSED);
+
+						if (getState().equals(Command.STATE.RUNNING) && scriptOrScanPaused) {
+							setState(Command.STATE.PAUSED);
 						}
-						if (JythonScriptFileRunnerCommand.this.getState().equals(Command.STATE.PAUSED)
-								&& !scriptOrScanPaused) {
-							JythonScriptFileRunnerCommand.this.setState(Command.STATE.RUNNING);
+
+						if (getState().equals(Command.STATE.PAUSED) && !scriptOrScanPaused) {
+							setState(Command.STATE.RUNNING);
 						}
 					}
 
@@ -105,43 +110,50 @@ public class JythonScriptFileRunnerCommand extends CommandBase implements Serial
 			jythonServerStatusProvider = InterfaceProvider.getJythonServerStatusProvider();
 			jythonServerStatusProvider.addJythonServerStatusObserver(jythonServerStatusObserver);
 
-			InterfaceProvider.getCurrentScanController().resumeCurrentScan(); // set flag to allow new scans to run
-																				// ScanBase.setPaused(false)
-			InterfaceProvider.getScriptController().resumeCurrentScript();// ScriptBase.setPaused(false);
+			InterfaceProvider.getCurrentScanController().resumeCurrentScan();
+
+			InterfaceProvider.getScriptController().resumeCurrentScript();
+
 			InterfaceProvider.getCommandRunner().runScript(new File(scriptFile), "");
 
 			// wait 1 second for the script to start
 			Thread.sleep(1000);
 			if (getState().equals(Command.STATE.NOT_STARTED)) {
-				throw new Exception("Script failed to start after 1 second:" + scriptFile
-						+ ". See server log for possible reason");
+				throw new Exception("Script failed to start after 1 second:" + scriptFile + ". See server log for possible reason");
 			}
 
-			/**
-			 * Wait until state of the server indicates that the script has completed
-			 */
+			// Wait until state of the server indicates that the script has completed
 			JythonServerStatus jsState = jythonServerStatusProvider.getJythonServerStatus();
 			while (!jsState.areScriptAndScanIdle()) {
 				Thread.sleep(1000);
 				jsState = jythonServerStatusProvider.getJythonServerStatus();
 			}
+
 			if (abortedRequested) {
 				setState(Command.STATE.ABORTED);
 			} else {
 				setState(Command.STATE.COMPLETED);
 			}
+		}
 
-		} catch (Exception e) {
-			if (jProgressProvider != null)
+		catch (Exception e) {
+			if (jProgressProvider != null) {
 				jProgressProvider.updateProgress(100, "Error :" + e.getMessage());
+			}
 			setState(Command.STATE.ERROR);
 			throw e;
-		} finally {
+		}
+
+		finally {
 			// clearup
-			if (jythonServerStatusProvider != null && jythonServerStatusObserver != null)
+
+			if (jythonServerStatusProvider != null && jythonServerStatusObserver != null) {
 				jythonServerStatusProvider.deleteJythonServerStatusObserver(jythonServerStatusObserver);
-			if (jProgressProvider != null && progressProviderObserver != null)
+			}
+
+			if (jProgressProvider != null && progressProviderObserver != null) {
 				jProgressProvider.deleteIObserver(progressProviderObserver);
+			}
 		}
 	}
 
@@ -190,8 +202,7 @@ public class JythonScriptFileRunnerCommand extends CommandBase implements Serial
 	}
 
 	/**
-	 * @param scriptFile
-	 *            absolute path to script file
+	 * @param scriptFile absolute path to script file
 	 */
 	public void setScriptFile(String scriptFile) {
 		this.scriptFile = scriptFile;
