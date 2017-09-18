@@ -60,7 +60,6 @@ import gda.jython.completion.TextCompleter;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 import gda.scan.IScanDataPoint;
-import gda.scan.Scan;
 import gda.scan.ScanEvent;
 import gda.util.LibGdaCommon;
 
@@ -267,15 +266,6 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 		runScript(file, sourceName);
 	}
 
-	public void runScript(String scriptName, String sourceName, Scan scan) throws Exception {
-		// open up a new file
-		String filePath = locateScript(scriptName);
-		if (filePath == null)
-			throw new Exception("Unable to locate file for script:" + scriptName);
-		File file = new File(filePath);
-		runScript(file, sourceName, scan);
-	}
-
 	@Override
 	public void runScript(File script, String sourceName) {
 		try {
@@ -290,18 +280,6 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 			}
 		} catch (IOException e) {
 			logger.error("Unable to run script " + script.getAbsolutePath(), e);
-		}
-	}
-
-	public void runScript(File script, String sourceName, Scan scan) throws Exception {
-		// slurp!
-		String commands = slurp(script);
-		// only run if no other scan is running
-		// FIXME this has an obvious race condition, but worse it just ignores the request if busy
-		if (commandServer.getScriptStatus(name) == Jython.IDLE || scan.isChild()) {
-			commandServer.runScript(commands, sourceName, name);
-		} else {
-			throw new Exception("Unable to run script " + script.getAbsolutePath() + " as server os busy");
 		}
 	}
 
