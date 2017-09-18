@@ -461,6 +461,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 		try {
 			int authorisationLevel = this.batonManager.getAuthorisationLevelOf(JSFIdentifier);
 			RunScriptRunner runner = new RunScriptRunner(this, command, authorisationLevel);
+			runner.setName(nameThread(command));
 			runCommandThreads.add(runner);
 			// start the thread and return immediately.
 			runner.start();
