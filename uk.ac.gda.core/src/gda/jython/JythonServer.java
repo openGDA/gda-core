@@ -1200,6 +1200,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 
 		@Override
 		public void run() {
+			final CommandThreadInfo commandThreadInfo = server.notifyStartCommandThread(CommandThreadType.COMMAND, this);
 			try {
 				this.interpreter.runscript(cmd);
 			} catch (Exception e) {
@@ -1210,6 +1211,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 				}
 				server.setScriptStatus(Jython.IDLE, null);
 			}
+			server.notifyTerminateCommandThread(commandThreadInfo);
 		}
 	}
 
