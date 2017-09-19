@@ -23,6 +23,7 @@ public class CommandThreadInfo implements ICommandThreadInfo {
 
 	private String threadType;
 	private long id = -1;
+	private String jythonServerThreadId;
 	private int priority = -1;
 	private String name;
 	private String state;
@@ -36,6 +37,7 @@ public class CommandThreadInfo implements ICommandThreadInfo {
 	public CommandThreadInfo(
 			String commandThreadType,
 			long   id,
+			String jythonServerThreadId,
 			int    priority,
 			String name,
 			String  state,
@@ -45,6 +47,7 @@ public class CommandThreadInfo implements ICommandThreadInfo {
 			String command) {
 		this.threadType = commandThreadType;
 		this.id = id;
+		this.jythonServerThreadId = jythonServerThreadId;
 		this.priority = priority;
 		this.name = name;
 		this.state = state;
@@ -72,6 +75,11 @@ public class CommandThreadInfo implements ICommandThreadInfo {
 	@Override
 	public long getId() {
 		return id;
+	}
+
+	@Override
+	public String getJythonServerThreadId() {
+		return jythonServerThreadId;
 	}
 
 	@Override
@@ -117,6 +125,11 @@ public class CommandThreadInfo implements ICommandThreadInfo {
 	@Override
 	public void setId(long id) {
 		this.id = id;
+	}
+
+	@Override
+	public void setJythonServerThreadId(String jythonServerThreadId) {
+		this.jythonServerThreadId = jythonServerThreadId;
 	}
 
 	@Override

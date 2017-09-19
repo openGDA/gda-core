@@ -1334,6 +1334,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 		info.setCommandThreadType(comtype.toString());
 		info.setDate(""); //TODO
 		info.setId(jthread.getId());
+		info.setJythonServerThreadId(jthread.getJythonServerThreadId());
 		info.setInterrupted(jthread.isInterrupted());
 		info.setName(jthread.getName());
 		info.setPriority(jthread.getPriority());
