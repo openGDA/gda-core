@@ -35,6 +35,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.Vector;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -1091,12 +1092,17 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	 */
 	public abstract static class JythonServerThread extends Thread {
 		GDAJythonInterpreter interpreter = null;
+		final String jythonServerThreadId = UUID.randomUUID().toString();
 		String cmd = "";
 		JythonServer server = null;
 		/**
 		 * The authorisation level of the user whose JythonServerFacade sent this command
 		 */
 		public int authorisationLevel;
+
+		public String getJythonServerThreadId() {
+			return jythonServerThreadId;
+		}
 
 		/**
 		 * Access the command responsible for the thread
