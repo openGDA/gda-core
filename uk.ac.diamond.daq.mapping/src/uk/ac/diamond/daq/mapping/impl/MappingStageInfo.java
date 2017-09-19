@@ -29,7 +29,6 @@ import org.eclipse.scanning.api.ui.IStageScanConfiguration;
  * instance of this, created and initialised by Spring, will be a single point of reference for any parts of the system
  * that need to know or check the axis names.
  */
-// TODO find some way of changing the axis names from the server
 public class MappingStageInfo implements IStageScanConfiguration {
 
 	private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
@@ -48,6 +47,13 @@ public class MappingStageInfo implements IStageScanConfiguration {
 	private String activeSlowScanAxis;
 	private String associatedAxis;
 	private double beamSize;
+
+	public void merge(MappingStageInfo other) {
+		setActiveFastScanAxis(other.getActiveFastScanAxis());
+		setActiveSlowScanAxis(other.getActiveSlowScanAxis());
+		setAssociatedAxis(other.getAssociatedAxis());
+		setBeamSize(other.getBeamSize());
+	}
 
 	@Override
 	public String getActiveFastScanAxis() {
@@ -92,4 +98,11 @@ public class MappingStageInfo implements IStageScanConfiguration {
 		this.beamSize = newValue;
 		this.pcs.firePropertyChange("beamSize", oldValue, newValue);
 	}
+
+	@Override
+	public String toString() {
+		return "MappingStageInfo [activeFastScanAxis=" + activeFastScanAxis + ", activeSlowScanAxis="
+				+ activeSlowScanAxis + ", associatedAxis=" + associatedAxis + ", beamSize=" + beamSize + "]";
+	}
+	
 }
