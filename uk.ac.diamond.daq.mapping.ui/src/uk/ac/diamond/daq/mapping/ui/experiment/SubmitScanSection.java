@@ -34,12 +34,17 @@ import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.scan.IFilePathService;
+import org.eclipse.scanning.api.scan.IParserService;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.dnd.Clipboard;
+import org.eclipse.swt.dnd.TextTransfer;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,12 +73,12 @@ public class SubmitScanSection extends AbstractMappingSection {
 
 	@Override
 	public void createControls(Composite parent) {
-		Composite composite = new Composite(parent, SWT.NONE);
+		final Composite composite = new Composite(parent, SWT.NONE);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.BOTTOM).applyTo(composite);
-		GridLayoutFactory.swtDefaults().numColumns(3).applyTo(composite);
+		GridLayoutFactory.swtDefaults().numColumns(4).applyTo(composite);
 
 		// Button to submit a scan to the queue
-		Button submitScanButton = new Button(composite, SWT.PUSH);
+		final Button submitScanButton = new Button(composite, SWT.PUSH);
 		submitScanButton.setText("Queue Scan");
 		GridDataFactory.swtDefaults().applyTo(submitScanButton);
 		submitScanButton.addSelectionListener(new SelectionAdapter() {
@@ -83,10 +88,25 @@ public class SubmitScanSection extends AbstractMappingSection {
 			}
 		});
 
+		// Button to copy a scan to the clipboard
+		final Button copyScanCommandButton = new Button(composite, SWT.PUSH);
+		copyScanCommandButton.setImage(MappingExperimentUtils.getImage("icons/copy.png"));
+//		copyScanCommandButton.setText("Copy Scan");
+		copyScanCommandButton.setToolTipText("Copy the scan command to the system clipboard");
+		GridDataFactory.fillDefaults().grab(true, false).align(SWT.RIGHT, SWT.CENTER).applyTo(copyScanCommandButton);
+		copyScanCommandButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent event) {
+				copyScanToClipboard();
+			}
+		});
+
 		// Button to load a scan from disk
-		Button loadButton = new Button(composite, SWT.PUSH); // TODO use icons instead?
-		loadButton.setText("Load Scan");
-		GridDataFactory.fillDefaults().grab(true, false).align(SWT.RIGHT, SWT.CENTER).applyTo(loadButton);
+		final Button loadButton = new Button(composite, SWT.PUSH);
+		loadButton.setImage(MappingExperimentUtils.getImage("icons/open.png"));
+//		loadButton.setText("Load Scan");
+		loadButton.setToolTipText("Load a scan from the file system");
+		GridDataFactory.swtDefaults().applyTo(loadButton);
 		loadButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent event) {
@@ -96,7 +116,9 @@ public class SubmitScanSection extends AbstractMappingSection {
 
 		// Button to save a scan to disk
 		Button saveButton = new Button(composite, SWT.PUSH);
-		saveButton.setText("Save Scan");
+//		saveButton.setText("Save Scan");
+		saveButton.setImage(MappingExperimentUtils.getImage("icons/save.png"));
+		saveButton.setToolTipText("Save a scan to the file system");
 		GridDataFactory.swtDefaults().applyTo(saveButton);
 		saveButton.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -170,6 +192,22 @@ public class SubmitScanSection extends AbstractMappingSection {
 		ScanRequest<IROI> scanRequest = converter.convertToScanRequest(mappingBean);
 		scanBean.setScanRequest(scanRequest);
 		return scanBean;
+	}
+
+	private void copyScanToClipboard() {
+		try {
+			ScanBean scanBean = createScanBean();
+			IParserService parserService = getEclipseContext().get(IParserService.class);
+			String scanCommand = parserService.getCommand(scanBean.getScanRequest(), true);
+			Clipboard clipboard = new Clipboard(Display.getDefault());
+			clipboard.setContents(new Object[] { scanCommand }, new Transfer[] { TextTransfer.getInstance() });
+			clipboard.dispose();
+			logger.debug("Copied mapping scan command to clipboard: {}", scanCommand);
+		} catch (Exception e) {
+			logger.error("Copy to clipboard failed.", e);
+			MessageDialog.openError(getShell(), "Error Copying Scan Command",
+					"The scan command could not be copied to the clipboard. See the error log for more details.");
+		}
 	}
 
 	private void submitScan() {
