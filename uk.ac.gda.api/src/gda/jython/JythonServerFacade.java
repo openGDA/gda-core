@@ -43,7 +43,6 @@ import org.springframework.util.StringUtils;
 
 import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
-import gda.factory.Findable;
 import gda.factory.Finder;
 import gda.jython.authenticator.Authenticator;
 import gda.jython.authenticator.AuthenticatorProvider;
@@ -303,26 +302,6 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 			commandServer.runScript(commands, sourceName, name);
 		} else {
 			throw new Exception("Unable to run script " + script.getAbsolutePath() + " as server os busy");
-		}
-	}
-
-	public void runScript(InputStream script, String sourceName) {
-		// slurp!
-		String commands = slurp(script);
-		// only run if no other scan is runningcommandserver
-		// FIXME this has an obvious race condition, but worse it just ignores the request if busy
-		if (commandServer.getScriptStatus(name) == Jython.IDLE) {
-			commandServer.runScript(commands, sourceName, name);
-		}
-	}
-
-	public void runScript(InputStream script, String sourceName, Scan scan) {
-		// slurp!
-		String commands = slurp(script);
-		// only run if no other scan is running
-		// FIXME this has an obvious race condition, but worse it just ignores the request if busy
-		if (commandServer.getScriptStatus(name) == Jython.IDLE || scan.isChild()) {
-			commandServer.runScript(commands, sourceName, name);
 		}
 	}
 
