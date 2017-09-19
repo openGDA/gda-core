@@ -170,7 +170,7 @@ public class MetadataUpdater implements IObserver, IScanDataPointObserver, IJyth
 
 	@Override
 	public void update(Object iObservable, Object arg) {
-		if (client.scanStatLbl.isDisposed()) {
+		if (client.scanStatus.isDisposed()) {
 			jsf.deleteIObserver(this);
 			return;
 		}
@@ -227,7 +227,7 @@ public class MetadataUpdater implements IObserver, IScanDataPointObserver, IJyth
 				long elapsed = ((new Date()).getTime()) - started.getTime();
 				client.elapsedTime.setText(hms4millis(elapsed));
 				if (totalScanPoints != null ) {
-					client.remainTimeLbl.setText(hms4millis(etaPrediction(currentPointNumber, totalScanPoints, elapsed)));
+					client.remainingTime.setText(hms4millis(etaPrediction(currentPointNumber, totalScanPoints, elapsed)));
 				}
 			}
 		}
@@ -260,12 +260,12 @@ public class MetadataUpdater implements IObserver, IScanDataPointObserver, IJyth
 					totalScanPoints = se.getLatestInformation().getNumberOfPoints();
 					ScanStatus ss = se.getLatestStatus();
 
-					client.scanPntLbl.setText(String.format("%d / %d", currentPointNumber, totalScanPoints));
+					client.scanPoint.setText(String.format("%d / %d", currentPointNumber, totalScanPoints));
 					client.progressBar.setSelection(10000 * currentPointNumber / totalScanPoints);
-					client.scanStatLbl.setText(ss.toString());      // n.b. a *different* notion of scan status, the JythonServerStatus.scanStatus one, also writes into this field, see jss below
+					client.scanStatus.setText(ss.toString());      // n.b. a *different* notion of scan status, the JythonServerStatus.scanStatus one, also writes into this field, see jss below
 					if (ss == ScanStatus.COMPLETED_OKAY) {          // use ScanEvent to access items to update at end-of-scan
 						client.scanFile.setText(lastFileName);
-						client.scanNumLbl.setText(Integer.toString(lastScanNumber + 1)); // indicate number in file name that will be used for next scan
+						client.scanNumber.setText(Integer.toString(lastScanNumber + 1)); // indicate number in file name that will be used for next scan
 					}
 
 				} else if (arg instanceof ScanDataPoint) {
@@ -295,15 +295,15 @@ public class MetadataUpdater implements IObserver, IScanDataPointObserver, IJyth
 
 					switch (jss.scanStatus) {                       // deprecated? currently only scan=IDLE occurs
 					case Jython.IDLE:
-						client.scanStatLbl.setText("IDLE");
-						client.scanPntLbl.setText("[0] / [0]");
+						client.scanStatus.setText("IDLE");
+						client.scanPoint.setText("[0] / [0]");
 						client.progressBar.setSelection(10000);
 						break;
 					case Jython.PAUSED:
-						client.scanStatLbl.setText("PAUSED");
+						client.scanStatus.setText("PAUSED");
 						break;
 					case Jython.RUNNING:
-						client.scanStatLbl.setText("RUNNING");
+						client.scanStatus.setText("RUNNING");
 						started = new Date();
 						client.elapsedTime.setText("00:00:00");
 						scanstring = jsf.evaluateCommand("finder.find(\"command_server\").getCurrentScanInformation().getDimensions().tolist()");
@@ -311,7 +311,7 @@ public class MetadataUpdater implements IObserver, IScanDataPointObserver, IJyth
 						totalScanPoints = multiply(scandimensions);
 						break;
 					default:
-						client.scanStatLbl.setText("UNKNOWN");
+						client.scanStatus.setText("UNKNOWN");
 						break;
 					}
 				}
