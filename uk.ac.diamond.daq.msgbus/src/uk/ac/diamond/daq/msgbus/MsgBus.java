@@ -65,7 +65,7 @@ import gda.configuration.properties.LocalProperties;
 public enum MsgBus {
 	INSTANCE;
 
-	private final Logger logger = LoggerFactory.getLogger(MsgBus.class.getSimpleName()+"/"+ManagementFactory.getRuntimeMXBean().getName()); // static precluded by use in constructor (of enum)
+	private final Logger logger = LoggerFactory.getLogger(MsgBus.class.getSimpleName()+"."+ManagementFactory.getRuntimeMXBean().getName()); // static precluded by use in constructor (of enum)
 
 	/**
 	 * Use Guava [Async]EventBus to provide typed msg delivery WITHIN THIS PROCESS ONLY
@@ -259,7 +259,7 @@ public enum MsgBus {
 		// A possible solution (which may have its own drawbacks) would be to cache the last few msgs
 		// posted on this EventBus in a [Concurrent]HashSet and NOT publish this msg arg if the set contains it.
 		try {
-			logger.debug("publishing {}", msg);
+			logger.trace("publishing {}", msg);
 			final ObjectMessage message = session.createObjectMessage(msg);
 			producer.send(message);
 		} catch (JMSException e) {
