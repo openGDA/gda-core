@@ -603,6 +603,8 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 	public void startContinuous() {
 		logger.info("Starting continious acquisition");
 		try {
+			// Switch off safe state to make continuous performance much better
+			setSafeState(false);
 			// Change to continuous
 			controller.setImageMode(ImageMode.CONTINUOUS);
 			// Change to 1 iteration
@@ -684,6 +686,8 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 			logger.error(msg, e);
 			throw new RuntimeException(msg, e);
 		}
+		// Switch off the high voltages
+		setSafeState(true);
 	}
 
 	@Override
@@ -888,6 +892,23 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 	 */
 	public double getCurrentPhotonEnergy() {
 		return currentPhotonEnergy;
+	}
+
+	public void setSafeState(boolean safe) {
+		try {
+			controller.setSafeState(safe);
+			logger.trace("Set safe state to: {}", safe);
+		} catch (Exception e) {
+			final String msg;
+			if (safe) {
+				msg = "Error placing analyser in safe state. HV might still be on";
+			}
+			else {
+				msg = "Error disabling safe state. Performance might be slow";
+			}
+			logger.error(msg, e);
+			throw new RuntimeException(msg, e);
+		}
 	}
 
 }

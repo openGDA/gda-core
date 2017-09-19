@@ -112,6 +112,10 @@ public class SpecsPhoibosCollectionStrategy implements AsyncNXCollectionStrategy
 		}
 		// Empty the queue shouldn't be needed but will ensure future scans could work if the queue was not empty
 		pointsAwaitingWriting.clear();
+
+		// Switch off the analyser HV at the end of the scan
+		analyser.setSafeState(true);
+		logger.debug("Finished complete collection");
 	}
 
 	@Override
@@ -204,6 +208,10 @@ public class SpecsPhoibosCollectionStrategy implements AsyncNXCollectionStrategy
 			regionsToAcquire.add(analyser.getRegion());
 		}
 		logger.debug("Setup to acquire {} regions", regionsToAcquire.size());
+
+		// Switch off safe state while we are in a scan
+		analyser.setSafeState(false);
+
 		logger.trace("Finished prepareForCollection");
 	}
 

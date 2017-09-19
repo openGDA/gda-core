@@ -120,6 +120,11 @@ public class SpecsPhoibosController implements Configurable, IObservable {
 	private static final String PAUSE = "PAUSE";
 	private static final String PAUSE_RBV = "PAUSE_RBV";
 
+	// Safe state = false disables voltage ramping between scans improving performance
+	private static final String SAFE_STATE = "SAFE_STATE";
+	private static final String SAFE_STATE_RBV = "SAFE_STATE_RBV";
+	public static final double SAFE_STATE_DELAY = 30.0; // sec The time to wait for the HV to be ramped down
+
 	// TODO Check status and progress PVs
 	// Number of points in the pre scan only for swept mode
 	private static final String TOTAL_LEAD_POINTS_RBV = "TOTAL_LEAD_POINTS_RBV";
@@ -751,6 +756,43 @@ public class SpecsPhoibosController implements Configurable, IObservable {
 	 */
 	public boolean isPaused() throws Exception {
 		return epicsController.cagetInt(getChannel(PAUSE_RBV)) == 1;
+	}
+
+	/**
+	 * Sets if the analyser should be placed into a safe state (HV switched off) at the end of a acquire. This can be
+	 * disabled for performance because ramping the voltages takes significant time. Setting to false does NOT switch on
+	 * HV it just means they will not be switched off at the end of the next acquire.
+	 * <p>
+	 * When set to true this will block until the analyser has reached a safe state, with a time out of
+	 * {@value #SAFE_STATE_DELAY} seconds. This is desirable as asking the analyser to measure again during the ramping
+	 * may fail.
+	 *
+	 * @param safe
+	 *            True to switch off the high voltage
+	 * @throws Exception
+	 *             If there is a problem with the EPICS communication
+	 */
+	public void setSafeState(boolean safe) throws Exception {
+		try {
+			epicsController.caputWait(getChannel(SAFE_STATE), safe ? 1 : 0, SAFE_STATE_DELAY);
+		} catch (TimeoutException e) {
+			if(safe) {
+				logger.error("Timeout ({} sec) while setting analyser to safe state. HV may still be on", SAFE_STATE_DELAY, e);
+			}
+			logger.error("Timeout ({} sec) disabling safe state", SAFE_STATE_DELAY, e);
+		}
+
+	}
+
+	/**
+	 * Checks if the analyser will be placed in a safe state once an acquire finishes.
+	 *
+	 * @return true if analyser will be placed in a safe state once an acquire finishes
+	 * @throws Exception
+	 *             If there is a problem with the EPICS communication
+	 */
+	public boolean isSafeState() throws Exception {
+		return epicsController.cagetInt(getChannel(SAFE_STATE_RBV)) == 1;
 	}
 
 	/**
