@@ -30,6 +30,7 @@ import org.python.core.PyObject;
 import gda.device.DeviceException;
 import gda.factory.Findable;
 import gda.jython.batoncontrol.ClientDetails;
+import gda.jython.commandinfo.CommandThreadEvent;
 import gda.jython.commandinfo.ICommandThreadInfo;
 import gda.jython.completion.AutoCompletion;
 import gda.observable.IObserver;
@@ -104,7 +105,7 @@ public interface Jython extends Findable {
 	 * @param JSFIdentifier
 	 *            - the unique ID of the JythonServerFacade calling this method.
 	 */
-	public void runScript(String command, String JSFIdentifier);
+	public CommandThreadEvent runScript(String command, String JSFIdentifier);
 
 	/**
 	 * Similar to {@link #runCommand}, except that a boolean is returned if the command was complete or if additional lines of a

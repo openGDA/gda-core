@@ -60,7 +60,7 @@ interface CorbaJython : gda::_factory::corba::CorbaFindable
     void runCommand(in string command, in string JSFIdentifier)
       raises (device::corba::CorbaDeviceException);
 
-    void runScript(in string command, in string JSFIdentifier)
+    any runScript(in string command, in string JSFIdentifier)
       raises (device::corba::CorbaDeviceException);
 
     boolean runsource(in string command, in string JSFIdentifier)

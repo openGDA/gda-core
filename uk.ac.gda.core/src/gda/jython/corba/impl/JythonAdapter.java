@@ -28,6 +28,7 @@ import gda.factory.corba.util.NetService;
 import gda.jython.Jython;
 import gda.jython.UserMessage;
 import gda.jython.batoncontrol.ClientDetails;
+import gda.jython.commandinfo.CommandThreadEvent;
 import gda.jython.commandinfo.ICommandThreadInfo;
 import gda.jython.completion.AutoCompletion;
 import gda.jython.corba.CorbaJython;
@@ -529,11 +530,11 @@ public class JythonAdapter implements Jython, EventSubscriber {
 	}
 
 	@Override
-	public void runScript(String command, String JSFIdentifier) {
+	public CommandThreadEvent runScript(String command, String JSFIdentifier) {
 		for (int i = 0; i < NetService.RETRY; i++) {
 			try {
-				jythonServer.runScript(command, JSFIdentifier);
-				return;
+				Any any = jythonServer.runScript(command, JSFIdentifier);
+				return (CommandThreadEvent) any.extract_Value();
 			} catch (COMM_FAILURE cf) {
 				jythonServer = CorbaJythonHelper.narrow(netService.reconnect(name));
 			} catch (org.omg.CORBA.TRANSIENT ct) {
@@ -545,7 +546,7 @@ public class JythonAdapter implements Jython, EventSubscriber {
 				// throw new DeviceException(ex.message);
 			}
 		}
-		return;
+		return null;
 	}
 
 	@Override

@@ -423,7 +423,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	}
 
 	@Override
-	public void runScript(String command, String jsfIdentifier) {
+	public CommandThreadEvent runScript(String command, String jsfIdentifier) {
 		// See bug #335 for why this must repeat most of the code of the
 		// runCommand(String, String) method.
 		try {
@@ -435,8 +435,10 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 			runner.start();
 			clearThreads();
 			notifyRefreshCommandThreads();
+			return new CommandThreadEvent(CommandThreadEventType.SUBMITTED, extractCommandThreadInfo(CommandThreadType.COMMAND, runner));
 		} catch (Exception ex) {
 			logger.info("Command Terminated", ex);
+			return new CommandThreadEvent(CommandThreadEventType.SUBMIT_ERROR, null);
 		}
 	}
 

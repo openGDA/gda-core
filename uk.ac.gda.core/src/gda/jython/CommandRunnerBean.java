@@ -20,6 +20,8 @@ package gda.jython;
 
 import java.io.File;
 
+import gda.jython.commandinfo.CommandThreadEvent;
+
 /*
  * Call InterfaceProvider.getCommandRunner() only when needed rather than in constructor when Factories may not be created
  */
@@ -50,8 +52,8 @@ public class CommandRunnerBean implements ICommandRunner{
 		return getRunner().evaluateCommand(command);
 	}
 	@Override
-	public void runScript(File script, String sourceName) {
-		getRunner().runScript(script, sourceName);
+	public CommandThreadEvent runScript(File script, String sourceName) {
+		return getRunner().runScript(script, sourceName);
 	}
 	@Override
 	public boolean runsource(String command, String source) {
