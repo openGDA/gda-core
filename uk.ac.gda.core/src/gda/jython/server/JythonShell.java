@@ -42,6 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
+import gda.jython.IScanDataPointObserver;
 import gda.jython.JythonServerFacade;
 import gda.jython.completion.AutoCompletion;
 import gda.scan.ScanDataPoint;
@@ -53,7 +54,7 @@ import gda.util.Version;
  * <p>
  * It has no knowledge of the connection type
  */
-class JythonShell implements Closeable, gda.jython.Terminal {
+class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPointObserver {
 
 	private static final String PS1 = ">>> ";
 	private static final String PS2 = "... ";
@@ -109,7 +110,7 @@ class JythonShell implements Closeable, gda.jython.Terminal {
 	 */
 	private void init() {
 		server.addOutputTerminal(this);
-		server.addIScanDataPointObserver(this::update);
+		server.addIScanDataPointObserver(this);
 		terminal.writer().print(WELCOME_BANNER);
 		setTitle(String.format("GDA %s", Version.getRelease()));
 	}
@@ -145,7 +146,7 @@ class JythonShell implements Closeable, gda.jython.Terminal {
 	public void close() {
 		// Don't close the terminal here as it is managed by the connection
 		server.deleteOutputTerminal(this);
-		server.deleteIScanDataPointObserver(this::update);
+		server.deleteIScanDataPointObserver(this);
 	}
 
 	/**
