@@ -97,21 +97,6 @@ public interface Jython extends Findable {
 	public void runCommand(String command, String JSFIdentifier);
 
 	/**
-	 * Executes the Jython command in a new thread (unless the command starts
-	 * with the text 'print'). Also informs the local facade object the name of
-	 * the local panel which is to receive the scan data for display (assuming
-	 * presumably that the command was a scan).
-	 *
-	 * @param command
-	 *            String
-	 * @param scanObserver
-	 *            IObserver
-	 * @param JSFIdentifier
-	 *            - the unique ID of the JythonServerFacade calling this method.
-	 */
-	public void runCommand(String command, String scanObserver, String JSFIdentifier);
-
-	/**
 	 * Runs the Jython command, and changes the ScriptStatus as is goes.
 	 *
 	 * @param command
@@ -122,19 +107,6 @@ public interface Jython extends Findable {
 	public void runScript(String command, String JSFIdentifier);
 
 	/**
-	 * Runs the given command while keeping the ScriptStatus up to date, but also informs the local facade object the
-	 * name of the local panel which is to receive the scan data for display.
-	 *
-	 * @param command
-	 *            String
-	 * @param scanObserver
-	 *            IObserver
-	 * @param JSFIdentifier
-	 *            - the unique ID of the JythonServerFacade calling this method.
-	 */
-	public void runScript(String command, String scanObserver, String JSFIdentifier);
-
-	/**
 	 * Similar to {@link #runCommand}, except that a boolean is returned if the command was complete or if additional lines of a
 	 * multi-line command are required. Used only by the JythonTerminal to determine which prompt to display. Note: this
 	 * method waits until the command has finished so it can return the result. If the command takes a long time it will
@@ -143,13 +115,11 @@ public interface Jython extends Findable {
 	 *
 	 * @param command
 	 *            String
-	 * @param source
-	 *            Findable
 	 * @param JSFIdentifier
 	 *            - the unique ID of the JythonServerFacade calling this method.
 	 * @return boolean
 	 */
-	public boolean runsource(String command, String source, String JSFIdentifier);
+	public boolean runsource(String command, String JSFIdentifier);
 
 	/**
 	 * Similar to {@link #runCommand}, except that a boolean is returned if the command was complete or if additional lines of a
@@ -160,14 +130,12 @@ public interface Jython extends Findable {
 	 *
 	 * @param command
 	 *            the command to run
-	 * @param source
-	 *            the source of the command
 	 * @param JSFIdentifier
 	 *            the unique ID of the JythonServerFacade calling this method.
 	 * @param stdin the InputStream to use as stdin for this command
 	 * @return true if command was incomplete and more is required (eg "if True:"), false otherwise (including on error)
 	 */
-	public boolean runsource(String command, String source, String JSFIdentifier, InputStream stdin);
+	public boolean runsource(String command, String JSFIdentifier, InputStream stdin);
 
 	/**
 	 * Foe use by the JythonServerFacade class. Allows an instance of this class operating in a different process to

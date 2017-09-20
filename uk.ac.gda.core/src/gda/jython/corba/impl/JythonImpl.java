@@ -206,20 +206,9 @@ public class JythonImpl extends CorbaJythonPOA implements IObserver {
 	}
 
 	@Override
-	public void runCommand_withObserver(String command, String scanObserver, String JSFIdentifier)
-			throws CorbaDeviceException {
+	public boolean runsource(String command, String JSFIdentifier) throws CorbaDeviceException {
 		try {
-			jythonServer.runCommand(command, scanObserver, JSFIdentifier);
-			return;
-		} catch (Exception de) {
-			throw new CorbaDeviceException(de.getMessage());
-		}
-	}
-
-	@Override
-	public boolean runsource(String command, String observer, String JSFIdentifier) throws CorbaDeviceException {
-		try {
-			return jythonServer.runsource(command, observer, JSFIdentifier);
+			return jythonServer.runsource(command, JSFIdentifier);
 		} catch (Exception de) {
 			throw new CorbaDeviceException(de.getMessage());
 		}
@@ -321,16 +310,6 @@ public class JythonImpl extends CorbaJythonPOA implements IObserver {
 	public void runScript(String command, String JSFIdentifier) throws CorbaDeviceException {
 		try {
 			jythonServer.runScript(command, JSFIdentifier);
-		} catch (Exception de) {
-			throw new CorbaDeviceException(de.getMessage());
-		}
-	}
-
-	@Override
-	public void runScript_withObserver(String command, String scanObserver, String JSFIdentifier)
-			throws CorbaDeviceException {
-		try {
-			jythonServer.runScript(command, scanObserver, JSFIdentifier);
 		} catch (Exception de) {
 			throw new CorbaDeviceException(de.getMessage());
 		}

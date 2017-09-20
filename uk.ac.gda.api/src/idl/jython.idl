@@ -60,16 +60,10 @@ interface CorbaJython : gda::_factory::corba::CorbaFindable
     void runCommand(in string command, in string JSFIdentifier)
       raises (device::corba::CorbaDeviceException);
 
-    void runCommand_withObserver(in string command, in string scanObserver, in string JSFIdentifier)
-      raises (device::corba::CorbaDeviceException);
-
     void runScript(in string command, in string JSFIdentifier)
       raises (device::corba::CorbaDeviceException);
 
-    void runScript_withObserver(in string command, in string scanObserver, in string JSFIdentifier)
-      raises (device::corba::CorbaDeviceException);
-
-    boolean runsource(in string command, in string observer, in string JSFIdentifier)
+    boolean runsource(in string command, in string JSFIdentifier)
       raises (device::corba::CorbaDeviceException);
 
     long addFacade(in string name, in string hostName, in string username, in string fullname, in string visitID)

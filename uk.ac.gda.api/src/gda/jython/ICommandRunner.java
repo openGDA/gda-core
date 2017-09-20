@@ -36,7 +36,7 @@ public interface ICommandRunner {
 	 *            String
 	 * @param scanObserver
 	 *            String
-	 * @see Jython#runCommand(String, String,String)
+	 * @see Jython#runCommand(String, String)
 	 */
 	public void runCommand(String command, String scanObserver);
 	
