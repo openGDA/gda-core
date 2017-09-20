@@ -21,6 +21,7 @@ package gda.jython;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.jython.batoncontrol.ClientDetails;
+import gda.jython.commandinfo.CommandThreadEvent;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 import gda.scan.IScanDataPoint;
@@ -320,7 +321,8 @@ public class MockJythonServerFacade implements IDefaultScannableProvider, ICurre
 	}
 
 	@Override
-	public void runScript(File script, String sourceName) {
+	public CommandThreadEvent runScript(File script, String sourceName) {
+		return null;
 	}
 
 	@Override
