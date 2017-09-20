@@ -357,6 +357,21 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 		return -1;
 	}
 
+	private boolean isConfigured() {
+		return configured;
+	}
+
+	public boolean isInitialized() {
+		return initialized;
+	}
+
+	void checkStateForRunCommand() throws IllegalStateException {
+		// only allow if configured or initialised or runningLocalStation
+		if (!(isConfigured() || isInitialized() || runningLocalStation)) {
+			throw new IllegalStateException("JythonServer is not configured yet.");
+		}
+	}
+
 	/**
 	 * Runs a command in the same thread and only returns when the command completed. This method is not distributed and
 	 * is only for use by the "run" command which runs scripts from within other scripts or from the GDA terminal. It
@@ -417,21 +432,6 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 			} catch (Exception ex) {
 				logger.info("Command Terminated." + ex.getMessage(), ex);
 			}
-		}
-	}
-
-	private boolean isConfigured() {
-		return configured;
-	}
-
-	public boolean isInitialized() {
-		return initialized;
-	}
-
-	void checkStateForRunCommand() throws IllegalStateException {
-		// only allow if configured or initialised or runningLocalStation
-		if (!(isConfigured() || isInitialized() || runningLocalStation)) {
-			throw new IllegalStateException("JythonServer is not configured yet.");
 		}
 	}
 
@@ -503,17 +503,6 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 		return "";
 	}
 
-	private String nameThread(final String command) {
-		String cmd = command;
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-		if (cmd.length() > 100) {
-			cmd = cmd.substring(0, 100) + " ...";
-
-		}
-		String s = sdf.format(new Date()) + " : " + cmd.replace("\n", ";");
-		return s;
-	}
-
 	@Override
 	public boolean runsource(String command, String source, String JSFIdentifier) {
 		return runsource(command, source, JSFIdentifier, null);
@@ -537,6 +526,17 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 			logger.info("Command terminated." + ex.getMessage(), ex);
 		}
 		return false;
+	}
+
+	private String nameThread(final String command) {
+		String cmd = command;
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+		if (cmd.length() > 100) {
+			cmd = cmd.substring(0, 100) + " ...";
+
+		}
+		String s = sdf.format(new Date()) + " : " + cmd.replace("\n", ";");
+		return s;
 	}
 
 	private void echoInputToServerSideTerminalObservers(String s) {
