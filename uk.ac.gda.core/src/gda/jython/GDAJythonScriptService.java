@@ -63,11 +63,11 @@ public class GDAJythonScriptService implements IScriptService {
 			throw new ScriptExecutionException("Could not locate script " + scriptFileStr);
 		}
 
-		// run the script
-		commandRunner.runScript(scriptFile);
+		// run the script - blocks
+		commandRunner.evaluateCommand("run '" + scriptFileStr + "'");
 
 		// return a new script response. As runScript returns void, we have nothing to set
-		return new ScriptResponse<Object>();
+		return new ScriptResponse<>();
 	}
 
 }
