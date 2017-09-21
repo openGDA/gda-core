@@ -16,7 +16,6 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.emf.common.command.Command;
 import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.common.notify.Notification;
@@ -125,6 +124,8 @@ import org.opengda.detector.electronanalyser.utils.RegionStepsTimeEstimation;
 import org.opengda.detector.electronanalyser.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.swtdesigner.SWTResourceManager;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
@@ -332,12 +333,14 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			grpShutters.setLayoutData(gd_grpShutters);
 			grpShutters.setText("Fast Shutters");
 			grpShutters.setLayout(new GridLayout(2, true));
+			grpShutters.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 
 			if (getHardShutterPV()!=null) {
 				Group grpHardShutter=new Group(grpShutters, SWT.NONE);
 				GridData gd_grpHardShutter = new GridData(SWT.LEFT, SWT.CENTER, true, false);
 				grpHardShutter.setLayoutData(gd_grpHardShutter);
 				grpHardShutter.setLayout(new GridLayout(3, false));
+				grpHardShutter.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 
 				Label lblHardXray=new Label(grpHardShutter, SWT.None);
 				lblHardXray.setText("Hard X-Ray: ");
@@ -388,6 +391,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				GridData gd_grpSoftShutter = new GridData(SWT.RIGHT, SWT.CENTER, true, false);
 				grpSoftShutter.setLayoutData(gd_grpSoftShutter);
 				grpSoftShutter.setLayout(new GridLayout(3, false));
+				grpSoftShutter.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 
 				Label lblSoftXray=new Label(grpSoftShutter, SWT.None);
 				lblSoftXray.setText("Soft X-Ray: ");
@@ -434,11 +438,11 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		}
 		Group grpElementset = new Group(controlArea, SWT.NONE);
 		GridData gd_grpElementset = new GridData(GridData.FILL_HORIZONTAL);
-		gd_grpElementset.grabExcessHorizontalSpace = false;
-		gd_grpElementset.widthHint = 120;
+		gd_grpElementset.grabExcessHorizontalSpace = true;
 		grpElementset.setLayoutData(gd_grpElementset);
 		grpElementset.setLayout(new GridLayout());
 		grpElementset.setText("Element Set");
+		grpElementset.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 		comboElementSet = new Combo(grpElementset, SWT.READ_ONLY);
 		comboElementSet.setItems(new String[] {"Low","High"});
 		comboElementSet.setToolTipText("Select an element set");
@@ -447,27 +451,23 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 
 		Group grpActiveRegions = new Group(controlArea, SWT.NONE);
 		GridData gd_grpActiveRegions = new GridData(GridData.FILL_HORIZONTAL);
-		gd_grpActiveRegions.grabExcessHorizontalSpace = false;
+		gd_grpActiveRegions.grabExcessHorizontalSpace = true;
 		grpActiveRegions.setLayoutData(gd_grpActiveRegions);
 		grpActiveRegions.setText("Number of Active Regions");
 		grpActiveRegions.setLayout(new GridLayout());
-		txtNumberActives = new Text(grpActiveRegions, SWT.BORDER | SWT.RIGHT);
-		txtNumberActives.setForeground(ColorConstants.green);
-		txtNumberActives.setBackground(ColorConstants.black);
+		grpActiveRegions.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
+		txtNumberActives = new Text(grpActiveRegions, SWT.NONE | SWT.RIGHT);
 		txtNumberActives.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		txtNumberActives.setEditable(false);
 
 		Group grpTotalTime = new Group(controlArea, SWT.None);
 		GridData gd_grpTotalTime = new GridData(GridData.FILL_HORIZONTAL);
-		gd_grpTotalTime.horizontalAlignment = SWT.LEFT;
-		gd_grpTotalTime.widthHint = 100;
-		gd_grpTotalTime.grabExcessHorizontalSpace = false;
+		gd_grpTotalTime.grabExcessHorizontalSpace = true;
 		grpTotalTime.setLayoutData(gd_grpTotalTime);
 		grpTotalTime.setText("Total Sequence Time");
 		grpTotalTime.setLayout(new GridLayout());
-		txtEstimatedTime = new Text(grpTotalTime, SWT.BORDER | SWT.RIGHT);
-		txtEstimatedTime.setForeground(ColorConstants.green);
-		txtEstimatedTime.setBackground(ColorConstants.black);
+		grpTotalTime.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
+		txtEstimatedTime = new Text(grpTotalTime, SWT.NONE | SWT.RIGHT);
 		txtEstimatedTime.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		txtEstimatedTime.setEditable(false);
 
@@ -478,9 +478,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		grpSequenceFile.setLayoutData(gd_grpSequenceFile);
 		grpSequenceFile.setText("Sequence File in the table");
 		grpSequenceFile.setLayout(new GridLayout());
-		txtSequenceFilePath = new Text(grpSequenceFile, SWT.BORDER | SWT.READ_ONLY);
-		txtSequenceFilePath.setForeground(ColorConstants.green);
-		txtSequenceFilePath.setBackground(ColorConstants.black);
+		grpSequenceFile.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
+		txtSequenceFilePath = new Text(grpSequenceFile, SWT.NONE | SWT.READ_ONLY);
 		txtSequenceFilePath.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		txtSequenceFilePath.setEditable(false);
 
@@ -491,9 +490,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		grpDataFile.setLayoutData(gd_grpDataFile);
 		grpDataFile.setText("Data File");
 		grpDataFile.setLayout(new GridLayout());
-		txtDataFilePath = new Text(grpDataFile, SWT.BORDER | SWT.READ_ONLY);
-		txtDataFilePath.setBackground(ColorConstants.black);
-		txtDataFilePath.setForeground(ColorConstants.green);
+		grpDataFile.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
+		txtDataFilePath = new Text(grpDataFile, SWT.NONE | SWT.READ_ONLY);
 		txtDataFilePath.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		txtDataFilePath.setEditable(false);
 		txtDataFilePath.setText("Data file to be collected");
@@ -505,17 +503,16 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		grpScanProgress.setLayoutData(gd_grpScanProgress);
 		grpScanProgress.setText("Analyser Scan Progress");
 		grpScanProgress.setLayout(new GridLayout(4, false));
+		grpScanProgress.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 
 		Label lblScanNumber=new Label(grpScanProgress, SWT.None);
 		lblScanNumber.setText("Current Scan Number: ");
 
 		txtScanNumberValue = new Text(grpScanProgress, SWT.BORDER);
-		GridData gd_txtScanNumberValue = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		GridData gd_txtScanNumberValue = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 		gd_txtScanNumberValue.widthHint = 50;
 		txtScanNumberValue.setLayoutData(gd_txtScanNumberValue);
-		txtScanNumberValue.setForeground(ColorConstants.green);
 		txtScanNumberValue.setEditable(false);
-		txtScanNumberValue.setBackground(ColorConstants.black);
 		try {
 			txtScanNumberValue.setText(String.format("%d",new NumTracker(LocalProperties.GDA_BEAMLINE_NAME).getCurrentFileNumber()));
 		} catch (IOException e) {
@@ -526,23 +523,19 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		lblPoint.setText("Scan Point Number: ");
 
 		txtPointValue = new Text(grpScanProgress, SWT.BORDER);
-		GridData gd_lblIterationValue = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		GridData gd_lblIterationValue = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 		gd_lblIterationValue.widthHint = 50;
 		txtPointValue.setLayoutData(gd_lblIterationValue);
-		txtPointValue.setForeground(ColorConstants.green);
 		txtPointValue.setEditable(false);
-		txtPointValue.setBackground(ColorConstants.black);
 		updateScanPointNumber(currentPointNumber, totalNumberOfPoints);
 
 		Label lblRegion = new Label(grpScanProgress, SWT.NONE);
 		lblRegion.setText("Active Region Number:");
 
 		txtRegionValue = new Text(grpScanProgress, SWT.BORDER);
-		txtRegionValue.setForeground(ColorConstants.green);
 		txtRegionValue.setEditable(false);
-		txtRegionValue.setBackground(ColorConstants.black);
 		txtRegionValue.setText("0");
-		GridData gd_txtCurrentPoint = new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1);
+		GridData gd_txtCurrentPoint = new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1);
 		gd_txtCurrentPoint.widthHint = 50;
 		txtRegionValue.setLayoutData(gd_txtCurrentPoint);
 
@@ -550,11 +543,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		lblTimeRemaining.setText("Time Remaining:");
 
 		txtTimeRemaining = new Text(grpScanProgress, SWT.BORDER);
-//		gd_txtIterationTimeRemaining.widthHint=40;
 		txtTimeRemaining.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
-		txtTimeRemaining.setForeground(ColorConstants.green);
-		txtTimeRemaining.setBackground(ColorConstants.black);
-		GridData gd_txtTimeRemaining = new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1);
+		GridData gd_txtTimeRemaining = new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1);
 		gd_txtTimeRemaining.widthHint = 50;
 		txtTimeRemaining.setLayoutData(gd_txtTimeRemaining);
 		txtTimeRemaining.setEditable(false);

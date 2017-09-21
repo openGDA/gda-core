@@ -1,6 +1,5 @@
 package org.opengda.detector.electronanalyser.client.views;
 
-import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -132,18 +131,14 @@ public class RegionProgressComposite extends Composite implements Initialization
 		GridData gd_lblIterationValue = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_lblIterationValue.widthHint = 40;
 		txtTextIterationValue.setLayoutData(gd_lblIterationValue);
-		txtTextIterationValue.setForeground(ColorConstants.green);
 		txtTextIterationValue.setEditable(false);
-		txtTextIterationValue.setBackground(ColorConstants.black);
 		updateIterationDispay(currentiteration, totalIterations);
 
 		Label lblCurrentPoint = new Label(rootComposite, SWT.NONE);
 		lblCurrentPoint.setText("Point:");
 
 		txtCurrentPoint = new Text(rootComposite, SWT.BORDER);
-		txtCurrentPoint.setForeground(ColorConstants.green);
 		txtCurrentPoint.setEditable(false);
-		txtCurrentPoint.setBackground(ColorConstants.black);
 		txtCurrentPoint.setText("0");
 		GridData gd_txtCurrentPoint = new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1);
 		gd_txtCurrentPoint.widthHint = 40;
@@ -153,10 +148,7 @@ public class RegionProgressComposite extends Composite implements Initialization
 		lblTimeRemaining.setText("Iter Time Remaining:");
 
 		txtIterationTimeRemaining = new Text(rootComposite, SWT.BORDER);
-//		gd_txtIterationTimeRemaining.widthHint=40;
 		txtIterationTimeRemaining.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
-		txtIterationTimeRemaining.setForeground(ColorConstants.green);
-		txtIterationTimeRemaining.setBackground(ColorConstants.black);
 		txtIterationTimeRemaining.setText("0.0000");
 		txtIterationTimeRemaining.setEditable(false);
 
@@ -198,8 +190,6 @@ public class RegionProgressComposite extends Composite implements Initialization
 		GridData gd_txtTextTotalStepsValue = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_txtTextTotalStepsValue.widthHint = 40;
 		txtTextTotalStepsValue.setLayoutData(gd_txtTextTotalStepsValue);
-		txtTextTotalStepsValue.setForeground(ColorConstants.green);
-		txtTextTotalStepsValue.setBackground(ColorConstants.black);
 		txtTextTotalStepsValue.setText("0");
 		txtTextTotalStepsValue.setEditable(false);
 
@@ -208,8 +198,6 @@ public class RegionProgressComposite extends Composite implements Initialization
 		lblCurrentStep.setText("Step:");
 
 		txtCurrentStepValue = new Text(rootComposite, SWT.BORDER);
-		txtCurrentStepValue.setForeground(ColorConstants.green);
-		txtCurrentStepValue.setBackground(ColorConstants.black);
 		GridData gd_txtCurrentStepValue = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_txtCurrentStepValue.widthHint = 40;
 		txtCurrentStepValue.setLayoutData(gd_txtCurrentStepValue);
@@ -220,10 +208,7 @@ public class RegionProgressComposite extends Composite implements Initialization
 		lblTotalTimeRemaining.setText("Total time remaining:");
 
 		txtTotalTimeRemaining = new Text(rootComposite, SWT.BORDER);
-//		gd_txtTotalTimeRemaining.widthHint=40;
 		txtTotalTimeRemaining.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
-		txtTotalTimeRemaining.setForeground(ColorConstants.green);
-		txtTotalTimeRemaining.setBackground(ColorConstants.black);
 		txtTotalTimeRemaining.setText("0.0000");
 		txtTotalTimeRemaining.setEditable(false);
 
@@ -234,10 +219,6 @@ public class RegionProgressComposite extends Composite implements Initialization
 		GridData gd_progressBar_1 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 5, 1);
 		gd_progressBar_1.widthHint = 340;
 		totalProgressBar.setLayoutData(gd_progressBar_1);
-
-//		Button btnStop = new Button(rootComposite, SWT.CENTER);
-//		btnStop.setImage(ElectronAnalyserClientPlugin.getDefault().getImageRegistry().get(ImageConstants.ICON_STOP));
-//		btnStop.setToolTipText("Stop current region collection");
 	}
 
 	public void initialise() {

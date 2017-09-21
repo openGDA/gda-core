@@ -14,6 +14,7 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.fieldassist.ControlDecoration;
 import org.eclipse.jface.fieldassist.FieldDecoration;
 import org.eclipse.jface.fieldassist.FieldDecorationRegistry;
+import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
@@ -67,6 +68,8 @@ import org.opengda.detector.electronanalyser.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.swtdesigner.SWTResourceManager;
+
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.ScannableStatus;
@@ -88,7 +91,7 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		setTitleToolTip("Editing a selected region parameters");
 		// setContentDescription("A view for editing region parameters");
 		setPartName("Region Editor");
-		this.selectionChangedListeners = new ArrayList<ISelectionChangedListener>();
+		this.selectionChangedListeners = new ArrayList<>();
 	}
 
 	private List<ISelectionChangedListener> selectionChangedListeners;
@@ -163,12 +166,12 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		regionPageBook = new PageBook(parent, SWT.None);
 		plainComposite = new Composite(regionPageBook, SWT.None);
 		plainComposite.setLayout(new FillLayout());
+		plainComposite.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 
-		// regionPageBook.showPage(plainComposite);
 		regionComposite = new ScrolledComposite(regionPageBook, SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
-
 		regionComposite.setExpandHorizontal(true);
 		regionComposite.setExpandVertical(true);
+		regionComposite.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 
 		Composite rootComposite = new Composite(regionComposite, SWT.NONE);
 		regionComposite.setContent(rootComposite);
@@ -180,6 +183,7 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		grpName.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		grpName.setText("Name");
 		grpName.setLayout(new GridLayout());
+		grpName.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 
 		regionName = new Combo(grpName, SWT.NONE);
 		GridData namelayoutData = new GridData(GridData.FILL_HORIZONTAL);
@@ -225,6 +229,7 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		grpLensMode.setText("Lens Mode");
 		grpLensMode.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		grpLensMode.setLayout(new GridLayout());
+		grpLensMode.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 
 		lensMode = new Combo(grpLensMode, SWT.READ_ONLY);
 		lensMode.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
@@ -234,6 +239,7 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		grpPassEnergy.setLayout(new GridLayout());
 		grpPassEnergy.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		grpPassEnergy.setText("Pass Energy");
+		grpPassEnergy.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 
 		passEnergy = new Combo(grpPassEnergy, SWT.READ_ONLY);
 		passEnergy.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
@@ -244,6 +250,7 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		grpRunMode.setLayoutData(layoutData);
 		grpRunMode.setLayout(new GridLayout(2, false));
 		grpRunMode.setText("Acquisition Configuration");
+		grpRunMode.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 
 		Label lblLabelNumberOfIterations = new Label(grpRunMode, SWT.NONE);
 		lblLabelNumberOfIterations.setText("Number of Iterations:");
@@ -252,6 +259,7 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		numberOfIterationSpinner.setMinimum(1);
 		numberOfIterationSpinner.setMaximum(Integer.MAX_VALUE);
 		numberOfIterationSpinner.setToolTipText("Set number of iterations required");
+		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(numberOfIterationSpinner);
 
 		Label lblSclies = new Label(grpRunMode, SWT.NONE);
 		lblSclies.setText("Number of Y Slices:");
@@ -268,12 +276,14 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		spinnerSlices.setToolTipText("Set number of slices required");
 		spinnerSlices.setMinimum(1);
 		spinnerSlices.setMaximum(camera.getCameraYSize());
+		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(spinnerSlices);
 
 		Group grpAcquisitionMode = new Group(modeComposite, SWT.NONE);
 		grpAcquisitionMode.setText("Acquisition Mode");
 		GridLayout gl_grpAcquisitionMode = new GridLayout();
 		grpAcquisitionMode.setLayout(gl_grpAcquisitionMode);
 		grpAcquisitionMode.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		grpAcquisitionMode.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 
 		btnSwept = new Button(grpAcquisitionMode, SWT.RADIO);
 		btnSwept.addFocusListener(new FocusAdapter() {
@@ -291,10 +301,10 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		Group grpExcitationEnergy = new Group(modeComposite, SWT.NONE);
 		grpExcitationEnergy.setText("Excitation Energy [eV]");
 		grpExcitationEnergy.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		grpExcitationEnergy.setLayout(new GridLayout(2, true));
+		grpExcitationEnergy.setLayout(new GridLayout(2, false));
+		grpExcitationEnergy.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 		if (regionDefinitionResourceUtil.isSourceSelectable()) {
 			btnHard = new Button(grpExcitationEnergy, SWT.RADIO);
-			btnHard.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 			btnHard.setText("Hard X-Ray:");
 			btnHard.addSelectionListener(new SelectionAdapter() {
 				@Override
@@ -306,13 +316,12 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 			});
 
 			txtHardEnergy = new Text(grpExcitationEnergy, SWT.BORDER | SWT.READ_ONLY);
-//			txtHardEnergy.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 			txtHardEnergy.setToolTipText("Current hard X-ray beam energy");
 			txtHardEnergy.setEnabled(false);
 			txtHardEnergy.setEditable(false);
+			GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(txtHardEnergy);
 
 			btnSoft = new Button(grpExcitationEnergy, SWT.RADIO);
-			btnSoft.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 			btnSoft.setText("Soft X-Ray:");
 			btnSoft.addSelectionListener(new SelectionAdapter() {
 				@Override
@@ -324,17 +333,16 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 			});
 
 			txtSoftEnergy = new Text(grpExcitationEnergy, SWT.BORDER | SWT.READ_ONLY);
-//			txtSoftEnergy.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 			txtSoftEnergy.setToolTipText("Current soft X-ray beam energy");
 			txtSoftEnergy.setEnabled(false);
 			txtSoftEnergy.setEditable(false);
+			GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(txtSoftEnergy);
 
 		} else {
 			Label lblCurrentValue = new Label(grpExcitationEnergy, SWT.NONE);
 			lblCurrentValue.setText("X-Ray energy:");
 
 			txtHardEnergy = new Text(grpExcitationEnergy, SWT.BORDER | SWT.READ_ONLY);
-//			txtHardEnergy.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 			txtHardEnergy.setToolTipText("Current X-ray beam energy");
 			txtHardEnergy.setEnabled(false);
 			txtHardEnergy.setEditable(false);
@@ -344,6 +352,7 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		grpEnergyMode.setText("Energy Mode");
 		grpEnergyMode.setLayout(new GridLayout());
 		grpEnergyMode.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		grpEnergyMode.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 
 		btnKinetic = new Button(grpEnergyMode, SWT.RADIO);
 		btnKinetic.addSelectionListener(new SelectionAdapter() {
@@ -370,6 +379,7 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		grpEnergy.setText("Spectrum energy range [eV]");
 		grpEnergy.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		grpEnergy.setLayout(new GridLayout(4, false));
+		grpEnergy.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 
 		Label lblLow = new Label(grpEnergy, SWT.NONE);
 		lblLow.setText("Low");
@@ -401,12 +411,12 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		txtWidth = new Text(grpEnergy, SWT.BORDER | SWT.SINGLE);
 		txtWidth.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		txtWidth.setToolTipText("Energy width");
-//		txtWidth.setEditable(false);
 
 		Group grpStep = new Group(rootComposite, SWT.NONE);
 		grpStep.setText("Step");
 		grpStep.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		grpStep.setLayout(new GridLayout(4, false));
+		grpStep.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 
 		Label lblFrames = new Label(grpStep, SWT.NONE);
 		lblFrames.setText("Frames");
@@ -481,6 +491,7 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		grpDetector.setText("Detector");
 		grpDetector.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		grpDetector.setLayout(new GridLayout(5, false));
+		grpDetector.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 
 		Label lblXChannel = new Label(grpDetector, SWT.NONE);
 		lblXChannel.setText("Energy Channels:");
@@ -598,6 +609,7 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		grpProgress.setText("Progress");
 		grpProgress.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		grpProgress.setLayout(new GridLayout());
+		grpProgress.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 
 		progressComposite=new RegionProgressComposite(grpProgress, SWT.None);
 
@@ -605,8 +617,9 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		grpAnalyser.setText("Analyser IOC");
 		grpAnalyser.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		grpAnalyser.setLayout(new GridLayout());
-
-		analyserComposite=new AnalyserComposite(grpAnalyser, SWT.None);
+		grpAnalyser.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
+		analyserComposite=new AnalyserComposite(grpAnalyser, SWT.NONE);
+		grpAnalyser.pack();
 
 		regionComposite.setMinSize(rootComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 
@@ -877,7 +890,7 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 	};
 
 	protected List<String> getRegionNames() {
-		List<String> regionNames = new ArrayList<String>();
+		List<String> regionNames = new ArrayList<>();
 		for (Region region : regions) {
 			regionNames.add(region.getName());
 		}

@@ -66,9 +66,8 @@ public class AnalyserComposite extends Composite implements InitializationListen
 		controller=EpicsController.getInstance();
 		setLayout(new GridLayout(1, false));
 
-		Composite rootComposite = new Composite(this, SWT.NONE);
-		GridData gd_rootComposite = new GridData(SWT.LEFT, SWT.CENTER, false,
-				false, 1, 1);
+		Composite rootComposite = new Composite(parent, SWT.NONE);
+		GridData gd_rootComposite = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_rootComposite.heightHint = 55;
 		gd_rootComposite.widthHint = 451;
 		rootComposite.setLayoutData(gd_rootComposite);
@@ -85,9 +84,7 @@ public class AnalyserComposite extends Composite implements InitializationListen
 		GridData gd_txtStateValue = new GridData(SWT.LEFT, SWT.CENTER, false,false, 1, 1);
 		gd_txtStateValue.widthHint = 120;
 		txtStateValue.setLayoutData(gd_txtStateValue);
-		txtStateValue.setForeground(ColorConstants.green);
 		txtStateValue.setEditable(false);
-		txtStateValue.setBackground(ColorConstants.black);
 
 		Label lblAcquire = new Label(rootComposite, SWT.NONE);
 		lblAcquire.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false,
@@ -128,8 +125,6 @@ public class AnalyserComposite extends Composite implements InitializationListen
 		lblMessage.setText("Message:");
 
 		txtMessage = new Text(rootComposite, SWT.BORDER);
-		txtMessage.setForeground(ColorConstants.green);
-		txtMessage.setBackground(ColorConstants.black);
 		txtMessage.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true,false, 4, 1));
 	}
 
@@ -185,7 +180,7 @@ public class AnalyserComposite extends Composite implements InitializationListen
 							if (stateLabels[value].equalsIgnoreCase("Error")) {
 								txtStateValue.setForeground(ColorConstants.red);
 							} else {
-								txtStateValue.setForeground(ColorConstants.green);
+								txtStateValue.setForeground(ColorConstants.black);
 							}
 						}
 					});
