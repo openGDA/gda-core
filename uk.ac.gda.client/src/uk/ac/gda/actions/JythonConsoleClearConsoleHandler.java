@@ -18,19 +18,18 @@
 
 package uk.ac.gda.actions;
 
-import gda.rcp.views.JythonTerminalView;
-
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.ui.handlers.HandlerUtil;
 
-import uk.ac.gda.common.rcp.util.EclipseUtils;
+import gda.rcp.views.JythonTerminalView;
 
 public class JythonConsoleClearConsoleHandler extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		final JythonTerminalView view = (JythonTerminalView) EclipseUtils.getActivePage().findView(JythonTerminalView.ID);
+		final JythonTerminalView view = (JythonTerminalView) HandlerUtil.getActivePart(event);
 		view.clearConsole();
 		return null;
 	}
