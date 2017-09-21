@@ -41,7 +41,7 @@ public class ImageSnapshotStatsViewer implements SnapshotStatsViewer {
 				 maxLocation,
 				 minIntensity,
 				 minLocation,
-				 saturedPixels;
+				 saturatedPixels;
 
 	/**
 	 * Draw widgets ready to display stats from a detector snapshot (image)
@@ -76,8 +76,9 @@ public class ImageSnapshotStatsViewer implements SnapshotStatsViewer {
 		gd.applyTo(minLocation);
 
 		(new Label(parent, SWT.NONE)).setText("Saturated pixels");
-		saturedPixels = new Text(parent, SWT.READ_ONLY | SWT.BORDER);
-		gd.applyTo(saturedPixels);
+		saturatedPixels = new Text(parent, SWT.READ_ONLY | SWT.BORDER);
+		saturatedPixels.setToolTipText("Number of pixels with intensities higher than 5 times the mean");
+		gd.applyTo(saturatedPixels);
 	}
 
 	@Override
@@ -94,7 +95,7 @@ public class ImageSnapshotStatsViewer implements SnapshotStatsViewer {
 		minIntensity.setText(oneDecimalPlace.format(stats.findMinimumIntensity(dataset)));
 		int[] minLoc = stats.findMinimumPosition(dataset);
 		minLocation.setText(minLoc[1] + ", " + minLoc[0]);
-		saturedPixels.setText(String.valueOf(stats.countBadPoints(dataset, 5*mean)));
+		saturatedPixels.setText(String.valueOf(stats.countBadPoints(dataset, 5*mean)));
 	}
 
 }
