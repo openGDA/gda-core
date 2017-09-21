@@ -123,7 +123,6 @@ public class GeneralCommands {
 	public static void ls(String interfaceName) {
 
 		if (interfaceName == null || interfaceName.compareTo("") == 0 || interfaceName.compareTo("all") == 0) {
-			String output = "\n";
 			List<String> availableInterfaces = Finder.getInstance().listAllInterfaces();
 
 			availableInterfaces.remove("Findable");
@@ -165,9 +164,7 @@ public class GeneralCommands {
 			availableInterfaces.remove("DataWriterFactory");
 			availableInterfaces.remove("INeXusInfoWriteable");
 
-			for (String thisFindable : availableInterfaces) {
-				output += thisFindable + "\\n";
-			}
+			String output = String.join("\n", availableInterfaces);
 
 			// print out to the Jython interpreter directly (so output is formatted correctly)
 			try {
