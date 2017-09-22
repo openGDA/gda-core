@@ -160,7 +160,7 @@ public class MappingExperimentView implements IAdaptable {
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(alwaysVisible);
 
 		mainComposite = new Composite(scrolledComposite, SWT.NONE);
-		GridLayoutFactory.fillDefaults().applyTo(mainComposite);
+		GridLayoutFactory.fillDefaults().spacing(SWT.DEFAULT, 1).applyTo(mainComposite);
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(mainComposite);
 
 		scrolledComposite.setContent(mainComposite);
