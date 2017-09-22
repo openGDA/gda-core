@@ -22,10 +22,8 @@ import java.text.DecimalFormat;
 
 import org.eclipse.richbeans.api.event.ValueAdapter;
 import org.eclipse.richbeans.api.event.ValueEvent;
-import org.eclipse.richbeans.api.event.ValueListener;
 import org.eclipse.richbeans.widgets.FieldComposite;
 import org.eclipse.richbeans.widgets.scalebox.ScaleBox;
-import org.eclipse.richbeans.widgets.wrappers.BooleanWrapper;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -44,7 +42,6 @@ public final class MicroFocusScanParametersComposite extends Composite {
 	private ScaleBox yStepSize;
 	private ScaleBox energy;
 	private ScaleBox zValue;
-	private BooleanWrapper raster;
 	private ScaleBox rowTime;
 	private Label rowDistanceLabel;
 	private Label pointsPerRowLabel;
@@ -224,58 +221,9 @@ public final class MicroFocusScanParametersComposite extends Composite {
 		timePerPointLabel = new Label(infoComposite, SWT.NONE);
 		timePerPointLabel.setText("                                                                 ");
 
-		Group rasterComposite = new Group(this, SWT.NONE);
-		rasterComposite.setText("Raster options");
-		rasterComposite.setLayout(new GridLayout());
-		raster = new BooleanWrapper(rasterComposite, SWT.NONE);
-		raster.setText("Is Raster");
-		raster.setValue(false);
-
 		GridData gridData = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 		gridData.widthHint = 420;
-		raster.setLayoutData(gridData);
 
-		raster.addValueListener(new ValueListener() {
-			@Override
-			public void valueChangePerformed(ValueEvent e) {
-				getShell().getDisplay().asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						if (raster.getValue()) {
-							rowTime.setEnabled(true);
-							collectionTime.setEnabled(false);
-						} else {
-							rowTime.setEnabled(false);
-							collectionTime.setEnabled(true);
-						}
-						updateScanInfo();
-					}
-				});
-			}
-			@Override
-			public String getValueListenerName() {
-				return null;
-			}
-		});
-
-		label = new Label(rasterComposite, SWT.NONE);
-		label.setText("TimePerRow");
-		this.rowTime = new ScaleBox(rasterComposite, SWT.NONE);
-		rowTime.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		rowTime.setMinimum(10.0);
-		rowTime.setMaximum(10000.0);
-		rowTime.setUnit("s");
-		rowTime.setEnabled(false);
-		new Label(rowTime, SWT.NONE);
-		new Label(this, SWT.NONE);
-		rowTime.addValueListener(new ValueAdapter("rowTimeListener") {
-			@Override
-			public void valueChangePerformed(ValueEvent e) {
-				updateScanInfo();
-			}
-		});
-
-		rowTime.setEnabled(false);
 		collectionTime.setEnabled(true);
 		updateScanInfo();
 	}
@@ -289,14 +237,8 @@ public final class MicroFocusScanParametersComposite extends Composite {
 		rowDistanceLabel.setText("Row Distance : " + df.format(rowDistance));
 		pointsPerRowLabel.setText("No. of points/row : " + pointsPerRow);
 		numberOfRowsLabel.setText("No. of rows : " + numberOfRows);
-		if (raster.getValue()) {
-			double timePerPoint = rowTime.getNumericValue() / pointsPerRow;
-			timePerPointLabel.setText("Time per point : " + df.format(timePerPoint));
-			scanTypeLabel.setText("Raster Map");
-		} else {
-			scanTypeLabel.setText("Step Map");
-			timePerPointLabel.setText("Time per point : " + df.format(collectionTime.getNumericValue()));
-		}
+		scanTypeLabel.setText("Step Map");
+		timePerPointLabel.setText("Time per point : " + df.format(collectionTime.getNumericValue()));
 		infoComposite.layout();
 	}
 
@@ -334,10 +276,6 @@ public final class MicroFocusScanParametersComposite extends Composite {
 
 	public FieldComposite getEnergy() {
 		return energy;
-	}
-
-	public BooleanWrapper getRaster() {
-		return raster;
 	}
 
 	public FieldComposite getRowTime() {

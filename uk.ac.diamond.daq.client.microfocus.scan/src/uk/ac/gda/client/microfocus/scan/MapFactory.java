@@ -20,10 +20,7 @@ package uk.ac.gda.client.microfocus.scan;
 
 import gda.device.CounterTimer;
 import gda.device.Scannable;
-import gda.device.scannable.ContinuouslyScannable;
-import gda.device.scannable.RealPositionReader;
 import gda.jython.scriptcontroller.ScriptControllerBase;
-import uk.ac.diamond.daq.microfocus.api.RasterMapDetectorPreparer;
 import uk.ac.gda.server.exafs.scan.SpectroscopyScanFactory;
 
 public class MapFactory extends SpectroscopyScanFactory {
@@ -33,9 +30,6 @@ public class MapFactory extends SpectroscopyScanFactory {
 	private Scannable yScan;
 	private Scannable zScan;
 	private ScriptControllerBase elementListScriptController;
-	private RasterMapDetectorPreparer rasterMapDetectorPreparer;
-	private ContinuouslyScannable trajectoryMotor;
-	private RealPositionReader positionReader;
 	private Scannable energyWithGapScannable;
 	private Scannable energyNoGapScannable;
 
@@ -72,63 +66,11 @@ public class MapFactory extends SpectroscopyScanFactory {
 		return newMap;
 	}
 
-	public RasterMap createRasterMap() {
-
-		checkObjectsDefined();
-		checkDefined(energyWithGapScannable, "energy");
-		checkDefined(energyNoGapScannable, "energy_nogap");
-
-		RasterMap newMap = new RasterMap();
-		newMap.setBeamlinePreparer(beamlinePreparer);
-		newMap.setDetectorPreparer(rasterMapDetectorPreparer);
-		newMap.setOutputPreparer(outputPreparer);
-		newMap.setSamplePreparer(samplePreparer);
-		newMap.setLoggingScriptController(loggingScriptController);
-		newMap.setDatawriterconfig(datawriterconfig);
-		newMap.setEnergyWithGap(energyWithGapScannable);
-		newMap.setEnergyNoGap(energyNoGapScannable);
-		newMap.setMetashop(metashop);
-		newMap.setIncludeSampleNameInNexusName(includeSampleNameInNexusName);
-		newMap.setScanName(scanName);
-		newMap.setTrajectoryMotor(trajectoryMotor);
-		newMap.setPositionReader(positionReader);
-		newMap.setyScan(yScan);
-		newMap.setzScan(zScan);
-		newMap.setElementListScriptController(elementListScriptController);
-		return newMap;
-	}
-
 	protected void checkObjectsDefined() {
 		checkSharedObjectsNonNull();
 		checkDefined(xScan, "xScan");
 		checkDefined(yScan, "yScan");
 		checkDefined(zScan, "zScan");
-		checkDefined(trajectoryMotor, "trajectoryMotor");
-		checkDefined(positionReader, "positionReader");
-	}
-
-	public FasterRasterMap createFasterRasterMap() {
-
-		checkObjectsDefined();
-
-		FasterRasterMap newMap = new FasterRasterMap();
-		newMap.setBeamlinePreparer(beamlinePreparer);
-		newMap.setDetectorPreparer(rasterMapDetectorPreparer);
-		newMap.setOutputPreparer(outputPreparer);
-		newMap.setSamplePreparer(samplePreparer);
-		newMap.setLoggingScriptController(loggingScriptController);
-		newMap.setDatawriterconfig(datawriterconfig);
-		newMap.setEnergyWithGap(energyWithGapScannable);
-		newMap.setEnergyNoGap(energyNoGapScannable);
-		newMap.setMetashop(metashop);
-		newMap.setIncludeSampleNameInNexusName(includeSampleNameInNexusName);
-		newMap.setScanName(scanName);
-		newMap.setTrajectoryMotor(trajectoryMotor);
-		newMap.setPositionReader(positionReader);
-		newMap.setyScan(yScan);
-		newMap.setzScan(zScan);
-		newMap.setElementListScriptController(elementListScriptController);
-		return newMap;
 	}
 
 	public Scannable getxScan() {
@@ -169,30 +111,6 @@ public class MapFactory extends SpectroscopyScanFactory {
 
 	public void setCounterTimer(CounterTimer counterTimer) {
 		this.counterTimer = counterTimer;
-	}
-
-	public RasterMapDetectorPreparer getRasterMapDetectorPreparer() {
-		return rasterMapDetectorPreparer;
-	}
-
-	public void setRasterMapDetectorPreparer(RasterMapDetectorPreparer rasterMapDetectorPreparer) {
-		this.rasterMapDetectorPreparer = rasterMapDetectorPreparer;
-	}
-
-	public ContinuouslyScannable getTrajectoryMotor() {
-		return trajectoryMotor;
-	}
-
-	public void setTrajectoryMotor(ContinuouslyScannable trajectoryMotor) {
-		this.trajectoryMotor = trajectoryMotor;
-	}
-
-	public RealPositionReader getPositionReader() {
-		return positionReader;
-	}
-
-	public void setPositionReader(RealPositionReader positionReader) {
-		this.positionReader = positionReader;
 	}
 
 	// public LineRepeatingBeamMonitor getTrajectoryBeamMonitor() {

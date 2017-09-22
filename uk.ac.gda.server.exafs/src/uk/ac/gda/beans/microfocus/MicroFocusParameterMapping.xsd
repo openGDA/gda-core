@@ -16,7 +16,6 @@
 				<xsd:element name="collectionTime" type="xsd:double" maxOccurs="1" minOccurs="0"/>
 				<xsd:element name="energy" type="xsd:double" maxOccurs="1" minOccurs="1"/>
 				<xsd:element name="zValue" type="xsd:double" maxOccurs="1" minOccurs="0"/>
-				<xsd:element name="raster" type="xsd:boolean" maxOccurs="1" minOccurs="1"/>
 				<xsd:element name="rowTime" type="xsd:double" maxOccurs="1" minOccurs="0"/>
 			</xsd:sequence>	
 		</xsd:complexType>

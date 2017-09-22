@@ -9,6 +9,5 @@
     <collectionTime>1.0</collectionTime>
     <energy>3500.0</energy>
     <zValue>2.5</zValue>
-    <raster>true</raster>
     <rowTime>10.0</rowTime> 
 </MicroFocusScanParameters>

@@ -62,7 +62,6 @@ public class MicroFocusScanParametersTest {
 		mfp.setCollectionTime(1.0);
 		mfp.setEnergy(3500.0);
 		mfp.setZValue(2.5);
-		mfp.setRaster(true);
 		mfp.setRowTime(10.0);
 		MicroFocusScanParameters s = MicroFocusScanParameters.createFromXML("testfiles/uk/ac/gda/microfocus/beans/MicroFocusScanParametersTest/MFParameters_Valid.xml");
 		if (!mfp.equals(s)) {
@@ -84,7 +83,6 @@ public class MicroFocusScanParametersTest {
 		mfp.setCollectionTime(1.0);
 		mfp.setEnergy(3500.0);
 		mfp.setZValue(2.5);
-		mfp.setRaster(true);
 		mfp.setRowTime(10.0);
 		MicroFocusScanParameters.writeToXML(mfp, testScratchDirectoryName + "MFParameters_written.xml");
 		MicroFocusScanParameters mfp2 = MicroFocusScanParameters.createFromXML(testScratchDirectoryName + "MFParameters_written.xml");

@@ -135,17 +135,8 @@ class I18DetectorPreparer:
                 self.It_keithley(gain)
                 
     def _control_cmos(self, scanBean):
-        if scanBean.isRaster():
-            rowLength = scanBean.getXEnd() - scanBean.getXStart();
-            pointsPerRow = (rowLength / scanBean.getXStepSize()) + 1.0;
-            print "points per row",str(pointsPerRow)
-            collectionTime = scanBean.getRowTime() /  pointsPerRow;
-            print "time per point",str(collectionTime)
-            print "Setting cmos to collect for",str(collectionTime),"s"
-            self.cmos.setCollectionTime(collectionTime)
-        else:
-            print "Setting cmos to collect for",str(scanBean.getCollectionTime()),"s"
-            self.cmos.setCollectionTime(scanBean.getCollectionTime());
+        print "Setting cmos to collect for",str(scanBean.getCollectionTime()),"s"
+        self.cmos.setCollectionTime(scanBean.getCollectionTime());
             
     def _resolve_gain_index(self, gain):
         if gain == "10^3 V/A":
