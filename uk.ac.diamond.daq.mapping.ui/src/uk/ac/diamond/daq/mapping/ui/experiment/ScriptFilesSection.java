@@ -46,7 +46,7 @@ public class ScriptFilesSection extends AbstractMappingSection {
 
 		final Label scriptsLabel = new Label(scriptsComposite, SWT.NONE);
 		scriptsLabel.setText("Script Files");
-		GridDataFactory.fillDefaults().grab(true, false).applyTo(scriptsLabel);
+		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(scriptsLabel);
 
 		final Button editScriptsButton = new Button(scriptsComposite, SWT.PUSH);
 		editScriptsButton.setImage(MappingExperimentUtils.getImage("icons/pencil.png"));

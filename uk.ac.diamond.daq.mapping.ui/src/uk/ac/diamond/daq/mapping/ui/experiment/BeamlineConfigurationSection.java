@@ -52,18 +52,14 @@ public class BeamlineConfigurationSection extends AbstractMappingSection {
 
 	@Override
 	public void createControls(Composite parent) {
-		Composite beamlineConfigComposite = new Composite(parent, SWT.NONE);
-		GridLayoutFactory.swtDefaults().numColumns(3).equalWidth(false).applyTo(beamlineConfigComposite);
-		GridDataFactory.fillDefaults().grab(false, false).applyTo(beamlineConfigComposite);
-
-		Composite configSummaryComposite = new Composite(beamlineConfigComposite, SWT.NONE);
-		GridLayoutFactory.swtDefaults().numColumns(2).equalWidth(false).applyTo(configSummaryComposite);
-		GridDataFactory.fillDefaults().grab(true, false).applyTo(configSummaryComposite);
+		final Composite beamlineConfigComposite = new Composite(parent, SWT.NONE);
+		GridLayoutFactory.swtDefaults().numColumns(2).equalWidth(false).applyTo(beamlineConfigComposite);
+		GridDataFactory.fillDefaults().grab(true, false).applyTo(beamlineConfigComposite);
 
 		// A label which has the beamline configuration as a tooltip
-		summaryHoverLabel = new Label(configSummaryComposite, SWT.NONE);
+		summaryHoverLabel = new Label(beamlineConfigComposite, SWT.NONE);
 		summaryHoverLabel.setText("Beamline Configuration, hover to view");
-		GridDataFactory.swtDefaults().applyTo(summaryHoverLabel);
+		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(summaryHoverLabel);
 
 		// Button to edit beamline configuration
 		Button editBeamlineConfigButton = new Button(beamlineConfigComposite, SWT.PUSH);
@@ -110,13 +106,6 @@ public class BeamlineConfigurationSection extends AbstractMappingSection {
 				.collect(Collectors.toList());
 
 		summaryHoverLabel.setToolTipText(txt.stream().collect(Collectors.joining("\n")));
-//		if (txt.size() > MAX_TXT_LINES) {
-//			txt = txt.subList(0, MAX_TXT_LINES);
-//			txt.set(MAX_TXT_LINES - 1, txt.get(MAX_TXT_LINES - 1)+" ...");
-//		}
-//
-//		summaryHoverLabel.setText(txt.stream().collect(Collectors.joining("\n")));
-//		summaryHoverLabel.setVisible(!txt.isEmpty());
 	}
 
 	private String formatScannablePosition(Object value) {
