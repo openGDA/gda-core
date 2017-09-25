@@ -538,7 +538,7 @@ public class MedipixParametersUIEditor extends RichBeanEditorPart {
 
 	private void setTwoDArrayViewRef() throws PartInitException {
 		try {
-			IViewReference viewRef = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().findViewReference(TwoDArrayView.Id, MEDIPIX_VIEW_SECONDARY_ID);
+			IViewReference viewRef = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().findViewReference(TwoDArrayView.ID, MEDIPIX_VIEW_SECONDARY_ID);
 			twoDArrayView = (TwoDArrayView) viewRef.getView(false);
 		} catch (NullPointerException npException) {
 			logger.warn("setTwoDArrayViewRef caught Null Pointer exception - area detector view probably not initialized yet", npException);
@@ -547,8 +547,8 @@ public class MedipixParametersUIEditor extends RichBeanEditorPart {
 
 	private void showArrayView() throws PartInitException {
 		try {
-			if ( PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().findView(TwoDArrayView.Id) == null )
-				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(TwoDArrayView.Id, MEDIPIX_VIEW_SECONDARY_ID, IWorkbenchPage.VIEW_VISIBLE);
+			if ( PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().findView(TwoDArrayView.ID) == null )
+				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(TwoDArrayView.ID, MEDIPIX_VIEW_SECONDARY_ID, IWorkbenchPage.VIEW_VISIBLE);
 		}
 		catch (NullPointerException npException) {
 			logger.warn("showArrayView caught Null Pointer exception - area detector view probably not initialized yet", npException);
