@@ -112,7 +112,6 @@ public class ViewContentProvider implements IStructuredContentProvider,
 		int i = 0;
 		for (String intfc : interfaces) {
 			parents[i] = new TreeParent(intfc);
-			Finder.getInstance().listAllNames(intfc);
 			List<Findable> objects2 = Finder.getInstance().listAllObjects(intfc);
 			TreeObject[] objects = new TreeObject[objects2.size()];
 			int j = 0;
@@ -130,23 +129,12 @@ public class ViewContentProvider implements IStructuredContentProvider,
 			i++;
 		}
 
-		// ArrayList<String> names = Finder.getInstance().listAllNames(null);
-		// TreeObject [] objects = new TreeObject[names.size()];
-		// int i = 0;
-		// for (Iterator iterator = names.iterator(); iterator.hasNext();) {
-		// String string = (String) iterator.next();
-		// objects[i] = new TreeObject(string);
-		// p1.addChild(objects[i]);
-		// i++;
-		// }
-
 		TreeObject to4 = new TreeObject("Leaf 4");
 		TreeParent p2 = new TreeParent("Parent 2");
 		p2.addChild(to4);
 
 		TreeParent root = new TreeParent("All Objects");
-		// root.addChild(p1);
-		// root.addChild(p2);
+
 		for (int j = 0; j < parents.length; j++) {
 			root.addChild(parents[j]);
 		}
