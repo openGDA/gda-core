@@ -18,7 +18,6 @@
 
 package gda.rcp.views;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -114,8 +113,7 @@ public class ViewContentProvider implements IStructuredContentProvider,
 		for (String intfc : interfaces) {
 			parents[i] = new TreeParent(intfc);
 			Finder.getInstance().listAllNames(intfc);
-			ArrayList<Findable> objects2 = Finder.getInstance().listAllObjects(
-					intfc);
+			List<Findable> objects2 = Finder.getInstance().listAllObjects(intfc);
 			TreeObject[] objects = new TreeObject[objects2.size()];
 			int j = 0;
 			for (Iterator<Findable> iterator = objects2.iterator(); iterator.hasNext();) {

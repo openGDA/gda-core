@@ -33,9 +33,9 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
@@ -526,7 +526,7 @@ public class GDAJythonInterpreter {
 
 		// we need all OEs and their DOFs to be available in the namespace, by wrapping references to them in Adapter
 		// objects
-		ArrayList<Findable> OEs = finder.listAllObjects("OE");
+		List<Findable> OEs = finder.listAllObjects("OE");
 		for (Findable findable : OEs) {
 			try {
 				// get object from OE facory
@@ -549,7 +549,7 @@ public class GDAJythonInterpreter {
 		}
 
 		// all Scannable objects should be also placed into the namespace.
-		ArrayList<Findable> scannables = finder.listAllObjects("Scannable");
+		List<Findable> scannables = finder.listAllObjects("Scannable");
 		for (Findable findable : scannables) {
 			try {
 				interactiveConsole.set(findable.getName(), findable);

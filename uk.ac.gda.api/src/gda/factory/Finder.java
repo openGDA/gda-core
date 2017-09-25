@@ -181,8 +181,8 @@ public enum Finder {
 	 * @return array of interface names
 	 */
 	public List<String> listAllInterfaces() {
-		ArrayList<Findable> objects = listAllObjects();
-		ArrayList<String> usedInterfaces = new ArrayList<>();
+		List<Findable> objects = listAllObjects();
+		List<String> usedInterfaces = new ArrayList<>();
 
 		for (Findable findable : objects) {
 			// loop through all the interfaces that objects use
@@ -241,17 +241,17 @@ public enum Finder {
 	 *            the required interface to search for.
 	 * @return the list of Findable objects supporting the named interface.
 	 */
-	public ArrayList<Findable> listAllObjects(String interfaceName) {
+	public List<Findable> listAllObjects(String interfaceName) {
 		return listAllObjects(interfaceName, false);
 	}
 
-	private ArrayList<Findable> listAllObjects(String interfaceName, boolean localObjectsOnly) {
+	private List<Findable> listAllObjects(String interfaceName, boolean localObjectsOnly) {
 		// if no class name given, then supply all objects
 		if (interfaceName == null) {
 			return listAllObjects();
 		}
 
-		ArrayList<Findable> objectRefs = new ArrayList<>();
+		List<Findable> objectRefs = new ArrayList<>();
 		// loop through all factories
 		for (Factory factory : getCopyOfFactories()) {
 
@@ -330,8 +330,8 @@ public enum Finder {
 	 *
 	 * @return a list of all known Findable objects.
 	 */
-	private ArrayList<Findable> listAllObjects() {
-		ArrayList<Findable> allFindables = new ArrayList<>();
+	private List<Findable> listAllObjects() {
+		List<Findable> allFindables = new ArrayList<>();
 		for (Factory factory : getCopyOfFactories()) {
 			allFindables.addAll(factory.getFindables());
 		}
