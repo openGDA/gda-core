@@ -19,13 +19,11 @@
 
 package gda.jython;
 
-import gda.observable.IObserver;
-
 /**
  * An interface for objects which register themselves with the JythonServerFacade and act like a terminal for that
  * object.
  */
-public interface Terminal extends IObserver {
+public interface Terminal {
 	/**
 	 * This method accepts information for the terminal to display to the user.
 	 *

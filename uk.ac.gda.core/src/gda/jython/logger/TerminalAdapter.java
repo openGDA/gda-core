@@ -32,10 +32,4 @@ class TerminalAdapter implements Terminal{
 	public void write(String output) {
 		logger.log(output);
 	}
-
-	@Override
-	public void update(Object source, Object arg) {
-		// pass
-	}
-
 }

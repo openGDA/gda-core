@@ -476,8 +476,8 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 
 		// put all Terminals in a separate list as well as they will want extra output
 		if (anIObserver instanceof Terminal) {
-			myTerminals.add((Terminal) anIObserver);
-			logger.debug("Added {} as terminal. Now have {} terminals", anIObserver, myTerminals.size());
+			addOutputTerminal((Terminal)anIObserver);
+			logger.warn("addIObserver should not be relied on for adding Terminals - add via addOutputTerminal");
 		}
 
 		// objects wishing to see SDPs
@@ -878,13 +878,13 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 
 	@Override
 	public void addOutputTerminal(Terminal term) {
-		addIObserver(term);
+		myTerminals.add(term);
+		logger.debug("Added {} as terminal. Now have {} terminals", term, myTerminals.size());
 	}
 
 	@Override
 	public void deleteOutputTerminal(Terminal term) {
 		myTerminals.remove(term);
-		deleteIObserver(term);
 		logger.debug("Removed a terminal, now have {} terminals", myTerminals.size());
 	}
 

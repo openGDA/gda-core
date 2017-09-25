@@ -82,7 +82,6 @@ import gda.jython.server.JlineTelnetConnectionManager;
 import gda.jython.translator.Translator;
 import gda.messages.InMemoryMessageHandler;
 import gda.messages.MessageHandler;
-import gda.observable.IObservable;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 import gda.scan.Scan;
@@ -100,7 +99,7 @@ import gda.util.exceptionUtils;
  * ICurrentScanHolder, IJythonServerNotifer, and IDefaultScannableProvider interfaces.
  */
 public class JythonServer implements Jython, LocalJython, Configurable, Localizable, Serializable,
-		ICurrentScanInformationHolder, IJythonServerNotifer, IDefaultScannableProvider, IObservable, ITerminalInputProvider,
+		ICurrentScanInformationHolder, IJythonServerNotifer, IDefaultScannableProvider, ITerminalInputProvider,
 		TextCompleter {
 
 	private static Logger logger = LoggerFactory.getLogger(JythonServer.class);
@@ -178,7 +177,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	// configure whether #panicStop() tries to stop all Scannables found in the Jython namespace
 	private boolean stopJythonScannablesOnStopAll = true;
 
-	Vector<Terminal> myTerminals = new Vector<Terminal>();
+	Set<Terminal> myTerminals = new CopyOnWriteArraySet<>();
 
 	ObservableComponent jythonServerStatusObservers = new ObservableComponent();
 
@@ -1475,28 +1474,6 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 		return currentScan.isFinishEarlyRequested();
 	}
 
-	@Override
-	public void addIObserver(IObserver anIObserver) {
-		// put all Terminals in a separate list as well as they will want extra output
-		if (anIObserver instanceof Terminal) {
-			if (!myTerminals.contains(anIObserver)) {
-				myTerminals.addElement((Terminal) anIObserver);
-			}
-		}
-	}
-
-	@Override
-	public void deleteIObserver(IObserver anIObserver) {
-		if (anIObserver instanceof Terminal) {
-			myTerminals.removeElement(anIObserver);
-		}
-	}
-
-	@Override
-	public void deleteIObservers() {
-		myTerminals.removeAllElements();
-	}
-
 	public void setDisableBatonControlOverVisitMetadataEntry(boolean disable) {
 		batonManager.setDisableControlOverVisitMetadataEntry(disable);
 	}
@@ -1507,12 +1484,12 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 
 	@Override
 	public void addInputTerminal(Terminal term) {
-		addIObserver(term);
+		myTerminals.add(term);
 	}
 
 	@Override
 	public void deleteInputTerminal(Terminal term) {
-		deleteIObserver(term);
+		myTerminals.remove(term);
 	}
 
 	@Override
