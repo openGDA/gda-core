@@ -546,7 +546,7 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 		try {
 			return controller.cagetDouble(mres);
 		} catch (Throwable ex) {
-			throw new MotorException(getStatus(), "failed to get speed", ex);
+			throw new MotorException(getStatus(), "failed to get resolution", ex);
 		}
 	}
 
