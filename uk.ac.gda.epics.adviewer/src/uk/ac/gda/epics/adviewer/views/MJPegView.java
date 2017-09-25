@@ -18,11 +18,8 @@
 
 package uk.ac.gda.epics.adviewer.views;
 
-import java.util.List;
-import java.util.Vector;
-
 import org.eclipse.core.commands.common.NotDefinedException;
-import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
@@ -43,7 +40,7 @@ import uk.ac.gda.epics.adviewer.Ids;
 import uk.ac.gda.epics.adviewer.composites.MJPeg;
 
 public class MJPegView extends ViewPart {
-	public static final String Id = "uk.ac.gda.epics.adviewer.mpegview"; // Todo: This really should be switched to mjpegview, mpeg and mjpeg are different and we may want to implement mpeg streams in the future.
+	public static final String ID = "uk.ac.gda.epics.adviewer.mpegview"; // TODO: This really should be switched to mjpegview, mpeg and mjpeg are different and we may want to implement mpeg streams in the future.
 	private static final Logger logger = LoggerFactory.getLogger(MJPegView.class);
 	private MJPeg mJPeg;
 	private ADController adController;
@@ -73,7 +70,7 @@ public class MJPegView extends ViewPart {
 					serviceName = getViewSite().getSecondaryId();
 				if (StringUtils.isEmpty(serviceName))
 					throw new RuntimeException("No secondary id given");
-				logger.info("MJPegView.createPartControl() serviceName=" + serviceName);
+				logger.info("MJPegView.createPartControl() serviceName={}", serviceName);
 				try {
 					adController = ADControllerFactory.getInstance().getADController(serviceName);
 				} catch (Exception e) {
@@ -82,7 +79,7 @@ public class MJPegView extends ViewPart {
 				}
 				name = adController.getDetectorName() + " MJPeg";
 			} else {
-				logger.info("MJPegView.createPartControl() adController.getServiceName=" + adController.getServiceName());
+				logger.info("MJPegView.createPartControl() adController.getServiceName={}", adController.getServiceName());
 			}
 
 			parent.setLayout(new FillLayout());
@@ -109,54 +106,49 @@ public class MJPegView extends ViewPart {
 	protected MJPeg createPartControlEx(Composite parent) {
 		Composite composite = new Composite(parent, SWT.NONE);
 		composite.setLayout(new GridLayout(1, false));
-		Composite composite_2 = new Composite(composite, SWT.NONE);
-		composite_2.setLayout(new FillLayout(SWT.HORIZONTAL));
-		composite_2.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-		mJPeg = new MJPeg(composite_2, SWT.NONE);
+		Composite composite2 = new Composite(composite, SWT.NONE);
+		composite2.setLayout(new FillLayout(SWT.HORIZONTAL));
+		composite2.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		mJPeg = new MJPeg(composite2, SWT.NONE);
 		mJPeg.setADController(adController);
 		mJPeg.showLeft(true);
 		return mJPeg;
 	}
 
 	protected void hookGlobalActions() {
+		// do nothing, subclasses may override
 	}
 
 	protected void createContextMenu() {
+		// do nothing, subclasses may override
 	}
 
 	protected void createToolbar() {
+		// do nothing, subclasses may override
 	}
 
 	protected void createMenu() {
+		// do nothing, subclasses may override
 	}
 
 	protected void createActions() throws NotDefinedException {
-		List<IAction> actions = new Vector<IAction>();
-		{
-			actions.add(ADActionUtils.addAction("Fit Image to window", Ids.COMMANDS_FIT_IMAGE_TO_WINDOW,
-					Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, adController.getServiceName()));
-			actions.add(ADActionUtils.addAction("Set Exposure", Ids.COMMANDS_SET_EXPOSURE,
-					Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, adController.getServiceName()));
-			actions.add(ADActionUtils.addAction("Rescale Live Image", Ids.COMMANDS_SET_LIVEVIEW_SCALE,
-					Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, adController.getServiceName()));
-		}
-		for (IAction iAction : actions) {
-			getViewSite().getActionBars().getToolBarManager().add(iAction);
-		}
+		final IToolBarManager toolbarMgr = getViewSite().getActionBars().getToolBarManager();
+		toolbarMgr.add(ADActionUtils.addAction("Fit Image to window", Ids.COMMANDS_FIT_IMAGE_TO_WINDOW,
+				Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, adController.getServiceName()));
+		toolbarMgr.add(ADActionUtils.addAction("Set Exposure", Ids.COMMANDS_SET_EXPOSURE,
+				Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, adController.getServiceName()));
+		toolbarMgr.add(ADActionUtils.addAction("Rescale Live Image", Ids.COMMANDS_SET_LIVEVIEW_SCALE,
+				Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, adController.getServiceName()));
+
 		createShowViewAction();
 	}
 
 	protected void createShowViewAction() {
-		List<IAction> actions = new Vector<IAction>();
-		{
-			actions.add(ADActionUtils.addShowViewAction("Show Stats", HistogramView.Id, adController.getServiceName(),
-					"Show stats view for selected camera", Activator.getHistogramViewImage()));
-			actions.add(ADActionUtils.addShowViewAction("Show Array", TwoDArrayView.Id, adController.getServiceName(),
-					"Show array view for selected camera", Activator.getTwoDArrayViewImage()));
-		}
-		for (IAction iAction : actions) {
-			getViewSite().getActionBars().getToolBarManager().add(iAction);
-		}
+		final IToolBarManager toolbarMgr = getViewSite().getActionBars().getToolBarManager();
+		toolbarMgr.add(ADActionUtils.addShowViewAction("Show Stats", HistogramView.ID, adController.getServiceName(),
+				"Show stats view for selected camera", Activator.getHistogramViewImage()));
+		toolbarMgr.add(ADActionUtils.addShowViewAction("Show Array", TwoDArrayView.ID, adController.getServiceName(),
+				"Show array view for selected camera", Activator.getTwoDArrayViewImage()));
 	}
 
 	@Override

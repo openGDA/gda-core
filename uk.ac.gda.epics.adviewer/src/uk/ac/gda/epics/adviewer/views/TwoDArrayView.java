@@ -18,12 +18,9 @@
 
 package uk.ac.gda.epics.adviewer.views;
 
-import java.util.List;
-import java.util.Vector;
-
 import org.eclipse.core.commands.common.NotDefinedException;
 import org.eclipse.dawnsci.plotting.api.tool.IToolPageSystem;
-import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
@@ -43,9 +40,10 @@ import uk.ac.gda.epics.adviewer.Activator;
 import uk.ac.gda.epics.adviewer.Ids;
 import uk.ac.gda.epics.adviewer.composites.TwoDArray;
 import uk.ac.gda.epics.adviewer.composites.tomove.PlottingSystemIRegionPlotServerConnector;
+import uk.ac.gda.ui.event.PartAdapter;
 
 public class TwoDArrayView extends ViewPart implements InitializingBean {
-	public static final String Id = "uk.ac.gda.epics.adviewer.twodArrayView";
+	public static final String ID = "uk.ac.gda.epics.adviewer.twodArrayView";
 
 	private static final Logger logger = LoggerFactory.getLogger(TwoDArrayView.class);
 	private TwoDArray twoDArray;
@@ -100,7 +98,7 @@ public class TwoDArrayView extends ViewPart implements InitializingBean {
 
 			twoDArray = new TwoDArray(this, parent, SWT.NONE, adController);
 			twoDArray.showLeft(true);
-			partListener = new IPartListener2() {
+			partListener = new PartAdapter() {
 
 				@Override
 				public void partVisible(IWorkbenchPartReference partRef) {
@@ -109,34 +107,11 @@ public class TwoDArrayView extends ViewPart implements InitializingBean {
 				}
 
 				@Override
-				public void partOpened(IWorkbenchPartReference partRef) {
-				}
-
-				@Override
-				public void partInputChanged(IWorkbenchPartReference partRef) {
-				}
-
-				@Override
 				public void partHidden(IWorkbenchPartReference partRef) {
 					if (partRef.getPart(false) == TwoDArrayView.this)
 						twoDArray.setViewIsVisible(false);
 				}
 
-				@Override
-				public void partDeactivated(IWorkbenchPartReference partRef) {
-				}
-
-				@Override
-				public void partClosed(IWorkbenchPartReference partRef) {
-				}
-
-				@Override
-				public void partBroughtToTop(IWorkbenchPartReference partRef) {
-				}
-
-				@Override
-				public void partActivated(IWorkbenchPartReference partRef) {
-				}
 			};
 			getSite().getWorkbenchWindow().getPartService().addPartListener(partListener);
 
@@ -157,31 +132,21 @@ public class TwoDArrayView extends ViewPart implements InitializingBean {
 	}
 
 	protected void createActions() throws NotDefinedException {
-		List<IAction> actions = new Vector<IAction>();
-		{
-			actions.add(ADActionUtils.addAction("Set Exposure", Ids.COMMANDS_SET_EXPOSURE,
+		final IToolBarManager toolBarManager = getViewSite().getActionBars().getToolBarManager();
+		toolBarManager.add(ADActionUtils.addAction("Set Exposure", Ids.COMMANDS_SET_EXPOSURE,
 					Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, adController.getServiceName()));
-			actions.add(ADActionUtils.addAction("Set LiveView Scale", Ids.COMMANDS_SET_LIVEVIEW_SCALE,
+		toolBarManager.add(ADActionUtils.addAction("Set LiveView Scale", Ids.COMMANDS_SET_LIVEVIEW_SCALE,
 					Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, adController.getServiceName()));
-		}
-		for (IAction iAction : actions) {
-			getViewSite().getActionBars().getToolBarManager().add(iAction);
-		}
+
 		createShowViewAction();
 	}
 
 	protected void createShowViewAction() {
-		List<IAction> actions = new Vector<IAction>();
-		{
-			actions.add(ADActionUtils.addShowViewAction("Show Stats", HistogramView.Id, adController.getServiceName(),
-					"Show stats view for selected camera", Activator.getHistogramViewImage()));
-			actions.add(ADActionUtils.addShowViewAction("Show MJPeg", MJPegView.Id, adController.getServiceName(),
-					"Show MJPeg view for selected camera", Activator.getMJPegViewImage()));
-
-		}
-		for (IAction iAction : actions) {
-			getViewSite().getActionBars().getToolBarManager().add(iAction);
-		}
+		final IToolBarManager toolBarManager = getViewSite().getActionBars().getToolBarManager();
+		toolBarManager.add(ADActionUtils.addShowViewAction("Show Stats", HistogramView.ID, adController.getServiceName(),
+				"Show stats view for selected camera", Activator.getHistogramViewImage()));
+		toolBarManager.add(ADActionUtils.addShowViewAction("Show MJPeg", MJPegView.ID, adController.getServiceName(),
+				"Show MJPeg view for selected camera", Activator.getMJPegViewImage()));
 	}
 
 	@Override
@@ -208,6 +173,7 @@ public class TwoDArrayView extends ViewPart implements InitializingBean {
 		super.dispose();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Object getAdapter(@SuppressWarnings("rawtypes") Class clazz) {
 		if (clazz == IToolPageSystem.class) {

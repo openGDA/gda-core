@@ -28,13 +28,8 @@ import gda.spring.V17FactoryBeanBase;
 
 public class DynamicADControllerImpl extends ADControllerBase {
 
-	final private String pvPrefix;
-	ADPVSuffixes adPVSuffixes;
-	final static int imageMin=0;
-	final static int imageMax=65535; //TODO allow the user to change this as it is not appropriate for most cameras
-
-	final static int cameraImageWidthMax=1388;
-	final static int cameraImageHeightMax=1032;
+	private final String pvPrefix;
+	private ADPVSuffixes adPVSuffixes;
 
 	private ADBase adBase;
 	private NDStats ndStats;

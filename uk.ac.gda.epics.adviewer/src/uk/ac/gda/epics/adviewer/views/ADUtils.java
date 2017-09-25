@@ -22,19 +22,19 @@ public class ADUtils {
 	private static final String COLON_REPLACEMENT = "@";
 	public static final String PV_TYPE = "pv//";
 
-	public enum ViewType {MPEG, STATS, ARRAY};
+	public enum ViewType {MPEG, STATS, ARRAY}
 
 	public static String getViewId(ViewType viewType) {
 		String viewId="";
 		switch (viewType){
 		case MPEG:
-			viewId = MJPegView.Id;
+			viewId = MJPegView.ID;
 			break;
 		case ARRAY:
-			viewId = TwoDArrayView.Id;
+			viewId = TwoDArrayView.ID;
 			break;
 		case STATS:
-			viewId = HistogramView.Id;
+			viewId = HistogramView.ID;
 			break;
 		}
 		return viewId;
@@ -44,13 +44,13 @@ public class ADUtils {
 		return ADUtils.PV_TYPE + detectorName + "//" + pvPrefix.replace(":", COLON_REPLACEMENT) + "//" + suffixType;
 	}
 
-	public static String getDetectorNameFromPVServiceName(String pvServiceName) throws Exception{
+	public static String getDetectorNameFromPVServiceName(String pvServiceName) {
 		String name = pvServiceName;
 		if(pvServiceName.startsWith(PV_TYPE)){
 			String[] split = pvServiceName.split(PV_TYPE);
 			String[] splitAgain = split[1].split("//");
 			if( splitAgain.length < 2)
-				throw new Exception("serviceName should be of form pv//detectorName//pvPrefix[//suffixType] actual value is '" + pvServiceName +"'");
+				throw new IllegalArgumentException("serviceName should be of form pv//detectorName//pvPrefix[//suffixType] actual value is '" + pvServiceName +"'");
 			return splitAgain[0];
 		}
 		return name;
@@ -68,15 +68,15 @@ public class ADUtils {
 		return name;
 	}
 
-	public static String getPVFromPVServiceName(String pvServiceName) throws Exception {
+	public static String getPVFromPVServiceName(String pvServiceName) {
 
 		if(!pvServiceName.startsWith(PV_TYPE)){
-			throw new Exception("serviceName must be of form " + PV_TYPE + "label//pvPrefix[//suffixType]  actual value is '" + pvServiceName +"'");
+			throw new IllegalArgumentException("serviceName must be of form " + PV_TYPE + "label//pvPrefix[//suffixType]  actual value is '" + pvServiceName +"'");
 		}
 		String[] split = pvServiceName.split(PV_TYPE);
 		String[] splitAgain = split[1].split("//");
 		if( splitAgain.length < 2)
-			throw new Exception("serviceName should be of form pv//detectorName//pvPrefix[//suffixType]  actual value is '" + pvServiceName +"'");
+			throw new IllegalArgumentException("serviceName should be of form pv//detectorName//pvPrefix[//suffixType]  actual value is '" + pvServiceName +"'");
 		return splitAgain[1].replace(COLON_REPLACEMENT, ":");
 	}
 

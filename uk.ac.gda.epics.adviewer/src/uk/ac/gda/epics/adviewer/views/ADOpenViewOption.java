@@ -47,9 +47,6 @@ public class ADOpenViewOption implements OpenViewOption {
 		return new ViewDefinition(ADUtils.getViewId(viewType), ADUtils.getPVServiceName(detectorName, pvPrefix, suffixType));
 	}
 
-
-
-
 	@Override
 	public String getLabel() {
 		return label;

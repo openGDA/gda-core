@@ -40,17 +40,21 @@ public class ADActionUtils {
 
 	private static final Logger logger = LoggerFactory.getLogger(ADActionUtils.class);
 
-	static public IAction addAction(String name, final String commandId, final String commandParameterName, final String commandParameterValue) throws NotDefinedException{
+	private ADActionUtils() {
+		// private construtor to prevent instantiation
+	}
+
+	public static IAction addAction(String name, final String commandId, final String commandParameterName, final String commandParameterValue) throws NotDefinedException{
 		IAction action = new Action(name, IAction.AS_PUSH_BUTTON) {
 			@Override
 			public void run() {
 				try{
-					ICommandService cs = (ICommandService) PlatformUI.getWorkbench().getService(ICommandService.class);
+					ICommandService cs = PlatformUI.getWorkbench().getService(ICommandService.class);
 					Command command = cs.getCommand(commandId);
 					IParameter parameter = command.getParameter(commandParameterName);
 					Parameterization[] parameterizations = new Parameterization[] { new Parameterization(parameter, commandParameterValue) };
 					ParameterizedCommand cmd = new ParameterizedCommand(command, parameterizations);
-					ExecutionEvent executionEvent = ((IHandlerService) PlatformUI.getWorkbench().getService(IHandlerService.class)).createExecutionEvent(cmd, null);
+					ExecutionEvent executionEvent = PlatformUI.getWorkbench().getService(IHandlerService.class).createExecutionEvent(cmd, null);
 					command.executeWithChecks(executionEvent);
 				}
 				catch(Exception e){
@@ -58,15 +62,15 @@ public class ADActionUtils {
 				}
 			}
 		};
-		ICommandService cs = (ICommandService) PlatformUI.getWorkbench().getService(ICommandService.class);
+		ICommandService cs = PlatformUI.getWorkbench().getService(ICommandService.class);
 		Command command = cs.getCommand(commandId);
 		action.setToolTipText(command.getDescription());
-		ICommandImageService service = (ICommandImageService) PlatformUI.getWorkbench().getService(ICommandImageService.class);
+		ICommandImageService service = PlatformUI.getWorkbench().getService(ICommandImageService.class);
 		action.setImageDescriptor(service.getImageDescriptor(commandId));
 		return action;
 	}
 
-	static public IAction addShowViewAction(final String name, final String viewId, final String secondaryId, String description, ImageDescriptor imageDesc){
+	public static IAction addShowViewAction(final String name, final String viewId, final String secondaryId, String description, ImageDescriptor imageDesc){
 		IAction action = new Action(name, IAction.AS_PUSH_BUTTON) {
 			@Override
 			public void run() {

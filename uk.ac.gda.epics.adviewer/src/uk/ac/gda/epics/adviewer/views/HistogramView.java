@@ -18,12 +18,9 @@
 
 package uk.ac.gda.epics.adviewer.views;
 
-import java.util.List;
-import java.util.Vector;
-
 import org.eclipse.core.commands.common.NotDefinedException;
 import org.eclipse.dawnsci.plotting.api.tool.IToolPageSystem;
-import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
@@ -40,7 +37,7 @@ import uk.ac.gda.epics.adviewer.Ids;
 import uk.ac.gda.epics.adviewer.composites.Histogram;
 
 public class HistogramView extends ViewPart {
-	public static final String Id = "uk.ac.gda.epics.adviewer.histogramview";
+	public static final String ID = "uk.ac.gda.epics.adviewer.histogramview";
 	public static final String UK_AC_GDA_EPICS_ADVIEWER_COMMANDS_SET_EXPOSURE = "uk.ac.gda.epics.adviewer.commands.setExposure";
 	private static final Logger logger = LoggerFactory.getLogger(HistogramView.class);
 	private Histogram histogram;
@@ -69,7 +66,7 @@ public class HistogramView extends ViewPart {
 					serviceName = getViewSite().getSecondaryId();
 				if (StringUtils.isEmpty(serviceName))
 					throw new RuntimeException("No secondary id given");
-				logger.info("HistogramView.createPartControl() serviceName=" + serviceName);
+				logger.info("HistogramView.createPartControl() serviceName={}", serviceName);
 				try {
 					adController = ADControllerFactory.getInstance().getADController(serviceName);
 				} catch (Exception e) {
@@ -101,28 +98,19 @@ public class HistogramView extends ViewPart {
 	}
 
 	protected void createActions() throws NotDefinedException {
-		List<IAction> actions = new Vector<IAction>();
-		{
-			actions.add(ADActionUtils.addAction("Set Exposure", Ids.COMMANDS_SET_EXPOSURE,
-					Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, adController.getServiceName()));
-		}
-		for (IAction iAction : actions) {
-			getViewSite().getActionBars().getToolBarManager().add(iAction);
-		}
+		final IToolBarManager toolBarManager = getViewSite().getActionBars().getToolBarManager();
+		toolBarManager.add(ADActionUtils.addAction("Set Exposure", Ids.COMMANDS_SET_EXPOSURE,
+				Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME, adController.getServiceName()));
+
 		createShowViewAction();
 	}
 
 	protected void createShowViewAction() {
-		List<IAction> actions = new Vector<IAction>();
-		{
-			actions.add(ADActionUtils.addShowViewAction("Show MJPeg", MJPegView.Id, adController.getServiceName(),
-					"Show MJPeg view for selected camera", Activator.getMJPegViewImage()));
-			actions.add(ADActionUtils.addShowViewAction("Show Array", TwoDArrayView.Id, adController.getServiceName(),
-					"Show array view for selected camera",Activator.getTwoDArrayViewImage()));
-		}
-		for (IAction iAction : actions) {
-			getViewSite().getActionBars().getToolBarManager().add(iAction);
-		}
+		final IToolBarManager toolBarManager = getViewSite().getActionBars().getToolBarManager();
+		toolBarManager.add(ADActionUtils.addShowViewAction("Show MJPeg", MJPegView.ID, adController.getServiceName(),
+				"Show MJPeg view for selected camera", Activator.getMJPegViewImage()));
+		toolBarManager.add(ADActionUtils.addShowViewAction("Show Array", TwoDArrayView.ID, adController.getServiceName(),
+				"Show array view for selected camera",Activator.getTwoDArrayViewImage()));
 	}
 
 	@Override
@@ -139,6 +127,7 @@ public class HistogramView extends ViewPart {
 		super.dispose();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Object getAdapter(@SuppressWarnings("rawtypes") Class clazz) {
 		if (clazz == IToolPageSystem.class) {

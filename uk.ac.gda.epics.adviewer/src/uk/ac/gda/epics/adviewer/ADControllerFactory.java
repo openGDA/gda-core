@@ -31,14 +31,10 @@ import uk.ac.gda.epics.adviewer.views.ADUtils;
 public class ADControllerFactory {
 	private static final Logger logger = LoggerFactory.getLogger(ADControllerFactory.class);
 
-	//TODO Make the following match convention
-
-	private static ADControllerFactory instance;
+	private static ADControllerFactory instance = new ADControllerFactory();
 
 	public static ADControllerFactory getInstance(){
-		if( instance == null){
-			instance = new ADControllerFactory();
-		}
+		// this class has no state, so there's no advantage to lazy initialization
 		return instance;
 	}
 
@@ -52,7 +48,8 @@ public class ADControllerFactory {
 			adPVSuffixes = (ADPVSuffixes)Activator.getNamedService(ADPVSuffixes.class, suffixType);
 		}
 		if (adPVSuffixes == null) {
-			logger.info("ADControllerFactory.registerADController() No PV suffix service '" + suffixType + "' found for detector '" + detectorName + "', assuming DLSADPVSuffixes for '" + serviceName + "'");
+			logger.info("ADControllerFactory.registerADController() No PV suffix service ''{}'' found for detector ''{}'', assuming DLSADPVSuffixes for ''{}''",
+					suffixType, detectorName, serviceName);
 			adPVSuffixes = new DLSADPVSuffixes();
 		}
 		DynamicADControllerImpl impl = new DynamicADControllerImpl(serviceName, detectorName, ADUtils.getPVFromPVServiceName(serviceName), adPVSuffixes);
@@ -72,7 +69,7 @@ public class ADControllerFactory {
 			ADControllerFactory.getInstance().registerADController(serviceName);
 			config = (ADController)Activator.getNamedService(ADController.class, serviceName);
 			if (config == null)
-				throw new Exception("Unable to access ADController for service '" + serviceName + "'");
+				throw new RuntimeException("Unable to access ADController for service '" + serviceName + "'");
 		}
 		return config;
 	}
