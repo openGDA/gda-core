@@ -228,7 +228,7 @@ public class JakartaPropertiesConfig implements PropertiesConfig {
 					logger.debug("{} = {}", key, LocalProperties.get(key));
 				} else {
 					// Handle non-string objects, eg ArrayList's
-					logger.debug("{} = {}", key, o.toString());
+					logger.debug("{} = {}", key, o);
 				}
 			}
 		}
