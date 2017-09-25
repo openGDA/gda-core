@@ -240,7 +240,6 @@ class OuterScannablesSection extends AbstractMappingSection {
 			Binding checkBoxBinding = dataBindingContext.bindValue(checkBoxValue, activeValue);
 			checkBoxBindings.put(scannableAxisParameters.getName(), checkBoxBinding);
 
-			// FIXME make a proper widget for this?
 			Text axisText = new Text(otherScanAxesComposite, SWT.BORDER);
 			axisText.setToolTipText("A range <start stop step>\n"
 					+ "or a list of points <pos1,pos2,pos3,pos4...>\n"
@@ -284,6 +283,7 @@ class OuterScannablesSection extends AbstractMappingSection {
 		if (dialog.open() == Window.OK) {
 			try {
 				axisText.setText((String) new ScanPathToStringConverter().convert(dialog.getEditor().getModel()));
+				updateStatusLabel();
 			} catch (Exception e) {
 				logger.error("Cannot retrieve MultiStepModel from dialog", e);
 			}
@@ -322,10 +322,14 @@ class OuterScannablesSection extends AbstractMappingSection {
 		ControlDecorationSupport.create(axisBinding, SWT.LEFT | SWT.TOP);
 		axisBindings.put(scannableName, axisBinding);
 
+		// Update Mapping status label after model is modified from text widget
+		axisBinding.getModel().addChangeListener(evt -> updateStatusLabel());
+
 		// when the include in scan checkbox is changed we need to revalidate the model
 		// as this determines the severity of the validation status.
 		checkBoxBinding.getModel().addChangeListener(evt -> {
 			axisBinding.validateTargetToModel();
+			updateStatusLabel();
 		});
 	}
 

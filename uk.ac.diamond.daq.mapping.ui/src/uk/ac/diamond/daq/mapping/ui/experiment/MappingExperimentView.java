@@ -5,7 +5,6 @@ import java.net.URISyntaxException;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.OptionalDouble;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -43,7 +42,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
-import uk.ac.diamond.daq.mapping.api.IDetectorModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBeanProvider;
 import uk.ac.diamond.daq.mapping.impl.MappingExperimentBean;
@@ -246,7 +244,7 @@ public class MappingExperimentView implements IAdaptable {
 	}
 
 	private void createStatusPanel(final Composite mainComposite) {
-		statusPanel = new StatusPanel(mainComposite, SWT.NONE, this);
+		statusPanel = new StatusPanel(mainComposite, SWT.NONE, mappingBean, scanRequestConverter);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(statusPanel);
 
 		if (mappingBean == null) {
@@ -259,14 +257,6 @@ public class MappingExperimentView implements IAdaptable {
 	private void updateUiWithPathInfo(@UIEventTopic(PathInfoCalculatorJob.PATH_CALCULATION_TOPIC) PathInfo pathInfo) {
 		statusPanel.setPathInfo(pathInfo);
 		plotter.plotPath(pathInfo);
-	}
-
-	double getPointExposureTime() {
-		OptionalDouble exposure = mappingBean.getDetectorParameters().stream()
-									.filter(IDetectorModelWrapper::isIncludeInScan)
-									.mapToDouble(wrapper -> wrapper.getModel().getExposureTime())
-									.max();
-		return exposure.isPresent() ? exposure.getAsDouble() : 0;
 	}
 
 	@Inject
