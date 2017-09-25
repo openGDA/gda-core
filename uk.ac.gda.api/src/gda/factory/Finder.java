@@ -211,9 +211,9 @@ public enum Finder {
 	 *            the required interface to search for.
 	 * @return the list of Findable object names supporting the named interface.
 	 */
-	public ArrayList<String> listAllNames(String interfaceName) {
-		List<Findable> findableRefs = listAllObjects(interfaceName);
-		ArrayList<String> findableNames = new ArrayList<>();
+	public List<String> listAllNames(String interfaceName) {
+		final List<Findable> findableRefs = listAllObjects(interfaceName);
+		final List<String> findableNames = new ArrayList<>();
 		for (Findable findable : findableRefs) {
 			String findableName = findable.getName();
 			findableName = findableName.substring(findableName.lastIndexOf('.') + 1);
