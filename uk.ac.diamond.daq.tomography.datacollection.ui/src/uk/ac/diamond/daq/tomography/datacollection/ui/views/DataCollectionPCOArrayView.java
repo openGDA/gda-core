@@ -18,10 +18,7 @@
 
 package uk.ac.diamond.daq.tomography.datacollection.ui.views;
 
-import java.util.List;
-import java.util.Vector;
-
-import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.action.IToolBarManager;
 
 import uk.ac.diamond.daq.tomography.datacollection.ui.adviewer.ADViewerConstants;
 import uk.ac.gda.epics.adviewer.views.ADActionUtils;
@@ -37,16 +34,10 @@ public class DataCollectionPCOArrayView extends TwoDArrayView {
 
 	@Override
 	protected void createShowViewAction() {
-		List<IAction> actions = new Vector<IAction>();
-		{
-			actions.add(ADActionUtils.addShowViewAction("Show Stats", DataCollectionPCOHistogramView.Id, null, "Show stats view for selected camera",
-					uk.ac.gda.epics.adviewer.Activator.getHistogramViewImage()));
-			actions.add(ADActionUtils.addShowViewAction("Show MPeg", DataCollectionMJPegView.Id, null, "Show MPeg view for selected camera",
-					uk.ac.gda.epics.adviewer.Activator.getMJPegViewImage()));
-
-		}
-		for (IAction iAction : actions) {
-			getViewSite().getActionBars().getToolBarManager().add(iAction);
-		}
+		final IToolBarManager toolBarManager = getViewSite().getActionBars().getToolBarManager();
+		toolBarManager.add(ADActionUtils.addShowViewAction("Show Stats", DataCollectionPCOHistogramView.ID, null, "Show stats view for selected camera",
+				uk.ac.gda.epics.adviewer.Activator.getHistogramViewImage()));
+		toolBarManager.add(ADActionUtils.addShowViewAction("Show MPeg", DataCollectionMJPegView.ID, null, "Show MPeg view for selected camera",
+				uk.ac.gda.epics.adviewer.Activator.getMJPegViewImage()));
 	}
 }

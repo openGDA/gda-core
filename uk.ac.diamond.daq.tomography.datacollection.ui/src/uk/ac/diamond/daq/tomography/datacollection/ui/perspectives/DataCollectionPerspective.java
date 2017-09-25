@@ -77,14 +77,14 @@ public class DataCollectionPerspective implements IPerspectiveFactory {
 		statusLayout.setMoveable(false);
 
 		IFolderLayout left = factory.createFolder("left", IPageLayout.LEFT, 0.95f, editorArea);
-		left.addView(DataCollectionMJPegView.Id);
+		left.addView(DataCollectionMJPegView.ID);
 
 		IFolderLayout rightTop = factory.createFolder("rightTop", IPageLayout.RIGHT, (float) 0.50, "left");
 		rightTop.addView("uk.ac.diamond.daq.tomography.datacollection.ui.DetectorPlot");
 		rightTop.addPlaceholder("uk.ac.diamond.daq.tomography.datacollection.ui.NormalisedImage");
 		rightTop.addPlaceholder(LivePlotView.ID);
 		rightTop.addPlaceholder("uk.ac.gda.video.views.cameraview");
-		rightTop.addPlaceholder(DataCollectionPCOHistogramView.Id);
+		rightTop.addPlaceholder(DataCollectionPCOHistogramView.ID);
 		rightTop.addPlaceholder(DataCollectionPCOArrayView.Id);
 
 		IFolderLayout rightBottom = factory.createFolder("rightBottom", IPageLayout.BOTTOM, (float) 0.5, "rightTop");

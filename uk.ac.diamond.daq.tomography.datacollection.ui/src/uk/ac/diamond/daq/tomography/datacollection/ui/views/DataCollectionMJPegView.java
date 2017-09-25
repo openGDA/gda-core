@@ -18,10 +18,7 @@
 
 package uk.ac.diamond.daq.tomography.datacollection.ui.views;
 
-import java.util.List;
-import java.util.Vector;
-
-import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.swt.widgets.Composite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,8 +32,7 @@ import uk.ac.gda.epics.adviewer.views.MJPegView;
 
 public class DataCollectionMJPegView extends MJPegView {
 	private static final Logger logger = LoggerFactory.getLogger(DataCollectionMJPegView.class);
-	public static final String Id = "uk.ac.diamond.daq.tomography.datacollection.ui.views.DataCollectionMJPegView";
-	private DataCollectionADControllerImpl adControllerImpl;
+	public static final String ID = "uk.ac.diamond.daq.tomography.datacollection.ui.views.DataCollectionMJPegView";
 
 	public DataCollectionMJPegView() {
 		super(ADViewerConstants.AD_CONTROLLER_SERVICE_NAME);
@@ -45,7 +41,7 @@ public class DataCollectionMJPegView extends MJPegView {
 	@Override
 	protected MJPeg createPartControlEx(Composite parent) {
 		try {
-			adControllerImpl = (DataCollectionADControllerImpl) getAdController();
+			DataCollectionADControllerImpl adControllerImpl = (DataCollectionADControllerImpl) getAdController();
 			DataCollectionMJPEGViewComposite mJPEGViewComposite = new DataCollectionMJPEGViewComposite(parent, adControllerImpl.getStagesCompositeFactory());
 			mJPEGViewComposite.setADController(adControllerImpl, this);
 			return mJPEGViewComposite.getMJPeg();
@@ -57,15 +53,10 @@ public class DataCollectionMJPegView extends MJPegView {
 
 	@Override
 	protected void createShowViewAction() {
-		List<IAction> actions = new Vector<IAction>();
-		{
-			actions.add(ADActionUtils.addShowViewAction("Show Stats", DataCollectionPCOHistogramView.Id, null, "Show stats view for selected camera",
-					uk.ac.gda.epics.adviewer.Activator.getHistogramViewImage()));
-			actions.add(ADActionUtils.addShowViewAction("Show Array", DataCollectionPCOArrayView.Id, null, "Show array view for selected camera",
-					uk.ac.gda.epics.adviewer.Activator.getTwoDArrayViewImage()));
-		}
-		for (IAction iAction : actions) {
-			getViewSite().getActionBars().getToolBarManager().add(iAction);
-		}
+		final IToolBarManager toolbarMgr = getViewSite().getActionBars().getToolBarManager();
+		toolbarMgr.add(ADActionUtils.addShowViewAction("Show Stats", DataCollectionPCOHistogramView.ID, null, "Show stats view for selected camera",
+				uk.ac.gda.epics.adviewer.Activator.getHistogramViewImage()));
+		toolbarMgr.add(ADActionUtils.addShowViewAction("Show Array", DataCollectionPCOArrayView.Id, null, "Show array view for selected camera",
+				uk.ac.gda.epics.adviewer.Activator.getTwoDArrayViewImage()));
 	}
 }

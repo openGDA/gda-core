@@ -67,7 +67,7 @@ public class XrayMicroscopyExperimentPerspective implements IPerspectiveFactory 
 		right.addView(LivePlotView.ID);
 
 		final IFolderLayout rightBottom = layout.createFolder("rightBottom", IPageLayout.BOTTOM, 0.65f, "right");
-		rightBottom.addView(MJPegView.Id);
+		rightBottom.addView(MJPegView.ID);
 		rightBottom.addPlaceholder("org.eclipse.ui.browser.view");
 		rightBottom.addPlaceholder("data.dispenser.browser");
 		rightBottom.addPlaceholder("org.eclipse.ui.browser.view:data.dispenser.browser");
