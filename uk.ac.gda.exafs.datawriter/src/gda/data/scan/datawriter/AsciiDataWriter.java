@@ -20,6 +20,7 @@ package gda.data.scan.datawriter;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +44,7 @@ public class AsciiDataWriter extends IncrementalFile implements ConfigurableAsci
 	protected String columnHeader = "";
 
 	public AsciiDataWriter() throws InstantiationException {
-		ArrayList<Findable> configs = Finder.getInstance().listAllObjects(FindableAsciiDataWriterConfiguration.class.getSimpleName());
+		List<Findable> configs = Finder.getInstance().listAllObjects(FindableAsciiDataWriterConfiguration.class.getSimpleName());
 		if (configs.size() == 0)
 			throw new InstantiationException("No configuration object for " + this.getClass().getName() + " found");
 		configuration = ((AsciiDataWriterConfiguration) configs.get(0));
