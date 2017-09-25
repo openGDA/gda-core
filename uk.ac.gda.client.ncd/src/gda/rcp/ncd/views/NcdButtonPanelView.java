@@ -18,7 +18,7 @@
 
 package gda.rcp.ncd.views;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -279,7 +279,7 @@ public class NcdButtonPanelView extends ViewPart {
 		Composite shutterComp = new Composite(parent, SWT.NONE);
 		shutterComp.setLayout(new GridLayout(1, false));
 		shutterComp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1,2));
-		ArrayList<Findable> shutters = Finder.getInstance().listAllObjects("EnumPositioner");
+		List<Findable> shutters = Finder.getInstance().listAllObjects("EnumPositioner");
 		for (Findable shutter : shutters) {
 			new ShutterGroup(shutterComp, SWT.NONE, (EnumPositioner) shutter);
 		}
