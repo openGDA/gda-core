@@ -83,6 +83,7 @@ public class ScannableCommands {
 	 *             - any exception within this method
 	 */
 	public static void pos(Object... args) throws Exception {
+		logger.debug("Called 'pos' with args: {}", args);
 		if (args.length == 1) {
 			if (args[0] == null) {// example: pos None, Jython command: pos([None])
 				throw new Exception(
@@ -230,6 +231,7 @@ public class ScannableCommands {
 	 *             - any exception within this method
 	 */
 	public static void upos(Object... args) throws Exception {
+		logger.debug("Called 'upos' with args: {}", args);
 		if (args.length >= 2) {
 			// identify scannables and the positions to move them to
 			Scannable[] scannables = new Scannable[args.length / 2];
@@ -294,6 +296,7 @@ public class ScannableCommands {
 	 * Gets a list of names of all the scannables on the server
 	 */
 	public static List<String> getScannableNames() throws DeviceException {
+		logger.debug("Called 'getScannableNames'");
 
 		List<String> scannables = new ArrayList<String>();
 
@@ -314,6 +317,7 @@ public class ScannableCommands {
 	 * @throws DeviceException
 	 */
 	public static void pos() throws DeviceException {
+		logger.debug("Called 'pos' with no args");
 		posCommandIsInTheProcessOfListingAllScannables = true;
 		try {
 			Map<String, Object> map = InterfaceProvider.getJythonNamespace().getAllFromJythonNamespace();
@@ -369,6 +373,7 @@ public class ScannableCommands {
 	}
 
 	public static boolean isPosCommandIsInTheProcessOfListingAllScannables() {
+		logger.debug("Called 'isPosCommandIsInTheProcessOfListingAllScannables'");
 		return posCommandIsInTheProcessOfListingAllScannables;
 	}
 
@@ -379,6 +384,7 @@ public class ScannableCommands {
 	 * @throws Exception
 	 */
 	public static void inc(Object... args) throws Exception {
+		logger.debug("Called 'inc' with args: {}", args);
 		if (args.length == 1) {
 			InterfaceProvider.getTerminalPrinter().print(args[0].toString());
 		} else if (args.length >= 2) {
@@ -436,6 +442,7 @@ public class ScannableCommands {
 	 * @throws Exception
 	 */
 	public static void uinc(Object... args) throws Exception {
+		logger.debug("Called 'uinc' with args: {}", args);
 		if (args.length >= 2) {
 			// identify scannables and the positions to move them to
 			Scannable[] scannables = new Scannable[args.length / 2];
@@ -539,11 +546,13 @@ public class ScannableCommands {
 	 * @throws Exception
 	 */
 	public static void scan(Object... args) throws Exception {
+		logger.debug("Called 'scan' with args: {}", args);
 		ConcurrentScan scan = createConcurrentScan(args);
 		scan.runScan();
 	}
 
 	public static ConcurrentScan createConcurrentScan(Object... args) throws Exception {
+		logger.debug("Called 'createConcurrentScan' with args: {}", args);
 		ConcurrentScan scan = new ConcurrentScan(args);
 		doCommandLineSpecificConcurrentScanSetup(scan);
 		return scan;
@@ -564,6 +573,8 @@ public class ScannableCommands {
 	 * @throws Exception
 	 */
 	public static ScanPlotSettings createScanPlotSettings(ConcurrentScan theScan) throws Exception {
+		logger.debug("Called 'createScanPlotSettings' with: {}", theScan);
+
 		// If true fromUserList will cause the x-axis and y-axis field indices to refer to the
 		// scannables as typed by the user (ignoring levels, and default scannables) rather
 		// than to the list generated internally by ConcurrentScan.
@@ -596,6 +607,8 @@ public class ScannableCommands {
 	}
 
 	public static void configureScanPipelineParameters(ScanBase scan) {
+		logger.debug("Called 'configureScanPipelineParameters' with: {}", scan);
+
 		int scanDataPointQueueLength = LocalProperties.getInt(
 				LocalProperties.GDA_SCAN_MULTITHREADED_SCANDATA_POINT_PIPElINE_LENGTH, 4);
 		int pointsToComputeSimultaneousely = LocalProperties.getInt(
@@ -629,6 +642,7 @@ public class ScannableCommands {
 	 * @throws Exception
 	 */
 	public static void pscan(Object... args) throws Exception {
+		logger.debug("Called 'pscan' with args: {}", args);
 		PointsScan theScan = new PointsScan(args);
 		theScan.runScan();
 	}
@@ -640,6 +654,7 @@ public class ScannableCommands {
 	 * @throws Exception
 	 */
 	public static void cscan(Object... args) throws Exception {
+		logger.debug("Called 'cscan' with args: {}", args);
 		CentroidScan theScan = new CentroidScan(args);
 		theScan.runScan();
 	}
@@ -652,6 +667,7 @@ public class ScannableCommands {
 	 * @throws Exception
 	 */
 	public static void staticscan(Scannable... args) throws Exception {
+		logger.debug("Called 'staticscan' with args: {}", (Object[]) args);
 		StaticScan theScan = new StaticScan(args);
 		theScan.runScan();
 	}
@@ -665,6 +681,7 @@ public class ScannableCommands {
 	 * @throws Exception
 	 */
 	public static void gscan(Object... args) throws Exception {
+		logger.debug("Called 'gscan' with args: {}", args);
 		int numberArgs = args.length;
 		GridScan theScan = null;
 		switch (numberArgs) {
@@ -691,6 +708,7 @@ public class ScannableCommands {
 	 * @throws Exception
 	 */
 	public static void timescan(Object... args) throws Exception {
+		logger.debug("Called 'timescan' with args: {}", args);
 		int numberArgs = args.length;
 		TimeScan theScan = null;
 		switch (numberArgs) {
@@ -754,6 +772,7 @@ public class ScannableCommands {
 	 * @throws Exception
 	 */
 	public static void tscan(Object... args) throws Exception {
+		logger.debug("Called 'tscan' with args: {}", args);
 		if (args.length < 3)
 			throw new IllegalArgumentException("timescan numberOfPoints pauseTime [collectTime] scannable... ");
 		int points = Integer.parseInt(args[0].toString());
@@ -800,6 +819,7 @@ public class ScannableCommands {
 	 * @throws Exception
 	 */
 	public static void testscan(Object... args) throws Exception {
+		logger.debug("Called 'testscan' with args: {}", args);
 		TestScan theScan = new TestScan(args);
 		theScan.runScan();
 	}
@@ -814,6 +834,7 @@ public class ScannableCommands {
 	 * @throws Exception
 	 */
 	public static void cv(Object... args) throws Exception {
+		logger.debug("Called 'cv' with args: {}", args);
 
 		String usageMessage = "continuousscan continuouslyScannable start stop numberPoints totaltime bufferedDetector(s) ";
 
@@ -868,6 +889,8 @@ public class ScannableCommands {
 	 * @throws IllegalArgumentException
 	 */
 	public static Object level(Object... args) throws IllegalArgumentException {
+		logger.debug("Called 'level' with args: {}", args);
+
 		if (args.length == 0 || (!(args[0] instanceof Scannable))) {
 			throw new IllegalArgumentException("level() usage: level scannable [new level]");
 		}
@@ -893,6 +916,7 @@ public class ScannableCommands {
 	 * List all the Scannable objects used implicitly in every scan
 	 */
 	public static void list_defaults() {
+		logger.debug("Called 'list_defaults'");
 		String output = get_defaults()
 				.stream()
 				.map(Scannable::getName)
@@ -903,6 +927,7 @@ public class ScannableCommands {
 	}
 
 	public static Collection<Scannable> get_defaults() {
+		logger.debug("Called 'get_defaults'");
 		return InterfaceProvider.getDefaultScannableProvider().getDefaultScannables();
 	}
 
@@ -910,6 +935,8 @@ public class ScannableCommands {
 	 * Set a Scannable to be used by default
 	 */
 	public static void add_default(Object... args) {
+		logger.debug("Called 'add_default' with args: {}", args);
+
 		for (Object arg : args) {
 			if (arg instanceof Scannable) {
 				Scannable scannable = (Scannable) arg;
@@ -927,6 +954,7 @@ public class ScannableCommands {
 	 * Remove a Scannable from the list of defaults
 	 */
 	public static void remove_default(Object... args) {
+		logger.debug("Called 'remove_default' with args: {}", args);
 		for (Object arg : args) {
 			if (arg instanceof Scannable) {
 				Scannable scannable = (Scannable) arg;
@@ -941,6 +969,7 @@ public class ScannableCommands {
 	}
 
 	public static IScanDataPoint lastScanDataPoint() {
+		logger.debug("Called 'lastScanDataPoint'");
 		return InterfaceProvider.getScanDataPointProvider().getLastScanDataPoint();
 	}
 
