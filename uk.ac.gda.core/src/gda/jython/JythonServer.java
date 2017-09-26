@@ -391,14 +391,13 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	@Override
 	public void runCommand(String command, String JSFIdentifier) {
 
+		checkStateForRunCommand();
+
 		// check to see if this is a print command, if it is then it is not good
 		// to create a separate thread for it, but just to print it straight to
 		// the screen
-
 		// If this becomes a big issue, a new thread should be created to run
 		// all the print statements, but sequentially
-		checkStateForRunCommand();
-
 		if (command.startsWith("print")) {
 			// do this immediately
 			this.interp.exec(command);
@@ -461,6 +460,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 		try {
 			int authorisationLevel = this.batonManager.getAuthorisationLevelOf(JSFIdentifier);
 			RunScriptRunner runner = new RunScriptRunner(this, command, authorisationLevel);
+			runner.setName(nameThread(command));
 			runCommandThreads.add(runner);
 			// start the thread and return immediately.
 			runner.start();
