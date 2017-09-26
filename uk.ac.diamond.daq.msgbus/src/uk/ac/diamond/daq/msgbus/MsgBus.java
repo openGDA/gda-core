@@ -328,7 +328,7 @@ public enum MsgBus {
 	}
 
 	private void _subscribe(Object subscriber) {
-		logger.trace("subscribing {}", subscriber);
+		logger.trace("subscribing {}", subscriber.getClass().getName());
 		eventBus.register(subscriber);
 	}
 
@@ -345,7 +345,7 @@ public enum MsgBus {
 	}
 
 	private void _unsubscribe(Object subscriber) {
-		logger.trace("unsubscribing {}", subscriber);
+		logger.trace("unsubscribing {}", subscriber.getClass().getName());
 		eventBus.unregister(subscriber);
 	}
 
