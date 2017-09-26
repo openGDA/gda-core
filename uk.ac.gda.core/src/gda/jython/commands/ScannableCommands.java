@@ -19,6 +19,7 @@
 package gda.jython.commands;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -27,8 +28,6 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang.ArrayUtils;
-import org.python.core.PyException;
 import org.python.core.PyInteger;
 import org.python.core.PyList;
 import org.slf4j.Logger;
@@ -47,6 +46,7 @@ import gda.device.scannable.PositionConvertorFunctions;
 import gda.device.scannable.ScannableUtils;
 import gda.device.scannable.scannablegroup.IScannableGroup;
 import gda.factory.Finder;
+import gda.jython.ITerminalPrinter;
 import gda.jython.InterfaceProvider;
 import gda.jython.JythonServer;
 import gda.jython.JythonServerFacade;
@@ -72,7 +72,7 @@ public class ScannableCommands {
 
 	private static final Logger logger = LoggerFactory.getLogger(ScannableCommands.class);
 
-	private static boolean posCommandIsInTheProcessOfListingAllScannables = false;
+	private static volatile boolean posCommandIsInTheProcessOfListingAllScannables = false;
 
 	/**
 	 * The pos command. Reports the current position of a scannable or moves one or more scannables concurrently. It
@@ -320,51 +320,44 @@ public class ScannableCommands {
 		logger.debug("Called 'pos' with no args");
 		posCommandIsInTheProcessOfListingAllScannables = true;
 		try {
-			Map<String, Object> map = InterfaceProvider.getJythonNamespace().getAllFromJythonNamespace();
+			// Map of all objects in Jython keyed by name
+			final Map<String, Object> map = InterfaceProvider.getJythonNamespace().getAllFromJythonNamespace();
 
-			// create a list of all the members of scannable groups
-			String[] scannableGroupMembers =new String[0];
-			for (String objName : map.keySet()) {
-				Object obj = map.get(objName);
+			// Remove everything that's not a Scannable, 'pos' doesn't care about these objects. Do first to improve performance
+			map.values().removeIf(obj-> !(obj instanceof Scannable));
+
+			// Create a list of all the members of scannable groups
+			final List<String> scannablesInGroups = new ArrayList<>();
+			for (Object obj : map.values()) {
 				if (obj instanceof IScannableGroup) {
-					scannableGroupMembers = (String[]) ArrayUtils.addAll(scannableGroupMembers, ((IScannableGroup) obj)
-							.getGroupMemberNames());
+					final String[] groupMembers = ((IScannableGroup) obj).getGroupMemberNames();
+					scannablesInGroups.addAll(Arrays.asList(groupMembers));
 				}
 			}
 
-			// remove those members from the global list, if they are there
-			for (String groupMember : scannableGroupMembers){
-				if (map.keySet().contains(groupMember))
-				{
-					map.remove(groupMember);
-				}
-			}
+			// Remove scannables contained in groups, they are handled by the group
+			map.keySet().removeIf(scannablesInGroups::contains);
 
-			// find the longest name, to help with formatting the output
-			int longestName = 0;
-			for (String objName : map.keySet()){
-				Object obj = map.get(objName);
-				if (obj instanceof Scannable && objName.length() > longestName){
-					longestName = objName.length();
-				}
-			}
-
+			// Find the longest name, to help with formatting the output
+			final int longestName = map.entrySet().stream()
+				.mapToInt(entry -> entry.getKey().length()) // Find the length of the name in Jython
+				.max() // find longest of the names
+				.getAsInt(); // Convert OptionalInt to int
 
 			// then loop over the reduced list and print each item separately, logging any errors if they occur
-			for (String objName : map.keySet()) {
-				Object obj = map.get(objName);
+			final ITerminalPrinter terminalPrinter = InterfaceProvider.getTerminalPrinter();
+			for (Entry<String, Object> entry : map.entrySet()) {
+				final Object obj = entry.getValue();
 				try {
 					if (obj instanceof IScannableGroup) {
-						InterfaceProvider.getTerminalPrinter().print(((IScannableGroup) obj).toFormattedString());
+						terminalPrinter.print(((IScannableGroup) obj).toFormattedString());
 					} else if (obj instanceof Scannable) {
-						InterfaceProvider.getTerminalPrinter().print(ScannableUtils.prettyPrintScannable((Scannable) obj,longestName + 1));
+						terminalPrinter.print(ScannableUtils.prettyPrintScannable((Scannable) obj,longestName + 1));
 					}
-				} catch (PyException e) {
-					InterfaceProvider.getTerminalPrinter().print(objName);
-					logger.warn("PyException while getting position of {} : ", objName, e);
 				} catch (Exception e) {
-					InterfaceProvider.getTerminalPrinter().print(objName);
-					logger.warn("Exception while getting position of {} : ", objName, e);
+					final String objName = entry.getKey();
+					terminalPrinter.print(objName);
+					logger.error("Exception while getting position of {} : ", objName, e);
 				}
 			}
 		} finally {
