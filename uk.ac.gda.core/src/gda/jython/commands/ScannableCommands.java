@@ -349,11 +349,7 @@ public class ScannableCommands {
 			for (Entry<String, Object> entry : map.entrySet()) {
 				final Object obj = entry.getValue();
 				try {
-					if (obj instanceof IScannableGroup) {
-						terminalPrinter.print(((IScannableGroup) obj).toFormattedString());
-					} else if (obj instanceof Scannable) {
-						terminalPrinter.print(ScannableUtils.prettyPrintScannable((Scannable) obj,longestName + 1));
-					}
+					terminalPrinter.print(ScannableUtils.prettyPrintScannable((Scannable) obj,longestName + 1));
 				} catch (Exception e) {
 					final String objName = entry.getKey();
 					terminalPrinter.print(objName);

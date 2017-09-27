@@ -1034,6 +1034,11 @@ public final class ScannableUtils {
 	}
 
 	public static String prettyPrintScannable(Scannable obj, int paddingSize) {
+		// If we are passed a scannable group handle it separately
+		if (obj instanceof IScannableGroup) {
+			return prettyPrintScannableGroup((IScannableGroup) obj);
+		}
+
 		String formattedString = obj.toFormattedString();
 
 		int index = formattedString.indexOf(":");
