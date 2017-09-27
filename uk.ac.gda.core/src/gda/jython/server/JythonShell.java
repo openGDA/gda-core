@@ -99,6 +99,7 @@ class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPointObser
 		read.unsetOpt(Option.HISTORY_REDUCE_BLANKS); // keep tabs/indents in history
 		read.setOpt(Option.MENU_COMPLETE); // Show completion options as menu
 		read.setOpt(Option.DISABLE_EVENT_EXPANSION); // prevent escape characters being ignored
+		read.unsetOpt(Option.HISTORY_IGNORE_SPACE); // don't ignore lines that start with space
 		rawInput = new JlineInputStream();
 		shellNumber = counter.getAndIncrement();
 	}
