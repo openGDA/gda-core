@@ -28,6 +28,8 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import org.jline.keymap.KeyMap;
+import org.jline.reader.Binding;
 import org.jline.reader.Candidate;
 import org.jline.reader.Completer;
 import org.jline.reader.EndOfFileException;
@@ -35,6 +37,7 @@ import org.jline.reader.LineReader;
 import org.jline.reader.LineReader.Option;
 import org.jline.reader.LineReaderBuilder;
 import org.jline.reader.ParsedLine;
+import org.jline.reader.Reference;
 import org.jline.reader.UserInterruptException;
 import org.jline.terminal.Terminal;
 import org.python.core.Py;
@@ -45,7 +48,7 @@ import gda.configuration.properties.LocalProperties;
 import gda.jython.IScanDataPointObserver;
 import gda.jython.JythonServerFacade;
 import gda.jython.completion.AutoCompletion;
-import gda.scan.ScanDataPoint;
+import gda.scan.IScanDataPoint;
 import gda.util.Version;
 
 /**
@@ -104,18 +107,6 @@ class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPointObser
 	}
 
 	/**
-	 * Run the setup code that makes this shell usable
-	 * <p>
-	 * Separate from constructor to prevent passing incomplete instance as listener
-	 */
-	private void init() {
-		server.addOutputTerminal(this);
-		server.addIScanDataPointObserver(this);
-		terminal.writer().print(WELCOME_BANNER);
-		setTitle(String.format("GDA %s", Version.getRelease()));
-	}
-
-	/**
 	 * Run the actual REPL. Blocks while running and only returns when EOFException is reached
 	 */
 	public void run() {
@@ -142,6 +133,32 @@ class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPointObser
 		}
 	}
 
+	/**
+	 * Run the setup code that makes this shell usable<br>
+	 * <ul>
+	 * <li>Add this as listener to {@link IScanDataPoint}s</li>
+	 * <li>Add this as an output {@link Terminal}</li>
+	 * <li>Set up keybindings {@link #setupKeybindings}</li>
+	 * <p>
+	 * Separate from constructor to prevent passing incomplete instance as listener
+	 */
+	private void init() {
+		server.addOutputTerminal(this);
+		server.addIScanDataPointObserver(this);
+		setupKeybindings();
+		terminal.writer().print(WELCOME_BANNER);
+		setTitle(String.format("GDA %s", Version.getRelease()));
+	}
+
+	/**
+	 * Initialise the non-default key bindings
+	 */
+	private void setupKeybindings() {
+		KeyMap<Binding> keyMap = read.getKeyMaps().get(LineReader.MAIN);
+		// Ctrl-space autocompletes
+		keyMap.bind(new Reference(LineReader.MENU_COMPLETE), KeyMap.ctrl(' '));
+	}
+
 	@Override
 	public void close() {
 		// Don't close the terminal here as it is managed by the connection
@@ -150,12 +167,12 @@ class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPointObser
 	}
 
 	/**
-	 * Handle updates from {@link JythonServerFacade}. Most likely {@link ScanDataPoint}s
+	 * Handle updates from {@link JythonServerFacade}. Most likely {@link IScanDataPoint}s
 	 */
 	@Override
 	public void update(Object source, Object arg) {
-		if (arg instanceof ScanDataPoint) {
-			ScanDataPoint sdp = (ScanDataPoint) arg;
+		if (arg instanceof IScanDataPoint) {
+			IScanDataPoint sdp = (IScanDataPoint) arg;
 			// If its the first point in a scan print the header
 			if (sdp.getCurrentPointNumber() == 0) {
 				write(sdp.getHeaderString() + "\n");
