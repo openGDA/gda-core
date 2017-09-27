@@ -20,7 +20,6 @@ Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: gda.gui.scanplot,
  gda.gui.text.Formatter,
- gda.jython,
  gda.jython.gui,
  gda.jython.scriptcontroller,
  gda.plots
