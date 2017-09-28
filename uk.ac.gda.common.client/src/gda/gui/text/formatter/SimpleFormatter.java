@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.gui.text.Formatter;
+package gda.gui.text.formatter;
 
 import java.text.ParseException;
 

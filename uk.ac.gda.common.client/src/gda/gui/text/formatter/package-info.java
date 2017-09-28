@@ -21,4 +21,4 @@
  * with JFormattedTextField and similar swing components
  */
 
-package gda.gui.text.Formatter;
+package gda.gui.text.formatter;
