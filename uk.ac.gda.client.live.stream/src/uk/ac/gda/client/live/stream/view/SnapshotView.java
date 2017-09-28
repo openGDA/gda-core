@@ -18,6 +18,8 @@
 
 package uk.ac.gda.client.live.stream.view;
 
+import static uk.ac.gda.client.live.stream.Activator.getService;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -49,8 +51,6 @@ public class SnapshotView extends ViewPart {
 	private Composite parent;
 
 	private Text errorText;
-	private static IPlottingService plottingService;
-
 	public SnapshotView() {
 		// TODO Auto-generated constructor stub
 	}
@@ -58,6 +58,7 @@ public class SnapshotView extends ViewPart {
 	@Override
 	public void createPartControl(Composite parent) {
 		this.parent=parent;
+		final IPlottingService plottingService = getService(IPlottingService.class);
 		if (plottingService == null) {
 			displayAndLogError(parent, "Cannot create Snapshot: no plotting service is available");
 			return;
@@ -108,12 +109,6 @@ public class SnapshotView extends ViewPart {
 		return plottingsystem;
 
 	}
-
-	public static synchronized void setPlottingService(IPlottingService plottingService) {
-		logger.debug("Plotting service set to: {}", plottingService);
-		SnapshotView.plottingService = plottingService;
-	}
-
 
 	private void displayAndLogError(final Composite parent, final String errorMessage) {
 		displayAndLogError(parent, errorMessage, null);

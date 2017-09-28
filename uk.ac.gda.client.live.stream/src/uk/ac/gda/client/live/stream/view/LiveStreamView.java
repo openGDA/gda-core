@@ -18,6 +18,8 @@
 
 package uk.ac.gda.client.live.stream.view;
 
+import static uk.ac.gda.client.live.stream.Activator.getService;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
@@ -93,9 +95,6 @@ public class LiveStreamView extends ViewPart {
 	private static final long MJPEG_DEFAULT_SLEEP_TIME = 50; // ms i.e. 20 fps
 	private static final int MJPEG_DEFAULT_CACHE_SIZE = 3; // frames
 
-	private static IPlottingService plottingService;
-	private static IRemoteDatasetService remoteDatasetService;
-
 	private IPlottingSystem<Composite> plottingSystem;
 	private IDatasetConnector stream;
 	private StreamType streamType;
@@ -125,26 +124,16 @@ public class LiveStreamView extends ViewPart {
 		}
 	};
 
-	public static synchronized void setPlottingService(IPlottingService plottingService) {
-		logger.debug("Plotting service set to: {}", plottingService);
-		LiveStreamView.plottingService = plottingService;
-	}
-
-	public static synchronized void setRemoteDatasetService(IRemoteDatasetService remoteDatasetService) {
-		logger.debug("Remote Dataset service set to: {}", remoteDatasetService);
-		LiveStreamView.remoteDatasetService = remoteDatasetService;
-	}
-
 	@Override
 	public void createPartControl(final Composite parent) {
 		this.parent = parent;
 
-		if (remoteDatasetService == null) {
+		if (getService(IRemoteDatasetService.class) == null) {
 			displayAndLogError(parent, "Cannot create Live Stream: no remote dataset service is available");
 			return;
 		}
 
-		if (plottingService == null) {
+		if (getService(IPlottingService.class) == null) {
 			displayAndLogError(parent, "Cannot create Live Stream: no plotting service is available");
 			return;
 		}
@@ -268,7 +257,7 @@ public class LiveStreamView extends ViewPart {
 
 		// Setup the plotting system
 		try {
-			plottingSystem = plottingService.createPlottingSystem();
+			plottingSystem = getService(IPlottingService.class).createPlottingSystem();
 			plottingSystem.createPlotPart(parent, camConfig.getUrl(), actionBars, PlotType.IMAGE, this);
 		} catch (Exception e) {
 			displayAndLogError(parent, "Could not create plotting system", e);
@@ -466,9 +455,9 @@ public class LiveStreamView extends ViewPart {
 
 			try {
 				if (camConfig.isRgb()) {
-					stream = remoteDatasetService.createMJPGDataset(url, sleepTime, cacheSize);
+					stream = getService(IRemoteDatasetService.class).createMJPGDataset(url, sleepTime, cacheSize);
 				} else {
-					stream = remoteDatasetService.createGrayScaleMJPGDataset(url, sleepTime, cacheSize);
+					stream = getService(IRemoteDatasetService.class).createGrayScaleMJPGDataset(url, sleepTime, cacheSize);
 				}
 				stream.connect();
 			} catch (Exception e) {
