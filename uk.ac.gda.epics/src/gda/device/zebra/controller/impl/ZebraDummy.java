@@ -197,6 +197,10 @@ public class ZebraDummy implements Zebra, Findable, InitializingBean {
 	}
 
 	@Override
+	public void setPCGateInput(int input) throws Exception {
+	}
+
+	@Override
 	public double getPCGateStart() throws Exception {
 		return pcGateStart;
 	}
@@ -271,6 +275,11 @@ public class ZebraDummy implements Zebra, Findable, InitializingBean {
 	public void pcDisarm() throws Exception {
 		logger.info("Dis-Arm Zebra Box");
 		pcArmed = false;
+	}
+
+	@Override
+	public void waitUntilNotArmed(int timeout) throws Exception {
+		// do nothing
 	}
 
 	@Override

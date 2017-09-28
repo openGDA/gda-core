@@ -122,6 +122,8 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 
 	protected Channel rbv = null; // User readback value .RBV, double in EGU
 
+	protected Channel direction;
+
 	protected Channel offset = null; // set motor offset without moving motor
 
 	protected Channel stop = null; // the motor stop control
@@ -410,7 +412,10 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 		try {
 			val = channelManager.createChannel(pvName + ".VAL", false);
 			rbv = channelManager.createChannel(pvName + ".RBV", positionMonitor, MonitorType.TIME, false);
+
+			direction = channelManager.createChannel(pvName + ".DIR", false);
 			offset = channelManager.createChannel(pvName + ".OFF", false);
+
 			stop = channelManager.createChannel(pvName + ".STOP", false);
 			velo = channelManager.createChannel(pvName + ".VELO", false);
 			accl = channelManager.createChannel(pvName + ".ACCL", false);
@@ -546,7 +551,16 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 		try {
 			return controller.cagetDouble(mres);
 		} catch (Throwable ex) {
-			throw new MotorException(getStatus(), "failed to get speed", ex);
+			throw new MotorException(getStatus(), "failed to get resolution", ex);
+		}
+	}
+
+	public MotorDirection getDirection() throws MotorException {
+		try {
+			final int directionValue = controller.cagetInt(direction);
+			return MotorDirection.fromInt(directionValue);
+		} catch (Exception ex) {
+			throw new MotorException(getStatus(), "Failed to get direction", ex);
 		}
 	}
 

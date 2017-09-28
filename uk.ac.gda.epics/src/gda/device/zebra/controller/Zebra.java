@@ -106,6 +106,8 @@ public interface Zebra {
 	 */
 	void setPCGateSource(int ordinal) throws Exception;
 
+	void setPCGateInput(int input) throws Exception;
+
 	double getPCGateStart() throws Exception;
 
 	double getPCGateStartRBV() throws Exception;
@@ -139,6 +141,8 @@ public interface Zebra {
 	void pcArm() throws Exception;
 
 	void pcDisarm() throws Exception;
+
+	void waitUntilNotArmed(int timeout) throws Exception;
 
 	void setPCCaptureBitField(int val) throws Exception;
 
