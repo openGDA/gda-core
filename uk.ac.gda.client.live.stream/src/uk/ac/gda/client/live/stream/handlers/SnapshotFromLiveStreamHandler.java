@@ -23,47 +23,44 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.handlers.HandlerUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.client.live.stream.view.LiveStreamView;
 import uk.ac.gda.client.live.stream.view.SnapshotView;
 
-public class SnapshotFromLiveStream extends AbstractHandler {
+/**
+ * A handler to update a {@link SnapshotView} with the current data of the {@link LiveStreamView}.
+ */
+public class SnapshotFromLiveStreamHandler extends AbstractHandler {
+
 	public static final String SNAPSHOT_DATA = "Snapshot Data";
-	private static final Logger logger = LoggerFactory.getLogger(SnapshotFromLiveStream.class);
+	private static final Logger logger = LoggerFactory.getLogger(SnapshotFromLiveStreamHandler.class);
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		LiveStreamView livestreamview = (LiveStreamView) PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-				.getActivePage().getActivePart();
-		SnapshotData snapshot = livestreamview.snapshot();
+		final LiveStreamView liveStreamView = (LiveStreamView) HandlerUtil.getActivePart(event);
+		final SnapshotData snapshot = liveStreamView.getSnapshot();
 		try {
-			IViewPart showView = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
-					.showView(SnapshotView.ID);
-			if (showView instanceof SnapshotView) {
-				SnapshotView snapshotview = (SnapshotView) showView;
-				Display.getDefault().asyncExec(new Runnable() {
-
-					@Override
-					public void run() {
-						IPlottingSystem<Composite> plottingSystem = snapshotview.getPlottingSystem();
-						plottingSystem.clear();
-						plottingSystem.updatePlot2D(snapshot.getDataset(), null, SNAPSHOT_DATA, new NullProgressMonitor());
-						plottingSystem.setTitle(snapshot.getTitle());
-					}
-				});
-			}
+			final SnapshotView snapshotView = (SnapshotView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(SnapshotView.ID);
+			Display.getDefault().asyncExec(() -> updateSnapshotView(snapshotView, snapshot));
+			return null;
 		} catch (PartInitException e) {
 			logger.error("View '{}'cannot be initialised: ", e.getMessage());
 			throw new ExecutionException("View '" + SnapshotView.ID + "' Cannot be initialised.", e);
 		}
-		return null;
+	}
+
+	private void updateSnapshotView(SnapshotView snapshotView, SnapshotData snapshotData) {
+		// perform the update of the snapshot view with the given dataset
+		final IPlottingSystem<?> plottingSystem = snapshotView.getPlottingSystem();
+		plottingSystem.clear();
+		plottingSystem.updatePlot2D(snapshotData.getDataset(), null, SNAPSHOT_DATA, new NullProgressMonitor());
+		plottingSystem.setTitle(snapshotData.getTitle());
 	}
 
 }

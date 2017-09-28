@@ -555,9 +555,9 @@ public class LiveStreamView extends ViewPart {
 
 	public IPlottingSystem<Composite> getPlottingSystem() {
 		return plottingSystem;
-
 	}
-	public SnapshotData snapshot() {
+
+	public SnapshotData getSnapshot() {
 		return new SnapshotData(plottingSystem.getTitle(), iTrace.getData().clone());
 	}
 }
