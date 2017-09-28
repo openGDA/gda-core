@@ -30,11 +30,12 @@ import org.slf4j.LoggerFactory;
 
 import gda.jython.ICommandRunner;
 import gda.jython.InterfaceProvider;
-import gda.jython.gui.JythonGuiConstants;
 import uk.ac.gda.common.rcp.util.EclipseUtils;
 
 public class RunScriptActionDelegate implements IEditorActionDelegate {
 	private static final Logger logger = LoggerFactory.getLogger(RunScriptActionDelegate.class);
+
+	private static final String SCRIPT_SOURCE = "RunAction";
 
 	private IEditorPart ePart;
 	@Override
@@ -52,7 +53,7 @@ public class RunScriptActionDelegate implements IEditorActionDelegate {
 			IEditorInput input = ePart.getEditorInput();
 			final File fileToRun = EclipseUtils.getFile(input);
 			logger.info("Running script '{}' from editor", fileToRun);
-			commandRunner.runScript(fileToRun, JythonGuiConstants.TERMINALNAME);
+			commandRunner.runScript(fileToRun, SCRIPT_SOURCE);
 		}
 	}
 
