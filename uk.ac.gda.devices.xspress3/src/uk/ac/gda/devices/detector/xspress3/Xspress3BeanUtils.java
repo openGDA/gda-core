@@ -32,11 +32,11 @@ import uk.ac.gda.util.beans.xml.XMLHelpers;
  */
 public class Xspress3BeanUtils {
 
-	public Xspress3Parameters createBeanFromXML(String xmlPath) throws Exception{
+	public static Xspress3Parameters createBeanFromXML(String xmlPath) throws Exception{
 		return (Xspress3Parameters) XMLHelpers.createFromXML(Xspress3Parameters.mappingURL, Xspress3Parameters.class, VortexParameters.schemaURL, new File(xmlPath));
 	}
 
-	public void createXMLfromBean(Xspress3 xspress3, Xspress3Parameters xspress3Bean) throws Exception{
+	public static void createXMLfromBean(Xspress3 xspress3, Xspress3Parameters xspress3Bean) throws Exception{
 		File file = new File(xspress3.getConfigFileName());
 		XMLHelpers.writeToXML(Xspress3Parameters.mappingURL, xspress3Bean, file);
 	}
