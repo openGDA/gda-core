@@ -198,19 +198,6 @@ using the ScanCreationEvent class::
 	myscan.runScan()  
 	controller.update(None,ScanFinishEvent(scan_id,ScanFinishEvent.FinishType.OK))
 
-A simple way to start a script from the client is to use the gda.jython.scriptcontroller.ScriptExecutor
-class. See the Javadoc for more details::
-
-	ScriptExecutor.Run("MyScriptObserver", this, null, "myscript()",null);
-	
-This would run the script, which would send progress messages back to the Java class via its update()
-method, and block until the script has finished.
-
-	
-
-
-
-
-
-
- 
+A simple way to start a script from the client is to use the InterfaceProvider.
+ICommandRunner runner = InterfaceProvider.getCommandRunner();
+runner.runScript(new File("script/to/run.py", "source");
