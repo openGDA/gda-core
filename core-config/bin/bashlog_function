@@ -14,9 +14,9 @@ bashlog() {
         shift
         local code=
         if [[ -n "${caller}" ]]; then
-            line="[$(date '+%F %T') $HOSTNAME (${caller})] ${level}: $@"
+            line="[$(date '+%F %T') $USER $HOSTNAME (${caller})] ${level}: $@"
         else
-            line="[$(date '+%F %T') $HOSTNAME] ${level}: $@"
+            line="[$(date '+%F %T') $USER $HOSTNAME] ${level}: $@"
         fi
         if [[ "${level}" != "DEBUG" || -n "${GDA_DEBUG:-}" ]]; then
             if [[ -t 2 || -p /dev/stderr ]]; then
