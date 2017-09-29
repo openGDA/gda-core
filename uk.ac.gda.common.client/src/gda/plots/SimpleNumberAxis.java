@@ -33,7 +33,7 @@ import org.jfree.ui.RectangleEdge;
  * Extends NumberAxis only so that we can attempt to keep track of the format of the tick mark labels so that the same
  * format can be used elsewhere, for example mouse tracking display.
  */
-public class SimpleNumberAxis extends NumberAxis {
+class SimpleNumberAxis extends NumberAxis {
 	private int digits;
 
 	/**
@@ -42,7 +42,7 @@ public class SimpleNumberAxis extends NumberAxis {
 	 * @param label
 	 *            the axis label
 	 */
-	public SimpleNumberAxis(String label) {
+	SimpleNumberAxis(String label) {
 		super(label);
 		digits = 1;
 	}

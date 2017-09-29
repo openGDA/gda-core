@@ -33,18 +33,18 @@ public class ScanTreeM extends SelectableNode {
 		this("");
 	}
 
-	public ScanTreeM(String name) {
+	ScanTreeM(String name) {
 		this.name = name;
 	}
 
-	public DefaultMutableTreeNode addSingleScanLine(String currentFilename, String topGrouping, ScanLine scanLine) {
+	DefaultMutableTreeNode addSingleScanLine(String currentFilename, String topGrouping, ScanLine scanLine) {
 		DefaultMutableTreeNode node = new SingleScanLine(currentFilename, topGrouping, scanLine);
 		insert(node, 0);
 		return node;
 	}
 
 	@SuppressWarnings("unchecked")
-	public DefaultMutableTreeNode addGroupedScanLine(String currentFilename, String topGrouping, String []subGrouping, ScanLine scanLine) {
+	DefaultMutableTreeNode addGroupedScanLine(String currentFilename, String topGrouping, String []subGrouping, ScanLine scanLine) {
 		// find group
 		ScanTreeItem scanTreeItem = null;
 		Enumeration<TreeNode> e = children();

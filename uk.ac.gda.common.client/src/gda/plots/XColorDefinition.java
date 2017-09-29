@@ -22,7 +22,7 @@ package gda.plots;
 /**
  * A class which represents an X11 style color definition.
  */
-public class XColorDefinition {
+class XColorDefinition {
 	private int red;
 
 	private int green;
@@ -51,25 +51,6 @@ public class XColorDefinition {
 		green = Integer.parseInt(strtok.nextToken());
 		blue = Integer.parseInt(strtok.nextToken());
 		name = new String(strtok.restOfTokens());
-	}
-
-	/**
-	 * Constructor which makes an XColorDefinition from its parts.
-	 *
-	 * @param red
-	 *            the red value
-	 * @param green
-	 *            the green value
-	 * @param blue
-	 *            the blue value
-	 * @param name
-	 *            the name
-	 */
-	public XColorDefinition(int red, int green, int blue, String name) {
-		this.red = red;
-		this.green = green;
-		this.blue = blue;
-		this.name = new String(name);
 	}
 
 	/**

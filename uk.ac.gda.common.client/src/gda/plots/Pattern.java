@@ -20,27 +20,13 @@
 package gda.plots;
 
 import java.awt.BasicStroke;
-import java.awt.Component;
 import java.awt.Stroke;
-
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.ListCellRenderer;
-import javax.swing.SwingConstants;
 
 /**
  * An enum of the various line patterns allowed in SimplePlots
  */
-public enum Pattern {
-	/**  */
-	SOLID("Solid"),
-	/**  */
-	DOTTED("Dotted", 2.0f, 3.0f),
-	/**  */
-	DASHED("Dashed", 5.0f, 5.0f),
-	/**  */
-	DOTDASHED("Dot-dashed", 2.0f, 4.0f, 5.0f, 4.0f);
+enum Pattern {
+	SOLID("Solid");
 
 	private float[] pattern = null;
 
@@ -74,7 +60,7 @@ public enum Pattern {
 	 *            the line width in pixels
 	 * @return a Stroke of the correct pattern
 	 */
-	public Stroke getStroke(int lineWidth) {
+	Stroke getStroke(int lineWidth) {
 		return new BasicStroke(lineWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND, 0, pattern, 0);
 	}
 
@@ -87,69 +73,4 @@ public enum Pattern {
 	public String toString() {
 		return bestName;
 	}
-
-	/**
-	 * Creates a Pattern from the String given
-	 *
-	 * @param string
-	 *            the name
-	 * @return the Patterb with that name (default null)
-	 */
-	public static Pattern fromString(String string) {
-		Pattern fromString = null;
-		for (Pattern ss : Pattern.values()) {
-			if (ss.toString().equals(string) || ss.toString().equals(string.toUpperCase())) {
-				fromString = ss;
-				break;
-			}
-		}
-
-		return fromString;
-	}
-
-	/**
-	 * Creates a Marker from the int given
-	 *
-	 * @param counter
-	 * @return the Marker with that ordinal (default BOX)
-	 */
-	public static Pattern fromCounter(int counter) {
-		Pattern fromCounter = Pattern.SOLID;
-		for (Pattern m : Pattern.values()) {
-			if (m.ordinal() == counter) {
-				fromCounter = m;
-				break;
-			}
-		}
-
-		return fromCounter;
-	}
-
-	/**
-	 * Returns a JComboBox which can be used to choose between the Patterns
-	 *
-	 * @return a suitable JComboBox
-	 */
-	public static JComboBox<Pattern> getChooser() {
-		JComboBox<Pattern> patternsCombo = new JComboBox<>();
-		for (Pattern p : values()) {
-			patternsCombo.addItem(p);
-		}
-
-		patternsCombo.setRenderer(new ListCellRenderer<Object>() {
-			@Override
-			public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected,
-					boolean cellHasFocus) {
-				JLabel component = new JLabel();
-				component.setText(value.toString());
-				component.setIcon(new SimpleIcon((Pattern) value, 23, 18));
-				component.setVerticalTextPosition(SwingConstants.BOTTOM);
-				component.setHorizontalTextPosition(SwingConstants.RIGHT);
-				component.setIconTextGap(10);
-				return component;
-			}
-		});
-		return patternsCombo;
-	}
-
 }

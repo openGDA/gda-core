@@ -19,12 +19,6 @@
 
 package gda.gui.scanplot;
 
-import gda.plots.XYDataHandler;
-import gda.plots.XYDataHandlerLegend;
-import gda.scan.AxisSpec;
-import gda.scan.IScanDataPoint;
-import gda.scan.IScanStepId;
-
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -34,6 +28,12 @@ import org.eclipse.january.dataset.DoubleDataset;
 import org.jfree.data.Range;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.plots.XYDataHandler;
+import gda.plots.XYDataHandlerLegend;
+import gda.scan.AxisSpec;
+import gda.scan.IScanDataPoint;
+import gda.scan.IScanStepId;
 
 public class ScanDataPointPlotter {
 	private static final Logger logger = LoggerFactory.getLogger(ScanDataPointPlotter.class);
@@ -140,7 +140,7 @@ public class ScanDataPointPlotter {
 		}
 	}
 
-	public void dispose() {
+	void dispose() {
 		config = null;
 	}
 
@@ -170,7 +170,7 @@ public class ScanDataPointPlotter {
 	 * @param xAxisHeader
 	 *
 	 */
-	public int createNewLines(int scanIdentifier, String currentFilename,
+	private int createNewLines(int scanIdentifier, String currentFilename,
 			Vector<String> stepIdsStrings, List<ConfigLine> linesToAdd, Double xVal,
 			Double[] dataPoints, boolean makeGroupAlways, String xAxisHeader, boolean reload) {
 
@@ -197,11 +197,6 @@ public class ScanDataPointPlotter {
 		if( xVal != null)
 			addNewPoints(firstNewLineNumber, linesToAdd, xVal, dataPoints);
 		return firstNewLineNumber;
-		// TODO set range from plot settings
-		/*
-		 * plot.setLeftDomainBounds(new Range(-10., 10.)); plot.setRightDomainBounds(new Range(-10., 10.));
-		 * plot.setLeftRangeBounds(null); plot.setRightRangeBounds(null);
-		 */
 	}
 
 	private void createLineAndCheckBox(String currentFilename, int lineNumber, String topGrouping,

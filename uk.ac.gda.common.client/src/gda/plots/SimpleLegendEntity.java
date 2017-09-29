@@ -29,8 +29,8 @@ import org.jfree.chart.entity.ChartEntity;
  *
  * @see ChartEntity
  */
-public class SimpleLegendEntity extends ChartEntity {
-	SimpleXYSeries sxys;
+class SimpleLegendEntity extends ChartEntity {
+	private SimpleXYSeries sxys;
 
 	/**
 	 * Creates a SimpleLegendEntity by adding a SimpleXYSeries to an ordinary ChartEntity
@@ -40,7 +40,7 @@ public class SimpleLegendEntity extends ChartEntity {
 	 * @param urlText
 	 * @param sxys
 	 */
-	public SimpleLegendEntity(Shape area, String toolTipText, String urlText, SimpleXYSeries sxys) {
+	SimpleLegendEntity(Shape area, String toolTipText, String urlText, SimpleXYSeries sxys) {
 		super(area, toolTipText, urlText);
 		this.sxys = sxys;
 	}
@@ -51,7 +51,7 @@ public class SimpleLegendEntity extends ChartEntity {
 	 * @param ce
 	 * @param sxys
 	 */
-	public SimpleLegendEntity(ChartEntity ce, SimpleXYSeries sxys) {
+	SimpleLegendEntity(ChartEntity ce, SimpleXYSeries sxys) {
 		super(ce.getArea(), ce.getToolTipText(), ce.getURLText());
 		this.sxys = sxys;
 	}

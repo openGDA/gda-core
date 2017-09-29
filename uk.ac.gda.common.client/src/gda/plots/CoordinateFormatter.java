@@ -23,7 +23,7 @@ package gda.plots;
  * Classes which are to be used for formatting the SimplePlot mouse position must implement this interface.
  */
 
-public interface CoordinateFormatter {
+interface CoordinateFormatter {
 	/**
 	 * Should produce a string representation of the given SimpleDataCoordinate
 	 *

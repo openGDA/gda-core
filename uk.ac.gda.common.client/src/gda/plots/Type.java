@@ -86,7 +86,7 @@ public enum Type {
 	 *            the String
 	 * @return the Type
 	 */
-	public static Type fromString(String string) {
+	static Type fromString(String string) {
 		Type fromString = LINEONLY;
 		for (Type t : Type.values()) {
 			if ((t.toString().toUpperCase()).equals(string.toUpperCase())) {
@@ -116,7 +116,7 @@ public enum Type {
 
 class TypeCellRenderer implements ListCellRenderer<Object>
 {
-	HashMap<Type, JLabel>comps = new HashMap<Type, JLabel>(); //http://www.blogjava.net/rednight/archive/2007/01/16/94089.html
+	private HashMap<Type, JLabel> comps = new HashMap<>(); //http://www.blogjava.net/rednight/archive/2007/01/16/94089.html
 	@Override
 	public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected,
 			boolean cellHasFocus) {

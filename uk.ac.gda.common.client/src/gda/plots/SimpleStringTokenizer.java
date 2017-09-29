@@ -24,14 +24,14 @@ import java.util.StringTokenizer;
 /**
  * A class which extends StringTokenizer to provide the ability to concatenate remaining tokens.
  */
-public class SimpleStringTokenizer extends StringTokenizer {
+class SimpleStringTokenizer extends StringTokenizer {
 	/**
 	 * Constructor
 	 *
 	 * @param theString
 	 *            the string to tokenize
 	 */
-	public SimpleStringTokenizer(String theString) {
+	SimpleStringTokenizer(String theString) {
 		super(theString);
 	}
 
@@ -40,7 +40,7 @@ public class SimpleStringTokenizer extends StringTokenizer {
 	 *
 	 * @return any remaining tokens concatenated into a single string.
 	 */
-	public String restOfTokens() {
+	String restOfTokens() {
 		// If there are no more tokens then "" will be returned.
 		String rtrn = "";
 

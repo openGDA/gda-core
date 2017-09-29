@@ -25,7 +25,7 @@ import org.jfree.data.xy.XYDataset;
 /**
  * Extends StandardXYToolTipGenerator to provide more information for the ToolTips associated with data points in lines.
  */
-public class SimpleXYToolTipGenerator extends StandardXYToolTipGenerator {
+class SimpleXYToolTipGenerator extends StandardXYToolTipGenerator {
 	/**
 	 * Generates a tool tip text item for a particular item within a series.
 	 *

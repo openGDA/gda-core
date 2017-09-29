@@ -37,7 +37,7 @@ import javax.swing.Icon;
  *
  * @see LinePropertiesEditor
  */
-public class SimpleIcon implements Icon {
+class SimpleIcon implements Icon {
 	private Shape shape;
 
 	private Stroke stroke = new BasicStroke(1);
@@ -56,47 +56,10 @@ public class SimpleIcon implements Icon {
 	 * @param height
 	 *            the height for the Icon
 	 */
-	public SimpleIcon(int width, int height) {
+	SimpleIcon(int width, int height) {
 		shape = new Line2D.Double(0, 0, width, 0);
 		this.width = width;
 		this.height = height;
-	}
-
-	/**
-	 * Creates a SimpleIcon to represent a (line) Type.
-	 *
-	 * @param type
-	 *            the Type
-	 * @param width
-	 *            the width for the Icon
-	 */
-	public SimpleIcon(Type type, int width) {
-		GeneralPath gp = new GeneralPath();
-		if (type.getDrawPoints()) {
-			gp.append(new Rectangle2D.Double(-1.5, -1.5, 3.0, 3.0), false);
-		}
-		if (type.getDrawLine()) {
-			gp.append(new Line2D.Double(0, 0, width, 0), false);
-		}
-		if (type.getDrawPoints()) {
-			gp.append(new Rectangle2D.Double(width - 1.5, -1.5, 3.0, 3.0), false);
-		}
-		shape = gp;
-		this.width = width;
-	}
-
-	/**
-	 * Creates a SimpleIcon to represent a Pattern.
-	 *
-	 * @param pattern
-	 *            the Pattern
-	 * @param width
-	 *            the width for the Icon
-	 */
-	public SimpleIcon(Pattern pattern, int width) {
-		shape = new Line2D.Double(0, 0, width, 0);
-		stroke = pattern.getStroke(1);
-		this.width = width;
 	}
 
 	/**
@@ -109,7 +72,7 @@ public class SimpleIcon implements Icon {
 	 * @param height
 	 *            the height for the Icon
 	 */
-	public SimpleIcon(Marker marker, int width, int height) {
+	SimpleIcon(Marker marker, int width, int height) {
 		shape = marker.getShape(5);
 		filled = marker.isFilled();
 		this.height = height;
@@ -126,7 +89,7 @@ public class SimpleIcon implements Icon {
 	 * @param height
 	 *            the height for the Icon
 	 */
-	public SimpleIcon(Enum<?> e, int width, int height) {
+	SimpleIcon(Enum<?> e, int width, int height) {
 		if (Marker.class.equals(e.getClass())) {
 			Object o = e;
 			shape = ((Marker) o).getShape(5);

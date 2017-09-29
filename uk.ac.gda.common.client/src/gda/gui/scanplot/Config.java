@@ -18,11 +18,6 @@
 
 package gda.gui.scanplot;
 
-import gda.scan.AxisSpec;
-import gda.scan.AxisSpecProvider;
-import gda.scan.IScanDataPoint;
-import gda.scan.ScanPlotSettings;
-
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Vector;
@@ -30,24 +25,29 @@ import java.util.Vector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Config {
+import gda.scan.AxisSpec;
+import gda.scan.AxisSpecProvider;
+import gda.scan.IScanDataPoint;
+import gda.scan.ScanPlotSettings;
+
+class Config {
 	private static final Logger logger = LoggerFactory.getLogger(Config.class);
 	int xAxisIndex;
 	String xAxisHeader;
 	Vector<ConfigLine> linesToAdd;
-	String id = "";
+	private String id = "";
 	ScanPlotSettings scanPlotSettings;
-	int numberOfScannables;
-	int numberOfDetectors;
+	private int numberOfScannables;
+	private int numberOfDetectors;
 	int numberofChildScans;
 	Double[] initialDataAsDoubles;
-	AxisSpecProvider yAxesMap;
+	private AxisSpecProvider yAxesMap;
 
 	boolean isValid(IScanDataPoint pt) {
 		return id.equals(pt.getUniqueName());
 	}
 
-	boolean UsePreviousScanLineSetting(Config prevConfig, int xAxisIndex, IScanDataPoint point,
+	private boolean UsePreviousScanLineSetting(Config prevConfig, int xAxisIndex, IScanDataPoint point,
 			Vector<String> namesOfVisibleLinesInPreviousScan, Vector<String> namesOfInVisibleLinesInPreviousScan) {
 		if( scanPlotSettings != null && !scanPlotSettings.isAllowUseOfPreviousScanSettings())
 			return false;
@@ -86,7 +86,7 @@ public class Config {
 		return true;
 	}
 
-	public Config(Config prevConfig, IScanDataPoint point, Vector<String> namesOfVisibleLinesInPreviousScan,
+	Config(Config prevConfig, IScanDataPoint point, Vector<String> namesOfVisibleLinesInPreviousScan,
 			Vector<String> namesOfInVisibleLinesInPreviousScan) {
 		numberOfScannables = point.getPositionHeader().size();
 		numberofChildScans = point.getNumberOfChildScans();

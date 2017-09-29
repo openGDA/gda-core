@@ -19,7 +19,6 @@
 
 package gda.plots;
 
-import java.awt.Component;
 import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.Shape;
@@ -32,12 +31,6 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.ListCellRenderer;
-import javax.swing.SwingConstants;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -104,7 +97,7 @@ public enum Marker {
 	 *            the size in pixels e.g. for CIRCLE this will become the diameter
 	 * @return a Shape object of the correct size
 	 */
-	public Shape getShape(int size) {
+	Shape getShape(int size) {
 		Shape shape = null;
 		try {
 			shape = (Shape) constructor.newInstance(new Object[] { new Integer(size) });
@@ -131,25 +124,6 @@ public enum Marker {
 	@Override
 	public String toString() {
 		return bestName;
-	}
-
-	/**
-	 * Creates a Marker from the String given
-	 *
-	 * @param string
-	 *            the name
-	 * @return the Marker with that name (default BOX)
-	 */
-	public static Marker fromString(String string) {
-		Marker fromString = BOX;
-		for (Marker m : Marker.values()) {
-			if (m.toString().equals(string.toUpperCase())) {
-				fromString = m;
-				break;
-			}
-		}
-
-		return fromString;
 	}
 
 	/**
@@ -334,32 +308,4 @@ public enum Marker {
 					new Line2D.Double(-size, -size, size, size), new Line2D.Double(-size, size, size, -size) });
 		}
 	}
-
-	/**
-	 * Returns a JComboBox which can be used to choose between the Markers
-	 *
-	 * @return a suitable JComboBox
-	 */
-	public static JComboBox<Marker> getChooser() {
-		JComboBox<Marker> markersCombo = new JComboBox<>();
-		for (Marker m : Marker.values()) {
-			markersCombo.addItem(m);
-		}
-
-		markersCombo.setRenderer(new ListCellRenderer<Object>() {
-			@Override
-			public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected,
-					boolean cellHasFocus) {
-				JLabel component = new JLabel();
-				component.setText(value.toString());
-				component.setIcon(new SimpleIcon((Marker) value, 18, 18));
-				component.setVerticalTextPosition(SwingConstants.BOTTOM);
-				component.setHorizontalTextPosition(SwingConstants.RIGHT);
-				component.setIconTextGap(10);
-				return component;
-			}
-		});
-		return markersCombo;
-	}
-
 }

@@ -19,6 +19,6 @@
 
 package gda.plots;
 
-public interface ISelectable {
+interface ISelectable {
 	public boolean isSelected();
 }

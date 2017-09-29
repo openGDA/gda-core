@@ -33,8 +33,8 @@ import org.jfree.chart.title.LegendGraphic;
  * Extends LegendGraphic so that instead of just being something that gets drawn it also has a ChartEntity (actually a
  * SimpleLegendEntity) associated with it so that it can detect mouse clicks.
  */
-public class SimpleLegendGraphic extends LegendGraphic {
-	SimpleXYSeries sxys;
+class SimpleLegendGraphic extends LegendGraphic {
+	private SimpleXYSeries sxys;
 
 	/**
 	 * Extends the LegendGraphic constructor to allow a SimpleXYSeries to be specified.
@@ -46,7 +46,7 @@ public class SimpleLegendGraphic extends LegendGraphic {
 	 * @param sxys
 	 *            the SimpleXYSeries
 	 */
-	public SimpleLegendGraphic(Shape shape, Paint fillPaint, SimpleXYSeries sxys) {
+	SimpleLegendGraphic(Shape shape, Paint fillPaint, SimpleXYSeries sxys) {
 		super(shape, fillPaint);
 		this.sxys = sxys;
 	}

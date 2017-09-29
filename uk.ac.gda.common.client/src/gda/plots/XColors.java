@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Deals with creating java versions of X11 colors.
  */
-public class XColors {
+class XColors {
 	private static final Logger logger = LoggerFactory.getLogger(XColors.class);
 
 	private static String solarisName = new String("/usr/openwin/lib/X11/rgb.txt");
@@ -86,35 +86,6 @@ public class XColors {
 			}
 		}
 		fileRead = true;
-	}
-
-	/**
-	 * Gets a Color given a name.
-	 *
-	 * @param colorName
-	 *            the name to look for
-	 * @return the corresponding Color, possibly null.
-	 */
-	public static Color getNamedColor(String colorName) {
-		Color rtrn = null;
-
-		if (!fileRead)
-			readFile();
-
-		if (!available)
-			return (rtrn);
-
-		// search the list for the name
-		// get its rgb values
-		// create a Color
-
-		for (XColorDefinition thisColorDef : theColors) {
-			if (thisColorDef.getName().toLowerCase().equals(colorName.toLowerCase())) {
-				rtrn = new Color(thisColorDef.getRed(), thisColorDef.getGreen(), thisColorDef.getBlue());
-				break;
-			}
-		}
-		return (rtrn);
 	}
 
 	/**

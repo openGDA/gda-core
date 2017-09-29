@@ -165,15 +165,15 @@ public class PlotTreeLegend extends JPanel implements XYDataHandlerLegend {
 
 		treeArea.addScan(node, getMenuAutoCollapseTreeOnAdd());
 	}
-	protected boolean getMenuUnshowLast() {
+	private boolean getMenuUnshowLast() {
 		return menuUnshowLast.isSelected();
 	}
 
-	protected boolean getMenuAutoCollapseTreeOnAdd() {
+	private boolean getMenuAutoCollapseTreeOnAdd() {
 		return menuAutoCollapseTreeOnAdd.isSelected();
 	}
 
-	protected boolean getMenuUnShowNewVal() {
+	private boolean getMenuUnShowNewVal() {
 		return  menuUnshowNew.isSelected();
 	}
 
@@ -265,9 +265,9 @@ class ScanTreeRenderer implements TreeCellRenderer {
 
 
 class SelectableNodeRenderer extends JCheckBox implements ISelectable {
-	final static int maxLength = 25;
-	static Icon savedIcon;
-	static Icon icon;
+	private final static int maxLength = 25;
+	private static Icon savedIcon;
+	private static Icon icon;
 	static {
 		icon = new ImageIcon(SelectableNodeRenderer.class.getResource("partialSelection.gif"));
 	}
@@ -293,10 +293,10 @@ class SelectableNodeRenderer extends JCheckBox implements ISelectable {
 }
 
 class ScanPairRenderer extends JPanel implements ISelectable {
-	static final int size = 4;
+	private static final int size = 4;
 	private JCheckBox checkBox = new JCheckBox();
 	private MButton btn1 = new MButton();
-	final static int maxLength = 25;
+	private static final int maxLength = 25;
 
 	ScanPairRenderer() {
 		setLayout(new FlowLayout());
@@ -446,7 +446,7 @@ class ScanTreeCellEditor extends AbstractCellEditor implements TreeCellEditor {
 
 class TreeListenerArea extends JScrollPane implements TreeSelectionListener {
 	private JTextArea area;
-	static final String comment = "Select a line's marker to view details";
+	private static final String comment = "Select a line's marker to view details";
 	private ScanPair scanPair;
 	private JTree tree;
 
