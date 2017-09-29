@@ -56,13 +56,6 @@
             name="Exafs Selection"
             restorable="true">
       </view>
-      <view
-            category="uk.ac.gda.client.microfocus.category"
-            class="uk.ac.gda.client.microfocus.views.SampleStagePositionControlView"
-            id="uk.ac.gda.client.microfocus.views.SamplePositionView"
-            name="Sample Stage Positions"
-            restorable="true">
-      </view>
       <category
             id="uk.ac.gda.client.microfocus.category"
             name="Data Acquisition - MicroFocus">
