@@ -17,7 +17,6 @@ Require-Bundle: uk.ac.diamond.scisoft.analysis.rcp;bundle-version="1.0.0",
  uk.ac.gda.analysis;bundle-version="1.0.0",
  org.dawnsci.plotting.jreality;bundle-version="1.0.0",
  org.eclipse.dawnsci.plotting.api;bundle-version="1.0.0",
- uk.ac.gda.swingclient,
  uk.ac.diamond.scisoft.deprecated.rcp;bundle-version="1.3.0",
  com.google.guava
 Import-Package: org.apache.commons.io,

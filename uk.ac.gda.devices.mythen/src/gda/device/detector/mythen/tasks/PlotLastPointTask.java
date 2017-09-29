@@ -20,15 +20,19 @@ package gda.device.detector.mythen.tasks;
 
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
-import gda.analysis.Plotter;
 import gda.device.detector.mythen.data.MythenProcessedDataset;
+import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 
 /**
  * An {@link AtPointEndTask} which plots the last frame in each scan.
  */
 public class PlotLastPointTask implements AtPointEndTask, InitializingBean {
+
+	private static final Logger logger = LoggerFactory.getLogger(PlotLastPointTask.class);
 
 	private String panelName;
 
@@ -53,7 +57,11 @@ public class PlotLastPointTask implements AtPointEndTask, InitializingBean {
 		Dataset countsDataset = DatasetFactory.createFromObject(counts);
 		countsDataset.setName(filename);
 
-		Plotter.plot(panelName, channelsDataset, countsDataset);
+		try {
+			SDAPlotter.plot(panelName, channelsDataset, countsDataset);
+		} catch (Exception e) {
+			logger.error("Error plotting to '{}'",panelName , e);
+		}
 	}
 
 	@Override
@@ -65,10 +73,15 @@ public class PlotLastPointTask implements AtPointEndTask, InitializingBean {
 		channelsDataset.setName("angle");
 		Dataset countsDataset = DatasetFactory.createFromObject(counts);
 		countsDataset.setName(filename);
-		if (clearFirst) {
-			Plotter.plot(panelName, channelsDataset, countsDataset);
-		} else {
-			Plotter.plotOver(panelName, channelsDataset, countsDataset);
+		try {
+			if (clearFirst) {
+				SDAPlotter.plot(panelName, channelsDataset, countsDataset);
+			} else {
+				SDAPlotter.clearPlot(panelName);
+				SDAPlotter.plot(panelName, channelsDataset, countsDataset);
+			}
+		} catch (Exception e) {
+			logger.error("Error plotting to '{}'", panelName, e);
 		}
 	}
 

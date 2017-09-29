@@ -27,12 +27,12 @@ import org.eclipse.january.dataset.DatasetFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.analysis.Plotter;
 import gda.data.fileregistrar.FileRegistrarHelper;
 import gda.device.DeviceException;
 import gda.device.detector.mythen.data.MythenDataFileUtils;
 import gda.device.detector.mythen.data.MythenDataFileUtils.FileType;
 import gda.device.detector.mythen.data.MythenSum;
+import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 
 public class SummingMythenDetector extends MythenDetectorImpl {
 
@@ -111,7 +111,11 @@ public class SummingMythenDetector extends MythenDetectorImpl {
 		anglesDataset.setName("angle");
 		Dataset countsDataset = DatasetFactory.createFromObject(counts);
 		countsDataset.setName(name2);
-		Plotter.plot(panelName, anglesDataset, countsDataset);
+		try {
+			SDAPlotter.plot(panelName, anglesDataset, countsDataset);
+		} catch (Exception e) {
+			logger.error("Error plotting to '{}'",panelName , e);
+		}
 	}
 
 }
