@@ -1554,7 +1554,7 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		ScannableStatus status = (ScannableStatus) arg;
 
 		// Check if any move has just completed. If not return
-		if (status.getStatus() != ScannableStatus.IDLE) {
+		if (status != ScannableStatus.IDLE) {
 			return;
 		}
 

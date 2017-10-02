@@ -1564,17 +1564,15 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				});
 			}
 		}
-		if (source == dcmenergy && arg instanceof ScannableStatus) {
-			if (((ScannableStatus) arg).getStatus() == ScannableStatus.IDLE) {
+		if (arg == ScannableStatus.IDLE) {
+			if (source == dcmenergy) {
 				try {
 					hardXRayEnergy = (double) dcmenergy.getPosition() * 1000; // eV
 				} catch (DeviceException e) {
 					logger.error("Cannot get X-ray energy from DCM.", e);
 				}
 			}
-		}
-		if (source == pgmenergy && arg instanceof ScannableStatus) {
-			if (((ScannableStatus) arg).getStatus() == ScannableStatus.IDLE) {
+			if (source == pgmenergy) {
 				try {
 					softXRayEnergy = (double) pgmenergy.getPosition();
 				} catch (DeviceException e) {
