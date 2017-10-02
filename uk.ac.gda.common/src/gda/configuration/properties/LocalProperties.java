@@ -137,11 +137,6 @@ public class LocalProperties {
 	public static final String GDA_PROPERTIES_FILE = "gda.propertiesFile";
 
 	/**
-	 * Property that allows multiple GDA properties files to be specified as a space-separated list.
-	 */
-	public static final String GDA_PROPERTIES_FILES = "gda.propertiesFiles";
-
-	/**
 	 * Property that specifies the GDA factory name, e.g. "stnBase" or "i04-1".
 	 */
 	public static final String GDA_FACTORY_NAME = "gda.factory.factoryName";
@@ -400,56 +395,48 @@ public class LocalProperties {
 	private static PropertiesConfig propConfig = new JakartaPropertiesConfig();
 
 	static {
-		String propertiesFiles = propConfig.getString(GDA_PROPERTIES_FILES, null);
-		if (propertiesFiles == null || propertiesFiles.isEmpty()) {
-			propertiesFiles = propConfig.getString(GDA_PROPERTIES_FILE, null);
-		}
 
-		if (propertiesFiles == null || propertiesFiles.isEmpty()) {
+		// Try to get the location of the property file from a existing property (e.g. from system property)
+		String propertiesFile = propConfig.getString(GDA_PROPERTIES_FILE, null);
+		if (propertiesFile == null || propertiesFile.isEmpty()) {
+			logger.warn("{} is not set. Trying to load properties from default location", GDA_PROPERTIES_FILE);
 			// assume file is ${gda.config}/properties/java.properties
-			propertiesFiles = LocalProperties.getConfigDir() + System.getProperty("file.separator") + "properties"
+			propertiesFile = LocalProperties.getConfigDir() + System.getProperty("file.separator") + "properties"
 					+ System.getProperty("file.separator") + "java.properties";
 		}
-		File testExists = new File(propertiesFiles);
+		File testExists = new File(propertiesFile);
 
 		if (!testExists.exists()) {
-			logger.warn("Neither " + GDA_PROPERTIES_FILES + " nor " + GDA_PROPERTIES_FILE + " is set and "
-					+ propertiesFiles + " does not exist - no properties are available");
+			logger.error("Property file could not be found! - no properties are available");
 		} else {
+			try {
+				propConfig.loadPropertyData(propertiesFile);
+			} catch (ConfigurationException ex) {
+				throw new IllegalArgumentException("Error loading " + propertiesFile, ex);
+			}
 
-			StringTokenizer st = new StringTokenizer(propertiesFiles, " ");
-			while (st.hasMoreTokens()) {
-				String propertiesFile = st.nextToken();
-				try {
-					propConfig.loadPropertyData(propertiesFile);
-				} catch (ConfigurationException ex) {
-					throw new IllegalArgumentException("Error loading " + propertiesFile, ex);
-				}
-
-				// We attempt to set all the properties loaded into System properties
-				// This allows properties to be loaded from any bundle without making
-				// a dependency on this bundle. However if this fails in any way then
-				// it is a non-fatal error. This means that any bundle in any project may
-				// check GDA properties without making dependencies. This is desirable for
-				// instance with DAWN so that its bundles may contain specific code for
-				// GDA configuration without making a hard dependency on LocalProperties
-				try {
-					for (Iterator<String> it = propConfig.getKeys(); it.hasNext();) {
-						String key   = it.next();
-						String value = propConfig.getString(key, null);
-						if (System.getProperty(key)==null && value!=null) {
-							System.setProperty("GDA/" + key, value);
-						}
-						// We preface with "GDA/" which should mean that no system
-						// property is affected and also if System properties are dumped,
-						// they can be filtered to remove GDA ones.
+			// We attempt to set all the properties loaded into System properties
+			// This allows properties to be loaded from any bundle without making
+			// a dependency on this bundle. However if this fails in any way then
+			// it is a non-fatal error. This means that any bundle in any project may
+			// check GDA properties without making dependencies. This is desirable for
+			// instance with DAWN so that its bundles may contain specific code for
+			// GDA configuration without making a hard dependency on LocalProperties
+			try {
+				for (Iterator<String> it = propConfig.getKeys(); it.hasNext();) {
+					String key = it.next();
+					String value = propConfig.getString(key, null);
+					if (System.getProperty(key) == null && value != null) {
+						System.setProperty("GDA/" + key, value);
 					}
-				} catch (Exception ne) {
-					logger.error("Cannot parse to system properties: {}", propertiesFile, ne);
+					// We preface with "GDA/" which should mean that no system
+					// property is affected and also if System properties are dumped,
+					// they can be filtered to remove GDA ones.
 				}
+			} catch (Exception ne) {
+				logger.error("Cannot parse to system properties: {}", propertiesFile, ne);
 			}
 		}
-
 	}
 
 	/**
