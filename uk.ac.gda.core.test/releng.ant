@@ -20,7 +20,7 @@
 			<jvmarg value="-Dgda.install.git.loc=${workspace.git.loc}" />
 			<sysproperty key="basedir" value="${plugin.basedir}" />
 			<sysproperty key="gda.tests" value = "${plugin.basedir}/src"/>  <!-- read by plugins/uk.ac.gda.core/src/gda/util/TestsUtil.java -->
-			<sysproperty key="gda.propertiesFiles" value = "${plugin.basedir}/src/java.properties"/>
+			<sysproperty key="gda.propertiesFile" value = "${plugin.basedir}/src/java.properties"/>
 			<formatter type="xml" />
 			<classpath>
 				<pathelement location="${junitjar.loc}" />
@@ -192,7 +192,7 @@
 
 	<target name="run-benchmarks" depends="jmh-jar, set-test-base-GDA" description="Run the JMH Benchmarks">
 		<java classname="org.openjdk.jmh.Main" fork="true">
-			<sysproperty key="gda.propertiesFiles" value = "${plugin.basedir}/src/java.properties"/>
+			<sysproperty key="gda.propertiesFile" value = "${plugin.basedir}/src/java.properties"/>
 			<sysproperty key="jacorb.config.dir" value="${workspace.git.loc}/gda-core.git/p45-config/properties/dummy/jacorb"/>
 			<classpath>
 				<pathelement location="${dist}/benchmarks.jar"/>
