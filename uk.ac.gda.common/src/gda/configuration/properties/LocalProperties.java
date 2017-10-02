@@ -19,19 +19,15 @@
 
 package gda.configuration.properties;
 
-import java.io.BufferedInputStream;
+import static java.io.File.separator;
+
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Properties;
 import java.util.StringTokenizer;
-import java.util.Vector;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.slf4j.Logger;
@@ -41,8 +37,12 @@ import org.slf4j.LoggerFactory;
  * A utility singleton class which allows the getting of Java properties from a local source file or standard System
  * properties.
  */
-public class LocalProperties {
+public final class LocalProperties {
 	private static final Logger logger = LoggerFactory.getLogger(LocalProperties.class);
+
+	private LocalProperties() {
+		// Prevent instances
+	}
 
 	/**
 	 * Along with {@link #GDA_GIT_LOC} replaces the gda.root variable.
@@ -401,8 +401,7 @@ public class LocalProperties {
 		if (propertiesFile == null || propertiesFile.isEmpty()) {
 			logger.warn("{} is not set. Trying to load properties from default location", GDA_PROPERTIES_FILE);
 			// assume file is ${gda.config}/properties/java.properties
-			propertiesFile = LocalProperties.getConfigDir() + System.getProperty("file.separator") + "properties"
-					+ System.getProperty("file.separator") + "java.properties";
+			propertiesFile = LocalProperties.getConfigDir() + separator + "properties" + separator + "java.properties";
 		}
 		File testExists = new File(propertiesFile);
 
@@ -451,24 +450,6 @@ public class LocalProperties {
 	public static final void load() {
 		// Just needs to exist to trigger the initialiser block when called
 	}
-
-	private final static Properties loadProperties(final String path) throws IOException {
-		final File file                  = new File(path);
-		return loadProperties(file);
-	}
-	private final static Properties loadProperties(final File file) throws IOException {
-		if (!file.exists()) return new Properties();
-		return loadProperties(new FileInputStream(file));
-	}
-	private final static Properties loadProperties(final InputStream stream) throws IOException {
-
-		final Properties fileProps = new Properties();
-		try (final BufferedInputStream in = new BufferedInputStream(stream)){
-			fileProps.load(in);
-		}
-		return fileProps;
-	}
-
 
 	public static void dumpProperties() {
 		propConfig.dumpProperties();
@@ -715,8 +696,8 @@ public class LocalProperties {
 		if (file == null || file.isEmpty()) {
 			return file;
 		}
-		if (!file.endsWith(System.getProperty("file.separator"))) {
-			return file + System.getProperty("file.separator");
+		if (!file.endsWith(separator)) {
+			return file + separator;
 		}
 		return file;
 	}
@@ -751,7 +732,7 @@ public class LocalProperties {
 	public static List<Integer> stringToIntList(String s) {
 		if (s == null)
 			return null;
-		Vector<Integer> ints = new Vector<Integer>();
+		final List<Integer> ints = new ArrayList<>();
 		String[] parts = s.split("[:, \t\r\n]");
 		for (String part : parts) {
 			if (!part.isEmpty())
@@ -776,7 +757,7 @@ public class LocalProperties {
 	 */
 	public static List<Integer> getAsIntList(String propertyName, Integer[] defaultValue) {
 		List<Integer> result = getAsIntList(propertyName);
-		return result != null ? result : new ArrayList<Integer>(Arrays.asList(defaultValue));
+		return result != null ? result : new ArrayList<>(Arrays.asList(defaultValue));
 	}
 
 	/**
@@ -796,7 +777,7 @@ public class LocalProperties {
 	public static int getAsInt(String propertyName) {
 		String s = get(propertyName);
 		if (s != null) {
-			return Integer.valueOf(s).intValue();
+			return Integer.parseInt(s);
 		}
 		String message = "Property " + propertyName + " is not defined";
 		logger.error(message);
@@ -821,7 +802,7 @@ public class LocalProperties {
 	 */
 	public static int getAsInt(String propertyName, int defaultValue) {
 		String s = get(propertyName);
-		return s != null ? Integer.valueOf(s).intValue() : defaultValue;
+		return s != null ? Integer.parseInt(s) : defaultValue;
 	}
 
 	public static boolean contains(String propertyName) {
