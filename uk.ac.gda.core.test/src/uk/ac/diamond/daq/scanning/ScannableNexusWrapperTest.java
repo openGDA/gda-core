@@ -28,6 +28,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static uk.ac.diamond.daq.scanning.ScannableNexusWrapper.ATTR_NAME_GDA_FIELD_NAME;
 import static uk.ac.diamond.daq.scanning.ScannableNexusWrapper.ATTR_NAME_GDA_SCANNABLE_NAME;
@@ -221,16 +222,7 @@ public class ScannableNexusWrapperTest {
 		// Assert
 		assertThat(scannable.getPosition(), equalTo(3.7));
 		((IPositionListenable) scannable).removePositionListener(posListener);
-
-		ArgumentCaptor<PositionEvent> captor = ArgumentCaptor.forClass(PositionEvent.class);
-		InOrder order = inOrder(posListener);
-		//order.verify(posListener).positionWillPerform(captor.capture());
-		//order.verify(posListener).positionChanged(captor.capture());
-		//order.verify(posListener).positionPerformed(captor.capture());
-		order.verifyNoMoreInteractions();
-
-		List<PositionEvent> posEvents = captor.getAllValues();
-		assertThat(posEvents, hasSize(0));
+		verifyZeroInteractions(posListener);
 	}
 
 	@Test
@@ -250,16 +242,7 @@ public class ScannableNexusWrapperTest {
 		// Assert
 		assertThat(scannable.getPosition(), equalTo(3.7));
 		((IPositionListenable) scannable).removePositionListener(posListener);
-
-		ArgumentCaptor<PositionEvent> captor = ArgumentCaptor.forClass(PositionEvent.class);
-		InOrder order = inOrder(posListener);
-		//order.verify(posListener).positionWillPerform(captor.capture());
-		//order.verify(posListener).positionChanged(captor.capture());
-		//order.verify(posListener).positionPerformed(captor.capture());
-		order.verifyNoMoreInteractions();
-
-		List<PositionEvent> posEvents = captor.getAllValues();
-		assertThat(posEvents, hasSize(0));
+		verifyZeroInteractions(posListener);
 	}
 
 	@Test

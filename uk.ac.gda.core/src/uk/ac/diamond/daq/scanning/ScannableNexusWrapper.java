@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
@@ -51,6 +52,7 @@ import gda.device.Scannable;
 import gda.device.ScannableMotion;
 import gda.device.ScannableMotionUnits;
 import gda.device.scannable.ScannablePositionChangeEvent;
+import gda.device.scannable.ScannableStatus;
 import gda.observable.IObserver;
 
 /**
@@ -136,6 +138,8 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 
 	private PositionDelegate positionDelegate;
 
+	private Object previousPosition = null;
+
 	/**
 	 * Used from spring
 	 */
@@ -160,6 +164,11 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 		}
 
 		this.scannable = scannable;
+		try {
+			this.previousPosition = scannable.getPosition();
+		} catch (DeviceException e) {
+			logger.error("Could not get position of scananble ''{}''", scannable.getName(), e);
+		}
 		this.scannable.addIObserver(this);
 	}
 
@@ -280,7 +289,9 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 
 	@Override
 	public Object getPosition() throws Exception {
-		return getScannable().getPosition();
+		final Object position = getScannable().getPosition();
+		firePositionChanged(position); // only fires if the position has changed
+		return position;
 	}
 
 	@Override
@@ -639,19 +650,36 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 
 	@Override
 	public void update(Object source, Object arg) {
+		if (arg instanceof ScannableStatus && arg != ScannableStatus.IDLE) {
+			// wait until the scannable is IDLE
+			return;
+		}
+
 		Object newPosition = null;
 		if (arg instanceof ScannablePositionChangeEvent) {
 			newPosition = ((ScannablePositionChangeEvent) arg).newPosition;
 		} else if (isValueType(arg.getClass())) {
 			newPosition = arg;
+		} else {
+			try { // just get the new position from the scannable
+				newPosition = scannable.getPosition();
+			} catch (Exception e) {
+				logger.error("Could not get current position of scannable {}", getName());
+			}
 		}
 
-		if (newPosition != null) {
-			IPosition position = new Scalar<Object>(getName(), -1, newPosition); // TODO what should index be
+		firePositionChanged(newPosition);
+	}
+
+	private void firePositionChanged(Object newPosition) {
+		if (newPosition != null && !Objects.equals(newPosition, previousPosition)) {
+			final IPosition position = new Scalar<Object>(getName(), -1, newPosition);
 			try {
 				positionDelegate.firePositionChanged(getLevel(), position);
 			} catch (ScanningException e) {
 				logger.error("An error occurred while notifying position listeners", e);
+			} finally {
+				previousPosition = newPosition;
 			}
 		}
 	}
