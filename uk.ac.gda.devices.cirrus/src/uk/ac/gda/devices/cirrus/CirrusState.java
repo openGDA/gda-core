@@ -35,7 +35,7 @@ import mksAsciiComms.JTotalPressure;
 
 /**
  * Bean holding the current state of the Cirrus hardware as reported through the IEvents interface.
- * 
+ *
  * @author rjw82
  *
  */
@@ -53,8 +53,8 @@ public class CirrusState {
 	private Boolean capillaryHeaterOn = false;
 	private Boolean cirrusHeaterOn = false;
 	private Boolean measurementCreationResponseRecieved;
-	private Boolean measurementCreationResult;	
-	
+	private Boolean measurementCreationResult;
+
 	private JScan runningScan;
 	private JDegas lastDegasReading;
 	private JMeasurement lastMeasurement;
@@ -66,7 +66,7 @@ public class CirrusState {
 	private JRF lastRFTripState;
 	private JInlet lastInletState;
 	private JDigitalPort lastDigitalPortState;
-	private ScannableStatus status = new ScannableStatus("cirrus",ScannableStatus.IDLE);
+	private ScannableStatus status = ScannableStatus.IDLE;
 	private String statusString = "";
 	private JCirrus lastState;
 	private JAnalogInput lastAnalogInputReading;
@@ -294,5 +294,5 @@ public class CirrusState {
 	public void setCirrusHeaterOn(Boolean cirrusHeaterOn) {
 		this.cirrusHeaterOn = cirrusHeaterOn;
 	}
-	
+
 }

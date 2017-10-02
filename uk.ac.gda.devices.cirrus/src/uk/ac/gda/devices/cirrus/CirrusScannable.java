@@ -75,8 +75,7 @@ public class CirrusScannable extends ScannableBase implements Cirrus {
 
 	@Override
 	public boolean isBusy() throws DeviceException {
-		int currentState = controller.getCurrentState().getStatus().status;
-		return currentState == ScannableStatus.BUSY;
+		return controller.getCurrentState().getStatus() == ScannableStatus.BUSY;
 	}
 
 	@Override

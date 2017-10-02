@@ -105,7 +105,7 @@ public class CirrusDetector extends DetectorBase implements NexusDetector, Cirru
 
 	@Override
 	public void atCommandFailure() throws DeviceException {
-		getController().getCurrentState().setStatus(new ScannableStatus("Cirrus", ScannableStatus.BUSY));
+		getController().getCurrentState().setStatus(ScannableStatus.BUSY);
 	}
 
 	@Override
@@ -113,8 +113,8 @@ public class CirrusDetector extends DetectorBase implements NexusDetector, Cirru
 		if (getController() == null || getController().rgaConnection == null || getController().rgaConnection.getSensorCount() == 0) {
 			return Detector.STANDBY;
 		}
-		int currentState = getController().getCurrentState().getStatus().status;
-		if (currentState == ScannableStatus.BUSY) {
+		ScannableStatus currentStatus = getController().getCurrentState().getStatus();
+		if (currentStatus == ScannableStatus.BUSY) {
 			return Detector.BUSY;
 		}
 		return Detector.IDLE;

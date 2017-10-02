@@ -18,6 +18,8 @@
 
 package uk.ac.gda.devices.cirrus;
 
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
 import gda.device.scannable.ScannableStatus;
 import gda.factory.FactoryException;
@@ -46,11 +48,9 @@ import mksAsciiComms.JSourceSettingsCollection;
 import mksAsciiComms.JTotalPressure;
 import mksAsciiComms.rgaFilterModes;
 
-import org.slf4j.LoggerFactory;
-
 /**
  * Uses the SDK directly and holds the current state returned through the event-driven methods.
- * 
+ *
  * @author rjw82
  */
 public class CirrusController implements IEvents {
@@ -112,13 +112,13 @@ public class CirrusController implements IEvents {
 		try {
 			checkCanControlHardware();
 
-			currentState.setStatus(new ScannableStatus(name, ScannableStatus.BUSY));
+			currentState.setStatus(ScannableStatus.BUSY);
 			currentState.setStatusString("");
 			rgaConnection.getSelectedSensor().getMeasurements().RemoveAll();
 			createMeasurement(masses);
 		} catch (DeviceException e) {
 			// reset to idle and throw the exception
-			currentState.setStatus(new ScannableStatus(name, ScannableStatus.IDLE));
+			currentState.setStatus(ScannableStatus.IDLE);
 			throw e;
 		}
 	}
@@ -147,7 +147,7 @@ public class CirrusController implements IEvents {
 		waitForMeasurementCreation();
 
 		if (!currentState.getMeasurementCreationResult()) {
-			currentState.setStatus(new ScannableStatus(name, ScannableStatus.FAULT));
+			currentState.setStatus(ScannableStatus.FAULT);
 			currentState.setStatusString("Last attempt to define a measurement failed");
 			throw new DeviceException("measurment creation failed");
 		}
@@ -300,7 +300,7 @@ public class CirrusController implements IEvents {
 
 	/**
 	 * Assumes the pump is on and the pressure is OK.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	private void checkFilamentOn() throws DeviceException {
@@ -461,7 +461,7 @@ public class CirrusController implements IEvents {
 				if (rgaConnection.getSensorCount() > 0) {
 					rgaConnection.Select(0);
 				} else {
-					currentState.setStatus(new ScannableStatus(name, ScannableStatus.FAULT));
+					currentState.setStatus(ScannableStatus.FAULT);
 					currentState.setStatusString("No available sensor on Cirrus server");
 				}
 			} else {
@@ -580,21 +580,21 @@ public class CirrusController implements IEvents {
 
 	@Override
 	public void OnEndOfScan(JScan arg0) {
-		
+
 		if (arg0.getMeasurements().getItem(0) == null) {
 			logger.error("Null result from scan");
 		}
-		
+
 		currentState.setLastMeasurement(arg0.getMeasurements().getItem(0));
 		currentState.setRunningJScan(null);
 		currentState.setScanStarted(false);
 		arg0.Stop(); // must do this or OnStartingScan events continue to be sent
-		currentState.setStatus(new ScannableStatus(name, ScannableStatus.IDLE));
+		currentState.setStatus(ScannableStatus.IDLE);
 	}
 
 	@Override
 	public void OnError(JError arg0) {
-		currentState.setStatus(new ScannableStatus(name, ScannableStatus.FAULT));
+		currentState.setStatus(ScannableStatus.FAULT);
 		currentState.setStatusString("Error in " + name + ". Reason: " + arg0.getErrorDescription());
 	}
 
@@ -618,7 +618,7 @@ public class CirrusController implements IEvents {
 	public void OnLinkDown(int arg0) {
 		currentState.setHasControl(false);
 		currentState.setIsConnected(false);
-		currentState.setStatus(new ScannableStatus(name, ScannableStatus.FAULT));
+		currentState.setStatus(ScannableStatus.FAULT);
 		currentState.setStatusString("Link to " + name + " lost. Reason number " + arg0);
 	}
 
