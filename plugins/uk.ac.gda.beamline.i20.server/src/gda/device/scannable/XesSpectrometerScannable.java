@@ -209,7 +209,7 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 		bragg = targetBragg;
 
 		// now do moves
-		notifyIObservers(this, new ScannableStatus(getName(), ScannableStatus.BUSY));
+		notifyIObservers(this, ScannableStatus.BUSY);
 
 		// central crystal
 		xtal_x.asynchronousMoveTo(targetL);
@@ -475,7 +475,7 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 
 	@Override
 	public void update(Object source, Object arg) {
-		notifyIObservers(this, new ScannableStatus(getName(), ScannableStatus.BUSY));
+		notifyIObservers(this, ScannableStatus.BUSY);
 	}
 
 	public DummyPersistentScannable getRadiusScannable() {

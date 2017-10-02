@@ -47,7 +47,7 @@ public class XESEnergyScannable extends ScannableMotionUnitsBase implements IObs
 	@Override
 	public void update(Object source, Object arg) {
 		if (arg instanceof ScannableStatus)
-			notifyIObservers(this, new ScannableStatus(getName(), ((ScannableStatus) arg).getStatus()));
+			notifyIObservers(this, arg);
 	}
 
 	public int[] getCrystalCut() throws DeviceException {
