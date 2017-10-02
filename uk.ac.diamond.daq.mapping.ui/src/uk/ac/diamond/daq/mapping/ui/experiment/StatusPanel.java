@@ -109,6 +109,12 @@ class StatusPanel extends Composite {
 	}
 
 	private int getScanPoints() {
+		if (Objects.isNull(mappingBean.getScanDefinition().getMappingScanRegion().getScanPath())) {
+			// When starting the client from a fresh workspace,
+			// the mapping view won't have been fully initialised at this point.
+			// We'll return zero now; this method will be called again when the scan path is set.
+			return 0;
+		}
 		ScanRequest<IROI> req = getScanRequest();
 		if (Objects.isNull(req)) {
 			return get2DPoints();
@@ -154,7 +160,7 @@ class StatusPanel extends Composite {
 	private ScanRequest<IROI> getScanRequest() {
 		try {
 			return scanRequestConverter.convertToScanRequest(mappingBean);
-		} catch (ScanningException | IllegalArgumentException e) {
+		} catch (ScanningException e) {
 			logger.error("Cannot get the ScanRequest!", e.getMessage(), e);
 			return null;
 		}
