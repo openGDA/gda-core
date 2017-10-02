@@ -18,17 +18,26 @@
 
 package gda.device.scannable;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.epics.CAClient;
 import gda.factory.FactoryException;
+import gov.aps.jca.CAException;
 
-//Access pv's using CAClient in it's simplest form.
-
+/**
+ * Access pv's using CAClient in it's simplest form.
+ * It supports a configurable data type of either number or String from the specified PV.
+ * It also monitors the value change of the specified PV, and notify any observer.
+ */
 public class SimplePVScannable extends ScannableBase implements Scannable {
 
-	private Object pvName;
+	private static final Logger logger=LoggerFactory.getLogger(SimplePVScannable.class);
+	private String pvName;
 	private CAClient ca_client = new CAClient();
+	private boolean textInput=false; //default to Number
 
 	@Override
 	public void configure() throws FactoryException {
@@ -36,6 +45,12 @@ public class SimplePVScannable extends ScannableBase implements Scannable {
 		// to make sure the column is correct in data files
 		if (getInputNames().length == 1 && getInputNames()[0].equals(ScannableBase.DEFAULT_INPUT_NAME)) {
 			setInputNames(new String[] { getName() });
+		}
+		try {
+			ca_client.camonitor(pvName, ev->notifyIObservers(this, ev.getDBR().getValue()));
+		} catch (CAException | InterruptedException e) {
+			logger.error("{}: Failed to setup monitor.", getName(), e);
+			throw new FactoryException(getName()+": Failed to setup monitor on PV '"+getPvName()+"'");
 		}
 	}
 
@@ -47,7 +62,11 @@ public class SimplePVScannable extends ScannableBase implements Scannable {
 	@Override
 	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
 		try {
-			ca_client.caput((String) pvName, Double.parseDouble(position.toString()));
+			if (!isTextInput()) { //Number input
+				ca_client.caput(pvName, Double.parseDouble(position.toString()));
+			} else {
+				ca_client.caput(pvName, position.toString());
+			}
 		} catch (Exception e) {
 			if( e instanceof DeviceException)
 				throw (DeviceException)e;
@@ -58,7 +77,7 @@ public class SimplePVScannable extends ScannableBase implements Scannable {
 	@Override
 	public Object rawGetPosition() throws DeviceException {
 		try {
-			return ca_client.caget((String) pvName);
+			return ca_client.caget(pvName);
 		} catch (Exception e) {
 			if( e instanceof DeviceException)
 				throw (DeviceException)e;
@@ -66,11 +85,19 @@ public class SimplePVScannable extends ScannableBase implements Scannable {
 		}
 	}
 
-	public Object getPvName() {
+	public String getPvName() {
 		return pvName;
 	}
 
-	public void setPvName(Object pvName) {
+	public void setPvName(String pvName) {
 		this.pvName = pvName;
+	}
+
+	public boolean isTextInput() {
+		return textInput;
+	}
+
+	public void setTextInput(boolean textInput) {
+		this.textInput = textInput;
 	}
 }
