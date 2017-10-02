@@ -18,12 +18,6 @@
 
 package uk.ac.gda.client.observablemodels;
 
-import gda.device.DeviceException;
-import gda.device.Scannable;
-import gda.device.ScannableMotionUnits;
-import gda.device.scannable.ScannableStatus;
-import gda.observable.IObserver;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -31,6 +25,11 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.DeviceException;
+import gda.device.Scannable;
+import gda.device.ScannableMotionUnits;
+import gda.device.scannable.ScannableStatus;
+import gda.observable.IObserver;
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.UIObservableModel;
 
@@ -164,7 +163,7 @@ public class ScannableWrapper extends UIObservableModel implements IObserver {
 		if (arg instanceof ScannableStatus) {
 			ScannableStatus status = (ScannableStatus) arg;
 			try {
-				if (status.getStatus() == ScannableStatus.BUSY) {
+				if (status == ScannableStatus.BUSY) {
 					if (scannablePositionChecker == null) {
 						synchronized(this) { // Make sure there is only one scannablePositionChecker
 							if (scannablePositionChecker == null) {

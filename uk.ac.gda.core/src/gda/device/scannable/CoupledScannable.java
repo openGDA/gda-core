@@ -296,9 +296,9 @@ public class CoupledScannable extends ScannableMotionUnitsBase implements IObser
 		boolean scannableReady = true;
 		if ( changeCode instanceof ScannableStatus) {
 
-			int scanStatus = ((ScannableStatus) changeCode).getStatus();
-			if(scanStatus == ScannableStatus.BUSY ||  scanStatus== ScannableStatus.FAULT)
-				notifyIObservers(this,new ScannableStatus(getName(), scanStatus));
+			ScannableStatus scanStatus = ((ScannableStatus) changeCode);
+			if (scanStatus == ScannableStatus.BUSY ||  scanStatus== ScannableStatus.FAULT)
+				notifyIObservers(this, scanStatus);
 
 
 			else if(scanStatus == ScannableStatus.IDLE)
@@ -311,7 +311,7 @@ public class CoupledScannable extends ScannableMotionUnitsBase implements IObser
 						scannableReady = false;
 				}
 				if(scannableReady)
-					notifyIObservers(this,new ScannableStatus(getName(), scanStatus));
+					notifyIObservers(this, scanStatus);
 			}
 
 		}

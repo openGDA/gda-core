@@ -229,7 +229,7 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IScannab
 				} else {
 					logger.debug("{}: move to {} ", getName(), internalPosition);
 				}
-				notifyIObservers(this, new ScannableStatus(getName(), ScannableStatus.BUSY));
+				notifyIObservers(this, ScannableStatus.BUSY);
 				this.motor.moveTo(internalDoublePosition);
 				lastDemandedInternalPosition = internalDoublePosition;
 			} catch (IllegalArgumentException e) {
@@ -609,11 +609,11 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IScannab
 			final MotorStatus motorStatus = (MotorStatus) changeCode;
 
 			if (motorStatus == MotorStatus.READY) {
-				notifyIObservers(this, new ScannableStatus(this.getName(), ScannableStatus.IDLE));
+				notifyIObservers(this, ScannableStatus.IDLE);
 			} else if (motorStatus == MotorStatus.BUSY) {
 				// do nothing as should have already informed IObservers during asynchronousMoveTo
 			} else {
-				notifyIObservers(this, new ScannableStatus(this.getName(), ScannableStatus.FAULT));
+				notifyIObservers(this, ScannableStatus.FAULT);
 			}
 		}
 
@@ -622,7 +622,7 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IScannab
 			final MotorEvent motorEvent = (MotorEvent) changeCode;
 
 			if (motorEvent == MotorEvent.MOVE_COMPLETE) {
-				notifyIObservers(this, new ScannableStatus(this.getName(), ScannableStatus.IDLE));
+				notifyIObservers(this, ScannableStatus.IDLE);
 			}
 		}
 	}

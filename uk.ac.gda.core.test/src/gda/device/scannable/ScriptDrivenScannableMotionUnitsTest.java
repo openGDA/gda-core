@@ -22,20 +22,21 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import gda.device.DeviceException;
-import gda.device.motor.DummyMotor;
-import gda.jython.ICommandRunner;
-import gda.observable.IObserver;
 
 import java.io.File;
 
 import org.junit.Before;
 import org.junit.Test;
 
+import gda.device.DeviceException;
+import gda.device.motor.DummyMotor;
+import gda.jython.ICommandRunner;
+import gda.observable.IObserver;
+
 /**
  * The way that these tests work, with a custom implementation of {@code ICommandRunner}, is quite sneaky. So here's
  * some explanation:
- * 
+ *
  * <p>Usually a {@code ScriptDrivenScannableMotionUnits} ({@code SDSMU}) object works like this:
  * <ul>
  * <li>The {@code commandFormat} would be something like {@code "SCANNABLENAME(%5.5g)"}.</li>
@@ -47,7 +48,7 @@ import org.junit.Test;
  * <li>{@code SDSMU.asynchronousMoveTo} calls {@code commandRunner.runCommand} to execute the command, and doesn't wait
  *     for anything.</li>
  * </ul>
- * 
+ *
  * <p>For this test, the {@code commandFormat} is set to {@code "%5.5g"}.
  * <ul>
  * <li>The commands built by {@code SDSMU} are therefore just numbers, e.g. {@code "12.34"}.</li>
@@ -60,9 +61,9 @@ import org.junit.Test;
  */
 public class ScriptDrivenScannableMotionUnitsTest {
 
-	ScannableMotor scannableMotor;
-	ScriptDrivenScannableMotionUnits scannableUnderTest;
-	ScannableStatus status;
+	private ScannableMotor scannableMotor;
+	private ScriptDrivenScannableMotionUnits scannableUnderTest;
+	private ScannableStatus status;
 
 	@Before
 	public void setUp() throws Exception {
@@ -133,7 +134,7 @@ public class ScriptDrivenScannableMotionUnitsTest {
 			public void update(Object source, Object arg) {
 				if ( arg instanceof ScannableStatus){
 					status = (ScannableStatus)arg;
-					System.out.println( "Status = " + status.getStatus());
+					System.out.println( "Status = " + status);
 				}
 			}
 		});
@@ -163,9 +164,9 @@ public class ScriptDrivenScannableMotionUnitsTest {
 		scannableUnderTest.asynchronousMoveTo(1.0d);
 		Thread.sleep(50);
 		assertTrue(scannableUnderTest.isBusy());
-		assertEquals(ScannableStatus.BUSY, status.getStatus());
+		assertEquals(ScannableStatus.BUSY, status);
 		long timeAtStart = System.currentTimeMillis();
-		while( status.getStatus() == (ScannableStatus.BUSY)){
+		while( status == ScannableStatus.BUSY){
 			Thread.sleep(50);
 		}
 		long timeAtEnd = System.currentTimeMillis();

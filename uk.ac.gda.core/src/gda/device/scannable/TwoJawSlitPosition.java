@@ -21,17 +21,17 @@
  */
 package gda.device.scannable;
 
+import org.jscience.physics.quantities.Quantity;
+import org.jscience.physics.units.Unit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
 import gda.device.ScannableMotionUnits;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
 import gda.observable.IObserver;
 import gda.util.QuantityFactory;
-
-import org.jscience.physics.quantities.Quantity;
-import org.jscience.physics.units.Unit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Position of the centre of a gap in a two-jaw slit.
@@ -363,7 +363,7 @@ public class TwoJawSlitPosition extends ScannableMotionUnitsBase implements IObs
 	@Override
 	public void update(Object theObserved, Object changeCode) {
 		// fan out move complete messages
-		if (changeCode instanceof ScannableStatus && ((ScannableStatus) changeCode).getStatus() == ScannableStatus.IDLE) {
+		if (changeCode == ScannableStatus.IDLE) {
 			notifyIObservers(this, changeCode);
 		}
 	}

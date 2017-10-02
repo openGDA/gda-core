@@ -41,11 +41,11 @@ public class DummySampleAxis extends SampleXYZAxis {
 
 	@Override
 	public void asynchronousMoveTo(Object position) throws DeviceException {
-		this.notifyIObservers(this, new ScannableStatus(this.getName(), ScannableStatus.BUSY));
+		this.notifyIObservers(this, ScannableStatus.BUSY);
 		Double dblPosition = ScannableUtils.objectToArray(position)[0];
 		dblPosition = this.unitsComponent.convertObjectToHardwareUnitsAssumeUserUnits(dblPosition);
 		positionInMicrons = dblPosition;
-		this.notifyIObservers(this, new ScannableStatus(this.getName(), ScannableStatus.IDLE));
+		this.notifyIObservers(this, ScannableStatus.IDLE);
 	}
 
 	@Override

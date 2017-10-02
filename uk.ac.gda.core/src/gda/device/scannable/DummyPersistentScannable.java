@@ -58,7 +58,7 @@ public class DummyPersistentScannable extends DummyScannable {
 			final Double newPosition = positionArray[0];
 			notifyIObservers(getName(), newPosition);
 			notifyIObservers(getName(), new ScannablePositionChangeEvent(newPosition));
-			notifyIObservers(getName(), new ScannableStatus(getName(), ScannableStatus.IDLE));
+			notifyIObservers(getName(), ScannableStatus.IDLE);
 		} catch (ConfigurationException e) {
 			mylogger.error("Configuration exception in rawAsynchronousMoveTo for DummyPersistentScannable",e);
 		}

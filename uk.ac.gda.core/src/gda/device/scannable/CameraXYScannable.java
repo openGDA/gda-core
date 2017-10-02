@@ -110,9 +110,7 @@ public class CameraXYScannable extends ScannableBase implements InitializingBean
 
 					@Override
 					public void update(Object source, Object arg) {
-						if (arg instanceof ScannableStatus) {
-							notifyIObservers(CameraXYScannable.this, new ScannableStatus(getName(), ((ScannableStatus) arg).status));
-						} else if (arg instanceof ScannablePositionChangeEvent) {
+						if (arg instanceof ScannableStatus || arg instanceof ScannablePositionChangeEvent) {
 							notifyIObservers(CameraXYScannable.this, arg);
 						}
 					}

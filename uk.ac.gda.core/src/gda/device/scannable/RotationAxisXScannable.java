@@ -96,9 +96,7 @@ public class RotationAxisXScannable extends ScannableBase implements Initializin
 
 					@Override
 					public void update(Object source, Object arg) {
-						if (arg instanceof ScannableStatus) {
-							notifyIObservers(RotationAxisXScannable.this, new ScannableStatus(getName(), ((ScannableStatus) arg).status));
-						} else if (arg instanceof ScannablePositionChangeEvent) {
+						if (arg instanceof ScannableStatus || arg instanceof ScannablePositionChangeEvent) {
 							notifyIObservers(RotationAxisXScannable.this, arg);
 						}
 					}

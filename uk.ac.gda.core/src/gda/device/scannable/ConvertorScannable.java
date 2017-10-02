@@ -21,6 +21,11 @@
  */
 package gda.device.scannable;
 
+import org.jscience.physics.quantities.Quantity;
+import org.jscience.physics.units.Unit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
 import gda.device.ScannableMotionUnits;
 import gda.device.scannable.component.UnitsComponent;
@@ -28,11 +33,6 @@ import gda.factory.Finder;
 import gda.observable.IObserver;
 import gda.util.QuantityFactory;
 import gda.util.converters.IQuantityConverter;
-
-import org.jscience.physics.quantities.Quantity;
-import org.jscience.physics.units.Unit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Replacement for CombinedDOF. This Scannable operates a ScannableMotionUnits scannable via a
@@ -300,7 +300,7 @@ public class ConvertorScannable extends ScannableMotionUnitsBase implements IObs
 	@Override
 	public void update(Object source, Object arg) {
 		if( arg instanceof ScannableStatus){
-			notifyIObservers(this,new ScannableStatus(getName(),((ScannableStatus)arg).getStatus() ));
+			notifyIObservers(this, arg);
 		}
 	}
 }

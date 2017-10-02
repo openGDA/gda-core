@@ -19,75 +19,31 @@
 
 package gda.device.scannable;
 
-import java.io.Serializable;
+import gda.device.Scannable;
 
 /**
- * An object used by Scannables to inform objects IObserving them that the status has changed.
+ * An enum used by {@link Scannable}s to inform objects IObserving them that the status has changed.
  * <p>
  * To ensure the correct status objects are sent out by Scannables, this status class must not be used by any Scannable
- * abstract base classes, but should only be used by concrete Scabnbnable classes wishing to be IObserved.
+ * abstract base classes, but should only be used by concrete Scannable classes wishing to be IObserved.
  */
-public class ScannableStatus implements Serializable {
+public enum ScannableStatus {
 
 	/**
 	 * The Scannable is not operating. A call to isBusy would return false;
 	 */
-	public static int IDLE = 0;
+	IDLE,
 
 	/**
 	 * The Scannable is operating by having its asynchronousMoveTo method being called (or one of the methods which
 	 * indirectly call it). A call to isBusy would return true;
 	 */
-	public static int BUSY = IDLE + 1;
+	BUSY,
 
 	/**
 	 * An error occurred the last time the asynchronousMoveTo method (or one of the methods which indirectly call it)
 	 * was called.
 	 */
-	public static int FAULT = BUSY + 1;
-
-	/**
-	 * The status value this object represents
-	 */
-	public int status = 0;
-
-	/**
-	 * The name of the Scannable which this status value represents
-	 */
-	public String scannable = "";
-
-	/**
-	 * Constructor.
-	 *
-	 * @param name
-	 * @param status
-	 */
-	public ScannableStatus(String name, int status) {
-		this.scannable = name;
-		this.status = status;
-	}
-
-	/**
-	 * The status value this object represents
-	 *
-	 * @return int
-	 */
-	public int getStatus() {
-		return status;
-	}
-
-	/**
-	 * The name of the Scannable this object represents
-	 *
-	 * @return String
-	 */
-	public String getScannableName() {
-		return scannable;
-	}
-
-	@Override
-	public String toString() {
-		return String.format("ScannableStatus(%s, %d)", scannable, status);
-	}
+	FAULT;
 
 }
