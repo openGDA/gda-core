@@ -1,0 +1,26 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Xspress4
+Bundle-SymbolicName: uk.ac.gda.devices.xspress4
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-Vendor: Diamond Light Source
+Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
+Require-Bundle: uk.ac.gda.api,
+ uk.ac.gda.exafs.api,
+ uk.ac.gda.common,
+ uk.ac.gda.core,
+ uk.ac.gda.epics,
+ uk.ac.gda.devices.xspress2,
+ uk.ac.gda.devices.xspress3,
+ uk.ac.gda.devices.xspress3.epics,
+ uk.ac.gda.nexus,
+ org.eclipse.dawnsci.analysis.api;bundle-version="1.0.0",
+ log4j.over.slf4j,
+ slf4j.api,
+ org.apache.commons.lang,
+ org.eclipse.dawnsci.analysis.dataset,
+ org.eclipse.dawnsci.hdf5,
+ org.eclipse.dawnsci.nexus
+Import-Package: org.apache.commons.io,
+ org.jacorb.config

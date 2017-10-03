@@ -119,6 +119,14 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 		startRunningXspress3FrameSet();
 	}
 
+	public int getFramesRead() {
+		return framesRead;
+	}
+
+	public void setFramesRead(int framesRead) {
+		this.framesRead = framesRead;
+	}
+
 	protected void startRunningXspress3FrameSet() throws DeviceException {
 		// if (writeHDF5Files) {
 		// do not do this if writeHDF5Files is false as may cause errors in

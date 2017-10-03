@@ -27,7 +27,6 @@ import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
 import gda.device.detector.countertimer.TfgScaler;
 import gda.factory.Finder;
-import uk.ac.gda.beans.xspress.XspressDetector;
 
 /**
  * Returns FF/I0 for an xspress / ion chamber combination. Note this does not operate any hardware so should be used
@@ -35,7 +34,7 @@ import uk.ac.gda.beans.xspress.XspressDetector;
  */
 public class TfgFFoverI0 extends DetectorBase implements NexusDetector {
 	private static final Logger logger = LoggerFactory.getLogger(TfgFFoverI0.class);
-	private XspressDetector xspress = null;
+	private NexusDetector xspress = null;
 	private String xspressSystemName;
 	private TfgScaler ct = null;
 	private String ctName;
@@ -47,7 +46,7 @@ public class TfgFFoverI0 extends DetectorBase implements NexusDetector {
 	@Override
 	public void configure() {
 		if (xspress == null)
-			if ((xspress = (XspressDetector) Finder.getInstance().find(xspressSystemName)) == null)
+			if ((xspress = (NexusDetector) Finder.getInstance().find(xspressSystemName)) == null)
 				logger.error("XspressSystem " + xspressSystemName + " not found");
 		if (ct == null) {
 			logger.debug("Finding: " + ctName);
@@ -89,7 +88,7 @@ public class TfgFFoverI0 extends DetectorBase implements NexusDetector {
 		return vals[column];
 	}
 
-	private Double getI0() throws DeviceException {
+	public Double getI0() throws DeviceException {
 		// assume that this is a TFv2 behind where the first column is always the live time, so the next channel will be
 		// the I0
 		Object out = ct.readout();
@@ -126,11 +125,11 @@ public class TfgFFoverI0 extends DetectorBase implements NexusDetector {
 		return 0;
 	}
 
-	public XspressDetector getXspress() {
+	public NexusDetector getXspress() {
 		return xspress;
 	}
 
-	public void setXspress(XspressDetector xspress) {
+	public void setXspress(NexusDetector xspress) {
 		this.xspress = xspress;
 	}
 
