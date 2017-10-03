@@ -44,6 +44,8 @@ public class CameraConfiguration implements Findable {
 	private int cacheSize; // frames
 	/** If set, will allow ROIs drawn on the live stream to be passes to AD plugins in scans*/
 	private RemoteRectangularROIsProvider roiProvider;
+	/** If set, adds axes to the camera and allows the image to be set in the Map view. */
+	private CameraCalibration cameraCalibration;
 
 	@Override
 	public String getName() {
@@ -104,6 +106,13 @@ public class CameraConfiguration implements Findable {
 		this.roiProvider = roiProvider;
 	}
 
+	public CameraCalibration getCameraCalibration() {
+		return cameraCalibration;
+	}
+	public void setCameraCalibration(CameraCalibration cameraCalibration) {
+		this.cameraCalibration = cameraCalibration;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -114,6 +123,7 @@ public class CameraConfiguration implements Findable {
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		result = prime * result + (rgb ? 1231 : 1237);
 		result = prime * result + ((roiProvider == null) ? 0 : roiProvider.hashCode());
+		result = prime * result + ((cameraCalibration == null) ? 0 : cameraCalibration.hashCode());
 		result = prime * result + (int) (sleepTime ^ (sleepTime >>> 32));
 		result = prime * result + ((url == null) ? 0 : url.hashCode());
 		return result;
@@ -151,6 +161,11 @@ public class CameraConfiguration implements Findable {
 			if (other.roiProvider != null)
 				return false;
 		} else if (!roiProvider.equals(other.roiProvider))
+			return false;
+		if (cameraCalibration == null) {
+			if (other.cameraCalibration != null)
+				return false;
+		} else if (!cameraCalibration.equals(other.cameraCalibration))
 			return false;
 		if (sleepTime != other.sleepTime)
 			return false;
