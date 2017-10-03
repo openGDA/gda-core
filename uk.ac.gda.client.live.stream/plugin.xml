@@ -34,6 +34,13 @@
                style="push"
                tooltip="Take a snapshot of the live image">
          </command>
+         <command
+         		commandId="uk.ac.gda.client.live.stream.createmapcommand"
+         		icon="icons/createmap.png"
+         		label="Create Map"
+         		style="push"
+         		tooltip="Create map from live stream">
+         </command>
       </menuContribution>
    </extension>
    <extension
@@ -41,6 +48,10 @@
       <handler
             class="uk.ac.gda.client.live.stream.handlers.SnapshotFromLiveStreamHandler"
             commandId="uk.ac.gda.client.live.stream.snapshothandler">
+      </handler>
+      <handler
+      		class="uk.ac.gda.client.live.stream.handlers.CreateMapHandler"
+      		commandId="uk.ac.gda.client.live.stream.createmapcommand">
       </handler>
    </extension>
    <extension
@@ -50,6 +61,12 @@
             description="Take a snapshot of the live image"
             id="uk.ac.gda.client.live.stream.snapshotcommand"
             name="Snapshot">
+      </command>
+      <command
+      		defaultHandler="uk.ac.gda.client.live.stream.handlers.CreateMapHandler"
+      		description="Create Map"
+      		id="uk.ac.gda.client.live.stream.createmapcommand"
+      		name="Create Map">
       </command>
    </extension>
 </plugin>

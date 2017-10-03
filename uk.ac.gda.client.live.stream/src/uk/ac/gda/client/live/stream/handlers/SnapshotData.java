@@ -21,25 +21,47 @@ package uk.ac.gda.client.live.stream.handlers;
 import org.eclipse.january.dataset.IDataset;
 
 public class SnapshotData {
+
 	private String title;
 	private IDataset dataset;
+	private IDataset xAxis;
+	private IDataset yAxis;
 
 	public SnapshotData(String title, IDataset dataset) {
-		this.title=title;
-		this.dataset=dataset;
+		this.title = title;
+		this.dataset = dataset;
 	}
+
 	public IDataset getDataset() {
 		return dataset;
 	}
+
 	public void setDataset(IDataset dataset) {
 		this.dataset = dataset;
 	}
+
 	public String getTitle() {
 		return title;
 	}
+
 	public void setTitle(String title) {
 		this.title = title;
 	}
 
+	public IDataset getxAxis() {
+		return xAxis;
+	}
+
+	public void setxAxis(IDataset xAxis) {
+		this.xAxis = xAxis;
+	}
+
+	public IDataset getyAxis() {
+		return yAxis;
+	}
+
+	public void setyAxis(IDataset yAxis) {
+		this.yAxis = yAxis;
+	}
 
 }

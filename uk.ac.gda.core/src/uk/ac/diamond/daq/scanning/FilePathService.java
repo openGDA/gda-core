@@ -147,11 +147,15 @@ public class FilePathService implements IFilePathService {
 
 	@Override
 	public int getScanNumber() throws Exception {
+		return getTracker().getCurrentFileNumber();
+	}
+
+	private static NumTracker getTracker() throws Exception {
 		if (tracker == null) {
-			// Make a NumTracker using the property gda.data.numtracker.extension
 			tracker = new NumTracker();
 		}
-		return tracker.getCurrentFileNumber();
+
+		return tracker;
 	}
 
 	@Override

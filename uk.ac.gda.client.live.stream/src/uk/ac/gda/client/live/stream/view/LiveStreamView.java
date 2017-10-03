@@ -674,6 +674,13 @@ public class LiveStreamView extends ViewPart {
 	}
 
 	public SnapshotData getSnapshot() {
-		return new SnapshotData(plottingSystem.getTitle(), iTrace.getData().clone());
+		final SnapshotData snapshotData = new SnapshotData(plottingSystem.getTitle(), iTrace.getData().clone());
+		final List<IDataset> axes = iTrace.getAxes();
+		if (axes != null && !axes.isEmpty()) {
+			snapshotData.setxAxis(axes.get(0));
+			snapshotData.setyAxis(axes.get(1));
+		}
+
+		return snapshotData;
 	}
 }
