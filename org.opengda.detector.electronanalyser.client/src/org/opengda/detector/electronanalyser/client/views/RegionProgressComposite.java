@@ -1,7 +1,8 @@
 package org.opengda.detector.electronanalyser.client.views;
 
+import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
@@ -40,9 +41,6 @@ public class RegionProgressComposite extends Composite implements Initialization
 	private String totalDataPointsPV;
 	private String iterationCurrentPointPV;
 
-//	private String iterationTotalPointsPV;
-//	private String currentDataPointPV;
-
 	private String totalRemianingTimePV;
 	private String totalProgressPV;
 	private String totalPointsPV;
@@ -50,9 +48,6 @@ public class RegionProgressComposite extends Composite implements Initialization
 
 	private String currentIterationPV;
 	private String totalIterationsPV;
-
-//	private String inLeadPV;
-//	private String currentLeadPointPV;
 
 	private static final Logger logger=LoggerFactory.getLogger(RegionProgressComposite.class);
 	private EpicsChannelManager controller;
@@ -62,9 +57,6 @@ public class RegionProgressComposite extends Composite implements Initialization
 	private IterationProgressListener iterationProgressListener;
 	private IterationTotalDataPointsListener endPointsListener;
 	private IterationCurrentPointListener iterationCurrentPointListener;
-
-//	private IterationTotalPointsListener iterationTotalPointsListener; //total steps in iteration
-//	private IterationCurrentDataPointListener iterationCurrentDataPointListener; //current data point in iteration
 
 	private TotalRemainingTimeListener totalTimeRemainingListener;
 	private TotalProgressListener totalProgressListener;
@@ -88,10 +80,6 @@ public class RegionProgressComposite extends Composite implements Initialization
 	private Channel currentIterationChannel;
 	private Channel totalIterationsChannel;
 
-//	private Channel currentDataPointChannel;
-//	private Channel inLeadChannel;
-//	private Channel currentLeadPointChannel;
-
 	private int iterationTotalDataPoints = 0;
 	private int totalSteps;
 	private int totalIterations=0;
@@ -112,25 +100,20 @@ public class RegionProgressComposite extends Composite implements Initialization
 	public RegionProgressComposite(Composite parent, int style) {
 		super(parent, style);
 
-		controller=new EpicsChannelManager(this);
+		controller = new EpicsChannelManager(this);
 		setLayout(new GridLayout(1, false));
 
-		Composite rootComposite = new Composite(this, SWT.NONE);
-		GridData gd_rootComposite = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_rootComposite.widthHint = 456;
-		rootComposite.setLayoutData(gd_rootComposite);
-		GridLayout layout = new GridLayout(6, false);
-		layout.marginWidth = 0;
-		layout.marginHeight = 0;
-		rootComposite.setLayout(layout);
+		Composite rootComposite = new Composite(parent, SWT.NONE);
+		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).hint(451, SWT.DEFAULT).grab(true, false).applyTo(rootComposite);
+		GridLayoutFactory.fillDefaults().numColumns(6).margins(5, 5).applyTo(rootComposite);
 
-		Label lblIteration=new Label(rootComposite, SWT.None);
+		Label lblIteration = new Label(rootComposite, SWT.None);
 		lblIteration.setText("Iteration: ");
+		lblIteration.setAlignment(SWT.LEFT);
 
+		GridDataFactory txtBoxGDataFactory = GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).hint(34, SWT.DEFAULT);
 		txtTextIterationValue = new Text(rootComposite, SWT.BORDER);
-		GridData gd_lblIterationValue = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_lblIterationValue.widthHint = 40;
-		txtTextIterationValue.setLayoutData(gd_lblIterationValue);
+		txtBoxGDataFactory.applyTo(txtTextIterationValue);
 		txtTextIterationValue.setEditable(false);
 		updateIterationDispay(currentiteration, totalIterations);
 
@@ -138,87 +121,75 @@ public class RegionProgressComposite extends Composite implements Initialization
 		lblCurrentPoint.setText("Point:");
 
 		txtCurrentPoint = new Text(rootComposite, SWT.BORDER);
-		txtCurrentPoint.setEditable(false);
+		txtBoxGDataFactory.applyTo(txtCurrentPoint);
 		txtCurrentPoint.setText("0");
-		GridData gd_txtCurrentPoint = new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1);
-		gd_txtCurrentPoint.widthHint = 40;
-		txtCurrentPoint.setLayoutData(gd_txtCurrentPoint);
+		txtCurrentPoint.setEditable(false);
 
 		Label lblTimeRemaining = new Label(rootComposite, SWT.NONE);
 		lblTimeRemaining.setText("Iter Time Remaining:");
 
 		txtIterationTimeRemaining = new Text(rootComposite, SWT.BORDER);
-		txtIterationTimeRemaining.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
-		txtIterationTimeRemaining.setText("0.0000");
+		GridDataFactory.fillDefaults().hint(47, SWT.DEFAULT).grab(true, false).applyTo(txtIterationTimeRemaining);
+		txtIterationTimeRemaining.setText("0.000");
 		txtIterationTimeRemaining.setEditable(false);
 
 		Label lblIterationProgress = new Label(rootComposite, SWT.NONE);
-		lblIterationProgress.setText("Iter progress:");
+		GridDataFactory.fillDefaults().applyTo(lblIterationProgress);
+		lblIterationProgress.setText("Iter Progress:");
 
-		lblMin = new Label(rootComposite, SWT.NONE);
-		lblMin.setAlignment(SWT.RIGHT);
-		GridData gd_lblMin = new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1);
-		gd_lblMin.widthHint = 28;
-		lblMin.setLayoutData(gd_lblMin);
+		Composite barComposite = new Composite(rootComposite, SWT.NONE);
+		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).span(5, 1).grab(true, false).applyTo(barComposite);
+		GridLayoutFactory.fillDefaults().numColumns(5).applyTo(barComposite);
 
-		progressBar = new ProgressBar(rootComposite, SWT.HORIZONTAL);
-		GridData gd_progressBar = new GridData(GridData.FILL_HORIZONTAL);
-		gd_progressBar.grabExcessHorizontalSpace = false;
-		gd_progressBar.horizontalSpan = 3;
-		progressBar.setLayoutData(gd_progressBar);
+		lblMin = new Label(barComposite, SWT.NONE);
+		GridDataFactory.fillDefaults().applyTo(lblMin);
+
+		progressBar = new ProgressBar(barComposite, SWT.HORIZONTAL);
+		GridDataFactory.fillDefaults().span(3, 1).grab(true, false).applyTo(progressBar);
 		progressBar.setMinimum(0);
 		progressBar.setMaximum(100);
 
-		lblMax = new Label(rootComposite, SWT.NONE);
+		lblMax = new Label(barComposite, SWT.NONE);
+		GridDataFactory.fillDefaults().align(SWT.RIGHT, SWT.CENTER).hint(30, SWT.DEFAULT).applyTo(lblMax);
 		lblMax.setText("100");
-		GridData gd_lblMax = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_lblMax.widthHint = 56;
-		lblMax.setLayoutData(gd_lblMax);
 
 		lblMax.setText(String.valueOf(progressBar.getMaximum()));
 		lblMin.setText(String.valueOf(progressBar.getMinimum()));
 
 		Label horizontalSeparator = new Label(rootComposite, SWT.SEPARATOR | SWT.HORIZONTAL);
-		GridData gd_label = new GridData(SWT.LEFT, SWT.CENTER, false, false, 6, 1);
-		gd_label.widthHint = 447;
-		horizontalSeparator.setLayoutData(gd_label);
+		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).span(6, 1).applyTo(horizontalSeparator);
 
 		Label lblTotalSteps = new Label(rootComposite, SWT.NONE);
 		lblTotalSteps.setText("Total Steps:");
 
 		txtTextTotalStepsValue = new Text(rootComposite, SWT.BORDER);
-		GridData gd_txtTextTotalStepsValue = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_txtTextTotalStepsValue.widthHint = 40;
-		txtTextTotalStepsValue.setLayoutData(gd_txtTextTotalStepsValue);
+		txtBoxGDataFactory.applyTo(txtTextTotalStepsValue);
 		txtTextTotalStepsValue.setText("0");
 		txtTextTotalStepsValue.setEditable(false);
 
 		Label lblCurrentStep = new Label(rootComposite, SWT.NONE);
-		lblCurrentStep.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		GridDataFactory.fillDefaults().align(SWT.RIGHT, SWT.CENTER).applyTo(lblCurrentStep);
 		lblCurrentStep.setText("Step:");
 
 		txtCurrentStepValue = new Text(rootComposite, SWT.BORDER);
-		GridData gd_txtCurrentStepValue = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_txtCurrentStepValue.widthHint = 40;
-		txtCurrentStepValue.setLayoutData(gd_txtCurrentStepValue);
+		txtBoxGDataFactory.applyTo(txtCurrentStepValue);
 		txtCurrentStepValue.setText("0");
 		txtCurrentStepValue.setEditable(false);
 
 		Label lblTotalTimeRemaining = new Label(rootComposite, SWT.NONE);
-		lblTotalTimeRemaining.setText("Total time remaining:");
+		lblTotalTimeRemaining.setText("Total Time Remaining:");
 
 		txtTotalTimeRemaining = new Text(rootComposite, SWT.BORDER);
-		txtTotalTimeRemaining.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
-		txtTotalTimeRemaining.setText("0.0000");
+		GridDataFactory.fillDefaults().hint(47, SWT.DEFAULT).grab(true, false).applyTo(txtTotalTimeRemaining);
+		txtTotalTimeRemaining.setText("0.000");
 		txtTotalTimeRemaining.setEditable(false);
 
 		Label lblTotalProgress = new Label(rootComposite, SWT.NONE);
-		lblTotalProgress.setText("Total progress:");
+		lblTotalProgress.setText("Total Progress:");
 
 		totalProgressBar = new ProgressBar(rootComposite, SWT.NONE);
-		GridData gd_progressBar_1 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 5, 1);
-		gd_progressBar_1.widthHint = 340;
-		totalProgressBar.setLayoutData(gd_progressBar_1);
+		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).hint(340, SWT.DEFAULT).span(5, 1).applyTo(totalProgressBar);
+
 	}
 
 	public void initialise() {
@@ -347,9 +318,6 @@ public class RegionProgressComposite extends Composite implements Initialization
 						@Override
 						public void run() {
 							progressBar.setSelection(percentage);
-//							if (percentage==100) {
-//								progressBar.setSelection(0);
-//							}
 						}
 					});
 				}
@@ -479,9 +447,6 @@ public class RegionProgressComposite extends Composite implements Initialization
 						@Override
 						public void run() {
 							totalProgressBar.setSelection(percentage);
-//							if (percentage==100) {
-//								totalProgressBar.setSelection(0);
-//							}
 						}
 					});
 				}
@@ -628,37 +593,4 @@ public class RegionProgressComposite extends Composite implements Initialization
 	public void setTotalDataPointsPV(String totalDataPointsPV) {
 		this.totalDataPointsPV = totalDataPointsPV;
 	}
-
-//	public String getCurrentDataPointPV() {
-//		return currentDataPointPV;
-//	}
-//
-//	public void setCurrentDataPointPV(String currentDataPointPV) {
-//		this.currentDataPointPV = currentDataPointPV;
-//	}
-//
-//	public String getInLeadPV() {
-//		return inLeadPV;
-//	}
-//
-//	public void setInLeadPV(String inLeadPV) {
-//		this.inLeadPV = inLeadPV;
-//	}
-//
-//	public String getCurrentLeadPointPV() {
-//		return currentLeadPointPV;
-//	}
-//
-//	public void setCurrentLeadPointPV(String currentLeadPointPV) {
-//		this.currentLeadPointPV = currentLeadPointPV;
-//	}
-//	public String getIterationTotalPointsPV() {
-//	return iterationTotalPointsPV;
-//}
-//
-//public void setIterationTotalPointsPV(String iterationTotalPointsPV) {
-//	this.iterationTotalPointsPV = iterationTotalPointsPV;
-//}
-
-
 }

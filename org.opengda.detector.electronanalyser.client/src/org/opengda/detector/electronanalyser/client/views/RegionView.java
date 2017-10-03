@@ -15,6 +15,7 @@ import org.eclipse.jface.fieldassist.ControlDecoration;
 import org.eclipse.jface.fieldassist.FieldDecoration;
 import org.eclipse.jface.fieldassist.FieldDecorationRegistry;
 import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
@@ -88,7 +89,7 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 	private static final Logger logger = LoggerFactory.getLogger(RegionView.class);
 
 	public RegionView() {
-		setTitleToolTip("Editing a selected region parameters");
+		setTitleToolTip("Edit parameters for selected region");
 		// setContentDescription("A view for editing region parameters");
 		setPartName("Region Editor");
 		this.selectionChangedListeners = new ArrayList<>();
@@ -175,9 +176,7 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 
 		Composite rootComposite = new Composite(regionComposite, SWT.NONE);
 		regionComposite.setContent(rootComposite);
-		GridLayout gl_root = new GridLayout();
-		gl_root.horizontalSpacing = 2;
-		rootComposite.setLayout(gl_root);
+		GridLayoutFactory.fillDefaults().margins(10, SWT.DEFAULT).spacing(2, 8).applyTo(rootComposite);
 
 		Group grpName = new Group(rootComposite, SWT.NONE);
 		grpName.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
@@ -222,12 +221,14 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		Composite modeComposite = new Composite(rootComposite, SWT.None);
 		// Contains Lens model, pass energy, run mode, acquisition mode, and
 		// energy mode.
-		modeComposite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		modeComposite.setLayout(new GridLayout(2, false));
+		GridDataFactory.fillDefaults().applyTo(modeComposite);
+		GridLayout layout = new GridLayout(2, false);
+		layout.marginWidth = 0;
+		modeComposite.setLayout(layout);
 
 		Group grpLensMode = new Group(modeComposite, SWT.NONE);
 		grpLensMode.setText("Lens Mode");
-		grpLensMode.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		GridDataFactory.fillDefaults().applyTo(grpLensMode);
 		grpLensMode.setLayout(new GridLayout());
 		grpLensMode.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 
@@ -280,8 +281,7 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 
 		Group grpAcquisitionMode = new Group(modeComposite, SWT.NONE);
 		grpAcquisitionMode.setText("Acquisition Mode");
-		GridLayout gl_grpAcquisitionMode = new GridLayout();
-		grpAcquisitionMode.setLayout(gl_grpAcquisitionMode);
+		GridLayoutFactory.fillDefaults().margins(0, 8).applyTo(grpAcquisitionMode);
 		grpAcquisitionMode.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		grpAcquisitionMode.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 
@@ -350,7 +350,7 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 
 		Group grpEnergyMode = new Group(modeComposite, SWT.NONE);
 		grpEnergyMode.setText("Energy Mode");
-		grpEnergyMode.setLayout(new GridLayout());
+		GridLayoutFactory.fillDefaults().margins(0, 8).applyTo(grpEnergyMode);
 		grpEnergyMode.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		grpEnergyMode.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 
@@ -387,7 +387,7 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		txtLow = new Text(grpEnergy, SWT.BORDER | SWT.SINGLE);
 		GridData lowLayoutData = new GridData(GridData.FILL_HORIZONTAL);
 		txtLow.setLayoutData(lowLayoutData);
-		txtLow.setToolTipText("start energy");
+		txtLow.setToolTipText("Start energy");
 
 		Label lblCenter = new Label(grpEnergy, SWT.NONE);
 		lblCenter.setText("Center");
@@ -603,22 +603,27 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 				}
 			}
 		});
+		btnPulseMode.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		btnPulseMode.setText("Pulse Counting");
+
+		GridLayout insertLayout = new GridLayout();
+		insertLayout.marginTop = -20;
+		insertLayout.marginWidth = 0;
 
 		Group grpProgress = new Group(rootComposite, SWT.NONE);
 		grpProgress.setText("Progress");
-		grpProgress.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		grpProgress.setLayout(new GridLayout());
+		GridDataFactory.fillDefaults().applyTo(grpProgress);
+		grpProgress.setLayout(insertLayout);
 		grpProgress.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
-
-		progressComposite=new RegionProgressComposite(grpProgress, SWT.None);
+		progressComposite = new RegionProgressComposite(grpProgress, SWT.None);
+		grpProgress.pack();
 
 		Group grpAnalyser = new Group(rootComposite, SWT.NONE);
 		grpAnalyser.setText("Analyser IOC");
-		grpAnalyser.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		grpAnalyser.setLayout(new GridLayout());
+		GridDataFactory.fillDefaults().applyTo(grpAnalyser);
+		grpAnalyser.setLayout(insertLayout);
 		grpAnalyser.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
-		analyserComposite=new AnalyserComposite(grpAnalyser, SWT.NONE);
+		analyserComposite = new AnalyserComposite(grpAnalyser, SWT.NONE);
 		grpAnalyser.pack();
 
 		regionComposite.setMinSize(rootComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));

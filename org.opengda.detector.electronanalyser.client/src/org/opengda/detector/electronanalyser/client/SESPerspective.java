@@ -6,11 +6,9 @@ import org.eclipse.ui.IPerspectiveFactory;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
-import org.opengda.detector.electronanalyser.client.views.ExternalIOView;
 import org.opengda.detector.electronanalyser.client.views.ImageView;
 import org.opengda.detector.electronanalyser.client.views.RegionView;
 import org.opengda.detector.electronanalyser.client.views.SequenceView;
-import org.opengda.detector.electronanalyser.client.views.SlicesView;
 import org.opengda.detector.electronanalyser.client.views.SpectrumView;
 
 import gda.rcp.views.JythonTerminalView;
@@ -23,9 +21,7 @@ public class SESPerspective implements IPerspectiveFactory {
 	private static final String REGION_EDITOR_FOLDER = "regionEditorFolder";
 	private static final String PLOT_FOLDER = "plotFolder";
 
-	private static final String SLICEVIEW = SlicesView.ID;
 	private static final String IMAGEVIEW = ImageView.ID;
-	private static final String EXTERNALIOVIEW = ExternalIOView.ID;
 	private static final String SPECTRUMVIEW = SpectrumView.ID;
 	private static final String REGIONEDITOR = RegionView.ID;
 	private static final String SEQUENCEEDITOR = SequenceView.ID;
@@ -59,41 +55,21 @@ public class SESPerspective implements IPerspectiveFactory {
 
 		String plotLayoutString = ElectronAnalyserClientPlugin.getDefault().getPreferenceStore().getString(ElectronAnalyserClientPlugin.PLOT_LAYOUT);
 		if (plotLayoutString == null || plotLayoutString.isEmpty() || ElectronAnalyserClientPlugin.STACK_PLOT.equals(plotLayoutString)) {
-			plotFolder.addView(EXTERNALIOVIEW);
 			plotFolder.addView(IMAGEVIEW);
-			plotFolder.addView(SLICEVIEW);
 		} else if (ElectronAnalyserClientPlugin.TILE_QUAD.equals(plotLayoutString)) {
 			layout.addView(IMAGEVIEW, IPageLayout.RIGHT, 0.5f, SPECTRUMVIEW);
 			IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 			IViewPart view = page.findView(IMAGEVIEW);
-			view.setFocus();
-			layout.addView(SLICEVIEW, IPageLayout.BOTTOM, 0.5f, IMAGEVIEW);
-			view = page.findView(SLICEVIEW);
-			view.setFocus();
-			layout.addView(EXTERNALIOVIEW, IPageLayout.BOTTOM, 0.5f, SPECTRUMVIEW);
-			view = page.findView(EXTERNALIOVIEW);
 			view.setFocus();
 		} else if (ElectronAnalyserClientPlugin.TILE_VERTICAL.equals(plotLayoutString)) {
 			layout.addView(IMAGEVIEW, IPageLayout.BOTTOM, 0.5f, SPECTRUMVIEW);
 			IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 			IViewPart view = page.findView(IMAGEVIEW);
 			view.setFocus();
-			layout.addView(SLICEVIEW, IPageLayout.BOTTOM, 0.5f, IMAGEVIEW);
-			view = page.findView(SLICEVIEW);
-			view.setFocus();
-			layout.addView(EXTERNALIOVIEW, IPageLayout.BOTTOM, 0.5f, SPECTRUMVIEW);
-			view = page.findView(EXTERNALIOVIEW);
-			view.setFocus();
 		} else if (ElectronAnalyserClientPlugin.TILE_HORIZONTAL.equals(plotLayoutString)) {
 			layout.addView(IMAGEVIEW, IPageLayout.RIGHT, 0.25f, SPECTRUMVIEW);
 			IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 			IViewPart view = page.findView(IMAGEVIEW);
-			view.setFocus();
-			layout.addView(EXTERNALIOVIEW, IPageLayout.RIGHT, 0.33f, IMAGEVIEW);
-			view = page.findView(SLICEVIEW);
-			view.setFocus();
-			layout.addView(SLICEVIEW, IPageLayout.RIGHT, 0.5f, EXTERNALIOVIEW);
-			view = page.findView(EXTERNALIOVIEW);
 			view.setFocus();
 		}
 
@@ -103,8 +79,6 @@ public class SESPerspective implements IPerspectiveFactory {
 		layout.addShowViewShortcut(REGIONEDITOR);
 		layout.addShowViewShortcut(SPECTRUMVIEW);
 		layout.addShowViewShortcut(IMAGEVIEW);
-		layout.addShowViewShortcut(EXTERNALIOVIEW);
-		layout.addShowViewShortcut(SLICEVIEW);
 		layout.addShowViewShortcut(SCAN_PLOT_VIEW_ID);
 		layout.addShowViewShortcut(JYTHONCONSOLE);
 	}

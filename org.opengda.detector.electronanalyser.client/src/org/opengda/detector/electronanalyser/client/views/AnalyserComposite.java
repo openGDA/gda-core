@@ -1,6 +1,7 @@
 package org.opengda.detector.electronanalyser.client.views;
 
 import org.eclipse.draw2d.ColorConstants;
+import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -63,32 +64,24 @@ public class AnalyserComposite extends Composite implements InitializationListen
 		super(parent, style);
 
 		channelManager = new EpicsChannelManager(this);
-		controller=EpicsController.getInstance();
+		controller = EpicsController.getInstance();
 		setLayout(new GridLayout(1, false));
 
 		Composite rootComposite = new Composite(parent, SWT.NONE);
-		GridData gd_rootComposite = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_rootComposite.heightHint = 55;
-		gd_rootComposite.widthHint = 451;
-		rootComposite.setLayoutData(gd_rootComposite);
+		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).hint(451, SWT.DEFAULT)
+		.grab(true, false).applyTo(rootComposite);
 		GridLayout layout = new GridLayout(5, false);
-		layout.horizontalSpacing = 15;
-		layout.marginWidth = 0;
-		layout.marginHeight = 0;
 		rootComposite.setLayout(layout);
 
 		Label lblState = new Label(rootComposite, SWT.None);
 		lblState.setText("State: ");
 
 		txtStateValue = new Text(rootComposite, SWT.BORDER);
-		GridData gd_txtStateValue = new GridData(SWT.LEFT, SWT.CENTER, false,false, 1, 1);
-		gd_txtStateValue.widthHint = 120;
-		txtStateValue.setLayoutData(gd_txtStateValue);
+		GridDataFactory.fillDefaults().align(SWT.LEFT, SWT.CENTER).hint(120, SWT.DEFAULT).applyTo(txtStateValue);
 		txtStateValue.setEditable(false);
 
 		Label lblAcquire = new Label(rootComposite, SWT.NONE);
-		lblAcquire.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false,
-				false, 1, 1));
+		lblAcquire.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1));
 		lblAcquire.setText("Acquire:");
 
 		txtAcquireState = new Text(rootComposite, SWT.BORDER);
@@ -121,7 +114,7 @@ public class AnalyserComposite extends Composite implements InitializationListen
 		});
 
 		Label lblMessage = new Label(rootComposite, SWT.NONE);
-		lblMessage.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false,false, 1, 1));
+		lblMessage.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false,false));
 		lblMessage.setText("Message:");
 
 		txtMessage = new Text(rootComposite, SWT.BORDER);
