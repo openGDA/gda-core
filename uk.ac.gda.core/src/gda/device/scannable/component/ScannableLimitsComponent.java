@@ -56,7 +56,12 @@ public class ScannableLimitsComponent implements LimitsComponent {
 		if ((internalLowerLim == null) & (internalUpperLim == null))
 			return null;
 
-		Double[] pos = PositionConvertorFunctions.toDoubleArray(internalPosition);
+		Double[] pos;
+		try {
+			pos = PositionConvertorFunctions.toDoubleArray(internalPosition);
+		} catch (IllegalArgumentException e) {
+			return e.getMessage();
+		}
 
 		// Check lower limits if set
 		if (internalLowerLim != null) {

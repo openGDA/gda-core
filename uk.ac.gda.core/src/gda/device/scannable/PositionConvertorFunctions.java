@@ -24,6 +24,7 @@ import java.util.List;
 import org.jscience.physics.quantities.Dimensionless;
 import org.jscience.physics.quantities.Quantity;
 import org.jscience.physics.units.Unit;
+import org.python.core.PyException;
 import org.python.core.PyFloat;
 import org.python.core.PyInteger;
 import org.python.core.PyList;
@@ -231,23 +232,22 @@ public final class PositionConvertorFunctions {
 	 */
 	public static Double toDouble(Object object) {
 
-		if (object == null) {
-			return null;
-		}
-		if (object instanceof String) {
-			return Double.parseDouble((String) object);
-		}
-		if (object instanceof Number) {
-			return ((Number) object).doubleValue();
-		}
-		if (object instanceof PyString) {
-			return ((PyString) object).atof();
-		}
-		if (object instanceof PyObject) {
-			return (Double) ((PyObject) object).__tojava__(Double.class);
-		}
-		if (object instanceof Quantity) {
-			return ((Quantity) object).getAmount();
+		try {
+			if (object == null) {
+				return null;
+			} else if (object instanceof String) {
+				return Double.parseDouble((String) object);
+			} else if (object instanceof Number) {
+				return ((Number) object).doubleValue();
+			} else if (object instanceof PyString) {
+				return ((PyString) object).atof();
+			} else if (object instanceof PyObject) {
+				return (Double) ((PyObject) object).__tojava__(Double.class);
+			} else if (object instanceof Quantity) {
+				return ((Quantity) object).getAmount();
+			}
+		} catch (PyException | NumberFormatException ex) {
+			// Ignore this error and throw generic error below
 		}
 
 		throw new IllegalArgumentException("Could not convert " + object.toString() + " to a double.");

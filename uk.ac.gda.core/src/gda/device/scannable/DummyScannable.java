@@ -20,8 +20,6 @@ package gda.device.scannable;
 
 import gda.device.DeviceException;
 
-import org.apache.commons.lang.math.NumberUtils;
-
 /**
  * Dummy object extending ScannableMotion which represents a single number.
  */
@@ -74,15 +72,6 @@ public class DummyScannable extends ScannableMotionBase {
 	@Override
 	public boolean rawIsBusy() {
 		return false;
-	}
-
-	@Override
-	public String checkPositionValid(Object position) throws DeviceException {
-
-		if (!NumberUtils.isNumber(position.toString())) {
-			return "position not a number";
-		}
-		return super.checkPositionValid(position);
 	}
 
 	@Override
