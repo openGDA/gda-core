@@ -166,7 +166,7 @@ public abstract class DeviceBase implements Device, ConditionallyConfigurable, L
 	public Object getAttribute(String attributeName) throws DeviceException {
 		Object val = attributes.get(attributeName);
 		if (val == null) {
-			logger.debug(getName() + ".getAttribute - unable to get value for " + attributeName);
+			logger.debug("{}.getAttribute - unable to get value for '{}'", getName(), attributeName);
 		}
 		return val;
 	}
