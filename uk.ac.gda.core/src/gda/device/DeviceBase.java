@@ -199,30 +199,4 @@ public abstract class DeviceBase implements Device, ConditionallyConfigurable, L
 		observableComponent.notifyIObservers(source, arg);
 	}
 
-	@Override
-	public boolean equals(Object obj) {
-		if(this == obj){
-					return true;
-		}
-
-		//must match class
-		if((obj == null) || (obj.getClass() != this.getClass())){
-			return false;
-		}
-
-
-		Device test = (Device) obj;
-		if( getName() == null){
-			return test.getName() == null ? true : false;
-		}
-		return test.getName() == null ? false : getName().equals(test.getName());
-	}
-
-	@Override
-	public int hashCode() {
-		// This method included here for completeness. But as name is the only attribute in the device base,
-		// call the super method instead to hopefully get a more useful value.
-		// (In principle, subclasses may want to override this method for performace reasons.)
-		return super.hashCode();
-	}
 }
