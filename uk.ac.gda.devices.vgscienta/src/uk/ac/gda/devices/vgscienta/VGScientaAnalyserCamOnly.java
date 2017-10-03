@@ -40,6 +40,7 @@ import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.ImageMode;
 import gda.device.detector.areadetector.v17.impl.ADBaseImpl;
 import gda.device.detector.nxdetector.roi.PlotServerROISelectionProvider;
+import gda.device.scannable.PositionConvertorFunctions;
 import gda.device.scannable.ScannableBase;
 import gda.epics.connection.EpicsController;
 import gda.factory.FactoryException;
@@ -109,17 +110,17 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 		}
 
 		@Override
-		public void asynchronousMoveTo(Object externalPosition) throws DeviceException {
-			Double energy = ((Number) externalPosition).doubleValue();
+		public void asynchronousMoveTo(Object position) throws DeviceException {
+			// Convert to double handling all the cases. Fixes I05-37 where PyDouble is passed in
+			final double energy = PositionConvertorFunctions.toDouble(position);
 			try {
-				if (controller.getAcquisitionMode().equalsIgnoreCase("Fixed")) {
+				if (isFixedMode()) {
 					setCentreEnergy(energy);
-					return;
+				} else { // Swept mode
+					final double moveby = this.getPosition() - energy;
+					setStartEnergy(getStartEnergy() - moveby);
+					setEndEnergy(getEndEnergy() - moveby);
 				}
-				Double moveby = this.getPosition() - energy;
-				setStartEnergy(getStartEnergy() - moveby);
-				setEndEnergy(getEndEnergy() - moveby);
-				return;
 			} catch (Exception e) {
 				throw new DeviceException("error getting to EPICS", e);
 			}
