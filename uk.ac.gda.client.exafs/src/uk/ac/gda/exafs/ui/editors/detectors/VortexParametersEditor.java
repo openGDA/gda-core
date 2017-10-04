@@ -27,7 +27,7 @@ import uk.ac.gda.beans.vortex.VortexParameters;
  */
 public final class VortexParametersEditor extends FluorescenceDetectorParametersEditor {
 
-	public static final String ID = "uk.ac.gda.exafs.ui.editors.detectors.VortexParametersEditor";
+	public static final String ID = "uk.ac.gda.exafs.ui.VortexParametersEditor";
 
 	@Override
 	public Class<?> getBeanClass() {
