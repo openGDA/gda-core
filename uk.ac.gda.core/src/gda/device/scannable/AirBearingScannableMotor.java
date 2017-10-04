@@ -33,6 +33,7 @@ public class AirBearingScannableMotor extends ScannableMotor implements IAirBear
 	private Scannable airBearingScannable;
 	private String onPositionValue;
 	private String offPositionValue;
+	private boolean airBearingControlHere;
 	@Override
 	public void on() throws DeviceException {
 		if (airBearingScannable!=null) {
@@ -66,17 +67,22 @@ public class AirBearingScannableMotor extends ScannableMotor implements IAirBear
 	}
 	@Override
 	public void atScanStart() throws DeviceException {
-		on();
+		if (!isOn()) {
+			on();
+			airBearingControlHere=true;
+		}
 		super.atScanStart();
 	}
 	@Override
 	public void atScanEnd() throws DeviceException {
-		off();
+		if (airBearingControlHere) {
+			off();
+			airBearingControlHere=false;
+		}
 		super.atScanEnd();
 	}
 	@Override
 	public void rawAsynchronousMoveTo(Object internalPosition) throws DeviceException {
-		boolean airBearingControlHere=false;
 		if (!isOn()) {
 			on();
 			airBearingControlHere=true;
@@ -90,6 +96,7 @@ public class AirBearingScannableMotor extends ScannableMotor implements IAirBear
 				logger.error("{}: Motion be interrupted - {}.", getName(), e.getMessage());
 			}
 			off();
+			airBearingControlHere = false;
 			logger.info("Turn air bearing off in asynchronousMoveTo.");
 		}
 	}
