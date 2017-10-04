@@ -25,63 +25,44 @@ import java.util.Arrays;
 
 import org.junit.Test;
 
-/**
- *
- */
 public class LocalPropertiesTest {
 
 	private static final String TEST = "test";
 
-	/**
-	 *
-	 */
 	@Test
 	public void testAsIntsNormal() {
-		LocalProperties.set(LocalPropertiesTest.TEST, "1 2 3");
-		assertEquals(Arrays.asList(  new Integer[] {1,2,3}),LocalProperties.getAsIntList(LocalPropertiesTest.TEST));
-		LocalProperties.set(LocalPropertiesTest.TEST, "1 2 3");
-		assertEquals(Arrays.asList(  new Integer[] {1,2,3}),LocalProperties.getAsIntList(LocalPropertiesTest.TEST));
+		LocalProperties.set(TEST, "1 2 3");
+		assertEquals(Arrays.asList(new Integer[] { 1, 2, 3 }), LocalProperties.getAsIntList(TEST));
+		LocalProperties.set(TEST, "1 2 3");
+		assertEquals(Arrays.asList(new Integer[] { 1, 2, 3 }), LocalProperties.getAsIntList(TEST));
 	}
-	/**
-	 *
-	 */
+
 	@Test
 	public void testAsIntsEmpty() {
-		LocalProperties.set(LocalPropertiesTest.TEST, "");
-		assertEquals(Arrays.asList(  new Integer[] {}), LocalProperties.getAsIntList(LocalPropertiesTest.TEST));
+		LocalProperties.set(TEST, "");
+		assertEquals(Arrays.asList(new Integer[] {}), LocalProperties.getAsIntList(TEST));
 	}
-	/**
-	 *
-	 */
+
 	@Test
 	public void testStringToIntListNull() {
 		assertEquals(null, LocalProperties.stringToIntList(null));
 	}
-	/**
-	 *
-	 */
+
 	@Test
 	public void testAsIntsDefault() {
-		assertEquals(Arrays.asList(  new Integer[] {1,2,3}),LocalProperties.getAsIntList("not a property",new Integer[] {1,2,3}));
+		assertEquals(Arrays.asList(new Integer[] { 1, 2, 3 }), LocalProperties.getAsIntList("not a property", new Integer[] { 1, 2, 3 }));
 	}
 
-	/**
-	 *
-	 */
 	@Test
 	public void testStringToIntListSingleA() {
-		assertEquals(Arrays.asList(  new Integer[] {1}), LocalProperties.stringToIntList("1,"));
+		assertEquals(Arrays.asList(new Integer[] { 1 }), LocalProperties.stringToIntList("1,"));
 	}
-	/**
-	 *
-	 */
+
 	@Test
 	public void testStringToIntListSingleB() {
-		assertEquals(Arrays.asList(  new Integer[] {1}), LocalProperties.stringToIntList("1"));
+		assertEquals(Arrays.asList(new Integer[] { 1 }), LocalProperties.stringToIntList("1"));
 	}
-	/**
-	 *
-	 */
+
 	@Test
 	public void testGetAsInt() {
 		LocalProperties.set(LocalPropertiesTest.TEST, "1");
