@@ -72,6 +72,20 @@ http://www.eclipse.org/legal/epl-v10.html
          version="0.0.0"/>
 
    <plugin
+         id="uk.ac.diamond.daq.beamline.i15-1.api"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="uk.ac.diamond.daq.beamline.i15-1.server"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
          id="uk.ac.diamond.daq.server"
          download-size="0"
          install-size="0"
