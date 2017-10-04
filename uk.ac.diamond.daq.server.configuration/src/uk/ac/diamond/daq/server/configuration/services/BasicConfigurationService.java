@@ -25,8 +25,6 @@ public class BasicConfigurationService implements IGDAConfigurationService {
 
 	@Override
 	public void loadConfiguration() {
-		// enum initialised here - sets up java properties as passed in or uses defaults
-		initialiseServerEnvironment();
 		try {
 			final String corba_classpath = resolvePath("uk.ac.diamond.org.jacorb/jars", true);
 			final String log_server_classpath = String.join(File.pathSeparator,

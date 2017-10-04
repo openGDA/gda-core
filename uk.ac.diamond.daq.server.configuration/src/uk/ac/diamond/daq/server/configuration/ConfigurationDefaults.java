@@ -177,7 +177,7 @@ public enum ConfigurationDefaults {
 	 * scripts or explicitly from the command line. If not, this method will set them based on the default values above. Also force loading
 	 * of Local Properties so that they are available to subsequent code including the buildXXCommand methods below.
 	 */
-	public static void initialiseServerEnvironment() {
+	static {
 		final String[] basicArgs = concat(concat(standardBasicArgs(), APP_JACORB_VM_ARGS.value), OBJECT_SERVER_VM_ARGS, String.class);
 		final String[] optionalArgs = concat(OPTIONAL_VM_ARGS, "-Djava.awt.headless=true");
 		final String[] vmArgs =  concat(basicArgs, optionalArgs, String.class);
