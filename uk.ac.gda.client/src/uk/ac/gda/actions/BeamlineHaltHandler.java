@@ -18,8 +18,6 @@
 
 package uk.ac.gda.actions;
 
-import gda.jython.JythonServerFacade;
-
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -30,9 +28,11 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.jython.JythonServerFacade;
+
 public class BeamlineHaltHandler extends AbstractHandler {
 
-	public static String id = "uk.ac.gda.client.StopAll";
+	public static final String id = "uk.ac.gda.client.StopAll";
 	private static final Logger logger = LoggerFactory.getLogger(BeamlineHaltHandler.class);
 
 	@Override
