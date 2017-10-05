@@ -133,6 +133,9 @@ class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPointObser
 				fullCommand = new StringBuilder();
 				needMore = false;
 				rawWrite("KeyboardInterrupt\n");
+			} catch (EndOfFileException eof) {
+				logger.info("EOF in Jython shell #{} (Ctrl-d)", shellNumber);
+				return;
 			}
 		}
 	}

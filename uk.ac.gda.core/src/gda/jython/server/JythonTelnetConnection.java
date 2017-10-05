@@ -27,7 +27,6 @@ import org.jline.builtins.telnet.ConnectionData;
 import org.jline.builtins.telnet.ConnectionEvent;
 import org.jline.builtins.telnet.ConnectionListener;
 import org.jline.builtins.telnet.TelnetIO;
-import org.jline.reader.EndOfFileException;
 import org.jline.terminal.Size;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.Terminal.Signal;
@@ -82,8 +81,6 @@ class JythonTelnetConnection extends Connection {
 	protected void doRun() throws Exception {
 		try (JythonShell shell = new JythonShell(terminal)) {
 			shell.run();
-		} catch (EndOfFileException eof) {
-			logger.info("EOF in jython telnet connection");
 		}
 	}
 
