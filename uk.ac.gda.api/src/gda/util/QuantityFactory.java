@@ -19,8 +19,6 @@
 
 package gda.util;
 
-import gda.jscience.physics.units.NonSIext;
-
 import java.util.StringTokenizer;
 
 import org.jscience.physics.quantities.Dimensionless;
@@ -31,6 +29,8 @@ import org.python.core.PyInteger;
 import org.python.core.PyString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.jscience.physics.units.NonSIext;
 
 /**
  * A factory class to create Quantities from Strings. Uses a combination of BFI and Trickery.
@@ -45,7 +45,7 @@ public class QuantityFactory {
 	 * Takes an object and converts it into a quantity of the requested unit.
 	 * <p>
 	 * This can take a variety of objects, including Jython native types.
-	 * 
+	 *
 	 * @param position
 	 * @param targetQuantity
 	 * @return the Quantity created (or null)
@@ -86,7 +86,7 @@ public class QuantityFactory {
 	/**
 	 * Creates a Quantity from a single string specifying value and units. This should be useful, for example, in
 	 * creating Quantities from scripts.
-	 * 
+	 *
 	 * @param string
 	 *            of the form '1.0 mm'
 	 * @return the Quantity created (or null)
@@ -138,6 +138,7 @@ public class QuantityFactory {
 				valueString = new String(valueStringBuffer.reverse());
 				unitString = new String(unitStringBuffer.reverse());
 			}
+			if (valueString.isEmpty()) return q;
 			q = createFromTwoStrings(valueString, unitString);
 		}
 		return q;
@@ -145,7 +146,7 @@ public class QuantityFactory {
 
 	/**
 	 * Creates a Quantity from two strings. This should be useful, for example, in creating Quantities from GUIs.
-	 * 
+	 *
 	 * @param valueString
 	 *            the numerical value e.g '1.0'
 	 * @param unitString
@@ -169,7 +170,7 @@ public class QuantityFactory {
 	 * Creates a Unit from a string by searching through the subclasses of quantity to find a predefined field. For
 	 * example given 'mm' it will return the public static Length.Unit MM from the Length class. A blank unit string
 	 * will return a dimensionless unit.
-	 * 
+	 *
 	 * @param string
 	 *            the name of a unit.
 	 * @return the corresponding Unit, or null if not found
