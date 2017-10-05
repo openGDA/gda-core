@@ -21,7 +21,6 @@ package gda.jython.server;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.PrintStream;
 
 import org.jline.builtins.telnet.Connection;
 import org.jline.builtins.telnet.ConnectionData;
@@ -90,9 +89,9 @@ class JythonTelnetConnection extends Connection {
 
 	@Override
 	protected void doClose() throws Exception {
+		terminal.close();
 		io.closeOutput();
 		io.closeInput();
-		terminal.close();
 	}
 
 	/**
@@ -116,21 +115,16 @@ class JythonTelnetConnection extends Connection {
 	}
 
 	/**
-	 * Wrapper around TelnetIO to provide PrintStream for connection
+	 * Wrapper around TelnetIO to provide OutputStream for connection
 	 */
-	private class JlineOutput extends PrintStream {
-		public JlineOutput() {
-			super(new OutputStream() {
-				@Override
-				public void write(int b) throws IOException {
-					io.write(b);
-				}
-				@Override
-				public void flush() throws IOException {
-					io.flush();
-				}
-			});
+	private class JlineOutput extends OutputStream {
+		@Override
+		public void write(int b) throws IOException {
+			io.write(b);
+		}
+		@Override
+		public void flush() throws IOException {
+			io.flush();
 		}
 	}
-
 }
