@@ -39,6 +39,7 @@ public class FilePathService implements IFilePathService {
 	private static final String PROCESSING_TEMPLATES_DIR = "processingTemplates";
 	private static final String VISIT_TEMP_DIR_NAME = "tmp";
 	private static final String VISIT_PROCESSED_DIR_NAME = "processed";
+	private static final String VISIT_PROCESSING_DIR_NAME = "processing";
 	private static final String VISIT_CONFIG_DIR_NAME = "xml";
 	private static NumTracker tracker;
 
@@ -50,28 +51,36 @@ public class FilePathService implements IFilePathService {
 
 	@Override
 	public synchronized String getNextPath(String template) throws IOException, InvalidPathException {
+		// Get the current data directory
+		String dir = PathConstructor.createFromDefaultProperty();
+		return getNextPath(dir, template);
+	}
 
+	@Override
+	public synchronized String getNextPath(String dir, String template) throws IOException, InvalidPathException {
 		if (template==null) template = "";
 		if (tracker == null) {
 			// Make a NumTracker using the property gda.data.numtracker.extension
 			tracker = new NumTracker();
 		}
 
-		// Get the current data directory
-		String dir = PathConstructor.createFromDefaultProperty();
-
 		// Get the next file number and update the tracker file on disk
-		int fileNumber = tracker.incrementNumber();
+		final int fileNumber = tracker.incrementNumber();
 
 		// Build the file name
 		// Default to "base" if gda.beamline.name is not set (behaviour copied from NexusDataWriter). Should never happen!
 		if (template.length()>0) template = "-"+template;
-		String filename = String.format("%s-%s%s.nxs", LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME, "base"), fileNumber, template);
+		final String filename = String.format("%s-%s%s.nxs", LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME, "base"), fileNumber, template);
 
 		// Return the full file path
-		String path = dir + "/" + filename;
+		final String path = dir + "/" + filename;
 
 		Paths.get(path); // Check that the path is a path that is valid.
+
+		final File dirFile = new File(dir);
+		if (!dirFile.exists()) {
+			dirFile.mkdirs();
+		}
 
 		lastPath = path;
 
@@ -120,6 +129,10 @@ public class FilePathService implements IFilePathService {
 		return PathConstructor.getVisitSubdirectory(VISIT_PROCESSED_DIR_NAME);
 	}
 
+	@Override
+	public String getProcessingDir() {
+		return PathConstructor.getVisitSubdirectory(VISIT_PROCESSING_DIR_NAME);
+	}
 
 	@Override
 	public String getPersistenceDir() {
