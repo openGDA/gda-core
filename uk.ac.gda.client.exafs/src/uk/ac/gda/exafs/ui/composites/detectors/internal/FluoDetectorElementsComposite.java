@@ -18,9 +18,6 @@
 
 package uk.ac.gda.exafs.ui.composites.detectors.internal;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
@@ -55,6 +52,7 @@ public class FluoDetectorElementsComposite extends Composite {
 	private LabelWrapper elementName;
 	private BooleanWrapper excluded;
 	private GRID_ORDER gridOrder =  GRID_ORDER.LEFT_TO_RIGHT_TOP_TO_BOTTOM;
+	private FluoDetectorElementConfig elementConfiguration = null;
 
 	public FluoDetectorElementsComposite(Composite parent, int style) {
 		super(parent, style);
@@ -131,8 +129,8 @@ public class FluoDetectorElementsComposite extends Composite {
 		}
 
 		detectorElementTable = new GridListEditor(elementsGroup, SWT.NONE, columns, rows);
-		if (gridOrder==GRID_ORDER.CUSTOM_MAP && numberOfElements==9) {
-			setupDetectorMap9Element();
+		if (elementConfiguration!=null) {
+			setupDetectorElementsFromConfig(numberOfElements);
 		} else {
 			detectorElementTable.setGridOrder(gridOrder);
 		}
@@ -144,18 +142,21 @@ public class FluoDetectorElementsComposite extends Composite {
 	}
 
 	/**
-	 *  Setup grid map for 9 element Ge detector which has slightly unusual arrangement of elements.
+	 * Set detector element order using {@link FluoDetectorElementConfig} object.
+	 * @param numElements
 	 */
-	void setupDetectorMap9Element() {
-		detectorElementTable.setGridOrder(GRID_ORDER.CUSTOM_MAP);
-		Map<Integer, Integer> gridMap = new HashMap<Integer, Integer>();
-		int[] elementIndices = new int[] { 5, 4, 3,
-										   6, 8, 2,
-										   7, 0, 1 };
-		for (int i = 0; i < elementIndices.length; i++) {
-			gridMap.put(i, elementIndices[i]);
+	private void setupDetectorElementsFromConfig(int numElements) {
+		if (elementConfiguration.getElementMap() != null && elementConfiguration.getElementMap().size() == numElements) {
+			detectorElementTable.setGridOrder(GRID_ORDER.CUSTOM_MAP);
+			detectorElementTable.setGridMap(elementConfiguration.getElementMap());
+		} else {
+			int gridFromConfig = elementConfiguration.getGridOrder();
+			if (gridFromConfig<0 || gridFromConfig>1) {
+				gridFromConfig=0;
+			}
+			gridOrder = GRID_ORDER.values()[gridFromConfig];
+			detectorElementTable.setGridOrder(gridOrder);
 		}
-		detectorElementTable.setGridMap(gridMap);
 	}
 
 	public ListEditor getDetectorList() {
@@ -176,5 +177,13 @@ public class FluoDetectorElementsComposite extends Composite {
 
 	public void setDetectorElementOrder(GRID_ORDER order) {
 		this.gridOrder = order;
+	}
+
+	public FluoDetectorElementConfig getElementConfiguration() {
+		return elementConfiguration;
+	}
+
+	public void setElementConfiguration(FluoDetectorElementConfig elementConfiguration) {
+		this.elementConfiguration = elementConfiguration;
 	}
 }

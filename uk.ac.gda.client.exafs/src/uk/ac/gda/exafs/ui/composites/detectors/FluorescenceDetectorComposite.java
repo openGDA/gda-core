@@ -51,6 +51,7 @@ import uk.ac.gda.common.rcp.util.GridUtils;
 import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
 import uk.ac.gda.exafs.ui.composites.detectors.internal.FluoDetectorAcquireComposite;
 import uk.ac.gda.exafs.ui.composites.detectors.internal.FluoDetectorCountsComposite;
+import uk.ac.gda.exafs.ui.composites.detectors.internal.FluoDetectorElementConfig;
 import uk.ac.gda.exafs.ui.composites.detectors.internal.FluoDetectorElementsComposite;
 import uk.ac.gda.exafs.ui.composites.detectors.internal.FluoDetectorOutputPreferenceComposite;
 import uk.ac.gda.exafs.ui.composites.detectors.internal.FluoDetectorReadoutModeComposite;
@@ -237,6 +238,16 @@ public class FluorescenceDetectorComposite extends Composite {
 	 */
 	public void setDetectorElementOrder(GridListEditor.GRID_ORDER order) {
 		elementsComposite.setDetectorElementOrder(order);
+	}
+
+	/**
+	 * Call this before {@link FluoDetectorElementsComposite#configureDetectorElementTable}
+	 * to set the config that controls the order of the detector elements in the composite.
+	 *
+	 * @param config
+	 */
+	public void setDetectorElementConfiguration(FluoDetectorElementConfig config) {
+		elementsComposite.setElementConfiguration(config);
 	}
 
 	/**
@@ -689,4 +700,5 @@ public class FluorescenceDetectorComposite extends Composite {
 	public void setEnableShowLoadedDataCheckBox(boolean enabled) {
 		acquireComposite.getShowDataLoadedFromFileCheckBox().setEnabled(enabled);
 	}
+
 }

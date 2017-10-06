@@ -68,6 +68,7 @@ import uk.ac.gda.devices.detector.FluorescenceDetector;
 import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
 import uk.ac.gda.exafs.ExafsActivator;
 import uk.ac.gda.exafs.ui.composites.detectors.internal.FluoCompositeDataStore;
+import uk.ac.gda.exafs.ui.composites.detectors.internal.FluoDetectorElementConfig;
 import uk.ac.gda.exafs.ui.detector.wizards.ImportFluoDetROIWizard;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 
@@ -199,7 +200,7 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 
 		// Set up the composite with information about the detector
 		fluorescenceDetectorComposite.setDetectorName(theDetector.getName());
-		setDetectorElementOrderPreference();
+		setDetectorElementOrder();
 		fluorescenceDetectorComposite.setDetectorElementListSize(theDetector.getNumberOfElements());
 		fluorescenceDetectorComposite.setMCASize(theDetector.getMCASize());
 		fluorescenceDetectorComposite.setMaxNumberOfRois(theDetector.getMaxNumberOfRois());
@@ -346,13 +347,26 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 		fluorescenceDetectorComposite.setShowOutputOptions(!outputEditorShowOutputOptions);
 	}
 
-	private void setDetectorElementOrderPreference() {
+	private void setDetectorElementOrder() {
+		// Try to set the order from the value in the preference store (set via plugin_initialization.ini)
 		int elementOrder = ExafsActivator.getDefault().getPreferenceStore().getInt(ExafsPreferenceConstants.DETECTOR_ELEMENT_ORDER);
 		GRID_ORDER order = GRID_ORDER.LEFT_TO_RIGHT_TOP_TO_BOTTOM;
 		if (elementOrder<GRID_ORDER.values().length) {
 			order = GRID_ORDER.values()[elementOrder];
 		}
 		fluorescenceDetectorComposite.setDetectorElementOrder(order);
+
+		// Try to set order using FluoDetectorElementConfig object (client side, created in spring).
+		// (Do it this way, since getFindablesOfType(...) method is very slow and hangs the client while it's busy...)
+		ArrayList<Findable> findables = Finder.getInstance().listAllLocalObjects(Findable.class.getSimpleName());
+		for(Findable f : findables) {
+			if (f instanceof FluoDetectorElementConfig) {
+				FluoDetectorElementConfig conf = (FluoDetectorElementConfig)f;
+				if (conf.getDetectorName().equals(theDetector.getName())) {
+					fluorescenceDetectorComposite.setDetectorElementConfiguration(conf);
+				}
+			}
+		}
 	}
 
 	private void createDataStore() {
