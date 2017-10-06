@@ -69,7 +69,7 @@ class DetectorAdapter():
         if self.create_folder:
             if not os.path.exists(fullpath):
                 try:
-                    os.mkdir(fullpath)
+                    os.makedirs(fullpath)
                 except:
                     print "!!! Warning !!! Could not create directory: " + fullpath
         if self.toreplace:
