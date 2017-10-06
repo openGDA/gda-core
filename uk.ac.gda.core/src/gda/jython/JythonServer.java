@@ -25,9 +25,9 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Serializable;
 import java.io.Writer;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -89,7 +89,6 @@ import gda.scan.Scan.ScanStatus;
 import gda.scan.ScanDataPoint;
 import gda.scan.ScanInformation;
 import gda.scan.ScanInterruptedException;
-import gda.util.exceptionUtils;
 
 /**
  * This controls the information given to the Jython engine (GDAJythonInterpreter). This implements the Jython
@@ -98,7 +97,7 @@ import gda.util.exceptionUtils;
  * this rule is scan objects, which require information via methods which are not distributed and are shared via the
  * ICurrentScanHolder, IJythonServerNotifer, and IDefaultScannableProvider interfaces.
  */
-public class JythonServer implements Jython, LocalJython, Configurable, Localizable, Serializable,
+public class JythonServer implements Jython, LocalJython, Configurable, Localizable,
 		ICurrentScanInformationHolder, IJythonServerNotifer, IDefaultScannableProvider, ITerminalInputProvider,
 		TextCompleter {
 
@@ -199,12 +198,6 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	}
 
 	/**
-	 * Constructor.
-	 */
-	public JythonServer() {
-	}
-
-	/**
 	 * Get the jython script folder object.
 	 *
 	 * @return This object's jython script path finder.
@@ -300,9 +293,9 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 			System.gc();
 
 			if (messageHandler == null) {
-				final InMemoryMessageHandler messageHandler = new InMemoryMessageHandler();
-				messageHandler.setMaxMessagesPerVisit(10);
-				setMessageHandler(messageHandler);
+				final InMemoryMessageHandler memoryMessageHandler = new InMemoryMessageHandler();
+				memoryMessageHandler.setMaxMessagesPerVisit(10);
+				setMessageHandler(memoryMessageHandler);
 			}
 
 			// reset the defaultScannables array
@@ -364,7 +357,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 		return initialized;
 	}
 
-	void checkStateForRunCommand() throws IllegalStateException {
+	void checkStateForRunCommand() {
 		// only allow if configured or initialised or runningLocalStation
 		if (!(isConfigured() || isInitialized() || runningLocalStation)) {
 			throw new IllegalStateException("JythonServer is not configured yet.");
@@ -403,7 +396,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	}
 
 	@Override
-	public void runCommand(String command, String JSFIdentifier) {
+	public void runCommand(String command, String jsfIdentifier) {
 
 		checkStateForRunCommand();
 
@@ -421,7 +414,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 			// See bug #335 for why this must repeat most of the code of the
 			// runCommand(String, String) method.
 			try {
-				int authorisationLevel = this.batonManager.getAuthorisationLevelOf(JSFIdentifier);
+				int authorisationLevel = this.batonManager.getAuthorisationLevelOf(jsfIdentifier);
 				RunCommandRunner runner = new RunCommandRunner(this, command, authorisationLevel);
 				runCommandThreads.add(runner);
 				// start the thread and return immediately.
@@ -429,35 +422,34 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 				clearThreads();
 				notifyRefreshCommandThreads();
 			} catch (Exception ex) {
-				logger.info("Command Terminated." + ex.getMessage(), ex);
+				logger.info("Command Terminated", ex);
 			}
 		}
 	}
 
 	@Override
-	public void runCommand(String command, String scanObserver, String JSFIdentifier) {
+	public void runCommand(String command, String scanObserver, String jsfIdentifier) {
 		try {
 			checkStateForRunCommand();
 			setScanObserver(scanObserver);
-			int authorisationLevel = this.batonManager.getAuthorisationLevelOf(JSFIdentifier);
+			int authorisationLevel = this.batonManager.getAuthorisationLevelOf(jsfIdentifier);
 			RunCommandRunner runner = new RunCommandRunner(this, command, authorisationLevel);
-			// Thread newthread = uk.ac.gda.util.ThreadManager.getThread(runner);
 			runCommandThreads.add(runner);
 			// start the thread and return immediately.
 			runner.start();
 			clearThreads();
 			notifyRefreshCommandThreads();
 		} catch (Exception ex) {
-			logger.info("Command Terminated." + ex.getMessage(), ex);
+			logger.info("Command Terminated", ex);
 		}
 	}
 
 	@Override
-	public void runScript(String command, String JSFIdentifier) {
+	public void runScript(String command, String jsfIdentifier) {
 		// See bug #335 for why this must repeat most of the code of the
 		// runCommand(String, String) method.
 		try {
-			int authorisationLevel = this.batonManager.getAuthorisationLevelOf(JSFIdentifier);
+			int authorisationLevel = this.batonManager.getAuthorisationLevelOf(jsfIdentifier);
 			RunScriptRunner runner = new RunScriptRunner(this, command, authorisationLevel);
 			runner.setName(nameThread(command));
 			runCommandThreads.add(runner);
@@ -466,14 +458,14 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 			clearThreads();
 			notifyRefreshCommandThreads();
 		} catch (Exception ex) {
-			logger.info("Command Terminated." + ex.getMessage(), ex);
+			logger.info("Command Terminated", ex);
 		}
 	}
 
 	@Override
-	public void runScript(String command, String scanObserver, String JSFIdentifier) {
+	public void runScript(String command, String scanObserver, String jsfIdentifier) {
 		try {
-			int authorisationLevel = this.batonManager.getAuthorisationLevelOf(JSFIdentifier);
+			int authorisationLevel = this.batonManager.getAuthorisationLevelOf(jsfIdentifier);
 			setScanObserver(scanObserver);
 			RunScriptRunner runner = new RunScriptRunner(this, command, authorisationLevel);
 			runner.setName(nameThread(command));
@@ -483,35 +475,35 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 			clearThreads();
 			notifyRefreshCommandThreads();
 		} catch (Exception ex) {
-			logger.error("Command Terminated." + ex.getMessage(), ex);
+			logger.error("Command Terminated", ex);
 		}
 	}
 
 	@Override
-	public String evaluateCommand(String command, String JSFIdentifier) {
+	public String evaluateCommand(String command, String jsfIdentifier) {
 		try {
-			int authorisationLevel = this.batonManager.getAuthorisationLevelOf(JSFIdentifier);
+			int authorisationLevel = this.batonManager.getAuthorisationLevelOf(jsfIdentifier);
 			EvaluateRunner runner = new EvaluateRunner(interp, command, authorisationLevel);
 			runner.setName(nameThread(command));
 			runner.start();
 			runner.join();
 			return runner.result;
 		} catch (Exception ex) {
-			exceptionUtils.logException(logger, "evaluateCommand failed for " + command, ex);
+			logger.error("evaluateCommand failed for {}", command, ex);
 		}
 		return "";
 	}
 
 	@Override
-	public boolean runsource(String command, String source, String JSFIdentifier) {
-		return runsource(command, source, JSFIdentifier, null);
+	public boolean runsource(String command, String source, String jsfIdentifier) {
+		return runsource(command, source, jsfIdentifier, null);
 	}
 
 	@Override
-	public boolean runsource(String command, String source, String JSFIdentifier, InputStream stdin) {
+	public boolean runsource(String command, String source, String jsfIdentifier, InputStream stdin) {
 		try {
 			setScanObserver(source);
-			int authorisationLevel = this.batonManager.getAuthorisationLevelOf(JSFIdentifier);
+			int authorisationLevel = this.batonManager.getAuthorisationLevelOf(jsfIdentifier);
 			echoInputToServerSideTerminalObservers(">>> " + command);
 			RunSourceRunner runner = new RunSourceRunner(interp, command, authorisationLevel, stdin);
 			runner.setName(nameThread(command));
@@ -522,7 +514,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 			this.notifyTerminateCommandThread(info);
 			return runner.result;
 		} catch (Exception ex) {
-			logger.info("Command terminated." + ex.getMessage(), ex);
+			logger.info("Command terminated.", ex);
 		}
 		return false;
 	}
@@ -534,8 +526,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 			cmd = cmd.substring(0, 100) + " ...";
 
 		}
-		String s = sdf.format(new Date()) + " : " + cmd.replace("\n", ";");
-		return s;
+		return sdf.format(new Date()) + " : " + cmd.replace("\n", ";");
 	}
 
 	private void echoInputToServerSideTerminalObservers(String s) {
@@ -545,7 +536,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	}
 
 	@Override
-	public void setRawInput(String theInput, String JSFIdentifier) {
+	public void setRawInput(String theInput, String jsfIdentifier) {
 		if (expectingInputForRawInput) {
 			// tell all terminals that an input has been received
 			updateIObservers(RAW_INPUT_RECEIVED);
@@ -578,42 +569,42 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	}
 
 	@Override
-	public synchronized void requestFinishEarly(String JSFIdentifier) {
+	public synchronized void requestFinishEarly(String jsfIdentifier) {
 		if (currentScan != null)
 			currentScan.requestFinishEarly();
 	}
 
 	@Override
-	public void pauseCurrentScan(String JSFIdentifier) {
+	public void pauseCurrentScan(String jsfIdentifier) {
 		if (currentScan != null)
 			currentScan.pause();
 	}
 
 	@Override
-	public void resumeCurrentScan(String JSFIdentifier) {
+	public void resumeCurrentScan(String jsfIdentifier) {
 		if (currentScan != null)
 			currentScan.resume();
 	}
 
 	@Override
-	public void restartCurrentScan(String JSFIdentifier) {
+	public void restartCurrentScan(String jsfIdentifier) {
 		// if the last scan has finished and was aborted for some reason, then re-run it
 		if (currentScan != null) {
 			ScanStatus status = currentScan.getStatus();
 			if (status == ScanStatus.COMPLETED_AFTER_FAILURE || status == ScanStatus.COMPLETED_AFTER_STOP) {
-				this.placeInJythonNamespace("the_restarted_scan", this.currentScan, JSFIdentifier);
-				runCommand("the_restarted_scan.runScan()", JSFIdentifier);
+				this.placeInJythonNamespace("the_restarted_scan", this.currentScan, jsfIdentifier);
+				runCommand("the_restarted_scan.runScan()", jsfIdentifier);
 			}
 		}
 	}
 
 	@Override
-	public void beamlineHalt(String JSFIdentifier) {
+	public void beamlineHalt(String jsfIdentifier) {
 		abortCommands(true);
 	}
 
 	@Override
-	public void abortCommands(String JSFIdentifier) {
+	public void abortCommands(String jsfIdentifier) {
 		abortCommands(false);
 	}
 
@@ -672,12 +663,12 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	}
 
 	@Override
-	public void pauseCurrentScript(String JSFIdentifier) {
+	public void pauseCurrentScript(String jsfIdentifier) {
 		ScriptBase.setPaused(true);
 	}
 
 	@Override
-	public void resumeCurrentScript(String JSFIdentifier) {
+	public void resumeCurrentScript(String jsfIdentifier) {
 		ScriptBase.setPaused(false);
 	}
 
@@ -739,7 +730,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 				// add the facade and associated roles to the list of registered facades
 				int accessLevel = authoriser.getAuthorisationLevel(username);
 				ClientDetails info = new ClientDetails(indexNumber, username, fullName, hostName, accessLevel, false, visitID);
-				logger.info("User " + username + " logged into GDA with authorisation level " + accessLevel);
+				logger.info("User {} logged into GDA with authorisation level {}", username, accessLevel);
 				this.batonManager.addFacade(uniqueFacadeName, info);
 			}
 			return indexNumber;
@@ -792,7 +783,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	}
 
 	@Override
-	public int getScanStatus(String JSFIdentifier) {
+	public int getScanStatus(String jsfIdentifier) {
 		if (currentScan == null){
 			return Jython.IDLE;
 		}
@@ -800,12 +791,12 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	}
 
 	@Override
-	public int getScriptStatus(String JSFIdentifier) {
+	public int getScriptStatus(String jsfIdentifier) {
 		return scriptStatus;
 	}
 
 	@Override
-	public void setScriptStatus(int newStatus, String JSFIdentifier) {
+	public void setScriptStatus(int newStatus, String jsfIdentifier) {
 		// check if the status value is recognised and has changed
 		if ((newStatus == Jython.IDLE || newStatus == Jython.RUNNING || newStatus == Jython.PAUSED)
 				&& scriptStatus != newStatus) {
@@ -815,12 +806,12 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	}
 
 	@Override
-	public void placeInJythonNamespace(String objectName, Object obj, String JSFIdentifier) {
+	public void placeInJythonNamespace(String objectName, Object obj, String jsfIdentifier) {
 		this.interp.placeInJythonNamespace(objectName, obj);
 	}
 
 	@Override
-	public Object getFromJythonNamespace(String objectName, String JSFIdentifier) {
+	public Object getFromJythonNamespace(String objectName, String jsfIdentifier) {
 		return interp.getFromJythonNamespace(objectName);
 	}
 
@@ -829,7 +820,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	 * <p>
 	 * This returns object references so cannot be distributed.
 	 *
-	 * @return PyObject
+	 * @return Map<String, Object> of items in jython namespace
 	 */
 	@Override
 	public Map<String, Object> getAllFromJythonNamespace() throws DeviceException {
@@ -839,7 +830,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 		PyList dict = locals.keys();
 		dict.sort();
 
-		LinkedHashMap<String, Object> output = new LinkedHashMap<String, Object>();
+		LinkedHashMap<String, Object> output = new LinkedHashMap<>();
 
 		for (int i = 0; i < dict.__len__(); i++) {
 			PyObject key = dict.__getitem__(i);
@@ -859,12 +850,12 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	}
 
 	@Override
-	public String getRelease(String JSFIdentifier) {
+	public String getRelease(String jsfIdentifier) {
 		return gda.util.Version.getRelease();
 	}
 
 	@Override
-	public String getStartupOutput(String JSFIdentifier) {
+	public String getStartupOutput(String jsfIdentifier) {
 		return this.bufferedLocalStationOutput.toString();
 	}
 
@@ -874,15 +865,17 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	}
 
 	@Override
-	public void addAliasedCommand(String commandName, String JSFIdentifier) {
-		if (this.batonManager.isJSFRegistered(JSFIdentifier)) {
+	public void addAliasedCommand(String commandName, String jsfIdentifier) {
+		if (this.batonManager.isJSFRegistered(jsfIdentifier)) {
 			GDAJythonInterpreter.getTranslator().addAliasedCommand(commandName);
 		}
 	}
-	//TODO either none or both addAliased{,Vararg}Command methods should require the guard: if (this.batonManager.isJSFRegistered(JSFIdentifier))
+
 	@Override
-	public void addAliasedVarargCommand(String commandName, String JSFIdentifier) {
-		GDAJythonInterpreter.getTranslator().addAliasedVarargCommand(commandName);
+	public void addAliasedVarargCommand(String commandName, String jsfIdentifier) {
+		if (this.batonManager.isJSFRegistered(jsfIdentifier)) {
+			GDAJythonInterpreter.getTranslator().addAliasedVarargCommand(commandName);
+		}
 	}
 
 	@Override
@@ -954,10 +947,9 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 		final ClientDetails details = this.batonManager.getClientInformation(myJSFIdentifier);
 		final String visit = details.getVisitID();
 		if (StringUtils.hasText(visit)) {
-			List<UserMessage> messages = messageHandler.getMessageHistory(visit);
-			return messages;
+			return messageHandler.getMessageHistory(visit);
 		}
-		return null;
+		return new ArrayList<>();
 	}
 
 	private void updateIObservers(Object messageObject) {
@@ -985,7 +977,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	private void updateStatus() {
 		JythonServerStatus newStatus = new JythonServerStatus(scriptStatus, lastScanStatus);
 		updateIObservers(newStatus);
-		logger.info(newStatus.toString());
+		logger.info("New status {}", newStatus);
 		jythonServerStatusObservers.notifyIObservers(null, newStatus);
 	}
 
@@ -1027,7 +1019,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 				Stoppable s = (Stoppable) f;
 				s.stop();
 			} catch (Exception e) {
-				logger.warn("Failed to stop " + StringUtils.quote(f.getName()), e);
+				logger.warn("Failed to stop '{}'", f.getName(), e);
 			}
 		}
 
@@ -1056,10 +1048,10 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 
 		}
 		// Don't use an executor or thread pool so that we can name the threads with the motor name
-		LinkedList<FutureTask<Void>> futureTasks = new LinkedList<FutureTask<Void>>();
+		LinkedList<FutureTask<Void>> futureTasks = new LinkedList<>();
 
 		List<Motor> motors = Finder.getInstance().listFindablesOfType(Motor.class);
-		logger.info("Stopping the " + motors.size() + " Motor instances registered in Finder");
+		logger.info("Stopping the {} Motor instances registered in Finder", motors.size());
 
 		for (Motor motor : motors) {
 			futureTasks.add(new FutureTask<Void>(new StopMotor(motor)));
@@ -1071,7 +1063,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 				futureTasks.pop().get();
 			} catch (InterruptedException e) {
 				// This thread is off running by itself, and its task is possibly *very* important. So...
-				logger.info(Thread.currentThread().getName() + " swallowing InterruptedException while stopping all Motors");
+				logger.info("{} swallowing InterruptedException while stopping all Motors", Thread.currentThread().getName());
 			} catch (ExecutionException e) {
 				// This thread is off running by itself, and its task is possibly *very* important. So...
 				String msg = "Problem stopping a Motor: " + e.getCause().getMessage();
@@ -1114,7 +1106,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	 * Remove references to terminated threads from the lists of threads.
 	 */
 	private synchronized void clearThreads() {
-		Vector<Thread> removeFromCommandThread = new Vector<Thread>();
+		Collection<Thread> removeFromCommandThread = new ArrayList<>();
 		for (Thread thread : this.runCommandThreads) {
 			if (thread.getState() == Thread.State.TERMINATED) {
 				removeFromCommandThread.add(thread);
@@ -1124,7 +1116,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 			this.runCommandThreads.remove(thread);
 		}
 
-		Vector<Thread> removeFromSourceThread = new Vector<Thread>();
+		Collection<Thread> removeFromSourceThread = new ArrayList<>();
 		for (Thread thread : this.runsourceThreads) {
 			if (thread.getState() == Thread.State.TERMINATED) {
 				removeFromSourceThread.add(thread);
@@ -1134,7 +1126,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 			this.runsourceThreads.remove(thread);
 		}
 
-		Vector<Thread> removeFromEvalThread = new Vector<Thread>();
+		Collection<Thread> removeFromEvalThread = new ArrayList<>();
 		for (Thread thread : this.evalThreads) {
 			if (thread.getState() == Thread.State.TERMINATED) {
 				removeFromEvalThread.add(thread);
@@ -1148,7 +1140,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	/**
 	 * Base class for all the types of thread started by the JythonServer to run Jython commands.
 	 */
-	public static abstract class JythonServerThread extends Thread {
+	public abstract static class JythonServerThread extends Thread {
 		GDAJythonInterpreter interpreter = null;
 		String cmd = "";
 		JythonServer server = null;
@@ -1256,23 +1248,20 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 				// open up a new file
 				fileoutName = LocalProperties.getVarDir() + ".tempScript2";
 				File out = new File(fileoutName);
-				FileWriter buf = new FileWriter(out);
-				// write the command to file
-				buf.write(cmd);
-				buf.close();
+				try (FileWriter buf = new FileWriter(out)) {
+					// write the command to file
+					buf.write(cmd);
+				}
 				// then run the file
 				this.interpreter.runscript(out);
 			} catch (IOException e) {
-				logger.error("CommandServer: error while writing temporary script file." + fileoutName + " "
-						+ e.getMessage());
+				logger.error("CommandServer: error while writing temporary script file: {}", fileoutName, e);
 				server.setScriptStatus(Jython.IDLE, null);
 			} catch (Exception e) {
 				if (e.getCause() instanceof ScanInterruptedException) {
-					logger.info("CommandServer: " + e.getCause().getMessage());
+					logger.info("CommandServer: {}", e.getCause().getMessage());
 				} else {
-				logger.error(
-						"CommandServer: error while running command: '" + cmd + "' encountered an error: "
-								+ e.getMessage(), e);
+					logger.error("CommandServer: error while running command: '{}' encountered an error: ", cmd, e);
 				}
 				server.setScriptStatus(Jython.IDLE, null);
 			}
@@ -1319,12 +1308,12 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	}
 
 	@Override
-	public Vector<String> getAliasedCommands(String JSFIdentifier) {
+	public Vector<String> getAliasedCommands(String jsfIdentifier) {
 		return GDAJythonInterpreter.getTranslator().getAliasedCommands();
 	}
 
 	@Override
-	public Vector<String> getAliasedVarargCommands(String JSFIdentifier) {
+	public Vector<String> getAliasedVarargCommands(String jsfIdentifier) {
 		return GDAJythonInterpreter.getTranslator().getAliasedVarargCommands();
 	}
 
@@ -1336,7 +1325,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	@Override
 	public String getDefaultScriptProjectFolder() {
 		List<String> paths = jythonScriptPaths.getPaths();
-		return (paths.size() > 0) ? paths.get(0) : null;
+		return paths.isEmpty() ? null : paths.get(0);
 	}
 
 	@Override
@@ -1436,7 +1425,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 
 	@Override
 	public ICommandThreadInfo[] getCommandThreadInfo() {
-		Vector<ICommandThreadInfo> infos = new Vector<ICommandThreadInfo>();
+		Collection<ICommandThreadInfo> infos = new ArrayList<>();
 		for (Thread t : runsourceThreads) {
 			if (t.isAlive() && t instanceof JythonServerThread) {
 				infos.add(extractCommandThreadInfo(CommandThreadType.SOURCE,(JythonServerThread) t));
@@ -1516,7 +1505,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 		tp.print(String.format("%d client%s connected%s",
 			clients.size(),
 			(clients.size() == 1) ? "" : "s",
-			(clients.size() > 0) ? ":" : "."));
+			(clients.isEmpty()) ? "." : ":"));
 
 		if (!clients.isEmpty()) {
 
