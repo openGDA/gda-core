@@ -81,11 +81,7 @@ public class ProcessingSection extends AbstractMappingSection {
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(processingComposite);
 		GridLayoutFactory.swtDefaults().numColumns(1).applyTo(processingComposite);
 
-		Label processingLabel = new Label(processingComposite, SWT.NONE);
-		processingLabel.setText("Processing");
-		GridDataFactory.fillDefaults().applyTo(processingLabel);
-
-		createAddProcessingModelRow(processingComposite);
+		createTitleAndAddProcessingRow(processingComposite);
 		createProcessingModelRows(processingComposite);
 	}
 
@@ -94,11 +90,15 @@ public class ProcessingSection extends AbstractMappingSection {
 		return getTemplateFiles().length > 0;
 	}
 
-	private void createAddProcessingModelRow(Composite parent) {
+	private void createTitleAndAddProcessingRow(Composite parent) {
 		Composite rowComposite = new Composite(parent, SWT.NONE);
-		GridLayoutFactory.fillDefaults().applyTo(rowComposite);
+		GridLayoutFactory.fillDefaults().numColumns(2).applyTo(rowComposite);
 		GridDataFactory grabHorizontalGridData = GridDataFactory.fillDefaults().grab(true, false);
 		grabHorizontalGridData.applyTo(rowComposite);
+
+		Label processingLabel = new Label(rowComposite, SWT.NONE);
+		processingLabel.setText("Processing");
+		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).applyTo(processingLabel);
 
 		// Button to add a processing model
 		Button addProcessingModelButton = new Button(rowComposite, SWT.PUSH);
