@@ -40,6 +40,7 @@ import org.jline.reader.ParsedLine;
 import org.jline.reader.Reference;
 import org.jline.reader.UserInterruptException;
 import org.jline.terminal.Terminal;
+import org.jline.terminal.Terminal.Signal;
 import org.python.core.Py;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,6 +83,7 @@ class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPointObser
 	private final LineReader read;
 	private final InputStream rawInput;
 	private final int shellNumber;
+	private volatile boolean running;
 
 	JythonShell(Terminal term) throws Exception {
 		terminal = term;
@@ -112,11 +114,12 @@ class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPointObser
 	 */
 	public void run() {
 		logger.info("Starting jython shell {}", shellNumber);
+		running = true;
 		init();
 		StringBuilder fullCommand = new StringBuilder();
 		String command = "";
 		boolean needMore = false;
-		while (command != null) {
+		while (running) {
 			try {
 				command = read.readLine(needMore ? PS2 : PS1);
 				fullCommand.append(command);
@@ -130,6 +133,9 @@ class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPointObser
 				fullCommand = new StringBuilder();
 				needMore = false;
 				rawWrite("KeyboardInterrupt\n");
+			} catch (EndOfFileException eof) {
+				logger.info("EOF in Jython shell #{} (Ctrl-d)", shellNumber);
+				return;
 			}
 		}
 	}
@@ -148,7 +154,7 @@ class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPointObser
 		server.addIScanDataPointObserver(this);
 		setupKeybindings();
 		terminal.writer().print(WELCOME_BANNER);
-		setTitle(String.format("GDA %s", Version.getRelease()));
+		setTitle(String.format("GDA %s (#%d)", Version.getRelease(), shellNumber));
 	}
 
 	/**
@@ -162,6 +168,7 @@ class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPointObser
 
 	@Override
 	public void close() {
+		logger.debug("Closing {}", this);
 		// Don't close the terminal here as it is managed by the connection
 		server.deleteOutputTerminal(this);
 		server.deleteIScanDataPointObserver(this);
@@ -214,8 +221,20 @@ class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPointObser
 	 * @param output the String to be written
 	 */
 	private void rawWrite(String output) {
-		terminal.writer().write(output);
-		terminal.writer().flush();
+		// If this shell has failed to write before, don't keep writing - interrupting the
+		// shell causes more output to be written ("KeyboardInterrupt") and can
+		// end in a loop
+		if (running) {
+			terminal.writer().write(output);
+			if (terminal.writer().checkError()) {
+				running = false;
+				logger.error("#{} - Error writing to output", shellNumber);
+				// If this output is coming from a different source, this shell will be
+				// waiting for input and need to be interrupted. SIGINT causes a UserInterruptException
+				// and breaks out of the loop
+				terminal.raise(Signal.INT);
+			}
+		}
 	}
 
 	/**
@@ -283,5 +302,10 @@ class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPointObser
 						.map(v -> new Candidate(v, v, null, null, null, null, false))
 						.collect(Collectors.toList()));
 		}
+	}
+
+	@Override
+	public String toString() {
+		return String.format("JythonShell#%d", shellNumber);
 	}
 }

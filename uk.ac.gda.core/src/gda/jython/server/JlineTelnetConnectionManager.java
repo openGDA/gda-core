@@ -45,6 +45,7 @@ public class JlineTelnetConnectionManager extends ConnectionManager {
 		ConnectionManager conMan = new JlineTelnetConnectionManager();
 		PortListener portListen = new PortListener("GDA", port, 10);
 		portListen.setConnectionManager(conMan);
+		new Thread(conMan, "Telnet Connection Manager").start();
 		portListen.start();
 		logger.info("Listening for telnet connections on port {}", port);
 	}

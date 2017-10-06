@@ -21,14 +21,12 @@ package gda.jython.server;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.PrintStream;
 
 import org.jline.builtins.telnet.Connection;
 import org.jline.builtins.telnet.ConnectionData;
 import org.jline.builtins.telnet.ConnectionEvent;
 import org.jline.builtins.telnet.ConnectionListener;
 import org.jline.builtins.telnet.TelnetIO;
-import org.jline.reader.EndOfFileException;
 import org.jline.terminal.Size;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.Terminal.Signal;
@@ -83,16 +81,14 @@ class JythonTelnetConnection extends Connection {
 	protected void doRun() throws Exception {
 		try (JythonShell shell = new JythonShell(terminal)) {
 			shell.run();
-		} catch (EndOfFileException eof) {
-			logger.info("EOF in jython telnet connection");
 		}
 	}
 
 	@Override
 	protected void doClose() throws Exception {
+		terminal.close();
 		io.closeOutput();
 		io.closeInput();
-		terminal.close();
 	}
 
 	/**
@@ -116,21 +112,16 @@ class JythonTelnetConnection extends Connection {
 	}
 
 	/**
-	 * Wrapper around TelnetIO to provide PrintStream for connection
+	 * Wrapper around TelnetIO to provide OutputStream for connection
 	 */
-	private class JlineOutput extends PrintStream {
-		public JlineOutput() {
-			super(new OutputStream() {
-				@Override
-				public void write(int b) throws IOException {
-					io.write(b);
-				}
-				@Override
-				public void flush() throws IOException {
-					io.flush();
-				}
-			});
+	private class JlineOutput extends OutputStream {
+		@Override
+		public void write(int b) throws IOException {
+			io.write(b);
+		}
+		@Override
+		public void flush() throws IOException {
+			io.flush();
 		}
 	}
-
 }
