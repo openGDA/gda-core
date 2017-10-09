@@ -29,7 +29,7 @@ import org.jfree.chart.renderer.xy.XYBarRenderer;
 /**
  * Extends XYBarRenderer in order to provide some additional facilities.
  */
-public class SimpleXYBarRenderer extends XYBarRenderer {
+class SimpleXYBarRenderer extends XYBarRenderer {
 	/**
 	 * Creates a SimpleLegendItem for a SimpleXYSeries in the dataset.
 	 *

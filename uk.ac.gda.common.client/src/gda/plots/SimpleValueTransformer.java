@@ -23,7 +23,7 @@ package gda.plots;
  * Something implementing this interface can be set on a SimplePlot to transform the x values of the data on output
  * only.
  */
-public interface SimpleValueTransformer {
+interface SimpleValueTransformer {
 	/**
 	 * Should return a transformed value.
 	 *

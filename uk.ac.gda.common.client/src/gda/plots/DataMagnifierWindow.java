@@ -39,7 +39,7 @@ import org.jfree.data.xy.XYSeriesCollection;
 /**
  * This displays a magnified part of a simple plot by having a duplicate plot with axis limits set accordingly.
  */
-public class DataMagnifierWindow extends JDialog implements Magnifier {
+class DataMagnifierWindow extends JDialog implements Magnifier {
 	private SimplePlot simplePlot;
 
 	private XYPlot magnifiedPlot;
@@ -47,7 +47,7 @@ public class DataMagnifierWindow extends JDialog implements Magnifier {
 	/**
 	 * @param c
 	 */
-	public DataMagnifierWindow(Component c) {
+	DataMagnifierWindow(Component c) {
 		super((Frame) SwingUtilities.getRoot(c));
 		setAlwaysOnTop(true);
 	}

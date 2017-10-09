@@ -43,7 +43,7 @@ import org.jfree.util.ShapeUtilities;
  * Extends StandardXYItemRenderer in order to force the dataset to be a SimpleXYSeriesCollection and to use the Paint,
  * Stroke etc from the SimpleXYSeries.
  */
-public class SimpleXYItemRenderer extends StandardXYItemRenderer {
+class SimpleXYItemRenderer extends StandardXYItemRenderer {
 	protected SimpleValueTransformer xValueTransformer;
 
 	/**
@@ -256,16 +256,6 @@ public class SimpleXYItemRenderer extends StandardXYItemRenderer {
 
 		return result;
 
-	}
-
-	/**
-	 * Gets the x value transformer
-	 *
-	 * @see #setXValueTransformer for an explanation of SimpleValueTransformer.
-	 * @return the x value transformer.
-	 */
-	SimpleValueTransformer getXValueTransformer() {
-		return xValueTransformer;
 	}
 
 	/**

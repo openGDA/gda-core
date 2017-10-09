@@ -22,7 +22,7 @@ package gda.plots;
 /**
  *
  */
-public class LinearValueTransformer implements SimpleValueTransformer {
+class LinearValueTransformer implements SimpleValueTransformer {
 	private double slope;
 
 	private double intercept;
@@ -31,7 +31,7 @@ public class LinearValueTransformer implements SimpleValueTransformer {
 	 * @param slope
 	 * @param intercept
 	 */
-	public LinearValueTransformer(double slope, double intercept) {
+	LinearValueTransformer(double slope, double intercept) {
 		this.slope = slope;
 		this.intercept = intercept;
 	}

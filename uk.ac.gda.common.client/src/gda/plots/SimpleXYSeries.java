@@ -19,8 +19,6 @@
 
 package gda.plots;
 
-import gda.configuration.properties.LocalProperties;
-
 import java.awt.Color;
 import java.awt.Paint;
 import java.awt.Shape;
@@ -40,6 +38,8 @@ import org.jfree.data.xy.XYSeries;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
+
 /**
  * Extends XYSeries to keep information about line colour, type, style, symbol etc with the data. Also overrides some
  * aspects to provide faster access and synchronization.
@@ -48,12 +48,12 @@ public class SimpleXYSeries extends XYSeries {
 	/**
 	 * Controls if the archive method functions or not.
 	 */
-	public static final String GDA_PLOT_SIMPLEXYSERIES_ARCHIVE_THRESHOLD = "gda.plot.SimpleXYSeries.archiveThreshold";
+	static final String GDA_PLOT_SIMPLEXYSERIES_ARCHIVE_THRESHOLD = "gda.plot.SimpleXYSeries.archiveThreshold";
 
-	static Integer archiveThreshold;
+	private static Integer archiveThreshold;
 
 	private static final Logger logger = LoggerFactory.getLogger(SimpleXYSeries.class);
-	static Paint[] defaultPaints = { new Color(0, 0, 0) ,new Color(0, 0, 255),new Color(255, 0, 0),
+	private static Paint[] defaultPaints = { new Color(0, 0, 0) ,new Color(0, 0, 255),new Color(255, 0, 0),
 		new Color(204, 0, 204), new Color(204, 0, 0), new Color(0, 153, 51), new Color(102, 0, 102),
 		new Color(255, 102, 255), new Color(255, 155, 0), new Color(204, 255, 0), new Color(51, 255, 51),
 		new Color(102, 255, 255), new Color(102, 102, 255), new Color(153, 153, 0),
@@ -146,47 +146,6 @@ public class SimpleXYSeries extends XYSeries {
 			maxY = Math.max(maxY, y);
 			data.add(new XYDataItem(x, y));
 		}
-	}
-
-	/**
-	 * @param other
-	 */
-	@SuppressWarnings("unchecked")
-	public SimpleXYSeries(final SimpleXYSeries other) {
-		this(other.getName(), other.lineNumber, other.axis);
-		minX = other.minX;
-		maxX = other.maxX;
-		minY = other.minY;
-		maxY = other.maxY;
-		data = new java.util.Vector<XYDataItem>(100, 0);
-		data.addAll(other.data);
-	}
-
-	static SimpleXYSeries getInstance(String filename) throws IOException, ClassNotFoundException {
-		SimpleXYSeries xys = null;
-		FileInputStream f_in = null;
-		ObjectInputStream obj_in = null;
-		try {
-			// Read from disk using FileInputStream
-			f_in = new FileInputStream(filename);
-
-			// Read object using ObjectInputStream
-			obj_in = new ObjectInputStream(f_in);
-
-			// Read an object
-			Object obj = obj_in.readObject();
-
-			if (obj instanceof SimpleXYSeries) {
-				// Cast object to a Vector
-				xys = (SimpleXYSeries) obj;
-			}
-		} finally {
-			if (obj_in != null)
-				obj_in.close();
-			if (f_in != null)
-				f_in.close();
-		}
-		return xys;
 	}
 
 	/**
@@ -492,7 +451,7 @@ public class SimpleXYSeries extends XYSeries {
 	 * @param yVals
 	 *            array of y values
 	 */
-	public void setPoints(double[] xVals, double[] yVals) {
+	void setPoints(double[] xVals, double[] yVals) {
 		unArchive();
 		clear();
 
@@ -604,36 +563,6 @@ public class SimpleXYSeries extends XYSeries {
 	}
 
 	/**
-	 * Returns the X value corresponding to the peak Y value within a particular X range.
-	 *
-	 * @param start
-	 *            the start of the X range
-	 * @param end
-	 *            the end of the X range
-	 * @return the X value of the peak Y value in the range start to end.
-	 */
-	public double getXValueOfPeak(double start, double end) {
-		double xValue = 0.0;
-		double maximum = Double.MIN_VALUE;
-		XYDataItem item;
-		double lValue = Math.min(start, end);
-		double rValue = Math.max(start, end);
-		double x;
-
-		synchronized (getData()) {
-			for (Iterator<XYDataItem> i = getIterator(); i.hasNext();) {
-				item = i.next();
-				x = item.getX().doubleValue();
-				if (x >= lValue && x <= rValue && item.getY().doubleValue() > maximum) {
-					maximum = item.getY().doubleValue();
-					xValue = x;
-				}
-			}
-		}
-		return xValue;
-	}
-
-	/**
 	 * Gets the name. From 1.0.0 onwards the XYSeries has a key and a description instead of just a name. This method
 	 * and the corresponding setter hide this from the rest of gda.plots.
 	 *
@@ -675,45 +604,10 @@ public class SimpleXYSeries extends XYSeries {
 	}
 
 	/**
-	 * function to return the min/max X and Y over range of items from start to end
-	 *
-	 * @param start
-	 * @param end
-	 * @return elements 0 - minX, 1-maxX, 2-minY, 3-maxY
-	 */
-	public Double[] getBounds(int start, int end) {
-		double minX = Double.POSITIVE_INFINITY;
-		double maxX = Double.NEGATIVE_INFINITY;
-		double minY = Double.POSITIVE_INFINITY;
-		double maxY = Double.NEGATIVE_INFINITY;
-		Double[] extents = new Double[4];
-		synchronized (getData()) {
-			int i = 0;
-			Iterator<XYDataItem> iter = getIterator();
-			for (; iter.hasNext(); i++) {
-				XYDataItem item = iter.next();
-				if (i >= start && i <= end) {
-					double xval = item.getX().doubleValue();
-					double yval = item.getY().doubleValue();
-					minX = Math.min(minX, xval);
-					maxX = Math.max(maxX, xval);
-					minY = Math.min(minY, yval);
-					maxY = Math.max(maxY, yval);
-				}
-			}
-		}
-		extents[0] = minX;
-		extents[1] = maxX;
-		extents[2] = minY;
-		extents[3] = maxY;
-		return extents;
-	}
-
-	/**
 	 * @param xRange
 	 * @return The min/max X/Y of the data within the Range of x given in xRange
 	 */
-	public Double[] getBounds(Range xRange) {
+	Double[] getBounds(Range xRange) {
 		double minX = xRange.getLowerBound();
 		double maxX = xRange.getUpperBound();
 		double minY = Double.POSITIVE_INFINITY;

@@ -27,7 +27,7 @@ import org.jfree.chart.LegendItem;
 /**
  * Extends LegendItem to allow a SimpleXYSeries to be associated with it.
  */
-public class SimpleLegendItem extends LegendItem {
+class SimpleLegendItem extends LegendItem {
 	private SimpleXYSeries sxys = null;
 
 	/**
@@ -36,7 +36,7 @@ public class SimpleLegendItem extends LegendItem {
 	 * @param sxys
 	 *            the SimpleXYSeries
 	 */
-	public SimpleLegendItem(SimpleXYSeries sxys) {
+	SimpleLegendItem(SimpleXYSeries sxys) {
 		super(sxys.getName(), sxys.getName(), null, null, sxys.isDrawMarkers(), sxys.getSymbol(), sxys.getFilled(),
 				sxys.getSymbolPaint(), !sxys.getFilled(), sxys.getSymbolPaint(), new BasicStroke(), sxys.isDrawLines(),
 				new Line2D.Double(-8.0, 0.0, 8.0, 0.0), sxys.getStroke(), sxys.getPaint());

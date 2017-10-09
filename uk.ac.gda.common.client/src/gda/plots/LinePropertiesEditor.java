@@ -44,7 +44,7 @@ import org.jfree.data.general.SeriesChangeListener;
 /**
  * JDialog that provides utilities to enable editing of line properties
  */
-public class LinePropertiesEditor extends JDialog implements ActionListener, SeriesChangeListener {
+class LinePropertiesEditor extends JDialog implements ActionListener, SeriesChangeListener {
 	private SimpleXYSeries currentLine = null;
 
 	private JTextField nameField;
@@ -92,7 +92,7 @@ public class LinePropertiesEditor extends JDialog implements ActionListener, Ser
 	 * @param sxys
 	 * @param allProperties
 	 */
-	public LinePropertiesEditor(JFrame parent, String title, @SuppressWarnings("unused") String message,
+	LinePropertiesEditor(JFrame parent, String title, @SuppressWarnings("unused") String message,
 			SimpleXYSeries sxys, boolean allProperties) {
 		super(parent, title, true);
 		if (parent != null) {

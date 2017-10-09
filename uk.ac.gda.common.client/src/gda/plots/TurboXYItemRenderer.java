@@ -19,8 +19,6 @@
 
 package gda.plots;
 
-import gda.configuration.properties.LocalProperties;
-
 import java.awt.BasicStroke;
 import java.awt.Graphics2D;
 import java.awt.Paint;
@@ -45,19 +43,21 @@ import org.jfree.data.xy.XYDataset;
 import org.jfree.ui.RectangleEdge;
 import org.jfree.util.ShapeUtilities;
 
+import gda.configuration.properties.LocalProperties;
+
 /**
  * Extends StandardXYItemRenderer in order to force the dataset to be a SimpleXYSeriesCollection and to use the Paint,
  * Stroke etc from the SimpleXYSeries.
  */
-public class TurboXYItemRenderer extends SimpleXYItemRenderer {
+class TurboXYItemRenderer extends SimpleXYItemRenderer {
 
 	/**
 	 * Ratio of space between markers to width of marker below which marker are not shown.
 	 * If not set then 1 is used. 0 means always show markers
 	 */
-	public static final String GDA_PLOT_TURBO_X_Y_ITEM_RENDERER_TOOLTIP_THRESHOLD = "gda.plot.TurboXYItemRenderer.tooltipThreshold";
+	private static final String GDA_PLOT_TURBO_X_Y_ITEM_RENDERER_TOOLTIP_THRESHOLD = "gda.plot.TurboXYItemRenderer.tooltipThreshold";
 
-	static int tooltipThreshold = LocalProperties.getInt(
+	private static int tooltipThreshold = LocalProperties.getInt(
 			TurboXYItemRenderer.GDA_PLOT_TURBO_X_Y_ITEM_RENDERER_TOOLTIP_THRESHOLD, 1);
 
 	/**

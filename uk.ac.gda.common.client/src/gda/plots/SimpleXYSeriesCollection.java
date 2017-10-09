@@ -30,7 +30,7 @@ import org.jfree.data.xy.XYSeriesCollection;
  * (XYSeriesCollection only implements DomainInfo) so that Y axes get drawn more sensibly for horizontal lines.
  */
 
-public class SimpleXYSeriesCollection extends XYSeriesCollection implements RangeInfo {
+class SimpleXYSeriesCollection extends XYSeriesCollection implements RangeInfo {
 	private SimpleValueTransformer xValueTransformer;
 
 	private boolean batching = false;
@@ -42,7 +42,7 @@ public class SimpleXYSeriesCollection extends XYSeriesCollection implements Rang
 	 * @param simplePlot
 	 *            SimplePlot - used to allow calls to get ranges to go back to the plot window
 	 */
-	public SimpleXYSeriesCollection(SimplePlot simplePlot) {
+	SimpleXYSeriesCollection(SimplePlot simplePlot) {
 		this.simplePlot = simplePlot;
 		xValueTransformer = new SimpleValueTransformer() {
 
@@ -77,7 +77,7 @@ public class SimpleXYSeriesCollection extends XYSeriesCollection implements Rang
 	 * @param lineNumber
 	 * @return the series with that lineNumber or null
 	 */
-	public SimpleXYSeries find(int lineNumber) {
+	SimpleXYSeries find(int lineNumber) {
 		SimpleXYSeries found = null;
 		for( Object obj : getSeries()){
 			if(obj != null && obj instanceof SimpleXYSeries){
@@ -89,22 +89,6 @@ public class SimpleXYSeriesCollection extends XYSeriesCollection implements Rang
 			}
 		}
 		return found;
-	}
-
-	/**
-	 * Deletes the series representing a given line number
-	 *
-	 * @param lineNumber
-	 * @return true if something was deleted
-	 */
-	public boolean delete(int lineNumber) {
-		boolean deleted = false;
-		SimpleXYSeries found = find(lineNumber);
-		if (found != null) {
-			removeSeries(found);
-			deleted = true;
-		}
-		return deleted;
 	}
 
 	// The next three methods implement the RangeInfo interface. These
@@ -292,60 +276,14 @@ public class SimpleXYSeriesCollection extends XYSeriesCollection implements Rang
 	/**
 	 * Returns the x value corresponding to the peak y value of a particular series.
 	 *
-	 * @param series
-	 *            the series
-	 * @return the x value corresponding to the peak y value of that series
-	 */
-	public double getSeriesXValueOfPeak(int series) {
-		return ((SimpleXYSeries) getSeries(series)).getXValueOfPeak();
-	}
-
-	/**
-	 * Returns the x value corresponding to the peak y value (within a given range) of a series.
-	 *
-	 * @param series
-	 *            the series
-	 * @param start
-	 *            the start of the range
-	 * @param end
-	 *            the end of the range
-	 * @return the x value corresponding to the peak y value of that series
-	 */
-	public double getSeriesXValueOfPeak(int series, double start, double end) {
-		return ((SimpleXYSeries) getSeries(series)).getXValueOfPeak(start, end);
-	}
-
-	/**
-	 * Returns the x value corresponding to the peak y value of a particular series.
-	 *
 	 * @param text
 	 *            the name of the series
 	 * @return the x value corresponding to the peak y value of that series
 	 */
-	public double getSeriesXValueOfPeak(String text) {
+	double getSeriesXValueOfPeak(String text) {
 		for (int i = 0; i < getSeriesCount(); i++)
 			if (((SimpleXYSeries) getSeries(i)).getName().equals(text))
 				return ((SimpleXYSeries) getSeries(i)).getXValueOfPeak();
-
-		return 0.0;
-
-	}
-
-	/**
-	 * Returns the x value corresponding to the peak y value (within a given range) of a series.
-	 *
-	 * @param text
-	 *            the name of the series
-	 * @param start
-	 *            the start of the range
-	 * @param end
-	 *            the end of the range
-	 * @return the x value corresponding to the peak y value of that series
-	 */
-	public double getSeriesXValueOfPeak(String text, double start, double end) {
-		for (int i = 0; i < getSeriesCount(); i++)
-			if (((SimpleXYSeries) getSeries(i)).getName().equals(text))
-				return ((SimpleXYSeries) getSeries(i)).getXValueOfPeak(start, end);
 
 		return 0.0;
 

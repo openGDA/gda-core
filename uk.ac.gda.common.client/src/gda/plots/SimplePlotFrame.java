@@ -44,7 +44,7 @@ public class SimplePlotFrame extends JFrame {
 	 * @param type SimplePlot.LINECHART or SimplePlot.BARCHART
 	 * @param autoRange
 	 */
-	public SimplePlotFrame(int type, boolean autoRange) {
+	SimplePlotFrame(int type, boolean autoRange) {
 		super();
 		setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();

@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 
 public class ScanTree extends DefaultTreeModel {
 	private static final Logger logger = LoggerFactory.getLogger(ScanTree.class);
-	public XYDataHandler simplePlot;
+	private XYDataHandler simplePlot;
 	private boolean hideOldestScan = false;
 	private int numberOfScansBeforeHiding = 0;
 
@@ -45,7 +45,7 @@ public class ScanTree extends DefaultTreeModel {
 		this.simplePlot = simplePlot;
 	}
 
-	void setScanTreeItemVisibility(SelectableNode item, boolean visibility) {
+	private void setScanTreeItemVisibility(SelectableNode item, boolean visibility) {
 		if(item instanceof ScanPair){
 			setScanPairVisibility((ScanPair) item, visibility);
 		} else {
@@ -103,7 +103,7 @@ public class ScanTree extends DefaultTreeModel {
 		return names;
 	}
 
-	void getNamesOfVisibleLinesInNode(Vector<String> names, SelectableNode node, boolean visibility){
+	private void getNamesOfVisibleLinesInNode(Vector<String> names, SelectableNode node, boolean visibility){
 		if(node instanceof ScanPair){
 			if( node.getSelectedFlag() == visibility){
 				String name = ((ScanPair) node).toString();
@@ -243,7 +243,7 @@ public class ScanTree extends DefaultTreeModel {
 		}
 	}
 
-	void removeNodeFromPlot(TreeNode item) {
+	private void removeNodeFromPlot(TreeNode item) {
 
 		@SuppressWarnings("unchecked")
 		Enumeration<TreeNode> e = item.children();

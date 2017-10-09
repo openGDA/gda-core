@@ -32,10 +32,6 @@ public class SimpleDataCoordinate {
 	private double seeForXAxis= Double.POSITIVE_INFINITY;
 	private double seeForYAxis= Double.POSITIVE_INFINITY;
 
-	private boolean dependentXAvailable;
-
-	private boolean dependentYAvailable;
-
 	/**
 	 * Constructor.
 	 *
@@ -47,46 +43,26 @@ public class SimpleDataCoordinate {
 	public SimpleDataCoordinate(double x, double y) {
 		this.x = x;
 		this.y = y;
-		this.dependentXAvailable = false;
-		this.dependentYAvailable = false;
 	}
 	/**
 	 * Sets the gradient and intercept values for calculating the dependent X axis
 	 * @param emForXAxis
 	 * @param seeForXAxis
 	 */
-	public void setDependentXCalibrationValues(double emForXAxis, double seeForXAxis)
-	{
+	void setDependentXCalibrationValues(double emForXAxis, double seeForXAxis) {
 		this.emForXAxis = emForXAxis;
 		this.seeForXAxis = seeForXAxis;
-		this.dependentXAvailable = true;
 	}
 	/**
 	 *  Sets the gradient and intercept values for calculating the dependent Y axis
 	 * @param emForYAxis
 	 * @param seeForYAxis
 	 */
-	public void setDependentYCalibrationValues(double emForYAxis, double seeForYAxis)
-	{
+	void setDependentYCalibrationValues(double emForYAxis, double seeForYAxis) {
 		this.emForYAxis = emForYAxis;
 		this.seeForYAxis = seeForYAxis;
-		this.dependentYAvailable = true;
 	}
 
-	/**
-	 * @return boolean
-	 */
-	public boolean isdependentXAxisAvailable()
-	{
-		return dependentXAvailable;
-	}
-	/**
-	 * @return boolean
-	 */
-	public boolean isdependentYAxisAvailable()
-	{
-		return dependentYAvailable;
-	}
 	/**
 	 * Returns the x value.
 	 *

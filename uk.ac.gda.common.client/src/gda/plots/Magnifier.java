@@ -27,7 +27,7 @@ import org.jfree.data.xy.XYSeriesCollection;
 /**
  * Windows used for magnification of a SimplePlot must implement this interface.
  */
-public interface Magnifier {
+interface Magnifier {
 	/**
 	 * Should set the SimplePlot to be magnified.
 	 *

@@ -73,7 +73,6 @@ import gda.jython.Jython;
 import gda.jython.JythonServer;
 import gda.jython.JythonServerFacade;
 import gda.jython.Terminal;
-import gda.jython.gui.JythonGuiConstants;
 import gda.rcp.GDAClientActivator;
 import gda.rcp.util.ScanDataPointFormatterUtils;
 import gda.rcp.views.dashboard.DashboardView;
@@ -113,6 +112,8 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 	private static final String ADDITONAL_INPUT_PROMPT = "...";
 	private static final String RAW_INPUT_PROMPT = "-->";
 	private static final int MAX_COMMANDS_TO_SAVE = 100;
+
+	private static final String TERMINALNAME = "JythonTerminal";
 
 	private static boolean scrollLock = false;
 	private static boolean moveToTopOnUpdate = false;
@@ -301,7 +302,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 	}
 
 	public String getName() {
-		return JythonGuiConstants.TERMINALNAME;
+		return TERMINALNAME;
 	}
 
 	@Override

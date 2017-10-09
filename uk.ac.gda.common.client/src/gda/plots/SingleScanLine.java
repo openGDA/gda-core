@@ -26,8 +26,8 @@ import java.util.Vector;
  *
  */
 public class SingleScanLine extends ScanPair {
-	String scanName;
-	String currentFilename;
+	private String scanName;
+	private String currentFilename;
 	/**
 	 * @return id of scan from datawriter
 	 */

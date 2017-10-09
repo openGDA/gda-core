@@ -22,7 +22,7 @@ package gda.plots;
 /**
  * represents a collection of lines from the same scan with the same outer scannables
  */
-public class ScanPairGroup extends ScanTreeItem {
+class ScanPairGroup extends ScanTreeItem {
 	ScanPairGroup(String scanIdentifier,String s) {
 		super(scanIdentifier,s);
 	}

@@ -22,13 +22,13 @@ package gda.plots;
 import java.awt.Color;
 
 public class ScanLine {
-	public String name;
-	public String id;
-	public boolean visible;
-	public int line;
+	String name;
+	private String id;
+	boolean visible;
+	int line;
 	public Color lineColor;
-	public Marker marker;
-	public final String xAxisHeader;
+	Marker marker;
+	private final String xAxisHeader;
 
 	public ScanLine(String name, boolean visible, String id, int line, Color lineColor, Marker marker, String xAxisHeader) {
 		this.name = name;
@@ -40,7 +40,7 @@ public class ScanLine {
 		this.marker = marker != null ? marker : Marker.CROSS;
 	}
 
-	public ScanLine copy(){
+	ScanLine copy(){
 		return new ScanLine(name, visible, id, line, lineColor, marker, xAxisHeader);
 	}
 }

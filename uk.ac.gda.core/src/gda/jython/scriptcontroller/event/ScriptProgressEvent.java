@@ -22,7 +22,7 @@ package gda.jython.scriptcontroller.event;
 import java.io.Serializable;
 
 /**
- * Progress messages sent back to observers of a script driven by an Scriptcontroller (or ScriptExecutor).
+ * Progress messages sent back to observers of a script driven by an Scriptcontroller.
  * <p>
  * These messages would normally be for display on the UI to keep users informed.
  */

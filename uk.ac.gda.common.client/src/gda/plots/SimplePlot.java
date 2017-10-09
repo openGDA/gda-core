@@ -19,9 +19,6 @@
 
 package gda.plots;
 
-import gda.observable.IObserver;
-import gda.scan.AxisSpec;
-
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -70,7 +67,6 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.LegendItem;
 import org.jfree.chart.LegendItemCollection;
 import org.jfree.chart.LegendItemSource;
-import org.jfree.chart.annotations.XYAnnotation;
 import org.jfree.chart.axis.LogarithmicAxis;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
@@ -88,10 +84,12 @@ import org.jfree.data.Range;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.ui.RectangleEdge;
 import org.jfree.ui.RectangleInsets;
-import org.jfree.ui.VerticalAlignment;
 import org.jfree.util.ShapeUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.observable.IObserver;
+import gda.scan.AxisSpec;
 
 /**
  * Provides a simple data line oriented way to use the JFreeChart plotting classes.
@@ -430,8 +428,6 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 		private Rectangle2D dragRectangle = null;
 
-		private Thread thread = null;
-
 		private IObserver iObserver = null;
 
 		/**
@@ -442,27 +438,6 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 		private RectangleDragger(IObserver iObserver) {
 			this.iObserver = iObserver;
-		}
-
-		/**
-		 * Returns the coordinates of the chart entities nearest to the corners of the dragged rectangle
-		 *
-		 * @return EntityOneX, EntityOneY, EntityTwoX, EntityTwoY
-		 */
-		private double[] getEntityValues() {
-			double[] values = new double[4];
-			XYItemEntity entityOne = (XYItemEntity) getEntityForPoint((int) dragArea.getMinX(), (int) (dragArea
-					.getMaxY()));
-			XYItemEntity entityTwo = (XYItemEntity) getEntityForPoint((int) dragArea.getMaxX(), (int) (dragArea
-					.getMinY()));
-
-			values[0] = entityOne.getDataset().getXValue(entityOne.getSeriesIndex(), entityOne.getItem());
-			values[2] = entityOne.getDataset().getYValue(entityOne.getSeriesIndex(), entityOne.getItem());
-
-			values[1] = entityTwo.getDataset().getXValue(entityTwo.getSeriesIndex(), entityTwo.getItem());
-			values[3] = entityTwo.getDataset().getYValue(entityTwo.getSeriesIndex(), entityTwo.getItem());
-
-			return values;
 		}
 
 		/**
@@ -488,28 +463,6 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 					.getRangeAxisEdge());
 
 			return values;
-		}
-
-		/**
-		 * Returns the actual dragged area (in Java coordinates)
-		 *
-		 * @return the actual dragged area
-		 */
-		public Rectangle2D getDragArea() {
-			return dragArea;
-		}
-
-		/**
-		 * Wait for the thread to terminate.
-		 */
-		private void join() {
-			// This is the proper way to do it according
-			// to example 94 in the Java Developers Almanac
-			try {
-				thread.join();
-			} catch (InterruptedException e) {
-				logger.error("Unexpectedly interrupted in SimplePlot.RectangleDragger.join()");
-			}
 		}
 
 		/**
@@ -616,17 +569,6 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 				} while (draggingRectangle);
 			}
 		}
-
-		private void start() {
-			draggingRectangle = true;
-			thread = uk.ac.gda.util.ThreadManager.getThread(this, getClass().getName());
-			thread.start();
-		}
-
-		private synchronized void stop() {
-			draggingRectangle = false;
-			notifyAll();
-		}
 	}
 
 	/**
@@ -691,7 +633,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 	/**
 	 *
 	 */
-	public static int RIGHTYAXIS = 1;
+	private static int RIGHTYAXIS = 1;
 
 	private HashMap<Integer, SimpleXYSeries> seriesStore = new HashMap<Integer, SimpleXYSeries>();
 
@@ -810,8 +752,6 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 	private double seeForYAxis;
 
 	private boolean dependentYAxisOn = false;
-
-	private AxisChangeListener yAxisChangeListener;
 
 	private SimpleNumberAxis linearYAxis;
 
@@ -1002,10 +942,10 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 		return turboMode;
 	}
 
-	XYItemRenderer nonTurboRenderer;
-	XYItemRenderer nonTurboSecondaryRenderer;
-	TurboXYItemRenderer turboRenderer;
-	TurboXYItemRenderer turboSecondaryRenderer;
+	private XYItemRenderer nonTurboRenderer;
+	private XYItemRenderer nonTurboSecondaryRenderer;
+	private TurboXYItemRenderer turboRenderer;
+	private TurboXYItemRenderer turboSecondaryRenderer;
 
 	/**
 	 * @param turboMode
@@ -1133,24 +1073,6 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 		logarithmicYAxisTwo = new LogarithmicAxis("Second Y Axis");
 		initLogAxis(logarithmicYAxisTwo, autoRange,yAxisTwoNumberFormat);
-	}
-
-	/**
-	 * Allows any old JComponent to be displayed on a SimplePlot. There are currently layout problems if you use this
-	 * method. See PCS for details.
-	 *
-	 * @param jc
-	 *            the JComponent
-	 * @param re
-	 *            where to display, one of the RectangleEdge constants
-	 */
-	public void wrapAndDisplay(JComponent jc, RectangleEdge re) {
-		add(jc);
-		BlockWrapper bw = new BlockWrapper(jc);
-		bw.setPosition(re);
-		bw.setVerticalAlignment(VerticalAlignment.TOP);
-		getChart().addSubtitle(bw);
-
 	}
 
 	/**
@@ -1460,16 +1382,6 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 	}
 
 	/**
-	 * @param other
-	 */
-	public void copySettings(SimplePlot other){
-		setScientificXAxis(other.getXAxisNumberFormat());
-		setScientificYAxis(other.getYAxisNumberFormat());
-		setDomainBounds(other.leftDomainBounds);
-		setStripWidth(other.stripWidth);
-	}
-
-	/**
 	 * Remove history lines from leftSeriesCollection and seriesStore
 	 */
 	private void historyCleanse() {
@@ -1584,22 +1496,8 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 		}
 	}
 
-	Collection<Integer> linesChanged = new Vector<Integer>();
+	private Collection<Integer> linesChanged = new Vector<Integer>();
 
-	/**
-	 * Adds a single data point to a line. The line must already have been initialized.
-	 * @param scanId
-	 *
-	 * @param which
-	 *            the line
-	 * @param x
-	 *            the new x value
-	 * @param y
-	 *            the new y value
-	 */
-	public void addPointToLine(@SuppressWarnings("unused") String scanId, int which, double x, double y) {
-		addPointToLine(which,x,y);
-	}
 	/**
 	 * @param which
 	 * @param x
@@ -1622,7 +1520,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 	 * @param notifyDirectly
 	 *            is the DataSet to fireDataSetChange directly or via a 0.5 period event
 	 */
-	public void addPointToLine(int which, double x, double y, boolean notifyDirectly) {
+	void addPointToLine(int which, double x, double y, boolean notifyDirectly) {
 
 		/*
 		 * if (newPlot) { setXRangeMax(x + 0.1); setXRangeMin(x - 0.1); setYRangeMax(y + 0.1); setYRangeMin(y - 0.1);
@@ -1652,21 +1550,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 		}
 	}
 
-	/**
-	 * Adds a second y axis on the right of the chart. This will be completely independent of the first y axis and can
-	 * have data independently referred to it.
-	 *
-	 * @see #addDependentYAxis
-	 */
-	public void addYAxisTwo() {
-		addYAxisTwo(false);
-	}
-
-	/**
-	 * @see #addYAxisTwo()
-	 * @param autoRange
-	 */
-	public void addYAxisTwo(boolean autoRange) {
+	void addYAxisTwo(boolean autoRange) {
 		if (!dependentYAxisOn) {
 			createYAxesTwo(autoRange);
 			y2LogLinButton.setEnabled(true);
@@ -1801,153 +1685,6 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 	}
 
 	/**
-	 * Removes the dependent XAxis.
-	 */
-	public void removeDependentXAxis() {
-		if (dependentXAxisOn) {
-			xLogLinButton.setEnabled(true);
-			xYPlot.setDomainAxis(1, null);
-			dependentXAxisOn = false;
-			dependentXAxis = null;
-			linearXAxis.removeChangeListener(xAxisChangeListener);
-			xAxisChangeListener = null;
-		}
-	}
-
-	/**
-	 * Adds a second y axis which has values dependent on those of the first xaxis. This allows different units to be
-	 * shown for the same data. The y values of this axis are related to those of the first yaxis by: ytwo = em * yone +
-	 * see
-	 *
-	 * @see #addYAxisTwo()
-	 * @param em
-	 *            the gradient of the expression relating the two axes
-	 * @param see
-	 *            the intercept of the expression relating the two axes
-	 */
-	public void addDependentYAxis(double em, double see) {
-		if (!dependentYAxisOn && !isYAxisLogarithmic() && !yAxisTwoOn) {
-			yLogLinButton.setEnabled(false);
-			dependentYAxis = new SimpleNumberAxis("dependent yaxis");
-			dependentYAxis.setAutoRange(false);
-			this.emForYAxis = em;
-			this.seeForYAxis = see;
-			setDependentYAxisRange();
-			xYPlot.setRangeAxis(1, dependentYAxis);
-			dependentYAxisOn = true;
-
-			yAxisChangeListener = new AxisChangeListener() {
-				@Override
-				public void axisChanged(AxisChangeEvent event) {
-					// The superclass zooming mechanism correctly deals
-					// with the dependent axis when zooming and resetting
-					// the range actually causes it to go wrong.
-					if (!currentlyDoingAZoom) {
-						setDependentYAxisRange();
-					}
-				}
-			};
-			linearYAxis.addChangeListener(yAxisChangeListener);
-		}
-	}
-
-	private void setDependentYAxisRange() {
-		Range r = linearYAxis.getRange();
-		Range newR = new Range(r.getLowerBound() * emForYAxis + seeForYAxis, r.getUpperBound() * emForYAxis
-				+ seeForYAxis);
-		dependentYAxis.setRange(newR);
-	}
-
-	/**
-	 * Removes dependent YAxis.
-	 */
-	public void removeDependentYAxis() {
-		if (dependentYAxisOn) {
-			yLogLinButton.setEnabled(true);
-			xYPlot.setRangeAxis(1, null);
-			dependentYAxisOn = false;
-			dependentYAxis = null;
-			linearYAxis.removeChangeListener(yAxisChangeListener);
-			yAxisChangeListener = null;
-		}
-	}
-
-	/**
-	 * Allows a rectangle to be dragged out on the plot and returns maximum and minimum x and y coordinates.
-	 *
-	 * @return the coordinates in order minX, maxX, minY, maxY
-	 */
-	public double[] dragRectangle() {
-		// Create a RectangleDragger, start it, wait
-		// for its thread to end and then return its
-		// values.
-		rd = new RectangleDragger();
-		rd.start();
-		rd.join();
-
-		double[] values = rd.getValues();
-		rd = null;
-
-		return values;
-	}
-
-	/**
-	 * Allows a rectangle to be dragged out on the plot and returns the coordinates of two ChartEntity objects, one at
-	 * bottom left, one at top right.
-	 *
-	 * @return x position of bottom left entity, x position of top right entity, y position of bottom right entity, y
-	 *         position of top right entity.
-	 */
-	public double[] dragRectanglePoints() {
-		// Create a RectangleDragger, start it, wait
-		// for its thread to end and then return its
-		// values.
-		rd = new RectangleDragger();
-		rd.start();
-		rd.join();
-
-		double[] values = rd.getEntityValues();
-		rd = null;
-
-		return values;
-	}
-
-	/**
-	 * Allows a rectangle to be dragged out on the plot and returns the actual Rectangle2D which is dragged
-	 *
-	 * @return the dragged rectangle
-	 */
-	public Rectangle2D dragRectangleRaw() {
-		// Create a RectangleDragger, start it, wait
-		// for its thread to end and then return its
-		// values.
-		rd = new RectangleDragger();
-		rd.start();
-		rd.join();
-
-		Rectangle2D r2D = rd.getDragArea();
-		rd = null;
-
-		return r2D;
-	}
-
-	/**
-	 * @param dragObserver
-	 */
-	public void startObservingDragging(IObserver dragObserver) {
-		rd = new RectangleDragger(dragObserver);
-		rd.start();
-	}
-
-	/**
-	 *
-	 */
-	public void stopObservingDragging() {
-		rd.stop();
-		rd = null;
-	}
-
-	/**
 	 * Waits for the next mouse click and returns its coordinates.
 	 *
 	 * @return coordinates of cursor at mouse click
@@ -1983,32 +1720,6 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 		mpt.start();
 		mpt.join();
 		return mpt.getEntityCoordinates();
-	}
-
-	/**
-	 * A tricky little service method which searches the static int fields of a class for one called fieldName and
-	 * returns its integer value.
-	 *
-	 * @param fieldName
-	 *            the field name to get
-	 * @param theClass
-	 *            find in this class
-	 * @return the integer value of the named field or -1 if not found
-	 */
-	public static int getIntFieldFromClass(String fieldName, Class<?> theClass) {
-		Integer found;
-
-		int field = -1;
-		try {
-			found = (Integer) theClass.getField(fieldName.toUpperCase()).get(null);
-			field = found.intValue();
-		} catch (NoSuchFieldException e) {
-			logger.error("Class " + theClass + " does not contain " + fieldName);
-		} catch (IllegalAccessException e) {
-			logger.error("Class " + theClass + " will not allow access");
-		}
-
-		return field;
 	}
 
 	/**
@@ -2081,7 +1792,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 	 * @param axis
 	 *            the axis - LEFTAXIS
 	 */
-	public void initializeLine(int which, int axis) {
+	void initializeLine(int which, int axis) {
 		initializeLine(which, axis, null, "","","", null);
 	}
 
@@ -2158,23 +1869,13 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 	}
 
 	/**
-	 * Sets a line to be drawn as both markers at the individual points and lines joining them.
-	 *
-	 * @param which
-	 *            the line
-	 */
-	public void lineAndPoints(int which) {
-		setLineType(which, Type.LINEANDPOINTS);
-	}
-
-	/**
 	 * Checks whether a line exists
 	 *
 	 * @param lineNumber
 	 *            the line to check
 	 * @return true if there is a line with the given number
 	 */
-	public boolean lineExists(int lineNumber) {
+	private boolean lineExists(int lineNumber) {
 		return (findLine(lineNumber) != null);
 	}
 
@@ -2377,38 +2078,6 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 	}
 
 	/**
-	 * Sets a line to be drawn as individual point markers only
-	 *
-	 * @param which
-	 *            the line
-	 */
-	public void pointsOnly(int which) {
-		setLineType(which, Type.POINTSONLY);
-	}
-
-	/**
-	 * Removes the second y axis
-	 */
-	public void removeYAxisTwo() {
-		if (yAxisTwoOn) {
-			xYPlot.setRangeAxis(secondaryAxisNumber, null);
-			xYPlot.setRenderer(secondaryAxisNumber, null);
-			xYPlot.setDataset(secondaryAxisNumber, null);
-			rightSeriesCollection = null;
-			leftSeriesLegend.setPosition(RectangleEdge.RIGHT);
-			yAxisTwoOn = false;
-			linearYAxisTwo = null;
-			logarithmicYAxisTwo = null;
-			yAxisTwoNumberFormat = null;
-
-			// A new, linear Y2 axis will be created if switched on again
-			// so this is the correct text for the menu item.
-			y2LogLinButton.setText("Logarithmic Y2 axis");
-			y2LogLinButton.setEnabled(false);
-		}
-	}
-
-	/**
 	 * Sets the visibility of the Legend
 	 *
 	 * @param newValue
@@ -2449,7 +2118,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 	 *            The number of the line which is required
 	 * @return A SimpleXYSeries which is the line specified
 	 */
-	public SimpleXYSeries getLine(int which) {
+	private SimpleXYSeries getLine(int which) {
 		return findLine(which);
 	}
 
@@ -2464,20 +2133,6 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 		return seriesStore.get(which);
 	}
 
-
-	/**
-	 * Sets the colour used to draw the line.
-	 *
-	 * @param which
-	 *            the line
-	 * @param colorName
-	 *            the name of a colour, any name which appears as a static field in class Color or is a standard X11
-	 *            colour name will work
-	 */
-	public void setLineColor(int which, String colorName) {
-		setLineColor(which, ColorFactory.createColor(colorName));
-	}
-
 	/**
 	 * Sets the Marker for a line.
 	 *
@@ -2489,63 +2144,6 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 		SimpleXYSeries s;
 		if ((s = findLine(which)) != null) {
 			s.setMarker(marker);
-			repaint();
-		}
-	}
-
-	/**
-	 * Sets the marker shape used for the points on a line.
-	 *
-	 * @param which
-	 *            the line
-	 * @param name
-	 *            the name of the marker to use
-	 */
-	public void setLineMarker(int which, String name) {
-		setLineMarker(which, Marker.fromString(name));
-	}
-
-	/**
-	 * Sets the colour used to draw the marker symbol.
-	 *
-	 * @param which
-	 *            the line
-	 * @param color
-	 *            a Color
-	 */
-	public void setLineMarkerColor(int which, Color color) {
-		SimpleXYSeries s;
-		if ((s = findLine(which)) != null) {
-			s.setSymbolPaint(color);
-			repaint();
-		}
-	}
-
-	/**
-	 * Sets the colour used to draw the marker symbol.
-	 *
-	 * @param which
-	 *            the line
-	 * @param colorName
-	 *            the name of a colour
-	 */
-	public void setLineMarkerColor(int which, String colorName) {
-		Color newColor = ColorFactory.createColor(colorName);
-		setLineMarkerColor(which, newColor);
-	}
-
-	/**
-	 * Sets the size of the marker for a line.
-	 *
-	 * @param which
-	 *            the line
-	 * @param size
-	 *            the marker size, any value, default is 6
-	 */
-	public void setLineMarkerSize(int which, int size) {
-		SimpleXYSeries s;
-		if ((s = findLine(which)) != null) {
-			s.setMarkerSize(size);
 			repaint();
 		}
 	}
@@ -2567,34 +2165,6 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 	}
 
 	/**
-	 * Sets the pattern used to draw the line.
-	 *
-	 * @param which
-	 *            the line
-	 * @param simpleStroke
-	 *            any Pattern
-	 */
-	public void setLinePattern(int which, Pattern simpleStroke) {
-		SimpleXYSeries s;
-		if ((s = findLine(which)) != null) {
-			s.setPattern(simpleStroke);
-			repaint();
-		}
-	}
-
-	/**
-	 * Sets the pattern used to draw the line.
-	 *
-	 * @param which
-	 *            the line
-	 * @param name
-	 *            the name of the pattern to use. Allowed values are "solid", "dotted", "dashed", "dotdashed"
-	 */
-	public void setLinePattern(int which, String name) {
-		setLinePattern(which, Pattern.fromString(name));
-	}
-
-	/**
 	 * Set the line type (points, points and line, line).
 	 *
 	 * @param which
@@ -2603,7 +2173,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 	 *            the type
 	 */
 
-	public void setLineType(int which, Type type) {
+	void setLineType(int which, Type type) {
 		// This should be handled inside SimpleXYSeries
 		SimpleXYSeries s;
 		if ((s = findLine(which)) != null) {
@@ -2668,38 +2238,6 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 					leftSeriesCollection.addSeries(s);
 				}
 			}
-			repaint();
-		}
-	}
-
-	/**
-	 * Sets whether or not the line is part of the data, this should be set to false for lines which are only markers on
-	 * the plot.
-	 *
-	 * @param which
-	 *            the line
-	 * @param includedInData
-	 */
-	public void setLineIncludedInData(int which, boolean includedInData) {
-		SimpleXYSeries s;
-		if ((s = findLine(which)) != null) {
-			s.setIncludedInData(includedInData);
-			repaint();
-		}
-	}
-
-	/**
-	 * Sets the thickness of a line.
-	 *
-	 * @param which
-	 *            the line to change
-	 * @param width
-	 *            the thickness of the line
-	 */
-	public void setLineWidth(int which, int width) {
-		SimpleXYSeries s;
-		if ((s = findLine(which)) != null) {
-			s.setLineWidth(width);
 			repaint();
 		}
 	}
@@ -2882,19 +2420,6 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 	public void setYAxisTwoLabel(String label) {
 		linearYAxisTwo.setLabel(label);
 		logarithmicYAxisTwo.setLabel(label);
-	}
-
-	/**
-	 * Sets the second y axis limits.
-	 *
-	 * @param ymin
-	 *            the minimum y value
-	 * @param ymax
-	 *            the maximum y value
-	 */
-	public void setYAxisTwoLimits(double ymin, double ymax) {
-		linearYAxisTwo.setRange(new Range(ymin, ymax));
-		logarithmicYAxisTwo.setRange(new Range(ymin, ymax));
 	}
 
 	/**
@@ -3141,24 +2666,6 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 	 */
 	public String getTitle() {
 		return title;
-	}
-
-	/**
-	 * @return Returns the image.
-	 */
-//	public BufferedImage getImage() {
-//		return image;
-//	}
-
-	/**
-	 * Gets the x value at which a line has its maximum y value.
-	 *
-	 * @param line
-	 *            the line
-	 * @return the x value corresponding to the maximum y value of this line
-	 */
-	public double getLineXValueOfPeak(int line) {
-		return leftSeriesCollection.getSeriesXValueOfPeak(line);
 	}
 
 	/**
@@ -3488,21 +2995,6 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 	}
 
 	/**
-	 * Allows anything implementing the XYAnnotation interface to be added to the plot.
-	 *
-	 * <p>See the {@code org.jfree.chart.annotations} package for wrappers which implement
-	 * the interface and wrap various types of object
-	 *
-	 * @param annotation
-	 *            the annotation
-	 */
-	public void addAnnotation(XYAnnotation annotation) {
-		getChart().getXYPlot().addAnnotation(annotation);
-		if (annotation instanceof ChartMouseListener)
-			addChartMouseListener((ChartMouseListener) annotation);
-	}
-
-	/**
 	 * Sets the label for the dependent x axis.
 	 *
 	 * @param string
@@ -3554,17 +3046,15 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 		}
 	}
 
-	Range lastRangeBoundsLeft = null;
-	Range lastRangeBoundsRight = null;
-	Range leftRangeBounds = null;
-	Range rightRangeBounds = null;
+	private Range leftRangeBounds = null;
+	private Range rightRangeBounds = null;
 
 	/**
 	 * @param collection
 	 * @param includeInterval
 	 * @return range for the range axis Y
 	 */
-	public Range getRangeBounds(SimpleXYSeriesCollection collection, @SuppressWarnings("unused") boolean includeInterval) {
+	Range getRangeBounds(SimpleXYSeriesCollection collection, @SuppressWarnings("unused") boolean includeInterval) {
 		if (!isTurboMode())
 			return null;
 
@@ -3643,10 +3133,6 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 			return null;
 
 		Range newRange = new Range(min, max);
-		if ( collection == leftSeriesCollection )
-			lastRangeBoundsLeft = newRange;
-		if ( collection == rightSeriesCollection )
-			lastRangeBoundsRight = newRange;
 		return newRange;
 	}
 
@@ -3654,8 +3140,6 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 	 * The following are in transformed X values
 	 */
 	private Range lastDomainBoundsLeft = null;
-	@SuppressWarnings("unused")
-	private Range lastDomainBoundsRight = null;
 	private Range leftDomainBounds = null;
 	private Range rightDomainBounds = null;
 	private Double stripWidth=null; //width in domain axis from last point value to min val
@@ -3666,7 +3150,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 	 * @param includeInterval
 	 * @return range for the domain axis X
 	 */
-	public Range getDomainBounds(SimpleXYSeriesCollection collection,
+	Range getDomainBounds(SimpleXYSeriesCollection collection,
 			@SuppressWarnings("unused") boolean includeInterval) {
 		Double min = Double.POSITIVE_INFINITY;
 		Double max = Double.NEGATIVE_INFINITY;
@@ -3724,8 +3208,6 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 		if ( collection == leftSeriesCollection )
 			lastDomainBoundsLeft = newRange;
-		if ( collection == rightSeriesCollection )
-			lastDomainBoundsRight = newRange;
 		return newRange;
 	}
 

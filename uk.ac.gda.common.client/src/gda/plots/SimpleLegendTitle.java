@@ -34,7 +34,7 @@ import org.jfree.chart.title.LegendTitle;
 /**
  * SimpleLegendTitle Class
  */
-public class SimpleLegendTitle extends LegendTitle {
+class SimpleLegendTitle extends LegendTitle {
 	/**
 	 * Exactly the same as the SuperClass constructor - necessary because there is no default constructor in
 	 * LegendTitle.
@@ -42,7 +42,7 @@ public class SimpleLegendTitle extends LegendTitle {
 	 * @param source
 	 *            a source of LegendItems
 	 */
-	public SimpleLegendTitle(LegendItemSource source) {
+	SimpleLegendTitle(LegendItemSource source) {
 		super(source, new FlowArrangement(), new ColumnArrangement());
 	}
 

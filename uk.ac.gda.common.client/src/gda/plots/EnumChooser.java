@@ -32,8 +32,7 @@ import javax.swing.SwingConstants;
 /**
  * Creates a JComboBox for choosing one of the values in an Enum.
  */
-public class EnumChooser extends JComboBox<Object> implements ListCellRenderer<Object> {
-	Class<?> c;
+class EnumChooser extends JComboBox<Object> implements ListCellRenderer<Object> {
 
 	/**
 	 * Constructor - not quite right yet!
@@ -41,8 +40,7 @@ public class EnumChooser extends JComboBox<Object> implements ListCellRenderer<O
 	 * @param c
 	 *            the Class should be forced to be an Enum but isn't yet.
 	 */
-	public EnumChooser(Class<?> c) {
-		this.c = c;
+	EnumChooser(Class<?> c) {
 
 		Method m = null;
 		try {

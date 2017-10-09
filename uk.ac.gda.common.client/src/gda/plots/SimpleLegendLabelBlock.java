@@ -32,7 +32,7 @@ import org.jfree.chart.entity.StandardEntityCollection;
 /**
  * Extends LabelBlock so that it can carry a reference to a SimpleXYSeries for use in Legends.
  */
-public class SimpleLegendLabelBlock extends LabelBlock {
+class SimpleLegendLabelBlock extends LabelBlock {
 	private SimpleXYSeries sxys;
 
 	/**
@@ -47,7 +47,7 @@ public class SimpleLegendLabelBlock extends LabelBlock {
 	 * @param sxys
 	 *            the SimpleXYSeries
 	 */
-	public SimpleLegendLabelBlock(String text, Font font, Paint paint, SimpleXYSeries sxys) {
+	SimpleLegendLabelBlock(String text, Font font, Paint paint, SimpleXYSeries sxys) {
 		super(text, font, paint);
 		this.sxys = sxys;
 	}
