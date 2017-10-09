@@ -39,14 +39,16 @@ import uk.ac.diamond.daq.detectors.addetector.api.AreaDetectorRunnableDeviceMode
  */
 public class AreaDetectorRunnableDevice extends AbstractAreaDetectorRunnableDevice {
 
-	private final static Logger logger= LoggerFactory.getLogger(AreaDetectorRunnableDevice.class);
+	private static final Logger logger = LoggerFactory.getLogger(AreaDetectorRunnableDevice.class);
 	private static final String FIELD_NAME_TOTAL = "total";
 	private ILazyWriteableDataset data;
 	protected ADDetector adDetector;
+
 	// This implementation only supports 2D area detectors, this might not be all cases
 	private final int[] dataDimensions = new int[2];
 	private ILazyWriteableDataset total;
 	private DataType dataType;
+
 	//detector data size may be different from array size when EPICS roi plugin is used in AD pipeline
 	private final int[] imageDimensions= new int[2];
 	private boolean firstPointInScan;
@@ -65,6 +67,7 @@ public class AreaDetectorRunnableDevice extends AbstractAreaDetectorRunnableDevi
 			setDeviceState(DeviceState.FAULT);
 			throw new ScanningException("Acquiring from detector failed", e);
 		}
+		setDeviceState(DeviceState.ARMED);
 	}
 
 	@Override
@@ -74,12 +77,31 @@ public class AreaDetectorRunnableDevice extends AbstractAreaDetectorRunnableDevi
 		// Cache the model so it can be used in other methods (createNexusObject). This seems a bit messy
 		this.model = model;
 
+		configureAreaDetector(model);
+		configureDetectorData();
+
+		setDeviceState(DeviceState.ARMED);
+	}
+
+	protected void configureAreaDetector(AreaDetectorRunnableDeviceModel model) throws ScanningException {
 		// Get the detector by name defined in the model
 		adDetector = Finder.getInstance().find(model.getName());
 		if (adDetector == null) {
 			throw new ScanningException("Could not find detector: " + model.getName());
 		}
 
+		try {
+			// Set the exposure time in GDA detector object but not apply it to hardware yet.
+			adDetector.setCollectionTime(model.getExposureTime());
+		} catch (DeviceException e) {
+			final String message = "Configuring ADDetector failed";
+			logger.error(message, e);
+			throw new ScanningException(message, e);
+		}
+		// FIXME Need to configure the plugin chain here (or in the collection strategy)
+	}
+
+	private void configureDetectorData() throws ScanningException {
 		try {
 			// Get the data size so we know how big to write in the file and cache it here so we don't
 			// need to go to EPICS all the time
@@ -88,14 +110,10 @@ public class AreaDetectorRunnableDevice extends AbstractAreaDetectorRunnableDevi
 			// Get the dataType to expect
 			dataType = adDetector.getNdArray().getDataType(); //image data type setting before 1st frame being collected.
 
-			// Set the exposure time in GDA detector object but not apply it to hardware yet.
-			adDetector.setCollectionTime(model.getExposureTime());
-
 		} catch (Exception e) {
 			setDeviceState(DeviceState.FAULT);
 			throw new ScanningException("Configuring detector failed", e);
 		}
-		setDeviceState(DeviceState.ARMED);
 	}
 
 	@Override
@@ -258,5 +276,4 @@ public class AreaDetectorRunnableDevice extends AbstractAreaDetectorRunnableDevi
 			return Double.class;
 		}
 	}
-
 }

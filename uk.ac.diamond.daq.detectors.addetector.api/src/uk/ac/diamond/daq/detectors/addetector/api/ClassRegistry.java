@@ -31,7 +31,6 @@ public class ClassRegistry implements IClassRegistry {
 		registry.put(AreaDetectorRunnableDeviceModel.class.getSimpleName(), AreaDetectorRunnableDeviceModel.class);
 		registry.put(AreaDetectorRunnableDeviceExtendedModel.class.getSimpleName(), AreaDetectorRunnableDeviceExtendedModel.class);
 		registry.put(AreaDetectorWritingFilesRunnableDeviceModel.class.getSimpleName(), AreaDetectorWritingFilesRunnableDeviceModel.class);
-		registry.put(DarkImageAreaDetectorWritingFilesRunnableDeviceModel.class.getSimpleName(), DarkImageAreaDetectorWritingFilesRunnableDeviceModel.class);
 		registry.put(ZebraModel.class.getSimpleName(), ZebraModel.class);
 	}
 
