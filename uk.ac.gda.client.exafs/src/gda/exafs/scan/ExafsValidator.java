@@ -18,6 +18,7 @@
 
 package gda.exafs.scan;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -29,8 +30,6 @@ import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
 import gda.device.Scannable;
-import gda.device.detector.xmap.VortexBeanUtils;
-import gda.device.detector.xspress.XspressBeanUtils;
 import gda.factory.Findable;
 import gda.factory.Finder;
 import gda.util.Element;
@@ -46,8 +45,8 @@ import uk.ac.gda.beans.validation.AbstractValidator;
 import uk.ac.gda.beans.validation.InvalidBeanMessage;
 import uk.ac.gda.devices.detector.FluorescenceDetector;
 import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
-import uk.ac.gda.devices.detector.xspress3.Xspress3BeanUtils;
 import uk.ac.gda.exafs.ui.data.ScanObject;
+import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 /**
  * Abstract to hold generic XAS validations for beamlines using the server.exafs plugin
@@ -169,15 +168,7 @@ public abstract class ExafsValidator extends AbstractValidator {
 			String fullPathToConfig = bean.getFolder().getFile(configFileName).getLocation().toString();
 
 			// Load from XML file and make bean object
-			String detectorType = params.getDetectorType();
-			FluorescenceDetectorParameters detParams = null;
-			if (detectorType.equals(FluorescenceParameters.GERMANIUM_DET_TYPE)) { //xspress2
-				detParams = XspressBeanUtils.createBeanFromXML(fullPathToConfig);
-			} else if (detectorType.equals(FluorescenceParameters.XSPRESS3_DET_TYPE)) { //xspress3
-				detParams = Xspress3BeanUtils.createBeanFromXML(fullPathToConfig);
-			} else if (detectorType.equals(FluorescenceParameters.SILICON_DET_TYPE)) { //xmap
-				detParams = VortexBeanUtils.createBeanFromXML(fullPathToConfig);
-			}
+			FluorescenceDetectorParameters detParams = (FluorescenceDetectorParameters) XMLHelpers.getBean(new File(fullPathToConfig));
 
 			String detectorName = "";
 			int numElementsInXml = 0;

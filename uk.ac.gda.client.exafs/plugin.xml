@@ -707,6 +707,10 @@
             class="uk.ac.gda.beans.vortex.Xspress3Parameters"
             describer="uk.ac.gda.exafs.ui.describers.Xspress3Describer">
       </bean>
+      <bean
+            class="uk.ac.gda.beans.xspress.XspressParameters"
+            describer="uk.ac.gda.exafs.ui.describers.XspressDescriber">
+      </bean>
    </extension>
 
 </plugin>
