@@ -169,6 +169,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 		if (!ClientManager.isTestingMode()) {
 			jsf = JythonServerFacade.getInstance();
 			jsf.addOutputTerminal(this);
+			jsf.addIScanDataPointObserver(this);
 		}
 
 		helpHandler = GDAClientActivator.getNamedService(HelpHandler.class, null);
