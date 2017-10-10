@@ -1745,7 +1745,20 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 			for (int i = 0; i < extraNames.length; i++) { // TODO check if position index is correct here
 				NexusUtils.writeString(file, g, extraNames[i], positions[inputNames.length+i]);
 			}
+		} else if (position.getClass().isArray()){
+			//handle a scannable returns array of mixed primitive data types
+			int length = ArrayUtils.getLength(position);
+			for (int i = 0; i < inputNames.length; i++) {
+				 Object object = Array.get(position, i);
+				writeItem(inputNames, g, i, object);
+			}
+			for (int i = 0; i < extraNames.length; i++) {
+				 Object object = Array.get(position, i+inputNames.length);
+				 writeItem(extraNames, g, i, object);
+			}
+
 		} else {
+
 			// FIXME ideally this would work for non-doubles as well
 			// FIXME this needs to bring in the units
 			Double[] positions = ScannableUtils.objectToArray(position);
@@ -1756,6 +1769,27 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 			for (int i = 0; i < extraNames.length; i++) { // TODO check if position index is correct here
 				NexusUtils.writeDouble(file, g, extraNames[i], positions[i]);
 			}
+		}
+	}
+
+	private void writeItem(String[] names, GroupNode g, int i, Object object) throws NexusException {
+		if (object instanceof Double) {
+			NexusUtils.writeDouble(file, g, names[i], ((Double) object).doubleValue());
+		} else if (object instanceof Integer) {
+			NexusUtils.writeInteger(file, g, names[i], ((Integer)object).intValue());
+		} else if (object instanceof Float) {
+			NexusUtils.writeDouble(file, g, names[i], ((Float) object).doubleValue());
+		} else if (object instanceof Short) {
+			NexusUtils.writeInteger(file, g, names[i], ((Short) object).intValue());
+		} else if (object instanceof Long) {
+			NexusUtils.writeInteger(file, g, names[i], ((Long) object).intValue());
+		} else if (object instanceof String) {
+			NexusUtils.writeString(file, g, names[i], (String) object);
+		} else if (object instanceof Boolean) {
+			NexusUtils.writeString(file, g, names[i], ((Boolean) object).toString());
+		} else {
+			logger.error("Data Type '{}' for name '{}' is not supported.", object.getClass().getName(), names[i] );
+			throw new NexusException("Data Type '"+object.getClass().getName()+"' for name '"+names[i] +"' is not supported.");
 		}
 	}
 
