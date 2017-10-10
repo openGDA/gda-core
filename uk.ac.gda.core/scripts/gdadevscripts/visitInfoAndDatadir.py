@@ -32,15 +32,15 @@ def datadir(newpath=None):
 	Reads or sets the data directory. May also need to configure some detectors.
 	"""
 	if newpath==None:
-		return LocalProperties().getPath("gda.data.scan.datawriter.datadir",None)
+		return LocalProperties.getPath("gda.data.scan.datawriter.datadir",None)
 	else:
 		if not os.path.exists(newpath):
 			raise ValueError("The directory %s does NOT exist!"%newpath)
 
 		print "Setting gda.data.scan.datawriter.datadir preference..."
-		LocalProperties().set("gda.data.scan.datawriter.datadir", newpath)
+		LocalProperties.set("gda.data.scan.datawriter.datadir", newpath)
 #		Save to localShelf
-		return LocalProperties().getPath("gda.data.scan.datawriter.datadir",None)
+		return LocalProperties.getPath("gda.data.scan.datawriter.datadir",None)
 
 
 ### def setDatadirToSavedValue

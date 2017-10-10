@@ -128,7 +128,7 @@ class FinderNameMapping:
     def reload(self,finder):
         self.finder = finder
         self.finderNameMapping={}
-        self.finderNameMapFilePath = LocalProperties().get(FINDER_NAME_MAPPING_FILE_PROPERTY)
+        self.finderNameMapFilePath = LocalProperties.get(FINDER_NAME_MAPPING_FILE_PROPERTY)
         if(self.finderNameMapFilePath != None):
             self.finderNameMapping = readDictionaryFromFile(self.finderNameMapFilePath, self.finderNameMapping)
 
@@ -160,7 +160,7 @@ class Parameters:
             return None
     def reload(self, parametersFilePath=None):
         if parametersFilePath == None:
-            self.parametersFilePath = LocalProperties().get(BEAMLINE_PARAMETERS_FILE_PROPERTY)
+            self.parametersFilePath = LocalProperties.get(BEAMLINE_PARAMETERS_FILE_PROPERTY)
             if(self.parametersFilePath == None):
                 raise AttributeError, "property " + BEAMLINE_PARAMETERS_FILE_PROPERTY + " is not set"
         else:
