@@ -25,7 +25,6 @@ import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.epics.CAClient;
 import gda.factory.FactoryException;
-import gov.aps.jca.CAException;
 
 /**
  * Access pv's using CAClient in it's simplest form.
@@ -45,12 +44,6 @@ public class SimplePVScannable extends ScannableBase implements Scannable {
 		// to make sure the column is correct in data files
 		if (getInputNames().length == 1 && getInputNames()[0].equals(ScannableBase.DEFAULT_INPUT_NAME)) {
 			setInputNames(new String[] { getName() });
-		}
-		try {
-			ca_client.camonitor(pvName, ev->notifyIObservers(this, ev.getDBR().getValue()));
-		} catch (CAException | InterruptedException e) {
-			logger.error("{}: Failed to setup monitor.", getName(), e);
-			throw new FactoryException(getName()+": Failed to setup monitor on PV '"+getPvName()+"'");
 		}
 	}
 
