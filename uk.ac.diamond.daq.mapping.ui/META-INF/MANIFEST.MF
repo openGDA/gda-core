@@ -45,3 +45,4 @@ Import-Package: org.eclipse.e4.core.contexts,
 Service-Component: OSGI-INF/*
 Eclipse-RegisterBuddy: uk.ac.gda.core
 Export-Package: uk.ac.diamond.daq.mapping.ui.experiment
+Bundle-Activator: uk.ac.diamond.daq.mapping.ui.Activator
