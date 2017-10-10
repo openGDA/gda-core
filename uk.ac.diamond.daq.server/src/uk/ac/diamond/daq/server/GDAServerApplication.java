@@ -7,6 +7,7 @@ import gda.util.Version;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -79,6 +80,9 @@ public class GDAServerApplication implements IApplication {
 				}
 				objectServers.put(command.getProfile(), server);
 				logger.info("{} object server started", command.getProfile());
+				// Also make it obvious in the IDE Console.
+				final String hline_80char = "================================================================================";
+				System.out.println(hline_80char + "\n" + command.getProfile() + " object server started\n" + hline_80char);
 			}
 		}
 		catch (Exception ex) {
