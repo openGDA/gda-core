@@ -26,7 +26,6 @@ import org.eclipse.january.dataset.DatasetFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.analysis.Plotter;
 import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
@@ -878,7 +877,6 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 					} catch (Exception e) {
 						logger.error("MAC detector data live plot failed.", e);
 					}
-					Plotter.plot(getPlotPanelName(), DatasetFactory.createFromObject(x), yds);
 				}
 			} else {
 				logger.error("{} : PulseDoneListener expect Integer type but got {} type.", getName(), dbr.getType());

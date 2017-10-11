@@ -27,7 +27,6 @@ import org.eclipse.january.dataset.DatasetFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.analysis.Plotter;
 import gda.configuration.properties.LocalProperties;
 import gda.device.Detector;
 import gda.device.DeviceException;
@@ -615,7 +614,6 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 		} catch (Exception e) {
 			logger.error("MAC detector rebinned data plot failed.", e);
 		}
-		Plotter.plot(getPlotPanelName(), DatasetFactory.createFromObject(rebinned2theta), counts);
 
 		return rebinfilename;
 	}

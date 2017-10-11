@@ -19,16 +19,16 @@
 
 package gda.hrpd.data;
 
-import gda.analysis.Plotter;
+import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.analysis.ScanFileHolder;
 import gda.analysis.io.MACLoader;
 import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerFacade;
 import gda.observable.IObserver;
-
-import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 
 public class MacDataPlotter implements IObserver {
 	private static final Logger logger = LoggerFactory.getLogger(MacDataPlotter.class);
@@ -60,8 +60,11 @@ public class MacDataPlotter implements IObserver {
 			logger.error(e.getMessage(), e);
 			e.printStackTrace();
 		}
-		// sfh.loadMACData(inputFileName);
 		JythonServerFacade.getInstance().print("Plot data " + filename);
-		Plotter.plot("MAC", sfh.getAxis(0), sfh.getAxis(1));
+		try {
+			SDAPlotter.plot("MAC", sfh.getAxis(0), sfh.getAxis(1));
+		} catch (Exception e) {
+			logger.error("Could not plot MAC data", e);
+		}
 	}
 }

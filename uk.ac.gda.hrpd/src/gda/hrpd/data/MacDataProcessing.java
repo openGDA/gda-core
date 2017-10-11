@@ -19,13 +19,6 @@
 
 package gda.hrpd.data;
 
-import gda.analysis.Plotter;
-import gda.analysis.ScanFileHolder;
-import gda.analysis.io.MACLoader;
-import gda.configuration.properties.LocalProperties;
-import gda.jython.InterfaceProvider;
-import gda.jython.JythonServerFacade;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
@@ -33,6 +26,13 @@ import java.io.Serializable;
 import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.analysis.ScanFileHolder;
+import gda.analysis.io.MACLoader;
+import gda.configuration.properties.LocalProperties;
+import gda.jython.InterfaceProvider;
+import gda.jython.JythonServerFacade;
+import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 
 /**
  * Class provides function and controls for post MAC data collection processing, covering data rebin and plotting.
@@ -158,9 +158,12 @@ public class MacDataProcessing implements Serializable {
 			logger.error(e.getMessage(), e);
 			e.printStackTrace();
 		}
-		// sfh.loadMACData(inputFileName);
 		JythonServerFacade.getInstance().print("Data plotting, please wait ...");
-		Plotter.plot("MAC", sfh.getAxis(0), sfh.getAxis(1));
+		try {
+			SDAPlotter.plot("MAC", sfh.getAxis(0), sfh.getAxis(1));
+		} catch (Exception e) {
+			logger.error("Error plotting MAC data", e);
+		}
 		JythonServerFacade.getInstance().print("Post processing completed");
 	}
 
