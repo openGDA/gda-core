@@ -76,6 +76,10 @@ public class Spin extends ScannableBase implements Configurable, Findable, ISpin
 
 	private String speedName;
 
+	private String enablePV;
+
+	private String speedPV;
+
 	private Vector<String> positions = new Vector<String>();
 
 	private StateMonitorListener sml;
@@ -96,33 +100,42 @@ public class Spin extends ScannableBase implements Configurable, Findable, ISpin
 	@Override
 	public void configure() throws FactoryException {
 		if (!configured) {
-			SimplePvType enable;
-			SimpleBinaryType speed;
-			if (getSpeedName() != null) {
+			SimplePvType speed;
+			SimpleBinaryType enable;
+			if (getSpeedName() != null && getEnableName()!=null) {
 				try {
-					enable = Configurator.getConfiguration(getSpeedName(), gda.epics.interfaces.SimplePvType.class);
+					speed = Configurator.getConfiguration(getSpeedName(), gda.epics.interfaces.SimplePvType.class);
 				} catch (ConfigurationNotFoundException e) {
 					logger.error("Can NOT find EPICS configuration for sample spin " + getSpeedName(), e);
 					throw new FactoryException("Epics sample spin " + getSpeedName() + " not found");
 				}
-			} else {
-				logger.error("Missing EPICS configuration for sample spin {}", getName());
-				throw new FactoryException("Missing EPICS configuration for sample spin " + getName());
-			}
-			if (getEnableName() != null) {
 				try {
-					speed = Configurator.getConfiguration(getEnableName(), gda.epics.interfaces.SimpleBinaryType.class);
+					enable = Configurator.getConfiguration(getEnableName(), gda.epics.interfaces.SimpleBinaryType.class);
 
 				} catch (ConfigurationNotFoundException e) {
 					logger.error("Can NOT find EPICS configuration for sample spin " + getEnableName(), e);
 					throw new FactoryException("Epics sample spin " + getEnableName() + " not found");
 				}
-			} else {
+				createChannelAccess(speed, enable);
+			} else if (getSpeedPV()!=null && getEnablePV()!=null) {
+				createChannelAccess(getSpeedPV(), getEnablePV());
+			}	else {
 				logger.error("Missing EPICS configuration for sample spin {}", getName());
 				throw new FactoryException("Missing EPICS configuration for sample spin " + getName());
 			}
-			createChannelAccess(enable, speed);
 			configured = true;
+		}
+	}
+
+	private void createChannelAccess(String speedPV2, String enablePV2) throws FactoryException {
+		try {
+			enableChannel = channelManager.createChannel(enablePV2, sml, false);
+			speedChannel = channelManager.createChannel(speedPV2, false);
+			// acknowledge that creation phase is completed
+			channelManager.tryInitialize(100);
+			channelManager.creationPhaseCompleted();
+		} catch (Throwable th) {
+			throw new FactoryException("failed to create all channels", th);
 		}
 	}
 
@@ -314,5 +327,21 @@ public class Spin extends ScannableBase implements Configurable, Findable, ISpin
 
 	public void setSpeedName(String speedName) {
 		this.speedName = speedName;
+	}
+
+	public String getEnablePV() {
+		return enablePV;
+	}
+
+	public void setEnablePV(String enablePV) {
+		this.enablePV = enablePV;
+	}
+
+	public String getSpeedPV() {
+		return speedPV;
+	}
+
+	public void setSpeedPV(String speedPV) {
+		this.speedPV = speedPV;
 	}
 }
