@@ -47,7 +47,7 @@
          point="org.eclipse.ui.handlers">
       <handler
             class="uk.ac.gda.client.live.stream.handlers.SnapshotFromLiveStreamHandler"
-            commandId="uk.ac.gda.client.live.stream.snapshothandler">
+            commandId="uk.ac.gda.client.live.stream.snapshotcommand">
       </handler>
       <handler
       		class="uk.ac.gda.client.live.stream.handlers.CreateMapHandler"
