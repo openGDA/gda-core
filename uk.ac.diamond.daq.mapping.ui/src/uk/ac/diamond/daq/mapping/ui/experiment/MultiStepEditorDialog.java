@@ -21,8 +21,12 @@ package uk.ac.diamond.daq.mapping.ui.experiment;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.richbeans.widgets.selector.BeanConfigurator;
 import org.eclipse.scanning.api.IModelProvider;
 import org.eclipse.scanning.api.points.models.MultiStepModel;
+import org.eclipse.scanning.api.points.models.StepModel;
+import org.eclipse.scanning.api.ui.IScannableUIPreferencesService;
+import org.eclipse.scanning.api.ui.ScannableUIPreferences;
 import org.eclipse.scanning.device.ui.composites.MultiStepComposite;
 import org.eclipse.scanning.device.ui.model.ModelPersistAction;
 import org.eclipse.scanning.device.ui.model.ModelPersistAction.PersistType;
@@ -99,6 +103,9 @@ public class MultiStepEditorDialog extends Dialog {
 		// Disabling scannable name combo since dialog is tied to single scannable
 		((MultiStepComposite) ed.getUI()).setNameComboEnabled(false);
 
+		// Load default values
+		((MultiStepComposite) ed.getUI()).getStepModels().setBeanConfigurator(getBeanConfigurator());
+
 		// save & load logic
 		ModelPersistAction<MultiStepModel> load = new ModelPersistAction<>(ed,PersistType.LOAD);
 		loadButton.addListener(SWT.Selection, event->load.run());
@@ -107,6 +114,15 @@ public class MultiStepEditorDialog extends Dialog {
 		saveButton.addListener(SWT.Selection, event->save.run());
 
 		return ed;
+	}
+
+	private BeanConfigurator<StepModel> getBeanConfigurator() {
+		ScannableUIPreferences prefs = IScannableUIPreferencesService.DEFAULT.getPreferences(scannableName);
+		return (bean, previous, context) -> {
+			bean.setStart(previous != null ? previous.getStop() : prefs.getStepModelStart());
+			bean.setStop(bean.getStart() + prefs.getStepModelWidth());
+			bean.setStep(prefs.getStepModelStep());
+		};
 	}
 
 	public TypeEditor<MultiStepModel> getEditor() {
