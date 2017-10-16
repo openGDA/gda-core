@@ -101,7 +101,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 		ICurrentScanInformationHolder, IJythonServerNotifer, IDefaultScannableProvider, ITerminalInputProvider,
 		TextCompleter {
 
-	private static Logger logger = LoggerFactory.getLogger(JythonServer.class);
+	private static final Logger logger = LoggerFactory.getLogger(JythonServer.class);
 
 	/**
 	 * Name of this object. This should agree with the string used in Castor.
@@ -115,55 +115,55 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 
 	// References to the last object which created a scan (and so where scan
 	// data points should be sent to)
-	String scanObserverName = "";
+	private String scanObserverName = "";
 
 	// There may be to facades - localFacade distributes output within the
 	// server, remoteFacade distributes it to CORBA - see setFacade().
-	IObserver localFacade = null;
+	private IObserver localFacade = null;
 
-	IObserver remoteFacade = null;
+	private IObserver remoteFacade = null;
 
 	// to ensure configuration only performed once
-	boolean configured = false;
+	private boolean configured = false;
 
 	// whether interpreter initialization has completed
-	boolean initialized = false;
+	private boolean initialized = false;
 
 	// store any output from during setup to be displayed by terminals
-	boolean runningLocalStation = false;
+	private boolean runningLocalStation = false;
 
-	StringBuilder bufferedLocalStationOutput = new StringBuilder();
+	private StringBuilder bufferedLocalStationOutput = new StringBuilder();
 
 	// part of the Localizable interface
-	boolean isLocal = false;
+	private boolean isLocal = false;
 
 	// the current script being run
-	volatile int currentScriptPosition = 0;
+	private volatile int currentScriptPosition = 0;
 
 	// status of the current script
-	volatile int scriptStatus = Jython.IDLE;
+	private volatile int scriptStatus = Jython.IDLE;
 
 	// status of the current scan
-	volatile int lastScanStatus = Jython.IDLE;
+	private volatile int lastScanStatus = Jython.IDLE;
 
 	// the current scan object
-	volatile Scan currentScan = null;
+	private volatile Scan currentScan = null;
 
 	// threads to run interaction with the GDAJythonInterpreter object
-	Vector<Thread> runsourceThreads = new Vector<Thread>();
+	private final  Vector<Thread> runsourceThreads = new Vector<Thread>();
 
-	Vector<Thread> runCommandThreads = new Vector<Thread>();
+	private final Vector<Thread> runCommandThreads = new Vector<Thread>();
 
-	Vector<Thread> evalThreads = new Vector<Thread>();
+	private final Vector<Thread> evalThreads = new Vector<Thread>();
 
 	private final Set<Scannable> defaultScannables = new CopyOnWriteArraySet<>();
 
 	// volatile parameters when dealing with user input from scripts
-	volatile boolean expectingInputForRawInput = false;
+	private volatile boolean expectingInputForRawInput = false;
 
-	volatile String theRawInput;
+	private volatile String theRawInput;
 
-	BatonManager batonManager = new BatonManager();
+	private final BatonManager batonManager = new BatonManager();
 
 	private ScriptPaths jythonScriptPaths;
 
@@ -176,9 +176,9 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	// configure whether #panicStop() tries to stop all Scannables found in the Jython namespace
 	private boolean stopJythonScannablesOnStopAll = true;
 
-	Set<Terminal> myTerminals = new CopyOnWriteArraySet<>();
+	private final Set<Terminal> myTerminals = new CopyOnWriteArraySet<>();
 
-	ObservableComponent jythonServerStatusObservers = new ObservableComponent();
+	private final ObservableComponent jythonServerStatusObservers = new ObservableComponent();
 
 
 	/**
