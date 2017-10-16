@@ -19,6 +19,7 @@
 package gda.jython.server;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Paths;
 
 import org.apache.sshd.common.FactoryManager;
@@ -30,12 +31,13 @@ import org.jline.builtins.ssh.ShellCommand;
 import org.jline.builtins.ssh.ShellFactoryImpl;
 import org.jline.builtins.ssh.Ssh.ExecuteParams;
 import org.jline.terminal.Terminal;
-import org.python.core.PyException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
+import gda.jython.IScanDataPointObserver;
 import gda.jython.JythonServerFacade;
+import gda.scan.IScanDataPoint;
 
 public class JlineSshServer {
 
@@ -125,16 +127,11 @@ public class JlineSshServer {
 	 * @param params Container for command, stdin, stdout
 	 */
 	private void exec(ExecuteParams params) {
-		logger.debug("exec command '{}'", params.getCommand());
+		String command = params.getCommand();
+		logger.debug("Exec command '{}'", command);
 		JythonServerFacade jsf = JythonServerFacade.getInstance();
-		try {
-			jsf.exec(params.getCommand());
-		} catch (PyException pe) {
-			try {
-				params.getErr().write(("Error running command: " + pe.getMessage()).getBytes());
-			} catch (IOException e) {
-				logger.error("Couldn't write error to SSH client: {}", pe, e);
-			}
+		try (StdOut out = new StdOut(jsf, params.getOut())) {
+			jsf.runsource(command, params.getIn());
 		}
 		logger.debug("Exec complete");
 	}
@@ -144,6 +141,57 @@ public class JlineSshServer {
 			server.close();
 		} catch (IOException e) {
 			logger.error("Error closing SSH server", e);
+		}
+	}
+
+	/**
+	 * Wrapper around an {@link OutputStream} to write output from the JythonServer.
+	 * <p>
+	 * This is {@link AutoCloseable} so can be used in try-with-resources blocks without any
+	 * configuration to connect/disconnect to the JythonServer
+	 * <br>
+	 * <pre>
+	 * JythonServerFacade jsf = JythonServerFacade.getInstance();
+	 * // outputStream is the stream to wrap
+	 * try (StdOut out = new StdOut(jsf, outputStream))) {
+	 * 	jsf.runsource(command, params.getIn());
+	 * }
+	 * </pre>
+	 */
+	class StdOut implements IScanDataPointObserver, gda.jython.Terminal, AutoCloseable {
+		private JythonServerFacade jsf;
+		private OutputStream os;
+		public StdOut(JythonServerFacade jsf, OutputStream os) {
+			this.jsf = jsf;
+			this.os = os;
+			jsf.addOutputTerminal(this);
+			jsf.addIScanDataPointObserver(this);
+		}
+		@Override
+		public void update(Object source, Object arg) {
+			if (arg instanceof IScanDataPoint) {
+				IScanDataPoint sdp = (IScanDataPoint) arg;
+				if (sdp.getCurrentPointNumber() == 0) {
+					write(sdp.getHeaderString());
+					write("\n");
+				}
+				write(sdp.toFormattedString());
+				write("\n");
+			}
+		}
+		@Override
+		public void write(String output) {
+			try {
+				os.write(output.getBytes());
+				os.flush();
+			} catch (IOException e) {
+				logger.error("Could not write {} to terminal", output);
+			}
+		}
+		@Override
+		public void close() {
+			jsf.deleteIScanDataPointObserver(this);
+			jsf.deleteOutputTerminal(this);
 		}
 	}
 }
