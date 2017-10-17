@@ -54,7 +54,7 @@ public class DummyPersistentUnitsScannable extends DummyPersistentScannable impl
 
 	@Override
 	public String getHardwareUnitString() {
-		return "mm";
+		return getUserUnits(); // Dummy does not maintain hardware units
 	}
 
 	@Override
