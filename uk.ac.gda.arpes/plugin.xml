@@ -25,6 +25,21 @@
             </contentTypeBinding>
      </editor>
   </extension>
+  <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="uk.ac.gda.arpes.perspectives.ArpesAlignmentPerspective"
+            id="uk.ac.gda.arpes.perspectives.ArpesAlignmentPerspective"
+            icon="icons/application_view_gallery.png"
+            name="ARPES Alignment">
+      </perspective>     
+      <perspective
+            class="uk.ac.gda.arpes.perspectives.ArpesExperimentPerspective"
+            id="uk.ac.gda.arpes.perspectives.ArpesExperimentPerspective"
+            icon="icons/application_view_gallery.png"
+            name="ARPES Experiment">
+      </perspective>  
+   </extension>
    <extension
          point="org.eclipse.ui.views">
       <category
