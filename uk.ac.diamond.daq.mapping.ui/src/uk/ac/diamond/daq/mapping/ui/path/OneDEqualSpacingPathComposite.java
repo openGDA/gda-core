@@ -16,17 +16,26 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.mapping.ui.experiment;
+package uk.ac.diamond.daq.mapping.ui.path;
 
-import org.eclipse.core.databinding.DataBindingContext;
+import org.eclipse.scanning.api.points.models.OneDEqualSpacingModel;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Spinner;
 
-public abstract class AbstractRegionPathComposite extends Composite {
+public class OneDEqualSpacingPathComposite extends AbstractPathComposite {
 
-	protected final DataBindingContext dbc = new DataBindingContext();
+	public OneDEqualSpacingPathComposite(Composite parent, OneDEqualSpacingModel path) {
+		super(parent, SWT.NONE);
 
-	public AbstractRegionPathComposite(Composite parent, int style) {
-		super(parent, style);
+		(new Label(this, SWT.NONE)).setText("Points:");
+		Spinner points = new Spinner(this, SWT.BORDER);
+		points.setMinimum(1);
+		gdControls.applyTo(points);
+		bindSelection(points, "points", path);
+
+		makeContinuousControl(this, path);
 	}
 
 }

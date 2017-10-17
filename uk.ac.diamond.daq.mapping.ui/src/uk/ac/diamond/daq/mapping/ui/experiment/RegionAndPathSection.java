@@ -20,6 +20,7 @@ package uk.ac.diamond.daq.mapping.ui.experiment;
 
 import java.beans.PropertyChangeListener;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
@@ -35,6 +36,8 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.scanning.api.device.models.IMalcolmModel;
+import org.eclipse.scanning.api.points.models.IMapPathModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -42,14 +45,17 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.daq.mapping.api.IDetectorModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IMappingRegionManager;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegion;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
+import uk.ac.diamond.daq.mapping.ui.path.AbstractPathComposite;
 import uk.ac.diamond.daq.mapping.ui.path.PathCompositeProvider;
 import uk.ac.diamond.daq.mapping.ui.region.RegionCompositeProvider;
 
@@ -343,6 +349,11 @@ public class RegionAndPathSection extends AbstractMappingSection {
 		}
 		pathComposite = PathCompositeProvider.createPathComposite(regionAndPathComposite, scanPath);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).applyTo(pathComposite);
+
+		detectorsChanged(getMappingBean().getDetectorParameters().stream()
+							.filter(IDetectorModelWrapper::isIncludeInScan)
+							.collect(Collectors.toList()));
+
 		relayoutMappingView();
 	}
 
@@ -362,4 +373,35 @@ public class RegionAndPathSection extends AbstractMappingSection {
 		}
 	}
 
+	public void detectorsChanged(List<IDetectorModelWrapper> selectedDetectors) {
+		final boolean isMalcolm = selectedDetectors.stream()
+									.map(IDetectorModelWrapper::getModel)
+									.anyMatch(IMalcolmModel.class::isInstance);
+
+		if (pathComposite instanceof AbstractPathComposite) {
+			((AbstractPathComposite) pathComposite).setContinuousEnabled(isMalcolm);
+		} else if (scanPathModel instanceof IMapPathModel) {
+				((IMapPathModel) scanPathModel).setContinuous(isMalcolm);
+				// We need to update the checkbox as well as because we used the gui generator
+				// we don't have the DataBindingsContext to call updateTargets. The only way to find the
+				// 'continuous' checkbox and label is to go through the controls on the pathComposite and
+				// look for them.
+				if (pathComposite != null) {
+					final Control[] pathControls = pathComposite.getChildren();
+					for (int i = 0; i < pathControls.length - 1; i++) {
+						// find the 'Continuous label' with an adjacent checkbox
+						if (pathControls[i] instanceof Label && "Continuous:".equals(((Label) pathControls[i]).getText())
+								&& pathControls[i+1] instanceof Button && (pathControls[i+1].getStyle() & SWT.CHECK) != 0) {
+							// if malcolm the button is enabled and selected, if not (software scan) disabled and deselected
+							// as we do not support continuous scans in software
+							((Button) pathControls[i+1]).setSelection(isMalcolm);
+							pathControls[i].setEnabled(isMalcolm);
+							pathControls[i+1].setEnabled(isMalcolm);
+						}
+					}
+
+				}
+		}
+	}
 }
+

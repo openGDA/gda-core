@@ -4,7 +4,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.MessageFormat;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -42,6 +44,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
+import uk.ac.diamond.daq.mapping.api.IDetectorModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBeanProvider;
 import uk.ac.diamond.daq.mapping.impl.MappingExperimentBean;
@@ -365,6 +368,12 @@ public class MappingExperimentView implements IAdaptable {
 		}
 
 		return runnableDeviceService;
+	}
+
+	public void detectorSelectionChanged(List<IDetectorModelWrapper> selectedDetectors) {
+		RegionAndPathSection section = (RegionAndPathSection) sections.get(RegionAndPathSection.class);
+		if (Objects.isNull(section)) return;
+		section.detectorsChanged(selectedDetectors);
 	}
 
 }

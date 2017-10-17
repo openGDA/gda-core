@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
 import uk.ac.diamond.daq.mapping.region.CentredRectangleMappingRegion;
 import uk.ac.diamond.daq.mapping.region.CircularMappingRegion;
+import uk.ac.diamond.daq.mapping.region.LineMappingRegion;
 import uk.ac.diamond.daq.mapping.region.RectangularMappingRegion;
 import uk.ac.diamond.daq.mapping.ui.Activator;
 
@@ -51,6 +52,7 @@ public final class RegionCompositeProvider {
 		regionToComposite.put(RectangularMappingRegion.class, RectangleRegionComposite.class);
 		regionToComposite.put(CentredRectangleMappingRegion.class, CentredRectangleRegionComposite.class);
 		regionToComposite.put(CircularMappingRegion.class, CircleRegionComposite.class);
+		regionToComposite.put(LineMappingRegion.class, LineRegionComposite.class);
 	}
 
 	private RegionCompositeProvider() {

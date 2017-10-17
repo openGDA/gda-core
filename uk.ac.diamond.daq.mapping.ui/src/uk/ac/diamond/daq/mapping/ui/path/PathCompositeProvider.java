@@ -24,8 +24,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.richbeans.api.generator.IGuiGeneratorService;
+import org.eclipse.scanning.api.points.models.GridModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
+import org.eclipse.scanning.api.points.models.LissajousModel;
+import org.eclipse.scanning.api.points.models.OneDEqualSpacingModel;
+import org.eclipse.scanning.api.points.models.OneDStepModel;
+import org.eclipse.scanning.api.points.models.RandomOffsetGridModel;
 import org.eclipse.scanning.api.points.models.RasterModel;
+import org.eclipse.scanning.api.points.models.SpiralModel;
 import org.eclipse.swt.widgets.Composite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +52,13 @@ public final class PathCompositeProvider {
 	static {
 		// Initialise the regionToComposite map
 		pathToComposite = new HashMap<>();
+		pathToComposite.put(GridModel.class, GridPathComposite.class);
 		pathToComposite.put(RasterModel.class, RasterPathComposite.class);
+		pathToComposite.put(SpiralModel.class, FermatSpiralPathComposite.class);
+		pathToComposite.put(LissajousModel.class, LissajousCurvePathComposite.class);
+		pathToComposite.put(RandomOffsetGridModel.class, RandomOffsetGridPathComposite.class);
+		pathToComposite.put(OneDStepModel.class, OneDStepModelPathComposite.class);
+		pathToComposite.put(OneDEqualSpacingModel.class, OneDEqualSpacingPathComposite.class);
 	}
 
 	private PathCompositeProvider() {
@@ -54,7 +66,7 @@ public final class PathCompositeProvider {
 	}
 
 	/**
-	 * This generates a composite for editing the supplied path. It first checks if a custom composite is registered for
+	 * This generates a composite for editing the supplied path. It first checks whether a custom composite is registered for
 	 * that path type. If it is that will be supplied. If not it will fall back to auto-generation
 	 *
 	 * @param parent
@@ -77,7 +89,7 @@ public final class PathCompositeProvider {
 				logger.error("Failed to create custom region composite, falling back to auto-generation", e);
 			}
 		}
-		// No custom composite, or building one failed, use auto-generation
+		// No custom composite, or building one failed; use auto-generation
 		return guiGenerator.generateGui(scanPath, parent);
 	}
 

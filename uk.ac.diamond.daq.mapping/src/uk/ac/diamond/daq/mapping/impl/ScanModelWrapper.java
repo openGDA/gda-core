@@ -50,25 +50,32 @@ public abstract class ScanModelWrapper<T> implements IScanModelWrapper<T> {
 	public String getName() {
 		return name;
 	}
+
 	public void setName(String name) {
 		this.name = name;
 	}
+
 	@Override
 	@UiComesAfter("name")
 	public boolean isIncludeInScan() {
 		return includeInScan;
 	}
+
+	@Override
 	public void setIncludeInScan(boolean includeInScan) {
 		this.includeInScan = includeInScan;
 	}
+
 	@Override
 	@UiHidden
 	public T getModel() {
 		return model;
 	}
+
 	public void setModel(T model) {
 		this.model = model;
 	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -78,6 +85,7 @@ public abstract class ScanModelWrapper<T> implements IScanModelWrapper<T> {
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		return result;
 	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)

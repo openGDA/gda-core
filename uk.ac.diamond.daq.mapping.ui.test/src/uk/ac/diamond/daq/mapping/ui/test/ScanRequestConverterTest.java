@@ -105,6 +105,7 @@ public class ScanRequestConverterTest {
 		mappingBean = new MappingExperimentBean();
 
 		scanPath = new GridModel();
+		scanPath.setContinuous(true);
 		mappingBean.getScanDefinition().getMappingScanRegion().setScanPath(scanPath);
 
 		final IMappingScanRegionShape scanRegion = new RectangularMappingRegion();

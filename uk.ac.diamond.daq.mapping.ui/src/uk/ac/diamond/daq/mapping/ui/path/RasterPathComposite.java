@@ -20,32 +20,24 @@ package uk.ac.diamond.daq.mapping.ui.path;
 
 import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
-import org.eclipse.jface.databinding.swt.WidgetProperties;
-import org.eclipse.jface.layout.GridDataFactory;
-import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.scanning.api.points.models.RasterModel;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
 import uk.ac.diamond.daq.mapping.ui.NumberAndUnitsComposite;
 import uk.ac.diamond.daq.mapping.ui.NumberUnitsWidgetProperty;
-import uk.ac.diamond.daq.mapping.ui.experiment.AbstractRegionPathComposite;
 
-public class RasterPathComposite extends AbstractRegionPathComposite {
+public class RasterPathComposite extends AbstractPathComposite {
 
 	public RasterPathComposite(Composite parent, RasterModel path) {
 		super(parent, SWT.NONE);
-
-		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER).applyTo(this);
-		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(this);
 
 		// X Step
 		Label xStepLabel = new Label(this, SWT.NONE);
 		xStepLabel.setText("X Step:");
 		NumberAndUnitsComposite xStep = new NumberAndUnitsComposite(this, SWT.NONE);
-		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(xStep);
+		gdControls.applyTo(xStep);
 
 		final NumberUnitsWidgetProperty nuwp = new NumberUnitsWidgetProperty(); // Can be reused for all bindings
 		IObservableValue xStepTarget = nuwp.observe(xStep);
@@ -56,20 +48,14 @@ public class RasterPathComposite extends AbstractRegionPathComposite {
 		Label yStepLabel = new Label(this, SWT.NONE);
 		yStepLabel.setText("Y Step:");
 		NumberAndUnitsComposite yStep = new NumberAndUnitsComposite(this, SWT.NONE);
-		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(yStep);
+		gdControls.applyTo(yStep);
 
 		IObservableValue yStepTarget = nuwp.observe(yStep);
 		IObservableValue yStepModel = BeanProperties.value("slowAxisStep").observe(path);
 		dbc.bindValue(yStepTarget, yStepModel);
 
-		// Snake
-		Label snakeLabel = new Label(this, SWT.NONE);
-		snakeLabel.setText("Snake:");
-		Button snake = new Button(this, SWT.CHECK);
-
-		IObservableValue snakeTarget = WidgetProperties.selection().observe(snake);
-		IObservableValue snakeModel = BeanProperties.value("snake").observe(path);
-		dbc.bindValue(snakeTarget, snakeModel);
+		makeSnakeControl(this, path);
+		makeContinuousControl(this, path);
 	}
 
 }

@@ -40,6 +40,11 @@ public interface IScanModelWrapper<M> {
 	public boolean isIncludeInScan();
 
 	/**
+	 * Set whether this item should be include in the scan
+	 */
+	public void setIncludeInScan(boolean includeInScan);
+
+	/**
 	 * Get the model.
 	 *
 	 * @return the model

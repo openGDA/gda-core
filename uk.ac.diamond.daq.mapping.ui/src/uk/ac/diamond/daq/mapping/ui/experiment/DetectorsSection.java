@@ -86,7 +86,7 @@ public class DetectorsSection extends AbstractMappingSection {
 	private DataBindingContext dataBindingContext;
 
 	private Map<String, Button> detectorSelectionCheckboxes;
-	private List<IDetectorModelWrapper> chosenDetectors;
+	private List<IDetectorModelWrapper> visibleDetectors; // the detectors
 	private Composite sectionComposite; // parent composite for all controls in the section
 	private Composite detectorsComposite;
 
@@ -106,28 +106,28 @@ public class DetectorsSection extends AbstractMappingSection {
 		GridDataFactory.fillDefaults().align(SWT.RIGHT, SWT.CENTER).applyTo(configure);
 		configure.addListener(SWT.Selection, event -> chooseDetectors());
 
-		if (chosenDetectors == null) {
+		if (visibleDetectors == null) {
 			// this will only be null if loadState() has not been called, i.e. on a workspace reset
 			// in this case show all available detectors
 			updateDetectorParameters(); // update the detectors in the bean based on the available malcolm devices
-			chosenDetectors = getMappingBean().getDetectorParameters();
+			visibleDetectors = getMappingBean().getDetectorParameters();
 		}
-		createDetectorControls(chosenDetectors);
+		createDetectorControls(visibleDetectors);
 	}
 
 	private void chooseDetectors() {
 		ChooseDetectorsDialog dialog = new ChooseDetectorsDialog(getShell(),
-				getMappingBean().getDetectorParameters(), chosenDetectors);
+				getMappingBean().getDetectorParameters(), visibleDetectors);
 
 		if (dialog.open() == Window.OK) {
-			chosenDetectors = dialog.getSelectedDetectors();
+			visibleDetectors = dialog.getSelectedDetectors();
 
 			// set any detectors not in the new selection to not be included in the scan
 			getMappingBean().getDetectorParameters().stream().
-				filter(w -> !chosenDetectors.contains(w)).
-				forEach(w -> ((DetectorModelWrapper) w).setIncludeInScan(false));
+				filter(w -> !visibleDetectors.contains(w)).
+				forEach(w -> w.setIncludeInScan(false));
 
-			createDetectorControls(chosenDetectors);
+			createDetectorControls(visibleDetectors);
 			relayoutMappingView();
 		}
 	}
@@ -165,12 +165,7 @@ public class DetectorsSection extends AbstractMappingSection {
 			IObservableValue activeValue = PojoProperties.value("includeInScan").observe(detectorParameters);
 			dataBindingContext.bindValue(checkBoxValue, activeValue);
 			dataBindingContext.updateTargets(); // sets the checkbox checked if the detector was previously selected
-			checkBox.addListener(SWT.Selection, event -> {
-				if (detectorParameters.getModel() instanceof IMalcolmModel) {
-					malcolmDeviceSelectionChanged(detectorParameters);
-				}
-				updateStatusLabel();
-			});
+			checkBox.addListener(SWT.Selection, event -> detectorSelectionChanged(detectorParameters));
 
 			// create the exposure time text control and bind it the exposure time property of the wrapper
 			Text exposureTimeText = new Text(detectorsComposite, SWT.BORDER);
@@ -193,7 +188,7 @@ public class DetectorsSection extends AbstractMappingSection {
 		}
 
 		// if a malcolm device is selected already, deselect and disable the checkboxes for the other detectors
-		selectedMalcolmDevice.ifPresent(this::malcolmDeviceSelectionChanged);
+		selectedMalcolmDevice.ifPresent(this::detectorSelectionChanged);
 	}
 
 	private void editDetectorParameters(final IDetectorModelWrapper detectorParameters) {
@@ -211,23 +206,31 @@ public class DetectorsSection extends AbstractMappingSection {
 	 * @param selectionCheckBoxes
 	 * @param malcolmDeviceCheckBox
 	 */
-	private void malcolmDeviceSelectionChanged(IDetectorModelWrapper wrapper) {
-		final String label = wrapper.getName();
-		final boolean selected = wrapper.isIncludeInScan();
-		detectorSelectionCheckboxes.keySet().stream().
-			filter(detName -> !detName.equals(label)).
-			map(detName -> detectorSelectionCheckboxes.get(detName)).
-			forEach(cb -> {
-				cb.setEnabled(!selected);
-				if (selected) cb.setSelection(false);
-			});
+	private void detectorSelectionChanged(IDetectorModelWrapper wrapper) {
+		if (wrapper.getModel() instanceof IMalcolmModel) {
+			final String label = wrapper.getName();
+			final boolean selected = wrapper.isIncludeInScan();
 
-		dataBindingContext.updateModels();
+			detectorSelectionCheckboxes.keySet().stream().
+				filter(detName -> !detName.equals(label)).
+				map(detName -> detectorSelectionCheckboxes.get(detName)).
+				forEach(cb -> {
+					cb.setEnabled(!selected);
+					if (selected) cb.setSelection(false);
+				});
 
-		// update the mapping stage info
-		if (selected) {
-			updateMappingStage(wrapper);
+			dataBindingContext.updateModels();
+
+			// update the mapping stage info
+			if (selected) {
+				updateMappingStage(wrapper);
+			}
 		}
+
+		getMappingView().detectorSelectionChanged(visibleDetectors.stream()
+													.filter(IDetectorModelWrapper::isIncludeInScan)
+													.collect(Collectors.toList()));
+		updateStatusLabel();
 	}
 
 	private void updateMappingStage(IDetectorModelWrapper wrapper) {
@@ -319,28 +322,28 @@ public class DetectorsSection extends AbstractMappingSection {
 				IDetectorModelWrapper::getName, identity()));
 
 		// take the list of chosen detectors and replace them with the ones in the mapping bean
-		chosenDetectors = chosenDetectors.stream().
+		visibleDetectors = visibleDetectors.stream().
 			map(wrapper -> wrappersByName.containsKey(wrapper.getName()) ? // replace the wrapper with the one
 					wrappersByName.get(wrapper.getName()) : wrapper). // from the map with the same name, if exists
 					collect(toCollection(ArrayList::new));
 
 		// add any detectors that are in the bean but not in the list of chosen detectors
-		final Set<String> detectorNames = chosenDetectors.stream().map(IDetectorModelWrapper::getName).collect(toSet());
-		chosenDetectors.addAll(
+		final Set<String> detectorNames = visibleDetectors.stream().map(IDetectorModelWrapper::getName).collect(toSet());
+		visibleDetectors.addAll(
 				getMappingBean().getDetectorParameters().stream().
 					filter(IScanModelWrapper::isIncludeInScan).
 					filter(wrapper -> !detectorNames.contains(wrapper.getName())).
 					collect(Collectors.toList()));
 
 		// update the detector controls
-		createDetectorControls(chosenDetectors);
+		createDetectorControls(visibleDetectors);
 	}
 
 	@Override
 	protected void saveState(Map<String, String> persistedState) {
 		IMarshallerService marshaller = getEclipseContext().get(IMarshallerService.class);
 		try {
-			List<String> chosenDetectorNames = chosenDetectors.stream().
+			List<String> chosenDetectorNames = visibleDetectors.stream().
 					map(IDetectorModelWrapper::getName).
 					collect(Collectors.toList());
 			persistedState.put(DETECTOR_SELECTION_KEY_JSON, marshaller.marshal(chosenDetectorNames));
@@ -362,7 +365,7 @@ public class DetectorsSection extends AbstractMappingSection {
 			final Map<String, IDetectorModelWrapper> detectorParamsByName = updateDetectorParameters();
 			final List<String> chosenDetectorNames = marshaller.unmarshal(json, List.class);
 
-			chosenDetectors = chosenDetectorNames.stream().
+			visibleDetectors = chosenDetectorNames.stream().
 				map(detectorParamsByName::get).
 				filter(Objects::nonNull).
 				collect(toList());

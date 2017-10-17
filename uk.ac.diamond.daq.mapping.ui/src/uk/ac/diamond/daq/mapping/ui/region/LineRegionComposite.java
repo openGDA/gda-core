@@ -22,39 +22,31 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
-import uk.ac.diamond.daq.mapping.region.RectangularMappingRegion;
+import uk.ac.diamond.daq.mapping.region.LineMappingRegion;
 import uk.ac.diamond.daq.mapping.ui.NumberAndUnitsComposite;
 import uk.ac.diamond.daq.mapping.ui.experiment.AbstractRegionAndPathComposite;
 
-public class RectangleRegionComposite extends AbstractRegionAndPathComposite {
+public class LineRegionComposite extends AbstractRegionAndPathComposite {
 
-	public RectangleRegionComposite(Composite parent, RectangularMappingRegion region) {
+	public LineRegionComposite(Composite parent, LineMappingRegion region) {
 		super(parent, SWT.NONE);
 
-		// X Start
-		Label xStartLabel = new Label(this, SWT.NONE);
-		xStartLabel.setText("X Start:");
+		(new Label(this, SWT.NONE)).setText("X Start:");
 		NumberAndUnitsComposite xStart = new NumberAndUnitsComposite(this, SWT.NONE);
 		gdControls.applyTo(xStart);
 		bindNumberUnits(xStart, "xStart", region);
 
-		// X Stop
-		Label xStopLabel = new Label(this, SWT.NONE);
-		xStopLabel.setText("X Stop:");
-		NumberAndUnitsComposite xStop = new NumberAndUnitsComposite(this, SWT.NONE);
-		gdControls.applyTo(xStop);
-		bindNumberUnits(xStop, "xStop", region);
-
-		// Y Start
-		Label yStartLabel = new Label(this, SWT.NONE);
-		yStartLabel.setText("Y Start:");
+		(new Label(this, SWT.NONE)).setText("Y Start:");
 		NumberAndUnitsComposite yStart = new NumberAndUnitsComposite(this, SWT.NONE);
 		gdControls.applyTo(yStart);
 		bindNumberUnits(yStart, "yStart", region);
 
-		// Y Stop
-		Label yStopLabel = new Label(this, SWT.NONE);
-		yStopLabel.setText("Y Stop:");
+		(new Label(this, SWT.NONE)).setText("X Stop:");
+		NumberAndUnitsComposite xStop = new NumberAndUnitsComposite(this, SWT.NONE);
+		gdControls.applyTo(xStop);
+		bindNumberUnits(xStop, "xStop", region);
+
+		(new Label(this, SWT.NONE)).setText("Y Stop:");
 		NumberAndUnitsComposite yStop = new NumberAndUnitsComposite(this, SWT.NONE);
 		gdControls.applyTo(yStop);
 		bindNumberUnits(yStop, "yStop", region);

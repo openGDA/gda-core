@@ -18,57 +18,39 @@
 
 package uk.ac.diamond.daq.mapping.ui.region;
 
-import org.eclipse.core.databinding.beans.BeanProperties;
-import org.eclipse.core.databinding.observable.value.IObservableValue;
-import org.eclipse.jface.layout.GridDataFactory;
-import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
 import uk.ac.diamond.daq.mapping.region.CircularMappingRegion;
 import uk.ac.diamond.daq.mapping.ui.NumberAndUnitsComposite;
-import uk.ac.diamond.daq.mapping.ui.NumberUnitsWidgetProperty;
-import uk.ac.diamond.daq.mapping.ui.experiment.AbstractRegionPathComposite;
+import uk.ac.diamond.daq.mapping.ui.experiment.AbstractRegionAndPathComposite;
 
-public class CircleRegionComposite extends AbstractRegionPathComposite {
+public class CircleRegionComposite extends AbstractRegionAndPathComposite {
 
 	public CircleRegionComposite(Composite parent, CircularMappingRegion region) {
 		super(parent, SWT.NONE);
-
-		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER).applyTo(this);
-		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(this);
 
 		// X Centre
 		Label xCentreLabel = new Label(this, SWT.NONE);
 		xCentreLabel.setText("X Centre:");
 		NumberAndUnitsComposite xCentre = new NumberAndUnitsComposite(this, SWT.NONE);
-		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(xCentre);
-
-		final NumberUnitsWidgetProperty nuwp = new NumberUnitsWidgetProperty(); // Can be reused for all bindings
-		IObservableValue xCentreTarget = nuwp.observe(xCentre);
-		IObservableValue xCentreModel = BeanProperties.value("xCentre").observe(region);
-		dbc.bindValue(xCentreTarget, xCentreModel);
+		gdControls.applyTo(xCentre);
+		bindNumberUnits(xCentre, "xCentre", region);
 
 		// Y Centre
 		Label yCentreLabel = new Label(this, SWT.NONE);
 		yCentreLabel.setText("Y Centre:");
 		NumberAndUnitsComposite yCentre = new NumberAndUnitsComposite(this, SWT.NONE);
-		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(yCentre);
-
-		IObservableValue yCentreTarget = nuwp.observe(yCentre);
-		IObservableValue yCentreModel = BeanProperties.value("yCentre").observe(region);
-		dbc.bindValue(yCentreTarget, yCentreModel);
+		gdControls.applyTo(yCentre);
+		bindNumberUnits(yCentre, "yCentre", region);
 
 		// Radius
 		Label radiusLabel = new Label(this, SWT.NONE);
 		radiusLabel.setText("Radius:");
 		NumberAndUnitsComposite radius = new NumberAndUnitsComposite(this, SWT.NONE);
-		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(radius);
-
-		IObservableValue radiusTarget = nuwp.observe(radius);
-		IObservableValue radiusModel = BeanProperties.value("radius").observe(region);
-		dbc.bindValue(radiusTarget, radiusModel);
+		gdControls.applyTo(radius);
+		bindNumberUnits(radius, "radius", region);
 	}
 
 }
