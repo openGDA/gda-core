@@ -35,7 +35,6 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
-import org.eclipse.richbeans.api.generator.IGuiGeneratorService;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -51,6 +50,8 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.daq.mapping.api.IMappingRegionManager;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegion;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
+import uk.ac.diamond.daq.mapping.ui.path.PathCompositeProvider;
+import uk.ac.diamond.daq.mapping.ui.region.RegionCompositeProvider;
 
 /**
  * A section for configuring the region to scan and the path of the mapping scan.
@@ -332,14 +333,19 @@ public class RegionAndPathSection extends AbstractMappingSection {
 		}
 
 		// Scan Region
-		IGuiGeneratorService guiGenerator = getService(IGuiGeneratorService.class);
-		Object mappingScanRegion = getMappingBean().getScanDefinition().getMappingScanRegion().getRegion();
-		regionComposite = guiGenerator.generateGui(mappingScanRegion, regionAndPathComposite);
+		final IMappingScanRegionShape mappingScanRegion = getMappingBean().getScanDefinition().getMappingScanRegion().getRegion();
+		if (mappingScanRegion == null) {
+			return; // We can't build a UI to edit null
+		}
+		regionComposite = RegionCompositeProvider.createRegionComposite(regionAndPathComposite, mappingScanRegion);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).applyTo(regionComposite);
 
 		// Scan Path
-		Object scanPath = getMappingBean().getScanDefinition().getMappingScanRegion().getScanPath();
-		pathComposite = guiGenerator.generateGui(scanPath, regionAndPathComposite);
+		final IScanPathModel scanPath = getMappingBean().getScanDefinition().getMappingScanRegion().getScanPath();
+		if (scanPath == null) {
+			return; // We can't build a UI to edit null
+		}
+		pathComposite = PathCompositeProvider.createPathComposite(regionAndPathComposite, scanPath);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).applyTo(pathComposite);
 		relayoutMappingView();
 	}
