@@ -38,7 +38,7 @@ import gda.configuration.properties.LocalProperties;
  */
 public class NumberAndUnitsComposite extends Composite {
 
-	private static final String DEFAULT_UNITS_PROPERTY = "uk.ac.diamond.daq.mapping.ui.deaultUnits";
+	private static final String DEFAULT_UNITS_PROPERTY = "uk.ac.diamond.daq.mapping.ui.defaultUnits";
 
 	/** The text field showing the numeric value */
 	private final Text text;
