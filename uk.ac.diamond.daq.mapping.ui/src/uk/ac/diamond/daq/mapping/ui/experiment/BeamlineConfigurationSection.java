@@ -31,9 +31,12 @@ import org.eclipse.jface.window.Window;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,27 +50,28 @@ import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 public class BeamlineConfigurationSection extends AbstractMappingSection {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(BeamlineConfigurationSection.class);
-
-	private Label summaryHoverLabel;
+	private static final int MAX_TXT_LINES = 1;
+	private Text summaryText;
 
 	@Override
 	public void createControls(Composite parent) {
-		final Composite beamlineConfigComposite = new Composite(parent, SWT.NONE);
-		GridLayoutFactory.swtDefaults().numColumns(2).equalWidth(false).applyTo(beamlineConfigComposite);
-		GridDataFactory.fillDefaults().grab(true, false).applyTo(beamlineConfigComposite);
+		Composite beamlineConfigComposite = new Composite(parent, SWT.NONE);
+		GridLayoutFactory.swtDefaults().numColumns(3).equalWidth(false).applyTo(beamlineConfigComposite);
+		GridDataFactory.fillDefaults().grab(false, false).applyTo(beamlineConfigComposite);
 
-		// A label which has the beamline configuration as a tooltip
-		summaryHoverLabel = new Label(beamlineConfigComposite, SWT.NONE);
-		summaryHoverLabel.setText("Beamline Configuration, hover to view");
-		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(summaryHoverLabel);
+		(new Label(beamlineConfigComposite, SWT.NONE)).setText("Configure Beamline");
 
-		// Button to edit beamline configuration
+		Composite configSummaryComposite = new Composite(beamlineConfigComposite, SWT.NONE);
+		GridLayoutFactory.swtDefaults().numColumns(2).equalWidth(false).applyTo(configSummaryComposite);
+		GridDataFactory.fillDefaults().grab(true, false).applyTo(configSummaryComposite);
+		summaryText = new Text(configSummaryComposite, SWT.MULTI | SWT.READ_ONLY);
+		summaryText.setLayoutData(new GridData(SWT.FILL,SWT.FILL,true,true));
+		summaryText.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_DARK_GRAY));
+		summaryText.setVisible(false);
+
 		Button editBeamlineConfigButton = new Button(beamlineConfigComposite, SWT.PUSH);
 		editBeamlineConfigButton.setImage(MappingExperimentUtils.getImage("icons/pencil.png"));
-		editBeamlineConfigButton.setToolTipText("Edit Beamline Configuration");
-		GridDataFactory.swtDefaults().align(SWT.TRAIL, SWT.CENTER).applyTo(editBeamlineConfigButton);
 		editBeamlineConfigButton.addListener(SWT.Selection, event -> editBeamlineConfiguration());
-
 		updateConfiguredScannableSummary();
 	}
 
@@ -105,7 +109,15 @@ public class BeamlineConfigurationSection extends AbstractMappingSection {
 				.map(entry->entry.getKey() + " = " + formatScannablePosition(entry.getValue()))
 				.collect(Collectors.toList());
 
-		summaryHoverLabel.setToolTipText(txt.stream().collect(Collectors.joining("\n")));
+		summaryText.setToolTipText(txt.stream().collect(Collectors.joining("\n")));
+
+		if (txt.size() > MAX_TXT_LINES) {
+			txt = txt.subList(0, MAX_TXT_LINES);
+			txt.set(MAX_TXT_LINES - 1, txt.get(MAX_TXT_LINES - 1)+" ...");
+		}
+
+		summaryText.setText(txt.stream().collect(Collectors.joining("\n")));
+		summaryText.setVisible(!txt.isEmpty());
 	}
 
 	private String formatScannablePosition(Object value) {
