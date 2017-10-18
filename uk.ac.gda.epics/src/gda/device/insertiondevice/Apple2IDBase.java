@@ -115,6 +115,9 @@ public abstract class Apple2IDBase extends DeviceBase implements IApple2ID {
 		// Now add a move to the requested mode, unless it is LH, in which case we are already there or have just added a move there.
 		if (requestedMode != Apple2IDPolarisationMode.LH) {
 			pendingMoves.add(position.clone());
+		} else if (position.gap != currentPosition.gap) {
+			// allow energy or gap change only within LH mode.
+			pendingMoves.add(position.clone());
 		}
 
 		// Start the first move

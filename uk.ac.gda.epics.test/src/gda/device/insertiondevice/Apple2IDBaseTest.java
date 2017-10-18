@@ -144,12 +144,25 @@ public class Apple2IDBaseTest {
 	public void testMoveFromLinear1ToHorizontal() throws DeviceException, InterruptedException {
 		controller = new TestApple2IDBase(MODE_GAP_AND_PHASE, true);
 		controller.setCurrentPosition(new Apple2IDPosition(30, 10, 0, 0, -10));
-		controller.asynchronousMoveTo(new Apple2IDPosition(25, 0, 0, 0, 0));
+		controller.asynchronousMoveTo(new Apple2IDPosition(30, 0, 0, 0, 0));
 		while (controller.isBusy()) {
 			Thread.sleep(10);
 		}
 		final List<Apple2IDPosition> moves = controller.getMoves();
 		assertEquals(1, moves.size());
+		assertEquals(new Apple2IDPosition(30, 0, 0, 0, 0), moves.get(0));
+	}
+
+	@Test
+	public void testMoveFromLinear1ToHorizontalWithGapChange() throws DeviceException, InterruptedException {
+		controller = new TestApple2IDBase(MODE_GAP_AND_PHASE, true);
+		controller.setCurrentPosition(new Apple2IDPosition(30, 10, 0, 0, -10));
+		controller.asynchronousMoveTo(new Apple2IDPosition(25, 0, 0, 0, 0));
+		while (controller.isBusy()) {
+			Thread.sleep(10);
+		}
+		final List<Apple2IDPosition> moves = controller.getMoves();
+		assertEquals(2, moves.size()); //1st move ploarisation to LH, 2nd move the gap.
 		assertEquals(new Apple2IDPosition(25, 0, 0, 0, 0), moves.get(0));
 	}
 
