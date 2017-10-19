@@ -68,10 +68,7 @@ public class CorbaEventReceiver extends PushConsumerPOA implements EventReceiver
 		try {
 			supplier.connect_push_consumer(_this(orb));
 			logger.debug("EventReceiver: Consumer connected");
-		} catch (TypeError ex) {
-			logger.error(ex.getMessage());
-			System.exit(1);
-		} catch (AlreadyConnected ex) {
+		} catch (TypeError | AlreadyConnected ex) {
 			logger.error(ex.getMessage());
 			System.exit(1);
 		}
@@ -84,7 +81,6 @@ public class CorbaEventReceiver extends PushConsumerPOA implements EventReceiver
 
 	@Override
 	public void disconnect_push_consumer() {
-		// supplier.disconnect_push_supplier();
 		supplier = null;
 	}
 
@@ -152,7 +148,7 @@ class PushEventQueue implements Runnable {
 
 	private static final Logger logger = LoggerFactory.getLogger(PushEventQueue.class);
 
-	private final List<TimedAny> items = new ArrayList<TimedAny>();
+	private final List<TimedAny> items = new ArrayList<>();
 	private volatile boolean killed = false;
 	private final Thread thread;
 	private final int chkLengthLimit = LocalProperties.getInt(GDA_EVENTRECEIVER_QUEUE_LENGTH_CHECK, 100);
@@ -186,12 +182,12 @@ class PushEventQueue implements Runnable {
 						items.wait();
 					}
 					// Copy the items list into the itemsToBeHandled list
-					itemsToBeHandled = new ArrayList<TimedAny>(items);
+					itemsToBeHandled = new ArrayList<>(items);
 					// Empty the items list
 					items.clear();
 				}
 
-				List<TimedStructuredEvent> newEvents = new ArrayList<TimedStructuredEvent>();
+				List<TimedStructuredEvent> newEvents = new ArrayList<>();
 				for (TimedAny e : itemsToBeHandled) {
 					if (e.isStructuredEvent()) {
 						try {
@@ -207,7 +203,7 @@ class PushEventQueue implements Runnable {
 				if (!newEvents.isEmpty()) {
 					int numItems = newEvents.size();
 					if( chkLengthLimit > 0 && numItems > chkLengthLimit && lastItemsHandled != null){
-						logger.warn("EventReceiver queue length of " + numItems + " has exceeded check threshold of " + chkLengthLimit);
+						logger.warn("EventReceiver queue length of {} has exceeded check threshold of {}",  numItems, chkLengthLimit);
 						if(logger.isDebugEnabled()){
 							for(TimedStructuredEvent timeEvent : lastItemsHandled){
 								logger.debug(String.format("Previously pushed event (source=%s, type=%s)", timeEvent.getHeader().eventName, timeEvent.getHeader().typeName));
@@ -218,7 +214,7 @@ class PushEventQueue implements Runnable {
 						long timeOfDispatch = System.currentTimeMillis();
 						long timeBeforeDispatching = timeOfDispatch - event.getTimeReceivedMs();
 						if( timeBeforeDispatching > 1000){
-							logger.warn(String.format("Event took %dms until dispatch (source=%s, type=%s)", timeBeforeDispatching, event.getHeader().eventName, event.getHeader().typeName));
+							logger.warn("Event took {}ms until dispatch (source={}, type={})", timeBeforeDispatching, event.getHeader().eventName, event.getHeader().typeName);
 						}
 
 						receiver.pushNow(event);
