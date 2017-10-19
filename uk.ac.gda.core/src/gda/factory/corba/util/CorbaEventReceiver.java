@@ -225,8 +225,8 @@ class PushEventQueue implements Runnable {
 
 						long timeAfterDispatch = System.currentTimeMillis();
 						long timeToDispatch = timeAfterDispatch-timeOfDispatch;
-						if( timeToDispatch > 1000){
-							pushAgainDueToDelay(timeToDispatch, event);
+						if(timeToDispatch > 1000){
+							logger.warn("Event took {}ms to dispatch (source={}, type={})", timeToDispatch, event.getHeader().eventName, event.getHeader().typeName);
 						}
 					}
 				}
@@ -235,11 +235,6 @@ class PushEventQueue implements Runnable {
 				logger.error("EventReceiver.run exception ", th);
 			}
 		}
-	}
-
-	private void pushAgainDueToDelay(long timeToDispatch, TimedStructuredEvent event) {
-		logger.warn(String.format("Event took %dms to dispatch (source=%s, type=%s) (trying again)", timeToDispatch, event.getHeader().eventName, event.getHeader().typeName));
-		receiver.pushNow(event);
 	}
 
 }
