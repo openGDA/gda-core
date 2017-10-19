@@ -66,6 +66,8 @@ class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPointObser
 	private static final String WELCOME_BANNER;
 	private static final String BANNER_FILE_NAME = "welcome_banner.txt";
 	private static final Logger logger = LoggerFactory.getLogger(JythonShell.class);
+	/** Template to use for title. The shell number should be added for each instance*/
+	private static final String TITLE_TEMPLATE;
 	private static final AtomicInteger counter = new AtomicInteger(0);
 	static {
 		String banner;
@@ -76,6 +78,11 @@ class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPointObser
 			banner = "Welcome to GDA %s\n";
 		}
 		WELCOME_BANNER = String.format(banner, Version.getRelease());
+		TITLE_TEMPLATE = String.format("%s GDA - %s %s (#%%d)", // eg "I11 GDA - 9.6.0 - (dummy) (#%d)"
+				LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME),
+				Version.getRelease(),
+				LocalProperties.isDummyModeEnabled() ? "(dummy)": ""
+				);
 	}
 
 	private final JythonServerFacade server;
@@ -154,7 +161,7 @@ class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPointObser
 		server.addIScanDataPointObserver(this);
 		setupKeybindings();
 		terminal.writer().print(WELCOME_BANNER);
-		setTitle(String.format("GDA %s (#%d)", Version.getRelease(), shellNumber));
+		setTitle(String.format(TITLE_TEMPLATE, shellNumber));
 	}
 
 	/**
