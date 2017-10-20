@@ -81,15 +81,13 @@ public class PolygonMappingRegion implements IMappingScanRegionShape {
 	public void updateFromROI(IROI newROI) {
 		if (newROI instanceof PolygonalROI) {
 			PolygonalROI roi = (PolygonalROI) newROI;
-			// Save the old points list
-			List<Point> oldPoints = points;
-			// Update the points list create a new object so PCS is fired
-			points = new ArrayList<>(oldPoints.size());
+			// Rebuild the list of points
+			points.clear();
 			for (int i = 0; i < roi.getNumberOfPoints(); i++) {
 				points.add(new Point(i, roi.getPointX(i), i, roi.getPointY(i)));
 			}
-			// Fire PCS
-			this.pcs.firePropertyChange("points", oldPoints, points);
+			// PCS will always be fired
+			this.pcs.firePropertyChange("points", null, points);
 		} else {
 			throw new IllegalArgumentException("Polygon mapping region can only update from a PolygonalROI");
 		}
