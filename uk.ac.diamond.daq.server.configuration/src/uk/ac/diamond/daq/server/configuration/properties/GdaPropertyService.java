@@ -13,15 +13,15 @@ import uk.ac.diamond.daq.services.PropertyService;
 
 /**
  * A service implementation to provide access to GDA properties. If a service
- * need access to properties depending on this service is the preferred way to
+ * needs access to properties, depending on this service is the preferred way to
  * access them.
  * 
  * @since 9.6
  * @author James Mudd
  */
-@Component(name="PropertyService", immediate=true)
-public class PropertyServiceImpl implements PropertyService {
-	private static final Logger logger = LoggerFactory.getLogger(PropertyServiceImpl.class);
+@Component(name="GdaPropertyService", immediate=true)
+public class GdaPropertyService implements PropertyService {
+	private static final Logger logger = LoggerFactory.getLogger(GdaPropertyService.class);
 
 	private final PropertiesConfig propConfig = new JakartaPropertiesConfig();
 
