@@ -28,7 +28,6 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A Component that may be used by Observable objects to maintain its list of Observers
- * DO NOT synchronize the methods of this class as doing so in the past led to deadlocks when used with DOFS and AbosulteMove objects
  */
 public class ObservableUtil<E> implements Observable<E>, IIsBeingObserved {
 

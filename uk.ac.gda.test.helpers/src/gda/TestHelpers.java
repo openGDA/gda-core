@@ -377,7 +377,7 @@ class SimpleScannable implements Scannable, INeXusInfoWriteable {
 				file.addAttribute(node, a);
 			}
 		} catch (NexusException e) {
-			logger.debug("DOF: Problem writing additional info to NeXus file.");
+			logger.debug("Problem writing additional info to NeXus file.");
 		}
 	}
 
