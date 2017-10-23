@@ -191,8 +191,7 @@ public class MotorPositionFileReader extends JFrame {
 
 		/**
 		 * Gets and checks values exist in the file and directory path fields. Opens a binary file for reading and reads
-		 * the values as an object before casting them into a PositionalValues Object. These values are then displayed
-		 * on the GUI
+		 * the values. These values are then displayed on the GUI
 		 */
 		protected void get() {
 			if (validateFileFields()) {
@@ -202,8 +201,6 @@ public class MotorPositionFileReader extends JFrame {
 				try {
 					in = new ObjectInputStream(new BufferedInputStream(new FileInputStream(limitStore)));
 
-					// positionalValues = (PositionalValues)
-					// in.readObject();
 					positionValue = in.readDouble();
 					in.close();
 				} catch (IOException ioe) {

@@ -24,10 +24,6 @@ import java.util.ArrayList;
 import org.jscience.physics.quantities.Quantity;
 import org.jscience.physics.units.Unit;
 
-/**
- * Used by <code>gda.oe.dofs.CombinedDOF</code> to relate the DOF position to positions of related moveables
- */
-
 public interface IQuantitiesConverter {
 
 	/**

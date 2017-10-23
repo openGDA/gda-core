@@ -427,18 +427,6 @@ public class GDAJythonInterpreter {
 				interactiveConsole.runsource("from gda.jython.commands import InputCommands");
 				interactiveConsole.runsource("from gda.jython.commands.InputCommands import *");
 
-				// oe plugin commands
-				try {
-					Class.forName("gda.oe.OE");
-					interactiveConsole.runsource("from gda.device.scannable import OEAdapter");
-					interactiveConsole.runsource("from gda.device.scannable import DOFAdapter");
-					interactiveConsole.runsource("from gda.oe import OE");
-					interactiveConsole.runsource("from gda.oe.dofs import DOF");
-					interactiveConsole.runsource("from gda.oe import OE");
-				} catch (Exception e1) {
-					// ignore
-				}
-
 				// persistence
 				interactiveConsole.runsource("from uk.ac.diamond.daq.persistence.jythonshelf import LocalParameters");
 				interactiveConsole.runsource("from uk.ac.diamond.daq.persistence.jythonshelf import LocalObjectShelfManager");
@@ -523,30 +511,6 @@ public class GDAJythonInterpreter {
 	private void populateNamespace() {
 		logger.info("populating Jython namespace...");
 		Finder finder = Finder.getInstance();
-
-		// we need all OEs and their DOFs to be available in the namespace, by wrapping references to them in Adapter
-		// objects
-		List<Findable> OEs = finder.listAllObjects("OE");
-		for (Findable findable : OEs) {
-			try {
-				// get object from OE facory
-				interactiveConsole.set(findable.getName(), findable);
-				// create an OE adapter object
-				interactiveConsole.runsource(findable.getName() + "= OEAdapter(" + findable.getName() + ")");
-				interactiveConsole.runsource(findable.getName() + ".setName(\"" + findable.getName() + "\")");
-				// get array of the DOFNames
-				interactiveConsole.runsource("tempArray=" + findable.getName() + ".getDOFNames()");
-				// run a for loop which creates a DOFAdapter object associated with each DOF (assumes that all DOFs have
-				// unique names)
-				String command = "exec(\"for i in range(len(tempArray)):";
-				command += "exec(tempArray[i]+\\\"";
-				command += "=DOFAdapter(" + findable.getName();
-				command += ",'\\\"+tempArray[i]+\\\"')\\\")\")";
-				interactiveConsole.runsource(command);
-			} catch (Exception e) {
-				logger.error("Error adding '{}' to namespace", findable.getName(), e);
-			}
-		}
 
 		// all Scannable objects should be also placed into the namespace.
 		List<Findable> scannables = finder.listAllObjects("Scannable");

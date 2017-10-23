@@ -18,12 +18,10 @@
 
 package gda.jython.accesscontrol;
 
-import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.StringUtils;
 
 import gda.configuration.properties.LocalProperties;
 import gda.device.Device;
@@ -49,7 +47,9 @@ public class RbacUtils {
 	protected static boolean canProxyUsingCglib(Findable findable) {
 		final boolean isFinal = Modifier.isFinal(findable.getClass().getModifiers());
 		if (isFinal) {
-			logger.warn("Access control cannot be applied to findable " + StringUtils.quote(findable.getName()) + " because its class (" + findable.getClass().getName() + ") is final");
+			logger.warn("Access control cannot be applied to findable '{}' because its class ({}) is final",
+					findable.getName(),
+					findable.getClass().getName());
 		}
 		return !isFinal;
 	}
@@ -62,11 +62,7 @@ public class RbacUtils {
 
 		try {
 			if (findable instanceof Device && canProxyUsingCglib(findable)) {
-				findable = DeviceInterceptor.newDeviceInstance((Device) findable);
-			} else if (isOEInPath()) {
-				if (OE.isInstance(findable) && canProxyUsingCglib(findable)) {
-					findable = (Findable) newoeinstance.invoke(OEInterceptor,OE.cast(findable));
-				}
+				return DeviceInterceptor.newDeviceInstance((Device) findable);
 			}
 		} catch (Exception e) {
 			logger.warn("Exception while trying to wrap {} with interceptor", findable.getName(), e);
@@ -89,75 +85,13 @@ public class RbacUtils {
 		return buildProxy(findable, corbaObject, name, netService);
 	}
 
-	@SuppressWarnings({ "null" })
 	private static Findable buildProxy(Findable theFindable, org.omg.CORBA.Object theDevice, String name, NetService netService) {
-		//test to see if we are creating OE wrappers as well
-		boolean oeInPath = true;
-		Class<?> OEInterceptor = null;
-		Class<?> OEAdapter = null;
-		java.lang.reflect.Method newoeinstance = null;
-		try {
-			OEAdapter = Class.forName("gda.oe.corba.impl.OeAdapter");
-			OEInterceptor = Class.forName("gda.jython.accesscontrol.OEInterceptor");
-		} catch (Exception e1) {
-			oeInPath = false;
-		}
-
-		if (oeInPath) {
-			try {
-				newoeinstance = OEInterceptor.getMethod("newOEAdapterInstance", OEAdapter, org.omg.CORBA.Object.class,String.class,NetService.class);
-			} catch (NoSuchMethodException e) {
-				oeInPath = false;
-				logger.warn("OE classes are available, but the newOEAdapterInstance method could not be found");
-			}
-		}
-
 		// rebuild every device object inside an RBACProxy
 		if (theFindable instanceof DeviceAdapter) {
-			Findable findableProxy = DeviceInterceptor.newDeviceAdapterInstance((DeviceAdapter) theFindable, theDevice,
+			return DeviceInterceptor.newDeviceAdapterInstance((DeviceAdapter) theFindable, theDevice,
 					name, netService);
-			return findableProxy;
-		} else if (oeInPath) {
-			try {
-				if (OEAdapter.isInstance(theFindable)) {
-					Findable findableProxy;
-					findableProxy = (Findable) newoeinstance.invoke(OEInterceptor,
-						theFindable,
-						theDevice,
-						name,
-						netService);
-					return findableProxy;
-				}
-			} catch (Exception e) {
-				logger.warn("Exception while trying to create an OEInterceptor", e);
-			}
 		}
 		return theFindable;
-	}
-
-	// The below methods and fields are for OEs only - they should be removed with OEs.
-	// The reflection is done to prevent the core plugin being dependent on the oe plugin.
-
-	static Method newoeinstance;
-
-	static Boolean oeInPath;
-
-	static Class<?> OEInterceptor;
-
-	static Class<?> OE;
-
-	private synchronized static boolean isOEInPath(){
-		if ( oeInPath == null){
-			try {
-				OE = Class.forName("gda.oe.OE");
-				OEInterceptor = Class.forName("gda.jython.accesscontrol.OEInterceptor");
-				newoeinstance = OEInterceptor.getMethod("newOEInstance", OE);
-				oeInPath = true;
-			} catch (Exception e1) {
-				oeInPath = false;
-			}
-		}
-		return oeInPath;
 	}
 
 	/**

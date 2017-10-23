@@ -146,7 +146,6 @@ public class GeneralCommands {
 			availableInterfaces.remove("IObserver");
 			availableInterfaces.remove("Scriptcontroller");
 			availableInterfaces.remove("Device");
-			availableInterfaces.remove("Finisher");
 			availableInterfaces.remove("Closeable");
 			availableInterfaces.remove("Flushable");
 			availableInterfaces.remove("RobotListener");

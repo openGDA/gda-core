@@ -18,12 +18,12 @@
 
 package gda.jython.translator;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.factory.Finder;
 import gda.jython.JythonServer;
 import gda.jython.JythonServerFacade;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A class to provide a translation facility for Polarimeter scripting syntax.
@@ -237,7 +237,6 @@ public class PolarimeterTranslator extends TranslatorBase
 	                     + "None=availableInterfaces.remove(\"IObserver\");"
 	                     + "None=availableInterfaces.remove(\"Scriptcontroller\");"
 	                     + "None=availableInterfaces.remove(\"Device\");"
-	                     + "None=availableInterfaces.remove(\"Finisher\");"
 	                     + "None=availableInterfaces.remove(\"Closeable\");"
 	                     + "None=availableInterfaces.remove(\"Flushable\");"
 	                     + "None=availableInterfaces.remove(\"RobotListener\");"
@@ -273,7 +272,7 @@ public class PolarimeterTranslator extends TranslatorBase
 	         else if (args[0].compareTo("pos") == 0 && args.length == 1)
 	         {
 	            thisGroup =
-	               "for ii in dir(): \n\tif isinstance(eval(ii),Scannable):\n\t\tif not isinstance(eval(ii),OEAdapter):\n\t\t\tprint eval(ii).toString()\n\n";
+	               "for ii in dir(): \n\tif isinstance(eval(ii),Scannable):\n\t\tprint eval(ii).toString()\n\n";
 	         }
 	         // print out a list of available commands
 	         else if (args[0].toLowerCase().compareTo("help") == 0
