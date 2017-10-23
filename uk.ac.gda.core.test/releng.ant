@@ -64,7 +64,7 @@
 				<path refid="tp.slf4j.path" />  <!-- ensure that required org.slf4j.LoggerFactory appears first in classpath -->
 				<path refid="tp.jcl-over-slf4j.path" />  <!-- ensure that matching imp appears first in classpath -->
 				<path refid="tp.hamcrest.path" />  <!-- ensure that latest version appears first in classpath -->
-				<pathelement path="${workspace.loc}/tp/plugins/uk.ac.diamond.org.jscience_2.0.2.jar" />  <!-- ensure that 2.0.2 appears first in classpath -->
+				<path refid="tp.jscience.path" />  <!-- ensure that latest version 2 appears first in classpath -->
 				<path refid="tp.path" />  <!-- target platform -->
 				<path refid="libs.jars.path" />
 			</classpath>
@@ -159,14 +159,10 @@
 				<pathelement location="${workspace.git.loc}/dawn-common.git/org.dawb.common.util/bin" />
 				<pathelement location="${workspace.git.loc}/diamond-jacorb.git/uk.ac.diamond.org.jacorb/jars/*" />
 				<pathelement location="${workspace.git.loc}/diamond-springframework.git/uk.ac.diamond.org.springframework/jars/*" />
-				<path refid="tp.slf4j.path" />
-				<!-- ensure that required org.slf4j.LoggerFactory appears first in classpath -->
-				<path refid="tp.jcl-over-slf4j.path" />
-				<!-- ensure that matching imp appears first in classpath -->
-				<path refid="tp.hamcrest.path" />
-				<!-- ensure that latest version appears first in classpath -->
-				<pathelement path="${workspace.loc}/tp/plugins/uk.ac.diamond.org.jscience_2.0.2.jar" />
-				<!-- ensure that 2.0.2 appears first in classpath -->
+				<path refid="tp.slf4j.path" />  <!-- ensure that required org.slf4j.LoggerFactory appears first in classpath -->
+				<path refid="tp.jcl-over-slf4j.path" />  <!-- ensure that matching imp appears first in classpath -->
+				<path refid="tp.hamcrest.path" />  <!-- ensure that latest version appears first in classpath -->
+				<path refid="tp.jscience.path" />  <!-- ensure that latest version 2 appears first in classpath -->
 				<path refid="tp.path" />
 				<!-- target platform -->
 				<path refid="libs.jars.path" />
@@ -235,16 +231,11 @@
 				<pathelement location="${workspace.git.loc}/diamond-jacorb.git/uk.ac.diamond.org.jacorb/jars/*" />
 				<pathelement location="${workspace.git.loc}/diamond-springframework.git/uk.ac.diamond.org.springframework/jars/*" />
 				<pathelement location="${workspace.git.loc}/daq-eclipse.git/uk.ac.diamond.org.apache.activemq"/>
-				<path refid="tp.slf4j.path" />
-				<!-- ensure that required org.slf4j.LoggerFactory appears first in classpath -->
-				<path refid="tp.jcl-over-slf4j.path" />
-				<!-- ensure that matching imp appears first in classpath -->
-				<path refid="tp.hamcrest.path" />
-				<!-- ensure that latest version appears first in classpath -->
-				<pathelement path="${workspace.loc}/tp/plugins/uk.ac.diamond.org.jscience_2.0.2.jar" />
-				<!-- ensure that 2.0.2 appears first in classpath -->
+				<path refid="tp.slf4j.path" />  <!-- ensure that required org.slf4j.LoggerFactory appears first in classpath -->
+				<path refid="tp.jcl-over-slf4j.path" />  <!-- ensure that matching imp appears first in classpath -->
+				<path refid="tp.hamcrest.path" />  <!-- ensure that latest version appears first in classpath -->
+				<path refid="tp.jscience.path" />  <!-- ensure that latest version 2 appears first in classpath -->
 				<path refid="tp.path" />
-				<!-- target platform -->
 				<path refid="libs.jars.path" />
 			</classpath>
 		</java>
