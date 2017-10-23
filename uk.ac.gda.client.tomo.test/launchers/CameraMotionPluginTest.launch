@@ -11,7 +11,7 @@
 <booleanAttribute key="clearwslog" value="false"/>
 <stringAttribute key="configLocation" value="${workspace_loc}/.metadata/.plugins/org.eclipse.pde.core/pde-junit"/>
 <booleanAttribute key="default" value="false"/>
-<stringAttribute key="deselected_workspace_plugins" value="uk.ac.diamond.scisoft.analysis.polling,uk.ac.diamond.sda.meta.extended,uk.ac.diamond.sda.polling,uk.ac.gda.client.extensions,uk.ac.gda.dal,uk.ac.gda.devices.pixium,uk.ac.gda.dls,uk.ac.gda.dls.test,uk.ac.gda.epics.client.pixium,uk.ac.gda.oe,uk.ac.gda.swingclient,uk.ac.gda.video.rtp"/>
+<stringAttribute key="deselected_workspace_plugins" value="uk.ac.diamond.scisoft.analysis.polling,uk.ac.diamond.sda.meta.extended,uk.ac.diamond.sda.polling,uk.ac.gda.client.extensions,uk.ac.gda.dal,uk.ac.gda.devices.pixium,uk.ac.gda.dls,uk.ac.gda.dls.test,uk.ac.gda.epics.client.pixium,uk.ac.gda.video.rtp"/>
 <booleanAttribute key="includeOptional" value="true"/>
 <stringAttribute key="location" value="${workspace_loc}/../junit-workspace"/>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
