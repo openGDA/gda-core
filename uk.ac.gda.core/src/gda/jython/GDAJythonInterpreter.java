@@ -571,7 +571,8 @@ public class GDAJythonInterpreter {
 			logger.info("Running startupScript: {}", gdaStationScript);
 			try{
 				File localStation = new File(gdaStationScript);
-				this.runscript(localStation);
+				final String lines = JythonServerFacade.slurp(localStation);
+				this.runscript(lines);
 				logger.info("Completed startupScript");
 			} catch(Exception e){
 				logger.error("Error running startupScript",e);
@@ -603,16 +604,13 @@ public class GDAJythonInterpreter {
 	/**
 	 * Runs the script updating the CommandServer status as it goes.
 	 *
-	 * @param input
-	 *            File
-	 * @throws IOException
+	 * @param input script to run
 	 */
-	protected void runscript(File input) throws IOException {
+	protected void runscript(String input) {
 		// pass entire script to interpreter
 		JythonServerFacade.getInstance().setScriptStatus(Jython.RUNNING);
 		try{
-			String lines = JythonServerFacade.slurp(input);
-			exec(lines);
+			exec(input);
 		} finally{
 			JythonServerFacade.getInstance().setScriptStatus(Jython.IDLE);
 		}

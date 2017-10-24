@@ -22,7 +22,6 @@ package gda.jython;
 import static java.text.MessageFormat.format;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
@@ -1243,20 +1242,8 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 
 		@Override
 		public void run() {
-			String fileoutName = "";
 			try {
-				// open up a new file
-				fileoutName = LocalProperties.getVarDir() + ".tempScript2";
-				File out = new File(fileoutName);
-				try (FileWriter buf = new FileWriter(out)) {
-					// write the command to file
-					buf.write(cmd);
-				}
-				// then run the file
-				this.interpreter.runscript(out);
-			} catch (IOException e) {
-				logger.error("CommandServer: error while writing temporary script file: {}", fileoutName, e);
-				server.setScriptStatus(Jython.IDLE, null);
+				this.interpreter.runscript(cmd);
 			} catch (Exception e) {
 				if (e.getCause() instanceof ScanInterruptedException) {
 					logger.info("CommandServer: {}", e.getCause().getMessage());
