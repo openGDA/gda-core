@@ -322,7 +322,7 @@ public class MockJythonServerFacade implements IDefaultScannableProvider, ICurre
 	}
 
 	@Override
-	public boolean runsource(String command, String source) {
+	public boolean runsource(String command) {
 		return true;
 	}
 
