@@ -46,6 +46,7 @@ import gda.configuration.properties.LocalProperties;
 import gda.data.scan.datawriter.NexusDataWriter;
 import gda.data.scan.datawriter.scannablewriter.ScannableWriter;
 import gda.data.scan.datawriter.scannablewriter.SingleScannableWriter;
+import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.EnumPositioner;
 import gda.device.Scannable;
@@ -53,6 +54,7 @@ import gda.device.ScannableMotion;
 import gda.device.ScannableMotionUnits;
 import gda.device.scannable.ScannablePositionChangeEvent;
 import gda.device.scannable.ScannableStatus;
+import gda.device.scannable.scannablegroup.ScannableGroup;
 import gda.observable.IObserver;
 
 /**
@@ -164,12 +166,19 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 		}
 
 		this.scannable = scannable;
-		try {
-			this.previousPosition = scannable.getPosition();
-		} catch (DeviceException e) {
-			logger.error("Could not get position of scananble ''{}''", scannable.getName(), e);
+		if (canReadPosition()) {
+			try {
+				this.previousPosition = scannable.getPosition();
+			} catch (DeviceException e) {
+				logger.error("Could not get position of scananble ''{}''", scannable.getName(), e);
+			}
+			this.scannable.addIObserver(this);
 		}
-		this.scannable.addIObserver(this);
+	}
+
+	public boolean canReadPosition() {
+		// don't read the positions of scannable groups or detectors
+		return !(scannable instanceof ScannableGroup || scannable instanceof Detector);
 	}
 
 	public Scannable getScannable() {
@@ -208,7 +217,7 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 
 		nexusObject = createNexusObject(info);
 
-		String defaultDataField = outputFieldNames.size() > 0 ? outputFieldNames.get(0) : null;
+		String defaultDataField = outputFieldNames.isEmpty() ? null : outputFieldNames.get(0);
 		NexusObjectWrapper<N> nexusDelegate = new NexusObjectWrapper<>(
 						scannable.getName(), nexusObject, defaultDataField);
 		if (info.getScanRole(getName()) == ScanRole.SCANNABLE) {
@@ -289,9 +298,12 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 
 	@Override
 	public Object getPosition() throws Exception {
-		final Object position = getScannable().getPosition();
-		firePositionChanged(position); // only fires if the position has changed
-		return position;
+		if (canReadPosition()) {
+			final Object position = getScannable().getPosition();
+			firePositionChanged(position); // only fires if the position has changed
+			return position;
+		}
+		return null;
 	}
 
 	@Override
@@ -391,10 +403,7 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 			if (nxClass != null && nxClass instanceof String) {
 				return NexusBaseClass.getBaseClassForName((String) nxClass);
 			}
-		} catch (IllegalArgumentException e) {
-			logger.error("Error getting NXclass for device: " + getName(), e);
-			throw new RuntimeException("Error getting NXclass for device: " + getName(), e);
-		} catch (DeviceException e) {
+		} catch (Exception e) {
 			logger.error("Error getting NXclass for device: " + getName(), e);
 			throw new RuntimeException("Error getting NXclass for device: " + getName(), e);
 		}
@@ -592,10 +601,9 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 		// write the actual position (potentially multi-valued)
 		int fieldIndex = 0;
 		SliceND sliceND = getSliceForPosition(scanPosition); // the location in each dataset to write to
-		for (String fieldName : writableDatasets.keySet()) {
+		for (ILazyWriteableDataset dataset : writableDatasets.values()) {
 			// we rely on predictable iteration order for LinkedHashSet of writable datasets
 			final IDataset value = DatasetFactory.createFromObject(actualPosition[fieldIndex]);
-			ILazyWriteableDataset dataset = writableDatasets.get(fieldName);
 			dataset.setSlice(null, value, sliceND);
 			fieldIndex++;
 		}
@@ -655,20 +663,22 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 			return;
 		}
 
-		Object newPosition = null;
-		if (arg instanceof ScannablePositionChangeEvent) {
-			newPosition = ((ScannablePositionChangeEvent) arg).newPosition;
-		} else if (isValueType(arg.getClass())) {
-			newPosition = arg;
-		} else {
-			try { // just get the new position from the scannable
-				newPosition = scannable.getPosition();
-			} catch (Exception e) {
-				logger.error("Could not get current position of scannable {}", getName());
+		if (canReadPosition()) {
+			Object newPosition = null;
+			if (arg instanceof ScannablePositionChangeEvent) {
+				newPosition = ((ScannablePositionChangeEvent) arg).newPosition;
+			} else if (isValueType(arg.getClass())) {
+				newPosition = arg;
+			} else {
+				try { // just get the new position from the scannable
+					newPosition = scannable.getPosition();
+				} catch (Exception e) {
+					logger.error("Could not get current position of scannable {}", getName());
+				}
 			}
-		}
 
-		firePositionChanged(newPosition);
+			firePositionChanged(newPosition);
+		}
 	}
 
 	private void firePositionChanged(Object newPosition) {
@@ -694,11 +704,11 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 			String.class, Character.class,
 			Boolean.class));
 
-	private static boolean isValueType(Class<?> _class) {
-		if (_class.isArray()) {
-			_class = _class.getComponentType();
+	private static boolean isValueType(Class<?> klass) {
+		if (klass.isArray()) {
+			klass = klass.getComponentType();
 		}
-		return VALUE_TYPES.contains(_class) || _class.isEnum();
+		return VALUE_TYPES.contains(klass) || klass.isEnum();
 	}
 
 }
