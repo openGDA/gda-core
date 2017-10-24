@@ -337,7 +337,7 @@ public abstract class AbstractScanPlotView extends AbstractPlotView implements S
 		try {
 			UIScanDataPointEventService.getInstance().removeScanPlotListener(this);
 		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
+			logger.error("Could not remove self from scan plot listeners", e);
 		}
 		super.dispose();
 	}

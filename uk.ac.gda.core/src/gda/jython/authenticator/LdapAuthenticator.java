@@ -27,7 +27,6 @@ import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.ldap.InitialLdapContext;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -114,7 +113,7 @@ public class LdapAuthenticator implements Authenticator {
 			//if no exception then password is OK
 			return true;
 		} catch (AuthenticationException ae) {
-			logger.error("LDAP AuthenticationException: " + StringEscapeUtils.escapeJava(ae.getMessage()));
+			logger.error("Error authenticating '{}' using '{}'", fedId, ldapURL, ae);
 		} finally {
 			if (ctx != null){
 				try {

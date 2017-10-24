@@ -406,7 +406,7 @@ public class CoboldTDC extends DetectorBase implements AsynchronousDetector, Cob
 		try {
 			new GdaSubProcessBuilder().runCommand(coboldPCCMD, false, command);
 		} catch (RuntimeException e) {
-			logger.error(e.getMessage());
+			logger.error("Error running command '{}'", command, e);
 		}
 	}
 
@@ -421,7 +421,7 @@ public class CoboldTDC extends DetectorBase implements AsynchronousDetector, Cob
 		try {
 			new GdaSubProcessBuilder().runCommand(coboldPCCMD, true, command);
 		} catch (RuntimeException e) {
-			logger.error(e.getMessage());
+			logger.error("Error running command '{}'", command, e);
 		}
 
 	}
@@ -458,7 +458,7 @@ public class CoboldTDC extends DetectorBase implements AsynchronousDetector, Cob
 					startCollecting();
 				}
 			} catch (DeviceException e) {
-				logger.error("DeviceException in CoboldTDC.StartCoboldScan: " + e.getMessage());
+				logger.error("Error in {}.startCoboldScan({})", getName(), newCommand, e);
 				notifyIObservers(this, new Integer(Detector.IDLE));
 			}
 		} else {

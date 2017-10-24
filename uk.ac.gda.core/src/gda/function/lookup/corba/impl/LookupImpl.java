@@ -97,7 +97,7 @@ public class LookupImpl extends CorbaLookupPOA implements IObserver {
 		try {
 			return theObject.getNumberOfRows();
 		} catch (DeviceException e) {
-			logger.error(e.getMessage(), e);
+			logger.error("Could not get number of rows", e);
 			throw new CorbaDeviceException(e.getMessage());
 		}
 	}
@@ -112,7 +112,7 @@ public class LookupImpl extends CorbaLookupPOA implements IObserver {
 			}
 			return result;
 		} catch (DeviceException e) {
-			logger.error(e.getMessage(), e);
+			logger.error("Could not get scannable names", e);
 			throw new CorbaDeviceException(e.getMessage());
 		}
 	}
@@ -122,7 +122,7 @@ public class LookupImpl extends CorbaLookupPOA implements IObserver {
 		try {
 			return theObject.lookupDecimalPlaces(arg0);
 		} catch (DeviceException e) {
-			logger.error(e.getMessage(), e);
+			logger.error("Could not look up decimal places for {}", arg0, e);
 			throw new CorbaDeviceException(e.getMessage());
 		}
 	}
@@ -132,7 +132,7 @@ public class LookupImpl extends CorbaLookupPOA implements IObserver {
 		try {
 			return theObject.lookupUnitString(arg0);
 		} catch (DeviceException e) {
-			logger.error(e.getMessage(), e);
+			logger.error("Could not lookup unit string for {}", arg0, e);
 			throw new CorbaDeviceException(e.getMessage());
 		}
 	}
@@ -142,7 +142,7 @@ public class LookupImpl extends CorbaLookupPOA implements IObserver {
 		try {
 			return theObject.lookupValue(arg0, arg1);
 		} catch (DeviceException e) {
-			logger.error(e.getMessage(), e);
+			logger.error("Could not lookup up {} value for energy {}", arg1, arg0, e);
 			throw new CorbaDeviceException(e.getMessage());
 		}
 	}
@@ -157,7 +157,7 @@ public class LookupImpl extends CorbaLookupPOA implements IObserver {
 		try {
 			return theObject.getLookupKeys();
 		} catch (DeviceException e) {
-			logger.error(e.getMessage(), e);
+			logger.error("Could not get look up keys", e);
 			throw new CorbaDeviceException(e.getMessage());
 		}
 	}

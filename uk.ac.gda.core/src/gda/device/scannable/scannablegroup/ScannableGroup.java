@@ -361,7 +361,7 @@ public class ScannableGroup extends ScannableBase implements Configurable, IScan
 				}
 			}
 		} catch (Exception e) {
-			throw new DeviceException("Exception occurred during " + getName() + " getPosition(): " + e.getMessage());
+			throw new DeviceException("Exception occurred during {}.getPosition()", getName(), e);
 		}
 
 		return position;

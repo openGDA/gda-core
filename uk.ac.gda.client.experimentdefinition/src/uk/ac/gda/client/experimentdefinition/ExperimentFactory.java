@@ -189,7 +189,7 @@ public class ExperimentFactory {
 				}
 
 			} catch (CoreException e) {
-				logger.error("Exception getting ExperimentEditorManager: " + e.getMessage(), e);
+				logger.error("Exception getting ExperimentEditorManager", e);
 			}
 		}
 

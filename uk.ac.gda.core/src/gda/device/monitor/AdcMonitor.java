@@ -119,7 +119,7 @@ public class AdcMonitor extends MonitorBase implements Monitor, Runnable, Scanna
 				notifyIObservers(this, value);
 				wait(pollTime);
 			} catch (DeviceException e) {
-				logger.error("Error reading adc voltage " + e.getMessage());
+				logger.error("Error reading adc voltage", e);
 			} catch (InterruptedException ie) {
 				// do nothing just try again
 			}

@@ -180,7 +180,7 @@ public class PolarimeterConcurrentScan extends PolarimeterGridScan implements Sc
 			nestChildScans();
 
 		} catch (Exception e) {
-			throw new IllegalArgumentException("Error while creating scan: " + e.getMessage());
+			throw new IllegalArgumentException("Error while creating scan", e);
 		}
 
 	}

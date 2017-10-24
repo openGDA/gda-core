@@ -39,7 +39,7 @@ public class IsStaffPropertyTester extends PropertyTester {
 			try {
 				return AuthoriserProvider.getAuthoriser().isLocalStaff(UserAuthentication.getUsername());
 			} catch (ClassNotFoundException e) {
-				logger.warn("Exception when trying to identify user as staff: " + e.getMessage());
+				logger.warn("Exception when trying to identify user as staff", e);
 				return false;
 			}
 		}

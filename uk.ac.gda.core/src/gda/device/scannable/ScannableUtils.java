@@ -171,9 +171,9 @@ public final class ScannableUtils {
 		try {
 			position = scannable.getPosition();
 		} catch (PyException e) {
-			throw new DeviceException("error fetching " + scannable.getName() + " position: " + e.toString());
+			throw new DeviceException("error fetching " + scannable.getName() + " position", e);
 		} catch (Exception e) {
-			throw new DeviceException("error fetching " + scannable.getName() + " position: " + e.getMessage(), e);
+			throw new DeviceException("error fetching " + scannable.getName() + " position", e);
 		}
 		return getFormattedPosition(position, scannable, unitStringArray, offsetArray);
 	}
@@ -208,8 +208,7 @@ public final class ScannableUtils {
 			throw new DeviceException("error formatting position string of '" + scannable.getName() + "': "
 					+ e.toString());
 		} catch (Exception e) {
-			throw new DeviceException("error formatting position string of '" + scannable.getName() + "': "
-					+ e.getMessage(), e);
+			throw new DeviceException("error formatting position string of '" + scannable.getName() + "'", e);
 		}
 
 		// most of the time its a single number
@@ -272,8 +271,7 @@ public final class ScannableUtils {
 				}
 			}
 		} catch (Exception e) {
-			throw new DeviceException("error formatting offset string of '" + scannable.getName() + "': "
-					+ e.getMessage(), e);
+			throw new DeviceException("error formatting offset string of '" + scannable.getName(), e);
 		}
 		return formatedOffsetArray;
 
@@ -319,7 +317,7 @@ public final class ScannableUtils {
 		try {
 			position = scannable.getPosition();
 		} catch (Exception e) {
-			throw new DeviceException("error fetching " + scannable.getName() + " position: " + e.getMessage(), e);
+			throw new DeviceException("error fetching " + scannable.getName() + " position", e);
 		}
 		try {
 			return getFormattedCurrentPositionArray(position,
@@ -328,8 +326,7 @@ public final class ScannableUtils {
 			throw new DeviceException("error formatting position string of " + scannable.getName() + ": "
 					+ e.toString());
 		} catch (Exception e) {
-			throw new DeviceException("error formatting position string of '" + scannable.getName() + "': "
-					+ e.getMessage(), e);
+			throw new DeviceException("error formatting position string of '" + scannable.getName() + "'", e);
 		}
 	}
 

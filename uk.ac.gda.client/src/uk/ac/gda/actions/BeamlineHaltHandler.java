@@ -51,7 +51,7 @@ public class BeamlineHaltHandler extends AbstractHandler {
 
 			return Boolean.TRUE;
 		} catch (Exception ne) {
-			throw new ExecutionException(ne.getMessage(), ne);
+			throw new ExecutionException("Error running beamlineHalt", ne);
 		}
 	}
 

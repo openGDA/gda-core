@@ -236,7 +236,7 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IScannab
 				throw new DeviceException(getName() + ".rawAsynchronousMoveTo() could not convert "
 						+ internalPosition.toString() + " to a double.");
 			} catch (MotorException e) {
-				throw new DeviceException(e.getMessage(), e);
+				throw new DeviceException("Error during async move to", e);
 			}
 			demandMsgShown = false;
 		}
@@ -256,7 +256,7 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IScannab
 		try {
 			return motor.getPosition();
 		} catch (MotorException e) {
-			throw new DeviceException(e.getMessage(), e);
+			throw new DeviceException("Error getting position", e);
 		}
 	}
 
@@ -350,7 +350,7 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IScannab
 			}
 			return this.motor.getStatus() == MotorStatus.BUSY;
 		} catch (MotorException e) {
-			throw new DeviceException(e.getMessage(), e);
+			throw new DeviceException("Error getting busy status", e);
 		}
 	}
 
@@ -395,7 +395,7 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IScannab
 		try {
 			this.motor.stop();
 		} catch (MotorException e) {
-			throw new DeviceException(e.getMessage(), e);
+			throw new DeviceException("Could not stop motor", e);
 		}
 	}
 
@@ -552,8 +552,8 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IScannab
 				return motor.getSpeed();
 			}
 		} catch (MotorException e) {
-			logger.error(getName() + ": exception while getting speed from motor. ", e);
-			throw new DeviceException(e.getMessage(), e);
+			logger.error("{}: exception while getting speed from motor. ", getName(), e);
+			throw new DeviceException("Could not get speed", e);
 		}
 		return -1;
 	}
@@ -573,7 +573,7 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IScannab
 			}
 		} catch (MotorException e) {
 			logger.error(getName() + ": exception while setting speed of motor. ", e);
-			throw new DeviceException(e.getMessage(), e);
+			throw new DeviceException("Could not set speed to " + theSpeed, e);
 		}
 	}
 
@@ -586,7 +586,7 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IScannab
 			return motor.getTimeToVelocity();
 		} catch (MotorException me) {
 			logger.error(String.format("%s: unable to get time to velocity", getName()), me);
-			throw new DeviceException(me.getMessage(), me);
+			throw new DeviceException("Couldn't get time to velocity", me);
 		}
 	}
 
@@ -598,8 +598,8 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IScannab
 		try {
 			motor.setTimeToVelocity(timeToVelocity);
 		} catch (MotorException me) {
-			logger.error(String.format("%s: unable to set time to velocity", getName()), me);
-			throw new DeviceException(me.getMessage(), me);
+			logger.error("{}: unable to set time to velocity to {}", getName(), timeToVelocity, me);
+			throw new DeviceException("Could not set timeToVelocity to " + timeToVelocity, me);
 		}
 	}
 

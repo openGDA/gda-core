@@ -105,7 +105,7 @@ public class BeamlineConfigurationManager implements Findable, Configurable, Loc
 			em = LocalPersistence.createPersistenceEntityManagerFactory("BcmPersistenceUnit").createEntityManager();
 		} catch (LocalDatabaseException e) {
 			logger.debug("SourceException", e);
-			throw new FactoryException(e.getMessage());
+			throw new FactoryException("Could not access LocalPersistence", e);
 		}
 
 		try {
@@ -123,7 +123,7 @@ public class BeamlineConfigurationManager implements Findable, Configurable, Loc
 			}
 		} catch (ObjectShelfException | LocalDatabaseException | BcmException e) {
 			logger.debug("SourceException", e);
-			throw new FactoryException(e.getMessage());
+			throw new FactoryException("Could not get last used mode", e);
 		}
 	}
 

@@ -19,10 +19,10 @@
 
 package gda.device.memory;
 
-import gda.device.DeviceException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.device.DeviceException;
 
 /**
  * A memory class for the VME Generic data acquisition histogramming memory card implemented using DA.Server
@@ -62,17 +62,16 @@ public class Scaler extends Gdhist {
 			data = daServer.getFloatBinaryData("read " + t + " " + y + " " + x + " " + dt + " " + dy + " " + dx + " "
 					+ localEndian + " float from " + handle, npoints);
 		} catch (Exception e) {
-			throwDeviceException(e);
+			throw new DeviceException(
+					String.format("Error reading float data (%d, %d, %d, %d, %d, %d)",
+							x, y, t, dx, dy, dt),
+					e);
 		}
 
 		if (data == null) {
 			throwNullException();
 		}
 		return data;
-	}
-
-	private void throwDeviceException(Exception e) throws DeviceException {
-		throw new DeviceException(e.getMessage(),e);
 	}
 
 	private void throwNullException() throws DeviceException {
@@ -94,7 +93,7 @@ public class Scaler extends Gdhist {
 			data = daServer.getFloatBinaryData("read " + frame + " 0 0 1 1 " + totalFrames + " " + localEndian
 					+ " float from " + handle, npoints);
 		} catch (Exception e) {
-			throwDeviceException(e);
+			throw new DeviceException("Error reading float data, frame: " + frame, e);
 		}
 		if (data == null) {
 			throwNullException();
@@ -113,7 +112,10 @@ public class Scaler extends Gdhist {
 			data = daServer.getBinaryData("read " + t + " " + y + " " + x + " " + dt + " " + dy + " " + dx + " "
 					+ localEndian + " float from " + handle, npoints);
 		} catch (Exception e) {
-			throwDeviceException(e);
+			throw new DeviceException(
+					String.format("Error reading float data (%d, %d, %d, %d, %d, %d)",
+							x, y, t, dx, dy, dt),
+					e);
 		}
 		if (data == null) {
 			throwNullException();
@@ -134,7 +136,7 @@ public class Scaler extends Gdhist {
 			data = daServer.getBinaryData("read " + frame + " 0 0 1 1 " + totalFrames + " " + localEndian + " float from "
 					+ handle, npoints);
 		} catch (Exception e) {
-			throwDeviceException(e);
+			throw new DeviceException("Error reading double data, frame: " + frame, e);
 		}
 		if (data == null) {
 			throwNullException();

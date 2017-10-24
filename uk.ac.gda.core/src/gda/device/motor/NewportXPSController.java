@@ -19,12 +19,6 @@
 
 package gda.device.motor;
 
-import gda.device.DeviceBase;
-import gda.factory.Findable;
-import gda.jython.JythonServerFacade;
-import gda.util.BusyFlag;
-import gda.util.SocketBundle;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -35,6 +29,12 @@ import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.device.DeviceBase;
+import gda.factory.Findable;
+import gda.jython.JythonServerFacade;
+import gda.util.BusyFlag;
+import gda.util.SocketBundle;
 
 /**
  * Used by NewportXPSMotor as the point of communication with the actual hardware. It is important to note that this
@@ -172,13 +172,13 @@ public class NewportXPSController extends DeviceBase implements Findable {
 				writer.flush();
 				logger.debug("CONTROLLER WRITE NO WAIT OK" + s.getId());
 			} catch (IOException ex) {
-				logger.error("XPSController: NOK: " + ex.getMessage());
+				logger.error("Could not write {} to socket", message, ex);
 				s.closeSocket();
 			}
 		} catch (IOException ex) {
 			// failed to open socket
 			errnum = "1";
-			logger.error("XPSController: failed to create socket in xpswrite: " + ex.getMessage());
+			logger.error("Failed to create socket in xpswrite", ex);
 		} finally {
 			unlock();
 		}
@@ -209,13 +209,13 @@ public class NewportXPSController extends DeviceBase implements Findable {
 				writer.flush();
 				logger.debug("CONTROLLER WRITE NO WAIT OK" + s.getId());
 			} catch (IOException ex) {
-				logger.error("XPSController: NOK: " + ex.getMessage());
+				logger.error("Error writing '{}'", message, ex);
 				s.closeSocket();
 			}
 		} catch (IOException ex) {
 			// failed to open socket
 			errnum = "1";
-			logger.error("XPSController: failed to create socket in xpswrite: " + ex.getMessage());
+			logger.error("Failed to create socket in xpswrite", ex);
 		} finally {
 			unlock();
 		}
@@ -247,7 +247,7 @@ public class NewportXPSController extends DeviceBase implements Findable {
 				writer.flush();
 				logger.debug("CONTROLLER WRITE OK" + s.getId());
 			} catch (IOException ex) {
-				logger.error("XPSController: NOK: " + ex.getMessage());
+				logger.error("Could not write {} to socket", message, ex);
 				s.closeSocket();
 			}
 
@@ -259,7 +259,7 @@ public class NewportXPSController extends DeviceBase implements Findable {
 		} catch (IOException ex) {
 			// failed to open socket
 			errnum = "1";
-			logger.error("XPSController: failed to create socket in xpswrite: " + ex.getMessage());
+			logger.error("Failed to create socket in xpswrite", ex);
 		} finally {
 			unlock();
 		}
@@ -293,12 +293,11 @@ public class NewportXPSController extends DeviceBase implements Findable {
 						cc = (char) l;
 						sb.append(cc);
 						m = patt.matcher(sb.toString());
-						logger.debug("Newport xps " + "the readback value is " + sb);
+						logger.debug("Newport xps the readback value is {}", sb);
 					}
 				} while ((m == null) || (!m.matches() && l != -1));
 			} catch (IOException e) {
-				logger.error(e.getMessage());
-				logger.error(e.toString());
+				logger.error("Error while running PipeR", e);
 				errnum = "-999";
 				retValue = new String[] { e.toString() };
 				return;
@@ -364,12 +363,11 @@ public class NewportXPSController extends DeviceBase implements Findable {
 						cc = (char) l;
 						sb.append(cc);
 						m = patt.matcher(sb.toString());
-						logger.debug("Newport xps " + "the readback value is " + sb);
+						logger.debug("Newport xps the readback value is {}", sb);
 					}
 				} while ((m == null) || (!m.matches() && l != -1));
 			} catch (IOException e) {
-				logger.error(e.getMessage());
-				logger.error(e.toString());
+				logger.error("Error running PipeRwithHalt", e);
 				errnum = "-999";
 				retValue = new String[] { e.toString() };
 				return;

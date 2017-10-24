@@ -35,12 +35,20 @@ import org.eclipse.swt.widgets.ExpandItem;
 public class UIHelper {
 	private UIHelper() {}
 
+	public static void showError(final String message, final Exception cause) {
+		showMessage(MessageDialog.ERROR, message, cause.getMessage());
+	}
+
 	public static void showError(final String message, final String reason) {
 		showMessage(MessageDialog.ERROR, message, reason);
 	}
 
 	public static void showWarning(final String message, final String reason) {
 		showMessage(MessageDialog.WARNING, message, reason);
+	}
+
+	public static void showWarning(final String message, final Exception cause) {
+		showMessage(MessageDialog.WARNING, message, cause.getMessage());
 	}
 
 	private static void showMessage(final int messageDialogType, final String message, final String reason) {

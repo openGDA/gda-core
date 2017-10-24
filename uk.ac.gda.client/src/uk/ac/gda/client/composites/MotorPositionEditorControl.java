@@ -98,10 +98,8 @@ public class MotorPositionEditorControl extends NumberEditorControl {
 				return super.getFormattedText(value) + " (Moving to " + targetPosition + " " + controlModel.getUnit() + ")";
 			}
 		} catch (DeviceException e) {
-			// TODO This is a temporarily commented it out to avoid reading motor positions that are not ready
-			// UIHelper.showError("Error while reading the motor position", e.getMessage());
 			String name = ((ScannableWrapper) targetObject).getScannable().getName();
-			logger.warn("Error while reading the motor position for " + name);
+			logger.warn("Error while reading the motor position for {}", name, e);
 		}
 		return super.getFormattedText(value);
 	}

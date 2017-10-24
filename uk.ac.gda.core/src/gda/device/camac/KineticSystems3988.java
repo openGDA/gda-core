@@ -84,17 +84,18 @@ public class KineticSystems3988 extends DeviceBase implements Camac {
 	public void configure() {
 		// super.configure();
 
-		logger.debug("Camac KS3988: configuring instance" + getName() + ". Finding: Gpib Interface " + interfaceName);
+		logger.debug("Camac KS3988: configuring instance {}. Finding: Gpib Interface {}", getName(), interfaceName);
 
 		if ((gpib = (Gpib) Finder.getInstance().find(interfaceName)) == null) {
-			logger.debug("Camac KS3988: Gpib Board " + interfaceName + " not found");
+			logger.debug("Camac KS3988: Gpib Board {} not found", interfaceName);
 		} else {
 			try {
 				// Initialise KS3988 Controller via GPIB interface
 				initialiseKS3988();
 			} catch (DeviceException de) {
-				logger.debug("Camac KS3988: Exception occured in configuring Camac instance " + getName()
-						+ " Gpib Interface " + interfaceName + de.getMessage());
+				logger.debug("Camac KS3988: Exception occured in configuring Camac instance {} Gpib Interface {}",
+						getName(),
+						interfaceName, de);
 			}
 		}
 	}
@@ -109,16 +110,16 @@ public class KineticSystems3988 extends DeviceBase implements Camac {
 		// gpib.setTerminator(deviceName, READ_TERMINATOR);
 		// gpib.setReadTermination(deviceName, true);
 
-		logger.debug("Camac KS3988: Setting Gpib Timeout " + deviceName);
+		logger.debug("Camac KS3988: Setting Gpib Timeout {}", deviceName);
 
 		gpib.setTimeOut(deviceName, timeout);
 
-		logger.debug("Camac KS3988: Finding Gpib Device " + deviceName);
+		logger.debug("Camac KS3988: Finding Gpib Device {}", deviceName);
 
 		// find the device to make sure it is actually connected to gpib
 		camacUid = new Integer(gpib.findDevice(deviceName));
 
-		logger.debug("Camac KS3988: Gpib Device " + deviceName + " found " + camacUid);
+		logger.debug("Camac KS3988: Gpib Device {} found {}", deviceName, camacUid);
 
 		// make sure interface is not in error state
 		gpib.sendInterfaceClear(deviceName);
@@ -455,7 +456,7 @@ public class KineticSystems3988 extends DeviceBase implements Camac {
 
 		} catch (DeviceException de) {
 			// succeeded = false;
-			logger.debug("Camac KS3988: DeviceException occurred in camacBlockRead");
+			logger.debug("Camac KS3988 ({}): DeviceException occurred in camacBlockRead", getName());
 
 			camacBlockTidy(/* status */);
 			return 0; // NOT_ALL_MOTORS_SUCCEEDED
@@ -619,13 +620,13 @@ public class KineticSystems3988 extends DeviceBase implements Camac {
 
 				camacBlockRead(nCycle, nafData, data/* , status */);
 			} else {
-				logger.debug("Camac KS3988: CFUBC Writes NOT supported in Gpib");
+				logger.debug("Camac KS3988 {}: CFUBC Writes NOT supported in Gpib", getName());
 				return 0;
 			}
 			break;
 
 		default:
-			logger.debug("Camac KS3988: Unknown Camac call " + camacCall);
+			logger.debug("Camac KS3988: Unknown Camac call {}", camacCall);
 			break;
 		}
 

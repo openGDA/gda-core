@@ -57,8 +57,7 @@ public class BeforeCheckScannable extends ScannableMotionUnitsBase {
 			delegate.moveTo(position);
 		}
 		catch (IllegalStateException e) {
-			logger.warn(e.getMessage());
-			logger.debug("not moving {} as {} at {}", delegate.getName(), beforeCheck.getName(), beforeCheck.getPosition(), e);
+			logger.warn("not moving {} as {} at {}", delegate.getName(), beforeCheck.getName(), beforeCheck.getPosition(), e);
 		}
 	}
 

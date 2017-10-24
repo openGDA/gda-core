@@ -201,7 +201,7 @@ public class MotorPositionViewer {
 					String msg = "Unable to check the validity of the input position, no move will be performed.";
 					logger.error(msg, e1);
 					if (isPopupOnInvalidPosition()) {
-						UIHelper.showError(msg, String.format("%s\n\n%s", e1.getMessage(), e1.getStackTrace().toString()));
+						UIHelper.showError(msg, e1);
 					}
 					return;
 				}
@@ -253,7 +253,7 @@ public class MotorPositionViewer {
 
 								demandPrev = demand;
 							} catch (DeviceException e) {
-								logger.error("Exception: " + msg + " " + e.getMessage(),e);
+								logger.error(msg, e);
 							}
 							refresh();
 							return Status.OK_STATUS;

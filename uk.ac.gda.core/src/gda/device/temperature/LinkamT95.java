@@ -19,18 +19,18 @@
 
 package gda.device.temperature;
 
+import java.util.ArrayList;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+
 import gda.device.DeviceException;
 import gda.device.SerialReaderWriter;
 import gda.device.TemperatureRamp;
 import gda.device.TemperatureStatus;
 import gda.factory.FactoryException;
 import gda.util.PollerEvent;
-
-import java.util.ArrayList;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 
 /**
  * Class to control a LinkamCI Those computer interface boxes control the Linkam range of heating/freezing stages. They
@@ -85,9 +85,9 @@ public class LinkamT95 extends TemperatureBase implements InitializingBean {
 			getCurrentTemperature();
 			Thread.sleep(50);
 		} catch (DeviceException e) {
-			throw new FactoryException(e.getMessage());
+			throw new FactoryException("Error getting temperature while configuring " + getName(), e);
 		} catch (InterruptedException e) {
-			throw new FactoryException(e.getMessage());
+			throw new FactoryException("Interupted while configuring " + getName(), e);
 		}
 		if ((stage = createStage()) != null) {
 			stage.sendStartupCommands();
@@ -101,7 +101,7 @@ public class LinkamT95 extends TemperatureBase implements InitializingBean {
 			setPumpAuto(true);
 			Thread.sleep(50);
 		} catch (InterruptedException e) {
-			throw new FactoryException(e.getMessage());
+			throw new FactoryException("Interrupted while setting pump to auto " + getName(), e);
 		}
 		startPoller();
 		configured = true;
@@ -313,7 +313,7 @@ public class LinkamT95 extends TemperatureBase implements InitializingBean {
 			}
 			stage.pollDone(pe);
 		} catch (DeviceException de) {
-			logger.error(debugName + "pollDone() caught DeviceException" + de.getMessage());
+			logger.error("Error responding to poll event in pollDone", de);
 		}
 	}
 
@@ -406,7 +406,7 @@ public class LinkamT95 extends TemperatureBase implements InitializingBean {
 				}
 			}
 		} catch (DeviceException de) {
-			logger.error(debugName + ".createStage() caught DeviceException" + de.getMessage());
+			logger.error("Error creating stage", de);
 		}
 		return stage;
 	}

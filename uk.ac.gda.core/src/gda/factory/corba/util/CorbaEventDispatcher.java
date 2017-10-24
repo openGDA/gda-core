@@ -88,7 +88,7 @@ public class CorbaEventDispatcher extends PushSupplierPOA implements EventDispat
 		try {
 			consumer.connect_push_supplier(_this(orb));
 		} catch (AlreadyConnected ex) {
-			logger.error(ex.getMessage(), ex);
+			logger.error("Channel already connected", ex);
 			System.exit(1);
 		}
 	}

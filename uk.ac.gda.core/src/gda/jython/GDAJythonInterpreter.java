@@ -496,8 +496,7 @@ public class GDAJythonInterpreter {
 				runStationStartupScript();
 
 			} catch (Exception ex) {
-				String message = "GDAJythonInterpreter: error while initialising " + ex.getMessage();
-				logger.error(message, ex);
+				logger.error("GDAJythonInterpreter: error while initialising", ex);
 				throw ex;
 			} finally {
 				initialized = true;

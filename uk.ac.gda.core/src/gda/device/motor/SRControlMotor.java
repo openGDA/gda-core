@@ -19,13 +19,13 @@
 
 package gda.device.motor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
 import gda.device.MotorException;
 import gda.device.MotorStatus;
 import gda.factory.Finder;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * SRControl 'motor' class to drive SR control network virtual motor
@@ -82,7 +82,7 @@ public class SRControlMotor extends MotorBase {
 				logger.debug("Loaded motor position " + currentPosition);
 			}
 		} catch (Exception e) {
-			logger.error("configure caught {}", e.getMessage());
+			logger.error("Error configuring {}", getName(), e);
 		}
 	}
 
@@ -139,20 +139,20 @@ public class SRControlMotor extends MotorBase {
 		try {
 			srControl.getValue(deviceID, SRControlInterface.GET_VALUE, value);
 		} catch (DeviceException e) {
-			throw (new MotorException(MotorStatus.FAULT, "DeviceException in " + signature + " moveBy(): \n"
-					+ e.getMessage()));
+			throw new MotorException(MotorStatus.FAULT, "Error moving " + signature + " by " + increment, e);
 		}
 		// Check within limits
 		value[0] += increment;
 		if (value[0] > maxPosition || value[0] < minPosition) {
-			throw (new MotorException(MotorStatus.FAULT, signature + "moveBy():  value outside limits"));
+			throw new MotorException(
+					MotorStatus.FAULT,
+					String.format("%f outside limits of (%f, %f) for %s", value[0], minPosition, maxPosition, signature));
 		}
 		try {
 			value[0] = increment;
 			srControl.setValue(deviceID, SRControlInterface.SET_VALUE, value);
 		} catch (DeviceException e) {
-			throw (new MotorException(MotorStatus.FAULT, "DeviceException in " + signature + " moveBy(): \n"
-					+ e.getMessage()));
+			throw new MotorException(MotorStatus.FAULT, "Error moving " + signature + " by " + increment, e);
 		}
 	}
 
@@ -175,9 +175,8 @@ public class SRControlMotor extends MotorBase {
 			value[0] = position;
 			srControl.setValue(deviceID, SRControlInterface.SET_VALUE, value);
 		} catch (DeviceException e) {
-			logger.error(signature + " throwing MotorException in moveTo with message " + e.getMessage());
-			throw (new MotorException(MotorStatus.FAULT, "DeviceException in " + signature + " moveTo(): \n"
-					+ e.getMessage()));
+			logger.error("Error moving {} to {}", getName(), position);
+			throw new MotorException(MotorStatus.FAULT, "Error moving " + signature + " to " + position, e);
 		}
 	}
 
@@ -219,9 +218,8 @@ public class SRControlMotor extends MotorBase {
 			srControl.getValue(deviceID, SRControlInterface.GET_VALUE, value);
 			currentPosition = value[0];
 		} catch (DeviceException e) {
-			logger.error(signature + " throwing MotorException in getPosition with message " + e.getMessage());
-			throw (new MotorException(MotorStatus.FAULT, "DeviceException in " + signature + " getPosition(): \n"
-					+ e.getMessage()));
+			logger.error("Error getting position of {}", signature, e);
+			throw new MotorException(MotorStatus.FAULT, "Could not get position of " + signature, e);
 		}
 		return value[0];
 	}
@@ -328,10 +326,9 @@ public class SRControlMotor extends MotorBase {
 				}
 			}
 		} catch (DeviceException e) {
-			logger.error(signature + " throwing MotorException in getStatus with message " + e.getMessage());
+			logger.error("Could not get status of {}", signature, e);
 			status = MotorStatus.FAULT;
-			throw new MotorException(MotorStatus.FAULT, "DeviceException in " + signature + " getStatus(): \n"
-					+ e.getMessage());
+			throw new MotorException(MotorStatus.FAULT, "Could not get status for " + signature, e);
 		}
 
 		logger.debug("SRControlMotor.getStatus() " + getName() + " returning status " + status.value());
@@ -360,10 +357,9 @@ public class SRControlMotor extends MotorBase {
 			}
 
 		} catch (DeviceException e) {
-			logger.error(signature + " throwing MotorException in isMoving with message " + e.getMessage());
+			logger.error("Error checking if {} is moving", signature, e);
 			motorMoving = false;
-			throw (new MotorException(MotorStatus.FAULT, "DeviceException in " + signature + " isMoving(): \n"
-					+ e.getMessage()));
+			throw new MotorException(MotorStatus.FAULT, "Could not check if " +  signature + " was moving", e);
 		}
 		logger.debug("SRControlMotor.isMoving() " + getName() + "returning " + motorMoving);
 		return motorMoving;
@@ -392,8 +388,9 @@ public class SRControlMotor extends MotorBase {
 			srControl.setValue(deviceID, SRControlInterface.SET_MAXVALUE, value);
 			maxPosition = maximum;
 		} catch (DeviceException e) {
-			throw (new MotorException(MotorStatus.FAULT, "DeviceException in " + signature + " setSoftLimits(): \n"
-					+ e.getMessage()));
+			throw new MotorException(MotorStatus.FAULT,
+					String.format("Could not set %s soft limits to (%f, %f)", signature, minimum, maximum),
+					e);
 		}
 
 	}
@@ -413,8 +410,7 @@ public class SRControlMotor extends MotorBase {
 			srControl.getValue(deviceID, SRControlInterface.GET_MAXVALUE, value);
 			maxPosition = value[0];
 		} catch (DeviceException e) {
-			throw (new MotorException(MotorStatus.FAULT, "DeviceException in " + signature + " getSoftLimits(): \n"
-					+ e.getMessage()));
+			throw new MotorException(MotorStatus.FAULT, "Could not get soft limits for " + signature, e);
 		}
 
 	}
@@ -496,16 +492,12 @@ public class SRControlMotor extends MotorBase {
 				retVal = value[0];
 			} catch (MotorException e) {
 				// NB since this method is used inside the getAttribute method
-				// it
-				// must
-				// perversely
-				// convert the MotorException into a DeviceException. (Because
-				// getAttribute is
-				// from Device not Motor.)
-				logger.error("SRControlMotor.getZeroMode() caught MotorException with message: " + e.getMessage());
-				throw new DeviceException(e.getMessage());
+				// it must perversely convert the MotorException into a DeviceException.
+				// (Because getAttribute is from Device not Motor.)
+				logger.error("Could not getZeroMode for {}", signature, e);
+				throw new DeviceException("Could not getZeroMode for " + signature, e);
 			} catch (DeviceException e) {
-				logger.error("SRControlMotor.getZeroMode() caught DeviceException with message: " + e.getMessage());
+				logger.error("Could not getZeroMode for {}", signature, e);
 				throw e;
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();

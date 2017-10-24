@@ -550,15 +550,7 @@ public class ConcurrentScan extends ConcurrentScanChild implements Scan {
 					}
 				}
 			} catch (Exception e) {
-				String message;
-				if (e instanceof PyException) {
-					message = e.toString();
-				} else {
-					message = e.getMessage();
-				}
-				logger.error("Exception whilst returning scannables back to original positions at end of scan: "
-						+ message);
-				logger.debug(message, e);
+				logger.error("Exception whilst returning scannables back to original positions at end of scan", e);
 			}
 		}
 		super.endScan();

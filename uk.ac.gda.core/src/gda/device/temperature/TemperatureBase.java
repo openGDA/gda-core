@@ -19,6 +19,11 @@
 
 package gda.device.temperature;
 
+import java.util.ArrayList;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.configuration.properties.LocalProperties;
 import gda.data.scan.datawriter.DataWriter;
 import gda.data.scan.datawriter.DefaultDataWriterFactory;
@@ -32,11 +37,6 @@ import gda.util.Alarm;
 import gda.util.AlarmListener;
 import gda.util.Poller;
 import gda.util.PollerListener;
-
-import java.util.ArrayList;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A base implementation for all temperature controllers. Handles the basic parts of all operations wherever possible.
@@ -151,7 +151,7 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 		try {
 			startNextRamp();
 		} catch (DeviceException de) {
-			logger.error(getName() + " alarm() caught DeviceException \"" + de.getMessage() + "\" starting next ramp");
+			logger.error("Error starting next ramp while handling alarm ({}) in {}", theAlarm, getName(), de);
 		}
 	}
 
@@ -372,7 +372,7 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 				doStart();
 				poller.setPollTime(polltime);
 			} catch (DeviceException de) {
-				logger.error(getName() + " DeviceException caught in start() " + de.getMessage());
+				logger.error("Error starting {}", getName(), de);
 				running = false;
 			}
 		} else {
@@ -396,8 +396,7 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 				try {
 					startNextRamp();
 				} catch (DeviceException de) {
-					logger.error(getName() + " alarm() caught DeviceException \"" + de.getMessage()
-							+ "\" starting next ramp");
+					logger.error("Error starting next ramp while starting hold timer in {}", getName(), de);
 				}
 			}
 		}
@@ -417,7 +416,7 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 			// reset time as this stops the graph plotting. see bug #377
 			timeSinceStart = -1000;
 		} catch (DeviceException de) {
-			logger.error(getName() + " DeviceException caught in stop() " + de.getMessage());
+			logger.error("Error stopping {}", getName(), de);
 		}
 	}
 

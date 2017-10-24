@@ -71,7 +71,7 @@ public class DeleteCommandHandler extends AbstractExperimentCommandHandler {
 					}
 
 				} catch (Exception e) {
-					logger.error(e.getMessage(), e);
+					logger.error("Error deleting {}", dir, e);
 				} finally {
 					ExperimentFactory.getExperimentEditorManager().closeAllEditors(true);
 					getEditorManager().refreshViewers();
@@ -125,7 +125,7 @@ public class DeleteCommandHandler extends AbstractExperimentCommandHandler {
 				ExperimentFactory.getExperimentEditorManager().refreshViewers();
 				ExperimentFactory.getExperimentEditorManager().select(file.getParent());
 			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
+				logger.error("Error deleting scan", e);
 			}
 		}
 	}

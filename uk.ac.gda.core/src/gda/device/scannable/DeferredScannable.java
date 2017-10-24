@@ -78,12 +78,10 @@ public class DeferredScannable extends ScannableMotionUnitsBase {
 		try {
 			controlPointScannable.asynchronousMoveTo(position);
 		} catch (Exception e) {
-			logger
-					.error(
-							"Exception while moving deferred scannable group, stopping all axes in group and setting defer flag off",
+			logger.error("Exception while moving deferred scannable group, stopping all axes in group and setting defer flag off",
 							e);
 			stop();
-			throw new DeviceException("Exception while triggering deferred scannable group move:\n " + e.getMessage(), e);
+			throw new DeviceException("Exception while triggering deferred scannable group move", e);
 		}
 		setDefer(false);
 	}

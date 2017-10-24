@@ -25,7 +25,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import org.python.core.PyException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,18 +88,14 @@ public class ScanDataPointPopulatorAndPublisher implements Callable<Void> {
 			return ((Future<?>) possiblyFuture).get();
 		} catch (ExecutionException e) {
 			Throwable cause = e.getCause();
-			if (cause instanceof DeviceException) {
-				throw new DeviceException(String.format(
-						"DeviceException while computing point %d %s position: %s", point.getCurrentPointNumber(), name, cause.getMessage()), cause);
-			} else if (cause instanceof PyException) {
-				throw new DeviceException(String.format(
-						"PyException while computing point %d %s position: %s", point.getCurrentPointNumber(), name, cause.toString()) , cause);
-			} //else
-			throw new Exception(String.format(
-					"Exception while computing point %d %s position: %s",point.getCurrentPointNumber(), name, cause.getMessage()), cause);
+			throw new DeviceException(
+					String.format(
+						"Exception while computing point %d %s position",
+						point.getCurrentPointNumber(),
+						name),
+					cause);
 		} catch (InterruptedException e) {
-			logger.warn(String.format(
-					"Interrupted while waiting for point %d %s position computation to complete: %s", point.getCurrentPointNumber(), name, e.getMessage()), e);
+			logger.warn("Interrupted while waiting for point %d %s position computation to complete", point.getCurrentPointNumber(), name, e);
 			throw e;
 		}
 	}

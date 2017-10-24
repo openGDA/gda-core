@@ -171,7 +171,12 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 		try {
 			rawAsynchronousMoveTo(externalToInternal(externalPosition));
 		} catch (DeviceException e) {
-			throw new DeviceException(format("Problem triggering %s move to %s: ", getName(), externalPosition.toString()) + e.getMessage(), e);
+			throw new DeviceException(
+					format("Problem triggering %s move to %s: %s",
+							getName(),
+							externalPosition.toString(),
+							e.getMessage()), //duplicate message here as this appears on the jython console
+					e);
 		}
 	}
 
@@ -461,7 +466,12 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 			this.waitWhileBusy();
 		} catch (Exception e) {
 			// convert to a device exception
-			throw new DeviceException(String.format("Move failed for %s.moveTo(%s)\n\t%s", getName(), position, e.getMessage()), e);
+			throw new DeviceException(
+					format("Move failed for %s.moveTo(%s):%n\t%s",
+							getName(),
+							position,
+							e.getMessage()), //duplicate message here as this appears on the jython console
+					e);
 		}
 	}
 
@@ -679,8 +689,7 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 
 				return pycurrentPosition;
 			} catch (Exception e) {
-				logger.info(getName() + ": exception while converting array of positions to a string. "
-						+ e.getMessage());
+				logger.info("{}: exception while converting array of positions ({}) to a string. ", getName(), position, e);
 				return this.__str__();
 			}
 		}
@@ -722,7 +731,7 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 		try {
 			currentPosition = ScannableUtils.getCurrentPositionArray(this);
 		} catch (Exception e) {
-			logger.info(getName() + ": exception while converting array of positions to a string. " + e.getMessage());
+			logger.info("{}: exception while converting array of positions to a string. ", getName(), e);
 			PyException ex = new PyException();
 			ex.value = new PyString("could not convert positions array");
 			ex.type = Py.TypeError;

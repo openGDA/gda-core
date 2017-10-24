@@ -293,7 +293,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 				interp = new GDAJythonInterpreter(jythonScriptPaths);
 				interp.configure();
 			} catch (Exception e) {
-				throw new FactoryException(e.getMessage(), e);
+				throw new FactoryException("Could not create interpreter", e);
 			}
 
 			interp.placeInJythonNamespace("command_server", this);
@@ -302,7 +302,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 				interp.initialise(this);
 				initialized = true;
 			} catch (Exception e) {
-				throw new FactoryException(e.getMessage(), e);
+				throw new FactoryException("Could not initialise interpreter", e);
 			} finally {
 				runningLocalStation = false;
 			}
@@ -699,7 +699,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 			}
 			return indexNumber;
 		} catch (ClassNotFoundException e) {
-			throw new DeviceException(e.getMessage());
+			throw new DeviceException("Could not find authoriser", e);
 		}
 	}
 
@@ -710,7 +710,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 			int accessLevel = authoriser.getAuthorisationLevel(username);
 			this.batonManager.switchUser(uniqueFacadeName, username, accessLevel, visitID);
 		} catch (ClassNotFoundException e) {
-			throw new DeviceException(e.getMessage());
+			throw new DeviceException("Could not get authoriser when switching user ", e);
 		}
 	}
 
@@ -738,9 +738,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 			bufferedLocalStationOutput = new StringBuilder();
 			configure();
 		} catch (FactoryException e) {
-			logger.error(
-					"Error while restarting the Jython interpreter. Fix the problem and then restart GDA immediately. Error message was: "
-							+ e.getMessage(), e);
+			logger.error("Error while restarting the Jython interpreter. Fix the problem and then restart GDA immediately", e);
 		}
 	}
 
@@ -1150,9 +1148,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 			try {
 				this.interpreter.exec(cmd);
 			} catch (Exception e) {
-				logger.error(
-						"CommandServer: error while running command: '" + cmd + "' encountered an error: "
-								+ e.getMessage(), e);
+				logger.error("Error while running command: '{}'", cmd, e);
 			}
 		}
 	}

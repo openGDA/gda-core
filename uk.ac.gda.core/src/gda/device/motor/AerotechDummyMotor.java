@@ -275,7 +275,7 @@ public class AerotechDummyMotor extends MotorBase implements Runnable, Configura
 						logger.debug("dummy motor main wake up");
 					} while (!simulatedMoveRequired);
 				} catch (Exception ex) {
-					logger.warn(ex.getMessage());
+					logger.warn("Error while running", ex);
 				}
 			}
 

@@ -560,7 +560,7 @@ public class Mode {
 
 		} catch (Exception e) {
 			disabled = true;
-			throw new BcmException("Exception activating mode " + name + ": " + e.getMessage());
+			throw new BcmException("Exception activating mode " + name, e);
 		}
 		try {
 			loadSnapshot(currentSnapshot, false);

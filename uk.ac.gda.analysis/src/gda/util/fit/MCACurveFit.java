@@ -69,7 +69,7 @@ public class MCACurveFit {
 			LM.solve(x, aguess, y, s, vary, multiModel, h, fitParameters.getLamda(), fitParameters.getEpislon(),
 					fitParameters.getMaxNoOfIterations(), fitParameters.getVerbose());
 		} catch (Exception ex) {
-			System.err.println("Exception caught: " + ex.getMessage());
+			logger.error("Exception caught", ex);
 			// System.exit(1);
 		}
 

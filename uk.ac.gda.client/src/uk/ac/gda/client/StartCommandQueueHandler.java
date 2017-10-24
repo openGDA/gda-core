@@ -35,7 +35,7 @@ public class StartCommandQueueHandler extends AbstractHandler {
 			CommandQueueViewFactory.processor.start(500);
 			return Boolean.TRUE;
 		} catch (Exception ne) {
-			throw new ExecutionException(ne.getMessage(), ne);
+			throw new ExecutionException("Error running StartCommandHandler", ne);
 		}
 	}
 

@@ -110,7 +110,7 @@ public class Ecoline extends TemperatureBase {
 				startPoller();
 				configured = true;
 			} catch (DeviceException de) {
-				logger.error(getName() + " config() caught DeviceException \"" + de.getMessage() + "\"");
+				logger.error("Error configuring {}", serialDeviceName, de);
 			}
 		}
 	}

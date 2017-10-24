@@ -35,7 +35,7 @@ public class SkipCommandQueueHandler extends AbstractHandler {
 			CommandQueueViewFactory.processor.skip(500);
 			return Boolean.TRUE;
 		} catch (Exception ne) {
-			throw new ExecutionException(ne.getMessage(), ne);
+			throw new ExecutionException("Error running SkipCommand", ne);
 		}
 	}
 

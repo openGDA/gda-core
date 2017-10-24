@@ -326,7 +326,7 @@ public abstract class ScanBase implements NestableScan {
 
 			return sortArgs(start, stop, step);
 		} catch (NumberFormatException nfe) {
-			throw new IllegalArgumentException("start, stop and step need to be numeric values. " + nfe.getMessage());
+			throw new IllegalArgumentException("start, stop and step need to be numeric values", nfe);
 		}
 	}
 
@@ -690,7 +690,7 @@ public abstract class ScanBase implements NestableScan {
 			try {
 				detector.endCollection();
 			} catch (DeviceException ex) {
-				logger.error("endScan(): Device Exception: {} ", ex.getMessage());
+				logger.error("Error ending collection on {}", detector, ex);
 				throw ex;
 			}
 		}
@@ -1087,6 +1087,7 @@ public abstract class ScanBase implements NestableScan {
 					throw new ScanInterruptedException(e.getMessage(),e.getStackTrace());
 				} catch (RedoScanLineThrowable e){
 					logger.info("Redoing scan line because: ", e.getMessage());
+					logger.trace("Cause of redo exception", e);
 					lineScanNeedsDoing = true;
 					currentPointCount = pointNumberAtLineBeginning;
 					continue;
@@ -1115,6 +1116,7 @@ public abstract class ScanBase implements NestableScan {
 					throw new ScanInterruptedException(message,e.getStackTrace());
 				} catch (RedoScanLineThrowable e){
 					logger.info("Redoing scan line because: ", e.getMessage());
+					logger.trace("Cause of redo exception", e);
 					lineScanNeedsDoing = true;
 					currentPointCount = pointNumberAtLineBeginning;
 					continue;
@@ -1137,6 +1139,7 @@ public abstract class ScanBase implements NestableScan {
 				throw e;
 			} catch (RedoScanLineThrowable e){
 				logger.info("Redoing scan line because: ", e.getMessage());
+				logger.trace("Cause of redo exception", e);
 				lineScanNeedsDoing = true;
 				currentPointCount = pointNumberAtLineBeginning;
 				continue;
@@ -1174,6 +1177,7 @@ public abstract class ScanBase implements NestableScan {
 				} catch (DeviceException e) {
 					if ((e instanceof RedoScanLineThrowable) && (getChild() == null)) {
 						logger.info("Redoing scan line because: ", e.getMessage());
+						logger.trace("Cause of redo exception", e);
 						lineScanNeedsDoing = true;
 						currentPointCount = pointNumberAtLineBeginning;
 					} else {

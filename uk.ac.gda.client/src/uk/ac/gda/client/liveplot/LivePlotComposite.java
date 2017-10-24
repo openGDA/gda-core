@@ -868,7 +868,7 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 			createUpdatePlot(xAxisHeader, yAxisHeader, xys, invis, additionalYAxes);
 
 		} catch (Throwable e) {
-			logger.warn(e.getMessage(),e);
+			logger.warn("Error handling update. force={}", force, e);
 		}
 	}
 
@@ -1223,7 +1223,7 @@ class LiveData {
 				logger.info("XYData.archive to " + archiveFilename);
 			}
 		} catch (Exception ex) {
-			logger.warn(ex.getMessage(), ex);
+			logger.warn("Error archiving live plot data to '{}'", archiveFolder, ex);
 		}
 	}
 

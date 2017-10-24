@@ -323,7 +323,7 @@ public class Canberra35 extends DeviceBase {
 			}
 
 			catch (DeviceException de) {
-				logger.error(de.getMessage());
+				logger.error("Error getting status", de);
 				status = MCAStatus._FAULT;
 			}
 

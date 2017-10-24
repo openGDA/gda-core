@@ -88,7 +88,7 @@ public class UndulatorTuningGridScan extends GridScanMoveToOnly {
 			if (e instanceof InterruptedException) {
 				throw e;
 			}
-			throw new Exception("UndulatorTuningGridScan.moveStepIncrement(): " + e.getMessage());
+			throw new Exception("Could not move step increment. Index: " + index, e);
 		}
 	}
 
@@ -103,7 +103,7 @@ public class UndulatorTuningGridScan extends GridScanMoveToOnly {
 			if (e instanceof InterruptedException) {
 				throw e;
 			}
-			throw new Exception("UndulatorTuningGridScan.moveToStart(): " + e.getMessage());
+			throw new Exception("Could not move to start", e);
 		}
 	}
 }

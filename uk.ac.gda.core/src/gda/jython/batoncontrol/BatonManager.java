@@ -359,9 +359,7 @@ public class BatonManager implements IBatonManager {
 				}
 			}
 		} catch (Exception e) {
-			logger
-					.warn("Exception while BatonManager changing the username stored in metadata. This could cause problems with data collection. Error was: "
-							+ e.getMessage());
+			logger.warn("Exception while changing the username stored in metadata. This could cause problems with data collection", e);
 		}
 	}
 

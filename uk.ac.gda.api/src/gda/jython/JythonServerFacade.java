@@ -175,7 +175,7 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 			}
 
 		} catch (Exception ex) {
-			logger.error("CommandServerFacade: error during instantiation: " + ex.getMessage(), ex);
+			logger.error("Error during instantiation", ex);
 			throw new InstantiationException("CommandServerFacade: error during instantiation: " + ex.getMessage());
 		}
 	}
@@ -373,7 +373,7 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 						panelUpdated = true;
 					} catch (Throwable e) {
 						// don't allow an exception to prevent the loop from continuing
-						logger.warn("Exception when broadcasting a ScanDataPoint " + e.getMessage(), e);
+						logger.warn("Exception when broadcasting a ScanDataPoint", e);
 					}
 				}
 
@@ -392,7 +392,7 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 								panelUpdated = true;
 							} catch (Throwable e) {
 								// don't allow an exception to prevent the loop from continuing
-								logger.warn("Exception when broadcasting a ScanDataPoint " + e.getMessage(), e);
+								logger.warn("Exception when broadcasting a ScanDataPoint", e);
 							}
 						}
 					}
@@ -420,7 +420,7 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 				notifyIObservers(this, data);
 			}
 		} catch (Exception ex1) {
-			logger.error("exception while updating local observers: " + ex1.getMessage(), ex1);
+			logger.error("exception while updating local observers", ex1);
 		}
 	}
 
@@ -667,9 +667,9 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 				return true;
 			}
 		} catch (DeviceException e) {
-			logger.error("Exception while trying to switch user: " + e.getMessage());
+			logger.error("Exception while trying to switch user to {}", username, e);
 		} catch (Exception e) {
-			logger.error("Exception while trying to authenticate user " + username + ": " + e.getMessage());
+			logger.error("Exception while trying to authenticate user {}", username, e);
 		}
 		return false;
 	}
@@ -686,7 +686,7 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 			alternateUsername = null;
 			commandServer.switchUser(name, originalUsername, "");
 		} catch (DeviceException e) {
-			logger.error("Exception while trying to revert to original user: " + e.getMessage());
+			logger.error("Exception while trying to revert to original user", e);
 		}
 	}
 
@@ -701,7 +701,7 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 			this.visitID = visitID;
 			commandServer.switchUser(name, "", visitID);
 		} catch (DeviceException e) {
-			logger.error("Exception while trying to revert to original user: " + e.getMessage());
+			logger.error("Exception while trying to revert to original user", e);
 		}
 	}
 

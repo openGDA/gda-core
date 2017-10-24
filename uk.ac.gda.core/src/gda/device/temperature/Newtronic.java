@@ -131,7 +131,7 @@ public class Newtronic extends TemperatureBase implements ReplyChecker {
 				startPoller();
 				configured = true;
 			} catch (DeviceException de) {
-				logger.error(debugName + ".configure() caught DeviceException" + de.getMessage());
+				logger.error("{}.configure() caught DeviceException", getName(), de);
 			}
 		}
 	}
@@ -368,7 +368,7 @@ public class Newtronic extends TemperatureBase implements ReplyChecker {
 			else
 				stateString = "Idle";
 		} catch (DeviceException de) {
-			logger.error("Exception " + de.getMessage());
+			logger.error("Error in pollDone", de);
 		}
 		if (timeSinceStart >= 0.0) {
 			Date d = new Date();

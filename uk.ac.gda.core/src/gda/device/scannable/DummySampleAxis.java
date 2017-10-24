@@ -35,7 +35,7 @@ public class DummySampleAxis extends SampleXYZAxis {
 			unitsComponent.setHardwareUnitString("micron");
 			unitsComponent.setUserUnits("mm");
 		} catch (DeviceException e) {
-			throw new FactoryException(e.getMessage());
+			throw new FactoryException("Error configuring units", e);
 		}
 	}
 

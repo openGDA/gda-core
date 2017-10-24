@@ -65,7 +65,7 @@ public class AddCommandHandler extends AbstractExperimentCommandHandler {
 				try {
 					ExperimentProjectNature.createNewScan(getEditorManager().getIFolder(dir.getName()));
 				} catch (IOException e) {
-					logger.error(e.getMessage(), e);
+					logger.error("Error creating new scan", e);
 				}
 				getEditorManager().refreshViewers();
 				getEditorManager().select(getEditorManager().getIFolder(dir.getName()));
@@ -80,7 +80,7 @@ public class AddCommandHandler extends AbstractExperimentCommandHandler {
 					getEditorManager().refreshViewers();
 					getEditorManager().select(man);
 				} catch (Exception e) {
-					logger.error(e.getMessage(), e);
+					logger.error("Error creating new scan", e);
 				}
 
 			} else if (type == ACTION_TYPE.RUN) {

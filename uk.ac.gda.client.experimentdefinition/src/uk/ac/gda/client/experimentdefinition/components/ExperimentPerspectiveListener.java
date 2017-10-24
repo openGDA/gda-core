@@ -100,7 +100,7 @@ public class ExperimentPerspectiveListener implements IPerspectiveListener4, ISt
 					page.openEditor(storedEditorRefs.get(thisRef), thisRef.getId());
 				} catch (PartInitException e) {
 					// fail silently - user can correct easily by clicking on the desired scan in Experiment Explorer
-					logger.warn("Exception trying to open stored editor: " + e.getMessage());
+					logger.warn("Exception trying to open stored editor", e);
 				}
 			}
 		}

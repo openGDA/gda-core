@@ -69,7 +69,7 @@ public class CorbaEventReceiver extends PushConsumerPOA implements EventReceiver
 			supplier.connect_push_consumer(_this(orb));
 			logger.debug("EventReceiver: Consumer connected");
 		} catch (TypeError | AlreadyConnected ex) {
-			logger.error(ex.getMessage());
+			logger.error("Could not connect to event channel", ex);
 			System.exit(1);
 		}
 	}
@@ -120,7 +120,7 @@ public class CorbaEventReceiver extends PushConsumerPOA implements EventReceiver
 		try {
 			pushEventQueue.addEvent(any);
 		} catch (Exception e) {
-			logger.error("Error pushing event: " + e.getMessage());
+			logger.error("Error pushing event '{}'", any, e);
 		}
 
 	}

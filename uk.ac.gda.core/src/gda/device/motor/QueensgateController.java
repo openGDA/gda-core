@@ -19,6 +19,9 @@
 
 package gda.device.motor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.device.MotorException;
@@ -28,9 +31,6 @@ import gda.device.serial.StringReader;
 import gda.device.serial.StringWriter;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A controller class for Queensgate piezos. It manages serial communication with individual piezo command modules
@@ -106,9 +106,9 @@ public class QueensgateController extends DeviceBase implements PiezoController 
 
 				initialiseModules();
 			} catch (DeviceException e) {
-				logger.error("Queensgate Controller: Exception while connecting the Serial Port. " + e);
+				logger.error("Queensgate Controller: Exception while connecting the Serial Port", e);
 			} catch (FactoryException fe) {
-				logger.error(fe.getMessage());
+				logger.error("Error configuring {}", serialDeviceName, fe);
 			}
 		}
 	}
@@ -131,7 +131,7 @@ public class QueensgateController extends DeviceBase implements PiezoController 
 			writer.write(ZERO_MODULES);
 			writer.write(SET_FOR_INPUT);
 		} catch (DeviceException de) {
-			throw new FactoryException("Queensgate Controller: Exception thrown at initialisation." + de);
+			throw new FactoryException("Queensgate Controller: Exception thrown at initialisation.", de);
 		}
 	}
 

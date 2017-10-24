@@ -175,7 +175,7 @@ public class DscStage implements LinkamStage {
 					xValue += samplingTime;
 
 			} catch (DeviceException de) {
-				logger.error(debugName + "pollDone() caught DeviceException" + de.getMessage());
+				logger.error("Error getting DSC data", de);
 			}
 		}
 	}

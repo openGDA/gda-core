@@ -182,7 +182,7 @@ public abstract class MotorBase extends DeviceBase implements Motor, Serializabl
 		try {
 			savePosition(name, getPosition());
 		} catch (MotorException e) {
-			logger.error("MotorBase.savePosition() for motor " + getName() + " caught exception " + e.getMessage());
+			logger.error("{} Could not save position as '{}'", getName(), name, e);
 		}
 	}
 
@@ -223,7 +223,7 @@ public abstract class MotorBase extends DeviceBase implements Motor, Serializabl
 			out.flush();
 			out.close();
 		} catch (IOException ex) {
-			logger.debug("IOException in savePosition(): " + ex.getMessage());
+			logger.debug("{}: Could not save position {} as {}", getName(), currentPosition, name, ex);
 		}
 	}
 
@@ -257,10 +257,10 @@ public abstract class MotorBase extends DeviceBase implements Motor, Serializabl
 				setPosition(defaultPosition);
 				savePosition(name);
 			} catch (MotorException e) {
-				logger.error("MotorBase.loadPosition() for motor " + getName() + " caught exception " + e.getMessage());
+				logger.error("Could not set position to {}", defaultPosition, e);
 			}
 		} catch (EOFException eofe) {
-			logger.error("unexpected EOF in Motor Position File " + fullName + " trying to read position as int");
+			logger.error("unexpected EOF in Motor Position File '{}' trying to read position as int", fullName, eofe);
 			try {
 				// have already asserted EOFException so OK to do this
 				if (fis.available() > 0) {
@@ -274,7 +274,7 @@ public abstract class MotorBase extends DeviceBase implements Motor, Serializabl
 					savePosition(name);
 				}
 			} catch (IOException ioe) {
-				logger.error("IOException in MotorBase.loadPosition");
+				logger.error("IOException in MotorBase.loadPosition", ioe);
 				logger.debug(ioe.getStackTrace().toString());
 			} catch (MotorException e) {
 				logger.debug(e.getStackTrace().toString());

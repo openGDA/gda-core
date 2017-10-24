@@ -258,7 +258,7 @@ public class HPDataLogger extends DetectorBase implements DataLogger, Detector, 
 			logger.debug("****************" + System.currentTimeMillis());
 			// }
 		} catch (DeviceException de) {
-			logger.error("DataLogger: collectData() caught DeviceException" + de.getMessage());
+			logger.error("Error during collectData()", de);
 		}
 	}
 
@@ -447,9 +447,9 @@ public class HPDataLogger extends DetectorBase implements DataLogger, Detector, 
 
 				Thread.sleep(pollTime);
 			} catch (DeviceException de) {
-				logger.error("DataLogger: run() caught DeviceException" + de.getMessage());
+				logger.error("Error running DataLogger", de);
 			} catch (InterruptedException ie) {
-				logger.error("DataLogger: run() caught InterruptedException" + ie.getMessage());
+				logger.error("DataLogger interrupted", ie);
 				return;
 			}
 		}

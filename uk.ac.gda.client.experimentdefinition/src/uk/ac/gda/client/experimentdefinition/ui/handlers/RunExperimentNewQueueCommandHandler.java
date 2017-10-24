@@ -54,7 +54,7 @@ public class RunExperimentNewQueueCommandHandler extends RunExperimentCommandHan
 		try {
 			getSubmitter().submitScan(bean);
 		} catch (EventException e) {
-			logger.error("Exception adding ExperimentCommandProvider to queue." + e.getMessage());
+			logger.error("Exception adding ExperimentCommandProvider to queue", e);
 			throw new ExecutionException("Exception adding ExperimentCommandProvider to queue.", e);
 		}
 	}

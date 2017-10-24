@@ -170,9 +170,10 @@ public class SerialComm extends SerialBase {
 		if (opened) {
 			try {
 				serialPort.setSerialPortParams(baudRate, byteSize, stopBits, parity);
-				logger.debug("Setting baudRate " + baudRate);
+				logger.debug("Setting baudRate {}", baudRate);
 			} catch (UnsupportedCommOperationException e) {
-				throw new DeviceException(e.getMessage());
+				throw new DeviceException("Error setting baudRate to " + baudRate,
+						e);
 			}
 		}
 	}
@@ -211,9 +212,9 @@ public class SerialComm extends SerialBase {
 		if (opened) {
 			try {
 				serialPort.setSerialPortParams(baudRate, this.byteSize, stopBits, parity);
-				logger.debug("Setting byteSize " + byteSize);
+				logger.debug("Setting byteSize {}", byteSize);
 			} catch (UnsupportedCommOperationException e) {
-				throw new DeviceException(e.getMessage());
+				throw new DeviceException("Error setting bytesize " + this.byteSize, e);
 			}
 		}
 	}
@@ -251,7 +252,7 @@ public class SerialComm extends SerialBase {
 				serialPort.setSerialPortParams(baudRate, byteSize, stopBits, this.parity);
 				logger.debug("Setting parity " + getParity());
 			} catch (UnsupportedCommOperationException e) {
-				throw new DeviceException(e.getMessage());
+				throw new DeviceException("Error setting parity {}", parity, e);
 			}
 		}
 	}
@@ -309,7 +310,7 @@ public class SerialComm extends SerialBase {
 				serialPort.setSerialPortParams(baudRate, byteSize, this.stopBits, parity);
 				logger.debug("Setting stopBits " + getStopBits());
 			} catch (UnsupportedCommOperationException e) {
-				throw new DeviceException(e.getMessage());
+				throw new DeviceException("Error setting stop bits to " + stopBits, e);
 			}
 		}
 	}
@@ -386,7 +387,7 @@ public class SerialComm extends SerialBase {
 				else
 					serialPort.disableReceiveTimeout();
 			} catch (UnsupportedCommOperationException e) {
-				throw new DeviceException(e.getMessage());
+				throw new DeviceException("Error setting read timeout to " + time, e);
 			}
 		}
 	}
@@ -404,7 +405,7 @@ public class SerialComm extends SerialBase {
 					throw new DeviceException("Device timeout or null reply");
 				}
 			} catch (IOException e) {
-				throw new DeviceException(e.getMessage());
+				throw new DeviceException("Error in readChar", e);
 			}
 		}
 
@@ -437,7 +438,7 @@ public class SerialComm extends SerialBase {
 			try {
 				outputStream.write((byte) c);
 			} catch (IOException e) {
-				throw new DeviceException(e.getMessage());
+				throw new DeviceException("Error in writeChar", e);
 			}
 		}
 	}

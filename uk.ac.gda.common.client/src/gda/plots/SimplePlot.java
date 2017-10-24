@@ -1183,7 +1183,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 						try{
 							newStripWidth = Double.valueOf(widthStr);
 						} catch (Exception ex){
-							logger.error(ex.getMessage(),ex);
+							logger.error("Invalid string for width: {}", widthStr, ex);
 						}
 					}
 					setStripWidth(newStripWidth);
@@ -1219,7 +1219,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 						try{
 							newBounds = new Range(Double.valueOf(minStr), Double.valueOf(maxStr));
 						} catch (Exception ex){
-							logger.error(ex.getMessage(),ex);
+							logger.error("Invalid values for range: ({}, {})", minStr, maxStr, ex);
 						}
 					}
 					setDomainBounds( newBounds );
@@ -2804,7 +2804,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 				printerJob.print();
 			}
 		} catch (PrinterException pe) {
-			logger.error("Caught PrinterException: " + pe.getMessage());
+			logger.error("Error running print job", pe);
 		}
 	}
 

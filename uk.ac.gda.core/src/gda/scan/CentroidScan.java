@@ -204,8 +204,7 @@ public class CentroidScan extends ScanBase implements Scan {
 				this.moveToCentroids();
 			} catch (Exception e) {
 				// do want scan to fail now we have got to the end
-				logger.warn("Centroid scan: exception while moving scannables back to starting positions. "
-						+ e.getMessage());
+				logger.warn("Centroid scan: exception while moving scannables back to starting positions", e);
 			}
 		}
 

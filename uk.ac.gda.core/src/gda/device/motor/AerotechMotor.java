@@ -19,6 +19,9 @@
 
 package gda.device.motor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
 import gda.device.Motor;
 import gda.device.MotorException;
@@ -26,9 +29,6 @@ import gda.device.MotorStatus;
 import gda.factory.Configurable;
 import gda.factory.Finder;
 import gda.observable.IObservable;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Motor class to drive Aerotech motors via the Aerotech 3200 software environment. Communication between this
@@ -77,7 +77,7 @@ public class AerotechMotor extends MotorBase implements Configurable, IObservabl
 				setSpeedLevel(1);
 			}
 		} catch (Exception e) {
-			logger.error("Exception while initialising the Aerotech Motor" + e.getMessage());
+			logger.error("Exception while initialising the Aerotech Motor", e);
 		}
 	}
 
@@ -146,7 +146,7 @@ public class AerotechMotor extends MotorBase implements Configurable, IObservabl
 			}
 		} catch (DeviceException e) {
 			motorMoving = false;
-			throw (new MotorException(MotorStatus.FAULT, e.getMessage()));
+			throw new MotorException(MotorStatus.FAULT, "Error moving by " + steps, e);
 		}
 	}
 
@@ -201,7 +201,7 @@ public class AerotechMotor extends MotorBase implements Configurable, IObservabl
 			controller.moveHome(axis);
 		} catch (DeviceException e) {
 			motorMoving = false;
-			throw (new MotorException(MotorStatus.FAULT, e.getMessage()));
+			throw new MotorException(MotorStatus.FAULT, "Error homing motor", e);
 		}
 	}
 
@@ -217,7 +217,7 @@ public class AerotechMotor extends MotorBase implements Configurable, IObservabl
 		try {
 			controller.setPosition(axis, value);
 		} catch (DeviceException e) {
-			throw (new MotorException(MotorStatus.FAULT, e.getMessage()));
+			throw new MotorException(MotorStatus.FAULT, "Error setting position to " + value, e);
 		}
 	}
 
@@ -233,7 +233,7 @@ public class AerotechMotor extends MotorBase implements Configurable, IObservabl
 		try {
 			position = controller.getPosition(axis);
 		} catch (DeviceException e) {
-			throw (new MotorException(MotorStatus.FAULT, e.getMessage()));
+			throw new MotorException(MotorStatus.FAULT, "Could not get position", e);
 		}
 		return position;
 	}
@@ -296,7 +296,7 @@ public class AerotechMotor extends MotorBase implements Configurable, IObservabl
 		try {
 			controller.moveHalt(axis);
 		} catch (DeviceException e) {
-			throw (new MotorException(MotorStatus.FAULT, e.getMessage()));
+			throw new MotorException(MotorStatus.FAULT, "Could not stop motor", e);
 		}
 	}
 
@@ -310,7 +310,7 @@ public class AerotechMotor extends MotorBase implements Configurable, IObservabl
 		try {
 			controller.abortMove(axis);
 		} catch (DeviceException e) {
-			throw (new MotorException(MotorStatus.FAULT, e.getMessage()));
+			throw new MotorException(MotorStatus.FAULT, "Could not abortMove", e);
 		}
 	}
 
@@ -376,13 +376,11 @@ public class AerotechMotor extends MotorBase implements Configurable, IObservabl
 				status = MotorStatus.LOWER_LIMIT;
 			}
 		} catch (DeviceException e) {
-			logger.error(getName() + " : caught DeviceException in getStatus : " + e.getMessage());
-			logger.error(response + "!");
+			logger.error("{} could not get status, response: {}", getName(), response, e);
 			motorMoving = false;
 			status = MotorStatus.FAULT;
 		} catch (InterruptedException ie) {
-			logger.error(getName() + " : caught InterruptedException in getStatus : " + ie.getMessage());
-			logger.error(response + "!");
+			logger.error("{} could not get status, response: {}", getName(), response, ie);
 			motorMoving = false;
 			status = MotorStatus.FAULT;
 		}

@@ -35,7 +35,7 @@ public class StopCommandQueueHandler extends AbstractHandler {
 			CommandQueueViewFactory.processor.stop(1000);
 			return Boolean.TRUE;
 		} catch (Exception ne) {
-			throw new ExecutionException(ne.getMessage(), ne);
+			throw new ExecutionException("Error running StopCommand", ne);
 		}
 	}
 

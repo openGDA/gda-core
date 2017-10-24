@@ -28,7 +28,7 @@ public class LdapEmail {
 				return email;
 			}
 		} catch (NamingException e) {
-			logger.error("Failed to retrieve email for user:" + fedID + e.getMessage());
+			logger.error("Failed to retrieve email for user: {}", fedID, e);
 		} finally {
 			if (users != null) {
 				try {
@@ -46,7 +46,7 @@ public class LdapEmail {
 			//should only return a single email, as we're searching by individual fedID. 
 			return sr.getAttributes().get(attributeName).get().toString();
 		} catch (NamingException e) {
-			logger.error("Failed to find attribute " + attributeName + " in ldap for user: " + e.getMessage());
+			logger.error("Failed to find attribute '{}' in ldap for user", attributeName, e);
 		}
 		return "";
 	}

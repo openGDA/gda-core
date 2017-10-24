@@ -90,13 +90,13 @@ public class UpdatePlotQueue implements Runnable {
 										itemsToBeHandled[j]=null;
 								}
 							}
-						} catch (Throwable ex) {
-							logger.error( "exception " + ex.getMessage(), ex);
+						} catch (Exception ex) {
+							logger.error("Error running plot queue", ex);
 						}
 					}
 				}
-			} catch (Throwable th) {
-				logger.error(th.getMessage(),th);
+			} catch (Exception e) {
+				logger.error("Error running plot queue", e);
 			}
 		}
 	}

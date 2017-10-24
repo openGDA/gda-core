@@ -22,7 +22,6 @@ package gda.util;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -36,7 +35,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Test class for the Serializer class. This does not work if you transfer the file to a remote machine and try to
  * deserialize it, since the Quantities are serialized using their own mechanism.
- * 
+ *
  * @see gda.util.Serializer
  */
 public class SerializerTester {
@@ -44,7 +43,7 @@ public class SerializerTester {
 
 	/**
 	 * Main method.
-	 * 
+	 *
 	 * @param args
 	 */
 	public static void main(String[] args) {
@@ -65,10 +64,8 @@ public class SerializerTester {
 			in.close();
 			Object obj = Serializer.toObject(b);
 			logger.debug("Object deserialized into " + obj);
-		} catch (FileNotFoundException e) {
-			logger.debug("FileNotFoundException " + e.getMessage());
 		} catch (IOException e) {
-			logger.error("IOException " + e.getMessage());
+			logger.error("Could not serialize and deserialize quantity {}", q, e);
 		}
 	}
 }

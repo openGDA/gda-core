@@ -70,7 +70,7 @@ public class DuplicateCommandHandler extends AbstractExperimentCommandHandler {
 				getEditorManager().refreshViewers();
 				getEditorManager().select(dir);
 			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
+				logger.error("Error copying {}", name, e);
 			}
 
 		} else if (type == ACTION_TYPE.SCAN) {
@@ -84,7 +84,7 @@ public class DuplicateCommandHandler extends AbstractExperimentCommandHandler {
 				getEditorManager().select(ExperimentFactory.getManager(file));
 
 			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
+				logger.error("Error copying {}", id, e);
 			}
 
 		} else if (type == ACTION_TYPE.RUN) {

@@ -19,16 +19,16 @@
 
 package gda.device.motor;
 
-import gda.device.MotorException;
-import gda.device.MotorStatus;
-import gda.factory.FactoryException;
-import gda.factory.Finder;
-
 import java.text.NumberFormat;
 import java.util.StringTokenizer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.device.MotorException;
+import gda.device.MotorStatus;
+import gda.factory.FactoryException;
+import gda.factory.Finder;
 
 /**
  * Parker6kMotor Motor class using an enclosed derived instance of Parker6kController base class for communications via
@@ -476,10 +476,8 @@ public class Parker6kMotor extends MotorBase {
 		 */
 		try {
 			stop(); // stop the motor before tidyup
-		} catch (MotorException e) {
-			logger.debug(className + " : caught MotorException in Stop : " + e.getMessage());
 		} catch (Exception e) {
-			logger.debug(className + " : caught exception in Stop : " + e.toString());
+			logger.warn("Error during panicStop of {}", getName(), e);
 		} finally {
 			parker6kController.tidyup();
 		}
@@ -524,11 +522,8 @@ public class Parker6kMotor extends MotorBase {
 			if (motorStatus != MotorStatus.BUSY) {
 				motorMoving = false;
 			}
-		} catch (MotorException e) {
-			logger.debug(className + " : caught MotorException in getStatus : " + e.getMessage());
-			motorStatus = MotorStatus.FAULT;
 		} catch (Exception e) {
-			logger.debug(className + " : caught exception in getStatus : " + e.toString());
+			logger.warn("Could not get status of {}", getName(), e);
 			motorStatus = MotorStatus.FAULT;
 		}
 		return motorStatus;

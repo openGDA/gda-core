@@ -49,7 +49,7 @@ public class LivePlotNewHandler extends AbstractHandler {
 				page.activate(part);
 			}
 		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
+			logger.error("Error creating new plot view, '{}'", event, e);
 		}
 		return null;
 	}

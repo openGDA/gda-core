@@ -325,8 +325,7 @@ public class ContinuousScan extends ConcurrentScanChild {
 				detData.put(detector.getName(), data);
 			}
 		} catch (DeviceException e1) {
-			throw new DeviceException("Exception while reading out frames " + lowFrame + " to " + highFrame + ": "
-					+ e1.getMessage(), e1);
+			throw new DeviceException("Exception while reading out frames " + lowFrame + " to " + highFrame, e1);
 		}
 		logger.info("data read successfully");
 

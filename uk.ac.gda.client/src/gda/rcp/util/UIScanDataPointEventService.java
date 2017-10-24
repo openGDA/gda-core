@@ -187,7 +187,7 @@ public final class UIScanDataPointEventService {
 			try {
 				l.scanPaused();
 			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
+				logger.error("Could not send scanPaused update to {}", l, e);
 			}
 		}
 
@@ -203,7 +203,7 @@ public final class UIScanDataPointEventService {
 			try {
 				l.scanStopped();
 			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
+				logger.error("Could not send scanStopped update to {}", l, e);
 			}
 		}
 	}
@@ -220,7 +220,7 @@ public final class UIScanDataPointEventService {
 			try {
 				l.scanStarted();
 			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
+				logger.error("Could not send scanStarted update to {}", l, e);
 			}
 		}
 	}
@@ -234,7 +234,7 @@ public final class UIScanDataPointEventService {
 			try {
 				l.scanDataPointChanged(e);
 			} catch (Exception ne) {
-				logger.error(ne.getMessage(), ne);
+				logger.error("Could not send ScanDataPoint update to {}", l, ne);
 			}
 		}
 	}

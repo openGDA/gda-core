@@ -119,9 +119,9 @@ public class Keithley extends AmplifierBase {
 							break;
 						count++;
 					} catch (InterruptedException e) {
-						logger.error(e.getMessage());
+						logger.error("Auto current suppress thread interrupted", e);
 					} catch (DeviceException e) {
-						logger.error(e.getMessage());
+						logger.error("Error getting status in auto current suppress thread" ,e);
 					}
 				}
 				notifyIObservers(Keithley.this, stat);
@@ -157,7 +157,7 @@ public class Keithley extends AmplifierBase {
 				initialiseKeithley();
 
 			} catch (DeviceException de) {
-				logger.error("Exception occured in configuring " + name + de.getMessage());
+				logger.error("Exception occured in configuring {}", name, de);
 			}
 		}
 	}

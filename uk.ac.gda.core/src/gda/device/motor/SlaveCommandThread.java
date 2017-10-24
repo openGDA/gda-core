@@ -73,7 +73,7 @@ public class SlaveCommandThread extends Thread {
 		}
 
 		catch (DeviceException e) {
-			logger.error("DeviceException in SlaveMotor: " + e.getMessage());
+			logger.error("Error running slave command '{}'", command, e);
 		}
 	}
 }

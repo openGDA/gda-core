@@ -19,24 +19,6 @@
 
 package gda.data.scan.datawriter;
 
-import gda.configuration.properties.LocalProperties;
-import gda.data.NumTracker;
-import gda.data.PathConstructor;
-import gda.data.metadata.GDAMetadataProvider;
-import gda.data.metadata.IMetadataEntry;
-import gda.data.metadata.Metadata;
-import gda.data.nexus.INeXusInfoWriteable;
-import gda.data.nexus.extractor.NexusExtractor;
-import gda.data.nexus.extractor.NexusGroupData;
-import gda.data.nexus.tree.INexusTree;
-import gda.data.nexus.tree.NexusTreeProvider;
-import gda.device.Detector;
-import gda.device.DeviceException;
-import gda.device.Scannable;
-import gda.device.detector.NexusDetector;
-import gda.device.scannable.ScannableUtils;
-import gda.scan.IScanDataPoint;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -62,6 +44,24 @@ import org.eclipse.january.dataset.SliceND;
 import org.python.core.PyList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.configuration.properties.LocalProperties;
+import gda.data.NumTracker;
+import gda.data.PathConstructor;
+import gda.data.metadata.GDAMetadataProvider;
+import gda.data.metadata.IMetadataEntry;
+import gda.data.metadata.Metadata;
+import gda.data.nexus.INeXusInfoWriteable;
+import gda.data.nexus.extractor.NexusExtractor;
+import gda.data.nexus.extractor.NexusGroupData;
+import gda.data.nexus.tree.INexusTree;
+import gda.data.nexus.tree.NexusTreeProvider;
+import gda.device.Detector;
+import gda.device.DeviceException;
+import gda.device.Scannable;
+import gda.device.detector.NexusDetector;
+import gda.device.scannable.ScannableUtils;
+import gda.scan.IScanDataPoint;
 
 /**
  * DataWriter that outputs NeXus files and optionally a SRS/Text file as well.
@@ -205,8 +205,8 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 						// Get the next run number
 						scanNumber = runNumber.incrementNumber();
 					} catch (IOException e) {
-						logger.error("ERROR: Could not instantiate NumTracker in NexusDataWriter().", e);
-						throw new InstantiationException("ERROR: Could not instantiate NumTracker in NexusDataWriter()." + e.getMessage());
+						logger.error("Could not instantiate NumTracker", e);
+						throw new IOException("Could not instantiate NumTracker in SixdNexusDataWriter()", e);
 					}
 				}
 			}
@@ -457,7 +457,7 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 						lazy.setSlice(null, ds, SliceND.createSlice(lazy, dataStartPos, dataStop));
 					} catch (Exception e) {
 						logger.error("Problem setting slice on data node", e);
-						throw new NexusException(e.getMessage());
+						throw new NexusException("Couldn't set slice on data node", e);
 					}
 
 					// Close data - do not add children as attributes added for first point only
@@ -590,8 +590,8 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 				txtfile.close();
 			}
 		} catch (Throwable et) {
-			String error = "Error occurred when closing data file(s): ";
-			logger.error(error + et.getMessage());
+			String error = "Error occurred when closing data file(s)";
+			logger.error(error, et);
 			terminalPrinter.print(error);
 			terminalPrinter.print(et.getMessage());
 		} finally {
@@ -733,8 +733,8 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 				}
 			}
 		} catch (NexusException e) {
-			String error = "NeXus file creation failed during makeScannables: ";
-			logger.error(error + e.getMessage(), e);
+			String error = "NeXus file creation failed during makeScannables";
+			logger.error(error, e);
 			terminalPrinter.print(error);
 			terminalPrinter.print(e.getMessage());
 		}
@@ -750,8 +750,7 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 			try {
 				id.create(file, group);
 			} catch (NexusException e) {
-				logger.warn("Error in makeLink (reported to NX group) for " + id.toString()
-						+ "with error" + e.getMessage());
+				logger.warn("Error in makeLink (reported to NX group) for {} with error", id, e);
 			}
 		}
 	}
@@ -774,12 +773,12 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 			}
 		} catch (NexusException e) {
 			String error = "NeXus file creation failed during makeDetectors: ";
-			logger.error(error + e.getMessage(), e);
+			logger.error(error, e);
 			terminalPrinter.print(error);
 			terminalPrinter.print(e.getMessage());
 		} catch (DeviceException de) {
 			String error = "DeviceException during NeXus file creation: ";
-			logger.error(error + de.getMessage(), de);
+			logger.error(error, de);
 			terminalPrinter.print(error);
 			terminalPrinter.print(de.getMessage());
 		}
@@ -972,7 +971,7 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 
 
 	/**
-	 * Create the next file. First increment the file number and then try and get a NeXus file from 
+	 * Create the next file. First increment the file number and then try and get a NeXus file from
 	 * {@link NexusFileHDF5#createNexusFile(String)}
 	 */
 	public void createNextFile() {
@@ -982,7 +981,7 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 					file.flush();
 				} catch (Throwable et) {
 					String error = "Error closing NeXus file.";
-					logger.error(error + et.getMessage());
+					logger.error(error, et);
 					terminalPrinter.print(error);
 					terminalPrinter.print(et.getMessage());
 				}
@@ -994,7 +993,7 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 					txtfile.close();
 				} catch (Throwable et) {
 					String error = "Error closing ascii data file.";
-					logger.error(error + et.getMessage());
+					logger.error(error, et);
 					terminalPrinter.print(error);
 					terminalPrinter.print(et.getMessage());
 				}
@@ -1143,7 +1142,7 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 				lazy.setSlice(null, DatasetFactory.createFromObject(positions[i]).reshape(dimArray), SliceND.createSlice(lazy, startPos, stop));
 			} catch (Exception e) {
 				logger.error("Problem setting slice on data node", e);
-				throw new NexusException(e.getMessage());
+				throw new NexusException("Couldn't set slice on data node", e);
 			}
 		}
 
@@ -1157,7 +1156,7 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 				lazy.setSlice(null, DatasetFactory.createFromObject(positions[inputNames.length + i]).reshape(dimArray), SliceND.createSlice(lazy, startPos, stop));
 			} catch (Exception e) {
 				logger.error("Problem setting slice on data node", e);
-				throw new NexusException(e.getMessage());
+				throw new NexusException("Couldn't set slice on data node", e);
 			}
 		}
 	}
@@ -1223,7 +1222,7 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 							SliceND.createSlice(lazy, dataStartPos, dataStop));
 				} catch (Exception e) {
 					logger.error("Problem setting slice on data node", e);
-					throw new NexusException(e.getMessage());
+					throw new NexusException("Couldn't set slice on data node", e);
 				}
 			} else { // pure data entry
 				DataNode data = file.getData(group, nameList.get(j));
@@ -1233,7 +1232,7 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 							SliceND.createSlice(lazy, startPos, stop));
 				} catch (Exception e) {
 					logger.error("Problem setting slice on data node", e);
-					throw new NexusException(e.getMessage());
+					throw new NexusException("Couldn't set slice on data node", e);
 				}
 			}
 		}

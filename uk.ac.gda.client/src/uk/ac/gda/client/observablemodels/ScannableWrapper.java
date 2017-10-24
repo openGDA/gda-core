@@ -108,7 +108,7 @@ public class ScannableWrapper extends UIObservableModel implements IObserver {
 					isBusy = scannable.isBusy();
 					updatePosition();
 				} catch (final Exception e) {
-					UIHelper.showError("Error while stopping the motor", e.getMessage());
+					UIHelper.showError("Error while stopping the motor", e);
 					logger.error("Error while stopping the motor", e);
 					isBusy = false;
 				}
@@ -135,7 +135,7 @@ public class ScannableWrapper extends UIObservableModel implements IObserver {
 					firePropertyChange(BUSY_PROP_NAME, true, scannable.isBusy());
 					updatePosition();
 				} catch (final Exception e) {
-					UIHelper.showError("Error while moving the motor", e.getMessage());
+					UIHelper.showError("Error while moving the motor", e);
 					logger.error("Error while moving the motor", e);
 					status = Status.CANCEL_STATUS;
 					firePropertyChange(BUSY_PROP_NAME, true, false);

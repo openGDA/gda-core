@@ -51,7 +51,6 @@ import gda.jython.authenticator.Authenticator;
 import gda.jython.authenticator.UserAuthentication;
 import gda.jython.authoriser.AuthoriserProvider;
 import gda.rcp.util.UIScanDataPointEventService;
-import gda.util.ElogEntry;
 import gda.util.ObjectServer;
 import gda.util.SpringObjectServer;
 import gda.util.logging.LogbackUtils;
@@ -360,8 +359,7 @@ public class Application implements IApplication {
 						}
 						return true;
 					} catch (Exception e) {
-						Logger logger = LoggerFactory.getLogger(ElogEntry.class);
-						logger.error(e.getMessage(), e);
+						logger.error("Could not authenticate user", e);
 						System.exit(0);
 					}
 				} else {

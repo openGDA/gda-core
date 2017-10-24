@@ -98,7 +98,7 @@ public class FileAuthoriser implements Authoriser {
 			return entries;
 
 		} catch (Exception e) {
-			logger.error("Exception while trying to read file of list of user authorisation levels:" + e.getMessage());
+			logger.error("Exception while trying to read file of list of user authorisation levels", e);
 			return null;
 		}
 
@@ -126,8 +126,7 @@ public class FileAuthoriser implements Authoriser {
 				}
 			}
 		} catch (Exception e) {
-			logger.error("Exception while trying to write new entry to file of list of user authorisation levels:"
-					+ e.getMessage());
+			logger.error("Exception while trying to write new entry to file of list of user authorisation levels", e);
 		}
 	}
 
@@ -144,8 +143,7 @@ public class FileAuthoriser implements Authoriser {
 				configFile.save();
 			}
 		} catch (Exception e) {
-			logger.error("Exception while trying to delete an entry from file"
-					+ e.getMessage());
+			logger.error("Exception while trying to delete an entry from file", e);
 		}
 	}
 	@Override

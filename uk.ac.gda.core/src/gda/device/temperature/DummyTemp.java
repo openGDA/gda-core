@@ -452,7 +452,7 @@ public class DummyTemp extends TemperatureBase implements Runnable, Temperature 
 			else
 				stateString = "Idle";
 		} catch (DeviceException de) {
-			logger.error("Exception " + de.getMessage());
+			logger.error("Error handling pollerEvent in pollDone", de);
 		}
 
 		if (timeSinceStart >= 0.0 || lastPoint) {

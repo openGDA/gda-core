@@ -77,7 +77,7 @@ public abstract class EnumPositionerBase extends ScannableBase implements EnumPo
 		try {
 			return this.getStatus() == EnumPositionerStatus.MOVING;
 		} catch (DeviceException e) {
-			logger.warn(getName() + ": error fetching status: " + e.getMessage());
+			logger.warn("{}: error fetching status", getName(), e);
 			return false;
 		}
 	}
@@ -110,7 +110,7 @@ public abstract class EnumPositionerBase extends ScannableBase implements EnumPo
 			logger.info(getName() + ": jython exception while getting position. " + e.toString());
 			return getName() + " : NOT AVAILABLE";
 		} catch (Exception e) {
-			logger.info(getName() + ": exception while getting position. " + e.getMessage() + "; " + e.getCause(), e);
+			logger.info("{}: exception while getting position. ", getName(), e);
 			return getName() + " : NOT AVAILABLE";
 		}
 	}

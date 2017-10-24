@@ -52,10 +52,9 @@ public class FindableSimpleServlet extends DeviceBase implements Device, Configu
 		try {
 			returnObj = SimpleServlet.execute(attributeName);
 		} catch (InvocationTargetException e) {
-			throw new DeviceException("FindableSimpleServlet. InvocationTargetException "
-					+ e.getTargetException().getMessage(), e.getTargetException());
+			throw new DeviceException("Error getting attribute: " + attributeName,  e.getTargetException());
 		} catch (Exception e) {
-			throw new DeviceException("FindableSimpleServlet. Exception " + e.getMessage(), e);
+			throw new DeviceException("Error getting attribute: " + attributeName, e);
 		}
 		return returnObj;
 	}

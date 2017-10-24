@@ -99,7 +99,7 @@ public class JythonAdapter implements Jython, EventSubscriber {
 			}
 			terminal.update(this, obj);
 		} catch (DeviceException ex) {
-			logger.error(ex.getMessage(), ex);
+			logger.error("Could not update terminal {} of {}", terminal, obj, ex);
 		}
 	}
 
@@ -706,10 +706,8 @@ public class JythonAdapter implements Jython, EventSubscriber {
 				// This exception is thrown when the ORB failed to connect to
 				// the object primarily when the server has failed.
 				break;
-			} catch (CorbaDeviceException ex) {
-				logger.error(ex.getMessage(), ex);
 			} catch (Exception ex) {
-				logger.error(ex.getMessage(), ex);
+				logger.error("Could not get command thread info", ex);
 			}
 		}
 		return new ICommandThreadInfo[0];

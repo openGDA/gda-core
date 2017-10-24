@@ -19,15 +19,15 @@
 
 package gda.device.memory;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.device.Memory;
 import gda.device.detector.DAServer;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A memory class for the VME Generic data acquisition histogramming memory card implemented using DA.Server
@@ -89,7 +89,7 @@ public class Gdhist extends DeviceBase implements Memory {
 		try {
 			ensureOpen();
 		} catch (DeviceException e) {
-			throw new FactoryException(e.getMessage());
+			throw new FactoryException("Error configuring " + getDaServerName(), e);
 		}
 	}
 
@@ -225,16 +225,15 @@ public class Gdhist extends DeviceBase implements Memory {
 			data = daServer.getFloatBinaryData("read " + x + " " + y + " " + t + " " + dx + " " + dy + " " + dt + " "
 					+ localEndian + " float from " + handle, npoints);
 		} catch (Exception e) {
-			throwDeviceException(e);
+			throw new DeviceException(
+					String.format("Error reading float data (%d, %d, %d, %d, %d, %d)",
+							x, y, t, dx, dy, dt),
+					e);
 		}
 		if (data == null) {
 			throwNullException();
 		}
 		return data;
-	}
-
-	private void throwDeviceException(Exception e) throws DeviceException {
-		throw new DeviceException(e.getMessage(),e);
 	}
 
 	public float[] readFloat(int frame) throws DeviceException {
@@ -247,7 +246,7 @@ public class Gdhist extends DeviceBase implements Memory {
 			data = daServer.getFloatBinaryData("read 0 0 " + frame + " " + width + " " + height + " 1 " + localEndian
 					+ " float from " + handle, npoints);
 		} catch (Exception e) {
-			throwDeviceException(e);
+			throw new DeviceException("Error reading float data, frame: " + frame, e);
 		}
 		if (data == null) {
 			throwNullException();
@@ -265,7 +264,10 @@ public class Gdhist extends DeviceBase implements Memory {
 			data = daServer.getBinaryData("read " + x + " " + y + " " + t + " " + dx + " " + dy + " " + dt + " "
 					+ localEndian + " float from " + handle, npoints);
 		} catch (Exception e) {
-			throwDeviceException(e);
+			throw new DeviceException(
+					String.format("Error reading double data (%d, %d, %d, %d, %d, %d)",
+							x, y, t, dx, dy, dt),
+					e);
 		}
 		if (data == null) {
 			throwNullException();
@@ -285,7 +287,7 @@ public class Gdhist extends DeviceBase implements Memory {
 			data = daServer.getBinaryData("read 0 0 " + frame + " " + width + " " + height + " 1 " + localEndian
 					+ " float from " + handle, npoints);
 		} catch (Exception e) {
-			throwDeviceException(e);
+			throw new DeviceException("Error reading double data, frame: " + frame, e);
 		}
 		if (data == null) {
 			throwNullException();

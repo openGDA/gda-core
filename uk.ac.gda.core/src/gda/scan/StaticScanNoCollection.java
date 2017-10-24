@@ -73,9 +73,10 @@ public class StaticScanNoCollection extends ScanBase {
 		try {
 			readDevicesAndPublishScanDataPoint();
 		} catch (DeviceException ex) {
-			logger.error("Device Exception: " + ex.getMessage(), ex);
+			logger.error("Error doing collection", ex);
 			throw ex;
 		} catch (InterruptedException ex) {
+			logger.error("Collection interrupted", ex);
 			throw ex;
 		}
 	}

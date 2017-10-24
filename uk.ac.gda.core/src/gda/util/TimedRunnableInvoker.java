@@ -63,12 +63,13 @@ public class TimedRunnableInvoker extends DeviceBase {
 							try {
 								runnable.run();
 							} catch (Throwable ex) {
-								logger.error(ex.getMessage(), ex);
+								logger.error("Error running {}", runnable, ex);
 							}
 						}
 						try {
 							Thread.sleep(getWaitTime());
 						} catch (InterruptedException e) {
+							logger.warn("Ignoring interrupted exception", e);
 							// do nothing
 						}
 					}

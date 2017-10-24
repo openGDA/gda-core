@@ -55,7 +55,7 @@ public class PauseScriptHandler extends AbstractHandler {
 			return Boolean.FALSE;
 
 		} catch (Exception ne) {
-			throw new ExecutionException(ne.getMessage(), ne);
+			throw new ExecutionException("Error pausing/resuming script", ne);
 		}
 	}
 

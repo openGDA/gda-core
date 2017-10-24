@@ -161,7 +161,7 @@ class StatusPanel extends Composite {
 		try {
 			return scanRequestConverter.convertToScanRequest(mappingBean);
 		} catch (ScanningException e) {
-			logger.error("Cannot get the ScanRequest!", e.getMessage(), e);
+			logger.error("Cannot get the ScanRequest!", e);
 			return null;
 		}
 	}

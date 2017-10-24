@@ -144,7 +144,7 @@ public class NI6602 extends gda.device.detector.DetectorBase implements Detector
 		try {
 			System.loadLibrary(NI6602LibraryName);
 		} catch (Throwable e) {
-			logger.error("Exception in NI6602: " + e.getMessage());
+			logger.error("Exception in NI6602", e);
 		}
 	}
 
@@ -264,8 +264,8 @@ public class NI6602 extends gda.device.detector.DetectorBase implements Detector
 						throw new DeviceException("Error arming counter channel " + Integer.toString(i));
 					}
 				} catch (Throwable e) {
-					logger.error("Exception in NI6602: " + e.getMessage());
-					throw (new DeviceException(e.getMessage()));
+					logger.error("Error initialising counter channels in {}.countAsync({})", getName(), time, e);
+					throw new DeviceException(getName() + " countAsync error", e);
 				}
 			}
 		}
@@ -305,8 +305,8 @@ public class NI6602 extends gda.device.detector.DetectorBase implements Detector
 							+ Integer.toString(timingChannel));
 				}
 			} catch (Throwable e) {
-				logger.error("Exception in NI6602: " + e.getMessage());
-				throw (new DeviceException(e.getMessage()));
+				logger.error("Error initialising timer channel in {}.countAsync({})", getName(), time, e);
+				throw new DeviceException(getName() + " countAsync error", e);
 			}
 		}
 		start();
@@ -332,8 +332,8 @@ public class NI6602 extends gda.device.detector.DetectorBase implements Detector
 					statusFlag = BUSY;
 				}
 			} catch (Throwable e) {
-				logger.error("Exception in NI6602: " + e.getMessage());
-				throw (new DeviceException(e.getMessage()));
+				logger.error("{} Error getting status", getName(), e);
+				throw new DeviceException("Error getting status", e);
 			}
 		}
 		return statusFlag;
@@ -355,8 +355,8 @@ public class NI6602 extends gda.device.detector.DetectorBase implements Detector
 				throw new DeviceException("Error starting measurement ");
 			}
 		} catch (Throwable e) {
-			logger.error("Exception in NI6602: " + e.getMessage());
-			throw (new DeviceException(e.getMessage()));
+			logger.error("Error starting {}", getName(), e);
+			throw new DeviceException("Error at start", e);
 		}
 	}
 
@@ -376,8 +376,8 @@ public class NI6602 extends gda.device.detector.DetectorBase implements Detector
 				throw new DeviceException("Error stopping measurement ");
 			}
 		} catch (Throwable e) {
-			logger.error("Exception in NI6602: " + e.getMessage());
-			throw (new DeviceException(e.getMessage()));
+			logger.error("{}: Error stopping", getName(), e);
+			throw new DeviceException("Error stopping " + getName(), e);
 		}
 	}
 
@@ -399,8 +399,8 @@ public class NI6602 extends gda.device.detector.DetectorBase implements Detector
 				}
 				data[i] = val[0];
 			} catch (Throwable e) {
-				logger.error("Exception in NI6602: " + e.getMessage());
-				throw (new DeviceException(e.getMessage()));
+				logger.error("{}: Error reading channels", getName(), e);
+				throw new DeviceException("Error reading channels for " + getName(), e);
 			}
 		}
 		logger.debug("NI6602 " + getName() + " readChans returning " + dataToString());

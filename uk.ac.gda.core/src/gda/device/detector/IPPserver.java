@@ -19,20 +19,19 @@
 
 package gda.device.detector;
 
-import gda.device.Detector;
-import gda.device.DeviceException;
-import gda.device.scannable.ScannableUtils;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
-import java.net.UnknownHostException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.device.Detector;
+import gda.device.DeviceException;
+import gda.device.scannable.ScannableUtils;
 
 /**
  * Interface to the ImageProPlus package for data collection from a Photonics Science CCD.
@@ -129,15 +128,11 @@ public class IPPserver extends DetectorBase implements Detector {
 					logger.debug("Failed to receive connection acknowledge from IPPserver plugin");
 					return;
 				}
-			} catch (UnknownHostException uhe) {
+			} catch (IOException ioe) {
 				/*
-				 * FIXME: Possibly this should be terminal because there is no way to recover.
+				 * FIXME: Possibly UnknownHostException should be terminal because there is no way to recover.
 				 */
-				logger.error("ClientSocketHandlerAdapter caught UnknownHostException connecting to " + getHost() + ":"
-						+ getPort() + " - " + uhe.getMessage());
-			} catch (IOException ie) {
-				logger.error("ClientSocketHandlerAdapter IOException connecting to " + getHost() + ":" + getPort()
-						+ " - " + ie.getMessage());
+				logger.error("Failed to connect to {}:{}", getHost(), getPort(), ioe);
 			}
 
 		}
@@ -156,7 +151,7 @@ public class IPPserver extends DetectorBase implements Detector {
 
 					logger.debug("IPPserver::ClientSocketHandlerAdapter closed socket ok");
 				} catch (IOException ioe) {
-					logger.error(" caught IOException while closing socket: " + ioe.getMessage());
+					logger.error("Could not close socket", ioe);
 				} finally {
 					out = null;
 					in = null;
@@ -394,7 +389,7 @@ public class IPPserver extends DetectorBase implements Detector {
 				throw new DeviceException("Error: failed to set exposure time. IPP Reply was: " + reply);
 			}
 		} catch (InterruptedException e) {
-			throw new DeviceException(e.getMessage(), e);
+			throw new DeviceException("Error setting exposure time", e);
 		}
 	}
 
@@ -408,7 +403,7 @@ public class IPPserver extends DetectorBase implements Detector {
 				throw new DeviceException("Error: failed to exposure. IPP Reply was: " + reply);
 			}
 		} catch (InterruptedException e) {
-			throw new DeviceException(e.getMessage(), e);
+			throw new DeviceException("Error triggering exposure", e);
 		}
 	}
 
@@ -465,7 +460,7 @@ public class IPPserver extends DetectorBase implements Detector {
 
 			logger.debug("saveData getLastImagePath: " + lastImagePathName);
 		} catch (InterruptedException e) {
-			throw new DeviceException(e.getMessage(), e);
+			throw new DeviceException("Error saving data", e);
 		}
 	}
 
@@ -741,7 +736,7 @@ public class IPPserver extends DetectorBase implements Detector {
 			result = sendCommandAndGetReply(command);
 			logger.debug("IPPserver sendCommandJython result: " + result);
 		} catch (InterruptedException e) {
-			throw new DeviceException(e.getMessage(), e);
+			throw new DeviceException("Error sending jython command", e);
 		}
 		return result;
 	}

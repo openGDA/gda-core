@@ -61,7 +61,7 @@ public final class Serializer {
 				byteData = byteStream.toByteArray();
 				os.close();
 			} catch (IOException e) {
-				logger.error("Serialization failure: " + e.getMessage(),e);
+				logger.error("Serialization failure of {}", object, e);
 			}
 		} else {
 			byteData = new byte[1];
@@ -87,9 +87,9 @@ public final class Serializer {
 				object = is.readObject();
 				is.close();
 			} catch (IOException e) {
-				logger.error("DeSerialization failure: " + e.getMessage(),e);
+				logger.error("DeSerialization failure", e);
 			} catch (ClassNotFoundException e) {
-				logger.error("Class not found: " + e.getMessage(),e);
+				logger.error("Class not found", e);
 			}
 		}
 		return object;

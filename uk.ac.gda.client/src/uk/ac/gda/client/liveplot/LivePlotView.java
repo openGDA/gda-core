@@ -580,7 +580,7 @@ public class LivePlotView extends ViewPart implements IScanDataPointObserver {
 				}
 			}
 		} catch (Exception e) {
-			// logger.warn(e.getMessage(), e);
+			logger.warn("Error setting connect to {}", connect, e);
 		}
 	}
 

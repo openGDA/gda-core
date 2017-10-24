@@ -94,10 +94,10 @@ public class LoadAdditionalBeansToObjectServer extends ApplicationObjectSupport 
 			placeInJythonNamescape();
 		} catch (FileNotFoundException e) {
 			TERMINAL_PRINTER.print(e.getMessage());
-			logger.error(e.getMessage(), e);
+			logger.error("Could not find file", e);
 		} catch (FactoryException e) {
 			TERMINAL_PRINTER.print(e.getMessage());
-			logger.error(e.getMessage(), e);
+			logger.error("Error configuring new beans", e);
 		}
 
 	}

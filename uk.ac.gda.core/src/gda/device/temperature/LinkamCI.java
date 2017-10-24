@@ -131,7 +131,7 @@ public class LinkamCI extends TemperatureBase {
 				startPoller();
 				configured = true;
 			} catch (DeviceException de) {
-				logger.error(debugName + ".configure() caught DeviceException" + de.getMessage());
+				logger.error("Error in {}.configure()", getName(), de);
 			}
 
 		}
@@ -348,7 +348,7 @@ public class LinkamCI extends TemperatureBase {
 			currentTemp = extractTemperature(statusString.substring(6, 10));
 			stage.pollDone(pe);
 		} catch (DeviceException de) {
-			logger.error(debugName + "pollDone() caught DeviceException" + de.getMessage());
+			logger.error("Error in {}.pollDone()", getName(), de);
 		}
 	}
 
@@ -460,7 +460,7 @@ public class LinkamCI extends TemperatureBase {
 				stage = new DefaultStage(this);
 			}
 		} catch (DeviceException de) {
-			logger.error(debugName + ".perhapsCreateDsc() caught DeviceException" + de.getMessage());
+			logger.error("Error in {}.createStage()", getName(), de);
 		}
 		return stage;
 	}

@@ -50,7 +50,7 @@ public class SnapshotFromLiveStreamHandler extends AbstractHandler {
 			Display.getDefault().asyncExec(() -> updateSnapshotView(snapshotView, snapshot));
 			return null;
 		} catch (PartInitException e) {
-			logger.error("View '{}'cannot be initialised: ", e.getMessage());
+			logger.error("View '{}' cannot be initialised", SnapshotView.ID, e);
 			throw new ExecutionException("View '" + SnapshotView.ID + "' Cannot be initialised.", e);
 		}
 	}

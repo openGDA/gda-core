@@ -162,7 +162,7 @@ public class ScannableMotionBase extends ScannableBase implements ScannableMotio
 					this.waitWhileBusy();
 				} while (!isAt(position) && numberAttempts < this.numberTries);
 			} catch (Exception e) {
-				throw new DeviceException("Exception while moving " + getName() + ": " + e.getMessage());
+				throw new DeviceException("Exception while moving {}", getName(), e);
 			}
 
 			// if tried too many times then throw an exception
@@ -202,7 +202,7 @@ public class ScannableMotionBase extends ScannableBase implements ScannableMotio
 		} catch (DeviceException ex) {
 			throw ex;
 		} catch (Exception ex) {
-			throw new DeviceException(ex.getMessage(), ex);
+			throw new DeviceException("Error during relaive move", ex);
 		}
 	}
 
@@ -220,7 +220,7 @@ public class ScannableMotionBase extends ScannableBase implements ScannableMotio
 		} catch (DeviceException ex) {
 			throw ex;
 		} catch (Exception ex) {
-			throw new DeviceException(ex.getMessage(), ex);
+			throw new DeviceException("Error in async relative move", ex);
 		}
 	}
 
@@ -629,12 +629,9 @@ public class ScannableMotionBase extends ScannableBase implements ScannableMotio
 		try {
 			report = ScannableUtils.getFormattedCurrentPosition(this);
 		} catch (PyException e) {
-			throw new RuntimeException(e.getMessage(), e);
+			throw new RuntimeException("Error getting formatted string", e);
 		} catch (Exception e) {
-			if (e instanceof NullPointerException || e.getMessage().isEmpty()) {
-				throw new RuntimeException("Exception in " + getName() + ".toString()", e);
-			}
-			throw new RuntimeException(e.getMessage(), e);
+			throw new RuntimeException("Exception in " + getName() + ".toString()", e);
 		}
 
 		return report + generateScannableLimitsReport();

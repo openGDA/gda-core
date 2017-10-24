@@ -101,9 +101,7 @@ public class ReducedGUIStartup implements IStartup {
 				return true;
 			}
 		} catch (ClassNotFoundException e) {
-			logger
-					.warn("Exception while testing if user should run the reduced GUI so test has been skipped. Exception was: "
-							+ e.getMessage());
+			logger.warn("Exception while testing if user should run the reduced GUI so test has been skipped.", e);
 		}
 
 		// If baton management is enabled and the baton is held by someone on a different visit then *do not* run full gui.

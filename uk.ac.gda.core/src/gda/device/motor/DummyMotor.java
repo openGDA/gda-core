@@ -399,7 +399,7 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 					wait();
 				} while (!simulatedMoveRequired);
 			} catch (Exception ex) {
-				logger.debug(ex.getMessage());
+				logger.debug("Error while waiting for dummy motor move", ex);
 			}
 
 			// If limitCount is 0 set the status to BUSY a limit may still

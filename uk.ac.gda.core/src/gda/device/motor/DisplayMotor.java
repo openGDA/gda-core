@@ -140,7 +140,7 @@ public class DisplayMotor extends MotorBase {
 			displayReply = reader.read();
 			logger.debug("DisplayMotor: Display readout = " + displayReply);
 		} catch (Exception e) {
-			logger.error("DisplayMotor: Exception caught sending command to display" + e.getMessage());
+			logger.error("Error sending command '{}' to display", command, e);
 			// README Have chosen not to throw an exception here because it
 			// may
 			// create more problems than it solves.

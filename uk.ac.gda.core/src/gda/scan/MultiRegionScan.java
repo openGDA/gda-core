@@ -170,7 +170,7 @@ public class MultiRegionScan extends ScanBase {
 			if (e instanceof InterruptedException) {
 				throw e;
 			}
-			throw new Exception("MultiRegionScan.doCollection: " + e.getMessage(), e);
+			throw new Exception("Error running MultiRegionScan collection", e);
 		}
 
 	}

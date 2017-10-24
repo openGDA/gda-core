@@ -155,7 +155,7 @@ public class Eurotherm2000 extends TemperatureBase implements ReplyChecker {
 				startPoller();
 				configured = true;
 			} catch (DeviceException de) {
-				logger.error(debugName + ".configure() caught DeviceException" + de.getMessage());
+				logger.error("Error configuring {}", getName(), de);
 			}
 		}
 	}
@@ -426,7 +426,7 @@ public class Eurotherm2000 extends TemperatureBase implements ReplyChecker {
 			else
 				stateString = "Idle";
 		} catch (DeviceException de) {
-			logger.error("Exception " + de.getMessage());
+			logger.error("Error checking current temperature in pollDone", de);
 		}
 		if (timeSinceStart >= 0.0) {
 			Date d = new Date();
@@ -446,7 +446,7 @@ public class Eurotherm2000 extends TemperatureBase implements ReplyChecker {
 			outputPower = getOutputPower();
 			setPoint = getSetPoint();
 		} catch (DeviceException de) {
-			logger.error("DeviceException reading OutputPower: " + de.getMessage());
+			logger.error("Error getting output power or setpoint", de);
 		}
 		if (dataFileWriter != null) {
 			dataFileWriter.write("" + n.format(timeSinceStart / 1000.0) + " " + setPoint + " " + currentTemp + " "

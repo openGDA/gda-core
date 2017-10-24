@@ -379,9 +379,9 @@ public class DummyCounterTimer extends TFGCounterTimer implements Runnable, IObs
 				state = Detector.IDLE;
 			}
 		} catch (InterruptedException ex) {
-			logger.error(ex.getMessage());
+			logger.error("Thread interrupted while waiting", ex);
 		} catch (Exception ex) {
-			logger.error(ex.getMessage());
+			logger.error("Error while running CounterTimer", ex);
 		}
 	}
 

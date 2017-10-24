@@ -19,14 +19,14 @@
 
 package gda.device.temperature;
 
-import gda.device.DeviceException;
-import gda.device.Serial;
-import gda.util.BusyFlag;
-
 import java.io.IOException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.device.DeviceException;
+import gda.device.Serial;
+import gda.util.BusyFlag;
 
 /**
  * Class to communicate asynchronously with a Serial device FIXME is this temperature device specific or should there be
@@ -158,8 +158,7 @@ public class AsynchronousReaderWriter implements Runnable {
 		try {
 			sendCommandAndGetReply(command);
 		} catch (DeviceException de) {
-			logger.error(debugName + ".handleCommand() caught DeviceException \"" + de.getMessage()
-					+ "\" sending command \"" + command + "\"");
+			logger.error("Error sending command '{}'", command, de);
 		}
 	}
 
@@ -247,14 +246,13 @@ public class AsynchronousReaderWriter implements Runnable {
 			// OR the buffer is full in appendToReplyBuffer()
 			// In either case we want to reconnect.
 			catch (IOException ioe) {
-				logger.error(debugName + " run() caught IOException " + ioe.getMessage()
-						+ ". Will attempt to reconnect");
+				logger.error("run() error. Will attempt to reconnect", ioe);
 			}
 			// An InterruptedException would come from the wait() call.
 			// This should not happen and perhaps is so serious that the
 			// program should terminate.
 			catch (InterruptedException ie) {
-				logger.error(debugName + " run() caught InterrupedException " + ie.getMessage());
+				logger.error("run() interrupted", ie);
 			}
 			// When the read returns 0 bytes (which it shouldn't)
 			// SerialComm throws an DeviceException
@@ -262,11 +260,11 @@ public class AsynchronousReaderWriter implements Runnable {
 			// We only log as DEBUG now and wait a bit to reduce polling
 			// See trac #1174
 			catch (DeviceException de) {
-				logger.debug(debugName + " run() caught DeviceException " + de.getMessage());
+				logger.debug("Error while running", de);
 				try {
 					Thread.sleep(75);
 				} catch (InterruptedException e) {
-					logger.error("{} - Thread interrupted", debugName, e);
+					logger.error("Thread interrupted", e);
 					Thread.currentThread().interrupt();
 					break;
 				}

@@ -96,7 +96,7 @@ public class TwoJawSlitGap extends TwoJawSlitPosition {
 				targets[0] = xmlCentre.plus(target.divide(2.0));
 				targets[1] = xmlCentre.minus(target.divide(2.0));
 			} catch (Exception e) {
-				throw new DeviceException(e.getMessage(),e);
+				throw new DeviceException("Error calculating targets for " + position, e);
 			}
 			//
 		} else {

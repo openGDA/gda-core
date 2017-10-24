@@ -390,7 +390,7 @@ public class GridScan extends ScanBase implements Scan {
 			if (e instanceof InterruptedException) {
 				throw e;
 			}
-			throw new Exception("GridScanMoveToOnly.moveStepIncrement(): " + e.getMessage());
+			throw new Exception("Error in moveStepIncrement, stepNos: " + stepNos, e);
 		}
 	}
 
@@ -419,7 +419,7 @@ public class GridScan extends ScanBase implements Scan {
 			if (e instanceof InterruptedException) {
 				throw e;
 			}
-			throw new Exception("GridScan.moveToStart(): " + e.getMessage());
+			throw new Exception("Couldn't move to start", e);
 		}
 	}
 
@@ -472,8 +472,7 @@ public class GridScan extends ScanBase implements Scan {
 				}
 			}
 		} catch (Exception ex) {
-			String error = "Number format problem could not calculate number of points on GridScan: " + ex.getMessage();
-			logger.error(error, ex);
+			logger.error("Number format problem could not calculate number of points on GridScan", ex);
 		}
 
 		// if this scan has a child scan, then it should collect from that child

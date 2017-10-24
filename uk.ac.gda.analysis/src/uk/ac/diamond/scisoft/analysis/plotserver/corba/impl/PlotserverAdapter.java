@@ -85,13 +85,14 @@ public class PlotserverAdapter extends DeviceAdapter implements PlotServer {
 	private boolean viewIsLocal(String viewname){
 		return localplotviews != null && localplotviews.length()>0 && viewname.matches(localplotviews);
 	}
+
 	@Override
 	public GuiBean getGuiState(String guiName) throws DeviceException {
 		if(delegate != null && viewIsLocal(guiName)){
 			try {
 				return delegate.getGuiState(guiName);
 			} catch (Exception e) {
-				throw new DeviceException(e.getMessage());
+				throw new DeviceException("Could not get GUI state for " + guiName, e);
 			}
 		}
 
@@ -106,7 +107,7 @@ public class PlotserverAdapter extends DeviceAdapter implements PlotServer {
 				corbaPlotServer = CorbaPlotServerHelper.narrow(netService
 						.reconnect(name));
 			} catch (CorbaDeviceException ex) {
-				throw new DeviceException(ex.message);
+				throw new DeviceException("Could not get guiState for " + guiName, ex);
 			}
 
 		}
@@ -119,7 +120,7 @@ public class PlotserverAdapter extends DeviceAdapter implements PlotServer {
 			try {
 				return delegate.getData(guiName);
 			} catch (Exception e) {
-				throw new DeviceException(e.getMessage());
+				throw new DeviceException("Could not get data for " + guiName, e);
 			}
 		}
 
@@ -132,7 +133,7 @@ public class PlotserverAdapter extends DeviceAdapter implements PlotServer {
 			} catch (TRANSIENT ct) {
 				corbaPlotServer = CorbaPlotServerHelper.narrow(netService.reconnect(name));
 			} catch (CorbaDeviceException ex) {
-				throw new DeviceException(ex.message);
+				throw new DeviceException("Could not get data for " + guiName, ex);
 			}
 
 		}
@@ -146,7 +147,7 @@ public class PlotserverAdapter extends DeviceAdapter implements PlotServer {
 				delegate.setData(guiName, plotData);
 				return;
 			} catch (Exception e) {
-				throw new DeviceException(e.getMessage());
+				throw new DeviceException("Could not set data for " + guiName, e);
 			}
 		}
 		for (int i = 0; i < NetService.RETRY; i++) {
@@ -160,7 +161,7 @@ public class PlotserverAdapter extends DeviceAdapter implements PlotServer {
 			} catch (TRANSIENT ct) {
 				corbaPlotServer = CorbaPlotServerHelper.narrow(netService.reconnect(name));
 			} catch (CorbaDeviceException ex) {
-				throw new DeviceException(ex.message);
+				throw new DeviceException("Could not set data for " + guiName, ex);
 			}
 
 		}
@@ -176,7 +177,7 @@ public class PlotserverAdapter extends DeviceAdapter implements PlotServer {
 				delegate.updateGui(guiName, guiData);
 				return;
 			} catch (Exception e) {
-				throw new DeviceException(e.getMessage());
+				throw new DeviceException("Could not update GUI for " + guiName, e);
 			}
 		}
 
@@ -191,7 +192,7 @@ public class PlotserverAdapter extends DeviceAdapter implements PlotServer {
 			} catch (TRANSIENT ct) {
 				corbaPlotServer = CorbaPlotServerHelper.narrow(netService.reconnect(name));
 			} catch (CorbaDeviceException ex) {
-				throw new DeviceException(ex.message);
+				throw new DeviceException("Could not update gui " + guiName, ex);
 			}
 		}
 	}
@@ -202,7 +203,7 @@ public class PlotserverAdapter extends DeviceAdapter implements PlotServer {
 			try {
 				delegate.updateData(guiName);
 			} catch (Exception e) {
-				throw new DeviceException(e.getMessage());
+				throw new DeviceException("Could not update data for " + guiName, e);
 			}
 			return;
 		}
@@ -218,7 +219,7 @@ public class PlotserverAdapter extends DeviceAdapter implements PlotServer {
 				corbaPlotServer = CorbaPlotServerHelper.narrow(netService
 						.reconnect(name));
 			} catch (CorbaDeviceException ex) {
-				throw new DeviceException(ex.message);
+				throw new DeviceException("Could not update data for " + guiName, ex);
 			}
 		}
 	}
@@ -240,7 +241,7 @@ public class PlotserverAdapter extends DeviceAdapter implements PlotServer {
 					guiNames.addAll(Arrays.asList(delegateGuiNames));
 				}
 			} catch (Exception e) {
-				throw new DeviceException(e.getMessage());
+				throw new DeviceException("Could not get GUI names from " + delegate, e);
 			}
 		}
 
@@ -260,7 +261,7 @@ public class PlotserverAdapter extends DeviceAdapter implements PlotServer {
 				corbaPlotServer = CorbaPlotServerHelper.narrow(netService
 						.reconnect(name));
 			} catch (CorbaDeviceException ex) {
-				throw new DeviceException(ex.message);
+				throw new DeviceException("Could not get gui names", ex);
 			}
 		}
 		throw new DeviceException("Retrieve data error in the PlotServerAdapter");

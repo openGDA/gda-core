@@ -86,12 +86,8 @@ public class GdaSubProcessBuilder {
 					}
 					p.getInputStream().close();
 					br.close();
-				} catch (IOException e) {
-					throw new RuntimeException("IOException caught in GdaSubProcessBuilder.processThread: "
-							+ e.getMessage());
 				} catch (Exception e) {
-					throw new RuntimeException("Exception caught in GdaSubProcessBuilder.processThread: "
-							+ e.getMessage());
+					throw new RuntimeException("Error in GdaSubProcessBuilder.processThread", e);
 				}
 			}
 		});

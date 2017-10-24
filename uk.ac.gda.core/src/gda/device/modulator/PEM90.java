@@ -259,7 +259,7 @@ public class PEM90 extends DeviceBase implements Modulator {
 		try {
 			ioPEM90("Z");
 		} catch (DeviceException de) {
-			logger.debug(de.getMessage());
+			logger.debug("Error resetting", de);
 		}
 	}
 
@@ -278,7 +278,7 @@ public class PEM90 extends DeviceBase implements Modulator {
 		try {
 			ioPEM90("E:" + echoNum);
 		} catch (DeviceException de) {
-			logger.debug(de.getMessage());
+			logger.debug("Error setting echo to {}", echocommand, de);
 		}
 	}
 
@@ -334,7 +334,7 @@ public class PEM90 extends DeviceBase implements Modulator {
 		try {
 			ioPEM90("I:" + inhibit);
 		} catch (DeviceException de) {
-			logger.debug(de.getMessage());
+			logger.debug("Error setting inhibit to {}", inhibitRetardation, de);
 		}
 	}
 

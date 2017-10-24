@@ -125,7 +125,7 @@ public class NexusDetectorProcessor implements NexusDetector, PositionCallablePr
 		try {
 			return getPositionCallable().call();
 		} catch (Exception e) {
-			throw new DeviceException(e.getMessage(), e);
+			throw new DeviceException("Could not get position", e);
 		}
 	}
 
@@ -219,7 +219,7 @@ public class NexusDetectorProcessor implements NexusDetector, PositionCallablePr
 		try {
 			return getPositionCallable().call();
 		} catch (Exception e) {
-			throw new DeviceException(e.getMessage(), e);
+			throw new DeviceException("Could not get position for readout", e);
 		}
 	}
 

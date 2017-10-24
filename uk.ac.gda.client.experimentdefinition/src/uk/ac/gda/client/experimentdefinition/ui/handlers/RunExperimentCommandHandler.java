@@ -107,7 +107,7 @@ public class RunExperimentCommandHandler extends AbstractExperimentCommandHandle
 		try {
 			commandProvider = new ExperimentCommandProvider(ob);
 		} catch (Exception e) {
-			logger.error("Exception creating ExperimentCommandProvider." + e.getMessage());
+			logger.error("Exception creating ExperimentCommandProvider", e);
 			throw new ExecutionException("Exception creating ExperimentCommandProvider.", e);
 		}
 
@@ -118,7 +118,7 @@ public class RunExperimentCommandHandler extends AbstractExperimentCommandHandle
 		try {
 			CommandQueueViewFactory.getQueue().addToTail(commandProvider);
 		} catch (Exception e) {
-			logger.error("Exception adding ExperimentCommandProvider to CommandQueue." + e.getMessage());
+			logger.error("Exception adding ExperimentCommandProvider to CommandQueue", e);
 			throw new ExecutionException("Exception adding ExperimentCommandProvider to CommandQueue.", e);
 		}
 	}

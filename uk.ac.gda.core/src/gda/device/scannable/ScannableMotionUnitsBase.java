@@ -147,13 +147,8 @@ public abstract class ScannableMotionUnitsBase extends ScannableMotionBase imple
 		String report;
 		try {
 			report = ScannableUtils.getFormattedCurrentPosition(this);
-		} catch (PyException e) {
-			throw new RuntimeException(e.getMessage(),e);
 		} catch (Exception e) {
-			if (e instanceof NullPointerException || e.getMessage().isEmpty()){
-				throw new RuntimeException("Exception in " + getName() + ".toString()",e);
-			}
-			throw new RuntimeException(e.getMessage(),e);
+			throw new RuntimeException("Error getting formatted string for " + getName(), e);
 		}
 
 		return report + generateScannableLimitsReport();

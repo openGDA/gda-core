@@ -112,7 +112,7 @@ public class ScanDataPlotterComposite extends ResourceComposite {
 		try {
 			plottingSystem = PlottingFactory.createPlottingSystem();
 		} catch (Exception e) {
-			UIHelper.showError("Unable to create plotting system", e.getMessage());
+			UIHelper.showError("Unable to create plotting system", e);
 			logger.error("Unable to create plotting system", e);
 			return;
 		}

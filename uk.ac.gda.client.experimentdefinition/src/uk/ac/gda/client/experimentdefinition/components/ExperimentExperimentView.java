@@ -155,7 +155,7 @@ public class ExperimentExperimentView extends ViewPart implements ExperimentObje
 					}
 				});
 			} catch (Exception e1) {
-				logger.warn("Exception while refreshing: " + e1.getMessage(), e1);
+				logger.warn("Exception while refreshing", e1);
 			}
 		}
 	}
@@ -269,7 +269,7 @@ public class ExperimentExperimentView extends ViewPart implements ExperimentObje
 
 					moveExperiment(scanToBeMoved, pt, bounds, targetMultiScan, items, index);
 				} catch (Exception e) {
-					logger.warn("Exception while trying to move IExperimentObject:" + e.getMessage());
+					logger.warn("Exception while trying to move IExperimentObject", e);
 				} finally {
 					ExperimentFactory.getExperimentEditorManager().notifySelectionListeners();
 				}

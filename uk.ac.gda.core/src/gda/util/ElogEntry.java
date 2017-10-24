@@ -18,10 +18,6 @@
 
 package gda.util;
 
-import gda.configuration.properties.LocalProperties;
-import gda.data.metadata.GDAMetadataProvider;
-import gda.device.DeviceException;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -41,6 +37,9 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
+import gda.data.metadata.GDAMetadataProvider;
+import gda.device.DeviceException;
 import uk.ac.gda.util.ThreadManager;
 
 public class ElogEntry {
@@ -162,8 +161,7 @@ public class ElogEntry {
 				try {
 					post();
 				} catch (Exception e) {
-					Logger logger = LoggerFactory.getLogger(ElogEntry.class);
-					logger.error(e.getMessage(), e);
+					elogger.error("Error posting ElogEntry", e);
 				}
 			}
 		}, "ElogEntry: "+title);
@@ -364,8 +362,7 @@ public class ElogEntry {
 				try {
 					ElogEntry.post(title, content, userID, visit, logID, groupID, fileLocations);
 				} catch (Exception e) {
-					Logger logger = LoggerFactory.getLogger(ElogEntry.class);
-					logger.error(e.getMessage(), e);
+					elogger.error("Error posting ElogEntry", e);
 				}
 			}
 		}, "ElogEntry: "+title);

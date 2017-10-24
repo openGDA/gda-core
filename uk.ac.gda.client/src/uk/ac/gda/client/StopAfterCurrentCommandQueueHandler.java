@@ -35,7 +35,7 @@ public class StopAfterCurrentCommandQueueHandler extends AbstractHandler {
 			CommandQueueViewFactory.processor.stopAfterCurrent();
 			return Boolean.TRUE;
 		} catch (Exception ne) {
-			throw new ExecutionException(ne.getMessage(), ne);
+			throw new ExecutionException("Error running StopAfterCurrentCommand", ne);
 		}
 	}
 

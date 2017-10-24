@@ -103,7 +103,7 @@ public class SixdSrsDataWriter extends IncrementalFile {
 				lineToAdd = dataPoint.toDelimitedString() + "\n";
 			}
 		} catch (Exception e) {
-			String msg = "Problem extracting delimited string from point '" + dataPoint.getCurrentPointNumber() + "':" +e.getMessage();
+			String msg = "Problem extracting delimited string from point " + dataPoint.getCurrentPointNumber();
 			logger.error(msg , e);
 			throw new Exception(msg , e);
 		}
@@ -246,7 +246,7 @@ public class SixdSrsDataWriter extends IncrementalFile {
 			// now write the column headings
 			file.write(getHeaderLine() + "\n");
 		} catch (IOException ex) {
-			logger.error("Error when writing SixdSrsDataWriter header: " + ex.getMessage());
+			logger.error("Error when writing SixdSrsDataWriter header", ex);
 		}
 	}
 

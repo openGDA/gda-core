@@ -93,7 +93,7 @@ public class AirBearingScannableMotor extends ScannableMotor implements IAirBear
 			try {
 				super.waitWhileBusy();
 			} catch (InterruptedException e) {
-				logger.error("{}: Motion be interrupted - {}.", getName(), e.getMessage());
+				logger.error("{}: Motion was interrupted", getName(), e);
 			}
 			off();
 			airBearingControlHere = false;

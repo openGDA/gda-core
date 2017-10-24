@@ -160,8 +160,7 @@ public final class NewportXPSMotor_VaryIntegration extends NewportXPSMotor {
 			try {
 				changeKI(getKIWhenStationary());
 			} catch (MotorException e) {
-				logger.error(getName() + "error occurred after move completed when trying to reset the KI value: "
-						+ e.getMessage());
+				logger.error("{} error occurred after move completed when trying to reset the KI value", getName(), e);
 			}
 
 		}

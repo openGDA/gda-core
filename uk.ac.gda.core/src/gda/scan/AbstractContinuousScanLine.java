@@ -340,10 +340,10 @@ public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 				task.get();
 			}
 		} catch (ExecutionException e) {
-			logger.error(e.getClass() + " while arming detectors:", e.getCause());
+			logger.error("Error arming detectors", e);
 			cancelRemainingTasks(futureTasks);
 			stopDetectors();
-			throw new DeviceException("Problem arming detectors: "+ e.getMessage(), e.getCause());
+			throw new DeviceException("Problem arming detectors", e);
 		} catch (InterruptedException e) {
 			logger.error("Interrupted while arming detectors", e);
 			cancelRemainingTasks(futureTasks);

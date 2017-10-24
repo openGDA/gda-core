@@ -251,9 +251,8 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 						// Get the next run number
 						scanNumber = runNumber.incrementNumber();
 					} catch (IOException e) {
-						logger.error("ERROR: Could not instantiate NumTracker in NexusDataWriter().", e);
-						throw new InstantiationException(
-								"ERROR: Could not instantiate NumTracker in NexusDataWriter()." + e.getMessage());
+						logger.error("Could not instantiate NumTracker", e);
+						throw new IOException("Could not instantiate NumTracker in NexusDataWriter()", e);
 					}
 				}
 			}
@@ -1126,8 +1125,8 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 			}
 
 		} catch (NexusException e) {
-			String error = "NeXus file creation failed during makeScannables: ";
-			logger.error(error + e.getMessage(), e);
+			String error = "NeXus file creation failed during makeScannables";
+			logger.error(error, e);
 			terminalPrinter.print(error);
 			terminalPrinter.print(e.getMessage());
 		}
@@ -1146,8 +1145,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 			try {
 				id.create(file, group);
 			} catch (NexusException e) {
-				logger.warn("Error in makeLink (reported to NX group) for " + id.toString() + "with error"
-						+ e.getMessage());
+				logger.warn("Error in makeLink (reported to NX group) for {} with error", id, e);
 			}
 		}
 	}
@@ -1174,12 +1172,12 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 			}
 		} catch (NexusException e) {
 			String error = "NeXus file creation failed during makeDetectors: ";
-			logger.error(error + e.getMessage(), e);
+			logger.error(error, e);
 			terminalPrinter.print(error);
 			terminalPrinter.print(e.getMessage());
 		} catch (DeviceException de) {
 			String error = "DeviceException during NeXus file creation: ";
-			logger.error(error + de.getMessage(), de);
+			logger.error(error, de);
 			terminalPrinter.print(error);
 			terminalPrinter.print(de.getMessage());
 		}

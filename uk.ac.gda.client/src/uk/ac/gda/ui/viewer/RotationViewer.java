@@ -376,7 +376,7 @@ public class RotationViewer {
 				try {
 					((ScannablePositionSource)motor).setPosition(targetVal);
 				} catch (final DeviceException e) {
-					logger.debug("Exception when {}: {}", msg, e.getMessage(), e);
+					logger.debug("Exception when {}", msg, e);
 					handleExceptionRecursively(e);
 				}
 				finally {
@@ -402,11 +402,11 @@ public class RotationViewer {
 			private void handleExceptionRecursively(Throwable e) {
 
 				if (e.getMessage().contains(IScannableMotor.WAS_ALREADY_BUSY_SO_COULD_NOT_BE_MOVED)) {
-					logger.info("Exception when {}: {}", msg, e.getMessage());
+					logger.info("Exception when {}", msg, e);
 				}
 				else if (e.getCause() == null) {
-					logger.error("Exception when {}: {}", msg, e.getMessage());
-					UIHelper.showError("Exception when " + msg, e.getMessage());
+					logger.error("Exception when {}", msg, e);
+					UIHelper.showError("Exception when {}" + msg, e.getMessage());
 				}
 				else {
 					handleExceptionRecursively(e.getCause());

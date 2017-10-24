@@ -369,7 +369,7 @@ public class PolarimeterGridScan extends ScanBase implements Scan {
 			// then notify IObservers of this scan (e.g. GUI panels)
 			InterfaceProvider.getJythonServerNotifer().notifyServer(this, point);
 		} catch (DeviceException ex) {
-			logger.error("PolarimeterGridScan.collectData(): Device Exception: " + ex.getMessage());
+			logger.error("Error collecting data", ex);
 			throw ex;
 		} catch (InterruptedException ex) {
 			throw ex;
@@ -396,7 +396,7 @@ public class PolarimeterGridScan extends ScanBase implements Scan {
 			if (e instanceof InterruptedException) {
 				throw e;
 			}
-			throw new Exception("PolarimeterGridScan.moveStepIncrement(): " + e.getMessage());
+			throw new Exception("Error moving step increment. currentStep: " + currentStep, e);
 		}
 	}
 
@@ -421,7 +421,7 @@ public class PolarimeterGridScan extends ScanBase implements Scan {
 			if (e instanceof InterruptedException) {
 				throw e;
 			}
-			throw new Exception("PolarimeterGridScan.moveToStart(): " + e.getMessage());
+			throw new Exception("Couldn't move to start", e);
 		}
 	}
 
@@ -567,7 +567,7 @@ public class PolarimeterGridScan extends ScanBase implements Scan {
 			if (e instanceof InterruptedException) {
 				throw e;
 			}
-			throw new Exception("PolarimeterGridScan.measureFluxValue(): " + e.getMessage());
+			throw new Exception("Couldn't measure flux value", e);
 		}
 
 	}

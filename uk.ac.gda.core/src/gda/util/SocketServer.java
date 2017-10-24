@@ -107,7 +107,7 @@ public class SocketServer implements Runnable {
 						reader.close();
 						socket.close();
 					} catch (IOException ioex) {
-						logger.error("IOException caught in Grip Command Server " + ioex.getMessage() + " " + socket + " " + reader);
+						logger.error("Error running SocketServer", ioex);
 					}
 				}
 			}

@@ -97,8 +97,7 @@ public class HumidityServer implements Runnable {
 
 					socket.close();
 				} catch (IOException ioex) {
-					logger.error("IOException caught in Grip Command Server " + ioex.getMessage() + " " + socket + " "
-							+ reader);
+					logger.error("Error while running server", ioex);
 				}
 			}
 		} catch (NumberFormatException e) {

@@ -107,7 +107,7 @@ public class SimpleUDPServerScannable extends ScannableBase {
 						}
 					}
 				} catch (Exception e) {
-					logger.error(e.getMessage(), e);
+					logger.error("Error in read thread", e);
 				}
 			}
 		};

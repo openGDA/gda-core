@@ -195,7 +195,7 @@ public class GridScanMoveToOnly extends GridScan {
 			if (e instanceof InterruptedException) {
 				throw e;
 			}
-			throw new Exception("GridScanMoveToOnly.moveStepIncrement(): " + e.getMessage());
+			throw new Exception("Couldn't move step increment " + stepNos, e);
 		}
 	}
 }

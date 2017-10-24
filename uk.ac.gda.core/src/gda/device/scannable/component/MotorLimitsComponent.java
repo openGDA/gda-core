@@ -42,8 +42,7 @@ public class MotorLimitsComponent implements LimitsComponent {
 			double min = motor.getMinPosition();
 			return (Double.isNaN(min)) ? null : new Double[] { min };
 		} catch (MotorException e) {
-			throw new DeviceException("Problem getting motor " + motor.getName() + "'s lower limit: " + e.getMessage(),
-					e);
+			throw new DeviceException("Problem getting motor " + motor.getName() + "'s lower limit", e);
 		}
 	}
 
@@ -56,8 +55,7 @@ public class MotorLimitsComponent implements LimitsComponent {
 			double max = motor.getMaxPosition();
 			return (Double.isNaN(max)) ? null : new Double[] { max };
 		} catch (MotorException e) {
-			throw new DeviceException("Problem getting motor " + motor.getName() + "'s upper limit: " + e.getMessage(),
-					e);
+			throw new DeviceException("Problem getting motor " + motor.getName() + "'s upper limit", e);
 		}
 	}
 

@@ -205,7 +205,7 @@ public class SlaveMotor extends MotorBase {
 			status = MotorStatus.BUSY;
 			parseReply(serialController.getReply());
 		} catch (Exception e) {
-			throw new MotorException(MotorStatus.FAULT, e.getMessage());
+			throw new MotorException(MotorStatus.FAULT, "Error moving to " + steps, e);
 		} finally {
 			status = MotorStatus.READY;
 		}

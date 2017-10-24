@@ -615,7 +615,7 @@ public class ExperimentEditorManager implements IExperimentEditorManager {
 					}
 				}
 			} catch (PartInitException e) {
-				logger.error(e.getMessage(), e);
+				logger.error("Could not get editor for {}", ref, e);
 			}
 		}
 	}

@@ -82,7 +82,7 @@ public class DataFileWriter {
 			dataFileName = nextDataFileName();
 			writer = new BufferedWriter(new FileWriter(new File(dataFileName)));
 		} catch (IOException ioe) {
-			logger.error(debugName + ".open() caught IOException" + ioe.getMessage());
+			logger.error("Error in {}.open()", debugName, ioe);
 		}
 	}
 
@@ -97,7 +97,7 @@ public class DataFileWriter {
 			try {
 				writer.write(toWrite + "\n");
 			} catch (IOException ioe) {
-				logger.error(debugName + ".write() caught IOException" + ioe.getMessage());
+				logger.error("Error in {}.write({})", debugName, toWrite, ioe);
 			}
 		}
 	}
@@ -113,7 +113,7 @@ public class DataFileWriter {
 				dataFileName = null;
 			}
 		} catch (IOException ioe) {
-			logger.error(debugName + ".close() caught IOException" + ioe.getMessage());
+			logger.error("Error in {}.close()", debugName, ioe);
 		}
 	}
 

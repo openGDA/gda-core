@@ -148,7 +148,7 @@ public class BeamAdapter implements BeamInfo, EventSubscriber {
 			} catch (TRANSIENT ct) {
 				paramsObj = CorbaBeamInfoHelper.narrow(netService.reconnect(name));
 			} catch (CorbaDeviceException e) {
-				throw new DeviceException(e.getMessage());
+				throw new DeviceException("Could not set energy from DCM", e);
 			}
 		}
 		throw new DeviceException("Communication failure: retry failed");

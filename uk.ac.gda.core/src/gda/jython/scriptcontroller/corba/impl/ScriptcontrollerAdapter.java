@@ -93,7 +93,7 @@ public class ScriptcontrollerAdapter implements Findable, Scriptcontroller, Even
 			notifyIObservers(this, obj);
 			//logger.debug("ScriptcontrollerAdapter " + name + ": Notified observers");
 		} catch (DeviceException e) {
-			logger.error(e.getMessage(),e);
+			logger.error("Could not convert {} to IScanDataPoint", obj, e);
 		}
 	}
 
@@ -134,7 +134,7 @@ public class ScriptcontrollerAdapter implements Findable, Scriptcontroller, Even
 			} catch (TRANSIENT ct) {
 				controller = CorbaScriptControllerHelper.narrow(netService.reconnect(name));
 			} catch (CorbaDeviceException ex) {
-				logger.error(ex.getMessage());
+				logger.error("Could not getCommand", ex);
 			}
 		}
 		return "";
@@ -151,7 +151,7 @@ public class ScriptcontrollerAdapter implements Findable, Scriptcontroller, Even
 			} catch (TRANSIENT ct) {
 				controller = CorbaScriptControllerHelper.narrow(netService.reconnect(name));
 			} catch (CorbaDeviceException ex) {
-				logger.error(ex.getMessage());
+				logger.error("Could not set command to {}", scriptName, ex);
 			}
 		}
 	}
@@ -166,7 +166,7 @@ public class ScriptcontrollerAdapter implements Findable, Scriptcontroller, Even
 			} catch (TRANSIENT ct) {
 				controller = CorbaScriptControllerHelper.narrow(netService.reconnect(name));
 			} catch (CorbaDeviceException ex) {
-				logger.error(ex.getMessage());
+				logger.error("Could not get parameters name", ex);
 			}
 		}
 		return "";
@@ -183,7 +183,7 @@ public class ScriptcontrollerAdapter implements Findable, Scriptcontroller, Even
 			} catch (TRANSIENT ct) {
 				controller = CorbaScriptControllerHelper.narrow(netService.reconnect(name));
 			} catch (CorbaDeviceException ex) {
-				logger.error(ex.getMessage());
+				logger.error("Could not set parameters name to {}", parametersName, ex);
 			}
 		}
 	}
@@ -198,7 +198,7 @@ public class ScriptcontrollerAdapter implements Findable, Scriptcontroller, Even
 			} catch (TRANSIENT ct) {
 				controller = CorbaScriptControllerHelper.narrow(netService.reconnect(name));
 			} catch (CorbaDeviceException ex) {
-				logger.error(ex.getMessage());
+				logger.error("Could not get import command", ex);
 			}
 		}
 		return "";
@@ -215,7 +215,7 @@ public class ScriptcontrollerAdapter implements Findable, Scriptcontroller, Even
 			} catch (TRANSIENT ct) {
 				controller = CorbaScriptControllerHelper.narrow(netService.reconnect(name));
 			} catch (CorbaDeviceException ex) {
-				logger.error(ex.getMessage());
+				logger.error("Could not set import command to {}", command, ex);
 			}
 		}
 	}

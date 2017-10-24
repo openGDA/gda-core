@@ -77,7 +77,7 @@ public class TwoJawSlitPosition extends ScannableMotionUnitsBase implements IObs
 				unitsComponent.setHardwareUnitString(firstJaw.getUserUnits());
 				unitsComponent.setUserUnits(firstJaw.getUserUnits());
 			} catch (DeviceException e) {
-				throw new FactoryException(e.getMessage() + " " + getName(),e);
+				throw new FactoryException("Error configuring " + getName(), e);
 			}
 		}
 
@@ -127,7 +127,7 @@ public class TwoJawSlitPosition extends ScannableMotionUnitsBase implements IObs
 					}
 				}
 			} catch (Exception e) {
-				throw new DeviceException("Exception while operating " + getName() + ". This may have moved the slit centre. The initial centre position was  " + initialPositionUserUnits + ". " + e.getMessage(),e);
+				throw new DeviceException("Exception while operating " + getName() + ". This may have moved the slit centre. The initial centre position was  " + initialPositionUserUnits + ". ", e);
 			}
 
 			// if tried too many times then throw an exception
@@ -187,7 +187,7 @@ public class TwoJawSlitPosition extends ScannableMotionUnitsBase implements IObs
 				setUpperGdaLimits(limits[1]);
 			}
 		} catch (Exception e) {
-			logger.error("exception while fetching limits in " + getName() + ": " + e.getMessage(),e);
+			logger.error("exception while fetching limits in {}", getName(), e);
 		}
 	}
 

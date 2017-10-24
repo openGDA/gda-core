@@ -304,7 +304,7 @@ public class DummyDataLogger extends DetectorBase implements DataLogger, Detecto
 				}
 				Thread.sleep(pollTime);
 			} catch (InterruptedException ie) {
-				logger.error("DummyDataLogger: run() caught InterruptedException" + ie.getMessage());
+				logger.error("DummyDataLogger: run() interrupted", ie);
 				return;
 			}
 		}

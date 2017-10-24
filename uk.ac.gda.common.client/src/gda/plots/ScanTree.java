@@ -181,7 +181,7 @@ public class ScanTree extends DefaultTreeModel {
 				else
 					reload(node.getParent());
 			} catch (Exception e) {
-				logger.error(e.getMessage(),e);
+				logger.error("Error reloading legend model", e);
 				// do nothing - a null pointer exception can be seen if the model is changed during editing.
 			}
 

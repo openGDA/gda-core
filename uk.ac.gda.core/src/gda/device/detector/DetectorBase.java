@@ -137,10 +137,7 @@ public abstract class DetectorBase extends ScannableBase implements Serializable
 				String filepath = (String) ob;
 				FileRegistrarHelper.registerFile(filepath);
 			} catch (ClassCastException e) {
-				logger
-						.error(getName()
-								+ ": exception in getPosition. This detector indicates that it createsOwnFiles, but its readout method does not return a path: "
-								+ e.getMessage());
+				logger.error("{}: exception in getPosition. This detector indicates that it createsOwnFiles, but its readout method does not return a path", getName(), e);
 			}
 		}
 		return ob;
@@ -181,7 +178,7 @@ public abstract class DetectorBase extends ScannableBase implements Serializable
 			}
 		} catch (DeviceException e) {
 			message += " : Error reading status";
-			logger.error("Failed to get status of detector " + getName() + " :" + e.getMessage(),e);
+			logger.error("Failed to get status of detector {}", getName(), e);
 		}
 
 		return message;

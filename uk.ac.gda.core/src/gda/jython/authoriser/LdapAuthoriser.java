@@ -56,7 +56,7 @@ public class LdapAuthoriser extends FileAuthoriser implements Authoriser {
 			NamingEnumeration<SearchResult> users = ldap.searchLdapForUser(username, "cn", "memberOf", "sn", "givenName", "title");
 			return users != null && users.hasMore();
 		} catch (NamingException e) {
-			logger.error("Failed to find user " + username + " in ldap or xml file: " + e.getMessage());
+			logger.error("Failed to find user {} in ldap or xml file", username, e);
 			return false;
 		}
 	}
@@ -117,7 +117,7 @@ public class LdapAuthoriser extends FileAuthoriser implements Authoriser {
 			}
 			return results;
 		} catch (NamingException e) {
-			logger.error("Failed to find attribute " + attributeName + " in ldap for user: " + e.getMessage());
+			logger.error("Failed to find attribute {} in ldap for user",  attributeName, e);
 		}
 		return "";
 	}

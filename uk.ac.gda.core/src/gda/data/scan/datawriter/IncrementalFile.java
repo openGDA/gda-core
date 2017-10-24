@@ -192,7 +192,7 @@ public abstract class IncrementalFile extends DataWriterBase implements DataWrit
 		} catch (Exception ex) {
 			String error = "Failed to create a new data file: " + fileUrl + " - " + ex.getMessage();
 			terminalPrinter.print(error);
-			throw new Exception(ex);
+			throw new Exception(error, ex);
 		}
 	}
 

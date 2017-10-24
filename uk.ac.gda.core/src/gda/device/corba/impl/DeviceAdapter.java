@@ -130,7 +130,7 @@ public class DeviceAdapter extends PyObject implements Device, EventSubscriber, 
 			} catch (TRANSIENT ct) {
 				corbaDevice = CorbaDeviceHelper.narrow(netService.reconnect(name));
 			} catch (Exception ex) {
-				throw new DeviceException(ex.getMessage(), ex);
+				throw new DeviceException("Could not get attribute '{}'", attributeName, ex);
 			}
 		}
 		throw new DeviceException("Communication failure: retry failed");

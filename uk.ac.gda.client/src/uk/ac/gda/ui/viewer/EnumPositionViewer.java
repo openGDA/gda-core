@@ -170,7 +170,7 @@ public class EnumPositionViewer {
 
 								return Status.OK_STATUS;
 							} catch (DeviceException e) {
-								logger.error("Exception: " + msg + " " + e.getMessage(), e);
+								logger.error(msg, e);
 								return new Status(IStatus.ERROR, "uk.ac.gda.client", e.getMessage());
 							} finally {
 								PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
@@ -252,7 +252,7 @@ public class EnumPositionViewer {
 		try {
 			motorBox.setItems(motor.getPositions());
 		} catch (DeviceException e) {
-			logger.error("Could not get positions from " + motor.getUnit() + ": " + e.getMessage(), e);
+			logger.error("Could not get positions from {}", motor.getUnit(), e);
 			motorBox.setItems(new String[] { "Not connected!" });
 		}
 	}

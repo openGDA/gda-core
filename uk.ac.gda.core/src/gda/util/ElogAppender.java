@@ -70,7 +70,7 @@ import ch.qos.logback.core.Layout;
 				try {
 					ElogEntry.post(title, content,userID, visitID, logID, groupID, null);
 				} catch (Exception e) {
-					logger.warn(e.getMessage());
+					logger.warn("Error posting elog entry", e);
 				}
 			}
 

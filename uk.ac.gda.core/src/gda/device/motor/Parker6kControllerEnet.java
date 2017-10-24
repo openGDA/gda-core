@@ -46,8 +46,6 @@ public class Parker6kControllerEnet extends Parker6kController implements Runnab
 
 	private static final Logger logger = LoggerFactory.getLogger(Parker6kControllerEnet.class);
 
-	private String debugName;
-
 	private String host;
 
 	private int port = -1;
@@ -169,23 +167,20 @@ public class Parker6kControllerEnet extends Parker6kController implements Runnab
 				parkerSocket.close();
 				parkerSocket = null;
 			} catch (IOException ioe) {
-				logger.error(debugName + " caught IOException while closing socket: " + ioe.getMessage());
+				logger.error("{} caught IOException while closing socket", getName(), ioe);
 			}
 		}
 	}
 
 	@Override
 	public void configure() {
-		// debugName is used in error output
-		debugName = getClass().getName();
-
 		// README: See Parker6kWatchDog for reasons why we start a watchdog.
 		startWatchDog();
 
 		try {
 			openSocket();
 		} catch (IOException ioe) {
-			logger.error(debugName + " caught IOException opening socket: " + ioe.getMessage());
+			logger.error("{} caught IOException opening socket", getName(), ioe);
 		}
 		/*
 		 * Even if the openSocket throws an IOException still start up socketReadThread because run() will continue to
@@ -226,7 +221,7 @@ public class Parker6kControllerEnet extends Parker6kController implements Runnab
 		try {
 			sendCommand(command);
 		} catch (MotorException me) {
-			logger.error(debugName + " caught MotorException in createCommandAndSend: " + me.getMessage());
+			logger.error("{} caught MotorException in createCommandAndSend", getName(), me);
 		}
 
 	}
@@ -234,8 +229,8 @@ public class Parker6kControllerEnet extends Parker6kController implements Runnab
 	@Override
 	public void debug() {
 		super.debug();
-		logger.debug(debugName + " : host : " + getHost());
-		logger.debug(debugName + " : portNo : " + getPort());
+		logger.debug("host : " + getHost());
+		logger.debug("portNo : " + getPort());
 	}
 
 	/**
@@ -272,8 +267,7 @@ public class Parker6kControllerEnet extends Parker6kController implements Runnab
 			try {
 				wait(waitTime);
 			} catch (InterruptedException ie) {
-				throw (new MotorException(MotorStatus.UNKNOWN, "Exception \"" + ie.getMessage()
-						+ "\" caught while waiting for reply" + " to command " + command));
+				throw new MotorException(MotorStatus.UNKNOWN, "Error while waiting for reply to command " + command, ie);
 			}
 		}
 
@@ -327,7 +321,7 @@ public class Parker6kControllerEnet extends Parker6kController implements Runnab
 			/*
 			 * FIXME: Possibly this should be terminal because there is no way to recover.
 			 */
-			logger.error(debugName + " caught UnknownHostException " + uhe.getMessage());
+			logger.error("{} caught UnknownHostException", getName(), uhe);
 		}
 	}
 
@@ -339,7 +333,7 @@ public class Parker6kControllerEnet extends Parker6kController implements Runnab
 			closeSocket();
 			openSocket();
 		} catch (IOException ioe) {
-			logger.error(debugName + " caught IOException while reconnecting: " + ioe.getMessage());
+			logger.error("{} caught IOException while reconnecting", getName(), ioe);
 		}
 	}
 
@@ -369,32 +363,23 @@ public class Parker6kControllerEnet extends Parker6kController implements Runnab
 							wait();
 					}
 				}
-			}
-			/*
-			 * Normally we do not catch NullPointerExceptions however in this case it is possible that in (the
-			 * BufferedInputStream) is null because of an initial connection failure and we want this method to keep on
-			 * trying to reconnect.
-			 */
-			catch (NullPointerException npe) {
-				logger.error(debugName + " run() caught NullPointerException: " + npe.getMessage()
-						+ ". Will attempt to reconnect");
+			} catch (NullPointerException | IOException e) {
+				/*
+				 * Normally we do not catch NullPointerExceptions however in this case it is possible that in (the
+				 * BufferedInputStream) is null because of an initial connection failure and we want this method to keep on
+				 * trying to reconnect.
+				 *
+				 * An IOException would indicate that: EITHER there is a real connection problem in in.read() OR the buffer
+				 * is full in appendToReplyBuffer() In either case we want to reconnect.
+				 */
+				logger.error("{}: Error while running controller. Will attempt to reconnect", getName(), e);
 				reconnect();
-			}
-			/*
-			 * An IOException would indicate that: EITHER there is a real connection problem in in.read() OR the buffer
-			 * is full in appendToReplyBuffer() In either case we want to reconnect.
-			 */
-			catch (IOException ioe) {
-				logger.error(debugName + " run() caught IOException " + ioe.getMessage()
-						+ ". Will attempt to reconnect");
-				reconnect();
-			}
-			/*
-			 * An InterruptedException would come from the wait() call. This should not happen and perhaps is so serious
-			 * that the program should terminate.
-			 */
-			catch (InterruptedException ie) {
-				logger.error(debugName + " run() caught InterrupedException " + ie.getMessage());
+			} catch (InterruptedException ie) {
+				/*
+				 * An InterruptedException would come from the wait() call. This should not happen and perhaps is so serious
+				 * that the program should terminate.
+				 */
+				logger.error("{} interrupted while running", getName(), ie);
 			}
 		} // end of while loop
 
@@ -449,10 +434,8 @@ public class Parker6kControllerEnet extends Parker6kController implements Runnab
 		 * to MotorExceptions here.
 		 */
 		catch (IOException ioe) {
-			logger.error(debugName + " sendCommand caught exception " + ioe.getMessage() + " sending command: "
-					+ command);
-
-			throw (new MotorException(MotorStatus.UNKNOWN, " Operation failed due to IOException " + ioe.getMessage()));
+			logger.error("{}: Error sending command '{}'", getName(), command, ioe);
+			throw new MotorException(MotorStatus.UNKNOWN, "Failed to send command", ioe);
 		}
 		// Must free the busy flag whether or not a reply is obtained
 		finally {

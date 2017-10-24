@@ -277,7 +277,7 @@ class AcquireDataWizardPage extends AbstractOperationSetupWizardPage {
 							try {
 								MetadataPlotUtils.plotDataWithMetadata(dataset, plottingSystem);
 							} catch (Exception e) {
-								logger.warn("Could not plot data: " + e.getMessage());
+								logger.warn("Could not plot data", e);
 							}
 						}
 					});

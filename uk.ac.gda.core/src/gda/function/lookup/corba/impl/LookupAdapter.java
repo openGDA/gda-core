@@ -155,7 +155,7 @@ public class LookupAdapter implements Lookup, EventSubscriber, Findable {
 			try {
 				return paramsObj.getNumberOfRows();
 			} catch (CorbaDeviceException e) {
-				throw new DeviceException(e.getMessage(),e);
+				throw new DeviceException("Could not get number of rows", e);
 			} catch (COMM_FAILURE cf) {
 				paramsObj = CorbaLookupHelper.narrow(netService.reconnect(name));
 			} catch (TRANSIENT ct) {
@@ -176,7 +176,7 @@ public class LookupAdapter implements Lookup, EventSubscriber, Findable {
 				}
 				return scannableNames;
 			} catch (CorbaDeviceException e) {
-				throw new DeviceException(e.getMessage(),e);
+				throw new DeviceException("Could not get scannable names", e);
 			} catch (COMM_FAILURE cf) {
 				paramsObj = CorbaLookupHelper.narrow(netService.reconnect(name));
 			} catch (TRANSIENT ct) {
@@ -192,7 +192,7 @@ public class LookupAdapter implements Lookup, EventSubscriber, Findable {
 			try {
 				return paramsObj.lookupDecimalPlaces(scannableName);
 			} catch (CorbaDeviceException e) {
-				throw new DeviceException(e.getMessage(),e);
+				throw new DeviceException("Could not lookup decimal places for scannable " + scannableName, e);
 			} catch (COMM_FAILURE cf) {
 				paramsObj = CorbaLookupHelper.narrow(netService.reconnect(name));
 			} catch (TRANSIENT ct) {
@@ -207,7 +207,7 @@ public class LookupAdapter implements Lookup, EventSubscriber, Findable {
 			try {
 				return paramsObj.lookupUnitString(scannableName);
 			} catch (CorbaDeviceException e) {
-				throw new DeviceException(e.getMessage(),e);
+				throw new DeviceException("Could not look up unit string for scannable " + scannableName, e);
 			} catch (COMM_FAILURE cf) {
 				paramsObj = CorbaLookupHelper.narrow(netService.reconnect(name));
 			} catch (TRANSIENT ct) {
@@ -227,7 +227,7 @@ public class LookupAdapter implements Lookup, EventSubscriber, Findable {
 				any.insert_Value((Serializable) energy);
 				return paramsObj.lookupValue(any, scannableName);
 			} catch (CorbaDeviceException e) {
-				throw new DeviceException(e.getMessage(),e);
+				throw new DeviceException("Could not lookup value for energy " + energy + " and scannable " + scannableName, e);
 			} catch (COMM_FAILURE cf) {
 				paramsObj = CorbaLookupHelper.narrow(netService.reconnect(name));
 			} catch (TRANSIENT ct) {
@@ -243,7 +243,7 @@ public class LookupAdapter implements Lookup, EventSubscriber, Findable {
 			try {
 				return paramsObj.getLookupKeys();
 			} catch (CorbaDeviceException e) {
-				throw new DeviceException(e.getMessage(),e);
+				throw new DeviceException("Could not look up keys", e);
 			} catch (COMM_FAILURE cf) {
 				paramsObj = CorbaLookupHelper.narrow(netService.reconnect(name));
 			} catch (TRANSIENT ct) {

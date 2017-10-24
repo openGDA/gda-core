@@ -138,7 +138,7 @@ public class DscStageT95 implements LinkamStage {
 				linkamT95.getBufferedData().add(data);
 
 			} catch (DeviceException de) {
-				logger.error(debugName + "pollDone() caught DeviceException" + de.getMessage());
+				logger.error("Error getting DSC Data", de);
 			}
 		}
 	}

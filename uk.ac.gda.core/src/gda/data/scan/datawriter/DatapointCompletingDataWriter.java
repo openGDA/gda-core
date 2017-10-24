@@ -74,7 +74,7 @@ public class DatapointCompletingDataWriter extends DataWriterBase implements Dat
 
 	synchronized void setExceptionAndShutdownNow(Throwable e) {
 		exception = e;
-		logger.info("Storing an Exception caught computing a point: " + e.getMessage());
+		logger.info("Exception caught computing a point", e);
 		shutdownNow();
 	}
 

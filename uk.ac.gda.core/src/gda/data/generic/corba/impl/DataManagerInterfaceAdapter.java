@@ -73,7 +73,7 @@ public class DataManagerInterfaceAdapter implements DataManagerInterface {
 			} catch (TRANSIENT ct) {
 				corbaData = CorbaDataManagerInterfaceHelper.narrow(netService.reconnect(name));
 			} catch (CorbaDataException ex) {
-				logger.error(ex.message);
+				logger.error("Could not create GenericData for {}", dataName, ex);
 				return null;
 			}
 		}
@@ -93,7 +93,7 @@ public class DataManagerInterfaceAdapter implements DataManagerInterface {
 			} catch (TRANSIENT ct) {
 				corbaData = CorbaDataManagerInterfaceHelper.narrow(netService.reconnect(name));
 			} catch (CorbaDataException ex) {
-				logger.error(ex.message);
+				logger.error("Could not add {} to {}", data, dataName, ex);
 			}
 		}
 		logger.error("Communication failure: retry failed");
@@ -109,7 +109,7 @@ public class DataManagerInterfaceAdapter implements DataManagerInterface {
 			} catch (TRANSIENT ct) {
 				corbaData = CorbaDataManagerInterfaceHelper.narrow(netService.reconnect(name));
 			} catch (CorbaDataException ex) {
-				logger.error(ex.message);
+				logger.error("Could not remove {}", dataName, ex);
 			}
 		}
 		logger.error("Communication failure: retry failed");
@@ -130,7 +130,7 @@ public class DataManagerInterfaceAdapter implements DataManagerInterface {
 			} catch (TRANSIENT ct) {
 				corbaData = CorbaDataManagerInterfaceHelper.narrow(netService.reconnect(name));
 			} catch (CorbaDataException ex) {
-				logger.error(ex.message);
+				logger.error("Could not get list", ex);
 				return null;
 			}
 		}

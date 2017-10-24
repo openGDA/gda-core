@@ -331,7 +331,7 @@ public final class DashboardView extends ViewPart {
 				this.data = getDefaultServerObjects();
 			}
 		} catch (Exception ne) {
-			throw new PartInitException(ne.getMessage());
+			throw new PartInitException("Could not create DashboardView", ne);
 		}
 	}
 

@@ -59,7 +59,7 @@ public class Mar345RemoteUnixCall {
 				logger.debug("Stoping via identifier => " + commandIdentifier);
 				(runtime.exec(progarray)).waitFor();
 			} catch (Exception ex) {
-				logger.debug(ex.getMessage());
+				logger.debug("Error stopping process '{}'", commandIdentifier, ex);
 			}
 		}
 	}
@@ -78,7 +78,7 @@ public class Mar345RemoteUnixCall {
 				}
 			}));
 		} catch (Exception ex) {
-			logger.debug(ex.getMessage());
+			logger.debug("Error starting daemon", ex);
 		}
 	}
 
@@ -90,7 +90,7 @@ public class Mar345RemoteUnixCall {
 		try {
 			stop(LocalProperties.get("gda.device.detector.mar345.scan345StopString"));
 		} catch (Exception ex) {
-			logger.debug(ex.getMessage());
+			logger.debug("Error stopping daemon", ex);
 		}
 	}
 

@@ -76,7 +76,7 @@ public class PauseScanHandler extends AbstractHandler {
 
 			return somethingPaused;
 		} catch (Exception ne) {
-			throw new ExecutionException(ne.getMessage(), ne);
+			throw new ExecutionException("Error pausing scan", ne);
 		}
 	}
 }

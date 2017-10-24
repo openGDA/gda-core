@@ -80,8 +80,8 @@ public class Beamline implements BeamlineInfo, Configurable, Localizable {
 			try {
 				runs = new NumTracker("tmp");
 			} catch (IOException e) {
-				logger.error("Cannot instantiate NumTracker.");
-				throw new FactoryException(e.getMessage());
+				logger.error("Cannot instantiate NumTracker.", e);
+				throw new FactoryException("Could not create NumTracker for Beamline", e);
 			}
 			configured = true;
 		}

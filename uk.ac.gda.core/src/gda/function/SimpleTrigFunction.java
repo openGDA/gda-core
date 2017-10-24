@@ -53,12 +53,8 @@ public class SimpleTrigFunction extends Function {
 		try {
 			trigValue = (Double) trigMethod.invoke(null, constantB.times(xValue).doubleValue());
 			yValue = constantA.times(trigValue);
-		} catch (IllegalArgumentException e) {
-			logger.error("Exception: " + e.getMessage());
-		} catch (IllegalAccessException e) {
-			logger.error("Exception: " + e.getMessage());
-		} catch (InvocationTargetException e) {
-			logger.error("Exception: " + e.getMessage());
+		} catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
+			logger.error("Error evaluating {}", xValue, e);
 		}
 
 		return yValue;
@@ -130,10 +126,8 @@ public class SimpleTrigFunction extends Function {
 
 		try {
 			trigMethod = Math.class.getDeclaredMethod(trigFunc, argumentsList);
-		} catch (SecurityException e) {
-			logger.error("Exception: " + e.getMessage());
-		} catch (NoSuchMethodException e) {
-			logger.error("Exception: " + e.getMessage());
+		} catch (SecurityException | NoSuchMethodException e) {
+			logger.error("Error setting trig function to {}", trigFunc, e);
 		}
 	}
 }

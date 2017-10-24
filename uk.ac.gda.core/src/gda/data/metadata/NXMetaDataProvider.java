@@ -357,8 +357,7 @@ public class NXMetaDataProvider implements NexusTreeAppender, Map<String, Object
 				Scannable scannable = (Scannable) InterfaceProvider.getJythonNamespace().getFromJythonNamespace(scannableName);
 				metaScannableList.add(scannable);
 			} catch (Exception e) {
-				throw new RuntimeException("Error converting " + scannableName + " to a scannable: "
-						+ e.getMessage(), e);
+				throw new RuntimeException("Error converting " + scannableName + " to a scannable", e);
 			}
 		}
 		return metaScannableList;
@@ -569,12 +568,8 @@ public class NXMetaDataProvider implements NexusTreeAppender, Map<String, Object
 		Object scnPos = null;
 		try {
 			scnPos = scn.getPosition();
-		} catch (PyException e) {
-			throw new DeviceException("Error calling getPosition on scannable " + scn.getName() + ":"
-					+ e.toString());
 		} catch (Exception e) {
-			throw new DeviceException("Error calling getPosition on scannable " + scn.getName() + ": "
-					+ e.getMessage(), e);
+			throw new DeviceException("Error calling getPosition on scannable " + scn.getName(), e);
 		}
 
 		if (scnPos == null){

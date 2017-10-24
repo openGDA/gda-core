@@ -19,23 +19,14 @@
 
 package gda.device.detector;
 
-import gda.device.DeviceBase;
-import gda.device.DeviceException;
-import gda.factory.Configurable;
-import gda.factory.FactoryException;
-import gda.factory.Findable;
-import gda.util.BusyFlag;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ServerSocketChannel;
@@ -47,6 +38,13 @@ import java.util.Vector;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.device.DeviceBase;
+import gda.device.DeviceException;
+import gda.factory.Configurable;
+import gda.factory.FactoryException;
+import gda.factory.Findable;
+import gda.util.BusyFlag;
 
 /**
  * Provides Ethernet communications with OS9/Linux DAServer
@@ -157,7 +155,7 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 			for (String command : getStartupCommands()) {
 				try {
 					if (null != out) {
-						logger.debug("sending startup command: " + command);
+						logger.debug("sending startup command: {}", command);
 						out.write(command + "\n");
 						out.flush();
 						// another XH hack. If the initial reply is empty, because
@@ -203,13 +201,9 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 			// server, otherwise startup messages get confused with
 			// replies to subsequent commands.
 			cleanPipe();
-		} catch (UnknownHostException ex) {
+		} catch (IOException ex) {
 			// should this be fatal as reconnect attempts are futile.
-			logger.error(getName() + ": connect: " + ex.getMessage(), ex);
-		} catch (ConnectException ex) {
-			logger.error(getName() + ": connect: " + ex.getMessage(), ex);
-		} catch (IOException ix) {
-			logger.error(getName() + ": connect: " + ix.getMessage(), ix);
+			logger.error("{}: Could not connect to {}, {}", getName(), getHost(), getPort(), ex);
 		} finally {
 			unlock();
 		}
@@ -225,14 +219,14 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 				}
 			}
 		} catch (IOException ex) {
-			logger.error(getName() + ": cleanPipe: " + ex.getMessage());
+			logger.error("{}.cleanPipe()", getName(), ex);
 			try {
 				close();
 			} catch (DeviceException e) {
 				// we know that already
 			}
 		} catch (Exception ex) {
-			logger.warn(getName() + ": cleanPipe: " + ex.getMessage());
+			logger.warn("{}.cleanPipe()", getName(), ex);
 		} finally {
 			unlock();
 		}
@@ -273,7 +267,7 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 		if (connectTimeOut < 30000) {
 			connectTimeOut += 1000;
 		}
-		logger.debug(getName() + ": will attempt to reconnect in " + connectTimeOut / 1000 + "s");
+		logger.debug("{}: will attempt to reconnect in {}s", getName(), connectTimeOut / 1000);
 	}
 
 	/**
@@ -288,7 +282,7 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 			try {
 				serverSocket.close();
 			} catch (IOException e) {
-				logger.warn("Error closing serverSocket");
+				logger.warn("Error closing serverSocket", e);
 			}
 			serverSocket = null;
 		}
@@ -306,8 +300,8 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 
 				socket = null;
 			} catch (IOException ex) {
-				logger.error(getName() + ": disconnect: " + ex.getMessage());
-				throw new DeviceException(ex.getMessage());
+				logger.error("{}.close()", getName(), ex);
+				throw new DeviceException("Error closing sockets", ex);
 			}
 		}
 	}
@@ -384,7 +378,7 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 		try {
 			socket.setSoTimeout(timeout);
 		} catch (SocketException sx) {
-			logger.error(getName() + ": connect: " + sx.getMessage());
+			logger.error("{}.sendCommand({}, {}) failed", getName(), msg, timeout, sx);
 		}
 		return sendCommand(msg);
 	}
@@ -409,7 +403,7 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 		try {
 			ensureConnected();
 			cleanPipe();
-			logger.trace(getName() + ": sending command: " + msg);
+			logger.trace("{}: sending command: {}", getName(), msg);
 			out.write(command);
 			out.flush();
 			reply = getReply(multiline);
@@ -417,7 +411,7 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 			Thread.currentThread().interrupt();
 			throw new DeviceException(getName() + ": sendCommand interrupted.");
 		} catch (Exception ex) {
-			throw new DeviceException(getName() + ": sendCommand: " + ex.getMessage(),ex);
+			throw new DeviceException(getName() + ": sendCommand: " + msg, ex);
 		} finally {
 			unlock();
 		}
@@ -444,7 +438,7 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 			String command = msg + '\n';
 
 			try {
-				logger.debug(getName() + ": getData command: " + msg);
+				logger.debug("{}: getData command: {}", getName(), msg);
 				out.write(command);
 				out.flush();
 				// clearing any previous data
@@ -454,7 +448,7 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 					dataArray = data.toArray();
 				}
 			} catch (IOException ex) {
-				logger.error(getName() + ": getData: " + ex.getMessage());
+				logger.error("{}.getData({}) failed", getName(), msg, ex);
 			} finally {
 				unlock();
 			}
@@ -471,7 +465,7 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 			while (true) {
 
 				String message = readLine();
-				logger.trace(getName() + ": getReply message received : " + message);
+				logger.trace("{}: getReply message received : {}", getName(), message);
 
 				if (isPrompt(message)) {
 					// we got a prompt, so the last message was the return value
@@ -526,7 +520,7 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 			return null;
 		} else if (message.charAt(0) == '!') {
 			if (!message.contains("Image Display") && !message.contains("OS-9 error code: 29")) {
-				logger.error("Error:" + message.substring(1));
+				logger.error("Error parsing reply: {}", message.substring(1));
 			}
 			return null;
 		} else if (message.charAt(0) == '@') {
@@ -549,7 +543,7 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 
 					return new Integer(message.substring(2));
 				} catch (NumberFormatException ex) {
-					logger.error(getName() + ": NumberFormatException: " + ex.getMessage());
+					logger.error("{}: NumberFormatException parsing reply", getName(), ex);
 				}
 			}
 		}
@@ -578,7 +572,7 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 			// The reply to the command will not come until after the
 			// data is sent to the dataSocket so cannot use sendCommand
 			// but must split up its parts around the data reading.
-			logger.debug(getName() + ": sent command: " + command);
+			logger.debug("{}: sent command: {}", getName(), command);
 			out.write(command + "\n");
 			out.flush();
 
@@ -602,7 +596,7 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 					throw new InterruptedException("Interrupted while waiting for da.server to make a data connection.");
 				}
 			}
-			logger.debug(getName() + " getBinaryDataBuffer(): socket connection established");
+			logger.debug("{} getBinaryDataBuffer(): socket connection established", getName());
 
 			while (dataSocket.read(bb) > 0) {
 			}
@@ -622,7 +616,7 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 			getReply(false);
 
 		} catch (IOException e) {
-			logger.error(getName() + " getBinaryDataBuffer(): " + e.getMessage());
+			logger.error("{} getBinaryDataBuffer({}, {})", getName(), command, ndata, e);
 			try {
 				serverSocket.close();
 			} catch (IOException e1) {
@@ -656,7 +650,7 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 		}
 		// should this be re-sent every time ?
 		sendCommand("port " + dataPort);
-		logger.debug(getName() + " getBinaryDataBuffer(): serverSocket created on port " + dataPort);
+		logger.debug("{} getBinaryDataBuffer(): serverSocket created on port {}", getName(), dataPort);
 	}
 
 	/**
@@ -687,7 +681,7 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 				if (numRetries >= 5) {
 					throw e;
 				}
-				logger.warn("Buffer returned from da.server was too small, retrying");
+				logger.warn("Buffer returned from da.server was too small, retrying", e);
 				numRetries++;
 				retry = true;
 			}
@@ -828,7 +822,7 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 		testDoubleData = getBinaryData(command, npoints);
 		for (int i = 0; i < npoints; i++) {
 			if (testDoubleData[i] != i) {
-				logger.info("DAServer: i= " + i + " data " + testDoubleData[i]);
+				logger.info("DAServer: i={} data: {}", i, testDoubleData[i]);
 			}
 		}
 		// Test 32bit Integer data (x+2y+3t)
@@ -839,7 +833,7 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 		testIntData = getIntBinaryData(command, npoints);
 		for (int i = 0; i < npoints; i++) {
 			if (testIntData[i] != i) {
-				logger.info("DAServer: i= " + i + " data " + testIntData[i]);
+				logger.info("DAServer: i={} data: {}", i, testIntData[i]);
 			}
 		}
 
@@ -851,7 +845,7 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 		testFloatData = getFloatBinaryData(command, npoints);
 		for (int i = 0; i < npoints; i++) {
 			if (testFloatData[i] != i) {
-				logger.info("DAServer: i= " + i + " data " + testFloatData[i]);
+				logger.info("DAServer: i={} data: {}", i, testFloatData[i]);
 			}
 		}
 		// Test 64bit Integer data (x*y*(t+1))
@@ -863,7 +857,7 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 		testLongData = getLongBinaryData(command, npoints);
 		for (int i = 512; i < npoints; i++) {
 			if (testLongData[i] != (i - 512) * 2) {
-				logger.info("DAServer: i= " + i + " data " + testLongData[i]);
+				logger.info("DAServer: i={} data: {}", i, testLongData[i]);
 			}
 		}
 	}

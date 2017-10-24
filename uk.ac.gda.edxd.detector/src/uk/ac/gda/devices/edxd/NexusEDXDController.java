@@ -209,7 +209,7 @@ public class NexusEDXDController extends DetectorBase implements Configurable, N
 		try {
 			updatePlots(plotds);
 		} catch (Exception e) {
-			throw new DeviceException(e.getMessage(),e);
+			throw new DeviceException("Could not update plots", e);
 		}
 
 		return data;
@@ -540,7 +540,7 @@ public class NexusEDXDController extends DetectorBase implements Configurable, N
 		try {
 			RCPPlotter.plot(EDXD_PLOT, yaxis, data);
 		} catch (Exception e) {
-			throw new DeviceException(e.getMessage(),e);
+			throw new DeviceException("Could not plot to {}", EDXD_PLOT, e);
 		}
 
 
