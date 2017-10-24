@@ -87,7 +87,7 @@ public class ScriptDrivenScannableMotionUnitsTest {
 			}
 
 			@Override
-			public CommandThreadEvent runScript(File script, String sourceName) {
+			public CommandThreadEvent runScript(File script) {
 				return null;
 			}
 

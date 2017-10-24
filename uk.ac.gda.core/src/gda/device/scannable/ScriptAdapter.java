@@ -97,12 +97,12 @@ public class ScriptAdapter extends ScannableBase implements Scannable {
 
 	@Override
 	public void asynchronousMoveTo(Object position) {
-		scriptingmediator.runScript(fileName, this.getName());
+		scriptingmediator.runScript(fileName);
 	}
 
 	@Override
 	public void moveTo(Object increment) {
-		scriptingmediator.runScript(fileName, this.getName());
+		scriptingmediator.runScript(fileName);
 		try {
 			while (runningThread()) {
 				Thread.sleep(1000);

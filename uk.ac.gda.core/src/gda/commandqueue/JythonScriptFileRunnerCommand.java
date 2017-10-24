@@ -114,7 +114,7 @@ public class JythonScriptFileRunnerCommand extends CommandBase implements Serial
 
 			InterfaceProvider.getScriptController().resumeCurrentScript();
 
-			InterfaceProvider.getCommandRunner().runScript(new File(scriptFile), "");
+			InterfaceProvider.getCommandRunner().runScript(new File(scriptFile));
 
 			// wait 1 second for the script to start
 			Thread.sleep(1000);

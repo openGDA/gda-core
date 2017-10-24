@@ -261,14 +261,14 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 		return indexNumberInJythonServer;
 	}
 
-	public CommandThreadEvent runScript(String scriptName, String sourceName) {
+	public CommandThreadEvent runScript(String scriptName) {
 		// open up a new file
 		File file = new File(locateScript(scriptName));
-		return runScript(file, sourceName);
+		return runScript(file);
 	}
 
 	@Override
-	public CommandThreadEvent runScript(File script, String sourceName) {
+	public CommandThreadEvent runScript(File script) {
 		try {
 			String commands;
 			commands = slurp(script);

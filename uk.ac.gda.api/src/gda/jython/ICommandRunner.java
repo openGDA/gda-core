@@ -44,7 +44,7 @@ public interface ICommandRunner {
 	 */	
 	public String evaluateCommand(String command);	
 	
-	public CommandThreadEvent runScript(File script, String sourceName);
+	public CommandThreadEvent runScript(File script);
 	
 	/**
 	 * @param command

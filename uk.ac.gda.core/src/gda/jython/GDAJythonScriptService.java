@@ -64,7 +64,7 @@ public class GDAJythonScriptService implements IScriptService {
 		}
 
 		// run the script
-		commandRunner.runScript(scriptFile, scriptFileStr);
+		commandRunner.runScript(scriptFile);
 
 		// return a new script response. As runScript returns void, we have nothing to set
 		return new ScriptResponse<Object>();

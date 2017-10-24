@@ -35,8 +35,6 @@ import uk.ac.gda.common.rcp.util.EclipseUtils;
 public class RunScriptActionDelegate implements IEditorActionDelegate {
 	private static final Logger logger = LoggerFactory.getLogger(RunScriptActionDelegate.class);
 
-	private static final String SCRIPT_SOURCE = "RunAction";
-
 	private IEditorPart ePart;
 	@Override
 	public void setActiveEditor(IAction action, IEditorPart targetEditor) {
@@ -53,7 +51,7 @@ public class RunScriptActionDelegate implements IEditorActionDelegate {
 			IEditorInput input = ePart.getEditorInput();
 			final File fileToRun = EclipseUtils.getFile(input);
 			logger.info("Running script '{}' from editor", fileToRun);
-			commandRunner.runScript(fileToRun, SCRIPT_SOURCE);
+			commandRunner.runScript(fileToRun);
 		}
 	}
 

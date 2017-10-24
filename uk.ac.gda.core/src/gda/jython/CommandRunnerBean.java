@@ -48,8 +48,8 @@ public class CommandRunnerBean implements ICommandRunner{
 		return getRunner().evaluateCommand(command);
 	}
 	@Override
-	public CommandThreadEvent runScript(File script, String sourceName) {
-		return getRunner().runScript(script, sourceName);
+	public CommandThreadEvent runScript(File script) {
+		return getRunner().runScript(script);
 	}
 	@Override
 	public boolean runsource(String command, String source) {
