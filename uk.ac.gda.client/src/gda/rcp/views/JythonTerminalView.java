@@ -403,7 +403,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 					runFromHistory = true;
 				}
 				// run the command
-				boolean needMore = jsf.runsource(typedCmd, getName());
+				boolean needMore = jsf.runsource(typedCmd);
 				// if not a complete Jython command
 				if (needMore) {
 					// save the command so far
@@ -445,7 +445,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 				currentCmd += "\n" + txtInputText;
 				PlatformUI.getWorkbench().getDisplay().asyncExec(() -> txtInput.setEnabled(false));
 				// run the command
-				boolean needMore = jsf.runsource("\n" + currentCmd, getName());
+				boolean needMore = jsf.runsource("\n" + currentCmd);
 
 				// if not a complete Jython command
 				if (needMore) {

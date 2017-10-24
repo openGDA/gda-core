@@ -82,7 +82,7 @@ public class ScriptDrivenScannableMotionUnitsTest {
 		scannableUnderTest.setCommandRunner(new ICommandRunner() {
 
 			@Override
-			public boolean runsource(String command, String source) {
+			public boolean runsource(String command) {
 				return false;
 			}
 

@@ -52,8 +52,8 @@ public class CommandRunnerBean implements ICommandRunner{
 		return getRunner().runScript(script);
 	}
 	@Override
-	public boolean runsource(String command, String source) {
-		return getRunner().runsource(command, source);
+	public boolean runsource(String command) {
+		return getRunner().runsource(command);
 	}
 	@Override
 	public String locateScript(String scriptToRun) {

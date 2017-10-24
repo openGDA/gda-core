@@ -421,25 +421,23 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 
 	/**
 	 * @param command to run
-	 * @param source of the command
 	 * @return true if more is needed, false if not
 	 *
 	 * @see Jython#runsource(String, String)
 	 */
 	@Override
-	public boolean runsource(String command, String source) {
+	public boolean runsource(String command) {
 		return commandServer.runsource(command, name);
 	}
 
 	/**
 	 * @param command to run
-	 * @param source of the command
 	 * @param stdin input stream to use as stdin for this command
 	 * @return true if more is needed, false if not
 	 *
 	 * @see Jython#runsource(String, String, InputStream)
 	 */
-	public boolean runsource(String command, @SuppressWarnings("unused") String source, InputStream stdin) {
+	public boolean runsource(String command, InputStream stdin) {
 		return commandServer.runsource(command, name, stdin);
 	}
 

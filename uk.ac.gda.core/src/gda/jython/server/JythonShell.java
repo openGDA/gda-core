@@ -123,7 +123,7 @@ class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPointObser
 			try {
 				command = read.readLine(needMore ? PS2 : PS1);
 				fullCommand.append(command);
-				needMore = server.runsource(fullCommand.toString(), "input", rawInput);
+				needMore = server.runsource(fullCommand.toString(), rawInput);
 				if (!needMore) {
 					fullCommand = new StringBuilder();
 				} else {

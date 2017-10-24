@@ -49,12 +49,10 @@ public interface ICommandRunner {
 	/**
 	 * @param command
 	 *            String
-	 * @param source
-	 *            String
 	 * @return boolean
 	 * @see Jython#runsource
 	 */
-	public boolean runsource(String command, String source);
+	public boolean runsource(String command);
 
 	/**
 	 * Find a script with given name in the GDA's script project folders.
