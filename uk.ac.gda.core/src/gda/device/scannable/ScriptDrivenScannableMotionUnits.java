@@ -64,7 +64,6 @@ public class ScriptDrivenScannableMotionUnits implements ScannableMotionUnits, I
 	private ScannableMotionUnits scannable;
 	private ICommandRunner commandRunner;
 	private String commandFormat;
-	private String commandObserver;
 
 	ObservableComponent obsComp = new ObservableComponent();
 	private IObserver observer;
@@ -93,16 +92,6 @@ public class ScriptDrivenScannableMotionUnits implements ScannableMotionUnits, I
 
 	public void setCommandFormat(String commandFormat) {
 		this.commandFormat = commandFormat;
-	}
-
-
-
-	public String getCommandObserver() {
-		return commandObserver;
-	}
-
-	public void setCommandObserver(String commandObserver) {
-		this.commandObserver = commandObserver;
 	}
 
 	public ScriptDrivenScannableMotionUnits() {
@@ -172,11 +161,7 @@ public class ScriptDrivenScannableMotionUnits implements ScannableMotionUnits, I
 	@Override
 	public void asynchronousMoveTo(Object position) throws DeviceException {
 		String commandToRun = String.format(commandFormat, (Object []) ScannableUtils.objectToArray(position));
-		if( StringUtils.hasLength(commandObserver)){
-			commandRunner.runCommand(commandToRun, commandObserver);
-		} else {
-			commandRunner.runCommand(commandToRun);
-		}
+		commandRunner.runCommand(commandToRun);
 	}
 
 	@Override

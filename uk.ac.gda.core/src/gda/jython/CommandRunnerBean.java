@@ -44,10 +44,6 @@ public class CommandRunnerBean implements ICommandRunner{
 		getRunner().runCommand(command);
 	}
 	@Override
-	public void runCommand(String command, String scanObserver) {
-		getRunner().runCommand(command, scanObserver);
-	}
-	@Override
 	public String evaluateCommand(String command) {
 		return getRunner().evaluateCommand(command);
 	}

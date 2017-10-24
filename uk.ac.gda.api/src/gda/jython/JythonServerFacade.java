@@ -289,11 +289,6 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	}
 
 	@Override
-	public void runCommand(String command, String scanObserver) {
-		commandServer.runCommand(command, name);
-	}
-
-	@Override
 	public String evaluateCommand(String command) {
 		return commandServer.evaluateCommand(command, name);
 	}
