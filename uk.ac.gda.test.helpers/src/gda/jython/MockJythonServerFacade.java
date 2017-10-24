@@ -198,10 +198,6 @@ public class MockJythonServerFacade implements IDefaultScannableProvider, ICurre
 	}
 
 	@Override
-	public void runCommand(String command, String scanObserver) {
-	}
-
-	@Override
 	public void update(Object dataSource, Object data) {
 		if (data instanceof IScanDataPoint) {
 			lastScanDataPoint = (IScanDataPoint) data;
