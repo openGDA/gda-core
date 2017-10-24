@@ -312,29 +312,10 @@ public class JythonAdapter implements Jython, EventSubscriber {
 	}
 
 	@Override
-	public void runCommand(String command, String scanObserver, String JSFIdentifier) {
+	public boolean runsource(String command, String JSFIdentifier) {
 		for (int i = 0; i < NetService.RETRY; i++) {
 			try {
-				jythonServer.runCommand_withObserver(command, scanObserver, JSFIdentifier);
-				return;
-			} catch (COMM_FAILURE cf) {
-				jythonServer = CorbaJythonHelper.narrow(netService.reconnect(name));
-			} catch (org.omg.CORBA.TRANSIENT ct) {
-				// This exception is thrown when the ORB failed to connect to
-				// the object
-				// primarily when the server has failed.
-				break;
-			} catch (CorbaDeviceException ex) {
-				// throw new DeviceException(ex.message);
-			}
-		}
-	}
-
-	@Override
-	public boolean runsource(String command, String observer, String JSFIdentifier) {
-		for (int i = 0; i < NetService.RETRY; i++) {
-			try {
-				return jythonServer.runsource(command, observer, JSFIdentifier);
+				return jythonServer.runsource(command, JSFIdentifier);
 			} catch (COMM_FAILURE cf) {
 				jythonServer = CorbaJythonHelper.narrow(netService.reconnect(name));
 			} catch (org.omg.CORBA.TRANSIENT ct) {
@@ -552,26 +533,6 @@ public class JythonAdapter implements Jython, EventSubscriber {
 		for (int i = 0; i < NetService.RETRY; i++) {
 			try {
 				jythonServer.runScript(command, JSFIdentifier);
-				return;
-			} catch (COMM_FAILURE cf) {
-				jythonServer = CorbaJythonHelper.narrow(netService.reconnect(name));
-			} catch (org.omg.CORBA.TRANSIENT ct) {
-				// This exception is thrown when the ORB failed to connect to
-				// the object
-				// primarily when the server has failed.
-				break;
-			} catch (CorbaDeviceException ex) {
-				// throw new DeviceException(ex.message);
-			}
-		}
-		return;
-	}
-
-	@Override
-	public void runScript(String command, String scanObserver, String JSFIdentifier) {
-		for (int i = 0; i < NetService.RETRY; i++) {
-			try {
-				jythonServer.runScript_withObserver(command, scanObserver, JSFIdentifier);
 				return;
 			} catch (COMM_FAILURE cf) {
 				jythonServer = CorbaJythonHelper.narrow(netService.reconnect(name));
@@ -1143,7 +1104,7 @@ public class JythonAdapter implements Jython, EventSubscriber {
 	 * This method is not available over CORBA and throws UnsupportedOperationException
 	 */
 	@Override
-	public boolean runsource(String command, String source, String JSFIdentifier, InputStream in) {
+	public boolean runsource(String command, String JSFIdentifier, InputStream in) {
 		throw new UnsupportedOperationException("It is not currently possible to specify stdin across CORBA");
 	}
 }

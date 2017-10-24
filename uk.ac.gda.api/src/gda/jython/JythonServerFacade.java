@@ -274,7 +274,7 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 			// only run if no other scan is runningcommandserver
 			// FIXME this has an obvious race condition, but worse it just ignores the request if busy
 			if (commandServer.getScriptStatus(name) == Jython.IDLE) {
-				commandServer.runScript(commands, sourceName, name);
+				commandServer.runScript(commands, name);
 			} else {
 				logger.error("Unable to run script " + script.getAbsolutePath() + " as server os busy");
 			}
@@ -290,7 +290,7 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 
 	@Override
 	public void runCommand(String command, String scanObserver) {
-		commandServer.runCommand(command, scanObserver, name);
+		commandServer.runCommand(command, name);
 	}
 
 	@Override
@@ -429,11 +429,11 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	 * @param source of the command
 	 * @return true if more is needed, false if not
 	 *
-	 * @see Jython#runsource(String, String, String)
+	 * @see Jython#runsource(String, String)
 	 */
 	@Override
 	public boolean runsource(String command, String source) {
-		return commandServer.runsource(command, source, name);
+		return commandServer.runsource(command, name);
 	}
 
 	/**
@@ -442,10 +442,10 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	 * @param stdin input stream to use as stdin for this command
 	 * @return true if more is needed, false if not
 	 *
-	 * @see Jython#runsource(String, String, String, InputStream)
+	 * @see Jython#runsource(String, String, InputStream)
 	 */
-	public boolean runsource(String command, String source, InputStream stdin) {
-		return commandServer.runsource(command, source, name, stdin);
+	public boolean runsource(String command, @SuppressWarnings("unused") String source, InputStream stdin) {
+		return commandServer.runsource(command, name, stdin);
 	}
 
 	@Override

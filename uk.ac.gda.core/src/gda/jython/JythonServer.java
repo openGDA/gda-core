@@ -85,7 +85,6 @@ import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 import gda.scan.Scan;
 import gda.scan.Scan.ScanStatus;
-import gda.scan.ScanDataPoint;
 import gda.scan.ScanInformation;
 import gda.scan.ScanInterruptedException;
 
@@ -111,10 +110,6 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 
 	// the Jython interpreter
 	private GDAJythonInterpreter interp = null;
-
-	// References to the last object which created a scan (and so where scan
-	// data points should be sent to)
-	private String scanObserverName = "";
 
 	// There may be to facades - localFacade distributes output within the
 	// server, remoteFacade distributes it to CORBA - see setFacade().
@@ -427,23 +422,6 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	}
 
 	@Override
-	public void runCommand(String command, String scanObserver, String jsfIdentifier) {
-		try {
-			checkStateForRunCommand();
-			setScanObserver(scanObserver);
-			int authorisationLevel = this.batonManager.getAuthorisationLevelOf(jsfIdentifier);
-			RunCommandRunner runner = new RunCommandRunner(this, command, authorisationLevel);
-			runCommandThreads.add(runner);
-			// start the thread and return immediately.
-			runner.start();
-			clearThreads();
-			notifyRefreshCommandThreads();
-		} catch (Exception ex) {
-			logger.info("Command Terminated", ex);
-		}
-	}
-
-	@Override
 	public void runScript(String command, String jsfIdentifier) {
 		// See bug #335 for why this must repeat most of the code of the
 		// runCommand(String, String) method.
@@ -458,23 +436,6 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 			notifyRefreshCommandThreads();
 		} catch (Exception ex) {
 			logger.info("Command Terminated", ex);
-		}
-	}
-
-	@Override
-	public void runScript(String command, String scanObserver, String jsfIdentifier) {
-		try {
-			int authorisationLevel = this.batonManager.getAuthorisationLevelOf(jsfIdentifier);
-			setScanObserver(scanObserver);
-			RunScriptRunner runner = new RunScriptRunner(this, command, authorisationLevel);
-			runner.setName(nameThread(command));
-			runCommandThreads.add(runner);
-			// start the thread and return immediately.
-			runner.start();
-			clearThreads();
-			notifyRefreshCommandThreads();
-		} catch (Exception ex) {
-			logger.error("Command Terminated", ex);
 		}
 	}
 
@@ -494,14 +455,13 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	}
 
 	@Override
-	public boolean runsource(String command, String source, String jsfIdentifier) {
-		return runsource(command, source, jsfIdentifier, null);
+	public boolean runsource(String command, String jsfIdentifier) {
+		return runsource(command, jsfIdentifier, null);
 	}
 
 	@Override
-	public boolean runsource(String command, String source, String jsfIdentifier, InputStream stdin) {
+	public boolean runsource(String command, String jsfIdentifier, InputStream stdin) {
 		try {
-			setScanObserver(source);
 			int authorisationLevel = this.batonManager.getAuthorisationLevelOf(jsfIdentifier);
 			echoInputToServerSideTerminalObservers(">>> " + command);
 			RunSourceRunner runner = new RunSourceRunner(interp, command, authorisationLevel, stdin);
@@ -756,9 +716,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 
 	@Override
 	public void notifyServer(Object scan, Object data) {
-		if (data instanceof ScanDataPoint) {
-			((ScanDataPoint) data).setCreatorPanelName(scanObserverName);
-		} else if (scan == currentScan && data instanceof ScanStatus){
+		if (scan == currentScan && data instanceof ScanStatus){
 			updateScanStatus(((ScanStatus)data).asJython());
 		}
 
@@ -978,14 +936,6 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 		updateIObservers(newStatus);
 		logger.info("New status {}", newStatus);
 		jythonServerStatusObservers.notifyIObservers(null, newStatus);
-	}
-
-	/*
-	 * If GDA syntax is used by commands passed through this class, any scans created will pass their data back to the
-	 * scanObserver object. @param scanObserver IObserver
-	 */
-	private void setScanObserver(String scanObserver) {
-		this.scanObserverName = scanObserver;
 	}
 
 	private synchronized void stopAll() {
