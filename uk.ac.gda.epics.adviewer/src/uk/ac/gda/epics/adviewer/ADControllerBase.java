@@ -328,7 +328,7 @@ public abstract class ADControllerBase implements ADController, InitializingBean
 			}
 
 			private int getPosToIncludeFractionOfPopulation(DoubleDataset yData, Double fractionOfPopulationToInclude) {
-				Double sum = (Double) yData.sum();
+				double sum = ((Number) yData.sum()).doubleValue();
 				double[] data = yData.getData();
 				int popIncluded = 0;
 				int j = 0;

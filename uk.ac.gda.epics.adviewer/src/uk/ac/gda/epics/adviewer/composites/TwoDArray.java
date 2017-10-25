@@ -699,7 +699,7 @@ public class TwoDArray extends Composite {
 		}
 
 		private int getPosToIncludeFractionOfPopulation(Dataset yData, Double fractionOfPopulationToInclude) {
-			Double sum = (Double) yData.sum();
+			double sum = ((Number) yData.sum()).doubleValue();
 			double popIncluded = 0;
 			int j = 0;
 			double popRequired = sum * fractionOfPopulationToInclude;
