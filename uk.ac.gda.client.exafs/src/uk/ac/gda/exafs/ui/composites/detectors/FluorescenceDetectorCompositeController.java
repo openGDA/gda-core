@@ -453,6 +453,9 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 		}
 	}
 
+	/**
+	 * @return Sum of MCA counts for all included detector elements.
+	 */
 	private double calculateEnabledElementTotal() {
 		double total = 0;
 		for (DetectorElement element : detectorParameters.getDetectorList()) {
@@ -463,6 +466,11 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 		return total;
 	}
 
+	/**
+	 *
+	 * @param elementData
+	 * @return Sum of all MCA channels for detector element.
+	 */
 	private double calculateSingleElementTotal(double[] elementData) {
 		double total = 0;
 		for (double val : elementData) {
@@ -471,13 +479,20 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 		return total;
 	}
 
+	/**
+	 * Calculate total for region between channels regionStart, regionEnd (*inclusive*)
+	 * @param elementData
+	 * @param regionStart
+	 * @param regionEnd
+	 * @return
+	 */
 	private double calculateRegionTotal(double[] elementData, int regionStart, int regionEnd) {
 		// Correct bounds
 		int start = Math.max(0, regionStart);
-		int end = Math.min(elementData.length, regionEnd);
+		int end = Math.min(elementData.length-1, regionEnd);
 
 		double total = 0;
-		for (int index = start; index < end; index++) {
+		for (int index = start; index <= end; index++) {
 			total += elementData[index];
 		}
 		return total;
