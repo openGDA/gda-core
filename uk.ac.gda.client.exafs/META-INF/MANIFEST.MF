@@ -88,7 +88,10 @@ Require-Bundle: uk.ac.gda.exafs.api;bundle-version="1.0.0",
  uk.ac.gda.epics.adviewer,
  uk.ac.gda.epics;bundle-version="1.0.0",
  com.thoughtworks.xstream;bundle-version="1.2.1",
- uk.ac.gda.server.exafs;bundle-version="1.0.0"
+ uk.ac.gda.server.exafs;bundle-version="1.0.0",
+ org.dawnsci.plotting.system,
+ org.eclipse.nebula.visualization.xygraph;bundle-version="1.1.0",
+ com.github.tschoonj.xraylib
 Export-Package: com.swtdesigner,
  gda.exafs.scan,
  uk.ac.gda.client.exafs,
