@@ -31,6 +31,7 @@
             <children xsi:type="basic:Part" xmi:id="_pPX84B6eEee_csdnO0BkHQ" elementId="gda.rcp.jythonterminalview" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView" label="Jython Console" iconURI="platform:/plugin/uk.ac.diamond.daq.devices.specs.phoibos.ui/icons/application_xp_terminal.png"/>
             <children xsi:type="basic:Part" xmi:id="_zCBYIB6dEee_csdnO0BkHQ" elementId="uk.ac.diamond.daq.devices.specs.phoibos.ui.spectrum" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView" label="Spectrum" iconURI="platform:/plugin/uk.ac.diamond.daq.devices.specs.phoibos.ui/icons/analyser_spectrum_icon.png"/>
             <children xsi:type="basic:Part" xmi:id="_hAwVoB6eEee_csdnO0BkHQ" elementId="uk.ac.diamond.daq.devices.specs.phoibos.ui.image" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView" label="Image" iconURI="platform:/plugin/uk.ac.diamond.daq.devices.specs.phoibos.ui/icons/analyser_image_icon.png"/>
+            <children xsi:type="basic:Part" xmi:id="_HjzhwLo8Eeek1Yfcgk6bhQ" elementId="gda.rcp.views.baton.BatonView" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView" label="Baton Manager" iconURI="platform:/plugin/uk.ac.diamond.daq.devices.specs.phoibos.ui/icons/server_link.png"/>
           </children>
         </children>
       </children>
