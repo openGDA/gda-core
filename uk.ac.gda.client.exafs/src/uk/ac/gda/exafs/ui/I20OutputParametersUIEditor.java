@@ -18,58 +18,32 @@
 
 package uk.ac.gda.exafs.ui;
 
-import gda.jython.JythonServerFacade;
-
 import java.net.URL;
-import java.util.List;
 
-import org.eclipse.richbeans.widgets.selector.BeanSelectionEvent;
-import org.eclipse.richbeans.widgets.selector.BeanSelectionListener;
-import org.eclipse.richbeans.widgets.selector.VerticalListEditor;
 import org.eclipse.richbeans.widgets.wrappers.BooleanWrapper;
 import org.eclipse.richbeans.widgets.wrappers.TextWrapper;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.forms.events.ExpansionAdapter;
 import org.eclipse.ui.forms.events.ExpansionEvent;
 import org.eclipse.ui.forms.widgets.ExpandableComposite;
 
-import uk.ac.gda.beans.exafs.MetadataParameters;
-import uk.ac.gda.beans.exafs.SignalParameters;
 import uk.ac.gda.beans.exafs.i20.I20OutputParameters;
 import uk.ac.gda.common.rcp.util.GridUtils;
-import uk.ac.gda.exafs.ExafsActivator;
-import uk.ac.gda.exafs.ui.composites.MetadataComposite;
-import uk.ac.gda.exafs.ui.composites.SignalParametersComposite;
-import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 import uk.ac.gda.richbeans.editors.DirtyContainer;
-import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 
-public class I20OutputParametersUIEditor extends RichBeanEditorPart {
+public class I20OutputParametersUIEditor extends OutputParametersUIEditor {
 	private TextWrapper asciiFileName;
-	private VerticalListEditor signalList;
-	private VerticalListEditor metadataList;
-	private TextWrapper nexusDirectory;
-	private TextWrapper asciiDirectory;
-	private TextWrapper afterScanscriptName;
-	private TextWrapper beforeScanscriptName;
+
 	private BooleanWrapper vortexSaveRawSpectrum;
 	private BooleanWrapper xspressOnlyShowFF;
 	private BooleanWrapper xspressShowDTRawValues;
 	private BooleanWrapper xspressSaveRawSpectrum;
-	private ExpandableComposite outputFoldersExpandableComposite;
-	private ExpandableComposite jythonExpandableComposite;
-	private ExpandableComposite signalExpandableComposite;
-	private ExpandableComposite metadataExpandableComposite;
+
 	private ExpandableComposite detectorsExpandableComposite;
 	private I20OutputParameters bean;
 
@@ -85,334 +59,27 @@ public class I20OutputParametersUIEditor extends RichBeanEditorPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		final GridLayout gridLayout = new GridLayout();
-		gridLayout.numColumns = 1;
-		parent.setLayout(gridLayout);
-
-		final Composite left = new Composite(parent, SWT.NONE);
-		left.setLayout(new GridLayout(2, false));
-		left.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, true, true));
-
-		createExtraColumns(left);
-
-		if (ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.SHOW_METADATA_EDITOR)) {
-			createMetadata(left);
-		}
-
-		createScripts(left);
-		createOutput(left);
-		createDetectorOptions(left);
-	}
-
-	public void openScript(final TextWrapper field) {
-		FileDialog dialog = new FileDialog(getSite().getShell(), SWT.OPEN);
-		String[] filterNames = new String[] { "Jython Script Files", "All Files (*)" };
-		dialog.setFilterNames(filterNames);
-		String[] filterExtensions = new String[] { "*.py", "*" };
-		dialog.setFilterExtensions(filterExtensions);
-		String filterPath = findDefaultFilterPath();
-		dialog.setFilterPath(filterPath);
-		final String filename = dialog.open();
-		if (filename != null) {
-			getSite().getShell().getDisplay().asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					field.setValue(filename);
-				}
-			});
-		}
-	}
-
-	private String findDefaultFilterPath() {
-		List<String> jythonProjectFolders = JythonServerFacade.getInstance().getAllScriptProjectFolders();
-		String filterPath = System.getenv("user.home");
-
-		for (String path : jythonProjectFolders) {
-			if (JythonServerFacade.getInstance().projectIsUserType(path)) {
-				filterPath = path;
-				continue;
-			}
-		}
-		return filterPath;
-	}
-
-	private void createExtraColumns(Composite composite){
-		signalExpandableComposite = new ExpandableComposite(composite, SWT.NONE);
-		signalExpandableComposite.setText("Add extra columns of data");
-		GridData gd_signalExpandableComposite = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
-		gd_signalExpandableComposite.widthHint = 260;
-		gd_signalExpandableComposite.minimumWidth = 260;
-		gd_signalExpandableComposite.minimumHeight = 300;
-		signalExpandableComposite.setLayoutData(gd_signalExpandableComposite);
-
-		final Composite signalComp = new Composite(signalExpandableComposite, SWT.NONE);
-		GridLayout gridLayout = new GridLayout();
-		gridLayout.numColumns = 1;
-		signalComp.setLayout(gridLayout);
-
-		final Group signalParametersGroup = new Group(signalComp, SWT.NONE);
-
-		GridData gd = new GridData(SWT.LEFT, SWT.FILL, true, true);
-		gd.widthHint = 400;
-		signalParametersGroup.setLayoutData(gd);
-		gridLayout = new GridLayout();
-		gridLayout.numColumns = 1;
-		signalParametersGroup.setLayout(gridLayout);
-
-		signalList = new VerticalListEditor(signalParametersGroup, SWT.NONE);
-		Control control = signalList.getViewer().getControl();
-		control.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
-		signalList.setTemplateName("Signal");
-		signalList.setEditorClass(SignalParameters.class);
-		final SignalParametersComposite signalComposite = new SignalParametersComposite(signalList, SWT.NONE);
-		signalComposite.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, true, 1, 1));
-		signalList.setEditorUI(signalComposite);
-		signalList.setNameField("Label");
-		signalList.setVisible(true);
-		signalList.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false));
-		signalList.addBeanSelectionListener(new BeanSelectionListener() {
-
-			@Override
-			public void selectionChanged(BeanSelectionEvent evt) {
-				signalComposite.selectionChanged((SignalParameters) evt.getSelectedBean());
-			}
-		});
-		signalExpandableComposite.setClient(signalComp);
-
-		ExpansionAdapter signalExpansionListener = new ExpansionAdapter() {
-			@Override
-			public void expansionStateChanged(ExpansionEvent e) {
-				if(signalList.getListSize()>0)
-					signalExpandableComposite.setExpanded(true);
-				GridUtils.layoutFull(signalComp.getParent());
-			}
-		};
-		signalExpandableComposite.addExpansionListener(signalExpansionListener);
-
-		if(bean.getSignalList().size()>0)
-			signalExpandableComposite.setExpanded(true);
-	}
-
-	private void createMetadata(Composite composite){
-		metadataExpandableComposite = new ExpandableComposite(composite, SWT.NONE);
-		metadataExpandableComposite.setText("Add information to Ascii header");
-		metadataExpandableComposite.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
-
-		final Composite metadataComp = new Composite(metadataExpandableComposite, SWT.NONE);
-		GridLayout gridLayout = new GridLayout();
-		gridLayout.numColumns = 1;
-		metadataComp.setLayout(gridLayout);
-
-		final Group metadataGroup = new Group(metadataComp, SWT.NONE);
-
-		GridData gd2 = new GridData(SWT.LEFT, SWT.TOP, false, false);
-		gd2.widthHint = 400;
-		metadataGroup.setLayoutData(gd2);
-		gridLayout = new GridLayout();
-		gridLayout.numColumns = 1;
-		metadataGroup.setLayout(gridLayout);
-
-		metadataList = new VerticalListEditor(metadataGroup, SWT.NONE);
-		metadataList.setTemplateName("Metadata");
-		metadataList.setEditorClass(MetadataParameters.class);
-
-		final MetadataComposite metadataComposite = new MetadataComposite(metadataList, SWT.NONE);
-		metadataList.setEditorUI(metadataComposite);
-		metadataList.setNameField("ScannableName");
-		metadataList.setVisible(true);
-		metadataList.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		metadataList.addBeanSelectionListener(new BeanSelectionListener() {
-			@Override
-			public void selectionChanged(BeanSelectionEvent evt) {
-				metadataComposite.selectionChanged((MetadataParameters) evt.getSelectedBean());
-			}
-		});
-		metadataExpandableComposite.setClient(metadataComp);
-
-		ExpansionAdapter metadataExpansionListener = new ExpansionAdapter() {
-			@Override
-			public void expansionStateChanged(ExpansionEvent e) {
-				if(metadataList.getListSize()>0)
-					metadataExpandableComposite.setExpanded(true);
-				GridUtils.layoutFull(metadataComp.getParent());
-			}
-		};
-		metadataExpandableComposite.addExpansionListener(metadataExpansionListener);
-
-
-		if(bean.getMetadataList().size()>0)
-			metadataExpandableComposite.setExpanded(true);
-	}
-
-	private void createScripts(Composite composite){
-		jythonExpandableComposite = new ExpandableComposite(composite, SWT.NONE);
-		jythonExpandableComposite.setText("Run scripts before and after a scan");
-		jythonExpandableComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1));
-
-		final Composite jythonComp = new Composite(jythonExpandableComposite, SWT.NONE);
-		GridLayout gridLayout = new GridLayout();
-		gridLayout.numColumns = 1;
-		jythonComp.setLayout(gridLayout);
-
-		GridData gd3 = new GridData(SWT.LEFT, SWT.TOP, false, false);
-		gd3.widthHint = 400;
-		gd3.heightHint = 80;
-
-		final Group jythonScriptGroup = new Group(jythonComp, SWT.NONE);
-		jythonScriptGroup.setLayoutData(gd3);
-		gridLayout = new GridLayout();
-		gridLayout.numColumns = 3;
-		jythonScriptGroup.setLayout(gridLayout);
-
-		Label beforeScriptNameLabel = new Label(jythonScriptGroup, SWT.NONE);
-		beforeScriptNameLabel.setToolTipText("A Jython script to run immediately before each scan");
-		beforeScriptNameLabel.setText("Before Scan Script Name");
-
-		beforeScanscriptName = new TextWrapper(jythonScriptGroup, SWT.BORDER);
-		beforeScanscriptName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		beforeScanscriptName.setTextType(TextWrapper.TEXT_TYPE.FILENAME);
-
-		Button beforeScanscriptButton = new Button(jythonScriptGroup, SWT.PUSH);
-		beforeScanscriptButton.setText("...");
-		beforeScanscriptButton.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				showDialog();
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				showDialog();
-			}
-
-			private void showDialog() {
-				openScript(beforeScanscriptName);
-			}
-		});
-
-		Label afterScriptNameLabel = new Label(jythonScriptGroup, SWT.NONE);
-		afterScriptNameLabel.setToolTipText("A Jython script to run immediately after each scan");
-		afterScriptNameLabel.setText("After Scan Script Name");
-
-		afterScanscriptName = new TextWrapper(jythonScriptGroup, SWT.BORDER);
-		afterScanscriptName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		afterScanscriptName.setTextType(TextWrapper.TEXT_TYPE.FILENAME);
-
-		Button afterScanscriptButton = new Button(jythonScriptGroup, SWT.PUSH);
-		afterScanscriptButton.setText("...");
-		afterScanscriptButton.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				showDialog();
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				showDialog();
-			}
-
-			private void showDialog() {
-				openScript(afterScanscriptName);
-			}
-		});
-
-		jythonExpandableComposite.setClient(jythonComp);
-
-		ExpansionAdapter jythonExpansionListener = new ExpansionAdapter() {
-			@Override
-			public void expansionStateChanged(ExpansionEvent e) {
-				if(!beforeScanscriptName.getText().equals("") || !afterScanscriptName.getText().equals(""))
-					jythonExpandableComposite.setExpanded(true);
-				GridUtils.layoutFull(jythonComp.getParent());
-			}
-		};
-		jythonExpandableComposite.addExpansionListener(jythonExpansionListener);
-
-		if(bean.getBeforeScriptName()!=null || bean.getAfterScriptName()!=null)
-			jythonExpandableComposite.setExpanded(true);
-	}
-
-	private void createOutput(Composite composite){
-		outputFoldersExpandableComposite = new ExpandableComposite(composite, SWT.NONE);
-		outputFoldersExpandableComposite.setText("Choose where files are saved to");
-		GridData gd_outputFoldersExpandableComposite = new GridData(SWT.LEFT, SWT.FILL, true, true, 1, 1);
-		gd_outputFoldersExpandableComposite.minimumWidth = 260;
-		gd_outputFoldersExpandableComposite.widthHint = 260;
-		outputFoldersExpandableComposite.setLayoutData(gd_outputFoldersExpandableComposite);
-
-		final Composite outputFoldersComp = new Composite(outputFoldersExpandableComposite, SWT.NONE);
-		GridLayout gridLayout = new GridLayout();
-		gridLayout.numColumns = 2;
-		outputFoldersComp.setLayout(gridLayout);
-
-		Group ouputFilePreferencesGroup = new Group(outputFoldersComp, SWT.NONE);
-		GridData gd4 = new GridData(SWT.LEFT, SWT.FILL, true, false);
-		gd4.widthHint = 400;
-		ouputFilePreferencesGroup.setLayoutData(gd4);
-		gridLayout = new GridLayout();
-		gridLayout.numColumns = 2;
-		ouputFilePreferencesGroup.setLayout(gridLayout);
-
-		outputFoldersExpandableComposite.setClient(outputFoldersComp);
-
-		ExpansionAdapter outputFoldersListener = new ExpansionAdapter() {
-			@Override
-			public void expansionStateChanged(ExpansionEvent e) {
-				GridUtils.layoutFull(outputFoldersComp.getParent());
-			}
-		};
-		outputFoldersExpandableComposite.addExpansionListener(outputFoldersListener);
-
-		final Label asciiFolderLabel = new Label(ouputFilePreferencesGroup, SWT.NONE);
-		asciiFolderLabel.setText("Ascii Folder");
-
-		asciiDirectory = new TextWrapper(ouputFilePreferencesGroup, SWT.BORDER);
-		GridData gd_asciiDirectory = new GridData(SWT.FILL, SWT.CENTER, true, false);
-		gd_asciiDirectory.widthHint = 150;
-		asciiDirectory.setLayoutData(gd_asciiDirectory);
-		asciiDirectory.setToolTipText("The ascii sub-folder that will store ascii output files.");
-		asciiDirectory.setTextType(TextWrapper.TEXT_TYPE.FILENAME);
-
-		final Label nexusFolderLabel = new Label(ouputFilePreferencesGroup, SWT.NONE);
-		nexusFolderLabel.setLayoutData(new GridData(SWT.CENTER, SWT.TOP, false, false));
-		nexusFolderLabel.setText("Nexus Folder");
-
-		nexusDirectory = new TextWrapper(ouputFilePreferencesGroup, SWT.BORDER);
-		GridData gd_nexusDirectory = new GridData(SWT.FILL, SWT.CENTER, true, false);
-		gd_nexusDirectory.widthHint = 150;
-		nexusDirectory.setLayoutData(gd_nexusDirectory);
-		nexusDirectory.setToolTipText("The sub-folder that will store nexus output files.");
-		nexusDirectory.setTextType(TextWrapper.TEXT_TYPE.FILENAME);
-		new Label(outputFoldersComp, SWT.NONE);
+		super.createPartControl(parent);
+		createDetectorOptions(rightColumn);
 	}
 
 	private void createDetectorOptions(Composite left) {
 		detectorsExpandableComposite = new ExpandableComposite(left, SWT.NONE);
 		detectorsExpandableComposite.setText("Fluorescence detectors output");
-		detectorsExpandableComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1));
+		detectorsExpandableComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 
 		final Composite detFoldersComp = new Composite(detectorsExpandableComposite, SWT.NONE);
-		GridLayout gridLayout = new GridLayout();
-		gridLayout.numColumns = 2;
-		detFoldersComp.setLayout(gridLayout);
+		detFoldersComp.setLayout(new GridLayout(1, false));
 
 		Group vortexPreferencesGroup = new Group(detFoldersComp, SWT.NONE);
 		vortexPreferencesGroup.setText("Vortex (Si)");
-		GridData gd5 = new GridData(SWT.LEFT, SWT.TOP, false, false);
-		gd5.widthHint = 400;
-		vortexPreferencesGroup.setLayoutData(gd5);
-		gridLayout = new GridLayout();
-		gridLayout.numColumns = 2;
-		vortexPreferencesGroup.setLayout(gridLayout);
+		vortexPreferencesGroup.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
+		vortexPreferencesGroup.setLayout(new GridLayout(1,false));
 
 		Group xspressPreferencesGroup = new Group(detFoldersComp, SWT.NONE);
 		xspressPreferencesGroup.setText("Xspress (Ge)");
-		GridData gd6 = new GridData(SWT.LEFT, SWT.TOP, false, false);
-		gd6.widthHint = 400;
-		xspressPreferencesGroup.setLayoutData(gd6);
-		gridLayout = new GridLayout();
-		gridLayout.numColumns = 2;
-		xspressPreferencesGroup.setLayout(gridLayout);
+		xspressPreferencesGroup.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
+		xspressPreferencesGroup.setLayout(new GridLayout(1,false));
 
 		detectorsExpandableComposite.setClient(detFoldersComp);
 
@@ -431,14 +98,12 @@ public class I20OutputParametersUIEditor extends RichBeanEditorPart {
 
 		this.xspressOnlyShowFF = new BooleanWrapper(xspressPreferencesGroup, SWT.NONE);
 		xspressOnlyShowFF.setText("Hide individual elements");
-		xspressOnlyShowFF
-				.setToolTipText("In ascii output, only display the total in-window counts (FF) from the Xspress detector");
+		xspressOnlyShowFF.setToolTipText("In ascii output, only display the total in-window counts (FF) from the Xspress detector");
 		xspressOnlyShowFF.setValue(Boolean.FALSE);
 
 		this.xspressShowDTRawValues = new BooleanWrapper(xspressPreferencesGroup, SWT.NONE);
 		xspressShowDTRawValues.setText("Show DT values");
-		xspressShowDTRawValues
-				.setToolTipText("Add the raw scaler values used in deadtime (DT) calculations to ascii output");
+		xspressShowDTRawValues.setToolTipText("Add the raw scaler values used in deadtime (DT) calculations to ascii output");
 		xspressShowDTRawValues.setValue(Boolean.FALSE);
 
 		this.xspressSaveRawSpectrum = new BooleanWrapper(xspressPreferencesGroup, SWT.NONE);
@@ -460,40 +125,6 @@ public class I20OutputParametersUIEditor extends RichBeanEditorPart {
 
 		if(bean.isVortexSaveRawSpectrum() || bean.isXspressOnlyShowFF() || bean.isXspressSaveRawSpectrum() || bean.isXspressShowDTRawValues())
 			detectorsExpandableComposite.setExpanded(true);
-	}
-
-
-	@Override
-	public void dispose() {
-		super.dispose();
-	}
-
-	@Override
-	public void setFocus() {
-	}
-
-	public TextWrapper getAsciiDirectory() {
-		return asciiDirectory;
-	}
-
-	public TextWrapper getNexusDirectory() {
-		return nexusDirectory;
-	}
-
-	public TextWrapper getBeforeScriptName() {
-		return beforeScanscriptName;
-	}
-
-	public TextWrapper getAfterScriptName() {
-		return afterScanscriptName;
-	}
-
-	public VerticalListEditor getSignalList() {
-		return signalList;
-	}
-
-	public VerticalListEditor getMetadataList() {
-		return metadataList;
 	}
 
 	public TextWrapper getAsciiFileName() {

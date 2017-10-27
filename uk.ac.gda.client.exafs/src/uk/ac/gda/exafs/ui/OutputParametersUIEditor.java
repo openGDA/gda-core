@@ -64,6 +64,9 @@ public class OutputParametersUIEditor extends RichBeanEditorPart {
 	private ExpandableComposite signalExpandableComposite;
 	private ExpandableComposite metadataExpandableComposite;
 
+	protected Composite leftColumn;
+	protected Composite rightColumn;
+
 	private OutputParameters bean;
 
 	public OutputParametersUIEditor(String path, URL mappingURL, DirtyContainer dirtyContainer, Object editingBean) {
@@ -78,21 +81,29 @@ public class OutputParametersUIEditor extends RichBeanEditorPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		GridLayout gridLayout = new GridLayout();
-		gridLayout.numColumns = 1;
-		parent.setLayout(gridLayout);
+		parent.setLayout(new GridLayout(1, false));
 
-		Composite left = new Composite(parent, SWT.NONE);
-		left.setLayout(new GridLayout(2, false));
-		left.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, true, false));
+		Composite mainComposite = new Composite(parent, SWT.NONE);
+		mainComposite.setLayout(new GridLayout(2, false));
+		mainComposite.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, true, false));
 
-		createExtraColumns(left);
+		// create main composite in each column, add widgets to those to have better control of where
+		// each set of widgets are put.
+		leftColumn = new Composite(mainComposite, SWT.NONE);
+		leftColumn.setLayout(new GridLayout(1, false));
+		leftColumn.setLayoutData(new GridData(SWT.FILL, SWT.LEFT, true, false, 1, 1));
+
+		rightColumn = new Composite(mainComposite, SWT.NONE);
+		rightColumn.setLayout(new GridLayout(1, false));
+		rightColumn.setLayoutData(new GridData(SWT.FILL, SWT.LEFT, true, false, 1, 1));
+
+		createExtraColumns(leftColumn);
 
 		if (ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.SHOW_METADATA_EDITOR))
-			createMetadata(left);
+			createMetadata(rightColumn);
 
-		createScripts(left);
-		createOutput(left);
+		createScripts(leftColumn);
+		createOutput(rightColumn);
 	}
 
 	public void openScript(final TextWrapper field) {
@@ -154,7 +165,6 @@ public class OutputParametersUIEditor extends RichBeanEditorPart {
 		signalList.setVisible(true);
 		signalList.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		signalList.addBeanSelectionListener(new BeanSelectionListener() {
-
 			@Override
 			public void selectionChanged(BeanSelectionEvent evt) {
 				signalComposite.selectionChanged((SignalParameters) evt.getSelectedBean());
@@ -327,7 +337,7 @@ public class OutputParametersUIEditor extends RichBeanEditorPart {
 
 		Group ouputFilePreferencesGroup = new Group(outputFoldersComp, SWT.NONE);
 		GridData gd = new GridData(SWT.LEFT, SWT.TOP, false, false);
-		gd.widthHint = 400;
+		gd.widthHint = 250;
 		ouputFilePreferencesGroup.setLayoutData(gd);
 		gridLayout = new GridLayout();
 		gridLayout.numColumns = 2;
