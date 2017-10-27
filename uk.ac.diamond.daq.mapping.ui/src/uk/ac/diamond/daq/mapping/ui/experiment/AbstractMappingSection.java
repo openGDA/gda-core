@@ -73,6 +73,7 @@ public abstract class AbstractMappingSection {
 
 	protected void relayoutMappingView() {
 		mappingView.relayout();
+		mappingView.recalculateMinimumSize();
 	}
 
 	protected IEclipseContext getEclipseContext() {
