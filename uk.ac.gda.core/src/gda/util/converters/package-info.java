@@ -18,10 +18,6 @@
 
 // this text is in file gda/util/converters/package-info.java
 /**
- * <code>gda.util.converters</code> is a set of code for general purpose conversion between objects. It was written to
- * allow <code>gda.oe.dofs</code> to be related to other DOFs. It is used by the class
- * <code>gda.oe.dofs.CombinedDOF</code>.
- *
  *      <p>
  *      The design philosophy is that within the ObjectServer of GDA there will be instances of classes that implement
  *      interfaces IReloadableQuantitiesConverter and Findable. These instances are findable by any other classes using

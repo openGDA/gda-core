@@ -153,46 +153,6 @@ public class LocalPropertiesTest extends TestCase {
 	}
 
 	/**
-	 * Test OEmove properties exist.
-	 */
-	public void testOEMovePropertiesExist() {
-		// testProperty = LocalProperties.get("gda.oemove.relative");
-		// assertTrue("Should contain gda.oemove.relative", testProperty !=
-		// null);
-
-		// testProperty = LocalProperties.get("gda.oemove.continuous");
-		// assertTrue("Should contain gda.oemove.continuous", testProperty !=
-		// null);
-
-		// testProperty = LocalProperties.get("gda.oemove.absolute");
-		// assertTrue("Should contain gda.oemove.absolute", testProperty !=
-		// null);
-
-		// testProperty = LocalProperties.get("gda.oemove.set");
-		// assertTrue("Should contain gda.oemove.set", testProperty != null);
-
-		// testProperty = LocalProperties.get("gda.oemove.homeSet");
-		// assertTrue("Should contain gda.oemove.homeSet", testProperty !=
-		// null);
-
-		// testProperty = LocalProperties.get("gda.oemove.home");
-		// assertTrue("Should contain gda.oemove.home", testProperty != null);
-
-		testProperty = LocalProperties.get("gda.oe.oefactory");
-		assertTrue("Should contain gda.oe.oefactory", testProperty != null);
-
-		testProperty = LocalProperties.get("gda.oe.oemoveDir");
-		assertTrue("Should contain gda.oe.oemoveDir", testProperty != null);
-
-		testProperty = LocalProperties.get("gda.oe.useOEGif");
-		assertTrue("Should contain gda.oe.useOEGif", testProperty != null);
-
-		// testProperty = LocalProperties.get("gda.oe.singleOEMenu");
-		// assertTrue("Should contain gda.oe.singleOEMenu", testProperty !=
-		// null);
-	}
-
-	/**
 	 * Test VUV properties exist.
 	 */
 	public void testVuvPropertiesExist() {

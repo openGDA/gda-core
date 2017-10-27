@@ -17,11 +17,6 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//
-// GenericOETest uses its own local properties and xml files. VM args
-// "gda.propertiesFile" & "jacorb.config.dir" SHOULD NOT BE SET
-//
-
 package gda.device.motor;
 
 import gda.device.scannable.ScannableMotor;
