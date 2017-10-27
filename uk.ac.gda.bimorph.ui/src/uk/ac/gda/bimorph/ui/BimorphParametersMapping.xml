@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <mapping>
-	<class name="uk.ac.gda.bimorph.BimorphParameters">
+	<class name="uk.ac.gda.bimorph.ui.BimorphParameters">
 		<map-to xml="BimorphParameters" />
 		
 		<field name="mirrorScannableName" type="string">
