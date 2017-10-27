@@ -175,10 +175,6 @@ public class RegionAndPathSection extends AbstractMappingSection {
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(regionAndPathComposite);
 		GridLayoutFactory.fillDefaults().numColumns(2).spacing(0, 0).applyTo(regionAndPathComposite);
 
-		// Add a listener to update the scrolled composite when the region and path composite changes
-		// This will set the initial size as well when the region and path composite is first drawn
-		regionAndPathComposite.addListener(SWT.Resize, event -> getMappingView().recalculateMinimumSize());
-
 		// Prepare a grid data factory for controls which will need to grab space horizontally
 		GridDataFactory horizontalGrabGridData = GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false);
 

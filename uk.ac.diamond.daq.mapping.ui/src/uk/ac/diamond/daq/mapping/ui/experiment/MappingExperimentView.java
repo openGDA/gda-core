@@ -313,7 +313,6 @@ public class MappingExperimentView implements IAdaptable {
 	public void updateControls() {
 		sections.values().forEach(AbstractMappingSection::updateControls);
 		relayout();
-		recalculateMinimumSize();
 	}
 
 	public IEclipseContext getEclipseContext() {

@@ -129,7 +129,6 @@ public class DetectorsSection extends AbstractMappingSection {
 
 			createDetectorControls(chosenDetectors);
 			relayoutMappingView();
-			getMappingView().recalculateMinimumSize();
 		}
 	}
 
@@ -194,7 +193,7 @@ public class DetectorsSection extends AbstractMappingSection {
 		}
 
 		// if a malcolm device is selected already, deselect and disable the checkboxes for the other detectors
-		selectedMalcolmDevice.ifPresent(w -> malcolmDeviceSelectionChanged(w));
+		selectedMalcolmDevice.ifPresent(this::malcolmDeviceSelectionChanged);
 	}
 
 	private void editDetectorParameters(final IDetectorModelWrapper detectorParameters) {
@@ -203,7 +202,6 @@ public class DetectorsSection extends AbstractMappingSection {
 		if (editDialog.open() == Window.OK) {
 			dataBindingContext.updateTargets();
 		}
-		relayoutMappingView();
 	}
 
 	/**
@@ -365,7 +363,7 @@ public class DetectorsSection extends AbstractMappingSection {
 			final List<String> chosenDetectorNames = marshaller.unmarshal(json, List.class);
 
 			chosenDetectors = chosenDetectorNames.stream().
-				map(name -> detectorParamsByName.get(name)).
+				map(detectorParamsByName::get).
 				filter(Objects::nonNull).
 				collect(toList());
 		} catch (Exception e) {
