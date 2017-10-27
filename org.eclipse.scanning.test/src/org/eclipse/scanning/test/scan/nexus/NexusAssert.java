@@ -125,12 +125,9 @@ public class NexusAssert {
 
 		NXcollection keysCollection = (NXcollection) solsticeScanCollection.getGroupNode(GROUP_NAME_KEYS);
 		assertNotNull(keysCollection);
-		if (!malcolmScan) {
-			assertUniqueKeys(keysCollection, snake, foldedGrid, sizes);
-		}
-		if (expectedExternalFiles != null && !expectedExternalFiles.isEmpty()) {
-			assertUniqueKeysExternalFileLinks(keysCollection, expectedExternalFiles, malcolmScan, sizes);
-		}
+
+		// workaround for StaticGenerator with StaticModel of size 1 producing scan of rank 1 and shape { 1 }
+		assertUniqueKeys(malcolmScan, snake, foldedGrid, expectedExternalFiles, keysCollection, sizes);
 	}
 
 	private static void assertScanShape(NXcollection solsticeScanCollection, int... sizes) {
@@ -239,9 +236,24 @@ public class NexusAssert {
 		assertEquals((double) deadTimeMs / scanDurationMs, deadTimePercent / 100, 0.001);
 	}
 
-	private static void assertUniqueKeys(NXcollection keysCollection, boolean snake, boolean foldedGrid, int... sizes) {
-		// check the unique keys field - contains the step number for each scan
-		// point
+	private static void assertUniqueKeys(boolean malcolmScan, boolean snake, boolean foldedGrid,
+			List<String> expectedExternalFiles, NXcollection keysCollection, int[] sizes) {
+		if (sizes.length == 0) {
+			sizes = new int[] { 1 };
+		}
+		if (!malcolmScan) {
+			assertUniqueKeys(keysCollection, snake, foldedGrid, sizes);
+		}
+		if (expectedExternalFiles != null && !expectedExternalFiles.isEmpty()) {
+			assertUniqueKeysExternalFileLinks(keysCollection, expectedExternalFiles, sizes);
+		}
+	}
+
+	private static void assertUniqueKeys(NXcollection keysCollection, boolean snake, boolean foldedGrid, int[] sizes) {
+		// workaround for StaticGenerator with StaticModel of size 1 producing scan of rank 1 and shape { 1 }
+		if (sizes.length == 0) sizes = new int[] { 1 };
+
+		// check the unique keys field - contains the step number for each scan point
 		DataNode dataNode = keysCollection.getDataNode(FIELD_NAME_UNIQUE_KEYS);
 		assertNotNull(dataNode);
 		IDataset dataset;
@@ -316,7 +328,7 @@ public class NexusAssert {
 	}
 
 	private static void assertUniqueKeysExternalFileLinks(NXcollection keysCollection,
-			List<String> expectedExternalFiles, boolean malcolmScan, int... sizes) {
+			List<String> expectedExternalFiles, int[] sizes) {
 		for (String externalFileName : expectedExternalFiles) {
 			String datasetName = externalFileName.replace("/", "__");
 			DataNode dataNode = keysCollection.getDataNode(datasetName);

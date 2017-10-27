@@ -244,7 +244,13 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 				List<String> expectedAxesNames = Stream.concat(
 						axisNames.stream().map(axisName -> axisName +
 								(!axisName.equals("stage_y") ? "_value_set" : "")),
-						Collections.nCopies(additionalRank, ".").stream()).collect(Collectors.toList()); // TODO 2 should be what number?
+						Collections.nCopies(additionalRank, ".").stream()).collect(Collectors.toList());
+				if (sizes.length == 0) {
+					// prepend "." for scans of rank 0. A scan with a single StaticModel of size 1
+					// produces datasets of rank 1 and shape { 1 } due to a limitation of area detector
+					expectedAxesNames = new ArrayList<>(expectedAxesNames);
+					expectedAxesNames.add(0, ".");
+				}
 				assertAxes(nxData, expectedAxesNames.toArray(new String[expectedAxesNames.size()]));
 
 				int[] defaultDimensionMappings = IntStream.range(0, sizes.length).toArray();

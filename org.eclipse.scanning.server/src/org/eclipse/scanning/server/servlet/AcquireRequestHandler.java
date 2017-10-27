@@ -160,8 +160,8 @@ public class AcquireRequestHandler implements IRequestHandler<AcquireRequest> {
 			ScanModel scanModel, IPointGenerator<?> gen) throws Exception {
 
 		ScanInformation info = new ScanInformation();
-		info.setRank(0);
-		info.setShape(new int[0]);
+		info.setRank(1);
+		info.setShape(new int[] { 1 });
 		info.setSize(1);
 
 		info.setFilePath(scanModel.getFilePath());

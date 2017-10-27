@@ -24,7 +24,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -85,9 +84,11 @@ public class MandelbrotAcquireTest extends NexusTest {
 
 		LinkedHashMap<String, List<String>> signalFieldAxes = new LinkedHashMap<>();
 		// axis for additional dimensions of a datafield, e.g. image
-		signalFieldAxes.put(NXdetector.NX_DATA, Arrays.asList("real", "imaginary"));
-		signalFieldAxes.put("spectrum", Arrays.asList("spectrum_axis"));
-		signalFieldAxes.put("value", Collections.emptyList());
+		// note all dataset have additional first dimension of size 1. This is added by the
+		// the jython static generator due to the limitiations of area detector
+		signalFieldAxes.put(NXdetector.NX_DATA, Arrays.asList(".", "real", "imaginary"));
+		signalFieldAxes.put("spectrum", Arrays.asList(".", "spectrum_axis"));
+		signalFieldAxes.put("value", Arrays.asList("."));
 
 		String detectorName = scanModel.getDetectors().get(0).getName();
 		NXdetector detector = instrument.getDetector(detectorName);
