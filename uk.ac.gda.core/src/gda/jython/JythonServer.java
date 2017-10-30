@@ -83,7 +83,6 @@ import gda.jython.translator.Translator;
 import gda.messages.InMemoryMessageHandler;
 import gda.messages.MessageHandler;
 import gda.observable.IObserver;
-import gda.observable.ObservableComponent;
 import gda.scan.Scan;
 import gda.scan.Scan.ScanStatus;
 import gda.scan.ScanInformation;
@@ -135,11 +134,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	// the current script being run
 	private volatile int currentScriptPosition = 0;
 
-	// status of the current script
-	private volatile int scriptStatus = Jython.IDLE;
-
-	// status of the current scan
-	private volatile int lastScanStatus = Jython.IDLE;
+	private final JythonServerStatusHolder statusHolder = new JythonServerStatusHolder(this);
 
 	// the current scan object
 	private volatile Scan currentScan = null;
@@ -172,9 +167,6 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	private boolean stopJythonScannablesOnStopAll = true;
 
 	private final Set<Terminal> myTerminals = new CopyOnWriteArraySet<>();
-
-	private final ObservableComponent jythonServerStatusObservers = new ObservableComponent();
-
 
 	/**
 	 * Provide access to the Jython interpreter, so we can test whether it's configured correctly.
@@ -379,14 +371,11 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 			throw new InterruptedException();
 		}
 
-		boolean wasAlreadyRunning = (getScriptStatus(null) == Jython.RUNNING);
+		statusHolder.startRunningCommandSynchronously();
 		try {
-			setScriptStatus(Jython.RUNNING, null);
 			this.interp.exec(JythonServerFacade.slurp(new File(scriptFullPath)));
 		} finally {
-			if (!wasAlreadyRunning) {
-				setScriptStatus(Jython.IDLE, null);
-			}
+			statusHolder.finishRunningCommandSynchronously();
 		}
 	}
 
@@ -426,6 +415,10 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	public CommandThreadEvent runScript(String command, String jsfIdentifier) {
 		// See bug #335 for why this must repeat most of the code of the
 		// runCommand(String, String) method.
+		if (!statusHolder.tryAcquireScriptLock()) {
+			return new CommandThreadEvent(CommandThreadEventType.BUSY, null);
+		}
+		boolean started = false;
 		try {
 			int authorisationLevel = this.batonManager.getAuthorisationLevelOf(jsfIdentifier);
 			RunScriptRunner runner = new RunScriptRunner(this, command, authorisationLevel);
@@ -433,12 +426,19 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 			runCommandThreads.add(runner);
 			// start the thread and return immediately.
 			runner.start();
+			started = true;
 			clearThreads();
 			notifyRefreshCommandThreads();
 			return new CommandThreadEvent(CommandThreadEventType.SUBMITTED, extractCommandThreadInfo(CommandThreadType.COMMAND, runner));
 		} catch (Exception ex) {
 			logger.info("Command Terminated", ex);
 			return new CommandThreadEvent(CommandThreadEventType.SUBMIT_ERROR, null);
+		}
+
+		finally {
+			if (!started) {
+				statusHolder.releaseScriptLock();
+			}
 		}
 	}
 
@@ -617,8 +617,10 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 						stopAll();
 				}
 
-				scriptStatus = Jython.IDLE;
-				updateStatus();
+				// Do not set the script status to IDLE here. We have interrupted all the threads that we can,
+				// but they may still be running, and the script status will change when they finish running.
+				// Setting the status to IDLE while scripts could still be running in the background is wrong.
+
 				updateIObservers(new PanicStopEvent());
 			}
 		}).start();
@@ -720,7 +722,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	@Override
 	public void notifyServer(Object scan, Object data) {
 		if (scan == currentScan && data instanceof ScanStatus){
-			updateScanStatus(((ScanStatus)data).asJython());
+			statusHolder.updateScanStatus(((ScanStatus)data).asJython());
 		}
 
 		updateIObservers(data);
@@ -752,17 +754,12 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 
 	@Override
 	public int getScriptStatus(String jsfIdentifier) {
-		return scriptStatus;
+		return statusHolder.getScriptStatus();
 	}
 
 	@Override
 	public void setScriptStatus(int newStatus, String jsfIdentifier) {
-		// check if the status value is recognised and has changed
-		if ((newStatus == Jython.IDLE || newStatus == Jython.RUNNING || newStatus == Jython.PAUSED)
-				&& scriptStatus != newStatus) {
-			scriptStatus = newStatus;
-			updateStatus();
-		}
+		statusHolder.setScriptStatus(newStatus);
 	}
 
 	@Override
@@ -912,7 +909,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 		return new ArrayList<>();
 	}
 
-	private void updateIObservers(Object messageObject) {
+	void updateIObservers(Object messageObject) {
 		// localFacade will be null during configure phase, and before implFactory made
 		if (localFacade != null) {
 			localFacade.update(null, messageObject);
@@ -920,25 +917,6 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 		if (remoteFacade != null) {
 			remoteFacade.update(null, messageObject);
 		}
-	}
-
-	private void updateScanStatus(int newStatus) {
-		// check if the status value has changed
-		if (newStatus != lastScanStatus){
-			lastScanStatus = newStatus;
-			updateStatus();
-		}
-	}
-
-	/*
-	 * Creates a new JythonServerStatus object with the current state of the Jython system and passes it to all
-	 * JythonFacade objects for distribution locally.
-	 */
-	private void updateStatus() {
-		JythonServerStatus newStatus = new JythonServerStatus(scriptStatus, lastScanStatus);
-		updateIObservers(newStatus);
-		logger.info("New status {}", newStatus);
-		jythonServerStatusObservers.notifyIObservers(null, newStatus);
 	}
 
 	private synchronized void stopAll() {
@@ -1200,18 +1178,27 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 
 		@Override
 		public void run() {
-			final CommandThreadInfo commandThreadInfo = server.notifyStartCommandThread(CommandThreadType.COMMAND, this);
+			CommandThreadInfo commandThreadInfo = null;
 			try {
-				this.interpreter.runscript(cmd);
-			} catch (Exception e) {
-				if (e.getCause() instanceof ScanInterruptedException) {
-					logger.info("CommandServer: {}", e.getCause().getMessage());
-				} else {
-					logger.error("CommandServer: error while running command: '{}' encountered an error: ", cmd, e);
+				commandThreadInfo = server.notifyStartCommandThread(CommandThreadType.COMMAND, this);
+				try {
+					this.interpreter.runscript(cmd);
+				} catch (Exception e) {
+					if (e.getCause() instanceof ScanInterruptedException) {
+						logger.info("CommandServer: {}", e.getCause().getMessage());
+					} else {
+						logger.error("CommandServer: error while running command: '{}' encountered an error: ", cmd, e);
+					}
 				}
-				server.setScriptStatus(Jython.IDLE, null);
 			}
-			server.notifyTerminateCommandThread(commandThreadInfo);
+
+			finally {
+				server.statusHolder.releaseScriptLock();
+
+				if (commandThreadInfo != null) {
+					server.notifyTerminateCommandThread(commandThreadInfo);
+				}
+			}
 		}
 	}
 
@@ -1431,17 +1418,17 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 
 	@Override
 	public void addJythonServerStatusObserver(IJythonServerStatusObserver anObserver) {
-		jythonServerStatusObservers.addIObserver(anObserver);
+		statusHolder.addObserver(anObserver);
 	}
 
 	@Override
 	public void deleteJythonServerStatusObserver(IJythonServerStatusObserver anObserver) {
-		jythonServerStatusObservers.deleteIObserver(anObserver);
+		statusHolder.deleteObserver(anObserver);
 	}
 
 	@Override
 	public JythonServerStatus getJythonServerStatus() {
-		return new JythonServerStatus(scriptStatus, getScanStatus(null));
+		return new JythonServerStatus(statusHolder.getScriptStatus(), getScanStatus(null));
 	}
 
 	public void showUsers() {

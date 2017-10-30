@@ -608,12 +608,7 @@ public class GDAJythonInterpreter {
 	 */
 	protected void runscript(String input) {
 		// pass entire script to interpreter
-		JythonServerFacade.getInstance().setScriptStatus(Jython.RUNNING);
-		try{
-			exec(input);
-		} finally{
-			JythonServerFacade.getInstance().setScriptStatus(Jython.IDLE);
-		}
+		exec(input);
 	}
 
 	/**

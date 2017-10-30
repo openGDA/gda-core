@@ -63,6 +63,31 @@ public class JythonServerStatus implements Serializable {
 	}
 
 	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + scanStatus;
+		result = prime * result + scriptStatus;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		JythonServerStatus other = (JythonServerStatus) obj;
+		if (scanStatus != other.scanStatus)
+			return false;
+		if (scriptStatus != other.scriptStatus)
+			return false;
+		return true;
+	}
+
+	@Override
 	public String toString() {
 		return "Command Server status: script=" + scriptStatus + ", scan=" + scanStatus +
 			" (" + Jython.IDLE + "=IDLE, " + Jython.PAUSED + "=PAUSED, " + Jython.RUNNING + "=RUNNING)";
