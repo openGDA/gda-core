@@ -57,7 +57,7 @@ public class LoggerWriter extends Writer {
 
 					case IN_MESSAGE:
 						if (isNewlineCharacter(c)) {
-							logger.info(buffer.toString());
+							logLine(buffer.toString());
 							buffer.setLength(0);
 							state = State.IN_LINEBREAK;
 						} else {
@@ -73,6 +73,13 @@ public class LoggerWriter extends Writer {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Subclass and overwrite to log at a level other than INFO.
+	 */
+	protected void logLine(String line) {
+		logger.info(line);
 	}
 
 	private static boolean isNewlineCharacter(char c) {
