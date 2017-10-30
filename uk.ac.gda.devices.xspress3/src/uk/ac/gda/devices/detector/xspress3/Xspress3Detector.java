@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import gda.data.NumTracker;
 import gda.data.PathConstructor;
 import gda.data.nexus.extractor.NexusGroupData;
+import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.Detector;
 import gda.device.DeviceException;
@@ -151,6 +152,10 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 	@Override
 	public void atScanEnd() throws DeviceException {
 		currentScanNumber = -1;
+		// Make sure filewriting is stopped, caches flushed to disc etc.
+		if (writeHDF5Files) {
+			controller.setSavingFiles(false);
+		}
 	}
 
 	@Override
@@ -332,9 +337,11 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 
 		for (int frame = 0; frame < numFramesRead; frame++) {
 			NXDetectorData thisFrame = new NXDetectorData(this);
-			// INexusTree detTree = thisFrame.getDetTree(getName());
-			// thisFrame.addData(detTree, sumLabel, new int[] { numberOfChannelsToRead }, Dataset.FLOAT64, FFs[frame], unitsLabel, 1);
-			thisFrame.addData(getName(), sumLabel, new NexusGroupData(FFs[frame]), unitsLabel, 1);
+			INexusTree detTree = thisFrame.getDetTree(getName());
+
+			// Add FF value for each channel
+			NXDetectorData.addData(detTree, channelLabelPrefix, new NexusGroupData(FFs[frame]), unitsLabel, 1);
+
 			for (int chan = 0; chan < numberOfChannelsToRead; chan++) {
 				thisFrame.setPlottableValue(getExtraNames()[chan], FFs[frame][chan]);
 			}
@@ -344,9 +351,8 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 				totalFF += ff;
 			}
 			thisFrame.setPlottableValue(getExtraNames()[numberOfChannelsToRead], totalFF);
+			NXDetectorData.addData(detTree, getExtraNames()[numberOfChannelsToRead], new NexusGroupData(totalFF), unitsLabel, 1);
 
-			// TODO this needs fixing at some point - currently writes an absolute path when better to use relative in Nexus
-			// Also, deriveFilename() only gives the correct name in step scans when Auto Increment is switched off in EPICS
 			if (writeHDF5Files) {
 				thisFrame.addScanFileLink(getName(), "nxfile://" + deriveFilename() + "#entry/instrument/detector/data");
 			}
@@ -393,11 +399,7 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 	}
 
 	private String deriveFilename() throws DeviceException {
-		String path = controller.getFilePath();
-		String prefix = controller.getFilePrefix();
-		String scanNumber = Integer.toString(controller.getNextFileNumber());
-		String xspress3File = path + prefix + scanNumber + ".hdf5";
-		return xspress3File;
+		return controller.getFullFileName();
 	}
 
 	@Override
@@ -565,6 +567,9 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 
 	public void setNumberOfFramesToCollect(int numberOfFramesToCollect) throws DeviceException {
 		controller.setNumFramesToAcquire(numberOfFramesToCollect);
+		if (writeHDF5Files) {
+			controller.setHDFNumFramesToAcquire(numberOfFramesToCollect);
+		}
 	}
 
 	public int getSummingMethod() {

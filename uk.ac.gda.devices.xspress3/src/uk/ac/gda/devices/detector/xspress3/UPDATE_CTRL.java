@@ -20,5 +20,7 @@ package uk.ac.gda.devices.detector.xspress3;
 
 public enum UPDATE_CTRL {
 	Disable,
-	Enable
+	Enable,
+	Stop,
+	Read
 }
