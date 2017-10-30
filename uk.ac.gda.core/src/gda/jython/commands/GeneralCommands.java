@@ -23,9 +23,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,15 +47,19 @@ import gda.jython.scriptcontroller.Scriptcontroller;
 /**
  * Holder for a series of static methods to operate Scannable objects
  */
-public class GeneralCommands {
+public final class GeneralCommands {
 
 	private static final Logger logger = LoggerFactory.getLogger(GeneralCommands.class);
+
+	private GeneralCommands() {
+		// Prevent instances
+	}
 
 	/**
 	 * Print the default help message
 	 */
 	public static void gdahelp() {
-		Vector<String> helpString = new Vector<String>();
+		final List<String> helpString = new ArrayList<>();
 
 		helpString.add("Available console commands in addition to Jython syntax:");
 		helpString.add("* help                            -prints this message");
@@ -65,47 +69,30 @@ public class GeneralCommands {
 		helpString.add("* upos <scannable> new_position   -pos command without print out during the move");
 		helpString.add("* uinc <scannable> increment      -inc command without print out during the move");
 		helpString.add("* ls                              -list all the interfaces of existing objects");
-		helpString
-				.add(  "* ls interfaceName                -lists all the objects of the given type (interface).  E.g. OE, Detector");
-		helpString
-		.add(        "* ls_names                          -lists the names of all findables");
+		helpString.add("* ls interfaceName                -lists all the objects of the given type (interface)");
+		helpString.add("* ls_names                        -lists the names of all findables");
 		helpString.add("* list_defaults                   -lists all objects which would be used in a scan by default");
 		helpString.add("* add_default <scannable>         -add an object to the defaults list");
 		helpString.add("* remove_default <scannable>      -remove an object from the defaults list");
-		helpString
-				.add("* pause                           -during a script, checks to see if the pause/resume button has been pressed");
-		helpString
-				.add("* watch <scannable>               -adds the scannable to the watch sub-panel in the terminal panel.");
-		helpString
-				.add("* level <scannable> [value]       -if value is declared then sets move order (level) of the scannable, else returns the current level.");
-		helpString
-				.add("* alias functionName              -where functionName is a function in the global namespace.  This dynamically adds a function to the extended syntax.");
-		helpString.add("* run \"scriptName\"              -runs the named script.");
-		helpString
-				.add("* record [on|off]                 -starts/stops recording all terminal output to a file placed in the scripts directory");
-		helpString
-				.add("* scan <scannable> start stop step [pseudoDevice2] [start] [[stop] step]        -automated movement of a group of pseudoDevices in concurrent steps, with data collected after each step");
-		helpString
-				.add("* testscan <scannable> start stop step [pseudoDevice2] [start] [[stop] step]    -as scan, except does not move anything and justs validates the parameters.");
-		helpString
-				.add("* cscan <scannable> [centroid] width step [pseudoDevice2] [centroid] [width]    -as scan, except uses different inputs");
-		helpString
-				.add("* pscan <scannable> start step no_points [pseudoDevice2] start [step]           -as scan, except uses different inputs");
-		helpString
-				.add("* gscan <scannable> start stop step [pseudoDevice2] [start] [stop] [step]       -grid scan in which each dimension is moved separately.  Data is collected after each step.");
-		helpString
-				.add("* timescan detector numberOfPoints pauseTime collectTime                        -Time scan in which the positions of a list of pseudoDevices are collected at regular intervals. ");
-		helpString
-				.add("* tscan numberOfPoints pauseTime [collectTime] scannable...                     -Time scan in which the positions of a list of pseudoDevices are collected at regular intervals. ");
-		helpString
-				.add("* cvscan [motor1] [start] [stop] time [motor2 start stop] [detectors]   	      -constant velocity scan (XPS motor only).");
-		helpString
-				.add("* robotscan sample startNumber stopNumber [step] [translator start stop step] cv-motor startAngle [stopAngle] totalTime     -cvscan multiple sample at multiple sample position (Motoman & XPS only). ");
-		for (String h : helpString)
-			JythonServerFacade.getInstance().print(h);
+		helpString.add("* pause                           -during a script, checks to see if the pause/resume button has been pressed");
+		helpString.add("* watch <scannable>               -adds the scannable to the watch sub-panel in the terminal panel.");
+		helpString.add("* level <scannable> [value]       -if value is declared then sets move order (level) of the scannable, else returns the current level.");
+		helpString.add("* alias functionName              -where functionName is a function in the global namespace.  This dynamically adds a function to the extended syntax.");
+		helpString.add("* run \"scriptName\"                -runs the named script.");
+		helpString.add("* record [on|off]                 -starts/stops recording all terminal output to a file placed in the scripts directory");
+		helpString.add("* scan <scannable> start stop step [pseudoDevice2] [start] [[stop] step]        -automated movement of a group of pseudoDevices in concurrent steps, with data collected after each step");
+		helpString.add("* testscan <scannable> start stop step [pseudoDevice2] [start] [[stop] step]    -as scan, except does not move anything and justs validates the parameters.");
+		helpString.add("* cscan <scannable> [centroid] width step [pseudoDevice2] [centroid] [width]    -as scan, except uses different inputs");
+		helpString.add("* pscan <scannable> start step no_points [pseudoDevice2] start [step]           -as scan, except uses different inputs");
+		helpString.add("* gscan <scannable> start stop step [pseudoDevice2] [start] [stop] [step]       -grid scan in which each dimension is moved separately.  Data is collected after each step.");
+		helpString.add("* timescan detector numberOfPoints pauseTime collectTime                        -Time scan in which the positions of a list of pseudoDevices are collected at regular intervals. ");
+		helpString.add("* tscan numberOfPoints pauseTime [collectTime] scannable...                     -Time scan in which the positions of a list of pseudoDevices are collected at regular intervals. ");
+		helpString.add("* cvscan [motor1] [start] [stop] time [motor2 start stop] [detectors]           -constant velocity scan (XPS motor only).");
+		helpString.add("* robotscan sample startNumber stopNumber [step] [translator start stop step] cv-motor startAngle [stopAngle] totalTime -cvscan multiple sample at multiple sample position (Motoman & XPS only). ");
 
-		return;
-
+		// Print the help
+		final String output = String.join("\n", helpString);
+		InterfaceProvider.getTerminalPrinter().print(output);
 	}
 
 	/**
@@ -262,7 +249,7 @@ public class GeneralCommands {
 	public static void run(String scriptName) throws Exception {
 		// NOTE: ideally this method would try the entire python sys.path, but this would
 		//       require making a breaking change and possibly be overkill!
-		JythonServer server = (JythonServer) Finder.getInstance().find(JythonServer.SERVERNAME);
+		JythonServer server = Finder.getInstance().find(JythonServer.SERVERNAME);
 
 		// allow full paths to be given to this method
 		String path = scriptName;
@@ -275,9 +262,9 @@ public class GeneralCommands {
 		}
 
 		// Run the file
-		logger.info("<<< Running " + scriptName + " (" + path + ")");
+		logger.info("<<< Running {} ({})", scriptName, path);
 		server.runCommandSynchronously(path);
-		logger.info("Completed running " + scriptName + ">>>");
+		logger.info("Completed running {} >>>", scriptName);
 
 	}
 
@@ -317,10 +304,12 @@ public class GeneralCommands {
 	 * Add a new vararg aliased command
 	 *
 	 * @param commandName
+	 * @deprecated Use {@link #vararg_alias(String)} instead
 	 */
 	@Deprecated
 	public static void vararg_regex(String commandName) {
-		gda.jython.JythonServerFacade.getInstance().addAliasedVarargCommand(commandName);
+		logger.warn("'vararg_regex' is deprecated and will be removed, replace with 'vararg_alias'");
+		JythonServerFacade.getInstance().addAliasedVarargCommand(commandName);
 	}
 
 	/**
@@ -329,7 +318,7 @@ public class GeneralCommands {
 	 * @param commandName
 	 */
 	public static void vararg_alias(String commandName) {
-		gda.jython.JythonServerFacade.getInstance().addAliasedVarargCommand(commandName);
+		JythonServerFacade.getInstance().addAliasedVarargCommand(commandName);
 	}
 
 	/**
