@@ -30,6 +30,8 @@ public interface ICommandThreadInfo extends Serializable {
 
 	long getId();
 
+	String getJythonServerThreadId();
+
 	String getName();
 
 	int getPriority();
@@ -47,6 +49,8 @@ public interface ICommandThreadInfo extends Serializable {
 	void setDate(String date);
 
 	void setId(long id);
+
+	void setJythonServerThreadId(String id);
 
 	void setInterrupted(boolean isInterrupted);
 
