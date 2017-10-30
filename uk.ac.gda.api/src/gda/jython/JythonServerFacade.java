@@ -272,14 +272,11 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 		try {
 			String commands;
 			commands = slurp(script);
-			// only run if no other scan is runningcommandserver
-			// FIXME this has an obvious race condition, but worse it just ignores the request if busy
-			if (commandServer.getScriptStatus(name) == Jython.IDLE) {
-				return commandServer.runScript(commands, name);
-			} else {
+			final CommandThreadEvent event = commandServer.runScript(commands, name);
+			if (event.getEventType() == CommandThreadEventType.BUSY) {
 				logger.error("Unable to run script " + script.getAbsolutePath() + " as server os busy");
-				return new CommandThreadEvent(CommandThreadEventType.BUSY, null);
 			}
+			return event;
 		} catch (IOException e) {
 			logger.error("Unable to run script " + script.getAbsolutePath(), e);
 			return new CommandThreadEvent(CommandThreadEventType.SUBMIT_ERROR, null);

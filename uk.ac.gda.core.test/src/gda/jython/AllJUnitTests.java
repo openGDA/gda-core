@@ -27,6 +27,7 @@ import org.junit.runners.Suite;
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
+	gda.jython.JythonServerStatusHolderTest.class,
 	gda.jython.accesscontrol.DeviceInterceptorTest.class,
 	gda.jython.authenticator.JaasAuthenticatorTest.class,
 	gda.jython.authoriser.FileAuthoriserTest.class,
