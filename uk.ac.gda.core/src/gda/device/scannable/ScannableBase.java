@@ -284,28 +284,6 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 		}
 	}
 
-//	/**
-//	 * Converts and array of objects representing an external position, to an array of objects representing an internal
-//	 * position. Called by {@link ScannableBase#externalToInternal(Object)}.
-//	 *
-//	 * @param externalPositionArray
-//	 * @return internal position array
-//	 */
-//	protected Object[] externalArrayToInternal(Object[] externalPositionArray) {
-//		return externalPositionArray;
-//	}
-//
-//	/**
-//	 * Converts and array of objects representing an internal position, to an array of objects representing an external
-//	 * position. Called by {@link ScannableBase#internalToExternal(Object)}.
-//	 *
-//	 * @param internalPositionArray
-//	 * @return external position array
-//	 */
-//	protected Object[] internalArraytoExternal(Object[] internalPositionArray) {
-//		return internalPositionArray;
-//	}
-
 	/**
 	 * Replaced by atScanGroupStart Default behaviour is to do nothing. Inheriting classes have the option to implement
 	 * this if their specific behaviour requires it.
