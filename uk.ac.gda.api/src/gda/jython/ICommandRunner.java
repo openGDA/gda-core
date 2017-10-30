@@ -20,6 +20,8 @@ package gda.jython;
 
 import java.io.File;
 
+import gda.jython.commandinfo.CommandThreadEvent;
+
 /**
  * Interface used by some classes to run a simple Jython command
  * Provided to ensure loose coupling between callers and command runner implementation
@@ -51,7 +53,7 @@ public interface ICommandRunner {
 	 */	
 	public String evaluateCommand(String command);	
 	
-	public void runScript(File script, String sourceName);
+	public CommandThreadEvent runScript(File script, String sourceName);
 	
 	/**
 	 * @param command

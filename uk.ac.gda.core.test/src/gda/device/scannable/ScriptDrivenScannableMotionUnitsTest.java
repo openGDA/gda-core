@@ -31,6 +31,7 @@ import org.junit.Test;
 import gda.device.DeviceException;
 import gda.device.motor.DummyMotor;
 import gda.jython.ICommandRunner;
+import gda.jython.commandinfo.CommandThreadEvent;
 import gda.observable.IObserver;
 
 /**
@@ -86,7 +87,8 @@ public class ScriptDrivenScannableMotionUnitsTest {
 			}
 
 			@Override
-			public void runScript(File script, String sourceName) {
+			public CommandThreadEvent runScript(File script, String sourceName) {
+				return null;
 			}
 
 			@Override

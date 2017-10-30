@@ -52,6 +52,7 @@ import gda.jython.batoncontrol.BatonChanged;
 import gda.jython.batoncontrol.BatonLeaseRenewRequest;
 import gda.jython.batoncontrol.ClientDetails;
 import gda.jython.commandinfo.CommandThreadEvent;
+import gda.jython.commandinfo.CommandThreadEventType;
 import gda.jython.commandinfo.ICommandThreadInfo;
 import gda.jython.commandinfo.ICommandThreadInfoProvider;
 import gda.jython.commandinfo.ICommandThreadObserver;
@@ -260,26 +261,28 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 		return indexNumberInJythonServer;
 	}
 
-	public void runScript(String scriptName, String sourceName) {
+	public CommandThreadEvent runScript(String scriptName, String sourceName) {
 		// open up a new file
 		File file = new File(locateScript(scriptName));
-		runScript(file, sourceName);
+		return runScript(file, sourceName);
 	}
 
 	@Override
-	public void runScript(File script, String sourceName) {
+	public CommandThreadEvent runScript(File script, String sourceName) {
 		try {
 			String commands;
 			commands = slurp(script);
 			// only run if no other scan is runningcommandserver
 			// FIXME this has an obvious race condition, but worse it just ignores the request if busy
 			if (commandServer.getScriptStatus(name) == Jython.IDLE) {
-				commandServer.runScript(commands, name);
+				return commandServer.runScript(commands, name);
 			} else {
 				logger.error("Unable to run script " + script.getAbsolutePath() + " as server os busy");
+				return new CommandThreadEvent(CommandThreadEventType.BUSY, null);
 			}
 		} catch (IOException e) {
 			logger.error("Unable to run script " + script.getAbsolutePath(), e);
+			return new CommandThreadEvent(CommandThreadEventType.SUBMIT_ERROR, null);
 		}
 	}
 

@@ -21,6 +21,11 @@ package gda.jython.commandinfo;
 public enum CommandThreadEventType {
 	CLEAR,    // All command threads cleared
 	REFRESH,  // Notify observers to call for refresh
+
+	SUBMITTED,    // Command was successfully submitted, and will run later
+	BUSY,         // Command could not be submitted, because the server was busy
+	SUBMIT_ERROR, // Command could not be submitted, due to an error
+
 	START,    // start a new command thread (supplied)
 	UPDATE,   // update an existing command thread (supplied)
 	TERMINATE // terminate a command thread (supplied)

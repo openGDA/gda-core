@@ -25,6 +25,7 @@ import gda.factory.corba.util.EventService;
 import gda.jython.Jython;
 import gda.jython.UserMessage;
 import gda.jython.batoncontrol.ClientDetails;
+import gda.jython.commandinfo.CommandThreadEvent;
 import gda.jython.commandinfo.ICommandThreadInfo;
 import gda.jython.completion.AutoCompletion;
 import gda.jython.corba.CorbaJythonPOA;
@@ -307,9 +308,12 @@ public class JythonImpl extends CorbaJythonPOA implements IObserver {
 	}
 
 	@Override
-	public void runScript(String command, String JSFIdentifier) throws CorbaDeviceException {
+	public Any runScript(String command, String JSFIdentifier) throws CorbaDeviceException {
 		try {
-			jythonServer.runScript(command, JSFIdentifier);
+			CommandThreadEvent result = jythonServer.runScript(command, JSFIdentifier);
+			org.omg.CORBA.Any any = org.omg.CORBA.ORB.init().create_any();
+			any.insert_Value(result);
+			return any;
 		} catch (Exception de) {
 			throw new CorbaDeviceException(de.getMessage());
 		}
