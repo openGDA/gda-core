@@ -23,6 +23,7 @@ import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.richbeans.api.widget.IFieldWidget;
 import org.eclipse.richbeans.widgets.selector.GridListEditor;
+import org.eclipse.richbeans.widgets.selector.GridListEditor.GRID_ORDER;
 import org.eclipse.richbeans.widgets.selector.ListEditor;
 import org.eclipse.richbeans.widgets.wrappers.BooleanWrapper;
 import org.eclipse.richbeans.widgets.wrappers.BooleanWrapper.BOOLEAN_MODE;
@@ -50,6 +51,8 @@ public class FluoDetectorElementsComposite extends Composite {
 	private GridListEditor detectorElementTable;
 	private LabelWrapper elementName;
 	private BooleanWrapper excluded;
+	private GRID_ORDER gridOrder =  GRID_ORDER.LEFT_TO_RIGHT_TOP_TO_BOTTOM;
+	private FluoDetectorElementConfig elementConfiguration = null;
 
 	public FluoDetectorElementsComposite(Composite parent, int style) {
 		super(parent, style);
@@ -126,11 +129,34 @@ public class FluoDetectorElementsComposite extends Composite {
 		}
 
 		detectorElementTable = new GridListEditor(elementsGroup, SWT.NONE, columns, rows);
+		if (elementConfiguration!=null) {
+			setupDetectorElementsFromConfig(numberOfElements);
+		} else {
+			detectorElementTable.setGridOrder(gridOrder);
+		}
 		detectorElementTable.setGridWidth(Math.max(160, columns * 25));
 		detectorElementTable.setGridHeight(rows * 23);
 		GridDataFactory.fillDefaults().align(SWT.CENTER, SWT.CENTER).span(2, 1).applyTo(detectorElementTable);
 		detectorElementTable.moveAbove(elementName);
 		this.getParent().layout(true, true);
+	}
+
+	/**
+	 * Set detector element order using {@link FluoDetectorElementConfig} object.
+	 * @param numElements
+	 */
+	private void setupDetectorElementsFromConfig(int numElements) {
+		if (elementConfiguration.getElementMap() != null && elementConfiguration.getElementMap().size() == numElements) {
+			detectorElementTable.setGridOrder(GRID_ORDER.CUSTOM_MAP);
+			detectorElementTable.setGridMap(elementConfiguration.getElementMap());
+		} else {
+			int gridFromConfig = elementConfiguration.getGridOrder();
+			if (gridFromConfig<0 || gridFromConfig>1) {
+				gridFromConfig=0;
+			}
+			gridOrder = GRID_ORDER.values()[gridFromConfig];
+			detectorElementTable.setGridOrder(gridOrder);
+		}
 	}
 
 	public ListEditor getDetectorList() {
@@ -147,5 +173,17 @@ public class FluoDetectorElementsComposite extends Composite {
 
 	public IFieldWidget getExcluded() {
 		return excluded;
+	}
+
+	public void setDetectorElementOrder(GRID_ORDER order) {
+		this.gridOrder = order;
+	}
+
+	public FluoDetectorElementConfig getElementConfiguration() {
+		return elementConfiguration;
+	}
+
+	public void setElementConfiguration(FluoDetectorElementConfig elementConfiguration) {
+		this.elementConfiguration = elementConfiguration;
 	}
 }

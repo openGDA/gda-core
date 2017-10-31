@@ -18,6 +18,7 @@
 
 package gda.exafs.scan;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -33,6 +34,7 @@ import gda.factory.Findable;
 import gda.factory.Finder;
 import gda.util.Element;
 import uk.ac.gda.beans.exafs.DetectorParameters;
+import uk.ac.gda.beans.exafs.FluorescenceParameters;
 import uk.ac.gda.beans.exafs.IDetectorParameters;
 import uk.ac.gda.beans.exafs.IOutputParameters;
 import uk.ac.gda.beans.exafs.OutputParameters;
@@ -41,7 +43,10 @@ import uk.ac.gda.beans.exafs.XanesScanParameters;
 import uk.ac.gda.beans.exafs.XasScanParameters;
 import uk.ac.gda.beans.validation.AbstractValidator;
 import uk.ac.gda.beans.validation.InvalidBeanMessage;
+import uk.ac.gda.devices.detector.FluorescenceDetector;
+import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
 import uk.ac.gda.exafs.ui.data.ScanObject;
+import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 /**
  * Abstract to hold generic XAS validations for beamlines using the server.exafs plugin
@@ -145,6 +150,51 @@ public abstract class ExafsValidator extends AbstractValidator {
 		return null;
 	}
 
+	/**
+	 * Examine the detector xml file and check that the elements it has settings for matches the number of
+	 * elements actually on the detector. Add to error message if the number of elements do not match.
+	 * @param errors
+	 * @param iDetectorParams
+	 * @since 26/9/2017
+	 * @throws Exception
+	 */
+	public void checkDetectorElements(List<InvalidBeanMessage> errors, IDetectorParameters iDetectorParams) throws Exception {
+
+		if (iDetectorParams.getExperimentType().equalsIgnoreCase(DetectorParameters.FLUORESCENCE_TYPE)) {
+			FluorescenceParameters params = iDetectorParams.getFluorescenceParameters();
+
+			// Get full path to detector config XML file
+			String configFileName = params.getConfigFileName();
+			String fullPathToConfig = bean.getFolder().getFile(configFileName).getLocation().toString();
+
+			// Load from XML file and make bean object
+			FluorescenceDetectorParameters detParams = (FluorescenceDetectorParameters) XMLHelpers.getBean(new File(fullPathToConfig));
+
+			String detectorName = "";
+			int numElementsInXml = 0;
+			if (detParams != null) {
+				numElementsInXml = detParams.getDetectorList().size();
+				detectorName = detParams.getDetectorName();
+			}
+
+			// Try to get detector object (should have been exported from server to client using FluorescenceDetector interface)
+			FluorescenceDetector det = Finder.getInstance().findNoWarn(detectorName);
+			if (det == null) {
+				InvalidBeanMessage msg = new InvalidBeanMessage("Cannot find detector '" + detectorName +"'.\nIs name of detector in XML file " + configFileName + " correct?");
+				errors.add(msg);
+				return;
+			}
+
+			int numElementsOnDetector = det.getNumberOfElements();
+
+			if (numElementsInXml != numElementsOnDetector) {
+				InvalidBeanMessage msg = new InvalidBeanMessage("Number of detector elements specified in " + configFileName + " does not match number of elements on detector \'" + detectorName + "\'.\n" +
+						"Expected "+ numElementsOnDetector + " elements but xml has " + numElementsInXml);
+				errors.add(msg);
+			}
+		}
+	}
+
 	public List<InvalidBeanMessage> validateIDetectorParameters(IDetectorParameters iDetectorParams) {
 
 		final List<InvalidBeanMessage> errors = new ArrayList<InvalidBeanMessage>(31);
@@ -170,6 +220,13 @@ public abstract class ExafsValidator extends AbstractValidator {
 		if (bean != null) {
 			setFileName(errors, bean.getDetectorFileName());
 		}
+
+		try {
+			checkDetectorElements(errors, iDetectorParams);
+		} catch (Exception e) {
+			logger.warn("Problem comparing number of detector elements with actual number of elements available on detector", e);
+		}
+
 		return errors;
 	}
 
@@ -332,7 +389,7 @@ public abstract class ExafsValidator extends AbstractValidator {
 			return false;
 		}
 		for (char thischar : ILLEGAL_CHARACTERS) {
-			if (sampleName.indexOf(thischar) > 0) {
+			if (sampleName.indexOf(thischar) != -1) {
 				return false;
 			}
 		}
