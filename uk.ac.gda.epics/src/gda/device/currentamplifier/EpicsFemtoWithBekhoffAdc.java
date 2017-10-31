@@ -540,6 +540,16 @@ public class EpicsFemtoWithBekhoffAdc extends DetectorBase implements NexusDetec
 		}
 	}
 
+	@Override
+	public void atCommandFailure() throws DeviceException {
+		restoreADCMode();
+		super.atCommandFailure();
+	}
+	@Override
+	public void stop() throws DeviceException {
+		restoreADCMode();
+		super.stop();
+	}
 	/**
 	 * Adjusts the gain of the current amplifier so the its output the ADC input is within the voltage bounds.
 	 *
