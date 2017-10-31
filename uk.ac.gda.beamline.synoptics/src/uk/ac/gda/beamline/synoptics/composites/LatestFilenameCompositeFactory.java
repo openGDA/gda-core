@@ -18,27 +18,34 @@
 
 package uk.ac.gda.beamline.synoptics.composites;
 
-import gda.device.detectorfilemonitor.FileProcessor;
-import gda.rcp.GDAClientActivator;
-import gda.rcp.views.CompositeFactory;
+import static java.util.stream.Collectors.toMap;
+
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.function.Predicate;
+import java.util.regex.Pattern;
 
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.springframework.beans.factory.InitializingBean;
 
+import gda.device.detectorfilemonitor.FileProcessor;
+import gda.rcp.GDAClientActivator;
+import gda.rcp.views.CompositeFactory;
 import uk.ac.gda.beamline.synoptics.utils.DataFileListener;
+
 /**
- * CompositeFactory to create a Composite for displaying latest collected detector data file and 
+ * CompositeFactory to create a Composite for displaying latest collected detector data file and
  * used for processing these detector data files in a file set reported by an instance of
  * {@link DataFileListener}. The processing is done by a FileProcessor object, see {@link DetectorFileDisplayer}.
  */
 public class LatestFilenameCompositeFactory implements CompositeFactory, InitializingBean {
-	// private static final Logger logger = LoggerFactory.getLogger(LatestFileNameCompositeFactory.class);
 	FileProcessor fileProcessor;
 	String label;
 	private int startNumber=0;
 	private DataFileListener dirWatcher;
-	private String[] detectors;
+	private Map<String, Predicate<String>> detectors;
 
 	public FileProcessor getFileProcessor() {
 		return fileProcessor;
@@ -55,16 +62,16 @@ public class LatestFilenameCompositeFactory implements CompositeFactory, Initial
 	public void setLabel(String label) {
 		this.label = label;
 	}
-	
+
 	private boolean showButtonSeparator;
-	
+
 	public void setShowButtonSeparator(boolean showButtonSeparator) {
 		this.showButtonSeparator = showButtonSeparator;
 	}
-	
+
 	private boolean separatePlayPauseButtons;
 	private LatestFilenameComposite comp;
-	
+
 	public void setSeparatePlayPauseButtons(boolean separatePlayPauseButtons) {
 		this.separatePlayPauseButtons = separatePlayPauseButtons;
 	}
@@ -87,10 +94,10 @@ public class LatestFilenameCompositeFactory implements CompositeFactory, Initial
 		comp.setStartNumber(startNumber);
 		comp.setDirWatcher(dirWatcher);
 		comp.setDetectors(detectors);
-		
+
 		comp.createControls();
 		comp.initialize();
-		
+
 		return comp;
 	}
 
@@ -106,29 +113,52 @@ public class LatestFilenameCompositeFactory implements CompositeFactory, Initial
 			throw new IllegalArgumentException("dirWatcher == null");
 		}
 	}
-	
+
 	public int getStartNumber() {
 		return startNumber;
 	}
-	
+
 	public void setStartNumber(int startNumber) {
 		this.startNumber = startNumber;
 	}
-	
+
 	public DataFileListener getDirWatcher() {
 		return dirWatcher;
 	}
-	
+
 	public void setDirWatcher(DataFileListener dirWatcher) {
 		this.dirWatcher = dirWatcher;
 	}
 
 
-	public String[] getDetectors() {
+	public Map<String, Predicate<String>> getDetectors() {
 		return detectors;
 	}
 
+	/**
+	 * Set the list of detectors to filter filenames by. Filenames match iff they
+	 * contain the name of the detector
+	 *
+	 * @see #setDetectors(Map)
+	 * @param detectors
+	 */
 	public void setDetectors(String[] detectors) {
-		this.detectors = detectors;
+		// if just a list of detectors is given, use the detector name as the regex
+		setDetectors(Arrays.stream(detectors).collect(toMap(s -> s, s -> s)));
+	}
+
+	/**
+	 * Set the map of label name/match regex to use to filter scan files
+	 *
+	 * @see LatestFilenameComposite#setDetectors(Map)
+	 * @param detectors
+	 */
+	public void setDetectors(Map<String, String> detectors) {
+		this.detectors = detectors
+				.entrySet()
+				.stream()
+				.collect(toMap(
+						Entry::getKey,
+						e -> Pattern.compile(e.getValue()).asPredicate()));
 	}
 }

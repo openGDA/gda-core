@@ -21,6 +21,8 @@ package uk.ac.gda.beamline.synoptics.composites;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Predicate;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.vfs2.FileObject;
@@ -119,7 +121,7 @@ class LatestFilenameComposite extends Composite {
 
 	private Combo plotTypes;
 
-	private String[] detectors;
+	private Map<String, Predicate<String>> detectors;
 
 	private Combo detectorCombo;
 
@@ -349,7 +351,7 @@ class LatestFilenameComposite extends Composite {
 		detectorCombo = new Combo(group, SWT.DROP_DOWN | SWT.READ_ONLY);
 		detectorCombo.setToolTipText("Select a detector to filter");
 		detectorCombo.add("All Data");
-		for (String detector : getDetectors()) {
+		for (String detector : getDetectors().keySet()) {
 			detectorCombo.add(detector);
 		}
 		detectorCombo.select(0); // default to no filtering of data
@@ -627,21 +629,27 @@ class LatestFilenameComposite extends Composite {
 		this.dirWatcher = dirWatcher;
 	}
 
-	public String[] getDetectors() {
+	public Map<String, Predicate<String>> getDetectors() {
 		return detectors;
 	}
 
-	public void setDetectors(String[] detectors) {
+	/**
+	 * Set map of detectors with regex string to filter on
+	 *
+	 * @param detectors Map of label/regex filter
+	 */
+	public void setDetectors(Map<String, Predicate<String>> detectors) {
 		this.detectors = detectors;
 	}
 
 	/**
 	 *
 	 */
-	private List<FileObject> detectorFilteredFileList(String filtername) {
+	private List<FileObject> detectorFilteredFileList(String detector) {
+		Predicate<String> filter = detectors.get(detector);
 		List<FileObject> dataFileCollectedForDetector = Collections.synchronizedList(new ArrayList<FileObject>());
 		for (FileObject file : dirWatcher.getDataFileCollected()) {
-			if (FilenameUtils.getName(file.getName().getBaseName()).contains(filtername)) {
+			if (filter.test(FilenameUtils.getName(file.getName().getBaseName()))) {
 				dataFileCollectedForDetector.add(file);
 			}
 		}
