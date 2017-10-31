@@ -46,10 +46,7 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorDescriptor;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
@@ -579,37 +576,6 @@ public class EclipseUtils {
 			}
 
 		}
-	}
-
-
-	/**
-	 * Thread Safe. This is a hard busy setter - it overrides everything and sets everything busy.
-	 *
-	 * Always use with try, finally. Only use when you are sure that there is no other alternative.
-	 * For instance @see Job class.
-	 *
-	 * @param isBusy
-	 */
-	public static void setBusy(final boolean isBusy) {
-
-		final Display display = PlatformUI.getWorkbench().getDisplay();
-		if (display==null || display.isDisposed()) return;
-
-		display.syncExec(new Runnable() {
-			@Override
-			public void run() {
-				Cursor cursor  = display.getSystemCursor(SWT.CURSOR_WAIT);
-				Shell[] shells = display.getShells();
-
-				for (int i = 0; i < shells.length; i++) {
-					if (isBusy) {
-						shells[i].setCursor(cursor);
-					} else {
-						shells[i].setCursor(null);
-					}
-				}
-			}
-		});
 	}
 
 	public static IViewPart findView(String id) {
