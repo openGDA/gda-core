@@ -18,6 +18,9 @@
 
 package gda.epics;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.EpicsController.MonitorType;
@@ -45,9 +48,6 @@ import gov.aps.jca.event.ConnectionListener;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 import gov.aps.jca.event.PutListener;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The scripting interface between Jython and EPICS. CAClient provides client-side implementation of caget(), caput(),
@@ -372,10 +372,17 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 	 * adding a specified CA monitor listener to the PV specified, users need to specify a proper monitor handler that implement
 	 * MonitorChanged(MonitorEvent ev) method.
 	 *
+	 * This only works when a channel is already created in GDA, i.e. in channel cache.
+	 * @deprecated This is not a realisable way to add a {@link MonitorListener} to a channel as it does not wait for channel connection callback before added monitor listener.
+	 * Use {@link #addMonitorListener(String, MonitorListener)} instead.
+	 *
+	 * Note {@link Monitor} is not the same as {@link MonitorListener}. {@link Monitor} is just a client side object storing monitored info and give access to instances of {@link MonitorListener} attached to a channel.
+	 *
 	 * @param ml
 	 * @return Monitor
 	 * @throws CAException
 	 */
+	@Deprecated
 	public Monitor camonitor(String pv, MonitorListener ml) throws CAException, InterruptedException {
 		Channel channel = channelmanager.createChannel(pv);
 		return controller.setMonitor(channel, ml);
@@ -385,12 +392,37 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 	 * start the default CA monitor Listener to this PV, the default behaviour is the monitor prints PV name and value to
 	 * Jython Terminal.
 	 *
+	 * This only works when a channel is already created in GDA, i.e. in channel cache.
+	 * @deprecated This is not a realisable way to add a {@link MonitorListener} to a channel as it does not wait for channel connection callback before added monitor listener.
+	 * Use {@link #addMonitorListener(String)} instead.
+	 *
 	 * @return Monitor
 	 * @throws CAException
 	 */
+	@Deprecated
 	public Monitor camonitor(String pv) throws CAException, InterruptedException {
 		Channel channel = channelmanager.createChannel(pv);
 		return controller.setMonitor(channel, this);
+	}
+	/**
+	 * adding a specified CA monitor listener to the PV specified, users need to specify a proper monitor handler that implement
+	 * MonitorChanged(MonitorEvent ev) method. MonitorListener is added on channel connection callback.
+	 *
+	 * @param ml
+	 * @throws CAException
+	 */
+	public void addMonitorListener(String pv, MonitorListener ml) throws CAException {
+		channelmanager.createChannel(pv, ml);
+	}
+
+	/**
+	 * Adding this object as the default monitor Listener to the specified PV. The default behaviour is the monitor prints PV name and value to
+	 * Jython Terminal. This MonitorListener is added on channel connection callback.
+	 *
+	 * @throws CAException
+	 */
+	public void addMonitorListener(String pv) throws CAException {
+		channelmanager.createChannel(pv, this);
 	}
 	/**
 	 * Sets the value of the specified PV.
