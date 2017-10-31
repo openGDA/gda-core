@@ -6,6 +6,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.collections4.map.HashedMap;
 import org.apache.commons.io.FilenameUtils;
@@ -45,7 +47,7 @@ public class DataReductionScannable extends DummyScannable implements Scannable,
 	private StringValueScannable currentCalibrationScannable;
 	private SimpleUDPServerScannable simpleUDPServer;
 	private String sampleID=null;
-	private Map<String, String> map=new HashedMap<String, String>();
+	private Map<String, String> map=new HashedMap<>();
 
 	
 	@Override
@@ -156,7 +158,7 @@ public class DataReductionScannable extends DummyScannable implements Scannable,
 				final Future<String> submit = executor.submit(r);
 				String result;
 				try {
-					result=submit.get();
+					result=submit.get(600, TimeUnit.SECONDS);
 					logger.info(result);
 					InterfaceProvider.getTerminalPrinter().print(result);
 				} catch (InterruptedException e) {
@@ -165,6 +167,9 @@ public class DataReductionScannable extends DummyScannable implements Scannable,
 				} catch (ExecutionException e) {
 					logger.error("Data reduction process is aborted.", e);
 					InterfaceProvider.getTerminalPrinter().print("Data reduction process is aborted.");
+				} catch (TimeoutException e) {
+					logger.error("Data reduction process takes too long, more than 600 seconds.", e);
+					InterfaceProvider.getTerminalPrinter().print("Data reduction process does not return results in 600 seconds.");
 				}
 				executor.shutdown();
 			}

@@ -1,21 +1,13 @@
 package org.opengda.lde.utils;
 
-import gda.configuration.properties.LocalProperties;
-import gda.data.PathConstructor;
-import gda.data.metadata.GDAMetadataProvider;
-import gda.data.metadata.Metadata;
-import gda.device.DeviceException;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
@@ -32,16 +24,18 @@ import org.opengda.lde.model.ldeexperiment.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
+import gda.data.PathConstructor;
+import gda.data.metadata.GDAMetadataProvider;
+import gda.data.metadata.Metadata;
+import gda.device.DeviceException;
+
 public class LDEResourceUtil {
 	private final Logger logger = LoggerFactory.getLogger(LDEResourceUtil.class);
 	String defaultFilename = "newsamples.lde";
 
 	/**
-	 * returns the default filename. The returned value depends on java
-	 * property {@code gda.data.scan.datawriter.datadir}. If this property is
-	 * set, it will use the path specified by this property to store the file. 
-	 * If this property is not set, it will use {@code use.home}
-	 * property to store the file.
+	 * returns the default filename. 
 	 * 
 	 * @return
 	 */
@@ -52,10 +46,11 @@ public class LDEResourceUtil {
 	 * return the default file directory. 
 	 * 
 	 * This directory must have permission for GDA client to write to.
-	 * At DLS it is always the 'xml' directory under the directory defined by
+	 *
+	 * At DLS beamlines it is always the 'xml' directory under the directory defined by
 	 * the java property {@code gda.data.scan.datawriter.datadir}. 
-	 * If this property is set, it will use the path specified by this property 
-	 * to store the file. If this property is not set, it will use 
+	 * 
+	 * In other case, such as on developer's PC, or if this property is not set, it will use system
 	 * {@code use.home} property to store the file.
 	 * 
 	 * 
@@ -66,8 +61,7 @@ public class LDEResourceUtil {
 		String metadataValue = null;
 		Metadata metadata = GDAMetadataProvider.getInstance();
 		try {
-			//must test if 'subdirectory' is set as client can only write to the 
-			//'xml' directory under the visit root folder
+			//must test if 'subdirectory' is set as client can only write to the 'xml' directory under the visit root folder
 			metadataValue = metadata.getMetadataValue("subdirectory");
 			if (metadataValue != null && !metadataValue.isEmpty()) {
 				metadata.setMetadataValue("subdirectory", "");
@@ -86,7 +80,7 @@ public class LDEResourceUtil {
 				}
 				dir = currentVisitFolder + "xml";
 			}
-			// set the original value back for other processing
+			// restore the original value back for other processing
 			metadata.setMetadataValue("subdirectory", metadataValue);
 		} catch (DeviceException e) {
 			e.printStackTrace();
@@ -101,7 +95,8 @@ public class LDEResourceUtil {
 	}
 
 	/**
-	 * enable file name to be set in Spring object configuration.
+	 * enable file name to be set in Spring object configuration. If the file name dosn't contain full path,
+	 * the default XML data directory defined in java property <code>gda.data.scan.datawriter.datadir</code> is used.
 	 * 
 	 * @param fileName
 	 */
@@ -111,6 +106,7 @@ public class LDEResourceUtil {
 		}
 		try {
 			if(getResource()!=null) {
+				//must unload current resource when change resource filename.
 				getResource().unload();
 			}
 		} catch (Exception e) {
@@ -121,8 +117,8 @@ public class LDEResourceUtil {
 
 	/**
 	 * return the resource. The filename for this resource can be set in Spring object configuration property. 
-	 * If not set in Spring configuration, it is built using GDA property {@link gda.configuration.properties.LocalProperties.GDA_DATAWRITER_DIR}
-	 * or {@code gda.data.scan.datawriter.datadir} and the default file name {@code newsamples.lde}. If this property is not set this sequence file will
+	 * If not set in Spring configuration, it is built using GDA property {@code gda.data.scan.datawriter.datadir}
+	 * and the default file name {@code newsamples.lde}. If this property is not set this sequence file will
 	 * be created at {@code user.home}
 	 * 
 	 * @return
@@ -142,12 +138,11 @@ public class LDEResourceUtil {
 		URI fileURI = URI.createFileURI(fileName);
 		return resourceSet.getResource(fileURI, true);
 	}
-	
+
 	private ResourceSet getResourceSet() throws Exception {
-		EditingDomain sequenceEditingDomain = SampleGroupEditingDomain.INSTANCE.getEditingDomain();
+		EditingDomain editingDomain = SampleGroupEditingDomain.INSTANCE.getEditingDomain();
 		// Create a resource set to hold the resources.
-		ResourceSet resourceSet = sequenceEditingDomain.getResourceSet();
-		
+		ResourceSet resourceSet = editingDomain.getResourceSet();
 		return resourceSet;
 	}
 

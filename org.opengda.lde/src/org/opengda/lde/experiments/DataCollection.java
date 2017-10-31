@@ -215,13 +215,15 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 		}
 	}
 	/**
-	 * prepare for data collection, load the samples from experiment definition file, 
-	 * group active or selected samples into cells, and ensure all stages are in safe positions. 
+	 * prepare for data collection.
+	 * 1. load the sample data from experiment definition file,
+	 * 2. group active or selected samples into cells, and
+	 * 3. ensure all stages are in safe positions.
 	 * @param filename
 	 * @throws InterruptedException 
 	 */
 	private void prepareDataCollection(String filename) throws InterruptedException {
-		String message="Prepare data collection run...";
+		String message="Prepare data collection run on GDA server ...";
 		updateMessage(null, message);
 		cellActiveSamplesMap.clear();
 		numActiveSamples = 0;
