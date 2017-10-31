@@ -19,11 +19,11 @@
 package gda.jython;
 
 /**
- * Sends terminals output-type messages as byte[] through Terminal.write();
+ * Sends terminals output-type messages through Terminal.write();
  */
 public interface ITerminalOutputProvider {
 
-	void addOutputTerminal(Terminal term);
+	boolean addOutputTerminal(Terminal term);
 
-	void deleteOutputTerminal(Terminal term);
+	boolean deleteOutputTerminal(Terminal term);
 }
