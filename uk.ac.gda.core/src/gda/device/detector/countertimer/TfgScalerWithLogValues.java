@@ -18,9 +18,12 @@
 
 package gda.device.detector.countertimer;
 
+import java.util.List;
+
 import org.apache.commons.lang.ArrayUtils;
 
 import gda.device.DeviceException;
+import gda.device.detector.countertimer.ScalerOutputProcessor.OutputConfig;
 
 /**
  * A version of TfgScaler for Spectroscopy Ionchambers which assumes it has output channels (time),I0,It,Iref.
@@ -38,6 +41,10 @@ public class TfgScalerWithLogValues extends TfgScalerWithDarkCurrent {
 	private int i0ScalerChannel = 0;
 	private int itScalerChannel = 1;
 	private int iRefScalerChannel = 2;
+
+	private ScalerOutputProcessor scalerOutputProcessor = new ScalerOutputProcessor();
+
+	private boolean useCustomisedOutput = false;
 
 	public TfgScalerWithLogValues() {
 		super();
@@ -119,7 +126,9 @@ public class TfgScalerWithLogValues extends TfgScalerWithDarkCurrent {
 			output = adjustForDarkCurrent(output, getCollectionTime());
 		}
 
-		if (outputLogValues) {
+		if (useCustomisedOutput) {
+			output = scalerOutputProcessor.getScalerReadout(output);
+		} else if (outputLogValues) {
 			output = appendLogValues(output);
 		}
 		return output;
@@ -196,5 +205,54 @@ public class TfgScalerWithLogValues extends TfgScalerWithDarkCurrent {
 	public void setiRefScalerChannel(int iRefScalerChannel) {
 		this.iRefScalerChannel = iRefScalerChannel;
 	}
+	/**
+	 *
+	 * @param useCustomisedOutput true - generate readout using {@link ScalerOutputProcessor}, false - use 'normal' readout.
+	 * When setting from true to false the previous extraNames, outputformats are restored
+	 * (if they have been previously set using {@link #saveExtraNamesFormats()}.
+	 */
+	public void setUseCustomisedOutput(boolean useCustomisedOutput) {
+		// Set the extraNames and outputFormats back to what they were before using customised output.
+		if (!useCustomisedOutput && this.useCustomisedOutput) {
+			scalerOutputProcessor.restoreExtraNamesFormats(this);
+		} else if (useCustomisedOutput) {
+			scalerOutputProcessor.configureScalerOutput(this);
+		}
+		this.useCustomisedOutput = useCustomisedOutput;
+	}
 
+	/**
+	 * Save the current output formats and extra names;
+	 */
+	public void saveExtraNamesFormats() {
+		scalerOutputProcessor.saveExtraNamesFormats(this);
+	}
+
+	public void restoreExtraNamesFormats() {
+		scalerOutputProcessor.restoreExtraNamesFormats(this);
+	}
+
+	public List<OutputConfig> getScalerOutputConfig() {
+		return scalerOutputProcessor.getOutputConfig();
+	}
+
+	public void setScalerOutputConfig(List<OutputConfig> outputConfig) {
+		scalerOutputProcessor.setOutputConfig(outputConfig);
+	}
+
+	public void addScalerOutputConfig(OutputConfig conf) {
+		scalerOutputProcessor.getOutputConfig().add(conf);
+	}
+
+	public void clearScalerOutputConfig() {
+		scalerOutputProcessor.getOutputConfig().clear();
+	}
+
+	public void configureScalerOutputProcessor() {
+		scalerOutputProcessor.configureScalerOutput(this);
+	}
+
+	public ScalerOutputProcessor getScalerOutputProcessor() {
+		return scalerOutputProcessor;
+	}
 }

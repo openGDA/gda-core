@@ -18,15 +18,25 @@
 
 package gda.device.detector.countertimer;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import gda.device.DeviceException;
-import gda.device.detector.DummyDAServer;
-import gda.device.memory.Scaler;
-import gda.device.timer.Etfg;
-import gda.factory.FactoryException;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import gda.TestHelpers;
+import gda.configuration.properties.LocalProperties;
+import gda.device.DeviceException;
+import gda.device.detector.DummyDAServer;
+import gda.device.detector.countertimer.ScalerOutputProcessor.OutputConfig;
+import gda.device.memory.Scaler;
+import gda.device.scannable.DummyScannable;
+import gda.device.timer.Etfg;
+import gda.factory.FactoryException;
+import gda.scan.ConcurrentScan;
 
 public class TfgScalerTest {
 
@@ -34,6 +44,7 @@ public class TfgScalerTest {
 	private Etfg tfg;
 	private Scaler memory;
 	private TfgScaler tfgscaler;
+	private TfgScalerWithLogValues tfgScalerWithLogValues;
 
 	@Before
 	public void setup() throws FactoryException, DeviceException{
@@ -57,6 +68,24 @@ public class TfgScalerTest {
 		tfgscaler.setScaler(memory);
 		tfgscaler.setTimer(tfg);
 
+		setupAndConfigureScaler();
+
+	}
+
+	private void setupAndConfigureScaler() throws FactoryException {
+		tfgScalerWithLogValues = new TfgScalerWithLogValues();
+		tfgScalerWithLogValues.setName("tfgScalerWithLogValues");
+		tfgScalerWithLogValues.setScaler(memory);
+		tfgScalerWithLogValues.setTimer(tfg);
+		tfgScalerWithLogValues.setTFGv2(true);
+		tfgScalerWithLogValues.setOutputLogValues(true);
+		tfgScalerWithLogValues.setTimeChannelRequired(true);
+		tfgScalerWithLogValues.setExtraNames(new String[] { "I0", "It", "Iref", "lnI0It", "lnItIref" });
+		tfgScalerWithLogValues.setFirstDataChannel(0);
+		tfgScalerWithLogValues.setNumChannelsToRead(3);
+		tfgScalerWithLogValues.setOutputFormat(new String[] { "%.6,5g", "%9d", "%9d", "%9d", "%.5g", "%.5g" });
+		tfgScalerWithLogValues.setDarkCurrentRequired(false); // set to false, or otherwise need to also setup shutter
+		tfgScalerWithLogValues.configure();
 	}
 
 	@Test
@@ -246,4 +275,57 @@ public class TfgScalerTest {
 		assertEquals(2502,output[2],1);
 	}
 
+	private List<OutputConfig> getScalerOutputConfig() {
+		List<OutputConfig> outputConfig = new ArrayList<OutputConfig>();
+		outputConfig.add(new OutputConfig("channel0", "%.4f", 0));
+		outputConfig.add(new OutputConfig("channel1", "%.4f", 1));
+		outputConfig.add(new OutputConfig("channel01", "%.4f", 0, 1, OutputConfig.DIVIDE));
+		outputConfig.add(new OutputConfig("channel01_log", "%.4f", 0, 1, OutputConfig.DIVIDE_LOG));
+		outputConfig.add(new OutputConfig("channel2", "%.4f", 2));
+		outputConfig.add(new OutputConfig("channel21", "%.4f", 2, 1, OutputConfig.DIVIDE));
+		return outputConfig;
+	}
+
+	@Test
+	public void testScalerOutputConfig() throws Exception {
+		tfgScalerWithLogValues.saveExtraNamesFormats();
+
+		tfgScalerWithLogValues.setUseCustomisedOutput(true);
+		tfgScalerWithLogValues.setScalerOutputConfig(getScalerOutputConfig());
+		tfgScalerWithLogValues.configureScalerOutputProcessor();
+
+		double vals[] = tfgScalerWithLogValues.readout();
+		assertEquals(vals.length, tfgScalerWithLogValues.getScalerOutputConfig().size()+1);
+		assertEquals(vals[1]/vals[2], vals[3], 1e-6);
+		assertEquals(Math.log(vals[1]/vals[2]), vals[4], 1e-6);
+		assertEquals(vals[5]/vals[2], vals[6], 1e-6);
+	}
+
+	@Test
+	public void testScalerOutputConfigRestoresOk() throws Exception {
+		// Make reading with original format and output options
+		double[] origVals = tfgScalerWithLogValues.readout();
+		String[] origFormat = tfgScalerWithLogValues.getOutputFormat();
+		String[] origExtraNames = tfgScalerWithLogValues.getExtraNames();
+
+		tfgScalerWithLogValues.saveExtraNamesFormats();
+		tfgScalerWithLogValues.setUseCustomisedOutput(true);
+		tfgScalerWithLogValues.setScalerOutputConfig(getScalerOutputConfig());
+		tfgScalerWithLogValues.configureScalerOutputProcessor();
+
+		// Do basic sanity check (should be ok if 'testScalerOutputConfig()' passes)
+		double vals[] = tfgScalerWithLogValues.readout();
+		assertEquals(vals.length, tfgScalerWithLogValues.getScalerOutputConfig().size()+1);
+
+		// this should restore the original outputFormat and extraNames
+		tfgScalerWithLogValues.setUseCustomisedOutput(false);
+
+		double[] finalVals = tfgScalerWithLogValues.readout();
+		String[] finalFormat = tfgScalerWithLogValues.getOutputFormat();
+		String[] finalExtraNames = tfgScalerWithLogValues.getExtraNames();
+
+		assertEquals(origVals.length, finalVals.length);
+		assertArrayEquals(origFormat, finalFormat);
+		assertArrayEquals(origExtraNames, finalExtraNames);
+	}
 }
