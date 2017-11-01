@@ -44,6 +44,7 @@ import org.eclipse.richbeans.api.event.ValueEvent;
 import org.eclipse.richbeans.api.event.ValueListener;
 import org.eclipse.richbeans.widgets.selector.BeanSelectionEvent;
 import org.eclipse.richbeans.widgets.selector.BeanSelectionListener;
+import org.eclipse.richbeans.widgets.selector.GridListEditor.GRID_ORDER;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -67,6 +68,7 @@ import uk.ac.gda.devices.detector.FluorescenceDetector;
 import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
 import uk.ac.gda.exafs.ExafsActivator;
 import uk.ac.gda.exafs.ui.composites.detectors.internal.FluoCompositeDataStore;
+import uk.ac.gda.exafs.ui.composites.detectors.internal.FluoDetectorElementConfig;
 import uk.ac.gda.exafs.ui.detector.wizards.ImportFluoDetROIWizard;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 
@@ -201,6 +203,7 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 
 		// Set up the composite with information about the detector
 		fluorescenceDetectorComposite.setDetectorName(theDetector.getName());
+		setDetectorElementOrder();
 		fluorescenceDetectorComposite.setDetectorElementListSize(theDetector.getNumberOfElements());
 		fluorescenceDetectorComposite.setMCASize(theDetector.getMCASize());
 		fluorescenceDetectorComposite.setMaxNumberOfRois(theDetector.getMaxNumberOfRois());
@@ -347,6 +350,28 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 		fluorescenceDetectorComposite.setShowOutputOptions(!outputEditorShowOutputOptions);
 	}
 
+	private void setDetectorElementOrder() {
+		// Try to set the order from the value in the preference store (set via plugin_initialization.ini)
+		int elementOrder = ExafsActivator.getDefault().getPreferenceStore().getInt(ExafsPreferenceConstants.DETECTOR_ELEMENT_ORDER);
+		GRID_ORDER order = GRID_ORDER.LEFT_TO_RIGHT_TOP_TO_BOTTOM;
+		if (elementOrder<GRID_ORDER.values().length) {
+			order = GRID_ORDER.values()[elementOrder];
+		}
+		fluorescenceDetectorComposite.setDetectorElementOrder(order);
+
+		// Try to set order using FluoDetectorElementConfig object (client side, created in spring).
+		// (Do it this way, since getFindablesOfType(...) method is very slow and hangs the client while it's busy...)
+		List<Findable> findables = Finder.getInstance().listAllLocalObjects(Findable.class.getSimpleName());
+		for(Findable f : findables) {
+			if (f instanceof FluoDetectorElementConfig) {
+				FluoDetectorElementConfig conf = (FluoDetectorElementConfig)f;
+				if (conf.getDetectorName().equals(theDetector.getName())) {
+					fluorescenceDetectorComposite.setDetectorElementConfiguration(conf);
+				}
+			}
+		}
+	}
+
 	private void createDataStore() {
 		String varDir = LocalProperties.get(LocalProperties.GDA_VAR_DIR);
 		String fileName = varDir + "/" + theDetector.getName() + "_plot_data.xml";
@@ -438,6 +463,9 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 		}
 	}
 
+	/**
+	 * @return Sum of MCA counts for all included detector elements.
+	 */
 	private double calculateEnabledElementTotal() {
 		double total = 0;
 		for (DetectorElement element : detectorParameters.getDetectorList()) {
@@ -448,6 +476,11 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 		return total;
 	}
 
+	/**
+	 *
+	 * @param elementData
+	 * @return Sum of all MCA channels for detector element.
+	 */
 	private double calculateSingleElementTotal(double[] elementData) {
 		double total = 0;
 		for (double val : elementData) {
@@ -456,13 +489,20 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 		return total;
 	}
 
+	/**
+	 * Calculate total for region between channels regionStart, regionEnd (*inclusive*)
+	 * @param elementData
+	 * @param regionStart
+	 * @param regionEnd
+	 * @return
+	 */
 	private double calculateRegionTotal(double[] elementData, int regionStart, int regionEnd) {
 		// Correct bounds
 		int start = Math.max(0, regionStart);
-		int end = Math.min(elementData.length, regionEnd);
+		int end = Math.min(elementData.length-1, regionEnd);
 
 		double total = 0;
-		for (int index = start; index < end; index++) {
+		for (int index = start; index <= end; index++) {
 			total += elementData[index];
 		}
 		return total;

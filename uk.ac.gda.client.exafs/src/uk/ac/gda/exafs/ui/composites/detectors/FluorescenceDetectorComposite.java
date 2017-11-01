@@ -29,6 +29,7 @@ import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.richbeans.api.event.ValueAdapter;
 import org.eclipse.richbeans.api.widget.IFieldWidget;
 import org.eclipse.richbeans.widgets.selector.BeanSelectionListener;
+import org.eclipse.richbeans.widgets.selector.GridListEditor;
 import org.eclipse.richbeans.widgets.selector.ListEditor;
 import org.eclipse.richbeans.widgets.wrappers.BooleanWrapper;
 import org.eclipse.richbeans.widgets.wrappers.ComboWrapper;
@@ -50,6 +51,7 @@ import uk.ac.gda.common.rcp.util.GridUtils;
 import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
 import uk.ac.gda.exafs.ui.composites.detectors.internal.FluoDetectorAcquireComposite;
 import uk.ac.gda.exafs.ui.composites.detectors.internal.FluoDetectorCountsComposite;
+import uk.ac.gda.exafs.ui.composites.detectors.internal.FluoDetectorElementConfig;
 import uk.ac.gda.exafs.ui.composites.detectors.internal.FluoDetectorElementsComposite;
 import uk.ac.gda.exafs.ui.composites.detectors.internal.FluoDetectorOutputPreferenceComposite;
 import uk.ac.gda.exafs.ui.composites.detectors.internal.FluoDetectorReadoutModeComposite;
@@ -226,6 +228,26 @@ public class FluorescenceDetectorComposite extends Composite {
 	public void setDetectorElementListSize(int size) {
 		elementsComposite.configureDetectorElementTable(size, regionsComposite);
 		sashFormPlot.computeSizes();
+	}
+
+	/**
+	 * Call this before {@link FluoDetectorElementsComposite#configureDetectorElementTable}
+	 * to set the display order of the detector elements in the composite.
+	 *
+	 * @param order
+	 */
+	public void setDetectorElementOrder(GridListEditor.GRID_ORDER order) {
+		elementsComposite.setDetectorElementOrder(order);
+	}
+
+	/**
+	 * Call this before {@link FluoDetectorElementsComposite#configureDetectorElementTable}
+	 * to set the config that controls the order of the detector elements in the composite.
+	 *
+	 * @param config
+	 */
+	public void setDetectorElementConfiguration(FluoDetectorElementConfig config) {
+		elementsComposite.setElementConfiguration(config);
 	}
 
 	/**
@@ -678,4 +700,5 @@ public class FluorescenceDetectorComposite extends Composite {
 	public void setEnableShowLoadedDataCheckBox(boolean enabled) {
 		acquireComposite.getShowDataLoadedFromFileCheckBox().setEnabled(enabled);
 	}
+
 }
