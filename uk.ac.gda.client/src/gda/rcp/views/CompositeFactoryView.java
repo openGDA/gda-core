@@ -23,6 +23,7 @@ import java.util.List;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 import org.springframework.beans.factory.InitializingBean;
@@ -55,11 +56,10 @@ public class CompositeFactoryView extends ViewPart implements InitializingBean{
 	@Override
 	public void createPartControl(Composite parent) {
 
-		GridLayoutFactory.swtDefaults().applyTo(parent);
-
 		setPartName(viewTitle);
 
-		Composite top = new Composite(parent, SWT.NONE);
+		ScrolledComposite scrolledComposite= new ScrolledComposite(parent, SWT.H_SCROLL | SWT.V_SCROLL);
+		Composite top = new Composite(scrolledComposite, SWT.NONE);
 		GridLayoutFactory.swtDefaults().margins(0, 0).numColumns(compositeFactories.size()).applyTo(top);
 		GridDataFactory.swtDefaults().align(SWT.LEFT, SWT.CENTER).grab(true, true).applyTo(top);
 
@@ -67,6 +67,12 @@ public class CompositeFactoryView extends ViewPart implements InitializingBean{
 			Composite composite = compositeFactory.createComposite(top, SWT.NONE);
 			GridDataFactory.fillDefaults().applyTo(composite);
 		}
+
+		scrolledComposite.setContent(top);
+		scrolledComposite.setExpandVertical(true);
+		scrolledComposite.setExpandHorizontal(true);
+		scrolledComposite.setMinSize(top.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+		scrolledComposite.setShowFocusedControl(true);
 	}
 
 	@Override
