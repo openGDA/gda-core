@@ -24,6 +24,7 @@ import static org.jscience.physics.units.SI.MILLI;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
@@ -46,7 +47,6 @@ import gda.factory.Finder;
 import gda.factory.ObjectFactory;
 import gda.jython.ITerminalPrinter;
 import gda.jython.InterfaceProvider;
-import junit.framework.Assert;
 
 /**
  * Note basic limits testing and offset/scaling testing is performed in SMBT and SMUBT. Enougth is done here to make sure things are tied together properly
@@ -54,11 +54,8 @@ import junit.framework.Assert;
  */
 public class ScannableMotorTest {
 
-	ScannableMotor sm;
-	Motor motor;
-
-	String gdaRoot = System.getProperty("gda.src.java");
-	String motorDir = gdaRoot + "/tests/oe/motpos";
+	private ScannableMotor sm;
+	private Motor motor;
 
 	/**
 	 * @throws Exception
@@ -308,11 +305,11 @@ public class ScannableMotorTest {
 		assertEquals("sm : 10.000micron (-1000.0:1000.0)", sm.toFormattedString());
 	}
 
-	@Test(expected = Exception.class)
+	@Test
 	public void testToStringWithNoMotorSet() throws Exception {
 		sm = new ScannableMotor();
 		sm.setName("sm");
-		sm.toFormattedString(); // check this throws exception
+		assertEquals("sm : UNAVAILABLE", sm.toFormattedString());
 	}
 
 	@Test
@@ -561,7 +558,7 @@ public class ScannableMotorTest {
 		sm.setUpperGdaLimits(nullDouble);// microns
 		when(motor.getMinPosition()).thenReturn(Double.NaN); // mm
 		when(motor.getMaxPosition()).thenReturn(Double.NaN); // mm
-		Assert.assertNull(sm.getAttribute(ScannableMotion.FIRSTINPUTLIMITS));
+		assertNull(sm.getAttribute(ScannableMotion.FIRSTINPUTLIMITS));
 
 		Double val1mm = new Double(-1.001);
 		when(motor.getMinPosition()).thenReturn(val1mm); // mm

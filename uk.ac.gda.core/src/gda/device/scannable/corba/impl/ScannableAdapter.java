@@ -18,21 +18,11 @@
 
 package gda.device.scannable.corba.impl;
 
-import gda.device.DeviceException;
-import gda.device.Scannable;
-import gda.device.corba.CorbaDeviceException;
-import gda.device.corba.impl.DeviceAdapter;
-import gda.device.scannable.ScannableUtils;
-import gda.device.scannable.corba.CorbaScannable;
-import gda.device.scannable.corba.CorbaScannableHelper;
-import gda.factory.corba.util.NetService;
-
 import java.io.Serializable;
 
 import org.omg.CORBA.COMM_FAILURE;
 import org.omg.CORBA.TRANSIENT;
 import org.python.core.PyArray;
-import org.python.core.PyException;
 import org.python.core.PyFloat;
 import org.python.core.PyInteger;
 import org.python.core.PyNone;
@@ -41,6 +31,15 @@ import org.python.core.PySlice;
 import org.python.core.PyString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.device.DeviceException;
+import gda.device.Scannable;
+import gda.device.corba.CorbaDeviceException;
+import gda.device.corba.impl.DeviceAdapter;
+import gda.device.scannable.ScannableUtils;
+import gda.device.scannable.corba.CorbaScannable;
+import gda.device.scannable.corba.CorbaScannableHelper;
+import gda.factory.corba.util.NetService;
 
 /**
  * Client-side implementation of distributed Scannable objects
@@ -529,12 +528,9 @@ public class ScannableAdapter extends DeviceAdapter implements Scannable {
 	public String toString() {
 		try {
 			return ScannableUtils.getFormattedCurrentPosition(this);
-		} catch (PyException e) {
-			logger.info(getName() + ": jython exception while getting position. " + e.toString());
-			return getName();
 		} catch (Exception e) {
-			logger.info("{}: exception while getting position. ", getName(), e);
-			return getName();
+			logger.warn("{}: exception while getting position. ", getName(), e);
+			return valueUnavailableString();
 		}
 	}
 
@@ -782,10 +778,19 @@ public class ScannableAdapter extends DeviceAdapter implements Scannable {
 			} catch (TRANSIENT ct) {
 				corbaScannable = CorbaScannableHelper.narrow(netService.reconnect(name));
 			} catch (CorbaDeviceException ex) {
-				throw new RuntimeException(ex.message);
+				logger.warn("Exception formatting Corba scannable {}", getName(), ex);
+				return valueUnavailableString();
 			}
 		}
-		throw new RuntimeException("Communication failure: retry failed");
+		logger.warn("Communication failure: retry failed");
+		return valueUnavailableString();
+	}
+
+	/**
+	 * Name/value string that can be used by to[Formatted]String() when getting current value/position fails
+	 */
+	protected String valueUnavailableString() {
+		return String.format("%s : %s", getName(), VALUE_UNAVAILABLE);
 	}
 
 }

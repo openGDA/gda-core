@@ -183,7 +183,7 @@ public class ScannableUtilsTest {
 		};
 		final Scannable s2 = new DummyScannable("s2");
 		final ScannableGroup group = new ScannableGroup("sg1", new Scannable[] { s1, s2 });
-		final String expectedResult = "sg1 ::\n  s1 : n/a\n  s2 : 0.0000 (-1.7977e+308:1.7977e+308)";
+		final String expectedResult = "sg1 ::\n  s1 : UNAVAILABLE\n  s2 : 0.0000 (-1.7977e+308:1.7977e+308)";
 
 		final String result = ScannableUtils.formatScannableWithChildren(group, group.getGroupMembers(), false);
 		assertEquals(expectedResult, result);
@@ -210,7 +210,7 @@ public class ScannableUtilsTest {
 				throw new RuntimeException("failure in getPosition()");
 			}
 		};
-		final String expectedResult = "sg1  : n/a ::\n  s1 : 0.0000 (-1.7977e+308:1.7977e+308)\n  s2 : 0.0000 (-1.7977e+308:1.7977e+308)";
+		final String expectedResult = "sg1  : UNAVAILABLE ::\n  s1 : 0.0000 (-1.7977e+308:1.7977e+308)\n  s2 : 0.0000 (-1.7977e+308:1.7977e+308)";
 
 		final String result = ScannableUtils.formatScannableWithChildren(group, group.getGroupMembers(), true);
 		assertEquals(expectedResult, result);

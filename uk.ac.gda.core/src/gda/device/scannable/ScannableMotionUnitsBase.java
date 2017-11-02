@@ -21,13 +21,14 @@
  */
 package gda.device.scannable;
 
+import org.jscience.physics.quantities.Quantity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.Device;
 import gda.device.DeviceException;
 import gda.device.ScannableMotionUnits;
 import gda.device.scannable.component.UnitsComponent;
-
-import org.jscience.physics.quantities.Quantity;
-import org.python.core.PyException;
 
 /**
  * A base implementation for a {@link ScannableMotionUnits} {@link Device}.
@@ -47,6 +48,8 @@ import org.python.core.PyException;
  * be incompatible.
  */
 public abstract class ScannableMotionUnitsBase extends ScannableMotionBase implements ScannableMotionUnits {
+
+	private static final Logger logger = LoggerFactory.getLogger(ScannableMotionUnitsBase.class);
 
 	// handles user-unit to motor-unit conversion
 	protected UnitsComponent unitsComponent = new UnitsComponent();
@@ -147,8 +150,10 @@ public abstract class ScannableMotionUnitsBase extends ScannableMotionBase imple
 		String report;
 		try {
 			report = ScannableUtils.getFormattedCurrentPosition(this);
+
 		} catch (Exception e) {
-			throw new RuntimeException("Error getting formatted string for " + getName(), e);
+			logger.warn("Exception getting formatted string for {}", getName(), e);
+			report = valueUnavailableString();
 		}
 
 		return report + generateScannableLimitsReport();

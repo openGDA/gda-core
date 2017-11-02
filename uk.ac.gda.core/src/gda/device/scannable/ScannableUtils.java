@@ -170,8 +170,6 @@ public final class ScannableUtils {
 		Object position = null;
 		try {
 			position = scannable.getPosition();
-		} catch (PyException e) {
-			throw new DeviceException("error fetching " + scannable.getName() + " position", e);
 		} catch (Exception e) {
 			throw new DeviceException("error fetching " + scannable.getName() + " position", e);
 		}
@@ -204,9 +202,6 @@ public final class ScannableUtils {
 
 			formatedPositionArray = getFormattedCurrentPositionArray(position, scannable.getInputNames().length
 					+ scannable.getExtraNames().length, scannable.getOutputFormat());
-		} catch (PyException e) {
-			throw new DeviceException("error formatting position string of '" + scannable.getName() + "': "
-					+ e.toString());
 		} catch (Exception e) {
 			throw new DeviceException("error formatting position string of '" + scannable.getName() + "'", e);
 		}
@@ -271,10 +266,9 @@ public final class ScannableUtils {
 				}
 			}
 		} catch (Exception e) {
-			throw new DeviceException("error formatting offset string of '" + scannable.getName(), e);
+			throw new DeviceException("error formatting offset string of '" + scannable.getName() + "'", e);
 		}
 		return formatedOffsetArray;
-
 	}
 
 	/**
@@ -322,9 +316,6 @@ public final class ScannableUtils {
 		try {
 			return getFormattedCurrentPositionArray(position,
 					scannable.getInputNames().length + scannable.getExtraNames().length, scannable.getOutputFormat());
-		} catch (PyException e) {
-			throw new DeviceException("error formatting position string of " + scannable.getName() + ": "
-					+ e.toString());
 		} catch (Exception e) {
 			throw new DeviceException("error formatting position string of '" + scannable.getName() + "'", e);
 		}
@@ -344,8 +335,8 @@ public final class ScannableUtils {
 			try {
 				positionString.append(getFormattedCurrentPosition(parent));
 			} catch (Exception ex) {
-				logger.error("Error formatting device position for " + parent.getName(), ex);
-				positionString.append(parent.getName() + ": n/a");
+				logger.warn("Error formatting device position for {}", parent.getName(), ex);
+				positionString.append(String.format("%s : %s", parent.getName(), Scannable.VALUE_UNAVAILABLE));
 			}
 		} else {
 			positionString.append(parent.getName());
@@ -356,8 +347,8 @@ public final class ScannableUtils {
 			try {
 				pos = s.toFormattedString();
 			} catch (Exception ex) {
-				logger.error("Error formatting device position for " + s.getName(), ex);
-				pos = s.getName() + ": n/a";
+				logger.warn("Error formatting device position for {}", s.getName(), ex);
+				pos = String.format("%s : %s", s.getName(), Scannable.VALUE_UNAVAILABLE);
 			}
 			for (String line : pos.split("\n")) {
 				positionString.append('\n');

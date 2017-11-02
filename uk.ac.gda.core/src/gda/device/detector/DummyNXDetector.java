@@ -350,7 +350,6 @@ public class DummyNXDetector implements NexusDetector {
 	@Override
 	public void reconfigure() throws FactoryException {
 
-
 	}
 
 	@Override
@@ -363,8 +362,7 @@ public class DummyNXDetector implements NexusDetector {
 		try {
 			return getName() + " : " + getStatus();
 		} catch (DeviceException e) {
-			return getName();
+			return String.format("%s : %s", getName(), VALUE_UNAVAILABLE);
 		}
 	}
 }
-

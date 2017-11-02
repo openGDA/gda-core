@@ -495,9 +495,8 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IScannab
 			lowerMotorLimit = getLowerMotorLimit();
 			upperMotorLimit = getUpperMotorLimit();
 		} catch (DeviceException e) {
-			final String message = String.format("%s: exception while getting Motor limits.", getName());
-			logger.error(message, e);
-			throw new RuntimeException(message, e);
+			logger.warn("{} exception while getting Motor limits.", getName(), e);
+			return report;
 		}
 
 		if (lowerMotorLimit != null || upperMotorLimit != null) {
@@ -532,9 +531,7 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IScannab
 				}
 			}
 		} catch (DeviceException e) {
-			final String message = String.format("%s.toFormattedString() exception:", getName());
-			logger.error(message, e);
-			throw new RuntimeException(message);
+			logger.warn("{}: exception formatting demand position", getName(), e);
 		}
 		return report;
 	}

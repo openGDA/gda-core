@@ -20,13 +20,6 @@ package gda.device.scannable;
 
 import static gda.device.scannable.PositionConvertorFunctions.toDoubleArray;
 import static gda.device.scannable.PositionConvertorFunctions.toObjectArray;
-import gda.data.nexus.INeXusInfoWriteable;
-import gda.device.Device;
-import gda.device.DeviceException;
-import gda.device.ScannableMotion;
-import gda.device.scannable.component.PositionValidator;
-import gda.device.scannable.component.ScannableLimitsComponent;
-import gda.device.scannable.component.ScannableOffsetAndScalingComponent;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -37,9 +30,16 @@ import org.eclipse.dawnsci.analysis.api.tree.Node;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusUtils;
-import org.python.core.PyException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.data.nexus.INeXusInfoWriteable;
+import gda.device.Device;
+import gda.device.DeviceException;
+import gda.device.ScannableMotion;
+import gda.device.scannable.component.PositionValidator;
+import gda.device.scannable.component.ScannableLimitsComponent;
+import gda.device.scannable.component.ScannableOffsetAndScalingComponent;
 
 /**
  * A base implementation for a {@link ScannableMotion} {@link Device}.
@@ -628,10 +628,9 @@ public class ScannableMotionBase extends ScannableBase implements ScannableMotio
 		String report;
 		try {
 			report = ScannableUtils.getFormattedCurrentPosition(this);
-		} catch (PyException e) {
-			throw new RuntimeException("Error getting formatted string", e);
 		} catch (Exception e) {
-			throw new RuntimeException("Exception in " + getName() + ".toString()", e);
+			logger.warn("Exception getting formatted string for {}", getName(), e);
+			report = valueUnavailableString();
 		}
 
 		return report + generateScannableLimitsReport();

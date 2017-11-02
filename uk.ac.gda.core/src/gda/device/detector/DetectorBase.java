@@ -19,18 +19,18 @@
 
 package gda.device.detector;
 
+import java.io.Serializable;
+import java.util.Arrays;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.data.fileregistrar.FileRegistrarHelper;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.scannable.ScannableBase;
 import gda.device.scannable.ScannableUtils;
 import gda.factory.Configurable;
-
-import java.io.Serializable;
-import java.util.Arrays;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Base class for all Detectors.
@@ -155,33 +155,33 @@ public abstract class DetectorBase extends ScannableBase implements Serializable
 
 	@Override
 	public String toFormattedString() {
-		String message = getName();
-
+		String statusString = VALUE_UNAVAILABLE;
 		try {
 			int status = this.getStatus();
+
 			if (status == IDLE) {
-				message += " : status=IDLE";
+				statusString = "IDLE";
+
 			} else if (status == BUSY) {
-				message += " : status=BUSY";
+				statusString = "BUSY";
 
 			} else if (status == PAUSED) {
-				message += " : status=PAUSED";
+				statusString = "PAUSED";
 
 			} else if (status == STANDBY) {
-				message += " : status=STANDBY";
+				statusString = "STANDBY";
 
 			} else if (status == FAULT) {
-				message += " : status=FAULT";
+				statusString = "FAULT";
 
 			} else if (status == MONITORING) {
-				message += " : status=MONITORING";
+				statusString = "MONITORING";
 			}
 		} catch (DeviceException e) {
-			message += " : Error reading status";
-			logger.error("Failed to get status of detector {}", getName(), e);
+			logger.warn("Failed to get status of detector {}", getName(), e);
 		}
 
-		return message;
+		return String.format("%s : status=%s", getName(), statusString);
 	}
 
 	@Override

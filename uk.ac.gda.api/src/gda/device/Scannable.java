@@ -40,25 +40,22 @@ public interface Scannable extends Device {
 	String ATTR_NX_CLASS = "NXclass";
 
 	/**
-	 * Returns the current position of the Scannable. Called by ConcurentScan at the end of the point. 
-	 * 
+	 * If {@link #toFormattedString()} cannot get the current value/position of a scannable, it should return this
+	 * string.
+	 */
+	String VALUE_UNAVAILABLE = "UNAVAILABLE";
+
+	/**
+	 * Returns the current position of the Scannable. Called by ConcurentScan at the end of the point.
+	 *
 	 * @return Current position with an element for each input and extra field. null if their are no fields.
 	 * @throws DeviceException
 	 */
 	public Object getPosition() throws DeviceException;
 
 	/**
-	 * Pretty print version of getPosition output. This may include the name of the object and any units it uses. If you
-	 * require simply the position as a string, use getPosition().toString()
-	 * 
-	 * @return string
-	 */
-	@Override
-	public String toString();
-
-	/**
 	 * Trigger a move/operation and block until completion.
-	 * 
+	 *
 	 * @param position
 	 * @throws DeviceException
 	 */
@@ -68,7 +65,7 @@ public interface Scannable extends Device {
 	/**
 	 * Trigger a move/operation and return immediately. Implementations of this method should be non-blocking to allow
 	 * concurrent motion; the isBusy method will be used to determine when the move has completed.
-	 * 
+	 *
 	 * @param position
 	 *            Position to move to should have an element for each input field.
 	 * @throws DeviceException
@@ -78,26 +75,26 @@ public interface Scannable extends Device {
 
 	/**
 	 * Tests if the given object is meaningful to this Scannable and so could be used by one of the move commands. May
-	 * check limits and other things too. 
-	 * 
+	 * check limits and other things too.
+	 *
 	 * This is the method called by scans on all points before the scan is run.
-	 * 
+	 *
 	 * @param position
 	 * @return null if position is valid, or returns a description if not.
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	public String checkPositionValid(Object position) throws DeviceException;
 
 	/**
 	 * Stop the current move/operation.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void stop() throws DeviceException;
 
 	/**
 	 * Check if the Scannable is moving/operating.
-	 * 
+	 *
 	 * @return true - if operation carried out by moveTo has not completed yet
 	 * @throws DeviceException
 	 */
@@ -105,7 +102,7 @@ public interface Scannable extends Device {
 
 	/**
 	 * Returns when operation carried out by moveTo has completed
-	 * 
+	 *
 	 * @throws DeviceException
 	 * @throws InterruptedException
 	 */
@@ -113,7 +110,7 @@ public interface Scannable extends Device {
 
 	/**
 	 * Tests if the scannable is at (or if appropriate, close to) the value positionToTest.
-	 * 
+	 *
 	 * @param positionToTest
 	 *            The position to compare the scannable's position to.
 	 * @return true if scannable is at positionToTest
@@ -123,35 +120,35 @@ public interface Scannable extends Device {
 
 	/**
 	 * Used for ordering the operations of Scannables during scans
-	 * 
+	 *
 	 * @param level
 	 */
 	public void setLevel(int level);
 
 	/**
 	 * get the operation level of this scannable.
-	 * 
+	 *
 	 * @return int - the level
 	 */
 	public int getLevel();
 
 	/**
 	 * gets a array of InputNames used by moveTo of this scannable.
-	 * 
+	 *
 	 * @return array of the names of the elements of the object returned by getPosition
 	 */
 	public String[] getInputNames();
 
 	/**
 	 * sets the array of names returned by getInputNames method of this scannable.
-	 * 
+	 *
 	 * @param names
 	 */
 	public void setInputNames(String[] names);
 
 	/**
 	 * Additional names for extra values that returned by getPosition().
-	 * 
+	 *
 	 * @return array of names of the extra elements if the array returned by getPosition is larger than the array
 	 *         required by moveTo
 	 */
@@ -159,28 +156,28 @@ public interface Scannable extends Device {
 
 	/**
 	 * Sets the array of names returned by getExtraNames of this scannable.
-	 * 
+	 *
 	 * @param names
 	 */
 	public void setExtraNames(String[] names);
 
 	/**
 	 * Sets the array of strings describing how best to format the positions from this scannable
-	 * 
+	 *
 	 * @param names
 	 */
 	public void setOutputFormat(String[] names);
 
 	/**
 	 * Returns an array of strings which are the format strings to use when pretty printing parts of the output
-	 * 
+	 *
 	 * @return string array
 	 */
 	public String[] getOutputFormat();
 
 	/**
 	 * Replaced by atScanStart
-	 * 
+	 *
 	 * @throws DeviceException
 	 * @deprecated
 	 */
@@ -189,7 +186,7 @@ public interface Scannable extends Device {
 
 	/**
 	 * Replaced by atScanEnd
-	 * 
+	 *
 	 * @throws DeviceException
 	 * @deprecated
 	 */
@@ -198,7 +195,7 @@ public interface Scannable extends Device {
 
 	/**
 	 * Called for every Scannable at the start of a group of nested scans (or a single scan if that is the case)
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void atScanStart() throws DeviceException;
@@ -208,21 +205,21 @@ public interface Scannable extends Device {
 	 * <p>
 	 * Note that this is only called if the Scan finishes normally, or has been requested to finish early. This will not
 	 * be called if the scan finishes due to an exception of any kind.  See {@link #atCommandFailure()}
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void atScanEnd() throws DeviceException;
 
 	/**
 	 * Called for every Scannable at the start of every scan
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void atScanLineStart() throws DeviceException;
 
 	/**
 	 * Called for every Scannable at the end of every scan
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void atScanLineEnd() throws DeviceException;
@@ -230,7 +227,7 @@ public interface Scannable extends Device {
 	/**
 	 * Called on every Scannable at every data point, for scans which are broken down into individual points (i.e.
 	 * non-continuous scans)
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void atPointStart() throws DeviceException;
@@ -238,7 +235,7 @@ public interface Scannable extends Device {
 	/**
 	 * Called on every Scannable at the end of every data point, for scans which are broken down into individual points
 	 * (i.e. non-continous scans)
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void atPointEnd() throws DeviceException;
@@ -262,7 +259,7 @@ public interface Scannable extends Device {
 	 * </pre>
 	 * </blockquote>
 	 * This hook is used by CoordinatedMotionScannables.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void atLevelMoveStart() throws DeviceException;
@@ -273,11 +270,11 @@ public interface Scannable extends Device {
 	 * <p>
 	 * This provides a useful mechanism for e.g. creating a Scannable that opens a shutter after motors have moved but
 	 * before a detector is exposed.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void atLevelStart() throws DeviceException;
-	
+
 	public void atLevelEnd() throws DeviceException;
 
 	/**
@@ -287,7 +284,7 @@ public interface Scannable extends Device {
 	 * <p>
 	 * Useful for telling Scannables which hold state during a scan for example, to reset themselves. Used for example
 	 * by CoordinatedMotionScannables. This hook should be used not in the same way as the stop hook.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void atCommandFailure() throws DeviceException;
@@ -300,8 +297,10 @@ public interface Scannable extends Device {
 	 * name : position <units> <limits>
 	 * <p>
 	 * or for detectors, name : status
-	 * 
-	 * @return string
+	 * <p>
+	 * If the position/status cannot be determined, the function should return {@link #VALUE_UNAVAILABLE} in its place.
+	 *
+	 * @return string as defined above
 	 */
 	public String toFormattedString();
 

@@ -494,7 +494,8 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 		try {
 			return ScannableUtils.getFormattedCurrentPosition(this);
 		} catch (Exception e) {
-			throw new RuntimeException("Exception in " + getName() + ".toFormattedString()", e);
+			logger.warn("Exception getting formatted string for {}", getName(), e);
+			return valueUnavailableString();
 		}
 	}
 	/**
@@ -608,6 +609,13 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 	@Override
 	public Set<String> getScanMetadataAttributeNames() throws DeviceException {
 		return scanMetadataAttributes.keySet();
+	}
+
+	/**
+	 * Name/value string that can be used by toFormattedString() when getting current value/position fails
+	 */
+	protected String valueUnavailableString() {
+		return String.format("%s : %s", getName(), VALUE_UNAVAILABLE);
 	}
 
 	// methods which are not operated by scans, but make interaction with
