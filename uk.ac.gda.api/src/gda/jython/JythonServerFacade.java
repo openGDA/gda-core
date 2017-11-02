@@ -261,14 +261,14 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 		return indexNumberInJythonServer;
 	}
 
-	public CommandThreadEvent runScript(String scriptName, String sourceName) {
+	public CommandThreadEvent runScript(String scriptName) {
 		// open up a new file
 		File file = new File(locateScript(scriptName));
-		return runScript(file, sourceName);
+		return runScript(file);
 	}
 
 	@Override
-	public CommandThreadEvent runScript(File script, String sourceName) {
+	public CommandThreadEvent runScript(File script) {
 		try {
 			String commands;
 			commands = slurp(script);
@@ -285,11 +285,6 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 
 	@Override
 	public void runCommand(String command) {
-		commandServer.runCommand(command, name);
-	}
-
-	@Override
-	public void runCommand(String command, String scanObserver) {
 		commandServer.runCommand(command, name);
 	}
 
@@ -426,25 +421,23 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 
 	/**
 	 * @param command to run
-	 * @param source of the command
 	 * @return true if more is needed, false if not
 	 *
 	 * @see Jython#runsource(String, String)
 	 */
 	@Override
-	public boolean runsource(String command, String source) {
+	public boolean runsource(String command) {
 		return commandServer.runsource(command, name);
 	}
 
 	/**
 	 * @param command to run
-	 * @param source of the command
 	 * @param stdin input stream to use as stdin for this command
 	 * @return true if more is needed, false if not
 	 *
 	 * @see Jython#runsource(String, String, InputStream)
 	 */
-	public boolean runsource(String command, @SuppressWarnings("unused") String source, InputStream stdin) {
+	public boolean runsource(String command, InputStream stdin) {
 		return commandServer.runsource(command, name, stdin);
 	}
 

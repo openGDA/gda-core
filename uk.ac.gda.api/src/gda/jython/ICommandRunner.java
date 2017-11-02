@@ -34,15 +34,6 @@ public interface ICommandRunner {
 	public void runCommand(String command);
 	
 	/**
-	 * @param command
-	 *            String
-	 * @param scanObserver
-	 *            String
-	 * @see Jython#runCommand(String, String)
-	 */
-	public void runCommand(String command, String scanObserver);
-	
-	/**
 	 * Runs a single line Jython command through the interpreter and returns the result in the form of a string. Note:
 	 * this method waits until the command has finished so it can return the result. If the command takes a long time it
 	 * will hang the thread which calls this method. So this method must be called in a separate thread from the main
@@ -53,17 +44,15 @@ public interface ICommandRunner {
 	 */	
 	public String evaluateCommand(String command);	
 	
-	public CommandThreadEvent runScript(File script, String sourceName);
+	public CommandThreadEvent runScript(File script);
 	
 	/**
 	 * @param command
 	 *            String
-	 * @param source
-	 *            String
 	 * @return boolean
 	 * @see Jython#runsource
 	 */
-	public boolean runsource(String command, String source);
+	public boolean runsource(String command);
 
 	/**
 	 * Find a script with given name in the GDA's script project folders.

@@ -82,17 +82,13 @@ public class ScriptDrivenScannableMotionUnitsTest {
 		scannableUnderTest.setCommandRunner(new ICommandRunner() {
 
 			@Override
-			public boolean runsource(String command, String source) {
+			public boolean runsource(String command) {
 				return false;
 			}
 
 			@Override
-			public CommandThreadEvent runScript(File script, String sourceName) {
+			public CommandThreadEvent runScript(File script) {
 				return null;
-			}
-
-			@Override
-			public void runCommand(String command, String scanObserver) {
 			}
 
 			//mimic runCommand in jython server which always spawns a new thread to run the command
