@@ -133,7 +133,7 @@ public class NcdController {
 		String detectorName = null;
 
 		String script = "def getncddetoftype(detsys, type):\n\tfor ncdcontrollerloop in detsys.getDetectors():\n\t\tif ncdcontrollerloop.getDetectorType() == type:\n\t\t\treturn ncdcontrollerloop.getName()\n\n\n\n";
-		JythonServerFacade.getInstance().runsource(script, "");
+		JythonServerFacade.getInstance().runsource(script);
 		detectorName = JythonServerFacade.getInstance().evaluateCommand(
 				String.format("getncddetoftype(%s,\"%s\")", ncdDetectorSystem.getName(), type));
 
@@ -147,7 +147,7 @@ public class NcdController {
 	public void addDetector(String name) {
 		if (name != null && !"None".equalsIgnoreCase(name)) {
 			JythonServerFacade.getInstance().runsource(
-					String.format("%s.addDetector(finder.find(\"%s\"))", ncdDetectorSystem.getName(), name), "");
+					String.format("%s.addDetector(finder.find(\"%s\"))", ncdDetectorSystem.getName(), name));
 		}
 	}
 
@@ -157,7 +157,7 @@ public class NcdController {
 	 */
 	public void removeDetector(String name) {
 		JythonServerFacade.getInstance().runsource(
-				String.format("%s.removeDetector(finder.find(\"%s\"))", ncdDetectorSystem.getName(), name), "");
+				String.format("%s.removeDetector(finder.find(\"%s\"))", ncdDetectorSystem.getName(), name));
 	}
 
 	/**
@@ -172,7 +172,7 @@ public class NcdController {
 	public void setDetector(String type, String name) {
 		String script = "for ncdcontrollerloop in %s.getDetectors()[:]:\n\tif ncdcontrollerloop.getDetectorType() == \"%s\":\n\t\t%s.removeDetector(ncdcontrollerloop)\n\n\n";
 		script = String.format(script, ncdDetectorSystem.getName(), type, ncdDetectorSystem.getName());
-		JythonServerFacade.getInstance().runsource(script, "");
+		JythonServerFacade.getInstance().runsource(script);
 		addDetector(name);
 	}
 	
