@@ -316,17 +316,17 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 	public String toFormattedString() {
 		try {
 			if (!doesMotorPositionAgreeWithExpectedBraggAngle()) {
-				double position = braggBasedOnDetectorRotation();
-				String formattedPosition = String.format(getOutputFormat()[0], position);
+				final double position = braggBasedOnDetectorRotation();
+				final String formattedPosition = String.format(getOutputFormat()[0], position);
 				return getName() + "\t: " + formattedPosition + " " + "deg. NB: this is derived from only the "
 						+ det_y.getName() + " and " + xtal_x.getName() + " motor positions.";
+			} else {
+				return super.toFormattedString();
 			}
 		} catch (Exception e) {
-			logger.error("Exception while deriving the " + getName() + " position", e);
-			super.toFormattedString();
+			logger.warn("Exception while deriving the {} position", getName(), e);
+			return valueUnavailableString();
 		}
-
-		return super.toFormattedString();
 	}
 
 	public Double getRadius() {
