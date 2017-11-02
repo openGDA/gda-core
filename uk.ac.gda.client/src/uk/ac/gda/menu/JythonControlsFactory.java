@@ -33,6 +33,9 @@ import org.eclipse.ui.services.IServiceLocator;
 
 import com.swtdesigner.ResourceManager;
 
+import gda.rcp.GDAClientActivator;
+import uk.ac.gda.preferences.PreferenceConstants;
+
 /**
  * We have to implement these actions in code because they connect to the server and
  * have complex logic as to when they are enabled.
@@ -83,12 +86,14 @@ public class JythonControlsFactory extends ExtensionContributionFactory {
 		final CommandContributionItem    abortCommandsItem = new CommandContributionItem(abortCommandsAction);
 		additions.addContributionItem(abortCommandsItem, Expression.TRUE);
 
-		CommandContributionItemParameter beamlineHaltAction = new CommandContributionItemParameter(serviceLocator, null, "uk.ac.gda.client.StopAll", null, ResourceManager.getImageDescriptor(JythonControlsFactory.class, "/stop.png"), null, null, "Call stop on all beamline commands and hardware", null, null, SWT.PUSH, null, false);
-		final CommandContributionItem    beamlineHaltItem = new CommandContributionItem(beamlineHaltAction);
-		additions.addContributionItem(beamlineHaltItem, Expression.TRUE);
+		// TODO remove this temporary solution which gives beamline time to switch to the new StoAll on the main toolbar.
+		final CommandContributionItemParameter beamlineHaltAction = new CommandContributionItemParameter(serviceLocator, null, "uk.ac.gda.client.StopAllCommand", null, ResourceManager.getImageDescriptor(JythonControlsFactory.class, "/stop.png"), null, null, "Call stop on all beamline commands and hardware", null, null, SWT.PUSH, null, false);
+		final CommandContributionItem beamlineHaltItem = new CommandContributionItem(beamlineHaltAction);
+		if (GDAClientActivator.getDefault().getPreferenceStore().getBoolean(PreferenceConstants.GDA_SHOW_PANIC_STOP_ON_JYTHON_CONSOLE)) {
+			additions.addContributionItem(beamlineHaltItem, Expression.TRUE);
+		}
 
 		additions.addContributionItem(new Separator(), Expression.TRUE);
-
 	}
 
 	private ActionContributionItem createHaltAction(final IServiceLocator serviceLocator, final String label, final String commandId, final String iconPath) {

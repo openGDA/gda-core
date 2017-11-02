@@ -29,7 +29,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.jython.JythonServerFacade;
-
+/**
+ * @deprecated replaced by {@link StopAllHandler}
+ * kept only for backward compatibility only, will be removed in future release.
+ */
+@Deprecated
 public class BeamlineHaltHandler extends AbstractHandler {
 
 	public static final String id = "uk.ac.gda.client.StopAll";

@@ -129,4 +129,6 @@ public class PreferenceConstants {
 	 */
 	public static final String GDA_COMMAND_QUEUE_DISABLE_JYTHON_CONTROLS = "gda.commandqueue.disablejythoncontrols";
 
+	public static final String GDA_SHOW_PANIC_STOP_ON_JYTHON_CONSOLE = "gda.show.panic.stop.on.jython.console";
+
 }

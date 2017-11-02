@@ -347,6 +347,13 @@
             id="uk.ac.gda.client.SkipCommandQueue"
             name="Skip Command Queue">
       </command>
+      <command
+            categoryId="uk.ac.gda.client.category"
+            defaultHandler="uk.ac.gda.actions.StopAllHandler"
+            description="Stops all GDA devices, including motors and detectors. Also aborts scans and scripts and kills threads. Warning this might leave GDA in an inconsistent state."
+            id="uk.ac.gda.client.StopAllCommand"
+            name="Stop All">
+      </command>
 
    </extension>
    <extension
@@ -875,6 +882,10 @@
     <toolbar
           id="uk.ac.gda.client.toolbar"
           label="GDA Client Toolbar">
+       <separator
+             name="uk.ac.gda.client.separator3"
+             visible="true">
+       </separator>
        <command
              commandId="uk.ac.gda.client.OpenXYScanPlotCommand"
              icon="icons/chart_curve.png"
@@ -882,6 +893,26 @@
              mode="FORCE_TEXT"
              style="push"
              tooltip="Open the XY Scan Plot view">
+       </command>
+       <separator
+             name="uk.ac.gda.client.separator4"
+             visible="true">
+       </separator>
+    </toolbar>
+ </menuContribution>
+ <menuContribution
+       allPopups="false"
+       locationURI="toolbar:org.eclipse.ui.trim.status">
+    <toolbar
+          id="uk.ac.gda.server.toolbar"
+          label="GDA Server Toolbar">
+       <command
+             commandId="uk.ac.gda.client.StopAllCommand"
+             icon="icons/stop.png"
+             label="Stop All"
+             mode="FORCE_TEXT"
+             style="push"
+             tooltip="Stops all GDA devices, including motors and detectors. Also aborts scans and scripts and kills threads. Warning this might leave GDA in an inconsistent state.">
        </command>
     </toolbar>
  </menuContribution>

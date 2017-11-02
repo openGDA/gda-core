@@ -77,6 +77,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 
 		store.setDefault(PreferenceConstants.GDA_COMMAND_QUEUE_SHOW_TEXT, false);
 		store.setDefault(PreferenceConstants.GDA_COMMAND_QUEUE_DISABLE_JYTHON_CONTROLS, false);
+		store.setDefault(PreferenceConstants.GDA_SHOW_PANIC_STOP_ON_JYTHON_CONSOLE, false);
 
 		store.setDefault(PreferenceConstants.HIDE_SCAN_THRESHOLD, 100);
 
