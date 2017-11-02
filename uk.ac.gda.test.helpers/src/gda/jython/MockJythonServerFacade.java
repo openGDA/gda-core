@@ -198,10 +198,6 @@ public class MockJythonServerFacade implements IDefaultScannableProvider, ICurre
 	}
 
 	@Override
-	public void runCommand(String command, String scanObserver) {
-	}
-
-	@Override
 	public void update(Object dataSource, Object data) {
 		if (data instanceof IScanDataPoint) {
 			lastScanDataPoint = (IScanDataPoint) data;
@@ -321,12 +317,12 @@ public class MockJythonServerFacade implements IDefaultScannableProvider, ICurre
 	}
 
 	@Override
-	public CommandThreadEvent runScript(File script, String sourceName) {
+	public CommandThreadEvent runScript(File script) {
 		return null;
 	}
 
 	@Override
-	public boolean runsource(String command, String source) {
+	public boolean runsource(String command) {
 		return true;
 	}
 
