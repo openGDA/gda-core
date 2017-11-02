@@ -18,6 +18,8 @@
 
 package gda.epics.connection;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -194,8 +196,14 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 			context.addContextExceptionListener(this);
 			context.addContextMessageListener(this);
 
+			// Log the CAJ version in use
 			logger.debug(context.getVersion().getVersionString());
-			context.printInfo();
+
+			// Log the EPICS configuration in use
+			final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+			context.printInfo(new PrintStream(outputStream));
+			logger.debug("EPICS configuration:\n{}", outputStream);
+
 		} catch (CAException ex) {
 			logger.error(ex + " Unable to create Channel Access context");
 			throw ex;
