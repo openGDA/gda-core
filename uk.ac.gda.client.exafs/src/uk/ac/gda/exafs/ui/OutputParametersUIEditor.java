@@ -21,13 +21,16 @@ package uk.ac.gda.exafs.ui;
 import java.net.URL;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.richbeans.widgets.selector.BeanSelectionEvent;
 import org.eclipse.richbeans.widgets.selector.BeanSelectionListener;
 import org.eclipse.richbeans.widgets.selector.VerticalListEditor;
 import org.eclipse.richbeans.widgets.wrappers.TextWrapper;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -58,6 +61,7 @@ public class OutputParametersUIEditor extends RichBeanEditorPart {
 	private TextWrapper asciiDirectory;
 	private TextWrapper afterScanscriptName;
 	private TextWrapper beforeScanscriptName;
+	private TextWrapper beforeFirstRepetition;
 
 	private ExpandableComposite outputFoldersExpandableComposite;
 	private ExpandableComposite jythonExpandableComposite;
@@ -66,7 +70,7 @@ public class OutputParametersUIEditor extends RichBeanEditorPart {
 
 	protected Composite leftColumn;
 	protected Composite rightColumn;
-
+	private ScrolledComposite scrolledComposite;
 	private OutputParameters bean;
 
 	public OutputParametersUIEditor(String path, URL mappingURL, DirtyContainer dirtyContainer, Object editingBean) {
@@ -81,9 +85,13 @@ public class OutputParametersUIEditor extends RichBeanEditorPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		parent.setLayout(new GridLayout(1, false));
+		parent.setLayout(new FillLayout());
 
-		Composite mainComposite = new Composite(parent, SWT.NONE);
+		scrolledComposite = new ScrolledComposite(parent, SWT.H_SCROLL | SWT.V_SCROLL);
+		scrolledComposite.setExpandHorizontal(true);
+		scrolledComposite.setExpandVertical(true);
+
+		final Composite mainComposite = new Composite(scrolledComposite, SWT.NONE);
 		mainComposite.setLayout(new GridLayout(2, false));
 		mainComposite.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, true, false));
 
@@ -91,11 +99,11 @@ public class OutputParametersUIEditor extends RichBeanEditorPart {
 		// each set of widgets are put.
 		leftColumn = new Composite(mainComposite, SWT.NONE);
 		leftColumn.setLayout(new GridLayout(1, false));
-		leftColumn.setLayoutData(new GridData(SWT.FILL, SWT.LEFT, true, false, 1, 1));
+		leftColumn.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
 
 		rightColumn = new Composite(mainComposite, SWT.NONE);
 		rightColumn.setLayout(new GridLayout(1, false));
-		rightColumn.setLayoutData(new GridData(SWT.FILL, SWT.LEFT, true, false, 1, 1));
+		rightColumn.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
 
 		createExtraColumns(leftColumn);
 
@@ -104,7 +112,27 @@ public class OutputParametersUIEditor extends RichBeanEditorPart {
 
 		createScripts(leftColumn);
 		createOutput(rightColumn);
+
+		scrolledComposite.setContent(mainComposite);
+		scrolledComposite.setMinSize(mainComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+
+		// Add listener to each expandable composite to set min size of scrolled composite if expansion state changes
+		ExpandableComposite[] expandableComposites = {outputFoldersExpandableComposite, jythonExpandableComposite,
+				signalExpandableComposite, metadataExpandableComposite};
+		for(ExpandableComposite comp : expandableComposites) {
+			if (comp != null) {
+				comp.addExpansionListener(listenerToSetScrolledCompSize);
+			}
+		}
 	}
+
+	private ExpansionAdapter listenerToSetScrolledCompSize = new ExpansionAdapter() {
+		@Override
+		public void expansionStateChanged(ExpansionEvent e) {
+			scrolledComposite.setMinSize(scrolledComposite.getContent().computeSize(SWT.DEFAULT, SWT.DEFAULT));
+		}
+	};
+
 
 	public void openScript(final TextWrapper field) {
 		FileDialog dialog = new FileDialog(getSite().getShell(), SWT.OPEN);
@@ -237,6 +265,30 @@ public class OutputParametersUIEditor extends RichBeanEditorPart {
 			metadataExpandableComposite.setExpanded(true);
 	}
 
+	private TextWrapper addRunScriptCommandAndButton(Composite parent) {
+		final TextWrapper scriptNameCommandText = new TextWrapper(parent, SWT.BORDER);
+		scriptNameCommandText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		scriptNameCommandText.setTextType(TextWrapper.TEXT_TYPE.FREE_TXT);
+
+		Button browseForScript = new Button(parent, SWT.PUSH);
+		browseForScript.setText("...");
+		browseForScript.setToolTipText("Browse for script file");
+		browseForScript.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				showDialog();
+			}
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				showDialog();
+			}
+			private void showDialog() {
+				openScript(scriptNameCommandText);
+			}
+		});
+		return scriptNameCommandText;
+	}
+
 	private void createScripts(Composite composite){
 		jythonExpandableComposite = new ExpandableComposite(composite, SWT.NONE);
 		jythonExpandableComposite.setText("Run commands/scripts before and after a scan");
@@ -249,7 +301,7 @@ public class OutputParametersUIEditor extends RichBeanEditorPart {
 
 		GridData gd = new GridData(SWT.LEFT, SWT.TOP, false, false);
 		gd.widthHint = 400;
-		gd.heightHint = 80;
+		gd.heightHint = 110;
 
 		Group jythonScriptGroup = new Group(jythonComp, SWT.NONE);
 		jythonScriptGroup.setLayoutData(gd);
@@ -260,62 +312,28 @@ public class OutputParametersUIEditor extends RichBeanEditorPart {
 		Label beforeScriptNameLabel = new Label(jythonScriptGroup, SWT.NONE);
 		beforeScriptNameLabel.setToolTipText("Jython commands/script to run immediately before each scan");
 		beforeScriptNameLabel.setText("Before Scan Command/Script Name");
-
-		beforeScanscriptName = new TextWrapper(jythonScriptGroup, SWT.BORDER);
-		beforeScanscriptName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		beforeScanscriptName.setTextType(TextWrapper.TEXT_TYPE.FREE_TXT);
-
-		Button beforeScanscriptButton = new Button(jythonScriptGroup, SWT.PUSH);
-		beforeScanscriptButton.setText("...");
-		beforeScanscriptButton.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				showDialog();
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				showDialog();
-			}
-
-			private void showDialog() {
-				openScript(beforeScanscriptName);
-			}
-		});
+		beforeScanscriptName = addRunScriptCommandAndButton(jythonScriptGroup);
 
 		Label afterScriptNameLabel = new Label(jythonScriptGroup, SWT.NONE);
 		afterScriptNameLabel.setToolTipText("Jython commands/script to run immediately after each scan");
 		afterScriptNameLabel.setText("After Scan Command/Script Name");
+		afterScanscriptName = addRunScriptCommandAndButton(jythonScriptGroup);
 
-		afterScanscriptName = new TextWrapper(jythonScriptGroup, SWT.BORDER);
-		afterScanscriptName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		afterScanscriptName.setTextType(TextWrapper.TEXT_TYPE.FREE_TXT);
-
-		Button afterScanscriptButton = new Button(jythonScriptGroup, SWT.PUSH);
-		afterScanscriptButton.setText("...");
-		afterScanscriptButton.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				showDialog();
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				showDialog();
-			}
-
-			private void showDialog() {
-				openScript(afterScanscriptName);
-			}
-		});
+		Label beforeFirstRepLabel = new Label(jythonScriptGroup, SWT.NONE);
+		beforeFirstRepLabel.setToolTipText("Jython commands/script to run immediately before the first scan only\n(and before the 'Before Scan' command/script).");
+		beforeFirstRepLabel.setText("Before First Scan Command/Script Name");
+		beforeFirstRepetition = addRunScriptCommandAndButton(jythonScriptGroup);
 
 		jythonExpandableComposite.setClient(jythonComp);
 
+		// This listener prevents the 'run commands' section from being minimised if command/script names have been setup.
 		ExpansionAdapter jythonExpansionListener = new ExpansionAdapter() {
 			@Override
 			public void expansionStateChanged(ExpansionEvent e) {
-				if(!beforeScanscriptName.getText().equals("") || !afterScanscriptName.getText().equals(""))
+				if(StringUtils.isNotEmpty(beforeScanscriptName.getText()) || StringUtils.isNotEmpty(afterScanscriptName.getText())
+						|| StringUtils.isNotEmpty(beforeFirstRepetition.getText())) {
 					jythonExpandableComposite.setExpanded(true);
+				}
 				GridUtils.layoutFull(jythonComp.getParent());
 			}
 		};
@@ -337,7 +355,7 @@ public class OutputParametersUIEditor extends RichBeanEditorPart {
 
 		Group ouputFilePreferencesGroup = new Group(outputFoldersComp, SWT.NONE);
 		GridData gd = new GridData(SWT.LEFT, SWT.TOP, false, false);
-		gd.widthHint = 250;
+		gd.widthHint = 400;
 		ouputFilePreferencesGroup.setLayoutData(gd);
 		gridLayout = new GridLayout();
 		gridLayout.numColumns = 2;
@@ -396,6 +414,10 @@ public class OutputParametersUIEditor extends RichBeanEditorPart {
 		return afterScanscriptName;
 	}
 
+	public TextWrapper getBeforeFirstRepetition() {
+		return beforeFirstRepetition;
+	}
+
 	public VerticalListEditor getSignalList() {
 		return signalList;
 	}
@@ -403,5 +425,4 @@ public class OutputParametersUIEditor extends RichBeanEditorPart {
 	public VerticalListEditor getMetadataList() {
 		return metadataList;
 	}
-
 }

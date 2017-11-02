@@ -234,6 +234,12 @@ public abstract class XasScanBase implements XasScan {
 			if (num_sample_repeats == 1) {
 				printRepetition();
 			}
+
+			// Execute the 'before first repetition' scan/script
+			if (currentRepetition == 1 && i == 0) {
+				runScriptOrCommand(outputBean.getBeforeFirstRepetition());
+			}
+
 			doSingleScan(sampleName, descriptions, logmsg);
 		}
 	}
@@ -394,9 +400,11 @@ public abstract class XasScanBase implements XasScan {
 		if ( scriptNameOrCommand == null || scriptNameOrCommand.isEmpty() )
 			return;
 		File scriptFile = new File(scriptNameOrCommand);
-		if (scriptFile.isFile())
+		if (scriptFile.isFile()) {
+			logger.debug("Running script {}", scriptNameOrCommand);
 			runScript(scriptNameOrCommand);
-		else {
+		} else {
+			logger.debug("Running jython command : {}", scriptNameOrCommand);
 			InterfaceProvider.getCommandRunner().evaluateCommand(scriptNameOrCommand);
 		}
 	}

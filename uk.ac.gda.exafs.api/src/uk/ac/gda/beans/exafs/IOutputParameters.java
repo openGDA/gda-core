@@ -42,6 +42,8 @@ public interface IOutputParameters extends XMLRichBean{
 
 	public String getBeforeScriptName();
 
+	public String getBeforeFirstRepetition();
+
 	public List<SignalParameters> getSignalList();
 
 }

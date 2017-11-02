@@ -32,6 +32,8 @@ public class OutputParameters implements Serializable, IOutputParameters {
 	private String nexusDirectory;
 	private String beforeScriptName;
 	private String afterScriptName;
+	private String beforeFirstRepetition;
+
 	private List<SignalParameters> signalList;
 	private List<MetadataParameters> metadataList;
 	private boolean signalActive;
@@ -133,13 +135,17 @@ public class OutputParameters implements Serializable, IOutputParameters {
 
 	@Override
 	public int hashCode() {
-		int prime = 31;
+		final int prime = 31;
 		int result = 1;
+		result = prime * result + ((afterScriptName == null) ? 0 : afterScriptName.hashCode());
 		result = prime * result + ((asciiDirectory == null) ? 0 : asciiDirectory.hashCode());
 		result = prime * result + ((asciiFileName == null) ? 0 : asciiFileName.hashCode());
-		result = prime * result + (extraData ? 1231 : 1237);
-		result = prime * result + ((nexusDirectory == null) ? 0 : nexusDirectory.hashCode());
+		result = prime * result + ((beforeFirstRepetition == null) ? 0 : beforeFirstRepetition.hashCode());
 		result = prime * result + ((beforeScriptName == null) ? 0 : beforeScriptName.hashCode());
+		result = prime * result + (extraData ? 1231 : 1237);
+		result = prime * result + (metadataActive ? 1231 : 1237);
+		result = prime * result + ((metadataList == null) ? 0 : metadataList.hashCode());
+		result = prime * result + ((nexusDirectory == null) ? 0 : nexusDirectory.hashCode());
 		result = prime * result + (shouldValidate ? 1231 : 1237);
 		result = prime * result + (signalActive ? 1231 : 1237);
 		result = prime * result + ((signalList == null) ? 0 : signalList.hashCode());
@@ -155,6 +161,11 @@ public class OutputParameters implements Serializable, IOutputParameters {
 		if (getClass() != obj.getClass())
 			return false;
 		OutputParameters other = (OutputParameters) obj;
+		if (afterScriptName == null) {
+			if (other.afterScriptName != null)
+				return false;
+		} else if (!afterScriptName.equals(other.afterScriptName))
+			return false;
 		if (asciiDirectory == null) {
 			if (other.asciiDirectory != null)
 				return false;
@@ -165,17 +176,29 @@ public class OutputParameters implements Serializable, IOutputParameters {
 				return false;
 		} else if (!asciiFileName.equals(other.asciiFileName))
 			return false;
-		if (extraData != other.extraData)
-			return false;
-		if (nexusDirectory == null) {
-			if (other.nexusDirectory != null)
+		if (beforeFirstRepetition == null) {
+			if (other.beforeFirstRepetition != null)
 				return false;
-		} else if (!nexusDirectory.equals(other.nexusDirectory))
+		} else if (!beforeFirstRepetition.equals(other.beforeFirstRepetition))
 			return false;
 		if (beforeScriptName == null) {
 			if (other.beforeScriptName != null)
 				return false;
 		} else if (!beforeScriptName.equals(other.beforeScriptName))
+			return false;
+		if (extraData != other.extraData)
+			return false;
+		if (metadataActive != other.metadataActive)
+			return false;
+		if (metadataList == null) {
+			if (other.metadataList != null)
+				return false;
+		} else if (!metadataList.equals(other.metadataList))
+			return false;
+		if (nexusDirectory == null) {
+			if (other.nexusDirectory != null)
+				return false;
+		} else if (!nexusDirectory.equals(other.nexusDirectory))
 			return false;
 		if (shouldValidate != other.shouldValidate)
 			return false;
@@ -223,4 +246,12 @@ public class OutputParameters implements Serializable, IOutputParameters {
 		return afterScriptName;
 	}
 
+	@Override
+	public String getBeforeFirstRepetition() {
+		return beforeFirstRepetition;
+	}
+
+	public void setBeforeFirstRepetition(String beforeFirstRepetition) {
+		this.beforeFirstRepetition = beforeFirstRepetition;
+	}
 }
