@@ -118,17 +118,6 @@ public interface IScanDataPoint {
 	public String getCommand();
 
 	/**
-	 * Set the name of the panel which requested the scan which created this data point.
-	 * <p>
-	 * Used to selectively send ScanDataPoints to only certain UI parts on the client-side.
-	 * <p>
-	 * If not set then all registered Data observers will recieve the data.
-	 * 
-	 * @return String
-	 */
-	public String getCreatorPanelName();
-
-	/**
 	 * @return String - the name of the data file being written
 	 */
 	public String getCurrentFilename();
@@ -304,8 +293,6 @@ public interface IScanDataPoint {
 	public void setUniqueName(String uniqueName);
 
 	public void setCommand(String command);
-
-	public void setCreatorPanelName(String creatorPanelName);
 
 	public void setCurrentFilename(String currentFilename);
 

@@ -31,7 +31,6 @@ public class ScanData implements Serializable {
 	public String[] scannableHeader;
 	public String[] detectorHeader;
 	public String command;
-	public String creatorPanelName;
 	public Integer numberOfChildScans;
 	public String xAxis;
 	public String[] yAxesShown;
@@ -51,7 +50,6 @@ public class ScanData implements Serializable {
 		scannableHeader = point.getPositionHeader().toArray(emptyStringArray);
 		detectorHeader = point.getDetectorHeader().toArray(emptyStringArray);
 		hasChild = point.getHasChild();
-		creatorPanelName = point.getCreatorPanelName();
 		numberOfChildScans = point.getNumberOfChildScans();
 		command = point.getCommand();
 		scanPlotSettings = point.getScanPlotSettings();

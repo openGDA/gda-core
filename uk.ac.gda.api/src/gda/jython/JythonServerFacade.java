@@ -359,44 +359,15 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 			// pass data from a scan to all relevant guiPanels
 			else if (data instanceof IScanDataPoint) {
 
-				boolean panelUpdated = false;
 				IScanDataPoint point = (IScanDataPoint) data;
 				lastScanDataPoint = point;
 				for (IScanDataPointObserver observer : allSDPObservers) {
 					try {
 						observer.update(this, point);
-						panelUpdated = true;
 					} catch (Throwable e) {
 						// don't allow an exception to prevent the loop from continuing
 						logger.warn("Exception when broadcasting a ScanDataPoint", e);
 					}
-				}
-
-				// if source of scan command named, then send the SDP to the named panel
-
-				String panelName = point.getCreatorPanelName();
-				if (panelName != null) {
-					for (INamedScanDataPointObserver observer : namedSDPObservers) {
-						String name = observer.getName();
-						if (name.contains(panelName)) {
-							try {
-								if (!allSDPObservers.contains(observer)) {
-									// not done in loop above - we do not want to update the observer twice
-									observer.update(this, data);
-								}
-								panelUpdated = true;
-							} catch (Throwable e) {
-								// don't allow an exception to prevent the loop from continuing
-								logger.warn("Exception when broadcasting a ScanDataPoint", e);
-							}
-						}
-					}
-				}
-
-				// if we can't find the panel, but a panel name was given then print an error message. Unless we are on
-				// the same ObjectServer as the JythonServer and so would not expect any GUI panels anyway
-				if (panelName != null && !panelUpdated && namedSDPObservers.size() > 0) {
-					logger.warn("Could not send ScanDataPoint to the named panel " + panelName);
 				}
 			} else if (data instanceof BatonChanged || data instanceof BatonLeaseRenewRequest) {
 				// the baton has changed hands or there is a new client for the moment, simply distribute the message

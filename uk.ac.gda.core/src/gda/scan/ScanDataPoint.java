@@ -62,12 +62,6 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	private String command = "";
 
 	/**
-	 * The name of the gui panel which initiated this scan. This is used by the local JythonFacade to know which local
-	 * object to distribute this data point to for display.
-	 */
-	private String creatorPanelName = "";
-
-	/**
 	 * The current point number.
 	 */
 	private int currentPointNumber = -1;
@@ -151,7 +145,6 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 		scannableHeader = point.scannableHeader;
 		detectorHeader = point.detectorHeader;
 		hasChild = point.hasChild;
-		creatorPanelName = point.creatorPanelName;
 		numberOfChildScans = point.numberOfChildScans;
 		command = point.command;
 		scanPlotSettings = point.scanPlotSettings;
@@ -358,16 +351,6 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	@Override
 	public String getCommand() {
 		return command;
-	}
-
-	/**
-	 * Set the name of the panel which requested the scan which created this data point.
-	 *
-	 * @return String
-	 */
-	@Override
-	public String getCreatorPanelName() {
-		return creatorPanelName;
 	}
 
 	/**
@@ -845,11 +828,6 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	@Override
 	public void setCommand(String command) {
 		this.command = command;
-	}
-
-	@Override
-	public void setCreatorPanelName(String creatorPanelName) {
-		this.creatorPanelName = creatorPanelName;
 	}
 
 	@Override
