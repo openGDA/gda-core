@@ -117,7 +117,6 @@ public class LivePlotComposite extends Composite implements IObserver {
 		data = new GridData (SWT.FILL, SWT.CENTER, true, false);
 		progressComposite.setLayoutData(data);
 		progressComposite.setLayout(new FillLayout());
-		progressComposite.setBackground(ColorConstants.cyan);
 		progressMonitor=new EpicsDetectorProgressMonitor(progressComposite, SWT.None, true);
 
 	}
