@@ -22,6 +22,7 @@ import java.util.Vector;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import fr.esrf.Tango.DevFailed;
 import fr.esrf.Tango.DevState;
 import gda.device.DeviceException;
@@ -117,12 +118,11 @@ public class TangoShutter extends ValveBase implements EnumPositioner {
 
 	@Override
 	public String toFormattedString() {
-		String result = "";
 		try {
-			result =  dev.status();
+			return  dev.status();
 		} catch (DevFailed e) {
-			logger.error(e.errors[0].desc);
+			logger.warn("Exception getting status for {} : {}", getName(), e.errors[0].desc);
+			return valueUnavailableString();
 		}
-		return result;
 	}
 }
