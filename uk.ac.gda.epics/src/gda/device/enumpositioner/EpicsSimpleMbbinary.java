@@ -272,15 +272,21 @@ public class EpicsSimpleMbbinary extends EnumPositionerBase implements EnumPosit
 	private class PvMonitorListener implements MonitorListener {
 		@Override
 		public void monitorChanged(MonitorEvent arg0) {
+			logger.debug("{} monitor changed: {}", getName(), arg0);
 			if (initialised) {
-				if (!positions.isEmpty()) {
-
+				String[] posn;
+				try {
+					posn = getPositions();
+				} catch (DeviceException de) {
+					return;
+				}
+				if (posn.length != 0) {
 					int value = -1;
 					String position = "";
 					DBR dbr = arg0.getDBR();
 					if (dbr.isENUM()) {
 						value = ((DBR_Enum) dbr).getEnumValue()[0];
-						position = positions.get(value);
+						position = posn[value];
 						if (!position.isEmpty()) {
 							positionerStatus = EnumPositionerStatus.IDLE;
 							notifyIObservers(EpicsSimpleMbbinary.this, new ScannablePositionChangeEvent(position));
