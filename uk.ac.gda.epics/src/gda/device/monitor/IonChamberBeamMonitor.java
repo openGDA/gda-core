@@ -204,8 +204,8 @@ public class IonChamberBeamMonitor extends MonitorBase implements Monitor, Scann
 	public void run() {
 		while (monitorOn) {
 			boolean aboveThreshold = aboveThreshold(getCurrentValue());
-			if (!aboveThreshold && !pausedByBeamMonitor) {
-				if (!InterfaceProvider.getJythonServerStatusProvider().getJythonServerStatus().areScriptAndScanIdle()) {
+			if (!aboveThreshold) {
+				if (!pausedByBeamMonitor && !InterfaceProvider.getJythonServerStatusProvider().getJythonServerStatus().areScriptAndScanIdle()) {
 					// only pause if scan running and value fall below the threshold
 					InterfaceProvider.getCurrentScanController().pauseCurrentScan();
 					InterfaceProvider.getScriptController().pauseCurrentScript();
@@ -225,9 +225,9 @@ public class IonChamberBeamMonitor extends MonitorBase implements Monitor, Scann
 						InterfaceProvider.getScriptController().resumeCurrentScript();
 						JythonServerFacade.getInstance().print("Beam is back, resume or restart data collection.");
 						logger.info("Beam is back, resume or restart scan.");
-						pausedByBeamMonitor = false;
 					}
 				}
+				pausedByBeamMonitor = false;
 			}
 			notifyIObservers(this, isBeamOn());
 			delay(100);
