@@ -6,6 +6,7 @@ import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
@@ -37,6 +38,7 @@ import org.springframework.beans.factory.InitializingBean;
 
 import gda.rcp.views.CompositeFactory;
 import uk.ac.gda.beamline.synoptics.Activator;
+import uk.ac.gda.common.rcp.util.EclipseWidgetUtils;
 
 public class ImageButtonCompositeFactory implements CompositeFactory, InitializingBean {
 
@@ -134,6 +136,7 @@ class ImageButtonComposite extends Composite {
 				}
 			}
 		});
+		EclipseWidgetUtils.forceLayoutOfTopParent(this);
 	}
 
 	@Override
