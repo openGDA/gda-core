@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import org.eclipse.core.expressions.Expression;
 import org.eclipse.jface.action.Action;
@@ -72,8 +73,8 @@ public class LiveStreamMenuContribution extends ExtensionContributionFactory {
 		logger.debug("Found {} cameras", cameras.size());
 
 		// Build 2 maps for MJPEG and EPICS streams
-		final Map<String, CameraConfiguration> mjpegCameras = new HashMap<>();
-		final Map<String, CameraConfiguration> epicsCameras = new HashMap<>();
+		final Map<String, CameraConfiguration> mjpegCameras = new TreeMap<>();
+		final Map<String, CameraConfiguration> epicsCameras = new TreeMap<>();
 
 		for (Entry<String, CameraConfiguration> cam : cameraMap.entrySet()) {
 			// If a URL is set add to MJPEG map
