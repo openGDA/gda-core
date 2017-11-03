@@ -55,7 +55,7 @@ import gda.observable.IObserver;
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsByteArrayAsStringDataListener;
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsDoubleDataListener;
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsEnumDataListener;
-import uk.ac.gda.devices.mythen.visualisation.event.PlotDataFileEvent;
+import uk.ac.gda.devices.mythen.event.PlotDataFileEvent;
 
 /**
  * Live plot composite for plotting detector data from the data file collected by a server collection process.
@@ -194,7 +194,7 @@ public class LivePlotComposite extends Composite implements IObserver {
 		return super.setFocus();
 	}
 
-	List<Dataset> plotDatasets = new ArrayList<Dataset>();
+	List<Dataset> plotDatasets = new ArrayList<>();
 	private IWorkbenchPart workbenchpart;
 	private void plotData(final String filename, final boolean clearFirst) {
 

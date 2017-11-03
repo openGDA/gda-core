@@ -24,4 +24,3 @@ Import-Package: org.apache.commons.io,
  org.springframework.beans.factory;version="3.2.2.RELEASE",
  org.springframework.util;version="3.0.4",
  uk.ac.diamond.scisoft.analysis.histogram.functions
-Export-Package: uk.ac.gda.devices.mythen.visualisation.event

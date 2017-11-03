@@ -10,7 +10,8 @@ Export-Package: gda.device.detector,
  gda.device.detector.mythen.client,
  gda.device.detector.mythen.data,
  gda.device.detector.mythen.tasks,
- uk.ac.gda.devices.mythen.epics
+ uk.ac.gda.devices.mythen.epics,
+ uk.ac.gda.devices.mythen.event
 Require-Bundle: uk.ac.gda.core,
  org.eclipse.january;bundle-version="1.0.0",
  uk.ac.diamond.scisoft.analysis;bundle-version="1.0.0",
