@@ -18,6 +18,13 @@
 
 package gda.device.monitor;
 
+import java.lang.reflect.Array;
+
+import org.jscience.physics.units.Unit;
+import org.python.core.PySequence;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.configuration.properties.LocalProperties;
 import gda.device.Detector;
 import gda.device.DeviceException;
@@ -36,13 +43,6 @@ import gov.aps.jca.dbr.DBRType;
 import gov.aps.jca.dbr.DBR_Double;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
-
-import java.lang.reflect.Array;
-
-import org.jscience.physics.units.Unit;
-import org.python.core.PySequence;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -413,7 +413,7 @@ public class EpicsBeamMonitor extends MonitorBase implements Runnable, Monitor, 
 
 			if (position == null) {
 				logger.warn("getPosition() from " + this.getName() + " returns NULL.");
-				return this.getName() + " : NOT AVAILABLE";
+				return valueUnavailableString();
 			}
 			// print out simple version if only one inputName and
 			// getPosition and getReportingUnits do not return arrays.
@@ -446,16 +446,12 @@ public class EpicsBeamMonitor extends MonitorBase implements Runnable, Monitor, 
 
 			}
 			myString = myString + " " + getUnit();
-		} catch (NumberFormatException e) {
-			logger.error("Number Format Exception ", e);
-		} catch (ArrayIndexOutOfBoundsException e) {
-			logger.error("Array Index out of bounds ", e);
-		} catch (IllegalArgumentException e) {
-			logger.error("Illegal Argument ", e);
-		} catch (DeviceException e) {
-			logger.error("Device Exception ", e);
+		} catch (Exception e) {
+			logger.warn("Exception formatting {}", getName(), e);
 		}
-		return myString.trim();
+
+		final String result = myString.trim();
+		return result.isEmpty() ? valueUnavailableString() : result;
 	}
 
 }

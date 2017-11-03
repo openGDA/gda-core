@@ -20,7 +20,6 @@ package gda.device.enumpositioner;
 
 import java.util.Vector;
 
-import org.python.core.PyException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -380,23 +379,18 @@ public class EpicsPneumatic extends EnumPositionerBase implements EnumPositioner
 	@Override
 	public String toFormattedString() {
 		try {
-
 			// get the current position as an array of doubles
 			Object position = getPosition();
 
 			// if position is null then simply return the name
 			if (position == null) {
 				logger.warn("getPosition() from " + getName() + " returns NULL.");
-				return getName() + " : NOT AVAILABLE";
+				return valueUnavailableString();
 			}
 
 			return getName() + " : " + position.toString();
-
-		} catch (PyException e) {
-			logger.info(getName() + ": jython exception while getting position. " + e.toString());
-			return getName();
 		} catch (Exception e) {
-			logger.info(getName() + ": exception while getting position. " + e.getMessage() + "; " + e.getCause(), e);
+			logger.warn("{}: exception while getting position. ", getName(), e);
 			return getName();
 		}
 	}

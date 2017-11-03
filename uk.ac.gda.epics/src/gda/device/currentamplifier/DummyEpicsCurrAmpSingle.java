@@ -160,14 +160,13 @@ public class DummyEpicsCurrAmpSingle extends CurrentAmplifierBase implements Sca
 	@Override
 	public String toFormattedString() {
 		try {
-
 			// get the current position as an array of doubles
 			Object position = getPosition();
 
 			// if position is null then simply return the name
 			if (position == null) {
 				logger.warn("getPosition() from {} returns NULL.", getName());
-				return getName() + " : NOT AVAILABLE";
+				return valueUnavailableString();
 			}
 
 			// else build a string of formatted positions
@@ -180,8 +179,8 @@ public class DummyEpicsCurrAmpSingle extends CurrentAmplifierBase implements Sca
 			return output.trim();
 
 		} catch (Exception e) {
-			logger.info("{}: exception while getting position. {}; {}", getName(),e.getMessage(),e.getCause());
-			return getName();
+			logger.warn("{}: exception while getting position", getName(), e);
+			return valueUnavailableString();
 		}
 	}
 

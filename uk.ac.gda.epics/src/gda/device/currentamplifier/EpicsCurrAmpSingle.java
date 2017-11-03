@@ -252,14 +252,13 @@ public class EpicsCurrAmpSingle extends CurrentAmplifierBase implements Initiali
 	@Override
 	public String toFormattedString() {
 		try {
-
 			// get the current position as an array of doubles
 			Object position = getPosition();
 
 			// if position is null then simply return the name
 			if (position == null) {
 				logger.warn("getPosition() from " + getName() + " returns NULL.");
-				return getName() + " : NOT AVAILABLE";
+				return valueUnavailableString();
 			}
 
 			// else build a string of formatted positions
@@ -272,7 +271,7 @@ public class EpicsCurrAmpSingle extends CurrentAmplifierBase implements Initiali
 			return output.trim();
 
 		} catch (Exception e) {
-			logger.info(getName() + ": exception while getting position. " + e.getMessage() + "; " + e.getCause(), e);
+			logger.warn("{}: exception while getting position. ", getName(), e);
 			return getName();
 		}
 	}

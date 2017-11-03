@@ -18,6 +18,12 @@
 
 package gda.device.monitor;
 
+import java.lang.reflect.Array;
+
+import org.python.core.PySequence;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.device.DeviceException;
@@ -52,12 +58,6 @@ import gov.aps.jca.dbr.DBR_Short;
 import gov.aps.jca.dbr.DBR_String;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
-
-import java.lang.reflect.Array;
-
-import org.python.core.PySequence;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A class which monitors the value of single Epics PV. The value is then broadcast to IObservers of this object or can be
@@ -482,16 +482,10 @@ public class EpicsMonitor extends MonitorBase implements gda.device.Monitor, Ini
 				}
 
 			}
-		} catch (NumberFormatException e) {
-			logger.error("Number Format Exception ", e);
-		} catch (ArrayIndexOutOfBoundsException e) {
-			logger.error("Array Index out of bounds ", e);
-		} catch (IllegalArgumentException e) {
-			logger.error("Illegal Argument ", e);
-		} catch (DeviceException e) {
-			logger.error("Device Exception ", e);
+		} catch (Exception e) {
+			logger.warn("Exception formatting {}", getName(), e);
 		}
-		return myString + " " + getUnit();
+		return myString.isEmpty() ? valueUnavailableString() : myString + " " + getUnit();
 	}
 
 	/**

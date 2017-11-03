@@ -18,6 +18,13 @@
 
 package gda.device.enumpositioner;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
 import gda.device.EnumPositionerStatus;
 import gda.epics.connection.EpicsController;
@@ -36,13 +43,6 @@ import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 import gov.aps.jca.event.PutEvent;
 import gov.aps.jca.event.PutListener;
-
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This class can be used when a pv can be set which is a choice of several values. For instance d1_gain on I20 uses
@@ -209,7 +209,7 @@ public class EpicsSimplePositioner extends EnumPositionerBase implements Connect
 		try {
 			return getName() + " : " + getPosition() + " " + createFormattedListAcceptablePositions();
 		} catch (DeviceException e) {
-			return super.toString();
+			return valueUnavailableString();
 		}
 	}
 

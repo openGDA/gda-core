@@ -18,6 +18,9 @@
 
 package gda.device.enumpositioner;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.device.DeviceException;
@@ -44,10 +47,6 @@ import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 import gov.aps.jca.event.PutEvent;
 import gov.aps.jca.event.PutListener;
-
-import org.python.core.PyException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This class maps to EPICS SimpleMbbinary template.
@@ -361,22 +360,17 @@ public class EpicsSimpleMbbinary extends EnumPositionerBase implements EnumPosit
 	@Override
 	public String toFormattedString() {
 		try {
-
 			// get the current position as an array of doubles
 			Object position = getPosition();
 
 			// if position is null then simply return the name
 			if (position == null) {
-				logger.warn("getPosition() from " + getName() + " returns NULL.");
-				return getName() + " : NOT AVAILABLE";
+				logger.warn("getPosition() from {} returns NULL.", getName());
+				return valueUnavailableString();
 			}
 			return getName() + " : " + position.toString();
-
-		} catch (PyException e) {
-			logger.info(getName() + ": jython exception while getting position. " + e.toString());
-			return getName();
 		} catch (Exception e) {
-			logger.info(getName() + ": exception while getting position. " + e.getMessage() + "; " + e.getCause(), e);
+			logger.warn("{}: exception while getting position. ", getName(), e);
 			return getName();
 		}
 	}

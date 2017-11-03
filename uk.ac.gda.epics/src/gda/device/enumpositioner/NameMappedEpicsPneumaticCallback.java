@@ -18,12 +18,12 @@
 
 package gda.device.enumpositioner;
 
-import gda.device.DeviceException;
-
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.device.DeviceException;
 
 /**
  * Version of EpicsPneumaticCallback in which the EPICS names are mapped to different names at the GDA level.
@@ -94,7 +94,7 @@ public class NameMappedEpicsPneumaticCallback extends EpicsPneumaticCallback {
 		try {
 			return getName() + " : " + getPosition() + " " + createFormattedListAcceptablePositions();
 		} catch (DeviceException e) {
-			return super.toString();
+			return valueUnavailableString();
 		}
 	}
 

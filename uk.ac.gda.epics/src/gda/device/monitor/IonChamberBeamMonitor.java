@@ -18,6 +18,12 @@
 
 package gda.device.monitor;
 
+import java.lang.reflect.Array;
+
+import org.python.core.PySequence;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.configuration.properties.LocalProperties;
 import gda.device.CurrentAmplifier;
 import gda.device.DeviceException;
@@ -31,12 +37,6 @@ import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerFacade;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
-
-import java.lang.reflect.Array;
-
-import org.python.core.PySequence;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A worker object operating at background to monitor the photon beam availability using an ion chamber. This class
@@ -244,7 +244,7 @@ public class IonChamberBeamMonitor extends MonitorBase implements Monitor, Scann
 
 	/**
 	 * {@inheritDoc}a given number (the default is 5) consecutive
-	 * 
+	 *
 	 * @see gda.observable.IObserver#update(java.lang.Object, java.lang.Object)
 	 */
 	@Override
@@ -267,7 +267,7 @@ public class IonChamberBeamMonitor extends MonitorBase implements Monitor, Scann
 
 	/**
 	 * checks beam monitor flag
-	 * 
+	 *
 	 * @return boolean
 	 */
 	@Override
@@ -277,7 +277,7 @@ public class IonChamberBeamMonitor extends MonitorBase implements Monitor, Scann
 
 	/**
 	 * set beam monitor flag
-	 * 
+	 *
 	 * @param monitorOn
 	 */
 	public void setMonitorOn(boolean monitorOn) {
@@ -348,21 +348,17 @@ public class IonChamberBeamMonitor extends MonitorBase implements Monitor, Scann
 
 			}
 			myString = myString + " " + getUnit();
-		} catch (NumberFormatException e) {
-			logger.error("Number Format Exception ", e);
-		} catch (ArrayIndexOutOfBoundsException e) {
-			logger.error("Array Index out of bounds ", e);
-		} catch (IllegalArgumentException e) {
-			logger.error("Illegal Argument ", e);
-		} catch (DeviceException e) {
-			logger.error("Device Exception ", e);
+		} catch (Exception e) {
+			logger.warn("Exception formatting {}", getName(), e);
 		}
-		return myString.trim();
+
+		final String result = myString.trim();
+		return (result.isEmpty() ? valueUnavailableString() : result);
 	}
 
 	/**
 	 * gets monitor name
-	 * 
+	 *
 	 * @return monitor name
 	 */
 	public String getMonitorName() {
@@ -371,7 +367,7 @@ public class IonChamberBeamMonitor extends MonitorBase implements Monitor, Scann
 
 	/**
 	 * sets monitor name
-	 * 
+	 *
 	 * @param monitorName
 	 */
 	public void setMonitorName(String monitorName) {
@@ -380,7 +376,7 @@ public class IonChamberBeamMonitor extends MonitorBase implements Monitor, Scann
 
 	/**
 	 * gets the current amplifier object
-	 * 
+	 *
 	 * @return the current amplifier object
 	 */
 	public CurrentAmplifier getMonitor() {
@@ -389,7 +385,7 @@ public class IonChamberBeamMonitor extends MonitorBase implements Monitor, Scann
 
 	/**
 	 * sets the current amplifier object
-	 * 
+	 *
 	 * @param monitor
 	 */
 	public void setMonitor(CurrentAmplifier monitor) {
@@ -413,7 +409,7 @@ public class IonChamberBeamMonitor extends MonitorBase implements Monitor, Scann
 
 	/**
 	 * Returns the current value of this monitor.
-	 * 
+	 *
 	 * @return the current value
 	 */
 	public double getCurrentValue() {

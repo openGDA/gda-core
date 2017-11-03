@@ -18,6 +18,9 @@
 
 package gda.device.qbpm;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
 import gda.device.EnumPositioner;
 import gda.device.EnumPositionerStatus;
@@ -30,10 +33,6 @@ import gda.device.monitor.EpicsBpmController;
 import gda.epics.connection.InitializationListener;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
-
-import org.python.core.PyException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * EpicsQbpm Class
@@ -186,7 +185,6 @@ public class EpicsQbpm extends EnumPositionerBase implements Monitor, Initializa
 	@Override
 	public String toFormattedString() {
 		try {
-
 			// get the current position as an array of doubles
 			Object position = getPosition();
 
@@ -215,13 +213,9 @@ public class EpicsQbpm extends EnumPositionerBase implements Monitor, Initializa
 				output += this.extraNames[j] + ": " + positionAsArray[i + j] + " ";
 			}
 			return output.trim();
-
-		} catch (PyException e) {
-			logger.info(getName() + ": jython exception while getting position. " + e.toString());
-			return getName();
 		} catch (Exception e) {
-			logger.info(getName() + ": exception while getting position. " + e.getMessage() + "; " + e.getCause(), e);
-			return getName();
+			logger.warn("{}: exception while getting position. ", getName(), e);
+			return valueUnavailableString();
 		}
 	}
 
