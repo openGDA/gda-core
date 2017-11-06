@@ -20,6 +20,7 @@ package gda.epics.connection;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.nio.BufferOverflowException;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -79,6 +80,15 @@ import gov.aps.jca.event.PutListener;
  */
 public class EpicsController implements ContextExceptionListener, ContextMessageListener {
 	private static final Logger logger = LoggerFactory.getLogger(EpicsController.class);
+
+	private static final String PUT_FAILED_MESSAGE_TEMPLATE = "Put to channel '{}' with value '{}' failed";
+	private static final String PUT_FAILED_WITH_STATUS_MESSAGE_TEMPLATE = PUT_FAILED_MESSAGE_TEMPLATE + " with Status '{}'";
+	private static final String PUT_FAILED = "put failed";
+	private static final String UNEXPECTED_EXCEPTION = "Unexpected Exception";
+	private static final String GET_DBR_FAILED_TEMPLATE = "Get DBR for channel '{}' failed: {}";
+	private static final String CAPUT_DEBUG_MESSAGE_TEMPLATE = "Set '{}' to '{}'";
+	private static final String PUT_TIMEOUT_TEMPLATE = "Put timeout %fs";
+
 	private double timeout = EpicsGlobals.getTimeout();// seconds
 	private AtomicInteger monitorCount = new AtomicInteger(0);
 	private Context context = null;
@@ -131,17 +141,17 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	 * @param contextRequired is normally True, but False for testing, to avoid leaving a orphan process.
 	 *
 	 * @return <code>EpicsController</code> instance.
+	 * @throws IllegalStateException If creating an instance throws {@link Exception}
 	 */
-	public static synchronized EpicsController getInstance(boolean contextRequired){
-		// TODO not nice and clean
-		try {
-			if (instance == null)
+	public static synchronized EpicsController getInstance(boolean contextRequired) {
+		if (instance == null) {
+			try {
 				instance = new EpicsController(contextRequired);
-			return instance;
-		} catch (Throwable th) {
-			th.printStackTrace();
-			throw new RuntimeException("failed to create EpicsController instance", th);
+			} catch (Exception e) {
+				throw new IllegalStateException("Failed to create EpicsController instance", e);
+			}
 		}
+		return instance;
 	}
 
 	/**
@@ -223,15 +233,9 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	public Channel createChannel(String pvname, ConnectionListener cl) throws CAException {
 		try {
 			return context.createChannel(pvname, cl);
-			// we do no need to flush
-		} catch (IllegalArgumentException e) {
-			logger.error("Error on creating CA channel for {} - message: {}", pvname, e.getMessage());
-			throw e;
-		} catch (IllegalStateException e) {
-			logger.error("Error on creating CA channel for {} - message: {}", pvname, e.getMessage());
-			throw e;
-		} catch (CAException e) {
-			logger.error("Error on creating CA channel for {} - message: {}", pvname, e.getMessage());
+			// we do not need to flush
+		} catch (IllegalArgumentException | IllegalStateException | CAException e) {
+			logger.error("Error creating CA channel for PV: {}", pvname, e);
 			throw e;
 		}
 	}
@@ -290,17 +294,8 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 			logger.debug("Channel {}  is created.", ch.getName());
 			return ch;
-		} catch (IllegalArgumentException e) {
-			logger.error("Error on creating CA channel for {} - message: {}", pvname, e.getMessage());
-			throw e;
-		} catch (IllegalStateException e) {
-			logger.error("Error on creating CA channel for {} - message: {}", pvname, e.getMessage());
-			throw e;
-		} catch (CAException e) {
-			logger.error("Error on creating CA channel for {} - message: {}", pvname, e.getMessage());
-			throw e;
-		} catch (TimeoutException e) {
-			logger.error("Error on creating CA channel for {} - message: {}", pvname, e.getMessage());
+		} catch (IllegalArgumentException | IllegalStateException | CAException | TimeoutException e) {
+			logger.error("Error creating CA channel for {} - message: {}", pvname, e.getMessage());
 			throw e;
 		}
 	}
@@ -326,11 +321,9 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	public void destroy(Channel ch) {
 		try {
 			ch.destroy();
-			logger.debug("Channel " + ch.getName() + " is destroyed.");
-		} catch (IllegalStateException e) {
-			logger.error("Error on destroying CA channel: " + ch.getName() + " - " + e.getMessage());
-		} catch (CAException e) {
-			logger.error("Error on destroying CA channel: " + ch.getName() + " - " + e.getMessage());
+			logger.debug("Channel {} is destroyed", ch.getName());
+		} catch (IllegalStateException | CAException e) {
+			logger.error("Error destroying CA channel: {}", ch.getName(), e);
 		}
 	}
 
@@ -415,7 +408,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 		return ((DBR_CTRL_Enum) getDBR(ch, DBRType.CTRL_ENUM, timeout)).getLabels();
 	}
 
-	private DBR getDBR(Channel ch, DBRType type, double timeout) throws IllegalStateException, TimeoutException, CAException {
+	private DBR getDBR(Channel ch, DBRType type, double timeout) throws TimeoutException, CAException {
 		return getDBR(ch, type, ch.getElementCount(),timeout);
 	}
 
@@ -843,19 +836,12 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 				throw new CAStatusException(event.getStatus(), "get failed");
 
 			return event.getDBR();
-		} catch (TimeoutException ex) {
-			logger.error(" getDBR( {} ) failed. {}",ch.getName(), ex.getMessage());
+		} catch (TimeoutException | CAException | IllegalStateException ex) {
+			logger.error(GET_DBR_FAILED_TEMPLATE,ch.getName(), ex.getMessage());
 			throw ex;
-		} catch (CAException ex) {
-			logger.error(" getDBR( {} ) failed. {}", ch.getName(), ex.getMessage());
-			throw ex;
-		} catch (IllegalStateException ex) {
-			logger.error(" getDBR( {} ) failed. {}", ch.getName(), ex.getMessage());
-			throw ex;
-		} catch (Throwable ex) {
-			logger.error(" getDBR( {} ) failed. {}", ch.getName(), ex.getMessage());
-			Thread.dumpStack();
-			throw new RuntimeException("unexpected exception", ex);
+		} catch (Exception ex) {
+			logger.error(GET_DBR_FAILED_TEMPLATE, ch.getName(), ex.getMessage());
+			throw new CAException(UNEXPECTED_EXCEPTION, ex);
 		}
 	}
 
@@ -958,11 +944,8 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 			mntr = ch.addMonitor(type, count, mask, ml);
 			context.flushIO();
 			return mntr;
-		} catch (CAException ex) {
-			logger.error("add monitor {} to the channel {} failed.", ml.getClass().getName(), ch.getName());
-			throw ex;
-		} catch (IllegalStateException ex) {
-			logger.error("add monitor {} to the channel {} failed.", ml.getClass().getName(), ch.getName());
+		} catch (CAException | IllegalStateException ex) {
+			logger.error("Adding monitor '{}' to the channel '{}' failed.", ml.getClass().getName(), ch.getName());
 			throw ex;
 		}
 	}
@@ -1121,12 +1104,9 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 		try {
 			ch.put(value);
 			context.flushIO();
-			logger.debug("set {} to {} ", ch.getName(), value);
-		} catch (IllegalStateException ex) {
-			logger.error("put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw ex;
-		} catch (CAException ex) {
-			logger.error("put to channel: {} value: {} failed. ", ch.getName(), value);
+			logger.debug("set {} to {}", ch.getName(), value);
+		} catch (IllegalStateException | CAException ex) {
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
 			throw ex;
 		}
 	}
@@ -1145,12 +1125,9 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 		try {
 			ch.put(value);
 			context.flushIO();
-			logger.debug("set {} to {} ", ch.getName(), value);
-		} catch (IllegalStateException ex) {
-			logger.error("put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw ex;
-		} catch (CAException ex) {
-			logger.error("put to channel: {} value: {} failed. ", ch.getName(), value);
+			logger.debug(CAPUT_DEBUG_MESSAGE_TEMPLATE, ch.getName(), value);
+		} catch (IllegalStateException | CAException ex) {
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
 			throw ex;
 		}
 	}
@@ -1169,12 +1146,9 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 		try {
 			ch.put(value);
 			context.flushIO();
-			logger.debug("set {} to {} ", ch.getName(), value);
-		} catch (IllegalStateException ex) {
-			logger.error("put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw ex;
-		} catch (CAException ex) {
-			logger.error("put to channel: {} value: {} failed. ", ch.getName(), value);
+			logger.debug(CAPUT_DEBUG_MESSAGE_TEMPLATE, ch.getName(), value);
+		} catch (IllegalStateException | CAException ex) {
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
 			throw ex;
 		}
 	}
@@ -1193,12 +1167,9 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 		try {
 			ch.put(value);
 			context.flushIO();
-			logger.debug("set {} to {} ", ch.getName(), value);
-		} catch (IllegalStateException ex) {
-			logger.error("put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw ex;
-		} catch (CAException ex) {
-			logger.error("put to channel: {} value: {} failed. ", ch.getName(), value);
+			logger.debug(CAPUT_DEBUG_MESSAGE_TEMPLATE, ch.getName(), value);
+		} catch (IllegalStateException | CAException ex) {
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
 			throw ex;
 		}
 	}
@@ -1217,12 +1188,9 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 		try {
 			ch.put(value);
 			context.flushIO();
-			logger.debug("set {} to {} ", ch.getName(), value);
-		} catch (IllegalStateException ex) {
-			logger.error("put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw ex;
-		} catch (CAException ex) {
-			logger.error("put to channel: {} value: {} failed. ", ch.getName(), value);
+			logger.debug(CAPUT_DEBUG_MESSAGE_TEMPLATE, ch.getName(), value);
+		} catch (IllegalStateException | CAException ex) {
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
 			throw ex;
 		}
 	}
@@ -1241,18 +1209,9 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 		try {
 			ch.put(value);
 			context.flushIO();
-			logger.debug("set {} to {} ", ch.getName(), value);
-		} catch (IllegalStateException ex) {
-			logger.error("put to channel: {} value: {} failed. ", ch.getName(), value);
-			Thread.dumpStack();
-			throw ex;
-		} catch (CAException ex) {
-			logger.error("put to channel: {} value: {} failed. ", ch.getName(), value);
-			Thread.dumpStack();
-			throw ex;
-		} catch (java.nio.BufferOverflowException ex) {
-			logger.error("put to channel: " + ch.getName() + " value: " + value + " failed. ", ex);
-			Thread.dumpStack();
+			logger.debug(CAPUT_DEBUG_MESSAGE_TEMPLATE, ch.getName(), value);
+		} catch (IllegalStateException | CAException | BufferOverflowException ex) {
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
 			throw ex;
 		}
 	}
@@ -1271,12 +1230,9 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 		try {
 			ch.put(value);
 			context.flushIO();
-			logger.debug("set {} to {} ", ch.getName(), value);
-		} catch (IllegalStateException ex) {
-			logger.error("put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw ex;
-		} catch (CAException ex) {
-			logger.error("put to channel: {} value: {} failed. ", ch.getName(), value);
+			logger.debug(CAPUT_DEBUG_MESSAGE_TEMPLATE, ch.getName(), value);
+		} catch (IllegalStateException | CAException ex) {
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
 			throw ex;
 		}
 	}
@@ -1295,12 +1251,9 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 		try {
 			ch.put(value);
 			context.flushIO();
-			logger.debug("set {} to {} ", ch.getName(), value);
-		} catch (IllegalStateException ex) {
-			logger.error("put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw ex;
-		} catch (CAException ex) {
-			logger.error("put to channel: {} value: {} failed. ", ch.getName(), value);
+			logger.debug(CAPUT_DEBUG_MESSAGE_TEMPLATE, ch.getName(), value);
+		} catch (IllegalStateException | CAException ex) {
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
 			throw ex;
 		}
 	}
@@ -1319,12 +1272,9 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 		try {
 			ch.put(value);
 			context.flushIO();
-			logger.debug("set {} to {} ", ch.getName(), value);
-		} catch (IllegalStateException ex) {
-			logger.error("put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw ex;
-		} catch (CAException ex) {
-			logger.error("put to channel: {} value: {} failed. ", ch.getName(), value);
+			logger.debug(CAPUT_DEBUG_MESSAGE_TEMPLATE, ch.getName(), value);
+		} catch (IllegalStateException | CAException ex) {
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
 			throw ex;
 		}
 	}
@@ -1343,12 +1293,9 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 		try {
 			ch.put(value);
 			context.flushIO();
-			logger.debug("set {} to {} ", ch.getName(), value);
-		} catch (IllegalStateException ex) {
-			logger.error("put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw ex;
-		} catch (CAException ex) {
-			logger.error("put to channel: {} value: {} failed. ", ch.getName(), value);
+			logger.debug(CAPUT_DEBUG_MESSAGE_TEMPLATE, ch.getName(), value);
+		} catch (IllegalStateException | CAException ex) {
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
 			throw ex;
 		}
 	}
@@ -1366,12 +1313,9 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 		try {
 			ch.put(value);
 			context.flushIO();
-			logger.debug("set {} to {} ", ch.getName(), value);
-		} catch (IllegalStateException ex) {
-			logger.error("put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw ex;
-		} catch (CAException ex) {
-			logger.error("put to channel: {} value: {} failed. ", ch.getName(), value);
+			logger.debug(CAPUT_DEBUG_MESSAGE_TEMPLATE, ch.getName(), value);
+		} catch (IllegalStateException | CAException ex) {
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
 			throw ex;
 		}
 	}
@@ -1390,12 +1334,9 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 		try {
 			ch.put(JCAUtils.getIntArrayFromWaveform(value));
 			context.flushIO();
-			logger.debug("set {} to {} ", ch.getName(), value);
-		} catch (IllegalStateException ex) {
-			logger.error("put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw ex;
-		} catch (CAException ex) {
-			logger.error("put to channel: {} value: {} failed. ", ch.getName(), value);
+			logger.debug(CAPUT_DEBUG_MESSAGE_TEMPLATE, ch.getName(), value);
+		} catch (IllegalStateException | CAException ex) {
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
 			throw ex;
 		}
 	}
@@ -1600,32 +1541,26 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 			synchronized (listener) {
 				ch.put(value, listener);
 				context.flushIO();
-				logger.debug("set {} to {} ", ch.getName(), value);
+				logger.debug(CAPUT_DEBUG_MESSAGE_TEMPLATE, ch.getName(), value);
 
 				listener.wait((long) (timeout * 1000));
 			}
 
 			final PutEvent event = listener.event;
 			if (event == null)
-				throw new TimeoutException("put timeout, "+timeout+"s");
+				throw new TimeoutException(String.format(PUT_TIMEOUT_TEMPLATE, timeout));
 
 			if (event.getStatus() != CAStatus.NORMAL) {
-				logger.error(" put to channel: {} value: {} failed status: {}", ch.getName(), value, event.getStatus());
-				throw new CAStatusException(event.getStatus(), "put failed");
+				logger.error(PUT_FAILED_WITH_STATUS_MESSAGE_TEMPLATE, ch.getName(), value, event.getStatus());
+				throw new CAStatusException(event.getStatus(), PUT_FAILED);
 			}
 
-		} catch (TimeoutException ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
+		} catch (TimeoutException | CAException | IllegalStateException ex) {
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
 			throw ex;
-		} catch (CAException ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw ex;
-		} catch (IllegalStateException ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw ex;
-		} catch (Throwable ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw new RuntimeException("unexpected exception", ex);
+		} catch (Exception ex) {
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
+			throw new CAException(UNEXPECTED_EXCEPTION, ex);
 		}
 	}
 
@@ -1648,32 +1583,26 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 			synchronized (listener) {
 				ch.put(value, listener);
 				context.flushIO();
-				logger.debug("set {} to {} ", ch.getName(), value);
+				logger.debug(CAPUT_DEBUG_MESSAGE_TEMPLATE, ch.getName(), value);
 
 				listener.wait((long) (timeout * 1000));
 			}
 
 			final PutEvent event = listener.event;
 			if (event == null)
-				throw new TimeoutException("put timeout, "+timeout+"s");
+				throw new TimeoutException(String.format(PUT_TIMEOUT_TEMPLATE, timeout));
 
 			if (event.getStatus() != CAStatus.NORMAL) {
-				logger.error(" put to channel: {} value: {} failed status: {}", ch.getName(), value, event.getStatus());
-				throw new CAStatusException(event.getStatus(), "put failed");
+				logger.error(PUT_FAILED_WITH_STATUS_MESSAGE_TEMPLATE, ch.getName(), value, event.getStatus());
+				throw new CAStatusException(event.getStatus(), PUT_FAILED);
 			}
 
-		} catch (TimeoutException ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
+		} catch (TimeoutException | CAException | IllegalStateException ex) {
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
 			throw ex;
-		} catch (CAException ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw ex;
-		} catch (IllegalStateException ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw ex;
-		} catch (Throwable ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw new RuntimeException("unexpected exception", ex);
+		} catch (Exception ex) {
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
+			throw new CAException(UNEXPECTED_EXCEPTION, ex);
 		}
 	}
 
@@ -1696,32 +1625,26 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 			synchronized (listener) {
 				ch.put(value, listener);
 				context.flushIO();
-				logger.debug("set {} to {} ", ch.getName(), value);
+				logger.debug(CAPUT_DEBUG_MESSAGE_TEMPLATE, ch.getName(), value);
 
 				listener.wait((long) (timeout * 1000));
 			}
 
 			final PutEvent event = listener.event;
 			if (event == null)
-				throw new TimeoutException("put timeout, "+timeout+"s");
+				throw new TimeoutException(String.format(PUT_TIMEOUT_TEMPLATE, timeout));
 
 			if (event.getStatus() != CAStatus.NORMAL) {
-				logger.error(" put to channel: {} value: {} failed status: {}", ch.getName(), value, event.getStatus());
-				throw new CAStatusException(event.getStatus(), "put failed");
+				logger.error(PUT_FAILED_WITH_STATUS_MESSAGE_TEMPLATE, ch.getName(), value, event.getStatus());
+				throw new CAStatusException(event.getStatus(), PUT_FAILED);
 			}
 
-		} catch (TimeoutException ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
+		} catch (TimeoutException | CAException | IllegalStateException ex) {
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
 			throw ex;
-		} catch (CAException ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw ex;
-		} catch (IllegalStateException ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw ex;
-		} catch (Throwable ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw new RuntimeException("unexpected exception", ex);
+		} catch (Exception ex) {
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
+			throw new CAException(UNEXPECTED_EXCEPTION, ex);
 		}
 	}
 
@@ -1744,32 +1667,26 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 			synchronized (listener) {
 				ch.put(value, listener);
 				context.flushIO();
-				logger.debug("set {} to {} ", ch.getName(), value);
+				logger.debug(CAPUT_DEBUG_MESSAGE_TEMPLATE, ch.getName(), value);
 
 				listener.wait((long) (timeout * 1000));
 			}
 
 			final PutEvent event = listener.event;
 			if (event == null)
-				throw new TimeoutException("put timeout, "+timeout+"s");
+				throw new TimeoutException(String.format(PUT_TIMEOUT_TEMPLATE, timeout));
 
 			if (event.getStatus() != CAStatus.NORMAL) {
-				logger.error(" put to channel: {} value: {} failed status: {}", ch.getName(), value, event.getStatus());
-				throw new CAStatusException(event.getStatus(), "put failed");
+				logger.error(PUT_FAILED_WITH_STATUS_MESSAGE_TEMPLATE, ch.getName(), value, event.getStatus());
+				throw new CAStatusException(event.getStatus(), PUT_FAILED);
 			}
 
-		} catch (TimeoutException ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
+		} catch (TimeoutException | CAException | IllegalStateException ex) {
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
 			throw ex;
-		} catch (CAException ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw ex;
-		} catch (IllegalStateException ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw ex;
-		} catch (Throwable ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw new RuntimeException("unexpected exception", ex);
+		} catch (Exception ex) {
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
+			throw new CAException(UNEXPECTED_EXCEPTION, ex);
 		}
 	}
 
@@ -1792,32 +1709,26 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 			synchronized (listener) {
 				ch.put(value, listener);
 				context.flushIO();
-				logger.debug("set {} to {} ", ch.getName(), value);
+				logger.debug(CAPUT_DEBUG_MESSAGE_TEMPLATE, ch.getName(), value);
 
 				listener.wait((long) (timeout * 1000));
 			}
 
 			final PutEvent event = listener.event;
 			if (event == null)
-				throw new TimeoutException("put timeout, "+timeout+"s");
+				throw new TimeoutException(String.format(PUT_TIMEOUT_TEMPLATE, timeout));
 
 			if (event.getStatus() != CAStatus.NORMAL) {
-				logger.error(" put to channel: {} value: {} failed status: {}", ch.getName(), value, event.getStatus());
-				throw new CAStatusException(event.getStatus(), "put failed");
+				logger.error(PUT_FAILED_WITH_STATUS_MESSAGE_TEMPLATE, ch.getName(), value, event.getStatus());
+				throw new CAStatusException(event.getStatus(), PUT_FAILED);
 			}
 
-		} catch (TimeoutException ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
+		} catch (TimeoutException | CAException | IllegalStateException ex) {
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
 			throw ex;
-		} catch (CAException ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw ex;
-		} catch (IllegalStateException ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw ex;
-		} catch (Throwable ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw new RuntimeException("unexpected exception", ex);
+		} catch (Exception ex) {
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
+			throw new CAException(UNEXPECTED_EXCEPTION, ex);
 		}
 	}
 
@@ -1840,32 +1751,26 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 			synchronized (listener) {
 				ch.put(value, listener);
 				context.flushIO();
-				logger.debug("set {} to {} ", ch.getName(), value);
+				logger.debug(CAPUT_DEBUG_MESSAGE_TEMPLATE, ch.getName(), value);
 
 				listener.wait((long) (timeout * 1000));
 			}
 
 			final PutEvent event = listener.event;
 			if (event == null)
-				throw new TimeoutException("put timeout, "+timeout+"s");
+				throw new TimeoutException(String.format(PUT_TIMEOUT_TEMPLATE, timeout));
 
 			if (event.getStatus() != CAStatus.NORMAL) {
-				logger.error(" put to channel: {} value: {} failed status: {}", ch.getName(), value, event.getStatus());
-				throw new CAStatusException(event.getStatus(), "put failed");
+				logger.error(PUT_FAILED_WITH_STATUS_MESSAGE_TEMPLATE, ch.getName(), value, event.getStatus());
+				throw new CAStatusException(event.getStatus(), PUT_FAILED);
 			}
 
-		} catch (TimeoutException ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
+		} catch (TimeoutException | CAException | IllegalStateException ex) {
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
 			throw ex;
-		} catch (CAException ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw ex;
-		} catch (IllegalStateException ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw ex;
-		} catch (Throwable ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw new RuntimeException("unexpected exception", ex);
+		} catch (Exception ex) {
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
+			throw new CAException(UNEXPECTED_EXCEPTION, ex);
 		}
 	}
 
@@ -1888,32 +1793,26 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 			synchronized (listener) {
 				ch.put(value, listener);
 				context.flushIO();
-				logger.debug("set {} to {} ", ch.getName(), value);
+				logger.debug(CAPUT_DEBUG_MESSAGE_TEMPLATE, ch.getName(), value);
 
 				listener.wait((long) (timeout * 1000));
 			}
 
 			final PutEvent event = listener.event;
 			if (event == null)
-				throw new TimeoutException("put timeout, "+timeout+"s");
+				throw new TimeoutException(String.format(PUT_TIMEOUT_TEMPLATE, timeout));
 
 			if (event.getStatus() != CAStatus.NORMAL) {
-				logger.error(" put to channel: {} value: {} failed status: {}", ch.getName(), value, event.getStatus());
-				throw new CAStatusException(event.getStatus(), "put failed");
+				logger.error(PUT_FAILED_WITH_STATUS_MESSAGE_TEMPLATE, ch.getName(), value, event.getStatus());
+				throw new CAStatusException(event.getStatus(), PUT_FAILED);
 			}
 
-		} catch (TimeoutException ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
+		} catch (TimeoutException | CAException | IllegalStateException ex) {
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
 			throw ex;
-		} catch (CAException ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw ex;
-		} catch (IllegalStateException ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw ex;
-		} catch (Throwable ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw new RuntimeException("unexpected exception", ex);
+		} catch (Exception ex) {
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
+			throw new CAException(UNEXPECTED_EXCEPTION, ex);
 		}
 	}
 
@@ -1936,32 +1835,26 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 			synchronized (listener) {
 				ch.put(value, listener);
 				context.flushIO();
-				logger.debug("set {} to {} ", ch.getName(), value);
+				logger.debug(CAPUT_DEBUG_MESSAGE_TEMPLATE, ch.getName(), value);
 
 				listener.wait((long) (timeout * 1000));
 			}
 
 			final PutEvent event = listener.event;
 			if (event == null)
-				throw new TimeoutException("put timeout, "+timeout+"s");
+				throw new TimeoutException(String.format(PUT_TIMEOUT_TEMPLATE, timeout));
 
 			if (event.getStatus() != CAStatus.NORMAL) {
-				logger.error(" put to channel: {} value: {} failed status: {}", ch.getName(), value, event.getStatus());
-				throw new CAStatusException(event.getStatus(), "put failed");
+				logger.error(PUT_FAILED_WITH_STATUS_MESSAGE_TEMPLATE, ch.getName(), value, event.getStatus());
+				throw new CAStatusException(event.getStatus(), PUT_FAILED);
 			}
 
-		} catch (TimeoutException ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
+		} catch (TimeoutException | CAException | IllegalStateException ex) {
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
 			throw ex;
-		} catch (CAException ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw ex;
-		} catch (IllegalStateException ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw ex;
-		} catch (Throwable ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw new RuntimeException("unexpected exception", ex);
+		} catch (Exception ex) {
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
+			throw new CAException(UNEXPECTED_EXCEPTION, ex);
 		}
 	}
 
@@ -1984,32 +1877,26 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 			synchronized (listener) {
 				ch.put(value, listener);
 				context.flushIO();
-				logger.debug("set {} to {} ", ch.getName(), value);
+				logger.debug(CAPUT_DEBUG_MESSAGE_TEMPLATE, ch.getName(), value);
 
 				listener.wait((long) (timeout * 1000));
 			}
 
 			final PutEvent event = listener.event;
 			if (event == null)
-				throw new TimeoutException("put timeout, "+timeout+"s");
+				throw new TimeoutException(String.format(PUT_TIMEOUT_TEMPLATE, timeout));
 
 			if (event.getStatus() != CAStatus.NORMAL) {
-				logger.error(" put to channel: {} value: {} failed status: {}", ch.getName(), value, event.getStatus());
-				throw new CAStatusException(event.getStatus(), "put failed");
+				logger.error(PUT_FAILED_WITH_STATUS_MESSAGE_TEMPLATE, ch.getName(), value, event.getStatus());
+				throw new CAStatusException(event.getStatus(), PUT_FAILED);
 			}
 
-		} catch (TimeoutException ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
+		} catch (TimeoutException | CAException | IllegalStateException ex) {
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
 			throw ex;
-		} catch (CAException ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw ex;
-		} catch (IllegalStateException ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw ex;
-		} catch (Throwable ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw new RuntimeException("unexpected exception", ex);
+		} catch (Exception ex) {
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
+			throw new CAException(UNEXPECTED_EXCEPTION, ex);
 		}
 	}
 
@@ -2032,32 +1919,26 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 			synchronized (listener) {
 				ch.put(value, listener);
 				context.flushIO();
-				logger.debug("set {} to {} ", ch.getName(), value);
+				logger.debug(CAPUT_DEBUG_MESSAGE_TEMPLATE, ch.getName(), value);
 
 				listener.wait((long) (timeout * 1000));
 			}
 
 			final PutEvent event = listener.event;
 			if (event == null)
-				throw new TimeoutException("put timeout, "+timeout+"s");
+				throw new TimeoutException(String.format(PUT_TIMEOUT_TEMPLATE, timeout));
 
 			if (event.getStatus() != CAStatus.NORMAL) {
-				logger.error(" put to channel: {} value: {} failed status: {}", ch.getName(), value, event.getStatus());
-				throw new CAStatusException(event.getStatus(), "put failed");
+				logger.error(PUT_FAILED_WITH_STATUS_MESSAGE_TEMPLATE, ch.getName(), value, event.getStatus());
+				throw new CAStatusException(event.getStatus(), PUT_FAILED);
 			}
 
-		} catch (TimeoutException ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
+		} catch (TimeoutException | CAException | IllegalStateException ex) {
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
 			throw ex;
-		} catch (CAException ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw ex;
-		} catch (IllegalStateException ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw ex;
-		} catch (Throwable ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw new RuntimeException("unexpected exception", ex);
+		} catch (Exception ex) {
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
+			throw new CAException(UNEXPECTED_EXCEPTION, ex);
 		}
 	}
 
@@ -2078,16 +1959,13 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 		try {
 			ch.put(value, pl);
 			context.flushIO();
-			logger.debug("set {} to {} ", ch.getName(), value);
-		} catch (IllegalStateException ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
+			logger.debug(CAPUT_DEBUG_MESSAGE_TEMPLATE, ch.getName(), value);
+		} catch (IllegalStateException | CAException ex) {
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
 			throw ex;
-		} catch (CAException ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw ex;
-		} catch (Throwable ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw new RuntimeException("unexpected exception", ex);
+		} catch (Exception ex) {
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
+			throw new CAException(UNEXPECTED_EXCEPTION, ex);
 		}
 	}
 
@@ -2108,16 +1986,13 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 		try {
 			ch.put(value, pl);
 			context.flushIO();
-			logger.debug("set {} to {} ", ch.getName(), value);
-		} catch (IllegalStateException ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
+			logger.debug(CAPUT_DEBUG_MESSAGE_TEMPLATE, ch.getName(), value);
+		} catch (IllegalStateException | CAException ex) {
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
 			throw ex;
-		} catch (CAException ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw ex;
-		} catch (Throwable ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw new RuntimeException("unexpected exception", ex);
+		} catch (Exception ex) {
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
+			throw new CAException(UNEXPECTED_EXCEPTION, ex);
 		}
 	}
 
@@ -2138,16 +2013,13 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 		try {
 			ch.put(value, pl);
 			context.flushIO();
-			logger.debug("set {} to {} ", ch.getName(), value);
-		} catch (IllegalStateException ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
+			logger.debug(CAPUT_DEBUG_MESSAGE_TEMPLATE, ch.getName(), value);
+		} catch (IllegalStateException| CAException ex) {
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
 			throw ex;
-		} catch (CAException ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw ex;
-		} catch (Throwable ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw new RuntimeException("unexpected exception", ex);
+		} catch (Exception ex) {
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
+			throw new CAException(UNEXPECTED_EXCEPTION, ex);
 		}
 	}
 
@@ -2167,16 +2039,12 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 		try {
 			ch.put(value, pl);
 			context.flushIO();
-//			logger.debug("set {} to {} ", ch.getName(), value);
-		} catch (IllegalStateException ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
+		} catch (IllegalStateException | CAException ex) {
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
 			throw ex;
-		} catch (CAException ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw ex;
-		} catch (Throwable ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw new RuntimeException("unexpected exception", ex);
+		} catch (Exception ex) {
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
+			throw new CAException(UNEXPECTED_EXCEPTION, ex);
 		}
 	}
 
@@ -2197,16 +2065,13 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 		try {
 			ch.put(value, pl);
 			context.flushIO();
-			logger.debug("set {} to {} ", ch.getName(), value);
-		} catch (IllegalStateException ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
+			logger.debug(CAPUT_DEBUG_MESSAGE_TEMPLATE, ch.getName(), value);
+		} catch (IllegalStateException | CAException ex) {
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
 			throw ex;
-		} catch (CAException ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw ex;
-		} catch (Throwable ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw new RuntimeException("unexpected exception", ex);
+		} catch (Exception ex) {
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
+			throw new CAException(UNEXPECTED_EXCEPTION, ex);
 		}
 	}
 
@@ -2227,16 +2092,13 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 		try {
 			ch.put(value, pl);
 			context.flushIO();
-			logger.debug("set {} to {} ", ch.getName(), value);
-		} catch (IllegalStateException ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
+			logger.debug(CAPUT_DEBUG_MESSAGE_TEMPLATE, ch.getName(), value);
+		} catch (IllegalStateException | CAException ex) {
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
 			throw ex;
-		} catch (CAException ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw ex;
-		} catch (Throwable ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw new RuntimeException("unexpected exception", ex);
+		} catch (Exception ex) {
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
+			throw new CAException(UNEXPECTED_EXCEPTION, ex);
 		}
 	}
 
@@ -2256,16 +2118,13 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 		try {
 			ch.put(value, pl);
 			context.flushIO();
-			logger.debug("set {} to {} ", ch.getName(), value);
-		} catch (IllegalStateException ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
+			logger.debug(CAPUT_DEBUG_MESSAGE_TEMPLATE, ch.getName(), value);
+		} catch (IllegalStateException | CAException ex) {
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
 			throw ex;
-		} catch (CAException ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw ex;
-		} catch (Throwable ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw new RuntimeException("unexpected exception", ex);
+		} catch (Exception ex) {
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
+			throw new CAException(UNEXPECTED_EXCEPTION, ex);
 		}
 	}
 
@@ -2286,16 +2145,13 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 		try {
 			ch.put(value, pl);
 			context.flushIO();
-			logger.debug("set {} to {} ", ch.getName(), value);
-		} catch (IllegalStateException ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
+			logger.debug(CAPUT_DEBUG_MESSAGE_TEMPLATE, ch.getName(), value);
+		} catch (IllegalStateException | CAException ex) {
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
 			throw ex;
-		} catch (CAException ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw ex;
-		} catch (Throwable ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw new RuntimeException("unexpected exception", ex);
+		} catch (Exception ex) {
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
+			throw new CAException(UNEXPECTED_EXCEPTION, ex);
 		}
 	}
 
@@ -2316,16 +2172,13 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 		try {
 			ch.put(value, pl);
 			context.flushIO();
-			logger.debug("set {} to {} ", ch.getName(), value);
-		} catch (IllegalStateException ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
+			logger.debug(CAPUT_DEBUG_MESSAGE_TEMPLATE, ch.getName(), value);
+		} catch (IllegalStateException | CAException ex) {
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
 			throw ex;
-		} catch (CAException ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw ex;
-		} catch (Throwable ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw new RuntimeException("unexpected exception", ex);
+		} catch (Exception ex) {
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
+			throw new CAException(UNEXPECTED_EXCEPTION, ex);
 		}
 	}
 
@@ -2346,16 +2199,13 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 		try {
 			ch.put(value, pl);
 			context.flushIO();
-			logger.debug("set {} to {} ", ch.getName(), value);
-		} catch (IllegalStateException ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
+			logger.debug(CAPUT_DEBUG_MESSAGE_TEMPLATE, ch.getName(), value);
+		} catch (IllegalStateException | CAException ex) {
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
 			throw ex;
-		} catch (CAException ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw ex;
-		} catch (Throwable ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw new RuntimeException("unexpected exception", ex);
+		} catch (Exception ex) {
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
+			throw new CAException(UNEXPECTED_EXCEPTION, ex);
 		}
 	}
 	public void caput(Channel ch, byte[] value, double timeout) throws CAException, TimeoutException, InterruptedException {
@@ -2365,32 +2215,26 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 			synchronized (listener) {
 				ch.put(value, listener);
 				context.flushIO();
-				logger.debug("set {} to {} ", ch.getName(), value);
+				logger.debug(CAPUT_DEBUG_MESSAGE_TEMPLATE, ch.getName(), value);
 
 				listener.wait((long) (timeout * 1000));
 			}
 
 			final PutEvent event = listener.event;
 			if (event == null)
-				throw new TimeoutException("put timeout, "+timeout+"s");
+				throw new TimeoutException(String.format(PUT_TIMEOUT_TEMPLATE, timeout));
 
 			if (event.getStatus() != CAStatus.NORMAL) {
-				logger.error(" put to channel: {} value: {} failed status: {}", ch.getName(), value, event.getStatus());
-				throw new CAStatusException(event.getStatus(), "put failed");
+				logger.error(PUT_FAILED_WITH_STATUS_MESSAGE_TEMPLATE, ch.getName(), value, event.getStatus());
+				throw new CAStatusException(event.getStatus(), PUT_FAILED);
 			}
 
-		} catch (TimeoutException ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
+		} catch (TimeoutException| CAException | IllegalStateException ex) {
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
 			throw ex;
-		} catch (CAException ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw ex;
-		} catch (IllegalStateException ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw ex;
-		} catch (Throwable ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw new RuntimeException("unexpected exception", ex);
+		} catch (Exception ex) {
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
+			throw new CAException(UNEXPECTED_EXCEPTION, ex);
 		}
 	}
 
@@ -2412,16 +2256,13 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 		try {
 			ch.put(value, pl);
 			context.flushIO();
-			logger.debug("set {} to {} ", ch.getName(), value);
-		} catch (IllegalStateException ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
+			logger.debug(CAPUT_DEBUG_MESSAGE_TEMPLATE, ch.getName(), value);
+		} catch (IllegalStateException | CAException ex) {
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
 			throw ex;
-		} catch (CAException ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw ex;
-		} catch (Throwable ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw new RuntimeException("unexpected exception", ex);
+		} catch (Exception ex) {
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
+			throw new CAException(UNEXPECTED_EXCEPTION, ex);
 		}
 	}
 
@@ -2438,16 +2279,13 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 		try {
 			ch.put(JCAUtils.getIntArrayFromWaveform(value), pl);
 			context.flushIO();
-			logger.debug("set {} to {} ", ch.getName(), value);
-		} catch (IllegalStateException ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
+			logger.debug(CAPUT_DEBUG_MESSAGE_TEMPLATE, ch.getName(), value);
+		} catch (IllegalStateException | CAException ex) {
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
 			throw ex;
-		} catch (CAException ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw ex;
-		} catch (Throwable ex) {
-			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
-			throw new RuntimeException("unexpected exception", ex);
+		} catch (Exception ex) {
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
+			throw new CAException(UNEXPECTED_EXCEPTION, ex);
 		}
 	}
 
@@ -2484,10 +2322,10 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	 * return a PV value monitor to the specified channel.
 	 * @param dataChannel
 	 * @return the monitor
-	 * @throws IllegalStateException
+	 * @throws IllegalStateException If the channel is not in a state to perform this operation (i.e. destroyed, etc...)
 	 * @throws CAException
 	 */
-	public Monitor addMonitor(Channel dataChannel) throws IllegalStateException, CAException {
+	public Monitor addMonitor(Channel dataChannel) throws CAException {
 		return dataChannel.addMonitor(Monitor.VALUE);
 	}
 
