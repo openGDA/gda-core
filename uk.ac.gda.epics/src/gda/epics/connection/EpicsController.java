@@ -1018,26 +1018,6 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	}
 
 	/**
-	 * convenient method to support a deprecated interface
-	 *
-	 * @param ch
-	 * @param ml
-	 * @param type
-	 * @return Monitor
-	 * @throws CAException
-	 */
-	@Deprecated
-	public Monitor setMonitor(Channel ch, MonitorListener ml, Object type) throws CAException, InterruptedException {
-		if (type instanceof MonitorType) {
-			MonitorType new_type = (MonitorType) type;
-			return setMonitor(ch, ml, new_type);
-		}
-		logger.warn("Monitor type " + type + " requested is not available.");
-		return null;
-
-	}
-
-	/**
 	 * Sets a VALUE monitor to the specified channel. The monitor event returns the default/native DBR type and element
 	 * count.
 	 *
