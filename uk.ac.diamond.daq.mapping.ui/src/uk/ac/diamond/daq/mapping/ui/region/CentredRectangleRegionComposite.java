@@ -54,7 +54,7 @@ public class CentredRectangleRegionComposite extends AbstractRegionAndPathCompos
 
 		// Y Stop
 		Label yStopLabel = new Label(this, SWT.NONE);
-		yStopLabel.setText("Y Reange:");
+		yStopLabel.setText("Y Range:");
 		NumberAndUnitsComposite yRange = new NumberAndUnitsComposite(this, SWT.NONE);
 		gdControls.applyTo(yRange);
 		bindNumberUnits(yRange, "yRange", region);
