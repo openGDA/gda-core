@@ -489,21 +489,20 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	}
 
 	private void checkConnection(Channel ch) throws InterruptedException {
-		double timeout_s = EpicsGlobals.getTimeout();
-		checkConnection(ch, timeout_s);
+		checkConnection(ch, TIMEOUT_SECONDS);
 	}
 
-	private void checkConnection(Channel ch, double timeout_s) throws InterruptedException {
+	private void checkConnection(Channel ch, double timeoutSeconds) throws InterruptedException {
 		if (ch.getConnectionState() == Channel.CONNECTED)
 			return;
-		long startTime_ms = System.currentTimeMillis();
-		long timeout_ms = (long) (timeout_s * 1000.);
+		long startTimeMs = System.currentTimeMillis();
+		long timeoutMs = (long) (timeoutSeconds * 1000.);
 
-		while (ch.getConnectionState() != Channel.CONNECTED && (System.currentTimeMillis() - startTime_ms < timeout_ms)) {
+		while (ch.getConnectionState() != Channel.CONNECTED && (System.currentTimeMillis() - startTimeMs < timeoutMs)) {
 			Thread.sleep(10);
 		}
 		if (ch.getConnectionState() != Channel.CONNECTED) {
-			logger.error("Connection to {} request timeout {}s", ch.getName(), timeout_s);
+			logger.error("Connection to {} request timeout {}s", ch.getName(), timeoutSeconds);
 		}
 	}
 
