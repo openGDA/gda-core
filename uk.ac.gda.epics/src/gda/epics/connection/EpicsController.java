@@ -128,8 +128,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	 *
 	 * @return <code>EpicsController</code> instance.
 	 */
-	public static synchronized EpicsController getInstance()
-	{
+	public static synchronized EpicsController getInstance() {
 		return getInstance(true);
 	}
 
@@ -152,22 +151,12 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	}
 
 	/**
-	 * Protected constructor.
-	 *
-	 * @throws CAException
-	 */
-	@SuppressWarnings("unused")
-	protected EpicsController() throws CAException, InterruptedException {
-		new EpicsController(true);
-	}
-
-	/**
-	 * Protected constructor.
+	 * Private constructor.
 	 * @param contextRequired is normally True, but False for testing, to avoid leaving a orphan process.
 	 *
 	 * @throws CAException
 	 */
-	protected EpicsController(boolean contextRequired) throws CAException {
+	private EpicsController(boolean contextRequired) throws CAException {
 		if (contextRequired) {
 			initializeContext();
 		}
@@ -179,7 +168,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	 *
 	 * @throws CAException
 	 */
-	protected void initializeContext() throws CAException {
+	private void initializeContext() throws CAException {
 		try {
 			// initialises JCA, used to create context and manage JCA
 			// configuration info

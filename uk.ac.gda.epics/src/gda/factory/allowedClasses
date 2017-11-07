@@ -60,7 +60,6 @@ gda.epics.cmdline.JCAMonitor
 gda.epics.cmdline.AsynPut
 gda.epics.CAClient
 gda.epics.EpicsBase
-gda.epics.connection.EpicsControllerForScript
 gda.epics.connection.GRHandler
 gda.epics.connection.EpicsController
 gda.epics.connection.CTRLHandler
