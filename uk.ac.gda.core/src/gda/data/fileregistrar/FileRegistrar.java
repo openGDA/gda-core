@@ -20,6 +20,7 @@
 package gda.data.fileregistrar;
 
 import java.io.File;
+import java.nio.file.Paths;
 import java.util.Vector;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -137,11 +138,11 @@ public class FileRegistrar extends DataWriterExtenderBase implements IFileRegist
 			return; // TODO Should this be an exception? Perhaps it should be an error condition not an ignored one.
 		}
 
-		logger.debug("Adding " + fileNameOrPath);
+		logger.debug("Adding {}", fileNameOrPath);
 		String filePath = fileNameOrPath;
 		if (fileNameOrPath.charAt(0) != '/') {
-			filePath = PathConstructor.createFromDefaultProperty() + "/" + fileNameOrPath;
-			logger.debug("Changed file path to " + filePath);
+			filePath = Paths.get(PathConstructor.createFromDefaultProperty(), fileNameOrPath).toString();
+			logger.debug("Changed file path to {}", filePath);
 		}
 
 		synchronized (files) { // TODO files is already a Vector which is synchronized.
@@ -225,14 +226,16 @@ public class FileRegistrar extends DataWriterExtenderBase implements IFileRegist
 					if (sockPuppet != null)
 						sockPuppet.notifyIObservers(sockPuppet, fileArr);
 				} catch (Exception e) {
-					logger.error("Catching " + e.getClass() + " thrown in the XML generation step", e);
+					logger.error("Error generating XML", e);
 				}
 				logger.info("icatXMLCreator.registerFiles completed");
 			}
 		});
 
-		logger.debug("kicked off for datasetId " + datasetId + " registering "
-				+ ((fileArr.length == 1) ? "one file" : (fileArr.length + " files")));
+		logger.debug("kicked off for datasetId {} registering {} file{}",
+				datasetId,
+				fileArr.length,
+				fileArr.length == 1 ? "" : "s");
 	}
 
 	@Override
