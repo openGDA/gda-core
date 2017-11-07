@@ -21,6 +21,7 @@ package uk.ac.gda.client;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -57,11 +58,15 @@ public class ServerFileListener implements IObserver, Configurable {
 		@Override
 		protected IStatus run(IProgressMonitor monitor) {
 			try {
-				if (link != null)
+				if (link != null) {
 					link.refreshLocal(IResource.DEPTH_INFINITE, monitor);
+				}
 				Thread.sleep(1000);
-			} catch (Throwable e) {
-				logger.error("error in the refresh job", e);
+			} catch (InterruptedException e) {
+				logger.error("Data refresh was interrupted", e);
+				Thread.currentThread().interrupt();
+			} catch (CoreException e) {
+				logger.error("Error in the refresh job", e);
 			}
 			return Status.OK_STATUS;
 		}
@@ -94,30 +99,10 @@ public class ServerFileListener implements IObserver, Configurable {
 		if (LocalProperties.check(LocalProperties.GDA_SHOW_VISIT_NAME_AS_DATA_FOLDER_NAME, false)) {
 			name = LocalProperties.get(LocalProperties.RCP_APP_VISIT, "data");
 		}
-		link=dataProject.getFolder(name);
+		link = dataProject.getFolder(name);
 		// as you can see below I tried only updating what is needed, but due to linked resources (I think)
 		// (for now) only the full refresh seems to work, but at least we've put this in a jobs now
 		refreshJob.schedule(500);
-
-//		String[] files = (String[]) arg;
-//		for (String path : files) {
-//			IFile file = dataProject.getFile(path);
-//			boolean exists = file.exists();
-//			boolean linked = file.isLinked(IResource.CHECK_ANCESTORS);
-//			IProject project = file.getProject();
-//			IContainer parent = file.getParent();
-
-//			try {
-////				file.create(null, false, null);
-////				file.refreshLocal(IResource.DEPTH_ZERO, null);
-////				link.refreshLocal(IResource.DEPTH_INFINITE, null);
-////				parent.refreshLocal(IResource.DEPTH_ZERO, null);
-//
-//			} catch (CoreException e) {
-//				// TODO Auto-generated catch block
-////				logger.error("TODO put description of error here", e);
-//			}
-//		}
 	}
 
 	public Device getClientFileAnnouncer() {
