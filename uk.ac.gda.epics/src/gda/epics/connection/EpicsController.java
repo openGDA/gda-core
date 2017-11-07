@@ -89,7 +89,8 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	private static final String CAPUT_DEBUG_MESSAGE_TEMPLATE = "Set '{}' to '{}'";
 	private static final String PUT_TIMEOUT_TEMPLATE = "Put timeout %fs";
 
-	private double timeout = EpicsGlobals.getTimeout();// seconds
+	private static final double TIMEOUT_SECONDS = EpicsGlobals.getTimeout(); // seconds
+
 	private AtomicInteger monitorCount = new AtomicInteger(0);
 	private Context context = null;
 	private ThreadPoolExecutor threadPool = null;
@@ -309,7 +310,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	 * @throws TimeoutException
 	 */
 	public Channel createChannel(String pvname) throws CAException, TimeoutException {
-		return createChannel(pvname, timeout);
+		return createChannel(pvname, TIMEOUT_SECONDS);
 	}
 
 	/**
@@ -807,7 +808,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	 */
 	public DBR getDBR(Channel ch, DBRType type, int count) throws TimeoutException, CAException, InterruptedException {
 		checkConnection(ch);
-		return getDBR(ch, type, count, timeout);
+		return getDBR(ch, type, count, TIMEOUT_SECONDS);
 	}
 
 	private DBR getDBR(Channel ch, DBRType type, int count, double timeout) throws TimeoutException, CAException {
@@ -1356,7 +1357,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	 * @throws TimeoutException
 	 */
 	public void caputWait(Channel ch, double value) throws TimeoutException, CAException, InterruptedException {
-		caput(ch, value, timeout);
+		caput(ch, value, TIMEOUT_SECONDS);
 	}
 
 	/**
@@ -1373,7 +1374,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	 * @throws CAException
 	 */
 	public void caputWait(Channel ch, float value) throws TimeoutException, CAException, InterruptedException {
-		caput(ch, value, timeout);
+		caput(ch, value, TIMEOUT_SECONDS);
 	}
 
 	/**
@@ -1390,7 +1391,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	 * @throws CAException
 	 */
 	public void caputWait(Channel ch, short value) throws TimeoutException, CAException, InterruptedException {
-		caput(ch, value, timeout);
+		caput(ch, value, TIMEOUT_SECONDS);
 	}
 
 	/**
@@ -1407,7 +1408,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	 * @throws CAException
 	 */
 	public void caputWait(Channel ch, int value) throws TimeoutException, CAException, InterruptedException {
-		caput(ch, value, timeout);
+		caput(ch, value, TIMEOUT_SECONDS);
 	}
 
 	public void caputWait(Channel ch, int value, double timeout) throws TimeoutException, CAException, InterruptedException {
@@ -1425,7 +1426,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	 * @throws CAException
 	 */
 	public void caputWait(Channel ch, String value) throws TimeoutException, CAException, InterruptedException {
-		caput(ch, value, timeout);
+		caput(ch, value, TIMEOUT_SECONDS);
 	}
 
 	/**
@@ -1440,11 +1441,11 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	 * @throws CAException
 	 */
 	public void caputWait(Channel ch, double[] value) throws TimeoutException, CAException, InterruptedException {
-		caput(ch, value, timeout);
+		caput(ch, value, TIMEOUT_SECONDS);
 	}
 
 	public void caputWait(Channel ch, byte[] value) throws TimeoutException, CAException, InterruptedException {
-		caput(ch, value, timeout);
+		caput(ch, value, TIMEOUT_SECONDS);
 	}
 
 
@@ -1460,7 +1461,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	 * @throws CAException
 	 */
 	public void caputWait(Channel ch, int[] value) throws TimeoutException, CAException, InterruptedException {
-		caput(ch, value, timeout);
+		caput(ch, value, TIMEOUT_SECONDS);
 	}
 
 	/**
@@ -1475,7 +1476,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	 * @throws CAException
 	 */
 	public void caputWait(Channel ch, float[] value) throws TimeoutException, CAException, InterruptedException {
-		caput(ch, value, timeout);
+		caput(ch, value, TIMEOUT_SECONDS);
 	}
 
 	/**
@@ -1490,7 +1491,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	 * @throws CAException
 	 */
 	public void caputWait(Channel ch, short[] value) throws TimeoutException, CAException, InterruptedException {
-		caput(ch, value, timeout);
+		caput(ch, value, TIMEOUT_SECONDS);
 	}
 
 	/**
@@ -1505,7 +1506,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	 * @throws CAException
 	 */
 	public void caputWait(Channel ch, String[] value) throws TimeoutException, CAException, InterruptedException {
-		caput(ch, value, timeout);
+		caput(ch, value, TIMEOUT_SECONDS);
 	}
 
 	/**
@@ -1519,7 +1520,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	 * @throws CAException
 	 */
 	public void caputWaitAsWaveform(Channel ch, String value) throws TimeoutException, CAException, InterruptedException {
-		caput(ch, JCAUtils.getIntArrayFromWaveform(value), timeout);
+		caput(ch, JCAUtils.getIntArrayFromWaveform(value), TIMEOUT_SECONDS);
 	}
 
 	/**
