@@ -21,9 +21,6 @@ package gda.epics.connection;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.nio.BufferOverflowException;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
@@ -93,7 +90,6 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 	private AtomicInteger monitorCount = new AtomicInteger(0);
 	private Context context = null;
-	private ThreadPoolExecutor threadPool = null;
 
 	/**
 	 * An enumerated type for DBR from EPICS.
@@ -172,21 +168,9 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	 * @throws CAException
 	 */
 	protected EpicsController(boolean contextRequired) throws CAException {
-		// TODO take care of shutdown
-		threadPool = new ThreadPoolExecutor(1, 5, 60, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
-		threadPool.prestartAllCoreThreads();
-		if (contextRequired)
+		if (contextRequired) {
 			initializeContext();
-	}
-
-	/**
-	 * Execute task in a separate thread.
-	 *
-	 * @param task
-	 *            task to be executed.
-	 */
-	public void execute(Runnable task) {
-		threadPool.execute(task);
+		}
 	}
 
 	/**

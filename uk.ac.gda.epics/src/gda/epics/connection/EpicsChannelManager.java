@@ -24,6 +24,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,6 +92,9 @@ public class EpicsChannelManager implements ConnectionListener, PutListener {
 	 * Creation phase completed flag. (sync on unconnectedCriticalChannels)
 	 */
 	protected boolean creationPhaseCompleted = false;
+
+	/** Thread pool for executing notification of initialization complete */
+	private static final ExecutorService threadPool = Executors.newCachedThreadPool();
 
 	/**
 	 * Default constructor.
@@ -467,14 +472,11 @@ public class EpicsChannelManager implements ConnectionListener, PutListener {
 	private void notifyInitalizationCompleted() {
 		if (initializationListener != null) {
 			try {
-				controller.execute(new Runnable() {
-					@Override
-					public void run() {
-						try {
-							initializationListener.initializationCompleted();
-						} catch( Exception e) {
-							logger.error(e.getMessage(),e);
-						}
+				threadPool.submit(() -> {
+					try {
+						initializationListener.initializationCompleted();
+					} catch( Exception e) {
+						logger.error("Error while notifying initalization complete",e);
 					}
 				});
 			} catch (Throwable th) {
