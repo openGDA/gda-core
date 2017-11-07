@@ -33,17 +33,25 @@ import gda.device.detector.NXDetectorData;
  * A class to represent a physical detector for NCD.
  */
 public interface INcdSubDetector extends Device {
-	
+
 	public static final String descriptionLabel = "description";
+	public static final String SERIAL_NUMBER_LABEL = "serial_number";
 
 	public void clear() throws DeviceException;
 
 	public void start() throws DeviceException;
 
 	public void stop() throws DeviceException;
-	
+
 	public String getDetectorType() throws DeviceException;
-	
+
+	/**
+	 * A unique identifier for this sub-detector
+	 *
+	 * @return String serial number
+	 */
+	public String getSerialNumber();
+
 	/**
 	 * add detector data for frames to the returned data type
 	 * @param frames

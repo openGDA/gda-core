@@ -21,6 +21,12 @@ package uk.ac.gda.server.ncd.subdetector.corba.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.NotImplementedException;
+import org.eclipse.dawnsci.analysis.api.diffraction.DetectorProperties;
+import org.omg.CORBA.Any;
+import org.omg.CORBA.COMM_FAILURE;
+import org.omg.CORBA.TRANSIENT;
+
 import gda.device.Device;
 import gda.device.DeviceException;
 import gda.device.Timer;
@@ -30,12 +36,6 @@ import gda.device.detector.DataDimension;
 import gda.device.detector.NXDetectorData;
 import gda.factory.Findable;
 import gda.factory.corba.util.NetService;
-
-import org.eclipse.dawnsci.analysis.api.diffraction.DetectorProperties;
-import org.omg.CORBA.Any;
-import org.omg.CORBA.COMM_FAILURE;
-import org.omg.CORBA.TRANSIENT;
-
 import uk.ac.gda.server.ncd.subdetector.INcdSubDetector;
 import uk.ac.gda.server.ncd.subdetector.corba.CorbaNcdsubDetector;
 import uk.ac.gda.server.ncd.subdetector.corba.CorbaNcdsubDetectorHelper;
@@ -255,5 +255,10 @@ public class SubdetectorAdapter extends DeviceAdapter implements INcdSubDetector
 	@Override
 	public DetectorProperties getDetectorProperties() throws DeviceException {
         throw new DeviceException("not implemented over corba (yet) - request if needed");
+	}
+
+	@Override
+	public String getSerialNumber() {
+        throw new NotImplementedException("Serial number not implemented over corba (yet) - request if needed");
 	}
 }

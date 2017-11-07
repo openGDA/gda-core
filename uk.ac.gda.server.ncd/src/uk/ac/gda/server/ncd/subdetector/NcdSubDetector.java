@@ -64,6 +64,7 @@ public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
 	protected String interpretation = null;
 	private DetectorProperties dp = null;
 	protected FileConfiguration configuration;
+	private String serialNumber;
 
 	protected Collection<INcdMetaProvider> metaProviders = new ArrayList<>();
 
@@ -334,6 +335,16 @@ public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
 			}
 		}
 
+		if (getSerialNumber() != null) {
+			ngd = new NexusGroupData(getSerialNumber());
+			ngd.isDetectorEntryData = false;
+
+			NexusTreeNode serialNode = new NexusTreeNode(SERIAL_NUMBER_LABEL, NexusExtractor.SDSClassName, null, ngd);
+			serialNode.setIsPointDependent(false);
+
+			detTree.addChildNode(serialNode);
+		}
+
 		if (attributeMap.containsKey(SCALING_FACTOR)) {
 			try {
 				ngd = new NexusGroupData((Double) attributeMap.get(SCALING_FACTOR));
@@ -412,5 +423,14 @@ public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
 
 	public void setMetaProviders(Collection<INcdMetaProvider> meta) {
 		this.metaProviders = meta;
+	}
+
+	@Override
+	public String getSerialNumber() {
+		return serialNumber;
+	}
+
+	public void setSerialNumber(String serial) {
+		serialNumber = serial;
 	}
 }
