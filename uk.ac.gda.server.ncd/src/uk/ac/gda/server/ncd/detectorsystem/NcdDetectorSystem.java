@@ -18,6 +18,15 @@
 
 package uk.ac.gda.server.ncd.detectorsystem;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.concurrent.Callable;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.configuration.properties.LocalProperties;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.Detector;
@@ -28,15 +37,7 @@ import gda.device.detector.NXDetectorData;
 import gda.device.scannable.PositionCallableProvider;
 import gda.factory.FactoryException;
 import gda.observable.IObserver;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.concurrent.Callable;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import uk.ac.gda.server.ncd.actions.NcdAction;
 import uk.ac.gda.server.ncd.beans.CalibLabel;
 import uk.ac.gda.server.ncd.beans.CalibrationLabels;
 import uk.ac.gda.server.ncd.subdetector.IHaveExtraNames;
@@ -75,6 +76,9 @@ public class NcdDetectorSystem extends DetectorBase implements NcdDetector, Posi
 	private INcdSubDetector calibDetector = null;
 	private String calLabelFileName = LocalProperties.getVarDir() + "caliblabels.xml";
 	private CalibrationLabels calibLabels = null;
+
+	private Collection<NcdAction> scanStartActions = new HashSet<>();
+	private Collection<NcdAction> scanEndActions = new HashSet<>();
 
 	@Override
 	public void configure() throws FactoryException {
@@ -336,6 +340,7 @@ public class NcdDetectorSystem extends DetectorBase implements NcdDetector, Posi
 
 	@Override
 	public void atScanStart() throws DeviceException {
+		scanStartActions.stream().forEach(NcdAction::run);
 		for (INcdSubDetector det : subDetectors) {
 			det.atScanStart();
 		}
@@ -343,6 +348,7 @@ public class NcdDetectorSystem extends DetectorBase implements NcdDetector, Posi
 
 	@Override
 	public void atScanEnd() throws DeviceException {
+		scanEndActions.stream().forEach(NcdAction::run);
 		for (INcdSubDetector det : subDetectors) {
 			det.atScanEnd();
 		}
@@ -421,5 +427,13 @@ public class NcdDetectorSystem extends DetectorBase implements NcdDetector, Posi
 		} catch (DeviceException e1) {
 			logger.error("could not set ExtraHeaders: ", e1.getMessage());
 		}
+	}
+
+	public void setScanStartActions(Collection<NcdAction> scanStartActions) {
+		this.scanStartActions = scanStartActions;
+	}
+
+	public void setScanEndActions(Collection<NcdAction> scanEndActions) {
+		this.scanEndActions = scanEndActions;
 	}
 }
