@@ -18,11 +18,6 @@
 
 package uk.ac.gda.ui.viewer;
 
-import gda.device.DeviceException;
-import gda.device.EnumPositioner;
-import gda.jython.InterfaceProvider;
-import gda.observable.IObserver;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -42,6 +37,10 @@ import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.DeviceException;
+import gda.device.EnumPositioner;
+import gda.jython.InterfaceProvider;
+import gda.observable.IObserver;
 import uk.ac.gda.ui.internal.viewer.EnumPositionerSource;
 
 /**
@@ -70,6 +69,8 @@ public class EnumPositionViewer {
 	private Object labelLayoutData;
 
 	protected Job job;
+
+	private boolean controlEnabled = true;
 
 	public EnumPositionViewer(Composite parent, EnumPositioner scannable) {
 		this(parent, scannable, null, false, null);
@@ -176,7 +177,7 @@ public class EnumPositionViewer {
 								PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 									@Override
 									public void run() {
-										motorBox.setEnabled(true);
+										motorBox.setEnabled(controlEnabled);
 									}
 								});
 								refresh();
@@ -217,11 +218,11 @@ public class EnumPositionViewer {
 						@Override
 						public void run() {
 							if (!motorBox.isDisposed()) {
-								motorBox.setEnabled(!isBusy);
 								if (isBusy) {
 									motorBox.demandStep();
 								} else {
 									motorBox.demandComplete(position);
+									motorBox.setEnabled(controlEnabled);
 								}
 							}
 
@@ -238,7 +239,7 @@ public class EnumPositionViewer {
 					parent.getDisplay().asyncExec(new Runnable() {
 						@Override
 						public void run() {
-							motorBox.setEnabled(true);
+							motorBox.setEnabled(controlEnabled);
 						}
 					});
 				}
@@ -292,6 +293,7 @@ public class EnumPositionViewer {
 	}
 
 	public void setEnabled(boolean enabled) {
+		controlEnabled = enabled;
 		if (motorBox != null)
 			motorBox.setEnabled(enabled);
 	}
