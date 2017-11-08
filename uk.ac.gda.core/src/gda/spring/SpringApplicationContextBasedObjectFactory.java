@@ -19,17 +19,19 @@
 
 package gda.spring;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import org.springframework.context.ApplicationContext;
+
 import gda.factory.Factory;
 import gda.factory.FactoryBase;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Vector;
-
-import org.springframework.context.ApplicationContext;
 
 /**
  * A GDA {@link Factory} that wraps a Spring {@link ApplicationContext},
@@ -37,12 +39,24 @@ import org.springframework.context.ApplicationContext;
  */
 public class SpringApplicationContextBasedObjectFactory extends FactoryBase {
 
-	private ApplicationContext applicationContext;
-
 	private String name;
 
-	public void setApplicationContext(ApplicationContext applicationContext) {
-		this.applicationContext = applicationContext;
+	/** Cache of findables known about by Spring including aliases */
+	private final Map<String, Findable> nameToFindable;
+
+	public SpringApplicationContextBasedObjectFactory(ApplicationContext applicationContext) {
+		nameToFindable = applicationContext.getBeansOfType(Findable.class);
+
+		// Get all the aliases pointing at Findables
+		Map<String, Findable> aliases = nameToFindable.keySet().stream()
+				// Get all aliases pointing at Findables
+				.flatMap(key -> Arrays.stream(applicationContext.getAliases(key)))
+				// Make Map of alias to Findable
+				.collect(Collectors.toMap(Function.identity(), // key
+						alias -> (Findable) applicationContext.getBean(alias))); // value
+
+		// Add the aliases to the findables
+		nameToFindable.putAll(aliases);
 	}
 
 	@Override
@@ -62,23 +76,18 @@ public class SpringApplicationContextBasedObjectFactory extends FactoryBase {
 
 	@Override
 	public List<Findable> getFindables() {
-		Map<String, Findable> findables = applicationContext.getBeansOfType(Findable.class);
-		return new Vector<Findable>(findables.values());
+		return new ArrayList<>(nameToFindable.values());
 	}
 
 	@Override
 	public List<String> getFindableNames() {
-		String[] names = applicationContext.getBeanNamesForType(Findable.class);
-		return Arrays.asList(names);
+		return new ArrayList<>(nameToFindable.keySet());
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T extends Findable> T getFindable(String name) throws FactoryException {
-		if (applicationContext.containsBean(name)) {
-			return (T) applicationContext.getBean(name);
-		}
-		return null;
+		return (T) nameToFindable.get(name);
 	}
 
 	@Override

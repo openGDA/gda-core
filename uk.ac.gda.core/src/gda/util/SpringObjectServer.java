@@ -283,8 +283,7 @@ public class SpringObjectServer extends ObjectServer {
 	 * Adds a Spring-backed {@link Factory} to the {@link Finder}.
 	 */
 	private void addSpringBackedFactoryToFinder(ApplicationContext applicationContext) {
-		SpringApplicationContextBasedObjectFactory springObjectFactory = new SpringApplicationContextBasedObjectFactory();
-		springObjectFactory.setApplicationContext(applicationContext);
+		SpringApplicationContextBasedObjectFactory springObjectFactory = new SpringApplicationContextBasedObjectFactory(applicationContext);
 		factories.add(springObjectFactory);
 		Finder.getInstance().addFactory(springObjectFactory);
 	}

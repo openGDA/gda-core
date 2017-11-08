@@ -131,8 +131,7 @@ public class LoadAdditionalBeansToObjectServer extends ApplicationObjectSupport 
 	 * Adds a Spring-backed {@link Factory} to the {@link Finder}.
 	 */
 	private void addSpringBackedFactoryToFinder(ApplicationContext applicationContext) {
-		SpringApplicationContextBasedObjectFactory springObjectFactory = new SpringApplicationContextBasedObjectFactory();
-		springObjectFactory.setApplicationContext(applicationContext);
+		SpringApplicationContextBasedObjectFactory springObjectFactory = new SpringApplicationContextBasedObjectFactory(applicationContext);
 		Finder.getInstance().addFactory(springObjectFactory);
 	}
 
