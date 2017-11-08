@@ -18,13 +18,18 @@
 
 package uk.ac.gda.devices.vgscienta;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.january.dataset.DatasetUtils;
 import org.eclipse.january.dataset.IDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -103,19 +108,21 @@ class AnalyserLiveDataDispatcher implements Configurable, Findable {
 		// Get as float[] not double[] for performance
 		float[] array = epicsController.cagetFloatArray(arrayChannel, arraySize);
 		Dataset newData = DatasetFactory.createFromObject(array, dims);
+		// Flip the data across the 0 position of the Y axis I05-221
+		Dataset flipedData = DatasetUtils.flipUpDown(newData);
 
 		if (!sumFrames) {
-			return newData; // If we're not accumulating just return the newest data
+			return flipedData; // If we're not accumulating just return the newest data
 		}
 		else { // We are summing frames
 			if (summedFrames == null) { // i.e A new acquire has just started
-				summedFrames = newData;
+				summedFrames = flipedData;
 			}
 			else {
-				// Add the new data to the existing summed data and return it.
-				return summedFrames.iadd(newData);
+				// Add the new data to the existing summed data
+				summedFrames.iadd(flipedData);
 			}
-			return DatasetFactory.createFromObject(array, dims);
+			return summedFrames;
 		}
 	}
 
@@ -128,7 +135,11 @@ class AnalyserLiveDataDispatcher implements Configurable, Findable {
 
 	private IDataset getYAxis() throws Exception {
 		double[] ydata = analyser.getAngleAxis();
-		IDataset yAxis = DatasetFactory.createFromObject(ydata);
+		// Get as a list so we can reverse it easily
+		List<Double> list = Arrays.stream(ydata).boxed().collect(Collectors.toList());
+		Collections.reverse(list); // Flips the Y scale I05-221
+		IDataset yAxis = DatasetFactory.createFromObject(list);
+
 		if ("Transmission".equalsIgnoreCase(analyser.getLensMode())) {
 			yAxis.setName("location (mm)");
 		} else
