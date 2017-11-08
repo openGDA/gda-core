@@ -3,21 +3,27 @@
  */
 package gda.device.detector.nxdetector.xmap.controller;
 
-import gda.device.detector.nxdetector.xmap.controller.XmapModes.CollectionModeEnum;
+import java.io.IOException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.detector.nxdetector.xmap.controller.XmapModes.ListMode;
 import gda.device.detector.nxdetector.xmap.controller.XmapModes.PixelAdvanceMode;
 import gda.epics.LazyPVFactory;
 import gda.epics.PV;
 import gda.epics.PVWithSeparateReadback;
 import gda.epics.ReadOnlyPV;
-
-import java.io.IOException;
+import gda.factory.Configurable;
+import gda.factory.FactoryException;
 
 /**
  * @author dfq16044
  *
  */
-public class XmapMappingModeEpicsLayerImpl extends CollectionMode implements XmapMappingModeEpicsLayer {
+public class XmapMappingModeEpicsLayerImpl extends CollectionMode implements XmapMappingModeEpicsLayer, Configurable {
+
+	private static final Logger logger = LoggerFactory.getLogger(XmapMappingModeEpicsLayerImpl.class);
 
 	/* Here the CollectMode will be not used as the PV is already created in the XmapAcquisitionBase class*/
 
@@ -39,7 +45,9 @@ public class XmapMappingModeEpicsLayerImpl extends CollectionMode implements Xma
 			 this.PVName = pvname;
 		 }
 		 @Override
-		public String toString(){return PVName;}
+		public String toString() {
+			return PVName;
+		}
 	}
 
 	private ReadOnlyPV<ListMode> ListMode_RBVPV;
@@ -54,17 +62,36 @@ public class XmapMappingModeEpicsLayerImpl extends CollectionMode implements Xma
 	private ReadOnlyPV<Integer> CurrentPixelPV;
 
 	private String basePVName;
-	CollectionModeEnum collectMode;
 
-	public XmapMappingModeEpicsLayerImpl(String basePVname) {
-		this.collectMode = CollectionModeEnum.MCA_MAPPING;
+	/**
+	 * Initial setting of pixels per buffer<br>
+	 * A value less than 1 means no initial setting
+	 */
+	private int initialPixelsPerBuffer;
+
+	public XmapMappingModeEpicsLayerImpl(String basePVname, int initialPixelsPerBuffer) {
 		this.basePVName = basePVname;
-		if (basePVname == null) {
-			throw new IllegalArgumentException("'basePVName' needs to be declared");
+		this.initialPixelsPerBuffer = initialPixelsPerBuffer;
+	}
+
+	@Override
+	public void configure() throws FactoryException {
+		logger.debug("Configuring XMAP mapping");
+		if (basePVName == null) {
+			throw new FactoryException("'basePVName' needs to be declared");
 		}
-		createMappingSettingsLazyPVs();
-		createPixelsPerBufferLazyPVs();
-		createRuntimeLazyPVs();
+		try {
+			if (initialPixelsPerBuffer > 0) {
+				setPixelsPerBuffer(initialPixelsPerBuffer);
+			}
+			createMappingSettingsLazyPVs();
+			createPixelsPerBufferLazyPVs();
+			createRuntimeLazyPVs();
+		} catch (Exception e) {
+			final String message = "Exception configuring XMAP mapping";
+			logger.error(message, e);
+			throw new FactoryException(message, e);
+		}
 	}
 
 	@Override
@@ -74,27 +101,27 @@ public class XmapMappingModeEpicsLayerImpl extends CollectionMode implements Xma
 
 	private void createMappingSettingsLazyPVs() {
 		ListMode_RBVPV = LazyPVFactory.newReadOnlyEnumPV(fullPVname(MappingSettingsPVname.ListMode_RBV.name()), ListMode.class);
-		PixelAdvanceModePV = new PVWithSeparateReadback<PixelAdvanceMode>(
+		PixelAdvanceModePV = new PVWithSeparateReadback<>(
 				LazyPVFactory.newEnumPV(fullPVname(MappingSettingsPVname.PixelAdvanceMode.name()), PixelAdvanceMode.class),
 				LazyPVFactory.newReadOnlyEnumPV(fullPVname(MappingSettingsPVname.PixelAdvanceMode_RBV.name()), PixelAdvanceMode.class));
-		SyncCountPV = new PVWithSeparateReadback<Integer>(
+		SyncCountPV = new PVWithSeparateReadback<>(
 					LazyPVFactory.newIntegerPV(fullPVname(MappingSettingsPVname.SyncCount.name())),
 					LazyPVFactory.newReadOnlyIntegerPV(fullPVname(MappingSettingsPVname.SyncCount_RBV.name())));
-		IgnoreGatePV = new PVWithSeparateReadback<Boolean>(
+		IgnoreGatePV = new PVWithSeparateReadback<>(
 				LazyPVFactory.newBooleanFromEnumPV(fullPVname(MappingSettingsPVname.IgnoreGate.name())),
 				LazyPVFactory.newReadOnlyBooleanFromEnumPV(fullPVname(MappingSettingsPVname.IgnoreGate_RBV.name())));
 		InputLogicPolarityPV = LazyPVFactory.newBooleanFromEnumPV(fullPVname(MappingSettingsPVname.InputLogicPolarity.name()));
-		PixelsperRunPV = new PVWithSeparateReadback<Integer>(
+		PixelsperRunPV = new PVWithSeparateReadback<>(
 				LazyPVFactory.newIntegerPV(fullPVname(MappingSettingsPVname.PixelsPerRun.name())),
 				LazyPVFactory.newReadOnlyIntegerPV(fullPVname(MappingSettingsPVname.PixelsPerRun_RBV.name())));
 	}
 
 
 	private void createPixelsPerBufferLazyPVs() {
-		AutoPixelsPerBufferPV = new PVWithSeparateReadback<Boolean>(
+		AutoPixelsPerBufferPV = new PVWithSeparateReadback<>(
 				LazyPVFactory.newBooleanFromEnumPV(fullPVname(PixelsPerBufferPVname.AutoPixelsPerBuffer.name())),
 				LazyPVFactory.newBooleanFromEnumPV(fullPVname(PixelsPerBufferPVname.AutoPixelsPerBuffer_RBV.name())));
-		PixelsPerBufferPV = new PVWithSeparateReadback<Integer>(
+		PixelsPerBufferPV = new PVWithSeparateReadback<>(
 				LazyPVFactory.newIntegerPV(fullPVname(PixelsPerBufferPVname.PixelsPerBuffer.name())),
 				LazyPVFactory.newReadOnlyIntegerPV(fullPVname(PixelsPerBufferPVname.PixelsPerBuffer_RBV.name())));
 	}
