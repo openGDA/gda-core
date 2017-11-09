@@ -209,16 +209,53 @@ public class EpicsXspress3ControllerPvProvider {
 	protected PV<Integer> pvHDFNumFramesChunks;
 	protected PV<Boolean> pvHDFLazyOpen;
 
+	// New PVs etc for using 'new' Epics interface.
+	private boolean useNewEpicsInterface = false;
+	private static String SCA_ARRAY_TEMPLATE = ":C%d_SCAS:%d:TSArrayValue"; // channel (1-8), scaler index (1-8) this points towards a waveform
+	private static String SCA_UPDATE_ARRAY_TEMPLATE = ":C%d_SCAS:TSControl"; // channel (1-8),
+	private static String SCA_ATTR_NAME_TEMPLATE = ":C%d_SCAS:%d:AttrName_RBV"; // channel (1-8),
+	protected ReadOnlyPV<String>[][] pvsSCAttrName;
+
+	public boolean getUseNewEpicsInterface() {
+		return useNewEpicsInterface;
+	}
+
+	public boolean setUseNewEpicsInterface(boolean useNewEpicsInterface) {
+		return this.useNewEpicsInterface = useNewEpicsInterface;
+	}
+
+	/**
+	 * Scaler index to use for different data types (new Xspress3 Epics interface)
+	 */
+	public enum ScalerIndex {
+		TIME(1),
+		RESET_TICKS(2),
+		RESET_COUNTS(3),
+		ALL_EVENT(4),
+		ALL_GOOD(5),
+		WINDOW_1(6),
+		WINDOW_2(7),
+		PILEUP(8);
+
+		private int index;
+
+		private ScalerIndex(int index) {
+			this.index = index;
+		}
+		public int getIndex() {
+			return index;
+		}
+	}
+
 	public EpicsXspress3ControllerPvProvider(String epicsTemplate, int numberOfDetectorChannels) throws FactoryException {
 		this.numberOfDetectorChannels = numberOfDetectorChannels;
 		if (epicsTemplate == null || epicsTemplate.isEmpty()){
 			throw new FactoryException("Epics template has not been set!");
 		}
 		this.epicsTemplate = epicsTemplate;
-		createPVs();
 	}
 
-	private void createPVs() {
+	public void createPVs() {
 		createControlPVs();
 		createFileWritingPVs();
 		createDisplayPVs();
@@ -316,10 +353,22 @@ public class EpicsXspress3ControllerPvProvider {
 		pvsLatestMCA = new ReadOnlyPV[numberOfDetectorChannels];
 		pvsLatestMCASummed = new ReadOnlyPV[numberOfDetectorChannels];
 
+		int numScalers = ScalerIndex.values().length;
+		pvsSCAttrName = new ReadOnlyPV[numberOfDetectorChannels][ScalerIndex.values().length];
+
 		for (int channel = 1; channel <= numberOfDetectorChannels; channel++){
-			pvsScalerWindow1[channel-1] = LazyPVFactory.newReadOnlyDoubleArrayPV(generatePVName(SCA_WIN1_SCAS_TEMPLATE,channel));
-			pvsScalerWindow2[channel-1] = LazyPVFactory.newReadOnlyDoubleArrayPV(generatePVName(SCA_WIN2_SCAS_TEMPLATE,channel));
-			pvsSCA5UpdateArrays[channel-1] = LazyPVFactory.newEnumPV(generatePVName(SCA5_UPDATE_ARRAYS_SCAS_TEMPLATE,channel),UPDATE_CTRL.class);
+			if (useNewEpicsInterface) {
+				pvsScalerWindow1[channel-1] = LazyPVFactory.newReadOnlyDoubleArrayPV(generatePVName(SCA_ARRAY_TEMPLATE, channel, ScalerIndex.WINDOW_1));
+				pvsScalerWindow2[channel-1] = LazyPVFactory.newReadOnlyDoubleArrayPV(generatePVName(SCA_ARRAY_TEMPLATE, channel, ScalerIndex.WINDOW_2));
+				pvsSCA5UpdateArrays[channel-1] = LazyPVFactory.newEnumPV(generatePVName(SCA_UPDATE_ARRAY_TEMPLATE, channel), UPDATE_CTRL.class);
+				for(int scalerNumber=1; scalerNumber<=numScalers; scalerNumber++) {
+					pvsSCAttrName[channel-1][scalerNumber-1] = LazyPVFactory.newReadOnlyStringPV(generatePVName(SCA_ATTR_NAME_TEMPLATE, channel, scalerNumber));
+				}
+			} else {
+				pvsScalerWindow1[channel-1] = LazyPVFactory.newReadOnlyDoubleArrayPV(generatePVName(SCA_WIN1_SCAS_TEMPLATE,channel));
+				pvsScalerWindow2[channel-1] = LazyPVFactory.newReadOnlyDoubleArrayPV(generatePVName(SCA_WIN2_SCAS_TEMPLATE,channel));
+				pvsSCA5UpdateArrays[channel-1] = LazyPVFactory.newEnumPV(generatePVName(SCA5_UPDATE_ARRAYS_SCAS_TEMPLATE,channel),UPDATE_CTRL.class);
+			}
 			pvsScaWin1Low[channel-1] = LazyPVFactory.newIntegerPV(generatePVName(SCA_WIN1_LOW_BIN_TEMPLATE,channel));
 			pvsScaWin1LowRBV[channel-1] = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(SCA_WIN1_LOW_BIN_RBV_TEMPLATE,channel));
 			pvsScaWin1High[channel-1] = LazyPVFactory.newIntegerPV(generatePVName(SCA_WIN1_HIGH_BIN_TEMPLATE,channel));
@@ -329,13 +378,22 @@ public class EpicsXspress3ControllerPvProvider {
 			pvsScaWin2High[channel-1] = LazyPVFactory.newIntegerPV(generatePVName(SCA_WIN2_HIGH_BIN_TEMPLATE,channel));
 			pvsScaWin2HighRBV[channel-1] = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(SCA_WIN2_HIGH_BIN_RBV_TEMPLATE,channel));
 
-			pvsTime[channel-1] = LazyPVFactory.newReadOnlyIntegerArrayPV(generatePVName(SCA_TIME_SCAS_TEMPLATE,channel));
-			pvsResetTicks[channel-1] = LazyPVFactory.newReadOnlyIntegerArrayPV(generatePVName(SCA_RESET_TICKS_SCAS_TEMPLATE,channel));
-			pvsResetCount[channel-1] = LazyPVFactory.newReadOnlyIntegerArrayPV(generatePVName(SCA_RESET_COUNT_TEMPLATE,channel));
-			pvsAllEvent[channel-1] = LazyPVFactory.newReadOnlyIntegerArrayPV(generatePVName(SCA_ALL_EVENT_TEMPLATE,channel));
-			pvsAllGood[channel-1] = LazyPVFactory.newReadOnlyIntegerArrayPV(generatePVName(SCA_ALL_GOOD_TEMPLATE,channel));
-			pvsPileup[channel-1] = LazyPVFactory.newReadOnlyIntegerArrayPV(generatePVName(SCA_PILEUP_TEMPLATE,channel));
+			if (useNewEpicsInterface) {
+				pvsTime[channel-1] = LazyPVFactory.newReadOnlyIntegerArrayPV(generatePVName(SCA_ARRAY_TEMPLATE, channel, ScalerIndex.TIME)); // time
+				pvsResetTicks[channel-1] = LazyPVFactory.newReadOnlyIntegerArrayPV(generatePVName(SCA_ARRAY_TEMPLATE, channel, ScalerIndex.RESET_TICKS)); //reset ticks
+				pvsResetCount[channel-1] = LazyPVFactory.newReadOnlyIntegerArrayPV(generatePVName(SCA_ARRAY_TEMPLATE, channel, ScalerIndex.RESET_COUNTS)); // reset count
+				pvsAllEvent[channel-1] = LazyPVFactory.newReadOnlyIntegerArrayPV(generatePVName(SCA_ARRAY_TEMPLATE, channel, ScalerIndex.ALL_EVENT)); //all event
+				pvsAllGood[channel-1] = LazyPVFactory.newReadOnlyIntegerArrayPV(generatePVName(SCA_ARRAY_TEMPLATE, channel, ScalerIndex.ALL_GOOD)); // all good
+				pvsPileup[channel-1] = LazyPVFactory.newReadOnlyIntegerArrayPV(generatePVName(SCA_ARRAY_TEMPLATE, channel, ScalerIndex.PILEUP)); // pileup
 
+			} else {
+				pvsTime[channel-1] = LazyPVFactory.newReadOnlyIntegerArrayPV(generatePVName(SCA_TIME_SCAS_TEMPLATE,channel));
+				pvsResetTicks[channel-1] = LazyPVFactory.newReadOnlyIntegerArrayPV(generatePVName(SCA_RESET_TICKS_SCAS_TEMPLATE,channel));
+				pvsResetCount[channel-1] = LazyPVFactory.newReadOnlyIntegerArrayPV(generatePVName(SCA_RESET_COUNT_TEMPLATE,channel));
+				pvsAllEvent[channel-1] = LazyPVFactory.newReadOnlyIntegerArrayPV(generatePVName(SCA_ALL_EVENT_TEMPLATE,channel));
+				pvsAllGood[channel-1] = LazyPVFactory.newReadOnlyIntegerArrayPV(generatePVName(SCA_ALL_GOOD_TEMPLATE,channel));
+				pvsPileup[channel-1] = LazyPVFactory.newReadOnlyIntegerArrayPV(generatePVName(SCA_PILEUP_TEMPLATE,channel));
+			}
 			pvsGoodEventGradient[channel-1] = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(ALL_GOOD_EVT_GRAD_TEMPLATE,channel));
 			pvsGoodEventOffset[channel-1] = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(ALL_GOOD_EVT_OFFSET_TEMPLATE,channel));
 			pvsInWinEventGradient[channel-1] = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(IN_WIN_EVT_GRAD_TEMPLATE,channel));
@@ -377,4 +435,7 @@ public class EpicsXspress3ControllerPvProvider {
 		return epicsTemplate + String.format(template, param1,param2);
 	}
 
+	private String generatePVName(String template, int param1, ScalerIndex param2) {
+		return epicsTemplate + String.format(template, param1, param2.getIndex());
+	}
 }

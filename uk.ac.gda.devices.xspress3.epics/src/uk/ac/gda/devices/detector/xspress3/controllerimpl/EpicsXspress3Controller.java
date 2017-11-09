@@ -69,12 +69,16 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 
 	private boolean epicsVersion2 = false;
 
+	private boolean useNewEpicsInterface = false;
+
 	@Override
 	public void configure() throws FactoryException {
 		if (epicsTemplate == null || epicsTemplate.isEmpty()) {
 			throw new FactoryException("Epics template has not been set!");
 		}
 		pvProvider = new EpicsXspress3ControllerPvProvider(epicsTemplate, numberOfDetectorChannels);
+		pvProvider.setUseNewEpicsInterface(useNewEpicsInterface);
+		pvProvider.createPVs();
 
 		try {
 			Boolean epicsConnectionToHardware = pvProvider.pvIsConnected.get() == CONNECTION_STATE.Connected;
@@ -113,6 +117,14 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 	public void doStart() throws DeviceException {
 		try {
 			pvProvider.pvErase.putWait(ERASE_STATE.Erase);
+
+			if (pvProvider.getUseNewEpicsInterface()) {
+				// call 'Erase/Start' on SCAS time series data for each channel/detector element
+				int numChannels = pvProvider.pvGetMaxNumChannels.get();
+				for(int i=0; i<numChannels; i++) {
+					pvProvider.pvsSCA5UpdateArrays[i].putWait(UPDATE_CTRL.Disable);
+				}
+			}
 			// nowait as the IOC does not send a callback (until all data
 			// collection finished I suppose, which is not what we want here)
 			pvProvider.pvAcquire.putNoWait(ACQUIRE_STATE.Acquire);
@@ -536,7 +548,11 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 			// before and we miss some points. The work around here is to update
 			// SCA5 array individually for each channel
 			for (int i = 0; i < maxNumChannels; i++) {
-				pvProvider.pvsSCA5UpdateArrays[i].putWait(UPDATE_CTRL.Enable);
+				if (pvProvider.getUseNewEpicsInterface()) {
+					pvProvider.pvsSCA5UpdateArrays[i].putWait(UPDATE_CTRL.Read);
+				} else {
+					pvProvider.pvsSCA5UpdateArrays[i].putWait(UPDATE_CTRL.Enable);
+				}
 			}
 		} catch (IOException e) {
 			throw new DeviceException("IOException while updating Xspress3 arrays", e);
@@ -908,4 +924,15 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 		this.epicsVersion2 = epicsVersion2;
 	}
 
+	public String getSCAAttrName(int channel, int scaler) throws IOException {
+		return pvProvider.pvsSCAttrName[channel][scaler].get();
+	}
+
+	public boolean getUseNewEpicsInterface() {
+		return useNewEpicsInterface;
+	}
+
+	public void setUseNewEpicsInterface(boolean useNewEpicsInterface) {
+		this.useNewEpicsInterface = useNewEpicsInterface;
+	}
 }
