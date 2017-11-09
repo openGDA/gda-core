@@ -40,12 +40,11 @@ import javax.jms.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.eventbus.api.IGDAEventBus;
-
-import com.google.common.base.Objects;
 import com.google.common.eventbus.DeadEvent;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
+
+import uk.ac.gda.eventbus.api.IGDAEventBus;
 
 /**
  * A Java-friendly route to a publish-subscribe message-oriented architecture
@@ -71,6 +70,8 @@ public class GDAEventBus extends EventBus implements IGDAEventBus {
 
 	public static final Logger logger = LoggerFactory.getLogger(GDAEventBus.class);
 
+	private String name;
+
 	private static GDAEventBus INSTANCE;
 
 	/**
@@ -83,7 +84,6 @@ public class GDAEventBus extends EventBus implements IGDAEventBus {
 		return INSTANCE;
 	}
 
-	private String identifier;
 	private final EventBus delegate;
 //	private ConnectionFactory connectionFactory;
 	private Connection connection;
@@ -93,9 +93,7 @@ public class GDAEventBus extends EventBus implements IGDAEventBus {
 	private MessageProducer producer;
 
 	public GDAEventBus(String identifier) {
-		this.identifier = identifier;
-
-		delegate = new EventBus(); //TODO use AsyncEventBus instead?
+		delegate = new EventBus(identifier); //TODO use AsyncEventBus instead?
 	}
 
 	public GDAEventBus() {
@@ -203,12 +201,6 @@ public class GDAEventBus extends EventBus implements IGDAEventBus {
 	}
 
 	@Override
-	public String identifier() {
-		return this.identifier;
-//		return delegate.identifier(); // only available in Guava > 16
-	}
-
-	@Override
 	public void register(Object handler) {
 		delegate.register(handler);
 	}
@@ -220,10 +212,7 @@ public class GDAEventBus extends EventBus implements IGDAEventBus {
 
 	@Override
 	public String toString() {
-		return Objects.toStringHelper(this)
-			.addValue(identifier)
-			.toString();
-//		return delegate.toString(); // does the same but with MoreObjects in Guava > 16
+		return delegate.toString();
 	}
 
 	/**
@@ -253,13 +242,13 @@ public class GDAEventBus extends EventBus implements IGDAEventBus {
 	}
 
 	@Override
-	public void setName(String name) {
-		this.identifier = name;
+	public String getName() {
+		return name;
 	}
 
 	@Override
-	public String getName() {
-		return this.identifier;
+	public void setName(String name) {
+		this.name = name;
 	}
 
 }
