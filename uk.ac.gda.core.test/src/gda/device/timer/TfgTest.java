@@ -19,18 +19,28 @@
 
 package gda.device.timer;
 
+import static gda.device.timer.Tfg.AUTO_CONTINUE_ATTR_NAME;
+import static gda.device.timer.Tfg.ENDIAN;
+import static gda.device.timer.Tfg.EXT_INHIBIT_ATTR_NAME;
+import static gda.device.timer.Tfg.EXT_START_ATTR_NAME;
+import static gda.device.timer.Tfg.HOST;
+import static gda.device.timer.Tfg.PASSWORD;
+import static gda.device.timer.Tfg.TOTAL_FRAMES;
+import static gda.device.timer.Tfg.USER;
+import static gda.device.timer.Tfg.VME_START_ATTR_NAME;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+
+import org.junit.BeforeClass;
+import org.junit.Test;
+
 import gda.device.DeviceException;
 import gda.device.Timer;
 import gda.device.detector.DummyDAServer;
 import gda.util.TestUtils;
 import gda.util.exceptionUtils;
-
-import org.junit.BeforeClass;
-import org.junit.Test;
 
 /**
  *
@@ -68,35 +78,35 @@ public class TfgTest {
 	 */
 	@Test
 	public void testSetAttribute() throws DeviceException {
-		tfg.setAttribute("Ext-Start", true);
-		assertTrue((Boolean) tfg.getAttribute("Ext-Start"));
-		tfg.setAttribute("Ext-Inhibit", true);
-		assertTrue((Boolean) tfg.getAttribute("Ext-Inhibit"));
-		tfg.setAttribute("VME-Start", true);
-		assertTrue((Boolean) tfg.getAttribute("VME_Start"));
-		tfg.setAttribute("Auto-Continue", true);
-		assertTrue((Boolean) tfg.getAttribute("Auto-Continue"));
+		tfg.setAttribute(EXT_START_ATTR_NAME, true);
+		assertTrue((Boolean) tfg.getAttribute(EXT_START_ATTR_NAME));
+		tfg.setAttribute(EXT_INHIBIT_ATTR_NAME, true);
+		assertTrue((Boolean) tfg.getAttribute(EXT_INHIBIT_ATTR_NAME));
+		tfg.setAttribute(VME_START_ATTR_NAME, true);
+		assertTrue((Boolean) tfg.getAttribute(VME_START_ATTR_NAME));
+		tfg.setAttribute(AUTO_CONTINUE_ATTR_NAME, true);
+		assertTrue((Boolean) tfg.getAttribute(AUTO_CONTINUE_ATTR_NAME));
 
-		tfg.setAttribute("Ext-Start", false);
-		assertFalse((Boolean) tfg.getAttribute("Ext-Start"));
-		tfg.setAttribute("Ext-Inhibit", false);
-		assertFalse((Boolean) tfg.getAttribute("Ext-Inhibit"));
-		tfg.setAttribute("VME-Start", false);
-		assertFalse((Boolean) tfg.getAttribute("VME_Start"));
-		tfg.setAttribute("Auto-Continue", false);
-		assertFalse((Boolean) tfg.getAttribute("Auto-Continue"));
+		tfg.setAttribute(EXT_START_ATTR_NAME, false);
+		assertFalse((Boolean) tfg.getAttribute(EXT_START_ATTR_NAME));
+		tfg.setAttribute(EXT_INHIBIT_ATTR_NAME, false);
+		assertFalse((Boolean) tfg.getAttribute(EXT_INHIBIT_ATTR_NAME));
+		tfg.setAttribute(VME_START_ATTR_NAME, false);
+		assertFalse((Boolean) tfg.getAttribute(VME_START_ATTR_NAME));
+		tfg.setAttribute(AUTO_CONTINUE_ATTR_NAME, false);
+		assertFalse((Boolean) tfg.getAttribute(AUTO_CONTINUE_ATTR_NAME));
 
-		tfg.setAttribute("User", "gm");
-		tfg.setAttribute("Password", "test");
-		tfg.setAttribute("Host", "testvig");
-		tfg.setAttribute("Endian", "intel");
+		tfg.setAttribute(USER, "gm");
+		tfg.setAttribute(PASSWORD, "test");
+		tfg.setAttribute(HOST, "testvig");
+		tfg.setAttribute(ENDIAN, "intel");
 
-		assertEquals("gm", tfg.getAttribute("User"));
-		assertEquals("gm", tfg.getAttribute("User"));
-		assertEquals("test", tfg.getAttribute("Password"));
-		assertEquals("testvig", tfg.getAttribute("Host"));
-		assertEquals("intel", tfg.getAttribute("Endian"));
-		assertEquals(0, tfg.getAttribute("TotalFrames"));
+		assertEquals("gm", tfg.getAttribute(USER));
+		assertEquals("gm", tfg.getAttribute(USER));
+		assertEquals("test", tfg.getAttribute(PASSWORD));
+		assertEquals("testvig", tfg.getAttribute(HOST));
+		assertEquals("intel", tfg.getAttribute(ENDIAN));
+		assertEquals(0, tfg.getAttribute(TOTAL_FRAMES));
 
 		assertEquals(tfg.getAttribute("rubbish"), null);
 		tfg.setAttribute(null, null);
@@ -140,8 +150,8 @@ public class TfgTest {
 	@Test
 	public void testGetTotalFrames() throws DeviceException {
 		tfg.setCycles(2);
-		tfg.setAttribute("Ext-Start", true);
-		tfg.setAttribute("Ext-Inhibit", true);
+		tfg.setAttribute(EXT_START_ATTR_NAME, true);
+		tfg.setAttribute(EXT_INHIBIT_ATTR_NAME, true);
 		tfg.addFrameSet(1, 1000, 2000);
 		tfg.addFrameSet(2, 1000, 2000, 0, 0, 0, 0);
 		tfg.addFrameSet(4, 1000, 2000, 0, 0, 0, 0);
@@ -184,16 +194,16 @@ public class TfgTest {
 	 */
 	@Test
 	public void testOutput() throws DeviceException {
-		tfg.setAttribute("User", "gm");
-		tfg.setAttribute("Password", null);
-		tfg.setAttribute("Host", "testvig");
-		tfg.setAttribute("Endian", "intel");
+		tfg.setAttribute(USER, "gm");
+		tfg.setAttribute(PASSWORD, null);
+		tfg.setAttribute(HOST, "testvig");
+		tfg.setAttribute(ENDIAN, "intel");
 		tfg.output(testScratchDirectoryName + "test01");
 
-		tfg.setAttribute("User", "gm");
-		tfg.setAttribute("Password", "test");
-		tfg.setAttribute("Host", "testvig");
-		tfg.setAttribute("Endian", "intel");
+		tfg.setAttribute(USER, "gm");
+		tfg.setAttribute(PASSWORD, "test");
+		tfg.setAttribute(HOST, "testvig");
+		tfg.setAttribute(ENDIAN, "intel");
 		tfg.output(testScratchDirectoryName + "test02");
 	}
 
@@ -204,7 +214,7 @@ public class TfgTest {
 	@Test
 	public void testStart() throws DeviceException {
 
-		tfg.setAttribute("VME-Start", true);
+		tfg.setAttribute(VME_START_ATTR_NAME, true);
 		tfg.addFrameSet(2, 100, 200, 0, 0, 0, 0);
 		tfg.addFrameSet(1, 100, 300, 0, 0, 0, 1);
 		tfg.addFrameSet(1, 100, 200, 0, 0, 1, 0);
@@ -277,7 +287,7 @@ public class TfgTest {
 		}
 		assertEquals(Timer.IDLE, tfg.getStatus());
 
-		tfg.setAttribute("VME-Start", false);
+		tfg.setAttribute(VME_START_ATTR_NAME, false);
 		tfg.countAsync(36000);
 		while (Timer.IDLE == tfg.getStatus()) {
 			synchronized (this) {
@@ -325,7 +335,7 @@ public class TfgTest {
 		int frame4 = 49;
 		int frame5 = 1;
 		int frame6 = 19;
-		tfg.setAttribute("VME-Start", true);
+		tfg.setAttribute(VME_START_ATTR_NAME, true);
 		tfg.addFrameSet(frame1, 1, 200, 0, 0, 0, 0);
 		tfg.addFrameSet(frame2, 1, 200, 0, 0, 0, 0);
 		tfg.addFrameSet(frame3,  2, 100, 0, 0, 1, 0);

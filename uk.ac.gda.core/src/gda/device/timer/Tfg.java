@@ -19,13 +19,6 @@
 
 package gda.device.timer;
 
-import gda.device.DeviceBase;
-import gda.device.DeviceException;
-import gda.device.Timer;
-import gda.device.TimerStatus;
-import gda.device.detector.DAServer;
-import gda.factory.Finder;
-
 import java.util.Date;
 import java.util.List;
 import java.util.Vector;
@@ -33,26 +26,39 @@ import java.util.Vector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.DeviceBase;
+import gda.device.DeviceException;
+import gda.device.Timer;
+import gda.device.TimerStatus;
+import gda.device.detector.DAServer;
+import gda.factory.Finder;
+
 /**
  * A timer class for the VME time frame generator card implemented using DA.Server
  */
 public class Tfg extends DeviceBase implements Timer, Runnable {
-
-	public static final String AUTO_CONTINUE_ATTR_NAME = "Auto-Continue";
-
-	public static final String EXT_START_ATTR_NAME = "Ext-Start";
-	public static final String AUTO_REARM_ATTR_NAME = "Auto-Rearm";
-
-	public static final String EXT_INHIBIT_ATTR_NAME = "Ext-Inhibit";
-
-	public static final String VME_START_ATTR_NAME = "VME-Start";
-
-	public static final String SOFTWARE_START_AND_TRIG_ATTR_NAME = "software triggering";
-
 	private static final Logger logger = LoggerFactory.getLogger(Tfg.class);
 
+	public static final String CYCLES = "Cycles";
+	public static final String FRAME_SETS = "FrameSets";
+	public static final String FRAMES_LOADED = "FramesLoaded";
+	public static final String VERSION = "Version";
+	public static final String TOTAL_EXP_TIME = "TotalExpTime";
+	public static final String TOTAL_FRAMES = "TotalFrames";
+	public static final String ENDIAN = "Endian";
+	public static final String HOST = "Host";
+	public static final String PASSWORD = "Password";
+	public static final String USER = "User";
+	public static final String AUTO_CONTINUE_ATTR_NAME = "Auto-Continue";
+	public static final String EXT_START_ATTR_NAME = "Ext-Start";
+	public static final String AUTO_REARM_ATTR_NAME = "Auto-Rearm";
+	public static final String EXT_INHIBIT_ATTR_NAME = "Ext-Inhibit";
+	public static final String VME_START_ATTR_NAME = "VME-Start";
+	public static final String SOFTWARE_START_AND_TRIG_ATTR_NAME = "software triggering";
 	private static final int EC740_MAXFRAME = 1024;
+
 	private static final String version = "Version 1";
+
 	protected DAServer daServer = null;
 	private String daServerName;
 	protected boolean extStart = false;
@@ -91,9 +97,9 @@ public class Tfg extends DeviceBase implements Timer, Runnable {
 
 		// find daserver if not set
 		if (daServer == null) {
-			logger.debug("Finding: " + daServerName);
-			if ((daServer = (DAServer) Finder.getInstance().find(daServerName)) == null) {
-				logger.error("Server " + daServerName + " not found");
+			logger.debug("Finding: {}", daServerName);
+			if ((daServer = Finder.getInstance().find(daServerName)) == null) {
+				logger.error("Server '{}' not found", daServerName);
 			}
 		}
 
@@ -186,7 +192,7 @@ public class Tfg extends DeviceBase implements Timer, Runnable {
 			String statusCommand = showArmed ? "tfg read status show-armed" : "tfg read status";
 			Object o = daServer.sendCommand(statusCommand);
 			if (o == null || !(o instanceof String)) {
-				logger.error("Tfg: getStatus(): DA.Server is not connected or returned something unexpected");
+				logger.error("Tfg: getStatus(): DA.Server is not connected or returned something unexpected: {}", o);
 			} else {
 				String status = (String) o;
 				if (status.equals("RUNNING")) {
@@ -293,7 +299,6 @@ public class Tfg extends DeviceBase implements Timer, Runnable {
 	public synchronized void start() throws DeviceException {
 		checkOKToSendCommand();
 		if (!framesLoaded) {
-			//loadFrameSets();
 			throw new DeviceException(getName() + " no frames loaded");
 		}
 
@@ -357,7 +362,7 @@ public class Tfg extends DeviceBase implements Timer, Runnable {
 
 		checkOKToSendCommand();
 
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 
 		sb.append("tfg setup-groups");
 		if (extStart) {
@@ -464,28 +469,47 @@ public class Tfg extends DeviceBase implements Timer, Runnable {
 	 */
 	@Override
 	public void setAttribute(String attributeName, Object value) throws DeviceException {
-		if (EXT_START_ATTR_NAME.equals(attributeName)) {
+		if (attributeName == null) {
+			logger.warn("Can't set null attribute to {}", value);
+			return;
+		}
+		logger.info("Setting {} to {}", attributeName, value);
+		switch (attributeName) {
+		case EXT_START_ATTR_NAME:
 			extStart = ((Boolean) value).booleanValue();
-		} else if (EXT_INHIBIT_ATTR_NAME.equals(attributeName)) {
+			return;
+		case EXT_INHIBIT_ATTR_NAME:
 			extInh = ((Boolean) value).booleanValue();
-		} else if (AUTO_REARM_ATTR_NAME.equals(attributeName)) {
+			return;
+		case AUTO_REARM_ATTR_NAME:
 			autoReArm = ((Boolean) value).booleanValue();
-		} else if (VME_START_ATTR_NAME.equals(attributeName)) {
+			return;
+		case VME_START_ATTR_NAME:
 			vmeStart = ((Boolean) value).booleanValue();
-		} else if (SOFTWARE_START_AND_TRIG_ATTR_NAME.equals(attributeName)) {
+			return;
+		case SOFTWARE_START_AND_TRIG_ATTR_NAME:
 			softwareTriggering = ((Boolean) value).booleanValue();
-		} else if (AUTO_CONTINUE_ATTR_NAME.equals(attributeName)) {
+			return;
+		case AUTO_CONTINUE_ATTR_NAME:
 			autoContinue = (Boolean) value ? 1 : 0;
 			checkOKToSendCommand();
 			daServer.sendCommand("tfg options auto-cont " + autoContinue);
-		} else if ("User".equals(attributeName)) {
+			return;
+		case USER:
 			user = (String) value;
-		} else if ("Password".equals(attributeName)) {
+			return;
+		case PASSWORD:
 			password = (String) value;
-		} else if ("Host".equals(attributeName)) {
+			return;
+		case HOST:
 			host = (String) value;
-		} else if ("Endian".equals(attributeName)) {
+			return;
+		case ENDIAN:
 			remoteEndian = (String) value;
+			return;
+		default:
+			logger.warn("Trying to set unrecognised attribute {} to {}", attributeName, value);
+			return;
 		}
 	}
 
@@ -498,42 +522,47 @@ public class Tfg extends DeviceBase implements Timer, Runnable {
 	 */
 	@Override
 	public Object getAttribute(String attributeName) {
-		Object obj = null;
-		if (EXT_START_ATTR_NAME.equals(attributeName)) {
-			obj = new Boolean(extStart);
-		} else if (EXT_INHIBIT_ATTR_NAME.equals(attributeName)) {
-			obj = new Boolean(extInh);
-		} else if (AUTO_REARM_ATTR_NAME.equals(attributeName)) {
-			obj = new Boolean(autoReArm);
-		} else if ("VME_Start".equals(attributeName)) {
-			obj = new Boolean(extInh);
-		} else if (AUTO_CONTINUE_ATTR_NAME.equals(attributeName)) {
-			obj = new Boolean((autoContinue == 1) ? true : false);
-		} else if (SOFTWARE_START_AND_TRIG_ATTR_NAME.equals(attributeName)) {
-			obj = new Boolean(softwareTriggering);
-		} else if ("User".equals(attributeName)) {
-			obj = user;
-		} else if ("Password".equals(attributeName)) {
-			obj = password;
-		} else if ("Host".equals(attributeName)) {
-			obj = host;
-		} else if ("Endian".equals(attributeName)) {
-			obj = remoteEndian;
-		} else if ("TotalFrames".equals(attributeName)) {
-			obj = getTotalFrames();
-		} else if ("TotalExptTime".equals(attributeName)) {
-			obj = getTotalExptTime();
-		} else if ("Version".equals(attributeName)) {
-			return version;
-		} else if ("FrameSets".equals(attributeName)) {
-			return getFramesets();
-		} else if ("FramesLoaded".equals(attributeName)) {
-			return framesLoaded;
-		} else if ("Cycles".equals(attributeName)) {
-			return cycles;
+		if (attributeName == null) {
+			logger.warn("Attempting to get null attribute");
+			return null;
 		}
-
-		return obj;
+		switch (attributeName) {
+		case EXT_START_ATTR_NAME:
+			return extStart;
+		case EXT_INHIBIT_ATTR_NAME:
+			return extInh;
+		case AUTO_REARM_ATTR_NAME:
+			return autoReArm;
+		case VME_START_ATTR_NAME:
+			return vmeStart;
+		case AUTO_CONTINUE_ATTR_NAME:
+			return autoContinue == 1;
+		case SOFTWARE_START_AND_TRIG_ATTR_NAME:
+			return softwareTriggering;
+		case USER:
+			return user;
+		case PASSWORD:
+			return password;
+		case HOST:
+			return host;
+		case ENDIAN:
+			return remoteEndian;
+		case TOTAL_FRAMES:
+			return getTotalFrames();
+		case TOTAL_EXP_TIME:
+			return getTotalExptTime();
+		case VERSION:
+			return version;
+		case FRAME_SETS:
+			return getFramesets();
+		case FRAMES_LOADED:
+			return framesLoaded;
+		case CYCLES:
+			return cycles;
+		default:
+			logger.warn("Trying to get unrecognised attribute {}", attributeName);
+			return null;
+		}
 	}
 
 	public double getCurrentLiveTime(int currentFrame) {

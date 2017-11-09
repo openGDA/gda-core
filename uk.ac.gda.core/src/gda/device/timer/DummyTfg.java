@@ -19,15 +19,20 @@
 
 package gda.device.timer;
 
-import gda.device.DeviceBase;
-import gda.device.Timer;
-import gda.device.TimerStatus;
+import static gda.device.timer.Tfg.EXT_INHIBIT_ATTR_NAME;
+import static gda.device.timer.Tfg.EXT_START_ATTR_NAME;
+import static gda.device.timer.Tfg.TOTAL_FRAMES;
+import static gda.device.timer.Tfg.VME_START_ATTR_NAME;
 
 import java.util.Date;
 import java.util.Vector;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.device.DeviceBase;
+import gda.device.Timer;
+import gda.device.TimerStatus;
 
 /**
  * A timer class for the VME time frame generator card implemented using DA.Server
@@ -281,13 +286,13 @@ public class DummyTfg extends DeviceBase implements Timer, Runnable {
 	 */
 	@Override
 	public void setAttribute(String attributeName, Object value) {
-		if (attributeName.equals("Ext-Start") && ((Boolean) value).booleanValue())
+		if (attributeName.equals(EXT_START_ATTR_NAME) && ((Boolean) value).booleanValue())
 			logger.error("Ext-Start option not available in DummyTFG implementation. Setting VMEStart");
 
-		else if (attributeName.equals("Ext-Inhibit") && ((Boolean) value).booleanValue())
+		else if (attributeName.equals(EXT_INHIBIT_ATTR_NAME) && ((Boolean) value).booleanValue())
 			logger.error("Ext-Inhibit option not available in DummyTFG implementation. Setting VMEStart");
 
-		else if (attributeName.equals("VME-Start"))
+		else if (attributeName.equals(VME_START_ATTR_NAME))
 			vmeStart = true;
 
 	}
@@ -304,16 +309,16 @@ public class DummyTfg extends DeviceBase implements Timer, Runnable {
 	public Object getAttribute(String attributeName) {
 		Object obj = null;
 
-		if (attributeName.equals("Ext-Start"))
+		if (attributeName.equals(EXT_START_ATTR_NAME))
 			obj = new Boolean(extStart);
 
-		else if (attributeName.equals("Ext-Inhibit"))
+		else if (attributeName.equals(EXT_INHIBIT_ATTR_NAME))
 			obj = new Boolean(extInh);
 
-		else if (attributeName.equals("VME-Start"))
+		else if (attributeName.equals(VME_START_ATTR_NAME))
 			obj = new Boolean(vmeStart);
 
-		else if (attributeName.equals("TotalFrames"))
+		else if (attributeName.equals(TOTAL_FRAMES))
 			obj = new Integer(totalFrames);
 
 		return obj;

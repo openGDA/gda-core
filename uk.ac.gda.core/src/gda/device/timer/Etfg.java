@@ -19,17 +19,28 @@
 
 package gda.device.timer;
 
-import gda.device.DeviceException;
-
 import java.util.ArrayList;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import gda.device.DeviceException;
 
 /**
  * A timer class for the VME time frame generator (Version 2) card implemented using DA.Server
  * Extended Tfg.  Tfg is the original hardware.
  */
 public class Etfg extends Tfg {
+	public static final String START_METHOD = "Start-Method";
+	public static final String DEBOUNCE = "Debounce";
+	public static final String DRIVE = "Drive";
+	public static final String THRESHOLD = "Threshold";
+	public static final String INVERSION = "Inversion";
+
+	private static final Logger logger = LoggerFactory.getLogger(Etfg.class);
 	private static int MAXFRAMES = 32767;
 	private static final String version = "Version 2";
+
 	protected ArrayList<Double> debounceValues;
 	protected ArrayList<Double> thresholdValues;
 	protected int drive = 0;
@@ -57,20 +68,32 @@ public class Etfg extends Tfg {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void setAttribute(String attributeName, Object value) throws DeviceException {
-		if ("Debounce".equals(attributeName)) {
+		if (attributeName == null) {
+			logger.warn("Can't set null attribute to {}", value);
+			return;
+		}
+		logger.info("Setting {} to {}", attributeName, value);
+		switch (attributeName) {
+		case DEBOUNCE:
 			debounceValues = (ArrayList<Double>) value;
-		} else if ("Threshold".equals(attributeName)) {
+			break;
+		case THRESHOLD:
 			thresholdValues = (ArrayList<Double>) value;
-		} else if ("Inversion".equals(attributeName)) {
+			break;
+		case INVERSION:
 			inversion = (Integer) value;
 			setDriveAndInversion(drive, inversion);
-		} else if ("Drive".equals(attributeName)) {
+			break;
+		case DRIVE:
 			drive = (Integer) value;
 			setDriveAndInversion(drive, inversion);
-		} else if ("Start-Method".equals(attributeName)) {
+			break;
+		case START_METHOD:
 			startMethod = (Integer) value;
 			setStartMethod(startMethod);
-
+			break;
+		default:
+			break;
 		}
 		super.setAttribute(attributeName, value);
 	}
@@ -136,19 +159,25 @@ public class Etfg extends Tfg {
 
 	@Override
 	public Object getAttribute(String attributeName) {
-		if ("Version".equals(attributeName)) {
-			return version;
-		} else if ("Debounce".equals(attributeName)) {
-			return debounceValues;
-		} else if ("Threshold".equals(attributeName)) {
-			return thresholdValues;
-		} else if ("Inversion".equals(attributeName)) {
-			return inversion;
-		} else if ("Drive".equals(attributeName)) {
-			return drive;
-		} else if ("Start-Method".equals(attributeName)) {
-			return startMethod;
+		if (attributeName == null) {
+			logger.warn("Trying to get null attribute");
+			return null;
 		}
-		return super.getAttribute(attributeName);
+		switch (attributeName) {
+		case "Version":
+			return version;
+		case DEBOUNCE:
+			return debounceValues;
+		case THRESHOLD:
+			return thresholdValues;
+		case INVERSION:
+			return inversion;
+		case DRIVE:
+			return drive;
+		case START_METHOD:
+			return startMethod;
+		default:
+			return super.getAttribute(attributeName);
+		}
 	}
 }
