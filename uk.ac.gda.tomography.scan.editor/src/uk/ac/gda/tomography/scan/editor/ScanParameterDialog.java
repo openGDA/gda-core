@@ -19,7 +19,11 @@
 package uk.ac.gda.tomography.scan.editor;
 
 import org.eclipse.core.databinding.DataBindingContext;
+import org.eclipse.core.databinding.UpdateValueStrategy;
 import org.eclipse.core.databinding.beans.PojoProperties;
+import org.eclipse.core.databinding.conversion.IConverter;
+import org.eclipse.core.databinding.conversion.NumberToStringConverter;
+import org.eclipse.core.databinding.conversion.StringToNumberConverter;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
@@ -38,6 +42,8 @@ import org.eclipse.swt.widgets.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.ibm.icu.text.NumberFormat;
+
 import gda.commandqueue.JythonCommandCommandProvider;
 import gda.jython.InterfaceProvider;
 import uk.ac.gda.client.CommandQueueViewFactory;
@@ -48,6 +54,10 @@ public class ScanParameterDialog extends Dialog {
 
 	private static final Logger logger = LoggerFactory.getLogger(ScanParameterDialog.class);
 	private static final String STASH_NAME = "uk.ac.gda.tomography.scan.editor.tomographyscanmodel.json";
+	/**
+	 * Used for converter in bindings to doubles
+	 */
+	private static final int 	DECIMAL_PLACES = 4;
 
 	private TomoScanParameters model;
 	private DataBindingContext ctx;
@@ -107,7 +117,7 @@ public class ScanParameterDialog extends Dialog {
 		bindCombo(editor.getRotationStage(), "rotationStage");
 		bindCombo(editor.getLinearStage(), "linearStage");
 		bindButton(editor.getSendDataToTempDirectory(), "sendDataToTempDirectory");
-		bindText(editor.getTitle(), "title");
+		bindSimpleText(editor.getTitle(), "title");
 		bindText(editor.getExposure(), "exposureTime");
 		bindText(editor.getMinI(), "minI");
 		bindText(editor.getInBeamPosition(), "inBeamPosition");
@@ -115,22 +125,22 @@ public class ScanParameterDialog extends Dialog {
 		bindText(editor.getStart(), "start");
 		bindText(editor.getStop(), "stop");
 		bindText(editor.getStep(), "step");
-		bindText(editor.getImagesPerDark(), "imagesPerDark");
-		bindText(editor.getDarkFieldInterval(), "darkFieldInterval");
-		bindText(editor.getImagesPerFlat(), "imagesPerFlat");
-		bindText(editor.getFlatFieldInterval(), "flatFieldInterval");
+		bindSimpleText(editor.getImagesPerDark(), "imagesPerDark");
+		bindSimpleText(editor.getDarkFieldInterval(), "darkFieldInterval");
+		bindSimpleText(editor.getImagesPerFlat(), "imagesPerFlat");
+		bindSimpleText(editor.getFlatFieldInterval(), "flatFieldInterval");
 		bindButton(editor.getFlyScan(), "flyScan");
 		bindButton(editor.getExtraFlatsAtEnd(), "extraFlatsAtEnd");
-		bindText(editor.getNumFlyScans(), "numFlyScans");
+		bindSimpleText(editor.getNumFlyScans(), "numFlyScans");
 		bindText(editor.getFlyScanDelay(), "flyScanDelay");
 		bindButton(editor.getCloseShutterAfterLastScan(), "closeShutterAfterLastScan");
-		bindText(editor.getDetectorToSampleDistance(), "detectorToSampleDistance");
+		bindSimpleText(editor.getDetectorToSampleDistance(), "detectorToSampleDistance");
 		bindCombo(editor.getDetectorToSampleDistanceUnits(),"detectorToSampleDistanceUnits");
-		bindText(editor.getxPixelSize(), "xPixelSize");
+		bindSimpleText(editor.getxPixelSize(), "xPixelSize");
 		bindCombo(editor.getxPixelSizeUnits(), "xPixelSizeUnits");
-		bindText(editor.getyPixelSize(), "yPixelSize");
+		bindSimpleText(editor.getyPixelSize(), "yPixelSize");
 		bindCombo(editor.getyPixelSizeUnits(), "yPixelSizeUnits");
-		bindText(editor.getApproxCentreOfRotation(), "approxCentreOfRotation");
+		bindSimpleText(editor.getApproxCentreOfRotation(), "approxCentreOfRotation");
 	}
 
 	private void bindCombo(Combo combo, String property) {
@@ -144,8 +154,27 @@ public class ScanParameterDialog extends Dialog {
 	}
 
 	private void bindText(Text text, String property) {
-		ctx.bindValue(WidgetProperties.text(SWT.Modify).observe(text),
-				PojoProperties.value(property).observe(model));
+		NumberFormat fourDecimalPlacesFormat = NumberFormat.getNumberInstance();
+		fourDecimalPlacesFormat.setMaximumFractionDigits(DECIMAL_PLACES);
+		IConverter targetToModelConverter = StringToNumberConverter.toDouble(fourDecimalPlacesFormat, true);
+		IConverter modelToTargetConverter = NumberToStringConverter.fromDouble(fourDecimalPlacesFormat, true);
+		ctx.bindValue(
+				WidgetProperties.text(SWT.Modify).observe(text),
+				PojoProperties.value(property).observe(model),
+				new UpdateValueStrategy().setConverter(targetToModelConverter),
+				new UpdateValueStrategy().setConverter(modelToTargetConverter));
+	}
+
+	/**
+	 * Use for binding Text widget to String / int (no NumberFormat needed)
+	 * @param text
+	 * @param property
+	 */
+	private void bindSimpleText(Text text, String property) {
+		ctx.bindValue(
+				WidgetProperties.text(SWT.Modify).observe(text),
+				PojoProperties.value(property).observe(model)
+				);
 	}
 
 	@Override
