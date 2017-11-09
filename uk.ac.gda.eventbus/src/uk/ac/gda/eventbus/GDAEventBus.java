@@ -69,6 +69,7 @@ import uk.ac.gda.eventbus.api.IGDAEventBus;
 public class GDAEventBus extends EventBus implements IGDAEventBus {
 
 	public static final Logger logger = LoggerFactory.getLogger(GDAEventBus.class);
+	private static final String DEFAULT_IDENTIFIER = "default";
 
 	private String name;
 
@@ -85,10 +86,8 @@ public class GDAEventBus extends EventBus implements IGDAEventBus {
 	}
 
 	private final EventBus delegate;
-//	private ConnectionFactory connectionFactory;
 	private Connection connection;
 	private Session session;
-//	private String destinationName;
 	private MessageConsumer consumer;
 	private MessageProducer producer;
 
@@ -97,19 +96,19 @@ public class GDAEventBus extends EventBus implements IGDAEventBus {
 	}
 
 	public GDAEventBus() {
-		this("default");
+		this(DEFAULT_IDENTIFIER);
 	}
 
 	public GDAEventBus(ConnectionFactory connectionFactory) {
-		this("default", connectionFactory);
+		this(DEFAULT_IDENTIFIER, connectionFactory);
 	}
 
 	public GDAEventBus(ConnectionFactory connectionFactory, String destinationName) {
-		this("default", connectionFactory, destinationName);
+		this(DEFAULT_IDENTIFIER, connectionFactory, destinationName);
 	}
 
 	public GDAEventBus(ConnectionFactory connectionFactory, String destinationName, boolean isDestinationTopicElseQueue) {
-		this("default", connectionFactory, destinationName, isDestinationTopicElseQueue);
+		this(DEFAULT_IDENTIFIER, connectionFactory, destinationName, isDestinationTopicElseQueue);
 	}
 
 	public GDAEventBus(String identifier, ConnectionFactory connectionFactory) {
@@ -156,8 +155,7 @@ public class GDAEventBus extends EventBus implements IGDAEventBus {
 			// Clean up
 			// cleanUp(); //TODO when?
 		} catch (JMSException e) {
-			System.out.println("Caught: " + e);
-			e.printStackTrace();
+			logger.error("Error connecting to ActiveMQ", e);
 		}
 	}
 
