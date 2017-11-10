@@ -43,10 +43,10 @@ import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBRType;
 import gov.aps.jca.dbr.DBR_Byte;
 import gov.aps.jca.dbr.DBR_Double;
+import gov.aps.jca.dbr.DBR_Enum;
 import gov.aps.jca.dbr.DBR_Float;
 import gov.aps.jca.dbr.DBR_Int;
 import gov.aps.jca.dbr.DBR_Short;
-import gov.aps.jca.dbr.DBR_String;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 
@@ -105,6 +105,7 @@ public class EpicsV3DynamicDatasetConnector implements IDatasetConnector {
 	private DBRType dataType = null;
 	private long lastSystemTime = System.currentTimeMillis();
 	private ILazyDataset dataset;
+	private String[] colourModes;
 
 	/**
 	 * Constructor, takes the name of the base plugin name
@@ -209,6 +210,8 @@ public class EpicsV3DynamicDatasetConnector implements IDatasetConnector {
 			numDimensions = EPICS_CONTROLLER.cagetInt(numDimCh);
 			colourMode = EPICS_CONTROLLER.cagetString(colourModeCh);
 			dataTypeStr = EPICS_CONTROLLER.cagetString(dataTypeCh);
+
+			colourModes=EPICS_CONTROLLER.cagetLabels(colourModeCh);
 
 			int dataSize = calculateAndUpdateDataSize();
 			// Without specifying data size in cagets, they will always try to get max data size, which could be >> actual data, causing timeouts.
@@ -570,11 +573,11 @@ public class EpicsV3DynamicDatasetConnector implements IDatasetConnector {
 							updateDataChannelMonitor();
 						}
 					} else if (channelName.equalsIgnoreCase(colourModePV)) {
-						DBR_String dbrs = (DBR_String) dbr;
-						String value = dbrs.getStringValue()[0];
-						if (colourMode != value) {
-							colourMode = value;
-							logger.debug("New colourModePV value '{} 'from {}", value, colourModePV);
+						DBR_Enum dbrs = (DBR_Enum) dbr;
+						short value = dbrs.getEnumValue()[0];
+						if (colourMode != colourModes[value]) {
+							colourMode = colourModes[value];
+							logger.debug("New colourModePV value '{} 'from {}", colourModes[value], colourMode);
 							updateDataChannelMonitor();
 						}
 					} else {
