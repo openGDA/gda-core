@@ -59,7 +59,8 @@ public class PolygonMappingRegion implements IMappingScanRegionShape {
 	public void setPoints(List<MutablePoint> newValue) {
 		List<MutablePoint> oldvalue = this.points;
 		this.points = newValue;
-		this.pcs.firePropertyChange("points", oldvalue, newValue);
+		// PCS will always be fired
+		this.pcs.firePropertyChange("points", null, newValue);
 	}
 
 	@Override

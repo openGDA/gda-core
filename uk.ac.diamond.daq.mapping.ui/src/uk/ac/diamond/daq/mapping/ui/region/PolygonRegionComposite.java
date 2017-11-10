@@ -21,30 +21,42 @@ package uk.ac.diamond.daq.mapping.ui.region;
 import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Pattern;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.viewers.ArrayContentProvider;
+import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
+import org.eclipse.jface.viewers.ColumnWeightData;
+import org.eclipse.jface.viewers.EditingSupport;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
-import org.eclipse.scanning.api.points.Point;
+import org.eclipse.jface.viewers.TextCellEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 
+import uk.ac.diamond.daq.mapping.region.MutablePoint;
 import uk.ac.diamond.daq.mapping.region.PolygonMappingRegion;
 import uk.ac.diamond.daq.mapping.ui.experiment.AbstractRegionAndPathComposite;
 
 public class PolygonRegionComposite extends AbstractRegionAndPathComposite {
 
-	private final int columnWidth = 130;
 	private TableViewer polygonTableViewer;
 	private PolygonMappingRegion polygonRegion;
-	private PropertyChangeListener listener = (evt ->
-	{polygonTableViewer.setInput(((PolygonMappingRegion) evt.getSource()).getPoints());
-		polygonTableViewer.refresh();});
+	private enum Axis {X, Y}
+	private List<MutablePoint> polyPoints = new ArrayList<>(10);
+	private Pattern pattern = Pattern.compile("-?\\d+\\.?\\d*");
+	private PropertyChangeListener regionPointsListener = evt -> {
+		this.polyPoints = ((PolygonMappingRegion) evt.getSource()).getPoints();
+		polygonTableViewer.setInput(this.polyPoints);
+		polygonTableViewer.refresh();
+	};
 
 	public PolygonRegionComposite(Composite parent, PolygonMappingRegion region) {
 		super(parent, SWT.NONE);
@@ -52,61 +64,125 @@ public class PolygonRegionComposite extends AbstractRegionAndPathComposite {
 		this.polygonRegion = region;
 
 		// Set the layout of the main composite area
-		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER).hint(SWT.DEFAULT, 200)
-				.applyTo(this);
+		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER)
+		.applyTo(this);
 		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(this);
 
+		Composite tableComposite = new Composite(this, SWT.NONE);
+		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).grab(true, true).hint(SWT.DEFAULT, 110)
+		.applyTo(tableComposite);
+
 		// Create the table
-		polygonTableViewer = new TableViewer(this,
+		polygonTableViewer = new TableViewer(tableComposite,
 				SWT.MULTI | SWT.H_SCROLL | SWT.FULL_SELECTION | SWT.BORDER);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).grab(true, true)
-				.hint(SWT.DEFAULT, 110).applyTo(polygonTableViewer.getControl());
+		.applyTo(polygonTableViewer.getControl());
 
 		createColumns(polygonTableViewer);
 
 		// make lines and header visible
 		final Table table = polygonTableViewer.getTable();
+		TableColumnLayout tableLayout = new TableColumnLayout();
+		tableComposite.setLayout(tableLayout);
+		for (TableColumn tc : table.getColumns()) {
+			tableLayout.setColumnData(tc, new ColumnWeightData(50));
+		}
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
 
 		polygonTableViewer.setContentProvider(new ArrayContentProvider());
 		polygonTableViewer.setInput(region.getPoints());
-		region.addPropertyChangeListener(listener);
+		region.addPropertyChangeListener(regionPointsListener);
 
 	}
 
 	private void createColumns(TableViewer polygonTableViewer) {
 
 		// X column
-		TableViewerColumn xCol = createTableViewerColumn(polygonTableViewer, "X (mm)", columnWidth);
+		TableViewerColumn xCol = createTableViewerColumn(polygonTableViewer, "X (mm)");
 		xCol.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
-				Point p = (Point) element;
+				MutablePoint p = (MutablePoint) element;
 				return String.valueOf(round(p.getX(), 4));
 			}
 		});
 
+		xCol.setEditingSupport(new PointEditingSupport(polygonTableViewer, Axis.X));
+		xCol.getColumn().setToolTipText("Edit X position of vertex");
 
 		// Y column
-		TableViewerColumn yCol = createTableViewerColumn(polygonTableViewer, "Y (mm)", columnWidth);
+		TableViewerColumn yCol = createTableViewerColumn(polygonTableViewer, "Y (mm)");
 		yCol.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
-				Point p = (Point) element;
+				MutablePoint p = (MutablePoint) element;
 				return String.valueOf(round(p.getY(), 4));
 			}
 		});
 
+		yCol.setEditingSupport(new PointEditingSupport(polygonTableViewer, Axis.Y));
+		yCol.getColumn().setToolTipText("Edit Y position of vertex");
+
 	}
 
-	private TableViewerColumn createTableViewerColumn(final TableViewer viewer, final String title, final int width) {
+	private TableViewerColumn createTableViewerColumn(final TableViewer viewer, final String title) {
 		final TableViewerColumn viewerColumn = new TableViewerColumn(viewer, SWT.CENTER);
 		final TableColumn column = viewerColumn.getColumn();
 		column.setText(title);
-		column.setWidth(width);
 		column.setResizable(true);
 		return viewerColumn;
+	}
+
+	private class PointEditingSupport extends EditingSupport {
+
+		private CellEditor cellEditor;
+		private Axis axis;
+
+		public PointEditingSupport(TableViewer viewer, Axis axis) {
+			super(viewer);
+			this.axis = axis;
+			cellEditor = new TextCellEditor((Composite) viewer.getControl());
+		}
+
+		@Override
+		protected CellEditor getCellEditor(Object element) {
+			return cellEditor;
+		}
+
+		@Override
+		protected boolean canEdit(Object element) {
+			return true;
+		}
+
+		@Override
+		protected Object getValue(Object element) {
+			if (axis == Axis.X) {
+				return Double.toString(round(((MutablePoint) element).getX(), 4));
+			} else {
+				return Double.toString(round(((MutablePoint) element).getY(), 4));
+			}
+		}
+
+		@Override
+		protected void setValue(Object element, Object value) {
+			// Ensure only numbers are entered as values
+			if (!pattern.matcher((String) value).matches())
+				return;
+			// polyPoints is empty if user has switched region types, so replenish with fresh points
+			if (polyPoints.isEmpty()) {
+				polyPoints = polygonRegion.getPoints();
+			}
+
+			if (axis == Axis.X) {
+				((MutablePoint) element).setX(Double.valueOf((String) value));
+			} else {
+				((MutablePoint) element).setY(Double.valueOf((String) value));
+			}
+
+			polygonRegion.setPoints(polyPoints);
+			polygonTableViewer.refresh();
+		}
 	}
 
 	private double round(double value, int places) {
@@ -120,7 +196,7 @@ public class PolygonRegionComposite extends AbstractRegionAndPathComposite {
 
 	@Override
 	public void dispose() {
-		polygonRegion.removePropertyChangeListener(listener);
+		polygonRegion.removePropertyChangeListener(regionPointsListener);
 		super.dispose();
 	}
 
