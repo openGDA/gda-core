@@ -19,15 +19,15 @@
 
 package gda.util.converters;
 
-import gda.function.ColumnDataFile;
-import gda.function.InterpolationFunction;
-import gda.function.InterpolationWithoutExtrapolationFunction;
-
 import java.util.ArrayList;
 
 import org.jscience.physics.quantities.Quantity;
 import org.jscience.physics.units.Unit;
 import org.springframework.util.StringUtils;
+
+import gda.function.ColumnDataFile;
+import gda.function.InterpolationFunction;
+import gda.function.InterpolationWithoutExtrapolationFunction;
 
 /**
  * Class to perform conversion between a Source and Target quantity using a lookup table
@@ -194,9 +194,9 @@ public final class LookupTableQuantityConverter implements IQuantityConverter {
 							+ this.toString());
 		}
 		final Unit<? extends Quantity> acceptableUnits = getAcceptableTargetUnits().get(0);
-		if (!target.getUnit().equals(acceptableUnits)) {
+		if (!target.getUnit().isCompatible(acceptableUnits)) {
 			throw new InvalidUnitsException("LookupTableQuantityConverter.toSource: target units ("
-					+ target.getUnit() + ") do not match acceptable units (" + acceptableUnits + "). "
+					+ target.getUnit() + ") are not compatible with acceptable units (" + acceptableUnits + "). "
 					+ this.toString());
 		}
 		try {
@@ -218,9 +218,9 @@ public final class LookupTableQuantityConverter implements IQuantityConverter {
 							+ this.toString());
 		}
 		final Unit<? extends Quantity> acceptableUnits = getAcceptableSourceUnits().get(0);
-		if (!source.getUnit().equals(acceptableUnits)) {
+		if (!source.getUnit().isCompatible(acceptableUnits)) {
 			throw new InvalidUnitsException("LookupTableQuantityConverter.toTarget: source units ("
-					+ source.getUnit() + ") do not match acceptable units (" + acceptableUnits + "). "
+					+ source.getUnit() + ") are not compatible with acceptable units (" + acceptableUnits + "). "
 					+ this.toString());
 		}
 		try {

@@ -21,12 +21,14 @@ package gda.util.converters;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-import gda.configuration.properties.LocalProperties;
-import gda.util.converters.LookupTableQuantityConverter.Mode;
 
 import org.jscience.physics.quantities.Quantity;
+import org.jscience.physics.units.Unit;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import gda.configuration.properties.LocalProperties;
+import gda.util.converters.LookupTableQuantityConverter.Mode;
 
 /**
  * LookupTableQuantityConverterTest Class. It is assumed the that working directory points to the test folder above gda
@@ -307,7 +309,7 @@ public class LookupTableQuantityConverterTest {
 	}
 
 	@Test
-	public final void testUnits() throws Exception {
+	public final void testIncompatibleUnits() throws Exception {
 		LookupTableQuantityConverter converter = new LookupTableQuantityConverter("mmToDeg.txt", false, 0, 1);
 		LookupTableQuantityConverter dummyToGetUnits = new LookupTableQuantityConverter("DegToAngstrom.txt", false, 0,
 				1);
@@ -318,6 +320,16 @@ public class LookupTableQuantityConverterTest {
 		} catch (InvalidUnitsException e) {
 			// expected
 		}
+	}
+
+	@Test
+	public final void testCompatibleUnitsConvert() throws Exception {
+		LookupTableQuantityConverter converter = new LookupTableQuantityConverter("mmToDeg.txt", false, 0, 1);
+		Unit<?> unit = Unit.valueOf("Angstrom");
+		// 1 angstrom == 1e-7 mm
+		Quantity toConvert = Quantity.valueOf(1e4, unit);
+		Quantity result = converter.toTarget(toConvert);
+		assertEquals(1e-3, result.getAmount(), 1e-9);
 	}
 
 	@Test
