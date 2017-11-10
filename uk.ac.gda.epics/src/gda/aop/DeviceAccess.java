@@ -18,8 +18,6 @@
 
 package gda.aop;
 
-import java.util.Arrays;
-
 import gda.device.DeviceException;
 import gda.device.enumpositioner.EpicsSimpleMbbinary;
 
@@ -44,10 +42,6 @@ public class DeviceAccess {
 			throw new IllegalStateException("Epics Controller scannable is not set.");
 		}
 
-		String[] positions = controller.getPositions();
-		if (!Arrays.asList(positions).contains(endStation)) {
-			throw new IllegalArgumentException("Value of endStation is must be one of "+positions);
-		}
 	}
 
 	public EpicsSimpleMbbinary getController() {
