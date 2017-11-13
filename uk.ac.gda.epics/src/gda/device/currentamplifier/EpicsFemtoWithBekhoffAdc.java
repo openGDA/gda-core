@@ -66,10 +66,10 @@ public class EpicsFemtoWithBekhoffAdc extends DetectorBase implements NexusDetec
 	private static final Logger logger = LoggerFactory.getLogger(EpicsFemtoWithBekhoffAdc.class);
 
 	// Values internal to the object for Channel Access
-	private final EpicsController EPICS_CONTROLLER = EpicsController.getInstance();
+	private final transient EpicsController EPICS_CONTROLLER = EpicsController.getInstance();
 	private String basePVName = null;
 	// Map that stores the channel against the PV name
-	private Map<String, Channel> channelMap = new HashMap<>();
+	private transient Map<String, Channel> channelMap = new HashMap<>();
 
 	// Data PVs Although these are called I they are actually voltages from the Femto output measured by the ADC
 	private static final String I_INSTANTANEOUS = "I";
@@ -119,7 +119,7 @@ public class EpicsFemtoWithBekhoffAdc extends DetectorBase implements NexusDetec
 	private double upperVoltageBound = 10; // V. If ADC input is above this decrease gain
 
 	// This latch is used when acquiring to block while ADC acquires
-	private CountDownLatch acquiringLatch = new CountDownLatch(0);
+	private transient CountDownLatch acquiringLatch = new CountDownLatch(0);
 
 	// This is used to only add scan metadata when required
 	private boolean firstReadoutInScan;
@@ -128,7 +128,7 @@ public class EpicsFemtoWithBekhoffAdc extends DetectorBase implements NexusDetec
 	private boolean adcEnable;
 	private boolean adcRetrigger;
 	// This monitors the ADC state and is used to decrement the acquiring latch once the acquire is finished
-	private final MonitorListener adcStateMonitor = ev -> {
+	private final transient MonitorListener adcStateMonitor = ev -> {
 		logger.trace("Received update from ADC state");
 		// If the ADC state has changed to waiting its not busy so decrement the latch
 		if (((short[]) ev.getDBR().getValue())[0] == 0) {
@@ -235,24 +235,23 @@ public class EpicsFemtoWithBekhoffAdc extends DetectorBase implements NexusDetec
 
 		logger.trace("Creating internal lookup maps");
 		gainStringToModeMap = new HashMap<>();
-		for (String mode : modeToGainToGainStringMap.keySet()) {
-			Map<Double, String> modeMap = modeToGainToGainStringMap.get(mode);
+		for (Entry<String, Map<Double, String>> mode : modeToGainToGainStringMap.entrySet()) {
+			Map<Double, String> modeMap = mode.getValue();
 			for (String epicsString : modeMap.values()) {
-				gainStringToModeMap.put(epicsString, mode);
+				gainStringToModeMap.put(epicsString, mode.getKey());
 			}
 		}
 		gainStringToGainMap = new HashMap<>();
-		for (String mode : modeToGainToGainStringMap.keySet()) {
-			Map<Double, String> modeMap = modeToGainToGainStringMap.get(mode);
+		for (Map<Double, String> modeMap : modeToGainToGainStringMap.values()) {
 			for (Entry<Double, String> gainEntry : modeMap.entrySet()) {
 				gainStringToGainMap.put(gainEntry.getValue(), gainEntry.getKey());
 			}
 		}
 		modeToGainMap = new HashMap<>();
-		for (String mode : modeToGainToGainStringMap.keySet()) {
-			List<Double> gainsForMode = new ArrayList<Double>(modeToGainToGainStringMap.get(mode).keySet());
+		for (Entry<String, Map<Double, String>> mode : modeToGainToGainStringMap.entrySet()) {
+			List<Double> gainsForMode = new ArrayList<>(mode.getValue().keySet());
 			gainsForMode.sort(null); // Sort the gains to ensure they are in ascending order
-			modeToGainMap.put(mode, gainsForMode);
+			modeToGainMap.put(mode.getKey(), gainsForMode);
 		}
 
 		// Check if the gain enum from EPICS has any elements we don't have and vice versa
@@ -293,7 +292,7 @@ public class EpicsFemtoWithBekhoffAdc extends DetectorBase implements NexusDetec
 		}
 
 		// Change mode then perform autogain to get the best gain setting within the mode
-		double lowestGainForMode = modeToGainToGainStringMap.get(mode).keySet().stream().min(Double::compare).get();
+		double lowestGainForMode = modeToGainMap.get(mode).get(0); // Get the lowest gain for this mode
 		String newGain = modeToGainToGainStringMap.get(mode).get(lowestGainForMode);
 		setGain(newGain); // Change the gain here, which also changes the mode
 
@@ -400,6 +399,7 @@ public class EpicsFemtoWithBekhoffAdc extends DetectorBase implements NexusDetec
 			Thread.sleep(settleTime);
 		} catch (InterruptedException e) {
 			logger.error("Interuppted waiting for settling", e);
+			Thread.currentThread().interrupt(); // Re-interrupt
 		}
 		logger.trace("Finished waiting for settling time");
 	}
