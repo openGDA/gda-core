@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: uk.ac.gda.core plugin
 Bundle-SymbolicName: uk.ac.gda.core;singleton:=true
-Bundle-Version: 9.6.0.qualifier
+Bundle-Version: 9.7.0.qualifier
 Require-Bundle: uk.ac.diamond.org.jacorb;bundle-version="2.2.0",
  org.aopalliance,
  javax.servlet;bundle-version="2.5.0",

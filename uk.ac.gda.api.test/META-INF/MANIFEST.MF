@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: uk.ac.gda.api.test plugin
 Bundle-SymbolicName: uk.ac.gda.api.test
-Bundle-Version: 9.6.0.qualifier
+Bundle-Version: 9.7.0.qualifier
 Fragment-Host: uk.ac.gda.api
 Bundle-Vendor: Diamond Light Source
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

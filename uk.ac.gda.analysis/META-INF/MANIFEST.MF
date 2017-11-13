@@ -8,7 +8,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: GDA Core Analysis
 Bundle-SymbolicName: uk.ac.gda.analysis;singleton:=true
-Bundle-Version: 9.6.0.qualifier
+Bundle-Version: 9.7.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-Vendor: Diamond Light Source
 Export-Package: gda.analysis,
