@@ -754,6 +754,22 @@ public class EpicsFemtoWithBekhoffAdc extends DetectorBase implements NexusDetec
 		}
 	}
 
+	@Override
+	public String toFormattedString() {
+		try {
+			// Get the data from EPICS
+			final double voltage = getInstantaneousVoltage();
+			final double gain = getGain();
+			// Divide by the gain to change from V back to amps (Gain is in V/A)
+			final double current = voltage / gain;
+			// Format using the output format for the current
+			return String.format("%s : " + getOutputFormat()[0] + " A (Gain = %1.0g)", getName(), current, gain);
+		} catch (Exception e) {
+			logger.error("Error getting {} status", getName(), e);
+			return String.format("%s : %s", getName(), VALUE_UNAVAILABLE);
+		}
+	}
+
 	public String getBasePVName() {
 		return basePVName;
 	}
