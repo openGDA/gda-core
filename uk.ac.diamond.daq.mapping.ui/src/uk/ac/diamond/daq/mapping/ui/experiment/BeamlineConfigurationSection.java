@@ -19,6 +19,7 @@
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Map;
@@ -26,12 +27,20 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import org.eclipse.e4.core.contexts.ContextInjectionFactory;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.window.Window;
+import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
+import org.eclipse.scanning.api.event.EventConstants;
+import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
+import org.eclipse.scanning.api.event.core.ISubmitter;
+import org.eclipse.scanning.api.event.status.Status;
+import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -44,7 +53,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
+import uk.ac.diamond.daq.mapping.api.FocusScanBean;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
+import uk.ac.diamond.daq.mapping.ui.experiment.focus.FocusScanWizard;
 
 /**
  * A section to edit the beamline configuration, i.e. the positions that certain
@@ -59,8 +70,10 @@ public class BeamlineConfigurationSection extends AbstractMappingSection {
 
 	@Override
 	public void createControls(Composite parent) {
+		final boolean addFocusScanButton = getService(FocusScanBean.class) != null;
 		Composite beamlineConfigComposite = new Composite(parent, SWT.NONE);
-		GridLayoutFactory.swtDefaults().numColumns(3).equalWidth(false).applyTo(beamlineConfigComposite);
+		final int numColumns = addFocusScanButton ? 4 : 3;
+		GridLayoutFactory.swtDefaults().numColumns(numColumns).equalWidth(false).applyTo(beamlineConfigComposite);
 		GridDataFactory.fillDefaults().grab(false, false).applyTo(beamlineConfigComposite);
 
 		(new Label(beamlineConfigComposite, SWT.NONE)).setText("Configure Beamline");
@@ -75,7 +88,15 @@ public class BeamlineConfigurationSection extends AbstractMappingSection {
 
 		Button editBeamlineConfigButton = new Button(beamlineConfigComposite, SWT.PUSH);
 		editBeamlineConfigButton.setImage(MappingExperimentUtils.getImage("icons/pencil.png"));
+		editBeamlineConfigButton.setToolTipText("Edit Beamline Configuration");
 		editBeamlineConfigButton.addListener(SWT.Selection, event -> editBeamlineConfiguration());
+
+		if (addFocusScanButton) {
+			Button configureFocusButton = new Button(beamlineConfigComposite, SWT.PUSH);
+			configureFocusButton.setText("Configure Focus"); // TODO use image
+			configureFocusButton.addListener(SWT.Selection, event -> configureFocus());
+		}
+
 		updateConfiguredScannableSummary();
 
 		try {
@@ -96,6 +117,52 @@ public class BeamlineConfigurationSection extends AbstractMappingSection {
 			mappingBean.setBeamlineConfiguration(configuredScannables);
 			updateConfiguredScannableSummary();
 		}
+	}
+
+	private void configureFocus() {
+		if (!isSubmissionQueueEmpty()) {
+			return;
+		}
+
+		final FocusScanWizard focusScanWizard = ContextInjectionFactory.make(FocusScanWizard.class, getEclipseContext());
+		final WizardDialog wizardDialog = new WizardDialog(getShell(), focusScanWizard);
+		wizardDialog.setPageSize(1200, 650);
+		wizardDialog.open();
+		// note: no action to take here as the zone plate is moved in FocusScanWizard.performFinish() if OK pressed
+	}
+
+	/**
+	 * Returns whether the submission queue is empty, i.e. there are no currently running or submitted scans.
+	 * @return <code>true</code> if there are running or submitted scans, <code>false</code> otherwise
+	 */
+	private boolean isSubmissionQueueEmpty() {
+		final IEventService eventService = getService(IEventService.class);
+		try {
+			final URI queueUri = new URI(LocalProperties.getActiveMQBrokerURI());
+			final ISubmitter<StatusBean> queueConnection = eventService.createSubmitter(queueUri, EventConstants.SUBMISSION_QUEUE);
+
+			// first check if there are submitted scans which haven't been run yet
+			final boolean noSubmittedScans = queueConnection.getQueue(EventConstants.SUBMISSION_QUEUE, null).isEmpty();
+			boolean queueClear = noSubmittedScans;
+			if (noSubmittedScans) {
+				// if not check if any scans that have been run are complete (or some other final state)
+				List<StatusBean> runningOrCompletedScans = queueConnection.getQueue(EventConstants.STATUS_SET, null);
+				queueClear = runningOrCompletedScans.stream().map(StatusBean::getStatus).allMatch(Status::isFinal);
+			}
+
+			// show an error dialog if the queue is not clear
+			if (!queueClear) {
+				MessageDialog.openError(getShell(), "Focus Scan",
+						"Cannot configure focus while there are submitted or running scans. "
+						+ "These scans should be cancelled or allowed to complete before focus can be configured.");
+			}
+			return queueClear;
+		} catch (URISyntaxException | EventException e) {
+			LOGGER.error("Could not read submission queue", e);
+			MessageDialog.openError(getShell(), "Error", "Could not read the submission queue in order to determine "
+					+ "if any scans are currently running or submitted");
+		}
+		return false;
 	}
 
 	private IScannableDeviceService getScannableDeviceService() throws Exception {

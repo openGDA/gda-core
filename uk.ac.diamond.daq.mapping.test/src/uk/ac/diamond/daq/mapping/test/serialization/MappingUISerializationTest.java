@@ -42,6 +42,7 @@ import org.eclipse.scanning.points.serialization.PointsModelMarshaller;
 import org.junit.Before;
 import org.junit.Test;
 
+import uk.ac.diamond.daq.mapping.api.ILineMappingRegion;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegion;
 import uk.ac.diamond.daq.mapping.api.IScanDefinition;
 import uk.ac.diamond.daq.mapping.impl.ClusterProcessingModelWrapper;
@@ -175,7 +176,7 @@ public class MappingUISerializationTest {
 		region.setyStop(13.2);
 
 		String json = service.marshal(region);
-		LineMappingRegion newRegion = service.unmarshal(json, LineMappingRegion.class);
+		ILineMappingRegion newRegion = service.unmarshal(json, LineMappingRegion.class);
 
 		assertEquals(region, newRegion);
 	}

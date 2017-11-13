@@ -1,0 +1,422 @@
+/*-
+ * Copyright © 2017 Diamond Light Source Ltd.
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package uk.ac.diamond.daq.mapping.ui.experiment.focus;
+
+import java.beans.PropertyChangeListener;
+import java.text.MessageFormat;
+import java.util.List;
+
+import javax.inject.Inject;
+
+import org.dawnsci.mapping.ui.api.IMapFileController;
+import org.dawnsci.mapping.ui.datamodel.PlottableMapObject;
+import org.eclipse.core.databinding.DataBindingContext;
+import org.eclipse.core.databinding.beans.BeanProperties;
+import org.eclipse.core.databinding.observable.value.IObservableValue;
+import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.JobChangeAdapter;
+import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
+import org.eclipse.dawnsci.plotting.api.PlottingFactory;
+import org.eclipse.dawnsci.plotting.api.trace.IImageTrace;
+import org.eclipse.dawnsci.plotting.api.trace.MetadataPlotUtils;
+import org.eclipse.e4.core.contexts.ContextInjectionFactory;
+import org.eclipse.e4.core.contexts.IEclipseContext;
+import org.eclipse.e4.ui.di.UISynchronize;
+import org.eclipse.january.dataset.IDataset;
+import org.eclipse.jface.databinding.swt.WidgetProperties;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.jface.viewers.ArrayContentProvider;
+import org.eclipse.jface.viewers.ComboViewer;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.jface.wizard.WizardPage;
+import org.eclipse.scanning.api.IScannable;
+import org.eclipse.scanning.api.device.IScannableDeviceService;
+import org.eclipse.scanning.api.points.models.OneDEqualSpacingModel;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Spinner;
+import org.eclipse.swt.widgets.Text;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import uk.ac.diamond.daq.mapping.api.FocusScanBean;
+import uk.ac.diamond.daq.mapping.api.IDetectorModelWrapper;
+import uk.ac.diamond.daq.mapping.api.ILineMappingRegion;
+import uk.ac.diamond.daq.mapping.api.IMappingExperimentBeanProvider;
+import uk.ac.diamond.daq.mapping.region.SnappedLineMappingRegion;
+import uk.ac.diamond.daq.mapping.ui.NumberAndUnitsComposite;
+import uk.ac.diamond.daq.mapping.ui.NumberUnitsWidgetProperty;
+import uk.ac.diamond.daq.mapping.ui.experiment.EditDetectorParametersDialog;
+import uk.ac.diamond.daq.mapping.ui.experiment.MappingExperimentUtils;
+import uk.ac.diamond.daq.mapping.ui.experiment.PathInfoCalculatorJob;
+import uk.ac.diamond.daq.mapping.ui.experiment.PlottingController;
+
+/**
+ * Wizard page to set-up a focus scan.
+ */
+class FocusScanSetupPage extends WizardPage {
+
+	private static final Logger logger = LoggerFactory.getLogger(FocusScanSetupPage.class);
+
+	@Inject
+	private IEclipseContext injectionContext;
+
+	@Inject
+	private UISynchronize uiSync;
+
+	@Inject
+	private IScannableDeviceService scannableService;
+
+	@Inject
+	private IMapFileController mapFileController;
+
+	@Inject
+	private FocusScanBean focusScanBean;
+
+	@Inject
+	private IMappingExperimentBeanProvider mappingBeanProvider;
+
+	private DataBindingContext bindingContext = new DataBindingContext();
+
+	private OneDEqualSpacingModel linePathModel;
+
+	private Label linePathLabel;
+
+	private PathInfoCalculatorJob pathCalculationJob;
+
+	private PlottingController plottingController;
+
+	private PropertyChangeListener regionBeanPropertyChangeListener;
+
+	private PropertyChangeListener pathBeanPropertyChangeListener;
+
+	FocusScanSetupPage() {
+		super(FocusScanSetupPage.class.getSimpleName());
+		setTitle("Setup Focus Scan");
+		setDescription("Draw the line to scan and configure the parameters");
+	}
+
+	private void initializePage() {
+		ILineMappingRegion lineRegion = focusScanBean.getLineRegion();
+		if (lineRegion == null) {
+			lineRegion = new SnappedLineMappingRegion();
+			focusScanBean.setLineRegion(lineRegion);
+		}
+
+		regionBeanPropertyChangeListener = event -> updateLineRegion();
+
+		lineRegion.addPropertyChangeListener(regionBeanPropertyChangeListener);
+
+		linePathModel = new OneDEqualSpacingModel();
+		pathBeanPropertyChangeListener = event -> updatePoints();
+		linePathModel.addPropertyChangeListener(pathBeanPropertyChangeListener);
+
+		pathCalculationJob = createPathCalculationJob();
+	}
+
+	private void updateLineRegion() {
+		plottingController.updatePlotRegionFrom(focusScanBean.getLineRegion());
+		updatePoints();
+		updateLinePathLabel();
+
+		// once a line has been drawn the page is complete
+		setPageComplete(true);
+	}
+
+	private PathInfoCalculatorJob createPathCalculationJob() {
+		final PathInfoCalculatorJob job = ContextInjectionFactory.make(PathInfoCalculatorJob.class,
+				injectionContext);
+		job.setPathInfoConsumer(pathInfo -> uiSync.asyncExec(() -> plottingController.plotPath(pathInfo)));
+		job.setScanRegion(focusScanBean.getLineRegion());
+		job.setScanPathModel(linePathModel);
+
+		job.addJobChangeListener(new JobChangeAdapter() {
+
+			@Override
+			public void running(IJobChangeEvent event) {
+				uiSync.asyncExec(() -> plottingController.removePath()); // TODO: set status message?
+			}
+
+			@Override
+			public void done(IJobChangeEvent event) {
+				uiSync.asyncExec(() -> {
+					if (!event.getResult().isOK()) { // TODO: set status message?
+						logger.warn("Error in scan path calculation", event.getResult().getException());
+					}
+				});
+			}
+		});
+
+		return job;
+	}
+
+	@Override
+	public void createControl(Composite parent) {
+		initializePage();
+
+		SashForm sashForm = new SashForm(parent, SWT.HORIZONTAL);
+
+		createDataPlotControl(sashForm);
+
+		final Composite composite = new Composite(sashForm, SWT.NONE);
+		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(composite);
+
+		// Create the controls to setup the focus (zone plate) to scan
+		createFocusControls(composite);
+		GridDataFactory.fillDefaults().span(2, 1).grab(true, false).applyTo(
+				new Label(composite, SWT.SEPARATOR | SWT.HORIZONTAL));
+
+		// Create the controls to setup the focus line
+		createFocusLineControls(composite);
+		GridDataFactory.fillDefaults().span(2, 1).grab(true, false).applyTo(
+				new Label(composite, SWT.SEPARATOR | SWT.HORIZONTAL));
+
+		// Create the controls to show the detector
+		createDetectorControls(composite);
+
+		sashForm.setWeights(new int[] { 3, 2 });
+		setControl(sashForm);
+		setPageComplete(false);
+	}
+
+	@Override
+	public void dispose() {
+		plottingController.dispose();
+
+		focusScanBean.getLineRegion().removePropertyChangeListener(regionBeanPropertyChangeListener);
+		linePathModel.removePropertyChangeListener(pathBeanPropertyChangeListener);
+
+		super.dispose();
+	}
+
+	private Control createDataPlotControl(Composite parent) {
+		try {
+			final IPlottingSystem<Composite> plottingSystem = PlottingFactory.createPlottingSystem();
+			Control plotControl = MappingExperimentUtils.createDataPlotControl(parent, plottingSystem, getTitle());
+			mapFileController.getPlottedObjects().stream().forEach(plot -> drawMapPlot(plottingSystem, plot));
+			plottingController = new PlottingController(plottingSystem);
+			return plotControl;
+		} catch (Exception e) {
+			final String message = "Could not create plotting system";
+			logger.error(message, e);
+			return MappingExperimentUtils.createErrorLabel(parent, message, e);
+		}
+	}
+
+	private void drawMapPlot(IPlottingSystem<Composite> plottingSystem, PlottableMapObject mapPlot) {
+		try {
+			final IDataset mapDataset = mapPlot.getMap();
+			final IImageTrace trace = MetadataPlotUtils.buildTrace(mapDataset, plottingSystem);
+			trace.setGlobalRange(getRange(mapPlot));
+			trace.setAlpha(mapPlot.getTransparency());
+			plottingSystem.addTrace(trace);
+		} catch (Exception e) {
+			logger.error("Could not add plot to map: {}", mapPlot.getPath(), e);
+		}
+	}
+
+	private double[] getRange(PlottableMapObject mapObject) {
+		final int[] shape = mapObject.getMap().getShape();
+
+		final double[] range = mapObject.getRange().clone();
+		if (range.length != 4) throw new IllegalArgumentException("Range array expected to have size 4");
+		if (range[0] == range[1] && range[2] == range[3]) return range;
+
+		// sanitize the range, this code adapted from MapPlotManager.sanizeRange
+		if (range[0] == range[1]) {
+			range[1] = range[0] + (range[3] - range[2]) / shape[1];
+		} else if (range[2] == range[3]) {
+			range[3] = range[2] + (range[1] - range[0]) / shape[0];
+		}
+		return range;
+	}
+
+	private void createFocusControls(final Composite parent) {
+		Label label = new Label(parent, SWT.NONE);
+		label.setText("Focus motion:");
+		GridDataFactory.swtDefaults().span(2, 1).applyTo(label);
+
+		label = new Label(parent, SWT.NONE);
+		label.setText("Centre position:");
+		GridDataFactory.swtDefaults().applyTo(label);
+
+		final NumberAndUnitsComposite focusCentre = new NumberAndUnitsComposite(parent, SWT.NONE);
+		GridDataFactory.fillDefaults().applyTo(focusCentre);
+		setCurrentFocusPosition();
+		bindControlToProperty(focusCentre, "focusCentre", focusScanBean);
+
+		label = new Label(parent, SWT.NONE);
+		label.setText("Range (+/-):");
+		GridDataFactory.swtDefaults().applyTo(label);
+
+		final NumberAndUnitsComposite focusRange = new NumberAndUnitsComposite(parent, SWT.NONE);
+		GridDataFactory.fillDefaults().applyTo(focusRange);
+		bindControlToProperty(focusRange, "focusRange", focusScanBean);
+
+		label = new Label(parent, SWT.NONE);
+		label.setText("Number of focus steps:");
+		GridDataFactory.swtDefaults().applyTo(label);
+
+		final Spinner numberFocusStepsSpinner = new Spinner(parent, SWT.BORDER);
+		numberFocusStepsSpinner.setMinimum(1);
+		GridDataFactory.fillDefaults().applyTo(numberFocusStepsSpinner);
+		bindControlToProperty(numberFocusStepsSpinner, "numberOfFocusSteps", focusScanBean);
+	}
+
+	private void setCurrentFocusPosition() {
+		try {
+			final IScannable<?> scannable = scannableService.getScannable(focusScanBean.getFocusScannableName());
+			final Double focusPos = (Double) scannable.getPosition();
+			focusScanBean.setFocusCentre(focusPos);
+		} catch (Exception e) {
+			MessageDialog.openError(getShell(), "Error",
+					MessageFormat.format("Could not get position of {0}. See error log for details.",
+					focusScanBean.getFocusScannableName()));
+			logger.error("Could not get position of {}", focusScanBean.getFocusScannableName(), e);
+		}
+	}
+
+	private void createFocusLineControls(final Composite parent) {
+		Label label = new Label(parent, SWT.SINGLE);
+		label.setText("Focus line:");
+		GridDataFactory.swtDefaults().span(2, 1).applyTo(label);
+
+		label = new Label(parent, SWT.SINGLE);
+		label.setText("Line Path:");
+		GridDataFactory.swtDefaults().applyTo(label);
+
+		final Composite linePathComposite = new Composite(parent, SWT.NONE);
+		GridDataFactory.swtDefaults().applyTo(linePathComposite);
+		GridLayoutFactory.fillDefaults().numColumns(2).applyTo(linePathComposite);
+
+		linePathLabel = new Label(linePathComposite, SWT.SINGLE);
+		linePathLabel.setText("Draw a line over the feature to focus on");
+		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(label);
+
+		final Button drawLineButton = new Button(linePathComposite, SWT.NONE);
+		drawLineButton.setImage(new Image(Display.getCurrent(), getClass().getResourceAsStream("/icons/map--pencil.png")));
+		drawLineButton.setToolTipText("Draw/Redraw line");
+		GridDataFactory.swtDefaults().applyTo(drawLineButton);
+		drawLineButton.addListener(SWT.Selection, e -> drawLine());
+
+		label = new Label(parent, SWT.NONE);
+		label.setText("Number of points:");
+		GridDataFactory.swtDefaults().applyTo(label);
+
+		final Spinner numPointsSpinner = new Spinner(parent, SWT.BORDER);
+		numPointsSpinner.setMinimum(1);
+		GridDataFactory.fillDefaults().applyTo(numPointsSpinner);
+		bindControlToProperty(numPointsSpinner, "points", linePathModel);
+		bindControlToProperty(numPointsSpinner, "numberOfLinePoints", focusScanBean);
+	}
+
+	private void drawLine() {
+		linePathModel.setBoundingLine(null);
+		plottingController.createNewPlotRegion(focusScanBean.getLineRegion());
+
+		updatePoints();
+	}
+
+	private void updateLinePathLabel() {
+		final ILineMappingRegion lineRegion = focusScanBean.getLineRegion();
+		final String labelText = String.format("%.3f, %.3f  ->  %.3f, %.3f",
+				lineRegion.getxStart(), lineRegion.getyStart(), lineRegion.getxStop(), lineRegion.getyStop());
+		linePathLabel.setText(labelText);
+	}
+
+	private void updatePoints() {
+		pathCalculationJob.cancel();
+		pathCalculationJob.schedule();
+	}
+
+	private void createDetectorControls(Composite parent) {
+		Label label = new Label(parent, SWT.SINGLE);
+		label.setText("Detector:");
+		GridDataFactory.swtDefaults().applyTo(label);
+
+		final Composite detectorComposite = new Composite(parent, SWT.NONE);
+		GridDataFactory.fillDefaults().applyTo(detectorComposite);
+		GridLayoutFactory.fillDefaults().numColumns(2).applyTo(detectorComposite);
+
+		// Combo to choose detector
+		final ComboViewer comboViewer = new ComboViewer(detectorComposite, SWT.READ_ONLY);
+		comboViewer.setContentProvider(ArrayContentProvider.getInstance());
+		comboViewer.setLabelProvider(new LabelProvider() {
+			@Override
+			public String getText(Object element) {
+				return ((IDetectorModelWrapper) element).getName();
+			}
+		});
+
+		// Get detector wrappers from mapping bean and add as input to combo
+		final List<IDetectorModelWrapper> detectorWrappers =
+				mappingBeanProvider.getMappingExperimentBean().getDetectorParameters();
+		comboViewer.setInput(detectorWrappers);
+		comboViewer.addSelectionChangedListener(
+				evt -> focusScanBean.setDetector(getDetectorWrapperForSelection(evt.getSelection()).getModel()));
+		GridDataFactory.fillDefaults().grab(true, false).applyTo(comboViewer.getControl());
+
+		final Button configureDetectorButton = new Button(detectorComposite, SWT.PUSH);
+		configureDetectorButton.setImage(MappingExperimentUtils.getImage("icons/pencil.png"));
+		configureDetectorButton.setToolTipText("Edit parameters");
+		configureDetectorButton.addListener(SWT.Selection,
+				event -> editDetectorParameters(getDetectorWrapperForSelection(comboViewer.getSelection())));
+
+		detectorWrappers.stream().filter(IDetectorModelWrapper::isIncludeInScan).findFirst()
+			.ifPresent(wrapper -> comboViewer.setSelection(new StructuredSelection(wrapper)));
+	}
+
+	private void editDetectorParameters(IDetectorModelWrapper detectorModelWrapper) {
+		final EditDetectorParametersDialog editDialog = new EditDetectorParametersDialog(
+				getShell(), injectionContext, detectorModelWrapper);
+		editDialog.create();
+		editDialog.open();
+		// The dialog updates the model live, using , so we don't have to do anything here
+	}
+
+	private static IDetectorModelWrapper getDetectorWrapperForSelection(ISelection selection) {
+		final IStructuredSelection sel = (IStructuredSelection) selection;
+		return (IDetectorModelWrapper) sel.getFirstElement();
+	}
+
+	private void bindControlToProperty(Control control, String propertyName, Object bean) {
+		final IObservableValue model = BeanProperties.value(propertyName).observe(bean);
+		final IObservableValue target;
+		if (control instanceof NumberAndUnitsComposite) {
+			target = new NumberUnitsWidgetProperty().observe(control);
+		} else if (control instanceof Text) {
+			target = WidgetProperties.text(SWT.Modify).observe(control);
+		} else {
+			target = WidgetProperties.selection().observe(control);
+		}
+		bindingContext.bindValue(target, model);
+	}
+
+}

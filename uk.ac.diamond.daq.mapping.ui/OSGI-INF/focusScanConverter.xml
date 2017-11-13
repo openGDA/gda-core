@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="Focus Scan uk.ac.diamond.daq.mapping.ui.experiment.focus.focusScanConverter">
+   <implementation class="uk.ac.diamond.daq.mapping.ui.experiment.focus.FocusScanConverter"/>
+   <service>
+      <provide interface="uk.ac.diamond.daq.mapping.ui.experiment.focus.FocusScanConverter"/>
+   </service>
+   <reference bind="setMappingStageInfo" cardinality="1..1" interface="uk.ac.diamond.daq.mapping.impl.MappingStageInfo" name="MappingStageInfo" policy="static"/>
+</scr:component>

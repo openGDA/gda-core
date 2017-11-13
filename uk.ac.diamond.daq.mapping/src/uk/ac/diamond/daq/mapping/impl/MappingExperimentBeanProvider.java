@@ -21,16 +21,23 @@ package uk.ac.diamond.daq.mapping.impl;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBeanProvider;
 
+/**
+ * An object that wraps a mapping bean. This object is configured in spring.
+ * An instance of this class should be injected rather than the mapping bean directly so
+ * that you get always get a reference to the current mapping bean in the mapping view
+ * even after another bean has been loaded from the filesystem.
+ */
 public class MappingExperimentBeanProvider implements IMappingExperimentBeanProvider {
 
-	private MappingExperimentBean mappingExperimentBean;
+	private IMappingExperimentBean mappingExperimentBean;
 
 	@Override
 	public IMappingExperimentBean getMappingExperimentBean() {
 		return mappingExperimentBean;
 	}
 
-	public void setMappingExperimentBean(MappingExperimentBean bean) {
+	@Override
+	public void setMappingExperimentBean(IMappingExperimentBean bean) {
 		this.mappingExperimentBean = bean;
 	}
 }

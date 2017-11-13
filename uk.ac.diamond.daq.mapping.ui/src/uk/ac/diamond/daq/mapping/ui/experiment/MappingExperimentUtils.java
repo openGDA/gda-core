@@ -50,7 +50,7 @@ import uk.ac.diamond.daq.mapping.ui.MappingUIConstants;
 /**
  * Functions used in mapping experiment setup
  */
-class MappingExperimentUtils {
+public class MappingExperimentUtils {
 
 	private static final String DEFAULT_ENTRY_PATH = "/entry/";
 	private static final String DEFAULT_DATASET_NAME = "data"; // NXdetector.data field
@@ -75,7 +75,7 @@ class MappingExperimentUtils {
 		return acquireRequestor.post(request);
 	}
 
-	static Image getImage(final String imagePath) {
+	public static Image getImage(final String imagePath) {
 		return AbstractUIPlugin.imageDescriptorFromPlugin(MappingUIConstants.PLUGIN_ID, imagePath).createImage();
 	}
 
@@ -95,7 +95,7 @@ class MappingExperimentUtils {
 				dataDimensions, 1, 1);
 	}
 
-	static Control createDataPlotControl(final Composite parent, final IPlottingSystem<Composite> plottingSystem, final String title) {
+	public static Control createDataPlotControl(final Composite parent, final IPlottingSystem<Composite> plottingSystem, final String title) {
 		final Composite plotAndToolbarComposite = new Composite(parent, SWT.NULL);
 		GridLayoutFactory.fillDefaults().applyTo(plotAndToolbarComposite);
 
@@ -104,7 +104,7 @@ class MappingExperimentUtils {
 		return plotAndToolbarComposite;
 	}
 
-	static Label createErrorLabel(final Composite parent, final String message, final Exception e) {
+	public static Label createErrorLabel(final Composite parent, final String message, final Exception e) {
 		final Label label = new Label(parent, SWT.NONE);
 		label.setBackground(parent.getDisplay().getSystemColor(SWT.COLOR_WHITE));
 		label.setForeground(parent.getDisplay().getSystemColor(SWT.COLOR_RED));

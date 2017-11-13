@@ -21,4 +21,7 @@ package uk.ac.diamond.daq.mapping.api;
 public interface IMappingExperimentBeanProvider {
 
 	public IMappingExperimentBean getMappingExperimentBean();
+
+	public void setMappingExperimentBean(IMappingExperimentBean mappingBean);
+
 }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="uk.ac.diamond.daq.mapping.ui">
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="uk.ac.diamond.daq.mapping.ui.experiment.stageMoveHandler">
    <implementation class="uk.ac.diamond.daq.mapping.ui.experiment.StageMoveHandler"/>
    <service>
       <provide interface="org.osgi.service.event.EventHandler"/>

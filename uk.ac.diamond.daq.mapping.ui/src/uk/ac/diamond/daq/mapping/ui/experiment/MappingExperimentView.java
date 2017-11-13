@@ -93,6 +93,8 @@ public class MappingExperimentView implements IAdaptable {
 
 	private static final Logger logger = LoggerFactory.getLogger(MappingExperimentView.class);
 
+	private IMappingExperimentBeanProvider mappingBeanProvider = null;
+
 	private IMappingExperimentBean mappingBean = null;
 
 	private StatusPanel statusPanel;
@@ -119,7 +121,8 @@ public class MappingExperimentView implements IAdaptable {
 		if (beanProvider == null) {
 			throw new NullPointerException("beanProvider must not be null");
 		} else {
-			setMappingBean(beanProvider.getMappingExperimentBean());
+			mappingBeanProvider = beanProvider;
+			this.mappingBean = beanProvider.getMappingExperimentBean();
 		}
 	}
 
@@ -191,7 +194,7 @@ public class MappingExperimentView implements IAdaptable {
 			logger.trace("Restoring the previous state of the mapping view.");
 			IMarshallerService marshaller = injectionContext.get(IMarshallerService.class);
 			try {
-				mappingBean = marshaller.unmarshal(json, MappingExperimentBean.class);
+				setMappingBean(marshaller.unmarshal(json, MappingExperimentBean.class));
 			} catch (Exception e) {
 				logger.error("Failed to restore the previous state of the mapping view", e);
 			}
@@ -310,6 +313,7 @@ public class MappingExperimentView implements IAdaptable {
 	}
 
 	public void setMappingBean(IMappingExperimentBean bean) {
+		mappingBeanProvider.setMappingExperimentBean(bean);
 		mappingBean = bean;
 	}
 

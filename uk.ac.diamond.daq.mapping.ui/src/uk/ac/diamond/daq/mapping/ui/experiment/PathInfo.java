@@ -24,7 +24,8 @@ import java.util.List;
 /**
  * Simple class to hold information about a scan path
  */
-class PathInfo {
+public class PathInfo {
+
 	int pointCount = 0;
 	double smallestXStep = Double.MAX_VALUE;
 	double smallestYStep = Double.MAX_VALUE;

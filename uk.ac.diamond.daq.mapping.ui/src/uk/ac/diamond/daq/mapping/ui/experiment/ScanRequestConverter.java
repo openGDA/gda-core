@@ -506,9 +506,9 @@ public class ScanRequestConverter {
 	private Set<String> getMonitorNamesSet(MonitorRole monitorRole) throws ScanningException {
 		final Collection<DeviceInformation<?>> scannableInfos = getScannableDeviceService().getDeviceInformation();
 		return scannableInfos.stream().
-			filter(info -> info.isActivated()).
+			filter(DeviceInformation::isActivated).
 			filter(info -> info.getMonitorRole() == monitorRole).
-			map(info -> info.getName()).
+			map(DeviceInformation::getName).
 			collect(Collectors.toSet());
 	}
 

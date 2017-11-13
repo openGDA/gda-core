@@ -98,7 +98,7 @@ public class EditDetectorParametersDialog extends Dialog {
 	private Button plotAsLine;
 	private Button plotAsImage;
 
-	protected EditDetectorParametersDialog(final Shell parentShell, final IEclipseContext context, final IDetectorModelWrapper detectorModel) {
+	public EditDetectorParametersDialog(final Shell parentShell, final IEclipseContext context, final IDetectorModelWrapper detectorModel) {
 		super(parentShell);
 		this.context = context;
 		this.detectorModel = detectorModel;

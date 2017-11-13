@@ -19,6 +19,8 @@
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
 
+import java.util.function.Consumer;
+
 import javax.inject.Inject;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -40,10 +42,12 @@ import org.eclipse.scanning.api.points.models.IScanPathModel;
 
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
 
-class PathInfoCalculatorJob extends Job {
+public class PathInfoCalculatorJob extends Job {
 
-	static final String PATH_CALCULATION_TOPIC = "uk/ac/diamond/daq/mapping/client/events/PathCalculationEvent";
+	public static final String PATH_CALCULATION_TOPIC = "uk/ac/diamond/daq/mapping/client/events/PathCalculationEvent";
 	static final int MAX_POINTS_IN_ROI = 100000; // 100,000
+
+	private String pathCalculationTopic = PATH_CALCULATION_TOPIC;
 
 	@Inject
 	private IPointGeneratorService pointGeneratorFactory;
@@ -53,16 +57,23 @@ class PathInfoCalculatorJob extends Job {
 	private IScanPathModel scanPathModel;
 	private IMappingScanRegionShape scanRegion;
 
+	private Consumer<PathInfo> consumer;
+
 	PathInfoCalculatorJob() {
 		super("Calculating scan path");
 		setPriority(SHORT);
+		consumer = pathInfo -> eventBroker.post(pathCalculationTopic, pathInfo);
 	}
 
-	void setScanPathModel(IScanPathModel scanPathModel) {
+	public void setPathInfoConsumer(Consumer<PathInfo> consumer) {
+		this.consumer = consumer;
+	}
+
+	public void setScanPathModel(IScanPathModel scanPathModel) {
 		this.scanPathModel = scanPathModel;
 	}
 
-	void setScanRegion(IMappingScanRegionShape scanRegion) {
+	public void setScanRegion(IMappingScanRegionShape scanRegion) {
 		this.scanRegion = scanRegion;
 	}
 
@@ -145,7 +156,9 @@ class PathInfoCalculatorJob extends Job {
 				}
 			}
 			monitor.done();
-			eventBroker.post(PATH_CALCULATION_TOPIC, pathInfo);
+
+			// The consumer decides how to handle the path info event
+			consumer.accept(pathInfo);
 		} catch (Exception e) {
 			return new Status(IStatus.WARNING, "uk.ac.diamond.daq.mapping.ui", "Error calculating scan path", e);
 		}

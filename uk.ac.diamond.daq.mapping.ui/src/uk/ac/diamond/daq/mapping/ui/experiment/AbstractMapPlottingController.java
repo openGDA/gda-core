@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2016 Diamond Light Source Ltd.
+ * Copyright © 2017 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -37,23 +37,16 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
 
-/**
- * A wrapper around an {@link IPlottingSystem} for drawing mapping regions and paths.
- * The plotting system to be used can be set by calling {@link #setPlottingSystem(IPlottingSystem)}.
- * If this is done, then the plotting system to use will be 'Map' plotting system,
- * as retrieved by calling {@link IPlottingService#getPlottingSystem(String)} with the
- * value 'Map'. This name can be overridden by calling {@link #setPlottingSystemName(String)}.
- */
-public class PlottingController {
+public abstract class AbstractMapPlottingController {
 
-	public static final String MAPPING_REGION_NAME = "Mapping Scan Region";
-	public static final String MAPPING_PATH_NAME = "Mapping Scan Path";
+	private static final Logger logger = LoggerFactory.getLogger(AbstractMapPlottingController.class);
 
-	private static final Logger logger = LoggerFactory.getLogger(PlottingController.class);
+	public static final String REGION_NAME = "Scan Region";
+	public static final String PATH_NAME = "Scan Path";
 
-	private IPlottingService plottingService;
 	private String plottingSystemName = "Map";
-	private IPlottingSystem<?> mapPlottingSystem;
+	private IPlottingService plottingService;
+	private IPlottingSystem<Composite> mapPlottingSystem;
 	private Color mappingRegionColour;
 	private Color scanPathColour;
 	private PathInfo lastPathInfo;
@@ -61,14 +54,10 @@ public class PlottingController {
 	private volatile boolean scanPathVisible = true;
 	private volatile boolean updatingROIFromRegion = false;
 
-	public PlottingController() {
+	public AbstractMapPlottingController() {
 	}
 
-	public PlottingController(IPlottingSystem<?> plottingSystem) {
-		this.mapPlottingSystem = plottingSystem;
-	}
-
-	public void setPlottingService(IPlottingService plottingService) {
+	public void setPlottingService (IPlottingService plottingService) {
 		this.plottingService = plottingService;
 	}
 
@@ -87,36 +76,32 @@ public class PlottingController {
 				throw new NullPointerException("Couldn't get map plotting system");
 			}
 		}
-
-		if (mappingRegionColour == null) {
-			// These colours all look reasonable, should test them on various maps and see
-			// (They come from IRegion or ColorConstants)
-			// Color darkCyan = new Color(null, 0, 128, 128);
-			// Color orange = new Color(null, 255, 196, 0);
-			// Color yellow = new Color(null, 255, 255, 0);
-			// Color darkGreen = new Color(null, 0, 127, 0);
-			// Color lightBlue = new Color(null, 127, 127, 255);
-			// Color blue = new Color(null, 0, 0, 255);
-			mappingRegionColour = new Color(null, 255, 196, 0); // orange
-			scanPathColour = new Color(null, 160, 32, 240); // purple
-		}
 	}
 
 	private void initPlottingSystem() {
 		// Get and check the plotting system
-		if (mapPlottingSystem != null) return;
-		mapPlottingSystem = plottingService.getPlottingSystem(plottingSystemName);
+		mapPlottingSystem = plottingService.getPlottingSystem("Map");
 		if (mapPlottingSystem == null) {
 			return;
 		}
 
+		// These colours all look reasonable, should test them on various maps and see
+		// (They come from IRegion or ColorConstants)
+		// Color darkCyan = new Color(null, 0, 128, 128);
+		// Color orange = new Color(null, 255, 196, 0);
+		// Color yellow = new Color(null, 255, 255, 0);
+		// Color darkGreen = new Color(null, 0, 127, 0);
+		// Color lightBlue = new Color(null, 127, 127, 255);
+		// Color blue = new Color(null, 0, 0, 255);
+		mappingRegionColour = new Color(null, 255, 196, 0); // orange
+		scanPathColour = new Color(null, 160, 32, 240); // purple
 		logger.debug("Initialized plotting system");
 	}
 
 	public void updatePlotRegionFrom(IMappingScanRegionShape scanRegion) {
 		checkPlottingSystem();
 		if (scanRegion != null) {
-			IRegion plotRegion = mapPlottingSystem.getRegion(MAPPING_REGION_NAME);
+			IRegion plotRegion = mapPlottingSystem.getRegion(REGION_NAME);
 			if (plotRegion == null) {
 				plotRegion = createNewPlotRegion(scanRegion);
 				mapPlottingSystem.addRegion(plotRegion);
@@ -130,7 +115,7 @@ public class PlottingController {
 	public IRegion createNewPlotRegion(final IMappingScanRegionShape scanRegion) {
 		checkPlottingSystem();
 		// Get the scan region from the plotting system if it exists
-		IRegion plotRegion = mapPlottingSystem.getRegion(MAPPING_REGION_NAME);
+		IRegion plotRegion = mapPlottingSystem.getRegion(REGION_NAME);
 
 		// Keep the visibility and fill settings
 		boolean plotRegionVisible = plotRegion != null ? plotRegion.isVisible() : true;
@@ -142,7 +127,7 @@ public class PlottingController {
 
 		try {
 			// If you create a new region without adding it the plotting system allows the user to draw it!
-			plotRegion = mapPlottingSystem.createRegion(MAPPING_REGION_NAME, RegionType.valueOf(scanRegion.whichPlottingRegionType()));
+			plotRegion = mapPlottingSystem.createRegion(REGION_NAME, RegionType.valueOf(scanRegion.whichPlottingRegionType()));
 			plotRegion.setFill(true);
 			plotRegion.setAlpha(80);
 			plotRegion.setRegionColor(mappingRegionColour);
@@ -167,7 +152,7 @@ public class PlottingController {
 	/**
 	 * This should be called whenever a change to the plotted scan path is needed.
 	 */
-	public void plotPath(PathInfo pathInfo) {
+	void plotPath(PathInfo pathInfo) {
 		lastPathInfo = pathInfo;
 		replotLastPath();
 	}
@@ -181,11 +166,11 @@ public class PlottingController {
 		// Check if the scan region is currently plotted - if not, we don't want to plot the path either
 		// (This fixes a synchronisation bug where the path is added while the scan region drawing event is still
 		// active, cancelling the event and making it impossible to draw regions)
-		IRegion plotRegion = mapPlottingSystem.getRegion(MAPPING_REGION_NAME);
+		IRegion plotRegion = mapPlottingSystem.getRegion(REGION_NAME);
 		if (plotRegion != null && lastPathInfo != null) {
 
 			// Make a new line trace and configure it
-			ILineTrace pathTrace = mapPlottingSystem.createLineTrace(MAPPING_PATH_NAME);
+			ILineTrace pathTrace = mapPlottingSystem.createLineTrace(PATH_NAME);
 			pathTrace.setTraceColor(scanPathColour);
 			pathTrace.setPointStyle(PointStyle.SQUARE);
 			pathTrace.setVisible(scanPathVisible);
@@ -202,7 +187,7 @@ public class PlottingController {
 
 	public void removePath() {
 		checkPlottingSystem();
-		ITrace pathTrace = mapPlottingSystem.getTrace(MAPPING_PATH_NAME);
+		ITrace pathTrace = mapPlottingSystem.getTrace(PATH_NAME);
 		if (pathTrace != null) {
 			mapPlottingSystem.removeTrace(pathTrace);
 		}
@@ -210,7 +195,7 @@ public class PlottingController {
 
 	void toggleRegionVisibility() {
 		checkPlottingSystem();
-		IRegion plotRegion = mapPlottingSystem.getRegion(MAPPING_REGION_NAME);
+		IRegion plotRegion = mapPlottingSystem.getRegion(REGION_NAME);
 		if (plotRegion != null) {
 			plotRegion.setVisible(!plotRegion.isVisible());
 		}
@@ -218,14 +203,14 @@ public class PlottingController {
 
 	void toggleRegionFill() {
 		checkPlottingSystem();
-		IRegion plotRegion = mapPlottingSystem.getRegion(MAPPING_REGION_NAME);
+		IRegion plotRegion = mapPlottingSystem.getRegion(REGION_NAME);
 		if (plotRegion != null) {
 			plotRegion.setFill(!plotRegion.isFill());
 		}
 	}
 
 	void togglePathVisibility() {
-		ITrace pathTrace = mapPlottingSystem.getTrace(MAPPING_PATH_NAME);
+		ITrace pathTrace = mapPlottingSystem.getTrace(PATH_NAME);
 		if (pathTrace != null && pathTrace.isVisible()) {
 			// Path exists and is visible, so make it invisible.
 			// (It might be behind an image trace but that doesn't matter since we're hiding it anyway. The user can
@@ -259,5 +244,6 @@ public class PlottingController {
 		mapPlottingSystem.getSelectedXAxis().setRange(xPos - xDelta, xPos + xDelta);
 		mapPlottingSystem.getSelectedYAxis().setRange(yPos - yDelta, yPos + yDelta);
 	}
+
 
 }
