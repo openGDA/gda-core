@@ -27,7 +27,6 @@ import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.PolygonalROI;
 import org.eclipse.dawnsci.plotting.api.region.IRegion.RegionType;
 import org.eclipse.scanning.api.annotation.UiHidden;
-import org.eclipse.scanning.api.points.Point;
 
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
 
@@ -35,7 +34,7 @@ public class PolygonMappingRegion implements IMappingScanRegionShape {
 
 	private String name = "Polygon";
 	private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
-	private List<Point> points = new ArrayList<>(10);
+	private List<MutablePoint> points = new ArrayList<>(10);
 
 	@Override
 	public void addPropertyChangeListener(PropertyChangeListener listener) {
@@ -53,12 +52,12 @@ public class PolygonMappingRegion implements IMappingScanRegionShape {
 		return name;
 	}
 
-	public List<Point> getPoints() {
+	public List<MutablePoint> getPoints() {
 		return points;
 	}
 
-	public void setPoints(List<Point> newValue) {
-		List<Point> oldvalue = this.points;
+	public void setPoints(List<MutablePoint> newValue) {
+		List<MutablePoint> oldvalue = this.points;
 		this.points = newValue;
 		this.pcs.firePropertyChange("points", oldvalue, newValue);
 	}
@@ -66,7 +65,7 @@ public class PolygonMappingRegion implements IMappingScanRegionShape {
 	@Override
 	public PolygonalROI toROI() {
 		PolygonalROI polygonalROI = new PolygonalROI();
-		for (Point point : points) {
+		for (MutablePoint point : points) {
 			polygonalROI.insertPoint(point.getX(), point.getY());
 		}
 		return polygonalROI;
@@ -84,7 +83,7 @@ public class PolygonMappingRegion implements IMappingScanRegionShape {
 			// Rebuild the list of points
 			points.clear();
 			for (int i = 0; i < roi.getNumberOfPoints(); i++) {
-				points.add(new Point(i, roi.getPointX(i), i, roi.getPointY(i)));
+				points.add(new MutablePoint(roi.getPointX(i), roi.getPointY(i)));
 			}
 			// PCS will always be fired
 			this.pcs.firePropertyChange("points", null, points);
