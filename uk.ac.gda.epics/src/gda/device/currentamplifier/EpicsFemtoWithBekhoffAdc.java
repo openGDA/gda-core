@@ -116,7 +116,7 @@ public class EpicsFemtoWithBekhoffAdc extends DetectorBase implements NexusDetec
 
 	// Auto-gain parameters
 	private boolean autoGain = true; // Default to true as this should result in the best behaviour
-	private long settleTime = 250; // ms The time to wait after a gain change for stability
+	private long settleTime = 500; // ms The time to wait after a gain change for stability
 	private double lowerVoltageBound = 0; // V. If ADC input is below this increase gain
 	private double upperVoltageBound = 10; // V. If ADC input is above this decrease gain
 
