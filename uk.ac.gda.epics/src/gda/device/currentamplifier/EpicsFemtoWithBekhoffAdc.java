@@ -95,8 +95,10 @@ public class EpicsFemtoWithBekhoffAdc extends DetectorBase implements NexusDetec
 	private static final String ADC_VALUE = "VALUE"; //on I21 this is the actual averaged value over the specifid integration time.
 	private static final String ADC_STATE = "STATE";
 	private static final String ADC_INTERRUPT = "INTERRUPT";
-	private boolean hasIAVinPV=true;
-	private boolean hasIinPV=true;
+
+	private boolean hasIAVinPV = true;
+	private boolean hasIinPV = true;
+	private boolean supportsCoupling = true; // The I05 femtos don't support this DC only
 
 	// Mode, gain, enum string eg. "Low Noise", "10E4", "10^4 low noise"
 	private Map<String, Map<Double, String>> modeToGainToGainStringMap;
@@ -285,6 +287,10 @@ public class EpicsFemtoWithBekhoffAdc extends DetectorBase implements NexusDetec
 	 *             If mode is not in modeToGainToGainStringMap
 	 */
 	public void setFemtoMode(String mode) throws DeviceException {
+		if (!hasMultipleFemtoModes()) {
+			throw new UnsupportedOperationException("Femto only has one mode");
+		}
+
 		logger.debug("Changing mode to: {}", mode);
 		// Check if the requested mode is valid
 		if (!modeToGainToGainStringMap.containsKey(mode)) {
@@ -639,8 +645,13 @@ public class EpicsFemtoWithBekhoffAdc extends DetectorBase implements NexusDetec
 		// If its the first point add the metadata
 		if (firstReadoutInScan) {
 			logger.trace("Adding metadata for file writter");
-			data.addElement(getName(), "coupling", new NexusGroupData(getFemtoCouplingMode().toString()), null, false);
-			data.addElement(getName(), "mode", new NexusGroupData(getFemtoMode()), null, false);
+			// Only add the data if  it makes sense for this femto
+			if (supportsCoupling) {
+				data.addElement(getName(), "coupling", new NexusGroupData(getFemtoCouplingMode().toString()), null, false);
+			}
+			if (hasMultipleFemtoModes()) {
+				data.addElement(getName(), "mode", new NexusGroupData(getFemtoMode()), null, false);
+			}
 			data.addElement(getName(), "count_time", new NexusGroupData(getCollectionTime()), "sec", false);
 			firstReadoutInScan = false; // Reset the flag don't need to add this again
 		}
@@ -660,6 +671,10 @@ public class EpicsFemtoWithBekhoffAdc extends DetectorBase implements NexusDetec
 	}
 
 	public void setFemtoCouplingMode(final CouplingMode couplingMode) throws DeviceException {
+		if (!supportsCoupling) {
+			throw new UnsupportedOperationException("Femto is configured not to support coupling");
+		}
+
 		try {
 			EPICS_CONTROLLER.caput(getFemtoChannel(FEMTO_COUPLING), couplingMode.toString());
 		} catch (CAException | InterruptedException | TimeoutException e) {
@@ -671,6 +686,10 @@ public class EpicsFemtoWithBekhoffAdc extends DetectorBase implements NexusDetec
 	}
 
 	public CouplingMode getFemtoCouplingMode() throws DeviceException {
+		if (!supportsCoupling) {
+			throw new UnsupportedOperationException("Femto is configured not to support coupling");
+		}
+
 		try {
 			return CouplingMode.valueOf(EPICS_CONTROLLER.cagetString(getFemtoChannel(FEMTO_COUPLING)));
 		} catch (CAException | InterruptedException | TimeoutException e) {
@@ -770,6 +789,10 @@ public class EpicsFemtoWithBekhoffAdc extends DetectorBase implements NexusDetec
 		}
 	}
 
+	private boolean hasMultipleFemtoModes() {
+		return modeToGainToGainStringMap.size() > 1 ? true : false;
+	}
+
 	public String getBasePVName() {
 		return basePVName;
 	}
@@ -840,6 +863,14 @@ public class EpicsFemtoWithBekhoffAdc extends DetectorBase implements NexusDetec
 
 	public void setHasIinPV(boolean hasIinPV) {
 		this.hasIinPV = hasIinPV;
+	}
+
+	public boolean isSupportsCoupling() {
+		return supportsCoupling;
+	}
+
+	public void setSupportsCoupling(boolean supportsCoupling) {
+		this.supportsCoupling = supportsCoupling;
 	}
 
 }
