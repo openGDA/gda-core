@@ -129,4 +129,10 @@ http://www.eclipse.org/legal/epl-v10.html
          fragment="true"
          unpack="false"/>
 
+   <plugin
+         id="uk.ac.diamond.daq.splitpackagesresolver"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
 </feature>
