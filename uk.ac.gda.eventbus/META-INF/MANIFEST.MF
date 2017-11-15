@@ -8,9 +8,9 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: com.google.guava;bundle-version="16.0.1",
  ch.qos.logback.classic;bundle-version="[1.0.7,2.0.0)",
  ch.qos.logback.core;bundle-version="[1.0.7,2.0.0)",
- uk.ac.gda.eventbus.api
-Import-Package: gda.factory,
- javax.jms,
+ uk.ac.gda.eventbus.api,
+ uk.ac.gda.api;bundle-version="9.7.0"
+Import-Package: javax.jms,
  org.apache.activemq,
  org.slf4j;version="[1.7.2,2.0.0)",
  org.springframework.beans.factory;version="3.2.9.RELEASE"
