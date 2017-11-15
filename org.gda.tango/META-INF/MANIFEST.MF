@@ -23,18 +23,18 @@ Require-Bundle: org.eclipse.core.runtime,
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: fr.esrf.Tango,
- gda.device,
+ gda.device;split=true;mandatory:=split,
  gda.device.base,
  gda.device.detector.frelon,
  gda.device.detector.mythen,
- gda.device.detector.pilatus,
- gda.device.detector.xmap,
- gda.device.frelon,
+ gda.device.detector.pilatus;split=true;mandatory:=split,
+ gda.device.detector.xmap;split=true;mandatory:=split,
+ gda.device.frelon;split=true;mandatory:=split,
  gda.device.frelon.impl,
  gda.device.lima,
  gda.device.lima.impl,
  gda.device.maxipix2,
- gda.device.scannable
+ gda.device.scannable;split=true;mandatory:=split
 Import-Package: net.sf.cglib.core,
  net.sf.cglib.proxy,
  org.slf4j;version="[1.7.2,2.0.0)",
