@@ -13,6 +13,6 @@ Require-Bundle: uk.ac.gda.core,
  org.eclipse.dawnsci.nexus;bundle-version="1.0.0",
  org.eclipse.dawnsci.analysis.dataset;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Export-Package: gda.data.scan.datawriter
+Export-Package: gda.data.scan.datawriter;split=true;mandatory:=split
 Import-Package: gda.device.detector.xspress,
  org.slf4j
