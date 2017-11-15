@@ -17,7 +17,7 @@ Require-Bundle: uk.ac.gda.video;bundle-version="1.0.0",
  org.eclipse.swt
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Eclipse-BuddyPolicy: registered
-Export-Package: gda.images.camera,
+Export-Package: gda.images.camera;split=true;mandatory:=split,
  gda.images.camera.mjpeg
 Import-Package: net.sf.cglib.core,
  net.sf.cglib.proxy,
