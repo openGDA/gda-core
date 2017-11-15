@@ -149,10 +149,9 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * The default value of the '{@link #getLensMode() <em>Lens Mode</em>}' attribute.
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @see #getLensMode()
-	 * @generated
 	 * @ordered
 	 */
-	protected static final String LENS_MODE_EDEFAULT = "Transmission";
+	protected static final String LENS_MODE_EDEFAULT = "Angular56";
 
 	/**
 	 * The cached value of the '{@link #getLensMode() <em>Lens Mode</em>}' attribute.
