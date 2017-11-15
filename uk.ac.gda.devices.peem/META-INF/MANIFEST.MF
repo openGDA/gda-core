@@ -15,8 +15,8 @@ Eclipse-RegisterBuddy: uk.ac.gda.libs, uk.ac.diamond.org.springframework
 Eclipse-BuddyPolicy: registered
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
-Export-Package: gda.device,
- gda.device.detector.areadetector,
+Export-Package: gda.device;split=true;mandatory:=split,
+ gda.device.detector.areadetector;split=true;mandatory:=split,
  gda.device.detector.pixis,
  gda.device.detector.uview,
  gda.device.detector.uview.corba,
