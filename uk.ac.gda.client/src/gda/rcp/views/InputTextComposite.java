@@ -63,6 +63,7 @@ public class InputTextComposite extends Composite {
 	private int textWidth = DEFAULT_TEXT_WIDTH;
 	private Label unitLabel;
 	private boolean textInput;
+	private String currentPosition;
 
 	/**
 	 * Constructor
@@ -87,12 +88,12 @@ public class InputTextComposite extends Composite {
 
 		// Name label
 		displayNameLabel = new Label(this, SWT.NONE);
-		displayNameLabel.setLayoutData(GridDataFactory.fillDefaults().hint(SWT.DEFAULT, SWT.DEFAULT).grab(true, false).create());
+		displayNameLabel.setLayoutData(GridDataFactory.fillDefaults().hint(SWT.DEFAULT, SWT.DEFAULT).align(SWT.CENTER, SWT.CENTER).grab(true, false).create());
 
 		// Position text box
 		positionText = new Text(this, SWT.BORDER);
 		positionText.setTextLimit(10);
-		positionText.setLayoutData(GridDataFactory.fillDefaults().hint(getTextWidth(), SWT.DEFAULT).grab(true, false).create());
+		positionText.setLayoutData(GridDataFactory.fillDefaults().hint(getTextWidth(), SWT.DEFAULT).align(SWT.CENTER, SWT.CENTER).grab(true, false).create());
 		positionText.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent key) {
@@ -114,7 +115,7 @@ public class InputTextComposite extends Composite {
 
 		// Name label
 		unitLabel = new Label(this, SWT.NONE);
-		unitLabel.setLayoutData(GridDataFactory.fillDefaults().hint(SWT.DEFAULT, SWT.DEFAULT).grab(true, false).create());
+		unitLabel.setLayoutData(GridDataFactory.fillDefaults().hint(SWT.DEFAULT, SWT.DEFAULT).align(SWT.CENTER, SWT.CENTER).grab(true, false).create());
 
 		// At this time the control is built but no scannable is set so disable it.
 		disable();
@@ -330,6 +331,49 @@ public class InputTextComposite extends Composite {
 
 		scannable.addIObserver(iObserver);
 		this.addDisposeListener(e->	scannable.deleteIObserver(iObserver));
+		updateGui(getCurrentPosition());
+	}
+
+	/**
+	 * Calls {@link Scannable} getPosition() method and parses it into a String using getOutputFormat().
+	 * If the scannable returns an array the first element is used.
+	 *
+	 * @return The current position of the scannable
+	 */
+	private String getCurrentPosition() {
+		String currentPosition = null;
+		Object cPosition;
+		try {
+			Object getPosition = scannable.getPosition();
+
+			if (getPosition.getClass().isArray())
+				// The scannable returns an array assume the relevant value is the first
+				cPosition = ((Object[]) getPosition)[0];
+			else
+				cPosition = getPosition;
+			if (cPosition instanceof Number) {
+				currentPosition=String.format(scannable.getOutputFormat()[0], cPosition).trim();
+			} else {
+				currentPosition=cPosition.toString();
+			}
+		} catch (DeviceException e) {
+			logger.error("Error while getting currrent position of {}", scannableName, e);
+			return "Unavailable";
+		}
+
+		return currentPosition;
+	}
+	/**
+	 * This is used to update the GUI. Only this method should be used to update the GUI to ensure display is consistent.
+	 *
+	 * @param currentPosition
+	 *            The newest position to display typically from {@link #getCurrentPosition()}
+	 */
+	private void updateGui(final String currentPosition) {
+		// Save the new position
+		this.currentPosition = currentPosition;
+		// Update the GUI in the UI thread
+		Display.getDefault().asyncExec(()->	positionText.setText(currentPosition));
 	}
 
 	public boolean isTextInput() {
