@@ -217,7 +217,11 @@ public class SpringObjectServer extends ObjectServer {
 			LinkedHashSet<String> imports = new LinkedHashSet<>();
 			for (Class<?> type : beanTypes.values()) {
 				final String className = type.getSimpleName().split("\\$")[0];
-				imports.add(String.format("\tfrom %s import %s", type.getPackage().getName(), className));
+				if (type.getPackage()!=null) {
+					//workaround dynamic proxy bean of org.springframework.aop.framework.ProxyFactoryBean type does not have package name.
+					// see DAQ-1018 for more information.
+					imports.add(String.format("\tfrom %s import %s", type.getPackage().getName(), className));
+				}
 			}
 			String[] _imports = imports.toArray(new String[] {});
 			Arrays.sort(_imports, String.CASE_INSENSITIVE_ORDER); // alphabetically ordered
