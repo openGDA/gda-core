@@ -181,7 +181,7 @@ public class SocketBidiAsciiCommunicator implements BidiAsciiCommunicator, Initi
 				reader = socket.getInputStream();
 				writer = socket.getOutputStream();
 			} catch (Exception e) {
-				throw new DeviceException("Error connecting to '" + address + "' : '" + port, e);
+				throw new DeviceException("Error connecting to '" + address + ":" + port +"'", e);
 			}
 		}
 	}
