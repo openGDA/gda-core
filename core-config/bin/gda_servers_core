@@ -239,10 +239,8 @@ if [[ "${GDA_MODE}" == "dummy" ]] || [[ "${ssh_tunnel_activated:-}" == true ]] |
 
                 ${GDA_WORKSPACE_PARENT}/${GDA_CORE_CONFIG_rel}/bin/telnet_ping "${server_machine}" "${GDA_JYTHON_SOCKET}"
                 if [[ "$?" == 0 ]]; then
-                # if we are using zenity progress bar then change its text when startup is successful for 2 seconds
-                    if [[ -n "${DISPLAY:-}" && "${GDA_NO_PROMPT:-}" != true ]]; then
-                        echo
-                        echo "#\nServer started"
+                    if [[ -n "${DISPLAY:-}" && "${GDA_NO_PROMPT:-}" != true ]]; then    # if we are using zenity progress bar then change
+                        echo "#\nServer started"                                        # its text when startup is successful for 2 seconds
                         sleep 2
                     fi
                     break
