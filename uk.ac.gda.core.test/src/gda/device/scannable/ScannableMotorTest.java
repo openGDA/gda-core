@@ -623,7 +623,7 @@ public class ScannableMotorTest {
 	@Test(expected = DeviceException.class)
 	public void testGetUpperMotorLimitWithNoMotorLimitsComponent() throws Exception {
 		sm.setMotorLimitsComponent(null);
-		sm.getLowerMotorLimit();
+		sm.getUpperMotorLimit();
 	}
 
 	@Test
