@@ -1,35 +1,47 @@
 #!/usr/bin/expect
 
-# Expect script derived from M. Booth's gdanotify that attempts to talk to the GDA server's
-# telnet port exiting with non-zero code unless the connection is successful
+# Expect script derived from M. Booth's gdanotify that attempts to talk to the GDA
+# server's telnet port, exiting with non-zero code if the connection isn't successful.
 
 # Turn off display to stdout
 log_user 0
 
+set EOF "\004"
+set LF  "\010"
+
 #If it all goes pear shaped the script will timeout after 5 seconds.
 set timeout 5
 
-#First argument is assigned to the variable text
+#First argument is assigned to the variable text.
 set host [lindex $argv 0]
 set port [lindex $argv 1]
 
-#This spawns the telnet program and connects it to the variable name
+#This spawns the telnet program and connects it to the selected host and port
 spawn telnet $host $port
 
-# Expect the standard prompt and send a word to it. Handle error responses
-# using regular expression matching, or handle the timeout condition.
+# Expect the standard prompt and, if received,  send a valid command
+# to it. Otherwise Handle error responses using regular expression
+# matching, or handle the timeout condition.
+
 expect {
-        ">>> " {send "stuff"}
     -re "Connection refused" {exit 1}
     -re "Connection closed"  {exit 2}
     -re "no address.*" {exit 3}
     timeout {exit 4}
+    ">>> " {send "type('jython')$LF"}
 }
 
-# If all was successful expect the standard prompt and on receiving this
-# close the connection in an ordered way
-expect ">>> "
-send \x1d
-expect "telnet>"
-send "quit\r"
-exit 0
+# If all was successful expect the correct response from Jython followed by
+# the standard prompt. On receiving this close the connection in an ordered
+# way by sending EOF.
+
+expect {
+    timeout {exit 4}
+    "<type 'str'>"
+}
+expect {
+    timeout {exit 4}
+    ">>> " {send $EOF}
+}
+# Now wait for EOF to be processed before exiting with 0.
+sleep 1
