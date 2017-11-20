@@ -48,6 +48,8 @@ public class SoftwareStartStop extends AbstractADCollectionStrategy {
 
 	private int savedAcquireState;
 
+	private boolean stopAquiringInPreparation=true;
+
 	// NXCollectionStrategyPlugin interface
 
 	@Override
@@ -117,7 +119,17 @@ public class SoftwareStartStop extends AbstractADCollectionStrategy {
 	@Override
 	protected void rawPrepareForCollection(double collectionTime, int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
 		super.rawPrepareForCollection(collectionTime, numberImagesPerCollection, scanInfo);
-		// We stop here because before the scan we need to ensure the detector is stopped. If it's not frames may reach other plugins causing time series data to be wrong!
-		getAdBase().stopAcquiring();
+		if (isStopAquiringInPreparation()) {
+			// We stop here because before the scan we need to ensure the detector is stopped. If it's not frames may reach other plugins causing time series data to be wrong!
+			getAdBase().stopAcquiring();
+		}
+	}
+
+	public boolean isStopAquiringInPreparation() {
+		return stopAquiringInPreparation;
+	}
+
+	public void setStopAquiringInPreparation(boolean stopAquiringInPreparation) {
+		this.stopAquiringInPreparation = stopAquiringInPreparation;
 	}
 }
