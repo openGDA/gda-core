@@ -171,7 +171,6 @@ public class GDAJythonInterpreter {
 		final PySystemState pss = new PySystemState();
 		try {
 			Py.setSystemState(pss);
-			pss.setClassLoader(classLoader);
 			pss.setdefaultencoding(UTF_8);		// cannot be done before Py.setSystemState
 			Py.defaultSystemState = pss;
 		} catch (Exception e) {
