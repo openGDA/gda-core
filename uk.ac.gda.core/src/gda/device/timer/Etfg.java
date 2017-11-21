@@ -164,7 +164,7 @@ public class Etfg extends Tfg {
 			return null;
 		}
 		switch (attributeName) {
-		case "Version":
+		case VERSION:
 			return version;
 		case DEBOUNCE:
 			return debounceValues;

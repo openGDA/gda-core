@@ -102,7 +102,6 @@ public class TfgTest {
 		tfg.setAttribute(ENDIAN, "intel");
 
 		assertEquals("gm", tfg.getAttribute(USER));
-		assertEquals("gm", tfg.getAttribute(USER));
 		assertEquals("test", tfg.getAttribute(PASSWORD));
 		assertEquals("testvig", tfg.getAttribute(HOST));
 		assertEquals("intel", tfg.getAttribute(ENDIAN));
