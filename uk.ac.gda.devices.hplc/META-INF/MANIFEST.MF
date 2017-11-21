@@ -6,13 +6,10 @@ Bundle-Version: 1.0.0
 Bundle-Activator: uk.ac.gda.devices.hplc.Activator
 Require-Bundle: org.eclipse.core.runtime;bundle-version="3.8.0",
  uk.ac.gda.common;bundle-version="1.2.0",
- uk.ac.gda.core;bundle-version="9.5.0"
+ uk.ac.gda.core;bundle-version="9.5.0",
+ uk.ac.gda.devices.hatsaxs
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
-Import-Package: gda.jython,
- gda.jython.batoncontrol,
- uk.ac.gda.devices.hatsaxs.beans,
- uk.ac.gda.util.beans.xml
 Export-Package: uk.ac.gda.devices.hplc,
  uk.ac.gda.devices.hplc.beans
 Bundle-ClassPath: .
