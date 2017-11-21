@@ -102,9 +102,6 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 		double start, step;
 		int length, startChannel = 0;
 		if (controller.getAcquisitionMode().equalsIgnoreCase("Fixed")) {
-//			int pass = controller.getPassEnergy().intValue();
-//			start = controller.getCentreEnergy() - (getCapabilities().getEnergyWidthForPass(pass) / 2);
-//			step = getCapabilities().getEnergyStepForPass(pass);
 			start = controller.getStartEnergy();
 			step = controller.getEnergyStep();
 			length = getAdBase().getSizeX();
