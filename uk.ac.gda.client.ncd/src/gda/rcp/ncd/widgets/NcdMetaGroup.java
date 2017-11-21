@@ -32,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.Subscribe;
+import com.swtdesigner.SWTResourceManager;
 
 import uk.ac.diamond.daq.msgbus.MsgBus;
 import uk.ac.diamond.daq.scm.api.events.NcdMetaType;
@@ -58,6 +59,7 @@ public class NcdMetaGroup extends Composite {
 		Group group = new Group(this, SWT.NONE);
 		group.setLayout(new GridLayout(2, true));
 		group.setText(type + " Calibration");
+		group.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 		group.setLayoutData(gdf.align(SWT.FILL, SWT.FILL).create());
 
 

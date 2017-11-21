@@ -50,6 +50,8 @@ import uk.ac.diamond.daq.scm.api.events.StatusUpdated;
 import uk.ac.gda.server.ncd.detectorsystem.NcdDetectorSystem;
 
 public class NcdStatus extends ViewPart {
+	private static final String NO_CPS = "-- cps";
+	private static final String NO_COUNTS = "-- counts";
 	private static final Logger logger = LoggerFactory.getLogger(NcdStatus.class);
 
 	public NcdStatus() {
@@ -80,72 +82,71 @@ public class NcdStatus extends ViewPart {
 	}
 
 	private void createFirstHalf(Composite parent) {
-		GridLayout gl_parent = new GridLayout(4, false);
-		gl_parent.verticalSpacing = 12;
+		GridLayout glParent = new GridLayout(4, false);
+		glParent.verticalSpacing = 12;
 		GridData gridData = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 		parent.setLayoutData(gridData);
-		parent.setLayout(gl_parent);
-
+		parent.setLayout(glParent);
 		Composite progress = new Composite(parent, SWT.NONE);
 		progress.setLayout(new GridLayout(4, false));
 		progress.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 4, 1));
 		{
 			Group grpFrame = new Group(progress, SWT.NONE);
 			grpFrame.setText("Frame");
-			GridData gd_grpElapsedTime = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-			gd_grpElapsedTime.widthHint = 60;
-			grpFrame.setLayoutData(gd_grpElapsedTime);
+			grpFrame.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
+			GridData gdGrpElapsedTime = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+			gdGrpElapsedTime.widthHint = 60;
+			grpFrame.setLayoutData(gdGrpElapsedTime);
 			grpFrame.setLayout(new FillLayout(SWT.HORIZONTAL));
 			{
 				frameNumber = new Label(grpFrame, SWT.NONE);
 				frameNumber.setAlignment(SWT.CENTER);
 				frameNumber.setFont(SWTResourceManager.getFont("Sans", 12, SWT.NORMAL));
-				frameNumber.setBackground(SWTResourceManager.getColor(SWT.COLOR_TITLE_INACTIVE_BACKGROUND));
 				frameNumber.setText("0");
 			}
 		}
 		{
 			Group grpCycle = new Group(progress, SWT.NONE);
 			grpCycle.setText("Cycle");
-			GridData gd_grpElapsedTime = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-			gd_grpElapsedTime.widthHint = 60;
-			grpCycle.setLayoutData(gd_grpElapsedTime);
+			grpCycle.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
+			GridData gdGrpElapsedTime = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+			gdGrpElapsedTime.widthHint = 60;
+			grpCycle.setLayoutData(gdGrpElapsedTime);
 			grpCycle.setLayout(new FillLayout(SWT.HORIZONTAL));
 			{
 				cycleNumber = new Label(grpCycle, SWT.NONE);
 				cycleNumber.setAlignment(SWT.CENTER);
 				cycleNumber.setFont(SWTResourceManager.getFont("Sans", 12, SWT.NORMAL));
-				cycleNumber.setBackground(SWTResourceManager.getColor(SWT.COLOR_TITLE_INACTIVE_BACKGROUND));
 				cycleNumber.setText("0");
 			}
 		}
 		{
 			Group grpElapsedTime = new Group(progress, SWT.NONE);
-			GridData gd_grpElapsedTime = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
-			gd_grpElapsedTime.widthHint = 120;
-			grpElapsedTime.setLayoutData(gd_grpElapsedTime);
+			GridData gdGrpElapsedTime = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+			gdGrpElapsedTime.widthHint = 120;
+			grpElapsedTime.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
+			grpElapsedTime.setLayoutData(gdGrpElapsedTime);
 			grpElapsedTime.setText("Tfg Status");
 			grpElapsedTime.setLayout(new FillLayout(SWT.HORIZONTAL));
 			{
 				frameStatus = new Label(grpElapsedTime, SWT.NONE);
 				frameStatus.setText("BORED");
 				frameStatus.setFont(SWTResourceManager.getFont("Sans", 12, SWT.NORMAL));
-				frameStatus.setBackground(SWTResourceManager.getColor(SWT.COLOR_TITLE_INACTIVE_BACKGROUND));
 				frameStatus.setAlignment(SWT.CENTER);
 			}
 		}
 		{
 			Group grpElapsedTime = new Group(progress, SWT.NONE);
-			GridData gd_grpElapsedTime = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-			gd_grpElapsedTime.widthHint = 120;
-			grpElapsedTime.setLayoutData(gd_grpElapsedTime);
+			GridData gdGrpElapsedTime = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+			gdGrpElapsedTime.widthHint = 120;
+			grpElapsedTime.setLayoutData(gdGrpElapsedTime);
+			grpElapsedTime.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 			grpElapsedTime.setText("Elapsed Time");
 			grpElapsedTime.setLayout(new FillLayout(SWT.HORIZONTAL));
 			{
 				elapsedTime = new Label(grpElapsedTime, SWT.NONE);
 				elapsedTime.setText("00:00:00");
 				elapsedTime.setFont(SWTResourceManager.getFont("Sans", 12, SWT.NORMAL));
-				elapsedTime.setBackground(SWTResourceManager.getColor(SWT.COLOR_TITLE_INACTIVE_BACKGROUND));
 				elapsedTime.setAlignment(SWT.CENTER);
 			}
 		}
@@ -161,8 +162,9 @@ public class NcdStatus extends ViewPart {
 		{
 			Group normalisation = new Group(parent, SWT.NONE);
 			normalisation.setText("Normalisation");
-			GridData gd_normalisation = new GridData(SWT.FILL, SWT.CENTER, true, false, 4,1);
-			normalisation.setLayoutData(gd_normalisation);
+			GridData gdNormalisation = new GridData(SWT.FILL, SWT.CENTER, true, false, 4,1);
+			normalisation.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
+			normalisation.setLayoutData(gdNormalisation);
 			normalisation.setLayout(new FillLayout(SWT.HORIZONTAL));
 			{
 				i0Normalisation = new Label(normalisation, SWT.NONE);
@@ -186,40 +188,38 @@ public class NcdStatus extends ViewPart {
 			{
 				Group grpElapsedTime = new Group(composite, SWT.NONE);
 				grpElapsedTime.setText("Saxs Peak");
+				grpElapsedTime.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 				grpElapsedTime.setLayout(new FillLayout(SWT.VERTICAL));
 				grpElapsedTime.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 				{
 					saxsPeak = new Label(grpElapsedTime, SWT.NONE);
-					saxsPeak.setText("-- counts");
+					saxsPeak.setText(NO_COUNTS);
 					saxsPeak.setFont(SWTResourceManager.getFont("Sans", 10, SWT.NORMAL));
-					saxsPeak.setBackground(SWTResourceManager.getColor(SWT.COLOR_TITLE_INACTIVE_BACKGROUND));
 					saxsPeak.setAlignment(SWT.CENTER);
 				}
 				{
 					saxsPeakRate = new Label(grpElapsedTime, SWT.NONE);
-					saxsPeakRate.setText("-- cps");
+					saxsPeakRate.setText(NO_CPS);
 					saxsPeakRate.setFont(SWTResourceManager.getFont("Sans", 10, SWT.NORMAL));
-					saxsPeakRate.setBackground(SWTResourceManager.getColor(SWT.COLOR_TITLE_INACTIVE_BACKGROUND));
 					saxsPeakRate.setAlignment(SWT.CENTER);
 				}
 			}
 			{
 				Group grpElapsedTime = new Group(composite, SWT.NONE);
 				grpElapsedTime.setText("Waxs Peak");
+				grpElapsedTime.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 				grpElapsedTime.setLayout(new FillLayout(SWT.VERTICAL));
 				grpElapsedTime.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		{
 					waxsPeak = new Label(grpElapsedTime, SWT.NONE);
-					waxsPeak.setText("-- counts");
+					waxsPeak.setText(NO_COUNTS);
 					waxsPeak.setFont(SWTResourceManager.getFont("Sans", 10, SWT.NORMAL));
-					waxsPeak.setBackground(SWTResourceManager.getColor(SWT.COLOR_TITLE_INACTIVE_BACKGROUND));
 					waxsPeak.setAlignment(SWT.CENTER);
 				}
 		{
 			waxsPeakRate = new Label(grpElapsedTime, SWT.NONE);
-			waxsPeakRate.setText("-- cps");
+			waxsPeakRate.setText(NO_CPS);
 			waxsPeakRate.setFont(SWTResourceManager.getFont("Sans", 10, SWT.NORMAL));
-			waxsPeakRate.setBackground(SWTResourceManager.getColor(SWT.COLOR_TITLE_INACTIVE_BACKGROUND));
 			waxsPeakRate.setAlignment(SWT.CENTER);
 		}
 			}
@@ -228,19 +228,18 @@ public class NcdStatus extends ViewPart {
 				Group grpElapsedTime = new Group(composite, SWT.NONE);
 				grpElapsedTime.setText("Saxs Integrated");
 				grpElapsedTime.setLayout(new FillLayout(SWT.VERTICAL));
+				grpElapsedTime.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 				grpElapsedTime.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 				{
 					saxsCount = new Label(grpElapsedTime, SWT.NONE);
-					saxsCount.setText("-- counts");
+					saxsCount.setText(NO_COUNTS);
 					saxsCount.setFont(SWTResourceManager.getFont("Sans", 10, SWT.NORMAL));
-					saxsCount.setBackground(SWTResourceManager.getColor(SWT.COLOR_TITLE_INACTIVE_BACKGROUND));
 					saxsCount.setAlignment(SWT.CENTER);
 				}
 				{
 					saxsCountRate = new Label(grpElapsedTime, SWT.NONE);
-					saxsCountRate.setText("-- cps");
+					saxsCountRate.setText(NO_CPS);
 					saxsCountRate.setFont(SWTResourceManager.getFont("Sans", 10, SWT.NORMAL));
-					saxsCountRate.setBackground(SWTResourceManager.getColor(SWT.COLOR_TITLE_INACTIVE_BACKGROUND));
 					saxsCountRate.setAlignment(SWT.CENTER);
 				}
 			}
@@ -248,19 +247,18 @@ public class NcdStatus extends ViewPart {
 				Group grpElapsedTime = new Group(composite, SWT.NONE);
 				grpElapsedTime.setText("Waxs Integrated");
 				grpElapsedTime.setLayout(new FillLayout(SWT.VERTICAL));
+				grpElapsedTime.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 				grpElapsedTime.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 				{
 					waxsCount = new Label(grpElapsedTime, SWT.NONE);
-					waxsCount.setText("-- counts");
+					waxsCount.setText(NO_COUNTS);
 					waxsCount.setFont(SWTResourceManager.getFont("Sans", 10, SWT.NORMAL));
-					waxsCount.setBackground(SWTResourceManager.getColor(SWT.COLOR_TITLE_INACTIVE_BACKGROUND));
 					waxsCount.setAlignment(SWT.CENTER);
 				}
 				{
 					waxsCountRate = new Label(grpElapsedTime, SWT.NONE);
-					waxsCountRate.setText("-- cps");
+					waxsCountRate.setText(NO_CPS);
 					waxsCountRate.setFont(SWTResourceManager.getFont("Sans", 10, SWT.NORMAL));
-					waxsCountRate.setBackground(SWTResourceManager.getColor(SWT.COLOR_TITLE_INACTIVE_BACKGROUND));
 					waxsCountRate.setAlignment(SWT.CENTER);
 				}
 			}
@@ -275,7 +273,6 @@ public class NcdStatus extends ViewPart {
 		{
 			totalCycleCount = new Label(parent, SWT.NONE);
 			totalCycleCount.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
-			totalCycleCount.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 			totalCycleCount.setText("");
 		}
 		{
@@ -286,9 +283,8 @@ public class NcdStatus extends ViewPart {
 		}
 		{
 			parameterFile = new Label(parent, SWT.NONE);
-			GridData gd_parameterFile = new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1);
-			parameterFile.setLayoutData(gd_parameterFile);
-			parameterFile.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+			GridData gdParameterFile = new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1);
+			parameterFile.setLayoutData(gdParameterFile);
 			parameterFile.setText("");
 		}
 		{
@@ -299,9 +295,8 @@ public class NcdStatus extends ViewPart {
 		}
 		{
 			scanFile = new Text(parent, SWT.NONE);
-			GridData gd_scanFile = new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1);
-			scanFile.setLayoutData(gd_scanFile);
-			scanFile.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+			GridData gdScanFile = new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1);
+			scanFile.setLayoutData(gdScanFile);
 			scanFile.setText("");
 			scanFile.setEditable(false);
 		}
@@ -313,9 +308,8 @@ public class NcdStatus extends ViewPart {
 		}
 		{
 			currentDirectory = new Text(parent, SWT.NONE);
-			GridData gd_currentDirectory = new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1);
-			currentDirectory.setLayoutData(gd_currentDirectory);
-			currentDirectory.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+			GridData gdCurrentDirectory = new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1);
+			currentDirectory.setLayoutData(gdCurrentDirectory);
 			currentDirectory.setText("");
 			currentDirectory.setEditable(false);
 		}
@@ -324,9 +318,8 @@ public class NcdStatus extends ViewPart {
 			label.setText("Subdirectory");
 			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 2, 1));
 			subDirectory = new Text(parent, SWT.BORDER);
-			GridData gd_subDirectory = new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1);
-			subDirectory.setLayoutData(gd_subDirectory);
-			subDirectory.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+			GridData gdSubDirectory = new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1);
+			subDirectory.setLayoutData(gdSubDirectory);
 			subDirectory.setText("");
 		}
 		{
@@ -334,9 +327,8 @@ public class NcdStatus extends ViewPart {
 			label.setText("Scan Title");
 			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 2, 1));
 			scanTitle = new Text(parent, SWT.BORDER);
-			GridData gd_subDirectory = new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1);
-			scanTitle.setLayoutData(gd_subDirectory);
-			scanTitle.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+			GridData gdSubDirectory = new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1);
+			scanTitle.setLayoutData(gdSubDirectory);
 			scanTitle.setText("");
 		}
 		GridDataFactory gdf = GridDataFactory.fillDefaults().span(4, 1);

@@ -37,6 +37,8 @@ import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.swtdesigner.SWTResourceManager;
+
 import gda.device.DeviceException;
 import gda.device.EnumPositioner;
 import gda.observable.IObserver;
@@ -76,6 +78,7 @@ public class ShutterGroup implements IObserver, Runnable {
 		RowLayout layout = new RowLayout(SWT.HORIZONTAL);
 		layout.center = true;
 		group.setLayout(layout);
+		group.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 
 		label = new Label(group, SWT.NONE);
 		label.setText("  Fault  ");
