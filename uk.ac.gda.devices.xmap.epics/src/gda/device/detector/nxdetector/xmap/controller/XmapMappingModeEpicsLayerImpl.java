@@ -81,11 +81,11 @@ public class XmapMappingModeEpicsLayerImpl extends CollectionMode implements Xma
 			throw new FactoryException("'basePVName' needs to be declared");
 		}
 		try {
+			createMappingSettingsLazyPVs();
+			createPixelsPerBufferLazyPVs();
 			if (initialPixelsPerBuffer > 0) {
 				setPixelsPerBuffer(initialPixelsPerBuffer);
 			}
-			createMappingSettingsLazyPVs();
-			createPixelsPerBufferLazyPVs();
 			createRuntimeLazyPVs();
 		} catch (Exception e) {
 			final String message = "Exception configuring XMAP mapping";
