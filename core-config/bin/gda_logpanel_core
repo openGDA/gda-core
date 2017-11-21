@@ -1,20 +1,27 @@
 
 LOGPANELWINDOW=$(wmctrl -l | grep "GDA Log Panel" | grep -v grep) || true
 
+if [[ -z "${GDA_LOGSERVER_HOST:-}" ]] && [[ "${GDA_MODE}" == "live" ]]; then
+  GDA_LOGSERVER_HOST="${GDA_INSTANCE_NAME}-control.diamond.ac.uk"
+fi
 
 if [ "$LOGPANELWINDOW" == "" ] ; then
-  GDA_LOGPANEL_APP=/dls_sw/apps/gdalogpanel/gdalogpanel/gdalogpanel
+  if [[ -z "${GDA_NEW_LOGPANEL:-}" ]] || [[ "${GDA_NEW_LOGPANEL}" == "false" ]] ; then
+    GDA_LOGPANEL_APP=/dls_sw/apps/gdalogpanel/gdalogpanel/gdalogpanel
+    GDA_LOGPANEL_APP_ARGS="-vmargs -Dgda.propertiesFile=${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/properties/${GDA_MODE}/${GDA_MODE}_instance_java.properties"
+    GDA_LOGPANEL_APP_ARGS="$GDA_LOGPANEL_APP_ARGS -Dgda.install.git.loc=${GDA_WORKSPACE_PARENT}/workspace_git"
+    GDA_LOGPANEL_APP_ARGS="$GDA_LOGPANEL_APP_ARGS -Dgda.mode=${GDA_MODE}"
+    GDA_LOGPANEL_APP_ARGS="$GDA_LOGPANEL_APP_ARGS -Dgda.group.dir=${GDA_WORKSPACE_PARENT}/${GDA_GROUP_CONFIG_rel}"
+    GDA_LOGPANEL_APP_ARGS="$GDA_LOGPANEL_APP_ARGS -Dgda.facility.dir=${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel}"
+    GDA_LOGPANEL_APP_ARGS="$GDA_LOGPANEL_APP_ARGS -Dgda.core.dir=${GDA_WORKSPACE_PARENT}/${GDA_CORE_CONFIG_rel}"
+  else
+    GDA_LOGPANEL_APP=/dls_sw/apps/gdalogpanel/gdalogpanels/snapshot/gdalogpanel
+    GDA_LOGPANEL_APP_ARGS="-vmargs -Dgda.logserver.host=${GDA_LOGSERVER_HOST}"
+  fi
 
-  GDA_LOGPANEL_APP_ARGS="-vmargs -Dgda.propertiesFile=${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/properties/${GDA_MODE}/${GDA_MODE}_instance_java.properties"
-  GDA_LOGPANEL_APP_ARGS="$GDA_LOGPANEL_APP_ARGS -Dgda.install.git.loc=${GDA_WORKSPACE_PARENT}/workspace_git"
-  GDA_LOGPANEL_APP_ARGS="$GDA_LOGPANEL_APP_ARGS -Dgda.mode=${GDA_MODE}"
-  GDA_LOGPANEL_APP_ARGS="$GDA_LOGPANEL_APP_ARGS -Dgda.group.dir=${GDA_WORKSPACE_PARENT}/${GDA_GROUP_CONFIG_rel}"
-  GDA_LOGPANEL_APP_ARGS="$GDA_LOGPANEL_APP_ARGS -Dgda.facility.dir=${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel}"
-  GDA_LOGPANEL_APP_ARGS="$GDA_LOGPANEL_APP_ARGS -Dgda.core.dir=${GDA_WORKSPACE_PARENT}/${GDA_CORE_CONFIG_rel}"
   echo Starting GDA Log Panel...
   bashlog debug "gda_logpanel_core" GDA_INSTANCE_CONFIG_rel = $GDA_INSTANCE_CONFIG_rel , GDA_INSTANCE_NAME = $GDA_INSTANCE_NAME , GDA_MODE = $GDA_MODE
-    
-  
+
   bashlog debug "gda_logpanel_core" $GDA_LOGPANEL_APP $GDA_LOGPANEL_APP_ARGS
   nohup                             $GDA_LOGPANEL_APP $GDA_LOGPANEL_APP_ARGS >> ${GDA_LOG_FILE} 2>&1 &
 
