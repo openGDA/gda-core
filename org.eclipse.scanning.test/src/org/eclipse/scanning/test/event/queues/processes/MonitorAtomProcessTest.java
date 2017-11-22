@@ -114,7 +114,7 @@ public class MonitorAtomProcessTest {
 		pti.waitForBeanFinalStatus(5000l);
 		pti.checkLastBroadcastBeanStatuses(Status.TERMINATED, false);
 
-		Thread.sleep(1000);
+		Thread.sleep(3000);
 //		TODO This is probably not a good way to test this as we can't guarantee what stage the terminate happens at
 //		assertEquals("Incorrect message after terminate", "Get value of 'thermocouple1' aborted (requested)", pti.getLastBroadcastBean().getMessage());
 		//Get the filepath set for the monitor output and check it does not exist
