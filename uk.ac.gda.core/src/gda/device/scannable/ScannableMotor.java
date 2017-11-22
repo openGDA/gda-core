@@ -31,8 +31,6 @@ import gda.device.Motor;
 import gda.device.MotorException;
 import gda.device.MotorProperties.MotorEvent;
 import gda.device.MotorStatus;
-import gda.device.motor.DummyMotor;
-import gda.device.motor.TotalDummyMotor;
 import gda.device.scannable.component.MotorLimitsComponent;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
@@ -121,27 +119,29 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IScannab
 	@Override
 	public void configure() throws FactoryException {
 		if (motor == null) {
-			setMotor((Motor) Finder.getInstance().find(motorName));
+			if (motorName == null || motorName.length() == 0) {
+				throw new FactoryException("No motor configured and no motor name set");
+			}
+			final Motor motorFromFinder = Finder.getInstance().find(motorName);
+			if (motorFromFinder == null) {
+				throw new FactoryException(String.format("Motor %s not found", motorName));
+			}
+			setMotor(motorFromFinder);
 		}
 
 		motor.addIObserver((theObserved, changeCode) -> handleMotorUpdates(changeCode));
 		this.inputNames = new String[] { getName() };
 
 		try {
-
 			// get the hardware units for the underlying motor
 			// perhaps hardware units should be in the motor interface?
 			if (motor instanceof MotorUnitStringSupplier) {
 				final MotorUnitStringSupplier unitSupplier = (MotorUnitStringSupplier) motor;
 				final String motorUnit = unitSupplier.getUnitString();
-				if (!motorUnit.equals("")) {
+				if (motorUnit != null && motorUnit.length() > 0) {
 					// try to work out the units the motor works in
 					unitsComponent.setHardwareUnitString(motorUnit);
 				}
-			} else if ((motor instanceof DummyMotor || motor instanceof TotalDummyMotor)
-					&& getHardwareUnitString() == null) { // TODO: Get rid of this malarchy
-				// default for simulations
-				unitsComponent.setHardwareUnitString("mm");
 			} else if (getHardwareUnitString() == null) {
 				// else use the value from this.motorUnitString, but if that has not been set then log an error
 				logger.warn("No hardware units set for " + getName()
@@ -251,7 +251,7 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IScannab
 	@Override
 	public Object rawGetPosition() throws DeviceException {
 		if (motor == null) {
-			return null; // TODO: Should throw an exception.
+			throw new DeviceException("No motor configured");
 		}
 		try {
 			return motor.getPosition();

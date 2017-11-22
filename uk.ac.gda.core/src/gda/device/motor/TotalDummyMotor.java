@@ -22,17 +22,12 @@ package gda.device.motor;
 import gda.device.Motor;
 import gda.device.MotorException;
 import gda.device.MotorStatus;
+import gda.device.scannable.MotorUnitStringSupplier;
 import gda.observable.IObservable;
 
-/**
- * TotalDummyMotor Class
- */
-public class TotalDummyMotor extends MotorBase implements Runnable, IObservable, Motor {
-	/**
-	 *
-	 */
+public class TotalDummyMotor extends MotorBase implements Runnable, IObservable, Motor, MotorUnitStringSupplier {
 
-	double posn = 0.0;
+	private double posn = 0.0;
 
 	private double speed = 2;
 
@@ -107,5 +102,11 @@ public class TotalDummyMotor extends MotorBase implements Runnable, IObservable,
 
 	@Override
 	public void run() {
+		// not required to do anything
+	}
+
+	@Override
+	public String getUnitString() throws MotorException {
+		return "mm";
 	}
 }
