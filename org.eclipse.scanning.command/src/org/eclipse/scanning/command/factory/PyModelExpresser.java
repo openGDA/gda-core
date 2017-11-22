@@ -12,6 +12,7 @@
 package org.eclipse.scanning.command.factory;
 
 import java.util.Collection;
+import java.util.Objects;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.command.PyExpressionNotImplementedException;
@@ -48,5 +49,37 @@ abstract class PyModelExpresser<T> {
 	 */
 	String pyExpress(T model, Collection<IROI> rois, boolean verbose) throws Exception {
 		throw new PyExpressionNotImplementedException("Cannot express "+model+" with rois "+rois);
+	}
+
+	/**
+	 * Call from your implementation of pyExpress to get a verbose or concise expression for a boolean field
+	 * e.g. getPythonBooleanExpression("continuous", model.isContinuous(), verbose);
+	 * @param keyword
+	 * @param isTrue
+	 * @param verbose
+	 * @return concise/verbose pyExpression fragment for keyword
+	 */
+	protected String getBooleanPyExpression(String keyword, boolean isTrue, boolean verbose) {
+		String pythonBoolean = isTrue ? "True" : "False";
+		return (verbose ? keyword + "=" : "") + pythonBoolean;
+	}
+
+
+	/**
+	 * Call from your implementation of pyExpress to get a verbose or concise expression for rois.
+	 * @param rois
+	 * @param verbose
+	 * @return pyExpression for ROIs, unless null or empty
+	 * @throws Exception
+	 */
+	protected String getROIPyExpression(Collection<IROI> rois, boolean verbose) throws Exception {
+		if (Objects.nonNull(rois) && !rois.isEmpty()) {
+			StringBuilder sb = new StringBuilder();
+			sb.append(", ");
+			sb.append(verbose?"roi=":"");
+			sb.append(factory.pyExpress(rois, verbose));
+			return sb.toString();
+		}
+		return "";
 	}
 }
