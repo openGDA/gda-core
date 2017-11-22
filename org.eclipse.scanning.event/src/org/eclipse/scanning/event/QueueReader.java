@@ -113,13 +113,13 @@ public final class QueueReader<T> {
 						list.add(bean);
 
 					} catch (Exception unmarshallable) {
-						System.out.println("Removing old message "+json);
+						logger.error("Removing old message {}", json, unmarshallable);
 						String jMSMessageID = m.getJMSMessageID();
 						if (jMSMessageID!=null) {
 							MessageConsumer consumer = qSes.createConsumer(queue, "JMSMessageID = '"+jMSMessageID+"'");
 							Message ignored = consumer.receive(1000);
 							consumer.close();
-							System.out.println("Removed");
+							logger.trace("Removed {}", ignored.getJMSMessageID());
 						}
 
 					}
