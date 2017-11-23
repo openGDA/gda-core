@@ -17,6 +17,10 @@
       [Enter License Description here.]
    </license>
 
+   <includes
+         id="uk.ac.diamond.daq.mx.astra.server.feature"
+         version="0.0.0"/>
+
    <plugin
          id="uk.ac.gda.video.mjpeg"
          download-size="0"
@@ -26,34 +30,6 @@
 
    <plugin
          id="uk.ac.gda.devices.pco"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.globalphasing.astra.messages"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.globalphasing.sdcp.abstract_beamline"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.globalphasing.gcal.aux"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.globalphasing.sdcp.common"
          download-size="0"
          install-size="0"
          version="0.0.0"
