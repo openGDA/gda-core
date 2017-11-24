@@ -49,6 +49,7 @@ import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.jython.JythonServerFacade;
 import gda.observable.IObserver;
+import uk.ac.gda.client.UIHelper;
 
 /**
  * A class which provides a GUI composite to allow easy control of a scannable.
@@ -127,11 +128,11 @@ public class NudgePositionerComposite extends Composite {
 				}
 				// If up was pressed increment position and move
 				if (key.keyCode == SWT.ARROW_UP) { // up arrow pressed
-					move(currentPosition + incrementValue);
+					moveBy(incrementValue);
 				}
 				// If down was pressed decrement position and move
 				if (key.keyCode == SWT.ARROW_DOWN) { // down arrow pressed
-					move(currentPosition - incrementValue);
+					moveBy(-incrementValue);
 				}
 			}
 		});
@@ -150,7 +151,7 @@ public class NudgePositionerComposite extends Composite {
 		decrementButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				move(currentPosition - incrementValue);
+				moveBy(-incrementValue);
 			}
 		});
 
@@ -175,7 +176,7 @@ public class NudgePositionerComposite extends Composite {
 		incrementButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				move(currentPosition + incrementValue);
+				moveBy(incrementValue);
 			}
 		});
 
@@ -197,6 +198,17 @@ public class NudgePositionerComposite extends Composite {
 
 		// At this time the control is built but no scannable is set so disable it.
 		disable();
+	}
+
+	private void moveBy(double amountToMove) {
+		if (currentPosition == null) {
+			final String message = String.format("Cannot move %s", scannable.getName());
+			final String reason = "Position is unknown";
+			logger.error("{} : {}", message, reason);
+			UIHelper.showError(message, reason);
+		} else {
+			move(currentPosition + amountToMove);
+		}
 	}
 
 	/**
@@ -281,15 +293,15 @@ public class NudgePositionerComposite extends Composite {
 	 * @return The current position of the scannable
 	 */
 	private Double getCurrentPosition() {
-		Double currentPosition = null;
+		Double currentPos = null;
 		try {
-			Object getPosition = scannable.getPosition();
+			final Object getPosition = scannable.getPosition();
 
 			if (getPosition.getClass().isArray())
 				// The scannable returns an array assume the relevant value is the first and its a double
-				currentPosition = (Double) ((Object[]) getPosition)[0];
+				currentPos = (Double) ((Object[]) getPosition)[0];
 			else if (getPosition instanceof Double) {
-				currentPosition = (Double) getPosition;
+				currentPos = (Double) getPosition;
 			} else {
 				logger.error("Error while parsing currrent position of {}", scannableName);
 			}
@@ -297,7 +309,7 @@ public class NudgePositionerComposite extends Composite {
 			logger.error("Error while getting currrent position of {}", scannableName, e);
 		}
 
-		return currentPosition;
+		return currentPos;
 	}
 
 	// TODO This method needs rewriting to remove the use of jython e.g the commented out example but working
