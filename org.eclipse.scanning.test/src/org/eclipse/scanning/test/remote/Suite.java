@@ -17,8 +17,7 @@ import org.junit.runners.Suite.SuiteClasses;
 @RunWith(org.junit.runners.Suite.class)
 @SuiteClasses({
 	RemoteRunnableServiceTest.class,
-	RemoteScannableServiceTest.class,
-	RemoteQueueControllerServiceTest.class
+	RemoteScannableServiceTest.class
 })
 public class Suite {
 

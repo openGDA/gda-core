@@ -17,9 +17,6 @@ import java.util.Map;
 
 import org.eclipse.dawnsci.analysis.api.persistence.IClassRegistry;
 import org.eclipse.scanning.api.malcolm.models.MapMalcolmModel;
-import org.eclipse.scanning.test.event.queues.dummy.DummyAtom;
-import org.eclipse.scanning.test.event.queues.dummy.DummyBean;
-import org.eclipse.scanning.test.event.queues.dummy.DummyHasQueue;
 import org.eclipse.scanning.test.scan.mock.AnnotatedMockDetectorModel;
 import org.eclipse.scanning.test.scan.mock.MockDetectorModel;
 import org.eclipse.scanning.test.scan.mock.MockWritingMandlebrotModel;
@@ -36,12 +33,6 @@ public class ScanningTestClassRegistry implements IClassRegistry {
 		registerClass(tmp, MockDetectorModel.class);
 		registerClass(tmp, MockWritingMandlebrotModel.class);
 		registerClass(tmp, MapMalcolmModel.class);
-
-		// event.queues.dummy
-		registerClass(tmp, DummyAtom.class);
-		registerClass(tmp, DummyBean.class);
-		registerClass(tmp, DummyHasQueue.class);
-		registerClass(tmp, int[].class);
 
 		// scan.real
 		registerClass(tmp, TestScanBean.class);

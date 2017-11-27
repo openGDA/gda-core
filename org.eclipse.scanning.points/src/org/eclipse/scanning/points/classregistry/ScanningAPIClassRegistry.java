@@ -23,12 +23,6 @@ import org.eclipse.scanning.api.device.models.ProcessingModel;
 import org.eclipse.scanning.api.event.alive.HeartbeatBean;
 import org.eclipse.scanning.api.event.alive.KillBean;
 import org.eclipse.scanning.api.event.alive.PauseBean;
-import org.eclipse.scanning.api.event.queues.beans.MonitorAtom;
-import org.eclipse.scanning.api.event.queues.beans.PositionerAtom;
-import org.eclipse.scanning.api.event.queues.beans.ScanAtom;
-import org.eclipse.scanning.api.event.queues.beans.SubTaskAtom;
-import org.eclipse.scanning.api.event.queues.beans.TaskBean;
-import org.eclipse.scanning.api.event.queues.remote.QueueRequest;
 import org.eclipse.scanning.api.event.scan.AcquireRequest;
 import org.eclipse.scanning.api.event.scan.DeviceRequest;
 import org.eclipse.scanning.api.event.scan.DeviceValueMultiPosition;
@@ -157,14 +151,6 @@ public class ScanningAPIClassRegistry implements IClassRegistry {
 		// event.status
 		registerClass(tmp, AdministratorMessage.class);
 		registerClass(tmp, StatusBean.class);
-
-		// event.queues.beans
-		registerClass(tmp, QueueRequest.class);
-		registerClass(tmp, MonitorAtom.class);
-		registerClass(tmp, PositionerAtom.class);
-		registerClass(tmp, ScanAtom.class);
-		registerClass(tmp, SubTaskAtom.class);
-		registerClass(tmp, TaskBean.class);
 
 		// malcolm.event
 		registerClass(tmp, MalcolmModel.class);
