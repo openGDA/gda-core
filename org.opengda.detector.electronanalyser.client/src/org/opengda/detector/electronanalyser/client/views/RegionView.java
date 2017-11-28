@@ -1,6 +1,7 @@
 package org.opengda.detector.electronanalyser.client.views;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -722,7 +723,10 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 
 	private void initialisation() {
 		try {
-			lensMode.setItems(getAnalyser().getLensModes());
+			// I09-137 Remove Transmission mode from UI
+			List<String> modes = new ArrayList<>(Arrays.asList(getAnalyser().getLensModes()));
+			modes.remove("Transmission");
+			lensMode.setItems(modes.toArray(new String[] {}));
 		} catch (DeviceException e) {
 			logger.error("Cannot get lens mode list from analyser.", e);
 			e.printStackTrace();

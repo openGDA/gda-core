@@ -45,7 +45,7 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
         defaultValueLiteral="New Region" unsettable="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="lensMode" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
-        defaultValueLiteral="Transmission" unsettable="true"/>
+        defaultValueLiteral="Angular56" unsettable="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="passEnergy" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"
         defaultValueLiteral="10" unsettable="true"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="runMode" eType="#//RunMode"
