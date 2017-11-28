@@ -406,7 +406,7 @@ public class RotationViewer {
 				}
 				else if (e.getCause() == null) {
 					logger.error("Exception when {}", msg, e);
-					UIHelper.showError("Exception when {}" + msg, e.getMessage());
+					UIHelper.showError("Exception when " + msg, e.getMessage());
 				}
 				else {
 					handleExceptionRecursively(e.getCause());
