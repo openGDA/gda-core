@@ -527,13 +527,29 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 				findFirst();
 	}
 
+	private boolean useExisting = false;
+
+	/**
+	 * Returns <code>true</code> if an existing processing file is to be used,
+	 * <code>false</code> to create a new processing file from a template.
+	 * @return whether to use an existing processing file
+	 */
+	protected boolean useExisting() {
+		if (useExistingButton != null && !useExistingButton.isDisposed()) {
+			return useExistingButton.getSelection();
+		}
+
+		return useExisting;
+	}
+
 	@Override
 	public void finishPage() {
 		final IDetectorModel detectorModel = getSelectedDetector().getModel();
 		final Optional<String> malcolmDetectorDatasetName = detectorModel instanceof IMalcolmModel ? getDetectorDatasetNameForMalcolm((IMalcolmModel) detectorModel) : Optional.empty();
 		configureProcessingModel(detectorModel, malcolmDetectorDatasetName);
 
-		if (createNewButton.getSelection()) {
+		useExisting = useExistingButton.getSelection();
+		if (!useExisting) {
 			// Clone the detector model - we don't want to change the one in the mapping bean
 			IDetectorModel detectorModelCopy = null;
 			try {
@@ -542,6 +558,9 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 				logger.error("Could not make a copy of the detector model: " + detectorModel.getName(), e);
 				return;
 			}
+
+			// setup the acquire page with the detector model for the appropriate detector and
+			// the name of the detector group (may be different if the detector is a malcolm detector).
 			AcquireDataWizardPage acquirePage = (AcquireDataWizardPage) getNextPage();
 			acquirePage.setAcquireDetectorModel(detectorModelCopy);
 			acquirePage.setDetectorDataGroupName(malcolmDetectorDatasetName.orElse(detectorModel.getName()));
