@@ -64,7 +64,7 @@ class MappingExperimentUtils {
 		final IEventService eventService = context.get(IEventService.class);
 		final URI uri = new URI(LocalProperties.getActiveMQBrokerURI());
 		final IRequester<AcquireRequest> acquireRequestor = eventService.createRequestor(uri, ACQUIRE_REQUEST_TOPIC, ACQUIRE_RESPONSE_TOPIC);
-		acquireRequestor.setTimeout(15, TimeUnit.SECONDS);
+		acquireRequestor.setTimeout(5, TimeUnit.SECONDS);
 		return acquireRequestor;
 	}
 
