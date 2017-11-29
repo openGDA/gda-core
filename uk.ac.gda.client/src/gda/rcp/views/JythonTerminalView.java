@@ -971,6 +971,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 		}
 		if (!ClientManager.isTestingMode()) {
 			jsf.deleteOutputTerminal(this);
+			jsf.deleteIScanDataPointObserver(this);
 		}
 
 		super.dispose();
