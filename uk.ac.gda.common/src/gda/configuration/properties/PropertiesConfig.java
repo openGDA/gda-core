@@ -19,7 +19,6 @@
 
 package gda.configuration.properties;
 
-import java.net.URL;
 import java.util.Iterator;
 
 import org.apache.commons.configuration.ConfigurationException;
@@ -114,17 +113,6 @@ public interface PropertiesConfig {
 	 * @return the property value to return to the caller
 	 */
 	public String getPath(String name, String defaultValue);
-
-	/**
-	 * Get a URL property value using a specified key string.
-	 *
-	 * @param name
-	 *            the key specified to fetch the URL value
-	 * @param defaultValue
-	 *            the default value to return if the key is not found
-	 * @return the property value to return to the caller
-	 */
-	public URL getURL(String name, URL defaultValue);
 
 	/**
 	 * Assign a string property value to a specified key string.
