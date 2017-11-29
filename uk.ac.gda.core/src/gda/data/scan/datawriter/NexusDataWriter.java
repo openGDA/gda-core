@@ -960,6 +960,31 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 		if (beforeScanMetaData != null) {
 			writeHere(file, g, beforeScanMetaData, true, false, null);
 		}
+
+		if (metadataEntries != null) {
+			metadataEntries.entrySet().stream().forEach(e -> {
+				try {
+					String data = metadata.getMetadataValue(e.getKey());
+					String aPath = file.getPath(g) + e.getValue();
+					final String name = NexusUtils.getName(aPath);
+					if (name != null && !name.isEmpty()) {
+						aPath = aPath.substring(0, aPath.lastIndexOf(name));
+					}
+					if (data != null && !data.isEmpty()) {
+						NexusUtils.writeString(
+								file,
+								file.getGroup(aPath, true),
+								name,
+								data);
+						logger.debug("Wrote {} to '{}'", e.getKey(), aPath);
+					} else {
+						logger.trace("Not writing '{}' as metadata not set", e.getKey());
+					}
+				} catch (DeviceException | NexusException | IllegalArgumentException e1) {
+					logger.error("Could not write entry for {}", e.getKey(), e1);
+				}
+			});
+		}
 	}
 
 	protected String getGroupClassFor(@SuppressWarnings("unused") Scannable s) {
@@ -1797,6 +1822,28 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 			NexusDataWriter.metadatascannables = new HashSet<String>();
 		else
 			NexusDataWriter.metadatascannables = metadatascannables;
+	}
+
+	public static void setMetadata(Map<String, String> entries) {
+		if (entries.containsKey(null) || entries.containsValue(null)) {
+			throw new IllegalArgumentException("Metadata entries and paths must not be null");
+		}
+		// Don't just set metaEntries = entries to avoid caller keeping a reference
+		metadataEntries = new HashMap<>(entries);
+	}
+
+	public static void updateMetadata(Map<String, String> entries) {
+		Map<String, String> meta = new HashMap<>();
+		meta.putAll(metadataEntries);
+		meta.putAll(entries);
+		setMetadata(meta);
+	}
+
+	public static void removeMetadata(Collection<String> entries) {
+		if (entries == null) {
+			throw new IllegalArgumentException("Can't remove null metadata");
+		}
+		entries.stream().forEach(metadataEntries::remove);
 	}
 
 	public static Map<String, ScannableWriter> getLocationmap() {
