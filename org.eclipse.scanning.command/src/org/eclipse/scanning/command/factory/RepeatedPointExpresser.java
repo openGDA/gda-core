@@ -21,19 +21,18 @@ class RepeatedPointExpresser extends PyModelExpresser<RepeatedPointModel> {
 	@Override
 	public String pyExpress(RepeatedPointModel model, Collection<IROI> rois, boolean verbose) {
 
-		if (rois != null && rois.size() > 0) throw new IllegalStateException("RepeatedPointModel cannot be associated with ROIs.");
+		if (rois != null && !rois.isEmpty()) throw new IllegalStateException("RepeatedPointModel cannot be associated with ROIs.");
 
-		// TODO Use StringBuilder
-		return "repeat("
-			+(verbose?"axis=":"")
-			+"'"+model.getName()+"'"+", "
-			+(verbose?"count=":"")
-			+model.getCount()+", "
-			+(verbose?"value=":"")
-			+model.getValue()+", "
-			+(verbose?"sleep=":"")
-			+model.getSleep()
-		+")";
+		return new StringBuilder("repeat(")
+					.append(verbose?"axis=":"")
+					.append("'"+model.getName()+"'"+", ")
+					.append(verbose?"count=":"")
+					.append(model.getCount()+", ")
+					.append(verbose?"value=":"")
+					.append(model.getValue()+", ")
+					.append(verbose?"sleep=":"")
+					.append(model.getSleep()+")")
+					.toString();
 	}
 
 }

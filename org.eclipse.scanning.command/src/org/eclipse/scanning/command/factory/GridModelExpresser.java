@@ -20,27 +20,24 @@ class GridModelExpresser extends PyModelExpresser<GridModel> {
 
 	@Override
 	public String pyExpress(GridModel model, Collection<IROI> rois, boolean verbose) throws Exception {
-
-		// TODO Use StringBuilder
-		return "grid("
-			+(verbose?"axes=":"")+"("
-				+"'"+model.getFastAxisName()+"'"+", "
-				+"'"+model.getSlowAxisName()+"'"+"), "
-			+(verbose?"start=":"")+"("
-				+model.getBoundingBox().getFastAxisStart()+", "
-				+model.getBoundingBox().getSlowAxisStart()+"), "
-			+(verbose?"stop=":"")+"("
-				+(model.getBoundingBox().getFastAxisStart()
-					+model.getBoundingBox().getFastAxisLength())+", "
-				+(model.getBoundingBox().getSlowAxisStart()
-					+model.getBoundingBox().getSlowAxisLength())+"), "
-			+"count=("
-				+model.getFastAxisPoints()+", "
-				+model.getSlowAxisPoints()+")"
-			+", "+getBooleanPyExpression("snake", model.isSnake(), verbose)
-			+", "+getBooleanPyExpression("continuous", model.isContinuous(), verbose)
-			+getROIPyExpression(rois, verbose)
-			+")";
+		return new StringBuilder("grid(")
+				.append(verbose?"axes=":"")
+				.append("('"+model.getFastAxisName()+"'"+", ")
+				.append("'"+model.getSlowAxisName()+"'"+"), ")
+				.append((verbose?"start=":"")+"(")
+				.append(model.getBoundingBox().getFastAxisStart()+", ")
+				.append(model.getBoundingBox().getSlowAxisStart()+"), ")
+				.append((verbose?"stop=":"")+"(")
+				.append(model.getBoundingBox().getFastAxisEnd()+", ")
+				.append(model.getBoundingBox().getSlowAxisEnd()+"), ")
+				.append("count=(")
+				.append(model.getFastAxisPoints()+", ")
+				.append(model.getSlowAxisPoints()+")")
+				.append(", "+getBooleanPyExpression("snake", model.isSnake(), verbose)+", ")
+				.append(getBooleanPyExpression("continuous", model.isContinuous(), verbose))
+				.append(getROIPyExpression(rois, verbose))
+				.append(")")
+				.toString();
 	}
 
 }

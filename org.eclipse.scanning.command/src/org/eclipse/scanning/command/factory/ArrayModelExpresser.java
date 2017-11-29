@@ -28,20 +28,22 @@ class ArrayModelExpresser extends PyModelExpresser<ArrayModel> {
 		if (model.getPositions().length == 1 && !verbose)
 			return "val('"+model.getName()+"', "+model.getPositions()[0]+")";
 
-		String fragment =
-				"array("
-					+(verbose?"axis=":"")+"'"+model.getName()+"'"+", "
-					+(verbose?"values=":"")+"[";
+		StringBuilder fragment = new StringBuilder();
+		fragment.append("array(")
+				.append(verbose?"axis=":"")
+				.append("'"+model.getName()+"'"+", ")
+				.append(verbose?"values=":"")
+				.append("[");
 		boolean listPartiallyWritten = false;
 
 		for (double position : model.getPositions()) {
-			if (listPartiallyWritten) fragment += ", ";
-			fragment += position;
+			if (listPartiallyWritten) fragment.append(", ");
+			fragment.append(position);
 			listPartiallyWritten |= true;
 		}
 
-		fragment += "])";
-		return fragment;
+		fragment.append("])");
+		return fragment.toString();
 	}
 
 }

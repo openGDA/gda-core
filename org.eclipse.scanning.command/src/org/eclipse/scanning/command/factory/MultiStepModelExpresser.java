@@ -25,20 +25,20 @@ class MultiStepModelExpresser extends PyModelExpresser<MultiStepModel> {
 
 		if (rois != null && !rois.isEmpty()) throw new IllegalStateException("StepModels cannot be associated with ROIs.");
 
-		StringBuilder buf = new StringBuilder();
-		buf.append("mstep(");
-		buf.append(verbose?"axis=":"");
-		buf.append("'"+mmodel.getName()+"'");
-		buf.append(verbose?", stepModels=[":", [");
+		StringBuilder ret = new StringBuilder();
+		ret.append("mstep(");
+		ret.append(verbose?"axis=":"");
+		ret.append("'"+mmodel.getName()+"'");
+		ret.append(verbose?", stepModels=[":", [");
 
 
 		for (Iterator<StepModel> it = mmodel.getStepModels().iterator(); it.hasNext();) {
 			String step = getString(it.next());
-			buf.append(step);
-            if (it.hasNext()) buf.append(", ");
+			ret.append(step);
+            if (it.hasNext()) ret.append(", ");
 		}
-		buf.append("])");
-		return buf.toString();
+		ret.append("])");
+		return ret.toString();
 	}
 
 	static final String getString(StepModel model) {

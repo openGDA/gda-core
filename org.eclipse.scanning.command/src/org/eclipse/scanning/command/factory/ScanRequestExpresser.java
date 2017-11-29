@@ -24,92 +24,90 @@ class ScanRequestExpresser extends PyModelExpresser<ScanRequest<?>> {
 	String pyExpress(ScanRequest<?> request, boolean verbose) throws Exception {
 
 
-		// TODO Fragment should be a StringBuilder, it is more efficient.
-		String fragment = "mscan(";
+		StringBuilder fragment = new StringBuilder("mscan(");
 		boolean scanRequestPartiallyWritten = false;
 
 		PyExpressionFactory factory = new PyExpressionFactory();
 		if (request.getCompoundModel().getModels() != null
-				&& request.getCompoundModel().getModels().size() > 0) {
+				&& !request.getCompoundModel().getModels().isEmpty()) {
 
-			if (verbose) { fragment += "path="; }
+			if (verbose) { fragment.append("path="); }
 
-			if (verbose || request.getCompoundModel().getModels().size() > 1) fragment += "[";
+			if (verbose || request.getCompoundModel().getModels().size() > 1) fragment.append("[");
 			boolean listPartiallyWritten = false;
 
 			for (Object model : request.getCompoundModel().getModels()) {  // Order is important.
-				if (listPartiallyWritten) fragment += ", ";
+				if (listPartiallyWritten) fragment.append(", ");
 				Collection<IROI> rois = (Collection<IROI>) ParserServiceImpl.getPointGeneratorService().findRegions(model, request.getCompoundModel().getRegions());
 
 				String smodel = factory.pyExpress(model, rois, verbose);
-				fragment += smodel;
+				fragment.append(smodel);
 				listPartiallyWritten |= true;
 			}
 
-			if (verbose || request.getCompoundModel().getModels().size() > 1) fragment += "]";
+			if (verbose || request.getCompoundModel().getModels().size() > 1) fragment.append("]");
 			scanRequestPartiallyWritten |= true;
 		}
 
 		if (request.getMonitorNamesPerPoint() != null
-				&& request.getMonitorNamesPerPoint().size() > 0) {
+				&& !request.getMonitorNamesPerPoint().isEmpty()) {
 
-			if (scanRequestPartiallyWritten) fragment += ", ";
-			if (verbose || !scanRequestPartiallyWritten) { fragment += "monitorsPerPoint="; }
+			if (scanRequestPartiallyWritten) fragment.append(", ");
+			if (verbose || !scanRequestPartiallyWritten) { fragment.append("monitorsPerPoint="); }
 
-			if (verbose || request.getMonitorNamesPerPoint().size() > 1) fragment += "[";
+			if (verbose || request.getMonitorNamesPerPoint().size() > 1) fragment.append("[");
 			boolean listPartiallyWritten = false;
 
 			for (String monitorName : request.getMonitorNamesPerPoint()) {
-				if (listPartiallyWritten) fragment += ", ";
-				fragment += "'"+monitorName+"'";
+				if (listPartiallyWritten) fragment.append(", ");
+				fragment.append("'"+monitorName+"'");
 				listPartiallyWritten |= true;
 			}
 
-			if (verbose || request.getMonitorNamesPerPoint().size() > 1) fragment += "]";
+			if (verbose || request.getMonitorNamesPerPoint().size() > 1) fragment.append("]");
 			scanRequestPartiallyWritten |= true;
 		}
 
 		if (request.getMonitorNamesPerScan() != null
-				&& request.getMonitorNamesPerScan().size() > 0) {
+				&& !request.getMonitorNamesPerScan().isEmpty()) {
 
-			if (scanRequestPartiallyWritten) fragment += ", ";
-			if (verbose || !scanRequestPartiallyWritten) { fragment += "monitorsPerScan="; }
+			if (scanRequestPartiallyWritten) fragment.append(", ");
+			if (verbose || !scanRequestPartiallyWritten) { fragment.append("monitorsPerScan="); }
 
-			if (verbose || request.getMonitorNamesPerScan().size() > 1) fragment += "[";
+			if (verbose || request.getMonitorNamesPerScan().size() > 1) fragment.append("[");
 			boolean listPartiallyWritten = false;
 
 			for (String monitorName : request.getMonitorNamesPerScan()) {
-				if (listPartiallyWritten) fragment += ", ";
-				fragment += "'"+monitorName+"'";
+				if (listPartiallyWritten) fragment.append(", ");
+				fragment.append("'"+monitorName+"'");
 				listPartiallyWritten |= true;
 			}
 
-			if (verbose || request.getMonitorNamesPerScan().size() > 1) fragment += "]";
+			if (verbose || request.getMonitorNamesPerScan().size() > 1) fragment.append("]");
 			scanRequestPartiallyWritten |= true;
 		}
 
 		if (request.getDetectors() != null
 				&& request.getDetectors().size() > 0) {
 
-			if (scanRequestPartiallyWritten) fragment += ", ";
-			if (verbose || !scanRequestPartiallyWritten) { fragment += "det="; }
+			if (scanRequestPartiallyWritten) fragment.append(", ");
+			if (verbose || !scanRequestPartiallyWritten) { fragment.append("det="); }
 
-			if (verbose || request.getDetectors().size() > 1) fragment += "[";
+			if (verbose || request.getDetectors().size() > 1) fragment.append("[");
 
 			boolean listPartiallyWritten = false;
 			for (String detectorName : request.getDetectors().keySet()) {
-				if (listPartiallyWritten) fragment += ", ";
+				if (listPartiallyWritten) fragment.append(", ");
 				Object model = request.getDetectors().get(detectorName);
-				fragment += factory.pyExpress(model, verbose);
+				fragment.append(factory.pyExpress(model, verbose));
 				listPartiallyWritten |= true;
 			}
 
-			if (verbose || request.getDetectors().size() > 1) fragment += "]";
-			scanRequestPartiallyWritten |= true;
+			if (verbose || request.getDetectors().size() > 1) fragment.append("]");
 		}
 
-		fragment += ")";
-		return fragment;
+		fragment.append(")");
+		return fragment.toString();
 
 	}
 }

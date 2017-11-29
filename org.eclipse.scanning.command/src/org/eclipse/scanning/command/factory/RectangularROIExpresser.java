@@ -17,15 +17,14 @@ class RectangularROIExpresser extends PyModelExpresser<RectangularROI> {
 
 	@Override
 	public String pyExpress(RectangularROI rroi, boolean verbose) {
-		// TODO Use StringBuilder
-		return "rect("
-				+(verbose?"origin=":"")+"("
-					+rroi.getPointX()+", "+rroi.getPointY()
-				+"), "
-				+(verbose?"size=":"")+"("
-					+rroi.getLengths()[0]+", "+rroi.getLengths()[1]
-				+")"
-			+")";
+		return new StringBuilder("rect(")
+					.append((verbose?"origin=":"")+"(")
+					.append(rroi.getPointX()+", "+rroi.getPointY())
+					.append("), ")
+					.append((verbose?"size=":"")+"(")
+					.append(rroi.getLengths()[0]+", "+rroi.getLengths()[1])
+					.append("))")
+					.toString();
 	}
 
 }

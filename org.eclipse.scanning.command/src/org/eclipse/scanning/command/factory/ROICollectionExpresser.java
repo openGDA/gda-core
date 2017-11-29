@@ -21,24 +21,24 @@ class ROICollectionExpresser extends PyModelExpresser<Collection<IROI>> {
 	@Override
 	final String pyExpress(Collection<IROI> rois, boolean verbose) throws Exception {
 
-		if (rois.size() == 0)
+		if (rois.isEmpty())
 			throw new PyExpressionNotImplementedException();
 
 		else if (rois.size() == 1 && !verbose)
 			return factory.pyExpress(rois.iterator().next(), verbose);
 
 		else {
-			String fragment = "[";
+			StringBuilder fragment = new StringBuilder("[");
 			boolean listPartiallyWritten = false;
 
 			for (IROI roi : rois) {
-				if (listPartiallyWritten) fragment += ", ";
-				fragment += factory.pyExpress(roi, verbose);
+				if (listPartiallyWritten) fragment.append(", ");
+				fragment.append(factory.pyExpress(roi, verbose));
 				listPartiallyWritten |= true;
 			}
 
-			fragment += "]";
-			return fragment;
+			fragment.append("]");
+			return fragment.toString();
 		}
 	}
 }

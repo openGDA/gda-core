@@ -27,17 +27,16 @@ class StepModelExpresser extends PyModelExpresser<StepModel> {
 	}
 
 	static final String getString(StepModel model, boolean verbose) {
-		// TODO Use StringBuilder
-		return "step("
-				+(verbose?"axis=":"")
-				+"'"+model.getName()+"'"+", "
-				+(verbose?"start=":"")
-				+model.getStart()+", "
-				+(verbose?"stop=":"")
-				+model.getStop()+", "
-				+(verbose?"step=":"")
-				+model.getStep()
-			+")";
+		return new StringBuilder("step(")
+				.append(verbose?"axis=":"")
+				.append("'"+model.getName()+"'"+", ")
+				.append(verbose?"start=":"")
+				.append(model.getStart()+", ")
+				.append(verbose?"stop=":"")
+				.append(model.getStop()+", ")
+				.append(verbose?"step=":"")
+				.append(model.getStep()+")")
+				.toString();
 	}
 
 }
