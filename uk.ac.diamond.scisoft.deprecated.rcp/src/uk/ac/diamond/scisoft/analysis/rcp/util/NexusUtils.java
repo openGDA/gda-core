@@ -94,25 +94,6 @@ public class NexusUtils {
 		return tree;
 	}
 
-	public static NexusTreeNodeSelection getSel() throws Exception{
-		String xml = "<?xml version='1.0' encoding='UTF-8'?>" +
-		"<nexusTreeNodeSelection>" +
-		"<nexusTreeNodeSelection><nxClass>NXentry</nxClass><wanted>2</wanted><dataType>2</dataType>" +
-		"<nexusTreeNodeSelection><nxClass>NXdata</nxClass><wanted>2</wanted><dataType>2</dataType>" +
-		"<nexusTreeNodeSelection><nxClass>SDS</nxClass><wanted>2</wanted><dataType>1</dataType>" +
-		"</nexusTreeNodeSelection>" +
-		"</nexusTreeNodeSelection>" +
-		"<nexusTreeNodeSelection><nxClass>NXinstrument</nxClass><wanted>2</wanted><dataType>2</dataType>" +
-		"<nexusTreeNodeSelection><nxClass>NXdetector</nxClass><wanted>2</wanted><dataType>2</dataType>" +
-		"<nexusTreeNodeSelection><nxClass>SDS</nxClass><wanted>2</wanted><dataType>1</dataType>" +
-		"</nexusTreeNodeSelection>" +
-		"</nexusTreeNodeSelection>" +
-		"</nexusTreeNodeSelection>" +
-		"</nexusTreeNodeSelection>" +
-		"</nexusTreeNodeSelection>";
-		return NexusTreeNodeSelection.createFromXML(new InputSource(new StringReader(xml)));
-	}
-
 	public static Map<String, Integer> getDataSetSizes(final String path, final List<String> sets, IProgressMonitor monitor) throws Exception {
 		Map< String, INexusTree> trees = NexusLoader.getDatasetNexusTrees(path, sets, false, new ProgressMonitorWrapper(monitor));
 		final Map<String,Integer> ret = new HashMap<String, Integer>(sets.size());
