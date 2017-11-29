@@ -28,6 +28,8 @@ import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.LevelInformation;
 import org.eclipse.scanning.api.scan.ScanInformation;
 import org.eclipse.scanning.api.scan.ScanningException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import gda.device.detector.addetector.ADDetector;
 import gda.factory.Finder;
@@ -40,6 +42,8 @@ import uk.ac.diamond.daq.detectors.addetector.api.AreaDetectorRunnableDeviceMode
  */
 public class AreaDetectorRunnableDeviceProxy extends AbstractAreaDetectorRunnableDevice {
 
+	private static final Logger logger = LoggerFactory.getLogger(AreaDetectorRunnableDeviceProxy.class);
+
 	private AbstractAreaDetectorRunnableDeviceDelegate delegate;
 	private ADDetector detector;
 
@@ -51,6 +55,7 @@ public class AreaDetectorRunnableDeviceProxy extends AbstractAreaDetectorRunnabl
 
 	@Override
 	public void configure(AreaDetectorRunnableDeviceModel model) throws ScanningException {
+		logger.trace("configure({}) on {}", model, getName());
 		setDeviceState(DeviceState.CONFIGURING);
 
 		// Get the detector by name defined in the model
@@ -81,6 +86,7 @@ public class AreaDetectorRunnableDeviceProxy extends AbstractAreaDetectorRunnabl
 
 	@Override
 	public void run(IPosition position) throws ScanningException, InterruptedException {
+		logger.trace("run({}) on {}", position, getName());
 		delegate.run(position);
 	}
 
@@ -88,6 +94,7 @@ public class AreaDetectorRunnableDeviceProxy extends AbstractAreaDetectorRunnabl
 
 	@Override
 	public boolean write(IPosition position) throws ScanningException {
+		logger.trace("write({}) on {}", position, getName());
 		return delegate.write(position);
 	}
 
@@ -95,6 +102,7 @@ public class AreaDetectorRunnableDeviceProxy extends AbstractAreaDetectorRunnabl
 
 	@Override
 	public NexusObjectProvider<NXdetector> getNexusProvider(NexusScanInfo info) throws NexusException {
+		logger.trace("getNexusProvider({}) on {}", info, getName());
 		return delegate.getNexusProvider(info);
 	}
 
@@ -102,83 +110,97 @@ public class AreaDetectorRunnableDeviceProxy extends AbstractAreaDetectorRunnabl
 
 	@PreConfigure
 	public void preConfigure(Object model, ScanBean scanBean, IPublisher<?> publisher) throws ScanningException {
+		logger.trace("preConfigure({}, {}, {}) on {}", model, scanBean, publisher, getName());
 		delegate.preConfigure(model, scanBean, publisher);
 	}
 
 	@PostConfigure
 	public void postConfigure(Object model, ScanBean scanBean, IPublisher<?> publisher) throws ScanningException {
+		logger.trace("postConfigure({}, {}, {}) on {}", model, scanBean, publisher, getName());
 		delegate.postConfigure(model, scanBean, publisher);
 	}
 
 	@Override
 	@LevelStart
 	public void levelStart(LevelInformation info) throws ScanningException {
+		logger.trace("levelStart({}) on {}", info, getName());
 		delegate.levelStart(info);
 	}
 
 	@Override
 	@LevelEnd
 	public void levelEnd(LevelInformation info) throws ScanningException {
+		logger.trace("levelEnd({}) on {}", info, getName());
 		delegate.levelEnd(info);
 	}
 
 	@Override
 	@PointStart
 	public void pointStart(IPosition point) throws ScanningException {
+		logger.trace("pointStart({}) on {} stepIndex={}", point, getName(), point.getStepIndex());
 		delegate.pointStart(point);
 	}
 
 	@Override
 	@PointEnd
 	public void pointEnd(IPosition point) throws ScanningException {
+		logger.trace("pointEnd({}) on {} stepIndex={}", point, getName(), point.getStepIndex());
 		delegate.pointEnd(point);
 	}
 
 	@Override
 	@ScanStart
 	public void scanStart(ScanInformation info) throws ScanningException {
+		logger.trace("scanStart({}) on {} filePath={}", info, getName(), info.getFilePath());
 		delegate.scanStart(info);
 	}
 
 	@Override
 	@ScanEnd
 	public void scanEnd(ScanInformation info) throws ScanningException {
+		logger.trace("scanEnd({}) on {} filePath={}", info, getName(), info.getFilePath());
 		delegate.scanEnd(info);
 	}
 
 	@Override
 	@WriteComplete
 	public void writeComplete(ScanInformation info) throws ScanningException {
+		logger.trace("writeComplete({}) on {} filePath={}", info, getName(), info.getFilePath());
 		delegate.writeComplete(info);
 	}
 
 	@Override
 	@ScanAbort
 	public void scanAbort(ScanInformation info) throws ScanningException {
+		logger.trace("scanAbort({}) on {}", info, getName());
 		delegate.scanAbort(info);
 	}
 
 	@Override
 	@ScanFault
 	public void scanFault(ScanInformation info) throws ScanningException {
+		logger.trace("scanFault({}) on {}", info, getName());
 		delegate.scanFault(info);
 	}
 
 	@Override
 	@ScanFinally
 	public void scanFinally(ScanInformation info) throws ScanningException {
+		logger.trace("scanFinally({}) on {}", info, getName());
 		delegate.scanFinally(info);
 	}
 
 	@Override
 	@ScanPause
 	public void scanPaused() throws ScanningException {
+		logger.trace("scanPaused() on {}", getName());
 		delegate.scanPause();
 	}
 
 	@Override
 	@ScanResume
 	public void scanResumed() throws ScanningException {
+		logger.trace("scanResumed() on {}", getName());
 		delegate.scanResume();
 	}
 
@@ -189,6 +211,8 @@ public class AreaDetectorRunnableDeviceProxy extends AbstractAreaDetectorRunnabl
 	}
 
 	public void setDelegate(AbstractAreaDetectorRunnableDeviceDelegate delegate) {
+		logger.trace("setDelegate({}) on {}", delegate, getName());
+
 		this.delegate = delegate;
 		if (delegate.getRunnableDeviceProxy() != this ) {
 			throw new RuntimeException("Delegates runnable device is not this!");
