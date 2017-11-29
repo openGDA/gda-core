@@ -232,8 +232,14 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 			try (NexusFile nexusFile = NexusFileHDF5.openNexusFile(path)) {
 				Path nexusFilePath = Paths.get(path).getParent();
 				Path hdfFilePath = Paths.get(controller.getFullFileName());
-				// Relative path to hdf file from Nexus file
-				Path hdfFileRelativePath = nexusFilePath.relativize(hdfFilePath);
+				// Try to get relative path to hdf file from Nexus file
+				Path hdfFileRelativePath = hdfFilePath;
+				try{
+					hdfFileRelativePath = nexusFilePath.relativize(hdfFilePath);
+				}catch(IllegalArgumentException e) {
+					logger.warn("Cannot set relative path to hdf file {} from Nexus file {}. "+
+								"Using absolute path to hdf file instead.", hdfFilePath, nexusFilePath);
+				}
 
 				String relativeLink = hdfFileRelativePath + "#entry/data/data";
 				String nexusLinkName = "/entry1/" + getName() + "/MCAs";
@@ -436,6 +442,14 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 
 	public Map<String,Integer> getScalerNameIndexMap() {
 		return nexusScalerNameIndexMap;
+	}
+
+	public Map<String, Integer> getAsciiScalerNameIndexMap() {
+		return asciiScalerNameIndexMap;
+	}
+
+	public void setAsciiScalerNameIndexMap(Map<String, Integer> asciiScalerNameIndexMap) {
+		this.asciiScalerNameIndexMap = asciiScalerNameIndexMap;
 	}
 
 	public void loadConfigurationFromFile(String configFilename) {
@@ -719,8 +733,10 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 
 			// Index start for deadtime correction data is immediately after FF column
 			for(int i=0; i<numElements; i++) {
-				for(int scalerIndex : asciiScalerNameIndexMap.values()) {
-					frame.setPlottableValue(extraNames[nameIndex++], deadtimeScalerData.getDouble(i, scalerIndex));
+				if (!parameters.getDetector(i).isExcluded()) {
+					for (int scalerIndex : asciiScalerNameIndexMap.values()) {
+						frame.setPlottableValue(extraNames[nameIndex++], deadtimeScalerData.getDouble(i, scalerIndex));
+					}
 				}
 			}
 		}
