@@ -19,6 +19,7 @@
 package uk.ac.diamond.daq.devices.specs.phoibos;
 
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Set;
 
 import org.eclipse.january.dataset.DatasetFactory;
@@ -106,6 +107,8 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 	 * Limit the rate of update events sent to the GUI to a max of 10 per sec
 	 */
 	private final transient RateLimiter updateLimiter = RateLimiter.create(10.0);
+
+	private String currentlyRunningRegionName;
 
 	@Override
 	public void configure() throws FactoryException {
@@ -470,7 +473,7 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 	@Override
 	public void setRegion(SpecsPhoibosRegion region) {
 		logger.info("Configuring analyser with region: {}", region);
-
+		currentlyRunningRegionName = region.getName();
 		// Setup analyser parameters
 		setPsuMode(region.getPsuMode());
 		setLensMode(region.getLensMode());
@@ -531,7 +534,6 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 		region.setExposureTime(getExposureTime());
 		region.setIterations(getIterations());
 		region.setLensMode(getLensMode());
-		region.setName(getName());
 		region.setPassEnergy(getPassEnergy());
 		region.setPsuMode(getPsuMode());
 		region.setBindingEnergy(false); // Always readback from analyser KE
@@ -872,17 +874,42 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 
 	private SpecsPhoibosLiveDataUpdate getLiveDataUpdate() {
 		logger.trace("getLiveDataUpdate called");
-		final int totalPoints = getTotalPoints();
-		final int currentPoint = getCurrentPoint();
-
-		final double[] spectrum = getSpectrum();
-		final double[][] image = getImage();
-
+		final String positionString;
+		final List<SpecsPhoibosRegion> regions = collectionStrategy.getSequence().getEnabledRegions();
+		final int index = getRegionIndex(regions, currentlyRunningRegionName);
 		final double[] keEnergyAxis = getEnergyAxis();
 		final double[] beEnergyAxis = toBindingEnergy(keEnergyAxis);
-		final double[] yAxis = getYAxis();
 
-		return new SpecsPhoibosLiveDataUpdate(totalPoints, currentPoint, spectrum, image, keEnergyAxis, beEnergyAxis, yAxis);
+		if (index == -1) {
+			logger.error("Could not find region: '{}' in collection strategy", currentlyRunningRegionName);
+			positionString = "Not found";
+		} else {
+			positionString = index + " of " + regions.size();
+		}
+
+		return new SpecsPhoibosLiveDataUpdate.Builder()
+				.regionName(currentlyRunningRegionName)
+				.positionString(positionString)
+				.totalPoints(getTotalPoints())
+				.currentPoint(getCurrentPoint())
+				.spectrum(getSpectrum())
+				.image(getImage())
+				.keEnergyAxis(keEnergyAxis)
+				.beEnergyAxis(beEnergyAxis)
+				.yAxis(getYAxis())
+				.build();
+	}
+
+
+	private int getRegionIndex(List<SpecsPhoibosRegion> regions, String regionName) {
+		int i = 1;
+		for (SpecsPhoibosRegion region : regions) {
+			if (region.getName().equals(regionName)) {
+				return i;
+			}
+			i++;
+		}
+		return -1;
 	}
 
 	/**

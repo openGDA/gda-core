@@ -25,6 +25,7 @@ import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
@@ -51,6 +52,8 @@ public class SpecsRegionEditor {
 			UpdateValueStrategy.POLICY_NEVER);
 
 	private Composite parent;
+
+	private Composite child;
 
 	private ISpecsPhoibosAnalyser analyser;
 
@@ -96,19 +99,23 @@ public class SpecsRegionEditor {
 	public void postConstruct(Composite parent) {
 		logger.trace("postConstruct called");
 		this.parent = parent;
+		ScrolledComposite scrollComp = new ScrolledComposite(parent, SWT.V_SCROLL);
+		scrollComp.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 
-		GridDataFactory.fillDefaults().grab(true, true).applyTo(parent);
-		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(parent);
-		parent.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
+		this.child = new Composite(scrollComp, SWT.NONE);
+		child.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 
-		Label nameLabel = new Label(parent, SWT.NONE);
+		GridDataFactory.fillDefaults().grab(true, true).applyTo(child);
+		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(child);
+
+		Label nameLabel = new Label(child, SWT.NONE);
 		nameLabel.setText("Region name");
-		nameText = new Text(parent, SWT.BORDER);
+		nameText = new Text(child, SWT.BORDER);
 		GridDataFactory.swtDefaults().grab(true, false).align(SWT.FILL, SWT.FILL).applyTo(nameText);
 
-		Label acquisitionModeLabel = new Label(parent, SWT.NONE);
+		Label acquisitionModeLabel = new Label(child, SWT.NONE);
 		acquisitionModeLabel.setText("Acquisition mode");
-		acquisitionModeCombo = new ComboViewer(parent, SWT.DROP_DOWN | SWT.READ_ONLY);
+		acquisitionModeCombo = new ComboViewer(child, SWT.DROP_DOWN | SWT.READ_ONLY);
 		// Remove the modes which we don't support yet
 		List<String> acquisitionsModes = new ArrayList<>(analyser.getAcquisitionModes());
 		acquisitionsModes.remove("Fixed Retarding Ratio");
@@ -117,19 +124,19 @@ public class SpecsRegionEditor {
 		GridDataFactory.swtDefaults().grab(true, false).align(SWT.FILL, SWT.FILL)
 				.applyTo(acquisitionModeCombo.getControl());
 
-		Label lensModeLabel = new Label(parent, SWT.NONE);
+		Label lensModeLabel = new Label(child, SWT.NONE);
 		lensModeLabel.setText("Lens mode");
-		lensModeCombo = new ComboViewer(parent, SWT.DROP_DOWN | SWT.READ_ONLY);
+		lensModeCombo = new ComboViewer(child, SWT.DROP_DOWN | SWT.READ_ONLY);
 		lensModeCombo.add(analyser.getLensModes().toArray(new String[] {}));
 		GridDataFactory.swtDefaults().grab(true, false).align(SWT.FILL, SWT.FILL).applyTo(lensModeCombo.getControl());
 
-		Label psuModeLabel = new Label(parent, SWT.NONE);
+		Label psuModeLabel = new Label(child, SWT.NONE);
 		psuModeLabel.setText("PSU mode");
-		psuModeCombo = new ComboViewer(parent, SWT.DROP_DOWN | SWT.READ_ONLY);
+		psuModeCombo = new ComboViewer(child, SWT.DROP_DOWN | SWT.READ_ONLY);
 		psuModeCombo.add(analyser.getPsuModes().toArray(new String[] {}));
 		GridDataFactory.swtDefaults().grab(true, false).align(SWT.FILL, SWT.FILL).applyTo(psuModeCombo.getControl());
 
-		Group energyRange = new Group(parent, SWT.SHADOW_NONE);
+		Group energyRange = new Group(child, SWT.SHADOW_NONE);
 		energyRange.setLayout(GridLayoutFactory.swtDefaults().numColumns(4).create());
 		energyRange.setText("Energy Range (eV)");
 		energyRange.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
@@ -137,8 +144,8 @@ public class SpecsRegionEditor {
 
 		Group energyModeGroup = new Group(energyRange, SWT.SHADOW_NONE);
 		energyModeGroup.setLayout(GridLayoutFactory.swtDefaults().numColumns(4).create());
-		energyModeGroup.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 		energyModeGroup.setText("Energy mode");
+		energyModeGroup.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).span(4, 1).applyTo(energyModeGroup);
 		keButton = new Button(energyModeGroup, SWT.RADIO);
 		keButton.setText("Kinetic");
@@ -179,29 +186,37 @@ public class SpecsRegionEditor {
 
 		energyModeGroup.layout(true);
 
-		Label exposureTimeLabel = new Label(parent, SWT.NONE);
+		Label exposureTimeLabel = new Label(child, SWT.NONE);
 		exposureTimeLabel.setText("Exposure time (sec)");
-		exposureTimeText = new Text(parent, SWT.BORDER);
+		exposureTimeText = new Text(child, SWT.BORDER);
 		GridDataFactory.swtDefaults().grab(true, false).align(SWT.FILL, SWT.FILL).applyTo(exposureTimeText);
 
-		Label iterationsLabel = new Label(parent, SWT.NONE);
+		Label iterationsLabel = new Label(child, SWT.NONE);
 		iterationsLabel.setText("Iterations");
-		iterationsSpinner = new Spinner(parent, SWT.BORDER);
+		iterationsSpinner = new Spinner(child, SWT.BORDER);
 		iterationsSpinner.setMinimum(1);
 		iterationsSpinner.setMaximum(1000); // This is arbitrary but not expecting more that 1000 needed.
 		GridDataFactory.swtDefaults().grab(true, false).align(SWT.FILL, SWT.FILL).applyTo(iterationsSpinner);
 
-		Label slicesLabel = new Label(parent, SWT.NONE);
+		Label slicesLabel = new Label(child, SWT.NONE);
 		slicesLabel.setText("Slices");
-		slicesSpinner = new Spinner(parent, SWT.BORDER);
+		slicesSpinner = new Spinner(child, SWT.BORDER);
 		slicesSpinner.setMinimum(1);
 		slicesSpinner.setMaximum(1000); // Should be the detector width in Y, for now hard code to 1000.
 		GridDataFactory.swtDefaults().grab(true, false).align(SWT.FILL, SWT.FILL).applyTo(slicesSpinner);
 
-		Label estimatedTimeLabel = new Label(parent, SWT.NONE);
+		Label estimatedTimeLabel = new Label(child, SWT.NONE);
 		estimatedTimeLabel.setText("Estimated time");
-		estimatedTimeText = new Text(parent, SWT.NONE);
+		estimatedTimeText = new Text(child, SWT.NONE);
 		GridDataFactory.swtDefaults().grab(true, false).align(SWT.FILL, SWT.FILL).applyTo(estimatedTimeText);
+
+		// Set the child as the scrolled content of the ScrolledComposite
+		scrollComp.setContent(child);
+
+		// Expand both horizontally and vertically
+		scrollComp.setExpandHorizontal(true);
+		scrollComp.setExpandVertical(true);
+		scrollComp.setMinHeight(450);
 
 		logger.trace("Finished building composite");
 	}
