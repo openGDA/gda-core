@@ -21,7 +21,8 @@ package gda.data.fileregistrar;
 
 import java.io.File;
 import java.nio.file.Paths;
-import java.util.Vector;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -81,7 +82,7 @@ public class FileRegistrar extends DataWriterExtenderBase implements IFileRegist
 
 	private DeviceBase sockPuppet;
 
-	private Vector<String> files = new Vector<String>();
+	private Set<String> files = new LinkedHashSet<>();
 
 	private String name;
 
@@ -135,7 +136,8 @@ public class FileRegistrar extends DataWriterExtenderBase implements IFileRegist
 	private void addFile(final String fileNameOrPath) {
 
 		if (fileNameOrPath == null || fileNameOrPath.isEmpty()) {
-			return; // TODO Should this be an exception? Perhaps it should be an error condition not an ignored one.
+			logger.warn("File path null or empty - ignored");
+			return;
 		}
 
 		logger.debug("Adding {}", fileNameOrPath);
@@ -145,10 +147,8 @@ public class FileRegistrar extends DataWriterExtenderBase implements IFileRegist
 			logger.debug("Changed file path to {}", filePath);
 		}
 
-		synchronized (files) { // TODO files is already a Vector which is synchronized.
-			if (!files.contains(filePath)){
-				files.add(filePath);
-			}
+		synchronized (files) {
+			files.add(filePath);
 		}
 	}
 
@@ -157,8 +157,8 @@ public class FileRegistrar extends DataWriterExtenderBase implements IFileRegist
 		lastScanDataPoint = dataPoint;
 		for (Detector detector : dataPoint.getDetectors()) {
 			if (detector.createsOwnFiles()) {
-				int index = dataPoint.getDetectorNames().indexOf(detector.getName());
-				String fileName = (String) dataPoint.getDetectorData().get(index);
+				final int index = dataPoint.getDetectorNames().indexOf(detector.getName());
+				final String fileName = (String) dataPoint.getDetectorData().get(index);
 				addFile(fileName);
 			}
 		}
@@ -187,14 +187,16 @@ public class FileRegistrar extends DataWriterExtenderBase implements IFileRegist
 
 	@ScanFinally
 	public void scanFinally() {
-		if (files!=null) files.clear(); // Do not archive failed scans?
+		if (files != null) {
+			files.clear();
+		}
 	}
 
 	private void kickOff() {
 		final String[] fileArr;
 		final String datasetId;
 
-		synchronized (files) {  // TODO files is already a Vector which is synchronized.
+		synchronized (files) {
 			if (files.isEmpty()) {
 				return;
 			}
@@ -217,19 +219,16 @@ public class FileRegistrar extends DataWriterExtenderBase implements IFileRegist
 			files.clear();
 		}
 
-		threadPoolExecutor.submit(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					logger.info("icatXMLCreator.registerFiles started");
-					icatXMLCreator.registerFiles(datasetId, fileArr);
-					if (sockPuppet != null)
-						sockPuppet.notifyIObservers(sockPuppet, fileArr);
-				} catch (Exception e) {
-					logger.error("Error generating XML", e);
-				}
-				logger.info("icatXMLCreator.registerFiles completed");
+		threadPoolExecutor.submit(() -> {
+			try {
+				logger.info("icatXMLCreator.registerFiles started: datasetId = {}", datasetId);
+				icatXMLCreator.registerFiles(datasetId, fileArr);
+				if (sockPuppet != null)
+					sockPuppet.notifyIObservers(sockPuppet, fileArr);
+			} catch (Exception e) {
+				logger.error("Error generating XML", e);
 			}
+			logger.info("icatXMLCreator.registerFiles completed");
 		});
 
 		logger.debug("kicked off for datasetId {} registering {} file{}",
@@ -313,7 +312,7 @@ public class FileRegistrar extends DataWriterExtenderBase implements IFileRegist
 	 */
 	public void register() {
 		((IScanService)FileRegistrarServiceHolder.getRunnableDeviceService()).addScanParticipant(this);
-		logger.info("Registered "+getClass().getSimpleName()+" as a particpant in scans");
+		logger.info("Registered {} as a participant in scans", getClass().getSimpleName());
 	}
 
 }
