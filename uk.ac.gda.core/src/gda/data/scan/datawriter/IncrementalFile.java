@@ -19,16 +19,16 @@
 
 package gda.data.scan.datawriter;
 
-import gda.configuration.properties.LocalProperties;
-import gda.data.NumTracker;
-import gda.data.PathConstructor;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.configuration.properties.LocalProperties;
+import gda.data.NumTracker;
+import gda.data.PathConstructor;
 
 /**
  * This class is for writing ascii files of tabulated data, with a header and footer.
@@ -71,15 +71,14 @@ public abstract class IncrementalFile extends DataWriterBase implements DataWrit
 	/**
 	 * Constructor which determines the name of the next file.
 	 *
-	 * @throws InstantiationException
 	 */
-	public IncrementalFile() throws InstantiationException {
+	public IncrementalFile() {
 		// check for files using the format 1234.dat in the data directory
 		dataDir = PathConstructor.createFromDefaultProperty();
 
 		if (this.dataDir == null) {
 			// this is compulsory - stop the scan
-			throw new InstantiationException("cannot work out the data directory");
+			throw new IllegalStateException("cannot work out the data directory");
 		}
 
 		// Set the file extension to be used.
