@@ -66,7 +66,7 @@ public class GDAJythonScriptServiceTest {
 		ScriptResponse<?> response = scriptService.execute(scriptRequest);
 		assertNotNull(response);
 
-		verify(mockCommandRunner).runScript(testFile);
+		verify(mockCommandRunner).evaluateCommand("run '" + testFilePath + "'");
 	}
 
 	@Test
@@ -81,7 +81,7 @@ public class GDAJythonScriptServiceTest {
 		ScriptResponse<?> response = scriptService.execute(scriptRequest);
 		assertNotNull(response);
 
-		verify(mockCommandRunner).runScript(testFile);
+		verify(mockCommandRunner).evaluateCommand("run '" + testFilePath + "'");
 	}
 
 	@Test(expected=ScriptExecutionException.class)
