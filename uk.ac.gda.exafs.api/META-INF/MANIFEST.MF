@@ -5,12 +5,12 @@ Bundle-SymbolicName: uk.ac.gda.exafs.api;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: org.springframework.beans.factory;version="4.0.6.RELEASE"
-Export-Package: gda.device.detector;uses:="gda.factory,gda.observable",
+Export-Package: gda.device.detector;uses:="gda.factory,gda.observable";split=true;mandatory:=split,
  gda.exafs.mucal;uses:="uk.ac.gda.beans.exafs",
  gda.exafs.scan;uses:="uk.ac.gda.beans.exafs,org.python.core",
  gda.exafs.xes,
- gda.util;uses:="uk.ac.gda.util.io",
- uk.ac.gda.beans,
+ gda.util;uses:="uk.ac.gda.util.io";split=true;mandatory:=split,
+ uk.ac.gda.beans;split=true;mandatory:=split,
  uk.ac.gda.beans.exafs;uses:="uk.ac.gda.beans,uk.ac.gda.beans.exafs.b18",
  uk.ac.gda.beans.exafs.b18;uses:="uk.ac.gda.beans.exafs",
  uk.ac.gda.beans.exafs.bm26a;uses:="uk.ac.gda.beans.exafs",

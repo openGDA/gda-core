@@ -29,15 +29,15 @@ Eclipse-RegisterBuddy: uk.ac.gda.common,
  uk.ac.gda.client,
  uk.ac.diamond.org.springframework
 Bundle-Vendor: Diamond Light Source
-Export-Package: gda.device.detector,
+Export-Package: gda.device.detector;split=true;mandatory:=split,
  gda.device.detector.countertimer,
- gda.device.scannable,
- gda.jython.scriptcontroller.logging,
- uk.ac.gda.exafs.ui.data,
+ gda.device.scannable;split=true;mandatory:=split,
+ gda.jython.scriptcontroller.logging;split=true;mandatory:=split,
+ uk.ac.gda.exafs.ui.data;split=true;mandatory:=split,
  uk.ac.gda.server.exafs,
- uk.ac.gda.server.exafs.scan,
- uk.ac.gda.server.exafs.scan.iterators,
- uk.ac.gda.server.exafs.scan.preparers
+ uk.ac.gda.server.exafs.scan;split=true;mandatory:=split,
+ uk.ac.gda.server.exafs.scan.iterators;split=true;mandatory:=split,
+ uk.ac.gda.server.exafs.scan.preparers;split=true;mandatory:=split
 Import-Package: org.springframework.beans.factory;version="4.0.6.RELEASE",
  gda.device.detector.addetector,
  gda.device.detector.addetector.triggering,

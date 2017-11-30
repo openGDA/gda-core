@@ -14,8 +14,8 @@ Require-Bundle: org.eclipse.january;bundle-version="1.0.0",
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy: uk.ac.gda.common, uk.ac.gda.core
-Export-Package: gda.device.detector,
- gda.device.detector.countertimer,
+Export-Package: gda.device.detector;split=true;mandatory:=split,
+ gda.device.detector.countertimer;split=true;mandatory:=split,
  gda.device.detector.xspress,
  gda.device.detector.xspress.xspress2data
 Import-Package: org.apache.commons.beanutils;version="1.9.1",
