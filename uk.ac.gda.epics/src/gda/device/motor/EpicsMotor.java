@@ -1720,14 +1720,6 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 		this.callbackWait = callbackDelay;
 	}
 
-	@Override
-	public boolean equals(Object other) {
-		if (!(other instanceof EpicsMotor)) {
-			return false;
-		}
-		return this == other;
-	}
-
 	public String getPV() throws InterfaceException {
 		return GDAEpicsInterfaceReader.getPVFromSimpleMotor(getDeviceName());
 	}
