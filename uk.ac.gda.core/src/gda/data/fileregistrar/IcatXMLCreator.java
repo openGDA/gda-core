@@ -19,10 +19,6 @@
 
 package gda.data.fileregistrar;
 
-import gda.data.metadata.Metadata;
-import gda.device.DeviceException;
-import gda.factory.Finder;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -37,10 +33,14 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.data.metadata.Metadata;
+import gda.device.DeviceException;
+import gda.factory.Finder;
+
 /**
- * creates and xml file required for the icat xmlingest file registry
+ * creates an xml file required for the icat xml ingest file registry
  */
-public class IcatXMLCreator {
+public class IcatXMLCreator implements ArchiveFileCreator {
 
 	private static final Logger logger = LoggerFactory.getLogger(IcatXMLCreator.class);
 
@@ -63,15 +63,32 @@ public class IcatXMLCreator {
 
 		IvestigationInfo() throws DeviceException {
 			instrument = metadata.getMetadataValue("instrument", "gda.instrument", null);
-			instrument = xmlSanitze(instrument);
+			instrument = xmlSanitize(instrument);
 			title = metadata.getMetadataValue("title");
-			title = xmlSanitze(title);
+			title = xmlSanitize(title);
 			visit_id = metadata.getMetadataValue("visit");
 			if (visit_id == null || visit_id.isEmpty()) {
 				visit_id = "0-0";
 			}
 			visit_id = visit_id.toUpperCase();
 			inv_number = visit_id.substring(0, visit_id.indexOf('-'));
+		}
+
+		/**
+		 * @param string
+		 * @return string with various delimiters removed
+		 */
+		private String xmlSanitize(String string) {
+			if (string == null || string.isEmpty())
+				return "unknown";
+			string = string.replace(">", "");
+			string = string.replace("<", "");
+			string = string.replace("&", "");
+			string = string.replace("/", "");
+			string = string.replace("'", "");
+			string = string.replace("\"", "");
+			string = string.replace("\\", "");
+			return string;
 		}
 
 		@Override
@@ -176,8 +193,9 @@ public class IcatXMLCreator {
 	 * @param files
 	 *            list of absolute paths
 	 */
+	@Override
 	public void registerFiles(String datasetId, String[] files) {
-		logger.info("registering " + files.length + " file(s) for dataset " + datasetId);
+		logger.info("registering {} file(s) for dataset {}", files.length, datasetId);
 
 		if (metadata == null) {
 			getMetadataObject();
@@ -197,32 +215,15 @@ public class IcatXMLCreator {
 			writeData(datasetStart);
 			writeData(new DatasetInfo(datasetId));
 			for (String file : files) {
-				logger.debug("Writing info for file " + file);
+				logger.debug("Writing info for file {}", file);
 				writeData(new FileInfo(file));
 			}
 			writeData(datasetEnd);
 		} catch (Exception e) {
-			logger.error("Cannot write XML drop file ", e);
+			logger.error("Cannot write XML drop file", e);
 		} finally {
 			closeFile();
 		}
-	}
-
-	/**
-	 * @param string
-	 * @return string but better
-	 */
-	public String xmlSanitze(String string) {
-		if (string == null || string.isEmpty())
-			return "unknown";
-		string = string.replace(">", "");
-		string = string.replace("<", "");
-		string = string.replace("&", "");
-		string = string.replace("/", "");
-		string = string.replace("'", "");
-		string = string.replace("\"", "");
-		string = string.replace("\\", "");
-		return string;
 	}
 
 	private void getMetadataObject() {
@@ -271,17 +272,11 @@ public class IcatXMLCreator {
 	}
 
 	/**
-	 * @return the configured directory
-	 */
-	public String getDirectory() {
-		return directory;
-	}
-
-	/**
 	 * the directory to create the XML in
 	 *
 	 * @param directory
 	 */
+	@Override
 	public void setDirectory(String directory) {
 		this.directory = directory;
 	}

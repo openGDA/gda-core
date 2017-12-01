@@ -257,17 +257,6 @@ public class FileRegistrarUnitTest {
 	}
 
 	@Test
-	public void testGetDirectory() {
-		// Directory is read from XML creator
-		final String directory = "/dls_sw/ixx/data";
-		final FileRegistrar fileRegistrar = new FileRegistrar();
-		fileRegistrar.setIcatXMLCreator(icatXmlCreator);
-		when(icatXmlCreator.getDirectory()).thenReturn(directory);
-
-		assertEquals(directory, fileRegistrar.getDirectory());
-	}
-
-	@Test
 	public void testRegister() {
 		final IScanService scanService = mock(IScanService.class);
 		FileRegistrarServiceHolder.setRunnableDeviceService(scanService);

@@ -78,7 +78,7 @@ public class FileRegistrar extends DataWriterExtenderBase implements IFileRegist
 
 	private IScanDataPoint lastScanDataPoint = null;
 
-	private IcatXMLCreator icatXMLCreator = new IcatXMLCreator();
+	private ArchiveFileCreator icatXMLCreator = new IcatXMLCreator();
 
 	private DeviceBase sockPuppet;
 
@@ -252,7 +252,7 @@ public class FileRegistrar extends DataWriterExtenderBase implements IFileRegist
 	 *
 	 * @return the xml creator instance
 	 */
-	protected IcatXMLCreator getIcatXMLCreator() {
+	protected ArchiveFileCreator getIcatXMLCreator() {
 		return icatXMLCreator;
 	}
 
@@ -261,7 +261,7 @@ public class FileRegistrar extends DataWriterExtenderBase implements IFileRegist
 	 *
 	 * @param icatXMLCreator
 	 */
-	protected void setIcatXMLCreator(IcatXMLCreator icatXMLCreator) {
+	public void setIcatXMLCreator(ArchiveFileCreator icatXMLCreator) {
 		this.icatXMLCreator = icatXMLCreator;
 	}
 
@@ -272,13 +272,6 @@ public class FileRegistrar extends DataWriterExtenderBase implements IFileRegist
 	 */
 	public void setDirectory(String directory) {
 		icatXMLCreator.setDirectory(directory);
-	}
-
-	/**
-	 * @return the configured directory
-	 */
-	public String getDirectory() {
-		return icatXMLCreator.getDirectory();
 	}
 
 	@Override
