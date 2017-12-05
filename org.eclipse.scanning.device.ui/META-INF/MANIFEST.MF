@@ -32,6 +32,5 @@ Export-Package: org.eclipse.scanning.device.ui,
  org.eclipse.scanning.device.ui.composites,
  org.eclipse.scanning.device.ui.device,
  org.eclipse.scanning.device.ui.device.scannable,
- org.eclipse.scanning.device.ui.expr,
  org.eclipse.scanning.device.ui.model,
  org.eclipse.scanning.device.ui.util
