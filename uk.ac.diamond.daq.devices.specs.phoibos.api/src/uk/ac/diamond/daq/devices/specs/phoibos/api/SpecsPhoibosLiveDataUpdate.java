@@ -33,24 +33,97 @@ public class SpecsPhoibosLiveDataUpdate implements Serializable {
 	 */
 	private static final long serialVersionUID = 4498165026512874271L;
 
-	final int totalPoints;
-	final int currentPoint;
-	final double[] spectrum;
-	final double[][] image;
-	final double[] keEnergyAxis;
-	final double[] beEnergyAxis;
-	final double[] yAxis;
+	private final String regionName;
+	private final String positionString;
+	private final int totalPoints;
+	private final int currentPoint;
+	private final double[] spectrum;
+	private final double[][] image;
+	private final double[] keEnergyAxis;
+	private final double[] beEnergyAxis;
+	private final double[] yAxis;
 
-	public SpecsPhoibosLiveDataUpdate(final int totalPoints, final int currentPoint, final double[] spectrum,
-			final double[][] image, final double[] keEnergyAxis, final double[] beEnergyAxis, final double[] yAxis) {
+	public static class Builder {
 
-		this.totalPoints = totalPoints;
-		this.currentPoint = currentPoint;
-		this.spectrum = spectrum;
-		this.image = image;
-		this.keEnergyAxis = keEnergyAxis;
-		this.beEnergyAxis = beEnergyAxis;
-		this.yAxis = yAxis;
+		private String regionName;
+		private String positionString;
+		private int totalPoints;
+		private int currentPoint;
+		private double[] spectrum;
+		private double[][] image;
+		private double[] keEnergyAxis;
+		private double[] beEnergyAxis;
+		private double[] yAxis;
+
+		public Builder regionName(String val) {
+			regionName = val;
+			return this;
+		}
+
+		public Builder positionString(String val) {
+			positionString = val;
+			return this;
+		}
+
+		public Builder totalPoints(int val) {
+			totalPoints = val;
+			return this;
+		}
+
+		public Builder currentPoint(int val) {
+			currentPoint = val;
+			return this;
+		}
+
+		public Builder spectrum(double[] val) {
+			spectrum = val;
+			return this;
+		}
+
+		public Builder image(double[][] val) {
+			image = val;
+			return this;
+		}
+
+		public Builder keEnergyAxis(double[] val) {
+			keEnergyAxis = val;
+			return this;
+		}
+
+		public Builder beEnergyAxis(double[] val) {
+			beEnergyAxis = val;
+			return this;
+		}
+
+		public Builder yAxis(double[] val) {
+			yAxis = val;
+			return this;
+		}
+
+		public SpecsPhoibosLiveDataUpdate build() {
+			return new SpecsPhoibosLiveDataUpdate(this);
+		}
+	}
+
+	private SpecsPhoibosLiveDataUpdate(Builder builder) {
+
+		regionName = builder.regionName;
+		positionString = builder.positionString;
+		totalPoints = builder.totalPoints;
+		currentPoint = builder.currentPoint;
+		spectrum = builder.spectrum;
+		image = builder.image;
+		keEnergyAxis = builder.keEnergyAxis;
+		beEnergyAxis = builder.beEnergyAxis;
+		yAxis = builder.yAxis;
+	}
+
+	public String getPositionString() {
+		return positionString;
+	}
+
+	public String getRegionName() {
+		return regionName;
 	}
 
 	public int getTotalPoints() {

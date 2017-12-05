@@ -37,6 +37,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
+import com.swtdesigner.SWTResourceManager;
+
 import uk.ac.diamond.daq.devices.specs.phoibos.ui.SpecsFixedRegionWrapper;
 
 /**
@@ -58,6 +60,7 @@ public class SpecsLiveAnalyserControlsView {
 		DataBindingContext dbc = new DataBindingContext();
 
 		GridLayoutFactory.swtDefaults().numColumns(3).spacing(10, 0).applyTo(parent);
+		parent.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 
 		Composite psuAndLensModeComposite = new Composite(parent, SWT.NONE);
 		GridLayoutFactory.swtDefaults().numColumns(2).spacing(10, 10).applyTo(psuAndLensModeComposite);
