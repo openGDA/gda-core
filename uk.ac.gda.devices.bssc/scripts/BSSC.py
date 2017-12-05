@@ -11,16 +11,20 @@ from gda.jython.commands.GeneralCommands import pause
 from tfgsetup import fs
 from cStringIO import StringIO
 from gdascripts.pd.epics_pds import DisplayEpicsPVClass, SingleEpicsPositionerClass
+import gdaserver
+import uuid
+import json
 
 SAMPLE_HOLD = True
 
 class BSSCRun:
     def __init__(self, beanFile):
-        self.__version__ = '1.00'
+        self.__version__ = '1.01'
         finder = gda.factory.Finder.getInstance()
         find = finder.find
+        self.simulate = False
         self.holdsample = SAMPLE_HOLD
-        self.samplevolume = 20
+        self.samplevolume = 35
         self.beanFile = beanFile
         self.bean = BSSCSessionBean.createFromXML(beanFile)
         self.bssc = finder.listAllLocalObjects("uk.ac.gda.devices.bssc.BioSAXSSampleChanger")[0]
@@ -34,7 +38,8 @@ class BSSCRun:
         self.sampleName = find("samplename")
         self.sample_type = find('sample_type')
         self.sample_environment = find('sample_environment')
-
+        self.experiment_definition = gdaserver.experiment_definition
+        self.metashop = gdaserver.metashop
         self.meta = GDAMetadataProvider.getInstance()
 
         #need to remove hardcoding
@@ -44,8 +49,8 @@ class BSSCRun:
         self.overheadsteps = 5
         self.stepspersample = 8
 
-        self.isSimulation = hasattr(self.bssc, 'DUMMY')
-        if self.isSimulation:
+        if self.simulate:
+            print "running in simulation mode"
             self.scannables = [self.detector, self.bsscscannable]
         else:
             self.cam = gda.factory.Finder.getInstance().find("bsaxscam")
@@ -118,29 +123,31 @@ class BSSCRun:
         print "Plates in Sample Changer: ", self.bssc.getPlatesIDs()
 
     def getStorageTemperature(self):
-        if not self.isSimulation:
+        if not self.simulate:
             return self.bssc.getTemperatureSampleStorage()
         else:
             return -300.0
 
     def getExposureTemperature(self):
-        if not self.isSimulation:
+        if not self.simulate:
             return self.bssc.getTemperatureSEU()
         else:
             return -300
 
     def setExposureTemperature(self, temperature):
-        if not self.isSimulation:
+        if not self.simulate:
             self.monitorAsynchronousMethod(self.bssc.waitTemperatureSEU((temperature)))
 
     def clean(self):
-        self.monitorAsynchronousMethod(self.bssc.clean())
+        if not self.simulate:
+            self.monitorAsynchronousMethod(self.bssc.clean())
 
     def setupTfg(self, frames, tpf):
         self.tfg.clearFrameSets()
-        self.tfg.addFrameSet(frames, 50, tpf * 1000, int('00000100', 2), int('11111111', 2), 0, 0);
+        # Dead time needs to be >=100 to allow for the 'fast' shutter to open fully before exposure
+        self.tfg.addFrameSet(frames, 100, tpf * 1000, int('00000100', 2), int('11111111', 2), 0, 0);
         self.tfg.loadFrameSets()
-        return frames * (tpf + 0.05)
+        return frames * (tpf + 0.1)
 
     def setTitle(self, title):
         GDAMetadataProvider.getInstance().setMetadataValue("title", title)
@@ -156,15 +163,16 @@ class BSSCRun:
         scan.runScan()
         return scan.getDataWriter().getCurrentFileName()
 
-    def expose(self, duration):
-        speed = self.samplevolume / duration
-        if speed >= 5 and speed <= 6000:
-            # simulation reports these limits
-            taskid = self.bssc.push(self.samplevolume, speed)
+    def expose(self, duration, move=False):
+        if move:
+            print "Moving the sample during collection"
+            speed = 1
+            push_volume = self.samplevolume-10
+            taskid = self.bssc.push(self.samplevolume-10, 1)
             filename = self.doTheScan(self.scannables)
             self.monitorAsynchronousMethod(taskid)
         else:
-            print "sample speed %5.1f outside allowed range, will do static exposure" % speed
+            print "Sample static during collection"
             filename = self.doTheScan(self.scannables)
         return filename
 
@@ -175,69 +183,143 @@ class BSSCRun:
         self.shutter.asynchronousMoveTo("Close")
 
     def measureSample(self, titration, duration):
-        if titration != None:
-            self.reportProgress("Cleaning before Sample")
-            pause()
-            self.clean()
-            self.reportProgress("Sucking in Sample")
-            self.loadWell(titration.getLocation())
-            if self.holdsample:
-                self.reportProgress("Turning on sample position feedback")
-                self.bssc.setLiquidPositionFixed(self.holdsample)
-            else:
-                self.reportProgress("Sample position feedback is off.")
-            self.reportProgress("Exposing Sample")
+        if not self.simulate:
+            if titration != None:
+                self.reportProgress("Cleaning before Sample")
+                pause()
+                self.clean()
+                self.reportProgress("Sucking in Sample")
+                self.loadWell(titration.getLocation())
+                if self.holdsample:
+                    self.reportProgress("Turning on sample position feedback")
+                    self.bssc.setLiquidPositionFixed(self.holdsample)
+                else:
+                    self.reportProgress("Sample position feedback is off.")
+                self.reportProgress("Exposing Sample")
 
-            self.setTitle("Sample: %s (Location %s)" % (titration.getSampleName(), titration.getLocation().toString()))
+                #self.setTitle("Sample: %s (Location %s)" % (titration.getSampleName(), titration.getLocation().toString()))
+                self.setTitle(titration.getSampleName())
 
-            self.sampleName.setValue(titration.getSampleName())
-            self.sampleConcentration.asynchronousMoveTo(titration.getConcentration())
+                self.sampleName.setValue(titration.getSampleName())
+                self.sampleConcentration.asynchronousMoveTo(titration.getConcentration())
+                if titration.getKey() == "move":
+                    move = True
+                else:
+                    move = False
+                filename = self.expose(duration, move)
+                pause()
 
-            filename = self.expose(duration)
-            pause()
-
-            if titration.getRecouperateLocation() is not None:
-                self.reportProgress("Recouperating Sample to " + titration.getRecouperateLocation().toString())
-                self.unloadIntoWell(titration.getRecouperateLocation())
-            return filename
+                if titration.getRecouperateLocation() is not None:
+                    self.reportProgress("Recouperating Sample to " + titration.getRecouperateLocation().toString())
+                    self.unloadIntoWell(titration.getRecouperateLocation())
+                return filename
+        else:
+            print 'ran the measureSample function'
+            return 'dummy_file_name.nxs'
 
     def setUpRobotAndDetector(self, titration):
-        self.reportProgress("Setting Up Robot")
-        self.bssc.setViscosityLevel(titration.getViscosity())
-        self.reportProgress("Checking Exposure Cell Temperature")
-        self.setExposureTemperature(titration.getExposureTemperature())
-        self.reportProgress("Setting Up Time Frame Generator")
-        return self.setupTfg(titration.getFrames(), titration.getTimePerFrame())
+        if not self.simulate:
+            self.reportProgress("Setting Up Robot")
+            self.bssc.setViscosityLevel(titration.getViscosity())
+            self.reportProgress("Checking Exposure Cell Temperature")
+            self.setExposureTemperature(titration.getExposureTemperature())
+            self.reportProgress("Setting Up Time Frame Generator")
+            return self.setupTfg(titration.getFrames(), titration.getTimePerFrame())
+        else:
+            print 'Ran the setupRobotAndDetector function'
+            return titration.getFrames() * ( titration.getTimePerFrame() + 0.1)
+
+    def addExperimentDefinitionToNxs(self, add=True):
+        if add:
+            self.metashop.setMetaScannables([self.experiment_definition])
+            print 'added experiment definition field to nxs files'
+        else:
+            self.experiment_definition( ['n/a', 'n/a', 'n/a'] )
+            self.metashop.remove(self.experiment_definition)
+            print 'removed experiment definition field from nxs files'
+
+    def dictFromTitration(self, titration):
+        output_dict = {}
+        output_dict['plate'] = titration.getLocation().getPlate()
+        output_dict['row'] = titration.getLocation().getRow()
+        output_dict['column'] = titration.getLocation().getColumn()
+        output_dict['sampleName'] = titration.getSampleName()
+        output_dict['concentration'] = titration.getConcentration()
+        output_dict['viscosity'] = titration.getViscosity()
+        output_dict['molecularWeight'] = titration.getMolecularWeight()
+        if titration.isBuffer():
+            output_dict['isBuffer'] = True
+            output_dict['buffers'] = None
+        else:
+            output_dict['isBuffer'] = False
+            output_dict['buffers'] = titration.getBuffers()
+        try:
+            output_dict['recoup'] = True
+            output_dict['recoupPlate'] = titration.getRecouperateLocation().getPlate()
+            output_dict['recoupRow'] = titration.getRecouperateLocation().getRow()
+            output_dict['recoupColumn'] = titration.getRecouperateLocation().getColumn()
+        except:
+            output_dict['recoup'] = False
+            output_dict['recoupPlate'] = None
+            output_dict['recoupRow'] = None
+            output_dict['recoupColumn'] = None
+        output_dict['timePerFrame'] = titration.getTimePerFrame()
+        output_dict['frames'] = titration.getFrames()
+        output_dict['exposureTemperature'] = titration.getExposureTemperature()
+        output_dict['mode'] = titration.getMode()
+        output_dict['key'] = titration.getKey()
+        output_dict['visit'] = titration.getVisit()
+        output_dict['username'] = titration.getUsername()
+        output_dict['datafilename'] = titration.getDatafilename()
+        return output_dict
+
+    def jsonStringFromMeasurements(self, measurements):
+        output_array = []
+        for titration in measurements:
+            output_array.append(self.dictFromTitration(titration))
+        return json.dumps(output_array)
 
     def run(self, processing=True):
-        self.reportProgress('Running BSSC script version '+self.__version__)
-        self.reportProgress("Initialising");
-        self.checkDevice()
-        if self.getFastShutter():
-            self.setFastShutter('Close')
-        self.bssc.setSampleType("green")
-        self.reportProgress("Opening Shutter")
-        self.armFastValve()
-        self.openShutter()
-        self.sample_environment('BSSC')
-        for titration in self.bean.getMeasurements():
-            self.meta.setMetadataValue('visit', titration.getVisit())
-            print  "\n== Running Titration " + titration.getSampleName() + " =="
-            self.sample_type('buffer' if titration.buffer else 'sample+buffer')
-            duration = self.setUpRobotAndDetector(titration)
-            samplefile = self.measureSample(titration, duration)
-            titration.datafilename = samplefile
-            # if processing:
-            #     self.processing.triggerProcessing(samplefile)
+        try:
+            self.reportProgress('Running BSSC script version '+self.__version__)
+            self.reportProgress("Initialising");
+            if not self.simulate:
+                self.checkDevice()
+                if self.getFastShutter():
+                    self.setFastShutter('Close')
+                self.armFastValve()
+                self.openShutter()
+                self.bssc.setSampleType("green")
+            self.reportProgress("Opening Shutter")
+            self.sample_environment('BSSC')
+            self.addExperimentDefinitionToNxs()
+            
+            experiment_id = str(uuid.uuid4())
+            for index, titration in enumerate(self.bean.getMeasurements()):
+                self.experiment_definition( [ self.jsonStringFromMeasurements(self.bean.getMeasurements()), str(index), experiment_id ] )
+                self.meta.setMetadataValue('visit', titration.getVisit())
+                print  "\n== Running Titration " + titration.getSampleName() + " =="
+                self.sample_type('buffer' if titration.buffer else 'sample+buffer')
+                duration = self.setUpRobotAndDetector(titration)
+                samplefile = self.measureSample(titration, duration)
+                titration.datafilename = samplefile
 
-        self.reportProgress("\nClosing shutter")
-        self.closeShutter()
-        self.reportProgress("Performing Final Cell Wash")
-        self.bssc.setViscosityLevel("high")
-        self.clean()
-        self.exportFinalBeans()
-        self.sample_environment('Manual')
-        self.sample_type('sample')
+                # if processing:
+                #     self.processing.triggerProcessing(samplefile)
+    
+            self.reportProgress("\nClosing shutter")
+            if not self.simulate:
+                self.closeShutter()
+            self.reportProgress("Performing Final Cell Wash")
+            if not self.simulate:
+                self.bssc.setViscosityLevel("high")
+                self.clean()
+            self.exportFinalBeans()
+            self.sample_environment('Manual')
+            self.sample_type('sample')
+        finally:
+            self.addExperimentDefinitionToNxs(False)
+            print 'BSSC SCRIPT FINISHED NORMALLY'
 
     def exportFinalBeans(self):
         """The samples are updated to include the datafile paths
