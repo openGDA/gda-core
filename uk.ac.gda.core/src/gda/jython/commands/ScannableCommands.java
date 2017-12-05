@@ -342,7 +342,7 @@ public class ScannableCommands {
 			final int longestName = map.entrySet().stream()
 				.mapToInt(entry -> entry.getKey().length()) // Find the length of the name in Jython
 				.max() // find longest of the names
-				.getAsInt(); // Convert OptionalInt to int
+				.orElse(0); // default to 0 if no scannables found
 
 			// then loop over the reduced list and print each item separately, logging any errors if they occur
 			final ITerminalPrinter terminalPrinter = InterfaceProvider.getTerminalPrinter();
