@@ -19,11 +19,11 @@
 
 package gda.data.metadata;
 
+import java.util.List;
+
 import gda.device.DeviceException;
 import gda.factory.Findable;
 import gda.observable.IObservable;
-
-import java.util.ArrayList;
 
 /**
  * An interface specifying access to metadata in GDA.
@@ -52,7 +52,7 @@ public interface Metadata extends Findable, IObservable {
 	 * @return ArrayList The list of MetadataEntry objects.
 	 * @throws DeviceException
 	 */
-	public abstract ArrayList<IMetadataEntry> getMetadataEntries() throws DeviceException;
+	public abstract List<IMetadataEntry> getMetadataEntries() throws DeviceException;
 
 	@Override
 	public abstract String getName();

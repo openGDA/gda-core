@@ -365,7 +365,7 @@ public class BatonManager implements IBatonManager {
 
 	private boolean metadataContainsKey(Metadata metadata, String key){
 		try {
-			ArrayList<IMetadataEntry> entries  = metadata.getMetadataEntries();
+			List<IMetadataEntry> entries  = metadata.getMetadataEntries();
 
 			for(IMetadataEntry entry : entries){
 				if (entry.getName().equals(key)){

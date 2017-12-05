@@ -72,7 +72,7 @@ public class ObservablePathConstructor extends DeviceBase implements ObservableP
 		}
 
 		StringTokenizer st = new StringTokenizer(template, "$");
-		ArrayList<IMetadataEntry> allEntries = gdaMetadata.getMetadataEntries();
+		List<IMetadataEntry> allEntries = gdaMetadata.getMetadataEntries();
 		while (st.hasMoreTokens()) {
 			IMetadataEntry possiblyEntry = pickMetadataEntry(allEntries, st.nextToken());
 			if (possiblyEntry != null) {

@@ -28,6 +28,7 @@ import gda.observable.ObservableComponent;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -43,7 +44,7 @@ public class GdaMetadata implements Metadata, Configurable, Localizable, IObserv
 
 	private boolean local;
 
-	Map<String, IMetadataEntry> metadataEntries = new LinkedHashMap<String, IMetadataEntry>();
+	Map<String, IMetadataEntry> metadataEntries = new LinkedHashMap<>();
 	private ObservableComponent observableComponent = new ObservableComponent();
 
 	/**
@@ -117,18 +118,18 @@ public class GdaMetadata implements Metadata, Configurable, Localizable, IObserv
 	}
 
 	@Override
-	public ArrayList<IMetadataEntry> getMetadataEntries() {
-		return new ArrayList<IMetadataEntry>(metadataEntries.values());
+	public List<IMetadataEntry> getMetadataEntries() {
+		return new ArrayList<>(metadataEntries.values());
 	}
 
 	/**
 	 * Sets the entries within this metadata.
-	 * 
+	 *
 	 * @param entries
 	 *            the metadata entries
 	 */
-	public void setMetadataEntries(ArrayList<IMetadataEntry> entries) {
-		metadataEntries = new LinkedHashMap<String, IMetadataEntry>();
+	public void setMetadataEntries(List<IMetadataEntry> entries) {
+		metadataEntries = new LinkedHashMap<>();
 		for (IMetadataEntry entry : entries) {
 			addMetadataEntry(entry);
 		}

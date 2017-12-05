@@ -19,6 +19,9 @@
 
 package gda.data.metadata.corba.impl;
 
+import java.io.Serializable;
+import java.util.List;
+
 import gda.data.metadata.IMetadataEntry;
 import gda.data.metadata.Metadata;
 import gda.data.metadata.corba.CorbaMetadataEntry;
@@ -28,9 +31,6 @@ import gda.device.corba.CorbaDeviceException;
 import gda.factory.corba.util.EventDispatcher;
 import gda.factory.corba.util.EventService;
 import gda.observable.IObserver;
-
-import java.io.Serializable;
-import java.util.ArrayList;
 
 /**
  * A server side implementation for a distributed Metadata class
@@ -102,7 +102,7 @@ public class MetadataImpl extends CorbaMetadataPOA implements IObserver {
 	public CorbaMetadataEntry[] getMetadataEntries() throws CorbaDeviceException {
 		CorbaMetadataEntry[] mes;
 		try {
-			ArrayList<IMetadataEntry> metadataEntries = metadata.getMetadataEntries();
+			List<IMetadataEntry> metadataEntries = metadata.getMetadataEntries();
 			mes = new CorbaMetadataEntry[metadataEntries.size()];
 			for (int i = 0; i < metadataEntries.size(); i++) {
 				mes[i] = MetadataCorbaUtils.marshal(metadataEntries.get(i));

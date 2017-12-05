@@ -19,14 +19,14 @@
 
 package gda.data.metadata;
 
-import gda.device.DeviceException;
-import gda.factory.FactoryException;
-import gda.util.ObjectServer;
-
-import java.util.ArrayList;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.device.DeviceException;
+import gda.factory.FactoryException;
+import gda.util.ObjectServer;
 
 /**
  * Metadata Test Class.
@@ -42,7 +42,7 @@ public class MetadataTest {
 	 */
 	public static void main(String[] args) throws FactoryException {
 		MetadataEntry entry;
-		ArrayList<IMetadataEntry> entries;
+		List<IMetadataEntry> entries;
 
 		ObjectServer.createLocalImpl("/home/shk/config/xml/metadata_server.xml");
 		Metadata metadata = GDAMetadataProvider.getInstance();

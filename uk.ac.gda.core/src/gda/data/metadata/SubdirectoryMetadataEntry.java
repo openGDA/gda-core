@@ -25,9 +25,9 @@ import gda.factory.FactoryException;
 import gda.observable.IObserver;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -45,7 +45,7 @@ public class SubdirectoryMetadataEntry extends PersistantMetadataEntry implement
 		super.configure();
 		try {
 			IMetadataEntry visit = null;
-			ArrayList<IMetadataEntry> metadataEntries = GDAMetadataProvider.getInstance().getMetadataEntries();
+			List<IMetadataEntry> metadataEntries = GDAMetadataProvider.getInstance().getMetadataEntries();
 			for (Iterator<IMetadataEntry> iterator = metadataEntries.iterator(); iterator.hasNext();) {
 				IMetadataEntry metadataEntry = iterator.next();
 				if (metadataEntry.getName().equals("visit")) {
