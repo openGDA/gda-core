@@ -19,17 +19,17 @@
 
 package gda.data.scan.datawriter;
 
-import gda.configuration.properties.LocalProperties;
-import gda.jython.IJythonNamespace;
-import gda.jython.InterfaceProvider;
-import gda.scan.IScanDataPoint;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.configuration.properties.LocalProperties;
+import gda.jython.IJythonNamespace;
+import gda.jython.InterfaceProvider;
+import gda.scan.IScanDataPoint;
 
 /**
  * An extension of IncrementalFile class which produces files in the SRS ascii format. It uses the reference of the scan
@@ -66,9 +66,8 @@ public class SrsDataFile extends IncrementalFile {
 	/**
 	 * Constructor
 	 *
-	 * @throws InstantiationException
 	 */
-	public SrsDataFile() throws InstantiationException {
+	public SrsDataFile() {
 		super();
 
 		alignColumns = LocalProperties.get("gda.data.scan.datawriter.dataFormat.SrsDataFile.aligncolumns", "false")
