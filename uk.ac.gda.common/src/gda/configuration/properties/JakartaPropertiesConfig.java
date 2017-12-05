@@ -19,7 +19,6 @@
 
 package gda.configuration.properties;
 
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -29,7 +28,6 @@ import org.apache.commons.configuration.CompositeConfiguration;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.ConfigurationFactory;
-import org.apache.commons.configuration.DataConfiguration;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.configuration.SystemConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
@@ -276,15 +274,6 @@ public class JakartaPropertiesConfig implements PropertiesConfig {
 		}
 
 		return value;
-	}
-
-	@Override
-	public URL getURL(String name, URL defaultValue) {
-		// Use decorator, which can convert to URLs, Locales, Dates, Colours,
-		// etc.
-		DataConfiguration dataConfig = new DataConfiguration(config);
-
-		return dataConfig.getURL(name, defaultValue);
 	}
 
 	@Override

@@ -22,7 +22,6 @@ package gda.configuration.properties;
 import static java.io.File.separator;
 
 import java.io.File;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -597,19 +596,6 @@ public final class LocalProperties {
 		// README - backslashes are replaced with forward slashes in here,
 		// since we know its a path and its safe to do this.
 		return propConfig.getPath(name, defaultValue);
-	}
-
-	/**
-	 * Get a URL property value using a specified key string.
-	 *
-	 * @param name
-	 *            the key specified to fetch the URL value
-	 * @param defaultValue
-	 *            the default value to return if the key is not found
-	 * @return the property value to return to the caller
-	 */
-	public static URL getURL(String name, URL defaultValue) {
-		return propConfig.getURL(name, defaultValue);
 	}
 
 	/**
