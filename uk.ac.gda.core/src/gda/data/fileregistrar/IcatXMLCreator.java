@@ -19,10 +19,6 @@
 
 package gda.data.fileregistrar;
 
-import gda.data.metadata.Metadata;
-import gda.device.DeviceException;
-import gda.factory.Finder;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -34,8 +30,14 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
 
+import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.data.PathConstructor;
+import gda.data.metadata.Metadata;
+import gda.device.DeviceException;
+import gda.factory.Finder;
 
 /**
  * creates and xml file required for the icat xmlingest file registry
@@ -49,23 +51,27 @@ public class IcatXMLCreator {
 	private static final String xmlHeader = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
 			+ "<icat version=\"1.0 RC6\" xsi:noNamespaceSchemaLocation=\"icatXSD.xsd\" "
 			+ "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n" + "<study> <investigation> \n";
-	private static final String xmlFooter = "</investigation> </study> </icat>\n";
+	private static final String xmlFooter = "</investigation>\n</study>\n</icat>\n";
 	private static final String datasetStart = " <dataset>\n";
 	private static final String datasetEnd = " </dataset>\n";
+
+	private static final String TOPLEVEL_DATASET_NAME = "topdir";
 
 	private String directory = "/tmp/bar-";
 	private Metadata metadata;
 	private Writer fileWriter;
 
-	private class IvestigationInfo {
-		String inv_number, visit_id, instrument, title;
-		String inv_type = "experiment";
+	private boolean useDirForDatasetName = false;
 
-		IvestigationInfo() throws DeviceException {
+	private class IvestigationInfo {
+		private String inv_number, visit_id, instrument, title;
+		private String inv_type = "experiment";
+
+		public IvestigationInfo() throws DeviceException {
 			instrument = metadata.getMetadataValue("instrument", "gda.instrument", null);
-			instrument = xmlSanitze(instrument);
+			instrument = xmlSanitize(instrument);
 			title = metadata.getMetadataValue("title");
-			title = xmlSanitze(title);
+			title = xmlSanitize(title);
 			visit_id = metadata.getMetadataValue("visit");
 			if (visit_id == null || visit_id.isEmpty()) {
 				visit_id = "0-0";
@@ -85,12 +91,29 @@ public class IcatXMLCreator {
 
 			return s;
 		}
+
+		/**
+		 * @param string
+		 * @return string but better
+		 */
+		private String xmlSanitize(String string) {
+			if (string == null || string.isEmpty())
+				return "unknown";
+			string = string.replace(">", "");
+			string = string.replace("<", "");
+			string = string.replace("&", "");
+			string = string.replace("/", "");
+			string = string.replace("'", "");
+			string = string.replace("\"", "");
+			string = string.replace("\\", "");
+			return string;
+		}
 	}
 
 	private class FileInfo {
-		String name, location, description, datafile_version, datafile_create_time, datafile_modify_time, datafile_size;
+		private String name, location, description, datafile_version, datafile_create_time, datafile_modify_time, datafile_size;
 
-		FileInfo(String location) {
+		public FileInfo(String location) {
 			this.description = "unknown";
 			File handle = new File(location);
 			this.location = handle.getAbsolutePath();
@@ -112,24 +135,24 @@ public class IcatXMLCreator {
 		@Override
 		public String toString() {
 			StringBuilder s = new StringBuilder();
-			s.append("	<datafile>\n");
-			s.append("		<name>" + name + "</name>\n");
-			s.append("		<location>" + location + "</location>\n");
-			s.append("		<description>" + description + "</description>\n");
-			s.append("		<datafile_version>" + datafile_version + "</datafile_version>\n");
-			s.append("		<datafile_create_time>" + datafile_create_time + "</datafile_create_time>\n");
-			s.append("		<datafile_modify_time>" + datafile_modify_time + "</datafile_modify_time>\n");
+			s.append("   <datafile>\n");
+			s.append("      <name>" + name + "</name>\n");
+			s.append("      <location>" + location + "</location>\n");
+			s.append("      <description>" + description + "</description>\n");
+			s.append("      <datafile_version>" + datafile_version + "</datafile_version>\n");
+			s.append("      <datafile_create_time>" + datafile_create_time + "</datafile_create_time>\n");
+			s.append("      <datafile_modify_time>" + datafile_modify_time + "</datafile_modify_time>\n");
             if (this.datafile_size != null) s.append("      <file_size>" + this.datafile_size + "</file_size>\n");
-			s.append("	</datafile>\n");
+			s.append("   </datafile>\n");
 
 			return s.toString();
 		}
 	}
 
 	private class DatasetInfo {
-		String name, dataset_type, description;
+		private String name, dataset_type, description;
 
-		DatasetInfo(String name) {
+		public DatasetInfo(String name) {
 			this.name = name;
 			this.dataset_type = "EXPERIMENT_RAW";
 			this.description = "unknown";
@@ -138,17 +161,17 @@ public class IcatXMLCreator {
 		@Override
 		public String toString() {
 			String s = "";
-			s += "		<name>" + name + "</name>\n";
-			s += "		<dataset_type>" + dataset_type + "</dataset_type>\n";
-			s += "		<description>" + description + "</description>\n";
+			s += "   <name>" + name + "</name>\n";
+			s += "   <dataset_type>" + dataset_type + "</dataset_type>\n";
+			s += "   <description>" + description + "</description>\n";
 
 			return s;
 		}
 	}
 
 	private class AtomicWriter extends OutputStreamWriter {
-		String finalFileName;
-		File file;
+		private String finalFileName;
+		private File file;
 
 		public AtomicWriter(String fileName) throws UnsupportedEncodingException, FileNotFoundException {
 			this(new File(fileName+"."));
@@ -177,7 +200,88 @@ public class IcatXMLCreator {
 	 *            list of absolute paths
 	 */
 	public void registerFiles(String datasetId, String[] files) {
-		logger.info("registering " + files.length + " file(s) for dataset " + datasetId);
+		logger.debug("registering " + files.length + " file(s) for dataset " + datasetId);
+
+		if (metadata == null) {
+			getMetadataObject();
+		}
+
+		IvestigationInfo investigationInfo = null;
+		try {
+			investigationInfo = new IvestigationInfo();
+		} catch (DeviceException e) {
+			logger.error("Error getting Metadata, will NOT archive files! ", e);
+			return;
+		}
+
+		try {
+			createFile();
+			writeData(investigationInfo);
+			if (useDirForDatasetName) {
+				// Each file is added as separate <dataset> entry, with dataset directory location providing the dataset name
+				for (String file : files) {
+					String datasetName = getDatasetNameFromPath(file);
+					logger.debug("Writing dropfile dataset for file {} : scan = {}, dataset = {}", file, getScanNumberFromPath(file), datasetName);
+					writeData(datasetStart);
+					writeData(new DatasetInfo(datasetName));
+					writeData(new FileInfo(file));
+					writeData(datasetEnd);
+				}
+			} else {
+				writeData(datasetStart);
+				writeData(new DatasetInfo(datasetId));
+				for (String file : files) {
+					logger.debug("Writing info for file " + file);
+					writeData(new FileInfo(file));
+				}
+				writeData(datasetEnd);
+			}
+		} catch (Exception e) {
+			logger.error("Cannot write XML drop file ", e);
+		} finally {
+			closeFile();
+		}
+	}
+
+	/**
+	 * Extract scan number from full file path. Format of scan file is assumed to be : <scan_number>_*.*
+	 * @param fullFilePath
+	 * @return Scan number
+	 */
+	private String getScanNumberFromPath(String fullFilePath) {
+		String filename = FilenameUtils.getBaseName(fullFilePath);
+		int underScorePos = filename.indexOf("_");
+		if (underScorePos > 0) {
+			return filename.substring(0, underScorePos);
+		} else {
+			return filename;
+		}
+	}
+
+	/**
+	 * @param fullFilePath
+	 * @return Icat dataset set name (sub directory in visit/commissioning directory where file is located)
+	 */
+	private String getDatasetNameFromPath(String fullFilePath) {
+		String dataDirectory = PathConstructor.createFromDefaultProperty(); // full path to visit/commissioning folder
+		String fileDirectory = FilenameUtils.getFullPathNoEndSeparator(fullFilePath);
+		String relativePath = fileDirectory.replace(dataDirectory, "");
+		if (relativePath.trim().isEmpty()) {
+			return TOPLEVEL_DATASET_NAME;
+		} else {
+			return relativePath;
+		}
+	}
+
+	/**
+	 * creates an XML file in the configured location with the required information for an ICAT XML ingest with the data file information
+	 *
+	 * @param files
+	 *            list of absolute paths
+	 */
+	public void registerFiles(String[] files) {
+
+		String datasetId = "scan-" + getScanNumberFromPath(files[0]);
 
 		if (metadata == null) {
 			getMetadataObject();
@@ -206,23 +310,6 @@ public class IcatXMLCreator {
 		} finally {
 			closeFile();
 		}
-	}
-
-	/**
-	 * @param string
-	 * @return string but better
-	 */
-	public String xmlSanitze(String string) {
-		if (string == null || string.isEmpty())
-			return "unknown";
-		string = string.replace(">", "");
-		string = string.replace("<", "");
-		string = string.replace("&", "");
-		string = string.replace("/", "");
-		string = string.replace("'", "");
-		string = string.replace("\"", "");
-		string = string.replace("\\", "");
-		return string;
 	}
 
 	private void getMetadataObject() {
@@ -293,4 +380,13 @@ public class IcatXMLCreator {
 	protected void setMetadata(Metadata metadata) {
 		this.metadata = metadata;
 	}
+
+	public boolean getUseDirForDatasetName() {
+		return useDirForDatasetName;
+	}
+
+	public void setUseDirForDatasetName(boolean useDirForDatasetName) {
+		this.useDirForDatasetName = useDirForDatasetName;
+	}
+
 }

@@ -19,6 +19,15 @@
 
 package gda.data.fileregistrar;
 
+import java.io.File;
+import java.util.Vector;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.data.PathConstructor;
 import gda.data.scan.datawriter.DataWriterExtenderBase;
 import gda.data.scan.datawriter.IDataWriterExtender;
@@ -28,15 +37,6 @@ import gda.factory.Localizable;
 import gda.jython.Jython;
 import gda.jython.JythonServerFacade;
 import gda.scan.IScanDataPoint;
-
-import java.io.File;
-import java.util.Vector;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * File registration service that listens to scans (via DataWriterExtender) and can be used directly by detectors. Files
@@ -174,7 +174,7 @@ public class FileRegistrar extends DataWriterExtenderBase implements IFileRegist
 	 *
 	 * @return the xml creator instance
 	 */
-	protected IcatXMLCreator getIcatXMLCreator() {
+	public IcatXMLCreator getIcatXMLCreator() {
 		return icatXMLCreator;
 	}
 
@@ -183,7 +183,7 @@ public class FileRegistrar extends DataWriterExtenderBase implements IFileRegist
 	 *
 	 * @param icatXMLCreator
 	 */
-	protected void setIcatXMLCreator(IcatXMLCreator icatXMLCreator) {
+	public void setIcatXMLCreator(IcatXMLCreator icatXMLCreator) {
 		this.icatXMLCreator = icatXMLCreator;
 	}
 
