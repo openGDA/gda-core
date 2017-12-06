@@ -205,6 +205,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: javax.jms,
  org.apache.commons.collections.map,
  org.apache.commons.logging,
+ org.apache.commons.io,
  org.eclipse.core.runtime;version="3.4.0",
  org.eclipse.dawnsci.remotedataset.server,
  org.eclipse.osgi.util;version="1.1.0",

@@ -252,7 +252,7 @@ public class FileRegistrar extends DataWriterExtenderBase implements IFileRegist
 	 *
 	 * @return the xml creator instance
 	 */
-	protected ArchiveFileCreator getIcatXMLCreator() {
+	public ArchiveFileCreator getIcatXMLCreator() {
 		return icatXMLCreator;
 	}
 
