@@ -31,6 +31,7 @@ import java.util.Date;
 import java.util.Map;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -266,7 +267,8 @@ public class IcatXMLCreator {
 		String dataDirectory = PathConstructor.createFromDefaultProperty(); // full path to visit/commissioning folder
 		String fileDirectory = FilenameUtils.getFullPathNoEndSeparator(fullFilePath);
 		String relativePath = fileDirectory.replace(dataDirectory, "");
-		if (relativePath.trim().isEmpty()) {
+		relativePath = StringUtils.strip(relativePath, File.separator).trim();
+		if (relativePath.isEmpty()) {
 			return TOPLEVEL_DATASET_NAME;
 		} else {
 			return relativePath;
