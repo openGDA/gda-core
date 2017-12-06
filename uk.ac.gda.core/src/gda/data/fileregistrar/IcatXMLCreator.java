@@ -62,7 +62,7 @@ public class IcatXMLCreator implements ArchiveFileCreator {
 	private Metadata metadata;
 	private Writer fileWriter;
 
-	private boolean useDirForDatasetName = false;
+	private boolean useDirForDatasetName = true;
 
 	private class IvestigationInfo {
 		private String inv_number, visit_id, instrument, title;
