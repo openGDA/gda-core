@@ -99,7 +99,7 @@ public class PolygonRegionComposite extends AbstractRegionAndPathComposite {
 	private void createColumns(TableViewer polygonTableViewer) {
 
 		// X column
-		TableViewerColumn xCol = createTableViewerColumn(polygonTableViewer, "X (mm)");
+		TableViewerColumn xCol = createTableViewerColumn(polygonTableViewer, getFastAxisName() + " (mm)");
 		xCol.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
@@ -112,7 +112,7 @@ public class PolygonRegionComposite extends AbstractRegionAndPathComposite {
 		xCol.getColumn().setToolTipText("Edit X position of vertex");
 
 		// Y column
-		TableViewerColumn yCol = createTableViewerColumn(polygonTableViewer, "Y (mm)");
+		TableViewerColumn yCol = createTableViewerColumn(polygonTableViewer, getSlowAxisName() + " (mm)");
 		yCol.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {

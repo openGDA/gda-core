@@ -35,7 +35,7 @@ public class RasterPathComposite extends AbstractPathComposite {
 
 		// X Step
 		Label xStepLabel = new Label(this, SWT.NONE);
-		xStepLabel.setText("X Step:");
+		xStepLabel.setText(getFastAxisName() + " Step");
 		NumberAndUnitsComposite xStep = new NumberAndUnitsComposite(this, SWT.NONE);
 		gdControls.applyTo(xStep);
 
@@ -46,7 +46,7 @@ public class RasterPathComposite extends AbstractPathComposite {
 
 		// Y Step
 		Label yStepLabel = new Label(this, SWT.NONE);
-		yStepLabel.setText("Y Step:");
+		yStepLabel.setText(getSlowAxisName() + " Step");
 		NumberAndUnitsComposite yStep = new NumberAndUnitsComposite(this, SWT.NONE);
 		gdControls.applyTo(yStep);
 

@@ -29,7 +29,7 @@ public class OneDEqualSpacingPathComposite extends AbstractPathComposite {
 	public OneDEqualSpacingPathComposite(Composite parent, OneDEqualSpacingModel path) {
 		super(parent, SWT.NONE);
 
-		(new Label(this, SWT.NONE)).setText("Points:");
+		(new Label(this, SWT.NONE)).setText("Points");
 		Spinner points = new Spinner(this, SWT.BORDER);
 		points.setMinimum(1);
 		gdControls.applyTo(points);

@@ -33,28 +33,28 @@ public class RectangleRegionComposite extends AbstractRegionAndPathComposite {
 
 		// X Start
 		Label xStartLabel = new Label(this, SWT.NONE);
-		xStartLabel.setText("X Start:");
+		xStartLabel.setText(getFastAxisName() + " Start");
 		NumberAndUnitsComposite xStart = new NumberAndUnitsComposite(this, SWT.NONE);
 		gdControls.applyTo(xStart);
 		bindNumberUnits(xStart, "xStart", region);
 
 		// X Stop
 		Label xStopLabel = new Label(this, SWT.NONE);
-		xStopLabel.setText("X Stop:");
+		xStopLabel.setText(getFastAxisName() + " Stop");
 		NumberAndUnitsComposite xStop = new NumberAndUnitsComposite(this, SWT.NONE);
 		gdControls.applyTo(xStop);
 		bindNumberUnits(xStop, "xStop", region);
 
 		// Y Start
 		Label yStartLabel = new Label(this, SWT.NONE);
-		yStartLabel.setText("Y Start:");
+		yStartLabel.setText(getSlowAxisName() + " Start");
 		NumberAndUnitsComposite yStart = new NumberAndUnitsComposite(this, SWT.NONE);
 		gdControls.applyTo(yStart);
 		bindNumberUnits(yStart, "yStart", region);
 
 		// Y Stop
 		Label yStopLabel = new Label(this, SWT.NONE);
-		yStopLabel.setText("Y Stop:");
+		yStopLabel.setText(getSlowAxisName() + " Stop");
 		NumberAndUnitsComposite yStop = new NumberAndUnitsComposite(this, SWT.NONE);
 		gdControls.applyTo(yStop);
 		bindNumberUnits(yStop, "yStop", region);

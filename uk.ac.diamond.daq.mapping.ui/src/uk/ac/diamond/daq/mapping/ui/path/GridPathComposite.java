@@ -29,14 +29,14 @@ public class GridPathComposite extends AbstractPathComposite {
 	public GridPathComposite(Composite parent, GridModel path) {
 		super(parent, SWT.NONE);
 
-		(new Label(this, SWT.NONE)).setText("Fast Axis Points:");
+		(new Label(this, SWT.NONE)).setText(getFastAxisName() + " Points");
 		Spinner fastPoints = new Spinner(this, SWT.BORDER);
 		fastPoints.setMinimum(1);
 		fastPoints.setMaximum(Integer.MAX_VALUE);
 		gdControls.applyTo(fastPoints);
 		bindSelection(fastPoints, "fastAxisPoints", path);
 
-		(new Label(this, SWT.NONE)).setText("Slow Axis Points:");
+		(new Label(this, SWT.NONE)).setText(getSlowAxisName() + " Points");
 		Spinner slowPoints = new Spinner(this, SWT.BORDER);
 		slowPoints.setMinimum(1);
 		slowPoints.setMaximum(Integer.MAX_VALUE);

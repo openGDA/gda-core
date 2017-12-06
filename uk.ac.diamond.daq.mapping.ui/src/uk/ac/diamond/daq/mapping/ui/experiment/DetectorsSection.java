@@ -259,6 +259,9 @@ public class DetectorsSection extends AbstractMappingSection {
 			MessageDialog.openInformation(getShell(), "Mapping Stage",
 					MessageFormat.format("The active fast scan axis for mapping scans has been updated to ''{0}'' and the active slow scan axis to ''{1}''. The associated axis is ''{2}'' and has not been changed.", stageInfo.getActiveFastScanAxis(), stageInfo.getActiveSlowScanAxis(),
 							stageInfo.getAssociatedAxis()));
+
+			// Region and path composites need updating to reflect this change.
+			getMappingView().redrawRegionAndPathComposites();
 		} catch (ScanningException | EventException e) {
 			logger.error("Could not get axes of malcolm device: {}", deviceName, e);
 		}

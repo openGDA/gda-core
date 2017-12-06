@@ -376,4 +376,11 @@ public class MappingExperimentView implements IAdaptable {
 		section.detectorsChanged(selectedDetectors);
 	}
 
+	protected void redrawRegionAndPathComposites() {
+		RegionAndPathSection section = (RegionAndPathSection) sections.get(RegionAndPathSection.class);
+		if (Objects.isNull(section)) return;
+		section.rebuildMappingSection();
+
+	}
+
 }

@@ -33,28 +33,28 @@ public class CentredRectangleRegionComposite extends AbstractRegionAndPathCompos
 
 		// X Start
 		Label xStartLabel = new Label(this, SWT.NONE);
-		xStartLabel.setText("X Centre:");
+		xStartLabel.setText(getFastAxisName() + " Centre");
 		NumberAndUnitsComposite xCentre = new NumberAndUnitsComposite(this, SWT.NONE);
 		gdControls.applyTo(xCentre);
 		bindNumberUnits(xCentre, "xCentre", region);
 
 		// X Stop
 		Label xStopLabel = new Label(this, SWT.NONE);
-		xStopLabel.setText("X Range:");
+		xStopLabel.setText(getFastAxisName() + " Range");
 		NumberAndUnitsComposite xRange = new NumberAndUnitsComposite(this, SWT.NONE);
 		gdControls.applyTo(xRange);
 		bindNumberUnits(xRange, "xRange", region);
 
 		// Y Start
 		Label yStartLabel = new Label(this, SWT.NONE);
-		yStartLabel.setText("Y Centre:");
+		yStartLabel.setText(getSlowAxisName() + " Centre");
 		NumberAndUnitsComposite yCentre = new NumberAndUnitsComposite(this, SWT.NONE);
 		gdControls.applyTo(yCentre);
 		bindNumberUnits(yCentre, "yCentre", region);
 
 		// Y Stop
 		Label yStopLabel = new Label(this, SWT.NONE);
-		yStopLabel.setText("Y Range:");
+		yStopLabel.setText(getFastAxisName() + " Range");
 		NumberAndUnitsComposite yRange = new NumberAndUnitsComposite(this, SWT.NONE);
 		gdControls.applyTo(yRange);
 		bindNumberUnits(yRange, "yRange", region);
