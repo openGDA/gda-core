@@ -339,7 +339,7 @@ Additional Ant tasks for Buckminster build. Based on http://www.ralfebert.de/blo
 
     <!-- ============================================================ -->
     <!--  Create a product (install from previously created p2 site)  -->
-	<!--  Create/Update a symlink to the product (if action selected) -->
+    <!--  Create/Update a symlink to the product (if action selected) -->
     <!-- ============================================================ -->
 
     <target name="create.product.setup">
@@ -371,78 +371,78 @@ Additional Ant tasks for Buckminster build. Based on http://www.ralfebert.de/blo
     <!-- =================================================================== -->
     <!--  Set base paths relating to folder structure of installed OSGi app  -->
     <!-- =================================================================== -->
-	
-	<target name="set.path.properties">
-    	<property.expand property="destination.directory.name" definition="${product.directory.name}"/>
-    	<property.expand property="install.path" definition="${product.parent.directory.location}/${destination.directory.name}" />
-    	<property.expand property="plugins.path" definition="${install.path}/plugins"/> 
-    	<property name="ws_git.rel.path" value="../.."/>	
-	</target>
+
+    <target name="set.path.properties">
+        <property.expand property="destination.directory.name" definition="${product.directory.name}"/>
+        <property.expand property="install.path" definition="${product.parent.directory.location}/${destination.directory.name}" />
+        <property.expand property="plugins.path" definition="${install.path}/plugins"/>
+        <property name="ws_git.rel.path" value="../.."/>
+    </target>
 
     <!-- =============================================================== -->
     <!--  Get the names (including version) of the key required bundles  -->
     <!-- =============================================================== -->
 
-	<target name="find.bundle.names" depends="set.path.properties">
-    	<dirset  dir="${plugins.path}" id="coreDirId" >
-    		<include name="uk.ac.gda.core_*"/>
-    	</dirset>
-    	<property name= "core.dir.name" refid= "coreDirId" />
-    	<dirset  dir="${plugins.path}" id="jacorbDirId" >
-    		<include name="uk.ac.diamond.org.jacorb_*"/>
-    	</dirset>
-    	<property name= "jacorb.dir.name" refid= "jacorbDirId" />
-		<dirset  dir="${plugins.path}" id="springDirId" >
-    		<include name="uk.ac.diamond.org.springframework_*"/>
-    	</dirset>
-    	<property name= "spring.dir.name" refid= "springDirId" />
-	</target>
+    <target name="find.bundle.names" depends="set.path.properties">
+        <dirset  dir="${plugins.path}" id="coreDirId" >
+            <include name="uk.ac.gda.core_*"/>
+        </dirset>
+        <property name= "core.dir.name" refid= "coreDirId" />
+        <dirset  dir="${plugins.path}" id="jacorbDirId" >
+            <include name="uk.ac.diamond.org.jacorb_*"/>
+        </dirset>
+        <property name= "jacorb.dir.name" refid= "jacorbDirId" />
+        <dirset  dir="${plugins.path}" id="springDirId" >
+            <include name="uk.ac.diamond.org.springframework_*"/>
+        </dirset>
+        <property name= "spring.dir.name" refid= "springDirId" />
+    </target>
 
     <!-- ====================================================================== -->
     <!--  Create the OSGi product (install from previously created p2 site)     -->
-	<!--  Create/Update a symlink to the product (used by the gda scripts)      -->
+    <!--  Create/Update a symlink to the product (used by the gda scripts)      -->
     <!-- ====================================================================== -->
 
-	<target name="create.product" depends="set.action.datetime, install-product, lib-copy, jre-copy, find.bundle.names">
-    	<!-- Links for sub process classpath entries -->
-    	<property.expand property="core.link" definition="../../../../../plugins/${core.dir.name}"/>
-    	<property.expand property="jacorb.link" definition="${plugins.path}/uk.ac.diamond.org.jacorb"/>
-		<property.expand property="spring.framework.link" definition="${plugins.path}/uk.ac.diamond.org.springframework"/>
+    <target name="create.product" depends="set.action.datetime, install-product, lib-copy, jre-copy, find.bundle.names">
+        <!-- Links for sub process classpath entries -->
+        <property.expand property="core.link" definition="../../../../../plugins/${core.dir.name}"/>
+        <property.expand property="jacorb.link" definition="${plugins.path}/uk.ac.diamond.org.jacorb"/>
+        <property.expand property="spring.framework.link" definition="${plugins.path}/uk.ac.diamond.org.springframework"/>
 
-    	<!-- Add the links to cope with hard coded paths in the codebase -->
-    	<symlink link="${jacorb.link}" resource="${jacorb.dir.name}" />
-		<symlink link="${spring.framework.link}" resource="${spring.dir.name}" />
+        <!-- Add the links to cope with hard coded paths in the codebase -->
+        <symlink link="${jacorb.link}" resource="${jacorb.dir.name}" />
+        <symlink link="${spring.framework.link}" resource="${spring.dir.name}" />
 
-		<!-- Copy list of target platform bundles (which may include bundles that are in the workspace but not part of the server) -->
-		<copy failonerror="false" quiet="true"
-			file="${workspace.root}/tp/artifacts.xml"
-			tofile="${install.path}/configuration/target_platform_artifacts.xml" />  <!-- if file missing, ignore -->
+        <!-- Copy list of target platform bundles (which may include bundles that are in the workspace but not part of the server) -->
+        <copy failonerror="false" quiet="true"
+            file="${workspace.root}/tp/artifacts.xml"
+            tofile="${install.path}/configuration/target_platform_artifacts.xml" />  <!-- if file missing, ignore -->
 
-		<!-- Copy across the diffcalc folder -->
-		<copy todir="${install.path}/utilities/diffcalc.git">
-			<fileset dir="${ws_git.rel.path}/diffcalc.git">
-				<exclude name="buckminster.*"/>
-				<exclude name="*.pyc"/>
-				<exclude name=".*"/>
-				<exclude name=".*/*"/>
-			</fileset>
-		</copy>
+        <!-- Copy across the diffcalc folder -->
+        <copy todir="${install.path}/utilities/diffcalc.git">
+            <fileset dir="${ws_git.rel.path}/diffcalc.git">
+                <exclude name="buckminster.*"/>
+                <exclude name="*.pyc"/>
+                <exclude name=".*"/>
+                <exclude name=".*/*"/>
+            </fileset>
+        </copy>
         <echo>
 == Product has been built in ${destination} ==
         </echo>
-		<condition property="linkback-scripts-on-export">
-			<istrue value="${product.standard.scripts.linkback.on.export}"/>
-		</condition> 
-		<antcall target="_rewrite.links.if.required" />
+        <condition property="linkback-scripts-on-export">
+            <istrue value="${product.standard.scripts.linkback.on.export}"/>
+        </condition>
+        <antcall target="_rewrite.links.if.required" />
     </target>
 
-	<target name="_rewrite.links.if.required" if="linkback-scripts-on-export">
-		<!-- execute the python script to scan for scriptlocation extension points,
-		build the correct version paths to delete and replace them with links -->
-		<exec executable="python" failonerror="true" >
-			<arg line="devlinks.py ${plugins.path}"/>
-		</exec>
-	</target>
+    <target name="_rewrite.links.if.required" if="linkback-scripts-on-export">
+        <!-- execute the python script to scan for scriptlocation extension points,
+        build the correct version paths to delete and replace them with links -->
+        <exec executable="python" failonerror="true" >
+            <arg line="devlinks.py ${plugins.path}"/>
+        </exec>
+    </target>
 
     <target name="_symlink.check.params">
         <fail message="create.product-with.symlink called, but symlink.to.product.location not set" unless="symlink.to.product.location" />
