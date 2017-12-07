@@ -24,7 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
-import gda.device.BlockingMotor;
 import gda.device.DeviceException;
 import gda.device.IScannableMotor;
 import gda.device.Motor;
@@ -356,22 +355,19 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IScannab
 
 	@Override
 	public void waitWhileBusy() throws DeviceException, InterruptedException {
-		logger.trace("{}: start waiting << instanceof BlockingMotor = {}",
-				getName(), getMotor() instanceof BlockingMotor);
+		logger.trace("{}: start waiting", getName());
 
-		if (motor instanceof BlockingMotor) {
-			((BlockingMotor) motor).waitWhileStatusBusy();
+		motor.waitWhileStatusBusy();
 
-			logger.trace("{}: isIsBusyThrowingExceptionWhenMotorGoesIntoFault() = {}",
-					getName(), isIsBusyThrowingExceptionWhenMotorGoesIntoFault());
-			if (isIsBusyThrowingExceptionWhenMotorGoesIntoFault()) {
-				raiseExceptionIfInFault("waitWhileBusy()");
-			}
-		} else {
-			super.waitWhileBusy();
+		logger.trace("{}: isIsBusyThrowingExceptionWhenMotorGoesIntoFault() = {}", getName(),
+				isIsBusyThrowingExceptionWhenMotorGoesIntoFault());
+		if (isIsBusyThrowingExceptionWhenMotorGoesIntoFault()) {
+			raiseExceptionIfInFault("waitWhileBusy()");
 		}
+
 		logger.trace("{}: waiting complete >> motor position={}, motor status={}, lastDemandedInternalPosition={}, returnDemandPosition={}",
 				getName(), motor.getPosition(), motor.getStatus(), lastDemandedInternalPosition, returnDemandPosition);
+
 		// Belt and braces...
 		if (motor.getStatus() != MotorStatus.READY) {
 			if (isIsBusyThrowingExceptionWhenMotorGoesIntoFault()) {

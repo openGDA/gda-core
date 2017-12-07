@@ -49,7 +49,7 @@ public interface Motor extends Device {
 
 	/**
 	 * Moves the motor by the specified number of steps
-	 * 
+	 *
 	 * @param steps
 	 *            the number of steps to move by
 	 * @throws MotorException
@@ -59,7 +59,7 @@ public interface Motor extends Device {
 
 	/**
 	 * Moves the motor to the specified position in steps
-	 * 
+	 *
 	 * @param steps
 	 *            the number of steps to move to
 	 * @throws MotorException
@@ -69,7 +69,7 @@ public interface Motor extends Device {
 
 	/**
 	 * Moves the motor in a continuous mode
-	 * 
+	 *
 	 * @param direction
 	 *            direction to move in
 	 * @throws MotorException
@@ -79,7 +79,7 @@ public interface Motor extends Device {
 
 	/**
 	 * Sets the current position of the motor
-	 * 
+	 *
 	 * @param steps
 	 *            the position to be set as current
 	 * @throws MotorException
@@ -89,7 +89,7 @@ public interface Motor extends Device {
 
 	/**
 	 * Gets the current position of the motor
-	 * 
+	 *
 	 * @return the current position
 	 * @throws MotorException
 	 */
@@ -97,7 +97,7 @@ public interface Motor extends Device {
 
 	/**
 	 * Sets the speed of the motor
-	 * 
+	 *
 	 * @param speed
 	 *            the speed
 	 * @throws MotorException
@@ -106,7 +106,7 @@ public interface Motor extends Device {
 
 	/**
 	 * Sets the speed level of the motor
-	 * 
+	 *
 	 * @param level
 	 *            one of a range of possible levels eg slow, medium, fast
 	 * @throws MotorException
@@ -115,7 +115,7 @@ public interface Motor extends Device {
 
 	/**
 	 * Gets the current speed setting of the motor
-	 * 
+	 *
 	 * @return the speed in steps per second
 	 * @throws MotorException
 	 */
@@ -133,21 +133,21 @@ public interface Motor extends Device {
 
 	/**
 	 * Brings the motor to a controlled stop if possible
-	 * 
+	 *
 	 * @throws MotorException
 	 */
 	public void stop() throws MotorException;
 
 	/**
 	 * Brings the motor to an uncontrolled stop if possible
-	 * 
+	 *
 	 * @throws MotorException
 	 */
 	public void panicStop() throws MotorException;
 
 	/**
 	 * Gets the state of the motor
-	 * 
+	 *
 	 * @return a value from the MotorStatus enum
 	 * @throws MotorException
 	 */
@@ -155,14 +155,14 @@ public interface Motor extends Device {
 
 	/**
 	 * Do backlash correction
-	 * 
+	 *
 	 * @throws MotorException
 	 */
 	public void correctBacklash() throws MotorException;
 
 	/**
 	 * Returns whether or not motor is actually moving
-	 * 
+	 *
 	 * @return true if moving
 	 * @throws MotorException
 	 */
@@ -170,7 +170,7 @@ public interface Motor extends Device {
 
 	/**
 	 * Returns whether or not motor can home
-	 * 
+	 *
 	 * @return true if homeable
 	 * @throws MotorException
 	 */
@@ -178,7 +178,7 @@ public interface Motor extends Device {
 
 	/**
 	 * Returns whether or not motor is already homed
-	 * 
+	 *
 	 * @return true if homed
 	 * @throws MotorException
 	 */
@@ -186,14 +186,14 @@ public interface Motor extends Device {
 
 	/**
 	 * Moves the motor to a repeatable starting location
-	 * 
+	 *
 	 * @throws MotorException
 	 */
 	public void home() throws MotorException;
 
 	/**
 	 * Sets the soft limits of the motor itself (i.e. NOT limits in our software)
-	 * 
+	 *
 	 * @param minPosition
 	 *            minimum software limit
 	 * @param maxPosition
@@ -205,7 +205,7 @@ public interface Motor extends Device {
 	/**
 	 * Gets the minimum or lower soft limits of the motor itself (i.e. NOT limits cached in GDA software). By convention
 	 * return NaN if not set.
-	 * 
+	 *
 	 * @return the lower soft limit of the motor
 	 * @throws MotorException
 	 */
@@ -214,7 +214,7 @@ public interface Motor extends Device {
 	/**
 	 * Gets the maximum or upper soft limits of the motor itself (i.e. NOT limits cached in GDA software). By convention
 	 * return NaN if not set.
-	 * 
+	 *
 	 * @return the upper soft limit of the motor
 	 * @throws MotorException
 	 */
@@ -222,7 +222,7 @@ public interface Motor extends Device {
 
 	/**
 	 * Returns whether or not limits are settable (in the motor itself).
-	 * 
+	 *
 	 * @return true if the limits are settable.
 	 * @throws MotorException
 	 */
@@ -231,7 +231,7 @@ public interface Motor extends Device {
 	/**
 	 * Gets initialisition state of the motor with respect to its connection to low level device service e.g. EPICS
 	 * server. This value does not imply that the motors initial values are set (or not set).
-	 * 
+	 *
 	 * @return return true if motor is already initialised.
 	 * @throws MotorException
 	 */
@@ -239,7 +239,7 @@ public interface Motor extends Device {
 
 	/**
 	 * return the position tolerance or accuracy
-	 * 
+	 *
 	 * @return positioning tolerance
 	 * @throws MotorException
 	 */
@@ -252,4 +252,12 @@ public interface Motor extends Device {
 	 * @throws MotorException
 	 */
 	public double getUserOffset() throws MotorException;
+
+	/**
+	 * Blocks while the motors status is Busy
+	 * @return status after being busy
+	 * @throws InterruptedException
+	 * @throws DeviceException
+	 */
+	MotorStatus waitWhileStatusBusy() throws InterruptedException, DeviceException;
 }

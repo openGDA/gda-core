@@ -18,6 +18,10 @@
 
 package gda.device.motor.simplemotor;
 
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.util.StringUtils;
+
+import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
 import gda.device.Motor;
 import gda.device.MotorException;
@@ -27,15 +31,14 @@ import gda.jython.accesscontrol.MethodAccessProtected;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.util.StringUtils;
-
 /**
  * part of
  */
 public class SimpleMotor implements Motor, InitializingBean{
 
-	SimpleMotorController smc;
+	private static final long POLL_TIME_MILLIS = LocalProperties.getAsInt(LocalProperties.GDA_SCANNABLEBASE_POLLTIME, 100);
+
+	private SimpleMotorController smc;
 
 	@Override
 	@MethodAccessProtected(isProtected = true)
@@ -312,6 +315,14 @@ public class SimpleMotor implements Motor, InitializingBean{
 		if( !StringUtils.hasText(name))
 			throw new Exception("name is not set");
 
+	}
+
+	@Override
+	public MotorStatus waitWhileStatusBusy() throws InterruptedException, DeviceException {
+		while (getStatus() == MotorStatus.BUSY) {
+			Thread.sleep(POLL_TIME_MILLIS);
+		}
+		return getStatus();
 	}
 
 }

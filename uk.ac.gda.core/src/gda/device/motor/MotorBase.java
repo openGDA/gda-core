@@ -19,12 +19,6 @@
 
 package gda.device.motor;
 
-import gda.configuration.properties.LocalProperties;
-import gda.device.DeviceBase;
-import gda.device.Motor;
-import gda.device.MotorException;
-import gda.factory.Configurable;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.EOFException;
@@ -40,12 +34,22 @@ import java.io.Serializable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
+import gda.device.DeviceBase;
+import gda.device.DeviceException;
+import gda.device.Motor;
+import gda.device.MotorException;
+import gda.device.MotorStatus;
+import gda.factory.Configurable;
+
 /**
  * A base implementation of a generic Motor for all real motor types, which are therefore subclasses of this class.
  */
 public abstract class MotorBase extends DeviceBase implements Motor, Serializable, Configurable {
 
 	private static final Logger logger = LoggerFactory.getLogger(MotorBase.class);
+
+	private static final long POLL_TIME_MILLIS = LocalProperties.getAsInt(LocalProperties.GDA_SCANNABLEBASE_POLLTIME, 100);
 
 	private ObjectOutputStream out = null;
 
@@ -355,6 +359,14 @@ public abstract class MotorBase extends DeviceBase implements Motor, Serializabl
 			logger.debug("MotorBase correctBacklash about to move by " + getBacklashSteps() + " steps");
 			moveBy(getBacklashSteps());
 		}
+	}
+
+	@Override
+	public MotorStatus waitWhileStatusBusy() throws InterruptedException, DeviceException {
+		while (getStatus() == MotorStatus.BUSY) {
+			Thread.sleep(POLL_TIME_MILLIS);
+		}
+		return getStatus();
 	}
 
 	/**

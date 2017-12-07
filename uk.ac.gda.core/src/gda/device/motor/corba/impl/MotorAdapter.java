@@ -19,6 +19,11 @@
 
 package gda.device.motor.corba.impl;
 
+import org.omg.CORBA.COMM_FAILURE;
+import org.omg.CORBA.TRANSIENT;
+
+import gda.configuration.properties.LocalProperties;
+import gda.device.DeviceException;
 import gda.device.Motor;
 import gda.device.MotorException;
 import gda.device.MotorStatus;
@@ -28,13 +33,13 @@ import gda.device.motor.corba.CorbaMotorException;
 import gda.device.motor.corba.CorbaMotorHelper;
 import gda.factory.corba.util.NetService;
 
-import org.omg.CORBA.COMM_FAILURE;
-import org.omg.CORBA.TRANSIENT;
-
 /**
  * A client side implementation of the adapter pattern for the motor class
  */
 public class MotorAdapter extends DeviceAdapter implements Motor {
+
+	private static final long POLL_TIME_MILLIS = LocalProperties.getAsInt(LocalProperties.GDA_SCANNABLEBASE_POLLTIME, 100);
+
 	private CorbaMotor corbaMotor;
 
 	/**
@@ -532,5 +537,13 @@ public class MotorAdapter extends DeviceAdapter implements Motor {
 
 		}
 		throw new MotorException(MotorStatus.FAULT, "Communication failure: retry failed");
+	}
+
+	@Override
+	public MotorStatus waitWhileStatusBusy() throws InterruptedException, DeviceException {
+		while (getStatus() == MotorStatus.BUSY) {
+			Thread.sleep(POLL_TIME_MILLIS);
+		}
+		return getStatus();
 	}
 }
