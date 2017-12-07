@@ -31,10 +31,10 @@ import java.util.Date;
 import java.util.Map;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.data.PathConstructor;
 import gda.data.metadata.Metadata;
 import gda.device.DeviceException;
 import gda.factory.Finder;
@@ -78,6 +78,10 @@ public class IcatXMLCreator {
 			}
 			visit_id = visit_id.toUpperCase();
 			inv_number = visit_id.substring(0, visit_id.indexOf('-'));
+		}
+
+		public String getVisitId() {
+			return visit_id;
 		}
 
 		@Override
@@ -220,7 +224,7 @@ public class IcatXMLCreator {
 			if (useDirForDatasetName) {
 				// Each file is added as separate <dataset> entry, with dataset directory location providing the dataset name
 				for (String file : files) {
-					String datasetName = getDatasetNameFromPath(file);
+					String datasetName = getDatasetNameFromPath(file, investigationInfo.getVisitId());
 					logger.debug("Writing dropfile dataset for file {} : scan = {}, dataset = {}", file, getScanNumberFromPath(file), datasetName);
 					writeData(datasetStart);
 					writeData(new DatasetInfo(datasetName));
@@ -260,13 +264,26 @@ public class IcatXMLCreator {
 
 	/**
 	 * @param fullFilePath
-	 * @return Icat dataset set name (sub directory in visit/commissioning directory where file is located)
+	 * @param visitId
+	 * @return Icat dataset name (sub directory in visit/commissioning directory where file is located)
 	 */
-	private String getDatasetNameFromPath(String fullFilePath) {
-		String dataDirectory = PathConstructor.createFromDefaultProperty(); // full path to visit/commissioning folder
+	private String getDatasetNameFromPath(String fullFilePath, String visitId) {
+		// Get path to folder containing data
 		String fileDirectory = FilenameUtils.getFullPathNoEndSeparator(fullFilePath);
+
+		// Get path to visit folder
+		int visitEndIndex = fullFilePath.toLowerCase().indexOf(visitId.toLowerCase());
+		if (visitEndIndex == -1 ) {
+			logger.warn("Path for file {} does not contain visit id {}. Using directory {} instead", fullFilePath, visitId, fileDirectory);
+			return fileDirectory;
+		}
+		String dataDirectory = fullFilePath.substring(0, visitEndIndex + visitId.length() + 1);
+
+		// Subfolder within visit directory
 		String relativePath = fileDirectory.replace(dataDirectory, "");
-		if (relativePath.trim().isEmpty()) {
+		relativePath = StringUtils.strip(relativePath, File.separator).trim();
+
+		if (relativePath.isEmpty()) {
 			return TOPLEVEL_DATASET_NAME;
 		} else {
 			return relativePath;
@@ -388,5 +405,4 @@ public class IcatXMLCreator {
 	public void setUseDirForDatasetName(boolean useDirForDatasetName) {
 		this.useDirForDatasetName = useDirForDatasetName;
 	}
-
 }
