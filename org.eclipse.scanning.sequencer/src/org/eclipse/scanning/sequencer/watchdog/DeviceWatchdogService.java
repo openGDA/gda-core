@@ -11,11 +11,14 @@
  *******************************************************************************/
 package org.eclipse.scanning.sequencer.watchdog;
 
+import static java.util.stream.Collectors.toList;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.eclipse.scanning.api.device.AbstractRunnableDevice;
 import org.eclipse.scanning.api.device.IDeviceController;
@@ -29,17 +32,20 @@ public class DeviceWatchdogService implements IDeviceWatchdogService {
 
 	private static Logger logger = LoggerFactory.getLogger(DeviceWatchdogService.class);
 
+	private static final String WATCHDOGS_ACTIVE_PROPERTY_NAME = "org.eclipse.scanning.watchdogs.active";
+
 	private Map<String, IDeviceWatchdog> templates = Collections.synchronizedMap(new LinkedHashMap<>(3));
 
 	static {
-		if (System.getProperty("org.eclipse.scanning.watchdogs.active")==null) {
-			System.setProperty("org.eclipse.scanning.watchdogs.active", "true");
+		if (System.getProperty(WATCHDOGS_ACTIVE_PROPERTY_NAME)==null) {
+			System.setProperty(WATCHDOGS_ACTIVE_PROPERTY_NAME, "true");
 		}
 	}
 
 	@Override
 	public void register(IDeviceWatchdog dog) {
-		if (templates.containsKey(dog.getName())) throw new IllegalArgumentException("The watchdog name '"+dog.getName()+"' is already registered! A watchdog with a given name may only be registered once.");
+		if (templates.containsKey(dog.getName()))
+			throw new IllegalArgumentException("The watchdog name '"+dog.getName()+"' is already registered! A watchdog with a given name may only be registered once.");
 		templates.put(dog.getName(), dog);
 	}
 
@@ -50,23 +56,23 @@ public class DeviceWatchdogService implements IDeviceWatchdogService {
 
 	@Override
 	public IDeviceController create(IPausableDevice<?> device) {
+		if (!Boolean.getBoolean(WATCHDOGS_ACTIVE_PROPERTY_NAME)) return null;
+		if (templates == null)
+			return null;
 
-		if (!Boolean.getBoolean("org.eclipse.scanning.watchdogs.active")) return null;
-		if (templates==null) return null;
 		try {
 			DeviceController controller = new DeviceController(device);
 			if (device instanceof AbstractRunnableDevice<?>) {
 				controller.setBean(((AbstractRunnableDevice<?>)device).getBean());
 			}
-			List<IDeviceWatchdog> objects = new ArrayList<>(templates.size());
-			for (final IDeviceWatchdog dog : templates.values()) {
-				if (!dog.isEnabled()) continue;
-				IDeviceWatchdog ndog = dog.getClass().newInstance();
-				ndog.setModel(dog.getModel());
-				ndog.setController(controller);
-				objects.add(ndog);
-			}
-			controller.setObjects(objects);
+
+			final List<IDeviceWatchdog> watchdogs = templates.values().stream()
+				.filter(IDeviceWatchdog::isEnabled)
+				.map(this::cloneWatchdogTemplate)
+				.filter(Objects::nonNull)
+				.peek(watchdog -> watchdog.setController(controller))
+				.collect(toList());
+			controller.setObjects(watchdogs);
 			return controller;
 		} catch (Exception ne) {
 			ne.printStackTrace();
@@ -75,13 +81,25 @@ public class DeviceWatchdogService implements IDeviceWatchdogService {
 		}
 	}
 
+	private IDeviceWatchdog cloneWatchdogTemplate(IDeviceWatchdog template) {
+		try {
+			IDeviceWatchdog newWatchdog = template.getClass().newInstance();
+			newWatchdog.setModel(template.getModel());
+			return newWatchdog;
+		} catch (InstantiationException | IllegalAccessException e) {
+			logger.error("Could not create watchdog {}", template.getName(), e);
+			return null;
+		}
+	}
+
 	@Override
 	public IDeviceWatchdog getWatchdog(String name) {
 		return templates.get(name);
 	}
+
 	@Override
 	public List<String> getRegisteredNames() {
-		return new ArrayList<String>(templates.keySet());
+		return new ArrayList<>(templates.keySet());
 	}
 
 }

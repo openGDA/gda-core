@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.Future;
@@ -93,9 +94,10 @@ abstract class LevelRunner<L extends ILevel> {
 	 * @param position
 	 * @return
 	 * @throws ScanningException
+	 * @throws {@link OperationCanceledException} can be thrown if {@link #abort()} was called
 	 */
 	protected boolean run(IPosition position) throws ScanningException, InterruptedException {
-        return run(position, true);
+		return run(position, true);
 	}
 
 	/**
@@ -104,8 +106,11 @@ abstract class LevelRunner<L extends ILevel> {
 	 * @param block - set to true to block until the parallel tasks have completed. Set to false to
 	 * return after the last level is told to execute. In this case more work can be done on the calling
 	 * thread. Use the latch() method to come back to the last level's ExecutorService and
-	 * @return
-	 * @throws ScanningException
+	 * @return <code>true</code> if the run performed normally, <code>false</code> otherwise, for instance
+	 *    because {@link IPositionListener#positionWillPerform(org.eclipse.scanning.api.scan.PositionEvent)
+	 *    returned false for some position listener
+	 * @throws CancellationException can be thrown if abort has been called while blocking
+	 * @throws ScanningException if the value cannot be set for any other reason
 	 */
 	protected boolean run(IPosition loc, boolean block) throws ScanningException, InterruptedException {
 
@@ -113,14 +118,14 @@ abstract class LevelRunner<L extends ILevel> {
 			throw abortException;
 		}
 
-		/** NOTE: The position is passed down to run in the tread pool.
+		/** NOTE: The position is passed down to run in the thread pool.
 		 *  A subsequent run and await could in theory return the last
 		 *  run position while returning the last-1 run position.
 		 *  Position is a best guess of what position happened.
 		 */
 		this.position = loc;
 		boolean ok = pDelegate.firePositionWillPerform(loc);
-        if (!ok) return false;
+		if (!ok) return false;
 
 		Map<Integer, List<L>> positionMap = getLevelOrderedDevices();
 		Map<Integer, AnnotationManager> managerMap = getLevelOrderedManagerMap(positionMap);
@@ -141,38 +146,39 @@ abstract class LevelRunner<L extends ILevel> {
 				Collection<Callable<IPosition>> tasks = new ArrayList<>(lobjects.size());
 				for (L lobject : lobjects) {
 					Callable<IPosition> c = create(lobject, loc);
-					if (c==null) continue; // legal to say that there is nothing to do for a given object.
-					tasks.add(c);
+					if (c != null) {// legal to say that there is nothing to do for a given object.
+						tasks.add(c);
+					}
 				}
 
 				managerMap.get(level).invoke(LevelStart.class, loc, new LevelInformation(getLevelRole(), level, lobjects));
 				if (!it.hasNext() && !block) {
 					// The last one and we are non-blocking
-					for (Callable<IPosition> callable : tasks) eservice.submit(callable);
+					for (Callable<IPosition> callable : tasks) {
+						eservice.submit(callable);
+					}
 				} else {
 					// Normally we block until done.
 					// Blocks until level has run
-				    List<Future<IPosition>> pos = eservice.invokeAll(tasks, getTimeout(lobjects), TimeUnit.SECONDS);
+					List<Future<IPosition>> pos = eservice.invokeAll(tasks, getTimeout(lobjects), TimeUnit.SECONDS);
 
-				    // If timed out, some isDone will be false.
-				    for (Future<IPosition> future : pos) {
-						if (!future.isDone()) throw new ScanningException("The timeout of "+timeout+"s has been reached waiting for level "+level+" objects "+toString(lobjects));
+					// If timed out, some isDone will be false.
+					for (Future<IPosition> future : pos) {
+						if (!future.isDone())
+							throw new ScanningException("The timeout of " + timeout + "s has been reached waiting for level " + level
+											+ " objects " + toString(lobjects));
 					}
-				    pDelegate.fireLevelPerformed(level, lobjects, getPosition(loc, pos));
+					pDelegate.fireLevelPerformed(level, lobjects, getPosition(loc, pos));
 				}
 				managerMap.get(level).invoke(LevelEnd.class, loc, new LevelInformation(getLevelRole(), level, lobjects));
 			}
 
 			pDelegate.firePositionPerformed(finalLevel, loc);
-
-		} catch (ScanningException s) {
-			throw s;
-		} catch (InterruptedException i) {
-			throw i;
-		} catch (Exception ne) {
+		} catch (ScanningException | InterruptedException | CancellationException e) {
+			throw e;
+		} catch (Exception e) {
 			if (abortException!=null) throw abortException;
-			throw new ScanningException("Scanning interrupted while moving to new position!", ne);
-
+			throw new ScanningException("Scanning interrupted while moving to new position!", e);
 		} finally {
 			if (block) await();
 		}
@@ -237,6 +243,9 @@ abstract class LevelRunner<L extends ILevel> {
 		return position;
 	}
 
+	/**
+	 * Abort the level runner.
+	 */
 	public void abort() {
 		if (eservice==null) return; // We are already finished
 		eservice.shutdownNow();
@@ -244,18 +253,18 @@ abstract class LevelRunner<L extends ILevel> {
 	}
 
 	/**
-	 *
+	 * Abort the level runner with an error
 	 * @param device
 	 * @param value
 	 * @param pos
 	 * @param ne
 	 */
-	protected void abort(INameable device, Object value, IPosition pos, Throwable ne) {
+	protected void abortWithError(INameable device, Object value, IPosition pos, Throwable ne) {
 		String message = "Cannot run device named '"+device.getName()+"' value is '"+value+"' and position is '"+pos+"'\nMessage: "+ne.getMessage();
 		abort(device, message, pos, ne);
 	}
 
-	protected void abort(INameable device, IPosition pos, Throwable ne) {
+	protected void abortWithError(INameable device, IPosition pos, Throwable ne) {
 		String message = "Cannot run device named '"+device.getName()+"' position is '"+pos+"'\nMessage: "+ne.getMessage();
 		abort(device, message, pos, ne);
 	}
@@ -357,17 +366,19 @@ abstract class LevelRunner<L extends ILevel> {
 		return position;
 	}
 
-	private IPosition getPosition(IPosition position, List<Future<IPosition>> futures) throws InterruptedException, ExecutionException {
-		MapPosition ret = new MapPosition();
-	    for (Future<IPosition> future : futures) {
-		// Faster than using composite
-		IPosition pos = future.get();
-		if (pos==null) continue;
-		ret.putAll(pos);
-		ret.putAllIndices(pos);
+	private IPosition getPosition(IPosition position, List<Future<IPosition>> futures)
+			throws InterruptedException, ExecutionException {
+		final MapPosition positon = new MapPosition();
+		for (Future<IPosition> future : futures) {
+			IPosition pos = future.get();
+			if (pos != null) {
+				positon.putAll(pos);
+				positon.putAllIndices(pos);
+			}
 		}
-	    if (ret.size()<1) return position;
-	    return ret;
+		if (positon.size() < 1)
+			return position;
+		return positon;
 	}
 
 	public static <T extends ILevel> LevelRunner<T> createEmptyRunner() {

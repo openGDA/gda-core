@@ -352,6 +352,9 @@ public class WatchdogTopupTest extends AbstractWatchdogTest {
 		assertEquals(DeviceState.PAUSED, scanner.getDeviceState());
 
 		controller.abort("test");
+		boolean aborted = scanner.latch(100, TimeUnit.MILLISECONDS); // true if the countdown reached 0, false if we timed-out
+		assertTrue(aborted);
+		assertEquals(DeviceState.ABORTED, scanner.getDeviceState());
 	}
 
 

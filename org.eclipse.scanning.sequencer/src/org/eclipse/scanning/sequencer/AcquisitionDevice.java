@@ -19,6 +19,7 @@ import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -95,8 +96,8 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 	 * how to pause and resume a collection cycle using Reentrant locks.
 	 * Design requires these three fields.
 	 */
-	private ReentrantLock    lock;
-	private Condition        paused;
+	private ReentrantLock    stateChangeLock;
+	private Condition        shouldResumeCondition;
 	private volatile boolean awaitPaused;
 
 	/**
@@ -107,7 +108,8 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 	 * If the start hangs, so will calling latch, there is no timeout.
 	 *
 	 */
-	private CountDownLatch latch;
+	private CountDownLatch scanFinishedLatch;
+
 	private List<Throwable> runExceptions = Collections.synchronizedList(new ArrayList<>(1));
 
 	/**
@@ -127,8 +129,8 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 	 */
 	AcquisitionDevice() {
 		super(ServiceHolder.getRunnableDeviceService());
-		this.lock      = new ReentrantLock();
-		this.paused    = lock.newCondition();
+		this.stateChangeLock      = new ReentrantLock();
+		this.shouldResumeCondition = stateChangeLock.newCondition();
 		setName("solstice_scan");
 		setPrimaryScanDevice(true);
 		setRole(DeviceRole.VIRTUAL);
@@ -325,8 +327,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 				}
 
 				// Check if we are paused, blocks until we are not
-				boolean continueRunning = checkPaused();
-				if (!continueRunning)
+				if (!checkShouldContinue())
 					return; // finally block performed
 
 				// Run to the position
@@ -354,24 +355,26 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 			IPosition written = writers.await(); // Wait for the previous write out to return, if any
 			annotationManager.invoke(WriteComplete.class, written);
 
+		} catch (CancellationException e) {
+			// this can be thrown from LevelRunner if abort() is called. Exit normally
+			logger.info("Scan aborted, exiting normally");
 		} catch (ScanningException | InterruptedException i) {
 			errorFound = true;
 			processException(i);
 			throw i;
-
 		} catch (Exception ne) {
 			errorFound = true;
 			processException(ne);
 			throw new ScanningException(ne);
-
 		} finally {
 			close(errorFound, pos);
+			logger.debug("Scan completed with status {}", getBean().getStatus());
 			RunnableDeviceServiceImpl.setCurrentScanningDevice(null);
 		}
 	}
 
 	private void positionComplete(IPosition pos) throws EventException, ScanningException {
-	positionComplete(pos, location.getOuterCount(), location.getOuterSize());
+		positionComplete(pos, location.getOuterCount(), location.getOuterSize());
 	}
 
 	private void fireFirst(IPosition firstPosition) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, InstantiationException, ScanningException, EventException {
@@ -436,7 +439,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 				fireRunPerformed(last); // Say that we did the overall run using the position we stopped at.
 			} finally {
 				// only fire end if finished normally
-				if (!errorFound)
+				if (!errorFound && getDeviceState() != DeviceState.ABORTED)
 					fireEnd(last);
 			}
 		} finally {
@@ -446,37 +449,36 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 					| InstantiationException | EventException e) {
 				throw new ScanningException(e);
 			}
-			if (latch != null)
-				latch.countDown();
+			if (scanFinishedLatch != null)
+				scanFinishedLatch.countDown();
 		}
 	}
 
 	private void createScanLatch() {
-		if (latch==null || latch.getCount()<1) {
-			latch = new CountDownLatch(1);
+		if (scanFinishedLatch==null || scanFinishedLatch.getCount()<1) {
+			scanFinishedLatch = new CountDownLatch(1);
 			runExceptions.clear();
 		}
 	}
 
 	@Override
 	public void latch() throws ScanningException, InterruptedException, TimeoutException, ExecutionException {
-		if (latch==null) return;
+		if (scanFinishedLatch==null) return;
 		logger.debug("latch() called");
-		latch.await();
+		scanFinishedLatch.await();
 		createException(runExceptions);
 	}
 
 	@Override
 	public boolean latch(long time, TimeUnit unit) throws ScanningException, InterruptedException, TimeoutException, ExecutionException {
-		if (latch==null) return true;
+		if (scanFinishedLatch==null) return true;
 		logger.debug("latch() called with timeout {} {}", time, unit);
-		boolean ok = latch.await(time, unit);
+		boolean ok = scanFinishedLatch.await(time, unit);
 		createException(runExceptions);
 		return ok;
 	}
 
 	private void processException(Exception ne) throws ScanningException {
-
 		if (ne instanceof InterruptedException) {
 			logger.warn("A device may have timed out", ne);
 		} else {
@@ -489,12 +491,12 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 			annotationManager.invoke(ScanFault.class, ne);
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | InstantiationException | EventException e) {
 			throw new ScanningException(ne);
+		} finally {
+			setDeviceState(DeviceState.FAULT);
+
+			if (!getBean().getStatus().isFinal()) getBean().setStatus(Status.FAILED);
+			getBean().setMessage(ne.getMessage());
 		}
-		setDeviceState(DeviceState.FAULT);
-
-		if (!getBean().getStatus().isFinal()) getBean().setStatus(Status.FAILED);
-		getBean().setMessage(ne.getMessage());
-
 	}
 
 	private ScanInformation getScanInformation(int size) throws ScanningException {
@@ -552,7 +554,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | InstantiationException  | EventException e) {
 			throw new ScanningException(e);
 		}
-	    setDeviceState(DeviceState.ARMED); // Fires!
+		setDeviceState(DeviceState.ARMED); // Fires!
 
 	}
 
@@ -569,22 +571,30 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 	}
 
 	/**
-	 * Blocks until not paused
+	 * This method performs two functions:<ol>
+	 * <li>It checks if the scan has been put in a final state, e.g. {@link DeviceState#ABORTED},
+	 * if so it returns <code>false</code></li>
+	 * <li>It checks if the {@link #awaitPaused} flag has been set, if so it waits
+	 * on the {@link #shouldResumeCondition} {@link Condition}.</li>
+	 *
+	 * </ol>
 	 *
 	 * @return true if state has not been set to a rest one, i.e. we are still scanning.
 	 * @throws Exception
 	 */
 	@SuppressWarnings("squid:S2274")
-	private boolean checkPaused() throws Exception {
+	private boolean checkShouldContinue() throws Exception {
 
+		// return false if the scan has been set to a rest state (i.e. ABORTED) or ABORTING
 		if (!getDeviceState().isRunning() && getDeviceState() != DeviceState.ARMED) {
-			if (getDeviceState().isRestState())
+			if (getDeviceState().isRestState() || getDeviceState() == DeviceState.ABORTING) {
 				return false;
+			}
 			throw new ScanningException("The scan state is " + getDeviceState());
 		}
 
 		// Check the locking using a condition
-		if (!lock.tryLock(1, TimeUnit.SECONDS)) {
+		if (!stateChangeLock.tryLock(1, TimeUnit.SECONDS)) {
 			throw new ScanningException(this, "Internal Error - Could not obtain lock to run device!");
 		}
 		try {
@@ -592,24 +602,41 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 				throw new ScanningException("The scan state is " + getDeviceState());
 			}
 			if (awaitPaused) {
+				// the await paused is the flag set to indicate we should pause
+				// set state to paused and run any methods annotated with 'ScanPause'
 				if (getDeviceState() != DeviceState.PAUSED)
 					setDeviceState(DeviceState.PAUSED);
 				annotationManager.invoke(ScanPause.class);
-				paused.await();
-				getBean().setStatus(Status.RESUMED);
-				setDeviceState(DeviceState.RUNNING);
-				annotationManager.invoke(ScanResume.class);
+				logger.info("Scan paused");
+
+				// Do the pause. This blocks until we are signalled and the awaitPaused flag is cleared
+				// the loop is required due to the change of spurious wake-ups, see javadoc of
+				// Condition and Condition.await()
+				while (awaitPaused) {
+					shouldResumeCondition.await();
+				}
+
+				if (getDeviceState().isRestState()) {
+					getBean().setStatus(Status.TERMINATED);
+				} else {
+					// Set the status to resumed and run any methods annotated with 'ScanResume'
+					getBean().setStatus(Status.RESUMED);
+					setDeviceState(DeviceState.RUNNING);
+					annotationManager.invoke(ScanResume.class);
+					logger.info("Scan resumed");
+				}
 			}
 		} finally {
-			lock.unlock();
+			stateChangeLock.unlock();
 		}
-		return true;
+
+		return !getDeviceState().isRestState();
 	}
 
 	@Override
 	public void abort() throws ScanningException, InterruptedException {
 		logger.debug("abort() called");
-		work(this::abortInternal, null, "abort", true, false);
+		doWorkWithStateChangeLock(this::abortInternal, null, "abort", false, true);
 	}
 
 	private void abortInternal()  throws ScanningException, InterruptedException{
@@ -619,10 +646,9 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		writers.abort();
 		runners.abort();
 
-		if (getModel().getDetectors()!=null) for (IRunnableDevice<?> device : getModel().getDetectors()) {
+		for (IRunnableDevice<?> device : getModel().getDetectors()) {
 			device.abort();
 		}
-
 		setDeviceState(DeviceState.ABORTED);
 		try {
 			annotationManager.invoke(ScanAbort.class);
@@ -637,7 +663,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 	@Override
 	public void pause() throws ScanningException, InterruptedException {
 		logger.debug("pause() called");
-		work(this::pauseInternal, DeviceState.RUNNING, "pause", true, false);
+		doWorkWithStateChangeLock(this::pauseInternal, DeviceState.RUNNING, "pause", true, false);
 	}
 
 	private void pauseInternal() throws ScanningException, InterruptedException {
@@ -663,7 +689,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		// This is the values of all motors at this global (including malcolm) scan
 		// position. Therefore we do not need a subscan moderator but can run the iterator
 		// to the point
-		work(()-> seekInternal(stepNumber), DeviceState.PAUSED, "seek", true, false);
+		doWorkWithStateChangeLock(()-> seekInternal(stepNumber), DeviceState.PAUSED, "seek", true, false);
 	}
 
 	private void seekInternal(int stepNumber) throws ScanningException, InterruptedException {
@@ -681,7 +707,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 	@Override
 	public void resume() throws ScanningException, InterruptedException {
 		logger.debug("resume() called");
-		work(this::resumeInternal, DeviceState.PAUSED, "resume", false, true);
+		doWorkWithStateChangeLock(this::resumeInternal, DeviceState.PAUSED, "resume", false, true);
 	}
 
 	private void resumeInternal() throws ScanningException, InterruptedException {
@@ -703,8 +729,8 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 	}
 
 	@FunctionalInterface
-	private interface IWork {
-		void doWork() throws ScanningException, InterruptedException;
+	private interface IStateChangeWork {
+		void doStateChangeWork() throws ScanningException, InterruptedException;
 	}
 
 	/**
@@ -724,14 +750,14 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 	 * @throws ScanningException
 	 * @throws InterruptedException
 	 */
-	private void work(IWork work, DeviceState required, String actionName, boolean pauseFlag, boolean signal) throws ScanningException, InterruptedException {
+	private void doWorkWithStateChangeLock(IStateChangeWork work, DeviceState required, String actionName, boolean pauseFlag, boolean signal) throws ScanningException, InterruptedException {
 		try {
 			tryLock(required, actionName);
-			awaitPaused = pauseFlag;
-			work.doWork();
-			if (signal) paused.signalAll();
+			awaitPaused = pauseFlag; // sets the flag to pause the scan on the next call to checkPaused
+			work.doStateChangeWork();
+			if (signal) shouldResumeCondition.signalAll(); // Wake up any thread waiting on the lock (in checkPaused)
 		} finally {
-			lock.unlock();
+			stateChangeLock.unlock();
 		}
 	}
 
@@ -743,7 +769,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 	 */
 	private void tryLock(DeviceState required, String actionName) throws ScanningException, InterruptedException {
 		try {
-			lock.lockInterruptibly(); // We want to lock before checking state or it may change...
+			stateChangeLock.lockInterruptibly(); // We want to lock before checking state or it may change...
 			DeviceState currentDeviceState = getDeviceState();
 			if (required!=null && currentDeviceState != required) {
 				throw new ScanningException(this, getName()+" cannot complete action '"+actionName+"'! State was " + currentDeviceState);

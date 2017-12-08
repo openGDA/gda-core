@@ -128,33 +128,37 @@ public class ExpressionWatchdog extends AbstractWatchdog implements IPositionLis
 	@ScanStart
 	public void start(ScanBean bean, IPosition firstPosition) throws ScanningException {
 
-		logger.debug("Expression Watchdog starting on "+controller.getName());
+		logger.debug("Expression Watchdog starting on {}", controller.getName());
 		try {
-		    this.engine = getExpressionService().getExpressionEngine();
+			this.engine = getExpressionService().getExpressionEngine();
 
-		    engine.createExpression(model.getExpression()); // Parses expression, may send exception on syntax
-		    Collection<String> names = engine.getVariableNamesFromExpression();
-		    this.scannables = new ArrayList<>(names.size());
-		    for (String name : names) {
+			engine.createExpression(model.getExpression()); // Parses expression, may send exception on syntax
+			Collection<String> names = engine.getVariableNamesFromExpression();
+
+			// get the scannables, checking that they all implement IPositionListenable
+			// and add all their current positions to the expression engine
+			this.scannables = new ArrayList<>(names.size());
+			for (String name : names) {
 				IScannable<?> scannable = getScannable(name);
 				scannables.add(scannable);
 
-			    if (!(scannable instanceof IPositionListenable)) throw new ScanningException(name+" is not a position listenable!");
+				if (!(scannable instanceof IPositionListenable))
+					throw new ScanningException(name + " is not a position listenable!");
 
 				engine.addLoadedVariable(scannable.getName(), scannable.getPosition());
-		    }
-
-		    // Check it
-		    checkExpression(true);
-
-		    // Listen to it
-		    for (IScannable<?> scannable : scannables) {
-			    ((IPositionListenable)scannable).addPositionListener(this);
 			}
 
-		    checkPosition(firstPosition);
+			// Check the expression now to set the initial state of the watchdog
+			checkExpression(true);
 
-		    logger.debug("Expression Watchdog started on "+controller.getName());
+			// Add this watchdog as listeners to all the scannables
+			for (IScannable<?> scannable : scannables) {
+				((IPositionListenable) scannable).addPositionListener(this);
+			}
+
+			checkPosition(firstPosition);
+
+			logger.debug("Expression Watchdog started on {}", controller.getName());
 		} catch (ScanningException ne) {
 			throw ne; // If there is something badly wrong a proper scanning exception will be prepared and thrown
 		} catch (Exception ne) {
@@ -169,18 +173,20 @@ public class ExpressionWatchdog extends AbstractWatchdog implements IPositionLis
 
 	@ScanFinally
 	public void stop() {
-		logger.debug("Expression Watchdog stopping on "+controller.getName());
+		logger.debug("Expression Watchdog stopping on {}", controller.getName());
 		try {
-			if (scannables!=null) for (IScannable<?> scannable : scannables) {
-			((IPositionListenable)scannable).removePositionListener(this);
+			if (scannables != null) {
+				for (IScannable<?> scannable : scannables) {
+					((IPositionListenable)scannable).removePositionListener(this);
+				}
+				scannables.clear();
 			}
-			scannables.clear();
 			engine = null;
 
 		} catch (Exception ne) {
 			logger.error("Cannot stop watchdog!", ne);
 		}
-		logger.debug("Expression Watchdog stopped on "+controller.getName());
+		logger.debug("Expression Watchdog stopped on {}", controller.getName());
 	}
 
 
@@ -193,9 +199,11 @@ public class ExpressionWatchdog extends AbstractWatchdog implements IPositionLis
 		}
 		return expressionService;
 	}
+
 	public void setExpressionService(IExpressionService eservice) {
 		ExpressionWatchdog.expressionService = eservice;
 	}
+
 	public static void setTestExpressionService(ServerExpressionService eservice) {
 		expressionService = eservice;
 	}

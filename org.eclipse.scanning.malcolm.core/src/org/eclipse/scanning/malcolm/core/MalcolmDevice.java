@@ -293,8 +293,8 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 		try {
 			setAlive(connected);
 			if (connected) {
-				logger.info("Malcolm Device '" + getName() + "' connection state changed to connected");
-				java.awt.EventQueue.invokeLater(() -> {
+				logger.info("Malcolm Device '{}' connection state changed to connected", getName());
+				new Thread(() -> {
 					try {
 						if (!succesfullyInitialised) {
 							initialize();
@@ -302,9 +302,9 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 							getDeviceState();
 						}
 					} catch (MalcolmDeviceException ex) {
-						logger.warn("Unable to initialise/getDeviceState for device '" + getName() + "' on reconnection", ex);
+						logger.warn("Unable to initialise/getDeviceState for device '{}' on reconnection", getName(), ex);
 					}
-			    });
+				}).start();
 			} else {
 				logger.warn("Malcolm Device '{}' connection state changed to not connected", getName());
 			}

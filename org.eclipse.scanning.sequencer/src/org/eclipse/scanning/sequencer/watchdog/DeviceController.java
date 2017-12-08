@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.eclipse.scanning.api.device.IDeviceController;
 import org.eclipse.scanning.api.device.IDeviceWatchdog;
@@ -75,7 +76,7 @@ class DeviceController implements IDeviceController {
 		models.put(id, model); // May be null
 		if (device.getDeviceState()!=DeviceState.RUNNING) return; // Cannot pause it.
 		if (bean!=null&&model!=null) bean.setMessage(model.getMessage());
-		logger.debug("Controller pausing on "+getName()+" because of id "+id);
+		logger.debug("Controller pausing on {} because of id {}", getName(), id);
 		device.pause();
 	}
 	@Override
@@ -97,25 +98,22 @@ class DeviceController implements IDeviceController {
 		if (device.getDeviceState()!=DeviceState.PAUSED) return; // Cannot resume it.
 
 		// If any of the others think it should be paused, we do not resume
-		if (!canResume(states)) {
-
+		if (canResume(states)) {
+			logger.debug("Controller resuming on {} because of id {}", getName(), id);
+			device.resume();
+		} else {
 			// Attempt to set a message in the bean about why.
 			if (getBean()!=null) {
-	            // Get the first non-null model
-				for (String oid : states.keySet()) {
-					if (states.get(oid)==DeviceState.PAUSED) {
-						if (models.get(oid)!=null) {
-							getBean().setMessage(models.get(oid).getMessage());
-							break;
-						}
-					}
-				}
+				// set the message of the bean to that of the first paused watchdog
+				states.entrySet().stream()
+					.filter(entry -> entry.getValue() == DeviceState.PAUSED)
+					.map(Map.Entry::getKey) // get id of first paused watchdog
+					.map(models::get).filter(Objects::nonNull).findFirst()
+					.map(DeviceWatchdogModel::getMessage)
+					.ifPresent(message -> getBean().setMessage(message));
 			}
 			return;
 		}
-
-		logger.debug("Controller resuming on "+getName()+" because of id "+id);
-		device.resume();
 	}
 
 	private static final boolean canResume(Map<String, DeviceState> states) {
@@ -125,7 +123,7 @@ class DeviceController implements IDeviceController {
 
 	@Override
 	public void abort(String id) throws ScanningException, InterruptedException {
-		logger.debug("Controller aborting on "+getName()+" because of id "+id);
+		logger.debug("Controller aborting on {} because of id {}", getName(), id);
 		device.abort();
 	}
 

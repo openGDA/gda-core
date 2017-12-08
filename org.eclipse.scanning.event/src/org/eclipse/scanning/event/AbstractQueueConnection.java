@@ -54,7 +54,13 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractQueueConnection.class);
 
+	protected static final long TWO_DAYS = TimeUnit.DAYS.toMillis(2); // ms
+
+	protected static final long A_WEEK   = TimeUnit.DAYS.toMillis(7); // ms
+
 	protected IEventService          eservice;
+
+	private Class<U> beanClass;
 
 	AbstractQueueConnection(URI uri, String topic, IEventConnectorService service, IEventService eservice) {
 		super(uri, topic, service);
@@ -62,11 +68,9 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 	}
 
 	AbstractQueueConnection(URI uri, String submitQName, String statusQName, String statusTName, String commandTName, IEventConnectorService service, IEventService eservice) {
-        super(uri, submitQName, statusQName, statusTName, commandTName, service);
+		super(uri, submitQName, statusQName, statusTName, commandTName, service);
 		this.eservice = eservice;
 	}
-
-	private Class<U> beanClass;
 
 	@Override
 	public Class<U> getBeanClass() {
@@ -81,7 +85,7 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 	@Override
 	public List<U> getQueue() throws EventException {
 
-		QueueReader<U> reader = new QueueReader<U>(getConnectorService(), null);
+		QueueReader<U> reader = new QueueReader<>(getConnectorService(), null);
 		try {
 			return reader.getBeans(uri, getSubmitQueueName(), beanClass);
 		} catch (Exception e) {
@@ -96,7 +100,7 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 
 		if (fieldName!=null) c = getComparator(fieldName);
 
-		QueueReader<U> reader = new QueueReader<U>(service, c);
+		QueueReader<U> reader = new QueueReader<>(service, c);
 		try {
 			return reader.getBeans(uri, qName, beanClass);
 		} catch (Exception e) {
@@ -192,8 +196,8 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 				@SuppressWarnings("rawtypes")
 				Enumeration  e  = qb.getEnumeration();
 
-				Map<String, StatusBean> failIds = new LinkedHashMap<String, StatusBean>(7);
-				List<String>          removeIds = new ArrayList<String>(7);
+				Map<String, StatusBean> failIds = new LinkedHashMap<>();
+				List<String>          removeIds = new ArrayList<>();
 				while(e.hasMoreElements()) {
 					Message m = (Message)e.nextElement();
 					if (m==null) continue;
@@ -253,23 +257,19 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 				ids.addAll(failIds.keySet());
 				ids.addAll(removeIds);
 
-				if (ids.size()>0) {
+				for (String jMSMessageID : ids) {
+					MessageConsumer consumer = qSes.createConsumer(queue, "JMSMessageID = '"+jMSMessageID+"'");
+					Message m = consumer.receive(Constants.getReceiveFrequency());
+					consumer.close();
+					if (removeIds.contains(jMSMessageID)) continue; // We are done
 
-					for (String jMSMessageID : ids) {
-						MessageConsumer consumer = qSes.createConsumer(queue, "JMSMessageID = '"+jMSMessageID+"'");
-						Message m = consumer.receive(Constants.getReceiveFrequency());
-						consumer.close();
-						if (removeIds.contains(jMSMessageID)) continue; // We are done
+					if (m!=null && m instanceof TextMessage) {
+						MessageProducer producer = qSes.createProducer(queue);
+						final StatusBean    bean = failIds.get(jMSMessageID);
+						bean.setStatus(Status.FAILED);
+						producer.send(qSes.createTextMessage(service.marshal(bean)));
 
-						if (m!=null && m instanceof TextMessage) {
-							MessageProducer producer = qSes.createProducer(queue);
-							final StatusBean    bean = failIds.get(jMSMessageID);
-							bean.setStatus(Status.FAILED);
-							producer.send(qSes.createTextMessage(service.marshal(bean)));
-
-							logger.warn("Failed job "+bean.getName()+" messageid("+jMSMessageID+")");
-
-						}
+						logger.warn("Failed job {} messageid({})", bean.getName(), jMSMessageID);
 					}
 				}
 			} finally {
@@ -334,7 +334,8 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 
 			// We are paused, read the queue
 			List<U> submitted = getQueue(queueName, null);
-			if (submitted==null || submitted.size()<1) throw new EventException("There is nothing submitted waiting to be run\n\nPerhaps the job started to run.");
+			if (submitted==null || submitted.isEmpty())
+				throw new EventException("There is nothing submitted waiting to be run\n\nPerhaps the job started to run.");
 
 			Collections.reverse(submitted); // It comes out with the head at 0 and tail at size-1
 			boolean found = false;
@@ -503,10 +504,6 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 		}
 
 	}
-
-	protected static final long TWO_DAYS = TimeUnit.DAYS.toMillis(2);
-//			48*60*60*1000; // ms
-	protected static final long A_WEEK   = 7*24*60*60*1000; // ms
 
 	/**
 	 * Defines the time in ms that a job may be in the running state

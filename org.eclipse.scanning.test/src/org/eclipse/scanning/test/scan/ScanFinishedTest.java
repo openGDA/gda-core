@@ -14,10 +14,12 @@ package org.eclipse.scanning.test.scan;
 import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertScanFinished;
 import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertScanNotFinished;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.dawnsci.analysis.api.io.ILoaderService;
 import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
@@ -40,10 +42,13 @@ import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.models.StepModel;
+import org.eclipse.scanning.api.scan.PositionEvent;
 import org.eclipse.scanning.api.scan.ScanningException;
+import org.eclipse.scanning.api.scan.event.IPositionListener;
 import org.eclipse.scanning.api.scan.event.IRunListener;
 import org.eclipse.scanning.api.scan.event.RunEvent;
 import org.eclipse.scanning.api.scan.models.ScanModel;
+import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
 import org.eclipse.scanning.event.EventServiceImpl;
 import org.eclipse.scanning.example.classregistry.ScanningExampleClassRegistry;
 import org.eclipse.scanning.example.detector.MandelbrotDetector;
@@ -62,8 +67,6 @@ import org.eclipse.scanning.test.scan.mock.MockWritingMandelbrotDetector;
 import org.eclipse.scanning.test.scan.mock.MockWritingMandlebrotModel;
 import org.junit.Before;
 import org.junit.Test;
-
-import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
 
 public class ScanFinishedTest {
 
@@ -120,17 +123,66 @@ public class ScanFinishedTest {
 
 	@Test
 	public void testScanAborted() throws Exception {
-		IRunnableDevice<ScanModel> scanner = createStepScan(8, 5);
+		ScanModel smodel = createStepModel(8, 5);
+		MandelbrotModel mmodel = new MandelbrotModel("neXusScannable1", "neXusScannable2");
+		mmodel.setExposureTime(0.1);
+		smodel.setDetectors(dservice.createRunnableDevice(mmodel));
+
+		// Create a scan and run it without publishing events
+		IRunnableDevice<ScanModel> scanner = dservice.createRunnableDevice(smodel, null);
+
 		NXentry entry = getNexusEntry(scanner);
 		assertScanNotFinished(entry);
 
 		((AbstractRunnableDevice<ScanModel>) scanner).start(null);
-		Thread.sleep(1000);
+		scanner.latch(200, TimeUnit.MILLISECONDS);
+		assertEquals(DeviceState.RUNNING, scanner.getDeviceState()); // should still be running if scan not finished
 		scanner.abort();
+		boolean aborted = scanner.latch(250, TimeUnit.MILLISECONDS);
 		assertEquals(DeviceState.ABORTED, scanner.getDeviceState());
-		Thread.sleep(1000);
+		assertTrue(aborted);
 
 		assertScanFinished(entry);
+	}
+
+	static class IntWrapper<T> {
+		int wrappedInt;
+	}
+
+	@Test
+	public void testAbortingPausedScan() throws Exception {
+		AbstractRunnableDevice<ScanModel> scanner = (AbstractRunnableDevice<ScanModel>) createStepScan(80, 5);
+		NXentry entry = getNexusEntry(scanner);
+		assertScanNotFinished(entry);
+
+		final IntWrapper<Integer> stepCountWrapper = new IntWrapper<>();
+		scanner.addPositionListener(new IPositionListener() {
+			@Override
+			public void positionPerformed(PositionEvent event) throws ScanningException {
+				stepCountWrapper.wrappedInt = event.getPosition().getStepIndex();
+			}
+		});
+
+		scanner.start(null);
+		scanner.latch(100, TimeUnit.MILLISECONDS);
+		scanner.pause();
+
+		// check the scan is paused
+		scanner.latch(100, TimeUnit.MILLISECONDS); // make sure current point is finished
+		int stepCountOnPause = stepCountWrapper.wrappedInt;
+		assertEquals(DeviceState.PAUSED, scanner.getDeviceState());
+
+		// check the scan is still paused after 250ms, (explicity checking no more positions have been completed)
+		boolean scanFinished = scanner.latch(250, TimeUnit.MILLISECONDS);
+		assertFalse(scanFinished);
+		assertEquals(DeviceState.PAUSED, scanner.getDeviceState());
+		assertEquals(stepCountOnPause, stepCountWrapper.wrappedInt);
+
+		scanner.abort();
+		boolean aborted = scanner.latch(100, TimeUnit.MILLISECONDS);
+		assertTrue(aborted);
+		assertEquals(DeviceState.ABORTED, scanner.getDeviceState());
+		assertEquals(stepCountOnPause, stepCountWrapper.wrappedInt);
 	}
 
 	@Test
@@ -150,9 +202,7 @@ public class ScanFinishedTest {
 		IRunnableDevice device = dservice.getRunnableDevice(mmodel.getName());
 		MandelbrotDetector detector = (MandelbrotDetector)device;
 		assertTrue(detector._isScanFinallyCalled());
-
 	}
-
 
 	private NXentry getNexusEntry(IRunnableDevice<ScanModel> scanner) throws Exception {
 		String filePath = ((AbstractRunnableDevice<ScanModel>) scanner).getModel().getFilePath();

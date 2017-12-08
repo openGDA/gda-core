@@ -14,6 +14,7 @@ package org.eclipse.scanning.api.device;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -162,8 +163,10 @@ public interface IRunnableDevice<T> extends INameable, IDeviceRoleActor, ILevel,
 
 			} else  if (ex.getClass() == ExecutionException.class) {
 				throw (ExecutionException) ex;
+			} else  if (ex instanceof RuntimeException) {
+				throw (RuntimeException) ex;
 			} else {
-				throw new IllegalStateException();
+				throw new IllegalStateException(ex);
 			}
 		}
 
@@ -190,11 +193,22 @@ public interface IRunnableDevice<T> extends INameable, IDeviceRoleActor, ILevel,
 	 * @throws ScanningException
 	 */
 	default void latch() throws ScanningException, InterruptedException, TimeoutException, ExecutionException {
-		throw new ScanningException("Latch is not implemnented for "+getClass().getSimpleName());
+		throw new UnsupportedOperationException("Latch is not implemnented for "+getClass().getSimpleName());
 	}
 
+	/**
+	 * Latches until this run is complete if it was initiated from a start, or the
+	 * given waiting time elapses.
+	 * If a device does not have a latch, this this method always throws an exception.
+	 *
+	 * @param time
+	 * @param unit
+	 * @return <code>true</code> if the countdown of the latch reached 0,
+	 * 		<code>false</code> if the specified waiting time elapsed
+	 * @see CountDownLatch#await(long, TimeUnit)
+	 */
 	default boolean latch(long time, TimeUnit unit) throws ScanningException, InterruptedException, TimeoutException, ExecutionException	{
-		throw new ScanningException("Latch is not implemnented for "+getClass().getSimpleName());
+		throw new UnsupportedOperationException("Latch is not implemnented for "+getClass().getSimpleName());
 	}
 	/**
 	 * The model being used for the device.

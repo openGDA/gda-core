@@ -146,7 +146,7 @@ final class ScannablePositioner extends LevelRunner<IScannable<?>> implements IP
 				achieved = setPosition(scannable, value, position);
 
 			} catch (Exception ne) {
-				abort(scannable, value, position, ne);
+				abortWithError(scannable, value, position, ne);
 				throw ne;
 			}
 			// achieved might not be equal to demand

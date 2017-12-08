@@ -63,8 +63,6 @@ public class ScanServlet extends AbstractConsumerServlet<ScanBean> {
 
 		if (scanBean.getScanRequest()==null) throw new EventException("The scan must include a request to run something!");
 
-		// Debugging makes code messy but switching this on can prove useful.
-		// Test used because output message does work.
 		debug("Accepting bean", scanBean, response);
 		preprocess(scanBean);
 		debug("After processing bean (normally no change)", scanBean, response);

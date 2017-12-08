@@ -152,25 +152,28 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 			this.controller = createRunnableDevice(bean, gen);
 
 			if (blocking) {  // Normally the case
-                executeBlocking(controller, bean);
+				executeBlocking(controller, bean);
 			} else {
 				executeNonBlocking(controller, bean);
 			}
 
-			bean.setPreviousStatus(Status.RUNNING);
-			bean.setStatus(Status.COMPLETE);
-			bean.setPercentComplete(100);
+			if (!bean.getStatus().isFinal()) { // don't overwrite a final status, e.g. ABORTED or FAILED
+				bean.setPreviousStatus(bean.getStatus());
+				bean.setStatus(Status.COMPLETE);
+			}
+			// set the scan to 100% only if the scan completed normally
+			if (bean.getStatus() == Status.COMPLETE) {
+				bean.setPercentComplete(100);
+			}
 			broadcast(bean);
-
-	        // Intentionally do not catch EventException, that passes straight up.
-
 		} catch (Exception ne) {
 			logger.error("Cannot execute run "+getBean().getName()+" "+getBean().getUniqueId(), ne);
-			bean.setPreviousStatus(Status.RUNNING);
+			bean.setPreviousStatus(bean.getStatus());
 			bean.setStatus(Status.FAILED);
 			bean.setMessage(ne.getMessage());
 			broadcast(bean);
 
+			// rethrow the exception as an EventException
 			if (ne instanceof EventException) throw (EventException)ne;
 			throw new EventException(ne);
 		}

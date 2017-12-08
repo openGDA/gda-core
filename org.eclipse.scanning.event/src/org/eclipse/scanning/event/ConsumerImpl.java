@@ -593,9 +593,8 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 			awaitPaused = true;
 			if (mconsumer!=null) mconsumer.close();
 			mconsumer = null; // Force unpaused consumers to make a new connection.
-			LOGGER.info(getName()+" is paused");
+			LOGGER.info("{} is paused", getName());
 			System.out.println(getName()+" is paused");
-
 		} catch (Exception ne) {
 			throw new EventException(ne);
 		} finally {
@@ -616,7 +615,7 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 			awaitPaused = false;
 			// We don't have to actually start anything again because the getMessage(...) call reconnects automatically.
 			paused.signalAll();
-			LOGGER.info(getName()+" running");
+			LOGGER.info("{} is running", getName());
 			System.out.println(getName()+" running");
 
 		} finally {
@@ -664,8 +663,7 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 			throw new EventException("The bean with unique id '"+bean.getUniqueId()+"' has already been used. Cannot run the same uuid twice!");
 		}
 
-		// We peal off the most recent bean from the submission queue
-
+		// We peel off the most recent bean from the submission queue
 		if (bean.getStatus()==Status.REQUEST_TERMINATE) {
 			bean.setStatus(Status.TERMINATED);
 			bean.setMessage("Run aborted before started");
