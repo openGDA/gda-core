@@ -22,14 +22,17 @@ import java.net.URI;
 import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.window.Window;
+import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.event.IEventService;
+import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
@@ -52,6 +55,7 @@ public class BeamlineConfigurationSection extends AbstractMappingSection {
 	private static final Logger LOGGER = LoggerFactory.getLogger(BeamlineConfigurationSection.class);
 	private static final int MAX_TXT_LINES = 1;
 	private Text summaryText;
+	private IScannableDeviceService scannableDeviceService;
 
 	@Override
 	public void createControls(Composite parent) {
@@ -73,30 +77,31 @@ public class BeamlineConfigurationSection extends AbstractMappingSection {
 		editBeamlineConfigButton.setImage(MappingExperimentUtils.getImage("icons/pencil.png"));
 		editBeamlineConfigButton.addListener(SWT.Selection, event -> editBeamlineConfiguration());
 		updateConfiguredScannableSummary();
+
+		try {
+			scannableDeviceService = getScannableDeviceService();
+		} catch (Exception e) {
+			LOGGER.error("Error creating IScannableDeviceService", e);
+		}
 	}
 
 	private void editBeamlineConfiguration() {
-		try {
-			IMappingExperimentBean mappingBean = getMappingBean();
-			EditBeamlineConfigurationDialog dialog = new EditBeamlineConfigurationDialog(getShell(),
-					getScannableDeviceService());
-			dialog.setInitialBeamlineConfiguration(mappingBean.getBeamlineConfiguration());
-			dialog.create();
-			if (dialog.open() == Window.OK) {
-				Map<String, Object> configuredScannables = dialog.getModifiedBeamlineConfiguration();
-				mappingBean.setBeamlineConfiguration(configuredScannables);
-				updateConfiguredScannableSummary();
-			}
-		} catch (Exception e) {
-			LOGGER.error("Could not edit beamline configuration", e);
-			MessageDialog.openError(getShell(), "Beamline Configuration", "Could not edit beamline configuration: " + e.getMessage());
+		IMappingExperimentBean mappingBean = getMappingBean();
+		EditBeamlineConfigurationDialog dialog = new EditBeamlineConfigurationDialog(getShell(),
+				scannableDeviceService);
+		dialog.setInitialBeamlineConfiguration(mappingBean.getBeamlineConfiguration());
+		dialog.create();
+		if (dialog.open() == Window.OK) {
+			Map<String, Object> configuredScannables = dialog.getModifiedBeamlineConfiguration();
+			mappingBean.setBeamlineConfiguration(configuredScannables);
+			updateConfiguredScannableSummary();
 		}
 	}
 
 	private IScannableDeviceService getScannableDeviceService() throws Exception {
 		IEventService eventService = getService(IEventService.class);
 		URI jmsURI = new URI(LocalProperties.getActiveMQBrokerURI());
-		return  eventService.createRemoteService(jmsURI, IScannableDeviceService.class);
+		return eventService.createRemoteService(jmsURI, IScannableDeviceService.class);
 	}
 
 	private void updateConfiguredScannableSummary() {
@@ -106,7 +111,7 @@ public class BeamlineConfigurationSection extends AbstractMappingSection {
 		}
 
 		List<String> txt = configured.entrySet().stream()
-				.map(entry->entry.getKey() + " = " + formatScannablePosition(entry.getValue()))
+				.map(this::formatScannablePosition)
 				.collect(Collectors.toList());
 
 		summaryText.setToolTipText(txt.stream().collect(Collectors.joining("\n")));
@@ -120,9 +125,18 @@ public class BeamlineConfigurationSection extends AbstractMappingSection {
 		summaryText.setVisible(!txt.isEmpty());
 	}
 
-	private String formatScannablePosition(Object value) {
+	private String formatScannablePosition(Entry<String, Object> configuredScannable) {
+		String name = configuredScannable.getKey();
+		Object value = configuredScannable.getValue();
 		DecimalFormat fourDecimalPlaces = new DecimalFormat("##########0.0###");
-		return value instanceof Number ? fourDecimalPlaces.format(value) : value.toString();
+		String position = value instanceof Number ? fourDecimalPlaces.format(value) : value.toString();
+		try { // get the units
+			IScannable<?> scannable = scannableDeviceService.getScannable(name);
+			if (Objects.nonNull(scannable.getUnit()) && !scannable.getUnit().isEmpty()) position += " " + scannable.getUnit();
+		} catch (ScanningException e) {
+			LOGGER.info("Error getting scannable {} - will not show units.", name, e);
+		}
+		return name + " = " + position;
 	}
 
 	@Override
