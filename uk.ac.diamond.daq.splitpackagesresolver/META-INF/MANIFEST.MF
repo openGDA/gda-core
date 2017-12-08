@@ -21,7 +21,12 @@ Require-Bundle: uk.ac.gda.core;bundle-version="9.6.0",
  uk.ac.gda.devices.xmap;bundle-version="1.0.0",
  uk.ac.gda.devices.xmap.epics;bundle-version="1.0.0",
  uk.ac.gda.server.exafs;bundle-version="1.0.0",
- uk.ac.gda.common;bundle-version="1.2.0"
+ uk.ac.gda.common;bundle-version="1.2.0",
+ uk.ac.gda.px;bundle-version="1.0.0",
+ uk.ac.gda.px.pilatus;bundle-version="1.0.0",
+ uk.ac.gda.px.actor;bundle-version="1.0.0",
+ uk.ac.gda.px.stac.bridge;bundle-version="1.0.0",
+ uk.ac.gda.px.stac.bridge.api;bundle-version="1.0.0"
 Export-Package: gda.analysis.io,
  gda.commandqueue,
  gda.data,
