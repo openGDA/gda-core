@@ -29,10 +29,12 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.dawnsci.hdf.object.HierarchicalDataFactory;
-import org.eclipse.dawnsci.hdf.object.IHierarchicalDataFile;
 import org.eclipse.dawnsci.hdf5.model.internal.HierarchicalDataFileModel;
 import org.eclipse.dawnsci.hdf5.model.internal.IHierarchicalDataFileGetReader;
+import org.eclipse.dawnsci.hdf5.nexus.NexusFileHDF5;
+import org.eclipse.dawnsci.nexus.NexusFile;
+import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.january.dataset.StringDataset;
 import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
@@ -106,15 +108,16 @@ public class NexusFilterPluginTest {
 	private static void createNexusFile(IFile file, String name, String value) throws Exception {
 		final String absolutePath = file.getRawLocation().toOSString();
 		// Create a file and verify it
-		IHierarchicalDataFile writer = HierarchicalDataFactory.getWriter(absolutePath);
-		writer.createStringDataset(name, value, writer.getRoot());
+		NexusFile writer = NexusFileHDF5.createNexusFile(absolutePath);
+		writer.createData("/", name, DatasetFactory.createFromObject(StringDataset.class, value), true);
+
 		writer.close();
 
 		HierarchicalDataFileModel model = new HierarchicalDataFileModel(new IHierarchicalDataFileGetReader() {
 
 			@Override
-			public IHierarchicalDataFile getReader() throws Exception {
-				return HierarchicalDataFactory.getReader(absolutePath);
+			public NexusFile getReader() throws Exception {
+				return NexusFileHDF5.openNexusFile(absolutePath);
 			}
 		});
 

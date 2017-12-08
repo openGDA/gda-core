@@ -1,9 +1,9 @@
 package uk.ac.diamond.tomography.reconstruction;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.dawnsci.hdf.object.HierarchicalDataFactory;
-import org.eclipse.dawnsci.hdf.object.HierarchicalDataUtils;
+import org.eclipse.dawnsci.hdf5.HDF5Utils;
 import org.eclipse.dawnsci.hdf5.model.IHierarchicalDataModel;
+import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 
@@ -53,7 +53,7 @@ public class NexusFilter extends ViewerFilter {
 		if (!(element instanceof IFile))
 			return true;
 		IFile file = (IFile) element;
-		if (!HierarchicalDataFactory.isHDF5(file.getRawLocation().toOSString()))
+		if (!HDF5Utils.isHDF5(file.getRawLocation().toOSString()))
 			return true;
 
 		try {
@@ -105,7 +105,7 @@ public class NexusFilter extends ViewerFilter {
 	 */
 	private int compare(IFile file, String nexusFilterPath, String string) throws NumberFormatException {
 		Object data = model.getFileModel(file).getPath(nexusFilterPath);
-		return HierarchicalDataUtils.compareScalarToString(data, string);
+		return NexusUtils.compareScalarToString(data, string);
 	}
 
 	private boolean hasPath(IFile file, String nexusFilterPath) {

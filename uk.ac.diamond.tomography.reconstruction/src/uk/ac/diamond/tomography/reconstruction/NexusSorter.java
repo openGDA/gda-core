@@ -19,9 +19,9 @@
 package uk.ac.diamond.tomography.reconstruction;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.dawnsci.hdf.object.HierarchicalDataFactory;
-import org.eclipse.dawnsci.hdf.object.HierarchicalDataUtils;
+import org.eclipse.dawnsci.hdf5.HDF5Utils;
 import org.eclipse.dawnsci.hdf5.model.IHierarchicalDataModel;
+import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerSorter;
 
@@ -71,7 +71,7 @@ public class NexusSorter extends ViewerSorter {
 				if (data2 == null) {
 					return -1;
 				}
-				int compare = HierarchicalDataUtils.compareScalars(data1, data2);
+				int compare = NexusUtils.compareScalars(data1, data2);
 				if (compare == 0) {
 					// stabilise the sort by using the label as second order sort key
 					return super.compare(viewer, e1, e2);
@@ -92,7 +92,7 @@ public class NexusSorter extends ViewerSorter {
 	public int category(Object element) {
 		if (element instanceof IFile) {
 			IFile file = (IFile) element;
-			if (HierarchicalDataFactory.isHDF5(file.getRawLocation().toOSString())) {
+			if (HDF5Utils.isHDF5(file.getRawLocation().toOSString())) {
 				return 1;
 			}
 		}
