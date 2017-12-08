@@ -190,9 +190,15 @@ public class RasterTest {
 		// Check some points
 		assertEquals(new Point(0, xStart, 0, yStart, 0), pointList.get(0));
 		assertEquals(xStart + 3 * xStep, pointList.get(3).getValue("X"), 1e-8);
-		// TODO more
+		assertEquals(yStart + 0 * yStep, pointList.get(3).getValue("Y"), 1e-8);
 
-        GeneratorUtil.testGeneratorPoints(gen);
+		assertEquals(xStart + xStep, pointList.get(1+1*rows).getValue("X"), 1e-8);
+		assertEquals(yStart + yStep, pointList.get(1+1*rows).getValue("Y"), 1e-8);
+
+		assertEquals(xStart + 5*xStep, pointList.get(5+2*rows).getValue("X"), 1e-8);
+		assertEquals(yStart + 2*yStep, pointList.get(5+2*rows).getValue("Y"), 1e-8);
+
+		GeneratorUtil.testGeneratorPoints(gen, cols, rows);
 	}
 
 	// Note this is a bit of a integration test not a strict unit test

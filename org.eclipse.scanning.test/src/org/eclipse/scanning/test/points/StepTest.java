@@ -175,7 +175,9 @@ public class StepTest {
 	}
 
 	@Test
-	public void testSequence() throws Exception {
+	public void testPerfectSequence() throws Exception {
+		// Test cases where start, stop, step result in an integer number of points.
+
 		StepModel model = new StepModel("Temperature", 290,300,1);
 		IPointGenerator<StepModel> gen = service.createGenerator(model);
 		checkSequence(gen, 290.0, 291.0, 292.0, 293.0, 294.0, 295.0, 296.0, 297.0, 298.0, 299.0, 300.0);
@@ -200,6 +202,36 @@ public class StepTest {
 		gen.setModel(model);
 		checkSequence(gen, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0);
 		GeneratorUtil.testGeneratorPoints(gen, 7);
+	}
+
+	@Test
+	public void testImperfectSequence() throws Exception {
+		// Test cases where start, stop, step result in an non-integer number of points.
+
+		StepModel model = new StepModel("Temperature", 290, 299.5, 1);
+		IPointGenerator<StepModel> gen = service.createGenerator(model);
+		checkSequence(gen, 290.0, 291.0, 292.0, 293.0, 294.0, 295.0, 296.0, 297.0, 298.0, 299.0);
+		GeneratorUtil.testGeneratorPoints(gen, 10);
+
+		model = new StepModel("Temperature", 0, 2.5, 0.6);
+		gen.setModel(model);
+		checkSequence(gen, 0d, 0.6, 1.2, 1.8, 2.4);
+		GeneratorUtil.testGeneratorPoints(gen, 5);
+
+		model = new StepModel("Temperature", 1, 3, 0.6);
+		gen.setModel(model);
+		checkSequence(gen, 1.0, 1.6, 2.2, 2.8);
+		GeneratorUtil.testGeneratorPoints(gen, 4);
+
+		model = new StepModel("Temperature", -1, 1, 0.6);
+		gen.setModel(model);
+		checkSequence(gen, -1.0, -0.4, 0.2, 0.8);
+		GeneratorUtil.testGeneratorPoints(gen, 4);
+
+		model = new StepModel("Temperature", 1, -1, -0.6);
+		gen.setModel(model);
+		checkSequence(gen, 1.0, 0.4, -0.2, -0.8);
+		GeneratorUtil.testGeneratorPoints(gen, 4);
 	}
 
 	@Test
