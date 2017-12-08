@@ -28,7 +28,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
-import static org.python.icu.impl.Assert.fail;
+import static org.junit.Assert.fail;
 import static uk.ac.diamond.daq.scanning.ScannableNexusWrapper.ATTR_NAME_GDA_FIELD_NAME;
 import static uk.ac.diamond.daq.scanning.ScannableNexusWrapper.ATTR_NAME_GDA_SCANNABLE_NAME;
 import static uk.ac.diamond.daq.scanning.ScannableNexusWrapper.ATTR_NAME_GDA_SCAN_ROLE;
