@@ -35,7 +35,7 @@ public interface EnumPositioner extends Scannable {
 
 	/**
 	 * Returns an array of the positions which this device can be moved to.
-	 * 
+	 *
 	 * @return an array of positions
 	 * @throws DeviceException
 	 */
@@ -43,18 +43,10 @@ public interface EnumPositioner extends Scannable {
 
 	/**
 	 * Returns the current status
-	 * 
+	 *
 	 * @return the status
 	 * @throws DeviceException
 	 */
 	public EnumPositionerStatus getStatus() throws DeviceException;
-
-	/**
-	 * Stops the current movement.
-	 * 
-	 * @throws DeviceException
-	 */
-	@Override
-	public void stop() throws DeviceException;
 
 }
