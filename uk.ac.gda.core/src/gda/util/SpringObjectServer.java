@@ -40,7 +40,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 import org.springframework.core.env.AbstractEnvironment;
 import org.springframework.core.env.ConfigurableEnvironment;
-import org.springframework.util.StringUtils;
 
 import gda.configuration.properties.LocalProperties;
 import gda.factory.ConditionallyConfigurable;
@@ -195,13 +194,13 @@ public class SpringObjectServer extends ObjectServer {
 			writer.println();
 
 			writer.println("# generation-time attributes");
-			writer.format("__beamline__ = '%s'\n", LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME).toUpperCase());
-			writer.format("__gdaversion__ = '%s'\n", Version.getRelease());
-			writer.format("__xmlfile__ = '%s'\n", xmlFile);
-			String[] pid_host = ManagementFactory.getRuntimeMXBean().getName().split("@");
-			writer.format("__pid__ = '%s'\n", pid_host[0]);
-			writer.format("__hostname__ = '%s'\n", pid_host[1]);
-			writer.format("__timestamp__ = '%s'\n", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date()));
+			writer.format("__beamline__ = '%s'%n", LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME).toUpperCase());
+			writer.format("__gdaversion__ = '%s'%n", Version.getRelease());
+			writer.format("__xmlfile__ = '%s'%n", xmlFile);
+			String[] pidHost = ManagementFactory.getRuntimeMXBean().getName().split("@");
+			writer.format("__pid__ = '%s'%n", pidHost[0]);
+			writer.format("__hostname__ = '%s'%n", pidHost[1]);
+			writer.format("__timestamp__ = '%s'%n", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date()));
 			writer.println();
 
 			if (names.length == 0) {
@@ -216,7 +215,7 @@ public class SpringObjectServer extends ObjectServer {
 			writer.println("del Finder");
 			writer.println();
 
-			writer.format("# not executed so types not in: dir(%s)\n", moduleName);
+			writer.format("# not executed so types not in: dir(%s)%n", moduleName);
 			writer.println("if False:");
 			writer.println("\t");
 			writer.println("\t# fake imports for fake assignments below");
@@ -229,23 +228,20 @@ public class SpringObjectServer extends ObjectServer {
 					imports.add(String.format("\tfrom %s import %s", type.getPackage().getName(), className));
 				}
 			}
-			String[] _imports = imports.toArray(new String[] {});
-			Arrays.sort(_imports, String.CASE_INSENSITIVE_ORDER); // alphabetically ordered
-			for (String import_ : _imports) {
-				writer.println(import_);
-			}
+			imports.stream().sorted(String.CASE_INSENSITIVE_ORDER).forEach(writer::println);
+
 			writer.println("\t");
 			writer.println("\t# fake assignments for PyDev type-inference");
 			for (String name : beanTypes.keySet()) {
 				Class<?> type =  beanTypes.get(name);
 				String simple = type.getSimpleName().split("\\$")[0];
-				writer.format("\t%s = %s()\n", name, simple);
+				writer.format("\t%s = %s()%n", name, simple);
 			}
 			writer.println("");
 
 			writer.println("# real assignments of module-level attributes");
 			for (String name : beanTypes.keySet()) {
-				writer.format("%s = get(\"%s\")\n", name, name);
+				writer.format("%s = get(\"%s\")%n", name, name);
 			}
 			writer.println("# so you can import identifiers instead of strings");
 			writer.println();
@@ -299,7 +295,7 @@ public class SpringObjectServer extends ObjectServer {
 		for (Map.Entry<String, AdapterFactory> entry : adapterFactories.entrySet()) {
 			String name = entry.getKey();
 			AdapterFactory adapterFactory = entry.getValue();
-			logger.info(String.format("Adding AdapterFactory %s (namespace %s) to finder", StringUtils.quote(name), StringUtils.quote(adapterFactory.getName())));
+			logger.info("Adding AdapterFactory '{}' (namespace '{}') to finder", name, adapterFactory.getName());
 			Finder.getInstance().addFactory(adapterFactory);
 		}
 	}
@@ -319,7 +315,7 @@ public class SpringObjectServer extends ObjectServer {
 			}
 
 			if (willConfigure) {
-				logger.info("Configuring " + name);
+				logger.info("Configuring {}", name);
 				try {
 					obj.configure();
 				} catch (Exception e) {
@@ -328,10 +324,8 @@ public class SpringObjectServer extends ObjectServer {
 					}
 					logger.error("Error in configure for " + name, e);
 				}
-			}
-
-			else {
-				logger.info("Not configuring " + name);
+			} else {
+				logger.info("Not configuring {}", name);
 			}
 		}
 	}
