@@ -777,11 +777,13 @@ public class SpecsPhoibosController implements Configurable, IObservable {
 			epicsController.caputWait(getChannel(SAFE_STATE), safe ? 1 : 0, SAFE_STATE_DELAY);
 		} catch (TimeoutException e) {
 			if(safe) {
-				logger.error("Timeout ({} sec) while setting analyser to safe state. HV may still be on", SAFE_STATE_DELAY, e);
+				logger.error("Timeout ({} sec) while setting analyser to safe state. HV may still be on",
+						SAFE_STATE_DELAY, e);
 			}
-			logger.error("Timeout ({} sec) disabling safe state", SAFE_STATE_DELAY, e);
+			else {
+				logger.error("Timeout ({} sec) disabling safe state", SAFE_STATE_DELAY, e);
+			}
 		}
-
 	}
 
 	/**
