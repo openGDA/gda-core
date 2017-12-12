@@ -204,6 +204,12 @@ public class SpringObjectServer extends ObjectServer {
 			writer.format("__timestamp__ = '%s'\n", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date()));
 			writer.println();
 
+			if (names.length == 0) {
+				writer.println("# No findables are configured");
+				logger.info("No findables are configured");
+				return;
+			}
+
 			writer.println("# get function (finder.find for now)");
 			writer.println("from gda.factory import Finder");
 			writer.println("get = Finder.getInstance().find");
