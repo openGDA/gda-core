@@ -30,6 +30,7 @@ import uk.ac.diamond.daq.mapping.region.LineMappingRegion;
 import uk.ac.diamond.daq.mapping.region.PointMappingRegion;
 import uk.ac.diamond.daq.mapping.region.PolygonMappingRegion;
 import uk.ac.diamond.daq.mapping.region.RectangularMappingRegion;
+import uk.ac.diamond.daq.mapping.region.SnappedLineMappingRegion;
 
 public class MappingUIClassRegistry implements IClassRegistry {
 
@@ -45,6 +46,7 @@ public class MappingUIClassRegistry implements IClassRegistry {
 		registerClass(tmp, MappingScanRegion.class);
 		registerClass(tmp, CircularMappingRegion.class);
 		registerClass(tmp, LineMappingRegion.class);
+		registerClass(tmp, SnappedLineMappingRegion.class);
 		registerClass(tmp, PointMappingRegion.class);
 		registerClass(tmp, PolygonMappingRegion.class);
 		registerClass(tmp, RectangularMappingRegion.class);

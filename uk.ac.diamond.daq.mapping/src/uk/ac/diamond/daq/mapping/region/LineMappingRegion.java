@@ -27,9 +27,9 @@ import org.eclipse.dawnsci.plotting.api.region.IRegion.RegionType;
 import org.eclipse.scanning.api.annotation.UiComesAfter;
 import org.eclipse.scanning.api.annotation.UiHidden;
 
-import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
+import uk.ac.diamond.daq.mapping.api.ILineMappingRegion;
 
-public class LineMappingRegion implements IMappingScanRegionShape {
+public class LineMappingRegion implements ILineMappingRegion {
 
 	private double xStart = 0;
 	private double yStart = 0;
@@ -48,6 +48,7 @@ public class LineMappingRegion implements IMappingScanRegionShape {
 		this.pcs.removePropertyChangeListener(listener);
 	}
 
+	@Override
 	public double getxStart() {
 		return xStart;
 	}
@@ -58,6 +59,7 @@ public class LineMappingRegion implements IMappingScanRegionShape {
 		this.pcs.firePropertyChange("xStart", oldvalue, newValue);
 	}
 
+	@Override
 	public double getyStart() {
 		return yStart;
 	}
@@ -68,6 +70,7 @@ public class LineMappingRegion implements IMappingScanRegionShape {
 		this.pcs.firePropertyChange("yStart", oldvalue, newValue);
 	}
 
+	@Override
 	@UiComesAfter("yStart")
 	public double getxStop() {
 		return xStop;
@@ -79,6 +82,7 @@ public class LineMappingRegion implements IMappingScanRegionShape {
 		this.pcs.firePropertyChange("xStop", oldvalue, newValue);
 	}
 
+	@Override
 	public double getyStop() {
 		return yStop;
 	}
