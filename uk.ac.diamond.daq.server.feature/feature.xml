@@ -75,6 +75,10 @@ http://www.eclipse.org/legal/epl-v10.html
          id="uk.ac.diamond.daq.crystal.feature"
          version="0.0.0"/>
 
+   <includes
+         id="uk.ac.diamond.daq.lde.feature"
+         version="0.0.0"/>
+
    <plugin
          id="uk.ac.diamond.daq.beamline.i15-1.api"
          download-size="0"
