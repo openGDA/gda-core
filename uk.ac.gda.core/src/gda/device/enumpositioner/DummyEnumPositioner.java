@@ -24,28 +24,20 @@ import java.util.List;
 import java.util.Vector;
 
 import gda.device.DeviceException;
-import gda.device.EditableEnumPositioner;
+import gda.device.EnumPositioner;
 import gda.device.EnumPositionerStatus;
-import gda.device.Scannable;
 import gda.device.scannable.ScannablePositionChangeEvent;
 
 /**
  * A dummy class implementing the EnumPositioner for testing.
  */
-public class DummyEnumPositioner extends EnumPositionerBase implements EditableEnumPositioner, Scannable {
+public class DummyEnumPositioner extends EnumPositionerBase implements EnumPositioner {
 	private int currentPositionIndex = 0;
-
-	/**
-	 * Constructor.
-	 */
-	public DummyEnumPositioner() {
-
-	}
 
 	@Override
 	public void configure() {
 		this.inputNames = new String[]{getName()};
-		if (positions.size() > 0) {
+		if (!positions.isEmpty()) {
 			currentPositionIndex = 0;
 		}
 	}
@@ -65,7 +57,7 @@ public class DummyEnumPositioner extends EnumPositionerBase implements EditableE
 	 * @return List<String> the positions this device can move to.
 	 */
 	public List<String> getPositionArrayList() {
-		return new ArrayList<String>(positions);
+		return new ArrayList<>(positions);
 	}
 
 	public void setPositions(List<String> positionsArray ) {
@@ -95,7 +87,7 @@ public class DummyEnumPositioner extends EnumPositionerBase implements EditableE
 	@Override
 	public void moveTo(Object position) throws DeviceException {
 
-		String positionString = position.toString();
+		final String positionString = position.toString();
 
 		// find in the positionNames array the index of the string
 		if (positions.contains(positionString) ) {
@@ -108,8 +100,13 @@ public class DummyEnumPositioner extends EnumPositionerBase implements EditableE
 			return;
 		}
 		// if get here then wrong position name supplied
-		throw new DeviceException("Position called: " + position + " not found.");
+		throw new DeviceException("Position called: " + positionString + " not found.");
+	}
 
+	@Override
+	public boolean isInPos() throws DeviceException {
+		// Moves happen immediately, so this will always be true
+		return true;
 	}
 
 }

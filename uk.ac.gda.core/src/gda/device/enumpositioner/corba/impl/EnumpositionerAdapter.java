@@ -19,6 +19,11 @@
 
 package gda.device.enumpositioner.corba.impl;
 
+import org.omg.CORBA.COMM_FAILURE;
+import org.omg.CORBA.TRANSIENT;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.Device;
 import gda.device.DeviceException;
 import gda.device.EnumPositioner;
@@ -31,13 +36,12 @@ import gda.device.scannable.corba.impl.ScannableAdapter;
 import gda.factory.Findable;
 import gda.factory.corba.util.NetService;
 
-import org.omg.CORBA.COMM_FAILURE;
-import org.omg.CORBA.TRANSIENT;
-
 /**
  * A client side implementation of the adapter pattern for the Enumpositioner class
  */
 public class EnumpositionerAdapter extends ScannableAdapter implements EnumPositioner, Scannable, Device, Findable {
+
+	private static final Logger logger = LoggerFactory.getLogger(EnumpositionerAdapter.class);
 
 	protected CorbaEnumPositioner corbaEnumpositioner;
 
@@ -84,5 +88,15 @@ public class EnumpositionerAdapter extends ScannableAdapter implements EnumPosit
 			}
 		}
 		throw new DeviceException("Communication failure: retry failed");
+	}
+
+	/**
+	 * Simple implementation to check whether device is in position.<br>
+	 * If there is a PV that indicates this, use that instead.
+	 */
+	@Override
+	public boolean isInPos() throws DeviceException {
+		logger.debug("Default isInPos() called");
+		return getStatus() == EnumPositionerStatus.IDLE;
 	}
 }

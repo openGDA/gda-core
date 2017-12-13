@@ -49,4 +49,11 @@ public interface EnumPositioner extends Scannable {
 	 */
 	public EnumPositionerStatus getStatus() throws DeviceException;
 
+	/**
+	 * Reports whether the positioner is in the most recent demand position
+	 *
+	 * @throws DeviceException
+	 */
+	public boolean isInPos() throws DeviceException;
+
 }

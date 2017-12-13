@@ -89,6 +89,16 @@ public abstract class EnumPositionerBase extends ScannableBase implements EnumPo
 		return "position not a string";
 	}
 
+	/**
+	 * Simple implementation that may not be reliable.<br>
+	 * Devices with a PV that indicates whether the device is in position should use this instead.
+	 */
+	@Override
+	public boolean isInPos() throws DeviceException {
+		logger.debug("Default isInPos() called");
+		return positionerStatus == EnumPositionerStatus.IDLE;
+	}
+
 	@Override
 	public String toFormattedString() {
 		try {
