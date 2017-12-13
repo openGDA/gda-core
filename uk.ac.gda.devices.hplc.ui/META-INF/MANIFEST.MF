@@ -15,7 +15,6 @@ Require-Bundle: uk.ac.gda.devices.hatsaxs;bundle-version="1.0.0",
  uk.ac.gda.core,
  uk.ac.gda.devices.hatsaxs.ui
 Import-Package: gda.configuration.properties,
- gda.jython,
  gda.rcp,
  org.apache.commons.beanutils;version="1.9.1",
  org.eclipse.core.commands,

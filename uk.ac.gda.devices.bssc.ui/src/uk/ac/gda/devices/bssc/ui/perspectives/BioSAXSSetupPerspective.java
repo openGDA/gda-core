@@ -18,9 +18,10 @@
 
 package uk.ac.gda.devices.bssc.ui.perspectives;
 
-import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
+
+import uk.ac.gda.client.CommandQueueViewFactory;
 
 public class BioSAXSSetupPerspective implements IPerspectiveFactory {
 	public static String ID = "uk.ac.gda.devices.bssc.biosaxssetupperspective";
@@ -28,9 +29,9 @@ public class BioSAXSSetupPerspective implements IPerspectiveFactory {
 
 	@Override
 	public void createInitialLayout(IPageLayout layout) {
-		IFolderLayout folderLayout = layout.createFolder("folder", IPageLayout.BOTTOM, 0.73f,
-				IPageLayout.ID_EDITOR_AREA);
-
-		folderLayout.addView("uk.ac.gda.client.CommandQueueViewFactory");
+		layout.addView(CommandQueueViewFactory.ID, IPageLayout.BOTTOM, 0.6f, IPageLayout.ID_EDITOR_AREA);
+		layout.addView("uk.ac.gda.rcp.views.dashboardView", IPageLayout.RIGHT, 0.5f, CommandQueueViewFactory.ID);
+		layout.addView("gda.rcp.ncd.views.NCDStatus", IPageLayout.BOTTOM, 0.5f, CommandQueueViewFactory.ID);
+		layout.addView("gda.rcp.jythonterminalview", IPageLayout.BOTTOM, 0.55f, "uk.ac.gda.rcp.views.dashboardView");
 	}
 }
