@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.dawnsci.io.h5.H5LazyDataset;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.beans.PojoObservables;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
@@ -33,10 +32,11 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.dawnsci.hdf.object.HierarchicalDataFactory;
-import org.eclipse.dawnsci.hdf.object.HierarchicalDataFileUtils;
-import org.eclipse.dawnsci.hdf.object.IHierarchicalDataFile;
-import org.eclipse.dawnsci.hdf.object.Nexus;
+import org.eclipse.dawnsci.analysis.api.io.IDataHolder;
+import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
+import org.eclipse.dawnsci.analysis.api.tree.Node;
+import org.eclipse.dawnsci.hdf5.nexus.NexusFileFactoryHDF5;
+import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlotType;
 import org.eclipse.dawnsci.plotting.api.PlottingFactory;
@@ -81,6 +81,7 @@ import gda.device.detector.areadetector.v17.NDROI;
 import gda.observable.Observable;
 import gda.observable.Observer;
 import uk.ac.diamond.scisoft.analysis.dataset.function.Histogram;
+import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBeanException;
@@ -577,30 +578,30 @@ public class TwoDArray extends Composite {
 		setStarted(arrayMonitoring);
 	}
 
-	private String createParentEntry(IHierarchicalDataFile file, String fullEntry) throws Exception {
-		return HierarchicalDataFileUtils.createParentEntry(file, fullEntry, Nexus.DATA);
-	}
-
 	protected void saveStores(String name) {
 		try {
 			String fileName = Activator.getDefault().getStateLocation().append(name + ".hdf").toOSString();
-			IHierarchicalDataFile writer = HierarchicalDataFactory.getWriter(fileName);
-			try {
-				String parent = createParentEntry(writer, "/entry/stores");
+			try (NexusFile file = new NexusFileFactoryHDF5().newNexusFile(fileName)) {
+				file.openToWrite(true);
+				GroupNode group = file.getGroup("/entry/stores", true);
 				for (Entry<String, Dataset> store : stores.entrySet()) {
 					Dataset data = store.getValue();
 					String dataName = store.getKey();
-					final String dataset = writer.replaceDataset(dataName, data, parent);
-					writer.setNexusAttribute(dataset, Nexus.SDS);
+					try {
+						if (group.containsDataNode(dataName)) {
+							file.removeNode(group, dataName);
+						}
+						data = data.getView(false);
+						data.setName(dataName);
+						file.createData(group, data);
+					} catch (Exception e) {
+						logger.error("Could not save {}", dataName, e);
+					}
 				}
-			} finally {
-				if (writer != null)
-					writer.close();
 			}
 		} catch (Exception e) {
 			logger.error("Error saving state", e);
 		}
-
 	}
 
 	void restoreStores(String name) {
@@ -609,22 +610,17 @@ public class TwoDArray extends Composite {
 		File file = new File(fileName);
 		if (file.exists()) {
 			try {
-				IHierarchicalDataFile reader = HierarchicalDataFactory.getReader(fileName);
-				try {
-					final List<String> fullPaths = reader.getDatasetNames(IHierarchicalDataFile.NUMBER_ARRAY);
-					for (String fullPath : fullPaths) {
-						String[] entries = fullPath.split("/");
-						String dsName = entries[entries.length - 1];
-						if (dsName.equals("A-B")) continue;
+				IDataHolder dh = LoaderFactory.getData(fileName, true, null);
+				final String[] fullPaths = dh.getNames();
+				for (String fullPath : fullPaths) {
+					int i = fullPath.lastIndexOf(Node.SEPARATOR) + 1;
+					String dsName = i > 0 ? fullPath.substring(i) : fullPath;
+					if (dsName.equals("A-B")) continue;
 
-						ILazyDataset lazy = new H5LazyDataset(reader, fullPath);
-						Dataset store = DatasetUtils.sliceAndConvertLazyDataset(lazy);
-						store.setName(dsName);
-						setupStores(dsName, store);
-					}
-				} finally {
-					if (reader != null)
-						reader.close();
+					ILazyDataset lazy = dh.getLazyDataset(fullPath);
+					Dataset store = DatasetUtils.sliceAndConvertLazyDataset(lazy);
+					store.setName(dsName);
+					setupStores(dsName, store);
 				}
 			} catch (Exception e) {
 				logger.error("Error reading cache from " + fileName);
