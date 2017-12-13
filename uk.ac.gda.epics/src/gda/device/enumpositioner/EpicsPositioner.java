@@ -267,7 +267,7 @@ public class EpicsPositioner extends EnumPositionerBase implements EnumPositione
 				return EnumPositionerStatus.MOVING;
 			}
 			// check if in position
-			if (controller.cagetDouble(inPos) == 1.0) {
+			if (isInPos()) {
 				// and status is NO_ALARM
 				if (controller.cagetDouble(error) == 0) {
 					return EnumPositionerStatus.IDLE;
@@ -350,6 +350,17 @@ public class EpicsPositioner extends EnumPositionerBase implements EnumPositione
 			return controller.cagetLabels(select);
 		} catch (Exception e) {
 			throw new DeviceException("Error gettings labels for " + getName(),e);
+		}
+	}
+
+	@Override
+	public boolean isInPos() throws DeviceException {
+		try {
+			// EPICS data type for this PV is double: value is 1.0 if in position
+			final double inPosVal = controller.cagetDouble(inPos);
+			return Math.abs(inPosVal - 1.0) < 0.0001;
+		} catch (Exception e) {
+			throw new DeviceException("Exception getting INPOS for " + getName(), e);
 		}
 	}
 
