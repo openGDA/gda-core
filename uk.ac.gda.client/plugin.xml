@@ -285,11 +285,6 @@
             name="Pause Scan">
       </command>
       <command
-            defaultHandler="uk.ac.gda.actions.PauseScriptHandler"
-            id="uk.ac.gda.client.jython.PauseScript"
-            name="Pause Script">
-      </command>
-      <command
             defaultHandler="uk.ac.gda.actions.AbortCommandsHandler"
             id="uk.ac.gda.client.AbortCommands"
             name="Abort all commands">
