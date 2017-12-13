@@ -50,7 +50,7 @@
          version="0.0.0"/>
 
    <includes
-         id="uk.ac.diamond.daq.thirdparty.logging.feature"
+         id="uk.ac.diamond.daq.common.feature"
          version="0.0.0"/>
 
    <plugin
@@ -185,20 +185,6 @@
          unpack="false"/>
 
    <plugin
-         id="org.apache.commons.beanutils"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.apache.commons.collections"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="uk.ac.gda.common.client"
          download-size="0"
          install-size="0"
@@ -261,13 +247,6 @@
 
    <plugin
          id="org.eclipse.pde.runtime"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.apache.commons.configuration"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -337,27 +316,6 @@
 
    <plugin
          id="org.eclipse.dawnsci.nexus"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.apache.commons.math"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.apache.commons.httpclient"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.apache.commons.codec"
          download-size="0"
          install-size="0"
          version="0.0.0"
