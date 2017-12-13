@@ -253,6 +253,7 @@ public class VGScientaController implements Configurable {
 		}
 		// It is valid so set it
 		EPICS_CONTROLLER.caputWait(getChannel(LENS_MODE), value);
+		logger.debug("Lens Mode set to: {}", value);
 	}
 
 	/**
@@ -291,6 +292,7 @@ public class VGScientaController implements Configurable {
 		}
 		// It is valid so set it.
 		EPICS_CONTROLLER.caputWait(getChannel(PSU_MODE), value);
+		logger.debug("PSU Mode set to: {}", value);
 	}
 
 	/**
@@ -308,6 +310,7 @@ public class VGScientaController implements Configurable {
 		}
 		// It is valid so set it.
 		EPICS_CONTROLLER.caputWait(getChannel(ACQUISITION_MODE), value);
+		logger.debug("Acquisition Mode set to: {}", value);
 	}
 
 	/**
@@ -347,6 +350,7 @@ public class VGScientaController implements Configurable {
 		}
 		// It is valid so set it. As string to avoid enum position conversion
 		EPICS_CONTROLLER.caputWait(getChannel(PASS_ENERGY), valueString);
+		logger.debug("Pass Energy set to: {}", valueString);
 	}
 
 	/**
@@ -376,6 +380,7 @@ public class VGScientaController implements Configurable {
 			throw new IllegalArgumentException("Start energy must be greater than 0");
 		}
 		EPICS_CONTROLLER.caputWait(getChannel(START_ENERGY), value);
+		logger.debug("Start Energy set to: {}", value);
 	}
 
 	public double getStartEnergy() throws Exception {
@@ -387,6 +392,7 @@ public class VGScientaController implements Configurable {
 			throw new IllegalArgumentException("Centre energy must be greater than 0");
 		}
 		EPICS_CONTROLLER.caputWait(getChannel(CENTRE_ENERGY), value);
+		logger.debug("Centre Energy set to: {}", value);
 	}
 
 	public double getCentreEnergy() throws Exception {
@@ -398,6 +404,7 @@ public class VGScientaController implements Configurable {
 			throw new IllegalArgumentException("End energy must be greater than 0");
 		}
 		EPICS_CONTROLLER.caputWait(getChannel(END_ENERGY), value);
+		logger.debug("End Energy set to: {}", value);
 	}
 
 	public double getEndEnergy() throws Exception {
@@ -409,6 +416,7 @@ public class VGScientaController implements Configurable {
 			throw new IllegalArgumentException("Energy step must be greater than 0");
 		}
 		EPICS_CONTROLLER.caputWait(getChannel(ENERGY_STEP), value);
+		logger.debug("Energy Step set to: {}", value);
 	}
 
 	public double getEnergyStep() throws Exception {
@@ -420,6 +428,7 @@ public class VGScientaController implements Configurable {
 			throw new IllegalArgumentException("Frames must be greater than or equal to 1");
 		}
 		EPICS_CONTROLLER.caputWait(getChannel(FRAMES), value);
+		logger.debug("Number of Frames set to: {}", value);
 	}
 
 	public int getFrames() throws Exception {
@@ -432,6 +441,7 @@ public class VGScientaController implements Configurable {
 			throw new IllegalArgumentException("Slices must be greater than or equal to 1");
 		}
 		EPICS_CONTROLLER.caputWait(getChannel(SLICES), value);
+		logger.debug("Number of Slices set to: {}", value);
 	}
 
 	public int getSlice() throws Exception {
@@ -528,6 +538,7 @@ public class VGScientaController implements Configurable {
 			throw new DeviceException("The detector mode requested: " + value + " is not valid");
 		}
 		EPICS_CONTROLLER.caputWait(getChannel(DETECTOR_MODE), value);
+		logger.debug("Detector Mode set to: {}", value);
 	}
 
 	public String getDetectorMode() throws Exception {
@@ -722,6 +733,7 @@ public class VGScientaController implements Configurable {
 			throw new IllegalArgumentException("Exposure time must be greater than or equal to " + cameraFrameTime);
 		}
 		EPICS_CONTROLLER.caputWait(getChannel(EXPOSURE_TIME), value);
+		logger.debug("Exposure Time set to: {}", value);
 	}
 
 	/**
@@ -765,5 +777,6 @@ public class VGScientaController implements Configurable {
 			throw new IllegalArgumentException("Iterations must be greater than or equal to 1");
 		}
 		EPICS_CONTROLLER.caputWait(getChannel(ITERATIONS), value);
+		logger.debug("Number of Iterations set to: {}", value);
 	}
 }
