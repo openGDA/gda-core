@@ -40,8 +40,7 @@ Bundle-Activator: gda.rcp.ncd.Activator
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: uk.ac.gda.client.ncd;singleton:=true
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Eclipse-RegisterBuddy: uk.ac.diamond.org.apache.activemq,
- org.springframework.beans.factory,
+Eclipse-RegisterBuddy: org.springframework.beans.factory,
  uk.ac.gda.server.ncd
 Export-Package: gda.rcp.ncd.perspectives,
  gda.rcp.ncd.views
