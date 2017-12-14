@@ -493,8 +493,7 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 		// Check if INamedScanDataPointObserver first as its a subclass of IScanDataPointObserver
 		if (anIObserver instanceof INamedScanDataPointObserver) {
 			namedSDPObservers.remove(anIObserver);
-			logger.debug("Removed {} as named SDP observer. Now have {} observers", anIObserver,
-					allSDPObservers.size());
+			logger.debug("Removed {} as named SDP observer. Now have {} observers", anIObserver, namedSDPObservers.size());
 		} else if (anIObserver instanceof IScanDataPointObserver) {
 			allSDPObservers.remove(anIObserver);
 			logger.debug("Removed {} as SDP observer. Now have {} observers", anIObserver, allSDPObservers.size());

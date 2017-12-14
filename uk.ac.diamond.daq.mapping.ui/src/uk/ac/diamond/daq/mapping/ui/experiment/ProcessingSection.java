@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import org.dawnsci.processing.ui.ServiceHolder;
 import org.dawnsci.processing.ui.api.IOperationModelWizard;
@@ -176,15 +177,18 @@ public class ProcessingSection extends AbstractMappingSection {
 	}
 
 	private IClusterProcessingModelWrapper configureProcessingModel(IClusterProcessingModelWrapper processingModelWrapper) {
-		List<IOperationSetupWizardPage> startPages = new ArrayList<>(2);
+		final List<IOperationSetupWizardPage> startPages = new ArrayList<>(2);
 
-		AcquireDataWizardPage acquirePage = new AcquireDataWizardPage(getEclipseContext());
+		final AcquireDataWizardPage acquirePage = new AcquireDataWizardPage(getEclipseContext());
+		final Supplier<Boolean> useExisting;
 		if (processingModelWrapper == null) {
-			ClusterProcessingModel model = new ClusterProcessingModel();
+			final ClusterProcessingModel model = new ClusterProcessingModel();
 			processingModelWrapper = new ClusterProcessingModelWrapper(null, model, true);
 
-			startPages.add(new ProcessingSelectionWizardPage(getEclipseContext(),
-					processingModelWrapper, getMappingBean().getDetectorParameters()));
+			final ProcessingSelectionWizardPage selectionPage = new ProcessingSelectionWizardPage(getEclipseContext(),
+					processingModelWrapper, getMappingBean().getDetectorParameters());
+			startPages.add(selectionPage);
+			useExisting = selectionPage::useExisting;
 		} else {
 			// get the IDetectorModel for the detector name as set in the processing model
 			String detectorName = processingModelWrapper.getModel().getDetectorName();
@@ -192,13 +196,18 @@ public class ProcessingSection extends AbstractMappingSection {
 			// if the malcolm device name is set, we use that as the detetor in the acquire scan instead
 			String acquireDetectorName = malcolmDeviceName == null ? detectorName : malcolmDeviceName;
 
-			Optional<IDetectorModel> detectorWrapper =
+			final Optional<IDetectorModel> detectorWrapper =
 					getMappingBean().getDetectorParameters().stream().
 					map(IDetectorModelWrapper::getModel).
 					filter(model -> model.getName().equals(acquireDetectorName)).
 					findFirst();
+			if (!detectorWrapper.isPresent()) {
+				logger.error("Could not get detector from mapping bean {}", acquireDetectorName);
+				return null;
+			}
 			acquirePage.setAcquireDetectorModel(detectorWrapper.get());
 			acquirePage.setDetectorDataGroupName(detectorName);
+			useExisting = () -> false;
 		}
 		startPages.add(acquirePage);
 
@@ -209,13 +218,13 @@ public class ProcessingSection extends AbstractMappingSection {
 			OperationModelWizardDialog dialog = new OperationModelWizardDialog(getShell(), wizard);
 			dialog.setTitle("Setup Processing");
 			if (dialog.open() == Window.OK) {
-				try {
-					wizard.saveOutputFile(processingModelWrapper.getModel().getProcessingFilePath());
-				} catch (Exception e) {
-					logger.error("Could not save template file!", e);
+				if (!useExisting.get()) {
+					try {
+						wizard.saveOutputFile(processingModelWrapper.getModel().getProcessingFilePath());
+					} catch (Exception e) {
+						logger.error("Could not save template file!", e);
+					}
 				}
-			}
-			if (dialog.getReturnCode() == Window.OK) {
 				return processingModelWrapper;
 			}
 		} catch (Exception e) {
