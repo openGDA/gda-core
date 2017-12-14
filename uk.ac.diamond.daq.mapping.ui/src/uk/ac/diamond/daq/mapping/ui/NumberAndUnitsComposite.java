@@ -18,8 +18,9 @@
 
 package uk.ac.diamond.daq.mapping.ui;
 
-import org.eclipse.core.databinding.conversion.NumberToStringConverter;
-import org.eclipse.core.databinding.conversion.StringToNumberConverter;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.ComboViewer;
@@ -45,9 +46,10 @@ public class NumberAndUnitsComposite extends Composite {
 	/** The combo box to select the units */
 	private final ComboViewer unitsCombo;
 
-	/** Use core data-binding's converters for String <-> Number */
-	private final StringToNumberConverter stringToNumberConverter = StringToNumberConverter.toDouble(false);
-	private final NumberToStringConverter numberToStringConverter = NumberToStringConverter.fromDouble(false);
+	/** Used to format when the absolute number in the current units is <=1e-3 or >=1e3 */
+	private final NumberFormat scientificFormat = new DecimalFormat("0.#####E0");
+	/** Used to format when the absolute number in the current units is 1e-3< number <1e3 */
+	private final NumberFormat decimalFormat = new DecimalFormat("0.#####");
 
 	/** Cache the current value to allow the text to be updated when the units are changed */
 	private volatile double currentValueMm;
@@ -78,13 +80,14 @@ public class NumberAndUnitsComposite extends Composite {
 	 * @return the value in mm
 	 */
 	public Object getValue() {
-		Number number = ((Number) stringToNumberConverter.convert(text.getText()));
-		if (number == null) {
-			return null;
+		try {
+			final double value = Double.parseDouble(text.getText());
+
+			// Always have mm in the model so convert to mm and save current mm value
+			currentValueMm = getUnits().toMm(value);
+		} catch (NumberFormatException e) {
+			// Expected when building the GUI
 		}
-		double value = number.doubleValue();
-		// Always have mm in the model so convert to mm and save current mm value
-		currentValueMm = getUnits().toMm(value);
 		return currentValueMm;
 	}
 
@@ -96,11 +99,22 @@ public class NumberAndUnitsComposite extends Composite {
 	 *            The value to set in mm
 	 */
 	public void setValue(Object value) {
-		double number = Double.parseDouble(numberToStringConverter.convert(value).toString());
+		// This should only ever be called with a double so cast it
+		double number = (double) value;
 		// Update the current Value
 		currentValueMm = number;
-		// We are always given mm so convert to the units for display
-		text.setText(Double.toString(getUnits().fromMm(number)));
+
+		// Value in current units
+		final double valueInCurrentUnits = getUnits().fromMm(number);
+		final double absValueInCurrentUnits = Math.abs(valueInCurrentUnits);
+
+		// Check if the absolute the value is not exactly zero and larger than 1000 or smaller than 0.001
+		// Check for != 0.0 so 0 is displayed as 0 not 0E0
+		if (absValueInCurrentUnits != 0.0 && (absValueInCurrentUnits <= 1e-3 || absValueInCurrentUnits >= 1e3)) {
+			text.setText(scientificFormat.format(valueInCurrentUnits));
+		} else {
+			text.setText(decimalFormat.format(valueInCurrentUnits));
+		}
 	}
 
 	/**
