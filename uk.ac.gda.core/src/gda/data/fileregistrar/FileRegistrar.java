@@ -40,6 +40,8 @@ import gda.data.scan.datawriter.DataWriterExtenderBase;
 import gda.data.scan.datawriter.IDataWriterExtender;
 import gda.device.Detector;
 import gda.device.DeviceBase;
+import gda.factory.Configurable;
+import gda.factory.FactoryException;
 import gda.factory.Localizable;
 import gda.jython.Jython;
 import gda.jython.JythonServerFacade;
@@ -72,13 +74,13 @@ import gda.scan.IScanDataPoint;
  * </pre>
  *
  */
-public class FileRegistrar extends DataWriterExtenderBase implements IFileRegistrar, Localizable {
+public class FileRegistrar extends DataWriterExtenderBase implements IFileRegistrar, Localizable, Configurable {
 
 	private static final Logger logger = LoggerFactory.getLogger(FileRegistrar.class);
 
 	private IScanDataPoint lastScanDataPoint = null;
 
-	private ArchiveFileCreator icatXMLCreator = new IcatXMLCreator();
+	private ArchiveFileCreator icatXMLCreator;
 
 	private DeviceBase clientFileAnnouncer;
 
@@ -90,6 +92,13 @@ public class FileRegistrar extends DataWriterExtenderBase implements IFileRegist
 
 	private ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(1, 10, 1, TimeUnit.SECONDS,
 			new LinkedBlockingQueue<Runnable>());
+
+	@Override
+	public void configure() throws FactoryException {
+		if (icatXMLCreator == null) {
+			throw new FactoryException("icatXMLCreator is not set");
+		}
+	}
 
 	/**
 	 * Entry point in GDA8 scanning to register a file
@@ -247,31 +256,12 @@ public class FileRegistrar extends DataWriterExtenderBase implements IFileRegist
 		this.name = name;
 	}
 
-	/**
-	 * mainly for testing
-	 *
-	 * @return the xml creator instance
-	 */
 	public ArchiveFileCreator getIcatXMLCreator() {
 		return icatXMLCreator;
 	}
 
-	/**
-	 * used for testing
-	 *
-	 * @param icatXMLCreator
-	 */
 	public void setIcatXMLCreator(ArchiveFileCreator icatXMLCreator) {
 		this.icatXMLCreator = icatXMLCreator;
-	}
-
-	/**
-	 * the directory to create the XML in
-	 *
-	 * @param directory
-	 */
-	public void setDirectory(String directory) {
-		icatXMLCreator.setDirectory(directory);
 	}
 
 	@Override

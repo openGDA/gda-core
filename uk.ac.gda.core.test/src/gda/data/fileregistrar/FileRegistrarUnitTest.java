@@ -90,6 +90,12 @@ public class FileRegistrarUnitTest {
 		FileRegistrarServiceHolder.setFilePathService(filePathService);
 	}
 
+	@Test(expected = FactoryException.class)
+	public void testIcatXMLCreatorRequired() throws Exception {
+		final FileRegistrar fileRegistrar = new FileRegistrar();
+		fileRegistrar.configure();
+	}
+
 	@Test
 	public void testRegisterFile() throws Exception {
 		when(filePathService.getScanNumber()).thenReturn(123);
@@ -243,17 +249,6 @@ public class FileRegistrarUnitTest {
 		final String[] fileArray = fileArrayCaptor.getValue();
 		assertEquals(1, fileArray.length);
 		assertEquals(SCAN_FILE, fileArray[0]);
-	}
-
-	@Test
-	public void testSetDirectory() {
-		// Directory is passed down to XML creator
-		final String directory = "/dls_sw/ixx/data";
-		final FileRegistrar fileRegistrar = new FileRegistrar();
-		fileRegistrar.setIcatXMLCreator(icatXmlCreator);
-		fileRegistrar.setDirectory(directory);
-
-		verify(icatXmlCreator).setDirectory(directory);
 	}
 
 	@Test
