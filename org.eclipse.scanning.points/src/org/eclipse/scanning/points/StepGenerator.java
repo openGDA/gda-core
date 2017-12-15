@@ -46,9 +46,9 @@ class StepGenerator extends AbstractGenerator<StepModel> {
         final JythonObjectFactory<ScanPointIterator> lineGeneratorFactory = ScanPointGeneratorFactory.JLineGenerator1DFactory();
 
         final String name   = model.getName();
-        final double start  = model.getStart();
-        final double stop   = model.getStop();
         final int numPoints = model.size();
+        final double start  = model.getStart();
+        final double stop   = start + model.getStep() * (numPoints-1);
 
 		return lineGeneratorFactory.createObject(name, "mm", start, stop, numPoints);
 	}

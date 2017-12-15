@@ -149,22 +149,34 @@ public class LinearTest {
         BoundingLine line = new BoundingLine();
         line.setxStart(0.0);
         line.setyStart(0.0);
-        line.setLength(Math.hypot(3.0, 3.0));
+		//implicit line.setAngle(0);
+		line.setLength(Math.hypot(3.0, 3.0)); // 4.24264
 
         OneDStepModel model = new OneDStepModel();
         model.setStep(0.3);
         model.setBoundingLine(line);
 
+		// TODO: These expected values match current behaviour, not behaviour expected by users
+		//       They go outside of the given BoundingLine and do not step the required step distance.
+		double[] expected_xs = new double[] {0.0, 0.32, 0.64, 0.96, 1.28, 1.6, 1.92, 2.25, 2.57, 2.89, 3.21, 3.53, 3.85, 4.17, 4.5};
+		double[] expected_ys = new double[] {0.0, 0.0,  0.0,  0.0,  0.0,  0.0, 0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0};
+		assertEquals(expected_xs.length, expected_ys.length);
+
 		// Get the point list
 		IPointGenerator<OneDStepModel> gen = service.createGenerator(model);
-		final int expectedSize = 15;
+		final int expectedSize = expected_xs.length;
 		assertEquals(expectedSize, gen.size());
 		assertEquals(1, gen.getRank());
 		assertArrayEquals(new int[] { expectedSize }, gen.getShape());
 
 		List<IPosition> pointList = gen.createPoints();
 		assertEquals(expectedSize, pointList.size());
-        GeneratorUtil.testGeneratorPoints(gen);
+		double[] actual_xs = pointList.stream().mapToDouble(p -> p.getValue("stage_x")).toArray();
+		double[] actual_ys = pointList.stream().mapToDouble(p -> p.getValue("stage_y")).toArray();
+
+		assertArrayEquals(expected_xs, actual_xs, 0.01);
+		assertArrayEquals(expected_ys, actual_ys, 0.01);
+		GeneratorUtil.testGeneratorPoints(gen, expectedSize);
 	}
 
 	@Test
