@@ -56,7 +56,7 @@ public class ScriptFilesSection extends AbstractMappingSection {
 		new Label(scriptsComposite, SWT.NONE).setText("Script Files");
 
 		Composite scriptsSummaryComposite = new Composite(scriptsComposite, SWT.NONE);
-		GridLayoutFactory.swtDefaults().numColumns(2).equalWidth(false).applyTo(scriptsSummaryComposite);
+		GridLayoutFactory.swtDefaults().applyTo(scriptsSummaryComposite);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(scriptsSummaryComposite);
 		summaryText = new Text(scriptsSummaryComposite, SWT.MULTI | SWT.READ_ONLY);
 		GridDataFactory.swtDefaults().grab(true, false).applyTo(summaryText);
@@ -79,13 +79,20 @@ public class ScriptFilesSection extends AbstractMappingSection {
 	private void updateSummaryText() {
 		IScriptFiles scripts = getMappingBean().getScriptFiles();
 		StringBuilder summary = new StringBuilder();
-		if (Objects.nonNull(scripts.getBeforeScanScript()) && !scripts.getBeforeScanScript().isEmpty()) {
-			summary.append("before: " + getScriptName(scripts.getBeforeScanScript())+";");
+		boolean beforeSet = Objects.nonNull(scripts.getBeforeScanScript()) && !scripts.getBeforeScanScript().isEmpty();
+		boolean afterSet = Objects.nonNull(scripts.getAfterScanScript()) && !scripts.getAfterScanScript().isEmpty();
+
+		if (beforeSet) {
+			summary.append("before scan: " + getScriptName(scripts.getBeforeScanScript()));
+			if (afterSet) summary.append("; ");
 		}
-		if (Objects.nonNull(scripts.getAfterScanScript()) && !scripts.getAfterScanScript().isEmpty()) {
-			summary.append("after: " + getScriptName(scripts.getAfterScanScript()));
+		if (afterSet) {
+			summary.append("after scan: " + getScriptName(scripts.getAfterScanScript()));
 		}
+
 		summaryText.setText(summary.toString());
+		summaryText.setToolTipText(summary.toString());
+		summaryText.getParent().layout(true, true);
 	}
 
 	private String getScriptName(String path) {
