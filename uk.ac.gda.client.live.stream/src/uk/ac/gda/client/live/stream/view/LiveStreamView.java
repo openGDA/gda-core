@@ -20,8 +20,6 @@ package uk.ac.gda.client.live.stream.view;
 
 import static uk.ac.gda.client.live.stream.Activator.getService;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -42,22 +40,13 @@ import org.eclipse.dawnsci.plotting.api.region.ROIEvent;
 import org.eclipse.dawnsci.plotting.api.region.RegionEvent;
 import org.eclipse.dawnsci.plotting.api.trace.IImageTrace;
 import org.eclipse.dawnsci.plotting.api.trace.IImageTrace.DownsampleType;
-import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.DataEvent;
-import org.eclipse.january.dataset.DatasetFactory;
-import org.eclipse.january.dataset.DoubleDataset;
 import org.eclipse.january.dataset.IDataListener;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.IDatasetConnector;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
-import org.eclipse.scanning.api.IScannable;
-import org.eclipse.scanning.api.device.IScannableDeviceService;
-import org.eclipse.scanning.api.scan.PositionEvent;
-import org.eclipse.scanning.api.scan.ScanningException;
-import org.eclipse.scanning.api.scan.event.IPositionListenable;
-import org.eclipse.scanning.api.scan.event.IPositionListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
@@ -80,8 +69,9 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.detector.nxdetector.roi.ImutableRectangularIntegerROI;
 import gda.factory.Finder;
-import uk.ac.diamond.daq.epics.connector.EpicsV3DynamicDatasetConnector;
-import uk.ac.gda.client.live.stream.Activator;
+import uk.ac.gda.client.live.stream.LiveStreamConnection;
+import uk.ac.gda.client.live.stream.LiveStreamConnection.IAxisChangeListener;
+import uk.ac.gda.client.live.stream.LiveStreamException;
 import uk.ac.gda.client.live.stream.handlers.SnapshotData;
 
 /**
@@ -102,19 +92,17 @@ public class LiveStreamView extends ViewPart {
 
 	private static final Logger logger = LoggerFactory.getLogger(LiveStreamView.class);
 
-	private static final long MJPEG_DEFAULT_SLEEP_TIME = 50; // ms i.e. 20 fps
-	private static final int MJPEG_DEFAULT_CACHE_SIZE = 3; // frames
-
 	private IPlottingSystem<Composite> plottingSystem;
-	private IDatasetConnector stream;
-	private StreamType streamType;
 	private IImageTrace iTrace;
 	private CameraConfiguration camConfig;
 	private Composite parent;
+	private LiveStreamConnection liveStreamConnection;
 	private Text errorText;
 	private String cameraName;
 	private long frameCounter = 0;
+
 	private final IDataListener shapeListener = new IDataListener() {
+
 		private int[] oldShape;
 
 		@Override
@@ -127,26 +115,13 @@ public class LiveStreamView extends ViewPart {
 				display.asyncExec(() -> {
 					plottingSystem.autoscaleAxes();
 					iTrace.rehistogram();
-					updateAxes();
 				});
+				updateAxes();
 			}
 			// Update the frame count in the UI thread
-			display.asyncExec(() -> plottingSystem.setTitle(cameraName + ": " + streamType + " - Frame: " + Long.toString(frameCounter++)));
+			display.asyncExec(() -> plottingSystem.setTitle(cameraName + ": " + liveStreamConnection.getStreamType() + " - Frame: " + Long.toString(frameCounter++)));
 		}
 	};
-
-	private final IPositionListener axisMoveListener = new IPositionListener() {
-
-		@Override
-		public void positionChanged(PositionEvent event) throws ScanningException {
-			PlatformUI.getWorkbench().getDisplay().asyncExec(LiveStreamView.this::updateAxes);
-		}
-
-	};
-
-	private IScannable<? extends Number> xAxisScannable;
-
-	private IScannable<? extends Number> yAxisScannable;
 
 	@Override
 	public void createPartControl(final Composite parent) {
@@ -253,8 +228,8 @@ public class LiveStreamView extends ViewPart {
 	 */
 	private void createLivePlot(final Composite parent, final String secondaryId) {
 		logger.debug("Creating live stream plot with secondary ID: {}", secondaryId);
-		String cameraId = cameraIdFromSecondaryId(secondaryId);
-		streamType = streamTypeFromSecondaryId(secondaryId);
+		final String cameraId = cameraIdFromSecondaryId(secondaryId);
+		StreamType streamType = streamTypeFromSecondaryId(secondaryId);
 
 		// Get the camera config from the finder
 		camConfig = Finder.getInstance().find(cameraId);
@@ -415,14 +390,15 @@ public class LiveStreamView extends ViewPart {
 			plottingSystem.dispose();
 			plottingSystem = null;
 		}
-		if (stream != null) {
+		if (liveStreamConnection != null) {
 			try {
-				stream.removeDataListener(shapeListener);
-				stream.disconnect();
+				liveStreamConnection.getStream().removeDataListener(shapeListener);
+				liveStreamConnection.removeAxisMoveListener(axisChangeListener);
+				liveStreamConnection.disconnect();
 			} catch (Exception e) {
 				logger.error("Error disconnecting remote data stream", e);
 			} finally {
-				stream = null;
+				liveStreamConnection = null;
 			}
 		}
 		super.dispose();
@@ -441,86 +417,49 @@ public class LiveStreamView extends ViewPart {
 		}
 	}
 
+	private final IAxisChangeListener axisChangeListener = this::updateAxes;
+
+	private void updateAxes() {
+		final Display display = PlatformUI.getWorkbench().getDisplay();
+		display.asyncExec(() -> iTrace.setAxes(liveStreamConnection.getAxes(), false));
+	}
+
 	/**
 	 * This should be called when starting a new stream. It also takes care of disconnecting old streams (if any)
 	 *
 	 * @param streamType The type of stream to use
 	 */
 	private void setupStream(StreamType streamType) {
-		// Update the current stream type field.
-		this.streamType = streamType;
-
-		// Disconnect the existing stream
-		if (stream != null) { // Will be null the first time
+		if (liveStreamConnection != null) {
 			try {
-				stream.disconnect();
-			} catch (Exception e) {
-				displayAndLogError(parent, "Error disconnecting from stream", e);
-				return; // Should not continue and create an additional stream
-			} finally {
-				stream = null;
+				liveStreamConnection.disconnect();
+			} catch (LiveStreamException e) {
+				logger.error("Error disconnecting from live stream", e);
 			}
 		}
 
-		// Switch on the type of stream to setup
-		switch (streamType) {
-		case MJPEG:
+		liveStreamConnection = new LiveStreamConnection(camConfig, streamType);
 
-			final URL url;
-			try {
-				url = new URL(camConfig.getUrl());
-			} catch (MalformedURLException e) {
-				displayAndLogError(parent, "Malformed URL check camera configuration", e);
-				return;
-			}
-
-			// If sleepTime or cacheSize are set use them, else use the defaults
-			long sleepTime = camConfig.getSleepTime() != 0 ? camConfig.getSleepTime() : MJPEG_DEFAULT_SLEEP_TIME; // ms
-			int cacheSize = camConfig.getCacheSize() != 0 ? camConfig.getCacheSize() : MJPEG_DEFAULT_CACHE_SIZE; // frames
-
-			try {
-				if (camConfig.isRgb()) {
-					stream = getService(IRemoteDatasetService.class).createMJPGDataset(url, sleepTime, cacheSize);
-				} else {
-					stream = getService(IRemoteDatasetService.class).createGrayScaleMJPGDataset(url, sleepTime, cacheSize);
-				}
-				stream.connect();
-			} catch (Exception e) {
-				displayAndLogError(parent, "Could not connect to MJPEG Stream at: " + url, e);
-				return;
-			}
-			break;
-
-		case EPICS_ARRAY:
-			try {
-				stream = new EpicsV3DynamicDatasetConnector(camConfig.getArrayPv());
-			} catch (NoClassDefFoundError e) {
-				// As uk.ac.gda.epics is an optional dependency if it is not included in the client. The code will fail
-				// here.
-				displayAndLogError(parent, "Could not connect to EPICS stream, Is uk.ac.gda.epics in the product?", e);
-			}
-			try {
-				stream.connect();
-			} catch (DatasetException e) {
-				displayAndLogError(parent, "Could not connect to EPICS Array Stream PV: " + camConfig.getArrayPv(), e);
-				return;
-			}
-			break;
-
-		default:
-			String message = "Stream type '" + streamType + "' not supported";
-			displayAndLogError(parent, message);
-			throw new RuntimeException(message);
+		final IDatasetConnector dataset;
+		try {
+			dataset = liveStreamConnection.connect();
+			dataset.addDataListener(shapeListener);
+		} catch (LiveStreamException e) {
+			displayAndLogError(parent, e.getMessage(), e);
+			return;
 		}
 
 		// Connect the stream to the trace
-		iTrace.setDynamicData(stream);
+		iTrace.setDynamicData(dataset);
 
-		// Setup the axes
-		setupAxes();
+		// Add the axes to the trace
+		if (liveStreamConnection.getAxes().size() == 2) {
+			iTrace.setAxes(liveStreamConnection.getAxes(), false);
+			liveStreamConnection.addAxisMoveListener(axisChangeListener);
+		}
 
 		// Add the listener for updating the frame counter
-		stream.addDataListener(shapeListener);
+		dataset.addDataListener(shapeListener);
 
 		// Reset the frame counter
 		frameCounter = 0;
@@ -557,94 +496,6 @@ public class LiveStreamView extends ViewPart {
 				}
 			});
 		}
-	}
-
-	/**
-	 * Sets up the x and y axis of the live stream, if the {@link CameraConfiguration} has been set
-	 * in the Spring configuration.
-	 */
-	private void setupAxes() {
-		if (camConfig.getCameraCalibration() == null) return;
-
-		// set the scannable for the x-axis and add a position listener to it
-		final IScannableDeviceService scannableDeviceService = Activator.getService(IScannableDeviceService.class);
-		final String xAxisScannableName = camConfig.getCameraCalibration().getxAxisScannableName();
-		try {
-			xAxisScannable = scannableDeviceService.getScannable(xAxisScannableName);
-			if (xAxisScannable instanceof IPositionListenable) {
-				((IPositionListenable) xAxisScannable).addPositionListener(axisMoveListener);
-			}
-		} catch (ScanningException e) {
-			displayAndLogError(parent, "Could not get scannable for x-axis of camera: " + xAxisScannableName, e);
-			return;
-		}
-
-		// set the scannable for the y-axis and add a position listener to it
-		final String yAxisScannableName = camConfig.getCameraCalibration().getyAxisScannableName();
-		try {
-			yAxisScannable = scannableDeviceService.getScannable(yAxisScannableName);
-			if (yAxisScannable instanceof IPositionListenable) {
-				((IPositionListenable) yAxisScannable).addPositionListener(axisMoveListener);
-			}
-		} catch (ScanningException e) {
-			displayAndLogError(parent, "Could not get scannable for y-axis of camera: " + yAxisScannableName, e);
-			return;
-		}
-
-		updateAxes();
-	}
-
-	/**
-	 * Sets the {@link IDataset}s for the camera axes.
-	 */
-	private void updateAxes() {
-		if (camConfig.getCameraCalibration() == null || xAxisScannable == null || yAxisScannable == null)
-			return;
-
-		final CameraCalibration calibration = camConfig.getCameraCalibration();
-		final int[] imageShape = iTrace.getData().getShape();
-		if (imageShape.length < 2) return;
-
-		final IDataset xAxis = createAxisDataset(xAxisScannable,
-				calibration.getxAxisOffset(), calibration.getxAxisPixelScaling(), imageShape[1]);
-		final IDataset yAxis = createAxisDataset(yAxisScannable,
-				calibration.getyAxisOffset(), calibration.getyAxisPixelScaling(), imageShape[0]);
-		if (xAxis != null && yAxis != null) {
-			iTrace.setAxes(Arrays.asList(xAxis, yAxis), false);
-		}
-	}
-
-	/**
-	 * Creates and returns a dataset for an axis given the parameters below.
-	 * @param axisScannable the {@link IScannable} for the axis
-	 * @param cameraOffset the offset of the camera position relative to the scannable
-	 * @param pixelScaling the size of a camera pixel in the units used by the scannable
-	 * @param numPixels the number of pixels in the given axis of the scannable
-	 * @return a dataset for the axis
-	 */
-	private IDataset createAxisDataset(IScannable<? extends Number> axisScannable, double cameraOffset, double pixelScaling, int numPixels) {
-		// get the current position of the axis scannable
-		final double pos;
-		try {
-			pos = axisScannable.getPosition().doubleValue();
-		} catch (Exception e) {
-			displayAndLogError(parent, "Could not get position for : " + axisScannable.getName(), e);
-			return null;
-		}
-
-		// calculate the camera position and size
-		final double cameraPos = pos + cameraOffset;
-		final double imageSize = numPixels * pixelScaling;
-
-		// from those values, we can get the image start and stop values
-		final double imageStart = cameraPos - imageSize/2;
-		final double imageStop = cameraPos + imageSize/2;
-
-		// create the linear dataset and set the name
-		final IDataset axisDataset = DatasetFactory.createLinearSpace(DoubleDataset.class, imageStart, imageStop, numPixels);
-		axisDataset.setName(axisScannable.getName());
-
-		return axisDataset;
 	}
 
 	private  void updateServerRois() {

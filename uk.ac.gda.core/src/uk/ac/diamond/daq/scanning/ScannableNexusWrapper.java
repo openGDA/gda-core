@@ -299,9 +299,7 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 	@Override
 	public Object getPosition() throws Exception {
 		if (canReadPosition()) {
-			final Object position = getScannable().getPosition();
-			firePositionChanged(position); // only fires if the position has changed
-			return position;
+			return getScannable().getPosition();
 		}
 		return null;
 	}
