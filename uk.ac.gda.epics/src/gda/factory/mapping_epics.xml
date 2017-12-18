@@ -124,35 +124,11 @@
 			<bind-xml name="epicsRecordName" node="element"/>
 		</field>
 	</class>
-	
+
 	<!-- *******Analyser Base*-->
 	<class extends="gda.device.DeviceBase" name="gda.device.detector.analyser.AnalyserBase">
 	</class>
-	
-	<class identity="name" name="gda.device.enumpositioner.PolarimeterPinholeEnumPositioner">
-		<map-to xml="PolarimeterPinholeEnumPositioner"/>
-		<field name="name" type="string">
-			<bind-xml name="name" node="element"/>
-		</field>
-		<field name="numPinholes" type="integer">
-			<bind-xml name="numPinholes" node="element"/>
-		</field>
-		<field collection="collection" get-method="getLabelArrayList" name="label" set-method="addLabel" type="string">
-			<bind-xml name="label" node="element"/>
-		</field>
-		<field collection="collection" get-method="getPositionArrayList" name="position" set-method="addPosition" type="string">
-			<bind-xml name="position" node="element"/>
-		</field>
-		<field collection="collection" get-method="getValueArrayList" name="value" set-method="addValue" type="string">
-			<bind-xml name="value" node="element"/>
-		</field>
-		<field name="fluxMonitorChannelLabel" type="string">
-			<bind-xml name="fluxMonitorChannelLabel" node="element"/>
-		</field>
-		<field name="epicsRecordName" type="string">
-			<bind-xml name="epicsRecordName" node="element"/>
-		</field>		
-	</class>
+
 	<class identity="name" name="gda.device.enumpositioner.EpicsEnumPositioner">
 		<map-to xml="EpicsEnumPositioner"/>
 		<field name="name" type="string">

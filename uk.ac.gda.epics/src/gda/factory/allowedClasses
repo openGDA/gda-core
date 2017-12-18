@@ -69,8 +69,6 @@ gda.epics.connection.STSHandler
 gda.epics.connection.InitializationListener
 gda.epics.connection.EpicsChannelManager
 gda.scan.Trajectory
-gda.scan.PolarimeterGridScan
-gda.scan.PolarimeterConcurrentScan
 gda.scan.TrajScanBuildEpicsMCACounterTimer
 gda.scan.EpicsTrajectoryScanController
 gda.device.qbpm.corba.impl.QbpmAdapter
@@ -152,7 +150,6 @@ gda.device.enumpositioner.EpicsPneumaticCallback
 gda.device.enumpositioner.EpicsPneumatic
 gda.device.enumpositioner.EpicsSimpleMbbinary
 gda.device.enumpositioner.EpicsSimpleBinary
-gda.device.enumpositioner.PolarimeterPinholeEnumPositioner
 gda.device.enumpositioner.EpicsCurrAmpQuadController
 gda.device.enumpositioner.EpicsValve
 gda.device.enumpositioner.DummyValve
