@@ -236,7 +236,44 @@ them.
    harmonic    instrument.insertion_device.harmonic   Integer   Harmonic of Peak.
    ==========  =====================================  ========  ================================
 
+Writing arbitrary metadata to Nexus files
+-----------------------------------------
+There are cases where it's useful to include arbitrary notes or fields in data
+files. To enable this, metadata fields can be specified along with a path for
+where in the file it should be written.
 
+For instance to include a sample name field in the sample NXsample node, include
+a bean similar to the following in the Spring GDA configuration:
+
+.. code-block:: xml
+
+    <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <property name="staticMethod" value="gda.data.scan.datawriter.NexusDataWriter.setMetadata"/>
+        <property name="arguments">
+            <map>
+                <entry key="sample_name" value="sample:NXsample/name"/>
+            </map>
+        </property>
+    </bean>
+
+This will include a name field in the sample group with the metadata value (read
+at the start of the scan) for the entry with the name `sample_name`.
+(NB metadata name does not have to match the entry in the nexus file)
+
+The metadata to be included can be changed at run time via the Jython console:
+
+.. code-block:: python
+    :name: adding metadata
+
+    >>> from gda.data.scan.datawriter import NexusDataWriter
+    >>> NexusDataWriter.updateMetadata({'xyz': 'sample:NXsample/abc'})
+    >>> # Scans from here will include xyz metadata
+
+.. code-block:: python
+    :name: removing metadata
+
+    >>> NexusDataWriter.removeMetadata(['xyz'])
+    >>> # xyz will no longer be written to scan files
 
 GDA Helper functions
 ====================
