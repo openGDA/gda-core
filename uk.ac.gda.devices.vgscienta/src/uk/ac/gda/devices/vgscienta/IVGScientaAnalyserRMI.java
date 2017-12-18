@@ -181,12 +181,37 @@ public interface IVGScientaAnalyserRMI extends Device {
 	void zeroSupplies() throws Exception;
 
 	/**
+	 * Stops the analyser after the current iteration and saves the data.
+	 *
+	 * @see #stop()
+	 * @throws Exception If there is a problem with the EPICS communication
+	 */
+	void stopAfterCurrentIteration() throws Exception;
+
+	/**
 	 * Gets the currently set number of iterations
 	 *
 	 * @return The current number of iterations
 	 * @throws Exception If there is a problem with the EPICS communication
 	 */
 	int getIterations() throws Exception;
+
+	/**
+	 * Gets the completed number of iterations
+	 * from the most recent scan
+	 *
+	 * @return The number of complete iterations from previous scan
+	 * @throws Exception If there is a problem with the EPICS communication
+	 */
+	int getCompletedIterations() throws Exception;
+
+	/**
+	 * Gets the current iteration number in the scan
+	 *
+	 * @return The current iteration number in the scan
+	 * @throws Exception If there is a problem with the EPICS communication
+	 */
+	int getCurrentIterations() throws Exception;
 
 	/**
 	 * Sets the number of iterations requested, not for use while in a scan

@@ -20,18 +20,17 @@ package uk.ac.gda.arpes.ui.views;
 
 import java.util.List;
 
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.FocusAdapter;
-import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
@@ -40,6 +39,7 @@ import org.slf4j.LoggerFactory;
 import gda.device.Device;
 import gda.device.MotorStatus;
 import gda.factory.Finder;
+import gda.jython.JythonServerFacade;
 import gda.observable.IObserver;
 import uk.ac.gda.arpes.widgets.ProgressBarWithText;
 import uk.ac.gda.devices.vgscienta.IVGScientaAnalyserRMI;
@@ -48,11 +48,12 @@ import uk.ac.gda.devices.vgscienta.SweptProgress;
 public class AnalyserProgressView extends ViewPart implements IObserver {
 	private static final Logger logger = LoggerFactory.getLogger(AnalyserProgressView.class);
 
-	private Text csweep;
+	private Text completedIterTxt;
+	private Text scheduledIterTxt;
 	private IVGScientaAnalyserRMI analyser;
 	private Device sweepUpdater;
-	private Spinner sweepSpinner;
-	private int scheduledIterations = -1;
+	private int scheduledIterations;
+	private int completedIterations;
 	private ProgressBarWithText progressBar;
 
 	private Color idleColor = new Color(Display.getCurrent(), 150, 150, 150);
@@ -77,48 +78,69 @@ public class AnalyserProgressView extends ViewPart implements IObserver {
 
 		Label lblCurrentSweep = new Label(parent, SWT.NONE);
 		lblCurrentSweep.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1));
-		lblCurrentSweep.setText("Completed Iterations");
+		lblCurrentSweep.setText("Completed Iterations:");
 
-		csweep = new Text(parent, SWT.BORDER | SWT.RIGHT);
-		csweep.setEditable(false);
-		csweep.setEnabled(false);
-		csweep.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
+		completedIterTxt = new Text(parent, SWT.BORDER | SWT.RIGHT);
+		completedIterTxt.setEditable(false);
+		completedIterTxt.setEnabled(false);
+		completedIterTxt.setToolTipText("The number of iterations completed");
+		completedIterTxt.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
 
 		Label lblNewMaximum = new Label(parent, SWT.NONE);
 		GridData gd_lblNewMaximum = new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1);
 		gd_lblNewMaximum.horizontalIndent = 15;
 		lblNewMaximum.setLayoutData(gd_lblNewMaximum);
-		lblNewMaximum.setText("Scheduled Iterations");
+		lblNewMaximum.setText("Scheduled Iterations:");
 
-		sweepSpinner = new Spinner(parent, SWT.BORDER);
-		sweepSpinner.setIncrement(1);
-		sweepSpinner.setMinimum(1);
-		sweepSpinner.setMaximum(1000);
-		sweepSpinner.setSelection(1);
-		sweepSpinner.setEnabled(false); // Disable for now it doesn't work
-		sweepSpinner.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				// Enter pressed in spinner box try to change scheduled iterations
-				changeScheduledIterations(sweepSpinner.getSelection());
-			}
-		});
-		sweepSpinner.addFocusListener(new FocusAdapter() {
-			@Override
-			public void focusLost(FocusEvent e) {
-				// Reset the value to the actual scheduled iterations
-				sweepSpinner.setSelection(scheduledIterations);
-			}
-		});
-		sweepSpinner.setToolTipText("The total number of iterations required. Press enter to confim changes");
+		scheduledIterTxt = new Text(parent, SWT.BORDER | SWT.RIGHT);
+		scheduledIterTxt.setEditable(false);
+		scheduledIterTxt.setEnabled(false);
+		scheduledIterTxt.setToolTipText("The number of iterations requested");
 
 		List<IVGScientaAnalyserRMI> analysers = Finder.getInstance().listFindablesOfType(IVGScientaAnalyserRMI.class);
 		if (analysers.size() != 1) {
 			logger.error("Didn't find 1 analyser");
 		}
 		else {
-			analysers.get(0).addIObserver(this);
+			this.analyser = analysers.get(0);
+			analyser.addIObserver(this);
 		}
+
+		Button btnStopNextIter = new Button(parent, SWT.NONE);
+		btnStopNextIter.setText("Stop after current iteration!");
+		btnStopNextIter.setToolTipText("Stop acquisiton after current iteration finishes and save file");
+		btnStopNextIter.setLayoutData(new GridData(SWT.END, SWT.CENTER, true, false, 2, 1));
+		btnStopNextIter.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if (isBatonHeld()) { // Baton is held, stop the analyser after the next iteration
+					logger.debug("About to stop after next iteration");
+					try {
+						analyser.stopAfterCurrentIteration();
+					} catch (Exception e1) {
+						logger.error("Could not stop after next iteration", e1);
+					}
+				}
+			}
+		});
+
+		Button btnStopExperiment = new Button(parent, SWT.NONE);
+		btnStopExperiment.setText("Stop now!");
+		btnStopExperiment.setToolTipText("Stop acquisition now and save data from last completed iteration");
+		btnStopExperiment.setLayoutData(new GridData(SWT.END, SWT.CENTER, true, false, 2, 1));
+		btnStopExperiment.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if (isBatonHeld()) { // Baton is held, stop the analyser after the next iteration
+					logger.debug("About to stop after next iteration");
+					try {
+						analyser.zeroSupplies();
+					} catch (Exception e1) {
+						logger.error("Could not stop analyser!", e1);
+					}
+				}
+			}
+		});
 
 		sweepUpdater = (Device) Finder.getInstance().find("sweepupdater");
 		if (sweepUpdater != null) {
@@ -128,13 +150,28 @@ public class AnalyserProgressView extends ViewPart implements IObserver {
 
 	@Override
 	public void setFocus() {
-		sweepSpinner.setFocus();
+		completedIterTxt.setFocus();
+	}
+
+	boolean isBatonHeld() {
+		boolean batonHeld = JythonServerFacade.getInstance().amIBatonHolder();
+		if (!batonHeld) {
+			MessageDialog.openError(Display.getDefault().getActiveShell(), "Baton not held",
+					"You do not hold the baton, please take the baton using the baton manager.");
+		}
+		return batonHeld;
 	}
 
 	@Override
 	public void update(Object source, Object arg) {
 		if (arg instanceof MotorStatus) {
 			running = MotorStatus.BUSY.equals(arg);
+			try {
+				scheduledIterations = analyser.getIterations();
+				completedIterations = analyser.getCompletedIterations();
+			} catch (Exception e) {
+				logger.warn("Could not get iterations from analyser.", e);
+			}
 			Display.getDefault().asyncExec(new Runnable() {
 				@Override
 				public void run() {
@@ -142,11 +179,14 @@ public class AnalyserProgressView extends ViewPart implements IObserver {
 						progressBar.setText("RUNNING");
 						progressBar.setSelection(progressBar.getMinimum());
 						progressBar.setForeground(preColor);
-					} else {
+						scheduledIterTxt.setText(String.valueOf(scheduledIterations));
+					}
+					else {
 						progressBar.setText("IDLE");
 						progressBar.setSelection(progressBar.getMaximum());
 						progressBar.setMinimum(0);
 						progressBar.setBackground(idleColor);
+						completedIterTxt.setText(String.valueOf(completedIterations));
 					}
 				}
 			});
@@ -160,6 +200,11 @@ public class AnalyserProgressView extends ViewPart implements IObserver {
 				public void run() {
 					progressBar.setText(running ? String.format("Running: %d%% completed", sp.pct) : "IDLE");
 					progressBar.setSelection(sp.pct);
+					try {
+						completedIterTxt.setText(String.valueOf(analyser.getCurrentIterations()));
+					} catch (Exception e) {
+						logger.warn("Could not get number of current iterations from analyser.", e);
+					}
 					if (sp.current > 0)
 						progressBar.setBackground(postColor);
 					else
@@ -167,23 +212,6 @@ public class AnalyserProgressView extends ViewPart implements IObserver {
 				}
 			});
 			return;
-		}
-	}
-
-	/**
-	 * Allow increasing or reducing the number of scheduled iterations while the scan is running
-	 *
-	 * @param newScheduledIterations
-	 */
-	private void changeScheduledIterations(int newScheduledIterations) {
-		logger.debug("About to change scheduled iterations to: {}", newScheduledIterations);
-		try {
-			analyser.changeRequestedIterations(newScheduledIterations);
-			logger.info("Changed scheduled iterations to: {}", newScheduledIterations);
-		} catch (IllegalArgumentException e) {
-			logger.error("Scheduled iteratons could not be set to {}", newScheduledIterations, e);
-			// Reset the scheduled iterations GUI to reflect the unsuccessful change
-			sweepSpinner.setSelection(scheduledIterations);
 		}
 	}
 

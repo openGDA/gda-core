@@ -285,6 +285,7 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 			data.addData(getName(), "acquisition_mode", new NexusGroupData(controller.getAcquisitionMode()), null, null);
 			data.addData(getName(), "pass_energy", new NexusGroupData(getPassEnergy()), "eV", null);
 			data.addData(getName(), "psu_mode", new NexusGroupData(getPsuMode()), null, null);
+			data.addData(getName(), "number_of_iterations", new NexusGroupData(controller.getCompletedIterations()), null, null);
 			data.addData(getName(), "number_of_frames", new NexusGroupData(controller.getFrames()), null, null);
 			data.addData(getName(), "time_for_frames", new NexusGroupData(getAdBase().getAcquireTime_RBV()), "s", null);
 			data.addData(getName(), "sensor_size", new NexusGroupData(getAdBase().getMaxSizeX_RBV(), getAdBase().getMaxSizeY_RBV()), null, null);
@@ -496,6 +497,11 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 		controller.zeroSupplies();
 	}
 
+	@Override
+	public void stopAfterCurrentIteration() throws Exception {
+			controller.stopAfterCurrentIteration();
+	}
+
 	public void zeroSuppliesIgnoreErrors() {
 		try {
 			zeroSupplies();
@@ -567,7 +573,7 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 		}
 
 		long startTime = System.nanoTime();
-		float[] imageData = controller.getImageAsFloat(dataShape[0] * dataShape[1]);
+		float[] imageData = controller.getLastImageAsFloat(dataShape[0] * dataShape[1]);
 		long endTime = System.nanoTime();
 		timeSpentGettingDataBackOverEpics += endTime - startTime;
 
@@ -659,6 +665,16 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 	@Override
 	public int getIterations() throws Exception {
 		return controller.getIterations();
+	}
+
+	@Override
+	public int getCompletedIterations() throws Exception {
+		return controller.getCompletedIterations();
+	}
+
+	@Override
+	public int getCurrentIterations() throws Exception {
+		return controller.getCurrentIterations();
 	}
 
 	@Override

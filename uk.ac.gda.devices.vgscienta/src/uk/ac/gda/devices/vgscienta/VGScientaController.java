@@ -53,22 +53,24 @@ public class VGScientaController implements Configurable {
 	// Values internal to the object for Channel Access
 	private final EpicsController EPICS_CONTROLLER = EpicsController.getInstance();
 	private String basePVName = null;
-	// Map that stores the channel against the PV name
+	/** Map that stores the channel against the PV name */
 	private Map<String, Channel> channelMap = new HashMap<>();
 
-	// PSU mode defines the current setup of the hardware. This should only be changed if the power supplies are physically rewired!
-	// VG Scienta refer to this as element set (its the set of power supply elements used but PSU mode is clearer and more general so its used here)
+	/**
+	 * PSU mode defines the current setup of the hardware. This should only be changed if the power supplies are physically rewired!
+	 * VG Scienta refer to this as element set (its the set of power supply elements used but PSU mode is clearer and more general so its used here)
+	 */
 	private static final String PSU_MODE = "ELEMENT_SET";
 	private static final String PSU_MODE_RBV = "ELEMENT_SET_RBV";
 
 	// Lens mode
 	private static final String LENS_MODE = "LENS_MODE";
 	private static final String LENS_MODE_RBV = "LENS_MODE_RBV";
-	// Acquisition mode is fixed or swept
+	/** Acquisition mode is fixed or swept */
 	private static final String ACQUISITION_MODE = "ACQ_MODE";
 	private static final String ACQUISITION_MODE_RBV = "ACQ_MODE_RBV";
 
-	// Only Kinetic energy mode is supported, this is set during configure
+	/** Only Kinetic energy mode is supported, this is set during configure */
 	private static final String ENERGY_MODE = "ENERGY_MODE";
 	private static final String ENERGY_MODE_RBV = "ENERGY_MODE_RBV";
 	// To allow conversion to binding energy the analyser needs to know the excitation energy
@@ -76,15 +78,15 @@ public class VGScientaController implements Configurable {
 	// private static final String EXCITATION_ENERGY = "EXCITATION_ENERGY";
 	// private static final String EXCITATION_ENERGY_RBV = "EXCITATION_ENERGY_RBV";
 
-	// This can be used to switch the detector between ADC and Pulse Counting modes (ADC is typical)
+	/** This can be used to switch the detector between ADC and Pulse Counting modes (ADC is typical) */
 	private static final String DETECTOR_MODE = "DETECTOR_MODE";
 	private static final String DETECTOR_MODE_RBV = "DETECTOR_MODE_RBV";
 
 	// Scan energy settings
-	// The pass energy can be seen as a energy resolution setting. Small pass energy -> high energy resolution
+	/** The pass energy can be seen as a energy resolution setting. Small pass energy -> high energy resolution */
 	private static final String PASS_ENERGY = "PASS_ENERGY";
 	private static final String PASS_ENERGY_RBV = "PASS_ENERGY_RBV";
-	// Centre energy is used in fixed mode to define the centre of the KE range
+	/** Centre energy is used in fixed mode to define the centre of the KE range */
 	private static final String CENTRE_ENERGY = "CENTRE_ENERGY";
 	private static final String CENTRE_ENERGY_RBV = "CENTRE_ENERGY_RBV";
 	// In swept mode the energy range is defined by start, stop and step
@@ -92,7 +94,7 @@ public class VGScientaController implements Configurable {
 	private static final String START_ENERGY_RBV = "LOW_ENERGY_RBV";
 	private static final String END_ENERGY = "HIGH_ENERGY";
 	private static final String END_ENERGY_RBV = "HIGH_ENERGY_RBV";
-	// Energy step is only applicable in swept mode, in fixed the energy step is a function of pass energy.
+	/** Energy step is only applicable in swept mode, in fixed the energy step is a function of pass energy. */
 	private static final String ENERGY_STEP = "STEP_SIZE";
 	private static final String ENERGY_STEP_RBV = "STEP_SIZE_RBV";
 
@@ -100,32 +102,39 @@ public class VGScientaController implements Configurable {
 	// Note frames and exposure time are linked by the fixed camera frame rate
 	private static final String FRAMES = "FRAMES";
 	private static final String FRAMES_RBV = "FRAMES_RBV";
-	// The fixed camera frame rate SES is using
+	/** The fixed camera frame rate SES is using */
 	private static final String CAMERA_FRAME_RATE = "MAX_FRAMES_RBV";
-	// Exposure time requested. SES will give the closest number of frames available (Mirroring a standard AD PV)
+	/** Exposure time requested. SES will give the closest number of frames available (Mirroring a standard AD PV) */
 	private static final String EXPOSURE_TIME = "AcquireTime";
 	@SuppressWarnings("unused") // See getExposureTime()
 	private static final String EXPOSURE_TIME_RBV = "AcquireTime_RBV";
-	// Number of repeats to be summed in SES (Mirroring a standard AD PV)
+	/** Number of repeats to be summed in SES (Mirroring a standard AD PV) */
 	private static final String ITERATIONS = "NumExposures";
 	private static final String ITERATIONS_RBV = "NumExposures_RBV";
+	/** CURRENT_ITERATION_COUNT refers to the current number in the running iteration sequence */
+	private static final String CURRENT_ITERATION_COUNT = "NumExposuresCounter_RBV";
+	/** ITERATIONS_LAST_RBV refers to the number of iterations that were actually completed in the previously run sequence */
+	private static final String ITERATIONS_LAST_RBV = "NEXPOSURES_LAST_RBV";
 	// This PV shoudn't be used set the EXPOSURE_TIME instead. I09-13
 	// private static final String STEP_TIME = "STEP_TIME";
 
-	// Slices define the number of y channels, can be used to reduce the data
+	/** Slices define the number of y channels, can be used to reduce the data */
 	private static final String SLICES = "SLICES";
 	private static final String SLICES_RBV = "SLICES_RBV";
 
-	// Data size PVs. Linked by TOTAL_DATA_POINTS_RBV = TOTAL_LEAD_POINTS_RBV + TOTAL_POINTS_ITERATION_RBV
-	// For fixed mode TOTAL_LEAD_POINTS_RBV = 0 as there is no pre scan.
+	//Data size PVs.
+	/** Linked by TOTAL_DATA_POINTS_RBV = TOTAL_LEAD_POINTS_RBV + TOTAL_POINTS_ITERATION_RBV
+	 * For fixed mode TOTAL_LEAD_POINTS_RBV = 0 as there is no pre scan.
+	 */
 	private static final String TOTAL_DATA_POINTS_RBV = "TOTAL_DATA_POINTS_RBV";
 	// Number of points in the pre scan only for swept mode
 	private static final String TOTAL_LEAD_POINTS_RBV = "TOTAL_LEAD_POINTS_RBV";
 	private static final String TOTAL_POINTS_ITERATION_RBV = "TOTAL_POINTS_ITERATION_RBV";
 	private static final String TOTAL_POINTS_RBV = "TOTAL_POINTS_RBV";
 
+
 	// Data scales and units
-	// The energy scale is in KE eV
+	/** The energy scale is in KE eV */
 	private static final String ENERGY_SCALE_RBV = "X_SCALE_RBV";
 	private static final String ENERGY_UNITS_RBV = "X_UNITS_RBV";
 	// Y scale is the angle or position in deg or mm
@@ -134,17 +143,25 @@ public class VGScientaController implements Configurable {
 	// Intensity unit is the value of the image e.g. counts/sec
 	private static final String INTENSITY_UNITS_RBV = "I_UNITS_RBV";
 
-	// Data PVs
-	// Image is the full 2D data the size will be TOTAL_DATA_POINTS_RBV * SLICES_RBV
+	//Data PVs.
+	/** Image is the full 2D data the size will be TOTAL_DATA_POINTS_RBV * SLICES_RBV */
 	private static final String IMAGE_DATA = "IMAGE";
+	/**
+	 * LAST_IMAGE_DATA is the image collected from the last completed iteration as opposed
+	 * to IMAGE which is the current data
+	 */
+	private static final String LAST_IMAGE_DATA = "IMAGE_LAST";
 	// Spectrum is the integrated energy spectrum (sum of all y channels) the size is TOTAL_DATA_POINTS_RBV
 	private static final String SPECTRUM_DATA = "INT_SPECTRUM";
 	// External IO allows data to be collected by SES synchronised with the analyser acquisition
 	private static final String EXTERNAL_IO_DATA = "EXTIO";
 
-	// Special function PVs
-	// Setting ZERO_SUPPLIES=1 causes the HV to be switched off
+	//Special function PVs.
+	/** Setting ZERO_SUPPLIES=1 causes the HV to be switched off */
 	private static final String ZERO_SUPPLIES = "ZERO_SUPPLIES";
+
+	/** If STOP_NEXT_ITERATION is set to 1, the scan will abort after the current iteration is complete */
+	private static final String STOP_NEXT_ITERATION = "STOP_NEXT_ITERATION";
 
 	// Lists for holding valid values of the enum PVs
 	private final List<String> passEnergies = new ArrayList<>();
@@ -153,9 +170,12 @@ public class VGScientaController implements Configurable {
 	private final List<String> detectorModes = new ArrayList<>();
 	private final List<String> acquisitionModes = new ArrayList<>();
 
-	// The camera frame rate in SES
+	/** The camera frame rate in SES */
 	private double cameraFrameTime = -1;
-	// This is used to cache the excitation energy inside this class as it is only useful to EPICS in binding energy mode, which is never used.
+	/**
+	 *  This is used to cache the excitation energy inside this class as it is only useful to EPICS in binding energy mode,
+	 *  which is never used.
+	 */
 	private double excitationEnergy;
 
 	public String getBasePVName() {
@@ -465,6 +485,23 @@ public class VGScientaController implements Configurable {
 		}
 	}
 
+	/**
+	 * Stopping the scan after next iteration allows the scan to continue until the next iteration is complete, at which point it will
+	 * be aborted.
+	 *
+	 * @throws Exception If there is a problem with the EPICS communication
+	 */
+	public void stopAfterCurrentIteration() throws Exception {
+		logger.debug("stopAfterCurrentIteration called. Attempting to stop the scan!");
+		try {
+			EPICS_CONTROLLER.caputWait(getChannel(STOP_NEXT_ITERATION), 1);
+			logger.info("Asked EPICS to stop after current iteration");
+		} catch (Exception e) {
+			logger.error("Error whist trying to stop after current iteration!", e);
+			throw e;
+		}
+	}
+
 	public double[] getEnergyAxis() throws Exception {
 		return EPICS_CONTROLLER.cagetDoubleArray(getChannel(ENERGY_SCALE_RBV), getEnergyChannels());
 	}
@@ -595,6 +632,24 @@ public class VGScientaController implements Configurable {
 	public float[] getImageAsFloat(int i) throws Exception {
 		long startTime = System.nanoTime();
 		float[] data = EPICS_CONTROLLER.cagetFloatArray(getChannel(IMAGE_DATA), i);
+		long endTime = System.nanoTime();
+		logger.trace("Getting image, {} float values took: {} ms", i, (endTime - startTime) / 1.0E6);
+		return data;
+	}
+
+	/**
+	 * This gets the image from the last completed scan as a float, this image is the one recorded after the most recent
+	 * iteration has been completed as opposed to a current, possibly partial, image .
+	 * Getting data as a float maybe useful as type conversion is performed server side by EPICS so the data transfered is
+	 * halved this can help improve performance (at the loss of precision). You need to request the correct number of elements.
+	 *
+	 * @param i The number of array elements requested. Should be the the image size
+	 * @return The image data as a 1D array
+	 * @throws Exception If there is a problem with the EPICS communication
+	 */
+	public float[] getLastImageAsFloat(int i) throws Exception {
+		long startTime = System.nanoTime();
+		float[] data = EPICS_CONTROLLER.cagetFloatArray(getChannel(LAST_IMAGE_DATA), i);
 		long endTime = System.nanoTime();
 		logger.trace("Getting image, {} float values took: {} ms", i, (endTime - startTime) / 1.0E6);
 		return data;
@@ -763,6 +818,27 @@ public class VGScientaController implements Configurable {
 	 */
 	public int getIterations() throws Exception {
 		return EPICS_CONTROLLER.cagetInt(getChannel(ITERATIONS_RBV));
+	}
+
+	/**
+	 * Gets the number of completed iterations
+	 * from the most recent scan.
+	 *
+	 * @return The number of complete iterations from previous scan
+	 * @throws Exception If there is a problem with the EPICS communication
+	 */
+	public int getCompletedIterations() throws Exception {
+		return EPICS_CONTROLLER.cagetInt(getChannel(ITERATIONS_LAST_RBV));
+	}
+
+	/**
+	 * Gets the current iteration number in the scan
+	 *
+	 * @return The the current iteration number in the scan
+	 * @throws Exception If there is a problem with the EPICS communication
+	 */
+	public int getCurrentIterations() throws Exception {
+		return EPICS_CONTROLLER.cagetInt(getChannel(CURRENT_ITERATION_COUNT));
 	}
 
 	/**
