@@ -158,16 +158,7 @@ public class NudgePositionerComposite extends Composite {
 		// Increment text box
 		incrementText = new Text(this, SWT.BORDER);
 		incrementText.setLayoutData(GridDataFactory.fillDefaults().hint(incrementTextWidth, SWT.DEFAULT).grab(true, false).create());
-		incrementText.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyPressed(KeyEvent key) {
-				// If enter was pressed update increment and switch focus to position box to allow up down tapping.
-				if (key.character == SWT.CR) { // enter or numpad enter pressed
-					setIncrement(Double.parseDouble(incrementText.getText()));
-					positionText.setFocus();
-				}
-			}
-		});
+		incrementText.addListener(SWT.Modify, event -> setIncrement(incrementText.getText()));
 
 		// Increment button
 		incrementButton = new Button(this, SWT.NONE);
@@ -386,6 +377,11 @@ public class NudgePositionerComposite extends Composite {
 	public void setIncrement(double increment) {
 		this.incrementValue = increment;
 		this.incrementText.setText(String.valueOf(increment));
+	}
+
+	private void setIncrement(String incrementText) {
+		if (incrementText.isEmpty()) return;
+		incrementValue = Double.parseDouble(incrementText);
 	}
 
 	public double getIncrement() {
