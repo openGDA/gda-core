@@ -28,10 +28,45 @@ Additional Ant tasks for Buckminster build. Based on http://www.ralfebert.de/blo
     <!--  Setup a directory, optionally including group and gid, IFF it does not already exist  -->
     <!-- ====================================================================================== -->
 
+    <target name="examine.output.directory.groups" unless="examine_output_directory_done">
+        <!--  Use property "localhost", which is set by Buckminster to the machine's FQDN -->
+        <condition property="output.directory.group" value="${output.directory.group.value.1}">
+            <and>
+                <isset property="output.directory.group.pattern.1" />
+                <length string="${output.directory.group.pattern.1}" trim="true" when="greater" length="2" />
+                <isset property="output.directory.group.value.1" />
+                <length string="${output.directory.group.value.1}" trim="true" when="greater" length="2" />
+                <matches pattern="${output.directory.group.pattern.1}" string="${localhost}" />
+            </and>
+        </condition>
+        <condition property="output.directory.group" value="${output.directory.group.value.2}">
+            <and>
+                <isset property="output.directory.group.pattern.2" />
+                <length string="${output.directory.group.pattern.2}" trim="true" when="greater" length="2" />
+                <isset property="output.directory.group.value.2" />
+                <length string="${output.directory.group.value.2}" trim="true" when="greater" length="2" />
+                <matches pattern="${output.directory.group.pattern.2}" string="${localhost}" />
+            </and>
+        </condition>
+        <condition property="output.directory.group" value="${output.directory.group.value.3}">
+            <and>
+                <isset property="output.directory.group.pattern.3" />
+                <length string="${output.directory.group.pattern.3}" trim="true" when="greater" length="2" />
+                <isset property="output.directory.group.value.3" />
+                <length string="${output.directory.group.value.3}" trim="true" when="greater" length="2" />
+                <matches pattern="${output.directory.group.pattern.3}" string="${localhost}" />
+            </and>
+        </condition>
+        <fail message="You can only define up to 3 output.directory.group.* properties" if="output.directory.group.value.4" />
+        <fail message="You can only define up to 3 output.directory.group.* properties" if="output.directory.group.pattern.4" />
+        <property name="examine_output_directory_done" value="true" />
+    </target>
+
     <!--  Only call this using antcall, to allow reuse of properties  -->
     <target name="setup.directory" depends="_directory.check.params, _directory.delete, _directory.create, _directory.set.group">
     </target>
     <target name="_directory.check.params">
+        <fail message="examine.output.directory.groups not run (internal error)" unless="examine_output_directory_done" />
         <fail message="setup.directory called, but setup.directory.name not set" unless="setup.directory.name" />
         <condition property="directory.setup.skip">
             <available file="${setup.directory.name}" type="dir" />
@@ -43,9 +78,10 @@ Additional Ant tasks for Buckminster build. Based on http://www.ralfebert.de/blo
     <target name="_directory.create" unless="directory.setup.skip">
         <mkdir dir="${setup.directory.name}"/>
     </target>
-    <target name="_directory.set.group" if="${output.directory.group.set}" unless="directory.setup.skip">
+    <target name="_directory.set.group" if="output.directory.group" unless="directory.setup.skip">
         <chgrp file="${setup.directory.name}" type="dir" group="${output.directory.group}" />
         <chmod file="${setup.directory.name}" type="dir" perm="g+s" />
+        <echo message="Changed owning group to ${output.directory.group} on ${setup.directory.name}" />
     </target>
 
     <!-- ============================== -->
@@ -101,7 +137,7 @@ Additional Ant tasks for Buckminster build. Based on http://www.ralfebert.de/blo
 
     </target>
 
-    <target name="make_product_dir">
+    <target name="make_product_dir" depends="examine.output.directory.groups">
         <fail message="ERROR: ${destination} already exists, but property product.directory.fail.if.already.exists=true was specified">
             <condition>
                 <and>
@@ -339,10 +375,10 @@ Additional Ant tasks for Buckminster build. Based on http://www.ralfebert.de/blo
 
     <!-- ============================================================ -->
     <!--  Create a product (install from previously created p2 site)  -->
-	<!--  Create/Update a symlink to the product (if action selected) -->
+    <!--  Create/Update a symlink to the product (if action selected) -->
     <!-- ============================================================ -->
 
-    <target name="create.product.setup">
+    <target name="create.product.setup" depends="examine.output.directory.groups">
         <!-- Invoked as a separate Buckminster action so that it runs BEFORE the site.p2 action -->
         <fail message="ERROR: product.parent.directory.location not set - did you remember to specify a .properties file?">
             <condition><not><isset property="product.parent.directory.location" /></not></condition>
@@ -371,78 +407,78 @@ Additional Ant tasks for Buckminster build. Based on http://www.ralfebert.de/blo
     <!-- =================================================================== -->
     <!--  Set base paths relating to folder structure of installed OSGi app  -->
     <!-- =================================================================== -->
-	
-	<target name="set.path.properties">
-    	<property.expand property="destination.directory.name" definition="${product.directory.name}"/>
-    	<property.expand property="install.path" definition="${product.parent.directory.location}/${destination.directory.name}" />
-    	<property.expand property="plugins.path" definition="${install.path}/plugins"/> 
-    	<property name="ws_git.rel.path" value="../.."/>	
-	</target>
+
+    <target name="set.path.properties">
+        <property.expand property="destination.directory.name" definition="${product.directory.name}"/>
+        <property.expand property="install.path" definition="${product.parent.directory.location}/${destination.directory.name}" />
+        <property.expand property="plugins.path" definition="${install.path}/plugins"/>
+        <property name="ws_git.rel.path" value="../.."/>
+    </target>
 
     <!-- =============================================================== -->
     <!--  Get the names (including version) of the key required bundles  -->
     <!-- =============================================================== -->
 
-	<target name="find.bundle.names" depends="set.path.properties">
-    	<dirset  dir="${plugins.path}" id="coreDirId" >
-    		<include name="uk.ac.gda.core_*"/>
-    	</dirset>
-    	<property name= "core.dir.name" refid= "coreDirId" />
-    	<dirset  dir="${plugins.path}" id="jacorbDirId" >
-    		<include name="uk.ac.diamond.org.jacorb_*"/>
-    	</dirset>
-    	<property name= "jacorb.dir.name" refid= "jacorbDirId" />
-		<dirset  dir="${plugins.path}" id="springDirId" >
-    		<include name="uk.ac.diamond.org.springframework_*"/>
-    	</dirset>
-    	<property name= "spring.dir.name" refid= "springDirId" />
-	</target>
+    <target name="find.bundle.names" depends="set.path.properties">
+        <dirset  dir="${plugins.path}" id="coreDirId" >
+            <include name="uk.ac.gda.core_*"/>
+        </dirset>
+        <property name= "core.dir.name" refid= "coreDirId" />
+        <dirset  dir="${plugins.path}" id="jacorbDirId" >
+            <include name="uk.ac.diamond.org.jacorb_*"/>
+        </dirset>
+        <property name= "jacorb.dir.name" refid= "jacorbDirId" />
+        <dirset  dir="${plugins.path}" id="springDirId" >
+            <include name="uk.ac.diamond.org.springframework_*"/>
+        </dirset>
+        <property name= "spring.dir.name" refid= "springDirId" />
+    </target>
 
     <!-- ====================================================================== -->
     <!--  Create the OSGi product (install from previously created p2 site)     -->
-	<!--  Create/Update a symlink to the product (used by the gda scripts)      -->
+    <!--  Create/Update a symlink to the product (used by the gda scripts)      -->
     <!-- ====================================================================== -->
 
-	<target name="create.product" depends="set.action.datetime, install-product, lib-copy, jre-copy, find.bundle.names">
-    	<!-- Links for sub process classpath entries -->
-    	<property.expand property="core.link" definition="../../../../../plugins/${core.dir.name}"/>
-    	<property.expand property="jacorb.link" definition="${plugins.path}/uk.ac.diamond.org.jacorb"/>
-		<property.expand property="spring.framework.link" definition="${plugins.path}/uk.ac.diamond.org.springframework"/>
+    <target name="create.product" depends="set.action.datetime, install-product, lib-copy, jre-copy, find.bundle.names">
+        <!-- Links for sub process classpath entries -->
+        <property.expand property="core.link" definition="../../../../../plugins/${core.dir.name}"/>
+        <property.expand property="jacorb.link" definition="${plugins.path}/uk.ac.diamond.org.jacorb"/>
+        <property.expand property="spring.framework.link" definition="${plugins.path}/uk.ac.diamond.org.springframework"/>
 
-    	<!-- Add the links to cope with hard coded paths in the codebase -->
-    	<symlink link="${jacorb.link}" resource="${jacorb.dir.name}" />
-		<symlink link="${spring.framework.link}" resource="${spring.dir.name}" />
+        <!-- Add the links to cope with hard coded paths in the codebase -->
+        <symlink link="${jacorb.link}" resource="${jacorb.dir.name}" />
+        <symlink link="${spring.framework.link}" resource="${spring.dir.name}" />
 
-		<!-- Copy list of target platform bundles (which may include bundles that are in the workspace but not part of the server) -->
-		<copy failonerror="false" quiet="true"
-			file="${workspace.root}/tp/artifacts.xml"
-			tofile="${install.path}/configuration/target_platform_artifacts.xml" />  <!-- if file missing, ignore -->
+        <!-- Copy list of target platform bundles (which may include bundles that are in the workspace but not part of the server) -->
+        <copy failonerror="false" quiet="true"
+            file="${workspace.root}/tp/artifacts.xml"
+            tofile="${install.path}/configuration/target_platform_artifacts.xml" />  <!-- if file missing, ignore -->
 
-		<!-- Copy across the diffcalc folder -->
-		<copy todir="${install.path}/utilities/diffcalc.git">
-			<fileset dir="${ws_git.rel.path}/diffcalc.git">
-				<exclude name="buckminster.*"/>
-				<exclude name="*.pyc"/>
-				<exclude name=".*"/>
-				<exclude name=".*/*"/>
-			</fileset>
-		</copy>
+        <!-- Copy across the diffcalc folder -->
+        <copy todir="${install.path}/utilities/diffcalc.git">
+            <fileset dir="${ws_git.rel.path}/diffcalc.git">
+                <exclude name="buckminster.*"/>
+                <exclude name="*.pyc"/>
+                <exclude name=".*"/>
+                <exclude name=".*/*"/>
+            </fileset>
+        </copy>
         <echo>
 == Product has been built in ${destination} ==
         </echo>
-		<condition property="linkback-scripts-on-export">
-			<istrue value="${product.standard.scripts.linkback.on.export}"/>
-		</condition> 
-		<antcall target="_rewrite.links.if.required" />
+        <condition property="linkback-scripts-on-export">
+            <istrue value="${product.standard.scripts.linkback.on.export}"/>
+        </condition>
+        <antcall target="_rewrite.links.if.required" />
     </target>
 
-	<target name="_rewrite.links.if.required" if="linkback-scripts-on-export">
-		<!-- execute the python script to scan for scriptlocation extension points,
-		build the correct version paths to delete and replace them with links -->
-		<exec executable="python" failonerror="true" >
-			<arg line="devlinks.py ${plugins.path}"/>
-		</exec>
-	</target>
+    <target name="_rewrite.links.if.required" if="linkback-scripts-on-export">
+        <!-- execute the python script to scan for scriptlocation extension points,
+        build the correct version paths to delete and replace them with links -->
+        <exec executable="python" failonerror="true" >
+            <arg line="devlinks.py ${plugins.path}"/>
+        </exec>
+    </target>
 
     <target name="_symlink.check.params">
         <fail message="create.product-with.symlink called, but symlink.to.product.location not set" unless="symlink.to.product.location" />
