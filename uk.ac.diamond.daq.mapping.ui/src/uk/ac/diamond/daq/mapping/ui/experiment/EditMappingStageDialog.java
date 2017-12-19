@@ -27,6 +27,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
@@ -46,12 +47,14 @@ public class EditMappingStageDialog extends Dialog {
 	private MappingStageInfo stageInfo;
 	private StageManagerControl stageManagerControl;
 	private MappingStageOptions options;
+	private boolean editable; // false when Malcolm device selected, which specifies its own axes.
 
-	protected EditMappingStageDialog(Shell parentShell, MappingStageInfo stageInfo) {
+	protected EditMappingStageDialog(Shell parentShell, MappingStageInfo stageInfo, boolean editable) {
 		super(parentShell);
 		setShellStyle(SWT.RESIZE);
 		this.stageInfo = stageInfo;
 		findMappingStageOptions();
+		this.editable = editable;
 	}
 
 	private void findMappingStageOptions() {
@@ -65,6 +68,13 @@ public class EditMappingStageDialog extends Dialog {
 	@Override
 	protected Control createDialogArea(Composite parent) {
 		Composite mappingStageComposite = (Composite) super.createDialogArea(parent);
+
+		// If x/y axes uneditable (Malcolm device selected), explain this to the user
+		if (!editable) {
+			Label uneditabilityWarning = new Label(mappingStageComposite, SWT.NONE);
+			uneditabilityWarning.setText("Malcolm device selected - fast/slow axes cannot be edited.");
+			uneditabilityWarning.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_RED));
+		}
 
 		if (Objects.nonNull(options)) {
 			stageManagerControl = new ComboStageManagerControl(mappingStageComposite);
@@ -118,12 +128,14 @@ public class EditMappingStageDialog extends Dialog {
 			fastAxis = new Combo(mainComposite, SWT.READ_ONLY);
 			fastAxis.setItems(options.getFastAxes().toArray(new String[0]));
 			fastAxis.select(options.getFastAxes().indexOf(stageInfo.getActiveFastScanAxis()));
+			fastAxis.setEnabled(editable);
 			horizGrab.applyTo(fastAxis);
 
 			new Label(mainComposite, SWT.NONE).setText("Slow axis");
 			slowAxis = new Combo(mainComposite, SWT.READ_ONLY);
 			slowAxis.setItems(options.getSlowAxes().toArray(new String[0]));
 			slowAxis.select(options.getSlowAxes().indexOf(stageInfo.getActiveSlowScanAxis()));
+			slowAxis.setEnabled(editable);
 			horizGrab.applyTo(slowAxis);
 
 			if (Objects.nonNull(options.getAssociatedAxes())) {
@@ -174,11 +186,13 @@ public class EditMappingStageDialog extends Dialog {
 			new Label(mainComposite, SWT.NONE).setText("Fast axis");
 			fastAxis = new Text(mainComposite, SWT.BORDER);
 			fastAxis.setText(stageInfo.getActiveFastScanAxis());
+			fastAxis.setEnabled(editable);
 			horizGrab.applyTo(fastAxis);
 
 			new Label(mainComposite, SWT.NONE).setText("Slow axis");
 			slowAxis = new Text(mainComposite, SWT.BORDER);
 			slowAxis.setText(stageInfo.getActiveSlowScanAxis());
+			slowAxis.setEnabled(editable);
 			horizGrab.applyTo(slowAxis);
 
 			new Label(mainComposite, SWT.NONE).setText("Associated axis");
