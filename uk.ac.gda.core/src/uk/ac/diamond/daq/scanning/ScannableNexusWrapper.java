@@ -33,7 +33,6 @@ import org.eclipse.scanning.api.annotation.scan.ScanFinally;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.Scalar;
-import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IPositionListenable;
 import org.eclipse.scanning.api.scan.event.IPositionListener;
 import org.eclipse.scanning.api.scan.event.PositionDelegate;
@@ -684,7 +683,7 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 			final IPosition position = new Scalar<Object>(getName(), -1, newPosition);
 			try {
 				positionDelegate.firePositionChanged(getLevel(), position);
-			} catch (ScanningException e) {
+			} catch (Exception e) {
 				logger.error("An error occurred while notifying position listeners", e);
 			} finally {
 				previousPosition = newPosition;
@@ -706,7 +705,7 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 		if (klass.isArray()) {
 			klass = klass.getComponentType();
 		}
-		return VALUE_TYPES.contains(klass) || klass.isEnum();
+		return VALUE_TYPES.contains(klass) || (klass.isEnum() && !klass.equals(ScannableStatus.class)) ;
 	}
 
 }

@@ -39,7 +39,14 @@
          		icon="icons/createmap.png"
          		label="Create Map"
          		style="push"
-         		tooltip="Create map from live stream">
+         		tooltip="Create map from live stream snapshot">
+         </command>
+         <command
+         		commandId="uk.ac.gda.client.live.stream.createlivemapcommand"
+         		icon="icons/createlivemap.png"
+         		label="Create Live Map"
+         		style="push"
+         		tooltip="Create live map from live stream">
          </command>
       </menuContribution>
    </extension>
@@ -64,9 +71,15 @@
       </command>
       <command
       		defaultHandler="uk.ac.gda.client.live.stream.handlers.CreateMapHandler"
-      		description="Create Map"
+      		description="Create Map From Snapshot"
       		id="uk.ac.gda.client.live.stream.createmapcommand"
-      		name="Create Map">
+      		name="Create Map From Snapshot">
+      </command>
+      <command
+      		defaultHandler="uk.ac.gda.client.live.stream.handlers.CreateLiveMapHandler"
+      		description="Create Live Map"
+      		id="uk.ac.gda.client.live.stream.createlivemapcommand"
+      		name="Create Live Map">
       </command>
    </extension>
 </plugin>

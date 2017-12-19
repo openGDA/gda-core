@@ -101,6 +101,8 @@ public class LiveStreamView extends ViewPart {
 	private String cameraName;
 	private long frameCounter = 0;
 
+	private final IAxisChangeListener axisChangeListener = this::updateAxes;
+
 	private final IDataListener shapeListener = new IDataListener() {
 
 		private int[] oldShape;
@@ -417,8 +419,6 @@ public class LiveStreamView extends ViewPart {
 		}
 	}
 
-	private final IAxisChangeListener axisChangeListener = this::updateAxes;
-
 	private void updateAxes() {
 		final Display display = PlatformUI.getWorkbench().getDisplay();
 		display.asyncExec(() -> iTrace.setAxes(liveStreamConnection.getAxes(), false));
@@ -453,7 +453,8 @@ public class LiveStreamView extends ViewPart {
 		iTrace.setDynamicData(dataset);
 
 		// Add the axes to the trace
-		if (liveStreamConnection.getAxes().size() == 2) {
+		List<IDataset> axes = liveStreamConnection.getAxes();
+		if (axes != null && axes.size() == 2) {
 			iTrace.setAxes(liveStreamConnection.getAxes(), false);
 			liveStreamConnection.addAxisMoveListener(axisChangeListener);
 		}
@@ -522,6 +523,17 @@ public class LiveStreamView extends ViewPart {
 
 	public IPlottingSystem<Composite> getPlottingSystem() {
 		return plottingSystem;
+	}
+
+	public CameraConfiguration getActiveCameraConfiguration() {
+		return camConfig;
+	}
+
+	public StreamType getActiveStreamType() {
+		if (liveStreamConnection != null) {
+			return liveStreamConnection.getStreamType();
+		}
+		return null;
 	}
 
 	public SnapshotData getSnapshot() {

@@ -23,7 +23,6 @@ import static uk.ac.gda.client.live.stream.Activator.getService;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -48,11 +47,15 @@ import uk.ac.gda.client.live.stream.view.CameraCalibration;
 import uk.ac.gda.client.live.stream.view.CameraConfiguration;
 import uk.ac.gda.client.live.stream.view.StreamType;
 
+/**
+ * An instance of this class encapsulates a connection to a live stream, i.e. a camera,
+ * as defined by a {@link CameraConfiguration} and a {@link StreamType}.
+ */
 public class LiveStreamConnection {
 
 	@FunctionalInterface
 	public interface IAxisChangeListener {
-		public void axisMoved();
+		public void axisChanged();
 	}
 
 	private static final long MJPEG_DEFAULT_SLEEP_TIME = 50; // ms i.e. 20 fps
@@ -72,12 +75,13 @@ public class LiveStreamConnection {
 
 	private final Logger logger = LoggerFactory.getLogger(LiveStreamConnection.class);
 
+	private final Set<IAxisChangeListener> axisChangeListeners = new HashSet<>(4);
 	private final IPositionListener axisScannableMoveListener = new IPositionListener() {
 
 		@Override
 		public void positionChanged(PositionEvent event) throws ScanningException {
 			try {
-				updateAxes();
+				if (stream != null) updateAxes();
 				fireAxisMoveListeners();
 			} catch (LiveStreamException e) {
 				logger.error("Could not update axes for live stream", e);
@@ -114,13 +118,17 @@ public class LiveStreamConnection {
 	}
 
 	private void fireAxisMoveListeners() {
-		for (IAxisChangeListener axisMoveListener : axisMoveListeners) {
-			axisMoveListener.axisMoved();
+		for (IAxisChangeListener axisChangeListener : axisChangeListeners) {
+			axisChangeListener.axisChanged();
 		}
 	}
 
 	public IDatasetConnector getStream() {
 		return stream;
+	}
+
+	public CameraConfiguration getCameraConfiguration() {
+		return cameraConfig;
 	}
 
 	public void disconnect() throws LiveStreamException {
@@ -136,14 +144,12 @@ public class LiveStreamConnection {
 		}
 	}
 
-	private final Set<IAxisChangeListener> axisMoveListeners = new HashSet<>(4);
-
 	public void addAxisMoveListener(IAxisChangeListener axisMoveListener) {
-		axisMoveListeners.add(axisMoveListener);
+		axisChangeListeners.add(axisMoveListener);
 	}
 
 	public void removeAxisMoveListener(IAxisChangeListener axisMoveListener) {
-		axisMoveListeners.remove(axisMoveListener);
+		axisChangeListeners.remove(axisMoveListener);
 	}
 
 	private IDatasetConnector setupEpicsArrayStream() throws LiveStreamException {
@@ -227,8 +233,8 @@ public class LiveStreamConnection {
 
 		final CameraCalibration calibration = cameraConfig.getCameraCalibration();
 		final int[] dataShape = stream.getDataset().getShape();
-		if (dataShape.length < 2) {
-			throw new LiveStreamException("Dataset expected to have 2 dimensions");
+		if (dataShape.length < 2) { // note: this may be the case at the start of the scan, so don't throw an exception
+			return;
 		}
 
 		xAxisDataset = createAxisDataset(xAxisScannable,
@@ -272,7 +278,8 @@ public class LiveStreamConnection {
 
 	public List<IDataset> getAxes() {
 		if (xAxisDataset == null || yAxisDataset == null) {
-			return Collections.emptyList();
+			// returns null rather than empty list to indicate that axes have not been configured
+			return null;
 		}
 
 		return Arrays.asList(xAxisDataset, yAxisDataset);

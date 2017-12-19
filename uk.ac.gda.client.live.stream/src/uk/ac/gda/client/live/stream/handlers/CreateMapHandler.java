@@ -61,7 +61,7 @@ public class CreateMapHandler extends AbstractHandler {
 		final LiveStreamView liveStreamView = getLiveStreamView(event);
 		final SnapshotData snapshot = liveStreamView.getSnapshot();
 
-		final Job createMapJob = Job.create("Create map from live stream", monitor -> createMap(snapshot));
+		final Job createMapJob = Job.create("Create map from live stream snapshot", monitor -> createMap(snapshot));
 		createMapJob.schedule();
 		return null;
 	}
