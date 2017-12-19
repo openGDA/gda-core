@@ -134,10 +134,9 @@ public class RegionAndPathSection extends AbstractMappingSection {
 	private IMappingRegionManager mappingRegionManager;
 
 	private Composite regionComposite;
-
 	private ComboViewer regionSelector;
-
 	private ComboViewer pathSelector;
+	private boolean canEditMappingStage = true; // false when Malcolm device selected, which specifies its own axes.
 
 	@Override
 	protected void initialize(MappingExperimentView mappingView) {
@@ -221,7 +220,7 @@ public class RegionAndPathSection extends AbstractMappingSection {
 		configureStageButton.setImage(MappingExperimentUtils.getImage("icons/gear.png"));
 		configureStageButton.addListener(SWT.Selection, event -> {
 			MappingStageInfo mappingStage = getService(MappingStageInfo.class);
-			EditMappingStageDialog dialog = new EditMappingStageDialog(getShell(), mappingStage);
+			EditMappingStageDialog dialog = new EditMappingStageDialog(getShell(), mappingStage, canEditMappingStage);
 			if (dialog.open() == Window.OK) {
 				rebuildMappingSection();
 			}
@@ -392,6 +391,8 @@ public class RegionAndPathSection extends AbstractMappingSection {
 		final boolean isMalcolm = selectedDetectors.stream()
 									.map(IDetectorModelWrapper::getModel)
 									.anyMatch(IMalcolmModel.class::isInstance);
+
+		canEditMappingStage = !isMalcolm;
 
 		if (pathComposite instanceof AbstractPathComposite) {
 			((AbstractPathComposite) pathComposite).setContinuousEnabled(isMalcolm);
